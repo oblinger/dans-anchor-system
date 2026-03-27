@@ -12,7 +12,7 @@ Quick reference pages, topic collections, notes that need an anchor identity but
 - **No repository** — no `.git/`, no `Code` symlink
 - **No CLAUDE.md**
 - **No Inbox**
-- Lives within a parent folder that's already version-controlled
+- Lives within a parent folder that's already organized
 
 ## Structure (reduced from base)
 
@@ -20,7 +20,18 @@ Quick reference pages, topic collections, notes that need an anchor identity but
 {Parent}/
 ├── {CAB Folder}/
 │   ├── {CAB Folder}.md          marker file
-│   └── {NAME}.md                   anchor page (content here)
+│   └── {NAME}.md                anchor page (content here)
 ```
 
 If folder name = anchor name, a single `.md` file serves as both marker and content.
+
+## Audit
+
+Type-specific structure checks for Simple Anchors.
+
+### Required files
+- Anchor page `{NAME}.md` with frontmatter
+
+### Not expected
+- No `{NAME} Docs/` folder (simple anchors are just the anchor page)
+- No `Code` symlink

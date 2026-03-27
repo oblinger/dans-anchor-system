@@ -94,7 +94,7 @@ Done occasionally across the full documentation set, or focused on recently-upda
 | 1.1 PRD Capture | PRD, Product Requirements |
 | 1.2 Open Questions | Open Questions document |
 | 1.3 UX Design | UX Design, Mockups |
-| 1.4 System Design | System Design, Design Discussions |
+| 1.4 System Design | System Design, Discussion |
 | 1.5 Files + Modules | Files document, Module description docs |
 | 1.6 Roadmap | Roadmap, Milestone docs |
 | 1.7 User Review | Approved file tree, module specs, API overviews, mockup sign-off |
@@ -155,5 +155,9 @@ The goal: the next session can start immediately without sorting out stale branc
 **Priority Loop** — Legwork (Tier 1: merge PRs + dispatch workers; Tier 2: backlog legwork) → Spec Next → Surface Decisions → Design Rescan → Wait
 
 **Context Pacing** — Above 30% work normally. 30–15% finish current thread, dispatch, document. Below 15% stop and pause.
+
+**Now File** — After completing any skill that produces results (`/rule fix`, `/rule check`, `/rule triage`, `/code delegate`), ALWAYS post to the project's Now file via `stat add`, then add an H2 entry with the outcome table. The user watches the Now file as their dashboard.
+
+**Ready means ready** — Before transitioning any work to Ready, Agreed, or Implementing, ask ALL implementation questions upfront. If you would need to ask the user anything during execution, ask it NOW during the proposal phase. Never say "ready?" and then ask follow-up questions after the user says yes.
 
 **After /compact** — Re-read this section. Run `skd task list` and `skd agent list` to restore awareness.

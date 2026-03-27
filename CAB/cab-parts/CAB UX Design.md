@@ -97,4 +97,4 @@ Table of error situations and their exact messages. Errors should be actionable 
 
 - **Create** after the PRD user stories are stable enough to design interactions for
 - **Update** when the interface changes — this is the current spec
-- **Current spec only** — design rationale and alternatives belong in [[CAB Design Discussions]]
+- **Current spec only** — design rationale and alternatives belong in [[CAB Discussion]]

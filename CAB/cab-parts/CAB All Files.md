@@ -8,10 +8,11 @@ cssclasses:
 An anchor is a standardized folder structure that serves as the home for a project, topic, or content area.
 See [[CAB Base]] shows files common to all anchors.
 
+> **Note:** This file serves as the reference example itself — the annotated file tree below IS the canonical illustration of a complete anchor structure.
 
 {[[CAB Folder|CAB Folder]]}/
 ├── {CAB Folder}.md                       [[CAB Folder|marker file]]   (if NAME ≠ folder)
-├── [[CAB Page|{NAME}.md]]                             Primary entry point
+├── [[CAB Anchor Page|{NAME}.md]]                             Primary entry point
 │
 ├── {NAME} [[CAB Docs|Docs]]/
 │   ├── {NAME} Docs.md                    Dispatch page
@@ -22,7 +23,7 @@ See [[CAB Base]] shows files common to all anchors.
 │   │   ├── {NAME} [[CAB Open Questions|Open Questions]].md      Unresolved questions
 │   │   ├── {NAME} [[CAB UX Design|UX Design]].md           UX spec (screens & external APIs)
 │   │   ├── {NAME} [[CAB System Design|System Design]].md       System architecture & impl design
-│   │   ├── {NAME} [[CAB Design Discussions|Design Discussions]].md  Design conversations
+│   │   ├── {NAME} [[CAB Discussion|Discussion]].md  Design conversations
 │   │   ├── {NAME} [[CAB Features|Features]]/              Dated feature specs
 │   │   │   ├── {NAME} Features.md
 │   │   │   ├── 2026-01-15 User Auth.md
@@ -71,13 +72,13 @@ Software project anchors use four design documents in Plan/. These are specifica
 
 {NAME} PRD.md — **Product Requirements** — Defines what the product does: goals, user stories, scope, constraints, success criteria. The PRD also contains a design workflow table (see below) that links to the other design documents and describes their sequence.
 
-{NAME} Open Questions.md — **Open Questions** — Tracks unresolved questions that block design decisions. Each question should state what it blocks and what information is needed to resolve it. Questions are removed or moved to Design Discussions once resolved.
+{NAME} Open Questions.md — **Open Questions** — Tracks unresolved questions that block design decisions. Each question should state what it blocks and what information is needed to resolve it. Questions are removed or moved to Discussion once resolved.
 
 {NAME} UX Design.md — **UX Design** — Specifies screens, navigation flows, user interactions, and visual layout. Current spec only — no rationale or alternatives.
 
 {NAME} System Design.md — **System Design** — Specifies system architecture, component boundaries, data models, APIs, and technical decisions. Current spec only — no rationale or alternatives.
 
-{NAME} Design Discussions.md — **Design Discussions** (optional) — Extended conversations about design choices, trade-offs, and redesign decisions. This is the place for "why" and "what we considered." Use dated sections. Unlike the other design docs, this file is a log, not a specification.
+{NAME} Discussion.md — **Discussion** (optional) — Extended conversations about design choices, trade-offs, and redesign decisions. This is the place for "why" and "what we considered." Use dated sections. Unlike the other design docs, this file is a log, not a specification.
 
 
 ### Design Workflow

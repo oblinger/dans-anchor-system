@@ -1,8 +1,67 @@
 # CAB Documentation Site
 
-An **CAB Documentation Site** is a published documentation website for an anchor that has enough content to warrant a browsable, searchable site.
+Published web presence for an anchor. Two levels: a simple project page (Jekyll) or a full documentation site (MkDocs).
 
-## When to Use
+Below is a reference example for a hypothetical project "TSK" (Task Runner).
+
+# Reference Example
+---
+
+**Project page** (simple splash):
+
+```
+Task Runner/
+└── website/
+    ├── index.md              Jekyll front matter, cayman layout
+    └── deploy.sh             Copy to oblinger.github.io repo
+```
+
+**Full documentation site** (MkDocs):
+
+```
+task-runner/                  (code repository)
+├── mkdocs.yml
+├── docs/
+│   ├── index.md
+│   ├── user/
+│   │   └── guide.md
+│   └── dev/
+│       ├── architecture.md
+│       └── modules/
+│           └── scheduler.md
+└── justfile                  just docs / just docs-serve
+```
+
+Published at `oblinger.github.io/gitproj/task-runner/`.
+
+---
+
+
+
+## Project Page
+
+A lightweight splash page on the personal website (oblinger.github.io). Built via `/code publish`.
+
+- Lives in `website/` inside the anchor (vault side)
+- Uses Jekyll with `jekyll-theme-cayman`
+- Published to `oblinger.github.io/gitproj/{SLUG}/`
+- Added to the projects hub at `/gitproj/`
+
+```
+website/
+├── index.md              # Splash page with Jekyll front matter
+├── [additional .md]      # Extra pages (if any)
+├── [assets/]             # Images, PDFs (if any)
+└── deploy.sh             # Copy to website repo and push
+```
+
+See [[code-publish]] for the full workflow and questions checklist.
+
+## Documentation Site
+
+A full documentation website for anchors with enough content to warrant a browsable, searchable site.
+
+### When to Use
 
 - Any anchor with a code repository that has public or team-facing docs
 - Anchors with architecture docs, user guides, API reference, or demo galleries

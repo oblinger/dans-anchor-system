@@ -72,4 +72,4 @@ Questions are numbered sequentially and never renumbered. Gaps in the Active sec
 - **Create** early in the design process, after the initial PRD draft
 - **Add questions** as unknowns surface during design
 - **Resolve** by recording the decision and moving the question to the Resolved section
-- Questions that spark extended discussion get a dedicated entry in [[CAB Design Discussions]]
+- Questions that spark extended discussion get a dedicated entry in [[CAB Discussion]]

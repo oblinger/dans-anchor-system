@@ -4,7 +4,7 @@
 |------|-------|
 | [[CAB Defined Terms]] | Dated folder, dated sections |
 | [[CAB Markdown Formatting]] | Vertical spacing, named lists, file trees, TOC |
-| [[CAB Naming Conventions]] | TLCs, file prefixes, auxiliary commands |
+| [[CAB Naming Conventions]] | RIDs, file prefixes, auxiliary commands |
 | [[CAB Page Conventions]] | Description field, link table conventions |
 | [[CAB Docs Conventions]] | Standard documents, roadmap format |
 | [[CAB Documentation Publishing]] | Private vs user docs, MkDocs, generators |

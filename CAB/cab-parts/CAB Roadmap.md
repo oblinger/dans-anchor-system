@@ -2,6 +2,44 @@
 
 The `{NAME} Roadmap.md` file organizes work into milestones for incremental, testable implementation. It lives in the `{NAME} Docs/` folder.
 
+Below is a reference example for a hypothetical project "TSK" (Task Runner).
+
+# Reference Example
+---
+
+:>> ... → [[TSK Docs]] → [[TSK Plan]] → [TSK Roadmap](hook://p/TSK%20Roadmap)
+
+# TSK Roadmap
+
+## [x] M1 — Core Scheduler (2026-04-01)
+
+Priority queue and worker pool — enough to run tasks in order.
+
+- [x] Priority queue implementation
+- [x] Worker thread pool
+- [ ] Retry logic with exponential backoff
+
+---
+
+## [ ] M2 — CLI & Persistence (2026-05-01)
+
+User-facing commands and durable task storage.
+
+- [ ] `tsk add` / `tsk list` / `tsk status` commands
+- [ ] SQLite persistence layer
+- [ ] Task history and log viewer
+
+---
+
+## Later
+
+- [ ] Cron-style recurring schedules
+- [ ] Webhook notifications on task completion
+
+---
+
+
+
 ## Roadmap Structure
 
 A roadmap is organized by **milestones** (H2 headings), each containing **deliverable items** as checkbox lists:

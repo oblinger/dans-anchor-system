@@ -22,7 +22,7 @@ Original input:
 
 
 ## 2026-02-25 — Priority starvation fix    `MOVED → TSK Roadmap#M3`
-Discussed promotion logic for starved low-priority tasks. Design notes moved to [[TSK Design Discussions#2026-02-25]]. Implementation planned for M3.
+Discussed promotion logic for starved low-priority tasks. Design notes moved to [[TSK Discussion#2026-02-25]]. Implementation planned for M3.
 
 
 

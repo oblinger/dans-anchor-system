@@ -10,14 +10,14 @@ Broad survey of a topic area, category, or question. The target is not a single 
 4. **Fill in the map** — for each category or major player, gather enough detail to characterize it
 5. **Synthesize** — identify patterns, gaps, trends, and notable outliers
 6. **Produce report** — write the landscape report in a dated report folder (see [[#Report Output]])
-7. **Log it** — add a row to [[RSH Log]] with the report link and description
+7. **Log it** — add a row to [[RRR]] with the report link and description
 
 ## Report Output
 
-Every research action produces a report in the RSH Log folder:
+Every research action produces a report in the RRR folder:
 
 ```
-RSH Log/
+RRR/
 └── {YYYY-MM-DD} {Report Name}/
     ├── {YYYY-MM-DD} {Report Name}.md    Main report (folder file)
     └── ...                               Supporting files (optional)
@@ -27,14 +27,21 @@ RSH Log/
 - **Folder file** — the main write-up; same name as the folder
 - **URLs in the report** — all referenced web pages listed as full clickable URLs so they work in Obsidian
 - **Surfed pages** — if pages were opened for the user during research, include those URLs in the report too
-- **Log entry** — after creating the report, prepend a row to the [[RSH Log]] table:
+- **Log entry** — after creating the report, prepend a row to the [[RRR]] table:
   `| [[{YYYY-MM-DD} {Report Name}]] | {one-line description} |`
 
-## Report Sections
+## Report Sections (in order)
 
-- **Overview** — what this space is and why it matters
-- **Landscape** — the major categories, players, or approaches, organized by the natural structure of the space
-- **Comparison** — key dimensions of difference (if applicable)
-- **Trends** — what's changing, what's emerging
-- **Sources** — full URLs to all referenced material
-- **Recommendations** — if the user asked for guidance, a clear recommendation with reasoning
+1. **Results Table** — ALWAYS first. A single table where rows are the entries found and columns are relevant properties. This is the primary deliverable — the reader should see the results before any prose. The table can be wide enough to require a large monitor. Choose columns that let the reader compare entries at a glance (e.g., Name, Category, Language, Key Feature, Relevance). The first column is always the entry name as a markdown link to its URL: `[PSX](https://github.com/m-mdy-m/psx)` — do NOT have separate Name and URL columns.
+
+2. **Overview** — what this space is and why it matters
+
+3. **Landscape** — the major categories, players, or approaches, organized by the natural structure of the space. Expands on what the table summarizes.
+
+4. **Trends** — what's changing, what's emerging
+
+5. **Gaps** — what's missing from the landscape, what no one has built yet
+
+6. **Recommendations** — if the user asked for guidance, a clear recommendation with reasoning
+
+7. **Sources** — full URLs to all referenced material

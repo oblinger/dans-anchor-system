@@ -2,10 +2,29 @@
 
 Create, update, and export Excalidraw diagrams (`.excalidraw` JSON files). Every change is opened in ExcalidrawZ so the user can see the result.
 
+**Reference:** Read [[excalidraw-examples]] for complete working examples and the required properties list. Every element must have ALL required properties or ExcalidrawZ will silently fail.
+
+## Default Workflow: Create → Export SVG → Embed in Markdown
+
+The standard path is to create the `.excalidraw` file, export to SVG, and embed in the target markdown document:
+
+1. **Create/update** the `.excalidraw` file
+2. **Export to SVG**: `python3 ~/.claude/skills/edit/excalidraw_to_svg.py /path/to/file.excalidraw` (~200ms)
+3. **Embed in markdown**: `![[filename.svg]]`
+4. **Open in ExcalidrawZ** for the user to see/edit interactively
+
+SVG is the default format — scales without blur, smaller files, searchable text, no extra dependencies.
+
 ## Critical Rule: Always Re-Render After Changes
 
-**Every time you create or update a `.excalidraw` file, you MUST open it in ExcalidrawZ so the user can see the result.** ExcalidrawZ does not auto-reload files — you must kill and reopen it:
+**Every time you create or update a `.excalidraw` file, you MUST:**
 
+1. **Export to SVG** (so the markdown embed updates):
+```bash
+python3 ~/.claude/skills/edit/excalidraw_to_svg.py "/path/to/file.excalidraw"
+```
+
+2. **Open in ExcalidrawZ** (so the user can see/edit):
 ```bash
 pkill -x ExcalidrawZ 2>/dev/null; sleep 0.5
 open -a ExcalidrawZ "/path/to/file.excalidraw"
@@ -16,7 +35,7 @@ This applies to:
 - Editing any element in an existing diagram
 - Any Write or Edit to a `.excalidraw` file
 
-Never skip this step. The user cannot see your changes without it.
+Never skip either step.
 
 ## Excalidraw File Format
 

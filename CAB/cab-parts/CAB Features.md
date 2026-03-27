@@ -1,5 +1,55 @@
 # CAB Features
 
+Individual feature specifications, each in a dated file inside a Features subfolder.
+
+Below is a reference example for a hypothetical project "TSK" (Task Runner).
+
+# Reference Example
+---
+
+```
+TSK Docs/TSK Plan/
+└── TSK Features/
+    ├── TSK Features.md                  ← feature index
+    ├── 2026-03-15 Retry Logic.md
+    └── 2026-04-02 Recurring Tasks.md
+```
+
+**TSK Features.md** (index, reverse chronological):
+
+```markdown
+- [[2026-04-02 Recurring Tasks]] — Cron-style recurring task schedules [proposed]
+- [[2026-03-15 Retry Logic]] — Automatic retry with exponential backoff [done]
+```
+
+**2026-03-15 Retry Logic.md** (individual feature):
+
+```markdown
+## Summary
+
+When a task fails, TSK automatically retries it using exponential backoff
+with jitter. This eliminates manual re-queuing for transient failures
+(network timeouts, resource contention). The user configures max retries
+and base delay per task or globally.
+
+## Requirements
+
+- Max retry count configurable per task (default: 3)
+- Exponential backoff: delay = base * 2^attempt + jitter
+- Tasks marked `failed` after exhausting retries
+- Retry history visible in `tsk status <id>`
+
+## Design
+
+Retry state stored in the task record: attempt count, next retry time,
+last error. The scheduler checks retry-eligible tasks each tick and
+re-enqueues them at the computed delay.
+```
+
+---
+
+
+
 ## Features Folder Structure
 
 Features are documented in their own subfolder within `{NAME} Docs/`:

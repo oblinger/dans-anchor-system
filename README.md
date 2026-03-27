@@ -1,71 +1,66 @@
-# Claude Code Skills
+# Dan's Skills
 
-A collection of reusable skill modules for [Claude Code](https://claude.ai/code). Each skill defines workflows, conventions, and domain knowledge that Claude Code agents can invoke during interactive sessions.
+Personal skills for AI coding agents. Many are fairly general-purpose — please enjoy.
 
-Skills extend what an AI coding agent can do — from structured development workflows and markdown formatting to product research, Google Workspace integration, and multi-agent role management.
-
-
-## How Skills Work
-
-Each skill lives in its own folder with a `SKILL.md` entry point. When a user types `/skill-name action` (e.g., `/dev plan`, `/research dig`), Claude Code reads the corresponding action file and executes the workflow defined there.
-
-Skills are:
-- **Declarative** — written in markdown, not code. The agent interprets the workflow instructions.
-- **Composable** — skills reference each other (e.g., `/dev publish` uses markdown formatting conventions from `/md`).
-- **Stateless** — no runtime dependencies. Everything the agent needs is in the skill files.
+*(Designed for [Claude Code](https://claude.ai/code) but should work well with other AI agents that support the SKILL.md format.)*
 
 
 ## Skills
 
-| Skill | Description | Actions |
-|-------|-------------|---------|
-| **[CAB](CAB/SKILL.md)** | Common Anchor Blueprint — create, validate, and manage structured folder systems | `create`, `tidy`, `move`, `migrate`, `pr-flow`, `pilot-flow`, `tlc-scan` |
-| **[Dev](dev/SKILL.md)** | Development workflow — planning, execution, setup, and replanning | `plan`, `execute`, `replan`, `setup`, `forge`, `publish` |
-| **[Edit](edit/SKILL.md)** | Visual editing — diagrams, mockups, and visual content | `excalidraw` |
-| **[Google](google/SKILL.md)** | Google Workspace — Sheets and Slides via CLI | `sheets`, `slides` |
-| **[MD](md/SKILL.md)** | Markdown formatting — heading spacing, file trees, TOCs, dispatch tables | `file-tree`, `toc` |
-| **[Product](product/SKILL.md)** | Product research and purchasing — hunt, compare, buy | `hunt`, `find`, `buy`, `reorder` |
-| **[Research](research/SKILL.md)** | Investigation and synthesis — entity dossiers and topic surveys | `dig`, `survey` |
-| **[Role](role/SKILL.md)** | Agent role definitions — persistent identity across sessions | `pilot`, `pm`, `worker`, `setup` |
+| Skill | Description |
+|-------|-------------|
+| **[CAB](CAB/SKILL.md)** | Common Anchor Blueprint — structured folder systems with typed anchors, dispatch tables, and lint validation |
+| **[Dev](dev/SKILL.md)** | Full development lifecycle — 9 stages from planning through release, with testing, debugging, and multi-agent orchestration |
+| **[Ctrl](ctrl/SKILL.md)** | Local environment control — browser automation, persistent tmux sessions, system interaction |
+| **[IO](io/SKILL.md)** | External system I/O — Google Sheets/Slides/Drive, Dropbox, Notion, file sync via rclone |
+| **[Edit](edit/SKILL.md)** | Visual editing — Excalidraw diagrams with SVG export and Obsidian embedding |
+| **[MD](md/SKILL.md)** | Markdown formatting — file trees, TOC, dispatch tables, cards, track changes |
+| **[Product](product/SKILL.md)** | Product research and purchasing — hunt, find, buy, reorder |
+| **[Research](research/SKILL.md)** | Investigation and synthesis — entity dossiers, topic surveys, book summaries |
+| **[Role](role/SKILL.md)** | Agent role definitions — pilot, pm, worker with persistent identity across sessions |
+| **[Rule](rule/SKILL.md)** | Project rule management — define semantic rules, check code against them, triage exceptions, and drive fixes |
 
 
-## Folder Structure
+## Dev Skill — Development Lifecycle
 
-```
-skills/
-├── README.md              This file
-├── CAB/                   Common Anchor Blueprint
-│   ├── SKILL.md           Entry point + dispatch table
-│   ├── cab-setup.md       Action: create new anchor
-│   ├── cab-tidy.md        Action: validate structure
-│   ├── cab-types/         Anchor type specifications
-│   ├── cab-parts/         Part format specs + reference examples
-│   └── cab-rules/         Convention rules
-├── dev/                   Development workflow
-│   ├── SKILL.md
-│   ├── dev-plan.md        Action: 6-step planning pipeline
-│   ├── dev-execute.md     Action: execution priority loop
-│   ├── dev-forge.md       Action: rebuild + restart cycle
-│   ├── dev-publish.md     Action: publish to website
-│   └── dev-*.md           Other actions + topic references
-├── edit/                  Visual editing
-├── google/                Google Workspace integration
-├── md/                    Markdown formatting
-│   ├── SKILL.md
-│   ├── md-file-tree.md    4 file tree formats
-│   ├── md-toc.md          TOC conventions
-│   └── md-toc.py          TOC auto-generation script
-├── product/               Product research + purchasing
-├── research/              Investigation + synthesis
-│   ├── SKILL.md
-│   ├── research-dig.md    Entity dossier workflow
-│   └── research-survey.md Topic landscape workflow
-└── role/                  Agent role definitions
-    ├── SKILL.md
-    ├── role-pilot.md      Orchestrator role
-    ├── role-pm.md         Project manager role
-    └── role-worker.md     Task executor role
-```
+The largest skill. 40+ actions organized into a numbered lifecycle:
+
+| Stage | Name | Actions |
+|-------|------|---------|
+| 1x | Plan | anchor, prd, research, ux, system, plan-audit |
+| 2x | Architect | modules, system-design, test-plan, roadmap, arch-audit |
+| 3x | Implement | spec, code, test, review, verify, commit |
+| 4x | Release | changelog, version, package, publish, ship |
+| | ***Capabilities*** | |
+| 5x | Test | assess, scaffold, write-tests, verify |
+| 6x | Verify | rewire, lint, fix |
+| 7x | Adapt | open-questions, replan |
+| 8x | Tactical | forge, debug, refactor |
+| 9x | Orchestrate | workers, worktrees, pr-flow, merge |
+
+
+## CAB Skill — Common Anchor Blueprint
+
+A system for organizing projects into typed anchor folders with consistent structure, dispatch tables for navigation, module documentation that tracks source code, and a lint tool that validates everything.
+
+| Action | What it does |
+|--------|-------------|
+| `/cab setup` | Create a new anchor with full doc skeleton |
+| `/cab lint` | Validate structure and module docs against source code |
+| `/cab tidy` | Fix structural issues |
+| `/cab yore` | Archive to Yore |
+| `/cab move` | Rename/relocate an anchor |
+| `/cab migrate` | Convert between anchor types |
+
+
+## How Skills Work
+
+Each skill lives in its own folder with a `SKILL.md` entry point. When a user types `/skill-name action` (e.g., `/code plan`, `/research dig`), the agent reads the corresponding action file and executes the workflow.
+
+Skills are:
+- **Declarative** — written in markdown, not code. The agent interprets the workflow instructions.
+- **Composable** — skills reference each other (e.g., `/code publish` uses `/md` formatting conventions).
+- **Stateless** — no runtime dependencies. Everything the agent needs is in the skill files.
 
 
 ## Creating a New Skill
@@ -74,8 +69,6 @@ skills/
 2. Add `SKILL.md` with YAML frontmatter (`name`, `description`, `tools`, `user_invocable: true`)
 3. Add action files (`{skill}-{action}.md`) with workflow instructions
 4. Register the skill in `SKILL.md`'s dispatch table
-
-### SKILL.md Format
 
 ```yaml
 ---
@@ -87,14 +80,6 @@ tools: Read, Write, Edit, Bash, Glob, Grep
 user_invocable: true
 ---
 ```
-
-### Action File Format
-
-Each action file is a markdown document with:
-- A heading describing the action
-- Prerequisites or context needed
-- Step-by-step workflow the agent follows
-- Examples or reference patterns
 
 
 ## License

@@ -102,11 +102,11 @@ A summary table listing each component, its responsibility, and its source modul
 Key data structures shown as code blocks (dataclasses, schemas, or equivalent).
 
 ### Decisions
-A numbered table recording architectural decisions with rationale. Each decision is a short statement with a one-line justification. Extended analysis belongs in [[CAB Design Discussions]].
+A numbered table recording architectural decisions with rationale. Each decision is a short statement with a one-line justification. Extended analysis belongs in [[CAB Discussion]].
 
 ## Lifecycle
 
 - **Create** after the PRD and Open Questions have stabilized enough to design against
 - **Update** when architecture changes — this is the current spec, not a historical log
 - **Decisions table** grows over time as new architectural choices are made
-- **Current spec only** — rationale and alternatives belong in Design Discussions
+- **Current spec only** — rationale and alternatives belong in Discussion

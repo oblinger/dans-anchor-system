@@ -37,11 +37,34 @@ ha -d n:="{NAME} Code" a:=open r:="{repo path}"  # if Split Anchor
 
 ## Step 6: Migrate Claude Code Session
 
+The path key is the project path with `/` replaced by `-` and a leading `-`. Example: `/Users/oblinger/ob/kmr/prj/ClaudiMux` → `-Users-oblinger-ob-kmr-prj-ClaudiMux`.
+
+**Find the most recent session** in the old project folder — don't copy all of them:
+
 ```bash
-cp -R ~/.claude/projects/{OLD_PATH_KEY} ~/.claude/projects/{NEW_PATH_KEY}
+# Find the most recent .jsonl by modification time
+OLD_KEY="-Users-oblinger-ob-kmr-prj-ClaudiMux"
+NEW_KEY="-Users-oblinger-ob-kmr-prj-ClaudiMux-MuxUX"
+
+LATEST=$(ls -t ~/.claude/projects/${OLD_KEY}/*.jsonl 2>/dev/null | head -1)
+SESSION_ID=$(basename "$LATEST" .jsonl)
+
+# Create the new project folder
+mkdir -p ~/.claude/projects/${NEW_KEY}
+
+# Copy ONLY the most recent session (jsonl + companion directory)
+cp "$LATEST" ~/.claude/projects/${NEW_KEY}/
+[ -d ~/.claude/projects/${OLD_KEY}/${SESSION_ID} ] && \
+  cp -R ~/.claude/projects/${OLD_KEY}/${SESSION_ID} ~/.claude/projects/${NEW_KEY}/
+
+# Copy the memory folder if it exists
+[ -d ~/.claude/projects/${OLD_KEY}/memory ] && \
+  cp -R ~/.claude/projects/${OLD_KEY}/memory ~/.claude/projects/${NEW_KEY}/
 ```
 
-Copy, don't move — keep old session as backup until verified.
+Copy, don't move — keep old session as backup until verified. Only copy the most recent session (by mtime) plus the memory folder. Old sessions are conversation history that doesn't apply to the new location.
+
+After copying, verify by running `claude --resume` from the new anchor directory.
 
 ## Step 7: Test Before/After
 
@@ -49,12 +72,23 @@ Run tests before and after migration. If new failures appear after path fixups, 
 
 ## Step 8: Scan for Hardcoded Paths
 
+Scan both the vault anchor and the repo for references to the old path. Also check the Claude session folder.
+
 ```bash
-grep -r "/old/path/" /new/path/ --include="*.py" --include="*.md" --include="*.toml" --include="*.json" --include="*.yaml" --include="*.sh"
+# Scan repo for old vault path
+grep -r "/old/vault/path/" /new/repo/path/ --include="*.py" --include="*.md" --include="*.toml" --include="*.json" --include="*.yaml" --include="*.sh" --include="*.swift" --include="*.rs" --include="*.just"
+
+# Scan vault anchor for old repo path
+grep -r "/old/repo/path/" /new/vault/path/ --include="*.md" --include="*.json" --include="*.yaml"
+
+# Scan CLAUDE.md specifically
+grep "/old/" /new/vault/path/CLAUDE.md
 ```
+
+Old paths in Claude session logs (`.jsonl` files) are harmless conversation history — don't fix those.
 
 ## Step 9: Clean Up
 
 - Remove anchor files from old location (keep code repos until verified)
-- Update TLC index if needed
+- Update RID index if needed
 - Verify: `ha -p {NAME}` resolves, tests pass, Claude session works

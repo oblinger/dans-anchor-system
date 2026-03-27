@@ -1,21 +1,17 @@
 # Paper Anchor
 
-A Paper Anchor follows the [[Common Anchor Blueprint]] with these specializations:
-
-## What Makes It a Paper Anchor
-
-Paper Anchors are for iterative document revision with Claude. Long documents are split into sections for focused revision, then merged back together. The anchor page contains a **version table** that tracks document versions and section revisions.
+Follows [[CAB Base]] with these deltas:
 
 ## When to Use
 
 Academic papers, whitepapers, long-form documents that go through multiple revision cycles.
 
-## Specializations
+## Deltas from Base
 
 - **Version table** — tracks document versions and per-section revisions on the anchor page
 - **Section-based editing** — paper split into sections (s1, s2, ...) for focused work
 - **Track changes** — section revisions stored as HTML with insertions/deletions
-- **Paper Flow** — specialized review and merge workflow (see below)
+- **Paper Flow** — specialized review and merge workflow
 
 ## Structure
 
@@ -88,4 +84,16 @@ Claude works best on coherent, manageable chunks. Splitting into sections allows
 5. Decide on section structure and add descriptions in Notes column
 6. Create empty row 1 for revisions
 7. Register HookAnchor commands (`ha -d`)
-8. Register TLC in the [[TLC]] index
+8. Register RID in the [[RID]] index
+
+## Audit
+
+Type-specific structure checks for Paper Anchors.
+
+### Required files
+- Version table on the anchor page
+- `{NAME} Docs/` folder with dispatch page
+
+### Not expected
+- No `{NAME} Dev/` folder
+- No `Code` symlink

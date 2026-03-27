@@ -29,12 +29,12 @@ Execute each item:
 
 ### 3.3 Roadmap Content
 - Roadmap contains only high-level milestone descriptions
-- Detailed discussion → move to Notes or Design Discussions
+- Detailed discussion → move to Notes or Discussion
 - Detailed task lists → move to Todo
 
-### 3.4 TLC Index Entry
-If the anchor has a TLC:
-- Verify it appears in the TLC index table
+### 3.4 RID Index Entry
+If the anchor has a RID:
+- Verify it appears in the RID index table
 - Check date, link, full name, and description are correct
 
 ### 3.5 File Structure

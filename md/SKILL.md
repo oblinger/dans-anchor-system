@@ -1,8 +1,8 @@
 ---
 name: md
 description: >
-  Markdown formatting conventions — heading spacing, named lists, file tree diagrams, and tables of contents.
-  Use with an action argument: /md file-tree, /md toc.
+  Markdown formatting conventions — heading spacing, named lists, file tree diagrams, tables of contents, dispatch tables, cards, and track changes.
+  Use with an action argument: /md file-tree, /md toc, /md dispatch-table, /md cards, /md track-changes.
   Invoke bare (/md) for the quick-reference formatting rules.
 tools: Read, Write, Edit, Bash, Glob, Grep
 user_invocable: true
@@ -12,11 +12,13 @@ user_invocable: true
 Standard formatting conventions for all markdown documents.
 
 
-| ACTIONS         | File             | Description                                          |
-| --------------- | ---------------- | ---------------------------------------------------- |
-| `/md file-tree` | [[md-file-tree]] | File tree diagram format — 4 forms with box-drawing  |
-| `/md toc`       | [[md-toc]]       | Table of contents format — 3 forms + auto-generation |
-|                 | [[#Dispatch Table]] | Dense link table + dispatch pages for navigation hubs   |
+| ACTIONS                | File                    | Description                                          |
+| ---------------------- | ----------------------- | ---------------------------------------------------- |
+| `/md file-tree`        | [[md-file-tree]]        | File tree diagram format — 4 forms with box-drawing  |
+| `/md toc`              | [[md-toc]]              | Table of contents format — 3 forms + auto-generation |
+| `/md dispatch-table`   | [[md-dispatch-table]]   | Dense link table + dispatch pages for navigation hubs |
+| `/md cards`            | [[md-cards]]            | Cards format — cheat sheets, summary cards, detail cards |
+| `/md track-changes`    | [[md-track-changes]]    | Track changes — inline diff HTML for markdown edits      |
 
 ## Quick Reference
 
@@ -85,32 +87,6 @@ Claude Code's Edit tool cannot distinguish figure spaces from regular spaces. Us
 
 
 
-### Dispatch Table
-
-A dense table of outgoing links organized by category, used as a central navigation hub. The top-left cell names the table (usually the project or system name). The left column lists categories or sections. The right column packs multiple wiki-links per row.
-
-```markdown
-| **Project Name** |                                              |
-| ---------------- | -------------------------------------------- |
-| Docs             | [[PRD]], [[System Design]], [[Roadmap]]      |
-| Modules          | [[Core]], [[Config]], [[Agent]], [[Health]]   |
-| User             | [[User Guide]], [[Examples]]                 |
-| External         | [repo-name](repo-name/), [[CHANGELOG]]       |
-```
-
-Key properties:
-- **Top-left cell** — bold, names the dispatch target (project, skill, system)
-- **Left column** — category labels, optionally wiki-links themselves
-- **Right column** — comma-separated wiki-links, packed densely
-- **Rows can overflow** — use multiple rows for the same category (leave left cell empty on continuation rows)
-- **Strikethrough** — `~~[[Dead Link]]~~` marks known-broken or deprecated links
-
-A **dispatch page** is a markdown page whose primary content is a dispatch table. Common uses:
-- **Anchor pages** — the folder file for a complex anchor is often a dispatch page with 50–100+ links
-- **Docs folder files** — `{NAME} Docs.md` dispatches to all planning and reference documents
-- **Skill pages** — `SKILL.md` dispatches to action files and reference sub-folders
-
-The goal is a single memorable location where a user can find any link in the system. One page, many destinations.
 
 
 ## Scripts

@@ -1,1 +1,0 @@
-(See [[SYS/Bespoke/skills/md/SKILL|SKILL|md/skill]]) 

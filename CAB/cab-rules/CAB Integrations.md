@@ -18,4 +18,4 @@ Optional tools and services that anchors may integrate with.
 
 ## tmux
 - Project may have associated tmux session for development
-- Session name typically matches TLC
+- Session name typically matches RID

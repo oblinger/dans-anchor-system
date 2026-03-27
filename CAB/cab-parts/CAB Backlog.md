@@ -45,7 +45,7 @@ Entries are grouped under H2 sections:
 - **Upcoming** — Ideas and deferred work not yet scheduled
 - **Testing** — Implemented but awaiting user verification that they work as intended. Once confirmed, move to Completed.
 - **Completed** — Items that graduated and were finished (with cross-references to where)
-- **Legwork** — Autonomous agent work that should be done proactively. Includes user feedback integration, planning actions, doc consistency fixes, and other tasks the agent can execute without user approval. The `/dev execute` priority loop pulls from this section as Tier 2 legwork (after PR merging and worker dispatch).
+- **Legwork** — Autonomous agent work that should be done proactively. Includes user feedback integration, planning actions, doc consistency fixes, and other tasks the agent can execute without user approval. The `/code execute` priority loop pulls from this section as Tier 2 legwork (after PR merging and worker dispatch).
 - **Deferred** — Items explicitly parked. Not forgotten, just not now.
 
 ## Location

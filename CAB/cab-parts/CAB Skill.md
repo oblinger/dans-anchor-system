@@ -76,7 +76,7 @@ SKILL.md has these sections in order:
 1. **Frontmatter** — YAML with `name`, `description`, `tools`, `user_invocable: true`
 2. **Title** — `# {NAME} — {Full Name}`
 3. **Brief** — One-line description of the skill's purpose
-4. **Dispatch table** — Wiki-link table mirroring the anchor's TLC page format. Groups reference data by section (e.g., Types, Parts, Rules). Every entry is a clickable wiki-link. Only present when the skill manages reference data.
+4. **Dispatch table** — Wiki-link table mirroring the anchor's RID page format. Groups reference data by section (e.g., Types, Parts, Rules). Every entry is a clickable wiki-link. Only present when the skill manages reference data.
 5. **Actions** — Table of `/name action` commands, each linking to a sub-file
 6. **Reference** — Table pointing to subdirectories containing reference data
 7. **Topics** — Optional table of domain-specific reference files read on demand

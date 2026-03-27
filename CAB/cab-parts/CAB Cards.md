@@ -2,6 +2,53 @@
 
 The `{NAME} Cards.md` document contains cheat sheets and spaced repetition flashcards for a given topic. It lives in the anchor folder or a subfolder dedicated to cards.
 
+Below is a reference example for a hypothetical project "TSK" (Task Runner).
+
+# Reference Example
+---
+
+```
+TSK Cards/
+└── TSK Cards.md
+```
+
+**TSK Cards.md:**
+
+```markdown
+#flashcards
+
+## **`TSK CLI COMMANDS`**
+```
+ADD:     tsk add "cmd" --at TIME --pri N
+LIST:    tsk list [--status STATUS]
+STATUS:  tsk status ID
+CANCEL:  tsk cancel ID
+HISTORY: tsk history [--limit N]
+RETRY:   tsk retry ID
+```
+
+> 6 tsk CLI commands
+> -?-
+> ```
+> add      — schedule a new task
+> list     — show tasks by status
+> status   — detail for one task
+> cancel   — remove a pending task
+> history  — past task results
+> retry    — re-queue a failed task
+> ```
+
+> tsk add --pri range
+> -?-
+> 1 (lowest) to 10 (highest), default 5.
+> Higher priority tasks run first when
+> multiple tasks are ready simultaneously.
+```
+
+---
+
+
+
 ## Formats
 
 Three kinds of entries — cheat sheets, summary cards, and detail cards:

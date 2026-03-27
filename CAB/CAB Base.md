@@ -11,7 +11,7 @@ The base specification shared by all anchor types.
 
 {[[CAB Folder|CAB Folder]]}/
 ├── {CAB Folder}.md           [[CAB Folder|marker file]]
-├── [[CAB Page|{NAME}.md]]                    primary entry point (if NAME ≠ folder)
+├── [[CAB Anchor Page|{NAME}.md]]                    primary entry point (if NAME ≠ folder)
 │
 ├── {NAME} [[CAB Docs|Docs]]/
 │   ├── {NAME} Docs.md           dispatch page
@@ -32,18 +32,16 @@ The base specification shared by all anchor types.
 | **[[CAB Types]]**    |                                                       |
 | ----------------------- | ----------------------------------------------------- |
 | [[Simple Anchor]]       | Folder + anchor page only                             |
-| [[Topic Anchor]]        | Evergreen knowledge, planning docs in folder directly |
-| [[Split Anchor]]        | Private docs wrapper with separate code repo          |
-| [[Private Repo Anchor]] | Repo IS the anchor folder                             |
-| [[Public Repo Anchor]]  | Private docs wrapper; public repo as subfolder        |
-| [[Paper Anchor]]        | Academic paper structure                              |
+| [[Topic Anchor]]        | Evergreen knowledge, child anchors, routing hub       |
+| [[Code Anchor]]         | Code repo — inline (repo=anchor) or linked (symlink)  |
+| [[Paper Anchor]]        | Document revision with version table + sections       |
 | [[Skill Anchor]]        | Claude Code skill group in ~/.claude/skills/          |
 
 | **[[CAB Rules]]**               |                                              |
 | ---------------------------------- | -------------------------------------------- |
 | [[CAB Defined Terms]]           | Dated folder, dated sections                 |
 | [[CAB Markdown Formatting]]     | Vertical spacing, named lists, file trees, TOC |
-| [[CAB Naming Conventions]]      | TLCs, file prefixes, auxiliary commands       |
+| [[CAB Naming Conventions]]      | RIDs, file prefixes, auxiliary commands        |
 | [[CAB Page Conventions]]        | Description field, link table conventions     |
 | [[CAB Docs Conventions]]        | Standard documents, roadmap format            |
 | [[CAB Documentation Publishing]] | Private vs user docs, MkDocs, generators    |
@@ -62,5 +60,5 @@ The base specification shared by all anchor types.
 | [[CAB Pilot Flow]]    | Top-down design then implementation |
 | [[CAB Move]]          | Move anchor, update all paths       |
 | [[CAB Migrate]]       | Convert between anchor types        |
-| [[CAB TLC Scan]]      | Sync TLC index                      |
+| [[CAB RID Scan]]      | Sync RID index                       |
 | [[CAB Streams]]       | Content stream definitions          |

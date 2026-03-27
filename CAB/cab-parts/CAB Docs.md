@@ -9,27 +9,39 @@ Below is a reference example for a hypothetical project "TSK" (Task Runner).
 
 ```
 TSK Docs/
-├── TSK Docs.md                    Dispatch page
+├── TSK Docs.md                    Dispatch — links to Plan, Dev, User
 │
-├── TSK Plan/                      Planning & spec
-│   ├── TSK Plan.md                Dispatch page
-│   ├── TSK PRD.md                 Product requirements
-│   ├── TSK Open Questions.md      Unresolved questions
-│   ├── TSK System Design.md       System architecture
-│   ├── TSK Roadmap.md             Milestones
-│   ├── TSK Backlog.md             Deferred work
-│   ├── TSK Files.md               File tree map
-│   └── TSK Inbox.md               Raw content to process
+├── TSK Plan/                      Planning & execution
+│   ├── TSK Plan.md                Dispatch table of all planning docs
+│   ├── TSK PRD.md
+│   ├── TSK System Design.md
+│   ├── TSK Roadmap.md
+│   ├── TSK Backlog.md
+│   ├── TSK Inbox.md
+│   └── TSK Open Questions.md
 │
 ├── TSK User/                      User-facing documentation
-│   ├── TSK User.md                Dispatch page
-│   └── TSK User Guide.md          End-user guide
+│   ├── TSK User.md                Dispatch table of all user docs
+│   └── TSK User Guide.md
 │
 └── TSK Dev/                       Developer & implementation docs
-    ├── TSK Dev.md                  Dispatch page (links Files + all modules)
-    ├── TSK Architecture.md         System-level design
+    ├── TSK Dev.md                  Dispatch table — Files, Architecture, modules
+    ├── TSK Architecture.md
     └── TSK execution/              Mirrors source tree
         └── TSK Scheduler.md        Module doc
+```
+
+Each dispatch page uses a dispatch table:
+
+```markdown
+| -[[TSK Plan]]-                           | +: planning and execution docs  |
+| ---------------------------------------- | ------------------------------- |
+| [[TSK PRD|PRD]]                         | product requirements            |
+| [[TSK System Design|System Design]]     | architecture and design         |
+| [[TSK Inbox|Inbox]]                     | raw input to process            |
+| [[TSK Open Questions|Open Questions]]   | unresolved decisions            |
+| [[TSK Backlog|Backlog]]                 | deferred work                   |
+| [[TSK Roadmap|Roadmap]]                 | milestones                      |
 ```
 
 ---
@@ -40,14 +52,24 @@ TSK Docs/
 
 ## Dispatch Tree
 
-Every markdown file in the Docs folder must be reachable by walking wiki-links from `{NAME} Docs.md`. The structure:
+Every subfolder has a **dispatch page** with a dispatch table listing its contents. This creates a navigable tree:
 
-1. **`{NAME} Docs.md`** — top dispatch. Links to Plan, Dev, User, Design areas.
-2. **`{NAME} Dev.md`** — Dev dispatch. Links to [[CAB Files|{NAME} Files]] (the file tree) and all module aggregator pages.
-3. **Module aggregators** (e.g., `{NAME} App.md`) — link to individual class/struct docs.
-4. **Individual docs** — leaf pages with a breadcrumb line back to their aggregator: ` [[parent]] → This Page`
+1. **Anchor page** (`{NAME}.md`) — dispatch table with Plan, User, Dev as row labels that link to their respective dispatch pages. Key items from each area appear inline in the row.
+2. **`{NAME} Plan.md`** — dispatch table listing all planning docs (PRD, System Design, Roadmap, etc.)
+3. **`{NAME} User.md`** — dispatch table listing all user-facing docs (User Guide, Config Reference, etc.)
+4. **`{NAME} Dev.md`** — dispatch table listing Files, Architecture, and all module docs
+5. **`{NAME} Docs.md`** — top-level dispatch linking to Plan, Dev, User
 
-The Dev dispatch page links to Files because Files is the bridge between "what files exist" and "what they do" — it's the natural starting point when exploring the codebase.
+The anchor page row labels are wiki-links to the subfolder dispatch pages:
+
+```markdown
+| [[TSK Plan|Plan]]   | [[TSK PRD|PRD]], [[TSK System Design|System Design]], ... |
+| [[TSK Plan|Execute]] | [[TSK Inbox|Inbox]], [[TSK Open Questions|Open Questions]], ... |
+| [[TSK User/TSK User|User]] | [[TSK User Guide|User Guide]], [[TSK Cards|Cards]] |
+| [[TSK Dev/TSK Dev|Dev]]   | [[TSK Files|Files]], [[TSK core|core]], ... |
+```
+
+Clicking a row label navigates to the subfolder dispatch page, which has the complete list. The inline items are just highlights — the dispatch page is the authoritative index.
 
 **Verification:** Walk the link tree from `{NAME} Docs.md`. Every `.md` file in the Docs folder should be reachable. If a page is orphaned, add a link from its parent or create a missing dispatch page.
 

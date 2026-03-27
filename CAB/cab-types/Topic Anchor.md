@@ -13,14 +13,14 @@ System configuration, knowledge domains, reference areas — anything that is ev
 - **Routing hub** — anchor page links to sub-topics or content pages rather than containing content directly
 - Lives within the Obsidian vault
 
-## Structure Additions
-
-Beyond the base structure, a Topic Anchor may contain child anchor folders:
+## Structure
 
 ```
 {CAB Folder}/
-├── ...                              (base structure)
-├── {Sub-Topic}/                     child anchors
+├── {CAB Folder}.md                  marker file
+├── {NAME}.md                        anchor page (routing hub)
+├── {NAME} Docs/                     planning docs (optional)
+├── {Sub-Topic}/                     child anchors (optional)
 ├── {Sub-Topic}/
 └── ...
 ```
@@ -38,3 +38,16 @@ SYS/
 ├── personal-curation/               child anchor (PC)
 └── DictaMUX/                        child anchor (DMUX)
 ```
+
+## Audit
+
+Type-specific structure checks for Topic Anchors.
+
+### Required files
+- `{NAME} Docs/` folder with dispatch page
+- `{NAME} Docs/{NAME} Plan/` folder with planning docs
+
+### Not expected
+- No `{NAME} Dev/` folder (topics don't have code)
+- No `{NAME} User/` folder
+- No `Code` symlink

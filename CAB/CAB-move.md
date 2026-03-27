@@ -50,9 +50,9 @@ If the anchor has published docs, rebuild:
 cd /new/path/{repo} && mkdocs build
 ```
 
-## Step 6: Update TLC Index
+## Step 6: Update RID Index
 
-If the anchor has a TLC, verify the TLC index entry points to the new location.
+If the anchor has a RID, verify the RID index entry points to the new location.
 
 ## Step 7: Verify
 
