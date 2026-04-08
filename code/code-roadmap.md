@@ -19,7 +19,7 @@ Create or update `{NAME} Roadmap.md`:
 - Break work into milestones ordered by dependency (foundational first)
 - Each milestone has clear acceptance criteria
 - Identify which milestones can be parallelized
-- The roadmap is the work queue for `/code it`
+- The roadmap is the work queue for `/code mint`
 
 ### 3. Validate
 

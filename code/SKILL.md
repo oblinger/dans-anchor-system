@@ -2,7 +2,7 @@
 name: code
 description: >
   Development workflow skill — planning, architecture, implementation, testing, release, and orchestration.
-  Use with an action argument: /code plan, /code architect, /code it, /code test, /code release, etc.
+  Use with an action argument: /code plan, /code architect, /code mint, /code test, /code release, etc.
   Key sub-skills: /code feature (feature lifecycle — "new feature", "let's build", "design a feature"),
   /code delegate (parallel work dispatch — "delegate this", "fan out"),
   /code spike (aggressive root cause — "spike that bug"), /code bugfix (red-green bug response),
@@ -38,7 +38,7 @@ The unified development skill. Invoke with an action to run a workflow.
 | 25  | `/code arch-audit`     | [[code-arch-audit]]     | Architecture completeness check                                               |
 |     | **3x Implement**      |                        | *Build features iteratively*                                                  |
 | 29  | `/code feature`        | [[code-feature]]        | Feature lifecycle: design doc → agree → implement → test → done               |
-| 30  | `/code it`      | [[code-it]]      | Orchestrator: spec → code → test → review → verify → commit                   |
+| 30  | `/code mint`      | [[code-mint]]      | Orchestrator: spec → code → test → review → verify → commit                   |
 | 31  | `/code spec`           | [[code-spec]]           | Write implementation spec for a roadmap milestone                             |
 | 32  | `/code code`           | [[code-code]]           | Implement according to spec, self-check, update docs                          |
 | 33  | `/code test`           | [[code-test]]           | Test advisor and developer: scaffolds, priorities, proof                      |

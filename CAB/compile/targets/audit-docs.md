@@ -5,9 +5,9 @@
 
 ## Sources
 
-- `~/.claude/skills/CAB/cab-parts/CAB Module Doc.md` — module doc format, CLASSES table, per-class tables, casing rules, spacing, folder docs
-- `~/.claude/skills/CAB/cab-parts/CAB Files.md` — Files.md format (monospace, box-drawing tree)
-- `~/.claude/skills/CAB/cab-parts/CAB Dev Dispatch.md` — Dev dispatch linking requirements
+- `~/.claude/skills/CAB/cab-facets/CAB Module Doc.md` — module doc format, CLASSES table, per-class tables, casing rules, spacing, folder docs
+- `~/.claude/skills/CAB/cab-facets/CAB Files.md` — Files.md format (monospace, box-drawing tree)
+- `~/.claude/skills/CAB/cab-facets/CAB Dev Dispatch.md` — Dev dispatch linking requirements
 - `~/.claude/skills/code/code-modules.md` — module creation workflow, verification checklist
 
 ## How to Compile

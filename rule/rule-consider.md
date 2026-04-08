@@ -62,7 +62,7 @@ The exception table starts empty — exceptions will be added as `/rule check` f
 ### 5. Post to Stat
 
 ```bash
-skl-stat add "rule sets" "Done" "Applied 3 standard rule sets: xdg-config, async-coordination, error-handling"
+skl-stat add "Done" "rule sets" "Applied 3 standard rule sets: xdg-config, async-coordination, error-handling"
 ```
 
 ## Notes

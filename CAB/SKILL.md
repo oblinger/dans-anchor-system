@@ -14,8 +14,8 @@ Manage anchor folder structures according to the Common Anchor Blueprint specifi
 
 | Section                                | Contents                                                                                                                                                                                                                                                                                                                                                                 |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [[CAB Types]]                          | [[Simple Anchor]], [[Topic Anchor]], [[Code Anchor]], [[Paper Anchor]], [[Skill Anchor]]                                                                                                                                                                                                                                                                               |
-| [[CAB All Files]]<br><br>[[CAB Parts]] | [[CAB Folder]], [[CAB Anchor Page]], [[CAB Docs]], [[CAB Backlog]], <br> [[CAB Features]], [[CAB Files]], [[CAB Roadmap]], <br> [[CAB Code Repository]], [[CAB Project Page]], [[CAB Documentation Site]], <br> [[CAB Claude]], [[CAB Module Doc]], [[CAB Skill]], [[CAB PRD]], <br> [[CAB Open Questions]], [[CAB System Design]], [[CAB UX Design]], <br> [[CAB Discussion]], [[CAB Cards]], [[CAB Inbox]] |
+| [[CAB Traits]]                          | [[Simple Anchor]], [[Topic Anchor]], [[Code Anchor]], [[Paper Anchor]], [[Skill Anchor]]                                                                                                                                                                                                                                                                               |
+| [[CAB All Files]]<br><br>[[CAB-facets]] | [[CAB Folder]], [[CAB RID Page]], [[CAB Docs]], [[CAB Backlog]], <br> [[CAB Features]], [[CAB Files]], [[CAB Roadmap]], <br> [[CAB Code Repository]], [[CAB Project Page]], [[CAB Documentation Site]], <br> [[CAB Claude]], [[CAB Module Doc]], [[CAB Skill]], [[CAB PRD]], <br> [[CAB Open Questions]], [[CAB System Design]], [[CAB UX Design]], <br> [[CAB Discussion]], [[CAB Cards]], [[CAB Inbox]] |
 | [[CAB Rules]]                          | [[CAB Defined Terms]], [[CAB Markdown Formatting]], [[CAB Naming Conventions]], <br> [[CAB Page Conventions]], [[CAB Docs Conventions]], [[CAB Documentation Publishing]], <br> [[CAB Repository Structure]], [[CAB Rust Rules]], [[CAB Integrations]], <br> [[CAB Research]], [[CAB Maintenance]]                                                                       |
 
 
@@ -27,8 +27,7 @@ Each action is defined in a sub-file. When invoked, read the corresponding file 
 | ------------------ | ------------------- | ----------------------------------------------------------------- |
 | `/cab create`      | [[cab-create]]      | Create a new anchor — gather info, create structure, register     |
 | `/cab tidy`        | [[cab-tidy]]        | Validate and correct anchor folder structure                      |
-| `/cab move`        | [[cab-move]]        | Move an anchor and update all path-dependent systems              |
-| `/cab migrate`     | [[cab-migrate]]     | Convert an anchor from one type to another                        |
+| `/cab move`        | [[cab-move]]        | Move an anchor and update all path-dependent systems — see [[CAB Move]] for concept and related skills |
 | `/cab pr-flow`     | [[cab-pr-flow]]     | Iterative PR-based development with user review                   |
 | `/cab pilot-flow`  | [[cab-pilot-flow]]  | Top-down design then implementation (dispatches to /code skills)   |
 | `/cab rid-scan`    | [[cab-rid-scan]]    | Scan for new RIDs and sync the index                              |
@@ -37,9 +36,9 @@ Each action is defined in a sub-file. When invoked, read the corresponding file 
 | `/cab scan`        | [[cab-scan]]        | Discover all anchors, write registry to ~/.config/skl/anchors.yaml          |
 | `/cab config`      | [[cab-config]]      | Manage .anchor/config.yaml — init, set, get, show anchor paths              |
 | `/cab install`     | [[cab-install]]     | Install CAB tools (stat, cab-config, cab-scan, cab-lint) into ~/bin         |
-| `/cab compile`     | [[compile/compile]] | Compile CAB specs into executable checklists for skill actions              |
-| `/cab migrate-claude` | [[cab-migrate-claude]] | Migrate a Claude Code session when an anchor moves to a new path         |
+| `/cab distill`     | [[compile/compile]] | Distill CAB specs into executable checklists for skill actions            |
 | `/cab publish`     | [[cab-publish]]     | Deploy an anchor's public page to the web (gitproj or GitHub Pages)      |
+| `/cab wp`          | [[cab-wp]]          | Create a dated work product folder — papers, reports, analyses           |
 | (ref)              | [[stat]]            | Activity status tracking — `stat add/update/archive` across projects        |
 | `/cab yore`        | [[cab-yore]]        | Archive folders/anchors to Yore with date-prefixed zip            |
 | `/cab streams`     | [[cab-streams]]     | Content stream definitions (stub)                                 |
@@ -51,9 +50,9 @@ Reference files live in subdirectories of this skill folder:
 
 | What you need  | Where to find it                                                    |
 | -------------- | ------------------------------------------------------------------- |
-| Base file tree | [[CAB Base]] — canonical tree for all types                        |
-| Anchor types   | `cab-types/` — one file per type with deltas from base              |
-| Part specs     | `cab-parts/` — format spec + reference example for each file type   |
+| Base file tree | [[cab-base]] — canonical tree for all types                        |
+| Anchor types   | `cab-traits/` — one file per type with deltas from base              |
+| Part specs     | `cab-facets/` — format spec + reference example for each file type   |
 | Full file tree | [[CAB All Files]] — every possible file across all types            |
 | Rules          | `cab-rules/` — naming, markdown, docs, integrations                 |
 

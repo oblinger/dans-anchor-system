@@ -8,7 +8,7 @@ When starting a new project or formalizing an existing codebase into the anchor 
 
 ## Workflow
 
-This delegates to `/cab setup` (the [[CAB-create]] skill), which handles:
+This delegates to `/cab setup` (the [[cab-create]] skill), which handles:
 
 1. Gather information — type, name, parent, description, RID
 2. Create the full file skeleton — ALL doc files upfront (PRD, System Design, Discussion, Roadmap, etc.)

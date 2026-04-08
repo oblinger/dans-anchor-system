@@ -1,6 +1,6 @@
 # CAB Page Conventions
 
-The anchor page (`{NAME}.md`) is the primary entry point for the project. See also [[CAB Anchor Page]] for the structural description.
+The anchor page (`{NAME}.md`) is the primary entry point for the project. See also [[CAB RID Page]] for the structural description.
 
 ## Description Field
 - Include a `description:` field in the YAML frontmatter for the RID index

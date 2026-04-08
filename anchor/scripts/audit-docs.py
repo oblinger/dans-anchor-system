@@ -279,10 +279,12 @@ def audit(anchor_path: str, verbose: bool = False) -> list[Finding]:
     cfg = load_config(anchor_root)
 
     rid = cfg.get("rid", os.path.basename(anchor_root))
-    anchor_type = cfg.get("type", "code")
+    traits = cfg.get("traits", ["code"])
+    if isinstance(traits, str):
+        traits = [traits]
 
-    if anchor_type != "code":
-        print(f"Skipping — anchor type is '{anchor_type}', not 'code'", file=sys.stderr)
+    if "code" not in traits:
+        print(f"Skipping — anchor traits {traits} don't include 'code'", file=sys.stderr)
         return []
 
     # Find code path

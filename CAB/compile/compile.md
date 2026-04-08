@@ -1,3 +1,11 @@
+---
+description: ~~
+---
+| -[[compile]]- | > [[kmr]] → [[SYS]] → [[Bespoke]] → [[Skill Agent]] → [[skills]] → [compile](hook://p/compile)<br>:  |
+| --- | --- |
+| [[audit-docs markdown]] |  |
+| [[code-rewire markdown]] |  |
+
 # /cab compile
 
 Generate executable checklists from CAB specs. Each compilation target describes which source files to read and what extras to preserve. The output is a `.compiled.md` file that agents execute mechanically.

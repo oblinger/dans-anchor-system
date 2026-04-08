@@ -7,16 +7,16 @@
 
 Read these files and extract the structural requirements:
 
-- `~/.claude/skills/CAB/cab-parts/CAB Anchor Page.md` — dispatch table format, standard row sequence, frontmatter requirements
-- `~/.claude/skills/CAB/cab-parts/CAB Folder.md` — marker file, folder naming
-- `~/.claude/skills/CAB/cab-parts/CAB Docs.md` — Docs dispatch page structure
-- `~/.claude/skills/CAB/cab-parts/CAB Dev Dispatch.md` — Dev dispatch page structure
-- `~/.claude/skills/CAB/cab-parts/CAB Plan Dispatch.md` — Plan dispatch page structure
-- `~/.claude/skills/CAB/cab-parts/CAB User Dispatch.md` — User dispatch page structure
-- `~/.claude/skills/CAB/cab-parts/CAB Claude.md` — CLAUDE.md requirements
-- `~/.claude/skills/CAB/cab-types/Code Anchor.md` — code-specific files (Code symlink, Dev, User, Files.md)
-- `~/.claude/skills/CAB/cab-types/Topic Anchor.md` — topic-specific structure
-- `~/.claude/skills/CAB/cab-types/Skill Anchor.md` — skill-specific structure (SKILL.md)
+- `~/.claude/skills/CAB/cab-facets/CAB Anchor Page.md` — dispatch table format, standard row sequence, frontmatter requirements
+- `~/.claude/skills/CAB/cab-facets/CAB Folder.md` — marker file, folder naming
+- `~/.claude/skills/CAB/cab-facets/CAB Docs.md` — Docs dispatch page structure
+- `~/.claude/skills/CAB/cab-facets/CAB Dev Dispatch.md` — Dev dispatch page structure
+- `~/.claude/skills/CAB/cab-facets/CAB Plan Dispatch.md` — Plan dispatch page structure
+- `~/.claude/skills/CAB/cab-facets/CAB User Dispatch.md` — User dispatch page structure
+- `~/.claude/skills/CAB/cab-facets/CAB Claude.md` — CLAUDE.md requirements
+- `~/.claude/skills/CAB/cab-traits/Code Anchor.md` — code-specific files (Code symlink, Dev, User, Files.md)
+- `~/.claude/skills/CAB/cab-traits/Topic Anchor.md` — topic-specific structure
+- `~/.claude/skills/CAB/cab-traits/Skill Anchor.md` — skill-specific structure (SKILL.md)
 
 ## How to Compile
 
@@ -47,7 +47,7 @@ These rules don't appear explicitly in any CAB spec but must be in the compiled 
 - Frontmatter must have both `cab-type:` and `description:`
 - Breadcrumb format: `:>> [[parent]] → [Name](hook://p/Name%20Here)`
 - Dispatch table header: `-[[RID]]-` in first cell, `+: description` in second cell
-- Standard rows order: External, User, Plan, Execute, Dev, Research — verify against [[CAB Anchor Page]] reference example, not from memory
+- Standard rows order: External, User, Plan, Execute, Dev, Research — verify against [[CAB RID Page]] reference example, not from memory
 - Project-specific rows go AFTER standard rows
 - `.anchor/config.yaml` must have `rid:` and `type:` at minimum
 - Dispatch pages link to ALL their children — no orphan files in any folder

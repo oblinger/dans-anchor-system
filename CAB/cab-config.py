@@ -2,14 +2,14 @@
 """cab-config — Manage .anchor/config.yaml for anchor orchestration.
 
 Usage:
-  cab-config init [--type <cab-type>]     Create config with defaults
+  cab-config init [--traits <trait>]     Create config with defaults
   cab-config show                         Display current config
   cab-config set <key> <value>            Set a config key
   cab-config get <key>                    Get a config key's value
   cab-config path <key>                   Get absolute path for a config key
 
 Standard keys:
-  tid        Anchor's Root ID (e.g., DMUX)
+  rid        Anchor's Root ID (e.g., DMUX)
   type       CAB type (simple, topic, code, paper, skill)
   now        Path to the Now file (active work dashboard)
   rules      Path to the Rules file
@@ -73,9 +73,9 @@ def resolve_path(root, relative_path):
     return os.path.join(root, relative_path)
 
 
-def detect_tid(root):
+def detect_rid(root):
     """Try to detect the RID from the anchor root directory."""
-    # Look for a file matching *name*.md with cab-type in frontmatter
+    # Look for a file matching *name*.md with trait in frontmatter
     basename = os.path.basename(root)
     # Common pattern: the anchor folder name IS the RID or contains it
     for f in os.listdir(root):
@@ -86,14 +86,14 @@ def detect_tid(root):
                     first_lines = fh.read(500)
                 if "cab-type:" in first_lines:
                     # This is likely the anchor page — extract RID from filename
-                    tid = f.replace(".md", "")
-                    return tid
+                    rid = f.replace(".md", "")
+                    return rid
             except Exception:
                 continue
     return basename
 
 
-def detect_paths(root, tid):
+def detect_paths(root, rid):
     """Auto-detect standard paths based on what exists.
 
     Only detects keys that scripts actually use:
@@ -106,16 +106,16 @@ def detect_paths(root, tid):
     paths = {}
 
     # Docs structure: <RID> Docs/<RID> Plan/
-    docs = f"{tid} Docs"
-    plan = os.path.join(docs, f"{tid} Plan")
+    docs = f"{rid} Docs"
+    plan = os.path.join(docs, f"{rid} Plan")
 
     # Look for standard operational files in plan folder
     if os.path.isdir(os.path.join(root, plan)):
         for key, pattern in [
-            ("now", f"{tid} Now.md"),
-            ("rules", f"{tid} Rules.md"),
-            ("backlog", f"{tid} Backlog.md"),
-            ("inbox", f"{tid} Inbox.md"),
+            ("now", f"{rid} Now.md"),
+            ("rules", f"{rid} Rules.md"),
+            ("backlog", f"{rid} Backlog.md"),
+            ("inbox", f"{rid} Inbox.md"),
         ]:
             candidate = os.path.join(plan, pattern)
             if os.path.exists(os.path.join(root, candidate)):
@@ -128,7 +128,7 @@ def detect_paths(root, tid):
     return paths
 
 
-def cmd_init(cab_type=None):
+def cmd_init(trait=None):
     """Create .anchor/config.yaml with auto-detected defaults."""
     root = find_anchor_root()
     path = config_path(root)
@@ -138,17 +138,17 @@ def cmd_init(cab_type=None):
         print("Use 'cab-config set <key> <value>' to modify.")
         return
 
-    tid = detect_tid(root)
-    paths = detect_paths(root, tid)
+    rid = detect_rid(root)
+    paths = detect_paths(root, rid)
 
-    cfg = {"tid": tid}
-    if cab_type:
-        cfg["type"] = cab_type
+    cfg = {"rid": rid}
+    if trait:
+        cfg["traits"] = [trait]
     cfg.update(paths)
 
     save_config(cfg, root)
     print(f"Created: {path}")
-    print(f"RID: {tid}")
+    print(f"RID: {rid}")
     for k, v in paths.items():
         exists = "✓" if os.path.exists(os.path.join(root, v)) else "✗"
         print(f"  {k}: {v}  {exists}")
@@ -165,7 +165,7 @@ def cmd_show():
     print(f"Config: {config_path(root)}")
     print()
     for k, v in cfg.items():
-        if k in ("tid", "type"):
+        if k in ("rid", "traits"):
             print(f"  {k}: {v}")
         else:
             abs_path = resolve_path(root, v)
@@ -215,12 +215,12 @@ def main():
     cmd = args[0]
 
     if cmd == "init":
-        cab_type = None
+        trait = None
         if "--type" in args:
             idx = args.index("--type")
             if idx + 1 < len(args):
-                cab_type = args[idx + 1]
-        cmd_init(cab_type)
+                trait = args[idx + 1]
+        cmd_init(trait)
 
     elif cmd == "show":
         cmd_show()

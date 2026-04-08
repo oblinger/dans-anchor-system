@@ -6,11 +6,11 @@ Check that all expected files exist, dispatch tables are properly wired with sta
 
 ### 1. Detect Anchor
 
-Read the anchor page (has `cab-type:` in frontmatter or `-[[NAME]]-` dispatch table). Determine the RID, anchor type, and expected structure.
+Read the anchor page (has `cab-traits:` in frontmatter or `-[[NAME]]-` dispatch table). Determine the RID, anchor traits, and expected structure.
 
 ### 2. Check Standard Dispatch Rows
 
-Read the [[CAB Anchor Page]] reference example. The dispatch table must have the standard rows in this exact order (skipping rows that don't apply to this type):
+Read the [[CAB RID Page]] reference example. The dispatch table must have the standard rows in this exact order (skipping rows that don't apply to this anchor's traits):
 
 1. External
 2. User
@@ -26,13 +26,13 @@ Project-specific rows go after the standard rows. Flag any standard row that is 
 These files are expected for ALL anchor types:
 
 - Marker file: `{FolderName}.md`
-- Anchor page: `{NAME}.md` with `cab-type:` and `description:` in frontmatter, dispatch table
+- Anchor page: `{NAME}.md` with `cab-traits:` and `description:` in frontmatter, dispatch table
 - CLAUDE.md with role header
-- `.skl/config.yaml` with rid and type
+- `.skl/config.yaml` with rid and traits
 
 ### 4. Check Type-Specific Structure
 
-Read the type spec file from `~/.claude/skills/CAB/cab-types/` for this anchor's type (e.g., `Code Anchor.md`, `Topic Anchor.md`). If the type spec has an `## Audit` section, run those checks. This covers type-specific files, folders, and conventions.
+Read the trait spec file from `~/.claude/skills/CAB/cab-traits/` for each of this anchor's traits (e.g., `Code Anchor.md`, `Topic Anchor.md`). If a trait spec has an `## Audit` section, run those checks. For multi-trait anchors, run the union of all trait-specific checks. This covers trait-specific files, folders, and conventions.
 
 ### 5. Check Link Integrity
 
@@ -45,7 +45,7 @@ Also check for orphaned files — files that exist but aren't linked from any di
 
 ### 6. Check Sub-Dispatch Pages
 
-Each dispatch page must link to all its children. Only check dispatch pages that exist for this anchor type:
+Each dispatch page must link to all its children. Only check dispatch pages that exist for this anchor's traits:
 - Plan dispatch → planning docs it contains
 - Dev dispatch → module docs and Files
 - User dispatch → user-facing docs
@@ -66,7 +66,7 @@ Combine all findings into a single table:
 ### 8. Post to Stat
 
 ```bash
-skl-stat add "[[{NAME}]]" "Review" "Structure audit: N fixes needed" --output
+skl-stat add "Review" "[[{NAME}]]" "Structure audit: N fixes needed"
 ```
 
 Write the fixes table to the output file.

@@ -8,7 +8,7 @@
 
 - [ ] File exists at anchor root
 - [ ] Has `rid:` field
-- [ ] Has `type:` field
+- [ ] Has `traits:` field (list of trait names)
 
 ## {FolderName}.md (marker file)
 
@@ -18,23 +18,22 @@
 
 ## {NAME}.md (anchor page)
 
-- [ ] Has YAML frontmatter with `cab-type:` field
+- [ ] Has H1 heading: `# {RID} — {FolderName}` when RID differs from folder name, or `# {NAME}` when they match
+- [ ] Has YAML frontmatter with `cab-traits:` field (list)
 - [ ] Has YAML frontmatter with `description:` field
-- [ ] Has breadcrumb line starting with `:>>`
-- [ ] Breadcrumb format is `:>> [[parent]] → [Name](hook://p/Name%20Here)`
-- [ ] Has H1 heading: `# {RID} — {Full Name}` (with RID) or `# {Full Name}` (without RID)
 - [ ] Has dispatch table with `-[[{NAME}]]-` in first cell of header row
-- [ ] Dispatch table header second cell is `+: short description`
+- [ ] Dispatch table header second cell has `>` (breadcrumb) and/or `:` (description), separated by `<br>` (e.g., `><br>: short description`)
 - [ ] Blank line exists before the dispatch table
 - [ ] All wiki-link aliases inside tables use escaped pipe: `[[target\|alias]]`
 - [ ] Standard rows appear in this order: External, User, Plan, Execute, Dev, Research
 - [ ] Project-specific rows appear AFTER all standard rows
-- [ ] Rows that do not apply to this anchor type are omitted entirely (not left empty)
-- [ ] User row label links to `[[{NAME} User/{NAME} User\|User]]`
-- [ ] Plan row label links to `[[{NAME} Plan\|Plan]]`
+- [ ] Rows that do not apply to this anchor's traits are omitted entirely (not left empty)
+- [ ] User row label links to `[[{NAME} User/{NAME} User\|User]]` with `+` suffix if folder exists
+- [ ] Plan row label links to `[[{NAME} Plan\|Plan]]` with `+` suffix if folder exists
 - [ ] Execute row label links to `[[{NAME} Plan\|Execute]]`
-- [ ] Dev row label links to `[[{NAME} Dev/{NAME} Dev\|Dev]]`
+- [ ] Dev row label links to `[[{NAME} Dev/{NAME} Dev\|Dev]]` with `+` suffix if folder exists
 - [ ] External and Research row labels are plain text (not wiki-links)
+- [ ] Table ends with a separator row to enable auto-management of remaining children: `---` (alpha), `^^^` (reverse alpha), `...` (compact), or `+++` (alpha with grandchildren)
 - [ ] Every file listed in inline row links actually exists
 
 ## {NAME} Docs/{NAME} Docs.md
@@ -46,19 +45,21 @@
 ## {NAME} Docs/{NAME} Plan/{NAME} Plan.md
 
 - [ ] File exists if `{NAME} Plan/` folder exists
-- [ ] Has breadcrumb navigating back through dispatch tree
 - [ ] Has dispatch table with `-[[{NAME} Plan]]-` in first cell
-- [ ] Dispatch table second cell is `+: planning docs`
+- [ ] Dispatch table header second cell has `><br>:` markers (breadcrumb + description)
+- [ ] Table ends with a separator row (`---` or `^^^`) for auto-management
 - [ ] Links to every `.md` file in the Plan folder (PRD, System Design, UX Design, Discussion, Roadmap, Backlog, Inbox, Open Questions, Research, Features)
+- [ ] `{NAME} Features/` folder exists under Plan with `{NAME} Features.md` index inside it
+- [ ] Features index links to all dated feature files (reverse chronological)
 - [ ] Only links files that actually exist — no dead links
 - [ ] No orphan files in Plan folder missing from dispatch table
 
 ## {NAME} Docs/{NAME} Dev/{NAME} Dev.md
 
 - [ ] File exists if `{NAME} Dev/` folder exists
-- [ ] Has breadcrumb navigating back through dispatch tree
 - [ ] Has dispatch table with `-[[{NAME} Dev]]-` in first cell
-- [ ] Dispatch table second cell is `+: developer documentation`
+- [ ] Dispatch table header second cell has `><br>:` markers (breadcrumb + description)
+- [ ] Table ends with a separator row for auto-management
 - [ ] Files row appears first in body rows
 - [ ] Architecture row appears second in body rows
 - [ ] Module doc rows are grouped by source folder with bold folder headers (`**folder/**`)
@@ -68,9 +69,9 @@
 ## {NAME} Docs/{NAME} User/{NAME} User.md
 
 - [ ] File exists if `{NAME} User/` folder exists
-- [ ] Has breadcrumb navigating back through dispatch tree
 - [ ] Has dispatch table with `-[[{NAME} User]]-` in first cell
-- [ ] Dispatch table second cell is `+: user-facing documentation`
+- [ ] Dispatch table header second cell has `><br>:` markers (breadcrumb + description)
+- [ ] Table ends with a separator row for auto-management
 - [ ] Links to every `.md` file in the User folder
 - [ ] No orphan files in User folder missing from dispatch table
 
@@ -97,8 +98,8 @@
 ## {NAME}.md (anchor page — code-specific)
 
 - [ ] Has External row with repo URL
-- [ ] Has Dev row linking to Dev dispatch page
-- [ ] Has User row if User folder exists
+- [ ] Has Dev row linking to Dev dispatch page with `+` suffix
+- [ ] Has User row with `+` suffix if User folder exists
 
 ## Code / .git/
 
@@ -140,11 +141,11 @@
 - [ ] Folder exists with dispatch page
 - [ ] `{NAME} Plan/` subfolder exists with planning docs
 
-## Not expected
+## Conditional structure (create only when another trait requires)
 
-- [ ] No `{NAME} Dev/` folder exists
-- [ ] No `{NAME} User/` folder exists
-- [ ] No `Code` symlink exists
+- [ ] `{NAME} Dev/` folder — create only when Code trait is present
+- [ ] `{NAME} User/` folder — create only when Code trait is present
+- [ ] `Code` symlink — create only when Code trait is present
 
 ---
 
@@ -166,12 +167,12 @@
 - [ ] All files use lowercase hyphenated names: `{name}-{action}.md`
 - [ ] No Title Case file names inside the skill folder
 
-## Not expected
+## Conditional structure (create only when another trait requires)
 
-- [ ] No standard `{NAME}.md` anchor page in the skill folder
-- [ ] No `{NAME} Docs/` folder inside the skill folder
-- [ ] No `CLAUDE.md` inside the skill folder (SKILL.md replaces it)
-- [ ] No `{FolderName}.md` marker file (SKILL.md is the marker)
+- [ ] Standard `{NAME}.md` anchor page — create only when another trait requires it (SKILL.md replaces it by default)
+- [ ] `{NAME} Docs/` folder — create only when another trait requires it
+- [ ] `CLAUDE.md` — create only when another trait requires it (SKILL.md replaces it by default)
+- [ ] `{FolderName}.md` marker file — create only when another trait requires it (SKILL.md is the marker by default)
 
 ## SKA project anchor (if complex skill)
 
@@ -185,12 +186,14 @@
 
 - [ ] Wiki-links in tables: always escape pipe as `\|` — `[[target\|alias]]` not `[[target|alias]]`
 - [ ] Blank line before every markdown table or it will not render
-- [ ] Frontmatter must have both `cab-type:` and `description:`
-- [ ] Breadcrumb format: `:>> [[parent]] → [Name](hook://p/Name%20Here)`
-- [ ] Dispatch table header: `-[[RID]]-` in first cell, `+: description` in second cell
+- [ ] Frontmatter must have both `cab-traits:` (list) and `description:`
+- [ ] H1 heading: `# {RID} — {FolderName}` when RID differs from folder name, or `# {NAME}` when they match
+- [ ] Dispatch table header: `-[[{NAME}]]-` in first cell, `><br>:` markers in second cell
+- [ ] Dispatch table separator row: `---`, `^^^`, `...`, or `+++` in left cell enables auto-management below
+- [ ] Per-row `+` suffix on wiki-link rows (e.g., `[[Name]]+`) to show grandchildren for that row
 - [ ] Standard rows order: External, User, Plan, Execute, Dev, Research
 - [ ] Project-specific rows go AFTER standard rows
-- [ ] `.anchor/config.yaml` must have `rid:` and `type:` at minimum
+- [ ] `.anchor/config.yaml` must have `rid:` and `traits:` at minimum
 - [ ] Dispatch pages link to ALL their children — no orphan files
 - [ ] Every subfolder that has files needs a dispatch page
 - [ ] Every markdown file and folder inside an anchor is prefixed with `{NAME}`

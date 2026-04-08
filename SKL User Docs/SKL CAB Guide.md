@@ -29,7 +29,7 @@ An anchor's identity comes from its RID (Root ID) — a short uppercase code lik
 ## Key Concepts
 
 - **Anchor types** — Simple (flat folder), Topic (docs + backlog), Code (full dev setup with repo, tests, roadmap), Paper (research/writing), Skill (agent skill with SKILL.md entry point)
-- **Parts** — Standard files that can appear in an anchor: Anchor Page, Docs, Backlog, Features, Roadmap, Module Docs, PRD, System Design, etc. Each part has a spec in `cab-parts/`
+- **Parts** — Standard files that can appear in an anchor: Anchor Page, Docs, Backlog, Features, Roadmap, Module Docs, PRD, System Design, etc. Each part has a spec in `cab-facets/`
 - **Rules** — Naming conventions, markdown formatting, docs conventions, repository structure. Each rule is in `cab-rules/`
 - **Base file tree** — All types share a common base structure defined in CAB Base. Type specs add or remove from this base
 - **`.skl/config.yaml`** — Per-anchor configuration file linking to docs, rules, and other paths

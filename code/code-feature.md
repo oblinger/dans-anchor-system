@@ -42,7 +42,6 @@ If the Features folder doesn't exist, create it.
 ---
 description: <one-line description>
 ---
-:>> [[RID]] → [[RID Plan]] → [[RID Features]] → [Feature Name]
 
 # <Feature Name>
 
@@ -64,10 +63,8 @@ Proposed — awaiting design discussion.
 ### 2. Post to Stat
 
 ```bash
-skl-stat add "<Feature Name>" "Proposed" "Feature doc created"
+skl-stat add "Proposed" "<Feature Name>" "Feature doc created"
 ```
-
-If `--output` is warranted (complex feature), use it and write a summary to the detail file.
 
 ### 3. Design Discussion
 
@@ -93,7 +90,7 @@ skl-stat update <S#> "Agreed" "Design approved by user"
 
 ### 5. Implement
 
-Delegate to `/code it` or work directly. The feature doc is the spec.
+Delegate to `/code mint` or work directly. The feature doc is the spec.
 
 ```bash
 skl-stat update <S#> "Implementing" "Starting implementation"
@@ -157,8 +154,8 @@ Implement <Feature Name> (S03200917)
 
 Every lifecycle transition posts to stat. The user can monitor all active features across all projects from the Ops page:
 
-| S# | Status | Ref | Notes |
-|----|--------|-----|-------|
+| S# | Status | Output | Activity |
+|----|--------|--------|----------|
 | S03210930 | Implementing | [[2026-03-21 Standard Rule Sets]] | 3 of 11 rule sets created |
 | S03200917 | Agreed | [[2026-03-20 Buffer Origin Point]] | Design approved, starting implementation |
 | S03201400 | Proposed | [[Smart Clear]] | Feature doc created, needs design discussion |

@@ -12,7 +12,7 @@ After System Design is written. Run when the file structure and module interface
 
 ### 1. Read the Reference Example
 
-Read `~/.claude/skills/CAB/cab-parts/CAB Module Doc.md` from top to bottom. The reference example at the top shows the exact format. The format specification below it explains every detail. Do this EVERY TIME you create module docs, not just the first time.
+Read `~/.claude/skills/CAB/cab-facets/CAB Module Doc.md` from top to bottom. The reference example at the top shows the exact format. The format specification below it explains every detail. Do this EVERY TIME you create module docs, not just the first time.
 
 ### 2. Build the Files Document
 

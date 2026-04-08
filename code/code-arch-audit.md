@@ -4,7 +4,7 @@ Verify the architecture phase produced a complete, consistent set of documents. 
 
 ## When to Use
 
-After completing System Design, Module Docs, Test Plan, and Roadmap. Run as the final gate before `/code it`.
+After completing System Design, Module Docs, Test Plan, and Roadmap. Run as the final gate before `/code mint`.
 
 ## Workflow
 

@@ -1,7 +1,6 @@
 ---
 description: How auditing works — design rationale, tool chain, and examples
 ---
-:>> [[AUDIT]] → [SKL Audit Guide](hook://p/SKL%20Audit%20Guide)
 
 # SKL Audit Guide (Skill: [[audit/SKILL]])
 
@@ -31,7 +30,7 @@ The agent never calls cab-lint directly for user-facing work. `/audit docs` call
 
 ### stat (the reporter)
 
-Audit results go to stat via `skl-stat add --output`. The punch list is a detail file. The user sees "N fixes needed" in Ops and clicks through.
+Audit results go to stat via `skl-stat add`. The punch list is a detail file. The user sees "N fixes needed" in Ops and clicks through.
 
 ### /code modules (the fixer)
 
@@ -47,7 +46,7 @@ When the user approves fixes, the agent runs `/code modules` for each item. This
 | Paper | ✓ | | | ✓ |
 | Skill | ✓ | | | ✓ |
 
-Type-specific checks are in the `## Audit` section of each type spec file in `~/.claude/skills/CAB/cab-types/`.
+Type-specific checks are in the `## Audit` section of each type spec file in `~/.claude/skills/CAB/cab-traits/`.
 
 ## Why Incremental
 

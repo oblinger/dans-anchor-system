@@ -1,0 +1,14 @@
+rules:
+  - id: swift-try-question
+    pattern: try? $X
+    message: "Silent fallback: try? discards the error and returns nil"
+    severity: WARNING
+    languages: [swift]
+
+  - id: swift-empty-catch
+    pattern: |
+      catch {
+      }
+    message: "Silent fallback: empty catch block swallows error"
+    severity: ERROR
+    languages: [swift]

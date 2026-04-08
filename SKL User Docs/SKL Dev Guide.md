@@ -16,7 +16,7 @@ The Dev skill integrates with other skills: CAB for project structure, Rule for 
 |---------|-------------|
 | `/code plan` | Full planning pass: anchor, PRD, UX, system design, audit |
 | `/code architect` | Architecture pass: system design, modules, test plan, roadmap |
-| `/code it` | Implementation pass: spec, code, test, review, verify, commit |
+| `/code mint` | Implementation pass: spec, code, test, review, verify, commit |
 | `/code feature` | Feature lifecycle: design doc, agree, implement, test, done |
 | `/code bugfix` | Red test first, then spike — mandatory for every bug |
 | `/code spike` | Root cause diagnosis — 4 levels from standard to aggressive |

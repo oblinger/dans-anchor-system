@@ -21,14 +21,14 @@ user_invocable: true
 5. Post to stat:
 
 ```bash
-skl-stat add "[[{NAME}]]" "Review" "Audit: N fixes needed" --output
+skl-stat add "Review" "[[{NAME}]]" "Audit: N fixes needed"
 ```
 
 6. Write the fixes table to the output file
 7. If zero issues:
 
 ```bash
-skl-stat add "[[{NAME}]]" "Done" "Audit: clean"
+skl-stat add "Done" "[[{NAME}]]" "Audit: clean"
 ```
 
 ## Flags
@@ -46,15 +46,18 @@ Flags can be passed as `--fix` or just the word `fix` or `fixed` anywhere in the
 | `/audit rules` | [[audit-rules]] | — | Rule violations → `/rule check --all` |
 | `/audit docs` | [[audit-docs]] | [[audit-docs.compiled]] | Module docs vs source code |
 | `/audit publish` | [[audit-publish]] | — | PII, credentials, sensitive paths |
+| `/audit code` | [[audit-code]] | — | Code quality: silent fallbacks, dead code, magic values (Semgrep + agent) |
 
 ## Which apply
 
-| Type | structure | rules | docs | publish |
-|------|-----------|-------|------|---------|
-| Simple | ✓ | | | |
-| Topic | ✓ | | | ✓ |
-| Code | ✓ | ✓ | ✓ | ✓ |
-| Paper | ✓ | | | ✓ |
-| Skill | ✓ | | | ✓ |
+| Trait | structure | rules | docs | code | publish |
+|-------|-----------|-------|------|------|---------|
+| Simple | ✓ | | | | |
+| Topic | ✓ | | | | ✓ |
+| Code | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Paper | ✓ | | | | ✓ |
+| Skill | ✓ | | | | ✓ |
 
-`/audit` with no args → read `cab-type` from config, run all applicable.
+For multi-trait anchors, run the union of all applicable checks across all traits.
+
+`/audit` with no args → read `traits` from config, run all applicable.

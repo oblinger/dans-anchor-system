@@ -76,7 +76,7 @@ For `missing-doc` findings: if the source file genuinely should not have a doc (
 ## 3.2 Create missing module docs
 For each missing module doc:
 - [ ] Read the source file to extract classes, properties, methods, enums
-- [ ] Read `~/.claude/skills/CAB/cab-parts/CAB Module Doc.md` reference example (MANDATORY — do this EVERY TIME, do NOT write from memory)
+- [ ] Read `~/.claude/skills/CAB/cab-facets/CAB Module Doc.md` reference example (MANDATORY — do this EVERY TIME, do NOT write from memory)
 - [ ] Create the doc following the exact format checklist below
 - [ ] Verify the doc is already linked from Dev dispatch AND Files.md (done in 3.1)
 

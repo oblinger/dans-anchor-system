@@ -37,7 +37,7 @@ Architecture is complete when:
 4. The roadmap has a clear first milestone ready for implementation
 5. The documentation dispatch tree is navigable
 
-Transition to `/code it` when the roadmap is ready.
+Transition to `/code mint` when the roadmap is ready.
 
 ## Dispatch
 

@@ -33,7 +33,7 @@ main
 
 ### Bulk Variant
 
-"PR flow bulk" — pilot owns the full cycle with ~4 parallel agents. No user review per PR. Batches by parent milestone. See [[CAB-pr-flow]] for the full spec.
+"PR flow bulk" — pilot owns the full cycle with ~4 parallel agents. No user review per PR. Batches by parent milestone. See [[cab-pr-flow]] for the full spec.
 
 ### Git Protocol
 

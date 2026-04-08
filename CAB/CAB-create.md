@@ -8,7 +8,7 @@ Ask the user for:
 
 | Question | Notes |
 |----------|-------|
-| **Type** | Simple, Topic, Code, Paper, or Skill |
+| **Traits** | One or more of: Simple, Topic, Code, Paper, Skill (list) |
 | **Full Name** | Title Case with spaces (e.g., "Task Runner") |
 | **Parent Anchor** | Where to create it (e.g., PP, prj, SYS/Bespoke) |
 | **Description** | One-line `description:` in frontmatter |
@@ -16,13 +16,13 @@ Ask the user for:
 
 If RID exists, `{NAME}` = RID. Otherwise `{NAME}` = Full Name.
 
-## Step 2: Read the Type Spec and Reference Examples
+## Step 2: Read the Trait Specs and Reference Examples
 
-Read the type-specific file from `~/.claude/skills/cab/cab-types/` (e.g., `Code Anchor.md`, `Skill Anchor.md`).
+Read the trait spec file from `~/.claude/skills/cab/cab-traits/` for each of the anchor's traits (e.g., `Code Anchor.md`, `Skill Anchor.md`). For multi-trait anchors, read all applicable specs and create the union of their structures.
 
 Then read the CAB part specs — each has a **Reference Example** at the top showing exactly what the file should look like. These examples are the single source of truth for both setup and rewire. Key ones to read:
 
-- **[[CAB Anchor Page]]** → dispatch table format and standard rows
+- **[[CAB RID Page]]** → dispatch table format and standard rows
 - **[[CAB Folder]]** → marker file format
 - **[[CAB Plan Dispatch]]** → Plan dispatch page format
 - **[[CAB Dev Dispatch]]** → Dev dispatch page format
@@ -41,12 +41,12 @@ ha --action kb_create_child --input "{Full Name}" --anchor "{Parent}"
 
 ## Step 4: Create the Full File Structure
 
-Based on the type, create ALL files upfront. **Do not skip files** — empty files with proper headings are better than missing files that need to be created later.
+Based on the traits, create ALL files upfront. For multi-trait anchors, create the union of all files required by each trait. **Do not skip files** — empty files with proper headings are better than missing files that need to be created later.
 
 ### All Types (base structure)
 
 1. **Marker file** — `{Full Name}.md` containing `(See Anchor [[{NAME}]])`
-2. **Anchor page** — `{NAME}.md` with breadcrumb, H1, `description:` in frontmatter, and dispatch table. Use the dispatch table format from [[CAB Anchor Page]].
+2. **Anchor page** — `{NAME}.md` with breadcrumb, H1, `description:` in frontmatter, and dispatch table. Use the dispatch table format from [[CAB RID Page]].
 3. **CLAUDE.md** — with role header:
    ```
    You are the Pilot for the {Full Name} project. Role: `~/.claude/skills/role/role-pilot.md`
@@ -116,10 +116,10 @@ Create `.skl/config.yaml` for the new anchor:
 
 ```bash
 cd "{full path to anchor folder}"
-cab-config init --type {type}
+cab-config init --traits {traits}
 ```
 
-This creates `.skl/config.yaml` with the RID, type, and auto-detected paths to now, rules, backlog, inbox, and code. Also creates the Now file if it doesn't exist.
+This creates `.skl/config.yaml` with the RID, traits, and auto-detected paths to now, rules, backlog, inbox, and code. Also creates the Now file if it doesn't exist.
 
 ## Step 7: Register
 
