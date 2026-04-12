@@ -3,7 +3,7 @@ description: ~~
 ---
 
 
-| -[[CAB-facets]]- | > [[kmr]] → [[SYS]] → [[Bespoke]] → [[Skill Agent]] → [[skills]] → [CAB-facets](hook://p/CAB-facets)<br>:  |
+| -[[CAB-facets]]- | > [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [CAB-facets](hook://p/CAB-facets)<br>:  |
 | --- | --- |
 | Structure | [[CAB Folder\|Folder]], [[CAB RID Page\|RID Page]], [[CAB Claude\|CLAUDE.md]], [[CAB All Files\|All Files]], [[CAB Skill\|Skill]] |
 | Planning | [[CAB PRD\|PRD]], [[CAB System Design\|System Design]], [[CAB UX Design\|UX]], [[CAB Features\|Features]], [[CAB Discussion\|Discussion]], [[CAB Open Questions\|Open Q]] |

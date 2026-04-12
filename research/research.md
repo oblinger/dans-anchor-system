@@ -1,7 +1,7 @@
 ---
 description: research workflows — investigation, synthesis
 ---
-| -[[research]]- | > [[kmr]] → [[SYS]] → [[Bespoke]] → [[Skill Agent]] → [[skills]] → [research](hook://p/research)<br>:  |
+| -[[research]]- | > [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [research](hook://p/research)<br>:  |
 | --- | --- |
 | ~~[[research-book markdown]]~~ |  |
 | ~~[[research-dig markdown]]~~ |  |

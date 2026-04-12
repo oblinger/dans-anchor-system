@@ -1,7 +1,7 @@
 ---
 description: ~~
 ---
-| -[[compile]]- | > [[kmr]] → [[SYS]] → [[Bespoke]] → [[Skill Agent]] → [[skills]] → [compile](hook://p/compile)<br>:  |
+| -[[compile]]- | > [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [compile](hook://p/compile)<br>:  |
 | --- | --- |
 | [[audit-docs markdown]] |  |
 | [[code-rewire markdown]] |  |
