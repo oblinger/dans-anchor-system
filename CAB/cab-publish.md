@@ -1,16 +1,16 @@
 # Publish — Deploy an anchor's public page to the web
 
-Publish an anchor's web presence. Reads config from `.anchor/config.yaml` to determine method and options.
+Publish an anchor's web presence. Reads config from `.anchor` to determine method and options.
 
 ## Config
 
-In `.anchor/config.yaml`:
+In `.anchor`:
 
 ```yaml
 publish:
   method: gitproj           # or github-pages
   listed: false             # true = add to main projects page
-  title: "The Forum"        # page title (defaults to RID)
+  title: "The Forum"        # page title (defaults to slug)
   description: "..."        # one-line description (defaults to anchor description)
   assets:                   # files to include alongside index.html
     - "The Forum.pdf"
@@ -23,7 +23,7 @@ publish:
 Publishes to `https://oblinger.github.io/gitproj/{name}/`. This is a subdirectory of the main gitproj repo — lightweight, no separate repo needed.
 
 **Steps:**
-1. Read publish config from `.anchor/config.yaml`
+1. Read publish config from `.anchor`
 2. Run `/audit publish` — check for PII, credentials, sensitive paths
 3. Build `index.html` from anchor description, title, and assets
 4. Copy assets (PDF, images) to the publish folder
@@ -37,7 +37,7 @@ Publishes to `https://oblinger.github.io/gitproj/{name}/`. This is a subdirector
 Publishes to a dedicated GitHub Pages site — either `{name}.github.io` or a custom domain.
 
 **Steps:**
-1. Read publish config from `.anchor/config.yaml`
+1. Read publish config from `.anchor`
 2. Run `/audit publish` — check for PII, credentials, sensitive paths
 3. Create or update the repo `oblinger/{name}`
 4. Build site (index.html + assets, or Jekyll/static site if configured)
@@ -46,7 +46,7 @@ Publishes to a dedicated GitHub Pages site — either `{name}.github.io` or a cu
 
 ## Steps (common)
 
-1. Read `.anchor/config.yaml` — get publish method and options
+1. Read `.anchor` — get publish method and options
 2. If no publish config exists, ask the user which method to use
 3. Run `/audit publish` to check for PII before publishing
 4. Build the page — generate `index.html` if it doesn't exist, or use existing

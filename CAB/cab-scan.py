@@ -6,9 +6,9 @@ Usage:
   cab-scan <path>             Scan from specified path
   cab-scan --show             Show current anchor registry (no rescan)
 
-Finds all folders containing .skl/config.yaml and writes the list to
-~/.config/skl/anchors.yaml. Only configured anchors are found — run
-'cab-config init' in a folder to register it as an anchor.
+Finds all folders containing a .anchor file (flat YAML) or legacy
+.anchor/config.yaml directory, and writes the list to
+~/.config/skl/anchors.yaml.
 
 The scan root defaults to the 'root' key in ~/.config/skl/config.yaml,
 or ~ if not configured.
@@ -42,7 +42,7 @@ def get_scan_root(explicit=None):
 
 
 def scan(root):
-    """Walk from root finding all folders with .skl/config.yaml."""
+    """Walk from root finding all folders with .anchor file or .anchor/config.yaml."""
     anchors = []
     root = os.path.abspath(root)
 
@@ -52,13 +52,17 @@ def scan(root):
         "Library", "Applications", ".cache", ".npm", ".cargo",
     }
 
-    for dirpath, dirnames, _ in os.walk(root):
+    for dirpath, dirnames, filenames in os.walk(root):
         dirnames[:] = [
             d for d in dirnames
             if d not in skip_dirs and not d.startswith(".")
         ]
 
-        if os.path.exists(os.path.join(dirpath, ".skl", "config.yaml")):
+        # New format: .anchor flat file
+        if ".anchor" in filenames:
+            anchors.append(dirpath)
+        # Legacy format: .anchor/ directory with config.yaml
+        elif os.path.exists(os.path.join(dirpath, ".anchor", "config.yaml")):
             anchors.append(dirpath)
 
     anchors.sort()
@@ -79,25 +83,35 @@ def write_anchors(anchors):
         yaml.dump({"anchors": paths}, f, default_flow_style=False)
 
 
-def read_tid(dirpath):
-    """Read RID from an anchor's .skl/config.yaml."""
-    cfg_path = os.path.join(dirpath, ".skl", "config.yaml")
+def read_slug(dirpath):
+    """Read slug from an anchor's .anchor file or legacy .anchor/config.yaml."""
+    # New format
+    anchor_file = os.path.join(dirpath, ".anchor")
+    if os.path.isfile(anchor_file):
+        try:
+            with open(anchor_file) as f:
+                cfg = yaml.safe_load(f) or {}
+            return cfg.get("slug", cfg.get("rid", ""))
+        except Exception:
+            return ""
+    # Legacy format
+    cfg_path = os.path.join(dirpath, ".anchor", "config.yaml")
     try:
         with open(cfg_path) as f:
             cfg = yaml.safe_load(f) or {}
-        return cfg.get("tid", "")
+        return cfg.get("slug", cfg.get("rid", cfg.get("tid", "")))
     except Exception:
         return ""
 
 
 def display_anchors(anchors):
-    """Print anchor list with RIDs."""
+    """Print anchor list with slugs."""
     home = os.path.expanduser("~")
     for a in anchors:
         display = "~" + a[len(home):] if a.startswith(home) else a
-        tid = read_tid(a)
-        if tid:
-            print(f"  {tid:8s} {display}")
+        slug = read_slug(a)
+        if slug:
+            print(f"  {slug:8s} {display}")
         else:
             print(f"  {'':8s} {display}")
 

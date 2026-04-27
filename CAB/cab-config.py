@@ -1,23 +1,26 @@
 #!/usr/bin/env python3
-"""cab-config — Manage .anchor/config.yaml for anchor orchestration.
+"""cab-config — Manage .anchor file for anchor orchestration.
 
 Usage:
-  cab-config init [--traits <trait>]     Create config with defaults
+  cab-config init [--traits <trait>]     Create .anchor with defaults
   cab-config show                         Display current config
   cab-config set <key> <value>            Set a config key
   cab-config get <key>                    Get a config key's value
   cab-config path <key>                   Get absolute path for a config key
 
 Standard keys:
-  rid        Anchor's Root ID (e.g., DMUX)
-  type       CAB type (simple, topic, code, paper, skill)
+  slug       Anchor's short identifier (e.g., DMUX)
+  traits     List of traits (simple, topic, code, paper, skill)
   now        Path to the Now file (active work dashboard)
   rules      Path to the Rules file
   backlog    Path to the Backlog file
   inbox      Path to the Inbox file
-  code       Path to the code repository (usually a symlink)
+  code       Path to the code repository. Required when the anchor has
+             the `code` trait. May be absolute, or relative to the anchor
+             root (e.g. `.` for inline repos, `../../proj/foo` for linked).
 
-All paths are relative to the anchor root (where .anchor/ lives).
+All other paths are relative to the anchor root (where .anchor lives).
+The `code` key accepts absolute paths as well (see above).
 """
 
 import os
@@ -26,21 +29,24 @@ import yaml
 
 
 def find_anchor_root():
-    """Walk up from cwd to find the directory containing .anchor/."""
+    """Walk up from cwd to find the directory containing .anchor file or .anchor/ dir."""
     d = os.getcwd()
     while d != "/":
+        # New format: .anchor flat file
+        if os.path.isfile(os.path.join(d, ".anchor")):
+            return d
+        # Legacy format: .anchor/ directory
         if os.path.isdir(os.path.join(d, ".anchor")):
             return d
         d = os.path.dirname(d)
-    # If no .anchor found, use cwd
     return os.getcwd()
 
 
 def config_path(root=None):
-    """Return path to .anchor/config.yaml."""
+    """Return path to .anchor file."""
     if root is None:
         root = find_anchor_root()
-    return os.path.join(root, ".anchor", "config.yaml")
+    return os.path.join(root, ".anchor")
 
 
 def load_config(root=None):
@@ -48,22 +54,34 @@ def load_config(root=None):
     if root is None:
         root = find_anchor_root()
     path = config_path(root)
-    if os.path.exists(path):
+    # New format: .anchor is a flat file
+    if os.path.isfile(path):
         with open(path) as f:
             cfg = yaml.safe_load(f) or {}
-    else:
-        cfg = {}
-    return cfg, root
+        return cfg, root
+    # Legacy format: .anchor/config.yaml
+    legacy = os.path.join(path, "config.yaml")
+    if os.path.exists(legacy):
+        with open(legacy) as f:
+            cfg = yaml.safe_load(f) or {}
+        return cfg, root
+    return {}, root
 
 
 def save_config(cfg, root=None):
-    """Save config to .anchor/config.yaml."""
+    """Save config to .anchor file (flat YAML)."""
     if root is None:
         root = find_anchor_root()
     path = config_path(root)
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w") as f:
-        yaml.dump(cfg, f, default_flow_style=False, sort_keys=False)
+    # If legacy .anchor/ directory exists, migrate to flat file
+    if os.path.isdir(path):
+        # Write to .anchor/config.yaml for backwards compat
+        legacy = os.path.join(path, "config.yaml")
+        with open(legacy, "w") as f:
+            yaml.dump(cfg, f, default_flow_style=False, sort_keys=False)
+    else:
+        with open(path, "w") as f:
+            yaml.dump(cfg, f, default_flow_style=False, sort_keys=False)
 
 
 def resolve_path(root, relative_path):
@@ -73,55 +91,40 @@ def resolve_path(root, relative_path):
     return os.path.join(root, relative_path)
 
 
-def detect_rid(root):
-    """Try to detect the RID from the anchor root directory."""
-    # Look for a file matching *name*.md with trait in frontmatter
-    basename = os.path.basename(root)
-    # Common pattern: the anchor folder name IS the RID or contains it
+def detect_slug(root):
+    """Try to detect the slug from the anchor root directory."""
     for f in os.listdir(root):
         if f.endswith(".md") and not f.startswith("."):
             path = os.path.join(root, f)
             try:
                 with open(path) as fh:
                     first_lines = fh.read(500)
-                if "cab-type:" in first_lines:
-                    # This is likely the anchor page — extract RID from filename
-                    rid = f.replace(".md", "")
-                    return rid
+                if "cab-type:" in first_lines or "cab-traits:" in first_lines or "traits:" in first_lines:
+                    slug = f.replace(".md", "")
+                    return slug
             except Exception:
                 continue
-    return basename
+    return os.path.basename(root)
 
 
-def detect_paths(root, rid):
-    """Auto-detect standard paths based on what exists.
-
-    Only detects keys that scripts actually use:
-    - now, rules, backlog, inbox — operational files scripts read/write
-    - code — repo location for lint and build tools
-
-    Does NOT detect navigational paths (plan, dev, user folders) —
-    those belong in the anchor's dispatch table, not in config.
-    """
+def detect_paths(root, slug):
+    """Auto-detect standard paths based on what exists."""
     paths = {}
 
-    # Docs structure: <RID> Docs/<RID> Plan/
-    docs = f"{rid} Docs"
-    plan = os.path.join(docs, f"{rid} Plan")
+    docs = f"{slug} Docs"
+    plan = os.path.join(docs, f"{slug} Plan")
 
-    # Look for standard operational files in plan folder
     if os.path.isdir(os.path.join(root, plan)):
         for key, pattern in [
-            ("now", f"{rid} Now.md"),
-            ("rules", f"{rid} Rules.md"),
-            ("backlog", f"{rid} Backlog.md"),
-            ("inbox", f"{rid} Inbox.md"),
+            ("now", f"{slug} Now.md"),
+            ("rules", f"{slug} Rules.md"),
+            ("backlog", f"{slug} Backlog.md"),
+            ("inbox", f"{slug} Inbox.md"),
         ]:
             candidate = os.path.join(plan, pattern)
             if os.path.exists(os.path.join(root, candidate)):
                 paths[key] = candidate
 
-    # Code symlink
     if os.path.exists(os.path.join(root, "Code")):
         paths["code"] = "Code"
 
@@ -129,26 +132,26 @@ def detect_paths(root, rid):
 
 
 def cmd_init(trait=None):
-    """Create .anchor/config.yaml with auto-detected defaults."""
+    """Create .anchor file with auto-detected defaults."""
     root = find_anchor_root()
     path = config_path(root)
 
-    if os.path.exists(path):
+    if os.path.isfile(path) or (os.path.isdir(path) and os.path.exists(os.path.join(path, "config.yaml"))):
         print(f"Config already exists: {path}")
         print("Use 'cab-config set <key> <value>' to modify.")
         return
 
-    rid = detect_rid(root)
-    paths = detect_paths(root, rid)
+    slug = detect_slug(root)
+    paths = detect_paths(root, slug)
 
-    cfg = {"rid": rid}
+    cfg = {"slug": slug}
     if trait:
         cfg["traits"] = [trait]
     cfg.update(paths)
 
     save_config(cfg, root)
     print(f"Created: {path}")
-    print(f"RID: {rid}")
+    print(f"slug: {slug}")
     for k, v in paths.items():
         exists = "✓" if os.path.exists(os.path.join(root, v)) else "✗"
         print(f"  {k}: {v}  {exists}")
@@ -165,7 +168,7 @@ def cmd_show():
     print(f"Config: {config_path(root)}")
     print()
     for k, v in cfg.items():
-        if k in ("rid", "traits"):
+        if k in ("slug", "rid", "traits", "title", "description"):
             print(f"  {k}: {v}")
         else:
             abs_path = resolve_path(root, v)
@@ -184,7 +187,12 @@ def cmd_set(key, value):
 def cmd_get(key):
     """Get a config key's value."""
     cfg, root = load_config()
+    # Support both slug and legacy rid
     value = cfg.get(key)
+    if value is None and key == "slug":
+        value = cfg.get("rid")
+    if value is None and key == "rid":
+        value = cfg.get("slug")
     if value is None:
         print(f"Key '{key}' not set", file=sys.stderr)
         sys.exit(1)
@@ -216,7 +224,11 @@ def main():
 
     if cmd == "init":
         trait = None
-        if "--type" in args:
+        if "--traits" in args:
+            idx = args.index("--traits")
+            if idx + 1 < len(args):
+                trait = args[idx + 1]
+        elif "--type" in args:
             idx = args.index("--type")
             if idx + 1 < len(args):
                 trait = args[idx + 1]

@@ -35,7 +35,7 @@ The script lives at `~/ob/kmr/SYS/Bespoke/Skill Agent/LINT/cab-lint.py`. It requ
 | Level | Name | What it checks |
 |-------|------|----------------|
 | 1 | Bare Bones | Marker file, anchor page exist |
-| 2 | Core | CLAUDE.md, Code symlink, README.md, SKILL.md (type-specific) |
+| 2 | Core | CLAUDE.md, `.anchor` `code:` key resolves (type-specific), README.md, SKILL.md (type-specific) |
 | 3 | Structure | Docs folder, Plan folder, Dev folder |
 | 4 | Content | `description:` in frontmatter, breadcrumb, dispatch table present |
 | 5 | **Default** | Module doc comparison — classes, methods, fields match source code |

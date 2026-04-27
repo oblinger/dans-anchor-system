@@ -50,9 +50,9 @@ If the anchor has published docs, rebuild:
 cd /new/path/{repo} && mkdocs build
 ```
 
-## Step 6: Update RID Index
+## Step 6: Update slug Index
 
-If the anchor has a RID, verify the RID index entry points to the new location.
+If the anchor has a slug, verify the slug index entry points to the new location.
 
 ## Step 7: Verify
 

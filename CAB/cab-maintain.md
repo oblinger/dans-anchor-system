@@ -42,7 +42,7 @@ When the user asks to maintain something (e.g., "keep the Actions table synced t
 | `:commit` | Agent runs maintain with `:commit` flag (before commit) | `:commit` |
 | `:daily` | More than 24 hours since last verified | `:daily` |
 
-**File triggers** — paths relative to the anchor root. Always start with `./`. Follow symlinks (including `Code`). The maintain-check script stats these files and compares to recorded mtime.
+**File triggers** — paths relative to the anchor root. Always start with `./`. Paths that begin with `Code/` resolve via the `code:` key in `.anchor` (absolute path, or relative to anchor root). The maintain-check script stats these files and compares to recorded mtime.
 
 **Event triggers** — prefixed with `:`. The script ignores these during background mtime checking. They're only processed when the agent explicitly runs maintain with the event flag: `python3 maintain-check.py <path> --event pr`.
 

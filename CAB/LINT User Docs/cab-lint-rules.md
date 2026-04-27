@@ -9,7 +9,7 @@ Rules organized by level. Each level includes all rules from lower levels.
 
 ## Level 2 — Core Files
 
-**`core-files`** — CLAUDE.md (Code), SKILL.md (Skill), Code symlink validity, README.md in repo.
+**`core-files`** — CLAUDE.md (Code), SKILL.md (Skill), `.anchor` `code:` key resolves to an existing directory (Code), README.md in repo.
 
 ## Level 3 — Docs Structure
 
@@ -104,7 +104,7 @@ Checks that the anchor folder has its minimum required files:
 ## core-files
 
 Type-specific required files:
-- **Code Anchor**: `CLAUDE.md` at anchor root. `Code` symlink resolves (or `.git` for inline mode). `README.md` in repo.
+- **Code Anchor**: `CLAUDE.md` at anchor root. `.anchor` has a `code:` key that resolves to an existing directory (absolute, or relative to anchor root; `.` for inline mode). `README.md` in repo.
 - **Skill Anchor**: `SKILL.md` with valid YAML frontmatter.
 
 

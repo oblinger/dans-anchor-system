@@ -1,6 +1,6 @@
 # WP — Create a Work Product
 
-Create a new dated work product folder inside `{RID} WP/`. Work products are polished outputs of human+agent collaboration — papers, reports, analyses, presentations, spreadsheets.
+Create a new dated work product folder inside `{slug} WP/`. Work products are polished outputs of human+agent collaboration — papers, reports, analyses, presentations, spreadsheets.
 
 ## Usage
 
@@ -14,7 +14,7 @@ Example: `/cab wp IP Side Work Analysis`
 
 ### 1. Detect anchor
 
-Read `.anchor/config.yaml` to get RID.
+Read `.anchor` file (or frontmatter) to get slug.
 
 ### 2. Gather information — MANDATORY, DO NOT SKIP
 
@@ -28,37 +28,37 @@ Wait for the user's answers before creating anything.
 
 ### 3. Create WP folder if it doesn't exist
 
-If `{RID} WP/` doesn't exist at the anchor root:
+If `{slug} WP/` doesn't exist at the anchor root:
 - Create the folder
-- Create the dispatch page `{RID} WP/{RID} WP.md`:
+- Create the dispatch page `{slug} WP/{slug} WP.md`:
 
 ```markdown
 ---
 description: work products
 ---
 
-# {RID} WP
+# {slug} WP
 
-| -[[{RID} WP]]- >: | +> |
+| -[[{slug} WP]]- >: | +> |
 | --- |
 ```
 
 - Add a **Work** row to the anchor page dispatch table (after standard rows):
   ```
-  | Work | [[{RID} WP\|WP]] |
+  | Work | [[{slug} WP\|WP]] |
   ```
 
 ### 4. Create the work product folder
 
 - Generate today's date: `YYYY-MM-DD`
-- Create folder: `{RID} WP/{date} {name}/`
+- Create folder: `{slug} WP/{date} {name}/`
 - If folder already exists, append a letter suffix: `{date} {name} b/`
 
 ### 5. Create the anchor file
 
 Every WP gets an anchor file that describes it and links to its deliverables. This file IS the dated file:
 
-`{RID} WP/{date} {name}/{date} {name}.md`:
+`{slug} WP/{date} {name}/{date} {name}.md`:
 
 ```markdown
 ---
@@ -93,7 +93,7 @@ For markdown/paper/report, create the file directly. For slides/spreadsheet, add
 
 ### 7. Update the WP dispatch page
 
-Add a row to `{RID} WP/{RID} WP.md` (newest first):
+Add a row to `{slug} WP/{slug} WP.md` (newest first):
 
 ```
 | [[{date} {name}]] |

@@ -32,9 +32,9 @@ Execute each item:
 - Detailed discussion → move to Notes or Discussion
 - Detailed task lists → move to Todo
 
-### 3.4 RID Index Entry
-If the anchor has a RID:
-- Verify it appears in the RID index table
+### 3.4 slug Index Entry
+If the anchor has a slug:
+- Verify it appears in the slug index table
 - Check date, link, full name, and description are correct
 
 ### 3.5 File Structure

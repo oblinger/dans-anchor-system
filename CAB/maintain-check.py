@@ -73,17 +73,42 @@ def save_state(state_path: Path, state: dict):
     state_path.write_text(json.dumps(state, indent=2))
 
 
+def _load_code_path(anchor_path: Path) -> Path | None:
+    """Read the `code:` key from the anchor's .anchor file and resolve it.
+    Absolute paths are returned as-is; relative paths resolve against the
+    anchor root. Returns None if the anchor has no code key.
+    """
+    anchor_file = anchor_path / ".anchor"
+    if not anchor_file.is_file():
+        return None
+    try:
+        import yaml
+        cfg = yaml.safe_load(anchor_file.read_text()) or {}
+    except Exception:
+        return None
+    code_val = cfg.get("code")
+    if not code_val:
+        return None
+    p = Path(code_val)
+    return p if p.is_absolute() else (anchor_path / p).resolve()
+
+
 def get_newest_mtime(anchor_path: Path, source_pattern: str) -> float:
-    """Get the newest mtime for a source pattern (supports globs)."""
-    # Resolve relative to anchor, follow symlinks
+    """Get the newest mtime for a source pattern (supports globs).
+
+    If the pattern starts with `Code/`, resolve the prefix via the
+    `code:` key in the anchor's `.anchor` file (absolute, or relative
+    to anchor root). No fallback to a legacy `Code` symlink.
+    """
     if source_pattern.startswith("Code/"):
-        # Follow the Code symlink
-        code_link = anchor_path / "Code"
-        if code_link.is_symlink():
-            resolved = code_link.resolve()
-            pattern = str(resolved / source_pattern[5:])
-        else:
-            pattern = str(anchor_path / source_pattern)
+        code_root = _load_code_path(anchor_path)
+        if code_root is None:
+            raise RuntimeError(
+                f"Maintenance trigger {source_pattern!r} uses the `Code/` "
+                f"prefix but the anchor at {anchor_path} has no `code:` "
+                f"key in its .anchor file. Add `code: <path>` to .anchor."
+            )
+        pattern = str(code_root / source_pattern[len("Code/"):])
     else:
         pattern = str(anchor_path / source_pattern)
 

@@ -25,8 +25,8 @@ From the CAB folder (`ha -p CAB`), read:
 
 Read the full migration runbook at `CAB Skills/CAB Migrate.md` (in the CAB folder) for type-specific steps. Common migrations:
 
-- **Public Repo → Split Anchor** — Separate planning from public docs, move repo to `~/ob/proj/`, create Code symlink
-- **Private Repo → Split Anchor** — Create vault-side anchor, move planning docs out of repo, create Code symlink
+- **Public Repo → Split Anchor** — Separate planning from public docs, move repo to `~/ob/proj/`, set the `code:` key in `.anchor` to the new repo path
+- **Private Repo → Split Anchor** — Create vault-side anchor, move planning docs out of repo, set the `code:` key in `.anchor` to the repo path
 
 ## Step 5: Update HookAnchor
 
@@ -90,5 +90,5 @@ Old paths in Claude session logs (`.jsonl` files) are harmless conversation hist
 ## Step 9: Clean Up
 
 - Remove anchor files from old location (keep code repos until verified)
-- Update RID index if needed
+- Update slug index if needed
 - Verify: `ha -p {NAME}` resolves, tests pass, Claude session works

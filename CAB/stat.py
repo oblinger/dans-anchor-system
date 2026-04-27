@@ -104,7 +104,7 @@ def find_project_outputs_dir(project_path):
         outputs_rel = cfg.get("outputs")
         if outputs_rel:
             return os.path.join(expanded, outputs_rel)
-    # Default: {RID} Docs/{RID} Plan/{RID} Outputs
+    # Default: {slug} Docs/{slug} Plan/{slug} Outputs
     rid = os.path.basename(expanded)
     if os.path.exists(cfg_path):
         with open(cfg_path) as f:
