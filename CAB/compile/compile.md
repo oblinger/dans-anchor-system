@@ -1,34 +1,48 @@
 ---
 description: ~~
 ---
-| -[[compile]]- | > [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [compile](hook://p/compile)<br>:  |
+
+| -[[compile]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [compile](hook://p/compile)<br>:  |
 | --- | --- |
-| [[audit-docs markdown]] |  |
-| [[code-rewire markdown]] |  |
+| ~~[targets/audit-docs](hook://targets/audit-docs)~~ |  |
+| ~~[targets/code-rewire](hook://targets/code-rewire)~~ |  |
 
 # /cab compile
 
-Generate executable checklists from CAB specs. Each compilation target describes which source files to read and what extras to preserve. The output is a `.compiled.md` file that agents execute mechanically.
+Generate executable checklists from CAB specs and embed them directly into skill files. Each compilation target describes which source files to read, what extras to preserve, and which skill file to update.
 
-## Steps
+## Runbook
 
 1. List all files in `~/.claude/skills/CAB/compile/targets/`
 2. For each target file:
-   a. Read the target (sources, extras, output path)
+   a. Read the target (sources, extras, skill file path)
    b. Read each source file listed
-   c. Read the existing compiled output (if it exists)
-   d. Generate the checklist from the sources
-   e. Append the extras
-   f. Write to the output path
+   c. Read the skill file and find the `<!-- compiled:start -->` / `<!-- compiled:end -->` markers
+   d. Read the existing compiled section (between the markers)
+   e. Generate the checklist from the sources
+   f. Append the extras
+   g. Replace the content between the markers in the skill file
 3. Report: "Compiled N targets"
 
 ## Target File Format
 
 Each target in `targets/` has:
 
-- **Output** — path to the compiled checklist
+- **Skill File** — path to the skill file containing `<!-- compiled:start -->` / `<!-- compiled:end -->` markers
 - **Sources** — CAB files to read for the spec (reference examples, format rules)
 - **Extras** — additional rules not derivable from specs (gotchas, formatting traps)
+
+## Compiled Section Markers
+
+Compiled content lives inside skill files between markers:
+
+```markdown
+<!-- compiled:start source=CAB/compile/targets/code-rewire.md -->
+... generated checklist ...
+<!-- compiled:end -->
+```
+
+The `source=` attribute in the start marker identifies which compile target produced this section.
 
 ## Compilation Rules
 
@@ -36,4 +50,13 @@ Each target in `targets/` has:
 - Organized by file path (H2 headings), with bullet checkboxes under each
 - Every item is actionable: "Has X", "Links to Y", "Contains Z"
 - Extras are appended at the end under `## Universal Rules`
-- If a compiled file already exists, read it first — preserve any manually-added items marked with `# KEEP` comments
+- Read the existing compiled section first — preserve any manually-added items marked with `# KEEP` comments
+
+## Compile Targets
+
+These are the skill files that contain compiled sections:
+
+| Target | Skill File |
+|--------|-----------|
+| `targets/code-rewire.md` | `~/.claude/skills/rewire/SKILL.md` |
+| `targets/audit-docs.md` | `~/.claude/skills/audit/audit-docs.md` |

@@ -1,7 +1,9 @@
 # Compile: audit-docs
 
-## Output
-~/.claude/skills/audit/audit-docs.compiled.md
+## Skill File
+~/.claude/skills/audit/audit-docs.md
+
+Write between `<!-- compiled:start -->` and `<!-- compiled:end -->` markers.
 
 ## Sources
 
