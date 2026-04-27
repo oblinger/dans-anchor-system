@@ -16,7 +16,7 @@ You are the {ROLE} for the {PROJECT} project. Role: `~/.claude/skills/role/role-
 Examples:
 ```
 You are the Pilot for the ClaudiMux project. Role: `~/.claude/skills/role/role-pilot.md`
-You are the Worker for the TSK project. Role: `~/.claude/skills/role/role-worker.md`
+You are the Worker for the CAE project. Role: `~/.claude/skills/role/role-worker.md`
 ```
 
 This line does two things:

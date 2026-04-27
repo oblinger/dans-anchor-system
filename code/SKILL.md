@@ -3,7 +3,7 @@ name: code
 description: >
   Development workflow skill — planning, architecture, implementation, testing, release, and orchestration.
   Use with an action argument: /code plan, /code architect, /code mint, /code test, /code release, etc.
-  Key sub-skills: /code feature (feature lifecycle — "new feature", "let's build", "design a feature"),
+  Key sub-skills:
   /code delegate (parallel work dispatch — "delegate this", "fan out"),
   /code spike (aggressive root cause — "spike that bug"), /code bugfix (red-green bug response),
   /code forge (rebuild+restart), /code rewire (structural repair), /code replan (requirements changed),
@@ -37,8 +37,8 @@ The unified development skill. Invoke with an action to run a workflow.
 | 24  | `/code roadmap`        | [[code-roadmap]]        | Ordered milestones with acceptance criteria                                   |
 | 25  | `/code arch-audit`     | [[code-arch-audit]]     | Architecture completeness check                                               |
 |     | **3x Implement**      |                        | *Build features iteratively*                                                  |
-| 29  | `/code feature`        | [[code-feature]]        | Feature lifecycle: design doc → agree → implement → test → done               |
-| 30  | `/code mint`      | [[code-mint]]      | Orchestrator: spec → code → test → review → verify → commit                   |
+| 29  | `/feature`             | (top-level skill)       | Feature lifecycle: design doc → agree → implement → test → done               |
+| 30  | `/mint`                | (top-level skill)       | Orchestrator: spec → code → test → review → verify → commit                   |
 | 31  | `/code spec`           | [[code-spec]]           | Write implementation spec for a roadmap milestone                             |
 | 32  | `/code code`           | [[code-code]]           | Implement according to spec, self-check, update docs                          |
 | 33  | `/code test`           | [[code-test]]           | Test advisor and developer: scaffolds, priorities, proof                      |
@@ -59,7 +59,7 @@ The unified development skill. Invoke with an action to run a workflow.
 | 52  | `/code test-scaffold`  | [[code-test-scaffolds]] | Build or extend kitchen sink                                                  |
 | 53  | `/code test-verify`    | (in dev-test)          | Run suite, completion proof, red-green at level 6+                            |
 |     | **6x Verify**         |                        | *Validate structure and docs*                                                 |
-| 60  | `/code rewire`         | [[code-rewire]]         | Idempotent structural repair — wire dispatch tables, link files               |
+| 60  | `/rewire`              | (top-level skill)       | Idempotent structural repair — wire dispatch tables, link files               |
 | 61  | `/cab lint`           | [[cab-lint]]           | Validate anchor structure and module docs                                     |
 |     | **7x Adapt**          |                        | *When requirements or design changes*                                         |
 | 70  | `/code open-questions` | [[code-open-questions]] | Surface, track, and resolve open questions                                    |
@@ -67,7 +67,8 @@ The unified development skill. Invoke with an action to run a workflow.
 |     | **8x Tactical**       |                        | *On demand during development*                                                |
 | 80  | `/code forge`          | [[code-forge]]          | Full rebuild + teardown + restart cycle                                       |
 | 81  | `/code spike`          | [[code-spike]]          | Root cause diagnosis — 4 levels from standard debug to aggressive elimination |
-| 82  | `/code refactor`       | (TBD)                  | Extract, restructure, simplify code                                           |
+| 82  | `/code mac-gui`        | [[code-mac-gui]]        | Drive a native Mac app (click/type/screenshot) to debug UI — use on demand   |
+| 83  | `/code refactor`       | (TBD)                  | Extract, restructure, simplify code                                           |
 |     | **9x Orchestrate**    |                        | *How to coordinate agents and branches*                                       |
 | 90  | `/code delegate`       | [[code-delegate]]       | Parallel work dispatch — subagents, worktrees, grouping, backlog-for-merge    |
 | 91  | `/code workers`        | [[code-workers]]        | Dispatch and manage worker agents                                             |

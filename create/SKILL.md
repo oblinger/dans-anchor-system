@@ -16,7 +16,7 @@ Create a new thing. Requires an argument specifying what to create.
 | Usage | Delegates to | Description |
 |-------|-------------|-------------|
 | `/create anchor` | `/cab create` | New anchor — folder structure, config, dispatch tables |
-| `/create feature` | `/code feature` | New feature design doc in Features folder |
+| `/create feature` | `/feature` | New feature design doc in Features folder |
 | `/create wp` | `/cab wp` | New dated work product folder |
 | `/create spec` | `/code spec` | New implementation spec for a milestone |
 | `/create rule` | `/rule create` | New project rule |

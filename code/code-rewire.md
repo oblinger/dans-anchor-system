@@ -4,7 +4,7 @@ Idempotent structural repair for any anchor. Ensures all files are linked, dispa
 
 ## Steps
 
-1. Detect anchor traits from `.anchor/config.yaml` (`traits:` list) or frontmatter `cab-traits:`
+1. Detect anchor traits from `.anchor` file (`traits:` list) or frontmatter `cab-traits:`
 2. Read the compiled checklist: `~/.claude/skills/code/code-rewire.compiled.md`
 3. Execute the **All Types** section
 4. Execute the section for EACH of this anchor's traits (e.g., Code, Topic, Skill)

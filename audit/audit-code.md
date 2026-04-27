@@ -4,7 +4,7 @@ Systematic code quality audit using Semgrep for mechanical pattern detection and
 
 ## Steps
 
-1. Detect project language from `.anchor/config.yaml` or file extensions
+1. Detect project language from `.anchor` file (or frontmatter) or file extensions
 2. Run Semgrep with generic rules: `semgrep --config ~/.claude/skills/audit/catalogs/ --json <code-path>`
 3. Parse Semgrep results — these are the mechanical findings
 4. For each applicable catalog `.md` file in `~/.claude/skills/audit/catalogs/`, read it and perform agent-level analysis on the source code

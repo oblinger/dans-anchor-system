@@ -24,7 +24,7 @@ Read from and write to external services. Each sub-skill is an access card with 
 | `/io gdrive` | [[io-gdrive]] | Google Drive search |
 | `/io email` | [[io-email]] | Apple Mail — read and search |
 | `/io notion` | [[io-notion]] | Notion pages and databases (TBD) |
-| `/io gauth` | [[io-gauth]] | Re-authorize Google OAuth (when token expires) |
+| `/io gauth` | → `/fix gauth` | Re-authorize Google OAuth (when token expires) |
 
 ## Auth
 

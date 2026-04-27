@@ -13,12 +13,12 @@
 ## {FolderName}.md (marker file)
 
 - [ ] File exists with name matching the folder name exactly
-- [ ] If RID differs from folder name, contains `(See Anchor [[{NAME}]])`
+- [ ] If slug differs from folder name, contains `(See Anchor [[{NAME}]])`
 - [ ] If folder name IS the anchor name, this file serves as the anchor page
 
 ## {NAME}.md (anchor page)
 
-- [ ] Has H1 heading: `# {RID} — {FolderName}` when RID differs from folder name, or `# {NAME}` when they match
+- [ ] Has H1 heading: `# {slug} — {FolderName}` when slug differs from folder name, or `# {NAME}` when they match
 - [ ] Has YAML frontmatter with `cab-traits:` field (list)
 - [ ] Has YAML frontmatter with `description:` field
 - [ ] Has dispatch table with `-[[{NAME}]]-` in first cell of header row
@@ -103,7 +103,7 @@
 
 ## Code / .git/
 
-- [ ] `Code` symlink exists and resolves to an existing directory (linked mode) OR `.git/` exists at anchor root (inline mode)
+- [ ] `.anchor` has a `code:` key that resolves to an existing directory (absolute, or relative to anchor root; `.` for inline)
 
 ## README.md
 
@@ -145,7 +145,7 @@
 
 - [ ] `{NAME} Dev/` folder — create only when Code trait is present
 - [ ] `{NAME} User/` folder — create only when Code trait is present
-- [ ] `Code` symlink — create only when Code trait is present
+- [ ] `.anchor` `code:` key — add only when the `code` trait is present
 
 ---
 
@@ -187,7 +187,7 @@
 - [ ] Wiki-links in tables: always escape pipe as `\|` — `[[target\|alias]]` not `[[target|alias]]`
 - [ ] Blank line before every markdown table or it will not render
 - [ ] Frontmatter must have both `cab-traits:` (list) and `description:`
-- [ ] H1 heading: `# {RID} — {FolderName}` when RID differs from folder name, or `# {NAME}` when they match
+- [ ] H1 heading: `# {slug} — {FolderName}` when slug differs from folder name, or `# {NAME}` when they match
 - [ ] Dispatch table header: `-[[{NAME}]]-` in first cell, `><br>:` markers in second cell
 - [ ] Dispatch table separator row: `---`, `^^^`, `...`, or `+++` in left cell enables auto-management below
 - [ ] Per-row `+` suffix on wiki-link rows (e.g., `[[Name]]+`) to show grandchildren for that row

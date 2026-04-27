@@ -1,37 +1,38 @@
 ---
 name: migrate
 description: >
-  Migrate an anchor — change its RID, traits, location, or structure.
-  Use when the user says: "migrate this", "rename the RID", "change the type",
-  "move this project", "restructure this anchor", "convert to code project".
+  Change anything about an anchor — slug, traits, location, structure, naming, organization.
+  Use when the user says: "migrate this", "rename the slug", "change the type",
+  "move this project", "restructure this", "convert to code project",
+  "reorganize", "rename", "change".
 tools: Read, Write, Edit, Bash, Glob, Grep
 user_invocable: true
 ---
 
 # Migrate
 
-Change an anchor's identity, location, or structure. The user specifies what to change and the skill intelligently reorganizes.
+Change anything about an anchor. The user specifies what to change and the skill intelligently reorganizes.
+
+## Safety Rule
+
+**Never delete. Never lose.** Files may be moved to parallel locations where the user will find them, but nothing is deleted and nothing is moved to a location the user wouldn't expect.
 
 ## What can be migrated
 
 | Change | What happens |
 |--------|-------------|
-| **RID** | Rename all {RID}-prefixed files, folders, wiki-links, config, frontmatter |
-| **Location** | Move the anchor folder, update HookAnchor registration, breadcrumbs, symlinks |
-| **Traits** | Add/remove traits — create/remove trait-required files and folders |
-| **Claude session** | Move the `.claude/projects/` session config to match new path |
+| **slug** | Rename all {slug}-prefixed files, folders, wiki-links, config |
+| **Location** | Move the anchor folder, update HookAnchor, breadcrumbs, symlinks |
+| **Traits** | Add/remove traits — create trait-required files and folders |
+| **Structure** | Reorganize folders, move files to standard locations |
+| **Naming** | Rename files to match conventions (kebab-case, Title Case) |
+| **Claude session** | Move `.claude/projects/` config to match new path |
 
-## Steps
+## Runbook
 
-1. Read `.anchor/config.yaml` to get current state
+1. Read `.anchor` file (or frontmatter) to get current state
 2. Ask the user what to change (if not specified in the command)
 3. Compute the diff: what files/links/config need to change
 4. Show the plan to the user — wait for approval
 5. Execute: use `anchor-mv` for file renames, update config, update HookAnchor
-6. Verify: run `/code rewire` to ensure everything is wired correctly
-
-## Related
-
-- `/code rewire` — repairs structure without changing identity
-- `/cab migrate-claude` — specifically migrates the Claude Code session config
-- `anchor-mv` — the script that handles wiki-link-safe file moves
+6. Verify: run `/rewire` to ensure everything is wired correctly

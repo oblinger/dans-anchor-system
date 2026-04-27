@@ -5,11 +5,12 @@ Usage:
     audit-docs <anchor-path> [--json] [--verbose]
 
 Reads:
-    - Source tree from code path (via .anchor/config.yaml or .git/)
+    - Source tree from the `code:` key in the anchor's `.anchor` file
+      (absolute path, or relative to anchor root — `.` for inline repos)
     - {NAME} Files.md
     - {NAME} Dev.md (Dev dispatch)
     - Module docs in {NAME} Dev/
-    - Exceptions from .anchor/audit-docs.yaml
+    - Exceptions from .anchor.d/audit-docs.yaml
 
 Outputs a diff table showing:
     - Source files missing from Files.md
@@ -66,9 +67,14 @@ class Finding:
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def find_anchor_root(path: str) -> str:
-    """Walk up to find .anchor/config.yaml."""
+    """Walk up to find .anchor file (flat YAML) or .anchor/ directory (legacy)."""
     p = os.path.abspath(path)
     while p != "/":
+        # New format: .anchor flat file
+        anchor_file = os.path.join(p, ".anchor")
+        if os.path.isfile(anchor_file):
+            return p
+        # Legacy format: .anchor/config.yaml directory
         if os.path.exists(os.path.join(p, ".anchor", "config.yaml")):
             return p
         p = os.path.dirname(p)
@@ -76,6 +82,12 @@ def find_anchor_root(path: str) -> str:
 
 
 def load_config(anchor_root: str) -> dict:
+    # New format: .anchor flat file
+    anchor_file = os.path.join(anchor_root, ".anchor")
+    if os.path.isfile(anchor_file):
+        with open(anchor_file) as f:
+            return yaml.safe_load(f) or {}
+    # Legacy format: .anchor/config.yaml
     cfg_path = os.path.join(anchor_root, ".anchor", "config.yaml")
     if os.path.exists(cfg_path):
         with open(cfg_path) as f:
@@ -84,8 +96,12 @@ def load_config(anchor_root: str) -> dict:
 
 
 def load_exceptions(anchor_root: str) -> list[str]:
-    """Load exclusion patterns from .anchor/audit-docs.yaml."""
-    exc_path = os.path.join(anchor_root, ".anchor", "audit-docs.yaml")
+    """Load exclusion patterns from .anchor.d/audit-docs.yaml (or legacy .anchor/audit-docs.yaml)."""
+    # New location: .anchor.d/
+    exc_path = os.path.join(anchor_root, ".anchor.d", "audit-docs.yaml")
+    if not os.path.exists(exc_path):
+        # Legacy location
+        exc_path = os.path.join(anchor_root, ".anchor", "audit-docs.yaml")
     if os.path.exists(exc_path):
         with open(exc_path) as f:
             data = yaml.safe_load(f) or {}
@@ -287,18 +303,27 @@ def audit(anchor_path: str, verbose: bool = False) -> list[Finding]:
         print(f"Skipping — anchor traits {traits} don't include 'code'", file=sys.stderr)
         return []
 
-    # Find code path
-    code_rel = cfg.get("code", "Code")
-    code_path = os.path.join(anchor_root, code_rel)
-    if os.path.islink(code_path):
-        code_path = os.path.realpath(code_path)
+    # Find code path — read from .anchor file's `code:` key.
+    # Absolute paths are used as-is; relative paths resolve against anchor root.
+    # No fallback: if the anchor has the `code` trait but no `code:` key, error.
+    code_val = cfg.get("code")
+    if not code_val:
+        print(
+            f"Error: anchor {rid} has the 'code' trait but no 'code:' key in .anchor. "
+            f"Add a `code:` line pointing to the code repository (absolute path or "
+            f"relative to anchor root, e.g. `code: .` for inline).",
+            file=sys.stderr,
+        )
+        return []
+    code_path = code_val if os.path.isabs(code_val) else os.path.join(anchor_root, code_val)
+    code_path = os.path.normpath(code_path)
     if not os.path.isdir(code_path):
-        # Maybe inline mode — check for .git
-        if os.path.isdir(os.path.join(anchor_root, ".git")):
-            code_path = anchor_root
-        else:
-            print(f"Error: Cannot find code at {code_path}", file=sys.stderr)
-            return []
+        print(
+            f"Error: .anchor `code:` points to {code_path!r} but that directory "
+            f"does not exist.",
+            file=sys.stderr,
+        )
+        return []
 
     # Load exceptions
     user_excludes = load_exceptions(anchor_root)
@@ -389,12 +414,24 @@ def audit(anchor_path: str, verbose: bool = False) -> list[Finding]:
         """Convert snake_case to PascalCase: command_ops → CommandOps."""
         return "".join(word.capitalize() for word in snake.split("_"))
 
+    # Root-module source files where {slug} Rollup.md is an accepted alternative
+    # to the stem-derived name. See CAB Rollup facet: rollup often replaces the
+    # lib.rs / __init__.py / index.ts module doc since that file is pure re-exports.
+    ROLLUP_ROOT_STEMS = {"lib", "main", "__init__", "index", "mod"}
+
     for rel_path in sorted(sources.keys()):
         basename = os.path.basename(rel_path)
         stem = os.path.splitext(basename)[0]
         expected_doc = f"{rid} {snake_to_pascal(stem)}"
-        # Strict match — doc name must be exactly {RID} {PascalCase}
+        # Strict match — doc name must be exactly {slug} {PascalCase}
         found_doc = expected_doc in module_docs
+        # Rollup fallback: if this is a root module (lib.rs, etc.) and a Rollup
+        # doc exists, treat that as satisfying the module-doc requirement.
+        if not found_doc and stem in ROLLUP_ROOT_STEMS:
+            rollup_doc = f"{rid} Rollup"
+            if rollup_doc in module_docs:
+                found_doc = True
+                expected_doc = rollup_doc  # use rollup for downstream checks
         if found_doc:
             # Check freshness
             source_mtime = file_mtime(sources[rel_path]) or git_mtime(sources[rel_path])

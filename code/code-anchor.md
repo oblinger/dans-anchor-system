@@ -10,7 +10,7 @@ When starting a new project or formalizing an existing codebase into the anchor 
 
 This delegates to `/cab setup` (the [[cab-create]] skill), which handles:
 
-1. Gather information — type, name, parent, description, RID
+1. Gather information — type, name, parent, description, slug
 2. Create the full file skeleton — ALL doc files upfront (PRD, System Design, Discussion, Roadmap, etc.)
 3. Wire all dispatch tables — every file linked from its parent
 4. Register with HookAnchor

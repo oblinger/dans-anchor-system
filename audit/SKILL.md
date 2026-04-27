@@ -12,12 +12,12 @@ user_invocable: true
 
 # Audit
 
-## Steps
+## Runbook
 
 1. Determine which audit to run (from argument or anchor type)
-2. Read the sub-skill file and its `.compiled.md` checklist
-3. Execute the compiled checklist
-4. If `--fix`: execute fixes immediately
+2. Read the sub-skill file from this folder (it contains the full checklist inline)
+3. Execute the Runbook in that file
+4. If `fix` flag: execute fixes immediately
 5. Post to stat:
 
 ```bash

@@ -23,11 +23,11 @@ All scripts live in `~/.claude/skills/anchor/scripts/`.
 | `audit-docs.py` | `python3 scripts/audit-docs.py <path> [--json] [--verbose]` | Compare source tree against Files.md, Dev dispatch, and module docs |
 | `stat.py` | (future — currently in CAB) | Activity status tracking |
 | `lint.py` | (future — currently in CAB/LINT) | Structural lint checks |
-| `config.py` | (future — currently in CAB) | Manage .anchor/config.yaml |
+| `config.py` | (future — currently in CAB) | Manage `.anchor` file |
 | `scan.py` | (future — currently in CAB) | Discover all anchors in vault |
 
 ## Specification
 
 The anchor specification lives in Skill Docket: [[SKD Anchor]]
 
-Key properties: RID, Path, Type. Required files: `{RID}.md`, `.anchor/config.yaml`.
+Key properties: slug, path, traits. Required files: `{slug}.md`, `.anchor` file (or frontmatter).

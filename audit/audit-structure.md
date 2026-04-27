@@ -6,11 +6,11 @@ Check that all expected files exist, dispatch tables are properly wired with sta
 
 ### 1. Detect Anchor
 
-Read the anchor page (has `cab-traits:` in frontmatter or `-[[NAME]]-` dispatch table). Determine the RID, anchor traits, and expected structure.
+Read the anchor page (has `cab-traits:` in frontmatter or `-[[NAME]]-` dispatch table). Determine the slug, anchor traits, and expected structure.
 
 ### 2. Check Standard Dispatch Rows
 
-Read the [[CAB RID Page]] reference example. The dispatch table must have the standard rows in this exact order (skipping rows that don't apply to this anchor's traits):
+Read the [[CAB slug Page]] reference example. The dispatch table must have the standard rows in this exact order (skipping rows that don't apply to this anchor's traits):
 
 1. External
 2. User
@@ -28,7 +28,7 @@ These files are expected for ALL anchor types:
 - Marker file: `{FolderName}.md`
 - Anchor page: `{NAME}.md` with `cab-traits:` and `description:` in frontmatter, dispatch table
 - CLAUDE.md with role header
-- `.skl/config.yaml` with rid and traits
+- `.anchor` file (can be empty — properties derive from folder name)
 
 ### 4. Check Type-Specific Structure
 
@@ -51,7 +51,43 @@ Each dispatch page must link to all its children. Only check dispatch pages that
 - User dispatch → user-facing docs
 - Docs dispatch → Plan, Dev, User subfolders
 
-### 7. Build the Fixes Table
+### 7. Check Files.md Format
+
+`{NAME} Docs/{NAME} Dev/{NAME} Files.md` (if present) must follow [[CAB Files]]. Common mistakes that need to be caught:
+
+| Violation | How to detect | Why wrong |
+|-----------|---------------|-----------|
+| Body wrapped in a ``` code fence | Grep the file for lines matching `^```` | Wiki-links inside a code fence render as literal text, not clickable links — the whole page becomes dead |
+| `cssclass:` (singular) in frontmatter | Grep for `^cssclass:` without the `es` | Obsidian's key is `cssclasses` (plural, list). Singular is silently ignored, so the page doesn't render monospace |
+| `cssclasses: monospace` missing entirely | Check frontmatter has `cssclasses:` with a `monospace` entry | Page won't render in fixed-width font; the tree's box-drawing chars will misalign |
+| Source files use `→ [[doc]]` arrows | Grep source-file lines for `→ \[\[` | Per [[CAB Files]], source files use filename-as-link: `[[OBU Lib\|lib.rs]]`. Arrows are only for non-source files pointing to external specs |
+
+The first three are strict failures. The fourth is a format violation that should be flagged with `/code rewire` as the fix.
+
+```bash
+# Quick one-liner to catch the first three. Only checks files that live under
+# the anchor's Dev folder — so spec/example files like CAB Files.md in the CAB
+# facet docs are not flagged.
+python3 -c '
+import re, yaml, pathlib
+for f in pathlib.Path(".").rglob("* Docs/* Dev/* Files.md"):
+    text = f.read_text()
+    fm = re.match(r"^---\n(.*?)\n---\n", text, re.DOTALL)
+    meta = yaml.safe_load(fm.group(1)) if fm else {}
+    issues = []
+    if meta and "cssclass" in meta and "cssclasses" not in meta:
+        issues.append("cssclass (singular) — should be cssclasses")
+    if not meta or "cssclasses" not in meta:
+        issues.append("missing cssclasses: monospace")
+    elif "monospace" not in (meta.get("cssclasses") or []):
+        issues.append("cssclasses missing monospace entry")
+    if re.search(r"^```", text, re.MULTILINE):
+        issues.append("body wrapped in code fence — wiki-links will not be clickable")
+    for i in issues: print(f"{f}: {i}")
+'
+```
+
+### 8. Build the Fixes Table
 
 Combine all findings into a single table:
 
@@ -63,7 +99,7 @@ Combine all findings into a single table:
 | 4 | old-notes.md | Orphan — not linked from any dispatch | Link or remove |
 | 5 | .skl/config.yaml | Missing config | `cab-config init` |
 
-### 8. Post to Stat
+### 9. Post to Stat
 
 ```bash
 skl-stat add "Review" "[[{NAME}]]" "Structure audit: N fixes needed"

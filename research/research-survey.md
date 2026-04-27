@@ -34,6 +34,16 @@ RRR/
 
 1. **Results Table** — ALWAYS first. A single table where rows are the entries found and columns are relevant properties. This is the primary deliverable — the reader should see the results before any prose. The table can be wide enough to require a large monitor. Choose columns that let the reader compare entries at a glance (e.g., Name, Category, Language, Key Feature, Relevance). The first column is always the entry name as a markdown link to its URL: `[PSX](https://github.com/m-mdy-m/psx)` — do NOT have separate Name and URL columns.
 
+   **Ordering convention:** Rank entries by value for the specific user and context, with the highest-value entries at the top. Place a single empty table row as a visual separator between the top-tier recommendations and the remaining entries. Example:
+
+   ```
+   | 1    | [Top pick](...)     | ... |
+   | ...  | ...                 | ... |
+   | 5    | [Last top pick](...)| ... |
+   |      |                     |     |
+   | 6    | [Next tier](...)    | ... |
+   ```
+
 2. **Overview** — what this space is and why it matters
 
 3. **Landscape** — the major categories, players, or approaches, organized by the natural structure of the space. Expands on what the table summarizes.

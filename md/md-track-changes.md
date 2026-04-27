@@ -88,7 +88,7 @@ For long documents edited across multiple revision cycles. The document's anchor
 
 ### Section HTML Naming
 ```
-{RID} {DATE} s{N}.html
+{slug} {DATE} s{N}.html
 ```
 Example: `ABIO 2026-01-15 s1.html`, `ABIO 2026-01-15 s2.html`
 
