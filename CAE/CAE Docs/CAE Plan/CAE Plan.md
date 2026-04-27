@@ -16,4 +16,4 @@ description: planning and execution docs for CAE
 | [[CAE Icebox]] | cold-storage / someday-maybe (optional) |
 | [[CAE Inbox]] | raw input to process |
 | [[CAE Open Questions]] | unresolved decisions |
-| [[CAE Features/CAE Features]] | dated feature specs |
+| ~~[CAE Features/CAE Features](hook://CAE%20Features/CAE%20Features)~~ | dated feature specs |
