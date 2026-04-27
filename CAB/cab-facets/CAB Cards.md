@@ -3,24 +3,27 @@ description: cheat sheets and flashcards
 ---
 # CAB Cards
 
+**Location:** `{NAME} Docs/{NAME} User/{NAME} Cards.md`
+
+
 The `{NAME} Cards.md` document contains cheat sheets and spaced repetition flashcards for a given topic. It lives in the anchor folder or a subfolder dedicated to cards.
 
-Below is a reference example for a hypothetical project "TSK" (Task Runner).
+Below is a condensed reference example. See the working example linked above for the real file.
 
 # Reference Example
 ---
 
 ```
-TSK Cards/
-└── TSK Cards.md
+CAE Cards/
+└── CAE Cards.md
 ```
 
-**TSK Cards.md:**
+**CAE Cards.md:**
 
 ```markdown
 #flashcards
 
-## **`TSK CLI COMMANDS`**
+## **`CAE CLI COMMANDS`**
 ```
 ADD:     tsk add "cmd" --at TIME --pri N
 LIST:    tsk list [--status STATUS]

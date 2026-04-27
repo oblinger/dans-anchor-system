@@ -3,36 +3,41 @@ description: CLAUDE.md agent configuration
 ---
 # CAB Claude
 
+**Location:** `CLAUDE.md`
+
+
 The `CLAUDE.md` file configures Claude Code behavior when working inside an anchor folder. It is optional — only needed when the anchor will be used with Claude Code.
 
-Below is a reference example for a hypothetical project "TSK" (Task Runner).
+**Working example:** `~/.claude/skills/CAE/CLAUDE.md` — CLAUDE.md.
+
+Below is a condensed reference example. See the working example linked above for the real file.
 
 # Reference Example
 ---
 
-You are the Pilot for the Task Runner project. Role: `~/.claude/skills/role/role-pilot.md`
+You are the Pilot for the CAE example project. Role: `~/.claude/skills/role/role-pilot.md`
 \# CLAUDE.md
 
 \## Mission
 
-You are the TSK developer agent. Your job is to implement, test, and maintain the task-runner CLI tool.
+You are the CAE developer agent. Your job is to implement, test, and maintain the cae-example CLI tool.
 
 \## Working Directory
 
-You are rooted in `Task Runner/`. The code repo is at `Code/` (symlink).
+You are rooted in `CAE example/`. The code repo is reached via the `code:` key in `.anchor` (which may point inside this folder or elsewhere).
 
 \## Key Files
 
-- `TSK.md` — Anchor page, navigation hub
-- `TSK Docs/TSK Plan/TSK PRD.md` — Product requirements
-- `TSK Docs/TSK Plan/TSK Roadmap.md` — Milestone plan
-- `TSK Docs/TSK Plan/TSK Files.md` — File tree with descriptions
+- `CAE.md` — Anchor page, navigation hub
+- `CAE Docs/CAE Plan/CAE PRD.md` — Product requirements
+- `CAE Docs/CAE Plan/CAE Roadmap.md` — Milestone plan
+- `CAE Docs/CAE Plan/CAE Files.md` — File tree with descriptions
 - `Code/src/taskrunner/scheduler.py` — Core scheduling engine
 
 \## Commands
 
 ```bash
-ha -p TSK                              # Find anchor path
+ha -p CAE                              # Find anchor path
 cd Code && python -m pytest            # Run tests
 cd Code && python -m taskrunner --help  # CLI help
 ```

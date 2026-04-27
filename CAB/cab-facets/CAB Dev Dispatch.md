@@ -3,23 +3,29 @@ description: developer docs dispatch page
 ---
 # CAB Dev Dispatch
 
+**Location:** `{NAME} Docs/{NAME} Dev/{NAME} Dev.md`
+
+
 The `{NAME} Dev.md` dispatch page inside the `{NAME} Dev/` folder. Lists developer documentation including the file tree, architecture, and all module docs.
 
-Below is a reference example for a hypothetical project "TSK" (Task Runner).
+**Working example:** `~/.claude/skills/CAE/CAE Docs/CAE Dev/CAE Dev.md` — Dev dispatch.
+
+Below is a condensed reference example. See the working example linked above for the real file.
 
 # Reference Example
 ---
 
 
-| -[[TSK Dev]]- | +> |
+| -[[CAE Dev]]- | +> |
 | --- | --- |
-| [[TSK Files\|Files]] | repository file tree |
-| [[TSK Architecture\|Architecture]] | system architecture |
+| **Start here** | [[CAE Rollup\|Rollup]] — whole-crate API overview |
+| [[CAE Files\|Files]] | repository file tree |
+| [[CAE Architecture\|Architecture]] | system architecture |
 | **engine/** | |
-| [[TSK Scheduler\|Scheduler]] | priority queue and worker pool |
-| [[TSK RetryManager\|RetryManager]] | backoff and retry logic |
+| [[CAE Scheduler\|Scheduler]] | priority queue and worker pool |
+| [[CAE RetryManager\|RetryManager]] | backoff and retry logic |
 | **api/** | |
-| [[TSK Router\|Router]] | CLI command routing |
+| [[CAE Router\|Router]] | CLI command routing |
 
 ---
 
@@ -42,8 +48,11 @@ Below is a reference example for a hypothetical project "TSK" (Task Runner).
 
 | Row | Part |
 |-----|------|
+| Start here | [[CAB Rollup]] — whole-codebase API overview (first row, labeled **Start here**) |
 | Files | [[CAB Files]] — single-page codebase file tree |
 | Architecture | System-level design overview |
 | Module docs | [[CAB Module Doc]] — one row per documented module, grouped by source folder |
 
 Module doc rows mirror the source tree structure. Each source folder gets a bold header row, followed by its module doc entries.
+
+The **Start here** row is the top entry and links to `{NAME} Rollup.md`. Every Dev dispatch for a `code`-trait anchor must have this row — `/audit docs` flags its absence.

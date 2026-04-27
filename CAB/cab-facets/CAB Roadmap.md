@@ -3,15 +3,20 @@ description: milestones with checkbox tracking
 ---
 # CAB Roadmap
 
+**Location:** `{NAME} Docs/{NAME} Plan/{NAME} Roadmap.md`
+
+
 The `{NAME} Roadmap.md` file organizes work into milestones for incremental, testable implementation. It lives in the `{NAME} Docs/` folder.
 
-Below is a reference example for a hypothetical project "TSK" (Task Runner).
+**Working example:** `~/.claude/skills/CAE/CAE Docs/CAE Plan/CAE Roadmap.md` — Roadmap.
+
+Below is a condensed reference example. See the working example linked above for the real file.
 
 # Reference Example
 ---
 
 
-# TSK Roadmap
+# CAE Roadmap
 
 ## [x] M1 — Core Scheduler (2026-04-01)
 

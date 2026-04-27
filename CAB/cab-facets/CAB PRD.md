@@ -3,14 +3,19 @@ description: product requirements document
 ---
 # CAB PRD
 
+**Location:** `{NAME} Docs/{NAME} Plan/{NAME} PRD.md`
+
+
 The PRD (`{NAME} PRD.md`) defines what the product does: goals, user stories, scope, and constraints. It is the starting point for the design workflow and links to all other design documents.
 
-Below is a reference example for a hypothetical project "TSK" (Task Runner).
+**Working example:** `~/.claude/skills/CAE/CAE Docs/CAE Plan/CAE PRD.md` — PRD.
+
+Below is a condensed reference example. See the working example linked above for the real file.
 
 # Reference Example
 ---
 
-# TSK PRD
+# CAE PRD
 
 | TOC |  |
 | --- | --- |
@@ -23,7 +28,7 @@ Below is a reference example for a hypothetical project "TSK" (Task Runner).
 
 ## 1 Overview
 
-Task Runner is a CLI tool for scheduling and running deferred shell tasks with priority queuing and retry semantics. It replaces ad-hoc cron jobs and shell scripts with a unified, testable scheduling engine.
+CAE example is a CLI tool for scheduling and running deferred shell tasks with priority queuing and retry semantics. It replaces ad-hoc cron jobs and shell scripts with a unified, testable scheduling engine.
 
 
 
@@ -31,10 +36,10 @@ Task Runner is a CLI tool for scheduling and running deferred shell tasks with p
 
 | Step | Document | Purpose |
 |------|----------|---------|
-| 1 | TSK PRD.md | Clarify requirements and scope |
-| 2 | [[TSK Open Questions]] | Surface and resolve unknowns |
-| 3 | [[TSK UX Design]] | Design CLI interface and output formats |
-| 4 | [[TSK System Design]] | Design technical architecture |
+| 1 | CAE PRD.md | Clarify requirements and scope |
+| 2 | [[CAE Open Questions]] | Surface and resolve unknowns |
+| 3 | [[CAE UX Design]] | Design CLI interface and output formats |
+| 4 | [[CAE System Design]] | Design technical architecture |
 
 
 

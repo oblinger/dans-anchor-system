@@ -3,22 +3,27 @@ description: dated feature design specs
 ---
 # CAB Features
 
+**Location:** `{NAME} Docs/{NAME} Plan/{NAME} Features/   (folder; one dated file per feature)`
+
+
 Individual feature specifications, each in a dated file inside a Features subfolder.
 
-Below is a reference example for a hypothetical project "TSK" (Task Runner).
+**Working example:** `~/.claude/skills/CAE/CAE Docs/CAE Plan/CAE Features/2026-04-21 Scheduler Pause.md` — demonstrates the Open-Questions-above-H1 convention.
+
+Below is a condensed reference example.
 
 # Reference Example
 ---
 
 ```
-TSK Docs/TSK Plan/
-└── TSK Features/
-    ├── TSK Features.md                  ← feature index
+CAE Docs/CAE Plan/
+└── CAE Features/
+    ├── CAE Features.md                  ← feature index
     ├── 2026-03-15 Retry Logic.md
     └── 2026-04-02 Recurring Tasks.md
 ```
 
-**TSK Features.md** (index, reverse chronological):
+**CAE Features.md** (index, reverse chronological):
 
 ```markdown
 - [[2026-04-02 Recurring Tasks]] — Cron-style recurring task schedules [proposed]
@@ -28,9 +33,30 @@ TSK Docs/TSK Plan/
 **2026-03-15 Retry Logic.md** (individual feature):
 
 ```markdown
+---
+description: Automatic retry with exponential backoff
+---
+
+## Open Questions
+
+Blocking decisions. The feature cannot move from Designing → Agreed while
+this list is non-empty.
+
+- **Q2 — cap on max-retries?** — should there be an absolute upper bound,
+  or can users set arbitrarily high values? Options: 100 absolute, user-configurable, no cap.
+
+### Resolved
+
+- **Q1 — jitter strategy?** — **Resolution:** full-jitter (delay * rand(0,1)).
+  Incorporated into Design § Backoff.
+
+
+
+# Retry Logic
+
 ## Summary
 
-When a task fails, TSK automatically retries it using exponential backoff
+When a task fails, CAE automatically retries it using exponential backoff
 with jitter. This eliminates manual re-queuing for transient failures
 (network timeouts, resource contention). The user configures max retries
 and base delay per task or globally.
@@ -47,7 +73,13 @@ and base delay per task or globally.
 Retry state stored in the task record: attempt count, next retry time,
 last error. The scheduler checks retry-eligible tasks each tick and
 re-enqueues them at the computed delay.
+
+## Status
+
+Designing — awaiting resolution of Q2.
 ```
+
+**Note the layout:** `## Open Questions` sits ABOVE the `# Retry Logic` H1. It is pre-document material — the first thing the user sees when opening the file. Resolved questions move to the H3 `### Resolved` subsection; they never get deleted.
 
 ---
 
@@ -82,19 +114,37 @@ The `{NAME} Features.md` page lists all features in reverse chronological order 
 
 ## Feature Document Format
 
-Each feature document is a mini PRD. Start with only the mandatory sections; add optional sections as the feature grows in complexity.
+The feature document has **two zones**:
+
+1. **Pre-document zone (above the H1)** — `## Open Questions` and its `### Resolved` subsection. This is blocking material that must be visible the moment the user opens the file. It exists on every feature doc, even if empty.
+2. **Document zone (H1 and below)** — the feature spec proper: Summary, Design, etc.
+
+### Pre-document zone — always present
+
+| Section | Level | Required | Purpose |
+|---------|-------|----------|---------|
+| `## Open Questions` | H2 above H1 | Always | Blocking decisions; feature cannot leave Designing while non-empty |
+| `### Resolved` | H3 under Open Questions | Always (can be empty) | Answered questions move here with the resolution; never deleted |
+
+When Open Questions is empty, leave the H2 with a one-liner placeholder (e.g. `_None — design is clean._`) — preserve the structure so the convention is visible.
+
+**Workflow note:** every time an agent edits Open Questions — adds a question, resolves one, moves one to Resolved — it immediately runs `open "<path to this file>"` so the doc surfaces on the user's screen. The `/feature` skill's Runbook step 1a enforces this.
+
+### Document zone — H1 and below
+
+Start with only the mandatory sections; add optional sections as the feature grows in complexity.
 
 **Mandatory:**
+- **H1 `# {Feature Name}`** — below any pre-document material
 - **Summary** — What the feature does and why it exists (1-2 paragraphs)
+- **Status** — lifecycle state (Proposed / Designing / Agreed / Implementing / Testing / Done)
 
-**Optional (add as needed, H2 sections headings in document order):**
-- **Open Questions** --
-- **Roadmap** — Execution plan, phases, milestones.   (See [[CAB Roadmap]] for details.)
-- **Summary** -- This is the mandatory summary section.  Below this is the spec, above this is for execution.
-- **Interface** -- Description of external interface (API, CLI, config, user, etc.)
+**Optional (add as needed, H2 headings in document order):**
+- **Interface** — Description of external interface (API, CLI, config, user, etc.)
 - **Requirements** — Specific acceptance criteria or constraints
 - **Design** — Technical approach, architecture decisions, trade-offs
 - **Dependencies** — What this feature depends on or what it blocks
-- **Notes** — Open questions, working notes, research
+- **Roadmap** — Execution plan, phases, milestones. (See [[CAB Roadmap]] for details.)
+- **Notes** — Working notes, research
 
 ---

@@ -3,18 +3,23 @@ description: user docs dispatch page
 ---
 # CAB User Dispatch
 
+**Location:** `{NAME} Docs/{NAME} User/{NAME} User.md`
+
+
 The `{NAME} User.md` dispatch page inside the `{NAME} User/` folder. Lists all user-facing documentation for the anchor.
 
-Below is a reference example for a hypothetical project "TSK" (Task Runner).
+**Working example:** `~/.claude/skills/CAE/CAE Docs/CAE User/CAE User.md` — User dispatch.
+
+Below is a condensed reference example. See the working example linked above for the real file.
 
 # Reference Example
 ---
 
 
-| -[[TSK User]]- | +> |
+| -[[CAE User]]- | +> |
 | --- | --- |
-| [[TSK User Guide\|User Guide]] | getting started and usage |
-| [[TSK Cards\|Cards]] | cheat sheets and flashcards |
+| [[CAE User Guide\|User Guide]] | getting started and usage |
+| [[CAE Cards\|Cards]] | cheat sheets and flashcards |
 
 ---
 

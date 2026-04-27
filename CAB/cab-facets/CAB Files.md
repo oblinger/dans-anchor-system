@@ -5,43 +5,45 @@ description: source file tree with descriptions (monospace)
 
 `{NAME} Files.md` maps the file tree of an anchor's code repository. Each line has a filename and a one-line description, aligned in fixed-width columns. It provides a single-page codebase overview for onboarding, planning, and AI context.
 
-**Location:** `{NAME} Docs/{NAME} Plan/{NAME} Files.md`
+**Location:** `{NAME} Docs/{NAME} Dev/{NAME} Files.md`
 
-The page uses Form 4 from `/md file-tree` — `cssclasses: monospace` frontmatter renders the entire page in fixed-width font. Wiki-links work inline because text is not inside code spans.
+**Working example (copy this, not the snippet below):** `~/.claude/skills/CAE/CAE Docs/CAE Dev/CAE Files.md`
 
-Below is a reference example for a hypothetical project "TSK" (Task Runner).
+## Critical — Do Not Wrap the Tree in a Code Fence
 
-# Reference Example
----
+The body of this file is **plain markdown**, not a code block. The `cssclasses: monospace` frontmatter is what makes the page render in fixed-width font — not triple-backticks. If you wrap the tree in ```` ``` ```` fences:
+
+- Wiki-links inside become literal text (not clickable)
+- The whole page becomes a dead zone
+- This is the most common mistake; `/audit structure` specifically looks for it
+
+There is **no code fence** around the tree. The file looks like this:
+
 ```
 ---
 cssclasses:
   - monospace
+description: ...
 ---
-```
 
-\# TSK Files
+# {NAME} Files
 
-File tree for the task-runner repository with descriptions.
+File tree for the {repo-name} repository with descriptions.
 
 
-task-runner/
+{repo-name}/
 ├── Cargo.toml                         Workspace config + dependencies
-├── Cargo.lock                         Dependency lockfile
-├── justfile                           Build, test, check recipes        → [[CAB Repository Structure]]
 ├── [[CAB Claude|CLAUDE.md]]                          Claude Code configuration
 │
 ├── src/                               Library crate
-│   ├── [[TSK Lib|lib.rs]]                         Crate root, module exports
-│   ├── [[TSK CLI|cli.rs]]                         CLI argument parsing (clap)
-│   ├── [[TSK Scheduler|scheduler.rs]]                   Priority queue engine
-│   ├── [[TSK Worker|worker.rs]]                      Thread pool lifecycle
-│   ├── [[TSK Retry|retry.rs]]                       Exponential backoff logic
-│   └── [[TSK Models|models.rs]]                      Task, TaskResult structs
+│   ├── [[{NAME} Lib|lib.rs]]                         Crate root
+│   └── [[{NAME} Scheduler|scheduler.rs]]              Priority queue engine
 │
 └── tests/                             Integration tests
-    ├── scheduler.rs                   Scheduler integration tests
-    └── cli.rs                         CLI end-to-end tests
+    └── scheduler.rs                   Scheduler integration tests
+```
+
+The ``` ``` fences above are showing you the *content* of the file. **Your file does not start or end with triple-backticks.** It starts with `---` (YAML frontmatter opener) and ends with the last tree line.
 
 ---
 
@@ -72,19 +74,30 @@ Every source file and directory that has a module doc is linked by making the fi
 
 | What | Format | Renders as |
 |------|--------|------------|
-| Source file | `[[TSK Scheduler\|scheduler.rs]]` | `scheduler.rs` (links to TSK Scheduler doc) |
-| Directory | `[[TSK engine\|engine/]]` | `engine/` (links to module aggregator doc) |
+| Source file | `[[CAE Scheduler\|scheduler.rs]]` | `scheduler.rs` (links to CAE Scheduler doc) |
+| Directory | `[[CAE engine\|engine/]]` | `engine/` (links to module aggregator doc) |
 | Standard file | `[[CAB Claude\|CLAUDE.md]]` | `CLAUDE.md` (links to CAB spec) |
 
 Files without a module doc (tests, config files, etc.) use plain filenames — no link.
 
 **Do NOT use `→ [[doc]]` arrows for source file doc links.** The `→` arrow pattern is only for non-source files that reference an external spec (e.g., `justfile → [[CAB Repository Structure]]`). Source files use the filename-as-link pattern instead.
 
+## Row 1 — Repo Root
+
+The first tree line is the repo root directory (`repo-name/`). Do **not** add descriptor text like "repo root" — the reader knows which line is row 1. Row 1's description slot goes directly to `[[{NAME} Rollup]]`:
+
+```
+repo-name/                                [[{NAME} Rollup]]
+```
+
+`/audit docs` flags `repo root` / `repo route` text on row 1 as **files-row1-redundant**.
+
 ## Alignment
-- **Descriptions** — aligned at a consistent display column using regular spaces
-- Pick columns that fit the project's longest filename and description; stay consistent within the file
-- Alignment is based on **display width** — wiki-links like `[[TSK Scheduler|scheduler.rs]]` collapse to `scheduler.rs` when rendered, so padding must account for the shorter display width, not the raw markdown width
-- Use Python to compute alignment when adding or modifying tree lines
+
+- **Every description starts at the same display-width column.** Pick a target (42 works well in practice; whatever fits the deepest `{tree-prefix}{filename}` position plus some breathing room) and make every line with a description hit that column exactly.
+- Alignment is based on **rendered display width**, not raw markdown width. Wiki-links collapse: `[[CAE Scheduler|scheduler.rs]]` is 30 chars in source but renders as `scheduler.rs` (12). Pad spaces in the source so that *rendered* descriptions align.
+- `/audit docs` flags inconsistent alignment (range > 2 chars across rows) as **files-misaligned**. Fix with a Python reformat pass — see audit-docs § 1.7 for the snippet.
+- Tree lines *without* descriptions (single-word directories like `├── .git/`) don't participate in alignment — they're fine as-is.
 
 ## Maintenance
 Update the Files page when the repository structure changes significantly — new modules added, packages reorganized, or major files renamed. It does not need to track every individual file change.

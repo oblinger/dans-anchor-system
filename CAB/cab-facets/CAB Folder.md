@@ -3,25 +3,30 @@ description: marker file for the anchor folder
 ---
 # CAB Folder
 
+**Location:** `{NAME}/   (the anchor folder itself)`
+
+
 Every anchor is a folder. The folder name follows the conventions of its parent anchor (e.g., PP children get a year prefix like `2026 My Project/`).
 
-Below is a reference example for a hypothetical project "TSK" (Task Runner).
+**Working example:** `~/.claude/skills/CAE/` — CAE/ itself is a canonical anchor folder.
+
+Below is a condensed reference example. See the working example linked above for the real file.
 
 # Reference Example
 ---
 
 ```
-Task Runner/
-└── Task Runner.md        ← marker file
+CAE example/
+└── CAE example.md        ← marker file
 ```
 
-Contents of `Task Runner.md`:
+Contents of `CAE example.md`:
 
 ```markdown
-(See Anchor [[TSK]])
+(See Anchor [[CAE]])
 ```
 
-Because the RID "TSK" differs from the folder name "Task Runner", the marker file redirects to the anchor page `TSK.md`.
+Because the slug "CAE" differs from the folder name "CAE example", the marker file redirects to the anchor page `CAE.md`.
 
 ---
 
@@ -34,10 +39,10 @@ My Project/
 └── My Project.md        ← anchor marker
 ```
 
-If the anchor has a RID that differs from the folder name, the marker redirects:
+If the anchor has a slug that differs from the folder name, the marker redirects:
 
 ```markdown
-(See [[RID]])
+(See [[slug]])
 ```
 
 If the folder name IS the anchor name, the marker file also serves as the primary anchor page.

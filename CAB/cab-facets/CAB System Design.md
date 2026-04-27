@@ -3,14 +3,19 @@ description: architecture and system design
 ---
 # CAB System Design
 
+**Location:** `{NAME} Docs/{NAME} Plan/{NAME} System Design.md`
+
+
 The System Design document (`{NAME} System Design.md`) specifies the technical architecture, component boundaries, data models, and APIs for a software project. It contains the current design — not the history of how it was reached.
 
-Below is a reference example for a hypothetical project "TSK" (Task Runner).
+**Working example:** `~/.claude/skills/CAE/CAE Docs/CAE Plan/CAE System Design.md` — System Design.
+
+Below is a condensed reference example. See the working example linked above for the real file.
 
 # Reference Example
 ---
 
-# TSK System Design
+# CAE System Design
 
 | TOC |  |
 | --- | --- |
@@ -23,7 +28,7 @@ Below is a reference example for a hypothetical project "TSK" (Task Runner).
 
 ## 1 Architecture Overview
 
-Task Runner uses a single-process, multi-threaded architecture. The CLI parses commands and delegates to the Scheduler, which manages a priority queue and a fixed-size thread pool.
+CAE example uses a single-process, multi-threaded architecture. The CLI parses commands and delegates to the Scheduler, which manages a priority queue and a fixed-size thread pool.
 
 ```
 CLI → Scheduler → PriorityQueue → WorkerPool → TaskResult

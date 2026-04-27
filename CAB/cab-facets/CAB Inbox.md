@@ -3,34 +3,39 @@ description: raw incoming content to process
 ---
 # CAB Inbox
 
+**Location:** `{NAME} Docs/{NAME} Plan/{NAME} Inbox.md`
+
+
 The inbox (`{NAME} Inbox.md`) is a drop zone for raw input — long descriptions, change requests, design thoughts, reference material — pasted in for processing and integration into the planning and execution docs.
 
-Below is a reference example for a hypothetical project "TSK" (Task Runner).
+**Working example:** `~/.claude/skills/CAE/CAE Docs/CAE Plan/CAE Inbox.md` — Inbox.
+
+Below is a condensed reference example. See the working example linked above for the real file.
 
 # Reference Example
 ---
 
-# TSK Inbox
+# CAE Inbox
 
 Items below have been processed and moved to their destination docs.
 
 
 
 ## 2026-02-28 — Retry backoff tuning    `DONE`
-User reported exponential backoff too aggressive for short tasks. Captured in [[TSK Open Questions#14]].
+User reported exponential backoff too aggressive for short tasks. Captured in [[CAE Open Questions#14]].
 
 Original input:
 > When I schedule a 2-second task and it fails, the retry waits 4s, then 8s, then 16s. For quick tasks this feels excessive. Could we cap the backoff or use linear for tasks under 10s?
 
 
 
-## 2026-02-25 — Priority starvation fix    `MOVED → TSK Roadmap#M3`
-Discussed promotion logic for starved low-priority tasks. Design notes moved to [[TSK Discussion#2026-02-25]]. Implementation planned for M3.
+## 2026-02-25 — Priority starvation fix    `MOVED → CAE Roadmap#M3`
+Discussed promotion logic for starved low-priority tasks. Design notes moved to [[CAE Discussion#2026-02-25]]. Implementation planned for M3.
 
 
 
 ## 2026-02-20 — Initial feature brainstorm    `DONE`
-Raw feature list from kickoff meeting. Items distributed to [[TSK PRD]] and [[TSK Backlog]].
+Raw feature list from kickoff meeting. Items distributed to [[CAE PRD]] and [[CAE Backlog]].
 
 ---
 

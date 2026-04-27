@@ -3,15 +3,22 @@ description: per-module source code documentation
 ---
 # CAB Module Doc
 
+**Location:** `{NAME} Docs/{NAME} Dev/{NAME} {ModuleName}.md   (one per module)`
+
+
 Module docs describe the classes and interfaces in a software project's source code. Each source module (a file or logical grouping of files) gets its own markdown document. The docs mirror the source tree structure under `{NAME} Dev/`.
 
-Below is a complete module doc for a hypothetical project "TSK" (Task Runner). The file would be named `TSK Scheduler.md` and live at `TSK Docs/TSK Dev/TSK execution/TSK Scheduler.md`. Actual module docs follow this structure.
+**Related:** [[CAB Rollup]] — the whole-codebase API overview that groups modules into subsystems. A module doc is accurate in isolation; the rollup gives cross-module context. Every `code`-trait anchor has one of each.
+
+Below is a complete module doc for a hypothetical project "CAE" (CAE example). The file would be named `CAE Scheduler.md` and live at `CAE Docs/CAE Dev/CAE execution/CAE Scheduler.md`. Actual module docs follow this structure.
+
+**Working example:** `~/.claude/skills/CAE/CAE Docs/CAE Dev/CAE Scheduler.md` — module doc.
 
 # Reference Example
 ---
- [[TSK Architecture]] → [[TSK Execution]]
+ [[CAE Architecture]] → [[CAE Execution]]
 
-# TSK Scheduler
+# CAE Scheduler
 
 Orchestrates timed task execution with priority queuing and retry semantics. The Scheduler is the central dispatch engine for deferred work. It accepts tasks with deadlines, assigns them to worker threads from a managed pool, and handles retry logic when tasks fail. All scheduling decisions flow through a single priority queue to prevent starvation.
 
@@ -177,9 +184,9 @@ class TaskScheduler(Protocol):
 ```
 
 ## See Also
-- [[TSK Worker]] - Thread pool worker lifecycle
-- [[TSK TaskHandle]] - Async result handle
-- [[TSK Clock]] - Injectable time source for testing
+- [[CAE Worker]] - Thread pool worker lifecycle
+- [[CAE TaskHandle]] - Async result handle
+- [[CAE Clock]] - Injectable time source for testing
 
 ---
 

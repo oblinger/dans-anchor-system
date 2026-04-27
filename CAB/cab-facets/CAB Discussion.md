@@ -3,23 +3,26 @@ description: design discussions and decisions
 ---
 # CAB Discussion
 
+**Location:** `{NAME} Docs/{NAME} Plan/{NAME} Discussion.md`
+
+
 The Discussion file (`{NAME} Discussion.md`) captures extended reasoning about design choices, trade-offs, and redesign decisions. Unlike the other design documents (PRD, UX Design, System Design), this file is a log — it records the "why" and "what we considered," not the current spec.
 
-Below is a reference example for a hypothetical project "TSK" (Task Runner).
+Below is a condensed reference example. See the working example linked above for the real file.
 
 # Reference Example
 ---
 
-# TSK Discussion
+# CAE Discussion
 
-This document captures design reasoning, exploration, and analysis that shaped TSK's architecture and interface. Each section records a specific design conversation with the problem, options considered, and final decision.
+This document captures design reasoning, exploration, and analysis that shaped CAE's architecture and interface. Each section records a specific design conversation with the problem, options considered, and final decision.
 
 
 
 ## 2026-02-26 — Thread Pool vs Async for Task Execution
 
 ### The Problem
-TSK needs to run shell commands concurrently. The two standard approaches are thread pools (one thread per running task) and async I/O (event loop with subprocess management).
+CAE needs to run shell commands concurrently. The two standard approaches are thread pools (one thread per running task) and async I/O (event loop with subprocess management).
 
 ### Options Considered
 - **A. Thread pool** — Simple, well-understood. Each worker thread calls `subprocess.run()`. Blocking is fine because each thread is dedicated to one task.

@@ -1,11 +1,29 @@
 ---
-description: code repo — inline or linked via symlink
+description: code repo associated with an anchor — linked (separate path) or inline
 ---
 # CAB Code
 
-An anchor may optionally have an associated code repository. The repository lives outside the vault and is connected to the anchor via a `Code` symlink.
+An anchor may optionally have an associated code repository. The anchor
+declares that association with a `code:` key in its `.anchor` file. The
+value is the path to the repository — absolute, or relative to the anchor
+root.
 
-Below is a reference example for a hypothetical project "TSK" (Task Runner).
+The presence of the `code:` key *is* the declaration that code belongs to
+this anchor; no `Code` symlink is used.
+
+```yaml
+# .anchor at the anchor root
+slug: CAE
+traits:
+  - code
+code: ../../proj/CAE/cae-example   # relative to anchor root
+# or:
+# code: /Users/oblinger/ob/proj/CAE/cae-example   # absolute
+# or:
+# code: .                                         # inline (repo at anchor root)
+```
+
+Below is a condensed reference example. See the working example linked above for the real file.
 
 # Reference Example
 ---
@@ -13,27 +31,27 @@ Below is a reference example for a hypothetical project "TSK" (Task Runner).
 The anchor folder in the vault:
 
 ```
-Task Runner/                         Anchor folder (in vault)
-├── Task Runner.md                   Marker file
-├── TSK.md                           Anchor page
-├── TSK Docs/                        Planning & published docs
-├── CLAUDE.md                        Claude Code config
-└── Code -> ~/ob/proj/TSK/task-runner   Symlink to repo
+CAE example/                         Anchor folder (in vault)
+├── .anchor                          YAML config (declares code: path)
+├── CAE example.md                   Marker file
+├── CAE.md                           Anchor page
+├── CAE Docs/                        Planning & published docs
+└── CLAUDE.md                        Claude Code config
 ```
 
-The code repository (outside the vault):
+The code repository (outside the vault), reached via `.anchor`'s `code:` key:
 
 ```
-~/ob/proj/TSK/task-runner/           Code repository
+~/ob/proj/CAE/cae-example/           Code repository (referenced by .anchor)
 ├── .git/
 ├── pyproject.toml
 ├── justfile                         Standard task recipes
 ├── README.md
 ├── src/taskrunner/
 ├── tests/
-└── docs/                            Sync-pushed from TSK Docs/
-    ├── user/                        ← from TSK User/
-    └── dev/                         ← from TSK Dev/
+└── docs/                            Sync-pushed from CAE Docs/
+    ├── user/                        ← from CAE User/
+    └── dev/                         ← from CAE Dev/
 ```
 
 A minimal justfile for this project:
@@ -69,7 +87,9 @@ dev:
 
 ## Location
 
-Anchors live in the vault under `~/ob/kmr/` in grouping folders like `prj/`, `prj/binproj/`, `prj/PP/`, `SV/`. Code repositories live under `~/ob/proj/`, nominally mirroring the grouping:
+Anchors live in the vault under `~/ob/kmr/` in grouping folders like
+`prj/`, `prj/binproj/`, `prj/PP/`, `SV/`. Code repositories live under
+`~/ob/proj/`, nominally mirroring the grouping:
 
 ```
 Vault (anchors)                   Repos
@@ -78,20 +98,38 @@ Vault (anchors)                   Repos
 ~/ob/kmr/SV/CVT/                  ~/ob/proj/CVT/
 ```
 
-The parallel structure is **nominal** — grouping folders don't always match exactly. The `Code` symlink in the anchor is always the authoritative way to find the repo; never rely on path conventions alone.
+The parallel structure is **nominal** — grouping folders don't always
+match exactly. The `code:` key in `.anchor` is always the authoritative
+way to find the repo; never rely on path conventions alone.
 
-```
-{CAB Folder}/
-├── {NAME}.md
-├── {NAME} Docs/
-└── Code -> ~/ob/proj/{project}/{repo}
-```
+## Path resolution
 
-The symlink is always named `Code` regardless of the repository's actual name.
+Scripts and skills read `.anchor` and resolve the `code:` value as follows:
+
+- **Absolute path** — used as-is.
+- **Relative path** — resolved against the **anchor root** (the folder
+  containing `.anchor`), not the caller's current working directory.
+- `code: .` — the anchor root itself is the repository (**inline mode**).
+  In this case `.git/` sits alongside `.anchor`.
+
+There is no implicit fallback. If an anchor has the `code` trait but no
+`code:` key, scripts must error. No probing for `.git/` at the anchor
+root, no legacy `Code` symlink lookup.
+
+## Inline vs linked
+
+Both modes declare the association with `code:` in `.anchor`.
+
+| Mode     | `code:` value     | Repo location          | When to use |
+| -------- | ----------------- | ---------------------- | ----------- |
+| Linked   | path to repo dir  | outside the vault      | Normal case — keeps vault and repo separate |
+| Inline   | `.`               | same folder as anchor  | Small projects where planning docs live with the code |
 
 ## Doc Sync with sync-push
 
-When an anchor has both `{NAME} User/` and/or `{NAME} Dev/` doc folders and a code repository, the docs are pushed to the repo using `sync-push`. The repo receives them in lowercase folders:
+When an anchor has `{NAME} User/` and/or `{NAME} Dev/` doc folders and a
+code repository, the docs are pushed to the repo using `sync-push`. The
+repo receives them in lowercase folders:
 
 ```
 {repo}/docs/
@@ -110,7 +148,8 @@ sync-push "{NAME} Docs/{NAME} Dev"  --add code "{repo}/docs/dev"
 
 ### Git Pre-Commit Hook
 
-Add a pre-commit hook in the repository to automatically sync docs before each commit. In `{repo}/.git/hooks/pre-commit`:
+Add a pre-commit hook in the repository to automatically sync docs
+before each commit. In `{repo}/.git/hooks/pre-commit`:
 
 ```bash
 #!/bin/bash
@@ -119,8 +158,12 @@ sync-push "/path/to/{NAME} Docs/{NAME} User" 2>/dev/null
 sync-push "/path/to/{NAME} Docs/{NAME} Dev" 2>/dev/null
 ```
 
-This ensures the repo always has the latest docs from the vault without manual sync steps.
+This ensures the repo always has the latest docs from the vault without
+manual sync steps.
 
 ## Edits Flow One Way
 
-Documentation is authored in the vault (`{NAME} User/`, `{NAME} Dev/`) and pushed to the repo. Do not edit the `docs/user/` or `docs/dev/` folders in the repo directly — `sync-push` will detect conflicts and refuse to overwrite if target files have been modified.
+Documentation is authored in the vault (`{NAME} User/`, `{NAME} Dev/`)
+and pushed to the repo. Do not edit the `docs/user/` or `docs/dev/`
+folders in the repo directly — `sync-push` will detect conflicts and
+refuse to overwrite if target files have been modified.

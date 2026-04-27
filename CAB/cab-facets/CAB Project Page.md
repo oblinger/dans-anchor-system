@@ -5,13 +5,13 @@ description: published project overview page
 
 A lightweight public-facing splash page for an anchor, published to the personal website (oblinger.github.io). Built via the `/code publish` skill.
 
-Below is a reference example for a hypothetical project "TSK" (Task Runner).
+Below is a condensed reference example. See the working example linked above for the real file.
 
 # Reference Example
 ---
 
 ```
-Task Runner/
+CAE example/
 └── website/
     ├── index.md
     └── deploy.sh
@@ -22,19 +22,19 @@ Task Runner/
 ```markdown
 ---
 layout: cayman
-title: Task Runner
+title: CAE example
 description: CLI tool for scheduling and running deferred shell tasks
-permalink: /gitproj/task-runner/
+permalink: /gitproj/cae-example/
 ---
 
-# Task Runner
+# CAE example
 
 Schedule shell commands to run later with priority queuing, automatic retry,
 and a simple CLI interface.
 
 ## Install
 
-pip install task-runner
+pip install cae-example
 
 ## Quick Start
 
@@ -48,10 +48,10 @@ tsk status 1
 ```bash
 #!/bin/bash
 set -euo pipefail
-DEST="$HOME/ob/proj/oblinger.github.io/gitproj/task-runner"
+DEST="$HOME/ob/proj/oblinger.github.io/gitproj/cae-example"
 mkdir -p "$DEST"
 cp -r . "$DEST/"
-cd "$DEST/.." && git add task-runner && git commit -m "Update task-runner page" && git push
+cd "$DEST/.." && git add cae-example && git commit -m "Update cae-example page" && git push
 ```
 
 ---
@@ -72,8 +72,8 @@ The project page lives in a `website/` directory inside the anchor (vault side, 
 {CAB Folder}/
 ├── {NAME}.md
 ├── CLAUDE.md
+├── .anchor                       declares `code:` key pointing at the repo (absolute, or relative to this folder; `.` for inline)
 ├── {NAME} Docs/
-├── Code -> ~/ob/proj/...
 └── website/                      project page source
     ├── index.md                  splash page with Jekyll front matter
     ├── [additional .md]          extra pages (if any)

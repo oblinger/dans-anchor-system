@@ -3,21 +3,26 @@ description: unresolved decisions and questions
 ---
 # CAB Open Questions
 
+**Location:** `{NAME} Docs/{NAME} Plan/{NAME} Open Questions.md`
+
+
 The Open Questions file (`{NAME} Open Questions.md`) tracks unresolved questions that block or inform design decisions. Questions are numbered, analyzed with options, and resolved with a recorded decision.
 
-Below is a reference example for a hypothetical project "TSK" (Task Runner).
+**Working example:** `~/.claude/skills/CAE/CAE Docs/CAE Plan/CAE Open Questions.md` — Open Questions.
+
+Below is a condensed reference example. See the working example linked above for the real file.
 
 # Reference Example
 ---
 
-# TSK Open Questions
+# CAE Open Questions
 
 
 
 ## Active
 
 ### 7. Should retry backoff be linear or exponential for short tasks?
-**Source:** [[TSK Inbox#2026-02-28]]
+**Source:** [[CAE Inbox#2026-02-28]]
 
 Tasks under 10 seconds feel over-penalized by exponential backoff. A 2-second task that fails waits 4s → 8s → 16s, which is disproportionate.
 
@@ -33,10 +38,10 @@ Tasks under 10 seconds feel over-penalized by exponential backoff. A 2-second ta
 ## Resolved
 
 ### 1. Thread pool or async?    `RESOLVED → System Design`
-**Decision:** Thread pool. Async adds complexity for shell subprocess management with no meaningful throughput benefit at our scale. See [[TSK System Design#Thread Pool Sizing]].
+**Decision:** Thread pool. Async adds complexity for shell subprocess management with no meaningful throughput benefit at our scale. See [[CAE System Design#Thread Pool Sizing]].
 
 ### 2. How to handle timezone-aware deadlines?    `RESOLVED → PRD US-1`
-**Decision:** All deadlines are UTC internally. CLI accepts local time and converts on input. See [[TSK PRD#US-1]].
+**Decision:** All deadlines are UTC internally. CLI accepts local time and converts on input. See [[CAE PRD#US-1]].
 
 ---
 

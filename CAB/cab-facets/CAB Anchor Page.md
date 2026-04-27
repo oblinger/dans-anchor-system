@@ -1,26 +1,31 @@
 ---
-description: anchor page format — the {RID}.md entry point
+description: anchor page format — the {slug}.md entry point
 ---
-# CAB RID Page
+# CAB slug Page
+
+**Location:** `{NAME}.md`
+
 
 The primary entry point for an anchor: `{NAME}.md`. Contains the breadcrumb, a dispatch table, and optionally a heading with a description property and additional content.
 
-Below is a reference example for a hypothetical project "TSK" (Task Runner).
+**Working example:** [`~/.claude/skills/CAE/CAE.md`](../../CAE/CAE.md) — a complete, self-consistent anchor page in the canonical reference anchor. Use CAE when you need to see the actual file; use the reference below for a quick look.
+
+Below is a condensed reference example. See the working example linked above for the real file.
 
 # Reference Example
 ---
 
 
-# TSK — Task Runner
+# CAE — CAE example
 
-| -[[TSK]]-                    | ><br>:                                                                                                                                    |
+| -[[CAE]]-                    | ><br>:                                                                                                                                    |
 | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| External                     | [Repo](https://github.com/oblinger/task-runner), [Project Page](https://oblinger.github.io/gitproj/task-runner/)                          |
-| [[TSK User/TSK User\|User]]+ | [[TSK User Guide\|User Guide]], [[TSK Cards\|Cards]]                                                                                      |
-| [[TSK Plan\|Plan]]+          | [[TSK PRD\|PRD]], [[TSK System Design\|System Design]], [[TSK UX Design\|UX]], [[TSK Features\|Features]], [[TSK Discussion\|Discussion]] |
-| [[TSK Plan\|Execute]]        | [[TSK Inbox\|Inbox]], [[TSK Open Questions\|Open Q]], [[TSK Backlog\|Backlog]], [[TSK Roadmap\|Roadmap]]                                  |
-| [[TSK Dev/TSK Dev\|Dev]]+    | [[TSK Files\|Files]], [[TSK Architecture\|Architecture]]                                                                                  |
-| Research                     | [[TSK Research\|Research]], [[TSK References\|References]], [[TSK Related Work\|Related Work]]                                            |
+| External                     | [Repo](https://github.com/oblinger/cae-example), [Project Page](https://oblinger.github.io/gitproj/cae-example/)                          |
+| [[CAE User/CAE User\|User]]+ | [[CAE User Guide\|User Guide]], [[CAE Cards\|Cards]]                                                                                      |
+| [[CAE Plan\|Plan]]+          | [[CAE PRD\|PRD]], [[CAE System Design\|System Design]], [[CAE UX Design\|UX]], [[CAE Features\|Features]], [[CAE Discussion\|Discussion]] |
+| [[CAE Plan\|Execute]]        | [[CAE Inbox\|Inbox]], [[CAE Open Questions\|Open Q]], [[CAE Backlog\|Backlog]], [[CAE Roadmap\|Roadmap]]                                  |
+| [[CAE Dev/CAE Dev\|Dev]]+    | [[CAE Files\|Files]], [[CAE Architecture\|Architecture]]                                                                                  |
+| Research                     | [[CAE Research\|Research]], [[CAE References\|References]], [[CAE Related Work\|Related Work]]                                            |
 | ...                          |                                                                                                                                           |
 
 *NOTE: Omit rows that aren't relevant for a given anchor type. Row labels (User, Plan, Dev) are wiki-links to the sub-folder dispatch pages — clicking them shows just that section's files.
@@ -36,10 +41,10 @@ Below is a reference example for a hypothetical project "TSK" (Task Runner).
 
 An anchor has a **name** — the identifier used for its files and references:
 
-- **RID** (optional) — A short uppercase code like `CLF`, `DMUX`, `HA`. Used when brevity matters.
+- **slug** (optional) — A short uppercase code like `CLF`, `DMUX`, `HA`. Used when brevity matters.
 - **Full Name** — The complete name in Title Case (e.g., "Claudifier", "2026 Daves Finances"). Always present.
 
-If a RID exists, it is the `{NAME}` used for file naming (`{RID}.md`, `{RID} Docs/`). If no RID, the full name is used.
+If a slug exists, it is the `{NAME}` used for file naming (`{slug}.md`, `{slug} Docs/`). If no slug, the full name is used.
 
 **Every markdown file and folder inside an anchor is prefixed with `{NAME}`** to avoid collisions in the shared Obsidian namespace. This applies to files, folders, and nested files alike (see [[CAB Naming Conventions]] for the full rule):
 - `{NAME} PRD.md`, `{NAME} Todo.md`, `{NAME} Roadmap.md`
@@ -54,7 +59,7 @@ description: One-line description of the anchor
 cab-type: code
 ---
 
-# {RID} — {Full Name}
+# {slug} — {Full Name}
 
 | -{NAME}-       | ><br>: short description                      |
 | -------------- | --------------------------------------------- |
@@ -63,8 +68,8 @@ cab-type: code
 
 ## Heading
 
-- **With RID**: `CLF — Claudifier` (as H1 heading)
-- **Without RID**: `2026 Daves Finances` (as H1 heading)
+- **With slug**: `CLF — Claudifier` (as H1 heading)
+- **Without slug**: `2026 Daves Finances` (as H1 heading)
 
 ## Description Property
 
@@ -112,7 +117,7 @@ Tables without a separator are frozen — the system won't add or remove rows.
 Append `+` after a wiki link in the left column to show that command's children in the right column:
 
 ```markdown
-| [[TSK Dev/TSK Dev\|Dev]]+ | [[TSK Files\|Files]], [[TSK Architecture\|Architecture]] |
+| [[CAE Dev/CAE Dev\|Dev]]+ | [[CAE Files\|Files]], [[CAE Architecture\|Architecture]] |
 ```
 
 The `+` is outside the `]]` — it's a directive to the system, not part of the link.
@@ -133,9 +138,9 @@ The `+` is outside the `]]` — it's a directive to the system, not part of the 
 The row labels **User**, **Plan**, and **Dev** are wiki-links to their sub-folder dispatch pages:
 
 ```markdown
-| [[TSK User/TSK User\|User]]   | [[TSK User Guide\|User Guide]], [[TSK Cards\|Cards]]   |
-| [[TSK Plan\|Plan]]             | [[TSK PRD\|PRD]], [[TSK System Design\|System Design]] |
-| [[TSK Dev/TSK Dev\|Dev]]       | [[TSK Files\|Files]], [[TSK Architecture\|Architecture]]|
+| [[CAE User/CAE User\|User]]   | [[CAE User Guide\|User Guide]], [[CAE Cards\|Cards]]   |
+| [[CAE Plan\|Plan]]             | [[CAE PRD\|PRD]], [[CAE System Design\|System Design]] |
+| [[CAE Dev/CAE Dev\|Dev]]       | [[CAE Files\|Files]], [[CAE Architecture\|Architecture]]|
 ```
 
 Clicking the row label navigates to the sub-folder dispatch page, which has a complete list of that section's files. The inline links on the right are just highlights — the dispatch page is the authoritative index.

@@ -3,14 +3,19 @@ description: UX design — screens, commands, interactions
 ---
 # CAB UX Design
 
+**Location:** `{NAME} Docs/{NAME} Plan/{NAME} UX Design.md`
+
+
 The UX Design document (`{NAME} UX Design.md`) specifies the user-facing interface: screens, commands, output formats, and interaction flows. For CLI tools this covers command syntax and output; for GUI apps it covers screens and navigation. It contains the current spec — not rationale or alternatives.
 
-Below is a reference example for a hypothetical project "TSK" (Task Runner).
+**If the anchor ships a CLI, also create [[CAB CLI]]** (`{NAME} CLI.md` in `{NAME} Docs/{NAME} User/`). UX Design specifies *intent* (what commands exist, what they mean, what output they produce); the CLI doc is the *reference* (every flag, every exit code, exhaustively). UX Design shapes the user-facing decisions; CLI doc is what users reach for when they need exact syntax.
+
+Below is a condensed reference example. See the working example linked above for the real file.
 
 # Reference Example
 ---
 
-# TSK UX Design
+# CAE UX Design
 
 | TOC |  |
 | --- | --- |

@@ -5,7 +5,7 @@ description: published documentation site
 
 Published web presence for an anchor. Two levels: a simple project page (Jekyll) or a full documentation site (MkDocs).
 
-Below is a reference example for a hypothetical project "TSK" (Task Runner).
+Below is a condensed reference example. See the working example linked above for the real file.
 
 # Reference Example
 ---
@@ -13,7 +13,7 @@ Below is a reference example for a hypothetical project "TSK" (Task Runner).
 **Project page** (simple splash):
 
 ```
-Task Runner/
+CAE example/
 └── website/
     ├── index.md              Jekyll front matter, cayman layout
     └── deploy.sh             Copy to oblinger.github.io repo
@@ -22,7 +22,7 @@ Task Runner/
 **Full documentation site** (MkDocs):
 
 ```
-task-runner/                  (code repository)
+cae-example/                  (code repository)
 ├── mkdocs.yml
 ├── docs/
 │   ├── index.md
@@ -35,7 +35,7 @@ task-runner/                  (code repository)
 └── justfile                  just docs / just docs-serve
 ```
 
-Published at `oblinger.github.io/gitproj/task-runner/`.
+Published at `oblinger.github.io/gitproj/cae-example/`.
 
 ---
 
