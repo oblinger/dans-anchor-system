@@ -8,7 +8,7 @@ The Common Anchor Blueprint (CAB) defines a standard folder structure for organi
 
 CAB is the structural backbone of the system. When you create a new project, CAB gives it a standardized shape. When you reorganize, CAB validates that nothing is broken. The specification lives in `~/.claude/skills/CAB/` with separate files for types, parts, and rules.
 
-An anchor's identity comes from its RID (Root ID) — a short uppercase code like CLF or HA. The anchor page (a markdown file matching the folder name) is the hub. All other files and folders follow predictable naming conventions defined by the anchor type.
+An anchor's identity comes from its slug (slug) — a short uppercase code like CLF or HA. The anchor page (a markdown file matching the folder name) is the hub. All other files and folders follow predictable naming conventions defined by the anchor type.
 
 ## Commands
 
@@ -23,7 +23,7 @@ An anchor's identity comes from its RID (Root ID) — a short uppercase code lik
 | `/cab install` | Install CAB tools (stat, cab-config, cab-scan, cab-lint) into `~/bin` |
 | `/cab lint` | Check structure, files, and links against CAB type rules |
 | `/cab maintain` | Run standing maintenance orders (keep derived files in sync) |
-| `/cab rid-scan` | Scan for new RIDs and sync the index |
+| `/cab slug-scan` | Scan for new slugs and sync the index |
 | `/cab yore` | Archive folders/anchors to Yore with date-prefixed zip |
 
 ## Key Concepts
@@ -33,4 +33,4 @@ An anchor's identity comes from its RID (Root ID) — a short uppercase code lik
 - **Rules** — Naming conventions, markdown formatting, docs conventions, repository structure. Each rule is in `cab-rules/`
 - **Base file tree** — All types share a common base structure defined in CAB Base. Type specs add or remove from this base
 - **`.skl/config.yaml`** — Per-anchor configuration file linking to docs, rules, and other paths
-- **`ha -p "{name}"`** — Look up any anchor's path by RID or name
+- **`ha -p "{name}"`** — Look up any anchor's path by slug or name

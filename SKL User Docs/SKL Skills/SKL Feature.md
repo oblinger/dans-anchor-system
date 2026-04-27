@@ -15,4 +15,4 @@ A feature is a unit of work that moves through design, readiness, and implementa
 - **Open-questions** — surface and resolve all questions before implementation.
 - **Ready** — verify all implementation questions are answered. No questions remain for the user. The feature doc is the complete spec for what to build.
 
-**Output:** A feature doc in `{RID} Features/` with status "Ready" in stat. The agent can proceed to Implement without asking the user anything.
+**Output:** A feature doc in `{slug} Features/` with status "Ready" in stat. The agent can proceed to Implement without asking the user anything.
