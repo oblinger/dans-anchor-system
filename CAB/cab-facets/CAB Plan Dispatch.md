@@ -3,25 +3,31 @@ description: planning docs dispatch page
 ---
 # CAB Plan Dispatch
 
+**Location:** `{NAME} Docs/{NAME} Plan/{NAME} Plan.md`
+
+
 The `{NAME} Plan.md` dispatch page inside the `{NAME} Plan/` folder. Lists all planning and execution documents for the anchor.
 
-Below is a reference example for a hypothetical project "TSK" (Task Runner).
+**Working example:** `~/.claude/skills/CAE/CAE Docs/CAE Plan/CAE Plan.md` — Plan dispatch.
+
+Below is a condensed reference example. See the working example linked above for the real file.
 
 # Reference Example
 ---
 
 
-| -[[TSK Plan]]- | +> |
+| -[[CAE Plan]]- | +> |
 | --- | --- |
-| [[TSK PRD\|PRD]] | product requirements |
-| [[TSK System Design\|System Design]] | architecture and design |
-| [[TSK UX Design\|UX Design]] | user-facing interface spec |
-| [[TSK Discussion\|Discussion]] | design reasoning and trade-offs |
-| [[TSK Roadmap\|Roadmap]] | milestones with checkbox tracking |
-| [[TSK Backlog\|Backlog]] | deferred work |
-| [[TSK Inbox\|Inbox]] | raw input to process |
-| [[TSK Open Questions\|Open Questions]] | unresolved decisions |
-| [[TSK Research\|Research]] | research notes |
+| [[CAE PRD\|PRD]] | product requirements |
+| [[CAE System Design\|System Design]] | architecture and design |
+| [[CAE UX Design\|UX Design]] | user-facing interface spec |
+| [[CAE Discussion\|Discussion]] | design reasoning and trade-offs |
+| [[CAE Roadmap\|Roadmap]] | milestones with checkbox tracking |
+| [[CAE Backlog\|Backlog]] | deferred work |
+| [[CAE Icebox\|Icebox]] | cold-storage / someday-maybe (optional) |
+| [[CAE Inbox\|Inbox]] | raw input to process |
+| [[CAE Open Questions\|Open Questions]] | unresolved decisions |
+| [[CAE Research\|Research]] | research notes |
 
 ---
 
@@ -51,6 +57,7 @@ The Plan dispatch page lists all children of the Plan folder:
 | `{NAME} Discussion.md` | [[CAB Discussion]] |
 | `{NAME} Roadmap.md` | [[CAB Roadmap]] |
 | `{NAME} Backlog.md` | [[CAB Backlog]] |
+| `{NAME} Icebox.md` | [[CAB Icebox]] (optional) |
 | `{NAME} Inbox.md` | [[CAB Inbox]] |
 | `{NAME} Open Questions.md` | [[CAB Open Questions]] |
 | `{NAME} Features/` | [[CAB Features]] |

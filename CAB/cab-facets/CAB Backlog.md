@@ -3,14 +3,21 @@ description: deferred work items
 ---
 # CAB Backlog
 
+**Location:** `{NAME} Docs/{NAME} Plan/{NAME} Backlog.md`
+
+
 The backlog file (`{NAME} Backlog.md`) holds ideas, low-priority tasks, and deferred work that don't belong on the active Todo or Roadmap yet. Items graduate to the Roadmap or Todo when they become priorities.
 
-Below is a reference example for a hypothetical project "TSK" (Task Runner).
+For items the user wants to remember but is **not** actively considering — distant-future / someday-maybe entries — use the optional [[CAB Icebox]] instead. Backlog is the *active* deferred-work list; Icebox is the *frozen* one.
+
+**Working example:** `~/.claude/skills/CAE/CAE Docs/CAE Plan/CAE Backlog.md` — Backlog.
+
+Below is a condensed reference example. See the working example linked above for the real file.
 
 # Reference Example
 ---
 
-# TSK Backlog
+# CAE Backlog
 
 
 ## Upcoming
@@ -22,17 +29,13 @@ Below is a reference example for a hypothetical project "TSK" (Task Runner).
 - **Webhook notifications** — Send webhook on task completion (implemented, awaiting user verification)
 
 ## Completed
-- **Retry config** — Per-task retry limits (done in PR #4, see [[TSK Roadmap#M2]])
+- **Retry config** — Per-task retry limits (done in PR #4, see [[CAE Roadmap#M2]])
 - **JSON output** — Machine-readable task status output (done in PR #2)
 
 ## Legwork
 - **User feedback on retry UX** — User mentioned retry errors are confusing; rework error messages
 - **Doc consistency pass** — Module docs reference old API names from pre-M2
 - **Test coverage for edge cases** — Add tests for empty task lists and concurrent scheduling
-
-## Deferred
-- **GUI dashboard** — Web interface for task monitoring (out of scope for CLI-first phase)
-- **Multi-tenant support** — Not needed until enterprise tier
 
 ---
 
@@ -49,7 +52,8 @@ Entries are grouped under H2 sections:
 - **Testing** — Implemented but awaiting user verification that they work as intended. Once confirmed, move to Completed.
 - **Completed** — Items that graduated and were finished (with cross-references to where)
 - **Legwork** — Autonomous agent work that should be done proactively. Includes user feedback integration, planning actions, doc consistency fixes, and other tasks the agent can execute without user approval. The `/code execute` priority loop pulls from this section as Tier 2 legwork (after PR merging and worker dispatch).
-- **Deferred** — Items explicitly parked. Not forgotten, just not now.
+
+For items that are explicitly parked / out-of-scope-for-now / someday-maybe, use the optional [[CAB Icebox]] file rather than a Deferred section here.
 
 ## Location
 
@@ -59,6 +63,7 @@ Entries are grouped under H2 sections:
 
 - **Todo** — active, near-term tasks
 - **Roadmap** — milestone-based execution plan
-- **Backlog** — everything else: ideas, someday/maybe, deferred work
+- **Backlog** — active deferred-work list: ideas under consideration, low-priority but not abandoned
+- **[[CAB Icebox|Icebox]]** — optional cold-storage list for items not under active consideration
 
-Items graduate from Backlog to Todo or Roadmap when they become priorities.
+Items graduate from Backlog to Todo or Roadmap when they become priorities, or move to Icebox when they cool off.

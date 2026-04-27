@@ -11,7 +11,7 @@ The base specification shared by all anchor types.
 
 {[[CAB Folder|CAB Folder]]}/
 ├── {CAB Folder}.md           [[CAB Folder|marker file]]
-├── [[CAB RID Page|{NAME}.md]]                    primary entry point (if NAME ≠ folder)
+├── [[CAB Anchor Page|{NAME}.md]]                    primary entry point (if NAME ≠ folder)
 │
 ├── {NAME} [[CAB Docs|Docs]]/
 │   ├── {NAME} Docs.md           dispatch page
@@ -19,14 +19,19 @@ The base specification shared by all anchor types.
 │       ├── {NAME} PRD.md        product requirements
 │       ├── {NAME} [[CAB Roadmap|Roadmap]].md    milestones with checkbox tracking
 │       ├── {NAME} [[CAB Backlog|Backlog]].md    deferred work (optional)
+│       ├── {NAME} [[CAB Icebox|Icebox]].md     cold-storage / someday-maybe (optional)
 │       ├── {NAME} [[CAB Files|Files]].md      codebase map (optional)
 │       ├── {NAME} [[CAB Features|Features]]/     dated feature specs
 │       │   └── {NAME} Features.md   feature index (reverse chronological)
 │       └── {NAME} [[CAB Inbox|Inbox]].md      raw content to process
 │
 ├── {NAME} [[CAB Cards|Cards]]/                cheat sheets & flashcards (optional)
-├── [[CAB Claude|CLAUDE.md]]                    Claude Code config (optional)
-└── [[CAB Code Repository|Code]] -> {repo}               code repo symlink (optional)
+└── [[CAB Claude|CLAUDE.md]]                    Claude Code config (optional)
+
+Associated code repository (when the anchor has the `code` trait) is
+declared in `.anchor`'s `code:` key — absolute path, or relative to
+the anchor root (e.g. `code: .` for inline, `code: ../../proj/foo`
+for linked). See [[CAB Code Repository]].
 .                                See also: [[CAB Documentation Site]]
 
 
@@ -34,15 +39,15 @@ The base specification shared by all anchor types.
 | ----------------------- | ----------------------------------------------------- |
 | [[Simple Anchor]]       | Folder + anchor page only                             |
 | [[Topic Anchor]]        | Evergreen knowledge, child anchors, routing hub       |
-| [[Code Anchor]]         | Code repo — inline (repo=anchor) or linked (symlink)  |
+| [[Code Anchor]]         | Code repo — inline (`code: .`) or linked (`code:` path) |
 | [[Paper Anchor]]        | Document revision with version table + sections       |
 | [[Skill Anchor]]        | Claude Code skill group in ~/.claude/skills/          |
 
-| **[[CAB Rules]]**               |                                              |
+| **[[CAB Rules Index]]**         |                                              |
 | ---------------------------------- | -------------------------------------------- |
 | [[CAB Defined Terms]]           | Dated folder, dated sections                 |
 | [[CAB Markdown Formatting]]     | Vertical spacing, named lists, file trees, TOC |
-| [[CAB Naming Conventions]]      | RIDs, file prefixes, auxiliary commands        |
+| [[CAB Naming Conventions]]      | slugs, file prefixes, auxiliary commands        |
 | [[CAB Page Conventions]]        | Description field, link table conventions     |
 | [[CAB Docs Conventions]]        | Standard documents, roadmap format            |
 | [[CAB Documentation Publishing]] | Private vs user docs, MkDocs, generators    |
@@ -61,5 +66,5 @@ The base specification shared by all anchor types.
 | [[CAB Pilot Flow]]    | Top-down design then implementation |
 | [[CAB Move]]          | Move anchor, update all paths       |
 | [[CAB Migrate]]       | Convert between anchor types        |
-| [[CAB RID Scan]]      | Sync RID index                       |
+| [[cab-slug-scan]]      | Sync slug index                       |
 | [[CAB Streams]]       | Content stream definitions          |

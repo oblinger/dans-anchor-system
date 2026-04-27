@@ -12,7 +12,7 @@ See [[cab-base]] shows files common to all anchors.
 
 {[[CAB Folder|CAB Folder]]}/
 ├── {CAB Folder}.md                       [[CAB Folder|marker file]]   (if NAME ≠ folder)
-├── [[CAB RID Page|{NAME}.md]]                             Primary entry point
+├── [[CAB Anchor Page|{NAME}.md]]                             Primary entry point
 │
 ├── {NAME} [[CAB Docs|Docs]]/
 │   ├── {NAME} Docs.md                    Dispatch page
@@ -29,6 +29,7 @@ See [[cab-base]] shows files common to all anchors.
 │   │   │   ├── 2026-01-15 User Auth.md
 │   │   │   └── ...
 │   │   ├── {NAME} [[CAB Backlog|Backlog]].md             Deferred work
+│   │   ├── {NAME} [[CAB Icebox|Icebox]].md              Cold-storage / someday-maybe (optional)
 │   │   ├── {NAME} [[CAB Files|Files]].md               File map with → doc links
 │   │   ├── {NAME} [[CAB Roadmap|Roadmap]].md             Milestones with checkbox tracking
 │   │   └── {NAME} [[CAB Inbox|Inbox]].md               Raw content to process

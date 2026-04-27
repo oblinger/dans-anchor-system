@@ -3,48 +3,55 @@ description: documentation hub — links to Plan, Dev, User
 ---
 # CAB Docs
 
+**Location:** `{NAME} Docs/{NAME} Docs.md`
+
+
 The `{NAME} Docs/` folder organizes all planning, design, and published documentation for an anchor. It contains three subfolder areas: Plan (specs and tracking), User (end-user docs), and Dev (developer/module docs).
 
-Below is a reference example for a hypothetical project "TSK" (Task Runner).
+**Working example:** `~/.claude/skills/CAE/CAE Docs/CAE Docs.md` — top-level dispatch.
+
+Below is a condensed reference example. See the working example linked above for the real file.
 
 # Reference Example
 ---
 
 ```
-TSK Docs/
-├── TSK Docs.md                    Dispatch — links to Plan, Dev, User
+CAE Docs/
+├── CAE Docs.md                    Dispatch — links to Plan, Dev, User
 │
-├── TSK Plan/                      Planning & execution
-│   ├── TSK Plan.md                Dispatch table of all planning docs
-│   ├── TSK PRD.md
-│   ├── TSK System Design.md
-│   ├── TSK Roadmap.md
-│   ├── TSK Backlog.md
-│   ├── TSK Inbox.md
-│   └── TSK Open Questions.md
+├── CAE Plan/                      Planning & execution
+│   ├── CAE Plan.md                Dispatch table of all planning docs
+│   ├── CAE PRD.md
+│   ├── CAE System Design.md
+│   ├── CAE Roadmap.md
+│   ├── CAE Backlog.md
+│   ├── CAE Icebox.md                  (optional)
+│   ├── CAE Inbox.md
+│   └── CAE Open Questions.md
 │
-├── TSK User/                      User-facing documentation
-│   ├── TSK User.md                Dispatch table of all user docs
-│   └── TSK User Guide.md
+├── CAE User/                      User-facing documentation
+│   ├── CAE User.md                Dispatch table of all user docs
+│   └── CAE User Guide.md
 │
-└── TSK Dev/                       Developer & implementation docs
-    ├── TSK Dev.md                  Dispatch table — Files, Architecture, modules
-    ├── TSK Architecture.md
-    └── TSK execution/              Mirrors source tree
-        └── TSK Scheduler.md        Module doc
+└── CAE Dev/                       Developer & implementation docs
+    ├── CAE Dev.md                  Dispatch table — Files, Architecture, modules
+    ├── CAE Architecture.md
+    └── CAE execution/              Mirrors source tree
+        └── CAE Scheduler.md        Module doc
 ```
 
 Each dispatch page uses a dispatch table:
 
 ```markdown
-| -[[TSK Plan]]-                           | +> |
+| -[[CAE Plan]]-                           | +> |
 | ---------------------------------------- | ------------------------------- |
-| [[TSK PRD|PRD]]                         | product requirements            |
-| [[TSK System Design|System Design]]     | architecture and design         |
-| [[TSK Inbox|Inbox]]                     | raw input to process            |
-| [[TSK Open Questions|Open Questions]]   | unresolved decisions            |
-| [[TSK Backlog|Backlog]]                 | deferred work                   |
-| [[TSK Roadmap|Roadmap]]                 | milestones                      |
+| [[CAE PRD|PRD]]                         | product requirements            |
+| [[CAE System Design|System Design]]     | architecture and design         |
+| [[CAE Inbox|Inbox]]                     | raw input to process            |
+| [[CAE Open Questions|Open Questions]]   | unresolved decisions            |
+| [[CAE Backlog|Backlog]]                 | deferred work                   |
+| [[CAE Icebox|Icebox]]                   | cold-storage / someday-maybe (optional) |
+| [[CAE Roadmap|Roadmap]]                 | milestones                      |
 ```
 
 ---
@@ -66,10 +73,10 @@ Every subfolder has a **dispatch page** with a dispatch table listing its conten
 The anchor page row labels are wiki-links to the subfolder dispatch pages:
 
 ```markdown
-| [[TSK Plan|Plan]]   | [[TSK PRD|PRD]], [[TSK System Design|System Design]], ... |
-| [[TSK Plan|Execute]] | [[TSK Inbox|Inbox]], [[TSK Open Questions|Open Questions]], ... |
-| [[TSK User/TSK User|User]] | [[TSK User Guide|User Guide]], [[TSK Cards|Cards]] |
-| [[TSK Dev/TSK Dev|Dev]]   | [[TSK Files|Files]], [[TSK core|core]], ... |
+| [[CAE Plan|Plan]]   | [[CAE PRD|PRD]], [[CAE System Design|System Design]], ... |
+| [[CAE Plan|Execute]] | [[CAE Inbox|Inbox]], [[CAE Open Questions|Open Questions]], ... |
+| [[CAE User/CAE User|User]] | [[CAE User Guide|User Guide]], [[CAE Cards|Cards]] |
+| [[CAE Dev/CAE Dev|Dev]]   | [[CAE Files|Files]], [[CAE core|core]], ... |
 ```
 
 Clicking a row label navigates to the subfolder dispatch page, which has the complete list. The inline items are just highlights — the dispatch page is the authoritative index.
@@ -87,6 +94,7 @@ Most anchors (beyond simple ones) have a `{NAME} Docs/` folder containing planni
 | `{NAME} PRD.md` | Product requirements / planning brief |
 | `{NAME} Roadmap.md` | High-level plan and milestones (see [[CAB Roadmap]]) |
 | `{NAME} Backlog.md` | Low-priority ideas and deferred work (see [[CAB Backlog]]) |
+| `{NAME} Icebox.md` | Cold-storage / someday-maybe items (see [[CAB Icebox]]) — optional |
 | `{NAME} Todo.md` | Active task tracking |
 | `{NAME} Features/` | Individual feature specs (see [[CAB Features]]) |
 | `{NAME} {Module}.md` | Source code module documentation (see [[CAB Module Doc]]) |

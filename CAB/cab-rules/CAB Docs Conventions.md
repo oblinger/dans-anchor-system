@@ -9,6 +9,7 @@ The `{NAME} Docs/` folder contains private planning and design documentation (NO
 | `{NAME} PRD.md` | Product requirements, design specs | Prose |
 | `{NAME} Roadmap.md` | Milestones and phases | See [[CAB Roadmap]] |
 | `{NAME} Backlog.md` | Deferred work, low-priority ideas | See [[CAB Backlog]] |
+| `{NAME} Icebox.md` | Cold-storage / someday-maybe (optional) | See [[CAB Icebox]] |
 | `{NAME} Inbox.md` | Raw content to process | See [[CAB Inbox]] |
 | `{NAME} Features/` | Feature specs | See [[CAB Features]] |
 | `{NAME} Files.md` | Single-page codebase map | See [[CAB Files]] |
