@@ -84,7 +84,7 @@ Claude works best on coherent, manageable chunks. Splitting into sections allows
 5. Decide on section structure and add descriptions in Notes column
 6. Create empty row 1 for revisions
 7. Register HookAnchor commands (`ha -d`)
-8. Register RID in the [[RID]] index
+8. Register slug in the [[slug]] index
 
 ## Audit
 
@@ -96,4 +96,4 @@ Type-specific structure checks for Paper Anchors.
 
 ### Conditional structure
 - Create `{NAME} Dev/` folder only when another trait requires it (e.g., Code trait)
-- Create `Code` symlink only when another trait requires it (e.g., Code trait)
+- Add a `code:` key to `.anchor` only when the anchor gains the `code` trait

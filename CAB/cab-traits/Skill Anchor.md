@@ -23,8 +23,8 @@ Skills (SKL) and anchor docs (SKA) use different naming conventions:
 
 | Context | Convention | Example |
 |---------|-----------|---------|
-| **SKL** (skills repo) | **kebab-case** — lowercase, hyphen-separated | `cab-create.md`, `code-feature.md`, `cab-facets/` |
-| **SKA** (vault anchors) | **Title Case** — capitalized words, space-separated, RID-prefixed | `CAB Facets.md`, `MUX System Design.md`, `HA Files.md` |
+| **SKL** (skills repo) | **kebab-case** — lowercase, hyphen-separated | `cab-create.md`, `code-rewire.md`, `cab-facets/` |
+| **SKA** (vault anchors) | **Title Case** — capitalized words, space-separated, slug-prefixed | `CAB Facets.md`, `MUX System Design.md`, `HA Files.md` |
 
 **Why two conventions:**
 - SKL files are skill actions dispatched by Claude Code, which expects lowercase-hyphenated names
@@ -48,7 +48,7 @@ Skills (SKL) and anchor docs (SKA) use different naming conventions:
 │   └── *.py                      Scripts (optional)
 ```
 
-## Anchor Page and RID
+## Anchor Page and slug
 
 The main page for a skill anchor is `SKILL.md`, not an anchor page file.
 
@@ -56,9 +56,9 @@ The main page for a skill anchor is `SKILL.md`, not an anchor page file.
 
 The SKA project anchor IS the anchor for `[[{NAME}]]` links. The skill's `SKILL.md` is reached via `[[{name}/SKILL]]`.
 
-### RID file (`{RID}.md`)
+### slug file (`{slug}.md`)
 
-If the skill has a RID that differs from the folder name AND doesn't collide with a SKA project name, a RID alias file can be created. Otherwise, use the SKA project anchor as the RID destination.
+If the skill has a slug that differs from the folder name AND doesn't collide with a SKA project name, a slug alias file can be created. Otherwise, use the SKA project anchor as the slug destination.
 
 ## User Docs
 
@@ -99,12 +99,12 @@ This separates:
 - **Skill folder** (`~/.claude/skills/{name}/`) — the skill itself + user docs. Ships to users.
 - **SKA project** (`Skill Agent/{NAME}/`) — design thinking, PRDs, research. Stays in vault.
 
-The skill folder is lowercase (`cab`, `dev`, `ctrl`). The SKA project is uppercase RID (`LINT`, `DEV`, `CTRL`). They live in different directories so no filesystem collision.
+The skill folder is lowercase (`cab`, `dev`, `ctrl`). The SKA project is uppercase slug (`LINT`, `DEV`, `CTRL`). They live in different directories so no filesystem collision.
 
 
 ## Examples
 
-**Minimal** (research) — `SKILL.md` + 2 action files + anchor page + RID
+**Minimal** (research) — `SKILL.md` + 2 action files + anchor page + slug
 
 **Moderate** (dev) — `SKILL.md` + 5 action files + 1 topic file + anchor page + reference files
 

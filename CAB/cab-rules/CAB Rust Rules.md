@@ -2,16 +2,16 @@
 
 Conventions for Rust-based anchors that use a Cargo workspace with multiple crates.
 
-See also [[CAB Repository Structure]] for general repo conventions and [[CAB Code Repository]] for the Code symlink pattern.
+See also [[CAB Repository Structure]] for general repo conventions and [[CAB Code Repository]] for the .anchor code: key pattern.
 
 
 # Reference Example
 ---
 
-The TSK project as a Rust workspace with two member crates and a shared util dependency:
+The CAE project as a Rust workspace with two member crates and a shared util dependency:
 
 ```
-~/ob/proj/TSK/task-runner/
+~/ob/proj/CAE/cae-example/
 ├── Cargo.toml                  Workspace root
 ├── Cargo.lock
 ├── justfile

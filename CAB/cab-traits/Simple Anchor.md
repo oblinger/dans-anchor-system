@@ -9,7 +9,7 @@ Quick reference pages, topic collections, notes that need an anchor identity but
 ## Deltas from Base
 
 - **Create `{NAME} Docs/` only when another trait requires it**
-- **Create repository only when another trait requires it** — no `.git/`, no `Code` symlink by default
+- **Create repository only when another trait requires it** — no `.git/`, no `code:` key in `.anchor` by default
 - **Create CLAUDE.md only when another trait requires it**
 - **Create Inbox only when another trait requires it**
 - Lives within a parent folder that's already organized
@@ -34,4 +34,4 @@ Type-specific structure checks for Simple Anchors.
 
 ### Conditional structure
 - Create `{NAME} Docs/` folder only when another trait requires it (simple anchors are just the anchor page by default)
-- Create `Code` symlink only when another trait requires it
+- Add a `code:` key to `.anchor` only when the anchor gains the `code` trait

@@ -8,7 +8,7 @@ System configuration, knowledge domains, reference areas — anything that is ev
 
 ## Deltas from Base
 
-- **No repository** — no `.git/`, no `Code` symlink, no CLAUDE.md
+- **No repository** — no `.git/`, no `code:` key in `.anchor`, no CLAUDE.md
 - **Child anchors** — may contain sub-topic folders that are anchors themselves
 - **Routing hub** — anchor page links to sub-topics or content pages rather than containing content directly
 - Lives within the Obsidian vault
@@ -50,4 +50,4 @@ Type-specific structure checks for Topic Anchors.
 ### Conditional structure
 - Create `{NAME} Dev/` folder only when another trait requires it (e.g., Code trait)
 - Create `{NAME} User/` folder only when another trait requires it (e.g., Code trait)
-- Create `Code` symlink only when another trait requires it (e.g., Code trait)
+- Add a `code:` key to `.anchor` only when the anchor gains the `code` trait
