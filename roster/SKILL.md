@@ -21,17 +21,17 @@ When the user types `roster` or `show roster`, or asks for a quick view of what'
 
 ## Output
 
-Print these sections in order, **omitting any section with zero items**:
+Print these sections in order, **omitting any section with zero items**. Each entry shows its **Q-number** so the user can refer to it unambiguously ("do Q5", "tell me about Q12"):
 
 ```
 ## In Progress
-- **<Item Name>** — <one-line gloss>
+- **Q<n> — <Item Name>** — <one-line gloss>
 
 ## Ready
-- **<Item Name>** — <one-line gloss>
+- **Q<n> — <Item Name>** — <one-line gloss>
 
 ## Backlog
-- **<Item Name>** — <one-line gloss>
+- **Q<n> — <Item Name>** — <one-line gloss>
 
 ---
 {N} in progress · {N} ready · {N} backlog · {N} icebox
@@ -40,6 +40,8 @@ Print these sections in order, **omitting any section with zero items**:
 The **footer line always prints**, even when buckets are zero — the user sees the full picture every time.
 
 The **Icebox is counted but never listed**.
+
+The Q-number is parsed from the source bullet. Source format per [[CAB Backlog]]: `- **Q<n> — Item Name** — description`. If a backlog item lacks a Q-number, render it as `- **Q?** — <Item Name>** — gloss` and flag the missing number — but don't fix it inline; that's a job for the skill that edits the backlog.
 
 ## Sources
 
@@ -57,13 +59,13 @@ Missing sections / files → zero items.
 
 ## Item Format
 
-Each source entry is a named-list bullet:
+Each source entry is a Q-numbered named-list bullet:
 
 ```
-- **Item Name** — short description
+- **Q<n> — Item Name** — short description
 ```
 
-Render the name bolded; gloss the description to the first sentence or ~70 chars (whichever is shorter), suffix `…` if clipped. Preserve the source order within each bucket.
+Render the Q-number and name together in bold, separated by an em-dash, exactly as in the source. Gloss the description to the first sentence or ~70 chars (whichever is shorter), suffix `…` if clipped. Preserve the source order within each bucket.
 
 ## Counts
 

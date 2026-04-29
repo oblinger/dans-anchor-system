@@ -21,26 +21,26 @@ Below is a condensed reference example. See the working example linked above for
 
 
 ## In Progress
-- **Retry backoff polish** — Tune exponential-backoff caps after user feedback on long retries
+- **Q3 — Retry backoff polish** — Tune exponential-backoff caps after user feedback on long retries
 
 ## Ready
-- **Cron syntax** — Support cron expressions for recurring task schedules
+- **Q1 — Cron syntax** — Support cron expressions for recurring task schedules
 
 ## Upcoming
-- **Task groups** — Allow grouping related tasks that run as a batch
-- **Priority levels** — Add high/medium/low priority beyond just deadline ordering
+- **Q2 — Task groups** — Allow grouping related tasks that run as a batch
+- **Q4 — Priority levels** — Add high/medium/low priority beyond just deadline ordering
 
 ## Testing
-- **Webhook notifications** — Send webhook on task completion (implemented, awaiting user verification)
+- **Q7 — Webhook notifications** — Send webhook on task completion (implemented, awaiting user verification)
 
 ## Completed
-- **Retry config** — Per-task retry limits (done in PR #4, see [[CAE Roadmap#M2]])
-- **JSON output** — Machine-readable task status output (done in PR #2)
+- **Q5 — Retry config** — Per-task retry limits (done in PR #4, see [[CAE Roadmap#M2]])
+- **Q6 — JSON output** — Machine-readable task status output (done in PR #2)
 
 ## Legwork
-- **User feedback on retry UX** — User mentioned retry errors are confusing; rework error messages
-- **Doc consistency pass** — Module docs reference old API names from pre-M2
-- **Test coverage for edge cases** — Add tests for empty task lists and concurrent scheduling
+- **Q9 — User feedback on retry UX** — User mentioned retry errors are confusing; rework error messages
+- **Q8 — Doc consistency pass** — Module docs reference old API names from pre-M2
+- **Q10 — Test coverage for edge cases** — Add tests for empty task lists and concurrent scheduling
 
 ---
 
@@ -50,7 +50,19 @@ Below is a condensed reference example. See the working example linked above for
 
 ## Format
 
-Each entry is a named-list item: bold name, em-dash, description.
+Each entry is a named-list item with a unique **Q-number** prefix:
+
+```
+- **Q<n> — Item Name** — short description.
+```
+
+The Q-number lets the user refer unambiguously to a single item ("do Q5", "Q12 needs more detail"). Q-numbers are unique within the file but **don't have to be strictly increasing in display order** — items are added and resolved in arbitrary order. When assigning a new Q-number:
+
+- Prefer the **lowest unused integer** in the file (gap-fill).
+- If active items cluster at high numbers (e.g., most are Q40+), just keep counting upward — don't force gap-fill into a stale cluster.
+- Once the high cluster clears, future adds restart at the lowest available low number.
+
+Skipped numbers are fine. Don't renumber existing items just to compact — Q-numbers are stable references.
 
 Entries are grouped under H2 sections:
 - **In Progress** — Items the Pilot is actively driving forward right now. Used for backlog-tracked work that doesn't warrant its own feature doc; items with full feature docs track in-flight state on the feature doc instead.
