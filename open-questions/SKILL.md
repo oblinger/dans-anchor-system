@@ -23,19 +23,25 @@ This is why the discipline below applies specifically to **feature construction 
 ## Intake — batch, number, ask once
 
 1. **Batch at intake.** Before asking anything, review the work and write down EVERY question you might need the user to answer. Do not ask the obvious ones first and hold the edge cases for "follow-up."
-2. **Number them Q1, Q2, ..., Qn** in the order you'll present them.
-3. **Ask in one message.** Present all Q_n together with enough context on each so the user can answer top-to-bottom.
+2. **Q-number them.** Every question gets a unique `Q<n>` prefix — `Q1`, `Q2`, ..., `Qn` — assigned in the order you'll present them. The Q-number lets the user refer back unambiguously: "answer Q3 first" / "Q5 needs more context." Q-numbers are **stable references** — once assigned, never renumber, even when questions get resolved out of order. Skipped numbers are fine.
+3. **Ask in one message.** Present all `Q<n>` together with enough context on each so the user can answer top-to-bottom.
 
 **Never ask a second round after the user has said "ready" or "go" to the first.** If you realize later you missed a question, surface it as a miss — "I should have asked Qn earlier, surfacing now" — don't sneak it in.
+
+### Q-number assignment
+
+When questions accumulate over multiple turns (e.g., during a long feature design), prefer the **lowest unused integer** in the file. If active questions cluster at high numbers (most are Q40+), keep counting upward. Once the cluster clears, future questions restart at low numbers. Same soft policy as backlog Q-numbers — see [[CAB Backlog]] § Format.
 
 
 ## Resolution — inline, with pointer
 
-For each answered question, write the resolution inline in this exact form:
+For each answered question, write the resolution inline in this exact form, **preserving the original Q-number**:
 
 ```
 **Q3** — **Resolution:** <one sentence of what was decided>. Incorporated into <design section / plan section / code area / conversation>.
 ```
+
+The Q-number stays the same when a question moves from pending to Resolved — it's a stable reference so the user (or a later reader) can trace history.
 
 The **Incorporated into** pointer makes resolutions auditable — a reader can trace decision → design → code. When no doc exists yet, the pointer may target the conversation ("Incorporated into the design we just agreed on").
 
@@ -47,7 +53,20 @@ If a feature doc, plan doc, or PRD exists with `## Open Questions`:
 - Open Questions sits ABOVE the H1 as pre-document material (`## Open Questions`)
 - Resolved questions move to `### Resolved` H3 subsection — never deleted
 - Follow-on questions (children of a pending question) become **sub-bullets** under their parent in `## Open Questions`. When the parent is resolved, the children either resolve with it, become independent questions at the top level, or get moved to Resolved alongside the parent — agent's judgment.
-- After an edit to Open Questions, run `open "<path>"` **if pending questions remain** that the user needs to see. **Skip the glance when the edit resolved the last pending question** — the file no longer has anything outstanding for the user to attend to. The glance is for surfacing pending state; an all-resolved file is not surfacing anything.
+- **Glance only when you've added or modified a pending question.** If the edit added a new `Q<n>` to the pending list, or rewrote the wording of an existing pending question — `open "<path>"` so the user sees the new state and can respond.
+
+  **Don't glance when the edit only resolved questions** (moved one or more from pending to `### Resolved`). Resolution doesn't surface new state — the questions still pending were visible to the user already; the resolved ones don't need attention. Glancing on resolution just opens a quieter file at the user, which trains them to ignore the glance signal.
+
+  Summary table:
+
+  | Edit type | Glance? |
+  |---|---|
+  | Added a new pending `Q<n>` | **Yes** |
+  | Rewrote a pending question's wording | **Yes** |
+  | Added a sub-bullet under a pending parent | **Yes** |
+  | Resolved one or more questions (others still pending) | **No** |
+  | Resolved the last pending question | **No** |
+  | No-op edit (formatting only) | **No** |
 
 See [[CAB Features]] for the canonical pre-document layout.
 
