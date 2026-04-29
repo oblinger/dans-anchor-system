@@ -139,7 +139,7 @@ For linked-mode code anchors where the repo is elsewhere, also check the **repo 
 - [ ] If zero issues, print "Docs are clean" and stop
 
 
-# Phase 3: Fix (only when fix flag is set)
+# Phase 3: Fix (default — skipped only when "dry" appears anywhere in the args)
 
 **CRITICAL: The script is the source of truth for naming and location.** If a doc exists but has the wrong name or is in the wrong folder, rename/move it — no discussion needed. The script's naming convention (snake_case → PascalCase) is the standard. If the script expects `HA Commands.md` and you have `HA Command.md`, rename the file.
 
