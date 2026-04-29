@@ -90,17 +90,19 @@ Proposed — awaiting design discussion.
 - **H3 `### Resolved` is a subsection of Open Questions.** Resolved questions never get deleted; they get moved down with their resolution.
 - **The section always exists**, even if empty — leave a one-liner like "_None — design is clean._" under the H2 so the structure is visible.
 
-### 1a. Surface the Doc — MANDATORY glance after every Open Questions edit
+### 1a. Surface the Doc — glance when pending questions remain
 
-Every time you touch the Open Questions section — add a question, resolve one, move one to Resolved — run this immediately after saving:
+Every time you touch the Open Questions section *while pending questions remain* — add a question, resolve one of several, move one to Resolved with siblings still open — run this immediately after saving:
 
 ```bash
 open "<path to feature doc>"
 ```
 
-This opens the doc in the user's default editor so they see the new state without having to find the file. The user watches for these moments; they are the decision points where your work is blocked on their input. Skipping the `open` call leaves the user guessing whether anything changed.
+This opens the doc in the user's default editor so they see the updated state of what's still outstanding. The user watches for these moments; they are the decision points where your work is blocked on their input.
 
-Do this on the create step too — once the feature doc is written, `open` it so the user can start reading while you move to stat.
+**Skip the glance when the edit resolved the last pending question.** With nothing left under `## Open Questions`, there's no outstanding state for the user to attend to — the glance would just open a now-quiet file. The glance is for surfacing pending state, not for announcing completion.
+
+Do this on the create step too — once the feature doc is written, `open` it so the user can start reading while you move to stat (since at create time there are typically pending questions to show).
 
 ### 2. Post to Stat
 
@@ -116,7 +118,7 @@ Work with the user to flesh out the design. Update the feature doc as decisions 
 2. **Rewrite the line** in the form `**Q{N} — <question>** — **Resolution:** <what was decided, in one sentence>. Incorporated into Design § <section>.` The "Incorporated into" pointer makes resolved entries auditable — a reader can see not just that Q3 was answered but where the answer shaped the design.
 3. **Update the Design (or relevant) section** with what the resolution means in the spec. The resolved question and the updated design ship together.
 
-When a new question arises mid-discussion, add it to the pending list. Whether adding, resolving, or rewording — after every edit to `## Open Questions`, run step 1a's `open` on the file.
+When a new question arises mid-discussion, add it to the pending list. Whether adding, resolving, or rewording — after an edit to `## Open Questions` that leaves pending questions, run step 1a's `open` on the file. Skip the glance when the edit just closed the last pending question; the file no longer has anything outstanding to show.
 
 Update stat as you work:
 ```bash

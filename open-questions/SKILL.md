@@ -47,7 +47,7 @@ If a feature doc, plan doc, or PRD exists with `## Open Questions`:
 - Open Questions sits ABOVE the H1 as pre-document material (`## Open Questions`)
 - Resolved questions move to `### Resolved` H3 subsection — never deleted
 - Follow-on questions (children of a pending question) become **sub-bullets** under their parent in `## Open Questions`. When the parent is resolved, the children either resolve with it, become independent questions at the top level, or get moved to Resolved alongside the parent — agent's judgment.
-- After any edit to Open Questions, run `open "<path>"` so the user sees the updated state
+- After an edit to Open Questions, run `open "<path>"` **if pending questions remain** that the user needs to see. **Skip the glance when the edit resolved the last pending question** — the file no longer has anything outstanding for the user to attend to. The glance is for surfacing pending state; an all-resolved file is not surfacing anything.
 
 See [[CAB Features]] for the canonical pre-document layout.
 
