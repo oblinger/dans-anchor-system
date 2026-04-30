@@ -58,7 +58,7 @@ The `→ [[X]]` link convention is documented in [[CAB Backlog]].
 | `/ready legwork` | Only items under `## Legwork`. |
 | `/ready roadmap` | Operate on the roadmap's next milestone instead of the backlog. |
 | `/ready roadmap <milestone>` | Operate on a named roadmap milestone. |
-| `/ready <Q-number>` | Single item, by Q-number. |
+| `/ready <B-number>` | Single item, by Q-number. |
 | `/ready <item name>` | Single item, by name match. |
 
 
@@ -83,12 +83,12 @@ If scope was provided as an argument, narrow to bullets in that section only.
 
 **Decide:**
 
-- **Bullet is Ready as-is** — the description (plus any inference from related docs) tells you how to do the task without further user involvement. Move the bullet to `## Ready`, preserving its Q-number and text. Done with this item.
+- **Bullet is Ready as-is** — the description (plus any inference from related docs) tells you how to do the task without further user involvement. Move the bullet to `## Ready`, preserving its B-number and text. Done with this item.
 
 - **Has questions** — anything you'd need the user to clarify. Two sub-paths:
 
   1. **Inline-deferred slot is empty AND this is exactly ONE genuinely trivial question** (one short sentence, one yes/no, one short answer): hold it in the inline-deferred slot. Mark the item for revisit when the user answers — for now, leave the bullet where it is.
-  2. **Otherwise** — create a dated feature doc at `{NAME} Docs/{NAME} Plan/{NAME} Features/YYYY-MM-DD <Item Name>.md` with the standard `## Open Questions` block above the H1 (per `/feature` § 1). Capture the questions there. **This is parking mode** (per [[open-questions]] § Active vs Parking) — do NOT glance the new feature doc. The user invoked `/ready` as a *batch* operation specifically to defer per-item engagement; glancing each created doc would interrupt the very deferral they asked for. Replace the backlog bullet's description with `→ [[YYYY-MM-DD <Item Name>]]` (preserve the Q-number and bullet name). The item is now blocked-on-questions; the doc surfaces only at end-of-run via § 5 (the *first* one, not all).
+  2. **Otherwise** — create a dated feature doc at `{NAME} Docs/{NAME} Plan/{NAME} Features/YYYY-MM-DD <Item Name>.md` with the standard `## Open Questions` block above the H1 (per `/feature` § 1). Capture the questions there. **This is parking mode** (per [[open-questions]] § Active vs Parking) — do NOT glance the new feature doc. The user invoked `/ready` as a *batch* operation specifically to defer per-item engagement; glancing each created doc would interrupt the very deferral they asked for. Replace the backlog bullet's description with `→ [[YYYY-MM-DD <Item Name>]]` (preserve the B-number and bullet name). The item is now blocked-on-questions; the doc surfaces only at end-of-run via § 5 (the *first* one, not all).
 
 **Inline-deferred slot rules.**
 - At most ONE item across the whole run may use the inline slot.
@@ -105,9 +105,9 @@ Print a summary table:
 
 | Outcome | Count | Items |
 | --- | --- | --- |
-| Promoted to Ready | N | Q3, Q7, … |
-| Promoted to feature doc | N | Q5 → 2026-04-29 X, Q12 → 2026-04-29 Y |
-| Deferred inline | 0 or 1 | Q9 |
+| Promoted to Ready | N | B3, B7, … |
+| Promoted to feature doc | N | B5 → 2026-04-29 X, B12 → 2026-04-29 Y |
+| Deferred inline | 0 or 1 | B9 |
 | Skipped | N | <reasons summarized> |
 ```
 

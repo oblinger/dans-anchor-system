@@ -21,26 +21,26 @@ Below is a condensed reference example. See the working example linked above for
 
 
 ## In Progress
-- **Q3 — Retry backoff polish** — Tune exponential-backoff caps after user feedback on long retries
+- **B3 — Retry backoff polish** — Tune exponential-backoff caps after user feedback on long retries
 
 ## Ready
-- **Q1 — Cron syntax** — Support cron expressions for recurring task schedules
+- **B1 — Cron syntax** — Support cron expressions for recurring task schedules
 
 ## Upcoming
-- **Q2 — Task groups** — Allow grouping related tasks that run as a batch
-- **Q4 — Priority levels** — Add high/medium/low priority beyond just deadline ordering
+- **B2 — Task groups** — Allow grouping related tasks that run as a batch
+- **B4 — Priority levels** — Add high/medium/low priority beyond just deadline ordering
 
 ## Testing
-- **Q7 — Webhook notifications** — Send webhook on task completion (implemented, awaiting user verification)
+- **B7 — Webhook notifications** — Send webhook on task completion (implemented, awaiting user verification)
 
 ## Completed
-- **Q5 — Retry config** — Per-task retry limits (done in PR #4, see [[CAE Roadmap#M2]])
-- **Q6 — JSON output** — Machine-readable task status output (done in PR #2)
+- **B5 — Retry config** — Per-task retry limits (done in PR #4, see [[CAE Roadmap#M2]])
+- **B6 — JSON output** — Machine-readable task status output (done in PR #2)
 
 ## Legwork
-- **Q9 — User feedback on retry UX** — User mentioned retry errors are confusing; rework error messages
-- **Q8 — Doc consistency pass** — Module docs reference old API names from pre-M2
-- **Q10 — Test coverage for edge cases** — Add tests for empty task lists and concurrent scheduling
+- **B9 — User feedback on retry UX** — User mentioned retry errors are confusing; rework error messages
+- **B8 — Doc consistency pass** — Module docs reference old API names from pre-M2
+- **B10 — Test coverage for edge cases** — Add tests for empty task lists and concurrent scheduling
 
 ---
 
@@ -50,19 +50,19 @@ Below is a condensed reference example. See the working example linked above for
 
 ## Format
 
-Each entry is a named-list item with a unique **Q-number** prefix:
+Each entry is a named-list item with a unique **B-number** prefix:
 
 ```
-- **Q<n> — Item Name** — short description.
+- **B<n> — Item Name** — short description.
 ```
 
-The Q-number lets the user refer unambiguously to a single item ("do Q5", "Q12 needs more detail"). Q-numbers are unique within the file but **don't have to be strictly increasing in display order** — items are added and resolved in arbitrary order. When assigning a new Q-number:
+The B-number lets the user refer unambiguously to a single item ("do B5", "B12 needs more detail"). B-numbers are unique within the file but **don't have to be strictly increasing in display order** — items are added and resolved in arbitrary order. When assigning a new B-number:
 
 - Prefer the **lowest unused integer** in the file (gap-fill).
-- If active items cluster at high numbers (e.g., most are Q40+), just keep counting upward — don't force gap-fill into a stale cluster.
+- If active items cluster at high numbers (e.g., most are B40+), just keep counting upward — don't force gap-fill into a stale cluster.
 - Once the high cluster clears, future adds restart at the lowest available low number.
 
-Skipped numbers are fine. Don't renumber existing items just to compact — Q-numbers are stable references.
+Skipped numbers are fine. Don't renumber existing items just to compact — B-numbers are stable references.
 
 Entries are grouped under H2 sections:
 - **In Progress** — Items the Pilot is actively driving forward right now. Used for backlog-tracked work that doesn't warrant its own feature doc; items with full feature docs track in-flight state on the feature doc instead.
@@ -102,7 +102,7 @@ Every backlog item has one of these statuses, derived from where the bullet sits
 When an item has unresolved questions, the bullet description should be replaced with a pointer to where those questions live:
 
 ```
-- **Q12 — Item Name** — → [[2026-04-29 Item Name]]
+- **B12 — Item Name** — → [[2026-04-29 Item Name]]
 ```
 
 The `→ [[Feature Doc]]` (or `→ [[Open Questions]]`) link is the marker. As long as the linked doc has pending questions in its `## Open Questions` block, the backlog item's status is **Blocked on questions**. When the user resolves those questions, the item can be re-readied (the description gets rewritten to reflect the resolved design, and the bullet moves to `## Ready`).

@@ -21,17 +21,17 @@ When the user types `roster` or `show roster`, or asks for a quick view of what'
 
 ## Output
 
-Print these sections in order, **omitting any section with zero items**. Each entry shows its **Q-number** so the user can refer to it unambiguously ("do Q5", "tell me about Q12"):
+Print these sections in order, **omitting any section with zero items**. Each entry shows its **B-number** so the user can refer to it unambiguously ("do B5", "tell me about B12"):
 
 ```
 ## In Progress
-- **Q<n> — <Item Name>** — <one-line gloss>
+- **B<n> — <Item Name>** — <one-line gloss>
 
 ## Ready
-- **Q<n> — <Item Name>** — <one-line gloss>
+- **B<n> — <Item Name>** — <one-line gloss>
 
 ## Backlog
-- **Q<n> — <Item Name>** — <one-line gloss>
+- **B<n> — <Item Name>** — <one-line gloss>
 
 ---
 {N} in progress · {N} ready · {N} backlog · {N} icebox
@@ -41,7 +41,7 @@ The **footer line always prints**, even when buckets are zero — the user sees 
 
 The **Icebox is counted but never listed**.
 
-The Q-number is parsed from the source bullet. Source format per [[CAB Backlog]]: `- **Q<n> — Item Name** — description`. If a backlog item lacks a Q-number, render it as `- **Q?** — <Item Name>** — gloss` and flag the missing number — but don't fix it inline; that's a job for the skill that edits the backlog.
+The B-number is parsed from the source bullet. Source format per [[CAB Backlog]]: `- **B<n> — Item Name** — description`. If a backlog item lacks a B-number, render it as `- **Q?** — <Item Name>** — gloss` and flag the missing number — but don't fix it inline; that's a job for the skill that edits the backlog.
 
 ## Sources
 
@@ -62,10 +62,10 @@ Missing sections / files → zero items.
 Each source entry is a Q-numbered named-list bullet:
 
 ```
-- **Q<n> — Item Name** — short description
+- **B<n> — Item Name** — short description
 ```
 
-Render the Q-number and name together in bold, separated by an em-dash, exactly as in the source. Gloss the description to the first sentence or ~70 chars (whichever is shorter), suffix `…` if clipped. Preserve the source order within each bucket.
+Render the B-number and name together in bold, separated by an em-dash, exactly as in the source. Gloss the description to the first sentence or ~70 chars (whichever is shorter), suffix `…` if clipped. Preserve the source order within each bucket.
 
 ## Counts
 

@@ -30,7 +30,7 @@ This is why the discipline below applies specifically to **feature construction 
 
 ### Q-number assignment
 
-When questions accumulate over multiple turns (e.g., during a long feature design), prefer the **lowest unused integer** in the file. If active questions cluster at high numbers (most are Q40+), keep counting upward. Once the cluster clears, future questions restart at low numbers. Same soft policy as backlog Q-numbers — see [[CAB Backlog]] § Format.
+When questions accumulate over multiple turns (e.g., during a long feature design), prefer the **lowest unused integer** in the file. If active questions cluster at high numbers (most are Q40+), keep counting upward. Once the cluster clears, future questions restart at low numbers. Same soft policy as backlog B-numbers — see [[CAB Backlog]] § Format.
 
 
 ## Question format — options as sub-bullets, recommendation explicit
