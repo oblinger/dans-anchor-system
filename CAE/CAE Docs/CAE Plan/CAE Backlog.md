@@ -9,21 +9,29 @@ description: deferred work
 Low-priority ideas and deferred work. Items graduate to [[CAE Roadmap]] when they're picked up.
 
 
-## In Progress
+## Active
 
-- **B3 — Retry backoff polish** — Tune exponential-backoff caps after user feedback on long retries.
+- **F3 — Retry backoff polish** — Tune exponential-backoff caps after user feedback on long retries.
 
 
 ## Ready
 
-- **B1 — Structured logging** — JSON output mode for consumption by log aggregators. Design resolved: single `--log-json` flag, fields documented in [[CAE System Design]].
+- **F1 — Structured logging** — JSON output mode for consumption by log aggregators. Design resolved: single `--log-json` flag, fields documented in [[CAE System Design]].
 
 
-## Upcoming
+## Now
 
-- **B4 — Graph dependencies** — task B runs only after task A succeeds. Requires DAG scheduling logic, deferred until v2.
-- **B5 — Per-user queues** — multi-tenant mode with quotas. Not on current roadmap.
-- **B2 — Web status page** — optional HTTP server exposing `/status`. Non-goal for v1 but might return.
+- **F4 — Graph dependencies** [Designing] — task B runs only after task A succeeds. Requires DAG scheduling logic, deferred until v2.
+
+
+## Next
+
+- **F2 — Web status page** [ ] — optional HTTP server exposing `/status`. Non-goal for v1 but might return.
+
+
+## Later
+
+- **F5 — Per-user queues** [ ] — multi-tenant mode with quotas. Not on current roadmap.
 
 
 ## Deferred bugs
