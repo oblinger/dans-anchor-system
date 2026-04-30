@@ -33,6 +33,52 @@ This is why the discipline below applies specifically to **feature construction 
 When questions accumulate over multiple turns (e.g., during a long feature design), prefer the **lowest unused integer** in the file. If active questions cluster at high numbers (most are Q40+), keep counting upward. Once the cluster clears, future questions restart at low numbers. Same soft policy as backlog Q-numbers — see [[CAB Backlog]] § Format.
 
 
+## Question format — options as sub-bullets, recommendation explicit
+
+Every question has the same shape so the user can scan many at once and rubber-stamp the high-confidence ones.
+
+### Layout
+
+Lay each question out as:
+
+1. The **question header** — one line: `- **Q<n> — Short question name** — context, why we're asking, what's at stake.`
+2. The **options as sub-bullets**, when there are more than one. Inline-prose-with-A-B-C is hard to skim:
+
+   ```
+   - (a) Option A — short description.
+   - (b) Option B — short description.
+   - (c) Option C — short description.
+   ```
+
+3. The **recommendation line** at the end of each question, explicitly marked at one of three confidence levels (see below).
+
+### Recommendation strength — three labels, always explicit
+
+Every question ends with **one** of these three lines:
+
+| Label | When to use | Format |
+|---|---|---|
+| **Strong recommendation** | High confidence; the agent can name a clear reason and doesn't see meaningful trade-offs in the alternatives. The user can usually rubber-stamp these. | `**Strong recommendation:** (b). <optional one-line reason>.` |
+| **Lean** | Moderate confidence; one option seems better but the agent recognizes the alternatives are defensible. The user should consider this before accepting. | `**Lean:** (b). <one-line reason>.` |
+| **No recommendation** | Genuine uncertainty — either the trade-offs are user-preference-dependent or the agent doesn't have enough context. | `**No recommendation** — <one-line reason: why uncertain>.` |
+
+**Pick exactly one label.** Don't fudge with "lean strongly" or "weak recommendation" — those collapse to Lean. The point of three discrete labels is the user can scan a column of recommendations and immediately see which need thought (Lean / No recommendation) and which can be accepted at a glance (Strong recommendation).
+
+### Example
+
+```
+- **Q3 — `/land` + `/roster`: always run roster, or only when work was landed?** When `/land` finds nothing in flight, two options:
+  - (a) Always run roster — print state-of-the-work even when zero activities landed. Cost: one extra block of output.
+  - (b) Only run roster after work was landed — skip if there was nothing in flight. Cost: lose the "you're at zero, here's the next-action menu" signal in the empty case.
+
+  **Lean:** (a). The empty case still benefits from a "here's what's queued up" view; the cost is tiny.
+```
+
+### Why this matters
+
+Without the explicit strength label, every question reads as if it deserves equal scrutiny — and the user has to re-evaluate even the obvious calls. With the label, **Strong** picks become rubber-stamps, **Lean** picks get a quick read, and **No recommendation** picks get the thinking time they need. The user's attention budget is the constraint; the format spends it where it matters.
+
+
 ## Resolution — inline, with pointer
 
 For each answered question, write the resolution inline in this exact form, **preserving the original Q-number**:
