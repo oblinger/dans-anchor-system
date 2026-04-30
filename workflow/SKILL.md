@@ -161,16 +161,18 @@ Milestones use the same canonical states at coarser granularity. A milestone is 
 
 ### Feature lifecycle (`feature/SKILL.md`)
 
-The feature doc Status field uses the canonical states. The current feature lifecycle has historical labels that map as follows:
+The feature doc Status field uses the canonical states with two feature-specific accommodations:
+
+- **`Proposed` collapses to `[Designing]`.** Don't use "Proposed" as a separate state; it's just early Designing. The bracket on a freshly-created feature doc is `[Designing]`.
+- **`Agreed` is a feature-doc-specific synonym for `[Ready]`.** Kept distinct because the Agreed gate is genuinely meaningful — it marks user approval to start implementation, not just "design clean." A feature doc moves to `Agreed` when the user explicitly approves; the bracket may be either `[Agreed]` or `[Ready]` (interchangeable in feature-doc context).
 
 | Feature lifecycle label | Canonical state | Notes |
 |---|---|---|
-| Proposed | `[Designing]` | Idea captured; design hasn't started. (See § Design choices to validate — may collapse.) |
-| Designing | `[Designing]` | Same. |
-| Agreed | `[Ready]` | User has approved the design. (See § Design choices to validate — may collapse.) |
-| Implementing | `[Active]` | Same. |
+| Designing | `[Designing]` | Same. (Replaces former "Proposed" — it's just early Designing.) |
+| Agreed | `[Ready]` (synonym `[Agreed]`) | User has approved the design. Synonym preserved for the Agreed gate semantics. |
+| Implementing | `[Active]` | Canonical-name alias. |
 | Testing | `[Testing]` | Same. |
-| Done | `[Completed]` | Same. |
+| Done | `[Completed]` | Canonical-name alias. |
 
 ### PRD
 
@@ -205,8 +207,3 @@ Same for `[Testing]` and `[Completed]`: those states have their own H2s. Horizon
 - **Skipping `[Testing]`.** Implementations that go straight to Completed bypass the verification gate. `/finalize` enforces this; manual edits should respect it.
 - **State drift between surfaces.** If a backlog item is `[Active]` but the feature doc Status says "Designing," one of them is wrong — the user shouldn't have to guess which.
 
-## Design choices to validate
-
-This discipline has open questions on a few design choices. See the feature doc:
-
-- → [[2026-04-30 Workflow Discipline]] — pending Qs on feature-lifecycle alias collapse, Released as a standard state, Blocked granularity.
