@@ -51,8 +51,8 @@ The recommendation sub-bullet uses exactly one of these forms:
 
 | Label | When to use | Format |
 |---|---|---|
-| **Strong** | High confidence; the agent can name a clear reason and doesn't see meaningful trade-offs in the alternatives. The user can usually rubber-stamp these. | `- **Recommendation:** Strong (b). <optional one-line reason>.` |
-| **Lean** | Moderate confidence; one option seems better but the agent recognizes the alternatives are defensible. The user should consider this before accepting. | `- **Recommendation:** Lean (b). <one-line reason>.` |
+| **Strong** | High confidence; the agent can name a clear reason and doesn't see meaningful trade-offs in the alternatives. The user can usually rubber-stamp these. | `- **Recommendation:** Strong (B). <optional one-line reason>.` |
+| **Lean** | Moderate confidence; one option seems better but the agent recognizes the alternatives are defensible. The user should consider this before accepting. | `- **Recommendation:** Lean (B). <one-line reason>.` |
 | **None** | Genuine uncertainty — either the trade-offs are user-preference-dependent or the agent doesn't have enough context. | `- **Recommendation:** None. <one-line reason: why uncertain>.` |
 
 **Pick exactly one label.** Don't fudge with "lean strongly" or "weak recommendation" — those collapse to Lean. The bolded **Recommendation:** prefix is the eye-anchor; the user scans a column of bold "Recommendation:" labels and zips through the strength labels to see which need thought (Lean / None) and which can be accepted at a glance (Strong).
@@ -66,14 +66,14 @@ The recommendation sub-bullet uses exactly one of these forms:
 
 ```
 - **Q3 — `/land` + `/roster`: always run roster, or only when work was landed?** When `/land` finds nothing in flight, two options:
-  - (a) Always run roster — print state-of-the-work even when zero activities landed. Cost: one extra block of output.
-  - (b) Only run roster after work was landed — skip if there was nothing in flight. Cost: lose the "you're at zero, here's the next-action menu" signal in the empty case.
-  - **Recommendation:** Lean (a). The empty case still benefits from a "here's what's queued up" view; the cost is tiny.
+  - (A) Always run roster — print state-of-the-work even when zero activities landed. Cost: one extra block of output.
+  - (B) Only run roster after work was landed — skip if there was nothing in flight. Cost: lose the "you're at zero, here's the next-action menu" signal in the empty case.
+  - **Recommendation:** Lean (A). The empty case still benefits from a "here's what's queued up" view; the cost is tiny.
 
 - **Q4 — Next question name** — context.
-  - (a) Option A — short description.
-  - (b) Option B — short description.
-  - **Recommendation:** Strong (b). One-line reason.
+  - (A) Option A — short description.
+  - (B) Option B — short description.
+  - **Recommendation:** Strong (B). One-line reason.
 ```
 
 When there are no options (open-ended question), the recommendation sub-bullet still applies:
