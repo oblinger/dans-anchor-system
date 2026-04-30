@@ -46,57 +46,68 @@ If a feature is `[Questions]` or `[Blocked]` mid-flight, that's tracked via the 
 
 ### 1. Create the Feature Document
 
-Create a dated feature doc in the project's Features folder:
+Determine the next F-number for the anchor (highest existing F-number + 1; per `[[CAB Backlog]]` § Numbering policy — monotonic-forever, never recycled). Create the feature doc in the project's Features folder:
 
 ```
-<anchor>/Docs/Plan/Features/YYYY-MM-DD <Feature Name>.md
+{anchor}/Docs/Plan/Features/F{n} — {Feature Name}.md
 ```
 
-If the Features folder doesn't exist, create it.
+If the Features folder doesn't exist, create it. Filenames carry the F-number prefix; date is omitted (the F-number itself sorts chronologically since it monotonically increases).
 
-**Feature doc structure — note the Open Questions block comes BEFORE the H1.** This is intentional: open questions are pre-document material that the user needs to see first, every time they open the file. The H1 and everything below is the "document proper."
+**Feature doc structure — Open Questions sits BELOW the H1 while any pending Qs exist; deleted entirely once all are resolved, with answered Qs migrating to a `## Resolved` H2 at the bottom of the doc.** The lifecycle:
 
 ```markdown
 ---
-description: <one-line description>
+description: {one-line description}
 ---
 
-## Open Questions for <one-line descriptor — same as YAML `description:` field>
+# F{n} — {Feature Name}
 
-Blocking decisions. The feature cannot move from **Designing → Agreed** while this list is non-empty. When a question is resolved, move it to **Resolved** below with the answer and where it landed in the design.
+## Open Questions
 
-(Heading must include the feature's descriptor so the user can identify what the questions are for at a glance — see [[ask-questions]] § When a file is involved.)
+(Only present while pending Qs exist. Deleted entirely when zero pending — see "Phase 2" below.)
 
-- **Q1 — <short question>** — <context + options>
-- **Q2 — <short question>** — <context + options>
+Blocking decisions. The feature cannot move from **Designing → Agreed** while this list is non-empty.
+
+- **Q1 — {short question}** — {context + options}
+- **Q2 — {short question}** — {context + options}
 
 ### Resolved
 
-- **Q0 — <earlier question>** — **Resolution:** <decided X because Y>. Incorporated into Design § <section>.
+(Temporary holding pen for resolved Qs while pending Qs still exist. When all Qs are resolved, this content migrates to the bottom `## Resolved` H2 and the entire `## Open Questions` H2 is deleted.)
 
-
-
-# <Feature Name>
-
-<Brief description of what the feature does and why.>
+- **Q0 — {earlier question}** — **Resolution:** {decided X because Y}. Incorporated into Design § {section}.
 
 ## Summary
 
-<1-2 paragraphs>
+{1-2 paragraphs}
 
 ## Design
 
-<The design: API proposals, architecture changes, trade-offs.>
+{The design: API proposals, architecture changes, trade-offs.}
 
 ## Status
 
-Proposed — awaiting design discussion.
+Designing — awaiting design discussion.
+
+## Resolved
+
+(Bottom-of-doc archive. Populated only after all Qs have been resolved at least once. Never deleted; this is the historical record.)
+
+- **Q0 — {earlier question}** — **Resolution:** {decided X because Y}. Incorporated into Design § {section}.
 ```
 
-**Structural rules for Open Questions:**
-- **H2 `## Open Questions` sits ABOVE the H1** — it is pre-document material, not a section of the feature spec.
-- **H3 `### Resolved` is a subsection of Open Questions.** Resolved questions never get deleted; they get moved down with their resolution.
-- **The section always exists**, even if empty — leave a one-liner like "_None — design is clean._" under the H2 so the structure is visible.
+**Lifecycle phases for Questions:**
+
+- **Phase 1 — pending Qs exist.** `## Open Questions` H2 sits directly below the H1, containing pending Qs. Resolved Qs accumulate inside as a `### Resolved` H3 sub-section.
+- **Phase 2 — all Qs resolved.** Delete the `## Open Questions` H2 entirely. Migrate all accumulated `### Resolved` content to a `## Resolved` H2 at the **bottom** of the doc (creating that section if it doesn't exist; appending if it does). Top of doc is now clean: H1 → Summary → Design → Status → Resolved.
+- **Phase 3 — new Q arises later.** Recreate the `## Open Questions` H2 below H1 with the new Q. New resolutions accumulate in the temporary `### Resolved` H3 again until all are answered, then migrate to the bottom `## Resolved` H2.
+
+**Structural rules:**
+- **H1 carries the F-number.** Format: `# F{n} — {Feature Name}`.
+- **`## Open Questions` lives below H1 only while pending Qs exist** — deleted otherwise.
+- **`## Resolved` at the bottom of the doc is the permanent archive** — populated when all Qs reach resolution; never deleted.
+- The ask-questions discipline (`[[ask-questions]]`) applies universally — feature docs, PRDs, plan docs, anything with questions follows this same shape.
 
 ### 1a. Surface the Doc — glance only when adding/modifying a pending question AND the user is engaging now
 
@@ -201,12 +212,12 @@ Implement <Feature Name> (S03200917)
 
 ## Feature Doc Conventions
 
-- **Dated filename** — `YYYY-MM-DD <Feature Name>.md` in the Features folder
-- **Open Questions ABOVE the H1** — pre-document material; first thing the user sees
-- **Resolved as H3 under Open Questions** — answered questions move down, never get deleted
-- **`open` the doc after every Open Questions edit** — mandatory, per step 1a
-- **Status at the bottom** — single line indicating lifecycle stage
-- **No implementation details in the feature doc** — the feature doc is the *what* and *why*
+- **F-numbered filename** — `F{n} — {Feature Name}.md` in the Features folder. F-number from the anchor's monotonic-forever counter (per `[[CAB Backlog]]` § Numbering policy).
+- **H1 carries the F-number** — `# F{n} — {Feature Name}`.
+- **Open Questions BELOW the H1** while pending Qs exist; deleted entirely when zero pending. Resolved Qs migrate to a `## Resolved` H2 at the bottom of the doc.
+- **`open` the doc after every Open Questions edit (in active mode)** — mandatory, per step 1a.
+- **Status near the bottom** — single line indicating lifecycle stage. (`## Resolved`, when present, sits below Status as the historical archive.)
+- **No implementation details in the feature doc** — the feature doc is the *what* and *why*.
 
 ## Stat Integration
 

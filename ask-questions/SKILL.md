@@ -103,27 +103,75 @@ The **Incorporated into** pointer makes resolutions auditable — a reader can t
 
 ## When a file is involved
 
-If a feature doc, plan doc, or PRD exists with `## Open Questions for <descriptor>`:
+If a feature doc, plan doc, PRD, or any document holds questions: questions live in an `## Open Questions` H2 directly **below** the H1 of the doc. This rule is universal — every document with questions follows the same shape.
 
-- Open Questions sits ABOVE the H1 as pre-document material. The H2 heading **always names what the questions are for**: `## Open Questions for <one-line descriptor of the feature/plan>`. The descriptor is the same one-liner that appears in the doc's YAML frontmatter `description:` field — copy it into the heading so the user can identify the doc at a glance without scanning down to the H1.
-  - Example: `## Open Questions for rack-and-stack pass through the small SKA Backlog items`
-  - When the descriptor changes (you sharpen the description in frontmatter), update the H2 to match in the same edit.
-- Resolved questions move to `### Resolved` H3 subsection — never deleted
-- Follow-on questions (children of a pending question) become **sub-bullets** under their parent in `## Open Questions`. When the parent is resolved, the children either resolve with it, become independent questions at the top level, or get moved to Resolved alongside the parent — agent's judgment.
-- **Glance only when you've added or modified a pending question AND the user is actively engaging with this work right now.** Two conditions, both required. Adding `Q<n>` to a doc isn't enough — the user also has to be expecting to answer it now. If the user said "put it on the backlog" or "we'll figure that out later," they explicitly deferred; opening the file at them pulls them into something they parked. See § Active vs Parking mode below.
+### Lifecycle of the questions sections
 
-  **Never glance when the edit only resolved questions** (moved one or more from pending to `### Resolved`). Resolution doesn't surface new state — pending questions were already visible; resolved ones don't need attention. Glancing on resolution just opens a quieter file at the user, which trains them to ignore the signal.
+A document with questions moves through three phases:
 
-  Summary table (assumes Active mode; see below):
+**Phase 1 — pending questions exist.**
 
-  | Edit type | Glance (Active mode)? | Glance (Parking mode)? |
-  |---|---|---|
-  | Added a new pending `Q<n>` | **Yes** | **No** |
-  | Rewrote a pending question's wording | **Yes** | **No** |
-  | Added a sub-bullet under a pending parent | **Yes** | **No** |
-  | Resolved one or more questions (others still pending) | **No** | **No** |
-  | Resolved the last pending question | **No** | **No** |
-  | No-op edit (formatting only) | **No** | **No** |
+```markdown
+# {H1 title (e.g., F12 — Feature Name)}
+
+## Open Questions
+
+- **Q1 — {pending question}** — {context + options}
+- **Q2 — {pending question}** — {context}
+
+### Resolved
+
+- **Q0 — {earlier question}** — **Resolution:** {what was decided}. Incorporated into Design § {section}.
+
+## Summary
+{rest of the doc body}
+```
+
+The `## Open Questions` H2 sits directly below the H1. Resolved questions accumulate inside this H2 as a `### Resolved` H3 sub-section (temporary holding pen).
+
+**Phase 2 — all questions resolved.** Delete the `## Open Questions` H2 entirely. Migrate all accumulated `### Resolved` content to a new `## Resolved` H2 at the **bottom** of the document. Top of doc is now clean.
+
+```markdown
+# {H1 title}
+
+## Summary
+{rest of the doc body}
+
+## Status
+{status line}
+
+## Resolved
+
+(Permanent archive. Never deleted; this is the historical record.)
+
+- **Q0 — {earlier question}** — **Resolution:** {decided X}. Incorporated into Design § {section}.
+- **Q1 — {earlier question}** — **Resolution:** {decided Y}. Incorporated into Design § {section}.
+```
+
+**Phase 3 — new question arises later.** Recreate the `## Open Questions` H2 below the H1 with the new pending Q. New resolutions accumulate in the temporary `### Resolved` again until all are answered, then migrate down to the existing bottom `## Resolved` H2.
+
+### Heading text and structure
+
+- **Heading text is just `## Open Questions`** (no `for {descriptor}` suffix — the H1 above provides the descriptor).
+- Follow-on questions (children of a pending question) become **sub-bullets** under their parent. When the parent is resolved, children either resolve with it, become independent top-level questions, or get moved to Resolved alongside the parent — agent's judgment.
+- **Q-numbers are stable references.** Once assigned, never renumbered, even when questions get resolved out of order. Skipped numbers are fine.
+
+### Glance rules
+
+**Glance only when you've added or modified a pending question AND the user is actively engaging with this work right now.** Two conditions, both required. Adding `Q{n}` to a doc isn't enough — the user also has to be expecting to answer it now. If the user said "put it on the backlog" or "we'll figure that out later," they explicitly deferred; opening the file at them pulls them into something they parked. See § Active vs Parking mode below.
+
+**Never glance when the edit only resolved questions** (moved one or more from pending to `### Resolved`, or migrated the H2 to the bottom `## Resolved`). Resolution doesn't surface new state — pending questions were already visible; resolved ones don't need attention. Glancing on resolution just opens a quieter file at the user, which trains them to ignore the signal.
+
+Summary table (assumes Active mode; see below):
+
+| Edit type | Glance (Active mode)? | Glance (Parking mode)? |
+|---|---|---|
+| Added a new pending `Q{n}` | **Yes** | **No** |
+| Rewrote a pending question's wording | **Yes** | **No** |
+| Added a sub-bullet under a pending parent | **Yes** | **No** |
+| Resolved one or more questions (others still pending) | **No** | **No** |
+| Resolved the last pending question (Phase 1 → Phase 2 transition) | **No** | **No** |
+| No-op edit (formatting only) | **No** | **No** |
 
 
 ## Active vs Parking mode

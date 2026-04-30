@@ -21,26 +21,26 @@ Below is a condensed reference example. See the working example linked above for
 
 
 ## Active
-- **B3 — Retry backoff polish** — Tune exponential-backoff caps after user feedback on long retries
+- **F3 — Retry backoff polish** [Active] — Tune exponential-backoff caps after user feedback on long retries
 
 ## Ready
-- **B1 — Cron syntax** — Support cron expressions for recurring task schedules
+- **F1 — Cron syntax** [Ready] — Support cron expressions for recurring task schedules
 
 ## Upcoming
-- **B2 — Task groups** — Allow grouping related tasks that run as a batch
-- **B4 — Priority levels** — Add high/medium/low priority beyond just deadline ordering
+- **F2 — Task groups** — Allow grouping related tasks that run as a batch
+- **F4 — Priority levels** — Add high/medium/low priority beyond just deadline ordering
 
 ## Verify
-- **B7 — Webhook notifications** — Send webhook on task completion (implemented, awaiting user verification)
+- **F7 — Webhook notifications** [Verify] — Send webhook on task completion (implemented, awaiting user verification)
 
 ## Done
-- **B5 — Retry config** — Per-task retry limits (done in PR #4, see [[CAE Roadmap#M2]])
-- **B6 — JSON output** — Machine-readable task status output (done in PR #2)
+- **F5 — Retry config** — Per-task retry limits (done in PR #4, see [[CAE Roadmap#M2]])
+- **F6 — JSON output** — Machine-readable task status output (done in PR #2)
 
 ## Legwork
-- **B9 — User feedback on retry UX** — User mentioned retry errors are confusing; rework error messages
-- **B8 — Doc consistency pass** — Module docs reference old API names from pre-M2
-- **B10 — Test coverage for edge cases** — Add tests for empty task lists and concurrent scheduling
+- **F9 — User feedback on retry UX** — User mentioned retry errors are confusing; rework error messages
+- **F8 — Doc consistency pass** — Module docs reference old API names from pre-M2
+- **F10 — Test coverage for edge cases** — Add tests for empty task lists and concurrent scheduling
 
 ---
 
@@ -50,29 +50,58 @@ Below is a condensed reference example. See the working example linked above for
 
 ## Format
 
-Each entry is a named-list item with a unique **B-number** prefix:
+Each entry is a named-list item with a unique **F-number** prefix:
 
 ```
-- **B<n> — Item Name** — short description.
+- **F{n} — Item Name** [Status] — short description.
 ```
 
-The B-number lets the user refer unambiguously to a single item ("do B5", "B12 needs more detail"). B-numbers are unique within the file but **don't have to be strictly increasing in display order** — items are added and resolved in arbitrary order. When assigning a new B-number:
+`F` is for **feature**, in the broad sense of "a thing to be done" — not strictly "feature document." Every backlog item gets an F-number, whether or not it warrants a separate feature doc. If the item has a feature doc, that doc's H1 carries the same F-number; if not, the F-row stands alone in the backlog with the description inline.
 
-- Prefer the **lowest unused integer** in the file (gap-fill).
-- If active items cluster at high numbers (e.g., most are B40+), just keep counting upward — don't force gap-fill into a stale cluster.
-- Once the high cluster clears, future adds restart at the lowest available low number.
+The F-number lets the user refer unambiguously to a single item ("do F5", "F12 needs more detail").
 
-Skipped numbers are fine. Don't renumber existing items just to compact — B-numbers are stable references.
+### Numbering policy — monotonic, never recycled
+
+F-numbers are **assigned in monotonically increasing order** and **never reused**. When a new item is added, it gets `F{highest-F-in-file + 1}`. When an item reaches Done (or moves to Icebox, or is cancelled), its F-number is **not** released back into the pool. Stable forever.
+
+This is a change from the legacy B-number policy, which used gap-fill (lowest unused integer). With F-numbers:
+
+- A reference like "F11" means the same thing forever, across all reorganizations.
+- Display order in the file may not match numeric order — items are added and resolved in arbitrary order.
+- Don't renumber existing items to compact — F-numbers are stable references.
+
+### Transition note: pre-existing B-numbers
+
+Anchors that have historical Done items numbered with the legacy `B<n>` convention preserve those numbers as-is — they cite commit hashes and are part of the historical record. Active items at migration time get renamed `B<n>` → `F<n>` (preserving the number); new items thereafter increment past the highest existing F or B in the file. So a backlog mid-migration may show:
+
+```
+## Done
+- **B1 — ...** — (historical)
+- **B7 — ...** — (historical)
+
+## Ready
+- **F11 — ...** — (active, was B11 pre-migration)
+
+## Upcoming
+- **F16 — ...** — (new since migration)
+```
+
+## Status brackets
+
+Each F-row may carry a workflow-state bracket per the `[[workflow]]` discipline: `[ ]` / `[Designing]` / `[Questions]` / `[Blocked]` / `[Ready]` / `[Active]` / `[Verify]` / `[Done]`. The bracket is mandatory only for items in horizon sections (Now/Next/Later — per `[[backlog-horizons]]`). Items in workflow-state H2s (`## Ready`, `## Active`, `## Verify`, `## Done`) have their state implied by the H2; the bracket is optional/redundant.
+
+## H2 sections
 
 Entries are grouped under H2 sections:
-- **In Progress** — Items the Pilot is actively driving forward right now. Used for backlog-tracked work that doesn't warrant its own feature doc; items with full feature docs track in-flight state on the feature doc instead.
-- **Ready** — Items whose status is **Ready** (see § Definition of Ready below).
-- **Upcoming** — Ideas and deferred work not yet scheduled.
-- **Verify** — Implemented but awaiting user verification that they work as intended. Once confirmed, move to Completed.
+
+- **Active** — Items the Pilot is actively driving forward right now (state `[Active]`).
+- **Ready** — Items whose status is `[Ready]` (see § Definition of Ready below).
+- **Upcoming** — Ideas and deferred work not yet scheduled. (When `[[backlog-horizons]]` lands, this is replaced with `## Now` / `## Next` / `## Later`.)
+- **Verify** — Implemented but awaiting user verification that they work as intended. Once confirmed, move to Done.
 - **Done** — Items that graduated and were finished (with cross-references to where).
 - **Legwork** — Autonomous agent work that should be done proactively. Includes user feedback integration, planning actions, doc consistency fixes, and other tasks the agent can execute without user approval. The `/code execute` priority loop pulls from this section as Tier 2 legwork (after PR merging and worker dispatch).
 
-Items typically flow `Upcoming → Ready → Active → Verify → Done`. The `roster` skill (`show roster`) renders Active / Ready / Backlog (everything else except Testing & Completed) as a state-of-the-work summary plus an Icebox count. The `ready` skill (`make ready`) walks the backlog and tries to promote candidates from Upcoming to Ready (see § Definition of Ready and § Item Status below).
+Items typically flow `Upcoming → Ready → Active → Verify → Done`. The `roster` skill renders Active / Ready / Backlog (everything else except Verify & Done) as a state-of-the-work summary plus an Icebox count. The `groom` skill walks the backlog and tries to promote candidates from Upcoming to Ready (see § Definition of Ready and § Item Status below).
 
 For items that are explicitly parked / out-of-scope-for-now / someday-maybe, use the optional [[CAB Icebox]] file rather than a Deferred section here.
 
@@ -80,7 +109,7 @@ For items that are explicitly parked / out-of-scope-for-now / someday-maybe, use
 
 The canonical definition lives in the **`workflow` discipline** — see `[[workflow]]` § Definition of Ready. The full state graph (`[Designing]` / `[Questions]` / `[Blocked]` / `[Ready]` / `[Active]` / `[Verify]` / `[Done]`) and the bar for each transition also live there.
 
-For convenience: **An item is Ready when you believe you know how to do this task without further involvement of the user.** This is the bar `/groom` (formerly `/ready`) checks for each candidate. If the task still hides any "wait, what about X?" the user would have to answer, it's not Ready — it's `[Questions]`, paired with a `→ [[Feature Doc]]` link to where the questions live.
+For convenience: **An item is Ready when you believe you know how to do this task without further involvement of the user.** This is the bar `/groom` checks for each candidate. If the task still hides any "wait, what about X?" the user would have to answer, it's not Ready — it's `[Questions]`, paired with a `→ [[Feature Doc]]` link to where the questions live.
 
 ## Item Status
 
@@ -90,7 +119,8 @@ Every backlog item has one of these statuses, derived from where the bullet sits
 | --- | --- |
 | **Ready** | Bullet is under `## Ready`. |
 | **Active** | Bullet is under `## Active`. |
-| **Blocked on questions** | Bullet text contains a `→ [[Feature Doc]]` or `→ [[Open Questions]]` link to a doc with active pending questions. The item is parked there until the user answers. |
+| **Questions** | Bullet text contains a `→ [[Feature Doc]]` link to a doc with pending questions; status bracket `[Questions]`. The item is parked there until the user answers. |
+| **Blocked** | Bullet has bracket `[Blocked]`; pending non-question blocker (dependency, external review, CI). |
 | **Verify** | Bullet is under `## Verify`. |
 | **Done** | Bullet is under `## Done`. |
 | **Unset / Upcoming** | Bullet is under `## Upcoming`, `## Legwork`, or any other non-terminal section, AND has no link to active open questions. This is the "candidate for promotion" status. |
@@ -100,18 +130,18 @@ Every backlog item has one of these statuses, derived from where the bullet sits
 When an item has unresolved questions, the bullet description should be replaced with a pointer to where those questions live:
 
 ```
-- **B12 — Item Name** — → [[2026-04-29 Item Name]]
+- **F12 — Item Name** [Questions] — → [[F12 — Item Name]]
 ```
 
-The `→ [[Feature Doc]]` (or `→ [[Open Questions]]`) link is the marker. As long as the linked doc has pending questions in its `## Open Questions` block, the backlog item's status is **Blocked on questions**. When the user resolves those questions, the item can be re-readied (the description gets rewritten to reflect the resolved design, and the bullet moves to `## Ready`).
+The `→ [[Feature Doc]]` link is the marker. As long as the linked doc has pending questions in its `## Open Questions` block, the backlog item's status is **Questions**. When the user resolves those questions, the item can be re-readied (the description gets rewritten to reflect the resolved design, and the bullet moves to `## Ready`).
 
 ## Design Principle — Minimize User Back-and-Forth
 
-Workflow operations that touch the backlog — `/ready`, `/roster`, audits, and similar batch operations — **must process the entire batch autonomously before involving the user**. Never interrupt mid-run to ask a question; route every question that emerges to its feature doc's `## Open Questions` block, then surface the first blocked doc at the end of the run as the user's single next action.
+Workflow operations that touch the backlog — `/groom`, `/triage`, `/roster`, audits, and similar batch operations — **must process the entire batch autonomously before involving the user**. Never interrupt mid-run to ask a question; route every question that emerges to its feature doc's `## Open Questions` block, then surface the first blocked doc at the end of the run as the user's single next action.
 
 Each round-trip with the user costs scrollback context and stalls the batch — design every workflow to require *one* round-trip per pass, not N. Inline questions are an anti-pattern in batch operations.
 
-(One concession: a single, genuinely trivial question may be deferred to the very end of a `/ready` run and asked after the roster prints, where it stays pinned to the bottom of the screen. Never more than one such inline question per run.)
+(One concession: a single, genuinely trivial question may be deferred to the very end of a `/groom` run and asked after the roster prints, where it stays pinned to the bottom of the screen. Never more than one such inline question per run.)
 
 ## Location
 
@@ -120,7 +150,7 @@ Each round-trip with the user costs scrollback context and stalls the batch — 
 ## Relationship to Other Planning Docs
 
 - **Todo** — active, near-term tasks
-- **Roadmap** — milestone-based execution plan
+- **Roadmap** — milestone-based execution plan (uses `R<n>.<m>` numbering for hierarchical milestone references; planned but deferred)
 - **Backlog** — active deferred-work list: ideas under consideration, low-priority but not abandoned
 - **[[CAB Icebox|Icebox]]** — optional cold-storage list for items not under active consideration
 
