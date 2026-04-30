@@ -78,13 +78,9 @@ For items that are explicitly parked / out-of-scope-for-now / someday-maybe, use
 
 ## Definition of Ready
 
-> **An item is Ready when you believe you know how to do this task without further involvement of the user.**
+The canonical definition lives in the **`workflow` discipline** — see `[[workflow]]` § Definition of Ready. The full state graph (`[Designing]` / `[Questions]` / `[Blocked]` / `[Ready]` / `[Active]` / `[Testing]` / `[Completed]`) and the bar for each transition also live there.
 
-Sharper than "design questions resolved." If the task still hides any "wait, what about X?" that the user would have to answer, it's **not** Ready — it's blocked on questions, and the work belongs in a feature doc until those questions resolve.
-
-This is the bar `/ready` checks for each candidate.
-
-The canonical home for this definition (and the full state graph it sits within) is the **`workflow` discipline** — see `[[workflow]]`. CAB Backlog cites it from here so this spec stays self-contained for backlog-format readers, but the workflow discipline is the single source of truth across surfaces (backlog, roadmap, feature lifecycle, PRD).
+For convenience: **An item is Ready when you believe you know how to do this task without further involvement of the user.** This is the bar `/groom` (formerly `/ready`) checks for each candidate. If the task still hides any "wait, what about X?" the user would have to answer, it's not Ready — it's `[Questions]`, paired with a `→ [[Feature Doc]]` link to where the questions live.
 
 ## Item Status
 

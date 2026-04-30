@@ -24,17 +24,23 @@ When the user says "let's build a feature", "new feature", "I want to add", "des
 ## Lifecycle
 
 ```
-Proposed → Designing → Agreed → Implementing → Testing → Done
+Designing → Agreed → Implementing → Testing → Done
 ```
 
-| Status | Meaning |
-|--------|---------|
-| Proposed | Idea captured, not yet designed |
-| Designing | Feature doc being written, open questions being resolved |
-| Agreed | User has approved the design — ready to implement |
-| Implementing | Code is being written |
-| Testing | Implementation complete, being tested |
-| Done | Feature shipped and verified |
+The feature lifecycle uses the canonical state vocabulary from the `[[workflow]]` discipline. Two feature-specific accommodations:
+
+- **`Proposed` was dropped** — it collapsed to early `[Designing]`. A freshly-created feature doc starts at `Designing`.
+- **`Agreed` is preserved as a feature-doc-specific synonym for `[Ready]`** — kept distinct because the Agreed gate is genuinely meaningful (user-approval-anchored).
+
+| Status | Canonical state | Meaning |
+|--------|-----------------|---------|
+| Designing | `[Designing]` | Feature doc being written, open questions being resolved. |
+| Agreed | `[Ready]` (synonym `[Agreed]`) | User has approved the design — ready to implement. |
+| Implementing | `[Active]` | Code is being written. (Implementing = canonical-name alias for Active.) |
+| Testing | `[Testing]` | Implementation complete, being tested. |
+| Done | `[Completed]` | Feature shipped and verified. (Done = canonical-name alias for Completed.) |
+
+If a feature is `[Questions]` or `[Blocked]` mid-flight, that's tracked via the bullet's bracket on the linking backlog item, not on the feature doc Status field.
 
 ## Runbook
 
