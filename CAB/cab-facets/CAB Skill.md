@@ -119,3 +119,37 @@ Every SKILL.md ends with the same dispatch protocol:
 2. Look up the file from the Actions table
 3. Read that file from the skill's directory and execute its workflow
 4. If no argument or unrecognized argument, show the dispatch table
+
+
+## Disciplines (`user_invocable: false`)
+
+A **discipline** is a SKILL.md that defines a methodology rather than an invocable command. The user never types `/<name>` to invoke it directly. Instead, other skills cite the discipline and follow its rules when the relevant situation arises.
+
+Disciplines live in `~/.claude/skills/{name}/` with the same folder structure as user-invocable skills, but with `user_invocable: false` in the frontmatter and no Actions table (since there are no actions to dispatch).
+
+### Examples
+
+- `ask-questions` — how the agent batches, numbers, and resolves user questions during feature design / planning. Cited by `/feature`, `/code plan`, `/code architect`, `/ready`, `/fortify`.
+- `finalize` — verify → commit → push → merge → docs → cleanup ceremony. Cited by `/land`, `/crank`, `/code release`.
+- `workflow` — canonical state graph for a unit of work, Definition of Ready, per-surface mappings. Cited by `[[CAB Backlog]]`, `feature/SKILL.md`, `/ready`, `/mint`, `/finalize`.
+
+### Parallel user docs — required
+
+**Every discipline must ship with a parallel user-facing doc**, the same shape as user-invocable skills. The two files are:
+
+| File | Audience | Content |
+|---|---|---|
+| `~/.claude/skills/{name}/SKILL.md` | Agent | Full methodology, decision tables, edge cases, anti-patterns. Loaded when a citing skill activates the discipline. |
+| `~/.claude/skills/SKL User Docs/SKL Skills/SKL <Name>.md` | User | Concept-focused. What the discipline does, when the user notices it, the format/output the user sees, what to do in response. Shorter than the agent doc. |
+
+The user doc is what surfaces in the SKL dispatch table (the user-facing skills index). The agent doc never appears there directly — only via citations from other skills.
+
+### Why disciplines are not user-invocable
+
+A discipline is a *rule the agent follows*, not a command the user issues. Making it `user_invocable: true` would imply the user can run it as a one-shot, but the discipline only makes sense in context (during a feature design, mid-implementation, etc.). The relevant trigger is *the situation*, not a user invocation.
+
+### When to make something a discipline vs. a skill
+
+- **Skill** (`user_invocable: true`) — has a clear "do this thing now" semantic. The user invokes it. Examples: `/audit`, `/ready`, `/feature`.
+- **Discipline** (`user_invocable: false`) — a methodology that other skills follow. The user doesn't invoke it; skills cite it. Examples: `ask-questions`, `finalize`, `workflow`.
+- **Both?** — if a single concept has both a "the user wants to run this now" form and an "agent always follows this when applicable" form, split into a skill + discipline pair (e.g., `/finalize` could in principle be invoked, but the *ceremony* is the discipline; we kept only the discipline form for now).
