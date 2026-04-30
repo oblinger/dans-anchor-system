@@ -1,4 +1,4 @@
-# /Ask-Questions
+# Ask-Questions Discipline
 
 The **ask-questions discipline** governs how the agent surfaces decisions to the user — batched, numbered, with explicit recommendations — so questions don't get lost in the scrollback and answers don't come back out of order.
 

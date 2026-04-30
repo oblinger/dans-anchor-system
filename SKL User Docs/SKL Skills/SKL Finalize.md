@@ -1,4 +1,4 @@
-# /Finalize
+# Finalize Discipline
 
 The **finalize discipline** is the closing ceremony for a unit of work — the sequence of small steps that catch the things commonly forgotten when something "is done." Verify tests pass, commit, push, merge, update Status, regenerate any drifted docs, clean up branches, post the result.
 

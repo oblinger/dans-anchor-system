@@ -144,6 +144,12 @@ Disciplines live in `~/.claude/skills/{name}/` with the same folder structure as
 
 The user doc is what surfaces in the SKL dispatch table (the user-facing skills index). The agent doc never appears there directly — only via citations from other skills.
 
+### H1 convention — no slash on disciplines
+
+User-invocable skills have a slash command, so their user-doc H1 is `# /Name` (e.g., `# /Audit`, `# /Ready`). The slash mirrors what the user actually types.
+
+Disciplines are NOT invocable, so a slash in the H1 would be a small lie. **Discipline user-doc H1s use `# Name Discipline`** — no slash, with the "Discipline" suffix making the kind explicit and matching the agent SKILL.md's H1. Examples: `# Ask-Questions Discipline`, `# Finalize Discipline`, `# Workflow Discipline`.
+
 ### Why disciplines are not user-invocable
 
 A discipline is a *rule the agent follows*, not a command the user issues. Making it `user_invocable: true` would imply the user can run it as a one-shot, but the discipline only makes sense in context (during a feature design, mid-implementation, etc.). The relevant trigger is *the situation*, not a user invocation.

@@ -1,4 +1,4 @@
-# /Workflow
+# Workflow Discipline
 
 The **workflow discipline** owns the canonical state graph for any unit of work — what state it's in, what each state means, and what advances it. It is the single source of truth for the Definition of Ready and the state vocabulary used across the backlog, feature lifecycle, roadmap, and PRD.
 
