@@ -98,7 +98,7 @@ After **all** in-flight activities are landed:
 
 - **`/crank` (`'`)** — Land is crank with a stopping rule baked in. Use crank when you want continuous progress; use land when you want the current thread closed and then silence.
 - **`/fortify` (`"`)** — Fortify is the *posture* command (skeptical, foundation-rebuilding). Land is the *scope* command (bounded). Fortify can land into a stop; land does not enter fortify mode.
-- **`/finalize`** — Finalize is end-of-feature ceremony: verify, commit, update docs and stat, archive the feature record. It applies when the current activity *is* a feature wrap-up. Land is the more general "finish whatever is in flight." If land's named activity is "complete the current feature," land delegates to `/finalize` for the ceremony.
+- **[[finalize]] discipline** — Finalize is no longer a user-invocable skill; it's a *discipline* that consumer skills delegate to (parallel to `[[open-questions]]`). When an in-flight activity is a feature/milestone wrap-up, land runs the finalize discipline (`skills/finalize/SKILL.md`) as a sub-routine: verify tests, commit by path, push, merge PRs, update feature-doc Status, post stat, regenerate any drifted module docs, clean branches. Land owns the *halt*; finalize owns the *ceremony*.
 - **`/mint`** — Mint executes a spec autonomously to completion. Mint produces a working deliverable; land is what you say after the deliverable exists, when you want the agent to clean up and stop.
 
 ## Anti-patterns
