@@ -53,20 +53,42 @@ If a feature doc, plan doc, or PRD exists with `## Open Questions`:
 - Open Questions sits ABOVE the H1 as pre-document material (`## Open Questions`)
 - Resolved questions move to `### Resolved` H3 subsection — never deleted
 - Follow-on questions (children of a pending question) become **sub-bullets** under their parent in `## Open Questions`. When the parent is resolved, the children either resolve with it, become independent questions at the top level, or get moved to Resolved alongside the parent — agent's judgment.
-- **Glance only when you've added or modified a pending question.** If the edit added a new `Q<n>` to the pending list, or rewrote the wording of an existing pending question — `open "<path>"` so the user sees the new state and can respond.
+- **Glance only when you've added or modified a pending question AND the user is actively engaging with this work right now.** Two conditions, both required. Adding `Q<n>` to a doc isn't enough — the user also has to be expecting to answer it now. If the user said "put it on the backlog" or "we'll figure that out later," they explicitly deferred; opening the file at them pulls them into something they parked. See § Active vs Parking mode below.
 
-  **Don't glance when the edit only resolved questions** (moved one or more from pending to `### Resolved`). Resolution doesn't surface new state — the questions still pending were visible to the user already; the resolved ones don't need attention. Glancing on resolution just opens a quieter file at the user, which trains them to ignore the glance signal.
+  **Never glance when the edit only resolved questions** (moved one or more from pending to `### Resolved`). Resolution doesn't surface new state — pending questions were already visible; resolved ones don't need attention. Glancing on resolution just opens a quieter file at the user, which trains them to ignore the signal.
 
-  Summary table:
+  Summary table (assumes Active mode; see below):
 
-  | Edit type | Glance? |
-  |---|---|
-  | Added a new pending `Q<n>` | **Yes** |
-  | Rewrote a pending question's wording | **Yes** |
-  | Added a sub-bullet under a pending parent | **Yes** |
-  | Resolved one or more questions (others still pending) | **No** |
-  | Resolved the last pending question | **No** |
-  | No-op edit (formatting only) | **No** |
+  | Edit type | Glance (Active mode)? | Glance (Parking mode)? |
+  |---|---|---|
+  | Added a new pending `Q<n>` | **Yes** | **No** |
+  | Rewrote a pending question's wording | **Yes** | **No** |
+  | Added a sub-bullet under a pending parent | **Yes** | **No** |
+  | Resolved one or more questions (others still pending) | **No** | **No** |
+  | Resolved the last pending question | **No** | **No** |
+  | No-op edit (formatting only) | **No** | **No** |
+
+
+## Active vs Parking mode
+
+Questions get added to a doc in two very different contexts. Treat them differently.
+
+**Active mode** — the user is engaging with the work *right now*. They asked you to design / discuss / debate / plan something, and they expect to answer the questions in this turn or the next. The glance is meaningful: it tells them *"I just added something you need to look at."*
+
+Signals that you're in active mode:
+- User said: "let's design X" / "let's discuss X" / "what do you think about Y" / "let's work on this" / "tell me about X"
+- User invoked `/feature` *without* saying "for later"
+- User is in the middle of answering a previous batch of questions and you're adding follow-ons
+
+**Parking mode** — the user is filing the work for later engagement. The questions get captured in a doc so they're not lost, but the user has explicitly said they're not engaging now. The doc gets surfaced when the user later chooses to engage with it (via `/groom`, the user opening a backlog item directly, etc.).
+
+Signals that you're in parking mode:
+- User said: "put it on the backlog" / "file this" / "for later" / "we'll figure that out" / "we can talk about it at that time" / "add to the icebox"
+- User invoked `/feature` *and* said any of the above
+- Another skill (`/groom`, `/ready`) is creating feature docs to park questions during a batch run
+- User is creating a backlog stub and wants the work captured but not engaged with
+
+**Default when ambiguous: parking.** If you can't tell whether the user wants engagement now, prefer parking — never glance, just file the questions and tell the user "filed; let me know when you want to discuss." The cost of an unwanted glance (interrupts deferred work) is higher than the cost of a missed glance (the user can re-engage by saying "let's discuss [feature name]").
 
 See [[CAB Features]] for the canonical pre-document layout.
 

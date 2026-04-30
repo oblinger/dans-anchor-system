@@ -90,21 +90,21 @@ Proposed — awaiting design discussion.
 - **H3 `### Resolved` is a subsection of Open Questions.** Resolved questions never get deleted; they get moved down with their resolution.
 - **The section always exists**, even if empty — leave a one-liner like "_None — design is clean._" under the H2 so the structure is visible.
 
-### 1a. Surface the Doc — glance only when adding or modifying a pending question
+### 1a. Surface the Doc — glance only when adding/modifying a pending question AND the user is engaging now
 
-Glance the doc *only when the user has new state to react to*. Specifically:
+Glance the doc *only when both conditions hold*: (1) the edit added or modified a pending question, AND (2) you're in **active mode** — the user is engaging with this feature right now. See [[open-questions]] § Active vs Parking mode for the full rule.
 
 ```bash
 open "<path to feature doc>"
 ```
 
-after the edit, **if the edit added a new pending `Q<n>` or rewrote the wording of an existing pending question** (including adding a sub-bullet under a parent). That's a decision point where your work is blocked on the user's input.
+**Active mode (do glance)** — user said "let's design X" / "let's discuss X" / invoked `/feature` for this work without saying "for later." The user expects to answer questions in this turn or the next.
 
-**Don't glance when the edit only resolved questions** — whether or not other questions are still pending. Resolution doesn't surface new state; the still-pending questions were already visible from the previous glance. Glancing on resolution just opens a quieter file at the user, which trains them to ignore the signal.
+**Parking mode (don't glance)** — user said "put it on the backlog" / "for later" / "we'll figure that out" / `/feature` was used to file a stub. The feature doc is created and questions captured, but the user defers engagement. The doc surfaces later when the user opens a backlog item that points at it, or runs `/groom`.
 
-See [[open-questions]] § When a file is involved for the canonical rule (the same table applies here).
+**Never glance when the edit only resolved questions**, regardless of mode. Resolution doesn't surface new state for the user.
 
-Do this on the create step too — once the feature doc is written, `open` it so the user can start reading while you move to stat (since at create time there are typically new pending questions to show).
+**On the create step:** glance only if you're in active mode. If creating a feature stub for backlog filing, skip the glance — the user just told you to file it; opening the file at them is the opposite of what they asked.
 
 ### 2. Post to Stat
 
