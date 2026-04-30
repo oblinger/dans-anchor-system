@@ -56,11 +56,13 @@ There is no `--fix` flag. Audits never fix.
 Each sub-audit writes (or appends, if needed) a single named-list item under `## Upcoming` in `{NAME} Docs/{NAME} Plan/{NAME} Backlog.md`:
 
 ```
-- **B<n> — <Kind> audit: <N> findings (<YYYY-MM-DD>)** — work surfaced by `/audit <kind>`. Sub-bullets are candidate splits if this needs to be broken up.
+- **B<n> — <Kind> audit: <N> findings (<YYYY-MM-DD>)** [Ready] — work surfaced by `/audit <kind>`. Sub-bullets are candidate splits if this needs to be broken up.
   - <Finding 1 — file:line / category — short description>
   - <Finding 2 — …>
   - …
 ```
+
+**Status bracket — default `[Ready]`.** Audit findings are *ready by default*: each finding is a concrete piece of work (file path, category, suggested fix) that can be done without further user involvement, so the entry meets the Definition of Ready (per [[workflow]] § Definition of Ready). If the audit produces a finding that genuinely *would* need the user to clarify (rare — usually means the audit isn't being specific enough), the entry gets `[Questions]` instead and a `→ [[Doc]]` link to a feature doc holding the questions.
 
 **B-number assignment.** Read the Backlog file, scan for existing `**B<n>` markers, pick the lowest unused integer (per [[CAB Backlog]] § Format).
 

@@ -22,7 +22,7 @@ Print this table to the console. **If `dry` substring is in args**, stop here �
 6. Write the backlog entry. Locate `{NAME} Docs/{NAME} Plan/{NAME} Backlog.md`. Read it, find the lowest unused B-number (per [[CAB Backlog]] § Format), and append a new bullet under `## Upcoming`:
 
 ```
-- **B<n> — Code audit: <N> findings (<YYYY-MM-DD>)** — work surfaced by `/audit code`. Sub-bullets are candidate splits if this needs to be broken up.
+- **B<n> — Code audit: <N> findings (<YYYY-MM-DD>)** [Ready] — work surfaced by `/audit code`. Sub-bullets are candidate splits if this needs to be broken up.
   - <catalog>: <file:line> — <short issue>
   - …
 ```

@@ -69,7 +69,7 @@ Print the table. **If `dry` substring is in args**, stop here — print "dry-run
 Locate `{NAME} Docs/{NAME} Plan/{NAME} Backlog.md`. Read it, find the lowest unused B-number (per [[CAB Backlog]] § Format), and append a new bullet under `## Upcoming`:
 
 ```
-- **B<n> — Publish audit: <N> findings (<YYYY-MM-DD>)** — work surfaced by `/audit publish`. **Credentials must be cleared before publishing.** Sub-bullets are candidate splits if this needs to be broken up.
+- **B<n> — Publish audit: <N> findings (<YYYY-MM-DD>)** [Ready] — work surfaced by `/audit publish`. **Credentials must be cleared before publishing.** Sub-bullets are candidate splits if this needs to be broken up.
   - credentials: <file:line> — <kind>
   - PII: <file:line> — <kind>
   - sensitive-path: <file:line> — <kind>

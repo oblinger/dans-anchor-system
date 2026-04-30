@@ -104,7 +104,7 @@ Print this table to the console. **If `dry` substring is in the args**, stop her
 Locate the backlog file: `{NAME} Docs/{NAME} Plan/{NAME} Backlog.md`. Read it, find the lowest unused B-number (per [[CAB Backlog]] § Format), and append a new bullet under `## Upcoming`:
 
 ```
-- **B<n> — Structure audit: <N> findings (<YYYY-MM-DD>)** — work surfaced by `/audit structure`. Sub-bullets are candidate splits if this needs to be broken up.
+- **B<n> — Structure audit: <N> findings (<YYYY-MM-DD>)** [Ready] — work surfaced by `/audit structure`. Sub-bullets are candidate splits if this needs to be broken up.
   - <Item from row 1 of findings table — short, with file:line if available>
   - <Item from row 2 …>
   - …

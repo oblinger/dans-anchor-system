@@ -29,7 +29,7 @@ Print the table to the console. **If `dry` substring is in args**, stop here —
 Locate `{NAME} Docs/{NAME} Plan/{NAME} Backlog.md`. Read it, find the lowest unused B-number (per [[CAB Backlog]] § Format), and append a new bullet under `## Upcoming`:
 
 ```
-- **B<n> — Rules audit: <N> violations (<YYYY-MM-DD>)** — work surfaced by `/audit rules`. Sub-bullets are candidate splits if this needs to be broken up.
+- **B<n> — Rules audit: <N> violations (<YYYY-MM-DD>)** [Ready] — work surfaced by `/audit rules`. Sub-bullets are candidate splits if this needs to be broken up.
   - <Rule>: <file:line> — <severity>
   - …
 ```

@@ -88,7 +88,7 @@ If `dry` substring is in the args: print "dry-run — no backlog entry written" 
 Otherwise, locate `{NAME} Docs/{NAME} Plan/{NAME} Backlog.md`. Read it, find the lowest unused B-number (per [[CAB Backlog]] § Format), and append a new bullet under `## Upcoming`:
 
 ```
-- **B<n> — Docs audit: <N> findings (<YYYY-MM-DD>)** — work surfaced by `/audit docs`. Sub-bullets are candidate splits if this needs to be broken up.
+- **B<n> — Docs audit: <N> findings (<YYYY-MM-DD>)** [Ready] — work surfaced by `/audit docs`. Sub-bullets are candidate splits if this needs to be broken up.
   - <category>: <file or path> — <short issue>
   - …
 ```
