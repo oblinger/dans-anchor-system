@@ -1,7 +1,3 @@
----
-description: documentation hub for CAE
----
-
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[CAE]] → [CAE Docs](hook://p/CAE%20Docs)
 
 # CAE Docs

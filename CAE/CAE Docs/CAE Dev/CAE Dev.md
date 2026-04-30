@@ -1,7 +1,3 @@
----
-description: developer and module docs for CAE
----
-
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[CAE]] → [[CAE Docs]] → [CAE Dev](hook://p/CAE%20Dev)
 
 # CAE Dev

@@ -1,7 +1,3 @@
----
-description: user-facing documentation for CAE
----
-
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[CAE]] → [[CAE Docs]] → [CAE User](hook://p/CAE%20User)
 
 # CAE User

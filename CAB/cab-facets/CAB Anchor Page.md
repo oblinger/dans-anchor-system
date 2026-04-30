@@ -1,7 +1,7 @@
 ---
 description: anchor page format — the {slug}.md entry point
 ---
-# CAB slug Page
+# CAB Anchor Page
 
 **Location:** `{NAME}.md`
 

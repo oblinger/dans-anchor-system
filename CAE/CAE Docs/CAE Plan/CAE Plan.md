@@ -1,7 +1,3 @@
----
-description: planning and execution docs for CAE
----
-
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[CAE]] → [[CAE Docs]] → [CAE Plan](hook://p/CAE%20Plan)
 
 # CAE Plan

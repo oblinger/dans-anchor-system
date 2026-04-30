@@ -1,16 +1,12 @@
----
-description: Common Anchor Example — reference anchor — a fully-wired example of the canonical CAB structure
----
-
 # CAE — Common Anchor Example
 
 | -[[CAE]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [CAE](hook://p/CAE)<br>: Common Anchor Example — reference anchor — a fully-wired example of the canonical CAB structure |
 | --- | --- |
 | External | [Repo](https://github.com/example/cae-example), [Project Page](https://example.github.io/cae-example/) |
-| ~~[~~[CAE User/CAE User](hook://CAE%20User/CAE%20User)~~+](hook://~~[CAE%20User/CAE%20User](hook://CAE%20User/CAE%20User)~~+)~~ | [[CAE User Guide\|User Guide]], [[CAE CLI\|CLI]] |
+| ~~[CAE User/CAE User](hook://CAE%20User/CAE%20User)~~ | [[CAE User Guide\|User Guide]], [[CAE CLI\|CLI]] |
 | [[CAE Plan\|Plan]]+ | [[CAE Backlog\|Backlog]], [[CAE Features\|Features]], [[CAE Icebox\|Icebox]], [[CAE Inbox\|Inbox]], [[CAE Open Questions\|Open Questions]], [[CAE PRD\|PRD]], [[CAE Roadmap\|Roadmap]], [[CAE Rules\|Rules]], [[CAE System Design\|System Design]] |
 | [[CAE Plan\|Plan]] | [[CAE Inbox\|Inbox]], [[CAE Open Questions\|Open Q]], [[CAE Backlog\|Backlog]], [[CAE Roadmap\|Roadmap]] |
-| ~~[~~[CAE Dev/CAE Dev](hook://CAE%20Dev/CAE%20Dev)~~+](hook://~~[CAE%20Dev/CAE%20Dev](hook://CAE%20Dev/CAE%20Dev)~~+)~~ | [[CAE Files\|Files]], [[CAE Architecture\|Architecture]] |
+| ~~[CAE Dev/CAE Dev](hook://CAE%20Dev/CAE%20Dev)~~ | [[CAE Files\|Files]], [[CAE Architecture\|Architecture]] |
 | Research | — |
 
 

@@ -1,7 +1,3 @@
----
-description: feature index for CAE
----
-
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[CAE]] → [[CAE Docs]] → [[CAE Plan]] → [CAE Features](hook://p/CAE%20Features)
 
 # CAE Features

@@ -66,7 +66,7 @@ If the work-unit has a dated feature doc:
 ### 4. Update Status / Stat Records
 
 - If `skl-stat` is in use, post a Done update with the work-unit's S-number and a brief activity note.
-- If the work corresponds to a backlog item (`Q<n>` in `{NAME} Backlog.md`), move it from `## In Progress` (or wherever it was) to `## Completed` with a cross-reference to the PR / commit / feature doc.
+- If the work corresponds to a backlog item (`B<n>` in `{NAME} Backlog.md`), move it from `## In Progress` (or wherever it was) to `## Completed` with a cross-reference to the PR / commit / feature doc. Preserve the B-number when moving — B-numbers are stable references per [[CAB Backlog]] § Format.
 - If a roadmap milestone was closed by this work, mark it complete in the roadmap doc.
 
 ### 5. Update Docs to Match Reality
@@ -86,7 +86,7 @@ If the work-unit has a dated feature doc:
 ### 7. Report
 
 The consumer skill is responsible for reporting; the discipline supplies what to include:
-- Work-unit name and identifier (feature name + S-number; or backlog Q-number; or milestone name).
+- Work-unit name and identifier (feature name + S-number; or backlog B-number; or milestone name).
 - Files changed (count or list, depending on consumer's verbosity).
 - Tests passing (yes/no — should always be yes by step 1).
 - Docs updated (which ones, briefly).

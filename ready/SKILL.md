@@ -58,7 +58,7 @@ The `→ [[X]]` link convention is documented in [[CAB Backlog]].
 | `/ready legwork` | Only items under `## Legwork`. |
 | `/ready roadmap` | Operate on the roadmap's next milestone instead of the backlog. |
 | `/ready roadmap <milestone>` | Operate on a named roadmap milestone. |
-| `/ready <B-number>` | Single item, by Q-number. |
+| `/ready <B-number>` | Single item, by B-number. |
 | `/ready <item name>` | Single item, by name match. |
 
 

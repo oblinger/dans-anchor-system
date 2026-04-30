@@ -1,7 +1,3 @@
----
-
-description: [[CAB All Files]], [[CAB Anchor Page]], [[CAB Backlog markdown]], ~~[[CAB Base markdown]]~~, [[CAB Cards]], ~~[[CAB Claude markdown]]~~, [[CAB Code Repository]], ~~[[CAB Defined Terms markdown]]~~, [[CAB Discussion]], ~~[[CAB Docs Conventions markdown]]~~, [[CAB Docs markdown]], ~~[[CAB Documentation Publishing markdown]]~~, ~~[[CAB Documentation Site markdown]]~~, ~~[[CAB Features markdown]]~~, [[CAB Files]], ~~[[CAB Folder markdown]]~~, ~~[[CAB Inbox markdown]]~~, ~~[[CAB Integrations markdown]]~~, ~~[[CAB Maintenance markdown]]~~, ~~[[CAB Markdown Formatting markdown]]~~, [[CAB Module Doc]], ~~[[CAB Naming Conventions markdown]]~~, [[CAB Open Questions]], ~~[[CAB Page Conventions markdown]]~~, ~~[[CAB Parts markdown]]~~, [[CAB PRD]], ~~[[CAB Project Page markdown]]~~, ~~[[CAB Repository Structure markdown]]~~, ~~[[CAB Research markdown]]~~, ~~[[CAB Roadmap markdown]]~~, ~~[[CAB Rules markdown]]~~, ~~[[CAB Rust Rules markdown]]~~, ~~[[CAB Skill markdown]]~~, ~~[[CAB System Design markdown]]~~, ~~[[CAB Types markdown]]~~, ~~[[CAB UX Design markdown]]~~, [[CAB-create]], ~~[[cab-lint markdown]]~~, [[cab-lint-rules]], ~~[[cab-lint-system-suppressions markdown]]~~, ~~[[CAB-migrate markdown]]~~, ~~[[CAB-move markdown]]~~, ~~[[CAB-pilot-flow markdown]]~~, ~~[[CAB-pr-flow markdown]]~~, ~~[[CAB-streams markdown]]~~, ~~[[CAB-tid-scan]]~~, ~~[[CAB-tidy markdown]]~~, [[cab-yore]], ~~[[Code Anchor markdown]]~~, ~~[[dev-anchor]]~~, ~~[[dev-arch-audit]]~~, ~~[[dev-architect]]~~, ~~[[dev-changelog]]~~, ~~[[dev-code]]~~, ~~[[dev-debug]]~~, ~~[[dev-execute]]~~, ~~[[dev-execute markdown]]~~, ~~[[dev-forge]]~~, ~~[[dev-implement]]~~, ~~[[dev-ios markdown]]~~, ~~[[dev-merge]]~~, ~~[[dev-modules]]~~, ~~[[dev-open-questions]]~~, ~~[[dev-package]]~~, ~~[[dev-plan]]~~, ~~[[dev-plan markdown]]~~, ~~[[dev-plan-audit]]~~, ~~[[dev-pr-flow]]~~, ~~[[dev-prd]]~~, ~~[[dev-publish markdown]]~~, ~~[[dev-release]]~~, ~~[[dev-replan]]~~, ~~[[dev-replan markdown]]~~, ~~[[dev-research]]~~, ~~[[dev-review]]~~, ~~[[dev-rewire]]~~, ~~[[dev-roadmap]]~~, ~~[[dev-setup]]~~, ~~[[dev-setup markdown]]~~, ~~[[dev-ship]]~~, ~~[[dev-spec]]~~, ~~[[dev-system]]~~, ~~[[dev-system-design]]~~, ~~[[dev-test]]~~, ~~[[dev-test-external markdown]]~~, ~~[[dev-test-plan]]~~, ~~[[dev-test-quality markdown]]~~, ~~[[dev-test-scaffolds markdown]]~~, ~~[[dev-testing]]~~, ~~[[dev-testing markdown]]~~, ~~[[dev-ux]]~~, ~~[[dev-verify]]~~, ~~[[dev-version]]~~, ~~[[dev-workers]]~~, ~~[[dev-worktrees]]~~, ~~[[edit-excalidraw markdown]]~~, ~~[[excalidraw-examples markdown]]~~, [[google-sheets]], [[google-slides]], ~~[[io-sheets]]~~, ~~[[io-slides]]~~, ~~[[io-sync]]~~, ~~[[md-cards markdown]]~~, [[md-dispatch-table]], [[md-file-tree]], [[md-toc]], ~~[[md-track-changes markdown]]~~, ~~[[Paper Anchor markdown]]~~, ~~[[product-buy markdown]]~~, [[product-find]], ~~[[product-hunt markdown]]~~, ~~[[product-reorder markdown]]~~, [[README markdown]], [[research]], ~~[[role-pilot markdown]]~~, ~~[[role-pm markdown]]~~, [[role-setup]], [[role-worker]], ~~[[Simple Anchor markdown]]~~, [[SKILL]], ~~[[Skill Anchor markdown]]~~, [[SKILL markdown]], [[SKILL-retired]], [[skills markdown]], [[SKL]], ~~[[Topic Anchor markdown]]~~
----
 | -[[skills]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [skills](hook://p/skills)<br>:  |
 | --- | --- |
 | [[all-fallbacks]] |  |
@@ -143,17 +139,17 @@ description: [[CAB All Files]], [[CAB Anchor Page]], [[CAB Backlog markdown]], ~
 | [[SKILL-retired]] | > |
 | [skills markdown](hook://skills%20markdown) |  |
 | [[SKL]] | skills dispatch table |
-| [[SKL Audit Guide]] | How auditing works — design rationale, tool chain, and examples |
-| [[SKL CAB Guide]] | How to create and manage anchor folder structures using the Common Anchor Blueprint |
-| [[SKL Ctrl Guide]] | How to control the local environment — browser, shell sessions, and system interaction |
-| [[SKL Dev Guide]] | How to use the development workflow — from planning through implementation and release |
-| [[SKL Edit Guide]] | How to create and export visual content — Excalidraw diagrams, SVG, PNG, Google Slides |
-| [[SKL IO Guide]] | How to read from and write to external services — Google Workspace, email, file sync |
-| [[SKL MD Guide]] | How to format markdown — file trees, TOC tables, dispatch tables, cards, named lists |
-| [[SKL Product Guide]] | How to research and purchase products — hunt, find, buy, reorder |
-| [[SKL Research Guide]] | How to run structured research — deep investigations and landscape surveys |
-| [[SKL Role Guide]] | How agent roles work — Pilot, PM, Worker, Setup, and the compact-reload mechanism |
-| [[SKL Rule Guide]] | How to manage project rules — creating rules, checking violations, grading exceptions, driving fixes |
+| ~~[SKL Audit Guide](hook://SKL%20Audit%20Guide)~~ | How auditing works — design rationale, tool chain, and examples |
+| ~~[SKL CAB Guide](hook://SKL%20CAB%20Guide)~~ | How to create and manage anchor folder structures using the Common Anchor Blueprint |
+| ~~[SKL Ctrl Guide](hook://SKL%20Ctrl%20Guide)~~ | How to control the local environment — browser, shell sessions, and system interaction |
+| ~~[SKL Dev Guide](hook://SKL%20Dev%20Guide)~~ | How to use the development workflow — from planning through implementation and release |
+| ~~[SKL Edit Guide](hook://SKL%20Edit%20Guide)~~ | How to create and export visual content — Excalidraw diagrams, SVG, PNG, Google Slides |
+| ~~[SKL IO Guide](hook://SKL%20IO%20Guide)~~ | How to read from and write to external services — Google Workspace, email, file sync |
+| ~~[SKL MD Guide](hook://SKL%20MD%20Guide)~~ | How to format markdown — file trees, TOC tables, dispatch tables, cards, named lists |
+| ~~[SKL Product Guide](hook://SKL%20Product%20Guide)~~ | How to research and purchase products — hunt, find, buy, reorder |
+| ~~[SKL Research Guide](hook://SKL%20Research%20Guide)~~ | How to run structured research — deep investigations and landscape surveys |
+| ~~[SKL Role Guide](hook://SKL%20Role%20Guide)~~ | How agent roles work — Pilot, PM, Worker, Setup, and the compact-reload mechanism |
+| ~~[SKL Rule Guide](hook://SKL%20Rule%20Guide)~~ | How to manage project rules — creating rules, checking violations, grading exceptions, driving fixes |
 | [[SKL User Guide]] |  |
 | [[swift-fallbacks]] |  |
 | ~~[Topic Anchor markdown](hook://Topic%20Anchor%20markdown)~~ |  |

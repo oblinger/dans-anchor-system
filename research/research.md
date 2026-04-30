@@ -1,6 +1,3 @@
----
-description: research workflows — investigation, synthesis
----
 | -[[research]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [research](hook://p/research)<br>:  |
 | --- | --- |
 | Related | [[RRR]],  |
