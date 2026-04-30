@@ -1,3 +1,6 @@
+---
+description: ~~
+---
 | -[[compile]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [compile](hook://p/compile)<br>:  |
 | --- | --- |
 | ~~[targets/audit-docs](hook://targets/audit-docs)~~ |  |

@@ -2,7 +2,7 @@
 
 `/feature` -- Creates, plans, and readies a new feature document.
 - Designs and plans feature
-- `/ready` -- ensures all open questions are resolved and ready for build
+- `/groom` -- ensures all open questions are resolved and ready for build
 
 
 

@@ -129,9 +129,9 @@ Disciplines live in `~/.claude/skills/{name}/` with the same folder structure as
 
 ### Examples
 
-- `ask-questions` — how the agent batches, numbers, and resolves user questions during feature design / planning. Cited by `/feature`, `/code plan`, `/code architect`, `/ready`, `/fortify`.
+- `ask-questions` — how the agent batches, numbers, and resolves user questions during feature design / planning. Cited by `/feature`, `/code plan`, `/code architect`, `/groom`, `/fortify`.
 - `finalize` — verify → commit → push → merge → docs → cleanup ceremony. Cited by `/land`, `/crank`, `/code release`.
-- `workflow` — canonical state graph for a unit of work, Definition of Ready, per-surface mappings. Cited by `[[CAB Backlog]]`, `feature/SKILL.md`, `/ready`, `/mint`, `/finalize`.
+- `workflow` — canonical state graph for a unit of work, Definition of Ready, per-surface mappings. Cited by `[[CAB Backlog]]`, `feature/SKILL.md`, `/groom`, `/mint`, `/finalize`.
 
 ### Parallel user docs — required
 
@@ -156,6 +156,6 @@ A discipline is a *rule the agent follows*, not a command the user issues. Makin
 
 ### When to make something a discipline vs. a skill
 
-- **Skill** (`user_invocable: true`) — has a clear "do this thing now" semantic. The user invokes it. Examples: `/audit`, `/ready`, `/feature`.
+- **Skill** (`user_invocable: true`) — has a clear "do this thing now" semantic. The user invokes it. Examples: `/audit`, `/groom`, `/feature`.
 - **Discipline** (`user_invocable: false`) — a methodology that other skills follow. The user doesn't invoke it; skills cite it. Examples: `ask-questions`, `finalize`, `workflow`.
 - **Both?** — if a single concept has both a "the user wants to run this now" form and an "agent always follows this when applicable" form, split into a skill + discipline pair (e.g., `/finalize` could in principle be invoked, but the *ceremony* is the discipline; we kept only the discipline form for now).

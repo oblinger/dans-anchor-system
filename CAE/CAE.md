@@ -1,3 +1,6 @@
+---
+description: Common Anchor Example — reference anchor — a fully-wired example of the canonical CAB structure
+---
 # CAE — Common Anchor Example
 
 | -[[CAE]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [CAE](hook://p/CAE)<br>: Common Anchor Example — reference anchor — a fully-wired example of the canonical CAB structure |

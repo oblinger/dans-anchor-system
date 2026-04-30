@@ -1,6 +1,6 @@
 ---
 name: workflow
-description: Discipline that owns the canonical state graph for a unit of work — state names, transitions, Definition of Ready, and per-surface mappings (Backlog, Roadmap, Feature lifecycle, PRD). Cited from CAB Backlog, feature/SKILL.md, /ready, /mint, /finalize, and other skills that advance work through states.
+description: Discipline that owns the canonical state graph for a unit of work — state names, transitions, Definition of Ready, and per-surface mappings (Backlog, Roadmap, Feature lifecycle, PRD). Cited from CAB Backlog, feature/SKILL.md, /groom, /mint, /finalize, and other skills that advance work through states.
 user_invocable: false
 ---
 
@@ -68,7 +68,7 @@ Two **optional extension states** that not every surface uses:
       │ design clean
       ↓
    ┌────────────┐
-   │  [Ready]   │  ◄─── /ready promotes here
+   │  [Ready]   │  ◄─── /groom promotes here
    └─────┬──────┘
          │  /mint, /code mint, /code bugfix
          ↓

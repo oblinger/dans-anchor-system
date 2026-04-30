@@ -2,7 +2,7 @@
 
 The **ask-questions discipline** governs how the agent surfaces decisions to the user — batched, numbered, with explicit recommendations — so questions don't get lost in the scrollback and answers don't come back out of order.
 
-This is a discipline (`user_invocable: false`) — you don't invoke it directly. It runs whenever a skill (`/feature`, `/code plan`, `/code architect`, `/ready`, `fortify`, etc.) needs 2+ decisions from you.
+This is a discipline (`user_invocable: false`) — you don't invoke it directly. It runs whenever a skill (`/feature`, `/code plan`, `/code architect`, `/groom`, `fortify`, etc.) needs 2+ decisions from you.
 
 ## Why this exists — the problem it solves
 
@@ -52,6 +52,6 @@ No blank line between options and the **Recommendation:** sub-bullet (they're on
 The agent decides whether to glance the questions file based on context:
 
 - **Active mode** — you're engaging right now. Signals: "let's design X", "let's discuss", "tell me about". The agent glances.
-- **Parking mode** — you've explicitly deferred. Signals: "put it on the backlog", "for later", "/ready" batch processing creating feature docs. The agent does not glance — the file surfaces later when you re-engage.
+- **Parking mode** — you've explicitly deferred. Signals: "put it on the backlog", "for later", "/groom" batch processing creating feature docs. The agent does not glance — the file surfaces later when you re-engage.
 
 Default when ambiguous is parking, since the cost of an unwanted glance (interrupting deferred work) is higher than the cost of a missed glance (you can re-engage by saying "let's discuss [feature name]").

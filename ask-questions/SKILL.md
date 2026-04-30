@@ -190,7 +190,7 @@ Signals that you're in active mode:
 Signals that you're in parking mode:
 - User said: "put it on the backlog" / "file this" / "for later" / "we'll figure that out" / "we can talk about it at that time" / "add to the icebox"
 - User invoked `/feature` *and* said any of the above
-- Another skill (`/groom`, `/ready`) is creating feature docs to park questions during a batch run
+- Another skill (`/groom`, `/groom`) is creating feature docs to park questions during a batch run
 - User is creating a backlog stub and wants the work captured but not engaged with
 
 **Default when ambiguous: parking.** If you can't tell whether the user wants engagement now, prefer parking — never glance, just file the questions and tell the user "filed; let me know when you want to discuss." The cost of an unwanted glance (interrupts deferred work) is higher than the cost of a missed glance (the user can re-engage by saying "let's discuss [feature name]").

@@ -22,7 +22,7 @@ description: skills dispatch table
 
 | LIFECYCLE    | Actions                                                                                                               |
 | ------------ | --------------------------------------------------------------------------------------------------------------------- |
-|              | Create → Plan → ↻( [[SKL Feature\|Feature]] ([[SKL Ready\|Ready]]) → [[SKL Mint\|Mint]]  ([[SKL Finalize\|Finalize]]) |
+|              | Create → Plan → ↻( [[SKL Feature\|Feature]] ([[SKL Groom\|Groom]]) → [[SKL Mint\|Mint]]  ([[SKL Finalize\|Finalize]]) |
 | **Setup**    | Distill, [[cab/cab-install\|Install]], [[cab/cab-slug-scan\|Rid-scan]], [[cab/cab-scan\|Scan]]  \|  [[SKL Migrate\|Migrate]], [[code/code-rewire\|Rewire]], [[cab/cab-tidy\|Tidy]], [[CAB Move\|Move]] |
 | **Create**   | [[cab/cab-create\|Anchor]], [[feature/SKILL\|Feature]], [[cab/cab-wp\|Wp]]                                        |
 | **Audit**    | [[audit/audit-structure\|Structure]], [[audit/audit-docs\|Docs]], [[audit/audit-rules\|Rules]], [[audit/audit-code\|Code]], [[audit/audit-publish\|Pre-publish]], [[cab/cab-lint\|Lint]] |
@@ -42,11 +42,11 @@ description: skills dispatch table
 
 | CODE             | Actions                                                                                                                 |
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------- |
-|                  | Anchor → Plan →  ↻( [[SKL Feature\|Feature]] ([[SKL Ready\|Ready]]) → [[SKL Mint\|Mint]]  ([[SKL Finalize\|Finalize]])) |
+|                  | Anchor → Plan →  ↻( [[SKL Feature\|Feature]] ([[SKL Groom\|Groom]]) → [[SKL Mint\|Mint]]  ([[SKL Finalize\|Finalize]])) |
 | **Create**       | [[feature/SKILL\|Feature]], Spec                                                                                    |
 | **Plan**         | [[code/code-plan\|Plan]], [[code/code-prd\|Prd]], [[code/code-ux\|Ux]], [[code/code-system\|System]], [[code/code-research\|Research]], (plus Architect) |
 | →→ **Architect** | [[code/code-architect\|Architect]], [[code/code-system-design\|System-design]], [[code/code-modules\|Modules]], [[code/code-roadmap\|Roadmap]] |
-| **Ready**        | [[SKL Ready\|Ready]], [[code/code-replan\|Replan]], [[code/code-ask-questions\|Ask-questions]]                           |
+| **Groom**        | [[SKL Groom\|Groom]], [[code/code-replan\|Replan]], [[code/code-ask-questions\|Ask-questions]]                           |
 | **Mint**         | [[code/code-mint\|Mint]], [[code/code-code\|Code]], [[code/code-bugfix\|Bugfix]], [[code/code-spike\|Spike]], [[code/code-forge\|Forge]], (plus Test) |
 | →→ **Test**      | [[code/code-test\|Test]], [[code/code-verify\|Verify]], [[code/code-review\|Review]]                                    |
 | **Publish**      | [[code/code-release\|Release]], [[cab/cab-publish\|Publish]], [[code/code-ship\|Ship]]                                  |
