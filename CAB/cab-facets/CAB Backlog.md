@@ -21,17 +21,22 @@ Below is a condensed reference example. See the working example linked above for
 
 
 ## Active
-- **F3 — Retry backoff polish** [Active] — Tune exponential-backoff caps after user feedback on long retries
+- **F3 — Retry backoff polish** — Tune exponential-backoff caps after user feedback on long retries
 
 ## Ready
-- **F1 — Cron syntax** [Ready] — Support cron expressions for recurring task schedules
+- **F1 — Cron syntax** — Support cron expressions for recurring task schedules
 
-## Upcoming
-- **F2 — Task groups** — Allow grouping related tasks that run as a batch
-- **F4 — Priority levels** — Add high/medium/low priority beyond just deadline ordering
+## Now
+- **F2 — Task groups** [Designing] — Allow grouping related tasks that run as a batch
+
+## Next
+- **F4 — Priority levels** [ ] — Add high/medium/low priority beyond just deadline ordering
+
+## Later
+- **F11 — Async task DAGs** [ ] — Long-shot: support directed-acyclic dependencies between tasks
 
 ## Verify
-- **F7 — Webhook notifications** [Verify] — Send webhook on task completion (implemented, awaiting user verification)
+- **F7 — Webhook notifications** — Send webhook on task completion (implemented, awaiting user verification)
 
 ## Done
 - **F5 — Retry config** — Per-task retry limits (done in PR #4, see [[CAE Roadmap#M2]])
@@ -92,16 +97,28 @@ Each F-row may carry a workflow-state bracket per the `[[workflow]]` discipline:
 
 ## H2 sections
 
-Entries are grouped under H2 sections:
+Entries are grouped under H2 sections of three kinds — workflow-state, horizon, and category. The full discipline lives in `[[backlog-horizons]]`; the summary is:
+
+**Workflow-state H2s** (state implied by H2; `[Status]` bracket optional/redundant):
 
 - **Active** — Items the Pilot is actively driving forward right now (state `[Active]`).
 - **Ready** — Items whose status is `[Ready]` (see § Definition of Ready below).
-- **Upcoming** — Ideas and deferred work not yet scheduled. (When `[[backlog-horizons]]` lands, this is replaced with `## Now` / `## Next` / `## Later`.)
 - **Verify** — Implemented but awaiting user verification that they work as intended. Once confirmed, move to Done.
 - **Done** — Items that graduated and were finished (with cross-references to where).
+
+**Horizon H2s** (per `[[backlog-horizons]]`; `[Status]` bracket mandatory — workflow state is carried by the bracket since the H2 only conveys *when*):
+
+- **Now** — Imminent — the next 1–2 cycles. The "we really expect to do this shortly" zone.
+- **Next** — Committed but not the next thing up. Visible and ordered, but explicitly deferred.
+- **Later** — Known wants — will get to eventually. Lower priority than Next.
+
+**Category H2** (cross-cutting; not a state and not a horizon):
+
 - **Legwork** — Autonomous agent work that should be done proactively. Includes user feedback integration, planning actions, doc consistency fixes, and other tasks the agent can execute without user approval. The `/code execute` priority loop pulls from this section as Tier 2 legwork (after PR merging and worker dispatch).
 
-Items typically flow `Upcoming → Ready → Active → Verify → Done`. The `roster` skill renders Active / Ready / Backlog (everything else except Verify & Done) as a state-of-the-work summary plus an Icebox count. The `groom` skill walks the backlog and tries to promote candidates from Upcoming to Ready (see § Definition of Ready and § Item Status below).
+Items typically flow `Now → Ready → Active → Verify → Done` (or `Next/Later → Now → Ready → ...` when scheduling intent shifts). The `roster` skill prints a per-bucket count line (one count per H2; sum equals total). The `groom` skill walks horizon H2s looking for items with status `Unset / Designing / Questions / Blocked` and tries to promote candidates to `[Ready]` (see § Definition of Ready and § Item Status below).
+
+**Legacy `## Upcoming`.** Anchors that pre-date the horizons discipline may still have `## Upcoming` as the catch-all pre-ready section. Treat it as a transitional alias for `## Now` until the anchor is migrated. New backlogs use `## Now / ## Next / ## Later` from the start.
 
 For items that are explicitly parked / out-of-scope-for-now / someday-maybe, use the optional [[CAB Icebox]] file rather than a Deferred section here.
 
@@ -123,7 +140,7 @@ Every backlog item has one of these statuses, derived from where the bullet sits
 | **Blocked** | Bullet has bracket `[Blocked]`; pending non-question blocker (dependency, external review, CI). |
 | **Verify** | Bullet is under `## Verify`. |
 | **Done** | Bullet is under `## Done`. |
-| **Unset / Upcoming** | Bullet is under `## Upcoming`, `## Legwork`, or any other non-terminal section, AND has no link to active open questions. This is the "candidate for promotion" status. |
+| **Unset / Upcoming** | Bullet is under a horizon H2 (`## Now`, `## Next`, `## Later`) — or the legacy `## Upcoming` — or `## Legwork`, with bracket `[ ]` / `[Designing]` / absent, AND has no link to active open questions. This is the "candidate for promotion" status. |
 
 ### The `→ [[X]]` link convention
 

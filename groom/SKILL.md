@@ -49,7 +49,7 @@ Every backlog item has one of these statuses, derived from where the bullet sits
 | **Ready** | Bullet is under `## Ready` H2 | Skip — already ready. |
 | **Active** | Bullet is under `## Active` H2 | Skip — actively being worked. |
 | **Blocked on questions** | Bullet text contains a `→ [[Feature Doc]]` or `→ [[Open Questions]]` link | Skip — only the user can resolve those. |
-| **Unset / Upcoming** | Bullet is under `## Upcoming`, `## Legwork`, or any other non-terminal section, AND has no link to active open questions | **Process** — try to ready it. |
+| **Unset / Upcoming** | Bullet is under a horizon H2 (`## Now`, `## Next`, `## Later` per [[backlog-horizons]]) — or the legacy `## Upcoming` — or `## Legwork`, with bracket `[ ]` / `[Designing]` / absent, AND has no link to active open questions | **Process** — try to ready it. |
 | **Verify**, **Done** | Bullet under those H2s | Skip — out of scope. |
 
 The `→ [[X]]` link convention is documented in [[CAB Backlog]].
@@ -60,7 +60,10 @@ The `→ [[X]]` link convention is documented in [[CAB Backlog]].
 | Invocation | Scope |
 | --- | --- |
 | `/groom` | All Unset / Upcoming items across the whole backlog. Default. |
-| `/groom upcoming` | Only items under `## Upcoming`. |
+| `/groom now` | Only items under `## Now`. |
+| `/groom next` | Only items under `## Next`. |
+| `/groom later` | Only items under `## Later`. |
+| `/groom upcoming` | Only items under legacy `## Upcoming` (alias for `/groom now` on migrated anchors). |
 | `/groom legwork` | Only items under `## Legwork`. |
 | `/groom roadmap` | Operate on the roadmap's next milestone instead of the backlog. |
 | `/groom roadmap {milestone}` | Operate on a named roadmap milestone. |
