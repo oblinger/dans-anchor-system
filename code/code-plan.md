@@ -25,7 +25,7 @@ Never lose information because "we're not on that step yet." The planning steps 
 
 ## Open Questions
 
-Questions are captured throughout the pipeline in `{NAME} Open Questions.md`. See [[code-open-questions]] for the capture, resolution, and cascade process.
+Questions are captured throughout the pipeline in `{NAME} Open Questions.md`. See [[code-ask-questions]] for the capture, resolution, and cascade process.
 
 ## Planning Levels
 

@@ -27,7 +27,7 @@ The Dev skill integrates with other skills: CAB for project structure, Rule for 
 | `/code release` | Release pass: changelog, version, package, publish, ship |
 | `/code test` | Test pass: assess, scaffold, write, verify |
 | `/code replan` | Selective replanning when requirements change |
-| `/code open-questions` | Surface and resolve pending design decisions |
+| `/code ask-questions` | Surface and resolve pending design decisions |
 
 ## Key Concepts
 

@@ -46,7 +46,7 @@ description: skills dispatch table
 | **Create**       | [[feature/SKILL\|Feature]], Spec                                                                                    |
 | **Plan**         | [[code/code-plan\|Plan]], [[code/code-prd\|Prd]], [[code/code-ux\|Ux]], [[code/code-system\|System]], [[code/code-research\|Research]], (plus Architect) |
 | →→ **Architect** | [[code/code-architect\|Architect]], [[code/code-system-design\|System-design]], [[code/code-modules\|Modules]], [[code/code-roadmap\|Roadmap]] |
-| **Ready**        | [[SKL Ready\|Ready]], [[code/code-replan\|Replan]], [[code/code-open-questions\|Open-questions]]                         |
+| **Ready**        | [[SKL Ready\|Ready]], [[code/code-replan\|Replan]], [[code/code-ask-questions\|Ask-questions]]                           |
 | **Mint**         | [[code/code-mint\|Mint]], [[code/code-code\|Code]], [[code/code-bugfix\|Bugfix]], [[code/code-spike\|Spike]], [[code/code-forge\|Forge]], (plus Test) |
 | →→ **Test**      | [[code/code-test\|Test]], [[code/code-verify\|Verify]], [[code/code-review\|Review]]                                    |
 | **Publish**      | [[code/code-release\|Release]], [[cab/cab-publish\|Publish]], [[code/code-ship\|Ship]]                                  |

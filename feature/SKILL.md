@@ -59,7 +59,7 @@ description: <one-line description>
 
 Blocking decisions. The feature cannot move from **Designing → Agreed** while this list is non-empty. When a question is resolved, move it to **Resolved** below with the answer and where it landed in the design.
 
-(Heading must include the feature's descriptor so the user can identify what the questions are for at a glance — see [[open-questions]] § When a file is involved.)
+(Heading must include the feature's descriptor so the user can identify what the questions are for at a glance — see [[ask-questions]] § When a file is involved.)
 
 - **Q1 — <short question>** — <context + options>
 - **Q2 — <short question>** — <context + options>
@@ -94,7 +94,7 @@ Proposed — awaiting design discussion.
 
 ### 1a. Surface the Doc — glance only when adding/modifying a pending question AND the user is engaging now
 
-Glance the doc *only when both conditions hold*: (1) the edit added or modified a pending question, AND (2) you're in **active mode** — the user is engaging with this feature right now. See [[open-questions]] § Active vs Parking mode for the full rule.
+Glance the doc *only when both conditions hold*: (1) the edit added or modified a pending question, AND (2) you're in **active mode** — the user is engaging with this feature right now. See [[ask-questions]] § Active vs Parking mode for the full rule.
 
 ```bash
 open "<path to feature doc>"

@@ -1,10 +1,10 @@
-# Open Questions
+# Ask Questions
 
 Surface, track, and resolve open questions throughout the development lifecycle. Questions live in multiple places — this skill defines how to find and process all of them.
 
 ## When to Use
 
-Invoke `/code open-questions` when the user wants to work through unresolved questions. Also invoked automatically as part of planning and implementation loops.
+Invoke `/code ask-questions` when the user wants to work through unresolved questions. Also invoked automatically as part of planning and implementation loops.
 
 ## Where Questions Live
 
@@ -20,7 +20,7 @@ Questions are not centralized in one file — they appear in context:
 
 ## Processing Order
 
-When `/code open-questions` is invoked:
+When `/code ask-questions` is invoked:
 
 1. **`{NAME} Open Questions.md`** — process these first. These are the most important project-level questions.
 2. **Backlog Open Questions** — if the main OQ doc is empty, move to questions embedded in backlog items.

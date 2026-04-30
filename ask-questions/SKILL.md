@@ -1,10 +1,10 @@
 ---
-name: open-questions
+name: ask-questions
 description: Discipline for gathering, tracking, and resolving user questions during feature design, plan refinement, or any moment when you need 2+ decisions from the user.
 user_invocable: false
 ---
 
-# Open Questions Discipline
+# Ask Questions Discipline
 
 Universal process for asking the user questions during feature design, plan refinement, architecture discussion, or any situation where two or more decisions need the user's input. Applies whether or not a feature doc / plan doc exists.
 

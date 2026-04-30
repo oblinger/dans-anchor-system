@@ -7,7 +7,7 @@ description: >
   /code delegate (parallel work dispatch — "delegate this", "fan out"),
   /code spike (aggressive root cause — "spike that bug"), /code bugfix (red-green bug response),
   /code forge (rebuild+restart), /code rewire (structural repair), /code replan (requirements changed),
-  /code open-questions (resolve pending decisions), /code research (investigate landscape).
+  /code ask-questions (resolve pending decisions), /code research (investigate landscape).
   When the user says "new feature", "spike that bug", "fix this bug", "forge it", "rewire this", invoke the corresponding /code action.
 tools: Read, Write, Edit, Bash, Glob, Grep, Task
 user_invocable: true
@@ -62,7 +62,7 @@ The unified development skill. Invoke with an action to run a workflow.
 | 60  | `/rewire`              | (top-level skill)       | Idempotent structural repair — wire dispatch tables, link files               |
 | 61  | `/cab lint`           | [[cab-lint]]           | Validate anchor structure and module docs                                     |
 |     | **7x Adapt**          |                        | *When requirements or design changes*                                         |
-| 70  | `/code open-questions` | [[code-open-questions]] | Surface, track, and resolve open questions                                    |
+| 70  | `/code ask-questions`  | [[code-ask-questions]]  | Surface, track, and resolve open questions                                    |
 | 71  | `/code replan`         | [[code-replan]]         | Selective replanning when requirements change                                 |
 |     | **8x Tactical**       |                        | *On demand during development*                                                |
 | 80  | `/code forge`          | [[code-forge]]          | Full rebuild + teardown + restart cycle                                       |

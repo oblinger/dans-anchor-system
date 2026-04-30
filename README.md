@@ -34,7 +34,7 @@ The largest skill. 40+ actions organized into a numbered lifecycle:
 | | ***Capabilities*** | |
 | 5x | Test | assess, scaffold, write-tests, verify |
 | 6x | Verify | rewire, lint, fix |
-| 7x | Adapt | open-questions, replan |
+| 7x | Adapt | ask-questions, replan |
 | 8x | Tactical | forge, debug, refactor |
 | 9x | Orchestrate | workers, worktrees, pr-flow, merge |
 

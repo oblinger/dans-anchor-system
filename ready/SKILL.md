@@ -79,7 +79,7 @@ If scope was provided as an argument, narrow to bullets in that section only.
 
 ### 3. For each candidate, in source order
 
-**Investigate quietly.** Read related docs, infer answers from context, draft a spec, run lightweight planning. You may quietly invoke any of: research, plan, architect, spec, replan, open-questions discipline. Do not prompt the user for anything during investigation.
+**Investigate quietly.** Read related docs, infer answers from context, draft a spec, run lightweight planning. You may quietly invoke any of: research, plan, architect, spec, replan, ask-questions discipline. Do not prompt the user for anything during investigation.
 
 **Decide:**
 
@@ -88,7 +88,7 @@ If scope was provided as an argument, narrow to bullets in that section only.
 - **Has questions** — anything you'd need the user to clarify. Two sub-paths:
 
   1. **Inline-deferred slot is empty AND this is exactly ONE genuinely trivial question** (one short sentence, one yes/no, one short answer): hold it in the inline-deferred slot. Mark the item for revisit when the user answers — for now, leave the bullet where it is.
-  2. **Otherwise** — create a dated feature doc at `{NAME} Docs/{NAME} Plan/{NAME} Features/YYYY-MM-DD <Item Name>.md` with the standard `## Open Questions` block above the H1 (per `/feature` § 1). Capture the questions there. **This is parking mode** (per [[open-questions]] § Active vs Parking) — do NOT glance the new feature doc. The user invoked `/ready` as a *batch* operation specifically to defer per-item engagement; glancing each created doc would interrupt the very deferral they asked for. Replace the backlog bullet's description with `→ [[YYYY-MM-DD <Item Name>]]` (preserve the B-number and bullet name). The item is now blocked-on-questions; the doc surfaces only at end-of-run via § 5 (the *first* one, not all).
+  2. **Otherwise** — create a dated feature doc at `{NAME} Docs/{NAME} Plan/{NAME} Features/YYYY-MM-DD <Item Name>.md` with the standard `## Open Questions` block above the H1 (per `/feature` § 1). Capture the questions there. **This is parking mode** (per [[ask-questions]] § Active vs Parking) — do NOT glance the new feature doc. The user invoked `/ready` as a *batch* operation specifically to defer per-item engagement; glancing each created doc would interrupt the very deferral they asked for. Replace the backlog bullet's description with `→ [[YYYY-MM-DD <Item Name>]]` (preserve the B-number and bullet name). The item is now blocked-on-questions; the doc surfaces only at end-of-run via § 5 (the *first* one, not all).
 
 **Inline-deferred slot rules.**
 - At most ONE item across the whole run may use the inline slot.
