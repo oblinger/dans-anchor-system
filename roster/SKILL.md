@@ -24,7 +24,7 @@ When the user types `roster` or `show roster`, or asks for a quick view of what'
 Print these sections in order, **omitting any section with zero items**. Each entry shows its **B-number** so the user can refer to it unambiguously ("do B5", "tell me about B12"):
 
 ```
-## In Progress
+## Active
 - **B<n> — <Item Name>** — <one-line gloss>
 
 ## Ready
@@ -49,10 +49,10 @@ Find the current anchor by walking up from `cwd` until you hit `.anchor`. Read `
 
 | Source | Roster bucket |
 |--|--|
-| `## In Progress` H2 in Backlog | In Progress |
+| `## Active` H2 in Backlog | In Progress |
 | `## Ready` H2 in Backlog | Ready |
-| Any other H2 in Backlog except `## Testing`, `## Completed` | Backlog |
-| `## Testing`, `## Completed` | (not shown) |
+| Any other H2 in Backlog except `## Verify`, `## Done` | Backlog |
+| `## Verify`, `## Done` | (not shown) |
 | Items in any H2 of Icebox file | Icebox count only |
 
 Missing sections / files → zero items.
@@ -71,9 +71,9 @@ Render the B-number and name together in bold, separated by an em-dash, exactly 
 
 Count bullets under the relevant H2 sections by reading the file directly. No code helper needed.
 
-- **In Progress** — bullets under `## In Progress`
+- **In Progress** — bullets under `## Active`
 - **Ready** — bullets under `## Ready`
-- **Backlog** — bullets under any other H2 in the Backlog file, excluding `## Testing` and `## Completed`
+- **Backlog** — bullets under any other H2 in the Backlog file, excluding `## Verify` and `## Done`
 - **Icebox** — bullets across all H2 sections in `{NAME} Icebox.md`, or `0` if the file doesn't exist
 
 ## Failure Modes

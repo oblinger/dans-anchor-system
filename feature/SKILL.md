@@ -37,8 +37,8 @@ The feature lifecycle uses the canonical state vocabulary from the `[[workflow]]
 | Designing | `[Designing]` | Feature doc being written, open questions being resolved. |
 | Agreed | `[Ready]` (synonym `[Agreed]`) | User has approved the design — ready to implement. |
 | Implementing | `[Active]` | Code is being written. (Implementing = canonical-name alias for Active.) |
-| Testing | `[Testing]` | Implementation complete, being tested. |
-| Done | `[Completed]` | Feature shipped and verified. (Done = canonical-name alias for Completed.) |
+| Testing | `[Verify]` | Implementation complete, being tested. |
+| Done | `[Done]` | Feature shipped and verified. (Done = canonical-name alias for Completed.) |
 
 If a feature is `[Questions]` or `[Blocked]` mid-flight, that's tracked via the bullet's bracket on the linking backlog item, not on the feature doc Status field.
 

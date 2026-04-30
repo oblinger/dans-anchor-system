@@ -2,22 +2,22 @@
 
 The **workflow discipline** owns the canonical state graph for any unit of work — what state it's in, what each state means, and what advances it. It is the single source of truth for the Definition of Ready and the state vocabulary used across the backlog, feature lifecycle, roadmap, and PRD.
 
-This is a discipline (`user_invocable: false`) — you don't invoke it directly. Other skills (`/feature`, `/ready`, `/mint`, `/finalize`, `/code release`) cite it when they advance an item between states.
+This is a discipline (`user_invocable: false`) — you don't invoke it directly. Other skills (`/feature`, `/groom`, `/mint`, `/finalize`, `/code release`) cite it when they advance an item between states.
 
 ## The state graph
 
 Each unit of work moves through these states. Status appears as a **square-bracket prefix** in the bullet (extending the markdown checkbox idiom).
 
-| Bracket | State | What it means |
-|---|---|---|
-| `[ ]` | Unset | Idea captured. No progress yet. |
-| `[Designing]` | Designing | Being thought through. Design work in flight; no questions raised yet. |
-| `[Questions]` | Questions | Waiting on user input. **Mandatory** `→ [[Feature Doc]]` link to the doc where the questions live. |
-| `[Blocked]` | Blocked | Blocked on something other than user questions — dependency, external review, CI, infrastructure. Best practice: include a note or link describing the blocker. |
-| `[Ready]` | Ready | Design clean. Agent could complete it without further user involvement. |
-| `[Active]` | Active | Actively being worked on. |
-| `[Testing]` | Testing | Implementation done. Awaiting verification. |
-| `[Completed]` | Completed | Verified done. |
+| Bracket       | State     | What it means                                                                                                                                       |
+| ------------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `[ ]`         | Unset     | Idea captured. No progress yet.                                                                                                                     |
+| `[Designing]` | Designing | Being thought through. Design work in flight; no questions raised yet.                                                                              |
+| `[Questions]` | Questions | Waiting on user input. **Mandatory** `→ [[Feature Doc]]` link to the doc where the questions live.                                                  |
+| `[Blocked]`   | Blocked   | Blocked on non-question item — dependency, external review, CI, infrastructure. Best practice: include a note or a link that describes the blocker. |
+| `[Ready]`     | Ready     | Design clean. Agent could complete it without further user involvement.                                                                             |
+| `[Active]`    | Active    | Actively being worked on.                                                                                                                           |
+| `[Verify]`   | Testing   | Implementation done. Awaiting verification.                                                                                                         |
+| `[Done]` | Completed | Verified done.                                                                                                                                      |
 
 Two optional extension states for surfaces that need them:
 
@@ -37,12 +37,12 @@ If the task still hides any "wait, what about X?" the user would have to answer,
 Every state change is driven by a named skill. There are no silent transitions.
 
 - **`/feature`** creates a feature doc → moves item to `[Designing]`. At the Agreed gate, moves to `[Ready]`.
-- **`/ready`** walks the backlog and promotes items autonomously to `[Ready]`. If questions remain, parks the item in a feature doc as `[Questions]`.
+- **`/groom`** walks the backlog and promotes items autonomously to `[Ready]`. If questions remain, parks the item in a feature doc as `[Questions]`.
 - **`ask-questions` discipline** manages the `[Questions]` ↔ `[Designing]` cycle while the user answers questions.
-- **`/mint`** (or `/code mint`, `/code bugfix`) takes a `[Ready]` item to `[Active]` to `[Testing]`.
-- **`/code verify`** confirms `[Testing]` is real (tests pass, completion proof).
-- **`finalize` discipline** closes `[Testing]` to `[Completed]` (verify, commit, push, merge, docs, cleanup).
-- **`/code release`** ships `[Completed]` work to `[Released]`.
+- **`/mint`** (or `/code mint`, `/code bugfix`) takes a `[Ready]` item to `[Active]` to `[Verify]`.
+- **`/code verify`** confirms `[Verify]` is real (tests pass, completion proof).
+- **`finalize` discipline** closes `[Verify]` to `[Done]` (verify, commit, push, merge, docs, cleanup).
+- **`/code release`** ships `[Done]` work to `[Released]`.
 
 ## Where workflow shows up
 

@@ -27,7 +27,7 @@ Not for: mid-implementation commits (use ordinary commit discipline); closing a 
 | **1. Verify** | Run the relevant test suite. All tests must pass before any other step. Check `git status` for unstaged or untracked work that belongs to this commit. |
 | **2. Commit** | Stage by specific path (never `git add -A`); brief message; no boilerplate. Push to remote if the branch tracks one. Merge any open PRs (after CI green). |
 | **3. Update Feature Doc** | If the work has a feature doc: set Status to **Done — finalized YYYY-MM-DD**. Resolve any stragglers in `## Open Questions`. |
-| **4. Update Status / Stat** | Post a Done update via `skl-stat`. Move any backlog item to `## Completed` with PR/commit cross-reference. Mark any roadmap milestone complete. |
+| **4. Update Status / Stat** | Post a Done update via `skl-stat`. Move any backlog item to `## Done` with PR/commit cross-reference. Mark any roadmap milestone complete. |
 | **5. Update Docs to Match Reality** | Public-API changes → update module doc. New files → update `{NAME} Files.md` and Dev dispatch. Architecture change → update System Design. |
 | **6. Clean Up** | Delete merged branches. Close satisfied issues. Verify `git status` is clean. Verify any dev server still works. |
 | **7. Report** | The consumer skill formats the report; the discipline supplies the substance — work-unit name + identifier, files changed, tests passing, docs updated. |
@@ -42,7 +42,7 @@ Steps that don't apply (no feature doc, no module docs, no roadmap milestone) ar
 
 ## Workflow position
 
-The finalize discipline transitions a unit of work from `[Testing]` → `[Completed]` (per the [[SKL Workflow|workflow discipline]]). It is the gate between "implementation looks done" and "this is actually closed and recorded."
+The finalize discipline transitions a unit of work from `[Verify]` → `[Done]` (per the [[SKL Workflow|workflow discipline]]). It is the gate between "implementation looks done" and "this is actually closed and recorded."
 
 ## What it does NOT do
 

@@ -41,10 +41,10 @@ Every backlog item has one of these statuses, derived from where the bullet sits
 | Status | How to recognize | What `/ready` does |
 | --- | --- | --- |
 | **Ready** | Bullet is under `## Ready` H2 | Skip — already ready. |
-| **In Progress** | Bullet is under `## In Progress` H2 | Skip — actively being worked. |
+| **Active** | Bullet is under `## Active` H2 | Skip — actively being worked. |
 | **Blocked on questions** | Bullet text contains a `→ [[Feature Doc]]` or `→ [[Open Questions]]` link | Skip — only the user can resolve those. |
 | **Unset / Upcoming** | Bullet is under `## Upcoming`, `## Legwork`, or any other non-terminal section, AND has no link to active open questions | **Process** — try to ready it. |
-| **Testing**, **Completed** | Bullet under those H2s | Skip — out of scope. |
+| **Verify**, **Done** | Bullet under those H2s | Skip — out of scope. |
 
 The `→ [[X]]` link convention is documented in [[CAB Backlog]].
 
@@ -123,7 +123,7 @@ This gives the user one concrete next action: answer those questions. If there a
 
 ### 6. Run roster
 
-Invoke `/roster` to print the post-`/ready` state of the backlog (counts of In Progress / Ready / Backlog / Icebox, plus the bullets above the count line).
+Invoke `/roster` to print the post-`/ready` state of the backlog (counts of Active / Ready / Backlog / Icebox, plus the bullets above the count line).
 
 ### 7. Ask the deferred inline question (if any)
 
@@ -143,7 +143,7 @@ If the slot is empty, say nothing further; the run is done.
 
 ## Idempotence
 
-`/ready` is safe to run repeatedly. Items already in `## Ready`, `## In Progress`, `## Testing`, `## Completed`, `## Legwork`, or marked blocked-on-questions are skipped. Running twice in a row should produce no diff on the second pass if no new info has come in.
+`/ready` is safe to run repeatedly. Items already in `## Ready`, `## Active`, `## Verify`, `## Done`, `## Legwork`, or marked blocked-on-questions are skipped. Running twice in a row should produce no diff on the second pass if no new info has come in.
 
 
 ## Failure Modes
