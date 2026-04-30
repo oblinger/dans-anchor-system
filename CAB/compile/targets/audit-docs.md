@@ -14,13 +14,14 @@ Write between `<!-- compiled:start -->` and `<!-- compiled:end -->` markers.
 
 ## How to Compile
 
-Produce a checklist the agent follows to audit and fix documentation for a code anchor. The checklist has three phases:
+Produce a checklist the agent follows to audit documentation for a code anchor. The checklist has four phases:
 
-**Phase 1: Scan** — use cab-lint to get the source scan, compare source tree to Files.md, identify gaps
-**Phase 2: Report** — build the fixes table, post to stat
-**Phase 3: Fix (when --fix)** — create missing docs, update stale docs, fix Files.md
+**Phase 1: Scan** — run the audit-docs script, compare source tree to Files.md, identify gaps, validate format
+**Phase 2: Report** — build the findings table, print summary
+**Phase 3: Write Backlog Entry** — append a single `B<n>` bullet under `## Upcoming` in `{NAME} Backlog.md` with one sub-bullet per finding (skipped when `dry` substring is in args). If sub-bullet count exceeds ~50, split into multiple entries grouped by category cluster.
+**Phase 4: Report** — print one-line summary (`docs: N findings → B<n>` / `clean` / `dry-run`).
 
-For each module doc that needs creating or updating, include the full format checklist from CAB Module Doc (CLASSES table format, ALL CAPS headers, block IDs, per-class tables, enum two-column format, casing rules, spacing rules).
+**Audits never modify documentation files.** All fix work flows into the backlog entry. When describing what's wrong with a doc, link to [[CAB Module Doc]] for the canonical format — do not inline the full format checklist in the audit itself.
 
 ## Extras
 

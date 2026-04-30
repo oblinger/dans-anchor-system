@@ -1,6 +1,6 @@
-# Structure — Verify Anchor Structure and Links
+# Structure — Audit Anchor Structure and Links
 
-Check that all expected files exist, dispatch tables are properly wired with standard rows in the correct order, all wiki-links resolve, and no files are orphaned.
+Check that all expected files exist, dispatch tables are properly wired with standard rows in the correct order, all wiki-links resolve, and no files are orphaned. **Reports findings only.** Fix work goes into a backlog entry; no files are modified.
 
 ## Workflow
 
@@ -62,8 +62,6 @@ Each dispatch page must link to all its children. Only check dispatch pages that
 | `cssclasses: monospace` missing entirely | Check frontmatter has `cssclasses:` with a `monospace` entry | Page won't render in fixed-width font; the tree's box-drawing chars will misalign |
 | Source files use `→ [[doc]]` arrows | Grep source-file lines for `→ \[\[` | Per [[CAB Files]], source files use filename-as-link: `[[OBU Lib\|lib.rs]]`. Arrows are only for non-source files pointing to external specs |
 
-The first three are strict failures. The fourth is a format violation that should be flagged with `/code rewire` as the fix.
-
 ```bash
 # Quick one-liner to catch the first three. Only checks files that live under
 # the anchor's Dev folder — so spec/example files like CAB Files.md in the CAB
@@ -87,9 +85,9 @@ for f in pathlib.Path(".").rglob("* Docs/* Dev/* Files.md"):
 '
 ```
 
-### 8. Build the Fixes Table
+### 8. Build the Findings Table
 
-Combine all findings into a single table:
+Combine all findings from sections 2–7 into a single table:
 
 | # | Item | Action | Command |
 |---|------|--------|---------|
@@ -99,10 +97,28 @@ Combine all findings into a single table:
 | 4 | old-notes.md | Orphan — not linked from any dispatch | Link or remove |
 | 5 | .skl/config.yaml | Missing config | `cab-config init` |
 
-### 9. Post to Stat
+Print this table to the console. **If `dry` substring is in the args**, stop here — print "dry-run — no backlog entry written." Otherwise continue.
 
-```bash
-skl-stat add "Review" "[[{NAME}]]" "Structure audit: N fixes needed"
+### 9. Write the Backlog Entry
+
+Locate the backlog file: `{NAME} Docs/{NAME} Plan/{NAME} Backlog.md`. Read it, find the lowest unused B-number (per [[CAB Backlog]] § Format), and append a new bullet under `## Upcoming`:
+
+```
+- **B<n> — Structure audit: <N> findings (<YYYY-MM-DD>)** — work surfaced by `/audit structure`. Sub-bullets are candidate splits if this needs to be broken up.
+  - <Item from row 1 of findings table — short, with file:line if available>
+  - <Item from row 2 …>
+  - …
 ```
 
-Write the fixes table to the output file.
+Keep sub-bullet text terse (one line each). Order: missing files first, then broken links, then dispatch-order issues, then orphans, then format violations.
+
+If there are zero findings, do **not** write an entry. Skip to step 10 with a clean status.
+
+### 10. Report
+
+Print a one-line summary:
+- With findings: `structure: N findings → B<n>`
+- Clean: `structure: clean — no entry written`
+- Dry: `structure: N findings (dry-run, no entry written)`
+
+The orchestrator (or single-skill caller) will roll this up into the final stat post.
