@@ -94,9 +94,11 @@ The **Incorporated into** pointer makes resolutions auditable — a reader can t
 
 ## When a file is involved
 
-If a feature doc, plan doc, or PRD exists with `## Open Questions`:
+If a feature doc, plan doc, or PRD exists with `## Open Questions for <descriptor>`:
 
-- Open Questions sits ABOVE the H1 as pre-document material (`## Open Questions`)
+- Open Questions sits ABOVE the H1 as pre-document material. The H2 heading **always names what the questions are for**: `## Open Questions for <one-line descriptor of the feature/plan>`. The descriptor is the same one-liner that appears in the doc's YAML frontmatter `description:` field — copy it into the heading so the user can identify the doc at a glance without scanning down to the H1.
+  - Example: `## Open Questions for rack-and-stack pass through the small SKA Backlog items`
+  - When the descriptor changes (you sharpen the description in frontmatter), update the H2 to match in the same edit.
 - Resolved questions move to `### Resolved` H3 subsection — never deleted
 - Follow-on questions (children of a pending question) become **sub-bullets** under their parent in `## Open Questions`. When the parent is resolved, the children either resolve with it, become independent questions at the top level, or get moved to Resolved alongside the parent — agent's judgment.
 - **Glance only when you've added or modified a pending question AND the user is actively engaging with this work right now.** Two conditions, both required. Adding `Q<n>` to a doc isn't enough — the user also has to be expecting to answer it now. If the user said "put it on the backlog" or "we'll figure that out later," they explicitly deferred; opening the file at them pulls them into something they parked. See § Active vs Parking mode below.

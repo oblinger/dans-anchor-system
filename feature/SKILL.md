@@ -55,9 +55,11 @@ If the Features folder doesn't exist, create it.
 description: <one-line description>
 ---
 
-## Open Questions
+## Open Questions for <one-line descriptor — same as YAML `description:` field>
 
 Blocking decisions. The feature cannot move from **Designing → Agreed** while this list is non-empty. When a question is resolved, move it to **Resolved** below with the answer and where it landed in the design.
+
+(Heading must include the feature's descriptor so the user can identify what the questions are for at a glance — see [[open-questions]] § When a file is involved.)
 
 - **Q1 — <short question>** — <context + options>
 - **Q2 — <short question>** — <context + options>
