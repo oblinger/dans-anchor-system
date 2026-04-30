@@ -84,6 +84,8 @@ Sharper than "design questions resolved." If the task still hides any "wait, wha
 
 This is the bar `/ready` checks for each candidate.
 
+The canonical home for this definition (and the full state graph it sits within) is the **`workflow` discipline** — see `[[workflow]]`. CAB Backlog cites it from here so this spec stays self-contained for backlog-format readers, but the workflow discipline is the single source of truth across surfaces (backlog, roadmap, feature lifecycle, PRD).
+
 ## Item Status
 
 Every backlog item has one of these statuses, derived from where the bullet sits and what (if anything) it links to:
