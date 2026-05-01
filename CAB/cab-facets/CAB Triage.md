@@ -54,12 +54,12 @@ description: triage inbox (agent-owned)
 The H1 carries everything the user needs at a glance — a wiki-link to the anchor, the literal word "Triage", and the per-bucket count line:
 
 ```
-# [[{NAME}]] Triage   -   Active: N    Ready: N    Now: N    Next: N    Later: N    Verify: N    Icebox: N
+# [[{NAME}]] Triage   -   Active: N    Ready: N    Now: N    Next: N    Later: N    Questions: N    Verify: N    Icebox: N
 ```
 
 - **Wiki-link to the anchor** — `[[{NAME}]]` so the user can click through to the anchor page from the triage view.
 - **Literal "Triage"** — labels what the file is.
-- **Inline count line** — same per-bucket structure as `/roster`'s output (per `[[backlog-horizons]]`). One count per H2 plus the bracket-derived `Verify` count plus an `Icebox` tail. Big and visible at the top of the file.
+- **Inline count line** — same per-bucket structure as `/roster`'s output (per `[[backlog-horizons]]`). Order: `Active`, `Ready`, `Now`, `Next`, `Later`, `Questions`, `Verify`, `Icebox`. The first five are H2 partitions (each item appears in exactly one). The next two — `Questions` and `Verify` — are bracket-derived overlays (`Questions` excludes `## Later`; `Verify` includes all horizon H2s). `Icebox` is a separate-file tail. Big and visible at the top of the file.
 - **Spacing convention** — three spaces around the `-` separating "Triage" from the counts; four spaces between successive counts. The wide spacing keeps the line scannable as a banner instead of a paragraph.
 
 ### Body — horizon H2s, filtered to user-input items

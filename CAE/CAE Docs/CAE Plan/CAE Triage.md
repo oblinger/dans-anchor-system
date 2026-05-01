@@ -3,7 +3,7 @@ description: triage inbox (agent-owned)
 ---
 
 
-# [[CAE]] Triage   -   Active: 1    Ready: 1    Now: 2    Next: 1    Later: 1    Verify: 1    Icebox: 0
+# [[CAE]] Triage   -   Active: 1    Ready: 1    Now: 2    Next: 1    Later: 1    Questions: 2    Verify: 1    Icebox: 0
 
 
 ## Now

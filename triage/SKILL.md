@@ -62,7 +62,7 @@ description: triage inbox (agent-owned)
 ---
 
 
-# [[{NAME}]] Triage   -   Active: N    Ready: N    Now: N    Next: N    Later: N    Verify: N    Icebox: N
+# [[{NAME}]] Triage   -   Active: N    Ready: N    Now: N    Next: N    Later: N    Questions: N    Verify: N    Icebox: N
 
 
 ## À la carte
@@ -107,7 +107,8 @@ Walk every bullet in the backlog. Partition into the per-roster scheme (one coun
 - `Active` — bullets under `## Active`
 - `Ready` — bullets under `## Ready`
 - `Now` / `Next` / `Later` — bullets under each horizon H2
-- `Verify` — count of bullets across all horizon H2s with `[Verify]` bracket (these are *also* counted under their horizon — see `[[backlog-horizons]]` for the rule)
+- `Questions` — count of bullets with `[Questions]` bracket across `## Active`, `## Ready`, `## Now`, `## Next` only. **`## Later` is excluded** — Later items are explicitly deferred attention; their questions don't belong in the inbox until they're promoted. (Items with `[Questions]` in `## Later` are still listed under `Later`'s H2 count, just not added to `Questions`.)
+- `Verify` — count of bullets across all horizon H2s with `[Verify]` bracket. Items counted as `Questions` or `Verify` are *also* counted under their horizon H2 — these are bracket-derived overlays, not partitions. See `[[backlog-horizons]]` for the rule.
 - `Icebox` — bullets in `{NAME} Icebox.md`
 
 `## Done` and `## Legwork` are excluded.

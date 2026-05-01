@@ -40,11 +40,8 @@ Print these sections in order, **omitting any section with zero items**. Each en
 ## Later
 - **F<n> — <Item Name>** [Status] — <one-line gloss>
 
-## Verify
-- **F<n> — <Item Name>** — <one-line gloss>
-
 ---
-Active: 2  Ready: 5  Now: 3  Next: 7  Later: 4  Verify: 1  (Icebox: 12)
+Active: 2  Ready: 5  Now: 3  Next: 7  Later: 4  Questions: 4  Verify: 1  (Icebox: 12)
 ```
 
 The **footer line always prints**, even when buckets are zero — the user sees the full picture every time. Each item appears in **exactly one bucket** (the H2 it lives under); the sum across the line equals total bullets in the backlog file. The **Icebox is counted but never listed** as a section.
@@ -67,7 +64,7 @@ Find the current anchor by walking up from `cwd` until you hit `.anchor`. Read `
 | `## Legwork` | (not shown, not counted in active-work line) | category |
 | Items in any H2 of Icebox file | Icebox count only | (separate file) |
 
-**Verify is counted by bracket, not by H2.** There is no `## Verify` H2 — items in `[Verify]` state live in their horizon H2 (typically `## Now`) with the bracket. The Verify count in the count line is a derived statistic: scan all items across horizon H2s and count those with `[Verify]` bracket. An item counted as Verify is *also* counted under its horizon H2 — see § Counts for the rule.
+**`Verify` and `Questions` are counted by bracket, not by H2.** There is no `## Verify` H2 — items in `[Verify]` state live in their horizon H2 (typically `## Now`) with the bracket. The `Verify` count in the count line is a derived statistic: scan all items across horizon H2s and count those with `[Verify]` bracket. **`Questions` works the same way**, except it excludes `## Later` items: scan `## Active`, `## Ready`, `## Now`, `## Next` for items with `[Questions]` bracket and count them. Items in `## Later` with `[Questions]` are deferred attention by definition — they're not part of the inbox. Items counted as `Verify` or `Questions` are *also* counted under their horizon H2 — see § Counts for the rule.
 
 Missing sections / files → zero items.
 
@@ -85,19 +82,30 @@ Gloss the description to the first sentence or ~70 chars (whichever is shorter),
 
 ## Counts — per-bucket, no double-counting
 
-Read the backlog file once and partition every bullet into exactly one bucket based on its H2:
+Read the backlog file once. Compute each bucket:
+
+**H2-based counts** (one count per H2; each item appears in exactly one of these):
 
 - **Active** — bullets under `## Active`
 - **Ready** — bullets under `## Ready`
 - **Now** — bullets under `## Now` (or legacy `## Upcoming` if the anchor hasn't migrated)
 - **Next** — bullets under `## Next`
 - **Later** — bullets under `## Later`
-- **Verify** — bullets under `## Verify`
-- **Icebox** — bullets across all H2s in `{NAME} Icebox.md`, or `0` if the file doesn't exist
 
-`## Done` and `## Legwork` are excluded from the active-work line. Done is terminal; Legwork is a category tag for autonomous agent work and is not surfaced in the roster.
+**Bracket-derived counts** (items here are *also* counted under their H2 above — these are derived statistics, not partitions):
 
-The **sum of Active + Ready + Now + Next + Later + Verify equals** the count of bullets in the backlog file (excluding Done and Legwork). Resist any "double-count Ready into its horizon too" temptation — that breaks the invariant. See [[backlog-horizons]] § Roster integration.
+- **Questions** — items with `[Questions]` bracket across `## Active`, `## Ready`, `## Now`, `## Next` only. **`## Later` is excluded** — Later items are explicitly deferred attention; their questions don't belong in the inbox until they're promoted. Items with `[Questions]` in `## Later` are still listed under `Later`'s H2 count, just not added to `Questions`.
+- **Verify** — items with `[Verify]` bracket across all horizon H2s.
+
+**Separate file**:
+
+- **Icebox** — bullets across all H2s in `{NAME} Icebox.md`, or `0` if the file doesn't exist.
+
+`## Done` and `## Legwork` are excluded entirely. Done is terminal; Legwork is a category tag for autonomous agent work and is not surfaced in the roster.
+
+**Order on the count line:** `Active`, `Ready`, `Now`, `Next`, `Later`, `Questions`, `Verify`, `(Icebox: N)`. The two bracket-derived counts (`Questions`, `Verify`) sit between the horizon counts and the separate-file Icebox tail, where the user expects to see "what's waiting on me" right before the cold-storage tail.
+
+**Invariant:** `Active + Ready + Now + Next + Later` equals total backlog bullets (excluding Done/Legwork). `Questions` and `Verify` are bracket-derived overlays — they intentionally double-count items already accounted for under their horizon. See [[backlog-horizons]] § Roster integration.
 
 ## Failure Modes
 
