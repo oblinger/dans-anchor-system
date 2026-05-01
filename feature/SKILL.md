@@ -225,6 +225,6 @@ Every lifecycle transition posts to stat. The user can monitor all active featur
 
 | S# | Status | Output | Activity |
 |----|--------|--------|----------|
-| S03210930 | Implementing | [[2026-03-21 Standard Rule Sets]] | 3 of 11 rule sets created |
-| S03200917 | Agreed | [[2026-03-20 Buffer Origin Point]] | Design approved |
+| S03210930 | Implementing | [[F17 — Standard Rule Sets]] | 3 of 11 rule sets created |
+| S03200917 | Agreed | [[F5 — Buffer Origin Point]] | Design approved |
 | S03201400 | Proposed | [[Smart Clear]] | Feature doc created |
