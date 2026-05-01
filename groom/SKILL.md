@@ -97,7 +97,7 @@ If scope was provided as an argument, narrow to bullets in that section only.
 - **Has questions** — anything you'd need the user to clarify. Two sub-paths:
 
   1. **Inline-deferred slot is empty AND this is exactly ONE genuinely trivial question** (one short sentence, one yes/no, one short answer): hold it in the inline-deferred slot. Mark the item for revisit when the user answers — for now, leave the bullet where it is.
-  2. **Otherwise** — create a dated feature doc at `{NAME} Docs/{NAME} Plan/{NAME} Features/YYYY-MM-DD {Item Name}.md` with the standard `## Open Questions` block above the H1 (per `/feature` § 1). Capture the questions there. **This is parking mode** (per [[ask-questions]] § Active vs Parking) — do NOT glance the new feature doc. The user invoked `/groom` as a *batch* operation specifically to defer per-item engagement; glancing each created doc would interrupt the very deferral they asked for. Replace the backlog bullet's description with `→ [[YYYY-MM-DD {Item Name}]]` (preserve the F-number and bullet name). The item is now blocked-on-questions; the doc surfaces only at end-of-run via § 5 (the *first* one, not all).
+  2. **Otherwise** — create a feature doc at `{NAME} Docs/{NAME} Plan/{NAME} Features/F{n} — {Item Name}.md` (using the backlog row's F-number; per [[CAB Backlog]] § Numbering policy) with the standard `## Open Questions` block below the H1 (per `/feature` § 1 and [[ask-questions]] § When a file is involved). Capture the questions there. **This is parking mode** (per [[ask-questions]] § Active vs Parking) — do NOT glance the new feature doc. The user invoked `/groom` as a *batch* operation specifically to defer per-item engagement; glancing each created doc would interrupt the very deferral they asked for. Replace the backlog bullet's description with `→ [[F{n} — {Item Name}]]` and update the bracket to `[Questions]`. The item is now blocked-on-questions; the doc surfaces only at end-of-run via § 5 (the *first* one, not all).
 
 **Inline-deferred slot rules.**
 - At most ONE item across the whole run may use the inline slot.
@@ -115,7 +115,7 @@ Print a summary table:
 | Outcome | Count | Items |
 | --- | --- | --- |
 | Promoted to Ready | N | F3, F7, … |
-| Promoted to feature doc | N | F5 → 2026-04-29 X, B12 → 2026-04-29 Y |
+| Promoted to feature doc | N | F5 → [[F5 — X]], F12 → [[F12 — Y]] |
 | Deferred inline | 0 or 1 | F9 |
 | Skipped | N | {reasons summarized} |
 ```
