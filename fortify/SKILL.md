@@ -3,7 +3,7 @@ name: fortify
 description: >
   Skeptical, methodical counterpart to `crank`. With an argument
   ("fortify <task>" or `/fortify <task>`), apply the methodology to that task /
-  backlog item / bug. Bare (`/fortify` or `"`), apply to whatever's in flight.
+  backlog item / bug. Bare (`/fortify`), apply to whatever's in flight.
   Invoke when normal iteration has stopped converging — the same problem keeps
   coming back, fixes don't stick, tests pass but bugs persist. Distrust the
   logs, the code structure, the tests, and your own conclusions; fortify the
@@ -23,12 +23,13 @@ Use this skill when normal cranking has stopped working — the same bug keeps r
 
 - Word: **fortify** (in dictation, this auto-prefixes the buffer with `/fortify` — say "fortify <task description>" and on send the buffer becomes `/fortify <task description>`)
 - Slash: **`/fortify [task description]`** invoked directly
-- Punctuation: **`"`** (a single double-quote as the entire message), paralleling `crank` / `'`
+
+(There is no single-keystroke punctuation shortcut for fortify. The double-quote `"` shortcut moved to `/triage` 2026-04-30 — triage is a far more frequent action, and the `?` glyph couldn't serve as triage's trigger because the UI already binds it.)
 
 ### Two invocation forms
 
 1. **With an argument** — `/fortify <task description>` or "fortify <task description>". The argument names a task, backlog item, bug report, or area of code. Apply the fortify methodology *to that task*. The argument is the work; this skill is the methodology you do it with. Example: "fortify the OBU Files alignment bug" → treat that bug as the work, but enter the skeptical/methodical posture, audit the four suspects, fortify the foundation, then resume crank against that bug.
-2. **Bare** — `/fortify` with no argument, or `"` as the entire message. Apply the methodology to whatever the agent is *currently* working on. Used when in-flight cranking has stopped converging and the agent should pivot to fortify mode without changing what it's working on.
+2. **Bare** — `/fortify` with no argument. Apply the methodology to whatever the agent is *currently* working on. Used when in-flight cranking has stopped converging and the agent should pivot to fortify mode without changing what it's working on.
 
 Both forms run the same runbook (below). The only difference is what the *target* of the fortification is — a named item from the user, or the current in-flight work.
 
@@ -118,7 +119,7 @@ Once the foundation is fortified, re-derive the working hypothesis from the new 
 
 ## Runbook
 
-When invoked (`/fortify <task>`, "fortify <task>", `fortify` bare, or `"` as the whole message):
+When invoked (`/fortify <task>`, "fortify <task>", or `/fortify` bare):
 
 1. **Identify the target and restate the problem.**
    - If an argument was given, the target is the named task / backlog item / bug. Locate it, read its current state, and restate it.
