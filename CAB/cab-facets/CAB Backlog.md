@@ -67,6 +67,10 @@ The F-number lets the user refer unambiguously to a single item ("do F5", "F12 n
 
 F-numbers are **assigned in monotonically increasing order** and **never reused**. When a new item is added, it gets `F{highest-F-in-file + 1}`. When an item reaches Done (or moves to Icebox, or is cancelled), its F-number is **not** released back into the pool. Stable forever.
 
+**F-number namespace is shared across backlog AND icebox** (per `[[workflow]]` § Active-work invariant). When numbering a new feature, take the highest F-number across both `{NAME} Backlog.md` and `{NAME} Icebox.md` and increment. An item moving from backlog to icebox keeps its F-number; thawing back to backlog restores the same F-number. No collisions ever.
+
+**M-numbers are a separate namespace for roadmap milestones** (`{NAME} Roadmap.md`). M-numbers are hierarchical (M1, M1.2, M1.2.3) and are unique only within the roadmap; they don't collide with F-numbers.
+
 This is a change from the legacy B-number policy, which used gap-fill (lowest unused integer). With F-numbers:
 
 - A reference like "F11" means the same thing forever, across all reorganizations.

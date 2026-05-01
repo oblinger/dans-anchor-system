@@ -85,6 +85,21 @@ for f in pathlib.Path(".").rglob("* Docs/* Dev/* Files.md"):
 '
 ```
 
+### 7a. Check Active-work invariant — orphan feature docs
+
+Per `[[workflow]]` § Active-work invariant: every feature doc in `{NAME} Features/` must be reachable from one of `{NAME} Backlog.md`, `{NAME} Roadmap.md`, or `{NAME} Icebox.md`.
+
+For each `*.md` file in `{NAME} Features/`:
+
+1. Compute the wiki-link basename (e.g., `F5 — Backlog Horizons` for `F5 — Backlog Horizons.md`).
+2. Search the three index files for `[[<basename>]]` (allowing alias and `#anchor` suffixes).
+3. **Match in any of the three** → invariant holds, no finding.
+4. **No match** → orphan. Add a finding: `orphan-feature-doc: {filename} — not linked from backlog/roadmap/icebox`.
+
+For each orphan, the suggested action is **backfill a backlog row in `## Now`** with the F-number from the filename (or assign a new F-number if the file lacks one), bracket = `[Questions]` if the doc has pending Qs in `## Open Questions`, else `[Designing]`. Description = `→ [[<basename>]]`.
+
+Run with `--orphan-sweep` to backfill automatically (one-time migration); without the flag, just flag findings for the user to review.
+
 ### 8. Build the Findings Table
 
 Combine all findings from sections 2–7 into a single table:

@@ -184,6 +184,59 @@ Light usage. PRDs are documents, not units of work — they're *artifacts* produ
 
 These are PRD-doc-internal; they don't appear in backlog or roster.
 
+## Active-work invariant
+
+> **Every feature doc representing active work is reachable in ≤2 clicks from EITHER `{NAME} Backlog.md` OR `{NAME} Roadmap.md`. Iced feature docs are reachable from `{NAME} Icebox.md`. Anything in `{NAME} Features/` not reachable from one of those three is an *orphan* and a violation.**
+
+This is the structural sharpening of the per-surface mappings above: those say *what state items are in*; this says *where the items must live to be tracked*.
+
+### Three surfaces, parallel namespaces
+
+| Surface | File | Namespace | Role |
+|---|---|---|---|
+| **Backlog** | `{NAME} Backlog.md` | F-numbers (`F1`, `F2`, ...) — monotonic-forever, never recycled per `[[CAB Backlog]]` § Numbering policy | Active to-do list |
+| **Roadmap** | `{NAME} Roadmap.md` | M-numbers (`M1`, `M1.2`, `M1.2.3` — hierarchical) | Milestone-level active work |
+| **Icebox** | `{NAME} Icebox.md` | Shares F-number namespace with backlog | Parked / frozen — explicitly inactive but tracked |
+
+**F and M are distinct namespaces.** A backlog row never collides with a roadmap milestone — `F5` and `M5` can coexist. F-numbers are unique across backlog AND icebox: an item moving between them keeps its F-number; thawing an iced item brings the same F-number back. M-numbers belong only to the roadmap.
+
+**Letter prefix choice — M not R:** M (for Milestone) parses cleanly in DMUX dictation; R does not without a leading "letter" qualifier. M is also the de-facto convention across existing roadmaps (HA, MUX, DMUX, DKT).
+
+### When does a milestone need a feature doc?
+
+- **Top-level milestones (M1, M2, ...) ALWAYS have a feature doc** at `Features/M{n} — {Name}.md`. Even if the user-facing/system-facing spec lives elsewhere (PRD, system design, user docs), the feature doc still exists as the home for **meta-discussion and "what's the work to do" notes** that don't belong in shipping documentation.
+- **Sub-milestones (M1.2, M1.2.3) get feature docs only when needed** — when there's real meta or work-breakdown to capture. Otherwise the milestone bullet in the roadmap is enough. Per-sub-milestone judgment call.
+
+### Content philosophy — feature doc vs spec docs
+
+The feature doc is **work-TBD + meta-discussion**:
+- *Why* decisions were made (trade-offs, alternatives, rationale).
+- *What work needs to be done* (implementation plan, acceptance criteria, sub-tasks).
+- Open questions during design (per `[[ask-questions]]`).
+
+The user-facing and system-facing **spec content** (API surfaces, command syntax, screens, architecture, data models) lives in:
+- **User docs** (`{NAME} User/`) — what the user sees / types / configures.
+- **System Design** / **PRD** (`{NAME} Plan/`) — what the system does / how it's built.
+- **Module docs** (`{NAME} Dev/`) — per-component developer documentation.
+
+Why split? **No duplication** — if the API spec lives in both the feature doc and `{NAME} User/CLI.md`, the two will drift; one source of truth. **The feature doc is ephemeral, the spec is durable** — once a milestone ships, the feature doc's "why" still has historical value, but its "what" should be the system docs (which keep getting updated). Keeping the "what" out of the feature doc forces the agent to write the spec into the durable doc the first time, instead of writing it twice (or worse, leaving the durable doc stale).
+
+### Icebox interaction
+
+The icebox is a **sanctioned exception** to the "active" part of the invariant. Items in `{NAME} Icebox.md` are not active by definition.
+
+1. **F-number namespace is shared across backlog AND icebox** — no F-number collisions; an item moving between the two keeps its F-number.
+2. **`/groom` and `/triage` ignore the icebox by default.** Default scope = backlog only. Iced items don't appear in the body of either skill's output.
+3. **Counts surface the icebox total.** Both `/roster` and `/triage` show `(Icebox: N)` in the count line — visibility without competing for attention.
+4. **Explicit invocation can target the icebox.** `/groom icebox`, `/triage icebox`, `/groom F<n>` (where F<n> is iced) all work.
+5. **Iced feature docs are NOT orphans.** A doc linked from `{NAME} Icebox.md` satisfies the invariant.
+
+### Enforcement
+
+- **At creation time** — `feature/SKILL.md` step 1.5 mandates adding a backlog (or roadmap) row when a feature doc is created. No `--orphan` flag, no convention-only escape hatch.
+- **Continuous** — `/audit structure` includes an orphan-check sub-audit: walks `{NAME} Features/` and flags any feature doc not linked from backlog/roadmap/icebox.
+- **One-time sweep at landing** — when this invariant first lands per anchor, run `/audit structure --orphan-sweep` to backfill rows for any pre-existing orphans.
+
 ## Horizons vs workflow states
 
 These are **two independent axes**:

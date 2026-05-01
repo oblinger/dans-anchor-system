@@ -48,6 +48,7 @@ Everything else — `[ ]`, `[Designing]`, `[Blocked]`, `[Ready]`, `[Active]`, `[
 | `/triage` (or `triage` spoken, or `"` alone) | Default — walk `{NAME} Backlog.md`. |
 | `/triage roadmap` | Walk the next milestone of `{NAME} Roadmap.md` (each milestone has its own backlog-shaped block). |
 | `/triage milestone {N}` | Walk a named roadmap milestone. |
+| `/triage icebox` | Walk `{NAME} Icebox.md` instead. Default scope (bare `/triage`) excludes the icebox per `[[workflow]]` § Active-work invariant; explicit invocation surfaces iced items needing input. |
 
 Argument shape parallels `/groom`. Items in the icebox (`{NAME} Icebox.md`) are *not* surfaced by triage — Icebox items are explicitly parked, with feature docs that have open questions; the invariant says they don't compete for attention.
 

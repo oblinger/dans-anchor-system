@@ -109,6 +109,20 @@ Designing — awaiting design discussion.
 - **`## Resolved` at the bottom of the doc is the permanent archive** — populated when all Qs reach resolution; never deleted.
 - The ask-questions discipline (`[[ask-questions]]`) applies universally — feature docs, PRDs, plan docs, anything with questions follows this same shape.
 
+### 1.5. Add a backlog (or roadmap) row — MANDATORY (per [[workflow]] § Active-work invariant)
+
+Per the active-work invariant: **every feature doc must be reachable from `{NAME} Backlog.md` or `{NAME} Roadmap.md`** at creation time. No exceptions, no `--orphan` flag.
+
+**For a backlog feature** (the common case): add an `F{n}` row to `{NAME} Backlog.md` with the feature's F-number and a `→ [[F{n} — {Feature Name}]]` link. Bracket = `[Designing]` (fresh feature with open questions about to be parked) or `[Questions]` (after the Open Questions block has been written). Default placement: under `## Now` H2.
+
+```
+- **F{n} — {Feature Name}** [Designing] — → [[F{n} — {Feature Name}]]
+```
+
+**For a roadmap milestone**: the feature doc gets an M-number prefix (`Features/M{n} — {Name}.md` with H1 `# M{n} — {Name}`). Add a milestone row to `{NAME} Roadmap.md`. M-numbers are hierarchical (M1, M1.2, M1.2.3) — see `[[workflow]]` § Active-work invariant for the namespace rules.
+
+**The row is added in the SAME turn the feature doc is created.** Don't defer; orphans accumulate when the row-creation step is "for later."
+
 ### 1a. Surface the Doc — glance only when adding/modifying a pending question AND the user is engaging now
 
 Glance the doc *only when both conditions hold*: (1) the edit added or modified a pending question, AND (2) you're in **active mode** — the user is engaging with this feature right now. See [[ask-questions]] § Active vs Parking mode for the full rule.

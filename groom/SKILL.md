@@ -65,6 +65,7 @@ The `→ [[X]]` link convention is documented in [[CAB Backlog]].
 | `/groom later` | Only items under `## Later`. |
 | `/groom upcoming` | Only items under legacy `## Upcoming` (alias for `/groom now` on migrated anchors). |
 | `/groom legwork` | Only items under `## Legwork`. |
+| `/groom icebox` | Walk `{NAME} Icebox.md` instead of the backlog. Useful for thawing iced items back into the backlog or reviewing what's parked. Default scope (bare `/groom`) excludes the icebox per `[[workflow]]` § Active-work invariant. |
 | `/groom roadmap` | Operate on the roadmap's next milestone instead of the backlog. |
 | `/groom roadmap {milestone}` | Operate on a named roadmap milestone. |
 | `/groom {F-number}` | Single item, by F-number. |
