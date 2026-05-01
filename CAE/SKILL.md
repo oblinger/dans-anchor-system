@@ -27,7 +27,7 @@ CAE/                                        ← anchor root (slug: CAE, trait: c
     │   ├── CAE Roadmap.md                  milestones
     │   ├── CAE Backlog.md                  deferred work
     │   ├── CAE Inbox.md                    raw input drop zone
-    │   ├── CAE Open Questions.md           unresolved decisions
+    │   ├── CAE Triage.md                   triage inbox (agent-owned)
     │   └── CAE Rules.md                    project rules and exceptions
     ├── CAE User/
     │   ├── CAE User.md                     user dispatch

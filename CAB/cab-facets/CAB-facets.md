@@ -6,9 +6,9 @@ description: ~~
 | -[[CAB-facets]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [CAB-facets](hook://p/CAB-facets)<br>:  |
 | --- | --- |
 | Structure | [[CAB Folder\|Folder]], [[CAB Anchor Page\|Anchor Page]], [[CAB Claude\|CLAUDE.md]], [[CAB All Files\|All Files]], [[CAB Skill\|Skill]] |
-| Planning | [[CAB PRD\|PRD]], [[CAB System Design\|System Design]], [[CAB UX Design\|UX]], [[CAB Features\|Features]], [[CAB Discussion\|Discussion]], [[CAB Open Questions\|Open Q]] |
+| Planning | [[CAB PRD\|PRD]], [[CAB System Design\|System Design]], [[CAB UX Design\|UX]], [[CAB Features\|Features]], [[CAB Discussion\|Discussion]], [[CAB Triage\|Triage]] |
 | Execution | [[CAB Roadmap\|Roadmap]], [[CAB Backlog\|Backlog]], [[CAB Icebox\|Icebox]], [[CAB Inbox\|Inbox]], [[CAB Rules\|Rules]], [[CAB Outputs\|Outputs]], [[CAB WP\|WP]] |
-| Docs | [[CAB Docs\|Docs Hub]], [[CAB Plan Dispatch\|Plan Dispatch]], [[CAB Dev Dispatch\|Dev Dispatch]], [[CAB User Dispatch\|User Dispatch]], [[CAB Documentation Site\|Doc Site]], [[CAB Project Page\|Project Page]] |
+| Docs | ~~[[CAB Docs\|Docs Hub]]~~, [[CAB Plan Dispatch\|Plan Dispatch]], [[CAB Dev Dispatch\|Dev Dispatch]], [[CAB User Dispatch\|User Dispatch]], [[CAB Documentation Site\|Doc Site]], [[CAB Project Page\|Project Page]] |
 | User | [[CAB CLI\|CLI]] |
 | Code | [[CAB Code Repository\|Code Repo]], [[CAB Files\|Files]], [[CAB Rollup\|Rollup]], [[CAB Module Doc\|Module Doc]] |
 | [[CAB Cards]] | cheat sheets and flashcards |

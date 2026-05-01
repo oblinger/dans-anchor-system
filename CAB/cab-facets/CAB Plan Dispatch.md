@@ -26,7 +26,7 @@ Below is a condensed reference example. See the working example linked above for
 | [[CAE Backlog\|Backlog]] | deferred work |
 | [[CAE Icebox\|Icebox]] | cold-storage / someday-maybe (optional) |
 | [[CAE Inbox\|Inbox]] | raw input to process |
-| [[CAE Open Questions\|Open Questions]] | unresolved decisions |
+| [[CAE Triage\|Triage]] | triage inbox (agent-owned) |
 | [[CAE Research\|Research]] | research notes |
 
 ---
@@ -59,7 +59,7 @@ The Plan dispatch page lists all children of the Plan folder:
 | `{NAME} Backlog.md` | [[CAB Backlog]] |
 | `{NAME} Icebox.md` | [[CAB Icebox]] (optional) |
 | `{NAME} Inbox.md` | [[CAB Inbox]] |
-| `{NAME} Open Questions.md` | [[CAB Open Questions]] |
+| `{NAME} Triage.md` | [[CAB Triage]] |
 | `{NAME} Features/` | [[CAB Features]] |
 
 Not all entries are required — only list documents that exist for this anchor.

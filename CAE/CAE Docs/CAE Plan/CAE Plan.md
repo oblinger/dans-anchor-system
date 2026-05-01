@@ -11,5 +11,5 @@
 | [[CAE Backlog]] | deferred work |
 | [[CAE Icebox]] | cold-storage / someday-maybe (optional) |
 | [[CAE Inbox]] | raw input to process |
-| [[CAE Open Questions]] | unresolved decisions |
+| ~~[CAE Open Questions](hook://CAE%20Open%20Questions)~~ | unresolved decisions |
 | ~~[CAE Features/CAE Features](hook://CAE%20Features/CAE%20Features)~~ | dated feature specs |

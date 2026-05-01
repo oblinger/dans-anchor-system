@@ -1,5 +1,5 @@
 ---
-description: milestones with checkbox tracking
+description: milestones
 ---
 
 :>> [[CAE]] → [[CAE Docs]] → [[CAE Plan]]

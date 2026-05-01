@@ -27,7 +27,7 @@ CAE Docs/
 │   ├── CAE Backlog.md
 │   ├── CAE Icebox.md                  (optional)
 │   ├── CAE Inbox.md
-│   └── CAE Open Questions.md
+│   └── CAE Triage.md
 │
 ├── CAE User/                      User-facing documentation
 │   ├── CAE User.md                Dispatch table of all user docs
@@ -48,7 +48,7 @@ Each dispatch page uses a dispatch table:
 | [[CAE PRD|PRD]]                         | product requirements            |
 | [[CAE System Design|System Design]]     | architecture and design         |
 | [[CAE Inbox|Inbox]]                     | raw input to process            |
-| [[CAE Open Questions|Open Questions]]   | unresolved decisions            |
+| [[CAE Triage|Triage]]                   | triage inbox (agent-owned)      |
 | [[CAE Backlog|Backlog]]                 | deferred work                   |
 | [[CAE Icebox|Icebox]]                   | cold-storage / someday-maybe (optional) |
 | [[CAE Roadmap|Roadmap]]                 | milestones                      |
@@ -74,7 +74,7 @@ The anchor page row labels are wiki-links to the subfolder dispatch pages:
 
 ```markdown
 | [[CAE Plan|Plan]]   | [[CAE PRD|PRD]], [[CAE System Design|System Design]], ... |
-| [[CAE Plan|Execute]] | [[CAE Inbox|Inbox]], [[CAE Open Questions|Open Questions]], ... |
+| [[CAE Plan|Execute]] | [[CAE Inbox|Inbox]], [[CAE Triage|Triage]], ... |
 | [[CAE User/CAE User|User]] | [[CAE User Guide|User Guide]], [[CAE Cards|Cards]] |
 | [[CAE Dev/CAE Dev|Dev]]   | [[CAE Files|Files]], [[CAE core|core]], ... |
 ```

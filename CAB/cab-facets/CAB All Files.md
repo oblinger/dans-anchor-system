@@ -20,7 +20,7 @@ See [[cab-base]] shows files common to all anchors.
 │   ├── {NAME} Plan/                      Planning & spec
 │   │   ├── {NAME} Plan.md                Dispatch page
 │   │   ├── {NAME} [[CAB PRD|PRD]].md                 Product requirements
-│   │   ├── {NAME} [[CAB Open Questions|Open Questions]].md      Unresolved questions
+│   │   ├── {NAME} [[CAB Triage|Triage]].md                Triage inbox (agent-owned)
 │   │   ├── {NAME} [[CAB UX Design|UX Design]].md           UX spec (screens & external APIs)
 │   │   ├── {NAME} [[CAB System Design|System Design]].md       System architecture & impl design
 │   │   ├── {NAME} [[CAB Discussion|Discussion]].md  Design conversations
@@ -73,7 +73,7 @@ Software project anchors use four design documents in Plan/. These are specifica
 
 {NAME} PRD.md — **Product Requirements** — Defines what the product does: goals, user stories, scope, constraints, success criteria. The PRD also contains a design workflow table (see below) that links to the other design documents and describes their sequence.
 
-{NAME} Open Questions.md — **Open Questions** — Tracks unresolved questions that block design decisions. Each question should state what it blocks and what information is needed to resolve it. Questions are removed or moved to Discussion once resolved.
+{NAME} Triage.md — **Triage** — Agent-owned inbox listing items across the anchor that require user input — pending Qs in feature docs (per the [[ask-questions]] discipline) and items in `[Verify]` state (per [[CAB Backlog]]). Destructively rewritten on each `/triage` run; the user reads and responds with shorthand.
 
 {NAME} UX Design.md — **UX Design** — Specifies screens, navigation flows, user interactions, and visual layout. Current spec only — no rationale or alternatives.
 
@@ -89,7 +89,7 @@ The PRD should include a workflow table like this to orient readers:
 | Step | Document | Purpose |
 |------|----------|---------|
 | 1 | {NAME} PRD.md | Clarify requirements and scope |
-| 2 | {NAME} Open Questions.md | Surface and resolve unknowns |
+| 2 | {NAME} Triage.md | Inbox of items needing user input (auto-generated) |
 | 3 | {NAME} UX Design.md | Design user-facing experience |
 | 4 | {NAME} System Design.md | Design technical architecture |
 | 5 | {NAME} Files.md + Dev/ | File tree and module docs |
