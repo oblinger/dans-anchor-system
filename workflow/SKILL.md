@@ -145,9 +145,10 @@ Each surface that uses workflow state cites this discipline and maps the canonic
 Per `[[CAB Backlog]]` and `[[backlog-horizons]]`:
 
 - Workflow state is shown via the `[Status]` square-bracket prefix in each bullet, OR implied by the bullet's H2 placement.
-- H2 sections combine **horizon** (`## Now`, `## Next`, `## Later`) and **workflow state** (`## Active`, `## Ready`, `## Verify`, `## Done`).
-- Items in horizon H2s use `[Status]` brackets for their pre-Ready or Blocked state.
+- H2 sections combine **horizon** (`## Now`, `## Next`, `## Later`) and **workflow state** (`## Active`, `## Ready`, `## Done`).
+- Items in horizon H2s use `[Status]` brackets — typically `[ ]`, `[Designing]`, `[Questions]`, `[Blocked]`, or `[Verify]`.
 - Items in workflow-state H2s have their state implied by the H2 — the bracket is optional/redundant.
+- **`[Verify]` is bracket-only — there is no `## Verify` H2.** Verify items stay in their horizon (typically `## Now`) with the `[Verify]` bracket. Rationale: verify is short-lived (waiting on user yes/no) and conceptually keeps the item in its horizon. The bracket alone carries the state, and the backlog-row description text becomes the verify-plan instructions for the user (consumed by `/triage`).
 - The `## Legwork` H2 is a **category tag**, not a workflow state. Items in Legwork still have a state (Ready / Active / etc.), shown in their bracket.
 
 ### Roadmap (`{NAME} Roadmap.md`)

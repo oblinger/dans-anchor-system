@@ -63,10 +63,11 @@ Find the current anchor by walking up from `cwd` until you hit `.anchor`. Read `
 | `## Next` | Next | horizon |
 | `## Later` | Later | horizon |
 | `## Upcoming` | Now (legacy alias) | legacy — pre-horizons backlog |
-| `## Verify` | Verify | workflow-state |
 | `## Done` | (not shown, not counted) | workflow-state |
 | `## Legwork` | (not shown, not counted in active-work line) | category |
 | Items in any H2 of Icebox file | Icebox count only | (separate file) |
+
+**Verify is counted by bracket, not by H2.** There is no `## Verify` H2 — items in `[Verify]` state live in their horizon H2 (typically `## Now`) with the bracket. The Verify count in the count line is a derived statistic: scan all items across horizon H2s and count those with `[Verify]` bracket. An item counted as Verify is *also* counted under its horizon H2 — see § Counts for the rule.
 
 Missing sections / files → zero items.
 

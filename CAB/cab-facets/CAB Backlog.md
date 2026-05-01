@@ -28,15 +28,13 @@ Below is a condensed reference example. See the working example linked above for
 
 ## Now
 - **F2 — Task groups** [Designing] — Allow grouping related tasks that run as a batch
+- **F7 — Webhook notifications** [Verify] — Webhook fires on task completion. Verify: trigger a test job and check that the configured webhook URL receives a POST with the documented JSON payload (see [[CAE PRD]] § Webhooks).
 
 ## Next
 - **F4 — Priority levels** [ ] — Add high/medium/low priority beyond just deadline ordering
 
 ## Later
 - **F11 — Async task DAGs** [ ] — Long-shot: support directed-acyclic dependencies between tasks
-
-## Verify
-- **F7 — Webhook notifications** — Send webhook on task completion (implemented, awaiting user verification)
 
 ## Done
 - **F5 — Retry config** — Per-task retry limits (done in PR #4, see [[CAE Roadmap#M2]])
@@ -103,8 +101,9 @@ Entries are grouped under H2 sections of three kinds — workflow-state, horizon
 
 - **Active** — Items the Pilot is actively driving forward right now (state `[Active]`).
 - **Ready** — Items whose status is `[Ready]` (see § Definition of Ready below).
-- **Verify** — Implemented but awaiting user verification that they work as intended. Once confirmed, move to Done.
 - **Done** — Items that graduated and were finished (with cross-references to where).
+
+**Verify is a status, not a section.** Items in `[Verify]` state stay in their horizon H2 (`## Now` is typical, since most verify happens on imminent work) with the `[Verify]` bracket. There is no `## Verify` H2. Rationale: verify is short-lived (waiting on user yes/no) and conceptually keeps the item in its horizon — verifying it doesn't change the *when* intent. The bracket alone carries the state.
 
 **Horizon H2s** (per `[[backlog-horizons]]`; `[Status]` bracket mandatory — workflow state is carried by the bracket since the H2 only conveys *when*):
 
@@ -116,7 +115,7 @@ Entries are grouped under H2 sections of three kinds — workflow-state, horizon
 
 - **Legwork** — Autonomous agent work that should be done proactively. Includes user feedback integration, planning actions, doc consistency fixes, and other tasks the agent can execute without user approval. The `/code execute` priority loop pulls from this section as Tier 2 legwork (after PR merging and worker dispatch).
 
-Items typically flow `Now → Ready → Active → Verify → Done` (or `Next/Later → Now → Ready → ...` when scheduling intent shifts). The `roster` skill prints a per-bucket count line (one count per H2; sum equals total). The `groom` skill walks horizon H2s looking for items with status `Unset / Designing / Questions / Blocked` and tries to promote candidates to `[Ready]` (see § Definition of Ready and § Item Status below).
+Items typically flow `Now [ ] → Now [Ready] → ## Active → Now [Verify] → ## Done` (or `Next/Later → Now → ...` when scheduling intent shifts). Note: `[Verify]` items stay in their horizon H2 with the bracket; they don't move to a separate H2. The `roster` skill prints a per-bucket count line (one count per H2 plus a Verify count derived from brackets across horizon H2s; sum equals total). The `groom` skill walks horizon H2s looking for items with status `Unset / Designing / Questions / Blocked` and tries to promote candidates to `[Ready]` (see § Definition of Ready and § Item Status below).
 
 **Legacy `## Upcoming`.** Anchors that pre-date the horizons discipline may still have `## Upcoming` as the catch-all pre-ready section. Treat it as a transitional alias for `## Now` until the anchor is migrated. New backlogs use `## Now / ## Next / ## Later` from the start.
 
@@ -138,7 +137,7 @@ Every backlog item has one of these statuses, derived from where the bullet sits
 | **Active** | Bullet is under `## Active`. |
 | **Questions** | Bullet text contains a `→ [[Feature Doc]]` link to a doc with pending questions; status bracket `[Questions]`. The item is parked there until the user answers. |
 | **Blocked** | Bullet has bracket `[Blocked]`; pending non-question blocker (dependency, external review, CI). |
-| **Verify** | Bullet is under `## Verify`. |
+| **Verify** | Bullet has bracket `[Verify]` (lives under its horizon H2; no dedicated `## Verify` H2). |
 | **Done** | Bullet is under `## Done`. |
 | **Unset / Upcoming** | Bullet is under a horizon H2 (`## Now`, `## Next`, `## Later`) — or the legacy `## Upcoming` — or `## Legwork`, with bracket `[ ]` / `[Designing]` / absent, AND has no link to active open questions. This is the "candidate for promotion" status. |
 
