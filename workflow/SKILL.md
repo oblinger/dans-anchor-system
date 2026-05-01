@@ -28,7 +28,7 @@ A unit of work moves through these states. Each state has a **square-bracket lab
 | `[Blocked]` | **Blocked** | Blocked on something other than user questions — a dependency, an external review, a CI / build issue, or any other non-question blocker. Best practice: include a note or link describing what's blocking; not mandatory because not every blocker has a navigable target. |
 | `[Ready]` | **Ready** | Design clean. Agent knows how to do the task without further user involvement. (See § Definition of Ready.) |
 | `[Active]` | **Active** | Actively being worked on. |
-| `[Verify]` | **Verify** | Implementation done, awaiting verification (tests passing, user confirmation, or both per surface). |
+| `[Verify]` | **Verify** | Implementation done, awaiting **user judgment** on whether the result matches intent. Apply only when user judgment is genuinely needed (semantic correctness, UX, design fit, whether prose captures the right idea). Mechanical work — terminology sweeps, refactors, mechanical renames, sed/grep replacements where the diff is its own proof — skip `[Verify]` and go `[Active]` → `[Done]` directly. The agent self-verifies the mechanical class. |
 | `[Done]` | **Done** | Verified done. Terminal state for most work. |
 
 Two **optional extension states** that not every surface uses:
@@ -116,7 +116,7 @@ Every transition is driven by an explicit skill or trigger. There are no silent 
 
 ### Anti-transitions (state changes that should NOT happen silently)
 
-- **`[Active]` directly to `[Done]`.** Always pass through `[Verify]` so verification is explicit (`/finalize` owns this).
+- **`[Active]` directly to `[Done]` for design-bearing work.** Always pass through `[Verify]` when user judgment is needed (`/finalize` owns this). **Exception:** mechanical work — terminology sweeps, refactors, mechanical renames, sed/grep replacements — skip `[Verify]` since the diff is self-evident; agent self-verifies and goes straight to `[Done]`. Don't ask the user to "skim a diff" — that's an abuse of the verify gate.
 - **`[Designing]` to `[Active]` skipping `[Ready]`.** Definition of Ready is the gate; without it, you risk implementing on unresolved design.
 - **`[Done]` back to any earlier state.** Once Completed, the work is closed. Reopening means a new B-number for the follow-up.
 
