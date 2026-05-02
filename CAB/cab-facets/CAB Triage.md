@@ -8,7 +8,7 @@ description: triage inbox — items across the anchor that need user input (pend
 
 The Triage file is the single place the user looks to see "everything currently waiting on me" — pending questions in feature docs and items in `[Verify]` state awaiting user verification. The file is **agent-owned and destructively rewritten** on each `/triage` run; the user reads it and responds with shorthand like "F5 Q4: yes" or "verified F23".
 
-Triage is the *inbox*; per-feature `## Open Questions` blocks (per `[[ask-questions]]`) and `[Verify]` brackets on backlog rows (per `[[CAB Backlog]]`) are the *source of truth*. Triage just gathers them.
+Triage is the *inbox*; per-feature `## Open Questions` blocks (per `[[ask]]`) and `[Verify]` brackets on backlog rows (per `[[CAB Backlog]]`) are the *source of truth*. Triage just gathers them.
 
 **Working example:** `~/.claude/skills/CAE/CAE Docs/CAE Plan/CAE Triage.md` — Triage.
 
@@ -89,5 +89,5 @@ The whole file (below the YAML frontmatter) is agent-owned. Every `/triage` run 
 ## Relationship to other planning docs
 
 - **[[CAB Backlog]]** — source of truth for what's in flight. Triage filters the backlog rows to those needing user input.
-- **`## Open Questions` blocks inside feature docs** (per `[[ask-questions]]`) — source of truth for question text. Triage points at them; it doesn't duplicate the Q content.
+- **`## Open Questions` blocks inside feature docs** (per `[[ask]]`) — source of truth for question text. Triage points at them; it doesn't duplicate the Q content.
 - **`/roster`** — counts every item once per bucket; triage's H1 count line uses the same scheme so the two views agree.

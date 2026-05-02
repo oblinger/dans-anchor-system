@@ -38,7 +38,7 @@ Every state change is driven by a named skill. There are no silent transitions.
 
 - **`/feature`** creates a feature doc → moves item to `[Designing]`. At the Agreed gate, moves to `[Ready]`.
 - **`/groom`** walks the backlog and promotes items autonomously to `[Ready]`. If questions remain, parks the item in a feature doc as `[Questions]`.
-- **`ask-questions` discipline** manages the `[Questions]` ↔ `[Designing]` cycle while the user answers questions.
+- **`/ask` skill** manages the `[Questions]` ↔ `[Designing]` cycle while the user answers questions; also maintains the global `[[Q]]` index of every anchor with pending questions.
 - **`/mint`** (or `/code mint`, `/code bugfix`) takes a `[Ready]` item to `[Active]` to `[Verify]`.
 - **`/code verify`** confirms `[Verify]` is real (tests pass, completion proof).
 - **`finalize` discipline** closes `[Verify]` to `[Done]` (verify, commit, push, merge, docs, cleanup).

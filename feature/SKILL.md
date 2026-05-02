@@ -107,7 +107,7 @@ Designing — awaiting design discussion.
 - **H1 carries the F-number.** Format: `# F{n} — {Feature Name}`.
 - **`## Open Questions` lives below H1 only while pending Qs exist** — deleted otherwise.
 - **`## Resolved` at the bottom of the doc is the permanent archive** — populated when all Qs reach resolution; never deleted.
-- The ask-questions discipline (`[[ask-questions]]`) applies universally — feature docs, PRDs, plan docs, anything with questions follows this same shape.
+- The `/ask` skill (`[[ask]]`) is the universal asking subroutine — feature docs, PRDs, plan docs, anything with questions follows the same shape. Invoke `/ask --doc <path>` to add questions to a feature doc; the runbook handles formatting, glance, and global-page maintenance.
 
 ### 1.5. Add a backlog (or roadmap) row — MANDATORY (per [[workflow]] § Active-work invariant)
 
@@ -125,7 +125,7 @@ Per the active-work invariant: **every feature doc must be reachable from `{NAME
 
 ### 1a. Surface the Doc — glance only when adding/modifying a pending question AND the user is engaging now
 
-Glance the doc *only when both conditions hold*: (1) the edit added or modified a pending question, AND (2) you're in **active mode** — the user is engaging with this feature right now. See [[ask-questions]] § Active vs Parking mode for the full rule.
+Glance the doc *only when both conditions hold*: (1) the edit added or modified a pending question, AND (2) you're in **active mode** — the user is engaging with this feature right now. See [[ask]] § Active vs Parking mode for the full rule. (Better still: invoke `/ask --doc <path>` and the skill handles the glance for you.)
 
 ```bash
 open "<path to feature doc>"

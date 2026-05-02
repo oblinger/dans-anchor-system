@@ -60,7 +60,7 @@ Two **optional extension states** that not every surface uses:
       │    │ user input needed
       │    ↓
       │  ┌─────────────┐
-      │  │ [Questions] │ ◄─── ask-questions discipline
+      │  │ [Questions] │ ◄─── /ask skill
       │  │             │      (mandatory → [[Doc]] link)
       │  └─────┬───────┘
       │        │ user resolves
@@ -102,7 +102,7 @@ Every transition is driven by an explicit skill or trigger. There are no silent 
 | From | To | Triggered by | Notes |
 |---|---|---|---|
 | `[ ]` | `[Designing]` | `/feature`, manual edit, `/code plan` | A feature doc is created OR planning begins. |
-| `[Designing]` | `[Questions]` | ask-questions discipline | Pending Qs added to `## Open Questions`; bullet description rewritten as `→ [[Feature Doc]]` (link is mandatory). |
+| `[Designing]` | `[Questions]` | `/ask` skill | Pending Qs added to `## Open Questions`; bullet description rewritten as `→ [[Feature Doc]]` (link is mandatory). |
 | `[Questions]` | `[Designing]` | User answers Qs | When pending Qs are resolved (`### Resolved`), description gets rewritten to reflect the resolved design. |
 | `[Designing]` | `[Blocked]` | External blocker arises | Dependency, external review, CI failure, etc. Note or link describing the blocker is best-practice. |
 | `[Blocked]` | `[Designing]` | Blocker resolves | Whatever was blocking has cleared. |
@@ -126,7 +126,7 @@ Every transition is driven by an explicit skill or trigger. There are no silent 
 |---|---|
 | `/feature` | `[ ]` → `[Designing]` (creates feature doc); `[Designing]` → `[Ready]` at the Agreed gate. |
 | `/groom` | `[ ]` or `[Designing]` → `[Ready]` autonomously, or `[Designing]` → `[Questions]` if questions remain (parks them in a feature doc with a `→ [[Doc]]` link). |
-| `ask-questions` (discipline) | Manages `[Questions]` ↔ `[Designing]` via question batching and resolution. The `→ [[Doc]]` link is the source of truth for where the questions live. |
+| `/ask` (skill) | Manages `[Questions]` ↔ `[Designing]` via question batching and resolution. The `→ [[Doc]]` link is the source of truth for where the questions live. Maintains the global `~/ob/kmr/Q.md` index. |
 | `/mint`, `/code mint` | `[Ready]` → `[Active]` → `[Verify]`. |
 | `/code bugfix` | Same as `/mint` but with a red-test gate at the start. |
 | `/code spike` | Stays in `[Active]` while diagnosing root cause. |
@@ -212,7 +212,7 @@ This is the structural sharpening of the per-surface mappings above: those say *
 The feature doc is **work-TBD + meta-discussion**:
 - *Why* decisions were made (trade-offs, alternatives, rationale).
 - *What work needs to be done* (implementation plan, acceptance criteria, sub-tasks).
-- Open questions during design (per `[[ask-questions]]`).
+- Open questions during design (per `[[ask]]`).
 
 The user-facing and system-facing **spec content** (API surfaces, command syntax, screens, architecture, data models) lives in:
 - **User docs** (`{NAME} User/`) — what the user sees / types / configures.

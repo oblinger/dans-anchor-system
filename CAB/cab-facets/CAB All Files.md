@@ -73,7 +73,7 @@ Software project anchors use four design documents in Plan/. These are specifica
 
 {NAME} PRD.md — **Product Requirements** — Defines what the product does: goals, user stories, scope, constraints, success criteria. The PRD also contains a design workflow table (see below) that links to the other design documents and describes their sequence.
 
-{NAME} Triage.md — **Triage** — Agent-owned inbox listing items across the anchor that require user input — pending Qs in feature docs (per the [[ask-questions]] discipline) and items in `[Verify]` state (per [[CAB Backlog]]). Destructively rewritten on each `/triage` run; the user reads and responds with shorthand.
+{NAME} Triage.md — **Triage** — Agent-owned inbox listing items across the anchor that require user input — pending Qs in feature docs (per the [[ask]] skill) and items in `[Verify]` state (per [[CAB Backlog]]). Destructively rewritten on each `/triage` run; the user reads and responds with shorthand.
 
 {NAME} UX Design.md — **UX Design** — Specifies screens, navigation flows, user interactions, and visual layout. Current spec only — no rationale or alternatives.
 

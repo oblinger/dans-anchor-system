@@ -35,7 +35,7 @@ DMUX trigger: **`triage`** (prefix-trigger; speaking `triage` stashes `/triage`,
 
 An item needs user input if and only if its workflow state is one of:
 
-- **`[Questions]`** — the bullet's description has a `→ [[Feature Doc]]` link to a feature doc whose `## Open Questions` block has at least one pending question (per `[[ask-questions]]`).
+- **`[Questions]`** — the bullet's description has a `→ [[Feature Doc]]` link to a feature doc whose `## Open Questions` block has at least one pending question (per `[[ask]]`).
 - **`[Verify]`** — the bullet has the `[Verify]` bracket (verify items live in their horizon H2, per `[[CAB Backlog]]` § Verify is a status, not a section).
 
 Everything else — `[ ]`, `[Designing]`, `[Blocked]`, `[Ready]`, `[Active]`, `[Done]` — is hidden from the body but counted in the H1 banner.
@@ -90,7 +90,7 @@ description: triage inbox (agent-owned)
 
 **Sections with no qualifying items are omitted** from the body. If the entire anchor has zero `[Questions]` and zero `[Verify]` items, the body is empty — print just the H1 banner + a one-liner "_Nothing currently waiting on you._"
 
-**À la carte** is for agent-raised cross-cutting questions (no backlog row). Use prefix `A{n}` (parallel to `Q{n}` numbering policy in `[[ask-questions]]` — lowest unused integer; never recycled). Show full Q text inline. À la carte questions surface only when the agent genuinely needs user input AND isn't fairly confident of the answer (per F13 Q6).
+**À la carte** is for agent-raised cross-cutting questions (no backlog row). Use prefix `A{n}` (parallel to `Q{n}` numbering policy in `[[ask]]` — lowest unused integer; never recycled). Show full Q text inline. À la carte questions surface only when the agent genuinely needs user input AND isn't fairly confident of the answer (per F13 Q6).
 
 
 ## Runbook
@@ -151,7 +151,7 @@ Always glance the file after the regen completes:
 open "{NAME} Docs/{NAME} Plan/{NAME} Triage.md"
 ```
 
-This is the natural close of a triage run — the user sees the inbox immediately. (Per `[[ask-questions]]` the glance is allowed: the agent has just modified the file with new state, and the user is in active mode by virtue of having invoked `/triage`.)
+This is the natural close of a triage run — the user sees the inbox immediately. (Per `[[ask]]` the glance is allowed: the agent has just modified the file with new state, and the user is in active mode by virtue of having invoked `/triage`.)
 
 ### 7. Print a one-line summary in chat
 
@@ -181,14 +181,14 @@ This is the canonical `[Verify]` → `[Done]` transition from `[[workflow]]`. Us
 
 ## Question-resolution path
 
-When the user responds with `F5 Q4: yes` (or the sticky-context shorthand `Q4: yes` after announcing F5 as context), follow `[[ask-questions]]` § Resolution:
+When the user responds with `F5 Q4: yes` (or the sticky-context shorthand `Q4: yes` after announcing F5 as context), follow `[[ask]]` § Resolution:
 
 1. Locate F5's feature doc, find Q4 in its `## Open Questions` block.
 2. Move Q4 to `### Resolved` with the user's answer in the canonical form: `**Q4** — **Resolution:** {one-sentence summary}. Incorporated into {section / conversation}.`
 3. Update the relevant Design (or other) section if the resolution changes the spec.
-4. Do NOT glance the feature doc on resolution (per `[[ask-questions]]` § Glance rules).
+4. Do NOT glance the feature doc on resolution (per `[[ask]]` § Glance rules).
 
-If F5 has zero pending Qs after the resolution, follow Phase 1 → Phase 2 in `[[ask-questions]]`: delete `## Open Questions` H2, migrate accumulated `### Resolved` to a `## Resolved` H2 at the bottom.
+If F5 has zero pending Qs after the resolution, follow Phase 1 → Phase 2 in `[[ask]]`: delete `## Open Questions` H2, migrate accumulated `### Resolved` to a `## Resolved` H2 at the bottom.
 
 
 ## What `/triage` does NOT do
@@ -221,7 +221,7 @@ Strictly idempotent + destructive. The agent rewrites the entire `{NAME} Triage.
 
 - **`[[CAB Triage]]`** — file-format spec.
 - **`[[CAB Backlog]]`** — backlog format, F-numbering, status brackets, `[Verify]` semantics.
-- **`[[ask-questions]]`** — `## Open Questions` block format inside feature docs (the source of question text).
+- **`[[ask]]`** — `## Open Questions` block format inside feature docs (the source of question text).
 - **`[[backlog-horizons]]`** — horizon H2s (Now / Next / Later) and the per-bucket count scheme.
 - **`[[workflow]]`** — `[Questions]` / `[Verify]` / `[Done]` state semantics and transitions.
 - **`/groom`** — pairs with triage; groom *creates* the question state by parking, triage *gathers* and surfaces it.
