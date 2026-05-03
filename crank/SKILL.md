@@ -145,7 +145,9 @@ If `minted_count >= 1`:
 - Exit.
 
 Else (zero successful mints this turn):
-- Invoke `/groom`, then `/triage`. Print the no-action summary including counts. Exit.
+- Invoke `/groom` as a **sub-skill** (no auto-`/triage` from groom; see `groom/SKILL.md` § Top-level vs sub-skill).
+- Then explicitly invoke `/triage`.
+- Print the no-action summary including counts. Exit.
 
 ### 5. Print the one-liner
 

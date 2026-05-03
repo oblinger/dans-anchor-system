@@ -23,6 +23,18 @@ Convergent — not strictly idempotent. Safe to call anytime. May leave partial 
 DMUX trigger: **`groom`** (prefix-trigger; whatever you dictate after becomes the argument). Slash invocation: `/groom`, `/groom roadmap`, `/groom milestone {N}`, `/groom F{n}` (single-item).
 
 
+## Top-level vs sub-skill invocation
+
+`/groom` behaves differently based on **who invoked it**:
+
+- **Top-level (user typed `/groom`, said `groom`, or asked for the backlog to be cleaned up)**: after the cleanup work is done, end by invoking `/triage` so the user sees the resulting state of the anchor. The /triage step is implicit — the user expects to see what changed.
+- **Sub-skill (another skill's runbook invokes `/groom` as part of its chain — e.g., `/crank`'s no-action fallback)**: do the cleanup work, **stop**. Don't run `/triage`, don't glance anything, don't print the post-groom UX. The parent skill is orchestrating; it'll surface state if it wants to.
+
+The agent determines top-level vs sub-skill from conversation context: if the user's most recent message was `/groom` (or a natural-language request to groom), it's top-level. If `/groom` is being invoked as part of another skill's runbook, it's a sub-skill call.
+
+**Default when ambiguous: top-level.** Better to end with `/triage` once when not strictly needed than to skip it when the user expected it.
+
+
 ## When to Use
 
 - User says `groom`, `/groom`, `groom the backlog`, `tidy the backlog`, or asks for the backlog to be promoted/cleaned.
@@ -121,25 +133,15 @@ Print a summary table:
 | Skipped | N | {reasons summarized} |
 ```
 
-### 5. Open the first blocked-on-questions doc
+### 5. (Top-level only) Hand off to `/triage`
 
-Find the **first newly-created** feature doc (in source order through the backlog). If none were created this run, fall back to the **first pre-existing** blocked-on-questions doc encountered. Open it:
+**If sub-skill invocation: stop here.** The parent skill will surface state.
 
-```bash
-open "{path to that feature doc}"
-```
+**If top-level invocation:**
+- Invoke `/triage`. It regenerates `{NAME} Triage.md` and the anchor's H2 in `Q.md`, glances the Triage file, and prints the per-bucket count line. This is the user's "what just happened?" view.
+- If the inline-deferred slot is filled (per § Step 3 inline-deferred slot rules), print the question on the line **after** /triage's output, pinning it to the bottom of the screen.
 
-This gives the user one concrete next action: answer those questions. If there are no blocked items at all (e.g. everything readied cleanly), skip this step.
-
-### 6. Run roster
-
-Invoke `/roster` to print the post-`/groom` state of the backlog (counts of Active / Ready / Backlog / Icebox, plus the bullets above the count line).
-
-### 7. Ask the deferred inline question (if any)
-
-If the inline-deferred slot is filled, print the question now — on the line **after** the roster. This pins it to the bottom of the screen so it survives scrolling.
-
-If the slot is empty, say nothing further; the run is done.
+The earlier per-step UX (open the first blocked-on-questions doc, separate `/roster` invocation) is subsumed by `/triage` — it shows the inbox of items waiting on user input, including the newly-parked feature docs.
 
 
 ## Design Principle — Minimize User Back-and-Forth
