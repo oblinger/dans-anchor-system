@@ -94,18 +94,14 @@ description: {one-line description}
 
 ## Open Questions
 
-(Only present while pending Qs exist. Deleted entirely when zero pending — see "Phase 2" below.)
-
-Blocking decisions. The feature cannot move from **Designing → Agreed** while this list is non-empty.
-
 - **Q1 — {short question}** — {context + options}
 - **Q2 — {short question}** — {context + options}
 
 ### Resolved
 
-(Temporary holding pen for resolved Qs while pending Qs still exist. When all Qs are resolved, this content migrates to the bottom `## Resolved` H2 and the entire `## Open Questions` H2 is deleted.)
-
 - **Q0 — {earlier question}** — **Resolution:** {decided X because Y}. Incorporated into Design § {section}.
+
+(**No boilerplate prose** under `## Open Questions` or `### Resolved` headings. No "Blocking decisions / cannot move from Designing → Agreed" intro, no "(Temporary holding pen for resolved Qs...)" caption. Just the heading then the bullets. Per durable feedback memory.)
 
 ## Summary
 

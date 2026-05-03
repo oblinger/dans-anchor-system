@@ -63,8 +63,7 @@ description: triage inbox (agent-owned)
 - **[N Ready]** [[F<n> Title]] — description (milestone with N sub-items).
 ## Now
 - **[N Questions]** [[F<n> Title]] — description.
-- **[Verify]** [[F<n> Title]] — verify-plan text.
-	- (Optional) sub-bullet with extended verification details.
+- **[Verify]** [[F<n> Title]] — one-line verify-plan text. ([[F<n> Title#Verify|details]])
 - **[Ready]** [[F<n> Title]] — description.
 ## Next
 - **[N Questions]** [[F<n> Title]] — description.
@@ -185,7 +184,7 @@ For each item:
 
 - Resolve the bracket using the existing item state in the backlog row, then map to one of the bracket forms above.
 - For `[Questions]` items: count pending `Q<n>` in the linked feature doc's `## Open Questions` block. If N=1 use `**[Questions]**`; otherwise `**[N Questions]**`.
-- For `[Verify]` items: use `**[Verify]**` (single) and copy the backlog row's verify-plan description as the body. If the verify text is long enough that the user wants more space, allow an indented sub-bullet with the extended verification details (one tab of indent, no bracket prefix, just prose).
+- For `[Verify]` items: use `**[Verify]**` (single) and copy the backlog row's one-line verify-plan description as the body. The wiki-link `[[F<n> Title]]` already links to the whole feature doc; if the feature doc has a detailed `## Verify` section, **append `([[F<n> Title#Verify|details]])`** at the end of the line so the user can click through to the verification details directly. **Do not** use indented sub-bullets for extended verify text — link to the section instead. The one-line summary is usually enough; the link is there when more is needed.
 - For `[Ready]` / `[Active]`: copy the backlog row's description (trim to one line ending in a period).
 - Milestone-style multi-Ready items get `**[N Ready]**` with N = number of independent ready sub-items in the linked roadmap/feature doc.
 

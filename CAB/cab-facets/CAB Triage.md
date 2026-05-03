@@ -28,8 +28,7 @@ description: triage inbox (agent-owned)
 - **[Ready]** [[F3 — Retry Backoff Polish]] — Tune exponential-backoff caps after user feedback.
 ## Now
 - **[4 Questions]** [[F2 Task Groups]] — Rendering of task groups.
-- **[Verify]** [[F7 — Webhook Notifications]] — Webhook fires on task completion.
-	- Verify by triggering a test job and confirming the configured URL receives a POST with the documented JSON payload (see [[CAE PRD]] § Webhooks).
+- **[Verify]** [[F7 — Webhook Notifications]] — Webhook fires on task completion. ([[F7 — Webhook Notifications#Verify|details]])
 ## Next
 - **[5 Questions]** [[F4 Priority Levels]] — 2 pending Qs (Q1, Q3).
 - **[3 Ready]** [[F17 Update Backing Store]] — Milestone-style F with three independent ready sub-items.
@@ -123,11 +122,10 @@ Each bullet is one line:
 - **One em-dash with single spaces** (` — `) before the description.
 - **Description ends with a period.** Same as backlog convention.
 
-**Verify items may have an indented sub-bullet** when the verify-plan text is long enough to deserve more space (see CAE F7 in the working example). The sub-bullet uses one tab of indent, no bracket prefix, just prose:
+**Verify items: one-line text + `(details)` link.** The bracket wiki-link `[[F<n> Title]]` already links to the whole feature doc; if the feature doc has a detailed `## Verify` section, **append `([[F<n> Title#Verify|details]])`** at the end of the line so the user can click straight to the verification details. **No indented sub-bullets** for extended verify text — link to the section instead. The one-line summary is usually enough; the link is there when more is needed.
 
 ```
-- **[Verify]** [[F7 — Webhook Notifications]] — Webhook fires on task completion.
-	- Verify by triggering a test job and confirming the configured URL receives a POST with the documented JSON payload (see [[CAE PRD]] § Webhooks).
+- **[Verify]** [[F7 — Webhook Notifications]] — Webhook fires on task completion. ([[F7 — Webhook Notifications#Verify|details]])
 ```
 
 
