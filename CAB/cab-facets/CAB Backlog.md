@@ -77,6 +77,18 @@ This is a change from the legacy B-number policy, which used gap-fill (lowest un
 - Display order in the file may not match numeric order — items are added and resolved in arbitrary order.
 - Don't renumber existing items to compact — F-numbers are stable references.
 
+### Wiki-link conventions for feature docs
+
+F-numbers are per-anchor namespaces; the same `F<n> — Title` filename can appear in multiple anchors over time. Obsidian wiki-links resolve by path-proximity, which makes within-anchor links unambiguous but cross-anchor links potentially incorrect — a bare `[[F<n> — Title]]` link from anchor A could silently resolve to anchor B's file if A doesn't have one with that name.
+
+**Rule:**
+
+- **Within-anchor wiki-links** to feature docs use the bare form: `[[F<n> — Title]]`. Path-proximity resolves correctly.
+- **Cross-anchor wiki-links** to feature docs must be **path-qualified**: `[[ANCHOR Slug/.../Features/F<n> — Title]]`, or use an explicit alias like `[[F<n> — Title|SKA F<n>]]` when the link target is unambiguous in the surrounding context.
+- `Q.md` and `{NAME} Triage.md` only ever link to `[[ANCHOR]]` and `[[ANCHOR Triage]]` — never directly to feature docs across anchors — so they are unaffected by this rule.
+
+**Creation-time guard.** `/feature` step 1b (per `[[feature]]` § 1b) greps the vault for an existing H1 with the same title before writing a new feature doc. If a same-title file already exists in another anchor, the agent surfaces it as a single inline question — rename, or proceed knowing both files exist and cross-anchor links to either must be qualified per the rule above. Within-anchor collisions block creation outright (titles must be unique within an anchor).
+
 ### Transition note: pre-existing B-numbers
 
 Anchors that have historical Done items numbered with the legacy `B<n>` convention preserve those numbers as-is — they cite commit hashes and are part of the historical record. Active items at migration time get renamed `B<n>` → `F<n>` (preserving the number); new items thereafter increment past the highest existing F or B in the file. So a backlog mid-migration may show:

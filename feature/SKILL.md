@@ -54,6 +54,35 @@ Determine the next F-number for the anchor (highest existing F-number + 1; per `
 
 If the Features folder doesn't exist, create it. Filenames carry the F-number prefix; date is omitted (the F-number itself sorts chronologically since it monotonically increases).
 
+#### 1b. Collision check — vault grep for duplicate H1 (per F27)
+
+**Before writing the file**, scan the vault for an existing feature doc with the same H1. F-numbers are per-anchor namespaces that reset at F1 in each anchor (per `[[CAB Backlog]]` § Numbering policy), so the same `F<n> — <Title>` filename can appear in multiple anchors. Obsidian wiki-link resolution by path-proximity makes this safe within an anchor but ambiguous across anchors — F27 catches the collision at creation time.
+
+**Procedure:**
+
+1. **Resolve the vault root** from `cwd` — walk up to the kmr root (the directory containing the user's anchors), or fall back to `~/ob/kmr/`.
+2. **Grep all `Features/` folders** under the vault root for an H1 that exactly matches `# F<n> — <Title>` with the new file's title. Equivalent forms are acceptable:
+   ```bash
+   grep -lr "^# F[0-9]\+ — <exact title>$" <vault root>/**/Features/
+   ```
+   Or a Read of every `Features/` folder followed by H1 inspection.
+3. **Branch on results:**
+   - **Zero matches** — proceed normally to the file write.
+   - **One or more matches in *other* anchors** — surface as a single inline question (active mode, since the user is engaging with `/feature` right now):
+     ```
+     /feature — heads up: this title already exists at:
+     - <path/to/other/file>
+     [...]
+     Options:
+       (A) proceed with the same title — cross-anchor wiki-links to either file must be qualified per [[CAB Backlog]] § Wiki-link conventions for feature docs.
+       (B) rename — suggest a slightly disambiguating title and re-run.
+     Recommendation: lean (A) if cross-anchor links to this feature are not anticipated; lean (B) if you expect cross-anchor references.
+     ```
+     Wait for the user's pick before writing the file.
+   - **Match in the *same* anchor** — within-anchor title collision is genuinely bad (within-anchor titles must be unique). Surface as a stronger error: "Within-anchor title collision — pick a different title." Block creation; do not write the file.
+
+This is the one place in `/feature` where an inline question is appropriate (vs. routing through `/ask`'s batch surface): it's a yes/no creation-time prompt that needs an answer in the same turn, and the user is in active mode by virtue of having invoked `/feature`.
+
 **Feature doc structure — Open Questions sits BELOW the H1 while any pending Qs exist; deleted entirely once all are resolved, with answered Qs migrating to a `## Resolved` H2 at the bottom of the doc.** The lifecycle:
 
 ```markdown

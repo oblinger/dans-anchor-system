@@ -8,6 +8,8 @@
 
 A feature is a unit of work that moves through design, readiness, and implementation. The feature skill guides the system from idea to ready-to-implement.
 
+**Cross-anchor title-collision warning.** F-numbers reset per anchor, so the same `F<n> — Title` filename can appear in multiple anchors over time. At creation time, `/feature` greps the vault for an existing feature doc with the same H1; if one is found in another anchor, the agent surfaces a single inline yes/no — proceed (and use path-qualified wiki-links per [[CAB Backlog]] § Wiki-link conventions for feature docs) or rename. Within-anchor collisions block creation outright. Implemented in F27.
+
 - **Feature** — create a dated feature doc in the Features folder. Describe goals, approach, constraints.
 - **Spec** — write the implementation spec if the feature is large enough to need one.
 - **Research** — investigate approaches, prior art, tools if needed.
