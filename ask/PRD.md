@@ -4,27 +4,26 @@ description: Product requirements for the /ask skill — durable user story + de
 
 # /Ask — PRD
 
-This document is the **durable user story** for `/ask`. It lives next to `SKILL.md` so future revisions of the skill — by the user, by Claude, or by an audit — have the rationale on hand. The original design journey (open questions, options considered, what was rejected) lives in `SKA Plan/Features/F10 — Ask Skill.md`; this file is the steady-state PRD.
-
-(Per F10 Q on documentation: F-numbered design doc captures the *journey*; this PRD captures the *durable user-story + design*. Optional pattern, not mandatory; warranted for skills with genuine user-facing complexity. `/ask` qualifies.)
+This document is the **durable user story** for `/ask`. It lives next to `SKILL.md` so future revisions of the skill have the rationale on hand. The design journey lives in `SKA Plan/Features/F10 — Ask Skill.md` (initial mint) and `F25 — Q.md as Agent Status Dashboard.md` (the reframe to Agent Status); this file is the steady-state PRD.
 
 
 ## User story
 
-The user is the Pilot — a senior engineer multitasking across many Claude Code agents in many anchors. Each agent has its own backlog, its own questions, its own design context. At any given moment, several agents may have queued questions waiting on the user.
+The user is the Pilot — a senior engineer multitasking across many Claude Code agents in many anchors. Each agent has its own backlog, its own questions, its own ready work, its own design context. At any given moment, several agents may have queued questions waiting on the user *or* ready backlog items waiting to be picked up.
 
 Without `/ask`:
-- The user has to **remember** which agents have open questions.
+- The user has to **remember** which agents have open questions or queued work.
 - The user has to **visit each anchor's** `{NAME} Triage.md` to see what's pending.
-- The user has to **hope** each agent actually glanced the file when it parked questions (often forgotten — this is what F10 originally existed to fix).
+- The user has to **hope** each agent actually glanced the file when it parked questions (often forgotten — what F10 originally existed to fix).
 
-With `/ask`:
-- **One global page** (`~/ob/kmr/Q.md`, vault root) lists every anchor with active questions, click-throughs to per-project triage, and any vault-scoped à la carte questions.
-- **A keyboard shortcut** (user-side) opens the global page in one keypress.
-- **Automatic maintenance**: when an anchor has zero active questions, it disappears from the global page; when it gains questions, it reappears. The user doesn't tend the page.
-- **Universal asking pattern**: any agent in any anchor that wants to ask the user something invokes `/ask`. The user gets uniform formatting, reliable glancing (in active mode), and the global page stays truthful.
+With `/ask` (and its companion `/triage`, plus `/crank`'s no-action chain):
+- **One vault-level page** (`~/ob/kmr/Q.md`, the **Agent Status dashboard**) lists every active anchor with an H2 entry showing pending questions and/or ready item counts.
+- **A keyboard shortcut** opens the page in one keypress.
+- **Always-move-to-front semantics**: every `/ask` or `/triage` invocation against an anchor floats its H2 to the top of `Q.md`, so the most-recently-touched agent is most visible — even after a long absence.
+- **Automatic maintenance**: anchors disappear from `Q.md` when both questions = 0 AND ready = 0. Both `/ask` and `/triage` regenerate `{NAME} Triage.md` AND the anchor's H2 in `Q.md` on every invocation.
+- **Universal asking pattern**: any agent that wants to ask the user something invokes `/ask`. The user gets uniform formatting, reliable glancing (in active mode), and a fresh dashboard.
 
-The result: at any moment, opening `Q.md` (one keystroke) shows the user every active question across every agent. No remembering, no per-agent visits. When a project's questions are answered, it falls off the page.
+The result: opening `Q.md` (one keystroke) shows the user every active agent — what's queued for input, what's queued for execution, ordered by most-recently-touched. No remembering, no per-agent visits. When everything is drained, the agent disappears.
 
 
 ## Design rationale
@@ -42,18 +41,21 @@ User pivot 2026-04-30: **convert the discipline into an invokable skill**. When 
 
 This is structurally tighter than any of A–D and reframes the problem. Disciplines describe *what to think* (state semantics, structural rules) — referenced when needed. `ask-questions` is fundamentally an *action* — write text, format, glance — and that action is what was unreliable. Promoting it to a skill matches its nature.
 
-### Why the global page
+### Why the Agent Status dashboard
 
-User reported pain: they multitask across many agents/anchors and per-anchor triage views are insufficient. They open SKA Triage, then HA Triage, then MUX Triage, trying to remember which has new questions. They want one page.
+User reported pain: they multitask across many agents/anchors and per-anchor triage views are insufficient. They open SKA Triage, then HA Triage, then MUX Triage, trying to remember which agents have something for them. They want one page.
 
 The page needs to:
-- **Aggregate across the vault** — every anchor with pending questions appears.
-- **Be agent-owned** — the user shouldn't tend it; agents keep it truthful.
+- **Aggregate across the vault** — every active anchor (questions OR ready work) appears.
+- **Be agent-owned** — the user shouldn't tend it; `/ask` + `/triage` keep it truthful.
 - **Be one keystroke away** — bound to a user-side keyboard shortcut.
-- **Drop empty anchors** — when an anchor has zero pending Qs, it disappears.
-- **Hold à la carte items** — cross-cutting questions that don't belong to any anchor.
+- **Drop fully-drained anchors** — when an anchor has zero questions AND zero ready items, it disappears.
+- **Show questions and ready** — not just questions. Per F25, the page is a *status* view, not just a *question inbox*.
+- **Move-to-front on touch** — when an agent is touched (by `/ask`, `/triage`, or `/crank`'s no-action chain), its H2 floats to the top — so an agent the user hasn't engaged in a week is visible-and-near-top whenever they re-engage.
 
-The page is a **generated view**, like `{NAME} Triage.md` is for an anchor. The user reads it; they don't edit it. Edits would be overwritten by the next `/ask` call.
+The page is a **generated view**. The user reads it; they don't edit it. Edits get overwritten by the next `/ask` or `/triage` call.
+
+Per F25, every H2 starts with the dominant state (`QUESTIONS` or `READY` in ALL CAPS), then slug, then wiki-links + count summary. Body for QUESTIONS-prefixed entries: à la carte questions as bare bullets first, then `### F<n>` H3 per feature with condensed-inline Q bullets (12-line soft cap). Body for READY-prefixed entries: empty (the H2 line is the entry).
 
 ### Why `~/ob/kmr/Q.md`
 
@@ -68,14 +70,18 @@ The filename `Q.md` was chosen for keystroke economy: `[[Q]]` is one character. 
 
 ### Why two question shapes
 
-Originally `ask-questions` only described doc-attached questions (`## Open Questions` H2 below the H1 of a feature/PRD doc). But many agent-raised questions don't belong to a doc — they're cross-cutting ("should we adopt M-numbers across anchors?"), planning-time ("what's the next thing you want to work on?"), or backlog-routing ("which horizon for this?"). Forcing all questions onto a doc would mean creating throwaway docs for each cross-cutting question.
+Originally `ask-questions` only described doc-attached questions (`## Open Questions` H2 below the H1 of a feature/PRD doc). But many agent-raised questions don't belong to a doc — they're anchor-level ("should we rename this slug?"), cross-cutting ("which horizon for this?"), or planning-time ("what's the next thing you want to work on?"). Forcing all questions onto a doc would mean creating throwaway docs for each.
 
 So `/ask` supports two shapes:
 
 - **`--doc <path>`** — document-attached. Question lives in the doc's `## Open Questions` block.
-- **(default — no flag)** — à la carte. Question lives in the project's `{NAME} Triage.md` § `## À la carte`.
+- **(default — no flag)** — à la carte. Question lives in the anchor's `{NAME} Triage.md § ## À la carte` block.
 
-À la carte questions use `A<n>` numbering (vs `Q<n>` for doc-scoped) to disambiguate when the user references them.
+Both shapes use **`Q<n>` numbering**, scoped per-container — each feature doc has its own Q-namespace; each anchor's à la carte block has its own Q-namespace. (Per F25 Q5: dropped the earlier `A<n>` naming because the audio "A1" sounds like "ate one" — same prefix is cleaner; the per-container scoping handles disambiguation.)
+
+Reference shorthand:
+- Feature-scoped → `F10 Q3`.
+- À la carte → `{NAME} Q3` (e.g., "SKA Q3"). The colloquial term "à la carte questions" persists for verbal reference.
 
 ### Why active vs parking mode
 
@@ -92,18 +98,19 @@ Parking mode signals: "put it on the backlog" / "for later" / batch operations l
 
 1. Parent skill (e.g., `/feature` mid-design) detects it has decisions for the user.
 2. Parent calls `/ask` via the Skill tool, passing the questions in batch + (optionally) `--doc <path>`.
-3. `/ask` numbers them (`Q1..Qn` or `A1..An`), formats per the spec, writes to the target surface, updates `Q.md`, and (if active mode) glances.
+3. `/ask` numbers them (`Q1..Qn`), formats per the spec, writes to the target surface (feature doc's `## Open Questions` or anchor's `## À la carte`), regenerates `{NAME} Triage.md`, regenerates the anchor's H2 in `Q.md` (per F25), and (if active mode) glances the target.
 4. User sees the file (or opens `Q.md` later in parking mode), answers via shorthand to the parent skill or via the standard answer pattern (`F5 Q4: yes`).
-5. Parent skill (or `/triage`) acts on the answers — moves Qs to `### Resolved`, updates the design, recomputes counts, refreshes `Q.md` if a count crossed 0.
+5. Parent skill (or `/triage`) acts on the answers — moves Qs to `### Resolved`, updates the design, regenerates `Q.md` (next `/ask` or `/triage` invocation will refresh; `/crank` no-action chain handles the case where neither runs explicitly).
 
 
 ## Maintenance constraints
 
-- **Never edit `Q.md` by hand.** The next `/ask` overwrites the body. Update the underlying triage or feature doc instead.
+- **Never edit `Q.md` by hand.** The next `/ask` or `/triage` overwrites the relevant H2. Update the underlying triage or feature doc instead.
 - **Q-numbers are stable.** Once assigned, never renumber. Skipped numbers are fine.
 - **Resolutions don't trigger a glance.** The user already saw the pending question; reopening at them on resolution is noise.
-- **Two surfaces are agent-owned: the doc's `## Open Questions` H2 + `Q.md`.** User edits would conflict with regeneration.
+- **Three agent-owned surfaces**: the doc's `## Open Questions` H2 (when `--doc`), `{NAME} Triage.md` (always — both `/ask` and `/triage` regenerate it), and `Q.md` (always — both regenerate the anchor's H2). User edits in any of these get overwritten on next regen.
 - **Citations across other skills name `/ask` as the action**, not `[[ask-questions]]` (the old discipline reference). When updating the skill set, sweep citations.
+- **Stale-during-mint is acceptable.** `/crank` minting an item to `[Verify]` or `[Done]` does *not* refresh `Q.md` or `{NAME} Triage.md`. The next `/ask` or `/triage` makes them fresh; `/crank`'s no-action chain (which runs `/triage`) is a guaranteed regen point. Mint-time refresh was explicitly considered and rejected (F25 design discussion).
 
 
 ## Out of scope (explicitly)
