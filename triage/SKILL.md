@@ -88,7 +88,7 @@ description: triage inbox (agent-owned)
 
 **Body — horizon H2s only.** No `## Active`, `## Ready`, `## Verify`, or `## Done` sections in the body — those are workflow-state H2s in the backlog, but in triage we only need user-input items grouped by where they live in the horizon H2s. Items with `[Verify]` bracket appear in their horizon (typically `## Now`).
 
-**Sections with no qualifying items are omitted** from the body. If the entire anchor has zero `[Questions]` and zero `[Verify]` items, the body is empty — print just the H1 banner + a one-liner "_Nothing currently waiting on you._"
+**Sections with no qualifying items are omitted** from the body. If the entire anchor has zero `[Questions]` and zero `[Verify]` items, the body is empty — just the H1 banner stands alone. No explanatory prose; the user knows what the page is, and `{NAME} Triage.md` is a high-traffic surface where every character competes for attention.
 
 **À la carte** is for anchor-level / cross-cutting / agent-raised questions (no backlog row). Use prefix `Q{n}` — same prefix as feature-attached Qs but in its own per-anchor namespace (lowest unused integer; never recycled). Show full Q text inline. À la carte questions surface only when the agent genuinely needs user input AND isn't fairly confident of the answer (per F13 Q6). The colloquial name "à la carte" stays so the user can refer to them in conversation ("the SKA à la carte questions").
 
@@ -225,7 +225,7 @@ Strictly idempotent + destructive. The agent rewrites the entire `{NAME} Triage.
 
 - **No anchor found** — say "No anchor found from `{cwd}` upward." and stop.
 - **No backlog file** — say "No `{NAME} Backlog.md` at `{expected path}`." and stop.
-- **Empty body** — H1 banner is still written; body has a single `_Nothing currently waiting on you._` line. Glance regardless.
+- **Empty body** — H1 banner is still written; body is empty (no explanatory prose). Glance regardless.
 - **Backlog item missing F-number** — render as `**F? — {Item Name}**` and surface the missing-number issue in the chat summary, but don't fix it inline (that's `/groom`'s job).
 
 

@@ -228,13 +228,10 @@ description: Agent Status — every anchor with active questions or ready work, 
 ## READY — MUX — [[MUX]] · [[MUX Triage]] — 3 ready
 ```
 
-**Empty-state body.** When `Q.md` has zero anchors active:
+**Empty-state body.** When `Q.md` has zero anchors active, the body is empty — just the H1 banner stands alone. No explanatory prose; the user knows what the page is, and `Q.md` is a high-traffic surface where every character competes for attention.
 
 ```markdown
 # Agent Status   -   Questions: 0    Ready: 0
-
-
-_No active agents. This page is maintained by `/ask` and `/triage` (and `/crank` on its no-action path). When any agent in any anchor has pending questions or ready backlog items, an H2 entry surfaces here; once both are zero, the anchor disappears._
 ```
 
 **The page is agent-owned.** `/ask` and `/triage` rewrite the relevant H2 on every invocation. The user does not edit `Q.md` directly.
