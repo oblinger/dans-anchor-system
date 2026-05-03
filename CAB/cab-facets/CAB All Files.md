@@ -20,7 +20,8 @@ See [[cab-base]] shows files common to all anchors.
 │   ├── {NAME} Plan/                      Planning & spec
 │   │   ├── {NAME} Plan.md                Dispatch page
 │   │   ├── {NAME} [[CAB PRD|PRD]].md                 Product requirements
-│   │   ├── {NAME} [[CAB Triage|Triage]].md                Triage inbox (agent-owned)
+│   │   ├── {NAME} [[CAB Triage|Triage]].md                Triage inbox (agent-owned; status of the anchor)
+│   │   ├── {NAME} [[CAB Questions|Questions]].md             À la carte questions facet (agent-owned)
 │   │   ├── {NAME} [[CAB UX Design|UX Design]].md           UX spec (screens & external APIs)
 │   │   ├── {NAME} [[CAB System Design|System Design]].md       System architecture & impl design
 │   │   ├── {NAME} [[CAB Discussion|Discussion]].md  Design conversations
@@ -73,7 +74,9 @@ Software project anchors use four design documents in Plan/. These are specifica
 
 {NAME} PRD.md — **Product Requirements** — Defines what the product does: goals, user stories, scope, constraints, success criteria. The PRD also contains a design workflow table (see below) that links to the other design documents and describes their sequence.
 
-{NAME} Triage.md — **Triage** — Agent-owned inbox listing items across the anchor that require user input — pending Qs in feature docs (per the [[ask]] skill) and items in `[Verify]` state (per [[CAB Backlog]]). Destructively rewritten on each `/triage` run; the user reads and responds with shorthand.
+{NAME} Triage.md — **Triage** — Agent-owned inbox showing the **status of the anchor** — every item except those in `## Later` and `## Icebox`, grouped by workflow state (Active / Ready / Now / Next), in source order from the backlog. Status brackets carry counts (`**[3 Questions]**`, `**[Verify]**`). H1 banner has an anchor TAG (`[U]` / `[A]` / `[U+A]` / `[G]` / `[?]` / `[]`) plus pipe-grouped totals. À la carte questions live in the sibling `{NAME} Questions.md` facet; Triage just carries a bullet line linking to it. Destructively rewritten on each `/ask` or `/triage` run; the user reads and responds with shorthand.
+
+{NAME} Questions.md — **Questions** — Agent-owned facet for **à la carte** (cross-cutting, anchor-level, agent-raised) questions that don't belong to any feature doc. Same `## Open Questions` block format as feature docs (per [[ask]]); same Phase 1 / 2 / 3 lifecycle. Created on first à la carte `/ask` against the anchor; updated on every à la carte `/ask`.
 
 {NAME} UX Design.md — **UX Design** — Specifies screens, navigation flows, user interactions, and visual layout. Current spec only — no rationale or alternatives.
 

@@ -1,6 +1,6 @@
 ---
 name: ask
-description: Universal asking subroutine. Invoke whenever an agent has questions for the user. Routes batched, numbered, formatted questions to the right surface (a feature/PRD doc with --doc, or the project's à la carte block in {NAME} Triage.md by default). Always regenerates {NAME} Triage.md and the anchor's H2 in ~/ob/kmr/Q.md (the vault-level Agent Status dashboard). In active mode glances the file. Slash-only — "ask" is too common a spoken word to be a DMUX prefix-trigger.
+description: Universal asking subroutine. Invoke whenever an agent has questions for the user. Routes batched, numbered, formatted questions to the right surface (a feature/PRD doc with --doc, or the anchor's à la carte facet `{NAME} Questions.md` by default). Always regenerates {NAME} Triage.md and the anchor's per-anchor section in ~/ob/kmr/Q.md (the vault-level Agent Status dashboard). In active mode glances the file. Slash-only — "ask" is too common a spoken word to be a DMUX prefix-trigger.
 user_invocable: true
 ---
 
@@ -33,11 +33,13 @@ Every question lands on one of two surfaces. The parent skill (or the user invok
 | Shape | Flag | Surface | When |
 |---|---|---|---|
 | **Document-attached** | `--doc <path>` | The doc's `## Open Questions` H2 below the H1 | Question is about a specific feature doc / PRD / design doc / spec. |
-| **À la carte** | (default — no flag) | The project's `{NAME} Triage.md` § `## À la carte` H2 | Question is anchor-level, cross-cutting, agent-raised, or planning-time — doesn't belong to one document. |
+| **À la carte** | (default — no flag) | The anchor's `{NAME} Questions.md` facet, `## Open Questions` H2 | Question is anchor-level, cross-cutting, agent-raised, or planning-time — doesn't belong to one document. |
 
 If the parent skill is ambiguous about which shape applies, default to **à la carte** — the question still gets surfaced, just at the anchor level rather than attached to a specific doc.
 
-**À la carte questions use `Q<n>` numbering, not `A<n>`** — same `Q<n>` prefix as feature-attached Qs, scoped per container (each feature doc has its own Q-namespace; each anchor's à la carte block has its own Q-namespace). When referenced in conversation: feature-scoped → `F10 Q3`; à la carte → `{NAME} Q3` (e.g., "SKA Q3").
+Per F28, à la carte Qs live in their own per-anchor facet file `{NAME} Questions.md` (spec: `[[CAB Questions]]`) — not inside `{NAME} Triage.md` anymore. The Triage file just carries one bullet line under its H1 (`- **[N Questions]**  [[{NAME} Questions]]`) when there are pending à la carte Qs.
+
+**À la carte questions use `Q<n>` numbering, not `A<n>`** — same `Q<n>` prefix as feature-attached Qs, scoped per container (each feature doc has its own Q-namespace; each anchor's `{NAME} Questions.md` has its own Q-namespace). When referenced in conversation: feature-scoped → `F10 Q3`; à la carte → `{NAME} Q3` (e.g., "SKA Q3").
 
 
 ## Invocation
@@ -47,7 +49,7 @@ If the parent skill is ambiguous about which shape applies, default to **à la c
 ```
 
 - `--doc <path>` → document-attached mode; questions go in that doc's `## Open Questions` block (created if absent).
-- No flag → à la carte mode; questions go in the anchor's `{NAME} Triage.md` under `## À la carte`.
+- No flag → à la carte mode; questions go in the anchor's `{NAME} Questions.md` facet's `## Open Questions` block (created if absent).
 - Multiple positional questions → batched per § Intake — number them all in one pass, never trickle.
 
 **Slash-only invocation.** Unlike `crank`, `groom`, `triage`, etc., the spoken word "ask" is **not** a DMUX prefix-trigger — it's too common in everyday speech. Invoke via `/ask` only.
@@ -61,7 +63,7 @@ Every question gets a unique `Q<n>` prefix — `Q1`, `Q2`, ..., `Qn` — assigne
 
 **Numbering policy** — lowest unused integer in the **target file**:
 - For `--doc` mode: scan the target doc's `## Open Questions` H2 (and the `### Resolved` sub-section, plus any bottom `## Resolved` H2) for existing `Q<n>` markers. Pick the lowest unused integer.
-- For à la carte mode: scan the anchor's `{NAME} Triage.md § ## À la carte` block for existing `Q<n>` markers. Pick the lowest unused integer. (À la carte uses `Q<n>` — same prefix as feature-attached Qs, in its own scoped namespace.)
+- For à la carte mode: scan the anchor's `{NAME} Questions.md` for existing `Q<n>` markers across `## Open Questions` (pending + `### Resolved`) and any bottom `## Resolved` H2. Pick the lowest unused integer. (À la carte uses `Q<n>` — same prefix as feature-attached Qs, in its own scoped namespace.)
 
 **Q-numbers are stable references.** Once assigned, never renumber, even when questions get resolved out of order. Skipped numbers are fine. Same soft policy as backlog F-numbers — see [[CAB Backlog]] § Numbering policy.
 
@@ -141,14 +143,21 @@ The `### Resolved` H3 inside `## Open Questions` is a temporary holding pen — 
 
 #### À la carte mode (default)
 
-Append the formatted questions to the anchor's triage file under `## À la carte`. The triage file is `{NAME} Triage.md` in `{NAME} Docs/{NAME} Plan/`.
+Append the formatted questions to the anchor's per-anchor questions facet at `{NAME} Docs/{NAME} Plan/{NAME} Questions.md`, inside its `## Open Questions` H2 (per `[[CAB Questions]]`). Format is identical to a feature doc's `## Open Questions` block: pending Qs as top-level bullets; resolutions accumulate in a `### Resolved` H3 holding pen until all pending Qs resolve, then migrate to a bottom `## Resolved` H2 (Phase 1 / Phase 2 / Phase 3 lifecycle, identical to feature docs).
 
-**À la carte numbering uses `Q<n>`** — Q1, Q2, Q3, ... — same prefix as feature-attached Qs, scoped to this à la carte block (each anchor has its own à la carte Q-namespace, independent of any feature doc's Q-namespace). Same lowest-unused-integer policy. Q-numbers are stable references; never renumber.
+**À la carte numbering uses `Q<n>`** — Q1, Q2, Q3, ... — same prefix as feature-attached Qs, scoped to this anchor's `{NAME} Questions.md` (each anchor has its own à la carte Q-namespace, independent of any feature doc's Q-namespace). Same lowest-unused-integer policy. Q-numbers are stable references; never renumber.
 
-If the triage file's `## À la carte` H2 doesn't exist yet, create it.
+**Create the file if it doesn't exist.** Frontmatter `description: anchor-level à la carte questions (agent-owned)`, then H1 `# [[{NAME}]] Questions`, then `## Open Questions`. See `[[CAB Questions]]` for the full spec.
 
 ```markdown
-## À la carte
+---
+description: anchor-level à la carte questions (agent-owned)
+---
+
+
+# [[{NAME}]] Questions
+
+## Open Questions
 
 - **Q1 — {short name}** — {context}.
   - **Recommendation:** Lean (B). {reason}.
@@ -157,44 +166,43 @@ If the triage file's `## À la carte` H2 doesn't exist yet, create it.
   - **Recommendation:** Strong (A). {reason}.
 ```
 
+**Legacy migration**: if the anchor's `{NAME} Triage.md` still has a `## À la carte` H2 (pre-F28), move that content into `{NAME} Questions.md` § `## Open Questions` (preserving Q-numbers), then strip the H2 from Triage. The next regeneration of `{NAME} Triage.md` (in step 4) will produce the new format with the bullet line under H1.
+
 ### 4. Regenerate `{NAME} Triage.md`
 
-After writing the new question(s), regenerate the anchor's local triage file from scratch — same logic `/triage` runs. This keeps the local triage consistent with the just-added Q. See `triage/SKILL.md` § Runbook for the full regen logic. Summary:
+After writing the new question(s), regenerate the anchor's local triage file from scratch — same logic `/triage` runs. This keeps the local triage consistent with the just-added Q. See `triage/SKILL.md` § Runbook for the full regen logic. Summary (per F28):
 
-- Walk `{NAME} Backlog.md`. Filter to items with `[Questions]` or `[Verify]` brackets.
-- Render the H1 banner with per-bucket counts.
-- Render `## À la carte` H2 with the (just-updated) à la carte Q-block.
-- Render `## Now` / `## Next` / `## Later` H2s with filtered backlog rows.
+- Walk `{NAME} Backlog.md`. Compute the H1 banner counts (Questions / Verify | Active / Ready | Now / Next / Later / Icebox) and the anchor TAG (cascading rule: U / A / U+A / G / ? / `[]`).
+- Render the H1 banner: `# [<TAG>]  [[{NAME}]] Triage  -  Questions N    Verify N   |   Active N    Ready N   |   Now N    Next N    Later N    Icebox N`.
+- If `{NAME} Questions.md` has any pending Qs, render the bullet line directly under the H1: `- **[N Questions]**  [[{NAME} Questions]]`.
+- Render `## Active`, `## Ready`, `## Now`, `## Next` H2s (in that order), each with one bullet per item in source order from the backlog. Bracket forms: `**[Active]**` / `**[Ready]**` / `**[N Ready]**` / `**[Verify]**` / `**[N Questions]**`. Omit any H2 with zero items.
+- **No blank lines in the body.** No `## À la carte` H2 (the bullet line under H1 replaces it). No items from `## Later` or `## Icebox` in the body.
 - Write the file destructively.
 
-This replaces today's `## À la carte` H2 (which used `A<n>`) with `Q<n>` numbering. Per F25 Q5 resolution.
+### 5. Regenerate the anchor's section in `~/ob/kmr/Q.md`
 
-### 5. Regenerate the anchor's H2 in `~/ob/kmr/Q.md`
+`Q.md` is the **vault-level Agent Status dashboard**. Every anchor with TAG ≠ `[]` has a per-anchor section. Per F28 (format updated from F25):
 
-`Q.md` is the **vault-level Agent Status dashboard**. Every active anchor (questions OR ready items) has an H2 entry. Per F25:
-
-**On every `/ask` invocation, regenerate the anchor's H2 in `Q.md`:**
+**On every `/ask` invocation, regenerate the anchor's section in `Q.md`:**
 
 1. Determine the anchor (`{NAME}`) from `--doc <path>` or the working directory (walk up to `.anchor`).
-2. Count two things for this anchor:
-   - **Pending questions**: sum of pending `Q<n>` across all feature docs in `{NAME} Docs/{NAME} Plan/{NAME} Features/` plus pending `Q<n>` in `{NAME} Triage.md § ## À la carte`.
-   - **Ready items**: count of bullets under `## Ready` in `{NAME} Backlog.md`.
-3. **If pending = 0 AND ready = 0**: remove any existing `## QUESTIONS — {NAME}` or `## READY — {NAME}` H2 from `Q.md`. Done.
-4. **Otherwise**: build the new H2 entry:
-   - Pick the prefix: `QUESTIONS` if pending ≥ 1, else `READY`.
-   - H2 line: `## {PREFIX} — {NAME} — [[{NAME}]] · [[{NAME} Triage]] — {summary tail}`
-     - Summary tail: `{N} pending` for QUESTIONS prefix; or `{N} pending · {M} ready` if both > 0; or `{M} ready` for READY prefix.
-   - **Body** — populated only when prefix is QUESTIONS:
-     - **À la carte questions first** (bare bullets directly under H2, no H3 wrapper) — per F25 Q8.
-     - Then `### F<n> — {Feature Name}` H3 per feature with pending Qs (F-number ascending), each with its bullet list of pending Qs.
-     - **Bullet format** (per F25 Q3): condensed inline — `- **Q<n> — Short name** — context. **Recommendation:** Strength (Letter).`
-     - **Body cap (per F25 Q1): 12-line soft cap.** If the H2 body would exceed 12 lines, truncate and append `- … and {K} more in [[{NAME} Triage]]` as the final bullet.
-   - For READY prefix, the body is empty — the H2 line itself is the entire entry.
-5. **Remove any existing `## QUESTIONS — {NAME}` or `## READY — {NAME}` H2** from `Q.md` (de-dupe, since prefix may have flipped).
-6. **Insert the new H2 at the top of the body** — immediately after the H1 banner, before any other anchor H2. Always move-to-front, regardless of whether the body changed (per F25 Q6).
+2. Compute the same H1 banner as the just-generated `{NAME} Triage.md` — same TAG, same counts, same spacing — but with the slug as a wiki-link to the Triage file via `[[{NAME} Triage|{NAME}]]` syntax (renders as the slug, links to Triage):
+   ```
+   # [<TAG>]  [[{NAME} Triage|{NAME}]] Triage  -  Questions N    Verify N   |   Active N    Ready N   |   Now N    Next N    Later N    Icebox N
+   ```
+3. **If TAG is `[]`** (no items anywhere): remove any existing per-anchor section for `{NAME}` from `Q.md`. Done.
+4. **Otherwise**: render the per-anchor section as the **identical body** to the just-generated `{NAME} Triage.md` (per F28 Q3 — full body always):
+   - The H1-equivalent line above (with the wiki-link slug-prefix).
+   - The à la carte bullet line (`- **[N Questions]** [[{NAME} Questions]]`) if any pending à la carte Qs.
+   - `## Active` / `## Ready` / `## Now` / `## Next` H2s with their bullets, in source order from the backlog. (These render at H2 inside Q.md since each per-anchor section opens at H1 level.)
+   - **No blank lines in the body** — same density as the Triage file.
+5. **Remove any existing per-anchor section for `{NAME}`** from `Q.md` (de-dupe).
+6. **Insert the new section at the top of the body** — immediately after the H1 banner, before any other anchor section. Always move-to-front, regardless of whether the body changed (per F25 Q6).
 7. Refresh the H1 banner: `# Agent Status   -   Questions: N    Ready: M` where:
-   - `N` = number of `## QUESTIONS — *` H2 sections in the file.
-   - `M` = number of `## READY — *` H2 sections in the file.
+   - `N` = number of per-anchor sections whose TAG is `[U]` or `[U+A]` (anchors needing user attention).
+   - `M` = number of per-anchor sections whose TAG is `[A]` or `[U+A]` (anchors with agent-actionable work).
+
+**Overflow rule.** If `Q.md` as a whole grows too large (soft cap ~2 screenfuls; tune in implementation), individual per-anchor sections collapse to **just the H1-equivalent line** (which contains the wiki-link to Triage). The user clicks through to the full body in the Triage file. **No partial paste** — either the whole body, or just the link line.
 
 **Format of the global page:**
 
@@ -207,34 +215,33 @@ description: Agent Status — every anchor with active questions or ready work, 
 # Agent Status   -   Questions: 2    Ready: 1
 
 
-## QUESTIONS — SKA — [[SKA]] · [[SKA Triage]] — 4 pending
-
-- **Q1 — short à la carte question** — context. **Recommendation:** Lean (A).
-
-### F25 — Q.md as Agent Status Dashboard
-
-- **Q1 — body cap question** — context. **Recommendation:** Lean (A).
-- **Q3 — bullet content** — context. **Recommendation:** Lean (B).
-
-
-## QUESTIONS — HA — [[HA]] · [[HA Triage]] — 2 pending · 1 ready
-
-### F8 — Some HA Feature
-
-- **Q1 — short question name** — context. **Recommendation:** Lean (B).
-- **Q2 — another question** — context. **Recommendation:** Strong (A).
+# [U+A]  [[CAE Triage|CAE]] Triage  -  Questions 2    Verify 1   |   Active 1    Ready 1   |   Now 2    Next 1    Later 1    Icebox 0
+- **[3 Questions]**  [[CAE Questions]]
+## Active
+- **[Active]** [[F1 — Cron Syntax]] — Cron expressions for recurring task schedules.
+## Ready
+- **[Ready]** [[F3 — Retry Backoff Polish]] — Tune exponential-backoff caps after user feedback.
+## Now
+- **[4 Questions]** [[F2 Task Groups]] — Rendering of task groups.
+- **[Verify]** [[F7 — Webhook Notifications]] — Webhook fires on task completion.
+## Next
+- **[5 Questions]** [[F4 Priority Levels]] — 2 pending Qs (Q1, Q3).
 
 
-## READY — MUX — [[MUX]] · [[MUX Triage]] — 3 ready
+# [A]  [[MUX Triage|MUX]] Triage  -  Questions 0    Verify 0   |   Active 0    Ready 3   |   Now 0    Next 0    Later 0    Icebox 0
+## Ready
+- **[Ready]** [[F1 — A]] — desc.
+- **[Ready]** [[F2 — B]] — desc.
+- **[Ready]** [[F3 — C]] — desc.
 ```
 
-**Empty-state body.** When `Q.md` has zero anchors active, the body is empty — just the H1 banner stands alone. No explanatory prose; the user knows what the page is, and `Q.md` is a high-traffic surface where every character competes for attention.
+**Empty-state body.** When `Q.md` has zero anchors with TAG ≠ `[]`, the body is empty — just the H1 banner stands alone.
 
 ```markdown
 # Agent Status   -   Questions: 0    Ready: 0
 ```
 
-**The page is agent-owned.** `/ask` and `/triage` rewrite the relevant H2 on every invocation. The user does not edit `Q.md` directly.
+**The page is agent-owned.** `/ask` and `/triage` rewrite the relevant per-anchor section on every invocation. The user does not edit `Q.md` directly.
 
 ### 6. Glance the file (active mode only)
 
@@ -258,7 +265,7 @@ After writing and (maybe) glancing, print a single-line summary to chat:
 /ask — added N Qs to <target>; refreshed {NAME} Triage and Q.md.
 ```
 
-`<target>` is the doc path or `<NAME> à la carte`.
+`<target>` is the doc path or `{NAME} Questions.md`.
 
 
 ## Active vs Parking mode
@@ -377,6 +384,7 @@ After resolution, **`/ask` itself doesn't usually run** — the parent skill tha
 
 ## Cross-references
 
-- `[[CAB Triage]]` — sibling skill that surfaces (reads) the questions `/ask` writes. `/ask` is the writer; `/triage` is the reader/router.
-- `[[CAB Backlog]]` § Numbering policy — same lowest-unused-integer rule for Q/A numbers.
-- `~/ob/kmr/Q.md` — the global page maintained by step 4 of this runbook.
+- `[[CAB Triage]]` — sibling facet that surfaces (reads) the questions `/ask` writes. `/ask` is the writer; `/triage` is the reader/router.
+- `[[CAB Questions]]` — sibling facet for à la carte Qs (the per-anchor file `/ask` writes to in à la carte mode).
+- `[[CAB Backlog]]` § Numbering policy — same lowest-unused-integer rule for Q numbers.
+- `~/ob/kmr/Q.md` — the vault-level Agent Status dashboard maintained by step 5 of this runbook.
