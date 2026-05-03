@@ -9,6 +9,8 @@ DMUX trigger: **`triage`** (prefix-trigger; speaking `triage` stashes `/triage`,
 
 Walks the anchor's backlog, finds every item in `[Questions]` or `[Verify]` state, and writes a destructively-rewritten `# [[{NAME}]] Triage` H1 banner + horizon-H2 body at `{NAME} Docs/{NAME} Plan/{NAME} Triage.md`. The whole file is agent-owned; the user reads and responds.
 
+**Also regenerates the anchor's H2 in `~/ob/kmr/Q.md`** — the vault-level Agent Status dashboard. Both `/ask` and `/triage` produce a fresh local triage + a fresh Q.md anchor entry on every invocation (per F25).
+
 Pairs with `/groom` (which *creates* `[Questions]` state by parking work) and `/roster` (state-of-the-work). `/triage` is roster-for-user-input: same per-bucket counts, but the body is filtered to items needing your attention.
 
 

@@ -6,9 +6,11 @@ description: triage inbox — items across the anchor that need user input (pend
 **Location:** `{NAME} Docs/{NAME} Plan/{NAME} Triage.md`
 
 
-The Triage file is the single place the user looks to see "everything currently waiting on me" — pending questions in feature docs and items in `[Verify]` state awaiting user verification. The file is **agent-owned and destructively rewritten** on each `/triage` run; the user reads it and responds with shorthand like "F5 Q4: yes" or "verified F23".
+The Triage file is the single place the user looks to see "everything currently waiting on me" — pending questions in feature docs, anchor-level à la carte questions, and items in `[Verify]` state awaiting user verification. The file is **agent-owned and destructively rewritten** on each `/ask` or `/triage` run; the user reads it and responds with shorthand like "F5 Q4: yes" or "verified F23".
 
-Triage is the *inbox*; per-feature `## Open Questions` blocks (per `[[ask]]`) and `[Verify]` brackets on backlog rows (per `[[CAB Backlog]]`) are the *source of truth*. Triage just gathers them.
+Triage is the *inbox at the anchor scope*. The vault-level *Agent Status dashboard* lives at `~/ob/kmr/Q.md` (one keystroke from anywhere); both `/ask` and `/triage` regenerate the anchor's H2 entry there on every invocation (per F25).
+
+Triage is the *inbox*; per-feature `## Open Questions` blocks (per `[[ask]]`) and `[Verify]` brackets on backlog rows (per `[[CAB Backlog]]`) and the anchor's `## À la carte` Q-block are the *sources of truth*. Triage just gathers them.
 
 **Working example:** `~/.claude/skills/CAE/CAE Docs/CAE Plan/CAE Triage.md` — Triage.
 

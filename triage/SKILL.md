@@ -90,7 +90,7 @@ description: triage inbox (agent-owned)
 
 **Sections with no qualifying items are omitted** from the body. If the entire anchor has zero `[Questions]` and zero `[Verify]` items, the body is empty — print just the H1 banner + a one-liner "_Nothing currently waiting on you._"
 
-**À la carte** is for agent-raised cross-cutting questions (no backlog row). Use prefix `A{n}` (parallel to `Q{n}` numbering policy in `[[ask]]` — lowest unused integer; never recycled). Show full Q text inline. À la carte questions surface only when the agent genuinely needs user input AND isn't fairly confident of the answer (per F13 Q6).
+**À la carte** is for anchor-level / cross-cutting / agent-raised questions (no backlog row). Use prefix `Q{n}` — same prefix as feature-attached Qs but in its own per-anchor namespace (lowest unused integer; never recycled). Show full Q text inline. À la carte questions surface only when the agent genuinely needs user input AND isn't fairly confident of the answer (per F13 Q6). The colloquial name "à la carte" stays so the user can refer to them in conversation ("the SKA à la carte questions").
 
 
 ## Runbook
@@ -136,14 +136,26 @@ Only include if the agent has genuine user-input questions that don't belong to 
 
 Replace the entire file (preserving only the YAML frontmatter, with `description: triage inbox (agent-owned)`). Body order:
 - H1 banner
-- `## À la carte` (only if any A-numbered Qs)
+- `## À la carte` (only if any à la carte Qs — Q-numbered per F25 Q5/Q8)
 - `## Now` (only if any qualifying items)
 - `## Next` (only if any qualifying items)
 - `## Later` (only if any qualifying items)
 
 Within each H2, preserve source order from the backlog. Insert one blank line between bullets.
 
-### 6. Glance the file
+### 6. Regenerate the anchor's H2 in `~/ob/kmr/Q.md`
+
+**This is the new step F25 added to triage.** After regenerating `{NAME} Triage.md`, also regenerate the anchor's H2 entry in the vault-level Agent Status dashboard at `~/ob/kmr/Q.md`. Logic is identical to `ask/SKILL.md` step 5 (the canonical reference). Summary:
+
+1. Count pending Qs (sum across feature docs + à la carte block) and Ready items (count under `## Ready` in `{NAME} Backlog.md`).
+2. If both = 0: remove any `## QUESTIONS — {NAME}` or `## READY — {NAME}` H2 from `Q.md`. Done.
+3. Otherwise: build `## {PREFIX} — {NAME} — [[{NAME}]] · [[{NAME} Triage]] — {summary tail}` (PREFIX = `QUESTIONS` if pending ≥ 1 else `READY`). Body for QUESTIONS: à la carte bare bullets first, then `### F<n>` H3s. Body for READY: empty. Apply 12-line soft cap with overflow pointer.
+4. Remove any stale H2 for this anchor; insert the new one at the top of Q.md (move-to-front, always, regardless of body change).
+5. Refresh H1 banner: `# Agent Status   -   Questions: N    Ready: M` (anchor counts).
+
+See `ask/SKILL.md` § 5 for the full spec and example layout. Both `/ask` and `/triage` produce a fresh Q.md anchor H2 on every invocation.
+
+### 7. Glance the file
 
 Always glance the file after the regen completes:
 
@@ -153,10 +165,10 @@ open "{NAME} Docs/{NAME} Plan/{NAME} Triage.md"
 
 This is the natural close of a triage run — the user sees the inbox immediately. (Per `[[ask]]` the glance is allowed: the agent has just modified the file with new state, and the user is in active mode by virtue of having invoked `/triage`.)
 
-### 7. Print a one-line summary in chat
+### 8. Print a one-line summary in chat
 
 ```
-/triage — {NAME}: {N} items waiting on you ({Q} pending questions, {V} verify). File: {NAME} Triage.md.
+/triage — {NAME}: {N} items waiting on you ({Q} pending questions, {V} verify). Refreshed {NAME} Triage and Q.md.
 ```
 
 Where `Q` is the count of `[Questions]` items and `V` is the count of `[Verify]` items in the body.
