@@ -109,7 +109,9 @@ Anchors that have historical Done items numbered with the legacy `B<n>` conventi
 
 ## Status brackets
 
-Each F-row may carry a workflow-state bracket per the `[[workflow]]` discipline: `[ ]` / `[Designing]` / `[Questions]` / `[Blocked]` / `[Ready]` / `[Active]` / `[Verify]` / `[Done]`. The bracket is mandatory only for items in horizon sections (Now/Next/Later — per `[[backlog-horizons]]`). Items in workflow-state H2s (`## Ready`, `## Active`, `## Verify`, `## Done`) have their state implied by the H2; the bracket is optional/redundant.
+Each F-row may carry a workflow-state bracket per the `[[workflow]]` discipline: `[ ]` / `[Designing]` / `[Questions]` / `[Blocked]` / `[Blocked F<NNN>]` / `[Ready]` / `[Active]` / `[Verify]` / `[Done]`. The bracket is mandatory only for items in horizon sections (Now/Next/Later — per `[[backlog-horizons]]`). Items in workflow-state H2s (`## Ready`, `## Active`, `## Verify`, `## Done`) have their state implied by the H2; the bracket is optional/redundant.
+
+`[Blocked F<NNN>]` is the **chained** form of `[Blocked]` — used when the blocker is another feature's progression. The chained F-number is the description; the user clicks F<NNN> to learn the actual current state of the blocker. Generic `[Blocked]` (without an F-number) is for non-feature blockers — diagnostic capture, external review, missing API, cross-agent decision — and the row body must describe what's blocking.
 
 ## H2 sections
 
@@ -154,7 +156,7 @@ Every backlog item has one of these statuses, derived from where the bullet sits
 | **Ready** | Bullet is under `## Ready`. |
 | **Active** | Bullet is under `## Active`. |
 | **Questions** | Bullet text contains a `→ [[Feature Doc]]` link to a doc with pending questions; status bracket `[Questions]`. The item is parked there until the user answers. |
-| **Blocked** | Bullet has bracket `[Blocked]`; pending non-question blocker (dependency, external review, CI). |
+| **Blocked** | Bullet has bracket `[Blocked]` (generic — body describes the blocker) or `[Blocked F<NNN>]` (chained — blocker is another feature's progression; click F<NNN> to learn its state). Skipped by `/groom`; rendered as-is by `/triage`; counts only under its horizon H2 (no Q/V/A/R contribution). |
 | **Verify** | Bullet has bracket `[Verify]` (lives under its horizon H2; no dedicated `## Verify` H2). |
 | **Done** | Bullet is under `## Done`. |
 | **Unset / Upcoming** | Bullet is under a horizon H2 (`## Now`, `## Next`, `## Later`) — or the legacy `## Upcoming` — or `## Legwork`, with bracket `[ ]` / `[Designing]` / absent, AND has no link to active open questions. This is the "candidate for promotion" status. |

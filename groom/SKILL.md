@@ -60,7 +60,8 @@ Every backlog item has one of these statuses, derived from where the bullet sits
 | --- | --- | --- |
 | **Ready** | Bullet is under `## Ready` H2 | Skip — already ready. |
 | **Active** | Bullet is under `## Active` H2 | Skip — actively being worked. |
-| **Blocked on questions** | Bullet text contains a `→ [[Feature Doc]]` or `→ [[Open Questions]]` link | Skip — only the user can resolve those. |
+| **Blocked on questions** | Bracket `[Questions]` and bullet text contains a `→ [[Feature Doc]]` or `→ [[Open Questions]]` link | Skip — only the user can resolve those. |
+| **Blocked (other)** | Bracket `[Blocked]` (generic, body explains) or `[Blocked F<NNN>]` (chained on another feature) | Skip — the blocker is external. When the chained `F<NNN>` reaches `[Done]`, /groom may rebracket on a future sweep. |
 | **Unset / Upcoming** | Bullet is under a horizon H2 (`## Now`, `## Next`, `## Later` per [[backlog-horizons]]) — or the legacy `## Upcoming` — or `## Legwork`, with bracket `[ ]` / `[Designing]` / absent, AND has no link to active open questions | **Process** — try to ready it. |
 | **Verify**, **Done** | Bullet under those H2s | Skip — out of scope. |
 

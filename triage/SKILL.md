@@ -108,8 +108,12 @@ Tag values: `[U]`, `[A]`, `[U+A]`, `[G]`, `[?]`, `[]`.
 | `**[Ready]**` | Single feature ready to mint. |
 | `**[N Ready]**` | Milestone-style F with N independent sub-items in its roadmap, all ready. |
 | `**[Active]**` | In flight (a worker is currently minting). |
+| `**[Blocked]**` | Generic blocker — body must describe what's blocking. Doesn't contribute to Q/V/A/R banner counts. |
+| `**[Blocked F<NNN>]**` | Chained on another feature. Click `F<NNN>` to learn its current state. Doesn't contribute to Q/V/A/R banner counts. |
 
 The bracket is **bold**; the wiki-link to the feature doc is **not** bold; description follows after ` — ` and ends with a period.
+
+**Blocked items don't contribute to TAG**. The cascade (U → A → U+A → G → ? → []) ignores the Blocked bracket — those rows are neither user-actionable nor agent-actionable right now. An anchor whose only items are Blocked falls through to `[G]` (groomable — needs unblocking) or `[]`. This is honest: a `[A]` TAG should mean "the agent has work it can pick up immediately"; if every Ready row is actually `[Blocked F<n>]`, the TAG must reflect that.
 
 
 ## H1 banner spacing — exact

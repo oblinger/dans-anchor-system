@@ -22,6 +22,8 @@ Low-priority ideas and deferred work. Items graduate to [[CAE Roadmap]] when the
 ## Now
 
 - **F004 — Graph dependencies** [Designing] — task B runs only after task A succeeds. Requires DAG scheduling logic, deferred until v2.
+- **F006 — Cron syntax extension** [Blocked F004] — extend cron parser to recognize "after F004 succeeds" as a trigger. Cannot start until F004's DAG model lands.
+- **F007 — Webhook signing** [Blocked] — pending security review before signing key format is finalized. (Generic blocker; body explains.)
 
 
 ## Next

@@ -25,7 +25,8 @@ A unit of work moves through these states. Each state has a **square-bracket lab
 | `[ ]` | **Unset** | Idea captured, no progress yet. Default for new items. |
 | `[Designing]` | **Designing** | Being thought through. Design work in flight; spec not yet locked. No questions raised yet. |
 | `[Questions]` | **Questions** | Blocked on user input on open questions. **Must** be paired with a `→ [[Feature Doc]]` link to where the `## Open Questions` block lives. |
-| `[Blocked]` | **Blocked** | Blocked on something other than user questions — a dependency, an external review, a CI / build issue, or any other non-question blocker. Best practice: include a note or link describing what's blocking; not mandatory because not every blocker has a navigable target. |
+| `[Blocked]` | **Blocked** | Blocked on something other than user questions — a dependency, an external review, a CI / build issue, missing diagnostic evidence, or any other non-question blocker. Body of the row should describe what's blocking. |
+| `[Blocked F<NNN>]` | **Blocked on a feature** | Parameterized form of `[Blocked]`. The blocker is another feature's progression — click `F<NNN>` to see its current state (typically `[Verify]`, `[Active]`, or `[Designing]`). The chained reference IS the blocker description; body need not repeat it. |
 | `[Ready]` | **Ready** | Design clean. Agent knows how to do the task without further user involvement. (See § Definition of Ready.) |
 | `[Active]` | **Active** | Actively being worked on. |
 | `[Verify]` | **Verify** | Implementation done, awaiting **user judgment** on whether the result matches intent. Apply only when user judgment is genuinely needed (semantic correctness, UX, design fit, whether prose captures the right idea). Mechanical work — terminology sweeps, refactors, mechanical renames, sed/grep replacements where the diff is its own proof — skip `[Verify]` and go `[Active]` → `[Done]` directly. The agent self-verifies the mechanical class. |
@@ -104,8 +105,8 @@ Every transition is driven by an explicit skill or trigger. There are no silent 
 | `[ ]` | `[Designing]` | `/feature`, manual edit, `/code plan` | A feature doc is created OR planning begins. |
 | `[Designing]` | `[Questions]` | `/ask` skill | Pending Qs added to `## Open Questions`; bullet description rewritten as `→ [[Feature Doc]]` (link is mandatory). |
 | `[Questions]` | `[Designing]` | User answers Qs | When pending Qs are resolved (`### Resolved`), description gets rewritten to reflect the resolved design. |
-| `[Designing]` | `[Blocked]` | External blocker arises | Dependency, external review, CI failure, etc. Note or link describing the blocker is best-practice. |
-| `[Blocked]` | `[Designing]` | Blocker resolves | Whatever was blocking has cleared. |
+| any non-terminal | `[Blocked]` (or `[Blocked F<NNN>]`) | External blocker arises | Dependency, external review, CI failure, missing diagnostics, another feature's progression, etc. The work was at any state — `[Designing]`, `[Ready]`, `[Active]` — and hit a blocker that prevents further progress until something external resolves. |
+| `[Blocked]` (or `[Blocked F<NNN>]`) | prior state | Blocker resolves | When a chained `F<NNN>` reaches `[Done]` (or otherwise the blocking condition clears), the item returns to whatever state it was in pre-block. Often `[Ready]` if it was design-clean, otherwise `[Designing]`. |
 | `[Designing]` | `[Ready]` | `/groom`, `/feature` (Agreed gate) | Design is locked; Definition of Ready met. |
 | `[ ]` | `[Ready]` | `/groom` (autonomous) | Item was clear enough that `/groom` could promote without going through Designing. |
 | `[Ready]` | `[Active]` | `/mint`, `/code mint`, `/code bugfix`, `/code spike`, manual claim | Work begins. |
@@ -119,6 +120,33 @@ Every transition is driven by an explicit skill or trigger. There are no silent 
 - **`[Active]` directly to `[Done]` for design-bearing work.** Always pass through `[Verify]` when user judgment is needed (`/finalize` owns this). **Exception:** mechanical work — terminology sweeps, refactors, mechanical renames, sed/grep replacements — skip `[Verify]` since the diff is self-evident; agent self-verifies and goes straight to `[Done]`. Don't ask the user to "skim a diff" — that's an abuse of the verify gate.
 - **`[Designing]` to `[Active]` skipping `[Ready]`.** Definition of Ready is the gate; without it, you risk implementing on unresolved design.
 - **`[Done]` back to any earlier state.** Once Completed, the work is closed. Reopening means a new B-number for the follow-up.
+
+## Blocked semantics — the parameterized form
+
+Honest categorization. `[Ready]` means *I (the agent) know how to do this without further user involvement* — pure agent-actionable. Everything that fails the bar but isn't waiting on user input lands in `[Blocked]`. The point of being honest is that a `[Ready]` count the user trusts is more valuable than a `[Ready]` count that has drifted into "items the agent has read."
+
+**Two forms:**
+
+- `[Blocked]` — generic. Body of the row describes what's blocking (diagnostic capture, external review, missing dependency, cross-agent decision, future API, …).
+- `[Blocked F<NNN>]` — chained. The blocker is another feature's progression. The chained F-number IS the description; click it to see real-time state. No body prose needed.
+
+**Examples (illustrative — the form, not the work itself):**
+
+```
+- **F019 — Image-clip drag-drop landing zone** [Blocked] — pending one human drag with a screenshot in the clipboard against the latest build to confirm the surface accepts it. (Diagnostic capture blocker; effectively pre-Verify.)
+- **F034 — Sessions submenu centering** [Blocked] — defer until `submenuRect.w` is known synchronously at draw time; no upstream API yet.
+- **F041 — Tier 3 Claude-Code-aware send verification** [Blocked F015] — extends F015's Tier 2 verifier with session-type detection. Cannot start until F015 ships.
+- **F012 — Voice-bridge follow-up sweep** [Blocked F011] — depends on F011's MuxUX target bridge reaching `[Done]` (currently `[Verify]` — user judgment pending).
+- **F-cross — DMUX schema change for dynamic File menu** [Blocked] — touches DMUX's config schema; cross-agent decision needed before MUX can implement. (Tracked elsewhere.)
+```
+
+**How surfaces treat Blocked:**
+
+- **`/groom`** skips Blocked items — they're not promotable to `[Ready]` without external resolution. When the chained `F<NNN>` reaches `[Done]`, /groom may auto-rebracket on a future sweep (or the agent re-brackets manually when noticed).
+- **`/triage`** renders the bracket as-is in the body — `**[Blocked]**` or `**[Blocked F015]**` — and counts the row under its **horizon H2 only** (Now/Next/Later). Blocked items contribute *zero* to the H1 banner's `Active`/`Ready`/`Questions`/`Verify` columns, and *zero* to the TAG cascade's U or A. An anchor whose only items are Blocked falls through to TAG `[G]` (groomable — user needs to unblock something) or `[]` (nothing actionable).
+- **Banner**: there is no separate `Blocked` count column. The horizon counts (Now/Next/Later) show where Blocked items live; the per-row bracket carries the workflow truth. Keeping the banner at 4+4 columns prevents it from becoming a tally.
+
+**The rebracket discipline.** When you find yourself about to mark something `[Ready]` to "represent that the agent has read it," stop — that's a `[Blocked]` candidate. Be specific about *why* it isn't Ready: missing diagnostic, awaiting another feature, pre-spec, cross-agent. The bracket should be checkable against the row's body in one read.
 
 ## Skill cross-references
 
