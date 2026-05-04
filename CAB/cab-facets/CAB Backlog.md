@@ -21,29 +21,29 @@ Below is a condensed reference example. See the working example linked above for
 
 
 ## Active
-- **F3 — Retry backoff polish** — Tune exponential-backoff caps after user feedback on long retries
+- **F003 — Retry backoff polish** — Tune exponential-backoff caps after user feedback on long retries
 
 ## Ready
-- **F1 — Cron syntax** — Support cron expressions for recurring task schedules
+- **F001 — Cron syntax** — Support cron expressions for recurring task schedules
 
 ## Now
-- **F2 — Task groups** [Designing] — Allow grouping related tasks that run as a batch
-- **F7 — Webhook notifications** [Verify] — Webhook fires on task completion. Verify: trigger a test job and check that the configured webhook URL receives a POST with the documented JSON payload (see [[CAE PRD]] § Webhooks).
+- **F002 — Task groups** [Designing] — Allow grouping related tasks that run as a batch
+- **F007 — Webhook notifications** [Verify] — Webhook fires on task completion. Verify: trigger a test job and check that the configured webhook URL receives a POST with the documented JSON payload (see [[CAE PRD]] § Webhooks).
 
 ## Next
-- **F4 — Priority levels** [ ] — Add high/medium/low priority beyond just deadline ordering
+- **F004 — Priority levels** [ ] — Add high/medium/low priority beyond just deadline ordering
 
 ## Later
-- **F11 — Async task DAGs** [ ] — Long-shot: support directed-acyclic dependencies between tasks
+- **F011 — Async task DAGs** [ ] — Long-shot: support directed-acyclic dependencies between tasks
 
 ## Done
-- **F5 — Retry config** — Per-task retry limits (done in PR #4, see [[CAE Roadmap#M2]])
-- **F6 — JSON output** — Machine-readable task status output (done in PR #2)
+- **F005 — Retry config** — Per-task retry limits (done in PR #4, see [[CAE Roadmap#M2]])
+- **F006 — JSON output** — Machine-readable task status output (done in PR #2)
 
 ## Legwork
-- **F9 — User feedback on retry UX** — User mentioned retry errors are confusing; rework error messages
-- **F8 — Doc consistency pass** — Module docs reference old API names from pre-M2
-- **F10 — Test coverage for edge cases** — Add tests for empty task lists and concurrent scheduling
+- **F009 — User feedback on retry UX** — User mentioned retry errors are confusing; rework error messages
+- **F008 — Doc consistency pass** — Module docs reference old API names from pre-M2
+- **F010 — Test coverage for edge cases** — Add tests for empty task lists and concurrent scheduling
 
 ---
 
@@ -101,10 +101,10 @@ Anchors that have historical Done items numbered with the legacy `B<n>` conventi
 - **B7 — ...** — (historical)
 
 ## Ready
-- **F11 — ...** — (active, was B11 pre-migration)
+- **F011 — ...** — (active, was B11 pre-migration)
 
 ## Upcoming
-- **F16 — ...** — (new since migration)
+- **F016 — ...** — (new since migration)
 ```
 
 ## Status brackets
@@ -164,7 +164,7 @@ Every backlog item has one of these statuses, derived from where the bullet sits
 When an item has unresolved questions, the bullet description should be replaced with a pointer to where those questions live:
 
 ```
-- **F12 — Item Name** [Questions] — → [[F12 — Item Name]]
+- **F012 — Item Name** [Questions] — → [[F012 — Item Name]]
 ```
 
 The `→ [[Feature Doc]]` link is the marker. As long as the linked doc has pending questions in its `## Open Questions` block, the backlog item's status is **Questions**. When the user resolves those questions, the item can be re-readied (the description gets rewritten to reflect the resolved design, and the bullet moves to `## Ready`).

@@ -70,7 +70,7 @@ Identical to the `## Open Questions` block format used inside feature docs (per 
 
 À la carte Qs use `Q<n>` — same prefix as feature-attached Qs but in a per-anchor scope. Lowest unused integer in the file (across `## Open Questions` pending + `### Resolved` + bottom `## Resolved`). Numbers are stable references; never renumber. Same numbering policy as `[[CAB Backlog]]` § Numbering policy.
 
-When referenced in conversation: `{NAME} Q3` (e.g., "SKA Q3"). The slug disambiguates from feature-scoped Qs (`F12 Q3`).
+When referenced in conversation: `{NAME} Q3` (e.g., "SKA Q3"). The slug disambiguates from feature-scoped Qs (`F012 Q3`).
 
 ## Empty state
 

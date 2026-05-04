@@ -18,14 +18,14 @@ The H1 banner counts anchors needing user input (Questions: N) and anchors with 
 # [U+A]  [[CAE Triage|CAE]] Triage  -  Questions 2    Verify 1   |   Active 1    Ready 1   |   Now 2    Next 1    Later 1    Icebox 0
 - **[3 Questions]**  [[CAE Questions]]
 ## Active
-- **[Active]** [[F1 — Cron Syntax]] — Cron expressions for recurring task schedules.
+- **[Active]** [[F001 — Cron Syntax]] — Cron expressions for recurring task schedules.
 ## Ready
-- **[Ready]** [[F3 — Retry Backoff Polish]] — Tune exponential-backoff caps after user feedback.
+- **[Ready]** [[F003 — Retry Backoff Polish]] — Tune exponential-backoff caps after user feedback.
 ## Now
-- **[4 Questions]** [[F2 Task Groups]] — Rendering of task groups.
-- **[Verify]** [[F7 — Webhook Notifications]] — Webhook fires on task completion.
+- **[4 Questions]** [[F002 Task Groups]] — Rendering of task groups.
+- **[Verify]** [[F007 — Webhook Notifications]] — Webhook fires on task completion.
 ## Next
-- **[5 Questions]** [[F4 Priority Levels]] — 2 pending Qs.
+- **[5 Questions]** [[F004 Priority Levels]] — 2 pending Qs.
 ```
 
 When an anchor has zero items anywhere (TAG `[]`), it disappears from the page automatically. When a new question or Ready item lands, the anchor reappears (move-to-front).
@@ -78,7 +78,7 @@ Same shorthand as `/triage`:
 
 | You say | Agent does |
 |---|---|
-| `F5 Q4: yes` | Resolves Q4 in F5's feature doc with answer "yes". Moves the question to `### Resolved`. |
+| `F005 Q4: yes` | Resolves Q4 in F5's feature doc with answer "yes". Moves the question to `### Resolved`. |
 | `Q4: yes` (after sticky context "I'm in F5 now") | Same as above. |
 | `{NAME} Q3: option A, because...` | Resolves the à la carte Q3 in the anchor's `{NAME} Questions.md` facet. |
 
@@ -104,7 +104,7 @@ Same in feature docs and in the per-anchor `{NAME} Questions.md` facet:
 ## When you'll notice this
 
 - A keyboard shortcut opens `[[Q]]` and you see two anchors with TAG `[U+A]` and one with `[A]`, with the full body for each.
-- The agent says "I've put 3 Qs in [[F12 — Foo]]" and opens the file at you — active mode.
+- The agent says "I've put 3 Qs in [[F012 — Foo]]" and opens the file at you — active mode.
 - The agent says "I've parked the questions; see [[Q]]" without opening the file — parking mode.
 - A backlog item shows the `**[3 Questions]**` bracket — that means the linked feature doc has 3 pending Qs in its `## Open Questions` block.
 

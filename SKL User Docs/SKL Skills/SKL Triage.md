@@ -42,15 +42,15 @@ Example body:
 # [U+A]  [[CAE]] Triage  -  Questions 2    Verify 1   |   Active 1    Ready 1   |   Now 2    Next 1    Later 1    Icebox 0
 - **[3 Questions]**  [[CAE Questions]]
 ## Active
-- **[Active]** [[F1 — Cron Syntax]] — Cron expressions for recurring task schedules.
+- **[Active]** [[F001 — Cron Syntax]] — Cron expressions for recurring task schedules.
 ## Ready
-- **[Ready]** [[F3 — Retry Backoff Polish]] — Tune exponential-backoff caps after user feedback.
+- **[Ready]** [[F003 — Retry Backoff Polish]] — Tune exponential-backoff caps after user feedback.
 ## Now
-- **[4 Questions]** [[F2 Task Groups]] — Rendering of task groups.
-- **[Verify]** [[F7 — Webhook Notifications]] — Webhook fires on task completion.
+- **[4 Questions]** [[F002 Task Groups]] — Rendering of task groups.
+- **[Verify]** [[F007 — Webhook Notifications]] — Webhook fires on task completion.
 	- Verify by triggering a test job and confirming the configured URL receives a POST with the documented JSON payload (see [[CAE PRD]] § Webhooks).
 ## Next
-- **[5 Questions]** [[F4 Priority Levels]] — 2 pending Qs (Q1, Q3).
+- **[5 Questions]** [[F004 Priority Levels]] — 2 pending Qs (Q1, Q3).
 ```
 
 No blank lines anywhere in the body. No meta prose. Maximum signal density.
@@ -60,7 +60,7 @@ No blank lines anywhere in the body. No meta prose. Maximum signal density.
 
 | You say | Agent does |
 |---|---|
-| `F5 Q4: yes` | Resolves Q4 in F5's feature doc with answer "yes". Moves the question to `### Resolved`. |
+| `F005 Q4: yes` | Resolves Q4 in F5's feature doc with answer "yes". Moves the question to `### Resolved`. |
 | `Q4: yes` (after announcing sticky context "I'm in F5 now") | Same as above. Sticky context survives turn-to-turn until you switch ("now F12"). |
 | `verified F23` / `F23 verified` | Moves F23's backlog row from its workflow H2 (with `[Verify]` bracket) to `## Done`; updates feature-doc Status to Done. |
 | `F23 nope, X is broken` | Captures rejection; agent files a follow-up bullet on the backlog row and continues design. |

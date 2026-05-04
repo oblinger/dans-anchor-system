@@ -125,7 +125,7 @@ Stop dispatching new tasks from the queue. In-flight tasks continue to completio
 example-project pause
 ```
 
-See [[F1 — Scheduler Pause]] for the feature design.
+See [[F001 — Scheduler Pause]] for the feature design.
 
 
 ## resume

@@ -128,7 +128,7 @@ Print a summary table:
 | Outcome | Count | Items |
 | --- | --- | --- |
 | Promoted to Ready | N | F3, F7, … |
-| Promoted to feature doc | N | F5 → [[F5 — X]], F12 → [[F12 — Y]] |
+| Promoted to feature doc | N | F5 → [[F005 — X]], F12 → [[F012 — Y]] |
 | Deferred inline | 0 or 1 | F9 |
 | Skipped | N | {reasons summarized} |
 ```

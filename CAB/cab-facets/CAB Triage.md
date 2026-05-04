@@ -6,7 +6,7 @@ description: triage inbox — status of the anchor, with all items except Later/
 **Location:** `{NAME} Docs/{NAME} Plan/{NAME} Triage.md`
 
 
-The Triage file is the **status of the anchor** — the single place the user looks to see "where everything stands and what wants my attention next." It lists every item in the anchor's backlog **except** items in `## Later` and `## Icebox` (those are explicitly deferred and are counted in the H1 banner only). The body is grouped by workflow-state H2: `## Active`, `## Ready`, `## Now`, `## Next`. Within each H2, items appear in **source order from the backlog** (per F28 Q2). The whole file is **agent-owned and destructively rewritten** on each `/ask` or `/triage` run.
+The Triage file is the **status of the anchor** — the single place the user looks to see "where everything stands and what wants my attention next." It lists every item in the anchor's backlog **except** items in `## Later` and `## Icebox` (those are explicitly deferred and are counted in the H1 banner only). The body is grouped by workflow-state H2: `## Active`, `## Ready`, `## Now`, `## Next`. Within each H2, items appear in **source order from the backlog** (per F028 Q2). The whole file is **agent-owned and destructively rewritten** on each `/ask` or `/triage` run.
 
 Triage is the *inbox at the anchor scope*. The vault-level *Agent Status dashboard* lives at `~/ob/kmr/Q.md`; both `/ask` and `/triage` regenerate the anchor's per-anchor section there on every invocation (per F25, format updated by F28).
 
@@ -23,15 +23,15 @@ description: triage inbox (agent-owned)
 # [U+A]  [[CAE]] Triage  -  Questions 2    Verify 1   |   Active 1    Ready 1   |   Now 2    Next 1    Later 1    Icebox 0
 - **[3 Questions]**  [[CAE Questions]]
 ## Active
-- **[Active]** [[F1 — Cron Syntax]] — Cron expressions for recurring task schedules.
+- **[Active]** [[F001 — Cron Syntax]] — Cron expressions for recurring task schedules.
 ## Ready
-- **[Ready]** [[F3 — Retry Backoff Polish]] — Tune exponential-backoff caps after user feedback.
+- **[Ready]** [[F003 — Retry Backoff Polish]] — Tune exponential-backoff caps after user feedback.
 ## Now
-- **[4 Questions]** [[F2 Task Groups]] — Rendering of task groups.
-- **[Verify]** [[F7 — Webhook Notifications]] — Webhook fires on task completion. ([[F7 — Webhook Notifications#Verify|details]])
+- **[4 Questions]** [[F002 Task Groups]] — Rendering of task groups.
+- **[Verify]** [[F007 — Webhook Notifications]] — Webhook fires on task completion. ([[F007 — Webhook Notifications#Verify|details]])
 ## Next
-- **[5 Questions]** [[F4 Priority Levels]] — 2 pending Qs (Q1, Q3).
-- **[3 Ready]** [[F17 Update Backing Store]] — Milestone-style F with three independent ready sub-items.
+- **[5 Questions]** [[F004 Priority Levels]] — 2 pending Qs (Q1, Q3).
+- **[3 Ready]** [[F017 Update Backing Store]] — Milestone-style F with three independent ready sub-items.
 ```
 
 ---
@@ -56,7 +56,7 @@ description: triage inbox (agent-owned)
 # [<TAG>]  [[{NAME}]] Triage  -  Questions N    Verify N   |   Active N    Ready N   |   Now N    Next N    Later N    Icebox N
 ```
 
-**Spacing — lock exact** (per F28 Q6):
+**Spacing — lock exact** (per F028 Q6):
 - Two spaces between `[<TAG>]` and `[[{NAME}]]`.
 - One space after `[[{NAME}]]` and before `Triage`.
 - **Three spaces around the `-`** separating "Triage" from the count groups.
@@ -125,7 +125,7 @@ Each bullet is one line:
 **Verify items: one-line text + `(details)` link.** The bracket wiki-link `[[F<n> Title]]` already links to the whole feature doc; if the feature doc has a detailed `## Verify` section, **append `([[F<n> Title#Verify|details]])`** at the end of the line so the user can click straight to the verification details. **No indented sub-bullets** for extended verify text — link to the section instead. The one-line summary is usually enough; the link is there when more is needed.
 
 ```
-- **[Verify]** [[F7 — Webhook Notifications]] — Webhook fires on task completion. ([[F7 — Webhook Notifications#Verify|details]])
+- **[Verify]** [[F007 — Webhook Notifications]] — Webhook fires on task completion. ([[F007 — Webhook Notifications#Verify|details]])
 ```
 
 
@@ -145,7 +145,7 @@ Each bullet is one line:
 
 ## Ordering within a body H2
 
-**Source order from the backlog** (per F28 Q2): items appear in the order they appear in `{NAME} Backlog.md` under the same H2. The backlog is the source of truth for ordering; the user reorders by editing the backlog (or asking the agent to). The H1 banner already counts items by status, so re-grouping by status inside H2s is redundant.
+**Source order from the backlog** (per F028 Q2): items appear in the order they appear in `{NAME} Backlog.md` under the same H2. The backlog is the source of truth for ordering; the user reorders by editing the backlog (or asking the agent to). The H1 banner already counts items by status, so re-grouping by status inside H2s is redundant.
 
 
 ## No meta prose, no breadcrumb, no Notes
@@ -173,4 +173,4 @@ The whole file (below the YAML frontmatter) is agent-owned. Every `/ask` or `/tr
 - **`## Open Questions` blocks inside feature docs** (per `[[ask]]`) — source of truth for question text. Triage points at them via wiki-link to the feature doc; it doesn't duplicate the Q content.
 - **[[CAB Questions]]** — sibling facet for à la carte Qs. Triage carries the count + link bullet directly under H1; the Questions facet holds the actual Q content.
 - **`/roster`** — counts every item once per backlog H2; triage's H1 banner uses the same scheme so the two views agree.
-- **`~/ob/kmr/Q.md`** — vault-level Agent Status dashboard. Each anchor's per-anchor section in Q.md is **identical content** to that anchor's Triage body (per F28 Q3), with the slug-prefix becoming a wiki-link via `[[NAME Triage|NAME]]` syntax.
+- **`~/ob/kmr/Q.md`** — vault-level Agent Status dashboard. Each anchor's per-anchor section in Q.md is **identical content** to that anchor's Triage body (per F028 Q3), with the slug-prefix becoming a wiki-link via `[[NAME Triage|NAME]]` syntax.

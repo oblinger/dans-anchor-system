@@ -11,7 +11,7 @@ Low-priority ideas and deferred work. Items graduate to [[CAE Roadmap]] when the
 
 ## Active
 
-- **F3 — Retry backoff polish** — Tune exponential-backoff caps after user feedback on long retries.
+- **F003 — Retry backoff polish** — Tune exponential-backoff caps after user feedback on long retries.
 
 
 ## Ready
@@ -31,7 +31,7 @@ Low-priority ideas and deferred work. Items graduate to [[CAE Roadmap]] when the
 
 ## Later
 
-- **F5 — Per-user queues** [ ] — multi-tenant mode with quotas. Not on current roadmap.
+- **F005 — Per-user queues** [ ] — multi-tenant mode with quotas. Not on current roadmap.
 
 
 ## Deferred bugs

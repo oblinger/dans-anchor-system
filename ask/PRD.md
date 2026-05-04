@@ -77,10 +77,10 @@ So `/ask` supports two shapes:
 - **`--doc <path>`** — document-attached. Question lives in the doc's `## Open Questions` block.
 - **(default — no flag)** — à la carte. Question lives in the anchor's `{NAME} Triage.md § ## À la carte` block.
 
-Both shapes use **`Q<n>` numbering**, scoped per-container — each feature doc has its own Q-namespace; each anchor's à la carte block has its own Q-namespace. (Per F25 Q5: dropped the earlier `A<n>` naming because the audio "A1" sounds like "ate one" — same prefix is cleaner; the per-container scoping handles disambiguation.)
+Both shapes use **`Q<n>` numbering**, scoped per-container — each feature doc has its own Q-namespace; each anchor's à la carte block has its own Q-namespace. (Per F025 Q5: dropped the earlier `A<n>` naming because the audio "A1" sounds like "ate one" — same prefix is cleaner; the per-container scoping handles disambiguation.)
 
 Reference shorthand:
-- Feature-scoped → `F10 Q3`.
+- Feature-scoped → `F010 Q3`.
 - À la carte → `{NAME} Q3` (e.g., "SKA Q3"). The colloquial term "à la carte questions" persists for verbal reference.
 
 ### Why active vs parking mode
@@ -99,7 +99,7 @@ Parking mode signals: "put it on the backlog" / "for later" / batch operations l
 1. Parent skill (e.g., `/feature` mid-design) detects it has decisions for the user.
 2. Parent calls `/ask` via the Skill tool, passing the questions in batch + (optionally) `--doc <path>`.
 3. `/ask` numbers them (`Q1..Qn`), formats per the spec, writes to the target surface (feature doc's `## Open Questions` or anchor's `## À la carte`), regenerates `{NAME} Triage.md`, regenerates the anchor's H2 in `Q.md` (per F25), and (if active mode) glances the target.
-4. User sees the file (or opens `Q.md` later in parking mode), answers via shorthand to the parent skill or via the standard answer pattern (`F5 Q4: yes`).
+4. User sees the file (or opens `Q.md` later in parking mode), answers via shorthand to the parent skill or via the standard answer pattern (`F005 Q4: yes`).
 5. Parent skill (or `/triage`) acts on the answers — moves Qs to `### Resolved`, updates the design, regenerates `Q.md` (next `/ask` or `/triage` invocation will refresh; `/crank` no-action chain handles the case where neither runs explicitly).
 
 

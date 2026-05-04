@@ -39,7 +39,7 @@ If the parent skill is ambiguous about which shape applies, default to **à la c
 
 Per F28, à la carte Qs live in their own per-anchor facet file `{NAME} Questions.md` (spec: `[[CAB Questions]]`) — not inside `{NAME} Triage.md` anymore. The Triage file just carries one bullet line under its H1 (`- **[N Questions]**  [[{NAME} Questions]]`) when there are pending à la carte Qs.
 
-**À la carte questions use `Q<n>` numbering, not `A<n>`** — same `Q<n>` prefix as feature-attached Qs, scoped per container (each feature doc has its own Q-namespace; each anchor's `{NAME} Questions.md` has its own Q-namespace). When referenced in conversation: feature-scoped → `F10 Q3`; à la carte → `{NAME} Q3` (e.g., "SKA Q3").
+**À la carte questions use `Q<n>` numbering, not `A<n>`** — same `Q<n>` prefix as feature-attached Qs, scoped per container (each feature doc has its own Q-namespace; each anchor's `{NAME} Questions.md` has its own Q-namespace). When referenced in conversation: feature-scoped → `F010 Q3`; à la carte → `{NAME} Q3` (e.g., "SKA Q3").
 
 
 ## Invocation
@@ -191,13 +191,13 @@ After writing the new question(s), regenerate the anchor's local triage file fro
    # [<TAG>]  [[{NAME} Triage|{NAME}]] Triage  -  Questions N    Verify N   |   Active N    Ready N   |   Now N    Next N    Later N    Icebox N
    ```
 3. **If TAG is `[]`** (no items anywhere): remove any existing per-anchor section for `{NAME}` from `Q.md`. Done.
-4. **Otherwise**: render the per-anchor section as the **identical body** to the just-generated `{NAME} Triage.md` (per F28 Q3 — full body always):
+4. **Otherwise**: render the per-anchor section as the **identical body** to the just-generated `{NAME} Triage.md` (per F028 Q3 — full body always):
    - The H1-equivalent line above (with the wiki-link slug-prefix).
    - The à la carte bullet line (`- **[N Questions]** [[{NAME} Questions]]`) if any pending à la carte Qs.
    - `## Active` / `## Ready` / `## Now` / `## Next` H2s with their bullets, in source order from the backlog. (These render at H2 inside Q.md since each per-anchor section opens at H1 level.)
    - **No blank lines in the body** — same density as the Triage file.
 5. **Remove any existing per-anchor section for `{NAME}`** from `Q.md` (de-dupe).
-6. **Insert the new section at the top of the body** — immediately after the H1 banner, before any other anchor section. Always move-to-front, regardless of whether the body changed (per F25 Q6).
+6. **Insert the new section at the top of the body** — immediately after the H1 banner, before any other anchor section. Always move-to-front, regardless of whether the body changed (per F025 Q6).
 7. Refresh the H1 banner: `# Agent Status   -   Questions: N    Ready: M` where:
    - `N` = number of per-anchor sections whose TAG is `[U]` or `[U+A]` (anchors needing user attention).
    - `M` = number of per-anchor sections whose TAG is `[A]` or `[U+A]` (anchors with agent-actionable work).
@@ -218,21 +218,21 @@ description: Agent Status — every anchor with active questions or ready work, 
 # [U+A]  [[CAE Triage|CAE]] Triage  -  Questions 2    Verify 1   |   Active 1    Ready 1   |   Now 2    Next 1    Later 1    Icebox 0
 - **[3 Questions]**  [[CAE Questions]]
 ## Active
-- **[Active]** [[F1 — Cron Syntax]] — Cron expressions for recurring task schedules.
+- **[Active]** [[F001 — Cron Syntax]] — Cron expressions for recurring task schedules.
 ## Ready
-- **[Ready]** [[F3 — Retry Backoff Polish]] — Tune exponential-backoff caps after user feedback.
+- **[Ready]** [[F003 — Retry Backoff Polish]] — Tune exponential-backoff caps after user feedback.
 ## Now
-- **[4 Questions]** [[F2 Task Groups]] — Rendering of task groups.
-- **[Verify]** [[F7 — Webhook Notifications]] — Webhook fires on task completion.
+- **[4 Questions]** [[F002 Task Groups]] — Rendering of task groups.
+- **[Verify]** [[F007 — Webhook Notifications]] — Webhook fires on task completion.
 ## Next
-- **[5 Questions]** [[F4 Priority Levels]] — 2 pending Qs (Q1, Q3).
+- **[5 Questions]** [[F004 Priority Levels]] — 2 pending Qs (Q1, Q3).
 
 
 # [A]  [[MUX Triage|MUX]] Triage  -  Questions 0    Verify 0   |   Active 0    Ready 3   |   Now 0    Next 0    Later 0    Icebox 0
 ## Ready
-- **[Ready]** [[F1 — A]] — desc.
-- **[Ready]** [[F2 — B]] — desc.
-- **[Ready]** [[F3 — C]] — desc.
+- **[Ready]** [[F001 — A]] — desc.
+- **[Ready]** [[F002 — B]] — desc.
+- **[Ready]** [[F003 — C]] — desc.
 ```
 
 **Empty-state body.** When `Q.md` has zero anchors with TAG ≠ `[]`, the body is empty — just the H1 banner stands alone.

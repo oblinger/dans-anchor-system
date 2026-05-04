@@ -9,7 +9,7 @@ description: >
   H1 banner has an anchor TAG (`[U]` / `[A]` / `[U+A]` / `[G]` / `[?]` / `[]`)
   and pipe-grouped totals. À la carte questions live in the sibling
   `{NAME} Questions.md` facet — Triage carries one bullet line linking to it
-  directly under the H1. The user can answer with shorthand like "F5 Q4: yes"
+  directly under the H1. The user can answer with shorthand like "F005 Q4: yes"
   (resolves a question) or "verified F23" (moves the item to `## Done` and
   updates the feature-doc Status). Use when the user types `/triage`, says
   `triage` (DMUX prefix-trigger auto-prefixes `/triage`), or sends `"` (a
@@ -174,7 +174,7 @@ Read `{NAME} Questions.md`. If it has pending `Q<n>` in `## Open Questions`, ren
 
 (Two spaces between the bracket and the wiki-link.) Omit the line entirely when N=0.
 
-If the legacy `## À la carte` H2 still exists inside `{NAME} Triage.md` (legacy from F25), migrate its content to `{NAME} Questions.md` on this regen pass — that's a one-time migration step. Existing à la carte Qs (using `Q<n>` after F25; if any pre-F25 anchor still has `A<n>`, also flip to `Q<n>` per F25 Q5 resolution).
+If the legacy `## À la carte` H2 still exists inside `{NAME} Triage.md` (legacy from F25), migrate its content to `{NAME} Questions.md` on this regen pass — that's a one-time migration step. Existing à la carte Qs (using `Q<n>` after F25; if any pre-F25 anchor still has `A<n>`, also flip to `Q<n>` per F025 Q5 resolution).
 
 ### 5. Render body H2s
 
@@ -211,7 +211,7 @@ Replace the entire file (preserving only the YAML frontmatter, with `description
 
 ### 7. Regenerate the anchor's section in `~/ob/kmr/Q.md`
 
-`Q.md` is the **vault-level Agent Status dashboard**. After regenerating `{NAME} Triage.md`, also regenerate the anchor's per-anchor section in `Q.md`. Per F28 Q3 (full body always):
+`Q.md` is the **vault-level Agent Status dashboard**. After regenerating `{NAME} Triage.md`, also regenerate the anchor's per-anchor section in `Q.md`. Per F028 Q3 (full body always):
 
 The per-anchor section is **identical content** to the just-generated `{NAME} Triage.md` body — same H2s, same bullets, same ordering. The only difference is the H1-equivalent line: the slug-prefix becomes a wiki-link via `[[NAME Triage|NAME]]` syntax (renders as "NAME" but links to the Triage file).
 
@@ -257,7 +257,7 @@ This is the natural close of a triage run — the user sees the inbox immediatel
 
 ## Sticky-context protocol
 
-When the user says "I'm in F11 now" (or any phrasing that names a single feature), maintain F11 as the active context across subsequent turns. Plain `Q7: {answer}` from then on means F11 Q7 — no need for the user to repeat the F-number until they announce a switch ("now F12"). The initial F-number is the disambiguator; sticky context handles the rest.
+When the user says "I'm in F11 now" (or any phrasing that names a single feature), maintain F11 as the active context across subsequent turns. Plain `Q7: {answer}` from then on means F011 Q7 — no need for the user to repeat the F-number until they announce a switch ("now F12"). The initial F-number is the disambiguator; sticky context handles the rest.
 
 
 ## Verify-resolution path
@@ -274,7 +274,7 @@ This is the canonical `[Verify]` → `[Done]` transition from `[[workflow]]`. Us
 
 ## Question-resolution path
 
-When the user responds with `F5 Q4: yes` (or the sticky-context shorthand `Q4: yes` after announcing F5 as context), follow `[[ask]]` § Resolution:
+When the user responds with `F005 Q4: yes` (or the sticky-context shorthand `Q4: yes` after announcing F5 as context), follow `[[ask]]` § Resolution:
 
 1. Locate F5's feature doc, find Q4 in its `## Open Questions` block.
 2. Move Q4 to `### Resolved` with the user's answer in the canonical form: `**Q4** — **Resolution:** {one-sentence summary}. Incorporated into {section / conversation}.`
