@@ -213,10 +213,10 @@ Replace the entire file (preserving only the YAML frontmatter, with `description
 
 `Q.md` is the **vault-level Agent Status dashboard**. After regenerating `{NAME} Triage.md`, also regenerate the anchor's per-anchor section in `Q.md`. Per F028 Q3 (full body always):
 
-The per-anchor section is **identical content** to the just-generated `{NAME} Triage.md` body — same H2s, same bullets, same ordering. The only difference is the H1-equivalent line: the slug-prefix becomes a wiki-link via `[[NAME Triage|NAME]]` syntax (renders as "NAME" but links to the Triage file).
+The per-anchor section is **identical content** to the just-generated `{NAME} Triage.md` body — same H2s, same bullets, same ordering. The only difference is the H1-equivalent line: the entire phrase `{NAME} Triage` is the wiki-link (via `[[{NAME} Triage]]` — no pipe alias), so the link target matches what the user sees and clicks. On the Triage file itself, by contrast, the bare `[[{NAME}]]` is the link (jumping back to the anchor page) followed by the plain word "Triage". The two surfaces disambiguate by which token is clickable: clicking "NAME Triage" on Q.md goes to the Triage page; clicking "NAME" on the Triage page goes to the anchor page.
 
 ```markdown
-# [<TAG>]  [[{NAME} Triage|{NAME}]] Triage  -  Questions N    Verify N   |   Active N    Ready N   |   Now N    Next N    Later N    Icebox N
+# [<TAG>]  [[{NAME} Triage]]  -  Questions N    Verify N   |   Active N    Ready N   |   Now N    Next N    Later N    Icebox N
 - **[N Questions]** [[{NAME} Questions]]
 ## Active
 - ...
