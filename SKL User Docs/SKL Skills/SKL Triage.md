@@ -2,7 +2,7 @@
 
 Surface the **status of the anchor** — every backlog item except those in `## Later` and `## Icebox` — into one batched inbox at `{NAME} Triage.md`. The user reads it to see where everything stands and what's waiting on them; questions get answered with shorthand.
 
-DMUX trigger: **`triage`** (prefix-trigger; speaking `triage` stashes `/triage`, parallel to `snip` / `commission` / `fortify` / `groom`). Punctuation: **`"`** (a single double-quote as the entire message), parallel to `crank`/`'` and `/land`/`.`. Slash invocation: `/triage`, `/triage roadmap`, `/triage milestone {N}`.
+Punctuation trigger: **`"`** (a single double-quote as the entire message), parallel to `crank`/`'` and `/land`/`.`. Slash invocation: `/triage`, `/triage roadmap`, `/triage milestone {N}`. **Slash-only — the spoken word "triage" is NOT a DMUX prefix-trigger** (removed 2026-05-04; same reasoning as /crank and /ask).
 
 
 ## What it does

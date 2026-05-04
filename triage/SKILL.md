@@ -11,9 +11,9 @@ description: >
   `{NAME} Questions.md` facet — Triage carries one bullet line linking to it
   directly under the H1. The user can answer with shorthand like "F005 Q4: yes"
   (resolves a question) or "verified F23" (moves the item to `## Done` and
-  updates the feature-doc Status). Use when the user types `/triage`, says
-  `triage` (DMUX prefix-trigger auto-prefixes `/triage`), or sends `"` (a
-  single double-quote) as the entire message.
+  updates the feature-doc Status). Use when the user types `/triage` or
+  sends `"` (a single double-quote) as the entire message. Slash-only — the
+  spoken word "triage" is NOT a DMUX prefix-trigger.
 tools: Read, Write, Edit, Bash, Glob, Grep
 user_invocable: true
 ---
@@ -22,7 +22,7 @@ user_invocable: true
 
 Generate the agent-owned triage file at `{NAME} Docs/{NAME} Plan/{NAME} Triage.md`. The file is the **status of the anchor**: it walks the backlog, lists every item except those in `## Later` and `## Icebox`, and writes one bullet per item under workflow-state H2s (`## Active`, `## Ready`, `## Now`, `## Next`). The user reads it to see "where everything stands and what's waiting on me."
 
-DMUX trigger: **`triage`** (prefix-trigger; speaking `triage` stashes `/triage`, parallel to `snip` / `commission` / `fortify` / `groom`). Also: **`"`** (a single double-quote as the entire message), parallel to `crank`/`'` and `/land`/`.`. Slash invocation: `/triage`, `/triage roadmap`, `/triage milestone {N}`.
+Punctuation trigger: **`"`** (a single double-quote as the entire message), parallel to `crank`/`'` and `/land`/`.`. Slash invocation: `/triage`, `/triage roadmap`, `/triage milestone {N}`. **Slash-only — the spoken word "triage" is NOT a DMUX prefix-trigger** (removed 2026-05-04; too easy to fire by accident in normal speech, same reasoning as /crank and /ask; `"` is the dedicated single-keystroke shortcut).
 
 
 ## When to Use
