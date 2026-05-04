@@ -5,12 +5,12 @@ description: >
   maximum progress through Ready work — sequencing as many items as
   possible and using parallel workers when items are independent —
   stopping only when continuing would drop quality. If anything got
-  minted, exits silently so the user can re-press `'` to continue the
-  loop. If nothing got minted (no Ready at start, or quality would
-  drop), falls back to /groom + /triage to extend the runway and
-  surface the inbox. Each press runs the same loop, end to end.
-  Slash-only — "crank" is NOT a DMUX prefix-trigger
-  (too common in speech); `'` is the dedicated keystroke.
+  minted, exits silently. If nothing got minted (no Ready at start,
+  or quality would drop), falls back to /groom + /triage to extend
+  the runway and surface the inbox. Every press runs the same loop,
+  end to end — there is no second-press semantics. Slash-only —
+  "crank" is NOT a DMUX prefix-trigger (too common in speech);
+  `'` is the dedicated keystroke.
 tools: Read, Write, Edit, Bash, Glob, Grep, Task
 user_invocable: true
 ---
@@ -95,8 +95,8 @@ After the loop + branch resolves, print one line to chat:
 
 | Path | One-liner |
 |---|---|
-| Successful (≥1 mint) | `/crank — minted N items: F<a>, F<b>, ... Loop exited cleanly; press again for the next sweep.` |
-| No-action | `/crank — no Ready work this turn. Ran /groom (extended runway: M items promoted) + /triage (K items waiting on you). Press again to take action.` |
+| Successful (≥1 mint) | `/crank — minted N items: F<a>, F<b>, ... Loop exited cleanly.` |
+| No-action | `/crank — no Ready work this turn. Ran /groom (extended runway: M items promoted) + /triage (K items waiting on you).` |
 
 
 ## Runbook
@@ -143,7 +143,7 @@ Crank is the orchestrator; `/mint` is the worker. Don't reimplement /mint logic 
 Aggregate parallel-batch results and sequential-loop results into one count.
 
 If `minted_count >= 1`:
-- Print: `/crank — minted N items: <list>. Loop exited cleanly; press again for the next sweep.`
+- Print: `/crank — minted N items: <list>. Loop exited cleanly.`
 - Exit.
 
 Else (zero successful mints this turn):
