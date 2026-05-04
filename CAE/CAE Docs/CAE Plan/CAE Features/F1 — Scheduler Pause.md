@@ -4,8 +4,6 @@ description: Pause the scheduler for maintenance windows
 
 ## Open Questions
 
-Blocking decisions. This feature cannot move from **Designing → Agreed** while this list is non-empty. When a question is resolved, move it down to **Resolved** with the answer and the design section it landed in.
-
 - **Q2 — in-flight tasks on pause?** — when `pause()` is called, what happens to tasks currently executing on worker threads? Options: (a) let them finish then pause, (b) cancel them and re-enqueue on resume, (c) raise an error if any are in-flight. Leaning (a) but need user input on whether (b) is worth the complexity for hard-stop scenarios.
 
 ### Resolved

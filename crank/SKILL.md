@@ -84,6 +84,8 @@ One press of `crank` = the full sweep, not a single mint. **Do not stop after th
 
 Both `/groom` and `/triage` are **no-action fallbacks** — they fire only when crank produced zero mints this turn. Successful cranks stay quiet to preserve the loop UX (the user keeps pressing crank; the system keeps minting; only when it fatigues does the system surface a full status view).
 
+**MANDATORY on the zero-mint path:** if `minted_count == 0` (counting *this* invocation, not prior turns), the agent **MUST** invoke `/groom` and then `/triage` and print the no-action summary. There is no "name the blockers and exit" shortcut — that was second-press logic and was removed. If `/mint` couldn't run because every Ready item needs user input, that's still zero mints → /groom + /triage. Naming blockers without running /triage is a spec violation. The /triage output IS how the user learns what's blocked; bypassing it leaves them guessing.
+
 **Each press runs the same loop, end to end.** No state is carried between presses. Re-invoking after a no-action exit just scans the Ready queue again — if anything changed in the meantime (the user resolved a question, a worker finished), the next press picks it up naturally; if nothing changed, the same fallback fires.
 
 
@@ -161,6 +163,7 @@ Use one of the two formats from § Output format above.
 - Doesn't ask the user mid-loop — questions surface via `/triage` after the loop, not inline.
 - Doesn't run `/triage` after a successful crank — only on the no-action branch, to preserve the loop UX.
 - **Doesn't stop after a single successful mint just to "report progress."** Keep going until the queue is empty or the next item would drop quality. Stopping early is the failure mode.
+- **Doesn't name blockers and exit without running /triage.** If zero items were minted this turn, the spec is `/groom` → `/triage` → no-action summary. Naming the blockers in chat without surfacing /triage's full state is a spec violation (and was second-press behavior, which has been removed).
 
 
 ## Idempotence

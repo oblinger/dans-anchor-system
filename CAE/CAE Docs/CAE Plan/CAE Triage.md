@@ -2,15 +2,11 @@
 description: triage inbox (agent-owned)
 ---
 
-
-# [[CAE]] Triage   -   Active: 1    Ready: 1    Now: 2    Next: 1    Later: 1    Questions: 2    Verify: 1    Icebox: 0
-
-
+# [U+A]  [[CAE]] Triage  -  Questions 2    Verify 1   |   Active 1    Ready 1   |   Now 2    Next 1    Later 1    Icebox 0
+- **[3 Questions]**  [[CAE Questions]]
 ## Now
-
-- **F2 — Task groups** [Questions] — → [[F2 — Task Groups]] — 3 pending Qs (Q1, Q2, Q4).
-- **F7 — Webhook notifications** [Verify] — Webhook fires on task completion. Verify by triggering a test job and confirming the configured URL receives a POST with the documented JSON payload (see [[CAE PRD]] § Webhooks). → [[F7 — Webhook Notifications]] · [[CAE PRD]].
-
+- **[4 Questions]** [[F2 — Task Groups]] — Rendering of task groups.
+- **[Verify]** [[F7 — Webhook Notifications]] — Webhook fires on task completion. ([[F7 — Webhook Notifications#Verify|details]])
 ## Next
-
-- **F4 — Priority levels** [Questions] — → [[F4 — Priority Levels]] — 2 pending Qs (Q1, Q3).
+- **[5 Questions]** [[F4 — Priority Levels]] — 2 pending Qs (Q1, Q3).
+- **[3 Ready]** [[F17 — Update Backing Store]] — Milestone-style F with three independent ready sub-items.
