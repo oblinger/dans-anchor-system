@@ -53,19 +53,21 @@ Below is a condensed reference example. See the working example linked above for
 
 ## Format
 
-Each entry is a named-list item with a unique **F-number** prefix:
+Each entry is a named-list item with a unique **F-number** prefix, **zero-padded to three digits** (`F001` … `F999`):
 
 ```
-- **F{n} — Item Name** [Status] — short description.
+- **F{NNN} — Item Name** [Status] — short description.
 ```
 
 `F` is for **feature**, in the broad sense of "a thing to be done" — not strictly "feature document." Every backlog item gets an F-number, whether or not it warrants a separate feature doc. If the item has a feature doc, that doc's H1 carries the same F-number; if not, the F-row stands alone in the backlog with the description inline.
 
-The F-number lets the user refer unambiguously to a single item ("do F5", "F12 needs more detail").
+The F-number lets the user refer unambiguously to a single item ("do F005", "F012 needs more detail"). Filenames sort lexicographically the same way they sort numerically because of the zero-padding (`F002 — …` < `F010 — …` < `F100 — …`).
 
-### Numbering policy — monotonic, never recycled
+### Numbering policy — monotonic, never recycled, zero-padded triple-digit
 
-F-numbers are **assigned in monotonically increasing order** and **never reused**. When a new item is added, it gets `F{highest-F-in-file + 1}`. When an item reaches Done (or moves to Icebox, or is cancelled), its F-number is **not** released back into the pool. Stable forever.
+**Zero-padded triple-digit form**: F-numbers are written as `F001` … `F999`. The padding is structural — it makes filename sort order match numeric order without special tooling. Up to 999 F-numbers per anchor before the format would need to grow; for any active anchor, that's far in the future. Anchors that exceed 999 can extend to four digits (`F1000`) without breaking older three-digit references.
+
+**Monotonic, never recycled**: F-numbers are **assigned in monotonically increasing order** and **never reused**. When a new item is added, it gets `F{highest-F-in-file + 1}` zero-padded. When an item reaches Done (or moves to Icebox, or is cancelled), its F-number is **not** released back into the pool. Stable forever.
 
 **F-number namespace is shared across backlog AND icebox** (per `[[workflow]]` § Active-work invariant). When numbering a new feature, take the highest F-number across both `{NAME} Backlog.md` and `{NAME} Icebox.md` and increment. An item moving from backlog to icebox keeps its F-number; thawing back to backlog restores the same F-number. No collisions ever.
 
@@ -73,7 +75,7 @@ F-numbers are **assigned in monotonically increasing order** and **never reused*
 
 This is a change from the legacy B-number policy, which used gap-fill (lowest unused integer). With F-numbers:
 
-- A reference like "F11" means the same thing forever, across all reorganizations.
+- A reference like "F011" means the same thing forever, across all reorganizations.
 - Display order in the file may not match numeric order — items are added and resolved in arbitrary order.
 - Don't renumber existing items to compact — F-numbers are stable references.
 

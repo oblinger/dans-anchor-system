@@ -7,8 +7,8 @@ description: anchor-level à la carte questions (agent-owned)
 
 ## Open Questions
 
-- **Q1 — Should the CAE example use Rust or Go for code samples?** — context: CAE is a reference anchor; choosing one language pins the snippets. We've been using Rust in F1; switching means a sweep.
-  - (A) Stay with Rust — already started; consistent with F1.
+- **Q1 — Should the CAE example use Rust or Go for code samples?** — context: CAE is a reference anchor; choosing one language pins the snippets. We've been using Rust in F001; switching means a sweep.
+  - (A) Stay with Rust — already started; consistent with F001.
   - (B) Switch to Go — wider audience familiarity for an example project.
   - (C) Use both — alternate per feature.
   - **Recommendation:** Lean (A). Consistency wins; no real audience driver.

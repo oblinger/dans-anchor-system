@@ -16,17 +16,17 @@ Low-priority ideas and deferred work. Items graduate to [[CAE Roadmap]] when the
 
 ## Ready
 
-- **F1 — Structured logging** — JSON output mode for consumption by log aggregators. Design resolved: single `--log-json` flag, fields documented in [[CAE System Design]].
+- **F001 — Structured logging** — JSON output mode for consumption by log aggregators. Design resolved: single `--log-json` flag, fields documented in [[CAE System Design]].
 
 
 ## Now
 
-- **F4 — Graph dependencies** [Designing] — task B runs only after task A succeeds. Requires DAG scheduling logic, deferred until v2.
+- **F004 — Graph dependencies** [Designing] — task B runs only after task A succeeds. Requires DAG scheduling logic, deferred until v2.
 
 
 ## Next
 
-- **F2 — Web status page** [ ] — optional HTTP server exposing `/status`. Non-goal for v1 but might return.
+- **F002 — Web status page** [ ] — optional HTTP server exposing `/status`. Non-goal for v1 but might return.
 
 
 ## Later

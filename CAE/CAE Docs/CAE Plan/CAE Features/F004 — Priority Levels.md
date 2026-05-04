@@ -2,7 +2,7 @@
 description: Per-task priority levels so dispatch is not strictly FIFO — higher-priority tasks jump the queue
 ---
 
-# F4 — Priority Levels
+# F004 — Priority Levels
 
 ## Open Questions
 
@@ -17,10 +17,10 @@ description: Per-task priority levels so dispatch is not strictly FIFO — highe
   - (B) Aging — low-priority task ages up after waiting N seconds at the queue front.
   - **Recommendation:** Strong (B). Strict starvation is operationally surprising; aging is a small cost for predictability.
 
-- **Q3 — Dispatch fairness across groups vs priority?** — when F2 Task Groups land, does priority-within-group win, or group-level fairness override priority?
+- **Q3 — Dispatch fairness across groups vs priority?** — when F002 Task Groups land, does priority-within-group win, or group-level fairness override priority?
   - (A) Priority within group — each group dispatches by priority internally; round-robin across groups.
   - (B) Global priority — high-priority task in any group jumps every queue.
-  - (C) Defer this question — F2 not yet shipped; return when groups are in.
+  - (C) Defer this question — F002 not yet shipped; return when groups are in.
   - **Recommendation:** Strong (C). Don't design the cross-product before the components ship.
 
 - **Q4 — API form: per-task field or per-submit method?** — submit signature.
@@ -41,4 +41,4 @@ Allow tasks to declare a priority so urgent work doesn't sit behind routine work
 
 ## Status
 
-Designing — 5 open questions. Q3 explicitly defers until F2 ships.
+Designing — 5 open questions. Q3 explicitly defers until F002 ships.

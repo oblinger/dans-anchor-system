@@ -46,13 +46,13 @@ If a feature is `[Questions]` or `[Blocked]` mid-flight, that's tracked via the 
 
 ### 1. Create the Feature Document
 
-Determine the next F-number for the anchor (highest existing F-number + 1; per `[[CAB Backlog]]` § Numbering policy — monotonic-forever, never recycled). Create the feature doc in the project's Features folder:
+Determine the next F-number for the anchor (highest existing F-number + 1; per `[[CAB Backlog]]` § Numbering policy — monotonic-forever, never recycled, **zero-padded to three digits** as `F001` … `F999`). Create the feature doc in the project's Features folder:
 
 ```
-{anchor}/Docs/Plan/Features/F{n} — {Feature Name}.md
+{anchor}/Docs/Plan/Features/F{NNN} — {Feature Name}.md
 ```
 
-If the Features folder doesn't exist, create it. Filenames carry the F-number prefix; date is omitted (the F-number itself sorts chronologically since it monotonically increases).
+If the Features folder doesn't exist, create it. Filenames carry the F-number prefix zero-padded to three digits; the padding is structural — it makes filename sort order match numeric order without special tooling.
 
 #### 1b. Collision check — vault grep for duplicate H1 (per F27)
 
