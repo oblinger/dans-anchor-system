@@ -135,9 +135,9 @@ When Open Questions is empty, leave the H2 with a one-liner placeholder (e.g. `_
 Start with only the mandatory sections; add optional sections as the feature grows in complexity.
 
 **Mandatory:**
-- **H1 `# {Feature Name}`** — below any pre-document material
+- **H1 `# [[{NAME}]] · F{n} — {Feature Name}`** — anchor-slug breadcrumb (wiki-link to anchor page) + F-number + title. The leading `[[{NAME}]]` lets the reader (a) jump back to the anchor page and (b) immediately see which anchor they're in — load-bearing when many anchors are active and feature docs look similar across them. Filename matches without the `[[]]` brackets: `F{n} — {Feature Name}.md`.
 - **Summary** — What the feature does and why it exists (1-2 paragraphs)
-- **Status** — lifecycle state (Proposed / Designing / Agreed / Implementing / Testing / Done)
+- **Status** — lifecycle state (Designing / Agreed / Implementing / Testing / Done)
 
 **Optional (add as needed, H2 headings in document order):**
 - **Interface** — Description of external interface (API, CLI, config, user, etc.)

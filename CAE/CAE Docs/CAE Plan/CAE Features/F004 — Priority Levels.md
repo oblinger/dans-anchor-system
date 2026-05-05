@@ -2,7 +2,7 @@
 description: Per-task priority levels so dispatch is not strictly FIFO — higher-priority tasks jump the queue
 ---
 
-# F004 — Priority Levels
+# [[CAE]] · F004 — Priority Levels
 
 ## Open Questions
 

@@ -2,7 +2,7 @@
 description: Group related tasks into named collections so operators can pause, drain, or query the entire group as one unit
 ---
 
-# F002 — Task Groups
+# [[CAE]] · F002 — Task Groups
 
 ## Open Questions
 

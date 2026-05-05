@@ -90,7 +90,7 @@ This is the one place in `/feature` where an inline question is appropriate (vs.
 description: {one-line description}
 ---
 
-# F{n} — {Feature Name}
+# [[{NAME}]] · F{n} — {Feature Name}
 
 ## Open Questions
 
@@ -129,7 +129,7 @@ Designing — awaiting design discussion.
 - **Phase 3 — new Q arises later.** Recreate the `## Open Questions` H2 below H1 with the new Q. New resolutions accumulate in the temporary `### Resolved` H3 again until all are answered, then migrate to the bottom `## Resolved` H2.
 
 **Structural rules:**
-- **H1 carries the F-number.** Format: `# F{n} — {Feature Name}`.
+- **H1 carries the anchor-slug breadcrumb + F-number.** Format: `# [[{NAME}]] · F{n} — {Feature Name}`. The leading `[[{NAME}]]` is a wiki-link to the anchor page (jumps back to the anchor's home from any feature doc) and tells the reader at a glance which anchor they're in — load-bearing when many anchors are active and feature docs look similar across them.
 - **`## Open Questions` lives below H1 only while pending Qs exist** — deleted otherwise.
 - **`## Resolved` at the bottom of the doc is the permanent archive** — populated when all Qs reach resolution; never deleted.
 - The `/ask` skill (`[[ask]]`) is the universal asking subroutine — feature docs, PRDs, plan docs, anything with questions follows the same shape. Invoke `/ask --doc <path>` to add questions to a feature doc; the runbook handles formatting, glance, and global-page maintenance.
@@ -252,7 +252,7 @@ Implement <Feature Name> (S03200917)
 ## Feature Doc Conventions
 
 - **F-numbered filename** — `F{n} — {Feature Name}.md` in the Features folder. F-number from the anchor's monotonic-forever counter (per `[[CAB Backlog]]` § Numbering policy).
-- **H1 carries the F-number** — `# F{n} — {Feature Name}`.
+- **H1 carries the anchor-slug breadcrumb + F-number** — `# [[{NAME}]] · F{n} — {Feature Name}`.
 - **Open Questions BELOW the H1** while pending Qs exist; deleted entirely when zero pending. Resolved Qs migrate to a `## Resolved` H2 at the bottom of the doc.
 - **`open` the doc after every Open Questions edit (in active mode)** — mandatory, per step 1a.
 - **Status near the bottom** — single line indicating lifecycle stage. (`## Resolved`, when present, sits below Status as the historical archive.)
