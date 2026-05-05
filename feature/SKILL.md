@@ -164,6 +164,20 @@ open "<path to feature doc>"
 
 **On the create step:** glance only if you're in active mode. If creating a feature stub for backlog filing, skip the glance — the user just told you to file it; opening the file at them is the opposite of what they asked.
 
+### 1c. Refresh Triage if you're about to ask the user questions about this feature
+
+**Rule (cheap check, expensive action only when needed):** if the feature was just created with pending Qs in `## Open Questions` AND you're going to discuss those Qs with the user in this turn or the next (i.e., active mode, not parking), the feature MUST be present in `{NAME} Triage.md` so the user can navigate to it.
+
+**Procedure:**
+
+1. Read `{NAME} Triage.md` (~200 tokens, sub-second). Search for the new F-number.
+2. If found → done; Triage is current enough.
+3. If absent → invoke `/triage` (regenerates Triage and the anchor's section in `~/ob/kmr/Q.md`).
+
+**Why this is its own step (not just "always /triage"):** running /triage reads every in-scope feature doc to count Qs (~30 sec wall-clock on a busy anchor). Wall-clock loop time with the user matters more than tokens — auto-/triaging on every /feature would slow the design loop. The cheap-check + conditional-fire pattern keeps the common case (already in Triage) instant and pays the cost only when needed.
+
+**Parking mode skips this step entirely.** If the user said "put it on the backlog" / "for later," they're not engaging now; Triage will refresh on the next user-driven /triage. Same active/parking gate as the glance rule above.
+
 ### 2. Post to Stat
 
 ```bash
