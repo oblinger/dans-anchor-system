@@ -1,0 +1,92 @@
+#!/bin/bash
+# EXP — unified command for remote experimentation workflow
+#
+# Usage: exp <command> [args...] [-r/--remote <name>]
+#
+# All state (functions, config) lives in exp.sh next to this script.
+
+HELPERS_DIR="$(cd "$(dirname "$(readlink -f "$0" 2>/dev/null || echo "$0")")" && pwd)"
+source "$HELPERS_DIR/exp.sh"
+
+cmd="${1:-help}"
+shift 2>/dev/null
+
+case "$cmd" in
+    init)         exp-init "$@" ;;
+    stop)         exp-stop "$@" ;;
+    close)        exp-close "$@" ;;
+    push)         exp-push "$@" ;;
+    pull)         exp-pull "$@" ;;
+    exe)          exp-exe "$@" ;;
+    setup)        exp-setup "$@" ;;
+    status)       exp-status "$@" ;;
+    health)       exp-health "$@" ;;
+    check)        exp-check "$@" ;;
+    list)         exp-list "$@" ;;
+    default)      exp-default "$@" ;;
+    build)        exp-build "$@" ;;
+    run)          exp-run "$@" ;;
+    go)           exp-go "$@" ;;
+    worker)       exp-worker "$@" ;;
+    zap)          exp-zap "$@" ;;
+    teardown)     exp-teardown "$@" ;;
+    destroy)      exp-teardown "$@" ;;
+    clear-task)   exp-clear-task "$@" ;;
+    check-zap)    exp-check-zap "$@" ;;
+    list-zaps)    exp-list-zaps "$@" ;;
+    help|--help|-h|"")
+        cat <<'EOF'
+exp — remote experimentation workflow (multi-remote)
+
+All commands accept -r/--remote <name> to target a specific remote (default: r1).
+Each remote stores its own local folder (default: ~/.config/exp/workers/<name>/).
+Use -l to override. Each remote gets a persistent Claude Code worker session.
+
+Setup:
+  exp init <ip:port> [-r name] [-l path]  Save remote, verify, push watcher
+  exp init "port root@ip" [-r name]       Same, paste from vast.ai SSH command
+  exp init [-r name]                      No-op if already running
+  exp init [-r name] [-l path]            Update local folder (safe)
+  exp init [-r name] -f                   Force: close + re-init
+  exp setup [-r name]                     Re-run environment bootstrap (python, torch, packages)
+  exp close [-r name]                     Stop watcher on remote
+
+Run:
+  exp exe "cmd" [timeout] [-r name]       Push code, run command, wait, pull results
+  exp stop [-r name]                      Kill running command on remote
+
+Transfer:
+  exp push <folder> [-r name]             Rsync experiment folder to remote
+  exp pull <folder> [-r name]             Rsync results back from remote
+
+Monitor:
+  exp status [-r name]                    Quick status: SSH, watcher, GPU, disk, state (1 SSH call)
+  exp health [-r name] [-w [secs]] [--fix] [--alert <pane>]
+                                            Health report (--fix cleans, --alert notifies)
+  exp check [lines] [-r name]             Show last N lines from remote tmux (default 30)
+
+Remotes:
+  exp list                                Show all remotes with local folders (* = default)
+  exp default [name]                      Show or set default remote
+
+Workers:
+  exp worker [name] [--host ip:port]       Create/update worker (idempotent, preserves Claude pane)
+  exp teardown [-r name]                   Full teardown: stop, remove config, kill tmux session
+  exp zap <folder> [instruction] [-r name] Dispatch experiment folder to worker
+  exp check-zap [-r name] [lines]         Show worker Claude output
+  exp list-zaps                           Show all active workers
+
+Build:
+  exp build                               Assemble submission ZIP from default remote's project
+
+Legacy:
+  exp run <script> [-r name]              Run a script on remote (no push/pull)
+  exp go <folder> <script> [-r name]      Push + run + pull + open plots
+EOF
+        ;;
+    *)
+        echo "Unknown command: $cmd"
+        echo "Run 'exp help' for usage."
+        exit 1
+        ;;
+esac
