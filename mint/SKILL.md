@@ -30,7 +30,38 @@ Before reading the spec for implementation, wire the F-doc into the planning hie
 6. **Idempotence:** if a row for this F-doc already exists in the table, *update* its Status column if the bracket has changed; don't duplicate the row.
 7. **Verify:** `/audit features` (see [[audit-features]]) confirms the wiring landed across all named buckets.
 
-Only after all named bucket PRDs are wired (or step 0 was skipped because no federated structure exists), proceed to step 1.
+Only after all named bucket PRDs are wired (or step 0 was skipped because no federated structure exists), proceed to step 0.5.
+
+### 0.5. Integrate feature content into target docs (per [[F083 — Cross-Linking]] amendment)
+
+The link-row appended in step 0 is a **tracking marker** that promises the feature's content has been integrated into the body of the target documents. Step 0.5 fulfills that promise.
+
+**Core semantic:** at the end of this step, the target docs (PRD + Design + Architecture, wherever each exists) **reflect the content** of the feature. Linking is **never a substitute** — feature documents are commissioning artifacts, not part of the design.
+
+**Procedure (per feature):**
+
+1. **Identify the target docs.** For each bucket named in `bucket:` frontmatter, locate the target docs that exist:
+   - `{anchor}/Docs/Plan/{Bucket}/{Bucket} PRD.md` (always wired in step 0)
+   - `{anchor}/Docs/Plan/{Bucket}/{Bucket} Design.md` (if exists)
+   - `{anchor}/Docs/User/Architecture/Architecture.md` (if exists)
+
+2. **For each target doc, single LLM call with full context.** Pass to the LLM:
+   - The feature doc (full content)
+   - The current target doc body
+   - The integration prompt: *"Identify content in the feature that affects this document type (product / design / architecture concerns respectively). For each piece of feature content that belongs in this document, either append a new section or edit an existing section to incorporate the content. The target document must stand on its own — do not write 'see the feature doc for details.' If the feature has no content that affects this document, return 'no integration needed' and make no edits."*
+   - **Strict rule:** never link back to the feature doc as a substitute for content. The Feature Docs row in the PRD is the only acceptable link; the body of the doc must contain the actual content.
+
+3. **Apply the LLM's proposed edits** to the target doc. Each edit is announced inline: `**Integrating <feature> into <doc>: <action summary>.**`
+
+4. **Idempotence:** if integration was previously done (content already present in target doc), the LLM should report "already integrated" and make no edits.
+
+5. **If the feature truly has no content for a particular target doc**, the LLM returns "no integration needed" for that doc. That's a valid outcome — don't force-fit content.
+
+**Per-rename behavior** inherits [[F068]] amendment: visible + low recoverability cost → auto-decide. Subsystem-level renames and interface-touching renames (CLI names, public API surfaces) are interface-sticky → ASK.
+
+**Failure mode to watch for:** the LLM produces an edit that just appends *"See [[F{N} — {Feature}]] for details"* without actual content. **This is forbidden.** If the agent detects this in the proposed edit, reject and re-prompt.
+
+Only after step 0.5 lands across all target docs, proceed to step 1.
 
 ### 1. Assess
 
