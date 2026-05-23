@@ -101,7 +101,7 @@ description: {one-line description}
 
 - **Q0 — {earlier question}** — **Resolution:** {decided X because Y}. Incorporated into Design § {section}.
 
-(**No boilerplate prose** under `## Open Questions` or `### Resolved` headings. No "Blocking decisions / cannot move from Designing → Agreed" intro, no "(Temporary holding pen for resolved Qs...)" caption. Just the heading then the bullets. Per durable feedback memory.)
+(**No boilerplate prose** under `## Open Questions` or `### Resolved` headings. No "Blocking decisions / cannot move from Designing → Agreed" intro. Just the heading then the bullets. Per durable feedback memory.)
 
 ## Summary
 
@@ -117,22 +117,40 @@ Designing — awaiting design discussion.
 
 ## Resolved
 
-(Bottom-of-doc archive. Populated only after all Qs have been resolved at least once. Never deleted; this is the historical record.)
+(Bottom-of-doc archive of all resolved decisions — both agent-auto-decided and user-answered. Each entry is an H3. Populated as decisions resolve; never deleted; this is the historical record.)
 
-- **Q0 — {earlier question}** — **Resolution:** {decided X because Y}. Incorporated into Design § {section}.
+### {Title — H3, agent-decided form}
+**Choice:** {what was decided}
+
+{Brief reasoning. Alternatives considered. Why they were rejected.}
+
+### Q{N} — {Title — H3, user-answered form}
+**Choice:** {what was decided}
+
+{Brief reasoning. Includes what was discussed; references Design § X if the resolution was incorporated.}
 ```
 
 **Lifecycle phases for Questions:**
 
-- **Phase 1 — pending Qs exist.** `## Open Questions` H2 sits directly below the H1, containing pending Qs. Resolved Qs accumulate inside as a `### Resolved` H3 sub-section.
-- **Phase 2 — all Qs resolved.** Delete the `## Open Questions` H2 entirely. Migrate all accumulated `### Resolved` content to a `## Resolved` H2 at the **bottom** of the doc (creating that section if it doesn't exist; appending if it does). Top of doc is now clean: H1 → Summary → Design → Status → Resolved.
-- **Phase 3 — new Q arises later.** Recreate the `## Open Questions` H2 below H1 with the new Q. New resolutions accumulate in the temporary `### Resolved` H3 again until all are answered, then migrate to the bottom `## Resolved` H2.
+- **Phase 1 — pending user Qs exist.** `## Open Questions` H2 sits directly below the H1, containing pending Qs. Resolved Qs accumulate inside as a `### Resolved` H3 sub-section *until all are answered*.
+- **Phase 2 — all Qs resolved.** Delete the `## Open Questions` H2 entirely. Migrate the staged `### Resolved` H3 content to the bottom `## Resolved` H2 (creating it if absent). Top of doc is now clean: H1 → Summary → Design → Status → Resolved.
+- **Phase 3 — new Q arises later.** Recreate `## Open Questions` H2 below H1 with the new Q. Same lifecycle as Phase 1.
+- **Auto-decisions skip Phase 1 entirely.** Agent decisions made under the [[F068]] visibility + low-recoverability rule go *directly* into the bottom `## Resolved` H2 as H3 entries, without staging at top. They co-exist there with user-answered Qs.
 
 **Structural rules:**
 - **H1 carries the anchor-slug breadcrumb + F-number.** Format: `# [[{NAME}]] · F{n} — {Feature Name}`. The leading `[[{NAME}]]` is a wiki-link to the anchor page (jumps back to the anchor's home from any feature doc) and tells the reader at a glance which anchor they're in — load-bearing when many anchors are active and feature docs look similar across them.
-- **`## Open Questions` lives below H1 only while pending Qs exist** — deleted otherwise.
-- **`## Resolved` at the bottom of the doc is the permanent archive** — populated when all Qs reach resolution; never deleted.
+- **`## Open Questions` lives below H1 only while pending user Qs exist** — deleted otherwise.
+- **`## Resolved` at the bottom holds all resolved decisions as H3 entries** — both agent-decided and user-answered. The H3 outline IS the decision list; click any H3 to read its full record. H3 title format: `### Q{N} — {Title}` for user-answered (Q-numbered); `### {Title}` for agent-decided (no Q-number — they were never asked). Each H3 body has: `**Choice:** X.` + brief reasoning + alternatives considered + why rejected.
 - The `/ask` skill (`[[ask]]`) is the universal asking subroutine — feature docs, PRDs, plan docs, anything with questions follows the same shape. Invoke `/ask --doc <path>` to add questions to a feature doc; the runbook handles formatting, glance, and global-page maintenance.
+
+**When to ask vs auto-decide (per [[F068]] amendment 2026-05-22):**
+
+Before adding a question to `## Open Questions`, self-check: is the choice **visible** (user encounters it in normal workflow within a session or two) AND has **low recoverability cost** (cheap to reverse later — accounting for downstream lock-in, not just whether reversal is theoretically possible)?
+
+- If BOTH = yes → don't ask. Emit `**Assuming: <choice>.**` in the moment AND add an H3 entry directly under `## Resolved` at the bottom of the feature doc. The H3 title is the short decision name (no Q-number); body is `**Choice:** X.` plus brief reasoning and alternatives considered.
+- If EITHER = no → escalate to `## Open Questions` as a numbered Q.
+
+Always ASK when: invisible OR high recoverability cost OR irreversible (push / external messages / hard deletes / deploys) OR interface-decision-sticky (slash command names, frontmatter schemas, default keybindings, durable file naming). New-feature-without-approval always asks.
 
 ### 1.5. Add a backlog (or roadmap) row — MANDATORY (per [[workflow]] § Active-work invariant)
 
@@ -164,19 +182,19 @@ open "<path to feature doc>"
 
 **On the create step:** glance only if you're in active mode. If creating a feature stub for backlog filing, skip the glance — the user just told you to file it; opening the file at them is the opposite of what they asked.
 
-### 1c. Refresh Triage if you're about to ask the user questions about this feature
+### 1c. Refresh the anchor's Q.md section (per F075 post-condition)
 
-**Rule (cheap check, expensive action only when needed):** if the feature was just created with pending Qs in `## Open Questions` AND you're going to discuss those Qs with the user in this turn or the next (i.e., active mode, not parking), the feature MUST be present in `{NAME} Triage.md` so the user can navigate to it.
+**Rule:** every Phase transition in `/feature` (Phase 1 → Phase 2 when all Qs resolve; Phase 2 → Phase 3 when a new Q arises; Status changes Designing → Agreed → Implementing → Done) is a state-touching action — call the Q.md update post-condition per `[[F075]]` Q2.
 
-**Procedure:**
+**Procedure (the post-condition, fired at end of `/feature` invocation when state changed):**
 
-1. Read `{NAME} Triage.md` (~200 tokens, sub-second). Search for the new F-number.
-2. If found → done; Triage is current enough.
-3. If absent → invoke `/triage` (regenerates Triage and the anchor's section in `~/ob/kmr/Q.md`).
+1. Update the touched backlog row's text/bracket in `{NAME} Backlog.md` to reflect the new state. **Backlog file source order is preserved** — do not reorder.
+2. Regenerate the anchor's per-anchor section in `~/ob/kmr/Q.md` (per `[[triage]]` § 6 — walk the backlog, compute the section, remove any existing section for this anchor, insert at top). Bubble-to-top is a Q.md behavior only.
+**Then invoke `/audit q` to verify (per F076 Q6 auto-wiring).** The audit's fix-by-default behavior catches any drift introduced by this skill's edits — broken links, stale brackets, banner mismatches, stale `[Done]` rows — and either repairs them mechanically OR (rare) files a `QFix [Ready]` backlog entry the user can address later. Surfacing any QFix entry is part of this skill's "done" criteria.
 
-**Why this is its own step (not just "always /triage"):** running /triage reads every in-scope feature doc to count Qs (~30 sec wall-clock on a busy anchor). Wall-clock loop time with the user matters more than tokens — auto-/triaging on every /feature would slow the design loop. The cheap-check + conditional-fire pattern keeps the common case (already in Triage) instant and pays the cost only when needed.
+**Active mode (the user is engaging now)** — after the post-condition runs, the glance step (§ 1a) already opens `~/ob/kmr/Q.md` per the F075 single-glance-target rule.
 
-**Parking mode skips this step entirely.** If the user said "put it on the backlog" / "for later," they're not engaging now; Triage will refresh on the next user-driven /triage. Same active/parking gate as the glance rule above.
+**Parking mode skips the glance**, but the Q.md update post-condition **still fires** — Q.md is the persistent dashboard; it should reflect the just-filed feature even when the user said "for later." The next time the user opens Q.md, the parked feature is at the top.
 
 ### 2. Post to Stat
 

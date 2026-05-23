@@ -1,12 +1,14 @@
 ---
 name: audit
 description: >
-  Anchor auditing — verify structure, rules, documentation, code quality, and publish readiness.
-  Each sub-audit reports findings and writes a backlog entry. **Audit never fixes** — fixing is
-  downstream work, pulled from the backlog later.
-  Use when the user says: "audit this", "check the structure", "are the docs current",
-  "lint this", "check before publish", "any broken links", "run an audit".
-  Subcommands: /audit structure, /audit rules, /audit docs, /audit publish, /audit code.
+  Anchor auditing — verify structure, rules, documentation, code quality, publish readiness, and
+  Q.md / triage consistency. Most sub-audits report findings and write a backlog entry
+  (**audit never fixes** — fixing is downstream work, pulled from the backlog later). The `/audit q`
+  subaction is the **exception per F076**: it fixes by default (script-vs-skill split — the underlying
+  script is read-only + `--fix` flag; the skill always passes `--fix`). Use when the user says: "audit this",
+  "check the structure", "are the docs current", "lint this", "check before publish", "any broken links",
+  "audit Q", "run an audit". Subcommands: /audit structure, /audit rules, /audit docs, /audit publish,
+  /audit code, /audit q (fix-by-default per F076), /audit q-fix (pick up a QFix backlog entry per F076).
   Add "dry" anywhere in the args to print findings without writing a backlog entry.
 tools: Read, Write, Edit, Bash, Glob, Grep, Agent
 user_invocable: true
@@ -14,11 +16,13 @@ user_invocable: true
 
 # Audit
 
-Audits diagnose. They never fix. Each sub-audit produces a single **backlog entry** under `## Upcoming` in `{NAME} Backlog.md`, with **one sub-bullet per finding**. The fix work happens later, when someone pulls that backlog item — sub-bullets are the natural split points if the work needs to be broken up.
+Audits diagnose. Most never fix. Each sub-audit produces **≥1 backlog entry** under `## Next` (default horizon — deprioritized by default; per F061 Q4) in `{NAME} Backlog.md`, **pre-split by state-cluster** of the remaining findings (one `[Ready]` row for mechanical findings, one or more `[Questions]` rows for findings needing user input). The fix work happens later, when someone pulls that backlog item — sub-bullets within a row are the natural splits if the work needs to be broken up further.
+
+**Exception — `/audit q`** (per F076): fixes by default because Q.md drift is mechanical and unambiguous to repair. The three-tier flow (mechanical via Python script → agent-inline-judgment → singleton `QFix` backlog entry only for truly intractable findings) keeps the audit-fixes-it model contained to the Q.md surface where the cost/benefit decisively favors auto-repair. The broader principle "audit never fixes" still applies to every OTHER subaction.
 
 ## Runbook
 
-### Single sub-audit (`/audit structure`, `/audit docs`, `/audit rules`, `/audit publish`, `/audit code`)
+### Single sub-audit (`/audit structure`, `/audit docs`, `/audit rules`, `/audit publish`, `/audit code`, `/audit q`, `/audit q-fix`)
 
 1. Read the sub-skill file from this folder (it contains the full checklist inline).
 2. Execute the runbook in that file. It scans, reports findings, and writes the backlog entry.
@@ -53,22 +57,45 @@ There is no `--fix` flag. Audits never fix.
 
 ## Backlog entry format
 
-Each sub-audit writes (or appends, if needed) a single named-list item under `## Upcoming` in `{NAME} Docs/{NAME} Plan/{NAME} Backlog.md`:
+Each sub-audit produces **≥1 backlog row**, pre-split by **state-cluster** of the remaining findings (per F061 Q4). The split is mechanical:
+
+- **One `[Ready]` row** containing all sub-bullets that have **no open questions** — mechanical / spec-clear / no user policy needed. The agent (or `/crank`) can pick this up immediately.
+- **One or more `[Questions]` rows** for sub-bullets that need user input. Each cluster of related questions gets its own row; orthogonal question-sets get separate rows so the user can resolve them independently. Each `[Questions]` row links to a feature doc (`→ [[F<n> — <Title>]]`) holding the Qs parked per `[[ask]]`.
+- **Done sub-bullets are excluded entirely** — they shouldn't appear in an audit-result row at all. If a finding is resolved during audit-write, drop it.
+
+**Default horizon: `## Next`, NOT `## Now`.** Audit findings are surfaced but **deprioritized by default** — they don't compete with whatever's currently flowing through `## Now`. The user can promote to `## Now` explicitly when the audit work moves up in priority. Use `## Now` only when the audit was explicitly invoked because the user wants the findings to land in the active horizon.
+
+Row template (one row per state-cluster):
 
 ```
-- **B<n> — <Kind> audit: <N> findings (<YYYY-MM-DD>)** [Ready] — work surfaced by `/audit <kind>`. Sub-bullets are candidate splits if this needs to be broken up.
+- **F<n> — <Kind> audit (<state-cluster>): <N> findings (<YYYY-MM-DD>)** [Ready] — work surfaced by `/audit <kind>`. Sub-bullets are candidate splits if this needs to be broken up.
   - <Finding 1 — file:line / category — short description>
   - <Finding 2 — …>
-  - …
 ```
 
-**Status bracket — default `[Ready]`.** Audit findings are *ready by default*: each finding is a concrete piece of work (file path, category, suggested fix) that can be done without further user involvement, so the entry meets the Definition of Ready (per [[workflow]] § Definition of Ready). If the audit produces a finding that genuinely *would* need the user to clarify (rare — usually means the audit isn't being specific enough), the entry gets `[Questions]` instead and a `→ [[Doc]]` link to a feature doc holding the questions.
+For the `[Questions]` row(s):
 
-**B-number assignment.** Read the Backlog file, scan for existing `**B<n>` markers, pick the lowest unused integer (per [[CAB Backlog]] § Format).
+```
+- **F<n> — <Kind> audit (Questions: <cluster name>): <N> findings (<YYYY-MM-DD>)** [Questions] — → [[F<n> — <Title>]].
+  - <Finding 1 — file:line / category — what's needed from the user>
+  - <Finding 2 — …>
+```
 
-**One entry per sub-audit run.** Each invocation of `/audit <kind>` writes exactly one entry — no merging with prior audit entries (those are stable references). If a prior entry from the same sub-audit is still under `## Upcoming` and untouched, the user can decide whether to consolidate manually.
+**No aggregate `[Partial — …]` row.** That bracket form is banned by `[[CAB Backlog]]` § Status brackets. Pre-splitting by state-cluster on creation IS the spec; never collapse mixed-state findings into a single row.
 
-**Sub-bullets are findings, one each.** Don't pre-group findings into super-bullets — keep one finding per line so each is independently actionable. If the audit naturally produces categories (e.g. `audit docs` has `missing-doc`, `stale-classes`, etc.), order sub-bullets by category, then by file path.
+**F-number assignment.** Read the Backlog file, scan for existing `**F<n>` markers, pick `F{highest + 1}` zero-padded (per `[[CAB Backlog]]` § Numbering policy). If the sub-audit produces multiple rows (a `[Ready]` row + one or more `[Questions]` rows), each gets its own F-number; assign them in sequence.
+
+**One row-set per sub-audit run.** Each invocation of `/audit <kind>` writes its state-clustered row(s) — no merging with prior audit entries (those are stable references). If a prior entry from the same sub-audit is still un-cleared, the user can decide whether to consolidate manually.
+
+**Sub-bullets are findings, one each.** Don't pre-group findings into super-bullets within a row — keep one finding per line so each is independently actionable. Within a row, order sub-bullets by category, then by file path.
+
+
+## Q.md update post-condition (per F075)
+
+After writing the audit finding row(s) to `{NAME} Backlog.md`, regenerate the anchor's per-anchor section in `~/ob/kmr/Q.md` per `[[triage]]` § 6 — walk the backlog, compute the section, remove any existing section for this anchor, insert at the top of Q.md's body (bubble-to-top). **The backlog file is NOT reordered** — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior; the user reading Q.md sees the just-audited anchor at the top with its new finding rows.
+
+When the orchestrator (bare `/audit`) collects results from multiple worker sub-audits, fire the Q.md regen **once at the end** (after all workers return), not once per worker — write amplification is unhelpful and bubble-to-top semantics work fine with the final state.
+
 
 ## Actions
 
@@ -79,6 +106,9 @@ Each sub-audit writes (or appends, if needed) a single named-list item under `##
 | `/audit docs` | [[audit-docs]] | [[audit-docs.compiled]] | Module docs vs source code |
 | `/audit publish` | [[audit-publish]] | — | PII, credentials, sensitive paths |
 | `/audit code` | [[audit-code]] | — | Code quality: silent fallbacks, dead code, magic values (Semgrep + agent) |
+| `/audit q` | [[audit-q]] | — | `~/ob/kmr/Q.md` constraints: link existence, Q-marker existence at target, banner derivation. **Fixes by default** (script-vs-skill split per F076 Q4); three-tier flow (mechanical → agent-inline-judgment → QFix backlog). Auto-wired post-condition into the 5 F075 participating skills. Per [[F076 — audit q — Q.md constraint validator with mechanical-fix mode]]. |
+| `/audit q-fix` | [[audit-q-fix]] | — | Pick up a singleton `QFix [Ready]` backlog entry filed by an earlier `/audit q` run; work through its findings with agent judgment; re-run `/audit q` until QFix entry disappears (converged) or findings stall (user-input needed; ≤3-iteration cap). Per F076 Q5. |
+| `/audit features` | [[audit-features]] | — | F-doc cross-linking — every F-doc in `SKA Features/` reachable from at least one bucket PRD's Feature Docs table. Per [[F083 — Cross-Linking]]. Orthogonal to `/audit q` (different invariant, different output). |
 
 ## Which apply
 

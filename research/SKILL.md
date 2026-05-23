@@ -13,7 +13,6 @@ user_invocable: true
 # Research — Investigation & Synthesis
 Structured research workflows for gathering, analyzing, and synthesizing information from web sources, documents, and codebases.
 
-
 ## Report Output — All Types
 
 Every research action produces a report in the **RRR** (Research Reports) anchor:
@@ -39,6 +38,7 @@ Every research action produces a report in the **RRR** (Research Reports) anchor
 | ------------------- | -------------------- | ----------------------------------------------------------- |
 | `/research dig`     | [[research-dig]]     | Deep investigation of a specific entity — produce a dossier |
 | `/research survey`  | [[research-survey]]  | Broad survey of a topic area — produce a landscape report   |
+| `/research skill`   | [[research-skill]]   | Compare agent skills addressing a concept — choice-point analysis + groupings |
 | `/research person`  | [[research-person]]  | Research a person — produce an AT person-file dossier        |
 | `/research book`    | [[research-book]]    | Research a book — produce a summary in BOOK Summary          |
 
