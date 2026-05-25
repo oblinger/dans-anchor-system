@@ -33,9 +33,9 @@ Feature spec: `[[F074 — Architect skill — Architecture as anchor folder with
 | `/architect drift` | [[architect-drift]] | Read-only arch-vs-code drift report. Categorizes findings (Aligned / Orphan in code / Ghost in arch / Diverged); writes report to `Versions/{date} Drift Report.md`; never modifies arch or code. |
 | `/architect new` | [[architect-new]] | Greenfield architecture draft from features/PRD only. No anchoring bias from existing code/arch. Writes to `Versions/{date} Architecture (greenfield).md`. |
 | `/architect update` | [[architect-update]] | Snapshot current arch → integrate new ideas in-place → `## Changes since [[snapshot]]` at bottom. **Bare `/architect` routes here** per F084. |
-| `/architect changes` | (planned) | Re-derive `## Changes since` section from structural diff (recovery tool). |
+| `/architect changes` | [[architect-changes]] | Re-derive `## Changes since` section from structural diff (recovery tool). Shares arch-doc parser + semantic-diff engine with `/architect update`. |
 
-**Bare `/architect`** (no sub-action) routes to `/architect update` — the most common action. The legacy single-pass behavior documented below is superseded by `[[architect-update]]`; retained inline for historical reference until `/architect changes` ships and the F084 split is fully complete.
+**Bare `/architect`** (no sub-action) routes to `/architect update` — the most common action. The legacy single-pass behavior documented below is superseded by the four-sub-skill family ([[architect-new]] / [[architect-update]] / [[architect-drift]] / [[architect-changes]]); retained inline for historical reference and may be removed in a follow-up cleanup.
 
 
 ## When to Use
