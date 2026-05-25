@@ -35,6 +35,8 @@ The agent determines top-level vs sub-skill from conversation context: if the us
 **Default when ambiguous: top-level.** Better to end with `/triage` once when not strictly needed than to skip it when the user expected it.
 
 
+**Question format when parking**: when `/groom` creates a feature doc with `## Open Questions`, the questions follow the [[ask-format]] discipline.
+
 ## When to Use
 
 - User says `groom`, `/groom`, `groom the backlog`, `tidy the backlog`, or asks for the backlog to be promoted/cleaned.
@@ -100,6 +102,28 @@ Walk every bullet in scope. For each bullet, derive its status (per § Item Stat
 
 If scope was provided as an argument, narrow to bullets in that section only.
 
+### 2a. Bracket reassessment — rewrite stale/non-standard brackets (per F061)
+
+Before promotion work, walk every bullet in scope and **reassess any non-standard or stale bracket**, rewriting to the correct standard bracket per `[[workflow]]`. This is the structural home for the rebracketing discipline; `/triage` enforces honesty at render-time, `/groom` is where the actual rewrites land. The bracket-reassessment runs lazily — `/crank`'s cascade (per `[[crank]]` § 2a) only invokes `/groom` when the Ready queue runs dry, so most cycles don't pay the cost.
+
+Cases to detect and rewrite:
+
+- **`[Partial — N of M done]`** (or any `[Partial …]` variant) — NOT a valid bracket per `[[CAB Backlog]]` § Status brackets. Reassess by reading the row body + sub-bullets + linked feature doc:
+  - All remaining sub-bullets are mechanical and unblocked → rewrite to `[Ready]`. Move partial-progress count to the row body if useful.
+  - All remaining sub-bullets need user input → rewrite to `[Questions]`, add a `→ [[F<n> — Title]]` link to the feature doc (creating one with the Qs parked if needed, per § 3 below).
+  - Mixed heterogeneous sub-bullets → **pre-split the row** per `[[CAB Backlog]]` aggregate-row treatment: one `[Ready]` row for the mechanical sub-bullets, one or more `[Questions]` rows for the user-gated ones. Drop any Done sub-bullets entirely.
+- **`[Designing]` with no open Qs** in the linked feature doc — rewrite to `[Ready]` if Definition of Ready is met, else `[Questions]` if the design surfaced new Qs.
+- **`[Done]`-bracketed row in a horizon H2** — move the row to `## Done`. (Stale; `/triage` skips it, `/groom` migrates it.)
+- **`[Blocked]` whose blocker has resolved** — rewrite to `[Ready]` (or `[Designing]` if more design work is needed). Read the body to identify the blocker; check whether the named actor's action has landed or the chained F<NNN> has reached `[Done]`.
+- **`[Waiting]` whose awaited event has occurred** — rewrite to `[Verify]` (event happened, needs checking) or `[Active]` (event happened, work can resume).
+- **`[Watching Nd]` whose soak expired with no recurrence** — rewrite to `[Verify]` so the user can confirm the fix held and close to `[Done]`.
+- **`[Watching]` with recurrence during the soak** — rewrite to `[Active]` or `[Designing]` (the fix didn't hold; resume work).
+- **`[Verify-by YYYY-MM-DD]` past its date** (per [[ask-format]] § Deferred-by-use Verify) — default: move the row to `## Done` with note *"Auto-Done <today> — `[Verify-by <date>]` window expired with no failure surfaced"*. Optional alternative: if the agent has evidence the change wasn't actually exercised since the row was filed (e.g., the relevant skill hasn't run, no usage observed), extend the bracket to `[Verify-by <new-date>]` with a body note *"Extended — no usage observed yet"*. Default is auto-Done; extension is the rare case.
+- **Lazy-Blocked / Lazy-Waiting / Lazy-Watching** (body doesn't name what makes the state honest) — rewrite per `[[triage]]` § Lazy states (usually `[Ready]` or `[Questions]` in disguise).
+- **Bracket-H2 mismatch** — a row under `## Ready` H2 with a `[Questions]` / `[Blocked]` / `[Waiting]` / `[Watching]` bracket is misplaced (H2 implies state; bracket carries state). Either rewrite the bracket if state changed (the H2 was right) or move the row to a horizon H2 carrying the bracket (the bracket was right). The body usually disambiguates.
+
+This reassessment is **the** primary value `/groom` adds beyond promotion: without it, `[Blocked]` / `[Waiting]` / `[Watching]` becomes a write-only graveyard and stale `[Ready]` rows mislead `/crank`.
+
 ### 3. For each candidate, in source order
 
 **Investigate quietly.** Read related docs, infer answers from context, draft a spec, run lightweight planning. You may quietly invoke any of: research, plan, architect, spec, replan, `/ask` (in parking mode). Do not prompt the user for anything during investigation.
@@ -134,15 +158,20 @@ Print a summary table:
 | Skipped | N | {reasons summarized} |
 ```
 
-### 5. (Top-level only) Hand off to `/triage`
+### 5. Q.md update post-condition (per F075)
+
+Whether top-level or sub-skill: if `/groom` mutated any backlog row's text/bracket (promoted, rebracketed, parked questions, etc.), regenerate the anchor's per-anchor section in `~/ob/kmr/Q.md` per `[[triage]]` § 6 — walk the backlog, compute the section, remove any existing section for this anchor, insert at the top of Q.md's body (bubble-to-top). **The backlog file is NOT reordered** — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior.
+**Then invoke `/audit q` to verify (per F076 Q6 auto-wiring).** The audit's fix-by-default behavior catches any drift introduced by this skill's edits — broken links, stale brackets, banner mismatches, stale `[Done]` rows — and either repairs them mechanically OR (rare) files a `QFix [Ready]` backlog entry the user can address later. Surfacing any QFix entry is part of this skill's "done" criteria.
+
+### 6. (Top-level only) Hand off to `/triage`
 
 **If sub-skill invocation: stop here.** The parent skill will surface state.
 
 **If top-level invocation:**
-- Invoke `/triage`. It regenerates `{NAME} Triage.md` and the anchor's H2 in `Q.md`, glances the Triage file, and prints the per-bucket count line. This is the user's "what just happened?" view.
+- Invoke `/triage` (which regenerates the anchor's Q.md section per `[[triage]]` § 6 and glances `~/ob/kmr/Q.md` per `[[triage]]` § 7). This is the user's "what just happened?" view. (Step 5's Q.md regen is redundant when `/triage` follows immediately — `/triage` rewrites the same section. Either run idempotently produces the same result; keep both because sub-skill invocations don't fire step 6.)
 - If the inline-deferred slot is filled (per § Step 3 inline-deferred slot rules), print the question on the line **after** /triage's output, pinning it to the bottom of the screen.
 
-The earlier per-step UX (open the first blocked-on-questions doc, separate `/roster` invocation) is subsumed by `/triage` — it shows the inbox of items waiting on user input, including the newly-parked feature docs.
+The earlier per-step UX (open the first blocked-on-questions doc, separate `/roster` invocation) is subsumed by `/triage` — Q.md shows the inbox of items waiting on user input, including the newly-parked feature docs.
 
 
 ## Design Principle — Minimize User Back-and-Forth

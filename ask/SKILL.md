@@ -190,51 +190,15 @@ Every question gets a unique `Q<n>` prefix — `Q1`, `Q2`, ..., `Qn` — assigne
 
 ### 2. Format each question
 
-Every question has the same shape so the user can scan many at once and rubber-stamp the high-confidence ones.
+The full question-format spec — five-piece layout, recommendation-strength labels, spacing rules, block-ID navigation invariant, canonical examples — lives in the **[[ask-format]]** discipline. Every parented `/ask` invocation writes per that discipline. See `skills/ask-format/SKILL.md`.
 
-**Layout:**
+Summary of the rules `/ask` applies when writing a question:
+- Question header at top level with mandatory `^<container>-Q<n>` block-ID.
+- Alternatives as labeled sub-bullets `(A)`, `(B)`, `(D1)`, etc. — one per bullet, never embedded prose.
+- Recommendation outdented as sibling of the Question header — `**Recommendation:**` + Strong/Lean/None + reason.
+- Block-ID link form (`[[file#^id|label]]`) for any external reference to a specific Q.
 
-1. **Question header** — one line: `- **Q<n> — Short question name** — context, why we're asking, what's at stake.`
-2. **Options as sub-bullets** when there are more than one. Inline-prose-with-A-B-C is hard to skim.
-3. **Recommendation as the final sub-bullet**, prefixed with the bolded word `**Recommendation:**` (the eye-anchor) followed by the strength label and the answer.
-
-**Recommendation strength — three labels, always explicit:**
-
-| Label | When to use | Format |
-|---|---|---|
-| **Strong** | High confidence; clear reason; alternatives have no meaningful trade-off. User can rubber-stamp. | `- **Recommendation:** Strong (B). <optional one-line reason>.` |
-| **Lean** | Moderate confidence; one option seems better but alternatives are defensible. User should consider. | `- **Recommendation:** Lean (B). <one-line reason>.` |
-| **None** | Genuine uncertainty — user-preference-dependent or insufficient context. | `- **Recommendation:** None. <one-line reason: why uncertain>.` |
-
-**Pick exactly one label.** Don't fudge with "lean strongly" or "weak recommendation" — those collapse to Lean. The bolded **Recommendation:** prefix is the eye-anchor; the user scans a column of bold "Recommendation:" labels and zips through strength labels to see which need thought (Lean / None) and which can be accepted at a glance (Strong).
-
-**Spacing — tight inside, loose between:**
-
-- **No blank line** between the last option sub-bullet and the recommendation sub-bullet — they belong to the same question.
-- **One blank line after the recommendation**, separating each question from the next.
-
-**Example:**
-
-```
-- **Q3 — `/land` + `/roster`: always run roster, or only when work was landed?** When `/land` finds nothing in flight, two options:
-  - (A) Always run roster — print state-of-the-work even when zero activities landed. Cost: one extra block of output.
-  - (B) Only run roster after work was landed — skip if there was nothing in flight. Cost: lose the "you're at zero, here's the next-action menu" signal in the empty case.
-  - **Recommendation:** Lean (A). The empty case still benefits from a "here's what's queued up" view; the cost is tiny.
-
-- **Q4 — Next question name** — context.
-  - (A) Option A — short description.
-  - (B) Option B — short description.
-  - **Recommendation:** Strong (B). One-line reason.
-```
-
-When there are no options (open-ended question), the recommendation sub-bullet still applies:
-
-```
-- **Q5 — How should we name the new module?** — context.
-  - **Recommendation:** None. Pure preference call — your choice between `worker`, `runner`, or `executor`.
-```
-
-**Why this matters.** Without the explicit strength label, every question reads as if it deserves equal scrutiny — the user has to re-evaluate even the obvious calls. With the bolded **Recommendation:** anchor + label, **Strong** picks become rubber-stamps, **Lean** picks get a quick read, and **None** picks get the thinking time they need. The user's attention budget is the constraint; the format spends it where it matters.
+See [[ask-format]] for details, edge cases (open-ended Qs, follow-on child Qs), and enforcement.
 
 ### 3. Write to the target surface
 
@@ -294,7 +258,7 @@ description: anchor-level à la carte questions (agent-owned)
 After writing the new question(s), regenerate the anchor's local triage file from scratch — same logic `/triage` runs. This keeps the local triage consistent with the just-added Q. See `triage/SKILL.md` § Runbook for the full regen logic. Summary (per F28):
 
 - Walk `{NAME} Backlog.md`. Compute the H1 banner counts (Questions / Verify | Active / Ready | Now / Next / Later / Icebox) and the anchor TAG (cascading rule: U / A / U+A / G / ? / `[]`).
-- Render the H1 banner: `# [<TAG>]  [[{NAME}]] Triage  -  Questions N    Verify N   |   Active N    Ready N   |   Now N    Next N    Later N    Icebox N`.
+- Render the H1 banner: `# [<TAG>]  [[{NAME}]] Triage  -  Ready N    Questions N   |   Now N    Next N    Later N    Icebox N`.
 - If `{NAME} Questions.md` has any pending Qs, render the bullet line directly under the H1: `- **[N Questions]**  [[{NAME} Questions]]`.
 - Render `## Active`, `## Ready`, `## Now`, `## Next` H2s (in that order), each with one bullet per item in source order from the backlog. Bracket forms: `**[Active]**` / `**[Ready]**` / `**[N Ready]**` / `**[Verify]**` / `**[N Questions]**`. Omit any H2 with zero items.
 - **No blank lines in the body.** No `## À la carte` H2 (the bullet line under H1 replaces it). No items from `## Later` or `## Icebox` in the body.
@@ -309,7 +273,7 @@ After writing the new question(s), regenerate the anchor's local triage file fro
 1. Determine the anchor (`{NAME}`) from `--doc <path>` or the working directory (walk up to `.anchor`).
 2. Compute the same H1 banner as the just-generated `{NAME} Triage.md` — same TAG, same counts, same spacing — but with the slug as a wiki-link to the Triage file via `[[{NAME} Triage|{NAME}]]` syntax (renders as the slug, links to Triage):
    ```
-   # [<TAG>]  [[{NAME} Triage|{NAME}]] Triage  -  Questions N    Verify N   |   Active N    Ready N   |   Now N    Next N    Later N    Icebox N
+   # [<TAG>]  [[{NAME} Triage|{NAME}]] Triage  -  Ready N    Questions N   |   Now N    Next N    Later N    Icebox N
    ```
 3. **If TAG is `[]`** (no items anywhere): remove any existing per-anchor section for `{NAME}` from `Q.md`. Done.
 4. **Otherwise**: render the per-anchor section as the **identical body** to the just-generated `{NAME} Triage.md` (per F028 Q3 — full body always):

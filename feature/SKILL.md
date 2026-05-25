@@ -17,6 +17,8 @@ Manage a feature from initial idea through design, agreement, implementation, te
 
 **MANDATORY: Commit discipline.** Before starting a new feature or switching to any other activity, commit all uncommitted work from the current feature. The natural commit point is the transition — not when you think you're done, but when you're about to do something else.
 
+**Question format**: the `## Open Questions` H2 below the H1 follows the [[ask-format]] discipline (five-piece layout, block-IDs, Phase 1/2/3 lifecycle).
+
 ## When to Use
 
 When the user says "let's build a feature", "new feature", "I want to add", "design a feature", or when work is significant enough to warrant a design document rather than a quick code change.

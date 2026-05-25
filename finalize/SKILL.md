@@ -83,7 +83,12 @@ If the work-unit has a dated feature doc:
 - Verify `git status` is clean — no dangling unstaged or untracked entries from this work.
 - If a dev server / build process exists for the project, verify it still works.
 
-### 7. Report
+### 7. Q.md update post-condition (per F075)
+
+Finalize closes out a work-unit (typically `[Verify]` or `[Active]` → `[Done]`). After the backlog row's text/bracket has been updated to reflect the Done state, regenerate the anchor's per-anchor section in `~/ob/kmr/Q.md` per `[[triage]]` § 6 — walk the backlog, compute the section, remove any existing section for this anchor, insert at the top of Q.md's body (bubble-to-top). **The backlog file is NOT reordered** — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior; the user reading Q.md sees the just-finalized anchor at the top.
+**Then invoke `/audit q` to verify (per F076 Q6 auto-wiring).** The audit's fix-by-default behavior catches any drift introduced by this skill's edits — broken links, stale brackets, banner mismatches, stale `[Done]` rows — and either repairs them mechanically OR (rare) files a `QFix [Ready]` backlog entry the user can address later. Surfacing any QFix entry is part of this skill's "done" criteria.
+
+### 8. Report
 
 The consumer skill is responsible for reporting; the discipline supplies what to include:
 - Work-unit name and identifier (feature name + S-number; or backlog B-number; or milestone name).

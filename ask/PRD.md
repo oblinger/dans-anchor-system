@@ -63,7 +63,7 @@ Per F25, every H2 starts with the dominant state (`QUESTIONS` or `READY` in ALL 
 |---|---|---|
 | `~/ob/kmr/Q.md` (vault root) | **Chosen** | Page is global across every anchor in the vault. Owning it at the root reflects that scope. Wiki-link `[[Q]]` resolves from anywhere. |
 | `~/ob/kmr/SYS/Bespoke/Skill Agent/Q.md` (inside SKA) | rejected | Implicitly scopes to SKA; would awkwardly contain references to peer anchors (HA, MUX, DKT) that SKA shouldn't "own." |
-| `skills/ask/Q.md` (inside skill folder) | rejected | The `skills/` tree is synced to the public `obs-tradecraft` repo. The user's actual personal-project open questions would leak into a public sync. Plus skills are portable; `Q.md` is vault-specific and shouldn't ship with the skill code. |
+| `skills/ask/Q.md` (inside skill folder) | rejected | The `skills/` tree is synced to the public `ob-skills` repo. The user's actual personal-project open questions would leak into a public sync. Plus skills are portable; `Q.md` is vault-specific and shouldn't ship with the skill code. |
 | `~/Q.md` (home dir) | rejected | Outside the Obsidian vault; wouldn't appear in vault search or wiki-link resolution. |
 
 The filename `Q.md` was chosen for keystroke economy: `[[Q]]` is one character. The page is so frequently referenced that brevity matters more than self-documentation in this one case.
