@@ -1,23 +1,28 @@
 ---
 name: ask
-description: Universal asking subroutine. Invoke whenever an agent has questions for the user. Routes batched, numbered, formatted questions to the right surface (a feature/PRD doc with --doc, or the anchor's à la carte facet `{NAME} Questions.md` by default). Always regenerates {NAME} Triage.md and the anchor's per-anchor section in ~/ob/kmr/Q.md (the vault-level Agent Status dashboard). In active mode glances the file. Slash-only — "ask" is too common a spoken word to be a DMUX prefix-trigger.
+description: Universal asking skill, two modes. Bare `/ask` (no arguments — primary mode) drains an anchor: agent self-resolves what it can (drive-mode-calibrated), writes a three-section `{NAME} ask.md` (Agent Resolutions / User Verifications / Questions), glances it, surfaces 1–3 items in console, iterates idempotently. Parented `/ask` (with `--doc` and/or explicit questions — secondary mode) parks individual questions on a feature doc or the anchor's à la carte facet `{NAME} Questions.md`. Both modes regenerate `{NAME} Triage.md` and the anchor's section in `~/ob/kmr/Q.md`. Slash-only — "ask" is too common a spoken word to be a DMUX prefix-trigger.
 user_invocable: true
 ---
 
-# /Ask — Universal Asking Subroutine
+# /Ask — Universal Asking Skill
 
-`/ask` is how any agent asks the user one or more questions. Parent skills (`/feature`, `/code`, `/groom`, `/triage`, `/crank`, ...) invoke `/ask` via the Skill tool whenever they need user input. The agent never writes question batches to docs by hand — it routes them through this skill so formatting, numbering, surface routing, glance, and global-page maintenance all happen the same way every time.
+`/ask` has **two modes**, distinguished by whether arguments are present.
 
-The reliability gain comes for free from Claude Code's skill-loading mechanic: when a parent invokes `/ask`, this runbook executes, including the glance step. That's the fix for the original "agents forget to glance" pain that motivated F10.
+| Mode | Invocation | What it does |
+|---|---|---|
+| **Bare** (primary) | `/ask` (no arguments) | User-invoked from within an anchor. Drains the anchor's open `[Verify]` and `[Questions]` items: self-resolves what it can (drive-mode-calibrated), writes the three-section `{NAME} ask.md`, glances it, surfaces 1–3 items in console, iterates. |
+| **Parented** (secondary) | `/ask [--doc <path>] <q1> [<q2>...]` | Called from another skill's runbook (`/feature`, `/code plan`, `/groom`, `/crank`). Routes batched, numbered, formatted questions to a feature doc's `## Open Questions` block or the anchor's à la carte facet. |
+
+Both modes regenerate `{NAME} Triage.md` and the anchor's section in `~/ob/kmr/Q.md`. Both follow the same recommendation-strength format and Phase 1/2/3 lifecycle for `## Open Questions` blocks. The reliability gain comes for free from Claude Code's skill-loading mechanic: when `/ask` is invoked, this runbook executes — including the glance step. That's the fix for the original "agents forget to glance" pain that motivated F10.
 
 
 ## When to invoke
 
-Invoke `/ask` whenever you have **one or more decisions** that need the user. There is no minimum question count — even a single decision routes through `/ask` so the surface (doc or triage), the global page, and the glance are handled uniformly.
+**Bare `/ask`** — when the user types `/ask` (no arguments) from within an anchor. This is the user saying: *"ask me everything you need to ask me to make progress on this anchor's open work, minimizing round-trips."* See § Bare invocation runbook.
 
-The scale-up — batching, numbering, recommendation labels — is what makes `/ask` *better* at large question counts; but the *pattern* is the same for one question or twenty.
+**Parented `/ask`** — whenever a parent skill has **one or more decisions** that need the user. There is no minimum question count — even a single decision routes through `/ask` so the surface (doc or triage), the global page, and the glance are handled uniformly. The scale-up (batching, numbering, recommendation labels) is what makes `/ask` *better* at large question counts; but the *pattern* is the same for one question or twenty.
 
-Triggers (non-exhaustive):
+Parented triggers (non-exhaustive):
 - A `/feature` lifecycle phase has open questions.
 - `/code plan` or `/code architect` is in a design loop with trade-offs to settle.
 - `/groom` or `/triage` surfaces a backlog item that needs a user decision before becoming Ready.
@@ -45,17 +50,133 @@ Per F28, à la carte Qs live in their own per-anchor facet file `{NAME} Question
 ## Invocation
 
 ```
-/ask [--doc <path>] <question1> [<question2> ...]
+/ask                                  # bare mode — drain the current anchor
+/ask <SLUG>                           # bare mode — drain a named anchor (cross-anchor)
+/ask [--doc <path>] <q1> [<q2> ...]   # parented mode — park questions
 ```
 
-- `--doc <path>` → document-attached mode; questions go in that doc's `## Open Questions` block (created if absent).
-- No flag → à la carte mode; questions go in the anchor's `{NAME} Questions.md` facet's `## Open Questions` block (created if absent).
-- Multiple positional questions → batched per § Intake — number them all in one pass, never trickle.
+- **No arguments** → bare mode; runs the § Bare invocation runbook against the **current anchor** (detected by walking up from cwd to the nearest `.anchor`).
+- **Single positional argument matching an anchor slug** (e.g. `/ask SKA`, `/ask MUX`) → bare mode against the **named anchor**. The current agent does the work but reads the target anchor's Triage / Questions / feature docs. **Uncommon** — the local agent for that anchor usually has more context and will do a better self-resolution pass; use cross-anchor only when you specifically want the current agent to handle it.
+- `--doc <path>` → parented document-attached mode; questions go in that doc's `## Open Questions` block (created if absent).
+- No flag + positional `<question>` arguments → parented à la carte mode; questions go in the anchor's `{NAME} Questions.md` facet's `## Open Questions` block (created if absent).
+- Multiple positional questions → batched — number them all in one pass, never trickle.
+
+**Disambiguation: anchor slug vs. question text.** A single positional argument is treated as an anchor slug if all three hold:
+1. It's one token (no spaces).
+2. It matches the shape `[A-Z][A-Za-z0-9]+` (starts with a capital, alphanumeric).
+3. It resolves to a known anchor (walk the vault's `slug-index`, or check that `<SLUG>/.anchor` exists, or that `<SLUG> Triage.md` / `<SLUG> Backlog.md` exists somewhere reachable).
+
+If any check fails, treat the argument as à la carte question text and run the parented runbook. Multiple positional arguments are always parented (no anchor slug has spaces).
 
 **Slash-only invocation.** Unlike `crank`, `groom`, `triage`, etc., the spoken word "ask" is **not** a DMUX prefix-trigger — it's too common in everyday speech. Invoke via `/ask` only.
 
 
-## Runbook
+## Bare invocation runbook
+
+Bare `/ask` (no arguments) drains the anchor's open `[Verify]` and `[Questions]` items in a way that minimizes round-trips with the user. The agent does the work that *can* be done without the user, then surfaces only the residue.
+
+### 1. Identify the anchor and survey open work
+
+**Default (no argument):** walk up from the working directory to the nearest `.anchor` to determine `{NAME}`. This is the common case — the agent's own anchor.
+
+**Cross-anchor (single slug argument):** if invoked as `/ask <SLUG>` and the slug resolves to a known anchor (per the § Invocation disambiguation rules), set `{NAME}` = `<SLUG>` and read that anchor's files instead of the current one. The current agent does the work using the target anchor's Triage / Questions / feature docs.
+
+Then read `{NAME} Triage.md` and enumerate every item bracketed `**[N Questions]**` or `**[Verify]**` across the **Active / Ready / Now / Next** sections. **Skip `## Later` and `## Icebox`** — bare `/ask` surfaces only items in scope for *now*. If `{NAME} Questions.md` exists, also include its pending à la carte Qs.
+
+If the survey returns zero pending items, write a one-line summary (`/ask — nothing pending in {NAME}.`), refresh the anchor's section in `Q.md` (will likely drop it), and exit.
+
+### 2. Reasoning pass — self-resolve what you can
+
+For each surveyed item, attempt to resolve it autonomously. Calibrate the threshold by the active drive mode (see `[[mode]]`):
+
+- **`[Verify]` items** — *can I verify this myself well enough that the user doesn't need to?* Run the grep / test / script / log inspection / source-dip that would settle it. If the verification mechanically passes, mark the item Done in the backlog (update its row + the feature doc's Status).
+- **`[Questions]` items** — *can I confidently pick the most likely answer?* Read the feature doc's `## Open Questions` block, the surrounding code, prior similar decisions in the anchor's `## Resolved`, the user's stated preferences (memory), and the design rationale. For each Q where the answer is clear, write the inline resolution per § Resolution and update the feature doc.
+
+**Drive-mode thresholds:**
+
+| Drive mode | Self-resolution threshold |
+|---|---|
+| **Cautious** (fortify-flavored) | Self-resolve only when mechanically obvious — a test that passes, a Q whose answer is already stated in memory or prior conversation. Escalate everything else. |
+| **Standard** | Self-resolve the clear ones; surface the rest. |
+| **Aggressive** (crank-flavored) | Self-resolve anything plausible; let the user push back on Agent Resolutions if a call was wrong. |
+
+The reasoning pass produces three buckets:
+1. **Resolved by agent** — verifies the agent ran, questions the agent answered.
+2. **User verifications** — verifies the agent can't run alone (needs human eyes, judgment, prod-system check).
+3. **User questions** — questions the agent can't confidently pick.
+
+### 3. Write `{NAME} ask.md`
+
+Destructively (re)generate `{NAME} Docs/{NAME} Plan/{NAME} ask.md`. **Three sections in fixed order.** Frontmatter `description: bare `/ask` snapshot — agent resolutions and what the user still needs to verify or answer.`
+
+```markdown
+---
+description: bare `/ask` snapshot — agent resolutions and what the user still needs to verify or answer.
+---
+
+
+# [[{NAME}]] ask
+
+## Agent Resolutions
+
+- [[F23 — Some Feature]] **[Verify→Done]** — ran the integration test; output matched expected. Marked Done in backlog.
+- [[F24 — Other Feature]] **Q3** — chose default path; user prefers fewer flags by default.
+
+## User Verifications
+
+- [[F26 — Manual UX flow]] **[Verify]** — needs human eyes on the UI; can't be automated. Run the app, click through, confirm the panel renders.
+
+## Questions
+
+- [[F28 — Naming]] — 3 Qs (Q1, Q2, Q5). Naming-convention fork; see the feature doc.
+- [[F29 — Retry policy]] **Q1** — max-retries cap: 3, 5, or unbounded?
+- [[{NAME} Q3]] — the à la carte slug-renaming question.
+```
+
+Rules:
+- **Agent Resolutions section first** — the user's first action is to review and challenge wrong calls.
+- **Order each section** by backlog source order (mirrors Triage).
+- **Condense large Q batches** — when a single feature has many Qs, list the feature with a count rather than every Q inline (`- [[F28]] — 3 Qs (Q1, Q2, Q5).`).
+- **Soft cap ≈ 10 items** in the User Verifications + Questions sections combined. If the queue is longer, list the top 10 in priority order; the user re-invokes `/ask` to surface the next batch.
+- **Omit empty sections** entirely (don't leave `## Agent Resolutions` with no body — drop the H2).
+
+### 4. Regenerate `{NAME} Triage.md` and the anchor's section in `~/ob/kmr/Q.md`
+
+Same regeneration as § Parented runbook steps 4–5. The agent's resolutions in step 2 may have moved items in the backlog (Verify→Done, pending Q→Resolved), so the regenerated Triage reflects fresh state.
+
+### 5. Glance `{NAME} ask.md`
+
+Always glance — bare `/ask` is the user explicitly engaging; always active mode. The user opens the doc, reads Agent Resolutions first, and is ready to push back or move on.
+
+### 6. Console interleave — present 1–3 items
+
+In chat, present **1–3 items** from the top of the User Verifications and Questions sections. Format each item with its short name + the action needed:
+
+```
+**Up next** (1–3 of N pending):
+
+1. **[Verify F26]** — Open the app and confirm the panel renders on Cmd+Shift+P.
+2. **F29 Q1** — max-retries cap: 3, 5, or unbounded? Recommendation: Lean (5).
+3. **{NAME} Q3** — rename the slug from `foo` to `bar`? Recommendation: None.
+```
+
+**Cap of 3** — more would overflow the user's working memory in a single chat round. The user has the full queue in the doc.
+
+### 7. Process user response
+
+Two response shapes:
+
+- **Pushback on Agent Resolutions** — "Roll back F24 Q3" / "Undo the resolution on F23" → roll back the change (re-open the Q or set Verify back), move the item into User Verifications or Questions, regenerate `{NAME} ask.md`.
+- **Answers to console questions** — "F29 Q1: 5" / "verified F26" / "{NAME} Q3: yes" → apply the resolution per § Resolution to the underlying feature doc / backlog, regenerate `{NAME} ask.md`.
+
+Then surface the next 1–3 items in console. Repeat until the doc reports no pending items (User Verifications + Questions both empty) or the user disengages.
+
+### 8. Idempotency
+
+Bare `/ask` is **idempotent**. State lives in `{NAME} ask.md`, the feature docs, and the backlog — never in invocation history. Re-invoking `/ask` re-runs the reasoning pass against the current backlog state. Resolutions the user already accepted stay resolved; new ones accumulate; the next ~10 items surface.
+
+
+## Parented runbook
 
 ### 1. Number the questions
 
@@ -215,7 +336,7 @@ description: Agent Status — every anchor with active questions or ready work, 
 # Agent Status   -   Questions: 2    Ready: 1
 
 
-# [U+A]  [[CAE Triage|CAE]] Triage  -  Questions 2    Verify 1   |   Active 1    Ready 1   |   Now 2    Next 1    Later 1    Icebox 0
+# [U+A]  [[Q#CAE Triage|CAE]] Triage  -  Questions 2    Verify 1   |   Active 1    Ready 1   |   Now 2    Next 1    Later 1    Icebox 0
 - **[3 Questions]**  [[CAE Questions]]
 ## Active
 - **[Active]** [[F001 — Cron Syntax]] — Cron expressions for recurring task schedules.
@@ -228,7 +349,7 @@ description: Agent Status — every anchor with active questions or ready work, 
 - **[5 Questions]** [[F004 Priority Levels]] — 2 pending Qs (Q1, Q3).
 
 
-# [A]  [[MUX Triage|MUX]] Triage  -  Questions 0    Verify 0   |   Active 0    Ready 3   |   Now 0    Next 0    Later 0    Icebox 0
+# [A]  [[Q#MUX Triage|MUX]] Triage  -  Questions 0    Verify 0   |   Active 0    Ready 3   |   Now 0    Next 0    Later 0    Icebox 0
 ## Ready
 - **[Ready]** [[F001 — A]] — desc.
 - **[Ready]** [[F002 — B]] — desc.

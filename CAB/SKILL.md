@@ -1,70 +1,32 @@
 ---
 name: cab
-description: >
-  Common Anchor Blueprint — create, validate, and manage anchor folder structures.
-  Use with an action argument: /cab setup, /cab tidy, /cab move, /cab migrate, /cab pr-flow, /cab pilot-flow, /cab slug-scan.
-  Reference files for rules, parts, and formats are available in this folder.
-tools: Read, Write, Edit, Bash, Glob, Grep, Task
-user_invocable: true
+description: DEPRECATED. CAB is now a data-spec anchor at Skill Agent/CAB/ — not a skill. Anchor verbs are flat skills now (tidy, publish, lint, maintain, wp, yore, move, etc.).
+tools: Read
+user_invocable: false
 ---
 
-# CAB — Common Anchor Blueprint
+# CAB — Deprecated
 
-Manage anchor folder structures according to the Common Anchor Blueprint specification.
+`cab/` is no longer a user-invocable skill. The reorganization split CAB's two responsibilities:
 
-| Section                                | Contents                                                                                                                                                                                                                                                                                                                                                                 |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [[CAB Traits]]                          | [[Simple Anchor]], [[Topic Anchor]], [[Code Anchor]], [[Paper Anchor]], [[Skill Anchor]]                                                                                                                                                                                                                                                                               |
-| [[CAB All Files]]<br><br>[[CAB-facets]] | [[CAB Folder]], [[CAB Anchor Page]], [[CAB Docs]], [[CAB Backlog]], [[CAB Icebox]], <br> [[CAB Features]], [[CAB Files]], [[CAB Roadmap]], <br> [[CAB Code Repository]], [[CAB Project Page]], [[CAB Documentation Site]], <br> [[CAB Claude]], [[CAB Module Doc]], [[CAB Skill]], [[CAB PRD]], <br> [[CAB Open Questions]], [[CAB System Design]], [[CAB UX Design]], <br> [[CAB Discussion]], [[CAB Cards]], [[CAB Inbox]] |
-| [[CAB Rules Index]]                    | [[CAB Defined Terms]], [[CAB Markdown Formatting]], [[CAB Naming Conventions]], <br> [[CAB Page Conventions]], [[CAB Docs Conventions]], [[CAB Documentation Publishing]], <br> [[CAB Repository Structure]], [[CAB Rust Rules]], [[CAB Integrations]], <br> [[CAB Research]], [[CAB Maintenance]]                                                                       |
+1. **Data spec** (what an anchor IS — facets, disciplines, rules, traits) → `Skill Agent/CAB/` at the SKA root. Read those for the blueprint.
+2. **Action verbs** (what you DO to anchors) → individual flat skills:
 
+| Old form | New form |
+|---|---|
+| `/cab tidy`        | `/tidy` |
+| `/cab publish`     | `/publish` |
+| `/cab lint`        | `/lint` |
+| `/cab maintain`    | `/maintain` |
+| `/cab wp <name>`   | `/wp <name>` |
+| `/cab yore`        | `/yore` |
+| `/cab move`        | `/move` (or `/migrate` for broader reorg) |
+| `/cab streams`     | `/streams` |
+| `/cab install`     | `/install` |
+| `/cab pilot-flow`  | `/pilot-flow` |
+| `/cab pr-flow`     | `/pr-flow` |
+| `/cab slug-scan`   | `/slug-scan` |
+| `/cab create`      | `/create anchor` (router skill) |
+| `/cab migrate`     | `/migrate` |
 
-## Actions
-
-Each action is defined in a sub-file. When invoked, read the corresponding file and execute its workflow.
-
-| Usage              | File                | Description                                                       |
-| ------------------ | ------------------- | ----------------------------------------------------------------- |
-| `/cab create`      | [[cab-create]]      | Create a new anchor — gather info, create structure, register     |
-| `/cab tidy`        | [[cab-tidy]]        | Validate and correct anchor folder structure                      |
-| `/cab move`        | [[cab-move]]        | Move an anchor and update all path-dependent systems — see [[CAB Move]] for concept and related skills |
-| `/cab pr-flow`     | [[cab-pr-flow]]     | Iterative PR-based development with user review                   |
-| `/cab pilot-flow`  | [[cab-pilot-flow]]  | Top-down design then implementation (dispatches to /code skills)   |
-| `/cab slug-scan`    | [[cab-slug-scan]]    | Scan for new slugs and sync the index                              |
-| `/cab lint`        | [[cab-lint]]        | Lint an anchor — check structure, files, links against CAB type rules |
-| `/cab maintain`    | [[cab-maintain]]    | Keep derived files in sync — run standing maintenance orders      |
-| `/cab scan`        | [[cab-scan]]        | Discover all anchors, write registry to ~/.config/skl/anchors.yaml          |
-| `/cab config`      | [[cab-config]]      | Manage `.anchor` file — init, set, get, show anchor paths              |
-| `/cab install`     | [[cab-install]]     | Install CAB tools (stat, cab-config, cab-scan, cab-lint) into ~/bin         |
-| `/cab distill`     | [[compile/compile]] | Distill CAB specs into executable checklists for skill actions            |
-| `/cab publish`     | [[cab-publish]]     | Deploy an anchor's public page to the web (gitproj or GitHub Pages)      |
-| `/cab wp`          | [[cab-wp]]          | Create a dated work product folder — papers, reports, analyses           |
-| (ref)              | [[stat]]            | Activity status tracking — `stat add/update/archive` across projects        |
-| `/cab yore`        | [[cab-yore]]        | Archive folders/anchors to Yore with date-prefixed zip            |
-| `/cab streams`     | [[cab-streams]]     | Content stream definitions (stub)                                 |
-
-
-## Reference
-
-Reference files live in subdirectories of this skill folder:
-
-| What you need      | Where to find it                                                    |
-| ------------------ | ------------------------------------------------------------------- |
-| Base file tree     | [[cab-base]] — canonical tree for all types                        |
-| Anchor types       | `cab-traits/` — one file per type with deltas from base              |
-| Part specs         | `cab-facets/` — format spec + reference example for each file type   |
-| Full file tree     | [[CAB All Files]] — every possible file across all types            |
-| Rules              | `cab-rules/` — naming, markdown, docs, integrations                 |
-| **Working example** | `~/.claude/skills/CAE/` — the Common Anchor Example, a complete canonical reference anchor. When CAB prose doesn't answer "what should this file look like?", read the equivalent file in CAE. |
-
-Read these on demand when the action workflow requires specific format or structural details.
-
-
-## Dispatch
-
-On invocation:
-
-1. Parse the argument to determine the action
-2. Look up the file from the Actions table above
-3. Read that file from this skill's directory and execute its workflow
-4. If no argument or unrecognized argument, show the dispatch table above
+This SKILL.md remains as a tombstone so Claude Code's resolver doesn't surface stale `/cab <verb>` paths. The folder may be retired entirely once leftover scripts and reference content (cab-config.py, LINT User Docs/, etc.) have new homes — see SKA reorg backlog.
