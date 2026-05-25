@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""audit-q.py — Q.md constraint validator with mechanical-fix mode (F076, B16).
+"""audit-q.py — Q.md constraint validator with mechanical-fix mode (F076, B16, F089).
 
 Reusable primitives (importable by other tools):
   - links_in_file(path, vault_index) → list[LinkEntry]   (wiki + markdown links)
@@ -18,6 +18,13 @@ Checks applied to Q.md, each anchor's backlog, and each feature/Questions doc:
   C10: **Recommendation** bullet at same indent as the Q header        (auto-fix).
   C12: every `[Verify-by YYYY-MM-DD]` row body includes
        "Naturally exercised by: …"                                     (report).
+  C13: `## Ready` H2 contains only `[Ready]` rows.
+       Pure-state mismatches (Watching/Waiting/Blocked) auto-move      (hybrid).
+  C14: `## Active` H2 contains only `[Active]` rows.
+       Pure-state mismatches (Watching/Waiting/Blocked) auto-move      (hybrid).
+  C15: `[Watching]/[Waiting]` rows must be in `## Later`               (auto-fix).
+  C16: `[Blocked]/[Blocked F<n>]` rows must be in `## Later`           (auto-fix).
+  C18: `[Verify-by YYYY-MM-DD]` past expiry → auto-move to `## Done`   (auto-fix).
   D1:  Q.md per-anchor banners derived from each anchor's backlog
        (not validated — overwritten on every run).
 
@@ -27,11 +34,13 @@ Usage:
   python audit-q.py --dry        # report-only AND refuse to write (no side effects)
 
 Design: F076 — `audit q` — Q.md constraint validator with mechanical-fix mode.
-       B16 — extend audit-q.py with ask-format rules C6–C12.
+       B16  — ask-format rules C6–C12.
+       F089 — bracket↔H2 consistency rules C13–C18.
 """
 
 from __future__ import annotations
 from dataclasses import dataclass
+from datetime import date
 from pathlib import Path
 from typing import Optional
 import argparse
@@ -62,8 +71,9 @@ BLOCK_ID_RE = re.compile(r"\^([A-Za-z][A-Za-z0-9_\-]*)")
 WIKI_LINK_RE = re.compile(r"\[\[([^\]]+)\]\]")
 # Markdown link: [text](path) — but NOT [[wiki]]. Negative lookbehind for `[`.
 MARKDOWN_LINK_RE = re.compile(r"(?<!\[)\[([^\[\]]+)\]\(([^)]+)\)")
-# Backlog row: starts with `- **<identifier>`. Identifier is F<n> or B-<name>.
-ROW_OPENER_RE = re.compile(r"^- \*\*([A-Za-z][A-Za-z0-9_\-]*)\b")
+# Backlog row: starts with `- **<identifier>` or `- **[[<identifier>` (wiki-link
+# identifier form used by some anchors, e.g. MUX). Identifier is F<n> or B-<name>.
+ROW_OPENER_RE = re.compile(r"^- \*\*(?:\[\[)?([A-Za-z][A-Za-z0-9_\-]*)\b")
 # Status bracket: `[Ready]`, `[3 Questions]`, `[Blocked F123]`, etc.
 BRACKET_RE = re.compile(r"\[([A-Za-z][A-Za-z0-9 ]*?)\]")
 # Q-marker: `**Q<n> —`. Used by C2 for existence-check at link targets.
@@ -94,6 +104,8 @@ VERIFY_BY_BRACKET_RE = re.compile(r"\[Verify-by\s+(\d{4}-\d{2}-\d{2})\]")
 NATURALLY_EXERCISED_RE = re.compile(r"[Nn]aturally exercised by\b")
 # B16 — F-number extraction from feature-doc stems: `F089 — Title` → `F089`
 F_NUMBER_PREFIX_RE = re.compile(r"^(F\d+)\s+—")
+# F089 (C18) — Verify-by bracket date extraction (parses the date for expiry check)
+VERIFY_BY_DATE_RE = re.compile(r"^Verify-by\s+(\d{4})-(\d{2})-(\d{2})\b")
 
 # ============================================================
 # Dataclasses
@@ -962,6 +974,272 @@ def check_c12_verify_by_rationale(
 
 
 # ============================================================
+# Checks C13–C18 — bracket↔H2 consistency (F089)
+# ============================================================
+# C13: `## Ready` H2 only contains [Ready] rows  (auto-fix pure-state only)
+# C14: `## Active` H2 only contains [Active] rows (auto-fix pure-state only)
+# C15: [Watching]/[Waiting] rows belong in `## Later`     (auto-fix)
+# C16: [Blocked]/[Blocked F<n>] rows belong in `## Later` (auto-fix)
+# C18: [Verify-by YYYY-MM-DD] past-expiry → `## Done`     (auto-fix)
+# (C17 — stale [Done] in horizon H2s — covered by existing C4.)
+
+
+def _is_pure_state_park_bracket(status: str) -> bool:
+    """Pure-state brackets unambiguously belong in ## Later (per F089 Q1 hybrid):
+    Watching, Waiting, Watching Nd/Nh, Waiting Nd/Nh, Blocked, Blocked F<n>.
+
+    Ambiguous brackets (Questions / Designing / Verify / Verify-by) are NOT
+    auto-fixable — they need /groom body-reading to decide.
+    """
+    s = status.strip()
+    return (
+        s.startswith("Watching")
+        or s.startswith("Waiting")
+        or s.startswith("Blocked")
+    )
+
+
+def _is_verify_by_expired(status: str, today: date) -> bool:
+    """Does this status bracket match `Verify-by YYYY-MM-DD` past today?"""
+    m = VERIFY_BY_DATE_RE.match(status.strip())
+    if not m:
+        return False
+    try:
+        verify_date = date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+    except ValueError:
+        return False
+    return verify_date < today
+
+
+def check_c13_ready_h2_purity(entries: list[BacklogEntry]) -> list[Finding]:
+    """C13: every row under ## Ready H2 must have [Ready] bracket."""
+    findings: list[Finding] = []
+    for e in entries:
+        if e.horizon != "Ready":
+            continue
+        if e.status == "Ready":
+            continue
+        # Don't double-report [Done] (C4 owns it)
+        if e.status.startswith("Done"):
+            continue
+        auto_fix = _is_pure_state_park_bracket(e.status)
+        suffix = (
+            "; auto-moving to ## Later" if auto_fix
+            else "; needs /groom body-reading"
+        )
+        findings.append(Finding(
+            severity="warning",
+            surface_file=e.source_file,
+            surface_line=e.source_line,
+            code="C13",
+            message=(
+                f"row '{e.identifier}' has [{e.status}] bracket under ## Ready H2 "
+                f"— workflow-state H2 must match bracket{suffix}"
+            ),
+            mechanically_fixable=auto_fix,
+        ))
+    return findings
+
+
+def check_c14_active_h2_purity(entries: list[BacklogEntry]) -> list[Finding]:
+    """C14: every row under ## Active H2 must have [Active] bracket."""
+    findings: list[Finding] = []
+    for e in entries:
+        if e.horizon != "Active":
+            continue
+        if e.status == "Active":
+            continue
+        if e.status.startswith("Done"):
+            continue  # C4 owns
+        auto_fix = _is_pure_state_park_bracket(e.status)
+        suffix = (
+            "; auto-moving to ## Later" if auto_fix
+            else "; needs /groom body-reading"
+        )
+        findings.append(Finding(
+            severity="warning",
+            surface_file=e.source_file,
+            surface_line=e.source_line,
+            code="C14",
+            message=(
+                f"row '{e.identifier}' has [{e.status}] bracket under ## Active H2 "
+                f"— workflow-state H2 must match bracket{suffix}"
+            ),
+            mechanically_fixable=auto_fix,
+        ))
+    return findings
+
+
+def check_c15_watching_waiting_in_later(
+    entries: list[BacklogEntry],
+) -> list[Finding]:
+    """C15: [Watching]/[Waiting] rows must be in ## Later."""
+    findings: list[Finding] = []
+    for e in entries:
+        s = e.status.strip()
+        if not (s.startswith("Watching") or s.startswith("Waiting")):
+            continue
+        if e.horizon == "Later":
+            continue
+        # Skip if already counted by C13/C14 (same row, same auto-fix target)
+        # We still flag separately to make the bracket-based rule visible.
+        findings.append(Finding(
+            severity="warning",
+            surface_file=e.source_file,
+            surface_line=e.source_line,
+            code="C15",
+            message=(
+                f"row '{e.identifier}' has [{s}] bracket in ## {e.horizon} "
+                f"— Watching/Waiting belongs in ## Later (not actionable now)"
+            ),
+            mechanically_fixable=True,
+        ))
+    return findings
+
+
+def check_c16_blocked_in_later(entries: list[BacklogEntry]) -> list[Finding]:
+    """C16: [Blocked]/[Blocked F<n>] rows must be in ## Later."""
+    findings: list[Finding] = []
+    for e in entries:
+        s = e.status.strip()
+        if not s.startswith("Blocked"):
+            continue
+        if e.horizon == "Later":
+            continue
+        findings.append(Finding(
+            severity="warning",
+            surface_file=e.source_file,
+            surface_line=e.source_line,
+            code="C16",
+            message=(
+                f"row '{e.identifier}' has [{s}] bracket in ## {e.horizon} "
+                f"— Blocked belongs in ## Later (external dependency)"
+            ),
+            mechanically_fixable=True,
+        ))
+    return findings
+
+
+def check_c18_verify_by_expired(
+    entries: list[BacklogEntry], today: date,
+) -> list[Finding]:
+    """C18: [Verify-by YYYY-MM-DD] past expiry → auto-move to ## Done."""
+    findings: list[Finding] = []
+    for e in entries:
+        if not _is_verify_by_expired(e.status, today):
+            continue
+        if e.horizon == "Done":
+            continue
+        findings.append(Finding(
+            severity="warning",
+            surface_file=e.source_file,
+            surface_line=e.source_line,
+            code="C18",
+            message=(
+                f"row '{e.identifier}' has [{e.status}] window expired "
+                f"(today={today.isoformat()}); auto-Done per Verify-by deferred-by-use"
+            ),
+            mechanically_fixable=True,
+        ))
+    return findings
+
+
+def _find_or_create_h2(lines: list[str], h2_name: str) -> int:
+    """Return index of `## <h2_name>` line; append (and return new index) if absent."""
+    target = f"## {h2_name}"
+    for i, line in enumerate(lines):
+        if line.strip() == target:
+            return i
+    # Append at end with leading blank-separation
+    if lines and lines[-1] != "":
+        lines.append("")
+    lines.append(target)
+    lines.append("")
+    return len(lines) - 2
+
+
+def apply_placement_fixes(
+    backlog_file: Path,
+    entries: list[BacklogEntry],
+    today: date,
+) -> list[str]:
+    """F089 — apply C13/C14/C15/C16/C18 mechanical moves on this backlog.
+
+    Conservative: only moves rows whose bracket has an unambiguous canonical
+    target H2 (pure-state Watching/Waiting/Blocked → Later; Verify-by expired
+    → Done). Ambiguous cases (Questions/Designing/Verify in wrong H2) are
+    flagged by the C13/C14 checks but NOT moved here — /groom handles those
+    with body-reading judgment.
+    """
+    # Decide moves
+    moves: list[tuple[BacklogEntry, str]] = []  # (entry, target_h2_name)
+    for e in entries:
+        s = e.status.strip()
+        # C18 first — Verify-by expired wins over any other classification
+        if _is_verify_by_expired(s, today):
+            if e.horizon != "Done":
+                moves.append((e, "Done"))
+            continue
+        # C15/C16 — pure-state park brackets not in Later
+        if _is_pure_state_park_bracket(s):
+            if e.horizon != "Later":
+                moves.append((e, "Later"))
+            continue
+    if not moves:
+        return []
+    try:
+        lines = backlog_file.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError):
+        return []
+    # Sort by source_line DESC so deletions don't shift earlier line numbers
+    moves_sorted = sorted(moves, key=lambda x: x[0].source_line, reverse=True)
+    # Extract each row block (the bullet line + any indented sub-bullets + 1 blank)
+    extracted: list[tuple[str, str, str]] = []  # (target_h2, block_text, identifier)
+    for entry, target in moves_sorted:
+        idx = entry.source_line - 1
+        if idx >= len(lines):
+            continue
+        row_lines: list[str] = [lines[idx]]
+        j = idx + 1
+        while j < len(lines) and (lines[j].startswith("  ") or lines[j].startswith("\t")):
+            row_lines.append(lines[j])
+            j += 1
+        if j < len(lines) and lines[j] == "":
+            row_lines.append(lines[j])
+            j += 1
+        del lines[idx:j]
+        extracted.append((target, "\n".join(row_lines).rstrip("\n"), entry.identifier))
+    # Group by target H2
+    by_target: dict[str, list[tuple[str, str]]] = {}
+    for target, block, identifier in extracted:
+        by_target.setdefault(target, []).append((block, identifier))
+    log: list[str] = []
+    # For each target H2, find or create, insert rows at top
+    for target_h2_name, row_blocks in by_target.items():
+        h2_idx = _find_or_create_h2(lines, target_h2_name)
+        insert_at = h2_idx + 1
+        # Skip one blank line below the H2 header if present
+        while insert_at < len(lines) and lines[insert_at] == "":
+            insert_at += 1
+        # row_blocks are in source-line-descending order; insert each at insert_at
+        # (so the relative ordering within the target H2 ends up matching the
+        # original source order from bottom-up, which after multiple inserts at
+        # the same position yields top-of-section in original-order).
+        for row_block, identifier in row_blocks:
+            block_lines = row_block.split("\n")
+            for offset, row_line in enumerate(block_lines):
+                lines.insert(insert_at + offset, row_line)
+            # Trailing blank for separation
+            lines.insert(insert_at + len(block_lines), "")
+            log.append(f"  moved to ## {target_h2_name}: {block_lines[0][:80]}")
+    new_text = "\n".join(lines)
+    if not new_text.endswith("\n"):
+        new_text += "\n"
+    backlog_file.write_text(new_text, encoding="utf-8")
+    return log
+
+
+# ============================================================
 # D1 — Banner derivation
 # ============================================================
 
@@ -1119,6 +1397,20 @@ def main() -> int:
     findings.extend(check_c7_link_form(c7_scope, vault_index))
     # B16 — C12 walks anchor backlogs only (Verify-by lives on backlog rows)
     findings.extend(check_c12_verify_by_rationale(anchor_backlogs))
+    # F089 — C13/C14/C15/C16/C18 walk each anchor's backlog entries
+    today = date.today()
+    f089_fixes_applied: list[str] = []
+    for name, backlog_file in sorted(anchor_backlogs.items()):
+        entries = backlog_entries(backlog_file, vault_index)
+        findings.extend(check_c13_ready_h2_purity(entries))
+        findings.extend(check_c14_active_h2_purity(entries))
+        findings.extend(check_c15_watching_waiting_in_later(entries))
+        findings.extend(check_c16_blocked_in_later(entries))
+        findings.extend(check_c18_verify_by_expired(entries, today))
+        if args.fix:
+            fix_log = apply_placement_fixes(backlog_file, entries, today)
+            if fix_log:
+                f089_fixes_applied.extend(f"  {name}: {msg}" for msg in fix_log)
     # B16 — apply mechanical fixes for C6 + C10 if --fix
     c6_fixes_applied: list[str] = []
     c10_fixes_applied: list[str] = []
@@ -1144,6 +1436,10 @@ def main() -> int:
     if c10_fixes_applied:
         print(f"\naudit-q: C10 Recommendations outdented:")
         for line in c10_fixes_applied:
+            print(line)
+    if f089_fixes_applied:
+        print(f"\naudit-q: F089 placement fixes (C15/C16/C18 auto-moves):")
+        for line in f089_fixes_applied:
             print(line)
     print(f"\naudit-q: derived banners for {len(derived_banners)} anchors")
     if args.fix and not args.dry:
