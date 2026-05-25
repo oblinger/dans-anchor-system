@@ -32,10 +32,10 @@ Feature spec: `[[F074 — Architect skill — Architecture as anchor folder with
 |---|---|---|
 | `/architect drift` | [[architect-drift]] | Read-only arch-vs-code drift report. Categorizes findings (Aligned / Orphan in code / Ghost in arch / Diverged); writes report to `Versions/{date} Drift Report.md`; never modifies arch or code. |
 | `/architect new` | [[architect-new]] | Greenfield architecture draft from features/PRD only. No anchoring bias from existing code/arch. Writes to `Versions/{date} Architecture (greenfield).md`. |
-| `/architect update` | (planned) | Snapshot current arch → integrate new ideas in-place → `## Changes since [[snapshot]]` at bottom. |
+| `/architect update` | [[architect-update]] | Snapshot current arch → integrate new ideas in-place → `## Changes since [[snapshot]]` at bottom. **Bare `/architect` routes here** per F084. |
 | `/architect changes` | (planned) | Re-derive `## Changes since` section from structural diff (recovery tool). |
 
-Bare `/architect` (no sub-action) still runs the legacy single-pass behavior documented below; the full F084 sub-skill split is in progress (see [[SKA Backlog]] F084 Agreed → implementation pending).
+**Bare `/architect`** (no sub-action) routes to `/architect update` — the most common action. The legacy single-pass behavior documented below is superseded by `[[architect-update]]`; retained inline for historical reference until `/architect changes` ships and the F084 split is fully complete.
 
 
 ## When to Use
