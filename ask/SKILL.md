@@ -107,7 +107,17 @@ The reasoning pass produces three buckets:
 
 ### 3. Write `{NAME} ask.md`
 
-Destructively (re)generate `{NAME} Docs/{NAME} Plan/{NAME} ask.md`. **Three sections in fixed order.** Frontmatter `description: bare `/ask` snapshot — agent resolutions and what the user still needs to verify or answer.`
+**`## Agent Resolutions` accumulates across calls; `## User Verifications` and `## Questions` rebuild each call.** Per [[F086]]:
+
+1. **Read the prior `{NAME} ask.md`** if present. Parse the `## Agent Resolutions` section; carry forward every entry.
+2. **Live re-check each carried-forward entry** (cost gate: <100ms each). Read the underlying feature doc's `## Resolved` H2 (or backlog row state); confirm it still matches what the resolution claims. If drift detected (user edited the feature doc directly, or another agent changed it), drop that entry and flag in chat: *"Dropped carried-forward resolution for F<n> — feature doc state diverged."*
+3. **Prepend this call's new resolutions** to the surviving carried-forward list (newest at top; the user sees most-recent decisions first).
+4. **Rebuild `## User Verifications` and `## Questions` from scratch** based on the current survey — these always reflect the live backlog.
+5. **Soft cap warning:** if accumulated `## Agent Resolutions` > 20 entries, append a chat note: *"21 unaccepted resolutions accumulated — say 'the resolutions look good' to clear, or work through them."* No hard limit; the user is in control.
+
+Acceptance / rollback are processed in § 7, not here. Step 3's job is just to write the current accumulated state to disk.
+
+Three sections in fixed order. Frontmatter `description: bare `/ask` snapshot — agent resolutions and what the user still needs to verify or answer.`
 
 ```markdown
 ---
@@ -150,9 +160,12 @@ Always glance — bare `/ask` is the user explicitly engaging; always active mod
 
 ### 6. Console interleave — present 1–3 items
 
-In chat, present **1–3 items** from the top of the User Verifications and Questions sections. Format each item with its short name + the action needed:
+In chat, present an **auto-resolved-this-round** summary line (only when this call added new Agent Resolutions; omit otherwise), followed by **1–3 items** from the top of the User Verifications and Questions sections. Format each item with its short name + the action needed:
 
 ```
+Auto-resolved this round: F081 (5 Qs → all per stated Leans), F085 (3 Qs → all per stated Leans),
+QFix Q1 → D1. Say "resolutions look good" to accept; reference a specific one to roll back.
+
 **Up next** (1–3 of N pending):
 
 1. **[Verify F26]** — Open the app and confirm the panel renders on Cmd+Shift+P.
@@ -160,20 +173,32 @@ In chat, present **1–3 items** from the top of the User Verifications and Ques
 3. **{NAME} Q3** — rename the slug from `foo` to `bar`? Recommendation: None.
 ```
 
-**Cap of 3** — more would overflow the user's working memory in a single chat round. The user has the full queue in the doc.
+**Auto-resolved line rules:**
+- **Show only newly-added resolutions this call** — not the full accumulated list. The user sees fresh decisions; the carried-forward entries remain visible in `{NAME} ask.md` for review.
+- **Omit entirely when this call added zero new resolutions** (don't surface noise).
+- **Closing nudge** — always include *"Say 'resolutions look good' to accept; reference a specific one to roll back."* so the user has the acceptance vocabulary at hand.
+
+**Cap of 3** for the **Up next** items — more would overflow the user's working memory in a single chat round. The user has the full queue in the doc.
 
 ### 7. Process user response
 
-Two response shapes:
+Four response shapes (per [[F086]]):
 
-- **Pushback on Agent Resolutions** — "Roll back F24 Q3" / "Undo the resolution on F23" → roll back the change (re-open the Q or set Verify back), move the item into User Verifications or Questions, regenerate `{NAME} ask.md`.
-- **Answers to console questions** — "F29 Q1: 5" / "verified F26" / "{NAME} Q3: yes" → apply the resolution per § Resolution to the underlying feature doc / backlog, regenerate `{NAME} ask.md`.
+- **Acceptance of accumulated resolutions — full or partial.** The hard constraint: the user must explicitly mention the word **"resolution(s)"** in an accepting context. Bare phrases like *"looks good"* / *"accept"* / *"lgtm"* / *"approved"* do **not** count (too ambiguous in conversation — could be referring to any other open thing). Match flexibly once the word is present: *"resolutions look good"* / *"accept the resolutions"* / *"resolutions approved"* → **full accept** (clear all entries from `## Agent Resolutions`). *"accept the first 5 resolutions"* / *"the QFix resolutions look good"* / *"accept the F085 and F081 resolutions"* → **partial accept** (remove the named subset; the rest stay accumulated). On acceptance: remove the accepted entries from `{NAME} ask.md`, log in chat: *"Accepted N resolutions across {list of features}."*
+- **Rollback of a specific resolution.** *"Roll back F24 Q3"* / *"undo the resolution on F23"* / *"no, do (B) on F085 Q1 instead"* → reverse the underlying change (feature-doc Resolved → Open Questions; backlog row may rebracket). **The remaining accumulated resolutions stay** — rollback does NOT implicitly accept the rest (superseded earlier design lean). The user closes by saying *"the rest of the resolutions look good"* when they've rejected everything they want to reject.
+- **Answers to console questions** — *"F29 Q1: 5"* / *"verified F26"* / *"{NAME} Q3: yes"* → apply the resolution per § Resolution to the underlying feature doc / backlog. This **adds** to the accumulated `## Agent Resolutions` (one more entry at the top of the list); it does NOT clear what's already there.
+- **Anything else** — continue normally; don't infer acceptance from ambiguous phrases.
 
-Then surface the next 1–3 items in console. Repeat until the doc reports no pending items (User Verifications + Questions both empty) or the user disengages.
+After processing, regenerate `{NAME} ask.md` and surface the next 1–3 items in console. Repeat until the doc reports no pending items (User Verifications + Questions both empty AND `## Agent Resolutions` cleared) or the user disengages.
 
 ### 8. Idempotency
 
-Bare `/ask` is **idempotent**. State lives in `{NAME} ask.md`, the feature docs, and the backlog — never in invocation history. Re-invoking `/ask` re-runs the reasoning pass against the current backlog state. Resolutions the user already accepted stay resolved; new ones accumulate; the next ~10 items surface.
+Bare `/ask` is **idempotent for the survey + write step**. State lives in `{NAME} ask.md`, the feature docs, and the backlog — never in invocation history. Re-invoking `/ask`:
+- Re-runs the reasoning pass against the current backlog state.
+- Carries forward accumulated `## Agent Resolutions` (re-checking each for drift per § 3).
+- Rebuilds `## User Verifications` and `## Questions` from scratch.
+- New auto-resolutions from this call prepend to the accumulated list.
+- Resolutions the user already accepted stay accepted (they were removed from the file on acceptance and don't re-surface unless the underlying state changed back).
 
 
 ## Parented runbook
