@@ -36,7 +36,7 @@ These trigger words in CLAUDE.md map to ctrl subcommands:
 
 ## Usage
 
-The script is at `~/.claude/skills/ctrl/ctrl.py`. It's also installed at `~/bin/ctrl`.
+The script is at `~/.claude/skills/ctrl/ctrl.py`.
 
 ```bash
 ctrl box "cd /path && make build"    # Run in persistent box session

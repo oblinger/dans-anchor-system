@@ -8,7 +8,7 @@ EXP is a bash-based toolkit for running ML experiments on ephemeral remote GPU i
 
 ## Architecture
 
-**`exp.sh`** — All commands are shell functions (not standalone scripts). Must be sourced before use: `source exp.sh`. The dispatcher at `~/bin/exp` routes subcommands to these functions (e.g., `exp init` → `exp-init`).
+**`exp.sh`** — All commands are shell functions (not standalone scripts). Must be sourced before use: `source exp.sh`. The dispatcher script (at `scripts/exp` inside this skill, wired onto the user's `$PATH`) routes subcommands to these functions (e.g., `exp init` → `exp-init`).
 
 **`exp-watcher.sh`** — Daemon that runs on the remote in a tmux session. Polls `/workspace/_run.cmd`, executes the command via `setsid`, writes exit code to `/workspace/_done`. The local `exp-exe` writes the command file and polls for completion.
 

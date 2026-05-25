@@ -18,7 +18,7 @@
 - [[EXP Experiment Template]] — standard format for individual experiment specs
 
 ## Core Tools, Config & Workers
-- `exp` — CLI for remote experimentation ([exp.sh](exp.sh), dispatcher: `~/bin/exp`)
+- `exp` — CLI for remote experimentation ([exp.sh](exp.sh); dispatcher script lives at `scripts/exp` inside this skill and is wired onto `$PATH` by the user)
 - [EXP Config Folder](hook://EXP%20Config%20Folder) — `~/.config/exp/` (remote configs, worker symlink)
 - Worker instructions symlink: `~/.config/exp/exp-worker.md` → [[EXP Worker Instructions]]
 

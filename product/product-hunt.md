@@ -1,49 +1,67 @@
 # product-hunt — Product Category Research
 
-Research and compare products across a category. Find the best options, understand the key dimensions, and present a structured comparison.
+Research and compare products across a category. Find the best options, understand the key dimensions, and present a structured comparison. Each hunt is saved as its own dated report under [[PHUNT]].
 
-# Example Entry Format
+## Output location
+
+All hunts land under **`~/ob/kmr/Log/PHUNT/`** as flat dated markdown files:
+
+```
+PHUNT/
+├── PHUNT.md                                       (umbrella + recent-hunts index)
+├── _PHUNT Template.md                             (file template)
+├── 2026-05-07 Bankruptcy.md
+├── 2026-05-05 iPhone SE 3rd Generation Case.md
+└── ...
+```
+
+Filename pattern: `YYYY-MM-DD <Title>.md`. Slashes in titles get rewritten to ` or ` (e.g., "Markers / Toppers" → "Markers or Toppers") to avoid path conflicts.
+
+## Report file format
+
+Each hunt's `YYYY-MM-DD <Title>.md` follows this shape:
 
 ```markdown
-## 2026-03-01 — Ski Face Mask / Balaclava with Breathing Hole
-**Goal:** Face mask for skiing that covers nose, has a breathing hole/vent to prevent goggle fog, comfortable under helmet.
+# PHUNT — <Title>
 
-| Top | Product                        | Price  | Breathing System                                             | Anti-Fog                                    | Warmth        | Material                           | Helmet Fit                      | Best For                      |
-| --- | ------------------------------ | ------ | ------------------------------------------------------------ | ------------------------------------------- | ------------- | ---------------------------------- | ------------------------------- | ----------------------------- |
-| 1   | **[BlackStrap Hood](https://blackstrap.com/products/hood-balaclava-solids)** | $35-40 | Hinged face panel — flip down to breathe, up for warmth      | Excellent — hinge eliminates fog            | Moderate      | TREO synthetic, UPF 50+            | Excellent — seamless, thin      | All-around resort skiing      |
-| 2   | **[NAROO Z9H](https://naroomask.com/product/z9h/)** | $60    | 3D Air-Room chamber + zip valve — fabric never touches mouth | Best on market — rigid frame diverts breath | Very warm     | Synthetic with EX-BONE frame       | Good                            | Cold days, anti-fog priority  |
+**Date:** YYYY-MM-DD
+**Goal:** one-line bold summary of what the user is looking for
 
-### Top 5 Recommendations
+| Top | Product                  | Price  | Dimension A    | Dimension B   | ... | Best For                      |
+| --- | ------------------------ | ------ | -------------- | ------------- | --- | ----------------------------- |
+| 1   | **[Name](url)**          | $35-40 | ...            | ...           | ... | All-around resort skiing      |
+| 2   | **[Name](url)**          | $60    | ...            | ...           | ... | Cold days, anti-fog priority  |
 
-1. **BlackStrap Hood ($35-40)** — Best overall. Brief rationale here.
-2. **NAROO Z9H ($60)** — Best anti-fog technology. Brief rationale here.
+## Top 5 Recommendations
 
-### Review Sites Consulted
+1. **Name ($35-40)** — Best overall. Brief rationale here.
+2. **Name ($60)** — Best for X. Brief rationale here.
+
+## Review Sites Consulted
 
 1. https://example.com/review-site-1
 2. https://example.com/review-site-2
 
-### Key Dimensions
+## Key Dimensions
 
 - **Price** — cost range
-- **Breathing System** — how it handles airflow
-- **Anti-Fog** — effectiveness at preventing goggle fogging
+- **Dimension A** — what this column means
+- **Dimension B** — what this column means
 ```
 
-### Format Notes
+**Format notes:**
 
-- **H2 header** — `## YYYY-MM-DD — Product Category Name` — date + em-dash + descriptive name
-- **Goal line** — one-line bold summary of what the user is looking for
-- **Comparison table** — `Top` column is rank (1-10), `Product` is bold with a purchase/product-page link (`**[Name](url)**`), remaining columns are the key dimensions identified during research. Column names vary per product category.
+- **H1** — `# PHUNT — <Title>`. Single file per hunt; H1 (not H2) since the file is standalone. Filename carries the date; H1 doesn't repeat it.
+- **Date line** — `**Date:** YYYY-MM-DD` near the top.
+- **Comparison table** — `Top` column is rank (1–10), `Product` is bold with a purchase / product-page link (`**[Name](url)**`), remaining columns are the key dimensions identified during research. Column names vary per product category.
 - **Top 5 Recommendations** — numbered list, each entry is `**Product (Price)** — Category label. Brief rationale.`
-- **Review Sites Consulted** — numbered list of full URLs (not markdown links)
-- **Key Dimensions** — named list explaining what each column means. This section goes at the bottom.
-- New entries are inserted at the top of the file (below the dispatch header), making the page a reverse-chronological log.
+- **Review Sites Consulted** — numbered list of full URLs (not markdown links).
+- **Key Dimensions** — named list explaining what each column means.
 
 ## Usage
 
 ```
-/product-hunt <product description>    # e.g., "ski face mask with breathing hole"
+/product hunt <product description>    # e.g., "ski face mask with breathing hole"
 ```
 
 ## Workflow
@@ -61,25 +79,21 @@ Search the web for review and comparison sites covering this product category. T
 
 ### Phase 3: Identify Key Dimensions
 
-From the review sites, determine the **most important comparison dimensions** for this product category. These become the columns of the comparison table. Typical dimensions include:
-- Price
-- Key feature ratings (varies by product)
-- Pros / Cons
-- Best for (use case)
+From the review sites, determine the **most important comparison dimensions** for this product category. These become the columns of the comparison table.
 
-### Phase 4: Build Comparison Table
+### Phase 4: Build Comparison
 
-Select the **top 10 products** based on review consensus. Create or update the Product Hunt page with:
+Select the **top 10 products** based on review consensus.
 
-1. A new entry at the TOP of the page (reverse chronological) with:
-   ```
-   ## YYYY-MM-DD — Product Category Name
-   ```
-2. A comparison table with products as rows and key dimensions as columns
-3. A **Top 5 recommendation** with brief rationale for each
-4. A mitten/glove compatibility note or equivalent domain-specific concern if relevant
+### Phase 5: Write the Report
 
-### Phase 5: Surf Everything
+1. **Compute the filesystem-safe title** — sanitize `/` to ` or `, leave commas and parens alone.
+2. **Write the report** at `~/ob/kmr/Log/PHUNT/YYYY-MM-DD <Title>.md` using the format above. No wrapping folder — one flat file per hunt.
+3. **Prepend to the umbrella index** at `~/ob/kmr/Log/PHUNT/PHUNT.md`:
+   - Find the `## Recent hunts` H2.
+   - Insert a new bullet at the TOP of that list: `- [[YYYY-MM-DD <Title>|YYYY-MM-DD — <Title>]]`.
+
+### Phase 6: Surf Everything
 
 Open in the user's browser:
 - All review site URLs
@@ -87,16 +101,14 @@ Open in the user's browser:
 
 Use `open "<url>"` via Bash to surf each page.
 
-## Product Hunt Page
-
-The product hunt log is stored at: **[[Product Hunt]]**
-
-Location: `/Users/oblinger/ob/kmr/SYS/SYS Topic/Product Hunt/Product Hunt.md`
-
-Each hunt is appended at the top as a new H2 entry (below the dispatch header), creating a reverse-chronological log of all product research. The dispatch header line (`.[[Product Hunt]].  >[[SYS Topic]]`) must always remain at the top of the file — new entries go after the header and the `---` separator.
-
 ## Defaults
 
 - **Products**: 10 (top 10)
 - **Review sites**: 10
-- User can override: `/product-hunt 5 products, 5 reviews — wireless earbuds`
+- User can override: `/product hunt 5 products, 5 reviews — wireless earbuds`
+
+## Migration notes
+
+**2026-05-10** — Previously, all hunts lived as H2 sections in a single file at `~/ob/kmr/SYS/SYS Topic/Product Hunt/Product Hunt.md`. That file is now a redirect stub; the existing hunts were split into per-hunt dated folders under `~/ob/kmr/Log/PHUNT/`. The `[[Product Hunt]]` wiki-link still resolves to the redirect for back-compat; new hunts use `[[PHUNT]]`.
+
+**2026-05-18** — Flattened from per-hunt folders (`YYYY-MM-DD <Topic>/PHUNT <Topic>.md`) to flat files (`YYYY-MM-DD <Topic>.md`). Each hunt is a single file; the wrapping folder added zero structure since each hunt held only one document. Template changed from a folder template (`_PHUNT Template/_PHUNT Template.md`) to a file template (`_PHUNT Template.md`).

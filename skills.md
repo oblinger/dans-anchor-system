@@ -23,25 +23,25 @@
 | ~~[CAB Rules markdown](hook://CAB%20Rules%20markdown)~~ |  |
 | ~~[CAB Rust Rules markdown](hook://CAB%20Rust%20Rules%20markdown)~~ |  |
 | ~~[CAB Types markdown](hook://CAB%20Types%20markdown)~~ |  |
-| [[cab-base]] |  |
+| [[CAB Base]] |  |
 | [[cab-create]] |  |
-| [[cab-install]] |  |
+| ~~[cab-install](hook://cab-install)~~ |  |
 | ~~[cab-lint markdown](hook://cab-lint%20markdown)~~ |  |
-| [[cab-lint-rules]] |  |
+| [[LINT Rules]] |  |
 | ~~[cab-lint-system-suppressions markdown](hook://cab-lint-system-suppressions%20markdown)~~ |  |
-| [[cab-maintain]] |  |
+| ~~[cab-maintain](hook://cab-maintain)~~ |  |
 | ~~[CAB-migrate markdown](hook://CAB-migrate%20markdown)~~ |  |
 | ~~[cab-migrate-claude](hook://cab-migrate-claude)~~ |  |
 | ~~[CAB-move markdown](hook://CAB-move%20markdown)~~ |  |
-| [[CAB-facets]] | ~~, [[CAB All Files]], [[CAB Backlog]], [[CAB Cards]], [[CAB Claude]], [[CAB Code Repository]], [[CAB Dev Dispatch]], [[CAB Discussion]], [[CAB Docs]], [[CAB Documentation Site]], [[CAB Features]], [[CAB Files]], [[CAB Folder]], [[CAB Inbox]], [[CAB Module Doc]], ~~[[CAB Open Questions]]~~, [[CAB Outputs]], [[CAB Plan Dispatch]], [[CAB PRD]], [[CAB Project Page]], ~~[[CAB slug Page]]~~, [[CAB Roadmap]], [[CAB Skill]], [[CAB System Design]], [[CAB User Dispatch]], [[CAB UX Design]], [[CAB WP]], [[CAB Move]] |
+| [[Facets]] | [[CAB All Files]],  [[CAB Backlog]],  [[CAB Cards]],  [[CAB Claude]],  [[CAB Code Repository]],  [[CAB Dev Dispatch]],  [[CAB Discussion]],  [[CAB Docs]],  [[CAB Documentation Site]],  [[CAB Features]],  [[CAB Files]],  [[CAB Folder]],  [[CAB Inbox]],  [[CAB Module Doc]],  ~~[[CAB Open Questions]]~~,  [[CAB Outputs]],  [[CAB Plan Dispatch]],  [[CAB PRD]],  [[CAB Project Page]],  ~~[[CAB slug Page]]~~,  [[CAB Roadmap]],  [[CAB Skill]],  [[CAB System Design]],  [[CAB User Dispatch]],  [[CAB UX Design]],  [[CAB WP]],  [[CAB Move]],   |
 | ~~[CAB-pilot-flow markdown](hook://CAB-pilot-flow%20markdown)~~ |  |
 | ~~[CAB-pr-flow markdown](hook://CAB-pr-flow%20markdown)~~ |  |
-| [[cab-publish]] |  |
-| [[cab-slug-scan]] |  |
+| ~~[cab-publish](hook://cab-publish)~~ |  |
+| ~~[cab-slug-scan](hook://cab-slug-scan)~~ |  |
 | ~~[CAB-streams markdown](hook://CAB-streams%20markdown)~~ |  |
 | ~~[CAB-tidy markdown](hook://CAB-tidy%20markdown)~~ |  |
-| [[cab-wp]] |  |
-| [[cab-yore]] |  |
+| ~~[cab-wp](hook://cab-wp)~~ |  |
+| ~~[cab-yore](hook://cab-yore)~~ |  |
 | ~~[Code Anchor markdown](hook://Code%20Anchor%20markdown)~~ |  |
 | [[code-anchor]] |  |
 | [[code-arch-audit]] |  |
@@ -88,7 +88,7 @@
 | [[code-version]] |  |
 | [[code-workers]] |  |
 | [[code-worktrees]] |  |
-| [[compile]] | ~~, [[audit-docs markdown]], [[code-rewire markdown]] |
+| [[compile]] | [[audit-docs markdown]],  [[code-rewire markdown]],   |
 | ~~[edit-excalidraw markdown](hook://edit-excalidraw%20markdown)~~ |  |
 | ~~[excalidraw-examples markdown](hook://excalidraw-examples%20markdown)~~ |  |
 | [[google-sheets]] |  |
@@ -111,7 +111,7 @@
 | ~~[product-hunt markdown](hook://product-hunt%20markdown)~~ |  |
 | ~~[product-reorder markdown](hook://product-reorder%20markdown)~~ |  |
 | ~~[skills/README](hook://skills/README)~~ |  |
-| ~~[research/research](hook://research/research)~~ | research workflows — investigation, synthesis, [[research-person]], [[SKILL markdown]], [[research-book]], [[research-dig]], [[research-survey]], [[RSH]] |
+| ~~[research/research](hook://research/research)~~ | [[research-person]],  [[SKILL markdown]],  [[research-book]],  [[research-dig]],  [[research-survey]],  [[RSH]],   |
 | ~~[role-pilot markdown](hook://role-pilot%20markdown)~~ |  |
 | ~~[role-pm markdown](hook://role-pm%20markdown)~~ |  |
 | [[role-setup]] |  |
@@ -162,38 +162,38 @@
 | [[io-notion]] |  |
 | ~~[io-reauth](hook://io-reauth)~~ |  |
 | ~~[io-gauth](hook://io-gauth)~~ |  |
-| ~~[CAB-parts](hook://CAB-parts)~~ | ~~, [[CAB All Files]], [[CAB Backlog]], [[CAB Cards]], [[CAB Claude]], [[CAB Code Repository]], [[CAB Dev Dispatch]], [[CAB Discussion]], [[CAB Docs]], [[CAB Documentation Site]], [[CAB Features]], [[CAB Files]], [[CAB Folder]], [[CAB Inbox]], [[CAB Module Doc]], ~~[[CAB Open Questions]]~~, [[CAB Outputs]], [[CAB Plan Dispatch]], [[CAB PRD]], [[CAB Project Page]], ~~[[CAB slug Page]]~~, [[CAB Roadmap]], [[CAB Skill]], [[CAB System Design]], [[CAB User Dispatch]], [[CAB UX Design]], [[CAB WP]] |
-| [[edit-excalidraw]] |  |
+| ~~[CAB-parts](hook://CAB-parts)~~ | [[CAB All Files]],  [[CAB Backlog]],  [[CAB Cards]],  [[CAB Claude]],  [[CAB Code Repository]],  [[CAB Dev Dispatch]],  [[CAB Discussion]],  [[CAB Docs]],  [[CAB Documentation Site]],  [[CAB Features]],  [[CAB Files]],  [[CAB Folder]],  [[CAB Inbox]],  [[CAB Module Doc]],  ~~[[CAB Open Questions]]~~,  [[CAB Outputs]],  [[CAB Plan Dispatch]],  [[CAB PRD]],  [[CAB Project Page]],  ~~[[CAB slug Page]]~~,  [[CAB Roadmap]],  [[CAB Skill]],  [[CAB System Design]],  [[CAB User Dispatch]],  [[CAB UX Design]],  [[CAB WP]],   |
+| ~~[edit-excalidraw](hook://edit-excalidraw)~~ |  |
 | [[product-reorder]] |  |
 | [[CAB Page Conventions]] |  |
 | [[CAB Naming Conventions]] |  |
-| [[cab-tidy]] |  |
-| [[CAB Rules Index]] |  |
+| ~~[cab-tidy](hook://cab-tidy)~~ |  |
+| [[CAB Conventions]] |  |
 | [[CAB Repository Structure]] |  |
 | [[CAB Integrations]] |  |
 | [[role-pm]] |  |
 | [[CAB Docs Conventions]] |  |
 | [[Simple Anchor]] |  |
-| [[cab-lint]] |  |
+| ~~[cab-lint](hook://cab-lint)~~ |  |
 | [[product-buy]] |  |
-| [[cab-lint-system-suppressions]] |  |
+| [[LINT System Suppressions]] |  |
 | [[CAB Markdown Formatting]] |  |
 | [[CAB Research]] |  |
 | [[role-pilot]] |  |
-| [[cab-pilot-flow]] |  |
+| ~~[cab-pilot-flow](hook://cab-pilot-flow)~~ |  |
 | [[product-hunt]] |  |
 | [[excalidraw-examples]] |  |
 | [[CAB Rust Rules]] |  |
 | [[md-track-changes]] |  |
 | [[Paper Anchor]] |  |
 | [[CAB Traits]] |  |
-| [[cab-pr-flow]] |  |
+| ~~[cab-pr-flow](hook://cab-pr-flow)~~ |  |
 | [[Code Anchor]] |  |
-| [[cab-streams]] |  |
+| ~~[cab-streams](hook://cab-streams)~~ |  |
 | [[Skill Anchor]] |  |
 | [[cab-migrate]] |  |
 | [[CAB Documentation Publishing]] |  |
-| [[cab-move]] |  |
+| ~~[cab-move](hook://cab-move)~~ |  |
 | [[CAB Defined Terms]] |  |
 | [[md-cards]] |  |
 | [[Topic Anchor]] |  |

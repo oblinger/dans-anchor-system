@@ -58,16 +58,17 @@ Two specific checks:
 
 Flag misaligned files as **files-misaligned** and redundant text as **files-row1-redundant**.
 
-## 1.8 Check rollup (code-trait anchors only)
+## 1.8 Check Interface (code-trait anchors only)
 
-The rollup (see [[CAB Rollup]]) must exist and be reachable from two places:
+The Interface (see [[CAB Interface]]) is the **required top-level human-authored layer contract** for the codebase. It must exist and be reachable from two places:
 
-- [ ] `{NAME} Docs/{NAME} Dev/{NAME} Rollup.md` exists. Flag absence as **missing-rollup**.
-- [ ] `{NAME} Files.md` row 1 contains `→ [[{NAME} Rollup]]`. Flag absence as **rollup-not-linked-from-files**.
-- [ ] `{NAME} Dev.md` dispatch table contains a row linking to `[[{NAME} Rollup]]`. Flag absence as **rollup-not-linked-from-dispatch**.
-- [ ] Rollup file contains `## Public Modules` and `## How They Group` sections. Flag missing sections as **rollup-incomplete-structure**.
-- [ ] Rollup lists every top-level public module that exists in source. Flag missing modules as **rollup-module-missing**.
-- [ ] Rollup line count ≤ 500. Flag overflow as **rollup-too-large**.
+- [ ] `{NAME} Docs/{NAME} User/{NAME} Interface.md` exists. Flag absence as **missing-interface**.
+- [ ] `{NAME} Files.md` row 1 contains `→ [[{NAME} Interface]]`. Flag absence as **interface-not-linked-from-files**.
+- [ ] `{NAME} User.md` dispatch table contains a row linking to `[[{NAME} Interface]]`. Flag absence as **interface-not-linked-from-dispatch**.
+- [ ] Interface file contains `## Public Modules` and at least one structural section. Flag missing sections as **interface-incomplete-structure**.
+- [ ] Interface lists every top-level public module that exists in source. Flag missing modules as **interface-module-missing**.
+- [ ] Interface line count ≤ 500. Flag overflow as **interface-too-large**.
+- [ ] Legacy `{NAME} Rollup.md` (predecessor to Interface — F062): flag as **legacy-rollup-needs-migration**. Do not auto-rename.
 
 
 # Phase 2: Report
@@ -94,12 +95,12 @@ Otherwise, locate `{NAME} Docs/{NAME} Plan/{NAME} Backlog.md`. Read it, find the
 ```
 
 **Sub-bullet ordering** (group by category, in priority):
-1. `missing-rollup`, `rollup-incomplete-structure`
+1. `missing-interface`, `interface-incomplete-structure`, `legacy-rollup-needs-migration`
 2. `missing-from-files`, `stale-files-entry`, `files-misaligned`, `files-row1-redundant`
-3. `missing-from-dev`, `stale-dev-entry`, `rollup-not-linked-from-files`, `rollup-not-linked-from-dispatch`
+3. `missing-from-dev`, `stale-dev-entry`, `interface-not-linked-from-files`, `interface-not-linked-from-dispatch`
 4. `missing-module-doc`, `missing-folder-doc`
 5. `orphan-module-doc`
-6. `stale-classes`, `stale-methods`, `format-error`, `rollup-module-missing`, `rollup-too-large`
+6. `stale-classes`, `stale-methods`, `format-error`, `interface-module-missing`, `interface-too-large`
 
 Within each category, sort by file path. One line per sub-bullet.
 

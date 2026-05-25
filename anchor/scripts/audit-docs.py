@@ -414,10 +414,11 @@ def audit(anchor_path: str, verbose: bool = False) -> list[Finding]:
         """Convert snake_case to PascalCase: command_ops → CommandOps."""
         return "".join(word.capitalize() for word in snake.split("_"))
 
-    # Root-module source files where {slug} Rollup.md is an accepted alternative
-    # to the stem-derived name. See CAB Rollup facet: rollup often replaces the
-    # lib.rs / __init__.py / index.ts module doc since that file is pure re-exports.
-    ROLLUP_ROOT_STEMS = {"lib", "main", "__init__", "index", "mod"}
+    # Root-module source files where {slug} Interface.md is an accepted alternative
+    # to the stem-derived name. See CAB Interface facet: the Interface often replaces
+    # the lib.rs / __init__.py / index.ts module doc since that file is pure re-exports.
+    # Legacy {slug} Rollup.md also accepted until per-anchor migration (F062).
+    INTERFACE_ROOT_STEMS = {"lib", "main", "__init__", "index", "mod"}
 
     for rel_path in sorted(sources.keys()):
         basename = os.path.basename(rel_path)
@@ -425,13 +426,18 @@ def audit(anchor_path: str, verbose: bool = False) -> list[Finding]:
         expected_doc = f"{rid} {snake_to_pascal(stem)}"
         # Strict match — doc name must be exactly {slug} {PascalCase}
         found_doc = expected_doc in module_docs
-        # Rollup fallback: if this is a root module (lib.rs, etc.) and a Rollup
-        # doc exists, treat that as satisfying the module-doc requirement.
-        if not found_doc and stem in ROLLUP_ROOT_STEMS:
-            rollup_doc = f"{rid} Rollup"
-            if rollup_doc in module_docs:
+        # Interface fallback: if this is a root module (lib.rs, etc.) and an
+        # Interface (or legacy Rollup) doc exists, treat that as satisfying
+        # the module-doc requirement.
+        if not found_doc and stem in INTERFACE_ROOT_STEMS:
+            interface_doc = f"{rid} Interface"
+            legacy_rollup_doc = f"{rid} Rollup"
+            if interface_doc in module_docs:
                 found_doc = True
-                expected_doc = rollup_doc  # use rollup for downstream checks
+                expected_doc = interface_doc
+            elif legacy_rollup_doc in module_docs:
+                found_doc = True
+                expected_doc = legacy_rollup_doc  # legacy; migration pending per F062
         if found_doc:
             # Check freshness
             source_mtime = file_mtime(sources[rel_path]) or git_mtime(sources[rel_path])

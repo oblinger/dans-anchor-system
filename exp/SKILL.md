@@ -19,13 +19,7 @@ EXP is a CLI tool, not a slash-command skill. Skills consume it transparently wh
 
 ## Install
 
-The CLI lives at `scripts/exp` inside this skill. Wire it onto `$PATH` via symlink:
-
-```bash
-ln -sfn "$HOME/.claude/skills/exp/scripts/exp" ~/bin/exp
-```
-
-The wrapper resolves its own directory at runtime, so it works from any `$PATH` location as long as `exp.sh` and `exp-watcher.sh` sit next to it.
+The CLI lives at `scripts/exp` inside this skill. The user wires it onto their `$PATH` per their environment's conventions. The wrapper resolves its own directory at runtime, so it works from any `$PATH` location as long as `exp.sh` and `exp-watcher.sh` sit next to it.
 
 Worker-instructions symlink (read by `exp zap` worker sessions):
 

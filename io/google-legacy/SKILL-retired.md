@@ -1,10 +1,6 @@
 ---
 name: google
-description: >
-  Google Workspace integration — Sheets, Slides, Drive search.
-  Uses the gsa CLI tool with direct REST API calls and existing OAuth credentials.
-  Use with an action argument: /google sheets, /google slides.
-  Invoke bare (/google) for the quick-reference command summary.
+description: ">"
 tools: Read, Write, Edit, Bash, Glob, Grep
 user_invocable: true
 ---
