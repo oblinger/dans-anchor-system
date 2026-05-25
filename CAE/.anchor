@@ -1,8 +1,0 @@
-slug: CAE
-title: Common Anchor Example
-description: Reference anchor demonstrating the canonical CAB structure
-traits:
-  - code
-rules: CAE Docs/CAE Plan/CAE Rules.md
-backlog: CAE Docs/CAE Plan/CAE Backlog.md
-inbox: CAE Docs/CAE Plan/CAE Inbox.md
