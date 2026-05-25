@@ -120,6 +120,16 @@ skl-stat update <S#> "Done" "Feature complete and tested"
 After the mint completes and the backlog row's text/bracket has been updated to reflect the new state (e.g., `[Ready]` → `[Active]` → `[Done]`), regenerate the anchor's per-anchor section in `~/ob/kmr/Q.md` per `[[triage]]` § 6 — walk the backlog, compute the section, remove any existing section for this anchor, insert at the top of Q.md's body (bubble-to-top). **The backlog file is NOT reordered** — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior.
 **Then invoke `/audit q` to verify (per F076 Q6 auto-wiring).** The audit's fix-by-default behavior catches any drift introduced by this skill's edits — broken links, stale brackets, banner mismatches, stale `[Done]` rows — and either repairs them mechanically OR (rare) files a `QFix [Ready]` backlog entry the user can address later. Surfacing any QFix entry is part of this skill's "done" criteria.
 
-### 8. On Completion
+### 8. Crank wall-clock timer write (per [[F088]])
+
+**On every successful mint completion**, update the crank wall-clock timer file so `/crank`'s fatigue-gate (per [[crank]] § Wall-clock gate) can tell that real progress just happened:
+
+```bash
+mkdir -p ~/.cache && date +%s > ~/.cache/crank-last-mint.txt
+```
+
+This is a one-line write at the *end* of every successful mint — after commit, after Q.md regen, after audit-q post-condition. Skip the write on failed mints (the agent stopped without producing a commit / Done bracket); the timer file should reflect *successful mints only*, not turn count. Migrates to F080's `~/.config/ob-skills/crank/last-mint` namespace when F080 ships.
+
+### 9. On Completion
 
 On `/mint`: assess the roadmap, find the next milestone, and enter the pipeline.

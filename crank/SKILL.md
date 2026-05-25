@@ -84,6 +84,43 @@ Before committing to any stop, ask: **"Is this worth a user round-trip?"** Every
 The failure mode this rule prevents — agent stopping mid-queue with no clear reason — is more expensive than the failure mode it might enable — agent doing more work per crank than strictly necessary. The user can always invoke `/land` to bound a crank explicitly.
 
 
+### Wall-clock gate on fatigue-flavored stops (per [[F088]])
+
+A wall-clock check gates **fatigue-flavored** stops on elapsed time since the last successful mint. Concrete reasons always allow exit; fatigue reasons require either ≥ 7 minutes elapsed OR they get overridden and the agent takes one more pass.
+
+**Procedure — run before emitting any exit message:**
+
+1. **Identify the proposed stop reason.** What was crank about to say in chat?
+2. **Categorize:**
+   - **Legitimate (always exit)** — the reason exactly matches one of the five labels in § Valid stop-reasons: `Queue exhausted`, `Cascade triggered still dry`, `Token budget near limit (<30%)`, `/land invoked`, `Hard blocker mid-mint (rebracket-and-continue, not a stop)`. Plus two more concrete cases: application-shape change needed (per [[F068]]), or external resource unavailable (CI down, network, etc.).
+   - **Fatigue-flavored (timer check)** — anything else. Watch for these exact phrase patterns (and close paraphrases): *"natural pause"*, *"good stopping point"*, *"good place to check in"*, *"made meaningful progress"*, *"this feels like enough"*, *"reasonable place to stop"*, *"should pause"*, *"might want to discuss"*, *"the next step is bigger"*, *"user might want to look"*. The agent has to NAME which of the five legitimate labels applies — if no label fits exactly, the reason is fatigue.
+3. **If legitimate** → exit normally. Skip the timer check.
+4. **If fatigue-flavored** → read `~/.cache/crank-last-mint.txt` (default to `0` if absent / unreadable). Compute `elapsed = now - last_mint_epoch`.
+   - **If `elapsed ≥ 420` seconds (7 minutes)** → fatigue is honest; exit allowed. Proceed to write the exit message.
+   - **If `elapsed < 420` seconds** → **override the stop**. Take one more pass:
+     - **(B) Extend current task first** — if there's an in-flight task with more substantive work remaining (more sub-items, more tests, more refactoring), continue it rather than picking a new item. Cheaper context switch.
+     - **(A) Find new work** — if there's no in-flight task with more to do, scan the bracket-filtered Ready queue and start the next item.
+     - Per Q3 (C) hybrid: try (B) first, fall back to (A). The fatigue habit fires in both mid-task and between-task states; the override must handle both.
+
+**Bash check the agent inlines before emitting an exit message:**
+
+```bash
+LAST_MINT=$(cat ~/.cache/crank-last-mint.txt 2>/dev/null || echo 0)
+ELAPSED=$(( $(date +%s) - LAST_MINT ))
+[ "$ELAPSED" -lt 420 ] && echo "FATIGUE_GATE_ACTIVE elapsed=${ELAPSED}s" || echo "FATIGUE_GATE_PASSED elapsed=${ELAPSED}s"
+```
+
+If `FATIGUE_GATE_ACTIVE` and the proposed stop reason is fatigue-flavored, take one more pass before exiting. If `FATIGUE_GATE_PASSED` (≥ 7 min elapsed since last real mint), the fatigue is honest — exit is allowed.
+
+**Soft, not hard.** The timer biases toward continuing but doesn't force. If after one more pass the agent hits a concrete legitimate reason, normal exit applies. The wall-clock is **one more piece of evidence**, not an override of agent judgment. User explicitly: *"I'm still trying to make it be a soft reason."*
+
+**Timer reset semantics (per F088 Q2):** the timer file is updated **on every successful mint**, NOT on every crank turn. `/mint`'s on-completion step writes `date +%s > ~/.cache/crank-last-mint.txt`. With F085 Git Standard Mode active, every mint produces a commit and a natural turn boundary — turn-based reset would satisfy trivially on every commit; mint-based reset tracks "time since real work" which is what we actually care about.
+
+**First-ever crank (no timer file):** treat as `elapsed = 0`; suppress all fatigue-flavored stops on first invocation. Forgiving for the long-tail "started fresh" case.
+
+**Storage location:** `~/.cache/crank-last-mint.txt` v1; migrates to F080's `~/.config/ob-skills/crank/last-mint` namespace when F080 ships.
+
+
 ## Mechanism — outer loop over `/mint`, with parallelism
 
 `crank` is an **orchestrator**, not a worker. Each unit of work delegates to `/mint`, which handles a single Ready item end-to-end (spec → code → test → review → verify → commit).
