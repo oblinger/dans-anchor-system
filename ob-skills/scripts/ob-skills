@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+# ob-skills — omnibus helper for the ob-skills suite.
+# Per F072 (Skills config file ~/.claude/ob-skills.md).
+#
+# Usage:
+#   ob-skills config <key> [--default <fallback>]
+#     Read a parameter from ~/.claude/ob-skills.md (or $OB_SKILLS_CONFIG).
+#     "key :: value" lines are matched; backticks stripped; leading "~/" expanded
+#     to $HOME. Prints --default (or empty) when file missing or key absent.
+#
+#   ob-skills help
+#     Show this help.
+#
+# Future subcommands TBD (init, validate, etc.) — first arg is always the subcommand.
+
+set -u
+
+SUBCOMMAND="${1:-}"
+shift || true
+
+case "$SUBCOMMAND" in
+  config)
+    KEY="${1:-}"
+    shift || true
+    DEFAULT=""
+    while [[ $# -gt 0 ]]; do
+      case "$1" in
+        --default) DEFAULT="${2:-}"; shift 2 ;;
+        *) shift ;;
+      esac
+    done
+    if [[ -z "$KEY" ]]; then
+      echo "usage: ob-skills config <key> [--default <fallback>]" >&2
+      exit 2
+    fi
+
+    FILE="${OB_SKILLS_CONFIG:-$HOME/.claude/ob-skills.md}"
+    if [[ ! -f "$FILE" ]]; then
+      echo "$DEFAULT"
+      exit 0
+    fi
+
+    LINE=$(grep -E "^${KEY}[[:space:]]*::" "$FILE" 2>/dev/null | tail -1)
+    if [[ -z "$LINE" ]]; then
+      echo "$DEFAULT"
+      exit 0
+    fi
+
+    VALUE=$(echo "$LINE" | sed -E "s|^${KEY}[[:space:]]*::[[:space:]]*||; s/^\`(.*)\`$/\1/; s/^[[:space:]]+|[[:space:]]+$//g")
+    echo "${VALUE/#\~\//$HOME/}"
+    ;;
+
+  ""|-h|--help|help)
+    cat <<'EOF'
+ob-skills — omnibus helper for the ob-skills suite.
+
+USAGE
+    ob-skills <subcommand> [args...]
+
+SUBCOMMANDS
+    config <key> [--default <fallback>]
+            Read a parameter from ~/.claude/ob-skills.md (or $OB_SKILLS_CONFIG).
+            Strips backticks, expands leading ~/. Prints --default on miss.
+
+    help    Show this help.
+
+Per F072 — Skills config file (~/.claude/ob-skills.md).
+EOF
+    ;;
+
+  *)
+    echo "ob-skills: unknown subcommand: $SUBCOMMAND" >&2
+    echo "Run 'ob-skills help' for usage." >&2
+    exit 2
+    ;;
+esac
