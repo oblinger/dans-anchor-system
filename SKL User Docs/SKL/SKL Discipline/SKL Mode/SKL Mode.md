@@ -1,7 +1,7 @@
 ---
 description: operating-mode framework — defines what a mode is, the metric it optimizes, and how modes are declared
 ---
-| -[[SKL Mode]]- | : <br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [SKL Mode](hook://p/SKL%20Mode) |
+| -[[SKL Mode]]- | : <br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Discipline]] → [SKL Mode](hook://p/SKL%20Mode) |
 | --- | --- |
 | Modes | [[SKL Mode Drive\|Drive]],   |
 | ... |  |

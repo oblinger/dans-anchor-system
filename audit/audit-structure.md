@@ -87,7 +87,7 @@ for f in pathlib.Path(".").rglob("* Docs/* Dev/* Files.md"):
 
 ### 7a. Check Active-work invariant — orphan feature docs
 
-Per `[[workflow]]` § Active-work invariant: every feature doc in `{NAME} Features/` must be reachable from one of `{NAME} Backlog.md`, `{NAME} Roadmap.md`, or `{NAME} Icebox.md`.
+Per `[[SKA workflow]]` § Active-work invariant: every feature doc in `{NAME} Features/` must be reachable from one of `{NAME} Backlog.md`, `{NAME} Roadmap.md`, or `{NAME} Icebox.md`.
 
 For each `*.md` file in `{NAME} Features/`:
 

@@ -6,7 +6,7 @@ user_invocable: false
 
 # Backlog Horizons Discipline
 
-Two-axis organization of a backlog. **Horizon** answers *when do we want this to happen?* **Workflow state** answers *how far has it progressed?* The two are orthogonal — an item in `## Later` can be `[Ready]`; an item in `## Now` can be `[Designing]`. Horizon is shown by H2 placement; workflow state is shown by the `[Status]` bracket per the `[[workflow]]` discipline.
+Two-axis organization of a backlog. **Horizon** answers *when do we want this to happen?* **Workflow state** answers *how far has it progressed?* The two are orthogonal — an item in `## Later` can be `[Ready]`; an item in `## Now` can be `[Designing]`. Horizon is shown by H2 placement; workflow state is shown by the `[Status]` bracket per the `[[SKA workflow]]` discipline.
 
 
 ## Why this exists — the problem it solves
@@ -31,7 +31,7 @@ Three is intentional. Two horizons (Now / Later) collapse to the binary problem;
 ## Two independent axes
 
 - **Horizon** — owned by *this* discipline. Determined by H2 placement. Values: Now, Next, Later (Icebox outside).
-- **Workflow state** — owned by `[[workflow]]`. Determined by `[Status]` bracket on the bullet. Values: `[ ]` / `[Designing]` / `[Questions]` / `[Blocked]` / `[Ready]` / `[Active]` / `[Verify]` / `[Done]`.
+- **Workflow state** — owned by `[[SKA workflow]]`. Determined by `[Status]` bracket on the bullet. Values: `[ ]` / `[Designing]` / `[Questions]` / `[Blocked]` / `[Ready]` / `[Active]` / `[Verify]` / `[Done]`.
 
 An item can be:
 

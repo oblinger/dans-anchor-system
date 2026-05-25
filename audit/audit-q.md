@@ -49,4 +49,4 @@ Sub-action of `/audit`. Spec: `[[F076 — audit q — Q.md constraint validator 
 - `[[F076 — audit q — Q.md constraint validator with mechanical-fix mode]]` — design spec.
 - `[[audit-q-fix]]` — companion skill for picking up a `QFix` backlog entry (rare).
 - `skills/audit/scripts/audit-q.py` — the underlying Python script.
-- `[[audit]]` — parent audit skill family.
+- `[[SKA audit]]` — parent audit skill family.

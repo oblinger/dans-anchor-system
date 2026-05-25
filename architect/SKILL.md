@@ -174,7 +174,7 @@ Each significant delta becomes a Q on the architecture doc. Trivial deltas can b
 - **Trivial — silent**: adding a new module to an existing modules-table; correcting an `Arch` row; updating a one-line module description in the modules table.
 - **Substantive — `/ask`**: creating a new subsystem; promoting a subsystem from file to folder; removing a phantom subsystem; reassigning a module to a different subsystem.
 
-`/ask` parks Qs in the architecture doc's `## Open Questions` H2 per `[[ask]]`.
+`/ask` parks Qs in the architecture doc's `## Open Questions` H2 per `[[SKA ask]]`.
 
 ### 7. Source dip on demand
 
@@ -182,7 +182,7 @@ If the user asks a question about a specific module (or `/architect` detects an 
 
 ### 8. Q.md update post-condition (per F075)
 
-After the architecture pass commits, regenerate the anchor's per-anchor section in `~/ob/kmr/Q.md` per `[[triage]]` § 6 — walk the backlog, compute the section, remove any existing section for this anchor, insert at the top of Q.md's body (bubble-to-top). The backlog file is NOT reordered.
+After the architecture pass commits, regenerate the anchor's per-anchor section in `~/ob/kmr/Q.md` per `[[SKA triage]]` § 6 — walk the backlog, compute the section, remove any existing section for this anchor, insert at the top of Q.md's body (bubble-to-top). The backlog file is NOT reordered.
 
 ### 9. Commit on transition
 
@@ -215,6 +215,6 @@ The skill presumes the user is the original author of the design. Every `/archit
 - `[[CAB Module Doc]]` — defines the `Arch` row in module-doc dispatch tables and the `module_docs_audited:` frontmatter contract.
 - `[[CAB Principles]]` — Architecture cross-links to Principles; Architecture does not absorb them.
 - `[[audit-docs]]` — writes `module_docs_audited:` to `{NAME} Dev.md` frontmatter at the end of every audit pass; the source of truth `/architect`'s staleness precondition reads.
-- `[[ask]]` — universal Q-parking subroutine.
-- `[[triage]]` — provides the Q.md regen helper that `/architect` calls as its post-condition.
+- `[[SKA ask]]` — universal Q-parking subroutine.
+- `[[SKA triage]]` — provides the Q.md regen helper that `/architect` calls as its post-condition.
 - `[[F074 — Architect skill — Architecture as anchor folder with subsystems]]` — design doc.

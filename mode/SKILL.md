@@ -41,7 +41,7 @@ Available modes (the flat list):
 | Mode | What it shapes | Doc |
 |---|---|---|
 | **Drive** | Trade-off posture — agent-driven, optimistic, minimum-interruption | § Drive (below); [[SKL Mode Drive]] |
-| **Cautious** | Counterpart to Drive — invoked via `/fortify` for distrust-the-foundation work | [[fortify]] |
+| **Cautious** | Counterpart to Drive — invoked via `/fortify` for distrust-the-foundation work | [[SKA fortify]] |
 | **Git Standard** | Git boundaries — commit on logical breaks, terse messages, never auto-push | § Git Standard (below) |
 | **Git PR** | Git boundaries — every state-touching commit gated through PR review | [[F077]] — design |
 

@@ -60,7 +60,7 @@ There is no `--fix` flag. Audits never fix.
 Each sub-audit produces **≥1 backlog row**, pre-split by **state-cluster** of the remaining findings (per F061 Q4). The split is mechanical:
 
 - **One `[Ready]` row** containing all sub-bullets that have **no open questions** — mechanical / spec-clear / no user policy needed. The agent (or `/crank`) can pick this up immediately.
-- **One or more `[Questions]` rows** for sub-bullets that need user input. Each cluster of related questions gets its own row; orthogonal question-sets get separate rows so the user can resolve them independently. Each `[Questions]` row links to a feature doc (`→ [[F<n> — <Title>]]`) holding the Qs parked per `[[ask]]`.
+- **One or more `[Questions]` rows** for sub-bullets that need user input. Each cluster of related questions gets its own row; orthogonal question-sets get separate rows so the user can resolve them independently. Each `[Questions]` row links to a feature doc (`→ [[F<n> — <Title>]]`) holding the Qs parked per `[[SKA ask]]`.
 - **Done sub-bullets are excluded entirely** — they shouldn't appear in an audit-result row at all. If a finding is resolved during audit-write, drop it.
 
 **Default horizon: `## Next`, NOT `## Now`.** Audit findings are surfaced but **deprioritized by default** — they don't compete with whatever's currently flowing through `## Now`. The user can promote to `## Now` explicitly when the audit work moves up in priority. Use `## Now` only when the audit was explicitly invoked because the user wants the findings to land in the active horizon.
@@ -92,7 +92,7 @@ For the `[Questions]` row(s):
 
 ## Q.md update post-condition (per F075)
 
-After writing the audit finding row(s) to `{NAME} Backlog.md`, regenerate the anchor's per-anchor section in `~/ob/kmr/Q.md` per `[[triage]]` § 6 — walk the backlog, compute the section, remove any existing section for this anchor, insert at the top of Q.md's body (bubble-to-top). **The backlog file is NOT reordered** — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior; the user reading Q.md sees the just-audited anchor at the top with its new finding rows.
+After writing the audit finding row(s) to `{NAME} Backlog.md`, regenerate the anchor's per-anchor section in `~/ob/kmr/Q.md` per `[[SKA triage]]` § 6 — walk the backlog, compute the section, remove any existing section for this anchor, insert at the top of Q.md's body (bubble-to-top). **The backlog file is NOT reordered** — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior; the user reading Q.md sees the just-audited anchor at the top with its new finding rows.
 
 When the orchestrator (bare `/audit`) collects results from multiple worker sub-audits, fire the Q.md regen **once at the end** (after all workers return), not once per worker — write amplification is unhelpful and bubble-to-top semantics work fine with the final state.
 

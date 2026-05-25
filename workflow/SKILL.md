@@ -280,7 +280,7 @@ Each surface that uses workflow state cites this discipline and maps the canonic
 
 ### Backlog (`{NAME} Backlog.md`)
 
-Per `[[CAB Backlog]]` and `[[backlog-horizons]]`:
+Per `[[CAB Backlog]]` and `[[SKA backlog-horizons]]`:
 
 - Workflow state is shown via the `[Status]` square-bracket prefix in each bullet, OR implied by the bullet's H2 placement.
 - H2 sections combine **horizon** (`## Now`, `## Next`, `## Later`) and **workflow state** (`## Active`, `## Ready`, `## Done`).
@@ -350,7 +350,7 @@ This is the structural sharpening of the per-surface mappings above: those say *
 The feature doc is **work-TBD + meta-discussion**:
 - *Why* decisions were made (trade-offs, alternatives, rationale).
 - *What work needs to be done* (implementation plan, acceptance criteria, sub-tasks).
-- Open questions during design (per `[[ask]]`).
+- Open questions during design (per `[[SKA ask]]`).
 
 The user-facing and system-facing **spec content** (API surfaces, command syntax, screens, architecture, data models) lives in:
 - **User docs** (`{NAME} User/`) — what the user sees / types / configures.
@@ -379,7 +379,7 @@ The icebox is a **sanctioned exception** to the "active" part of the invariant. 
 
 These are **two independent axes**:
 
-- **Horizon** — *when* the user wants the work to happen. Owned by `[[backlog-horizons]]`. Values: Now, Next, Later (plus Icebox outside the backlog).
+- **Horizon** — *when* the user wants the work to happen. Owned by `[[SKA backlog-horizons]]`. Values: Now, Next, Later (plus Icebox outside the backlog).
 - **Workflow state** — *whether* the work has progressed and how far. Owned by this discipline. Values: Unset, Designing, Blocked, Ready, Active, Testing, Completed.
 
 **Common conflation: "Now" vs "Active."** They look similar but mean different things.

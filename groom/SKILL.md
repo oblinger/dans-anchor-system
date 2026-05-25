@@ -64,7 +64,7 @@ Every backlog item has one of these statuses, derived from where the bullet sits
 | **Active** | Bullet is under `## Active` H2 | Skip — actively being worked. |
 | **Blocked on questions** | Bracket `[Questions]` and bullet text contains a `→ [[Feature Doc]]` or `→ [[Open Questions]]` link | Skip — only the user can resolve those. |
 | **Blocked (other)** | Bracket `[Blocked]` (generic, body explains) or `[Blocked F<NNN>]` (chained on another feature) | Skip — the blocker is external. When the chained `F<NNN>` reaches `[Done]`, /groom may rebracket on a future sweep. |
-| **Unset / Upcoming** | Bullet is under a horizon H2 (`## Now`, `## Next`, `## Later` per [[backlog-horizons]]) — or the legacy `## Upcoming` — or `## Legwork`, with bracket `[ ]` / `[Designing]` / absent, AND has no link to active open questions | **Process** — try to ready it. |
+| **Unset / Upcoming** | Bullet is under a horizon H2 (`## Now`, `## Next`, `## Later` per [[SKA backlog-horizons]]) — or the legacy `## Upcoming` — or `## Legwork`, with bracket `[ ]` / `[Designing]` / absent, AND has no link to active open questions | **Process** — try to ready it. |
 | **Verify**, **Done** | Bullet under those H2s | Skip — out of scope. |
 
 The `→ [[X]]` link convention is documented in [[CAB Backlog]].
@@ -80,7 +80,7 @@ The `→ [[X]]` link convention is documented in [[CAB Backlog]].
 | `/groom later` | Only items under `## Later`. |
 | `/groom upcoming` | Only items under legacy `## Upcoming` (alias for `/groom now` on migrated anchors). |
 | `/groom legwork` | Only items under `## Legwork`. |
-| `/groom icebox` | Walk `{NAME} Icebox.md` instead of the backlog. Useful for thawing iced items back into the backlog or reviewing what's parked. Default scope (bare `/groom`) excludes the icebox per `[[workflow]]` § Active-work invariant. |
+| `/groom icebox` | Walk `{NAME} Icebox.md` instead of the backlog. Useful for thawing iced items back into the backlog or reviewing what's parked. Default scope (bare `/groom`) excludes the icebox per `[[SKA workflow]]` § Active-work invariant. |
 | `/groom roadmap` | Operate on the roadmap's next milestone instead of the backlog. |
 | `/groom roadmap {milestone}` | Operate on a named roadmap milestone. |
 | `/groom {F-number}` | Single item, by F-number. |
@@ -104,7 +104,7 @@ If scope was provided as an argument, narrow to bullets in that section only.
 
 ### 2a. Bracket reassessment — rewrite stale/non-standard brackets (per F061)
 
-Before promotion work, walk every bullet in scope and **reassess any non-standard or stale bracket**, rewriting to the correct standard bracket per `[[workflow]]`. This is the structural home for the rebracketing discipline; `/triage` enforces honesty at render-time, `/groom` is where the actual rewrites land. The bracket-reassessment runs lazily — `/crank`'s cascade (per `[[crank]]` § 2a) only invokes `/groom` when the Ready queue runs dry, so most cycles don't pay the cost.
+Before promotion work, walk every bullet in scope and **reassess any non-standard or stale bracket**, rewriting to the correct standard bracket per `[[SKA workflow]]`. This is the structural home for the rebracketing discipline; `/triage` enforces honesty at render-time, `/groom` is where the actual rewrites land. The bracket-reassessment runs lazily — `/crank`'s cascade (per `[[SKA crank]]` § 2a) only invokes `/groom` when the Ready queue runs dry, so most cycles don't pay the cost.
 
 Cases to detect and rewrite:
 
@@ -119,7 +119,7 @@ Cases to detect and rewrite:
 - **`[Watching Nd]` whose soak expired with no recurrence** — rewrite to `[Verify]` so the user can confirm the fix held and close to `[Done]`.
 - **`[Watching]` with recurrence during the soak** — rewrite to `[Active]` or `[Designing]` (the fix didn't hold; resume work).
 - **`[Verify-by YYYY-MM-DD]` past its date** (per [[ask-format]] § Deferred-by-use Verify) — default: move the row to `## Done` with note *"Auto-Done <today> — `[Verify-by <date>]` window expired with no failure surfaced"*. Optional alternative: if the agent has evidence the change wasn't actually exercised since the row was filed (e.g., the relevant skill hasn't run, no usage observed), extend the bracket to `[Verify-by <new-date>]` with a body note *"Extended — no usage observed yet"*. Default is auto-Done; extension is the rare case.
-- **Lazy-Blocked / Lazy-Waiting / Lazy-Watching** (body doesn't name what makes the state honest) — rewrite per `[[triage]]` § Lazy states (usually `[Ready]` or `[Questions]` in disguise).
+- **Lazy-Blocked / Lazy-Waiting / Lazy-Watching** (body doesn't name what makes the state honest) — rewrite per `[[SKA triage]]` § Lazy states (usually `[Ready]` or `[Questions]` in disguise).
 - **Bracket-H2 mismatch** — a row under `## Ready` H2 with a `[Questions]` / `[Blocked]` / `[Waiting]` / `[Watching]` bracket is misplaced (H2 implies state; bracket carries state). Either rewrite the bracket if state changed (the H2 was right) or move the row to a horizon H2 carrying the bracket (the bracket was right). The body usually disambiguates.
 
 This reassessment is **the** primary value `/groom` adds beyond promotion: without it, `[Blocked]` / `[Waiting]` / `[Watching]` becomes a write-only graveyard and stale `[Ready]` rows mislead `/crank`.
@@ -135,7 +135,7 @@ This reassessment is **the** primary value `/groom` adds beyond promotion: witho
 - **Has questions** — anything you'd need the user to clarify. Two sub-paths:
 
   1. **Inline-deferred slot is empty AND this is exactly ONE genuinely trivial question** (one short sentence, one yes/no, one short answer): hold it in the inline-deferred slot. Mark the item for revisit when the user answers — for now, leave the bullet where it is.
-  2. **Otherwise** — create a feature doc at `{NAME} Docs/{NAME} Plan/{NAME} Features/F{n} — {Item Name}.md` (using the backlog row's F-number; per [[CAB Backlog]] § Numbering policy) with the standard `## Open Questions` block below the H1 (per `/feature` § 1 and [[ask]] § When a file is involved). Capture the questions there. **This is parking mode** (per [[ask]] § Active vs Parking) — do NOT glance the new feature doc. The user invoked `/groom` as a *batch* operation specifically to defer per-item engagement; glancing each created doc would interrupt the very deferral they asked for. Replace the backlog bullet's description with `→ [[F{n} — {Item Name}]]` and update the bracket to `[Questions]`. The item is now blocked-on-questions; the doc surfaces only at end-of-run via § 5 (the *first* one, not all).
+  2. **Otherwise** — create a feature doc at `{NAME} Docs/{NAME} Plan/{NAME} Features/F{n} — {Item Name}.md` (using the backlog row's F-number; per [[CAB Backlog]] § Numbering policy) with the standard `## Open Questions` block below the H1 (per `/feature` § 1 and [[SKA ask]] § When a file is involved). Capture the questions there. **This is parking mode** (per [[SKA ask]] § Active vs Parking) — do NOT glance the new feature doc. The user invoked `/groom` as a *batch* operation specifically to defer per-item engagement; glancing each created doc would interrupt the very deferral they asked for. Replace the backlog bullet's description with `→ [[F{n} — {Item Name}]]` and update the bracket to `[Questions]`. The item is now blocked-on-questions; the doc surfaces only at end-of-run via § 5 (the *first* one, not all).
 
 **Inline-deferred slot rules.**
 - At most ONE item across the whole run may use the inline slot.
@@ -160,7 +160,7 @@ Print a summary table:
 
 ### 5. Q.md update post-condition (per F075)
 
-Whether top-level or sub-skill: if `/groom` mutated any backlog row's text/bracket (promoted, rebracketed, parked questions, etc.), regenerate the anchor's per-anchor section in `~/ob/kmr/Q.md` per `[[triage]]` § 6 — walk the backlog, compute the section, remove any existing section for this anchor, insert at the top of Q.md's body (bubble-to-top). **The backlog file is NOT reordered** — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior.
+Whether top-level or sub-skill: if `/groom` mutated any backlog row's text/bracket (promoted, rebracketed, parked questions, etc.), regenerate the anchor's per-anchor section in `~/ob/kmr/Q.md` per `[[SKA triage]]` § 6 — walk the backlog, compute the section, remove any existing section for this anchor, insert at the top of Q.md's body (bubble-to-top). **The backlog file is NOT reordered** — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior.
 **Then invoke `/audit q` to verify (per F076 Q6 auto-wiring).** The audit's fix-by-default behavior catches any drift introduced by this skill's edits — broken links, stale brackets, banner mismatches, stale `[Done]` rows — and either repairs them mechanically OR (rare) files a `QFix [Ready]` backlog entry the user can address later. Surfacing any QFix entry is part of this skill's "done" criteria.
 
 ### 6. (Top-level only) Hand off to `/triage`
@@ -168,7 +168,7 @@ Whether top-level or sub-skill: if `/groom` mutated any backlog row's text/brack
 **If sub-skill invocation: stop here.** The parent skill will surface state.
 
 **If top-level invocation:**
-- Invoke `/triage` (which regenerates the anchor's Q.md section per `[[triage]]` § 6 and glances `~/ob/kmr/Q.md` per `[[triage]]` § 7). This is the user's "what just happened?" view. (Step 5's Q.md regen is redundant when `/triage` follows immediately — `/triage` rewrites the same section. Either run idempotently produces the same result; keep both because sub-skill invocations don't fire step 6.)
+- Invoke `/triage` (which regenerates the anchor's Q.md section per `[[SKA triage]]` § 6 and glances `~/ob/kmr/Q.md` per `[[SKA triage]]` § 7). This is the user's "what just happened?" view. (Step 5's Q.md regen is redundant when `/triage` follows immediately — `/triage` rewrites the same section. Either run idempotently produces the same result; keep both because sub-skill invocations don't fire step 6.)
 - If the inline-deferred slot is filled (per § Step 3 inline-deferred slot rules), print the question on the line **after** /triage's output, pinning it to the bottom of the screen.
 
 The earlier per-step UX (open the first blocked-on-questions doc, separate `/roster` invocation) is subsumed by `/triage` — Q.md shows the inbox of items waiting on user input, including the newly-parked feature docs.

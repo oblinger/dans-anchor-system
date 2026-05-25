@@ -87,7 +87,7 @@ If the survey returns zero pending items, write a one-line summary (`/ask — no
 
 ### 2. Reasoning pass — self-resolve what you can
 
-For each surveyed item, attempt to resolve it autonomously. Calibrate the threshold by the active drive mode (see `[[mode]]`):
+For each surveyed item, attempt to resolve it autonomously. Calibrate the threshold by the active drive mode (see `[[SKA mode]]`):
 
 - **`[Verify]` items** — *can I verify this myself well enough that the user doesn't need to?* Run the grep / test / script / log inspection / source-dip that would settle it. If the verification mechanically passes, mark the item Done in the backlog (update its row + the feature doc's Status).
 - **`[Questions]` items** — *can I confidently pick the most likely answer?* Read the feature doc's `## Open Questions` block, the surrounding code, prior similar decisions in the anchor's `## Resolved`, the user's stated preferences (memory), and the design rationale. For each Q where the answer is clear, write the inline resolution per § Resolution and update the feature doc.

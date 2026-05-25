@@ -29,7 +29,7 @@ When the user says "let's build a feature", "new feature", "I want to add", "des
 Designing → Agreed → Implementing → Testing → Done
 ```
 
-The feature lifecycle uses the canonical state vocabulary from the `[[workflow]]` discipline. Two feature-specific accommodations:
+The feature lifecycle uses the canonical state vocabulary from the `[[SKA workflow]]` discipline. Two feature-specific accommodations:
 
 - **`Proposed` was dropped** — it collapsed to early `[Designing]`. A freshly-created feature doc starts at `Designing`.
 - **`Agreed` is preserved as a feature-doc-specific synonym for `[Ready]`** — kept distinct because the Agreed gate is genuinely meaningful (user-approval-anchored).
@@ -143,7 +143,7 @@ Designing — awaiting design discussion.
 - **H1 carries the anchor-slug breadcrumb + F-number.** Format: `# [[{NAME}]] · F{n} — {Feature Name}`. The leading `[[{NAME}]]` is a wiki-link to the anchor page (jumps back to the anchor's home from any feature doc) and tells the reader at a glance which anchor they're in — load-bearing when many anchors are active and feature docs look similar across them.
 - **`## Open Questions` lives below H1 only while pending user Qs exist** — deleted otherwise.
 - **`## Resolved` at the bottom holds all resolved decisions as H3 entries** — both agent-decided and user-answered. The H3 outline IS the decision list; click any H3 to read its full record. H3 title format: `### Q{N} — {Title}` for user-answered (Q-numbered); `### {Title}` for agent-decided (no Q-number — they were never asked). Each H3 body has: `**Choice:** X.` + brief reasoning + alternatives considered + why rejected.
-- The `/ask` skill (`[[ask]]`) is the universal asking subroutine — feature docs, PRDs, plan docs, anything with questions follows the same shape. Invoke `/ask --doc <path>` to add questions to a feature doc; the runbook handles formatting, glance, and global-page maintenance.
+- The `/ask` skill (`[[SKA ask]]`) is the universal asking subroutine — feature docs, PRDs, plan docs, anything with questions follows the same shape. Invoke `/ask --doc <path>` to add questions to a feature doc; the runbook handles formatting, glance, and global-page maintenance.
 
 **When to ask vs auto-decide (per [[F068]] amendment 2026-05-22):**
 
@@ -154,7 +154,7 @@ Before adding a question to `## Open Questions`, self-check: is the choice **vis
 
 Always ASK when: invisible OR high recoverability cost OR irreversible (push / external messages / hard deletes / deploys) OR interface-decision-sticky (slash command names, frontmatter schemas, default keybindings, durable file naming). New-feature-without-approval always asks.
 
-### 1.5. Add a backlog (or roadmap) row — MANDATORY (per [[workflow]] § Active-work invariant)
+### 1.5. Add a backlog (or roadmap) row — MANDATORY (per [[SKA workflow]] § Active-work invariant)
 
 Per the active-work invariant: **every feature doc must be reachable from `{NAME} Backlog.md` or `{NAME} Roadmap.md`** at creation time. No exceptions, no `--orphan` flag.
 
@@ -164,13 +164,13 @@ Per the active-work invariant: **every feature doc must be reachable from `{NAME
 - **F{n} — {Feature Name}** [Designing] — → [[F{n} — {Feature Name}]]
 ```
 
-**For a roadmap milestone**: the feature doc gets an M-number prefix (`Features/M{n} — {Name}.md` with H1 `# M{n} — {Name}`). Add a milestone row to `{NAME} Roadmap.md`. M-numbers are hierarchical (M1, M1.2, M1.2.3) — see `[[workflow]]` § Active-work invariant for the namespace rules.
+**For a roadmap milestone**: the feature doc gets an M-number prefix (`Features/M{n} — {Name}.md` with H1 `# M{n} — {Name}`). Add a milestone row to `{NAME} Roadmap.md`. M-numbers are hierarchical (M1, M1.2, M1.2.3) — see `[[SKA workflow]]` § Active-work invariant for the namespace rules.
 
 **The row is added in the SAME turn the feature doc is created.** Don't defer; orphans accumulate when the row-creation step is "for later."
 
 ### 1a. Surface the Doc — glance only when adding/modifying a pending question AND the user is engaging now
 
-Glance the doc *only when both conditions hold*: (1) the edit added or modified a pending question, AND (2) you're in **active mode** — the user is engaging with this feature right now. See [[ask]] § Active vs Parking mode for the full rule. (Better still: invoke `/ask --doc <path>` and the skill handles the glance for you.)
+Glance the doc *only when both conditions hold*: (1) the edit added or modified a pending question, AND (2) you're in **active mode** — the user is engaging with this feature right now. See [[SKA ask]] § Active vs Parking mode for the full rule. (Better still: invoke `/ask --doc <path>` and the skill handles the glance for you.)
 
 ```bash
 open "<path to feature doc>"
@@ -191,7 +191,7 @@ open "<path to feature doc>"
 **Procedure (the post-condition, fired at end of `/feature` invocation when state changed):**
 
 1. Update the touched backlog row's text/bracket in `{NAME} Backlog.md` to reflect the new state. **Backlog file source order is preserved** — do not reorder.
-2. Regenerate the anchor's per-anchor section in `~/ob/kmr/Q.md` (per `[[triage]]` § 6 — walk the backlog, compute the section, remove any existing section for this anchor, insert at top). Bubble-to-top is a Q.md behavior only.
+2. Regenerate the anchor's per-anchor section in `~/ob/kmr/Q.md` (per `[[SKA triage]]` § 6 — walk the backlog, compute the section, remove any existing section for this anchor, insert at top). Bubble-to-top is a Q.md behavior only.
 **Then invoke `/audit q` to verify (per F076 Q6 auto-wiring).** The audit's fix-by-default behavior catches any drift introduced by this skill's edits — broken links, stale brackets, banner mismatches, stale `[Done]` rows — and either repairs them mechanically OR (rare) files a `QFix [Ready]` backlog entry the user can address later. Surfacing any QFix entry is part of this skill's "done" criteria.
 
 **Active mode (the user is engaging now)** — after the post-condition runs, the glance step (§ 1a) already opens `~/ob/kmr/Q.md` per the F075 single-glance-target rule.

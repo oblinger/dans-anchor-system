@@ -6,7 +6,7 @@ description: User guides for search-shaped skills — query the open web, find s
 
 User guides for search-shaped skills — query the open web, find skills others have built, surface product information.
 
-| -[[SKL Search]]- | →<br>: User guides for search-shaped skills — query the open web, find skills others have built, surface product information. |
+| -[[SKL Search]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [SKL Search](hook://p/SKL%20Search)<br>: User guides for search-shaped skills — query the open web, find skills others have built, surface product information. |
 | --- | --- |
 | [[SKL Product\|Product]] | How to research and purchase products — hunt, find, buy, reorder |
 | [[SKL Research Skill\|Research Skill]] | Specialized survey for **comparing agent skills** that do similar work. |

@@ -154,7 +154,7 @@ The window goes in the bracket; the **reason** for that window goes in the body.
 
 ### Triage behavior
 
-Per `[[triage]]` § Render: Later items with `[Questions]` or `[Verify]` brackets surface in the Later H2. **Extension for `[Verify-by <date>]`:**
+Per `[[SKA triage]]` § Render: Later items with `[Questions]` or `[Verify]` brackets surface in the Later H2. **Extension for `[Verify-by <date>]`:**
 - If today < date → surface in Later H2 (user can see it if they look).
 - If today >= date → **hide**. The item is past its deferred-by-use deadline; auto-completion happens at next `/groom`.
 
@@ -162,7 +162,7 @@ This keeps the banner counts honest (the Verify count doesn't include expired-bu
 
 ### Auto-expiration via /groom
 
-Per `[[groom]]` § Bracket reassessment: when scanning, for each `[Verify-by <date>]` row where today >= date:
+Per `[[SKA groom]]` § Bracket reassessment: when scanning, for each `[Verify-by <date>]` row where today >= date:
 
 1. **Default**: move to `## Done` with note *"Auto-Done <today-date> — `[Verify-by <bracket-date>]` window expired with no failure surfaced."*
 2. **Optional extension**: if the agent has evidence the change wasn't actually exercised (e.g., the relevant skill hasn't run since the row was filed), extend the bracket date and add a note *"Extended to <new-date> — no usage observed yet."*
@@ -216,7 +216,7 @@ When referring to a specific Q or Verify from elsewhere:
 
 ## Phase 1 / 2 / 3 lifecycle (Open Questions blocks)
 
-A document with `Q<n>` items moves through three phases (per [[ask]]):
+A document with `Q<n>` items moves through three phases (per [[SKA ask]]):
 
 **Phase 1 — pending Qs exist.** `## Open Questions` H2 sits below H1, containing pending Qs. Resolved Qs accumulate inside as a `### Resolved` H3 sub-section.
 
@@ -285,11 +285,11 @@ The user can name a subset: *"accept the first 5 resolutions"* / *"the QFix reso
 
 ## Cross-references
 
-- `[[ask]]` — the writer skill. Both parented and bare modes write per this discipline.
-- `[[triage]]` — the reader skill. Renders items written per this discipline.
-- `[[feature]]` — creates `## Open Questions` blocks at feature-doc creation.
-- `[[groom]]` — parks questions into feature docs per this discipline.
-- `[[crank]]` — when surfacing user-actionable items, uses this discipline.
+- `[[SKA ask]]` — the writer skill. Both parented and bare modes write per this discipline.
+- `[[SKA triage]]` — the reader skill. Renders items written per this discipline.
+- `[[SKA feature]]` — creates `## Open Questions` blocks at feature-doc creation.
+- `[[SKA groom]]` — parks questions into feature docs per this discipline.
+- `[[SKA crank]]` — when surfacing user-actionable items, uses this discipline.
 - `[[audit q]]` — enforces this discipline mechanically.
 - `[[CAB Backlog]]` § Numbering policy — same lowest-unused-integer rule.
 - `[[F068]]` — assume-and-announce; defines when an auto-decision (skipping Phase 1) is valid.
