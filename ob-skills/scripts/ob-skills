@@ -1,53 +1,184 @@
 #!/usr/bin/env bash
 # ob-skills — omnibus helper for the ob-skills suite.
-# Per F072 (Skills config file ~/.claude/ob-skills.md).
+# Per F080 (Skill config — unified namespace YAML) — supersedes F072.
 #
 # Usage:
 #   ob-skills config <key> [--default <fallback>]
-#     Read a parameter from ~/.claude/ob-skills.md (or $OB_SKILLS_CONFIG).
-#     "key :: value" lines are matched; backticks stripped; leading "~/" expanded
-#     to $HOME. Prints --default (or empty) when file missing or key absent.
+#     Global / cross-skill parameter read. Tries in order:
+#       1. ~/.config/ob-skills/global.yaml  →  top-level key (dotted nesting OK)
+#       2. ~/.claude/ob-skills.md           →  legacy F072 `key :: value` line
+#       3. --default <fallback>             →  caller's safe default
+#     Prints empty string if nothing matches (skills must use --default).
+#
+#   ob-skills config <skill> <key> [--default <fallback>]
+#     Per-skill parameter read from ~/.config/ob-skills/<skill>/config.yaml.
+#     Falls back to --default if file or key missing. (For legacy F072 keys
+#     like `skill_data.per_skill.dupes.allowlist`, prefer single-arg form
+#     against the F072 file until the per-skill YAML is populated.)
+#
+#   ob-skills path <skill>
+#     Print the per-skill namespace path: ~/.config/ob-skills/<skill>
+#     Creates the directory if absent. Use this to anchor write paths.
 #
 #   ob-skills help
 #     Show this help.
 #
-# Future subcommands TBD (init, validate, etc.) — first arg is always the subcommand.
+# Read tier (per F080 § Layered precedence):
+#   1. Hardcoded default at call site (caller passes --default)
+#   2. ~/.config/ob-skills/global.yaml (cross-skill values)
+#   3. ~/.config/ob-skills/<skill>/config.yaml (skill-specific overrides)
+#   4. Env var OB_SKILLS_<SKILL>_<KEY>  (CI / one-off overrides)
+# Higher tiers override lower. Env var check is in-script.
 
 set -u
+
+OB_SKILLS_ROOT="${OB_SKILLS_ROOT:-$HOME/.config/ob-skills}"
+F072_LEGACY_FILE="${OB_SKILLS_CONFIG:-$HOME/.claude/ob-skills.md}"
+
+# ---- helpers -----------------------------------------------------------------
+
+# Read a YAML file's nested key (dotted notation) using python3 + PyYAML.
+# Prints the value (one line) or empty if missing.
+_yaml_read() {
+  local file="$1" key="$2"
+  [[ -f "$file" ]] || return 1
+  python3 - "$file" "$key" <<'PY' 2>/dev/null
+import sys, yaml
+file, key = sys.argv[1], sys.argv[2]
+try:
+    with open(file) as f:
+        data = yaml.safe_load(f) or {}
+except Exception:
+    sys.exit(1)
+for part in key.split("."):
+    if isinstance(data, dict) and part in data:
+        data = data[part]
+    else:
+        sys.exit(1)
+if isinstance(data, (dict, list)):
+    sys.exit(1)  # complex types: caller can't consume as string
+print(data)
+PY
+}
+
+# Read a key from the legacy F072 markdown file (key :: value form).
+_f072_read() {
+  local file="$1" key="$2"
+  [[ -f "$file" ]] || return 1
+  local line
+  line=$(grep -E "^${key}[[:space:]]*::" "$file" 2>/dev/null | tail -1)
+  [[ -z "$line" ]] && return 1
+  echo "$line" | sed -E "s|^${key}[[:space:]]*::[[:space:]]*||; s/^\`(.*)\`$/\1/; s/^[[:space:]]+|[[:space:]]+$//g"
+}
+
+# Expand a leading ~/ in the value.
+_expand_tilde() { echo "${1/#\~\//$HOME/}"; }
+
+# Check env var override for global key. Env var name: OB_SKILLS_<KEY_UPPER_UNDERSCORED>.
+_env_global() {
+  local key="$1"
+  local var="OB_SKILLS_$(echo "$key" | tr '[:lower:].' '[:upper:]_')"
+  [[ -n "${!var:-}" ]] && echo "${!var}" && return 0
+  return 1
+}
+
+# Check env var override for per-skill key. Env var name: OB_SKILLS_<SKILL>_<KEY>.
+_env_skill() {
+  local skill="$1" key="$2"
+  local var="OB_SKILLS_$(echo "$skill" | tr '[:lower:]-' '[:upper:]_')_$(echo "$key" | tr '[:lower:].' '[:upper:]_')"
+  [[ -n "${!var:-}" ]] && echo "${!var}" && return 0
+  return 1
+}
+
+# ---- subcommands -------------------------------------------------------------
 
 SUBCOMMAND="${1:-}"
 shift || true
 
 case "$SUBCOMMAND" in
   config)
-    KEY="${1:-}"
-    shift || true
-    DEFAULT=""
-    while [[ $# -gt 0 ]]; do
-      case "$1" in
-        --default) DEFAULT="${2:-}"; shift 2 ;;
-        *) shift ;;
-      esac
-    done
-    if [[ -z "$KEY" ]]; then
-      echo "usage: ob-skills config <key> [--default <fallback>]" >&2
+    # Decide single-arg (global) vs two-arg (per-skill) form.
+    # Two-arg: first arg matches a per-skill folder under ~/.config/ob-skills,
+    # OR explicit two-positional form before --default.
+    A1="${1:-}"
+    A2="${2:-}"
+    if [[ -z "$A1" ]]; then
+      echo "usage: ob-skills config <key> [--default <v>]" >&2
+      echo "       ob-skills config <skill> <key> [--default <v>]" >&2
       exit 2
     fi
 
-    FILE="${OB_SKILLS_CONFIG:-$HOME/.claude/ob-skills.md}"
-    if [[ ! -f "$FILE" ]]; then
-      echo "$DEFAULT"
+    # Two-arg form: A2 present and is not a flag
+    if [[ -n "$A2" && "${A2:0:1}" != "-" ]]; then
+      SKILL="$A1"
+      KEY="$A2"
+      shift 2
+      DEFAULT=""
+      while [[ $# -gt 0 ]]; do
+        case "$1" in
+          --default) DEFAULT="${2:-}"; shift 2 ;;
+          *) shift ;;
+        esac
+      done
+
+      # Env var first (CI / one-off override)
+      VAL="$(_env_skill "$SKILL" "$KEY")" && { _expand_tilde "$VAL"; exit 0; }
+
+      # Per-skill YAML
+      VAL="$(_yaml_read "$OB_SKILLS_ROOT/$SKILL/config.yaml" "$KEY")"
+      if [[ -n "$VAL" ]]; then
+        _expand_tilde "$VAL"
+        exit 0
+      fi
+
+      # Default
+      _expand_tilde "$DEFAULT"
+      exit 0
+
+    else
+      # Single-arg (global) form
+      KEY="$A1"
+      shift 1
+      DEFAULT=""
+      while [[ $# -gt 0 ]]; do
+        case "$1" in
+          --default) DEFAULT="${2:-}"; shift 2 ;;
+          *) shift ;;
+        esac
+      done
+
+      # Env var first
+      VAL="$(_env_global "$KEY")" && { _expand_tilde "$VAL"; exit 0; }
+
+      # global.yaml
+      VAL="$(_yaml_read "$OB_SKILLS_ROOT/global.yaml" "$KEY")"
+      if [[ -n "$VAL" ]]; then
+        _expand_tilde "$VAL"
+        exit 0
+      fi
+
+      # F072 legacy markdown fallback
+      VAL="$(_f072_read "$F072_LEGACY_FILE" "$KEY")"
+      if [[ -n "$VAL" ]]; then
+        _expand_tilde "$VAL"
+        exit 0
+      fi
+
+      # Default
+      _expand_tilde "$DEFAULT"
       exit 0
     fi
+    ;;
 
-    LINE=$(grep -E "^${KEY}[[:space:]]*::" "$FILE" 2>/dev/null | tail -1)
-    if [[ -z "$LINE" ]]; then
-      echo "$DEFAULT"
-      exit 0
+  path)
+    SKILL="${1:-}"
+    if [[ -z "$SKILL" ]]; then
+      echo "usage: ob-skills path <skill>" >&2
+      exit 2
     fi
-
-    VALUE=$(echo "$LINE" | sed -E "s|^${KEY}[[:space:]]*::[[:space:]]*||; s/^\`(.*)\`$/\1/; s/^[[:space:]]+|[[:space:]]+$//g")
-    echo "${VALUE/#\~\//$HOME/}"
+    DIR="$OB_SKILLS_ROOT/$SKILL"
+    mkdir -p "$DIR"
+    echo "$DIR"
     ;;
 
   ""|-h|--help|help)
@@ -58,13 +189,28 @@ USAGE
     ob-skills <subcommand> [args...]
 
 SUBCOMMANDS
-    config <key> [--default <fallback>]
-            Read a parameter from ~/.claude/ob-skills.md (or $OB_SKILLS_CONFIG).
-            Strips backticks, expands leading ~/. Prints --default on miss.
+    config <key> [--default <v>]
+            Read a global parameter from ~/.config/ob-skills/global.yaml.
+            Falls back to legacy ~/.claude/ob-skills.md (F072) on miss.
+            Dotted keys (foo.bar) traverse nested YAML maps.
+
+    config <skill> <key> [--default <v>]
+            Read a per-skill parameter from ~/.config/ob-skills/<skill>/config.yaml.
+
+    path <skill>
+            Print + ensure the per-skill namespace path
+            (~/.config/ob-skills/<skill>/). Use to anchor writes.
 
     help    Show this help.
 
-Per F072 — Skills config file (~/.claude/ob-skills.md).
+Read tier (high to low):
+    env var (OB_SKILLS_<KEY> or OB_SKILLS_<SKILL>_<KEY>)
+    per-skill config.yaml
+    global.yaml
+    F072 legacy ob-skills.md (single-arg form only)
+    --default fallback
+
+Per [[F080 — Skill config — unified namespace YAML]] (supersedes F072).
 EOF
     ;;
 

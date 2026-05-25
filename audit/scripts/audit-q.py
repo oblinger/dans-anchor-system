@@ -55,13 +55,30 @@ import sys
 # [[SKA System Design]] § Per-user parameters. Audit / hygiene scripts ALWAYS
 # default to vault-wide scope — Obsidian operates on the vault, audits follow
 # the same scope; single-anchor scoping defeats the purpose of cross-cutting
-# drift detection. The hardcode below is the fallback default; when F080
-# (skill config — unified namespace YAML) ships, this becomes a config read:
-#   VAULT_ROOT = Path(ob_skills_config("vault_root", default="~/ob/kmr"))
-# Until then the path is pinned. Do NOT add a --project flag that narrows
-# scope by default; if a narrowing flag is wanted, make it explicit opt-in.
+# drift detection. Per F080, the value comes from
+# ~/.config/ob-skills/global.yaml; fallback to ~/ob/kmr if config missing.
+# Do NOT add a --project flag that narrows scope by default; if a narrowing
+# flag is wanted, make it explicit opt-in.
 
-VAULT_ROOT = Path("/Users/oblinger/ob/kmr")
+
+def _resolve_vault_root() -> Path:
+    """Read vault_root from F080 config (~/.config/ob-skills/global.yaml),
+    falling back to ~/ob/kmr if the config file or key is missing."""
+    config_path = Path.home() / ".config" / "ob-skills" / "global.yaml"
+    if config_path.is_file():
+        try:
+            import yaml
+            with config_path.open() as f:
+                data = yaml.safe_load(f) or {}
+            raw = data.get("vault_root")
+            if raw:
+                return Path(str(raw).replace("~", str(Path.home())))
+        except (ImportError, Exception):
+            pass
+    return Path.home() / "ob" / "kmr"
+
+
+VAULT_ROOT = _resolve_vault_root()
 Q_MD = VAULT_ROOT / "Q.md"
 
 # Filesystem-walk exclusions when building the vault index.
