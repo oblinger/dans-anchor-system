@@ -50,6 +50,16 @@ import sys
 # ============================================================
 # Configuration
 # ============================================================
+#
+# VAULT_ROOT is the global `vault_root` parameter documented in
+# [[SKA System Design]] § Per-user parameters. Audit / hygiene scripts ALWAYS
+# default to vault-wide scope — Obsidian operates on the vault, audits follow
+# the same scope; single-anchor scoping defeats the purpose of cross-cutting
+# drift detection. The hardcode below is the fallback default; when F080
+# (skill config — unified namespace YAML) ships, this becomes a config read:
+#   VAULT_ROOT = Path(ob_skills_config("vault_root", default="~/ob/kmr"))
+# Until then the path is pinned. Do NOT add a --project flag that narrows
+# scope by default; if a narrowing flag is wanted, make it explicit opt-in.
 
 VAULT_ROOT = Path("/Users/oblinger/ob/kmr")
 Q_MD = VAULT_ROOT / "Q.md"
