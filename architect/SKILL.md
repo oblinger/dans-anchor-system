@@ -31,7 +31,7 @@ Feature spec: `[[F074 — Architect skill — Architecture as anchor folder with
 | Sub-action | File | Description |
 |---|---|---|
 | `/architect drift` | [[architect-drift]] | Read-only arch-vs-code drift report. Categorizes findings (Aligned / Orphan in code / Ghost in arch / Diverged); writes report to `Versions/{date} Drift Report.md`; never modifies arch or code. |
-| `/architect new` | (planned) | Greenfield architecture draft from features/PRD only. No anchoring bias from existing code/arch. Writes to `Versions/{date} Architecture (greenfield).md`. |
+| `/architect new` | [[architect-new]] | Greenfield architecture draft from features/PRD only. No anchoring bias from existing code/arch. Writes to `Versions/{date} Architecture (greenfield).md`. |
 | `/architect update` | (planned) | Snapshot current arch → integrate new ideas in-place → `## Changes since [[snapshot]]` at bottom. |
 | `/architect changes` | (planned) | Re-derive `## Changes since` section from structural diff (recovery tool). |
 
