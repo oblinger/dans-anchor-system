@@ -2,18 +2,24 @@
 description: skills dispatch table
 ---
 
-| -[[SKL]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [SKL](hook://p/SKL)<br>:  |
+| -[[SKL]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [SKL](hook://p/SKL)<br>: User-facing guides for every published skill, grouped by category. |
 | --- | --- |
-| Related | [[CAB]]  .  [[SKL Skills\|Skills]]  .  [[SKA]]  .   |
-|  |  |
-| **CAB** | [[SKL CAB\|CAB]]  .  [[SKL Anchor\|Anchor]]  .  [[SKL Create\|Create]]  .  [[SKL Migrate\|Migrate]]  .  [[SKL Move\|Move]]  .  [[SKL Yore\|Yore]]  .  [[SKL Install\|Install]]  .  [[SKL Publish\|Publish]]  .  [[SKL WP\|WP]]  .  [[SKL Streams\|Streams]]  .   |
-| **Hygiene** | [[SKL Maintain\|Maintain]]  .  [[SKL Audit\|Audit]]  .  [[SKL Tidy\|Tidy]]  .  [[SKL Lint\|Lint]]  .  [[SKL Rewire\|Rewire]]  .  [[SKL Dupes\|Dupes]]  .  [[SKL Slug Scan\|Slug Scan]]  .  [[SKL Rule\|Rule]]  .   |
-| **Pilot Loop** | [[SKL Crank\|Crank]]  .  [[SKL Land\|Land]]  .  [[SKL Mint\|Mint]]  .  [[SKL Groom\|Groom]]  .  [[SKL Finalize\|Finalize]]  .  [[SKL Fortify\|Fortify]]  .  [[SKL Ask\|Ask]]  .  [[SKL Triage\|Triage]]  .  [[SKL Roster\|Roster]]  .   |
-| **Code** | [[SKL Dev\|Dev]]  .  [[SKL Feature\|Feature]]  .  [[SKL Fix\|Fix]]  .  [[SKL Architect\|Architect]]  .  [[SKL Pilot Flow\|Pilot Flow]]  .  [[SKL PR Flow\|PR Flow]]  .   |
-| **Doc** | [[SKL IO\|IO]]  .  [[SKL MD\|MD]]  .  [[SKL Viz\|Viz]]  .  (SEARCH:)  [[SKL Research\|Research]]  .  [[SKL Product\|Product]]  . |
-| **Utility** | [[SKL Ctrl\|Ctrl]]  .  [[SKL Parley\|Parley]]  .  [[SKL Cook\|Cook]]  .  [[SKL Snip\|Snip]]  .  [[SKL Role\|Role]]  .  [[SKL Exp\|Exp]]  .   |
-| **Discipline** | [[SKL Workflow\|Workflow]]  .  [[SKL Mode\|Mode]]  .  [[SKL Backlog Horizons\|Backlog Horizons]]  .   |
-| ... | [[SKL Research Skill\|Research Skill]]  .   |
+| Related | [[SKL Skills\|Skills]],   |
+|  | **SKILL GROUPS** |
+| [[SKL Anchor\|Anchor]]+ | [[SKL Anchor Toolkit\|Anchor Toolkit]],  [[SKL CAB\|CAB]],  [[SKL Create\|Create]],  [[SKL Install\|Install]],  [[SKL Migrate\|Migrate]],  [[SKL Move\|Move]],  [[SKL Publish\|Publish]],  [[SKL Streams\|Streams]],  [[SKL WP\|WP]],  [[SKL Yore\|Yore]],   |
+| [[SKL Hygiene\|Hygiene]]+ | [[SKL Audit\|Audit]],  [[SKL Dupes\|Dupes]],  [[SKL Lint\|Lint]],  [[SKL Maintain\|Maintain]],  [[SKL Rewire\|Rewire]],  [[SKL Rule\|Rule]],  [[SKL Slug Scan\|Slug Scan]],  [[SKL Tidy\|Tidy]],   |
+| [[SKL Drive\|Drive]]+ | User guides for the engine-room verbs that drive work forward through the lifecycle — from inbox to backlog, backlog to active, active to verified. |
+| [[SKL Dev\|Dev]]+ | [[SKL Architect\|Architect]],  [[SKL Code\|Code]],  [[SKL Fix\|Fix]],  [[SKL Pilot Flow\|Pilot Flow]],  [[SKL PR Flow\|PR Flow]],   |
+| [[SKL Doc\|Doc]]+ | [[SKL Edit\|Edit]],  [[SKL IO\|IO]],  [[SKL MD\|MD]],  [[SKL Viz\|Viz]],   |
+| [[SKL Search\|Search]]+ | [[SKL Product\|Product]],  [[SKL Research\|Research]],  [[SKL Research Skill\|Research Skill]],   |
+| [[SKL Utility\|Utility]]+ | [[SKL Cook\|Cook]],  [[SKL Ctrl\|Ctrl]],  [[SKL Exp\|Exp]],  [[SKL Parley\|Parley]],  [[SKL Snip\|Snip]],   |
+| [[SKL Discipline\|Discipline]]+ | [[SKL Backlog Horizons\|Backlog Horizons]],  [[SKL Mode\|Mode]],  [[SKL Role\|Role]],  [[SKL Workflow\|Workflow]],   |
+| --- | |
+| [[SKL Ask\|Ask]] | The **`/ask` skill** is the universal asking subroutine. |
+| [[SKL Crank\|Crank]] | The "go" button. |
+| [[SKL Feature\|Feature]] | Manage a feature from idea through design, agreement, implementation, testing, and completion. |
+| [[SKL Groom\|Groom]] | Walk the current anchor's backlog and move it toward the **groomed state** — promote every item it can to **Ready**, park items that need user input in dated feature docs, repair link integrity. |
+| [[SKL Triage\|Triage]] | `/triage` (or the punctuation trigger `"` — a single double-quote as the entire message) regenerates the current anchor's per-anchor section inside `~/ob/kmr/Q.md`, the vault-level Agent Status das… |
 
 | LIFECYCLE    | Actions                                                                                                               |
 | ------------ | --------------------------------------------------------------------------------------------------------------------- |
