@@ -44,7 +44,7 @@ Punctuation trigger: **`"`** (a single double-quote as the entire message), para
 | `/triage` (or `triage` spoken, or `"` alone) | Default — walk `{NAME} Backlog.md`. |
 | `/triage roadmap` | Walk the next milestone of `{NAME} Roadmap.md` (each milestone has its own backlog-shaped block). |
 | `/triage milestone {N}` | Walk a named roadmap milestone. |
-| `/triage icebox` | Walk `{NAME} Icebox.md` instead. Default scope (bare `/triage`) excludes the icebox per `[[workflow]]` § Active-work invariant; explicit invocation surfaces iced items needing input. |
+| `/triage icebox` | Walk `{NAME} Icebox.md` instead. Default scope (bare `/triage`) excludes the icebox per `[[SKA workflow]]` § Active-work invariant; explicit invocation surfaces iced items needing input. |
 
 Argument shape parallels `/groom`. Items in the icebox are not surfaced by default — Icebox items are explicitly parked, and the invariant says they don't compete for attention.
 
@@ -117,7 +117,7 @@ Tag values: `[U]`, `[A]`, `[U+A]`, `[G]`, `[-]`, `[]`.
 
 Link target by row class:
 
-- **Feature row** → feature doc's `## Open Questions` H2 below H1; Qs are top-level bullets `**Q1 — …**`, `**Q2 — …**` (per `[[ask]]`).
+- **Feature row** → feature doc's `## Open Questions` H2 below H1; Qs are top-level bullets `**Q1 — …**`, `**Q2 — …**` (per `[[SKA ask]]`).
 - **B-row (no feature doc)** → backlog row itself; Qs are sub-bullets `**Q1 — …**`, `**Q2 — …**` at the top of the row body (per `[[CAB Backlog]]` § B-row inline Qs).
 - **À la carte (anchor-level)** → `{NAME} Questions.md` § Open Questions; same Q format as feature docs (per `[[CAB Questions]]`).
 
@@ -125,7 +125,7 @@ Link target by row class:
 
 | `**[Verify]**` | Single verification needed. Verify text inlines as the description (and may extend to a sub-bullet). |
 | `**[N Verify]**` | N independent verification items (rare). When N is large, verify items live in the feature doc's `## Open Questions` § Verify subsection (parallel to Questions). |
-| `**[Ready]**` | Single feature the agent could pick up **in this turn** and execute to Done/Verify with **zero further user interaction**. See [[workflow]] § Definition of Ready → The RIGHT NOW test for the full rule. Hedging language ("likely", "fallback", "in case", "awaits", "revisit if") disqualifies — rebracket to `[Waiting]`, `[Blocked]`, or `[Questions]` before rendering. |
+| `**[Ready]**` | Single feature the agent could pick up **in this turn** and execute to Done/Verify with **zero further user interaction**. See [[SKA workflow]] § Definition of Ready → The RIGHT NOW test for the full rule. Hedging language ("likely", "fallback", "in case", "awaits", "revisit if") disqualifies — rebracket to `[Waiting]`, `[Blocked]`, or `[Questions]` before rendering. |
 | `**[N Ready]**` | Milestone-style F with N independent sub-items in its roadmap, all ready (same RIGHT NOW bar per sub-item). |
 | `**[Active]**` | In flight (a worker is currently minting). |
 | `**[Blocked]**` | Generic blocker — body must describe what's blocking. Doesn't contribute to Q/V/A/R banner counts. |
@@ -157,7 +157,7 @@ This re-evaluation is *the* primary value of these states; without it, Blocked /
 
 **Reconsider `[Ready]` on every triage pass — Ready means RIGHT NOW.** `[Ready]` is a promise that the agent could execute the row **in this turn** with **zero further user interaction**. Triage enforces that promise. For each `[Ready]` row encountered:
 1. Read the description text. Scan for hedging phrases: *"likely superseded"*, *"held as fallback"*, *"in case X"*, *"if X surprises us"*, *"awaits natural recurrence"*, *"revisit only if"*, *"soaking"*, *"burn-in"*, *"watching for recurrence"*, *"fix shipped, observing"*, *"may need"*, *"might want to"*, *"probably"*, *"possibly"*, *"contingent on"*, *"depends on whether"* (and close paraphrases — the list names a *failure mode*, not a closed dictionary).
-2. If any hedging phrase appears, the row is **by definition not Ready**. Rebracket per [[workflow]] § Definition of Ready → Disqualifying language:
+2. If any hedging phrase appears, the row is **by definition not Ready**. Rebracket per [[SKA workflow]] § Definition of Ready → Disqualifying language:
    - "Likely superseded by F<NNN>" / "held as fallback in case F<NNN>" / "revisit only if F<NNN> fails" → **`[Blocked F<NNN>]`** (the row sleeps until F<NNN>'s outcome is known).
    - "Awaits natural recurrence" / "wait for the bug to come back" → **`[Waiting]`** (body must name what we're observing; if time-bound, use `[Waiting Nd]` with absolute expiry date).
    - "Soaking" / "burn-in" / "fix shipped, watching for recurrence" → **`[Watching Nd]`** (body must name what was changed, what non-recurrence proves, and the absolute soak-expiry date).
@@ -185,7 +185,7 @@ Three count groups: user-actionable (`Questions`, `Verify`) | agent-actionable (
 
 ## À la carte — lives in `{NAME} Questions.md`
 
-À la carte (anchor-level, cross-cutting, agent-raised) questions live in a **separate facet file**: `{NAME} Docs/{NAME} Plan/{NAME} Questions.md`. Spec: `[[CAB Questions]]`. Same `## Open Questions` block format as feature docs (per `[[ask]]`); same Phase 1 / 2 / 3 lifecycle.
+À la carte (anchor-level, cross-cutting, agent-raised) questions live in a **separate facet file**: `{NAME} Docs/{NAME} Plan/{NAME} Questions.md`. Spec: `[[CAB Questions]]`. Same `## Open Questions` block format as feature docs (per `[[SKA ask]]`); same Phase 1 / 2 / 3 lifecycle.
 
 In the Triage file, à la carte presence is just **one line directly under the H1**:
 
@@ -221,7 +221,7 @@ Walk every bullet in the backlog. Compute the H1 banner with **two merged groups
 
 In all cases, **exclude any bullet with a `[Done]` or `[Done YYYY-MM-DD]` bracket** (those are stale rows that belong in `## Done`; not part of triage's surface). `## Done` and `## Legwork` are excluded from all counts.
 
-**A bullet under `## Ready` H2 with a `[Questions]` bracket counts as Questions, not Ready.** That is the structural fix from F061 — bracket is authoritative, H2 placement is organizational. (`/groom` is responsible for rewriting any stale/non-standard brackets to the standard set — see `[[groom]]` § Bracket reassessment.)
+**A bullet under `## Ready` H2 with a `[Questions]` bracket counts as Questions, not Ready.** That is the structural fix from F061 — bracket is authoritative, H2 placement is organizational. (`/groom` is responsible for rewriting any stale/non-standard brackets to the standard set — see `[[SKA groom]]` § Bracket reassessment.)
 
 ### 3. Compute the anchor TAG
 
@@ -318,35 +318,46 @@ The just-updated per-anchor section sits at the top of Q.md (per § 7's move-to-
 
 **Never glance `{NAME} Triage.md` directly.** The per-anchor Triage file is the agent's persistent intermediate state — Q.md is the dashboard the user actually reads. Opening the per-anchor file would force the user to navigate to the global view themselves, which is exactly the friction Q.md was built to eliminate. **There is only one glance target for `/triage`, and it is `~/ob/kmr/Q.md`.**
 
-(Per `[[ask]]` the glance is allowed: the agent has just modified Q.md with new state, and the user is in active mode by virtue of having invoked `/triage`.)
+(Per `[[SKA ask]]` the glance is allowed: the agent has just modified Q.md with new state, and the user is in active mode by virtue of having invoked `/triage`.)
 
-### 8. Print the anchor's banner as the LAST line of chat output
+### 8. Print the anchor's banner as the LAST line of chat output — visually emphasized
 
-The final line of chat output after a `/triage` run MUST be the anchor's just-rendered banner — the same line that now sits at the top of this anchor's section in Q.md, with the Obsidian wiki-link decoration stripped for chat readability. Format:
+The final lines of chat output after a `/triage` run MUST be the anchor's just-rendered banner, **wrapped in equal-sign rules above and below and rendered bold**. This is the user's "boom — this is the status" signal; the visual delimiter makes the banner unmistakable even when chat is dense.
+
+**Format — three lines, exactly:**
 
 ```
-[<TAG>]  <NAME> Triage  -  Ready N    Questions N   |   Now N    Next N    Later N    Icebox N
+======================================================================
+**[<TAG>]  <NAME> Triage  -  Ready N    Questions N   |   Now N    Next N    Later N    Icebox N**
+======================================================================
 ```
 
-Spacing matches the Q.md H1: two spaces after `[<TAG>]`, three spaces around `-`, four spaces between counts within a group, `   |   ` between groups.
+- **Top rule**: 70 equal signs on their own line.
+- **Banner line**: bolded with `**...**` markdown, same content/spacing as the Q.md H1 (two spaces after `[<TAG>]`, three spaces around `-`, four spaces between counts within a group, `   |   ` between groups).
+- **Bottom rule**: 70 equal signs on their own line.
 
-**Why the banner specifically — and why last.** The user's invocation pattern is to press `"` (the dedicated `/triage` keystroke) or `'` (the dedicated `/crank` keystroke; crank falls back to `/groom` + `/triage` when no mint happened). After either keystroke, the LAST line of chat is what the user sees at a glance — they shouldn't have to scroll. The banner is the densest summary of anchor state; making it the literal last line guarantees visibility on every press.
+The 70-char rule width matches typical terminal width; renders as a continuous bar in chat.
 
-This **replaces** the older one-line `/triage — {NAME}: TAG {TAG}; …` summary form. The banner conveys the same information in the same shape as Q.md, so the chat output and the file content are visually identical (modulo the wiki-link decoration). One source of truth for the format.
+**Why this matters.** The user's invocation pattern is `"` (`/triage`) or `'` (`/crank`) — single keystrokes. After either, the LAST chat content is what they see without scrolling. When `/crank` ran a long mint sequence and then `/triage` painted state, the banner can otherwise get lost above the per-anchor counts. The `===` rules + bold make it pop. Per the user spec change 2026-05-25: *"the triage needs to stand out more. ... boom. This is the status of things."*
 
-**Exact transformation from the Q.md H1 line:**
+This **replaces** the older one-line `/triage — {NAME}: TAG {TAG}; …` summary form. The banner is the densest summary of anchor state; the visual emphasis guarantees visibility on every press.
+
+**Exact transformation from the Q.md H1 line** (for the bold middle row):
 - Drop the leading `# ` (H1 marker).
 - Replace `[[<NAME> ask|<NAME>]]` with the plain text `<NAME> Triage` (no Obsidian markup in chat; keep the "Triage" word in the chat-form for clarity since chat doesn't have the page context Q.md does).
+- Wrap the whole thing in `**...**` for bold.
 - Everything else (TAG, spacing, count groups) preserved verbatim.
 
-**Stale-Done note (still rendered above the banner).** If any `[Done]`-bracketed rows were skipped from rendering, append a one-line note ABOVE the banner so the banner stays last:
+**Stale-Done note** — if any `[Done]`-bracketed rows were skipped from rendering, append a one-line note ABOVE the top rule so the banner block (rule + bold + rule) stays last:
 
 ```
 Note: {K} stale [Done] rows still in horizon H2s — run /groom to move to ## Done.
-[<TAG>]  <NAME> Triage  -  Ready N    Questions N   |   Now N    Next N    Later N    Icebox N
+======================================================================
+**[<TAG>]  <NAME> Triage  -  Ready N    Questions N   |   Now N    Next N    Later N    Icebox N**
+======================================================================
 ```
 
-**Crank interaction.** When `/crank` falls back to `/groom` + `/triage` (the no-mint exit path), the chained `/triage` is the last sub-step, so its banner is also crank's last line — `'` always lands on a banner whenever it didn't mint. When `/crank` mints ≥ 1 item, it exits silently per the spec; no banner is printed in that case (which is the intended "silent success" signal).
+**Crank interaction.** When `/crank` ends with `/triage` (any Ready==0 exit path per `[[SKA crank]]` § Post-loop exit), the chained `/triage`'s banner block is crank's last chat content — `'` always lands on the bold-banner-between-rules whenever Ready dropped to zero. When `/crank` exits silently (Ready > 0), no banner is printed — that's the "agent still has work" signal.
 
 
 ## Sticky-context protocol
@@ -363,19 +374,19 @@ When the user responds with "F23 verified" / "verified F23" (or any natural-lang
 3. Updates the corresponding feature-doc `## Status` field to `Done`.
 4. Optionally appends a one-line "Verified YYYY-MM-DD" note to the Done row if the user requested confirmation.
 
-This is the canonical `[Verify]` → `[Done]` transition from `[[workflow]]`. User verification *is* the gate that opens Done.
+This is the canonical `[Verify]` → `[Done]` transition from `[[SKA workflow]]`. User verification *is* the gate that opens Done.
 
 
 ## Question-resolution path
 
-When the user responds with `F005 Q4: yes` (or the sticky-context shorthand `Q4: yes` after announcing F5 as context), follow `[[ask]]` § Resolution:
+When the user responds with `F005 Q4: yes` (or the sticky-context shorthand `Q4: yes` after announcing F5 as context), follow `[[SKA ask]]` § Resolution:
 
 1. Locate F5's feature doc, find Q4 in its `## Open Questions` block.
 2. Move Q4 to `### Resolved` with the user's answer in the canonical form: `**Q4** — **Resolution:** {one-sentence summary}. Incorporated into {section / conversation}.`
 3. Update the relevant Design (or other) section if the resolution changes the spec.
-4. Do NOT glance the feature doc on resolution (per `[[ask]]` § Glance rules).
+4. Do NOT glance the feature doc on resolution (per `[[SKA ask]]` § Glance rules).
 
-If F5 has zero pending Qs after the resolution, follow Phase 1 → Phase 2 in `[[ask]]`: delete `## Open Questions` H2, migrate accumulated `### Resolved` to a `## Resolved` H2 at the bottom.
+If F5 has zero pending Qs after the resolution, follow Phase 1 → Phase 2 in `[[SKA ask]]`: delete `## Open Questions` H2, migrate accumulated `### Resolved` to a `## Resolved` H2 at the bottom.
 
 For à la carte Qs (`{NAME} Q3: …`), the same path applies against `{NAME} Questions.md` instead of a feature doc.
 
@@ -411,8 +422,8 @@ Strictly idempotent + destructive. The agent rewrites the entire anchor section 
 - **`[[CAB Triage]]`** — presentation-form spec (no per-anchor file location per F075).
 - **`[[CAB Questions]]`** — sibling à la carte facet.
 - **`[[CAB Backlog]]`** — backlog format, F-numbering, status brackets, `[Verify]` semantics.
-- **`[[ask]]`** — `## Open Questions` block format inside feature docs (the source of question text), and the writer for à la carte Qs.
-- **`[[backlog-horizons]]`** — horizon H2s (Now / Next / Later) and the per-bucket count scheme.
-- **`[[workflow]]`** — `[Questions]` / `[Verify]` / `[Done]` state semantics and transitions.
+- **`[[SKA ask]]`** — `## Open Questions` block format inside feature docs (the source of question text), and the writer for à la carte Qs.
+- **`[[SKA backlog-horizons]]`** — horizon H2s (Now / Next / Later) and the per-bucket count scheme.
+- **`[[SKA workflow]]`** — `[Questions]` / `[Verify]` / `[Done]` state semantics and transitions.
 - **`/groom`** — pairs with triage; groom *creates* the question state by parking, triage *gathers* and surfaces it.
 - **`/roster`** — counts every backlog item once per bucket; triage's H1 count line uses the same scheme so the two views agree.

@@ -50,11 +50,11 @@ Crank is **not** a "make a small amount of progress and stop" command. The defau
 
 ## When to stop / when not to stop
 
-Sibling to the `[Ready]` RIGHT-NOW-test in `[[triage]]` and `[[workflow]]`: this is the **RIGHT-NOW continuation test** for cranking. Stopping is a *costly action requiring justification*, not the default. Every premature stop forces the user to re-invoke `/crank`, which costs them attention. The agent must name an explicit, valid stop-reason that survives the disqualifier list below. **Hard mint quotas are rejected** — quality protection comes from upstream disciplines (`[Ready]` discipline, `[Verify]` gate, `/finalize`), not from forcing throughput.
+Sibling to the `[Ready]` RIGHT-NOW-test in `[[SKA triage]]` and `[[SKA workflow]]`: this is the **RIGHT-NOW continuation test** for cranking. Stopping is a *costly action requiring justification*, not the default. Every premature stop forces the user to re-invoke `/crank`, which costs them attention. The agent must name an explicit, valid stop-reason that survives the disqualifier list below. **Hard mint quotas are rejected** — quality protection comes from upstream disciplines (`[Ready]` discipline, `[Verify]` gate, `/finalize`), not from forcing throughput.
 
 ### Disqualifying stop-reasons — laziness in disguise
 
-Symmetric to the `[Ready]` hedging-phrases discipline (`[[triage]]` § Reconsider `[Ready]`). Each of the following is **NOT a valid stop-reason**:
+Symmetric to the `[Ready]` hedging-phrases discipline (`[[SKA triage]]` § Reconsider `[Ready]`). Each of the following is **NOT a valid stop-reason**:
 
 - **"The next item looks hard."** — Not a stop reason. Do it carefully.
 - **"I've made meaningful progress."** — Not a stop reason. Progress earned more time, not less.
@@ -150,30 +150,23 @@ while True:
 One press of `crank` = the full sweep, not a single mint. **Do not stop after the first successful mint** unless continuing would drop quality.
 
 
-## Post-loop branch — did anything get minted?
+## Post-loop exit — Ready/Questions decision
 
-| Outcome | Path |
-|---|---|
-| **≥1 successful `/mint`** | Exit silently. Print the one-line success summary. User keeps pressing `'` to continue the loop; no `/groom` or `/triage` interrupt between mint cycles. |
-| **Zero successful `/mint`** | No-action branch: run `/groom`, then `/triage`, then exit. Print the one-line no-action summary. User re-invokes `crank` if they want another sweep over freshly-readied items. |
+After the crank loop exits (quality stop / queue exhaustion / fatigue gate / all mints done), branch on the **post-state** of the backlog's Ready and Questions counts. **Mint count is irrelevant** — the user's signal is "what's left to do, and what's waiting on me," not "did anything happen this turn." (Prior spec used mint count; superseded 2026-05-25 — Ready-queue-empty is the right trigger.)
 
-Both `/groom` and `/triage` are **no-action fallbacks** — they fire only when crank produced zero mints this turn. Successful cranks stay quiet to preserve the loop UX (the user keeps pressing crank; the system keeps minting; only when it fatigues does the system surface a full status view).
+| Ready post-crank | Questions post-crank | Action sequence | Last chat line |
+|---|---|---|---|
+| > 0 | any | (no surfacing — silent on Q.md side) | Success one-liner: items minted + Ready count remaining |
+| == 0 | == 0 | `/groom` → `/triage` | **Triage banner** (per `[[SKA triage]]` § 8) |
+| == 0 | > 0 | `/groom` → `/ask` → `/triage` | **Triage banner** (`/ask` regens Q.md internally; explicit `/triage` keeps the invariant simple) |
 
-**MANDATORY on the zero-mint path:** if `minted_count == 0` (counting *this* invocation, not prior turns), the agent **MUST** invoke `/groom` and then `/triage` and print the no-action summary. There is no "name the blockers and exit" shortcut — that was second-press logic and was removed. If `/mint` couldn't run because every Ready item needs user input, that's still zero mints → /groom + /triage. Naming blockers without running /triage is a spec violation. The /triage output IS how the user learns what's blocked; bypassing it leaves them guessing.
+**Invariant: Ready == 0 always ends with the triage banner as the last line of chat output.** No exceptions. When the queue is dry the user needs to see anchor state to direct next steps; when the queue still has items the agent will keep cranking on the next press and surfacing would interrupt.
 
-### Exit conditions — every path surfaces pending user-facing state
+**Why /groom always fires when Ready == 0.** The queue dropping to zero is the right moment to reassess brackets (rebracket stale Watching/Waiting/Blocked rows, auto-expire `[Verify-by]` past dates, promote freshly-resolvable items). Without this pass, Ready==0 can be a false negative — items that *could* be Ready stay parked under stale brackets.
 
-Crank has **three** exit conditions, distinguished by (a) whether anything minted and (b) whether there's **pending user-facing state** the agent knows about (drafted questions, items needing verification, decisions ready to surface). Surfacing is required on **every** exit path, not just the zero-mint path.
+**Why /ask before /triage when Questions > 0.** /ask drains the actionable inbox; /triage paints the resulting state. Order matters: if /triage ran first, it'd show the un-drained Qs; running /ask first means the triage view shows only what genuinely needs the user's attention after the agent has self-resolved what it could.
 
-| Condition at exit | Required action — in this same turn | Final chat output |
-|---|---|---|
-| Mints ≥ 1, **no** pending user-facing state | (nothing — just exit) | Success one-liner |
-| Mints ≥ 1, pending state exists | Invoke `/ask` (or `/triage` if it won't race with another agent's edits to triage.md) to surface, **then** exit | Success one-liner + count of items surfaced |
-| Mints == 0 (any reason — no Ready, conflict-avoidance, quality drop, pause-for-other-agent) | `/groom`, then `/triage` (or `/ask` if /triage would race), **then** exit | No-action one-liner with count |
-
-**The principle:** "pending user-facing state" is the trigger for surfacing — **not** "did anything mint." If the agent KNOWS about questions/verifications/decisions (drafted them, named them, planned to surface them later), they must be surfaced *before* the exit chat message gets written. The exit message describes what HAS been surfaced — never what WILL be.
-
-**No third "narrate-and-stop" branch.** The agent's last tool call before any one-liner is a surfacing call (/ask, /triage, /groom). If the chat is about to say *"will run /triage next"* or *"pausing for the X agent"* or *"drafted N questions to surface"* — stop, do the surfacing now, then write the summary.
+**No "narrate-and-stop" branch.** The agent's last tool call before the one-liner is the surfacing call (/triage on every Ready==0 path). If chat is about to say *"will run /triage next"* or *"pausing for the X agent"* or *"drafted N questions to surface"* — stop, do the call now, then write the summary.
 
 **Anti-patterns (literal failure quotes — do NOT emit anything resembling these):**
 
@@ -190,12 +183,15 @@ Both buy a guaranteed extra round-trip for zero added value. The first because /
 
 ## Output format
 
-After the loop + branch resolves, print one line to chat:
+After the loop + branch resolves, print one line to chat for the mint summary. On Ready==0 paths, the triage banner (per `[[SKA triage]]` § 8 — three lines: `===` rule, **bold** banner, `===` rule) is the **last** chat output, below the one-liner.
 
 | Path | One-liner |
 |---|---|
-| Successful (≥1 mint) | `/crank — minted N items: F<a>, F<b>, ... Loop exited cleanly.` |
-| No-action | `/crank — no Ready work this turn. Ran /groom (extended runway: M items promoted) + /triage (K items waiting on you).` |
+| Ready > 0 (silent) | `/crank — minted N items: F<a>, F<b>, ...; Ready queue still has M items.` |
+| Ready == 0, Q == 0 | `/crank — minted N items; Ready queue dry. Ran /groom + /triage.` (then triage banner) |
+| Ready == 0, Q > 0 | `/crank — minted N items; Ready queue dry, K Qs waiting. Ran /groom + /ask + /triage.` (then triage banner) |
+| Zero-mint, Q == 0 | `/crank — no Ready work this turn. Ran /groom (M promoted) + /triage.` (then triage banner) |
+| Zero-mint, Q > 0 | `/crank — no Ready work this turn, K Qs waiting. Ran /groom + /ask + /triage.` (then triage banner) |
 
 
 ## Runbook
@@ -203,7 +199,7 @@ After the loop + branch resolves, print one line to chat:
 ### 1. Locate the source
 
 - Walk up from `cwd` to find `.anchor`. If none, say "No anchor found from `{cwd}` upward." and stop.
-- The Ready queue lives in `{NAME} Docs/{NAME} Plan/{NAME} Backlog.md` § Ready (workflow-state H2) and items with `[Ready]` bracket in horizon H2s (per `[[backlog-horizons]]`). `/mint` knows how to find Ready items; crank just delegates.
+- The Ready queue lives in `{NAME} Docs/{NAME} Plan/{NAME} Backlog.md` § Ready (workflow-state H2) and items with `[Ready]` bracket in horizon H2s (per `[[SKA backlog-horizons]]`). `/mint` knows how to find Ready items; crank just delegates.
 
 ### 2. Plan the sweep
 
@@ -316,4 +312,4 @@ The correct response on a repeated no-action crank: re-run the same `/groom` + `
 - **`/triage`** — fallback when no minting happened; surfaces the inbox + status to the user.
 - **`/fortify`** — skeptical counterpart to `crank`; invoke when normal cranking has stopped converging (same bug recurs, fixes don't stick).
 - **`[[CAB Backlog]]`** — Ready definition; F-numbering; `[Ready]` bracket conventions.
-- **`[[workflow]]`** — state graph; `[Ready]` → `[Active]` → `[Verify]` → `[Done]` transitions that `/mint` drives per item.
+- **`[[SKA workflow]]`** — state graph; `[Ready]` → `[Active]` → `[Verify]` → `[Done]` transitions that `/mint` drives per item.
