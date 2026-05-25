@@ -1,17 +1,25 @@
 #!/usr/bin/env python3
-"""audit-q.py — Q.md constraint validator with mechanical-fix mode (F076).
+"""audit-q.py — Q.md constraint validator with mechanical-fix mode (F076, B16).
 
 Reusable primitives (importable by other tools):
   - links_in_file(path, vault_index) → list[LinkEntry]   (wiki + markdown links)
   - backlog_entries(path) → list[BacklogEntry]            (structured backlog rows)
+  - extract_q_entries(path, container_id) → list[QEntry]  (B16 ask-format)
 
-Four checks applied to Q.md + every anchor backlog:
-  C1: every Q.md link resolves (file + optional heading/block-id).
-  C2: brackets `[N Questions]` / `[Questions]` target files containing at least
-      one Q-marker (existence-check only; exact count NOT required).
-  C4: stale `[Done]` rows in horizon H2s get moved to `## Done`.
-  D1: Q.md per-anchor banners derived from each anchor's backlog
-      (not validated — overwritten on every run).
+Checks applied to Q.md, each anchor's backlog, and each feature/Questions doc:
+  C1:  every Q.md link resolves (file + optional heading/block-id).
+  C2:  brackets `[N Questions]` / `[Questions]` target files containing at least
+       one Q-marker (existence-check only; exact count NOT required).
+  C4:  stale `[Done]` rows in horizon H2s get moved to `## Done`.
+  C6:  every `**Q<n> —` bullet ends with `^<container>-Q<n>` block-ID  (auto-fix).
+  C7:  external Q references use block-ID link form `[[X#^X-Q<n>|...]]` (report).
+  C8:  no embedded prose alternatives (`"Either (a) X or (b) Y"`)      (report).
+  C9:  every Q has a sibling **Recommendation** with Strong/Lean/None  (report).
+  C10: **Recommendation** bullet at same indent as the Q header        (auto-fix).
+  C12: every `[Verify-by YYYY-MM-DD]` row body includes
+       "Naturally exercised by: …"                                     (report).
+  D1:  Q.md per-anchor banners derived from each anchor's backlog
+       (not validated — overwritten on every run).
 
 Usage:
   python audit-q.py              # report-only (script default; clean primitive)
@@ -19,6 +27,7 @@ Usage:
   python audit-q.py --dry        # report-only AND refuse to write (no side effects)
 
 Design: F076 — `audit q` — Q.md constraint validator with mechanical-fix mode.
+       B16 — extend audit-q.py with ask-format rules C6–C12.
 """
 
 from __future__ import annotations
@@ -65,6 +74,27 @@ QMD_BANNER_RE = re.compile(
     r"(?P<rest>.+)$"
 )
 
+# B16 (ask-format) — Q-header bullet: `- **Q<n> — ...`
+Q_HEADER_RE = re.compile(r"^(\s*)- \*\*Q(\d+)\b")
+# B16 — block-ID at end of Q header line: `^F089-Q3`
+Q_BLOCK_ID_TRAILING_RE = re.compile(r"\^([A-Za-z][A-Za-z0-9_\-]*-Q\d+)\s*$")
+# B16 — Recommendation bullet: `- **Recommendation:** Strong (B). reason.`
+RECOMMENDATION_RE = re.compile(
+    r"^(\s*)- \*\*Recommendation:\*\*\s*(Strong|Lean|None)?\b",
+    re.IGNORECASE,
+)
+# B16 (C8) — embedded prose alternatives heuristic: "(a) X or (b) Y" inline
+# Matches `(a)` or `(A)` followed within ~80 chars by `(b)` or `(B)`
+INLINE_ALTERNATIVES_RE = re.compile(r"\([aAbBcDdD]\)[^\n]{0,80}\([aAbBcDdD]\)")
+# B16 (C7) — Q reference in display text: `\bQ\d+\b` outside the basename
+Q_REF_IN_DISPLAY_RE = re.compile(r"\bQ\d+\b")
+# B16 (C12) — Verify-by bracket
+VERIFY_BY_BRACKET_RE = re.compile(r"\[Verify-by\s+(\d{4}-\d{2}-\d{2})\]")
+# B16 (C12) — "Naturally exercised by" rationale text
+NATURALLY_EXERCISED_RE = re.compile(r"[Nn]aturally exercised by\b")
+# B16 — F-number extraction from feature-doc stems: `F089 — Title` → `F089`
+F_NUMBER_PREFIX_RE = re.compile(r"^(F\d+)\s+—")
+
 # ============================================================
 # Dataclasses
 # ============================================================
@@ -107,6 +137,22 @@ class Finding:
     code: str  # 'C1' / 'C2' / 'C4' / 'D1' / 'stale-Q-marker' / etc.
     message: str
     mechanically_fixable: bool
+
+
+@dataclass
+class QEntry:
+    """B16 — a single Q-header bullet inside a ## Open Questions block."""
+    source_file: Path
+    source_line: int            # 1-indexed Q header line
+    indent: str                 # leading whitespace on the Q header line
+    q_num: int
+    container_id: str           # e.g., 'F089', 'SKA', 'QFix' (B-row)
+    has_block_id: bool
+    block_id_value: Optional[str] = None
+    inline_alternatives: bool = False
+    recommendation_line: int = 0           # 0 = missing
+    recommendation_indent: Optional[str] = None
+    recommendation_strength: Optional[str] = None  # 'Strong' / 'Lean' / 'None'
 
 
 # ============================================================
@@ -559,6 +605,363 @@ def apply_c4_fix(backlog_file: Path,
 
 
 # ============================================================
+# Checks C6–C12 — ask-format compliance (B16)
+# ============================================================
+# C6: every Q has block-ID ^<container>-Q<n>           (auto-fix)
+# C7: external Q references use block-ID link form     (report only)
+# C8: no embedded prose alternatives in Q line          (report only)
+# C9: every Q has Recommendation with Strong/Lean/None  (report only)
+# C10: Recommendation outdented to Q's indent level     (auto-fix)
+# C12: [Verify-by] rows include "Naturally exercised by:" (report only)
+# (C11 — Verify 4-piece layout — deferred; too heuristic for v1.)
+
+
+def find_ask_format_files(
+    anchor_backlogs: dict[str, Path],
+) -> list[tuple[str, Path]]:
+    """For each anchor, yield (container_id, file_path) pairs for every file
+    that might contain ask-format Qs.
+
+    Container IDs:
+    - Feature doc F089-...md → 'F089'
+    - À la carte '<NAME> Questions.md' → '<NAME>'
+    """
+    out: list[tuple[str, Path]] = []
+    for name, backlog_file in anchor_backlogs.items():
+        features_dir = backlog_file.parent / f"{name} Features"
+        if features_dir.is_dir():
+            for feature_file in sorted(features_dir.glob("F*.md")):
+                m = F_NUMBER_PREFIX_RE.match(feature_file.stem)
+                if m:
+                    out.append((m.group(1), feature_file))
+        questions_file = backlog_file.parent / f"{name} Questions.md"
+        if questions_file.is_file():
+            out.append((name, questions_file))
+    return out
+
+
+def extract_q_entries(file_path: Path, container_id: str) -> list[QEntry]:
+    """Parse file_path; return one QEntry per Q-header inside `## Open Questions`.
+
+    Recommendation matching: the first bullet line whose body starts with
+    `**Recommendation:**` after a Q-header and before the next Q-header is the
+    Recommendation for that Q.
+    """
+    if not file_path.is_file():
+        return []
+    try:
+        lines = file_path.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError):
+        return []
+    out: list[QEntry] = []
+    in_open_questions = False
+    pending_q: Optional[QEntry] = None
+
+    def flush():
+        nonlocal pending_q
+        if pending_q is not None:
+            out.append(pending_q)
+            pending_q = None
+
+    for line_num, line in enumerate(lines, start=1):
+        # Track section state via H2 headings; H3 ### Resolved closes Q tracking
+        heading_m = HEADING_RE.match(line)
+        if heading_m:
+            level = len(heading_m.group(1))
+            heading_text = heading_m.group(2).strip()
+            if level == 2:
+                flush()
+                in_open_questions = (heading_text == "Open Questions")
+                continue
+            if level == 3 and heading_text == "Resolved" and in_open_questions:
+                # Resolved subsection — pending Qs above the heading get flushed
+                flush()
+                in_open_questions = False
+                continue
+        if not in_open_questions:
+            continue
+        # Q-header bullet
+        qm = Q_HEADER_RE.match(line)
+        if qm:
+            flush()
+            indent = qm.group(1)
+            q_num = int(qm.group(2))
+            block_id_match = Q_BLOCK_ID_TRAILING_RE.search(line)
+            has_block_id = block_id_match is not None
+            block_id_value = block_id_match.group(1) if block_id_match else None
+            inline_alt = INLINE_ALTERNATIVES_RE.search(line) is not None
+            pending_q = QEntry(
+                source_file=file_path,
+                source_line=line_num,
+                indent=indent,
+                q_num=q_num,
+                container_id=container_id,
+                has_block_id=has_block_id,
+                block_id_value=block_id_value,
+                inline_alternatives=inline_alt,
+            )
+            continue
+        # Recommendation bullet (first match wins)
+        if pending_q is not None and pending_q.recommendation_line == 0:
+            rm = RECOMMENDATION_RE.match(line)
+            if rm:
+                pending_q.recommendation_line = line_num
+                pending_q.recommendation_indent = rm.group(1)
+                pending_q.recommendation_strength = (
+                    rm.group(2).capitalize() if rm.group(2) else None
+                )
+    flush()
+    return out
+
+
+def check_c6_block_id_present(q_entries: list[QEntry]) -> list[Finding]:
+    """C6: every Q has block-ID ^<container>-Q<n>."""
+    findings: list[Finding] = []
+    for q in q_entries:
+        expected = f"{q.container_id}-Q{q.q_num}"
+        if not q.has_block_id:
+            findings.append(Finding(
+                severity="warning",
+                surface_file=q.source_file,
+                surface_line=q.source_line,
+                code="C6",
+                message=f"Q{q.q_num} missing block-ID; expected ^{expected}",
+                mechanically_fixable=True,
+            ))
+        elif q.block_id_value != expected:
+            findings.append(Finding(
+                severity="warning",
+                surface_file=q.source_file,
+                surface_line=q.source_line,
+                code="C6",
+                message=f"Q{q.q_num} block-ID '^{q.block_id_value}' should be '^{expected}'",
+                mechanically_fixable=True,
+            ))
+    return findings
+
+
+def apply_c6_fix(q_entries: list[QEntry]) -> list[str]:
+    """Append / replace block-IDs for all C6-flagged Qs. Returns log."""
+    log: list[str] = []
+    by_file: dict[Path, list[QEntry]] = {}
+    for q in q_entries:
+        expected = f"{q.container_id}-Q{q.q_num}"
+        if q.has_block_id and q.block_id_value == expected:
+            continue
+        by_file.setdefault(q.source_file, []).append(q)
+    for file_path, qs in by_file.items():
+        try:
+            lines = file_path.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeDecodeError):
+            continue
+        changed = False
+        for q in qs:
+            idx = q.source_line - 1
+            if idx >= len(lines):
+                continue
+            line = lines[idx]
+            expected = f"{q.container_id}-Q{q.q_num}"
+            # Strip any existing trailing ^... block-ID (right form or wrong)
+            stripped = Q_BLOCK_ID_TRAILING_RE.sub("", line).rstrip()
+            new_line = f"{stripped} ^{expected}"
+            if new_line != line:
+                lines[idx] = new_line
+                changed = True
+                log.append(
+                    f"  {file_path.name}:{q.source_line} — set ^{expected} (Q{q.q_num})"
+                )
+        if changed:
+            new_text = "\n".join(lines)
+            if not new_text.endswith("\n"):
+                new_text += "\n"
+            file_path.write_text(new_text, encoding="utf-8")
+    return log
+
+
+def check_c7_link_form(
+    files_to_scan: list[Path],
+    vault_index: dict[str, list[Path]],
+) -> list[Finding]:
+    """C7: external Q refs use block-ID link form.
+
+    Heuristic: any link whose display text contains 'Q<n>' but whose link target
+    has no block-ID component is a violation. Report-only (rewriting requires
+    reading destination to find the matching Q — agent task).
+    """
+    findings: list[Finding] = []
+    for file_path in files_to_scan:
+        links = links_in_file(file_path, vault_index)
+        for link in links:
+            display = link.display_text or ""
+            if not Q_REF_IN_DISPLAY_RE.search(display):
+                continue
+            if link.target_block_id is not None:
+                continue  # already block-ID form
+            findings.append(Finding(
+                severity="warning",
+                surface_file=link.source_file,
+                surface_line=link.source_line,
+                code="C7",
+                message=(
+                    f"link {link.raw} references Q<n> in display but lacks "
+                    f"block-ID form (expected [[<file>#^<container>-Q<n>|...]])"
+                ),
+                mechanically_fixable=False,
+            ))
+    return findings
+
+
+def check_c8_inline_alternatives(q_entries: list[QEntry]) -> list[Finding]:
+    """C8: Q header should not embed prose alternatives like '(a) X or (b) Y'."""
+    findings: list[Finding] = []
+    for q in q_entries:
+        if q.inline_alternatives:
+            findings.append(Finding(
+                severity="warning",
+                surface_file=q.source_file,
+                surface_line=q.source_line,
+                code="C8",
+                message=(
+                    f"Q{q.q_num} has inline prose alternatives; hoist to labeled "
+                    f"sub-bullets (A) / (B) / (C) on their own lines"
+                ),
+                mechanically_fixable=False,
+            ))
+    return findings
+
+
+def check_c9_recommendation_present(q_entries: list[QEntry]) -> list[Finding]:
+    """C9: every Q has a Recommendation bullet with Strong/Lean/None."""
+    findings: list[Finding] = []
+    for q in q_entries:
+        if q.recommendation_line == 0:
+            findings.append(Finding(
+                severity="warning",
+                surface_file=q.source_file,
+                surface_line=q.source_line,
+                code="C9",
+                message=(
+                    f"Q{q.q_num} missing Recommendation bullet "
+                    f"(expected '- **Recommendation:** Strong|Lean|None ...')"
+                ),
+                mechanically_fixable=False,
+            ))
+        elif q.recommendation_strength is None:
+            findings.append(Finding(
+                severity="warning",
+                surface_file=q.source_file,
+                surface_line=q.recommendation_line,
+                code="C9",
+                message=(
+                    f"Q{q.q_num} Recommendation lacks strength label "
+                    f"(must be Strong / Lean / None)"
+                ),
+                mechanically_fixable=False,
+            ))
+    return findings
+
+
+def check_c10_recommendation_outdent(q_entries: list[QEntry]) -> list[Finding]:
+    """C10: Recommendation bullet at same indent as Q header (not nested)."""
+    findings: list[Finding] = []
+    for q in q_entries:
+        if q.recommendation_line == 0 or q.recommendation_indent is None:
+            continue
+        if len(q.recommendation_indent) > len(q.indent):
+            findings.append(Finding(
+                severity="warning",
+                surface_file=q.source_file,
+                surface_line=q.recommendation_line,
+                code="C10",
+                message=(
+                    f"Q{q.q_num} Recommendation nested "
+                    f"(indent {len(q.recommendation_indent)}) — outdent to Q "
+                    f"header level (indent {len(q.indent)})"
+                ),
+                mechanically_fixable=True,
+            ))
+    return findings
+
+
+def apply_c10_fix(q_entries: list[QEntry]) -> list[str]:
+    """Rewrite indent of nested Recommendation bullets to match Q indent."""
+    log: list[str] = []
+    by_file: dict[Path, list[QEntry]] = {}
+    for q in q_entries:
+        if q.recommendation_line == 0 or q.recommendation_indent is None:
+            continue
+        if len(q.recommendation_indent) > len(q.indent):
+            by_file.setdefault(q.source_file, []).append(q)
+    for file_path, qs in by_file.items():
+        try:
+            lines = file_path.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeDecodeError):
+            continue
+        changed = False
+        for q in qs:
+            idx = q.recommendation_line - 1
+            if idx >= len(lines):
+                continue
+            line = lines[idx]
+            stripped = line.lstrip()
+            new_line = q.indent + stripped
+            if new_line != line:
+                lines[idx] = new_line
+                changed = True
+                log.append(
+                    f"  {file_path.name}:{q.recommendation_line} — outdented "
+                    f"Recommendation for Q{q.q_num}"
+                )
+        if changed:
+            new_text = "\n".join(lines)
+            if not new_text.endswith("\n"):
+                new_text += "\n"
+            file_path.write_text(new_text, encoding="utf-8")
+    return log
+
+
+def check_c12_verify_by_rationale(
+    anchor_backlogs: dict[str, Path],
+) -> list[Finding]:
+    """C12: every `[Verify-by YYYY-MM-DD]` row body includes 'Naturally exercised by:'."""
+    findings: list[Finding] = []
+    for backlog_file in anchor_backlogs.values():
+        try:
+            lines = backlog_file.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeDecodeError):
+            continue
+        for line_num, line in enumerate(lines, start=1):
+            if not VERIFY_BY_BRACKET_RE.search(line):
+                continue
+            # Body = the row line + any subsequent indented continuation lines
+            body_text = line
+            j = line_num  # next-line index (1-based line_num == 0-based j)
+            while j < len(lines):
+                nxt = lines[j]
+                if nxt.startswith("  ") or nxt.startswith("\t"):
+                    body_text += "\n" + nxt
+                    j += 1
+                elif nxt == "":
+                    j += 1
+                    continue
+                else:
+                    break
+            if not NATURALLY_EXERCISED_RE.search(body_text):
+                findings.append(Finding(
+                    severity="warning",
+                    surface_file=backlog_file,
+                    surface_line=line_num,
+                    code="C12",
+                    message=(
+                        "[Verify-by] row body missing 'Naturally exercised by: …' "
+                        "rationale (required per ask-format § Deferred-by-use Verify)"
+                    ),
+                    mechanically_fixable=False,
+                ))
+    return findings
+
+
+# ============================================================
 # D1 — Banner derivation
 # ============================================================
 
@@ -700,6 +1103,28 @@ def main() -> int:
         banner = derive_anchor_banner(name, backlog_file, vault_index)
         if banner:
             derived_banners[name] = banner
+    # B16 — C6 / C8 / C9 / C10 walk feature docs + Questions.md per anchor
+    ask_format_files = find_ask_format_files(anchor_backlogs)
+    all_q_entries: list[QEntry] = []
+    for container_id, file_path in ask_format_files:
+        all_q_entries.extend(extract_q_entries(file_path, container_id))
+    findings.extend(check_c6_block_id_present(all_q_entries))
+    findings.extend(check_c8_inline_alternatives(all_q_entries))
+    findings.extend(check_c9_recommendation_present(all_q_entries))
+    findings.extend(check_c10_recommendation_outdent(all_q_entries))
+    # B16 — C7 walks the same ask-format files + backlogs + Q.md
+    c7_scope = [Q_MD]
+    c7_scope.extend(p for _, p in ask_format_files)
+    c7_scope.extend(anchor_backlogs.values())
+    findings.extend(check_c7_link_form(c7_scope, vault_index))
+    # B16 — C12 walks anchor backlogs only (Verify-by lives on backlog rows)
+    findings.extend(check_c12_verify_by_rationale(anchor_backlogs))
+    # B16 — apply mechanical fixes for C6 + C10 if --fix
+    c6_fixes_applied: list[str] = []
+    c10_fixes_applied: list[str] = []
+    if args.fix:
+        c6_fixes_applied = apply_c6_fix(all_q_entries)
+        c10_fixes_applied = apply_c10_fix(all_q_entries)
     # Print findings + summary
     errors = [f for f in findings if f.severity == "error"]
     warnings = [f for f in findings if f.severity == "warning"]
@@ -711,6 +1136,14 @@ def main() -> int:
     if c4_fixes_applied:
         print(f"\naudit-q: C4 mechanical moves applied:")
         for line in c4_fixes_applied:
+            print(line)
+    if c6_fixes_applied:
+        print(f"\naudit-q: C6 block-IDs appended:")
+        for line in c6_fixes_applied:
+            print(line)
+    if c10_fixes_applied:
+        print(f"\naudit-q: C10 Recommendations outdented:")
+        for line in c10_fixes_applied:
             print(line)
     print(f"\naudit-q: derived banners for {len(derived_banners)} anchors")
     if args.fix and not args.dry:
