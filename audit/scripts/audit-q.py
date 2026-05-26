@@ -254,7 +254,15 @@ def resolve_target(basename: str, source_file: Path,
 
 
 def headings_in(file_path: Path) -> dict[str, int]:
-    """Return dict heading-text → 1-indexed line. First occurrence wins."""
+    """Return dict heading-text → 1-indexed line. First occurrence wins.
+
+    Stores TWO keys per heading: (1) the raw heading text, (2) the
+    code-span-stripped form. Wiki-links pointing to a heading get their
+    inner backticks blanked by `_strip_code_spans` during `links_in_file`,
+    so the lookup may use either form. Storing both makes the comparison
+    survive backticks inside heading text like H3 'move' (in code-span form)
+    followed by em-dash and prose.
+    """
     if not file_path.is_file():
         return {}
     headings: dict[str, int] = {}
@@ -263,7 +271,11 @@ def headings_in(file_path: Path) -> dict[str, int]:
             for i, line in enumerate(f, start=1):
                 m = HEADING_RE.match(line)
                 if m:
-                    headings.setdefault(m.group(2), i)
+                    raw = m.group(2)
+                    headings.setdefault(raw, i)
+                    stripped = _strip_code_spans(raw)
+                    if stripped != raw:
+                        headings.setdefault(stripped, i)
     except (OSError, UnicodeDecodeError):
         pass
     return headings
