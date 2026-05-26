@@ -369,9 +369,54 @@ def _parse_markdown(text: str, path: str, source_file: Path) -> dict:
     }
 
 
+def _is_placeholder_basename(basename: str) -> bool:
+    """Heuristically detect 'placeholder' wiki-links that shouldn't be flagged:
+    template-prose `[[<expected_anchor>]]`, `[[NAME]]`, `[[...]]`, `[[{x}]]`,
+    `[[filename.ext]]`, etc. — these aren't real links, they're spec examples.
+
+    Returns True if the basename looks like a placeholder."""
+    if not basename:
+        return True
+    # Angle-bracket placeholders: <expected_anchor>, <Name>, etc.
+    if "<" in basename or ">" in basename:
+        return True
+    # Curly-brace placeholders: {x}, {NAME}, {}, etc.
+    if "{" in basename or "}" in basename:
+        return True
+    # Ellipsis placeholders: `...`, `name...`, etc.
+    if "..." in basename:
+        return True
+    # Generic-shaped placeholders: bare lowercase metavariable like `name`,
+    # `filename.ext` (contains a dot suggesting a filename example).
+    if basename in {"name", "NAME", "filename.ext", "RID", "TID", "SLUG", "Name", "id"}:
+        return True
+    return False
+
+
+def _strip_code_spans(line: str) -> str:
+    """Remove inline-code spans (` ` `) from a line so wiki-links inside them
+    don't get parsed. Replaces each code span with same-length whitespace to
+    preserve column offsets."""
+    out_chars = list(line)
+    in_code = False
+    i = 0
+    while i < len(out_chars):
+        if out_chars[i] == "`":
+            in_code = not in_code
+        elif in_code:
+            out_chars[i] = " "
+        i += 1
+    return "".join(out_chars)
+
+
 def links_in_file(file_path: Path,
                   vault_index: dict[str, list[Path]]) -> list[LinkEntry]:
-    """Parse all wiki + markdown links in file_path; return ordered list."""
+    """Parse all wiki + markdown links in file_path; return ordered list.
+
+    Skips: (a) lines inside fenced code blocks (``` ... ```), (b) wiki-links
+    inside inline code spans (`...`), (c) wiki-links whose basename looks like
+    a template placeholder (`<x>`, `{x}`, `...`, etc.). Per user direction
+    2026-05-26 — these are spec-prose examples, not real links."""
     entries: list[LinkEntry] = []
     if not file_path.is_file():
         return entries
@@ -379,10 +424,22 @@ def links_in_file(file_path: Path,
         lines = file_path.read_text(encoding="utf-8").splitlines()
     except (OSError, UnicodeDecodeError):
         return entries
+    in_fence = False
     for line_num, line in enumerate(lines, start=1):
-        # Skip wiki-link matches that are inside markdown links (rare).
-        for m in WIKI_LINK_RE.finditer(line):
+        # Track fenced-code-block state. Lines starting with ``` toggle.
+        stripped = line.lstrip()
+        if stripped.startswith("```") or stripped.startswith("~~~"):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+        # Strip inline-code spans before scanning links.
+        scan_line = _strip_code_spans(line)
+        for m in WIKI_LINK_RE.finditer(scan_line):
             parsed = _parse_wiki_inner(m.group(1))
+            # Skip template-prose placeholders.
+            if _is_placeholder_basename(parsed["basename"]):
+                continue
             resolved = _resolve_wiki(parsed, file_path, vault_index)
             entries.append(LinkEntry(
                 source_file=file_path,
@@ -400,8 +457,11 @@ def links_in_file(file_path: Path,
                 target_resolves=resolved["target_resolves"],
                 target_anchor_resolves=resolved["target_anchor_resolves"],
             ))
-        for m in MARKDOWN_LINK_RE.finditer(line):
+        for m in MARKDOWN_LINK_RE.finditer(scan_line):
             parsed = _parse_markdown(m.group(1), m.group(2), file_path)
+            # Skip template-prose placeholders.
+            if _is_placeholder_basename(parsed["basename"] or ""):
+                continue
             entries.append(LinkEntry(
                 source_file=file_path,
                 source_line=line_num,
