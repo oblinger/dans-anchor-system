@@ -128,8 +128,11 @@ BRACKET_RE = re.compile(r"\[([A-Za-z][A-Za-z0-9 \-]*?)\]")
 Q_MARKER_RE = re.compile(r"\bQ\d+\s+—")
 # Q.md per-anchor section H1 banner.
 QMD_BANNER_RE = re.compile(
-    r"^# \[(?P<tag>[^\]]+)\]\s+\[\[Q#(?P<name>[^\|\]]+) Triage(?:\|[^\]]+)?\]\]\s+-\s+"
-    r"(?P<rest>.+)$"
+    # Match both the new format `[[X ask|X]]` and the legacy
+    # `[[Q#X Triage|X Triage]]` form so banner-rewrite works either way.
+    r"^# \[(?P<tag>[^\]]*)\]\s+"
+    r"\[\[(?:Q#)?(?P<name>[^\|\]]+?)(?:\s+(?:Triage|ask))?(?:\|[^\]]+)?\]\]"
+    r"\s+-\s+(?P<rest>.+)$"
 )
 
 # B16 (ask-format) — Q-header bullet: `- **Q<n> — ...`
@@ -1985,9 +1988,8 @@ def derive_anchor_banner(name: str, backlog_file: Path,
     if not tag and horizon_counts["Icebox"] == 0:
         return None
     banner = (
-        f"# [{tag}]  [[Q#{name} Triage|{name} Triage]]  -  "
-        f"Questions {questions_n}    Verify {verify_n}   |   "
-        f"Active {active_n}    Ready {ready_n}   |   "
+        f"# [{tag}]  [[{name} ask|{name}]]  -  "
+        f"Ready {ready_n}    Questions {questions_n}   |   "
         f"Now {horizon_counts['Now']}    Next {horizon_counts['Next']}    "
         f"Later {horizon_counts['Later']}    Icebox {horizon_counts['Icebox']}"
     )
