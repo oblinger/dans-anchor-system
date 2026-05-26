@@ -28,14 +28,23 @@ Checks applied to Q.md, each anchor's backlog, and each feature/Questions doc:
   D1:  Q.md per-anchor banners derived from each anchor's backlog
        (not validated — overwritten on every run).
 
-Usage:
-  python audit-q.py              # report-only (script default; clean primitive)
-  python audit-q.py --fix        # apply mechanical repairs to Q.md + backlogs
-  python audit-q.py --dry        # report-only AND refuse to write (no side effects)
+Usage (per F076 v2, 2026-05-26 — scope-aware audit):
+  audit-q                                  # default --scope q: Q.md + linked backlogs + linked feature docs
+  audit-q --fix                            # apply mechanical repairs
+  audit-q --dry                            # report-only AND refuse to write
+  audit-q --scope all                      # vault-wide (every Features/F*.md, ignoring backlog reachability)
+  audit-q --scope backlog --anchor SKA     # one anchor's backlog + its linked feature docs
+  audit-q --scope feature-doc --feature-doc PATH    # one feature doc only
 
-Design: F076 — `audit q` — Q.md constraint validator with mechanical-fix mode.
-       B16  — ask-format rules C6–C12.
-       F089 — bracket↔H2 consistency rules C13–C18.
+Wrapper scripts at ~/bin/audit-backlog and ~/bin/audit-feature-doc invoke the
+scoped modes with terser CLI: `audit-backlog SKA`, `audit-feature-doc PATH`.
+
+Design: F076 v2 — scoped audits (q / backlog / feature-doc / all) chained by
+       reachability per user direction 2026-05-26: only audit feature docs
+       the user can click into via Q.md → backlog → linked F-doc.
+       F076 v1 — Q.md constraint validator with mechanical-fix mode.
+       B16    — ask-format rules C6–C12.
+       F089   — bracket↔H2 consistency rules C13–C18.
 """
 
 from __future__ import annotations
@@ -661,6 +670,8 @@ def apply_c4_fix(backlog_file: Path,
 
 def find_ask_format_files(
     anchor_backlogs: dict[str, Path],
+    vault_index: Optional[dict[str, list[Path]]] = None,
+    reachable_only: bool = True,
 ) -> list[tuple[str, Path]]:
     """For each anchor, yield (container_id, file_path) pairs for every file
     that might contain ask-format Qs.
@@ -668,18 +679,55 @@ def find_ask_format_files(
     Container IDs:
     - Feature doc F089-...md → 'F089'
     - À la carte '<NAME> Questions.md' → '<NAME>'
+
+    By default (`reachable_only=True`, per user direction 2026-05-26): only
+    audit feature docs that are *linked from the anchor's backlog*. Orphan
+    feature docs in `Features/` but not reachable via backlog wiki-links are
+    skipped — they aren't navigable from Q.md, so the user can't click into
+    them, and their drift doesn't matter to the dashboard. Requires `vault_index`
+    to resolve wiki-link basenames.
+
+    With `reachable_only=False`, falls back to the original behavior: glob every
+    `Features/F*.md`. Used by `--scope all` for vault-wide cleanup sweeps.
     """
     out: list[tuple[str, Path]] = []
     for name, backlog_file in anchor_backlogs.items():
-        features_dir = backlog_file.parent / f"{name} Features"
-        if features_dir.is_dir():
-            for feature_file in sorted(features_dir.glob("F*.md")):
-                m = F_NUMBER_PREFIX_RE.match(feature_file.stem)
+        if reachable_only and vault_index is not None:
+            # Reachability-limited: walk backlog wiki-links, pick out F<n> targets
+            # and `{NAME} Questions.md`. Each reachable doc audited once.
+            seen_paths: set[Path] = set()
+            for link in links_in_file(backlog_file, vault_index):
+                if not link.target_resolves or link.target_file_path is None:
+                    continue
+                stem = link.target_file_path.stem
+                # Feature doc: stem starts with `F<NNN> — `
+                m = F_NUMBER_PREFIX_RE.match(stem)
                 if m:
-                    out.append((m.group(1), feature_file))
-        questions_file = backlog_file.parent / f"{name} Questions.md"
-        if questions_file.is_file():
-            out.append((name, questions_file))
+                    if link.target_file_path not in seen_paths:
+                        seen_paths.add(link.target_file_path)
+                        out.append((m.group(1), link.target_file_path))
+                    continue
+                # À la carte Questions doc
+                if stem == f"{name} Questions":
+                    if link.target_file_path not in seen_paths:
+                        seen_paths.add(link.target_file_path)
+                        out.append((name, link.target_file_path))
+            # Always include `{NAME} Questions.md` if it exists (the backlog may
+            # not link to it directly; /triage surfaces it via the per-anchor H1 bullet).
+            questions_file = backlog_file.parent / f"{name} Questions.md"
+            if questions_file.is_file() and questions_file not in seen_paths:
+                out.append((name, questions_file))
+        else:
+            # Vault-wide: every F<n>.md in the anchor's Features/ folder.
+            features_dir = backlog_file.parent / f"{name} Features"
+            if features_dir.is_dir():
+                for feature_file in sorted(features_dir.glob("F*.md")):
+                    m = F_NUMBER_PREFIX_RE.match(feature_file.stem)
+                    if m:
+                        out.append((m.group(1), feature_file))
+            questions_file = backlog_file.parent / f"{name} Questions.md"
+            if questions_file.is_file():
+                out.append((name, questions_file))
     return out
 
 
@@ -1600,7 +1648,31 @@ def main() -> int:
                         help="apply mechanical repairs to Q.md + backlogs")
     parser.add_argument("--dry", action="store_true",
                         help="report-only AND refuse to write anywhere")
+    parser.add_argument(
+        "--scope",
+        choices=["q", "backlog", "feature-doc", "all"],
+        default="q",
+        help=(
+            "Audit scope. Default `q` (reachability-limited from Q.md): "
+            "audits Q.md + each anchor's backlog listed in Q.md + each feature "
+            "doc linked from those backlogs. `backlog` audits one anchor's "
+            "backlog + linked feature docs (requires --anchor). `feature-doc` "
+            "audits one feature doc (requires --feature-doc). `all` is the "
+            "vault-wide pre-2026-05-26 behavior — audits every F<n>.md in every "
+            "Features/ folder regardless of reachability."
+        ),
+    )
+    parser.add_argument("--anchor", type=str, default=None,
+                        help="(scope=backlog) anchor name, e.g. 'SKA'")
+    parser.add_argument("--feature-doc", type=str, default=None,
+                        help="(scope=feature-doc) path to a feature doc")
     args = parser.parse_args()
+    if args.scope == "backlog" and not args.anchor:
+        print("error: --scope backlog requires --anchor NAME", file=sys.stderr)
+        return 2
+    if args.scope == "feature-doc" and not args.feature_doc:
+        print("error: --scope feature-doc requires --feature-doc PATH", file=sys.stderr)
+        return 2
     if args.fix and args.dry:
         print("error: --fix and --dry are mutually exclusive", file=sys.stderr)
         return 2
@@ -1611,16 +1683,31 @@ def main() -> int:
     vault_index = build_vault_index(VAULT_ROOT)
     print(f"  vault index: {sum(len(v) for v in vault_index.values())} files, "
           f"{len(vault_index)} unique basenames", file=sys.stderr)
-    # C1 + C2 on Q.md
-    qmd_links = links_in_file(Q_MD, vault_index)
-    qmd_text = Q_MD.read_text(encoding="utf-8")
     findings: list[Finding] = []
-    findings.extend(check_c1_link_existence(qmd_links))
-    findings.extend(check_c2_q_marker_existence(qmd_links, qmd_text))
-    # C4 + D1 require walking each anchor's backlog
-    anchor_backlogs = find_anchor_backlogs(VAULT_ROOT)
     c4_fixes_applied: list[str] = []
     derived_banners: dict[str, str] = {}
+    all_backlogs = find_anchor_backlogs(VAULT_ROOT)
+
+    # Compute scoped backlog dict per --scope:
+    if args.scope == "feature-doc":
+        # Skip Q.md + backlog entirely; audit only the one feature doc.
+        anchor_backlogs: dict[str, Path] = {}
+    elif args.scope == "backlog":
+        if args.anchor not in all_backlogs:
+            print(f"error: anchor '{args.anchor}' has no backlog in {VAULT_ROOT}", file=sys.stderr)
+            return 2
+        anchor_backlogs = {args.anchor: all_backlogs[args.anchor]}
+    else:
+        # scope=q or scope=all → all anchor backlogs
+        anchor_backlogs = all_backlogs
+
+    # C1 + C2 on Q.md — only when auditing Q.md itself (scope=q or scope=all).
+    if args.scope in ("q", "all"):
+        qmd_links = links_in_file(Q_MD, vault_index)
+        qmd_text = Q_MD.read_text(encoding="utf-8")
+        findings.extend(check_c1_link_existence(qmd_links))
+        findings.extend(check_c2_q_marker_existence(qmd_links, qmd_text))
+    # C4 + D1 require walking each anchor's backlog (in the scoped set).
     for name, backlog_file in sorted(anchor_backlogs.items()):
         entries = backlog_entries(backlog_file, vault_index)
         findings.extend(check_c4_stale_done(entries))
@@ -1631,8 +1718,23 @@ def main() -> int:
         banner = derive_anchor_banner(name, backlog_file, vault_index)
         if banner:
             derived_banners[name] = banner
-    # B16 — C6 / C8 / C9 / C10 walk feature docs + Questions.md per anchor
-    ask_format_files = find_ask_format_files(anchor_backlogs)
+    # B16 — C6 / C8 / C9 / C10 walk feature docs + Questions.md per anchor.
+    # Default (scope=q or scope=backlog): reachability-limited via backlog wiki-links.
+    # `--scope all` gives the original vault-wide behavior.
+    if args.scope == "feature-doc":
+        # Audit just one feature doc.
+        fd_path = Path(args.feature_doc).expanduser().resolve()
+        if not fd_path.is_file():
+            print(f"error: feature doc not found: {fd_path}", file=sys.stderr)
+            return 2
+        stem_m = F_NUMBER_PREFIX_RE.match(fd_path.stem)
+        cid = stem_m.group(1) if stem_m else fd_path.stem
+        ask_format_files = [(cid, fd_path)]
+    else:
+        reachable = args.scope != "all"
+        ask_format_files = find_ask_format_files(
+            anchor_backlogs, vault_index=vault_index, reachable_only=reachable
+        )
     all_q_entries: list[QEntry] = []
     for container_id, file_path in ask_format_files:
         all_q_entries.extend(extract_q_entries(file_path, container_id))
@@ -1652,8 +1754,10 @@ def main() -> int:
         if ask_md.is_file():
             c22_scope.append(ask_md)
     findings.extend(check_c22_link_existence_extended(c22_scope, vault_index))
-    # B16 — C7 walks the same ask-format files + backlogs + Q.md
-    c7_scope = [Q_MD]
+    # B16 — C7 walks the same ask-format files + backlogs + Q.md (when in scope)
+    c7_scope: list[Path] = []
+    if args.scope in ("q", "all"):
+        c7_scope.append(Q_MD)
     c7_scope.extend(p for _, p in ask_format_files)
     c7_scope.extend(anchor_backlogs.values())
     findings.extend(check_c7_link_form(c7_scope, vault_index))
@@ -1704,10 +1808,9 @@ def main() -> int:
         for line in f089_fixes_applied:
             print(line)
     print(f"\naudit-q: derived banners for {len(derived_banners)} anchors")
-    if args.fix and not args.dry:
+    if args.fix and not args.dry and args.scope in ("q", "all"):
         # D1: write derived banners back to Q.md (replace H1 lines for each
-        # existing per-anchor section). New-anchor section creation is deferred
-        # to /audit q-fix in v1; only existing sections get their banner updated.
+        # existing per-anchor section). Only runs when Q.md is in scope.
         d1_changes = apply_d1_banner_write(Q_MD, derived_banners)
         if d1_changes:
             print(f"\naudit-q: D1 — {d1_changes} per-anchor banner(s) rewritten in Q.md")
