@@ -25,6 +25,13 @@ Checks applied to Q.md, each anchor's backlog, and each feature/Questions doc:
   C15: `[Watching]/[Waiting]` rows must be in `## Later`               (auto-fix).
   C16: `[Blocked]/[Blocked F<n>]` rows must be in `## Later`           (auto-fix).
   C18: `[Verify-by YYYY-MM-DD]` past expiry → auto-move to `## Done`   (auto-fix).
+  C19: option sub-bullets each on own line, labeled `(A)/(B)/...`      (report).
+  C20: blank line after Recommendation separating Q groups             (report).
+  C21: `## Open Questions` H2 with zero pending Qs (Phase 2 missed)    (report).
+  C22: link existence in feature docs / backlogs                       (report).
+  C23: `[Designing]` brackets must resolve to `[N Questions]` (if
+       linked doc has pending Qs) or `[Ready]` (if none) — `[Designing]`
+       alone is a turn-ownership deadlock                              (auto-fix).
   D1:  Q.md per-anchor banners derived from each anchor's backlog
        (not validated — overwritten on every run).
 
@@ -109,7 +116,12 @@ WIKI_LINK_RE = re.compile(r"\[\[([^\]]+)\]\]")
 MARKDOWN_LINK_RE = re.compile(r"(?<!\[)\[([^\[\]]+)\]\(([^)]+)\)")
 # Backlog row: starts with `- **<identifier>` or `- **[[<identifier>` (wiki-link
 # identifier form used by some anchors, e.g. MUX). Identifier is F<n> or B-<name>.
-ROW_OPENER_RE = re.compile(r"^- \*\*(?:\[\[)?([A-Za-z][A-Za-z0-9_\-]*)\b")
+ROW_OPENER_RE = re.compile(
+    r"^- \*\*"
+    r"(?:\[\[)?"                     # optional `[[` (wiki-link form)
+    r"(?:\[[A-Z]+\]\s+)?"            # optional `[TYPE] ` prefix (e.g., `[BUG] `)
+    r"([A-Za-z][A-Za-z0-9_\-]*)\b"   # group(1) = identifier
+)
 # Status bracket: `[Ready]`, `[3 Questions]`, `[Blocked F123]`, etc.
 BRACKET_RE = re.compile(r"\[([A-Za-z][A-Za-z0-9 \-]*?)\]")
 # Q-marker: `**Q<n> —`. Used by C2 for existence-check at link targets.
@@ -805,6 +817,7 @@ def apply_c4_fix(backlog_file: Path,
 # C20: blank line after Recommendation, separating Q groups      (report only)
 # C21: ## Open Questions H2 with zero pending Qs (Phase 2 missed) (report only)
 # C22: link existence in feature docs / backlogs (extends C1's Q.md scope) (report only)
+# C23: [Designing] must resolve to [N Questions] or [Ready] — never [Designing] alone (auto-fix)
 # (C11 — Verify 4-piece layout — deferred; too heuristic for v1.)
 
 
@@ -1629,6 +1642,164 @@ def check_c18_verify_by_expired(
     return findings
 
 
+# ============================================================
+# C23 — [Designing] is not a valid terminal bracket
+# ============================================================
+# Per user direction 2026-05-26 — [Designing] alone creates a deadlock:
+# nobody knows whose turn it is. Force every [Designing] row to resolve
+# to one of two honest forms:
+#   - linked feature doc has N pending Qs → bracket must be [N Questions]
+#     (or [Questions] for N=1) — names the user as the next-action owner.
+#   - linked feature doc has zero pending Qs → bracket must be [Ready] —
+#     the agent can pick it up. Designing is over.
+
+
+def check_c23_designing_resolves(entries: list[BacklogEntry]) -> list[Finding]:
+    """C23: every [Designing] row must resolve to [N Questions] (if its
+    linked feature doc has pending Qs) or [Ready] (if not). Designing alone
+    creates a turn-ownership deadlock.
+
+    Walks each [Designing] row, finds its linked feature doc, counts pending
+    Qs in that doc's `## Open Questions` H2 via `extract_q_entries`, and
+    emits a finding that names the correct bracket.
+
+    Rows without a linked feature doc (B-rows with inline Qs in the backlog
+    itself) are handled by extracting Qs from the backlog file scoped to the
+    row's identifier as the container_id.
+    """
+    findings: list[Finding] = []
+    for e in entries:
+        if e.status != "Designing":
+            continue
+        # Resolve where to count pending Qs.
+        target_file: Optional[Path] = None
+        container_id = e.identifier
+        if e.link is not None and e.link.target_file_path is not None:
+            target_file = e.link.target_file_path
+            # Container_id for feature-doc Qs is the F-number from the doc stem.
+            stem_m = F_NUMBER_PREFIX_RE.match(target_file.stem)
+            if stem_m:
+                container_id = stem_m.group(1)
+        else:
+            # No feature-doc link: inline Qs would live in the backlog file
+            # itself, under this row. extract_q_entries scopes by container_id
+            # via block-ID prefix `^<container>-Q<n>` — match the row's id.
+            target_file = e.source_file
+        if target_file is None or not target_file.is_file():
+            # Can't count Qs — flag as ambiguous; needs user attention.
+            findings.append(Finding(
+                severity="warning",
+                surface_file=e.source_file,
+                surface_line=e.source_line,
+                code="C23",
+                message=(
+                    f"row '{e.identifier}' is [Designing] but has no linked "
+                    f"feature doc to count Qs against — bracket must be "
+                    f"[N Questions] or [Ready], not [Designing] alone"
+                ),
+                mechanically_fixable=False,
+            ))
+            continue
+        q_entries = extract_q_entries(target_file, container_id)
+        # Filter to pending (no Recommendation:Strong/Lean/None — just pending).
+        # extract_q_entries returns all Q-headers below ## Open Questions H2
+        # before the Resolved sub-section, which IS the pending set.
+        pending = len(q_entries)
+        if pending > 0:
+            correct = f"[{pending} Questions]" if pending > 1 else "[Questions]"
+            findings.append(Finding(
+                severity="warning",
+                surface_file=e.source_file,
+                surface_line=e.source_line,
+                code="C23",
+                message=(
+                    f"row '{e.identifier}' is [Designing] but linked doc has "
+                    f"{pending} pending Q{'s' if pending != 1 else ''} — "
+                    f"bracket must be {correct}, not [Designing] (so the "
+                    f"user can see the open questions from the banner)"
+                ),
+                mechanically_fixable=True,
+            ))
+        else:
+            findings.append(Finding(
+                severity="warning",
+                surface_file=e.source_file,
+                surface_line=e.source_line,
+                code="C23",
+                message=(
+                    f"row '{e.identifier}' is [Designing] with zero pending "
+                    f"Qs in its linked doc — bracket must be [Ready], not "
+                    f"[Designing] (designing is over; the agent can pick it up)"
+                ),
+                mechanically_fixable=True,
+            ))
+    return findings
+
+
+def apply_c23_fix(backlog_file: Path,
+                  entries: list[BacklogEntry]) -> tuple[bool, list[str]]:
+    """Rewrite [Designing] brackets to [N Questions] or [Ready] based on
+    pending Q-count in linked feature docs. Returns (changed, log)."""
+    fix_log: list[str] = []
+    designing = [e for e in entries if e.status == "Designing"]
+    if not designing:
+        return False, []
+    try:
+        lines = backlog_file.read_text(encoding="utf-8").splitlines(keepends=False)
+    except (OSError, UnicodeDecodeError):
+        return False, []
+    changed = False
+    for e in designing:
+        target_file: Optional[Path] = None
+        container_id = e.identifier
+        if e.link is not None and e.link.target_file_path is not None:
+            target_file = e.link.target_file_path
+            stem_m = F_NUMBER_PREFIX_RE.match(target_file.stem)
+            if stem_m:
+                container_id = stem_m.group(1)
+        else:
+            target_file = e.source_file
+        if target_file is None or not target_file.is_file():
+            continue
+        q_entries = extract_q_entries(target_file, container_id)
+        pending = len(q_entries)
+        if pending > 0:
+            new_bracket = (
+                f"[{pending} Questions]" if pending > 1 else "[Questions]"
+            )
+        else:
+            new_bracket = "[Ready]"
+        # 0-indexed line
+        line_idx = e.source_line - 1
+        if line_idx < 0 or line_idx >= len(lines):
+            continue
+        old_line = lines[line_idx]
+        # Replace [Designing] with new_bracket on this line. Use BRACKET_RE-style
+        # narrow head-region replacement: only the first [Designing] occurrence
+        # in the row's head (between **Title** and the first ` — `).
+        title_match = re.match(r"^- \*\*[^*]+\*\*", old_line)
+        if not title_match:
+            continue
+        post_title = old_line[title_match.end():]
+        sep_match = re.search(r"\s[—-]\s", post_title)
+        head_end_in_post = sep_match.start() if sep_match else len(post_title)
+        head = post_title[:head_end_in_post]
+        rest = post_title[head_end_in_post:]
+        new_head = head.replace("[Designing]", new_bracket, 1)
+        if new_head == head:
+            continue
+        new_line = old_line[: title_match.end()] + new_head + rest
+        lines[line_idx] = new_line
+        changed = True
+        fix_log.append(
+            f"row '{e.identifier}' [Designing] → {new_bracket} "
+            f"(pending Qs: {pending})"
+        )
+    if changed:
+        backlog_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return changed, fix_log
+
+
 def _find_or_create_h2(lines: list[str], h2_name: str) -> int:
     """Return index of `## <h2_name>` line; append (and return new index) if absent."""
     target = f"## {h2_name}"
@@ -1960,10 +2131,18 @@ def main() -> int:
         findings.extend(check_c15_watching_waiting_in_later(entries))
         findings.extend(check_c16_blocked_in_later(entries))
         findings.extend(check_c18_verify_by_expired(entries, today))
+        findings.extend(check_c23_designing_resolves(entries))
         if args.fix:
             fix_log = apply_placement_fixes(backlog_file, entries, today)
             if fix_log:
                 f089_fixes_applied.extend(f"  {name}: {msg}" for msg in fix_log)
+                # apply_placement_fixes moves rows between H2 sections, which
+                # shifts source-line numbers. Re-parse before apply_c23_fix so
+                # its in-memory line indices match the on-disk file.
+                entries = backlog_entries(backlog_file, vault_index)
+            c23_changed, c23_log = apply_c23_fix(backlog_file, entries)
+            if c23_changed:
+                f089_fixes_applied.extend(f"  {name}: {msg}" for msg in c23_log)
     # B16 — apply mechanical fixes for C6 + C10 if --fix
     c6_fixes_applied: list[str] = []
     c10_fixes_applied: list[str] = []
