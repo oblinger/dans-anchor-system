@@ -48,6 +48,80 @@ Crank is **not** a "make a small amount of progress and stop" command. The defau
 **Lazy is the failure mode**, not a virtue. If the agent is hedging on item N+1 because "I already did N, that's progress" — that's not how crank works. Keep going until quality demands a stop.
 
 
+## Hard continuation rule — overrides every soft signal below
+
+Per user direction 2026-05-26 — the persistent failure mode in cranking is **lazy stops that the agent rationalizes**. The disqualifier list below is soft (the agent decides whether its reason matches), so it leaks. This rule is **hard** — it keys on values the agent cannot lie about.
+
+**When BOTH:**
+- The current anchor's Q.md banner shows `Ready N` with **N > 0**, **AND**
+- Context-window usage is **< 60%** (≥ 40% remaining),
+
+→ the agent **MUST continue**. Every soft-pressure section below is **suspended** in this state — "fatigue," "quality drop," "fresh-session needed," "I should check in," and the entire valid/disqualifying stop-reason taxonomy DO NOT APPLY here. They resume only when context ≥ 60% used (< 40% remaining).
+
+The agent verifies the gate by:
+1. Reading the per-anchor banner in `~/ob/kmr/Q.md` for the current anchor — extracting `Ready N`. (Mechanical, not interpretive — the number is in the file.)
+2. Checking Claude Code's surfaced context-usage value. (Mechanical, not interpretive.)
+
+### The only legitimate escape: file a real Q
+
+The single allowed way to stop while the hard rule is active is to **file a numbered Q in the blocking item's feature doc** — which rebrackets that item `[Ready]` → `[Questions]`, drops it from the Ready count, and (if it was the last Ready item) lets standard exit conditions take over.
+
+**The Q is legitimate only when BOTH gates pass:**
+
+1. **Significant chance the agent will guess incorrectly** — there's real uncertainty about the right answer. Per F068 + ask-format § Recommendation strength: a `Lean` or `Strong` recommendation means the agent CAN decide. Only `Recommendation: None` (genuine uncertainty — user-preference-dependent, missing context the agent doesn't have, or a real fork the agent has no basis to choose between) qualifies.
+2. **Significant downside risk if the guess is wrong** — material consequence to the wrong call. Cheap-to-reverse mistakes (rename a variable, adjust a config default, edit a comment, pick one of two equally-defensible names) do NOT qualify — those are Drive's auto-decide territory per F068 (visible + low-recoverability). Costly mistakes do qualify: irreversible deploys, broken public API, lost data, contradictory architecture commitments that paint into a corner, interface-decision-sticky choices (durable file naming, frontmatter schemas, default keybindings).
+
+**Both gates must pass.** Either alone is insufficient:
+
+- **Uncertain but cheap to reverse** → guess and announce per F068. Do NOT file a Q.
+- **Confident but high-stakes** → make the decision. The agent already has the answer; filing a Q is theater. Do NOT file a Q.
+- **Uncertain AND high-stakes** → file the Q. Stop is legal.
+
+### Anti-patterns for the Q-escape
+
+The Q-escape is the ONLY allowed escape — which means the agent is incentivized to fake-Q its way out. Guards against that:
+
+- **The Q must list concrete labeled `(A)` / `(B)` / `(C)` options** per ask-format C19. A prose-only Q with no decision shape is formally invalid (audit-q will flag it).
+- **The Q must be about the work, not about continuation.** *"Should I keep going?"* or *"Is the user happy with this approach?"* are invalid. *"Should this run in-process or as a separate daemon?"* or *"Frontmatter schema: `traits:` as YAML list or comma-string?"* are potentially valid (subject to the two-gate test above).
+- **The Q must have a Recommendation field with `None`.** If the agent has any Lean or Strong, gate 1 fails — the Q is fake.
+- **The user reviews accumulated Qs on the next `/ask`.** Fake Qs surface in `{NAME} ask.md` for rollback. After a few rollbacks the agent recalibrates.
+
+### Mandatory exit message — agent must make the argument explicit
+
+When using the Q-escape, the agent **MUST print an explicit two-gate argument** as the chat exit message. The format is fixed:
+
+```
+/crank — stopping with Q-escape on F<NNN>.
+  • Gate 1 (uncertain): I have no idea how to <specific thing>. I'd be guessing from <what info I have, why it's insufficient>.
+  • Gate 2 (high downside): if I get it wrong, <concrete consequence — what breaks, what becomes irreversible, what costs are paid>.
+  Q filed at: F<NNN> § Open Questions Q<n>.
+```
+
+Both lines are mandatory. Reciting them in chat — visibly, in front of the user — forces the agent to construct the argument explicitly. **If the agent can't fill in the blanks with concrete content, it doesn't have the right to stop.**
+
+Concrete fill-ins look like:
+
+> /crank — stopping with Q-escape on F091.
+>   • Gate 1 (uncertain): I have no idea whether trigger-registration should use settings.json hooks or POST-COMPACT self-binding. The user's prior framing pointed in both directions in different turns; I'd be guessing which mechanism they meant.
+>   • Gate 2 (high downside): if I get it wrong and pick settings.json hooks, every Trait spec gets a hard machine-level binding that's expensive to undo and that the user has to manage; if I get it wrong the other way and pick POST-COMPACT, we lose the actual file-modify trigger that the user said they wanted.
+>   Q filed at: F091 § Open Questions Q3.
+
+Failure modes the explicit-argument rule defeats:
+
+- **Vague-stop:** *"I think I should stop here for now."* — no Gate 1 / Gate 2 content; not allowed.
+- **Boilerplate-stop:** *"This is complex and might need user input."* — generic; no specifics about what or why; not allowed.
+- **Confidence-stop:** *"I want to make sure this is right before continuing."* — that's a Gate-2 framing without Gate-1; the agent has confidence, so it should decide. Not allowed.
+
+If either gate's blank can't be filled with a specific, concrete sentence, the rule's diagnosis is: **the agent doesn't actually need to stop.** Continue.
+
+### When the hard rule does NOT apply
+
+- **Context ≥ 60% used** (< 40% remaining) → soft-pressure rules below resume; fatigue stops are honest.
+- **Ready == 0** → no work to do; standard exit conditions per § Post-loop exit.
+- **`/land` invoked** → explicit bounded-stop signal from the user; hard rule overridden.
+- **Hard blocker discovered mid-mint** — current item turned out to be `[Blocked]` or `[Questions]` on closer inspection: rebracket the item in the backlog and **continue to the next Ready item.** This is not a stop; it's rebracket-and-continue. The Q-escape above is the structural form of this.
+
+
 ## When to stop / when not to stop
 
 Sibling to the `[Ready]` RIGHT-NOW-test in `[[SKA triage]]` and `[[SKA workflow]]`: this is the **RIGHT-NOW continuation test** for cranking. Stopping is a *costly action requiring justification*, not the default. Every premature stop forces the user to re-invoke `/crank`, which costs them attention. The agent must name an explicit, valid stop-reason that survives the disqualifier list below. **Hard mint quotas are rejected** — quality protection comes from upstream disciplines (`[Ready]` discipline, `[Verify]` gate, `/finalize`), not from forcing throughput.
@@ -92,7 +166,7 @@ A wall-clock check gates **fatigue-flavored** stops on elapsed time since the la
 
 1. **Identify the proposed stop reason.** What was crank about to say in chat?
 2. **Categorize:**
-   - **Legitimate (always exit)** — the reason exactly matches one of the five labels in § Valid stop-reasons: `Queue exhausted`, `Cascade triggered still dry`, `Token budget near limit (<30%)`, `/land invoked`, `Hard blocker mid-mint (rebracket-and-continue, not a stop)`. Plus two more concrete cases: application-shape change needed (per [[F068]]), or external resource unavailable (CI down, network, etc.).
+   - **Legitimate (always exit)** — the reason exactly matches one of the five labels in § Valid stop-reasons: `Queue exhausted`, `Cascade triggered still dry`, `Token budget near limit (<30%)`, `/land invoked`, `Hard blocker mid-mint (rebracket-and-continue, not a stop)`. Plus two more concrete cases: application-shape change needed (per [[F068 — Assume-and-announce discipline (Drive mode)|F068]]), or external resource unavailable (CI down, network, etc.).
    - **Fatigue-flavored (timer check)** — anything else. Watch for these exact phrase patterns (and close paraphrases): *"natural pause"*, *"good stopping point"*, *"good place to check in"*, *"made meaningful progress"*, *"this feels like enough"*, *"reasonable place to stop"*, *"should pause"*, *"might want to discuss"*, *"the next step is bigger"*, *"user might want to look"*. The agent has to NAME which of the five legitimate labels applies — if no label fits exactly, the reason is fatigue.
 3. **If legitimate** → exit normally. Skip the timer check.
 4. **If fatigue-flavored** → read `~/.cache/crank-last-mint.txt` (default to `0` if absent / unreadable). Compute `elapsed = now - last_mint_epoch`.
