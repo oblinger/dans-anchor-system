@@ -539,8 +539,15 @@ def _detect_status(line: str) -> str:
     Returns the bracket text without brackets (e.g., 'Ready', '3 Questions',
     'Blocked F123', 'Done', 'Done 2026-05-19', or '' if no bracket found).
     Returns the FIRST bracket — the workflow-state one.
+
+    Strips `[[wiki-links]]` and inline code spans first so the inner brackets
+    of `[[CAE System Design]]` don't get misread as a status bracket.
     """
-    m = BRACKET_RE.search(line)
+    cleaned = _strip_code_spans(line)
+    # Replace each `[[...]]` with same-length spaces to preserve column offsets
+    # while making BRACKET_RE blind to wiki-link inner text.
+    cleaned = re.sub(r"\[\[[^\[\]]*\]\]", lambda m: " " * len(m.group(0)), cleaned)
+    m = BRACKET_RE.search(cleaned)
     if not m:
         return ""
     return m.group(1).strip()
@@ -887,7 +894,13 @@ def extract_q_entries(file_path: Path, container_id: str) -> list[QEntry]:
             block_id_match = Q_BLOCK_ID_TRAILING_RE.search(line)
             has_block_id = block_id_match is not None
             block_id_value = block_id_match.group(1) if block_id_match else None
-            inline_alt = INLINE_ALTERNATIVES_RE.search(line) is not None
+            # Strip inline code spans before checking for prose-alternatives.
+            # `(A)/(B)/(C)` inside backticks is *describing* the format, not
+            # an actual inline alternative — common in feature docs that
+            # discuss the ask-format spec itself.
+            inline_alt = INLINE_ALTERNATIVES_RE.search(
+                _strip_code_spans(line)
+            ) is not None
             pending_q = QEntry(
                 source_file=file_path,
                 source_line=line_num,
