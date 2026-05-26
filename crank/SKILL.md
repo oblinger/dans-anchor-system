@@ -201,6 +201,8 @@ The failure mode this rule prevents — agent stopping mid-queue with no clear r
 
 ### Wall-clock gate on fatigue-flavored stops (per [[F088]])
 
+**The hard continuation rule supersedes this gate.** When context > 40% AND observable work exists, the hard rule fires unconditionally — the wall-clock gate does NOT apply (no fatigue stop is legitimate under the hard rule, regardless of elapsed time). This wall-clock gate only takes effect once the hard rule has been released (context ≤ 40% OR no observable work).
+
 A wall-clock check gates **fatigue-flavored** stops on elapsed time since the last successful mint. Concrete reasons always allow exit; fatigue reasons require either ≥ 7 minutes elapsed OR they get overridden and the agent takes one more pass.
 
 **Procedure — run before emitting any exit message:**
