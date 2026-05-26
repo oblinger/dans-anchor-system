@@ -2182,7 +2182,55 @@ def main() -> int:
         d1_changes = apply_d1_banner_write(Q_MD, derived_banners)
         if d1_changes:
             print(f"\naudit-q: D1 — {d1_changes} per-anchor banner(s) rewritten in Q.md")
+    # Hard-continuation directive — print whenever ANY anchor has Ready > 0.
+    # Per user direction 2026-05-26 — the agent reads audit-q's output at the
+    # moment they're tempted to stop; embedding the rule into that output is
+    # the structural defense against lazy stops ("loop exited cleanly" with
+    # Ready > 0). Phrase-patching the chat-summary loses to paraphrases;
+    # status-line embedding doesn't, because it IS the status the agent reads.
+    _print_hard_continuation_directive(derived_banners)
     return 1 if errors else 0
+
+
+# Regex to extract Ready N and Questions N counts from a derived banner line.
+_BANNER_COUNTS_RE = re.compile(
+    r"Ready\s+(\d+).*?Questions\s+(\d+)"
+)
+
+
+def _print_hard_continuation_directive(derived_banners: dict[str, str]) -> None:
+    """When any anchor has Ready > 0, surface the crank hard-rule to the
+    agent in audit-q's stderr-style output. The directive cites the rule's
+    home, names the failure mode by name, and lists the exit requirement
+    (3-gate argument). Silent when every anchor is at Ready 0."""
+    actionable: list[tuple[str, int, int]] = []  # (name, ready_n, questions_n)
+    for name, banner in derived_banners.items():
+        m = _BANNER_COUNTS_RE.search(banner)
+        if not m:
+            continue
+        ready_n = int(m.group(1))
+        questions_n = int(m.group(2))
+        if ready_n > 0:
+            actionable.append((name, ready_n, questions_n))
+    if not actionable:
+        return
+    print()
+    print("⚠ HARD CONTINUATION RULE ACTIVE  (skills/crank/SKILL.md § Hard rule)")
+    print("  Anchors with Ready > 0 — agent MUST continue while context > 40%:")
+    for name, r, q in sorted(actionable):
+        print(f"    - {name}: Ready {r}, Questions {q}")
+    print(
+        "  Stopping requires the 3-gate exit argument printed in chat:\n"
+        "    Gate 1 (uncertain): I'd be guessing from <specific info gap>.\n"
+        "    Gate 2 (high downside): wrong choice would <concrete consequence>.\n"
+        "    Gate 3 (continuing IS the risk): the specific bad outcome of\n"
+        "      continuing is <which file gets corrupted / which interface gets\n"
+        "      locked in / which downstream commit becomes load-bearing on a\n"
+        "      wrong choice>. Cost of stopping < that risk because <one sentence>.\n"
+        "  If any blank can't be filled with concrete content, the rule's\n"
+        "  diagnosis is: CONTINUE. 'Loop exited cleanly' / 'natural pause' /\n"
+        "  'handoff to user' with Ready > 0 are spec violations — they look\n"
+        "  like exit messages but don't satisfy Gate 3.")
 
 
 def apply_d1_banner_write(qmd_file: Path, derived_banners: dict[str, str]) -> int:

@@ -359,6 +359,17 @@ Note: {K} stale [Done] rows still in horizon H2s — run /groom to move to ## Do
 
 **Crank interaction.** When `/crank` ends with `/triage` (any Ready==0 exit path per `[[SKA crank]]` § Post-loop exit), the chained `/triage`'s banner block is crank's last chat content — `'` always lands on the bold-banner-between-rules whenever Ready dropped to zero. When `/crank` exits silently (Ready > 0), no banner is printed — that's the "agent still has work" signal.
 
+**Hard-continuation directive — mandatory annotation when Ready > 0.** Per user direction 2026-05-26 (after observing an agent emit `Loop exited cleanly` with `Ready 1    Questions 1`): when the rendered banner has `Ready N` with **N > 0**, append a directive line BETWEEN the banner and the bottom rule, addressed to whichever agent reads the chat (typically the same agent that just rendered it). The line cites `crank/SKILL.md` and names the 3-gate exit requirement so the agent can't paraphrase its way past the rule:
+
+```
+======================================================================
+**[<TAG>]  <NAME> Triage  -  Ready N    Questions N   |   Now N    Next N    Later N    Icebox N**
+⚠ Ready > 0 — agent MUST continue per crank/SKILL.md § Hard rule. To stop, print 3-gate argument (uncertain + high-downside + risk-of-continuing). 'Loop exited cleanly' is a spec violation.
+======================================================================
+```
+
+The directive appears **only when N > 0**; omitted when Ready 0 (no agent action available, banner stands alone). This is the structural defense against lazy-stop phrasings: the agent reads the banner at the moment they're tempted to stop, and the directive sits inline with the banner so it can't be skipped.
+
 
 ## Sticky-context protocol
 
