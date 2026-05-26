@@ -22,7 +22,7 @@ user_invocable: true
 
 `/architect` creates and maintains the top-level system-architecture document for an anchor. The doc lives at `{NAME} Docs/{NAME} User/{NAME} Architecture/{NAME} Architecture.md` (anchor-folder form). It decomposes the system into **subsystems** — each subsystem has a dispatch table, a **mandatory summary table** linking to its parts, an **optional figure**, and a **modules table** linking to the relevant module docs.
 
-Feature spec: `[[F074 — Architect skill — Architecture as anchor folder with subsystems]]`. Companion specs: `[[CAB Architecture]]` (the facet), `[[CAB System Design]]` (parallel facet — kept per Q4), `[[CAB Module Doc]]` (defines the `Arch` row in module-doc dispatch tables).
+Feature spec: `[[F074 — Architect skill — Architecture as anchor folder with subsystems]]`. Companion specs: `[[CAB Architecture]]` (the facet), `[[CAB Module Doc]]` (defines the `Arch` row in module-doc dispatch tables). **F074 Q4=a (kept-System-Design-parallel) REVERSED 2026-05-26 per user direction**: Architecture is the sole architectural-synthesis facet; legacy `{NAME} System Design/` folders (pre-F074 anchors only) are absorbed during `/architect` runs — pull their `### Architectural Commitments` content into `{NAME} Architecture/{NAME} Architecture.md § Architectural Commitments`, archive the folder under `{NAME} Postmortems/legacy System Design/`. New anchors never create one.
 
 ## Sub-actions
 
@@ -211,7 +211,7 @@ The skill presumes the user is the original author of the design. Every `/archit
 ## Cross-references
 
 - `[[CAB Architecture]]` — the facet spec for `{NAME} Architecture/` and subsystem docs.
-- `[[CAB System Design]]` — parallel facet (kept per F074 Q4=a). Architecture is User-side synthesis; System Design is Plan-side spec.
+- **Legacy `{NAME} System Design/`** — `[[CAB System Design]]` was kept as a parallel facet per F074 Q4=a, but that was reversed 2026-05-26. New anchors never create a System Design folder. Legacy ones (currently only MUX) get absorbed: `### Architectural Commitments` migrates into Architecture; the rest of the System Design content moves to `{NAME} Postmortems/legacy System Design/` as preserved historical reference.
 - `[[CAB Module Doc]]` — defines the `Arch` row in module-doc dispatch tables and the `module_docs_audited:` frontmatter contract.
 - `[[CAB Principles]]` — Architecture cross-links to Principles; Architecture does not absorb them.
 - `[[audit-docs]]` — writes `module_docs_audited:` to `{NAME} Dev.md` frontmatter at the end of every audit pass; the source of truth `/architect`'s staleness precondition reads.
