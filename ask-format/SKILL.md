@@ -56,10 +56,13 @@ Every `Q<n>` has the same shape so the user can scan many at once and rubber-sta
 
 Pick exactly one label. Don't fudge with "lean strongly" or "weak recommendation" — those collapse to Lean.
 
-### Spacing
+### Spacing — load-bearing visual structure
 
+Per user direction 2026-05-25: *"the questions are bulleted ... they always have a list of alternatives that are labeled that each begin on their own line within the bullet ... And there's always a blank line between the bullet sections."*
+
+- **Each option is its own labeled sub-bullet** `- **(A)** ...` — one per line, no exceptions. Never combine `(A)` and `(B)` on a single line. (Enforced by **audit-q C19**.)
 - **No blank line** between the Question header, its options, and the Recommendation — they belong to the same question group.
-- **One blank line after the Recommendation**, separating each question from the next.
+- **One blank line after the Recommendation**, separating each question from the next. (Enforced by **audit-q C20**.) The blank line is the visual separator that lets the user's eyes parse the doc as a list of question-groups.
 
 ### Canonical example
 

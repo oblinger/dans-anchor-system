@@ -652,6 +652,8 @@ def apply_c4_fix(backlog_file: Path,
 # C9: every Q has Recommendation with Strong/Lean/None  (report only)
 # C10: Recommendation outdented to Q's indent level     (auto-fix)
 # C12: [Verify-by] rows include "Naturally exercised by:" (report only)
+# C19: option sub-bullets each on own line, labeled (A)/(B)/...  (report only)
+# C20: blank line after Recommendation, separating Q groups      (report only)
 # (C11 — Verify 4-piece layout — deferred; too heuristic for v1.)
 
 
@@ -997,6 +999,140 @@ def check_c12_verify_by_rationale(
                     ),
                     mechanically_fixable=False,
                 ))
+    return findings
+
+
+# C19: each Q's option sub-bullet on its own line, labeled (A)/(B)/...
+# C20: blank line after Recommendation separating Q groups
+
+OPTION_BULLET_RE = re.compile(r"^(\s+)-\s+\*\*\(([A-Z][0-9]*)\)\*\*")
+SUB_BULLET_RE = re.compile(r"^(\s+)-\s+")
+DOUBLE_OPTION_INLINE_RE = re.compile(r"\*\*\([A-Z][0-9]*\)\*\*.*?\*\*\([A-Z][0-9]*\)\*\*")
+
+
+def check_c19_option_bullets(q_entries: list[QEntry]) -> list[Finding]:
+    """C19: every option sub-bullet between Q header and Recommendation must
+    be a labeled bullet `- **(A)** ...` on its own line.
+
+    Catches:
+    - Two option labels on the same line: `- **(A)** X. **(B)** Y.` → split needed.
+    - Unlabeled sub-bullets that look like alternatives but lack a `(A)` label.
+
+    Continuation lines (further indent) are skipped — they belong to the
+    enclosing option."""
+    findings: list[Finding] = []
+    by_file: dict[Path, list[QEntry]] = {}
+    for q in q_entries:
+        by_file.setdefault(q.source_file, []).append(q)
+    for file_path, qs in by_file.items():
+        try:
+            lines = file_path.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeDecodeError):
+            continue
+        qs_sorted = sorted(qs, key=lambda x: x.source_line)
+        for i, q in enumerate(qs_sorted):
+            start_line = q.source_line
+            # End of this Q's options block: the Recommendation line (1-indexed),
+            # or the next Q in the same file, or EOF.
+            end_line = q.recommendation_line if q.recommendation_line else (
+                qs_sorted[i + 1].source_line if i + 1 < len(qs_sorted) else len(lines) + 1
+            )
+            q_indent_len = len(q.indent)
+            for line_num in range(start_line + 1, end_line):
+                line = lines[line_num - 1]
+                # Two option labels on same line:
+                if DOUBLE_OPTION_INLINE_RE.search(line):
+                    findings.append(Finding(
+                        severity="warning",
+                        surface_file=file_path,
+                        surface_line=line_num,
+                        code="C19",
+                        message=(
+                            f"Q{q.q_num} options must each be on their own labeled "
+                            f"sub-bullet; two `(X)` labels found on one line"
+                        ),
+                        mechanically_fixable=False,
+                    ))
+                    continue
+                # Sub-bullet at Q's option indent level but not labeled
+                sub_m = SUB_BULLET_RE.match(line)
+                if not sub_m:
+                    continue
+                sub_indent = len(sub_m.group(1))
+                # Must be more-indented than the Q header (a true sub-bullet)
+                if sub_indent <= q_indent_len:
+                    continue
+                # First option-line indent sets the "alternative-row" indent;
+                # only flag at that indent (deeper sub-bullets are continuations).
+                # Simplification: flag any sub-bullet exactly q_indent_len+2 that
+                # lacks the `(LABEL)` shape and contains words suggesting it's
+                # being attempted as an alternative.
+                if sub_indent == q_indent_len + 2:
+                    if not OPTION_BULLET_RE.match(line):
+                        # Skip if it's clearly a non-alternative annotation
+                        # (e.g., starts with a known prefix like `- **Note:**`).
+                        body = line.lstrip("- *").strip()
+                        if body.startswith(("Note:", "Context:", "Constraint:", "Background:")):
+                            continue
+                        findings.append(Finding(
+                            severity="warning",
+                            surface_file=file_path,
+                            surface_line=line_num,
+                            code="C19",
+                            message=(
+                                f"Q{q.q_num} sub-bullet not labeled as option `- **(A)** ...`; "
+                                f"alternatives must be labeled (A)/(B)/... on their own lines"
+                            ),
+                            mechanically_fixable=False,
+                        ))
+    return findings
+
+
+def check_c20_blank_after_recommendation(q_entries: list[QEntry]) -> list[Finding]:
+    """C20: every Recommendation line must be followed by a blank line (or end-of-block),
+    separating one Q group from the next."""
+    findings: list[Finding] = []
+    by_file: dict[Path, list[QEntry]] = {}
+    for q in q_entries:
+        by_file.setdefault(q.source_file, []).append(q)
+    for file_path, qs in by_file.items():
+        try:
+            lines = file_path.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeDecodeError):
+            continue
+        qs_sorted = sorted(qs, key=lambda x: x.source_line)
+        for q in qs_sorted:
+            if q.recommendation_line == 0:
+                continue
+            # The Recommendation itself may span continuation lines (more-indented).
+            # Find the end of the Recommendation block: walk forward while we see
+            # blank lines OR lines indented more than the Recommendation.
+            rec_line_num = q.recommendation_line
+            rec_indent_len = len(q.recommendation_indent or "")
+            # Compute the line after the Recommendation block ends.
+            j = rec_line_num  # 1-indexed; next line is lines[j]
+            while j < len(lines):
+                nxt = lines[j]
+                if nxt == "":
+                    break  # blank line — required separator present
+                nxt_indent = len(nxt) - len(nxt.lstrip())
+                if nxt_indent > rec_indent_len:
+                    j += 1
+                    continue
+                # A non-blank, non-continuation line at same-or-less indent
+                # immediately following the Recommendation block — flag it.
+                findings.append(Finding(
+                    severity="warning",
+                    surface_file=file_path,
+                    surface_line=j + 1,
+                    code="C20",
+                    message=(
+                        f"Q{q.q_num} Recommendation must be followed by a blank line "
+                        f"before the next Q group / non-continuation content"
+                    ),
+                    mechanically_fixable=False,
+                ))
+                break
     return findings
 
 
@@ -1417,6 +1553,8 @@ def main() -> int:
     findings.extend(check_c8_inline_alternatives(all_q_entries))
     findings.extend(check_c9_recommendation_present(all_q_entries))
     findings.extend(check_c10_recommendation_outdent(all_q_entries))
+    findings.extend(check_c19_option_bullets(all_q_entries))
+    findings.extend(check_c20_blank_after_recommendation(all_q_entries))
     # B16 — C7 walks the same ask-format files + backlogs + Q.md
     c7_scope = [Q_MD]
     c7_scope.extend(p for _, p in ask_format_files)
