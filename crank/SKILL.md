@@ -48,19 +48,56 @@ Crank is **not** a "make a small amount of progress and stop" command. The defau
 **Lazy is the failure mode**, not a virtue. If the agent is hedging on item N+1 because "I already did N, that's progress" — that's not how crank works. Keep going until quality demands a stop.
 
 
-## Hard continuation rule — overrides every soft signal below
+## Hard continuation rule — STOPPING IS THE COSTLY ACTION, NOT CONTINUING
 
-Per user direction 2026-05-26 — the persistent failure mode in cranking is **lazy stops that the agent rationalizes**. The disqualifier list below is soft (the agent decides whether its reason matches), so it leaks. This rule is **hard** — it keys on values the agent cannot lie about.
+Per user direction 2026-05-26 (reinforced 2026-05-26 after a second lazy-stop incident with 75% context remaining) — the persistent failure mode in cranking is **lazy stops that the agent rationalizes**. **The agent's instinct to stop is wrong almost every time it fires.** This rule MUST, MUST, MUST be obeyed:
 
-**When BOTH:**
-- The current anchor's Q.md banner shows `Ready N` with **N > 0**, **AND**
-- Context-window usage is **< 60%** (≥ 40% remaining),
+> **While context > 40% remains AND any observable work exists, the agent MUST continue. Stopping is the action that requires justification — not continuing. The agent must be able to explain in concrete terms why CONTINUING IS A STRONG RISK before it has the right to stop. If it cannot make that argument explicit and specific, it MUST KEEP GOING.**
 
-→ the agent **MUST continue**. Every soft-pressure section below is **suspended** in this state — "fatigue," "quality drop," "fresh-session needed," "I should check in," and the entire valid/disqualifying stop-reason taxonomy DO NOT APPLY here. They resume only when context ≥ 60% used (< 40% remaining).
+### The hard gate — values the agent cannot lie about
+
+**Both of these must be true for the hard rule to fire:**
+
+1. **Observable work exists.** "Observable work" is broader than the agent's anchor's Ready banner — it is **any of**:
+   - The current anchor's Q.md banner shows `Ready N` with **N > 0**.
+   - Any other anchor's banner reachable from Q.md shows Ready or Verify work the agent could touch.
+   - Audit findings exist (run `audit-q` → non-zero output) — fixable findings ARE work.
+   - The user's most recent ask names work that is not yet at zero (e.g., "drive this number to zero," "clean up X," "finish Y").
+   - There are uncommitted in-flight modifications in the working tree.
+   - A cross-reference sweep, doc inconsistency, or unfinished thread the agent has seen in this session is still open.
+2. **Context-window usage is < 60%** (≥ 40% remaining).
+
+→ When both hold, **the agent MUST continue.** Every soft-pressure section below is **suspended** — "fatigue," "quality drop," "fresh-session needed," "I should check in," "delegated to other agents," "this is owned by someone else," "this is a natural stopping point," and the entire valid/disqualifying stop-reason taxonomy **DO NOT APPLY** here. They resume only when context ≥ 60% used.
+
+### Mandatory stopping-justification — print the risk-of-continuing argument
+
+**When the hard rule fires and the agent stops anyway via the Q-escape (below), the agent MUST print an explicit, specific argument naming the RISK OF CONTINUING.** Not the absence of obligation to continue. Not the convenience of stopping. **The risk.** The question the agent MUST answer in chat, in writing, in front of the user, is:
+
+> **"Why is continuing the available work a STRONG RISK right now?"**
+
+If the agent cannot fill that blank with a concrete sentence naming a specific bad outcome of continuing, **the agent has no right to stop.** The rule's diagnosis is: **continue.**
+
+### The failure modes that this rule defeats — name them by name
+
+The following are NOT valid reasons to stop, even though the agent's instinct will manufacture them:
+
+- **Handoff theater** — *"every remaining finding is now actionable by exactly one agent"* / *"this is owned by anchor X"* / *"the user can re-run /audit in those anchors."* Cross-anchor ownership is not a stop signal; it is a routing signal. If the agent can reach the file and apply a one-line fix, that fix is the agent's work.
+- **Closure theater** — *"clean place to commit and stop"* / *"summary milestone reached"* / *"natural pause point"* / *"good first version is shipped."* Closure is for the user, not the agent. The agent commits and continues.
+- **Scoped-narrow-read** — *"SKA-scope is at zero"* when the user asked for the **vault-wide** count to be at zero. The agent must read the user's intent at the scope they named, not the scope most convenient to declare done.
+- **Self-congratulation** — *"245 → 23 is a 90% reduction"* / *"this is significant progress"* / *"big win."* Progress earned more time, not less. Quantity-of-progress is not a stop reason.
+- **Owner-deflection** — *"file as backlog row for downstream agents"* before the agent has tried to fix it itself. Backlog rows are the fallback when fixing is genuinely infeasible from where the agent stands, not a way to short-circuit available work.
+- **Wrap-up summary** — writing a "## Done" header summary in chat is itself a tell that the agent is about to stop lazily. **The summary IS the laziness, not separate from it.** When the urge to write a final summary fires while observable work remains, that urge is the failure mode; suppress it and keep working.
+
+### Verification — mechanical, not interpretive
 
 The agent verifies the gate by:
-1. Reading the per-anchor banner in `~/ob/kmr/Q.md` for the current anchor — extracting `Ready N`. (Mechanical, not interpretive — the number is in the file.)
-2. Checking Claude Code's surfaced context-usage value. (Mechanical, not interpretive.)
+1. Reading the per-anchor banner in `~/ob/kmr/Q.md` for the current anchor — extracting `Ready N`. Mechanical.
+2. Reading other anchor banners in Q.md — if any are non-zero on Ready or Verify and the agent can reach those files, work exists. Mechanical.
+3. Running `audit-q` and checking the finding count. Mechanical.
+4. Checking Claude Code's surfaced context-usage value. Mechanical.
+5. Re-reading the user's most recent ask. If the user named a number ("zero," "all," "everything") and the current state isn't at that number, work exists. Mechanical.
+
+If steps 1–5 surface anything, the agent must continue. Full stop.
 
 ### The only legitimate escape: file a real Q
 
@@ -88,31 +125,35 @@ The Q-escape is the ONLY allowed escape — which means the agent is incentivize
 
 ### Mandatory exit message — agent must make the argument explicit
 
-When using the Q-escape, the agent **MUST print an explicit two-gate argument** as the chat exit message. The format is fixed:
+When using the Q-escape, the agent **MUST, MUST, MUST print an explicit three-part argument** as the chat exit message. The third part is the load-bearing one — it is the explicit "risk of continuing" defense that the user has demanded the agent make every time it stops. The format is fixed and non-negotiable:
 
 ```
 /crank — stopping with Q-escape on F<NNN>.
   • Gate 1 (uncertain): I have no idea how to <specific thing>. I'd be guessing from <what info I have, why it's insufficient>.
   • Gate 2 (high downside): if I get it wrong, <concrete consequence — what breaks, what becomes irreversible, what costs are paid>.
+  • Gate 3 (continuing is the risk): if I guess and continue, the specific bad outcome is <concrete: which file gets corrupted, which interface gets locked in, which downstream commit becomes load-bearing on a wrong choice>. The cost of stopping (a /crank re-invocation by the user) is LESS than this risk because <one specific sentence>.
   Q filed at: F<NNN> § Open Questions Q<n>.
 ```
 
-Both lines are mandatory. Reciting them in chat — visibly, in front of the user — forces the agent to construct the argument explicitly. **If the agent can't fill in the blanks with concrete content, it doesn't have the right to stop.**
+**All three lines are mandatory.** Reciting them in chat — visibly, in front of the user — forces the agent to construct the argument explicitly. **If the agent can't fill in ANY blank with concrete content, it doesn't have the right to stop.** Gate 3 in particular is the user-facing defense the agent must make every single time: *naming a specific bad outcome that would happen if it continued.* Generic risk ("might break something") is not concrete. Specific risk ("would commit `_detect_status` with a bug that auto-moves Active rows to Done") is concrete.
 
 Concrete fill-ins look like:
 
 > /crank — stopping with Q-escape on F091.
 >   • Gate 1 (uncertain): I have no idea whether trigger-registration should use settings.json hooks or POST-COMPACT self-binding. The user's prior framing pointed in both directions in different turns; I'd be guessing which mechanism they meant.
 >   • Gate 2 (high downside): if I get it wrong and pick settings.json hooks, every Trait spec gets a hard machine-level binding that's expensive to undo and that the user has to manage; if I get it wrong the other way and pick POST-COMPACT, we lose the actual file-modify trigger that the user said they wanted.
+>   • Gate 3 (continuing is the risk): if I guess settings.json now, I'll write the F091 design body referencing that mechanism, the audit-q script will get a hook entry, and the next /crank will be building on a wrong foundation that the user has to unwind by hand. The cost of stopping is the user re-invoking /crank once after answering Q3 — much smaller than the unwind cost.
 >   Q filed at: F091 § Open Questions Q3.
 
 Failure modes the explicit-argument rule defeats:
 
-- **Vague-stop:** *"I think I should stop here for now."* — no Gate 1 / Gate 2 content; not allowed.
+- **Vague-stop:** *"I think I should stop here for now."* — no Gate 1 / 2 / 3 content; not allowed.
 - **Boilerplate-stop:** *"This is complex and might need user input."* — generic; no specifics about what or why; not allowed.
 - **Confidence-stop:** *"I want to make sure this is right before continuing."* — that's a Gate-2 framing without Gate-1; the agent has confidence, so it should decide. Not allowed.
+- **Closure-stop:** *"clean place to commit and stop"* / *"natural milestone reached."* — Gate 3 is impossible to fill: continuing has no specific risk; the agent just wants to stop. Not allowed.
+- **Handoff-stop:** *"every remaining item is owned by another agent."* — Gate 3 is impossible to fill: continuing the work the *current* agent can reach has no risk. Not allowed.
 
-If either gate's blank can't be filled with a specific, concrete sentence, the rule's diagnosis is: **the agent doesn't actually need to stop.** Continue.
+If ANY gate's blank can't be filled with a specific, concrete sentence, the rule's diagnosis is: **the agent doesn't actually need to stop.** Continue. The agent does not get to negotiate this. Continue.
 
 ### When the hard rule does NOT apply
 
