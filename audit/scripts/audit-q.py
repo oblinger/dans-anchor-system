@@ -133,7 +133,12 @@ RECOMMENDATION_RE = re.compile(
 # Matches `(a)` or `(A)` followed within ~80 chars by `(b)` or `(B)`
 INLINE_ALTERNATIVES_RE = re.compile(r"\([aAbBcDdD]\)[^\n]{0,80}\([aAbBcDdD]\)")
 # B16 (C7) — Q reference in display text: `\bQ\d+\b` outside the basename
+# Bare `Q<n>` in display text means the link should point to that Q via block-ID.
+# Whereas `F<n> Q<m>` (an F-number immediately preceding Q<m>) means Q<m>
+# references THAT F<n>, not the link's target — those are descriptive phrases,
+# not Q-pointer links, and shouldn't trigger C7.
 Q_REF_IN_DISPLAY_RE = re.compile(r"\bQ\d+\b")
+F_REF_BEFORE_Q_RE = re.compile(r"\bF\d+\s+Q\d+\b")
 # B16 (C12) — Verify-by bracket
 VERIFY_BY_BRACKET_RE = re.compile(r"\[Verify-by\s+(\d{4}-\d{2}-\d{2})\]")
 # B16 (C12) — "Naturally exercised by" rationale text
@@ -393,6 +398,42 @@ def _is_placeholder_basename(basename: str) -> bool:
     return False
 
 
+# Memory-file prefixes (live in ~/.claude/projects/.../memory/, OUTSIDE the
+# kmr vault). Wiki-links to them are valid but the audit can't see them.
+_MEMORY_PREFIXES = ("feedback_", "user_", "project_", "reference_")
+
+
+def _is_out_of_vault_wiki_link(basename: str) -> bool:
+    """Detect wiki-link basenames that legitimately target content the audit
+    cannot see in the kmr vault:
+
+    - Path-style refs (`../../../foo`, `A2X Skills/A2X remote`) — these are
+      filesystem-relative or sub-folder refs, not basename lookups.
+    - Memory-file refs (`feedback_*`, `user_*`, `project_*`, `reference_*`) —
+      live in ~/.claude/projects/<proj>/memory/, outside the kmr vault.
+
+    Returns True if the basename should be silently skipped by C22."""
+    if not basename:
+        return False
+    # Path-style: contains a slash (forward or back) or path traversal.
+    if "/" in basename or "\\" in basename or ".." in basename:
+        return True
+    # Memory-file prefixes.
+    if basename.startswith(_MEMORY_PREFIXES):
+        return True
+    return False
+
+
+# Markdown links with a URL scheme are external — not audit's concern.
+_URL_SCHEME_RE = re.compile(r"^[a-zA-Z][a-zA-Z0-9+.-]*:")
+
+
+def _is_url_markdown_link(path: str) -> bool:
+    """True if a markdown link's path is a URL (http://, https://, hook://,
+    mailto:, etc.) rather than a filesystem path."""
+    return bool(_URL_SCHEME_RE.match(path))
+
+
 def _strip_code_spans(line: str) -> str:
     """Remove inline-code spans (` ` `) from a line so wiki-links inside them
     don't get parsed. Replaces each code span with same-length whitespace to
@@ -440,6 +481,9 @@ def links_in_file(file_path: Path,
             # Skip template-prose placeholders.
             if _is_placeholder_basename(parsed["basename"]):
                 continue
+            # Skip path-style refs and memory-file refs the audit can't see.
+            if _is_out_of_vault_wiki_link(parsed["basename"]):
+                continue
             resolved = _resolve_wiki(parsed, file_path, vault_index)
             entries.append(LinkEntry(
                 source_file=file_path,
@@ -458,6 +502,9 @@ def links_in_file(file_path: Path,
                 target_anchor_resolves=resolved["target_anchor_resolves"],
             ))
         for m in MARKDOWN_LINK_RE.finditer(scan_line):
+            # Skip URL-scheme links (http://, https://, hook://, mailto:, ...).
+            if _is_url_markdown_link(m.group(2)):
+                continue
             parsed = _parse_markdown(m.group(1), m.group(2), file_path)
             # Skip template-prose placeholders.
             if _is_placeholder_basename(parsed["basename"] or ""):
@@ -946,6 +993,13 @@ def check_c7_link_form(
             display = link.display_text or ""
             if not Q_REF_IN_DISPLAY_RE.search(display):
                 continue
+            # Skip when every Q-ref in the display is already attached to an
+            # F-number (`F074 Q4`) — those are descriptive phrases that name a
+            # Q in a DIFFERENT feature, not pointers to a Q in the link target.
+            q_count = len(Q_REF_IN_DISPLAY_RE.findall(display))
+            fq_count = len(F_REF_BEFORE_Q_RE.findall(display))
+            if q_count > 0 and q_count == fq_count:
+                continue
             if link.target_block_id is not None:
                 continue  # already block-ID form
             findings.append(Finding(
@@ -1115,9 +1169,37 @@ def check_c12_verify_by_rationale(
 # C19: each Q's option sub-bullet on its own line, labeled (A)/(B)/...
 # C20: blank line after Recommendation separating Q groups
 
-OPTION_BULLET_RE = re.compile(r"^(\s+)-\s+\*\*\(([A-Z][0-9]*)\)\*\*")
+# Accepts any of these option-label conventions at the start of a sub-bullet:
+#   - **(A)** text   ← canonical (Ask skill spec, uppercase parens, bold)
+#   - (A) text       ← uppercase parens, unbolded
+#   - **A)** text    ← bold A)
+#   - A) text        ← uppercase A) form (common in legacy docs)
+#   - **A.** text    ← bold A.
+#   - A. text        ← uppercase A. form
+#   - (a) text       ← lowercase parens variants (also seen in legacy)
+#   - a) text
+#   - **(a)** text
+# The audit's intent is "alternatives are labeled and live on their own line."
+# All variants above meet that bar; the canonical form `- **(A)** ...` is
+# encouraged elsewhere (Ask skill spec) but the audit no longer flags
+# well-formed legacy variants. Case (upper/lower) is accepted equally.
+OPTION_BULLET_RE = re.compile(
+    r"^(\s+)-\s+\*{0,2}"             # bullet, then optional opening bold
+    r"(?:"
+    r"\(([A-Za-z][0-9]*)\)"          # (X) — paren-wrapped
+    r"|([A-Za-z][0-9]*)[.)]"         # X. / X)
+    r")"
+    r"\*{0,2}"                       # optional closing bold
+    r"(?:\s|$)"
+)
 SUB_BULLET_RE = re.compile(r"^(\s+)-\s+")
-DOUBLE_OPTION_INLINE_RE = re.compile(r"\*\*\([A-Z][0-9]*\)\*\*.*?\*\*\([A-Z][0-9]*\)\*\*")
+# Two option labels on the same line — only the bolded canonical form counts
+# as evidence of an attempted (and malformed) option list. Bare parens like
+# `(no)` and `(yes)` in prose would over-match the loosened form, so DOUBLE
+# stays strict on `**(X)**` ... `**(X)**` per F076 original intent.
+DOUBLE_OPTION_INLINE_RE = re.compile(
+    r"\*\*\([A-Za-z][0-9]*\)\*\*.*?\*\*\([A-Za-z][0-9]*\)\*\*"
+)
 
 
 def check_c19_option_bullets(q_entries: list[QEntry]) -> list[Finding]:
@@ -1182,7 +1264,13 @@ def check_c19_option_bullets(q_entries: list[QEntry]) -> list[Finding]:
                         # Skip if it's clearly a non-alternative annotation
                         # (e.g., starts with a known prefix like `- **Note:**`).
                         body = line.lstrip("- *").strip()
-                        if body.startswith(("Note:", "Context:", "Constraint:", "Background:")):
+                        if body.startswith((
+                            "Note:", "Context:", "Constraint:", "Background:",
+                            # Inline Recommendation lines are NOT options.
+                            # Legacy docs sometimes have a rich inline Rec
+                            # alongside the stub-Rec terminator; skip those.
+                            "Recommendation",
+                        )):
                             continue
                         findings.append(Finding(
                             severity="warning",
