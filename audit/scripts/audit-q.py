@@ -2215,19 +2215,19 @@ def _print_hard_continuation_directive(derived_banners: dict[str, str]) -> None:
     if not actionable:
         return
     print()
-    print("⚠ HARD CONTINUATION RULE ACTIVE  (skills/crank/SKILL.md § Hard rule)")
-    print("  Anchors with Ready > 0 — agent MUST continue while context > 40%:")
+    print("Agent requirement:  (skills/crank/SKILL.md § Hard continuation rule)")
+    print("  Anchors with Ready > 0 — you MUST continue while context > 40%:")
     for name, r, q in sorted(actionable):
         print(f"    - {name}: Ready {r}, Questions {q}")
     print(
-        "  Stopping requires the 3-gate exit argument printed in chat:\n"
+        "  To stop, print the 3-gate exit argument in chat:\n"
         "    Gate 1 (uncertain): I'd be guessing from <specific info gap>.\n"
         "    Gate 2 (high downside): wrong choice would <concrete consequence>.\n"
         "    Gate 3 (continuing IS the risk): the specific bad outcome of\n"
         "      continuing is <which file gets corrupted / which interface gets\n"
         "      locked in / which downstream commit becomes load-bearing on a\n"
         "      wrong choice>. Cost of stopping < that risk because <one sentence>.\n"
-        "  If any blank can't be filled with concrete content, the rule's\n"
+        "  If you can't fill any blank with concrete content, the rule's\n"
         "  diagnosis is: CONTINUE. 'Loop exited cleanly' / 'natural pause' /\n"
         "  'handoff to user' with Ready > 0 are spec violations — they look\n"
         "  like exit messages but don't satisfy Gate 3.")

@@ -359,16 +359,16 @@ Note: {K} stale [Done] rows still in horizon H2s — run /groom to move to ## Do
 
 **Crank interaction.** When `/crank` ends with `/triage` (any Ready==0 exit path per `[[SKA crank]]` § Post-loop exit), the chained `/triage`'s banner block is crank's last chat content — `'` always lands on the bold-banner-between-rules whenever Ready dropped to zero. When `/crank` exits silently (Ready > 0), no banner is printed — that's the "agent still has work" signal.
 
-**Hard-continuation directive — mandatory annotation when Ready > 0.** Per user direction 2026-05-26 (after observing an agent emit `Loop exited cleanly` with `Ready 1    Questions 1`): when the rendered banner has `Ready N` with **N > 0**, append a directive line BETWEEN the banner and the bottom rule, addressed to whichever agent reads the chat (typically the same agent that just rendered it). The line cites `crank/SKILL.md` and names the 3-gate exit requirement so the agent can't paraphrase its way past the rule:
+**Hard-continuation directive — mandatory agent-addressed comment when Ready > 0.** Per user direction 2026-05-26 (after observing an agent emit `Loop exited cleanly` with `Ready 1    Questions 1`): when the rendered banner has `Ready N` with **N > 0**, append a directive line **AFTER the bottom rule** (outside the user-facing banner block), prefixed `**Agent requirement:**` so the reader-agent knows the line is addressed to it, not to the user. The user's eye stops at the `===` block; the agent reading the chat continues past it and confronts the rule.
 
 ```
 ======================================================================
 **[<TAG>]  <NAME> Triage  -  Ready N    Questions N   |   Now N    Next N    Later N    Icebox N**
-⚠ Ready > 0 — agent MUST continue per crank/SKILL.md § Hard rule. To stop, print 3-gate argument (uncertain + high-downside + risk-of-continuing). 'Loop exited cleanly' is a spec violation.
 ======================================================================
+**Agent requirement:** Ready > 0 — you MUST continue per crank/SKILL.md § Hard rule. To stop, print the 3-gate argument (Gate 1 uncertain + Gate 2 high-downside + Gate 3 risk-of-continuing). "Loop exited cleanly" / "natural pause" / "handoff to user" are spec violations.
 ```
 
-The directive appears **only when N > 0**; omitted when Ready 0 (no agent action available, banner stands alone). This is the structural defense against lazy-stop phrasings: the agent reads the banner at the moment they're tempted to stop, and the directive sits inline with the banner so it can't be skipped.
+The directive appears **only when N > 0**; omitted when Ready 0 (no agent action available, banner stands alone). The placement matters: outside the `===` block frames the line as a comment to the agent (the way a code reviewer leaves a note for the implementer), not as part of the user-facing status. Direct second-person address (`you MUST continue`) makes the recipient unambiguous.
 
 
 ## Sticky-context protocol
