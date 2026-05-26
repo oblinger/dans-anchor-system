@@ -111,7 +111,7 @@ MARKDOWN_LINK_RE = re.compile(r"(?<!\[)\[([^\[\]]+)\]\(([^)]+)\)")
 # identifier form used by some anchors, e.g. MUX). Identifier is F<n> or B-<name>.
 ROW_OPENER_RE = re.compile(r"^- \*\*(?:\[\[)?([A-Za-z][A-Za-z0-9_\-]*)\b")
 # Status bracket: `[Ready]`, `[3 Questions]`, `[Blocked F123]`, etc.
-BRACKET_RE = re.compile(r"\[([A-Za-z][A-Za-z0-9 ]*?)\]")
+BRACKET_RE = re.compile(r"\[([A-Za-z][A-Za-z0-9 \-]*?)\]")
 # Q-marker: `**Q<n> —`. Used by C2 for existence-check at link targets.
 Q_MARKER_RE = re.compile(r"\bQ\d+\s+—")
 # Q.md per-anchor section H1 banner.
@@ -538,16 +538,30 @@ def _detect_status(line: str) -> str:
 
     Returns the bracket text without brackets (e.g., 'Ready', '3 Questions',
     'Blocked F123', 'Done', 'Done 2026-05-19', or '' if no bracket found).
-    Returns the FIRST bracket — the workflow-state one.
+    Only the FIRST bracket — and only when it sits in the row's *head*
+    region (before the first ` — ` separator). Brackets buried in the row's
+    body description (e.g., `(Phases 0 + 1 + 2a [Done] 2026-05-20)`) are NOT
+    workflow-state markers and must be ignored.
 
     Strips `[[wiki-links]]` and inline code spans first so the inner brackets
-    of `[[CAE System Design]]` don't get misread as a status bracket.
+    of `[[CAE System Design]]` or backticked code-span brackets don't get misread.
     """
     cleaned = _strip_code_spans(line)
     # Replace each `[[...]]` with same-length spaces to preserve column offsets
     # while making BRACKET_RE blind to wiki-link inner text.
     cleaned = re.sub(r"\[\[[^\[\]]*\]\]", lambda m: " " * len(m.group(0)), cleaned)
-    m = BRACKET_RE.search(cleaned)
+    # Restrict the scan to the head region: from the end of the row's `**title**`
+    # bolded title up to the first ` — ` (em-dash separator) or ` - ` after it.
+    # This isolates the workflow-state bracket position (e.g., `[Ready]`) and
+    # ignores both em-dashes inside the title and bracketed prose in the body.
+    title_match = re.match(r"^- \*\*[^*]+\*\*", cleaned)
+    if title_match:
+        post_title = cleaned[title_match.end():]
+        sep_match = re.search(r"\s[—-]\s", post_title)
+        head = post_title[: sep_match.start()] if sep_match else post_title
+    else:
+        head = cleaned
+    m = BRACKET_RE.search(head)
     if not m:
         return ""
     return m.group(1).strip()
