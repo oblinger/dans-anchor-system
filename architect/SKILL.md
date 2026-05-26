@@ -184,6 +184,16 @@ If the user asks a question about a specific module (or `/architect` detects an 
 
 After the architecture pass commits, regenerate the anchor's per-anchor section in `~/ob/kmr/Q.md` per `[[SKA triage]]` § 6 — walk the backlog, compute the section, remove any existing section for this anchor, insert at the top of Q.md's body (bubble-to-top). The backlog file is NOT reordered.
 
+### 8a. `/audit architecture` post-condition (per F092)
+
+Invoke the architecture audit on the touched anchor's reachability set:
+
+```bash
+~/.claude/skills/audit/scripts/audit-architecture.py --scope anchor --anchor <NAME>
+```
+
+The audit checks two structural rules over the anchor's Arch docs: (R1) diagram-at-top + component-table-immediately-after, and (R2) wiki-link integrity on every module reference in component tables. Non-zero findings are **surfaced inline but do NOT block the mint** — they're reported, and (when the violation is the agent's own work this turn) addressed in the same pass; or filed as a backlog row for downstream cleanup. Pass `--fix` to apply A3 wrap-in-brackets auto-fixes when the basename match is unambiguous. Full rule reference: `[[F092 — Audit architecture]]`; runbook: `[[audit-architecture]]`.
+
 ### 9. Commit on transition
 
 Per the standard commit discipline. The architecture pass is one logical change unit — commit when the run finishes (subsystem additions, modules-table updates, `Arch` row reconciliations all bundle).
