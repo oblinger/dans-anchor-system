@@ -227,7 +227,7 @@ A document with `Q<n>` items moves through three phases (per [[SKA ask]]):
 
 **Phase 3 — new Q arises later.** Recreate `## Open Questions` below H1; same lifecycle as Phase 1.
 
-Auto-decisions made under [[F068]] (visible + low recoverability) **skip Phase 1 entirely** — they go directly into the bottom `## Resolved` H2 as H3 entries, without staging at top.
+Auto-decisions made under [[F068 — Assume-and-announce discipline (Drive mode)|F068]] (visible + low recoverability) **skip Phase 1 entirely** — they go directly into the bottom `## Resolved` H2 as H3 entries, without staging at top.
 
 
 ## Acceptance & rollback (per F086)
@@ -295,5 +295,5 @@ The user can name a subset: *"accept the first 5 resolutions"* / *"the QFix reso
 - `[[SKA crank]]` — when surfacing user-actionable items, uses this discipline.
 - `[[audit q]]` — enforces this discipline mechanically.
 - `[[CAB Backlog]]` § Numbering policy — same lowest-unused-integer rule.
-- `[[F068]]` — assume-and-announce; defines when an auto-decision (skipping Phase 1) is valid.
+- `[[F068 — Assume-and-announce discipline (Drive mode)|F068]]` — assume-and-announce; defines when an auto-decision (skipping Phase 1) is valid.
 - `[[F086]]` — accumulate-resolutions semantics; defines acceptance/rollback phrases.

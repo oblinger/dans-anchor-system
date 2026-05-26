@@ -191,4 +191,4 @@ These follow-ons share machinery with `/architect update`'s integration step; bu
 ## Sources
 
 - [[F084 — Architect redesign]] — parent spec defining the four-sub-skill split.
-- [[F068]] — assume-and-announce discipline (informs substantive-vs-trivial threshold).
+- [[F068 — Assume-and-announce discipline (Drive mode)|F068]] — assume-and-announce discipline (informs substantive-vs-trivial threshold).

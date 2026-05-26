@@ -57,7 +57,7 @@ The link-row appended in step 0 is a **tracking marker** that promises the featu
 
 5. **If the feature truly has no content for a particular target doc**, the LLM returns "no integration needed" for that doc. That's a valid outcome — don't force-fit content.
 
-**Per-rename behavior** inherits [[F068]] amendment: visible + low recoverability cost → auto-decide. Subsystem-level renames and interface-touching renames (CLI names, public API surfaces) are interface-sticky → ASK.
+**Per-rename behavior** inherits [[F068 — Assume-and-announce discipline (Drive mode)|F068]] amendment: visible + low recoverability cost → auto-decide. Subsystem-level renames and interface-touching renames (CLI names, public API surfaces) are interface-sticky → ASK.
 
 **Failure mode to watch for:** the LLM produces an edit that just appends *"See [[F{N} — {Feature}]] for details"* without actual content. **This is forbidden.** If the agent detects this in the proposed edit, reject and re-prompt.
 

@@ -286,7 +286,7 @@ A folder template is a folder whose name begins with an underscore — `_{Name} 
   | Template | [[_{Name} Template]] |
   ```
   The wiki-link resolves by basename (folder templates link to the inside marker file `_{Name} Template.md`; file templates link to the template file directly).
-- [ ] **Generic templates (those living in `CAB/Facets/`) do NOT get a dispatch row** in every consumer's dispatch. They are looked up by facet name; cluttering every dispatch with template links to vault-wide templates is the failure mode this rule prevents.
+- [ ] **Generic templates (those living in `CAB/CAB Facets/`) do NOT get a dispatch row** in every consumer's dispatch. They are looked up by facet name; cluttering every dispatch with template links to vault-wide templates is the failure mode this rule prevents.
 - [ ] **Audit category** — when a `_* Template/` folder or `_* Template.md` file exists in a parent but the parent's dispatch lacks the template row, flag as `missing-folder-template-row` (per [[CAB Template]] § Audit categories).
 - [ ] **Orphan check** — when a template folder/file exists nowhere in any dispatch (not even its parent's), flag as `orphan-template`.
 

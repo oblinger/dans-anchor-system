@@ -32,7 +32,7 @@ The report has four sections:
 
 1. **Summary** — total anchors with rules, total rules parsed, multi-rule cluster count, unknown-trait count.
 2. **By Trait** — per-trait clusters of similar rules. Clusters with N > 1 are the **candidates** for common rule sets (rules used by multiple anchors with overlapping vocabulary).
-3. **Unknown-trait rules** — rules from anchors that don't declare a trait (no `traits: [...]` or `cab-type:` in `.anchor`). Until [[F090]] ships and anchors declare traits, **expect most rules to land here.** This isn't a failure mode — it's the system reporting honest state.
+3. **Unknown-trait rules** — rules from anchors that don't declare a trait (no `traits: [...]` or `cab-type:` in `.anchor`). Until [[F090 — Retire CAB Types, unify under Traits, Facets-as-Traits-by-file-existence|F090]] ships and anchors declare traits, **expect most rules to land here.** This isn't a failure mode — it's the system reporting honest state.
 4. **Anchors without rules** — informational; sampled.
 
 ### 3. Decide whether to proceed to curation
@@ -89,7 +89,7 @@ CLAUDE.md prose, inline conventions in SKILL.md, and unstructured rule-flavored 
 
 ## Trait detection
 
-Per [[F082]] Q3 + [[F090]]: traits are the categorization axis. Each anchor's traits are read from `.anchor`:
+Per [[F082]] Q3 + [[F090 — Retire CAB Types, unify under Traits, Facets-as-Traits-by-file-existence|F090]]: traits are the categorization axis. Each anchor's traits are read from `.anchor`:
 
 1. **Preferred (post-F090):** `traits: [Code, Skill]` (list).
 2. **Legacy fallback (pre-F090):** `cab-type: code` → trait `Code` (capitalized).

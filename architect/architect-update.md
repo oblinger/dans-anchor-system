@@ -177,4 +177,4 @@ When in doubt, prefer asking via `/ask` to silently dropping or silently adding.
 
 - [[F084 — Architect redesign]] — parent spec defining the four-sub-skill split.
 - [[F074 — Architect skill — Architecture as anchor folder with subsystems]] — the original `/architect` design that F084 supersedes; closest analog to update minus the snapshot/changes-since mechanics.
-- [[F068]] § amendment — per-rename auto-decide-vs-ask discipline.
+- [[F068 — Assume-and-announce discipline (Drive mode)|F068]] § amendment — per-rename auto-decide-vs-ask discipline.

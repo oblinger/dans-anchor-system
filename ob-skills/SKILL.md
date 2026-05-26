@@ -26,7 +26,7 @@ Per [[F080 — Skill config — unified namespace YAML]] (supersedes F072).
 
 Inside `<skill>/`, the skill picks its own internal layout. Simple skills (cook, snip) have just `config.yaml`. Complex skills (fleet) use multiple files + nested folders.
 
-**Backup-friendly conventions** (per [[F080]] § 1):
+**Backup-friendly conventions** (per [[F080 — Skill config — unified namespace YAML|F080]] § 1):
 - `cache/` subfolder anywhere → safe to delete; backup tools may skip
 - `state/` → tool-managed runtime data; semi-durable
 - `data/` → user-accumulated structured content

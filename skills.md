@@ -33,7 +33,7 @@
 | ~~[CAB-migrate markdown](hook://CAB-migrate%20markdown)~~ |  |
 | ~~[cab-migrate-claude](hook://cab-migrate-claude)~~ |  |
 | ~~[CAB-move markdown](hook://CAB-move%20markdown)~~ |  |
-| [[Facets]] | [[CAB All Files]],  [[CAB Backlog]],  [[CAB Cards]],  [[CAB Claude]],  [[CAB Code Repository]],  [[CAB Dev Dispatch]],  [[CAB Discussion]],  [[CAB Docs]],  [[CAB Documentation Site]],  [[CAB Features]],  [[CAB Files]],  [[CAB Folder]],  [[CAB Inbox]],  [[CAB Module Doc]],  ~~[[CAB Open Questions]]~~,  [[CAB Outputs]],  [[CAB Plan Dispatch]],  [[CAB PRD]],  [[CAB Project Page]],  ~~[[CAB slug Page]]~~,  [[CAB Roadmap]],  [[CAB Skill]],  [[CAB System Design]],  [[CAB User Dispatch]],  [[CAB UX Design]],  [[CAB WP]],  [[CAB Move]],   |
+| ~~[[Facets]]~~ | [[CAB All Files]],  [[CAB Backlog]],  [[CAB Cards]],  [[CAB Claude]],  [[CAB Code Repository]],  [[CAB Dev Dispatch]],  [[CAB Discussion]],  [[CAB Docs]],  [[CAB Documentation Site]],  [[CAB Features]],  [[CAB Files]],  [[CAB Folder]],  [[CAB Inbox]],  [[CAB Module Doc]],  ~~[[CAB Open Questions]]~~,  [[CAB Outputs]],  [[CAB Plan Dispatch]],  [[CAB PRD]],  [[CAB Project Page]],  ~~[[CAB slug Page]]~~,  [[CAB Roadmap]],  [[CAB Skill]],  [[CAB System Design]],  [[CAB User Dispatch]],  [[CAB UX Design]],  [[CAB WP]],  [[CAB Move]],   |
 | ~~[CAB-pilot-flow markdown](hook://CAB-pilot-flow%20markdown)~~ |  |
 | ~~[CAB-pr-flow markdown](hook://CAB-pr-flow%20markdown)~~ |  |
 | ~~[cab-publish](hook://cab-publish)~~ |  |

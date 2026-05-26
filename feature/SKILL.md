@@ -137,7 +137,7 @@ Designing — awaiting design discussion.
 - **Phase 1 — pending user Qs exist.** `## Open Questions` H2 sits directly below the H1, containing pending Qs. Resolved Qs accumulate inside as a `### Resolved` H3 sub-section *until all are answered*.
 - **Phase 2 — all Qs resolved.** Delete the `## Open Questions` H2 entirely. Migrate the staged `### Resolved` H3 content to the bottom `## Resolved` H2 (creating it if absent). Top of doc is now clean: H1 → Summary → Design → Status → Resolved.
 - **Phase 3 — new Q arises later.** Recreate `## Open Questions` H2 below H1 with the new Q. Same lifecycle as Phase 1.
-- **Auto-decisions skip Phase 1 entirely.** Agent decisions made under the [[F068]] visibility + low-recoverability rule go *directly* into the bottom `## Resolved` H2 as H3 entries, without staging at top. They co-exist there with user-answered Qs.
+- **Auto-decisions skip Phase 1 entirely.** Agent decisions made under the [[F068 — Assume-and-announce discipline (Drive mode)|F068]] visibility + low-recoverability rule go *directly* into the bottom `## Resolved` H2 as H3 entries, without staging at top. They co-exist there with user-answered Qs.
 
 **Structural rules:**
 - **H1 carries the anchor-slug breadcrumb + F-number.** Format: `# [[{NAME}]] · F{n} — {Feature Name}`. The leading `[[{NAME}]]` is a wiki-link to the anchor page (jumps back to the anchor's home from any feature doc) and tells the reader at a glance which anchor they're in — load-bearing when many anchors are active and feature docs look similar across them.
@@ -145,7 +145,7 @@ Designing — awaiting design discussion.
 - **`## Resolved` at the bottom holds all resolved decisions as H3 entries** — both agent-decided and user-answered. The H3 outline IS the decision list; click any H3 to read its full record. H3 title format: `### Q{N} — {Title}` for user-answered (Q-numbered); `### {Title}` for agent-decided (no Q-number — they were never asked). Each H3 body has: `**Choice:** X.` + brief reasoning + alternatives considered + why rejected.
 - The `/ask` skill (`[[SKA ask]]`) is the universal asking subroutine — feature docs, PRDs, plan docs, anything with questions follows the same shape. Invoke `/ask --doc <path>` to add questions to a feature doc; the runbook handles formatting, glance, and global-page maintenance.
 
-**When to ask vs auto-decide (per [[F068]] amendment 2026-05-22):**
+**When to ask vs auto-decide (per [[F068 — Assume-and-announce discipline (Drive mode)|F068]] amendment 2026-05-22):**
 
 Before adding a question to `## Open Questions`, self-check: is the choice **visible** (user encounters it in normal workflow within a session or two) AND has **low recoverability cost** (cheap to reverse later — accounting for downstream lock-in, not just whether reversal is theoretically possible)?
 
