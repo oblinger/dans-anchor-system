@@ -654,6 +654,8 @@ def apply_c4_fix(backlog_file: Path,
 # C12: [Verify-by] rows include "Naturally exercised by:" (report only)
 # C19: option sub-bullets each on own line, labeled (A)/(B)/...  (report only)
 # C20: blank line after Recommendation, separating Q groups      (report only)
+# C21: ## Open Questions H2 with zero pending Qs (Phase 2 missed) (report only)
+# C22: link existence in feature docs / backlogs (extends C1's Q.md scope) (report only)
 # (C11 — Verify 4-piece layout — deferred; too heuristic for v1.)
 
 
@@ -1136,6 +1138,91 @@ def check_c20_blank_after_recommendation(q_entries: list[QEntry]) -> list[Findin
     return findings
 
 
+def check_c21_empty_open_questions(
+    ask_format_files: list[tuple[str, Path]],
+    q_entries: list[QEntry],
+) -> list[Finding]:
+    """C21: a `## Open Questions` H2 with zero top-level pending Q bullets is
+    a Phase-2-transition-missed bug. All Qs resolved → the H2 should be deleted
+    and resolutions migrated to a bottom `## Resolved` H2.
+
+    Detected: file has `## Open Questions` heading but `extract_q_entries`
+    found zero Q bullets in it (because all Qs are inside `### Resolved`)."""
+    findings: list[Finding] = []
+    q_entries_by_file: dict[Path, list[QEntry]] = {}
+    for q in q_entries:
+        q_entries_by_file.setdefault(q.source_file, []).append(q)
+    for _, file_path in ask_format_files:
+        try:
+            text = file_path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        lines = text.splitlines()
+        oq_line = 0
+        for line_num, line in enumerate(lines, start=1):
+            if line.strip() == "## Open Questions":
+                oq_line = line_num
+                break
+        if oq_line == 0:
+            continue
+        # H2 exists. Did we find any pending Q bullets under it?
+        if q_entries_by_file.get(file_path):
+            continue
+        # H2 with zero pending Qs → Phase 2 missed.
+        findings.append(Finding(
+            severity="warning",
+            surface_file=file_path,
+            surface_line=oq_line,
+            code="C21",
+            message=(
+                "`## Open Questions` H2 has zero pending Qs (all in ### Resolved). "
+                "Phase 2 transition missed — delete this H2 and migrate Resolved "
+                "to a bottom `## Resolved` H2."
+            ),
+            mechanically_fixable=False,
+        ))
+    return findings
+
+
+def check_c22_link_existence_extended(
+    scope_files: list[Path],
+    vault_index: dict[str, list[Path]],
+) -> list[Finding]:
+    """C22: extend C1's link-existence check beyond Q.md to feature docs +
+    backlogs. C1 covers Q.md; C22 covers everything else where broken
+    wiki-links are user-visible (feature docs, backlogs, ask.md files)."""
+    findings: list[Finding] = []
+    for file_path in scope_files:
+        for link in links_in_file(file_path, vault_index):
+            if not link.target_resolves:
+                findings.append(Finding(
+                    severity="error",
+                    surface_file=link.source_file,
+                    surface_line=link.source_line,
+                    code="C22",
+                    message=(
+                        f"link {link.raw} does not resolve "
+                        f"(basename '{link.target_basename}' not in vault)"
+                    ),
+                    mechanically_fixable=False,
+                ))
+            elif link.target_anchor_resolves is False:
+                anchor_kind = "heading" if link.target_heading else "block-id"
+                anchor_val = link.target_heading or link.target_block_id
+                findings.append(Finding(
+                    severity="error",
+                    surface_file=link.source_file,
+                    surface_line=link.source_line,
+                    code="C22",
+                    message=(
+                        f"link {link.raw} resolves to file but {anchor_kind} "
+                        f"'{anchor_val}' missing in target"
+                    ),
+                    mechanically_fixable=False,
+                ))
+    return findings
+
+
 # ============================================================
 # Checks C13–C18 — bracket↔H2 consistency (F089)
 # ============================================================
@@ -1555,6 +1642,16 @@ def main() -> int:
     findings.extend(check_c10_recommendation_outdent(all_q_entries))
     findings.extend(check_c19_option_bullets(all_q_entries))
     findings.extend(check_c20_blank_after_recommendation(all_q_entries))
+    findings.extend(check_c21_empty_open_questions(ask_format_files, all_q_entries))
+    # C22 — link existence across feature docs + backlogs + ask.md files
+    c22_scope: list[Path] = []
+    c22_scope.extend(p for _, p in ask_format_files)
+    c22_scope.extend(anchor_backlogs.values())
+    for backlog_file in anchor_backlogs.values():
+        ask_md = backlog_file.parent / f"{backlog_file.stem.replace(' Backlog', ' ask')}.md"
+        if ask_md.is_file():
+            c22_scope.append(ask_md)
+    findings.extend(check_c22_link_existence_extended(c22_scope, vault_index))
     # B16 — C7 walks the same ask-format files + backlogs + Q.md
     c7_scope = [Q_MD]
     c7_scope.extend(p for _, p in ask_format_files)
