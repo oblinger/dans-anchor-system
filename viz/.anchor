@@ -1,0 +1,6 @@
+slug: viz
+description: Viz — visual drafting skill; produces visual artifacts (diagrams, charts, mockups, slides, docs) via sub-actions for excalidraw / matplot / mermaid / dot / pptx / docx / pdf.
+traits:
+- Skill
+- Track
+- Commit

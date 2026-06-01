@@ -13,6 +13,10 @@ user_invocable: true
 
 Produce visual artifacts. Use with a sub-action specifying the tool, since the choice of tool meaningfully affects the output.
 
+User-facing docs (capability matrix, trade-off rationale): [[SKL Viz]].
+Trade-off discussions (round-trip experiments, design questions): [[Viz Discussion]].
+
+
 ## Actions
 
 | Action | What it does | Output | Trigger phrases |
@@ -49,50 +53,30 @@ Produce visual artifacts. Use with a sub-action specifying the tool, since the c
 | `insert_into_slides.py` | Insert a generated image into a Google Slides deck. |
 
 
-## Tool selection — when to use what
+## Tool selection — pick the tool, then go
 
-The user typically knows which tool they want. Each tool produces a visually distinct category of output — pick the tool that matches the artifact, not by trying to disambiguate user intent.
+The user usually says the tool. When they don't, walk this list top-down — **the first match wins**. Don't weigh trade-offs in chat; the matrix lives in [[SKL Viz]].
 
-- **Hand-drawn / sketchy / architectural** → `/viz excalidraw`
-- **Data-driven / quantitative / Tufte-grade chart** → `/viz matplot`
-- **Flow / sequence / gantt / state diagram from text** → `/viz mermaid` (especially if the deliverable is markdown that will render natively in GitHub/Notion/VS Code)
-- **Complex graph / org chart / dependency graph** → `/viz dot` (Graphviz layout engine)
-- **Custom slide-shaped layout (annotations, multi-element composition, mockup)** → `/viz pptx` (fallback when nothing else fits)
-- **Markdown → controlled deliverable (.docx for polishing in Word/Pages, then export PDF)** → `/viz docx`
-- **Markdown → quick PDF (no polishing required)** → `/viz pdf`
+**Constraint-driven rules (check these first — they often dominate):**
 
-If the user says something ambiguous, ask which tool — these aren't interchangeable.
+- User said "**must be editable in Obsidian**" / "**I want to keep tweaking this in Obsidian**" → `/viz mermaid` (source is the markdown — round-trip is automatic). Fall back to `/viz excalidraw` if the user has the Excalidraw plugin and wants a canvas, not text.
+- User said "**clickable on the web**" / "**share on GitHub / Notion**" → `/viz mermaid` for flow/sequence/state; `/viz excalidraw` (SVG export) for sketches; `/viz dot` for graphs (DOT `URL=...` attributes survive).
+- User said "**clickable in PowerPoint / Word**" → `/viz pptx` or `/viz docx` (their native hyperlinks travel into the file).
+- User said "**Tufte-grade**" / "**chart this data**" / "**plot**" → `/viz matplot`. No interactivity; best aesthetic for quantitative.
 
+**Shape-driven rules (when no interaction-model constraint is stated):**
 
-## Capability matrix — viewing, clicking, round-trip editing
+- "draw" / "diagram" / "mockup" / "architecture" / "sketchy" → `/viz excalidraw`.
+- "flow chart" / "sequence diagram" / "gantt" / "state machine" / "ER diagram" → `/viz mermaid`.
+- "org chart" / "dependency graph" / "decision tree" / "complex graph" (≥30 nodes) → `/viz dot` (Graphviz layout beats Mermaid here).
+- "custom slide" / "annotated layout" / "multi-element composition" (none of the above fit) → `/viz pptx`.
+- "markdown → editable Word doc" → `/viz docx`.
+- "markdown → quick PDF" → `/viz pdf`.
 
-The trade-off table for picking a viz approach by its Obsidian + external capabilities. Rows are the approaches; columns are the capabilities. Use this when "the source must remain editable in Obsidian" or "must have clickable regions externally" is the constraint driving tool selection.
+**When the user already named a tool, use that tool.** Don't ask "want PNG or PDF?" — answer with what they asked, note the format in the response, move on. When ambiguous on tool AND no constraint helps, ask which tool — these aren't interchangeable.
 
-| Approach | Source format | Render output | Obsidian inline view | Obsidian clickable regions | External clickable regions | Round-trip editable from Obsidian |
-|---|---|---|---|---|---|---|
-| **mermaid** | ` ```mermaid ` code block in `.md` | SVG (auto by Obsidian); `.png` / `.pdf` / `.svg` (via mmdc) | **Yes** — Obsidian renders ` ```mermaid ` blocks natively (core feature) | Partial — `click` directive supports URLs; Obsidian wraps them as external links | **Yes** — GitHub / Notion / VS Code render natively; `click` directive supported on the web | **Yes** — source IS the markdown; edit the code block, render updates inline |
-| **excalidraw** | `.excalidraw` JSON | `.svg` / `.png` (via `excalidraw_to_svg.py`) | **Yes** (with Excalidraw plugin) — `.excalidraw` files render as interactive canvas; SVG embeds render universally | **Yes** (with plugin) — embedded files / elements link to other vault pages; hyperlinks on shapes | **Yes** — SVG export wraps clickable elements as `<a>` tags; Excalidraw web has native interactivity | **Yes** (with plugin) — open the file in Obsidian, edit on canvas, save back to the same file |
-| **dot** (Graphviz) | `.dot` text | `.svg` / `.png` / `.pdf` | Embed-only — Obsidian shows the rendered SVG/PNG (no native DOT renderer; plugins exist) | Partial — SVG `<a>` tags survive embed in some Obsidian configurations | **Yes** — DOT `URL=...` attributes on nodes render as SVG `<a>` regions on the web | No — edit the `.dot` text externally, re-render, re-embed |
-| **matplot** | `.py` (matplotlib code) | `.png` (raster) · `.pdf` (vector) | **Yes** for PNG/PDF (Obsidian embeds raster + renders PDF inline) | No — raster has no clickable regions; matplotlib PDFs don't ship hyperlinks by default | No (PNG); limited for PDF | No — source is Python code, not editable from inside Obsidian |
-| **pptx** | `.pptx` (binary, opens in PowerPoint / Keynote / Slides) | `.pptx` · `.png` / `.pdf` (via LibreOffice headless) | No — Obsidian does not render `.pptx`; click-to-open in external app | No | **Yes** — PowerPoint hyperlinks on shapes / text travel into the file | No — edit externally in PowerPoint / Keynote / Slides |
-| **docx** | `.md` (canonical) → `.docx` via pandoc | `.docx` · (export `.pdf` from Word/Pages) | No — Obsidian does not render `.docx`; click-to-open in external app | No | **Yes** — Word / Pages / Google Docs hyperlinks travel into the file | Partial — re-edit the `.md` source in Obsidian, re-run `/viz docx` to regenerate (round-trips through the source, not the rendered doc) |
-| **pdf** | `.md` (canonical) → `.pdf` via pandoc + tectonic | `.pdf` | **Yes** — `![[file.pdf]]` embeds render inline with paging | No — Obsidian's PDF viewer does not surface hyperlink interactivity (clicks navigate the PDF, not the link target) | **Yes** — PDF readers / browsers honor embedded hyperlinks | Same as docx — re-edit source `.md` in Obsidian, re-run `/viz pdf` |
+(Rationale + the full trade-off matrix: [[SKL Viz]]. Open trade-off discussions: [[Viz Discussion]].)
 
-**Reading the matrix:**
-
-- **Round-trip editable from Obsidian** means: the user can open the artifact (or its source) in Obsidian, change it, save, and the rendered view updates without leaving the editor. Mermaid is the cleanest — the source IS the markdown. Excalidraw matches with the plugin. The rest require leaving Obsidian.
-- **Obsidian clickable regions** means: an interactive region inside the embedded render that, when clicked, does something useful inside Obsidian (navigate to another note, open a URL). Mermaid `click` and Excalidraw embedded links work; PDF and raster images don't.
-- **External clickable regions** means: when the rendered output is shared (web, GitHub, slides), the embedded interactivity travels with it.
-- **"Source format"** is what you actually edit; **"render output"** is what's viewed.
-
-**Decision shortcuts:**
-
-- *Must be editable from inside Obsidian AND have inline view AND survive on GitHub* → **mermaid** is the only approach hitting all three out of the box.
-- *Must have rich clickable regions on the web AND inside Obsidian* → **excalidraw** (with the plugin installed) is the strongest.
-- *Don't care about Obsidian view; need a deliverable that opens in PowerPoint / Word with interactivity* → **pptx** or **docx**.
-- *Tufte-grade quantitative chart with no interactivity needed* → **matplot**.
-
-(This matrix is a living reference — extend rows as new approaches land, and tighten cells as the round-trip experiment results land from the parallel investigation.)
 
 
 ## Default output
