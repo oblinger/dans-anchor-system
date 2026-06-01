@@ -1,0 +1,113 @@
+#!/usr/bin/env python3
+"""modes-active — resolve the active mode-shaped traits for a given cwd.
+
+Per F077 + B-mode-walkup (2026-06-01). Walks up from cwd (or arg) to find
+the nearest .anchor file, reads its `traits:` YAML list, and returns the
+resolved mode-set with runtime-environment defaults applied for missing
+categories.
+
+Usage:
+    modes-active                  # resolve for current working directory
+    modes-active /path/to/anchor  # resolve for explicit path
+
+Output (newline-separated, stable order):
+    Drive
+    Commit
+    (and others — see Mode framework)
+
+Exit codes:
+    0  success
+    1  no .anchor found on walk-up (legitimate; defaults apply silently)
+"""
+from __future__ import annotations
+import sys
+from pathlib import Path
+
+# Mode-shaped traits, by axis:
+CADENCE_MODES = {"Drive", "Lean", "Cautious"}
+GIT_MODES = {"Commit", "PR", "NoGit"}
+
+# Runtime defaults (per F077 § 6 + Mode skill):
+DEFAULT_CADENCE = "Drive"
+# Git default depends on whether the anchor declares Code trait — see resolve_git()
+
+
+def find_anchor(start: Path) -> Path | None:
+    """Walk up from start to find the nearest .anchor file. Returns its directory."""
+    cur = start.resolve()
+    while True:
+        if (cur / ".anchor").is_file():
+            return cur
+        if cur.parent == cur:
+            return None
+        cur = cur.parent
+
+
+def parse_traits(anchor_path: Path) -> list[str]:
+    """Very lightweight YAML-ish parser for the `traits:` list in .anchor."""
+    if not anchor_path.is_file():
+        return []
+    in_traits = False
+    out: list[str] = []
+    for raw in anchor_path.read_text().splitlines():
+        line = raw.rstrip()
+        if not line:
+            continue
+        if line.startswith("traits:"):
+            # Inline form: traits: [A, B, C]
+            tail = line.split(":", 1)[1].strip()
+            if tail.startswith("[") and tail.endswith("]"):
+                return [x.strip() for x in tail[1:-1].split(",") if x.strip()]
+            in_traits = True
+            continue
+        if in_traits:
+            if line.startswith("- "):
+                out.append(line[2:].strip())
+            elif line.startswith(" ") or line.startswith("\t"):
+                # Indented continuation — also a list item in some YAML styles
+                stripped = line.strip()
+                if stripped.startswith("- "):
+                    out.append(stripped[2:].strip())
+                else:
+                    in_traits = False
+            else:
+                in_traits = False
+    return out
+
+
+def resolve_cadence(declared: list[str]) -> str:
+    for mode in declared:
+        if mode in CADENCE_MODES:
+            return mode
+    return DEFAULT_CADENCE
+
+
+def resolve_git(declared: list[str]) -> str:
+    for mode in declared:
+        if mode in GIT_MODES:
+            return mode
+    # No explicit Git trait — derive from Code presence
+    if "Code" in declared or "code" in declared:
+        return "Commit"
+    return "NoGit"
+
+
+def main() -> int:
+    start = Path(sys.argv[1]) if len(sys.argv) > 1 else Path.cwd()
+    anchor_dir = find_anchor(start)
+    if anchor_dir is None:
+        # No anchor — apply pure defaults
+        print(DEFAULT_CADENCE)
+        print("NoGit")
+        return 0
+
+    declared = parse_traits(anchor_dir / ".anchor")
+    cadence = resolve_cadence(declared)
+    git = resolve_git(declared)
+    print(cadence)
+    print(git)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
