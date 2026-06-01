@@ -41,3 +41,18 @@ main
 ## Bulk Variant
 
 "PR flow bulk" — Claude owns the full cycle with ~4 parallel agents. No user review per PR. Batches by parent milestone. Read the full spec in `CAB Skills/CAB PR Flow.md`.
+
+
+## PR-mode integration (per [[F077]] Q4)
+
+`/pr-flow` is the underlying mechanism for **PR mode** (the Git-aspect Trait per [[F077 — PR mode — mode-as-trait architecture with per-anchor opt-in|F077]] + [[PR]] trait spec). The relationship:
+
+- **`/pr-flow` user-invoked** — the legacy use. User types "PR flow" / `/pr-flow`; the cycle above runs once. Composes with any Git-aspect mode the anchor declares (the explicit `/pr-flow` invocation temporarily overrides whatever mode is normally active, per [[mode]] § Git Commit *"Inside `/pr-flow` → defer to PR-mode rules until /pr-flow exits"*).
+- **`/pr-flow` auto-deferred-to from PR-mode** — anchors that declare `PR` in their `.anchor` `traits:` list use `/pr-flow` semantics for *every* state-touching commit, not just on explicit invocation. The agent treats every commit boundary in such an anchor as a `/pr-flow` cycle:
+  1. Branch named `F<n>-<slug>` (or `B<id>-<slug>` for B-rows).
+  2. Commits to that branch.
+  3. PR opened via `gh pr create`.
+  4. **Hard pause** for user review.
+- **Inversion vs Commit mode**: in Commit-mode anchors, the agent commits directly to the working branch (typically `main` / `master`); `/pr-flow` is opt-in per invocation. In PR-mode anchors, the agent NEVER commits to the working branch; `/pr-flow` is the default mechanism.
+
+**When PR mode v1 fully ships** (the per-anchor `traits:` walk-up + override logic per [[F077]] § 5), this section's behavior becomes the default for any anchor declaring `PR`. Until then (2026-06-01), PR mode behavior is invoked only via explicit `/pr-flow` calls.
