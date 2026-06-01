@@ -100,26 +100,48 @@ Rewire splits "misplaced file" into two categories:
 - **Obviously misplaced** — the file's basename matches a CAB facet whose canonical location is unambiguously defined by spec. Rewire moves these silently in default mode.
 - **Possibly correctly placed** — anything else (basename matches no canonical facet, OR the file is in a plausible-looking location). Default mode **asks** the user before moving (via `/ask`).
 
-Canonical-location table (auto-move candidates):
+Canonical-location table (auto-move candidates) — **updated per [[F094 — Anchor docs folder restructure — Track _ User _ Architecture _ Dev|F094]] 2026-06-01** for the four-bucket Track / User / Design / Dev layout:
 
 | Basename pattern | Canonical location |
 |---|---|
-| `{NAME} PRD.md` | `{NAME} Docs/{NAME} Plan/` |
-| `{NAME} Backlog.md` | `{NAME} Docs/{NAME} Plan/` |
-| `{NAME} Triage.md` | `{NAME} Docs/{NAME} Plan/` |
-| `{NAME} Questions.md` | `{NAME} Docs/{NAME} Plan/` |
-| `{NAME} Roadmap.md` | `{NAME} Docs/{NAME} Plan/` |
-| `{NAME} Icebox.md` | `{NAME} Docs/{NAME} Plan/` |
-| `{NAME} Rules.md` | `{NAME} Docs/{NAME} Plan/` |
-| `{NAME} Plan.md` | `{NAME} Docs/{NAME} Plan/` |
-| `{NAME} Features.md` | `{NAME} Docs/{NAME} Plan/{NAME} Features/` |
 | `{NAME} Docs.md` | `{NAME} Docs/` |
-| `{NAME} Dev.md` | `{NAME} Docs/{NAME} Dev/` |
+| `{NAME} Track.md` | `{NAME} Docs/{NAME} Track/` |
+| `{NAME} Backlog.md` | `{NAME} Docs/{NAME} Track/` |
+| `{NAME} Roadmap.md` | `{NAME} Docs/{NAME} Track/` |
+| `{NAME} Icebox.md` | `{NAME} Docs/{NAME} Track/` |
+| `{NAME} Inbox.md` | `{NAME} Docs/{NAME} Track/` |
+| `{NAME} Questions.md` | `{NAME} Docs/{NAME} Track/` |
+| `{NAME} ask.md` | `{NAME} Docs/{NAME} Track/` |
+| `{NAME} Rules.md` | `{NAME} Docs/{NAME} Track/` |
+| `{NAME} Features.md` | `{NAME} Docs/{NAME} Track/{NAME} Features/` |
 | `{NAME} User.md` | `{NAME} Docs/{NAME} User/` |
-| `{NAME} Interface.md` | `{NAME} Docs/{NAME} User/` |
-| `{NAME} Architecture.md` | `{NAME} Docs/{NAME} User/` |
 | `{NAME} Guide.md` | `{NAME} Docs/{NAME} User/` |
+| `{NAME} Installation.md` | `{NAME} Docs/{NAME} User/` |
+| `{NAME} CLI.md` | `{NAME} Docs/{NAME} User/` |
+| `{NAME} FAQ.md` | `{NAME} Docs/{NAME} User/` |
+| `{NAME} Design.md` | `{NAME} Docs/{NAME} Design/` |
+| `{NAME} Architecture.md` | `{NAME} Docs/{NAME} Design/{NAME} Architecture/` |
+| `{NAME} Interface.md` | `{NAME} Docs/{NAME} Design/` |
+| `{NAME} UX Design.md` | `{NAME} Docs/{NAME} Design/` |
+| `{NAME} Data Model.md` | `{NAME} Docs/{NAME} Design/` |
+| `{NAME} Principles.md` | `{NAME} Docs/{NAME} Design/` |
+| `{NAME} PRD.md` | `{NAME} Docs/{NAME} Design/` |
+| `{NAME} Design Discussion.md` | `{NAME} Docs/{NAME} Design/` |
+| `{NAME} Dev.md` | `{NAME} Docs/{NAME} Dev/` |
 | `{NAME} Files.md` | `{NAME} Docs/{NAME} Dev/` |
+
+**Retired (legacy locations during F094 migration window):**
+
+| Legacy basename / location | New canonical location |
+|---|---|
+| `{NAME} Plan.md` | → `{NAME} Track.md` (Track Dispatch) |
+| `{NAME} Triage.md` | → retired per F075; Q.md is the triage surface |
+| `{NAME} System Design.md` | → folded into `{NAME} Architecture/` (Design bucket) |
+| Old `{NAME} User/{NAME} Interface.md` | → `{NAME} Design/{NAME} Interface.md` |
+| Old `{NAME} User/{NAME} Architecture/` | → `{NAME} Design/{NAME} Architecture/` |
+| Old `{NAME} Plan/{NAME} UX Design.md` | → `{NAME} Design/{NAME} UX Design.md` |
+
+During F094 Phase 1, rewire **recognizes both the old and new locations** for files that haven't been migrated yet (`{NAME} Plan/` still exists for some anchors, `{NAME} Track/` exists for others). When both exist on an anchor, the new location is canonical; rewire flags the old one for migration.
 
 Anything not on this table → "possibly correctly placed" → rewire asks via `/ask` before moving.
 
