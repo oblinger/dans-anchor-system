@@ -1,16 +1,22 @@
 ---
 description: operating-mode framework — defines what a mode is, the metric it optimizes, and how modes are declared
 ---
-| -[[SKL Mode]]- | : <br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Discipline]] → [SKL Mode](hook://p/SKL%20Mode) |
+| -[[SKL Mode]]- | : <br>→ [ob](hook://ob) → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Discipline]] → [SKL Mode](hook://p/SKL%20Mode) |
 | --- | --- |
-| Modes | [[SKL Mode Drive\|Drive]],   |
+| Trade-off posture | [[SKL Mode Drive\|Drive]],   |
+| Git boundaries | [[SKL Mode Git Commit\|Commit]],  [[SKL Mode Git PR\|PR]],   |
 | ... |  |
 
 # SKL Mode
 
 A **mode** is a setting that shapes how the agent makes recurring trade-off decisions. Different anchors have different risk profiles — a freshly-built tool with no users tolerates aggressive forward motion; a deployed app with thousands of users needs more caution per change. Mode is the declaration of which posture is appropriate.
 
-For now (v1), there is **one system-wide mode**, declared inline in the Pilot's POST-COMPACT RELOAD. Eventually, modes will be declared per-anchor (in `.anchor` config) with the system default as fallback.
+Modes are **compositional traits** (per [[F077 — PR mode — mode-as-trait architecture with per-anchor opt-in|F077]]) — an anchor runs with one or more modes active at the same time, composed along independent axes. The two axes today:
+
+- **Trade-off posture** — [[SKL Mode Drive|Drive]] vs. Cautious (the `/fortify` posture). Mutually exclusive.
+- **Git boundaries** — [[SKL Mode Git Commit|Commit]] vs. [[SKL Mode Git PR|PR]]. Mutually exclusive.
+
+The default pair is **Drive + Commit**. Both default modes are inlined in `role-pilot.md` POST-COMPACT RELOAD so they prime the Pilot on every session start.
 
 ## The metric — outcome per interaction
 
@@ -30,8 +36,15 @@ The whole posture follows from this metric: **minimize content-full batches firs
 
 ## Defined modes
 
-- **[[SKL Mode Drive|Drive]]** — agent-driven, optimistic, minimum-interruption. The current system default. See the page for the full set of assertions.
-- (future modes added here as they're defined — e.g., a `Caution` or `Step` mode for high-risk anchors)
+### Trade-off posture
+
+- **[[SKL Mode Drive|Drive]]** — agent-driven, optimistic, minimum-interruption. **System default.** See the page for the full set of assertions.
+- *(Cautious is invoked via `/fortify` for distrust-the-foundation work; it doesn't have its own SKL doc — see [[SKA fortify]].)*
+
+### Git boundaries
+
+- **[[SKL Mode Git Commit|Commit]]** — agent commits at logical boundaries without asking; new-commit-on-top, never amends; never auto-pushes. **System default.** Use when the cost-of-merge-mistake is low (curation projects, personal anchors, prototypes).
+- **[[SKL Mode Git PR|PR]]** — every state-touching commit gated through a pull request on its own branch with user review before further work continues. Use when the cost-of-merge-mistake is high (production code with users, shared libraries, deployed infrastructure). Spec in flight per [[F077 — PR mode — mode-as-trait architecture with per-anchor opt-in|F077]] (Q12 = agreement gate).
 
 ## How modes are set
 
@@ -42,3 +55,5 @@ The whole posture follows from this metric: **minimize content-full batches firs
 ## History
 
 - **2026-05-04** — Mode framework established. **Drive** defined as the first mode and rolled out as the system default. Captured in `SKL Mode.md` (this page) + `SKL Mode Drive.md` (the assertions); inline copy in `role-pilot.md` POST-COMPACT RELOAD. Per-anchor switching deferred until ≥2 modes exist.
+- **2026-05-24** — **Git Standard** mode added per ~~[[F085]]~~. Three load-bearing rules (commit on logical boundary, terse messages, never auto-push). Composed with Drive as the canonical pair.
+- **2026-06-01** — **Renamed Git Standard → Commit** per [[F077 — PR mode — mode-as-trait architecture with per-anchor opt-in|F077]] Q7 (bare-noun naming convention `Drive`/`Lean`/`PR`/`Commit`/`NoGit`). Added explicit "never ask permission to commit" rule and "always new commit on top — never amend" rule. **Commit-mode bullets inlined into `role-pilot.md` POST-COMPACT RELOAD** — closes the gap where F085's rules existed in mode/SKILL.md but didn't prime the Pilot at session start (the cause of the observed "agent keeps asking to commit" symptom).
