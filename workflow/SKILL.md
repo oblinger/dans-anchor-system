@@ -274,6 +274,42 @@ The bracket should be checkable against the row's body in one read.
 | `/roster` | Reads state across all items and prints per-bucket counts. |
 | `/audit` | Generates new `[ ]` items from findings (no state advancement). |
 
+## Mutation API — `backlog-edit.py`
+
+The canonical way to mutate a backlog row. All skills that advance, park, or rebracket items go through this script instead of editing the backlog file directly.
+
+**Path:** `~/.claude/skills/workflow/scripts/backlog-edit.py` (skill-owned; no `~/bin/` dependency).
+
+**Args (positional):**
+
+```
+backlog-edit.py <slug> <horizon> <row-id> <status> [content]
+```
+
+| Arg | Values |
+|---|---|
+| `slug` | Anchor slug (`SKA`, `MUX`, `HA`, …). The tool finds the backlog file from this — callers do not pass paths. |
+| `horizon` | `Now` / `Next` / `Later` / `Active` / `Ready` / `Done` / `Verify`, or **`same`** to leave the row in its current H2 (errors if the row doesn't exist). |
+| `row-id` | `F<NNN>` / `B<n>` / `B-<slug>` to address an existing row, or **`Fnew`** / **`Bnew`** to mint the next available number (max + 1, F-numbers zero-padded to three digits). |
+| `status` | Bracket text (`Ready`, `Questions`, `Verify`, `Watching 7d`, `Done`, `Verify-by 2026-06-15`, …), or **`delete`** to remove the row. |
+| `content` | Title + body text. Format: `<Title> — <description>`. Ignored for `delete`. |
+
+**Side effects:**
+
+1. Mutates the row in `{slug} Backlog.md`.
+2. Invokes `~/.claude/skills/audit/scripts/audit-q.py --scope backlog --anchor <slug> --fix` to refresh `~/ob/kmr/Q.md` (banner counts, status drift).
+3. Appends one `[INFO]` entry to the per-anchor `{slug} Messages.md` and one to the global sentinel `~/.claude/state/agent-messages` (surfaced to the next agent on Stop hook).
+
+**Output:** stdout = `<slug>: <verb> <row-id> in <horizon> [<status>]` (one line). For mint operations, the assigned row-id is in the output — parse it when the caller needs to reference the new row (e.g., `/feature` naming a new feature doc file).
+
+**Discipline — skills MUST NOT edit backlog files directly.** All row creation, status changes, horizon moves, and deletions go through this script. Direct edits bypass the Q.md refresh and the Messages notification, which silently breaks the cross-agent state-of-the-anchor surface.
+
+The script is invoked via `Bash`:
+
+```
+~/.claude/skills/workflow/scripts/backlog-edit.py SKA Now Fnew Designing "Title — description"
+```
+
 ## Per-surface mappings
 
 Each surface that uses workflow state cites this discipline and maps the canonical states onto its own structure.
