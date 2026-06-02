@@ -102,7 +102,7 @@ EXCLUDED_PATH_FRAGMENTS = (".trash", "Closet", "Yore", "worktrees", ".claude")
 
 # Horizon H2s in a per-anchor backlog. `## Done` is the archive surface for
 # C4's stale-Done migration; everything else is a "live" horizon.
-LIVE_HORIZON_H2S = {"Active", "Ready", "Now", "Next", "Later", "Legwork"}
+LIVE_HORIZON_H2S = {"Active", "Ready", "Now", "Next", "Later", "Verify", "Legwork"}
 ALL_KNOWN_H2S = LIVE_HORIZON_H2S | {"Done", "Icebox", "Notes"}
 
 # ============================================================
@@ -1496,18 +1496,36 @@ def check_c22_link_existence_extended(
 
 
 def _is_pure_state_park_bracket(status: str) -> bool:
-    """Pure-state brackets unambiguously belong in ## Later (per F089 Q1 hybrid):
-    Watching, Waiting, Watching Nd/Nh, Waiting Nd/Nh, Blocked, Blocked F<n>.
+    """Pure-state brackets unambiguously belong in a park horizon (per F089 Q1
+    hybrid + F100 Verify-horizon split):
+    - Watching, Watching Nd/Nh -> ## Verify (passive observation)
+    - Verify, Verify-by YYYY-MM-DD -> ## Verify
+    - Waiting, Waiting Nd/Nh -> ## Later (awaiting external event)
+    - Blocked, Blocked F<n> -> ## Later (external dependency)
 
-    Ambiguous brackets (Questions / Designing / Verify / Verify-by) are NOT
-    auto-fixable — they need /groom body-reading to decide.
+    Ambiguous brackets (Questions / Designing) are NOT auto-fixable — they
+    need /groom body-reading to decide.
     """
     s = status.strip()
     return (
         s.startswith("Watching")
         or s.startswith("Waiting")
         or s.startswith("Blocked")
+        or s.startswith("Verify")  # Verify, Verify-by -> ## Verify horizon
     )
+
+
+def _park_bracket_target_h2(status: str) -> str:
+    """Return the canonical target H2 name for a pure-state park bracket.
+
+    Per F100: Watching/Verify* go to `## Verify`; Waiting/Blocked stay in
+    `## Later`. The split surfaces passive-observation rows separately from
+    awaiting-event rows in triage.
+    """
+    s = status.strip()
+    if s.startswith("Watching") or s.startswith("Verify"):
+        return "Verify"
+    return "Later"  # Waiting, Blocked
 
 
 def _is_verify_by_expired(status: str, today: date) -> bool:
@@ -1534,10 +1552,11 @@ def check_c13_ready_h2_purity(entries: list[BacklogEntry]) -> list[Finding]:
         if e.status.startswith("Done"):
             continue
         auto_fix = _is_pure_state_park_bracket(e.status)
-        suffix = (
-            "; auto-moving to ## Later" if auto_fix
-            else "; needs /groom body-reading"
-        )
+        if auto_fix:
+            target_h2 = _park_bracket_target_h2(e.status)
+            suffix = f"; auto-moving to ## {target_h2}"
+        else:
+            suffix = "; needs /groom body-reading"
         findings.append(Finding(
             severity="warning",
             surface_file=e.source_file,
@@ -1563,10 +1582,11 @@ def check_c14_active_h2_purity(entries: list[BacklogEntry]) -> list[Finding]:
         if e.status.startswith("Done"):
             continue  # C4 owns
         auto_fix = _is_pure_state_park_bracket(e.status)
-        suffix = (
-            "; auto-moving to ## Later" if auto_fix
-            else "; needs /groom body-reading"
-        )
+        if auto_fix:
+            target_h2 = _park_bracket_target_h2(e.status)
+            suffix = f"; auto-moving to ## {target_h2}"
+        else:
+            suffix = "; needs /groom body-reading"
         findings.append(Finding(
             severity="warning",
             surface_file=e.source_file,
@@ -1584,27 +1604,41 @@ def check_c14_active_h2_purity(entries: list[BacklogEntry]) -> list[Finding]:
 def check_c15_watching_waiting_in_later(
     entries: list[BacklogEntry],
 ) -> list[Finding]:
-    """C15: [Watching]/[Waiting] rows must be in ## Later."""
+    """C15: [Watching]/[Verify*] rows belong in ## Verify; [Waiting] in ## Later."""
     findings: list[Finding] = []
     for e in entries:
         s = e.status.strip()
-        if not (s.startswith("Watching") or s.startswith("Waiting")):
+        # Watching* and Verify* (Verify, Verify-by) → ## Verify horizon
+        if s.startswith("Watching") or s.startswith("Verify"):
+            if e.horizon == "Verify":
+                continue
+            findings.append(Finding(
+                severity="warning",
+                surface_file=e.source_file,
+                surface_line=e.source_line,
+                code="C15",
+                message=(
+                    f"row '{e.identifier}' has [{s}] bracket in ## {e.horizon} "
+                    f"— Watching/Verify belongs in ## Verify (passive observation)"
+                ),
+                mechanically_fixable=True,
+            ))
             continue
-        if e.horizon == "Later":
-            continue
-        # Skip if already counted by C13/C14 (same row, same auto-fix target)
-        # We still flag separately to make the bracket-based rule visible.
-        findings.append(Finding(
-            severity="warning",
-            surface_file=e.source_file,
-            surface_line=e.source_line,
-            code="C15",
-            message=(
-                f"row '{e.identifier}' has [{s}] bracket in ## {e.horizon} "
-                f"— Watching/Waiting belongs in ## Later (not actionable now)"
-            ),
-            mechanically_fixable=True,
-        ))
+        # Waiting* → ## Later horizon (separate behavior — awaiting an event)
+        if s.startswith("Waiting"):
+            if e.horizon == "Later":
+                continue
+            findings.append(Finding(
+                severity="warning",
+                surface_file=e.source_file,
+                surface_line=e.source_line,
+                code="C15",
+                message=(
+                    f"row '{e.identifier}' has [{s}] bracket in ## {e.horizon} "
+                    f"— Waiting belongs in ## Later (awaiting external event)"
+                ),
+                mechanically_fixable=True,
+            ))
     return findings
 
 
@@ -1849,10 +1883,11 @@ def apply_placement_fixes(
             if e.horizon != "Done":
                 moves.append((e, "Done"))
             continue
-        # C15/C16 — pure-state park brackets not in Later
+        # C15/C16 — pure-state park brackets in wrong horizon
         if _is_pure_state_park_bracket(s):
-            if e.horizon != "Later":
-                moves.append((e, "Later"))
+            target_h2 = _park_bracket_target_h2(s)
+            if e.horizon != target_h2:
+                moves.append((e, target_h2))
             continue
     if not moves:
         return []
@@ -1964,7 +1999,7 @@ def derive_anchor_banner(name: str, backlog_file: Path,
         questions_n += q_count
     # Per-horizon counts (every entry, even with [Done] would count toward Now
     # in original spec, but C4 will move them out; here we count live only).
-    horizon_counts = {h: 0 for h in ("Active", "Ready", "Now", "Next", "Later", "Icebox")}
+    horizon_counts = {h: 0 for h in ("Active", "Ready", "Now", "Next", "Later", "Verify", "Icebox")}
     for e in entries:  # all entries including potentially-stale-Done
         if e.horizon in horizon_counts and not e.status.startswith("Done"):
             horizon_counts[e.horizon] += 1
@@ -2001,7 +2036,8 @@ def derive_anchor_banner(name: str, backlog_file: Path,
         f"# [{tag}]  [[{name} ask|{name}]]  -  "
         f"Ready {ready_n}    Questions {questions_n}   |   "
         f"Now {horizon_counts['Now']}    Next {horizon_counts['Next']}    "
-        f"Later {horizon_counts['Later']}    Icebox {horizon_counts['Icebox']}"
+        f"Later {horizon_counts['Later']}    Verify {horizon_counts['Verify']}    "
+        f"Icebox {horizon_counts['Icebox']}"
     )
     return banner
 

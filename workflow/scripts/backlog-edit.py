@@ -446,7 +446,7 @@ def warn_verify_watching_horizon(status, horizon_name):
     if horizon_name not in NUDGE_BUCKETS:
         return
     sys.stderr.write(
-        f"note: [{status}] usually belongs in Later — passive verification through normal use.\n"
+        f"note: [{status}] usually belongs in Verify (passive observation through normal use).\n"
         f"      Promote to {horizon_name} only if verification MUST happen before the next step.\n"
     )
 

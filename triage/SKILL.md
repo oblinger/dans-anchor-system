@@ -58,7 +58,7 @@ Authoritative spec: `[[CAB Triage]]` (presentation form, unmoored from any per-a
 description: triage inbox (agent-owned)
 ---
 
-# [<TAG>]  [[{NAME} ask|{NAME}]]  -  Ready N    Questions N   |   Now N    Next N    Later N    Icebox N
+# [<TAG>]  [[{NAME} ask|{NAME}]]  -  Ready N    Questions N   |   Now N    Next N    Later N    Verify N    Icebox N
 - **[N Questions]**  [[{NAME} Questions]]
 ## Active
 - **[Active]** [[F<n> Title]] — description.
@@ -171,7 +171,7 @@ The user reads `[Ready]` and trusts it. If a row's description includes "we'll s
 ## H1 banner spacing — exact
 
 ```
-# [<TAG>]  [[{NAME} ask|{NAME}]]  -  Ready N    Questions N   |   Now N    Next N    Later N    Icebox N
+# [<TAG>]  [[{NAME} ask|{NAME}]]  -  Ready N    Questions N   |   Now N    Next N    Later N    Verify N    Icebox N
 ```
 
 - Two spaces between `[<TAG>]` and `[[{NAME}]]`.
@@ -241,7 +241,9 @@ Read `{NAME} Questions.md`. If it has pending `Q<n>` in `## Open Questions`, ren
 
 ### 5. Render body H2s
 
-For each backlog H2 in this fixed order — `## Active`, `## Ready`, `## Now`, `## Next`, `## Later` — render the H2 line and one bullet per qualifying item, **in source order from the backlog**. Skip the H2 entirely when no items qualify.
+For each backlog H2 in this fixed order — `## Active`, `## Ready`, `## Now`, `## Next`, `## Later`, `## Verify` — render the H2 line and one bullet per qualifying item, **in source order from the backlog**. Skip the H2 entirely when no items qualify.
+
+`## Verify` (per F100, 2026-06-02) is a dedicated horizon for `[Watching*]` and `[Verify*]` rows. The split surfaces passive-observation work separately from `## Later` (which now holds only `[Waiting*]` / `[Blocked*]` / etc.). All `## Verify` rows are rendered (no filter — every row there is user-relevant since it's awaiting confirmation or recurrence-check).
 
 - For `## Active`, `## Ready`, `## Now`, `## Next` — all items qualify (subject to the standard `[Done]`-skip rule below).
 - For `## Later` — **only items carrying `[Questions]` or `[Verify]` brackets qualify** (per 2026-05-20 selective-surfacing rule). All other Later items stay hidden.
@@ -283,7 +285,7 @@ If you find yourself writing a row whose title is bold-only (no `[[...]]`), stop
 The per-anchor section format — H1-equivalent line `# [<TAG>]  [[{NAME} ask|{NAME}]]  -  …` where the slug `{NAME}` is a wiki-link to the anchor's `{NAME} ask.md` drain page (per B14 — clicking takes the user to where they actually answer questions). Followed by body H2s with bullets in source order from the backlog.
 
 ```markdown
-# [<TAG>]  [[{NAME} ask|{NAME}]]  -  Ready N    Questions N   |   Now N    Next N    Later N    Icebox N
+# [<TAG>]  [[{NAME} ask|{NAME}]]  -  Ready N    Questions N   |   Now N    Next N    Later N    Verify N    Icebox N
 - **[N Questions]** [[{NAME} Questions]]
 ## Active
 - ...
