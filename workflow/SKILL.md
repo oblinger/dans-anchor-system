@@ -423,7 +423,7 @@ The icebox is a **sanctioned exception** to the "active" part of the invariant. 
 
 ### Enforcement
 
-- **At creation time** — `feature/SKILL.md` step 1.5 mandates adding a backlog (or roadmap) row when a feature doc is created. No `--orphan` flag, no convention-only escape hatch.
+- **At creation time** — `feature/SKILL.md` step 1.5 mandates minting a backlog (or roadmap) row when a feature doc is created. The mint happens via `backlog-edit.py Fnew` (see § Mutation API above); no `--orphan` flag, no convention-only escape hatch, no direct backlog edit.
 - **Continuous** — `/audit structure` includes an orphan-check sub-audit: walks `{NAME} Features/` and flags any feature doc not linked from backlog/roadmap/icebox.
 - **One-time sweep at landing** — when this invariant first lands per anchor, run `/audit structure --orphan-sweep` to backfill rows for any pre-existing orphans.
 

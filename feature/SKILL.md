@@ -48,13 +48,13 @@ If a feature is `[Questions]` or `[Blocked]` mid-flight, that's tracked via the 
 
 ### 1. Create the Feature Document
 
-Determine the next F-number for the anchor (highest existing F-number + 1; per `[[CAB Backlog]]` § Numbering policy — monotonic-forever, never recycled, **zero-padded to three digits** as `F001` … `F999`). Create the feature doc in the project's Features folder:
+Per `[[CAB Backlog]]` § Numbering policy, F-numbers are monotonic-forever, never recycled, **zero-padded to three digits** as `F001` … `F999`. The F-number is **minted by the workflow skill's `backlog-edit.py`** in § 1.5 below — run § 1.5 first (after the collision check in § 1b), parse the assigned `F<NNN>` from its stdout, then create the feature doc in the project's Features folder:
 
 ```
 {anchor}/Docs/Plan/Features/F{NNN} — {Feature Name}.md
 ```
 
-If the Features folder doesn't exist, create it. Filenames carry the F-number prefix zero-padded to three digits; the padding is structural — it makes filename sort order match numeric order without special tooling.
+If the Features folder doesn't exist, create it. Filenames carry the F-number prefix from the mint (zero-padded). **Do not read the backlog file directly to compute the next F-number** — `backlog-edit.py Fnew` is the canonical mint.
 
 #### 1b. Collision check — vault grep for duplicate H1 (per F27)
 
@@ -154,19 +154,29 @@ Before adding a question to `## Open Questions`, self-check: is the choice **vis
 
 Always ASK when: invisible OR high recoverability cost OR irreversible (push / external messages / hard deletes / deploys) OR interface-decision-sticky (slash command names, frontmatter schemas, default keybindings, durable file naming). New-feature-without-approval always asks.
 
-### 1.5. Add a backlog (or roadmap) row — MANDATORY (per [[SKA workflow]] § Active-work invariant)
+### 1.5. Mint the backlog (or roadmap) row — MANDATORY (per [[SKA workflow]] § Active-work invariant)
 
 Per the active-work invariant: **every feature doc must be reachable from `{NAME} Backlog.md` or `{NAME} Roadmap.md`** at creation time. No exceptions, no `--orphan` flag.
 
-**For a backlog feature** (the common case): add an `F{n}` row to `{NAME} Backlog.md` with the feature's F-number and a `→ [[F{n} — {Feature Name}]]` link. Bracket = `[Designing]` (fresh feature with open questions about to be parked) or `[Questions]` (after the Open Questions block has been written). Default placement: under `## Now` H2.
+**For a backlog feature** (the common case): mint the row via the workflow skill's `backlog-edit.py`. This both reserves the F-number (returned in stdout) and creates the row atomically — no direct backlog edits. Run this **before** creating the feature doc file in § 1 (the F-number names the file).
 
+```bash
+~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} Now Fnew Designing "{Feature Name}"
 ```
-- **F{n} — {Feature Name}** [Designing] — → [[F{n} — {Feature Name}]]
+
+Output: `{NAME}: added F<NNN> in Now [Designing]` — parse `F<NNN>` from the second word after `added`. Use that F-number for the feature doc filename (§ 1).
+
+After § 1 creates the feature doc, run a follow-up call to add the wiki-link body so the row links back to the new doc:
+
+```bash
+~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} same F<NNN> Designing "{Feature Name}" "→ [[F<NNN> — {Feature Name}]]"
 ```
 
-**For a roadmap milestone**: the feature doc gets an M-number prefix (`Features/M{n} — {Name}.md` with H1 `# M{n} — {Name}`). Add a milestone row to `{NAME} Roadmap.md`. M-numbers are hierarchical (M1, M1.2, M1.2.3) — see `[[SKA workflow]]` § Active-work invariant for the namespace rules.
+Use `Later` instead of `Now` for parking-mode stubs (`/feature` used to file something for later). Use bracket `Questions` instead of `Designing` once the Open Questions block has been written and the row should surface to triage as user-actionable.
 
-**The row is added in the SAME turn the feature doc is created.** Don't defer; orphans accumulate when the row-creation step is "for later."
+**For a roadmap milestone**: the feature doc gets an M-number prefix (`Features/M{n} — {Name}.md` with H1 `# M{n} — {Name}`). `backlog-edit.py` is backlog-only — roadmap milestones currently use a separate path (manual `Roadmap.md` edit). M-numbers are hierarchical (M1, M1.2, M1.2.3) — see `[[SKA workflow]]` § Active-work invariant for the namespace rules.
+
+**The row is minted in the SAME turn the feature doc is created.** Don't defer; orphans accumulate when the row-creation step is "for later."
 
 ### 1a. Surface the Doc — glance only when adding/modifying a pending question AND the user is engaging now
 
@@ -184,15 +194,21 @@ open "<path to feature doc>"
 
 **On the create step:** glance only if you're in active mode. If creating a feature stub for backlog filing, skip the glance — the user just told you to file it; opening the file at them is the opposite of what they asked.
 
-### 1c. Refresh the anchor's Q.md section (per F075 post-condition)
+### 1c. Refresh the anchor's Q.md section — automatic via `backlog-edit.py`
 
-**Rule:** every Phase transition in `/feature` (Phase 1 → Phase 2 when all Qs resolve; Phase 2 → Phase 3 when a new Q arises; Status changes Designing → Agreed → Implementing → Done) is a state-touching action — call the Q.md update post-condition per `[[F075]]` Q2.
+**Rule:** every Phase transition in `/feature` (Phase 1 → Phase 2 when all Qs resolve; Phase 2 → Phase 3 when a new Q arises; Status changes Designing → Agreed → Implementing → Done) is a state-touching action that must update the backlog row + refresh `~/ob/kmr/Q.md`.
 
-**Procedure (the post-condition, fired at end of `/feature` invocation when state changed):**
+**The mechanism:** call `backlog-edit.py` with the new status for **every** transition — it auto-refreshes Q.md as a side effect (invokes `audit-q.py --scope backlog --anchor {NAME} --fix`).
 
-1. Update the touched backlog row's text/bracket in `{NAME} Backlog.md` to reflect the new state. **Backlog file source order is preserved** — do not reorder.
-2. Regenerate the anchor's per-anchor section in `~/ob/kmr/Q.md` (per `[[SKA triage]]` § 6 — walk the backlog, compute the section, remove any existing section for this anchor, insert at top). Bubble-to-top is a Q.md behavior only.
-**Then invoke `/audit q` to verify (per F076 Q6 auto-wiring).** The audit's fix-by-default behavior catches any drift introduced by this skill's edits — broken links, stale brackets, banner mismatches, stale `[Done]` rows — and either repairs them mechanically OR (rare) files a `QFix [Ready]` backlog entry the user can address later. Surfacing any QFix entry is part of this skill's "done" criteria.
+```bash
+~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} same F<NNN> Agreed "{Feature Name}" "→ [[F<NNN> — {Feature Name}]]"
+~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} same F<NNN> Active "{Feature Name}" "→ [[F<NNN> — {Feature Name}]]"
+# ... and so on for Verify, Done.
+```
+
+Use `same` for the horizon when the row stays in its current H2; use an explicit horizon name (`Now` / `Active` / `Done`) to move it.
+
+The audit's fix-by-default behavior catches any drift introduced by this skill's row edits — broken links, stale brackets, banner mismatches, stale `[Done]` rows — and either repairs them mechanically OR (rare) files a `QFix [Ready]` backlog entry the user can address later. **Surfacing any QFix entry is part of this skill's "done" criteria** — read the script's stderr/stdout output for QFix lines, surface them to the user.
 
 **Active mode (the user is engaging now)** — after the post-condition runs, the glance step (§ 1a) already opens `~/ob/kmr/Q.md` per the F075 single-glance-target rule.
 
