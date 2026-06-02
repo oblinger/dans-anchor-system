@@ -55,7 +55,9 @@ VAULT_ROOT = HOME / "ob" / "kmr"
 SENTINEL = HOME / ".claude" / "state" / "agent-messages"
 STATE_FILE = HOME / ".config" / "ob-skills" / "backlog-edit" / "state.json"
 
-VALID_HORIZONS = {"Now", "Next", "Later", "Active", "Ready", "Done", "Verify"}
+VALID_HORIZONS = {"Now", "Next", "Later", "Active", "Ready", "Done", "Verify", "Icebox"}
+ICEBOX_HORIZON = "Icebox"
+ICEBOX_DEFAULT_H2 = "Iced"
 SKIP_PATH_FRAGMENTS = ("/.history/", "/worktrees/", "/Yore/", "/.trash/")
 
 # A Questions-bracket promise: the linked target must contain ≥1 of these.
@@ -84,7 +86,7 @@ def find_backlog(slug):
     """Locate `<slug> Backlog.md` somewhere under VAULT_ROOT."""
     target = f"{slug} Backlog.md"
     matches = []
-    for root, dirs, files in os.walk(VAULT_ROOT):
+    for root, dirs, files in os.walk(VAULT_ROOT, followlinks=True):
         # Skip noisy paths
         if any(frag in root + "/" for frag in SKIP_PATH_FRAGMENTS):
             dirs[:] = []
@@ -105,6 +107,44 @@ def anchor_track_dir(backlog_path):
     return backlog_path.parent
 
 
+def find_icebox(slug):
+    """Locate `<slug> Icebox.md` somewhere under VAULT_ROOT (None if absent)."""
+    target = f"{slug} Icebox.md"
+    matches = []
+    for root, dirs, files in os.walk(VAULT_ROOT, followlinks=True):
+        if any(frag in root + "/" for frag in SKIP_PATH_FRAGMENTS):
+            dirs[:] = []
+            continue
+        if target in files:
+            matches.append(Path(root) / target)
+    if not matches:
+        return None
+    if len(matches) > 1:
+        raise BacklogEditError(
+            f"multiple '{target}' candidates: " + ", ".join(str(m) for m in matches)
+        )
+    return matches[0]
+
+
+def ensure_icebox(slug, backlog_path):
+    """Get the icebox path; create it (sibling of backlog) with the standard
+    header + `## Iced` H2 when absent."""
+    existing = find_icebox(slug)
+    if existing is not None:
+        return existing
+    icebox = backlog_path.parent / f"{slug} Icebox.md"
+    header = (
+        "---\n"
+        f"description: cold-storage backlog for {slug} — parked items "
+        f"not in scope for the active horizons.\n"
+        "---\n"
+        f"\n# {slug} Icebox\n\n"
+        f"## {ICEBOX_DEFAULT_H2}\n\n"
+    )
+    icebox.write_text(header)
+    return icebox
+
+
 def find_file_by_basename(basename):
     """Locate a .md file under VAULT_ROOT by basename (no extension).
 
@@ -112,7 +152,7 @@ def find_file_by_basename(basename):
     or None.
     """
     target = f"{basename}.md"
-    for root, dirs, files in os.walk(VAULT_ROOT):
+    for root, dirs, files in os.walk(VAULT_ROOT, followlinks=True):
         if any(frag in root + "/" for frag in SKIP_PATH_FRAGMENTS):
             dirs[:] = []
             continue
@@ -170,6 +210,55 @@ def verify_questions_constraint(status, body):
             f"(at {target_path.relative_to(VAULT_ROOT) if target_path.is_relative_to(VAULT_ROOT) else target_path}) "
             f"contains no Q<n> markers. Write the Open Questions block first, then re-run."
         )
+    # Format check — every Q must have labeled options on their own indented
+    # sub-bullets and an explicit Recommendation with Strong/Lean/None. Shell
+    # out to audit-q.py (single source of truth for C8/C9/C10/C19).
+    violations = run_audit_q_format_check(target_path)
+    if violations:
+        formatted = "\n  - ".join(violations[:10])  # cap at 10 for terminal sanity
+        more = "" if len(violations) <= 10 else f"\n  - ... and {len(violations) - 10} more"
+        raise BacklogEditError(
+            f"[{status}] promise broken: target [[{basename}]] has Q-format violations.\n"
+            f"  Each Q must have labeled options on their own sub-bullets AND an explicit\n"
+            f"  Recommendation bullet with Strong/Lean/None (per [[ask-format]]).\n"
+            f"  - {formatted}{more}\n"
+            f"  Fix the Q-block format, then re-run."
+        )
+
+
+def run_audit_q_format_check(target_path):
+    """Invoke audit-q.py --scope feature-doc against target_path; return a
+    list of Q-format violation messages (C8/C9/C10/C19). Empty when clean.
+
+    The Q-format rules check: labeled options on own sub-bullets (C19),
+    explicit Recommendation with Strong/Lean/None (C9), Recommendation indent
+    matches Q-header (C10), no inline prose alternatives (C8). This is the
+    structural check that catches the SVP-Orch-Arch-style malformed Q-blocks
+    BEFORE backlog-edit.py writes a [Questions] bracket asserting they exist.
+    """
+    audit_q = HOME / ".claude" / "skills" / "audit" / "scripts" / "audit-q.py"
+    if not audit_q.exists():
+        return []  # best-effort; if the audit skill isn't installed, skip
+    try:
+        result = subprocess.run(
+            [str(audit_q), "--scope", "feature-doc",
+             "--feature-doc", str(target_path), "--dry"],
+            capture_output=True, text=True, timeout=30,
+        )
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        return []
+    # Parse stdout for the relevant rule codes.
+    relevant = ("C8", "C9", "C10", "C19")
+    violations = []
+    for line in result.stdout.splitlines():
+        for code in relevant:
+            if f"] {code} " in line:
+                # Trim the leading file path; keep code + line# + message.
+                idx = line.find(f"{code} ")
+                tail = line[idx:] if idx >= 0 else line
+                violations.append(tail)
+                break
+    return violations
 
 
 def warn_verify_watching_horizon(status, horizon_name):
@@ -409,13 +498,10 @@ def perform_edit(
                 f"{row_id} exists but is not under any H2 — cannot keep 'same'"
             )
     else:
-        # Strip optional '## ' prefix
+        # Strip optional '## ' prefix. Validation of the user-facing horizon
+        # arg happens upstream in main(); by the time we get here, this is the
+        # resolved H2 name (may be 'Iced' for icebox-bound writes).
         h2_name = horizon.lstrip("# ").strip()
-        if h2_name not in VALID_HORIZONS:
-            raise BacklogEditError(
-                f"invalid horizon '{horizon}' "
-                f"(expected one of {sorted(VALID_HORIZONS)} or 'same')"
-            )
 
     # Handle delete first.
     if status == "delete":
@@ -577,6 +663,91 @@ def refresh_q_md(slug):
 # --------------------------------------------------------------------------
 # CLI
 
+def row_in_file(file_path, row_id):
+    """Scan a file for a row whose F/B-id matches row_id (exact)."""
+    if not file_path.is_file():
+        return False
+    try:
+        text = file_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return False
+    # Look for `**<row_id>` at the start of any row bullet.
+    pattern = re.compile(rf"^\s*-\s+\*\*{re.escape(row_id)}\b", re.MULTILINE)
+    return pattern.search(text) is not None
+
+
+def resolve_files_for_edit(slug, backlog_path, horizon, row_id_arg, status):
+    """Decide source + destination files based on horizon and current row location.
+
+    Returns (source_file, destination_file, destination_horizon).
+
+    - source_file: the file we may need to delete from first (None if not needed).
+    - destination_file: where the new/updated row lands.
+    - destination_horizon: H2 name inside the destination file.
+    """
+    icebox_path = find_icebox(slug)
+
+    # Resolve where the existing row currently lives, if known.
+    src_file = None
+    if row_id_arg not in (None,) and not row_id_arg.endswith("new"):
+        # explicit row-id; check both files
+        if row_in_file(backlog_path, row_id_arg):
+            src_file = backlog_path
+        elif icebox_path and row_in_file(icebox_path, row_id_arg):
+            src_file = icebox_path
+
+    # Determine destination based on horizon.
+    if horizon == ICEBOX_HORIZON:
+        dst_file = ensure_icebox(slug, backlog_path)
+        dst_horizon = ICEBOX_DEFAULT_H2
+    elif horizon == "same":
+        # Stay in whichever file the row currently lives.
+        if src_file is not None:
+            dst_file = src_file
+            dst_horizon = "same"
+        else:
+            # Row doesn't exist yet — `same` with no prior row is an error
+            # handled downstream in perform_edit.
+            dst_file = backlog_path
+            dst_horizon = "same"
+    else:
+        # Any other horizon → backlog file
+        dst_file = backlog_path
+        dst_horizon = horizon
+
+    # Cross-file move case: source and destination differ → we'll delete from
+    # source then insert into destination. Doesn't apply to delete or mint.
+    cross_file = (
+        src_file is not None
+        and src_file != dst_file
+        and status != "delete"
+    )
+    if not cross_file:
+        src_file = None  # signal "no cross-file delete needed"
+
+    return src_file, dst_file, dst_horizon
+
+
+def mint_cross_file_id(backlog_path, icebox_path, kind):
+    """Compute the next F/B number across BOTH backlog and icebox.
+
+    Per [[CAB Backlog]] § Icebox interaction: 'F-number namespace is shared
+    across backlog AND icebox — no F-number collisions; an item moving
+    between the two keeps its F-number.' Same for B-numbers.
+    """
+    nums = []
+    pattern = re.compile(rf"^\s*-\s+\*\*{kind}(\d+)\b", re.MULTILINE)
+    for path in (backlog_path, icebox_path):
+        if path is None or not path.is_file():
+            continue
+        try:
+            text = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        nums.extend(int(m.group(1)) for m in pattern.finditer(text))
+    return (max(nums) + 1) if nums else 1
+
+
 def main(argv):
     if len(argv) < 5:
         print(__doc__, file=sys.stderr)
@@ -590,10 +761,40 @@ def main(argv):
     title = argv[5] if title_provided else ""
     body = argv[6] if body_provided else ""
 
+    # Validate user-facing horizon arg here, before any file resolution.
+    if horizon != "same":
+        horizon_check = horizon.lstrip("# ").strip()
+        if horizon_check not in VALID_HORIZONS:
+            raise BacklogEditError(
+                f"invalid horizon '{horizon}' "
+                f"(expected one of {sorted(VALID_HORIZONS)} or 'same')"
+            )
+
     backlog_path = find_backlog(slug)
+    icebox_path = find_icebox(slug)  # may be None
+
+    # If minting a new ID (Fnew/Bnew), resolve it across both files now so the
+    # backlog/icebox shared namespace is respected.
+    if row_id_arg in ("Fnew", "Bnew"):
+        kind = row_id_arg[0]
+        num = mint_cross_file_id(backlog_path, icebox_path, kind)
+        row_id_arg = format_row_id(kind, num)
+
+    src_file, dst_file, dst_horizon = resolve_files_for_edit(
+        slug, backlog_path, horizon, row_id_arg, status
+    )
+
+    # Cross-file move: delete the row from its current file first. This is
+    # not atomic — see Resolved decision § cross-file atomicity in F095.
+    if src_file is not None:
+        perform_edit(
+            src_file, "same", row_id_arg, "delete",
+            "", "", False, False,
+        )
+
     result = perform_edit(
-        backlog_path,
-        horizon,
+        dst_file,
+        dst_horizon,
         row_id_arg,
         status,
         title,
