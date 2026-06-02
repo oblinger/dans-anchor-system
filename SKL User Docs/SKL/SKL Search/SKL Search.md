@@ -10,6 +10,7 @@ User guides for search-shaped skills — query the open web, find skills others 
 | --- | --- |
 | [[SKL Search Overview\|Overview]] | How the search skill family combines knowledge and rules — the mental model behind find/describe/survey. |
 | Actions | [[SKL Find]],  [[SKL Describe]],  [[SKL Survey]],   |
+| Meta-survey | [[SKL Meta Survey]] — high-rigor three-stage form (sources × dimensions × items, cell-certainty notation) |
 | Types · People | [[SKL Person]],  [[SKL Corp]],   |
 | Types · Things | [[SKL Product]],  [[SKL Book]],   |
 | Types · Digital content | [[SKL Software]],  [[SKL Skill]],   |
