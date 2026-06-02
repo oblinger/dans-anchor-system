@@ -55,7 +55,7 @@ A system for organizing projects into typed anchor folders with consistent struc
 
 ## How Skills Work
 
-Each skill lives in its own folder with a `SKILL.md` entry point. When a user types `/skill-name action` (e.g., `/code plan`, `/research dig`), the agent reads the corresponding action file and executes the workflow.
+Each skill lives in its own folder with a `SKILL.md` entry point. When a user types `/skill-name action` (e.g., `/code plan`, `/survey product`), the agent reads the corresponding action file and executes the workflow.
 
 Skills are:
 - **Declarative** — written in markdown, not code. The agent interprets the workflow instructions.

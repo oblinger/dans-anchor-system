@@ -38,7 +38,7 @@ Capture findings in `{NAME} Research.md` in the Plan folder. Use a simple format
 
 ### 3. Formal Surveys (if needed)
 
-If a question is important enough to warrant deep investigation, run `/research survey`. The survey report goes to RRR and gets linked from the Research doc:
+If a question is important enough to warrant deep investigation, run `/survey` (per [[survey/SKILL]]). The survey report lands in `~/ob/kmr/Topic/Search/Survey/` and gets linked from the Research doc:
 
 ```markdown
 ## Tool Landscape
