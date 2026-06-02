@@ -888,7 +888,14 @@ def find_ask_format_files(
 
 
 def extract_q_entries(file_path: Path, container_id: str) -> list[QEntry]:
-    """Parse file_path; return one QEntry per Q-header inside `## Open Questions`.
+    """Parse file_path; return one QEntry per pending `**Q<n>` bullet anywhere in the file.
+
+    **Loose detection** — a Q-bullet is "pending" unless it appears inside a
+    Resolved section (`## Resolved` H2 or `### Resolved` H3, case-insensitive).
+    No gating on `## Open Questions` H2 spelling: the principle is "if the file
+    contains `**Q<n> —` bullets in a non-Resolved area, treat them as the
+    pending questions for this file." This catches lowercase `## Open questions`
+    and any other H2 variant without playing whack-a-mole on titles.
 
     Recommendation matching: the first bullet line whose body starts with
     `**Recommendation:**` after a Q-header and before the next Q-header is the
@@ -901,7 +908,8 @@ def extract_q_entries(file_path: Path, container_id: str) -> list[QEntry]:
     except (OSError, UnicodeDecodeError):
         return []
     out: list[QEntry] = []
-    in_open_questions = False
+    in_h2_resolved = False  # inside `## Resolved` H2 (case-insensitive)
+    in_h3_resolved = False  # inside `### Resolved` H3 (case-insensitive)
     pending_q: Optional[QEntry] = None
 
     def flush():
@@ -911,21 +919,23 @@ def extract_q_entries(file_path: Path, container_id: str) -> list[QEntry]:
             pending_q = None
 
     for line_num, line in enumerate(lines, start=1):
-        # Track section state via H2 headings; H3 ### Resolved closes Q tracking
+        # Track Resolved-section state via H2/H3. Any new H2 resets H3 context.
+        # A line is in a Resolved area iff in_h2_resolved OR in_h3_resolved.
         heading_m = HEADING_RE.match(line)
         if heading_m:
             level = len(heading_m.group(1))
             heading_text = heading_m.group(2).strip()
             if level == 2:
                 flush()
-                in_open_questions = (heading_text == "Open Questions")
+                in_h2_resolved = (heading_text.lower() == "resolved")
+                in_h3_resolved = False
                 continue
-            if level == 3 and heading_text == "Resolved" and in_open_questions:
-                # Resolved subsection — pending Qs above the heading get flushed
+            if level == 3:
                 flush()
-                in_open_questions = False
+                in_h3_resolved = (heading_text.lower() == "resolved")
                 continue
-        if not in_open_questions:
+            # Level 1 or 4+: leave state alone (rare in feature docs)
+        if in_h2_resolved or in_h3_resolved:
             continue
         # Q-header bullet
         qm = Q_HEADER_RE.match(line)

@@ -58,6 +58,16 @@ STATE_FILE = HOME / ".config" / "ob-skills" / "backlog-edit" / "state.json"
 VALID_HORIZONS = {"Now", "Next", "Later", "Active", "Ready", "Done", "Verify"}
 SKIP_PATH_FRAGMENTS = ("/.history/", "/worktrees/", "/Yore/", "/.trash/")
 
+# A Questions-bracket promise: the linked target must contain ≥1 of these.
+Q_MARKER_RE = re.compile(r"\bQ\d+\s+—")
+# Extract the basename from the first wiki-link in a body string.
+WIKI_LINK_RE = re.compile(r"\[\[([^\]|#]+?)(?:#[^\]|]*)?(?:\|[^\]]*)?\]\]")
+# Statuses that assert the Questions-target promise.
+QUESTIONS_STATUS_RE = re.compile(r"^(\d+\s+)?Questions?$", re.IGNORECASE)
+# Statuses to nudge toward Later/Icebox.
+VERIFY_WATCHING_FAMILY = ("Verify", "Watching")
+NUDGE_BUCKETS = {"Now", "Next", "Active", "Ready"}
+
 
 # --------------------------------------------------------------------------
 # Errors
@@ -93,6 +103,96 @@ def find_backlog(slug):
 def anchor_track_dir(backlog_path):
     """The `{slug} Track/` directory (where Messages.md lives)."""
     return backlog_path.parent
+
+
+def find_file_by_basename(basename):
+    """Locate a .md file under VAULT_ROOT by basename (no extension).
+
+    Used to verify Questions-target links. Returns the first matching path
+    or None.
+    """
+    target = f"{basename}.md"
+    for root, dirs, files in os.walk(VAULT_ROOT):
+        if any(frag in root + "/" for frag in SKIP_PATH_FRAGMENTS):
+            dirs[:] = []
+            continue
+        if target in files:
+            return Path(root) / target
+    return None
+
+
+def verify_questions_constraint(status, body):
+    """Raise BacklogEditError if status asserts a Questions promise that the
+    body's wiki-link target cannot honor.
+
+    The promise: a [Questions] / [N Questions] bracket means following the
+    row's link lands on a file with ≥1 `Q<n> —` marker. The script enforces
+    this at write time so the agent learns immediately instead of leaving a
+    broken contract for /audit q to catch later.
+
+    Skip when:
+      - status is not a Questions variant
+      - body is empty (no link to check; caller responsible for soundness)
+      - the wiki-link target file cannot be located in the vault
+        (warn-not-fail — may be a fresh anchor or unresolvable basename)
+    """
+    if not QUESTIONS_STATUS_RE.match(status.strip()):
+        return
+    if not body or not body.strip():
+        raise BacklogEditError(
+            f"[{status}] requires a body with a wiki-link to a target containing "
+            f"Q<n> markers; body is empty. Add the link first, then re-run."
+        )
+    m = WIKI_LINK_RE.search(body)
+    if not m:
+        raise BacklogEditError(
+            f"[{status}] requires a body with a wiki-link to a target containing "
+            f"Q<n> markers; no wiki-link found in body. "
+            f"Body: {body[:120]!r}"
+        )
+    basename = m.group(1).strip()
+    target_path = find_file_by_basename(basename)
+    if target_path is None:
+        sys.stderr.write(
+            f"note: [{status}] target [[{basename}]] not located in vault — "
+            f"skipping Q-marker verification. If the target is a freshly-created "
+            f"doc, this is fine; if it should exist, the link is broken.\n"
+        )
+        return
+    try:
+        text = target_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as e:
+        sys.stderr.write(f"note: cannot read [[{basename}]] for Q-verification: {e}\n")
+        return
+    if not Q_MARKER_RE.search(text):
+        raise BacklogEditError(
+            f"[{status}] promise broken: target [[{basename}]] "
+            f"(at {target_path.relative_to(VAULT_ROOT) if target_path.is_relative_to(VAULT_ROOT) else target_path}) "
+            f"contains no Q<n> markers. Write the Open Questions block first, then re-run."
+        )
+
+
+def warn_verify_watching_horizon(status, horizon_name):
+    """Print a stderr nudge when Verify/Watching is set on Now/Next/Active/Ready.
+
+    User preference: passive verification through normal use (Later horizon)
+    over explicit verify-before-next-step. This is a nudge, not a refusal —
+    the rare critical-verify case is legitimate and just ignores the line.
+    """
+    status_root = status.split()[0] if status else ""
+    if not status_root:
+        return
+    is_verify_or_watching = any(
+        status_root.startswith(prefix) for prefix in VERIFY_WATCHING_FAMILY
+    )
+    if not is_verify_or_watching:
+        return
+    if horizon_name not in NUDGE_BUCKETS:
+        return
+    sys.stderr.write(
+        f"note: [{status}] usually belongs in Later — passive verification through normal use.\n"
+        f"      Promote to {horizon_name} only if verification MUST happen before the next step.\n"
+    )
 
 
 # --------------------------------------------------------------------------
@@ -344,6 +444,12 @@ def perform_edit(
         if not body_provided or body == "":
             body = existing_body
 
+    # Constraint check — the Questions promise. Refuse the write if the
+    # status asserts [Questions] but the body's wiki-link target has no
+    # Q<n> markers. Runs AFTER the preserve-on-omit resolution so the
+    # final body is what we verify.
+    verify_questions_constraint(status, body)
+
     # Build the new line.
     new_line = render_row(row_id, status, title, body)
 
@@ -376,6 +482,10 @@ def perform_edit(
         verb = "added"
 
     backlog_path.write_text("".join(lines))
+
+    # Soft nudge — Verify/Watching usually belongs in Later.
+    warn_verify_watching_horizon(status, h2_name)
+
     return {
         "summary": f"{verb} {row_id} in {h2_name} [{status}]",
         "row_id": row_id,
