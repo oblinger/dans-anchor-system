@@ -39,11 +39,12 @@ Side effects:
 
 from __future__ import annotations
 
+import json
 import os
 import re
 import sys
 import subprocess
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 # --------------------------------------------------------------------------
@@ -52,6 +53,7 @@ from pathlib import Path
 HOME = Path.home()
 VAULT_ROOT = HOME / "ob" / "kmr"
 SENTINEL = HOME / ".claude" / "state" / "agent-messages"
+STATE_FILE = HOME / ".config" / "ob-skills" / "backlog-edit" / "state.json"
 
 VALID_HORIZONS = {"Now", "Next", "Later", "Active", "Ready", "Done", "Verify"}
 SKIP_PATH_FRAGMENTS = ("/.history/", "/worktrees/", "/Yore/", "/.trash/")
@@ -319,10 +321,16 @@ def perform_edit(
     if status == "delete":
         if existing is None:
             raise BacklogEditError(f"{row_id} not found — cannot delete")
-        start, end, _, _ = existing
+        start, end, existing_h2, _ = existing
         del lines[start:end]
         backlog_path.write_text("".join(lines))
-        return f"deleted {row_id}"
+        return {
+            "summary": f"deleted {row_id}",
+            "row_id": row_id,
+            "verb": "deleted",
+            "h2_name": existing_h2 or "",
+            "status": "delete",
+        }
 
     # Preserve title / body from the existing row when caller omitted them
     # OR passed an empty string. Lets callers update bracket-only without
@@ -368,7 +376,13 @@ def perform_edit(
         verb = "added"
 
     backlog_path.write_text("".join(lines))
-    return f"{verb} {row_id} in {h2_name} [{status}]"
+    return {
+        "summary": f"{verb} {row_id} in {h2_name} [{status}]",
+        "row_id": row_id,
+        "verb": verb,
+        "h2_name": h2_name,
+        "status": status,
+    }
 
 
 # --------------------------------------------------------------------------
@@ -399,6 +413,35 @@ def append_messages(slug, summary, backlog_path):
         messages_path.write_text(header)
     with messages_path.open("a") as f:
         f.write(line)
+
+
+def write_state(slug, result):
+    """Persist the last-invocation timestamp + details for /audit integrity.
+
+    State lives at ~/.config/ob-skills/backlog-edit/state.json. Each anchor
+    has one entry, overwritten on every invocation — only the most recent
+    write per anchor is tracked. `/audit integrity` compares the backlog
+    file's mtime against this timestamp to detect script-bypassing direct
+    edits.
+    """
+    STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    if STATE_FILE.exists():
+        try:
+            state = json.loads(STATE_FILE.read_text())
+        except json.JSONDecodeError:
+            state = {}
+    else:
+        state = {}
+    if "anchors" not in state:
+        state["anchors"] = {}
+    state["anchors"][slug] = {
+        "last_run": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "row_id": result["row_id"],
+        "verb": result["verb"],
+        "horizon": result["h2_name"],
+        "status": result["status"],
+    }
+    STATE_FILE.write_text(json.dumps(state, indent=2, sort_keys=True))
 
 
 def refresh_q_md(slug):
@@ -438,7 +481,7 @@ def main(argv):
     body = argv[6] if body_provided else ""
 
     backlog_path = find_backlog(slug)
-    summary = perform_edit(
+    result = perform_edit(
         backlog_path,
         horizon,
         row_id_arg,
@@ -448,10 +491,11 @@ def main(argv):
         title_provided,
         body_provided,
     )
-    append_messages(slug, summary, backlog_path)
+    append_messages(slug, result["summary"], backlog_path)
+    write_state(slug, result)
     refresh_q_md(slug)
 
-    print(f"{slug}: {summary}")
+    print(f"{slug}: {result['summary']}")
     return 0
 
 
