@@ -261,6 +261,62 @@ def run_audit_q_format_check(target_path):
     return violations
 
 
+VERIFY_IMPLEMENTATION_PATTERNS = [
+    re.compile(r"\bPhase\s+(\d+)\b", re.IGNORECASE),
+    re.compile(r"\bremaining\s+(?:anchors|items|files|sub-?items|tasks|work)\b", re.IGNORECASE),
+    re.compile(r"\bfollow[-\s]?up\b", re.IGNORECASE),
+    re.compile(r"\bsweep\s+(?:all|every|remaining)\b", re.IGNORECASE),
+    re.compile(r"\bnext\s+pass\b", re.IGNORECASE),
+    re.compile(r"\bsubsequent\s+(?:work|phase|migration)\b", re.IGNORECASE),
+    re.compile(r"\bevery\s+(?:other|remaining)\b", re.IGNORECASE),
+    re.compile(r"\bbulk\s+(?:migration|sweep|update)\b", re.IGNORECASE),
+    re.compile(r"\bto\s+be\s+(?:done|implemented|migrated|written|filed)\b", re.IGNORECASE),
+    re.compile(r"\bwill\s+(?:sweep|migrate|implement|file|update)\b", re.IGNORECASE),
+]
+
+
+def verify_no_implementation_in_verify(status, body):
+    """Refuse [Verify*] when body contains language describing pending
+    implementation work. The Verify-by bracket carries a structural promise:
+    'nothing more happens here until the date or a failure surfaces.' If the
+    body says 'Phase 2 sweeps every remaining anchor' or 'will migrate the
+    rest later,' the row is misbracketed — it should be [Active], [Ready],
+    or split into multiple F-rows.
+
+    Per F096 — addresses the F094 failure mode where a [Verify-by] row hid
+    ~50 anchors of remaining implementation work behind 'review the 6 done
+    ones; sweep the rest if you're happy.'
+    """
+    if not status:
+        return
+    status_root = status.split()[0]
+    if not status_root.startswith("Verify"):
+        return
+    if not body:
+        return
+    matches = []
+    for pat in VERIFY_IMPLEMENTATION_PATTERNS:
+        m = pat.search(body)
+        if m:
+            matches.append((m.group(0), pat.pattern))
+    if not matches:
+        return
+    detail = "\n  - ".join(f'"{snippet}"' for snippet, _ in matches[:5])
+    more = "" if len(matches) <= 5 else f"\n  - ... {len(matches) - 5} more"
+    raise BacklogEditError(
+        f"[{status}] body contains pending-implementation language; "
+        f"refusing the write.\n"
+        f"  Verify-by promises 'nothing more happens until the date or a "
+        f"failure surfaces.' Pending\n"
+        f"  implementation work means this row is misbracketed — use "
+        f"[Active] or [Ready], or split\n"
+        f"  the work into multiple F-rows. (Per F096 — addresses F094's "
+        f"'Phase 1 done; Phase 2 hidden' failure.)\n"
+        f"  Found:\n"
+        f"  - {detail}{more}"
+    )
+
+
 def warn_verify_watching_horizon(status, horizon_name):
     """Print a stderr nudge when Verify/Watching is set on Now/Next/Active/Ready.
 
@@ -535,6 +591,11 @@ def perform_edit(
     # Q<n> markers. Runs AFTER the preserve-on-omit resolution so the
     # final body is what we verify.
     verify_questions_constraint(status, body)
+
+    # F096 — refuse [Verify*] when body describes pending implementation
+    # work (Phase 2, remaining, follow-up, etc.). Addresses the F094 lie
+    # where the row claimed Verify-by but hid ~50 anchors of work.
+    verify_no_implementation_in_verify(status, body)
 
     # Build the new line.
     new_line = render_row(row_id, status, title, body)
