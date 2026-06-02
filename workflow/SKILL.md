@@ -283,7 +283,7 @@ The canonical way to mutate a backlog row. All skills that advance, park, or reb
 **Args (positional):**
 
 ```
-backlog-edit.py <slug> <horizon> <row-id> <status> [content]
+backlog-edit.py <slug> <horizon> <row-id> <status> [title] [body]
 ```
 
 | Arg | Values |
@@ -292,7 +292,16 @@ backlog-edit.py <slug> <horizon> <row-id> <status> [content]
 | `horizon` | `Now` / `Next` / `Later` / `Active` / `Ready` / `Done` / `Verify`, or **`same`** to leave the row in its current H2 (errors if the row doesn't exist). |
 | `row-id` | `F<NNN>` / `B<n>` / `B-<slug>` to address an existing row, or **`Fnew`** / **`Bnew`** to mint the next available number (max + 1, F-numbers zero-padded to three digits). |
 | `status` | Bracket text (`Ready`, `Questions`, `Verify`, `Watching 7d`, `Done`, `Verify-by 2026-06-15`, …), or **`delete`** to remove the row. |
-| `content` | Title + body text. Format: `<Title> — <description>`. Ignored for `delete`. |
+| `title` | Row title — goes inside the bold prefix. Optional. |
+| `body` | Trailing text after the status bracket — wiki-link, description, dates, etc. Optional. |
+
+Row shape produced:
+
+```
+- **<row-id> — <title>** [<status>] — <body> ^<row-id>
+```
+
+Both `title` and `body` are optional; omitting them produces `- **<row-id>** [<status>] ^<row-id>`.
 
 **Side effects:**
 
@@ -307,8 +316,15 @@ backlog-edit.py <slug> <horizon> <row-id> <status> [content]
 The script is invoked via `Bash`:
 
 ```
-~/.claude/skills/workflow/scripts/backlog-edit.py SKA Now Fnew Designing "Title — description"
+~/.claude/skills/workflow/scripts/backlog-edit.py SKA Now Fnew Designing "Title" "→ [[F095 — Title]]"
 ```
+
+**Minting flow** (when the caller needs the new F/B number — e.g., `/feature` naming a new feature doc file):
+
+1. Invoke with `Fnew` (or `Bnew`) and stub content.
+2. Parse the assigned row-id from stdout — output line is `<slug>: added <row-id> in <horizon> [<status>]`. Extract the second word after `added`.
+3. Use the parsed row-id downstream (feature doc filename, wiki-links, etc.).
+4. If the caller needs to update the row body once downstream artifacts exist (e.g., after creating the feature doc, the row should include `→ [[F<NNN> — Title]]`), invoke again with the explicit row-id and `same` horizon.
 
 ## Per-surface mappings
 

@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""backlog_edit — structured backlog row mutation tool.
+"""backlog-edit — structured backlog row mutation tool.
 
 Usage:
-    backlog_edit <slug> <horizon> <row-id> <status> [content]
+    backlog-edit.py <slug> <horizon> <row-id> <status> [title] [body]
 
 Args:
     slug      Anchor slug (e.g., SKA, MUX, HA).
-    horizon   One of: Now | Next | Later | Active | Ready | Done
+    horizon   One of: Now | Next | Later | Active | Ready | Done | Verify
               Or 'same' to keep the existing row's horizon
               (requires the row to already exist; errors otherwise).
               Leading '## ' is stripped if present.
@@ -15,13 +15,21 @@ Args:
               F-numbers are zero-padded to three digits (F001..F999).
     status    Bracket text (Ready, Questions, Verify, 'Watching 7d', Done, ...)
               Or the literal 'delete' to remove the row entirely.
-    content   Row body text — title and/or description. For new rows the
-              convention is '<Title> — <description>'. Ignored for 'delete'.
+    title     Row title — goes inside bold `**<row-id> — <title>**`. For
+              'delete', omit. Optional for non-delete (defaults to empty,
+              giving `**<row-id>** [<status>]`).
+    body      Row body text — appended after the bracket as `— <body>`.
+              Use for wiki-links (`→ [[F<n> — Title]]`), descriptions,
+              dates, etc. Optional.
+
+Row shape produced:
+    - **<row-id> — <title>** [<status>] — <body> ^<row-id>
+    (title omitted → `**<row-id>**`; body omitted → no trailing `— ...`)
 
 Examples:
-    backlog_edit SKA Now Fnew Ready "New thing — short description"
-    backlog_edit SKA same F015 Done "Original title — original body"
-    backlog_edit SKA same F015 delete
+    backlog-edit.py SKA Now Fnew Designing "Feature Name" "→ [[F095 — Feature Name]]"
+    backlog-edit.py SKA same F015 Done "Original Title" "Done 2026-06-02"
+    backlog-edit.py SKA same F015 delete
 
 Side effects:
     1. Mutates the anchor's backlog file.
@@ -180,21 +188,21 @@ def next_id_for_kind(row_index, kind):
 # --------------------------------------------------------------------------
 # Row formatting
 
-def render_row(row_id, status, content):
+def render_row(row_id, status, title, body):
     """Format a backlog row line.
 
-    Shape: '- **<row_id> — <content>** [<status>] ^<row_id>\n'
+    Shape: '- **<row_id> — <title>** [<status>] — <body> ^<row_id>\n'
+    Title omitted -> `**<row_id>**`; body omitted -> no trailing `— ...`.
 
     The block-ID anchor at the end matches the existing convention so
     `[[<file>#^<row-id>|...]]` links work for the new row.
     """
-    content = content.strip()
-    if content:
-        title_block = f"**{row_id} — {content}**"
-    else:
-        title_block = f"**{row_id}**"
+    title = (title or "").strip()
+    body = (body or "").strip()
+    title_block = f"**{row_id} — {title}**" if title else f"**{row_id}**"
     bracket = f"[{status}]"
-    return f"- {title_block} {bracket} ^{row_id}\n"
+    suffix = f" — {body}" if body else ""
+    return f"- {title_block} {bracket}{suffix} ^{row_id}\n"
 
 
 # --------------------------------------------------------------------------
@@ -234,7 +242,7 @@ def ensure_h2_exists(lines, h2_index, h2_name):
     return lines, new_h2_index
 
 
-def perform_edit(backlog_path, horizon, row_id_arg, status, content):
+def perform_edit(backlog_path, horizon, row_id_arg, status, title, body):
     """Apply the edit, return a one-line summary for the Messages entry."""
     raw = backlog_path.read_text()
     lines, h2_index, row_index = scan_backlog(raw)
@@ -286,7 +294,7 @@ def perform_edit(backlog_path, horizon, row_id_arg, status, content):
         return f"deleted {row_id}"
 
     # Build the new line.
-    new_line = render_row(row_id, status, content)
+    new_line = render_row(row_id, status, title, body)
 
     if existing is not None:
         start, end, existing_h2, _ = existing
@@ -381,10 +389,11 @@ def main(argv):
     horizon = argv[2]
     row_id_arg = argv[3]
     status = argv[4]
-    content = argv[5] if len(argv) >= 6 else ""
+    title = argv[5] if len(argv) >= 6 else ""
+    body = argv[6] if len(argv) >= 7 else ""
 
     backlog_path = find_backlog(slug)
-    summary = perform_edit(backlog_path, horizon, row_id_arg, status, content)
+    summary = perform_edit(backlog_path, horizon, row_id_arg, status, title, body)
     append_messages(slug, summary, backlog_path)
     refresh_q_md(slug)
 
