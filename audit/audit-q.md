@@ -37,7 +37,16 @@ Sub-action of `/audit`. Spec: `[[F076 — audit q — Q.md constraint validator 
 
 4. **Re-run the script** if any inline-judgment fixes were applied, to confirm the audit is clean.
 
-5. **For findings genuinely too ambiguous to fix safely** (the rare Tier 3 case) → write/update the singleton `QFix [Ready]` backlog entry at the top of `## Ready` in the cwd anchor's backlog. Include each unresolved finding as a sub-bullet. The user (or `/audit q-fix`) picks it up later.
+5. **For findings genuinely too ambiguous to fix safely** (the rare Tier 3 case) → write/update the singleton `QFix [Ready]` backlog entry via `backlog-edit.py` (per [[SKA workflow]] § Mutation API). The row uses the B-slug form `B-QFix` as a stable singleton key — subsequent runs of `/audit q` with new unresolved findings re-write the **same row** (not a new F-number):
+
+   ```bash
+   ~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} Ready B-QFix Ready \
+       "QFix" "audit q findings needing user input — see sub-bullets"
+   ```
+
+   Renders as `- **B-QFix — QFix** [Ready] — audit q findings needing user input ... ^B-QFix`. The `^B-QFix` block-ID lets [[audit-q-fix]] target the row uniquely.
+
+   Append unresolved findings as sub-bullets below the row via direct `Edit` (sub-bullet content is within-row, not a row-level mutation). The user (or `/audit q-fix`) picks it up later.
 
 ## When to use
 

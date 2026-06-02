@@ -352,8 +352,25 @@ The synthesis-vs-reference split: **Dev** holds audit-tied implementation refere
 
 - [ ] Folder exists with dispatch page `{NAME} User.md`
 - [ ] **`{NAME} Interface.md` exists here** — the required top-level human-authored layer contract; see [[CAB Interface]]
-- [ ] **If `{NAME} Interface.md` is absent:** auto-create a scaffold (H1 + canonical dispatch placeholder + TODO sections per [[CAB Interface]] § Document Structure) AND file a `## Now` backlog row in `{NAME} Backlog.md`: `**F<n> — Author top-level Interface for {NAME}** [Designing] — Rewire scaffolded {NAME} Interface.md on {YYYY-MM-DD}. Needs user collaboration to author the layer contract — see [[CAB Interface]]. → [[{NAME} Interface]].` The agent does NOT attempt to fill in the contract content — that's the user-collaboration step per [[SKA workflow]] § Interface-validation gate.
-- [ ] **Legacy migration:** if `{NAME} Rollup.md` exists (predecessor to Interface), do NOT auto-rename. Surface a `## Now [Designing]` backlog row: `**F<n> — Migrate {NAME} Rollup → {NAME} Interface** [Designing] — content review needed (see F062). → [[{NAME} Rollup]].` Per F060's forward-only policy, the rename happens when the user touches the anchor.
+- [ ] **If `{NAME} Interface.md` is absent:** auto-create a scaffold (H1 + canonical dispatch placeholder + TODO sections per [[CAB Interface]] § Document Structure) AND file a `## Now [Designing]` backlog row via the workflow skill's `backlog-edit.py` (per [[SKA workflow]] § Mutation API — never edit `{NAME} Backlog.md` directly):
+
+  ```bash
+  ~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} Now Fnew Designing \
+      "Author top-level Interface for {NAME}" \
+      "Rewire scaffolded {NAME} Interface.md on {YYYY-MM-DD}. Needs user collaboration to author the layer contract — see [[CAB Interface]]. → [[{NAME} Interface]]."
+  ```
+
+  The agent does NOT attempt to fill in the contract content — that's the user-collaboration step per [[SKA workflow]] § Interface-validation gate.
+
+- [ ] **Legacy migration:** if `{NAME} Rollup.md` exists (predecessor to Interface), do NOT auto-rename. Surface a `## Now [Designing]` backlog row via `backlog-edit.py`:
+
+  ```bash
+  ~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} Now Fnew Designing \
+      "Migrate {NAME} Rollup → {NAME} Interface" \
+      "content review needed (see F062). → [[{NAME} Rollup]]."
+  ```
+
+  Per F060's forward-only policy, the rename happens when the user touches the anchor.
 - [ ] `{NAME} Architecture.md` exists here (system-level overview, module diagram, data flow)
 - [ ] `{NAME} Guide.md` exists here (the primary user guide; basename is `Guide` not `User Guide` per [[CAB User Dispatch]] § Filename convention)
 - [ ] User dispatch page lists Interface (required for code) + Guide + Architecture, plus any Cards / CLI / topic-specific guides

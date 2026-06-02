@@ -65,36 +65,46 @@ Each sub-audit produces **≥1 backlog row**, pre-split by **state-cluster** of 
 
 **Default horizon: `## Next`, NOT `## Now`.** Audit findings are surfaced but **deprioritized by default** — they don't compete with whatever's currently flowing through `## Now`. The user can promote to `## Now` explicitly when the audit work moves up in priority. Use `## Now` only when the audit was explicitly invoked because the user wants the findings to land in the active horizon.
 
-Row template (one row per state-cluster):
+**Mutation discipline — every audit row goes through `backlog-edit.py`.** Direct `Edit`/`Write` against `{NAME} Backlog.md` is forbidden (per [[SKA workflow]] § Mutation API). The workflow skill's `backlog-edit.py` mints the F-number atomically (no agent-side scan), inserts the row in the right H2, preserves source order, and auto-refreshes `~/ob/kmr/Q.md` — so § Q.md update post-condition below is satisfied as a side effect.
+
+For each row (one per state-cluster), invoke:
+
+```bash
+~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} Next Fnew Ready \
+    "<Kind> audit (<state-cluster>): <N> findings (<YYYY-MM-DD>)" \
+    "work surfaced by /audit <kind>. Sub-bullets are candidate splits if this needs to be broken up."
+```
+
+Parse the assigned `F<NNN>` from stdout (`<slug>: added F<NNN> in Next [Ready]` — second word after `added`).
+
+For `[Questions]` rows, swap status `Ready` → `Questions` and put the feature-doc wiki-link in the body:
+
+```bash
+~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} Next Fnew Questions \
+    "<Kind> audit (Questions: <cluster name>): <N> findings (<YYYY-MM-DD>)" \
+    "→ [[F<NNN> — <Title>]]"
+```
+
+The script produces row shape:
 
 ```
-- **F<n> — <Kind> audit (<state-cluster>): <N> findings (<YYYY-MM-DD>)** [Ready] — work surfaced by `/audit <kind>`. Sub-bullets are candidate splits if this needs to be broken up.
-  - <Finding 1 — file:line / category — short description>
-  - <Finding 2 — …>
+- **F<NNN> — <Kind> audit (<state-cluster>): <N> findings (<YYYY-MM-DD>)** [Ready] — work surfaced by /audit <kind>. ... ^F<NNN>
 ```
 
-For the `[Questions]` row(s):
+**Sub-bullets are findings, one per line** — append them below the row via direct `Edit` against the file. (Sub-bullets are within-row content, not row-level mutations; `backlog-edit.py` v1 handles row lines only.) Order sub-bullets by category, then by file path.
 
-```
-- **F<n> — <Kind> audit (Questions: <cluster name>): <N> findings (<YYYY-MM-DD>)** [Questions] — → [[F<n> — <Title>]].
-  - <Finding 1 — file:line / category — what's needed from the user>
-  - <Finding 2 — …>
-```
+**Default horizon: `Next`, NOT `Now`** (per the deprioritization rule above). Override to `Now` only when the audit was explicitly invoked because the user wants the findings to land in the active horizon.
 
 **No aggregate `[Partial — …]` row.** That bracket form is banned by `[[CAB Backlog]]` § Status brackets. Pre-splitting by state-cluster on creation IS the spec; never collapse mixed-state findings into a single row.
 
-**F-number assignment.** Read the Backlog file, scan for existing `**F<n>` markers, pick `F{highest + 1}` zero-padded (per `[[CAB Backlog]]` § Numbering policy). If the sub-audit produces multiple rows (a `[Ready]` row + one or more `[Questions]` rows), each gets its own F-number; assign them in sequence.
-
 **One row-set per sub-audit run.** Each invocation of `/audit <kind>` writes its state-clustered row(s) — no merging with prior audit entries (those are stable references). If a prior entry from the same sub-audit is still un-cleared, the user can decide whether to consolidate manually.
 
-**Sub-bullets are findings, one each.** Don't pre-group findings into super-bullets within a row — keep one finding per line so each is independently actionable. Within a row, order sub-bullets by category, then by file path.
 
+## Q.md update post-condition — automatic via `backlog-edit.py`
 
-## Q.md update post-condition (per F075)
+Each `backlog-edit.py` invocation auto-regenerates the anchor's per-anchor section in `~/ob/kmr/Q.md` (by shelling out to `audit-q.py --scope backlog --anchor {NAME} --fix`). **The backlog file is NOT reordered** — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior; the user reading Q.md sees the just-audited anchor at the top with its new finding rows.
 
-After writing the audit finding row(s) to `{NAME} Backlog.md`, regenerate the anchor's per-anchor section in `~/ob/kmr/Q.md` per `[[SKA triage]]` § 6 — walk the backlog, compute the section, remove any existing section for this anchor, insert at the top of Q.md's body (bubble-to-top). **The backlog file is NOT reordered** — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior; the user reading Q.md sees the just-audited anchor at the top with its new finding rows.
-
-When the orchestrator (bare `/audit`) collects results from multiple worker sub-audits, fire the Q.md regen **once at the end** (after all workers return), not once per worker — write amplification is unhelpful and bubble-to-top semantics work fine with the final state.
+For sub-audit runs that write multiple rows in sequence, the Q.md regen fires once per row — fine for low row counts (~1-3) but redundant for large finding sweeps. When the orchestrator (bare `/audit`) collects results from many worker sub-audits writing dozens of rows, the per-call regen is unhelpful write amplification; in that case workers should be invoked with their findings collected in memory and a single final `backlog-edit.py` per row writes the lot, with the final Q.md state being correct on the last write.
 
 
 ## Actions
