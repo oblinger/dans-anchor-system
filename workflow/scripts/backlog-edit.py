@@ -317,6 +317,117 @@ def verify_no_implementation_in_verify(status, body):
     )
 
 
+REQUIRED_COMPLETION_SECTIONS = ("success criteria", "completion status", "verification")
+
+
+def parse_completion_block(text):
+    """Return dict {section_key: content_str} for the three required H3s,
+    or None if no `## Completion` H2 found (case-insensitive).
+    Section content is the lines between that H3 and the next H3/H2, stripped.
+    """
+    lines = text.splitlines()
+    in_completion = False
+    completion_lines = []
+    for line in lines:
+        h2_m = re.match(r"^##\s+(.+?)\s*$", line)
+        if h2_m:
+            heading = h2_m.group(1).strip().lower()
+            if heading == "completion":
+                in_completion = True
+                continue
+            if in_completion:
+                break  # next H2 ends the block
+        if in_completion:
+            completion_lines.append(line)
+    if not completion_lines and not in_completion:
+        return None  # No Completion H2 at all
+    sections = {k: "" for k in REQUIRED_COMPLETION_SECTIONS}
+    current = None
+    buf = []
+
+    def flush():
+        nonlocal current, buf
+        if current is not None and current in sections:
+            sections[current] = "\n".join(buf).strip()
+        current = None
+        buf = []
+
+    for line in completion_lines:
+        h3_m = re.match(r"^###\s+(.+?)\s*$", line)
+        if h3_m:
+            flush()
+            current = h3_m.group(1).strip().lower()
+            continue
+        if current is not None:
+            buf.append(line)
+    flush()
+    return sections
+
+
+def verify_completion_block(status, body, existing_status):
+    """Per F098 — refuse Done writes when the linked feature doc lacks a
+    `## Completion` block with three H3 sub-sections (Success criteria,
+    Completion status, Verification), each non-empty.
+
+    Grandfathers existing Done rows: skip the check when the prior status
+    was already a Done* variant. Fires only on the **transition** to Done.
+    """
+    if not status:
+        return
+    if not status.split()[0].startswith("Done"):
+        return
+    if existing_status and existing_status.split()[0].startswith("Done"):
+        return  # already Done; allow re-touch
+    if not body or not body.strip():
+        sys.stderr.write(
+            "note: [Done] with empty body — skipping Completion block check (per F098). "
+            "If this is a feature row, add a body wiki-link to the feature doc.\n"
+        )
+        return
+    m = WIKI_LINK_RE.search(body)
+    if not m:
+        sys.stderr.write(
+            "note: [Done] body has no wiki-link — skipping Completion block check (per F098).\n"
+        )
+        return
+    basename = m.group(1).strip()
+    target_path = find_file_by_basename(basename)
+    if target_path is None:
+        sys.stderr.write(
+            f"note: [Done] target [[{basename}]] not located in vault — "
+            f"skipping Completion block check (per F098).\n"
+        )
+        return
+    try:
+        text = target_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as e:
+        sys.stderr.write(
+            f"note: cannot read [[{basename}]] for Completion check: {e}\n"
+        )
+        return
+    sections = parse_completion_block(text)
+    if sections is None:
+        raise BacklogEditError(
+            f"[Done] refused: target [[{basename}]] has no `## Completion` H2.\n"
+            f"  Per F098, marking Done requires a `## Completion` block with three H3 sub-sections:\n"
+            f"  - `### Success criteria`  — how do you know the work is done?\n"
+            f"  - `### Completion status` — what has been executed? (enumerate)\n"
+            f"  - `### Verification`      — how was the success criteria checked?\n"
+            f"  Add the block to the feature doc, then re-run."
+        )
+    missing = []
+    for key in REQUIRED_COMPLETION_SECTIONS:
+        title_form = "### " + key[0].upper() + key[1:]
+        if not sections[key]:
+            missing.append(title_form)
+    if missing:
+        raise BacklogEditError(
+            f"[Done] refused: target [[{basename}]] `## Completion` block is incomplete.\n"
+            f"  Missing or empty: {', '.join(missing)}\n"
+            f"  Per F098, all three sub-sections must be present and non-empty for Done."
+        )
+
+
 def warn_verify_watching_horizon(status, horizon_name):
     """Print a stderr nudge when Verify/Watching is set on Now/Next/Active/Ready.
 
@@ -579,12 +690,17 @@ def perform_edit(
     # re-supplying the full content, and lets the body-only-update pattern
     # `backlog-edit.py {NAME} same <row> <status> "" "<new body>"` work
     # without blowing away the title.
+    existing_status_for_check = ""
     if existing is not None:
         existing_title, existing_body = parse_existing_row(lines[existing[0]])
         if not title_provided or title == "":
             title = existing_title
         if not body_provided or body == "":
             body = existing_body
+        # Extract the existing row's status string for F098's grandfather check.
+        full_m = ROW_FULL_RE.match(lines[existing[0]])
+        if full_m:
+            existing_status_for_check = full_m.group("status") or ""
 
     # Constraint check — the Questions promise. Refuse the write if the
     # status asserts [Questions] but the body's wiki-link target has no
@@ -596,6 +712,11 @@ def perform_edit(
     # work (Phase 2, remaining, follow-up, etc.). Addresses the F094 lie
     # where the row claimed Verify-by but hid ~50 anchors of work.
     verify_no_implementation_in_verify(status, body)
+
+    # F098 — refuse [Done] when the linked feature doc lacks a
+    # `## Completion` block with the three required H3 sub-sections.
+    # Grandfathers existing Done rows so re-touches don't break.
+    verify_completion_block(status, body, existing_status_for_check)
 
     # Build the new line.
     new_line = render_row(row_id, status, title, body)
