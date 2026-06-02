@@ -66,7 +66,19 @@ If the work-unit has a dated feature doc:
 ### 4. Update Status / Stat Records
 
 - If `skl-stat` is in use, post a Done update with the work-unit's S-number and a brief activity note.
-- If the work corresponds to a backlog item (`B<n>` in `{NAME} Backlog.md`), move it from `## Active` (or wherever it was) to `## Done` with a cross-reference to the PR / commit / feature doc. Preserve the B-number when moving — B-numbers are stable references per [[CAB Backlog]] § Format.
+- If the work corresponds to a backlog item (`F<n>` or `B<n>` in `{NAME} Backlog.md`), move it to `## Done` via the workflow skill's `backlog-edit.py` — never edit the backlog file directly. F/B-number, title, and body are preserved:
+
+  ```bash
+  ~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} Done <row-id> Done
+  ```
+
+  Add the PR / commit / feature-doc cross-reference by passing it as the body arg in a follow-up call:
+
+  ```bash
+  ~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} same <row-id> Done "" "Shipped 2026-MM-DD — see [[F<n> — Title]] / PR #N / commit <sha>"
+  ```
+
+  (`""` as the title preserves the existing title via the script's preserve-on-omit semantics — only the body changes.)
 - If a roadmap milestone was closed by this work, mark it complete in the roadmap doc.
 
 ### 5. Update Docs to Match Reality
@@ -83,10 +95,11 @@ If the work-unit has a dated feature doc:
 - Verify `git status` is clean — no dangling unstaged or untracked entries from this work.
 - If a dev server / build process exists for the project, verify it still works.
 
-### 7. Q.md update post-condition (per F075)
+### 7. Q.md update post-condition — automatic via `backlog-edit.py`
 
-Finalize closes out a work-unit (typically `[Verify]` or `[Active]` → `[Done]`). After the backlog row's text/bracket has been updated to reflect the Done state, regenerate the anchor's per-anchor section in `~/ob/kmr/Q.md` per `[[SKA triage]]` § 6 — walk the backlog, compute the section, remove any existing section for this anchor, insert at the top of Q.md's body (bubble-to-top). **The backlog file is NOT reordered** — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior; the user reading Q.md sees the just-finalized anchor at the top.
-**Then invoke `/audit q` to verify (per F076 Q6 auto-wiring).** The audit's fix-by-default behavior catches any drift introduced by this skill's edits — broken links, stale brackets, banner mismatches, stale `[Done]` rows — and either repairs them mechanically OR (rare) files a `QFix [Ready]` backlog entry the user can address later. Surfacing any QFix entry is part of this skill's "done" criteria.
+Step 4's `backlog-edit.py` Done call auto-refreshes the anchor's per-anchor section in `~/ob/kmr/Q.md` (by shelling out to `audit-q.py --scope backlog --anchor {NAME} --fix`). **The backlog file is NOT reordered** — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior; the user reading Q.md sees the just-finalized anchor at the top.
+
+The audit's fix-by-default behavior catches any drift introduced — broken links, stale brackets, banner mismatches, stale `[Done]` rows — and either repairs them mechanically OR (rare) files a `QFix [Ready]` backlog entry. **Surfacing any QFix entry is part of this skill's "done" criteria** — read the `backlog-edit.py` output for QFix lines and surface them to the user.
 
 ### 8. Report
 

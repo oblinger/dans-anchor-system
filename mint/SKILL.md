@@ -115,10 +115,24 @@ skl-stat update <S#> "Testing" "Implementation complete, running tests"
 skl-stat update <S#> "Done" "Feature complete and tested"
 ```
 
-### 7. Q.md update post-condition (per F075)
+### 7. Bracket transitions + Q.md refresh — via `backlog-edit.py`
 
-After the mint completes and the backlog row's text/bracket has been updated to reflect the new state (e.g., `[Ready]` → `[Active]` → `[Done]`), regenerate the anchor's per-anchor section in `~/ob/kmr/Q.md` per `[[SKA triage]]` § 6 — walk the backlog, compute the section, remove any existing section for this anchor, insert at the top of Q.md's body (bubble-to-top). **The backlog file is NOT reordered** — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior.
-**Then invoke `/audit q` to verify (per F076 Q6 auto-wiring).** The audit's fix-by-default behavior catches any drift introduced by this skill's edits — broken links, stale brackets, banner mismatches, stale `[Done]` rows — and either repairs them mechanically OR (rare) files a `QFix [Ready]` backlog entry the user can address later. Surfacing any QFix entry is part of this skill's "done" criteria.
+State transitions on the backlog row are mandatory and go through the workflow skill's `backlog-edit.py` — no direct backlog edits:
+
+```bash
+# At mint start (Ready → Active):
+~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} Active <row-id> Active
+
+# At mint completion, if verification is needed (Active → Verify):
+~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} same <row-id> Verify
+
+# Or if no verification is needed (Active → Done):
+~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} Done <row-id> Done
+```
+
+`backlog-edit.py` preserves the row's title and body (omit those args) and auto-refreshes the anchor's per-anchor section in `~/ob/kmr/Q.md` (by shelling out to `audit-q.py --scope backlog --anchor {NAME} --fix`). **The backlog file is NOT reordered** — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior.
+
+The audit's fix-by-default behavior catches any drift introduced — broken links, stale brackets, banner mismatches, stale `[Done]` rows — and either repairs them mechanically OR (rare) files a `QFix [Ready]` backlog entry. **Surfacing any QFix entry is part of this skill's "done" criteria** — read the script's output for QFix lines and surface them to the user.
 
 ### 8. Crank wall-clock timer write (per [[F088]])
 

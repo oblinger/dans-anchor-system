@@ -301,7 +301,16 @@ Row shape produced:
 - **<row-id> — <title>** [<status>] — <body> ^<row-id>
 ```
 
-Both `title` and `body` are optional; omitting them produces `- **<row-id>** [<status>] ^<row-id>`.
+**Preserve-on-omit semantics for existing rows.** When updating a row that already exists, omitting `title` / `body` **or passing them as empty strings** preserves the row's current title/body — only the status/horizon change. This is the common case for status transitions:
+
+```
+backlog-edit.py SKA same F095 Ready                          # bracket-only; preserves title+body
+backlog-edit.py SKA Done F095 Done                           # move to ## Done + status; preserves title+body
+backlog-edit.py SKA same F095 Designing "New Title"          # update title; preserve body
+backlog-edit.py SKA same F095 Done "" "Shipped 2026-06-15"   # update body; preserve title
+```
+
+For new rows, omitting title/body produces `- **<row-id>** [<status>] ^<row-id>` (bare row) — empty strings on new rows also produce a bare row.
 
 **Side effects:**
 

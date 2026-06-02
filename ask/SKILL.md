@@ -89,7 +89,13 @@ If the survey returns zero pending items, write a one-line summary (`/ask — no
 
 For each surveyed item, attempt to resolve it autonomously. Calibrate the threshold by the active drive mode (see `[[SKA mode]]`):
 
-- **`[Verify]` items** — *can I verify this myself well enough that the user doesn't need to?* Run the grep / test / script / log inspection / source-dip that would settle it. If the verification mechanically passes, mark the item Done in the backlog (update its row + the feature doc's Status).
+- **`[Verify]` items** — *can I verify this myself well enough that the user doesn't need to?* Run the grep / test / script / log inspection / source-dip that would settle it. If the verification mechanically passes, mark the item Done via the workflow skill's `backlog-edit.py` (auto-refreshes Q.md) and update the feature doc's Status field:
+
+  ```bash
+  ~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} Done <row-id> Done
+  ```
+
+  Title and body are preserved.
 - **`[Questions]` items** — *can I confidently pick the most likely answer?* Read the feature doc's `## Open Questions` block, the surrounding code, prior similar decisions in the anchor's `## Resolved`, the user's stated preferences (memory), and the design rationale. For each Q where the answer is clear, write the inline resolution per § Resolution and update the feature doc.
 
 **Drive-mode thresholds:**
@@ -185,7 +191,7 @@ QFix Q1 → D1. Say "resolutions look good" to accept; reference a specific one 
 Four response shapes (per [[F086]]):
 
 - **Acceptance of accumulated resolutions — full or partial.** The hard constraint: the user must explicitly mention the word **"resolution(s)"** in an accepting context. Bare phrases like *"looks good"* / *"accept"* / *"lgtm"* / *"approved"* do **not** count (too ambiguous in conversation — could be referring to any other open thing). Match flexibly once the word is present: *"resolutions look good"* / *"accept the resolutions"* / *"resolutions approved"* → **full accept** (clear all entries from `## Agent Resolutions`). *"accept the first 5 resolutions"* / *"the QFix resolutions look good"* / *"accept the F085 and F081 resolutions"* → **partial accept** (remove the named subset; the rest stay accumulated). On acceptance: remove the accepted entries from `{NAME} ask.md`, log in chat: *"Accepted N resolutions across {list of features}."*
-- **Rollback of a specific resolution.** *"Roll back F24 Q3"* / *"undo the resolution on F23"* / *"no, do (B) on F085 Q1 instead"* → reverse the underlying change (feature-doc Resolved → Open Questions; backlog row may rebracket). **The remaining accumulated resolutions stay** — rollback does NOT implicitly accept the rest (superseded earlier design lean). The user closes by saying *"the rest of the resolutions look good"* when they've rejected everything they want to reject.
+- **Rollback of a specific resolution.** *"Roll back F24 Q3"* / *"undo the resolution on F23"* / *"no, do (B) on F085 Q1 instead"* → reverse the underlying change (feature-doc Resolved → Open Questions; backlog row may need rebracket via `backlog-edit.py {NAME} same <row-id> <PriorStatus>` per the workflow skill). **The remaining accumulated resolutions stay** — rollback does NOT implicitly accept the rest (superseded earlier design lean). The user closes by saying *"the rest of the resolutions look good"* when they've rejected everything they want to reject.
 - **Answers to console questions** — *"F29 Q1: 5"* / *"verified F26"* / *"{NAME} Q3: yes"* → apply the resolution per § Resolution to the underlying feature doc / backlog. This **adds** to the accumulated `## Agent Resolutions` (one more entry at the top of the list); it does NOT clear what's already there.
 - **Anything else** — continue normally; don't infer acceptance from ambiguous phrases.
 

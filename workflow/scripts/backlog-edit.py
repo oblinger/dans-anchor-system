@@ -136,6 +136,28 @@ ROW_HEADER_RE = re.compile(
 )
 H2_RE = re.compile(r"^##\s+(.+?)\s*$")
 
+# Used to parse the existing row line back into title + body so the script
+# can preserve them across status-only edits.
+ROW_FULL_RE = re.compile(
+    r"^-\s+\*\*(?P<rid>F\d+|B[\w\-]+|B\d+)"
+    r"(?:\s+—\s+(?P<title>.+?))?\*\*"
+    r"\s+\[(?P<status>[^\]]+)\]"
+    r"(?:\s+—\s+(?P<body>.+?))?"
+    r"(?:\s+\^[\w\-]+)?\s*$"
+)
+
+
+def parse_existing_row(line):
+    """Return (title, body) extracted from an existing row line.
+
+    Returns ('', '') if the line doesn't match the expected shape — caller
+    treats that as a fresh row.
+    """
+    m = ROW_FULL_RE.match(line)
+    if not m:
+        return ("", "")
+    return (m.group("title") or "", m.group("body") or "")
+
 
 def scan_backlog(text):
     """Return (h2_index, row_index).
@@ -242,7 +264,16 @@ def ensure_h2_exists(lines, h2_index, h2_name):
     return lines, new_h2_index
 
 
-def perform_edit(backlog_path, horizon, row_id_arg, status, title, body):
+def perform_edit(
+    backlog_path,
+    horizon,
+    row_id_arg,
+    status,
+    title,
+    body,
+    title_provided,
+    body_provided,
+):
     """Apply the edit, return a one-line summary for the Messages entry."""
     raw = backlog_path.read_text()
     lines, h2_index, row_index = scan_backlog(raw)
@@ -292,6 +323,18 @@ def perform_edit(backlog_path, horizon, row_id_arg, status, title, body):
         del lines[start:end]
         backlog_path.write_text("".join(lines))
         return f"deleted {row_id}"
+
+    # Preserve title / body from the existing row when caller omitted them
+    # OR passed an empty string. Lets callers update bracket-only without
+    # re-supplying the full content, and lets the body-only-update pattern
+    # `backlog-edit.py {NAME} same <row> <status> "" "<new body>"` work
+    # without blowing away the title.
+    if existing is not None:
+        existing_title, existing_body = parse_existing_row(lines[existing[0]])
+        if not title_provided or title == "":
+            title = existing_title
+        if not body_provided or body == "":
+            body = existing_body
 
     # Build the new line.
     new_line = render_row(row_id, status, title, body)
@@ -389,11 +432,22 @@ def main(argv):
     horizon = argv[2]
     row_id_arg = argv[3]
     status = argv[4]
-    title = argv[5] if len(argv) >= 6 else ""
-    body = argv[6] if len(argv) >= 7 else ""
+    title_provided = len(argv) >= 6
+    body_provided = len(argv) >= 7
+    title = argv[5] if title_provided else ""
+    body = argv[6] if body_provided else ""
 
     backlog_path = find_backlog(slug)
-    summary = perform_edit(backlog_path, horizon, row_id_arg, status, title, body)
+    summary = perform_edit(
+        backlog_path,
+        horizon,
+        row_id_arg,
+        status,
+        title,
+        body,
+        title_provided,
+        body_provided,
+    )
     append_messages(slug, summary, backlog_path)
     refresh_q_md(slug)
 
