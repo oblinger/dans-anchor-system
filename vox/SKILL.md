@@ -78,25 +78,63 @@ When the user says "vox these files" / "process these voice memos" / "transcribe
 
 When the user mentions specific filenames in conversation ("vox the 02-04 recording on my desktop"), invoke `/vox ~/Desktop/<specific-file>` if disambiguation is clear; otherwise list candidates and ask.
 
-## Email mode (user-configurable)
+## Email mode — macOS + Apple Mail setup
 
-The repo also ships `~/.claude/skills/vox/scripts/vox-process.applescript`, an Apple Mail rule action that:
+This is the canonical end-to-end setup. It hands the user a "self-email a voice memo with `VOX` in the subject and the audio attached" workflow that lands a transcript in the VOX folder without any further action.
 
-- Watches incoming mail for a subject containing "VOX".
-- Saves audio attachments to `~/Library/Caches/ob_process_email/`.
-- Backgrounds `vox-process <staged-audio> "<subject>"` — the positional invocation, which leaves the source alone (Apple Mail's cache cleans itself up).
+### Pieces
 
-Setup (the user's personal configuration — others' mail clients will differ):
+- **`~/.claude/skills/vox/scripts/vox-process.applescript`** — source AppleScript. The Mail-rule action.
+- **`~/Library/Application Scripts/com.apple.mail/ob_process_email.scpt`** — compiled AppleScript that Mail actually runs. (The compiled filename `ob_process_email.scpt` is fixed by Mail's rule binding to that name; do not rename.)
+- **`vox-process` (positional invocation)** — what the AppleScript backgrounds. Receives the staged audio path + the email's subject, routes by subject containing "VOX".
+- **`~/Library/Caches/ob_process_email/`** — staging directory where the AppleScript drops the audio attachment for the script to pick up.
+
+### One-time setup steps
 
 ```bash
-# Compile the AppleScript into Mail's actions folder
+# 1. Compile the AppleScript into Mail's actions folder.
+#    Re-run this any time vox-process.applescript changes.
 osacompile -o "$HOME/Library/Application Scripts/com.apple.mail/ob_process_email.scpt" \
            "$HOME/.claude/skills/vox/scripts/vox-process.applescript"
 ```
 
-Then in Mail ▸ Settings ▸ Rules, add a rule with **Condition: Subject contains "VOX"** and **Action: Run AppleScript ▸ ob_process_email**. The account must download attachments locally (Mail ▸ Settings ▸ Accounts ▸ <account> ▸ Account Information → Download Attachments: All).
+```
+# 2. Wire the Mail rule once in Mail ▸ Settings ▸ Rules ▸ Add Rule:
+#      Description : VOX voice memo
+#      If          : Subject Contains  VOX
+#      Perform     : Run AppleScript   ob_process_email
+```
 
-Other mail clients can wire the same shell call through their own filter/rule mechanism — the script's positional invocation accepts an audio path + subject; only the Mail rule and AppleScript are macOS-specific.
+```
+# 3. Make sure attachments download locally so the AppleScript can save them.
+#    Mail ▸ Settings ▸ Accounts ▸ <your account> ▸ Account Information
+#      → Download Attachments: All
+```
+
+```
+# 4. Make sure the Anthropic API key is readable for the title-derivation step.
+#    The script reads from $ANTHROPIC_KEY_FILE (default ~/.config/anthropic/api_key).
+#    Without a key the filename falls back to a sanitized email subject instead
+#    of an AI-derived title — everything else still works.
+```
+
+### Day-to-day use
+
+From a phone or any mail client:
+
+1. Record a voice memo. Save or share it as an `.m4a` (or any container ffmpeg reads — `.mp3`, `.wav`, `.caf`, `.aac`, `.aiff`, `.aif`, `.mp4`, `.m4b`).
+2. Email it to yourself. Put `VOX` somewhere in the subject. The subject's other text is not used for the filename (the title comes from a Claude API call against the transcript, and the date comes from the audio's `creation_time` metadata).
+3. Wait under a minute. Open `~/ob/kmr/Log/VOX/` — a new `<YYYY-MM-DD> <derived-title>.m4a` and `.md` pair are there.
+
+### Troubleshooting
+
+- **Rule fires but no files land.** Check `~/ob/kmr/Log/VOX/.vox.log` — the script writes the full whisper output plus error messages there. Common causes: account isn't downloading attachments (step 3 above), or the whisper binary isn't installed (`/opt/homebrew/bin/whisper-cli`).
+- **Wrong filename date.** Audio metadata trumps subject; check the recording app's `creation_time` (`ffprobe -show_entries format_tags=creation_time <audio>`). UTC vs local-tz can flip days near midnight.
+- **Same audio filed twice.** Should not happen post-F104 — content SHA-256 dedup. If it does, check `.vox.hashes` for the hash; that's the dedup index.
+
+### Other mail clients / other platforms
+
+The Apple Mail rule + AppleScript path is macOS-specific. Other mail clients can wire the same shell call through their own filter/rule mechanism — `vox-process <audio-path> "<subject>"` is the contract. Generalizing this is out of F110's scope; the rest of the skill (the `--input` flag and the agent-facing `/vox` action) works platform-agnostically as long as a bash + ffmpeg + whisper-cli toolchain is present.
 
 ## Backward compatibility
 
