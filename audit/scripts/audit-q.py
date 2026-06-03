@@ -1975,14 +1975,20 @@ def derive_anchor_banner(name: str, backlog_file: Path,
     live = [e for e in entries
             if e.horizon in LIVE_HORIZON_H2S
             and not e.status.startswith("Done")]
+    # User-actionable banner counts (Ready, Questions, Verify-bracket leftover)
+    # only count from ACTIVE horizons. Rows parked in ## Later or ## Verify are
+    # passive observation, not active questions. Per user direction 2026-06-02
+    # after MUX banner showed "Questions 13" with Now/Next at 0.
+    ACTIVE_HORIZONS = {"Active", "Ready", "Now", "Next", "Legwork"}
+    actionable = [e for e in live if e.horizon in ACTIVE_HORIZONS]
     # Compute counts by bracket
-    active_n = sum(1 for e in live if e.status == "Active")
-    ready_n = sum(1 for e in live if e.status == "Ready")
-    verify_n = sum(1 for e in live if e.status == "Verify")
+    active_n = sum(1 for e in actionable if e.status == "Active")
+    ready_n = sum(1 for e in actionable if e.status == "Ready")
+    verify_n = sum(1 for e in actionable if e.status == "Verify")
     # Questions count = sum of Q-markers across linked targets for each
-    # [N Questions]/[Questions] row.
+    # [N Questions]/[Questions] row in active horizons only.
     questions_n = 0
-    for e in live:
+    for e in actionable:
         if "Questions" not in e.status:
             continue
         if not e.link or not e.link.target_resolves:
