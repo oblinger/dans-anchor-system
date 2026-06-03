@@ -89,13 +89,23 @@ If the survey returns zero pending items, write a one-line summary (`/ask — no
 
 For each surveyed item, attempt to resolve it autonomously. Calibrate the threshold by the active drive mode (see `[[SKA mode]]`):
 
-- **`[Verify]` items** — *can I verify this myself well enough that the user doesn't need to?* Run the grep / test / script / log inspection / source-dip that would settle it. If the verification mechanically passes, mark the item Done via the workflow skill's `backlog-edit.py` (auto-refreshes Q.md) and update the feature doc's Status field:
+- **`[Verify]` items** — read the linked feature doc's `## Success Criteria` block first (per `[[verification]]`). The tier label tells you what to do:
+  - **Tier 1 (agent-immediate):** run the named check now. If it passes, mark Done via `backlog-edit.py`; do not surface to the user. If it fails, rebracket to `[Active]` and the work is not done.
+  - **Tier 2 (agent-over-time):** the agent owns the deferred check (hook, schedule, watchdog). Do not surface; do not block.
+  - **Tier 3 (user-passive):** add a brief reminder in the ask page of what to watch for; do not block on a user answer. Optionally ask once after enough time has passed (typically a week).
+  - **Tier 4 (user-explicit):** surface as a User Verification with the specific steps from the feature doc. Even here, challenge yourself: has enough time passed that a passive signal might already have arrived? If yes, downgrade to tier 3 and drop the surfacing.
+
+  Mark verifications Done via `backlog-edit.py` (auto-refreshes Q.md) and update the feature doc's Status field:
 
   ```bash
   ~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} Done <row-id> Done
   ```
 
   Title and body are preserved.
+
+  **Feature docs without a `## Success Criteria` block** (predating F101) default to tier 4 surfacing for safety, but the agent should add the missing block on the next touch rather than perpetuating the bother-the-user default.
+
+  **Batching when multiple tier-3 or tier-4 Verifies surface** (per `[[verification]]` § How to surface a Verify to the user): if several Verify rows reduce to the same user action ("did this work in normal use?", "did the bug recur?"), combine them into one targeted question with the linked feature docs listed. The user gives a single yes-or-no answer; the agent applies it to all listed rows. Never write "verify F57, F58, F59" as separate items if a single observation would resolve all three. The question itself must carry the answer-enabling context, not point at a doc to read.
 - **`[Questions]` items** — *can I confidently pick the most likely answer?* Read the feature doc's `## Open Questions` block, the surrounding code, prior similar decisions in the anchor's `## Resolved`, the user's stated preferences (memory), and the design rationale. For each Q where the answer is clear, write the inline resolution per § Resolution and update the feature doc.
 
 **Drive-mode thresholds:**

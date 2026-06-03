@@ -24,6 +24,16 @@ Punctuation trigger: **`'`** (single apostrophe as the entire message), parallel
 
 **Surfacing user-actionable items**: when `/crank` is about to ask a Question or request a Verify (e.g., when exiting to `/triage` or chaining to `/ask`), the format follows the [[ask-format]] discipline. This prevents the flatfooted-ask failure mode — every Verify includes what-the-agent-verified / what's-left-for-you / why-human / expected-output.
 
+**Verify surfacing follows [[verification]]** (per F101). The recurring failure mode is the blanket ask: *"verify F57, F58, F59"* dumped on the user with no context, requiring them to open each feature doc and reconstruct what "verified" means. The verification discipline replaces this with:
+
+- **Tier check first.** Read each Verify row's linked feature doc `## Success Criteria` block. Tier 1 and tier 2 are agent-owned: the agent runs the check now (or schedules the deferred check); these do NOT surface to the user. Suppress them from `/ask` and `/triage` body output.
+- **Targeted questions only.** When tier 3 or tier 4 does surface, the question itself embeds the answer-enabling context. *"Have you sent a Voice Memo email since 2026-05-28 and seen the transcript land in `~/ob/kmr/Log/VOX/`?"* not *"Verify F93"*.
+- **Batch by ask, not by feature.** If several Verify rows collapse to the same user action ("did this work in normal use?", "did the bug recur?"), surface as one combined question with the feature-doc links listed. The user gives one answer; the agent applies it to all listed rows.
+- **No "see the feature doc."** If the surfacing requires the user to open a doc to understand the question, the question is not targeted enough. Rewrite until the question itself names the specific observation.
+- **Ask once per row per cycle.** Repeated asking on adjacent crank presses is a failure mode. After surfacing a tier 3 Verify, the row stays in `## Verify` until the user answers or until the next periodic window.
+
+If the Verify queue is large, prefer one well-targeted batched question with multiple linked rows over a list of opaque F-number asks. The user's attention is the constraint; minimize work-per-answer.
+
 ## When to Use
 
 - User types `/crank` or sends `'` as the entire message.

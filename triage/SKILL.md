@@ -245,6 +245,13 @@ For each backlog H2 in this fixed order — `## Active`, `## Ready`, `## Now`, `
 
 `## Verify` (per F100, 2026-06-02) is a dedicated horizon for `[Watching*]` and `[Verify*]` rows. The split surfaces passive-observation work separately from `## Later` (which now holds only `[Waiting*]` / `[Blocked*]` / etc.). All `## Verify` rows are rendered (no filter — every row there is user-relevant since it's awaiting confirmation or recurrence-check).
 
+**Tier check on `[Verify]` rows** (per `[[verification]]`, F101): when rendering a `[Verify]` row, read the linked feature doc's `## Success Criteria` block. The declared tier determines surfacing:
+
+- **Tier 1 (agent-immediate) or Tier 2 (agent-over-time):** the verification is the agent's responsibility, not the user's. Suppress the row from the triage body — render only a one-line note in the chat-summary at the end: *"N Verify rows are agent-tier (1 or 2); not surfaced. /audit q on next pass."* The agent should pick these up and check them; if the check still has not run by the next triage, the agent has neglected its own work and the row needs attention from a different angle (escalate or rebracket).
+- **Tier 3 (user-passive):** render with a brief annotation `(passive — watch in normal use)`; do not block on a user response.
+- **Tier 4 (user-explicit):** render with the verify-plan summary as today. The user is the verifier.
+- **Feature doc with no `## Success Criteria` block** (predating F101): default to tier 4 render for safety; the agent should add the missing block on the next touch.
+
 - For `## Active`, `## Ready`, `## Now`, `## Next` — all items qualify (subject to the standard `[Done]`-skip rule below).
 - For `## Later` — **only items carrying `[Questions]` or `[Verify]` brackets qualify** (per 2026-05-20 selective-surfacing rule). All other Later items stay hidden.
 

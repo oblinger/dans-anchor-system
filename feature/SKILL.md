@@ -48,6 +48,17 @@ If a feature is `[Questions]` or `[Blocked]` mid-flight, that's tracked via the 
 
 ### 1. Create the Feature Document
 
+**Discipline: write the `## Success Criteria` block at creation time.** Per `[[verification]]`, every feature doc has a `## Success Criteria` H2 near the top (after Summary, before Design) with the verification tier declared explicitly. Four tiers, ranked from most preferred (top) to least preferred (bottom):
+
+- **Tier 1: Agent-immediate.** Agent runs a check in the same turn the work completes. Runnable command, deterministic observation. (Best.)
+- **Tier 2: Agent-over-time.** Agent owns the deferred check (soak test, recurrence watchdog, scheduled re-run). User is not involved.
+- **Tier 3: User-passive.** User notices in normal use; signal is obvious if it breaks. Agent may ask once after enough time (typically a week), yes-or-no based on observation.
+- **Tier 4: User-explicit.** User performs a specific concrete test action they would not otherwise do. Least preferred — only when no lower tier works.
+
+**Blocking-action escape hatch.** If a concrete next action is strictly blocked until verification completes (filled `Blocks next:` line in the Success Criteria block), tier 1 or tier 2 is required. "Nice to have" or "would feel more confident" does not qualify; the blocked action must genuinely be unable to begin until verified.
+
+**Pick the highest applicable tier.** If you find yourself writing tier 4 with no Blocks-next, pause and reconsider: could a passive signal work? Could the user notice this in normal use? Often the answer is yes and the right tier is 3.
+
 Per `[[CAB Backlog]]` § Numbering policy, F-numbers are monotonic-forever, never recycled, **zero-padded to three digits** as `F001` … `F999`. The F-number is **minted by the workflow skill's `backlog-edit.py`** in § 1.5 below — run § 1.5 first (after the collision check in § 1b), parse the assigned `F<NNN>` from its stdout, then create the feature doc in the project's Features folder:
 
 ```
@@ -108,6 +119,15 @@ description: {one-line description}
 ## Summary
 
 {1-2 paragraphs}
+
+## Success Criteria
+
+**Tier:** 1 (agent-immediate) | 2 (agent-over-time) | 3 (user-passive) | 4 (user-explicit)
+**Blocks next:** none, OR [[F<n>]] (link to action this verification gates)
+
+**What done looks like.** {One or two sentences describing the falsifiable end-state.}
+
+**How it will be verified.** {The specific check, sized to the tier — runnable command for tier 1; deferred-agent-check for tier 2; user-passive-observation for tier 3; specific user-action-steps for tier 4.}
 
 ## Design
 
