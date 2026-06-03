@@ -1859,6 +1859,162 @@ def check_c23_designing_resolves(entries: list[BacklogEntry]) -> list[Finding]:
     return findings
 
 
+def check_c25_designing_justification(backlog_files: list[Path],
+                                      vault_index: dict[str, list[Path]]) -> list[Finding]:
+    """C25 (per F106): every [Designing] row must carry a justification.
+
+    F102 says any row bracketed [Designing] must declare what's next — without
+    this, designing-state creates a turn-ownership deadlock. C25 is the
+    present-time invariant check (C23 was the auto-rewrite escape; F106 keeps
+    [Designing] as a valid state that requires justification rather than
+    forcing rewrite).
+
+    For each [Designing] row found in any backlog (bullet or H3 form):
+
+    - **Bullet with resolvable feature-doc link** — the linked doc's ## Status
+      H2 must lead with `**Designing**` (bolded token per F102) AND the body
+      must contain `next action` or `next step` (case-insensitive). Anything
+      missing → finding.
+    - **Bullet without resolvable link** — must have an inline sub-bullet
+      directly below the row matching `- **Status:** Designing —` with `next`
+      in the body. Missing → finding.
+    - **H3 row** (HA-style) — must have the same inline sub-bullet anywhere
+      between the H3 line and the next H3/H2/EOF. Missing → finding.
+
+    Severity: error. No auto-fix — content gap, not mechanical.
+    """
+    findings: list[Finding] = []
+    designing_bracket_re = re.compile(r"\[Designing\b[^\]]*\]")
+    h3_row_opener_re = re.compile(
+        r"^### "
+        r"(?:\[[A-Z]+\]\s+)?"
+        r"([A-Za-z][A-Za-z0-9_\-]*)\b"
+    )
+    bullet_row_opener_re = re.compile(
+        r"^- \*\*"
+        r"(?:\[\[)?"
+        r"(?:\[[A-Z]+\]\s+)?"
+        r"([A-Za-z][A-Za-z0-9_\-]*)\b"
+    )
+    status_subbullet_re = re.compile(
+        r"^\s+- \*\*Status:\*\*\s+Designing\s+[—-]\s+(.+)$"
+    )
+    for backlog_file in backlog_files:
+        try:
+            text = backlog_file.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        lines = text.splitlines()
+        current_horizon = ""
+        for i, line in enumerate(lines):
+            m = HEADING_RE.match(line)
+            if m and m.group(1) == "##":
+                current_horizon = m.group(2)
+                continue
+            # Skip Done / Icebox; only live horizons.
+            if current_horizon in ("Done", "Icebox", ""):
+                continue
+            if not designing_bracket_re.search(line):
+                continue
+            # Identify row type.
+            mh3 = h3_row_opener_re.match(line)
+            mb = bullet_row_opener_re.match(line)
+            row_match = mh3 or mb
+            if row_match is None:
+                # Not a row opener — bracketed text inside a sub-bullet or body.
+                continue
+            identifier = row_match.group(1)
+            is_h3 = bool(mh3)
+            # Look for the row's body span (lines until the next row/heading).
+            body_lines: list[str] = []
+            j = i + 1
+            while j < len(lines):
+                nxt = lines[j]
+                if HEADING_RE.match(nxt):
+                    break
+                if bullet_row_opener_re.match(nxt) or h3_row_opener_re.match(nxt):
+                    break
+                body_lines.append(nxt)
+                j += 1
+            # Try inline status sub-bullet first (works for any row class).
+            inline_ok = False
+            for bl in body_lines:
+                sm = status_subbullet_re.match(bl)
+                if sm and re.search(r"\bnext\b", sm.group(1), re.IGNORECASE):
+                    inline_ok = True
+                    break
+            if inline_ok:
+                continue
+            # No inline status — for bullet rows with a feature-doc link, fall
+            # back to checking the linked doc's ## Status H2.
+            doc_ok = False
+            if not is_h3:
+                # Resolve the row's primary link via `links_in_file`.
+                row_links = [
+                    lk for lk in links_in_file(backlog_file, vault_index)
+                    if lk.source_line == i + 1
+                ]
+                # Prefer an arrow-trailing link if present, else last wiki-link.
+                arrow_link = None
+                for lk in row_links:
+                    col_text = line[max(0, lk.source_col_start - 4):lk.source_col_start]
+                    if "→" in col_text or "->" in col_text:
+                        arrow_link = lk
+                        break
+                target_link = arrow_link or (row_links[-1] if row_links else None)
+                if (target_link is not None
+                        and target_link.target_resolves
+                        and target_link.target_file_path is not None):
+                    try:
+                        doc_text = target_link.target_file_path.read_text(encoding="utf-8")
+                    except (OSError, UnicodeDecodeError):
+                        doc_text = ""
+                    # Find ## Status H2 and read its body until next H2 / EOF.
+                    status_match = re.search(
+                        r"^## Status\b.*$", doc_text, re.MULTILINE,
+                    )
+                    if status_match:
+                        body_start = status_match.end()
+                        next_h2 = re.search(
+                            r"^## ", doc_text[body_start:], re.MULTILINE,
+                        )
+                        status_body = (
+                            doc_text[body_start:body_start + next_h2.start()]
+                            if next_h2 else doc_text[body_start:]
+                        )
+                        # Leading bold token must be **Designing**
+                        first_nonblank = next(
+                            (s.strip() for s in status_body.splitlines() if s.strip()),
+                            "",
+                        )
+                        leads_designing = first_nonblank.startswith("**Designing**")
+                        has_next = bool(re.search(
+                            r"\bnext (action|step|move)\b",
+                            status_body, re.IGNORECASE,
+                        ))
+                        if leads_designing and has_next:
+                            doc_ok = True
+            if doc_ok:
+                continue
+            # Emit the finding.
+            row_kind = "H3 row" if is_h3 else "bullet row"
+            findings.append(Finding(
+                severity="error",
+                surface_file=backlog_file,
+                surface_line=i + 1,
+                code="C25",
+                message=(
+                    f"{row_kind} '{identifier}' [Designing] has no "
+                    f"justification — per F102 every [Designing] row must "
+                    f"carry **Designing** + next-action (in linked doc's "
+                    f"## Status H2, or inline `- **Status:** Designing — "
+                    f"<next-action>` sub-bullet)."
+                ),
+                mechanically_fixable=False,
+            ))
+    return findings
+
+
 def apply_c23_fix(backlog_file: Path,
                   entries: list[BacklogEntry]) -> tuple[bool, list[str]]:
     """Rewrite [Designing] brackets to [N Questions] or [Ready] based on
@@ -2025,16 +2181,35 @@ def apply_placement_fixes(
 
 
 def find_anchor_backlogs(vault_root: Path) -> dict[str, Path]:
-    """Find every {NAME} Backlog.md in the vault. Return name → path."""
+    """Find every {NAME} Backlog.md in the vault. Return name → path.
+
+    Per F107: backlogs nested deeper than SKA's own backlog level inside
+    `Skill Agent/` are SKA sub-skill anchors (Triage, Mode, Crank, etc.) —
+    SKA's internal organization, not standalone projects. They get filtered
+    out of Q.md presence here. Their underlying files keep existing on disk.
+    """
     out: dict[str, Path] = {}
     for path in vault_root.rglob("* Backlog.md"):
         if any(frag in path.parts for frag in EXCLUDED_PATH_FRAGMENTS):
             continue
         # Accept either the legacy `<X> Plan/` form or the F094 four-bucket
         # `<X> Track/` form. Migrated anchors hold the backlog under Track.
-        if path.parent.name.endswith("Plan") or path.parent.name.endswith("Track"):
-            name = path.stem.replace(" Backlog", "")
-            out[name] = path
+        if not (path.parent.name.endswith("Plan") or path.parent.name.endswith("Track")):
+            continue
+        # F107 — exclude SKA sub-skill backlogs. The structural rule:
+        # SKA itself is at `Skill Agent/SKA Docs/...` (3 parts after `Skill
+        # Agent`). Sibling top-level anchors (CAB, CAE, CSE, SKA skill-trait)
+        # are at `Skill Agent/<NAME>/<NAME> Docs/...` (4 parts after).
+        # SKA sub-skill anchors are nested under a CATEGORY folder
+        # (Drive Loop, Discipline, Utility, Dev, Doc, skills), one level
+        # deeper: `Skill Agent/<CATEGORY>/<NAME>/<NAME> Docs/...` (5+ parts
+        # after). Exclude anything with 5 or more parts after `Skill Agent`.
+        if "Skill Agent" in path.parts:
+            sa_idx = path.parts.index("Skill Agent")
+            if len(path.parts) - sa_idx > 5:
+                continue
+        name = path.stem.replace(" Backlog", "")
+        out[name] = path
     return out
 
 
@@ -2264,6 +2439,7 @@ def main() -> int:
         findings.extend(check_c16_blocked_in_later(entries))
         findings.extend(check_c18_verify_by_expired(entries, today))
         findings.extend(check_c23_designing_resolves(entries))
+        findings.extend(check_c25_designing_justification([backlog_file], vault_index))
         if args.fix:
             fix_log = apply_placement_fixes(backlog_file, entries, today)
             if fix_log:
