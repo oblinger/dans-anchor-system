@@ -161,6 +161,32 @@ def find_file_by_basename(basename):
     return None
 
 
+def _scope_text_to_block_id_region(text, block_id):
+    """Per F103: scope a target file's text to the region of the row carrying
+    `^<block_id>`. The row's region runs from the line containing `^<block_id>`
+    up to the next top-level bullet, H2, or H3 row. Returns the empty string
+    when the block-id is not found in the text."""
+    lines = text.splitlines()
+    marker = f"^{block_id}"
+    start = None
+    for i, line in enumerate(lines):
+        if marker in line:
+            start = i
+            break
+    if start is None:
+        return ""
+    end = len(lines)
+    for j in range(start + 1, len(lines)):
+        s = lines[j]
+        if s.startswith("## ") or s.startswith("### "):
+            end = j
+            break
+        if re.match(r"^- \*\*", s):
+            end = j
+            break
+    return "\n".join(lines[start:end])
+
+
 def verify_questions_constraint(status, body):
     """Raise BacklogEditError if status asserts a Questions promise that the
     body's wiki-link target cannot honor.
@@ -222,11 +248,28 @@ def verify_questions_constraint(status, body):
             f"[{status}] promise broken: cannot read target [[{basename}]] "
             f"({target_path}): {e}"
         )
+    # F103 — when the link carries `#^<block-id>`, scope the Q-marker search
+    # to that row's region. Without scoping, a row pointing at a backlog
+    # passes because Q-markers exist elsewhere in the same file
+    # (the B-roots-reconcile failure 2026-06-02).
+    block_id_match = re.search(r"#\^([A-Za-z0-9_\-]+)", chosen.group(0))
+    if block_id_match:
+        block_id = block_id_match.group(1)
+        scoped = _scope_text_to_block_id_region(text, block_id)
+        if not scoped:
+            raise BacklogEditError(
+                f"[{status}] promise broken: block-id `^{block_id}` not found "
+                f"in target [[{basename}]]. The link points at a row that does not "
+                f"exist."
+            )
+        text = scoped
     if not Q_MARKER_RE.search(text):
+        scope_note = f" (scoped to row ^{block_id_match.group(1)})" if block_id_match else ""
         raise BacklogEditError(
-            f"[{status}] promise broken: target [[{basename}]] "
-            f"(at {target_path.relative_to(VAULT_ROOT) if target_path.is_relative_to(VAULT_ROOT) else target_path}) "
-            f"contains no Q<n> markers. Write the Open Questions block first, then re-run."
+            f"[{status}] promise broken: target [[{basename}]]{scope_note} "
+            f"contains no Q<n> markers. Inline `Q1:` (colon) does NOT count; "
+            f"the canonical form is `**Q<n> — ...**` with options + Recommendation "
+            f"per [[ask-format]]. Hoist the Qs to the right shape, then re-run."
         )
     # Format check — every Q must have labeled options on their own indented
     # sub-bullets and an explicit Recommendation with Strong/Lean/None. Shell

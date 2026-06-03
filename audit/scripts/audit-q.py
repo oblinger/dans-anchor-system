@@ -669,6 +669,43 @@ def check_c1_link_existence(qmd_links: list[LinkEntry]) -> list[Finding]:
     return findings
 
 
+def _scope_to_block_id_region(text: str, block_id: str) -> str:
+    """Return the lines from `^<block_id>`-bearing row up to the next
+    bullet-row or H2. Used by C2 (and backlog-edit's Q-marker check) to
+    scope the Q-marker search to a specific row's region when the link
+    carries a `#^<block-id>` anchor.
+
+    A row's region:
+      - starts at the line containing `^<block_id>` (case-sensitive)
+      - includes any indented sub-bullets immediately after it
+      - ends at the next top-level bullet, the next H2, or EOF
+    """
+    lines = text.splitlines()
+    marker = f"^{block_id}"
+    start = None
+    for i, line in enumerate(lines):
+        if marker in line:
+            start = i
+            break
+    if start is None:
+        return ""  # block-id not found; no scope to check
+    end = len(lines)
+    for j in range(start + 1, len(lines)):
+        s = lines[j]
+        if s.startswith("## "):
+            end = j
+            break
+        # Top-level bullet (no leading whitespace) starting with `- **`
+        if re.match(r"^- \*\*", s):
+            end = j
+            break
+        # H3 row (HA-style)
+        if s.startswith("### "):
+            end = j
+            break
+    return "\n".join(lines[start:end])
+
+
 # ============================================================
 # Check C2 — Q-marker existence at target (for `[Questions]` brackets)
 # ============================================================
@@ -737,6 +774,15 @@ def check_c2_q_marker_existence(qmd_links: list[LinkEntry],
             target_text = target_file.read_text(encoding="utf-8")
         except (OSError, UnicodeDecodeError):
             continue
+        # F103 — scope to the row's region when the link uses a block-id.
+        # `[[<file>#^<row-id>|...]]` is a promise that the Q-markers live IN
+        # that row, not somewhere else in the same file. Without scoping,
+        # a row with zero inline Qs passes because the file has Q-markers
+        # elsewhere (the B-roots-reconcile failure 2026-06-02).
+        if primary_link.target_block_id:
+            target_text = _scope_to_block_id_region(
+                target_text, primary_link.target_block_id
+            )
         # Existence-check only — count NOT required to match
         if not Q_MARKER_RE.search(target_text):
             findings.append(Finding(
