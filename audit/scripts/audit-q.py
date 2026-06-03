@@ -2196,17 +2196,17 @@ def find_anchor_backlogs(vault_root: Path) -> dict[str, Path]:
         # `<X> Track/` form. Migrated anchors hold the backlog under Track.
         if not (path.parent.name.endswith("Plan") or path.parent.name.endswith("Track")):
             continue
-        # F107 — exclude SKA sub-skill backlogs. The structural rule:
-        # SKA itself is at `Skill Agent/SKA Docs/...` (3 parts after `Skill
-        # Agent`). Sibling top-level anchors (CAB, CAE, CSE, SKA skill-trait)
-        # are at `Skill Agent/<NAME>/<NAME> Docs/...` (4 parts after).
-        # SKA sub-skill anchors are nested under a CATEGORY folder
-        # (Drive Loop, Discipline, Utility, Dev, Doc, skills), one level
-        # deeper: `Skill Agent/<CATEGORY>/<NAME>/<NAME> Docs/...` (5+ parts
-        # after). Exclude anything with 5 or more parts after `Skill Agent`.
+        # F107 — exclude every backlog under `Skill Agent/` except SKA's own.
+        # SKA's backlog sits at `Skill Agent/SKA Docs/SKA Track/SKA Backlog.md`
+        # (4 parts after `Skill Agent`, inclusive). Anything deeper — CAB, CAE,
+        # CSE, SKA skill-trait at the sibling level, plus the sub-skill nesting
+        # under Drive Loop / Discipline / Utility / Dev / Doc / skills — is part
+        # of SKA and rolls up under SKA's presence in Q.md. Per user direction
+        # 2026-06-02 (round 2): "C-A-B and C-A-E are part of SKA, and that's
+        # the only backlog we should be looking at."
         if "Skill Agent" in path.parts:
             sa_idx = path.parts.index("Skill Agent")
-            if len(path.parts) - sa_idx > 5:
+            if len(path.parts) - sa_idx > 4:
                 continue
         name = path.stem.replace(" Backlog", "")
         out[name] = path
