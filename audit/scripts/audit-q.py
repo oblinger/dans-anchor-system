@@ -699,7 +699,37 @@ def check_c2_q_marker_existence(qmd_links: list[LinkEntry],
             if not (link.kind == "wiki" and link.target_basename == "Q"):
                 primary_link = link
                 break
-        if not primary_link or not primary_link.target_resolves:
+        if not primary_link:
+            # F103 — Q.md row carries [Questions] bracket but has NO non-Q-internal
+            # wiki-link. The promise cannot be satisfied; that is an error.
+            findings.append(Finding(
+                severity="error",
+                surface_file=Q_MD,
+                surface_line=line_num,
+                code="C2",
+                message=(
+                    f"[Questions] bracket at line {line_num} but row has no "
+                    f"wiki-link to a Q-marker target"
+                ),
+                mechanically_fixable=False,
+            ))
+            continue
+        if not primary_link.target_resolves:
+            # F103 — Q.md row's link target does not resolve. Was previously
+            # silently skipped (the B-roots-reconcile failure 2026-06-02).
+            # Per user direction: any failure to find the questions is an error.
+            findings.append(Finding(
+                severity="error",
+                surface_file=Q_MD,
+                surface_line=line_num,
+                code="C2",
+                message=(
+                    f"[Questions] bracket at line {line_num} but linked target "
+                    f"[[{primary_link.target_basename}]] does not resolve "
+                    f"(broken link = broken promise)"
+                ),
+                mechanically_fixable=False,
+            ))
             continue
         target_file = primary_link.target_file_path
         assert target_file is not None  # target_resolves implies this

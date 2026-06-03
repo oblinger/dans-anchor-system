@@ -183,27 +183,45 @@ def verify_questions_constraint(status, body):
             f"[{status}] requires a body with a wiki-link to a target containing "
             f"Q<n> markers; body is empty. Add the link first, then re-run."
         )
-    m = WIKI_LINK_RE.search(body)
-    if not m:
+    # Prefer the canonical "→ [[F<n> ...]]" feature-doc reference at the end of
+    # the body. Fall back to the last wiki-link, then the first. Picking the FIRST
+    # wiki-link grabbed in-prose references like [[Topic]] and let the check
+    # silently skip (the B-roots-reconcile failure 2026-06-02).
+    arrow_match = list(re.finditer(r"→\s+(\[\[[^\]]+\]\])", body))
+    all_links = list(WIKI_LINK_RE.finditer(body))
+    if arrow_match:
+        chosen = WIKI_LINK_RE.search(arrow_match[-1].group(1))
+    elif all_links:
+        chosen = all_links[-1]
+    else:
+        chosen = None
+    if chosen is None:
         raise BacklogEditError(
             f"[{status}] requires a body with a wiki-link to a target containing "
             f"Q<n> markers; no wiki-link found in body. "
             f"Body: {body[:120]!r}"
         )
-    basename = m.group(1).strip()
+    basename = chosen.group(1).strip()
     target_path = find_file_by_basename(basename)
     if target_path is None:
-        sys.stderr.write(
-            f"note: [{status}] target [[{basename}]] not located in vault — "
-            f"skipping Q-marker verification. If the target is a freshly-created "
-            f"doc, this is fine; if it should exist, the link is broken.\n"
+        # F103 — strict refusal when target cannot be located. Was previously a
+        # warn-and-skip, which let [[Topic]]-style in-prose references through
+        # (the B-roots-reconcile failure 2026-06-02). The spec is unambiguous:
+        # if we cannot find the questions, that is an error.
+        raise BacklogEditError(
+            f"[{status}] promise broken: wiki-link target [[{basename}]] does not "
+            f"resolve to a file in the vault.\n"
+            f"  A [{status}] bracket promises the linked target contains Q<n> markers.\n"
+            f"  A broken link is also a broken promise. Either fix the link, hoist the\n"
+            f"  questions into a real feature doc, or change the row's bracket."
         )
-        return
     try:
         text = target_path.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError) as e:
-        sys.stderr.write(f"note: cannot read [[{basename}]] for Q-verification: {e}\n")
-        return
+        raise BacklogEditError(
+            f"[{status}] promise broken: cannot read target [[{basename}]] "
+            f"({target_path}): {e}"
+        )
     if not Q_MARKER_RE.search(text):
         raise BacklogEditError(
             f"[{status}] promise broken: target [[{basename}]] "
