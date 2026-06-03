@@ -285,35 +285,27 @@ Three link forms by row class — pick the most specific that exists:
 
 If you find yourself writing a row whose title is bold-only (no `[[...]]`), stop — that's the failure mode this rule names. Pick a link form above.
 
-### 6. Regenerate the anchor's section in `~/ob/kmr/Q.md` (the only write target)
+### 6. Regenerate the anchor's section in `~/ob/kmr/Q.md` — **run the script**
 
-`Q.md` is the **vault-level Agent Status dashboard** AND the single triage surface (per F075, 2026-05-19). Per-anchor `{NAME} Triage.md` files do not exist — Q.md sections are the only rendered form. Update the touched anchor's section in Q.md and bubble it to the top. Per F028 Q3 (full body always):
+Per F104 (2026-06-02): the entire per-anchor regeneration is mechanical — done by a Python script, not by agent prose. Sections § 2–5 above describe the script's **spec** (what it computes); they are not steps the agent runs by hand. The agent's only job here is to shell out:
 
-The per-anchor section format — H1-equivalent line `# [<TAG>]  [[{NAME} ask|{NAME}]]  -  …` where the slug `{NAME}` is a wiki-link to the anchor's `{NAME} ask.md` drain page (per B14 — clicking takes the user to where they actually answer questions). Followed by body H2s with bullets in source order from the backlog.
-
-```markdown
-# [<TAG>]  [[{NAME} ask|{NAME}]]  -  Ready N    Questions N   |   Now N    Next N    Later N    Verify N    Icebox N
-- **[N Questions]** [[{NAME} Questions]]
-## Active
-- ...
-## Ready
-- ...
-## Now
-- ...
-## Next
-- ...
+```bash
+python3 ~/.claude/skills/triage/scripts/triage-section.py {NAME}
 ```
 
-(Inside Q.md per-anchor sections, the H2s render at H2 level — same as the Triage file, since each anchor section is at H1 level.)
+The script:
 
-**Overflow rule.** If Q.md as a whole would exceed a soft cap (~2 screenfuls; tune in implementation), individual anchor sections collapse to *just the H1-equivalent line* (which contains the link). The user clicks through to the full body. **No partial paste** — either the whole body, or just the link.
+- Walks `{NAME} Backlog.md` (handles both bullet-style and HA-style H3 rows).
+- Derives the H1 banner with TAG cascade + horizon counts + Questions/Verify totals.
+- Renders body H2s (`## Active`, `## Ready`, `## Now`, `## Next`, `## Later`, `## Verify`) with one bullet per qualifying item in source order. `## Later` is filtered to `[Questions]` and `[Verify*]` brackets; `## Icebox` is never rendered; `[Done]` rows are skipped.
+- De-dupes any existing section for `{NAME}` and bubbles the fresh one to the top of `~/ob/kmr/Q.md`'s body (immediately after frontmatter).
+- Removes the section entirely if the anchor has zero live items.
 
-**Q.md H1 banner**: `# Agent Status   -   Questions: N    Ready: M` where N = anchors with TAG U or U+A, M = anchors with TAG A or U+A. (Same counts as F25; format unchanged.)
+The script's stdout is a single line like `triage-section: SKA — wrote new section at top; rendered 20 bullet(s)` — surface it in the chat summary so the user knows what changed.
 
-**De-dupe + move-to-front**: remove any existing per-anchor section for `{NAME}`, insert the new one at the top of the body (immediately after the H1 banner). Always move-to-front, regardless of whether content changed.
-**Then invoke `/audit q` to verify (per F076 Q6 auto-wiring).** The audit's fix-by-default behavior catches any drift introduced by this skill's edits — broken links, stale brackets, banner mismatches, stale `[Done]` rows — and either repairs them mechanically OR (rare) files a `QFix [Ready]` backlog entry the user can address later. Surfacing any QFix entry is part of this skill's "done" criteria.
+**This is the only write target.** The agent does not edit Q.md directly; the script does. The prose in § 2–5 above is preserved for auditability — anyone wanting to know what the canonical Q.md section format looks like can read those sections; the script's behavior IS that spec.
 
-**If the anchor has TAG `[]`** (zero items anywhere): remove its per-anchor section from Q.md entirely. Done.
+**Then invoke `/audit q` to verify (per F076 Q6 auto-wiring).** The audit's fix-by-default behavior catches any drift the script's regen surfaced — broken links, stale brackets, stale `[Done]` rows in horizon H2s — and either repairs them mechanically OR files a `QFix [Ready]` backlog entry the user can address later. Surfacing any QFix entry is part of this skill's "done" criteria.
 
 ### 7. Glance Q.md — NEVER glance the per-anchor Triage file
 

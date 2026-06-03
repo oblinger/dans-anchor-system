@@ -1,0 +1,584 @@
+#!/usr/bin/env python3
+"""triage-section.py — rewrite a single anchor's per-anchor section in Q.md.
+
+Usage: triage-section.py <NAME>
+
+Reads `<vault>/<...>/<NAME> Backlog.md`, derives the canonical Q.md section
+(banner + body H2s + bullets), and atomically replaces the existing section
+in `<vault>/Q.md`. The new section is bubbled to the top of Q.md's body
+(immediately after the YAML frontmatter).
+
+If the anchor has zero items anywhere (TAG `[]` + Icebox 0), the section is
+removed from Q.md entirely.
+
+Per F104 — replaces the prose-driven Q.md regeneration in /triage's SKILL.md
+with one mechanical script that every consumer skill shells out to.
+
+Exit codes:
+  0 — section written or removed
+  1 — anchor name not found / backlog not found
+  2 — Q.md not found / not writable
+"""
+
+from __future__ import annotations
+
+import argparse
+import importlib.util
+import re
+import sys
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Optional
+
+# ============================================================
+# Load audit-q.py for parsing utilities (hyphenated filename
+# blocks plain `import`).
+# ============================================================
+
+_AUDIT_Q_PATH = Path.home() / ".claude" / "skills" / "audit" / "scripts" / "audit-q.py"
+_spec = importlib.util.spec_from_file_location("audit_q", _AUDIT_Q_PATH)
+assert _spec is not None and _spec.loader is not None, f"cannot load {_AUDIT_Q_PATH}"
+audit_q = importlib.util.module_from_spec(_spec)
+sys.modules["audit_q"] = audit_q  # required so @dataclass can resolve the module
+_spec.loader.exec_module(audit_q)
+
+LinkEntry = audit_q.LinkEntry
+BacklogEntry = audit_q.BacklogEntry
+LIVE_HORIZON_H2S = audit_q.LIVE_HORIZON_H2S
+ACTIVE_HORIZONS_BANNER = {"Active", "Ready", "Now", "Next", "Legwork"}
+
+# ============================================================
+# Configuration
+# ============================================================
+
+VAULT_ROOT = audit_q._resolve_vault_root()
+Q_MD = VAULT_ROOT / "Q.md"
+
+# ============================================================
+# Regexes (some overlap with audit-q.py; kept local so this
+# script's behavior is auditable in one file)
+# ============================================================
+
+# Bullet row opener: `- **F091 — Title**` or `- **B-name — Title**`.
+ROW_OPENER_BULLET_RE = re.compile(
+    r"^- \*\*"
+    r"(?:\[\[)?"
+    r"(?:\[[A-Z]+\]\s+)?"
+    r"([A-Za-z][A-Za-z0-9_\-]*)\b"
+)
+
+# H3 row opener (HA-style): `### F068 — Title [Bracket]` or `### BUG — Title [Bracket]`.
+ROW_OPENER_H3_RE = re.compile(
+    r"^### "
+    r"(?:\[[A-Z]+\]\s+)?"
+    r"([A-Za-z][A-Za-z0-9_\-]*)\b"
+)
+
+H2_HEADING_RE = re.compile(r"^##\s+(.+?)\s*$")
+
+# Bracket extraction — allow leading digit (`[4 Questions]`) and any non-bracket
+# char inside (so `[Done 2026-06-01 — superseded by F094]` matches).
+BRACKET_RE = re.compile(r"\[([A-Za-z0-9][^\[\]]*?)\]")
+
+# Wiki-link
+WIKI_LINK_RE = re.compile(r"\[\[([^\[\]]+)\]\]")
+
+# Arrow-trailing link `→ [[X]]`
+ARROW_LINK_RE = re.compile(r"→\s*\[\[([^\[\]]+)\]\]")
+
+# Trailing block-ID `^F104`
+TRAILING_BLOCK_ID_RE = re.compile(r"\s+\^[A-Za-z][A-Za-z0-9_\-]*\s*$")
+
+# Q.md banner line for an anchor
+QMD_BANNER_RE_TEMPLATE = (
+    r"^# \[[^\]]*\]\s+\[\[" r"{name}" r"\s+ask\|" r"{name}" r"\]\]"
+)
+
+# ============================================================
+# Parsing
+# ============================================================
+
+
+def _strip_code_spans(line: str) -> str:
+    return re.sub(r"`[^`\n]*`", lambda m: " " * len(m.group(0)), line)
+
+
+def _extract_bullet_bracket(line: str) -> str:
+    """Bracket from a bullet row: lives immediately after the title bold close,
+    optionally preceded by a `[TYPE]` prefix. Returns '' if absent.
+
+    Anchored to the start of post-title so body brackets can't false-positive.
+    Note: BRACKET_RE allows em-dash inside the bracket, so brackets like
+    `[Done 2026-06-01 — superseded by F094]` extract correctly."""
+    cleaned = _strip_code_spans(line)
+    cleaned = re.sub(r"\[\[[^\[\]]*\]\]", lambda m: " " * len(m.group(0)), cleaned)
+    title_match = re.match(r"^- \*\*[^*]+\*\*", cleaned)
+    if not title_match:
+        return ""
+    post_title = cleaned[title_match.end():]
+    m = re.match(
+        r"^\s*(?:\[[A-Z]+\]\s+)?"            # optional `[BUG] ` type prefix
+        r"\[([A-Za-z0-9][^\[\]]*?)\]",       # workflow bracket
+        post_title,
+    )
+    return m.group(1).strip() if m else ""
+
+
+def _extract_h3_bracket(line: str) -> str:
+    """Bracket from an H3 row: lives at the END of the line.
+    `### F068 — Title [Done 2026-06-02]` → 'Done 2026-06-02'."""
+    cleaned = _strip_code_spans(line)
+    cleaned = re.sub(r"\[\[[^\[\]]*\]\]", lambda m: " " * len(m.group(0)), cleaned)
+    # Last bracket on the line
+    matches = list(BRACKET_RE.finditer(cleaned))
+    return matches[-1].group(1).strip() if matches else ""
+
+
+@dataclass
+class Row:
+    """A parsed backlog row (bullet OR H3)."""
+    line_num: int            # 1-indexed
+    raw_line: str            # the full source line (no trailing newline)
+    horizon: str             # ## H2 the row is under (e.g., 'Now', 'Verify')
+    identifier: str          # e.g., 'F091', 'B-roots-reconcile'
+    is_h3: bool              # True if H3-style, False if bullet
+    bracket: str             # the workflow-state bracket, e.g., 'Ready', '4 Questions'
+    body: str                # text after the em-dash separator (bullet) or after the title (H3)
+    arrow_link: Optional[str]  # the basename inside `→ [[X]]`, if present
+
+
+def parse_backlog(backlog_file: Path) -> list[Row]:
+    """Parse a backlog file into a flat list of Row objects in source order.
+
+    Handles two row formats:
+    - **Bullet-style** (most anchors): `- **F<n> — Title** [Bracket] — body`.
+    - **H3-style** (HA): `### F<n> — Title [Bracket]` followed by paragraph
+      text and sub-bullets that belong to the H3 row's body (not separate rows).
+    """
+    try:
+        text = backlog_file.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return []
+    lines = text.splitlines()
+    rows: list[Row] = []
+    current_horizon = ""
+    inside_h3_body = False  # True after an H3 row until next H2/H3 — suppresses bullets
+    for line_num, line in enumerate(lines, start=1):
+        m = H2_HEADING_RE.match(line)
+        if m:
+            current_horizon = m.group(1).strip()
+            inside_h3_body = False
+            continue
+        if not current_horizon:
+            continue
+        # H3 row?
+        m3 = ROW_OPENER_H3_RE.match(line)
+        if m3:
+            identifier = m3.group(1)
+            bracket = _extract_h3_bracket(line)
+            # Body for H3 rows: everything after the H3 heading content's em-dash.
+            # `### F068 — Title [Bracket]` — body is just "Title" (no extended prose
+            # on the same line). For HA, prose lives in sub-bullets below.
+            header_text = line[len("### "):].rstrip()
+            # Strip trailing bracket
+            header_text = re.sub(r"\s*\[[^\]]+\]\s*$", "", header_text)
+            # Split on first ' — '
+            em_split = re.split(r"\s+—\s+", header_text, maxsplit=1)
+            body = em_split[1] if len(em_split) == 2 else ""
+            arrow = ARROW_LINK_RE.search(line)
+            rows.append(Row(
+                line_num=line_num,
+                raw_line=line,
+                horizon=current_horizon,
+                identifier=identifier,
+                is_h3=True,
+                bracket=bracket,
+                body=body,
+                arrow_link=arrow.group(1) if arrow else None,
+            ))
+            inside_h3_body = True
+            continue
+        # Bullet row? (Suppress when we're inside an H3 row's body — those
+        # bullets are sub-content of the H3, not separate rows.)
+        if inside_h3_body:
+            continue
+        mb = ROW_OPENER_BULLET_RE.match(line)
+        if mb:
+            identifier = mb.group(1)
+            bracket = _extract_bullet_bracket(line)
+            # Body: everything after the FIRST ` — ` separator that occurs
+            # AFTER the closing `**` of the title — title may itself contain ` — `.
+            title_match = re.match(r"^- \*\*[^*]+\*\*", line)
+            if title_match:
+                post_title = line[title_match.end():]
+                sep_match = re.search(r"\s+—\s+", post_title)
+                body = post_title[sep_match.end():] if sep_match else ""
+            else:
+                body = ""
+            body = TRAILING_BLOCK_ID_RE.sub("", body)
+            arrow = ARROW_LINK_RE.search(line)
+            rows.append(Row(
+                line_num=line_num,
+                raw_line=line,
+                horizon=current_horizon,
+                identifier=identifier,
+                is_h3=False,
+                bracket=bracket,
+                body=body,
+                arrow_link=arrow.group(1) if arrow else None,
+            ))
+    return rows
+
+
+# ============================================================
+# Banner derivation (mirrors audit_q.derive_anchor_banner)
+# ============================================================
+
+
+def _read_q_marker_count(target_path: Path) -> int:
+    try:
+        target_text = target_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return 0
+    return len(re.findall(r"\bQ\d+\s+—", target_text))
+
+
+def derive_banner(name: str, rows: list[Row], backlog_file: Path,
+                  vault_index: dict) -> Optional[str]:
+    """Compute the H1 banner line. Returns None if anchor has zero items."""
+    live = [r for r in rows
+            if r.horizon in LIVE_HORIZON_H2S
+            and not r.bracket.startswith("Done")]
+    actionable = [r for r in live if r.horizon in ACTIVE_HORIZONS_BANNER]
+    active_n = sum(1 for r in actionable if r.bracket == "Active")
+    ready_n = sum(1 for r in actionable if r.bracket == "Ready")
+    verify_n = sum(1 for r in actionable if r.bracket == "Verify")
+    # Questions count: sum of Q-markers across linked feature docs for each
+    # `[Questions]` / `[N Questions]` row in active horizons only.
+    questions_n = 0
+    for r in actionable:
+        if "Questions" not in r.bracket:
+            continue
+        # Resolve the linked feature doc
+        target_basename = r.arrow_link or (f"{r.identifier}" if r.identifier.startswith("F") else None)
+        if not target_basename:
+            continue
+        # Strip `#section` and `|alias` from the basename
+        target_basename = target_basename.split("#")[0].split("|")[0].strip()
+        # Resolve to a path via vault index — prefer exact basename match
+        candidates = vault_index.get(target_basename) or []
+        # Try with .md extension stripped
+        if not candidates:
+            candidates = vault_index.get(target_basename + ".md") or []
+        # Try fuzzy match: any basename starting with `F<n> —` or `F<n>` prefix
+        if not candidates and r.identifier.startswith("F"):
+            for bn, paths in vault_index.items():
+                if bn.startswith(r.identifier + " —") or bn == r.identifier:
+                    candidates = paths
+                    break
+        if not candidates:
+            # Bracket-claim but no resolvable link: count as 1
+            questions_n += 1
+            continue
+        target_path = candidates[0]
+        q_count = _read_q_marker_count(target_path)
+        questions_n += q_count if q_count > 0 else 1
+    # Per-horizon counts (live, non-Done)
+    horizon_counts = {h: 0 for h in ("Active", "Ready", "Now", "Next", "Later", "Verify", "Icebox")}
+    for r in rows:
+        if r.horizon in horizon_counts and not r.bracket.startswith("Done"):
+            horizon_counts[r.horizon] += 1
+    # Icebox count from {NAME} Icebox.md
+    icebox_file = backlog_file.parent / f"{name} Icebox.md"
+    if icebox_file.is_file():
+        try:
+            icebox_text = icebox_file.read_text(encoding="utf-8")
+            icebox_count = sum(
+                1 for line in icebox_text.splitlines()
+                if ROW_OPENER_BULLET_RE.match(line) or ROW_OPENER_H3_RE.match(line)
+            )
+            horizon_counts["Icebox"] = icebox_count
+        except (OSError, UnicodeDecodeError):
+            pass
+    # TAG cascade. Per F100 every row in `## Verify` is awaiting confirmation,
+    # so the Verify horizon counts toward the user-pending signal even though
+    # verify_n (banner Questions/Verify, active-horizon-only) is separate.
+    has_u = (
+        questions_n > 0
+        or verify_n > 0
+        or horizon_counts["Verify"] > 0
+    )
+    has_a = active_n > 0 or ready_n > 0
+    has_g = horizon_counts["Now"] > 0 or horizon_counts["Next"] > 0
+    has_later = horizon_counts["Later"] > 0
+    if has_u and has_a:
+        tag = "U+A"
+    elif has_u:
+        tag = "U"
+    elif has_a:
+        tag = "A"
+    elif has_g:
+        tag = "G"
+    elif has_later:
+        tag = "?"
+    elif horizon_counts["Icebox"] > 0:
+        tag = "-"
+    else:
+        tag = ""
+    if not tag:
+        return None
+    banner = (
+        f"# [{tag}]  [[{name} ask|{name}]]  -  "
+        f"Ready {ready_n}    Questions {questions_n}   |   "
+        f"Now {horizon_counts['Now']}    Next {horizon_counts['Next']}    "
+        f"Later {horizon_counts['Later']}    Verify {horizon_counts['Verify']}    "
+        f"Icebox {horizon_counts['Icebox']}"
+    )
+    return banner
+
+
+# ============================================================
+# Body rendering
+# ============================================================
+
+# Horizons we render in the body
+BODY_HORIZON_ORDER = ["Active", "Ready", "Now", "Next", "Later", "Verify"]
+
+# Brackets that DO get rendered under ## Later (everything else is hidden)
+LATER_RENDERED_BRACKETS_PREFIX = ("Questions", "Verify")  # "Verify" matches "Verify" and "Verify-by ..."
+
+
+def _row_should_render(row: Row) -> bool:
+    """True if a row is eligible for rendering in the Q.md body."""
+    if row.bracket.startswith("Done"):
+        return False
+    if row.horizon == "Later":
+        # Only Questions / Verify / Verify-by under Later
+        return (
+            "Questions" in row.bracket
+            or row.bracket.startswith("Verify")
+        )
+    if row.horizon in ("Active", "Ready", "Now", "Next", "Verify"):
+        return True
+    # Legwork / Icebox / Done / Notes — never rendered
+    return False
+
+
+def _truncate_body(text: str, soft_cap: int = 250) -> str:
+    """Truncate body text at a sentence boundary near soft_cap; append '...' if cut."""
+    text = text.strip()
+    # Strip trailing arrow-link `→ [[X]]` (it's redundant with the bullet's link)
+    text = ARROW_LINK_RE.sub("", text).rstrip()
+    # Strip trailing block-ID
+    text = TRAILING_BLOCK_ID_RE.sub("", text).rstrip()
+    if len(text) <= soft_cap:
+        return text
+    # Find sentence-end break in [soft_cap - 80, soft_cap + 40]
+    window_start = max(0, soft_cap - 80)
+    window_end = min(len(text), soft_cap + 40)
+    window = text[window_start:window_end]
+    # Prefer "." or "!" or "?" followed by space
+    for offset in range(len(window) - 1, -1, -1):
+        ch = window[offset]
+        if ch in ".!?" and offset + 1 < len(window) and window[offset + 1] == " ":
+            cut = window_start + offset + 1
+            return text[:cut].rstrip() + "..."
+    # Fall back to word boundary near soft_cap
+    cut = soft_cap
+    while cut > 0 and text[cut] not in " \t":
+        cut -= 1
+    if cut <= 0:
+        cut = soft_cap
+    return text[:cut].rstrip() + "..."
+
+
+def _bullet_bracket_display(bracket: str) -> str:
+    """Return the bracket text as it should appear in the Q.md bullet."""
+    return f"**[{bracket}]**"
+
+
+def _bullet_link(row: Row, name: str) -> str:
+    """Return the wiki-link form for the row's bullet."""
+    if row.arrow_link:
+        return f"[[{row.arrow_link}]]"
+    # H3 rows: link to the H3 heading in the backlog (always resolves).
+    if row.is_h3:
+        m = re.match(r"^### ([^[]+?)(?:\s*\[[^\]]+\])?\s*$", row.raw_line)
+        if m:
+            heading = m.group(1).strip()
+            return f"[[{name} Backlog#{heading}|{row.identifier}]]"
+        return f"[[{name} Backlog#^{row.identifier}|{row.identifier}]]"
+    # Bullet F-row: link by full title (basename match to feature doc).
+    if row.identifier.startswith("F") and row.identifier[1:].isdigit():
+        m = re.match(r"^- \*\*([^*]+)\*\*", row.raw_line)
+        if m:
+            title = m.group(1).strip()
+            return f"[[{title}]]"
+        return f"[[{row.identifier}]]"
+    # B-row fallback: backlog block-id link.
+    return f"[[{name} Backlog#^{row.identifier}|{row.identifier}]]"
+
+
+def _render_bullet(row: Row, name: str) -> str:
+    bracket = _bullet_bracket_display(row.bracket if row.bracket else "")
+    link = _bullet_link(row, name)
+    body = _truncate_body(row.body)
+    if body:
+        return f"- {bracket} {link} — {body}"
+    return f"- {bracket} {link}"
+
+
+def render_body(rows: list[Row], name: str) -> list[str]:
+    """Render the body H2s + bullets. Returns a list of lines (no trailing
+    newline)."""
+    out: list[str] = []
+    eligible = [r for r in rows if _row_should_render(r)]
+    by_horizon: dict[str, list[Row]] = {}
+    for r in eligible:
+        by_horizon.setdefault(r.horizon, []).append(r)
+    for h in BODY_HORIZON_ORDER:
+        if h not in by_horizon:
+            continue
+        out.append(f"## {h}")
+        for r in by_horizon[h]:
+            out.append(_render_bullet(r, name))
+    return out
+
+
+# ============================================================
+# Q.md section management
+# ============================================================
+
+
+def find_section_bounds(q_lines: list[str], name: str) -> Optional[tuple[int, int]]:
+    """Find the [start, end) line range of this anchor's section in Q.md, if present."""
+    banner_re = re.compile(QMD_BANNER_RE_TEMPLATE.format(name=re.escape(name)))
+    start = None
+    for i, line in enumerate(q_lines):
+        if banner_re.match(line):
+            start = i
+            break
+    if start is None:
+        return None
+    # End: the next H1 starting with `# [` or end of file
+    end = len(q_lines)
+    for j in range(start + 1, len(q_lines)):
+        if re.match(r"^# \[", q_lines[j]):
+            end = j
+            break
+    return (start, end)
+
+
+def find_insertion_point(q_lines: list[str]) -> int:
+    """Return the line index where a new section should be inserted (top of body)."""
+    # Skip past YAML frontmatter if present
+    if q_lines and q_lines[0].startswith("---"):
+        for j in range(1, len(q_lines)):
+            if q_lines[j].startswith("---"):
+                # Insertion just after this line
+                insertion = j + 1
+                # Skip any blank lines right after frontmatter
+                while insertion < len(q_lines) and q_lines[insertion].strip() == "":
+                    insertion += 1
+                return insertion
+    return 0
+
+
+def rewrite_qmd_section(name: str, section_lines: list[str]) -> str:
+    """Update Q.md: remove existing section for `name` (if any) and insert the
+    new section at the top of the body. Returns a one-line summary."""
+    if not Q_MD.is_file():
+        sys.stderr.write(f"triage-section: error — Q.md not found at {Q_MD}\n")
+        sys.exit(2)
+    try:
+        text = Q_MD.read_text(encoding="utf-8")
+    except OSError as e:
+        sys.stderr.write(f"triage-section: error reading Q.md: {e}\n")
+        sys.exit(2)
+    q_lines = text.splitlines()
+    bounds = find_section_bounds(q_lines, name)
+    summary_parts: list[str] = []
+    if bounds is not None:
+        start, end = bounds
+        # Remove existing section + a single trailing blank line if present
+        del q_lines[start:end]
+        summary_parts.append("removed existing")
+    if section_lines:
+        insertion = find_insertion_point(q_lines)
+        # Ensure a blank line separating the new section from what follows
+        block = list(section_lines)
+        # Add a trailing blank line if next existing line isn't already blank
+        if insertion < len(q_lines) and q_lines[insertion].strip() != "":
+            block.append("")
+        q_lines[insertion:insertion] = block
+        summary_parts.append("wrote new section at top")
+    else:
+        summary_parts.append("no new section (anchor empty)")
+    new_text = "\n".join(q_lines)
+    if not new_text.endswith("\n"):
+        new_text += "\n"
+    try:
+        Q_MD.write_text(new_text, encoding="utf-8")
+    except OSError as e:
+        sys.stderr.write(f"triage-section: error writing Q.md: {e}\n")
+        sys.exit(2)
+    return " + ".join(summary_parts)
+
+
+# ============================================================
+# Main
+# ============================================================
+
+
+def main() -> int:
+    p = argparse.ArgumentParser(description=(__doc__ or "").split("\n")[0])
+    p.add_argument("name", help="anchor slug, e.g. 'SKA'")
+    p.add_argument("--print-only", action="store_true",
+                   help="print the would-be section to stdout, don't touch Q.md")
+    args = p.parse_args()
+    name = args.name.strip()
+
+    # Locate the backlog
+    backlogs = audit_q.find_anchor_backlogs(VAULT_ROOT)
+    backlog_file = backlogs.get(name)
+    if backlog_file is None:
+        sys.stderr.write(f"triage-section: error — no backlog found for anchor '{name}'\n")
+        sys.stderr.write(f"  searched {VAULT_ROOT} for '* Backlog.md' under */Plan|*/Track\n")
+        return 1
+
+    # Parse the backlog
+    rows = parse_backlog(backlog_file)
+
+    # Build vault index for link resolution (needed for Q-marker counts)
+    vault_index = audit_q.build_vault_index(VAULT_ROOT)
+
+    # Derive banner
+    banner = derive_banner(name, rows, backlog_file, vault_index)
+
+    # Render body
+    body = render_body(rows, name)
+
+    # Compose section
+    if banner is None and not body:
+        # Empty anchor — section is removed if present
+        section_lines: list[str] = []
+    else:
+        section_lines = []
+        if banner:
+            section_lines.append(banner)
+            section_lines.append("")
+        section_lines.extend(body)
+
+    if args.print_only:
+        print("\n".join(section_lines))
+        return 0
+
+    summary = rewrite_qmd_section(name, section_lines)
+    # Counts for the summary line
+    eligible = [r for r in rows if _row_should_render(r)]
+    print(f"triage-section: {name} — {summary}; rendered {len(eligible)} bullet(s)")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
