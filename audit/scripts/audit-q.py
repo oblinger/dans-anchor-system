@@ -1954,7 +1954,9 @@ def find_anchor_backlogs(vault_root: Path) -> dict[str, Path]:
     for path in vault_root.rglob("* Backlog.md"):
         if any(frag in path.parts for frag in EXCLUDED_PATH_FRAGMENTS):
             continue
-        if path.parent.name.endswith("Plan") or path.parent.name.endswith("Plan"):
+        # Accept either the legacy `<X> Plan/` form or the F094 four-bucket
+        # `<X> Track/` form. Migrated anchors hold the backlog under Track.
+        if path.parent.name.endswith("Plan") or path.parent.name.endswith("Track"):
             name = path.stem.replace(" Backlog", "")
             out[name] = path
     return out
@@ -2222,9 +2224,11 @@ def main() -> int:
         for line in f089_fixes_applied:
             print(line)
     print(f"\naudit-q: derived banners for {len(derived_banners)} anchors")
-    if args.fix and not args.dry and args.scope in ("q", "all"):
+    if args.fix and not args.dry and args.scope in ("q", "all", "backlog"):
         # D1: write derived banners back to Q.md (replace H1 lines for each
-        # existing per-anchor section). Only runs when Q.md is in scope.
+        # existing per-anchor section). Runs for backlog scope too so per-anchor
+        # invocations (`--scope backlog --anchor X --fix` from backlog-edit.py)
+        # actually update the Q.md banner.
         d1_changes = apply_d1_banner_write(Q_MD, derived_banners)
         if d1_changes:
             print(f"\naudit-q: D1 — {d1_changes} per-anchor banner(s) rewritten in Q.md")
