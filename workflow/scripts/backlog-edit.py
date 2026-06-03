@@ -320,6 +320,106 @@ def verify_no_implementation_in_verify(status, body):
 REQUIRED_COMPLETION_SECTIONS = ("success criteria", "completion status", "verification")
 
 
+def parse_status_block(text):
+    """Return (status_word, block_body_text) for the `## Status` H2 of a feature doc.
+
+    Returns (None, None) when no `## Status` H2 is found. Returns
+    ('', block_body) when the H2 exists but body has no leading **bold** token.
+    """
+    lines = text.splitlines()
+    in_status = False
+    body_lines = []
+    leading_word = None
+    for line in lines:
+        s = line.rstrip()
+        if s.startswith("## "):
+            if s == "## Status":
+                in_status = True
+                continue
+            if in_status:
+                break
+            continue
+        if not in_status:
+            continue
+        body_lines.append(line)
+        if leading_word is None and line.strip():
+            m = re.match(r"^\*\*([^*]+?)\*\*", line.strip())
+            leading_word = m.group(1).strip() if m else ""
+    if not in_status and not body_lines:
+        return (None, None)
+    return (leading_word if leading_word is not None else "", "\n".join(body_lines).strip())
+
+
+def verify_status_block(status, body, existing_status):
+    """Per F102 — refuse status writes when the linked feature doc's
+    `## Status` H2 does not match the about-to-set status. Fires on EVERY
+    transition (not just Done). Subsumes F098's Done-only Completion check.
+
+    Skip cases (match F098's discretion):
+      - status unchanged from existing (re-touch, no transition)
+      - status is `delete` (the row is being removed)
+      - body has no wiki-link target (no doc to check)
+      - target file cannot be located in vault (broken or off-vault link)
+    """
+    if not status or status == "delete":
+        return
+    # Skip when status unchanged (re-touch is not a transition)
+    if existing_status and existing_status.strip() == status.strip():
+        return
+    if not body or not body.strip():
+        sys.stderr.write(
+            f"note: [{status}] with empty body — skipping `## Status` block check (F102).\n"
+        )
+        return
+    m = WIKI_LINK_RE.search(body)
+    if not m:
+        sys.stderr.write(
+            f"note: [{status}] body has no wiki-link — skipping `## Status` block check (F102).\n"
+        )
+        return
+    basename = m.group(1).strip()
+    target_path = find_file_by_basename(basename)
+    if target_path is None:
+        sys.stderr.write(
+            f"note: [{status}] target [[{basename}]] not located in vault — "
+            f"skipping `## Status` block check (F102).\n"
+        )
+        return
+    try:
+        text = target_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as e:
+        sys.stderr.write(
+            f"note: cannot read [[{basename}]] for Status check: {e}\n"
+        )
+        return
+    leading_word, block_body = parse_status_block(text)
+    if leading_word is None:
+        raise BacklogEditError(
+            f"[{status}] refused: target [[{basename}]] has no `## Status` H2.\n"
+            f"  Per F102, every status transition requires the feature doc's `## Status`\n"
+            f"  block at the bottom to begin with `**{status}**` followed by a justification.\n"
+            f"  Add the block to the feature doc, then re-run."
+        )
+    if leading_word.strip() != status.strip():
+        raise BacklogEditError(
+            f"[{status}] refused: target [[{basename}]] `## Status` body begins with\n"
+            f"  `**{leading_word}**` but the status being set is `**{status}**`.\n"
+            f"  Update the feature doc's Status block to reflect the new status with\n"
+            f"  a one-sentence justification, then re-run."
+        )
+    # Designing-specific: must contain a next-action line (kills the deadlock case)
+    if status.strip().lower() == "designing":
+        if block_body is None or "next action" not in block_body.lower():
+            raise BacklogEditError(
+                f"[Designing] refused: target [[{basename}]] `## Status` block must\n"
+                f"  contain a `next action:` line (or sentence containing 'next action')\n"
+                f"  describing what /crank would do. Designing without a declared next\n"
+                f"  action is the F102 deadlock pattern — agent files Designing, files\n"
+                f"  no question, no action declared, crank exits silently. Either declare\n"
+                f"  the next action or file Questions instead."
+            )
+
+
 def parse_completion_block(text):
     """Return dict {section_key: content_str} for the three required H3s,
     or None if no `## Completion` H2 found (case-insensitive).
@@ -713,10 +813,11 @@ def perform_edit(
     # where the row claimed Verify-by but hid ~50 anchors of work.
     verify_no_implementation_in_verify(status, body)
 
-    # F098 — refuse [Done] when the linked feature doc lacks a
-    # `## Completion` block with the three required H3 sub-sections.
-    # Grandfathers existing Done rows so re-touches don't break.
-    verify_completion_block(status, body, existing_status_for_check)
+    # F102 — refuse any status transition where the linked feature doc's
+    # `## Status` H2 does not match the about-to-set status. Subsumes F098
+    # (the Done case is now a special case of the broader Status discipline).
+    # Grandfathers re-touch of same-status rows.
+    verify_status_block(status, body, existing_status_for_check)
 
     # Build the new line.
     new_line = render_row(row_id, status, title, body)
