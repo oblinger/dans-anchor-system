@@ -2313,7 +2313,7 @@ def main() -> int:
         # actually update the Q.md banner.
         d1_changes = apply_d1_banner_write(Q_MD, derived_banners)
         if d1_changes:
-            print(f"\naudit-q: D1 — {d1_changes} per-anchor banner(s) rewritten in Q.md")
+            print(f"\naudit-q: D1 — {d1_changes} per-anchor section(s) regenerated in Q.md (via triage-section.py)")
     # Hard-continuation directive — print whenever ANY anchor has Ready > 0.
     # Per user direction 2026-05-26 — the agent reads audit-q's output at the
     # moment they're tempted to stop; embedding the rule into that output is
@@ -2366,25 +2366,47 @@ def _print_hard_continuation_directive(derived_banners: dict[str, str]) -> None:
 
 
 def apply_d1_banner_write(qmd_file: Path, derived_banners: dict[str, str]) -> int:
-    """Replace existing per-anchor H1 banner lines in Q.md with derived banners.
-    Returns the count of banners replaced."""
-    try:
-        lines = qmd_file.read_text(encoding="utf-8").splitlines()
-    except (OSError, UnicodeDecodeError):
-        return 0
-    changed = 0
-    for i, line in enumerate(lines):
-        m = QMD_BANNER_RE.match(line)
-        if not m:
-            continue
-        name = m.group("name")
-        derived = derived_banners.get(name)
-        if derived and derived != line:
-            lines[i] = derived
-            changed += 1
-    if changed:
-        qmd_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    return changed
+    """Regenerate the per-anchor section in Q.md for each anchor with a derived
+    banner — delegates the actual write to `triage-section.py {NAME}` (per F104).
+
+    Each subprocess call rewrites the entire per-anchor section (banner + body
+    H2s + bullets) and bubbles it to the top of Q.md. Returns the count of
+    sections rewritten.
+
+    Falls back to in-process banner-only rewrite if triage-section.py is
+    unreachable — preserves the original D1 behavior so audit-q can still fix
+    banner-only drift even if the new script went missing."""
+    import subprocess
+    triage_script = (Path.home() / ".claude" / "skills" / "triage"
+                     / "scripts" / "triage-section.py")
+    if not triage_script.is_file():
+        # Fallback — original banner-only rewrite (preserves pre-F104 behavior)
+        try:
+            lines = qmd_file.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeDecodeError):
+            return 0
+        changed = 0
+        for i, line in enumerate(lines):
+            m = QMD_BANNER_RE.match(line)
+            if not m:
+                continue
+            name = m.group("name")
+            derived = derived_banners.get(name)
+            if derived and derived != line:
+                lines[i] = derived
+                changed += 1
+        if changed:
+            qmd_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        return changed
+    rewrites = 0
+    for name in derived_banners.keys():
+        result = subprocess.run(
+            ["python3", str(triage_script), name],
+            capture_output=True, text=True, check=False,
+        )
+        if result.returncode == 0:
+            rewrites += 1
+    return rewrites
 
 
 if __name__ == "__main__":

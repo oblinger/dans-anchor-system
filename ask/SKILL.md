@@ -166,9 +166,15 @@ Rules:
 - **Soft cap ≈ 10 items** in the User Verifications + Questions sections combined. If the queue is longer, list the top 10 in priority order; the user re-invokes `/ask` to surface the next batch.
 - **Omit empty sections** entirely (don't leave `## Agent Resolutions` with no body — drop the H2).
 
-### 4. Regenerate `{NAME} Triage.md` and the anchor's section in `~/ob/kmr/Q.md`
+### 4. Regenerate the anchor's section in `~/ob/kmr/Q.md` — **run the script** (per F104)
 
-Same regeneration as § Parented runbook steps 4–5. The agent's resolutions in step 2 may have moved items in the backlog (Verify→Done, pending Q→Resolved), so the regenerated Triage reflects fresh state.
+Per F104 (2026-06-02) the regen is mechanical. Per-anchor `{NAME} Triage.md` files were retired in F075; Q.md sections are the only rendered form. The agent shells out:
+
+```bash
+python3 ~/.claude/skills/triage/scripts/triage-section.py {NAME}
+```
+
+The script walks the backlog (which step 2's self-resolutions may have mutated — Verify→Done, pending Q→Resolved), derives the banner, renders the body H2s, and atomically replaces the section in Q.md. Agent does not edit Q.md by hand.
 
 ### 5. Glance `{NAME} ask.md`
 
@@ -294,41 +300,19 @@ description: anchor-level à la carte questions (agent-owned)
 
 **Legacy migration**: if the anchor's `{NAME} Triage.md` still has a `## À la carte` H2 (pre-F28), move that content into `{NAME} Questions.md` § `## Open Questions` (preserving Q-numbers), then strip the H2 from Triage. The next regeneration of `{NAME} Triage.md` (in step 4) will produce the new format with the bullet line under H1.
 
-### 4. Regenerate `{NAME} Triage.md`
+### 4. Regenerate the anchor's section in `~/ob/kmr/Q.md` — **run the script** (per F104)
 
-After writing the new question(s), regenerate the anchor's local triage file from scratch — same logic `/triage` runs. This keeps the local triage consistent with the just-added Q. See `triage/SKILL.md` § Runbook for the full regen logic. Summary (per F28):
+Per F104 (2026-06-02) this is mechanical: shell out, don't hand-write. Per F075 the per-anchor `{NAME} Triage.md` files were retired — Q.md sections are the only rendered form.
 
-- Walk `{NAME} Backlog.md`. Compute the H1 banner counts (Questions / Verify | Active / Ready | Now / Next / Later / Icebox) and the anchor TAG (cascading rule: U / A / U+A / G / ? / `[]`).
-- Render the H1 banner: `# [<TAG>]  [[{NAME}]] Triage  -  Ready N    Questions N   |   Now N    Next N    Later N    Icebox N`.
-- If `{NAME} Questions.md` has any pending Qs, render the bullet line directly under the H1: `- **[N Questions]**  [[{NAME} Questions]]`.
-- Render `## Active`, `## Ready`, `## Now`, `## Next` H2s (in that order), each with one bullet per item in source order from the backlog. Bracket forms: `**[Active]**` / `**[Ready]**` / `**[N Ready]**` / `**[Verify]**` / `**[N Questions]**`. Omit any H2 with zero items.
-- **No blank lines in the body.** No `## À la carte` H2 (the bullet line under H1 replaces it). No items from `## Later` or `## Icebox` in the body.
-- Write the file destructively.
+```bash
+python3 ~/.claude/skills/triage/scripts/triage-section.py {NAME}
+```
 
-### 5. Regenerate the anchor's section in `~/ob/kmr/Q.md`
+The script walks `{NAME} Backlog.md` (whose state step 3's `## Open Questions` edits just modified, by introducing or resolving Qs that affect the anchor's TAG / banner counts), derives the banner with cascading-TAG rule, renders body H2s (`## Active` / `## Ready` / `## Now` / `## Next` / `## Later` / `## Verify`) with bullets in source order, and atomically replaces the per-anchor section in `~/ob/kmr/Q.md`. De-dupes any existing section for `{NAME}` and bubbles the fresh one to the top.
 
-`Q.md` is the **vault-level Agent Status dashboard**. Every anchor with TAG ≠ `[]` has a per-anchor section. Per F28 (format updated from F25):
+If TAG is `[]` (anchor has zero live items anywhere), the script removes the section. Done.
 
-**On every `/ask` invocation, regenerate the anchor's section in `Q.md`:**
-
-1. Determine the anchor (`{NAME}`) from `--doc <path>` or the working directory (walk up to `.anchor`).
-2. Compute the same H1 banner as the just-generated `{NAME} Triage.md` — same TAG, same counts, same spacing — but with the slug as a wiki-link to the Triage file via `[[{NAME} Triage|{NAME}]]` syntax (renders as the slug, links to Triage):
-   ```
-   # [<TAG>]  [[{NAME} Triage|{NAME}]] Triage  -  Ready N    Questions N   |   Now N    Next N    Later N    Icebox N
-   ```
-3. **If TAG is `[]`** (no items anywhere): remove any existing per-anchor section for `{NAME}` from `Q.md`. Done.
-4. **Otherwise**: render the per-anchor section as the **identical body** to the just-generated `{NAME} Triage.md` (per F028 Q3 — full body always):
-   - The H1-equivalent line above (with the wiki-link slug-prefix).
-   - The à la carte bullet line (`- **[N Questions]** [[{NAME} Questions]]`) if any pending à la carte Qs.
-   - `## Active` / `## Ready` / `## Now` / `## Next` H2s with their bullets, in source order from the backlog. (These render at H2 inside Q.md since each per-anchor section opens at H1 level.)
-   - **No blank lines in the body** — same density as the Triage file.
-5. **Remove any existing per-anchor section for `{NAME}`** from `Q.md` (de-dupe).
-6. **Insert the new section at the top of the body** — immediately after the H1 banner, before any other anchor section. Always move-to-front, regardless of whether the body changed (per F025 Q6).
-7. Refresh the H1 banner: `# Agent Status   -   Questions: N    Ready: M` where:
-   - `N` = number of per-anchor sections whose TAG is `[U]` or `[U+A]` (anchors needing user attention).
-   - `M` = number of per-anchor sections whose TAG is `[A]` or `[U+A]` (anchors with agent-actionable work).
-
-**Overflow rule.** If `Q.md` as a whole grows too large (soft cap ~2 screenfuls; tune in implementation), individual per-anchor sections collapse to **just the H1-equivalent line** (which contains the wiki-link to Triage). The user clicks through to the full body in the Triage file. **No partial paste** — either the whole body, or just the link line.
+The full spec for what the script writes (banner format, bracket forms, à la carte bullet line, body rendering rules, overflow handling) lives in `triage/SKILL.md` § 2–5 — those sections are the script's contract.
 
 **Format of the global page:**
 
@@ -369,9 +353,9 @@ description: Agent Status — every anchor with active questions or ready work, 
 
 **The page is agent-owned.** `/ask` and `/triage` rewrite the relevant per-anchor section on every invocation. The user does not edit `Q.md` directly.
 
-### 6. Glance the file (active mode only)
+### 5. Glance the file (active mode only)
 
-After writing the question(s) and regenerating the local + global pages, `open <target>` so the file appears on the user's side and they can answer.
+After writing the question(s) and regenerating Q.md via the script, `open <target>` so the file appears on the user's side and they can answer.
 
 **Glance only when both conditions hold:**
 1. The edit added or modified a pending question, AND
@@ -383,12 +367,12 @@ See § Active vs Parking mode for the full disambiguation. **Default when ambigu
 
 **Never glance when the edit only resolved questions** (moved one or more from pending to `### Resolved`, or migrated the H2 to the bottom `## Resolved`). Resolution doesn't surface new state; pending questions were already visible.
 
-### 7. Print one-line summary
+### 6. Print one-line summary
 
 After writing and (maybe) glancing, print a single-line summary to chat:
 
 ```
-/ask — added N Qs to <target>; refreshed {NAME} Triage and Q.md.
+/ask — added N Qs to <target>; refreshed Q.md.
 ```
 
 `<target>` is the doc path or `{NAME} Questions.md`.
@@ -513,4 +497,4 @@ After resolution, **`/ask` itself doesn't usually run** — the parent skill tha
 - `[[CAB Triage]]` — sibling facet that surfaces (reads) the questions `/ask` writes. `/ask` is the writer; `/triage` is the reader/router.
 - `[[CAB Questions]]` — sibling facet for à la carte Qs (the per-anchor file `/ask` writes to in à la carte mode).
 - `[[CAB Backlog]]` § Numbering policy — same lowest-unused-integer rule for Q numbers.
-- `~/ob/kmr/Q.md` — the vault-level Agent Status dashboard maintained by step 5 of this runbook.
+- `~/ob/kmr/Q.md` — the vault-level Agent Status dashboard, regenerated by `triage-section.py` per F104.
