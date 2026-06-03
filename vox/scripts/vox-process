@@ -38,16 +38,20 @@ VOX_HASHES="${VOX_HASHES:-$VOX_DIR/.vox.hashes}"  # sha256 index for content ded
 TITLE_KEY_FILE="${ANTHROPIC_KEY_FILE:-$HOME/.config/anthropic/api_key}"
 TITLE_MODEL="${VOX_TITLE_MODEL:-claude-haiku-4-5-20251001}"
 
-# Retention: after filing, sweep VOX_DIR and delete OLD AUDIO (the large .mp3)
-# to reclaim space. Transcripts (.md) are ALWAYS kept. An old .mp3 is deleted
-# only when it is safe:
-#   - tiny mp3 (< TRIM_TINY_MP3_BYTES): delete regardless — failed/empty capture.
+# Retention: after filing, sweep VOX_DIR and delete OLD AUDIO (the large
+# .mp3 / .m4a / .wav / etc. — every container the pipeline ingests) to reclaim
+# space. Transcripts (.md) are ALWAYS kept. An old audio file is deleted only
+# when it is safe:
+#   - tiny audio (< TRIM_TINY_AUDIO_BYTES): delete regardless — failed/empty
+#     capture.
 #   - otherwise: delete only if its sibling .md holds a non-trivial transcript
 #     (>= TRIM_MIN_TRANSCRIPT_CHARS chars after the "## Transcript" heading).
 # This guarantees we never delete audio that wasn't transcribed properly.
-TRIM_RETENTION_DAYS="${VOX_RETENTION_DAYS:-40}"               # age before an mp3 is eligible
+TRIM_RETENTION_DAYS="${VOX_RETENTION_DAYS:-40}"               # age before audio is eligible
 TRIM_MIN_TRANSCRIPT_CHARS="${VOX_MIN_TRANSCRIPT_CHARS:-100}"  # "non-trivial" transcript size
-TRIM_TINY_MP3_BYTES="${VOX_TINY_MP3_BYTES:-51200}"            # <50KB mp3 = junk, delete regardless
+# VOX_TINY_AUDIO_BYTES is the canonical knob; VOX_TINY_MP3_BYTES is kept as a
+# back-compat alias for anyone who set it previously.
+TRIM_TINY_AUDIO_BYTES="${VOX_TINY_AUDIO_BYTES:-${VOX_TINY_MP3_BYTES:-51200}}"  # <50KB = junk
 
 # ---- generic helpers --------------------------------------------------------
 _CLEANUP_DIRS=()
@@ -212,7 +216,7 @@ trim_old_audio() {
         base="${audio%.*}"
         md="$base.md"
         bytes="$(stat -f%z "$audio" 2>/dev/null || echo 0)"
-        if (( bytes < TRIM_TINY_MP3_BYTES )); then
+        if (( bytes < TRIM_TINY_AUDIO_BYTES )); then
             rm -f "$audio" && log "TRIM tiny audio (${bytes}B, >${TRIM_RETENTION_DAYS}d) -> deleted $(basename "$audio")"
             continue
         fi
@@ -398,10 +402,16 @@ main() {
             ;;
         *)
             local src="$1" subject="${2:-}" vtt="${3:-}"
+            # Case-insensitive subject routing — "VOX" / "vox" / "Vox" all
+            # route to handle_vox. Apple Mail's rule "Subject Contains" is
+            # already case-insensitive, so matching here too keeps the two
+            # halves of the pipeline consistent.
+            shopt -s nocasematch
             case "$subject" in
                 *VOX*) handle_vox "$src" "$subject" "$vtt" ;;
                 *)     echo "vox-process: no handler for subject: '$subject'" >&2 ; exit 0 ;;
             esac
+            shopt -u nocasematch
             ;;
     esac
 }
