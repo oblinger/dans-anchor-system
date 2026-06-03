@@ -275,6 +275,46 @@ The user can name a subset: *"accept the first 5 resolutions"* / *"the QFix reso
 `/audit q` is auto-wired as a post-condition into `/triage`, `/groom`, `/mint`, `/finalize`, `/feature` (per [[F076]] Q6). Adding the C6–C11 rules means every caller enforces the discipline automatically.
 
 
+## Pre-ask self-check — five guidelines (per F105)
+
+Before adding any Q to the queue, the agent runs this self-check. If any rule matches, the Q is auto-resolved and the decision goes to `## Agent Resolutions` (per F068 announce mechanic) — never surfaced. These are concrete patterns under F068's general "visibility + low-recoverability → auto-decide" rule.
+
+### Rule 1 — Aggregate within the anchor before surfacing
+
+Gather every pending Q across the anchor's surfaces — every feature doc's `## Open Questions` block + the anchor's à la carte `{NAME} Questions.md` — into one batch. Don't surface one feature's Qs in isolation when other features have pending Qs the user could answer in the same turn. If three feature docs each have a few open Qs, surface all of them together; if one has 4 and another has 2, surface 6 not 4.
+
+**Scope is per-anchor.** Q formulation belongs to the agent who owns the anchor's context; cross-anchor aggregation is rejected. Within-anchor across-feature aggregation is the rule. No quantitative threshold — "everything pending in this anchor" is the batch.
+
+### Rule 2 — Never ask "should we continue / stop?"
+
+Auto-answer: **continue.** The user can always interrupt; they don't need a permission prompt. Drafted Qs of the shape *"is now a good time to pause?"* / *"should I stop here?"* / *"are you still engaged?"* are auto-resolved as continue and don't reach the user. (This extends `/crank`'s hard continuation rule from crank's own Q-escape to every Q-asking skill.)
+
+### Rule 3 — Never ask "should we burn tokens for a better outcome?"
+
+Auto-answer: **yes, do the more complete thing.** Per Drive Mode (more not less) and F068's quality-axis amendment (tokens are not the constraint; user-interruption cost and quality are). Drafted Qs of the shape *"should I add tests for plausibly-reachable edge cases?"* / *"should I expand coverage on X?"* / *"should I verify across more cases?"* / *"should I generate a longer/more complete output?"* are auto-resolved as yes.
+
+**Sanity cap.** When the cost/value ratio is genuinely insane (e.g., running a 30-minute integration suite to verify a docstring typo), the agent uses judgment and may auto-decline. But the **default** is yes; the burden is on the agent to articulate why the larger-token path is *not* worth it before declining.
+
+### Rule 4 — Never ask "how to split the work?"
+
+Auto-answer: **agent decides.** Drafted Qs of the shape *"should A and B be one feature or two?"* / *"should we extract X into its own feature?"* / *"is C in scope or separate?"* — the agent picks the shape that makes each piece independently shippable, and files the resulting features with the correct brackets:
+
+- Different dependencies → split. File the dependency-free piece as `[Ready]`; file the dependent piece with `[Blocked F<n>]` or `[Designing]` as appropriate.
+- Splitting creates a piece doable RIGHT NOW (Definition of Ready met) → that piece's bracket is `[Ready]`; the next `/crank` picks it up.
+- Truly inseparable → don't split.
+
+The user sees the resulting feature(s) on the backlog. No Q surfaces.
+
+### Rule 5 — Never ask "quick way or complete way?"
+
+Auto-answer: **complete way.** Per Drive Mode.
+
+**Escape valve.** If there's a legitimate reason to do the quick way first (e.g., a partial fix unblocks downstream work the user is waiting on), do the quick way AND **file the complete way as a `[Ready]` feature on the backlog** so it's queued up for the next `/crank`. The user sees both on the backlog — the patch shipping now, the complete fix waiting.
+
+### How auto-resolution surfaces
+
+When any rule auto-resolves a Q, the decision is recorded in the relevant doc's `## Resolved` H2 (feature doc) or in `## Agent Resolutions` (bare `/ask`'s drain page) with a one-line note: *"Auto-resolved per ask-format § Pre-ask self-check rule N: <decision>."* The user reviews on next `/ask` and can roll back if any auto-call was wrong (per F086 acceptance & rollback).
+
 ## Anti-patterns
 
 - **Inline alternatives** — `"Either (a) X or (b) Y"` collapsed onto one line. Always sub-bullets, always labeled.
