@@ -1926,13 +1926,30 @@ def check_c25_designing_justification(backlog_files: list[Path],
             identifier = row_match.group(1)
             is_h3 = bool(mh3)
             # Look for the row's body span (lines until the next row/heading).
+            # Track code-fence state so a YAML/Python comment like `# Before`
+            # inside a ``` fence isn't mistaken for an H1 heading.
+            #
+            # H3-style rows (HA convention) can contain `- **Q1 — ...`-style
+            # sub-bullets in the body that look like bullet row openers but
+            # aren't separate rows. When the current row is H3, break only on
+            # the next ##/### heading. When the current row is a bullet,
+            # break on the next bullet row opener too (adjacent bullet rows
+            # are genuinely separate).
             body_lines: list[str] = []
             j = i + 1
+            in_fence = False
             while j < len(lines):
                 nxt = lines[j]
-                if HEADING_RE.match(nxt):
+                if re.match(r"^\s*```", nxt):
+                    in_fence = not in_fence
+                    body_lines.append(nxt)
+                    j += 1
+                    continue
+                if not in_fence and HEADING_RE.match(nxt):
                     break
-                if bullet_row_opener_re.match(nxt) or h3_row_opener_re.match(nxt):
+                if not in_fence and h3_row_opener_re.match(nxt):
+                    break
+                if not is_h3 and not in_fence and bullet_row_opener_re.match(nxt):
                     break
                 body_lines.append(nxt)
                 j += 1
