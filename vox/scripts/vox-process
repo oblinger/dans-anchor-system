@@ -55,7 +55,14 @@ TRIM_TINY_AUDIO_BYTES="${VOX_TINY_AUDIO_BYTES:-${VOX_TINY_MP3_BYTES:-51200}}"  #
 
 # ---- generic helpers --------------------------------------------------------
 _CLEANUP_DIRS=()
-cleanup() { local d; for d in "${_CLEANUP_DIRS[@]:-}"; do [[ -n "$d" ]] && rm -rf "$d"; done; }
+_VOX_LOCK_HELD=""
+cleanup() {
+    local d
+    for d in "${_CLEANUP_DIRS[@]:-}"; do [[ -n "$d" ]] && rm -rf "$d"; done
+    # Release the dedup lock if we still hold it (normal exit or crash both
+    # land here via the EXIT trap).
+    [[ -n "$_VOX_LOCK_HELD" ]] && rmdir "$_VOX_LOCK_HELD" 2>/dev/null
+}
 trap cleanup EXIT
 
 log() { printf '%s  %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*" >>"$LOG"; }
@@ -255,6 +262,28 @@ handle_vox() {
     [[ -n "$ext" && "$ext" != "$src_audio" ]] || ext="mp3"
 
     log "VOX START subject='$subject' src='$src_audio' ext='$ext' vtt='${src_vtt:-none}'"
+
+    # Serialize the whole handle_vox body via an atomic mkdir-based mutex on
+    # $VOX_DIR/.vox.lock.d. Closes the dedup race observed 2026-06-03
+    # (B-vox-dedup-race): two near-simultaneous invocations would both read
+    # .vox.hashes before either had appended its hash, both pass the
+    # existing_filing check, and both file the same audio under different
+    # titles. With the lock held across the entire backfill → dedup-check →
+    # transcribe → copy → record-hash chain, the second invocation always
+    # sees the first's hash and SKIPs cleanly. Whisper is CPU/GPU bound on a
+    # single-machine setup; serializing it adds no real cost.
+    #
+    # `mkdir` is atomic in POSIX and works on macOS where `flock` isn't shipped.
+    # The cleanup trap removes the lock dir on any exit (normal or crash).
+    local _lock_dir="$VOX_DIR/.vox.lock.d" _waited=0
+    while ! mkdir "$_lock_dir" 2>/dev/null; do
+        sleep 0.5
+        _waited=$((_waited + 1))
+        if (( _waited > 240 )); then
+            die "VOX lock held for >120s — possible stale lock; remove $_lock_dir and retry"
+        fi
+    done
+    _VOX_LOCK_HELD="$_lock_dir"
 
     # Content dedup: skip if this audio's sha256 is already in the index.
     # Backfill any missing hashes for existing files first so the check is
