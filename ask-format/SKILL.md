@@ -275,7 +275,7 @@ The user can name a subset: *"accept the first 5 resolutions"* / *"the QFix reso
 `/audit q` is auto-wired as a post-condition into `/triage`, `/groom`, `/mint`, `/finalize`, `/feature` (per [[F076]] Q6). Adding the C6–C11 rules means every caller enforces the discipline automatically.
 
 
-## Pre-ask self-check — five guidelines (per F105)
+## Pre-ask self-check — six guidelines (per F105 + B-stop-asking-trivial-checks)
 
 Before adding any Q to the queue, the agent runs this self-check. If any rule matches, the Q is auto-resolved and the decision goes to `## Agent Resolutions` (per F068 announce mechanic) — never surfaced. These are concrete patterns under F068's general "visibility + low-recoverability → auto-decide" rule.
 
@@ -310,6 +310,21 @@ The user sees the resulting feature(s) on the backlog. No Q surfaces.
 Auto-answer: **complete way.** Per Drive Mode.
 
 **Escape valve.** If there's a legitimate reason to do the quick way first (e.g., a partial fix unblocks downstream work the user is waiting on), do the quick way AND **file the complete way as a `[Ready]` feature on the backlog** so it's queued up for the next `/crank`. The user sees both on the backlog — the patch shipping now, the complete fix waiting.
+
+### Rule 6 — Never ask a Q the agent can answer by reading a file
+
+Auto-answer: **agent does the check.** If a Verify or Q reduces to "open file X and look for Y" AND the agent has Read access to X AND no human judgment is required, the agent runs the check itself and surfaces only the verified result — never the verification action. Drafted Verifies of the shape *"open MACAPP.md after the next scan and confirm dedup worked"* or Qs of the shape *"what does line 47 of config.toml say?"* — when the agent has Read access — are auto-resolved by running the check.
+
+**Failure mode this catches** (observed 2026-06-03, cross-anchor): agent finished a fix, then asked the user to "open MACAPP.md after the next scan" to confirm dedup worked — the agent could have done the Read itself with one tool call. Surfacing it as a user Verify created a round-trip with no human signal needed.
+
+**The three preconditions, in order:**
+1. **Reduces to a file-content check** — the Q/Verify is "look in file X for Y" or equivalent (a grep, a JSON parse, a count, a state inspection).
+2. **Agent has Read access to X** — the file is on disk and reachable by the agent's tools. (Files behind UIs the agent can't reach, screenshots only in the user's head, prod-system queries — fail this gate; surface as a real user task.)
+3. **No human judgment is required** — "did the script execute" / "does the count match" / "is the field present" pass; "does this design feel right" / "does the layout look balanced" / "is this what the user meant" fail.
+
+**Tier mapping** (per `[[verification]]` § The four tiers): items satisfying all three are **Tier 1 (agent-immediate)** — run the check, ship the verified result. Misclassifying a Tier-1 check as Tier 3/4 ("the user will see this in normal use") because asking *feels collaborative* is the failure mode this rule names.
+
+**Counter-example — when to ASK:** the Verify requires looking at UI rendering / human judgment on aesthetics / observation in a system the agent can't reach (an iOS app running on the user's device, a Slack message thread the agent has no API for, a sensation about whether code "feels right"). These are legitimately user-only. Rule 6 narrows to the trivial-grep case.
 
 ### How auto-resolution surfaces
 
