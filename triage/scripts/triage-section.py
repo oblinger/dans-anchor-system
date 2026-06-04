@@ -391,11 +391,13 @@ def derive_banner(name: str, rows: list[Row], backlog_file: Path,
     else:
         slug_label = name  # plain text — anchor has no clickable target
     # Trailing `{N}` — outstanding audit-q residual count on this anchor's
-    # B-QFix row (per user direction 2026-06-04: glance Q.md to see whether
-    # warnings got driven to zero). Omitted when N == 0 (the "clean" signal
-    # is the absence of `{N}`).
+    # B-QFix row. Per user direction 2026-06-04 (round 2): always print the
+    # count, including `{0}`, so the user can scan Q.md and see "are we at
+    # zero everywhere?" at a glance. A line missing `{N}` would be
+    # ambiguous (clean vs not-yet-checked); always-present means scanning is
+    # mechanical — every `{0}` is clean, anything `{>0}` needs work.
     qfix_n = _count_qfix_subs(backlog_file)
-    qfix_suffix = f"    {{{qfix_n}}}" if qfix_n > 0 else ""
+    qfix_suffix = f"    {{{qfix_n}}}"
     banner = (
         f"# [{tag}]  {slug_label}  -  "
         f"Ready {ready_n}    Questions {questions_n}   |   "
