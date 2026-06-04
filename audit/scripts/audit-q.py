@@ -32,6 +32,10 @@ Checks applied to Q.md, each anchor's backlog, and each feature/Questions doc:
   C23: `[Designing]` brackets must resolve to `[N Questions]` (if
        linked doc has pending Qs) or `[Ready]` (if none) — `[Designing]`
        alone is a turn-ownership deadlock                              (auto-fix).
+  C24: `[Questions]` / `[N Questions]` bracket count must match the
+       linked feature doc's actual pending-Q count. Bare `[Questions]`
+       on a row whose linked doc has 7 Qs is stale (should be
+       `[7 Questions]`); `[3 Questions]` on a doc with 0 Qs is also stale. (report).
   D1:  Q.md per-anchor banners derived from each anchor's backlog
        (not validated — overwritten on every run).
 
@@ -1886,6 +1890,76 @@ def check_c23_designing_resolves(entries: list[BacklogEntry]) -> list[Finding]:
     return findings
 
 
+def check_c24_questions_count_match(entries: list[BacklogEntry]) -> list[Finding]:
+    """C24: every `[Questions]` / `[N Questions]` row's bracket count must
+    match the linked feature doc's actual pending-Q count.
+
+    Per CAB Backlog discipline (`[N Questions]` when N > 1, bare `[Questions]`
+    when N = 1, no bracket at all when N = 0), the bracket must stay in sync
+    with the doc state. Observed 2026-06-04 on MUX F037: row was bracketed
+    `[Questions]` (bare) but linked doc had 7 pending Qs — should have been
+    `[7 Questions]`. The audit banner-Q count was right (7); the row bracket
+    was lying about the count. Both forms (under-claiming and over-claiming)
+    are flagged.
+
+    Reuses C23's pending-Q-counting logic. Rows with no resolvable target are
+    skipped (they'd be reported by C1/C22 link-resolution checks).
+    """
+    findings: list[Finding] = []
+    for e in entries:
+        # Match brackets of the form "Questions" (bare) or "N Questions"
+        m = re.match(r"^\s*(\d+)\s+Questions?\s*$|^\s*Questions?\s*$", e.status or "")
+        if not m:
+            continue
+        claimed = int(m.group(1)) if m.group(1) else 1
+        # Resolve linked feature doc (same approach as C23)
+        target_file: Optional[Path] = None
+        container_id = e.identifier
+        if e.link is not None and e.link.target_file_path is not None:
+            target_file = e.link.target_file_path
+            stem_m = F_NUMBER_PREFIX_RE.match(target_file.stem)
+            if stem_m:
+                container_id = stem_m.group(1)
+        else:
+            target_file = e.source_file
+        if target_file is None or not target_file.is_file():
+            continue  # link-resolution issue belongs to C1/C22, not here
+        actual = len(extract_q_entries(target_file, container_id))
+        if actual == claimed:
+            continue  # in sync
+        if actual == 0:
+            # Bracket claims questions but linked doc has none. The bracket is
+            # stale — likely all Qs got resolved without the bracket being
+            # updated. Most common case after Phase 2 transition.
+            findings.append(Finding(
+                severity="warning",
+                surface_file=e.source_file,
+                surface_line=e.source_line,
+                code="C24",
+                message=(
+                    f"row '{e.identifier}' is [{e.status}] but linked doc has "
+                    f"zero pending Qs — bracket is stale (Qs likely all "
+                    f"resolved; bracket should be [Ready] or [Done])"
+                ),
+                mechanically_fixable=True,
+            ))
+        else:
+            correct = f"[{actual} Questions]" if actual > 1 else "[Questions]"
+            findings.append(Finding(
+                severity="warning",
+                surface_file=e.source_file,
+                surface_line=e.source_line,
+                code="C24",
+                message=(
+                    f"row '{e.identifier}' is [{e.status}] (claims {claimed}) "
+                    f"but linked doc has {actual} pending Q"
+                    f"{'s' if actual != 1 else ''} — bracket must be {correct}"
+                ),
+                mechanically_fixable=True,
+            ))
+    return findings
+
+
 def check_c25_designing_justification(backlog_files: list[Path],
                                       vault_index: dict[str, list[Path]]) -> list[Finding]:
     """C25 (per F106): every [Designing] row must carry a justification.
@@ -2117,6 +2191,81 @@ def apply_c23_fix(backlog_file: Path,
         fix_log.append(
             f"row '{e.identifier}' [Designing] → {new_bracket} "
             f"(pending Qs: {pending})"
+        )
+    if changed:
+        backlog_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return changed, fix_log
+
+
+def apply_c24_fix(backlog_file: Path,
+                  entries: list[BacklogEntry]) -> tuple[bool, list[str]]:
+    """Rewrite `[Questions]` / `[N Questions]` brackets to match the linked
+    feature doc's actual pending-Q count. Mirrors apply_c23_fix's mechanics.
+    Returns (changed, log). Bare `[Questions]` on a row whose linked doc has
+    7 Qs becomes `[7 Questions]`; `[3 Questions]` on a doc with 0 Qs becomes
+    `[Ready]` (the bracket-promise is stale, downstream of all Qs being
+    resolved without the bracket being updated)."""
+    fix_log: list[str] = []
+    questions_rows: list[tuple[BacklogEntry, str]] = []
+    for e in entries:
+        if not e.status:
+            continue
+        m = re.match(r"^\s*(\d+)\s+Questions?\s*$|^\s*Questions?\s*$", e.status)
+        if m:
+            questions_rows.append((e, e.status))
+    if not questions_rows:
+        return False, []
+    try:
+        lines = backlog_file.read_text(encoding="utf-8").splitlines(keepends=False)
+    except (OSError, UnicodeDecodeError):
+        return False, []
+    changed = False
+    for e, old_status in questions_rows:
+        target_file: Optional[Path] = None
+        container_id = e.identifier
+        if e.link is not None and e.link.target_file_path is not None:
+            target_file = e.link.target_file_path
+            stem_m = F_NUMBER_PREFIX_RE.match(target_file.stem)
+            if stem_m:
+                container_id = stem_m.group(1)
+        else:
+            target_file = e.source_file
+        if target_file is None or not target_file.is_file():
+            continue
+        actual = len(extract_q_entries(target_file, container_id))
+        m = re.match(r"^\s*(\d+)\s+Questions?\s*$", old_status)
+        claimed = int(m.group(1)) if m else 1
+        if actual == claimed:
+            continue
+        if actual == 0:
+            new_bracket = "[Ready]"
+        else:
+            new_bracket = (
+                f"[{actual} Questions]" if actual > 1 else "[Questions]"
+            )
+        old_bracket = f"[{old_status}]"
+        line_idx = e.source_line - 1
+        if line_idx < 0 or line_idx >= len(lines):
+            continue
+        old_line = lines[line_idx]
+        # Same head-region replacement as apply_c23_fix.
+        title_match = re.match(r"^- \*\*[^*]+\*\*", old_line)
+        if not title_match:
+            continue
+        post_title = old_line[title_match.end():]
+        sep_match = re.search(r"\s[—-]\s", post_title)
+        head_end_in_post = sep_match.start() if sep_match else len(post_title)
+        head = post_title[:head_end_in_post]
+        rest = post_title[head_end_in_post:]
+        new_head = head.replace(old_bracket, new_bracket, 1)
+        if new_head == head:
+            continue
+        new_line = old_line[: title_match.end()] + new_head + rest
+        lines[line_idx] = new_line
+        changed = True
+        fix_log.append(
+            f"row '{e.identifier}' {old_bracket} → {new_bracket} "
+            f"(pending Qs: {actual})"
         )
     if changed:
         backlog_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -2483,6 +2632,7 @@ def main() -> int:
         findings.extend(check_c16_blocked_in_later(entries))
         findings.extend(check_c18_verify_by_expired(entries, today))
         findings.extend(check_c23_designing_resolves(entries))
+        findings.extend(check_c24_questions_count_match(entries))
         findings.extend(check_c25_designing_justification([backlog_file], vault_index))
         if args.fix:
             fix_log = apply_placement_fixes(backlog_file, entries, today)
@@ -2495,6 +2645,11 @@ def main() -> int:
             c23_changed, c23_log = apply_c23_fix(backlog_file, entries)
             if c23_changed:
                 f089_fixes_applied.extend(f"  {name}: {msg}" for msg in c23_log)
+                # C23 fix rewrites brackets, so re-parse before C24 sees them.
+                entries = backlog_entries(backlog_file, vault_index)
+            c24_changed, c24_log = apply_c24_fix(backlog_file, entries)
+            if c24_changed:
+                f089_fixes_applied.extend(f"  {name}: {msg}" for msg in c24_log)
     # B16 — apply mechanical fixes for C6 + C10 if --fix
     c6_fixes_applied: list[str] = []
     c10_fixes_applied: list[str] = []

@@ -117,6 +117,21 @@ def _strip_code_spans(line: str) -> str:
     return re.sub(r"`[^`\n]*`", lambda m: " " * len(m.group(0)), line)
 
 
+def _find_separator_outside_wikilinks(text: str) -> int:
+    """Return the index *after* the first ` — ` separator in `text` that lies
+    outside any `[[...]]` wiki-link, or -1 if no such separator exists.
+
+    Why: backlog rows commonly use ` — ` as the title/body separator AND
+    contain wiki-links like `[[F037 — Programmable Permissions Bootstrap]]`
+    whose internal em-dash matches the separator pattern. A naive `re.search`
+    picks the link-internal one and corrupts the parsed body.
+    """
+    # Mask wiki-link content with spaces (preserves indices) then search.
+    masked = re.sub(r"\[\[[^\[\]]*\]\]", lambda m: " " * len(m.group(0)), text)
+    m = re.search(r"\s+—\s+", masked)
+    return m.end() if m else -1
+
+
 def _extract_bullet_bracket(line: str) -> str:
     """Bracket from a bullet row: lives immediately after the title bold close,
     optionally preceded by a `[TYPE]` prefix. Returns '' if absent.
@@ -221,12 +236,16 @@ def parse_backlog(backlog_file: Path) -> list[Row]:
             identifier = mb.group(1)
             bracket = _extract_bullet_bracket(line)
             # Body: everything after the FIRST ` — ` separator that occurs
-            # AFTER the closing `**` of the title — title may itself contain ` — `.
+            # AFTER the closing `**` of the title AND outside any wiki-link.
+            # Wiki-links like `[[F037 — Programmable Permissions Bootstrap]]`
+            # contain ` — ` inside; without skipping link content, the parser
+            # picks the link-internal separator and corrupts the body with
+            # link-trailing fragments (observed 2026-06-04 on MUX F037 row).
             title_match = re.match(r"^- \*\*[^*]+\*\*", line)
             if title_match:
                 post_title = line[title_match.end():]
-                sep_match = re.search(r"\s+—\s+", post_title)
-                body = post_title[sep_match.end():] if sep_match else ""
+                sep_idx = _find_separator_outside_wikilinks(post_title)
+                body = post_title[sep_idx:] if sep_idx >= 0 else ""
             else:
                 body = ""
             body = TRAILING_BLOCK_ID_RE.sub("", body)
