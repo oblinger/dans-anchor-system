@@ -986,6 +986,7 @@ def extract_q_entries(file_path: Path, container_id: str) -> list[QEntry]:
     out: list[QEntry] = []
     in_h2_resolved = False  # inside `## Resolved` H2 (case-insensitive)
     in_h3_resolved = False  # inside `### Resolved` H3 (case-insensitive)
+    in_fence = False        # inside ``` ... ``` (or ~~~) fenced code block
     pending_q: Optional[QEntry] = None
 
     def flush():
@@ -994,13 +995,29 @@ def extract_q_entries(file_path: Path, container_id: str) -> list[QEntry]:
             out.append(pending_q)
             pending_q = None
 
+    # Local heading regex — tolerates up to 3 leading spaces per CommonMark
+    # ATX-heading rules. The global HEADING_RE anchors at line-start without
+    # leading whitespace, which is intentional for some callers but causes
+    # false negatives here for inline B-row `### Resolved` subsections nested
+    # under bullet rows (visually indented with 2 spaces).
+    _local_heading_re = re.compile(r"^( {0,3})(#{1,6})\s+(.+?)\s*$")
     for line_num, line in enumerate(lines, start=1):
+        # Track fenced-code-block state. Format-spec docs (F068, F025, F026)
+        # show `**Q1 — ...**` bullets as illustrations inside ``` fences — they
+        # are examples, not real pending questions. Same fence-tracking pattern
+        # as link-resolution and module-doc scans elsewhere in this file.
+        stripped = line.lstrip()
+        if stripped.startswith("```") or stripped.startswith("~~~"):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
         # Track Resolved-section state via H2/H3. Any new H2 resets H3 context.
         # A line is in a Resolved area iff in_h2_resolved OR in_h3_resolved.
-        heading_m = HEADING_RE.match(line)
+        heading_m = _local_heading_re.match(line)
         if heading_m:
-            level = len(heading_m.group(1))
-            heading_text = heading_m.group(2).strip()
+            level = len(heading_m.group(2))
+            heading_text = heading_m.group(3).strip()
             if level == 2:
                 flush()
                 in_h2_resolved = (heading_text.lower() == "resolved")
@@ -1496,7 +1513,17 @@ def check_c21_empty_open_questions(
             continue
         lines = text.splitlines()
         oq_line = 0
+        in_fence = False
         for line_num, line in enumerate(lines, start=1):
+            # Skip code-fenced content — feature-doc-template illustrations
+            # (e.g., F015) show `## Open Questions` inside ``` blocks as the
+            # canonical template; those are not real Open Questions sections.
+            stripped = line.lstrip()
+            if stripped.startswith("```") or stripped.startswith("~~~"):
+                in_fence = not in_fence
+                continue
+            if in_fence:
+                continue
             if line.strip() == "## Open Questions":
                 oq_line = line_num
                 break
