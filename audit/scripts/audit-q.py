@@ -2272,6 +2272,164 @@ def apply_c24_fix(backlog_file: Path,
     return changed, fix_log
 
 
+def _resolve_owning_anchor(
+    surface_file: Path, anchor_backlogs: dict[str, Path]
+) -> Optional[str]:
+    """Return the anchor name whose tree (anchor_root = backlog.parents[2])
+    contains surface_file. Sorts anchors by anchor-root path length, longest
+    first, so sub-anchors (e.g., A2X inside SVAR's tree) match before
+    parents. Returns None when surface_file is outside every anchor tree
+    (e.g., Q.md itself, or vault-level files)."""
+    candidates: list[tuple[int, str, Path]] = []
+    for name, backlog in anchor_backlogs.items():
+        try:
+            root = backlog.parents[2]
+        except IndexError:
+            continue
+        candidates.append((len(root.parts), name, root))
+    # Longest-path first → most-specific anchor wins.
+    candidates.sort(key=lambda t: t[0], reverse=True)
+    for _, name, root in candidates:
+        try:
+            surface_file.relative_to(root)
+            return name
+        except ValueError:
+            continue
+    return None
+
+
+def file_qfix_row(
+    backlog_file: Path, anchor_name: str, findings: list[Finding]
+) -> tuple[bool, str]:
+    """Find or create the singleton `B-QFix [Ready]` row in backlog_file,
+    then replace its sub-bullets with the current findings list.
+
+    Idempotent: subsequent runs with the same findings produce an identical
+    file; new findings replace old sub-bullets; zero findings shouldn't
+    happen here (the caller filters empties before calling).
+
+    Returns (changed, summary_msg)."""
+    try:
+        text = backlog_file.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return False, f"couldn't read {backlog_file.name}"
+
+    lines = text.splitlines()
+    # Format new sub-bullets — relative path to VAULT_ROOT for compactness.
+    # Wrap any `[[X]]` wiki-link patterns in the message text in backticks so
+    # `_strip_code_spans` makes them invisible to C1/C22 link-resolution on
+    # subsequent runs. Without this guard, sub-bullets containing finding
+    # messages with `[[X]]` are themselves flagged as broken links →
+    # routing-induced cascade (observed 2026-06-04 on first --fix loop after
+    # this routing landed).
+    def _backtick_wiki_links(msg: str) -> str:
+        return re.sub(r"\[\[([^\[\]]*)\]\]", r"`[[\1]]`", msg)
+
+    new_subs: list[str] = []
+    for f in findings:
+        try:
+            rel = f.surface_file.relative_to(VAULT_ROOT)
+        except ValueError:
+            rel = f.surface_file
+        safe_msg = _backtick_wiki_links(f.message)
+        new_subs.append(
+            f"  - **{f.code}** {rel}:{f.surface_line} — {safe_msg}"
+        )
+
+    qfix_row_text = (
+        f"- **B-QFix — QFix** [Ready] — audit q findings routed by --fix; "
+        f"each sub-bullet is a residual on {anchor_name}'s tree needing the "
+        f"100%-fix discipline (per the audit skill's Governing principle). "
+        f"^B-QFix"
+    )
+
+    # Locate existing B-QFix row.
+    qfix_idx: Optional[int] = None
+    for i, line in enumerate(lines):
+        if line.lstrip().startswith("- **B-QFix"):
+            qfix_idx = i
+            break
+
+    if qfix_idx is not None:
+        # Find end of existing sub-bullets (`  - ` indented lines, with
+        # optional intervening blank lines that don't terminate the block).
+        end = qfix_idx + 1
+        while end < len(lines):
+            stripped = lines[end]
+            if stripped.startswith("  - "):
+                end += 1
+                continue
+            # Blank line — peek next to see if sub-bullets continue.
+            if not stripped.strip() and end + 1 < len(lines) \
+                    and lines[end + 1].startswith("  - "):
+                end += 1
+                continue
+            break
+        lines[qfix_idx] = qfix_row_text
+        lines[qfix_idx + 1: end] = new_subs
+        result = f"updated B-QFix with {len(new_subs)} sub-bullet(s)"
+    else:
+        # Create row at the top of `## Ready`. Create the H2 if absent.
+        ready_idx: Optional[int] = None
+        for i, line in enumerate(lines):
+            if line.strip() == "## Ready":
+                ready_idx = i
+                break
+        if ready_idx is None:
+            # Insert `## Ready` before the first existing H2, or at end.
+            insert_at = len(lines)
+            for i, line in enumerate(lines):
+                if line.startswith("## "):
+                    insert_at = i
+                    break
+            lines.insert(insert_at, "## Ready")
+            lines.insert(insert_at + 1, "")
+            ready_idx = insert_at
+        insert_at = ready_idx + 1
+        while insert_at < len(lines) and not lines[insert_at].strip():
+            insert_at += 1
+        block = [qfix_row_text] + new_subs + [""]
+        for j, ln in enumerate(block):
+            lines.insert(insert_at + j, ln)
+        result = f"created B-QFix with {len(new_subs)} sub-bullet(s)"
+
+    backlog_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return True, result
+
+
+def route_findings_to_qfix(
+    findings: list[Finding], anchor_backlogs: dict[str, Path]
+) -> list[str]:
+    """For each non-mechanically-fixable finding, file it as a sub-bullet on
+    the owning anchor's `B-QFix` `[Ready]` row. Mechanically-fixable findings
+    are excluded (they've already been auto-fixed in this run; they won't
+    survive to the next audit pass).
+
+    Per audit § Governing principle (2026-06-04): every residual the script
+    can't fix gets routed to an anchor-local backlog row where the owning
+    Pilot's next /triage or /groom drives it to zero under the 100%-fix rule.
+
+    Returns a per-anchor log of routing actions."""
+    residual = [f for f in findings if not f.mechanically_fixable]
+    if not residual:
+        return []
+    # Group by owning anchor; skip findings whose surface_file is outside any
+    # anchor tree (Q.md itself, vault-root files).
+    groups: dict[str, list[Finding]] = {}
+    for f in residual:
+        owner = _resolve_owning_anchor(f.surface_file, anchor_backlogs)
+        if owner is None:
+            continue
+        groups.setdefault(owner, []).append(f)
+    log: list[str] = []
+    for anchor in sorted(groups):
+        backlog_file = anchor_backlogs[anchor]
+        changed, msg = file_qfix_row(backlog_file, anchor, groups[anchor])
+        if changed:
+            log.append(f"  {anchor}: {msg}")
+    return log
+
+
 def _find_or_create_h2(lines: list[str], h2_name: str) -> int:
     """Return index of `## <h2_name>` line; append (and return new index) if absent."""
     target = f"## {h2_name}"
@@ -2656,6 +2814,14 @@ def main() -> int:
     if args.fix:
         c6_fixes_applied = apply_c6_fix(all_q_entries)
         c10_fixes_applied = apply_c10_fix(all_q_entries)
+    # QFix routing — file every non-mechanically-fixable residual on the
+    # owning anchor's `B-QFix [Ready]` row. Per audit § Governing principle
+    # (2026-06-04): every check has an agent-side fix path; routing puts the
+    # residual where the owning Pilot's next /triage or /groom will see it
+    # and drive it to zero under the 100%-fix rule.
+    qfix_routing_log: list[str] = []
+    if args.fix:
+        qfix_routing_log = route_findings_to_qfix(findings, anchor_backlogs)
     # Print findings + summary
     errors = [f for f in findings if f.severity == "error"]
     warnings = [f for f in findings if f.severity == "warning"]
@@ -2679,6 +2845,11 @@ def main() -> int:
     if f089_fixes_applied:
         print(f"\naudit-q: F089 placement fixes (C15/C16/C18 auto-moves):")
         for line in f089_fixes_applied:
+            print(line)
+    if qfix_routing_log:
+        print(f"\naudit-q: QFix routing — non-mechanically-fixable residuals "
+              f"filed on owning anchors' B-QFix rows (per 100%-fix discipline):")
+        for line in qfix_routing_log:
             print(line)
     print(f"\naudit-q: derived banners for {len(derived_banners)} anchors")
     if args.fix and not args.dry and args.scope in ("q", "all", "backlog"):
