@@ -161,7 +161,10 @@ audio_creation_date() {
         -of default=noprint_wrappers=1:nokey=1 "$audio" 2>/dev/null)"
     [[ -n "$date_str" ]] || date_str="$(ffprobe -v error -show_entries format_tags=date \
         -of default=noprint_wrappers=1:nokey=1 "$audio" 2>/dev/null)"
-    printf '%s' "$date_str" | grep -oE '^[0-9]{4}-[0-9]{2}-[0-9]{2}' | head -1
+    # `|| true` absorbs grep's exit code 1 (no match) so `set -euo pipefail`
+    # doesn't silently kill the caller when the audio carries no parseable
+    # creation date.
+    printf '%s' "$date_str" | grep -oE '^[0-9]{4}-[0-9]{2}-[0-9]{2}' | head -1 || true
 }
 
 # Lazy backfill of the dedup index: any audio file in VOX_DIR not represented
