@@ -1,7 +1,7 @@
 ---
 description: operating-mode framework — defines what a mode is, the metric it optimizes, and how modes are declared
 ---
-| -[[SKL Mode]]- | : <br>→ [ob](hook://ob) → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Discipline]] → [SKL Mode](hook://p/SKL%20Mode) |
+| -[[SKL Mode]]- | : <br>→ [[_]] → [[Dir]] → [ob](hook://ob) → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Discipline]] → [SKL Mode](hook://p/SKL%20Mode) |
 | --- | --- |
 | Trade-off posture | [[SKL Mode Drive\|Drive]],   |
 | Git boundaries | [[SKL Mode Git Commit\|Commit]],  [[SKL Mode Git PR\|PR]],   |
@@ -13,8 +13,10 @@ A **mode** is a setting that shapes how the agent makes recurring trade-off deci
 
 Modes are **compositional traits** (per [[F077 — PR mode — mode-as-trait architecture with per-anchor opt-in|F077]]) — an anchor runs with one or more modes active at the same time, composed along independent axes. The two axes today:
 
-- **Trade-off posture** — [[SKL Mode Drive|Drive]] vs. Cautious (the `/fortify` posture). Mutually exclusive.
+- **Trade-off posture** — [[SKL Mode Drive|Drive]] vs. [[Lean]] (the `/fortify` posture). Mutually exclusive.
 - **Git boundaries** — [[SKL Mode Git Commit|Commit]] vs. [[SKL Mode Git PR|PR]]. Mutually exclusive.
+
+Bare-noun Trait names — `Drive`, `Lean`, `PR`, `Commit`, `NoGit` — per [[F077 — PR mode — mode-as-trait architecture with per-anchor opt-in|F077]] Q7. Older docs may say "Cautious" as descriptive English for the Lean posture; `Lean` is the canonical Trait name.
 
 The default pair is **Drive + Commit**. Both default modes are inlined in `role-pilot.md` POST-COMPACT RELOAD so they prime the Pilot on every session start.
 
@@ -39,7 +41,7 @@ The whole posture follows from this metric: **minimize content-full batches firs
 ### Trade-off posture
 
 - **[[SKL Mode Drive|Drive]]** — agent-driven, optimistic, minimum-interruption. **System default.** See the page for the full set of assertions.
-- *(Cautious is invoked via `/fortify` for distrust-the-foundation work; it doesn't have its own SKL doc — see [[SKA fortify]].)*
+- **[[Lean]]** — cautious, distrust-the-foundation, fortify-before-adding. Per-turn invocation via `/fortify`; declarative per-anchor activation via `Lean` in `.anchor` `traits:`. User-facing methodology spec at [[SKA fortify]]; CAB Trait spec at [[Lean]].
 
 ### Git boundaries
 
@@ -55,5 +57,5 @@ The whole posture follows from this metric: **minimize content-full batches firs
 ## History
 
 - **2026-05-04** — Mode framework established. **Drive** defined as the first mode and rolled out as the system default. Captured in `SKL Mode.md` (this page) + `SKL Mode Drive.md` (the assertions); inline copy in `role-pilot.md` POST-COMPACT RELOAD. Per-anchor switching deferred until ≥2 modes exist.
-- **2026-05-24** — **Git Standard** mode added per ~~[[F085]]~~. Three load-bearing rules (commit on logical boundary, terse messages, never auto-push). Composed with Drive as the canonical pair.
+- **2026-05-24** — **Git Standard** mode added per [[F085]]. Three load-bearing rules (commit on logical boundary, terse messages, never auto-push). Composed with Drive as the canonical pair.
 - **2026-06-01** — **Renamed Git Standard → Commit** per [[F077 — PR mode — mode-as-trait architecture with per-anchor opt-in|F077]] Q7 (bare-noun naming convention `Drive`/`Lean`/`PR`/`Commit`/`NoGit`). Added explicit "never ask permission to commit" rule and "always new commit on top — never amend" rule. **Commit-mode bullets inlined into `role-pilot.md` POST-COMPACT RELOAD** — closes the gap where F085's rules existed in mode/SKILL.md but didn't prime the Pilot at session start (the cause of the observed "agent keeps asking to commit" symptom).
