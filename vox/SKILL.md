@@ -50,17 +50,22 @@ Both call the shared `handle_vox` pipeline, which:
 
 ## Actions
 
-### `/vox` (no args) — scan Desktop + Downloads
+### `/vox` (no args) — scan intake folders
 
-1. List audio files in `~/Desktop` and `~/Downloads` matching `*.mp3`, `*.m4a`, `*.wav`, `*.caf`, `*.aac`, `*.aiff`, `*.aif`, `*.mp4`, `*.m4b` (case-insensitive). If both folders have zero matches, say so and stop.
-2. For each match, invoke:
+1. Read the cross-skill intake-folder list (per F111):
+   ```bash
+   ~/.claude/skills/ob-skills/scripts/ob-skills config intake_folders --default "$HOME/Desktop $HOME/Downloads"
+   ```
+   The helper prints one folder per line (paths already tilde-expanded). The default if the key is absent is `~/Desktop` and `~/Downloads`. The user can extend the list in `~/.config/ob-skills/global.yaml § intake_folders:`.
+2. In each folder (non-recursive), list audio files matching `*.mp3`, `*.m4a`, `*.wav`, `*.caf`, `*.aac`, `*.aiff`, `*.aif`, `*.mp4`, `*.m4b` (case-insensitive). If every folder is empty of audio, say so and stop.
+3. For each match, invoke:
    ```bash
    ~/.claude/skills/vox/scripts/vox-process --input "<path>"
    ```
    Capture the script's stdout (one line per call: either `vox-process: VOX -> wrote …` for new files or `vox-process: VOX -> skipped (duplicate of …)` for dedup'd ones).
-3. Print a chat summary:
+4. Print a chat summary:
    ```
-   /vox — processed N file(s) from Desktop/Downloads:
+   /vox — processed N file(s) from <intake folders>:
      ✓ <name1>.m4a → 2026-06-03 <derived-title>.m4a
      ✓ <name2>.m4a → 2026-06-03 <derived-title>.m4a
      ⊘ <name3>.m4a — duplicate of 2026-05-28 <existing>.m4a (source still removed)

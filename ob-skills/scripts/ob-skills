@@ -55,9 +55,17 @@ for part in key.split("."):
         data = data[part]
     else:
         sys.exit(1)
-if isinstance(data, (dict, list)):
-    sys.exit(1)  # complex types: caller can't consume as string
-print(data)
+if isinstance(data, dict):
+    sys.exit(1)  # dicts: caller can't consume as string
+if isinstance(data, list):
+    # YAML lists are emitted one scalar per line. Consumers read with `while read`.
+    # Nested non-scalar items (dicts, lists-of-lists) abort — too ambiguous to render.
+    for item in data:
+        if isinstance(item, (dict, list)):
+            sys.exit(1)
+        print(item)
+else:
+    print(data)
 PY
 }
 
@@ -71,8 +79,17 @@ _f072_read() {
   echo "$line" | sed -E "s|^${key}[[:space:]]*::[[:space:]]*||; s/^\`(.*)\`$/\1/; s/^[[:space:]]+|[[:space:]]+$//g"
 }
 
-# Expand a leading ~/ in the value.
-_expand_tilde() { echo "${1/#\~\//$HOME/}"; }
+# Expand a leading ~/ in the value. Operates per-line so list-typed reads
+# (one item per line) get every item expanded, not just the first.
+_expand_tilde() {
+  if [[ "$1" != *$'\n'* ]]; then
+    echo "${1/#\~\//$HOME/}"
+  else
+    while IFS= read -r line; do
+      echo "${line/#\~\//$HOME/}"
+    done <<< "$1"
+  fi
+}
 
 # Check env var override for global key. Env var name: OB_SKILLS_<KEY_UPPER_UNDERSCORED>.
 _env_global() {
