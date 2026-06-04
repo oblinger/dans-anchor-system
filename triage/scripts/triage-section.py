@@ -227,10 +227,23 @@ def parse_backlog(backlog_file: Path) -> list[Row]:
             ))
             inside_h3_body = True
             continue
-        # Bullet row? (Suppress when we're inside an H3 row's body — those
-        # bullets are sub-content of the H3, not separate rows.)
+        # Bullet row? Suppress when we're inside an H3 row's body — those
+        # bullets are sub-content of the H3, not separate rows.
+        #
+        # **Sibling-detection escape** (2026-06-04, observed on HA): in some
+        # conventions, top-level `- **F<n> — Title** [Bracket]` rows appear
+        # AFTER H3 rows in the same H2 as *siblings* of the H3, not as its
+        # children — e.g., HA's `## Now` has `### BUG — ...` followed by
+        # `- **F079 — ...** [4 Questions]`. The distinguishing signal: real
+        # rows carry a workflow-state bracket (`[Active]` / `[Ready]` /
+        # `[N Questions]`/…); H3-body Q-sub-bullets like `- **Q1 — title?**`
+        # don't. When we see a top-level bullet WITH a workflow-state
+        # bracket, treat it as a sibling row — exit the H3-body context.
         if inside_h3_body:
-            continue
+            if line.startswith("- **") and _extract_bullet_bracket(line):
+                inside_h3_body = False
+            else:
+                continue
         mb = ROW_OPENER_BULLET_RE.match(line)
         if mb:
             identifier = mb.group(1)
@@ -377,12 +390,19 @@ def derive_banner(name: str, rows: list[Row], backlog_file: Path,
         slug_label = f"[[{h1_target}|{name}]]"
     else:
         slug_label = name  # plain text — anchor has no clickable target
+    # Trailing `{N}` — outstanding audit-q residual count on this anchor's
+    # B-QFix row (per user direction 2026-06-04: glance Q.md to see whether
+    # warnings got driven to zero). Omitted when N == 0 (the "clean" signal
+    # is the absence of `{N}`).
+    qfix_n = _count_qfix_subs(backlog_file)
+    qfix_suffix = f"    {{{qfix_n}}}" if qfix_n > 0 else ""
     banner = (
         f"# [{tag}]  {slug_label}  -  "
         f"Ready {ready_n}    Questions {questions_n}   |   "
         f"Now {horizon_counts['Now']}    Next {horizon_counts['Next']}    "
         f"Later {horizon_counts['Later']}    Verify {horizon_counts['Verify']}    "
         f"Icebox {horizon_counts['Icebox']}"
+        f"{qfix_suffix}"
     )
     return banner
 
@@ -445,6 +465,38 @@ def _truncate_body(text: str, soft_cap: int = 250) -> str:
 def _bullet_bracket_display(bracket: str) -> str:
     """Return the bracket text as it should appear in the Q.md bullet."""
     return f"**[{bracket}]**"
+
+
+def _count_qfix_subs(backlog_file: Path) -> int:
+    """Count sub-bullets under the singleton `B-QFix` `[Ready]` row, if
+    present. Each sub-bullet is one outstanding audit-q residual that the
+    owning anchor's next /triage or /audit q-fix needs to drive to zero per
+    the 100%-fix discipline. The banner surfaces this count as `{N}` at the
+    very end of the H1 (when N > 0) so the user can glance Q.md and see
+    instantly which anchors still have warnings."""
+    try:
+        text = backlog_file.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return 0
+    lines = text.splitlines()
+    in_qfix = False
+    count = 0
+    for line in lines:
+        if line.lstrip().startswith("- **B-QFix"):
+            in_qfix = True
+            continue
+        if not in_qfix:
+            continue
+        if line.startswith("  - "):
+            count += 1
+            continue
+        # Blank line in the middle of the sub-bullet block is OK; keep going.
+        if not line.strip():
+            continue
+        # Any other content (a new top-level row, a new H2, etc.) ends the
+        # QFix block.
+        break
+    return count
 
 
 def _extract_block_ids(backlog_file: Path) -> set[str]:
