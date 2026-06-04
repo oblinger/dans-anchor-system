@@ -46,6 +46,14 @@ LinkEntry = audit_q.LinkEntry
 BacklogEntry = audit_q.BacklogEntry
 LIVE_HORIZON_H2S = audit_q.LIVE_HORIZON_H2S
 ACTIVE_HORIZONS_BANNER = {"Active", "Ready", "Now", "Next", "Legwork"}
+# Horizons whose `[Questions]` rows count toward the banner's `Questions` total.
+# Must match the body's `LATER_RENDERED_BRACKETS_PREFIX`-respecting set:
+# `[Questions]` rows render under any of these in the body, so the banner
+# must count them too — otherwise banner-vs-body disagree (the 2026-06-04
+# MUX bug).
+BODY_RENDERED_HORIZONS_FOR_QUESTIONS = {
+    "Active", "Ready", "Now", "Next", "Later", "Legwork"
+}
 
 # ============================================================
 # Configuration
@@ -260,9 +268,16 @@ def derive_banner(name: str, rows: list[Row], backlog_file: Path,
     ready_n = sum(1 for r in actionable if r.bracket == "Ready")
     verify_n = sum(1 for r in actionable if r.bracket == "Verify")
     # Questions count: sum of Q-markers across linked feature docs for each
-    # `[Questions]` / `[N Questions]` row in active horizons only.
+    # `[Questions]` / `[N Questions]` row, across **every rendered horizon**
+    # (not just ACTIVE_HORIZONS_BANNER). The body renders `[Questions]` rows
+    # under `## Later` via the LATER_RENDERED_BRACKETS_PREFIX filter — they
+    # must count in the banner too, otherwise banner-vs-body disagree
+    # (observed 2026-06-04 on MUX: banner said `Questions 0` while body
+    # showed F037 + F011 as `[Questions]` under `## Later`).
     questions_n = 0
-    for r in actionable:
+    for r in live:
+        if r.horizon not in BODY_RENDERED_HORIZONS_FOR_QUESTIONS:
+            continue
         if "Questions" not in r.bracket:
             continue
         # Resolve the linked feature doc
