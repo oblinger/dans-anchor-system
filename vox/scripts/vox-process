@@ -63,7 +63,7 @@ log() { printf '%s  %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*" >>"$LOG"; }
 die() {
     mkdir -p "$(dirname "$LOG")" 2>/dev/null || true
     log "ERROR: $*"
-    echo "ob_process_email: $*" >&2
+    echo "vox-process: $*" >&2
     exit 1
 }
 
@@ -264,7 +264,7 @@ handle_vox() {
     existing="$(existing_filing "$src_audio")"
     if [[ -n "$existing" ]]; then
         log "VOX SKIP duplicate audio (sha256 already filed as: $existing)"
-        echo "ob_process_email: VOX -> skipped (duplicate of $existing)"
+        echo "vox-process: VOX -> skipped (duplicate of $existing)"
         return 0
     fi
     audio_h="$(audio_hash "$src_audio")"
@@ -355,7 +355,7 @@ handle_vox() {
     trim_old_audio   # retention sweep
 
     log "VOX DONE name='$name'"
-    echo "ob_process_email: VOX -> wrote $dest_audio + $dest_md"
+    echo "vox-process: VOX -> wrote $dest_audio + $dest_md"
 }
 
 # ---- dispatch ---------------------------------------------------------------
@@ -390,12 +390,23 @@ main() {
             [[ $# -ge 2 ]] || die "$1 requires an audio path"
             local src="$2"
             [[ -f "$src" ]] || die "audio not found: $src"
+            # If the source has a sibling .vtt (matching basename, e.g. an
+            # Apple Voice Memos "device-side transcript" exported alongside
+            # the audio), pass it as the as-sent transcript — same semantics
+            # as the email path's positional invocation.
+            local sib_vtt="${src%.*}.vtt"
+            [[ -f "$sib_vtt" ]] || sib_vtt=""
             # Synthetic subject so handle_vox accepts it; the new metadata-date
             # logic pulls the real recording date from the audio itself.
-            handle_vox "$src" "VOX manual" ""
+            handle_vox "$src" "VOX manual" "$sib_vtt"
             rm -f "$src" \
                 && log "INPUT mode — deleted source $src" \
                 || log "INPUT mode — failed to delete source $src (filed copy is safe)"
+            if [[ -n "$sib_vtt" && -f "$sib_vtt" ]]; then
+                rm -f "$sib_vtt" \
+                    && log "INPUT mode — deleted sibling vtt $sib_vtt" \
+                    || log "INPUT mode — failed to delete sibling vtt $sib_vtt"
+            fi
             ;;
         -h|--help)
             usage
