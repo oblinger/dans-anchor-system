@@ -18,7 +18,21 @@ user_invocable: true
 
 Audits diagnose. Most never fix. Each sub-audit produces **≥1 backlog entry** under `## Next` (default horizon — deprioritized by default; per F061 Q4) in `{NAME} Backlog.md`, **pre-split by state-cluster** of the remaining findings (one `[Ready]` row for mechanical findings, one or more `[Questions]` rows for findings needing user input). The fix work happens later, when someone pulls that backlog item — sub-bullets within a row are the natural splits if the work needs to be broken up further.
 
-**Exception — `/audit q`** (per F076): fixes by default because Q.md drift is mechanical and unambiguous to repair. The three-tier flow (mechanical via Python script → agent-inline-judgment → singleton `QFix` backlog entry only for truly intractable findings) keeps the audit-fixes-it model contained to the Q.md surface where the cost/benefit decisively favors auto-repair. The broader principle "audit never fixes" still applies to every OTHER subaction.
+## Governing principle — `/audit q`: the agent fixes 100%
+
+(Per user direction 2026-06-04, establishing the discipline for `/audit q` and the loop-until-clean post-condition in `/triage` + `/groom`. Replaces the prior "mechanical-only, never agent-guessed" rule and tightens the F076 three-tier flow.)
+
+**The agent's job is to drive the audit residual to zero on every run.** Not "fix what's mechanical and catalog the rest" — *fix all of it*. Every check that audit-q surfaces has been deliberately chosen because it has an agent-side fix path; the agent's job is to take it. The cultural failure mode this rule defeats is *agent laziness disguised as discipline*: leaving warnings behind under the cover of "user input needed" when honest effort would have produced an answer. **If you find yourself reaching for QFix because "the user might prefer something different" — stop. Try harder. The user can correct a written `None — <reason>`; they can't correct silence.**
+
+The principle has three explicit implications:
+
+1. **`None` is a real Recommendation.** When the agent has no basis for Strong or Lean *after honest effort*, the answer is `**Recommendation:** None — <one-line reason naming what specifically the agent doesn't know>`. The user reviews None recommendations specifically — that's their actionable inbox. **Empty Recommendation is the agent declaring it didn't try.** Same shape applies to other agent-fillable fields: write the plausible-exercise sentence for `Naturally exercised by:` (or rebracket honestly); write the next-action for `[Designing]` rows (or rebracket).
+2. **Every warning is somebody's work, and the auditing agent is the somebody.** Cross-anchor findings catalog to the owning anchor's backlog, but only because that's the right *routing* — the principle still applies: that owning anchor's next agent invocation drives that residual to zero too.
+3. **If a check has no agent-side fix path, delete the check.** A warning the agent is "reasonable to not correct" is not a warning the audit should be surfacing — it would only train the agent to skip warnings as habit, defeating the entire discipline. Add audits only when they're agent-actionable; if a discipline boundary changes and a check stops being actionable, retire the check rather than let it accumulate as unaddressed residual.
+
+This principle governs **`/audit q`** specifically (and any sub-audit that adopts the fix-by-default model). For sub-audits that follow the older "diagnose, write backlog entry, fix work happens later" pattern, see the next paragraph — the principle there is different.
+
+**Exception — `/audit q`** (per F076): fixes by default because Q.md drift is mechanical and unambiguous to repair. The three-tier flow (mechanical via Python script → agent-inline-judgment → singleton `QFix` backlog entry only for the rare cases where the answer genuinely requires user-private information the agent can't reach) keeps the audit-fixes-it model contained to the Q.md surface where the cost/benefit decisively favors auto-repair. The broader principle "audit never fixes" still applies to every OTHER subaction.
 
 ## Runbook
 

@@ -37,20 +37,24 @@ Sub-action of `/audit`. Spec: `[[F076 — audit q — Q.md constraint validator 
 
 4. **Re-run the script** if any inline-judgment fixes were applied, to confirm the audit is clean.
 
-5. **Every residual finding gets a sub-bullet on the singleton `QFix` row — no threshold, no "rare" gate.** The catalog IS the residual; an empty catalog is the only "clean." This is the strict invariant per F076 + the post-condition rule landed 2026-06-04: `/triage` and `/groom` exit honestly only when (a) zero residual or (b) every residual appears on `QFix`. Silent residual is a spec violation.
+5. **100% of warnings must go to zero on every audit pass.** No "user input needed" carve-out, no QFix catalogue of unfixable residuals. The discipline (per user direction 2026-06-04, replacing the prior "mechanical-only never agent-guessed" rule): **every C-code on the audit's surface has an agent-side fix path; the agent's job is to take it.**
 
-   For each unresolved finding (any C-code the Python script didn't auto-fix and that step 3 didn't safely rewrite), write/update the singleton `QFix [Ready]` backlog entry via `backlog-edit.py` (per [[SKA workflow]] § Mutation API). The row uses the B-slug form `B-QFix` as a stable singleton key — subsequent runs of `/audit q` with new unresolved findings re-write the **same row** (not a new F-number):
+   For each remaining finding (any C-code the Python script didn't auto-fix and that step 3 didn't safely rewrite), pick the matching action below — do not file QFix entries for things the agent CAN address:
 
-   ```bash
-   ~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} Ready B-QFix Ready \
-       "QFix" "audit q findings needing user input or non-mechanical agent judgment — see sub-bullets"
-   ```
+   - **C9 missing Recommendation** — write one. The Recommendation is the *agent's* field, not the user's. Read the linked Design section, conversation history, prior similar decisions, memory, the user's stated preferences. Form a **Strong** / **Lean** when there's a clear answer. If honest effort produces no basis for even a Lean, write `**Recommendation:** None — <one-line reason naming what specifically the agent doesn't know>`. **`None` is a real answer** — it's the agent declaring, after work, that this decision belongs to the user. Empty Recommendation = agent didn't try.
+   - **C12 missing `Naturally exercised by:` rationale** — write the plausible-exercise sentence based on what the row is verifying (e.g., "next anchor that adopts a `markdown-write` trigger"). If genuinely no natural exercise exists, the row probably shouldn't be `[Verify-by]` in the first place — rebracket to `[Verify]` or `[Watching N d]` as honest.
+   - **C25 `[Designing]` w/o justification** — write the next-action sentence (either as `## Status` H2 in the linked feature doc, or as inline `- **Status:** Designing — <next-action>` sub-bullet under the backlog row). If no honest next-action exists, the row isn't really `[Designing]` — rebracket to `[Questions]` (if questions need to be drafted) or `[Ready]` (if design is complete).
+   - **C19, C20, C21, C22, C7, C8** — agent reformat / link rewrite / Phase-2 migration. All structural, all agent-doable.
+   - **Genuinely-stuck-on-user cases — RARE.** Reserve `QFix` for cases where the agent has tried and the answer truly requires user-specific knowledge (e.g., user-private preferences, external facts the agent can't reach). These should be rare; most C-codes have an honest agent action. File via `backlog-edit.py`:
 
-   Renders as `- **B-QFix — QFix** [Ready] — audit q findings ... ^B-QFix`. The `^B-QFix` block-ID lets `/triage` and [[audit-q-fix]] target the row uniquely.
+     ```bash
+     ~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} Ready B-QFix Ready \
+         "QFix" "audit q findings genuinely requiring user-private input — see sub-bullets"
+     ```
 
-   Append each unresolved finding as a sub-bullet below the row via direct `Edit` (sub-bullet content is within-row, not a row-level mutation). Format per finding: `  - **C<N>** {file}:{line} — {short description from the audit output}`. **Cross-anchor findings (audit-q is vault-wide) catalog as sub-bullets too, but only for cwd anchor's `QFix` row** — each anchor's `QFix` carries only its own anchor's findings; cross-anchor findings live on the owning anchor's `QFix`. (Implementation: route findings by their `surface_file` path to the matching anchor's `QFix` row.)
+     Renders as `- **B-QFix — QFix** [Ready] — audit q findings ... ^B-QFix`. The `^B-QFix` block-ID lets `/triage` and [[audit-q-fix]] target the row uniquely. Each finding goes as `  - **C<N>** {file}:{line} — {description + one line on why the agent can't supply the answer alone}`. Cross-anchor findings route by `surface_file` path to the matching anchor's `QFix` row.
 
-   **Never write agent-guessed content into a user-facing feature doc to clear a residual.** Missing `Recommendation:` bullets (C9), missing `Naturally exercised by:` rationale (C12), `[Designing]`-without-justification (C25) all need user-authored prose — stub-to-clear is worse than the residual. These go to QFix; the user (or `/audit q-fix`) supplies the real text.
+   **The cultural rule:** agents are lazy by default — given any escape hatch, they leave warnings open. The 100%-go-away rule closes the hatch: every warning is somebody's work, and the auditing agent is the somebody. `None` is acceptable but only after honest effort; the empty bullet is not. **If you find yourself reaching for QFix on C9 / C12 / C25 because "the user needs to decide" — stop. Try harder. Write `None — <specific reason>` rather than skip.**
 
 ## When to use
 

@@ -328,11 +328,11 @@ audit-q residual — N findings outstanding (see B-QFix on the backlog):
 
 **No silent exit when residual > 0.** This is the F076 + audit-q.md step 5 invariant: the only honest "clean" is residual == 0 OR every residual catalogued on `QFix`. Silent residual is the failure mode this rule names.
 
-### Three guards on the loop (per the 2026-06-04 design discussion)
+### Three guards on the loop (per the 2026-06-04 design discussions — original "mechanical-only" rule replaced by the 100%-fix principle)
 
-1. **Mechanical-only.** The loop auto-applies only what `audit-q.py --fix` handles + what audit-q skill step 3 lists as safe inline-judgment rewrites (link near-match, bracket-from-state, block-ID-on-target, stale-rename). **Never write agent-guessed prose into a feature doc to clear an error** — missing Recommendation (C9), missing rationale (C12), Designing-without-justification (C25) all need user-authored text and go to QFix.
-2. **Iteration cap = 3.** Matches `audit-q-fix.md` 3-pass cap. On cap, the residual is filed as QFix and surfaced — the loop is bounded.
-3. **Anchor-local.** `/triage`'s loop only iterates on findings whose `surface_file` is under the cwd anchor's tree. Cross-anchor findings catalog as `QFix` sub-bullets on their owning anchor — they're visible (informational at chat-exit time) but don't drive this anchor's loop.
+1. **100% of warnings go to zero each pass — `None` is an acceptable Recommendation.** The agent's job, in every loop iteration, is to drive the residual to zero. For C9 missing Recommendation, the agent writes the Recommendation — including `**Recommendation:** None — <one-line reason>` when honest effort produces no Lean. For C12 missing rationale, the agent writes the plausible-exercise sentence (or rebrackets honestly). For C25 missing Designing justification, the agent writes the next-action (or rebrackets). Every C-code on the audit's surface has an agent-side fix path; **`QFix` is reserved for the rare cases where the answer genuinely requires user-private information the agent has no access to**, not for "user might prefer something different." See `[[audit-q]]` § 5 for the per-C-code action map.
+2. **Iteration cap = 3.** Matches `audit-q-fix.md` 3-pass cap. On cap, the (rare) genuinely-stuck residual is filed as QFix and surfaced — the loop is bounded.
+3. **Anchor-local.** `/triage`'s loop iterates on findings whose `surface_file` is under the cwd anchor's tree. Cross-anchor findings route to the owning anchor's `QFix` row by `surface_file` path; they're visible (informational at chat-exit time) and the owning anchor's next `/triage` loop addresses them under the same 100%-fix rule.
 
 ### 7. Glance Q.md — NEVER glance the per-anchor Triage file
 

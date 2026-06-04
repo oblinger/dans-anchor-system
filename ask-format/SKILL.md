@@ -52,9 +52,11 @@ Every `Q<n>` has the same shape so the user can scan many at once and rubber-sta
 |---|---|---|
 | **Strong** | High confidence; clear reason; alternatives have no meaningful trade-off. User can rubber-stamp. | `- **Recommendation:** Strong (B). <reason>.` |
 | **Lean** | Moderate confidence; one option seems better but alternatives are defensible. User should consider. | `- **Recommendation:** Lean (B). <reason>.` |
-| **None** | Genuine uncertainty — user-preference-dependent or insufficient context. | `- **Recommendation:** None. <one-line reason: why uncertain>.` |
+| **None** | Genuine uncertainty — user-preference-dependent or insufficient context. | `- **Recommendation:** None. <one-line reason naming what specifically the agent doesn't know>.` |
 
 Pick exactly one label. Don't fudge with "lean strongly" or "weak recommendation" — those collapse to Lean.
+
+**Try first, `None` second** (per user direction 2026-06-04 / audit § Governing principle). The Recommendation is the **agent's** field, never the user's. Before writing `None`, the agent reads the Design section, conversation history, prior similar decisions in `## Resolved`, memory, related backlog rows, the user's stated preferences — and tries to form a real Strong or Lean. **`None` is the answer when honest effort produces no basis for a stronger pick**, not a placeholder for "I haven't tried yet." The user reviews `None` recommendations specifically — that's their actionable inbox; they cannot review a *missing* Recommendation. **Empty Recommendation = agent didn't try. Audit C9 fails it; the 100%-fix discipline requires the agent fill it in.**
 
 ### Spacing — load-bearing visual structure
 

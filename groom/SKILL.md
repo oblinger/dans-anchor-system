@@ -199,11 +199,11 @@ loop (max 3 iterations):
 
 After the loop, **before exiting**, read `{NAME} Backlog.md` for the `B-QFix` row. If present, append its sub-bullet list to chat output verbatim as *"audit-q residual — N findings outstanding (see B-QFix)."* **No silent exit when residual > 0.**
 
-### Three guards on the loop (per the 2026-06-04 design discussion)
+### Three guards on the loop (per the 2026-06-04 design discussions — original "mechanical-only" rule replaced by the 100%-fix principle)
 
-1. **Mechanical-only.** Auto-apply only what `audit-q.py --fix` handles + audit-q skill step 3's safe inline-judgment rewrites (link near-match, bracket-from-state, block-ID-on-target, stale-rename). Never write agent-guessed prose into feature docs to clear an error — C9 missing Recommendation, C12 missing rationale, C25 Designing-without-justification all need user-authored text and go to QFix.
-2. **Iteration cap = 3.** Matches `audit-q-fix.md` 3-pass cap. On cap, residual is on QFix and surfaced.
-3. **Anchor-local.** Loop iterates only on findings under the cwd anchor's tree. Cross-anchor findings catalog as `QFix` sub-bullets on their owning anchor (audit-q routes by `surface_file` path).
+1. **100% of warnings go to zero each pass — `None` is an acceptable Recommendation.** The agent's job, in every loop iteration, is to drive the residual to zero. For C9 missing Recommendation, the agent writes the Recommendation — including `**Recommendation:** None — <one-line reason>` when honest effort produces no Lean. For C12 missing rationale, the agent writes the plausible-exercise sentence (or rebrackets). For C25 missing Designing justification, the agent writes the next-action (or rebrackets). Every C-code has an agent-side fix path; **`QFix` is reserved for the rare cases where the answer genuinely requires user-private information**, not for "user might prefer something different." See `[[audit-q]]` § 5 for the per-C-code action map.
+2. **Iteration cap = 3.** Matches `audit-q-fix.md` 3-pass cap. On cap, the (rare) genuinely-stuck residual is filed as QFix and surfaced.
+3. **Anchor-local.** Loop iterates only on findings under the cwd anchor's tree. Cross-anchor findings route to the owning anchor's `QFix` row by `surface_file` path; the owning anchor's next `/triage` or `/groom` addresses them under the same 100%-fix rule.
 
 ### 6. (Top-level only) Hand off to `/triage`
 
