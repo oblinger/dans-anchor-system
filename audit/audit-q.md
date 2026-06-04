@@ -37,16 +37,20 @@ Sub-action of `/audit`. Spec: `[[F076 — audit q — Q.md constraint validator 
 
 4. **Re-run the script** if any inline-judgment fixes were applied, to confirm the audit is clean.
 
-5. **For findings genuinely too ambiguous to fix safely** (the rare Tier 3 case) → write/update the singleton `QFix [Ready]` backlog entry via `backlog-edit.py` (per [[SKA workflow]] § Mutation API). The row uses the B-slug form `B-QFix` as a stable singleton key — subsequent runs of `/audit q` with new unresolved findings re-write the **same row** (not a new F-number):
+5. **Every residual finding gets a sub-bullet on the singleton `QFix` row — no threshold, no "rare" gate.** The catalog IS the residual; an empty catalog is the only "clean." This is the strict invariant per F076 + the post-condition rule landed 2026-06-04: `/triage` and `/groom` exit honestly only when (a) zero residual or (b) every residual appears on `QFix`. Silent residual is a spec violation.
+
+   For each unresolved finding (any C-code the Python script didn't auto-fix and that step 3 didn't safely rewrite), write/update the singleton `QFix [Ready]` backlog entry via `backlog-edit.py` (per [[SKA workflow]] § Mutation API). The row uses the B-slug form `B-QFix` as a stable singleton key — subsequent runs of `/audit q` with new unresolved findings re-write the **same row** (not a new F-number):
 
    ```bash
    ~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} Ready B-QFix Ready \
-       "QFix" "audit q findings needing user input — see sub-bullets"
+       "QFix" "audit q findings needing user input or non-mechanical agent judgment — see sub-bullets"
    ```
 
-   Renders as `- **B-QFix — QFix** [Ready] — audit q findings needing user input ... ^B-QFix`. The `^B-QFix` block-ID lets [[audit-q-fix]] target the row uniquely.
+   Renders as `- **B-QFix — QFix** [Ready] — audit q findings ... ^B-QFix`. The `^B-QFix` block-ID lets `/triage` and [[audit-q-fix]] target the row uniquely.
 
-   Append unresolved findings as sub-bullets below the row via direct `Edit` (sub-bullet content is within-row, not a row-level mutation). The user (or `/audit q-fix`) picks it up later.
+   Append each unresolved finding as a sub-bullet below the row via direct `Edit` (sub-bullet content is within-row, not a row-level mutation). Format per finding: `  - **C<N>** {file}:{line} — {short description from the audit output}`. **Cross-anchor findings (audit-q is vault-wide) catalog as sub-bullets too, but only for cwd anchor's `QFix` row** — each anchor's `QFix` carries only its own anchor's findings; cross-anchor findings live on the owning anchor's `QFix`. (Implementation: route findings by their `surface_file` path to the matching anchor's `QFix` row.)
+
+   **Never write agent-guessed content into a user-facing feature doc to clear a residual.** Missing `Recommendation:` bullets (C9), missing `Naturally exercised by:` rationale (C12), `[Designing]`-without-justification (C25) all need user-authored prose — stub-to-clear is worse than the residual. These go to QFix; the user (or `/audit q-fix`) supplies the real text.
 
 ## When to use
 

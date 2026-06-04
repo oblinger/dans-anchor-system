@@ -183,7 +183,27 @@ Print a summary table:
 
 Every `backlog-edit.py` invocation in § 2a / § 3 automatically regenerates the anchor's per-anchor section in `~/ob/kmr/Q.md` (by shelling out to `audit-q.py --scope backlog --anchor {NAME} --fix`). The backlog file is NOT reordered — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior.
 
-The audit's fix-by-default behavior catches any drift introduced — broken links, stale brackets, banner mismatches, stale `[Done]` rows — and either repairs them mechanically OR (rare) files a `QFix [Ready]` backlog entry. **Surfacing any QFix entry is part of this skill's "done" criteria** — read the `backlog-edit.py` output for QFix lines and surface them to the user.
+The audit's fix-by-default behavior catches any drift introduced — broken links, stale brackets, banner mismatches, stale `[Done]` rows — and either repairs them mechanically OR (per the audit-q.md step 5 invariant, 2026-06-04) **files every non-mechanical residual as a sub-bullet on the singleton `B-QFix` row** in `{NAME} Backlog.md`. There is no "rare" gate on QFix — every residual that `--fix` didn't repair lands on the catalog.
+
+**Loop until clean** (same discipline as `/triage` § 6, landed 2026-06-04):
+
+```
+loop (max 3 iterations):
+  run `/audit q`   # auto-invoked by backlog-edit.py per § 2a / § 3
+  if residual == 0:
+    break
+  if residual unchanged from prev iteration:
+    break          # stalled — non-mechanical residue; on QFix
+  # else: loop again to catch second-order drift
+```
+
+After the loop, **before exiting**, read `{NAME} Backlog.md` for the `B-QFix` row. If present, append its sub-bullet list to chat output verbatim as *"audit-q residual — N findings outstanding (see B-QFix)."* **No silent exit when residual > 0.**
+
+### Three guards on the loop (per the 2026-06-04 design discussion)
+
+1. **Mechanical-only.** Auto-apply only what `audit-q.py --fix` handles + audit-q skill step 3's safe inline-judgment rewrites (link near-match, bracket-from-state, block-ID-on-target, stale-rename). Never write agent-guessed prose into feature docs to clear an error — C9 missing Recommendation, C12 missing rationale, C25 Designing-without-justification all need user-authored text and go to QFix.
+2. **Iteration cap = 3.** Matches `audit-q-fix.md` 3-pass cap. On cap, residual is on QFix and surfaced.
+3. **Anchor-local.** Loop iterates only on findings under the cwd anchor's tree. Cross-anchor findings catalog as `QFix` sub-bullets on their owning anchor (audit-q routes by `surface_file` path).
 
 ### 6. (Top-level only) Hand off to `/triage`
 

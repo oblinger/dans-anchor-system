@@ -305,7 +305,34 @@ The script's stdout is a single line like `triage-section: SKA — wrote new sec
 
 **This is the only write target.** The agent does not edit Q.md directly; the script does. The prose in § 2–5 above is preserved for auditability — anyone wanting to know what the canonical Q.md section format looks like can read those sections; the script's behavior IS that spec.
 
-**Then invoke `/audit q` to verify (per F076 Q6 auto-wiring).** The audit's fix-by-default behavior catches any drift the script's regen surfaced — broken links, stale brackets, stale `[Done]` rows in horizon H2s — and either repairs them mechanically OR files a `QFix [Ready]` backlog entry the user can address later. Surfacing any QFix entry is part of this skill's "done" criteria.
+**Then invoke `/audit q` to verify (per F076 Q6 auto-wiring) — and loop until clean** (the loop-until-clean discipline, landed 2026-06-04 alongside [[F091 — Trigger discipline]] v2 anticipation):
+
+```
+loop (max 3 iterations):
+  run `/audit q`   # the audit-q skill, which always invokes the Python --fix
+  if residual == 0:
+    break                          # clean exit
+  if residual unchanged from prev iteration:
+    break                          # stalled — non-mechanical residue
+  # else: some fixes landed; loop again to catch second-order drift
+```
+
+After the loop, **before printing the banner** (§ 8), read `{NAME} Backlog.md` for the singleton `B-QFix` row. If present, append its sub-bullet list verbatim to the chat output as:
+
+```
+audit-q residual — N findings outstanding (see B-QFix on the backlog):
+  - C1 path/to/file:line — short description
+  - C9 path/to/file:line — short description
+  ...
+```
+
+**No silent exit when residual > 0.** This is the F076 + audit-q.md step 5 invariant: the only honest "clean" is residual == 0 OR every residual catalogued on `QFix`. Silent residual is the failure mode this rule names.
+
+### Three guards on the loop (per the 2026-06-04 design discussion)
+
+1. **Mechanical-only.** The loop auto-applies only what `audit-q.py --fix` handles + what audit-q skill step 3 lists as safe inline-judgment rewrites (link near-match, bracket-from-state, block-ID-on-target, stale-rename). **Never write agent-guessed prose into a feature doc to clear an error** — missing Recommendation (C9), missing rationale (C12), Designing-without-justification (C25) all need user-authored text and go to QFix.
+2. **Iteration cap = 3.** Matches `audit-q-fix.md` 3-pass cap. On cap, the residual is filed as QFix and surfaced — the loop is bounded.
+3. **Anchor-local.** `/triage`'s loop only iterates on findings whose `surface_file` is under the cwd anchor's tree. Cross-anchor findings catalog as `QFix` sub-bullets on their owning anchor — they're visible (informational at chat-exit time) but don't drive this anchor's loop.
 
 ### 7. Glance Q.md — NEVER glance the per-anchor Triage file
 

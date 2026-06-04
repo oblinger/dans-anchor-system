@@ -91,7 +91,13 @@ TRAILING_BLOCK_ID_RE = re.compile(r"\s+\^[A-Za-z][A-Za-z0-9_\-]*\s*$")
 
 # Q.md banner line for an anchor
 QMD_BANNER_RE_TEMPLATE = (
-    r"^# \[[^\]]*\]\s+\[\[" r"{name}" r"\s+ask\|" r"{name}" r"\]\]"
+    # H1 banner detection. Matches the section's H1 regardless of which target
+    # the fallback chain landed on — `[[{NAME} ask|{NAME}]]`, `[[{NAME} Triage|{NAME}]]`,
+    # `[[{NAME}|{NAME}]]`, or plain `{NAME}` (no link). The display label is
+    # always `{NAME}`; that's what we match on. Critical for the dedupe step:
+    # without this, a fresh regen at the top wouldn't recognize an older OLD
+    # header with a different link target, leaving the OLD section orphaned.
+    r"^# \[[^\]]*\]\s+(?:\[\[[^|\]]+\|" r"{name}" r"\]\]|" r"{name}" r")(?:\s|$)"
 )
 
 # ============================================================
@@ -327,8 +333,18 @@ def derive_banner(name: str, rows: list[Row], backlog_file: Path,
         tag = ""
     if not tag:
         return None
+    # Per B14: H1 link target is `{NAME} ask.md` (the bare-/ask drain page where
+    # the user actually answers questions). Fallback chain when files don't
+    # exist yet (avoids emitting a C1-failing wiki-link in Q.md):
+    #   `{NAME} ask` → `{NAME} Triage` → `{NAME}` (anchor page) → plain text
+    candidates = [f"{name} ask", f"{name} Triage", name]
+    h1_target = next((c for c in candidates if c in vault_index), None)
+    if h1_target:
+        slug_label = f"[[{h1_target}|{name}]]"
+    else:
+        slug_label = name  # plain text — anchor has no clickable target
     banner = (
-        f"# [{tag}]  [[{name} ask|{name}]]  -  "
+        f"# [{tag}]  {slug_label}  -  "
         f"Ready {ready_n}    Questions {questions_n}   |   "
         f"Now {horizon_counts['Now']}    Next {horizon_counts['Next']}    "
         f"Later {horizon_counts['Later']}    Verify {horizon_counts['Verify']}    "
@@ -397,51 +413,101 @@ def _bullet_bracket_display(bracket: str) -> str:
     return f"**[{bracket}]**"
 
 
-def _bullet_link(row: Row, name: str) -> str:
-    """Return the wiki-link form for the row's bullet."""
-    if row.arrow_link:
+def _extract_block_ids(backlog_file: Path) -> set[str]:
+    """Return the set of `^block-id` markers present in the backlog file.
+    Used by `_bullet_link` to verify a speculative `^<identifier>` link
+    actually has a target before emitting it (no script-generated dead links).
+    """
+    try:
+        text = backlog_file.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return set()
+    return set(re.findall(r"\^([A-Za-z][A-Za-z0-9_\-]*)\b", text))
+
+
+def _extract_h3_headings(backlog_file: Path) -> set[str]:
+    """Return the set of H3 heading texts present in the backlog file.
+    Used to verify `[[Backlog#<heading>]]` resolves before emitting.
+    """
+    try:
+        text = backlog_file.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return set()
+    return set(m.strip() for m in re.findall(r"^### ([^\n]+)$", text, re.MULTILINE))
+
+
+def _bullet_link(row: Row, name: str, vault_index: dict,
+                 block_ids: set[str], h3_headings: set[str]) -> str:
+    """Return the wiki-link form for the row's bullet.
+
+    **Resolve-before-emit (2026-06-04 design fix):** every emitted link MUST
+    have a verified target. The fallback chain is:
+      1. row.arrow_link (the `→ [[X]]` link in the row) — verify the basename
+         resolves in vault_index; on miss fall through.
+      2. F-row title basename — verify `[[title]]` resolves in vault_index;
+         on miss fall through.
+      3. Backlog block-id `[[NAME Backlog#^id]]` — verify `^id` is in
+         block_ids; on miss fall through.
+      4. H3 heading link (for H3 rows) — verify the heading is in h3_headings.
+      5. Plain text (just the identifier, no `[[ ]]` brackets) — last resort
+         when nothing resolves. Better a non-link than a dead link.
+    """
+    # Step 1: arrow_link if it resolves.
+    if row.arrow_link and row.arrow_link in vault_index:
         return f"[[{row.arrow_link}]]"
-    # H3 rows: link to the H3 heading in the backlog (always resolves).
+    # Step 2 (H3 rows): heading link if heading exists.
     if row.is_h3:
         m = re.match(r"^### ([^[]+?)(?:\s*\[[^\]]+\])?\s*$", row.raw_line)
         if m:
             heading = m.group(1).strip()
-            return f"[[{name} Backlog#{heading}|{row.identifier}]]"
-        return f"[[{name} Backlog#^{row.identifier}|{row.identifier}]]"
-    # Bullet F-row: link by full title (basename match to feature doc).
+            if heading in h3_headings:
+                return f"[[{name} Backlog#{heading}|{row.identifier}]]"
+        if row.identifier in block_ids:
+            return f"[[{name} Backlog#^{row.identifier}|{row.identifier}]]"
+        return row.identifier  # plain text fallback
+    # Step 2 (F-row): try title-as-basename if it resolves.
     if row.identifier.startswith("F") and row.identifier[1:].isdigit():
         m = re.match(r"^- \*\*([^*]+)\*\*", row.raw_line)
         if m:
             title = m.group(1).strip()
-            return f"[[{title}]]"
-        return f"[[{row.identifier}]]"
-    # B-row fallback: backlog block-id link.
-    return f"[[{name} Backlog#^{row.identifier}|{row.identifier}]]"
+            if title in vault_index:
+                return f"[[{title}]]"
+        # F-row title doesn't have a feature doc; fall through to block-id.
+    # Step 3: backlog block-id if `^id` exists.
+    if row.identifier in block_ids:
+        return f"[[{name} Backlog#^{row.identifier}|{row.identifier}]]"
+    # Step 5: plain text — better than a dead link.
+    return row.identifier
 
 
-def _render_bullet(row: Row, name: str) -> str:
+def _render_bullet(row: Row, name: str, vault_index: dict,
+                   block_ids: set[str], h3_headings: set[str]) -> str:
     bracket = _bullet_bracket_display(row.bracket if row.bracket else "")
-    link = _bullet_link(row, name)
+    link = _bullet_link(row, name, vault_index, block_ids, h3_headings)
     body = _truncate_body(row.body)
     if body:
         return f"- {bracket} {link} — {body}"
     return f"- {bracket} {link}"
 
 
-def render_body(rows: list[Row], name: str) -> list[str]:
+def render_body(rows: list[Row], name: str, backlog_file: Path,
+                vault_index: dict) -> list[str]:
     """Render the body H2s + bullets. Returns a list of lines (no trailing
-    newline)."""
+    newline). Resolves every emitted link against vault_index + the backlog's
+    actual block-ids + H3 headings — no dead links emitted."""
     out: list[str] = []
     eligible = [r for r in rows if _row_should_render(r)]
     by_horizon: dict[str, list[Row]] = {}
     for r in eligible:
         by_horizon.setdefault(r.horizon, []).append(r)
+    block_ids = _extract_block_ids(backlog_file)
+    h3_headings = _extract_h3_headings(backlog_file)
     for h in BODY_HORIZON_ORDER:
         if h not in by_horizon:
             continue
         out.append(f"## {h}")
         for r in by_horizon[h]:
-            out.append(_render_bullet(r, name))
+            out.append(_render_bullet(r, name, vault_index, block_ids, h3_headings))
     return out
 
 
@@ -496,13 +562,24 @@ def rewrite_qmd_section(name: str, section_lines: list[str]) -> str:
         sys.stderr.write(f"triage-section: error reading Q.md: {e}\n")
         sys.exit(2)
     q_lines = text.splitlines()
-    bounds = find_section_bounds(q_lines, name)
     summary_parts: list[str] = []
-    if bounds is not None:
+    # Dedupe ALL existing sections for this anchor — not just the first match.
+    # Duplicates can exist when the H1 banner template changed (e.g., the
+    # fallback chain landed on different targets in past runs), leaving older
+    # forms that the prior single-match dedupe missed. Loop until stable.
+    removed = 0
+    while True:
+        bounds = find_section_bounds(q_lines, name)
+        if bounds is None:
+            break
         start, end = bounds
-        # Remove existing section + a single trailing blank line if present
         del q_lines[start:end]
-        summary_parts.append("removed existing")
+        removed += 1
+    if removed > 0:
+        summary_parts.append(
+            "removed existing" if removed == 1
+            else f"removed {removed} existing"
+        )
     if section_lines:
         insertion = find_insertion_point(q_lines)
         # Ensure a blank line separating the new section from what follows
@@ -556,7 +633,7 @@ def main() -> int:
     banner = derive_banner(name, rows, backlog_file, vault_index)
 
     # Render body
-    body = render_body(rows, name)
+    body = render_body(rows, name, backlog_file, vault_index)
 
     # Compose section
     if banner is None and not body:
