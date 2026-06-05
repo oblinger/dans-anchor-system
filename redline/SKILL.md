@@ -103,9 +103,7 @@ Pre-condition: a session is active.
 
 ### `/redline writeback` — round-trip to source
 
-Pre-condition: a session is active and has at least one accepted version (`## Version 1` or higher).
-
-⚠️ **Writeback uses the latest accepted version, NOT `## Current`.** If Current has pending changes that have not been accepted, those pending changes are NOT written back. Tell the user explicitly if Current has uncommitted pending changes; offer to `redline accept` first.
+Pre-condition: a session is active. **No accept-first requirement** — writeback uses `## Current`'s text directly, regardless of how recently `accept` was invoked.
 
 1. **Read the source file fresh** at the path from `## Provenance` (the `source_path::` dataview field or the prose mention).
 2. **Locate the originally-extracted region** by content reasoning:
@@ -113,9 +111,11 @@ Pre-condition: a session is active and has at least one accepted version (`## Ve
    - Cross-check with `## Version 0` from the .md — that's what the section's body looked like at extraction time. The source may have drifted; compare what's in the source today against V0 to confirm you're looking at the same region.
    - If the section header has moved or been renamed, search by content (grep for distinctive phrases from V0) and locate the region in the current source.
    - If the source has changed substantially in the target region (someone edited the section since extraction), surface this to the user before writing — ask whether to writeback anyway or abort.
-3. **Replace that region** in the source with `## Version N`'s text (the latest accepted version).
+3. **Replace that region** in the source with `## Current`'s text.
 4. **Report what changed in the source** — show the diff: what was there before vs what's there now.
 5. **Implicitly close the session.** Writeback is the success hard-end: redline-context ends, subsequent messages are no longer treated as edits to this session. The session files stay in `~/ob/kmr/Log/REDLINE/` as historical record. If the user wants to polish further later, `redline show <title>` reopens the session.
+
+**Why Current, not latest-accepted-version?** Writeback is itself a deliberate, collision-free verb (the user doesn't say "redline writeback" by accident — Q5). Adding an accept-before-writeback gate would be redundant ceremony. Accept's role narrows to marking milestones in the version stack for review and history navigation; it is not a writeback gate. The rare case where the user wants to writeback an earlier milestone instead of Current is handled by manually reverting Current to that version's text before writeback.
 
 ### `/redline close` — explicit close without writeback
 
@@ -260,7 +260,7 @@ Never glance the .md without the .html — they're a pair; the user needs to see
 ## Anti-patterns
 
 - **Don't auto-accept.** `redline accept` is the user's verb. The agent never advances the version number on its own.
-- **Don't writeback Current.** `writeback` uses the latest accepted version. If Current has pending changes, tell the user; offer `accept` first.
+- **Don't accept just before writeback.** Accept is not a prerequisite for writeback — writeback uses Current's text directly. Adding an automatic accept on every writeback would create empty milestones in the version stack.
 - **Don't write a `## Changes for Version 0` H2.** V0 is the extracted original; there's nothing before it.
 - **Don't reorder accepted versions.** Once `## Version N` and `## Changes for Version N` are written, they're immutable. Insertion is always at the top of the stack (above the current top of accepted versions).
 - **Don't track who-edited-what** in the version history. The diff just shows V_N → Current; provenance of each change is not recorded. Symmetry between user-edits and agent-edits is intentional.
