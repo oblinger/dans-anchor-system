@@ -81,6 +81,8 @@ Per session, two paired files share a stem:
 
 ### `/redline show [<fuzzy title>]` — open an existing session
 
+Show works on **any** session — fresh, mid-polish, or already-closed (after `writeback` or `close`). Re-opening a closed session via `show` puts it back into redline-context for further polish, with the file state preserved exactly as it was at close time.
+
 1. **Resolve which session.** If no argument: the currently-active session (the one the agent has been working with) OR, if none active, the most-recently-modified `.md` file in `~/ob/kmr/Log/REDLINE/`. If `<fuzzy title>` given: list session files in `~/ob/kmr/Log/REDLINE/`, fuzzy-match the title-slug portion of the stem (case-insensitive, substring or word match), pick the best fit. If multiple match closely, ask the user to disambiguate.
 2. **Glance both files** of the chosen session.
 3. **Enter redline-context** for the chosen session.
@@ -113,13 +115,17 @@ Pre-condition: a session is active and has at least one accepted version (`## Ve
    - If the source has changed substantially in the target region (someone edited the section since extraction), surface this to the user before writing — ask whether to writeback anyway or abort.
 3. **Replace that region** in the source with `## Version N`'s text (the latest accepted version).
 4. **Report what changed in the source** — show the diff: what was there before vs what's there now.
-5. **Close the session** — redline-mode ends; the session files stay in `~/ob/kmr/Log/REDLINE/` as historical record.
+5. **Implicitly close the session.** Writeback is the success hard-end: redline-context ends, subsequent messages are no longer treated as edits to this session. The session files stay in `~/ob/kmr/Log/REDLINE/` as historical record. If the user wants to polish further later, `redline show <title>` reopens the session.
 
-### `/redline close` — explicit leave-redline-mode
+### `/redline close` — explicit close without writeback
 
-Lightweight escape for when conversational drift is ambiguous and the user wants to be unambiguous about leaving the redline-context. Does NOT delete the session files — they stay in `~/ob/kmr/Log/REDLINE/` and `redline show <title>` re-enters later. Does NOT write back to source.
+`writeback` already implies close, so `close` is only needed when stepping away from a session **without** writing back to source. Use cases: polish is paused for an extended time, polish is abandoned, or conversational drift makes redline-context ambiguous and the user wants to be unambiguous about leaving.
 
-Without `close`, abandoning a session is fine — just don't writeback. The session files sit dormant.
+Procedure:
+1. End redline-context — subsequent messages are no longer treated as edits to this session.
+2. Do nothing else — session files remain in `~/ob/kmr/Log/REDLINE/` unmodified.
+
+`show <title>` reopens later if the user wants to resume. Abandoning a session without `close` is also fine (the session files sit dormant) — `close` is for when the user wants explicit confirmation that they've left redline-mode.
 
 ## Conversational edit-mode
 
