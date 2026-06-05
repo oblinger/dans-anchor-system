@@ -189,15 +189,11 @@ The .html uses the `[[md-track-changes]]` HTML format. Template:
     ins { background-color: #dfd; color: #060; text-decoration: none; }
     .comment { background-color: #fffde7; border-left: 3px solid #ffc107; padding: 10px 14px; margin: 12px 0; font-size: 0.9em; color: #555; }
     .comment::before { content: "💬 "; }
-    .legend { background: #f5f5f5; padding: 12px 15px; border-radius: 5px; margin-bottom: 20px; font-size: 0.9em; }
     .empty-current { color: #888; font-style: italic; }
   </style>
 </head>
 <body>
 <h1>Redline — <title> (Changes)</h1>
-<div class="legend">
-  <del>Deleted</del> | <ins>Added</ins> | <span class="comment" style="display:inline; margin:0; padding:2px 8px;">Comment</span>
-</div>
 
 <h2>Changes for Current</h2>
 <!-- live diff: V_N → Current. Empty when Current equals latest accepted version. -->
