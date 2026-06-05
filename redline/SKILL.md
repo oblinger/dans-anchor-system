@@ -1,23 +1,38 @@
 ---
-description: Collaborative text-polish skill for a section of text (up to a page or two). Maintains a versioned workspace where both user and agent edit a shared `## Current` against a stack of accepted `## Version N` H2s. A paired single `.html` mirrors the .md with `## Changes for Version N` sections rendering each successive diff using the [[md-track-changes]] convention. `/redline accept` freezes Current as the next accepted version; `/redline writeback` round-trips to source.
+description: Collaborative text-polish skill — two modes. **Section mode** (F112): polish a passage (up to a page or two) extracted from a source location, with round-trip writeback. **File mode** (F114): polish a whole document in-place inside an anchor folder, with versioned dated copies + per-section diff HTMLs + no writeback.
 tools: Read, Edit, Write, Bash
 user_invocable: true
 ---
 
 # Redline — Versioned Text Polish with Track-Changes
 
-Collaborative polish of a section of text — up to a page or two — with visible, addressable pending changes and a navigable acceptance history. Spec: `[[F112 — Redline]]`. HTML diff convention: `[[md-track-changes]]`. Sibling to `[[snip]]` (rough-text-drop) and `[[md]]` (markdown utility skill).
+Collaborative polish of text with visible, addressable pending changes and a navigable acceptance history. Two modes:
+
+| Mode | Spec | What it polishes | Workspace |
+|---|---|---|---|
+| **Section** | `[[F112 — Redline]]` | A passage extracted from a source (up to a page or two) | `~/ob/kmr/Log/REDLINE/` (then writeback to source) |
+| **File** | `[[F114 — Redline file mode — versioned in-place polish of a whole document]]` | A whole document (multi-page) | The document's anchor folder (in-place; no writeback) |
+
+HTML diff convention for both: `[[md-track-changes]]`. Sibling to `[[snip]]` (rough-text-drop) and `[[md]]` (markdown utility skill).
 
 ## When to Use
 
 Invoke when the user says:
-- `/redline start <source>` / `redline start <source>` — open a polish session on the named source
-- `/redline show [<title>]` / `redline show [<title>]` — open the most-recent or named session
-- `/redline accept` / `redline accept` — freeze the current pending changes as a new accepted version
-- `/redline writeback` / `redline writeback` — apply the latest accepted version back to the source
-- `/redline close` / `redline close` — leave redline-mode without writeback
 
-**When NOT to use:** rough-text-drop / one-shot refinement → `/snip`. Full-document (multi-page) revision → out of scope for v1; sketch in F112 § Out of scope.
+**Section mode (F112):**
+- `/redline start <source>` — open a polish session on the named source passage
+- `/redline writeback` — apply the latest accepted version back to the source
+- `/redline close` — leave redline-mode without writeback
+
+**File mode (F114):**
+- `/redline file <path> [<slug>]` — open or resume a whole-document polish session in an anchor folder
+- `/redline resplit` — re-propose the section split structure
+
+**Both modes:**
+- `/redline show [<arg>]` — open the most-recent or named session
+- `/redline accept` — snapshot Current as a new accepted version
+
+**When NOT to use:** rough-text-drop / one-shot refinement → `/snip`.
 
 **Conversational invocation works the same way.** The user may type the slash form OR say the same words mid-dictation ("redline start the Vision section", "redline accept"); the agent recognizes the prefix-word `redline` as the dispatch trigger and dispatches to the named sub-command. No DMUX trigger; the agent recognizes the phrase in-context.
 
@@ -274,4 +289,135 @@ Never glance the .md without the .html — they're a pair; the user needs to see
 - If `~/ob/kmr/Log/REDLINE/` doesn't exist, create it on first session.
 - Title-slug collisions on the same date are unlikely if titles are content-bearing; if one happens, suffix with `-2` / `-3` etc. on the second / third session.
 - The session files are durable — they stay in `Log/REDLINE/` after writeback or close. They're the record of how the polish unfolded; useful for review or for going back to a prior version.
-- **For very long passages** (more than a page or two), point the user at the out-of-scope folder-based mode (F112 § Out of scope) — this skill ships single-file mode only.
+- **For whole-document polish** (multi-page paper, proposal, long memo) — switch to **file mode** below (`/redline file <path> [<slug>]`).
+
+---
+
+# File mode (F114)
+
+Whole-document polish in-place inside an anchor folder. Distinct from section mode above — different invocation, different layout, **no writeback** (the document IS the canonical artifact). Spec: `[[F114 — Redline file mode — versioned in-place polish of a whole document]]`.
+
+## When to Use (file mode)
+
+When the user wants to polish a multi-page document (a paper, a long memo, a proposal draft) inside its anchor folder. Triggers:
+
+- `/redline file <path> [<slug>]` — start or resume a file-redline session
+- `/redline accept` (when a file session is active) — snapshot Current as a new dated version + per-section HTMLs
+- `/redline resplit` — re-propose the section split structure
+- `/redline show [<slug>]` — open / re-enter a file-redline session by anchor
+
+**Mode disambiguation.** If the user says `/redline file …`, it's file mode. If they say `/redline start …`, it's section mode. For `/redline accept` and `/redline show`, look at the active session context: if a `{slug} Current.md` exists in an anchor and is the most-recently-touched session, that's the active file-mode session.
+
+## Files (file mode)
+
+Per session, files live **inside the anchor folder** named for the slug:
+
+| File | Content |
+|---|---|
+| `{slug} Current.md` | Live workspace (always-editable) |
+| `{slug} YYYY-MM-DD.md` | Original (V0) — copied from source on first invocation |
+| `{slug} YYYY-MM-DD [SUFFIX].md` | Subsequent accepted versions; same-day suffix B/C/… |
+| `{slug} YYYY-MM-DD [SUFFIX] s{N}.html` | Per-section diff HTML for that version |
+
+The **split structure** (what each `s{N}` represents) lives in the **Notes column of the anchor page's `## Version history` table**. The Notes column is the source of truth for the split. User can edit it anytime to change the split; agent reads it on every operation and regenerates affected HTMLs.
+
+## Sub-commands (file mode)
+
+### `/redline file <path> [<slug>]` — open or resume a session
+
+1. **Resolve the file path.** Natural language is fine — agent interprets a path, a tilde-prefixed path, a quoted excerpt referencing a file, or a gestural reference.
+2. **Resolve the slug.**
+   - If `<slug>` is given explicitly → use it. Slug must resolve to an existing anchor (look for a folder with `.anchor` marker whose anchor page name is `{slug}.md`). If the slug doesn't resolve, error.
+   - If no slug given → fall back to the slug of the anchor folder containing the file (walk up from the file's directory looking for `.anchor`). If the file is not in any anchor, error: "no slug given and file is not inside an anchor folder."
+3. **Detect resume vs fresh.**
+   - If `{anchor folder}/{slug} Current.md` already exists → **resume**. Glance the anchor page (which carries the version-history table) and `{slug} Current.md`. Enter redline-context for this file-mode session. Stop here.
+   - Otherwise → **fresh start.** Continue to step 4.
+4. **Copy the file into the anchor folder** as `{slug} <today's date>.md` (today's date = current local date in `YYYY-MM-DD` format, e.g., `2026-06-05`). If a file with that exact name already exists, append a same-day suffix (`B`, `C`, …). This is V0.
+5. **Propose a section split (auto-apply, no confirmation).** Read the file. Identify H2 (and optionally H3) heading structure. Choose a split:
+   - If H2 headings exist and sections are reasonably sized (half-page to 2 pages each) → use H2 boundaries.
+   - If some H2 sections are too short → merge adjacent ones inline. Name the merged section with a hyphen-joined name (`s5: Parametric Generation through Realism`).
+   - If no H2 headings or some sections too long → inject HTML-comment markers (`<!-- S1 -->`, `<!-- S2 -->`, …) at natural paragraph boundaries. Target ~1-page sections. Agent-generates descriptive section names.
+6. **Create `{slug} Current.md`** in the same folder, identical content to V0 (including any HTML-comment markers added in step 5).
+7. **Update the anchor page's `## Version history` table.**
+   - If no `## Version history` H2 exists in the anchor page → create one near the bottom (after the dispatch table, before any other H2s).
+   - Insert a new row at the **top** of the version-history table (reverse-chronological order):
+     ```
+     | [[{slug} YYYY-MM-DD]] | (original) | s1: <Name 1><br>s2: <Name 2><br>… s{N}: <Name N> |
+     ```
+   - The Notes column carries the split. This is now the source of truth for what each `s{N}` represents.
+8. **Glance the anchor page + `{slug} Current.md`.** The user sees the version timeline (with the split in Notes) and the live document.
+9. **Enter redline-context for this file-mode session.**
+
+### `/redline accept` — snapshot Current as a new dated version
+
+Pre-condition: a file-mode session is active (i.e., `{slug} Current.md` exists in the active anchor).
+
+1. **Read the active session state:**
+   - Read `{slug} Current.md` (the new text being accepted).
+   - Read the latest accepted version `{slug} <prev-date>[<prev-suffix>].md` (the comparison baseline).
+   - Read the latest split from the anchor page's `## Version history` table (the Notes column of the latest row).
+2. **Pick today's version name.** Today's date in `YYYY-MM-DD` form. If a file with that exact name already exists in the folder (i.e., another accept happened today), append a same-day suffix: `B`, then `C`, etc. (E.g., `ABP 2026-06-05.md` already exists → new version is `ABP 2026-06-05 B.md`. If that also exists → `ABP 2026-06-05 C.md`.)
+3. **Write the new version file** as `{slug} <new-date-with-suffix>.md` with Current's text verbatim.
+4. **Detect the split** as described in the version-history table's Notes column. Split Current and the prior version into sections according to the latest split definition.
+5. **Generate per-section diff HTMLs** named `{slug} <new-date-with-suffix> s1.html`, `s2.html`, etc. Each HTML uses the `[[md-track-changes]]` convention (`<del>`/`<ins>`/`.comment` markup) showing the diff between the prior version's section N and the new version's section N. **Sections with no changes still get an empty-diff HTML** — the file exists so the version-history table's row is complete; opening it confirms "no changes here, scanned."
+6. **Update the anchor page's `## Version history` table.** Insert a new row at the top:
+   ```
+   | [[{slug} <new-date-with-suffix>]] | [[{slug} <new-date> s1.html\|s1]] [[… s2.html\|s2]] … [[… s{N}.html\|s{N}]] | (Notes column inherits from prior row unless split changed) |
+   ```
+7. **Leave `{slug} Current.md` unchanged.** It already equals the new accepted version (Current's text was just snapshotted).
+8. **Glance the anchor page** so the user sees the new row + section HTML links.
+
+### Split mutation — when the user edits the Notes column
+
+The split is **mutable state** in the Notes column of the version-history table. The user can edit Notes any time to change the split structure (rename a section, merge two, split one, renumber, etc.).
+
+**Agent detects on next interaction:**
+
+1. On every file-mode interaction (edit Current, `/redline accept`, `/redline show`, etc.), the agent reads the Notes column of the **latest accepted version's row** + the Notes column of the row currently being computed against (if doing a diff).
+2. If the Notes content differs from what the agent last applied (track via a small `.redline-state.json` file in the anchor folder, OR by computing a hash of the Notes content and storing it next to the version row → simpler: just re-read the Notes every time and recompute), regenerate the affected section HTMLs.
+3. **Propagation rule:** when the Notes column changes for the *latest accepted version's row*, also update the row below it (the prior version) — wait, no. The split applies to a *pair*: latest-accepted vs Current. Both sides need the same split definition for the diff math to be meaningful. So the propagation is: latest-accepted's row Notes is the split for everything from-then-onward. Edit there propagates to Current's split too (Current doesn't have a row of its own; it inherits the latest accepted's split).
+4. **Historical versions stay immutable.** Their Notes columns and section HTMLs reflect the split they used at their accept time. Only the **latest** baseline-vs-Current pair regenerates on edit.
+
+### `/redline resplit` — agent re-proposes the split
+
+User invokes when they want a fresh agent proposal (rather than hand-editing the Notes column). Procedure:
+
+1. Read `{slug} Current.md`.
+2. Re-run the split-choice heuristic from `/redline file` step 5.
+3. Write the new split into the Notes column of the latest version's row in the version-history table.
+4. Regenerate the section HTMLs for the latest accepted version (using the new split, against the prior version).
+5. Glance the anchor page so the user sees the updated split.
+
+### `/redline show [<slug>]` — re-enter a file-mode session
+
+1. **Resolve the slug.** Explicit arg → use it. No arg → use the most-recently-modified `{slug} Current.md` across all anchors.
+2. **Glance the anchor page** (which carries the version-history table) and `{slug} Current.md`.
+3. **Enter redline-context** for this file-mode session.
+
+## Conversational edit-mode (file mode)
+
+Same three-bucket classification as section mode (edit directive / edit suggestion / off-topic). The only differences:
+
+- **Edit target is `{slug} Current.md`** (the file in the anchor folder), not a `## Current` H2 in a workspace file.
+- **Glance target on every edit is `{slug} Current.md` + the anchor page** (so the user sees what changed in Current + the version-history table).
+- **No writeback** — `accept` is the only persistence verb; there's no round-trip to a source file.
+
+## Anti-patterns (file mode)
+
+In addition to the section-mode anti-patterns above:
+
+- **Don't writeback.** File mode has no `writeback` — the document IS the canonical artifact. If the user says "writeback," gently correct: "File-mode sessions don't writeback; the file is already in its final location. Did you mean `accept`?"
+- **Don't auto-accept on file edit.** Same rule as section mode — accept is the user's verb.
+- **Don't regenerate historical versions' HTMLs.** Once a version's `s{N}.html` files are written, they're immutable. Only the latest-baseline-vs-Current pair regenerates on split mutation.
+- **Don't lose the split.** The Notes column of the version-history table is the source of truth for the split. Never overwrite it without preserving content; never delete a row's Notes column accidentally.
+- **Don't use `.anchor` to determine the active session.** The active session is determined by which `{slug} Current.md` is most-recently-touched. `.anchor` just marks the folder as an anchor; it has no session-state semantics.
+- **Don't break the slug-prefix invariant.** Every file the skill creates is named `{slug} …`. If the slug is `ABP`, files are `ABP 2026-06-05.md`, `ABP Current.md`, `ABP 2026-06-05 s1.html`, etc. Never `Alien Biology Paper.md` or other variants.
+
+## Notes (file mode)
+
+- The session "active" state is implicit: it's whichever `{slug} Current.md` is most-recently-edited across all anchors. No global state file.
+- Same-day version naming: first accept of the day → `{slug} YYYY-MM-DD.md` (no suffix); second → `{slug} YYYY-MM-DD B.md`; third → `{slug} YYYY-MM-DD C.md`; etc. Reverse-chronological in the version-history table.
+- The `Current` file name is `{slug} Current.md` (capitalized `Current`).
+- ✓ checkmarks the user may add to section links in the version-history table are **user-maintained, skill-ignored**. They're a personal tracking convenience.
+- If the anchor doesn't have a `## Version history` H2 in its page yet, `/redline file` creates one on first invocation.
+- For non-markdown file types (HTML, PDF, DOC, plaintext) — **out of scope for v1**. File mode is markdown-only initially.
