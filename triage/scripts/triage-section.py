@@ -46,14 +46,12 @@ LinkEntry = audit_q.LinkEntry
 BacklogEntry = audit_q.BacklogEntry
 LIVE_HORIZON_H2S = audit_q.LIVE_HORIZON_H2S
 ACTIVE_HORIZONS_BANNER = {"Active", "Ready", "Now", "Next", "Legwork"}
-# Horizons whose `[Questions]` rows count toward the banner's `Questions` total.
-# Must match the body's `LATER_RENDERED_BRACKETS_PREFIX`-respecting set:
-# `[Questions]` rows render under any of these in the body, so the banner
-# must count them too — otherwise banner-vs-body disagree (the 2026-06-04
-# MUX bug).
-BODY_RENDERED_HORIZONS_FOR_QUESTIONS = {
-    "Active", "Ready", "Now", "Next", "Later", "Legwork"
-}
+# Banner `Questions` total counts `[Questions]` rows ONLY in active horizons
+# (matches ACTIVE_HORIZONS_BANNER above) — `## Later` is deferred by user
+# intent and shouldn't pull weight in the headline number. Per user direction
+# 2026-06-04 (final): Later [Questions] are visible in the body (rendered
+# under ## Later for context) but invisible to the banner count.
+BODY_RENDERED_HORIZONS_FOR_QUESTIONS = ACTIVE_HORIZONS_BANNER
 
 # ============================================================
 # Configuration
