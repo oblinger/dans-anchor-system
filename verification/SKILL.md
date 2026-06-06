@@ -6,7 +6,16 @@ user_invocable: false
 
 # Verification Discipline
 
-The single source of truth for **how a feature gets verified**, and the **preference ordering** that governs which mechanism the agent should choose at any given lifecycle moment.
+Verification is *the four-tier preference ordering an agent uses to choose how a feature gets verified — from agent-immediate (best) to user-explicit (last resort).* The single load-bearing rule: pick the highest applicable tier; never escalate to a higher one when a lower one would work. What distinguishes a tier from a feeling:
+
+- **Tier 1 — agent-immediate** — agent runs a check in the same turn the work completes. Runnable command, deterministic observation.
+- **Tier 2 — agent-over-time** — agent owns the deferred check (soak test, recurrence watchdog, scheduled re-run). User not involved.
+- **Tier 3 — user-passive** — user notices in normal use; signal is obvious if it breaks. Agent may ask once after a week.
+- **Tier 4 — user-explicit** — user performs a specific concrete test action they would not otherwise do. Least preferred.
+- **Blocking-action escape hatch** — if a concrete next action is strictly gated on verification (filled `Blocks next:` line), tier 1 or 2 is required.
+- **Declared up front** — the tier is named in the feature doc's `## Success Criteria` H2 at creation time, not chosen on the fly at verification time.
+
+This is a discipline, not a user-invocable skill — `/feature` cites it at creation time; `/triage`, `/crank`, and `/groom` cite it at verification time.
 
 ## Why this exists
 

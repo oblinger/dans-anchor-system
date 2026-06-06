@@ -6,9 +6,15 @@ user_invocable: false
 
 # Progressive Disclosure Discipline
 
-This is a **discipline**, not a user-invocable skill. Other CAB facets and skills cite it.
+Progressive disclosure is *layered information presentation — each layer delivers as much as a reader at that depth needs, no more.* The discipline names the layers, the elements at each layer, and the order in which they appear. What distinguishes a conformant doc from an ad-hoc one:
 
-Information in the vault should be **layered for progressive disclosure** — readers dip in only as deep as they need. The reliability gain comes from the skill-loading mechanic: when a parent facet or skill cites `[[progressive-disclosure]]`, Claude Code loads this discipline into context before the parent runs. The parent then writes per these rules automatically.
+- **Preface zone** — H1 → dispatch table → TLDR → figure → first body H2. No preamble.
+- **Three levels** — project anchor page → folder/subsystem anchor page → within-doc dispatch. Two clicks from root to any leaf.
+- **Five named dispatch patterns** — Grouped / List / Compact (anchor-folder); Linear / Matrix (within-doc). Size rule: >15 entries → Grouped.
+- **Content first, meta last** — the first contentful sentence delivers the subject, not the document. "This document specifies..." goes in a tail `## Scope` section, or gets deleted.
+- **Per-facet preface requirements** — TLDR required on Features only (PRDs explicitly excluded); figure required on Architecture + UX.
+
+This is a discipline, not a user-invocable skill — other CAB facets and skills cite it via `[[progressive-disclosure]]` and Claude Code loads it into context before they run.
 
 
 ## Why this exists — the problem it solves

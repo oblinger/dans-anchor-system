@@ -6,11 +6,15 @@ user_invocable: false
 
 # ask-format
 
-This is a **discipline**, not a user-invocable skill. Other skills cite it.
+ask-format is *the layout discipline for any user-actionable surface an agent writes — pending Questions, Verifications, à la carte items, and the resolution / acceptance phrases that close them.* What distinguishes a conformant surface from an ad-hoc one:
 
-The format for **anything an agent writes that needs the user to act** — pending Questions, Verifications, à la carte items, resolution-acceptance phrases. Captures both the layout (what each item looks like) and the navigation invariant (the user must be able to click directly to the item from anywhere it's referenced).
+- **Block-IDs** — every Q and Verify carries a `^F<n>-Q<m>` or `^F<n>-V<m>` block-ID so it is link-targetable from anywhere in the vault.
+- **Labeled alternatives** — every Q has `(A)` / `(B)` / `(C)` options on their own sub-bullets; no inline `"X or Y"` shorthand.
+- **Recommendation strength** — every Q ends with `**Recommendation:** Strong / Lean / None — <reason>`. Strong means decide; None means user-only.
+- **Numbered Q-headers** — Q1, Q2, … per-doc monotonic; persist forever (never recycled).
+- **Standard acceptance phrasing** — answers in the form `F<n> Q<m>: yes` / `verified F<n>` so the receiving skill can mechanically map shorthand → action.
 
-The reliability gain comes from the skill-loading mechanic: when a parent skill cites `[[ask-format]]`, Claude Code loads this discipline into context before the parent runs. The parent then writes per these rules automatically.
+This is a discipline, not a user-invocable skill — other skills cite it via `[[ask-format]]` and Claude Code loads it into context before they run.
 
 
 ## Who cites this discipline
