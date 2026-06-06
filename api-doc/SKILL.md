@@ -31,6 +31,22 @@ Feature spec: `[[F119 — api-doc skill + audit-api-doc.py — author audit iter
 - Module-level prose updates that aren't API-doc-shaped (use direct edit).
 - Architecture-level synthesis (use `/architect`).
 - README / user-facing prose (different audience).
+- **Generated code** — auto-generated bindings, protobuf stubs, OpenAPI-generated clients. Document the generator's contract instead, not the output.
+- **Vendor-bundled libraries** in the repo for build convenience (third_party/, vendor/). The vendor owns the API doc.
+- **Single throwaway scripts** — one-shot migrations, dev-loop helpers under 50 LOC with no public surface. Inline comments are sufficient.
+- **Internal-only helpers** with no public API (every symbol is `_underscore`-prefixed or `private`/`internal` keyword). Document via inline comments.
+
+
+## Pre-flight checks (before authoring)
+
+Before any authoring step, validate the environment is set up:
+
+1. **Facet readable** — `[[CAB API Doc]]` exists at `~/ob/kmr/SYS/Bespoke/Skill Agent/CAB/CAB Facets/CAB API Doc.md`. Use `ha -p "CAB API Doc"` to confirm. If missing, STOP — surface to user.
+2. **viz/excalidraw available** — `~/.claude/skills/viz/excalidraw_to_svg.py` exists. Required for figure authoring. If missing, surface to user before proceeding.
+3. **audit script available** — `~/.claude/skills/audit/scripts/audit-api-doc.py` exists. Required for the iterate loop.
+4. **Source exists and is readable** — the target source file/folder exists; not a broken symlink.
+5. **Public API present** — does the source actually expose a public surface? If everything is `_private` / file-internal, surface to user and ask whether to proceed (likely answer is no — see "When NOT to invoke" above).
+6. **Target location resolvable** — the chosen `{NAME} {ModuleName}.md` path doesn't collide with an existing doc in another anchor. If it does, ask the user before overwriting.
 
 
 ## Invocation
@@ -110,12 +126,32 @@ The script emits warnings with line numbers and rule references (C1-C26). Read t
 - **Re-run audit after fixing.** Iterate until the script reports zero warnings.
 
 ### 8. Subjective re-read
-Re-read `[[CAB API Doc]]` and visually verify the rules the mechanical script can't cover:
-- **Figure readability** — are crossings minimized? labels not running into other things? layout matches the data flow logically?
-- **Prose clarity** — does the file-overview paragraph orient a reader cold? Does each section's description prose clearly state what the section IS?
-- **Type qualifier correctness** — `class` / `enum` / `struct` / `topic` chosen per language idiom?
-- **Topic content carrying its weight** — does the topic actually express a design rule / invariant / cross-cutting concern worth elevating, or is it filler?
-- **Method body merged-bullet form** — does the bold-on-identifiers / italic-on-section-labels read naturally?
+
+Re-read `[[CAB API Doc]]` and walk through this **concrete subjective checklist**:
+
+**File-level:**
+1. **One-glance gist** — could a reader who's never seen this module understand its purpose from the H1 + overview paragraph alone? If they'd need to scroll to the SECTIONS table or read prose past sentence 3, the overview is too dense or too abstract.
+2. **Section names match section content** — does each H2 deliver what its name promises? `TaskScheduler Class` should contain only the TaskScheduler API; `Priority and starvation Topic` should focus on that single rule.
+3. **No redundancy** — the same fact shouldn't appear in the SECTIONS Role column, the class table description column, and the prose description. Each surface plays a different role; redundancy is a smell that the section split is wrong.
+
+**Figure:**
+4. **Figure tells the same story as the text** — every section in SECTIONS appears as a node in the figure (or is justified absent). Every meaningful data structure mentioned in the prose appears in the figure.
+5. **Crossings minimized** — count line crossings in the figure. One acceptable crossing for a load-bearing relationship is OK. Two or more usually means a node should be repositioned.
+6. **Labels don't overlap nodes or each other** — each arrow label has clearance. If a label collides with a box, move the label or rotate it along the arrow.
+7. **Legend earns its space** — is the legend explaining 5+ distinct categories the reader couldn't infer? If the figure only uses 2 colors, the legend can be inline in the caption.
+
+**Class tables:**
+8. **Field/method ordering matches source declaration order** — readers will hunt left-to-right by source familiarity; alphabetical ordering breaks this.
+9. **Description column carries net-new information** — `submit` having description "submit a task" is filler. The description should explain side effects, ownership transfer, threading constraints — what the signature alone doesn't tell you.
+10. **Methods divider only appears in tables that have both fields AND methods** — a fields-only or methods-only class doesn't need the divider.
+
+**Topic sections:**
+11. **Topic content actually carries its weight** — does each topic express a design rule, invariant, or cross-cutting behavior worth elevating to top-level section? If it's just a paragraph of prose, it should be inline in the relevant class's Class Method Details concept H3 instead.
+12. **Rule reference present** — when a topic anchors a project rule, the bullet list ends with `**Rule reference** — [[ProjectRules#Rn|Rn]]` pointing at the canonical rule.
+
+**Method body:**
+13. **Arg descriptions explain WHY, not just what** — `task: Callable. The function to run.` is filler. `task: Callable with no arguments. Side effects are the caller's responsibility.` says something the signature doesn't.
+14. **Returns and Raises actually exist** — if the method has a return type or declared exceptions, the corresponding bullets must be present. Missing them is silent under the mechanical script but a real defect.
 
 If any subjective check fails, fix the doc, then re-run `/audit api-doc` to confirm no mechanical regressions, then re-do the subjective check.
 
@@ -126,7 +162,8 @@ Per the facet's CRITICAL linking rule:
 
 Don't skip this — an unlinked API doc is invisible.
 
-### 10. Commit
+### 10. Commit + glance
+
 Single commit containing:
 - The `.md` API doc.
 - The `.excalidraw` source.
@@ -134,6 +171,91 @@ Single commit containing:
 - The `{NAME} Dev.md` and `{NAME} Files.md` updates.
 
 Commit message: `<NAME> {ModuleName}: API doc shipped (per F119)`.
+
+**After commit, glance the file** so the user sees the result:
+
+```bash
+open "<path to {NAME} {ModuleName}.md>"
+```
+
+Also glance the figure source if the user might want to refine it:
+
+```bash
+open -a ExcalidrawZ "<path to {NAME} {ModuleName}.excalidraw>"
+```
+
+
+## Worked example — `CAE Scheduler`
+
+Reference example showing the full flow. Source: `CAE/src/execution/scheduler.py` (hypothetical). Target API doc: `~/ob/kmr/SYS/Bespoke/Skill Agent/CAE/CAE Docs/CAE Dev/CAE Scheduler.md`.
+
+**Pre-flight:**
+```bash
+ha -p "CAB API Doc"                              # facet readable ✓
+ls ~/.claude/skills/viz/excalidraw_to_svg.py     # converter present ✓
+ls ~/.claude/skills/audit/scripts/audit-api-doc.py  # auditor present ✓
+```
+
+**Step 1-3 — Read facet, resolve location, read source:**
+- Facet: `CAB API Doc.md` loaded.
+- Location: `CAE Docs/CAE Dev/CAE Scheduler.md` (mirrors `src/execution/scheduler.py`).
+- Source: identified `TaskScheduler` (class), `TaskHandle` (class), `TaskState` (enum), `SchedulerStatus` (class), plus a `Priority and starvation` topic (the queue's aging-promotion rule, justified as a top-level section because it's a load-bearing scheduling invariant).
+
+**Step 4 — Skeleton.** Author the four section H2s + SECTIONS table + class tables. Class table headers:
+
+```markdown
+| TASK SCHEDULER CLASS | Description |
+| --- | --- |
+| **`queue`**`: PriorityQueue` | Pending tasks ordered by deadline |
+| **Methods** | |
+| **[[#^TaskScheduler-submit|submit]]**`(task: Callable, deadline: datetime) -> TaskHandle` | Enqueue a task with a deadline |
+```
+
+Note: bold-name-only fields, methods bold-wrap-link with no backticks in alias, code-tail outside link.
+
+**Step 5 — Figure.** Author `CAE Scheduler.excalidraw` with 7 nodes (Caller, TaskScheduler, PriorityQueue, Worker pool, TaskHandle, TaskState, SchedulerStatus), arrows showing the data flow (submit → enqueue → next due → on done/fail → carries; status() returns; await/cancel curve). Apply layout: Worker pool to right of TaskScheduler (clears TS→TaskHandle path), legend bottom, PriorityQueue styled as topic-governed (yellow fill). Convert:
+
+```bash
+python3 ~/.claude/skills/viz/excalidraw_to_svg.py "CAE Scheduler.excalidraw"
+# → CAE Scheduler.svg + CAE Scheduler.png
+```
+
+Embed in the markdown: `![[CAE Scheduler.svg]]` (or `![[CAE Scheduler.svg|1200]]` if Obsidian doesn't auto-scale).
+
+**Step 6 — Audit:**
+```bash
+/audit api-doc "CAE/CAE Docs/CAE Dev/CAE Scheduler.md"
+# Sample output:
+# [C22] line 39: expected 2 blank lines before H2, found 3
+#       fix: Remove 1 blank line before this H2 to match the 2-blank-line separator rule.
+# [C21] line 87: blank line after `## TaskScheduler`; spec says compact
+#       fix: Delete the blank line — heading is immediately followed by content.
+# 6 findings (5 fixable via --fix)
+```
+
+**Step 7 — Fix:**
+```bash
+/audit api-doc "CAE/CAE Docs/CAE Dev/CAE Scheduler.md" --fix
+# 5 of 6 fixed automatically; re-run to see the 1 remaining.
+```
+The remaining C30 (SVG older than excalidraw) means a manual re-convert: `python3 ~/.claude/skills/viz/excalidraw_to_svg.py "CAE Scheduler.excalidraw"`. Re-run audit: zero findings.
+
+**Step 8 — Subjective re-read.** Walk the 14-item checklist above against `CAE Scheduler.md`. The figure passes (clean layout, all sections represented), prose orients cold, method descriptions are non-trivial, the topic carries weight (anchors `[[CAE Rules#R01]]`).
+
+**Step 9 — Link in dispatch tables.** Add a row to `CAE Docs/CAE Dev/CAE Dev.md`:
+```markdown
+| [[CAE Scheduler]] | Priority queue engine + worker pool for deferred task execution |
+```
+Add the file to `CAE Docs/CAE Dev/CAE Files.md` tree at the appropriate node.
+
+**Step 10 — Commit + glance:**
+```bash
+git add "CAE Docs/CAE Dev/CAE Scheduler.md" "CAE Docs/CAE Dev/CAE Scheduler.excalidraw" "CAE Docs/CAE Dev/CAE Scheduler.svg" "CAE Docs/CAE Dev/CAE Scheduler.png" "CAE Docs/CAE Dev/CAE Dev.md" "CAE Docs/CAE Dev/CAE Files.md"
+git commit -m "CAE Scheduler: API doc shipped (per F119)"
+open "CAE Docs/CAE Dev/CAE Scheduler.md"
+```
+
+Done.
 
 
 ## Runbook — revise existing
