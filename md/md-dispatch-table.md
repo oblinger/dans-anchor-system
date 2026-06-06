@@ -32,3 +32,18 @@ The goal is a single memorable location where a user can find any link in the sy
 ## Coverage Rule
 
 A dispatch table should link to **everything** under its folder, either directly or indirectly. If a sub-item is itself a dispatch page that links to its own contents, a single link to that dispatch page is sufficient — you don't need to link to the items it dispatches to. The test: starting from the dispatch table, can a reader reach every file in the folder tree within one or two clicks?
+
+
+## Pattern selection — see `progressive-disclosure`
+
+Per the `progressive-disclosure` discipline, dispatch tables come in **five named patterns**:
+
+- **Grouped** (anchor / folder) — rows = labeled groups of related links. Use when >15 targets and strong categorical structure. Hand-authored (no separator row).
+- **List** (anchor / folder) — one row per entry, optional description column. Auto-generated via `---` (alphabetical), `+++` (with grandchildren), `^^^` (reverse-chronological); or hand-authored (no separator).
+- **Compact** (anchor / folder) — single row, comma-separated enumeration. Auto-generated via the `...` separator. Use when few targets and no per-entry description needed.
+- **Linear** (within-doc) — single column of section links (TOC-style).
+- **Matrix** (within-doc) — grid: rows × columns. Sections × aspects.
+
+**Size rule:** when the dispatch would have >15 entries, use Grouped. Below 15, choose List (description adds value) or Compact (entries are self-documenting).
+
+The how-to mechanics above (top-left cell, escape rules, separators) apply across all five patterns. Pattern choice is owned by `progressive-disclosure`.
