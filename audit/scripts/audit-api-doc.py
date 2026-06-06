@@ -303,19 +303,22 @@ def check_sections_table(lines: list[str], text: str) -> tuple[list[Finding], li
             name = m.group(2) or m.group(1)
             type_word = m.group(3).strip()
             sections_rows.append((block_id, name, type_word))
-            # C9: type word present and lowercase
-            if not type_word:
-                findings.append(Finding(
-                    "C9", i + 1,
-                    f"SECTIONS row for `{name}` missing type word (class/topic/enum/struct/etc.)",
-                    suggest=f"Append the section type after the wiki-link: `[[#^{block_id}\\|{name}]] class` (or topic / enum / struct / protocol).",
-                ))
-            elif type_word != type_word.lower():
-                findings.append(Finding(
-                    "C9", i + 1,
-                    f"SECTIONS row type word `{type_word}` should be lowercase",
-                    suggest=f"Change `{type_word}` to `{type_word.lower()}` (type word is lowercase in SECTIONS, capitalized in H2 form).",
-                ))
+            # C9: if type word present, must be lowercase. If absent, OK — section is a topic.
+            valid_types = {'class', 'enum', 'struct', 'protocol', 'interface', 'trait', 'record'}
+            if type_word:
+                if type_word != type_word.lower():
+                    findings.append(Finding(
+                        "C9", i + 1,
+                        f"SECTIONS row type word `{type_word}` should be lowercase",
+                        suggest=f"Change `{type_word}` to `{type_word.lower()}` (type word is lowercase in SECTIONS).",
+                    ))
+                elif type_word not in valid_types:
+                    findings.append(Finding(
+                        "C9", i + 1,
+                        f"SECTIONS row type word `{type_word}` not in recognized vocabulary",
+                        suggest=f"Use one of: class / enum / struct / protocol / interface / trait / record. If the section is a topic, drop the type word entirely.",
+                    ))
+            # If type_word is empty, section is a topic — no warning (per facet 2026-06-06 update)
         else:
             if line.strip().startswith('|') and '---' not in line:
                 if '[[#' not in line:
@@ -385,17 +388,12 @@ def check_overview_h2s(lines: list[str], text: str, sections_rows: list[tuple[st
         if h2_name.lower() in ('see also', 'related'):
             continue
 
-        # C11: ends with Type qualifier
+        # C11: H2 with type qualifier → code section; without → topic (no warning, both are valid)
         parts = h2_name.rsplit(' ', 1)
-        if len(parts) < 2 or parts[1] not in type_keywords:
-            findings.append(Finding(
-                "C11", i + 1,
-                f"H2 `{h2_name}` should end with a Type qualifier",
-                suggest=f"Append the type: `## {h2_name} Class` (or Enum / Topic / Struct / Protocol / Interface / Trait / Record). Type word is capitalized in H2.",
-            ))
-        else:
-            # Record the class name (without type qualifier) for C19
+        if len(parts) >= 2 and parts[1] in type_keywords:
+            # Code-typed section — record the name (without qualifier) for C19
             overview_classes.append(parts[0])
+        # else: bare name = topic. No warning per facet 2026-06-06 update — "Topic" sentinel dropped
 
         # C12: description prose with inline block-ID
         for j in range(i + 1, min(i + 5, overview_end - 1)):
@@ -654,8 +652,13 @@ def check_topic_format(lines: list[str], overview_end: int) -> list[Finding]:
                     suggest=("Add a bulleted concept-label list: `- **Concept name** — one-sentence explanation.`  "
                              "Use a table instead only when the topic has genuinely tabular structure (state-transition matrix, etc.)."),
                 ))
-            # Reset for new section
-            in_topic_section = m.group(1).endswith(' Topic')
+            # Reset for new section — a topic is any H2 that doesn't end with a code-type qualifier
+            _type_kw = {'Class', 'Enum', 'Struct', 'Protocol', 'Interface', 'Trait', 'Record'}
+            _parts = m.group(1).rsplit(' ', 1)
+            in_topic_section = not (len(_parts) >= 2 and _parts[1] in _type_kw)
+            # Skip See Also / Related — those are file-level meta, not topics
+            if m.group(1).lower() in ('see also', 'related'):
+                in_topic_section = False
             topic_h2_line = i + 1
             topic_name = m.group(1)
             has_table = False
