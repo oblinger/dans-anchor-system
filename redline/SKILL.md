@@ -362,7 +362,9 @@ Pre-condition: a file-mode session is active (i.e., `{slug} Current.md` exists i
 5. **Generate per-section diff HTMLs** named `{slug} <new-date-with-suffix> s1.html`, `s2.html`, etc. Each HTML uses the `[[md-track-changes]]` convention (`<del>`/`<ins>`/`.comment` markup) showing the diff between the prior version's section N and the new version's section N. **Sections with no changes still get an empty-diff HTML** — the file exists so the version-history table's row is complete; opening it confirms "no changes here, scanned."
 6. **Update the anchor page's `## Version history` table.** Insert a new row at the top:
    ```
-   | [[{slug} <new-date-with-suffix>]] | [[{slug} <new-date> s1.html\|s1]] [[… s2.html\|s2]] … [[… s{N}.html\|s{N}]] | (Notes column inherits from prior row unless split changed) |
+   | [[{slug} <new-date-with-suffix>]] | [[{slug} <new-date> s1.html\|s1]]? [[… s2.html\|s2]]? … [[… s{N}.html\|s{N}]]? | (Notes column inherits from prior row unless split changed) |
+
+   Each section link is followed by `?` — the "pending review" marker (see § Per-section acceptance markers).
    ```
 7. **Leave `{slug} Current.md` unchanged.** It already equals the new accepted version (Current's text was just snapshotted).
 8. **Glance the anchor page** so the user sees the new row + section HTML links.
@@ -418,6 +420,28 @@ In addition to the section-mode anti-patterns above:
 - The session "active" state is implicit: it's whichever `{slug} Current.md` is most-recently-edited across all anchors. No global state file.
 - Same-day version naming: first accept of the day → `{slug} YYYY-MM-DD.md` (no suffix); second → `{slug} YYYY-MM-DD B.md`; third → `{slug} YYYY-MM-DD C.md`; etc. Reverse-chronological in the version-history table.
 - The `Current` file name is `{slug} Current.md` (capitalized `Current`).
-- ✓ checkmarks the user may add to section links in the version-history table are **user-maintained, skill-ignored**. They're a personal tracking convenience.
+### Per-section acceptance markers (file mode)
+
+Each section markup link in the version-history table carries a one-character status marker immediately after the wiki-link close brackets:
+
+| Marker | Meaning | Who writes it |
+|---|---|---|
+| `?` | Pending review (default on accept) | Skill writes on `redline accept` |
+| `+` | Accepted (manual user-flip — easiest one-keystroke change in Obsidian) | User edits directly |
+| `✓` | Accepted (canonical agent-written) | Skill writes when user says "accept s3" or similar |
+
+**Both `+` and `✓` mean accepted** — the skill treats them as equivalent. The asymmetry of who writes which:
+- The agent never writes `+` (that's the user's manual-flip convenience).
+- The user never has to type `✓` (the agent writes that one on command).
+- The user can also manually flip `?` → `✓` if they prefer; the skill doesn't care.
+
+**Conversational marker commands:**
+- "accept s3" / "mark s3 done" → agent flips s3's marker from `?` to `✓`
+- "accept all" / "mark everything done" → agent flips every `?` in the latest version's row to `✓`
+- "reject s4" / "unaccept s4" → agent flips s4's `+` or `✓` back to `?`
+
+The markers are tracking state; flipping them doesn't change the diff or any persisted artifact, just the visible accept-state in the anchor page's table. They reset on the next `redline accept` (new version row gets fresh `?` markers across the board).
+
+### Other markers and notes
 - If the anchor doesn't have a `## Version history` H2 in its page yet, `/redline file` creates one on first invocation.
 - For non-markdown file types (HTML, PDF, DOC, plaintext) — **out of scope for v1**. File mode is markdown-only initially.
