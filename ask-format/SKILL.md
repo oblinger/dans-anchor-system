@@ -345,6 +345,21 @@ When any rule auto-resolves a Q, the decision is recorded in the relevant doc's 
 - **Flatfooted Verify** — `**Verify** — check that the panel renders.` with no "what I verified" / "specific steps" / "why human" / "expected output". Use the four-piece form.
 - **Q-numbers renumbered** — never. Stable references.
 - **Editing accepted Agent Resolutions** — accumulated until accepted; don't reshape mid-flight.
+- **Bare "A vs B" in chat / console / transient channels** — never write *"your read on A vs B"* or *"waiting on A or B"* in chat. Letter labels lose meaning across messages — the user reads chat linearly and won't have the ask doc's option text in scrollback. Restate the full question + each option's content + reference by `F<n>-Q<n>` (or equivalent identifier). The ask doc itself is governed by the rest of this discipline; this rule covers the transient-channel surface.
+
+
+## Chat & transient-channel asks — restate context inline
+
+The five-piece layout above governs **written surfaces** (ask doc, feature doc, à la carte facet). When an agent surfaces a pending question into a **transient channel** — a chat message, a console status line, a one-shot prompt — the rules tighten further:
+
+- **Full question text inline.** Restate the actual question. Don't write *"your read on F77 Q7?"* — write *"F77 Q7 — naming convention for flow-Traits: bare nouns (`Drive`/`PR`/`Commit`) vs `-Mode` suffix vs `-Flow` suffix vs mixed-by-category."*
+- **Full option content inline.** Don't write *"A vs B."* Write each option's actual text — *"(A) bare nouns / (B) -Mode suffix / (C) -Flow suffix / (D) mixed."*
+- **F<n>-Q<n> reference required.** Always cite the canonical-record location so the user can locate the durable version, but the chat itself stays self-contained.
+- **Recommendation strength inline.** *"Lean (A) — matches F090 unsuffixed names."* Not just *"recommend A."*
+
+**Why:** chat is read linearly. By the time the user sees *"waiting on A or B,"* the message that defined A and B may be 20 messages back. Bare letter references force a context-rebuild that the user reasonably refuses. Per durable user feedback (2026-06-06): *"You should never ask me waiting on A or B. Because there's no context with that... F18 Q3, A or B. That would be a well formed question to me."*
+
+The principle generalizes to **any user-actionable item in a transient channel** — verifies surfaced in console output, à la carte items printed in a status report, even multi-step confirmations across turns. If the user can't act on the chat message without scrolling back or opening another file, the message is incomplete.
 
 
 ## Cross-references
