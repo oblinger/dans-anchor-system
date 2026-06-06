@@ -44,14 +44,19 @@ sets/
 ├── Process/
 │   ├── feature-lifecycle.md      ← designing → ready → active → verify → done
 │   └── verification-tiers.md     ← citing the verification discipline
-└── Arch/
-    ├── factory-pegboard.md       ← factory pattern (per F108)
-    ├── interfaces-folder.md      ← single Interfaces/ folder
-    └── single-source-of-truth.md ← no duplicate code, use imports
+├── Arch/
+│   ├── factory-pegboard.md       ← factory pattern (per F108)
+│   ├── interfaces-folder.md      ← single Interfaces/ folder
+│   └── single-source-of-truth.md ← no duplicate code, use imports
+│
+│   # Owner-scoped sets (apply to one person's projects regardless of trait or domain)
+└── Ob/
+    └── ob.md                     ← Dan's personal cross-project decisions (markdown-valid-for-Obsidian, ...)
 ```
 
 - **Trait-scoped folders** match trait names per the [[CAB Traits]] taxonomy (post-F090: Code / Skill / Topic / Paper / Simple). Sets here apply when an anchor declares the matching trait.
 - **Cross-cutting folders** are not trait-scoped — they apply across traits when the anchor opts in. Naming is by concern (Doc / Git / Test / Process / Arch).
+- **Owner-scoped folders** are pulled in by every anchor a person owns, regardless of trait. (`Ob/` = Dan's personal set.)
 - **Set files** are kebab-case `.md` files. Multiple sets per category are expected — different sub-styles within a category have different decision needs.
 
 
@@ -106,7 +111,7 @@ Brief paragraph: what this set is, when it applies.
 
 ## State of the library
 
-**Bootstrapping** — populated as the user identifies decisions worth canonicalizing. The first set is `Code/mac-app.md` (created 2026-06-05). The catalog above lists planned sets as folder/filename placeholders; populated entries get a one-line description added.
+**Bootstrapping** — populated as the user identifies decisions worth canonicalizing. Populated entries: `Code/mac-app.md` (2026-06-05) — D-MA01 no-ad-hoc-codesigning; `Ob/ob.md` (2026-06-06) — D-OB01 markdown-valid-for-Obsidian. The catalog above lists planned sets as folder/filename placeholders; populated entries get a one-line description added.
 
 
 ## Related
