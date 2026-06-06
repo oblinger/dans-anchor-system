@@ -1,0 +1,369 @@
+#!/usr/bin/env python3
+"""
+F113 Phase 1b migration script — Phase A (discovery + validation) only.
+
+Per [[F113 Migration Script Approach]] § Phase A:
+  1. Walk the vault from VAULT_ROOT finding every folder with a `.anchor` marker.
+  2. Build the anchor inventory: {name, path, current-shape, slug-if-any}.
+  3. Validate pre-migration state.
+  4. Sanity-check Principles/Rules presence, System Design presence, Discussion presence.
+
+This script is READ-ONLY. It produces a report on stdout describing what would
+migrate. No mutations. The user reviews the report before authorizing Phase B+.
+
+Phases B-G are TBD — designed per the approach doc but not yet implemented.
+
+Usage:
+    python3 migrate-f113.py [--vault-root <path>]
+"""
+
+import argparse
+import sys
+from collections import Counter
+from dataclasses import dataclass, field
+from pathlib import Path
+
+
+# Filesystem-walk exclusions (consistent with audit-q.py).
+EXCLUDED_PATH_FRAGMENTS = (".trash", "Closet", "Yore", "worktrees", ".claude", ".git", ".history")
+
+
+@dataclass
+class AnchorInventory:
+    """Per-anchor migration inventory."""
+    name: str                        # the anchor folder's basename (== slug or full name)
+    path: Path                       # absolute path to the anchor folder
+    has_anchor_file: bool            # `.anchor` marker present
+    docs_folder: Path | None = None  # `{NAME} Docs/` if present
+    plan_folder: Path | None = None  # `{NAME} Docs/{NAME} Plan/` or `{NAME} Plan/` if present
+    track_folder: Path | None = None  # `{NAME} Docs/{NAME} Track/` or `{NAME} Track/` if present
+    design_folder: Path | None = None  # `{NAME} Docs/{NAME} Design/` or `{NAME} Design/` if present
+    user_folder: Path | None = None  # `{NAME} Docs/{NAME} User/` or `{NAME} User/` if present
+    dev_folder: Path | None = None   # `{NAME} Docs/{NAME} Dev/` or `{NAME} Dev/` if present
+    arch_location: str | None = None  # "design", "user", "anchor-root", "design-root", or None
+    arch_path: Path | None = None    # actual Architecture folder/file
+    principles_path: Path | None = None
+    rules_path: Path | None = None
+    system_design_path: Path | None = None
+    discussion_path: Path | None = None
+    log_path: Path | None = None     # informal {NAME} Log.md if present
+    ux_design_path: Path | None = None
+    warnings: list[str] = field(default_factory=list)
+
+    @property
+    def has_decisions_content(self) -> bool:
+        return bool(self.principles_path or self.rules_path)
+
+    @property
+    def is_f113_relevant(self) -> bool:
+        """Anchor has F113-relevant structure to migrate (i.e., not a personal-org leaf)."""
+        return bool(
+            self.docs_folder or self.plan_folder or self.track_folder or self.design_folder
+            or self.principles_path or self.rules_path or self.system_design_path
+            or self.discussion_path or self.ux_design_path or self.arch_path
+        )
+
+
+def find_anchors(vault_root: Path) -> list[Path]:
+    """Walk vault_root finding every folder containing `.anchor`."""
+    anchors: list[Path] = []
+    for path in vault_root.rglob(".anchor"):
+        # Skip excluded path fragments.
+        path_str = str(path)
+        if any(frag in path_str for frag in EXCLUDED_PATH_FRAGMENTS):
+            continue
+        if path.is_file():
+            anchors.append(path.parent)
+    return sorted(anchors)
+
+
+def _find_first(name: str, basename: str, parents: list[Path]) -> Path | None:
+    """Find `{name} {basename}` as file or directory under any of `parents`."""
+    for parent in parents:
+        if not parent or not parent.is_dir():
+            continue
+        for trial in (parent / f"{name} {basename}", parent / f"{name} {basename}.md"):
+            if trial.exists():
+                return trial
+    return None
+
+
+def classify_anchor(anchor_path: Path) -> AnchorInventory:
+    """Build the inventory record for one anchor.
+
+    Looks for Plan/Track/Design/User/Dev as children of either:
+      - `{name} Docs/` (legacy CAB shape), or
+      - the anchor root itself (already-partially-migrated shape, post-F094).
+
+    Looks for facet files (Principles/Rules/SystemDesign/Discussion/UXDesign) under
+    Plan, Track, Design, or User — covering all observed pre-F113 locations.
+    """
+    name = anchor_path.name
+    inv = AnchorInventory(name=name, path=anchor_path, has_anchor_file=True)
+
+    # Layer 1: optional `{name} Docs/` parent
+    docs = anchor_path / f"{name} Docs"
+    if docs.is_dir():
+        inv.docs_folder = docs
+
+    # Layer 2: sub-folders under Docs/ OR directly under anchor root.
+    # An anchor can be in any of three intermediate states:
+    #   (A) legacy: everything under Docs/
+    #   (B) F094-partial: Design/ moved out of Docs/User/, rest still under Docs/
+    #   (C) F113-post: Track/ / Design/ / User/ all at anchor root, no Docs/
+    candidates_plan = [docs, anchor_path]
+    candidates_track = [docs, anchor_path]
+    candidates_design = [docs, anchor_path]
+    candidates_user = [docs, anchor_path]
+    candidates_dev = [docs, anchor_path]
+
+    for parent in candidates_plan:
+        if parent and parent.is_dir() and (parent / f"{name} Plan").is_dir():
+            inv.plan_folder = parent / f"{name} Plan"
+            break
+    for parent in candidates_track:
+        if parent and parent.is_dir() and (parent / f"{name} Track").is_dir():
+            inv.track_folder = parent / f"{name} Track"
+            break
+    for parent in candidates_design:
+        if parent and parent.is_dir() and (parent / f"{name} Design").is_dir():
+            inv.design_folder = parent / f"{name} Design"
+            break
+    for parent in candidates_user:
+        if parent and parent.is_dir() and (parent / f"{name} User").is_dir():
+            inv.user_folder = parent / f"{name} User"
+            break
+    for parent in candidates_dev:
+        if parent and parent.is_dir() and (parent / f"{name} Dev").is_dir():
+            inv.dev_folder = parent / f"{name} Dev"
+            break
+
+    # Architecture: search under Design / User / anchor root (covers F074/F094/post-F113).
+    arch_candidates = [
+        (inv.design_folder, "design"),
+        (inv.user_folder, "user"),
+        (anchor_path, "anchor-root"),
+    ]
+    for parent, label in arch_candidates:
+        if not parent:
+            continue
+        if (parent / f"{name} Architecture").is_dir():
+            inv.arch_location = label
+            inv.arch_path = parent / f"{name} Architecture"
+            break
+        if (parent / f"{name} Architecture.md").is_file():
+            inv.arch_location = label
+            inv.arch_path = parent / f"{name} Architecture.md"
+            break
+
+    # Facet files — look under Plan, Track, Design, User (covers all observed locations).
+    facet_parents = [
+        inv.plan_folder, inv.track_folder, inv.design_folder, inv.user_folder,
+    ]
+    facet_parents = [p for p in facet_parents if p]
+
+    inv.principles_path = _find_first(name, "Principles", facet_parents)
+    inv.rules_path = _find_first(name, "Rules", facet_parents)
+    inv.system_design_path = _find_first(name, "System Design", facet_parents)
+    inv.discussion_path = _find_first(name, "Discussion", facet_parents)
+    inv.ux_design_path = _find_first(name, "UX Design", facet_parents)
+
+    # Informal {NAME} Log.md — at anchor root or under Design
+    for parent in [anchor_path, inv.design_folder]:
+        if not parent:
+            continue
+        log = parent / f"{name} Log.md"
+        if log.is_file():
+            inv.log_path = log
+            break
+
+    # Validation: warn on unusual cases.
+    if inv.docs_folder and inv.arch_location not in ("design", "user", None):
+        inv.warnings.append(
+            f"unexpected Architecture location {inv.arch_location!r}"
+        )
+    if inv.plan_folder and inv.track_folder:
+        inv.warnings.append(
+            "both Plan/ and Track/ exist — partial migration state; needs merge"
+        )
+
+    return inv
+
+
+def _rel(p: Path | None) -> str:
+    """Format a path relative to VAULT_ROOT, or return empty string if None."""
+    if p is None:
+        return ""
+    try:
+        return str(p.relative_to(VAULT_ROOT))
+    except ValueError:
+        return str(p)
+
+
+def report(inventories: list[AnchorInventory]) -> None:
+    """Print a structured report of the discovered inventory."""
+    relevant = [i for i in inventories if i.is_f113_relevant]
+    irrelevant_count = len(inventories) - len(relevant)
+
+    print("=" * 78)
+    print("F113 Phase A — Discovery Report")
+    print("=" * 78)
+    print()
+    print(f"Anchors discovered:    {len(inventories)}")
+    print(f"  F113-relevant:       {len(relevant)}")
+    print(f"  not in scope:        {irrelevant_count} (personal-org leaves with no CAB-shape content)")
+    print()
+
+    # Summary counters — over F113-relevant only.
+    have_docs = sum(1 for i in relevant if i.docs_folder)
+    have_plan = sum(1 for i in relevant if i.plan_folder)
+    have_track = sum(1 for i in relevant if i.track_folder)
+    have_design = sum(1 for i in relevant if i.design_folder)
+    have_user = sum(1 for i in relevant if i.user_folder)
+    have_dev = sum(1 for i in relevant if i.dev_folder)
+    have_arch = sum(1 for i in relevant if i.arch_path)
+    have_decisions = sum(1 for i in relevant if i.has_decisions_content)
+    have_principles = sum(1 for i in relevant if i.principles_path)
+    have_rules = sum(1 for i in relevant if i.rules_path)
+    have_system_design = sum(1 for i in relevant if i.system_design_path)
+    have_discussion = sum(1 for i in relevant if i.discussion_path)
+    have_log = sum(1 for i in relevant if i.log_path)
+    have_ux = sum(1 for i in relevant if i.ux_design_path)
+    have_warnings = sum(1 for i in relevant if i.warnings)
+
+    arch_locations = Counter(i.arch_location for i in relevant if i.arch_location)
+
+    print("Structural inventory (F113-relevant anchors only):")
+    print(f"  Docs/ parent present:                     {have_docs:>3}")
+    print(f"  Plan/ subfolder (needs rename to Track):  {have_plan:>3}")
+    print(f"  Track/ subfolder (already renamed):       {have_track:>3}")
+    print(f"  Design/ subfolder:                        {have_design:>3}")
+    print(f"  User/ subfolder:                          {have_user:>3}")
+    print(f"  Dev/ subfolder (needs folding):           {have_dev:>3}")
+    print(f"  Architecture present:                     {have_arch:>3}")
+    print(f"    by location: {dict(arch_locations)}")
+    print(f"  Principles.md present:                    {have_principles:>3}")
+    print(f"  Rules.md present:                         {have_rules:>3}")
+    print(f"  System Design.md present:                 {have_system_design:>3}")
+    print(f"  Discussion.md present:                    {have_discussion:>3}")
+    print(f"  Informal Log.md already present:          {have_log:>3}")
+    print(f"  UX Design.md present:                     {have_ux:>3}")
+    print(f"  Anchors with structural warnings:         {have_warnings:>3}")
+    print()
+
+    # Per-anchor detail — relevant only.
+    print("-" * 78)
+    print("Per-anchor inventory (alphabetical; F113-relevant only):")
+    print("-" * 78)
+    for inv in relevant:
+        marks = []
+        if inv.docs_folder: marks.append("Docs")
+        if inv.plan_folder: marks.append("Plan")
+        if inv.track_folder: marks.append("Track")
+        if inv.design_folder: marks.append("Design")
+        if inv.user_folder: marks.append("User")
+        if inv.dev_folder: marks.append("Dev")
+        if inv.arch_location:
+            marks.append(f"Arch@{inv.arch_location}")
+        if inv.principles_path: marks.append("Principles")
+        if inv.rules_path: marks.append("Rules")
+        if inv.system_design_path: marks.append("SysDesign")
+        if inv.discussion_path: marks.append("Discussion")
+        if inv.log_path: marks.append("Log")
+        if inv.ux_design_path: marks.append("UX")
+
+        marks_str = ", ".join(marks) if marks else "(empty)"
+        print(f"  {inv.name:<{NAME_W}}  {marks_str}")
+        print(f"  {'':<{NAME_W}}  → {_rel(inv.path)}")
+        for w in inv.warnings:
+            print(f"  {'':<{NAME_W}}  ⚠ {w}")
+    print()
+
+    # Migration impact summary.
+    print("-" * 78)
+    print("Migration impact summary:")
+    print("-" * 78)
+    print(f"  Anchors with Decisions content (Principles or Rules):  {have_decisions}")
+    print(f"  Anchors with System Design to fold in (needs review):  {have_system_design}")
+    print(f"  Anchors with Discussion to rename to Log:              {have_discussion}")
+    print(f"  Anchors with informal Log already at anchor-root:      {have_log}")
+    print(f"  Anchors with UX Design (rename to UX):                 {have_ux}")
+    print(f"  Anchors with Plan/ folder (rename to Track/):          {have_plan}")
+    print(f"  Anchors with Docs/ parent (remove + hoist children):   {have_docs}")
+    print(f"  Anchors with warnings (review needed):                 {have_warnings}")
+    print()
+
+    # Phase B' candidates — System Design fold-in needs user judgment per anchor.
+    sd_anchors = [i for i in relevant if i.system_design_path]
+    if sd_anchors:
+        print("-" * 78)
+        print("Phase B' — System Design fold-in candidates (per-anchor user review needed):")
+        print("-" * 78)
+        for i in sd_anchors:
+            print(f"  {i.name:<{NAME_W}}  → {_rel(i.system_design_path)}")
+        print()
+        print("  → For each, per-anchor agent will categorize content into Architecture / Log / drop.")
+        print()
+
+    # Conflict warning: informal Log.md + Discussion.md both present.
+    conflicts = [i for i in relevant if i.discussion_path and i.log_path]
+    if conflicts:
+        print("-" * 78)
+        print("Discussion + Log conflict (both files exist; will need merge):")
+        print("-" * 78)
+        for i in conflicts:
+            print(f"  {i.name}")
+            print(f"    Discussion: {_rel(i.discussion_path)}")
+            print(f"    Log:        {_rel(i.log_path)}")
+        print()
+
+    print("=" * 78)
+    print(f"END Phase A discovery. {len(relevant)} F113-relevant anchors classified, "
+          f"{have_warnings} with warnings.")
+    print("=" * 78)
+
+
+# Constants set after arg-parse.
+VAULT_ROOT: Path
+NAME_W: int = 30  # width for the anchor-name column in the report
+
+
+def main() -> int:
+    global VAULT_ROOT, NAME_W
+
+    parser = argparse.ArgumentParser(
+        description="F113 Phase A — vault-wide migration discovery (READ-ONLY)."
+    )
+    parser.add_argument(
+        "--vault-root",
+        type=Path,
+        default=Path.home() / "ob" / "kmr",
+        help="Vault root (default: ~/ob/kmr)",
+    )
+    args = parser.parse_args()
+
+    VAULT_ROOT = args.vault_root.resolve()
+    if not VAULT_ROOT.is_dir():
+        print(f"error: vault root {VAULT_ROOT} is not a directory", file=sys.stderr)
+        return 2
+
+    print(f"Walking vault: {VAULT_ROOT}", file=sys.stderr)
+    anchor_paths = find_anchors(VAULT_ROOT)
+    print(f"  found {len(anchor_paths)} anchors", file=sys.stderr)
+
+    if not anchor_paths:
+        print("error: no anchors found (expected `.anchor` marker files)", file=sys.stderr)
+        return 1
+
+    # Adjust name-column width to longest anchor name.
+    NAME_W = max(NAME_W, max(len(p.name) for p in anchor_paths) + 2)
+
+    print(f"Classifying anchors...", file=sys.stderr)
+    inventories = [classify_anchor(p) for p in anchor_paths]
+
+    report(inventories)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
