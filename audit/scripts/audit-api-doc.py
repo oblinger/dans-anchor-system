@@ -403,14 +403,24 @@ def check_overview_h2s(lines: list[str], text: str, sections_rows: list[tuple[st
             if nl.strip() == '':
                 continue
             if nl.startswith('#') or nl.lstrip().startswith('|'):
+                _type_kw = {'Class', 'Enum', 'Struct', 'Topic', 'Protocol', 'Interface', 'Trait', 'Record'}
+                _parts = h2_name.split()
+                if _parts and _parts[-1] in _type_kw:
+                    _parts = _parts[:-1]
+                _bid = ''.join(w[0].upper() + w[1:] if w else '' for w in _parts) if _parts else 'Section'
                 findings.append(Finding(
                     "C12", i + 1,
                     f"H2 `{h2_name}` not followed by description prose",
-                    suggest=f"Add a 1-3 sentence description immediately after the H2 (no blank line), ending with `^{h2_name.split()[0]}` block-ID inline.",
+                    suggest=f"Add a 1-3 sentence description immediately after the H2 (no blank line), ending with `^{_bid}` block-ID inline.",
                 ))
                 break
             if '^' not in nl:
-                expected_bid = h2_name.split()[0]
+                # Strip the type qualifier (Class/Enum/etc.) and PascalCase the remaining words
+                _type_kw = {'Class', 'Enum', 'Struct', 'Topic', 'Protocol', 'Interface', 'Trait', 'Record'}
+                _parts = h2_name.split()
+                if _parts and _parts[-1] in _type_kw:
+                    _parts = _parts[:-1]
+                expected_bid = ''.join(w[0].upper() + w[1:] if w else '' for w in _parts) if _parts else 'Section'
                 findings.append(Finding(
                     "C12", j + 1,
                     f"H2 `{h2_name}` description missing inline block-ID at end",
