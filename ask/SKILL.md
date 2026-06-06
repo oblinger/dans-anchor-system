@@ -6,6 +6,8 @@ user_invocable: true
 
 # /Ask — Universal Asking Skill
 
+> **Consult [[technical-answer]] before responding to any user question about how a technical interface, API, signature, library, config, CLI, or wire format works.** `/ask` owns the asking side (formatting agent questions to the user); `[[technical-answer]]` owns the answering side (responding to user questions about technical interfaces). When the user is asking a tech-interface question — even if `/ask` isn't explicitly invoked — apply that discipline's rules. The pair: ask-format for asking; technical-answer for answering.
+
 `/ask` has **two modes**, distinguished by whether arguments are present.
 
 | Mode | Invocation | What it does |
