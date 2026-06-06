@@ -62,6 +62,48 @@ The zone above a document's body, in canonical order:
 **Author rule:** include each preface element only when it adds value. Short single-purpose docs may have none of them — H1 title and `description:` frontmatter alone are sufficient. Whether each element is *required* on a given doc type is set by that facet's spec; see § Per-facet preface requirements.
 
 
+## Content first. Meta last, or never.
+
+The single rule that catches most preface-zone failures:
+
+> **The first contentful sentence delivers the subject, not the document.**
+
+The reader's first glance must land on **what the subject is**, not on the fact that a document exists about it.
+
+### Five tests
+
+1. **First-sentence test** — read aloud. Does it teach you something specific about the subject? Ship it. Does it tell you the document exists / is normative / specifies fields / contains sections? Rewrite.
+2. **"This document..." veto** — `This document`, `This page`, `This section`, `Here we describe`, `The following sets out`, `This is the spec for` are all meta. None belong in the preface zone. They go in a tail `## Scope` or `## About` section, or get deleted entirely.
+3. **Italicize the canonical phrasing of the definition.** The first definitional sentence is the load-bearing one — italic the phrase that carries the definition so the reader's eye knows where to land. Example: `An anchor is a *named logical collection of items and content that can be referenced as a whole.*`
+4. **Right after the definition: 3-5 short bullets naming the distinguishing properties.** Each bullet is one info-packed line, optionally linking to a deep section. This pattern (definition → key-fields list) is progressive disclosure at the H1 level — content first, structure right behind.
+5. **Dense ≠ long.** A 30-word info-packed sentence beats a 200-word meta-prose paragraph. The TLDR is allowed to be short.
+
+### Canonical good example
+
+See `prj/ClaudiMux/Skill Docket App/Docket/DKT Docs/DKT User/DKT Standard/Anchor.md` — the opening (H1 → italicized definition → 4-bullet distinguishing-properties list → § Standard fields) is the reference exemplar for this discipline. § Scope and § Informative references at the bottom of that doc show where meta-prose belongs when it's needed at all.
+
+### Bad vs good — same H1, same topic
+
+❌ Bad (meta as preface — what agents kept producing):
+
+> # Anchor
+>
+> This document is the normative standard for anchors in the Docket system. It specifies what an anchor is, the standard fields that may appear in an anchor declaration, the five-position scan the crate performs to discover anchor declarations, the resolution algorithm that disambiguates them, the warnings catalog, and the DAG that connects anchors. Below we describe each in turn.
+
+✅ Good (content as preface — what landed in Anchor.md):
+
+> # Anchor
+>
+> An anchor is a *named logical collection of items and content that can be referenced as a whole.* Every anchor is backed by a filesystem folder. What distinguishes an anchor from an ordinary folder:
+>
+> - **Slug** — a short canonical identifier (`DKT`, `MUX`, `HA`), globally unique within the item store.
+> - **Declaration** — one of five forms (§ Declaration) naming the slug and optionally other fields. An empty `.anchor` file is enough.
+> - **Standard fields** — slug, title, description, traits, docket declarations, parents, children, code path, root flag. All optional except slug.
+> - **Position in the anchor DAG** — anchors have parents and children; the default DAG follows the filesystem and can be overridden per anchor.
+
+The bad version takes 80 words to say nothing about anchors. The good version takes ~75 words to deliver one definition + four distinguishing properties + four tooltip-deep links. Both occupy the same vertical screen real estate. Only one is content.
+
+
 ## Dispatch-table patterns
 
 **Five named patterns — three at anchor / folder level + two within-document:**
@@ -213,3 +255,4 @@ When a doc carries an organizing figure (system diagram, architecture sketch, fl
 - **A figure as preface decoration.** The preface-zone figure must be *organizing* — shows the doc's structure. Inline illustrative figures live in the body.
 - **Prose between H1 and first body H2.** The preface zone is dispatch / TLDR / figure (in that order). Nothing else fits there. No "this document covers …" lead-in paragraph; the TLDR is that lead-in if needed.
 - **Body content masquerading as preface.** The dispatch table is navigational; the TLDR is summarizing; the figure is organizing. None of them contain new information that isn't elsewhere in the doc.
+- **Meta-prose at the top.** "`This document is the normative standard for...`" / "`This page specifies...`" / "`The following describes...`". Deferral disguised as introduction. Goes to a tail `## Scope` or `## About` section, or gets deleted. See § Content first. Meta last, or never.
