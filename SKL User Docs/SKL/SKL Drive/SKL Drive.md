@@ -8,7 +8,7 @@ User guides for the engine-room verbs that drive work forward through the lifecy
 | -[[SKL Drive]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [SKL Drive](hook://p/SKL%20Drive)<br>: User guides for the engine-room verbs that drive work forward through the lifecycle — from inbox to backlog, backlog to active, active to verified. |
 | --- | --- |
 | [[SKL Ask\|Ask]] | The **`/ask` skill** is the universal asking subroutine. |
-| [[SKL Crank\|Crank]] | The "go" button. |
+| ~~[[SKL Crank\|Crank]]~~ | The "go" button. |
 | [[SKL Feature\|Feature]] | Manage a feature from idea through design, agreement, implementation, testing, and completion. |
 | [[SKL Finalize\|Finalize]] | The **finalize discipline** is the closing ceremony for a unit of work — the sequence of small steps that catch the things commonly forgotten when something "is done." Verify tests pass, commit, pu… |
 | [[SKL Fortify\|Fortify]] | Cautious, skeptical counterpart to `crank`. |
