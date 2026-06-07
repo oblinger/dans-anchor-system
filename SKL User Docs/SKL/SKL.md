@@ -2,7 +2,7 @@
 description: skills dispatch table
 ---
 
-| -[[SKL]]- | → [[_]] → [[Dir]] → [ob](hook://ob) → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [SKL](hook://p/SKL)<br>: User-facing guides for every published skill, grouped by category. |
+| -[[SKL]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [SKL](hook://p/SKL)<br>: User-facing guides for every published skill, grouped by category. |
 | --- | --- |
 | Related | [[SKL Skills\|Skills]],   |
 |  | **SKILL GROUPS** |
@@ -14,11 +14,12 @@ description: skills dispatch table
 | [[SKL Search\|Search]]+ | [[SKL Book\|Book]],  [[SKL Corp\|Corp]],  [[SKL Describe\|Describe]],  [[SKL Find\|Find]],  [[SKL Meta Survey\|Meta Survey]],  [[SKL Person\|Person]],  [[SKL Product\|Product]],  [[SKL Purchase\|Purchase]],  [[SKL Research\|Research]],  [[SKL Research Skill\|Research Skill]],  [[SKL Search Overview\|Search Overview]],  [[SKL Skill\|Skill]],  [[SKL Software\|Software]],  [[SKL Survey\|Survey]],   |
 | [[SKL Utility\|Utility]]+ | [[SKL Cook\|Cook]],  [[SKL Ctrl\|Ctrl]],  [[SKL Exp\|Exp]],  [[SKL Parley\|Parley]],  [[SKL Snip\|Snip]],   |
 | [[SKL Discipline\|Discipline]]+ | [[SKL Backlog Horizons\|Backlog Horizons]],  [[SKL Mode\|Mode]],  [[SKL Role\|Role]],  [[SKL Workflow\|Workflow]],   |
+| [[SKL Library\|Library]]+ | [[Decision Sets]],   |
 | --- | |
 | [[SKL Ask\|Ask]] | The **`/ask` skill** is the universal asking subroutine. |
 | [[SKL Crank\|Crank]] | The "go" button. |
-| [[SKL Feature\|Feature]] | Manage a feature from idea through design, agreement, implementation, testing, and completion. |
-| [[SKL Groom\|Groom]] | Walk the current anchor's backlog and move it toward the **groomed state** — promote every item it can to **Ready**, park items that need user input in dated feature docs, repair link integrity. |
+| [[SKL Fortify\|Fortify]] | Cautious, skeptical counterpart to `crank`. |
+| [[SKL Land\|Land]] | `/land` — bounded crank. |
 | [[SKL Triage\|Triage]] | `/triage` (or the punctuation trigger `"` — a single double-quote as the entire message) regenerates the current anchor's per-anchor section inside `~/ob/kmr/Q.md`, the vault-level Agent Status das… |
 
 | LIFECYCLE    | Actions                                                                                                               |

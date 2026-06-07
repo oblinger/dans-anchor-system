@@ -1,0 +1,1 @@
+description: Curated, versioned bundles of decisions per F113 Phase 3. Each set bundles related decisions that apply to a specific style of anchor (trait-scoped) or a cross-cutting concern (markdown formatting, git discipline, testing posture). Anchors pull sets in via copy-in semantics; `audit-decisions.py` reads them to grade per-anchor adherence.
