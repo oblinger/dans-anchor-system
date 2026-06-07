@@ -294,7 +294,11 @@ def audit(anchor_path: str, verbose: bool = False) -> list[Finding]:
     anchor_root = find_anchor_root(anchor_path)
     cfg = load_config(anchor_root)
 
-    rid = cfg.get("rid", os.path.basename(anchor_root))
+    # B17 — slug-first fallback (matches cab-scan.py:94 precedent). Anchors
+    # often carry only `slug:` in their `.anchor` config; falling back to
+    # basename(anchor_root) here produces folder-basename like "Hook Anchor"
+    # instead of the actual slug "HA" and breaks every downstream path lookup.
+    rid = cfg.get("slug", cfg.get("rid", os.path.basename(anchor_root)))
     traits = cfg.get("traits", ["code"])
     if isinstance(traits, str):
         traits = [traits]
@@ -420,10 +424,38 @@ def audit(anchor_path: str, verbose: bool = False) -> list[Finding]:
     # Legacy {slug} Rollup.md also accepted until per-anchor migration (F062).
     INTERFACE_ROOT_STEMS = {"lib", "main", "__init__", "index", "mod"}
 
+    # B17 sub-(2) — naming-collision workaround. When Files.md uses a
+    # non-default PascalCase doc name as an alias for a source file (e.g.
+    # `[[HA UtilsFiles|files.rs]]` because the default `HA Files` collides
+    # with the file-tree doc), accept that alias as documenting the source.
+    # Build the alias map upfront by scanning Files.md for `[[<doc>|<filename>]]`
+    # patterns where `<doc>` resolves to an existing module doc.
+    files_md_content_raw = ""
+    if files_md:
+        try:
+            with open(files_md) as _fh:
+                files_md_content_raw = _fh.read()
+        except OSError:
+            pass
+    alias_doc_for_basename: dict[str, str] = {}
+    for m in re.finditer(r"\[\[([^\[\]\|]+)\|([^\[\]]+)\]\]", files_md_content_raw):
+        doc_name, alias = m.group(1).strip(), m.group(2).strip()
+        if doc_name in module_docs:
+            alias_doc_for_basename[alias] = doc_name
+
     for rel_path in sorted(sources.keys()):
         basename = os.path.basename(rel_path)
         stem = os.path.splitext(basename)[0]
         expected_doc = f"{rid} {snake_to_pascal(stem)}"
+        # B17 sub-(2) — when Files.md uses a non-default PascalCase alias for
+        # this source (e.g. `[[HA UtilsFiles|files.rs]]`), the alias's target
+        # is the canonical doc for this source. Trust it over the default.
+        # This handles the naming-collision case where the default
+        # `{rid} {PascalCase(stem)}` would collide with a file-tree-shaped
+        # doc (HA Files.md is the file tree itself, not the module doc for
+        # src/utils/files.rs).
+        if basename in alias_doc_for_basename:
+            expected_doc = alias_doc_for_basename[basename]
         # Strict match — doc name must be exactly {slug} {PascalCase}
         found_doc = expected_doc in module_docs
         # Interface fallback: if this is a root module (lib.rs, etc.) and an
@@ -473,6 +505,9 @@ def audit(anchor_path: str, verbose: bool = False) -> list[Finding]:
         basename = os.path.basename(rel_path)
         stem = os.path.splitext(basename)[0]
         expected_doc = f"{rid} {snake_to_pascal(stem)}"
+        # B17 sub-(2) — alias overrides default when present in Files.md.
+        if basename in alias_doc_for_basename:
+            expected_doc = alias_doc_for_basename[basename]
         if expected_doc in module_docs:
             # Check if Files.md has a wiki-link for this file: [[DocName|filename]]
             link_pattern = f"[[{expected_doc}"

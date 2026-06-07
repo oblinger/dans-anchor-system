@@ -22,7 +22,7 @@ user_invocable: true
 
 `/architect` creates and maintains the top-level system-architecture document for an anchor. The doc lives at `{NAME} Docs/{NAME} User/{NAME} Architecture/{NAME} Architecture.md` (anchor-folder form). It decomposes the system into **subsystems** — each subsystem has a dispatch table, a **mandatory summary table** linking to its parts, an **optional figure**, and a **modules table** linking to the relevant module docs.
 
-Feature spec: `[[F074 — Architect skill — Architecture as anchor folder with subsystems]]`. Companion specs: `[[CAB Architecture]]` (the facet), `[[CAB Module Doc]]` (defines the `Arch` row in module-doc dispatch tables). **F074 Q4=a (kept-System-Design-parallel) REVERSED 2026-05-26 per user direction**: Architecture is the sole architectural-synthesis facet; legacy `{NAME} System Design/` folders (pre-F074 anchors only) are absorbed during `/architect` runs — pull their `### Architectural Commitments` content into `{NAME} Architecture/{NAME} Architecture.md § Architectural Commitments`, archive the folder under `{NAME} Postmortems/legacy System Design/`. New anchors never create one.
+Feature spec: `[[F074 — Architect skill — Architecture as anchor folder with subsystems]]`. Companion specs: `[[CAB Architecture]]` (the facet), `[[CAB API Doc]]` (defines the `Arch` row in module-doc dispatch tables). **F074 Q4=a (kept-System-Design-parallel) REVERSED 2026-05-26 per user direction**: Architecture is the sole architectural-synthesis facet; legacy `{NAME} System Design/` folders (pre-F074 anchors only) are absorbed during `/architect` runs — pull their `### Architectural Commitments` content into `{NAME} Architecture/{NAME} Architecture.md § Architectural Commitments`, archive the folder under `{NAME} Postmortems/legacy System Design/`. New anchors never create one.
 
 ## Sub-actions
 
@@ -72,7 +72,9 @@ Feature spec: `[[F074 — Architect skill — Architecture as anchor folder with
 Standard top-of-doc per F060 (YAML frontmatter + H1 + dispatch-table placeholder). The dispatch table links to every subsystem doc and to `{NAME} Principles.md`. Below the dispatch:
 
 - **Single-subsystem systems** — the body is the contents of the one subsystem (no need to indirect). The subsystem-A doc and the top-level doc collapse into one file. The Architecture folder still exists for forward-compatibility.
-- **Multi-subsystem systems** — the body is **a figure showing the relationships between subsystems and other major components** (third-party services, external systems, persistence boundary, etc.) followed by a **summary table** of subsystems (one row per subsystem, linking to its Arch doc, with a one-line description).
+- **Multi-subsystem systems** — the body is **a figure showing the relationships between subsystems and other major components** (third-party services, external systems, persistence boundary, etc.) followed by a **summary table** of subsystems (one row per subsystem, linking to its Arch doc, with a one-line description). Build the figure with the **SVG-in-MD** sub-pattern (see `[[SKA viz]]` § SVG in Markdown): an `![[…svg]]` embed + a `↗ Clickable | Index | ✎ Edit` link row, with an **Index** table that mirrors the figure.
+
+**Figure rule: NO title text inside the figure.** The H2 section heading immediately above the embed names the figure (e.g. `## DictaMux Permissions Architecture`); the figure shows it. Duplicating a title inside the SVG wastes pixels, drifts when one is renamed without the other, and makes the figure less reusable when embedded elsewhere. The H2 + a focused figure is the canonical form. Same rule applies to subsystem-doc optional figures (§ Subsystem doc shape).
 
 
 ## Subsystem doc shape — file by default, folder when complex
@@ -82,7 +84,7 @@ Each subsystem is a **single markdown file** by default: `{NAME} Architecture/{N
 Subsystem doc shape (same for file and folder-doc forms), top-of-doc per F060, then in strict order:
 
 1. **Mandatory summary table** — links out to every relevant part of the subsystem. One row per linked-to artifact (a module's destination, a decision row, an external service, etc.). Link in column 1; one-line description in column 2.
-2. **Optional figure** — diagram (excalidraw / mermaid / ASCII) showing the subsystem's internals. *Below* the summary table per the spec: the table is the synthesis (must-have); the figure is illustrative (nice-to-have).
+2. **Optional figure** — built with the **SVG-in-MD** pattern (default; see `[[SKA viz]]` § SVG in Markdown) showing the subsystem's internals; excalidraw / mermaid serve only as bootstrappers that export the SVG. *Below* the summary table per the spec: the table is the synthesis (must-have); the figure is illustrative (nice-to-have).
 3. **Modules table** — every module in the subsystem with a wiki-link and an architecture-level one-line description. The wiki-link points to the **most-specific** destination: the per-module arch doc if one exists, otherwise the module doc itself.
 4. **Optional H2 sections** — narrative on Thread Model, Data Flow, Boundaries, etc.
 
@@ -115,7 +117,7 @@ The `Arch` row points to the **most-specific** architecture destination:
 - Else if a subsystem arch doc exists → link to it.
 - Else (single-subsystem systems) → link to the top-level `{NAME} Architecture.md`.
 
-**Every module doc has exactly one `Arch` row.** Both directions are maintained by `/architect`: each run reconciles the dispatch-table `Arch` rows and the modules-table links so they always point at each other (or surfaces the disagreement as a proposal). `[[CAB Module Doc]]`'s dispatch-table spec reserves the `Arch` row name.
+**Every module doc has exactly one `Arch` row.** Both directions are maintained by `/architect`: each run reconciles the dispatch-table `Arch` rows and the modules-table links so they always point at each other (or surfaces the disagreement as a proposal). `[[CAB API Doc]]`'s dispatch-table spec reserves the `Arch` row name.
 
 
 ## Runbook
@@ -213,7 +215,7 @@ The skill presumes the user is the original author of the design. Every `/archit
 ## Out of scope (v1)
 
 - Auto-generating subsystem groupings from module-import graphs. v1 takes the user's manual groupings; future versions might propose groupings algorithmically.
-- Generating the inter-subsystem figure. v1 emits a placeholder; user (or a separate figure-rendering skill) fills it in.
+- Hand-illustrating the inter-subsystem figure. The figure is produced with the **SVG-in-MD** sub-pattern from the viz skill (`[[SKA viz]]` § SVG in Markdown) — a source `.svg` (edit in Inkscape) embedded via `![[svg]]`, a `Clickable | Index | Edit` link row, and a figure-mirroring **Index** table. v1 may drop a placeholder SVG and refine it later.
 - Cross-anchor architecture (e.g., SYS-level "how all my projects fit together"). Out of scope; per-anchor only.
 - Rewriting module docs. Module-doc maintenance is `/audit docs`'s domain.
 
@@ -222,7 +224,7 @@ The skill presumes the user is the original author of the design. Every `/archit
 
 - `[[CAB Architecture]]` — the facet spec for `{NAME} Architecture/` and subsystem docs.
 - **Legacy `{NAME} System Design/`** — `[[CAB System Design]]` was kept as a parallel facet per F074 Q4=a, but that was reversed 2026-05-26. New anchors never create a System Design folder. Legacy ones (currently only MUX) get absorbed: `### Architectural Commitments` migrates into Architecture; the rest of the System Design content moves to `{NAME} Postmortems/legacy System Design/` as preserved historical reference.
-- `[[CAB Module Doc]]` — defines the `Arch` row in module-doc dispatch tables and the `module_docs_audited:` frontmatter contract.
+- `[[CAB API Doc]]` — defines the `Arch` row in module-doc dispatch tables and the `module_docs_audited:` frontmatter contract.
 - `[[CAB Principles]]` — Architecture cross-links to Principles; Architecture does not absorb them.
 - `[[audit-docs]]` — writes `module_docs_audited:` to `{NAME} Dev.md` frontmatter at the end of every audit pass; the source of truth `/architect`'s staleness precondition reads.
 - `[[SKA ask]]` — universal Q-parking subroutine.

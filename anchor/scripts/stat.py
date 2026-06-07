@@ -109,7 +109,8 @@ def find_project_outputs_dir(project_path):
     if os.path.exists(cfg_path):
         with open(cfg_path) as f:
             cfg = yaml.safe_load(f) or {}
-        rid = cfg.get("rid", rid)
+        # B17 — slug-first fallback (cab-scan.py:94 precedent).
+        rid = cfg.get("slug", cfg.get("rid", rid))
     return os.path.join(expanded, f"{rid} Docs", f"{rid} Plan", f"{rid} Outputs")
 
 
@@ -481,7 +482,8 @@ def cmd_activate(project_path):
     if os.path.exists(cfg_path):
         with open(cfg_path) as f:
             cfg = yaml.safe_load(f) or {}
-        rid = cfg.get("rid", rid)
+        # B17 — slug-first fallback (cab-scan.py:94 precedent).
+        rid = cfg.get("slug", cfg.get("rid", rid))
 
     active.append({"path": project_path, "rid": rid})
     state["active"] = active
@@ -535,7 +537,8 @@ def cmd_projects(show_all=False, show_inactive=False):
                     marker = " (active)" if is_active else ""
                     with open(anchor_cfg) as f:
                         pcfg = yaml.safe_load(f) or {}
-                    rid = pcfg.get("rid", os.path.basename(dirpath))
+                    # B17 — slug-first fallback (cab-scan.py:94 precedent).
+                    rid = pcfg.get("slug", pcfg.get("rid", os.path.basename(dirpath)))
                     print(f"  {rid:8s} {dirpath}{marker}")
 
 
@@ -566,7 +569,8 @@ def ensure_active(project_path):
     if os.path.exists(cfg_path):
         with open(cfg_path) as f:
             cfg = yaml.safe_load(f) or {}
-        rid = cfg.get("rid", rid)
+        # B17 — slug-first fallback (cab-scan.py:94 precedent).
+        rid = cfg.get("slug", cfg.get("rid", rid))
     active.append({"path": project_path, "rid": rid})
     state["active"] = active
     save_state(state)

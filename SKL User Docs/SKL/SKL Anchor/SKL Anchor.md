@@ -6,7 +6,7 @@ description: User guides for anchor-lifecycle skills — creating, installing, m
 
 User guides for anchor-lifecycle skills — creating, installing, migrating, moving, and shipping anchor folders.
 
-| -[[SKL Anchor]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [SKL Anchor](hook://p/SKL%20Anchor)<br>: User guides for anchor-lifecycle skills — creating, installing, migrating, moving, and shipping anchor folders. |
+| -[[SKL Anchor]]- | → [[_]] → [[Dir]] → [ob](hook://ob) → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [SKL Anchor](hook://p/SKL%20Anchor)<br>: User guides for anchor-lifecycle skills — creating, installing, migrating, moving, and shipping anchor folders. |
 | --- | --- |
 | [[SKL Anchor Toolkit\|Anchor Toolkit]] | The `anchor` skill is the low-level toolkit for working with **anchors** — the standardized named folders that this whole system is built around. |
 | [[SKL CAB\|CAB]] | How to create and manage anchor folder structures using the Common Anchor Blueprint |

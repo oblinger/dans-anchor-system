@@ -2,7 +2,7 @@
 
 Build the file tree and module docs together. Create `{NAME} Files.md` and per-module documentation under `{NAME} Dev/`.
 
-**MANDATORY: Before writing any module doc, read the [[CAB Module Doc]] reference example in full.** The reference example IS the spec — match it exactly. Do not improvise the format from memory.
+**MANDATORY: Before writing any module doc, read the [[CAB API Doc]] reference example in full.** The reference example IS the spec — match it exactly. Do not improvise the format from memory.
 
 ## When to Use
 

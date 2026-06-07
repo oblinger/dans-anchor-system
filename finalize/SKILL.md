@@ -83,7 +83,7 @@ If the work-unit has a dated feature doc:
 
 ### 5. Update Docs to Match Reality
 
-- If the implementation changed any **public API**: update the corresponding module doc (per `[[CAB Module Doc]]`).
+- If the implementation changed any **public API**: update the corresponding module doc (per `[[CAB API Doc]]`).
 - If new files were added: update `{NAME} Files.md` and the `{NAME} Dev` dispatch table.
 - If architecture changed: update `{NAME} System Design.md` or `{NAME} Architecture.md`.
 - If user-facing behavior changed: update `{NAME} User Guide.md`.

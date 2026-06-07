@@ -6,7 +6,7 @@ description: User guides for shape-describing methodologies cited from other ski
 
 User guides for shape-describing methodologies cited from other skills — state semantics, operating mode, agent identity, backlog horizons.
 
-| -[[SKL Discipline]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [SKL Discipline](hook://p/SKL%20Discipline)<br>: User guides for shape-describing methodologies cited from other skills — state semantics, operating mode, agent identity, backlog horizons. |
+| -[[SKL Discipline]]- | → [[_]] → [[Dir]] → [ob](hook://ob) → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [SKL Discipline](hook://p/SKL%20Discipline)<br>: User guides for shape-describing methodologies cited from other skills — state semantics, operating mode, agent identity, backlog horizons. |
 | --- | --- |
 | [[SKL Backlog Horizons\|Backlog Horizons]] | The **backlog-horizons discipline** organizes a backlog along two independent axes — *when* the user wants work to happen (horizon) and *how far* the work has progressed (workflow state) — so items… |
 | [[SKL Mode\|Mode]] | Operating-mode discipline — Drive vs Lean; how the agent makes the recurring "more complete vs faster" trade-off. See `SKL Mode/` sub-folder for the framework + per-mode docs. |

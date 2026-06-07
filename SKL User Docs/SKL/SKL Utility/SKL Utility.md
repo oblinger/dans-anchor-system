@@ -6,7 +6,7 @@ description: User guides for cross-cutting helpers — local-environment control
 
 User guides for cross-cutting helpers — local-environment control, agent-to-agent communication, recipe lookups, remote experimentation, capture.
 
-| -[[SKL Utility]]- | →<br>: User guides for cross-cutting helpers — local-environment control, agent-to-agent communication, recipe lookups, remote experimentation, capture. |
+| -[[SKL Utility]]- | → [[_]] → [[Dir]] → [ob](hook://ob) → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [SKL Utility](hook://p/SKL%20Utility)<br>: User guides for cross-cutting helpers — local-environment control, agent-to-agent communication, recipe lookups, remote experimentation, capture. |
 | --- | --- |
 | [[SKL Cook\|Cook]] | `/cook <recipe>` (or `/cook <recipe> and <recipe> and ...`) answers the question "what do I need to do before I start cooking?" The skill looks up each recipe in your Paprika library, pulls its ing… |
 | [[SKL Ctrl\|Ctrl]] | How to control the local environment — browser, shell sessions, and system interaction |

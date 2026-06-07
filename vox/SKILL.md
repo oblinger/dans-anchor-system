@@ -2,13 +2,14 @@
 name: vox
 description: >
   File voice-memo audio into the VOX folder with a whisper-transcribed `.md`
-  sibling. Two surfaces. (1) Manual mode — `/vox` (no args) scans `~/Desktop`
-  and `~/Downloads` for audio files and processes each; `/vox <path>` processes
-  one named file or every audio file in a named directory. Each filed source is
-  removed from its original location (the canonical copy lives in the VOX folder
-  with 40-day retention). (2) Email mode — an Apple Mail rule catches messages
-  whose subject contains "VOX" and routes the attachment through the same
-  `vox-process` script. Both modes share SHA-256 content dedup, audio-metadata
+  sibling. Two surfaces. (1) Manual mode — `/vox` (no args) scans the
+  clipboard AND the intake folders (`~/Desktop`, `~/Downloads` by default) for
+  audio files and processes each; `/vox <path>` processes one named file or
+  every audio file in a named directory. Intake-folder sources are removed
+  after filing; clipboard sources are left alone (the canonical copy lives in
+  the VOX folder with 40-day retention either way). (2) Email mode — an Apple
+  Mail rule catches messages whose subject contains "VOX" and routes the
+  attachment through the same `vox-process` script. Both modes share SHA-256 content dedup, audio-metadata
   date extraction, and the same retention sweep. Use when the user says "/vox",
   "vox these files", "process these voice memos", "transcribe these audio
   files", or hands you a path to one or more audio files to file.
@@ -50,25 +51,37 @@ Both call the shared `handle_vox` pipeline, which:
 
 ## Actions
 
-### `/vox` (no args) — scan intake folders
+### `/vox` (no args) — scan clipboard + intake folders
 
-1. Read the cross-skill intake-folder list (per F111):
+Build a candidate list from two sources, then process each. Sources are tagged so the chat summary shows their origin and per-source delete semantics are applied.
+
+1. **Clipboard candidate** (single file). If Finder has an audio file on the clipboard (`Cmd-C` on the file in Finder), grab it:
+   ```bash
+   clip_path=$(osascript \
+       -e 'try' \
+       -e 'POSIX path of (the clipboard as «class furl»)' \
+       -e 'on error' \
+       -e 'return ""' \
+       -e 'end try' 2>/dev/null)
+   ```
+   If `$clip_path` is non-empty AND the file exists AND its extension matches the audio glob list (`mp3`, `m4a`, `wav`, `caf`, `aac`, `aiff`, `aif`, `mp4`, `m4b` — case-insensitive), include it as a **`no-delete`** candidate. Otherwise skip. (Multi-file clipboard selection is not handled in v1 — only the simple single-file case.)
+2. **Intake-folder candidates**. Read the cross-skill intake-folder list (per F111):
    ```bash
    ~/.claude/skills/ob-skills/scripts/ob-skills config intake_folders --default "$HOME/Desktop $HOME/Downloads"
    ```
-   The helper prints one folder per line (paths already tilde-expanded). The default if the key is absent is `~/Desktop` and `~/Downloads`. The user can extend the list in `~/.config/ob-skills/global.yaml § intake_folders:`.
-2. In each folder (non-recursive), list audio files matching `*.mp3`, `*.m4a`, `*.wav`, `*.caf`, `*.aac`, `*.aiff`, `*.aif`, `*.mp4`, `*.m4b` (case-insensitive). If every folder is empty of audio, say so and stop.
-3. For each match, invoke:
-   ```bash
-   ~/.claude/skills/vox/scripts/vox-process --input "<path>"
+   The helper prints one folder per line (paths already tilde-expanded). Default if the key is absent: `~/Desktop` and `~/Downloads`. The user can extend the list in `~/.config/ob-skills/global.yaml § intake_folders:`. In each folder (non-recursive), list audio files matching the audio glob. These are **`delete-after`** candidates.
+3. If both sources are empty, say so and stop.
+4. For each candidate, invoke `vox-process` by its delete-mode:
+   - **`delete-after`** (intake-folder source): `~/.claude/skills/vox/scripts/vox-process --input "<path>"` — files the audio + removes the source
+   - **`no-delete`** (clipboard source): `~/.claude/skills/vox/scripts/vox-process "<path>" "VOX clipboard"` — files the audio + **leaves the source on disk** so the user's clipboard reference stays valid. The positional invocation routes via the email-rule path that doesn't touch the source.
+
+   Capture each script's stdout (one line per call: either `vox-process: VOX -> wrote …` for new files or `vox-process: VOX -> skipped (duplicate of …)` for dedup'd ones).
+5. Print a chat summary tagging each row with its source:
    ```
-   Capture the script's stdout (one line per call: either `vox-process: VOX -> wrote …` for new files or `vox-process: VOX -> skipped (duplicate of …)` for dedup'd ones).
-4. Print a chat summary:
-   ```
-   /vox — processed N file(s) from <intake folders>:
-     ✓ <name1>.m4a → 2026-06-03 <derived-title>.m4a
-     ✓ <name2>.m4a → 2026-06-03 <derived-title>.m4a
-     ⊘ <name3>.m4a — duplicate of 2026-05-28 <existing>.m4a (source still removed)
+   /vox — processed N file(s):
+     ✓ [clipboard] <name>.m4a → 2026-06-03 <derived-title>.m4a (source left intact)
+     ✓ [desktop]   <name>.m4a → 2026-06-03 <derived-title>.m4a
+     ⊘ [downloads] <name>.m4a — duplicate of 2026-05-28 <existing>.m4a (source still removed)
    ```
 
 ### `/vox <path>` — file a specific path

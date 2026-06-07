@@ -69,7 +69,7 @@ The `cab-lint.py` script is already read-only; this rule binds the **agent workf
 
 ### For `class-undocumented` warnings
 A class exists in source but has no entry in a module doc.
-- **Fix**: Add the class to the appropriate module doc's CLASSES table and create a per-class table with its fields and methods. Follow [[CAB Module Doc]] format.
+- **Fix**: Add the class to the appropriate module doc's CLASSES table and create a per-class table with its fields and methods. Follow [[CAB API Doc]] format.
 - **Exception**: If the class is private/internal and documenting it adds noise (e.g., small enum used only internally), add an exception with reason.
 
 ### For `method-undocumented` warnings
@@ -79,7 +79,7 @@ A method exists in source but isn't in the module doc's per-class table.
 
 ### For `enum-undocumented` warnings
 An enum exists in source but has no entry in a module doc.
-- **Fix**: Add the enum to the CLASSES table (with `Enum —` prefix in description) and create a two-column enum table listing its variants. See [[CAB Module Doc]] for the enum table format.
+- **Fix**: Add the enum to the CLASSES table (with `Enum —` prefix in description) and create a two-column enum table listing its variants. See [[CAB API Doc]] for the enum table format.
 - **Exception**: If the enum is a trivial internal state (e.g., `LoadingState { Loading, Loaded, Error }`), add an exception.
 
 ### For `field-undocumented` warnings
@@ -94,7 +94,7 @@ Something is in the doc but no longer in source.
 
 ### For `no-module-docs` or `source-no-module-doc` warnings
 Source files exist but no module docs in Dev folder.
-- **Fix**: Create module docs following [[CAB Module Doc]] format. Remember the **Linking Rule**: add to Dev dispatch table and Files FIRST, then write the doc.
+- **Fix**: Create module docs following [[CAB API Doc]] format. Remember the **Linking Rule**: add to Dev dispatch table and Files FIRST, then write the doc.
 - **For test files**: Use the test module doc format instead of the standard module doc format:
 
 ```markdown

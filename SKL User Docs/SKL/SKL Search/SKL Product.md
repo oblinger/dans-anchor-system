@@ -1,25 +1,21 @@
 ---
-description: How to research and purchase products — hunt, find, buy, reorder
+description: "skim → click into the rule that applies"
 ---
+# SKL Product
 
-# SKL Product Guide (Skill: [[product/SKILL]])
+| -[[SKL Product]]- | : skim → click into the rule that applies<br>→ [ob](hook://ob) → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Search]] → [SKL Product](hook://p/SKL%20Product) |
+| --- | --- |
+| Product rules (any verb) | [[SRC rules/product\|product.md]],   |
+| Verbs | [[SRC rules/find-product\|find-product]],  [[SRC rules/describe-product\|describe-product]],  [[SRC rules/survey-product\|survey-product]],   |
 
-The Product skill handles the full purchasing lifecycle: researching a product category, narrowing down to a specific item, executing the purchase, and reordering consumables. It uses web search and browser automation to gather information and navigate to purchase pages.
+When the search agent runs against a **product** — finding, describing, or surveying — these are the rules that apply.
 
-The workflow moves through four stages. Hunt is the broad research phase — surveying a category, comparing top options, reading reviews. Find narrows to a specific SKU and compares retailers for the best price. Buy navigates to the purchase page for checkout. Reorder handles repeat purchases of consumables you have bought before.
+**Distinct from [[SKL Purchase]]** — that's the legacy product-*purchasing* skill (hunt / find / buy / reorder). This doc is about Product as a *kind of thing the search agent can search over*.
 
-## Commands
+**Source playbook varies by category**: Wirecutter / Consumer Reports / RTINGS for consumer physical; G2 / Capterra / Gartner for B2B SaaS; App Store recent reviews for consumer apps; reviews emphasizing reliability + total cost for large purchases.
 
-| Command | Description |
-|---------|-------------|
-| `/product hunt` | Research a category — compare top 10, surf review sites |
-| `/product find` | Pin down exact SKU, compare retailers, find best price |
-| `/product buy` | Navigate to purchase page for checkout |
-| `/product reorder` | Reorder a previously purchased consumable |
+**Common gotchas surfaced**: manufacturer specs omit failure modes; aggregate ratings hide distribution shape; "best of" listicles are heavily monetized; SaaS list pricing is often a floor, not a ceiling.
 
-## Key Concepts
+Sub-types worth knowing about: consumer physical · B2B SaaS · consumer apps · large purchases (cars / appliances).
 
-- **Hunt before find** — Start with `/product hunt` to explore a category broadly before narrowing down
-- **Web-driven** — Uses web search and WebFetch to gather pricing, reviews, and availability
-- **Browser handoff** — `/product buy` navigates to the purchase page; you complete checkout manually
-- **Reorder memory** — `/product reorder` works for items you have purchased before, looking up past details
+Verbs: [[SKL Find]] · [[SKL Describe]] · [[SKL Survey]] · Composition: [[SKL Search Overview]].

@@ -1,3 +1,6 @@
+---
+description: "Specialized survey for **comparing agent skills** that do similar work."
+---
 # /research skill
 
 Specialized survey for **comparing agent skills** that do similar work. You give it a concept ("architect", "feature designer", "PRD writer"), it finds skills others have built that address it, and produces a comparison report with **choice-point analysis** and a recommendation.

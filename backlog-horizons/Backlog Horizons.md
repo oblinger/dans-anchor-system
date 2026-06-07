@@ -3,10 +3,10 @@ description: backlog-horizons — Backlog Horizons skill anchor — see [[backlo
 ---
 # Backlog Horizons
 
-| -[[Backlog Horizons]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [Backlog Horizons](hook://p/Backlog%20Horizons)<br>: backlog-horizons — Backlog Horizons skill anchor — see [[backlog-horizons/SKILL\|SKILL.md]] for the spec |
+| -[[Backlog Horizons]]- | → [[_]] → [[Dir]] → [ob](hook://ob) → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [Backlog Horizons](hook://p/Backlog%20Horizons)<br>: backlog-horizons — Backlog Horizons skill anchor — see [[backlog-horizons/SKILL\|SKILL.md]] for the spec |
 | --- | --- |
 | Skill | [[backlog-horizons/SKILL\|SKILL.md]],  [[SKL Backlog Horizons\|User Docs]],   |
-| [[Backlog Horizons Plan\|Plan]]+ | [[Backlog Horizons Backlog\|Backlog]],  [[Backlog Horizons Features\|Features]],  [[Backlog Horizons PRD\|PRD]],   |
+| [[Backlog Horizons Plan\|Plan]]~~+ | ~~[[Backlog Horizons Backlog\|Backlog]],  [[Backlog Horizons Features\|Features]],  [[Backlog Horizons PRD\|PRD]], |
 
 
 

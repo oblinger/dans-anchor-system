@@ -57,4 +57,4 @@ Each verb has Quick / Standard / Deep tiers — specify in the request (*"survey
 
 To set a preference for *all* surveys: edit [[SRC rules/survey|SRC rules/survey.md]]. To set a preference for *all product searches regardless of verb*: edit [[SRC rules/product|SRC rules/product.md]]. To set a preference for *surveys of products specifically*: create [[SRC rules/survey-product|SRC rules/survey-product.md]] (it wins on conflict).
 
-Standard: [[SKA skill-trait search-rules]].
+Standard: [[skill-search-rules]].

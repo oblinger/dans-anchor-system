@@ -1,3 +1,6 @@
+---
+description: "`/slug-scan` discovers anchors that have a slug (a short ID like `ODC`, `HA`, `SKA`) and syncs them into the slug index table at `~/ob/kmr/SYS/Closet/Tiny IDs/TID/TID.md`."
+---
 # /slug-scan
 
 `/slug-scan` discovers anchors that have a slug (a short ID like `ODC`, `HA`, `SKA`) and syncs them into the slug index table at `~/ob/kmr/SYS/Closet/Tiny IDs/TID/TID.md`. Use it when you say "slug scan" or "sync slugs" — typically after creating a new slugged anchor and you want it indexed.

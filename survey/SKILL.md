@@ -8,7 +8,7 @@ user_invocable: true
 
 Build a **multi-dimensional comparison table** over many entities, plus interpretive notes about what's notable, where coverage is sparse, and what follow-up surveys might be useful.
 
-## What loads at invocation (per [[SKA skill-trait search-rules]])
+## What loads at invocation (per [[skill-search-rules]])
 
 1. **This SKILL.md** — methodology (the runbook below) + meta-survey sub-pattern.
 2. `survey/rules/survey.md` — default verb rules (ships with skill); includes RRR output convention and the skill-survey specialized variant.
@@ -86,6 +86,6 @@ Lands in `~/ob/kmr/Topic/Search/Survey/` as a markdown file. The [[Survey]] anch
 
 - User reference: [[SKL Survey]]
 - Overview of composition: [[SKL Search Overview]]
-- Rules trait: [[SKA skill-trait search-rules]]
+- Rules trait: [[skill-search-rules]]
 - User overrides: [[SRC rules]]
 - Legacy: this skill subsumes `/research survey`, `/research skill` (as a specialized variant in `rules/survey.md`), and the broad-research phase of `/product hunt` (in `rules/survey-product.md`).

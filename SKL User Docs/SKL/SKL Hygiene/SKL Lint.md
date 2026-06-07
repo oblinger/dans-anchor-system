@@ -1,3 +1,6 @@
+---
+description: "`/lint` (or `/cab lint`) is the static-analysis pass over an anchor — it scans the folder structure, dispatch tables, and module docs against the CAB type rules and tells you what's missing, stale,…"
+---
 # /Lint
 
 `/lint` (or `/cab lint`) is the static-analysis pass over an anchor — it scans the folder structure, dispatch tables, and module docs against the CAB type rules and tells you what's missing, stale, or out of conformance. The default level (5) compares your module docs to the actual source code, flagging undocumented classes, methods, enums, and fields, plus stale doc entries for things that have been deleted. Use it when you say "lint this," "check the structure," or "are there violations."

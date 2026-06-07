@@ -181,17 +181,23 @@ def navigate_to_url(url: str, new_tab: bool = False):
     """Open URL in Chrome, optionally in a new tab that becomes active."""
     try:
         if new_tab:
-            # Use AppleScript to create new tab and make it active
+            # Always create a NEW tab and set its URL ATOMICALLY at creation.
+            # Capturing the tab via `make new tab with properties {URL:...}`
+            # avoids the race where `set URL of active tab` after `make new tab`
+            # navigates the *previous* tab (wiping the user's current view) and
+            # leaves a blank new tab. This guarantees: a fresh tab every call,
+            # the URL lands in that tab, and existing tabs are untouched.
+            safe_url = url.replace('\\', '\\\\').replace('"', '%22')
             script = f'''
             tell application "Google Chrome"
                 activate
                 if (count of windows) = 0 then
                     make new window
-                    set URL of active tab of front window to "{url}"
+                    set URL of active tab of front window to "{safe_url}"
                 else
                     tell front window
-                        make new tab
-                        set URL of active tab to "{url}"
+                        make new tab with properties {{URL:"{safe_url}"}}
+                        set active tab index to (count of tabs)
                     end tell
                 end if
             end tell

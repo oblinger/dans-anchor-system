@@ -15,4 +15,4 @@ Invoke standard: *"survey project management SaaS"* / *"compare CRMs for a 20-pe
 
 Outputs: [[Survey]] (`~/ob/kmr/Topic/Search/Survey/`).
 
-Skill: [[survey/SKILL|survey/SKILL.md]] · Rules trait: [[SKA skill-trait search-rules]] · Composition: [[SKL Search Overview]].
+Skill: [[survey/SKILL|survey/SKILL.md]] · Rules trait: [[skill-search-rules]] · Composition: [[SKL Search Overview]].
