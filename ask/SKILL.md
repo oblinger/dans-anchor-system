@@ -33,6 +33,31 @@ Parented triggers (non-exhaustive):
 - An agent is about to ask any question — route through `/ask`.
 
 
+## Output format scales with span (per F125, 2026-06-07)
+
+**Before authoring anything, every `/ask` invocation makes one decision: count pending Qs and the features they touch. The output format follows mechanically.**
+
+| Q-count | Feature-count | Surface | What the agent does |
+|---|---|---|---|
+| **1 or 2** | any | **Inline in chat, full details** | Print the Q(s) verbatim in chat — title, body context, labeled options with bodies, recommendation with strength, load-bearing flag if any. **NO ask page, NO glance.** User answers in chat directly. |
+| **≥ 3** | **1** (all in one feature) | **Glance feature + inline summary** | `open` the feature doc so the user can read full Q bodies. In chat, summarize: *"I've got N questions in F\<n\>. Q1: \<topic\>, Q2: \<topic\>, …. Load-bearing: Q\<k\>."* User clicks the glanced file for full bodies; chat carries enough context to triage which to answer first. **NO ask page** — the feature doc IS the ask surface for single-feature spans. |
+| **≥ 3** | **≥ 2** (multi-feature) | **Ask page (`{NAME} ask.md`) + spotlight in chat** | Run the full bare-`/ask` § Questions surface — write `## Agent Resolutions` / `## User Verifications` / `## Questions` sections to `{NAME} ask.md`, glance it, surface 1–3 spotlight items in chat with one-line each. The page is the coherent surface across features; chat is the dispatch view. |
+
+The rule is mechanical: count → pick row → execute. The agent does not choose the format based on judgment; **the count picks it**.
+
+**Why "1-2 Qs inline" and not just "1 inline / 2+ surface":** for a small batch, all the information fits in chat and a glance/page would be friction. The threshold is "still readable inline" — at 3 Qs (or non-trivial 2-Q bodies), summary becomes load-bearing and the file or page is cheaper to surface.
+
+**Failure mode this rule defeats (2026-06-07):** `/crank` exited with *"Pending input: F113 Q12, F117 (4 Qs), F118 (3 Qs)"* — a reference-only Q-list across three features. The user reasonably responded: *"I have no fucking idea what Q12 is."* Q-numbers without context are not actionable. Multi-feature spans **must** route to the ask page; single-feature ≥3 Qs **must** glance the doc; small spans **must** inline the full text. Reference lists are forbidden.
+
+### User-story scenarios (the rule in motion)
+
+- **Story 1 — Crank reaches no-Ready and cascades to /ask.** Crank invoked /ask after exhausting the queue. /ask counts pending Qs across all feature docs in the anchor; applies the table above.
+- **Story 2 — One question pending.** /ask detects "1 Q total". Inline in chat with full details. No page, no glance.
+- **Story 3 — Two questions, same or different features.** Same as one Q, both inline. Borderline; default is inline.
+- **Story 4 — Three or more Qs, all in one feature.** /ask glances `F<n> — Title.md`. Chat summary: *"N Qs in F<n>. Q1: <topic>, … Load-bearing: Q<k>."* User reads bodies from the glanced file.
+- **Story 5 — Multi-feature span.** /ask MUST create the ask page. Chat spotlights 1–3 items.
+
+
 ## Two question shapes
 
 Every question lands on one of two surfaces. The parent skill (or the user invoking `/ask` directly) tells `/ask` which.

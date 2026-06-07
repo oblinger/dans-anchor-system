@@ -172,6 +172,18 @@ If ANY gate's blank can't be filled with a specific, concrete sentence, the rule
 - **`/land` invoked** → explicit bounded-stop signal from the user; hard rule overridden.
 - **Hard blocker discovered mid-mint** — current item turned out to be `[Blocked]` or `[Questions]` on closer inspection: rebracket via `backlog-edit.py {NAME} same <row-id> <NewStatus>` (workflow skill) and **continue to the next Ready item.** This is not a stop; it's rebracket-and-continue. The Q-escape above is the structural form of this.
 
+### Stop discipline cascade (per F125, 2026-06-07)
+
+**Before exiting, every stop reason except context-< 40% MUST route through this cascade:**
+
+1. **Run `/groom`** — re-promote any stale brackets, surface freshly-Ready work. If `/groom` produces Ready items, **continue cranking** — do NOT stop. The groom output is the new queue.
+2. **If `/groom` is dry (no new Ready), invoke `/ask`** — do not exit silently and do not exit with a reference list of Q-numbers. `/ask`'s format decision (per `ask/SKILL.md` § Output format scales with span) produces the actual user-facing surface — inline with full details for 1-2 Qs, glance + summary for single-feature ≥3 Qs, ask page for multi-feature spans.
+3. **Context < 40% is the only exception.** When stopping for token-budget reasons, print *"stopping — context window below 40%"* and exit immediately. The cascade is suspended because the surfacing itself would consume the remaining budget; the user can re-invoke `/crank` after compaction.
+
+**Reference-only Q-lists in the chat exit message are forbidden.** *"Pending input: F113 Q12, F117 (4 Qs), F118 (3 Qs)"* is NOT a valid stop surface — the user cannot understand what "Q12" is from "Q12" alone. The Q-escape's three-gate argument (Gate 1 / Gate 2 / Gate 3) is independent and still required as the JUSTIFICATION for stopping; the cascade governs what HAPPENS after that justification — which surface the user sees.
+
+**Failure mode this cascade defeats:** the 2026-06-07 exit where `/crank` finished a productive run (4 features shipped) and then surfaced *"Pending input: F113 Q12 + F117 (4) + F118 (3)"* as the user-facing wrap-up. The user reasonably responded: *"I have no fucking idea what Q12 is."* Q-numbers without context are not actionable; the cascade ensures the user always gets either inline detail (for small spans) or a glanceable surface (for larger / multi-feature spans).
+
 
 ## When to stop / when not to stop
 
