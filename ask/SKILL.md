@@ -150,17 +150,27 @@ The reasoning pass produces three buckets:
 2. **User verifications** — verifies the agent can't run alone (needs human eyes, judgment, prod-system check).
 3. **User questions** — questions the agent can't confidently pick.
 
-### 3. Write `{NAME} ask.md`
+### 3. Write `{NAME} ask.md` — **run `ask-render.py`** (per F117, 2026-06-07)
 
-**`## Agent Resolutions` accumulates across calls; `## User Verifications` and `## Questions` rebuild each call.** Per [[F086]]:
+Per F117 the ask page is a **rendered view** of canonical markdown sources; markdown IS the durable state. Don't hand-author the file.
 
-1. **Read the prior `{NAME} ask.md`** if present. Parse the `## Agent Resolutions` section; carry forward every entry.
-2. **Live re-check each carried-forward entry** (cost gate: <100ms each). Read the underlying feature doc's `## Resolved` H2 (or backlog row state); confirm it still matches what the resolution claims. If drift detected (user edited the feature doc directly, or another agent changed it), drop that entry and flag in chat: *"Dropped carried-forward resolution for F<n> — feature doc state diverged."*
-3. **Prepend this call's new resolutions** to the surviving carried-forward list (newest at top; the user sees most-recent decisions first).
-4. **Rebuild `## User Verifications` and `## Questions` from scratch** based on the current survey — these always reflect the live backlog.
-5. **Soft cap warning:** if accumulated `## Agent Resolutions` > 20 entries, append a chat note: *"21 unaccepted resolutions accumulated — say 'the resolutions look good' to clear, or work through them."* No hard limit; the user is in control.
+```bash
+python3 ~/.claude/skills/ask/scripts/ask-render.py {NAME}
+```
 
-Acceptance / rollback are processed in § 7, not here. Step 3's job is just to write the current accumulated state to disk.
+The script:
+- Walks reachable feature docs + `{NAME} Questions.md` via `extract_q_entries` (audit-q's H3-aware Q parser) → `## Questions` body.
+- Walks `{NAME} Backlog.md` for `[Verify]` / `[Verify-by ...]` rows in **active horizons only** (`Active`/`Ready`/`Now`/`Next` — `## Later` is disregarded, mirroring step 1) → `## User Verifications` body.
+- Reads the existing `{NAME} ask.md`'s `## Agent Resolutions` body verbatim and writes it back — F086 carry-forward is **preserved** at the markdown level.
+- Writes the three-section page atomically.
+
+**Agent-side responsibilities (the script does NOT do these — the runbook does):**
+
+1. **Add new resolutions to the page before invoking the script** — when this call's reasoning pass (step 2) auto-resolved Qs or Verifies, edit `{NAME} ask.md`'s `## Agent Resolutions` H2 *before* calling `ask-render.py`. Prepend new entries at the top (newest first); the script will preserve whatever's there.
+2. **Live drift-check carried-forward resolutions** — for each entry already in `## Agent Resolutions`, confirm the underlying feature doc's `## Resolved` H2 (or backlog row state) still matches. On drift, delete the entry from the section before invoking the script, and flag in chat: *"Dropped carried-forward resolution for F<n> — feature doc state diverged."*
+3. **Soft cap warning** — after the script writes, if accumulated `## Agent Resolutions` > 20 entries, append a chat note: *"21 unaccepted resolutions accumulated — say 'the resolutions look good' to clear, or work through them."*
+
+Acceptance / rollback are processed in § 7.
 
 Three sections in fixed order. Frontmatter `description: bare `/ask` snapshot — agent resolutions and what the user still needs to verify or answer.`
 

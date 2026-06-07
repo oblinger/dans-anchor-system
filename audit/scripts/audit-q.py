@@ -2758,6 +2758,46 @@ def file_qfix_row(
     return True, result
 
 
+def clear_qfix_row(backlog_file: Path) -> tuple[bool, str]:
+    """Delete an existing singleton `B-QFix` row (and its sub-bullets) from
+    backlog_file. No-op if the row doesn't exist. Returns (changed, msg).
+
+    Called when an anchor's residual findings drop to zero so stale captures
+    from prior runs don't persist as a phantom Ready row inflating the
+    anchor's banner.
+    """
+    try:
+        text = backlog_file.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return False, f"couldn't read {backlog_file.name}"
+    lines = text.splitlines()
+    qfix_idx: Optional[int] = None
+    for i, line in enumerate(lines):
+        if line.lstrip().startswith("- **B-QFix"):
+            qfix_idx = i
+            break
+    if qfix_idx is None:
+        return False, "no QFix row to clear"
+    end = qfix_idx + 1
+    while end < len(lines):
+        stripped = lines[end]
+        if stripped.startswith("  - "):
+            end += 1
+            continue
+        if not stripped.strip() and end + 1 < len(lines) \
+                and lines[end + 1].startswith("  - "):
+            end += 1
+            continue
+        break
+    del lines[qfix_idx:end]
+    while qfix_idx < len(lines) and not lines[qfix_idx].strip():
+        del lines[qfix_idx]
+        if qfix_idx > 0 and not lines[qfix_idx - 1].strip():
+            break
+    backlog_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return True, "cleared stale B-QFix row"
+
+
 def route_findings_to_qfix(
     findings: list[Finding], anchor_backlogs: dict[str, Path]
 ) -> list[str]:
@@ -2770,22 +2810,27 @@ def route_findings_to_qfix(
     can't fix gets routed to an anchor-local backlog row where the owning
     Pilot's next /triage or /groom drives it to zero under the 100%-fix rule.
 
+    When residual findings for an anchor drop to zero, the stale B-QFix row
+    is deleted so the anchor's banner reflects the current state.
+
     Returns a per-anchor log of routing actions."""
     residual = [f for f in findings if not f.mechanically_fixable]
-    if not residual:
-        return []
-    # Group by owning anchor; skip findings whose surface_file is outside any
-    # anchor tree (Q.md itself, vault-root files).
-    groups: dict[str, list[Finding]] = {}
+    # Build per-anchor groups; every anchor in scope gets an entry (possibly
+    # empty) so anchors whose residual dropped to zero get their stale QFix
+    # cleared rather than left to inflate the banner.
+    groups: dict[str, list[Finding]] = {a: [] for a in anchor_backlogs}
     for f in residual:
         owner = _resolve_owning_anchor(f.surface_file, anchor_backlogs)
         if owner is None:
             continue
-        groups.setdefault(owner, []).append(f)
+        groups[owner].append(f)
     log: list[str] = []
     for anchor in sorted(groups):
         backlog_file = anchor_backlogs[anchor]
-        changed, msg = file_qfix_row(backlog_file, anchor, groups[anchor])
+        if groups[anchor]:
+            changed, msg = file_qfix_row(backlog_file, anchor, groups[anchor])
+        else:
+            changed, msg = clear_qfix_row(backlog_file)
         if changed:
             log.append(f"  {anchor}: {msg}")
     return log
