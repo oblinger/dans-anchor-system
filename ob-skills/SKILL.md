@@ -41,7 +41,7 @@ Seeded on first run. Skills add new keys as they need them.
 | `kmr_root` | `~/ob/kmr` | Synonym in practice; kept distinct in schema in case they diverge. |
 | `skill_data_root` | `~/ob/kmr/SYS/ob-skills` | Default vault-side root for skill-owned persistent data (per F071). |
 | `default_agent_mode` | `Drive` | Default operating mode for new anchors. Per-anchor `.anchor` files override via `agent_modes:`. |
-| `scratch_root` | `~/ob/kmr/scratch` | Inside-vault folder for skill working files the user may want to browse in Obsidian (viz/diagram drafts, intermediate exports, preview artifacts). Distinct from `cache/` (under `~/.config/ob-skills/<skill>/cache/` — hidden, backup-skippable). Skills typically scope further into a sub-folder named after themselves (e.g. `{scratch_root}/viz/`). |
+| `scratch_root` | (no hardcoded default — must be set in `global.yaml`; this user has it at `~/ob/kmr/_/URL/SCR/Scratch`) | Inside-vault anchor for skill working files the user may want to browse in Obsidian (viz/diagram drafts, intermediate exports, preview artifacts). Distinct from `cache/` (under `~/.config/ob-skills/<skill>/cache/` — hidden, backup-skippable). Skills typically scope further into a sub-folder named after themselves (e.g. `{scratch_root}/viz/`). |
 
 ## Read tier (high to low)
 
