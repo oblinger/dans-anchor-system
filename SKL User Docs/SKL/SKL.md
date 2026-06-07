@@ -8,7 +8,7 @@ description: skills dispatch table
 |  | **SKILL GROUPS** |
 | [[SKL Anchor\|Anchor]]+ | [[SKL Anchor Toolkit\|Anchor Toolkit]],  [[SKL CAB\|CAB]],  [[SKL Create\|Create]],  [[SKL Install\|Install]],  [[SKL Migrate\|Migrate]],  [[SKL Move\|Move]],  [[SKL Publish\|Publish]],  [[SKL Streams\|Streams]],  [[SKL WP\|WP]],  [[SKL Yore\|Yore]],   |
 | [[SKL Hygiene\|Hygiene]]+ | [[SKL Audit\|Audit]],  [[SKL Dupes\|Dupes]],  [[SKL Lint\|Lint]],  [[SKL Maintain\|Maintain]],  [[SKL Rewire\|Rewire]],  [[SKL Slug Scan\|Slug Scan]],  [[SKL Tidy\|Tidy]],   |
-| [[SKL Track\|Track]] | [[SKL Workflow\|Workflow]],  [[SKL Backlog\|Backlog]],   |
+| [[SKL Track\|Track]] | [[SKL Plan\|Plan]],  [[SKL Workflow\|Workflow]],  [[SKL Backlog\|Backlog]],   |
 | [[SKL Drive\|Drive]] | [[SKL Feature\|Feature]],  [[SKL Crank\|Crank]],  [[SKL Triage\|Triage]],  [[SKL Ask\|Ask]],  [[SKL Groom\|Groom]],  [[SKL Mint\|Mint]],  [[SKL Finalize\|Finalize]],  [[SKL Land\|Land]],  [[SKL Fortify\|Fortify]],   |
 | [[SKL Dev\|Dev]]+ | [[SKL Architect\|Architect]],  [[SKL Code\|Code]],  [[SKL Fix\|Fix]],  [[SKL Pilot Flow\|Pilot Flow]],  [[SKL PR Flow\|PR Flow]],   |
 | [[SKL Doc\|Doc]]+ | [[SKL Edit\|Edit]],  [[SKL IO\|IO]],  [[SKL MD\|MD]],  [[SKL Viz\|Viz]],   |
@@ -41,8 +41,8 @@ description: skills dispatch table
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------- |
 |                  | Anchor → Plan →  ↻( [[SKL Feature\|Feature]] ([[SKL Groom\|Groom]]) → [[SKL Mint\|Mint]]  ([[SKL Finalize\|Finalize]])) |
 | **Create**       | [[feature/SKILL\|Feature]], Spec                                                                                    |
-| **Plan**         | [[code/code-plan\|Plan]], [[code/code-prd\|Prd]], [[code/code-ux\|Ux]], [[code/code-system\|System]], [[code/code-research\|Research]], (plus Architect) |
-| →→ **Architect** | [[code/code-architect\|Architect]], [[code/code-system-design\|System-design]], [[code/code-modules\|Modules]], [[code/code-roadmap\|Roadmap]] |
+| **Plan**         | [[plan/SKILL\|Plan]], [[plan/plan-prd\|Prd]], [[plan/plan-ux\|Ux]], [[code/code-research\|Research]], (plus Architect) |
+| →→ **Architect** | [[plan/plan-architect\|Architect]], [[code/code-system-design\|System-design]], [[code/code-modules\|Modules]], [[plan/plan-roadmap\|Roadmap]] |
 | **Groom**        | [[SKL Groom\|Groom]], [[code/code-replan\|Replan]], [[code/code-ask-questions\|Ask-questions]]                           |
 | **Mint**         | [[code/code-mint\|Mint]], [[code/code-code\|Code]], [[code/code-bugfix\|Bugfix]], [[code/code-spike\|Spike]], [[code/code-forge\|Forge]], (plus Test) |
 | →→ **Test**      | [[code/code-test\|Test]], [[code/code-verify\|Verify]], [[code/code-review\|Review]]                                    |

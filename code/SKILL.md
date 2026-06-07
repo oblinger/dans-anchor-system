@@ -21,20 +21,13 @@ The unified development skill. Invoke with an action to run a workflow.
 
 | #   | Usage                 | File                   | Description                                                                   |
 | --- | --------------------- | ---------------------- | ----------------------------------------------------------------------------- |
-|     | **1x Plan**           |                        | *Design the system before writing code*                                       |
-| 10  | `/code plan`           | [[code-plan]]           | Orchestrator: anchor → prd → ux → system → plan-audit...                      |
+|     | **1x Plan** *(moved to `/plan` per F120)* |                        | *Planning verbs live under `/plan` — see [[plan]]*                            |
 | 11  | `/code anchor`         | [[code-anchor]]         | Create project anchor, all doc files, wire dispatch tables                    |
-| 12  | `/code prd`            | [[code-prd]]            | Product requirements: goals, user stories, constraints                        |
 | 13  | `/code research`       | [[code-research]]       | Investigate landscape: tools, prior art, approaches                           |
-| 14  | `/code ux`             | [[code-ux]]             | UX design: screens, commands, concepts, mockups                               |
-| 15  | `/code system`         | [[code-system]]         | System conversation: language, components, state, deps                        |
 | 16  | `/code plan-audit`     | [[code-plan-audit]]     | Completeness check on the plan                                                |
-|     | **2x Architect**      |                        | *Agent designs the full system on paper*                                      |
-| 20  | `/code architect`      | [[code-architect]]      | Orchestrator: system-design → modules → test-plan → roadmap → arch-audit      |
-| 21  | `/code system-design`  | [[code-system-design]]  | Architecture doc: components, APIs, data models                               |
+|     | **2x Architect**      |                        | *Agent designs the full system on paper — high-level moved to [[plan-architect]]* |
 | 22  | `/code modules`        | [[code-modules]]        | Files doc + per-module docs with interfaces                                   |
 | 23  | `/code test-plan`      | [[code-test-plan]]      | Test design document: areas, scaffolds, categories                            |
-| 24  | `/code roadmap`        | [[code-roadmap]]        | Ordered milestones with acceptance criteria                                   |
 | 25  | `/code arch-audit`     | [[code-arch-audit]]     | Architecture completeness check                                               |
 |     | **3x Implement**      |                        | *Build features iteratively*                                                  |
 | 29  | `/feature`             | (top-level skill)       | Feature lifecycle: design doc → agree → implement → test → done               |
