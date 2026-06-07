@@ -552,7 +552,7 @@ def _build_decisions_body(name: str, inv: AnchorInventory) -> str:
         content = inv.principles_path.read_text(encoding="utf-8", errors="replace")
         out.append(f"## Principles (migrated from {name} Principles.md)")
         out.append("")
-        for lean, details, dnum in _extract_decision_entries(content, "reviewed", d_counter):
+        for lean, details, dnum in _extract_decision_entries(content, "sampled", d_counter):
             out.append(lean)
             out.append("")
             all_entries.append((dnum, lean, details))
@@ -628,10 +628,15 @@ _PREFIX_RE = _re.compile(r"^[A-Z]{1,3}\d+\s*[—-]\s*")
 
 
 # Bold-label sections that route to the **Details** file (rationale, provenance).
-_DETAILS_LABELS = ("why", "rationale", "encoded by", "encodes")
+_DETAILS_LABELS = ("why", "rationale")
+# Bold-label sections to DROP entirely (redundant cross-references in unified file).
+_DROP_LABELS = ("encoded by", "encodes")
 # Bold-label sections that stay in the **Decisions** file (operational content).
 _LEAN_LABELS = ("check pattern", "exceptions", "see also", "rule")
 _LABEL_RE = _re.compile(r"^\*\*([^*:]+):\*\*\s*(.*)$")
+# Strip `(encodes [[...]])` / `(encodes Px)` parentheticals from source titles —
+# in a unified Decisions file these references become self-referential.
+_ENCODES_SUFFIX_RE = _re.compile(r"\s*\(encodes [^)]*\)\s*$")
 
 
 def _extract_decision_entries(
@@ -673,6 +678,8 @@ def _extract_decision_entries(
 
     def _route_for(label_text: str) -> str:
         low = label_text.strip().lower()
+        if any(low.startswith(d) for d in _DROP_LABELS):
+            return "drop"
         if any(low.startswith(d) for d in _DETAILS_LABELS):
             return "details"
         if any(low.startswith(L) for L in _LEAN_LABELS):
@@ -683,12 +690,32 @@ def _extract_decision_entries(
     def flush():
         nonlocal d_num
         if current_title is not None:
-            stripped_title = _PREFIX_RE.sub("", current_title).strip()
+            # Strip source prefix (R03 — / P01 —) AND the `(encodes [[...]])`
+            # parenthetical (self-referential in a unified Decisions file).
+            t = _PREFIX_RE.sub("", current_title)
+            t = _ENCODES_SUFFIX_RE.sub("", t).strip()
             lean_body = "\n".join(current_lean).strip()
+            # Strip the redundant bold-title-repeat at the start of the body
+            # (source convention: `**Title** — statement...` after the H2/H3 title).
+            bold_repeat = _re.compile(
+                rf"^\*\*{_re.escape(t)}\*\*\s*[—-]?\s*", _re.IGNORECASE
+            )
+            stripped = bold_repeat.sub("", lean_body).lstrip()
+            # Capitalize first letter so the body reads as a complete sentence.
+            if stripped and stripped[0].islower():
+                stripped = stripped[0].upper() + stripped[1:]
+            lean_body = stripped
             details_body = "\n".join(current_details).strip()
-            lean_entry = f"### D{d_num:02d} — {stripped_title} ({source_tier})\n\n{lean_body}"
+            # H3 directly followed by body (no blank line) per user direction.
+            lean_entry = f"### D{d_num:02d} — {t} ({source_tier})\n{lean_body}"
             entries.append((lean_entry, details_body, d_num))
             d_num += 1
+
+    # Detect aux headings that close the current decision: any heading with
+    # FEWER #s than title_level (so when title_level=`### `, `## Code Rules`
+    # closes the decision; `### Exceptions` does NOT — it folds in as a sub-label).
+    title_level_depth = title_level.count("#")
+    _aux_close_re = _re.compile(r"^(#{1,6})\s+\S")
 
     for line in lines:
         if _decision_re.match(line):
@@ -698,40 +725,52 @@ def _extract_decision_entries(
             current_details = []
             routing = "lean"
             continue
+        if current_title is not None:
+            aux_m = _aux_close_re.match(line)
+            if aux_m and len(aux_m.group(1)) < title_level_depth:
+                # Heading strictly shallower than decision-title level — closes current decision.
+                flush()
+                current_title = None
+                continue
         if current_title is None:
-            continue  # pre-first-decision content (frontmatter, H1)
+            continue  # pre-first-decision content (frontmatter, H1, or aux trailing content)
+
+        def _target_for(r: str) -> list[str] | None:
+            if r == "details":
+                return current_details
+            if r == "lean":
+                return current_lean
+            return None  # drop
 
         hm = _heading_re.match(line)
         if hm:
-            # Sub-heading folds into body as `**Label:**`. May switch routing.
             label_text = hm.group(2).strip()
             routing = _route_for(label_text)
-            target = current_details if routing == "details" else current_lean
-            target.append(f"**{label_text}:**")
+            tgt = _target_for(routing)
+            if tgt is not None:
+                tgt.append(f"**{label_text}:**")
             continue
 
         lm = _LABEL_RE.match(line)
         if lm:
-            # Inline bold-label like `**Why:** body...` — switch routing for this line + body.
             label_text = lm.group(1).strip()
             tail = lm.group(2)
             routing = _route_for(label_text)
-            target = current_details if routing == "details" else current_lean
-            # Preserve the label + inline tail; subsequent unlabeled lines route to same target.
+            tgt = _target_for(routing)
+            if tgt is None:
+                continue  # dropped (e.g., Encoded by)
             if routing == "lean" and label_text.lower() == "rule":
-                # Drop the redundant `**RULE:**` prefix per user direction — statement stands alone.
+                # Drop the redundant **RULE:** prefix per user direction.
                 if tail:
-                    target.append(tail)
+                    tgt.append(tail)
             else:
-                if tail:
-                    target.append(f"**{label_text}:** {tail}")
-                else:
-                    target.append(f"**{label_text}:**")
+                tgt.append(f"**{label_text}:** {tail}" if tail else f"**{label_text}:**")
             continue
 
-        # Continuation line — append to current routing's body.
-        target = current_details if routing == "details" else current_lean
-        target.append(line)
+        # Continuation line — append to current routing's target (or drop).
+        tgt = _target_for(routing)
+        if tgt is not None:
+            tgt.append(line)
 
     flush()
     return entries
