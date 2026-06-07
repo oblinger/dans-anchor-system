@@ -141,11 +141,20 @@ QMD_BANNER_RE = re.compile(
 
 # B16 (ask-format) — Q-header bullet: `- **Q<n> — ...`
 Q_HEADER_RE = re.compile(r"^(\s*)- \*\*Q(\d+)\b")
+# F123 — Q-header H3 form: `### Q<n> — ...` (used by DKT and possibly others)
+Q_HEADER_H3_RE = re.compile(r"^### Q(\d+)\b")
 # B16 — block-ID at end of Q header line: `^F089-Q3`
 Q_BLOCK_ID_TRAILING_RE = re.compile(r"\^([A-Za-z][A-Za-z0-9_\-]*-Q\d+)\s*$")
 # B16 — Recommendation bullet: `- **Recommendation:** Strong (B). reason.`
 RECOMMENDATION_RE = re.compile(
     r"^(\s*)- \*\*Recommendation:\*\*\s*(Strong|Lean|None)?\b",
+    re.IGNORECASE,
+)
+# F123 — Recommendation paragraph form (H3-shape Qs): `Recommendation: **None** ...`
+# Accepts strength inside or outside the bold-asterisks. Anchors `\b` *after*
+# the strength capture (before any closing `**`) so `**None**` matches.
+RECOMMENDATION_PARA_RE = re.compile(
+    r"^Recommendation:\s*\*{0,2}(Strong|Lean|None)\b\*{0,2}",
     re.IGNORECASE,
 )
 # B16 (C8) — embedded prose alternatives heuristic: "(a) X or (b) Y" inline
@@ -213,7 +222,15 @@ class Finding:
 
 @dataclass
 class QEntry:
-    """B16 — a single Q-header bullet inside a ## Open Questions block."""
+    """B16 — a single Q-header inside a ## Open Questions block.
+
+    F123: `shape` distinguishes the two valid Q-header forms:
+      - "bullet" — `- **Q<n> — ...` (canonical / ask-format default)
+      - "h3"     — `### Q<n> — ...` (DKT and possibly other anchors)
+    Most checks apply uniformly; per-shape divergences are documented at
+    each check (C10 N/A for h3; C19 looks at top-level bullets; C20 N/A
+    when shape==h3 and recommendation is paragraph-form).
+    """
     source_file: Path
     source_line: int            # 1-indexed Q header line
     indent: str                 # leading whitespace on the Q header line
@@ -225,6 +242,8 @@ class QEntry:
     recommendation_line: int = 0           # 0 = missing
     recommendation_indent: Optional[str] = None
     recommendation_strength: Optional[str] = None  # 'Strong' / 'Lean' / 'None'
+    shape: str = "bullet"                  # F123: "bullet" | "h3"
+    recommendation_is_paragraph: bool = False  # F123: paragraph-form Rec (h3 only)
 
 
 # ============================================================
@@ -1029,6 +1048,32 @@ def extract_q_entries(file_path: Path, container_id: str) -> list[QEntry]:
                 continue
             if level == 3:
                 flush()
+                # F123: detect H3-form Q-header. If matched, start a new
+                # pending H3-form Q (only when not in `## Resolved` H2);
+                # in_h3_resolved is set False because the Q header replaces
+                # any prior `### Resolved` context.
+                h3_q_m = Q_HEADER_H3_RE.match(line)
+                if h3_q_m and not in_h2_resolved:
+                    q_num = int(h3_q_m.group(1))
+                    block_id_match = Q_BLOCK_ID_TRAILING_RE.search(line)
+                    has_block_id = block_id_match is not None
+                    block_id_value = block_id_match.group(1) if block_id_match else None
+                    inline_alt = INLINE_ALTERNATIVES_RE.search(
+                        _strip_code_spans(line)
+                    ) is not None
+                    pending_q = QEntry(
+                        source_file=file_path,
+                        source_line=line_num,
+                        indent="",
+                        q_num=q_num,
+                        container_id=container_id,
+                        has_block_id=has_block_id,
+                        block_id_value=block_id_value,
+                        inline_alternatives=inline_alt,
+                        shape="h3",
+                    )
+                    in_h3_resolved = False
+                    continue
                 in_h3_resolved = (heading_text.lower() == "resolved")
                 continue
             # Level 1 or 4+: leave state alone (rare in feature docs)
@@ -1059,6 +1104,7 @@ def extract_q_entries(file_path: Path, container_id: str) -> list[QEntry]:
                 has_block_id=has_block_id,
                 block_id_value=block_id_value,
                 inline_alternatives=inline_alt,
+                shape="bullet",
             )
             continue
         # Recommendation bullet (first match wins)
@@ -1070,6 +1116,15 @@ def extract_q_entries(file_path: Path, container_id: str) -> list[QEntry]:
                 pending_q.recommendation_strength = (
                     rm.group(2).capitalize() if rm.group(2) else None
                 )
+                continue
+            # F123: H3-form Qs may use paragraph-form Recommendation
+            if pending_q.shape == "h3":
+                rm_para = RECOMMENDATION_PARA_RE.match(line)
+                if rm_para:
+                    pending_q.recommendation_line = line_num
+                    pending_q.recommendation_indent = ""
+                    pending_q.recommendation_strength = rm_para.group(1).capitalize()
+                    pending_q.recommendation_is_paragraph = True
     flush()
     return out
 
@@ -1229,9 +1284,15 @@ def check_c9_recommendation_present(q_entries: list[QEntry]) -> list[Finding]:
 
 
 def check_c10_recommendation_outdent(q_entries: list[QEntry]) -> list[Finding]:
-    """C10: Recommendation bullet at same indent as Q header (not nested)."""
+    """C10: Recommendation bullet at same indent as Q header (not nested).
+
+    F123: N/A for H3-form Qs — there is no indent semantics to enforce
+    (H3 + top-level Recommendation are both at column 0).
+    """
     findings: list[Finding] = []
     for q in q_entries:
+        if q.shape == "h3":
+            continue
         if q.recommendation_line == 0 or q.recommendation_indent is None:
             continue
         if len(q.recommendation_indent) > len(q.indent):
@@ -1255,6 +1316,8 @@ def apply_c10_fix(q_entries: list[QEntry]) -> list[str]:
     log: list[str] = []
     by_file: dict[Path, list[QEntry]] = {}
     for q in q_entries:
+        if q.shape == "h3":
+            continue  # F123: C10 N/A for H3-form Qs
         if q.recommendation_line == 0 or q.recommendation_indent is None:
             continue
         if len(q.recommendation_indent) > len(q.indent):
@@ -1392,6 +1455,12 @@ def check_c19_option_bullets(q_entries: list[QEntry]) -> list[Finding]:
                 qs_sorted[i + 1].source_line if i + 1 < len(qs_sorted) else len(lines) + 1
             )
             q_indent_len = len(q.indent)
+            # F123: for H3-form Qs, options live at top-level (indent 0)
+            # rather than nested. Use indent==0 (TOP_BULLET_RE) for option
+            # detection; the unlabeled-sub-bullet flag fires when a
+            # top-level bullet inside the H3 body lacks an `(X)` label
+            # and the body is not a known annotation.
+            is_h3 = (q.shape == "h3")
             for line_num in range(start_line + 1, end_line):
                 line = lines[line_num - 1]
                 # Two option labels on same line:
@@ -1407,6 +1476,36 @@ def check_c19_option_bullets(q_entries: list[QEntry]) -> list[Finding]:
                         ),
                         mechanically_fixable=False,
                     ))
+                    continue
+                if is_h3:
+                    # Top-level bullet detection inside H3 body
+                    m_top = re.match(r"^-\s+", line)
+                    if not m_top:
+                        continue
+                    # Inline Recommendation bullet inside H3 body — not an option
+                    if RECOMMENDATION_RE.match(line):
+                        continue
+                    if not OPTION_BULLET_RE.match("  " + line):
+                        # Reuse OPTION_BULLET_RE (it expects leading whitespace);
+                        # prepend two spaces to satisfy its leading-indent group.
+                        body = line.lstrip("- *").strip()
+                        if body.startswith((
+                            "Note:", "Context:", "Constraint:", "Background:",
+                            "Recommendation",
+                        )):
+                            continue
+                        findings.append(Finding(
+                            severity="warning",
+                            surface_file=file_path,
+                            surface_line=line_num,
+                            code="C19",
+                            message=(
+                                f"Q{q.q_num} top-level bullet not labeled as option "
+                                f"`- **(A)** ...`; H3-form alternatives must be "
+                                f"labeled (A)/(B)/... on their own lines"
+                            ),
+                            mechanically_fixable=False,
+                        ))
                     continue
                 # Sub-bullet at Q's option indent level but not labeled
                 sub_m = SUB_BULLET_RE.match(line)
@@ -1463,6 +1562,13 @@ def check_c20_blank_after_recommendation(q_entries: list[QEntry]) -> list[Findin
         qs_sorted = sorted(qs, key=lambda x: x.source_line)
         for q in qs_sorted:
             if q.recommendation_line == 0:
+                continue
+            # F123: H3-form Qs with paragraph-form Recommendation have no
+            # indent semantics — continuation lines are at column 0 like
+            # the Rec line itself; the strict outdent rule would false-fire.
+            # The H2/H3 boundary between Qs is enforced separately by C21
+            # and standard markdown structure.
+            if q.shape == "h3" and q.recommendation_is_paragraph:
                 continue
             # The Recommendation itself may span continuation lines (more-indented).
             # Find the end of the Recommendation block: walk forward while we see
