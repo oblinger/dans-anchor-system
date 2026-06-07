@@ -499,6 +499,45 @@ def plan_phase_b_for_anchor(inv: AnchorInventory) -> list[PlannedMove]:
                 note=f"delete {name} Docs.md (wrapper umbrella; folder being removed). "
                      f"NOTE: {name} Design.md remains as the Design folder umbrella."
             ))
+        # F113 Q12 (2026-06-07) — leftover cleanup: relocate stragglers
+        # before attempting rmdir. KM test surfaced .anchor + KM DOC SYNC.md
+        # left behind. Pattern likely repeats across other anchors.
+        for leftover in sorted(inv.docs_folder.iterdir() if inv.docs_folder.exists() else []):
+            # Skip dirs already targeted by hoist (Design/Track/User/Dev)
+            if leftover.is_dir():
+                continue
+            # Skip the Docs.md already enqueued above
+            if leftover == docs_md:
+                continue
+            # Orphan .anchor — Docs/ is no longer an anchor post-migration
+            if leftover.name == ".anchor":
+                moves.append(PlannedMove(
+                    op="delete", src=leftover,
+                    note=f"delete orphan .anchor (Docs/ is no longer an anchor)"
+                ))
+                continue
+            # Other .md files — relocate to anchor root with no-clobber guard
+            if leftover.suffix == ".md":
+                relocated = root / leftover.name
+                moves.append(PlannedMove(
+                    op="move", src=leftover, dst=relocated,
+                    note=f"relocate leftover content to anchor root"
+                ))
+                continue
+            # Anything else (binary, dotfile, etc.) — note for user review.
+            moves.append(PlannedMove(
+                op="note",
+                note=f"LEFTOVER (manual review): {_rel(leftover)} — not relocated"
+            ))
+        # Now recursively rmdir any empty subdirs in Docs/ (e.g. hoisted-out
+        # KM Track/, KM Design/ subdirs that are now empty).
+        if inv.docs_folder.exists():
+            for sub in sorted(inv.docs_folder.iterdir(), reverse=True):
+                if sub.is_dir():
+                    moves.append(PlannedMove(
+                        op="delete", src=sub,
+                        note=f"remove emptied subdir ({_rel(sub)})"
+                    ))
         moves.append(PlannedMove(
             op="delete", src=inv.docs_folder,
             note=f"remove empty Docs/ wrapper ({_rel(inv.docs_folder)})"
@@ -777,7 +816,27 @@ def _extract_decision_entries(
 
 
 def execute_moves(moves: list[PlannedMove], dry_run: bool) -> tuple[int, int]:
-    """Apply (or print) the planned moves. Returns (applied, errors)."""
+    """Apply (or print) the planned moves. Returns (applied, errors).
+
+    F113 Q12 (2026-06-07) — non-destructive guards. The script MUST be
+    provably incapable of destroying content:
+
+    - **move**: if destination exists AND is non-identical to source, ABORT
+      (clobber guard). Identical destination → already-applied; skip safely.
+    - **write**: if destination exists AND content differs from what would be
+      written, ABORT (clobber guard). Identical → idempotent; skip safely.
+    - **delete (file)**: only files the script created the migrated-source-of
+      Decisions are eligible. Pre-check: the migrated content must already be
+      present in {NAME} Decisions.md OR in {NAME} Decisions Details.md (the
+      union of which subsumes Principles+Rules). Otherwise ABORT.
+    - **delete (dir)**: only empty directories. (Existing guard via rmdir
+      raising OSError if non-empty — retained.)
+
+    On any guard failure the script logs the conflict, increments errors,
+    and continues to the next move. Per-anchor commits between runs mean
+    a guard-tripped anchor can be inspected mid-batch without polluting
+    other anchors' migrations.
+    """
     applied = 0
     errors = 0
 
@@ -797,6 +856,33 @@ def execute_moves(moves: list[PlannedMove], dry_run: bool) -> tuple[int, int]:
                 print(f"  [move] {_rel(m.src)}  →  {_rel(m.dst)}"
                       + (f"  ({m.note})" if m.note else ""))
                 if not dry_run:
+                    # F113 Q12 — clobber guard. If destination exists, the
+                    # only safe paths are: (a) destination is byte-identical
+                    # to source — idempotent re-run, remove source; (b) source
+                    # is gone — move already applied, skip; anything else aborts.
+                    if m.dst.exists():
+                        if not m.src.exists():
+                            print(f"    GUARD: dest exists, source gone "
+                                  f"— already-applied; skipping.")
+                            applied += 1
+                            continue
+                        if m.src.is_file() and m.dst.is_file() \
+                           and m.src.read_bytes() == m.dst.read_bytes():
+                            print(f"    GUARD: dest exists with identical content "
+                                  f"— treating as already-applied; removing source.")
+                            m.src.unlink()
+                            applied += 1
+                            continue
+                        print(f"    ABORT (clobber-guard): destination exists with "
+                              f"different content; refusing to overwrite. "
+                              f"Inspect manually: {_rel(m.dst)}")
+                        errors += 1
+                        continue
+                    if not m.src.exists():
+                        print(f"    GUARD: source missing; nothing to move. "
+                              f"Skipping.")
+                        applied += 1
+                        continue
                     m.dst.parent.mkdir(parents=True, exist_ok=True)
                     shutil.move(str(m.src), str(m.dst))
                 applied += 1
@@ -814,6 +900,21 @@ def execute_moves(moves: list[PlannedMove], dry_run: bool) -> tuple[int, int]:
                         print(f"    SKIPPED: <MERGE-MARKER> not yet implemented; "
                               f"resolve manually after dry-run review.")
                     elif m.content is not None:
+                        # F113 Q12 — clobber guard. Same logic as move:
+                        # identical existing content is idempotent (skip);
+                        # different existing content aborts.
+                        if m.dst.exists():
+                            existing = m.dst.read_text(encoding="utf-8")
+                            if existing == m.content:
+                                print(f"    GUARD: dest exists with identical "
+                                      f"content — idempotent; skipping write.")
+                                applied += 1
+                                continue
+                            print(f"    ABORT (clobber-guard): destination exists "
+                                  f"with different content; refusing to overwrite. "
+                                  f"Inspect manually: {_rel(m.dst)}")
+                            errors += 1
+                            continue
                         m.dst.parent.mkdir(parents=True, exist_ok=True)
                         m.dst.write_text(m.content, encoding="utf-8")
                 applied += 1
@@ -833,6 +934,38 @@ def execute_moves(moves: list[PlannedMove], dry_run: bool) -> tuple[int, int]:
                     print(f"  [delete] {_rel(m.src)}"
                           + (f"  ({m.note})" if m.note else ""))
                     if not dry_run and m.src and m.src.exists():
+                        # F113 Q12 — content-preservation guard. Deletion of
+                        # Principles / Rules / Discussion / Docs.md is only safe
+                        # if the content has already been preserved at its new
+                        # destination. For Principles / Rules: confirm the new
+                        # Decisions.md exists and contains H3 entries (D<n>);
+                        # otherwise the migration didn't complete and we must
+                        # not delete the source.
+                        stem = m.src.stem
+                        if "Principles" in stem or "Rules" in stem:
+                            # Find sibling Decisions.md (peer in target Design folder).
+                            decisions_candidates = list(m.src.parent.parent.rglob(
+                                "*Decisions.md"
+                            )) + list(m.src.parent.rglob("*Decisions.md"))
+                            decisions_path = next(
+                                (p for p in decisions_candidates if "Details" not in p.name),
+                                None,
+                            )
+                            if decisions_path is None or not decisions_path.is_file():
+                                print(f"    ABORT (preservation-guard): no Decisions.md "
+                                      f"sibling found; source content not yet preserved. "
+                                      f"Refusing delete of {_rel(m.src)}.")
+                                errors += 1
+                                continue
+                            dec_text = decisions_path.read_text(encoding="utf-8")
+                            if "### D" not in dec_text:
+                                print(f"    ABORT (preservation-guard): Decisions.md "
+                                      f"exists but contains no D-numbered entries; "
+                                      f"content not preserved. Refusing delete of {_rel(m.src)}.")
+                                errors += 1
+                                continue
+                            print(f"    GUARD: Decisions.md preservation verified "
+                                  f"({_rel(decisions_path)}); safe to delete.")
                         m.src.unlink()
                 applied += 1
         except Exception as e:
