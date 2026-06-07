@@ -6,20 +6,15 @@ description: Decision Sets — curated, versioned bundles of decisions per F113 
 
 Curated, versioned bundles of decisions (post-F113 successor to `~/.claude/skills/rule/sets/`). Each set is a standalone markdown doc bundling related decisions that apply to a specific style of anchor or a specific cross-cutting concern. When an anchor pulls a set in, the set's decisions get renumbered into the anchor's local D-NN namespace and appended as an H2 grouping in `{NAME} Decisions.md` (per F113 Q2 — copy-in semantics).
 
-Three kinds of sets:
+Two committed kinds of sets:
 
-- **Trait-scoped** — match a trait name from the CAB Traits taxonomy (Code, Skill, Topic, Paper, Simple). Pulled in when an anchor declares that trait.
 - **Cross-cutting** — not trait-scoped (Arch, Doc, Git, Process, Test). Pulled in when the anchor explicitly opts in.
 - **Owner-scoped** — pulled in by every anchor a person owns, regardless of trait (Ob/ = Dan's personal set).
 
+A third — **trait-scoped** sets keyed to the CAB Traits taxonomy — is proposed but not committed. Surfaced separately below.
+
 | -[[Decision Sets]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Library]] → [Decision Sets](hook://p/Decision%20Sets)<br>: Curated, versioned bundles of decisions per F113 Phase 3. |
 | --- | --- |
-| **Trait-scoped sets** |  |
-| **Code/** | Code-trait sets: `mac-app` (macOS app — signing, TCC, sandbox), `ios` (iOS apps), `rust` (Rust crate), `python` (Python tooling), `shell` (bash/zsh scripts), `frontend` (TypeScript/React), `cloud-backend` (backend services), `cli-tool` (command-line tool design). |
-| **Skill/** | Skill-trait sets: `anchor-shape` (skill-anchor structural shape), `discipline` (discipline-style skill conventions — ask-format, verification, mode style). |
-| **Topic/** | Topic-trait sets: knowledge/reference anchors (folders of notes, surveys, glossaries). |
-| **Paper/** | Paper-trait sets: writing-style and citation conventions for paper anchors. |
-| **Simple/** | Simple-trait sets: minimal-shape anchors (lightweight collections without full CAB structure). |
 | **Cross-cutting sets** |  |
 | **Arch/** | Architecture decisions: `factory-pegboard` (factory pattern per F108), `interfaces-folder` (single Interfaces/ folder), `single-source-of-truth` (no duplicate code; use imports). |
 | **Doc/** | Documentation conventions: `md-formatting` (markdown formatting), `progressive-disclosure` (the discipline as decisions), `wiki-links` (Obsidian wiki-link conventions), `file-naming` (file and folder naming). |
@@ -29,9 +24,17 @@ Three kinds of sets:
 | **Owner-scoped sets** |  |
 | **Ob/** | Dan's personal cross-project set — applies to every anchor Dan owns regardless of trait. Currently one set: `ob/ob.md` (markdown-valid-for-Obsidian, kmr-flavored commit discipline, em-dash policy for authored content, etc.). |
 | --- | |
-| [[mac-app]] | macOS app development — code signing, TCC permissions, sandboxing, build conventions |
-| [[ob]] | Dan's personal cross-project set — applies to every anchor Dan owns regardless of trait or domain. Currently one set: `ob/ob.md` (markdown-valid-for-Obsidian, kmr-flavored commit discipline, em-dash policy for authored content, etc.). |
-| [[Decision Sets/README]] |  |
+
+## Proposed trait-scoped sets
+
+Trait-scoped sets would key off the CAB Traits taxonomy and pull in automatically when an anchor declares the matching trait. **Not committed** — the catalog below is speculative scaffolding, possibly too granular. May be pruned, merged into cross-cutting categories, or scrapped entirely as the pattern proves out (or doesn't).
+
+| **Code/** | macOS app, iOS, Rust crate, Python tooling, shell scripts, TypeScript/React frontend, backend services, CLI tool design. |
+| --- | --- |
+| **Skill/** | skill-anchor structural shape, discipline-style skill conventions (ask-format, verification, mode style). |
+| **Topic/** | knowledge/reference anchors (folders of notes, surveys, glossaries). |
+| **Paper/** | writing-style and citation conventions for paper anchors. |
+| **Simple/** | minimal-shape anchors (lightweight collections without full CAB structure). |
 
 ## Status
 

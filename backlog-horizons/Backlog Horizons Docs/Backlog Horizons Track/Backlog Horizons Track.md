@@ -3,7 +3,7 @@ description: product requirements, design, execution state, feature docs
 ---
 # Backlog Horizons Plan
 
-| -[[Backlog Horizons Track]]- | → [[_]] → [[Dir]] → [ob](hook://ob) → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[Backlog Horizons]] → [[Backlog Horizons Docs]] → [Backlog Horizons Track](hook://p/Backlog%20Horizons%20Track)<br>: planning surface for the Backlog Horizons skill anchor |
+| -[[Backlog Horizons Track]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[Backlog Horizons]] → [[Backlog Horizons Docs]] → [Backlog Horizons Track](hook://p/Backlog%20Horizons%20Track)<br>: planning surface for the Backlog Horizons skill anchor |
 | --- | --- |
 | [[Backlog Horizons PRD]] | product requirements — what the skill does and why |
 | [[Backlog Horizons Backlog]] | deferred work — items in flight or queued |

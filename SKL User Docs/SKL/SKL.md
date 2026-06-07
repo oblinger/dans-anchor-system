@@ -7,13 +7,14 @@ description: skills dispatch table
 | Related | [[SKL Skills\|Skills]],   |
 |  | **SKILL GROUPS** |
 | [[SKL Anchor\|Anchor]]+ | [[SKL Anchor Toolkit\|Anchor Toolkit]],  [[SKL CAB\|CAB]],  [[SKL Create\|Create]],  [[SKL Install\|Install]],  [[SKL Migrate\|Migrate]],  [[SKL Move\|Move]],  [[SKL Publish\|Publish]],  [[SKL Streams\|Streams]],  [[SKL WP\|WP]],  [[SKL Yore\|Yore]],   |
-| [[SKL Hygiene\|Hygiene]]+ | [[SKL Audit\|Audit]],  [[SKL Dupes\|Dupes]],  [[SKL Lint\|Lint]],  [[SKL Maintain\|Maintain]],  [[SKL Rewire\|Rewire]],  [[SKL Rule\|Rule]],  [[SKL Slug Scan\|Slug Scan]],  [[SKL Tidy\|Tidy]],   |
-| [[SKL Drive\|Drive]]+ | User guides for the engine-room verbs that drive work forward through the lifecycle — from inbox to backlog, backlog to active, active to verified. |
+| [[SKL Hygiene\|Hygiene]]+ | [[SKL Audit\|Audit]],  [[SKL Dupes\|Dupes]],  [[SKL Lint\|Lint]],  [[SKL Maintain\|Maintain]],  [[SKL Rewire\|Rewire]],  [[SKL Slug Scan\|Slug Scan]],  [[SKL Tidy\|Tidy]],   |
+| [[SKL Track\|Track]]+ | workflow, backlog-horizons, verification, audit-q |
+| [[SKL Drive\|Drive]]+ | crank, land, fortify, triage, ask, feature, groom, mint, finalize |
 | [[SKL Dev\|Dev]]+ | [[SKL Architect\|Architect]],  [[SKL Code\|Code]],  [[SKL Fix\|Fix]],  [[SKL Pilot Flow\|Pilot Flow]],  [[SKL PR Flow\|PR Flow]],   |
 | [[SKL Doc\|Doc]]+ | [[SKL Edit\|Edit]],  [[SKL IO\|IO]],  [[SKL MD\|MD]],  [[SKL Viz\|Viz]],   |
 | [[SKL Search\|Search]]+ | [[SKL Book\|Book]],  [[SKL Corp\|Corp]],  [[SKL Describe\|Describe]],  [[SKL Find\|Find]],  [[SKL Meta Survey\|Meta Survey]],  [[SKL Person\|Person]],  [[SKL Product\|Product]],  [[SKL Purchase\|Purchase]],  [[SKL Research\|Research]],  [[SKL Research Skill\|Research Skill]],  [[SKL Search Overview\|Search Overview]],  [[SKL Skill\|Skill]],  [[SKL Software\|Software]],  [[SKL Survey\|Survey]],   |
 | [[SKL Utility\|Utility]]+ | [[SKL Cook\|Cook]],  [[SKL Ctrl\|Ctrl]],  [[SKL Exp\|Exp]],  [[SKL Parley\|Parley]],  [[SKL Snip\|Snip]],   |
-| [[SKL Discipline\|Discipline]]+ | [[SKL Backlog Horizons\|Backlog Horizons]],  [[SKL Mode\|Mode]],  [[SKL Role\|Role]],  [[SKL Workflow\|Workflow]],   |
+| [[SKL Discipline\|Discipline]]+ | [[SKL Mode\|Mode]],  [[SKL Role\|Role]],   |
 | [[SKL Library\|Library]]+ | [[Decision Sets]],   |
 | --- | |
 | [[SKL Ask\|Ask]] | The **`/ask` skill** is the universal asking subroutine. |

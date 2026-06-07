@@ -1,5 +1,5 @@
 ---
-description: User guides for the engine-room verbs that drive work forward through the lifecycle — from inbox to backlog, backlog to active, active to verified.
+description: "crank, land, fortify, triage, ask, feature, groom, mint, finalize"
 ---
 
 # SKL Drive
