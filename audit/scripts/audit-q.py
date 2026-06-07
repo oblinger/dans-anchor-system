@@ -2599,15 +2599,25 @@ def _c36_resolve_replacement(
     else:
         stem = name
         ext = ""
-    # ONLY safe automatic replacement: wiki-link to a vault-resident .md
-    # file whose basename is UNIQUE in the vault index. Ambiguous basenames
-    # (SKILL.md, README.md, ... — many files share the stem) would produce
-    # a link that resolves "somewhere" via path-proximity, but the reader
-    # has no way to know which target the author meant — that's a worse
-    # affordance than the original backticks. Leave ambiguous tokens as
-    # backticks and route to QFix for human judgment.
+    # Safe automatic replacements (in priority order):
+    #
+    # 1. Wiki-link `[[stem]]` — when basename is `.md` AND uniquely resolvable
+    #    in the vault index. Ambiguous basenames (SKILL.md, README.md, ...)
+    #    are skipped: the resulting `[[SKILL]]` would silently resolve
+    #    "somewhere" via path-proximity, worse affordance than the backticks.
     if ext == "md" and stem in vault_index and len(vault_index[stem]) == 1:
         return f"[[{stem}]]"
+    # 2. Markdown link `[name](path)` — when the path is ABSOLUTE (starts
+    #    with `/` or `~/`) AND the file actually exists on disk. Absolute
+    #    paths are unambiguous; the existing `_parse_markdown` resolver
+    #    accepts them correctly (no C1/C22 false positive). Relative paths
+    #    are deliberately skipped — they'd resolve to "source_file/path"
+    #    which is almost never what the author meant, and would trigger
+    #    C22 link-existence errors downstream.
+    if raw.startswith(("/", "~/")):
+        expanded = Path(raw).expanduser()
+        if expanded.is_file():
+            return f"[{name}]({raw})"
     return None
 
 
@@ -2649,6 +2659,13 @@ def check_c36_backtick_filepath(
             in_fence = not in_fence
             continue
         if in_fence:
+            continue
+        # Skip audit-q residual sub-bullets — these are findings rendered as
+        # `- **C<NN>** ...` on a B-QFix row; the backticks in their bodies are
+        # quoting the original finding's offending token, not a real path the
+        # author wrote. Re-flagging them creates a recursion where every audit
+        # pass surfaces residuals as new findings.
+        if re.match(r"^\s*-\s+\*\*[CD]\d+\*\*\s", line):
             continue
         for m in _BACKTICK_SPAN_RE.finditer(line):
             token = m.group(1)
