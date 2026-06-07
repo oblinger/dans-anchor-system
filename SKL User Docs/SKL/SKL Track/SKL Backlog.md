@@ -1,9 +1,9 @@
 ---
-description: "Organizes a backlog along two independent axes — *when* the user wants work to happen (horizon) and *how far* the work has progressed (workflow state)."
+description: "The **backlog discipline** organizes a backlog along two independent axes — *when* the user wants work to happen (horizon) and *how far* the work has progressed (workflow state) — so items…"
 ---
 # Backlog-Horizons Discipline
 
-The **backlog-horizons discipline** organizes a backlog along two independent axes — *when* the user wants work to happen (horizon) and *how far* the work has progressed (workflow state) — so items can be deferred without disappearing into the Icebox.
+The **backlog discipline** organizes a backlog along two independent axes — *when* the user wants work to happen (horizon) and *how far* the work has progressed (workflow state) — so items can be deferred without disappearing into the Icebox.
 
 This is a discipline (`user_invocable: false`) — you don't invoke it directly. It governs how `[[CAB Backlog]]` is structured, how `/roster` prints counts, how `/groom` decides which items to investigate, and how items can be pushed off the front of the backlog without losing them.
 

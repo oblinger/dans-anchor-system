@@ -1,10 +1,10 @@
 ---
-name: backlog-horizons
+name: backlog
 description: Discipline for organizing a backlog along two independent axes — horizon (when the user wants work to happen) and workflow state (whether work has progressed). Adds three horizon H2s — Now / Next / Later — that replace the legacy `## Upcoming` section. Cited from CAB Backlog, /groom, /roster, /feature, /triage.
 user_invocable: false
 ---
 
-# Backlog Horizons Discipline
+# Backlog Discipline
 
 Two-axis organization of a backlog. **Horizon** answers *when do we want this to happen?* **Workflow state** answers *how far has it progressed?* The two are orthogonal — an item in `## Later` can be `[Ready]`; an item in `## Now` can be `[Designing]`. Horizon is shown by H2 placement; workflow state is shown by the `[Status]` bracket per the `[[SKA workflow]]` discipline.
 

@@ -326,7 +326,7 @@ After the loop + branch resolves, print one line to chat for the mint summary. O
 ### 1. Locate the source
 
 - Walk up from `cwd` to find `.anchor`. If none, say "No anchor found from `{cwd}` upward." and stop.
-- The Ready queue lives in `{NAME} Docs/{NAME} Plan/{NAME} Backlog.md` § Ready (workflow-state H2) and items with `[Ready]` bracket in horizon H2s (per `[[SKA backlog-horizons]]`). `/mint` knows how to find Ready items; crank just delegates.
+- The Ready queue lives in `{NAME} Docs/{NAME} Plan/{NAME} Backlog.md` § Ready (workflow-state H2) and items with `[Ready]` bracket in horizon H2s (per `[[SKA backlog]]`). `/mint` knows how to find Ready items; crank just delegates.
 
 ### 2. Plan the sweep
 

@@ -462,7 +462,7 @@ Strictly idempotent + destructive. The agent rewrites the entire anchor section 
 - **`[[CAB Questions]]`** — sibling à la carte facet.
 - **`[[CAB Backlog]]`** — backlog format, F-numbering, status brackets, `[Verify]` semantics.
 - **`[[SKA ask]]`** — `## Open Questions` block format inside feature docs (the source of question text), and the writer for à la carte Qs.
-- **`[[SKA backlog-horizons]]`** — horizon H2s (Now / Next / Later) and the per-bucket count scheme.
+- **`[[SKA backlog]]`** — horizon H2s (Now / Next / Later) and the per-bucket count scheme.
 - **`[[SKA workflow]]`** — `[Questions]` / `[Verify]` / `[Done]` state semantics and transitions.
 - **`/groom`** — pairs with triage; groom *creates* the question state by parking, triage *gathers* and surfaces it.
 - **`/roster`** — counts every backlog item once per bucket; triage's H1 count line uses the same scheme so the two views agree.

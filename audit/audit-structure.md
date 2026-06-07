@@ -91,7 +91,7 @@ Per `[[SKA workflow]]` § Active-work invariant: every feature doc in `{NAME} Fe
 
 For each `*.md` file in `{NAME} Features/`:
 
-1. Compute the wiki-link basename (e.g., `F5 — Backlog Horizons` for `F5 — Backlog Horizons.md`).
+1. Compute the wiki-link basename (e.g., `F5 — Backlog` for `F5 — Backlog.md`).
 2. Search the three index files for `[[<basename>]]` (allowing alias and `#anchor` suffixes).
 3. **Match in any of the three** → invariant holds, no finding.
 4. **No match** → orphan. Add a finding: `orphan-feature-doc: {filename} — not linked from backlog/roadmap/icebox`.

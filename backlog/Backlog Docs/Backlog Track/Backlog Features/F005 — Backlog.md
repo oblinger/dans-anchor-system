@@ -1,8 +1,8 @@
 ---
-description: F005 — Backlog Horizons
+description: "F005 — Backlog"
 ---
 
-# [[Backlog Horizons]] · F005 — Backlog Horizons
+# [[Backlog]] · F005 — Backlog
 
 A discipline for how to organize a backlog so the user can push items off the front without sending them all the way to the Icebox. Adds three horizon sections (Now / Next / Later) inside the backlog, treats them as orthogonal to per-item status (Ready / Questions / Active / etc.), and is documented as a reusable discipline that multiple skills reference (`/groom`, `/roster`, `/feature`, …) — same shape as `ask-questions`.
 
@@ -59,7 +59,7 @@ The exact set of status tokens and their semantics is owned by the **`workflow` 
 Per Q3 resolution: a **standalone discipline doc** in the `skills/` tree, parallel to `skills/ask-questions/SKILL.md`, with `user_invocable: false`. Per the parallel-docs rule (B12), the discipline ships with two docs:
 
 - `skills/backlog-horizons/SKILL.md` — agent-facing discipline doc.
-- `skills/SKL User Docs/SKL Skills/SKL Backlog Horizons.md` — user-facing.
+- `skills/SKL User Docs/SKL Skills/SKL Backlog.md` — user-facing.
 
 CAB Backlog file-format spec stays focused on file format; this discipline addresses *behavior over time* and cites CAB Backlog for layout, the `workflow` discipline for state semantics, and is cited from `/groom`, `/roster`, `/feature`, future `/code` priorities.
 
@@ -119,7 +119,7 @@ Done — 2026-04-30 (commit `b7a7e5e`). User accepted the discipline as a good f
 
 - **Q2 — How do horizons coexist with existing CAB Backlog H2 sections?** — **Resolution:** Replace `## Upcoming` with three horizon H2s `## Now`, `## Next`, `## Later`. Keep `## Active`, `## Ready`, `## Verify`, `## Done` as workflow-state H2s. The precise semantics of how horizon H2s relate to workflow-state H2s (e.g., "is `Now` ≈ `Active`, or distinct?") is **deferred to the new `workflow` discipline (B11)** — that doc owns the canonical state graph and per-surface mappings. Incorporated into Design § Relationship to existing CAB Backlog structure.
 
-- **Q3 — Where does this discipline live?** — **Resolution:** Separate discipline doc, parallel to `ask-questions`. `skills/backlog-horizons/SKILL.md` (agent-facing) + `skills/SKL User Docs/SKL Skills/SKL Backlog Horizons.md` (user-facing) per the parallel-docs rule (B12). CAB Backlog file-format spec stays focused on file format and cites this discipline. Incorporated into Design § Where the discipline lives.
+- **Q3 — Where does this discipline live?** — **Resolution:** Separate discipline doc, parallel to `ask-questions`. `skills/backlog-horizons/SKILL.md` (agent-facing) + `skills/SKL User Docs/SKL Skills/SKL Backlog.md` (user-facing) per the parallel-docs rule (B12). CAB Backlog file-format spec stays focused on file format and cites this discipline. Incorporated into Design § Where the discipline lives.
 
 - **Q4 — How does `/roster` change to reflect horizons?** — **Resolution:** Roster prints a single line of per-bucket counts using single-word labels — one count per bucket, no double-counting. The sum across the line equals total backlog items. Format roughly: `Active: N | Ready: N | Now: N | Next: N | Later: N | Verify: N`. Each item appears in exactly one bucket. Icebox count stays separate (outside the backlog total). Incorporated into Design § /roster changes.
 

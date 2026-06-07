@@ -1,7 +1,7 @@
 ---
 description: deferred work — items in flight or queued
 ---
-# Backlog Horizons Backlog
+# Backlog Backlog
 
 ## Active
 

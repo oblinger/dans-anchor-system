@@ -416,7 +416,7 @@ A skill anchor IS a CAB anchor — `SKILL.md` is the agent-loaded code, the rest
 
 ## {Slug}.md (anchor root page)
 
-- [ ] File exists at folder root, name = Title Case slug (e.g., `Groom.md`, `Backlog Horizons.md`)
+- [ ] File exists at folder root, name = Title Case slug (e.g., `Groom.md`, `Backlog.md`)
 - [ ] Skill-specific first dispatch row: `Skill | [[{folder}/SKILL\|SKILL.md]], [[SKL {Slug}\|User Docs]]`
 - [ ] Second dispatch row: `[[{Slug} Plan\|Plan]]+ | [[{Slug} PRD\|PRD]], [[{Slug} Backlog\|Backlog]], [[{Slug} Triage\|Triage]], [[{Slug} Features\|Features]]`
 - [ ] No `Dev` row — skill anchors don't have one (SKILL.md *is* the code)
