@@ -492,6 +492,57 @@ def check_overview_h2s(lines: list[str], text: str, sections_rows: list[tuple[st
     return findings, overview_end, overview_classes
 
 
+def check_h2_content_consistency(lines: list[str], overview_end: int) -> list[Finding]:
+    """C31: H2 form should match the content shape inside its section.
+    - H2 with type qualifier (`## Name Class`) → expect a class table.
+    - H2 without type qualifier (`## Name`) → expect bulleted content (topic).
+    Mismatch means the author intended one thing but authored content for the other."""
+    findings: list[Finding] = []
+
+    type_keywords = {'Class', 'Enum', 'Struct', 'Topic', 'Protocol', 'Interface', 'Trait', 'Record'}
+
+    # Walk overview zone; for each H2 boundary, classify expected shape and observed shape
+    sections: list[tuple[int, str, bool]] = []  # (line, h2_name, expects_class_table)
+    for i, line in enumerate(lines):
+        if i + 1 >= overview_end:
+            break
+        m = H2_PATTERN.match(line)
+        if not m:
+            continue
+        name = m.group(1)
+        if name.lower() in ('see also', 'related'):
+            continue
+        parts = name.rsplit(' ', 1)
+        expects_class_table = len(parts) >= 2 and parts[1] in type_keywords
+        sections.append((i + 1, name, expects_class_table))
+
+    # For each section, check if it has a class table or bullets before the next H2
+    for idx, (h2_line, name, expects_table) in enumerate(sections):
+        end_line = sections[idx + 1][0] if idx + 1 < len(sections) else overview_end
+        has_class_table = False
+        has_bullets = False
+        for j in range(h2_line, min(end_line, len(lines) + 1) - 1):
+            ln = lines[j]
+            if CLASS_TABLE_HEADER_PATTERN.match(ln):
+                has_class_table = True
+            if TOPIC_BULLET_PATTERN.match(ln):
+                has_bullets = True
+        if expects_table and not has_class_table and has_bullets:
+            findings.append(Finding(
+                "C31", h2_line,
+                f"H2 `{name}` has a type qualifier (code-typed section) but content is a bulleted list, not a class table",
+                suggest=f"Either author a class table (`| {name.rsplit(' ', 1)[0].upper()} {name.rsplit(' ', 1)[1].upper()} | Description |` with field/method rows), or drop the type qualifier from the H2 to make it a bare topic.",
+            ))
+        elif not expects_table and has_class_table:
+            findings.append(Finding(
+                "C31", h2_line,
+                f"H2 `{name}` is bare (looks like a topic) but the section contains a class table — types disagree",
+                suggest=f"Either append a type qualifier to the H2 (e.g. `## {name} Class`) to match the class table, or replace the class table with a bulleted concept list if this is genuinely a topic.",
+            ))
+
+    return findings
+
+
 def check_class_method_details(lines: list[str], text: str, overview_end: int, overview_classes: list[str]) -> list[Finding]:
     """C18-C20, C24, C28. Class Method Details zone."""
     findings: list[Finding] = []
@@ -810,6 +861,7 @@ def audit_file(path: Path, fix: bool = False) -> tuple[list[Finding], bool]:
     h2_findings, overview_end, overview_classes = check_overview_h2s(lines, text, sections_rows)
     findings.extend(h2_findings)
     findings.extend(check_topic_format(lines, overview_end))
+    findings.extend(check_h2_content_consistency(lines, overview_end))
     findings.extend(check_class_method_details(lines, text, overview_end, overview_classes))
     findings.extend(check_spacing(lines))
     findings.extend(check_linking(path))
