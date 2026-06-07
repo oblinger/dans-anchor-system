@@ -423,7 +423,7 @@ def plan_phase_b_for_anchor(inv: AnchorInventory) -> list[PlannedMove]:
                 note=label,
             ))
 
-    # ---- Step 3: build Decisions.md from Principles + Rules ----
+    # ---- Step 3: build Decisions.md (+ optional Decisions Details.md) ----
     if inv.principles_path or inv.rules_path:
         decisions_target = target_design / f"{name} Decisions.md"
         if decisions_target.exists():
@@ -439,6 +439,14 @@ def plan_phase_b_for_anchor(inv: AnchorInventory) -> list[PlannedMove]:
                  + (" + " if inv.principles_path and inv.rules_path else "")
                  + (f"Rules ({_rel(inv.rules_path)})" if inv.rules_path else "")
         ))
+        # Optional companion: Decisions Details.md (same facet, different file).
+        details_body = _build_details_body(name, inv)
+        if details_body:
+            details_target = target_design / f"{name} Decisions Details.md"
+            moves.append(PlannedMove(
+                op="write", dst=details_target, content=details_body,
+                note=f"Build optional Decisions Details (Why / rationale per D-number)",
+            ))
         # Delete source Principles/Rules AFTER Decisions is written.
         # Note: after the hoist in step 2, these files live at their new locations.
         if inv.principles_path:
@@ -511,39 +519,44 @@ def _post_hoist_path(orig_path: Path, src_dst_pairs: list) -> Path:
 
 
 def _build_decisions_body(name: str, inv: AnchorInventory) -> str:
-    """Build a minimal {NAME} Decisions.md body by concatenating Principles + Rules.
+    """Build {NAME} Decisions.md — the lean canonical list (Statement + optional
+    Check pattern + Exceptions + See also). Why / Examples / Tests / Source-provenance
+    live in the parallel {NAME} Decisions Details.md (built by _build_details_body).
 
-    v1 heuristic: pass-through concatenation under a single H2 each. User refines
-    grouping post-migration. Tier-annotates per the F113 default rule:
-      - Principles → '(reviewed)'
-      - Rules with EX-table → '(tracked)'
-      - Rules without EX-table → '(checked)'
+    Both files belong to the Decisions facet (one facet, two files); Details is
+    optional and only created when there's source rationale to preserve.
 
-    Full categorization heuristic per [[CAB Decisions]] § Migration is deferred to v2.
+    v1 heuristic: pass-through concatenation under H2 groupings derived from source
+    structure (CAE Rules' `## Structural Rules` + `## Code Rules`, Principles flat).
+    Full topic-categorization per [[CAB Decisions]] § Migration is deferred to v2.
     """
     out: list[str] = []
     out.append("---")
-    out.append(f"description: {name} Decisions — Architectural Decisions, Coding Standards, "
-               f"Documentation Conventions, Performance & Reliability. Migrated from Principles + Rules per F113.")
+    out.append(f"description: {name} Decisions — the canonical list. Statement + optional "
+               f"Check pattern + Exceptions + See also. Why / Examples / Tests live in "
+               f"the parallel `{name} Decisions Details.md` (same facet, optional companion).")
     out.append("---")
     out.append("")
     out.append(f"# {name} Decisions")
     out.append("")
-    out.append("> **Migrated from Principles + Rules per F113 Phase 1b.** Initial grouping is "
-               "pass-through (one H2 per source file); refine grouping post-migration.")
+    out.append(f"> **Migrated per F113 Phase 1b.** Lean canonical list — rationale lives "
+               f"in [[{name} Decisions Details]]. Initial H2 grouping is pass-through "
+               f"(by source file); refine into topic groups post-migration.")
     out.append("")
 
     d_counter = 1
+    # Collect (D-num, lean_entry, details_entry) tuples for both files.
+    all_entries: list[tuple[int, str, str]] = []
 
     if inv.principles_path:
         content = inv.principles_path.read_text(encoding="utf-8", errors="replace")
         out.append(f"## Principles (migrated from {name} Principles.md)")
         out.append("")
-        entries = _extract_decision_entries(content, source_tier="reviewed", counter_start=d_counter)
-        for e in entries:
-            out.append(e)
+        for lean, details, dnum in _extract_decision_entries(content, "reviewed", d_counter):
+            out.append(lean)
             out.append("")
-            d_counter += 1
+            all_entries.append((dnum, lean, details))
+            d_counter = dnum + 1
 
     if inv.rules_path:
         content = inv.rules_path.read_text(encoding="utf-8", errors="replace")
@@ -551,22 +564,61 @@ def _build_decisions_body(name: str, inv: AnchorInventory) -> str:
         tier = "tracked" if has_ex_table else "checked"
         out.append(f"## Rules (migrated from {name} Rules.md, default tier: {tier})")
         out.append("")
-        entries = _extract_decision_entries(content, source_tier=tier, counter_start=d_counter)
-        for e in entries:
-            out.append(e)
+        for lean, details, dnum in _extract_decision_entries(content, tier, d_counter):
+            out.append(lean)
             out.append("")
-            d_counter += 1
+            all_entries.append((dnum, lean, details))
+            d_counter = dnum + 1
 
     out.append("## Migration")
     out.append("")
-    out.append(f"This file was generated by `migrate-f113.py` Phase B on the F113 migration pass.")
-    out.append(f"Source files: "
+    out.append(f"Generated by `migrate-f113.py` Phase B. Source: "
                + (f"`{name} Principles.md` " if inv.principles_path else "")
-               + (f"`{name} Rules.md`" if inv.rules_path else ""))
-    out.append(f"D-numbering is sequential within this file at migration time. Subsequent edits "
-               f"may rearrange H2 groupings; D-numbers persist (never recycled).")
+               + (f"`{name} Rules.md`" if inv.rules_path else "")
+               + f". Why / rationale → [[{name} Decisions Details]]. "
+               + "D-numbers persist (never recycled).")
     out.append("")
 
+    # Stash details for the caller to write.
+    inv._migrated_details = all_entries  # type: ignore[attr-defined]
+
+    return "\n".join(out)
+
+
+def _build_details_body(name: str, inv: AnchorInventory) -> str | None:
+    """Build {NAME} Decisions Details.md — optional companion to Decisions.md.
+
+    Contains Why / Examples / Tests / Source-provenance per D-number. Built from
+    the `_migrated_details` stash that `_build_decisions_body` populated.
+
+    Returns None if no details content was extracted (no need for a Details file).
+    """
+    pairs = getattr(inv, "_migrated_details", None)
+    if not pairs:
+        return None
+    # Skip if all details are empty.
+    nonempty = [(dnum, det) for (dnum, _, det) in pairs if det.strip()]
+    if not nonempty:
+        return None
+
+    out: list[str] = []
+    out.append("---")
+    out.append(f"description: {name} Decisions Details — companion to `{name} Decisions.md`. "
+               f"Why / rationale / examples / tests / source-provenance per D-number. "
+               f"Optional: only present when there's detail worth recording.")
+    out.append("---")
+    out.append("")
+    out.append(f"# {name} Decisions Details")
+    out.append("")
+    out.append(f"> Companion to [[{name} Decisions]]. Each H2 below mirrors a D-entry in "
+               f"the canonical list and carries its rationale + supplementary detail. "
+               f"Decisions.md is the operational reference; this file is the contextual depth.")
+    out.append("")
+    for dnum, details in nonempty:
+        out.append(f"## D{dnum:02d}")
+        out.append("")
+        out.append(details.strip())
+        out.append("")
     return "\n".join(out)
 
 
@@ -575,21 +627,31 @@ import re as _re
 _PREFIX_RE = _re.compile(r"^[A-Z]{1,3}\d+\s*[—-]\s*")
 
 
-def _extract_decision_entries(content: str, source_tier: str, counter_start: int) -> list[str]:
-    """Walk markdown content, extract each decision (Principle or Rule) as a D-entry.
+# Bold-label sections that route to the **Details** file (rationale, provenance).
+_DETAILS_LABELS = ("why", "rationale", "encoded by", "encodes")
+# Bold-label sections that stay in the **Decisions** file (operational content).
+_LEAN_LABELS = ("check pattern", "exceptions", "see also", "rule")
+_LABEL_RE = _re.compile(r"^\*\*([^*:]+):\*\*\s*(.*)$")
 
-    Auto-detects the heading level used for decision titles by looking for the first
-    `^## P<n> —` or `^## R<n> —` (Principles use H2 in CAE), falling back to `^### `.
 
-    Sub-headings (notably "Exceptions") under a decision fold INTO that decision's body
-    as `**Exceptions:**` content, NOT into a new D-numbered entry.
+def _extract_decision_entries(
+    content: str, source_tier: str, counter_start: int
+) -> list[tuple[str, str, int]]:
+    """Walk markdown content, extract each decision (Principle or Rule).
 
-    Strips the source prefix (`P01 — ` / `R03 — `) from the title before wrapping —
-    the new D-number replaces it.
+    Returns a list of `(lean_entry, details_entry, d_num)` tuples:
+      - lean_entry: formatted `### D<n> — Title (tier)` + Statement + Check pattern
+        + Exceptions + See also. Goes into Decisions.md.
+      - details_entry: Why + Rationale + Encoded by + any other rationale-flavored
+        content. Goes into Decisions Details.md (under `## D<n>`).
+      - d_num: the assigned D-number.
+
+    Auto-detects title heading level (H2 in CAE Principles, H3 in CAE Rules).
+    Sub-headings (e.g. `### Exceptions`) fold into body as `**Label:**` bold prefix.
+    Strips source prefix (`P01 — `, `R03 — `) — new D-number replaces it.
     """
     lines = content.split("\n")
 
-    # Detect title-heading level: scan for ^## <PREFIX>NN — or ^### <PREFIX>NN —.
     title_level = "### "
     for line in lines:
         if _re.match(r"^## [A-Z]{1,3}\d+\s*[—-]", line):
@@ -599,40 +661,77 @@ def _extract_decision_entries(content: str, source_tier: str, counter_start: int
             title_level = "### "
             break
 
-    entries: list[str] = []
-    current_body: list[str] = []
+    entries: list[tuple[str, str, int]] = []
+    current_lean: list[str] = []
+    current_details: list[str] = []
     current_title: str | None = None
+    routing: str = "lean"  # 'lean' (Statement/Check pattern/Exceptions) or 'details' (Why/etc.)
     d_num = counter_start
 
-    # Regex matches a heading line (one or more `#` + space + content).
     _heading_re = _re.compile(r"^(#+)\s+(.*)$")
-    # Regex matches a *new decision* heading at title level.
     _decision_re = _re.compile(rf"^{title_level}[A-Z]{{1,3}}\d+\s*[—-]")
+
+    def _route_for(label_text: str) -> str:
+        low = label_text.strip().lower()
+        if any(low.startswith(d) for d in _DETAILS_LABELS):
+            return "details"
+        if any(low.startswith(L) for L in _LEAN_LABELS):
+            return "lean"
+        # Default: stay in lean (preserves unknown labels in the canonical doc).
+        return "lean"
 
     def flush():
         nonlocal d_num
         if current_title is not None:
             stripped_title = _PREFIX_RE.sub("", current_title).strip()
-            body = "\n".join(current_body).strip()
-            entries.append(f"### D{d_num:02d} — {stripped_title} ({source_tier})\n\n{body}")
+            lean_body = "\n".join(current_lean).strip()
+            details_body = "\n".join(current_details).strip()
+            lean_entry = f"### D{d_num:02d} — {stripped_title} ({source_tier})\n\n{lean_body}"
+            entries.append((lean_entry, details_body, d_num))
             d_num += 1
 
     for line in lines:
         if _decision_re.match(line):
-            # New decision — flush previous, start fresh.
             flush()
             current_title = line[len(title_level):].strip()
-            current_body = []
-        elif current_title is not None:
-            hm = _heading_re.match(line)
-            if hm:
-                # Any other heading (same level OR deeper) folds into body as `**Label:**`.
-                # The original heading-level no longer matters in the merged Decisions file;
-                # what was "Exceptions" subhead becomes a bold sub-label.
-                current_body.append(f"**{hm.group(2).strip()}:**")
+            current_lean = []
+            current_details = []
+            routing = "lean"
+            continue
+        if current_title is None:
+            continue  # pre-first-decision content (frontmatter, H1)
+
+        hm = _heading_re.match(line)
+        if hm:
+            # Sub-heading folds into body as `**Label:**`. May switch routing.
+            label_text = hm.group(2).strip()
+            routing = _route_for(label_text)
+            target = current_details if routing == "details" else current_lean
+            target.append(f"**{label_text}:**")
+            continue
+
+        lm = _LABEL_RE.match(line)
+        if lm:
+            # Inline bold-label like `**Why:** body...` — switch routing for this line + body.
+            label_text = lm.group(1).strip()
+            tail = lm.group(2)
+            routing = _route_for(label_text)
+            target = current_details if routing == "details" else current_lean
+            # Preserve the label + inline tail; subsequent unlabeled lines route to same target.
+            if routing == "lean" and label_text.lower() == "rule":
+                # Drop the redundant `**RULE:**` prefix per user direction — statement stands alone.
+                if tail:
+                    target.append(tail)
             else:
-                current_body.append(line)
-        # else: ignore content before the first decision title (frontmatter, H1, prose intro)
+                if tail:
+                    target.append(f"**{label_text}:** {tail}")
+                else:
+                    target.append(f"**{label_text}:**")
+            continue
+
+        # Continuation line — append to current routing's body.
+        target = current_details if routing == "details" else current_lean
+        target.append(line)
 
     flush()
     return entries
