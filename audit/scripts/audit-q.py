@@ -2391,6 +2391,109 @@ def check_c34_inline_q_in_row_body(backlog_files: list[Path]) -> list[Finding]:
     return findings
 
 
+def check_c35_ask_md_drift(
+    anchor_backlogs: dict[str, Path],
+    vault_index: dict[str, list[Path]],
+) -> list[Finding]:
+    """C35 (F124): each Q<n> reference in `{NAME} ask.md` § Questions must
+    correspond to a pending Q in the linked feature doc.
+
+    Surfacing case (F077 Q7, 2026-06-06): SKA ask.md carried 'F077 ... (Q1, Q7)'
+    forward as pending, but F077's doc had Q7 in `### Resolved` (choice A).
+    The /ask runbook step 3 requires 'live re-check each carried-forward
+    entry' — this check mechanizes it.
+
+    Walks each anchor backlog's sibling `{NAME} ask.md` file, parses the
+    `## Questions` H2 region, extracts wiki-linked feature docs + the
+    Q-numbers each bullet claims pending, then cross-checks against the
+    linked doc's actual pending-Q set via `extract_q_entries` (which is
+    now H3-aware thanks to F123).
+    """
+    findings: list[Finding] = []
+    q_ref_re = re.compile(r"\bQ(\d+)\b")
+    wiki_link_re = re.compile(r"\[\[([^|\]]+?)(?:\|[^\]]+)?\]\]")
+    for name, backlog_file in anchor_backlogs.items():
+        ask_file = backlog_file.parent / f"{name} ask.md"
+        if not ask_file.is_file():
+            continue
+        try:
+            text = ask_file.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        lines = text.splitlines()
+        # Find ## Questions H2 region
+        q_start = -1
+        q_end = len(lines)
+        for i, line in enumerate(lines):
+            if line.strip() == "## Questions":
+                q_start = i + 1
+            elif q_start >= 0 and re.match(r"^## ", line):
+                q_end = i
+                break
+        if q_start < 0:
+            continue
+        # Parse bullets in the Questions region
+        for line_num in range(q_start, q_end):
+            line = lines[line_num]
+            if not re.match(r"^\s*-\s+", line):
+                continue
+            link_m = wiki_link_re.search(line)
+            if not link_m:
+                continue
+            target_name = link_m.group(1).strip()
+            # Strip any block-ID fragment from target name
+            if "#" in target_name:
+                target_name = target_name.split("#", 1)[0]
+            target_file = resolve_target(target_name, ask_file, vault_index)
+            if target_file is None or not target_file.is_file():
+                continue  # link resolution belongs to C1/C22
+            # Only feature docs participate (skip non-F<n> targets like
+            # `[[CAB ...]]` references inside descriptive text).
+            stem_m = F_NUMBER_PREFIX_RE.match(target_file.stem)
+            if not stem_m:
+                continue
+            container_id = stem_m.group(1)
+            # Extract claimed Q-numbers from the bullet line (and any
+            # immediately-following indented continuation lines).
+            bullet_text = line
+            j = line_num + 1
+            while j < q_end:
+                nxt = lines[j]
+                if nxt.startswith("  ") or nxt.startswith("\t"):
+                    bullet_text += " " + nxt
+                    j += 1
+                elif nxt == "":
+                    break
+                else:
+                    break
+            claimed = sorted({int(m.group(1)) for m in q_ref_re.finditer(bullet_text)})
+            if not claimed:
+                continue
+            pending_qs = {q.q_num for q in extract_q_entries(target_file, container_id)}
+            stale = [q for q in claimed if q not in pending_qs]
+            if not stale:
+                continue
+            pending_str = (
+                ", ".join(f"Q{n}" for n in sorted(pending_qs))
+                if pending_qs else "none"
+            )
+            stale_str = ", ".join(f"Q{n}" for n in stale)
+            findings.append(Finding(
+                severity="warning",
+                surface_file=ask_file,
+                surface_line=line_num + 1,
+                code="C35",
+                message=(
+                    f"ask.md claims {stale_str} pending in {container_id} "
+                    f"but linked doc has those resolved or absent "
+                    f"(actual pending: {pending_str}). /ask runbook step 3 "
+                    f"requires live re-check; drift carried forward."
+                ),
+                mechanically_fixable=False,
+            ))
+    return findings
+
+
 def apply_c23_fix(backlog_file: Path,
                   entries: list[BacklogEntry]) -> tuple[bool, list[str]]:
     """Rewrite [Designing] brackets to [N Questions] or [Ready] based on
@@ -3053,6 +3156,12 @@ def main() -> int:
         findings.extend(check_c32_h3_rows_forbidden([backlog_file]))
         findings.extend(check_c33_designing_needs_link(entries))
         findings.extend(check_c34_inline_q_in_row_body([backlog_file]))
+    # F124 — C35 ask.md drift check walks every anchor backlog's sibling
+    # `{NAME} ask.md`. Runs once after the per-anchor loop (not per anchor),
+    # since each ask.md is keyed by its sibling backlog's anchor name.
+    findings.extend(check_c35_ask_md_drift(anchor_backlogs, vault_index))
+    for name, backlog_file in sorted(anchor_backlogs.items()):
+        entries = backlog_entries(backlog_file, vault_index)
         if args.fix:
             fix_log = apply_placement_fixes(backlog_file, entries, today)
             if fix_log:
