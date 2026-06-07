@@ -1,23 +1,25 @@
 #!/usr/bin/env python3
 """
-F113 Phase 1b migration script — Phase A (discovery + validation) only.
+F113 Phase 1b migration script — Phase A (discovery) + Phase B (per-anchor restructure).
 
-Per [[F113 Migration Script Approach]] § Phase A:
-  1. Walk the vault from VAULT_ROOT finding every folder with a `.anchor` marker.
-  2. Build the anchor inventory: {name, path, current-shape, slug-if-any}.
-  3. Validate pre-migration state.
-  4. Sanity-check Principles/Rules presence, System Design presence, Discussion presence.
+Per [[F113 Migration Script Approach]]:
+  Phase A (READ-ONLY): walk vault, build inventory, report.
+  Phase B (default dry-run, --execute to write): per-anchor structural migration —
+    hoist Docs/ wrapper, rename Plan→Track (where still legacy), build Decisions
+    from Principles+Rules, rename Discussion→Log, surface System Design for review.
 
-This script is READ-ONLY. It produces a report on stdout describing what would
-migrate. No mutations. The user reviews the report before authorizing Phase B+.
-
-Phases B-G are TBD — designed per the approach doc but not yet implemented.
+Phase C-G (cross-ref rewrites, CAB spec updates, tooling updates, verification,
+single commit) — not yet implemented.
 
 Usage:
-    python3 migrate-f113.py [--vault-root <path>]
+    python3 migrate-f113.py --phase A [--vault-root <path>]
+    python3 migrate-f113.py --phase B [--anchor <name>] [--execute]
+    python3 migrate-f113.py --phase B --anchor CAE                # dry-run, one anchor
+    python3 migrate-f113.py --phase B --anchor CAE --execute      # write
 """
 
 import argparse
+import shutil
 import sys
 from collections import Counter
 from dataclasses import dataclass, field
@@ -323,6 +325,384 @@ def report(inventories: list[AnchorInventory]) -> None:
     print("=" * 78)
 
 
+# ============================================================
+# Phase B — Per-anchor structural migration
+# ============================================================
+
+
+@dataclass
+class PlannedMove:
+    """One filesystem operation in Phase B's plan."""
+    op: str        # 'mkdir' | 'move' | 'write' | 'delete' | 'note'
+    src: Path | None = None
+    dst: Path | None = None
+    content: str | None = None   # for op='write'
+    note: str | None = None      # human-readable annotation
+
+
+def _walk_files(p: Path) -> list[Path]:
+    """List all files (recursively) under p, sorted."""
+    if not p.is_dir():
+        return []
+    return sorted(f for f in p.rglob("*") if f.is_file())
+
+
+def plan_phase_b_for_anchor(inv: AnchorInventory) -> list[PlannedMove]:
+    """Produce the ordered move list for migrating one anchor to F113 shape.
+
+    Target end-state per [[F113 Migration Script Approach]] § Phase B:
+        {NAME}/                          (anchor root)
+            {NAME} Design/               (architecture, decisions, etc.)
+                {NAME} Architecture/    (or .md)
+                {NAME} Decisions.md      (merged from Principles + Rules)
+                {NAME} UX.md             (renamed from UX Design.md, if existed)
+                ... other Design-content
+            {NAME} Track/                (was Plan/, or already Track/ post-F094)
+                {NAME} Backlog.md
+                {NAME} Roadmap.md
+                {NAME} Features/
+                ... other Track-content
+            {NAME} User/                 (user-facing docs)
+            {NAME} Log.md                (renamed from Discussion.md; at anchor root)
+
+    What disappears:
+        {NAME} Docs/                     (parent wrapper removed)
+        {NAME} Principles.md             (folded into Decisions)
+        {NAME} Rules.md                  (folded into Decisions)
+        {NAME} System Design.md          (Phase B' — surface for review; not auto-folded in v1)
+        {NAME} Discussion.md             (renamed to Log.md)
+        {NAME} UX Design.md              (renamed to UX.md)
+    """
+    moves: list[PlannedMove] = []
+    name = inv.name
+    root = inv.path
+
+    target_design = root / f"{name} Design"
+    target_track = root / f"{name} Track"
+    target_user = root / f"{name} User"
+
+    # ---- Step 1: create target top-level folders if missing ----
+    for tgt in (target_design, target_track, target_user):
+        if not tgt.exists():
+            moves.append(PlannedMove(op="mkdir", dst=tgt))
+
+    # ---- Step 2: hoist content out of Docs/ wrapper ----
+    # If current Plan/Track/Design/User folders live under Docs/, move them out.
+    src_dst_pairs = []
+    if inv.plan_folder:
+        # Plan/ → Track/ (with rename to Track if it was Plan)
+        # If a Track/ already exists at target, that's a conflict — surface as note.
+        if target_track.exists() and target_track != inv.plan_folder:
+            moves.append(PlannedMove(
+                op="note",
+                note=f"CONFLICT: target {target_track.name}/ already exists but Plan/ also present at "
+                     f"{_rel(inv.plan_folder)} — needs manual merge before Phase B can run."
+            ))
+        else:
+            # Move every file from plan_folder to target_track
+            src_dst_pairs.append((inv.plan_folder, target_track, "Plan→Track rename + hoist"))
+    if inv.track_folder and inv.track_folder != target_track:
+        # Track/ already exists but under Docs/ — hoist
+        src_dst_pairs.append((inv.track_folder, target_track, "Track/ hoist out of Docs/"))
+    if inv.design_folder and inv.design_folder != target_design:
+        src_dst_pairs.append((inv.design_folder, target_design, "Design/ hoist out of Docs/"))
+    if inv.user_folder and inv.user_folder != target_user:
+        src_dst_pairs.append((inv.user_folder, target_user, "User/ hoist out of Docs/"))
+
+    for src_folder, dst_folder, label in src_dst_pairs:
+        for f in _walk_files(src_folder):
+            rel = f.relative_to(src_folder)
+            moves.append(PlannedMove(
+                op="move", src=f, dst=dst_folder / rel,
+                note=label,
+            ))
+
+    # ---- Step 3: build Decisions.md from Principles + Rules ----
+    if inv.principles_path or inv.rules_path:
+        decisions_target = target_design / f"{name} Decisions.md"
+        if decisions_target.exists():
+            moves.append(PlannedMove(
+                op="note",
+                note=f"NOTE: {decisions_target.name} already exists; will OVERWRITE during execute."
+            ))
+        decisions_body = _build_decisions_body(name, inv)
+        moves.append(PlannedMove(
+            op="write", dst=decisions_target, content=decisions_body,
+            note=f"Build Decisions from "
+                 + (f"Principles ({_rel(inv.principles_path)})" if inv.principles_path else "")
+                 + (" + " if inv.principles_path and inv.rules_path else "")
+                 + (f"Rules ({_rel(inv.rules_path)})" if inv.rules_path else "")
+        ))
+        # Delete source Principles/Rules AFTER Decisions is written.
+        # Note: after the hoist in step 2, these files live at their new locations.
+        if inv.principles_path:
+            new_p = _post_hoist_path(inv.principles_path, src_dst_pairs)
+            moves.append(PlannedMove(op="delete", src=new_p, note="delete migrated Principles.md"))
+        if inv.rules_path:
+            new_r = _post_hoist_path(inv.rules_path, src_dst_pairs)
+            moves.append(PlannedMove(op="delete", src=new_r, note="delete migrated Rules.md"))
+
+    # ---- Step 4: System Design — Phase B', surface for review (no auto-fold v1) ----
+    if inv.system_design_path:
+        new_sd = _post_hoist_path(inv.system_design_path, src_dst_pairs)
+        moves.append(PlannedMove(
+            op="note",
+            note=f"PHASE B' REVIEW: System Design at {_rel(new_sd)} — left in place; "
+                 f"user folds content into Architecture or Log post-migration."
+        ))
+
+    # ---- Step 5: rename Discussion → Log ----
+    if inv.discussion_path:
+        new_disc = _post_hoist_path(inv.discussion_path, src_dst_pairs)
+        log_target = root / f"{name} Log.md"
+        if inv.log_path:
+            # Informal Log already exists — surface as merge needed.
+            moves.append(PlannedMove(
+                op="note",
+                note=f"MERGE: existing {inv.log_path.name} ({_rel(inv.log_path)}) + "
+                     f"Discussion ({_rel(new_disc)}) — concat with separator on execute."
+            ))
+            moves.append(PlannedMove(
+                op="write", dst=log_target, content="<MERGE-MARKER>",
+                note="merged Log.md from existing Log + Discussion",
+            ))
+            moves.append(PlannedMove(op="delete", src=new_disc, note="delete migrated Discussion.md (merged into Log)"))
+        else:
+            moves.append(PlannedMove(op="move", src=new_disc, dst=log_target, note="Discussion → Log rename"))
+
+    # ---- Step 6: rename UX Design → UX ----
+    if inv.ux_design_path:
+        new_ux = _post_hoist_path(inv.ux_design_path, src_dst_pairs)
+        ux_target = target_design / f"{name} UX.md"
+        moves.append(PlannedMove(op="move", src=new_ux, dst=ux_target, note="UX Design → UX rename"))
+
+    # ---- Step 7: clean up empty Docs/ wrapper ----
+    if inv.docs_folder:
+        moves.append(PlannedMove(
+            op="delete", src=inv.docs_folder,
+            note=f"remove empty Docs/ wrapper ({_rel(inv.docs_folder)})"
+        ))
+
+    return moves
+
+
+def _post_hoist_path(orig_path: Path, src_dst_pairs: list) -> Path:
+    """Given a path that pointed at a file under Docs/X/, return where it lands post-hoist."""
+    for src_folder, dst_folder, _ in src_dst_pairs:
+        try:
+            rel = orig_path.relative_to(src_folder)
+            return dst_folder / rel
+        except ValueError:
+            continue
+    return orig_path
+
+
+def _build_decisions_body(name: str, inv: AnchorInventory) -> str:
+    """Build a minimal {NAME} Decisions.md body by concatenating Principles + Rules.
+
+    v1 heuristic: pass-through concatenation under a single H2 each. User refines
+    grouping post-migration. Tier-annotates per the F113 default rule:
+      - Principles → '(reviewed)'
+      - Rules with EX-table → '(tracked)'
+      - Rules without EX-table → '(checked)'
+
+    Full categorization heuristic per [[CAB Decisions]] § Migration is deferred to v2.
+    """
+    out: list[str] = []
+    out.append("---")
+    out.append(f"description: {name} Decisions — Architectural Decisions, Coding Standards, "
+               f"Documentation Conventions, Performance & Reliability. Migrated from Principles + Rules per F113.")
+    out.append("---")
+    out.append("")
+    out.append(f"# {name} Decisions")
+    out.append("")
+    out.append("> **Migrated from Principles + Rules per F113 Phase 1b.** Initial grouping is "
+               "pass-through (one H2 per source file); refine grouping post-migration.")
+    out.append("")
+
+    d_counter = 1
+
+    if inv.principles_path:
+        content = inv.principles_path.read_text(encoding="utf-8", errors="replace")
+        out.append(f"## Principles (migrated from {name} Principles.md)")
+        out.append("")
+        entries = _extract_decision_entries(content, source_tier="reviewed", counter_start=d_counter)
+        for e in entries:
+            out.append(e)
+            out.append("")
+            d_counter += 1
+
+    if inv.rules_path:
+        content = inv.rules_path.read_text(encoding="utf-8", errors="replace")
+        has_ex_table = "## EX" in content or "## Excellence" in content or "EX-table" in content.lower()
+        tier = "tracked" if has_ex_table else "checked"
+        out.append(f"## Rules (migrated from {name} Rules.md, default tier: {tier})")
+        out.append("")
+        entries = _extract_decision_entries(content, source_tier=tier, counter_start=d_counter)
+        for e in entries:
+            out.append(e)
+            out.append("")
+            d_counter += 1
+
+    out.append("## Migration")
+    out.append("")
+    out.append(f"This file was generated by `migrate-f113.py` Phase B on the F113 migration pass.")
+    out.append(f"Source files: "
+               + (f"`{name} Principles.md` " if inv.principles_path else "")
+               + (f"`{name} Rules.md`" if inv.rules_path else ""))
+    out.append(f"D-numbering is sequential within this file at migration time. Subsequent edits "
+               f"may rearrange H2 groupings; D-numbers persist (never recycled).")
+    out.append("")
+
+    return "\n".join(out)
+
+
+def _extract_decision_entries(content: str, source_tier: str, counter_start: int) -> list[str]:
+    """Walk markdown content, extract each H3 (or top-level bullet) as a Decision entry.
+
+    v1: minimal — split on `^### ` headers in the source, wrap as `### D<n> — <title> (<tier>)`.
+    Preserves the body verbatim. Refine in v2 per [[CAB Decisions]] heuristic.
+    """
+    lines = content.split("\n")
+    entries: list[str] = []
+    current: list[str] = []
+    current_title: str | None = None
+    d_num = counter_start
+
+    def flush():
+        nonlocal d_num
+        if current_title is not None:
+            body = "\n".join(current).strip()
+            entries.append(f"### D{d_num:02d} — {current_title} ({source_tier})\n\n{body}")
+            d_num += 1
+
+    for line in lines:
+        if line.startswith("### "):
+            flush()
+            current_title = line[4:].strip()
+            current = []
+        elif current_title is not None:
+            current.append(line)
+        # else: ignore content before the first H3 (frontmatter, H1, prose intro)
+
+    flush()
+    return entries
+
+
+def execute_moves(moves: list[PlannedMove], dry_run: bool) -> tuple[int, int]:
+    """Apply (or print) the planned moves. Returns (applied, errors)."""
+    applied = 0
+    errors = 0
+
+    for m in moves:
+        label = m.op.upper()
+        try:
+            if m.op == "note":
+                print(f"  [note] {m.note}")
+            elif m.op == "mkdir":
+                assert m.dst is not None
+                print(f"  [mkdir] {_rel(m.dst)}" + (f"  ({m.note})" if m.note else ""))
+                if not dry_run:
+                    m.dst.mkdir(parents=True, exist_ok=True)
+                applied += 1
+            elif m.op == "move":
+                assert m.src is not None and m.dst is not None
+                print(f"  [move] {_rel(m.src)}  →  {_rel(m.dst)}"
+                      + (f"  ({m.note})" if m.note else ""))
+                if not dry_run:
+                    m.dst.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.move(str(m.src), str(m.dst))
+                applied += 1
+            elif m.op == "write":
+                assert m.dst is not None
+                size = len(m.content) if m.content else 0
+                marker = ""
+                if m.content == "<MERGE-MARKER>":
+                    marker = "  [MERGE-DEFERRED]"
+                print(f"  [write] {_rel(m.dst)}  ({size} bytes){marker}"
+                      + (f"  ({m.note})" if m.note else ""))
+                if not dry_run:
+                    if m.content == "<MERGE-MARKER>":
+                        # Defer merge logic to a v2 — for now, skip write so user notices.
+                        print(f"    SKIPPED: <MERGE-MARKER> not yet implemented; "
+                              f"resolve manually after dry-run review.")
+                    elif m.content is not None:
+                        m.dst.parent.mkdir(parents=True, exist_ok=True)
+                        m.dst.write_text(m.content, encoding="utf-8")
+                applied += 1
+            elif m.op == "delete":
+                if m.src and m.src.is_dir():
+                    print(f"  [rmdir] {_rel(m.src)}"
+                          + (f"  ({m.note})" if m.note else ""))
+                    if not dry_run:
+                        # Only remove if empty.
+                        try:
+                            m.src.rmdir()
+                        except OSError as e:
+                            print(f"    WARN: cannot rmdir (not empty?): {e}")
+                            errors += 1
+                            continue
+                else:
+                    print(f"  [delete] {_rel(m.src)}"
+                          + (f"  ({m.note})" if m.note else ""))
+                    if not dry_run and m.src and m.src.exists():
+                        m.src.unlink()
+                applied += 1
+        except Exception as e:
+            print(f"  [ERROR] {label} failed: {e}")
+            errors += 1
+
+    return applied, errors
+
+
+def run_phase_b(inventories: list[AnchorInventory], target_anchor: str | None, dry_run: bool) -> int:
+    """Run Phase B over all (or one named) anchor. Returns exit code."""
+    relevant = [i for i in inventories if i.is_f113_relevant]
+    if target_anchor:
+        relevant = [i for i in relevant if i.name == target_anchor]
+        if not relevant:
+            print(f"error: no F113-relevant anchor named {target_anchor!r}", file=sys.stderr)
+            return 2
+
+    mode = "DRY-RUN" if dry_run else "EXECUTE"
+    print("=" * 78)
+    print(f"F113 Phase B — Per-anchor restructure ({mode})")
+    print("=" * 78)
+    print(f"Anchors to process: {len(relevant)}")
+    print()
+
+    total_applied = 0
+    total_errors = 0
+
+    for inv in relevant:
+        if inv.warnings:
+            print(f"--- {inv.name} (SKIPPED: has structural warnings) ---")
+            for w in inv.warnings:
+                print(f"  ⚠ {w}")
+            print()
+            continue
+        print(f"--- {inv.name} ({_rel(inv.path)}) ---")
+        moves = plan_phase_b_for_anchor(inv)
+        if not moves:
+            print("  (no migration steps needed — already in F113 shape)")
+            print()
+            continue
+        applied, errors = execute_moves(moves, dry_run)
+        total_applied += applied
+        total_errors += errors
+        print()
+
+    print("=" * 78)
+    if dry_run:
+        print(f"END Phase B {mode}. {total_applied} operations planned, {total_errors} errors.")
+        print("Re-run with --execute to apply changes.")
+    else:
+        print(f"END Phase B {mode}. {total_applied} operations applied, {total_errors} errors.")
+    print("=" * 78)
+
+    return 0 if total_errors == 0 else 1
+
+
 # Constants set after arg-parse.
 VAULT_ROOT: Path
 NAME_W: int = 30  # width for the anchor-name column in the report
@@ -332,13 +712,23 @@ def main() -> int:
     global VAULT_ROOT, NAME_W
 
     parser = argparse.ArgumentParser(
-        description="F113 Phase A — vault-wide migration discovery (READ-ONLY)."
+        description="F113 Phase 1b migration script — Phase A discovery + Phase B per-anchor restructure."
     )
     parser.add_argument(
-        "--vault-root",
-        type=Path,
-        default=Path.home() / "ob" / "kmr",
+        "--phase", choices=("A", "B"), default="A",
+        help="A = read-only discovery report; B = per-anchor restructure (default dry-run).",
+    )
+    parser.add_argument(
+        "--vault-root", type=Path, default=Path.home() / "ob" / "kmr",
         help="Vault root (default: ~/ob/kmr)",
+    )
+    parser.add_argument(
+        "--anchor", default=None,
+        help="(Phase B) scope to one anchor by name (e.g. CAE).",
+    )
+    parser.add_argument(
+        "--execute", action="store_true",
+        help="(Phase B) actually apply moves; default is dry-run.",
     )
     args = parser.parse_args()
 
@@ -355,14 +745,16 @@ def main() -> int:
         print("error: no anchors found (expected `.anchor` marker files)", file=sys.stderr)
         return 1
 
-    # Adjust name-column width to longest anchor name.
     NAME_W = max(NAME_W, max(len(p.name) for p in anchor_paths) + 2)
 
     print(f"Classifying anchors...", file=sys.stderr)
     inventories = [classify_anchor(p) for p in anchor_paths]
 
-    report(inventories)
-    return 0
+    if args.phase == "A":
+        report(inventories)
+        return 0
+    else:  # Phase B
+        return run_phase_b(inventories, args.anchor, dry_run=not args.execute)
 
 
 if __name__ == "__main__":
