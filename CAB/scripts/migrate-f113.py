@@ -380,11 +380,15 @@ def plan_phase_b_for_anchor(inv: AnchorInventory) -> list[PlannedMove]:
     target_design = root / f"{name} Design"
     target_track = root / f"{name} Track"
     target_user = root / f"{name} User"
+    target_dev = root / f"{name} Dev"
 
     # ---- Step 1: create target top-level folders if missing ----
+    # Design/Track/User are always created. Dev/ only if the source has a Dev folder.
     for tgt in (target_design, target_track, target_user):
         if not tgt.exists():
             moves.append(PlannedMove(op="mkdir", dst=tgt))
+    if inv.dev_folder and not target_dev.exists():
+        moves.append(PlannedMove(op="mkdir", dst=target_dev))
 
     # ---- Step 2: hoist content out of Docs/ wrapper ----
     # If current Plan/Track/Design/User folders live under Docs/, move them out.
@@ -408,6 +412,8 @@ def plan_phase_b_for_anchor(inv: AnchorInventory) -> list[PlannedMove]:
         src_dst_pairs.append((inv.design_folder, target_design, "Design/ hoist out of Docs/"))
     if inv.user_folder and inv.user_folder != target_user:
         src_dst_pairs.append((inv.user_folder, target_user, "User/ hoist out of Docs/"))
+    if inv.dev_folder and inv.dev_folder != target_dev:
+        src_dst_pairs.append((inv.dev_folder, target_dev, "Dev/ hoist to anchor root"))
 
     for src_folder, dst_folder, label in src_dst_pairs:
         for f in _walk_files(src_folder):
@@ -478,6 +484,13 @@ def plan_phase_b_for_anchor(inv: AnchorInventory) -> list[PlannedMove]:
 
     # ---- Step 7: clean up empty Docs/ wrapper ----
     if inv.docs_folder:
+        docs_md = inv.docs_folder / f"{name} Docs.md"
+        if docs_md.is_file():
+            moves.append(PlannedMove(
+                op="delete", src=docs_md,
+                note=f"delete {name} Docs.md (wrapper umbrella; folder being removed). "
+                     f"NOTE: {name} Design.md remains as the Design folder umbrella."
+            ))
         moves.append(PlannedMove(
             op="delete", src=inv.docs_folder,
             note=f"remove empty Docs/ wrapper ({_rel(inv.docs_folder)})"
@@ -557,33 +570,69 @@ def _build_decisions_body(name: str, inv: AnchorInventory) -> str:
     return "\n".join(out)
 
 
-def _extract_decision_entries(content: str, source_tier: str, counter_start: int) -> list[str]:
-    """Walk markdown content, extract each H3 (or top-level bullet) as a Decision entry.
+import re as _re
 
-    v1: minimal — split on `^### ` headers in the source, wrap as `### D<n> — <title> (<tier>)`.
-    Preserves the body verbatim. Refine in v2 per [[CAB Decisions]] heuristic.
+_PREFIX_RE = _re.compile(r"^[A-Z]{1,3}\d+\s*[—-]\s*")
+
+
+def _extract_decision_entries(content: str, source_tier: str, counter_start: int) -> list[str]:
+    """Walk markdown content, extract each decision (Principle or Rule) as a D-entry.
+
+    Auto-detects the heading level used for decision titles by looking for the first
+    `^## P<n> —` or `^## R<n> —` (Principles use H2 in CAE), falling back to `^### `.
+
+    Sub-headings (notably "Exceptions") under a decision fold INTO that decision's body
+    as `**Exceptions:**` content, NOT into a new D-numbered entry.
+
+    Strips the source prefix (`P01 — ` / `R03 — `) from the title before wrapping —
+    the new D-number replaces it.
     """
     lines = content.split("\n")
+
+    # Detect title-heading level: scan for ^## <PREFIX>NN — or ^### <PREFIX>NN —.
+    title_level = "### "
+    for line in lines:
+        if _re.match(r"^## [A-Z]{1,3}\d+\s*[—-]", line):
+            title_level = "## "
+            break
+        if _re.match(r"^### [A-Z]{1,3}\d+\s*[—-]", line):
+            title_level = "### "
+            break
+
     entries: list[str] = []
-    current: list[str] = []
+    current_body: list[str] = []
     current_title: str | None = None
     d_num = counter_start
+
+    # Regex matches a heading line (one or more `#` + space + content).
+    _heading_re = _re.compile(r"^(#+)\s+(.*)$")
+    # Regex matches a *new decision* heading at title level.
+    _decision_re = _re.compile(rf"^{title_level}[A-Z]{{1,3}}\d+\s*[—-]")
 
     def flush():
         nonlocal d_num
         if current_title is not None:
-            body = "\n".join(current).strip()
-            entries.append(f"### D{d_num:02d} — {current_title} ({source_tier})\n\n{body}")
+            stripped_title = _PREFIX_RE.sub("", current_title).strip()
+            body = "\n".join(current_body).strip()
+            entries.append(f"### D{d_num:02d} — {stripped_title} ({source_tier})\n\n{body}")
             d_num += 1
 
     for line in lines:
-        if line.startswith("### "):
+        if _decision_re.match(line):
+            # New decision — flush previous, start fresh.
             flush()
-            current_title = line[4:].strip()
-            current = []
+            current_title = line[len(title_level):].strip()
+            current_body = []
         elif current_title is not None:
-            current.append(line)
-        # else: ignore content before the first H3 (frontmatter, H1, prose intro)
+            hm = _heading_re.match(line)
+            if hm:
+                # Any other heading (same level OR deeper) folds into body as `**Label:**`.
+                # The original heading-level no longer matters in the merged Decisions file;
+                # what was "Exceptions" subhead becomes a bold sub-label.
+                current_body.append(f"**{hm.group(2).strip()}:**")
+            else:
+                current_body.append(line)
+        # else: ignore content before the first decision title (frontmatter, H1, prose intro)
 
     flush()
     return entries

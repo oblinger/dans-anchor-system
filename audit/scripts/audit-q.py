@@ -2133,6 +2133,158 @@ def check_c25_designing_justification(backlog_files: list[Path],
     return findings
 
 
+# ============================================================
+# C32 — H3-form rows in backlog horizons are forbidden
+# C33 — [Designing] rows must have a → [[F<n>]] link to a feature doc
+# C34 — Inline Q<n> bullets in backlog row bodies are forbidden
+# All three: severity error, no auto-fix (content judgment required).
+# ============================================================
+
+
+_LIVE_HORIZONS = ("Now", "Next", "Later", "Ready", "Active")
+
+
+def check_c32_h3_rows_forbidden(backlog_files: list[Path]) -> list[Finding]:
+    """C32: H3-form rows in backlog horizon H2s are invalid.
+
+    Backlog rows must be bullets per [[CAB Backlog]]. H3-style rows (e.g.
+    `### BUG — Title [Designing]`) sail past most row-based checks because
+    the canonical parser (ROW_OPENER_RE) is bullet-only. Forbid the form
+    entirely so triage and audit see the same shape.
+    """
+    findings: list[Finding] = []
+    h3_re = re.compile(
+        r"^### "
+        r"(?:\[[A-Z]+\]\s+)?"
+        r"([A-Za-z][A-Za-z0-9_\-]*)\b"
+    )
+    for backlog_file in backlog_files:
+        try:
+            text = backlog_file.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        lines = text.splitlines()
+        current_h2 = ""
+        in_fence = False
+        for i, line in enumerate(lines, start=1):
+            if re.match(r"^\s*```", line):
+                in_fence = not in_fence
+                continue
+            if in_fence:
+                continue
+            m = HEADING_RE.match(line)
+            if m and m.group(1) == "##":
+                current_h2 = m.group(2).strip()
+                continue
+            if current_h2 not in _LIVE_HORIZONS:
+                continue
+            mh3 = h3_re.match(line)
+            if mh3:
+                identifier = mh3.group(1)
+                findings.append(Finding(
+                    severity="error",
+                    surface_file=backlog_file,
+                    surface_line=i,
+                    code="C32",
+                    message=(
+                        f"H3-form row '{identifier}' in `## {current_h2}` H2 — "
+                        f"backlog rows must be bullets per [[CAB Backlog]]; "
+                        f"rewrite as `- **{identifier} — Title** [Status] — body... "
+                        f"→ [[F<n> — Title]]`. H3 form escapes the canonical row "
+                        f"parser, so most state-purity checks silently skip it."
+                    ),
+                    mechanically_fixable=False,
+                ))
+    return findings
+
+
+def check_c33_designing_needs_link(entries: list[BacklogEntry]) -> list[Finding]:
+    """C33: every [Designing] row must have a `→ [[F<n>]]` link.
+
+    [Designing] implies active design work in a linked feature doc. A row
+    bracketed [Designing] with no link is in a self-contradictory state —
+    no design doc means there's nothing being designed. Honest brackets:
+      - [Waiting]  — parked, awaiting external trigger
+      - [Ready]    — design resolved, ready to implement
+      - [Questions] — has open Qs (which then live in a feature doc, with a link)
+    """
+    findings: list[Finding] = []
+    for e in entries:
+        if e.status != "Designing":
+            continue
+        if e.link is not None:
+            continue
+        # Skip Done/Icebox horizons.
+        if e.horizon in ("Done", "Icebox"):
+            continue
+        findings.append(Finding(
+            severity="error",
+            surface_file=e.source_file,
+            surface_line=e.source_line,
+            code="C33",
+            message=(
+                f"row '{e.identifier}' [Designing] has no `→ [[F<n>]]` link "
+                f"to a feature doc — [Designing] implies active design work "
+                f"in a linked doc. If parked, use [Waiting]; if ready to "
+                f"implement, [Ready]; if Qs remain, [N Questions] + link to "
+                f"the feature doc holding them."
+            ),
+            mechanically_fixable=False,
+        ))
+    return findings
+
+
+def check_c34_inline_q_in_row_body(backlog_files: list[Path]) -> list[Finding]:
+    """C34: inline `Q<n>` bullets inside backlog row bodies are forbidden.
+
+    Qs belong in feature docs (`{NAME} Features/F<n> — Title.md` §
+    `## Open Questions`) or à la carte (`{NAME} Questions.md`), per
+    [[ask-format]]. Embedding Qs in a backlog row body bypasses /ask's
+    surfacing (Q.md banner, /triage) and produces a row that contains
+    decision content the rest of the workflow can't see.
+    """
+    findings: list[Finding] = []
+    # Match `- **Q<n> —` or `  - **Q<n> —` (indented or not — any bullet form).
+    inline_q_re = re.compile(r"^\s*- \*\*Q\d+\s+[—-]")
+    for backlog_file in backlog_files:
+        try:
+            text = backlog_file.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        lines = text.splitlines()
+        current_h2 = ""
+        in_fence = False
+        for i, line in enumerate(lines, start=1):
+            if re.match(r"^\s*```", line):
+                in_fence = not in_fence
+                continue
+            if in_fence:
+                continue
+            m = HEADING_RE.match(line)
+            if m and m.group(1) == "##":
+                current_h2 = m.group(2).strip()
+                continue
+            # Skip Done/Icebox/Verify (Verify rows reference Qs legitimately).
+            if current_h2 in ("Done", "Icebox", "Verify", ""):
+                continue
+            if inline_q_re.match(line):
+                findings.append(Finding(
+                    severity="error",
+                    surface_file=backlog_file,
+                    surface_line=i,
+                    code="C34",
+                    message=(
+                        f"inline `Q<n>` bullet in backlog row body (`## {current_h2}`) "
+                        f"— Qs belong in a feature doc's `## Open Questions` H2 or in "
+                        f"`{{NAME}} Questions.md` per [[ask-format]]. Move the Q to "
+                        f"the appropriate surface and replace this row's body with "
+                        f"a `→ [[F<n> — Title]]` link."
+                    ),
+                    mechanically_fixable=False,
+                ))
+    return findings
+
+
 def apply_c23_fix(backlog_file: Path,
                   entries: list[BacklogEntry]) -> tuple[bool, list[str]]:
     """Rewrite [Designing] brackets to [N Questions] or [Ready] based on
@@ -2792,6 +2944,9 @@ def main() -> int:
         findings.extend(check_c23_designing_resolves(entries))
         findings.extend(check_c24_questions_count_match(entries))
         findings.extend(check_c25_designing_justification([backlog_file], vault_index))
+        findings.extend(check_c32_h3_rows_forbidden([backlog_file]))
+        findings.extend(check_c33_designing_needs_link(entries))
+        findings.extend(check_c34_inline_q_in_row_body([backlog_file]))
         if args.fix:
             fix_log = apply_placement_fixes(backlog_file, entries, today)
             if fix_log:
