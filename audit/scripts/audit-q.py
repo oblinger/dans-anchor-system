@@ -2494,6 +2494,249 @@ def check_c35_ask_md_drift(
     return findings
 
 
+################################################################
+# C36 (F126) — backtick-quoted file-paths must be links
+################################################################
+
+# Recognized file extensions for bare-filename detection
+_C36_EXTENSIONS = (
+    "md", "py", "sh", "yaml", "yml", "toml", "json", "txt",
+    "html", "css", "rs", "ts", "tsx", "js", "jsx",
+)
+_C36_EXT_RE = re.compile(
+    r"\.(" + "|".join(_C36_EXTENSIONS) + r")$"
+)
+
+# Capture every backtick-quoted token on a line that doesn't already
+# straddle a line boundary. We restrict to single-backtick spans so we
+# don't accidentally pick up ``code with `nested` `` fragments.
+_BACKTICK_SPAN_RE = re.compile(r"`([^`\n]+)`")
+
+# Inside a backtick token, the path-like content. Either:
+#  - starts with `/`, `~/`, `./`, `../`
+#  - bare filename ending in a recognized extension
+_C36_PATH_LEAD_RE = re.compile(r"^(/|~/|\./|\.\./)")
+
+
+def _c36_is_path_like(token: str) -> bool:
+    """Heuristic: token inside backticks looks like a single file-path.
+
+    Rejects:
+    - whitespace (command-line)
+    - code shapes (parens, equals, braces)
+    - glob/regex metacharacters
+    - directory references ending in `/`
+    - templated paths containing `<...>` placeholders or `{...}` or YYYY/NNN
+      style placeholders
+    - slash-commands (single segment after `/`, all lowercase a-z0-9-)
+    """
+    t = token.strip()
+    if not t:
+        return False
+    # Reject obvious non-path shapes
+    if any(c in t for c in " \t"):
+        return False  # command-line / multi-word
+    if any(c in t for c in "()=<>|&;{}"):
+        return False  # code / templated
+    if any(c in t for c in "*?"):
+        return False  # glob
+    if "[" in t or "]" in t:
+        return False  # regex/glob class
+    # Reject directory references ending in `/`
+    if t.endswith("/"):
+        return False
+    # Reject placeholder paths
+    if "YYYY" in t or "MM-DD" in t or "NNN" in t:
+        return False
+    # Reject bare-extension mentions like `.md` / `.html` (no stem)
+    if t.startswith(".") and _C36_EXT_RE.fullmatch(t):
+        return False
+    # Reject slash-commands: leading `/` followed by a single segment of
+    # lowercase letters / digits / hyphens — these are `/ask`, `/groom`,
+    # `/audit foo`, etc., NOT file paths.
+    if t.startswith("/"):
+        rest = t[1:]
+        if "/" not in rest and not _C36_EXT_RE.search(rest):
+            # single-segment after leading slash, no extension → command
+            return False
+    # Reject `.app` directory bundles (macOS) — they aren't text files
+    if t.endswith(".app"):
+        return False
+    # Accept absolute / home / relative paths
+    if _C36_PATH_LEAD_RE.match(t):
+        return True
+    # Accept bare basenames ending in a recognized extension
+    if _C36_EXT_RE.search(t):
+        # But require it look like a filename (no `/` already counted by the
+        # absolute case; bare-basename means no `/` at all)
+        return "/" not in t
+    return False
+
+
+def _c36_resolve_replacement(
+    token: str, vault_index: dict[str, list[Path]]
+) -> Optional[str]:
+    """Compute the replacement link for a path-like backtick token.
+
+    Returns the replacement string (without surrounding backticks) or
+    None if no clean replacement exists — caller leaves the backticks
+    intact and routes to QFix for manual review.
+
+    Discipline (post-shipping-bug 2026-06-07): NEVER emit a markdown link
+    `[name](path)` whose path doesn't actually resolve. A non-resolving
+    link breaks C1/C22 link-existence checks downstream. The valid
+    replacements are:
+      - `[[stem]]`     — only when stem is in the vault index (.md files)
+      - `[name](path)` — only when the path resolves on disk (absolute,
+                         `~/`-expanded, or relative-to-vault-root)
+      - None           — otherwise; caller leaves the backticks intact
+    """
+    raw = token.strip()
+    name = raw.rsplit("/", 1)[-1]
+    if "." in name:
+        stem = name.rsplit(".", 1)[0]
+        ext = name.rsplit(".", 1)[1].lower()
+    else:
+        stem = name
+        ext = ""
+    # ONLY safe automatic replacement: wiki-link to a vault-resident .md
+    # file whose basename is UNIQUE in the vault index. Ambiguous basenames
+    # (SKILL.md, README.md, ... — many files share the stem) would produce
+    # a link that resolves "somewhere" via path-proximity, but the reader
+    # has no way to know which target the author meant — that's a worse
+    # affordance than the original backticks. Leave ambiguous tokens as
+    # backticks and route to QFix for human judgment.
+    if ext == "md" and stem in vault_index and len(vault_index[stem]) == 1:
+        return f"[[{stem}]]"
+    return None
+
+
+def _c36_is_inside_existing_link(line: str, span_start: int) -> bool:
+    """Crude check: is the column inside an existing [..](..) or [[..]]?
+
+    Looks at the prefix of the line. If an unmatched `[` precedes the span
+    without a closing `]` between it and the span, we're inside a markdown
+    or wiki link target/text and should NOT flag this backtick.
+    """
+    prefix = line[:span_start]
+    # Count unbalanced `[` vs `]` to the left of the span.
+    open_brackets = prefix.count("[") - prefix.count("]")
+    return open_brackets > 0
+
+
+def check_c36_backtick_filepath(
+    file_path: Path, vault_index: dict[str, list[Path]]
+) -> list[Finding]:
+    """C36: backtick-quoted file-paths on Q.md / ask.md should be wiki-links
+    or markdown-links so they're clickable.
+
+    Surfacing case (F126, 2026-06-07): the user observed that bare backtick
+    file-path tokens in `Q.md` / `{NAME} ask.md` aren't navigable from
+    Obsidian — they look like links but aren't, forcing the user to manually
+    copy the path. C36 forbids them and `--fix` mechanically replaces them.
+    """
+    findings: list[Finding] = []
+    if not file_path.is_file():
+        return findings
+    try:
+        lines = file_path.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError):
+        return findings
+    in_fence = False
+    for line_num, line in enumerate(lines, start=1):
+        stripped = line.lstrip()
+        if stripped.startswith("```") or stripped.startswith("~~~"):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+        for m in _BACKTICK_SPAN_RE.finditer(line):
+            token = m.group(1)
+            if not _c36_is_path_like(token):
+                continue
+            if _c36_is_inside_existing_link(line, m.start()):
+                continue
+            replacement = _c36_resolve_replacement(token, vault_index)
+            mech_fixable = replacement is not None
+            findings.append(Finding(
+                severity="warning",
+                surface_file=file_path,
+                surface_line=line_num,
+                code="C36",
+                message=(
+                    f"backtick file-path `{token}` should be a link — "
+                    + (f"suggested: `{replacement}`"
+                       if replacement
+                       else "basename doesn't resolve in vault index "
+                            "(manual review)")
+                ),
+                mechanically_fixable=mech_fixable,
+            ))
+    return findings
+
+
+def apply_c36_fix(
+    file_path: Path,
+    findings: list[Finding],
+    vault_index: dict[str, list[Path]],
+) -> int:
+    """Apply mechanical replacements for C36 findings on file_path.
+
+    Processes findings descending by (line, span-start) so earlier offsets
+    on the same line aren't invalidated by later edits. Idempotent: a
+    second pass on the cleaned file produces 0 changes.
+    Returns the number of replacements actually applied.
+    """
+    relevant = [
+        f for f in findings
+        if f.code == "C36"
+        and f.surface_file == file_path
+        and f.mechanically_fixable
+    ]
+    if not relevant:
+        return 0
+    try:
+        lines = file_path.read_text(encoding="utf-8").splitlines(keepends=True)
+    except (OSError, UnicodeDecodeError):
+        return 0
+    # Re-scan to find exact spans (the original check stored line numbers,
+    # not column ranges). For each affected line, replace every path-like
+    # backtick span via the regex sub — single-pass per line is correct.
+    affected_lines = sorted({f.surface_line for f in relevant})
+    applied = 0
+
+    def _sub(m: re.Match) -> str:
+        nonlocal applied
+        token = m.group(1)
+        if not _c36_is_path_like(token):
+            return m.group(0)
+        # Check column-context guard (existing-link)
+        prefix = m.string[:m.start()]
+        if (prefix.count("[") - prefix.count("]")) > 0:
+            return m.group(0)
+        replacement = _c36_resolve_replacement(token, vault_index)
+        if replacement is None:
+            return m.group(0)
+        applied += 1
+        return replacement
+
+    in_fence = False
+    for idx in range(len(lines)):
+        line = lines[idx]
+        stripped = line.lstrip()
+        if stripped.startswith("```") or stripped.startswith("~~~"):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+        if (idx + 1) not in affected_lines:
+            continue
+        lines[idx] = _BACKTICK_SPAN_RE.sub(_sub, line)
+    if applied:
+        file_path.write_text("".join(lines), encoding="utf-8")
+    return applied
+
+
 def apply_c23_fix(backlog_file: Path,
                   entries: list[BacklogEntry]) -> tuple[bool, list[str]]:
     """Rewrite [Designing] brackets to [N Questions] or [Ready] based on
@@ -3205,6 +3448,21 @@ def main() -> int:
     # `{NAME} ask.md`. Runs once after the per-anchor loop (not per anchor),
     # since each ask.md is keyed by its sibling backlog's anchor name.
     findings.extend(check_c35_ask_md_drift(anchor_backlogs, vault_index))
+    # F126 — C36 backtick-filepath check. Runs on Q.md (when in scope),
+    # every per-anchor `{NAME} ask.md`, AND every anchor backlog —
+    # backlog rows are the source content that triage-section.py copies
+    # into Q.md, so fixing the surface alone gets overwritten by the
+    # next D1 banner-rewrite. Source-fix is durable.
+    c36_surfaces: list[Path] = []
+    if args.scope in ("q", "all"):
+        c36_surfaces.append(Q_MD)
+    for name, backlog_file in anchor_backlogs.items():
+        c36_surfaces.append(backlog_file)
+        ask_md = backlog_file.parent / f"{name} ask.md"
+        if ask_md.is_file():
+            c36_surfaces.append(ask_md)
+    for surface in c36_surfaces:
+        findings.extend(check_c36_backtick_filepath(surface, vault_index))
     for name, backlog_file in sorted(anchor_backlogs.items()):
         entries = backlog_entries(backlog_file, vault_index)
         if args.fix:
@@ -3226,9 +3484,19 @@ def main() -> int:
     # B16 — apply mechanical fixes for C6 + C10 if --fix
     c6_fixes_applied: list[str] = []
     c10_fixes_applied: list[str] = []
+    c36_fixes_applied: list[str] = []
     if args.fix:
         c6_fixes_applied = apply_c6_fix(all_q_entries)
         c10_fixes_applied = apply_c10_fix(all_q_entries)
+        # F126 C36 — replace backtick file-paths with links on each surface
+        for surface in c36_surfaces:
+            n = apply_c36_fix(surface, findings, vault_index)
+            if n:
+                try:
+                    rel = surface.relative_to(VAULT_ROOT)
+                except ValueError:
+                    rel = surface
+                c36_fixes_applied.append(f"  {rel}: {n} replacement(s)")
     # QFix routing — file every non-mechanically-fixable residual on the
     # owning anchor's `B-QFix [Ready]` row. Per audit § Governing principle
     # (2026-06-04): every check has an agent-side fix path; routing puts the
@@ -3256,6 +3524,10 @@ def main() -> int:
     if c10_fixes_applied:
         print(f"\naudit-q: C10 Recommendations outdented:")
         for line in c10_fixes_applied:
+            print(line)
+    if c36_fixes_applied:
+        print(f"\naudit-q: C36 backtick file-paths replaced with links:")
+        for line in c36_fixes_applied:
             print(line)
     if f089_fixes_applied:
         print(f"\naudit-q: F089 placement fixes (C15/C16/C18 auto-moves):")
