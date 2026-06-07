@@ -92,7 +92,7 @@ Author the markdown structure per [[CAB API Doc]]. Key elements (full rules in t
 - **H1 + file overview prose** — `# {NAME} {ModuleName}` immediately followed (no blank line) by a 2-4 sentence overview.
 - **Figure embed slot** — `![[{NAME} {ModuleName}.svg]]` (the actual SVG is authored in step 5).
 - **SECTIONS table** — `| SECTIONS | Role |` header; each row is `[[#^anchor|Name]] type` linking to the section's block-ID, with a role description in column 2. Type word lowercase after the link (`class`, `enum`, `topic`, `struct`, `protocol`).
-- **Per-section H2s** — `## Name Type` (Type capitalized: `## TaskScheduler Class`, `## Priority and starvation Topic`). H2 immediately followed (no blank) by description prose ending with the block-ID inline (no space): `...flows through it.^TaskScheduler`.
+- **Per-section H2s** — `## Name Type` for code-typed sections (Type capitalized, only when there IS a code type: `## TaskScheduler Class`, `## TaskState Enum`); `## Name` bare for topics / conceptual sections (no qualifier: `## Priority and starvation`). H2 immediately followed (no blank) by description prose ending with the block-ID inline (no space): `...flows through it.^TaskScheduler`.
 - **Class tables** — header first column carries the class name in `ALL CAPS WITH SPACES TYPE` form (`TASK SCHEDULER CLASS`); second column header is `Description`. Field rows use bold-identifier-only form `**\`name\`**\`: Type\``. `**Methods**` divider row between fields and methods. Method rows use `**[[#^anchor|name]]**\`(args) -> Return\`` — backticks NOT inside the wiki-link alias.
 - **Topic sections** — bulleted description list (NOT a table by default): `- **Concept label** — description.` Include a `**Rule reference**` bullet pointing at the canonical rule when the topic anchors a design rule.
 - **2 blank lines before each H2** (overview-zone separator). **7 blank lines** before `# Class Method Details` H1 (zone separator).
@@ -131,7 +131,7 @@ Re-read `[[CAB API Doc]]` and walk through this **concrete subjective checklist*
 
 **File-level:**
 1. **One-glance gist** — could a reader who's never seen this module understand its purpose from the H1 + overview paragraph alone? If they'd need to scroll to the SECTIONS table or read prose past sentence 3, the overview is too dense or too abstract.
-2. **Section names match section content** — does each H2 deliver what its name promises? `TaskScheduler Class` should contain only the TaskScheduler API; `Priority and starvation Topic` should focus on that single rule.
+2. **Section names match section content** — does each H2 deliver what its name promises? `TaskScheduler Class` should contain only the TaskScheduler API; `Priority and starvation` (bare-named topic) should focus on that single rule.
 3. **No redundancy** — the same fact shouldn't appear in the SECTIONS Role column, the class table description column, and the prose description. Each surface plays a different role; redundancy is a smell that the section split is wrong.
 
 **Figure:**
