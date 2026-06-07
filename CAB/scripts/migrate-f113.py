@@ -426,35 +426,51 @@ def plan_phase_b_for_anchor(inv: AnchorInventory) -> list[PlannedMove]:
     # ---- Step 3: build Decisions.md (+ optional Decisions Details.md) ----
     if inv.principles_path or inv.rules_path:
         decisions_target = target_design / f"{name} Decisions.md"
-        if decisions_target.exists():
+        decisions_body = _build_decisions_body(name, inv)
+        # Extraction-success gate (added post-Q13 2026-06-07): if the body
+        # contains zero `### D` entries, the sources didn't yield any
+        # extractable decisions (template-only Principles.md skeletons,
+        # unprefixed-H2 sources, etc.). Generating the shell anyway creates
+        # F113-migration boilerplate that will never get filled in and that
+        # the user must manually clean up later. Skip the write AND the
+        # source-delete entirely; the sources stay as-is for the user to
+        # hand-migrate or clean up on their next anchor touch.
+        if "### D" not in decisions_body:
             moves.append(PlannedMove(
                 op="note",
-                note=f"NOTE: {decisions_target.name} already exists; will OVERWRITE during execute."
+                note=f"SKIP Decisions.md generation for {name} — extraction yielded "
+                     f"zero D-entries (sources may be template placeholders or use "
+                     f"unprefixed-heading shape). Sources preserved; user hand-migrates."
             ))
-        decisions_body = _build_decisions_body(name, inv)
-        moves.append(PlannedMove(
-            op="write", dst=decisions_target, content=decisions_body,
-            note=f"Build Decisions from "
-                 + (f"Principles ({_rel(inv.principles_path)})" if inv.principles_path else "")
-                 + (" + " if inv.principles_path and inv.rules_path else "")
-                 + (f"Rules ({_rel(inv.rules_path)})" if inv.rules_path else "")
-        ))
-        # Optional companion: Decisions Details.md (same facet, different file).
-        details_body = _build_details_body(name, inv)
-        if details_body:
-            details_target = target_design / f"{name} Decisions Details.md"
+        else:
+            if decisions_target.exists():
+                moves.append(PlannedMove(
+                    op="note",
+                    note=f"NOTE: {decisions_target.name} already exists; will OVERWRITE during execute."
+                ))
             moves.append(PlannedMove(
-                op="write", dst=details_target, content=details_body,
-                note=f"Build optional Decisions Details (Why / rationale per D-number)",
+                op="write", dst=decisions_target, content=decisions_body,
+                note=f"Build Decisions from "
+                     + (f"Principles ({_rel(inv.principles_path)})" if inv.principles_path else "")
+                     + (" + " if inv.principles_path and inv.rules_path else "")
+                     + (f"Rules ({_rel(inv.rules_path)})" if inv.rules_path else "")
             ))
-        # Delete source Principles/Rules AFTER Decisions is written.
-        # Note: after the hoist in step 2, these files live at their new locations.
-        if inv.principles_path:
-            new_p = _post_hoist_path(inv.principles_path, src_dst_pairs)
-            moves.append(PlannedMove(op="delete", src=new_p, note="delete migrated Principles.md"))
-        if inv.rules_path:
-            new_r = _post_hoist_path(inv.rules_path, src_dst_pairs)
-            moves.append(PlannedMove(op="delete", src=new_r, note="delete migrated Rules.md"))
+            # Optional companion: Decisions Details.md (same facet, different file).
+            details_body = _build_details_body(name, inv)
+            if details_body:
+                details_target = target_design / f"{name} Decisions Details.md"
+                moves.append(PlannedMove(
+                    op="write", dst=details_target, content=details_body,
+                    note=f"Build optional Decisions Details (Why / rationale per D-number)",
+                ))
+            # Delete source Principles/Rules AFTER Decisions is written.
+            # Note: after the hoist in step 2, these files live at their new locations.
+            if inv.principles_path:
+                new_p = _post_hoist_path(inv.principles_path, src_dst_pairs)
+                moves.append(PlannedMove(op="delete", src=new_p, note="delete migrated Principles.md"))
+            if inv.rules_path:
+                new_r = _post_hoist_path(inv.rules_path, src_dst_pairs)
+                moves.append(PlannedMove(op="delete", src=new_r, note="delete migrated Rules.md"))
 
     # ---- Step 4: System Design — Phase B', surface for review (no auto-fold v1) ----
     if inv.system_design_path:
