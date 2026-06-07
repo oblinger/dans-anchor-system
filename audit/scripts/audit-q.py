@@ -2937,14 +2937,23 @@ def file_qfix_row(
 
     lines = text.splitlines()
     # Format new sub-bullets — relative path to VAULT_ROOT for compactness.
-    # Wrap any `[[X]]` wiki-link patterns in the message text in backticks so
-    # `_strip_code_spans` makes them invisible to C1/C22 link-resolution on
-    # subsequent runs. Without this guard, sub-bullets containing finding
-    # messages with `[[X]]` are themselves flagged as broken links →
-    # routing-induced cascade (observed 2026-06-04 on first --fix loop after
-    # this routing landed).
+    # Wrap any `[[X]]` wiki-link OR `[name](path)` markdown-link patterns in
+    # the message text in backticks so `_strip_code_spans` makes them invisible
+    # to C1/C22 link-resolution on subsequent runs. Without this guard,
+    # sub-bullets containing finding messages with link forms are themselves
+    # flagged as broken links → routing-induced cascade (observed 2026-06-04
+    # for wiki-links and 2026-06-07 for markdown-links when F126 surfaced
+    # markdown-link findings).
     def _backtick_wiki_links(msg: str) -> str:
-        return re.sub(r"\[\[([^\[\]]*)\]\]", r"`[[\1]]`", msg)
+        # Wrap wiki-links first (so the markdown-link regex doesn't catch the
+        # backticked replacement)
+        msg = re.sub(r"\[\[([^\[\]]*)\]\]", r"`[[\1]]`", msg)
+        # Wrap markdown links: [name](path) — but skip those already inside
+        # backticks. The `(?<!\`)` lookbehind would be cleaner but Python's
+        # variable-width lookbehind support varies; instead just wrap any
+        # remaining unbackticked form.
+        msg = re.sub(r"(?<!`)\[([^\[\]]+)\]\(([^)]+)\)(?!`)", r"`[\1](\2)`", msg)
+        return msg
 
     new_subs: list[str] = []
     for f in findings:
