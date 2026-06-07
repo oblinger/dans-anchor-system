@@ -113,14 +113,30 @@ def render(anchor: str) -> int:
         {anchor: backlog_file}, vault_index, reachable_only=True
     )
 
+    entries = A.backlog_entries(backlog_file, vault_index)
+    verifies = _verify_rows(entries)
+
+    # Active-horizon filter (per ask/SKILL.md § Bare invocation step 1):
+    # ## Later and ## Icebox are disregarded entirely; only Active/Ready/Now/Next
+    # backlog rows count. A feature doc is in scope iff its backlog row sits in
+    # one of those horizons. The à la carte `{NAME} Questions.md` file is always
+    # in scope (anchor-level, not horizon-tied).
+    active_basenames: set[str] = set()
+    for e in entries:
+        if e.horizon not in ACTIVE_HORIZONS:
+            continue
+        if e.link is not None and e.link.target_basename:
+            active_basenames.add(e.link.target_basename)
+
     by_file: dict[Path, list] = {}
     for container_id, path in sources:
+        # Always include the à la carte facet (container_id matches anchor name)
+        # and feature docs whose stem matches an active-horizon backlog row.
+        if container_id != anchor and path.stem not in active_basenames:
+            continue
         qs = A.extract_q_entries(path, container_id)
         if qs:
             by_file[path] = qs
-
-    entries = A.backlog_entries(backlog_file, vault_index)
-    verifies = _verify_rows(entries)
 
     agent_res_body = _preserve_agent_resolutions(ask_path)
 
