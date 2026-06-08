@@ -45,11 +45,11 @@ Sub-action of `/audit`. Spec: `[[F076 — audit q — Q.md constraint validator 
    - **C12 missing `Naturally exercised by:` rationale** — write the plausible-exercise sentence based on what the row is verifying (e.g., "next anchor that adopts a `markdown-write` trigger"). If genuinely no natural exercise exists, the row probably shouldn't be `[Verify-by]` in the first place — rebracket to `[Verify]` or `[Watching N d]` as honest.
    - **C25 `[Designing]` w/o justification** — write the next-action sentence (either as `## Status` H2 in the linked feature doc, or as inline `- **Status:** Designing — <next-action>` sub-bullet under the backlog row). If no honest next-action exists, the row isn't really `[Designing]` — rebracket to `[Questions]` (if questions need to be drafted) or `[Ready]` (if design is complete).
    - **C19, C20, C21, C22, C7, C8** — agent reformat / link rewrite / Phase-2 migration. All structural, all agent-doable.
-   - **Genuinely-stuck-on-user cases — RARE.** Reserve `QFix` for cases where the agent has tried and the answer truly requires user-specific knowledge (e.g., user-private preferences, external facts the agent can't reach). These should be rare; most C-codes have an honest agent action. File via `backlog-edit.py`:
+   - **Genuinely-stuck-on-user cases — RARE.** Reserve `QFix` for cases where the agent has tried and the answer truly requires user-specific knowledge (e.g., user-private preferences, external facts the agent can't reach). These should be rare; most C-codes have an honest agent action. File via `state task update` (B-QFix is a named singleton — update creates it if absent, mirroring `backlog-edit.py`'s semantics for named row-ids):
 
      ```bash
-     ~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} Ready B-QFix Ready \
-         "QFix" "audit q findings genuinely requiring user-private input — see sub-bullets"
+     ~/.claude/skills/workflow/scripts/state --anchor {NAME} task update B-QFix --horizon Ready --status Ready \
+         --title "QFix" --body "audit q findings genuinely requiring user-private input — see sub-bullets"
      ```
 
      Renders as `- **B-QFix — QFix** [Ready] — audit q findings ... ^B-QFix`. The `^B-QFix` block-ID lets `/triage` and [[audit-q-fix]] target the row uniquely. Each finding goes as `  - **C<N>** {file}:{line} — {description + one line on why the agent can't supply the answer alone}`. Cross-anchor findings route by `surface_file` path to the matching anchor's `QFix` row.

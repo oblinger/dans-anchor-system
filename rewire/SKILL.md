@@ -352,22 +352,22 @@ The synthesis-vs-reference split: **Dev** holds audit-tied implementation refere
 
 - [ ] Folder exists with dispatch page `{NAME} User.md`
 - [ ] **`{NAME} Interface.md` exists here** — the required top-level human-authored layer contract; see [[CAB Interface]]
-- [ ] **If `{NAME} Interface.md` is absent:** auto-create a scaffold (H1 + canonical dispatch placeholder + TODO sections per [[CAB Interface]] § Document Structure) AND file a `## Now [Designing]` backlog row via the workflow skill's `backlog-edit.py` (per [[SKA workflow]] § Mutation API — never edit `{NAME} Backlog.md` directly):
+- [ ] **If `{NAME} Interface.md` is absent:** auto-create a scaffold (H1 + canonical dispatch placeholder + TODO sections per [[CAB Interface]] § Document Structure) AND file a `## Now [Designing]` backlog row via the workflow skill's `state task create` (per [[SKA workflow]] § Mutation API — never edit `{NAME} Backlog.md` directly):
 
   ```bash
-  ~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} Now Fnew Designing \
-      "Author top-level Interface for {NAME}" \
-      "Rewire scaffolded {NAME} Interface.md on {YYYY-MM-DD}. Needs user collaboration to author the layer contract — see [[CAB Interface]]. → [[{NAME} Interface]]."
+  ~/.claude/skills/workflow/scripts/state --anchor {NAME} task create --status Designing \
+      --title "Author top-level Interface for {NAME}" \
+      --body "Rewire scaffolded {NAME} Interface.md on {YYYY-MM-DD}. Needs user collaboration to author the layer contract — see [[CAB Interface]]. → [[{NAME} Interface]]."
   ```
 
   The agent does NOT attempt to fill in the contract content — that's the user-collaboration step per [[SKA workflow]] § Interface-validation gate.
 
-- [ ] **Legacy migration:** if `{NAME} Rollup.md` exists (predecessor to Interface), do NOT auto-rename. Surface a `## Now [Designing]` backlog row via `backlog-edit.py`:
+- [ ] **Legacy migration:** if `{NAME} Rollup.md` exists (predecessor to Interface), do NOT auto-rename. Surface a `## Now [Designing]` backlog row via `state task create`:
 
   ```bash
-  ~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} Now Fnew Designing \
-      "Migrate {NAME} Rollup → {NAME} Interface" \
-      "content review needed (see F062). → [[{NAME} Rollup]]."
+  ~/.claude/skills/workflow/scripts/state --anchor {NAME} task create --status Designing \
+      --title "Migrate {NAME} Rollup → {NAME} Interface" \
+      --body "content review needed (see F062). → [[{NAME} Rollup]]."
   ```
 
   Per F060's forward-only policy, the rename happens when the user touches the anchor.

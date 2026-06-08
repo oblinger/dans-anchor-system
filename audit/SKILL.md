@@ -79,24 +79,24 @@ Each sub-audit produces **≥1 backlog row**, pre-split by **state-cluster** of 
 
 **Default horizon: `## Next`, NOT `## Now`.** Audit findings are surfaced but **deprioritized by default** — they don't compete with whatever's currently flowing through `## Now`. The user can promote to `## Now` explicitly when the audit work moves up in priority. Use `## Now` only when the audit was explicitly invoked because the user wants the findings to land in the active horizon.
 
-**Mutation discipline — every audit row goes through `backlog-edit.py`.** Direct `Edit`/`Write` against `{NAME} Backlog.md` is forbidden (per [[SKA workflow]] § Mutation API). The workflow skill's `backlog-edit.py` mints the F-number atomically (no agent-side scan), inserts the row in the right H2, preserves source order, and auto-refreshes `~/ob/kmr/Q.md` — so § Q.md update post-condition below is satisfied as a side effect.
+**Mutation discipline — every audit row goes through `state task create`.** Direct `Edit`/`Write` against `{NAME} Backlog.md` is forbidden (per [[SKA workflow]] § Mutation API). The workflow skill's `state` mints the F-number atomically (no agent-side scan), inserts the row in the right H2, preserves source order, and auto-refreshes `~/ob/kmr/Q.md` — so § Q.md update post-condition below is satisfied as a side effect.
 
 For each row (one per state-cluster), invoke:
 
 ```bash
-~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} Next Fnew Ready \
-    "<Kind> audit (<state-cluster>): <N> findings (<YYYY-MM-DD>)" \
-    "work surfaced by /audit <kind>. Sub-bullets are candidate splits if this needs to be broken up."
+~/.claude/skills/workflow/scripts/state --anchor {NAME} task create --horizon Next --status Ready \
+    --title "<Kind> audit (<state-cluster>): <N> findings (<YYYY-MM-DD>)" \
+    --body "work surfaced by /audit <kind>. Sub-bullets are candidate splits if this needs to be broken up."
 ```
 
 Parse the assigned `F<NNN>` from stdout (`<slug>: added F<NNN> in Next [Ready]` — second word after `added`).
 
-For `[Questions]` rows, swap status `Ready` → `Questions` and put the feature-doc wiki-link in the body:
+For `[Questions]` rows, swap `--status Ready` → `--status Questions` and put the feature-doc wiki-link in the body:
 
 ```bash
-~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} Next Fnew Questions \
-    "<Kind> audit (Questions: <cluster name>): <N> findings (<YYYY-MM-DD>)" \
-    "→ [[F<NNN> — <Title>]]"
+~/.claude/skills/workflow/scripts/state --anchor {NAME} task create --horizon Next --status Questions \
+    --title "<Kind> audit (Questions: <cluster name>): <N> findings (<YYYY-MM-DD>)" \
+    --body "→ [[F<NNN> — <Title>]]"
 ```
 
 The script produces row shape:
@@ -105,7 +105,7 @@ The script produces row shape:
 - **F<NNN> — <Kind> audit (<state-cluster>): <N> findings (<YYYY-MM-DD>)** [Ready] — work surfaced by /audit <kind>. ... ^F<NNN>
 ```
 
-**Sub-bullets are findings, one per line** — append them below the row via direct `Edit` against the file. (Sub-bullets are within-row content, not row-level mutations; `backlog-edit.py` v1 handles row lines only.) Order sub-bullets by category, then by file path.
+**Sub-bullets are findings, one per line** — append them below the row via direct `Edit` against the file. (Sub-bullets are within-row content, not row-level mutations; `state` v1 handles row lines only.) Order sub-bullets by category, then by file path.
 
 **Default horizon: `Next`, NOT `Now`** (per the deprioritization rule above). Override to `Now` only when the audit was explicitly invoked because the user wants the findings to land in the active horizon.
 
@@ -114,11 +114,11 @@ The script produces row shape:
 **One row-set per sub-audit run.** Each invocation of `/audit <kind>` writes its state-clustered row(s) — no merging with prior audit entries (those are stable references). If a prior entry from the same sub-audit is still un-cleared, the user can decide whether to consolidate manually.
 
 
-## Q.md update post-condition — automatic via `backlog-edit.py`
+## Q.md update post-condition — automatic via `state`
 
-Each `backlog-edit.py` invocation auto-regenerates the anchor's per-anchor section in `~/ob/kmr/Q.md` (by shelling out to `audit-q.py --scope backlog --anchor {NAME} --fix`). **The backlog file is NOT reordered** — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior; the user reading Q.md sees the just-audited anchor at the top with its new finding rows.
+Each `state` invocation auto-regenerates the anchor's per-anchor section in `~/ob/kmr/Q.md` (by shelling out to `audit-q.py --scope backlog --anchor {NAME} --fix`). **The backlog file is NOT reordered** — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior; the user reading Q.md sees the just-audited anchor at the top with its new finding rows.
 
-For sub-audit runs that write multiple rows in sequence, the Q.md regen fires once per row — fine for low row counts (~1-3) but redundant for large finding sweeps. When the orchestrator (bare `/audit`) collects results from many worker sub-audits writing dozens of rows, the per-call regen is unhelpful write amplification; in that case workers should be invoked with their findings collected in memory and a single final `backlog-edit.py` per row writes the lot, with the final Q.md state being correct on the last write.
+For sub-audit runs that write multiple rows in sequence, the Q.md regen fires once per row — fine for low row counts (~1-3) but redundant for large finding sweeps. When the orchestrator (bare `/audit`) collects results from many worker sub-audits writing dozens of rows, the per-call regen is unhelpful write amplification; in that case workers should be invoked with their findings collected in memory and a single final `state` call per row writes the lot, with the final Q.md state being correct on the last write.
 
 
 ## Actions
@@ -135,7 +135,7 @@ For sub-audit runs that write multiple rows in sequence, the Q.md regen fires on
 | `/audit features` | [[audit-features]] | — | F-doc cross-linking — every F-doc in `SKA Features/` reachable from at least one bucket PRD's Feature Docs table. Per [[F083 — Cross-Linking]]. Orthogonal to `/audit q` (different invariant, different output). |
 | `/audit markdown` | [[audit-markdown]] | — | Markdown hygiene — runs a rules library (bundled `skills/audit/rules-markdown/*.md` + user-space `~/.config/ob-skills/audit-markdown/rules/*.md`) against given files or `--all <dir>`. Rules-as-markdown (each rule = one `.md` file with YAML frontmatter + an embedded `python` block compiled at load). Starter rules: `trailing-whitespace`, `final-newline`, `heading-spacing`. Per [[F081 — audit markdown — markdown hygiene via MCP server]] v1 minimal (no MCP, no Stop-hook auto-register yet — invoke manually). |
 | `/audit architecture` | [[audit-architecture]] | — | Architecture-doc shape + wiki-link integrity. Walks each anchor's main `<NAME> Architecture.md` + transitively reachable subsystem Arch docs; checks (R1) diagram-then-table at top, (R2) every cell of the component table that names a vault file is a wiki-link. Auto-fixes A3 wrap-in-brackets when the basename match is unambiguous. Auto-wired post-condition into `/architect` and its sub-skills (`new` / `update` / `changes` / `drift`). Per [[F092 — Audit architecture]]. |
-| `/audit integrity` | [[audit-integrity]] | — | **Detect direct edits that bypassed `backlog-edit.py`.** Walks every `<NAME> Backlog.md` in the vault; compares its `mtime` against the last-script-run timestamp in `~/.config/ob-skills/backlog-edit/state.json` (per anchor). Flags any backlog whose mtime is newer than the recorded script-run as a `bypass` (agent direct-edit OR legitimate user edit — the audit can't distinguish; user filters). Anchors never touched by the script appear as `unknown`. Report-only; never writes a backlog entry of its own. |
+| `/audit integrity` | [[audit-integrity]] | — | **Detect direct edits that bypassed `state`/`backlog-edit.py`.** Walks every `<NAME> Backlog.md` in the vault; compares its `mtime` against the last-script-run timestamp in `~/.config/ob-skills/backlog-edit/state.json` (per anchor). Flags any backlog whose mtime is newer than the recorded script-run as a `bypass` (agent direct-edit OR legitimate user edit — the audit can't distinguish; user filters). Anchors never touched by the script appear as `unknown`. Report-only; never writes a backlog entry of its own. |
 | `/audit api-doc` | `audit-api-doc.py` | — | **CAB API Doc facet conformance check.** Validates a target API doc against [[CAB API Doc]] rules. 26 checks: top-of-doc (frontmatter, H1, compact rule, breadcrumb), figure (embed present, SVG file exists, .excalidraw source exists), SECTIONS table (header, type-qualified rows, block-ID resolution), per-class blocks (H2 type form, description-with-block-ID, ALL-CAPS table headers, bold-identifier rows, method-link form, methods divider, block-ID matching), Class Method Details zone (H1 present, per-class H2s, block-ID-tagged method H3s), spacing (compact rule, 2-blank H2 separator, 7-blank Class Method Details separator, merged-bullet method body), dispatch linking (Dev.md + Files.md). `--fix` auto-repairs the 5 spacing checks (C3, C21, C22, C23, C24). Invoked by `/api-doc` skill during its iterate loop; can also run standalone on existing API docs. Per [[F119 — api-doc skill + audit-api-doc.py — author audit iterate for CAB API Doc facet\|F119]]. |
 
 ## Which apply

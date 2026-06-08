@@ -1,12 +1,12 @@
 # /audit integrity
 
-Detect backlog edits that bypassed [[workflow/scripts/backlog-edit|backlog-edit.py]]. Cross-references each anchor's `<NAME> Backlog.md` mtime against the last-script-run timestamp in `~/.config/ob-skills/backlog-edit/state.json`. Any backlog whose mtime is newer than the script's last recorded run for that anchor is a **bypass** — either an agent edited the file directly (a discipline failure) or the user edited it (in Obsidian, etc.).
+Detect backlog edits that bypassed the workflow mutation API (`state` / legacy `backlog-edit.py` — both share the same state-file). Cross-references each anchor's `<NAME> Backlog.md` mtime against the last-script-run timestamp in `~/.config/ob-skills/backlog-edit/state.json`. Any backlog whose mtime is newer than the script's last recorded run for that anchor is a **bypass** — either an agent edited the file directly (a discipline failure) or the user edited it (in Obsidian, etc.).
 
 The audit does **not** distinguish agent-bypass from user-direct-edit. Both look identical at the filesystem level. The report flags both; the user filters mentally by familiarity with their own activity.
 
 ## Mechanism
 
-`backlog-edit.py` writes one entry per anchor to `~/.config/ob-skills/backlog-edit/state.json` on every invocation:
+Both `state` and the legacy `backlog-edit.py` write one entry per anchor to `~/.config/ob-skills/backlog-edit/state.json` on every invocation:
 
 ```json
 {
@@ -50,7 +50,7 @@ Default tolerance: **5 seconds** — handles filesystem timestamp resolution + t
   1. Did **you** edit that backlog in the last day? (Obsidian, terminal editor, etc.) If yes — fine, dismiss.
   2. If no — an agent ran a direct `Edit`/`Write` against the file. The retrofit prose said not to, but skill drift happens. Track down which skill did it (cross-reference the timeline against your recent slash-command history) and tighten the retrofit.
 
-- **unknown section** is mostly noise — it lists every anchor whose backlog file exists but has never been touched by `backlog-edit.py`. Expected immediately after the retrofit landed; expected to shrink over time as anchors get exercised.
+- **unknown section** is mostly noise — it lists every anchor whose backlog file exists but has never been touched by `state`/`backlog-edit.py`. Expected immediately after the retrofit landed; expected to shrink over time as anchors get exercised.
 
 - **clean section count** is the positive signal. As skills are exercised and the discipline holds, `clean` grows and `unknown` shrinks.
 
@@ -64,15 +64,16 @@ Default tolerance: **5 seconds** — handles filesystem timestamp resolution + t
 
 The user's own edits show up as bypasses. This is a fundamental limit of the mechanism; the audit cannot read minds. Two mitigations:
 
-1. **Don't edit backlogs directly in Obsidian.** Use `backlog-edit.py` from terminal if you want a row update tracked. (Not always practical — sometimes you just want to fix a typo.)
+1. **Don't edit backlogs directly in Obsidian.** Use `state` from terminal if you want a row update tracked. (Not always practical — sometimes you just want to fix a typo.)
 2. **Mental filter.** The bypass report is small enough to scan. You know what you edited; everything else is real drift to chase.
 
 ## Composition
 
-Calls into [[workflow/scripts/backlog-edit|backlog-edit.py]]'s state file. Per the script-vs-skill split, this skill is **report-only** — it does not modify any backlog. The state file is read-only from this skill's perspective.
+Calls into the shared `~/.config/ob-skills/backlog-edit/state.json` state file (written by both `state` and the legacy `backlog-edit.py`). Per the script-vs-skill split, this skill is **report-only** — it does not modify any backlog. The state file is read-only from this skill's perspective.
 
 ## Cross-references
 
 - [[audit/SKILL|/audit]] — parent skill; this is one sub-action.
 - [[workflow/SKILL|workflow/SKILL.md]] § Mutation API — the discipline this audit verifies.
-- [[workflow/scripts/backlog-edit|backlog-edit.py]] — the mutation tool whose state this audit reads.
+- [[SKL State]] — canonical `state` CLI spec (F129).
+- [[workflow/scripts/backlog-edit|backlog-edit.py]] — legacy mutation tool whose state this audit reads.

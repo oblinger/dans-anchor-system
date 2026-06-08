@@ -1,10 +1,10 @@
 ---
-description: "Spec for the `state` script — canonical state editor for everything below the anchor level (backlog rows + feature-doc Open Questions). Proposed shape; implementation pending F129 (current shipped script is `backlog-edit.py` under the F128 shape — see § Implementation status)."
+description: "CLI reference for the `state` script — canonical state editor for everything below the anchor level (backlog rows + feature-doc Open Questions). Verb-first, anchor-flag with cwd-walkup, slug-as-alias hybrid. F129 (shipped 2026-06-07)."
 ---
 
 # state — canonical state editor (CLI reference)
 
-> **STATUS:** Spec for F129. The shipped script today is `~/.claude/skills/workflow/scripts/backlog-edit.py` under the F128 CLI shape. F129 will rename to `state`, restructure to verb-first, swap `--slug` → `--anchor` with cwd-walkup, drop `--force` on rewrite, and rename the `resolve` verb to `answer`. This page IS the spec for F129; it becomes canonical at F129 ship.
+> **STATUS:** Canonical. Shipped 2026-06-07 via F129. Legacy `backlog-edit.py` ships alongside for the migration window — both scripts share helpers and the same state file; new code should prefer `state`.
 
 ## NAME
 
@@ -169,8 +169,8 @@ echo '**Q5 — rewritten** — fresh body.' | state q rewrite F091 -n 5
 
 ## IMPLEMENTATION STATUS
 
-- **Today (post-F128):** `~/.claude/skills/workflow/scripts/backlog-edit.py` ships the row-edit positional CLI + `-Q add|resolve|remove|rewrite` flag-mode for Q-management. Slug not yet supported. Force flag on rewrite. Recommendation-presence gate on rewrite.
-- **Pending (F129):** rename script to `state`; verb-first restructure; `--anchor` (path|slug|cwd-walkup); drop `--force`; rename `resolve` → `answer`; add `--slug` hybrid; update all callers (`/feature`, `/ask`, `/groom`, `/triage`, `/crank`) to the new shape; backwards-compat symlink during migration window.
+- **Shipped (F129, 2026-06-07):** `~/.claude/skills/workflow/scripts/state` is canonical. Verb-first restructure (`task create|update|delete` + `q add|answer|remove|rewrite`); `-a/--anchor` (path|slug|cwd-walkup); no `--force` on rewrite; `--slug` hybrid. Caller doc-sweep across `/feature`, `/ask`, `/groom`, `/triage`, `/crank`, `/mint`, `/finalize`, `/rewire`, `/audit` SKILL.md files is incremental — both scripts coexist.
+- **Legacy:** `~/.claude/skills/workflow/scripts/backlog-edit.py` ships the F128-era positional CLI + `-Q add|resolve|remove|rewrite` flag-mode. `state` delegates to its helpers via importlib — single source of truth at the helper level; both scripts share the same state.json file used by `/audit integrity`.
 
 ## RELATED
 

@@ -59,13 +59,13 @@ If a feature is `[Questions]` or `[Blocked]` mid-flight, that's tracked via the 
 
 **Pick the highest applicable tier.** If you find yourself writing tier 4 with no Blocks-next, pause and reconsider: could a passive signal work? Could the user notice this in normal use? Often the answer is yes and the right tier is 3.
 
-Per `[[CAB Backlog]]` § Numbering policy, F-numbers are monotonic-forever, never recycled, **zero-padded to three digits** as `F001` … `F999`. The F-number is **minted by the workflow skill's `backlog-edit.py`** in § 1.5 below — run § 1.5 first (after the collision check in § 1b), parse the assigned `F<NNN>` from its stdout, then create the feature doc in the project's Features folder:
+Per `[[CAB Backlog]]` § Numbering policy, F-numbers are monotonic-forever, never recycled, **zero-padded to three digits** as `F001` … `F999`. The F-number is **minted by the workflow skill's `state task create`** in § 1.5 below — run § 1.5 first (after the collision check in § 1b), parse the assigned `F<NNN>` from its stdout, then create the feature doc in the project's Features folder:
 
 ```
 {anchor}/Docs/Plan/Features/F{NNN} — {Feature Name}.md
 ```
 
-If the Features folder doesn't exist, create it. Filenames carry the F-number prefix from the mint (zero-padded). **Do not read the backlog file directly to compute the next F-number** — `backlog-edit.py Fnew` is the canonical mint.
+If the Features folder doesn't exist, create it. Filenames carry the F-number prefix from the mint (zero-padded). **Do not read the backlog file directly to compute the next F-number** — `state task create` is the canonical mint.
 
 #### 1b. Collision check — vault grep for duplicate H1 (per F27)
 
@@ -178,10 +178,10 @@ Always ASK when: invisible OR high recoverability cost OR irreversible (push / e
 
 Per the active-work invariant: **every feature doc must be reachable from `{NAME} Backlog.md` or `{NAME} Roadmap.md`** at creation time. No exceptions, no `--orphan` flag.
 
-**For a backlog feature** (the common case): mint the row via the workflow skill's `backlog-edit.py`. This both reserves the F-number (returned in stdout) and creates the row atomically — no direct backlog edits. Run this **before** creating the feature doc file in § 1 (the F-number names the file).
+**For a backlog feature** (the common case): mint the row via the workflow skill's `state task create`. This both reserves the F-number (returned in stdout) and creates the row atomically — no direct backlog edits. Run this **before** creating the feature doc file in § 1 (the F-number names the file).
 
 ```bash
-~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} Now Fnew Designing "{Feature Name}"
+~/.claude/skills/workflow/scripts/state --anchor {NAME} task create --status Designing --title "{Feature Name}"
 ```
 
 Output: `{NAME}: added F<NNN> in Now [Designing]` — parse `F<NNN>` from the second word after `added`. Use that F-number for the feature doc filename (§ 1).
@@ -189,12 +189,12 @@ Output: `{NAME}: added F<NNN> in Now [Designing]` — parse `F<NNN>` from the se
 After § 1 creates the feature doc, run a follow-up call to add the wiki-link body so the row links back to the new doc:
 
 ```bash
-~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} same F<NNN> Designing "{Feature Name}" "→ [[F<NNN> — {Feature Name}]]"
+~/.claude/skills/workflow/scripts/state --anchor {NAME} task update F<NNN> --body "→ [[F<NNN> — {Feature Name}]]"
 ```
 
-Use `Later` instead of `Now` for parking-mode stubs (`/feature` used to file something for later). Use bracket `Questions` instead of `Designing` once the Open Questions block has been written and the row should surface to triage as user-actionable.
+Use `--horizon Later` for parking-mode stubs (`/feature` used to file something for later). Use `--status Questions` once the Open Questions block has been written and the row should surface to triage as user-actionable.
 
-**For a roadmap milestone**: the feature doc gets an M-number prefix (`Features/M{n} — {Name}.md` with H1 `# M{n} — {Name}`). `backlog-edit.py` is backlog-only — roadmap milestones currently use a separate path (manual `Roadmap.md` edit). M-numbers are hierarchical (M1, M1.2, M1.2.3) — see `[[SKA workflow]]` § Active-work invariant for the namespace rules.
+**For a roadmap milestone**: the feature doc gets an M-number prefix (`Features/M{n} — {Name}.md` with H1 `# M{n} — {Name}`). `state` is backlog-only — roadmap milestones currently use a separate path (manual `Roadmap.md` edit). M-numbers are hierarchical (M1, M1.2, M1.2.3) — see `[[SKA workflow]]` § Active-work invariant for the namespace rules.
 
 **The row is minted in the SAME turn the feature doc is created.** Don't defer; orphans accumulate when the row-creation step is "for later."
 
@@ -214,19 +214,19 @@ open "<path to feature doc>"
 
 **On the create step:** glance only if you're in active mode. If creating a feature stub for backlog filing, skip the glance — the user just told you to file it; opening the file at them is the opposite of what they asked.
 
-### 1c. Refresh the anchor's Q.md section — automatic via `backlog-edit.py`
+### 1c. Refresh the anchor's Q.md section — automatic via `state`
 
 **Rule:** every Phase transition in `/feature` (Phase 1 → Phase 2 when all Qs resolve; Phase 2 → Phase 3 when a new Q arises; Status changes Designing → Agreed → Implementing → Done) is a state-touching action that must update the backlog row + refresh `~/ob/kmr/Q.md`.
 
-**The mechanism:** call `backlog-edit.py` with the new status for **every** transition — it auto-refreshes Q.md as a side effect (invokes `audit-q.py --scope backlog --anchor {NAME} --fix`).
+**The mechanism:** call `state task update` with the new status for **every** transition — it auto-refreshes Q.md as a side effect (invokes `audit-q.py --scope backlog --anchor {NAME} --fix`).
 
 ```bash
-~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} same F<NNN> Agreed "{Feature Name}" "→ [[F<NNN> — {Feature Name}]]"
-~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} same F<NNN> Active "{Feature Name}" "→ [[F<NNN> — {Feature Name}]]"
+~/.claude/skills/workflow/scripts/state --anchor {NAME} task update F<NNN> --status Agreed
+~/.claude/skills/workflow/scripts/state --anchor {NAME} task update F<NNN> --status Active
 # ... and so on for Verify, Done.
 ```
 
-Use `same` for the horizon when the row stays in its current H2; use an explicit horizon name (`Now` / `Active` / `Done`) to move it.
+Omit `--horizon` to leave the row in its current H2; pass `--horizon Active` / `--horizon Done` to move it.
 
 The audit's fix-by-default behavior catches any drift introduced by this skill's row edits — broken links, stale brackets, banner mismatches, stale `[Done]` rows — and either repairs them mechanically OR (rare) files a `QFix [Ready]` backlog entry the user can address later. **Surfacing any QFix entry is part of this skill's "done" criteria** — read the script's stderr/stdout output for QFix lines, surface them to the user.
 
@@ -242,27 +242,27 @@ skl-stat add "Proposed" "<Feature Name>" "Feature doc created"
 
 ### 3. Design Discussion
 
-Work with the user to flesh out the design. **Per F128 (2026-06-07), Q-state changes delegate to `backlog-edit.py`** — the canonical state-editor enforces ask-format spec, Q-numbering policy, and Phase 1/2/3 lifecycle at write time. Agents should not hand-edit `## Open Questions` blocks.
+Work with the user to flesh out the design. **Per F128/F129 (2026-06-07), Q-state changes delegate to `state q`** — the canonical state-editor enforces ask-format spec, Q-numbering policy, and Phase 1/2/3 lifecycle at write time. Agents should not hand-edit `## Open Questions` blocks.
 
 ```bash
 # Resolve a Q (script auto-migrates to bottom ## Resolved with audit trail):
-backlog-edit.py {NAME} {F<n>} -Q resolve -n <Q-num> --choice "(A)" < resolution-body.md
+state --anchor {NAME} q answer F<n> -n <Q-num> --choice "(A)" < resolution-body.md
 
 # Add a new Q mid-discussion:
-backlog-edit.py {NAME} {F<n>} -Q add < q-body.md
+state --anchor {NAME} q add F<n> < q-body.md
 
 # Remove a Q that's no longer relevant (preserves audit trail in ### Removed):
-backlog-edit.py {NAME} {F<n>} -Q remove -n <Q-num> --reason "..."
+state --anchor {NAME} q remove F<n> -n <Q-num> --reason "..."
 
-# Rewrite a Q's body (--force if Recommendation already present):
-backlog-edit.py {NAME} {F<n>} -Q rewrite -n <Q-num> [--force] < new-body.md
+# Rewrite a Q's body (no --force gate in F129; verb name IS the explicit intent):
+state --anchor {NAME} q rewrite F<n> -n <Q-num> < new-body.md
 ```
 
 After EVERY Q-state change, update the Design (or relevant) section with what the resolution means in the spec. The resolved question and the updated design ship together. **Resolution body should include "Incorporated into Design § <section>"** as the closing line so the audit trail in `## Resolved` cross-references where the answer shaped the design.
 
-When a new question arises mid-discussion, add it via `-Q add` and glance the file (per step 1a). When you resolve a question, **don't** glance — even if other questions are still pending. The glance is only for moments when the user needs to react to *new or changed* questions.
+When a new question arises mid-discussion, add it via `q add` and glance the file (per step 1a). When you resolve a question, **don't** glance — even if other questions are still pending. The glance is only for moments when the user needs to react to *new or changed* questions.
 
-Full F128 spec: [[F128 — Status script as source-of-truth for Q-management — extend backlog-edit.py|F128]].
+Full F129 spec: [[SKL State]]. Predecessor: [[F128 — Status script as source-of-truth for Q-management — extend backlog-edit.py|F128]] (legacy CLI shape).
 
 Update stat as you work:
 ```bash

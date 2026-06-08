@@ -126,15 +126,15 @@ If the survey returns zero pending items, write a one-line summary (`/ask — no
 For each surveyed item, attempt to resolve it autonomously. Calibrate the threshold by the active drive mode (see `[[SKA mode]]`):
 
 - **`[Verify]` items** — read the linked feature doc's `## Success Criteria` block first (per `[[verification]]`). The tier label tells you what to do:
-  - **Tier 1 (agent-immediate):** run the named check now. If it passes, mark Done via `backlog-edit.py`; do not surface to the user. If it fails, rebracket to `[Active]` and the work is not done.
+  - **Tier 1 (agent-immediate):** run the named check now. If it passes, mark Done via `state task update`; do not surface to the user. If it fails, rebracket to `[Active]` and the work is not done.
   - **Tier 2 (agent-over-time):** the agent owns the deferred check (hook, schedule, watchdog). Do not surface; do not block.
   - **Tier 3 (user-passive):** add a brief reminder in the ask page of what to watch for; do not block on a user answer. Optionally ask once after enough time has passed (typically a week).
   - **Tier 4 (user-explicit):** surface as a User Verification with the specific steps from the feature doc. Even here, challenge yourself: has enough time passed that a passive signal might already have arrived? If yes, downgrade to tier 3 and drop the surfacing.
 
-  Mark verifications Done via `backlog-edit.py` (auto-refreshes Q.md) and update the feature doc's Status field:
+  Mark verifications Done via `state task update` (auto-refreshes Q.md) and update the feature doc's Status field:
 
   ```bash
-  ~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} Done <row-id> Done
+  ~/.claude/skills/workflow/scripts/state --anchor {NAME} task update <row-id> --status Done --horizon Done
   ```
 
   Title and body are preserved.
@@ -269,7 +269,7 @@ QFix Q1 → D1. Say "resolutions look good" to accept; reference a specific one 
 Four response shapes (per [[F086]]):
 
 - **Acceptance of accumulated resolutions — full or partial.** The hard constraint: the user must explicitly mention the word **"resolution(s)"** in an accepting context. Bare phrases like *"looks good"* / *"accept"* / *"lgtm"* / *"approved"* do **not** count (too ambiguous in conversation — could be referring to any other open thing). Match flexibly once the word is present: *"resolutions look good"* / *"accept the resolutions"* / *"resolutions approved"* → **full accept** (clear all entries from `## Agent Resolutions`). *"accept the first 5 resolutions"* / *"the QFix resolutions look good"* / *"accept the F085 and F081 resolutions"* → **partial accept** (remove the named subset; the rest stay accumulated). On acceptance: remove the accepted entries from `{NAME} ask.md`, log in chat: *"Accepted N resolutions across {list of features}."*
-- **Rollback of a specific resolution.** *"Roll back F24 Q3"* / *"undo the resolution on F23"* / *"no, do (B) on F085 Q1 instead"* → reverse the underlying change (feature-doc Resolved → Open Questions; backlog row may need rebracket via `backlog-edit.py {NAME} same <row-id> <PriorStatus>` per the workflow skill). **The remaining accumulated resolutions stay** — rollback does NOT implicitly accept the rest (superseded earlier design lean). The user closes by saying *"the rest of the resolutions look good"* when they've rejected everything they want to reject.
+- **Rollback of a specific resolution.** *"Roll back F24 Q3"* / *"undo the resolution on F23"* / *"no, do (B) on F085 Q1 instead"* → reverse the underlying change (feature-doc Resolved → Open Questions; backlog row may need rebracket via `state --anchor {NAME} task update <row-id> --status <PriorStatus>` per the workflow skill). **The remaining accumulated resolutions stay** — rollback does NOT implicitly accept the rest (superseded earlier design lean). The user closes by saying *"the rest of the resolutions look good"* when they've rejected everything they want to reject.
 - **Answers to console questions** — *"F29 Q1: 5"* / *"verified F26"* / *"{NAME} Q3: yes"* → apply the resolution per § Resolution to the underlying feature doc / backlog. This **adds** to the accumulated `## Agent Resolutions` (one more entry at the top of the list); it does NOT clear what's already there.
 - **Anything else** — continue normally; don't infer acceptance from ambiguous phrases.
 
@@ -311,31 +311,31 @@ See [[ask-format]] for details, edge cases (open-ended Qs, follow-on child Qs), 
 
 ### 3. Write to the target surface
 
-**Per F128 (2026-06-07), Q-writes delegate to `backlog-edit.py`** — the canonical state-editor for everything below the anchor level. Agents should NOT hand-edit `## Open Questions` blocks directly; the script enforces ask-format spec (block-IDs, Q-numbering, Phase 1/2/3 lifecycle, Recommendation gate) at write time.
+**Per F128/F129 (2026-06-07), Q-writes delegate to `state q`** — the canonical state-editor for everything below the anchor level. Agents should NOT hand-edit `## Open Questions` blocks directly; the script enforces ask-format spec (block-IDs, Q-numbering, Phase 1/2/3 lifecycle) at write time.
 
 #### Document-attached mode (`--doc <path>`) — preferred form via script
 
 ```bash
 # Add a Q to a feature doc (stdin form — primary):
-backlog-edit.py {SLUG} {F<n>} -Q add < q-body.md
+state --anchor {NAME} q add F<n> < q-body.md
 
 # Or with --from-file for longer Qs:
-backlog-edit.py {SLUG} {F<n>} -Q add --from-file path/to/q.md
+state --anchor {NAME} q add F<n> --from-file path/to/q.md
 
 # Or inline for short one-liners:
-backlog-edit.py {SLUG} {F<n>} -Q add -m "**Q<n> — short** — body."
+state --anchor {NAME} q add F<n> -m "**Q<n> — short** — body."
 
 # Resolve a Q (with chosen option + resolution body):
-backlog-edit.py {SLUG} {F<n>} -Q resolve -n <n> --choice "(A)" < resolution.md
+state --anchor {NAME} q answer F<n> -n <n> --choice "(A)" < resolution.md
 
 # Remove a Q (preserves audit trail in ### Removed):
-backlog-edit.py {SLUG} {F<n>} -Q remove -n <n> --reason "..."
+state --anchor {NAME} q remove F<n> -n <n> --reason "..."
 
-# Rewrite a Q's body (--force required if Recommendation present):
-backlog-edit.py {SLUG} {F<n>} -Q rewrite -n <n> < new-body.md
+# Rewrite a Q's body (no --force gate in F129):
+state --anchor {NAME} q rewrite F<n> -n <n> < new-body.md
 ```
 
-The script auto-mints the next Q-number, formats per ask-format, ensures `## Open Questions` H2 exists, and runs `ask-render.py {SLUG}` + lenient `audit-q --scope q --dry` as post-conditions per F127's render-audit-glance invariant. Spec details in [[F128 — Status script as source-of-truth for Q-management — extend backlog-edit.py|F128]] § Design.
+The script auto-mints the next Q-number, formats per ask-format, ensures `## Open Questions` H2 exists, and runs `ask-render.py {NAME}` + lenient `audit-q --scope q --dry` as post-conditions per F127's render-audit-glance invariant. Spec details in [[SKL State]]; predecessor [[F128 — Status script as source-of-truth for Q-management — extend backlog-edit.py|F128]] documents the legacy CLI shape.
 
 #### Document-attached mode — legacy hand-edit form
 

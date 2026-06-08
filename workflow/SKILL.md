@@ -8,7 +8,7 @@ user_invocable: false
 
 The single source of truth for **what state a unit of work is in**, **what it means**, and **what advances it to the next state**. Every skill that touches the state of work — `/groom`, `/feature`, `/mint`, `/finalize`, `/code release`, `/roster`, audits — cites this discipline.
 
-> **F129 (2026-06-07):** state mutations now go through `~/.claude/skills/workflow/scripts/state` (verb-first CLI). Old positional `backlog-edit.py` invocations still work during the migration window; new code should prefer `state task <verb>` / `state q <verb>`. Full CLI spec: [[SKL State]] (`~/.claude/skills/workflow/SKL State.md`). Examples below this banner still reference `backlog-edit.py` and will be migrated incrementally.
+> **F129 (2026-06-07):** state mutations go through `~/.claude/skills/workflow/scripts/state` (verb-first CLI). Old positional `backlog-edit.py` invocations still work during the migration window. Full CLI spec: [[SKL State]] (`~/.claude/skills/workflow/SKL State.md`).
 
 ## Why this exists — the problem it solves
 
@@ -276,26 +276,28 @@ The bracket should be checkable against the row's body in one read.
 | `/roster` | Reads state across all items and prints per-bucket counts. |
 | `/audit` | Generates new `[ ]` items from findings (no state advancement). |
 
-## Mutation API — `backlog-edit.py`
+## Mutation API — `state`
 
-The canonical way to mutate a backlog row. All skills that advance, park, or rebracket items go through this script instead of editing the backlog file directly.
+The canonical state editor for everything below the anchor level — backlog rows AND feature-doc Open Questions. All skills that advance, park, rebracket items, or manage Qs go through this script instead of editing the backlog or feature doc directly. **Full CLI spec:** [[SKL State]] (`~/.claude/skills/workflow/SKL State.md`).
 
-**Path:** `~/.claude/skills/workflow/scripts/backlog-edit.py` (skill-owned; no `~/bin/` dependency).
+**Path:** `~/.claude/skills/workflow/scripts/state` (skill-owned; no `~/bin/` dependency).
 
-**Args (positional):**
+**Synopsis:**
 
 ```
-backlog-edit.py <slug> <horizon> <row-id> <status> [title] [body]
+state [-a/--anchor ANCHOR] task <create|update|delete> ROW-ID [flags]
+state [-a/--anchor ANCHOR] q    <add|answer|remove|rewrite> ROW-ID [flags]
 ```
 
-| Arg | Values |
+`--anchor` accepts a path (folder containing `.anchor`) or a slug (`SKA`, `MUX`, …). If absent, the script walks `cwd` UP looking for `.anchor`. In skill templates we usually pass `--anchor {NAME}` explicitly.
+
+### `state task` — backlog rows
+
+| Verb | Form |
 |---|---|
-| `slug` | Anchor slug (`SKA`, `MUX`, `HA`, …). The tool finds the backlog file from this — callers do not pass paths. |
-| `horizon` | `Now` / `Next` / `Later` / `Active` / `Ready` / `Done` / `Verify`, or **`same`** to leave the row in its current H2 (errors if the row doesn't exist). |
-| `row-id` | `F<NNN>` / `B<n>` / `B-<slug>` to address an existing row, or **`Fnew`** / **`Bnew`** to mint the next available number (max + 1, F-numbers zero-padded to three digits). |
-| `status` | Bracket text (`Ready`, `Questions`, `Verify`, `Watching 7d`, `Done`, `Verify-by 2026-06-15`, …), or **`delete`** to remove the row. |
-| `title` | Row title — goes inside the bold prefix. Optional. |
-| `body` | Trailing text after the status bracket — wiki-link, description, dates, etc. Optional. |
+| `task create` | `state --anchor {NAME} task create --status STATUS --title "TITLE" [--horizon HORIZON] [--body BODY] [--kind F\|B]` — mints next F<NNN> (or B<n> with `--kind B`); default horizon is `Now`. |
+| `task update` | `state --anchor {NAME} task update F<NNN> [--status STATUS] [--horizon HORIZON] [--title "TITLE"] [--body BODY]` — modifies an existing row; omitted flags preserve current values. |
+| `task delete` | `state --anchor {NAME} task delete F<NNN>` — removes the row entirely (rare). |
 
 Row shape produced:
 
@@ -303,39 +305,53 @@ Row shape produced:
 - **<row-id> — <title>** [<status>] — <body> ^<row-id>
 ```
 
-**Preserve-on-omit semantics for existing rows.** When updating a row that already exists, omitting `title` / `body` **or passing them as empty strings** preserves the row's current title/body — only the status/horizon change. This is the common case for status transitions:
+**Preserve-on-omit semantics.** On `task update`, omitted flags preserve the current value. The common bracket-only transition:
 
 ```
-backlog-edit.py SKA same F095 Ready                          # bracket-only; preserves title+body
-backlog-edit.py SKA Done F095 Done                           # move to ## Done + status; preserves title+body
-backlog-edit.py SKA same F095 Designing "New Title"          # update title; preserve body
-backlog-edit.py SKA same F095 Done "" "Shipped 2026-06-15"   # update body; preserve title
+state --anchor SKA task update F095 --status Ready                                # bracket only
+state --anchor SKA task update F095 --status Done --horizon Done                  # move to ## Done
+state --anchor SKA task update F095 --title "New Title"                           # rename
+state --anchor SKA task update F095 --body "Shipped 2026-06-15"                   # body only
 ```
 
-For new rows, omitting title/body produces `- **<row-id>** [<status>] ^<row-id>` (bare row) — empty strings on new rows also produce a bare row.
+### `state q` — feature-doc Open Questions
 
-**Side effects:**
+| Verb | Form |
+|---|---|
+| `q add` | `state --anchor {NAME} q add F<NNN> [--slug NAME] [-m BODY \| --from-file PATH \| < stdin]` — mints next Q-number; body delivered via stdin, `-m`, or `--from-file`. |
+| `q answer` | `state --anchor {NAME} q answer F<NNN> (-n N \| --slug NAME) --choice "(A)" [body source]` — migrates Q to bottom `## Resolved` H3. |
+| `q remove` | `state --anchor {NAME} q remove F<NNN> (-n N \| --slug NAME) --reason "..."` — migrates Q to `### Removed` H3 with audit trail. |
+| `q rewrite` | `state --anchor {NAME} q rewrite F<NNN> (-n N \| --slug NAME) [--slug NEW] [body source]` — overwrites body; with `-n N --slug NEW` also attaches/renames slug. No `--force` gate. |
 
-1. Mutates the row in `{slug} Backlog.md`.
+The script enforces ask-format spec (block-IDs, Q-numbering, Phase 1/2/3 lifecycle) at write time. Q-numbers are canonical (referenced by block-IDs and audit-q messages); `--slug` is optional metadata for cross-doc reference.
+
+### Side effects
+
+1. Mutates the target row in `{slug} Backlog.md` (`task` mode) or the feature doc's `## Open Questions` block (`q` mode).
 2. Invokes `~/.claude/skills/audit/scripts/audit-q.py --scope backlog --anchor <slug> --fix` to refresh `~/ob/kmr/Q.md` (banner counts, status drift).
 3. Appends one `[INFO]` entry to the per-anchor `{slug} Messages.md` and one to the global sentinel `~/.claude/state/agent-messages` (surfaced to the next agent on Stop hook).
+4. For `q` mode: also runs `ask-render.py {NAME}` + lenient `audit-q --scope q --dry` as post-conditions (per F127's render-audit-glance invariant).
 
-**Output:** stdout = `<slug>: <verb> <row-id> in <horizon> [<status>]` (one line). For mint operations, the assigned row-id is in the output — parse it when the caller needs to reference the new row (e.g., `/feature` naming a new feature doc file).
+**Output:** stdout = `<slug>: <verb> <row-id> in <horizon> [<status>]` (one line). For `task create` (mint operations), the assigned row-id is in the output — parse it when the caller needs to reference the new row (e.g., `/feature` naming a new feature doc file).
 
-**Discipline — skills MUST NOT edit backlog files directly.** All row creation, status changes, horizon moves, and deletions go through this script. Direct edits bypass the Q.md refresh and the Messages notification, which silently breaks the cross-agent state-of-the-anchor surface.
+**Discipline — skills MUST NOT edit backlog files or feature doc Open Questions directly.** All row creation, status changes, horizon moves, Q additions, and Q resolutions go through `state`. Direct edits bypass the Q.md refresh and the Messages notification, which silently breaks the cross-agent state-of-the-anchor surface.
 
 The script is invoked via `Bash`:
 
 ```
-~/.claude/skills/workflow/scripts/backlog-edit.py SKA Now Fnew Designing "Title" "→ [[F095 — Title]]"
+~/.claude/skills/workflow/scripts/state --anchor SKA task create --status Designing --title "Title" --body "→ [[F095 — Title]]"
 ```
 
 **Minting flow** (when the caller needs the new F/B number — e.g., `/feature` naming a new feature doc file):
 
-1. Invoke with `Fnew` (or `Bnew`) and stub content.
+1. Invoke `task create` with stub content (no body, or stub title).
 2. Parse the assigned row-id from stdout — output line is `<slug>: added <row-id> in <horizon> [<status>]`. Extract the second word after `added`.
 3. Use the parsed row-id downstream (feature doc filename, wiki-links, etc.).
-4. If the caller needs to update the row body once downstream artifacts exist (e.g., after creating the feature doc, the row should include `→ [[F<NNN> — Title]]`), invoke again with the explicit row-id and `same` horizon.
+4. If the caller needs to update the row body once downstream artifacts exist (e.g., after creating the feature doc, the row should include `→ [[F<NNN> — Title]]`), invoke `task update F<NNN> --body "..."`.
+
+### Legacy `backlog-edit.py`
+
+`~/.claude/skills/workflow/scripts/backlog-edit.py` ships the F128-era positional CLI (`<slug> <horizon> <row-id> <status> [title] [body]` for rows, `-Q add|resolve|remove|rewrite` flag-mode for Qs). It remains functional during the migration window — both scripts coexist. New code should prefer `state` per the verb-first design (F129).
 
 ## Per-surface mappings
 
@@ -434,7 +450,7 @@ The icebox is a **sanctioned exception** to the "active" part of the invariant. 
 
 ### Enforcement
 
-- **At creation time** — `feature/SKILL.md` step 1.5 mandates minting a backlog (or roadmap) row when a feature doc is created. The mint happens via `backlog-edit.py Fnew` (see § Mutation API above); no `--orphan` flag, no convention-only escape hatch, no direct backlog edit.
+- **At creation time** — `feature/SKILL.md` step 1.5 mandates minting a backlog (or roadmap) row when a feature doc is created. The mint happens via `state task create` (see § Mutation API above); no `--orphan` flag, no convention-only escape hatch, no direct backlog edit.
 - **Continuous** — `/audit structure` includes an orphan-check sub-audit: walks `{NAME} Features/` and flags any feature doc not linked from backlog/roadmap/icebox.
 - **One-time sweep at landing** — when this invariant first lands per anchor, run `/audit structure --orphan-sweep` to backfill rows for any pre-existing orphans.
 

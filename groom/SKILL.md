@@ -106,14 +106,14 @@ If scope was provided as an argument, narrow to bullets in that section only.
 
 Before promotion work, walk every bullet in scope and **reassess any non-standard or stale bracket**, rewriting to the correct standard bracket per `[[SKA workflow]]`. This is the structural home for the rebracketing discipline; `/triage` enforces honesty at render-time, `/groom` is where the actual rewrites land. The bracket-reassessment runs lazily — `/crank`'s cascade (per `[[SKA crank]]` § 2a) only invokes `/groom` when the Ready queue runs dry, so most cycles don't pay the cost.
 
-**Mutation discipline — all rewrites go through `backlog-edit.py`.** Do not edit `{NAME} Backlog.md` directly. Each "rewrite to `[X]`" below maps to:
+**Mutation discipline — all rewrites go through `state task update`.** Do not edit `{NAME} Backlog.md` directly. Each "rewrite to `[X]`" below maps to:
 
 ```bash
-~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} same <row-id> <X>     # bracket-only; preserves title+body
-~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} Done <row-id> Done    # rewrite + move (e.g., stale [Done] in horizon H2)
+~/.claude/skills/workflow/scripts/state --anchor {NAME} task update <row-id> --status <X>                       # bracket-only; preserves title+body
+~/.claude/skills/workflow/scripts/state --anchor {NAME} task update <row-id> --status Done --horizon Done       # rewrite + move (e.g., stale [Done] in horizon H2)
 ```
 
-`same` keeps the row in its current H2; an explicit horizon name moves it. Title and body are preserved when omitted (the script reads the existing row). The script auto-refreshes `~/ob/kmr/Q.md`, so § 5's post-condition is satisfied for free.
+Omitting `--horizon` keeps the row in its current H2; passing `--horizon Active|Done|Ready|...` moves it. Title and body are preserved when omitted (the script reads the existing row). The script auto-refreshes `~/ob/kmr/Q.md`, so § 5's post-condition is satisfied for free.
 
 Cases to detect and rewrite:
 
@@ -139,10 +139,10 @@ This reassessment is **the** primary value `/groom` adds beyond promotion: witho
 
 **Decide:**
 
-- **Bullet is Ready as-is** — the description (plus any inference from related docs) tells you how to do the task without further user involvement. Promote via `backlog-edit.py`:
+- **Bullet is Ready as-is** — the description (plus any inference from related docs) tells you how to do the task without further user involvement. Promote via `state task update`:
 
   ```bash
-  ~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} Ready <row-id> Ready
+  ~/.claude/skills/workflow/scripts/state --anchor {NAME} task update <row-id> --status Ready --horizon Ready
   ```
 
   F-number, title, and body are preserved. Done with this item.
@@ -150,10 +150,10 @@ This reassessment is **the** primary value `/groom` adds beyond promotion: witho
 - **Has questions** — anything you'd need the user to clarify. Two sub-paths:
 
   1. **Inline-deferred slot is empty AND this is exactly ONE genuinely trivial question** (one short sentence, one yes/no, one short answer): hold it in the inline-deferred slot. Mark the item for revisit when the user answers — for now, leave the bullet where it is.
-  2. **Otherwise** — create a feature doc at `{NAME} Docs/{NAME} Plan/{NAME} Features/F{n} — {Item Name}.md` (using the backlog row's F-number; per [[CAB Backlog]] § Numbering policy) with the standard `## Open Questions` block below the H1 (per `/feature` § 1 and [[SKA ask]] § When a file is involved). Capture the questions there. **This is parking mode** (per [[SKA ask]] § Active vs Parking) — do NOT glance the new feature doc. The user invoked `/groom` as a *batch* operation specifically to defer per-item engagement; glancing each created doc would interrupt the very deferral they asked for. Update the backlog row via `backlog-edit.py` to set the wiki-link body and switch the bracket to `Questions`:
+  2. **Otherwise** — create a feature doc at `{NAME} Docs/{NAME} Plan/{NAME} Features/F{n} — {Item Name}.md` (using the backlog row's F-number; per [[CAB Backlog]] § Numbering policy) with the standard `## Open Questions` block below the H1 (per `/feature` § 1 and [[SKA ask]] § When a file is involved). Capture the questions there. **This is parking mode** (per [[SKA ask]] § Active vs Parking) — do NOT glance the new feature doc. The user invoked `/groom` as a *batch* operation specifically to defer per-item engagement; glancing each created doc would interrupt the very deferral they asked for. Update the backlog row via `state task update` to set the wiki-link body and switch the bracket to `Questions`:
 
      ```bash
-     ~/.claude/skills/workflow/scripts/backlog-edit.py {NAME} same <row-id> Questions "{Item Name}" "→ [[F<n> — {Item Name}]]"
+     ~/.claude/skills/workflow/scripts/state --anchor {NAME} task update <row-id> --status Questions --body "→ [[F<n> — {Item Name}]]"
      ```
 
      The item is now blocked-on-questions; the doc surfaces only at end-of-run via § 5 (the *first* one, not all).
@@ -179,9 +179,9 @@ Print a summary table:
 | Skipped | N | {reasons summarized} |
 ```
 
-### 5. Q.md update post-condition — automatic via `backlog-edit.py`
+### 5. Q.md update post-condition — automatic via `state`
 
-Every `backlog-edit.py` invocation in § 2a / § 3 automatically regenerates the anchor's per-anchor section in `~/ob/kmr/Q.md` (by shelling out to `audit-q.py --scope backlog --anchor {NAME} --fix`). The backlog file is NOT reordered — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior.
+Every `state` invocation in § 2a / § 3 automatically regenerates the anchor's per-anchor section in `~/ob/kmr/Q.md` (by shelling out to `audit-q.py --scope backlog --anchor {NAME} --fix`). The backlog file is NOT reordered — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior.
 
 The audit's fix-by-default behavior catches any drift introduced — broken links, stale brackets, banner mismatches, stale `[Done]` rows — and either repairs them mechanically OR (per the audit-q.md step 5 invariant, 2026-06-04) **files every non-mechanical residual as a sub-bullet on the singleton `B-QFix` row** in `{NAME} Backlog.md`. There is no "rare" gate on QFix — every residual that `--fix` didn't repair lands on the catalog.
 
@@ -189,7 +189,7 @@ The audit's fix-by-default behavior catches any drift introduced — broken link
 
 ```
 loop (max 3 iterations):
-  run `/audit q`   # auto-invoked by backlog-edit.py per § 2a / § 3
+  run `/audit q`   # auto-invoked by state per § 2a / § 3
   if residual == 0:
     break
   if residual unchanged from prev iteration:

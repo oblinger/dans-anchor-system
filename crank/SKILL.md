@@ -170,7 +170,7 @@ If ANY gate's blank can't be filled with a specific, concrete sentence, the rule
 - **Context ≥ 60% used** (< 40% remaining) → soft-pressure rules below resume; fatigue stops are honest.
 - **Ready == 0** → no work to do; standard exit conditions per § Post-loop exit.
 - **`/land` invoked** → explicit bounded-stop signal from the user; hard rule overridden.
-- **Hard blocker discovered mid-mint** — current item turned out to be `[Blocked]` or `[Questions]` on closer inspection: rebracket via `backlog-edit.py {NAME} same <row-id> <NewStatus>` (workflow skill) and **continue to the next Ready item.** This is not a stop; it's rebracket-and-continue. The Q-escape above is the structural form of this.
+- **Hard blocker discovered mid-mint** — current item turned out to be `[Blocked]` or `[Questions]` on closer inspection: rebracket via `state --anchor {NAME} task update <row-id> --status <NewStatus>` (workflow skill) and **continue to the next Ready item.** This is not a stop; it's rebracket-and-continue. The Q-escape above is the structural form of this.
 
 ### Stop discipline cascade (per F125, 2026-06-07)
 
@@ -211,7 +211,7 @@ A stop is valid **only** if it matches one of:
 - **Cascade triggered, still dry** — `mint_count < 1` even after `/groom` re-promoted; `/triage` surfaces the inbox.
 - **Token budget near limit** — < 30% of context window remaining. Finish the current item, then stop. This is the mechanical safety net — a hard upper bound regardless of how aggressive the rest of the policy makes things.
 - **`/land` invoked** — explicit bounded-stop signal from the user.
-- **Hard blocker discovered mid-mint** — current item turned out to be `[Blocked]` or `[Questions]` when opened; rebracket via `backlog-edit.py {NAME} same <row-id> <NewStatus>` (workflow skill) and **continue to the next Ready item** (this is NOT a stop, it's a rebracket-and-continue).
+- **Hard blocker discovered mid-mint** — current item turned out to be `[Blocked]` or `[Questions]` when opened; rebracket via `state --anchor {NAME} task update <row-id> --status <NewStatus>` (workflow skill) and **continue to the next Ready item** (this is NOT a stop, it's a rebracket-and-continue).
 - **All remaining items disqualify themselves on the Ready check** — the agent walked the bracket-filtered queue, every item was actually non-Ready in disguise, and `/groom` did not promote new ones.
 
 ### Cost-of-stopping framing
@@ -380,13 +380,13 @@ while True:
         continue              # keep going; no pause after a successful mint
     if result in ("blocked", "failed"):
         # If /mint discovered that the item is actually [Blocked] or
-        # [Questions] mid-mint, rebracket via backlog-edit.py and
+        # [Questions] mid-mint, rebracket via state task update and
         # CONTINUE to the next Ready item — don't stop. (Per F061 Q5
         # valid stop-reasons: "hard blocker discovered mid-mint" is
         # a rebracket-and-continue event, not a stop.)
         #
-        # Bash:  ~/.claude/skills/workflow/scripts/backlog-edit.py \
-        #        {NAME} same <row-id> <NewStatus>
+        # Bash:  ~/.claude/skills/workflow/scripts/state \
+        #        --anchor {NAME} task update <row-id> --status <NewStatus>
         continue
 ```
 
