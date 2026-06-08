@@ -1,0 +1,593 @@
+#!/usr/bin/env python3
+"""state — canonical state editor (F129).
+
+Refactor of `backlog-edit.py` to a verb-first CLI. See `~/.claude/skills/workflow/SKL State.md`
+for the man-page-style reference (synopsis, anchor resolution, subcommands,
+examples). Reuses all helpers from backlog-edit.py via importlib; only the
+dispatch + new verbs (slug, anchor cwd-walkup, answer) are new.
+
+Surface (terse):
+    state task create  [--anchor A] --status S --title T [--horizon H] [--body B] [--kind K]
+    state task update  [--anchor A] ROW-ID [--status S] [--horizon H] [--title T] [--body B]
+    state task delete  [--anchor A] ROW-ID
+    state q    add     [--anchor A] ROW-ID [--slug NAME] (-m T | --from-file P | <stdin>)
+    state q    answer  [--anchor A] ROW-ID (-n N | --slug NAME) --choice OPT [BODY-source]
+    state q    remove  [--anchor A] ROW-ID (-n N | --slug NAME) [--reason TEXT]
+    state q    rewrite [--anchor A] ROW-ID (-n N | --slug NAME) [--slug NEW] [BODY-source]
+"""
+from __future__ import annotations
+
+import argparse
+import importlib.util
+import os
+import re
+import subprocess
+import sys
+from datetime import date
+from pathlib import Path
+
+# Load backlog-edit.py as a module so we can reuse its helpers.
+_SCRIPT_DIR = Path(__file__).resolve().parent
+_BE_PATH = _SCRIPT_DIR / "backlog-edit.py"
+_spec = importlib.util.spec_from_file_location("backlog_edit", _BE_PATH)
+if _spec is None or _spec.loader is None:
+    print(f"state: cannot load {_BE_PATH}", file=sys.stderr)
+    sys.exit(2)
+be = importlib.util.module_from_spec(_spec)
+sys.modules["backlog_edit"] = be
+_spec.loader.exec_module(be)
+
+
+# ============================================================
+# Anchor resolution
+# ============================================================
+
+
+def resolve_anchor(anchor_arg):
+    """Resolve --anchor to (slug, anchor_path). Three modes:
+
+    1. anchor_arg is a path containing .anchor (or is the path itself).
+    2. anchor_arg is a slug; look it up via the vault scan.
+    3. anchor_arg is None; walk cwd UP looking for .anchor.
+
+    Errors if all three fail.
+    """
+    if anchor_arg:
+        # Mode 1: path
+        p = Path(anchor_arg).expanduser().resolve()
+        if p.is_dir() and (p / ".anchor").exists():
+            return _slug_from_anchor_path(p), p
+        # Mode 2: slug
+        backlog = be.find_backlog(anchor_arg)
+        if backlog is not None:
+            anchor_path = backlog.parent.parent  # backlog is at {anchor}/{anchor} Track/
+            return anchor_arg, anchor_path
+        raise be.BacklogEditError(
+            f"--anchor {anchor_arg!r}: not a directory with .anchor, "
+            f"and no '{anchor_arg} Backlog.md' found in vault"
+        )
+    # Mode 3: walk cwd UP
+    cwd = Path.cwd()
+    p = cwd
+    while p != p.parent:
+        if (p / ".anchor").exists():
+            return _slug_from_anchor_path(p), p
+        p = p.parent
+    raise be.BacklogEditError(
+        "no --anchor given and no .anchor ancestor of cwd "
+        f"({cwd}). Specify --anchor PATH|SLUG."
+    )
+
+
+def _slug_from_anchor_path(anchor_path):
+    """Derive slug from anchor folder name."""
+    return anchor_path.name
+
+
+# ============================================================
+# Body sourcing
+# ============================================================
+
+
+def read_body(args):
+    """Get body from -m, --from-file, or stdin."""
+    inline = getattr(args, "inline", None)
+    from_file = getattr(args, "from_file", None)
+    if inline is not None:
+        return inline
+    if from_file is not None:
+        p = Path(from_file).expanduser()
+        if not p.is_file():
+            raise be.BacklogEditError(f"--from-file path not found: {p}")
+        return p.read_text(encoding="utf-8")
+    if not sys.stdin.isatty():
+        return sys.stdin.read()
+    return ""
+
+
+# ============================================================
+# Slug support — extend Q-management
+# ============================================================
+
+
+_SLUG_TAG_RE = re.compile(r"\[slug:\s*([a-z0-9][a-z0-9_\-]*)\]")
+
+
+def _slug_in_line(line):
+    m = _SLUG_TAG_RE.search(line)
+    return m.group(1) if m else None
+
+
+def _find_q_bullet_by_slug(lines, slug):
+    """Find a Q-bullet by its [slug: NAME] tag. Returns same shape as
+    be._find_q_bullet: (start, end, indent) or None."""
+    for i, line in enumerate(lines):
+        m = be._Q_HEADER_BULLET_RE.match(line)
+        if not m:
+            continue
+        # Confirm in Open Questions pending area
+        section = be._section_at(lines, i)
+        if section != "Open Questions:Pending":
+            continue
+        # Slug may be on the header line or in the body — gather full bullet first
+        # to scan for the slug tag.
+        indent = m.group(1)
+        end = len(lines)
+        for j in range(i + 1, len(lines)):
+            l = lines[j]
+            if l.startswith("#"):
+                end = j
+                break
+            mh = be._Q_HEADER_BULLET_RE.match(l)
+            if mh and (len(l) - len(l.lstrip())) <= len(indent):
+                end = j
+                break
+        block = "\n".join(lines[i:end])
+        if _slug_in_line(block) == slug:
+            return (i, end, indent)
+    return None
+
+
+def _resolve_q_identifier(lines, q_num, slug):
+    """Locate a Q by either q_num or slug. Returns (start, end, indent, q_num).
+    Raises BacklogEditError on miss / ambiguity."""
+    if q_num is not None and slug is not None:
+        raise be.BacklogEditError("specify either -n N or --slug NAME, not both")
+    if q_num is not None:
+        loc = be._find_q_bullet(lines, q_num)
+        if loc is None:
+            raise be.BacklogEditError(f"Q{q_num} not found in pending Open Questions")
+        s, e, ind = loc
+        return s, e, ind, q_num
+    if slug is not None:
+        loc = _find_q_bullet_by_slug(lines, slug)
+        if loc is None:
+            raise be.BacklogEditError(f"Q with --slug {slug!r} not found in pending Open Questions")
+        s, e, ind = loc
+        m = be._Q_HEADER_BULLET_RE.match(lines[s])
+        return s, e, ind, int(m.group(2))
+    raise be.BacklogEditError("must specify either -n N or --slug NAME")
+
+
+def _format_q_bullet_with_slug(q_num, container_id, body, slug):
+    """Wrap a body into the canonical Q-bullet form with block-ID AND optional slug tag."""
+    bullet = be._format_q_bullet(q_num, container_id, body)
+    if slug:
+        # Strip any existing [slug: ...] tag and add ours
+        bullet = _SLUG_TAG_RE.sub("", bullet).rstrip()
+        # Insert after block-ID, before any newline
+        first_line, sep, rest = bullet.partition("\n")
+        first_line = first_line.rstrip() + f" [slug: {slug}]"
+        bullet = first_line + (sep + rest if sep else "")
+    return bullet
+
+
+# ============================================================
+# Task subcommands
+# ============================================================
+
+
+def cmd_task_create(slug, anchor_path, args):
+    """Mint a new row (Fnew or Bnew) in the anchor's backlog."""
+    kind = (args.kind or "F").upper()
+    row_id_arg = f"{kind}new"
+    return _delegate_row_edit(
+        slug, args.horizon or "Now", row_id_arg, args.status,
+        args.title, args.body or "",
+        title_provided=True, body_provided=bool(args.body),
+    )
+
+
+def cmd_task_update(slug, anchor_path, args):
+    """Update properties of an existing row. At least one of --status/--horizon/
+    --title/--body required."""
+    if not any([args.status, args.horizon, args.title is not None, args.body is not None]):
+        raise be.BacklogEditError(
+            "task update requires at least one of --status / --horizon / --title / --body"
+        )
+    horizon = args.horizon or "same"
+    status = args.status or "same"
+    title = args.title if args.title is not None else ""
+    body = args.body if args.body is not None else ""
+    title_provided = args.title is not None
+    body_provided = args.body is not None
+    return _delegate_row_edit(
+        slug, horizon, args.row_id, status,
+        title, body,
+        title_provided=title_provided, body_provided=body_provided,
+    )
+
+
+def cmd_task_delete(slug, anchor_path, args):
+    """Delete a row entirely."""
+    return _delegate_row_edit(
+        slug, "same", args.row_id, "delete",
+        "", "", title_provided=False, body_provided=False,
+    )
+
+
+def _delegate_row_edit(slug, horizon, row_id_arg, status, title, body,
+                       title_provided, body_provided):
+    """Delegate to backlog-edit's perform_edit machinery, mirroring its main()."""
+    if status != "delete" and status != "same":
+        # Validate horizon
+        if horizon != "same":
+            horizon_check = horizon.lstrip("# ").strip()
+            if horizon_check not in be.VALID_HORIZONS:
+                raise be.BacklogEditError(
+                    f"invalid horizon '{horizon}' "
+                    f"(expected one of {sorted(be.VALID_HORIZONS)} or 'same')"
+                )
+
+    backlog_path = be.find_backlog(slug)
+    if backlog_path is None:
+        raise be.BacklogEditError(f"no '{slug} Backlog.md' under vault root")
+    icebox_path = be.find_icebox(slug)
+
+    if row_id_arg in ("Fnew", "Bnew"):
+        kind = row_id_arg[0]
+        num = be.mint_cross_file_id(backlog_path, icebox_path, kind)
+        row_id_arg = be.format_row_id(kind, num)
+
+    src_file, dst_file, dst_horizon = be.resolve_files_for_edit(
+        slug, backlog_path, horizon, row_id_arg, status,
+    )
+
+    if src_file is not None:
+        be.perform_edit(
+            src_file, "same", row_id_arg, "delete",
+            "", "", False, False,
+        )
+
+    result = be.perform_edit(
+        dst_file, dst_horizon, row_id_arg, status,
+        title, body, title_provided, body_provided,
+    )
+    be.append_messages(slug, result["summary"], backlog_path)
+    be.write_state(slug, result)
+    be.refresh_q_md(slug)
+    print(f"{slug}: {result['summary']}")
+    return 0
+
+
+# ============================================================
+# Q subcommands
+# ============================================================
+
+
+def cmd_q_add(slug, anchor_path, args):
+    """Add a new Q to a feature doc."""
+    feature_path = be._find_feature_doc(slug, args.row_id)
+    text = feature_path.read_text(encoding="utf-8")
+    container_id = be._container_id_for_feature(feature_path)
+    body = read_body(args)
+    if not body.strip():
+        raise be.BacklogEditError("q add requires a body via stdin, --from-file, or -m")
+    q_num = be._next_q_number(text)
+    new_bullet = _format_q_bullet_with_slug(q_num, container_id, body, args.slug)
+    lines = text.splitlines()
+    lines, (h2_start, h2_end) = be._ensure_open_questions_h2(lines)
+    insert_at = h2_end
+    for j in range(h2_start + 1, h2_end):
+        if lines[j].startswith("### "):
+            insert_at = j
+            break
+    while insert_at > h2_start + 1 and not lines[insert_at - 1].strip():
+        insert_at -= 1
+    new_lines = ["", new_bullet] if insert_at > 0 and lines[insert_at - 1].strip() else [new_bullet]
+    new_lines = new_lines + [""]
+    lines = lines[:insert_at] + new_lines + lines[insert_at:]
+    feature_path.write_text(
+        "\n".join(lines) + ("\n" if text.endswith("\n") else ""),
+        encoding="utf-8",
+    )
+    summary = f"added Q{q_num}" + (f" (slug: {args.slug})" if args.slug else "") + f" to {feature_path.name}"
+    _post_conditions_and_print(slug, feature_path, summary)
+    return 0
+
+
+def cmd_q_answer(slug, anchor_path, args):
+    """Answer a Q — move to ## Resolved as ### Qn — Title H3."""
+    feature_path = be._find_feature_doc(slug, args.row_id)
+    text = feature_path.read_text(encoding="utf-8")
+    body = read_body(args)
+    lines = text.splitlines()
+    start, end, _, q_num = _resolve_q_identifier(lines, args.q_num, args.slug)
+    header = lines[start]
+    title_m = re.match(r"^\s*- \*\*Q\d+\s+—\s+([^*]+?)\*\*", header)
+    title = title_m.group(1).strip() if title_m else "Untitled"
+    original_body = "\n".join(lines[start:end]).rstrip()
+    today = date.today().isoformat()
+    h3_lines = [
+        "",
+        f"### Q{q_num} — {title} (resolved {today})",
+        f"**Choice:** {args.choice}",
+        "",
+    ]
+    if body.strip():
+        h3_lines.append(body.rstrip())
+        h3_lines.append("")
+    h3_lines.append("> Original Q context:")
+    for ol in original_body.splitlines():
+        h3_lines.append(f"> {ol}")
+    h3_lines.append("")
+    lines = lines[:start] + lines[end:]
+    lines, (rh2_start, rh2_end) = be._ensure_bottom_resolved_h2(lines)
+    insert_at = rh2_end
+    while insert_at > rh2_start + 1 and not lines[insert_at - 1].strip():
+        insert_at -= 1
+    lines = lines[:insert_at] + h3_lines + lines[insert_at:]
+    # Phase-2 transition: drop empty ## Open Questions
+    oq = be._find_h2(lines, "Open Questions")
+    if oq is not None:
+        oq_start, oq_end = oq
+        empty = True
+        for k in range(oq_start + 1, oq_end):
+            if lines[k].strip() and not lines[k].startswith("### "):
+                empty = False
+                break
+            if lines[k].startswith("### "):
+                empty = False
+                break
+        if empty:
+            drop_end = oq_end
+            while drop_end < len(lines) and not lines[drop_end].strip():
+                drop_end += 1
+            if drop_end < len(lines):
+                lines = lines[:oq_start] + lines[drop_end:]
+            else:
+                lines = lines[:oq_start]
+    feature_path.write_text(
+        "\n".join(lines) + ("\n" if text.endswith("\n") else ""),
+        encoding="utf-8",
+    )
+    summary = f"answered Q{q_num} (choice {args.choice}) in {feature_path.name}"
+    _post_conditions_and_print(slug, feature_path, summary)
+    return 0
+
+
+def cmd_q_remove(slug, anchor_path, args):
+    """Remove a Q — move body to ### Removed H3 for audit trail."""
+    feature_path = be._find_feature_doc(slug, args.row_id)
+    text = feature_path.read_text(encoding="utf-8")
+    reason = args.reason or "no reason provided"
+    lines = text.splitlines()
+    start, end, _, q_num = _resolve_q_identifier(lines, args.q_num, args.slug)
+    header = lines[start]
+    title_m = re.match(r"^\s*- \*\*Q\d+\s+—\s+([^*]+?)\*\*", header)
+    title = title_m.group(1).strip() if title_m else "Untitled"
+    original_body = "\n".join(lines[start:end]).rstrip()
+    today = date.today().isoformat()
+    h3_lines = [
+        "",
+        f"### Q{q_num} — {title} (removed {today} — {reason})",
+        "",
+        "> Original Q context (preserved for audit trail):",
+    ]
+    for ol in original_body.splitlines():
+        h3_lines.append(f"> {ol}")
+    h3_lines.append("")
+    lines = lines[:start] + lines[end:]
+    oq = be._find_h2(lines, "Open Questions")
+    if oq is None:
+        lines, (oq_start, oq_end) = be._ensure_open_questions_h2(lines)
+    else:
+        oq_start, oq_end = oq
+    removed = be._find_h3_in_h2(lines, oq_start, oq_end, "Removed")
+    if removed is None:
+        insert_at = oq_end
+        while insert_at > oq_start + 1 and not lines[insert_at - 1].strip():
+            insert_at -= 1
+        lines = lines[:insert_at] + ["", "### Removed", ""] + h3_lines[1:] + lines[insert_at:]
+    else:
+        r_start, r_end = removed
+        insert_at = r_end
+        while insert_at > r_start + 1 and not lines[insert_at - 1].strip():
+            insert_at -= 1
+        lines = lines[:insert_at] + h3_lines + lines[insert_at:]
+    feature_path.write_text(
+        "\n".join(lines) + ("\n" if text.endswith("\n") else ""),
+        encoding="utf-8",
+    )
+    summary = f"removed Q{q_num} from {feature_path.name} (reason: {reason})"
+    _post_conditions_and_print(slug, feature_path, summary)
+    return 0
+
+
+def cmd_q_rewrite(slug, anchor_path, args):
+    """Overwrite a Q body (no --force gate; verb name IS the explicit intent).
+
+    `--slug NAME` to identify the Q AND (if second occurrence on this verb)
+    rename the slug. Per F129 spec: pass --slug once as identifier, OR pass
+    -n for identification AND --slug NEW for renaming.
+    """
+    feature_path = be._find_feature_doc(slug, args.row_id)
+    text = feature_path.read_text(encoding="utf-8")
+    container_id = be._container_id_for_feature(feature_path)
+    body = read_body(args)
+    if not body.strip():
+        raise be.BacklogEditError("q rewrite requires a body via stdin, --from-file, or -m")
+    lines = text.splitlines()
+    # If both -n and --slug given: -n identifies, --slug NEW renames/attaches
+    # If only --slug given: identifies AND (if body has no slug) keeps it
+    # If only -n given: identifies; preserve existing slug on the bullet
+    if args.q_num is not None:
+        # -n identifies; --slug (if given) is the NEW slug
+        loc = be._find_q_bullet(lines, args.q_num)
+        if loc is None:
+            raise be.BacklogEditError(f"Q{args.q_num} not found in pending Open Questions")
+        start, end, _ = loc
+        q_num = args.q_num
+        new_slug = args.slug  # None → preserve, value → set
+    elif args.slug is not None:
+        loc = _find_q_bullet_by_slug(lines, args.slug)
+        if loc is None:
+            raise be.BacklogEditError(f"Q with --slug {args.slug!r} not found in pending Open Questions")
+        start, end, _ = loc
+        m = be._Q_HEADER_BULLET_RE.match(lines[start])
+        q_num = int(m.group(2))
+        new_slug = args.slug  # preserve
+    else:
+        raise be.BacklogEditError("q rewrite requires -n N or --slug NAME to identify the Q")
+    # If new_slug is None, try to preserve existing slug from the bullet
+    if new_slug is None:
+        old_block = "\n".join(lines[start:end])
+        new_slug = _slug_in_line(old_block)
+    new_bullet = _format_q_bullet_with_slug(q_num, container_id, body, new_slug)
+    new_bullet_lines = new_bullet.splitlines()
+    lines = lines[:start] + new_bullet_lines + lines[end:]
+    feature_path.write_text(
+        "\n".join(lines) + ("\n" if text.endswith("\n") else ""),
+        encoding="utf-8",
+    )
+    slug_note = f" (slug: {new_slug})" if new_slug else ""
+    summary = f"rewrote Q{q_num}{slug_note} in {feature_path.name}"
+    _post_conditions_and_print(slug, feature_path, summary)
+    return 0
+
+
+def _post_conditions_and_print(slug, feature_path, summary):
+    """Run F127 post-conditions; print summary + any warnings."""
+    warnings = be._post_conditions(slug, feature_path)
+    print(f"{slug}: {summary}")
+    for w in warnings:
+        print(f"  warn: {w}", file=sys.stderr)
+
+
+# ============================================================
+# CLI dispatch
+# ============================================================
+
+
+def build_parser():
+    p = argparse.ArgumentParser(
+        prog="state",
+        description=(
+            "Canonical state editor for backlog rows AND feature-doc Open "
+            "Questions. Full spec: ~/.claude/skills/workflow/SKL State.md."
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    p.add_argument("-a", "--anchor", default=None,
+                   help="anchor path or slug; defaults to cwd-walkup to .anchor")
+    subs = p.add_subparsers(dest="domain", required=True)
+
+    # task domain
+    task = subs.add_parser("task", help="manage backlog rows")
+    task_subs = task.add_subparsers(dest="verb", required=True)
+
+    tc = task_subs.add_parser("create", help="mint a new row")
+    tc.add_argument("--status", required=True, help="bracket text (Designing, Ready, Verify, ...)")
+    tc.add_argument("--title", required=True, help="row title")
+    tc.add_argument("--horizon", default="Now", help="horizon (default: Now)")
+    tc.add_argument("--body", default="", help="row body (wiki-link / description)")
+    tc.add_argument("--kind", default="F", choices=["F", "B"],
+                    help="row kind: F (feature) or B (backlog item)")
+
+    tu = task_subs.add_parser("update", help="modify an existing row")
+    tu.add_argument("row_id", help="F<NNN> or B<id>")
+    tu.add_argument("--status", default=None)
+    tu.add_argument("--horizon", default=None)
+    tu.add_argument("--title", default=None)
+    tu.add_argument("--body", default=None)
+
+    td = task_subs.add_parser("delete", help="remove a row entirely (rare)")
+    td.add_argument("row_id", help="F<NNN> or B<id>")
+
+    # q domain
+    q = subs.add_parser("q", aliases=["question"],
+                        help="manage feature-doc Open Questions")
+    q_subs = q.add_subparsers(dest="verb", required=True)
+
+    qa = q_subs.add_parser("add", help="add a new Q (auto-mints next Q-number)")
+    qa.add_argument("row_id", help="F<NNN> of the row whose doc holds the Qs")
+    qa.add_argument("--slug", default=None, help="attach semantic slug")
+    qa.add_argument("-m", dest="inline", default=None, help="inline body (short Qs)")
+    qa.add_argument("--from-file", dest="from_file", default=None,
+                    help="read body from file (long Qs)")
+
+    qan = q_subs.add_parser("answer", help="answer a Q (move to ## Resolved)")
+    qan.add_argument("row_id")
+    qan.add_argument("-n", dest="q_num", type=int, default=None,
+                     help="identify Q by number")
+    qan.add_argument("--slug", default=None, help="identify Q by slug")
+    qan.add_argument("--choice", required=True,
+                     help="chosen option label, e.g. '(A)'")
+    qan.add_argument("-m", dest="inline", default=None)
+    qan.add_argument("--from-file", dest="from_file", default=None)
+
+    qr = q_subs.add_parser("remove", help="soft-delete (preserves audit trail)")
+    qr.add_argument("row_id")
+    qr.add_argument("-n", dest="q_num", type=int, default=None)
+    qr.add_argument("--slug", default=None)
+    qr.add_argument("--reason", default=None,
+                    help="short reason stamped in ### Removed H3 title")
+
+    qrw = q_subs.add_parser("rewrite",
+                            help="overwrite Q body (verb IS the intent; no --force needed)")
+    qrw.add_argument("row_id")
+    qrw.add_argument("-n", dest="q_num", type=int, default=None)
+    qrw.add_argument("--slug", default=None,
+                     help="identify by slug, OR (with -n) rename the slug")
+    qrw.add_argument("-m", dest="inline", default=None)
+    qrw.add_argument("--from-file", dest="from_file", default=None)
+
+    return p
+
+
+def main(argv):
+    parser = build_parser()
+    args = parser.parse_args(argv[1:])
+
+    try:
+        slug, anchor_path = resolve_anchor(args.anchor)
+    except be.BacklogEditError as e:
+        print(f"state: {e}", file=sys.stderr)
+        return 2
+
+    try:
+        if args.domain == "task":
+            if args.verb == "create":
+                return cmd_task_create(slug, anchor_path, args)
+            if args.verb == "update":
+                return cmd_task_update(slug, anchor_path, args)
+            if args.verb == "delete":
+                return cmd_task_delete(slug, anchor_path, args)
+        elif args.domain in ("q", "question"):
+            if args.verb == "add":
+                return cmd_q_add(slug, anchor_path, args)
+            if args.verb == "answer":
+                return cmd_q_answer(slug, anchor_path, args)
+            if args.verb == "remove":
+                return cmd_q_remove(slug, anchor_path, args)
+            if args.verb == "rewrite":
+                return cmd_q_rewrite(slug, anchor_path, args)
+        print(f"state: unknown verb {args.domain} {args.verb}", file=sys.stderr)
+        return 2
+    except be.BacklogEditError as e:
+        print(f"state: {e}", file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

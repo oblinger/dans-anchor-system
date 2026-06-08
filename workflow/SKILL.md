@@ -8,6 +8,8 @@ user_invocable: false
 
 The single source of truth for **what state a unit of work is in**, **what it means**, and **what advances it to the next state**. Every skill that touches the state of work — `/groom`, `/feature`, `/mint`, `/finalize`, `/code release`, `/roster`, audits — cites this discipline.
 
+> **F129 (2026-06-07):** state mutations now go through `~/.claude/skills/workflow/scripts/state` (verb-first CLI). Old positional `backlog-edit.py` invocations still work during the migration window; new code should prefer `state task <verb>` / `state q <verb>`. Full CLI spec: [[SKL State]] (`~/.claude/skills/workflow/SKL State.md`). Examples below this banner still reference `backlog-edit.py` and will be migrated incrementally.
+
 ## Why this exists — the problem it solves
 
 The same vocabulary appears across many surfaces: backlog items have a status, feature docs have a Status field, roadmap milestones have progress, PRDs have a draft/approved cycle. **The labels diverge subtly** — "Agreed" in feature lifecycle is roughly "Ready" in backlog; "Done" in features is "Completed" in backlog; "Active" appears in both but with slightly different gates. Skills that touch state pick whichever label was nearest at hand.
