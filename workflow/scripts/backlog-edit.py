@@ -44,7 +44,7 @@ import os
 import re
 import sys
 import subprocess
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 # --------------------------------------------------------------------------
@@ -1092,7 +1092,515 @@ def mint_cross_file_id(backlog_path, icebox_path, kind):
     return (max(nums) + 1) if nums else 1
 
 
+# ============================================================
+# F128 — Q-management subcommands (Phase 1)
+# Verbs: add / resolve / remove / rewrite
+# Triggered by presence of `-Q` flag anywhere in argv
+# ============================================================
+
+
+def _find_feature_doc(slug, row_id):
+    """Find the feature doc whose filename starts with `{row_id} — ` under
+    slug's `{slug} Features/` folder. Raises BacklogEditError on miss /
+    ambiguity.
+    """
+    backlog_path = find_backlog(slug)
+    features_dir = backlog_path.parent / f"{slug} Features"
+    if not features_dir.is_dir():
+        raise BacklogEditError(
+            f"no '{slug} Features/' folder under {backlog_path.parent} "
+            f"— can't locate feature doc for {row_id}"
+        )
+    matches = list(features_dir.glob(f"{row_id} — *.md"))
+    if not matches:
+        raise BacklogEditError(
+            f"no feature doc matching '{row_id} — *.md' under {features_dir}"
+        )
+    if len(matches) > 1:
+        names = ", ".join(p.name for p in matches)
+        raise BacklogEditError(
+            f"multiple feature docs match '{row_id}': {names}"
+        )
+    return matches[0]
+
+
+def _read_q_body(args_inline, args_from_file):
+    """Get body content from -m, --from-file, or stdin (in that priority)."""
+    if args_inline is not None:
+        return args_inline
+    if args_from_file is not None:
+        p = Path(args_from_file).expanduser()
+        if not p.is_file():
+            raise BacklogEditError(f"--from-file path not found: {p}")
+        return p.read_text(encoding="utf-8")
+    if not sys.stdin.isatty():
+        return sys.stdin.read()
+    return ""
+
+
+_Q_HEADER_BULLET_RE = re.compile(r"^(\s*)- \*\*Q(\d+)\b")
+_Q_HEADER_H3_RE = re.compile(r"^(\s*)### Q(\d+)\b")
+
+
+def _next_q_number(doc_text):
+    """Lowest unused Q-number across pending bullets + ### Resolved + bottom
+    ## Resolved + ### Removed sub-sections. Per F128 § Q-numbering policy.
+    """
+    used = set()
+    for line in doc_text.splitlines():
+        m = _Q_HEADER_BULLET_RE.match(line) or _Q_HEADER_H3_RE.match(line)
+        if m:
+            used.add(int(m.group(2)))
+    n = 1
+    while n in used:
+        n += 1
+    return n
+
+
+def _find_h2(lines, h2_name):
+    """Return (start_line, end_line) of the `## {h2_name}` H2 block, or None.
+
+    end_line is the line index of the next H2 (or len(lines) at EOF).
+    """
+    start = None
+    for i, line in enumerate(lines):
+        if line.strip() == f"## {h2_name}":
+            start = i
+            break
+    if start is None:
+        return None
+    end = len(lines)
+    for j in range(start + 1, len(lines)):
+        if lines[j].startswith("## "):
+            end = j
+            break
+    return (start, end)
+
+
+def _find_h3_in_h2(lines, h2_start, h2_end, h3_name):
+    """Return (start_line, end_line) of `### {h3_name}` H3 inside the H2
+    block lines[h2_start:h2_end]. End is the next H3 or H2."""
+    start = None
+    for i in range(h2_start + 1, h2_end):
+        if lines[i].strip() == f"### {h3_name}":
+            start = i
+            break
+    if start is None:
+        return None
+    end = h2_end
+    for j in range(start + 1, h2_end):
+        if lines[j].startswith("## ") or lines[j].startswith("### "):
+            end = j
+            break
+    return (start, end)
+
+
+def _find_q_bullet(lines, q_num):
+    """Locate Q<n> bullet in the doc. Returns (start_line, end_line, indent)
+    where the bullet's body runs from start_line through end_line-1 (exclusive
+    of the next top-level bullet / H2 / H3).
+    """
+    start = None
+    indent = ""
+    for i, line in enumerate(lines):
+        m = _Q_HEADER_BULLET_RE.match(line)
+        if m and int(m.group(2)) == q_num:
+            # Skip Qs inside ## Resolved or ### Resolved or ### Removed sections.
+            # Walk back to confirm we're in ## Open Questions / pending area.
+            section = _section_at(lines, i)
+            if section in ("Open Questions", "Open Questions:Pending"):
+                start = i
+                indent = m.group(1)
+                break
+    if start is None:
+        return None
+    # End at next Q-header bullet (same or shallower indent) OR any heading.
+    # Sibling bullets at the same indent (e.g., `- (A)` option bullets, or
+    # `- **Recommendation:** ...`) are PART of the Q's body, not a sibling Q.
+    end = len(lines)
+    for j in range(start + 1, len(lines)):
+        line = lines[j]
+        if line.startswith("#"):
+            end = j
+            break
+        m = _Q_HEADER_BULLET_RE.match(line)
+        if m and (len(line) - len(line.lstrip())) <= len(indent):
+            end = j
+            break
+    return (start, end, indent)
+
+
+def _section_at(lines, line_idx):
+    """Classify which logical section line_idx falls in.
+
+    Returns: "Open Questions:Pending" (under ## Open Questions, not in any
+    ### sub), "Open Questions:Resolved" / "Open Questions:Removed", "Resolved"
+    (bottom H2), or "Other".
+    """
+    in_open_q = False
+    in_h3 = None
+    last_h2 = None
+    for i in range(line_idx + 1):
+        line = lines[i]
+        if line.startswith("## "):
+            name = line.strip()[3:]
+            last_h2 = name
+            in_open_q = (name == "Open Questions")
+            in_h3 = None
+        elif line.startswith("### "):
+            in_h3 = line.strip()[4:]
+    if in_open_q:
+        if in_h3 == "Resolved":
+            return "Open Questions:Resolved"
+        if in_h3 == "Removed":
+            return "Open Questions:Removed"
+        return "Open Questions:Pending"
+    if last_h2 == "Resolved":
+        return "Resolved"
+    return "Other"
+
+
+def _ensure_open_questions_h2(lines):
+    """Ensure ## Open Questions H2 exists below H1. Returns lines (possibly
+    modified) AND the (h2_start, h2_end) range after insertion.
+    """
+    existing = _find_h2(lines, "Open Questions")
+    if existing is not None:
+        return lines, existing
+    # Find H1 to insert after
+    h1_idx = None
+    for i, line in enumerate(lines):
+        if line.startswith("# "):
+            h1_idx = i
+            break
+    if h1_idx is None:
+        raise BacklogEditError("feature doc has no H1; cannot insert ## Open Questions")
+    insert_at = h1_idx + 1
+    # Skip blank lines after H1
+    while insert_at < len(lines) and not lines[insert_at].strip():
+        insert_at += 1
+    new_block = ["", "## Open Questions", ""]
+    lines = lines[:insert_at] + new_block + lines[insert_at:]
+    return lines, (insert_at + 1, insert_at + 3)
+
+
+def _ensure_bottom_resolved_h2(lines):
+    """Ensure a bottom ## Resolved H2 exists. Returns lines (possibly modified)
+    AND (h2_start, h2_end) of the H2.
+    """
+    # Search for ## Resolved
+    found = _find_h2(lines, "Resolved")
+    if found is not None:
+        return lines, found
+    # Append at end
+    if lines and lines[-1].strip():
+        lines.append("")
+    lines.append("## Resolved")
+    lines.append("")
+    return lines, (len(lines) - 2, len(lines))
+
+
+def _container_id_for_feature(feature_path):
+    """Return container ID for block-IDs (e.g., 'F128')."""
+    m = re.match(r"^(F\d+)\s+—", feature_path.stem)
+    if m:
+        return m.group(1)
+    return feature_path.stem
+
+
+def _format_q_bullet(q_num, container_id, body):
+    """Wrap a body into the canonical Q-bullet form with block-ID."""
+    body = body.strip()
+    block_id = f" ^{container_id}-Q{q_num}"
+    # If body already starts with `**Q<n> —`, accept as pre-formatted; just
+    # ensure block-ID at end.
+    if re.match(rf"^\s*\*\*Q\d+\s+—", body):
+        # Normalize the leading Q-number to the canonical bullet form
+        body = re.sub(r"^\s*\*\*Q\d+", f"**Q{q_num}", body, count=1)
+        # Ensure leading "- " bullet
+        if not body.startswith("- "):
+            body = "- " + body
+    else:
+        # Plain body — wrap as bullet
+        body = f"- **Q{q_num} — Untitled** — {body}"
+    # Append block-ID if not already present at end of first line
+    first_line, sep, rest = body.partition("\n")
+    if f"^{container_id}-Q{q_num}" not in first_line:
+        first_line = first_line.rstrip() + block_id
+    return first_line + (sep + rest if sep else "")
+
+
+def _post_conditions(slug, feature_path):
+    """Run F127 invariant post-conditions: render ask.md, then audit-q lenient.
+    Returns list of warning lines (printed by caller).
+    """
+    warnings = []
+    # Render
+    ask_render = Path.home() / ".claude" / "skills" / "ask" / "scripts" / "ask-render.py"
+    if ask_render.is_file():
+        try:
+            r = subprocess.run(
+                [sys.executable, str(ask_render), slug],
+                capture_output=True, text=True, timeout=60,
+            )
+            if r.returncode != 0:
+                warnings.append(f"ask-render exit {r.returncode}: {r.stderr.strip()[:300]}")
+        except Exception as e:
+            warnings.append(f"ask-render failed: {e}")
+    # Audit (lenient — surface errors but don't unwind)
+    audit_q = Path.home() / ".claude" / "skills" / "audit" / "scripts" / "audit-q.py"
+    if audit_q.is_file():
+        try:
+            r = subprocess.run(
+                [sys.executable, str(audit_q), "--scope", "q", "--dry"],
+                capture_output=True, text=True, timeout=120,
+            )
+            # Audit returns non-zero on errors. Parse for feature-doc-related
+            # findings and surface only those that mention this feature_path.
+            stderr = r.stderr
+            for line in stderr.splitlines():
+                if "[error]" in line and str(feature_path.name) in line:
+                    warnings.append(line.strip())
+        except Exception as e:
+            warnings.append(f"audit-q failed: {e}")
+    return warnings
+
+
+def main_q(argv):
+    """Dispatcher for `-Q` (Q-management) invocations.
+
+    CLI: backlog-edit.py {SLUG} {ROW-ID} -Q {add|resolve|remove|rewrite}
+         [Q-number] [--choice (X)] [--reason "..."] [--force]
+         [--from-file path] [-m "..."]
+    """
+    import argparse
+    p = argparse.ArgumentParser(prog="backlog-edit.py", add_help=False)
+    p.add_argument("slug")
+    p.add_argument("row_id")
+    p.add_argument("-Q", dest="verb",
+                   choices=["add", "resolve", "remove", "rewrite"],
+                   required=True)
+    p.add_argument("-n", dest="q_num", type=int, default=None,
+                   help="Q-number (required for resolve/remove/rewrite; auto-minted for add)")
+    p.add_argument("--choice", default=None)
+    p.add_argument("--reason", default=None)
+    p.add_argument("--force", action="store_true")
+    p.add_argument("--from-file", dest="from_file", default=None)
+    p.add_argument("-m", dest="inline", default=None)
+    args = p.parse_args(argv[1:])
+
+    feature_path = _find_feature_doc(args.slug, args.row_id)
+    text = feature_path.read_text(encoding="utf-8")
+    container_id = _container_id_for_feature(feature_path)
+    today = date.today().isoformat()
+
+    if args.verb == "add":
+        body = _read_q_body(args.inline, args.from_file)
+        if not body.strip():
+            raise BacklogEditError(
+                "-Q add requires a body via stdin, --from-file, or -m"
+            )
+        q_num = args.q_num if args.q_num else _next_q_number(text)
+        new_bullet = _format_q_bullet(q_num, container_id, body)
+        lines = text.splitlines()
+        lines, (h2_start, h2_end) = _ensure_open_questions_h2(lines)
+        # Insert before any ### sub-section (Resolved / Removed) at the end of
+        # the pending area.
+        insert_at = h2_end
+        for j in range(h2_start + 1, h2_end):
+            if lines[j].startswith("### "):
+                insert_at = j
+                break
+        # Trim trailing blank lines before insertion
+        while insert_at > h2_start + 1 and not lines[insert_at - 1].strip():
+            insert_at -= 1
+        new_lines = ["", new_bullet] if lines[insert_at - 1].strip() else [new_bullet]
+        # Add a trailing blank line for separation
+        new_lines = new_lines + [""]
+        lines = lines[:insert_at] + new_lines + lines[insert_at:]
+        feature_path.write_text("\n".join(lines) + ("\n" if text.endswith("\n") else ""),
+                                encoding="utf-8")
+        summary = f"added Q{q_num} to {feature_path.name}"
+
+    elif args.verb == "resolve":
+        if args.q_num is None:
+            raise BacklogEditError("-Q resolve requires Q-number positional arg")
+        if not args.choice:
+            raise BacklogEditError("-Q resolve requires --choice '(X)'")
+        body = _read_q_body(args.inline, args.from_file)
+        lines = text.splitlines()
+        loc = _find_q_bullet(lines, args.q_num)
+        if loc is None:
+            raise BacklogEditError(
+                f"Q{args.q_num} not found in pending Open Questions of "
+                f"{feature_path.name}"
+            )
+        start, end, _ = loc
+        # Extract Q title from header line
+        header = lines[start]
+        title_m = re.match(r"^\s*- \*\*Q\d+\s+—\s+([^*]+?)\*\*", header)
+        title = title_m.group(1).strip() if title_m else "Untitled"
+        # Capture original body for archive
+        original_body = "\n".join(lines[start:end]).rstrip()
+        # Compose resolved H3
+        h3_lines = [
+            "",
+            f"### Q{args.q_num} — {title} (resolved {today})",
+            f"**Choice:** {args.choice}",
+            "",
+        ]
+        if body.strip():
+            h3_lines.append(body.rstrip())
+            h3_lines.append("")
+        # Append original-body excerpt as quoted context (helps reader see what was decided)
+        h3_lines.append("> Original Q context:")
+        for ol in original_body.splitlines():
+            h3_lines.append(f"> {ol}")
+        h3_lines.append("")
+        # Remove pending Q-bullet
+        lines = lines[:start] + lines[end:]
+        # Decide destination: ## Resolved (bottom) or `### Resolved` H3 in
+        # ## Open Questions (Phase 1 in-block staging).
+        # Per F127/F128 simplification: always migrate resolved Qs to the
+        # bottom ## Resolved H2. The in-block ### Resolved staging is a
+        # historical artifact from F125-era runbooks.
+        lines, (rh2_start, rh2_end) = _ensure_bottom_resolved_h2(lines)
+        insert_at = rh2_end
+        # Trim trailing blanks
+        while insert_at > rh2_start + 1 and not lines[insert_at - 1].strip():
+            insert_at -= 1
+        lines = lines[:insert_at] + h3_lines + lines[insert_at:]
+        # Phase-2 transition check: if ## Open Questions is now empty (only
+        # the H2 header + blank lines + no bullets + no H3 holding pen), drop
+        # the whole H2.
+        oq = _find_h2(lines, "Open Questions")
+        if oq is not None:
+            oq_start, oq_end = oq
+            empty = True
+            for k in range(oq_start + 1, oq_end):
+                if lines[k].strip() and not lines[k].startswith("### "):
+                    empty = False
+                    break
+                if lines[k].startswith("### "):
+                    # Has a holding-pen H3 — not empty
+                    empty = False
+                    break
+            if empty:
+                # Drop the whole block including any trailing blank line
+                drop_end = oq_end
+                while drop_end < len(lines) and not lines[drop_end].strip():
+                    drop_end += 1
+                # Keep one blank for separation if we're not at EOF
+                if drop_end < len(lines):
+                    lines = lines[:oq_start] + lines[drop_end:]
+                else:
+                    lines = lines[:oq_start]
+        feature_path.write_text("\n".join(lines) + ("\n" if text.endswith("\n") else ""),
+                                encoding="utf-8")
+        summary = f"resolved Q{args.q_num} (choice {args.choice}) in {feature_path.name}"
+
+    elif args.verb == "remove":
+        if args.q_num is None:
+            raise BacklogEditError("-Q remove requires Q-number positional arg")
+        reason = args.reason or "no reason provided"
+        lines = text.splitlines()
+        loc = _find_q_bullet(lines, args.q_num)
+        if loc is None:
+            raise BacklogEditError(
+                f"Q{args.q_num} not found in pending Open Questions of "
+                f"{feature_path.name}"
+            )
+        start, end, _ = loc
+        header = lines[start]
+        title_m = re.match(r"^\s*- \*\*Q\d+\s+—\s+([^*]+?)\*\*", header)
+        title = title_m.group(1).strip() if title_m else "Untitled"
+        original_body = "\n".join(lines[start:end]).rstrip()
+        # Compose ### Removed H3 entry
+        h3_lines = [
+            "",
+            f"### Q{args.q_num} — {title} (removed {today} — {reason})",
+            "",
+            "> Original Q context (preserved for audit trail):",
+        ]
+        for ol in original_body.splitlines():
+            h3_lines.append(f"> {ol}")
+        h3_lines.append("")
+        # Remove pending bullet
+        lines = lines[:start] + lines[end:]
+        # Ensure ## Open Questions still exists; if not (no longer pending),
+        # we need to re-create it because ### Removed sits inside it (audit trail).
+        oq = _find_h2(lines, "Open Questions")
+        if oq is None:
+            lines, (oq_start, oq_end) = _ensure_open_questions_h2(lines)
+        else:
+            oq_start, oq_end = oq
+        # Find or create ### Removed under ## Open Questions
+        removed = _find_h3_in_h2(lines, oq_start, oq_end, "Removed")
+        if removed is None:
+            insert_at = oq_end
+            # Insert at end of ## Open Questions
+            while insert_at > oq_start + 1 and not lines[insert_at - 1].strip():
+                insert_at -= 1
+            lines = lines[:insert_at] + ["", "### Removed", ""] + h3_lines[1:] + lines[insert_at:]
+        else:
+            r_start, r_end = removed
+            insert_at = r_end
+            while insert_at > r_start + 1 and not lines[insert_at - 1].strip():
+                insert_at -= 1
+            lines = lines[:insert_at] + h3_lines + lines[insert_at:]
+        feature_path.write_text("\n".join(lines) + ("\n" if text.endswith("\n") else ""),
+                                encoding="utf-8")
+        summary = f"removed Q{args.q_num} from {feature_path.name} (reason: {reason})"
+
+    elif args.verb == "rewrite":
+        if args.q_num is None:
+            raise BacklogEditError("-Q rewrite requires Q-number positional arg")
+        body = _read_q_body(args.inline, args.from_file)
+        if not body.strip():
+            raise BacklogEditError(
+                "-Q rewrite requires a body via stdin, --from-file, or -m"
+            )
+        lines = text.splitlines()
+        loc = _find_q_bullet(lines, args.q_num)
+        if loc is None:
+            raise BacklogEditError(
+                f"Q{args.q_num} not found in pending Open Questions of "
+                f"{feature_path.name}"
+            )
+        start, end, _ = loc
+        # Recommendation-presence gate
+        block = "\n".join(lines[start:end])
+        has_recommendation = bool(
+            re.search(r"^\s*-\s+\*\*Recommendation:\*\*", block, re.MULTILINE)
+        )
+        if has_recommendation and not args.force:
+            raise BacklogEditError(
+                f"Q{args.q_num} has a Recommendation — rewrites that change the "
+                f"body can desync with the recommendation. Re-run with --force "
+                f"to overwrite anyway."
+            )
+        new_bullet = _format_q_bullet(args.q_num, container_id, body)
+        new_bullet_lines = new_bullet.splitlines()
+        # Replace; preserve any trailing blank that was after the bullet
+        lines = lines[:start] + new_bullet_lines + lines[end:]
+        feature_path.write_text("\n".join(lines) + ("\n" if text.endswith("\n") else ""),
+                                encoding="utf-8")
+        summary = f"rewrote Q{args.q_num} in {feature_path.name}"
+    else:
+        raise BacklogEditError(f"unknown -Q verb: {args.verb}")
+
+    # Post-conditions (F127 invariant)
+    warnings = _post_conditions(args.slug, feature_path)
+    print(f"{args.slug}: {summary}")
+    for w in warnings:
+        print(f"  warn: {w}", file=sys.stderr)
+    return 0
+
+
 def main(argv):
+    # F128 — Q-management dispatch: detect `-Q` flag and route.
+    if "-Q" in argv:
+        return main_q(argv)
     if len(argv) < 5:
         print(__doc__, file=sys.stderr)
         return 2

@@ -311,9 +311,35 @@ See [[ask-format]] for details, edge cases (open-ended Qs, follow-on child Qs), 
 
 ### 3. Write to the target surface
 
-#### Document-attached mode (`--doc <path>`)
+**Per F128 (2026-06-07), Q-writes delegate to `backlog-edit.py`** — the canonical state-editor for everything below the anchor level. Agents should NOT hand-edit `## Open Questions` blocks directly; the script enforces ask-format spec (block-IDs, Q-numbering, Phase 1/2/3 lifecycle, Recommendation gate) at write time.
 
-Append the formatted questions to the doc's `## Open Questions` H2. The H2 sits **directly below** the H1 of the doc.
+#### Document-attached mode (`--doc <path>`) — preferred form via script
+
+```bash
+# Add a Q to a feature doc (stdin form — primary):
+backlog-edit.py {SLUG} {F<n>} -Q add < q-body.md
+
+# Or with --from-file for longer Qs:
+backlog-edit.py {SLUG} {F<n>} -Q add --from-file path/to/q.md
+
+# Or inline for short one-liners:
+backlog-edit.py {SLUG} {F<n>} -Q add -m "**Q<n> — short** — body."
+
+# Resolve a Q (with chosen option + resolution body):
+backlog-edit.py {SLUG} {F<n>} -Q resolve -n <n> --choice "(A)" < resolution.md
+
+# Remove a Q (preserves audit trail in ### Removed):
+backlog-edit.py {SLUG} {F<n>} -Q remove -n <n> --reason "..."
+
+# Rewrite a Q's body (--force required if Recommendation present):
+backlog-edit.py {SLUG} {F<n>} -Q rewrite -n <n> < new-body.md
+```
+
+The script auto-mints the next Q-number, formats per ask-format, ensures `## Open Questions` H2 exists, and runs `ask-render.py {SLUG}` + lenient `audit-q --scope q --dry` as post-conditions per F127's render-audit-glance invariant. Spec details in [[F128 — Status script as source-of-truth for Q-management — extend backlog-edit.py|F128]] § Design.
+
+#### Document-attached mode — legacy hand-edit form
+
+If the script isn't reachable (rare), append the formatted questions to the doc's `## Open Questions` H2 manually. The H2 sits **directly below** the H1 of the doc.
 
 **If the H2 doesn't exist yet** (Phase 3 transition or first-ever question on this doc): create it directly below the H1, **above** any other content. The shape is:
 

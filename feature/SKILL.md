@@ -242,13 +242,27 @@ skl-stat add "Proposed" "<Feature Name>" "Feature doc created"
 
 ### 3. Design Discussion
 
-Work with the user to flesh out the design. Update the feature doc as decisions are made. Every open question follows the same three-step resolve discipline:
+Work with the user to flesh out the design. **Per F128 (2026-06-07), Q-state changes delegate to `backlog-edit.py`** — the canonical state-editor enforces ask-format spec, Q-numbering policy, and Phase 1/2/3 lifecycle at write time. Agents should not hand-edit `## Open Questions` blocks.
 
-1. **Move the question** from the pending list in `## Open Questions` to the `### Resolved` subsection. Never delete it.
-2. **Rewrite the line** in the form `**Q{N} — <question>** — **Resolution:** <what was decided, in one sentence>. Incorporated into Design § <section>.` The "Incorporated into" pointer makes resolved entries auditable — a reader can see not just that Q3 was answered but where the answer shaped the design.
-3. **Update the Design (or relevant) section** with what the resolution means in the spec. The resolved question and the updated design ship together.
+```bash
+# Resolve a Q (script auto-migrates to bottom ## Resolved with audit trail):
+backlog-edit.py {NAME} {F<n>} -Q resolve -n <Q-num> --choice "(A)" < resolution-body.md
 
-When a new question arises mid-discussion, add it to the pending list and glance the file (per step 1a). When you resolve a question, **don't** glance — even if other questions are still pending. The glance is only for moments when the user needs to react to *new or changed* questions.
+# Add a new Q mid-discussion:
+backlog-edit.py {NAME} {F<n>} -Q add < q-body.md
+
+# Remove a Q that's no longer relevant (preserves audit trail in ### Removed):
+backlog-edit.py {NAME} {F<n>} -Q remove -n <Q-num> --reason "..."
+
+# Rewrite a Q's body (--force if Recommendation already present):
+backlog-edit.py {NAME} {F<n>} -Q rewrite -n <Q-num> [--force] < new-body.md
+```
+
+After EVERY Q-state change, update the Design (or relevant) section with what the resolution means in the spec. The resolved question and the updated design ship together. **Resolution body should include "Incorporated into Design § <section>"** as the closing line so the audit trail in `## Resolved` cross-references where the answer shaped the design.
+
+When a new question arises mid-discussion, add it via `-Q add` and glance the file (per step 1a). When you resolve a question, **don't** glance — even if other questions are still pending. The glance is only for moments when the user needs to react to *new or changed* questions.
+
+Full F128 spec: [[F128 — Status script as source-of-truth for Q-management — extend backlog-edit.py|F128]].
 
 Update stat as you work:
 ```bash
