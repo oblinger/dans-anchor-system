@@ -1,3 +1,6 @@
+---
+description: "Diagram authoring + validation rules: ASCII-forbidden, hand-written SVG default, source-alongside-output, style guidelines (palette / typography / spacing), 22-item audit checklist modeled on PCB-DRC discipline. Seeded 2026-06-08; ready to populate."
+---
 # Diagram
 
 > [!info] Rule-set category folder

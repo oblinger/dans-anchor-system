@@ -7,17 +7,20 @@ description: Rule Sets — curated, versioned bundles of rules. Trait-scoped set
 | -[[Rule Sets]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Library]] → [Rule Sets](hook://p/Rule%20Sets)<br>: Curated, versioned bundles of rules. |
 | --- | --- |
 | **Cross-cutting sets** |  |
-| **Arch/** | Architecture rules: `factory-pegboard` (factory pattern per F108), `interfaces-folder` (single Interfaces/ folder), `single-source-of-truth` (no duplicate code; use imports). |
-| **[[Diagram]]** | Diagram authoring + validation rules: ASCII-forbidden, hand-written SVG default, source-alongside-output, style guidelines (palette / typography / spacing), 22-item audit checklist modeled on PCB-DRC discipline. Seeded 2026-06-08; ready to populate. |
-| **Doc/** | Documentation conventions: `md-formatting` (markdown formatting), `progressive-disclosure` (the discipline as rules), `wiki-links` (Obsidian wiki-link conventions), `file-naming` (file and folder naming). |
-| **Git/** | Git discipline: `commit-discipline` (commit-on-transition, no amend), `pr-workflow` (PR-based development), `no-force-main` (never force-push to main). |
-| **Process/** | Process rules: `feature-lifecycle` (Designing → Ready → Active → Verify → Done), `verification-tiers` (citing the verification discipline). |
-| **Test/** | Testing posture: `integration-not-mock` (integration tests hit real systems), `deterministic` (no clock/random dependence), `property-based` (proptest patterns). |
+| [[R-arch]] | Architecture rules — patterns for code organization, module structure, dependency direction. Placeholder; future: `R-factory-pegboard`, `R-interfaces-folder`, `R-single-source-of-truth`. |
+| [[R-code]] | Code-flavored rule sets — language- or platform-specific coding conventions. Currently includes [[mac-app]] (macOS app — code signing, TCC, sandboxing). |
+| [[R-diagram-folder\|R-diagram]] | Diagram authoring + validation. Umbrella [[R-diagram]]: 22 rules across DRC-blockers / Sugiyama aesthetics / C4 semantics / WCAG contrast / hygiene. Will factor into per-methodology sub-sets per F132 Phase 1. |
+| [[R-doc]] | Documentation conventions. Placeholder; future: `R-md-formatting`, `R-progressive-disclosure`, `R-wiki-links`, `R-file-naming`. |
+| [[R-git]] | Git discipline. Placeholder; future: `R-commit-discipline`, `R-pr-workflow`, `R-no-force-main`. |
+| [[R-process]] | Process rules. Placeholder; future: `R-feature-lifecycle`, `R-verification-tiers`. |
+| [[R-test]] | Testing posture. Placeholder; future: `R-integration-not-mock`, `R-deterministic`, `R-property-based`. |
+| **Trait-scoped sets (speculative)** | Speculative scaffolding — may be pruned, merged into cross-cutting, or scrapped. |
+| [[R-paper]] | Paper / writing-anchor rule sets — citation conventions, prose-style discipline. Placeholder. |
+| [[R-simple]] | Simple-anchor rule sets — minimal-shape collections without full CAB structure. Placeholder. |
+| [[R-skill]] | Skill-anchor rule sets — structural shape of skill folders, ask-format / verification / mode-style conventions. Placeholder. |
+| [[R-topic]] | Topic-anchor rule sets — knowledge/reference anchors (folders of notes, surveys, glossaries). Placeholder. |
 | **Owner-scoped sets** |  |
-| **Ob/** | Dan's personal Ob-flavored rule sets — apply to every anchor Dan owns regardless of trait. Folder of rule sets named `R-ob-*`: [[R-ob-state-mgt]] (config + state singleton + no-hardcoded; 3 rules), [[R-ob-observability]] (no-silent-fallbacks + 100% OS-bridge logging; 2 rules), [[R-ob-cmd-proc]] (single dispatcher + sensors-engines-effectors pattern; 13 rules). Legacy `Ob/ob.md` holds the markdown / commit / em-dash rules until split out. |
-| --- | |
-| [[mac-app]] | macOS app development — code signing, TCC permissions, sandboxing, build conventions |
-| [[ob]] | ob rules — Dan's personal cross-project rules that apply to all of his work, regardless of trait or domain. |
+| [[R-ob]] | Dan's personal Ob-flavored rule sets — apply to every anchor Dan owns regardless of trait. Children: [[R-ob-state-mgt]] (config + state singleton + no-hardcoded; 3 rules), [[R-ob-observability]] (no-silent-fallbacks + 100% OS-bridge logging; 2 rules), [[R-ob-cmd-proc]] (single dispatcher + sensors-engines-effectors pattern; 13 rules). The folder-file body holds the markdown / commit / em-dash rules until split out. |
 | [[Rule Sets/README]] |  |
 
 ## Rules vs decisions — the vocabulary distinction (2026-06-08)
@@ -38,27 +41,19 @@ The relationship:
 
 Curated, versioned bundles of rules. Each set is a standalone markdown doc bundling related rules that apply to a specific style of anchor or a specific cross-cutting concern. When an anchor adopts a set, the set's rules are referenced from `{NAME} Decisions.md` as adopted constraints; the decision body explains why (which rationale picked this rule set for this anchor).
 
-Two committed kinds of sets:
+Three kinds of sets:
 
-- **Cross-cutting** — not trait-scoped (Arch, Diagram, Doc, Git, Process, Test). Pulled in when the anchor explicitly opts in.
-- **Owner-scoped** — pulled in by every anchor a person owns, regardless of trait (Ob/ = Dan's personal set).
+- **Cross-cutting** — not trait-scoped (`R-arch`, `R-code`, `R-diagram`, `R-doc`, `R-git`, `R-process`, `R-test`). Pulled in when the anchor explicitly opts in.
+- **Trait-scoped (speculative)** — keyed to the CAB Traits taxonomy; would pull in automatically when an anchor declares the matching trait. Currently speculative scaffolding (`R-paper`, `R-simple`, `R-skill`, `R-topic`) — may be pruned, merged into cross-cutting, or scrapped as the pattern proves out.
+- **Owner-scoped** — pulled in by every anchor a person owns, regardless of trait (`R-ob` = Dan's personal set).
 
-A third — **trait-scoped** sets keyed to the CAB Traits taxonomy — is proposed but not committed. Surfaced separately below.
+## Folder-file convention (2026-06-09)
 
-## Proposed trait-scoped sets
-
-Trait-scoped sets would key off the CAB Traits taxonomy and pull in automatically when an anchor declares the matching trait. **Not committed** — the catalog below is speculative scaffolding, possibly too granular. May be pruned, merged into cross-cutting categories, or scrapped entirely as the pattern proves out (or doesn't).
-
-| **Code/** | macOS app, iOS, Rust crate, Python tooling, shell scripts, TypeScript/React frontend, backend services, CLI tool design. |
-| --- | --- |
-| **Skill/** | skill-anchor structural shape, discipline-style skill conventions (ask-format, verification, mode style). |
-| **Topic/** | knowledge/reference anchors (folders of notes, surveys, glossaries). |
-| **Paper/** | writing-style and citation conventions for paper anchors. |
-| **Simple/** | minimal-shape anchors (lightweight collections without full CAB structure). |
+Every rule-set folder named `R-<name>/` contains a folder-file `R-<name>.md` that is itself a RULESET. The folder-file's `includes::` (or `include::`) line rolls up all child rule sets in the folder. Adopting the folder umbrella (e.g., `include:: [[R-code]]`) is equivalent to adopting every child set; cherry-pick individual children for finer control.
 
 ## Status
 
-**Phase 3 scaffolding.** Per F113 Phase 3, the set catalog is being populated. Currently materialized: `Code/mac-app.md` + `Ob/ob.md` + `Diagram/Diagram.md` (seed). The other entries are folder placeholders awaiting curation. Each set when authored carries its own frontmatter with `set-id`, `trait`, and `applies-when`.
+**Phase 3 scaffolding.** Currently materialized: [[R-code]] (containing [[mac-app]]); [[R-diagram]] (22-rule umbrella); [[R-ob]] (containing [[R-ob-state-mgt]] / [[R-ob-observability]] / [[R-ob-cmd-proc]]). Other folder-files are placeholders with empty `includes::` awaiting curation.
 
 ## Pull semantics
 
@@ -71,27 +66,7 @@ When an anchor adopts a rule set:
 
 ## File format
 
-Each rule-set file follows this shape:
-
-```markdown
----
-description: <one-line description of when this set applies>
-trait: <Trait name — matches parent folder; omit for cross-cutting sets>
-applies-when: <free-form condition string for /rule recommend>
-set-id: <short-prefix used in R-numbering inside this set, e.g., MA for mac-app, DG for diagram>
----
-
-# <Folder>/<set-name> — <Title>
-
-Brief paragraph: what this set is, when it applies.
-
-### R-<SET>01 — <rule name> (<tier>)
-<declarative statement>
-
-**Check pattern:** <how /audit rules detects violations>
-
-**Exceptions:** <table + per-row blocks, or absent>
-```
+See [[CAB Rules]] for the prescriptive RULESET format (H1 sentinel + `include::` + `description::` + H3 rule entries with tier annotation). The earlier YAML-frontmatter form is legacy; remaining instances ([[mac-app]]) will be migrated.
 
 ## Related
 
@@ -101,4 +76,4 @@ Brief paragraph: what this set is, when it applies.
 
 ## Research
 
-- [[2026-06-08 diagram-auditing-methodologies]] — survey of 20 sources on diagram-validation methodologies (PCB DRC, Sugiyama / Purchase graph-drawing aesthetics, C4 / Sourcetrail checklists, Bertin / Tufte / Munzner, WCAG contrast). Seed material for the [[Diagram]] set's audit checklist.
+- [[2026-06-08 diagram-auditing-methodologies]] — survey of 20 sources on diagram-validation methodologies (PCB DRC, Sugiyama / Purchase graph-drawing aesthetics, C4 / Sourcetrail checklists, Bertin / Tufte / Munzner, WCAG contrast). Seed material for the [[R-diagram]] set's audit checklist.
