@@ -4,6 +4,25 @@ description: Decision Sets — curated, versioned bundles of decisions per F113 
 
 # Decision Sets
 
+| -[[Decision Sets]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Library]] → [Decision Sets](hook://p/Decision%20Sets)<br>: Curated, versioned bundles of decisions per F113 Phase 3. |
+| --- | --- |
+| **Cross-cutting sets** |  |
+| **Arch/** | Architecture decisions: `factory-pegboard` (factory pattern per F108), `interfaces-folder` (single Interfaces/ folder), `single-source-of-truth` (no duplicate code; use imports). |
+| **[[Diagram]]** | Diagram authoring + validation: ASCII-forbidden, hand-written SVG default, source-alongside-output, style guidelines (palette / typography / spacing), 22-item audit checklist modeled on PCB-DRC discipline. Seeded 2026-06-08; ready to populate. |
+| **Doc/** | Documentation conventions: `md-formatting` (markdown formatting), `progressive-disclosure` (the discipline as decisions), `wiki-links` (Obsidian wiki-link conventions), `file-naming` (file and folder naming). |
+| **Git/** | Git discipline: `commit-discipline` (commit-on-transition, no amend), `pr-workflow` (PR-based development), `no-force-main` (never force-push to main). |
+| **Process/** | Process decisions: `feature-lifecycle` (Designing → Ready → Active → Verify → Done), `verification-tiers` (citing the verification discipline). |
+| **Test/** | Testing posture: `integration-not-mock` (integration tests hit real systems), `deterministic` (no clock/random dependence), `property-based` (proptest patterns). |
+| **Owner-scoped sets** |  |
+| **Ob/** | Dan's personal cross-project set — applies to every anchor Dan owns regardless of trait. Currently one set: `ob/ob.md` (markdown-valid-for-Obsidian, kmr-flavored commit discipline, em-dash policy for authored content, etc.). |
+| --- | |
+| [[Diagram]] | Diagram — decisions and validation approaches for hand-authored figures (architecture diagrams, flow diagrams, mockups). Cross-cutting set pulled in when an anchor authors visual artifacts. |
+| [[mac-app]] | macOS app development — code signing, TCC permissions, sandboxing, build conventions |
+| [[ob]] | ob decisions — Dan's personal cross-project decisions that apply to all of his work, regardless of trait or domain. |
+| [[Decision Sets/README]] |  |
+
+## Overview 
+
 Curated, versioned bundles of decisions (post-F113 successor to `~/.claude/skills/rule/sets/`). Each set is a standalone markdown doc bundling related decisions that apply to a specific style of anchor or a specific cross-cutting concern. When an anchor pulls a set in, the set's decisions get renumbered into the anchor's local D-NN namespace and appended as an H2 grouping in `{NAME} Decisions.md` (per F113 Q2 — copy-in semantics).
 
 Two committed kinds of sets:
@@ -12,18 +31,6 @@ Two committed kinds of sets:
 - **Owner-scoped** — pulled in by every anchor a person owns, regardless of trait (Ob/ = Dan's personal set).
 
 A third — **trait-scoped** sets keyed to the CAB Traits taxonomy — is proposed but not committed. Surfaced separately below.
-
-| -[[Decision Sets]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Library]] → [Decision Sets](hook://p/Decision%20Sets)<br>: Curated, versioned bundles of decisions per F113 Phase 3. |
-| --- | --- |
-| **Cross-cutting sets** |  |
-| **Arch/** | Architecture decisions: `factory-pegboard` (factory pattern per F108), `interfaces-folder` (single Interfaces/ folder), `single-source-of-truth` (no duplicate code; use imports). |
-| **Doc/** | Documentation conventions: `md-formatting` (markdown formatting), `progressive-disclosure` (the discipline as decisions), `wiki-links` (Obsidian wiki-link conventions), `file-naming` (file and folder naming). |
-| **Git/** | Git discipline: `commit-discipline` (commit-on-transition, no amend), `pr-workflow` (PR-based development), `no-force-main` (never force-push to main). |
-| **Process/** | Process decisions: `feature-lifecycle` (Designing → Ready → Active → Verify → Done), `verification-tiers` (citing the verification discipline). |
-| **Test/** | Testing posture: `integration-not-mock` (integration tests hit real systems), `deterministic` (no clock/random dependence), `property-based` (proptest patterns). |
-| **Owner-scoped sets** |  |
-| **Ob/** | Dan's personal cross-project set — applies to every anchor Dan owns regardless of trait. Currently one set: `ob/ob.md` (markdown-valid-for-Obsidian, kmr-flavored commit discipline, em-dash policy for authored content, etc.). |
-| --- | |
 
 ## Proposed trait-scoped sets
 
