@@ -1,6 +1,10 @@
 # RULESET R-tufte-data-ink
-description:: Tufte's data-ink discipline for diagrams — decoration competes with content for attention. Every visual element should carry information. Source: Tufte, *The Visual Display of Quantitative Information*. Factored from [[R-diagram]] 2026-06-09.
+description:: Tufte's data-ink discipline; every visual element carries information.
 include::
+
+Decoration competes with content for attention; in a diagram (which is dense with meaning) that competition is always lost. Sibling box-sizing consistency + no chartjunk (no drop shadows on every box, no gradient fills for fun, no decorative borders). Source: Tufte, *The Visual Display of Quantitative Information*.
+
+Factored from [[R-diagram]] 2026-06-09.
 
 ### R-tufte-data-ink-01 — Sibling box-sizing consistency (sampled)
 

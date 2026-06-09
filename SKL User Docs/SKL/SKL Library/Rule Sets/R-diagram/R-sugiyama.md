@@ -1,6 +1,10 @@
 # RULESET R-sugiyama
-description:: Sugiyama-style graph-drawing aesthetics — quality rules below the DRC-blocker threshold (violations are warnings, not errors). Source: Purchase 1997/2002 empirical work + Sugiyama's layered-drawing algorithm + Gestalt alignment principle. Factored from [[R-diagram]] 2026-06-09.
+description:: Sugiyama-style graph-drawing aesthetics; quality rules below the DRC threshold.
 include::
+
+Edge-crossing minimization, bend budget, monotone flow, grid alignment — violations are warnings, not ship-blockers. Purchase's empirical work (1997/2002) identifies crossings as the largest single factor in graph readability, ahead of aesthetics like grid-alignment or symmetry. Source: Sugiyama's layered-drawing algorithm + Purchase + Gestalt alignment.
+
+Factored from [[R-diagram]] 2026-06-09.
 
 ### R-sugiyama-01 — Minimize edge crossings (sampled)
 

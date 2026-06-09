@@ -1,6 +1,10 @@
 # RULESET R-c4
-description:: C4-model semantic conventions for diagrams — the "what does this diagram mean?" rules. Source: C4 model § Conventions + Bertin's *Sémiologie graphique* for visual-variable discipline. Factored from [[R-diagram]] 2026-06-09.
+description:: C4-model semantic conventions; the "what does this diagram mean?" rules.
 include::
+
+Every arrow labeled, title or legend present, boxes named meaningfully, one meaning per visual variable. Source: C4 model § Conventions + Bertin's *Sémiologie graphique* for visual-variable discipline.
+
+Factored from [[R-diagram]] 2026-06-09.
 
 ### R-c4-01 — Every arrow carries a label (sampled)
 

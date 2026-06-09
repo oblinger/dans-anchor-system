@@ -1,6 +1,10 @@
 # RULESET R-wcag-contrast
-description:: WCAG-2.1-derived accessibility rules for diagrams — contrast ratios and colorblind-safe communication. Diagrams projected on screens or printed B&W must remain readable. Source: WCAG 2.1 AA. Factored from [[R-diagram]] 2026-06-09.
+description:: WCAG-2.1-AA accessibility for diagrams; contrast + colorblind-safe.
 include::
+
+Contrast ratio ≥ 4.5:1 for text, ≥ 3:1 for non-text UI; color is never the sole communicator of meaning. Diagrams projected on screens or printed B&W must remain readable; colorblind readers and B&W printouts depend on the second rule. Source: WCAG 2.1 AA.
+
+Factored from [[R-diagram]] 2026-06-09.
 
 ### R-wcag-contrast-01 — Contrast ≥ 4.5:1 for text, ≥ 3:1 for non-text UI (checked)
 

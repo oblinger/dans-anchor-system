@@ -1,6 +1,10 @@
 # RULESET R-svg-hygiene
-description:: File-format hygiene for hand-authored SVG diagrams — stable IDs, no orphan defs, valid XML. The baseline a diagram has to meet before any higher-level rule applies. Factored from [[R-diagram]] 2026-06-09.
+description:: File-format hygiene for hand-authored SVG diagrams.
 include::
+
+Stable IDs on every element, no orphan `<defs>` entries, SVG validates as XML. The baseline a diagram has to meet before any higher-level rule applies — a malformed SVG isn't a diagram at all.
+
+Factored from [[R-diagram]] 2026-06-09.
 
 ### R-svg-hygiene-01 — Stable IDs on every element (sampled)
 

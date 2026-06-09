@@ -1,6 +1,11 @@
 # RULESET R-diagram
 include:: [[R-pcb-drc-structural]], [[R-sugiyama]], [[R-c4]], [[R-wcag-contrast]], [[R-bringhurst-typography]], [[R-tufte-data-ink]], [[R-svg-hygiene]]
-description:: Umbrella rule set for hand-authored figure validation — architecture, flow, sequence, mockup diagrams. PCB-DRC-style discipline: diagram doesn't ship until rule-checker emits zero errors. Composes 7 methodology-flavored sub-sets via include::; adopting R-diagram pulls all 22 rules. Factored 2026-06-09 from a monolithic 22-rule set (per F132 Phase 1).
+description:: Umbrella for hand-authored figure validation; composes 7 methodology sub-sets.
+
+Hand-authored figures (architecture, flow, sequence, mockup diagrams) ship clean under a PCB-DRC-style discipline: the diagram doesn't ship until rule-checker emits zero errors. Adopting R-diagram pulls all 22 rules via the sub-sets composed in `include::` above; cherry-pick an individual sub-set for finer control.
+
+Factored 2026-06-09 from a monolithic 22-rule R-diagram set, per F132 Phase 1.
+
 
 > [!info] Composition
 > R-diagram has no rules of its own. The 22 rules live in the 7 included sub-sets above. Each sub-set can be adopted independently when an anchor wants only that methodology's rules — e.g., a typography-focused doc might `include:: [[R-bringhurst-typography]], [[R-tufte-data-ink]]` without pulling structural-correctness rules.

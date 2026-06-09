@@ -1,6 +1,10 @@
 # RULESET R-pcb-drc-structural
-description:: PCB-design-rule-check-inspired structural correctness for hand-authored diagrams. Hard-fail rules — a diagram that violates these is broken, not just stylistically suboptimal. Source: Eichelberger UML-readability study + Sourcetrail review criteria + Imhof cartographic labeling. Factored from [[R-diagram]] 2026-06-09.
+description:: Hard-fail structural correctness for hand-authored diagrams; PCB-DRC analog.
 include::
+
+A diagram that violates these is broken, not stylistically suboptimal — overlap, floating endpoints, tunneling, text overflow, label-association ambiguity, label-label collision. Sources: Eichelberger UML-readability study, Sourcetrail review criteria, Imhof cartographic labeling.
+
+Factored from [[R-diagram]] 2026-06-09.
 
 ### R-pcb-drc-structural-01 — No box-on-box overlap (checked)
 
