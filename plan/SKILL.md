@@ -38,38 +38,61 @@ The phrasing "satisfied with this as a starting architecture / testing disciplin
 
 ## State model
 
-**Storage:** per-artifact `status::` dataview field at the top of each planning doc. Valid values for Architecture and Testing Strategy: `drafting | in-review | accepted`. PRD / UX / API may also carry `status::` but the field is not gate-gating for those.
+**Storage (F130, preferred):** centralized `{NAME} Status.md` facet in the Track folder, carrying one `::` dataview line per planning facet:
+
+```
+prd:: MVP-agent (2026-06-08) — covers golden path; edge cases unspecified
+ux:: none
+architecture:: MVP-user (2026-06-07) — services + data flow; deployment TBD
+testing:: none
+roadmap:: none
+```
+
+Cell vocabulary, ordered low → high: `none < MVP-agent < MVP-user < Full-agent < Full-user`. All writes go through `state status set` (no hand-editing the file); reads via `state status show`.
+
+**Storage (legacy):** per-artifact `status::` dataview field at the top of each planning doc. Valid values for Architecture and Testing Strategy: `drafting | in-review | accepted`. Retained as fallback when `{NAME} Status.md` is absent.
 
 **Resolution on bare `/plan`:**
 
-1. **Read each artifact's `status::` field.** If declared, that's authoritative.
-2. **Inference (rules-of-thumb) when `status::` is absent.** Walk the artifacts in canonical order:
-   - PRD exists with at least one user story → past PRD-drafting.
-   - PRD declares UI requirement AND `{NAME} UX.md` has concrete UI shape → past UX.
-   - PRD declares API surface AND `{NAME} API.md` has concrete API shape → past API.
-   - Architecture exists with at least one named subsystem → architecting in progress (not yet `accepted`).
-   - Architecture has `status:: accepted` → Gate 1 passed; proceed to Testing Strategy.
-   - Testing Strategy exists with proposed regime → testing-strategy in progress (not yet `accepted`).
-   - Architecture AND Testing Strategy both `accepted` → Gate 2 passed; proceed to Roadmap.
-   - Roadmap has at least one milestone → roadmapping in progress.
-   - All artifacts complete + both gates `accepted` + roadmap milestones present → plan-complete.
-3. **Reconcile.** If a declared `status::` disagrees with inference (e.g., `status:: accepted` but the doc has only a frontmatter and one H2), surface the discrepancy in chat: *"you set status:: accepted on Architecture but the doc has no named subsystems — confirm?"*. Declared value wins; the surface is a check on user intent.
+1. **Check `{NAME} Status.md`.** If present, it's authoritative. Run:
+   ```bash
+   ~/.claude/skills/workflow/scripts/state --anchor {NAME} status show
+   ```
+   Walk the output in declared order (`prd`, `ux`, `architecture`, `testing`, `roadmap`). Pick the **first** facet whose cell is lowest on the ladder above; dispatch to the corresponding sub-skill (`plan-prd`, `plan-ux`, etc.). Sub-skills self-promote to `*-agent` at completion via `state status set <facet> <new-cell> --note "<one-line>"`; user-stamped `*-user` comes from explicit review ("PRD looks good for MVP" → agent runs `state status set prd MVP-user --note "<...>"`).
+2. **Fallback when `{NAME} Status.md` absent.** Apply the legacy per-artifact inference below.
+3. **`/plan <facet>` bypasses the picker entirely** — works on already-approved facets too (that's just more planning on something).
+
+**Legacy inference (fallback when no Status.md):**
+- PRD exists with at least one user story → past PRD-drafting.
+- PRD declares UI requirement AND `{NAME} UX.md` has concrete UI shape → past UX.
+- PRD declares API surface AND `{NAME} API.md` has concrete API shape → past API.
+- Architecture exists with at least one named subsystem → architecting in progress.
+- Architecture has `status:: accepted` → Gate 1 passed; proceed to Testing Strategy.
+- Testing Strategy exists with proposed regime → testing-strategy in progress.
+- Architecture AND Testing Strategy both `accepted` → Gate 2 passed; proceed to Roadmap.
+- Roadmap has at least one milestone → roadmapping in progress.
+
+If a declared `Status.md` cell disagrees with inferred state on the artifact body (e.g., `prd:: Full-user` but the PRD doc has only a frontmatter and one user story), surface the discrepancy in chat. Declared cell wins; the surface is a check on user intent.
 
 ## Runbook — bare `/plan`
 
 1. **Detect anchor + trait.** Walk up to nearest `.anchor` file; read `traits:` list. If `Code` is not present, print: *"plan v1 supports Code-trait anchors only — generalization is Phase 2."* and stop.
-2. **Inspect planning artifacts.** For each canonical artifact, check existence at the expected location AND parse `status::` field if present.
-3. **Build gap table.** Order incomplete artifacts canonically. The first incomplete is the dispatch target.
-4. **Surface state.** Print a compact gap table:
+2. **Read planning status.** Run `state --anchor {NAME} status show` to get the per-facet cell map. If `{NAME} Status.md` is absent the script auto-creates it with all facets at `none`.
+3. **Build gap table.** Render the status one line per facet:
    ```
-   PRD:            ✓ done           (status:: accepted)
-   UX:             ✓ done           (one screen sketch + nav model)
-   API:            — n/a            (PRD declares no API surface)
-   Architecture:   ⚠ in progress    (status:: drafting — 3 subsystems named)
-   Testing Strategy: ✗ missing
-   Roadmap:        ✗ missing
+   prd:            MVP-user (2026-06-08) — user-confirmed for v1
+   ux:             MVP-agent (2026-06-07) — golden path; edges unspecified
+   architecture:   none
+   testing:        none
+   roadmap:        none
    ```
-5. **Auto-dispatch (Q4 = A).** Invoke the next-incomplete sub-skill: e.g., the table above auto-runs `/plan architect`. The user may redirect mid-dispatch by saying "actually let's do UX first."
+4. **Pick the dispatch target.** Walk facets in declared order (`prd`, `ux`, `architecture`, `testing`, `roadmap`); pick the FIRST facet at the lowest cell on `none < MVP-agent < MVP-user < Full-agent < Full-user`. The table above picks `architecture` (first `none`).
+5. **Auto-dispatch.** Invoke the matching sub-skill: `/plan architect` for the example above. The user may redirect mid-dispatch by saying "actually let's do UX first" or by typing `/plan ux` directly.
+6. **Self-promote at completion.** When the sub-skill judges its work sufficient, it ends with:
+   ```bash
+   state --anchor {NAME} status set <facet> MVP-agent --note "<one-line rationale>"
+   ```
+   User stamps `*-user` via natural-language ("PRD looks good for MVP" → agent runs `state status set prd MVP-user --note "<...>"`).
 
 ## Runbook — `/plan <artifact>`
 

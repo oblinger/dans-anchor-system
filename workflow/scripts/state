@@ -14,6 +14,8 @@ Surface (terse):
     state q    answer  [--anchor A] ROW-ID (-n N | --slug NAME) --choice OPT [BODY-source]
     state q    remove  [--anchor A] ROW-ID (-n N | --slug NAME) [--reason TEXT]
     state q    rewrite [--anchor A] ROW-ID (-n N | --slug NAME) [--slug NEW] [BODY-source]
+    state status set   [--anchor A] FACET CELL [--note TEXT]    # F130
+    state status show  [--anchor A] [FACET]                     # F130
 """
 from __future__ import annotations
 
@@ -475,6 +477,154 @@ def _post_conditions_and_print(slug, feature_path, summary):
 
 
 # ============================================================
+# Status subcommands (F130) — manage {NAME} Status.md per-facet planning state
+# ============================================================
+
+
+VALID_STATUS_CELLS = (
+    "none",
+    "MVP-agent", "MVP-user",
+    "Full-agent", "Full-user",
+)
+
+# Declared facet order — used by /plan picker tie-break + bare `status show`.
+DEFAULT_STATUS_FACETS = ("prd", "ux", "architecture", "testing", "roadmap")
+
+_STATUS_LINE_RE = re.compile(r"^([a-z][a-z0-9_]*):\:\s*(.*)$")
+
+
+def _status_path(slug, anchor_path):
+    """{NAME} Status.md lives in the Track folder next to Backlog/Icebox/etc."""
+    return anchor_path / f"{slug} Docs" / f"{slug} Track" / f"{slug} Status.md"
+
+
+def _ensure_status_file(slug, anchor_path):
+    """Create {NAME} Status.md with all default facets at `none` if absent.
+
+    Fails if the Track folder doesn't exist (caller's anchor is malformed).
+    """
+    path = _status_path(slug, anchor_path)
+    if path.exists():
+        return path
+    if not path.parent.exists():
+        raise be.BacklogEditError(
+            f"can't create {path.name}: parent {path.parent} doesn't exist"
+        )
+    body_lines = [
+        "---",
+        "description: planning status — per-facet tier+approver; consumed by /plan",
+        "---",
+        "",
+        f"# [[{slug}]] Status",
+        "",
+    ]
+    for facet in DEFAULT_STATUS_FACETS:
+        body_lines.append(f"{facet}:: none")
+    body_lines.append("")
+    path.write_text("\n".join(body_lines), encoding="utf-8")
+    return path
+
+
+def _parse_status_lines(text):
+    """Return list of (facet, body) in file order. body == 'none' or '<cell> (date) — note'."""
+    out = []
+    for line in text.splitlines():
+        m = _STATUS_LINE_RE.match(line)
+        if m:
+            out.append((m.group(1), m.group(2).strip()))
+    return out
+
+
+def cmd_status_set(slug, anchor_path, args):
+    """Set or overwrite a facet's status cell."""
+    facet = args.facet.lower()
+    cell = args.cell
+    note = (args.note or "").strip()
+
+    if not re.match(r"^[a-z][a-z0-9_]*$", facet):
+        raise be.BacklogEditError(
+            f"invalid facet {facet!r}; expected lowercase letters / digits / underscore"
+        )
+    if cell not in VALID_STATUS_CELLS:
+        raise be.BacklogEditError(
+            f"invalid cell {cell!r}; expected one of {list(VALID_STATUS_CELLS)}"
+        )
+    if cell.endswith("-user") and not note:
+        raise be.BacklogEditError(
+            f"--note is required when setting {cell} "
+            "(user rationale is institutional memory; pass --note \"<one-line>\")"
+        )
+
+    path = _ensure_status_file(slug, anchor_path)
+    today = date.today().isoformat()
+
+    if cell == "none":
+        new_line = f"{facet}:: none"
+    else:
+        new_line = f"{facet}:: {cell} ({today})"
+        if note:
+            new_line += f" — {note}"
+
+    lines = path.read_text(encoding="utf-8").splitlines()
+    facet_pat = re.compile(rf"^{re.escape(facet)}::")
+    replaced = False
+    out_lines = []
+    for line in lines:
+        if facet_pat.match(line):
+            out_lines.append(new_line)
+            replaced = True
+        else:
+            out_lines.append(line)
+    if not replaced:
+        # Append before trailing blank line if present, else at end
+        while out_lines and out_lines[-1] == "":
+            out_lines.pop()
+        out_lines.append(new_line)
+        out_lines.append("")
+    else:
+        # Ensure file ends with single trailing newline
+        while len(out_lines) >= 2 and out_lines[-1] == "" and out_lines[-2] == "":
+            out_lines.pop()
+        if not out_lines or out_lines[-1] != "":
+            out_lines.append("")
+
+    path.write_text("\n".join(out_lines), encoding="utf-8")
+    note_tail = f" — {note}" if note else ""
+    print(f"{slug}: status {facet} → {cell}{note_tail}")
+    return 0
+
+
+def cmd_status_show(slug, anchor_path, args):
+    """Print one or all facet status lines.
+
+    With no argument: print every DEFAULT_STATUS_FACETS in declared order,
+    then any extra facets in file-order. Missing facets default to `none`.
+    """
+    requested = args.facet.lower() if args.facet else None
+    path = _status_path(slug, anchor_path)
+    found = {}
+    file_order = []
+    if path.exists():
+        for facet, body in _parse_status_lines(path.read_text(encoding="utf-8")):
+            if facet not in found:
+                file_order.append(facet)
+            found[facet] = body
+
+    if requested:
+        body = found.get(requested, "none")
+        print(f"{requested}:: {body}")
+        return 0
+
+    for facet in DEFAULT_STATUS_FACETS:
+        body = found.get(facet, "none")
+        print(f"{facet}:: {body}")
+    for facet in file_order:
+        if facet not in DEFAULT_STATUS_FACETS:
+            print(f"{facet}:: {found[facet]}")
+    return 0
+
+
+# ============================================================
 # CLI dispatch
 # ============================================================
 
@@ -552,6 +702,23 @@ def build_parser():
     qrw.add_argument("-m", dest="inline", default=None)
     qrw.add_argument("--from-file", dest="from_file", default=None)
 
+    # status domain (F130) — manage {NAME} Status.md per-facet planning state
+    st = subs.add_parser("status",
+                         help="manage {NAME} Status.md per-facet planning status (F130)")
+    st_subs = st.add_subparsers(dest="verb", required=True)
+
+    sts = st_subs.add_parser("set", help="set a facet's status cell")
+    sts.add_argument("facet",
+                     help="facet name (prd, ux, architecture, testing, roadmap)")
+    sts.add_argument("cell",
+                     help="status cell (none, MVP-agent, MVP-user, Full-agent, Full-user)")
+    sts.add_argument("--note", default=None,
+                     help="one-line rationale (required for MVP-user / Full-user)")
+
+    stsh = st_subs.add_parser("show", help="show one or all facet statuses")
+    stsh.add_argument("facet", nargs="?", default=None,
+                      help="facet name (omit to show all)")
+
     return p
 
 
@@ -582,6 +749,11 @@ def main(argv):
                 return cmd_q_remove(slug, anchor_path, args)
             if args.verb == "rewrite":
                 return cmd_q_rewrite(slug, anchor_path, args)
+        elif args.domain == "status":
+            if args.verb == "set":
+                return cmd_status_set(slug, anchor_path, args)
+            if args.verb == "show":
+                return cmd_status_show(slug, anchor_path, args)
         print(f"state: unknown verb {args.domain} {args.verb}", file=sys.stderr)
         return 2
     except be.BacklogEditError as e:

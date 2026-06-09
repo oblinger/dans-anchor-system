@@ -61,7 +61,42 @@ The link-row appended in step 0 is a **tracking marker** that promises the featu
 
 **Failure mode to watch for:** the LLM produces an edit that just appends *"See [[F{N} — {Feature}]] for details"* without actual content. **This is forbidden.** If the agent detects this in the proposed edit, reject and re-prompt.
 
-Only after step 0.5 lands across all target docs, proceed to step 1.
+Only after step 0.5 lands across all target docs, proceed to step 0.7.
+
+### 0.7. Planning gate (F130) — Code-trait anchors only
+
+Before reading the feature spec, check the planning-status gate. **Applies only to Code-trait anchors** (read `.anchor` `traits:` list). For non-Code anchors (Skill, Content, etc.), skip this step.
+
+Run:
+```bash
+~/.claude/skills/workflow/scripts/state --anchor {NAME} status show
+```
+
+Read the cells for `prd`, `architecture`, `testing`. If **any** of them is `none`, the gate is not satisfied. Surface a three-way prompt:
+
+```
+Planning gate not satisfied — these facets are at `none`:
+  - <facet1>
+  - <facet2>
+Options:
+  (A) abort — run /plan first  [Recommended]
+  (B) proceed once — re-warn on next /mint
+  (C) silence permanently — promote blocked facets to MVP-user with note "provisional"
+```
+
+Wait for the user's choice (`A` / `B` / `C`).
+
+- **(A)** Stop the mint. Suggest `/plan` to address the blocked facets.
+- **(B)** Proceed to step 1 with no state change. Next `/mint` invocation will warn again.
+- **(C)** For each blocked facet, run:
+  ```bash
+  ~/.claude/skills/workflow/scripts/state --anchor {NAME} status set <facet> MVP-user --note "provisional — proceeding without full planning; revisit"
+  ```
+  Then proceed to step 1. Future mints won't warn for these facets until the user explicitly re-grades them.
+
+**No per-feature bypass record.** The `Status.md` git-history already captures what state the facets were in when the feature was minted — per-feature bypass stamps would add no signal that history doesn't already carry. (Per F130 Q1 → D.)
+
+**Tamper-resistance note:** until F131's hook framework ships, an agent could bypass the gate by directly editing `Status.md` to flip cells. The prompt above is honored at the `/mint` flow level; F131-M1 makes the fence tamper-resistant.
 
 ### 1. Assess
 
