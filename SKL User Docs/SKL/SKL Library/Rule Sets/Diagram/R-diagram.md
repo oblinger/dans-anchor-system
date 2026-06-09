@@ -1,15 +1,13 @@
-# R-diagram
+# RULESET R-diagram
+include: R-sugiyama, R-c4, R-wcag-contrast
 
 > [!info] Rule Set
 > Authoring + validation rules for hand-authored figures (architecture diagrams, flow diagrams, sequence diagrams, mockups). PCB-DRC-style discipline: diagram doesn't ship until rule-checker emits zero errors. Twenty-two rules in five zones, extracted from the 2026-06-08 diagram-auditing methodologies survey (Sugiyama / Purchase / C4 / Eichelberger / Bertin / Tufte / Munzner / WCAG / Bringhurst / PCB DRC / cartographic labeling).
 
-## Includes
+> [!info] Rule-set format note
+> This file is a worked example of the [[CAB Rules]] facet. The format: H1 begins with the sentinel word `RULESET` followed by the rule-set name; an `include:` line immediately under the H1 names other rule sets (comma-separated). Each rule is an H3 named `R-<set>-<NN> — Title (tier)`, with body = declarative statement + `**Check pattern:**` + `**Why:**`. `> [!info]` callouts inside the file are commentary that's not part of any rule. Zone headings (H4) are presentational only — rule identity is the H3.
 
-(None yet. Future composition candidates: `R-sugiyama` for graph-drawing aesthetics, `R-c4` for diagram semantic conventions, `R-wcag-contrast` for accessibility. When those rule sets get factored out, this umbrella will include them and shed the duplicated rules below.)
-
-## Rules
-
-The rules below are grouped into five zones for readability. The grouping H4 headings are presentational only; rule identity is `R-diagram-NN` regardless of zone.
+The rules below are grouped into five zones for readability. The zone H4s are presentational; rule identity is `R-diagram-NN` regardless of zone. When this set is factored per F132 Phase 1, the zones become the included sub-sets (`R-pcb-drc-structural` / `R-sugiyama` / `R-c4` / `R-wcag-contrast` / `R-bringhurst-typography` / `R-tufte-data-ink` / `R-svg-hygiene`) and this file shrinks to just the H1 + `include:` line.
 
 #### Zone A — Structural correctness (DRC-blockers)
 
