@@ -4,7 +4,7 @@ description: Diagram — decisions and validation approaches for hand-authored f
 
 # Diagram
 
-| -[[Diagram]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Library]] → [[Decision Sets]] → [Diagram](hook://p/Diagram)<br>: Decisions and validation approaches for hand-authored figures. |
+| -[[Diagram]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Library]] → [[Rule Sets]] → [Diagram](hook://p/Diagram)<br>: Decisions and validation approaches for hand-authored figures. |
 | --- | --- |
 | --- | |
 
@@ -47,7 +47,7 @@ Implementation gap (per survey § Gaps): no off-the-shelf SVG layout linter exis
 
 ## See also
 
-- [[Decision Sets]] — parent set catalog
+- [[Rule Sets]] — parent set catalog
 - [[viz-svg]] — hand-written SVG authoring skill
 - [[CAB Architecture]] — architecture-facet diagram requirements
 - [[2026-06-08 diagram-auditing-methodologies]] — survey of methodologies and tools
