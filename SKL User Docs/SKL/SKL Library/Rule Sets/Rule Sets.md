@@ -11,10 +11,10 @@ description: Catalog of rule sets. See [[Rule Sets Brief]] for editing conventio
 | [[R-facet]] | Per-facet rule sets — embed in `CAB Facets/<Facet>.md` specs as `# RULESET R-<facet>` blocks. Empty `includes::` for now; populates as each facet's RULESET block lands. |
 | [[R-trait]] | Per-trait rule sets — to embed in `CAB Traits/<Trait>.md` specs. Children: [[R-paper]], [[R-simple]], [[R-skill-anchor]], [[R-topic]]. |
 | [[R-skill]] | Per-skill rule sets — to embed in `~/.claude/skills/<skill>/SKILL.md` specs. First candidates: R-ask, R-feature, R-atlas. |
-| **Cross-cutting / global** | Not tied to a specific facet, trait, or skill. Pulled in when explicitly opted into. |
+| **Cross-cutting** | Not tied to a specific facet, trait, or skill. Pulled in when explicitly opted into. |
 | [[R-arch]] | Architecture rules — code organization, module structure, dependency direction. Placeholder; future: `R-factory-pegboard`, `R-interfaces-folder`, `R-single-source-of-truth`. |
 | [[R-code]] | Code-flavored rule sets — language/platform conventions. Contains [[R-mac]]. Future: `R-rust`, `R-python`, `R-typescript`, `R-shell`. |
-| [[R-diagram]] | Diagram authoring + validation — **22 rules** in 5 zones: [[R-diagram#Zone A — Structural correctness (DRC-blockers)\|Zone A (Structural, R-diagram-01..06)]], [[R-diagram#Zone B — Aesthetic (Sugiyama-style graph drawing)\|Zone B (Sugiyama, R-diagram-07..10)]], [[R-diagram#Zone C — Semantic (C4 model)\|Zone C (C4, R-diagram-11..13)]], [[R-diagram#Zone D — Accessibility & typography (WCAG / Bringhurst)\|Zone D (WCAG/Bringhurst, R-diagram-14..18)]], [[R-diagram#Zone E — Hygiene\|Zone E (Hygiene, R-diagram-19..22)]]. Will factor per F132 Phase 1 into: `R-pcb-drc-structural`, `R-sugiyama`, `R-c4`, `R-wcag-contrast`, `R-bringhurst-typography`, `R-tufte-data-ink`, `R-svg-hygiene`. |
+| [[R-diagram]] | Diagram authoring + validation. |
 | [[R-doc]] | Documentation conventions. Contains [[R-md]] (markdown rendering). Future: `R-progressive-disclosure`, `R-wiki-links`, `R-file-naming`. |
 | [[R-git]] | Git discipline. Placeholder; future: `R-commit-discipline`, `R-pr-workflow`, `R-no-force-main`. |
 | [[R-process]] | Process rules. Placeholder; future: `R-feature-lifecycle`, `R-verification-tiers`. |
