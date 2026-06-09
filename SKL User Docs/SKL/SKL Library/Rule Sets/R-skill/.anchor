@@ -1,1 +1,1 @@
-description: Skill-anchor rule sets — structural shape of skill folders, ask-format / verification / mode-style conventions. Placeholder.
+description: "Per-skill rule sets — to embed in `~/.claude/skills/<skill>/SKILL.md` specs. Empty `includes::` for now; first candidates: R-ask, R-feature, R-atlas."

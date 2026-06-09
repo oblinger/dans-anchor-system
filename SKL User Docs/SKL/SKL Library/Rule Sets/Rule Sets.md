@@ -6,23 +6,25 @@ description: Rule Sets — curated, versioned bundles of rules. Trait-scoped set
 
 | -[[Rule Sets]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Library]] → [Rule Sets](hook://p/Rule%20Sets)<br>: Curated, versioned bundles of rules. |
 | --- | --- |
-| **Facet-scoped sets** | New axis (2026-06-09) — per-facet rule sets live inside the corresponding `CAB <facet>.md` spec file as embedded `# RULESET R-<facet>` blocks. The folder below catalogs the umbrella. |
-| [[R-facet]] | Umbrella for all CAB facet rule sets. `includes::` will list `R-backlog`, `R-decisions`, `R-rules`, `R-architecture`, etc. as each facet's embedded RULESET block lands. An anchor that wants CAB-conformance adopts this single set; audit walks it to verify every facet file. |
-| **Cross-cutting sets** |  |
-| [[R-arch]] | Architecture rules — patterns for code organization, module structure, dependency direction. Placeholder; future: `R-factory-pegboard`, `R-interfaces-folder`, `R-single-source-of-truth`. |
-| [[R-code]] | Code-flavored rule sets — language- or platform-specific coding conventions. Currently includes [[R-mac]] (macOS app — code signing, TCC, sandboxing). Future: `R-rust`, `R-python`, `R-typescript`, `R-shell`. |
-| [[R-diagram-folder\|R-diagram]] | Diagram authoring + validation. Umbrella [[R-diagram]]: 22 rules across DRC-blockers / Sugiyama aesthetics / C4 semantics / WCAG contrast / hygiene. Will factor into per-methodology sub-sets per F132 Phase 1. |
-| [[R-doc]] | Documentation conventions. Currently includes [[R-md]] (markdown rendering — angle brackets, table blank lines). Future: `R-progressive-disclosure`, `R-wiki-links`, `R-file-naming`. |
+| **CAB-aligned umbrellas** | The three primary structural axes — rule sets tied to CAB Facets, Traits, and Skills. Adopting an umbrella pulls every per-X rule set under it. |
+| [[R-facet]] | Per-facet rule sets — embedded in `CAB Facets/<Facet>.md` specs. Adopt to commit to every CAB facet's structural rules. |
+| [[R-trait]] | Per-trait rule sets — to embed in `CAB Traits/<Trait>.md` specs. Children: [[R-paper]], [[R-simple]], [[R-skill-anchor]], [[R-topic]]. |
+| [[R-skill]] | Per-skill rule sets — to embed in `~/.claude/skills/<skill>/SKILL.md` specs. Empty `includes::` for now; first candidates: R-ask, R-feature, R-atlas. |
+| **Cross-cutting sets** | Not tied to a specific facet, trait, or skill — pulled in when explicitly opted into. |
+| [[R-arch]] | Architecture rules — code organization, module structure, dependency direction. Placeholder; future: `R-factory-pegboard`, `R-interfaces-folder`, `R-single-source-of-truth`. |
+| [[R-code]] | Code-flavored rule sets — language/platform conventions. Currently includes [[R-mac]]. Future: `R-rust`, `R-python`, `R-typescript`, `R-shell`. |
+| [[R-diagram-folder\|R-diagram]] | Diagram authoring + validation. Umbrella [[R-diagram]]: 22 rules across DRC-blockers / Sugiyama aesthetics / C4 semantics / WCAG contrast / hygiene. Factors per F132 Phase 1. |
+| [[R-doc]] | Documentation conventions. Currently includes [[R-md]]. Future: `R-progressive-disclosure`, `R-wiki-links`, `R-file-naming`. |
 | [[R-git]] | Git discipline. Placeholder; future: `R-commit-discipline`, `R-pr-workflow`, `R-no-force-main`. |
 | [[R-process]] | Process rules. Placeholder; future: `R-feature-lifecycle`, `R-verification-tiers`. |
 | [[R-test]] | Testing posture. Placeholder; future: `R-integration-not-mock`, `R-deterministic`, `R-property-based`. |
-| **Trait-scoped sets (speculative)** | Speculative scaffolding — may be pruned, merged into cross-cutting, or scrapped. |
-| [[R-paper]] | Paper / writing-anchor rule sets — citation conventions, prose-style discipline. Placeholder. |
-| [[R-simple]] | Simple-anchor rule sets — minimal-shape collections without full CAB structure. Placeholder. |
-| [[R-skill]] | Skill-anchor rule sets — structural shape of skill folders, ask-format / verification / mode-style conventions. Placeholder. |
-| [[R-topic]] | Topic-anchor rule sets — knowledge/reference anchors (folders of notes, surveys, glossaries). Placeholder. |
-| **Owner-scoped sets** |  |
-| [[R-ob]] | Dan's personal Ob-flavored rule sets — apply to every anchor Dan owns regardless of trait. Children: [[R-ob-state-mgt]] (config + state singleton + no-hardcoded; 3 rules), [[R-ob-observability]] (no-silent-fallbacks + 100% OS-bridge logging; 2 rules), [[R-ob-cmd-proc]] (single dispatcher + sensors-engines-effectors pattern; 13 rules). The folder-file body holds the markdown / commit / em-dash rules until split out. |
+| **Trait-scoped sets** | Children of [[R-trait]] above; will migrate into `CAB Traits/<Trait>.md` specs as each one's content firms up. |
+| [[R-paper]] | Paper / writing-anchor rule sets. Placeholder. |
+| [[R-simple]] | Simple-anchor rule sets. Placeholder. |
+| [[R-skill-anchor]] | Skill-anchor rule sets (formerly `R-skill`; renamed 2026-06-09 to free `R-skill` for the per-skill umbrella). Placeholder. |
+| [[R-topic]] | Topic-anchor rule sets. Placeholder. |
+| **Owner-scoped sets** | Apply to every anchor a given owner owns, regardless of trait. |
+| [[R-ob]] | Dan's personal Ob-flavored rule sets. Children: [[R-ob-state-mgt]] (3 rules), [[R-ob-observability]] (2 rules), [[R-ob-cmd-proc]] (13 rules). |
 | [[Rule Sets/README]] |  |
 
 ## Rules vs decisions — the vocabulary distinction (2026-06-08)
@@ -43,12 +45,13 @@ The relationship:
 
 Curated, versioned bundles of rules. Each set is a standalone markdown doc bundling related rules that apply to a specific style of anchor or a specific cross-cutting concern. When an anchor adopts a set, the set's rules are referenced from `{NAME} Decisions.md` as adopted constraints; the decision body explains why (which rationale picked this rule set for this anchor).
 
-Four kinds of sets:
+Five kinds of sets:
 
-- **Facet-scoped** (`R-facet`) — umbrella aggregating per-facet rule sets that live embedded inside CAB facet spec files. Adopt `R-facet` to declare CAB-conformance in one line.
-- **Cross-cutting** — not trait-scoped (`R-arch`, `R-code`, `R-diagram`, `R-doc`, `R-git`, `R-process`, `R-test`). Pulled in when the anchor explicitly opts in.
-- **Trait-scoped (speculative)** — keyed to the CAB Traits taxonomy; would pull in automatically when an anchor declares the matching trait. Currently speculative scaffolding (`R-paper`, `R-simple`, `R-skill`, `R-topic`) — may be pruned, merged into cross-cutting, or scrapped as the pattern proves out.
+- **CAB-aligned umbrellas** — the three primary structural axes paralleling CAB's own categories: [[R-facet]] (per-facet), [[R-trait]] (per-trait), [[R-skill]] (per-skill). Each umbrella's `includes::` rolls up rule sets that eventually embed into the corresponding CAB spec file (CAB Facet, CAB Trait, or `~/.claude/skills/<skill>/SKILL.md`).
+- **Cross-cutting** — not tied to a specific facet, trait, or skill (`R-arch`, `R-code`, `R-diagram`, `R-doc`, `R-git`, `R-process`, `R-test`). Pulled in when an anchor explicitly opts in.
+- **Trait-scoped** — children of [[R-trait]] (`R-paper`, `R-simple`, `R-skill-anchor`, `R-topic`). Activate when the anchor declares the matching Trait. Migrate into `CAB Traits/<Trait>.md` specs as content firms up.
 - **Owner-scoped** — pulled in by every anchor a person owns, regardless of trait (`R-ob` = Dan's personal set).
+- **Folder-file** — every `R-<name>/` folder contains an `R-<name>.md` folder-file RULESET (see the convention below).
 
 ## Folder-file convention (2026-06-09)
 
@@ -56,7 +59,7 @@ Every rule-set folder named `R-<name>/` contains a folder-file `R-<name>.md` tha
 
 ## Status
 
-**Phase 3 scaffolding.** Currently materialized: [[R-code]] (containing [[R-mac]]); [[R-doc]] (containing [[R-md]]); [[R-diagram]] (22-rule umbrella); [[R-ob]] (containing [[R-ob-state-mgt]] / [[R-ob-observability]] / [[R-ob-cmd-proc]]). Other folder-files are placeholders with empty `includes::` awaiting curation.
+**Phase 3 scaffolding.** Currently materialized: [[R-code]] (containing [[R-mac]]); [[R-doc]] (containing [[R-md]]); [[R-diagram]] (22-rule umbrella); [[R-ob]] (containing [[R-ob-state-mgt]] / [[R-ob-observability]] / [[R-ob-cmd-proc]]). CAB-aligned umbrellas [[R-facet]], [[R-trait]], [[R-skill]] are structural placeholders awaiting embedded-RULESET-block population in their respective CAB spec files. Other folder-files are placeholders with empty `includes::` awaiting curation.
 
 ## Pull semantics
 
