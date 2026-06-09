@@ -4,7 +4,7 @@ description: Rule Sets — curated, versioned bundles of rules. Trait-scoped set
 
 # Rule Sets
 
-| -[[Rule Sets]]- | → [[ob]] → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Library]] → [Rule Sets](hook://p/Rule%20Sets)<br>: Curated, versioned bundles of rules. |
+| -[[Rule Sets]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Library]] → [Rule Sets](hook://p/Rule%20Sets)<br>: Curated, versioned bundles of rules. |
 | --- | --- |
 | **Cross-cutting sets** |  |
 | **Arch/** | Architecture rules: `factory-pegboard` (factory pattern per F108), `interfaces-folder` (single Interfaces/ folder), `single-source-of-truth` (no duplicate code; use imports). |
@@ -14,7 +14,7 @@ description: Rule Sets — curated, versioned bundles of rules. Trait-scoped set
 | **Process/** | Process rules: `feature-lifecycle` (Designing → Ready → Active → Verify → Done), `verification-tiers` (citing the verification discipline). |
 | **Test/** | Testing posture: `integration-not-mock` (integration tests hit real systems), `deterministic` (no clock/random dependence), `property-based` (proptest patterns). |
 | **Owner-scoped sets** |  |
-| **Ob/** | Dan's personal Ob-flavored rule sets — apply to every anchor Dan owns regardless of trait. Folder of rule sets named `R-ob-*`: [[R-ob-state-mgt]] (config + state singleton + no-hardcoded; 3 rules), [[R-ob-observability]] (no-silent-fallbacks + 100% OS-bridge logging; 2 rules). Legacy `Ob/ob.md` holds the markdown / commit / em-dash rules until split out. |
+| **Ob/** | Dan's personal Ob-flavored rule sets — apply to every anchor Dan owns regardless of trait. Folder of rule sets named `R-ob-*`: [[R-ob-state-mgt]] (config + state singleton + no-hardcoded; 3 rules), [[R-ob-observability]] (no-silent-fallbacks + 100% OS-bridge logging; 2 rules), [[R-ob-cmd-proc]] (single dispatcher + sensors-engines-effectors pattern; 13 rules). Legacy `Ob/ob.md` holds the markdown / commit / em-dash rules until split out. |
 | --- | |
 | [[mac-app]] | macOS app development — code signing, TCC permissions, sandboxing, build conventions |
 | [[ob]] | ob rules — Dan's personal cross-project rules that apply to all of his work, regardless of trait or domain. |
