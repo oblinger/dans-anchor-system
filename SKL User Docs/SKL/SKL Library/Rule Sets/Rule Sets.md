@@ -8,9 +8,9 @@ description: Rule Sets — curated, versioned bundles of rules. Trait-scoped set
 | --- | --- |
 | **Cross-cutting sets** |  |
 | [[R-arch]] | Architecture rules — patterns for code organization, module structure, dependency direction. Placeholder; future: `R-factory-pegboard`, `R-interfaces-folder`, `R-single-source-of-truth`. |
-| [[R-code]] | Code-flavored rule sets — language- or platform-specific coding conventions. Currently includes [[mac-app]] (macOS app — code signing, TCC, sandboxing). |
+| [[R-code]] | Code-flavored rule sets — language- or platform-specific coding conventions. Currently includes [[R-mac]] (macOS app — code signing, TCC, sandboxing). Future: `R-rust`, `R-python`, `R-typescript`, `R-shell`. |
 | [[R-diagram-folder\|R-diagram]] | Diagram authoring + validation. Umbrella [[R-diagram]]: 22 rules across DRC-blockers / Sugiyama aesthetics / C4 semantics / WCAG contrast / hygiene. Will factor into per-methodology sub-sets per F132 Phase 1. |
-| [[R-doc]] | Documentation conventions. Placeholder; future: `R-md-formatting`, `R-progressive-disclosure`, `R-wiki-links`, `R-file-naming`. |
+| [[R-doc]] | Documentation conventions. Currently includes [[R-md]] (markdown rendering — angle brackets, table blank lines). Future: `R-progressive-disclosure`, `R-wiki-links`, `R-file-naming`. |
 | [[R-git]] | Git discipline. Placeholder; future: `R-commit-discipline`, `R-pr-workflow`, `R-no-force-main`. |
 | [[R-process]] | Process rules. Placeholder; future: `R-feature-lifecycle`, `R-verification-tiers`. |
 | [[R-test]] | Testing posture. Placeholder; future: `R-integration-not-mock`, `R-deterministic`, `R-property-based`. |
@@ -53,7 +53,7 @@ Every rule-set folder named `R-<name>/` contains a folder-file `R-<name>.md` tha
 
 ## Status
 
-**Phase 3 scaffolding.** Currently materialized: [[R-code]] (containing [[mac-app]]); [[R-diagram]] (22-rule umbrella); [[R-ob]] (containing [[R-ob-state-mgt]] / [[R-ob-observability]] / [[R-ob-cmd-proc]]). Other folder-files are placeholders with empty `includes::` awaiting curation.
+**Phase 3 scaffolding.** Currently materialized: [[R-code]] (containing [[R-mac]]); [[R-doc]] (containing [[R-md]]); [[R-diagram]] (22-rule umbrella); [[R-ob]] (containing [[R-ob-state-mgt]] / [[R-ob-observability]] / [[R-ob-cmd-proc]]). Other folder-files are placeholders with empty `includes::` awaiting curation.
 
 ## Pull semantics
 
@@ -66,7 +66,7 @@ When an anchor adopts a rule set:
 
 ## File format
 
-See [[CAB Rules]] for the prescriptive RULESET format (H1 sentinel + `include::` + `description::` + H3 rule entries with tier annotation). The earlier YAML-frontmatter form is legacy; remaining instances ([[mac-app]]) will be migrated.
+See [[CAB Rules]] for the prescriptive RULESET format (H1 sentinel + `include::` + `description::` + H3 rule entries with tier annotation). The earlier YAML-frontmatter form is legacy; remaining instances ([[R-mac]]) will be migrated.
 
 ## Related
 

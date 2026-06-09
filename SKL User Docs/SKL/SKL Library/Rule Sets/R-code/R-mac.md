@@ -5,7 +5,7 @@ applies-when: anchor builds a macOS application (`.app` bundle) — Swift, Objec
 set-id: MA
 ---
 
-# Code/mac-app — macOS app coding decisions
+# R-mac — macOS app rules
 
 Decisions that apply when an anchor builds a macOS app — a `.app` bundle deployed beyond throwaway debugging. Covers code signing, TCC (Transparency, Consent, Control) permissions, sandboxing, and the build conventions that interact with those systems.
 
