@@ -6,6 +6,8 @@ description: Rule Sets — curated, versioned bundles of rules. Trait-scoped set
 
 | -[[Rule Sets]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Library]] → [Rule Sets](hook://p/Rule%20Sets)<br>: Curated, versioned bundles of rules. |
 | --- | --- |
+| **Facet-scoped sets** | New axis (2026-06-09) — per-facet rule sets live inside the corresponding `CAB <facet>.md` spec file as embedded `# RULESET R-<facet>` blocks. The folder below catalogs the umbrella. |
+| [[R-facet]] | Umbrella for all CAB facet rule sets. `includes::` will list `R-backlog`, `R-decisions`, `R-rules`, `R-architecture`, etc. as each facet's embedded RULESET block lands. An anchor that wants CAB-conformance adopts this single set; audit walks it to verify every facet file. |
 | **Cross-cutting sets** |  |
 | [[R-arch]] | Architecture rules — patterns for code organization, module structure, dependency direction. Placeholder; future: `R-factory-pegboard`, `R-interfaces-folder`, `R-single-source-of-truth`. |
 | [[R-code]] | Code-flavored rule sets — language- or platform-specific coding conventions. Currently includes [[R-mac]] (macOS app — code signing, TCC, sandboxing). Future: `R-rust`, `R-python`, `R-typescript`, `R-shell`. |
@@ -41,8 +43,9 @@ The relationship:
 
 Curated, versioned bundles of rules. Each set is a standalone markdown doc bundling related rules that apply to a specific style of anchor or a specific cross-cutting concern. When an anchor adopts a set, the set's rules are referenced from `{NAME} Decisions.md` as adopted constraints; the decision body explains why (which rationale picked this rule set for this anchor).
 
-Three kinds of sets:
+Four kinds of sets:
 
+- **Facet-scoped** (`R-facet`) — umbrella aggregating per-facet rule sets that live embedded inside CAB facet spec files. Adopt `R-facet` to declare CAB-conformance in one line.
 - **Cross-cutting** — not trait-scoped (`R-arch`, `R-code`, `R-diagram`, `R-doc`, `R-git`, `R-process`, `R-test`). Pulled in when the anchor explicitly opts in.
 - **Trait-scoped (speculative)** — keyed to the CAB Traits taxonomy; would pull in automatically when an anchor declares the matching trait. Currently speculative scaffolding (`R-paper`, `R-simple`, `R-skill`, `R-topic`) — may be pruned, merged into cross-cutting, or scrapped as the pattern proves out.
 - **Owner-scoped** — pulled in by every anchor a person owns, regardless of trait (`R-ob` = Dan's personal set).
