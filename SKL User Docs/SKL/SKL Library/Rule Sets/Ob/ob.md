@@ -1,8 +1,16 @@
 ---
-description: ob decisions — Dan's personal cross-project decisions that apply to all of his work, regardless of trait or domain.
+description: LEGACY — split into R-ob-state-mgt.md and R-ob-observability.md 2026-06-08 as part of the rules-vs-decisions vocabulary split. Content below preserved for the markdown / commit-discipline / em-dash rules (kmr-flavored, not yet split into rule sets). For the structured Ob rule sets, see [[R-ob-state-mgt]] and [[R-ob-observability]].
 applies-when: every project Dan owns (cross-cutting, not trait-scoped).
 set-id: OB
 ---
+
+> [!warning] Legacy file
+> This file's content is being progressively split into individual rule sets under `Rule Sets/Ob/` per [[F132 — Rules Migration]]. Already split:
+> - [[R-ob-state-mgt]] — was the data-singleton + no-hardcoded rules.
+> - [[R-ob-observability]] — was the no-silent-fallbacks + OS-bridge-logging rules.
+>
+> Still in this file: the markdown-validity / kmr-commit-discipline / em-dash-policy rules. They'll move into their own `R-ob-*` rule sets in a follow-on pass.
+
 
 # Ob/ob — Dan's personal cross-project decisions
 
