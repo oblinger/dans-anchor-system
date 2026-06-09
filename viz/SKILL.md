@@ -21,10 +21,12 @@ Trade-off discussions (round-trip experiments, design questions): [[SKA viz disc
 
 | Action | What it does | Output | Trigger phrases |
 |---|---|---|---|
-| `/viz excalidraw` | Create / update / export Excalidraw diagrams. Hand-drawn aesthetic, ideal for architecture diagrams, flow charts, system mockups. | `.excalidraw` source + `.svg` / `.png` export | "draw", "diagram", "mockup", "excalidraw", "export to svg", "paste into Google Slides" |
+| `/viz svg` | **Hand-written SVG via the Write tool — default for architecture diagrams and any figure where the agent wants full visual control.** SVG is just XML; the agent authors it directly. The `.svg` file IS the editable source (no companion file needed). Full control over color, font, layout, geometry. | `.svg` source (editable XML) · optional `.png` via `rsvg-convert` | "svg", "hand-write an svg", "architecture diagram", "boxes and arrows with my own look" |
+| `/viz excalidraw` | Create / update / export Excalidraw diagrams. Hand-drawn aesthetic. The `.excalidraw` source lives next to the export, editable in ExcalidrawZ. | `.excalidraw` source + `.svg` / `.png` export | "draw", "sketchy", "excalidraw", "freeform", "paste into Google Slides" |
+| `/viz d2` | D2's specific opinionated look — text → boxes-and-arrows with ELK auto-routing. **Use only when the user asks for D2 specifically**; the D2 aesthetic is distinctive and not a universal default. | `.d2` source + `.svg` | "d2", "elk auto-layout", "D2-style", "ELK-routed" |
 | `/viz matplot` | Generate matplotlib charts via `vizcharts.py` (10 chart types: timeline, multi-line, quadrant, scatter, rankings, comparison, stacked bar, donut, waterfall, hex shot). Tufte-grade static output. | `.png` (raster) · `.pdf` (vector) | "chart this", "plot the data", "timeline chart", "bar chart", "quadrant", "waterfall" |
 | `/viz mermaid` | Mermaid diagrams from text (flow / sequence / gantt / class / state / ER). Renders natively in GitHub / GitLab / Notion / VS Code preview when embedded as a source block. | `.png` · `.pdf` · `.svg` · or markdown source block | "mermaid", "flow chart", "sequence diagram", "gantt", "state machine", "ER diagram" |
-| `/viz dot` | Graphviz DOT — box/arrow graphs, system diagrams, decision trees, org charts, dependency graphs. Stronger layout engine than Mermaid for complex graphs. | `.png` · `.pdf` · `.svg` | "graphviz", "dot diagram", "system diagram", "org chart", "dependency graph", "decision tree" |
+| `/viz dot` | Graphviz DOT — box/arrow graphs, decision trees, org charts, dependency graphs. Stronger layout engine than Mermaid for complex graphs. | `.png` · `.pdf` · `.svg` | "graphviz", "dot diagram", "org chart", "dependency graph", "decision tree" |
 | `/viz pptx` (aliases: `/viz ppt`, `/viz powerpoint`) | python-pptx for highly-custom slide-shaped layouts. Fallback when neither Mermaid nor Graphviz expresses the figure cleanly — annotated visualizations, multi-element compositions, mockups. | `.pptx` (editable) · `.png` / `.pdf` via LibreOffice | "custom slide", "annotated layout", "multi-element composition", "mockup with text and image", "powerpoint", "ppt" |
 | `/viz docx` | Convert a markdown file to editable `.docx` via pandoc + reference template. Use when you want to polish in Word/Pages before final delivery (export PDF yourself when satisfied). | `.docx` (editable) | "md to docx", "convert markdown to word", "Word doc from this markdown", "polish in Word", "make a docx" |
 | `/viz pdf` | Convert a markdown file directly to PDF via pandoc + tectonic. Use for quick share, automated pipeline, or when default typography is fine. | `.pdf` | "md to pdf", "convert markdown to pdf", "quick pdf of this", "render this doc to pdf", "export to pdf" |
@@ -34,7 +36,9 @@ Trade-off discussions (round-trip experiments, design questions): [[SKA viz disc
 
 | Usage | File | Description |
 |-------|------|-------------|
+| `/viz svg`        | [[viz-svg]]        | Hand-written SVG via Write — default for architecture diagrams |
 | `/viz excalidraw` | [[viz-excalidraw]] | Create, update, and export Excalidraw diagrams |
+| `/viz d2`         | [[viz-d2]]         | D2 system diagrams via ELK; use when user asks for D2 specifically |
 | `/viz matplot`    | [[viz-matplot]]    | Generate matplotlib charts via vizcharts.py |
 | `/viz mermaid`    | [[viz-mermaid]]    | Render Mermaid diagrams via mmdc |
 | `/viz dot`        | [[viz-dot]]        | Render Graphviz DOT diagrams |
@@ -66,7 +70,8 @@ The user usually says the tool. When they don't, walk this list top-down — **t
 
 **Shape-driven rules (when no interaction-model constraint is stated):**
 
-- "draw" / "diagram" / "mockup" / "architecture" / "sketchy" → `/viz excalidraw`.
+- "architecture diagram" / "system diagram" / "boxes and arrows" → `/viz svg` (default — hand-written, full control of look). `/viz d2` only when the user names it.
+- "draw" / "mockup" / "sketchy" / "freeform" → `/viz excalidraw`.
 - "flow chart" / "sequence diagram" / "gantt" / "state machine" / "ER diagram" → `/viz mermaid`.
 - "org chart" / "dependency graph" / "decision tree" / "complex graph" (≥30 nodes) → `/viz dot` (Graphviz layout beats Mermaid here).
 - "custom slide" / "annotated layout" / "multi-element composition" (none of the above fit) → `/viz pptx`.
@@ -103,6 +108,7 @@ Every action supports a primary output format and one or more secondary formats.
 
 | Tool | Primary | Vector option | Notes |
 |---|---|---|---|
+| `svg` | `.svg` (hand-written XML — IS the source) | `.png` via `rsvg-convert` | No companion source file; edit the SVG directly. Full control of color/font/layout. |
 | `excalidraw` | `.excalidraw` source + `.svg` | `.svg` (native) · `.png` | Source is editable in Excalidraw web; SVG is small and infinitely scalable |
 | `matplot` | `.png` | `.pdf` (vector) | `--pdf` flag for vector-quality embedding in print/PDF deliverables |
 | `mermaid` | `.png` (1600×900 slide-grade) | `.pdf` · `.svg` · markdown source block | For markdown deliverables on GitHub/Notion/VS Code, prefer source-block embedding over PNG |
