@@ -8,7 +8,7 @@ description: Catalog of rule sets. See [[Rule Sets Brief]] for editing conventio
 | --- | --- |
 | Related | [[Rule Sets Brief\|Brief]],  [[CAB Rules]],  [[CAB Decisions]],   |
 | **CAB-aligned umbrellas** | The three primary structural axes — rule sets tied to CAB Facets, Traits, Skills. Adopting an umbrella pulls every per-X rule set under it. |
-| [[R-facet]] | Per-facet rule sets — embed in `CAB Facets/<Facet>.md` specs as `# RULESET R-<facet>` blocks. Empty `includes::` for now; populates as each facet's RULESET block lands. |
+| [[R-facet]] | Per-facet rule sets — embed in `CAB Facets/<Facet>.md` specs as `# RULESET R-<facet>` blocks. First materialized child: [[CAB Testing#RULESET R-testing\|R-testing]] (9 rules, 2026-06-10). Remaining 40 facets to populate via dedicated sweep. |
 | [[R-trait]] | Per-trait rule sets — to embed in `CAB Traits/<Trait>.md` specs. Children: [[R-paper]], [[R-simple]], [[R-skill-anchor]], [[R-topic]]. |
 | [[R-skill]] | Per-skill rule sets — to embed in `~/.claude/skills/<skill>/SKILL.md` specs. First candidates: R-ask, R-feature, R-atlas. |
 | **Cross-cutting** | Not tied to a specific facet, trait, or skill. Pulled in when explicitly opted into. |
@@ -26,7 +26,7 @@ description: Catalog of rule sets. See [[Rule Sets Brief]] for editing conventio
 
 ## Status
 
-**Phase 3 scaffolding.** Materialized: [[R-code]] (containing [[R-mac]]); [[R-doc]] (containing [[R-md]]); [[R-diagram]] (umbrella over 7 methodology sub-sets, 22 rules total — factored 2026-06-09 per F132 Phase 1); [[R-ob]] (containing 3 sub-sets, 18 rules total). CAB-aligned umbrellas [[R-facet]] / [[R-trait]] / [[R-skill]] are structural placeholders awaiting embedded-RULESET-block population in their respective CAB spec files. Trait-scoped children ([[R-paper]] / [[R-simple]] / [[R-skill-anchor]] / [[R-topic]]) are placeholders pending migration into `CAB Traits/<Trait>.md` specs.
+**Phase 3 scaffolding.** Materialized: [[R-code]] (containing [[R-mac]]); [[R-doc]] (containing [[R-md]]); [[R-diagram]] (umbrella over 7 methodology sub-sets, 22 rules total — factored 2026-06-09 per F132 Phase 1); [[R-ob]] (containing 3 sub-sets, 18 rules total); [[R-facet]] now non-empty — first materialized child [[CAB Testing#RULESET R-testing\|R-testing]] (9 rules, 2026-06-10). CAB-aligned umbrellas [[R-trait]] / [[R-skill]] remain structural placeholders awaiting embedded-RULESET-block population in their respective CAB spec files. Trait-scoped children ([[R-paper]] / [[R-simple]] / [[R-skill-anchor]] / [[R-topic]]) are placeholders pending migration into `CAB Traits/<Trait>.md` specs.
 
 ## Research
 

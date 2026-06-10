@@ -1,11 +1,14 @@
 # RULESET R-facet
-description:: Umbrella rule set aggregating the per-facet rule sets that live inside CAB facet spec files (CAB Backlog → R-backlog, CAB Decisions → R-decisions, CAB Rules → R-rules, etc.). An anchor that adopts R-facet commits to following every CAB facet's structural rules.
-includes::
+include:: [[CAB Testing#RULESET R-testing\|R-testing]]
+description:: Umbrella rule set aggregating the per-facet rule sets embedded in CAB facet spec files.
 
-> [!info] How this set is wired
-> Per the 2026-06-09 design decision, each CAB facet spec file (`CAB <facet>.md`) contains a `# RULESET R-<facet>` second-H1 block with the facet's structural rules — co-located with the prose that explains the facet. This file is the catalog-side umbrella that walks all those embedded rule sets via `includes::` so adopters get a single name to pull.
->
-> The `includes::` line is empty for now — the embedded rule sets don't yet exist in the CAB facet files. As each facet's RULESET block lands (starting with [[CAB Rules]] as the first worked example), its name is appended to `includes::` above.
+Per the 2026-06-09 design decision, each CAB facet spec file (`CAB <facet>.md`) contains a `# RULESET R-<facet>` second-H1 block with the facet's structural rules — co-located with the prose that explains the facet. This file is the catalog-side umbrella that walks all those embedded rule sets via `include::` so adopters get a single name to pull. An anchor that adopts R-facet commits to following every materialized CAB facet's structural rules.
+
+**Materialization progress.** The `include::` line above grows as each facet's RULESET block lands. Currently:
+
+- **R-testing** ([[CAB Testing]]) — first worked example, landed 2026-06-10. 9 rules covering facet doc shape (file name, Strategy + Proposed Tests sections, kind-target symmetry, three-altitude split, status field, Tier Mapping cites [[verification]]).
+
+Pending — each lands as its CAB facet's RULESET block is drafted: R-prd, R-architecture, R-ux, R-decisions, R-rules, R-roadmap, R-features, R-backlog, R-cli, R-api-doc, … (40 CAB facets total; rollout deferred to a dedicated sweep, tracked separately).
 
 ## Adoption
 
