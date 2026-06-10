@@ -9,7 +9,7 @@ Orchestrate the architecture phase — from system design to implementation-read
 | 1 | System Design | [[code-system-design]] | Architecture doc: components, APIs, data models |
 | 2 | Modules | [[code-modules]] | Files doc + per-module docs with interfaces |
 | 3 | Test Plan | [[code-test-plan]] | Test design: areas, scaffolds, categories |
-| 4 | Roadmap | [[plan-roadmap]] | Ordered milestones with acceptance criteria |
+| 4 | Roadmap | [[design-roadmap]] | Ordered milestones with acceptance criteria |
 | 5 | Audit | [[code-arch-audit]] | Completeness check before implementation |
 
 ## Consistency Checks
