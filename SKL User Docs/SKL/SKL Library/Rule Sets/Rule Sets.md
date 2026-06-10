@@ -8,7 +8,7 @@ description: Catalog of rule sets. See [[Rule Sets Brief]] for editing conventio
 | --- | --- |
 | Related | [[Rule Sets Brief\|Brief]],  [[CAB Rules]],  [[CAB Decisions]],   |
 | **CAB-aligned umbrellas** | The three primary structural axes — rule sets tied to CAB Facets, Traits, Skills. Adopting an umbrella pulls every per-X rule set under it. |
-| [[R-facet]] | Per-facet rule sets — embed in `CAB Facets/<Facet>.md` specs as `# RULESET R-<facet>` blocks. First materialized child: [[CAB Testing#RULESET R-testing\|R-testing]] (9 rules, 2026-06-10). Remaining 40 facets to populate via dedicated sweep. |
+| [[R-facet]] | Per-facet rule sets. Each child is a thin catalog stub pointing at a `# RULESET R-<facet>` block embedded in its `CAB Facets/<Facet>.md` spec. Children: [[R-testing]] (9 rules, 2026-06-10). Remaining 40 facets to populate via dedicated sweep. |
 | [[R-trait]] | Per-trait rule sets — to embed in `CAB Traits/<Trait>.md` specs. Children: [[R-paper]], [[R-simple]], [[R-skill-anchor]], [[R-topic]]. |
 | [[R-skill]] | Per-skill rule sets — to embed in `~/.claude/skills/<skill>/SKILL.md` specs. First candidates: R-ask, R-feature, R-atlas. |
 | **Cross-cutting** | Not tied to a specific facet, trait, or skill. Pulled in when explicitly opted into. |
