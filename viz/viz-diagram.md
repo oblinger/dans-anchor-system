@@ -46,7 +46,38 @@ Default when no SVG path is in the argument.
 3. **Reuse the viz-svg template** (`[[viz-svg]]` § SVG template) for the boilerplate: `<defs>` arrowhead marker, role-coded box palette, italic-blue arrow labels. The template already satisfies several R-c4 / R-svg-hygiene rules.
 4. **Output location** — same convention as [[viz-svg]]: SVG lives next to the embedding markdown as `{Name}/{Name}.svg`. Default to `~/ob/data/MyDesk/{slug}-{YYYY-MM-DD-HHMM}.svg` when no embedding context exists.
 5. **Self-audit** — run the cleanup mode's audit (below) against the new SVG before reporting done. Fix any violations.
-6. **Report** — confirm rule conformance: "Diagram written at `<path>`. 22/22 rules check; no violations." If any soft-fail rule was deliberately relaxed (e.g., chartjunk budget for an exception case), name it.
+6. **Glance the figure in its rendering context** — see § Glance in context below. The bare `.svg` / `.png` preview is NOT the right surface to show the user.
+7. **Report** — confirm rule conformance: "Diagram written at `<path>`. 22/22 rules check; no violations." If any soft-fail rule was deliberately relaxed (e.g., chartjunk budget for an exception case), name it.
+
+## Glance in context, not preview
+
+**Never glance the bare `.svg` or `.png`.** macOS Preview / Quick Look show the figure at full file size, with no surrounding text, no Obsidian rendering, no actual width constraint. That's the wrong feedback channel — the user can't see whether the figure is the right size relative to its container, whether the surrounding markdown reads well, whether captions overlap, or whether the figure feels too dense / too sparse for where it lives. **The glance has to land the user in the same view they'll see in normal use.**
+
+The procedure:
+
+1. **Identify the embedding markdown file.**
+   - If you authored the SVG specifically to embed in a known doc (the user named `skills.md`, the doc is the result of `/design architect`, etc.) — that's the embedding file.
+   - If the SVG has no embedding doc yet (one-off figure, demo, sandbox), **create a scratch embedding file** under `~/ob/kmr/Topic/Misc/Test/` named `{YYYY-MM-DD} — {slug}.md` (the smoke-tests-in-vault convention). Body is one H1, an embed line, and a 1-sentence caption.
+   - If the embedding doc lives outside the vault (a code repo, `/tmp`, etc.) — fall back to a scratch file as above; do NOT glance the bare SVG.
+2. **Confirm the SVG is embedded.** Read the embedding doc; verify the `![[file.svg]]` (Obsidian) or `![](file.svg)` line is present with a usable wiki-link / relative path. Add it if missing.
+3. **`open` the embedding doc** — never the SVG/PNG.
+   ```bash
+   open "<absolute path to embedding markdown>"
+   ```
+   For a doc already in Obsidian's vault, Obsidian opens and shows the figure rendered at the doc's actual width with its real surrounding context.
+
+**Scratch-file template** (when no embedding doc exists):
+```markdown
+# {Figure title}
+
+![[{slug}.svg]]
+
+*{One-line caption.}*
+```
+
+Why this matters: a figure that looks fine standalone may be **too tall** for the user's normal viewport, **too detailed** to read at the rendered width, or **competing with surrounding content** the user didn't anticipate. Glancing in context surfaces those mismatches in the same turn the figure was written; glancing the bare file hides them until the user discovers the problem later.
+
+This applies to BOTH modes — create AND cleanup. After a cleanup pass, glance the embedding doc so the user sees the fixed version where it lives, not as a standalone image.
 
 ## Cleanup mode
 
