@@ -31,8 +31,9 @@ The skill walks these phases in this exact order. Each phase has a primary artif
 | 3 | API *(if applicable)* | `/design api` | `{NAME} Design/{NAME} API.md` | — |
 | 4 | Architecture | `/design architect` | `{NAME} Design/{NAME} Architecture.md` | **Gate 1** — `status:: accepted` on Architecture |
 | 5 | Testing | `/design testing` | `{NAME} Design/{NAME} Testing.md` | **Gate 2** — `status:: accepted` on BOTH Architecture AND Testing |
-| 6 | Roadmap + feature docs | `/design roadmap` | `{NAME} Track/{NAME} Roadmap.md` + per-milestone `Features/M*.md` | — |
-| 7 | Design complete | — | — | Transition to Drive (`/crank`) |
+| 6 | Roadmap | `/design roadmap` | `{NAME} Design/{NAME} Roadmap.md` (moved from Track 2026-06-10) | — |
+| 7 | Features | `/design features` | `{NAME} Design/{NAME} Features/` (folder; one `F<NNN> — <Title>.md` per feature, moved from Track 2026-06-10) | — |
+| 8 | Design complete | — | — | Transition to Drive (`/crank`) |
 
 **Gate semantics:** Gate 1 protects entry to Testing authoring. Gate 2 protects entry to Roadmapping. A gate is "passed" when the relevant artifact's top-of-file `status::` dataview field reads `accepted`. The user sets the field by saying "the architecture is accepted" / "the testing is accepted" (the agent watches for that phrase and updates the field) or by editing directly. Gates are sticky: once `accepted`, no re-prompt.
 
