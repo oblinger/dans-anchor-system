@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 560" width="900" height="560"
+     style="background:white" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrowhead" viewBox="0 0 10 10" refX="9" refY="5"
+            markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <polygon points="0,0 10,5 0,10" fill="#1e1e1e"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text id="title" x="450" y="40" font-size="22" font-weight="600" text-anchor="middle"
+        fill="#1e1e1e">Skills, Facets, Disciplines — the three peer kinds</text>
+
+  <!-- Skills box (top-center, blue) -->
+  <rect id="skills-box" x="340" y="80" width="220" height="140" rx="10"
+        fill="#bac8ff" stroke="#1e1e1e" stroke-width="2"/>
+  <text id="skills-title" x="450" y="118" font-size="22" font-weight="600" text-anchor="middle"
+        fill="#1e1e1e">Skills</text>
+  <text id="skills-desc" x="450" y="148" font-size="13" text-anchor="middle"
+        fill="#1e1e1e">Verbs the user invokes.</text>
+  <text id="skills-examples" x="450" y="190" font-size="12" font-style="italic" text-anchor="middle"
+        fill="#1e1e1e">/design · /feature · /viz · /crank</text>
+
+  <!-- Disciplines box (bottom-left, yellow) -->
+  <rect id="disciplines-box" x="80" y="340" width="220" height="140" rx="10"
+        fill="#fff9db" stroke="#1e1e1e" stroke-width="2"/>
+  <text id="disciplines-title" x="190" y="378" font-size="22" font-weight="600" text-anchor="middle"
+        fill="#1e1e1e">Disciplines</text>
+  <text id="disciplines-desc-1" x="190" y="408" font-size="13" text-anchor="middle"
+        fill="#1e1e1e">Cross-cutting rules cited</text>
+  <text id="disciplines-desc-2" x="190" y="424" font-size="13" text-anchor="middle"
+        fill="#1e1e1e">from many places.</text>
+  <text id="disciplines-examples" x="190" y="460" font-size="12" font-style="italic" text-anchor="middle"
+        fill="#1e1e1e">markdown · ask-format · workflow</text>
+
+  <!-- Facets box (bottom-right, green) -->
+  <rect id="facets-box" x="600" y="340" width="220" height="140" rx="10"
+        fill="#ebfbee" stroke="#1e1e1e" stroke-width="2"/>
+  <text id="facets-title" x="710" y="378" font-size="22" font-weight="600" text-anchor="middle"
+        fill="#1e1e1e">Facets</text>
+  <text id="facets-desc-1" x="710" y="408" font-size="13" text-anchor="middle"
+        fill="#1e1e1e">Content specs for docs</text>
+  <text id="facets-desc-2" x="710" y="424" font-size="13" text-anchor="middle"
+        fill="#1e1e1e">in an anchor.</text>
+  <text id="facets-examples" x="710" y="460" font-size="12" font-style="italic" text-anchor="middle"
+        fill="#1e1e1e">PRD · Architecture · Backlog</text>
+
+  <!-- Arrow: Skills → Facets (produces) -->
+  <line id="arrow-skills-facets" x1="540" y1="220" x2="610" y2="340"
+        stroke="#1e1e1e" stroke-width="3" marker-end="url(#arrowhead)"/>
+  <text id="label-produces" x="617" y="282" font-size="14" font-style="italic" text-anchor="middle"
+        fill="#1971c2">produces</text>
+
+  <!-- Arrow: Disciplines → Skills (rules for) -->
+  <line id="arrow-disciplines-skills" x1="290" y1="340" x2="360" y2="220"
+        stroke="#1e1e1e" stroke-width="3" marker-end="url(#arrowhead)"/>
+  <text id="label-rules-for-skills" x="265" y="282" font-size="14" font-style="italic" text-anchor="middle"
+        fill="#1971c2">rules for</text>
+
+  <!-- Arrow: Disciplines → Facets (rules for) -->
+  <line id="arrow-disciplines-facets" x1="300" y1="410" x2="600" y2="410"
+        stroke="#1e1e1e" stroke-width="3" marker-end="url(#arrowhead)"/>
+  <text id="label-rules-for-facets" x="450" y="400" font-size="14" font-style="italic" text-anchor="middle"
+        fill="#1971c2">rules for</text>
+
+  <!-- Caption -->
+  <text id="caption" x="450" y="530" font-size="14" font-style="italic" text-anchor="middle"
+        fill="#1e1e1e">Skills are verbs. Facets are content specs. Disciplines are rules. Skills produce facet-shaped docs; both follow disciplines.</text>
+</svg>
