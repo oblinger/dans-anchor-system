@@ -9,7 +9,7 @@ description: >
   orchestrator at the center of the Design cluster. Use when the user says: "let's design this",
   "design", "/design", "what's the design state of this anchor", "/design prd", "/design architect",
   "/design testing", "/design roadmap", or asks where in the design sequence the project is.
-  Initially supports Code-trait anchors only; generalization to Paper/Topic/Simple traits is Phase 2.
+  Gate is folder-presence per [[CAB Design]] — `{NAME} Design/` exists → operate; absent → offer to scaffold. Code-trait check retired 2026-06-10. Initially supports anchors with code-shaped artifacts; broader applicability (Paper / Topic / Simple) covered as those traits land.
 tools: Read, Write, Edit, Bash, Glob, Grep, Agent
 user_invocable: true
 ---
@@ -78,7 +78,7 @@ If a declared `Status.md` cell disagrees with inferred state on the artifact bod
 
 ## Runbook — bare `/design`
 
-1. **Detect anchor + trait.** Walk up to nearest `.anchor` file; read `traits:` list. If `Code` is not present, print: *"design v1 supports Code-trait anchors only — generalization is Phase 2."* and stop.
+1. **Detect anchor + Design facet.** Walk up to nearest `.anchor` file. Check whether `{anchor}/{NAME} Design/` exists. **If absent**, offer to scaffold per [[CAB Design]] § Scaffolding (creates folder + .anchor + Design.md dispatch + PRD/Architecture/Testing/Decisions with required-section spines + initializes Status.md). On user confirmation, scaffold and proceed; on decline, stop with one-line explanation. **If present**, proceed to § 2. The Code trait field in `.anchor` is NOT consulted (deprecated as the gate 2026-06-10; F140 sweeps it from anchors that now have Design folders).
 2. **Read design status.** Run `state --anchor {NAME} status show` to get the per-facet cell map. If `{NAME} Status.md` is absent the script auto-creates it with all facets at `none`.
 3. **Build gap table.** Render the status one line per facet:
    ```
@@ -142,7 +142,7 @@ After updating, glance the affected file so the user can verify the field landed
 
 - **Implementation work** — that's `/mint` / `/crank` / `/code <verb>`.
 - **Single-feature design** — that's `/feature` (which inherits from the design artifacts).
-- **Non-Code anchors** — Phase 2; v1 only supports Code-trait.
+- **Anchors without a Design folder** — `/design` offers to scaffold one; if you don't want a designed lifecycle, decline and use other workflows (e.g., bare `/mint` for one-off scripts, anchor-page edits for static content).
 - **Anchor creation itself** — `/code anchor` (not migrated; structural, not design).
 
 ## Related

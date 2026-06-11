@@ -31,7 +31,7 @@ Audit rules to honor: [[CAB Testing#RULESET R-testing|R-testing]] (9 rules).
 
 ### 1. Detect anchor + existing file
 
-- Walk up from `cwd` to nearest `.anchor`. Read `traits:` — v1 supports `Code` trait.
+- Walk up from `cwd` to nearest `.anchor`. Assume `{NAME} Design/` exists (the gate per [[CAB Design]]; `/design` orchestrator handles scaffolding before dispatch to this sub-skill).
 - Check whether `{NAME} Design/{NAME} Testing.md` exists.
 - **Legacy detection:** if `{NAME} Design/{NAME} Testing Strategy.md` exists instead (legacy plan-testing scaffold), surface it: *"Found legacy `{NAME} Testing Strategy.md` — migrating to `{NAME} Testing.md` per [[CAB Testing]]."* Read it as input for § 3.
 
@@ -47,7 +47,7 @@ When no `{NAME} Testing.md` exists yet, draft both halves by combining three sig
 
 1. **Read `{NAME} PRD.md`.** Extract user stories. For each story, propose an e2e row in § Proposed Tests § End-to-end.
 2. **Read `{NAME} Architecture.md`.** Extract subsystems and integration boundaries. For each boundary, propose an integration-test row in § Proposed Tests § Integration. Identify load-bearing pure-logic units (queue invariants, retry schedules, parsing). Propose property-based-test rows when the invariant is universally-quantifiable.
-3. **Apply Code-trait default template.** For Code anchors, baseline includes unit tests for all public surfaces of every subsystem (one row per `<subsystem>` × <golden-path test>), a CI pipeline, and standard tooling for the project's language. Use the canonical file shape above as the scaffold.
+3. **Apply default template for code-shaped projects.** When the anchor produces code, baseline includes unit tests for all public surfaces of every subsystem (one row per `<subsystem>` × <golden-path test>), a CI pipeline, and standard tooling for the project's language. Use the canonical file shape above as the scaffold. (For non-code-shaped designed anchors, adapt the kinds to match the artifact — e.g., review-rubrics for written content, smoke checks for methodology.)
 
 Compose the three signals into a draft `{NAME} Testing.md`. Set `status:: drafting` in the frontmatter. Use deliberate `[bare brackets]` for Spec columns where the destination module doc doesn't yet exist — these mark intentional roadmap.
 
@@ -88,7 +88,7 @@ The agent does NOT proactively invoke roadmapping; the user invokes `/design` ag
 - **Don't write actual test code here.** That's Drive (`/mint`, `/code test`). This file is the design-altitude inventory.
 - **Don't inline low-level test specs into the Spec column.** Spec is a link or a bracket, never prose. (R-testing-07.)
 - **Don't author the legacy `{NAME} Testing Strategy.md`.** The facet name is `{NAME} Testing.md`; the legacy 5-H2 strategy-only shape is superseded. (R-testing-01.)
-- **Don't ask "should we test this?"** — Code-trait default says yes, test it. Use Lean recommendations per F068 for granular decisions.
+- **Don't ask "should we test this?"** — designed-lifecycle default says yes, test it. Use Lean recommendations per F068 for granular decisions.
 - **Don't declare a kind in Strategy without proposing tests of that kind.** (R-testing-04, R-testing-05.)
 - **Don't gate by separate ceremony.** `status:: accepted` on this file IS the gate. No separate registry, no Verify row, no parallel state.
 

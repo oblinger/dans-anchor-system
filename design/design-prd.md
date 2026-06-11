@@ -19,7 +19,7 @@ The mode is detected, not invoked — `/design prd` does the right thing based o
 
 ### 1. Locate the PRD
 
-1. Walk up from `cwd` to nearest `.anchor`; read `traits:`. v1 supports `Code` trait.
+1. Walk up from `cwd` to nearest `.anchor`. Check whether `{anchor}/{NAME} Design/` exists (the gate per [[CAB Design]]). If absent, `/design` (the orchestrator) will have already offered to scaffold — this sub-skill assumes the folder exists when invoked.
 2. Look for the PRD at, in priority order:
    - `{anchor}/{NAME} Design/{NAME} PRD/{NAME} PRD.md` (folder form per [[CAB Stories]])
    - `{anchor}/{NAME} Design/{NAME} PRD.md` (single-file form)
