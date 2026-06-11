@@ -81,8 +81,26 @@ def resolve_anchor(anchor_arg):
     )
 
 
+_ANCHOR_SLUG_RE = re.compile(r"^slug:\s*(\S+)\s*$")
+
+
 def _slug_from_anchor_path(anchor_path):
-    """Derive slug from anchor folder name."""
+    """Derive slug from the `.anchor` file's `slug:` line.
+
+    The `.anchor` file is YAML-shaped; the first `slug:` line carries the
+    canonical slug (e.g. `SKA`), which differs from the folder name
+    (`Skill Agent`) for most anchors. Falls back to the folder name only
+    when `.anchor` is missing or carries no `slug:` line.
+    """
+    anchor_file = anchor_path / ".anchor"
+    if anchor_file.is_file():
+        try:
+            for line in anchor_file.read_text(encoding="utf-8").splitlines():
+                m = _ANCHOR_SLUG_RE.match(line)
+                if m:
+                    return m.group(1)
+        except OSError:
+            pass
     return anchor_path.name
 
 

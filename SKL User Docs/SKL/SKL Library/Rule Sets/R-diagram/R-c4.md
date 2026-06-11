@@ -8,7 +8,7 @@ Factored from [[R-diagram]] 2026-06-09.
 
 ### R-c4-01 — Every arrow carries a label (sampled)
 
-Every `<line>`/`<path>` with `marker-end` (i.e., an arrow indicating a directed relationship) has a `<text>` element associated with it via proximity (see [[R-pcb-drc-structural-05]]), or is in the umbrella set's explicit "unlabeled-arrow allowed" exception list.
+Every `<line>`/`<path>` with `marker-end` (i.e., an arrow indicating a directed relationship) has a `<text>` element associated with it via proximity (see [[R-diagram-geometry-05]]), or is in the umbrella set's explicit "unlabeled-arrow allowed" exception list.
 
 **Check pattern:** enumerate arrows; for each, search for an associated text within label-proximity radius. Fail when no associated text is found and no exception is declared.
 

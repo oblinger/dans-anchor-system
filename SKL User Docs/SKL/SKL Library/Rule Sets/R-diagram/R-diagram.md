@@ -1,5 +1,5 @@
 # RULESET R-diagram
-include:: [[R-pcb-drc-structural]], [[R-sugiyama]], [[R-c4]], [[R-wcag-contrast]], [[R-bringhurst-typography]], [[R-tufte-data-ink]], [[R-svg-hygiene]]
+include:: [[R-diagram-geometry]], [[R-sugiyama]], [[R-c4]], [[R-wcag-contrast]], [[R-bringhurst-typography]], [[R-tufte-data-ink]], [[R-svg-hygiene]]
 description:: Umbrella for hand-authored figure validation; composes 7 methodology sub-sets.
 
 Hand-authored figures (architecture, flow, sequence, mockup diagrams) ship clean under a PCB-DRC-style discipline: the diagram doesn't ship until rule-checker emits zero errors. Adopting R-diagram pulls all 22 rules via the sub-sets composed in `include::` above; cherry-pick an individual sub-set for finer control.
@@ -14,7 +14,7 @@ Factored 2026-06-09 from a monolithic 22-rule R-diagram set, per F132 Phase 1.
 
 | Sub-set | Rules | Provenance |
 | --- | --- | --- |
-| [[R-pcb-drc-structural]] | 6 | Eichelberger UML-readability + Sourcetrail review + Imhof cartographic labeling |
+| [[R-diagram-geometry]] | 6 | Eichelberger UML-readability + Sourcetrail review + Imhof cartographic labeling |
 | [[R-sugiyama]] | 4 | Purchase 1997/2002 + Sugiyama layered drawing + Gestalt alignment |
 | [[R-c4]] | 4 | C4 model § Conventions + Bertin *Sémiologie graphique* |
 | [[R-wcag-contrast]] | 2 | WCAG 2.1 AA |
@@ -29,12 +29,12 @@ References to the legacy monolithic numbering can be looked up here. Each rule w
 
 | Legacy | Factored | Body |
 | --- | --- | --- |
-| R-diagram-01 | [[R-pcb-drc-structural#R-pcb-drc-structural-01 — No box-on-box overlap (checked)\|R-pcb-drc-structural-01]] | No box-on-box overlap |
-| R-diagram-02 | [[R-pcb-drc-structural#R-pcb-drc-structural-02 — Edge endpoints anchor to box edges (checked)\|R-pcb-drc-structural-02]] | Edge endpoints anchor to box edges |
-| R-diagram-03 | [[R-pcb-drc-structural#R-pcb-drc-structural-03 — No edge tunneling through unrelated boxes (checked)\|R-pcb-drc-structural-03]] | No edge tunneling through unrelated boxes |
-| R-diagram-04 | [[R-pcb-drc-structural#R-pcb-drc-structural-04 — Text fits inside its container (checked)\|R-pcb-drc-structural-04]] | Text fits inside its container |
-| R-diagram-05 | [[R-pcb-drc-structural#R-pcb-drc-structural-05 — Labels are associated with what they label (sampled)\|R-pcb-drc-structural-05]] | Labels are associated with what they label |
-| R-diagram-06 | [[R-pcb-drc-structural#R-pcb-drc-structural-06 — No label-label collision (checked)\|R-pcb-drc-structural-06]] | No label-label collision |
+| R-diagram-01 | [[R-diagram-geometry#R-diagram-geometry-01 — No box-on-box overlap (checked)\|R-diagram-geometry-01]] | No box-on-box overlap |
+| R-diagram-02 | [[R-diagram-geometry#R-diagram-geometry-02 — Edge endpoints anchor to box edges (checked)\|R-diagram-geometry-02]] | Edge endpoints anchor to box edges |
+| R-diagram-03 | [[R-diagram-geometry#R-diagram-geometry-03 — No edge tunneling through unrelated boxes (checked)\|R-diagram-geometry-03]] | No edge tunneling through unrelated boxes |
+| R-diagram-04 | [[R-diagram-geometry#R-diagram-geometry-04 — Text fits inside its container (checked)\|R-diagram-geometry-04]] | Text fits inside its container |
+| R-diagram-05 | [[R-diagram-geometry#R-diagram-geometry-05 — Labels are associated with what they label (sampled)\|R-diagram-geometry-05]] | Labels are associated with what they label |
+| R-diagram-06 | [[R-diagram-geometry#R-diagram-geometry-06 — No label-label collision (checked)\|R-diagram-geometry-06]] | No label-label collision |
 | R-diagram-07 | [[R-c4#R-c4-01 — Every arrow carries a label (sampled)\|R-c4-01]] | Every arrow carries a label |
 | R-diagram-08 | [[R-sugiyama#R-sugiyama-01 — Minimize edge crossings (sampled)\|R-sugiyama-01]] | Minimize edge crossings |
 | R-diagram-09 | [[R-sugiyama#R-sugiyama-02 — Bend budget (≤2 bends per edge, soft) (sampled)\|R-sugiyama-02]] | Bend budget |

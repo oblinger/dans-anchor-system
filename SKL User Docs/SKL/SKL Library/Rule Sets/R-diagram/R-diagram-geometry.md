@@ -1,12 +1,12 @@
-# RULESET R-pcb-drc-structural
-description:: Hard-fail structural correctness for hand-authored diagrams; PCB-DRC analog.
+# RULESET R-diagram-geometry
+description:: Hard-fail geometric correctness for hand-authored diagrams — overlap, floating endpoints, tunneling, text overflow, label-association ambiguity, label-label collision. Inspired by the PCB Design Rule Check (DRC) discipline from circuit-board layout: a violation means *broken*, not stylistically off.
 include::
 
-A diagram that violates these is broken, not stylistically suboptimal — overlap, floating endpoints, tunneling, text overflow, label-association ambiguity, label-label collision. Sources: Eichelberger UML-readability study, Sourcetrail review criteria, Imhof cartographic labeling.
+A diagram that violates these is broken, not stylistically suboptimal. Sources: Eichelberger UML-readability study, Sourcetrail review criteria, Imhof cartographic labeling. Renamed from `R-pcb-drc-structural` 2026-06-10 — the original name preserved the lineage (PCB-DRC analog) but obscured the subject; the new name names the subject (diagram geometry) and keeps the lineage in the description.
 
 Factored from [[R-diagram]] 2026-06-09.
 
-### R-pcb-drc-structural-01 — No box-on-box overlap (checked)
+### R-diagram-geometry-01 — No box-on-box overlap (checked)
 
 No two opaque container elements (`<rect>`, `<ellipse>`, `<polygon>` acting as boxes) have intersecting bounding boxes, except when one is a strict parent container of the other (containment is allowed; overlap is not).
 
@@ -14,7 +14,7 @@ No two opaque container elements (`<rect>`, `<ellipse>`, `<polygon>` acting as b
 
 **Why:** Eichelberger's UML-readability study identifies element overlap as a top readability killer. Overlap also breaks the visual hierarchy a reader uses to parse the diagram.
 
-### R-pcb-drc-structural-02 — Edge endpoints anchor to box edges (checked)
+### R-diagram-geometry-02 — Edge endpoints anchor to box edges (checked)
 
 Every arrow / edge endpoint terminates on the visible edge of a container or attaches to a marked port; no edge endpoints float in whitespace adjacent to (but not touching) their target.
 
@@ -22,7 +22,7 @@ Every arrow / edge endpoint terminates on the visible edge of a container or att
 
 **Why:** floating endpoints look like rendering bugs and force the reader to guess which box the arrow connects to.
 
-### R-pcb-drc-structural-03 — No edge tunneling through unrelated boxes (checked)
+### R-diagram-geometry-03 — No edge tunneling through unrelated boxes (checked)
 
 An edge from A to B does not pass through any box C that is neither A nor B. Edges may pass through arrow labels and other edges; only box-tunneling is forbidden.
 
@@ -30,7 +30,7 @@ An edge from A to B does not pass through any box C that is neither A nor B. Edg
 
 **Why:** Sourcetrail's system-diagram checklist and the C4 review criteria both flag edge tunneling as a primary clarity defect.
 
-### R-pcb-drc-structural-04 — Text fits inside its container (checked)
+### R-diagram-geometry-04 — Text fits inside its container (checked)
 
 Every `<text>` element nominally associated with a container has its rendered bounding box fully inside the container's bounding box (with at least 4px padding on each side as a soft check).
 
@@ -38,7 +38,7 @@ Every `<text>` element nominally associated with a container has its rendered bo
 
 **Why:** text overflow is one of the most common rendering bugs in hand-authored SVG and an instant clarity-killer.
 
-### R-pcb-drc-structural-05 — Labels are associated with what they label (sampled)
+### R-diagram-geometry-05 — Labels are associated with what they label (sampled)
 
 Every label (`<text>` near an arrow or box but not the box's primary title) is visually disambiguated as belonging to exactly one target — either by proximity (closer to that target than any other), by alignment, or by a leader line.
 
@@ -46,7 +46,7 @@ Every label (`<text>` near an arrow or box but not the box's primary title) is v
 
 **Why:** automatic-label-placement literature (Imhof, cartographic labeling) makes proximity-disambiguation the foundational rule. Otherwise, the reader plays a guessing game.
 
-### R-pcb-drc-structural-06 — No label-label collision (checked)
+### R-diagram-geometry-06 — No label-label collision (checked)
 
 No two `<text>` elements have overlapping bounding boxes.
 
