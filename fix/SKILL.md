@@ -12,6 +12,18 @@ user_invocable: true
 
 Fix common environment problems. Each fix is a self-contained procedure in this folder.
 
+## When NOT to use this skill
+
+`/fix` is for **runtime breakage** — broken auth, dead session, can't reach the daemon, app misbehaving, settings drift that broke something that used to work. For Claude Code config and permissions specifically, prefer the built-ins:
+
+| Use built-in instead | When |
+|---|---|
+| `update-config` | Modify `settings.json` / `settings.local.json` — add permissions, set env vars, configure hooks, change theme/model. Not "broken" — just "configure." |
+| `fewer-permission-prompts` | Drowning in permission prompts; want to scan recent transcripts and add a curated allowlist. |
+| `keybindings-help` | Rebind keys / add chord shortcuts / modify `~/.claude/keybindings.json`. |
+
+If something *was* working and now isn't, that's `/fix`. If you're configuring something fresh or tuning behavior, reach for the matching built-in.
+
 ## Runbook
 
 1. Determine which fix to run (from argument or user description)

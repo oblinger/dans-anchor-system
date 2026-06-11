@@ -127,3 +127,16 @@ Print the path to the deliverable file so the agent can open or write to it.
 - The deliverable file has a clean name without date prefix (the folder provides date context)
 - Always use relative-path wiki-links from the anchor file to the deliverable: `[[{date} {name}/{document-name}\|display]]`
 - WP is distinct from Outputs (agent-generated) and Log (informal notes)
+
+## Adjacent Claude Code built-ins for the deliverable file
+
+`/wp` builds the **folder scaffold** (dated folder + anchor file + deliverable name). It does NOT author the deliverable's content. Once `/wp` returns the deliverable path, the format-specific built-ins fill in the file:
+
+| Built-in | Use for | Deliverable extension |
+|---|---|---|
+| `docx` | Word documents — reports, memos, prose-heavy deliverables | `.docx` |
+| `xlsx` | Spreadsheets — analyses, models, data tables | `.xlsx` |
+| `pptx` | Slide decks — presentations, pitches | `.pptx` |
+| `pdf` | PDF authoring / filling forms / extracting | `.pdf` |
+
+**Pattern:** `/wp` first to scaffold; then call the matching format built-in with the deliverable path. They compose; they don't duplicate. (Future: `/wp` may auto-dispatch when the user names a format; not wired yet.)

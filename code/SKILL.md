@@ -21,11 +21,11 @@ The unified development skill. Invoke with an action to run a workflow.
 
 | #   | Usage                 | File                   | Description                                                                   |
 | --- | --------------------- | ---------------------- | ----------------------------------------------------------------------------- |
-|     | **1x Plan** *(moved to `/plan` per F120)* |                        | *Planning verbs live under `/plan` — see [[plan]]*                            |
+|     | **1x Plan** *(moved to `/design` per F120)* |                        | *Planning verbs live under `/design` — see [[design]]*                            |
 | 11  | `/code anchor`         | [[code-anchor]]         | Create project anchor, all doc files, wire dispatch tables                    |
 | 13  | `/code research`       | [[code-research]]       | Investigate landscape: tools, prior art, approaches                           |
 | 16  | `/code plan-audit`     | [[code-plan-audit]]     | Completeness check on the plan                                                |
-|     | **2x Architect**      |                        | *Agent designs the full system on paper — high-level moved to [[plan-architect]]* |
+|     | **2x Architect**      |                        | *Agent designs the full system on paper — high-level moved to [[design-architect]]* |
 | 22  | `/code modules`        | [[code-modules]]        | Files doc + per-module docs with interfaces                                   |
 | 23  | `/code test-plan`      | [[code-test-plan]]      | Test design document: areas, scaffolds, categories                            |
 | 25  | `/code arch-audit`     | [[code-arch-audit]]     | Architecture completeness check                                               |
@@ -86,3 +86,19 @@ On invocation:
 2. Look up the file from the Actions table above
 3. Read that file from this skill's directory (`~/.claude/skills/dev/`) and execute its workflow
 4. If no argument or unrecognized argument, show the Actions table above
+
+## Adjacent Claude Code built-ins
+
+Claude Code ships several **atomic-verb** built-in skills that overlap thematically with `/code` but operate at a different altitude. `/code <verb>` is **workflow orchestration** (multi-step plan → mint → test → release); the built-ins are **single-shot operations** the workflow can invoke or the user can call directly.
+
+| Built-in | When to reach for it directly |
+|---|---|
+| `code-review` | Review the current diff for bugs / cleanups at a given effort level. Use directly when you have a diff to review without a full workflow context. |
+| `simplify` | Quality-only review of changed code (reuse, simplification, efficiency, altitude). Subset of `code-review`. |
+| `verify` | Confirm a code change actually does what it claims by running the app. `/code test` covers automated tests; `verify` covers "does it actually work end-to-end." |
+| `run` | Launch and drive the project's app to see a change working. |
+| `review` | Review a GitHub pull request (PR-shaped, not local-diff-shaped). |
+| `security-review` | Security-focused review of pending changes. |
+| `init` | Initialize a new `CLAUDE.md` for an existing codebase. |
+
+**Rule of thumb:** if you're in the middle of `/code mint` or `/code release`, the workflow may invoke these as steps. If you just want one of them on its own, invoke it directly.
