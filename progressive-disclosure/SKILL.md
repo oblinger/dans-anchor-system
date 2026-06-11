@@ -214,21 +214,27 @@ This central table records which preface elements each CAB facet requires. The l
 
 ## TLDR formatting
 
-A TLDR is a **description list of one-line bullets**, each with a 2-3-word bolded descriptor:
+A TLDR is a **description list of short single-line bullets**, each with a 2-3-word bolded descriptor followed by an em-dash and a concise body:
 
 ```markdown
-**TLDR**
+**TL;DR.**
 
 - **Core idea** — <one-line summary of the core idea>
 - **Mechanism** — <one-line summary of the mechanism>
 - **Trade-offs** — <one-line summary of the trade-offs>
 ```
 
-Bullets fit on a single line when possible (target ≤ 80–100 chars). Longer bullets are allowed when truly necessary but should be rare — a TLDR that needs paragraphs isn't a TLDR.
+**Header style.** `**TL;DR.**` (with the punctuated abbreviation and trailing period) is the preferred form — it reads cleanly in both Obsidian and plain markdown, and the period signals "this is a label, the bullets are the content." `**TLDR**` (no punctuation) is also accepted; pick one and stay consistent within a project.
 
-**Three to five bullets** is the sweet spot. Fewer than three usually means the doc didn't need a TLDR at all; more than five means the reader has to read a TLDR-of-the-TLDR.
+**Preferred bullet shape (the canonical form).** All things equal: a description list where **most bullets fit on a single short line** (target ≤ 80-100 chars). The descriptor is the recall handle; the body is the gist. A reader skimming sees both at once, in one eye-fixation per bullet.
 
-**When required:** TLDR is required on **Feature documents** (per [[CAB Features]]) as the initial scope. Always optional on other types; if included, must follow the format above. PRDs are explicitly excluded.
+**Length tolerance.** A small minority of bullets may run to a longer line when the topic genuinely needs it (multi-clause posture statements, lists of named tiers, tier-mapping bullets that enumerate). Treat that as the exception. A TLDR where most bullets sprawl to multiple lines isn't a TLDR — it's a section of body text mislabeled.
+
+**Bullet count.** **Three to eight bullets** is the working range. Three to five for a tight doc that compresses cleanly. Six to eight for a richer doc whose structure earns more bullets (e.g., a testing strategy with posture + 3-4 bars + tier mapping). More than eight means the reader has to read a TLDR-of-the-TLDR; refactor.
+
+**Cover the whole doc, not one aspect.** A good TLDR spans the major sections of the body, one bullet per section's gist. A TLDR that recites only one part of the doc fails the grazer; the reader has to read the body to discover the doc's other sections.
+
+**When required:** TLDR is required on **Feature documents** (per [[CAB Features]]) and **Testing documents** (per [[CAB Testing]]). Always optional on other types; if included, must follow the format above. PRDs are explicitly excluded. **Worked examples:** [[MUX Testing]] (8 bullets, covers posture + tiers + scope + cadence + tier mapping) and [[CAE Testing]] (similar shape at smaller scale).
 
 
 ## Figure placement
