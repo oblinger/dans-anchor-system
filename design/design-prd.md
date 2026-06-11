@@ -18,7 +18,9 @@ Create or update `{NAME} PRD.md` with these sections:
 
 - **Overview** — what it does and why it needs to exist (two sentences)
 - **Goals** — concrete, verifiable outcomes; explicit non-goals
-- **User Stories** — numbered (US-1, US-2, ...), each with enough detail that a worker could build against it
+- **User Stories** — numbered `US-<RID>-<N>` per anchor (e.g. `US-MUX-1`, `US-CAE-1`), each with enough detail that a worker could build against it. **Two forms** per [[CAB Stories]]:
+    - **Inline (default)** — bullet under `## User Stories` in `{NAME} PRD.md`, one sentence each. Right for small PRDs whose stories compress cleanly.
+    - **Extracted to Stories sub-facet** — when a story needs multi-paragraph rationale, acceptance criteria spelled out, mockups, or decision history. PRD migrates to folder form `{NAME} PRD/` containing `{NAME} PRD.md` + `{NAME} Stories.md` (dispatch index) + one file per story. Migration extracts ALL stories for consistency — never mix inline and extracted in the same PRD. See [[CAB Stories]] for the file shape and naming rules.
 - **Design Constraints** — numbered (DC-1, DC-2, ...), each with rule AND reasoning
 - **Prior Art** — existing tools, patterns, codebases to draw from or avoid
 
