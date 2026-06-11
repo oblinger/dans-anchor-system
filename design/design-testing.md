@@ -20,74 +20,12 @@ Gate 2 of `/design` requires `status:: accepted` on BOTH `{NAME} Architecture.md
 
 Module-level test details belong in module docs under `{NAME} Dev Docs/` or `{NAME} Architecture/` (per the spec section the module ships under), NOT here. This file is the design-altitude inventory; module docs are the low-level specs.
 
-## File shape (per CAB Testing facet)
+## File shape
 
-```markdown
----
-description: {NAME} Testing — strategy + proposed-tests overview.
-status:: drafting
----
+**Read [[CAB Testing]] before authoring.** The facet spec is the canonical recipe — required sections, dataview fields, the three-altitude split, the Spec-column convention. This sub-skill owns the *process*; the facet owns the *shape*. If anything below conflicts with the facet, the facet wins.
 
-# {NAME} Testing
-
-## Overview
-
-One paragraph — the testing posture in a sentence. ("Heavy unit + integration, modest e2e because the surface is library-shaped" / "E2E-first because UI flows are the value" / etc.) The reader leaves knowing the *shape* of the test investment.
-
-## Strategy
-
-### Test Kinds
-
-- **Unit** — pure-function, in-process, no I/O.
-- **Integration** — multiple components, real internal dependencies.
-- **End-to-end** — full app exercising at least one user story.
-- *(add others as needed: property-based, smoke, regression, performance, …)*
-
-### Completeness Targets
-
-- **Unit:** all public functions in `src/` have at least one test.
-- **Integration:** every subsystem boundary per Architecture has at least one integration test.
-- **End-to-end:** at least one per user story in PRD.
-- *(target per kind declared in § Test Kinds — kind-target symmetry per R-testing-05)*
-
-### Responsibilities
-
-- **Unit tests** — agent on `/mint` for the feature that introduces the function.
-- **Integration tests** — agent on `/mint` for boundary-touching features.
-- **End-to-end tests** — author-curated; agent assists by drafting.
-- **CI** — runs all kinds on PR open and main push.
-
-### Tier Mapping
-
-Per [[verification]]:
-
-- **Tier 1 (agent-immediate)** — satisfied by unit + integration tests that run in CI.
-- **Tier 2 (agent-over-time)** — satisfied by soak / regression tests.
-- **Tier 3 (user-passive)** — satisfied by end-to-end tests on user-visible flows.
-- **Tier 4 (user-explicit)** — fallback only.
-
-## Proposed Tests
-
-### Unit
-
-| Test                              | Exercises                                  | Spec                       |
-| --------------------------------- | ------------------------------------------ | -------------------------- |
-| `test_<thing>_<condition>`        | <one-line behavior>                        | [[<Module doc>]] § Tests   |
-
-### Integration
-
-| Test                              | Exercises                                  | Spec                       |
-| --------------------------------- | ------------------------------------------ | -------------------------- |
-| `test_<boundary>_<scenario>`      | <one-line boundary behavior>               | [[<Module doc>]] § Tests   |
-
-### End-to-end
-
-| Test                              | Exercises (User Story)                     | Spec                       |
-| --------------------------------- | ------------------------------------------ | -------------------------- |
-| `e2e_<flow>`                      | US-<n>: <user-story title>                 | [<E2E spec page>]          |
-```
-
-**Spec column convention:** `[[wiki-link]]` for proposed specs whose home doc exists; `[bare brackets]` for proposed-but-unwritten specs that don't yet have a destination. Never inline test code or precondition prose into the table — that's the altitude inversion the facet is designed to prevent. (See [[CAB Testing#RULESET R-testing|R-testing]] rules 6 and 7.)
+Worked example to crib from: [[CAE Testing]].
+Audit rules to honor: [[CAB Testing#RULESET R-testing|R-testing]] (9 rules).
 
 ## Runbook
 
