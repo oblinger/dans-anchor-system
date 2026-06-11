@@ -22,6 +22,7 @@ description: Catalog of rule sets. See [[Rule Sets Brief]] for editing conventio
 | **Owner-scoped** | Apply to every anchor a given owner owns, regardless of trait. |
 | [[R-ob]] | Dan's personal Ob-flavored rule sets. Children: [[R-ob-state-mgt]] (3 rules), [[R-ob-observability]] (2 rules), [[R-ob-cmd-proc]] (13 rules). |
 | --- | |
+| [[R-roadmap]] | Rules for the {NAME} Roadmap.md facet — milestone numbering, checkbox states, Status-line presence, deferral cross-ref, shape consistency. |
 | [[Rule Sets/README]] |  |
 
 ## Status
