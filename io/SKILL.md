@@ -22,7 +22,7 @@ Read from and write to external services. Each sub-skill is an access card with 
 | `/io gslide` | [[io-gslide]] | Google Slides |
 | `/io gdoc` | [[io-gdoc]] | Google Docs |
 | `/io gdrive` | [[io-gdrive]] | Google Drive search |
-| `/io email` | [[io-email]] | Apple Mail — read and search |
+| `/io email` | [[io-email]] · [[io-email-access]] | Email — **local Apple Mail** (working) or **Google Gmail API** (via existing Google auth; not yet wired). See [[io-email-access]] for the two access methods. |
 | `/io notion` | [[io-notion]] | Notion pages and databases (TBD) |
 | `/io gauth` | → `/fix gauth` | Re-authorize Google OAuth (when token expires) |
 
