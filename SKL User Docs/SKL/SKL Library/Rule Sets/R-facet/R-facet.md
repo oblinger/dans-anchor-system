@@ -1,5 +1,5 @@
 # RULESET R-facet
-include:: [[R-testing]], [[R-status]]
+include:: [[R-testing]], [[R-status]], [[R-log]]
 description:: Umbrella rule set aggregating the per-facet rule sets embedded in CAB facet spec files.
 
 Per the 2026-06-09 design decision, each CAB facet spec file (`CAB <facet>.md`) contains a `# RULESET R-<facet>` second-H1 block with the facet's structural rules — co-located with the prose that explains the facet. This file is the catalog-side umbrella that walks all those embedded rule sets via `include::` so adopters get a single name to pull. An anchor that adopts R-facet commits to following every materialized CAB facet's structural rules.
