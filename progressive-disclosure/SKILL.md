@@ -200,12 +200,13 @@ This central table records which preface elements each CAB facet requires. The l
 | [[CAB Decisions]] (post-F113) | Required | Optional | Optional |
 | [[CAB Interface]] | Required | Optional | Optional |
 | [[CAB Log]] (post-F113) | Optional | Optional | Optional |
+| [[CAB Testing]] | Required | **Required** | Optional |
 | Other facets associated with a folder | Required | Optional | Optional |
 
 **Reading the table:**
 
 - **Dispatch table:** required on every facet that is a folder (i.e., every folder anchor page). For flat-file facets (e.g., a single `.md` file like `{NAME} PRD.md`), the dispatch table is still required as the in-doc internal-navigation aid (Linear or Matrix pattern).
-- **TLDR:** required on **Feature docs only** as the initial scope — feature docs reduce cleanly to 3-5 one-line bullets. Other facets may add the requirement over time as the user identifies docs where a TLDR genuinely helps. PRDs are **explicitly excluded** (too heterogeneous to compress meaningfully; forcing one produces filler).
+- **TLDR:** required on **Feature docs and Testing docs**. Feature docs reduce cleanly to 3-5 one-line bullets capturing the gist; Testing docs reduce cleanly to the testing posture + the bar per kind (e.g., "Heavy unit + integration, modest e2e; every public function unit-tested, every subsystem boundary integration-tested, one e2e per user story"). Other facets may add the requirement over time as the user identifies docs where a TLDR genuinely helps. PRDs are **explicitly excluded** (too heterogeneous to compress meaningfully; forcing one produces filler).
 - **Figure:** required on Architecture (both top-level and subsystem) and UX Design. SVG preferred.
 
 **Growth posture:** each list grows bottom-up via individual facet-spec amendments. When a new facet spec is authored (or an existing one updated), it declares its own preface requirements; this central table accumulates them.
