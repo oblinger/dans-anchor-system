@@ -15,39 +15,39 @@
   <!-- Skills box (top-left, blue, full height) -->
   <rect id="skills-box" x="80" y="70" width="180" height="160" rx="10"
         fill="#bac8ff" stroke="#1e1e1e" stroke-width="2"/>
-  <text id="skills-title" x="170" y="118" font-size="22" font-weight="600" text-anchor="middle"
+  <text id="skills-title" x="170" y="120" font-size="22" font-weight="600" text-anchor="middle"
         fill="#1e1e1e">Skills</text>
-  <text id="skills-subtitle" x="170" y="162" font-size="22" font-style="italic" text-anchor="middle"
+  <text id="skills-subtitle" x="170" y="170" font-size="26" font-style="italic" text-anchor="middle"
         font-family="Palatino, 'Palatino Linotype', Georgia, serif" fill="#1e1e1e">verbs</text>
-  <text id="skills-small" x="170" y="208" font-size="11" text-anchor="middle"
+  <text id="skills-small" x="170" y="215" font-size="11" text-anchor="middle"
         fill="#1e1e1e">Actions taken</text>
 
-  <!-- Facets box (top-middle, green, SHORTER) -->
-  <rect id="facets-box" x="320" y="130" width="260" height="100" rx="10"
+  <!-- Facets box (top-middle, green, taller — top closer to the modifies line) -->
+  <rect id="facets-box" x="320" y="105" width="260" height="125" rx="10"
         fill="#ebfbee" stroke="#1e1e1e" stroke-width="2"/>
-  <text id="facets-title" x="450" y="158" font-size="22" font-weight="600" text-anchor="middle"
+  <text id="facets-title" x="450" y="140" font-size="22" font-weight="600" text-anchor="middle"
         fill="#1e1e1e">Facets</text>
-  <text id="facets-subtitle" x="450" y="190" font-size="22" font-style="italic" text-anchor="middle"
+  <text id="facets-subtitle" x="450" y="183" font-size="26" font-style="italic" text-anchor="middle"
         font-family="Palatino, 'Palatino Linotype', Georgia, serif" fill="#1e1e1e">nouns</text>
-  <text id="facets-small" x="450" y="216" font-size="11" text-anchor="middle"
+  <text id="facets-small" x="450" y="215" font-size="11" text-anchor="middle"
         fill="#1e1e1e">Docs created</text>
 
   <!-- Disciplines box (top-right, yellow, full height) -->
   <rect id="disciplines-box" x="640" y="70" width="180" height="160" rx="10"
         fill="#fff9db" stroke="#1e1e1e" stroke-width="2"/>
-  <text id="disciplines-title" x="730" y="118" font-size="22" font-weight="600" text-anchor="middle"
+  <text id="disciplines-title" x="730" y="120" font-size="22" font-weight="600" text-anchor="middle"
         fill="#1e1e1e">Disciplines</text>
-  <text id="disciplines-subtitle" x="730" y="162" font-size="22" font-style="italic" text-anchor="middle"
+  <text id="disciplines-subtitle" x="730" y="170" font-size="26" font-style="italic" text-anchor="middle"
         font-family="Palatino, 'Palatino Linotype', Georgia, serif" fill="#1e1e1e">adjectives</text>
-  <text id="disciplines-small" x="730" y="208" font-size="11" text-anchor="middle"
+  <text id="disciplines-small" x="730" y="215" font-size="11" text-anchor="middle"
         fill="#1e1e1e">Systematic behaviors</text>
 
   <!-- Rules band (bottom, orange, thin, full width) -->
   <rect id="rules-box" x="80" y="270" width="740" height="48" rx="10"
         fill="#ffe8cc" stroke="#1e1e1e" stroke-width="2"/>
-  <text id="rules-title" x="110" y="302" font-size="22" font-weight="600" text-anchor="start"
+  <text id="rules-title" x="220" y="302" font-size="22" font-weight="600" text-anchor="start"
         fill="#1e1e1e">Rules</text>
-  <text id="rules-subtitle" x="500" y="302" font-size="22" font-style="italic" text-anchor="middle"
+  <text id="rules-subtitle" x="550" y="302" font-size="22" font-style="italic" text-anchor="middle"
         font-family="Palatino, 'Palatino Linotype', Georgia, serif" fill="#1e1e1e">directives and constraints</text>
 
   <!-- Arrow: Skills → Facets ("creates") -->
