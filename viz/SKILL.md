@@ -22,6 +22,7 @@ Trade-off discussions (round-trip experiments, design questions): [[SKA viz disc
 | Action | What it does | Output | Trigger phrases |
 |---|---|---|---|
 | `/viz svg` | **Hand-written SVG via the Write tool — default for architecture diagrams and any figure where the agent wants full visual control.** SVG is just XML; the agent authors it directly. The `.svg` file IS the editable source (no companion file needed). Full control over color, font, layout, geometry. | `.svg` source (editable XML) · optional `.png` via `rsvg-convert` | "svg", "hand-write an svg", "architecture diagram", "boxes and arrows with my own look" |
+| `/viz diagram` | **Rule-enforced SVG via the [[R-diagram]] rule set (22 rules, 7 methodologies).** Two modes: create (default — author a new SVG following the rules) and cleanup (when the arg points at an existing SVG — audit + fix violations in-place). Loads R-diagram before any authoring or editing; conformance is the standard for "done." Use when the user names "diagram" specifically or wants the rule-checked variant of `/viz svg`. | `.svg` source · optional `.png` via `rsvg-convert` · audit report (cleanup mode) | "diagram", "viz diagram", "rule-checked diagram", "clean up this diagram", "diagram against the rules" |
 | `/viz excalidraw` | Create / update / export Excalidraw diagrams. Hand-drawn aesthetic. The `.excalidraw` source lives next to the export, editable in ExcalidrawZ. | `.excalidraw` source + `.svg` / `.png` export | "draw", "sketchy", "excalidraw", "freeform", "paste into Google Slides" |
 | `/viz d2` | D2's specific opinionated look — text → boxes-and-arrows with ELK auto-routing. **Use only when the user asks for D2 specifically**; the D2 aesthetic is distinctive and not a universal default. | `.d2` source + `.svg` | "d2", "elk auto-layout", "D2-style", "ELK-routed" |
 | `/viz matplot` | Generate matplotlib charts via `vizcharts.py` (10 chart types: timeline, multi-line, quadrant, scatter, rankings, comparison, stacked bar, donut, waterfall, hex shot). Tufte-grade static output. | `.png` (raster) · `.pdf` (vector) | "chart this", "plot the data", "timeline chart", "bar chart", "quadrant", "waterfall" |
@@ -37,6 +38,7 @@ Trade-off discussions (round-trip experiments, design questions): [[SKA viz disc
 | Usage | File | Description |
 |-------|------|-------------|
 | `/viz svg`        | [[viz-svg]]        | Hand-written SVG via Write — default for architecture diagrams |
+| `/viz diagram`    | [[viz-diagram]]    | Rule-enforced SVG against [[R-diagram]] — create or cleanup mode |
 | `/viz excalidraw` | [[viz-excalidraw]] | Create, update, and export Excalidraw diagrams |
 | `/viz d2`         | [[viz-d2]]         | D2 system diagrams via ELK; use when user asks for D2 specifically |
 | `/viz matplot`    | [[viz-matplot]]    | Generate matplotlib charts via vizcharts.py |
@@ -190,7 +192,7 @@ If `Detected font:` shows `DejaVu Sans` instead of `Inter`, fonts didn't install
 
 On invocation:
 
-1. Parse the argument to determine the action (excalidraw, matplot, mermaid, dot, pptx, docx, pdf).
+1. Parse the argument to determine the action (svg, diagram, excalidraw, d2, matplot, mermaid, dot, pptx, docx, pdf).
 2. Look up the file from the Action Files table above.
 3. Read that file from this skill's directory and execute its workflow.
 4. If no argument or unrecognized argument, show the user-facing Actions table at the top.

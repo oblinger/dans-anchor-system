@@ -2,7 +2,10 @@
 description:: Tufte's data-ink discipline; every visual element carries information.
 include::
 
-Decoration competes with content for attention; in a diagram (which is dense with meaning) that competition is always lost. Sibling box-sizing consistency + no chartjunk (no drop shadows on every box, no gradient fills for fun, no decorative borders). Source: Tufte, *The Visual Display of Quantitative Information*.
+> [!info] Provenance
+> **Edward Tufte**, *The Visual Display of Quantitative Information* (1983). The **data-ink ratio** principle: every drop of ink on the page should carry information; decoration competes with content for attention; in a diagram (which is dense with meaning) that competition is always lost. "Chartjunk" is Tufte's term for the decorative cruft (gratuitous shadows, gradients, 3-D effects, ornate borders) that this discipline forbids.
+
+Sibling box-sizing consistency + no chartjunk (no drop shadows on every box, no gradient fills for fun, no decorative borders).
 
 Factored from [[R-diagram]] 2026-06-09.
 

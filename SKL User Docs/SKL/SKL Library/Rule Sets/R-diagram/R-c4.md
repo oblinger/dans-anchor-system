@@ -2,7 +2,10 @@
 description:: C4-model semantic conventions; the "what does this diagram mean?" rules.
 include::
 
-Every arrow labeled, title or legend present, boxes named meaningfully, one meaning per visual variable. Source: C4 model § Conventions + Bertin's *Sémiologie graphique* for visual-variable discipline.
+> [!info] Provenance
+> **C4 model § Conventions** (Simon Brown) — the architecture-diagramming method that codifies "every arrow is labeled, every box has a title, every diagram has a legend." **Jacques Bertin**, *Sémiologie graphique* (1967) — the foundational text on visual variables (color, shape, size, position, texture, value, orientation) and the principle that each variable should encode exactly one semantic axis.
+
+Every arrow labeled, title or legend present, boxes named meaningfully, one meaning per visual variable.
 
 Factored from [[R-diagram]] 2026-06-09.
 

@@ -2,7 +2,10 @@
 description:: Bringhurst-style typographic discipline for diagrams.
 include::
 
-Restricted, well-chosen typographic scales mark professional work. Currently one rule (font-size quantization); will accumulate more as typographic-quality auditing extends to typeface mixing, baseline-grid alignment, etc. Source: Bringhurst, *The Elements of Typographic Style*.
+> [!info] Provenance
+> **Robert Bringhurst**, *The Elements of Typographic Style* (1992; the modern canonical reference for typographic craft). Key principle for diagrams: restricted, well-chosen typographic scales mark professional work; many small variations in font size are amateurish, few well-chosen sizes are professional.
+
+Currently one rule (font-size quantization); will accumulate more as typographic-quality auditing extends to typeface mixing, baseline-grid alignment, etc.
 
 Factored from [[R-diagram]] 2026-06-09.
 

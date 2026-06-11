@@ -2,7 +2,10 @@
 description:: File-format hygiene for hand-authored SVG diagrams.
 include::
 
-Stable IDs on every element, no orphan `<defs>` entries, SVG validates as XML. The baseline a diagram has to meet before any higher-level rule applies — a malformed SVG isn't a diagram at all.
+> [!info] Provenance
+> Internal — no external citation. File-format hygiene baseline drawn from W3C SVG 1.1 / 2 specification (well-formed XML, `id` attribute conventions, `<defs>` referencing) and tooling lore (xmllint as the reference validator). The baseline a diagram has to meet before any higher-level rule applies — a malformed SVG isn't a diagram at all.
+
+Stable IDs on every element, no orphan `<defs>` entries, SVG validates as XML.
 
 Factored from [[R-diagram]] 2026-06-09.
 

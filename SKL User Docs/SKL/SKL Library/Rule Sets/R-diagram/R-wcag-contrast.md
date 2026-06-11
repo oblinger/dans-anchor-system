@@ -2,7 +2,10 @@
 description:: WCAG-2.1-AA accessibility for diagrams; contrast + colorblind-safe.
 include::
 
-Contrast ratio ≥ 4.5:1 for text, ≥ 3:1 for non-text UI; color is never the sole communicator of meaning. Diagrams projected on screens or printed B&W must remain readable; colorblind readers and B&W printouts depend on the second rule. Source: WCAG 2.1 AA.
+> [!info] Provenance
+> **WCAG 2.1 AA** (Web Content Accessibility Guidelines, W3C). § 1.4.3 contrast minimums (≥ 4.5:1 for text, ≥ 3:1 for non-text UI components); § 1.4.1 "use of color" (color is never the sole means of conveying information). Not just an accessibility nicety — diagrams projected on screens or printed in B&W must remain readable, and colorblind readers depend on the redundant-channel rule.
+
+Contrast ratio ≥ 4.5:1 for text, ≥ 3:1 for non-text UI; color is never the sole communicator of meaning.
 
 Factored from [[R-diagram]] 2026-06-09.
 

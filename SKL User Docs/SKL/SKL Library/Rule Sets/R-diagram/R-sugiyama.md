@@ -1,8 +1,11 @@
 # RULESET R-sugiyama
-description:: Sugiyama-style graph-drawing aesthetics; quality rules below the DRC threshold.
+description:: Sugiyama-style graph-drawing aesthetics; quality rules below the hard-fail threshold.
 include::
 
-Edge-crossing minimization, bend budget, monotone flow, grid alignment — violations are warnings, not ship-blockers. Purchase's empirical work (1997/2002) identifies crossings as the largest single factor in graph readability, ahead of aesthetics like grid-alignment or symmetry. Source: Sugiyama's layered-drawing algorithm + Purchase + Gestalt alignment.
+> [!info] Provenance
+> **Kozo Sugiyama** (layered-drawing algorithm, 1981) — the canonical method for drawing directed graphs with minimized crossings + monotone layers. **Helen Purchase** (1997, 2002 empirical studies on graph-drawing aesthetics) — established edge crossings as the single largest factor in readability, ahead of grid-alignment / symmetry / bend count. **Gestalt principle of alignment** — readers infer relationships from co-aligned elements.
+
+Edge-crossing minimization, bend budget, monotone flow, grid alignment — violations are warnings, not ship-blockers.
 
 Factored from [[R-diagram]] 2026-06-09.
 
