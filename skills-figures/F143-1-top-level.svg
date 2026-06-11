@@ -17,7 +17,7 @@
         fill="#bac8ff" stroke="#1e1e1e" stroke-width="2"/>
   <text id="skills-title" x="170" y="120" font-size="22" font-weight="600" text-anchor="middle"
         fill="#1e1e1e">Skills</text>
-  <text id="skills-subtitle" x="170" y="170" font-size="26" font-style="italic" text-anchor="middle"
+  <text id="skills-subtitle" x="170" y="183" font-size="32" font-style="italic" text-anchor="middle"
         font-family="Palatino, 'Palatino Linotype', Georgia, serif" fill="#1e1e1e">verbs</text>
   <text id="skills-small" x="170" y="215" font-size="11" text-anchor="middle"
         fill="#1e1e1e">Actions taken</text>
@@ -27,7 +27,7 @@
         fill="#ebfbee" stroke="#1e1e1e" stroke-width="2"/>
   <text id="facets-title" x="450" y="140" font-size="22" font-weight="600" text-anchor="middle"
         fill="#1e1e1e">Facets</text>
-  <text id="facets-subtitle" x="450" y="183" font-size="26" font-style="italic" text-anchor="middle"
+  <text id="facets-subtitle" x="450" y="183" font-size="32" font-style="italic" text-anchor="middle"
         font-family="Palatino, 'Palatino Linotype', Georgia, serif" fill="#1e1e1e">nouns</text>
   <text id="facets-small" x="450" y="215" font-size="11" text-anchor="middle"
         fill="#1e1e1e">Docs created</text>
@@ -37,7 +37,7 @@
         fill="#fff9db" stroke="#1e1e1e" stroke-width="2"/>
   <text id="disciplines-title" x="730" y="120" font-size="22" font-weight="600" text-anchor="middle"
         fill="#1e1e1e">Disciplines</text>
-  <text id="disciplines-subtitle" x="730" y="170" font-size="26" font-style="italic" text-anchor="middle"
+  <text id="disciplines-subtitle" x="730" y="183" font-size="32" font-style="italic" text-anchor="middle"
         font-family="Palatino, 'Palatino Linotype', Georgia, serif" fill="#1e1e1e">adjectives</text>
   <text id="disciplines-small" x="730" y="215" font-size="11" text-anchor="middle"
         fill="#1e1e1e">Systematic behaviors</text>
