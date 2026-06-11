@@ -9,7 +9,7 @@ A diagram that violates these is broken, not stylistically suboptimal.
 
 Factored from [[R-diagram]] 2026-06-09.
 
-### R-diagram-geometry-01 — No box-on-box overlap (checked)
+### RULE R-diagram-geometry-01 — No box-on-box overlap (checked)
 
 No two opaque container elements (`<rect>`, `<ellipse>`, `<polygon>` acting as boxes) have intersecting bounding boxes, except when one is a strict parent container of the other (containment is allowed; overlap is not).
 
@@ -17,7 +17,7 @@ No two opaque container elements (`<rect>`, `<ellipse>`, `<polygon>` acting as b
 
 **Why:** Eichelberger's UML-readability study identifies element overlap as a top readability killer. Overlap also breaks the visual hierarchy a reader uses to parse the diagram.
 
-### R-diagram-geometry-02 — Edge endpoints anchor to box edges (checked)
+### RULE R-diagram-geometry-02 — Edge endpoints anchor to box edges (checked)
 
 Every arrow / edge endpoint terminates on the visible edge of a container or attaches to a marked port; no edge endpoints float in whitespace adjacent to (but not touching) their target.
 
@@ -25,7 +25,7 @@ Every arrow / edge endpoint terminates on the visible edge of a container or att
 
 **Why:** floating endpoints look like rendering bugs and force the reader to guess which box the arrow connects to.
 
-### R-diagram-geometry-03 — No edge tunneling through unrelated boxes (checked)
+### RULE R-diagram-geometry-03 — No edge tunneling through unrelated boxes (checked)
 
 An edge from A to B does not pass through any box C that is neither A nor B. Edges may pass through arrow labels and other edges; only box-tunneling is forbidden.
 
@@ -33,7 +33,7 @@ An edge from A to B does not pass through any box C that is neither A nor B. Edg
 
 **Why:** Sourcetrail's system-diagram checklist and the C4 review criteria both flag edge tunneling as a primary clarity defect.
 
-### R-diagram-geometry-04 — Text fits inside its container (checked)
+### RULE R-diagram-geometry-04 — Text fits inside its container (checked)
 
 Every `<text>` element nominally associated with a container has its rendered bounding box fully inside the container's bounding box (with at least 4px padding on each side as a soft check).
 
@@ -41,7 +41,7 @@ Every `<text>` element nominally associated with a container has its rendered bo
 
 **Why:** text overflow is one of the most common rendering bugs in hand-authored SVG and an instant clarity-killer.
 
-### R-diagram-geometry-05 — Labels are associated with what they label (sampled)
+### RULE R-diagram-geometry-05 — Labels are associated with what they label (sampled)
 
 Every label (`<text>` near an arrow or box but not the box's primary title) is visually disambiguated as belonging to exactly one target — either by proximity (closer to that target than any other), by alignment, or by a leader line.
 
@@ -49,7 +49,7 @@ Every label (`<text>` near an arrow or box but not the box's primary title) is v
 
 **Why:** automatic-label-placement literature (Imhof, cartographic labeling) makes proximity-disambiguation the foundational rule. Otherwise, the reader plays a guessing game.
 
-### R-diagram-geometry-06 — No label-label collision (checked)
+### RULE R-diagram-geometry-06 — No label-label collision (checked)
 
 No two `<text>` elements have overlapping bounding boxes.
 

@@ -22,7 +22,6 @@ description: Catalog of rule sets. See [[Rule Sets Brief]] for editing conventio
 | **Owner-scoped** | Apply to every anchor a given owner owns, regardless of trait. |
 | [[R-ob]] | Dan's personal Ob-flavored rule sets. Children: [[R-ob-state-mgt]] (3 rules), [[R-ob-observability]] (2 rules), [[R-ob-cmd-proc]] (13 rules). |
 | --- | |
-| [[R-discussion]] | Catalog stub — rules for `# Discussion` (inline) or `{Doc} Discussions.md` (extracted), the first *document-scoped* facet. Canonical body lives embedded in |
 | [[Rule Sets/README]] |  |
 
 ## Status

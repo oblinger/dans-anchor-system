@@ -9,7 +9,7 @@ Every arrow labeled, title or legend present, boxes named meaningfully, one mean
 
 Factored from [[R-diagram]] 2026-06-09.
 
-### R-c4-01 — Every arrow carries a label (sampled)
+### RULE R-c4-01 — Every arrow carries a label (sampled)
 
 Every `<line>`/`<path>` with `marker-end` (i.e., an arrow indicating a directed relationship) has a `<text>` element associated with it via proximity (see [[R-diagram-geometry-05]]), or is in the umbrella set's explicit "unlabeled-arrow allowed" exception list.
 
@@ -17,7 +17,7 @@ Every `<line>`/`<path>` with `marker-end` (i.e., an arrow indicating a directed 
 
 **Why:** a labeled arrow tells the reader *what kind of relationship*. An unlabeled arrow is a guess.
 
-### R-c4-02 — Title or legend present (checked)
+### RULE R-c4-02 — Title or legend present (checked)
 
 Every diagram has either a title text element (H1-equivalent in the figure) or a legend block explaining the visual variables used.
 
@@ -25,7 +25,7 @@ Every diagram has either a title text element (H1-equivalent in the figure) or a
 
 **Why:** C4 model § Conventions: a diagram without a title or legend is unparseable for first-time readers.
 
-### R-c4-03 — Boxes have meaningful names (stated)
+### RULE R-c4-03 — Boxes have meaningful names (stated)
 
 Every box has a `<text>` label with a name that's a noun or noun phrase from the system's vocabulary. Names like "Box1", "Component A", "Module" are forbidden.
 
@@ -33,7 +33,7 @@ Every box has a `<text>` label with a name that's a noun or noun phrase from the
 
 **Why:** the boxes ARE the system's vocabulary in a diagram. Generic labels mean the diagram is incomplete.
 
-### R-c4-04 — One meaning per visual variable (stated)
+### RULE R-c4-04 — One meaning per visual variable (stated)
 
 A visual variable (color, shape, line-style) encodes exactly one semantic axis throughout the diagram. If green = "storage" once, green must mean "storage" everywhere.
 

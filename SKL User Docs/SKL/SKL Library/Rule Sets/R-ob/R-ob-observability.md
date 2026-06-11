@@ -2,7 +2,7 @@
 include::
 description:: Ob's opinionated take on observability — failures don't disappear silently, and every OS-bridge call is instrumented. Reflects a "log everything, gate by tier" philosophy; other schools prefer minimal logging and richer error context. This set captures Dan's specific approach.
 
-### R-ob-observability-01 — No silent fallbacks (checked)
+### RULE R-ob-observability-01 — No silent fallbacks (checked)
 
 When a fallible operation fails, the failure is (a) propagated to the caller as `Err` / exception, OR (b) logged with enough context to diagnose. Silently substituting a default, discarding the error, or proceeding with empty state is a violation. Every silent-fallback site is either fixed or listed in an Exceptions table with a grade + justification.
 
@@ -23,7 +23,7 @@ When a fallible operation fails, the failure is (a) propagated to the caller as 
 - **Medium** — fallback hides a less-impactful failure but loses information. Fix: add log line; default value can stay.
 - **Low** — defensible exception (best-effort function that logs internally; optional field with documented None semantic; test fixture).
 
-### R-ob-observability-02 — 100% OS-bridge logging coverage (checked)
+### RULE R-ob-observability-02 — 100% OS-bridge logging coverage (checked)
 
 Every line of application code that bridges to the operating system emits a log entry within ~10 lines, OR is listed in an audit exception table with a graded justification. Both **egress** (calls the application makes into the OS — FFI, process spawn, file I/O, dynamic library loading) and **ingress** (notification streams the application could observe — system event sources, observer callbacks) are in scope.
 

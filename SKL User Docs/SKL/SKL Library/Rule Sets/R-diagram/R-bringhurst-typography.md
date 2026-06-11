@@ -9,7 +9,7 @@ Currently one rule (font-size quantization); will accumulate more as typographic
 
 Factored from [[R-diagram]] 2026-06-09.
 
-### R-bringhurst-typography-01 — Font sizes are quantized to a small set (sampled)
+### RULE R-bringhurst-typography-01 — Font sizes are quantized to a small set (sampled)
 
 The diagram uses at most 4 distinct font sizes (e.g., 14 / 16 / 20 / 24). Title, body, label, and caption — that's the budget.
 

@@ -2,7 +2,7 @@
 include::
 description:: Ob's opinionated take on state management — centralize config and state behind a single data singleton, and refuse to hardcode values that could vary. Not universal (other architectures use repository pattern, CQRS, event sourcing, functional state passing); this set captures Dan's specific approach.
 
-### R-ob-state-mgt-01 — Config access through the data singleton (checked)
+### RULE R-ob-state-mgt-01 — Config access through the data singleton (checked)
 
 All configuration reads and writes go through the centralized config/settings object. No component reads config from environment variables, files, or command-line args directly. No component writes config except through the singleton's save operation.
 
@@ -10,7 +10,7 @@ All configuration reads and writes go through the centralized config/settings ob
 
 **Check pattern:** search for `env::var`, `std::env`, `process.env`, `os.environ`, and file reads of `.yaml` / `.json` / `.toml` config files outside the singleton's load function. Each is a violation.
 
-### R-ob-state-mgt-02 — State access through the data singleton (checked)
+### RULE R-ob-state-mgt-02 — State access through the data singleton (checked)
 
 All application state reads and writes go through the centralized state object. No component maintains its own shadow copy of shared state. No component reads or writes state files except through the singleton.
 
@@ -18,7 +18,7 @@ All application state reads and writes go through the centralized state object. 
 
 **Check pattern:** search for components that store values also found in the state singleton. Search for direct reads/writes to state files outside the singleton's load/save functions. Each is a violation.
 
-### R-ob-state-mgt-03 — No hardcoded values that belong in config (checked)
+### RULE R-ob-state-mgt-03 — No hardcoded values that belong in config (checked)
 
 Values that a user might want to change, or that differ between environments, are in the config system. Hardcoded constants are only acceptable for values intrinsic to the algorithm (mathematical constants, protocol-defined values, sentinels with no degrees of freedom).
 

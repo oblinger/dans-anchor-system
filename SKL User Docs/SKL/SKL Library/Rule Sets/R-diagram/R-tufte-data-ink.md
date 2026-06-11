@@ -9,7 +9,7 @@ Sibling box-sizing consistency + no chartjunk (no drop shadows on every box, no 
 
 Factored from [[R-diagram]] 2026-06-09.
 
-### R-tufte-data-ink-01 — Sibling box-sizing consistency (sampled)
+### RULE R-tufte-data-ink-01 — Sibling box-sizing consistency (sampled)
 
 Boxes in the same role (e.g., all "subsystem" boxes) have the same width and height within 20%.
 
@@ -17,7 +17,7 @@ Boxes in the same role (e.g., all "subsystem" boxes) have the same width and hei
 
 **Why:** size variation that doesn't encode meaning is chartjunk (Tufte). Either size means something or it should be constant.
 
-### R-tufte-data-ink-02 — Chartjunk budget (stated)
+### RULE R-tufte-data-ink-02 — Chartjunk budget (stated)
 
 The diagram contains no decorative elements that don't carry information. No drop shadows on every box, no gradient fills for fun, no decorative borders.
 

@@ -9,7 +9,7 @@ Contrast ratio ≥ 4.5:1 for text, ≥ 3:1 for non-text UI; color is never the s
 
 Factored from [[R-diagram]] 2026-06-09.
 
-### R-wcag-contrast-01 — Contrast ≥ 4.5:1 for text, ≥ 3:1 for non-text UI (checked)
+### RULE R-wcag-contrast-01 — Contrast ≥ 4.5:1 for text, ≥ 3:1 for non-text UI (checked)
 
 Every `<text>` element has a contrast ratio of at least 4.5:1 against its background (the box fill it sits on, or canvas if none). Lines, arrows, and borders have ≥ 3:1.
 
@@ -17,7 +17,7 @@ Every `<text>` element has a contrast ratio of at least 4.5:1 against its backgr
 
 **Why:** WCAG 2.1 AA contrast requirements. Not just an accessibility nicety — diagrams projected on screens or printed in B&W must remain readable.
 
-### R-wcag-contrast-02 — Color is not the sole communicator of meaning (stated)
+### RULE R-wcag-contrast-02 — Color is not the sole communicator of meaning (stated)
 
 For every semantic distinction conveyed by color (e.g., box fill color = role), the same distinction is also conveyed by a non-color channel (label text, position, shape, or a redundant legend).
 

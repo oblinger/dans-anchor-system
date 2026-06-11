@@ -2,7 +2,7 @@
 include::
 description:: Ob's opinionated take on the command-processor / event-driven architecture pattern — single dispatcher routes events from sensors through engines to effectors. Use this set for applications with a clear input→process→output flow that benefits from a central routing layer, unified event log, and clean concurrency story. Other architectures (direct calls, async tasks, actor model, CQRS) work fine for different problems; this set captures Dan's specific approach when the dispatcher pattern fits.
 
-### R-ob-cmd-proc-01 — Single dispatcher (sampled)
+### RULE R-ob-cmd-proc-01 — Single dispatcher (sampled)
 
 Every operation flows through one dispatcher. No side channels, no direct backend calls, no bypass paths. Single ordering, single log, single place for cross-cutting concerns.
 
@@ -10,7 +10,7 @@ Every operation flows through one dispatcher. No side channels, no direct backen
 
 **Check pattern:** search for invocations of backend / engine methods from outside the dispatcher path. Each is a violation unless documented as an architectural exception.
 
-### R-ob-cmd-proc-02 — Synchronous by default (sampled)
+### RULE R-ob-cmd-proc-02 — Synchronous by default (sampled)
 
 The dispatcher processes one event at a time, blocking until complete. No event queues, no async runtime in the dispatcher itself.
 
@@ -18,7 +18,7 @@ The dispatcher processes one event at a time, blocking until complete. No event 
 
 **Check pattern:** search for async / Promise / Future signatures on dispatch entry points. Each is a violation unless the dispatcher's interface explicitly supports both sync and async modes.
 
-### R-ob-cmd-proc-03 — Hardcoded dispatch routing (sampled)
+### RULE R-ob-cmd-proc-03 — Hardcoded dispatch routing (sampled)
 
 Event routing is a match statement (or equivalent compile-time switch), not dynamic subscription. Engines and effectors are known at compile time.
 
@@ -26,7 +26,7 @@ Event routing is a match statement (or equivalent compile-time switch), not dyna
 
 **Check pattern:** search for runtime registration patterns (`.subscribe(...)`, `addEventListener`, `.on(...)`, dynamic dispatch tables keyed by string). Each is a violation unless graded as an exception (e.g., framework-required hooks).
 
-### R-ob-cmd-proc-04 — Events are the universal type (sampled)
+### RULE R-ob-cmd-proc-04 — Events are the universal type (sampled)
 
 Commands, backend actions, responses, and sense data all use the same `Event` type. One enum, one serialization format, one log format.
 
@@ -34,7 +34,7 @@ Commands, backend actions, responses, and sense data all use the same `Event` ty
 
 **Check pattern:** look for parallel type hierarchies (Command + Event + Query) flowing through the dispatcher. Consolidating to one Event enum is the fix.
 
-### R-ob-cmd-proc-05 — Events are JSON-serializable (checked)
+### RULE R-ob-cmd-proc-05 — Events are JSON-serializable (checked)
 
 Every event can be serialized to JSON. Enables logging, replay, and future remote execution without changing types.
 
@@ -42,7 +42,7 @@ Every event can be serialized to JSON. Enables logging, replay, and future remot
 
 **Check pattern:** every Event variant carries a derive / annotation enforcing serialization (e.g., Rust `#[derive(Serialize, Deserialize)]`). Compile-time check.
 
-### R-ob-cmd-proc-06 — Unified event log (sampled)
+### RULE R-ob-cmd-proc-06 — Unified event log (sampled)
 
 All events from all sources are logged to a single timestamped stream. The log is the source of truth for ordering and debugging.
 
@@ -50,7 +50,7 @@ All events from all sources are logged to a single timestamped stream. The log i
 
 **Check pattern:** every dispatcher entry point emits to the unified log. Branches that skip logging are violations.
 
-### R-ob-cmd-proc-07 — Sensors are stateless (sampled)
+### RULE R-ob-cmd-proc-07 — Sensors are stateless (sampled)
 
 Sensors produce events and forget. No callbacks, no waiting for responses, no held state beyond connection handles.
 
@@ -58,7 +58,7 @@ Sensors produce events and forget. No callbacks, no waiting for responses, no he
 
 **Check pattern:** sensors have no mutable fields beyond connection handles. Any state field is suspect.
 
-### R-ob-cmd-proc-08 — Engines emit events, not side effects (sampled)
+### RULE R-ob-cmd-proc-08 — Engines emit events, not side effects (sampled)
 
 Engines produce backend events that flow back through the dispatcher rather than calling backends directly. This keeps the log complete and the ordering visible.
 
@@ -66,7 +66,7 @@ Engines produce backend events that flow back through the dispatcher rather than
 
 **Check pattern:** search for engine methods that call backend methods directly. Each is a violation; engines should emit `BackendEvent` enum variants instead.
 
-### R-ob-cmd-proc-09 — Engines own domain logic (sampled)
+### RULE R-ob-cmd-proc-09 — Engines own domain logic (sampled)
 
 Each engine encapsulates one domain of business logic with a clear, bounded responsibility. Cross-engine logic flows through events, not direct calls.
 
@@ -74,7 +74,7 @@ Each engine encapsulates one domain of business logic with a clear, bounded resp
 
 **Check pattern:** search for cross-engine direct imports. Each is a violation unless one engine owns the other as a strict sub-component.
 
-### R-ob-cmd-proc-10 — Engines are testable independently (stated)
+### RULE R-ob-cmd-proc-10 — Engines are testable independently (stated)
 
 Each engine works with mock backends via the dispatcher. No real I/O needed for tests.
 
@@ -82,7 +82,7 @@ Each engine works with mock backends via the dispatcher. No real I/O needed for 
 
 **Check pattern:** test files for each engine exist and use mock backends. Engines without independent test files are a smell.
 
-### R-ob-cmd-proc-11 — Backends are trait-pluggable (checked)
+### RULE R-ob-cmd-proc-11 — Backends are trait-pluggable (checked)
 
 Each backend (storage, network, OS, etc.) implements a trait. Production uses real backends; tests use mocks.
 
@@ -90,7 +90,7 @@ Each backend (storage, network, OS, etc.) implements a trait. Production uses re
 
 **Check pattern:** every I/O subsystem is named via a trait, not a concrete struct. Engines hold `Box<dyn Trait>` (or equivalent), not concrete instances.
 
-### R-ob-cmd-proc-12 — Backend operations are fast OR off-thread (stated)
+### RULE R-ob-cmd-proc-12 — Backend operations are fast OR off-thread (stated)
 
 Backend operations on the dispatch path complete within the application's responsiveness budget (typically <50ms). Operations that don't fit run on a background thread, not on the dispatcher.
 
@@ -98,7 +98,7 @@ Backend operations on the dispatch path complete within the application's respon
 
 **Check pattern:** profile-based or manual review. Search for known long-running operations (`Command::output()` on slow programs, blocking network calls, file scans) inside the dispatch path. Each is a violation unless wrapped in spawn-background.
 
-### R-ob-cmd-proc-13 — Domain data types are pure (sampled)
+### RULE R-ob-cmd-proc-13 — Domain data types are pure (sampled)
 
 Domain data types (Layout, State, Config, etc.) are pure data structures. No I/O fields, no cached backends, no embedded mutexes. Methods that need I/O take the backend as a parameter.
 
