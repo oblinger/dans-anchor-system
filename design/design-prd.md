@@ -21,8 +21,9 @@ Create or update `{NAME} PRD.md` with these sections:
 - **User Stories** — numbered `US-<RID>-<N>` per anchor (e.g. `US-MUX-1`, `US-CAE-1`), each with enough detail that a worker could build against it. **Two forms** per [[CAB Stories]]:
     - **Inline (default)** — bullet under `## User Stories` in `{NAME} PRD.md`, one sentence each. Right for small PRDs whose stories compress cleanly.
     - **Extracted to Stories sub-facet** — when a story needs multi-paragraph rationale, acceptance criteria spelled out, mockups, or decision history. PRD migrates to folder form `{NAME} PRD/` containing `{NAME} PRD.md` + `{NAME} Stories.md` (dispatch index) + one file per story. Migration extracts ALL stories for consistency — never mix inline and extracted in the same PRD. See [[CAB Stories]] for the file shape and naming rules.
-- **Design Constraints** — numbered (DC-1, DC-2, ...), each with rule AND reasoning
-- **Prior Art** — existing tools, patterns, codebases to draw from or avoid
+- **Prior Art** *(optional)* — existing tools, patterns, codebases to draw from or avoid. Lives inline in Overview or as a short H2 if it deserves its own section.
+
+*(Note: the legacy `## Design Constraints` H2 with DC-N entries is deprecated per [[CAB PRD]] R-prd-09. Architectural / technical constraints belong in [[CAB Decisions]] (`D<N>`) or [[CAB Rules]] (`R-<slug>-<NN>`); business / environmental constraints live in Non-Goals or Overview. Don't author DC-N in new PRDs.)*
 
 ### 3. Fleshing-Out Checklist
 
@@ -38,4 +39,6 @@ Verify completeness by asking:
 
 ### 4. Surface Open Questions
 
-Any unresolved decisions go to `{NAME} Open Questions.md` tagged by urgency (Urgent / Soon / Deferred). Urgent questions are presented to the user immediately.
+Any unresolved decisions surface as an `## Open Questions` H2 inside the PRD itself, per [[ask-format]]. Invoke `/ask --doc "{NAME} Design/{NAME} PRD.md" "<question>"` to add a question — the `/ask` skill handles formatting (Q-numbering, recommendation strength, block-anchor IDs), opens the doc so the user sees the new Q, and updates the global Q.md dashboard.
+
+*(Legacy: the pre-2026-06 pattern wrote questions to a separate `{NAME} Open Questions.md` file. That file-based form is deprecated per [[CAB PRD]] R-prd-06; questions inline in the doc is the modern shape.)*
