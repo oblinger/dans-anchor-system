@@ -218,31 +218,27 @@ Use these as internal questions when surveying or refining a section. They becom
 - Could a worker read each story and start building without coming back to ask? If not, story needs more.
 - Do stories cover the full lifecycle — setup, daily use, error recovery, maintenance?
 
-### 5. Surface open questions (when iteration hits a real decision)
+### 5. Surface open questions OR agent-resolutions (when iteration hits a decision)
 
-Unresolved decisions that genuinely need user input go to `## Open Questions` H2 inside the PRD itself, per [[ask-format]]:
+When iteration surfaces a decision, route it through [[ask]]:
 
 ```bash
 /ask --doc "{anchor}/{NAME} Design/{NAME} PRD.md" "<question>"
 ```
 
-The `/ask` skill handles formatting (Q-numbering, recommendation strength, block-anchor IDs), opens the doc so the user sees the new Q, and updates the global Q.md dashboard. Don't author the `## Open Questions` block by hand.
+The decide-vs-ask judgment **belongs to the /ask discipline**, not this skill. The short version of what /ask enforces: if the choice is **reversible AND the user will see the wrong call and easily redirect**, the agent should decide and log under `## Resolved` as an agent-made-this-call entry — not as a question. Only when the decision is irreversible, invisible, or genuinely undecidable from context does it become a `## Open Questions` Q.
 
-Per [[ask-format]] Phase lifecycle: pending Qs live as `## Open Questions` below the H1; resolved Qs move to `## Resolved` at the bottom of the doc; `## Open Questions` deletes entirely once empty.
-
-**Legacy note:** the pre-2026-06 pattern wrote questions to a separate `{NAME} Open Questions.md` file. That file-based form is deprecated per [[CAB PRD]] R-prd-06; questions inline in the doc is the modern shape.
+See [[ask]] and [[ask-format]] for the full lifecycle (Q-numbering, recommendation strength, Resolved migration, Q.md dashboard sync).
 
 ### 6. Promote status
 
-When the PRD survives the rule check AND the section spine is substantive (no thin sections of consequence):
+Status lives in `{NAME} Track/{NAME} Status.md` per [[CAB Status]]. When the PRD survives the rule check AND the section spine is substantive:
 
 ```bash
 ~/.claude/skills/workflow/scripts/state --anchor {NAME} status set prd MVP-agent --note "<one-line — what's covered>"
 ```
 
-This is the agent-side promotion. The user stamps `MVP-user` with natural-language confirmation ("PRD looks good for MVP" → agent re-runs the set with `MVP-user`).
-
-Per `/design` SKILL.md, this lets the picker advance to the next phase on the next bare-`/design` invocation.
+User stamps `MVP-user` via natural-language confirmation ("PRD looks good"); this lets the `/design` picker advance to the next phase.
 
 ## File location
 
@@ -259,13 +255,11 @@ Audit rules to honor: [[CAB PRD#RULESET R-prd|R-prd]] (9 rules).
 
 ## Anti-patterns
 
-- **Don't silently edit an existing PRD.** Assess and report first. The user invoked `/design prd` to see the agent's read of the PRD, not to wake up to a rewritten doc.
-- **Don't author DC-N Design Constraints.** Deprecated per R-prd-09; constraints live in CAB Decisions / CAB Rules / Non-Goals.
-- **Don't write a separate `{NAME} Open Questions.md` file.** Inline `## Open Questions` per `/ask` is the modern shape (R-prd-06).
-- **Don't add a per-doc `status::` field on the PRD.** Centralized in `{NAME} Status.md` per [[CAB Status]] (R-prd-08).
-- **Don't author with YAML frontmatter.** Body-only with `description::` inline per R-prd-02 / R-prd-03.
-- **Don't gate by separate ceremony.** Promotion to `MVP-agent` is a `state status set` call, not a Verify row or a banner. The user-grade `MVP-user` comes from natural language.
+- **Don't bypass survey-and-report on an existing PRD.** Assess first, share findings in chat, then drive edits with consent. Mechanical normalization (fixing a stale link target, renaming `US-1` → `US-<RID>-1`, rewriting frontmatter to body-only) is fine to apply silently as part of driving — those are facet-rule applications. Editorial changes to user-authored content (rewriting an Overview paragraph, adding or dropping a Goal, restructuring User Stories) need to be surfaced before they land.
+- **Don't gate by separate ceremony.** Promotion to `MVP-agent` is a `state status set` call, not a Verify row or a banner. The user-grade `MVP-user` comes from natural-language confirmation.
 - **Don't ask "should we have a PRD?"** — `/design prd` was invoked. Author it (bootstrap) or assess it (existing).
+
+(For the decide-vs-ask judgment on open questions, defer to [[ask]] — that discipline owns the lifecycle, not this skill. For shape rules — body-only, no DC-N, no per-doc `status::`, no separate Open Questions file — defer to [[CAB PRD#RULESET R-prd|R-prd]]; the audit catches them mechanically.)
 
 ## Related
 
