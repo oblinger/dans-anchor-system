@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
-"""mux-bridge Syncthing helper — REST API operations.
+"""bridge — Syncthing helper for the `bridge sync` mechanism (REST API).
 
 Subcommands: pair, share, wait-converge, flip-bidirectional, record, status,
-teardown, defaults. Reads/writes ~/.config/mux-bridge/{defaults,hosts}.yaml.
+teardown, defaults. Reads/writes ~/.config/bridge/{config,hosts}.yaml.
 
 Talks to local Syncthing daemon directly via REST; talks to remote via
 SSH-wrapped curl. Idempotent — re-running a subcommand on already-applied
 state is a no-op + a JSON status print.
+
+Part of the `bridge` skill (renamed from mux-bridge per F150). This helper
+backs the file-sync mechanism; `bridge claude` (environment-twin provisioning)
+is handled by claude-provision.py.
 """
 import argparse
 import json
@@ -26,9 +30,11 @@ except ImportError:
     sys.exit("ERROR: PyYAML required. Install: pip3 install pyyaml")
 
 
-CONFIG_DIR = Path.home() / ".config" / "mux-bridge"
+CONFIG_DIR = Path.home() / ".config" / "bridge"
 HOSTS_PATH = CONFIG_DIR / "hosts.yaml"
-DEFAULTS_PATH = CONFIG_DIR / "defaults.yaml"
+CONFIG_PATH = CONFIG_DIR / "config.yaml"
+# Legacy flat defaults file (mux-bridge era) — read as migration fallback.
+LEGACY_DEFAULTS_PATH = CONFIG_DIR / "defaults.yaml"
 ST_CONFIG_LOCAL = Path.home() / "Library" / "Application Support" / "Syncthing" / "config.xml"
 ST_API_LOCAL = "http://127.0.0.1:8384"
 USER_REMOTE = os.environ.get("USER", "oblinger")
@@ -60,15 +66,17 @@ def get_local_apikey():
 
 
 def get_remote_apikey(host, user=USER_REMOTE):
-    snippet = (
-        "import xml.etree.ElementTree as ET, sys, os;"
-        " p = os.path.expanduser('~/Library/Application Support/Syncthing/config.xml');"
-        " print(ET.parse(p).getroot().find('.//gui/apikey').text)"
+    # Avoid python3 on remote (Xcode license gotcha on fresh macOS).
+    # Use grep+sed to pull <apikey>...</apikey> from config.xml.
+    remote = (
+        'grep -E "<apikey>[^<]+</apikey>" '
+        '"$HOME/Library/Application Support/Syncthing/config.xml" '
+        '| head -1 | sed -E "s|.*<apikey>([^<]+)</apikey>.*|\\1|"'
     )
-    cmd = ["ssh", f"{user}@{host}", f"python3 -c {shlex.quote(snippet)}"]
+    cmd = ["ssh", f"{user}@{host}", remote]
     result = subprocess.run(cmd, capture_output=True, text=True)
-    if result.returncode != 0:
-        raise RuntimeError(f"Failed to fetch remote API key from {host}: {result.stderr.strip()}")
+    if result.returncode != 0 or not result.stdout.strip():
+        raise RuntimeError(f"Failed to fetch remote API key from {host}: {result.stderr.strip() or '(empty output)'}")
     return result.stdout.strip()
 
 
@@ -341,17 +349,40 @@ def cmd_teardown(args):
     print(json.dumps({"torn_down": args.host, "move_asides_on_remote": move_asides}))
 
 
+def load_config():
+    """Load ~/.config/bridge/config.yaml, migrating from the legacy flat
+    defaults.yaml (mux-bridge era) on first read if needed."""
+    if CONFIG_PATH.exists():
+        return read_yaml(CONFIG_PATH)
+    # Migrate legacy flat defaults.yaml → nested config.yaml
+    legacy = read_yaml(LEGACY_DEFAULTS_PATH)
+    cfg = {"version": 1, "defaults": {}, "claude_environment": {}}
+    if legacy:
+        d = cfg["defaults"]
+        if legacy.get("default_remote"):
+            d["remote"] = legacy["default_remote"]
+        if legacy.get("default_mode"):
+            d["sync_mode"] = legacy["default_mode"]
+        if legacy.get("default_folder"):
+            cfg["claude_environment"]["sync"] = [legacy["default_folder"]]
+        write_yaml(CONFIG_PATH, cfg)
+    return cfg
+
+
 def cmd_defaults(args):
-    data = read_yaml(DEFAULTS_PATH)
+    cfg = load_config()
+    cfg.setdefault("version", 1)
+    cfg.setdefault("defaults", {})
     if args.set:
         for kv in args.set:
             if "=" not in kv:
                 sys.exit(f"--set expects field=value, got: {kv}")
             field, value = kv.split("=", 1)
-            data.setdefault("version", 1)
-            data[field] = value
-        write_yaml(DEFAULTS_PATH, data)
-    print(json.dumps(data, indent=2))
+            # Accept legacy flat names too, mapping into the nested shape.
+            field = {"default_remote": "remote", "default_mode": "sync_mode"}.get(field, field)
+            cfg["defaults"][field] = value
+        write_yaml(CONFIG_PATH, cfg)
+    print(json.dumps(cfg, indent=2))
 
 
 def main():
