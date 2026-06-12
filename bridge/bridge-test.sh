@@ -112,7 +112,10 @@ echo "[Integration — claude]"
 if [ "$REMOTE_UP" = yes ]; then
   V=$(python3 "$HELP_DIR/claude-provision.py" verify --host "$HOST" 2>/dev/null)
   echo "$V" | grep -q '"twin_ready": true' && rec PASS T-cla-verify "twin_ready: true" || rec FAIL T-cla-verify "twin not ready"
-  echo "$V" | grep -q '"projects_excluded": true' && rec PASS T-inv-no-transcripts "projects/ empty on remote" || rec FAIL T-inv-no-transcripts "projects/ present!"
+  echo "$V" | grep -q '"transcripts_excluded": true' && rec PASS T-inv-no-transcripts "no transcripts in shared index" || rec FAIL T-inv-no-transcripts "transcript jsonl in shared index!"
+  # F159 — memory share + ob-skills config
+  echo "$V" | grep -q '"memory_share_recorded": true' && rec PASS T-cla-memory "memory share recorded" || rec SKIP T-cla-memory "memory not shared (off or not yet applied)"
+  echo "$V" | grep -q '"ob_skills_present": true' && rec PASS T-cla-obskills "ob-skills config on remote" || rec FAIL T-cla-obskills "ob-skills config missing"
   # runtime gate
   RT=$($SSH "$USER_R@$HOST" 'echo "$(command -v claude),$(command -v node),$([ -f ~/.claude.json ] && echo auth)"' 2>/dev/null)
   if echo "$RT" | grep -q 'claude' && echo "$RT" | grep -q 'auth'; then

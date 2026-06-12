@@ -35,11 +35,18 @@ Two are **mechanisms** (how control / bytes move); one is a **goal** built on to
 version: 1
 defaults: { remote: haorui.local, sync_mode: syncthing }
 claude_environment:
-  sync: [ /Users/oblinger/ob/kmr ]            # content carried by a sync-bridge
+  sync: []                                    # ADDITIONAL paths only — the vault comes from
+                                              # ob-skills global.yaml vault_root (F159)
+  memory: shared                              # bidirectional memory share (F159); "off" disables
   claude_home:                                # ~/.claude provisioning (rsync include − exclude)
-    include: [ skills, CLAUDE.md, settings.json, commands ]
+    include: [ skills, CLAUDE.md, settings.json, commands, agents, keybindings.json ]
     exclude: [ projects, todos, worktrees, shell-snapshots, statsig, .DS_Store ]
+  config_home:                                # ~/.config provisioning, one-way (F159)
+    include: [ ob-skills ]
+    exclude: [ cache, __pycache__, .DS_Store ]
 ```
+
+**The vault path is NOT duplicated in bridge config** — `claude-provision.py` reads `vault_root` from `~/.config/ob-skills/global.yaml`, the same parameter every cross-cutting skill script scopes by. Missing `vault_root` fails loudly (F159).
 
 The helpers live at `~/.claude/skills/bridge/`: `syncthing-helper.py` (sync mechanism) and `claude-provision.py` (claude goal).
 
@@ -245,11 +252,23 @@ When `bridge <host>` runs and hosts.yaml has a sync entry: probe both daemons; r
 
 **Goal:** make `<host>` able to run a Claude instance as a **twin** of this machine. It *composes* the mechanisms — `bridge sync` carries the content; an rsync provisions `~/.claude`.
 
-A "Claude environment" = **synced content** (vault, code) + **`~/.claude` minus transcripts** (skills, CLAUDE.md, settings, commands). The abstract shape is here; the concrete paths are in `config.yaml` `claude_environment`.
+A "Claude environment" = **synced content** (vault, code — rooted at ob-skills `vault_root`) + **`~/.claude` minus transcripts** (skills, CLAUDE.md, settings, commands) + **shared memory** (F159) + **ob-skills config** (F159). The abstract shape is here; the concrete paths are in `config.yaml` `claude_environment`.
 
 ### Environment parity ≠ session portability
 
 `bridge claude` provisions for **fresh** sessions on the twin. It **never** carries `~/.claude/projects/*.jsonl` transcripts. Transcripts are path-keyed (would technically `--resume` since paths are identical) but are append-heavy `.sync-conflict` generators under bidirectional sync and reference machine-local state (PIDs, tmux, background tasks) absent on the twin. **Excluded by design.** Start fresh sessions over there; the environment is what travels.
+
+### Memory IS shared (F159)
+
+Auto-memory lives at the harness-standard path `~/.claude/projects/<project-key>/memory/` — inside the excluded transcripts tree, so pre-F159 twins woke up without their lore. With `memory: shared`, `apply` creates a **second Syncthing folder** (`claude-memory`, path `~/.claude/projects/`, sendreceive both sides) whose `.stignore` admits ONLY memory dirs:
+
+```
+!/*/memory
+!/*/memory/**
+*
+```
+
+The transcripts-never-travel invariant moves from the folder boundary to the **ignore layer**: each machine's own transcripts sit in the ignored zone and never enter the shared index (verify checks the global index for `.jsonl`, not the remote disk — the twin legitimately writes its own transcripts once it runs `claude`). `.stignore` is per-device; `apply` writes it on BOTH sides before creating the share so the first scan never offers transcripts. Memory's one-fact-per-file design keeps conflict risk low; the only contested file is `MEMORY.md`, where a rare `.sync-conflict` is visible and cheap to heal. Remote learnings sync home — the twin contributes to the same lore it inherits.
 
 ### Recipe — `claude-provision.py`
 
@@ -264,9 +283,9 @@ python3 ~/.claude/skills/bridge/claude-provision.py apply  --host <host> [--brid
 python3 ~/.claude/skills/bridge/claude-provision.py verify --host <host> [--bridge-ip <169.254.x.x>]
 ```
 
-- `plan` reports which `claude_environment.sync` paths are already covered by a sync-bridge (it does **not** auto-init sync — that has its own move-aside gate; if a path is uncovered it tells you to run `bridge sync <host>`).
-- `apply` rsyncs each `claude_home.include` from `~/.claude/`, applying every `claude_home.exclude` (notably `projects`), over `--bridge-ip` when given. `--delete` makes the remote a true mirror.
-- `verify` confirms `~/.claude/skills/bridge/SKILL.md` present, `CLAUDE.md` present, `~/.claude/projects` empty → `twin_ready`.
+- `plan` reports vault_root, sync coverage (vault_root + `sync` extras), memory-share state, and both rsync manifests (it does **not** auto-init sync — that has its own move-aside gate; if a path is uncovered it tells you to run `bridge sync <host>`).
+- `apply` rsyncs each `claude_home.include` from `~/.claude/` and each `config_home.include` from `~/.config/`, applying the excludes, over `--bridge-ip` when given; then sets up the memory share if `memory: shared` and not yet recorded (idempotent via hosts.yaml). `--delete` makes the remote a true mirror.
+- `verify` confirms skills + CLAUDE.md present, **no `.jsonl` in the shared memory index**, memory share recorded, ob-skills config present → `twin_ready`.
 
 Then `bridge <host>` (control) into the twin and run `claude` there — same skills, same CLAUDE.md, same vault, fresh sessions.
 
@@ -281,3 +300,5 @@ Then `bridge <host>` (control) into the twin and run `claude` there — same ski
 ## Status
 
 **Active** (F150, 2026-06-11). Control plane captured 2026-06-06 (COPPER → 10T). Sync (Syncthing) + Claude bridge built and **verified live against haorui.local** 2026-06-11: 14.4 GB vault seeded via tar over a Thunderbolt bridge, `.claude/` excluded both sides, `bridge claude` provisioned 65 skills + CLAUDE.md with `projects/` excluded (`twin_ready: true`). Renamed from `mux-bridge`; helpers at `~/.claude/skills/bridge/`; config at `~/.config/bridge/`. NFS (Phase 2) and rsync (Phase 3) still deferred per F122.
+
+**F159 (2026-06-12)** — Claude bridge grew three layers, all verified live against haorui.local: vault path derived from ob-skills `vault_root` (removed from bridge config); bidirectional **memory sharing** via the `claude-memory` ignore-filtered share (two-way probe converged ~15s each direction; shared index verified `.jsonl`-free while haorui's own transcripts stayed local); one-way **ob-skills config** provisioning. Full F151 harness: 10 pass, 0 fail. Known gap (out of scope): `~/bin` shell tools (`ctrl`, `ha`, `exp`) referenced by the synced CLAUDE.md are machine installs and don't travel.
