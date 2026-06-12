@@ -4,7 +4,7 @@ description: Planning tree for the Atlas skill — backlog, discussion, features
 
 # Atlas Plan
 
-| -[[Atlas Track]]- | → [[_]] → [[Dir]] → [ob](hook://ob) → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[Atlas Docs]] → [Atlas Track](hook://p/Atlas%20Track)<br>: planning tree for Atlas |
+| -[[Atlas Track]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[Atlas Docs]] → [Atlas Track](hook://p/Atlas%20Track)<br>: planning tree for Atlas |
 | --- | --- |
 | [[Atlas Discussion]] | Open trade-off discussions — design questions, deliberation |
 | [[Atlas Backlog]] | Upcoming + in-flight work tracking |

@@ -6,7 +6,7 @@ description: backlog-horizons — Backlog skill anchor — see [[backlog-horizon
 | -[[Backlog]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [Backlog](hook://p/Backlog)<br>: backlog-horizons — Backlog skill anchor — see [[backlog-horizons/SKILL\|SKILL.md]] for the spec |
 | --- | --- |
 | Skill | [[backlog-horizons/SKILL\|SKILL.md]],  [[SKL Backlog\|User Docs]],   |
-| [[Backlog Plan\|Plan]]~~+ | ~~[[Backlog Backlog\|Backlog]],  [[Backlog Features\|Features]],  [[Backlog PRD\|PRD]], |
+| [[Backlog Plan\|Plan]]~~+ | [[Backlog Backlog\|Backlog]],  ~~[[Backlog Features\|Features]],  [[Backlog PRD\|PRD]], |
 
 
 
