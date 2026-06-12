@@ -2,13 +2,13 @@
 
 Takes one anchor (or folder) and brings its **dispatch table** to good form — the **Masthead** (breadcrumb + anchor-kind structural rows + curated one-off links) followed by the optional **Member zone** (member list / member groups, manual / auto / hybrid). **Fixes by default** — like `/audit q`, it applies the repair rather than just reporting it, because dispatch-table shape is mechanical to get right. Low-confidence choices (grouping categories, structural-vs-member ambiguity) surface to the user; everything mechanical is applied.
 
-Enforces the structure spec'd in [[CAB Dispatch Table]] (see [[F155 — Dispatch-table structure spec + CAE worked examples|F155]] for the Masthead + Member-zone model). The per-anchor counterpart of the vault-wide walk in [[SYS Anchor DAG]]: SYS owns whole-vault connectivity; `/audit dispatch` owns one table's shape.
+Enforces the structure spec'd in [[CAB Dispatch Table]] (see [[F155 — Dispatch-table structure spec + CAE worked examples|F155]] for the Masthead + Member-zone model). The per-anchor counterpart of the vault-wide walk defined in [[anchor-dag]]: SYS owns whole-vault connectivity; `/audit dispatch` owns one table's shape.
 
 ## When to use
 
 - `/audit dispatch <anchor>` — repair one anchor's dispatch table.
 - `/audit dispatch` (in an anchor's cwd) — repair the current anchor.
-- Called by [[SYS Anchor DAG]]'s walk to fix a node's down-links + table form.
+- Called by the [[anchor-dag]] walk to fix a node's down-links + table form.
 - Add `dry` anywhere in the args to report the proposed table without writing it.
 
 ## Distinction from `/audit structure`
@@ -50,7 +50,7 @@ On `dry`: print the proposed table instead of writing it.
 
 ## Confidence model
 
-Mirrors [[SYS Anchor DAG]]'s two-table report at single-anchor scope: **mechanical fixes applied silently** (missing links, breadcrumb, threshold, normalization); **semantic choices surfaced** (group categories, structural-vs-member ambiguity, stale-curated-link calls). Loop until the table is clean, same discipline as `/audit q`.
+Mirrors [[anchor-dag]]'s two-table report at single-anchor scope: **mechanical fixes applied silently** (missing links, breadcrumb, threshold, normalization); **semantic choices surfaced** (group categories, structural-vs-member ambiguity, stale-curated-link calls). Loop until the table is clean, same discipline as `/audit q`.
 
 ## Related
 
@@ -59,5 +59,5 @@ Mirrors [[SYS Anchor DAG]]'s two-table report at single-anchor scope: **mechanic
 - [[progressive-disclosure]] — member list vs member groups (List / Grouped, > 15 rule).
 - [[Collection]] — the trait that means "this anchor has a Member zone."
 - [[granularity]] — compact → grouped graduation.
-- [[SYS Anchor DAG]] — the vault-wide walk that calls this per anchor.
+- [[anchor-dag]] — the corpus-level discipline whose walk calls this per anchor ([[SYS Anchor DAG]] is this vault's application of it).
 - [[F155 — Dispatch-table structure spec + CAE worked examples|F155]] — the full structure spec this enforces (pending).
