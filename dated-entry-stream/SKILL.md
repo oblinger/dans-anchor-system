@@ -1,14 +1,14 @@
 ---
 name: dated-entry-stream
 description: >
-  Discipline. Sub-discipline of [[file-association]] covering streams of **dated,
-  typed, reverse-chronological entries** attached to a parent doc or anchor.
-  Examples: Discussion (per doc), Log (per anchor or per doc). Specifies three
-  placement methods — inline H1 / sibling file / sibling folder — plus the
-  naming convention, one-way migration direction, dispatch linkage, and the
+  Discipline. The DATED specialization of [[file-association]] — streams of
+  **dated, typed, reverse-chronological entries** attached to a parent doc or
+  anchor (Discussion, Log). Placement (the three methods), naming, one-way
+  migration, linkage, and the one-form invariant are inherited from
+  [[file-association]]; this discipline adds only the dated extras: newest-first
+  ordering, prepend semantics, ISO-date entry-file naming, and the
   parallel-entry-skeleton invariant. Cited by every facet whose content is a
-  stream of this shape; the facet doesn't re-explain the methods, it just
-  declares which it supports and which is default.
+  dated stream; the facet declares which methods it supports and which is default.
 tools: Read
 user_invocable: false
 ---
@@ -23,7 +23,7 @@ A *dated entry stream* is content of the form:
 - **Attached to a parent** — the stream lives "about" a specific document (or, for anchor-scoped facets, a specific anchor) — the thing being discussed, the thing being logged.
 - **Append-style** — new entries prepend; old entries are not edited after their decision/outcome is recorded.
 
-This discipline owns the *placement* of such streams (where the bytes live and how the parent points at them). The *content shape* per facet (what an entry contains) lives in each citing facet's spec — Discussion specifies its own skeleton, Log specifies a different one, etc.
+**Placement is inherited from [[file-association]].** The three methods (inline H1 / sibling file / sibling folder), the cardinality→placement rule, the suffix-naming convention, one-way migration, the one-form-per-parent invariant, and parent linkage all live in the umbrella — this discipline does not re-spell them. It adds only the **dated extras** below. The *content shape* per entry (what an entry contains) lives in each citing facet's spec — Discussion specifies its own skeleton, Log a different one.
 
 ## When this discipline applies
 
@@ -35,41 +35,17 @@ Whenever a facet's content is a stream of the shape above. Scope-agnostic — th
 
 Each facet declares which scopes it supports.
 
-## The three placement methods
+## Placement (inherited)
 
-| # | Method | Shape | When |
-|---|---|---|---|
-| **1** | **Inline H1** | A `# {Facet}` H1 at the END of the parent doc, after every other H1 section. Entries are dated H2 sub-sections under it. | Default. The stream is small enough to read in flow with the parent's body. |
-| **2** | **Sibling file** | A separate file `{Parent} {Facet}s.md` (plural facet suffix) next to the parent. The parent removes its inline H1 and links to the sibling from its dispatch table or near the top. | The inline form has grown past ~1–2 screens of body content, or visually dominates the parent's regular content. |
-| **3** | **Sibling folder** | A folder `{Parent} {Facet}s/` next to the parent, containing an anchor file `{Parent} {Facet}s.md` (with a dispatch table) PLUS one file per entry, named `YYYY-MM-DD — <Entry Title>.md`. | The sibling-file form has grown so large that individual entries deserve their own files (deep entries with sub-headings of their own, frequent cross-linking to specific entries, vault-wide search by entry title). |
+Uses [[file-association]]'s three methods — inline H1 (1) / sibling file (2) / sibling folder (3) — chosen by the cardinality→placement rule, migrated one-way `1 → 2 → 3`, one-form-per-parent, linked from the parent's dispatch table. See the umbrella for all of that; it is **not** re-spelled here.
 
-The content shape per entry is identical across all three methods; only the *storage* differs.
+**Dated default:** a dated stream's inline form (method 1) is a `# {Facet}` H1 holding **dated H2 sub-entries** (newest first). When extracted, the plural suffix applies (`Discussions`, `Logs`).
 
-## Naming convention
+## Dated extras (what this specialization adds)
 
-- **Parent reference**: the parent's filename (or anchor's name) is the prefix. If the parent doc is `CAE PRD.md`, the sibling file is `CAE PRD Discussions.md`; the sibling folder is `CAE PRD Discussions/`.
-- **Plural facet suffix** when extracted (methods 2 and 3): `Discussions` not `Discussion`, `Logs` not `Log`. The plural signals "extracted form holding multiple entries"; the inline H1 stays singular (`# Discussion`). The singular-vs-plural distinction is the visual cue for which form is in play.
-- **Method 3 anchor file** matches the folder name: `{Parent} {Facet}s/{Parent} {Facet}s.md`. H1 matches filename.
-- **Method 3 entry files** use ISO date prefix + em-dash + title: `2026-06-11 — <Title>.md`. H1 inside matches the title (without the date prefix, to keep H1s clean and the date in the filename for sort order).
-
-## Migration is one-way
-
-`1 → 2 → 3`. Inline grows past readability → extract to sibling file. Sibling file grows past readability → break into folder of per-entry files.
-
-**Reverse migration is discouraged.** Pulling extracted content back inline loses the git-blame visibility of each entry's authorship; breaking up the folder back into a single sibling file loses per-entry edit history. Reverse migration is allowed only as a deliberate refactor with the user's explicit ack; the agent does not automatically downgrade.
-
-## Linkage from parent to extracted stream
-
-When the stream is extracted (methods 2 or 3), the parent doc must link to it:
-
-- **Method 2 (sibling file)**: a row in the parent's dispatch table, or a `## See also` entry, pointing at `[[{Parent} {Facet}s]]`. The inline `# {Facet}` H1 is removed; the parent no longer carries the stream content.
-- **Method 3 (sibling folder)**: same — link to the folder-anchor file `[[{Parent} {Facet}s]]` (Obsidian resolves to the anchor file inside the folder by basename).
-
-The link sits near the top of the parent (in the dispatch table) so a reader landing on the parent sees that an extracted stream exists. Not at the bottom — readers may scroll only as far as they need, and discovery is part of the linkage's job.
-
-## One form per parent at a time
-
-A parent has EITHER inline H1, OR sibling file, OR sibling folder — never two simultaneously. Mixed forms create drift: readers don't know which is current, new entries land in the wrong place, the navigation is broken. Migration touches both forms in one atomic step (remove inline → create sibling; or migrate sibling file → folder).
+- **Dated entry-file naming (method 3).** Each per-entry file uses an ISO date prefix + em-dash + title: `2026-06-11 — <Title>.md`. The H1 inside matches the title *without* the date prefix (clean H1s; the date lives in the filename for sort order). *(This is the dated specialization of file-association's "per-item naming"; non-dated collections name by title alone.)*
+- **Reverse-chronological, prepend.** Entries are ordered newest-first; new entries **prepend**, never append. (See R-dated-entry-stream-05.)
+- **Append-style immutability.** Old entries are not edited after their decision/outcome is recorded — the stream is a ledger.
 
 ## Parallel entry skeleton
 
