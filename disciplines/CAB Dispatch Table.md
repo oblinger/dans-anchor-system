@@ -4,7 +4,7 @@ description: Dispatch Table discipline — the top-of-file table convention used
 
 # CAB Dispatch Table
 
-| -[[CAB Dispatch Table]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[CAB]] → [[CAB Disciplines]] → [CAB Dispatch Table](hook://p/CAB%20Dispatch%20Table)<br>: the top-of-page navigation table — its own spec, dogfooded |
+| -[[CAB Dispatch Table]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [CAB Dispatch Table](hook://p/CAB%20Dispatch%20Table)<br>: the top-of-page navigation table — its own spec, dogfooded |
 | --- | --- |
 | Anchor | [[CAB Disciplines]] (parent catalog),  [[CAB]] |
 | Design | [[CAB Dispatch Table Design\|Design]] — rationale + standing decisions |
@@ -27,7 +27,7 @@ A markdown table placed immediately under the H1 of a page. The first row carrie
 ## Anatomy of a dispatch row
 
 ```markdown
-| -[[<This Page>]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[CAB]] → [[CAB Disciplines]] → [CAB Dispatch Table](hook://p/CAB%20Dispatch%20Table)<br>: <one-line description> |
+| -[[<This Page>]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [CAB Dispatch Table](hook://p/CAB%20Dispatch%20Table)<br>: <one-line description> |
 | --- | --- |
 | <Category 1> | [[Link A\|A]],  [[Link B\|B]],  … |
 | <Category 2> | [[Link C\|C]],  [[Link D\|D]],  … |
@@ -72,6 +72,8 @@ Below the Masthead, a [[Collection]] anchor enumerates its **members**. Two **or
 **Axis 1 — layout (the [[progressive-disclosure]] pattern):**
 - **Member list** — flat; one row (or compact line) per member. Use ≤ ~15 members.
 - **Member groups** — members under labeled group rows; a group row may carry a **`+`** to mark it expandable (it has children of its own). Use > 15 members (the progressive-disclosure size rule; the graduation is [[granularity]]).
+  - RULE (grouped-rows-link-down): **each group row's label is a link** *down* to that group's own anchor page + dispatch table — the group is a **container**, per [[progressive-disclosure]] § The tree of containers. A grouped table is therefore one node of the container tree; clicking a group label descends to a finer node (its members). The `+` is the visible mark that the label is an expandable container, not a leaf.
+  - RULE (container-ends-electric): a **container's** dispatch table **ends with an electric-list marker** — `...` (compact auto), `| --- | |` (auto-list), or trailing `+`-group rows — so newly-added children have a defined place to land. *(Tied to the container trait.)*
 
 **Axis 2 — automation (who orders the rows):**
 - **Manual** — hand-ordered rows; the author controls order and pinning.
