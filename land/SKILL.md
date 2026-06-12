@@ -13,6 +13,8 @@ user_invocable: true
 
 # Land — Bounded Crank
 
+Skill spec for `/land` (and the bare-period trigger) — a bounded crank that finishes every in-flight activity, commits, reports done, and stops without pulling new work from the backlog.
+
 Three execution-pattern peers:
 
 | Trigger | Mode | Stops when |

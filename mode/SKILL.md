@@ -9,6 +9,8 @@ user_invocable: false
 
 # Mode Discipline
 
+Operating-mode discipline that pre-decides recurring "more thorough vs faster" trade-offs so the agent doesn't have to ask each time.
+
 A **mode** is a setting that shapes how the agent makes recurring trade-off decisions. Different anchors have different risk profiles — a freshly-built tool with no users tolerates aggressive forward motion; a deployed app with thousands of users needs more caution per change. Mode is the declaration of which posture is appropriate.
 
 User docs: [[SKL Mode]] (framework) and [[SKL Mode Drive]] (the current mode).

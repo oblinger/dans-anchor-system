@@ -14,3 +14,4 @@ The disciplines + tool that govern *what's being tracked* inside an anchor's `{N
 | Audit-q | Mechanical validator for backlog + Q.md integrity (link existence, bracket validity, H2 purity, etc.). Reads CAB Backlog spec; ships in `audit/scripts/audit-q.py`. Doc pending. |
 | --- | |
 | [[SKL Messages]] | agent inbox — system messages for this anchor; cleared on every pause. See |
+| [[SKL Plan]] | Plan — federated orchestrator for a project anchor's planning artifacts. The Track-cluster sibling of /crank. |

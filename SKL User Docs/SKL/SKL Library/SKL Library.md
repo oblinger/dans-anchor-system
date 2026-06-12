@@ -8,5 +8,5 @@ Curated content repositories that ship with the skills tree. A **library** is a 
 
 | -[[SKL Library]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [SKL Library](hook://p/SKL%20Library)<br>: Curated content repositories that ship with the skills tree. |
 | --- | --- |
-| [[Decision Sets]] | Curated, versioned bundles of decisions per F113 Phase 3. Each set bundles related decisions that apply to a specific style of anchor (trait-scoped) or a cross-cutting concern (markdown formatting, git discipline, testing posture). Anchors pull sets in via copy-in semantics; `audit-decisions.py` reads them to grade per-anchor adherence. |
+| [[Rule Sets]] | Curated, versioned bundles of decisions per F113 Phase 3. Each set bundles related decisions that apply to a specific style of anchor (trait-scoped) or a cross-cutting concern (markdown formatting, git discipline, testing posture). Anchors pull sets in via copy-in semantics; `audit-decisions.py` reads them to grade per-anchor adherence. |
 | --- | |

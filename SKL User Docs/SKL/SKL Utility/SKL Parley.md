@@ -1,3 +1,6 @@
+---
+description: "Structured discussion — talk through a topic with the user, capture decisions, and surface next steps."
+---
 # /parley
 
 Structured discussion — talk through a topic with the user, capture decisions, and surface next steps. The agent listens and reflects rather than executing changes; the output is a record of what was discussed.

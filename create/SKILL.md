@@ -11,6 +11,8 @@ user_invocable: true
 
 # Create
 
+Dispatch skill that routes `/create <thing>` invocations to the underlying creation skill for anchors, features, work products, specs, or rules.
+
 Create a new thing. Requires an argument specifying what to create.
 
 | Usage | Delegates to | Description |

@@ -3,7 +3,7 @@ description: "skim → click into the rule that applies"
 ---
 # SKL Corp
 
-| -[[SKL Corp]]- | : skim → click into the rule that applies<br>→ [ob](hook://ob) → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Search]] → [SKL Corp](hook://p/SKL%20Corp) |
+| -[[SKL Corp]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Search]] → [SKL Corp](hook://p/SKL%20Corp)<br>: skim → click into the rule that applies |
 | --- | --- |
 | Corp rules (any verb) | [[SRC rules/corp\|corp.md]],   |
 | Verbs | [[SRC rules/find-corp\|find-corp]],  [[SRC rules/describe-corp\|describe-corp]],  [[SRC rules/survey-corp\|survey-corp]],   |

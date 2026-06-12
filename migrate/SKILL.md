@@ -11,6 +11,8 @@ user_invocable: true
 
 # Migrate
 
+Skill specification for the `/migrate` action — changes any aspect of an existing anchor (slug, location, traits, structure, naming) without losing files.
+
 Change anything about an anchor. The user specifies what to change and the skill intelligently reorganizes.
 
 ## Safety Rule

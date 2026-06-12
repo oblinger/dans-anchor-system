@@ -240,11 +240,11 @@ Embed in the markdown: `![[CAE Scheduler.svg]]` (or `![[CAE Scheduler.svg|1200]]
 ```
 The remaining C30 (SVG older than excalidraw) means a manual re-convert: `python3 ~/.claude/skills/viz/excalidraw_to_svg.py "CAE Scheduler.excalidraw"`. Re-run audit: zero findings.
 
-**Step 8 — Subjective re-read.** Walk the 14-item checklist above against `CAE Scheduler.md`. The figure passes (clean layout, all sections represented), prose orients cold, method descriptions are non-trivial, the topic carries weight (anchors `[[CAE Rules#R01]]`).
+**Step 8 — Subjective re-read.** Walk the 14-item checklist above against `CAE Scheduler.md`. The figure passes (clean layout, all sections represented), prose orients cold, method descriptions are non-trivial, the topic carries weight (anchors `[[CAE Decisions#D07 — One Queue, One Clock (checked)]]`).
 
 **Step 9 — Link in dispatch tables.** Add a row to `CAE Docs/CAE Dev/CAE Dev.md`:
 ```markdown
-| [[CAE Scheduler]] | Priority queue engine + worker pool for deferred task execution |
+| [[CAE-Scheduler]] | Priority queue engine + worker pool for deferred task execution |
 ```
 Add the file to `CAE Docs/CAE Dev/CAE Files.md` tree at the appropriate node.
 

@@ -11,6 +11,8 @@ user_invocable: true
 
 # Feature — Feature Lifecycle
 
+The runbook for the `/feature` skill — drives a feature from idea through Designing → Agreed → Implementing → Testing → Done with a single F-numbered doc, an explicit user-agreement gate, and mandatory backlog/Q.md sync at every transition.
+
 Manage a feature from initial idea through design, agreement, implementation, testing, and completion. Every feature gets a dated design document, posts to stat throughout its lifecycle, and requires explicit user agreement before implementation begins.
 
 **MANDATORY: Post to stat at every lifecycle transition. The user monitors features via the Ops page.**

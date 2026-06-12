@@ -6,6 +6,8 @@ user_invocable: true
 
 # /survey
 
+Skill spec for `/survey` — building multi-dimensional comparison tables across many entities, with a meta-survey sub-pattern for high-stakes comparisons.
+
 Build a **multi-dimensional comparison table** over many entities, plus interpretive notes about what's notable, where coverage is sparse, and what follow-up surveys might be useful.
 
 ## What loads at invocation (per [[skill-search-rules]])

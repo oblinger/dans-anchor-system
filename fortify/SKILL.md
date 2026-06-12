@@ -14,6 +14,8 @@ user_invocable: true
 
 # Fortify — Cautious Crank
 
+Skeptical, methodical counterpart to `crank` — when normal iteration stops converging, pause to distrust the logs / code / tests / mental model and fortify the foundation before resuming work.
+
 `crank` says: pick the next thing and go.
 `fortify` says: stop, distrust your own information, and strengthen the foundation before going on.
 

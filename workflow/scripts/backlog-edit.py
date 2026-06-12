@@ -35,6 +35,13 @@ Side effects:
     1. Mutates the anchor's backlog file.
     2. Runs `audit-backlog <slug> --fix` to refresh Q.md.
     3. Writes a per-anchor and global Messages entry recording the edit.
+
+Q-management mode (F128):
+    backlog-edit.py <slug> <row-id> -Q <add|resolve|remove|rewrite> [-n <n>] [...]
+    Run `backlog-edit.py X F1 -Q add --help` for the full Q-mode help.
+    Triggered by presence of the `-Q` flag anywhere in argv. The Q-mode
+    does NOT take a horizon argument — it edits the feature doc's
+    `## Open Questions` block, not the backlog row.
 """
 
 from __future__ import annotations
@@ -1374,19 +1381,45 @@ def main_q(argv):
          [--from-file path] [-m "..."]
     """
     import argparse
-    p = argparse.ArgumentParser(prog="backlog-edit.py", add_help=False)
-    p.add_argument("slug")
-    p.add_argument("row_id")
+    p = argparse.ArgumentParser(
+        prog="backlog-edit.py",
+        description=(
+            "F128 Q-management — add / resolve / remove / rewrite Open Questions "
+            "in a feature doc. The script enforces ask-format spec (block-IDs, "
+            "Q-numbering, Phase 1/2/3 lifecycle) and runs ask-render + audit-q "
+            "lenient as post-conditions per F127's render-audit-glance invariant. "
+            "Body content via stdin (primary), --from-file (fallback for long Qs), "
+            "or -m (inline one-liner)."
+        ),
+        epilog=(
+            "Examples:\n"
+            "  echo '**Q5 — short** — body.' | backlog-edit.py SKA F091 -Q add\n"
+            "  echo 'team picked A' | backlog-edit.py SKA F091 -Q resolve -n 5 --choice '(A)'\n"
+            "  backlog-edit.py SKA F091 -Q remove -n 5 --reason 'obsoleted by F128'\n"
+            "  echo '**Q5 — rewritten** — fresh body.' | backlog-edit.py SKA F091 -Q rewrite -n 5 --force\n"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    p.add_argument("slug",
+                   help="Anchor slug (e.g., SKA, MUX, HA, A2X)")
+    p.add_argument("row_id",
+                   help="F-number of the row whose feature doc holds the Qs (e.g., F128)")
     p.add_argument("-Q", dest="verb",
                    choices=["add", "resolve", "remove", "rewrite"],
-                   required=True)
+                   required=True,
+                   help="Q-management verb")
     p.add_argument("-n", dest="q_num", type=int, default=None,
                    help="Q-number (required for resolve/remove/rewrite; auto-minted for add)")
-    p.add_argument("--choice", default=None)
-    p.add_argument("--reason", default=None)
-    p.add_argument("--force", action="store_true")
-    p.add_argument("--from-file", dest="from_file", default=None)
-    p.add_argument("-m", dest="inline", default=None)
+    p.add_argument("--choice", default=None,
+                   help="For resolve: chosen option label like '(A)' or '(B)' — copied into the resolved H3's **Choice:** line")
+    p.add_argument("--reason", default=None,
+                   help="For remove: short reason recorded in the ### Removed H3 title (audit trail)")
+    p.add_argument("--force", action="store_true",
+                   help="For rewrite: required when the Q already has a **Recommendation:** line (rewrite can desync body from recommendation)")
+    p.add_argument("--from-file", dest="from_file", default=None,
+                   help="Read body from file (alternative to stdin; preferred for long Qs)")
+    p.add_argument("-m", dest="inline", default=None,
+                   help="Inline body (alternative to stdin; for short one-liner Qs)")
     args = p.parse_args(argv[1:])
 
     feature_path = _find_feature_doc(args.slug, args.row_id)

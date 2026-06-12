@@ -4,7 +4,7 @@ description: "Plan — federated orchestrator for a project anchor's planning ar
 
 # Plan
 
-The `/plan` skill walks a project anchor through its planning artifacts in canonical order, detecting which exist, what's missing, and dispatching to per-artifact sub-skills.
+The `/design` skill walks a project anchor through its planning artifacts in canonical order, detecting which exist, what's missing, and dispatching to per-artifact sub-skills.
 
 Plan is to **Track** what **crank** is to **Drive** — the outer-loop orchestrator at the center of the cluster. Where crank runs thousands of times executing Ready work, plan runs once-per-project (and on major reorgs) driving anchor-level planning artifacts to completeness.
 
@@ -12,17 +12,17 @@ Plan is to **Track** what **crank** is to **Drive** — the outer-loop orchestra
 
 | # | Phase | Sub-skill | Primary artifact | Gate after |
 |---|---|---|---|---|
-| 1 | PRD | `/plan prd` | `{NAME} PRD.md` | — |
-| 2 | UX | `/plan ux` | `{NAME} UX.md` | — |
-| 3 | API | `/plan api` | `{NAME} API.md` | — |
-| 4 | Architecture | `/plan architect` | `{NAME} Architecture.md` | **Gate 1** — `status:: accepted` on Architecture |
-| 5 | Testing Strategy | `/plan testing` | `{NAME} Testing Strategy.md` | **Gate 2** — `status:: accepted` on BOTH Architecture AND Testing Strategy |
-| 6 | Roadmap | `/plan roadmap` | `{NAME} Roadmap.md` + per-milestone feature docs | — |
+| 1 | PRD | `/design prd` | `{NAME} PRD.md` | — |
+| 2 | UX | `/design ux` | `{NAME} UX.md` | — |
+| 3 | API | `/design api` | `{NAME} API.md` | — |
+| 4 | Architecture | `/design architect` | `{NAME} Architecture.md` | **Gate 1** — `status:: accepted` on Architecture |
+| 5 | Testing Strategy | `/design testing` | `{NAME} Testing Strategy.md` | **Gate 2** — `status:: accepted` on BOTH Architecture AND Testing Strategy |
+| 6 | Roadmap | `/design roadmap` | `{NAME} Roadmap.md` + per-milestone feature docs | — |
 | 7 | Plan complete | — | — | Transition to Drive (`/crank`) |
 
 Each phase produces one primary artifact (a file). Two phases end with an explicit acceptance gate. Gates are sticky: once `accepted`, no re-prompt unless the user explicitly resets.
 
-## How `/plan` knows where the user is
+## How `/design` knows where the user is
 
 Per-artifact `status::` field at the top of each planning doc. Valid values for the gate-gating artifacts (Architecture, Testing Strategy): `drafting | in-review | accepted`.
 
@@ -37,10 +37,10 @@ When `status::` is absent, the skill infers state from content guidelines:
 
 | Form | What happens |
 |---|---|
-| `/plan` (bare) | Inspect anchor's planning artifacts, print compact gap table, auto-dispatch to the first incomplete phase. |
-| `/plan <phase>` | Direct invocation: `/plan prd`, `/plan ux`, `/plan architect`, `/plan testing`, `/plan roadmap`. |
-| `/plan gate architecture` | Shortcut: set `status:: accepted` on `{NAME} Architecture.md`. |
-| `/plan gate testing` | Shortcut: set `status:: accepted` on `{NAME} Testing Strategy.md`. |
+| `/design` (bare) | Inspect anchor's planning artifacts, print compact gap table, auto-dispatch to the first incomplete phase. |
+| `/design <phase>` | Direct invocation: `/design prd`, `/design ux`, `/design architect`, `/design testing`, `/design roadmap`. |
+| `/design gate architecture` | Shortcut: set `status:: accepted` on `{NAME} Architecture.md`. |
+| `/design gate testing` | Shortcut: set `status:: accepted` on `{NAME} Testing Strategy.md`. |
 
 The skill also watches for natural-language acceptance phrases in conversation:
 - *"the architecture is accepted"* → sets `status:: accepted` on Architecture
@@ -50,11 +50,11 @@ The skill also watches for natural-language acceptance phrases in conversation:
 
 | Verb | Sub-skill | Authors |
 |---|---|---|
-| `/plan prd` | [[plan-prd]] | `{NAME} PRD.md` |
-| `/plan ux` | [[plan-ux]] | `{NAME} UX.md` |
-| `/plan architect` | [[plan-architect]] | `{NAME} Architecture.md` + subsystems |
-| `/plan testing` | [[plan-testing]] | `{NAME} Testing Strategy.md` |
-| `/plan roadmap` | [[plan-roadmap]] | `{NAME} Roadmap.md` + per-milestone feature docs |
+| `/design prd` | [[design-prd]] | `{NAME} PRD.md` |
+| `/design ux` | [[design-ux]] | `{NAME} UX.md` |
+| `/design architect` | [[design-architect]] | `{NAME} Architecture.md` + subsystems |
+| `/design testing` | [[design-testing]] | `{NAME} Testing Strategy.md` |
+| `/design roadmap` | [[design-roadmap]] | `{NAME} Roadmap.md` + per-milestone feature docs |
 
 ## Scope (v1)
 

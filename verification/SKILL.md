@@ -6,6 +6,8 @@ user_invocable: false
 
 # Verification Discipline
 
+The four-tier preference ordering (agent-immediate → user-explicit) for how a feature gets verified, declared up front in each feature doc and consulted at verification time so user attention is spent only when no lower tier works.
+
 Verification is *the four-tier preference ordering an agent uses to choose how a feature gets verified — from agent-immediate (best) to user-explicit (last resort).* The single load-bearing rule: pick the highest applicable tier; never escalate to a higher one when a lower one would work. What distinguishes a tier from a feeling:
 
 - **Tier 1 — agent-immediate** — agent runs a check in the same turn the work completes. Runnable command, deterministic observation.

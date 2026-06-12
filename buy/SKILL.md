@@ -17,6 +17,8 @@ user_invocable: true
 
 # Buy — Best Price + Verified Buy Location
 
+Skill spec for `/buy <product>` — walks major retailers for a known product, verifies real product pages via real-Safari fetching, and recommends the best place to purchase with stock + price + seller captured.
+
 `/buy <product>` walks the major retailers selling a known product, drives **real Safari** via `ctrl jpage` to bypass bot-walls, verifies each landing page is actually a product page for the requested model, and recommends where to purchase.
 
 **Critical constraint — fetch wall** (this is the lesson the v0 attempt of this skill paid for):

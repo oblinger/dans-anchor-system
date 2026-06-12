@@ -127,3 +127,13 @@ Parking mode signals: "put it on the backlog" / "for later" / batch operations l
 - `[[CAB Triage]]` — sibling skill that surfaces (reads) what `/ask` writes.
 - `[[CAB Backlog]]` § Numbering policy — same lowest-unused-integer rule.
 - `SKA Plan/Features/F10 — Ask Skill.md` — design journey + Resolved Qs.
+
+# BRIEF
+
+- **This file is the durable PRD for `/ask`.** It carries the steady-state user story + design rationale that future revisions of the skill need; SKILL.md is the runbook, this is the *why*. Read before restructuring the skill or arguing about its scope.
+- **Not for runbook steps or invocation syntax.** Those live in `SKILL.md`. If a change is to *how the agent executes /ask*, edit SKILL.md; if a change is to *why /ask exists in this shape*, edit here.
+- **Not for active design churn.** In-flight Qs / decisions / journey-of-thought live in the feature docs (`F10 — Ask Skill.md`, `F25 — Q.md as Agent Status Dashboard.md`). Only *resolved, durable* rationale graduates into this PRD.
+- **Inclusion test for a section here**: would a future maintainer revising `/ask` want this context to make a sensible call? If yes, it belongs. If it's a transient implementation note or unresolved debate, it does not.
+- **Update the rationale together with the skill.** When SKILL.md changes the surface (new flag, new file location, new mode), update the matching § Design rationale / § Lifecycle / § Maintenance constraints subsection here so the PRD doesn't drift into folklore.
+- **Naming conventions are load-bearing.** `Q.md` at vault root, `Q<n>` numbering (not `A<n>`), `{NAME} Triage.md` per anchor, `## À la carte` H2 — these names are cited by SKILL.md, by `/triage`, and by `/crank`'s no-action chain. Do not rename in this file without sweeping all citations.
+- **Cross-references at the bottom are the contract.** When a sibling skill or surface is added/removed/renamed, update § Cross-references — readers use it to navigate the constellation.

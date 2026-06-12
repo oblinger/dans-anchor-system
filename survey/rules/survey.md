@@ -1,5 +1,5 @@
 ---
-description: Default rules for the survey skill, applied across all noun types. Ships with the skill. User overrides in SRC rules/.
+description: "surveys — comparison tables produced by the survey skill"
 ---
 # survey — default rules
 

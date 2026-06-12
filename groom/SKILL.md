@@ -16,6 +16,8 @@ user_invocable: true
 
 # Groom — Convergent Backlog Maintenance
 
+Convergent maintenance operator that walks an anchor's backlog (or roadmap) and drives it toward the groomed state — promoting Ready-eligible items, parking open questions in feature docs, repairing invariants — safe to call anytime.
+
 Walk the current anchor's backlog and move it toward the **groomed state** — a state that satisfies the invariants documented in [[CAB Backlog]] (numbering, status well-formed, link integrity, section coverage, ordering, Definition of Ready). Items that can be promoted to Ready are promoted; items with open questions get parked in feature docs; broken links get repaired or flagged.
 
 Convergent — not strictly idempotent. Safe to call anytime. May leave partial state when user input is needed; a follow-up call after the user resolves questions will continue from there.

@@ -3,7 +3,7 @@ description: "skim → click into the rule that applies"
 ---
 # SKL Person
 
-| -[[SKL Person]]- | : skim → click into the rule that applies<br>→ [ob](hook://ob) → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Search]] → [SKL Person](hook://p/SKL%20Person) |
+| -[[SKL Person]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Search]] → [SKL Person](hook://p/SKL%20Person)<br>: skim → click into the rule that applies |
 | --- | --- |
 | Person rules (any verb) | [[SRC rules/person\|person.md]],   |
 | Verbs | [[SRC rules/find-person\|find-person]],  [[SRC rules/describe-person\|describe-person]],  [[SRC rules/survey-person\|survey-person]],   |

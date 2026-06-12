@@ -7,6 +7,8 @@ user_invocable: true
 
 # Pilot Flow — Top-down design then implementation
 
+Top-down design-then-implementation orchestrator that dispatches PRD → System Design → Roadmap → implementation phases to the `/code` skills.
+
 The pilot flow is defined in Claude Code skills. This action dispatches to them.
 
 ## Planning Phase

@@ -12,6 +12,8 @@ user_invocable: true
 
 # MD — Markdown Utility Verbs
 
+User-invokable utility skill that produces or maintains markdown artifacts (file trees, TOCs, dispatch tables, cards, track-changes diffs); bare `/md` opens the companion [[markdown]] discipline.
+
 User-invokable verbs that produce or maintain markdown artifacts. The companion discipline [[markdown]] owns the *format rules*; this skill owns the *operations*.
 
 | ACTIONS                | File                    | Description                                              |

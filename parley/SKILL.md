@@ -10,6 +10,8 @@ user_invocable: true
 
 # Parley
 
+Skill spec for `/parley` — structured topic discussion that lands a dated parley doc, evolves Open Questions / Next Steps / Discussion through the conversation, and weaves outcomes back into the anchor (or graduates to a feature) at close.
+
 Structured discussion on a topic. Creates a dated document, captures the back-and-forth, records decisions, and tracks next steps until all materials are woven into their proper locations.
 
 A parley may evolve into a `/feature` — if so, move or copy the document to the Features folder and continue there.

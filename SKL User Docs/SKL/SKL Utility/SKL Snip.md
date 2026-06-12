@@ -1,3 +1,6 @@
+---
+description: "Capture rough text drops to the SNIP log and refine them inline."
+---
 # /snip
 
 Capture rough text drops to the SNIP log and refine them inline. The skill takes a raw text dump from the user and prepends a new dated H2 entry to `~/ob/kmr/Log/SNIP/SNIP.md`, holding both the original input and an AI-refined version side-by-side.

@@ -3,7 +3,7 @@ description: "skim → click into the rule that applies"
 ---
 # SKL Find
 
-| -[[SKL Find]]- | : skim → click into the rule that applies<br>→ [ob](hook://ob) → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Search]] → [SKL Find](hook://p/SKL%20Find) |
+| -[[SKL Find]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Search]] → [SKL Find](hook://p/SKL%20Find)<br>: skim → click into the rule that applies |
 | --- | --- |
 | Find rules (any type) | [[SRC rules/find\|find.md]],   |
 | Types | [[SRC rules/find-person\|find-person]],  [[SRC rules/find-corp\|find-corp]],  [[SRC rules/find-product\|find-product]],   |

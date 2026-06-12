@@ -7,6 +7,8 @@ user_invocable: true
 
 # Tidy — Validate and correct anchor structure
 
+Runbook for the `/tidy` skill — scans an anchor folder and fixes structural issues against the CAB spec (naming, dispatch tables, links, file structure).
+
 Scan an anchor folder and fix structural issues against the CAB spec.
 
 ## Step 1: Find the Anchor

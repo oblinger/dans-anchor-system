@@ -3,7 +3,7 @@ description: "skim → click into the rule that applies"
 ---
 # SKL Describe
 
-| -[[SKL Describe]]- | : skim → click into the rule that applies<br>→ [ob](hook://ob) → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Search]] → [SKL Describe](hook://p/SKL%20Describe) |
+| -[[SKL Describe]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Search]] → [SKL Describe](hook://p/SKL%20Describe)<br>: skim → click into the rule that applies |
 | --- | --- |
 | Describe rules (any type) | [[SRC rules/describe\|describe.md]],   |
 | Types | [[SRC rules/describe-person\|describe-person]],  [[SRC rules/describe-corp\|describe-corp]],  [[SRC rules/describe-product\|describe-product]],   |

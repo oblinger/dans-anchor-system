@@ -3,7 +3,7 @@ description: "skim → click into the rule that applies"
 ---
 # SKL Software
 
-| -[[SKL Software]]- | → [[_]] → [[Dir]] → [ob](hook://ob) → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Search]] → [SKL Software](hook://p/SKL%20Software)<br>: skim → click into the rule that applies |
+| -[[SKL Software]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Search]] → [SKL Software](hook://p/SKL%20Software)<br>: skim → click into the rule that applies |
 | --- | --- |
 | Software rules (any verb) | [[SRC rules/software\|software.md]],   |
 | Verbs | [[SRC rules/find-software\|find-software]],  [[SRC rules/describe-software\|describe-software]],  [[SRC rules/survey-software\|survey-software]],   |

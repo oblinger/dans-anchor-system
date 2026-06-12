@@ -3,7 +3,7 @@ description: Describe — skill anchor for building thorough structured descript
 ---
 # Describe
 
-| -[[Describe]]- | → [[_]] → [[Dir]] → [ob](hook://ob) → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [Describe](hook://p/Describe)<br>: one-entity profile / dossier — structured description with sources |
+| -[[Describe]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [Describe](hook://p/Describe)<br>: one-entity profile / dossier — structured description with sources |
 | --- | --- |
 | Skill | [[describe/SKILL\|SKILL.md]],  [[SKL Describe\|User Docs]],   |
 | Methodology | [[describe/SKILL\|SKILL.md § Runbook]],   |

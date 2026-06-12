@@ -3,7 +3,7 @@ description: "high-rigor three-stage form of /survey for high-stakes comparisons
 ---
 # SKL Meta Survey
 
-| -[[SKL Meta Survey]]- | → [[_]] → [[Dir]] → [ob](hook://ob) → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Search]] → [SKL Meta Survey](hook://p/SKL%20Meta%20Survey)<br>: high-rigor three-stage form of /survey for high-stakes comparisons |
+| -[[SKL Meta Survey]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Search]] → [SKL Meta Survey](hook://p/SKL%20Meta%20Survey)<br>: high-rigor three-stage form of /survey for high-stakes comparisons |
 | --- | --- |
 | Runbook | [[survey/meta-survey\|meta-survey.md]],   |
 | Standard /survey | [[SKL Survey]],   |

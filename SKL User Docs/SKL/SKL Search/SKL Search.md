@@ -6,7 +6,7 @@ description: User guides for search-shaped skills — query the open web, find s
 
 User guides for search-shaped skills — query the open web, find skills others have built, surface product information.
 
-| -[[SKL Search]]- | → [[_]] → [[Dir]] → [ob](hook://ob) → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [SKL Search](hook://p/SKL%20Search)<br>: User guides for search-shaped skills — query the open web, find skills others have built, surface product information. |
+| -[[SKL Search]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [SKL Search](hook://p/SKL%20Search)<br>: User guides for search-shaped skills — query the open web, find skills others have built, surface product information. |
 | --- | --- |
 | [[SKL Search Overview\|Overview]] | How the search skill family combines knowledge and rules — the mental model behind find/describe/survey. |
 | Actions | [[SKL Find]],  [[SKL Describe]],  [[SKL Survey]],   |

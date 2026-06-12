@@ -10,6 +10,8 @@ user_invocable: true
 
 # Fix
 
+User-invocable skill that runs a self-contained recovery procedure for a known runtime breakage (auth, permissions, session config, macOS quirks).
+
 Fix common environment problems. Each fix is a self-contained procedure in this folder.
 
 ## When NOT to use this skill

@@ -1,3 +1,6 @@
+---
+description: "`/cook <recipe>` (or `/cook <recipe> and <recipe> and ...`) answers the question \"what do I need to do before I start cooking?\" The skill looks up each recipe in your Paprika library, pulls its ing…"
+---
 # /Cook
 
 `/cook <recipe>` (or `/cook <recipe> and <recipe> and ...`) answers the question "what do I need to do before I start cooking?" The skill looks up each recipe in your Paprika library, pulls its ingredients, and sorts them into four buckets: **Repurchase** (need to buy), **Verify** (probably have it but check), **Downstairs** (grab from basement storage), and **Remaining** (already on hand, grouped by category like Spices / Staples / Freezer). It uses `~/ob/kmr/Topic/Food/Food Categories.md` as the source of truth for what you keep where.

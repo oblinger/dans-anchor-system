@@ -1,1 +1,1 @@
-description: "Per-facet rule sets — embed in `CAB Facets/<Facet>.md` specs as `# RULESET R-<facet>` blocks. Empty `includes::` for now; populates as each facet's RULESET block lands."
+description: "Per-facet rule sets. Each child is a thin catalog stub pointing at a `# RULESET R-<facet>` block embedded in its `CAB Facets/<Facet>.md` spec. Children:"

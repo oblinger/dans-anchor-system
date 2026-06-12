@@ -3,7 +3,7 @@ description: "skim → click into the rule that applies"
 ---
 # SKL Book
 
-| -[[SKL Book]]- | → [ob](hook://ob) → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Search]] → [SKL Book](hook://p/SKL%20Book)<br>: skim → click into the rule that applies |
+| -[[SKL Book]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Search]] → [SKL Book](hook://p/SKL%20Book)<br>: skim → click into the rule that applies |
 | --- | --- |
 | Book rules (any verb) | [[SRC rules/book\|book.md]],   |
 | Verbs | [[SRC rules/find-book\|find-book]],  [[SRC rules/describe-book\|describe-book]],  [[SRC rules/survey-book\|survey-book]],   |

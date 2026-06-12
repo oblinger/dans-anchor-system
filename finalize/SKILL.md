@@ -10,6 +10,8 @@ user_invocable: false
 
 # Finalize Discipline
 
+Reusable close-out discipline that verifies, commits, updates status/docs, and cleans up — invoked by consumer skills like `/land` and `/crank` when a unit of work needs to be wrapped up.
+
 The reusable ceremony for closing out a unit of work — typically a feature, but applicable to any deliverable that has its own doc, status field, and acceptance bar (a milestone, a release, a major refactor). Not directly user-invocable. Consumer skills delegate to this discipline when their workflow reaches a "this thing is done — wrap it up" moment.
 
 The point is: closing out is *not* "commit and call it done." It's a sequence of small ceremonies that catch the things that get forgotten — failing tests pushed unnoticed, status not updated so the user can't find what was shipped, module docs that drift from the implementation. The discipline exists so each of those steps lands consistently across every consumer skill.

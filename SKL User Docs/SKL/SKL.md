@@ -4,7 +4,7 @@ description: skills dispatch table
 
 | -[[SKL]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [SKL](hook://p/SKL)<br>: User-facing guides for every published skill, grouped by category. |
 | --- | --- |
-| Related | [[SKL Skills\|Skills]],   |
+| Related | [[SKL Skills\|Skills]],  [[CAB Facets]],   |
 |  | **SKILL GROUPS** |
 | [[SKL Anchor\|Anchor]]+ | [[SKL Anchor Toolkit\|Anchor Toolkit]],  [[SKL CAB\|CAB]],  [[SKL Create\|Create]],  [[SKL Install\|Install]],  [[SKL Migrate\|Migrate]],  [[SKL Move\|Move]],  [[SKL Publish\|Publish]],  [[SKL Streams\|Streams]],  [[SKL WP\|WP]],  [[SKL Yore\|Yore]],   |
 | [[SKL Hygiene\|Hygiene]]+ | [[SKL Audit\|Audit]],  [[SKL Dupes\|Dupes]],  [[SKL Lint\|Lint]],  [[SKL Maintain\|Maintain]],  [[SKL Rewire\|Rewire]],  [[SKL Slug Scan\|Slug Scan]],  [[SKL Tidy\|Tidy]],   |
@@ -15,7 +15,7 @@ description: skills dispatch table
 | [[SKL Search\|Search]]+ | [[SKL Book\|Book]],  [[SKL Corp\|Corp]],  [[SKL Describe\|Describe]],  [[SKL Find\|Find]],  [[SKL Meta Survey\|Meta Survey]],  [[SKL Person\|Person]],  [[SKL Product\|Product]],  [[SKL Purchase\|Purchase]],  [[SKL Research\|Research]],  [[SKL Research Skill\|Research Skill]],  [[SKL Search Overview\|Search Overview]],  [[SKL Skill\|Skill]],  [[SKL Software\|Software]],  [[SKL Survey\|Survey]],   |
 | [[SKL Utility\|Utility]]+ | [[SKL Cook\|Cook]],  [[SKL Ctrl\|Ctrl]],  [[SKL Exp\|Exp]],  [[SKL Parley\|Parley]],  [[SKL Snip\|Snip]],   |
 | [[SKL Discipline\|Discipline]]+ | [[SKL Mode\|Mode]],  [[SKL Role\|Role]],   |
-| [[SKL Library\|Library]]+ | [[Decision Sets]],   |
+| [[SKL Library\|Library]]+ | [[Rule Sets]],   |
 | --- | |
 
 | LIFECYCLE    | Actions                                                                                                               |
@@ -41,8 +41,8 @@ description: skills dispatch table
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------- |
 |                  | Anchor → Plan →  ↻( [[SKL Feature\|Feature]] ([[SKL Groom\|Groom]]) → [[SKL Mint\|Mint]]  ([[SKL Finalize\|Finalize]])) |
 | **Create**       | [[feature/SKILL\|Feature]], Spec                                                                                    |
-| **Plan**         | [[plan/SKILL\|Plan]], [[plan/plan-prd\|Prd]], [[plan/plan-ux\|Ux]], [[code/code-research\|Research]], (plus Architect) |
-| →→ **Architect** | [[plan/plan-architect\|Architect]], [[code/code-system-design\|System-design]], [[code/code-modules\|Modules]], [[plan/plan-roadmap\|Roadmap]] |
+| **Plan**         | [[design/SKILL\|Plan]], [[plan/design-prd\|Prd]], [[plan/design-ux\|Ux]], [[code/code-research\|Research]], (plus Architect) |
+| →→ **Architect** | [[plan/design-architect\|Architect]], [[code/code-system-design\|System-design]], [[code/code-modules\|Modules]], [[plan/design-roadmap\|Roadmap]] |
 | **Groom**        | [[SKL Groom\|Groom]], [[code/code-replan\|Replan]], [[code/code-ask-questions\|Ask-questions]]                           |
 | **Mint**         | [[code/code-mint\|Mint]], [[code/code-code\|Code]], [[code/code-bugfix\|Bugfix]], [[code/code-spike\|Spike]], [[code/code-forge\|Forge]], (plus Test) |
 | →→ **Test**      | [[code/code-test\|Test]], [[code/code-verify\|Verify]], [[code/code-review\|Review]]                                    |

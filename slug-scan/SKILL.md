@@ -7,6 +7,8 @@ user_invocable: true
 
 # Slug Scan — Sync the slug index
 
+Runbook for the `/slug-scan` skill — discovers new anchor slugs and appends formatted rows to the master slug index at `~/ob/kmr/SYS/SYS Topic/slug/SLUG.md`.
+
 Scan for new anchor slugs and add them to the slug index table at `~/ob/kmr/SYS/SYS Topic/slug/SLUG.md`.
 
 ## Step 1: Ensure HookAnchor Is Current

@@ -11,6 +11,8 @@ user_invocable: true
 
 # Mint
 
+The user-invocable skill that executes a Ready feature end-to-end — wiring it into bucket PRDs, integrating its content into target docs, gating on planning state, then running the spec → code → test → review → verify → commit pipeline.
+
 Take what's ready and make it real. Orchestrate the implementation phase — spec, code, test, review, verify, commit.
 
 ## Runbook
@@ -79,14 +81,14 @@ Planning gate not satisfied — these facets are at `none`:
   - <facet1>
   - <facet2>
 Options:
-  (A) abort — run /plan first  [Recommended]
+  (A) abort — run /design first  [Recommended]
   (B) proceed once — re-warn on next /mint
   (C) silence permanently — promote blocked facets to MVP-user with note "provisional"
 ```
 
 Wait for the user's choice (`A` / `B` / `C`).
 
-- **(A)** Stop the mint. Suggest `/plan` to address the blocked facets.
+- **(A)** Stop the mint. Suggest `/design` to address the blocked facets.
 - **(B)** Proceed to step 1 with no state change. Next `/mint` invocation will warn again.
 - **(C)** For each blocked facet, run:
   ```bash

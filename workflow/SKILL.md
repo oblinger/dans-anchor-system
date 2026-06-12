@@ -6,6 +6,8 @@ user_invocable: false
 
 # Workflow Discipline
 
+The canonical state graph for a unit of work — names every state, defines Definition of Ready, maps states onto each surface (Backlog / Roadmap / Feature / PRD), and owns the `state` mutation CLI that all advancing skills must call.
+
 The single source of truth for **what state a unit of work is in**, **what it means**, and **what advances it to the next state**. Every skill that touches the state of work — `/groom`, `/feature`, `/mint`, `/finalize`, `/code release`, `/roster`, audits — cites this discipline.
 
 > **F129 (2026-06-07):** state mutations go through `~/.claude/skills/workflow/scripts/state` (verb-first CLI). Old positional `backlog-edit.py` invocations still work during the migration window. Full CLI spec: [[SKL State]] (`~/.claude/skills/workflow/SKL State.md`).
@@ -479,4 +481,3 @@ Same for `[Verify]` and `[Done]`: those states have their own H2s. Horizon H2s a
 - **Skipping `[Verify]`.** Implementations that go straight to Completed bypass the verification gate. `/finalize` enforces this; manual edits should respect it.
 - **State drift between surfaces.** If a backlog item is `[Active]` but the feature doc Status says "Designing," one of them is wrong — the user shouldn't have to guess which.
 - **Lazy-Blocked / lazy-Waiting.** Labeling a row `[Blocked]` or `[Waiting]` without a body that names the specific blocker or watched condition. The most common drift in this vocabulary — when "Blocked" gets used as a thought-terminating label ("not progressing, mark it Blocked, move on"). The required-description rule above is the antidote: if you can't write an actor-and-action sentence (Blocked) or an event/time sentence (Waiting), the row isn't actually in that state.
-

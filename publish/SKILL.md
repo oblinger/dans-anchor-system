@@ -7,6 +7,8 @@ user_invocable: true
 
 # Publish — Deploy an anchor's public page to the web
 
+Skill runbook for the `/publish` action — deploys an anchor's public-facing page (splash HTML + assets) to the web via gitproj subdirectory or a dedicated GitHub Pages repo, driven by `.anchor` config.
+
 Publish an anchor's web presence. Reads config from `.anchor` to determine method and options.
 
 ## Config

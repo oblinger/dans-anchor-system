@@ -1,3 +1,6 @@
+---
+description: "`exp` is the remote-experimentation toolkit — it lets you run ML workloads on ephemeral GPU instances (typically vast.ai) without juggling SSH sessions and rsync invocations by hand."
+---
 # /Exp
 
 `exp` is the remote-experimentation toolkit — it lets you run ML workloads on ephemeral GPU instances (typically vast.ai) without juggling SSH sessions and rsync invocations by hand. You set up a named remote once with `exp init`, then `exp exe "cmd"` does a full round-trip: pushes your experiment folder up, runs the command via a tmux watcher daemon, polls for completion, and pulls the filtered results back (pngs, csvs, logs, checkpoints). Multi-remote by default — every command takes `-r <name>` and the configs live in `~/.config/exp/`.
