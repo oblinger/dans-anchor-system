@@ -2,13 +2,14 @@
 description: "Disciplines — cross-cutting, non-invocable concepts the agent reads to inform behavior"
 ---
 
-# Disciplines
+# DSC - Disciplines
 
-| -[[DSC]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [DSC](hook://p/DSC)<br>: Disciplines — cross-cutting, non-invocable concepts the agent reads to inform behavior |
+Cross-cutting concepts the agent reads — non-invocable, they inform behavior.
+
+| -[[DSC]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [DSC](hook://p/DSC)<br>: cross-cutting concepts the agent reads |
 | --- | --- |
 | Repo | [[OBSK\|ob-skills]] (root) |
-| Siblings | [[SKL\|Skills]],  [[FCT\|Facets]],  [[LBR\|Library]],   |
+| Related | [[SKL\|Skills]],  [[FCT\|Facets]],  [[LBR\|Library]],   |
+| Disciplines | [[anchor-dag]],  [[ask-format]],  [[dated-entry-stream]],  [[file-association]],  [[granularity]],  [[markdown]],  [[mode]],  [[progressive-disclosure]],  [[role]],  [[technical-answer]],  [[verification]],  [[CAB Dispatch Table]],  [[CAB Linked Mode]],   |
 
-Index of **disciplines** — cross-cutting concepts the agent reads (not `/`-invoked): [[DSC flow|flow]], [[DSC anchor-dag|anchor-dag]], [[DSC granularity|granularity]], … Each lives in `disciplines/`; its doc is `DSC <name>`.
-
-*Member list populates as F158 Phase 2 moves the concept docs into `disciplines/`. (`workflow` stays in `skills/` for now — see [[SKA File Tree Architecture]].)*
+*`workflow` stays in `skills/` for now (path-referenced `state` tooling); its concept is being renamed `flow`. `CAB Dispatch Table` / `CAB Linked Mode` keep their as-moved names pending rename (F158 § D).*
