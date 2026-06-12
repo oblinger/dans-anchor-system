@@ -51,7 +51,7 @@ Argument shape parallels `/groom`. Items in the icebox are not surfaced by defau
 
 ## Output format — anchor's section inside `~/ob/kmr/Q.md`
 
-Authoritative spec: `[[CAB Triage]]` (presentation form, unmoored from any per-anchor file per F075). Summary:
+Authoritative spec: `[[FCT Triage]]` (presentation form, unmoored from any per-anchor file per F075). Summary:
 
 ```markdown
 ---
@@ -119,7 +119,7 @@ Link target by row class:
 
 - **Feature row** → feature doc's `## Open Questions` H2 below H1; Qs are top-level bullets `**Q1 — …**`, `**Q2 — …**` (per `[[SKA ask]]`).
 - **B-row (no feature doc)** → backlog row itself; Qs are sub-bullets `**Q1 — …**`, `**Q2 — …**` at the top of the row body (per `[[CAB Backlog]]` § B-row inline Qs).
-- **À la carte (anchor-level)** → `{NAME} Questions.md` § Open Questions; same Q format as feature docs (per `[[CAB Questions]]`).
+- **À la carte (anchor-level)** → `{NAME} Questions.md` § Open Questions; same Q format as feature docs (per `[[FCT Questions]]`).
 
 **The bracket is forbidden when the link target has zero numbered Qs.** Before emitting `[Questions]`, verify the target contains at least one `Q<n>`. If zero: either hoist the informal Qs to numbered form (the right fix), or rebracket to a state the row actually satisfies (`[Designing]` / `[Blocked]` / etc.). This is the rule that — without it — produces the failure mode where the user clicks `[Questions]` and lands on prose with no answerable Qs (cf. [[feedback_close_round_trip_loopholes]]).
 
@@ -185,7 +185,7 @@ Three count groups: user-actionable (`Questions`, `Verify`) | agent-actionable (
 
 ## À la carte — lives in `{NAME} Questions.md`
 
-À la carte (anchor-level, cross-cutting, agent-raised) questions live in a **separate facet file**: `{NAME} Docs/{NAME} Plan/{NAME} Questions.md`. Spec: `[[CAB Questions]]`. Same `## Open Questions` block format as feature docs (per `[[SKA ask]]`); same Phase 1 / 2 / 3 lifecycle.
+À la carte (anchor-level, cross-cutting, agent-raised) questions live in a **separate facet file**: `{NAME} Docs/{NAME} Plan/{NAME} Questions.md`. Spec: `[[FCT Questions]]`. Same `## Open Questions` block format as feature docs (per `[[SKA ask]]`); same Phase 1 / 2 / 3 lifecycle.
 
 In the Triage file, à la carte presence is just **one line directly under the H1**:
 
@@ -458,8 +458,8 @@ Strictly idempotent + destructive. The agent rewrites the entire anchor section 
 
 ## Cross-references
 
-- **`[[CAB Triage]]`** — presentation-form spec (no per-anchor file location per F075).
-- **`[[CAB Questions]]`** — sibling à la carte facet.
+- **`[[FCT Triage]]`** — presentation-form spec (no per-anchor file location per F075).
+- **`[[FCT Questions]]`** — sibling à la carte facet.
 - **`[[CAB Backlog]]`** — backlog format, F-numbering, status brackets, `[Verify]` semantics.
 - **`[[SKA ask]]`** — `## Open Questions` block format inside feature docs (the source of question text), and the writer for à la carte Qs.
 - **`[[SKA backlog]]`** — horizon H2s (Now / Next / Later) and the per-bucket count scheme.

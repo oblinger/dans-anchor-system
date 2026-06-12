@@ -9,7 +9,7 @@ description: >
   orchestrator at the center of the Design cluster. Use when the user says: "let's design this",
   "design", "/design", "what's the design state of this anchor", "/design prd", "/design architect",
   "/design testing", "/design roadmap", or asks where in the design sequence the project is.
-  Gate is folder-presence per [[CAB Design]] — `{NAME} Design/` exists → operate; absent → offer to scaffold. Code-trait check retired 2026-06-10. Initially supports anchors with code-shaped artifacts; broader applicability (Paper / Topic / Simple) covered as those traits land.
+  Gate is folder-presence per [[FCT Design]] — `{NAME} Design/` exists → operate; absent → offer to scaffold. Code-trait check retired 2026-06-10. Initially supports anchors with code-shaped artifacts; broader applicability (Paper / Topic / Simple) covered as those traits land.
 tools: Read, Write, Edit, Bash, Glob, Grep, Agent
 user_invocable: true
 ---
@@ -79,7 +79,7 @@ If a declared `Status.md` cell disagrees with inferred state on the artifact bod
 
 ## Runbook — bare `/design`
 
-1. **Detect anchor + Design facet.** Walk up to nearest `.anchor` file. Check whether `{anchor}/{NAME} Design/` exists. **If absent**, offer to scaffold per [[CAB Design]] § Scaffolding (creates folder + .anchor + Design.md dispatch + PRD/Architecture/Testing/Decisions with required-section spines + initializes Status.md). On user confirmation, scaffold and proceed; on decline, stop with one-line explanation. **If present**, proceed to § 2. The Code trait field in `.anchor` is NOT consulted (deprecated as the gate 2026-06-10; F140 sweeps it from anchors that now have Design folders).
+1. **Detect anchor + Design facet.** Walk up to nearest `.anchor` file. Check whether `{anchor}/{NAME} Design/` exists. **If absent**, offer to scaffold per [[FCT Design]] § Scaffolding (creates folder + .anchor + Design.md dispatch + PRD/Architecture/Testing/Decisions with required-section spines + initializes Status.md). On user confirmation, scaffold and proceed; on decline, stop with one-line explanation. **If present**, proceed to § 2. The Code trait field in `.anchor` is NOT consulted (deprecated as the gate 2026-06-10; F140 sweeps it from anchors that now have Design folders).
 2. **Read design status.** Run `state --anchor {NAME} status show` to get the per-facet cell map. If `{NAME} Status.md` is absent the script auto-creates it with all facets at `none`.
 3. **Build gap table.** Render the status one line per facet:
    ```
@@ -135,7 +135,7 @@ After updating, glance the affected file so the user can verify the field landed
 
 - **Don't ask "which artifact next?"** — the canonical phase order is the answer. Bare `/design` auto-dispatches; user redirects if they want a different order.
 - **Don't gate by separate ceremony.** Gates are encoded in the doc's `status::` field, NOT in a parallel gate registry.
-- **Don't write tests during `/design testing`.** That phase writes the *strategy + proposed-tests overview* (the [[CAB Testing]] facet); actual test code comes during Drive (`/code test` or `/mint`).
+- **Don't write tests during `/design testing`.** That phase writes the *strategy + proposed-tests overview* (the [[FCT Testing]] facet); actual test code comes during Drive (`/code test` or `/mint`).
 - **Don't author roadmap milestones before Gate 2.** The roadmap phase is gated on both Architecture and Testing being `accepted`.
 - **Don't reorder phases silently.** If the user redirects ("let's do UX first"), comply for that session, but the canonical order remains the default for future invocations.
 
@@ -149,7 +149,7 @@ After updating, glance the affected file so the user can verify the field landed
 ## Related
 
 - Per-phase sub-skills: [[design-prd]], [[design-ux]], [[design-architect]], [[design-testing]], [[design-roadmap]]
-- CAB facets: [[CAB PRD]], [[CAB UX Design]], [[CAB Architecture]], [[CAB Testing]], [[CAB API Doc]]
+- CAB facets: [[FCT PRD]], [[FCT UX Design]], [[FCT Architecture]], [[FCT Testing]], [[FCT API Doc]]
 - Track cluster: [[SKL Track]], [[backlog]], [[workflow]]
 - Drive cluster (post-design execution): [[crank]], [[mint]], [[feature]]
 - Verification discipline: [[verification]]

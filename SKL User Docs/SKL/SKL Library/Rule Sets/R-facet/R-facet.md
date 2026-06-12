@@ -6,10 +6,10 @@ Per the 2026-06-09 design decision, each CAB facet spec file (`CAB <facet>.md`) 
 
 **Materialization progress.** The `include::` line above grows as each facet's RULESET block lands. Currently:
 
-- **R-testing** ([[CAB Testing]]) — first worked example, landed 2026-06-10. 9 rules covering facet doc shape (file name, Strategy + Proposed Tests sections, kind-target symmetry, three-altitude split, status field, Tier Mapping cites [[verification]]).
+- **R-testing** ([[FCT Testing]]) — first worked example, landed 2026-06-10. 9 rules covering facet doc shape (file name, Strategy + Proposed Tests sections, kind-target symmetry, three-altitude split, status field, Tier Mapping cites [[verification]]).
 
-- **R-ux** ([[CAB UX Design]]) — paired peer to R-api, landed 2026-06-11. 8 rules covering preface zone, audience, entry-points spine, output shapes, error voice, discovery, D-UX rationale rows, and the leakage guard distinguishing UX Design from API Design / CLI / Architecture.
-- **R-api** ([[CAB API Design]]) — paired peer to R-ux, landed 2026-06-11. 9 rules covering preface zone, consumer, surface spine, contract semantics, single error envelope, stability posture, concrete compatibility commitments, D-API rationale rows, and the leakage guard.
+- **R-ux** ([[FCT UX Design]]) — paired peer to R-api, landed 2026-06-11. 8 rules covering preface zone, audience, entry-points spine, output shapes, error voice, discovery, D-UX rationale rows, and the leakage guard distinguishing UX Design from API Design / CLI / Architecture.
+- **R-api** ([[FCT API Design]]) — paired peer to R-ux, landed 2026-06-11. 9 rules covering preface zone, consumer, surface spine, contract semantics, single error envelope, stability posture, concrete compatibility commitments, D-API rationale rows, and the leakage guard.
 - **R-discussion** ([[CAB Discussion]]) — first *doc-scoped* (per document, not per anchor) facet rule set, landed 2026-06-11. Trimmed to 5 Discussion-specific rules after placement / migration / naming / one-form-per-parent / reverse-chronological / dispatch-linkage rules were lifted into [[dated-entry-stream]] (the discipline Discussion cites). Remaining rules: doc-scoped not anchor-scoped, methods-1-and-2-declared, Problem/Options/Decision entry skeleton, append-only after Decision, attachment scope guard.
 
 Pending — each lands as its CAB facet's RULESET block is drafted: R-architecture, R-decisions, R-rules, R-features, R-backlog, R-cli, R-api-doc, … (40 CAB facets total; rollout deferred to a dedicated sweep, tracked separately).
@@ -29,6 +29,6 @@ This single include pulls in every CAB facet's structural rules. Audit walks the
 
 ## See also
 
-- [[CAB Rules]] — meta-spec for the RULESET format; first facet expected to land an embedded `R-rules` block.
-- [[CAB Decisions]] — the master adoption file in an anchor; this is where `include:: [[R-facet]]` belongs.
+- [[FCT Rules]] — meta-spec for the RULESET format; first facet expected to land an embedded `R-rules` block.
+- [[FCT Decisions]] — the master adoption file in an anchor; this is where `include:: [[R-facet]]` belongs.
 - [[Rule Sets]] — parent catalog.

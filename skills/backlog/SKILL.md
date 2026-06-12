@@ -23,7 +23,7 @@ This discipline introduces three ordered tiers — **Now / Next / Later** — th
 | **Now**   | Actively being pulled in or imminent — the next 1–2 cycles. The "we really expect to implement this shortly" zone. |
 | **Next**  | Committed but not the next thing up. Visible and ordered, but explicitly deferred. The bucket the user reaches for when they want to push something off Now without sending it to Icebox. |
 | **Later** | Known wants — will get to eventually. Lower priority than Next, still feels obligatory. |
-| **Icebox** | Outside the backlog file entirely (lives in `[[CAB Icebox]]`). May never happen. |
+| **Icebox** | Outside the backlog file entirely (lives in `[[FCT Icebox]]`). May never happen. |
 
 Three is intentional. Two horizons (Now / Later) collapse to the binary problem; four+ horizons just reintroduce the bucket-shuffling overhead that the discipline tries to bound.
 

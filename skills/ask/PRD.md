@@ -124,7 +124,7 @@ Parking mode signals: "put it on the backlog" / "for later" / batch operations l
 
 - `SKILL.md` (this folder) — the runbook the agent executes.
 - `~/ob/kmr/Q.md` — the global page maintained by step 4 of the runbook.
-- `[[CAB Triage]]` — sibling skill that surfaces (reads) what `/ask` writes.
+- `[[FCT Triage]]` — sibling skill that surfaces (reads) what `/ask` writes.
 - `[[CAB Backlog]]` § Numbering policy — same lowest-unused-integer rule.
 - `SKA Plan/Features/F10 — Ask Skill.md` — design journey + Resolved Qs.
 

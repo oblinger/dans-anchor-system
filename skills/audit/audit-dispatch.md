@@ -26,7 +26,7 @@ Enforces the structure spec'd in [[CAB Dispatch Table]] (see [[F155 — Dispatch
 ### 2. Compute the Masthead
 The fixed top block — always present:
 1. **Breadcrumb row** — `| -[[{NAME}]]- | → [[kmr]] → … → [{NAME}](hook://…) |`. Fix the parent chain to match the anchor's actual location (the up-edge of [[SYS Anchor DAG]]).
-2. **Structural rows** — the anchor-kind standard rows. For a `Code` anchor: `Design` / `User` / `Dev` rows linking to its sub-folder dispatch pages (per [[CAB Anchor Page]]). For a `Topic` anchor: its sub-topic routing rows. Include only rows whose target sub-folders exist.
+2. **Structural rows** — the anchor-kind standard rows. For a `Code` anchor: `Design` / `User` / `Dev` rows linking to its sub-folder dispatch pages (per [[FCT Anchor Page]]). For a `Topic` anchor: its sub-topic routing rows. Include only rows whose target sub-folders exist.
 3. **Curated one-off links** — preserve any hand-added links already in the table that don't match a structural or member row (the user pinned them on purpose). Never drop curated links.
 
 ### 3. Compute the Member zone (only if the anchor is a Collection)
@@ -55,7 +55,7 @@ Mirrors [[anchor-dag]]'s two-table report at single-anchor scope: **mechanical f
 ## Related
 
 - [[CAB Dispatch Table]] — the Masthead + Member-zone structure this enforces.
-- [[CAB Anchor Page]] — breadcrumb + structural-row conventions.
+- [[FCT Anchor Page]] — breadcrumb + structural-row conventions.
 - [[progressive-disclosure]] — member list vs member groups (List / Grouped, > 15 rule).
 - [[Collection]] — the trait that means "this anchor has a Member zone."
 - [[granularity]] — compact → grouped graduation.

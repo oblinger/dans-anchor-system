@@ -1,8 +1,8 @@
 # Design Testing — Author the {NAME} Testing.md facet doc
 
-Phase 5 of the canonical `/design` sequence (PRD → UX → API → Architecture → **Testing** → Roadmap). Authors `{NAME} Design/{NAME} Testing.md` per the [[CAB Testing]] facet — the project's **testing strategy + proposed-tests overview**. The doc has two parts that ship together: § Strategy (kinds, completeness targets, responsibilities, tier mapping) followed by § Proposed Tests (one row per proposed test, grouped by kind, linking to low-level specs in module docs).
+Phase 5 of the canonical `/design` sequence (PRD → UX → API → Architecture → **Testing** → Roadmap). Authors `{NAME} Design/{NAME} Testing.md` per the [[FCT Testing]] facet — the project's **testing strategy + proposed-tests overview**. The doc has two parts that ship together: § Strategy (kinds, completeness targets, responsibilities, tier mapping) followed by § Proposed Tests (one row per proposed test, grouped by kind, linking to low-level specs in module docs).
 
-**Renamed from `plan-testing` 2026-06-10 per [[F136 — Plan→Design skill rename]]. Authored shape updated 2026-06-10 to match [[CAB Testing]]** — the legacy `{NAME} Testing Strategy.md` 5-H2 strategy-only scaffold is superseded by the new `{NAME} Testing.md` two-part shape. Worked example: [[CAE Testing]].
+**Renamed from `plan-testing` 2026-06-10 per [[F136 — Plan→Design skill rename]]. Authored shape updated 2026-06-10 to match [[FCT Testing]]** — the legacy `{NAME} Testing Strategy.md` 5-H2 strategy-only scaffold is superseded by the new `{NAME} Testing.md` two-part shape. Worked example: [[CAE Testing]].
 
 **Critical scope distinction:** this sub-skill authors the *strategy + proposed-tests overview*, NOT test code. Test code authoring happens during Drive (`/code test` or per-feature in `/mint`); low-level test specs (preconditions, fixtures, assertions) live in module docs. This sub-skill produces the design-altitude doc that drives all three downstream surfaces.
 
@@ -22,24 +22,24 @@ Module-level test details belong in module docs under `{NAME} Dev Docs/` or `{NA
 
 ## File shape
 
-**Read [[CAB Testing]] before authoring.** The facet spec is the canonical recipe — required sections, dataview fields, the three-altitude split, the Spec-column convention. This sub-skill owns the *process*; the facet owns the *shape*. If anything below conflicts with the facet, the facet wins.
+**Read [[FCT Testing]] before authoring.** The facet spec is the canonical recipe — required sections, dataview fields, the three-altitude split, the Spec-column convention. This sub-skill owns the *process*; the facet owns the *shape*. If anything below conflicts with the facet, the facet wins.
 
 Worked example to crib from: [[CAE Testing]].
-Audit rules to honor: [[CAB Testing#RULESET R-testing|R-testing]] (9 rules).
+Audit rules to honor: [[FCT Testing#RULESET R-testing|R-testing]] (9 rules).
 
 ## Runbook
 
 ### 1. Detect anchor + existing file
 
-- Walk up from `cwd` to nearest `.anchor`. Assume `{NAME} Design/` exists (the gate per [[CAB Design]]; `/design` orchestrator handles scaffolding before dispatch to this sub-skill).
+- Walk up from `cwd` to nearest `.anchor`. Assume `{NAME} Design/` exists (the gate per [[FCT Design]]; `/design` orchestrator handles scaffolding before dispatch to this sub-skill).
 - Check whether `{NAME} Design/{NAME} Testing.md` exists.
-- **Legacy detection:** if `{NAME} Design/{NAME} Testing Strategy.md` exists instead (legacy plan-testing scaffold), surface it: *"Found legacy `{NAME} Testing Strategy.md` — migrating to `{NAME} Testing.md` per [[CAB Testing]]."* Read it as input for § 3.
+- **Legacy detection:** if `{NAME} Design/{NAME} Testing Strategy.md` exists instead (legacy plan-testing scaffold), surface it: *"Found legacy `{NAME} Testing Strategy.md` — migrating to `{NAME} Testing.md` per [[FCT Testing]]."* Read it as input for § 3.
 
 ### 2. Branch on file existence
 
 **If `{NAME} Testing.md` does NOT exist** — proceed to § 3 (initial-draft proposal).
 
-**If file exists** — open it; walk the user through completing any thin / missing H2 sections. Run [[CAB Testing#RULESET R-testing|R-testing]] rules against it and fix violations. Skip § 3.
+**If file exists** — open it; walk the user through completing any thin / missing H2 sections. Run [[FCT Testing#RULESET R-testing|R-testing]] rules against it and fix violations. Skip § 3.
 
 ### 3. Initial-draft proposal (hybrid heuristic)
 
@@ -94,9 +94,9 @@ The agent does NOT proactively invoke roadmapping; the user invokes `/design` ag
 
 ## Related
 
-- Facet spec: [[CAB Testing]]
+- Facet spec: [[FCT Testing]]
 - Worked example: [[CAE Testing]]
-- Embedded rule set: [[CAB Testing#RULESET R-testing|R-testing]] (9 rules)
+- Embedded rule set: [[FCT Testing#RULESET R-testing|R-testing]] (9 rules)
 - Parent orchestrator: [[design]]
 - Sibling sub-skills: [[design-prd]], [[design-ux]], [[design-architect]], [[design-roadmap]]
 - Verification discipline: [[verification]]

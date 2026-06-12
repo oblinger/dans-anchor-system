@@ -22,7 +22,7 @@ Pair files (`find-person.md`, `find-corp.md`, `find-product.md`) carry noun-spec
 | **Standard** | 2-3 | brief cross-check | default |
 | **Deep** | broad | full verification chain | due diligence, will-act-on-it cases |
 
-## Default output (the saved Lookup file)
+## Default output (the saved Find file)
 
 - Identifier (the thing found)
 - Canonical URL

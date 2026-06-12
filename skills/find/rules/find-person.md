@@ -5,7 +5,7 @@ description: Default rules for finding a person — ships with the skill. User o
 
 Default rules for `find` on noun-type **person**. Ships with the skill; user overrides in `[[SRC rules/find-person|SRC rules/]]`.
 
-When finding a person, the goal is identifying a *specific* individual matching criteria — not building a profile (that's [[describe/SKILL|describe]]).
+When finding a person, the goal is identifying a *specific* individual matching criteria — not building a profile (that's [[profile/SKILL|/profile]]).
 
 ## Default sources for identification (authority order)
 

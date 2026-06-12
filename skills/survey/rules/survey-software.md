@@ -80,7 +80,7 @@ Surveying a software category broadly (this skill) should precede pinning a spec
 
 ## Meta-survey for novel categories
 
-For a software category not surveyed before, **run meta-survey first** (per [[describe/SKILL|skill methodology]]). Look at how the most-cited reviewers in that ecosystem organize their comparisons — borrow their dimension set.
+For a software category not surveyed before, **run meta-survey first** (per [[profile/SKILL|skill methodology]]). Look at how the most-cited reviewers in that ecosystem organize their comparisons — borrow their dimension set.
 
 ## Gotchas
 

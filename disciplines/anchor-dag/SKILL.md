@@ -28,8 +28,8 @@ Treat every `.anchor` folder as a **node**. Three kinds of **edge** connect them
 
 | Edge | Direction | Mechanism | Owns |
 |---|---|---|---|
-| **Parent link** | up | the breadcrumb row (`→ … → [This]`) | [[CAB Anchor Page]] |
-| **Child links** | down | the dispatch table / Member zone | [[CAB Anchor Page]] + [[CAB Dispatch Table]] |
+| **Parent link** | up | the breadcrumb row (`→ … → [This]`) | [[FCT Anchor Page]] |
+| **Child links** | down | the dispatch table / Member zone | [[FCT Anchor Page]] + [[CAB Dispatch Table]] |
 | **Adjacency links** | sideways | the `Related` row | [[CAB Dispatch Table]] |
 
 The corpus is **navigability-complete** when:
@@ -76,6 +76,6 @@ This discipline is the reusable check. A specific vault declares its own **appli
 ## Related
 
 - [[CAB Dispatch Table]] — the down + sideways edges (the table form).
-- [[CAB Anchor Page]] — the breadcrumb (up edge) + dispatch hosting.
+- [[FCT Anchor Page]] — the breadcrumb (up edge) + dispatch hosting.
 - [[audit-dispatch|/audit dispatch]] — the per-anchor table-repair worker the walk calls.
 - [[progressive-disclosure]] / [[file-association]] / [[granularity]] / [[markdown]] — the per-artifact authoring disciplines (this is their corpus-level sibling).

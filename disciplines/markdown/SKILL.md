@@ -24,7 +24,7 @@ A wiki-link with an alias inside a table cell needs the pipe escaped: `[[Target\
 
 ```markdown
 | ✓ Correct | [[CAB PRD\|PRD]] |
-| ✗ Broken  | [[CAB PRD|PRD]] |
+| ✗ Broken  | [[FCT PRD|PRD]] |
 ```
 
 ### Tables: blank line before and after
@@ -61,7 +61,7 @@ Vault-wide preference: docs are body-only with `description::` inline as the sec
 When a markdown doc *refers to another document, file, or anchor that lives in the vault*, the reference MUST be a wiki-link. Bare backticks like `` `MUX PRD.md` `` are forbidden for references — backticks are reserved for **code identifiers** (function names, file paths in source code, CLI flags, configuration keys), not for vault-internal references.
 
 ```markdown
-✓ Read [[CAB PRD]] for the canonical recipe.
+✓ Read [[FCT PRD]] for the canonical recipe.
 ✓ The state script lives at `~/.claude/skills/workflow/scripts/state`.   ← path to a source file, not a vault doc
 
 ✗ Read `CAB PRD.md` for the canonical recipe.                            ← reference to a vault doc; needs wiki-link
@@ -104,11 +104,11 @@ When a markdown doc declares rules (anywhere — embedded in a facet, in a proje
 - A single rule is a markdown heading whose first content is `RULE R-<slug>-<NN>[ — <title>[ (<tier>)]]`. Any H-level works. Greppable: `^#+\s+RULE\s+R-`.
 - A bundle of rules opens with `# RULESET R-<slug>` as the H1 of the file (or a `# RULESET R-<slug>` second-H1 inside a facet that embeds the set).
 
-See [[CAB Rules]] for the full format.
+See [[FCT Rules]] for the full format.
 
 ### Don't restate facet-level rules in per-anchor doc bodies
 
-If a rule is universal (applies to every Log, every PRD, every Testing doc), it lives in the facet (`[[CAB Log]]`, `[[CAB PRD]]`, `[[CAB Testing]]`) and is enforced by the embedded R-set. Per-anchor docs (`Disk Log.md`, `MUX PRD.md`) should NOT restate those rules in their bodies or Briefs — the facet is the source of truth; restating it drifts. (The Brief discipline catches this for per-doc operational content; the facet-level rules are categorically excluded from Briefs.)
+If a rule is universal (applies to every Log, every PRD, every Testing doc), it lives in the facet (`[[FCT Log]]`, `[[FCT PRD]]`, `[[FCT Testing]]`) and is enforced by the embedded R-set. Per-anchor docs (`Disk Log.md`, `MUX PRD.md`) should NOT restate those rules in their bodies or Briefs — the facet is the source of truth; restating it drifts. (The Brief discipline catches this for per-doc operational content; the facet-level rules are categorically excluded from Briefs.)
 
 
 ## What's NOT in this discipline (boundaries)
@@ -130,7 +130,7 @@ If a rule is universal (applies to every Log, every PRD, every Testing doc), it 
 - [[md]] — the utility-verb skill (sibling, not parent / child); `/md toc`, `/md file-tree`, `/md dispatch-table`, `/md cards`, `/md track-changes`.
 - [[progressive-disclosure]] — sibling discipline; doc-structure rules.
 - [[ask-format]] — sibling discipline; user-actionable surface format.
-- [[CAB Rules]] — meta-spec for the RULE / RULESET sentinel format.
+- [[FCT Rules]] — meta-spec for the RULE / RULESET sentinel format.
 - [[Atlas]] / [[ATL Slugs]] — vault-wide router that wiki-link conventions ultimately serve.
 
 
@@ -214,7 +214,7 @@ A list whose items are *named things* uses the bolded-handle + em-dash + single-
 
 ### RULE R-markdown-10 — Per-anchor docs don't restate facet-level rules (stated)
 
-A per-anchor doc (e.g., `Disk Log.md`, `MUX PRD.md`) does NOT include a section restating rules that live in the facet spec (e.g., the Log format rules belong in [[CAB Log]], not in every Log file's body or Brief).
+A per-anchor doc (e.g., `Disk Log.md`, `MUX PRD.md`) does NOT include a section restating rules that live in the facet spec (e.g., the Log format rules belong in [[FCT Log]], not in every Log file's body or Brief).
 
 **Check pattern:** for any per-anchor doc, grep for `# BRIEF`, `## Convention`, `## Rules`, `## Format`; flag for review if the body contains general format prescriptions.
 

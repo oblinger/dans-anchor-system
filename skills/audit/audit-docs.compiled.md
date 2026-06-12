@@ -42,10 +42,10 @@ Status values:
 - [ ] Flag docs where methods or properties changed signature as **stale-methods**
 
 ## 1.6 Validate module doc format
-For each existing module doc, check every item in the [[CAB API Doc]] format checklist:
+For each existing module doc, check every item in the [[FCT API Doc]] format checklist:
 - [ ] Flag format violations as **format-error** with the specific rule broken
 
-(See [[CAB API Doc]] for the canonical checklist — naming, headings, CLASSES table, per-class tables, METHOD DETAILS, casing, spacing, table formatting. The audit *flags* violations; it does not apply the format. Fixes happen later, when the corresponding backlog entry is pulled.)
+(See [[FCT API Doc]] for the canonical checklist — naming, headings, CLASSES table, per-class tables, METHOD DETAILS, casing, spacing, table formatting. The audit *flags* violations; it does not apply the format. Fixes happen later, when the corresponding backlog entry is pulled.)
 
 ## 1.7 Check Files.md column alignment
 
@@ -60,7 +60,7 @@ Flag misaligned files as **files-misaligned** and redundant text as **files-row1
 
 ## 1.8 Check Interface (code-trait anchors only)
 
-The Interface (see [[CAB Interface]]) is the **required top-level human-authored layer contract** for the codebase. It must exist and be reachable from two places:
+The Interface (see [[FCT Interface]]) is the **required top-level human-authored layer contract** for the codebase. It must exist and be reachable from two places:
 
 - [ ] `{NAME} Docs/{NAME} User/{NAME} Interface.md` exists. Flag absence as **missing-interface**.
 - [ ] `{NAME} Files.md` row 1 contains `→ [[{NAME} Interface]]`. Flag absence as **interface-not-linked-from-files**.
@@ -119,5 +119,5 @@ Print one-line summary:
 
 - [ ] Audits never modify documentation files.
 - [ ] All findings flow into a backlog entry under `## Upcoming` (unless `dry`).
-- [ ] Use [[CAB API Doc]] as the canonical reference when describing what's wrong with a doc.
+- [ ] Use [[FCT API Doc]] as the canonical reference when describing what's wrong with a doc.
 - [ ] B-number assignment: lowest unused integer in the file (gap-fill).

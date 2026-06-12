@@ -60,18 +60,18 @@ Discussion is **append-only**. Entries are never edited after the Decision is fi
 
 | Facet | Relationship |
 |---|---|
-| **[[CAB PRD]] / [[CAB Architecture]] / [[CAB UX Design]] / [[CAB API Design]] / etc.** | The *spec* surfaces (anchor-scoped). Discussion attaches to any of them as a doc-scoped peer. |
-| **[[CAB Decisions]]** | Anchor-level decisions log — *load-bearing* decisions that cite rules and span the anchor. Discussion is finer-grained, per-document, captures the reasoning *behind* a single doc's choices. The decisions log gets the headlines; the discussion gets the deliberation. |
+| **[[FCT PRD]] / [[FCT Architecture]] / [[FCT UX Design]] / [[FCT API Design]] / etc.** | The *spec* surfaces (anchor-scoped). Discussion attaches to any of them as a doc-scoped peer. |
+| **[[FCT Decisions]]** | Anchor-level decisions log — *load-bearing* decisions that cite rules and span the anchor. Discussion is finer-grained, per-document, captures the reasoning *behind* a single doc's choices. The decisions log gets the headlines; the discussion gets the deliberation. |
 | **Open Questions (on feature docs)** | When an open question on a feature doc spawns extended analysis that doesn't fit in the question body, that analysis goes into the feature doc's `# Discussion` (inline) or `F<NNN> Discussions.md` (extracted). Resolving the question links to the discussion entry. |
-| **[[CAB Log]]** | Sibling [[dated-entry-stream]] facet — Log uses the same three placement methods, different entry skeleton, different attachment scope (anchor-level today, potentially doc-level later). |
+| **[[FCT Log]]** | Sibling [[dated-entry-stream]] facet — Log uses the same three placement methods, different entry skeleton, different attachment scope (anchor-level today, potentially doc-level later). |
 
 ## See also
 
 - [[dated-entry-stream]] — discipline owning placement, naming, migration, dispatch linkage.
 - [[file-association]] — parent umbrella discipline.
-- [[CAB Decisions]] — anchor-level decisions log (different altitude).
-- [[CAB Log]] — sibling dated-entry-stream facet.
-- [[CAB Facets]] — facet catalog with the Document-scoped row.
+- [[FCT Decisions]] — anchor-level decisions log (different altitude).
+- [[FCT Log]] — sibling dated-entry-stream facet.
+- [[FCT Facets]] — facet catalog with the Document-scoped row.
 - [[CAE Discussion]] — legacy anchor-scoped example, pending migration (see [[SKA Backlog]] § F149).
 
 

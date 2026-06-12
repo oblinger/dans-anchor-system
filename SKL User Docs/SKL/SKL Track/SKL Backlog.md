@@ -20,7 +20,7 @@ Horizons fix this. The backlog gets three ordered tiers — **Now**, **Next**, *
 | **Now**   | Imminent — the next 1–2 cycles. "We really expect to do this shortly." |
 | **Next**  | Committed but not the next thing up. Visible and ordered, but explicitly deferred. The bucket you reach for when pushing something off Now without sending it to Icebox. |
 | **Later** | Known wants — will get to eventually. Lower priority than Next, still feels obligatory. |
-| **Icebox** | Outside the backlog file. May never happen. (Lives in `[[CAB Icebox]]`.) |
+| **Icebox** | Outside the backlog file. May never happen. (Lives in `[[FCT Icebox]]`.) |
 
 ## Two axes, not one
 

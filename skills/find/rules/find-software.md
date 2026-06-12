@@ -44,11 +44,11 @@ Software is **like product, with the purchase action optional** — most softwar
 
 ## When to escalate to a different verb
 
-If the user asks "what's the best X for Y" — that's not `find`, it's `survey` (multi-software comparison) or `describe` (one-software deep profile).
+If the user asks "what's the best X for Y" — that's not `find`, it's `survey` (multi-software comparison) or `profile` (one-software deep profile).
 
 ## Hand-off
 
-This skill resolves the canonical identifier and install vector. For full evaluation (architecture, license fit, ecosystem signal), continue with [[describe/SKILL|describe]]. For category comparison, use [[survey/SKILL|survey]].
+This skill resolves the canonical identifier and install vector. For full evaluation (architecture, license fit, ecosystem signal), continue with [[profile/SKILL|/profile]]. For category comparison, use [[survey/SKILL|survey]].
 
 ## User rules
 

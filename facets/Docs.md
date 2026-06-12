@@ -97,12 +97,12 @@ Most anchors (beyond simple ones) have a `{NAME} Docs/` folder containing planni
 |------|---------|
 | `{NAME} Inbox.md` | Raw input drop zone — captures unprocessed input for integration |
 | `{NAME} PRD.md` | Product requirements / planning brief |
-| `{NAME} Roadmap.md` | High-level plan and milestones (see [[CAB Roadmap]]) |
+| `{NAME} Roadmap.md` | High-level plan and milestones (see [[FCT Roadmap]]) |
 | `{NAME} Backlog.md` | Low-priority ideas and deferred work (see [[CAB Backlog]]) |
-| `{NAME} Icebox.md` | Cold-storage / someday-maybe items (see [[CAB Icebox]]) — optional |
+| `{NAME} Icebox.md` | Cold-storage / someday-maybe items (see [[FCT Icebox]]) — optional |
 | `{NAME} Todo.md` | Active task tracking |
-| `{NAME} Features/` | Individual feature specs (see [[CAB Features]]) |
-| `{NAME} {Module}.md` | Source code module documentation (see [[CAB API Doc]]) |
+| `{NAME} Features/` | Individual feature specs (see [[FCT Features]]) |
+| `{NAME} {Module}.md` | Source code module documentation (see [[FCT API Doc]]) |
 
 Not all files are required — create what's useful for the anchor. The Inbox is always created with new anchors.
 

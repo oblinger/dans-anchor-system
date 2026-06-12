@@ -22,12 +22,12 @@ Read the trait spec file from `~/.claude/skills/cab/cab-traits/` for each of the
 
 Then read the CAB part specs — each has a **Reference Example** at the top showing exactly what the file should look like. These examples are the single source of truth for both setup and rewire. Key ones to read:
 
-- **[[CAB Anchor Page]]** → dispatch table format and standard rows
-- **[[CAB Folder]]** → marker file format
-- **[[CAB Plan Dispatch]]** → Plan dispatch page format
-- **[[CAB Dev Dispatch]]** → Dev dispatch page format
-- **[[CAB User Dispatch]]** → User dispatch page format
-- **[[CAB PRD]]**, **[[CAB System Design]]**, **[[CAB Roadmap]]**, etc. → each planning doc's format
+- **[[FCT Anchor Page]]** → dispatch table format and standard rows
+- **[[FCT Folder]]** → marker file format
+- **[[FCT Plan Dispatch]]** → Plan dispatch page format
+- **[[FCT Dev Dispatch]]** → Dev dispatch page format
+- **[[FCT User Dispatch]]** → User dispatch page format
+- **[[FCT PRD]]**, **[[FCT System Design]]**, **[[FCT Roadmap]]**, etc. → each planning doc's format
 
 Create every file to match its reference example, substituting `{NAME}` with the actual slug.
 
@@ -46,7 +46,7 @@ Based on the traits, create ALL files upfront. For multi-trait anchors, create t
 ### All Types (base structure)
 
 1. **Marker file** — `{Title}.md` containing `(See Anchor [[{NAME}]])`. Only needed if the folder name differs from the slug; otherwise the anchor page doubles as the marker.
-2. **Anchor page** — `{NAME}.md` with breadcrumb, H1, `description:` in frontmatter, and dispatch table. Use the dispatch table format from [[CAB Anchor Page]].
+2. **Anchor page** — `{NAME}.md` with breadcrumb, H1, `description:` in frontmatter, and dispatch table. Use the dispatch table format from [[FCT Anchor Page]].
 3. **CLAUDE.md** — with role header:
    ```
    You are the Pilot for the {Title} project. Role: `~/.claude/skills/role/role-pilot.md`

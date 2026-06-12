@@ -8,7 +8,7 @@ description: "Active work tracking"
 
 The backlog file (`{NAME} Backlog.md`) holds ideas, low-priority tasks, and deferred work that don't belong on the active Todo or Roadmap yet. Items graduate to the Roadmap or Todo when they become priorities.
 
-For items the user wants to remember but is **not** actively considering — distant-future / someday-maybe entries — use the optional [[CAB Icebox]] instead. Backlog is the *active* deferred-work list; Icebox is the *frozen* one.
+For items the user wants to remember but is **not** actively considering — distant-future / someday-maybe entries — use the optional [[FCT Icebox]] instead. Backlog is the *active* deferred-work list; Icebox is the *frozen* one.
 
 **Working example:** `~/.claude/skills/CAE/CAE Docs/CAE Plan/CAE Backlog.md` — Backlog.
 
@@ -159,7 +159,7 @@ Items typically flow `Now [ ] → Now [Ready] → ## Active → Now [Verify] →
 
 **Legacy `## Upcoming`.** Anchors that pre-date the horizons discipline may still have `## Upcoming` as the catch-all pre-ready section. Treat it as a transitional alias for `## Now` until the anchor is migrated. New backlogs use `## Now / ## Next / ## Later` from the start.
 
-For items that are explicitly parked / out-of-scope-for-now / someday-maybe, use the optional [[CAB Icebox]] file rather than a Deferred section here.
+For items that are explicitly parked / out-of-scope-for-now / someday-maybe, use the optional [[FCT Icebox]] file rather than a Deferred section here.
 
 ## Definition of Ready
 
@@ -211,7 +211,7 @@ For rows without a feature doc, see § B-row inline Qs below.
 - Hoist the informal questions to numbered form (Q1, Q2, …) at the top of the row body — then the bracket is honest, or
 - Rebracket to a state the row actually satisfies (`[Designing]`, `[Blocked]`, `[ ]`).
 
-**Triage link form (per `[[CAB Triage]]` / `[[SKA triage]]` § Mandatory wiki-link):** `[[{NAME} Backlog#B-name|B-name]]` — clicking lands at the row, where the numbered Qs are immediately visible.
+**Triage link form (per `[[FCT Triage]]` / `[[SKA triage]]` § Mandatory wiki-link):** `[[{NAME} Backlog#B-name|B-name]]` — clicking lands at the row, where the numbered Qs are immediately visible.
 
 **Promotion to feature doc.** If the inline Q set grows too large to fit comfortably as row sub-bullets — rule of thumb: more than 3–4 Qs, or any Q whose body needs multiple lines of elaboration — promote the row to a feature doc via `/feature`. The feature doc's `## Open Questions` H2 below H1 is the canonical Q surface and assigns a stable F-number from the per-anchor F-counter. After promotion, the backlog row's description becomes a `→ [[F<n> — Title]]` pointer per the convention above.
 
@@ -234,6 +234,6 @@ Each round-trip with the user costs scrollback context and stalls the batch — 
 - **Todo** — active, near-term tasks
 - **Roadmap** — milestone-based execution plan (uses `R<n>.<m>` numbering for hierarchical milestone references; planned but deferred)
 - **Backlog** — active deferred-work list: ideas under consideration, low-priority but not abandoned
-- **[[CAB Icebox|Icebox]]** — optional cold-storage list for items not under active consideration
+- **[[FCT Icebox|Icebox]]** — optional cold-storage list for items not under active consideration
 
 Items graduate from Backlog to Todo or Roadmap when they become priorities, or move to Icebox when they cool off.

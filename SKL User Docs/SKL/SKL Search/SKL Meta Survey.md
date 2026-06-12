@@ -3,7 +3,7 @@ description: "high-rigor three-stage form of /survey for high-stakes comparisons
 ---
 # SKL Meta Survey
 
-| -[[SKL Meta Survey]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Search]] → [SKL Meta Survey](hook://p/SKL%20Meta%20Survey)<br>: high-rigor three-stage form of /survey for high-stakes comparisons |
+| -[[SKL Meta Survey]]- | → [[SKL Search]] → [SKL Meta Survey](hook://p/SKL%20Meta%20Survey)<br>: high-rigor three-stage form of /survey for high-stakes comparisons |
 | --- | --- |
 | Runbook | [[survey/meta-survey\|meta-survey.md]],   |
 | Standard /survey | [[SKL Survey]],   |
@@ -46,7 +46,7 @@ A row of `***bold-italic***` cells with stars is one the user can act on. A row 
 
 - Quick orientation, not a commit decision → standard [[SKL Survey]].
 - Well-established sources, well-known dimensions → standard `/survey`, optionally with the *lightweight* meta-survey sub-pattern (survey-of-surveys to derive dimensions only).
-- Single entity, not a comparison → [[SKL Describe]].
+- Single entity, not a comparison → [[SKL Profile]].
 - Single-instance lookup → [[SKL Find]].
 
 Skill methodology: [[survey/SKILL|survey/SKILL.md]] · Full runbook: [[survey/meta-survey|meta-survey.md]] · Composition: [[SKL Search Overview]].

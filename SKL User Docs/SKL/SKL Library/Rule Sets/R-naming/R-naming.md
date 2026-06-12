@@ -1,10 +1,10 @@
 # RULESET R-naming
-include:: [[CAB Naming#RULESET R-naming\|embedded body]]
+include:: [[FCT Naming#RULESET R-naming\|embedded body]]
 description:: File-naming rules vault-wide — slug-prefix default + explicit exception allowlist.
 
-Catalog-side stub for the Naming facet rule set. Canonical body lives embedded inside [[CAB Naming]] per [[F133 — Rule sets folder convention + facet embedding|F133]].
+Catalog-side stub for the Naming facet rule set. Canonical body lives embedded inside [[FCT Naming]] per [[F133 — Rule sets folder convention + facet embedding|F133]].
 
-**To see the actual rules:** follow [[CAB Naming#RULESET R-naming|the embedded block]]. 5 rules covering: default `{NAME} <X>.md` form inside anchors, vault-global exemption (Atlas, MY, etc.), facet-sanctioned unique patterns allowlist (F-numbers, US-<RID>-<N>, ISO dates per CAB Features / Stories / Log), slug-prefix-sufficient-by-chance escape valve, folder-anchor marker-file matches folder name.
+**To see the actual rules:** follow [[FCT Naming#RULESET R-naming|the embedded block]]. 5 rules covering: default `{NAME} <X>.md` form inside anchors, vault-global exemption (Atlas, MY, etc.), facet-sanctioned unique patterns allowlist (F-numbers, US-<RID>-<N>, ISO dates per CAB Features / Stories / Log), slug-prefix-sufficient-by-chance escape valve, folder-anchor marker-file matches folder name.
 
 ## Adoption
 
@@ -12,7 +12,7 @@ Vault-wide — every anchor's files are subject to this set, no explicit `includ
 
 ## See also
 
-- [[CAB Naming]] — facet spec; contains the embedded RULESET body.
+- [[FCT Naming]] — facet spec; contains the embedded RULESET body.
 - [[R-facet]] — parent umbrella.
 - [[R-testing]], [[R-status]], [[R-log]], [[R-stories]], [[R-prd]], [[R-design]] — sibling materialized facet rule sets.
 - [[Rule Sets]] — top-level catalog.

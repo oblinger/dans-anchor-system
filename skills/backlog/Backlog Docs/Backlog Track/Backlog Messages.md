@@ -1,5 +1,5 @@
 ---
-description: agent inbox — system messages for this anchor; cleared on every pause. See [[CAB Messages]].
+description: agent inbox — system messages for this anchor; cleared on every pause. See [[FCT Messages]].
 ---
 
 # Backlog Messages

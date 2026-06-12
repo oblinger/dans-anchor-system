@@ -40,7 +40,7 @@ Subsumes the legacy `/product find` action from [[SKL Purchase]].
 
 ## When to escalate to a different verb
 
-If the user asks "what's the best X for purpose Y" — that's not a `find`, it's a `describe` (one-product profile) or `survey` (multi-product comparison). Push back: "want a profile or a comparison instead?"
+If the user asks "what's the best X for purpose Y" — that's not a `find`, it's a `profile` (one-product profile) or `survey` (multi-product comparison). Push back: "want a profile or a comparison instead?"
 
 ## Hand-off to purchase
 

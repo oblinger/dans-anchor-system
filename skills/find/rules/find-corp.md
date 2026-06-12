@@ -5,7 +5,7 @@ description: Default rules for finding an organization — ships with the skill.
 
 Default rules for `find` on noun-type **corp**. Ships with the skill; user overrides in `[[SRC rules/find-corp|SRC rules/]]`.
 
-Goal: identify the *specific* organization matching criteria — not profile it (that's [[describe/SKILL|describe]]).
+Goal: identify the *specific* organization matching criteria — not profile it (that's [[profile/SKILL|/profile]]).
 
 ## Default sources for identification
 

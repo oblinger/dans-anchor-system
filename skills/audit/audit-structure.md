@@ -53,14 +53,14 @@ Each dispatch page must link to all its children. Only check dispatch pages that
 
 ### 7. Check Files.md Format
 
-`{NAME} Docs/{NAME} Dev/{NAME} Files.md` (if present) must follow [[CAB Files]]. Common mistakes that need to be caught:
+`{NAME} Docs/{NAME} Dev/{NAME} Files.md` (if present) must follow [[FCT Files]]. Common mistakes that need to be caught:
 
 | Violation | How to detect | Why wrong |
 |-----------|---------------|-----------|
 | Body wrapped in a ``` code fence | Grep the file for lines matching `^```` | Wiki-links inside a code fence render as literal text, not clickable links — the whole page becomes dead |
 | `cssclass:` (singular) in frontmatter | Grep for `^cssclass:` without the `es` | Obsidian's key is `cssclasses` (plural, list). Singular is silently ignored, so the page doesn't render monospace |
 | `cssclasses: monospace` missing entirely | Check frontmatter has `cssclasses:` with a `monospace` entry | Page won't render in fixed-width font; the tree's box-drawing chars will misalign |
-| Source files use `→ [[doc]]` arrows | Grep source-file lines for `→ \[\[` | Per [[CAB Files]], source files use filename-as-link: `[[OBU Lib\|lib.rs]]`. Arrows are only for non-source files pointing to external specs |
+| Source files use `→ [[doc]]` arrows | Grep source-file lines for `→ \[\[` | Per [[FCT Files]], source files use filename-as-link: `[[OBU Lib\|lib.rs]]`. Arrows are only for non-source files pointing to external specs |
 
 ```bash
 # Quick one-liner to catch the first three. Only checks files that live under

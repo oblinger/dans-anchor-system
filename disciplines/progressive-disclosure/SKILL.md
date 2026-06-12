@@ -1,6 +1,6 @@
 ---
 name: progressive-disclosure
-description: Discipline. Layered information presentation across the vault — the **preface zone** every doc may carry (dispatch table → TLDR → figure), the **three levels** of progressive disclosure (project anchor / folder anchor / within-doc), and the **five named dispatch-table patterns** (Grouped / List / Compact at anchor-folder; Linear / Matrix within-doc). Cited by [[CAB Anchor Page]], [[CAB Features]], [[CAB Architecture]], [[CAB UX Design]], and the `md` skill.
+description: Discipline. Layered information presentation across the vault — the **preface zone** every doc may carry (dispatch table → TLDR → figure), the **three levels** of progressive disclosure (project anchor / folder anchor / within-doc), and the **five named dispatch-table patterns** (Grouped / List / Compact at anchor-folder; Linear / Matrix within-doc). Cited by [[FCT Anchor Page]], [[FCT Features]], [[FCT Architecture]], [[FCT UX Design]], and the `md` skill.
 user_invocable: false
 ---
 
@@ -19,7 +19,7 @@ This is a discipline, not a user-invocable skill — other CAB facets and skills
 
 ## Why this exists — the problem it solves
 
-Today the discipline is implicit in [[CAB Anchor Page]] and the `md` skill's dispatch-table sub-command. Many anchors invented their own variations. Without naming the patterns and codifying when each applies, every author makes the same micro-decisions from scratch, and the same drift accumulates anchor-by-anchor.
+Today the discipline is implicit in [[FCT Anchor Page]] and the `md` skill's dispatch-table sub-command. Many anchors invented their own variations. Without naming the patterns and codifying when each applies, every author makes the same micro-decisions from scratch, and the same drift accumulates anchor-by-anchor.
 
 This discipline names the patterns, gives them one home, and makes drift detectable by audit.
 
@@ -191,16 +191,16 @@ This central table records which preface elements each CAB facet requires. The l
 | Facet | Dispatch table | TLDR | Figure |
 |---|---|---|---|
 | All facets that associate with a folder | **Required** | (per col 3) | (per col 4) |
-| [[CAB Anchor Page]] | Required | Optional | Optional |
-| [[CAB Features]] | Optional | **Required** | Optional |
-| [[CAB Architecture]] (top-level doc) | Required | Optional | **Required** |
-| [[CAB Architecture]] (subsystem doc) | Required | Optional | **Required** |
-| [[CAB UX Design]] (post-F113: `CAB UX`) | Required | Optional | **Required** |
-| [[CAB PRD]] | Required | **NOT required** (explicitly — too heterogeneous) | Optional |
-| [[CAB Decisions]] (post-F113) | Required | Optional | Optional |
-| [[CAB Interface]] | Required | Optional | Optional |
-| [[CAB Log]] (post-F113) | Optional | Optional | Optional |
-| [[CAB Testing]] | Required | **Required** | Optional |
+| [[FCT Anchor Page]] | Required | Optional | Optional |
+| [[FCT Features]] | Optional | **Required** | Optional |
+| [[FCT Architecture]] (top-level doc) | Required | Optional | **Required** |
+| [[FCT Architecture]] (subsystem doc) | Required | Optional | **Required** |
+| [[FCT UX Design]] (post-F113: `CAB UX`) | Required | Optional | **Required** |
+| [[FCT PRD]] | Required | **NOT required** (explicitly — too heterogeneous) | Optional |
+| [[FCT Decisions]] (post-F113) | Required | Optional | Optional |
+| [[FCT Interface]] | Required | Optional | Optional |
+| [[FCT Log]] (post-F113) | Optional | Optional | Optional |
+| [[FCT Testing]] | Required | **Required** | Optional |
 | Other facets associated with a folder | Required | Optional | Optional |
 
 **Reading the table:**
@@ -234,7 +234,7 @@ A TLDR is a **description list of short single-line bullets**, each with a 2-3-w
 
 **Cover the whole doc, not one aspect.** A good TLDR spans the major sections of the body, one bullet per section's gist. A TLDR that recites only one part of the doc fails the grazer; the reader has to read the body to discover the doc's other sections.
 
-**When required:** TLDR is required on **Feature documents** (per [[CAB Features]]) and **Testing documents** (per [[CAB Testing]]). Always optional on other types; if included, must follow the format above. PRDs are explicitly excluded. **Worked examples:** [[MUX Testing]] (8 bullets, covers posture + tiers + scope + cadence + tier mapping) and [[CAE Testing]] (similar shape at smaller scale).
+**When required:** TLDR is required on **Feature documents** (per [[FCT Features]]) and **Testing documents** (per [[FCT Testing]]). Always optional on other types; if included, must follow the format above. PRDs are explicitly excluded. **Worked examples:** [[MUX Testing]] (8 bullets, covers posture + tiers + scope + cadence + tier mapping) and [[CAE Testing]] (similar shape at smaller scale).
 
 
 ## Figure placement
@@ -250,13 +250,13 @@ When a doc carries an organizing figure (system diagram, architecture sketch, fl
 
 ## Relationship to existing facets and skills
 
-- **[[CAB Anchor Page]]** — cites this discipline. Anchor page dispatch tables follow Grouped / List / Compact pattern per the size rule; preface zone (dispatch + optional TLDR + optional figure) follows this discipline's ordering.
+- **[[FCT Anchor Page]]** — cites this discipline. Anchor page dispatch tables follow Grouped / List / Compact pattern per the size rule; preface zone (dispatch + optional TLDR + optional figure) follows this discipline's ordering.
 - **`md` skill** — its dispatch-table and TOC sub-commands reference the named patterns in their templates and emit conformant output.
-- **[[CAB Features]]** — TLDR required (initial scope). Feature docs reduce cleanly to 3-5 one-line bullets capturing the gist.
-- **[[CAB Architecture]]** — figure required. May include a TLDR voluntarily.
-- **[[CAB UX Design]]** (post-F113: `CAB UX`) — figure required.
-- **[[CAB PRD]]** — TLDR explicitly NOT required (heterogeneous content).
-- **[[CAB Decisions]]** (post-F113) — TLDR not applicable; each decision is its own one-liner.
+- **[[FCT Features]]** — TLDR required (initial scope). Feature docs reduce cleanly to 3-5 one-line bullets capturing the gist.
+- **[[FCT Architecture]]** — figure required. May include a TLDR voluntarily.
+- **[[FCT UX Design]]** (post-F113: `CAB UX`) — figure required.
+- **[[FCT PRD]]** — TLDR explicitly NOT required (heterogeneous content).
+- **[[FCT Decisions]]** (post-F113) — TLDR not applicable; each decision is its own one-liner.
 - **Audit:** post-F113, this discipline lands in `{NAME} Decisions.md` as one or more `D<NN>` decisions at the per-anchor tier.
 
 

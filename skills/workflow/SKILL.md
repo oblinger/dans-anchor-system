@@ -165,7 +165,7 @@ Every transition is driven by an explicit skill or trigger. There are no silent 
 
 ## Interface-validation gate
 
-Interfaces (per [[CAB Interface]]) are the human-authored layer contracts that callers above the layer rely on. Creating a new Interface doc OR significantly modifying an existing one is **design-bearing work** — the agent's role is to draft and propose; the user's role is to validate.
+Interfaces (per [[FCT Interface]]) are the human-authored layer contracts that callers above the layer rely on. Creating a new Interface doc OR significantly modifying an existing one is **design-bearing work** — the agent's role is to draft and propose; the user's role is to validate.
 
 **The gate fires when:**
 
@@ -181,7 +181,7 @@ Interfaces (per [[CAB Interface]]) are the human-authored layer contracts that c
 - Reformatting that doesn't shift the contract (column widths, table polish, header levels).
 - Agent-driven structural rewrites the user already approved.
 
-**Why the gate matters.** Without it, Interface docs drift into agent-generated noise that doesn't match the user's mental model of the layer. The layer-completeness and hiding invariants ([[CAB Interface]] § Defining Properties) require a human reviewer — they can't be auto-checked. The gate is a checkpoint, not a brake: the agent does the writing work; the user reads and approves.
+**Why the gate matters.** Without it, Interface docs drift into agent-generated noise that doesn't match the user's mental model of the layer. The layer-completeness and hiding invariants ([[FCT Interface]] § Defining Properties) require a human reviewer — they can't be auto-checked. The gate is a checkpoint, not a brake: the agent does the writing work; the user reads and approves.
 
 **Sub-Interfaces.** Same gate applies — creating a new `{NAME} {LayerName} Interface.md` (sub-Interface) or significantly modifying one goes through user validation. Nested layers don't bypass the rule.
 

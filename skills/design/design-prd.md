@@ -1,11 +1,11 @@
 # Design PRD — Author or assess `{NAME} PRD.md`
 
-Phase 1 of the canonical `/design` sequence (PRD → UX → API → Architecture → Testing → Roadmap). Authors `{NAME} Design/{NAME} PRD.md` per the [[CAB PRD]] facet.
+Phase 1 of the canonical `/design` sequence (PRD → UX → API → Architecture → Testing → Roadmap). Authors `{NAME} Design/{NAME} PRD.md` per the [[FCT PRD]] facet.
 
 **Two modes** — the same skill drives both:
 
 - **Bootstrap mode** — no PRD exists. Agent gathers context, drafts the standard section spine, glances the file, iterates with the user.
-- **Assess mode** — PRD already exists. Agent surveys it against the [[CAB PRD#RULESET R-prd|R-prd]] rules + section spine + depth heuristics, glances the file, reports findings in chat, and waits for direction (drive end-to-end / one-move-at-a-time / converse).
+- **Assess mode** — PRD already exists. Agent surveys it against the [[FCT PRD#RULESET R-prd|R-prd]] rules + section spine + depth heuristics, glances the file, reports findings in chat, and waits for direction (drive end-to-end / one-move-at-a-time / converse).
 
 The mode is detected, not invoked — `/design prd` does the right thing based on what's on disk.
 
@@ -19,9 +19,9 @@ The mode is detected, not invoked — `/design prd` does the right thing based o
 
 ### 1. Locate the PRD
 
-1. Walk up from `cwd` to nearest `.anchor`. Check whether `{anchor}/{NAME} Design/` exists (the gate per [[CAB Design]]). If absent, `/design` (the orchestrator) will have already offered to scaffold — this sub-skill assumes the folder exists when invoked.
+1. Walk up from `cwd` to nearest `.anchor`. Check whether `{anchor}/{NAME} Design/` exists (the gate per [[FCT Design]]). If absent, `/design` (the orchestrator) will have already offered to scaffold — this sub-skill assumes the folder exists when invoked.
 2. Look for the PRD at, in priority order:
-   - `{anchor}/{NAME} Design/{NAME} PRD/{NAME} PRD.md` (folder form per [[CAB Stories]])
+   - `{anchor}/{NAME} Design/{NAME} PRD/{NAME} PRD.md` (folder form per [[FCT Stories]])
    - `{anchor}/{NAME} Design/{NAME} PRD.md` (single-file form)
    - Legacy: `{anchor}/{NAME} Docs/{NAME} Plan/{NAME} PRD.md` — flag for migration but read as input
 3. Branch:
@@ -36,7 +36,7 @@ The whole point: don't silently edit. Survey first, report, glance, wait.
 
 Read the PRD, then evaluate against three dimensions:
 
-**Rule check — `R-prd` (per [[CAB PRD#RULESET R-prd|the embedded rule set]]):**
+**Rule check — `R-prd` (per [[FCT PRD#RULESET R-prd|the embedded rule set]]):**
 
 | Rule | What it checks |
 |---|---|
@@ -62,7 +62,7 @@ Read the PRD, then evaluate against three dimensions:
 
 - **Overview**: < 2 sentences = thin; doesn't name the user role = ambiguous.
 - **Goals / Non-Goals**: < 2 bullets = thin; phrased as features (verbs) vs outcomes (nouns) = ambiguous.
-- **User Stories**: bare canonical sentence with no acceptance criteria and the product clearly has more behavior to spec = candidate for [[CAB Stories]] folder-form extraction.
+- **User Stories**: bare canonical sentence with no acceptance criteria and the product clearly has more behavior to spec = candidate for [[FCT Stories]] folder-form extraction.
 - **Design Workflow**: doesn't link to all five downstream phases (PRD → Architecture → Testing → Decisions → Track) = incomplete.
 
 #### 2b. Glance the file
@@ -125,7 +125,7 @@ Read in this order; stop when you have enough to draft:
 
 #### 3b. Draft the initial PRD
 
-Create `{anchor}/{NAME} Design/{NAME} PRD.md` (single-file form by default) with the standard section spine per [[CAB PRD]] § Standard section order:
+Create `{anchor}/{NAME} Design/{NAME} PRD.md` (single-file form by default) with the standard section spine per [[FCT PRD]] § Standard section order:
 
 ```markdown
 # {NAME} PRD
@@ -136,7 +136,7 @@ description:: <one-line tagline — product type + intent + key trait>
 | [[{NAME} Architecture]] | system-architecture story (peer Design facet) |
 | [[{NAME} Testing]] | testing strategy + proposed-tests overview |
 | [[{NAME} Decisions]] | load-bearing decisions citing rules |
-| [[CAB PRD]] | facet spec this doc follows |
+| [[FCT PRD]] | facet spec this doc follows |
 | --- | |
 
 ## Overview
@@ -170,8 +170,8 @@ As a <role>, I want <goal> so that <reason>.
 
 ## See also
 
-- [[CAB PRD]] — facet spec
-- [[CAB Stories]] — stories sub-facet (activates if stories grow)
+- [[FCT PRD]] — facet spec
+- [[FCT Stories]] — stories sub-facet (activates if stories grow)
 - [[{NAME} Architecture]], [[{NAME} Testing]], [[{NAME} Decisions]] — peer Design facets
 ```
 
@@ -232,7 +232,7 @@ See [[ask]] and [[ask-format]] for the full lifecycle (Q-numbering, recommendati
 
 ### 6. Promote status
 
-Status lives in `{NAME} Track/{NAME} Status.md` per [[CAB Status]]. When the PRD survives the rule check AND the section spine is substantive:
+Status lives in `{NAME} Track/{NAME} Status.md` per [[FCT Status]]. When the PRD survives the rule check AND the section spine is substantive:
 
 ```bash
 ~/.claude/skills/workflow/scripts/state --anchor {NAME} status set prd MVP-agent --note "<one-line — what's covered>"
@@ -242,16 +242,16 @@ User stamps `MVP-user` via natural-language confirmation ("PRD looks good"); thi
 
 ## File location
 
-`{anchor}/{NAME} Design/{NAME} PRD.md` (single-file form, default) or `{anchor}/{NAME} Design/{NAME} PRD/{NAME} PRD.md` (folder form, when stories migrate to [[CAB Stories]]).
+`{anchor}/{NAME} Design/{NAME} PRD.md` (single-file form, default) or `{anchor}/{NAME} Design/{NAME} PRD/{NAME} PRD.md` (folder form, when stories migrate to [[FCT Stories]]).
 
 Legacy `{anchor}/{NAME} Docs/{NAME} Plan/{NAME} PRD.md` is deprecated per F094. If found at the legacy path, flag for migration but read as input during assessment.
 
 ## File shape
 
-**Read [[CAB PRD]] before authoring.** The facet spec is the canonical recipe — required sections, dataview fields, preface zone (TLDR explicitly NOT required for PRDs), section spine. This sub-skill owns the *process*; the facet owns the *shape*. If anything in this skill conflicts with the facet, the facet wins.
+**Read [[FCT PRD]] before authoring.** The facet spec is the canonical recipe — required sections, dataview fields, preface zone (TLDR explicitly NOT required for PRDs), section spine. This sub-skill owns the *process*; the facet owns the *shape*. If anything in this skill conflicts with the facet, the facet wins.
 
 Worked example to crib from: [[CAE PRD]].
-Audit rules to honor: [[CAB PRD#RULESET R-prd|R-prd]] (9 rules).
+Audit rules to honor: [[FCT PRD#RULESET R-prd|R-prd]] (9 rules).
 
 ## Anti-patterns
 
@@ -259,16 +259,16 @@ Audit rules to honor: [[CAB PRD#RULESET R-prd|R-prd]] (9 rules).
 - **Don't gate by separate ceremony.** Promotion to `MVP-agent` is a `state status set` call, not a Verify row or a banner. The user-grade `MVP-user` comes from natural-language confirmation.
 - **Don't ask "should we have a PRD?"** — `/design prd` was invoked. Author it (bootstrap) or assess it (existing).
 
-(For the decide-vs-ask judgment on open questions, defer to [[ask]] — that discipline owns the lifecycle, not this skill. For shape rules — body-only, no DC-N, no per-doc `status::`, no separate Open Questions file — defer to [[CAB PRD#RULESET R-prd|R-prd]]; the audit catches them mechanically.)
+(For the decide-vs-ask judgment on open questions, defer to [[ask]] — that discipline owns the lifecycle, not this skill. For shape rules — body-only, no DC-N, no per-doc `status::`, no separate Open Questions file — defer to [[FCT PRD#RULESET R-prd|R-prd]]; the audit catches them mechanically.)
 
 ## Related
 
-- Facet spec: [[CAB PRD]] (with embedded [[CAB PRD#RULESET R-prd|R-prd]])
+- Facet spec: [[FCT PRD]] (with embedded [[FCT PRD#RULESET R-prd|R-prd]])
 - Worked example: [[CAE PRD]]
-- Stories sub-facet: [[CAB Stories]] (activates if stories grow)
+- Stories sub-facet: [[FCT Stories]] (activates if stories grow)
 - Parent orchestrator: [[design]]
 - Sibling sub-skills: [[design-ux]], [[design-architect]], [[design-testing]], [[design-roadmap]]
-- Status tracking: [[CAB Status]]
+- Status tracking: [[FCT Status]]
 - Open-question discipline: [[ask-format]]
 - Question authoring skill: `/ask --doc`
 - F130 (state script + central Status), F094 (Design folder restructure)

@@ -38,7 +38,7 @@ Subsumes the broad-research phase of legacy `/product hunt`. Applies when compar
 ## Workflow specifics (from legacy /product hunt)
 
 1. **Understand the product** — gather constraints (budget, features, use case).
-2. **Find ~10 review sites** covering this category. From each, harvest: which products are recommended, which dimensions reviewers emphasize, price tiers.
+2. **[[Find|Find ~10 review sites** covering this category. From each, harvest: which products are recommended, which dimensions reviewers emphasize, price tiers.
 3. **Identify key dimensions** — from review-site consensus; these become comparison-table columns.
 4. **Select top 10 products** based on review consensus.
 5. **Phase 4.5 — resolve a purchasable link for each product (REQUIRED)** — see below.
@@ -73,7 +73,7 @@ Per the legacy `/product hunt` convention: surveying a category broadly (this sk
 
 ## Meta-survey for novel categories
 
-For a product category not surveyed before, **run meta-survey first** (per [[describe/SKILL|skill methodology]]). Look at how Wirecutter / RTINGS / category reviewers organize their comparisons — borrow their dimension set rather than inventing in a vacuum.
+For a product category not surveyed before, **run meta-survey first** (per [[profile/SKILL|skill methodology]]). Look at how Wirecutter / RTINGS / category reviewers organize their comparisons — borrow their dimension set rather than inventing in a vacuum.
 
 ## Gotchas
 

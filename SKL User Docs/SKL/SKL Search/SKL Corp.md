@@ -3,10 +3,10 @@ description: "skim → click into the rule that applies"
 ---
 # SKL Corp
 
-| -[[SKL Corp]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Search]] → [SKL Corp](hook://p/SKL%20Corp)<br>: skim → click into the rule that applies |
+| -[[SKL Corp]]- | → [[SKL Search]] → [SKL Corp](hook://p/SKL%20Corp)<br>: skim → click into the rule that applies |
 | --- | --- |
 | Corp rules (any verb) | [[SRC rules/corp\|corp.md]],   |
-| Verbs | [[SRC rules/find-corp\|find-corp]],  [[SRC rules/describe-corp\|describe-corp]],  [[SRC rules/survey-corp\|survey-corp]],   |
+| Verbs | [[SRC rules/find-corp\|find-corp]],  [[SRC rules/profile-corp\|describe-corp]],  [[SRC rules/survey-corp\|survey-corp]],   |
 
 When the search agent runs against an **organization** — finding, describing, or surveying — these are the rules that apply.
 
@@ -16,4 +16,4 @@ When the search agent runs against an **organization** — finding, describing, 
 
 Sub-types worth knowing about: startup · public company · nonprofit · government / agency.
 
-Verbs: [[SKL Find]] · [[SKL Describe]] · [[SKL Survey]] · Composition: [[SKL Search Overview]].
+Verbs: [[SKL Find]] · [[SKL Profile]] · [[SKL Survey]] · Composition: [[SKL Search Overview]].

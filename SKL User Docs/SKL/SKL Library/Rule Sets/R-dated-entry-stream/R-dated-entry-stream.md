@@ -18,7 +18,7 @@ Catalog-side stub for the dated-entry-stream sub-discipline's rule set. The cano
 
 ## Position in the catalog
 
-Sits under [[R-doc]] (documentation conventions umbrella). Sub-discipline of [[file-association]] (the broader umbrella covering structural patterns for attaching content to a parent). Cited by every facet whose content is a dated entry stream: [[CAB Discussion]] today; [[CAB Log]] pending refactor.
+Sits under [[R-doc]] (documentation conventions umbrella). Sub-discipline of [[file-association]] (the broader umbrella covering structural patterns for attaching content to a parent). Cited by every facet whose content is a dated entry stream: [[CAB Discussion]] today; [[FCT Log]] pending refactor.
 
 ## Adoption
 
@@ -30,5 +30,5 @@ This rule set is cited explicitly by each facet that uses it (in their `R-<facet
 - [[file-association]] — parent umbrella discipline.
 - [[R-doc]] — documentation-conventions catalog row this stub sits under.
 - [[CAB Discussion]] — citing facet (doc-scoped, methods 1 + 2).
-- [[CAB Log]] — citing facet at the anchor scope (forthcoming refactor).
+- [[FCT Log]] — citing facet at the anchor scope (forthcoming refactor).
 - [[Rule Sets]] — top-level catalog.

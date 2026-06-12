@@ -1,5 +1,5 @@
 ---
-description: "How the search skill family combines knowledge and rules — the mental model behind find/describe/survey."
+description: "How the search skill family combines knowledge and rules — the mental model behind find/profile/survey."
 ---
 # SKL Search Overview
 
@@ -9,7 +9,7 @@ The mental model behind the **search skill family** (`find`, `describe`, `survey
 
 Search is described along **two axes**:
 
-- **Verb (action)** — *what kind of search*: [[SKL Find|find]], [[SKL Describe|describe]], [[SKL Survey|survey]].
+- **Verb (action)** — *what kind of search*: [[SKL Find|find]], [[SKL Profile|describe]], [[SKL Survey|survey]].
 - **Noun (entity)** — *what kind of thing*. Grouped categorically: **People** ([[SKL Person|person]], [[SKL Corp|corp]]) · **Things** ([[SKL Product|product]], [[SKL Book|book]]) · **Digital content** ([[SKL Software|software]], [[SKL Skill|skill]]). Extended over time as patterns emerge.
 
 A request like *"survey project management SaaS tools"* invokes the `survey` skill with the noun-type *product*.
@@ -37,7 +37,7 @@ Each verb writes to a folder under [[SRC|the Search anchor]]:
 |---|---|---|
 | survey | [[Survey]] (`~/ob/kmr/Topic/Search/Survey/`) | `YYYY-MM-DD <survey-name>.md` |
 | describe | [[Profile]] (`~/ob/kmr/Topic/Search/Profile/`) | `YYYY-MM-DD <entity-name>.md` |
-| find | [[Lookup]] (`~/ob/kmr/Topic/Search/Lookup/`) | `YYYY-MM-DD <short-name>.md` |
+| find | [[Find]] (`~/ob/kmr/Topic/Search/Find/`) | `YYYY-MM-DD <short-name>.md` |
 
 Each anchor's dispatch lists newest first.
 

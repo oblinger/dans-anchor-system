@@ -7,7 +7,7 @@ File tree diagrams using Unicode box-drawing characters. The standard approach i
 ## 1. MONOSPACE FILE TREE  (Default for whole-file file trees)
 
 See these real examples:
-- [[CAB All Files]] — the CAB master file tree with links to every part spec
+- [[FCT All Files]] — the CAB master file tree with links to every part spec
 - [[MUX Files]] — a real project file tree with `→` doc association links
 
 
@@ -18,7 +18,7 @@ Key properties:
 - **Regular spaces** — monospace rendering makes them fixed-width; no figure spaces needed
 - **Links work inline** — wiki-links and URL links render normally
 - **Descriptions aligned** — at a consistent display column using spaces
-- **Display-width alignment** — wiki-links like `[[CAB Claude|CLAUDE.md]]` collapse to `CLAUDE.md` when rendered; padding must account for the shorter display width
+- **Display-width alignment** — wiki-links like `[[FCT Claude|CLAUDE.md]]` collapse to `CLAUDE.md` when rendered; padding must account for the shorter display width
 
 Use Python to compute alignment when adding or modifying tree lines, since display width differs from raw width when wiki-links are present.
 

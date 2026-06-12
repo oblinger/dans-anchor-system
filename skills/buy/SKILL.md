@@ -8,7 +8,7 @@ description: >
   and recommend the best place to purchase with confidence. Retries per retailer when the first
   candidate URL is invalid; keeps the best verified page per company. Use when the user names a
   specific product to purchase: "what's the best price on the <X>", "where should I buy <X>",
-  "buy <X>". Sibling of /find (identifies products) / /describe (profiles them) / /survey
+  "buy <X>". Sibling of /find (identifies products) / /profile (profiles them) / /survey
   (compares them). v1: skeleton — fleshed-out section is § Page-validity verification and
   § Per-retailer retry loop; everything else is the obvious shape.
 tools: Read, Write, Edit, Bash, WebSearch
@@ -193,7 +193,7 @@ User can click Add to Cart themselves.
 ## When NOT to use this skill
 
 - **Identifying a product** — use `/find`.
-- **Profiling a product** — use `/describe`.
+- **Profiling a product** — use `/profile`.
 - **Comparing alternatives** — use `/survey`.
 - **Subscription / SaaS / digital goods** — out of scope for v1.
 - **Used / open-box hunting** — only if user opts in (eBay candidate triggered explicitly).
@@ -215,7 +215,7 @@ User can click Add to Cart themselves.
 
 ## Related
 
-- Sibling external-entity skills: [[find]], [[describe]], [[survey]].
+- Sibling external-entity skills: [[find]], [[profile]], [[survey]].
 - Browser-driving tool: [[ctrl]] (`ctrl jpage` is the only fetcher in this skill).
 - Future: per-category overrides (groceries → different retailer list), price-history tracking, watchlist / drop-alert mode.
 

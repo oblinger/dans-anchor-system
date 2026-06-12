@@ -118,5 +118,5 @@ Brief paragraph: what this set is, when it applies.
 
 - [[F113 — Decisions facet — unify Principles + Rules; relocate Architecture]] — the umbrella feature; Phase 3 commissions decision sets.
 - [[F082 — Common rule set across projects]] — F082 ships the predecessor `rule/sets/` library; F113 Phase 3 migrates it here.
-- [[CAB Decisions]] — per-anchor Decisions facet spec.
+- [[FCT Decisions]] — per-anchor Decisions facet spec.
 - [[CAB Traits]] — the canonical trait taxonomy.

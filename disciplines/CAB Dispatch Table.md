@@ -44,7 +44,7 @@ Hand-authored, one-of-a-kind to this anchor, and deliberately **small** — a sw
 
 1. **Breadcrumb row** (identity) — a title cell followed by the parent-chain path ending in the page's hook link (full schema in § Anatomy above; rendered live in [[CAE]]). Carries the **up-edge** of the [[anchor-dag]] (parent link). Always present.
 2. **Anchor row** (general dispatch) — the anchor's own contents: its parent catalog and primary sub-pages. The **down-edges** to what this anchor holds.
-3. **Design row** (design-flow dispatch) — **only if the anchor has a design flow** — points into the design pipeline ([[CAB Design Dispatch|Design]] → PRD / Stories / Decisions / …). Absent on anchors with no design folder.
+3. **Design row** (design-flow dispatch) — **only if the anchor has a design flow** — points into the design pipeline ([[FCT Design Dispatch|Design]] → PRD / Stories / Decisions / …). Absent on anchors with no design folder.
 4. **Related row** — cross-links to siblings and related material, plus any genuine one-off links the user pinned on purpose (preserve them).
 
 That's the whole masthead: identity + Anchor + (Design) + Related. Anything **enumerable** — members, sub-items, worked examples — is **not** a masthead row; it drops to the Member zone below. (This page is the live demonstration: its masthead is Anchor + Related, and its four examples hang underneath as the member zone.)
@@ -96,14 +96,14 @@ Dated members (a [[dated-entry-stream]] Collection like a Log) list newest-first
 
 A dispatch table is the **form** of a top-of-page switchboard — a reusable navigation convention, not an authored-content part of one document. That is why it lives here as a **discipline** rather than as a facet:
 
-- **Form vs role.** This discipline owns the table *form* (breadcrumb cell, category rows, the switchboard shape). The *role* of "dispatching for an anchor" belongs to the [[CAB Anchor Page]] **facet** — the anchor page *uses* this discipline to render its switchboard. ~95% of dispatch tables in the vault are exactly that: an anchor page dispatching to its anchor's contents.
+- **Form vs role.** This discipline owns the table *form* (breadcrumb cell, category rows, the switchboard shape). The *role* of "dispatching for an anchor" belongs to the [[FCT Anchor Page]] **facet** — the anchor page *uses* this discipline to render its switchboard. ~95% of dispatch tables in the vault are exactly that: an anchor page dispatching to its anchor's contents.
 - **Not a doc facet.** Contrast with the doc facets [[CAB Discussion]] and [[CAB Brief]], which are *content containers* — bounded regions you author doc-specific content into. A dispatch table is **derived navigation**: its rows are determined by *what it points to* (the anchor's structure, or a doc's sections), not authored as standalone content. Derived-convention → discipline; authored-content-container → doc facet.
 - **Boundary with [[progressive-disclosure]].** This discipline owns the table *form* (cell shape, row anatomy, pipe-escape, the `(See …)` variant). `progressive-disclosure` owns *which pattern* — Compact / List / Grouped — and the `>15 → Grouped` size rule. **Form here; pattern there.**
-- **Two different "anchor" facets — don't conflate.** The [[CAB Anchor Page]] facet (the structure of the `{NAME}.md` *entry page*, which hosts the dispatch table) is separate from the **anchor spec** itself (what makes a folder *be* an anchor — the `.anchor` file's slug / traits / DAG edges, specified via the anchor crate and the Docket implementation). The dispatch table lives on the anchor *page*, never in the anchor *spec*.
+- **Two different "anchor" facets — don't conflate.** The [[FCT Anchor Page]] facet (the structure of the `{NAME}.md` *entry page*, which hosts the dispatch table) is separate from the **anchor spec** itself (what makes a folder *be* an anchor — the `.anchor` file's slug / traits / DAG edges, specified via the anchor crate and the Docket implementation). The dispatch table lives on the anchor *page*, never in the anchor *spec*.
 
 ### Alternative formulation (noted — we may revisit)
 
-Because ~95% of dispatch tables are the anchor page's switchboard, keeping this as a *standalone discipline* is slightly messy — most of the spec is really describing its application in that one spot. An alternative formulation: **fold the dispatch table into the [[CAB Anchor Page]] facet** — either as its own facet of the anchor page, or merged directly into the Anchor Page facet spec. We keep it a separate discipline because the form **recurs on non-anchor pages** — the per-sub-folder dispatch pages ([[CAB Design Dispatch]], [[CAB User Dispatch]], …) and plain top-of-doc TOCs — where there is no Anchor Page facet to host it. If that non-anchor 5% proves negligible in practice, merging into Anchor Page would be the cleaner home; this note exists so the decision is reopenable.
+Because ~95% of dispatch tables are the anchor page's switchboard, keeping this as a *standalone discipline* is slightly messy — most of the spec is really describing its application in that one spot. An alternative formulation: **fold the dispatch table into the [[FCT Anchor Page]] facet** — either as its own facet of the anchor page, or merged directly into the Anchor Page facet spec. We keep it a separate discipline because the form **recurs on non-anchor pages** — the per-sub-folder dispatch pages ([[FCT Design Dispatch]], [[FCT User Dispatch]], …) and plain top-of-doc TOCs — where there is no Anchor Page facet to host it. If that non-anchor 5% proves negligible in practice, merging into Anchor Page would be the cleaner home; this note exists so the decision is reopenable.
 
 ## Current state
 
@@ -129,7 +129,7 @@ Format rules:
 
 ## Worked examples
 
-- [[CAB Facets]] — dispatch table with multiple category rows.
+- [[FCT Facets]] — dispatch table with multiple category rows.
 - [[SV Roots]] — dispatch table with a `Related` row pointing at [[SV Roots Brief]].
 
 ## Related
@@ -141,7 +141,7 @@ Format rules:
 # BRIEF
 
 - **This file is the spec for the Dispatch Table discipline** — the prescriptive rules for the top-of-file table convention used across anchor and facet pages. Edit here only to refine the convention itself.
-- **NOT a catalog of pages that use dispatch tables** — don't pile worked-example links here beyond a small representative set; per-page application of the convention belongs in those pages' own files or in [[CAB Facets]] / trait specs.
+- **NOT a catalog of pages that use dispatch tables** — don't pile worked-example links here beyond a small representative set; per-page application of the convention belongs in those pages' own files or in [[FCT Facets]] / trait specs.
 - **Inclusion test** — content belongs on this page if it is a *rule* about dispatch-table shape (row order, cell format, breadcrumb syntax, escape conventions, the `Related` row, the `(See …)` variant). Anything about *how a specific anchor uses* its dispatch table goes in that anchor's docs.
 - **Two surface forms coexist** — full dispatch table (under H1, breadcrumb row + category rows) and the `(See …)` line variant for files without a dispatch table. Keep both spec'd in lockstep; don't let one drift.
 - **Load-bearing constraints** — the pipe-escape rule for wiki-links inside cells (`[[Target\|Display]]`), the breadcrumb cell shape (`→ [[kmr]] → … → [Name](hook://...)`), and the `Related`-row convention (Brief first, comma-separated thereafter) are downstream-cited from many places; changing them requires a vault-wide sweep.

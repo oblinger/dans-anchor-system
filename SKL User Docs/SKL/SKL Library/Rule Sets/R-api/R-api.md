@@ -1,10 +1,10 @@
 # RULESET R-api
-include:: [[CAB API Design#RULESET R-api|embedded body]]
-description:: Catalog stub — rules for `{NAME} API Design.md`, the *programmatic* user-facing surface intent. Canonical body lives embedded in [[CAB API Design]].
+include:: [[FCT API Design#RULESET R-api|embedded body]]
+description:: Catalog stub — rules for `{NAME} API Design.md`, the *programmatic* user-facing surface intent. Canonical body lives embedded in [[FCT API Design]].
 
-Catalog-side stub for the API Design facet's rule set. The canonical body lives embedded inside the [[CAB API Design]] facet file per the [[F133 — Rule sets folder convention + facet embedding|F133]] convention.
+Catalog-side stub for the API Design facet's rule set. The canonical body lives embedded inside the [[FCT API Design]] facet file per the [[F133 — Rule sets folder convention + facet embedding|F133]] convention.
 
-**To see the actual rules:** follow [[CAB API Design#RULESET R-api|the embedded block]]. 9 rules covering:
+**To see the actual rules:** follow [[FCT API Design#RULESET R-api|the embedded block]]. 9 rules covering:
 
 - **Preface (1)** — TLDR + optional figure (schema diagram, sequence, or canonical code snippet).
 - **Spine (2)** — Consumer declared, Surface spine table covers every public callable / endpoint / sub-skill entry.
@@ -22,9 +22,9 @@ Pulled automatically via the [[R-facet]] umbrella; an anchor adopting `include::
 
 ## See also
 
-- [[CAB API Design]] — facet spec; contains the embedded RULESET body.
+- [[FCT API Design]] — facet spec; contains the embedded RULESET body.
 - [[R-ux]] — paired peer rule set for human surface.
 - [[R-facet]] — umbrella catalog.
 - [[CAE API Design]] — worked example.
-- [[CAB API Doc]] — distinct facet covering per-module reference documentation (different altitude — intent vs reference).
+- [[FCT API Doc]] — distinct facet covering per-module reference documentation (different altitude — intent vs reference).
 - [[Rule Sets]] — top-level catalog.

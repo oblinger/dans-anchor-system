@@ -70,8 +70,8 @@ The facet does NOT re-explain the three methods. The discipline is canonical for
 
 - [[file-association]] — parent umbrella discipline.
 - [[CAB Discussion]] — first citing facet (doc-scoped, methods 1 + 2).
-- [[CAB Log]] — citing facet at the anchor scope (forthcoming refactor).
-- [[CAB Stories]] — sibling pattern (inline-bullet → folder-form) — same migration direction but not a dated stream; its inline form is bullets, not a dated H1 section. The pattern is related but Stories is not a dated-entry-stream.
+- [[FCT Log]] — citing facet at the anchor scope (forthcoming refactor).
+- [[FCT Stories]] — sibling pattern (inline-bullet → folder-form) — same migration direction but not a dated stream; its inline form is bullets, not a dated H1 section. The pattern is related but Stories is not a dated-entry-stream.
 - [[markdown]] — markdown authoring discipline (cited alongside this one for entry body conventions).
 
 

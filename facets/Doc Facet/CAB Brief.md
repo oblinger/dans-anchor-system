@@ -143,7 +143,7 @@ The H1 of the brief matches the file basename. No further structural constraints
 
 ## Related
 
-- [[Doc Facet]] / [[CAB Facets]] — parent catalog (Brief is a doc facet, peer to [[CAB Discussion]]).
+- [[Doc Facet]] / [[FCT Facets]] — parent catalog (Brief is a doc facet, peer to [[CAB Discussion]]).
 - [[progressive-disclosure]] — the discipline Brief cites for its TLDR → Overview → Body → Brief reader-zone layering.
 - [[Briefs]] — vault-wide registry of files carrying inline `# BRIEF` H1 sections (Phase 1 form).
 - [[SV Roots Brief]] — worked example of the Phase 2 sidecar form.

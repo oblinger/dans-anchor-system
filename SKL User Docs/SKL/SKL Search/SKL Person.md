@@ -3,10 +3,10 @@ description: "skim → click into the rule that applies"
 ---
 # SKL Person
 
-| -[[SKL Person]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [[SKL]] → [[SKL Search]] → [SKL Person](hook://p/SKL%20Person)<br>: skim → click into the rule that applies |
+| -[[SKL Person]]- | → [[SKL Search]] → [SKL Person](hook://p/SKL%20Person)<br>: skim → click into the rule that applies |
 | --- | --- |
 | Person rules (any verb) | [[SRC rules/person\|person.md]],   |
-| Verbs | [[SRC rules/find-person\|find-person]],  [[SRC rules/describe-person\|describe-person]],  [[SRC rules/survey-person\|survey-person]],   |
+| Verbs | [[SRC rules/find-person\|find-person]],  [[SRC rules/profile-person\|describe-person]],  [[SRC rules/survey-person\|survey-person]],   |
 
 When the search agent runs against a **person** — finding, describing, or surveying — these are the rules that apply.
 
@@ -14,4 +14,4 @@ When the search agent runs against a **person** — finding, describing, or surv
 
 Sub-types worth knowing about: public figure · researcher / academic · founder / operator · private individual.
 
-Verbs: [[SKL Find]] · [[SKL Describe]] · [[SKL Survey]] · Composition: [[SKL Search Overview]].
+Verbs: [[SKL Find]] · [[SKL Profile]] · [[SKL Survey]] · Composition: [[SKL Search Overview]].

@@ -11,7 +11,7 @@ Catalog-side stub for the Discussion facet's rule set. The canonical body lives 
 - **Entries (2)** — reverse chronological (newest first); standard skeleton (Problem / Options Considered / Decision / optionally Why This Works).
 - **Posture (1)** — append-only; spec docs reflect current state, discussion is the log of how the spec got there.
 - **Scope guard (1)** — does NOT attach to anchor pages, dispatch pages, Backlog, or Roadmap.
-- **Pattern (1)** — same dual-form (inline → extracted) precedent that [[CAB Stories]] uses.
+- **Pattern (1)** — same dual-form (inline → extracted) precedent that [[FCT Stories]] uses.
 
 ## Position in the catalog
 
@@ -25,5 +25,5 @@ Pulled automatically via the [[R-facet]] umbrella; an anchor adopting `include::
 
 - [[CAB Discussion]] — facet spec; contains the embedded RULESET body.
 - [[R-facet]] — umbrella catalog.
-- [[CAB Stories]] — sibling facet using the same dual-form pattern (inline → extracted).
+- [[FCT Stories]] — sibling facet using the same dual-form pattern (inline → extracted).
 - [[Rule Sets]] — top-level catalog.

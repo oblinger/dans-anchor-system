@@ -21,7 +21,7 @@ The fix is **horizon sections within the backlog**: three ordered tiers (Now / N
 | **Now** | Actively being pulled in or imminent — the next 1–2 cycles. The "we really expect to implement this shortly" zone. |
 | **Next** | Committed but not the next thing up. Visible and ordered, but explicitly deferred. The bucket the user reaches for when they want to push something off Now without sending it to Icebox. |
 | **Later** | Known wants — will get to eventually. Lower priority than Next, still feels obligatory. |
-| **Icebox** | Outside the backlog. May never happen. (Already exists as a separate file `[[CAB Icebox]]`.) |
+| **Icebox** | Outside the backlog. May never happen. (Already exists as a separate file `[[FCT Icebox]]`.) |
 
 ### "Ready" is orthogonal to horizon
 

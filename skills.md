@@ -6,7 +6,7 @@
 
 | -[[skills]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [skills](hook://p/skills)<br>:  |
 | --- | --- |
-| ~~[[all-fallbacks]]~~ |  |
+| [[all-fallbacks]] |  |
 | [[all-multipath]] |  |
 | [[all-stale]] |  |
 | [[all-testing]] |  |
@@ -39,7 +39,7 @@
 | [CAB-migrate markdown](hook://CAB-migrate%20markdown) |  |
 | [cab-migrate-claude](hook://cab-migrate-claude) |  |
 | [CAB-move markdown](hook://CAB-move%20markdown) |  |
-| [[Facets]] | [[CAB All Files]],  [[CAB Backlog]],  [[CAB Cards]],  [[CAB Claude]],  [[CAB Code Repository]],  [[CAB Dev Dispatch]],  [[CAB Discussion]],  [[CAB Docs]],  [[CAB Documentation Site]],  [[CAB Features]],  [[CAB Files]],  [[CAB Folder]],  [[CAB Inbox]],  [[CAB API Doc]],  [[CAB Open Questions]],  [[CAB Outputs]],  [[CAB Plan Dispatch]],  [[CAB PRD]],  [[CAB Project Page]],  [[CAB slug Page]],  [[CAB Roadmap]],  [[CAB Skill]],  [[CAB System Design]],  [[CAB User Dispatch]],  [[CAB UX Design]],  [[CAB WP]],  [[CAB Move]],   |
+| [[Facets]] | [[FCT All Files]],  [[CAB Backlog]],  [[FCT Cards]],  [[FCT Claude]],  [[FCT Code Repository]],  [[FCT Dev Dispatch]],  [[CAB Discussion]],  [[CAB Docs]],  [[FCT Documentation Site]],  [[FCT Features]],  [[FCT Files]],  [[FCT Folder]],  [[FCT Inbox]],  [[FCT API Doc]],  [[CAB Open Questions]],  [[FCT Outputs]],  [[FCT Plan Dispatch]],  [[FCT PRD]],  [[FCT Project Page]],  [[CAB slug Page]],  [[FCT Roadmap]],  [[FCT Skill]],  [[FCT System Design]],  [[FCT User Dispatch]],  [[FCT UX Design]],  [[FCT WP]],  [[FCT Move]],   |
 | [CAB-pilot-flow markdown](hook://CAB-pilot-flow%20markdown) |  |
 | [CAB-pr-flow markdown](hook://CAB-pr-flow%20markdown) |  |
 | [cab-publish](hook://cab-publish) |  |
@@ -53,8 +53,8 @@
 | [[code-arch-audit]] |  |
 | ~~[[design-architect]]~~ |  |
 | [[code-bugfix]] |  |
-| ~~[[code-changelog]]~~ |  |
-| ~~[[code-code]]~~ |  |
+| [[code-changelog]] |  |
+| [[code-code]] |  |
 | [[code-delegate]] |  |
 | [[code-execute]] |  |
 | [code-feature](hook://code-feature) |  |
@@ -68,7 +68,7 @@
 | [[code-plan-audit]] |  |
 | [[code-pr-flow]] |  |
 | ~~[[design-prd]]~~ |  |
-| ~~[[code-publish]]~~ |  |
+| [[code-publish]] |  |
 | [[code-release]] |  |
 | [[code-replan]] |  |
 | [[code-research]] |  |
@@ -166,7 +166,7 @@
 | ~~[[io-notion]]~~ |  |
 | [io-reauth](hook://io-reauth) |  |
 | [io-gauth](hook://io-gauth) |  |
-| [CAB-parts](hook://CAB-parts) | [[CAB All Files]],  [[CAB Backlog]],  [[CAB Cards]],  [[CAB Claude]],  [[CAB Code Repository]],  [[CAB Dev Dispatch]],  [[CAB Discussion]],  [[CAB Docs]],  [[CAB Documentation Site]],  [[CAB Features]],  [[CAB Files]],  [[CAB Folder]],  [[CAB Inbox]],  [[CAB API Doc]],  [[CAB Open Questions]],  [[CAB Outputs]],  [[CAB Plan Dispatch]],  [[CAB PRD]],  [[CAB Project Page]],  [[CAB slug Page]],  [[CAB Roadmap]],  [[CAB Skill]],  [[CAB System Design]],  [[CAB User Dispatch]],  [[CAB UX Design]],  [[CAB WP]],   |
+| [CAB-parts](hook://CAB-parts) | [[FCT All Files]],  [[CAB Backlog]],  [[FCT Cards]],  [[FCT Claude]],  [[FCT Code Repository]],  [[FCT Dev Dispatch]],  [[CAB Discussion]],  [[CAB Docs]],  [[FCT Documentation Site]],  [[FCT Features]],  [[FCT Files]],  [[FCT Folder]],  [[FCT Inbox]],  [[FCT API Doc]],  [[CAB Open Questions]],  [[FCT Outputs]],  [[FCT Plan Dispatch]],  [[FCT PRD]],  [[FCT Project Page]],  [[CAB slug Page]],  [[FCT Roadmap]],  [[FCT Skill]],  [[FCT System Design]],  [[FCT User Dispatch]],  [[FCT UX Design]],  [[FCT WP]],   |
 | [edit-excalidraw](hook://edit-excalidraw) |  |
 | [[product-reorder]] |  |
 | [[CAB Page Conventions]] |  |

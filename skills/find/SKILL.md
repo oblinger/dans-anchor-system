@@ -1,6 +1,6 @@
 ---
 name: find
-description: Locate one specific instance matching criteria from many candidates. Use for finding a person, company, product, GitHub repo, or other concrete online entity. Returns identifier + canonical URL + 1-line context + confidence (high/medium/low) + sources consulted. Disambiguates when multiple candidates score evenly rather than silently picking one. Supports Quick / Standard / Deep tiers — specify in the request. Output lands in `~/ob/kmr/Topic/Search/Lookup/` as `YYYY-MM-DD <short-name>.md`. For specific entity types (person / corp / product), loads type-specific rules. NOT for broad category research (use survey) or one-entity dossiers (use describe).
+description: Locate one specific instance matching criteria from many candidates. Use for finding a person, company, product, GitHub repo, or other concrete online entity. Returns identifier + canonical URL + 1-line context + confidence (high/medium/low) + sources consulted. Disambiguates when multiple candidates score evenly rather than silently picking one. Supports Quick / Standard / Deep tiers — specify in the request. Output lands in `~/ob/kmr/Topic/Search/Find/` as `YYYY-MM-DD <short-name>.md`. For specific entity types (person / corp / product), loads type-specific rules. NOT for broad category research (use survey) or one-entity dossiers (use profile).
 user_invocable: true
 ---
 
@@ -27,7 +27,7 @@ Layers 1-3 ship with the skill; 4-6 are user overrides loaded from [[SRC rules]]
 4. **Score candidates** — match strength × source quality.
 5. **Disambiguate** when top candidates score close: pull a tiebreaker attribute, ask the user, or return all ranked.
 6. **Verify** the top match against a second independent source before returning.
-7. **Write the lookup file** to `~/ob/kmr/Topic/Search/Lookup/YYYY-MM-DD <short-name>.md` with: identifier, canonical URL, 1-line context, confidence (high/medium/low), sources, and any ambiguity notes.
+7. **Write the lookup file** to `~/ob/kmr/Topic/Search/Find/YYYY-MM-DD <short-name>.md` with: identifier, canonical URL, 1-line context, confidence (high/medium/low), sources, and any ambiguity notes.
 8. Return the identifier + a pointer to the saved lookup file.
 
 ## Depth tiers
@@ -49,7 +49,7 @@ User specifies in request ("find me X, quick" / "go deep"). Per-tier rules live 
 
 ## Output
 
-Lands in `~/ob/kmr/Topic/Search/Lookup/` as a markdown file with the identifier, canonical URL, sources, confidence, and any ambiguity / verification notes. The [[Lookup]] anchor lists results newest-first.
+Lands in `~/ob/kmr/Topic/Search/Find/` as a markdown file with the identifier, canonical URL, sources, confidence, and any ambiguity / verification notes. The [[Find|Find]] anchor lists results newest-first.
 
 ## Anti-patterns
 
@@ -59,7 +59,7 @@ Lands in `~/ob/kmr/Topic/Search/Lookup/` as a markdown file with the identifier,
 
 ## Related
 
-- User reference: [[SKL Find]]
+- User reference: [[SKL [[Find|Find]]
 - Overview of how it all combines: [[SKL Search Overview]]
 - Rules trait: [[skill-search-rules]]
 - User overrides: [[SRC rules]]
