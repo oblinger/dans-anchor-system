@@ -39,7 +39,10 @@ claude_environment:
                                               # ob-skills global.yaml vault_root (F159)
   memory: shared                              # bidirectional memory share (F159); "off" disables
   claude_home:                                # ~/.claude provisioning (rsync include − exclude)
-    include: [ skills, CLAUDE.md, settings.json, commands, agents, keybindings.json ]
+    include: [ skills, CLAUDE.md, settings.json, commands, agents, keybindings.json,
+               bash-guard.sh, load-role-hook.sh, messages-stop-hook.sh, statusline-command.sh ]
+    # ^ loose hook scripts referenced by settings.json MUST travel with it, or every
+    #   session on the twin logs hook errors (found live 2026-06-12)
     exclude: [ projects, todos, worktrees, shell-snapshots, statsig, .DS_Store ]
   config_home:                                # ~/.config provisioning, one-way (F159)
     include: [ ob-skills ]
