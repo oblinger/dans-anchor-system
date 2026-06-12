@@ -7,7 +7,8 @@ description: >
   subaction is the **exception per F076**: it fixes by default (script-vs-skill split — the underlying
   script is read-only + `--fix` flag; the skill always passes `--fix`). Use when the user says: "audit this",
   "check the structure", "are the docs current", "lint this", "check before publish", "any broken links",
-  "audit Q", "run an audit". Subcommands: /audit structure, /audit rules, /audit docs, /audit publish,
+  "audit Q", "run an audit". Subcommands: /audit structure, /audit dispatch (fix-by-default — build/repair
+  one anchor's dispatch table), /audit rules, /audit docs, /audit publish,
   /audit code, /audit q (fix-by-default per F076), /audit q-fix (pick up a QFix backlog entry per F076).
   Add "dry" anywhere in the args to print findings without writing a backlog entry.
 tools: Read, Write, Edit, Bash, Glob, Grep, Agent
@@ -15,6 +16,8 @@ user_invocable: true
 ---
 
 # Audit
+
+Skill spec for `/audit` — the anchor-auditing orchestrator and its sub-audit actions (structure, rules, docs, publish, code, q, q-fix, features, markdown, architecture, integrity, api-doc).
 
 Audits diagnose. Most never fix. Each sub-audit produces **≥1 backlog entry** under `## Next` (default horizon — deprioritized by default; per F061 Q4) in `{NAME} Backlog.md`, **pre-split by state-cluster** of the remaining findings (one `[Ready]` row for mechanical findings, one or more `[Questions]` rows for findings needing user input). The fix work happens later, when someone pulls that backlog item — sub-bullets within a row are the natural splits if the work needs to be broken up further.
 
@@ -126,6 +129,7 @@ For sub-audit runs that write multiple rows in sequence, the Q.md regen fires on
 | Action | File | Compiled | Description |
 |--------|------|----------|-------------|
 | `/audit structure` | [[audit-structure]] | [[code-rewire.compiled]] | Files, dispatch tables, links, orphans |
+| `/audit dispatch` | [[audit-dispatch]] | — | **Fix-by-default** — build/repair one anchor's dispatch table (Masthead + Member zone) |
 | `/audit rules` | [[audit-rules]] | — | Rule violations from `/rule check --all` |
 | `/audit docs` | [[audit-docs]] | [[audit-docs.compiled]] | Module docs vs source code |
 | `/audit publish` | [[audit-publish]] | — | PII, credentials, sensitive paths |
