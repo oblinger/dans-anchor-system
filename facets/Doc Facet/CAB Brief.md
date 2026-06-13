@@ -150,6 +150,45 @@ The H1 of the brief matches the file basename. No further structural constraints
 - F133 — tracking feature for the rule-system migration that surfaced the Brief discipline.
 - F134 — Rule triggering (the read-hook mechanism that surfaces a brief when its source is read or written).
 
+# RULESET R-brief
+include::
+where:: sentinel: ^#+ BRIEF\b
+description:: Rules for the Brief doc facet — agent-facing per-file maintenance content (inline `# BRIEF` or `<Name> Brief.md` sidecar).
+
+Embedded rule set for the Brief facet, co-located per [[F133 — Rule sets folder convention + facet embedding|F133]]. `where::` is the inline-`# BRIEF` sentinel; the sidecar rule (R-brief-02) targets `* Brief.md`.
+
+### RULE R-brief-01 — Inline brief is a bottom `# BRIEF` H1 (checked)
+
+The Phase-1 form is a single all-caps `# BRIEF` H1 at the bottom of the source file.
+
+**Check pattern:** at most one `^# BRIEF$` heading, and it is the last H1 in the file.
+
+### RULE R-brief-02 — Sidecar is `<Source> Brief.md` with matching H1 (checked)
+
+The Phase-2 form is a sidecar `<Source Name> Brief.md` whose H1 is `# <Source Name> Brief`.
+
+**Check pattern:** a `* Brief.md` file's H1 equals its basename.
+
+### RULE R-brief-03 — Surfaced from the source (stated)
+
+The source points at its brief: a `Related` row listing the Brief **first**, or a `(See …)` line under the H1 when the source has no dispatch table.
+
+**Check pattern:** the source's `Related` cell leads with `[[<Source> Brief\|Brief]]`, or a `(See [[… Brief]])` line follows the H1.
+
+### RULE R-brief-04 — Agent-facing only (stated)
+
+A Brief carries *how to maintain this file* (editing rules, inclusion tests, traps) — not user-facing orientation, which lives in the source's one-line TLDR / optional `## Overview`.
+
+### RULE R-brief-05 — No duplication of higher-level rules (stated)
+
+A Brief carries only file-specific operational content — never project-wide (CLAUDE.md), markdown ([[R-markdown]]), facet/trait, or anchor-local (`{NAME} Rules.md`) rules.
+
+### RULE R-brief-06 — Briefs don't nest (checked)
+
+A brief is a sidecar to exactly one source; a brief has no brief of its own.
+
+**Check pattern:** no `* Brief Brief.md` file, and no `# BRIEF` heading inside a `* Brief.md`.
+
 # BRIEF
 
 - **This is the spec, not a brief about anything else.** Discussion of *what a brief is* lives here.

@@ -6,6 +6,27 @@ description: Messages facet — the agent's per-anchor inbox of background-proce
 
 Spec for the **Messages facet** — the per-anchor file `{NAME} Messages.md` that holds background-process notes for the agent to read on every pause, separate from the user's raw-input `{NAME} Inbox.md`.
 
+# RULESET R-messages
+include::
+where:: {ANCHOR}/* Messages.md
+description:: Rules for the {NAME} Messages facet — the agent's per-anchor background-process inbox, distinct from the user's {NAME} Inbox.
+
+Embedded rule set for the Messages facet, co-located per [[F133 — Rule sets folder convention + facet embedding|F133]].
+
+### RULE R-messages-01 — File is `{NAME} Messages.md` at the anchor root (checked)
+
+The messages file is `{NAME}/{NAME} Messages.md` — not under Track or Docs, and not the Inbox.
+
+**Check pattern:** `{anchor}/{NAME} Messages.md` exists and its H1 is `# {NAME} Messages`.
+
+### RULE R-messages-02 — Agent-facing background notes only (stated)
+
+Messages holds background-process / out-of-band notes the agent reads on every pause — not user-dropped raw input (that is `{NAME} Inbox.md`).
+
+### RULE R-messages-03 — Distinct from Inbox (stated)
+
+The Messages-vs-Inbox split (agent-read background notes vs. user-dropped raw input) is load-bearing; never blur the two on an instance or in this spec.
+
 # BRIEF
 
 - **This file is the facet spec, not an instance.** It defines the rules for the `{NAME} Messages.md` facet that lives in each anchor; it is not itself a messages file and never carries running-message content.

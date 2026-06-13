@@ -77,6 +77,7 @@ Discussion is **append-only**. Entries are never edited after the Decision is fi
 
 # RULESET R-discussion
 include::
+where:: sentinel: ^#+ Discussion
 description:: Discussion-specific rules — scope (doc-scoped, not anchor-scoped), entry skeleton (Problem / Options / Decision), append-only posture, attachment scope guard. Placement / naming / migration rules delegate to [[DSC dated-entry-stream#RULESET R-dated-entry-stream|R-dated-entry-stream]].
 
 Embedded rule set for the Discussion facet, co-located with the facet spec above per [[F133 — Rule sets folder convention + facet embedding|F133]]. Adopted via [[R-facet]] umbrella.

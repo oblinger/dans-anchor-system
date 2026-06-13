@@ -121,6 +121,7 @@ Any anchor that benefits from a running narrative of dated work. Most active anc
 
 # RULESET R-log
 include::
+where:: {ANCHOR}/**/* Log.md
 description:: Structural rules for the {NAME} Log facet — folder shape, entry filename pattern, dispatch dispatch, content scope.
 
 Embedded rule set for the Log facet, co-located with the facet spec above per [[F133 — Rule sets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella.
