@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """rule-discover — walk the vault, find every rule across every anchor, group by trait and similarity.
 
-Phase 1 of F082 (Common rule set across projects).
+Phase 1 of F082 (Common ruleset across projects).
 
 Usage:
     rule-discover [--vault PATH] [--report PATH] [--threshold FLOAT]
@@ -40,7 +40,7 @@ The report's structure:
   ...
 
 The agent reads this report and (via /rule curate) walks the user through
-naming + adopting rule sets per trait, writing them to ~/.claude/skills/rule/sets/<trait>/<name>.md.
+naming + adopting rulesets per trait, writing them to ~/.claude/skills/rule/sets/<trait>/<name>.md.
 """
 
 import argparse

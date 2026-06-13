@@ -3,14 +3,14 @@
 
 Stage 1 (RESOLVE) of the Resolve → Run → Judge pipeline:
 
-  1. Flatten an umbrella rule set (R-anchor / R-doc) by resolving its include:: DAG
+  1. Flatten an umbrella ruleset (R-anchor / R-doc) by resolving its include:: DAG
      down to the leaf `# RULESET` blocks (standalone stubs OR embedded in facet /
      discipline / skill specs).
   2. Glob/sentinel-match each rule's `where::` selector against the target set
      (an anchor tree, or a single document) to build the (rule × target) match set.
      A selector that matches nothing => the rule is N/A (skipped, never failed).
-  3. Materialize each leaf rule set as a cached flat rule file (hashed → reused).
-  4. Emit a query-plan recipe: per leaf rule set, the cached flat file + each rule's
+  3. Materialize each leaf ruleset as a cached flat rule file (hashed → reused).
+  4. Emit a query-plan recipe: per leaf ruleset, the cached flat file + each rule's
      tier + the targets it matched. The agent then follows the recipe — read a flat
      rule file, judge its listed targets — with no rule-selection thinking.
 
@@ -93,12 +93,12 @@ def resolve_file(name: str) -> Path | None:
     hits = md_index().get(name)
     if not hits:
         return None
-    # Prefer a hit under facets/ or the Rule Sets catalog when ambiguous.
+    # Prefer a hit under facets/ or the Rulesets catalog when ambiguous.
     hits = sorted(hits, key=lambda p: (("facets" not in p.parts), len(p.parts)))
     return hits[0]
 
 
-# ── rule-set parsing ────────────────────────────────────────────────────────
+# ── ruleset parsing ────────────────────────────────────────────────────────
 
 _RULESET_RE = re.compile(r"^(#+)\s+RULESET\s+(R-[\w-]+)\s*$")
 _RULE_RE = re.compile(
@@ -199,7 +199,7 @@ def parse_ruleset_block(block: list[str], source: Path) -> dict:
 
 
 def load_ruleset(target: str, visited: set[str], warnings: list[str]) -> list[dict]:
-    """Resolve a link target to leaf rule sets (those with RULE entries),
+    """Resolve a link target to leaf rulesets (those with RULE entries),
     following include:: recursively. Returns a flat list of ruleset dicts."""
     filepart, _, fragment = target.partition("#")
     filepart = filepart.strip()
@@ -212,7 +212,7 @@ def load_ruleset(target: str, visited: set[str], warnings: list[str]) -> list[di
     path = resolve_file(filepart)
     if path is None:
         # No file by that basename — fall back to a repo-wide search for an
-        # embedded `# RULESET <filepart>` block (covers stub-less rule sets like
+        # embedded `# RULESET <filepart>` block (covers stub-less rulesets like
         # R-ruleset / R-file-association that live only inside a facet/discipline).
         if filepart.startswith("R-"):
             found = _search_embedded(filepart)
@@ -267,7 +267,7 @@ def _search_embedded(name: str) -> list[dict]:
 
 
 def flatten_umbrella(umbrella: str, warnings: list[str]) -> list[dict]:
-    """Flatten an umbrella (R-anchor / R-doc / any ruleset link) to leaf rule sets,
+    """Flatten an umbrella (R-anchor / R-doc / any ruleset link) to leaf rulesets,
     de-duplicated by ruleset name (first occurrence wins)."""
     leaves = load_ruleset(umbrella, set(), warnings)
     seen, out = set(), []
@@ -581,7 +581,7 @@ def render_recipe(plan: dict, order: str, cdir: Path | None) -> str:
     out.append("")
     out.append(f"- mode: **{plan['mode']}**  ·  order: **{order}-major**  ·  "
                f"scope files: {plan['scope_file_count']}  ·  "
-               f"rule sets matched: {len(plan['groupings'])}")
+               f"rulesets matched: {len(plan['groupings'])}")
     if plan.get("excluded_subanchors"):
         out.append(f"- excluded {len(plan['excluded_subanchors'])} nested sub-anchor(s): "
                    + ", ".join(Path(r).name for r in plan["excluded_subanchors"]))
@@ -735,7 +735,7 @@ _NAME_ALLOWLIST = (
     r"^\d{4}-\d{2}\b",           # YYYY-MM topic
     r"^\d{4}\b",                 # YYYY topic
     r"^SKILL$",                  # SKILL.md  (Claude Code skill entry convention)
-    r"^R-[a-z]",                 # R-<x>.md  (rule-set / rule files, F133)
+    r"^R-[a-z]",                 # R-<x>.md  (ruleset / rule files, F133)
 )
 
 
@@ -985,7 +985,7 @@ def chk_checked_rules_have_pattern(target, anchor_root, args):
 
 
 def chk_ruleset_no_frontmatter(target, anchor_root, args):
-    """Standalone rule-set file (# RULESET first non-blank) has no YAML frontmatter."""
+    """Standalone ruleset file (# RULESET first non-blank) has no YAML frontmatter."""
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
@@ -996,9 +996,9 @@ def chk_ruleset_no_frontmatter(target, anchor_root, args):
     if re.match(r"^#+\s+RULESET\s+R-", first):
         for ln in lines:
             if ln.strip().startswith("---"):
-                return "fail", "standalone rule-set file has YAML frontmatter"
+                return "fail", "standalone ruleset file has YAML frontmatter"
         return "pass", ""
-    return "pass", "not a standalone rule-set file"
+    return "pass", "not a standalone ruleset file"
 
 
 # -- R-status ------------------------------------------------------------------
@@ -2264,7 +2264,7 @@ def render_report(plan: dict, mech: dict, man: dict) -> str:
     c = mech["counts"]
     out = [f"# audit report — {plan['umbrella']} on {Path(plan['target']).name}", ""]
     out.append(f"- scope files: {plan['scope_file_count']}  ·  "
-               f"rule sets: {len(plan['groupings'])}")
+               f"rulesets: {len(plan['groupings'])}")
     out.append(f"- mechanical: **{c['pass']} pass · {c['fail']} fail · {c['error']} error** "
                f"(cache hits {c['cached']})")
     out.append(f"- to judge: **{man['task_count']}**  ·  judged-cached: {man['cached_count']}")
@@ -2281,7 +2281,7 @@ def render_report(plan: dict, mech: dict, man: dict) -> str:
         out.append("_none — every applicable rule was mechanical or cached._")
     else:
         out.append("Run `audit-plan <target> --judge --model <M>` for the full manifest; "
-                   "judge each, then `--record-verdict`. Summary by rule set:")
+                   "judge each, then `--record-verdict`. Summary by ruleset:")
         by_rs: dict[str, int] = {}
         for t in man["tasks"]:
             by_rs[t["ruleset"]] = by_rs.get(t["ruleset"], 0) + 1
