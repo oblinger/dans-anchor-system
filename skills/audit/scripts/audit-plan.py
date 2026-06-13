@@ -474,11 +474,63 @@ def write_flat_file(rs: dict, cdir: Path) -> Path:
 
 # ── planning ────────────────────────────────────────────────────────────────
 
+def _plan_tree_hash(anchor_root: Path, scope_files: list[Path]) -> str:
+    """Content+structure hash of the audited tree — relpath + bytes of every scope
+    file (+ the .anchor). Any edit / add / remove invalidates the cached plan."""
+    h = hashlib.sha256()
+    dot = anchor_root / ".anchor"
+    if dot.is_file():
+        try:
+            h.update(b"A")
+            h.update(dot.read_bytes())
+        except OSError:
+            pass
+    for p in sorted(scope_files):
+        try:
+            h.update(b"F")
+            h.update(str(p.relative_to(anchor_root)).encode())
+            h.update(b"C")
+            h.update(p.read_bytes())
+        except (OSError, ValueError):
+            pass
+    return h.hexdigest()[:16]
+
+
+def _plan_rules_hash(rulesets: list[dict]) -> str:
+    """Hash of the plan-relevant rule fields (selector + tier + checker), so a
+    `where::`/`check::`/tier edit invalidates the plan even if titles are stable."""
+    h = hashlib.sha256()
+    for rs in rulesets:
+        h.update(f"RS|{rs['name']}|{rs.get('where')}".encode())
+        for r in rs["rules"]:
+            h.update(f"R|{r['id']}|{r['tier']}|{r.get('where')}|{r.get('check')}".encode())
+    return h.hexdigest()[:12]
+
+
 def plan_one(target: Path, mode: str, cdir: Path | None, warnings: list[str],
              exclude_roots: set[Path] | None = None, stats: dict | None = None) -> dict:
     umbrella = "R-doc" if mode == "doc" else "R-anchor"
     rulesets = flatten_umbrella_cached(umbrella, cdir, warnings, stats)
     anchor_root, scope_files = enumerate_scope(target, mode, exclude_roots)
+
+    # Whole-plan (anchor-manifest) cache — skip selector resolution when the tree
+    # and the rules are both unchanged. Keyed by (abs anchor + mode + tree + rules).
+    plan_fp = None
+    if cdir is not None:
+        key = hashlib.sha256(
+            f"{anchor_root.resolve()}|{mode}|"
+            f"{_plan_tree_hash(anchor_root, scope_files)}|{_plan_rules_hash(rulesets)}".encode()
+        ).hexdigest()[:20]
+        plan_fp = cdir / "plans" / f"{key}.json"
+        if plan_fp.is_file():
+            try:
+                plan = json.loads(plan_fp.read_text(encoding="utf-8"))
+                plan["warnings"] = warnings
+                if stats is not None:
+                    stats["plan_hit"] = stats.get("plan_hit", 0) + 1
+                return plan
+            except (OSError, json.JSONDecodeError):
+                pass
 
     groupings = []
     for rs in rulesets:
@@ -503,13 +555,22 @@ def plan_one(target: Path, mode: str, cdir: Path | None, warnings: list[str],
             groupings.append({"ruleset": rs["name"], "flat_file": flat,
                               "source": rs["source"], "rules": matched_rules})
 
-    return {
+    plan = {
         "umbrella": umbrella, "mode": mode,
         "target": str(target), "anchor_root": str(anchor_root),
         "scope_file_count": len(scope_files),
         "excluded_subanchors": sorted(str(r) for r in (exclude_roots or set())),
         "groupings": groupings, "warnings": warnings,
     }
+    if plan_fp is not None:
+        try:
+            plan_fp.parent.mkdir(parents=True, exist_ok=True)
+            plan_fp.write_text(json.dumps(plan), encoding="utf-8")
+            if stats is not None:
+                stats["plan_miss"] = stats.get("plan_miss", 0) + 1
+        except OSError:
+            pass
+    return plan
 
 
 # ── rendering ───────────────────────────────────────────────────────────────
@@ -930,7 +991,9 @@ def main(argv):
             print(f"batch: {len(anchors)} anchors  ·  flatten cache: "
                   f"{stats.get('flatten_miss', 0)} miss / "
                   f"{stats.get('flatten_disk_hit', 0)} disk-hit / "
-                  f"{stats.get('flatten_mem_hit', 0)} mem-hit")
+                  f"{stats.get('flatten_mem_hit', 0)} mem-hit"
+                  f"  ·  plan cache: {stats.get('plan_miss', 0)} miss / "
+                  f"{stats.get('plan_hit', 0)} hit")
         return 0
 
     if not args.target:
