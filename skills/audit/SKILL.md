@@ -129,7 +129,7 @@ For sub-audit runs that write multiple rows in sequence, the Q.md regen fires on
 | Action | File | Compiled | Description |
 |--------|------|----------|-------------|
 | `/audit structure` | [[audit-structure]] | [[code-rewire.compiled]] | Files, dispatch tables, links, orphans |
-| `/audit anchor` | [[audit-anchor]] | — | Audit one anchor against the anchor rule set — `.anchor` set + anchor-page conformance ([[FCT Anchor Page]]) + dispatch table (delegates to `/audit dispatch`) |
+| `/audit anchor` | [[audit-anchor]] | — | Audit one anchor against the `R-anchor` rule set via the **F161 engine** (`audit-plan`): resolve rules → run mechanical (`--run`) → agent-judge the residue (`--judge`/`--record-verdict`). Covers `.anchor` set + anchor-page conformance ([[FCT Anchor Page]]) + dispatch table (table *repair* delegates to `/audit dispatch`). Doc-level sibling: `audit-plan <file> --mode doc`. Per [[F161 — Rule-driven audit engine — resolve, run, judge\|F161]]. |
 | `/audit dispatch` | [[audit-dispatch]] | — | **Fix-by-default** — build/repair one anchor's dispatch table (Masthead + Member zone) |
 | `/audit rules` | [[audit-rules]] | — | Rule violations from `/rule check --all` |
 | `/audit docs` | [[audit-docs]] | [[audit-docs.compiled]] | Module docs vs source code |

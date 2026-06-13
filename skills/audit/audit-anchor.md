@@ -36,13 +36,34 @@ Delegate the table's shape to **[[audit-dispatch|/audit dispatch]]** (it already
 - [ ] **No `Track` row** for a skill-ecosystem anchor (skill / facet / discipline / example) — tracking is centralized in SKA. (D08)
 - [ ] **Container ending** — a Collection/container's table ends with an electric-list marker (`...` / `---` / `+` group rows); each group-row label links *down* to its container page. (per [[DSC Dispatch Table]] + [[DSC progressive-disclosure]])
 
+## Mechanism — the F161 audit engine
+
+Per [[F161 — Rule-driven audit engine — resolve, run, judge|F161]], this skill no longer hand-walks the checks above — it **drives `audit-plan`**, the resolver/runner that binds the `R-anchor` umbrella's rules to this anchor's targets, runs the mechanical ones by script, and emits the judgment residue for the agent. The A/B/C rule list above is the human-readable summary of what `R-anchor` contains; the engine is the executable form (so the two never drift — change the facet's `# RULESET` block and the audit follows).
+
+Script: `~/.claude/skills/audit/scripts/audit-plan.py`.
+
+```bash
+P=~/.claude/skills/audit/scripts/audit-plan.py
+"$P" <anchor> --report --model <model-id>   # quick combined view (mechanical + residue count)
+"$P" <anchor> --run                         # mechanical verdicts only (checked rules)
+"$P" <anchor> --judge --model <model-id> --json   # the agent-judgment task manifest
+"$P" --record-verdict --key <K> --status pass|fail --detail "…"   # persist one judged verdict
+```
+
 ## Runbook
 
-1. **Resolve the anchor** — use the argument, else walk up from cwd to the nearest `.anchor`. If none found, report "no anchor here" and stop.
-2. **Check A** — read the `.anchor`; flag missing file / empty (no slug) / missing traits.
-3. **Check B** — read `{slug}.md`; verify H1 form, the no-blank-after-H1 rule, frontmatter, and top-of-page order.
-4. **Check C** — if a dispatch table is present or the anchor kind requires one, run `/audit dispatch <anchor> dry` and fold its findings in; add the anchor-level masthead/Design/Track checks above.
-5. **Report** — print a per-check pass/fail table. Per the `/audit` default (**audit reports, doesn't fix** — except `/audit dispatch`, which fixes the table shape), file a single backlog row summarizing the failed checks, unless `dry`. The `.anchor` and H1 fixes are one-line mechanical repairs — offer them, but don't auto-apply (they touch identity).
+1. **Resolve the anchor** — use the argument, else walk up from cwd to the nearest `.anchor`. If none found, report "no anchor here" and stop. (`audit-plan` accepts a path or a slug.)
+2. **Mechanical pass** — run `audit-plan <anchor> --run`. Collect the fail/error verdicts. These are the deterministic findings (`.anchor` set, filename = slug, frontmatter `description:`, no-blank-after-H1, etc., as `check::` refs accrue).
+3. **Judgment pass** — run `audit-plan <anchor> --judge --model <model-id> --json` for the manifest of rules needing agent judgment (the residue not covered by a `check::`). For each task: read its rule body (the `flat_file` / `check_pattern` / `why` in the manifest) and its target, decide pass/fail + a one-line reason, then persist with `audit-plan --record-verdict --key <task.key> --status <s> --detail "<reason>"`. For a large residue, dispatch the tasks to workers (Agent tool, `subagent_type=general-purpose`) the same way the bare-`/audit` orchestrator does — each worker judges a slice and records its verdicts; the cache (keyed by rule + target + model) makes re-runs free.
+4. **Dispatch table** — the engine's `R-anchor-page` rules cover the masthead/Design/Track checks; for table *repair* still delegate to **[[audit-dispatch|/audit dispatch]]** (it fixes shape; the engine only diagnoses).
+5. **Report + backlog row** — print the combined pass/fail summary (`audit-plan <anchor> --report` gives it directly). Per the `/audit` default (**audit reports, doesn't fix** — except `/audit dispatch`), file the findings as state-clustered backlog rows per [[audit|SKILL.md]] § Backlog entry format — **unless `dry`**:
+   - **Mechanical fail-verdicts → one `[Ready]` row** (spec-clear, mechanically fixable). Sub-bullets = each failed `(rule, target)` with the verdict detail.
+   - **Judgment fail-verdicts needing user input → `[Questions]` row(s)** linking a feature doc holding the parked Qs.
+   - All rows minted via `state task create` (never direct-edit the backlog), default horizon `Next`.
+
+   The `.anchor` and H1 fixes are one-line mechanical repairs — offer them, but don't auto-apply (they touch identity).
+
+**Doc-level sibling.** The same engine audits a single document via `audit-plan <file> --mode doc` (umbrella `R-doc`). Promoting that to a first-class `/audit doc` action is the next F161 increment.
 
 ## Distinction from siblings
 
