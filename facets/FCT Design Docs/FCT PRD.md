@@ -196,7 +196,6 @@ The PRD does NOT contain a `## Design Constraints` H2 with DC-numbered entries. 
 **Why:** the pre-F113 DC-N pattern conflated business and architectural constraints, and downstream readers couldn't tell which discipline owned which constraint. Splitting Decisions / Rules / Non-Goals gives each constraint a clear home.
 
 ### RULE R-prd-10 — Dispatch table carries a Stories row with proper-name display (checked)
-check:: dispatch_table_stories_row
 
 The PRD's top-of-doc dispatch table contains a row whose wiki-link target points at the stories — either `[[{NAME} PRD#User Stories\|{NAME} Stories]]` (single-file form) or `[[{NAME} Stories]]` (folder form). The displayed text is always the proper anchor-prefixed name `{NAME} Stories`, matching the display convention used by sibling dispatch rows (`{NAME} Architecture`, `{NAME} Testing`, etc.).
 

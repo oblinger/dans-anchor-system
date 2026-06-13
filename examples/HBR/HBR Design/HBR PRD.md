@@ -4,11 +4,13 @@ description: "product requirements — why Harbor exists and what v1 must delive
 # HBR PRD
 Why Harbor exists and what its first version must deliver.
 
-| -[[HBR PRD]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[HBR]] → [[HBR Design]] → [HBR PRD](hook://p/HBR%20PRD)<br>: product requirements |
+| Outline | |
 | --- | --- |
-| Anchor | [[HBR Design]] (parent) |
-| Stories | [[HBR Stories]] — the US-HBR-N catalog |
-| Related | [[HBR UX Design]],  [[HBR Architecture]],  [[HBR Roadmap]],   |
+| [[#Overview\|Overview]] | what Harbor is + v1 scope |
+| [[#Goals\|Goals]] | what v1 must deliver |
+| [[#Non-Goals\|Non-Goals]] | what v1 deliberately defers |
+| [[#User Stories\|User Stories]] | US-HBR-1..5, grouped by pipeline |
+| [[#See also\|See also]] | sibling design docs |
 
 ## Overview
 
@@ -36,13 +38,13 @@ The v1 goal is the smallest thing that earns daily use: ingest a library without
 | | Description |
 | --- | --- |
 | **Ingest** | |
-| [[HBR Stories#^US-HBR-1\|US-HBR-1]] — Add a library | Owner points Harbor at a folder; it appears, deduped, in the catalog. |
-| [[HBR Stories#^US-HBR-2\|US-HBR-2]] — Re-scan on change | New files in a watched folder show up without a full re-ingest. |
+| [[#US-HBR-1 — Add a library\|US-HBR-1]] — Add a library | Owner points Harbor at a folder; it appears, deduped, in the catalog. |
+| [[#US-HBR-2 — Re-scan on change\|US-HBR-2]] — Re-scan on change | New files in a watched folder show up without a full re-ingest. |
 | **Serve** | |
-| [[HBR Stories#^US-HBR-3\|US-HBR-3]] — Browse and play | Family member browses the catalog and plays a title on the device in hand. |
-| [[HBR Stories#^US-HBR-4\|US-HBR-4]] — Transcode on demand | A title in an unsupported codec still plays, transcoded to fit the device. |
+| [[#US-HBR-3 — Browse and play\|US-HBR-3]] — Browse and play | Family member browses the catalog and plays a title on the device in hand. |
+| [[#US-HBR-4 — Transcode on demand\|US-HBR-4]] — Transcode on demand | A title in an unsupported codec still plays, transcoded to fit the device. |
 | **Operate** | |
-| [[HBR Stories#^US-HBR-5\|US-HBR-5]] — Recover after a crash | Owner restarts Harbor after a power loss and the catalog is intact. |
+| [[#US-HBR-5 — Recover after a crash\|US-HBR-5]] — Recover after a crash | Owner restarts Harbor after a power loss and the catalog is intact. |
 
 ### US-HBR-1 — Add a library
 As the **owner**, I want to point Harbor at a directory and have it ingest the media there, so that my existing library becomes browsable without manual cataloging.
