@@ -289,7 +289,7 @@ Any anchor with a `{NAME} Design/` folder per [[FCT Design]] that's planning mor
 
 # RULESET R-roadmap
 include::
-where:: file:**{NAME} Design/{NAME} Roadmap.md
+where:: file:{ANCHOR}/**/* Roadmap.md
 description:: Structural rules for the {NAME} Roadmap.md facet — milestone numbering, checkbox states, Status-line presence, deferral cross-ref, shape consistency.
 
 Embedded rule set for the Roadmap facet, co-located with the facet spec above per [[F133 — Rule sets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella.

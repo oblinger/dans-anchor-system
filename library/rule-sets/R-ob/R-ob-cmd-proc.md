@@ -1,5 +1,6 @@
 # RULESET R-ob-cmd-proc
 include::
+where:: file:{ANCHOR}/**/*.rs
 description:: Ob's opinionated take on the command-processor / event-driven architecture pattern — single dispatcher routes events from sensors through engines to effectors. Use this set for applications with a clear input→process→output flow that benefits from a central routing layer, unified event log, and clean concurrency story. Other architectures (direct calls, async tasks, actor model, CQRS) work fine for different problems; this set captures Dan's specific approach when the dispatcher pattern fits.
 
 ### RULE R-ob-cmd-proc-01 — Single dispatcher (sampled)

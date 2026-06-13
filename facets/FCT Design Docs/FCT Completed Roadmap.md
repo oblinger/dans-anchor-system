@@ -76,7 +76,7 @@ Per [[DSC progressive-disclosure]]:
 
 # RULESET R-completed-roadmap
 include::
-where:: file:{NAME} Design/{NAME} Completed Roadmap.md
+where:: file:{ANCHOR}/**/* Completed Roadmap.md
 description:: Structural rules for {NAME} Completed Roadmap.md — sibling of CAB Roadmap; preserves migrated milestones in newest-on-top order.
 
 Embedded rule set for the Completed Roadmap facet, co-located with the spec above per [[F133 — Rule sets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella.

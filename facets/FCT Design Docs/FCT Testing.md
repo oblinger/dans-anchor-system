@@ -117,6 +117,7 @@ Available to any anchor that ships testable behavior — primarily `Code` trait 
 
 # RULESET R-testing
 include::
+where:: file:{ANCHOR}/**/* Testing.md
 description:: facet spec this doc instantiates
 
 Embedded rule set for the Testing facet, co-located with the facet spec above per the [[F133 — Rule sets folder convention + facet embedding|F133]] embedding convention. Adopted via `R-facet` umbrella; an anchor that wants its `{NAME} Testing.md` audited pulls `R-facet` from its `{NAME} Decisions.md`.

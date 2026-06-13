@@ -117,7 +117,7 @@ Available to any anchor with a `{NAME} Design/` folder per [[FCT Design]]. v1 fa
 
 # RULESET R-status
 include::
-where:: file:{ANCHOR}/{NAME} Track/{NAME} Status.md
+where:: file:{ANCHOR}/**/* Status.md
 description:: Structural rules for the {NAME} Status.md facet doc; enforces the per-facet dataview-line shape and cell ladder.
 
 Embedded rule set for the Status facet, co-located with the facet spec above per the [[F133 — Rule sets folder convention + facet embedding|F133]] embedding convention. Adopted via `R-facet` umbrella.

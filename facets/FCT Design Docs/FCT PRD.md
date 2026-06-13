@@ -112,6 +112,7 @@ Any anchor that has a `{NAME} Design/` folder per [[FCT Design]]. Initially supp
 
 # RULESET R-prd
 include::
+where:: file:{ANCHOR}/**/* PRD.md
 description:: Structural rules for the {NAME} PRD facet — location, body-only shape, required sections, user-story numbering, modern Open-Questions handling.
 
 Embedded rule set for the PRD facet, co-located with the facet spec above per [[F133 — Rule sets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella.
