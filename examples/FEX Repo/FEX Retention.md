@@ -1,11 +1,17 @@
 ---
-description: "example discipline — a cross-cutting spec"
+description: "example discipline — the retention rule"
 ---
 # FEX Retention
-The Retention discipline — the cross-cutting rule for how long snapshot bundles live before they are swept.
+The cross-cutting rule for how long a snapshot bundle lives before the sweep removes it.
 
-| -[[FEX Retention]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [[FEX Repo]] → [FEX Retention](hook://p/FEX%20Retention)<br>: example discipline — a cross-cutting spec |
+| -[[FEX Retention]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [[FEX Repo]] → [FEX Retention](hook://p/FEX%20Retention)<br>: example discipline — the retention rule |
 | --- | --- |
-| Related | [[FEX Repo]],  [[FCT Doc\|Document facets]],   |
+| Related | [[FEX Repo]],  [[FEX Snapshot\|Snapshot]] (reads it),  [[FEX Manifest\|Manifest]], |
 
-Retention governs the lifetime of snapshot bundles so the `snapshots/` directory does not grow without bound. The default policy keeps every bundle for 30 days, then keeps one bundle per month indefinitely as a long-tail archive. Any bundle the user pins is exempt from the sweep. The discipline is read by the snapshot skill at capture time and by a periodic sweep that prunes expired bundles — both consult the same rule so the two never disagree.
+A snapshot bundle is retained as follows:
+
+- **First 30 days** — keep every bundle, however many there are.
+- **After 30 days** — keep exactly one bundle per calendar month (the earliest in each month); delete the rest.
+- **Pinned bundles** — a bundle the user pins with `snapshot pin <label>` never expires, regardless of age.
+
+Both the [[FEX Snapshot|Snapshot]] skill (at capture) and the periodic sweep (at prune) read this one rule, so the two never disagree about which bundles survive. When a bundle is removed, its `manifest.txt` goes with it — there is no tombstone.
