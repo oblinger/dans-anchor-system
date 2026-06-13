@@ -4,9 +4,10 @@ description: "Anchor Page facet — the format of an anchor's {slug}.md entry po
 # FCT Anchor Page
 The entry page every anchor opens with — its `{slug}.md`.
 
-| -[[FCT Anchor Page]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [[FCT]] → [FCT Anchor Page](hook://p/FCT%20Anchor%20Page)<br>: the `{slug}.md` entry-page format |
+| -[[FCT Anchor Page]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [FCT Anchor Page](hook://p/FCT%20Anchor%20Page)<br>: the `{slug}.md` entry-page format |
 | --- | --- |
-| Related | [[FCT]],  [[CAB Dispatch Table]],  [[DSC progressive-disclosure]],  [[CAE Facet]] |
+| Related | [[FCT]],  [[CAB Dispatch Table]],  [[DSC progressive-disclosure]],  [[FEX]],   |
+| Examples | [[FEX]] — [[Snap\|skill]],  [[Bridges\|list]],  [[Devtools\|grouped]],  [[Clarifier\|project]],  [[Clarifier Track\|sub-folder]] |
 
 ## Template
 
@@ -38,7 +39,9 @@ traits: [Code]
 - **Figure** — optional; embedded right after the summary with **no heading above it** — the big-picture visual before the navigation.
 - **Dispatch table** — the masthead (+ a member zone for a [[Collection]] anchor). The table's *form* is [[CAB Dispatch Table]]; its row *placement* is [[SKA Decisions|D07]].
 
-## Rules
+## Rule Set
+
+The **one rule set for anchor pages** — what `/audit anchor` checks every `{slug}.md` against. All anchor-page *kinds* (skill / list collection / grouped collection / facet / project root / sub-folder) share this set today; if a kind ever needs its own rules, add a second `## Rule Set` below scoped to that kind. Worked instances of each kind live in [[FEX]] — audit by reading these rules **or** by eyeballing the matching example.
 
 - RULE (h1-form): H1 is `{slug} - {Full Name}` — slug first (cements the jump-key), readable name after. ([[SKA Decisions|D06]])
 - RULE (top-of-page-order): the page opens **H1 → summary → (figure) → dispatch table**, with **no blank line after the H1** (summary glued to the heading; blanks *do* precede the figure and table). ([[DSC progressive-disclosure]])
@@ -46,19 +49,20 @@ traits: [Code]
 - RULE (dispatch-conforms): the dispatch table follows [[CAB Dispatch Table]] — `Related` is the 1st masthead row; `Design` is the 2nd **iff** the anchor has a design facet (members in the fixed D07 order); a skill-ecosystem anchor has **no `Track` row** ([[SKA Decisions|D08]]); a [[Collection]]'s member zone ends with an electric-list marker.
 - RULE (optional-table): a simple anchor may carry **no** dispatch table at all — frontmatter + H1 + summary are sufficient.
 
-## Example
+## Examples
 
-Worked examples are **in [[CAE]]**, not instantiated here — reference, don't copy:
+Worked examples live in **[[FEX]]** (the `examples/` gallery), not instantiated here — reference, don't copy:
 
-- [[CAE Facet]] — a canonical facet page (this page follows it).
-- [[CAE Project Root]] — a project anchor with a figure + the `Design` row.
-- [[CAE Figure Page]] — the H1 → summary → figure → dispatch ordering.
+- [[Snap]] — a **skill** anchor page (`SKILL.md`: `name` / `user_invocable` frontmatter, masthead = `Related` only).
+- [[Bridges]] — a **list collection** (≤ 15, flat member list, ends in `...`).
+- [[Devtools]] — a **grouped collection** (> 15, `+` group rows linking *down*).
+- [[Clarifier]] — a **project root** (the `Design` / `Track` rows in D07 order); [[Clarifier Track]] is a **sub-folder dispatch**.
 
-If the spec changes, fix CAE; never retrofit the spec to a stale inline copy.
+If the spec changes, fix the examples; never retrofit the spec to a stale inline copy.
 
 # BRIEF
 
 - **This file is the spec for the anchor entry page (`{slug}.md`)** — frontmatter, H1, summary, optional figure, and the dispatch table it carries. Format *authority*: `/create anchor`, `/rewire`, `/tidy`, `/audit anchor`, and the audit scripts cite it.
 - **Don't inline what belongs elsewhere.** Dispatch-table *mechanics* → [[CAB Dispatch Table]]; row *placement / order* → [[SKA Decisions|D07]]; the naming prefix → [[FCT Naming]]; sub-folder dispatch pages have their own facets. Link, don't duplicate.
-- **The example is never instantiated here** — it lives in [[CAE]]. Keep CAE the single source of the worked form; this page carries only the Template skeleton + the pieces + the rules.
-- **Load-bearing, easy to break:** no blank line after the H1; a blank line *is* required before the dispatch table; top-left cell is the dash-wrapped `-[[{NAME}]]-`; pipe-escape wiki-link aliases in cells (`[[target\|alias]]`).
+- **Examples are never instantiated here** — they live in [[FEX]] (the `examples/` gallery: [[Snap]], [[Bridges]], [[Devtools]], [[Clarifier]]). Keep those the single source of the worked form; this page carries only the Template skeleton + the pieces + the rule set.
+-[[{NAME}]]-`; pipe-escape wiki-link aliases in cells (`[[target\|alias]]`).

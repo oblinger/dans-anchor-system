@@ -6,7 +6,7 @@ description: "workflow, backlog, verification, audit-q — the disciplines and t
 
 The disciplines + tool that govern *what's being tracked* inside an anchor's `{NAME} Track/` folder — the canonical state graph, the horizon structure, the verify-tier system, and the validator that enforces them. Distinct from [[SKL Drive]] (which *moves* work through tracking) and from [[SKL Anchor]] (which builds the anchor itself).
 
-| -[[SKL Track]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[SKL/SKL]] → [SKL Track](hook://p/SKL%20Track)<br>: The disciplines + tool that govern what's tracked. |
+| -[[SKL Track]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [SKL Track](hook://p/SKL%20Track)<br>: The disciplines + tool that govern what's tracked. |
 | --- | --- |
 | [[SKL Workflow\|Workflow]] | The canonical state graph for any unit of work — what state it's in, what each state means, and what advances it. |
 | [[SKL Backlog\|Backlog]] | Organizes a backlog along two independent axes — *when* the user wants work to happen (horizon) and *how far* the work has progressed (workflow state). |
