@@ -4,7 +4,7 @@
 
 ---
 
-| -[[skills]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [skills](hook://p/skills)<br>:  |
+| -[[skills]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [skills](hook://p/skills)<br>:  |
 | --- | --- |
 | [[all-fallbacks]] |  |
 | [[all-multipath]] |  |

@@ -1,4 +1,4 @@
-# CAB UX Design
+# FCT UX Design
 description:: facet spec for `{NAME} UX Design.md` — the *human* user-facing surface (CLI commands, screens, organization, naming, output shapes, error voice). Sibling peer to [[FCT API Design]] (programmatic surface).
 
 UX Design specifies the **human user surface** of the anchor — how a person discovers, invokes, reads, and recovers from errors. It is sibling to [[FCT API Design]] (the *programmatic* user surface). The cut between them is **who the consumer is**, not where the surface lives: UX = human reading or invoking; API Design = code calling.

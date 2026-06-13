@@ -1,4 +1,4 @@
-# CAB API Design
+# FCT API Design
 
 Facet spec defining the shape, required sections, and rule set for an anchor's `{NAME} API Design.md` — the programmatic (code-to-code or sub-skill) user surface.
 

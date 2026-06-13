@@ -1,4 +1,4 @@
-# CAB Roadmap
+# FCT Roadmap
 description:: facet spec (TBD — user authoring)
 
 The Roadmap facet specifies the `{NAME} Roadmap.md` file — the project's **sequencing-design**. It declares what ships in what order, organized as milestones (M1, M2, M3 …) with sub-numbering for finer detail. Open questions at the sequencing/dependency/gating level live as `## Open Questions` H2 on this file per [[DSC ask-format]].

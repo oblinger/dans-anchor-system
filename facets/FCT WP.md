@@ -1,7 +1,7 @@
 ---
 description: dated work products — papers, reports, polished outputs
 ---
-# CAB WP
+# FCT WP
 
 Facet spec for the **Work Products** zone of an anchor — dated, polished outputs (papers, reports, analyses) organized as one folder per work product under `{slug} WP/`.
 

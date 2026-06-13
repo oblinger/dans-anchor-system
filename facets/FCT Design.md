@@ -1,4 +1,4 @@
-# CAB Design
+# FCT Design
 description:: design facet — the `{NAME} Design/` folder marks an anchor as following the designed-lifecycle convention; folder presence IS the signal (no trait field required).
 
 The Design facet is the **structural marker** that an anchor follows the designed-lifecycle convention. **If `{NAME} Design/` exists, the anchor is in design-mode** — `/design` operates on it, the PRD → UX Design → API Design → Architecture → Testing → Decisions → Roadmap pipeline applies, and the design sub-facets become the canonical homes for what the anchor *is* and *how it works*.

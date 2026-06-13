@@ -1,7 +1,7 @@
 ---
 description: track docs dispatch page — work tracking + planning for a Track-trait anchor
 ---
-# CAB Track Dispatch
+# FCT Track Dispatch
 
 Spec for the `{NAME} Track.md` dispatch page that lists all work-tracking and planning documents inside a Track-trait anchor's `{NAME} Track/` folder.
 

@@ -2,7 +2,7 @@
 description: top-level human-authored layer contract — complete vocabulary for using the layer, hides everything below
 ---
 
-# CAB Interface
+# FCT Interface
 
 The facet spec for `{NAME} Interface.md` — the top-level human-authored layer contract on a code anchor, defining the complete caller-facing vocabulary while hiding the implementation below.
 

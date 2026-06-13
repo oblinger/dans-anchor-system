@@ -1,7 +1,7 @@
 ---
 description: per-anchor architecture overview — anchor-folder form with subsystems; standard section order; mandatory visual diagram (Excalidraw, never ASCII); subsystem dispatch table with link convention; API detail lives in sub-docs, not the main page.
 ---
-# CAB Architecture
+# FCT Architecture
 
 Facet spec defining the per-anchor system-architecture overview — its anchor-folder shape, standard section order, mandatory visual figure, subsystem dispatch table, and split between conceptual map (entry-point doc) and contract surface (API sub-doc).
 

@@ -1,7 +1,7 @@
 ---
 description: published project overview page
 ---
-# CAB Project Page
+# FCT Project Page
 
 A lightweight public-facing splash page for an anchor, published to the personal website (oblinger.github.io). Built via the `/code publish` skill.
 

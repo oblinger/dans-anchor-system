@@ -1,5 +1,5 @@
 ---
-description: "the Pin facet — a marker that exempts a snapshot bundle from the retention sweep"
+description: "the Pin facet definition"
 ---
 # FEX Pin
 The Pin facet — a marker that keeps one snapshot bundle forever. A worked example of a **single-file, cardinality-many** facet (the filename is the key).

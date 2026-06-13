@@ -9,4 +9,4 @@ Where Harbor's work is tracked.
 | Anchor | [[HBR]] (parent) |
 | Related | [[HBR Design]],  [[FCT Track]],   |
 | Members | [[HBR Backlog\|Backlog]],   |
-| ... |  |
+| ... | [[HBR Messages]],   |

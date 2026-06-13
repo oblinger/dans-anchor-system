@@ -1,7 +1,7 @@
 ---
 description: optional file for distant-future / someday-maybe items
 ---
-# CAB Icebox
+# FCT Icebox
 
 Facet spec for the optional `{NAME} Icebox.md` file — the cold-storage counterpart to Backlog that holds distant-future / someday-maybe items the user wants to remember but is not actively considering.
 

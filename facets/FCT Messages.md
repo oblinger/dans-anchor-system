@@ -2,7 +2,7 @@
 description: Messages facet — the agent's per-anchor inbox of background-process messages that the agent reads on every pause. Distinct from `{NAME} Inbox.md` which is the user's drop-zone for raw input.
 ---
 
-# CAB Messages
+# FCT Messages
 
 Spec for the **Messages facet** — the per-anchor file `{NAME} Messages.md` that holds background-process notes for the agent to read on every pause, separate from the user's raw-input `{NAME} Inbox.md`.
 

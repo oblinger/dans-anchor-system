@@ -1,7 +1,7 @@
 ---
 description: documentation hub — links to Plan, Dev, User
 ---
-# CAB Docs
+# FCT Docs
 
 **Location:** `{NAME} Docs/{NAME} Docs.md`
 

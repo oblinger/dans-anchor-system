@@ -1,7 +1,7 @@
 ---
 description: raw incoming content to process
 ---
-# CAB Inbox
+# FCT Inbox
 
 Facet spec for the `{NAME} Inbox.md` drop-zone file — the chronological log of raw input pasted in for later processing into the anchor's planning docs.
 

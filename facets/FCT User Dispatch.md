@@ -1,7 +1,7 @@
 ---
 description: user-facing docs dispatch page — curated, synthesis-level human-authored docs for any audience
 ---
-# CAB User Dispatch
+# FCT User Dispatch
 
 Facet spec for the `{NAME} User.md` dispatch page that catalogs an anchor's end-user / consumer-facing documentation (Guide, Installation, CLI, FAQ, Cards).
 

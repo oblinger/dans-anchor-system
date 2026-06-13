@@ -1,7 +1,7 @@
 ---
 description: source file tree with descriptions (monospace)
 ---
-# CAB Files
+# FCT Files
 
 `{NAME} Files.md` maps the file tree of an anchor's code repository. Each line has a filename and a one-line description, aligned in fixed-width columns. It provides a single-page codebase overview for onboarding, planning, and AI context.
 

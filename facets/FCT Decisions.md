@@ -2,7 +2,7 @@
 description: per-anchor master file for applied decisions — declares which rule sets the anchor adopts (top-of-file include::), maps each adopted rule to its anchor-specific implementation, and records D-numbered project-specific decisions with rationale.
 ---
 
-# CAB Decisions
+# FCT Decisions
 
 The Decisions facet is the **per-anchor master file** for everything the anchor has applied — both *which rule sets it adopts* and *what specific design choices it made for this project*. Lives at `{NAME} Design/{NAME} Architecture/{NAME} Decisions.md` (alongside the architecture entry-point) for anchors with architecture folders, or `{NAME} Design/{NAME} Decisions.md` otherwise.
 

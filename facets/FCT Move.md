@@ -2,7 +2,7 @@
 description: Moving an anchor to a new location — concept and related skills
 ---
 
-# CAB Move
+# FCT Move
 
 Moving an anchor means relocating its folder and updating every system that references it by path. This is a multi-step operation that touches several systems.
 

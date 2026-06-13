@@ -1,4 +1,4 @@
-# CAB Naming
+# FCT Naming
 description:: file-naming facet — every file inside an anchor uses `{NAME} <X>.md` form by default; exceptions for vault-global files and facet-sanctioned unique patterns.
 
 The Naming facet specifies the **default file-naming convention** for files that live inside an anchor folder, plus the canonical list of exceptions where another pattern is allowed.

@@ -1,7 +1,7 @@
 ---
 description: design docs dispatch page — high-level system spec (Architecture, UX Design, Interface, Data Model, Principles) for the anchor
 ---
-# CAB Design Dispatch
+# FCT Design Dispatch
 
 Facet spec for `{NAME} Design.md` — the dispatch page that lists all high-level system-spec documents (Architecture, UX Design, Interface, Data Model, Principles, PRD) for an anchor.
 

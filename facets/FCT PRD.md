@@ -1,4 +1,4 @@
-# CAB PRD
+# FCT PRD
 
 Facet spec for `{NAME} PRD.md` — the first doc in an anchor's Design folder, defining what the product does (goals, non-goals, user stories) for every downstream design phase to consume.
 

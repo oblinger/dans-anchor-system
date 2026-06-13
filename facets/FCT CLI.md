@@ -1,7 +1,7 @@
 ---
 description: CLI command reference — every command, flag, and exit code
 ---
-# CAB CLI
+# FCT CLI
 
 Facet spec for `{NAME} CLI.md` — the exhaustive command/flag/exit-code reference page for an anchor that ships a CLI.
 

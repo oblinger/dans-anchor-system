@@ -1,7 +1,7 @@
 ---
 description: cheat sheets and flashcards
 ---
-# CAB Cards
+# FCT Cards
 
 Facet spec for the optional `{NAME} Cards.md` page — a three-tier mix of cheat sheets and spaced-repetition flashcards (summary + detail) that lets an anchor double as a study deck for its own topic.
 

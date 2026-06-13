@@ -1,4 +1,4 @@
-# CAB Stories
+# FCT Stories
 
 Facet spec for the user-stories surface of a PRD — defines the inline-bullet form for small PRDs and the extracted-folder form (`{NAME} PRD/` with per-story files indexed by `{NAME} Stories.md`) for PRDs whose stories outgrow a single sentence.
 

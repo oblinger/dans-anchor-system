@@ -1,7 +1,7 @@
 ---
 description: SKILL.md entry point for skill anchors
 ---
-# CAB Skill
+# FCT Skill
 
 An omnibus Claude Code skill that groups related actions, reference data, and scripts under a single `/name` command. Invoked via `/name action` (e.g., `/cab setup`, `/md toc`).
 

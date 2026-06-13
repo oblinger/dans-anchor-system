@@ -7,8 +7,9 @@ The entry page every anchor opens with — its `{slug}.md`.
 | -[[FCT Anchor Page]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [FCT Anchor Page](hook://p/FCT%20Anchor%20Page)<br>: the `{slug}.md` entry-page format                                  |
 | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Related               | [[FCT]],  [[DSC Dispatch Table]],  [[DSC progressive-disclosure]],  [[FEX]],                                                                                          |
+| Design                |                                                                                                                                                                       |
+| Examples              | [[HBR\|project]],  [[HBR Components\|grouped]],  [[HBR Ingest\|sub-folder]],  [[FEX Snapshot\|skill]]                                                                 |
 |                       |                                                                                                                                                                       |
-| Examples | [[HBR\|project]],  [[HBR Components\|grouped]],  [[HBR Ingest\|sub-folder]],  [[FEX Snapshot\|skill]] |
 | OLD Examples          | [[FEX]] — [[Snapper Dapper\|skill]],  [[Espresso\|list]],  [[Harbor Components\|grouped]],  [[Glossary\|facet]],  [[Harbor\|project]],  [[Harbor Ingest\|sub-folder]] |
 
 ## Anchor Page Template
@@ -51,6 +52,7 @@ traits: [Code]
 
 # RULESET R-anchor-page
 include::
+where:: anchor
 description:: The {slug}.md entry-page format — identity, top-of-page order, dispatch table, member zone, naming.
 
 What `/audit anchor` checks every `{slug}.md` against. All anchor-page kinds (skill / list / grouped / project root / sub-folder) share this set; worked instances of each kind live in [[FEX]]. Audit a page by reading these rules **or** by diffing it against the matching example. Format of this set: [[FCT Rules]].
@@ -58,6 +60,7 @@ What `/audit anchor` checks every `{slug}.md` against. All anchor-page kinds (sk
 ## Identity & frontmatter
 
 ### RULE R-anchor-page-01 — `.anchor` declares slug + traits (checked)
+check:: anchor_has slug traits
 
 The anchor folder carries a non-empty `.anchor` file declaring `slug:`, `title:`, and `traits:`.
 
@@ -66,12 +69,14 @@ The anchor folder carries a non-empty `.anchor` file declaring `slug:`, `title:`
 **Why:** an empty `.anchor` makes breadcrumb inference skip the anchor and jump to its grandparent (the OBSK incident).
 
 ### RULE R-anchor-page-02 — Page filename equals the slug (checked)
+check:: entry_page_matches_slug
 
 The entry page is named `{slug}.md` — the filename matches the `.anchor` slug (the H1's readable name may differ).
 
 **Check pattern:** `basename(page) == slug + ".md"`.
 
 ### RULE R-anchor-page-03 — YAML `description:` present (checked)
+check:: frontmatter_has description
 
 The page opens with YAML frontmatter carrying a one-line `description:`.
 
@@ -96,6 +101,7 @@ The H1 leads with the slug, then ` - `, then the readable name. Bare-name anchor
 A single sentence saying what the page *is*, at the broadest stroke. Deeper detail goes in an optional `## Overview`, never above the dispatch table.
 
 ### RULE R-anchor-page-07 — No blank line after the H1 (checked)
+check:: no_blank_after_h1
 
 The summary sits on the line **immediately** after the H1 — no blank between them.
 

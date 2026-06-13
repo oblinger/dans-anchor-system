@@ -1,7 +1,7 @@
 ---
 description: per-module source code documentation
 ---
-# CAB API Doc
+# FCT API Doc
 
 Facet spec for per-module API documentation — the auto-generatable, source-code-grounded reference doc that mirrors one source module under `{NAME} Dev/`.
 

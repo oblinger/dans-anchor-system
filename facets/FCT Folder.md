@@ -1,7 +1,7 @@
 ---
 description: marker file for the anchor folder
 ---
-# CAB Folder
+# FCT Folder
 
 Facet spec for the anchor folder itself — the named directory containing a marker file that identifies it as an anchor.
 

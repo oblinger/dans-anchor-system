@@ -1,7 +1,7 @@
 ---
 description: "dated feature specs (F-numbered)"
 ---
-# CAB Features
+# FCT Features
 
 Specification for the **Features** facet — the F-numbered per-feature design docs that live under an anchor's `{NAME} Design/{NAME} Features/` folder, with their index page and pre-document Open-Questions zone.
 

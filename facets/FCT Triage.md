@@ -1,7 +1,7 @@
 ---
 description: triage — presentation form. The view of an anchor's status (banner, H2s, brackets) as rendered into the anchor's section of the global `~/ob/kmr/Q.md` dashboard.
 ---
-# CAB Triage
+# FCT Triage
 
 Specification for the **Triage view** — the format and rules for rendering an anchor's status (banner, H2s, brackets) into its section of the global `~/ob/kmr/Q.md` dashboard.
 

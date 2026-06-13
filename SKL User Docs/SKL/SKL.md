@@ -6,14 +6,14 @@ description: skills dispatch table
 | --- | --- |
 | Related | [[SKL Skills\|Skills]],  [[FCT Facets]],   |
 |  | **SKILL GROUPS** |
-| [[SKL Anchor\|Anchor]]+ | [[SKL Anchor Toolkit\|Anchor Toolkit]],  [[SKL CAB\|CAB]],  [[SKL Create\|Create]],  [[SKL Install\|Install]],  [[SKL Migrate\|Migrate]],  [[SKL Move\|Move]],  [[SKL Publish\|Publish]],  [[SKL Streams\|Streams]],  [[SKL WP\|WP]],  [[SKL Yore\|Yore]],   |
+| [[SKL Anchor\|Anchor]]~~+ | [[SKL Anchor Toolkit\|Anchor Toolkit]],  [[SKL CAB\|CAB]],  [[SKL Create\|Create]],  [[SKL Install\|Install]],  [[SKL Migrate\|Migrate]],  [[SKL Move\|Move]],  [[SKL Publish\|Publish]],  [[SKL Streams\|Streams]],  [[SKL WP\|WP]],  [[SKL Yore\|Yore]],   |
 | [[SKL Hygiene\|Hygiene]]+ | [[SKL Audit\|Audit]],  [[SKL Dupes\|Dupes]],  [[SKL Lint\|Lint]],  [[SKL Maintain\|Maintain]],  [[SKL Rewire\|Rewire]],  [[SKL Slug Scan\|Slug Scan]],  [[SKL Tidy\|Tidy]],   |
 | [[SKL Track\|Track]] | [[SKL Plan\|Plan]],  [[SKL Workflow\|Workflow]],  [[SKL Backlog\|Backlog]],   |
 | [[SKL Drive\|Drive]] | [[SKL Feature\|Feature]],  [[SKL Crank\|Crank]],  [[SKL Triage\|Triage]],  [[SKL Ask\|Ask]],  [[SKL Groom\|Groom]],  [[SKL Mint\|Mint]],  [[SKL Finalize\|Finalize]],  [[SKL Land\|Land]],  [[SKL Fortify\|Fortify]],   |
 | [[SKL Dev\|Dev]]+ | [[SKL Architect\|Architect]],  [[SKL Code\|Code]],  [[SKL Fix\|Fix]],  [[SKL Pilot Flow\|Pilot Flow]],  [[SKL PR Flow\|PR Flow]],   |
 | [[SKL Doc\|Doc]]+ | [[SKL Edit\|Edit]],  [[SKL IO\|IO]],  [[SKL MD\|MD]],  [[SKL Viz\|Viz]],   |
-| [[SKL Search\|Search]]+ | [[SKL Book\|Book]],  [[SKL Corp\|Corp]],  [[SKL Profile\|Describe]],  [[SKL Find\|Find]],  [[SKL Meta Survey\|Meta Survey]],  [[SKL Person\|Person]],  [[SKL Product\|Product]],  [[SKL Purchase\|Purchase]],  [[SKL Research\|Research]],  [[SKL Research Skill\|Research Skill]],  [[SKL Search Overview\|Search Overview]],  [[SKL Skill\|Skill]],  [[SKL Software\|Software]],  [[SKL Survey\|Survey]],   |
-| [[SKL Utility\|Utility]]+ | [[SKL Cook\|Cook]],  [[SKL Ctrl\|Ctrl]],  [[SKL Exp\|Exp]],  [[SKL Parley\|Parley]],  [[SKL Snip\|Snip]],   |
+| [[SKL Search\|Search]]~~+ | [[SKL Book\|Book]],  [[SKL Corp\|Corp]],  [[SKL Profile\|Describe]],  [[SKL Find\|Find]],  [[SKL Meta Survey\|Meta Survey]],  [[SKL Person\|Person]],  [[SKL Product\|Product]],  [[SKL Purchase\|Purchase]],  [[SKL Research\|Research]],  [[SKL Research Skill\|Research Skill]],  [[SKL Search Overview\|Search Overview]],  [[SKL Skill\|Skill]],  [[SKL Software\|Software]],  [[SKL Survey\|Survey]],   |
+| [[SKL Utility\|Utility]]+ | ~~[[SKL Cook\|Cook]],  ~~[[SKL Ctrl\|Ctrl]],  [[SKL Exp\|Exp]],  [[SKL Parley\|Parley]],  [[SKL Snip\|Snip]],,,,,,,,,,,,,,,,,,,,,,   |
 | [[SKL Discipline\|Discipline]]+ | [[SKL Mode\|Mode]],  [[SKL Role\|Role]],   |
 | [[SKL Library\|Library]]+ | [[Rule Sets]],   |
 | --- | |

@@ -1,7 +1,7 @@
 ---
 description: dated agent-generated outputs — audit reports, analysis
 ---
-# CAB Outputs
+# FCT Outputs
 
 The CAB facet that specifies the Outputs zone — dated agent-generated reports (audit findings, code analysis, automated assessments) parked under `{slug} Docs/{slug} Plan/{slug} Outputs/` and auto-managed by the `stat` command.
 

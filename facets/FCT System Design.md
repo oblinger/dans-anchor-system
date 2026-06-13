@@ -1,7 +1,7 @@
 ---
 description: architecture and system design
 ---
-# CAB System Design
+# FCT System Design
 
 Facet spec for `{NAME} System Design.md` — the current technical-architecture document (components, data model, decisions) for a software project anchor.
 

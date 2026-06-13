@@ -4,7 +4,7 @@ description: "**Deprecated post-F113**: the Principles facet has been unified in
 
 > **Deprecated post-F113 (2026-06-07).** Per [[F113 — Decisions facet — unify Principles + Rules; relocate Architecture|F113]], the Principles facet has been **unified** into the new Decisions facet at `{NAME} Design/{NAME} Decisions.md`. D-numbers replace P-numbers; each D-entry carries an explicit audit-tier label `(tracked)` / `(checked)` / `(sampled)` / `(stated)` per F113 Q1. **Working example:** `~/ob/kmr/SYS/Bespoke/Skill Agent/CAE/CAE Design/CAE Decisions.md` (CAE migrated 2026-06-06; principles D01-D03 sampled, rules D04+ checked). This spec page is kept as the historical pre-F113 shape; new anchors should follow the Decisions model directly.
 
-# CAB Principles
+# FCT Principles
 
 Historical (pre-F113) facet spec for the per-anchor `{NAME} Principles.md` file — the catalog of load-bearing **value statements** (P-numbers) referenced by Rules, System Design, and Architecture.
 

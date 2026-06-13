@@ -1,4 +1,4 @@
-# CAB Status
+# FCT Status
 description:: status facet — one `{NAME} Status.md` file per anchor; one dataview line per design facet; cell vocabulary `none < MVP-agent < MVP-user < Full-agent < Full-user`; read/written by the state script; consumed by `/design`'s picker.
 
 The Status facet specifies the format of `{NAME} Status.md` — the per-anchor file that tracks **design-phase completeness**. One row per design facet (`prd` / `ux` / `architecture` / `testing` / `roadmap`), each carrying a tier value, a grading-actor, a date, and a one-line rationale. The file is read by `/design`'s picker (bare `/design` dispatches to the lowest-tier facet) and by `/mint`'s pre-implementation gate.

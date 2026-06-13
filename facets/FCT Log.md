@@ -1,4 +1,4 @@
-# CAB Log
+# FCT Log
 
 Facet spec defining the standardized format for an anchor's running narrative — dated entries capturing what happened on what day, in either folder form (default) or single-file form (minimal).
 

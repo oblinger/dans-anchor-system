@@ -1,7 +1,7 @@
 ---
 description: superseded by CAB Track Dispatch per F094 — see redirect below
 ---
-# CAB Plan Dispatch
+# FCT Plan Dispatch
 
 Redirect stub for the legacy `{NAME} Plan/` dispatch facet, superseded by [[FCT Track Dispatch]] (and [[FCT Design Dispatch]] for design-surface content) per F094.
 

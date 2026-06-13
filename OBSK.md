@@ -8,5 +8,5 @@ The published **ob-skills** repository (slug `OBSK`). Skills is the headline pil
 
 | -[[OBSK]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [OBSK](hook://p/OBSK)<br>: ob-skills — the ob-skills repository — five pillars (skills / facets / disciplines / library / examples) + a docs reading surface |
 | --- | --- |
-| Sections | [[SKL\|Skills]],  [[FCT\|Facets]],  [[DSC\|Disciplines]],  [[LBR\|Library]],  [[FEX\|Examples]],   |
+| Sections | [[SKL\|Skills]],  [[FCT\|Facets]],  [[DSC\|Disciplines]],  [[LBR\|Library]],  [[FEX\|Facet Examples]],   |
 

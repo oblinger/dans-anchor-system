@@ -1,7 +1,7 @@
 ---
 description: developer docs dispatch page — audit-tied implementation reference
 ---
-# CAB Dev Dispatch
+# FCT Dev Dispatch
 
 Facet spec for `{NAME} Dev.md` — the audit-tied dispatch page that lists the Files tree and per-module docs under `{NAME} Docs/{NAME} Dev/`.
 
