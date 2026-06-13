@@ -6,9 +6,9 @@ description: per-anchor master file for applied decisions — declares which rul
 
 The Decisions facet is the **per-anchor master file** for everything the anchor has applied — both *which rule sets it adopts* and *what specific design choices it made for this project*. Lives at `{NAME} Design/{NAME} Architecture/{NAME} Decisions.md` (alongside the architecture entry-point) for anchors with architecture folders, or `{NAME} Design/{NAME} Decisions.md` otherwise.
 
-A **decision** is a specific applied choice with rationale, recorded at the anchor level. A **rule** is a portable constraint, defined in a rule set ([[FCT Rule Set]]) and reused across many anchors. Decisions reference rules; rules are what get audited.
+A **decision** is a specific applied choice with rationale, recorded at the anchor level. A **rule** is a portable constraint, defined in a rule set ([[FCT Ruleset]]) and reused across many anchors. Decisions reference rules; rules are what get audited.
 
-See [[FCT Rule Set]] for the companion facet (rule sets + per-anchor optional `{NAME} Rules.md`). See [[Rule Sets]] for the catalog.
+See [[FCT Ruleset]] for the companion facet (rule sets + per-anchor optional `{NAME} Rules.md`). See [[Rule Sets]] for the catalog.
 
 ## Architecture (per 2026-06-08)
 
@@ -118,7 +118,7 @@ Available to every anchor. Most anchors will have a `{NAME} Decisions.md` even i
 
 ## See also
 
-- [[FCT Rule Set]] — companion facet (rule sets + the optional anchor-local `{NAME} Rules.md`).
+- [[FCT Ruleset]] — companion facet (rule sets + the optional anchor-local `{NAME} Rules.md`).
 - [[Rule Sets]] — the catalog.
 - [[MUX Decisions]] — worked example. Adopts `R-ob-state-mgt` and `R-ob-observability` via top-of-file `include::`; has 31 D-records covering MuxUX's specific architectural choices.
 - [[MUX Rules]] — worked example of a stub `{NAME} Rules.md`.
@@ -127,8 +127,8 @@ Available to every anchor. Most anchors will have a `{NAME} Decisions.md` even i
 
 - **This is the facet spec for `{NAME} Decisions.md`**, the per-anchor master adoption+decision file — defines the required structure (top-of-file `include::`, `## Adoption implementation map`, `## D<N>` records) and the dual `include::` semantics (composition inside RULESET vs adoption inside an anchor decision file).
 - **NOT a list of decisions** — never paste anchor-specific D-records into this spec. Worked examples are referenced as wiki-links ([[MUX Decisions]]); concrete D-records live in their owning anchor.
-- **Inclusion test:** content belongs here only if it is a structural rule for *every* anchor's `{NAME} Decisions.md` file (required sections, D-record shape, audit checks, `Cites:` mechanics). Per-anchor policy or rule-set content belongs in [[FCT Rule Set]], an anchor's own `{NAME} Decisions.md`, or a specific rule set.
+- **Inclusion test:** content belongs here only if it is a structural rule for *every* anchor's `{NAME} Decisions.md` file (required sections, D-record shape, audit checks, `Cites:` mechanics). Per-anchor policy or rule-set content belongs in [[FCT Ruleset]], an anchor's own `{NAME} Decisions.md`, or a specific rule set.
 - **Load-bearing constraints to preserve:** the top-of-file `include::` is required (may be empty but must be present); D-numbers are monotonic-forever and never recycled; the four audit checks (broken-include, missing-implementation, orphan-Cites, status-without-content) are the contract `/audit decisions` enforces — don't silently drop or rename them without updating the audit script.
-- **Naming/linking:** keep the `[[FCT Rule Set]]` ↔ `[[FCT Decisions]]` cross-references intact (this is the companion-facet pairing); `[[Rule Sets]]` is the canonical catalog name; status tokens are exactly `checked` / `open` / `revised` / `retired` — don't invent new ones in examples.
+- **Naming/linking:** keep the `[[FCT Ruleset]]` ↔ `[[FCT Decisions]]` cross-references intact (this is the companion-facet pairing); `[[Rule Sets]]` is the canonical catalog name; status tokens are exactly `checked` / `open` / `revised` / `retired` — don't invent new ones in examples.
 - **When the dual-mode `include::` semantics change** (e.g. a third H1 context gains meaning), update both the table in § How `include::` semantics differ and the audit-script behavior in lockstep; the parser keys off the H1 sentinel, so the spec and the tooling must agree.
-- **Don't pile cross-facet content here** — markdown rendering rules → [[R-markdown]]; project-wide rules → `CLAUDE.md`; rule-set authoring shape → [[FCT Rule Set]]. This file is strictly the decision-file facet.
+- **Don't pile cross-facet content here** — markdown rendering rules → [[R-markdown]]; project-wide rules → `CLAUDE.md`; rule-set authoring shape → [[FCT Ruleset]]. This file is strictly the decision-file facet.

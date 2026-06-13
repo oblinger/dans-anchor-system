@@ -6,7 +6,7 @@ description:: PRD facet — `{NAME} PRD.md` defines what the product does; goals
 
 The PRD (`{NAME} PRD.md`) is the **what** of the product — what it does, who it serves, what's in and out of scope, and the user stories that downstream work realizes. It is the first document written during `/design`, and every downstream phase (UX, Architecture, Testing, Roadmap, Features) reads it as authoritative input.
 
-PRDs are deliberately not the place for technical decisions, principles, rules, or implementation detail — those live in [[FCT Decisions]], [[FCT Rule Set]], [[FCT Architecture]], and per-module docs respectively. The PRD's job is to define the contract that lets everything downstream argue from the same shared understanding of what the product is.
+PRDs are deliberately not the place for technical decisions, principles, rules, or implementation detail — those live in [[FCT Decisions]], [[FCT Ruleset]], [[FCT Architecture]], and per-module docs respectively. The PRD's job is to define the contract that lets everything downstream argue from the same shared understanding of what the product is.
 
 ## Location
 
@@ -182,7 +182,7 @@ The PRD file does NOT carry a top-of-doc `status::` dataview field. PRD design-p
 
 ### RULE R-prd-09 — No `## Design Constraints` (DC-N) section (stated)
 
-The PRD does NOT contain a `## Design Constraints` H2 with DC-numbered entries. Architectural / technical constraints belong in [[FCT Decisions]] (`D<N>`) and [[FCT Rule Set]] (`R-<slug>-<NN>`); business / environmental constraints live in `## Non-Goals` or `## Overview`.
+The PRD does NOT contain a `## Design Constraints` H2 with DC-numbered entries. Architectural / technical constraints belong in [[FCT Decisions]] (`D<N>`) and [[FCT Ruleset]] (`R-<slug>-<NN>`); business / environmental constraints live in `## Non-Goals` or `## Overview`.
 
 **Check pattern:** grep for `^## Design Constraints` or `^### DC-\d+`; expect zero matches.
 
@@ -200,7 +200,7 @@ The PRD's top-of-doc dispatch table contains a row whose wiki-link target points
 
 - **This file is the PRD facet spec** — the authoritative shape, location, section spine, and lifecycle rules for every `{NAME} PRD.md` in the vault. Editors of this file are amending that contract; treat changes as load-bearing for `/design prd`, every downstream design phase, and the embedded `R-prd` rule set.
 - **NOT a PRD instance, and NOT a meta-discussion of product management** — don't pile authoring tips, prose about writing good user stories, or example PRDs into the body. Worked examples are cited by wiki-link ([[CAE PRD]]); rationale for one-off prescriptions lives in the rule's **Why** block, not in narrative.
-- **Inclusion test for new content:** does it specify the SHAPE of `{NAME} PRD.md` (where it lives, what sections it must carry, what fields it must declare, how it's surfaced from sibling docs, how its lifecycle interacts with `/ask` and `{NAME} Status.md`)? If yes, it belongs. If it's about technical decisions, principles, or implementation, route to [[FCT Decisions]] / [[FCT Rule Set]] / [[FCT Architecture]] instead — the body already says PRDs are not that.
+- **Inclusion test for new content:** does it specify the SHAPE of `{NAME} PRD.md` (where it lives, what sections it must carry, what fields it must declare, how it's surfaced from sibling docs, how its lifecycle interacts with `/ask` and `{NAME} Status.md`)? If yes, it belongs. If it's about technical decisions, principles, or implementation, route to [[FCT Decisions]] / [[FCT Ruleset]] / [[FCT Architecture]] instead — the body already says PRDs are not that.
 - **Two co-located zones — keep them aligned:** the facet-spec prose above and the embedded `# RULESET R-prd` below must agree. When a section-order rule, naming convention, or location prescription changes in the prose, update the matching `### RULE R-prd-NN` block (and its **Check pattern** / **Why**) in the same edit. Drift between the two is the failure mode this file is built to avoid.
 - **Rule numbering is monotonic-forever** — `R-prd-NN` IDs are never recycled. New rules append at the next integer; deprecated rules are marked but their numbers stay reserved. Renumbering breaks every `cites:` link from `{NAME} Decisions.md` files that adopted this ruleset.
 - **Wiki-link targets are load-bearing** — references to [[FCT Stories]], [[FCT Decisions]], [[FCT Architecture]], [[FCT Testing]], [[FCT Status]], [[DSC ask-format]], [[DSC progressive-disclosure]], and the worked example [[CAE PRD]] are the spec's external dependencies. If any of those is renamed, the rename must propagate here in the same commit.

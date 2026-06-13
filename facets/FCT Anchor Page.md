@@ -55,7 +55,7 @@ include::
 where:: anchor
 description:: The {slug}.md entry-page format — identity, top-of-page order, dispatch table, member zone, naming.
 
-What `/audit anchor` checks every `{slug}.md` against. All anchor-page kinds (skill / list / grouped / project root / sub-folder) share this set; worked instances of each kind live in [[FEX]]. Audit a page by reading these rules **or** by diffing it against the matching example. Format of this set: [[FCT Rule Set]].
+What `/audit anchor` checks every `{slug}.md` against. All anchor-page kinds (skill / list / grouped / project root / sub-folder) share this set; worked instances of each kind live in [[FEX]]. Audit a page by reading these rules **or** by diffing it against the matching example. Format of this set: [[FCT Ruleset]].
 
 ## Identity & frontmatter
 

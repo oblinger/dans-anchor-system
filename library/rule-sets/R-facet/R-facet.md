@@ -29,6 +29,6 @@ This single include pulls in every CAB facet's structural rules. Audit walks the
 
 ## See also
 
-- [[FCT Rule Set]] — meta-spec for the RULESET format; first facet expected to land an embedded `R-rules` block.
+- [[FCT Ruleset]] — meta-spec for the RULESET format; first facet expected to land an embedded `R-rules` block.
 - [[FCT Decisions]] — the master adoption file in an anchor; this is where `include:: [[R-facet]]` belongs.
 - [[Rule Sets]] — parent catalog.

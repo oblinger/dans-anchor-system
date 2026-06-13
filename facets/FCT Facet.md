@@ -6,7 +6,7 @@ A narrow, usually file-based aspect of an anchor — and the spec for how to wri
 
 | -[[FCT Facet]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [FCT Facet](hook://p/FCT%20Facet)<br>: the Facet primitive — what a facet is and how to write its spec |
 | --- | --- |
-| Related | [[FCT Skill]],  [[FCT Rule Set]],  [[FCT Facets]] (the index),  [[CAB Aspects]], |
+| Related | [[FCT Skill]],  [[FCT Ruleset]],  [[FCT Facets]] (the index),  [[CAB Aspects]], |
 | Examples | [[FEX Manifest\|single-file, one]],  [[FEX Pin\|single-file, many]],  [[FEX Bundle\|folder, many]],   |
 
 # Facet Document Structure
@@ -174,7 +174,7 @@ A facet that sits among peers (the Design or Track groups) links them in a `## S
 
 # BRIEF
 
-- **This is the spec for the *facet* primitive** — what a facet is and the shape of a facet spec doc. Sibling to [[FCT Skill]] (skill primitive) and [[FCT Rule Set]] (rule-set primitive); indexed from [[FCT Primitives]].
+- **This is the spec for the *facet* primitive** — what a facet is and the shape of a facet spec doc. Sibling to [[FCT Skill]] (skill primitive) and [[FCT Ruleset]] (rule-set primitive); indexed from [[FCT Primitives]].
 - **Carries the embedded `R-facet-spec` rule set** — the enforceable rules for authoring *any* facet. Keep it distinct from the umbrella [[R-facet]] (which aggregates each facet's *instance* rules); `R-facet-spec` governs facet *spec docs*. Keep the `Facet Document Structure` bullet list and the rule set in sync — the list is the readable form, the RULESET is the auditable form.
 - **Singular, not the index.** [[FCT Facets]] (plural) is the *catalog* of concrete facets; this page (singular) *defines the kind*. The Primitives-row "Facet" link points here.
 - **Don't embed a worked example.** A facet example is itself a full anchor page (dispatch table, sections, often a paired rule set); embedding one inside this spec confuses example-vs-spec. Describe the shape with the `Facet Document Structure` bullet list; link real examples in the dispatch `Examples` row.

@@ -6,7 +6,7 @@ description: "Curated, versioned bundles of rules."
 
 | -[[Rule Sets]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [Rule Sets](hook://p/Rule%20Sets)<br>: Curated, versioned bundles of rules. |
 | --- | --- |
-| Related | [[Rule Sets Brief\|Brief]],  [[FCT Rule Set]],  [[FCT Decisions]],   |
+| Related | [[Rule Sets Brief\|Brief]],  [[FCT Ruleset]],  [[FCT Decisions]],   |
 | **CAB-aligned umbrellas** | The three primary structural axes — rule sets tied to CAB Facets, Traits, Skills. Adopting an umbrella pulls every per-X rule set under it. |
 | [[R-facet]] | Per-facet rule sets. Each child is a thin catalog stub pointing at a `# RULESET R-<facet>` block embedded in its `CAB Facets/<Facet>.md` spec. Children: [[R-testing]] (9 rules), [[R-status]] (10 rules), [[R-log]] (9 rules), [[R-stories]] (9 rules), [[R-prd]] (9 rules), [[R-design]] (7 rules), [[R-naming]] (5 rules), [[R-roadmap]] (11 rules), [[R-completed-roadmap]] (6 rules), [[R-ux]] (8 rules), [[R-api]] (9 rules), [[R-discussion]] (9 rules — first doc-scoped facet). Remaining ~40 facets to populate via dedicated sweep. |
 | [[R-trait]] | Per-trait rule sets — to embed in `CAB Traits/<Trait>.md` specs. Children: [[R-paper]], [[R-simple]], [[R-skill-anchor]], [[R-topic]]. |

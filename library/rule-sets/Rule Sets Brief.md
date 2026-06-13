@@ -43,18 +43,18 @@ When an anchor adopts a rule set:
 
 ## File format
 
-See [[FCT Rule Set]] for the prescriptive RULESET format (H1 sentinel + `include::` + `description::` + H3 rule entries with tier annotation). The earlier YAML-frontmatter form is legacy; remaining instances ([[R-mac]]) will be migrated per F133.
+See [[FCT Ruleset]] for the prescriptive RULESET format (H1 sentinel + `include::` + `description::` + H3 rule entries with tier annotation). The earlier YAML-frontmatter form is legacy; remaining instances ([[R-mac]]) will be migrated per F133.
 
 ## How to add a new rule set
 
 1. Create `Rule Sets/R-<name>/R-<name>.md` (with `.anchor` marker).
-2. Use the prescriptive RULESET format per [[FCT Rule Set]].
+2. Use the prescriptive RULESET format per [[FCT Ruleset]].
 3. Add a row to [[Rule Sets]] dispatch table under the appropriate category.
 4. If the set should auto-aggregate under R-facet / R-trait / R-skill, also add to that umbrella's `includes::`.
 
 ## Related
 
 - [[Rule Sets]] — the catalog itself.
-- [[FCT Rule Set]] — meta-spec for the RULESET format.
+- [[FCT Ruleset]] — meta-spec for the RULESET format.
 - [[FCT Decisions]] — sibling facet for anchor-level applied choices that cite rules.
 - F132, F133 — features tracking the rule-system migration.

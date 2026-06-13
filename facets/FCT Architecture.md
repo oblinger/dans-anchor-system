@@ -133,7 +133,7 @@ Available to any anchor with the `Code` trait. Optional for non-code anchors —
 ## See also
 
 - [[FCT API Doc]] — companion spec for the public-API sub-document.
-- [[FCT Rule Set]] — rule-set format spec. Diagrams in architecture docs are audited against rule sets cited by the anchor's decisions.
+- [[FCT Ruleset]] — rule-set format spec. Diagrams in architecture docs are audited against rule sets cited by the anchor's decisions.
 - [[R-diagram]] — the rule set every architecture diagram is audited against (22 rules covering structural / aesthetic / semantic / accessibility / hygiene).
 - [[FCT Decisions]] — anchor-level applied choices that cite rules from rule sets.
 - [[FCT Design Dispatch]] — Architecture sits alongside PRD / Decisions / Interface in `{NAME} Design/`.

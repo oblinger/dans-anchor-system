@@ -104,7 +104,7 @@ When a markdown doc declares rules (anywhere — embedded in a facet, in a proje
 - A single rule is a markdown heading whose first content is `RULE R-<slug>-<NN>[ — <title>[ (<tier>)]]`. Any H-level works. Greppable: `^#+\s+RULE\s+R-`.
 - A bundle of rules opens with `# RULESET R-<slug>` as the H1 of the file (or a `# RULESET R-<slug>` second-H1 inside a facet that embeds the set).
 
-See [[FCT Rule Set]] for the full format.
+See [[FCT Ruleset]] for the full format.
 
 ### Don't restate facet-level rules in per-anchor doc bodies
 
@@ -130,7 +130,7 @@ If a rule is universal (applies to every Log, every PRD, every Testing doc), it 
 - [[md]] — the utility-verb skill (sibling, not parent / child); `/md toc`, `/md file-tree`, `/md dispatch-table`, `/md cards`, `/md track-changes`.
 - [[DSC progressive-disclosure]] — sibling discipline; doc-structure rules.
 - [[DSC ask-format]] — sibling discipline; user-actionable surface format.
-- [[FCT Rule Set]] — meta-spec for the RULE / RULESET sentinel format.
+- [[FCT Ruleset]] — meta-spec for the RULE / RULESET sentinel format.
 - [[Atlas]] / [[ATL Slugs]] — vault-wide router that wiki-link conventions ultimately serve.
 
 

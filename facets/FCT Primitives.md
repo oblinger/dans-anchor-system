@@ -6,10 +6,10 @@ The primitives — the reflexive facets that define the kinds of authored object
 
 | -[[FCT Primitives]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [FCT Primitives](hook://p/FCT%20Primitives)<br>: primitives — the kinds of authored object the system is built from |
 | --- | --- |
-| Facets | [[FCT Skill\|Skill]],  [[FCT Facet\|Facet]],  [[CAB Disciplines\|Discipline]],  [[FCT Rule Set\|Rule Set]],  [[CAB Traits\|Trait]],   |
+| Facets | [[FCT Skill\|Skill]],  [[FCT Facet\|Facet]],  [[CAB Disciplines\|Discipline]],  [[FCT Ruleset\|Ruleset]],  [[CAB Traits\|Trait]],   |
 
 ## Overview
-These facets are **reflexive** — each defines one of the *kinds of thing you author in this system*, rather than a document shape a project's content takes. A [[FCT Skill|skill]] is an invocable verb; a [[FCT Facet|facet]] is a narrow file/region aspect; a [[CAB Disciplines|discipline]] is a behavioral practice the agent reads; a [[FCT Rule Set|rule set]] is a declarative-constraint block; a [[CAB Traits|trait]] is a broad anchor paradigm declared in `traits:`. Together they are the system's own vocabulary — the metamodel the other facet groups (Anchor / Design / Track / Output / Doc) are described in terms of.
+These facets are **reflexive** — each defines one of the *kinds of thing you author in this system*, rather than a document shape a project's content takes. A [[FCT Skill|skill]] is an invocable verb; a [[FCT Facet|facet]] is a narrow file/region aspect; a [[CAB Disciplines|discipline]] is a behavioral practice the agent reads; a [[FCT Ruleset|rule set]] is a declarative-constraint block; a [[CAB Traits|trait]] is a broad anchor paradigm declared in `traits:`. Together they are the system's own vocabulary — the metamodel the other facet groups (Anchor / Design / Track / Output / Doc) are described in terms of.
 
 Skill, Facet, and Trait line up with the repo pillars (`skills/` `facets/` `disciplines/` `library/`); Rule Set is the library's rule-set kind. The deeper roots — *anchor* and *aspect* — are blueprint-level concepts (see [[CAB Base]] / [[CAB Aspects]]), not facet specs, so they live in the library rather than here.
 

@@ -15,7 +15,7 @@ The per-doc structural specs — the shapes documents take.
 | [[FCT Track\|FCT Track]]+ | [[Backlog]],  [[FCT Features\|Features]],  [[FCT Inbox\|Inbox]],  [[FCT Icebox\|Icebox]],  [[FCT Messages\|Messages]],  [[FCT Log\|Log]],  [[FCT Triage\|Triage]],  [[FCT Status\|Status]],   |
 | [[FCT Dispatch\|FCT Dispatch]]+ | [[FCT Design Dispatch\|Design Dispatch]],  [[FCT Dev Dispatch\|Dev Dispatch]],  [[FCT Plan Dispatch\|Plan Dispatch]],  [[FCT Track Dispatch\|Track Dispatch]],  [[FCT User Dispatch\|User Dispatch]],   |
 | [[FCT Output\|FCT Output]]+ | [[FCT Cards\|Cards]],  [[FCT Outputs\|Outputs]],  [[FCT Documentation Site\|Documentation Site]],  [[FCT WP\|WP]],  [[Docs]],  [[TSK User Guide]],   |
-| [[FCT Doc\|FCT Doc]]+ | [[FCT Rule Set\|Rule Set]],  [[FCT Brief\|Brief]],  [[FCT Discussion\|Discussion]],   |
-| [[FCT Primitives\|FCT Primitives]]+ | [[FCT Skill\|Skill]],  [[FCT Facet\|Facet]],  [[CAB Disciplines\|Discipline]],  [[FCT Rule Set\|Rule Set]],  [[CAB Traits\|Trait]],   |
+| [[FCT Doc\|FCT Doc]]+ | [[FCT Ruleset\|Ruleset]],  [[FCT Brief\|Brief]],  [[FCT Discussion\|Discussion]],   |
+| [[FCT Primitives\|FCT Primitives]]+ | [[FCT Skill\|Skill]],  [[FCT Facet\|Facet]],  [[CAB Disciplines\|Discipline]],  [[FCT Ruleset\|Ruleset]],  [[CAB Traits\|Trait]],   |
 
 *Names are the as-moved `CAB <X>` spec filenames; renaming to the `FCT <name>` convention is a "from-there" edit (F158 § D cleanup).*

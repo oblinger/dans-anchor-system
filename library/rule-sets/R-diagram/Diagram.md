@@ -17,5 +17,5 @@ description: "Diagram authoring + validation rules: ASCII-forbidden, hand-writte
 ## See also
 
 - [[Rule Sets]] — parent catalog
-- [[FCT Rule Set]] — rule-set format spec
+- [[FCT Ruleset]] — rule-set format spec
 - [[viz-svg]] — companion skill for hand-authoring SVG figures
