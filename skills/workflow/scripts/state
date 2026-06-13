@@ -489,6 +489,10 @@ def cmd_q_rewrite(slug, anchor_path, args):
 def _post_conditions_and_print(slug, feature_path, summary):
     """Run F127 post-conditions; print summary + any warnings."""
     warnings = be._post_conditions(slug, feature_path)
+    # Q-mutations change banner counts ([N Questions]) and bracket state, so the
+    # anchor's Q.md section must be regenerated — same refresh `state task` runs.
+    # Keeps Q.md current entirely through `state`; no separate triage-section call.
+    be.refresh_q_md(slug)
     print(f"{slug}: {summary}")
     for w in warnings:
         print(f"  warn: {w}", file=sys.stderr)

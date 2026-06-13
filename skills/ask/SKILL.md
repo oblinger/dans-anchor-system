@@ -15,7 +15,7 @@ user_invocable: true
 | **Bare** (primary) | `/ask` (no arguments) | User-invoked from within an anchor. Drains the anchor's open `[Verify]` and `[Questions]` items: self-resolves what it can (drive-mode-calibrated), writes the three-section `{NAME} ask.md`, glances it, surfaces 1–3 items in console, iterates. |
 | **Parented** (secondary) | `/ask [--doc <path>] <q1> [<q2>...]` | Called from another skill's runbook (`/feature`, `/code plan`, `/groom`, `/crank`). Routes batched, numbered, formatted questions to a feature doc's `## Open Questions` block, or authors them directly in the anchor's `{NAME} ask.md` `## Questions` section. |
 
-Both modes regenerate `{NAME} Triage.md` and the anchor's section in `~/ob/kmr/Q.md`. Both follow the same recommendation-strength format and Phase 1/2/3 lifecycle for `## Open Questions` blocks. The reliability gain comes for free from Claude Code's skill-loading mechanic: when `/ask` is invoked, this runbook executes — including the glance step. That's the fix for the original "agents forget to glance" pain that motivated F10.
+Both modes refresh the anchor's section in `~/ob/kmr/Q.md` through `state` (state updates always go through the `state` function; Q.md is a derived view it keeps current). Both follow the same recommendation-strength format and Phase 1/2/3 lifecycle for `## Open Questions` blocks. The reliability gain comes for free from Claude Code's skill-loading mechanic: when `/ask` is invoked, this runbook executes — including the glance step. That's the fix for the original "agents forget to glance" pain that motivated F10.
 
 
 ## When to invoke
@@ -105,7 +105,7 @@ If the parent skill is ambiguous about which shape applies, default to **ask-fil
 ```
 
 - **No arguments** → bare mode; runs the § Bare invocation runbook against the **current anchor** (detected by walking up from cwd to the nearest `.anchor`).
-- **Single positional argument matching an anchor slug** (e.g. `/ask SKA`, `/ask MUX`) → bare mode against the **named anchor**. The current agent does the work but reads the target anchor's Triage / Questions / feature docs. **Uncommon** — the local agent for that anchor usually has more context and will do a better self-resolution pass; use cross-anchor only when you specifically want the current agent to handle it.
+- **Single positional argument matching an anchor slug** (e.g. `/ask SKA`, `/ask MUX`) → bare mode against the **named anchor**. The current agent does the work but reads the target anchor's Backlog / ask page / feature docs. **Uncommon** — the local agent for that anchor usually has more context and will do a better self-resolution pass; use cross-anchor only when you specifically want the current agent to handle it.
 - `--doc <path>` → parented document-attached mode; questions go in that doc's `## Open Questions` block (created if absent).
 - No flag + positional `<question>` arguments → parented ask-file mode; questions are authored directly in the anchor's `{NAME} ask.md` `## Questions` section.
 - Multiple positional questions → batched — number them all in one pass, never trickle.
@@ -113,7 +113,7 @@ If the parent skill is ambiguous about which shape applies, default to **ask-fil
 **Disambiguation: anchor slug vs. question text.** A single positional argument is treated as an anchor slug if all three hold:
 1. It's one token (no spaces).
 2. It matches the shape `[A-Z][A-Za-z0-9]+` (starts with a capital, alphanumeric).
-3. It resolves to a known anchor (walk the vault's `slug-index`, or check that `<SLUG>/.anchor` exists, or that `<SLUG> Triage.md` / `<SLUG> Backlog.md` exists somewhere reachable).
+3. It resolves to a known anchor (walk the vault's `slug-index`, or check that `<SLUG>/.anchor` exists, or that `<SLUG> Backlog.md` exists somewhere reachable).
 
 If any check fails, treat the argument as anchor-level question text and run the parented runbook. Multiple positional arguments are always parented (no anchor slug has spaces).
 
@@ -128,7 +128,7 @@ Bare `/ask` (no arguments) drains the anchor's open `[Verify]` and `[Questions]`
 
 **Default (no argument):** walk up from the working directory to the nearest `.anchor` to determine `{NAME}`. This is the common case — the agent's own anchor.
 
-**Cross-anchor (single slug argument):** if invoked as `/ask <SLUG>` and the slug resolves to a known anchor (per the § Invocation disambiguation rules), set `{NAME}` = `<SLUG>` and read that anchor's files instead of the current one. The current agent does the work using the target anchor's Triage / Questions / feature docs.
+**Cross-anchor (single slug argument):** if invoked as `/ask <SLUG>` and the slug resolves to a known anchor (per the § Invocation disambiguation rules), set `{NAME}` = `<SLUG>` and read that anchor's files instead of the current one. The current agent does the work using the target anchor's Backlog / ask page / feature docs.
 
 Then read `{NAME} Backlog.md` and enumerate every item bracketed `**[N Questions]**` or `**[Verify]**` across the **Active / Ready / Now / Next / Verify** sections. The dedicated `## Verify` horizon (per F100) is where most user-actionable `[Verify]` rows live — surfacing them is a core purpose of bare `/ask`, so it is **in scope**. **`## Later` and `## Icebox` are disregarded entirely** — regardless of bracket, regardless of why the item is there. Later means *not in scope for now*; if the user has parked something in Later, that's the user's explicit signal to not surface it. This applies *universally* to every path through bare `/ask` — survey (this step), reasoning (step 2), drain-page write (step 3), and console interleave (step 6). Even a `[Questions]` or `[Verify]` row sitting in `## Later` is out of scope; bare `/ask` does not see it, does not self-resolve it, does not list it, does not mention it. (Triage's selective-surfacing of Later items is a Triage behavior; bare `/ask` does not inherit it.) Also include any anchor-level Qs already authored in `{NAME} ask.md` § `## Questions`.
 
@@ -234,15 +234,9 @@ Rules:
 - **Soft cap ≈ 10 items** in the User Verifications + Questions sections combined. If the queue is longer, list the top 10 in priority order; the user re-invokes `/ask` to surface the next batch.
 - **Omit empty sections** entirely (don't leave `## Agent Resolutions` with no body — drop the H2).
 
-### 4. Regenerate the anchor's section in `~/ob/kmr/Q.md` — **run the script** (per F104)
+### 4. Q.md refresh — rides on `state` (no separate triage call)
 
-Per F104 (2026-06-02) the regen is mechanical. Per-anchor `{NAME} Triage.md` files were retired in F075; Q.md sections are the only rendered form. The agent shells out:
-
-```bash
-python3 ~/.claude/skills/triage/scripts/triage-section.py {NAME}
-```
-
-The script walks the backlog (which step 2's self-resolutions may have mutated — Verify→Done, pending Q→Resolved), derives the banner, renders the body H2s, and atomically replaces the section in Q.md. Agent does not edit Q.md by hand.
+**State updates go through `state`, which refreshes the anchor's Q.md section automatically** — every `state task update` (the Verify→Done and rebracket calls in step 2) and every `state q add/answer/remove/rewrite` (step 3) calls `refresh_q_md`, regenerating the banner + body H2s for the anchor and atomically replacing its section in `~/ob/kmr/Q.md`. So if every resolution in steps 2-3 went through `state` (it must — the agent never hand-edits the backlog, feature docs' Q-blocks, or Q.md), Q.md is already current and there is **no** separate `triage-section.py` invocation. Per F075 the per-anchor `{NAME} Triage.md` files were retired; the Q.md section is the only rendered form. The banner/bracket/body-rendering contract lives in `triage/SKILL.md` § 2–5.
 
 ### 4a. Audit the rendered report — **F127 mandatory gate**
 
@@ -396,19 +390,9 @@ Workflow: author the Q into `## Questions`, then run `ask-render.py {NAME}` (it 
 
 **Legacy migration**: if an anchor still has a `{NAME} Questions.md` file (pre-removal), move its pending `## Open Questions` bullets into `{NAME} ask.md` § `## Questions` (preserving Q-numbers and `^{NAME}-Q<n>` block-IDs), then delete `{NAME} Questions.md`. Resolved/archived Qs in that file can be dropped, or moved to the relevant feature doc / `[[SKA Decisions]]` if still useful.
 
-### 4. Regenerate the anchor's section in `~/ob/kmr/Q.md` — **run the script** (per F104)
+### 4. Q.md refresh — rides on `state` (no separate triage call)
 
-Per F104 (2026-06-02) this is mechanical: shell out, don't hand-write. Per F075 the per-anchor `{NAME} Triage.md` files were retired — Q.md sections are the only rendered form.
-
-```bash
-python3 ~/.claude/skills/triage/scripts/triage-section.py {NAME}
-```
-
-The script walks `{NAME} Backlog.md` (whose state step 3's `## Open Questions` edits just modified, by introducing or resolving Qs that affect the anchor's TAG / banner counts), derives the banner with cascading-TAG rule, renders body H2s (`## Active` / `## Ready` / `## Now` / `## Next` / `## Later` / `## Verify`) with bullets in source order, and atomically replaces the per-anchor section in `~/ob/kmr/Q.md`. De-dupes any existing section for `{NAME}` and bubbles the fresh one to the top.
-
-If TAG is `[]` (anchor has zero live items anywhere), the script removes the section. Done.
-
-The full spec for what the script writes (banner format, bracket forms, body rendering rules, overflow handling) lives in `triage/SKILL.md` § 2–5 — those sections are the script's contract.
+**State updates go through `state`.** Writing a Q via `state q add` / `state q answer` (§ 3) calls `refresh_q_md` as a post-condition — it regenerates the banner (cascading-TAG rule) and body H2s (`## Active` / `## Ready` / `## Now` / `## Next` / `## Later` / `## Verify`) in source order, de-dupes any existing section for `{NAME}`, bubbles the fresh one to the top, and atomically replaces the anchor's section in `~/ob/kmr/Q.md` (removing it entirely when TAG is `[]`). Any backlog rebracket those Qs imply (e.g. `[N Questions]` ↔ `[Ready]`) is a `state task update`, which refreshes Q.md the same way. So the section updates as a side-effect of the `state` calls — **no** separate `triage-section.py` invocation, and the agent never hand-edits Q.md or the backlog. Per F075 the per-anchor `{NAME} Triage.md` files were retired; the Q.md section is the only rendered form. The banner/bracket/body-rendering contract lives in `triage/SKILL.md` § 2–5.
 
 **Format of the global page:**
 
@@ -592,4 +576,4 @@ After resolution, **`/ask` itself doesn't usually run** — the parent skill tha
 
 - `[[FCT Triage]]` — sibling facet that surfaces (reads) the questions `/ask` writes. `/ask` is the writer; `/triage` is the reader/router.
 - `[[CAB Backlog]]` § Numbering policy — same lowest-unused-integer rule for Q numbers.
-- `~/ob/kmr/Q.md` — the vault-level Agent Status dashboard, regenerated by `triage-section.py` per F104.
+- `~/ob/kmr/Q.md` — the vault-level Agent Status dashboard, regenerated through `state` (its `refresh_q_md` → `audit-q --scope backlog --fix` post-condition) on every backlog/Q mutation.
