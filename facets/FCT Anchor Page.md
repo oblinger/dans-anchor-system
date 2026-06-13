@@ -4,10 +4,10 @@ description: "Anchor Page facet — the format of an anchor's {slug}.md entry po
 # FCT Anchor Page
 The entry page every anchor opens with — its `{slug}.md`.
 
-| -[[FCT Anchor Page]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [FCT Anchor Page](hook://p/FCT%20Anchor%20Page)<br>: the `{slug}.md` entry-page format |
-| --- | --- |
-| Related | [[FCT]],  [[CAB Dispatch Table]],  [[DSC progressive-disclosure]],  [[FEX]],   |
-| Examples | [[FEX]] — [[Snap\|skill]],  [[Bridges\|list]],  [[Devtools\|grouped]],  [[Glossary\|facet]],  [[Clarifier\|project]],  [[Clarifier Track\|sub-folder]] |
+| -[[FCT Anchor Page]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [FCT Anchor Page](hook://p/FCT%20Anchor%20Page)<br>: the `{slug}.md` entry-page format                   |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Related               | [[FCT]],  [[CAB Dispatch Table]],  [[DSC progressive-disclosure]],  [[FEX]],                                                                           |
+| Examples              | [[FEX]] — [[Snap\|skill]],  [[Bridges\|list]],  [[Devtools\|grouped]],  [[Glossary\|facet]],  [[Clarifier\|project]],  [[Clarifier Track\|sub-folder]] |
 
 ## Anchor Page Template
 
@@ -48,40 +48,154 @@ traits: [Code]
 - **Dispatch table** — the masthead (+ a member zone for a [[Collection]] anchor). The table's *form* is [[CAB Dispatch Table]]; its row *placement* is [[SKA Decisions|D07]].
 
 # RULESET R-anchor-page
+include::
+description:: The {slug}.md entry-page format — identity, top-of-page order, dispatch table, member zone, naming.
 
-The **one rule set for anchor pages** — what `/audit anchor` checks every `{slug}.md` against. All anchor-page *kinds* (skill / list collection / grouped collection / facet / project root / sub-folder) share this set; if a kind ever diverges, add a second ruleset below scoped to that kind. Worked instances of each kind live in [[FEX]] — audit by reading these rules **or** by eyeballing the matching example.
+What `/audit anchor` checks every `{slug}.md` against. All anchor-page kinds (skill / list / grouped / facet / project root / sub-folder) share this set; worked instances of each kind live in [[FEX]]. Audit a page by reading these rules **or** by diffing it against the matching example. Format of this set: [[FCT Rules]].
 
-### Identity & frontmatter
-- **R-anchor-file** — the folder carries a `.anchor` declaring `slug:`, `title:`, and `traits:`. An **empty `.anchor` is invalid** — breadcrumb inference then skips the anchor and jumps to its grandparent (the OBSK incident).
-- **R-filename** — the entry page is named `{slug}.md` (filename = the `.anchor` slug); the H1's readable name may differ from the slug.
-- **R-frontmatter** — the page opens with YAML frontmatter carrying `description:` (one line). Inline `desc::` is deprecated → migrate to YAML.
-- **R-traits** — `traits:` declares the anchor kind (e.g. `[Code]`, `[skill]`, `Collection`); the kind drives which rules below apply (design facet, collection member zone, …).
-- **R-h1-form** — H1 is `{slug} - {Full Name}` — slug first (cements the jump-key), readable name after. Bare-name anchors use just the name. ([[SKA Decisions|D06]])
+## Identity & frontmatter
 
-### Top of page (fixed order)
-- **R-summary** — a one-sentence summary says what the page *is*, at the broadest stroke; deeper detail goes in an optional `## Overview`, never above the table.
-- **R-no-blank-after-h1** — **no blank line between the H1 and the summary** (summary glued to the heading). Blanks *do* precede the figure and the table.
-- **R-figure** — a figure is optional; if present it sits right after the summary with **no heading above it** — the big-picture visual before the navigation.
-- **R-order** — the page opens **H1 → summary → (figure) → dispatch table**, in that order. ([[DSC progressive-disclosure]])
+### RULE R-anchor-page-01 — `.anchor` declares slug + traits (checked)
 
-### Dispatch table — masthead
-- **R-dispatch-form** — the table follows [[CAB Dispatch Table]]: a breadcrumb row, then category rows.
-- **R-breadcrumb** — the first row is the breadcrumb cell — a title cell `-[[This Page]]-` plus the parent-chain path ending in the page's `hook://` link + a one-line description. It carries the [[DSC anchor-dag]] up-edge.
-- **R-related-first** — `Related` is the **1st** masthead row; **omit it entirely when empty — never leave it blank**. ([[SKA Decisions|D07]])
-- **R-design-second** — if the anchor has the design facet (`{NAME} Design/` exists), a `Design` row is present as the **2nd** row, members in the fixed order PRD → UX Design → CLI → API → Architecture → Decisions → Testing → Roadmap → Features. ([[SKA Decisions|D07]])
-- **R-masthead-minimal** — the masthead is **only** breadcrumb + Anchor + Design (if any) + Related; no ad-hoc rows the breadcrumb already covers (no `Repo` row). Anything *enumerable* drops to the member zone.
-- **R-no-track-row** — a skill-ecosystem anchor (skill / facet / discipline / example) has **no `Track` row** — its tracking is centralized in SKA. ([[SKA Decisions|D08]])
-- **R-pipe-escape** — wiki-links inside table cells escape the pipe: `[[target\|alias]]`.
+The anchor folder carries a non-empty `.anchor` file declaring `slug:`, `title:`, and `traits:`.
 
-### Member zone — Collection anchors only
-- **R-member-zone** — only a [[Collection]] anchor enumerates members (below the masthead); a non-collection page is masthead-only.
-- **R-list-vs-grouped** — a flat member list for ≤ ~15 members; member groups (labeled `+` rows) past ~15. ([[DSC granularity]])
-- **R-grouped-links-down** — each group-row label is a link *down* to that group's own page (a container with its own table); `+` marks the label as an expandable container, not a leaf.
-- **R-ends-electric** — a Collection's member zone **ends with an electric-list marker** — `...` (compact auto), `| --- | |` (auto-list), or trailing `+` group rows — so newly-added children have a defined place to land.
+**Check pattern:** the folder has a `.anchor`; parse it and confirm non-blank `slug:` and `traits:` keys.
 
-### Naming & exceptions
-- **R-name-prefix** — every file and folder inside the anchor is prefixed `{NAME}` (`{NAME} PRD.md`, `{NAME} Docs/`, nested files too) to stay collision-free in the shared Obsidian namespace. ([[FCT Naming]])
-- **R-optional-table** — a simple anchor may carry **no** dispatch table at all — frontmatter + H1 + summary are sufficient.
+**Why:** an empty `.anchor` makes breadcrumb inference skip the anchor and jump to its grandparent (the OBSK incident).
+
+### RULE R-anchor-page-02 — Page filename equals the slug (checked)
+
+The entry page is named `{slug}.md` — the filename matches the `.anchor` slug (the H1's readable name may differ).
+
+**Check pattern:** `basename(page) == slug + ".md"`.
+
+### RULE R-anchor-page-03 — YAML `description:` present (checked)
+
+The page opens with YAML frontmatter carrying a one-line `description:`.
+
+**Check pattern:** frontmatter parses; `description` key present and non-empty. Inline `desc::` is a violation (deprecated → migrate to YAML).
+
+### RULE R-anchor-page-04 — `traits:` declares the kind (stated)
+
+`traits:` names the anchor kind (`[Code]`, `[skill]`, `Collection`, …); the kind gates which rules below apply (design row, member zone, no-track-row).
+
+### RULE R-anchor-page-05 — H1 is `{slug} - {Full Name}` (checked)
+
+The H1 leads with the slug, then ` - `, then the readable name. Bare-name anchors (no short slug) use just the name.
+
+**Check pattern:** first H1 matches `^{slug} - .+` (or equals the bare name for slugless anchors).
+
+**Why:** the H1 must both cement the jump-key and name the page ([[SKA Decisions|D06]]).
+
+## Top of page (fixed order)
+
+### RULE R-anchor-page-06 — One-sentence summary under the H1 (stated)
+
+A single sentence saying what the page *is*, at the broadest stroke. Deeper detail goes in an optional `## Overview`, never above the dispatch table.
+
+### RULE R-anchor-page-07 — No blank line after the H1 (checked)
+
+The summary sits on the line **immediately** after the H1 — no blank between them.
+
+**Check pattern:** the line following the H1 is non-blank prose, not an empty line.
+
+**Why:** the glue makes the summary read as part of the heading; blank lines precede only the figure and the table.
+
+### RULE R-anchor-page-08 — Figure optional, no heading above it (stated)
+
+A figure is optional; when present it follows the summary directly, with no heading line above it.
+
+### RULE R-anchor-page-09 — Page order is H1 → summary → (figure) → dispatch (checked)
+
+Those elements appear in that order with nothing else between them.
+
+**Check pattern:** token order from the H1 down is H1, summary line, optional `![[…]]` embed, then the dispatch table.
+
+**Why:** progressive disclosure — broadest view first, navigation last ([[DSC progressive-disclosure]]).
+
+## Dispatch table — masthead
+
+### RULE R-anchor-page-10 — Table follows the Dispatch Table spec (sampled)
+
+The dispatch table conforms to [[CAB Dispatch Table]] — a breadcrumb row then category rows.
+
+**Check pattern:** delegate to `/audit dispatch`.
+
+### RULE R-anchor-page-11 — First row is the breadcrumb cell (checked)
+
+Row one is the breadcrumb: a title cell `-[[This Page]]-`, then the parent-chain path ending in the page's `hook://` link + a one-line description.
+
+**Check pattern:** row 1 matches `\| -\[\[.+\]\]- \| → .+\(hook://.+\)`.
+
+**Why:** the breadcrumb carries the [[DSC anchor-dag]] up-edge.
+
+### RULE R-anchor-page-12 — `Related` is the first masthead row, omitted if empty (checked)
+
+`Related` is the first row after the breadcrumb when it has content, and is omitted entirely when empty — never left blank.
+
+**Check pattern:** no `Related` row with an empty value; if present, it precedes any other category row. ([[SKA Decisions|D07]])
+
+### RULE R-anchor-page-13 — `Design` row present iff a design folder exists (checked)
+
+If `{NAME} Design/` exists, a `Design` row is present as the second masthead row, members in the fixed order PRD → UX Design → CLI → API → Architecture → Decisions → Testing → Roadmap → Features.
+
+**Check pattern:** `{NAME} Design/` exists ⇔ a `Design` row exists; verify member order. ([[SKA Decisions|D07]])
+
+### RULE R-anchor-page-14 — Masthead is minimal (stated)
+
+The masthead carries only breadcrumb + Anchor + Design (if any) + Related — no ad-hoc rows the breadcrumb already covers (no `Repo` row). Anything enumerable drops to the member zone.
+
+### RULE R-anchor-page-15 — No `Track` row on skill-ecosystem anchors (checked)
+
+A skill / facet / discipline / example anchor carries no `Track` row.
+
+**Check pattern:** if `traits` ∈ {skill, facet, discipline, example}, assert no `Track` row.
+
+**Why:** their tracking is centralized in SKA ([[SKA Decisions|D08]]).
+
+### RULE R-anchor-page-16 — Wiki-links in cells escape the pipe (checked)
+
+In-cell wiki-links use `[[target\|alias]]`.
+
+**Check pattern:** no `[[…|…]]` inside a table cell with an unescaped `|`.
+
+## Member zone — Collection anchors only
+
+### RULE R-anchor-page-17 — Only a Collection enumerates members (stated)
+
+Members are listed below the masthead only on a [[Collection]] anchor; every other kind is masthead-only.
+
+### RULE R-anchor-page-18 — List ≤ ~15, groups past ~15 (sampled)
+
+A flat member list up to ~15 members; member groups (labeled `+` rows) beyond that.
+
+**Check pattern:** member count vs. layout (flat list vs. group rows). ([[DSC granularity]])
+
+### RULE R-anchor-page-19 — Group labels link down; `+` marks expandable (sampled)
+
+Each group-row label is a link *down* to that group's own container page; a trailing `+` marks the label as an expandable container, not a leaf.
+
+**Check pattern:** every group row's label cell is a wiki-link and carries `+`.
+
+### RULE R-anchor-page-20 — Member zone ends with an electric marker (checked)
+
+A Collection's member zone ends with `...` (compact auto), `| --- | |` (auto-list), or trailing `+` group rows.
+
+**Check pattern:** the last member-zone row matches one of those markers.
+
+**Why:** newly-added children need a defined place to land.
+
+## Naming & exceptions
+
+### RULE R-anchor-page-21 — Files and folders are `{NAME}`-prefixed (checked)
+
+Every file and folder inside the anchor is prefixed `{NAME}` (`{NAME} PRD.md`, `{NAME} Docs/`, nested too).
+
+**Check pattern:** list the anchor tree; assert each entry name starts with `{NAME}`. (See [[FCT Naming]] / `R-naming`.)
+
+### RULE R-anchor-page-22 — Simple anchors may carry no table (stated)
+
+A simple / leaf anchor may have no dispatch table at all — frontmatter + H1 + summary suffice.
 
 # BRIEF
 

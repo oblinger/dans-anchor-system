@@ -1,11 +1,11 @@
 ---
-description: "Facets — per-doc structural specs (Backlog, PRD, Brief, Dispatch Table, …)"
+description: "the per-doc structural specs"
 ---
 
 # FCT - Facets
 The per-doc structural specs — the shapes documents take.
 
-| -[[FCT]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [FCT](hook://p/FCT)<br>: the per-doc structural specs |
+| -[[FCT]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [FCT](hook://p/FCT)<br>: the per-doc structural specs |
 | --- | --- |
 | Related | [[SKL\|Skills]],  [[DSC\|Disciplines]],  [[LBR\|Library]],  [[OBSK\|ob-skills]],   |
 |  |  |
@@ -15,5 +15,6 @@ The per-doc structural specs — the shapes documents take.
 | [[FCT Track\|Track & execute]]+ | [[Backlog]],  [[FCT Features\|Features]],  [[FCT Inbox\|Inbox]],  [[FCT Icebox\|Icebox]],  [[FCT Questions\|Questions]],  [[FCT Messages\|Messages]],  [[FCT Log\|Log]],  [[FCT Triage\|Triage]],  [[FCT Status\|Status]],   |
 | [[FCT Dispatch\|Sub-dispatch]]+ | [[FCT Design Dispatch\|Design Dispatch]],  [[FCT Dev Dispatch\|Dev Dispatch]],  [[FCT Plan Dispatch\|Plan Dispatch]],  [[FCT Track Dispatch\|Track Dispatch]],  [[FCT User Dispatch\|User Dispatch]],   |
 | [[FCT Output\|Output & docs]]+ | [[FCT Cards\|Cards]],  [[FCT Outputs\|Outputs]],  [[FCT Documentation Site\|Documentation Site]],  [[FCT WP\|WP]],  [[Docs]],  [[TSK User Guide]],   |
+| [[FCT Document\|Document facets]]+ | [[FCT Rules\|Rule Set]],  [[CAB Brief\|Brief]],  [[CAB Discussion\|Discussion]],  [[FCT Messages\|Messages]],  [[CAB Log\|Log]],   |
 
 *Names are the as-moved `CAB <X>` spec filenames; renaming to the `FCT <name>` convention is a "from-there" edit (F158 § D cleanup).*

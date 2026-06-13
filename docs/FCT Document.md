@@ -1,0 +1,13 @@
+---
+description: "document facets — content regions a document carries"
+---
+
+# Document facets
+The doc facets — bounded content **regions authored inside a document** (vs. the structural files/folders that make up an anchor).
+
+| -[[FCT Document]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [FCT Document](hook://p/FCT%20Document)<br>: document facets — content regions a document carries |
+| --- | --- |
+| Related | [[FCT\|Facets]] (parent) |
+| Facets | [[FCT Rules\|Rule Set]],  [[CAB Brief\|Brief]],  [[CAB Discussion\|Discussion]],  [[FCT Messages\|Messages]],  [[CAB Log\|Log]],   |
+
+A document facet is a **derived/authored region**, not a file in the anchor tree: a `# RULESET` block ([[FCT Rules|Rule Set]]), a `# BRIEF` ([[CAB Brief|Brief]]), a `## Discussion` ([[CAB Discussion|Discussion]]), a `## Glossary`, a dated `Log` stream, a `Messages` region. They can appear *inside* any document; contrast the anchor & structure facets, which are whole files/folders. Worked instance of the rule-set facet: [[FEX]] → the `R-anchor-page` ruleset embedded in [[FCT Anchor Page]], and the catalog [[Rule Sets]].

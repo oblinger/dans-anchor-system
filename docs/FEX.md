@@ -16,6 +16,15 @@ A small set of complete, realistic example anchors — reused to illustrate each
 | [[Glossary]] | example **facet** — a masthead-only doc-facet spec page (`Related` only, no member zone) |
 | ... |  |
 
+## Planned fictional examples
+
+Perfect examples must be **invented**, not live — a live page gets moved, renamed, and rotted, and the example rots with it. So the gallery is a few rich, stable, *fictional* "worlds," each the canonical home for one or more anchor kinds. We model them off real pages to get the form right, then twiddle to perfect.
+
+- **Harbor** — a beefy invented **project** (a self-hosted media server). Its `Harbor Components` page is a real **grouped dispatch** — 3 groups × 3 components: *Ingest* (Scanner · Importer · Deduper), *Serve* (Streamer · Transcoder · Cache), *Operate* (Backup · Metrics · Alerts). The canonical **project-root** + **grouped-dispatch** + **sub-anchor** examples. *(building — supersedes [[Devtools]])*
+- **Espresso** — a **topic page**: a knowledge subject (beans · machines · technique), a flat **list dispatch** collection. The canonical **topic / list** example. *(building — supersedes [[Bridges]])*
+- **Snap** — an invented **skill** (`SKILL.md`). The canonical **skill** example. *(exists — [[Snap]])*
+- **Glossary** — an invented **facet** (masthead-only doc-facet). The canonical **facet** example. *(exists — [[Glossary]])*
+
 ## By facet — which example shows it
 
 Entries are **not 1:1**: one example anchor illustrates many facets (a facet's example is *part of* one of the anchors above). Most facets are pending — examples are rolled out as we go.
