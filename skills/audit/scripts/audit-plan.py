@@ -30,6 +30,9 @@ Deferred to later F161 slices (announced, not silently dropped):
 Usage:
   audit-plan <path-or-slug> [--mode anchor|doc] [--order file|rule]
                             [--json] [--cache-dir DIR] [--no-cache]
+  audit-plan <path-or-slug> --run            # execute mechanical (check::) rules
+  audit-plan <path-or-slug> --judge --model M  # emit agent-judgment manifest
+  audit-plan --record-verdict --key K --status pass|fail [--detail D]
   audit-plan --batch <dir>  [--order rule] [--json] ...
 
   <path-or-slug>  An anchor folder, an anchor slug (resolved under the repo's
@@ -491,6 +494,7 @@ def plan_one(target: Path, mode: str, cdir: Path | None, warnings: list[str],
             matched_rules.append({
                 "id": r["id"], "tier": r["tier"], "title": r["title"],
                 "selector": effective_where(r, rs), "check": r.get("check"),
+                "check_pattern": r.get("check_pattern"), "why": r.get("why"),
                 "targets": [str(p.relative_to(anchor_root)) if p != anchor_root else "{ANCHOR}"
                             for p in tgts],
                 "_target_paths": [str(p) for p in tgts],
@@ -684,6 +688,17 @@ def run_checker(check: str, target: Path, anchor_root: Path) -> tuple[str, str]:
         return "error", f"{type(e).__name__}: {e}"
 
 
+def _content_hash(tp: Path) -> str:
+    """Content hash of a target — file bytes, or (for an anchor-dir target) its
+    sorted child-name list (the structure a `anchor`-scope checker inspects)."""
+    try:
+        if tp.is_file():
+            return hashlib.sha256(tp.read_bytes()).hexdigest()[:12]
+        return hashlib.sha256(str(sorted(p.name for p in tp.iterdir())).encode()).hexdigest()[:12]
+    except OSError:
+        return "0"
+
+
 def _verdict_cache_get(cdir: Path, key: str):
     fp = cdir / "verdicts" / f"{key}.json"
     if fp.is_file():
@@ -713,12 +728,7 @@ def execute_plan(plan: dict, cdir: Path | None) -> dict:
             body_hash = hashlib.sha256(f"{r['id']}|{r['check']}".encode()).hexdigest()[:12]
             for disp, tgt in zip(r["targets"], r["_target_paths"]):
                 tp = Path(tgt)
-                try:
-                    chash = hashlib.sha256(tp.read_bytes() if tp.is_file()
-                                           else str(sorted(p.name for p in tp.iterdir())).encode()
-                                           ).hexdigest()[:12]
-                except OSError:
-                    chash = "0"
+                chash = _content_hash(tp)
                 key = f"{r['id']}-{body_hash}-{chash}"
                 cached = _verdict_cache_get(cdir, key) if cdir else None
                 if cached:
@@ -746,6 +756,83 @@ def render_verdicts(report: dict) -> str:
     return "\n".join(out)
 
 
+# ── Stage 3: agent-judge scaffolding (manifest + verdict record) ─────────────
+#
+# The mechanical executor (--run) handles every rule with a known `check::`.
+# The residue — `stated` rules, `sampled`/`checked` rules with no usable checker —
+# needs agent judgment. `audit-plan <target> --judge` emits a JSON manifest of
+# exactly those (rule × target) tasks, pre-filtered by the verdict cache, each with
+# the full Q3 cache key `(rule-id, rule-body-hash, target-content-hash, model-id)`.
+# The driving agent reads each task's rule body, judges its target, then persists
+# the verdict via `audit-plan --record-verdict --key <key> --status <s>`. A re-run
+# with unchanged rule + target + model serves the verdict from cache (zero agent
+# work) — the same key the agent wrote under.
+
+def _judge_body_hash(rule: dict) -> str:
+    """Per-rule body hash over what the agent judges against (the flat-rule view)."""
+    h = hashlib.sha256()
+    h.update(f"{rule['id']}|{rule.get('tier')}|{rule.get('title')}|"
+             f"{rule.get('check_pattern')}|{rule.get('why')}".encode())
+    return h.hexdigest()[:12]
+
+
+def _needs_judgment(rule: dict) -> bool:
+    """A rule needs the agent iff it isn't mechanically executable and isn't
+    awareness-only (`tracked`). Mechanical = a `check::` naming a known checker."""
+    if rule["tier"] == "tracked":
+        return False
+    chk = rule.get("check")
+    if chk and chk.split()[0] in CHECKERS:
+        return False
+    return True
+
+
+def judge_manifest(plan: dict, cdir: Path | None, model: str) -> dict:
+    """Emit the agent-judgment task list, pre-filtered by the verdict cache."""
+    tasks, cached = [], []
+    for g in plan["groupings"]:
+        for r in g["rules"]:
+            if not _needs_judgment(r):
+                continue
+            body_hash = _judge_body_hash(r)
+            for disp, tgt in zip(r["targets"], r["_target_paths"]):
+                chash = _content_hash(Path(tgt))
+                key = f"{r['id']}-{body_hash}-{chash}-{model}"
+                hit = _verdict_cache_get(cdir, key) if cdir else None
+                if hit:
+                    cached.append({"rule": r["id"], "target": disp, "key": key, **hit})
+                    continue
+                tasks.append({
+                    "rule": r["id"], "ruleset": g["ruleset"], "tier": r["tier"],
+                    "title": r["title"], "selector": r["selector"],
+                    "check_pattern": r.get("check_pattern"), "why": r.get("why"),
+                    "flat_file": g["flat_file"], "source": g["source"],
+                    "target": disp, "target_path": tgt, "key": key,
+                })
+    return {"model": model, "tasks": tasks, "cached": cached,
+            "task_count": len(tasks), "cached_count": len(cached)}
+
+
+def record_verdict(cdir: Path, key: str, status: str, detail: str) -> None:
+    """Persist an agent verdict under its Q3 cache key (used by --record-verdict)."""
+    _verdict_cache_put(cdir, key, {"status": status, "detail": detail})
+
+
+def render_manifest(man: dict) -> str:
+    out = [f"# agent-judge manifest — model {man['model']}  ·  "
+           f"{man['task_count']} to judge  ·  {man['cached_count']} cached", ""]
+    if not man["tasks"]:
+        out.append("_no judgment tasks — all mechanical or cached._")
+    for t in man["tasks"]:
+        out.append(f"## {t['rule']} — {t['target']}  ({t['ruleset']}, {t['tier']})")
+        out.append(f"- {t['title']}")
+        if t.get("check_pattern"):
+            out.append(f"- check: {t['check_pattern']}")
+        out.append(f"- record with: `--record-verdict --key {t['key']} --status <pass|fail> --detail \"…\"`")
+        out.append("")
+    return "\n".join(out)
+
+
 # ── CLI ─────────────────────────────────────────────────────────────────────
 
 def resolve_target(arg: str) -> Path:
@@ -769,11 +856,29 @@ def main(argv):
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--run", action="store_true",
                     help="execute the mechanical (check::) rules and report verdicts")
+    ap.add_argument("--judge", action="store_true",
+                    help="emit the agent-judgment manifest (residue after --run, cache-filtered)")
+    ap.add_argument("--model", default="unknown",
+                    help="model-id for the judgment verdict cache key (Q3)")
+    ap.add_argument("--record-verdict", action="store_true",
+                    help="persist one agent verdict: --key K --status pass|fail [--detail D]")
+    ap.add_argument("--key")
+    ap.add_argument("--status", choices=("pass", "fail", "error"))
+    ap.add_argument("--detail", default="")
     ap.add_argument("--cache-dir")
     ap.add_argument("--no-cache", action="store_true")
     args = ap.parse_args(argv)
 
     cdir = None if args.no_cache else cache_dir(args.cache_dir)
+
+    if args.record_verdict:
+        if not args.key or not args.status:
+            ap.error("--record-verdict requires --key and --status")
+        if cdir is None:
+            ap.error("--record-verdict needs a cache (do not pass --no-cache)")
+        record_verdict(cdir, args.key, args.status, args.detail)
+        print(f"recorded {args.status} for {args.key}")
+        return 0
 
     if args.batch:
         root = Path(args.batch).expanduser().resolve()
@@ -808,6 +913,13 @@ def main(argv):
             print(json.dumps(report, indent=2))
         else:
             print(render_verdicts(report))
+        return 0
+    if args.judge:
+        man = judge_manifest(plan, cdir, args.model)
+        if args.json:
+            print(json.dumps(man, indent=2))
+        else:
+            print(render_manifest(man))
         return 0
     if args.json:
         print(json.dumps(plan, indent=2))
