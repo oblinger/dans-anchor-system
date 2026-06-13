@@ -136,6 +136,7 @@ If a rule is universal (applies to every Log, every PRD, every Testing doc), it 
 
 # RULESET R-markdown
 include::
+where:: file:*.md
 description:: Mechanical + authoring rules for every markdown document; cited by every facet and skill that produces markdown.
 
 Embedded rule set for the markdown discipline. Adoption is implicit — every markdown doc in the vault is subject to these rules, no explicit `include::` needed in `{NAME} Decisions.md`. (The catalog still lists R-markdown as a child of R-facet umbrella for completeness.)
@@ -181,6 +182,7 @@ Named lists and prose use the em-dash character. Double-hyphen `--` doesn't auto
 **Why:** consistency; the em-dash signals a named-list bullet visually.
 
 ### RULE R-markdown-06 — Dataview inline fields have no `::` in the value (checked)
+check:: regex_absent ^[a-z][a-z0-9_-]*::[^\n]*::[^\n]*$
 
 For any `^<key>:: <value>` line, the value contains no `::` tokens (which would collide with the Dataview parser).
 

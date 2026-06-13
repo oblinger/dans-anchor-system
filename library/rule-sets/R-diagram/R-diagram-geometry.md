@@ -11,6 +11,7 @@ A diagram that violates these is broken, not stylistically suboptimal.
 Factored from [[R-diagram]] 2026-06-09.
 
 ### RULE R-diagram-geometry-01 — No box-on-box overlap (checked)
+check:: svg_geometry_overlap
 
 No two opaque container elements (`<rect>`, `<ellipse>`, `<polygon>` acting as boxes) have intersecting bounding boxes, except when one is a strict parent container of the other (containment is allowed; overlap is not).
 
@@ -51,6 +52,7 @@ Every label (`<text>` near an arrow or box but not the box's primary title) is v
 **Why:** automatic-label-placement literature (Imhof, cartographic labeling) makes proximity-disambiguation the foundational rule. Otherwise, the reader plays a guessing game.
 
 ### RULE R-diagram-geometry-06 — No label-label collision (checked)
+check:: svg_label_collision
 
 No two `<text>` elements have overlapping bounding boxes.
 

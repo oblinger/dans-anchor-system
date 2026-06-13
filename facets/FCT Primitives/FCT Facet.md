@@ -34,6 +34,7 @@ Facets are one of the two kinds of [[CAB Aspects|Aspect]] — the narrow, file-b
 
 # RULESET R-facet-spec
 include::
+where:: file:facets/FCT *.md
 description:: The rules for authoring a facet — what every `FCT <Name>.md` (a facet definition) must contain and conform to. **Distinct from the umbrella [[R-facet]]**, which aggregates each materialized facet's *own* embedded rules (so an anchor's `{NAME} Backlog.md`, `{NAME} Testing.md`, … get audited); `R-facet-spec` instead governs the **facet-spec documents themselves**, in the `facets/` catalog.
 
 Embedded here per the [[F133 — Rule sets folder convention + facet embedding|F133]] convention. Tiers: **checked** (mechanically verifiable), **sampled** (spot-checked), **stated** (a principle the author honors). The authoritative model these rules enforce is [[CAB Aspects]] § Facet + § Spec-doc structure.
@@ -58,11 +59,13 @@ Every facet spec has a wiki-link row in [[FCT Facets]], in the semantic group ma
 ## Anchor-page top (a facet spec is itself an anchor page)
 
 ### RULE R-facet-spec-04 — Frontmatter `description:` present (checked)
+check:: frontmatter_has description
 The file opens with YAML frontmatter carrying a non-empty one-line `description:`.
 **Check pattern:** frontmatter block exists with a `description:` value.
 **Why:** the description is what surfaces in dispatch tables and search; without it the facet is a blank row.
 
 ### RULE R-facet-spec-05 — H1 → one-line summary → dispatch table (checked)
+check:: facet_dispatch_top
 The H1 is immediately followed (no blank line) by a one-sentence summary, then a blank line, then the dispatch table whose first row is the breadcrumb.
 **Check pattern:** the line after the H1 is prose (not blank, not a table); a breadcrumb dispatch table follows.
 **Why:** the standard anchor-page top — a facet spec is an anchor page and must be navigable like one (per [[FCT Anchor Page]], F060).
@@ -115,6 +118,7 @@ The spec names which skills write/read the facet and which audits check it (in p
 **Why:** a facet nobody writes, reads, or checks is dead structure; the attach list is how behavior finds the facet.
 
 ### RULE R-facet-spec-15 — Triggers section only when triggers are declared (checked)
+check:: triggers_section_iff_declared
 A `## Triggers` section appears **only** when the facet declares behavioral triggers, with an H3 per trigger type (`### compact`, `### markdown-write`) carrying the agent-read prose (per [[CAB Aspects]] § Triggers, F091).
 **Check pattern:** if `## Triggers` is present, it has ≥ 1 typed H3; if the facet declares no triggers, the section is absent (not empty).
 **Why:** triggers are anchor-resident and lazily resolved from the body H3s; an empty or malformed Triggers section misfires the resolution.

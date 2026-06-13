@@ -89,6 +89,7 @@ Files at the vault root or in vault-meta folders (Atlas, MY, etc.) that are genu
 **Why:** these files exist *because* they're not scoped to any single anchor. Prefixing them with a slug would be a category error.
 
 ### RULE R-naming-03 — Facet-sanctioned unique patterns exempt (checked)
+check:: name_slug_prefixed
 
 Files matching a facet-sanctioned alternative pattern are exempt from the slug-prefix default. The canonical allowlist:
 

@@ -127,6 +127,7 @@ description:: Structural rules for the {NAME} Log facet — folder shape, entry 
 Embedded rule set for the Log facet, co-located with the facet spec above per [[F133 — Rule sets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella.
 
 ### RULE R-log-01 — Log path is `{NAME} Log/` or `{NAME} Log.md` (checked)
+check:: log_path_exists
 
 The log lives at `{NAME}/{NAME} Log/` (folder form) or `{NAME}/{NAME} Log.md` (single-file form). Not under Track, not under Docs, not at the vault root.
 
@@ -135,6 +136,7 @@ The log lives at `{NAME}/{NAME} Log/` (folder form) or `{NAME}/{NAME} Log.md` (s
 **Why:** Logs are anchor-scoped peers of Backlog and Roadmap; location predictability matters for the agent's discoverability and for users browsing anchor folders.
 
 ### RULE R-log-02 — Folder-form has a `{NAME} Log.md` dispatch file (checked)
+check:: log_dispatch_file_present
 
 When the log is folder-form, the folder contains a `{NAME} Log.md` whose H1 is `# {NAME} Log`.
 
@@ -143,6 +145,7 @@ When the log is folder-form, the folder contains a `{NAME} Log.md` whose H1 is `
 **Why:** the dispatch file is the entry point — without it, the folder is a directory listing with no index.
 
 ### RULE R-log-03 — Entry filename matches `YYYY-MM-DD <topic>` (sampled)
+check:: log_entry_filenames
 
 Every entry file (any extension) matches one of these patterns:
 - `^\d{4}-\d{2}-\d{2} .+\.(md|docx|pptx|pdf|jpeg|jpg|png|txt)$` (full date)
@@ -162,6 +165,7 @@ Log entries describe what *happened* on the day. They do not contain spec defini
 **Why:** specs evolve and need to be the single source of truth. If a Log entry restates a spec, the entry becomes silently stale when the spec changes.
 
 ### RULE R-log-05 — Dispatch table is newest-first (sampled)
+check:: log_dispatch_newest_first
 
 The `{NAME} Log.md` dispatch table lists entries with the **newest entry at top**, working backwards in time.
 
@@ -178,6 +182,7 @@ Once a row is added to the dispatch table for an entry, it stays. Don't delete r
 **Why:** Logs are historical record. Deleted rows are revisionist; they make it impossible to reconstruct what was thought when.
 
 ### RULE R-log-07 — No `Brief` carrying log-format rules (checked)
+check:: regex_absent ^#\s+BRIEF
 
 The `{NAME} Log.md` dispatch page does NOT contain a `# BRIEF` second-H1 (or `Brief` sidecar file) that restates how Logs work. The rules for how Logs work live in this facet (CAB Log), not on every per-anchor Log dispatch page.
 
@@ -186,6 +191,7 @@ The `{NAME} Log.md` dispatch page does NOT contain a `# BRIEF` second-H1 (or `Br
 **Why:** the Brief discipline is for anchor-specific operational content, not for restating shared facet rules. Per-anchor restatement of facet rules drifts when the facet evolves.
 
 ### RULE R-log-08 — Anchor page links to `[[{NAME} Log]]` (sampled)
+check:: log_anchor_page_link
 
 The anchor's main page (`{NAME}.md`) carries a dispatch row pointing at `[[{NAME} Log]]`.
 

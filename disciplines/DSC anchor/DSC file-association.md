@@ -148,6 +148,7 @@ When extracted to method 2 or 3, the parent links to it from its dispatch table 
 **Why:** the link makes the extracted association discoverable; the simultaneous H1 removal enforces one-form-per-parent.
 
 ### RULE R-file-association-07 — Sibling-folder shape (checked)
+check:: file_association_folder_structure
 
 Method 3: the folder `{Parent} {Facet}s/` contains an anchor file `{Parent} {Facet}s.md` (H1 = filename) with a dispatch table of all items, PLUS one file per item. (Per-item file naming is dimension-specific — dated streams add an ISO prefix per [[R-dated-entry-stream]].)
 

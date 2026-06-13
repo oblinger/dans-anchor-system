@@ -78,11 +78,13 @@ The facet does NOT re-explain the three methods. The discipline is canonical for
 # RULESET R-dated-entry-stream
 
 include:: [[DSC file-association#RULESET R-file-association|R-file-association]]
+where:: sentinel: ^## \d{4}-\d{2}-\d{2} —
 description:: Rules ADDED by the dated specialization on top of [[R-file-association]] — newest-first ordering + prepend immutability, the parallel-entry-skeleton invariant, and ISO-date entry-file naming.
 
 Embedded rule set for the dated-entry-stream specialization, co-located with the spec above per [[F133 — Rule sets folder convention + facet embedding|F133]]. The **general** association rules (three methods, cardinality→placement, naming, migration, one-form, linkage, folder shape, method declaration) live in [[R-file-association]] and are inherited via the `include::` above (promoted there per F154); only the **dated extras** are stated here. Catalog stub at [[R-dated-entry-stream]] under [[R-doc]].
 
 ### RULE R-dated-entry-stream-01 — Reverse chronological, newest-first, prepend-immutable (checked)
+check:: dated_entries_reverse_chronological
 
 Entries are ordered newest-first by date; new entries **prepend**, never append; recorded entries are not edited after their decision/outcome lands (the stream is a ledger).
 
@@ -99,6 +101,7 @@ Every entry within one facet's stream follows the same H3 sub-structure. The ske
 **Why:** uniform skeletons make the stream scannable. Reading a third entry should not be a fresh navigation problem.
 
 ### RULE R-dated-entry-stream-03 — Dated entry-file naming (method 3) (checked)
+check:: dated_entry_file_naming
 
 When method 3 is used for a dated stream, each per-entry file uses an ISO date prefix + em-dash + title: `YYYY-MM-DD — <Title>.md`. The H1 inside matches the title *without* the date (clean H1s; the date lives in the filename for sort order). This is the dated specialization of file-association's general sibling-folder shape ([[R-file-association]]-07).
 

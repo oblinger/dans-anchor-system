@@ -1,6 +1,7 @@
 # RULESET R-c4
 description:: C4-model semantic conventions; the "what does this diagram mean?" rules.
 include::
+where:: {ANCHOR}/**/*.svg
 
 > [!info] Provenance
 > **C4 model § Conventions** (Simon Brown) — the architecture-diagramming method that codifies "every arrow is labeled, every box has a title, every diagram has a legend." **Jacques Bertin**, *Sémiologie graphique* (1967) — the foundational text on visual variables (color, shape, size, position, texture, value, orientation) and the principle that each variable should encode exactly one semantic axis.

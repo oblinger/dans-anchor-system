@@ -35,6 +35,7 @@ Commands, backend actions, responses, and sense data all use the same `Event` ty
 **Check pattern:** look for parallel type hierarchies (Command + Event + Query) flowing through the dispatcher. Consolidating to one Event enum is the fix.
 
 ### RULE R-ob-cmd-proc-05 — Events are JSON-serializable (checked)
+check:: regex_present #\[derive\((.*Serialize.*|.*Deserialize.*)\)\]
 
 Every event can be serialized to JSON. Enables logging, replay, and future remote execution without changing types.
 

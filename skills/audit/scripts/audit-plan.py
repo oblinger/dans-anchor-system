@@ -802,6 +802,1229 @@ def chk_design_row_iff_folder(target, anchor_root, args):
     return "fail", f"Design row present but no {name} Design/ folder"
 
 
+# ── F161 batch-2 primitives (consolidated from multi-agent proposals) ────────
+#
+# Shared header/field, facet-page, ruleset, status, testing, prd, roadmap, log,
+# brief, design, dated-stream, naming, and SVG-geometry/hygiene checkers. Where
+# several proposals overlapped they were merged to one general primitive (see the
+# `renames` report). Python 3.11 target: no nested same-quote f-strings.
+
+
+# -- shared header / field helpers --------------------------------------------
+
+def _header_block(lines, h1_idx):
+    """Lines after H1 up to (not including) the first blank line."""
+    out = []
+    for i in range(h1_idx + 1, len(lines)):
+        if lines[i].strip() == "":
+            break
+        out.append(lines[i])
+    return out
+
+
+def _first_h1_idx(lines):
+    for i, ln in enumerate(lines):
+        if re.match(r"^# ", ln):
+            return i
+    return None
+
+
+def chk_header_has_field(target, anchor_root, args):
+    """Header (lines after H1, before first blank) carries `<field>::`. Arg: field."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    lines = _read(f).splitlines()
+    field = args[0] if args else "include"
+    h1_idx = _first_h1_idx(lines)
+    if h1_idx is None:
+        return "fail", "no H1"
+    for ln in _header_block(lines, h1_idx):
+        if re.match(rf"^{re.escape(field)}::", ln):
+            return "pass", ""
+    return "fail", f"header missing {field}:: line"
+
+
+def chk_description_field_line(target, anchor_root, args):
+    """`description::` present (2nd non-blank line preferred) with no `::` in value.
+    Consolidates description_field_valid / status_description_line /
+    description_field_second_line."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    nonblank = [ln for ln in _read(f).splitlines() if ln.strip()]
+    if len(nonblank) < 2:
+        return "fail", "fewer than 2 non-blank lines"
+    if not re.match(r"^# ", nonblank[0]):
+        return "fail", "first non-blank line is not H1"
+    for ln in nonblank[1:]:
+        m = re.match(r"^description::\s*(.*)$", ln)
+        if m:
+            value = m.group(1)
+            if not value:
+                return "fail", "description:: value is empty"
+            if "::" in value:
+                return "fail", "description:: value contains :: token"
+            return "pass", ""
+        # only consider the 2nd non-blank line as the required slot
+        break
+    return "fail", "second non-blank line is not 'description:: ...'"
+
+
+# -- R-facet-spec --------------------------------------------------------------
+
+def chk_facet_dispatch_top(target, anchor_root, args):
+    """H1 followed immediately (no blank) by prose, then a breadcrumb table."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    lines = _read(f).splitlines()
+    h1_idx = _first_h1_idx(lines)
+    if h1_idx is None:
+        return "fail", "no H1"
+    if h1_idx + 1 >= len(lines):
+        return "fail", "H1 at end of file"
+    nxt = lines[h1_idx + 1]
+    if nxt.strip() == "":
+        return "fail", "blank line directly after H1"
+    if nxt.lstrip().startswith("|"):
+        return "fail", "table immediately after H1 (needs prose summary first)"
+    for i in range(h1_idx + 2, min(h1_idx + 10, len(lines))):
+        if re.search(r"^\|\s*-\[\[.+?\]\]-\s*\|", lines[i]):
+            return "pass", "H1 -> prose -> breadcrumb table found"
+    return "fail", "no breadcrumb dispatch table found after summary line"
+
+
+def chk_triggers_section_iff_declared(target, anchor_root, args):
+    """## Triggers present IFF triggers declared (has typed ### H3 entries)."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    text = _read(f)
+    m = re.search(r"^## Triggers\s*$", text, re.MULTILINE)
+    if not m:
+        return "pass", "no Triggers section (implies no triggers declared)"
+    start = m.start()
+    nxt = re.search(r"^## ", text[start + 1:], re.MULTILINE)
+    end = start + 1 + nxt.start() if nxt else len(text)
+    section = text[start:end]
+    if re.search(r"^### \S+", section, re.MULTILINE):
+        return "pass", "Triggers section has typed H3 triggers"
+    return "fail", "Triggers section present but has no typed H3 entries"
+
+
+# -- R-ruleset -----------------------------------------------------------------
+
+def chk_all_rules_have_id(target, anchor_root, args):
+    """Every RULE heading matches R-<slug>-NN."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    headings = [ln for ln in _read(f).splitlines() if re.match(r"^#+\s+RULE\s+", ln)]
+    if not headings:
+        return "pass", "no rules found"
+    for h in headings:
+        if not re.search(r"R-[a-z0-9-]+-\d{2}\b", h):
+            return "fail", f"invalid rule heading: {h[:60]}"
+    return "pass", ""
+
+
+def chk_rule_numbers_unique(target, anchor_root, args):
+    """Rule ids (R-<slug>-NN) are unique within the file."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    seen = set()
+    for ln in _read(f).splitlines():
+        m = re.search(r"RULE\s+(R-[a-z0-9-]+-\d{2})\b", ln)
+        if m:
+            if m.group(1) in seen:
+                return "fail", f"duplicate rule id: {m.group(1)}"
+            seen.add(m.group(1))
+    return "pass", "" if seen else "no rules found"
+
+
+def chk_all_rules_have_tier(target, anchor_root, args):
+    """Every RULE heading ends with a (tracked|stated|sampled|checked) tier."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    headings = [ln for ln in _read(f).splitlines() if re.match(r"^#+\s+RULE\s+", ln)]
+    if not headings:
+        return "pass", "no rules found"
+    for h in headings:
+        if not re.search(r"\((tracked|stated|sampled|checked)\)\s*$", h):
+            return "fail", f"rule missing tier: {h[:60]}"
+    return "pass", ""
+
+
+def chk_checked_rules_have_pattern(target, anchor_root, args):
+    """Every (checked)/(sampled) rule body carries a **Check pattern:** field."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    lines = _read(f).splitlines()
+    missing = []
+    i = 0
+    while i < len(lines):
+        m = re.match(r"^#+\s+RULE\s+(R-[a-z0-9-]+-\d{2})", lines[i])
+        if m and re.search(r"\((checked|sampled)\)\s*$", lines[i]):
+            rule_id = m.group(1)
+            body = ""
+            i += 1
+            while i < len(lines) and not re.match(r"^#+\s+", lines[i]):
+                body += lines[i] + "\n"
+                i += 1
+            if "**Check pattern:**" not in body:
+                missing.append(rule_id)
+        else:
+            i += 1
+    if missing:
+        return "fail", "missing Check pattern: " + ", ".join(missing[:3])
+    return "pass", ""
+
+
+def chk_ruleset_no_frontmatter(target, anchor_root, args):
+    """Standalone rule-set file (# RULESET first non-blank) has no YAML frontmatter."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    lines = _read(f).splitlines()
+    first = next((ln for ln in lines if ln.strip()), None)
+    if first is None:
+        return "pass", "empty file"
+    if re.match(r"^#+\s+RULESET\s+R-", first):
+        for ln in lines:
+            if ln.strip().startswith("---"):
+                return "fail", "standalone rule-set file has YAML frontmatter"
+        return "pass", ""
+    return "pass", "not a standalone rule-set file"
+
+
+# -- R-status ------------------------------------------------------------------
+
+def chk_status_filename_valid(target, anchor_root, args):
+    """Filename is exactly '{SLUG} Status.md'."""
+    slug = _anchor_slug(anchor_root)
+    expected = f"{slug} Status.md"
+    if target.name == expected:
+        return "pass", ""
+    return "fail", f"expected {expected!r}, got {target.name!r}"
+
+
+def chk_status_in_track_folder(target, anchor_root, args):
+    """File lives in {SLUG} Track/."""
+    slug = _anchor_slug(anchor_root)
+    expected_parent = anchor_root / f"{slug} Track"
+    if target.parent == expected_parent:
+        return "pass", ""
+    return "fail", f"not in {expected_parent.name}/ folder; found in {target.parent.name}/"
+
+
+def _status_facet_lines(text):
+    """`name:: value` lines excluding description::."""
+    out = []
+    for ln in text.splitlines():
+        if re.match(r"^[a-z_]+:: ", ln) and not ln.startswith("description::"):
+            out.append(ln)
+    return out
+
+
+def chk_status_facets_ordered(target, anchor_root, args):
+    """Exactly 5 facet lines in order: prd, ux, architecture, testing, roadmap."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    facet_lines = _status_facet_lines(_read(f))
+    expected = ["prd", "ux", "architecture", "testing", "roadmap"]
+    if len(facet_lines) != 5:
+        return "fail", f"expected 5 facets, found {len(facet_lines)}"
+    names = [ln.split("::")[0].strip() for ln in facet_lines]
+    if names != expected:
+        return "fail", f"expected order {expected}, got {names}"
+    return "pass", ""
+
+
+def chk_status_cell_values_valid(target, anchor_root, args):
+    """Each facet cell value is in the ladder: none/MVP-agent/MVP-user/Full-agent/Full-user."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    valid = {"none", "MVP-agent", "MVP-user", "Full-agent", "Full-user"}
+    bad = []
+    for ln in _status_facet_lines(_read(f)):
+        parts = ln.split("::", 1)[1].strip().split()
+        if parts and parts[0] not in valid:
+            bad.append((ln.split("::")[0].strip(), parts[0]))
+    if bad:
+        return "fail", f"invalid cells: {bad}"
+    return "pass", ""
+
+
+def chk_status_nonone_cells_dated(target, anchor_root, args):
+    """Every non-'none' facet cell includes a (YYYY-MM-DD) date."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    missing = []
+    for ln in _status_facet_lines(_read(f)):
+        parts = ln.split("::", 1)[1].strip().split()
+        if parts and parts[0] != "none" and not re.search(r"\(\d{4}-\d{2}-\d{2}\)", ln):
+            missing.append(ln.split("::")[0].strip())
+    if missing:
+        return "fail", f"non-none cells missing dates: {missing}"
+    return "pass", ""
+
+
+def chk_status_user_cells_noted(target, anchor_root, args):
+    """Every *-user cell includes ' — <note>'."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    missing = []
+    for ln in _status_facet_lines(_read(f)):
+        parts = ln.split("::", 1)[1].strip().split()
+        if parts and parts[0].endswith("-user") and not re.search(r" — .+", ln):
+            missing.append(ln.split("::")[0].strip())
+    if missing:
+        return "fail", f"*-user cells missing notes: {missing}"
+    return "pass", ""
+
+
+def chk_status_track_dispatch_linked(target, anchor_root, args):
+    """{SLUG} Track.md contains a [[{SLUG} Status]] link."""
+    slug = _anchor_slug(anchor_root)
+    track = anchor_root / f"{slug} Track.md"
+    if not track.is_file():
+        return "error", f"no {track.name}"
+    pattern = rf"\[\[{re.escape(slug)} Status(?:\]\]|\|)"
+    if re.search(pattern, _read(track), re.IGNORECASE):
+        return "pass", ""
+    return "fail", f"no [[{slug} Status]] link found"
+
+
+# -- R-testing -----------------------------------------------------------------
+
+def chk_testing_filename_correct(target, anchor_root, args):
+    """File named {SLUG} Testing.md; no legacy {SLUG} Testing Strategy.md alongside."""
+    if not target.is_file():
+        return "error", "target is not a file"
+    slug = _anchor_slug(anchor_root)
+    if target.name != f"{slug} Testing.md":
+        return "fail", f"file should be '{slug} Testing.md' not '{target.name}'"
+    design_dir = anchor_root / f"{anchor_root.name} Design"
+    legacy = design_dir / f"{slug} Testing Strategy.md"
+    if legacy.is_file():
+        return "fail", f"legacy file {legacy.name} exists alongside {target.name}"
+    return "pass", ""
+
+
+def _section_body(lines, header_re, stop_re=r"^## "):
+    """Lines under the first heading matching header_re, up to next stop_re."""
+    start = None
+    for i, ln in enumerate(lines):
+        if re.match(header_re, ln):
+            start = i
+            break
+    if start is None:
+        return None
+    out = []
+    for i in range(start + 1, len(lines)):
+        if re.match(stop_re, lines[i]):
+            break
+        out.append(lines[i])
+    return out
+
+
+def chk_strategy_subsections_present_ordered(target, anchor_root, args):
+    """## Strategy has 4 H3s in order: Test Kinds, Completeness Targets, Responsibilities, Tier Mapping."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    lines = _read(f).splitlines()
+    body = _section_body(lines, r"^## Strategy\b")
+    if body is None:
+        return "fail", "no ## Strategy section"
+    required = ["### Test Kinds", "### Completeness Targets", "### Responsibilities", "### Tier Mapping"]
+    found = [req for ln in body for req in required if ln.strip().startswith(req)]
+    if found != required:
+        missing = [r for r in required if r not in found]
+        if missing:
+            return "fail", "missing: " + ", ".join(missing)
+        return "fail", f"subsections out of order: found {found}"
+    return "pass", ""
+
+
+def chk_proposed_tests_structure(target, anchor_root, args):
+    """## Proposed Tests has H3 subsections, each with a markdown table."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    lines = _read(f).splitlines()
+    pt_start = None
+    for i, ln in enumerate(lines):
+        if re.match(r"^## Proposed Tests\b", ln):
+            pt_start = i
+            break
+    if pt_start is None:
+        return "fail", "no ## Proposed Tests section"
+    h3s = []
+    for i in range(pt_start + 1, len(lines)):
+        if re.match(r"^## ", lines[i]):
+            break
+        if re.match(r"^### ", lines[i]):
+            h3s.append((i, lines[i]))
+    if not h3s:
+        return "fail", "no H3 subsections under ## Proposed Tests"
+    for h3_idx, h3_ln in h3s:
+        has_table = False
+        for j in range(h3_idx + 1, len(lines)):
+            if re.match(r"^### ", lines[j]) or re.match(r"^## ", lines[j]):
+                break
+            if re.match(r"^\|", lines[j]):
+                has_table = True
+                break
+        if not has_table:
+            return "fail", f"H3 section {h3_ln.strip()!r} has no markdown table"
+    return "pass", ""
+
+
+def _bold_item_names(lines, header_re):
+    """**Name** at start of bullets under a section heading."""
+    body = _section_body(lines, header_re, stop_re=r"^### ")
+    names = set()
+    if body:
+        for ln in body:
+            m = re.match(r"^-\s*\*\*([^*]+)\*\*", ln)
+            if m:
+                names.add(m.group(1).strip())
+    return names
+
+
+def chk_proposed_tests_subset_of_strategy(target, anchor_root, args):
+    """Every Proposed Tests H3 kind is declared in Strategy ### Test Kinds."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    lines = _read(f).splitlines()
+    test_kinds = _bold_item_names(lines, r"^### Test Kinds\b")
+    pt_start = None
+    proposed = set()
+    for i, ln in enumerate(lines):
+        if re.match(r"^## Proposed Tests\b", ln):
+            pt_start = i
+            break
+    if pt_start is not None:
+        for i in range(pt_start + 1, len(lines)):
+            if re.match(r"^## ", lines[i]):
+                break
+            if re.match(r"^### ", lines[i]):
+                proposed.add(lines[i].replace("### ", "").strip())
+    unknown = proposed - test_kinds
+    if unknown:
+        return "fail", "Proposed Tests kinds not in Strategy: " + ", ".join(sorted(unknown))
+    return "pass", ""
+
+
+def chk_all_test_kinds_have_targets(target, anchor_root, args):
+    """Every ### Test Kinds entry has a ### Completeness Targets entry."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    lines = _read(f).splitlines()
+    kinds = _bold_item_names(lines, r"^### Test Kinds\b")
+    targets = _bold_item_names(lines, r"^### Completeness Targets\b")
+    missing = kinds - targets
+    if missing:
+        return "fail", "Test kinds without targets: " + ", ".join(sorted(missing))
+    return "pass", ""
+
+
+def _proposed_tests_rows(lines):
+    """Yield table-row lines under ## Proposed Tests."""
+    pt_start = None
+    for i, ln in enumerate(lines):
+        if re.match(r"^## Proposed Tests\b", ln):
+            pt_start = i
+            break
+    if pt_start is None:
+        return None
+    rows = []
+    for i in range(pt_start + 1, len(lines)):
+        if re.match(r"^## ", lines[i]):
+            break
+        if re.match(r"^\|", lines[i]):
+            rows.append(lines[i])
+    return rows
+
+
+def chk_proposed_tests_rows_have_spec(target, anchor_root, args):
+    """Every Proposed Tests table row has a non-empty last (Spec) cell."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    rows = _proposed_tests_rows(_read(f).splitlines())
+    if rows is None:
+        return "fail", "no ## Proposed Tests section"
+    for ln in rows:
+        cells = [c.strip() for c in ln.split("|")[1:-1]]
+        if not cells:
+            continue
+        if re.match(r"^[\s:-]+$", cells[-1]):  # separator row
+            continue
+        if not cells[-1] or cells[-1] == "-":
+            return "fail", f"row has empty Spec cell: {ln[:60]}"
+    return "pass", ""
+
+
+def chk_spec_cells_format_valid(target, anchor_root, args):
+    """Proposed Tests Spec cells are [[wiki-link]] or [bracket], not inline prose."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    rows = _proposed_tests_rows(_read(f).splitlines())
+    if rows is None:
+        return "fail", "no ## Proposed Tests section"
+    for ln in rows:
+        cells = [c.strip() for c in ln.split("|")[1:-1]]
+        if not cells:
+            continue
+        spec = cells[-1]
+        if not spec or spec == "-" or re.match(r"^[\s:-]+$", spec):
+            continue
+        if not re.match(r"^\[\[.+\]\]$", spec) and not re.match(r"^\[[^\]]+\]$", spec):
+            return "fail", f"Spec cell invalid (not wiki-link or bracket): {spec}"
+    return "pass", ""
+
+
+def chk_status_field_valid(target, anchor_root, args):
+    """Frontmatter status: in drafting|in-review|accepted."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    fm = _frontmatter(_read(f))
+    if fm is None:
+        return "fail", "no YAML frontmatter"
+    m = re.search(r"^status\s*:\s*(.+)$", fm, re.MULTILINE)
+    if not m:
+        return "fail", "frontmatter missing status: field"
+    value = m.group(1).strip().strip("\"'")
+    if value not in ("drafting", "in-review", "accepted"):
+        return "fail", f"status value {value!r} not valid"
+    return "pass", ""
+
+
+# -- R-anchor-page (extras) ----------------------------------------------------
+
+def chk_no_track_row_if_ecosystem_traits(target, anchor_root, args):
+    """If .anchor traits include skill/facet/discipline/example, assert no Track row."""
+    dot = anchor_root / ".anchor"
+    if not dot.is_file():
+        return "error", "no .anchor file"
+    traits = _read(dot)
+    if not any(t in traits for t in ("skill", "facet", "discipline", "example")):
+        return "pass", "not an ecosystem anchor"
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file to inspect"
+    if re.search(r"\|\s*\[?\[?Track\]?\]?\s*\|", _read(f)):
+        return "fail", "Track row present on ecosystem anchor"
+    return "pass", ""
+
+
+def chk_all_files_folders_prefixed_with_name(target, anchor_root, args):
+    """Every file/folder inside the anchor is prefixed with the anchor name."""
+    anchor_name = anchor_root.name
+    slug = _anchor_slug(anchor_root)
+    exempt = {f"{slug}.md", f"{anchor_name}.md", ".anchor"}
+    violations = []
+    for item in anchor_root.rglob("*"):
+        if "/.git/" in str(item):
+            continue
+        if item.name in exempt:
+            continue
+        if not item.name.startswith(anchor_name):
+            violations.append(item.name)
+    if violations:
+        more = "..." if len(violations) > 5 else ""
+        return "fail", "unprefixed items: " + ", ".join(violations[:5]) + more
+    return "pass", ""
+
+
+# -- R-prd ---------------------------------------------------------------------
+
+def chk_file_path_matches_prd_locations(target, anchor_root, args):
+    """PRD at {NAME} Design/{NAME} PRD.md or {NAME} Design/{NAME} PRD/{NAME} PRD.md."""
+    if not target.is_file():
+        return "pass", "not a file"
+    name = anchor_root.name
+    single = anchor_root / f"{name} Design" / f"{name} PRD.md"
+    folder = anchor_root / f"{name} Design" / f"{name} PRD" / f"{name} PRD.md"
+    if target.resolve() in (single.resolve(), folder.resolve()):
+        return "pass", ""
+    return "fail", f"PRD at {target.relative_to(anchor_root)} not at a canonical location"
+
+
+def chk_h1_no_frontmatter(target, anchor_root, args):
+    """No YAML frontmatter; H1 is the first non-blank line.
+    Consolidates body_only_no_frontmatter (R-prd) + h1_no_frontmatter (R-completed-roadmap)."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    text = _read(f)
+    if text.lstrip().startswith("---"):
+        return "fail", "YAML frontmatter present"
+    for ln in text.splitlines():
+        if ln.strip():
+            if re.match(r"^# \S", ln):
+                return "pass", ""
+            return "fail", f"first non-blank line is not H1: {ln!r}"
+    return "fail", "file is empty or all blank"
+
+
+def _h2_headings(text):
+    return [m.group(1).strip() for ln in text.splitlines()
+            for m in [re.match(r"^## (.+)$", ln)] if m]
+
+
+def chk_required_sections_in_order(target, anchor_root, args):
+    """Required H2s present and in order. Args override defaults (PRD set)."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    required = args if args else ["Overview", "Design Workflow", "Goals", "Non-Goals", "User Stories"]
+    h2s = _h2_headings(_read(f))
+    missing = [r for r in required if r not in h2s]
+    if missing:
+        return "fail", "missing required sections: " + ", ".join(missing)
+    indices = [h2s.index(r) for r in required]
+    if indices != sorted(indices):
+        return "fail", f"required sections not in order: {h2s}"
+    return "pass", ""
+
+
+def chk_user_stories_use_rid_numbering(target, anchor_root, args):
+    """## User Stories H3s use US-{SLUG}-N: (inline form; folder form deferred)."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    text = _read(f)
+    if re.search(r"\[\[\s*[^\]]*\s*Stories\s*\]\]", text):
+        return "pass", "folder form (deferred to R-stories)"
+    slug = _anchor_slug(anchor_root)
+    in_stories = False
+    ids = []
+    for ln in text.splitlines():
+        if re.match(r"^## User Stories", ln):
+            in_stories = True
+            continue
+        if in_stories and re.match(r"^## ", ln):
+            break
+        if in_stories:
+            m = re.match(r"^### (US-[\w-]+): ", ln)
+            if m:
+                ids.append(m.group(1))
+    bad = [s for s in ids if not re.match(rf"^US-{re.escape(slug)}-\d+$", s)]
+    if bad:
+        return "fail", f"user stories not in US-{slug}-N format: " + ", ".join(bad)
+    return "pass", ""
+
+
+def chk_no_legacy_open_questions_file(target, anchor_root, args):
+    """No legacy {NAME} Open Questions.md in {NAME} Design/."""
+    name = anchor_root.name
+    legacy = anchor_root / f"{name} Design" / f"{name} Open Questions.md"
+    if legacy.is_file():
+        return "fail", f"legacy Open Questions file exists: {legacy.relative_to(anchor_root)}"
+    return "pass", ""
+
+
+def chk_design_workflow_modern_names(target, anchor_root, args):
+    """## Design Workflow uses modern phase names, not legacy ones."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    body = _section_body(_read(f).splitlines(), r"^## Design Workflow")
+    if body is None:
+        return "fail", "no ## Design Workflow section"
+    workflow = "\n".join(body)
+    old = [n for n in ("System Design", "Testing Strategy", "Principles")
+           if re.search(re.escape(n), workflow, re.IGNORECASE)]
+    if old:
+        return "fail", "Design Workflow contains old phase names: " + ", ".join(old)
+    if not any(n in workflow for n in ("Architecture", "Testing", "Decisions")):
+        return "fail", "Design Workflow references no modern phase names"
+    return "pass", ""
+
+
+def chk_dispatch_table_stories_row(target, anchor_root, args):
+    """Dispatch table has a Stories row displaying '{NAME} Stories'."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    text = _read(f)
+    name = anchor_root.name
+    table = []
+    in_table = False
+    for ln in text.splitlines():
+        if ln.lstrip().startswith("|"):
+            in_table = True
+            table.append(ln)
+        elif in_table:
+            break
+    if not table:
+        return "fail", "no dispatch table found"
+    joined = "\n".join(table)
+    p1 = re.search(rf"\[\[{re.escape(name)} PRD#User Stories\s*\|\s*{re.escape(name)} Stories\]\]", joined)
+    p2 = re.search(rf"\[\[{re.escape(name)} Stories\]\]", joined)
+    if (p1 or p2) and re.search(rf"{re.escape(name)} Stories", joined):
+        return "pass", ""
+    return "fail", f"no Stories row with proper-name display ({name} Stories)"
+
+
+# -- R-roadmap -----------------------------------------------------------------
+
+def chk_file_exists(target, anchor_root, args):
+    """A file (arg[0], with {NAME} substituted) exists under anchor_root."""
+    if not args:
+        return "error", "file_exists requires a path argument"
+    slug = _anchor_slug(anchor_root)
+    pattern = args[0].replace("{NAME}", slug)
+    if (anchor_root / pattern).is_file():
+        return "pass", f"{pattern} exists"
+    return "fail", f"{pattern} does not exist"
+
+
+def chk_milestone_checkbox(target, anchor_root, args):
+    """Every M-prefixed milestone H2 carries a checkbox [x], [ ], or [~]."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file to inspect"
+    failures = []
+    for i, ln in enumerate(_read(f).splitlines(), 1):
+        if re.match(r"^## (M-|M\d)", ln) and not re.match(r"^## \[[x ~]\] ", ln):
+            failures.append(f"line {i}: missing checkbox")
+    return ("pass", "") if not failures else ("fail", "; ".join(failures[:3]))
+
+
+def chk_milestone_status_line(target, anchor_root, args):
+    """[x]/[~] milestones carry a **Status**: line within ~10 lines."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file to inspect"
+    lines = _read(f).splitlines()
+    failures = []
+    for i, ln in enumerate(lines):
+        if re.match(r"^## \[[x~]\]", ln):
+            if not any(re.match(r"^\*\*Status\*\*:", lines[j])
+                       for j in range(i + 1, min(i + 11, len(lines)))):
+                failures.append(f"line {i + 1}: milestone missing Status line")
+    return ("pass", "") if not failures else ("fail", "; ".join(failures[:3]))
+
+
+def chk_milestone_named_form(target, anchor_root, args):
+    """Milestones use M-<Name> form (unless file is legacy-marked)."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file to inspect"
+    text = _read(f)
+    if "<!-- legacy-numbered-milestones -->" in text:
+        return "pass", "legacy-marked"
+    failures = []
+    for i, ln in enumerate(text.splitlines(), 1):
+        if re.match(r"^(##|###) ", ln):
+            m = re.search(r"\bM(\d)", ln)
+            if m:
+                failures.append(f"line {i}: pure-numbered M{m.group(1)} (use M-<Name>)")
+    return ("pass", "") if not failures else ("fail", "; ".join(failures[:3]))
+
+
+def chk_milestone_section_separator(target, anchor_root, args):
+    """Milestone bodies end with a '### .' separator before the next nearby H2."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file to inspect"
+    lines = _read(f).splitlines()
+    h2 = [i for i, ln in enumerate(lines) if re.match(r"^## ", ln)]
+    if len(h2) < 2:
+        return "pass", "fewer than 2 H2 milestones"
+    failures = []
+    for k in range(len(h2) - 1):
+        start, nxt = h2[k], h2[k + 1]
+        if any(re.match(r"^### \.\s*$", lines[j]) for j in range(start + 1, min(start + 50, nxt))):
+            continue
+        if nxt - start < 20:
+            failures.append(f"H2 at line {start + 1}: no ### . separator before next H2")
+    return ("pass", "") if not failures else ("fail", "; ".join(failures[:3]))
+
+
+# -- R-log ---------------------------------------------------------------------
+
+def chk_log_path_exists(target, anchor_root, args):
+    """{SLUG} Log/ folder or {SLUG} Log.md exists under the anchor."""
+    slug = _anchor_slug(anchor_root)
+    if (anchor_root / f"{slug} Log").is_dir() or (anchor_root / f"{slug} Log.md").is_file():
+        return "pass", f"found {slug} Log"
+    return "fail", f"no {slug} Log/ or {slug} Log.md under anchor"
+
+
+def chk_log_dispatch_file_present(target, anchor_root, args):
+    """If {SLUG} Log/ exists it contains {SLUG} Log.md with H1 '{SLUG} Log'."""
+    slug = _anchor_slug(anchor_root)
+    dir_form = anchor_root / f"{slug} Log"
+    if not dir_form.is_dir():
+        return "pass", "not folder-form"
+    dispatch = dir_form / f"{slug} Log.md"
+    if not dispatch.is_file():
+        return "fail", f"folder-form exists but no {slug} Log.md dispatch file"
+    if re.search(rf"^# {re.escape(slug)} Log\s*$", _read(dispatch), re.MULTILINE):
+        return "pass", ""
+    return "fail", f"dispatch H1 is not '# {slug} Log'"
+
+
+def chk_log_entry_filenames(target, anchor_root, args):
+    """Entry files in {SLUG} Log/ match YYYY-MM-DD / YYYY-MM / YYYY date prefixes."""
+    slug = _anchor_slug(anchor_root)
+    dir_form = anchor_root / f"{slug} Log"
+    if not dir_form.is_dir():
+        return "pass", "not folder-form"
+    dispatch_name = f"{slug} Log.md"
+    ext = r"(md|docx|pptx|pdf|jpeg|jpg|png|txt)"
+    file_pats = [rf"^\d{{4}}-\d{{2}}-\d{{2}} .+\.{ext}$",
+                 rf"^\d{{4}}-\d{{2}} .+\.{ext}$",
+                 rf"^\d{{4}} .+\.{ext}$"]
+    dir_pats = [r"^\d{4}-\d{2}-\d{2} ", r"^\d{4}-\d{2} ", r"^\d{4} "]
+    bad = []
+    for item in dir_form.iterdir():
+        if item.name == dispatch_name or item.name.startswith("."):
+            continue
+        pats = dir_pats if item.is_dir() else file_pats
+        if not any(re.match(p, item.name) for p in pats):
+            bad.append(item.name)
+    if bad:
+        return "fail", "entries do not match pattern: " + ", ".join(bad[:3])
+    return "pass", "all entries match date pattern"
+
+
+def chk_log_dispatch_newest_first(target, anchor_root, args):
+    """Dispatch table lists log entries newest-first (non-increasing dates)."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file to inspect"
+    matches = re.findall(r"\[\[(\d{4}(?:-\d{2})?(?:-\d{2})?)\s+[^\]]*\]\]", _read(f))
+    if len(matches) < 2:
+        return "pass", "fewer than 2 entries"
+
+    def norm(d):
+        parts = d.split("-")
+        while len(parts) < 3:
+            parts.append("01")
+        return "-".join(parts)
+
+    n = [norm(m) for m in matches]
+    for i in range(len(n) - 1):
+        if n[i] < n[i + 1]:
+            return "fail", f"dispatch not newest-first: {matches[i]} before {matches[i + 1]}"
+    return "pass", ""
+
+
+def chk_log_anchor_page_link(target, anchor_root, args):
+    """Anchor entry page carries a [[{SLUG} Log]] dispatch row."""
+    slug = _anchor_slug(anchor_root)
+    ep = _entry_page(anchor_root)
+    if ep is None:
+        return "error", "no anchor entry page"
+    if re.search(rf"\[\[{re.escape(slug)}\s+Log[^\]]*\]\]", _read(ep)):
+        return "pass", ""
+    return "fail", f"no [[{slug} Log]] link in anchor page"
+
+
+# -- R-brief -------------------------------------------------------------------
+
+def chk_brief_is_last_h1(target, anchor_root, args):
+    """Exactly one '# BRIEF' H1, content after it, and it is the last H1.
+    Consolidates has_brief_section (R-facet-spec) into the stricter R-brief check."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    text = _read(f)
+    lines = text.splitlines()
+    brief_count = sum(1 for ln in lines if ln.strip() == "# BRIEF")
+    if brief_count == 0:
+        return "fail", "no '# BRIEF' heading"
+    if brief_count > 1:
+        return "fail", f"multiple '# BRIEF' headings ({brief_count})"
+    last_h1 = None
+    for i in range(len(lines) - 1, -1, -1):
+        if re.match(r"^#\s+\S", lines[i]):
+            last_h1 = i
+            break
+    if last_h1 is None or lines[last_h1].strip() != "# BRIEF":
+        return "fail", "'# BRIEF' is not the last H1"
+    m = re.search(r"^# BRIEF\s*$", text, re.MULTILINE)
+    if not text[m.end():].strip():
+        return "fail", "'# BRIEF' section is empty"
+    return "pass", ""
+
+
+def chk_brief_h1_matches_name(target, anchor_root, args):
+    """A '* Brief.md' sidecar's H1 equals its filename (without .md)."""
+    if not target.is_file() or not target.name.endswith(" Brief.md"):
+        return "pass", "not a Brief.md file"
+    expected = target.stem
+    for ln in _read(target).splitlines():
+        if ln.startswith("# "):
+            h1 = ln[2:].strip()
+            return ("pass", h1) if h1 == expected else ("fail", f"H1 {h1!r} != filename {expected!r}")
+    return "fail", "no H1 heading"
+
+
+def chk_brief_not_nested(target, anchor_root, args):
+    """Briefs don't nest: no '* Brief Brief.md', no '# BRIEF' inside a '* Brief.md'."""
+    if not target.is_file() or not target.name.endswith(" Brief.md"):
+        return "pass", "not a Brief.md file"
+    if " Brief Brief.md" in target.name:
+        return "fail", "nested brief: file named '* Brief Brief.md'"
+    if re.search(r"^# BRIEF$", _read(target), re.MULTILINE):
+        return "fail", "Brief.md file contains '# BRIEF' heading"
+    return "pass", ""
+
+
+# -- R-design ------------------------------------------------------------------
+
+def chk_design_folder_children(target, anchor_root, args):
+    """{NAME} Design/ contains required children (args are stem names, e.g. PRD)."""
+    if target.is_file():
+        return "pass", "not a folder"
+    design = anchor_root / f"{anchor_root.name} Design"
+    if not design.is_dir():
+        return "pass", "no Design folder (N/A)"
+    name = anchor_root.name
+    missing = [a for a in args
+               if not ((design / f"{name} {a}.md").is_file() or (design / f"{name} {a}").is_dir())]
+    if missing:
+        return "fail", "missing children: " + ", ".join(missing)
+    return "pass", ""
+
+
+def chk_status_facets_initialized(target, anchor_root, args):
+    """When {NAME} Design/ exists, {NAME} Track/{NAME} Status.md has the facet lines (args)."""
+    name = anchor_root.name
+    if not (anchor_root / f"{name} Design").is_dir():
+        return "pass", "no Design folder (N/A)"
+    status_file = anchor_root / f"{name} Track" / f"{name} Status.md"
+    if not status_file.is_file():
+        return "fail", f"no {status_file.relative_to(anchor_root)}"
+    text = _read(status_file)
+    missing = [a for a in args if not re.search(rf"^{re.escape(a)}\s*::", text, re.MULTILINE)]
+    if missing:
+        return "fail", "missing facet lines: " + ", ".join(missing)
+    return "pass", ""
+
+
+# -- R-file-association --------------------------------------------------------
+
+def chk_file_association_folder_structure(target, anchor_root, args):
+    """Method-3 plural folder: has {Folder}.md anchor + dispatch table linking items."""
+    if not target.is_dir():
+        return "pass", "not a directory"
+    folder = target.name
+    if not re.search(r"\s+\w+s$", folder):
+        return "pass", "not a plural-suffix folder"
+    anchor_file = target / f"{folder}.md"
+    if not anchor_file.is_file():
+        return "fail", f"method-3 folder missing anchor file {folder}.md"
+    anchor_text = _read(anchor_file)
+    if not re.search(r"\|\s*\[\[[^\]]+\]\]", anchor_text):
+        return "fail", f"anchor {folder}.md has no dispatch table with wiki-links"
+    items = [p for p in target.glob("*.md") if p != anchor_file]
+    if not items:
+        return "fail", f"method-3 folder {folder} contains no item files"
+    item_names = {p.stem for p in items}
+    links = re.findall(r"\[\[([^\]|]+)", anchor_text)
+    linked = {link.split("|")[0].split("/")[0].split("#")[0] for link in links}
+    if not item_names & linked:
+        return "fail", f"dispatch table links none of the {len(items)} item files"
+    return "pass", f"folder structure OK: {len(items)} items linked"
+
+
+# -- R-dated-entry-stream ------------------------------------------------------
+
+def chk_dated_entries_reverse_chronological(target, anchor_root, args):
+    """Inline H2 dated entries (## YYYY-MM-DD — Title) are newest-first."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file to inspect"
+    dates = []
+    for ln in _read(f).splitlines():
+        m = re.match(r"^## (\d{4}-\d{2}-\d{2}) —", ln)
+        if m:
+            dates.append(m.group(1))
+    if not dates:
+        return "pass", "no dated entries found"
+    for i in range(len(dates) - 1):
+        if dates[i] < dates[i + 1]:
+            return "fail", f"not reverse-chronological: {dates[i]} before {dates[i + 1]}"
+    return "pass", f"all {len(dates)} entries reverse-chronological"
+
+
+def chk_dated_entry_file_naming(target, anchor_root, args):
+    """Method-3 dated entry file matches 'YYYY-MM-DD — Title.md'; H1 omits the date."""
+    if target.is_dir():
+        return "pass", "directory scope"
+    m = re.match(r"^(\d{4}-\d{2}-\d{2}) — (.+)\.md$", target.name)
+    if not m:
+        return "pass", "not a dated-entry file"
+    date_str, title = m.group(1), m.group(2)
+    for ln in _read(target).splitlines():
+        if ln.startswith("# "):
+            h1 = ln[2:].strip()
+            if h1.startswith(date_str):
+                return "fail", f"H1 contains date prefix ({date_str}); expected just {title!r}"
+            if h1 == title:
+                return "pass", ""
+            return "fail", f"H1 is {h1!r}, expected {title!r}"
+    return "fail", "no H1 found in entry file"
+
+
+# -- R-messages ----------------------------------------------------------------
+
+def chk_h1_is_anchor_messages(target, anchor_root, args):
+    """H1 is '# {SLUG} Messages'."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    slug = _anchor_slug(anchor_root)
+    for ln in _read(f).splitlines():
+        if ln.startswith("# "):
+            h1 = ln[2:].strip()
+            return ("pass", h1) if h1 == f"{slug} Messages" else ("fail", f"H1 {h1!r} is not '{slug} Messages'")
+    return "fail", "no H1"
+
+
+# -- R-naming (extra) ----------------------------------------------------------
+
+def chk_folder_marker_exists(target, anchor_root, args):
+    """Every nested folder with a .anchor has a matching {folder}.md marker file."""
+    if not target.is_dir():
+        return "error", "target must be a directory"
+    failures = []
+    for folder in target.rglob("*"):
+        if not folder.is_dir() or "/.git/" in str(folder):
+            continue
+        if not (folder / ".anchor").is_file():
+            continue
+        if not (folder / f"{folder.name}.md").is_file():
+            failures.append(f"{folder.name}/")
+    if failures:
+        return "fail", "missing marker files: " + ", ".join(failures)
+    return "pass", ""
+
+
+# -- R-md ----------------------------------------------------------------------
+
+def chk_md_angle_brackets_safe(target, anchor_root, args):
+    """Angle brackets need surrounding whitespace (outside code fences/spans)."""
+    if not target.is_file():
+        return "pass", "not a file"
+    text = _read(target)
+    text = re.sub(r"```[\s\S]*?```", "", text)
+    text = re.sub(r"`[^`]*`", " ", text)
+    bad_start = re.search(r"\S<[A-Za-z_]", text)
+    bad_end = re.search(r"[A-Za-z_]>\S", text)
+    if bad_start or bad_end:
+        msgs = []
+        if bad_start:
+            msgs.append(f"\\S<[A-Za-z_] at line {text[:bad_start.start()].count(chr(10)) + 1}")
+        if bad_end:
+            msgs.append(f"[A-Za-z_]>\\S at line {text[:bad_end.start()].count(chr(10)) + 1}")
+        return "fail", "; ".join(msgs)
+    return "pass", ""
+
+
+def chk_md_table_blank_lines(target, anchor_root, args):
+    """Markdown tables need blank lines before the header and after the table."""
+    if not target.is_file():
+        return "pass", "not a file"
+    lines = _read(target).splitlines()
+    issues = []
+    i = 0
+    while i < len(lines):
+        if re.match(r"^\s*\|", lines[i]) and i + 1 < len(lines) and re.match(r"^\s*\|[\s|:-]+$", lines[i + 1]):
+            if i > 0 and lines[i - 1].strip():
+                issues.append(f"table at line {i + 1}: no blank line before header")
+            end = i + 2
+            while end < len(lines) and re.match(r"^\s*\|", lines[end]):
+                end += 1
+            if end < len(lines) and lines[end].strip():
+                issues.append(f"table at line {i + 1}: no blank line after table end (line {end + 1})")
+            i = end
+            continue
+        i += 1
+    if issues:
+        return "fail", "; ".join(issues)
+    return "pass", ""
+
+
+# -- SVG geometry / hygiene / c4 (R-diagram-geometry, R-svg-hygiene, R-c4) -----
+
+def _svg_root(target):
+    import xml.etree.ElementTree as ET
+    return ET.parse(target).getroot()
+
+
+def _svg_containers_bboxes(root):
+    """[(bbox, elem)] for rect/ellipse/polygon, namespace-agnostic."""
+    bboxes = []
+    for elem in root.iter():
+        tag = elem.tag.split("}")[-1]
+        try:
+            if tag == "rect":
+                x, y = float(elem.get("x", 0)), float(elem.get("y", 0))
+                w, h = float(elem.get("width", 0)), float(elem.get("height", 0))
+                bboxes.append(((x, y, x + w, y + h), elem))
+            elif tag == "ellipse":
+                cx, cy = float(elem.get("cx", 0)), float(elem.get("cy", 0))
+                rx, ry = float(elem.get("rx", 0)), float(elem.get("ry", 0))
+                bboxes.append(((cx - rx, cy - ry, cx + rx, cy + ry), elem))
+            elif tag == "polygon":
+                pts = [float(v) for v in elem.get("points", "").replace(",", " ").split()]
+                if pts:
+                    xs, ys = pts[0::2], pts[1::2]
+                    bboxes.append(((min(xs), min(ys), max(xs), max(ys)), elem))
+        except (ValueError, TypeError):
+            continue
+    return bboxes
+
+
+def chk_svg_geometry_overlap(target, anchor_root, args):
+    """No two opaque container bboxes partially overlap (containment is OK)."""
+    if not target.is_file() or target.suffix.lower() != ".svg":
+        return "error", "not an SVG file"
+    try:
+        bboxes = _svg_containers_bboxes(_svg_root(target))
+    except Exception as e:
+        return "error", f"{type(e).__name__}: {e}"
+
+    def intersect(b1, b2):
+        return b1[0] < b2[2] and b1[2] > b2[0] and b1[1] < b2[3] and b1[3] > b2[1]
+
+    def contains(b1, b2):
+        return b1[0] <= b2[0] and b1[1] <= b2[1] and b1[2] >= b2[2] and b1[3] >= b2[3]
+
+    for i in range(len(bboxes)):
+        for j in range(i + 1, len(bboxes)):
+            b1, b2 = bboxes[i][0], bboxes[j][0]
+            if intersect(b1, b2) and not (contains(b1, b2) or contains(b2, b1)):
+                return "fail", "overlapping containers detected"
+    return "pass", ""
+
+
+def chk_svg_label_collision(target, anchor_root, args):
+    """No two <text> bounding boxes overlap."""
+    if not target.is_file() or target.suffix.lower() != ".svg":
+        return "error", "not an SVG file"
+    try:
+        root = _svg_root(target)
+    except Exception as e:
+        return "error", f"{type(e).__name__}: {e}"
+    bboxes = []
+    for t in root.iter():
+        if t.tag.split("}")[-1] != "text":
+            continue
+        try:
+            x, y = float(t.get("x", 0)), float(t.get("y", 0))
+            fs = float(t.get("font-size", 16))
+        except (ValueError, TypeError):
+            continue
+        w = len(t.text or "") * (fs * 0.6)
+        bboxes.append((x, y - fs, x + w, y))
+
+    def intersect(b1, b2):
+        return b1[0] < b2[2] and b1[2] > b2[0] and b1[1] < b2[3] and b1[3] > b2[1]
+
+    for i in range(len(bboxes)):
+        for j in range(i + 1, len(bboxes)):
+            if intersect(bboxes[i], bboxes[j]):
+                return "fail", "text labels collide"
+    return "pass", ""
+
+
+def chk_svg_no_orphan_defs(target, anchor_root, args):
+    """Every id under <defs> is referenced by url(#id) or a #-bearing attribute."""
+    if not target.is_file() or target.suffix.lower() != ".svg":
+        return "error", "not an SVG file"
+    try:
+        text = _read(target)
+        root = _svg_root(target)
+    except Exception as e:
+        return "error", f"{type(e).__name__}: {e}"
+    defs_ids = set()
+    for elem in root.iter():
+        if elem.tag.split("}")[-1] == "defs":
+            for child in elem:
+                if child.get("id"):
+                    defs_ids.add(child.get("id"))
+    if not defs_ids:
+        return "pass", "no defs entries"
+    referenced = set(re.findall(r"url\(#([^)]+)\)", text))
+    for m in re.finditer(r'#([A-Za-z0-9_.:-]+)"', text):
+        referenced.add(m.group(1))
+    orphans = defs_ids - referenced
+    if orphans:
+        return "fail", "orphan defs ids: " + ", ".join(sorted(orphans))
+    return "pass", ""
+
+
+def chk_svg_validates_xml(target, anchor_root, args):
+    """SVG validates as well-formed XML (via xmllint, else stdlib parse)."""
+    if not target.is_file() or target.suffix.lower() != ".svg":
+        return "error", "not an SVG file"
+    import subprocess
+    try:
+        result = subprocess.run(["xmllint", "--noout", str(target)],
+                                capture_output=True, text=True, timeout=5)
+        if result.returncode == 0:
+            return "pass", ""
+        return "fail", f"xmllint exited with code {result.returncode}"
+    except FileNotFoundError:
+        try:
+            _svg_root(target)
+            return "pass", "stdlib parse (xmllint unavailable)"
+        except Exception as e:
+            return "fail", f"XML parse error: {e}"
+    except Exception as e:
+        return "error", f"validation error: {e}"
+
+
+def chk_svg_title_or_legend(target, anchor_root, args):
+    """SVG has a title (y < y_thresh, font-size >= min_font) or a legend group.
+    Args: [y_thresh=60, min_font=24]."""
+    if not target.is_file() or target.suffix.lower() != ".svg":
+        return "error", "not an SVG file"
+    try:
+        root = _svg_root(target)
+    except Exception as e:
+        return "error", f"XML parse failed: {e}"
+    y_thresh = int(args[0]) if len(args) > 0 else 60
+    min_font = int(args[1]) if len(args) > 1 else 24
+    for t in root.iter():
+        tag = t.tag.split("}")[-1]
+        if tag == "text":
+            try:
+                y = float(t.get("y", 0))
+                fs = float(t.get("font-size", 0) or 0)
+                if y < y_thresh and fs >= min_font:
+                    return "pass", f"title at y={y}, font-size={fs}"
+            except (ValueError, TypeError):
+                pass
+        elif tag == "g":
+            gid = (t.get("id") or "").lower()
+            if "legend" in gid or "key" in gid:
+                return "pass", f"legend group: {gid}"
+    return "fail", f"no title (y<{y_thresh}, font>={min_font}) or legend group"
+
+
 CHECKERS = {
     "anchor_has": chk_anchor_has,
     "entry_page_matches_slug": chk_entry_page_matches_slug,
@@ -814,6 +2037,83 @@ CHECKERS = {
     "design_row_iff_folder": chk_design_row_iff_folder,
     "regex_present": chk_regex_present,
     "regex_absent": chk_regex_absent,
+    # F161 batch-2 — shared header / field
+    "header_has_field": chk_header_has_field,
+    "description_field_line": chk_description_field_line,
+    # R-facet-spec
+    "facet_dispatch_top": chk_facet_dispatch_top,
+    "triggers_section_iff_declared": chk_triggers_section_iff_declared,
+    # R-ruleset
+    "all_rules_have_id": chk_all_rules_have_id,
+    "rule_numbers_unique": chk_rule_numbers_unique,
+    "all_rules_have_tier": chk_all_rules_have_tier,
+    "checked_rules_have_pattern": chk_checked_rules_have_pattern,
+    "ruleset_no_frontmatter": chk_ruleset_no_frontmatter,
+    # R-status
+    "status_filename_valid": chk_status_filename_valid,
+    "status_in_track_folder": chk_status_in_track_folder,
+    "status_facets_ordered": chk_status_facets_ordered,
+    "status_cell_values_valid": chk_status_cell_values_valid,
+    "status_nonone_cells_dated": chk_status_nonone_cells_dated,
+    "status_user_cells_noted": chk_status_user_cells_noted,
+    "status_track_dispatch_linked": chk_status_track_dispatch_linked,
+    # R-testing
+    "testing_filename_correct": chk_testing_filename_correct,
+    "strategy_subsections_present_ordered": chk_strategy_subsections_present_ordered,
+    "proposed_tests_structure": chk_proposed_tests_structure,
+    "proposed_tests_subset_of_strategy": chk_proposed_tests_subset_of_strategy,
+    "all_test_kinds_have_targets": chk_all_test_kinds_have_targets,
+    "proposed_tests_rows_have_spec": chk_proposed_tests_rows_have_spec,
+    "spec_cells_format_valid": chk_spec_cells_format_valid,
+    "status_field_valid": chk_status_field_valid,
+    # R-anchor-page (extras)
+    "no_track_row_if_ecosystem_traits": chk_no_track_row_if_ecosystem_traits,
+    "all_files_folders_prefixed_with_name": chk_all_files_folders_prefixed_with_name,
+    # R-prd
+    "file_path_matches_prd_locations": chk_file_path_matches_prd_locations,
+    "h1_no_frontmatter": chk_h1_no_frontmatter,
+    "required_sections_in_order": chk_required_sections_in_order,
+    "user_stories_use_rid_numbering": chk_user_stories_use_rid_numbering,
+    "no_legacy_open_questions_file": chk_no_legacy_open_questions_file,
+    "design_workflow_modern_names": chk_design_workflow_modern_names,
+    "dispatch_table_stories_row": chk_dispatch_table_stories_row,
+    # R-roadmap
+    "file_exists": chk_file_exists,
+    "milestone_checkbox": chk_milestone_checkbox,
+    "milestone_status_line": chk_milestone_status_line,
+    "milestone_named_form": chk_milestone_named_form,
+    "milestone_section_separator": chk_milestone_section_separator,
+    # R-log
+    "log_path_exists": chk_log_path_exists,
+    "log_dispatch_file_present": chk_log_dispatch_file_present,
+    "log_entry_filenames": chk_log_entry_filenames,
+    "log_dispatch_newest_first": chk_log_dispatch_newest_first,
+    "log_anchor_page_link": chk_log_anchor_page_link,
+    # R-brief
+    "brief_is_last_h1": chk_brief_is_last_h1,
+    "brief_h1_matches_name": chk_brief_h1_matches_name,
+    "brief_not_nested": chk_brief_not_nested,
+    # R-design
+    "design_folder_children": chk_design_folder_children,
+    "status_facets_initialized": chk_status_facets_initialized,
+    # R-file-association
+    "file_association_folder_structure": chk_file_association_folder_structure,
+    # R-dated-entry-stream
+    "dated_entries_reverse_chronological": chk_dated_entries_reverse_chronological,
+    "dated_entry_file_naming": chk_dated_entry_file_naming,
+    # R-messages
+    "h1_is_anchor_messages": chk_h1_is_anchor_messages,
+    # R-naming (extra)
+    "folder_marker_exists": chk_folder_marker_exists,
+    # R-md
+    "md_angle_brackets_safe": chk_md_angle_brackets_safe,
+    "md_table_blank_lines": chk_md_table_blank_lines,
+    # R-diagram-geometry / R-svg-hygiene / R-c4
+    "svg_geometry_overlap": chk_svg_geometry_overlap,
+    "svg_label_collision": chk_svg_label_collision,
+    "svg_no_orphan_defs": chk_svg_no_orphan_defs,
+    "svg_validates_xml": chk_svg_validates_xml,
+    "svg_title_or_legend": chk_svg_title_or_legend,
 }
 
 

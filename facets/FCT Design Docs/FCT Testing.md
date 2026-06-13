@@ -122,6 +122,7 @@ description:: facet spec this doc instantiates
 Embedded rule set for the Testing facet, co-located with the facet spec above per the [[F133 — Rule sets folder convention + facet embedding|F133]] embedding convention. Adopted via `R-facet` umbrella; an anchor that wants its `{NAME} Testing.md` audited pulls `R-facet` from its `{NAME} Decisions.md`.
 
 ### RULE R-testing-01 — File name is `{NAME} Testing.md` (checked)
+check:: testing_filename_correct
 
 The facet doc is named `{NAME} Testing.md` — not `{NAME} Testing Strategy.md`, `{NAME} Tests.md`, or any other variant. The doc covers strategy AND proposed tests; the name reflects the scope.
 
@@ -130,6 +131,7 @@ The facet doc is named `{NAME} Testing.md` — not `{NAME} Testing Strategy.md`,
 **Why:** the older `design-testing` scaffold authored `Testing Strategy.md`; this facet supersedes that shape. The shorter name is canonical going forward.
 
 ### RULE R-testing-02 — `## Strategy` H2 present with required subsections (checked)
+check:: strategy_subsections_present_ordered
 
 The doc has a `## Strategy` H2 containing four H3 subsections in this order: `### Test Kinds`, `### Completeness Targets`, `### Responsibilities`, `### Tier Mapping`.
 
@@ -138,6 +140,7 @@ The doc has a `## Strategy` H2 containing four H3 subsections in this order: `##
 **Why:** the four subsections are the load-bearing strategy components. A doc missing Tier Mapping (the most-often-skipped one) loses the connection to [[DSC verification]] and silently weakens what a passing suite proves.
 
 ### RULE R-testing-03 — `## Proposed Tests` H2 present, grouped by kind (checked)
+check:: proposed_tests_structure
 
 The doc has a `## Proposed Tests` H2 with H3 sub-sections, one per test kind. Each H3 contains a markdown table.
 
@@ -146,6 +149,7 @@ The doc has a `## Proposed Tests` H2 with H3 sub-sections, one per test kind. Ea
 **Why:** the proposed-tests overview is the half of the facet that connects strategy to ground. A strategy-only doc is the failure mode this facet is designed to prevent.
 
 ### RULE R-testing-04 — Every test kind in Proposed Tests is declared in Strategy (checked)
+check:: proposed_tests_subset_of_strategy
 
 The set of H3 sub-section names under `## Proposed Tests` is a subset of the kinds listed in `## Strategy § Test Kinds`. No kind appears in Proposed Tests that wasn't declared in Strategy.
 
@@ -154,6 +158,7 @@ The set of H3 sub-section names under `## Proposed Tests` is a subset of the kin
 **Why:** prevents the "tests-without-strategy" drift — proposed tests of a kind the strategy never sanctioned. Symmetric to the next rule.
 
 ### RULE R-testing-05 — Every declared test kind has a completeness target (checked)
+check:: all_test_kinds_have_targets
 
 For every kind appearing in `## Strategy § Test Kinds`, there is a bullet in `## Strategy § Completeness Targets` whose label matches the kind name.
 
@@ -162,6 +167,7 @@ For every kind appearing in `## Strategy § Test Kinds`, there is a bullet in `#
 **Why:** declaring a kind without a target makes the strategy vague — readers can't tell "is this kind aspirational or load-bearing?" Every kind gets a target (even if the target is "no target — sampled" stated explicitly).
 
 ### RULE R-testing-06 — Proposed-tests rows link to a Spec (sampled)
+check:: proposed_tests_rows_have_spec
 
 Every row in every `## Proposed Tests` table has a non-empty Spec column. The value is either a `[[wiki-link]]` (spec exists) or `[bare bracket]` (spec proposed but not yet authored).
 
@@ -170,6 +176,7 @@ Every row in every `## Proposed Tests` table has a non-empty Spec column. The va
 **Why:** the Spec column is what enforces the three-altitude split. An empty Spec is "test will exist somewhere, vibes" — the failure mode the proposed-tests overview is designed to prevent.
 
 ### RULE R-testing-07 — Low-level test specs are NOT inlined in the facet doc (sampled)
+check:: spec_cells_format_valid
 
 Spec column bodies are links or brackets, never inline test code, fixture definitions, or precondition prose. The facet doc carries inventory + provenance; the module doc carries the spec.
 
@@ -178,6 +185,7 @@ Spec column bodies are links or brackets, never inline test code, fixture defini
 **Why:** facet doc altitude inversion is the failure mode — when the spec creeps into the inventory, the doc becomes the test file, both altitudes are lost, and the module doc decays.
 
 ### RULE R-testing-08 — `status::` field present in frontmatter (checked)
+check:: status_field_valid
 
 The top-of-file YAML frontmatter contains a `status::` dataview field with value `drafting`, `in-review`, or `accepted`.
 

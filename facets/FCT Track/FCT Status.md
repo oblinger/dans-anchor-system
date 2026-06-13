@@ -117,11 +117,13 @@ Available to any anchor with a `{NAME} Design/` folder per [[FCT Design]]. v1 fa
 
 # RULESET R-status
 include::
+where:: file:{ANCHOR}/{NAME} Track/{NAME} Status.md
 description:: Structural rules for the {NAME} Status.md facet doc; enforces the per-facet dataview-line shape and cell ladder.
 
 Embedded rule set for the Status facet, co-located with the facet spec above per the [[F133 — Rule sets folder convention + facet embedding|F133]] embedding convention. Adopted via `R-facet` umbrella.
 
 ### RULE R-status-01 — File name `{NAME} Status.md` (checked)
+check:: status_filename_valid
 
 The status file is named `{NAME} Status.md` — anchor slug + space + `Status.md`. No qualifier suffix.
 
@@ -130,6 +132,7 @@ The status file is named `{NAME} Status.md` — anchor slug + space + `Status.md
 **Why:** the picker, the state script, and the Track-dispatch wiring all assume this exact name. Aliases break all three.
 
 ### RULE R-status-02 — Lives under `{NAME} Track/` (checked)
+check:: status_in_track_folder
 
 The Status file lives inside the Track folder, NOT the Design folder, NOT the anchor root.
 
@@ -138,6 +141,7 @@ The Status file lives inside the Track folder, NOT the Design folder, NOT the an
 **Why:** Status is a Track-folder facet (sibling of Backlog/Roadmap) — it tracks design *progress*, not design *content*. Design-folder content is what gets graded; Status is the grade book.
 
 ### RULE R-status-03 — Body-only, no YAML frontmatter (checked)
+check:: regex_absent ^---$
 
 The first non-blank line of the file is `# {NAME} Status` (H1). No `---` YAML block precedes it.
 
@@ -146,6 +150,7 @@ The first non-blank line of the file is `# {NAME} Status` (H1). No `---` YAML bl
 **Why:** body-only matches the broader vault discipline ([[FCT Ruleset]], [[CAB Backlog]] are also body-only). Frontmatter is invisible in normal Obsidian read view and easy to drift.
 
 ### RULE R-status-04 — `description::` is line 2 (checked)
+check:: description_field_line
 
 The line immediately after the H1 is a `description::` dataview inline field with a one-line tagline.
 
@@ -154,6 +159,7 @@ The line immediately after the H1 is a `description::` dataview inline field wit
 **Why:** Dataview discoverability; the description is what shows up in queries that list facet files.
 
 ### RULE R-status-05 — One `<facet>::` line per design facet, declared order (checked)
+check:: status_facets_ordered
 
 Lines after `description::` contain exactly five facet lines in this order: `prd`, `ux`, `architecture`, `testing`, `roadmap`.
 
@@ -162,6 +168,7 @@ Lines after `description::` contain exactly five facet lines in this order: `prd
 **Why:** `/design`'s picker walks them in declared order for lowest-tier tie-breaks. Re-ordering would silently change which facet gets dispatched.
 
 ### RULE R-status-06 — Cell value is in the ladder (checked)
+check:: status_cell_values_valid
 
 Each facet line's cell value is one of `none`, `MVP-agent`, `MVP-user`, `Full-agent`, `Full-user`.
 
@@ -170,6 +177,7 @@ Each facet line's cell value is one of `none`, `MVP-agent`, `MVP-user`, `Full-ag
 **Why:** the picker compares cells using the ladder ordering; off-ladder values break comparison.
 
 ### RULE R-status-07 — Non-`none` cells carry a `(YYYY-MM-DD)` date (sampled)
+check:: status_nonone_cells_dated
 
 For every non-`none` cell, the line includes a parenthesized ISO date after the cell value.
 
@@ -178,6 +186,7 @@ For every non-`none` cell, the line includes a parenthesized ISO date after the 
 **Why:** dates let the user judge staleness ("is this MVP-user grade from 6 months ago still trustworthy?") and let `/audit` flag entries that haven't been re-graded after major doc edits.
 
 ### RULE R-status-08 — `*-user` cells require a `— <note>` (sampled)
+check:: status_user_cells_noted
 
 For every cell ending in `-user`, the line includes an em-dash followed by a short note.
 
@@ -186,6 +195,7 @@ For every cell ending in `-user`, the line includes an em-dash followed by a sho
 **Why:** the user is making an explicit graded judgment; the note captures the WHY for later audit and helps future-self remember the basis for the grade.
 
 ### RULE R-status-09 — Track dispatch links to the Status file (checked)
+check:: status_track_dispatch_linked
 
 `{NAME} Track.md` contains a dispatch-table row whose link target is `[[{NAME} Status]]`.
 

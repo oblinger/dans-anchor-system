@@ -130,6 +130,7 @@ Any anchor that commits to the designed-lifecycle convention.
 
 # RULESET R-design
 include::
+where:: anchor
 description:: Structural rules for the {NAME} Design facet — folder presence, required children, dispatch wiring, Code-trait deprecation.
 
 Embedded rule set for the Design facet, co-located with the facet spec above per [[F133 — Rule sets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella.
@@ -143,6 +144,7 @@ If `{anchor}/{NAME} Design/` exists, the anchor is in design-mode. The `Code` tr
 **Why:** structure is honest; trait fields can drift. Folder existence is observable.
 
 ### RULE R-design-02 — Required children present when folder exists (checked)
+check:: design_folder_children PRD Architecture Testing
 
 When `{NAME} Design/` exists, the folder contains at minimum: `{NAME} Design.md`, `{NAME} PRD.md`, `{NAME} Architecture.md`, `{NAME} Testing.md`.
 
@@ -159,6 +161,7 @@ The `{NAME} Design.md` dispatch table contains a wiki-link row for every `.md` f
 **Why:** the dispatch page is the navigation hub; missing rows hide content from the reader.
 
 ### RULE R-design-04 — Status file initialized when Design folder exists (sampled)
+check:: status_facets_initialized prd ux architecture testing roadmap
 
 When `{NAME} Design/` exists, `{NAME} Track/{NAME} Status.md` exists with the standard five design-facet lines (`prd::`, `ux::`, `architecture::`, `testing::`, `roadmap::`) per [[FCT Status]].
 

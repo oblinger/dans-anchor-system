@@ -2,6 +2,7 @@
 description: "The **`/ask` skill** is the universal asking subroutine."
 ---
 # /Ask
+[[SKL ask-inline]] 
 
 The **`/ask` skill** is the universal asking subroutine. Whenever an agent in any anchor has a question for you, it routes through `/ask` — which formats the question, picks the right surface (a feature doc, or directly in the anchor's `{NAME} ask.md` § `## Questions`), maintains the vault-level Agent Status dashboard at `[[Q]]`, and (if you're engaging with the work right now) opens the file at you.
 

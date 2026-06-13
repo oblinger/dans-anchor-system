@@ -117,6 +117,7 @@ description:: Structural rules for the {NAME} PRD facet — location, body-only 
 Embedded rule set for the PRD facet, co-located with the facet spec above per [[F133 — Rule sets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella.
 
 ### RULE R-prd-01 — Location is `{NAME} Design/{NAME} PRD.md` or folder form (checked)
+check:: file_path_matches_prd_locations
 
 The PRD lives at `{NAME} Design/{NAME} PRD.md` (single-file form) or `{NAME} Design/{NAME} PRD/{NAME} PRD.md` (folder form). Not under `{NAME} Docs/`, not under `{NAME} Plan/`, not at the anchor root.
 
@@ -125,6 +126,7 @@ The PRD lives at `{NAME} Design/{NAME} PRD.md` (single-file form) or `{NAME} Des
 **Why:** F094 moved Design docs out of the legacy `{NAME} Plan/` folder; surfacing stale paths breaks `/design`'s anchor-detection.
 
 ### RULE R-prd-02 — Body-only, no YAML frontmatter (checked)
+check:: h1_no_frontmatter
 
 The first non-blank line of `{NAME} PRD.md` is `# {NAME} PRD` (H1). No `---` YAML block precedes it.
 
@@ -133,6 +135,7 @@ The first non-blank line of `{NAME} PRD.md` is `# {NAME} PRD` (H1). No `---` YAM
 **Why:** body-only matches the broader vault discipline (CAB Rules, CAB Status, CAB Log, CAB Stories all body-only). Frontmatter is invisible in Obsidian read view and drifts silently.
 
 ### RULE R-prd-03 — `description::` is the second non-blank line (checked)
+check:: description_field_line
 
 Immediately after the H1, the next non-blank line is a `description::` dataview inline field with a one-line tagline.
 
@@ -141,6 +144,7 @@ Immediately after the H1, the next non-blank line is a `description::` dataview 
 **Why:** Dataview discoverability; consistency with sibling facet specs.
 
 ### RULE R-prd-04 — Required sections present in order (checked)
+check:: required_sections_in_order
 
 The PRD contains H2s `## Overview`, `## Design Workflow`, `## Goals`, `## Non-Goals`, `## User Stories` (in that order). Optional H2s (`## Open Questions`, `## Resolved`, `## See also`) may follow.
 
@@ -149,6 +153,7 @@ The PRD contains H2s `## Overview`, `## Design Workflow`, `## Goals`, `## Non-Go
 **Why:** downstream design phases read the PRD assuming this section spine. Missing sections force the reader to hunt for what they expect to find in a known location.
 
 ### RULE R-prd-05 — User stories use `US-<RID>-<N>` numbering (checked)
+check:: user_stories_use_rid_numbering
 
 Every user-story H3 (inline form) matches `^### US-{RID}-\d+: .+` where `{RID}` is the anchor's RID. Folder-form PRDs link to `[[{NAME} Stories]]` instead of inline H3s and this rule defers to [[FCT Stories#RULESET R-stories|R-stories]].
 
@@ -157,6 +162,7 @@ Every user-story H3 (inline form) matches `^### US-{RID}-\d+: .+` where `{RID}` 
 **Why:** `US-<RID>-<N>` is the load-bearing identifier referenced by feature docs (`Realizes: US-<RID>-<N>`), e2e tests (`Exercises: US-<RID>-<N>`), and Stories sub-facet files. Old `US-<N>` form (no RID) collides across anchors and breaks cross-anchor references.
 
 ### RULE R-prd-06 — No legacy `{NAME} Open Questions.md` file (checked)
+check:: no_legacy_open_questions_file
 
 No file named `{NAME} Open Questions.md` exists alongside the PRD. Open questions live as `## Open Questions` H2 directly inside the PRD per [[DSC ask-format]].
 
@@ -165,6 +171,7 @@ No file named `{NAME} Open Questions.md` exists alongside the PRD. Open question
 **Why:** the file-based Open Questions pattern was deprecated when `/ask` became the universal asking surface. Linger of the old file produces ambiguity about where to look.
 
 ### RULE R-prd-07 — Design Workflow references modern phase names (checked)
+check:: design_workflow_modern_names
 
 The `## Design Workflow` table references `[[{NAME} Architecture]]` (not "System Design"), `[[{NAME} Testing]]` (not "Testing Strategy"), and `[[{NAME} Decisions]]` (not "Principles").
 
@@ -189,6 +196,7 @@ The PRD does NOT contain a `## Design Constraints` H2 with DC-numbered entries. 
 **Why:** the pre-F113 DC-N pattern conflated business and architectural constraints, and downstream readers couldn't tell which discipline owned which constraint. Splitting Decisions / Rules / Non-Goals gives each constraint a clear home.
 
 ### RULE R-prd-10 — Dispatch table carries a Stories row with proper-name display (checked)
+check:: dispatch_table_stories_row
 
 The PRD's top-of-doc dispatch table contains a row whose wiki-link target points at the stories — either `[[{NAME} PRD#User Stories\|{NAME} Stories]]` (single-file form) or `[[{NAME} Stories]]` (folder form). The displayed text is always the proper anchor-prefixed name `{NAME} Stories`, matching the display convention used by sibling dispatch rows (`{NAME} Architecture`, `{NAME} Testing`, etc.).
 

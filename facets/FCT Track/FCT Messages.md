@@ -14,6 +14,7 @@ description:: Rules for the {NAME} Messages facet — the agent's per-anchor bac
 Embedded rule set for the Messages facet, co-located per [[F133 — Rule sets folder convention + facet embedding|F133]].
 
 ### RULE R-messages-01 — File is `{NAME} Messages.md` at the anchor root (checked)
+check:: h1_is_anchor_messages
 
 The messages file is `{NAME}/{NAME} Messages.md` — not under Track or Docs, and not the Inbox.
 
