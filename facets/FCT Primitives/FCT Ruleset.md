@@ -70,7 +70,7 @@ Declarative statement of what the rule requires or forbids.
     - **Bare names** — `include:: R-sugiyama, R-c4` — resolved by the flatten script via vault search.
     - **Wiki-links** — `include:: [[R-sugiyama]], [[R-c4]]` — clickable in Obsidian reading view; otherwise equivalent. The flatten script unwraps `[[...]]` before resolving. Wiki-link form is preferred for readability when authoring in Obsidian; bare form is fine for machine-generated files.
     - The two may be mixed within a single line (`include:: R-sugiyama, [[R-c4]]`). Strike-through markers (`[[R-foo]]`) are an Obsidian rendering artifact and not part of the format; flatten and audit ignore them and resolve the underlying name.
-- **`where::` line (optional — F161; sits between `include::` and `description::`): the selector.** A **glob** naming which files this set's rules apply to — the default for any rule that doesn't carry its own `where::`. Anchor-root is the explicit token `{ANCHOR}` (`{ANCHOR}/* Backlog.md`); bare globs are anchor-relative. **Precedence:** a rule's own `where::` overrides the set's; absent both, the rule defaults to `always` (every file). Scope kinds: `always`, `file: <glob>` (the default reading of a bare glob), `anchor` (a tree/structure check run once per anchor), and **`sentinel: <regex>`** (content-match — any file containing a matching line, regardless of path; e.g. `R-ruleset` uses `sentinel: ^#+ RULESET R-` to catch every ruleset whether standalone or **embedded** in a facet / skill / discipline spec). Consumed by the audit engine ([[F161 — Rule-driven audit engine — resolve, run, judge|F161]]) to bind rules to targets — see it dogfooded in `# RULESET R-ruleset` below.
+- **`where::` line (optional — F161; sits between `include::` and `description::`): the set-level selector.** Names which files this set's rules apply to — the default for any rule without its own `where::`. A glob (with the anchor-root token `{ANCHOR}`), or `always` / `anchor` / `sentinel: <regex>`. **Full syntax — the predefined `{ANCHOR}` / `{NAME}` tokens, glob rules, precedence, and exhaustive examples — is in § Where clause — the rule selector below.** Consumed by the audit engine ([[F161 — Rule-driven audit engine — resolve, run, judge|F161]]) to bind rules to targets; dogfooded in `# RULESET R-ruleset` below.
 - **Line 3: `description::` line** — Dataview inline field. One-line tagline (8–15 words) of what this ruleset covers and when it applies. Required. Plain prose only: **no `::` tokens in the value** (the double-colon is reserved syntax for inline-field keys; mentioning `include::` or `description::` as a noun inside the value will collide with the Dataview parser). The single-line constraint forces tightness.
 - **Line 4+ (body paragraph immediately under `description::`):** plain prose paragraph(s) carrying provenance, use-case context, source attribution, history, factoring notes — anything longer than the tagline. Any length. This is the canonical home for the prose that doesn't fit in `description::`; it reads more naturally than `> [!info]` callouts for the standard "what this set is about" content. Callouts remain available for asides (see below).
 
@@ -130,6 +130,101 @@ grep -rnE '^#+\s+RULE\s+R-' --include='*.md' .
 - **`**Exceptions:**` block** (optional) — table or list of acknowledged exceptions.
 
 The body ends at the next heading at the same or shallower level.
+
+## Where clause — the rule selector (`where::`)
+
+Every rule applies to some set of targets. The `where::` selector names that set, so the audit engine ([[F161 — Rule-driven audit engine — resolve, run, judge|F161]]) can bind each rule to the files (or the anchor) it governs instead of running every rule against everything.
+
+**Two levels, with precedence.**
+- **Set-level** — a `where::` line in the header (between `include::` and `description::`) is the default for every rule in the set.
+- **Rule-level** — a `where::` line as the first field in a rule's body (above `**Check pattern:**`) overrides the set default for that one rule.
+- **Precedence:** a rule's own `where::` > the set's `where::` > the built-in default `always`.
+
+A set whose rules are *not* universal should declare an explicit `where::` rather than silently relying on `always` (per `R-ruleset-10`).
+
+**Scope kinds.** The value after `where::` is one of:
+
+| Form | Binds the rule to |
+|---|---|
+| `always` | every file the audit visits. The default when no `where::` is in force. |
+| `<glob>` or `file: <glob>` | every file whose path matches the glob. `file:` is the default reading of a bare glob, so `where:: {ANCHOR}/**/*.md` ≡ `where:: file: {ANCHOR}/**/*.md`. |
+| `anchor` | the anchor as a whole — a once-per-anchor structural / tree check (e.g. "the anchor has exactly one Backlog"), not a per-file check. |
+| `sentinel: <regex>` | any file containing a line matching the regex, **regardless of path**. A path-independent content match — how `R-ruleset` (below) catches every ruleset, including ones embedded in facet / skill / discipline specs. |
+
+**Path globs are anchor-relative; `{ANCHOR}` names the root.** A path glob is matched against each candidate file's path, resolved **relative to the adopting anchor's root**. The predefined token `{ANCHOR}` names that root explicitly:
+
+- `{ANCHOR}/Docs/**/*.md` — every markdown file under the anchor's `Docs/`.
+- A **bare** glob (no leading token, no leading `/`) is equivalent — also anchor-relative — but the explicit `{ANCHOR}/` form is **recommended** in shared rulesets so the base is unmistakable.
+
+**Predefined tokens are `{ALL-CAPS}` in curly braces.** The all-caps-in-braces namespace is reserved for substitutions the audit engine fills in per adopting anchor:
+
+| Token | Substitutes |
+|---|---|
+| `{ANCHOR}` | the adopting anchor's root **directory** (a path) |
+| `{NAME}` | the adopting anchor's **name** string (e.g. `CAE`) — the same `{NAME}` used in filenames like `{NAME} Backlog.md` |
+
+`{VAULT}` (the kmr root) and `{REPO}` (a code anchor's repository root) are **reserved** for future use. Any new predefined token must be ALL-CAPS, to stay clear of glob alternation (below).
+
+**Glob syntax** (gitignore / picomatch flavor):
+
+| Pattern | Matches |
+|---|---|
+| `*` | any run of characters except `/` |
+| `**` | any run *including* `/` — crosses directory boundaries |
+| `?` | exactly one character (not `/`) |
+| `[abc]`, `[a-z]` | one character from the set / range |
+| `{a,b,c}` | **alternation** — any one of the comma-separated alternatives (lower / mixed case — *not* a predefined token) |
+| trailing `/` | directories only (e.g. `{ANCHOR}/Docs/*/`) |
+| leading `!` | **negation** — exclude matches (gitignore-style); a later pattern can re-include |
+
+**Disambiguation — `{ANCHOR}` token vs `{a,b}` alternation.** A brace group is a **predefined token** iff its entire content is a single reserved ALL-CAPS identifier (`{ANCHOR}`, `{NAME}`). Otherwise it is **glob alternation** (`{svg,png}`, `{PRD,Roadmap}` — "Roadmap" is mixed-case, so the group is alternation, not a token). This is the whole reason the predefined tokens are ALL-CAPS: it keeps `{ANCHOR}` (substitution) unambiguous from `{svg,png}` (alternation) in the same syntax.
+
+**Multiple globs and exclusions.** `where::` takes a comma-separated list; the rule applies to the **union** of the positive patterns minus the negated ones — `where:: {ANCHOR}/**/*.md, !{ANCHOR}/**/Closet/**`.
+
+### Exhaustive examples
+
+Each row is a complete `where::` value:
+
+| `where::` value | The rule runs against |
+|---|---|
+| *(omitted)* | every file — falls through to `always` |
+| `always` | every file the audit visits |
+| `anchor` | once per anchor — a structural / tree check, not per-file |
+| `{ANCHOR}/{NAME}.md` | exactly the anchor page |
+| `{ANCHOR}/*.md` | markdown files in the anchor **root only** (non-recursive) |
+| `{ANCHOR}/**/*.md` | every markdown file anywhere under the anchor |
+| `{ANCHOR}/Docs/**` | everything (any type) under `Docs/`, recursively |
+| `{ANCHOR}/Docs/*/` | the immediate **sub-folders** of `Docs/` (trailing `/` = dirs) |
+| `{ANCHOR}/**/{NAME} Backlog.md` | the backlog file wherever it sits in the tree |
+| `{ANCHOR}/**/{NAME} {PRD,Roadmap}.md` | the PRD **and** the Roadmap — `{NAME}` token + `{PRD,Roadmap}` alternation in one glob |
+| `{ANCHOR}/**/F[0-9][0-9][0-9] — *.md` | feature docs (zero-padded `F<NNN>` prefix) |
+| `{ANCHOR}/**/*.{svg,png}` | all SVG and PNG files (brace alternation) |
+| `{ANCHOR}/src/**/*.rs` | Rust sources under the code repo's `src/` |
+| `{ANCHOR}/**/*.md, !{ANCHOR}/**/Yore/**` | all markdown **except** anything archived under a `Yore/` folder |
+| `**/*.md` | anchor-relative bare glob — identical to `{ANCHOR}/**/*.md` (explicit form preferred) |
+| `file: {ANCHOR}/**/*.md` | the explicit `file:` form — identical to the bare-glob row above |
+| `sentinel: ^#+ RULESET R-` | any file containing a `# RULESET R-` line, **anywhere** — path-independent (catches embedded rulesets) |
+| `{VAULT}/**/*.md` | *(reserved)* vault-wide, once `{VAULT}` is defined |
+
+### Set default + rule override — worked shape
+
+A set declares a default `where::`; a single rule overrides it. Literal ruleset syntax:
+
+```
+# RULESET R-backlog
+include::
+where:: {ANCHOR}/**/{NAME} Backlog.md
+description:: Structure every {NAME} Backlog.md obeys.
+
+### RULE R-backlog-01 — Rows carry a status bracket (checked)
+(no own where:: — inherits the set's: runs on the backlog file)
+**Check pattern:** ...
+
+### RULE R-backlog-07 — Anchor has exactly one backlog (checked)
+where:: anchor
+(overrides the set default — a once-per-anchor structural check, not a per-file one)
+**Check pattern:** ...
+```
 
 ## Naming convention
 
@@ -276,6 +371,14 @@ A standalone `R-<slug>.md` has no YAML frontmatter (an embedded `# RULESET` live
 
 **Check pattern:** if the file's first non-blank line is `# RULESET`, assert no `---` frontmatter precedes it.
 
+### RULE R-ruleset-12 — `where::` uses predefined `{ALL-CAPS}` tokens + standard globs (stated)
+
+A `where::` value is `always`, a path glob (optionally `file:`-prefixed), `anchor`, or `sentinel: <regex>`. Inside a glob, a `{...}` group is a predefined token only when its content is a reserved ALL-CAPS identifier (`{ANCHOR}`, `{NAME}`); lower / mixed-case brace groups are glob alternation.
+
+**Check pattern:** for each `where::`, assert the scope kind is one of the four forms; assert every `{...}` group is either a recognized predefined token or a valid alternation (lower / mixed case).
+
+**Why:** keeps `{ANCHOR}` (substitution) unambiguous from `{a,b}` (alternation) and catches typo'd selectors that would silently match nothing. See § Where clause — the rule selector.
+
 # BRIEF
 
 - **This file is the prescriptive spec for the Ruleset facet** — the authoritative format definition for any ruleset file (`R-<slug>.md` in `Rulesets/`) and any anchor-local `{NAME} Rules.md`. Editors of either kind of file consult this page before authoring. (Renamed from `FCT Rules` 2026-06-13 — singular `Ruleset` for the kind, parallel to [[FCT Facet]]; [[Rulesets]] remains the plural catalog.)
@@ -284,4 +387,4 @@ A standalone `R-<slug>.md` has no YAML frontmatter (an embedded `# RULESET` live
 - **Load-bearing sentinels** — the all-caps `RULESET` (in the H1) and `RULE` (in rule headings) are mechanical markers grep / lint / flatten scripts depend on. Never lowercase or rename them; never invent alternates. The `include::` / `description::` lines are Dataview inline fields — preserve the exact `::` double-colon syntax and positional ordering (H1, then `include::`, then `description::`, then body).
 - **Inclusion test for new content here:** does this clarify the *file format* (lines, sentinels, naming, audit ties, composition semantics)? If yes, add it. If it's *content of a specific ruleset* — put it in the ruleset. If it's *project-wide markdown* — link to [[R-markdown]]. If it's *brief-writing rules* — link to [[FCT Brief]].
 - **When the format evolves**, bump the dated parenthetical in the affected section header (e.g. `## File shape — body-only, prescriptive structure (2026-06-08)`), update the worked examples ([[R-diagram]], [[CAE Rules]]), and check the `/audit rules` checks list at the bottom for new lint cases.
-- **Don't restructure the H2 ordering** — the spec flows History note → When this facet applies → File shape → Naming → Audit tiers → Include composition → How decisions cite rules → Trait applicability → Audit → See also. Auditors and downstream skills locate sections by this order.
+- **Don't restructure the H2 ordering** — the spec flows History note → When this facet applies → File shape → Where clause → Naming → Audit tiers → Include composition → How decisions cite rules → Trait applicability → Audit → See also. Auditors and downstream skills locate sections by this order.
