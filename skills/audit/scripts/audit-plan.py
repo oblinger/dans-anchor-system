@@ -726,12 +726,59 @@ def chk_regex_absent(target, anchor_root, args):
     return ("fail", f"pattern present: {pat}") if re.search(pat, _read(f), re.MULTILINE) else ("pass", "")
 
 
+def chk_h1_matches_slug(target, anchor_root, args):
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    slug = _anchor_slug(anchor_root)
+    for ln in _read(f).splitlines():
+        if ln.startswith("# "):
+            h1 = ln[2:].strip()
+            if re.match(rf"^{re.escape(slug)}\s*[-–—]\s+\S", h1):
+                return "pass", h1
+            if h1 == slug or h1 == anchor_root.name:
+                return "pass", f"bare-name: {h1}"
+            return "fail", f"H1 {h1!r} is not '{slug} - <name>'"
+    return "fail", "no H1"
+
+
+def chk_breadcrumb_row(target, anchor_root, args):
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    for ln in _read(f).splitlines():
+        if ln.lstrip().startswith("|"):
+            if re.search(r"\|\s*-\[\[.+?\]\]-\s*\|.*hook://", ln.strip()):
+                return "pass", ""
+            return "fail", "first table row is not a breadcrumb (-[[…]]- … hook://)"
+    return "pass", "no dispatch table (tableless anchor)"
+
+
+def chk_design_row_iff_folder(target, anchor_root, args):
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    name = anchor_root.name
+    has_folder = (anchor_root / f"{name} Design").is_dir()
+    text = _read(f)
+    has_row = (bool(re.search(r"\|\s*\[\[[^\]|]*Design[^\]]*\]\][^|]*\|", text))
+               or bool(re.search(r"\|\s*Design\s*\|", text)))
+    if has_folder == has_row:
+        return "pass", "both present" if has_folder else "neither (no design facet)"
+    if has_folder and not has_row:
+        return "fail", f"{name} Design/ exists but no Design row in the table"
+    return "fail", f"Design row present but no {name} Design/ folder"
+
+
 CHECKERS = {
     "anchor_has": chk_anchor_has,
     "entry_page_matches_slug": chk_entry_page_matches_slug,
     "frontmatter_has": chk_frontmatter_has,
     "h1_present": chk_h1_present,
+    "h1_matches_slug": chk_h1_matches_slug,
     "no_blank_after_h1": chk_no_blank_after_h1,
+    "breadcrumb_row": chk_breadcrumb_row,
+    "design_row_iff_folder": chk_design_row_iff_folder,
     "regex_present": chk_regex_present,
     "regex_absent": chk_regex_absent,
 }

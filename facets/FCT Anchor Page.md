@@ -87,6 +87,7 @@ The page opens with YAML frontmatter carrying a one-line `description:`.
 `traits:` names the anchor kind (`[Code]`, `[skill]`, `Collection`, …); the kind gates which rules below apply (design row, member zone, no-track-row).
 
 ### RULE R-anchor-page-05 — H1 is `{slug} - {Full Name}` (checked)
+check:: h1_matches_slug
 
 The H1 leads with the slug, then ` - `, then the readable name. Bare-name anchors (no short slug) use just the name.
 
@@ -130,6 +131,7 @@ The dispatch table conforms to [[DSC Dispatch Table]] — a breadcrumb row then 
 **Check pattern:** delegate to `/audit dispatch`.
 
 ### RULE R-anchor-page-11 — First row is the breadcrumb cell (checked)
+check:: breadcrumb_row
 
 Row one is the breadcrumb: a title cell `-[[This Page]]-`, then the parent-chain path ending in the page's `hook://` link + a one-line description.
 
@@ -144,6 +146,7 @@ Row one is the breadcrumb: a title cell `-[[This Page]]-`, then the parent-chain
 **Check pattern:** if present, `Related` has content and precedes other category rows; **none of its links is a breadcrumb ancestor, a member listed below, or the parent anchor** (those are redundant — drop them). ([[SKA Decisions|D07]])
 
 ### RULE R-anchor-page-13 — `Design` row present iff a design folder exists (checked)
+check:: design_row_iff_folder
 
 If `{NAME} Design/` exists, a `Design` row is present as the second masthead row, members in the fixed order PRD → UX Design → CLI → API → Architecture → Decisions → Testing → Roadmap → Features.
 
