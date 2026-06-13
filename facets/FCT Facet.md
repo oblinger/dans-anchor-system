@@ -16,10 +16,10 @@ A facet spec is one file (`facets/FCT <Name>.md`), authoritative for that facet.
 - **One-line summary** — a single sentence on the line directly under the H1 (no blank line between).
 - **Dispatch table** — the breadcrumb row, then `Related` (lateral links only) and `Examples`.
 - **Document structure** — this dense outline, placed first so a reader sees the doc's shape before any prose.
-- **Overview** — a short paragraph: what the facet is and what it's for.
-- **The Aspect contract** — somewhere in the body the spec must *cover* these (the section shapes vary per facet — they are **not** fixed H2s): what it is · how it's detected (+ cardinality `one` / `many`) · format · constraints · expected usage · the skills and audits that attach · optional triggers.
-- **`# RULESET R-<facet>`** — the embedded rule set: the auditable form of the facet's constraints (e.g. [[R-fex-manifest]]).
-- **`# BRIEF`** — maintainer notes: what belongs, what doesn't, cross-reference integrity.
+- **Overview** — a short paragraph: what the facet is and what it's for. *(Optional.)*
+- **The Aspect contract** — content the body usefully conveys, mostly via the rule set (section shapes vary; **not** fixed H2s; all optional): what it is · how it's detected (+ cardinality `one` / `many`) · format · constraints · expected usage · skills and audits that attach · triggers.
+- **`# RULESET R-<facet>`** — **REQUIRED.** The embedded rule set: how to validate and create the facet — detection, format, and constraints in auditable form (e.g. [[R-fex-manifest]]). It's how we know what the facet is and how to check it.
+- **`# BRIEF`** — **REQUIRED.** Agent-facing documentation (per [[FCT Brief]]) — what an agent reads before editing this facet. (Agent ≈ maintainer, but the audience is the agent, not the user.)
 
 For a worked facet, open an example in the dispatch table above — there is no embedded copy here, because a facet is itself a full anchor page and embedding one inside this spec just blurs example-vs-spec. The enforceable form of the rules below is the embedded **`R-facet-spec`** rule set.
 
@@ -77,41 +77,41 @@ A facet spec with a non-trivial body opens its preface zone (after the dispatch 
 **Check pattern:** a `**TLDR**` line precedes the first body `## `; small specs (a few sentences) are exempt.
 **Why:** lets a reader graze the facet's shape in five seconds without reading the whole spec.
 
-## The Aspect contract — the declarations every facet spec must cover
+## What a facet spec conveys — mostly via the rule set (sections optional)
 
-### RULE R-facet-spec-08 — Declares what the facet is (checked)
-The spec states, in a sentence, the narrow aspect this facet names (a `## What it is`, or the H1 summary + opening paragraph for small specs).
-**Check pattern:** the spec contains a one-sentence "this facet is X" statement near the top.
+**Only two parts are *required*: the `# RULESET` (R-facet-spec-18) and the `# BRIEF` (R-facet-spec-22).** Everything in this group is content a facet spec should make *knowable* — but the required rule set is the natural carrier for the load-bearing parts (detection, format, constraints), so dedicated prose sections for them are **optional**, not mandated.
+
+### RULE R-facet-spec-08 — Makes the facet's identity knowable (sampled)
+The spec conveys, in a sentence, the narrow aspect this facet names — via the H1 summary, an Overview, or a `## What it is`. A dedicated section is optional; the statement is not.
+**Check pattern:** a one-sentence "this facet is X" is findable near the top.
 **Why:** the reader must learn the facet's identity before any rule about it makes sense.
 
-### RULE R-facet-spec-09 — Declares its detection mechanism (checked)
-The spec states how the system decides the facet is present. Default is **file-existence**; any other mechanism (folder-existence, capability check, …) is stated **explicitly**.
-**Check pattern:** the spec says how presence is detected; non-default detection is named, not assumed.
-**Why:** detection is owned by the spec, not hard-coded globally — a folder facet or a file-less facet is wrong if a reader assumes "look for the file" (per [[CAB Aspects]] § Facet).
+### RULE R-facet-spec-09 — Makes detection knowable (sampled)
+The spec (typically its rule set) makes clear how presence is decided. Default is **file-existence**; any other mechanism (folder-existence, capability check, …) is stated **explicitly**.
+**Check pattern:** detection is findable; non-default detection is named, not assumed.
+**Why:** detection is owned by the spec, not hard-coded globally — a folder or file-less facet is mis-detected if a reader assumes "look for the file" (per [[CAB Aspects]] § Facet).
 
-### RULE R-facet-spec-10 — Declares cardinality (checked)
-The spec declares cardinality — `one` (one per anchor) or `many` (many per anchor).
-**Check pattern:** the words `one` / `many` (or an explicit cardinality statement) appear in the detection/format section.
-**Why:** audits and skills behave differently for `one` vs `many` (e.g. "exactly one Backlog" vs "many Feature docs"); leaving it implicit invites both bugs.
+### RULE R-facet-spec-10 — Makes cardinality knowable (sampled)
+The spec makes cardinality clear — `one` (one per anchor) or `many`.
+**Check pattern:** `one` / `many` (or an explicit cardinality statement) is findable.
+**Why:** audits and skills behave differently for `one` vs `many`; leaving it implicit invites bugs.
 
-### RULE R-facet-spec-11 — Declares its format (checked)
-The spec states the instance format: filename pattern, frontmatter shape, required body sections, naming rules.
-**Check pattern:** a `## Format` (or equivalent) section names the filename pattern and body requirements.
+### RULE R-facet-spec-11 — Makes the instance format knowable (sampled)
+The spec (typically its rule set) conveys the instance format: filename pattern, frontmatter, body requirements, naming.
+**Check pattern:** the format is findable in the spec or its rule set.
 **Why:** the format is the contract an instance is audited against; without it "conformance" is undefined.
 
-### RULE R-facet-spec-12 — Has a Constraints section (checked)
-Every facet spec includes **Constraints** — legal-usage rules (mutual exclusion, co-requirement, format invariants). Required, never omitted (per F090).
-**Check pattern:** a `## Constraints` section (or clearly-labeled constraints block) exists with at least the cardinality/format invariants.
-**Why:** Constraints are how the system knows what's *enforceable*; an audit has nothing to validate without them.
+### RULE R-facet-spec-12 — Constraints stated where they exist — a section is optional (stated)
+When a facet has legal-usage rules (mutual exclusion, co-requirement, format invariants) they are stated — **usually inside the rule set**, not a separate `## Constraints` prose section. A dedicated Constraints section is **optional**, not required.
+**Why:** the rule set is the enforceable home for constraints; a parallel prose section is redundant more often than not.
 
-### RULE R-facet-spec-13 — Has an Expected Usage section (checked)
-Every facet spec includes **Expected Usage** — recommended (non-binding) patterns: common combinations, typical scale, skill pairings. Required (per F090).
-**Check pattern:** an `## Expected Usage` (or equivalent) section exists.
-**Why:** separates *must* (Constraints) from *should* (guidance); audits surface Expected-Usage deviations as warnings, not errors.
+### RULE R-facet-spec-13 — Expected-Usage guidance is optional (stated)
+Recommended (non-binding) patterns — common combinations, typical scale, skill pairings — may be included when useful. A dedicated `## Expected Usage` section is **optional**, not required.
+**Why:** guidance helps but isn't load-bearing; its absence is not a defect.
 
-### RULE R-facet-spec-14 — Names the skills and audits that attach (checked)
-The spec names which skills write/read the facet and which audits check it.
-**Check pattern:** a `## Skills and audits that attach` (or equivalent) section, or explicit in-prose naming, identifies the acting skills/audits.
+### RULE R-facet-spec-14 — Names the skills and audits that attach (sampled)
+The spec names which skills write/read the facet and which audits check it (in prose or a section).
+**Check pattern:** the acting skills/audits are findable.
 **Why:** a facet nobody writes, reads, or checks is dead structure; the attach list is how behavior finds the facet.
 
 ### RULE R-facet-spec-15 — Triggers section only when triggers are declared (checked)
@@ -119,22 +119,22 @@ A `## Triggers` section appears **only** when the facet declares behavioral trig
 **Check pattern:** if `## Triggers` is present, it has ≥ 1 typed H3; if the facet declares no triggers, the section is absent (not empty).
 **Why:** triggers are anchor-resident and lazily resolved from the body H3s; an empty or malformed Triggers section misfires the resolution.
 
-## Constraints content & rule-set pairing
+## The rule set — REQUIRED
 
-### RULE R-facet-spec-16 — Constraints are enforceable statements (sampled)
-Each Constraint is phrased so an audit could validate it (a forbidden/required/exclusive/invariant statement), not vague prose.
-**Check pattern:** Constraint bullets read as testable rules ("exactly one per anchor", "no absolute paths"), not "should generally…".
-**Why:** Constraints exist to be checked; an unfalsifiable constraint can't gate anything.
+### RULE R-facet-spec-18 — Every facet spec embeds a rule set — REQUIRED (checked)
+Every facet spec carries an embedded `# RULESET R-<facet>` (per the F133 convention; a tiny facet may have just a few rules). It is the one part that makes the facet **validatable and creatable** — detection, format, and constraints in auditable form (e.g. [[FEX Manifest]] → [[R-fex-manifest]]).
+**Check pattern:** the spec contains a `# RULESET R-<facet>` H1 with ≥ 1 `### RULE` entry.
+**Why:** prose rots and varies; the rule set is the single source an audit reads and an author follows to build a conformant instance. Without it we don't actually know how to validate or create the facet — so it is required, not optional. (One of the two required parts, alongside the `# BRIEF`.)
+
+### RULE R-facet-spec-16 — Rules are enforceable statements (sampled)
+Each rule (and any constraint) is phrased so an audit could validate it — a forbidden/required/exclusive/invariant statement, not vague prose.
+**Check pattern:** rule bodies read as testable claims ("exactly one per anchor", "no absolute paths"), not "should generally…".
+**Why:** a rule exists to be checked; an unfalsifiable one can't gate anything.
 
 ### RULE R-facet-spec-17 — Compose by default; exclude only on logical incompatibility (stated)
-A mutual-exclusion constraint is declared only when two things make contradictory claims about the same underlying thing — never for tidiness.
+A mutual-exclusion rule is declared only when two things make contradictory claims about the same underlying thing — never for tidiness.
 **Check pattern:** each exclusion names the *logical* conflict it resolves.
 **Why:** over-restriction blocks valid, useful compositions (per [[CAB Aspects]] § Constraints governing principle).
-
-### RULE R-facet-spec-18 — Non-trivial format mechanized as a paired rule set (sampled)
-When a facet's format/constraints are non-trivial, they are mechanized as a rule set — embedded `# RULESET R-<facet>` (per F133) or a referenced `R-<name>` — and the spec links it.
-**Check pattern:** a data-shaped or section-structured facet either embeds `# RULESET R-<facet>` or links one from Constraints (e.g. [[FEX Manifest]] → [[R-fex-manifest]]).
-**Why:** prose constraints rot; the rule set is the auditable form and the single source the audit reads.
 
 ## Facet vs Trait — don't conflate
 
@@ -155,10 +155,10 @@ The spec does not duplicate the Aspect / Trait / Facet vocabulary, the six-secti
 **Check pattern:** shared-model content is referenced, not restated.
 **Why:** one source of truth for the umbrella model; copies drift from it.
 
-### RULE R-facet-spec-22 — Carries a `# BRIEF` (checked)
-The spec ends with a `# BRIEF` section: what belongs here, what does not, the inclusion test, and cross-reference-integrity notes for maintainers.
-**Check pattern:** a `# BRIEF` H1 exists with maintenance bullets.
-**Why:** the BRIEF is the maintainer's contract — it keeps later edits from piling foreign content into the spec (every materialized facet spec carries one).
+### RULE R-facet-spec-22 — Every facet spec carries a `# BRIEF` — REQUIRED (checked)
+The spec ends with a `# BRIEF` H1 — **agent-facing documentation** (per [[FCT Brief]]): what an agent reads *before editing* this facet spec — what belongs, what doesn't, the inclusion test, cross-reference-integrity notes. The agent is usually the maintainer, but the audience is the agent, not the user.
+**Check pattern:** a `# BRIEF` H1 exists with agent-facing maintenance bullets.
+**Why:** the BRIEF is how the next agent edits the spec correctly without re-deriving its conventions, and keeps foreign content from piling in. Required on every facet spec — one of the two required parts, alongside the `# RULESET`.
 
 ## Design-facet extras (when the facet is a Design doc)
 
