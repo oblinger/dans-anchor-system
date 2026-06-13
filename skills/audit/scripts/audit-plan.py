@@ -170,6 +170,7 @@ def parse_ruleset_block(block: list[str], source: Path) -> dict:
                 "title": rm.group(2).strip(),
                 "tier": rm.group(3),
                 "where": None,
+                "check": None,
                 "check_pattern": None,
                 "why": None,
             }
@@ -179,8 +180,8 @@ def parse_ruleset_block(block: list[str], source: Path) -> dict:
             continue
         s = ln.strip()
         wm = _FIELD_RE.match(s)
-        if wm and wm.group(1) == "where":
-            cur["where"] = wm.group(2).strip() or None
+        if wm and wm.group(1) in ("where", "check"):
+            cur[wm.group(1)] = wm.group(2).strip() or None
         elif s.startswith("**Check pattern:**"):
             cur["check_pattern"] = s.split("**Check pattern:**", 1)[1].strip()
         elif s.startswith("**Why:**"):
@@ -392,9 +393,10 @@ def plan_one(target: Path, mode: str, cdir: Path | None, warnings: list[str]) ->
                 continue  # selector miss → N/A
             matched_rules.append({
                 "id": r["id"], "tier": r["tier"], "title": r["title"],
-                "selector": effective_where(r, rs),
+                "selector": effective_where(r, rs), "check": r.get("check"),
                 "targets": [str(p.relative_to(anchor_root)) if p != anchor_root else "{ANCHOR}"
                             for p in tgts],
+                "_target_paths": [str(p) for p in tgts],
             })
         if matched_rules:
             groupings.append({"ruleset": rs["name"], "flat_file": flat,
@@ -457,6 +459,192 @@ def render_recipe(plan: dict, order: str, cdir: Path | None) -> str:
     return "\n".join(out)
 
 
+# ── Stage 2: checker primitives + verdict-cached executor (F161) ─────────────
+#
+# Each `checked`/`sampled` rule may carry a machine-readable `check::` ref naming
+# one of these primitives (the prose **Check pattern:** stays the human spec).
+# A primitive takes (target_path, anchor_root, args) and returns (status, detail)
+# where status ∈ {pass, fail, error}. For `anchor`-scope rules the target is the
+# anchor root dir; helpers resolve the entry page from it.
+
+def _read(path: Path) -> str:
+    return path.read_text(encoding="utf-8")
+
+
+def _anchor_slug(anchor_root: Path) -> str:
+    dot = anchor_root / ".anchor"
+    if dot.is_file():
+        m = re.search(r"^slug:\s*(\S+)", _read(dot), re.MULTILINE)
+        if m:
+            return m.group(1).strip().strip('"\'')
+    return anchor_root.name
+
+
+def _entry_page(anchor_root: Path) -> Path | None:
+    cand = anchor_root / f"{_anchor_slug(anchor_root)}.md"
+    if cand.is_file():
+        return cand
+    cand = anchor_root / f"{anchor_root.name}.md"
+    return cand if cand.is_file() else None
+
+
+def _as_file(target: Path, anchor_root: Path) -> Path | None:
+    return _entry_page(anchor_root) if target.is_dir() else target
+
+
+def _frontmatter(text: str) -> str | None:
+    m = re.match(r"^---\n(.*?)\n---\n", text, re.DOTALL)
+    return m.group(1) if m else None
+
+
+def chk_anchor_has(target, anchor_root, args):
+    dot = anchor_root / ".anchor"
+    if not dot.is_file():
+        return "fail", "no .anchor file"
+    text = _read(dot)
+    missing = [k for k in args if not re.search(rf"(^|\b){re.escape(k)}\s*[:=]", text, re.MULTILINE)]
+    return ("pass", "") if not missing else ("fail", f"missing in .anchor: {', '.join(missing)}")
+
+
+def chk_entry_page_matches_slug(target, anchor_root, args):
+    ep = _entry_page(anchor_root)
+    if ep is None:
+        return "fail", f"no entry page {_anchor_slug(anchor_root)}.md"
+    return "pass", ep.name
+
+
+def chk_frontmatter_has(target, anchor_root, args):
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file to inspect"
+    fm = _frontmatter(_read(f))
+    if fm is None:
+        return "fail", "no YAML frontmatter"
+    key = args[0] if args else "description"
+    return ("pass", "") if re.search(rf"^{re.escape(key)}\s*:", fm, re.MULTILINE) else ("fail", f"frontmatter missing {key}:")
+
+
+def chk_h1_present(target, anchor_root, args):
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    return ("pass", "") if re.search(r"^# \S", _read(f), re.MULTILINE) else ("fail", "no H1")
+
+
+def chk_no_blank_after_h1(target, anchor_root, args):
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    lines = _read(f).splitlines()
+    for i, ln in enumerate(lines):
+        if re.match(r"^# \S", ln):
+            if i + 1 >= len(lines) or lines[i + 1].strip() == "":
+                return "fail", "blank line directly after H1"
+            return "pass", ""
+    return "fail", "no H1"
+
+
+def chk_regex_present(target, anchor_root, args):
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    pat = args[0] if args else ""
+    return ("pass", "") if re.search(pat, _read(f), re.MULTILINE) else ("fail", f"pattern absent: {pat}")
+
+
+def chk_regex_absent(target, anchor_root, args):
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    pat = args[0] if args else ""
+    return ("fail", f"pattern present: {pat}") if re.search(pat, _read(f), re.MULTILINE) else ("pass", "")
+
+
+CHECKERS = {
+    "anchor_has": chk_anchor_has,
+    "entry_page_matches_slug": chk_entry_page_matches_slug,
+    "frontmatter_has": chk_frontmatter_has,
+    "h1_present": chk_h1_present,
+    "no_blank_after_h1": chk_no_blank_after_h1,
+    "regex_present": chk_regex_present,
+    "regex_absent": chk_regex_absent,
+}
+
+
+def run_checker(check: str, target: Path, anchor_root: Path) -> tuple[str, str]:
+    parts = check.split()
+    name, args = parts[0], parts[1:]
+    fn = CHECKERS.get(name)
+    if fn is None:
+        return "error", f"unknown checker {name!r}"
+    try:
+        return fn(target, anchor_root, args)
+    except Exception as e:  # a checker bug must not abort the whole run
+        return "error", f"{type(e).__name__}: {e}"
+
+
+def _verdict_cache_get(cdir: Path, key: str):
+    fp = cdir / "verdicts" / f"{key}.json"
+    if fp.is_file():
+        try:
+            return json.loads(fp.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return None
+    return None
+
+
+def _verdict_cache_put(cdir: Path, key: str, value: dict):
+    d = cdir / "verdicts"
+    d.mkdir(parents=True, exist_ok=True)
+    (d / f"{key}.json").write_text(json.dumps(value), encoding="utf-8")
+
+
+def execute_plan(plan: dict, cdir: Path | None) -> dict:
+    """Run every matched rule that carries a `check::` ref; cache verdicts by
+    (rule-id, rule-body-hash, target-content-hash). Returns a verdicts report."""
+    anchor_root = Path(plan["anchor_root"])
+    results = []
+    counts = {"pass": 0, "fail": 0, "error": 0, "cached": 0}
+    for g in plan["groupings"]:
+        for r in g["rules"]:
+            if not r.get("check"):
+                continue
+            body_hash = hashlib.sha256(f"{r['id']}|{r['check']}".encode()).hexdigest()[:12]
+            for disp, tgt in zip(r["targets"], r["_target_paths"]):
+                tp = Path(tgt)
+                try:
+                    chash = hashlib.sha256(tp.read_bytes() if tp.is_file()
+                                           else str(sorted(p.name for p in tp.iterdir())).encode()
+                                           ).hexdigest()[:12]
+                except OSError:
+                    chash = "0"
+                key = f"{r['id']}-{body_hash}-{chash}"
+                cached = _verdict_cache_get(cdir, key) if cdir else None
+                if cached:
+                    status, detail = cached["status"], cached["detail"]
+                    counts["cached"] += 1
+                else:
+                    status, detail = run_checker(r["check"], tp, anchor_root)
+                    if cdir:
+                        _verdict_cache_put(cdir, key, {"status": status, "detail": detail})
+                counts[status] = counts.get(status, 0) + 1
+                results.append({"rule": r["id"], "target": disp, "status": status, "detail": detail})
+    return {"counts": counts, "results": results}
+
+
+def render_verdicts(report: dict) -> str:
+    c = report["counts"]
+    out = [f"# mechanical verdicts — pass {c['pass']}  fail {c['fail']}  "
+           f"error {c['error']}  (cache hits {c['cached']})", ""]
+    for v in report["results"]:
+        mark = {"pass": "✓", "fail": "✗", "error": "!"}.get(v["status"], "?")
+        line = f"{mark} {v['rule']} — {v['target']}"
+        if v["detail"]:
+            line += f"  ({v['detail']})"
+        out.append(line)
+    return "\n".join(out)
+
+
 # ── CLI ─────────────────────────────────────────────────────────────────────
 
 def resolve_target(arg: str) -> Path:
@@ -478,6 +666,8 @@ def main(argv):
     ap.add_argument("--order", choices=("file", "rule"))
     ap.add_argument("--batch", metavar="DIR", help="rule-major sweep over anchors under DIR")
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--run", action="store_true",
+                    help="execute the mechanical (check::) rules and report verdicts")
     ap.add_argument("--cache-dir")
     ap.add_argument("--no-cache", action="store_true")
     args = ap.parse_args(argv)
@@ -505,6 +695,13 @@ def main(argv):
     mode = args.mode or ("doc" if target.is_file() else "anchor")
     order = args.order or ("rule" if mode == "anchor" and False else "file")
     plan = plan_one(target, mode, cdir, [])
+    if args.run:
+        report = execute_plan(plan, cdir)
+        if args.json:
+            print(json.dumps(report, indent=2))
+        else:
+            print(render_verdicts(report))
+        return 0
     if args.json:
         print(json.dumps(plan, indent=2))
     else:
