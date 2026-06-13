@@ -3,18 +3,17 @@ description: "Facets — per-doc structural specs (Backlog, PRD, Brief, Dispatch
 ---
 
 # FCT - Facets
-
 The per-doc structural specs — the shapes documents take.
 
 | -[[FCT]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [FCT](hook://p/FCT)<br>: the per-doc structural specs |
 | --- | --- |
-| Related | [[SKL\|Skills]],  [[DSC\|Disciplines]],  [[LBR\|Library]], [[OBSK\|ob-skills]] (root) |
+| Related | [[SKL\|Skills]],  [[DSC\|Disciplines]],  [[LBR\|Library]],  [[OBSK\|ob-skills]],   |
 |  |  |
 |  | **FACETS** |
-| Anchor & structure | [[FCT Anchor Page]],  [[FCT Project Page]],  [[FCT Folder]],  [[FCT Files]],  [[FCT All Files]],  [[FCT Facets]],  [[FCT Naming]],  [[FCT Skill]],  [[FCT Claude]],  [[FCT Move]],  [[FCT Interface]],  [[FCT CLI]],  [[FCT Code Repository]],   |
-| Design | [[FCT PRD]],  [[FCT System Design]],  [[FCT Architecture]],  [[FCT UX Design]],  [[FCT API Design]],  [[FCT API Doc]],  [[FCT Testing]],  [[FCT Stories]],  [[FCT Decisions]],  [[FCT Principles]],  [[FCT Roadmap]],  [[FCT Completed Roadmap]],  [[FCT Design]],  [[FCT Rules]],   |
-| Track & execute | [[Backlog]],  [[FCT Features]],  [[FCT Inbox]],  [[FCT Icebox]],  [[FCT Questions]],  [[FCT Messages]],  [[FCT Log]],  [[FCT Triage]],  [[FCT Status]],   |
-| Sub-dispatch | [[FCT Design Dispatch]],  [[FCT Dev Dispatch]],  [[FCT Plan Dispatch]],  [[FCT Track Dispatch]],  [[FCT User Dispatch]],   |
-| Output & docs | [[FCT Cards]],  [[FCT Outputs]],  [[FCT Documentation Site]],  [[FCT WP]],  [[Docs]],  [[TSK User Guide]],   |
+| [[FCT Anchor\|Anchor & structure]]+ | [[FCT Anchor Page\|Anchor Page]],  [[FCT Project Page\|Project Page]],  [[FCT Folder\|Folder]],  [[FCT Files\|Files]],  [[FCT All Files\|All Files]],  [[FCT Facets\|Facets]],  [[FCT Naming\|Naming]],  [[FCT Skill\|Skill]],  [[FCT Claude\|Claude]],  [[FCT Move\|Move]],  [[FCT Interface\|Interface]],  [[FCT CLI\|CLI]],  [[FCT Code Repository\|Code Repository]],   |
+| [[FCT Design Docs\|Design]]+ | [[FCT PRD\|PRD]],  [[FCT System Design\|System Design]],  [[FCT Architecture\|Architecture]],  [[FCT UX Design\|UX Design]],  [[FCT API Design\|API Design]],  [[FCT API Doc\|API Doc]],  [[FCT Testing\|Testing]],  [[FCT Stories\|Stories]],  [[FCT Decisions\|Decisions]],  [[FCT Principles\|Principles]],  [[FCT Roadmap\|Roadmap]],  [[FCT Completed Roadmap\|Completed Roadmap]],  [[FCT Design\|Design]],  [[FCT Rules\|Rules]],   |
+| [[FCT Track\|Track & execute]]+ | [[Backlog]],  [[FCT Features\|Features]],  [[FCT Inbox\|Inbox]],  [[FCT Icebox\|Icebox]],  [[FCT Questions\|Questions]],  [[FCT Messages\|Messages]],  [[FCT Log\|Log]],  [[FCT Triage\|Triage]],  [[FCT Status\|Status]],   |
+| [[FCT Dispatch\|Sub-dispatch]]+ | [[FCT Design Dispatch\|Design Dispatch]],  [[FCT Dev Dispatch\|Dev Dispatch]],  [[FCT Plan Dispatch\|Plan Dispatch]],  [[FCT Track Dispatch\|Track Dispatch]],  [[FCT User Dispatch\|User Dispatch]],   |
+| [[FCT Output\|Output & docs]]+ | [[FCT Cards\|Cards]],  [[FCT Outputs\|Outputs]],  [[FCT Documentation Site\|Documentation Site]],  [[FCT WP\|WP]],  [[Docs]],  [[TSK User Guide]],   |
 
 *Names are the as-moved `CAB <X>` spec filenames; renaming to the `FCT <name>` convention is a "from-there" edit (F158 § D cleanup).*
