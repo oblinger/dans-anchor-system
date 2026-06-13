@@ -4,9 +4,9 @@ description: "example facet — a doc-facet spec"
 # FEX Manifest
 The Manifest facet — the fixed shape of the `manifest.txt` a snapshot writes beside its bundle.
 
-| -[[FEX Manifest]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [FEX Manifest](hook://p/FEX%20Manifest)<br>: example facet — a doc-facet spec |
+| -[[FEX Manifest]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [[FEX Repo]] → [FEX Manifest](hook://p/FEX%20Manifest)<br>: example facet — a doc-facet spec |
 | --- | --- |
-| Related | [[FEX]],  [[FCT Facets]],   |
+| Related | [[FEX Repo]],  [[FCT Facets]],   |
 
 ## What it is
 

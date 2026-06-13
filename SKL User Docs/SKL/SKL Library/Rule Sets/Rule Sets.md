@@ -4,7 +4,7 @@ description: Catalog of rule sets. See [[Rule Sets Brief]] for editing conventio
 
 # Rule Sets
 
-| -[[Rule Sets]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[SKL Library]] → [Rule Sets](hook://p/Rule%20Sets)<br>: Curated, versioned bundles of rules. |
+| -[[Rule Sets]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [[SKL/SKL]] → [[SKL Library]] → [Rule Sets](hook://p/Rule%20Sets)<br>: Curated, versioned bundles of rules. |
 | --- | --- |
 | Related | [[Rule Sets Brief\|Brief]],  [[FCT Rules]],  [[FCT Decisions]],   |
 | **CAB-aligned umbrellas** | The three primary structural axes — rule sets tied to CAB Facets, Traits, Skills. Adopting an umbrella pulls every per-X rule set under it. |
@@ -22,6 +22,8 @@ description: Catalog of rule sets. See [[Rule Sets Brief]] for editing conventio
 | **Owner-scoped** | Apply to every anchor a given owner owns, regardless of trait. |
 | [[R-ob]] | Dan's personal Ob-flavored rule sets. Children: [[R-ob-state-mgt]] (3 rules), [[R-ob-observability]] (2 rules), [[R-ob-cmd-proc]] (13 rules). |
 | --- | |
+| [[R-brief]] | Rules for the Brief doc facet — agent-facing per-file maintenance content (inline `# BRIEF` or `<Name> Brief.md` sidecar). Canonical body embedded in |
+| [[R-messages]] | Rules for the {NAME} Messages facet — the agent's per-anchor background-process inbox, distinct from the user's Inbox. Canonical body embedded in |
 | [[Rule Sets/README]] |  |
 
 ## Status

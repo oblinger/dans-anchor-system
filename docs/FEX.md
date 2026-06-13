@@ -10,7 +10,7 @@ A small set of complete, fictional example anchors — reused to illustrate each
 | Related | [[SKL\|Skills]],  [[FCT\|Facets]],  [[DSC\|Disciplines]],  [[LBR\|Library]],  [[OBSK\|ob-skills]],   |
 |  | **THE EXAMPLE WORLDS** |
 | [[HBR]] | **Harbor** — a fictional project (its own slug): project root + grouped dispatch ([[HBR Components]]) + a built-out sub-anchor ([[HBR Ingest]]), all `HBR`-prefixed |
-| FEX-prefixed | **Loose examples** — flat `FEX `-prefixed files, each illustrating one skill-ecosystem kind: a skill ([[FEX Snapshot\|Snapshot]]), a facet ([[FEX Manifest\|Manifest]]), and a discipline ([[FEX Retention\|Retention]]) |
+| [[FEX Repo\|Repo]] | **FEX Repo** — a fake skills repository tying the loose examples together: a skill ([[FEX Snapshot\|Snapshot]]), a facet ([[FEX Manifest\|Manifest]]), a discipline ([[FEX Retention\|Retention]]) |
 | ... |  |
 
 ## By kind / facet — which example shows it
