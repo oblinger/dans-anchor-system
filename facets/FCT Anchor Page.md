@@ -8,7 +8,7 @@ The entry page every anchor opens with — its `{slug}.md`.
 | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Related               | [[FCT]],  [[CAB Dispatch Table]],  [[DSC progressive-disclosure]],  [[FEX]],                                                                                          |
 |                       |                                                                                                                                                                       |
-| Examples | [[ESR Snapshot\|skill]],  [[ESR Skills\|list]],  [[HBR Components\|grouped]],  [[HBR\|project]],  [[HBR Ingest\|sub-folder]] |
+| Examples | [[HBR\|project]],  [[HBR Components\|grouped]],  [[HBR Ingest\|sub-folder]],  [[FEX Snapshot\|skill]] |
 | OLD Examples          | [[FEX]] — [[Snapper Dapper\|skill]],  [[Espresso\|list]],  [[Harbor Components\|grouped]],  [[Glossary\|facet]],  [[Harbor\|project]],  [[Harbor Ingest\|sub-folder]] |
 
 ## Anchor Page Template

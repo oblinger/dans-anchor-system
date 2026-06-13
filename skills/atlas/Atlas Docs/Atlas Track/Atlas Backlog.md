@@ -1,5 +1,5 @@
 ---
-description: Backlog for the Atlas skill — upcoming and in-flight work tracking.
+description: "Upcoming + in-flight work tracking"
 ---
 
 # Atlas Backlog

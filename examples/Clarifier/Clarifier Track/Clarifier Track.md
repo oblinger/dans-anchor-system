@@ -5,7 +5,7 @@ description: "The live work surface for the Clarifier project — roadmap + back
 # Clarifier Track — the work surface
 The live work surface for the Clarifier project — its roadmap and backlog.
 
-| -[[Clarifier Track]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[Clarifier]] → [Clarifier Track](hook://p/Clarifier%20Track)<br>: a sub-folder dispatch page (sub-anchor) |
+| -[[Clarifier Track]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [[Clarifier]] → [Clarifier Track](hook://p/Clarifier%20Track)<br>: a sub-folder dispatch page (sub-anchor) |
 | --- | --- |
 | Anchor | [[Clarifier]] (parent) |
 | Related | [[FCT Track Dispatch]],   |

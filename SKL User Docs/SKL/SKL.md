@@ -2,7 +2,7 @@
 description: skills dispatch table
 ---
 
-| -[[SKL]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [SKL](hook://p/SKL)<br>: User-facing guides for every published skill, grouped by category. |
+| -[[SKL]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [SKL](hook://p/SKL)<br>: User-facing guides for every published skill, grouped by category. |
 | --- | --- |
 | Related | [[SKL Skills\|Skills]],  [[FCT Facets]],   |
 |  | **SKILL GROUPS** |
