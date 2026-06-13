@@ -7,6 +7,17 @@ description: Connect this Mac to another machine. Umbrella over three kinds of b
 
 **Bridge** is the umbrella for "connect this machine to another machine." Renamed from `mux-bridge` (F150) once it grew past the original SSH+tmux control plane.
 
+## Heartbeat discipline — MANDATORY whenever a bridge is active
+
+**Rule (user, 2026-06-12): while ANY bridge is active — a control session, a sync, a remote agent, or a background workflow driving the remote — you MUST keep a running heartbeat that verifies *actual progress*, not just "still waiting."**
+
+- **Arm a timer.** Schedule a wake-up (default **120 s**; never longer than the 300 s cache window while actively watching) via `ScheduleWakeup`. Re-arm it every heartbeat until the remote work is genuinely done. Do NOT rely solely on "I'll be auto-notified when it finishes" — the failure mode this rule defeats is a remote agent / workflow that **hangs silently** (it never finishes, so the completion notification never fires, and the user sits staring at a dead screen). The earlier Fable-agent hangs and the silent workflow stalls are exactly why this rule exists.
+- **Verify ground-truth progress, not pane text.** Each heartbeat, check that something concrete advanced since last time: workflow agent transcripts growing / `journal.jsonl` mtime moving, new commits, files changing, the target metric dropping. If **nothing advanced** between two heartbeats, treat it as STALLED — investigate the stuck agent/process (capture state, then unstick/restart) rather than waiting another cycle.
+- **Always end a heartbeat with the ALL-CAPS state banner** (per the `devops` skill): `WORKING — {what}` / `WAITING ON COMPLETION — {what, ETA}` / `WAITING ON USER — {action}`. The banner is the last line, every time.
+- **Never go dark.** Silence while a bridge is active is a spec violation — the user must always be able to see, at the cadence of the heartbeat, that progress is real.
+
+See the `devops` skill for the general heartbeat/watcher discipline; this section makes it **non-optional** the moment a bridge is in play.
+
 ## The three kinds of bridge
 
 Two are **mechanisms** (how control / bytes move); one is a **goal** built on top of them.

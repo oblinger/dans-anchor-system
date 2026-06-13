@@ -1,5 +1,5 @@
 ---
-description: "The machines this host can reach — a small, flat collection (example)."
+description: "example **list collection** (≤ 15) — a flat member list, ends in `...`"
 ---
 
 # Bridges

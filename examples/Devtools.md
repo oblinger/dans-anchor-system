@@ -1,5 +1,5 @@
 ---
-description: "The team's development tooling — a collection big enough to group (example)."
+description: "example **grouped collection** (> 15) — `+` group rows that link *down* to their own pages, ends in `...`"
 ---
 
 # Devtools

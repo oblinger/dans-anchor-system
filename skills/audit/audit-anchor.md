@@ -23,7 +23,7 @@ Takes one anchor (or folder) and checks it against the **anchor rule set** — t
 - [ ] It declares **`traits:`** identifying the kind (e.g. `[skill]`, `[Code]`, `Collection`).
 
 ### B — anchor page conforms *([[FCT Anchor Page]] § Rule Set, + D06)*
-*Reference: read the [[FCT Anchor Page]] **Rule Set**, or diff the anchor against the matching kind in [[FEX]] — [[Snap]] (skill), [[Bridges]] (list), [[Devtools]] (grouped), [[Clarifier]] (project), [[Clarifier Track]] (sub-folder).*
+*Reference: read the [[FCT Anchor Page]] ruleset **`R-anchor-page`**, or diff the anchor against the matching kind in [[FEX]] — [[Snap]] (skill), [[Bridges]] (list), [[Devtools]] (grouped), [[Glossary]] (facet), [[Clarifier]] (project), [[Clarifier Track]] (sub-folder).*
 - [ ] The anchor page **`{slug}.md`** exists (filename = slug; H1's readable name may differ).
 - [ ] **H1 = `{slug} - {Full Name}`** (per [[SKA Decisions|D06]]) — slug leads, then the readable name. (Bare-name anchors: H1 is just the name.)
 - [ ] **No blank line after the H1** — the one-sentence summary sits on the very next line. Then a blank, then the optional figure, then the dispatch table. (Top-of-page order: H1 → summary → figure? → dispatch.)
