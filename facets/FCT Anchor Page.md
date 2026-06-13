@@ -7,7 +7,7 @@ The entry page every anchor opens with — its `{slug}.md`.
 | -[[FCT Anchor Page]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [FCT Anchor Page](hook://p/FCT%20Anchor%20Page)<br>: the `{slug}.md` entry-page format                   |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Related               | [[FCT]],  [[CAB Dispatch Table]],  [[DSC progressive-disclosure]],  [[FEX]],                                                                           |
-| Examples              | [[FEX]] — [[Snap\|skill]],  [[Bridges\|list]],  [[Devtools\|grouped]],  [[Glossary\|facet]],  [[Clarifier\|project]],  [[Clarifier Track\|sub-folder]] |
+| Examples | [[FEX]] — [[Snap\|skill]],  [[Espresso\|list]],  [[Harbor Components\|grouped]],  [[Glossary\|facet]],  [[Harbor\|project]],  [[Harbor Ingest\|sub-folder]] |
 
 ## Anchor Page Template
 
@@ -196,6 +196,18 @@ Every file and folder inside the anchor is prefixed `{NAME}` (`{NAME} PRD.md`, `
 ### RULE R-anchor-page-22 — Simple anchors may carry no table (stated)
 
 A simple / leaf anchor may have no dispatch table at all — frontmatter + H1 + summary suffice.
+
+## Kind-specific rules
+
+Rules that apply only to **one kind** of anchor page (skill / list / grouped / facet / project root / sub-folder). For now they live here at the tail of the shared set; if a kind accumulates enough of its own, it graduates to a dedicated sub-ruleset (e.g. `R-anchor-page-facet`) pulled in via `include::`.
+
+### RULE R-anchor-page-23 — A facet page links to a covering example set (stated)
+
+*(kind: facet)* A **facet** anchor page's dispatch table carries an `Examples` row that links to a set of examples spanning the **full range of instance kinds** that facet has. For the anchor-page facet itself that means one example per anchor-page kind — skill / list / grouped / facet / project / sub-folder.
+
+**Check pattern:** if the page is a facet spec, assert a masthead `Examples` row exists and its links cover each enumerated kind of that facet.
+
+**Why:** the examples are how a reader — and `/audit anchor` — learns what each kind looks like; an unillustrated kind is an unspecified, untestable kind.
 
 # BRIEF
 
