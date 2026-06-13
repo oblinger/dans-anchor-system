@@ -4,7 +4,7 @@ description: "the Manifest facet definition"
 # FEX Manifest
 The Manifest facet — the fixed key/value record written into every snapshot bundle. A worked example of a **single-file, cardinality-one, fixed-format** facet.
 
-| -[[FEX Manifest]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [[FEX Repo]] → [FEX Manifest](hook://p/FEX%20Manifest)<br>: the Manifest facet definition |
+| -[[FEX Manifest]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FEX Repo]] → [FEX Manifest](hook://p/FEX%20Manifest)<br>: the Manifest facet definition |
 | --- | --- |
 | Anchor | [[FEX Repo]] (parent) |
 | Related | [[FEX Snapshot]] (writes it),  [[R-fex-manifest]] (its rules),  [[FEX Bundle]] (carries it),  [[FCT Facet]] (the facet spec), |
@@ -29,7 +29,7 @@ restore:   snapshot restore 2026-06-13-0300
 ```
 
 ## Constraints
-Formalized as the [[R-fex-manifest]] rule set: one fact per line; required keys present; no absolute paths.
+Formalized as the [[R-fex-manifest]] ruleset: one fact per line; required keys present; no absolute paths.
 
 ## Expected Usage
 Written by [[FEX Snapshot|Snapshot]] at capture; read by restore and by the [[FEX Retention|Retention]] sweep. Removed with its bundle — no tombstone.

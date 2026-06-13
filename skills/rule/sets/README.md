@@ -1,6 +1,6 @@
-# sets/ — Canonical per-trait rule-set library
+# sets/ — Canonical per-trait ruleset library
 
-This folder holds **canonical rule sets**, organized per trait (per [[F082]] Q5 + [[F090 — Retire CAB Types, unify under Traits, Facets-as-Traits-by-file-existence|F090]] unified trait taxonomy). Each set is a standalone markdown doc declaring rules that apply to a specific style of anchor.
+This folder holds **canonical rulesets**, organized per trait (per [[F082]] Q5 + [[F090 — Retire CAB Types, unify under Traits, Facets-as-Traits-by-file-existence|F090]] unified trait taxonomy). Each set is a standalone markdown doc declaring rules that apply to a specific style of anchor.
 
 ## Layout
 
@@ -68,6 +68,6 @@ The library is **bootstrapping**. F082 v1 ships `/rule discover` + `/rule curate
 
 ## Related
 
-- [[F082 — Common rule set across projects]] — the feature commissioning this library.
+- [[F082 — Common ruleset across projects]] — the feature commissioning this library.
 - [[F090 — Retire CAB Types, unify under Traits, Facets-as-Traits-by-file-existence]] — provides the trait taxonomy.
 - [[CAB Traits]] — the canonical trait taxonomy.

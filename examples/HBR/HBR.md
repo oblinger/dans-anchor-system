@@ -6,7 +6,7 @@ traits: [Code]
 # HBR - Harbor
 A self-hosted media server that ingests, transcodes, and streams a personal library — the worked project-root example.
 
-| -[[HBR]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [HBR](hook://p/HBR)<br>: Harbor — example project anchor — a designed software project with a grouped component tree |
+| -[[HBR]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [HBR](hook://p/HBR)<br>: Harbor — example project anchor — a designed software project with a grouped component tree |
 | --- | --- |
 | Related | [[Clarifier]] (sibling project),  [[Devtools]] (grouped variant),  [[FEX]] (the example gallery) |
 | [[HBR Components\|Components]]+ | [[HBR Ingest\|Ingest]],  [[HBR Serve\|Serve]],  [[HBR Operate\|Operate]],   |

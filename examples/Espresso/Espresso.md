@@ -4,7 +4,7 @@ description: "example **topic collection** (≤ 15) — a flat, hand-ordered mem
 # ESP - Espresso
 Working notes on pulling espresso — the variables, the gear, and what to do when the shot goes wrong.
 
-| -[[Espresso]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [Espresso](hook://p/Espresso)<br>: Espresso — example topic collection (≤ 15 members) — notes on pulling espresso |
+| -[[Espresso]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [Espresso](hook://p/Espresso)<br>: Espresso — example topic collection (≤ 15 members) — notes on pulling espresso |
 | --- | --- |
 | Related | [[Bridges]] (list variant),  [[DSC Dispatch Table]],  [[FEX]], |
 | [[Espresso Beans\|Beans]] | choosing roast, freshness, and origin for espresso |

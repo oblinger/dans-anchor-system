@@ -1,6 +1,6 @@
 # viz-diagram — Rule-enforced SVG diagrams
 
-Author or audit hand-written SVG diagrams against the [[R-diagram]] rule set (22 rules over 7 methodologies — geometric correctness, graph aesthetics, C4 conventions, contrast, typography, data-ink, SVG hygiene). The sibling [[viz-svg]] action is the unguarded version; this one always loads R-diagram first and uses it as the standard for "done."
+Author or audit hand-written SVG diagrams against the [[R-diagram]] ruleset (22 rules over 7 methodologies — geometric correctness, graph aesthetics, C4 conventions, contrast, typography, data-ink, SVG hygiene). The sibling [[viz-svg]] action is the unguarded version; this one always loads R-diagram first and uses it as the standard for "done."
 
 ## Two modes
 
@@ -28,7 +28,7 @@ Before *any* SVG is written or modified, read the umbrella + the sub-sets that g
 
 Read the umbrella first to confirm the current sub-set list; the umbrella is canonical (don't trust this list if it's drifted). The other reads can run in parallel.
 
-Skipping the preamble is a spec violation — you don't know what "done" is without the rule set.
+Skipping the preamble is a spec violation — you don't know what "done" is without the ruleset.
 
 ## Create mode
 
@@ -146,7 +146,7 @@ Triggered when the argument resolves to an existing SVG.
 
 1. **Load the rules** (preamble above).
 2. **Read the SVG** at the given path.
-3. **Audit pass — walk every rule.** For each of the 22 rules, perform the rule's `**Check pattern:**` (each rule file documents how to check). Group findings by sub-set so the report mirrors the rule-set structure.
+3. **Audit pass — walk every rule.** For each of the 22 rules, perform the rule's `**Check pattern:**` (each rule file documents how to check). Group findings by sub-set so the report mirrors the ruleset structure.
 4. **Fix-in-place** for each violation. Default posture: fix mechanically when the rule has a clear remediation (e.g., overlap → nudge boxes apart; tunneling → reroute through a bend; orphan `<defs>` → drop; XML validation → repair tag mismatch). Skip fixes only when the rule's intended interpretation is ambiguous in context (label-association proximity-ratio borderline cases, chartjunk subjective calls) — surface those as findings instead of fixes.
 5. **Re-audit** after fixes to confirm the violation count went down without introducing new ones.
 6. **Report** — emit a short table: `Rule | Before | After | What changed`. Group by sub-set. Close with the residual violation count.
@@ -173,7 +173,7 @@ rsvg-convert -w 1800 "Name.svg" -o "Name.png"
 
 ## Failure modes
 
-- **Skipped the preamble.** Don't author or modify the SVG without first reading the rule set. The agent's intuitions about "what a clean diagram looks like" aren't the same as the 22 rules.
+- **Skipped the preamble.** Don't author or modify the SVG without first reading the ruleset. The agent's intuitions about "what a clean diagram looks like" aren't the same as the 22 rules.
 - **Audit but no fix in cleanup mode.** The whole point of cleanup is to land the fixes. Surface findings only for genuinely ambiguous cases.
 - **Fix introduces a new violation.** Always re-audit after fixes. Common trap: nudging boxes apart to fix overlap creates new edge tunneling.
 - **Used `/viz svg` instead of `/viz diagram` when the user said "diagram".** `/viz svg` is the unguarded hand-write action; `/viz diagram` is the rule-enforced one. When the user invokes `/viz diagram`, the R-diagram rules ARE the contract.
@@ -181,7 +181,7 @@ rsvg-convert -w 1800 "Name.svg" -o "Name.png"
 ## See also
 
 - [[viz-svg]] — sibling unguarded SVG authoring action.
-- [[R-diagram]] — umbrella rule set (22 rules, 7 methodologies).
+- [[R-diagram]] — umbrella ruleset (22 rules, 7 methodologies).
 - [[R-diagram-geometry]] — the 6 hard-fail geometric rules.
 - `feedback_figure_source_alongside_output` — source-alongside-output convention.
 - `feedback_no_ascii_in_architecture_diagrams` — ASCII forbidden in architecture docs.

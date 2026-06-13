@@ -4,7 +4,7 @@ description: "the Facet primitive — what a facet is and how to write its spec"
 # FCT Facet
 A narrow, usually file-based aspect of an anchor — and the spec for how to write one.
 
-| -[[FCT Facet]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [FCT Facet](hook://p/FCT%20Facet)<br>: the Facet primitive — what a facet is and how to write its spec |
+| -[[FCT Facet]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Primitives]] → [FCT Facet](hook://p/FCT%20Facet)<br>: the Facet primitive — what a facet is and how to write its spec |
 | --- | --- |
 | Related | [[FCT Skill]],  [[FCT Ruleset]],  [[FCT Facets]] (the index),  [[CAB Aspects]], |
 | Examples | [[FEX Manifest\|single-file, one]],  [[FEX Pin\|single-file, many]],  [[FEX Bundle\|folder, many]],   |
@@ -17,11 +17,11 @@ A facet spec is one file (`facets/FCT <Name>.md`), authoritative for that facet.
 - **Dispatch table** — the breadcrumb row, then `Related` (lateral links only) and `Examples`.
 - **Document structure** — this dense outline, placed first so a reader sees the doc's shape before any prose.
 - **Overview** — a short paragraph: what the facet is and what it's for. *(Optional.)*
-- **The Aspect contract** — content the body usefully conveys, mostly via the rule set (section shapes vary; **not** fixed H2s; all optional): what it is · how it's detected (+ cardinality `one` / `many`) · format · constraints · expected usage · skills and audits that attach · triggers.
-- **`# RULESET R-<facet>`** — **REQUIRED.** The embedded rule set: how to validate and create the facet — detection, format, and constraints in auditable form (e.g. [[R-fex-manifest]]). It's how we know what the facet is and how to check it.
+- **The Aspect contract** — content the body usefully conveys, mostly via the ruleset (section shapes vary; **not** fixed H2s; all optional): what it is · how it's detected (+ cardinality `one` / `many`) · format · constraints · expected usage · skills and audits that attach · triggers.
+- **`# RULESET R-<facet>`** — **REQUIRED.** The embedded ruleset: how to validate and create the facet — detection, format, and constraints in auditable form (e.g. [[R-fex-manifest]]). It's how we know what the facet is and how to check it.
 - **`# BRIEF`** — **REQUIRED.** Agent-facing documentation (per [[FCT Brief]]) — what an agent reads before editing this facet. (Agent ≈ maintainer, but the audience is the agent, not the user.)
 
-For a worked facet, open an example in the dispatch table above — there is no embedded copy here, because a facet is itself a full anchor page and embedding one inside this spec just blurs example-vs-spec. The enforceable form of the rules below is the embedded **`R-facet-spec`** rule set.
+For a worked facet, open an example in the dispatch table above — there is no embedded copy here, because a facet is itself a full anchor page and embedding one inside this spec just blurs example-vs-spec. The enforceable form of the rules below is the embedded **`R-facet-spec`** ruleset.
 
 
 # Facet Overview
@@ -37,7 +37,7 @@ include::
 where:: file:facets/FCT *.md
 description:: The rules for authoring a facet — what every `FCT <Name>.md` (a facet definition) must contain and conform to. **Distinct from the umbrella [[R-facet]]**, which aggregates each materialized facet's *own* embedded rules (so an anchor's `{NAME} Backlog.md`, `{NAME} Testing.md`, … get audited); `R-facet-spec` instead governs the **facet-spec documents themselves**, in the `facets/` catalog.
 
-Embedded here per the [[F133 — Rule sets folder convention + facet embedding|F133]] convention. Tiers: **checked** (mechanically verifiable), **sampled** (spot-checked), **stated** (a principle the author honors). The authoritative model these rules enforce is [[CAB Aspects]] § Facet + § Spec-doc structure.
+Embedded here per the [[F133 — Rulesets folder convention + facet embedding|F133]] convention. Tiers: **checked** (mechanically verifiable), **sampled** (spot-checked), **stated** (a principle the author honors). The authoritative model these rules enforce is [[CAB Aspects]] § Facet + § Spec-doc structure.
 
 ## Location & registration
 
@@ -80,9 +80,9 @@ A facet spec with a non-trivial body opens its preface zone (after the dispatch 
 **Check pattern:** a `**TLDR**` line precedes the first body `## `; small specs (a few sentences) are exempt.
 **Why:** lets a reader graze the facet's shape in five seconds without reading the whole spec.
 
-## What a facet spec conveys — mostly via the rule set (sections optional)
+## What a facet spec conveys — mostly via the ruleset (sections optional)
 
-**Only two parts are *required*: the `# RULESET` (R-facet-spec-18) and the `# BRIEF` (R-facet-spec-22).** Everything in this group is content a facet spec should make *knowable* — but the required rule set is the natural carrier for the load-bearing parts (detection, format, constraints), so dedicated prose sections for them are **optional**, not mandated.
+**Only two parts are *required*: the `# RULESET` (R-facet-spec-18) and the `# BRIEF` (R-facet-spec-22).** Everything in this group is content a facet spec should make *knowable* — but the required ruleset is the natural carrier for the load-bearing parts (detection, format, constraints), so dedicated prose sections for them are **optional**, not mandated.
 
 ### RULE R-facet-spec-08 — Makes the facet's identity knowable (sampled)
 The spec conveys, in a sentence, the narrow aspect this facet names — via the H1 summary, an Overview, or a `## What it is`. A dedicated section is optional; the statement is not.
@@ -90,7 +90,7 @@ The spec conveys, in a sentence, the narrow aspect this facet names — via the 
 **Why:** the reader must learn the facet's identity before any rule about it makes sense.
 
 ### RULE R-facet-spec-09 — Makes detection knowable (sampled)
-The spec (typically its rule set) makes clear how presence is decided. Default is **file-existence**; any other mechanism (folder-existence, capability check, …) is stated **explicitly**.
+The spec (typically its ruleset) makes clear how presence is decided. Default is **file-existence**; any other mechanism (folder-existence, capability check, …) is stated **explicitly**.
 **Check pattern:** detection is findable; non-default detection is named, not assumed.
 **Why:** detection is owned by the spec, not hard-coded globally — a folder or file-less facet is mis-detected if a reader assumes "look for the file" (per [[CAB Aspects]] § Facet).
 
@@ -100,13 +100,13 @@ The spec makes cardinality clear — `one` (one per anchor) or `many`.
 **Why:** audits and skills behave differently for `one` vs `many`; leaving it implicit invites bugs.
 
 ### RULE R-facet-spec-11 — Makes the instance format knowable (sampled)
-The spec (typically its rule set) conveys the instance format: filename pattern, frontmatter, body requirements, naming.
-**Check pattern:** the format is findable in the spec or its rule set.
+The spec (typically its ruleset) conveys the instance format: filename pattern, frontmatter, body requirements, naming.
+**Check pattern:** the format is findable in the spec or its ruleset.
 **Why:** the format is the contract an instance is audited against; without it "conformance" is undefined.
 
 ### RULE R-facet-spec-12 — Constraints stated where they exist — a section is optional (stated)
-When a facet has legal-usage rules (mutual exclusion, co-requirement, format invariants) they are stated — **usually inside the rule set**, not a separate `## Constraints` prose section. A dedicated Constraints section is **optional**, not required.
-**Why:** the rule set is the enforceable home for constraints; a parallel prose section is redundant more often than not.
+When a facet has legal-usage rules (mutual exclusion, co-requirement, format invariants) they are stated — **usually inside the ruleset**, not a separate `## Constraints` prose section. A dedicated Constraints section is **optional**, not required.
+**Why:** the ruleset is the enforceable home for constraints; a parallel prose section is redundant more often than not.
 
 ### RULE R-facet-spec-13 — Expected-Usage guidance is optional (stated)
 Recommended (non-binding) patterns — common combinations, typical scale, skill pairings — may be included when useful. A dedicated `## Expected Usage` section is **optional**, not required.
@@ -123,12 +123,12 @@ A `## Triggers` section appears **only** when the facet declares behavioral trig
 **Check pattern:** if `## Triggers` is present, it has ≥ 1 typed H3; if the facet declares no triggers, the section is absent (not empty).
 **Why:** triggers are anchor-resident and lazily resolved from the body H3s; an empty or malformed Triggers section misfires the resolution.
 
-## The rule set — REQUIRED
+## The ruleset — REQUIRED
 
-### RULE R-facet-spec-18 — Every facet spec embeds a rule set — REQUIRED (checked)
+### RULE R-facet-spec-18 — Every facet spec embeds a ruleset — REQUIRED (checked)
 Every facet spec carries an embedded `# RULESET R-<facet>` (per the F133 convention; a tiny facet may have just a few rules). It is the one part that makes the facet **validatable and creatable** — detection, format, and constraints in auditable form (e.g. [[FEX Manifest]] → [[R-fex-manifest]]).
 **Check pattern:** the spec contains a `# RULESET R-<facet>` H1 with ≥ 1 `### RULE` entry.
-**Why:** prose rots and varies; the rule set is the single source an audit reads and an author follows to build a conformant instance. Without it we don't actually know how to validate or create the facet — so it is required, not optional. (One of the two required parts, alongside the `# BRIEF`.)
+**Why:** prose rots and varies; the ruleset is the single source an audit reads and an author follows to build a conformant instance. Without it we don't actually know how to validate or create the facet — so it is required, not optional. (One of the two required parts, alongside the `# BRIEF`.)
 
 ### RULE R-facet-spec-16 — Rules are enforceable statements (sampled)
 Each rule (and any constraint) is phrased so an audit could validate it — a forbidden/required/exclusive/invariant statement, not vague prose.
@@ -178,9 +178,9 @@ A facet that sits among peers (the Design or Track groups) links them in a `## S
 
 # BRIEF
 
-- **This is the spec for the *facet* primitive** — what a facet is and the shape of a facet spec doc. Sibling to [[FCT Skill]] (skill primitive) and [[FCT Ruleset]] (rule-set primitive); indexed from [[FCT Primitives]].
-- **Carries the embedded `R-facet-spec` rule set** — the enforceable rules for authoring *any* facet. Keep it distinct from the umbrella [[R-facet]] (which aggregates each facet's *instance* rules); `R-facet-spec` governs facet *spec docs*. Keep the `Facet Document Structure` bullet list and the rule set in sync — the list is the readable form, the RULESET is the auditable form.
+- **This is the spec for the *facet* primitive** — what a facet is and the shape of a facet spec doc. Sibling to [[FCT Skill]] (skill primitive) and [[FCT Ruleset]] (ruleset primitive); indexed from [[FCT Primitives]].
+- **Carries the embedded `R-facet-spec` ruleset** — the enforceable rules for authoring *any* facet. Keep it distinct from the umbrella [[R-facet]] (which aggregates each facet's *instance* rules); `R-facet-spec` governs facet *spec docs*. Keep the `Facet Document Structure` bullet list and the ruleset in sync — the list is the readable form, the RULESET is the auditable form.
 - **Singular, not the index.** [[FCT Facets]] (plural) is the *catalog* of concrete facets; this page (singular) *defines the kind*. The Primitives-row "Facet" link points here.
-- **Don't embed a worked example.** A facet example is itself a full anchor page (dispatch table, sections, often a paired rule set); embedding one inside this spec confuses example-vs-spec. Describe the shape with the `Facet Document Structure` bullet list; link real examples in the dispatch `Examples` row.
+- **Don't embed a worked example.** A facet example is itself a full anchor page (dispatch table, sections, often a paired ruleset); embedding one inside this spec confuses example-vs-spec. Describe the shape with the `Facet Document Structure` bullet list; link real examples in the dispatch `Examples` row.
 - **`Examples` lists *facets* (definitions), never instances.** A project's `Architecture.md` is an *instance* of the Architecture facet — it belongs on that facet's own page, not here. Label each `Examples` entry by what kind of facet example it is (small / complete; single-file / folder / many-cardinality).
 - **The umbrella model lives in [[CAB Aspects]]** — don't duplicate the Aspect/Trait/Facet vocabulary or the composability matrix here; link to it.

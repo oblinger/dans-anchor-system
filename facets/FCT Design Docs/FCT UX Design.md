@@ -30,7 +30,7 @@ Per [[DSC progressive-disclosure]]:
 | `## Output shapes` | Both forms named explicitly: human-readable default (what the user sees with their eyes) AND structured opt-in (`--json`, machine-readable export, copyable payload). Realistic example for each. |
 | `## Error voice` | The named error situations + the exact (or templated) message + exit code (CLI) or alert pattern (GUI). Tone is declared at the top (terse / friendly / verbose). |
 | `## Discovery` | How the human finds the entry-points: `--help` text, dispatch table in `{NAME}.md`, hotkey hints, banner copy. Names the signal the user follows on first encounter. |
-| `## Design decisions` | `D-UX<n>` rows: each load-bearing UX choice with rationale (why this and not the obvious alternative). Bridge to [[FCT Decisions]] for decisions that cite a rule set. |
+| `## Design decisions` | `D-UX<n>` rows: each load-bearing UX choice with rationale (why this and not the obvious alternative). Bridge to [[FCT Decisions]] for decisions that cite a ruleset. |
 
 Other H2s (e.g., `## Affordances`, `## Accessibility`, `## Telemetry`) join when applicable.
 
@@ -52,7 +52,7 @@ See [[CAE UX Design]] — the CAE scheduler shows the canonical shape for a CLI-
 include::
 description:: Rules for `{NAME} UX Design.md` — human user-facing surface intent.
 
-Embedded rule set for the UX Design facet, co-located with the facet spec above per [[F133 — Rule sets folder convention + facet embedding|F133]]. Adopted via [[R-facet]] umbrella.
+Embedded ruleset for the UX Design facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via [[R-facet]] umbrella.
 
 ### RULE R-ux-01 — Preface zone carries TLDR + figure (checked)
 
@@ -126,10 +126,10 @@ When UX Design starts listing every flag, or describing function signatures, or 
 
 # BRIEF
 
-- **This file is the facet spec for `{NAME} UX Design.md`** — it defines the shape of every anchor's human user-facing surface doc and embeds [[#RULESET R-ux|R-ux]] as the audited rule set. Edits here change the contract every UX Design instance must meet.
+- **This file is the facet spec for `{NAME} UX Design.md`** — it defines the shape of every anchor's human user-facing surface doc and embeds [[#RULESET R-ux|R-ux]] as the audited ruleset. Edits here change the contract every UX Design instance must meet.
 - **Not for per-anchor UX content** — concrete commands, screens, and error messages belong in each anchor's `{NAME} UX Design.md`. This file specifies the *required section spine and rules*, not exemplar entry-points or output transcripts.
 - **Inclusion test** — a change belongs here only if it is a structural rule, required section, or load-bearing definition that applies to *every* UX Design doc across anchors. Anchor-specific guidance, worked examples, or one-off conventions go in [[CAE UX Design]] (canonical exemplar) or the anchor's own doc.
 - **Preserve the facet-cut boundaries** — UX Design owns *human-facing intent*; [[FCT API Design]] owns *programmatic surface*, [[FCT CLI]] owns *exhaustive flag reference*, [[FCT Architecture]] owns *internal organization*. When editing, never absorb content that belongs in a sibling facet; rule R-ux-08 is the load-bearing guard.
-- **Rule set is co-located, not separate** — the `# RULESET R-ux` H1 at the bottom is part of this file per F133. When adding or revising rules, update the rule block in place; do not split it into a sibling file or duplicate it in [[FCT Ruleset]].
+- **Ruleset is co-located, not separate** — the `# RULESET R-ux` H1 at the bottom is part of this file per F133. When adding or revising rules, update the rule block in place; do not split it into a sibling file or duplicate it in [[FCT Ruleset]].
 - **Cross-references are load-bearing** — links to [[FCT API Design]], [[FCT CLI]], [[FCT Decisions]], [[FCT Architecture]], [[DSC progressive-disclosure]], and [[CAE UX Design]] anchor the facet's place in the wider blueprint. Renaming or moving any of those files requires updating the wiki-links here in the same commit.
 - **Preface zone discipline applies to instances, not this spec** — `R-ux-01` mandates TLDR + figure for each `{NAME} UX Design.md`. Don't import a figure or session transcript here; this is the rulebook, not an instance of the rule.

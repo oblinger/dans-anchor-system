@@ -5,7 +5,7 @@ description: "crank, land, fortify, triage, ask, feature, groom, mint, finalize"
 # SKL Drive
 User guides for the engine-room verbs that drive work forward through the lifecycle — from inbox to backlog, backlog to active, active to verified.
 
-| -[[SKL Drive]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [SKL Drive](hook://p/SKL%20Drive)<br>: User guides for the engine-room verbs that drive work forward through the lifecycle — from inbox to backlog, backlog to active, active to verified. |
+| -[[SKL Drive]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [SKL Drive](hook://p/SKL%20Drive)<br>: User guides for the engine-room verbs that drive work forward through the lifecycle — from inbox to backlog, backlog to active, active to verified. |
 | --- | --- |
 | [[SKL Ask\|Ask]] | The **`/ask` skill** is the universal asking subroutine. |
 | [[SKL Crank\|Crank]] | The "go" button. |

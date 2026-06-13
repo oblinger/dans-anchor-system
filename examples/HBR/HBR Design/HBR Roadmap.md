@@ -4,7 +4,7 @@ description: "milestones"
 # HBR Roadmap
 The milestone sequence that takes Harbor from an empty catalog to streaming.
 
-| -[[HBR Roadmap]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [[HBR]] → [[HBR Design]] → [HBR Roadmap](hook://p/HBR%20Roadmap)<br>: milestones |
+| -[[HBR Roadmap]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[HBR]] → [[HBR Design]] → [HBR Roadmap](hook://p/HBR%20Roadmap)<br>: milestones |
 | --- | --- |
 | Anchor | [[HBR Design]] (parent) |
 | Related | [[HBR PRD]],  [[HBR Backlog]],   |

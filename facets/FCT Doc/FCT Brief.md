@@ -155,7 +155,7 @@ include::
 where:: sentinel: ^#+ BRIEF\b
 description:: Rules for the Brief doc facet — agent-facing per-file maintenance content (inline `# BRIEF` or `<Name> Brief.md` sidecar).
 
-Embedded rule set for the Brief facet, co-located per [[F133 — Rule sets folder convention + facet embedding|F133]]. `where::` is the inline-`# BRIEF` sentinel; the sidecar rule (R-brief-02) targets `* Brief.md`.
+Embedded ruleset for the Brief facet, co-located per [[F133 — Rulesets folder convention + facet embedding|F133]]. `where::` is the inline-`# BRIEF` sentinel; the sidecar rule (R-brief-02) targets `* Brief.md`.
 
 ### RULE R-brief-01 — Inline brief is a bottom `# BRIEF` H1 (checked)
 

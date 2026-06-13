@@ -120,7 +120,7 @@ include::
 where:: file:{ANCHOR}/**/* Testing.md
 description:: facet spec this doc instantiates
 
-Embedded rule set for the Testing facet, co-located with the facet spec above per the [[F133 — Rule sets folder convention + facet embedding|F133]] embedding convention. Adopted via `R-facet` umbrella; an anchor that wants its `{NAME} Testing.md` audited pulls `R-facet` from its `{NAME} Decisions.md`.
+Embedded ruleset for the Testing facet, co-located with the facet spec above per the [[F133 — Rulesets folder convention + facet embedding|F133]] embedding convention. Adopted via `R-facet` umbrella; an anchor that wants its `{NAME} Testing.md` audited pulls `R-facet` from its `{NAME} Decisions.md`.
 
 ### RULE R-testing-01 — File name is `{NAME} Testing.md` (checked)
 check:: testing_filename_correct
@@ -214,10 +214,10 @@ The doc carries a `**TLDR**` block in the preface zone (after the dispatch table
 
 # BRIEF
 
-- **This is the CAB facet spec for `{NAME} Testing.md`** — it defines the doc shape (Strategy + Proposed Tests, with the four required Strategy subsections), the section order, the proposed-tests table contract, the `status::` gate field, and the embedded `R-testing` rule set. Edits here ripple to every anchor that adopts the facet.
+- **This is the CAB facet spec for `{NAME} Testing.md`** — it defines the doc shape (Strategy + Proposed Tests, with the four required Strategy subsections), the section order, the proposed-tests table contract, the `status::` gate field, and the embedded `R-testing` ruleset. Edits here ripple to every anchor that adopts the facet.
 - **Don't pile per-project content here.** Worked examples (e.g., [[CAE Testing]]) live in their own anchors and are linked from § See also; the spec stays general. Per-source-file editing notes for an actual `{NAME} Testing.md` instance go in that file's own Brief / inline section, not this one.
 - **The three-altitude split is load-bearing** — Strategy (this facet) → Proposed Tests inventory (this facet) → low-level test specs (module docs per [[FCT API Doc]]). Don't blur the boundary by inlining test code, fixtures, or assertions into the Spec column; that's the altitude inversion R-testing-07 exists to prevent.
 - **Keep the spec and the `R-testing` RULESET in sync.** When the section order, table contract, or `status::` value set changes in the prose above, audit each `RULE R-testing-NN` block for matching wording, check-pattern accuracy, and any new rule that should be added. The 10 numbered rules are the auditable form of this spec.
 - **Authoring authority flows through `/design testing`** — the [[skills/design/design-testing|design-testing]] sub-skill is the canonical authoring path; do not duplicate its runbook here. When the facet shape evolves, update design-testing's runbook in lockstep (the 2026-06-10 F136 rewrite is the precedent).
-- **Cross-references that must stay live:** [[FCT Architecture]] (peer facet, drives integration-test bar), [[DSC verification]] (four-tier vocabulary the Tier Mapping cites), [[DSC progressive-disclosure]] (TLDR formatting requirement per R-testing-10), [[CAE Testing]] (worked example), [[F133 — Rule sets folder convention + facet embedding|F133]] (the embedding convention the RULESET below follows).
+- **Cross-references that must stay live:** [[FCT Architecture]] (peer facet, drives integration-test bar), [[DSC verification]] (four-tier vocabulary the Tier Mapping cites), [[DSC progressive-disclosure]] (TLDR formatting requirement per R-testing-10), [[CAE Testing]] (worked example), [[F133 — Rulesets folder convention + facet embedding|F133]] (the embedding convention the RULESET below follows).
 - **Naming convention is canonical** — `{NAME} Testing.md`, not `Testing Strategy.md` (legacy scaffold). R-testing-01 enforces this; don't reintroduce the longer name when editing examples or migration notes.

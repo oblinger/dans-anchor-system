@@ -1,8 +1,8 @@
 # Discover — Walk the vault, find every rule, group by trait
 
-Phase 1 of [[F082 — Common rule set across projects]]. Sweeps every anchor under `vault_root`, parses every rule from per-anchor `rules/` folders and `*Rules.md` files, attributes each rule to the **nearest enclosing anchor** (avoiding double-counting in nested anchors), groups rules by **trait** (per F090's unified trait taxonomy), and clusters similar rules within each trait by Jaccard similarity.
+Phase 1 of [[F082 — Common ruleset across projects]]. Sweeps every anchor under `vault_root`, parses every rule from per-anchor `rules/` folders and `*Rules.md` files, attributes each rule to the **nearest enclosing anchor** (avoiding double-counting in nested anchors), groups rules by **trait** (per F090's unified trait taxonomy), and clusters similar rules within each trait by Jaccard similarity.
 
-Emits a normalized markdown report at `~/.config/ob-skills/rule/discovery-report.md` that the user (or `/rule curate`) reads to decide which rules belong in which canonical rule set.
+Emits a normalized markdown report at `~/.config/ob-skills/rule/discovery-report.md` that the user (or `/rule curate`) reads to decide which rules belong in which canonical ruleset.
 
 ## When to Use
 
@@ -31,13 +31,13 @@ The script walks the vault, identifies anchors (`.anchor` markers), prunes sub-a
 The report has four sections:
 
 1. **Summary** — total anchors with rules, total rules parsed, multi-rule cluster count, unknown-trait count.
-2. **By Trait** — per-trait clusters of similar rules. Clusters with N > 1 are the **candidates** for common rule sets (rules used by multiple anchors with overlapping vocabulary).
+2. **By Trait** — per-trait clusters of similar rules. Clusters with N > 1 are the **candidates** for common rulesets (rules used by multiple anchors with overlapping vocabulary).
 3. **Unknown-trait rules** — rules from anchors that don't declare a trait (no `traits: [...]` or `cab-type:` in `.anchor`). Until [[F090 — Retire CAB Types, unify under Traits, Facets-as-Traits-by-file-existence|F090]] ships and anchors declare traits, **expect most rules to land here.** This isn't a failure mode — it's the system reporting honest state.
 4. **Anchors without rules** — informational; sampled.
 
 ### 3. Decide whether to proceed to curation
 
-- If multi-rule clusters exist within traits, run `/rule curate` to walk them and assemble per-trait rule sets.
+- If multi-rule clusters exist within traits, run `/rule curate` to walk them and assemble per-trait rulesets.
 - If most rules are unknown-trait (pre-F090), the right next step is to declare traits on anchors first (a manual or scripted pass), then re-run `/rule discover`.
 
 ## Output format
@@ -109,18 +109,18 @@ Tune via `--threshold`: lower → bigger, looser clusters; higher → tighter, m
 
 `~/.config/ob-skills/rule/discovery-report.md` — under the user-data namespace (per [[SKA System Design]] § Per-user parameters). The report is regenerated on every run (destructive).
 
-The eventual **curated rule sets** (output of `/rule curate`) live in `~/.claude/skills/rule/sets/<trait>/<set-name>.md` — that's the **skill-asset** namespace (canonical content, version-controlled with the skills repo). Discovery output is data; rule sets are spec.
+The eventual **curated rulesets** (output of `/rule curate`) live in `~/.claude/skills/rule/sets/<trait>/<set-name>.md` — that's the **skill-asset** namespace (canonical content, version-controlled with the skills repo). Discovery output is data; rulesets are spec.
 
 ## What this skill does NOT do
 
-- It doesn't curate, name, or commit rule sets. That's `/rule curate`.
+- It doesn't curate, name, or commit rulesets. That's `/rule curate`.
 - It doesn't propagate rules to projects. That's `/rule sync` (deferred to F082 v2).
 - It doesn't suggest which sets a project should adopt. That's `/rule suggest` (also v2).
 - It doesn't enforce or check rules. That's `/rule check`.
 
 ## Related
 
-- [[F082 — Common rule set across projects]] — the feature this implements (Phase 1).
+- [[F082 — Common ruleset across projects]] — the feature this implements (Phase 1).
 - [[F090 — Retire CAB Types, unify under Traits, Facets-as-Traits-by-file-existence]] — provides the trait taxonomy this skill groups by.
 - `/rule curate` — Phase 2 (consumes this skill's report).
 - `/rule consider` — pre-existing; recommends rulesets for a project (different scope: matches existing rulesets to a project's shape, not building the rulesets).

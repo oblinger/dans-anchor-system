@@ -4,7 +4,7 @@ description: "the top-of-page navigation table — its own spec, dogfooded"
 
 # DSC Dispatch Table
 
-| -[[DSC Dispatch Table]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [DSC Dispatch Table](hook://p/DSC%20Dispatch%20Table)<br>: the top-of-page navigation table — its own spec, dogfooded |
+| -[[DSC Dispatch Table]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DSC Dispatch Table](hook://p/DSC%20Dispatch%20Table)<br>: the top-of-page navigation table — its own spec, dogfooded |
 | --- | --- |
 | Anchor | [[CAB Disciplines]] (parent catalog),  [[CAB]] |
 | Design | [[CAB Dispatch Table Design\|Design]] — rationale + standing decisions |
@@ -27,7 +27,7 @@ A markdown table placed immediately under the H1 of a page. The first row carrie
 ## Anatomy of a dispatch row
 
 ```markdown
-| -[[<This Page>]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [DSC Dispatch Table](hook://p/DSC%20Dispatch%20Table)<br>: <one-line description> |
+| -[[<This Page>]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DSC Dispatch Table](hook://p/DSC%20Dispatch%20Table)<br>: <one-line description> |
 | --- | --- |
 | <Category 1> | [[Link A\|A]],  [[Link B\|B]],  … |
 | <Category 2> | [[Link C\|C]],  [[Link D\|D]],  … |

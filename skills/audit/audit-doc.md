@@ -1,12 +1,12 @@
-# /audit doc — audit one document against the doc rule set
+# /audit doc — audit one document against the doc ruleset
 
-Takes a single markdown document and checks it against the **`R-doc` umbrella** — the doc-level facet rule sets ([[FCT Document]]: markdown hygiene, file-association, rule-set form, brief, discussion, log, messages). The doc-mode sibling of [[audit-anchor|/audit anchor]]: same [[F161 — Rule-driven audit engine — resolve, run, judge|F161]] engine, smaller facet set, targets are *regions within the file* rather than files in a tree.
+Takes a single markdown document and checks it against the **`R-doc` umbrella** — the doc-level facet rulesets ([[FCT Document]]: markdown hygiene, file-association, ruleset form, brief, discussion, log, messages). The doc-mode sibling of [[audit-anchor|/audit anchor]]: same [[F161 — Rule-driven audit engine — resolve, run, judge|F161]] engine, smaller facet set, targets are *regions within the file* rather than files in a tree.
 
 ## When to use
 
 - `/audit doc <file>` — audit one named document.
 - `/audit doc <file> dry` — report findings without writing the backlog row (per the `/audit` `dry` convention).
-- Use for a standalone doc that isn't an anchor entry page — a spec, a brief, a rule-set page, a log. (An anchor's own documents are already covered when you run `/audit anchor`, which folds `R-doc` in for every doc it contains.)
+- Use for a standalone doc that isn't an anchor entry page — a spec, a brief, a ruleset page, a log. (An anchor's own documents are already covered when you run `/audit anchor`, which folds `R-doc` in for every doc it contains.)
 
 ## Mechanism — the F161 audit engine
 

@@ -4,7 +4,7 @@ description: "feature index"
 # HBR Features
 The feature index for Harbor — one row per F-numbered feature doc, newest first.
 
-| -[[HBR Features]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [[HBR]] → [[HBR Design]] → [HBR Features](hook://p/HBR%20Features)<br>: feature index |
+| -[[HBR Features]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[HBR]] → [[HBR Design]] → [HBR Features](hook://p/HBR%20Features)<br>: feature index |
 | --- | --- |
 | Anchor | [[HBR Design]] (parent) |
 | Related | [[HBR Backlog]],  [[HBR Roadmap]],   |

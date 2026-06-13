@@ -3,7 +3,7 @@ description:: Stated intent for `F143-1-top-level.svg`. Maintained alongside the
 
 ## What it conveys
 
-Single figure that names **Dan's Anchor System** and the **four kinds of system parts** the user organizes work around — **Skills, Facets, Disciplines, Rule Sets** — and the gist of how they relate. Targets a first-time reader of `skills.md` who needs to grasp the system structure at a glance. Not exhaustive — that's what figures 2–4 are for.
+Single figure that names **Dan's Anchor System** and the **four kinds of system parts** the user organizes work around — **Skills, Facets, Disciplines, Rulesets** — and the gist of how they relate. Targets a first-time reader of `skills.md` who needs to grasp the system structure at a glance. Not exhaustive — that's what figures 2–4 are for.
 
 Importance order the user stated (not necessarily the visual hierarchy):
 1. Skills (most important)
@@ -14,10 +14,10 @@ Importance order the user stated (not necessarily the visual hierarchy):
 ## Layout
 
 - **Top row** of three peers, left → right: **Skills** (blue), **Facets** (green, deliberately shorter), **Disciplines** (yellow).
-- **Bottom band** spanning full width: **Rule Sets** (orange, thin).
+- **Bottom band** spanning full width: **Rulesets** (orange, thin).
 - **Facets is deliberately shorter** than Skills + Disciplines — that is the geometric trick that lets the `modifies` arrow from Disciplines pass over the top of Facets without tunneling or bending. Do not equalize Facets height with Skills/Disciplines.
 - Skills + Disciplines are matched-size siblings (same width 180px, same height 160px). Facets is wider (260px) and shorter (125px).
-- Rule Sets band is thin (48px tall) — a horizontal stripe, not a fourth peer-shaped box. "Rule Sets" words on the left, *directives and constraints* alongside on the right (parallel, single row). The thinness is editorial: a rule set is a different *kind* of thing, and the band shape signals that visually.
+- Rulesets band is thin (48px tall) — a horizontal stripe, not a fourth peer-shaped box. "Rulesets" words on the left, *directives and constraints* alongside on the right (parallel, single row). The thinness is editorial: a ruleset is a different *kind* of thing, and the band shape signals that visually.
 
 ## Per-element content
 
@@ -29,7 +29,7 @@ Each top box has three rows: sans bold title, italic-Palatino script subtitle, s
 | Facets | Facets | *nouns* | Docs created |
 | Disciplines | Disciplines | *adjectives* | Systematic behaviors |
 
-The Rule Sets band is a single row: `Rule Sets` (sans bold, 22pt) on the left + *directives and constraints* (italic Palatino, 22pt) alongside on the right.
+The Rulesets band is a single row: `Rulesets` (sans bold, 22pt) on the left + *directives and constraints* (italic Palatino, 22pt) alongside on the right.
 
 Horizontal alignment is load-bearing:
 - All three **script subtitles** sit on the same y-baseline (currently y=183) — they read as a single typographic gesture.
@@ -80,7 +80,7 @@ These are deliberate omissions — as load-bearing as the inclusions:
 
 ## Title
 
-`Dan's Anchor System` — sans bold, 22pt, centered above the figure. The only meta-text on the canvas. (The figure names the system; the bottom band is labeled **Rule Sets**.)
+`Dan's Anchor System` — sans bold, 22pt, centered above the figure. The only meta-text on the canvas. (The figure names the system; the bottom band is labeled **Rulesets**.)
 
 ## Color palette (locked across figures 1–4 in this family)
 

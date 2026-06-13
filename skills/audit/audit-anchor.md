@@ -1,28 +1,28 @@
-# /audit anchor — audit an anchor against the anchor rule set
+# /audit anchor — audit an anchor against the anchor ruleset
 
-Takes one anchor (or folder) and checks it against the **anchor rule set** — the rules that say what a well-formed anchor looks like. Three things get audited:
+Takes one anchor (or folder) and checks it against the **anchor ruleset** — the rules that say what a well-formed anchor looks like. Three things get audited:
 
 1. **The `.anchor` file is set** — the folder is a registered anchor with a slug + traits (not empty).
 2. **The anchor page conforms** — the `{slug}.md` page follows [[FCT Anchor Page]] (H1, summary, optional figure, dispatch table — in order).
 3. **The dispatch table conforms** — if the anchor page has (or should have) one, it follows [[DSC Dispatch Table]] (masthead + member zone).
 
-**This skill is thin by design.** It does not invent checks — it **reads the rules from the associated rule set and verifies each is satisfied.** As those specs evolve, the audit follows them with no edit here. (Future: the rules consolidate into an explicit `library/rule-sets/anchor` set this audit loads directly; today it reads them from the facet + discipline specs + the SKA decisions named below.)
+**This skill is thin by design.** It does not invent checks — it **reads the rules from the associated ruleset and verifies each is satisfied.** As those specs evolve, the audit follows them with no edit here. (Future: the rules consolidate into an explicit `library/rule-sets/anchor` set this audit loads directly; today it reads them from the facet + discipline specs + the SKA decisions named below.)
 
 ## When to use
 
 - `/audit anchor <anchor>` — audit one named anchor.
 - `/audit anchor` (in an anchor's cwd) — audit the current anchor.
 - `/audit anchor dry` — report findings without writing the backlog row (per the `/audit` `dry` convention).
-- Catches exactly the failures seen in practice: an **empty `.anchor`** (breadcrumb then skips the anchor — the OBSK case), a **blank line after the H1**, a **missing/ malformed dispatch masthead**.
+- Catches exactly the failures seen in practice: an **empty `.anchor`** (breadcrumb then skips the anchor — the DAS case), a **blank line after the H1**, a **missing/ malformed dispatch masthead**.
 
-## The rule set it checks
+## The ruleset it checks
 
 ### A — `.anchor` is set *(the anchor convention)*
 - [ ] A `.anchor` file **exists** in the folder.
-- [ ] It declares a **`slug:`** — UNLESS the anchor is in the one deliberate bare-name zone (the `ob-skills` pillars). An **empty `.anchor`** is a finding: breadcrumb inference skips the anchor and jumps to its grandparent (see the `OBSK` incident).
+- [ ] It declares a **`slug:`** — UNLESS the anchor is in the one deliberate bare-name zone (the `ob-skills` pillars). An **empty `.anchor`** is a finding: breadcrumb inference skips the anchor and jumps to its grandparent (see the `DAS` incident).
 - [ ] It declares **`traits:`** identifying the kind (e.g. `[skill]`, `[Code]`, `Collection`).
 
-### B — anchor page conforms *([[FCT Anchor Page]] § Rule Set, + D06)*
+### B — anchor page conforms *([[FCT Anchor Page]] § Ruleset, + D06)*
 *Reference: read the [[FCT Anchor Page]] ruleset **`R-anchor-page`**, or diff the anchor against the matching kind in [[FEX]] — [[HBR]] (project), [[HBR Components]] (grouped), [[HBR Ingest]] (sub-folder), [[FEX Snapshot]] (skill).*
 - [ ] The anchor page **`{slug}.md`** exists (filename = slug; H1's readable name may differ).
 - [ ] **H1 = `{slug} - {Full Name}`** (per [[SKA Decisions|D06]]) — slug leads, then the readable name. (Bare-name anchors: H1 is just the name.)
@@ -68,7 +68,7 @@ P=~/.claude/skills/audit/scripts/audit-plan.py
 ## Distinction from siblings
 
 - **[[audit-dispatch]]** *fixes* one table's shape. `/audit anchor` *audits* the whole anchor (`.anchor` + page + table) and *delegates* the table to `/audit dispatch`.
-- **[[audit-structure]]** diagnoses broad cross-anchor structural issues (orphans, broken links across the tree). `/audit anchor` is scoped to one anchor's conformance to the anchor rule set.
+- **[[audit-structure]]** diagnoses broad cross-anchor structural issues (orphans, broken links across the tree). `/audit anchor` is scoped to one anchor's conformance to the anchor ruleset.
 
 ## Related
 

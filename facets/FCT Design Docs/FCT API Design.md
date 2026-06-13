@@ -1,6 +1,6 @@
 # FCT API Design
 
-Facet spec defining the shape, required sections, and rule set for an anchor's `{NAME} API Design.md` — the programmatic (code-to-code or sub-skill) user surface.
+Facet spec defining the shape, required sections, and ruleset for an anchor's `{NAME} API Design.md` — the programmatic (code-to-code or sub-skill) user surface.
 
 description:: facet spec this doc follows
 
@@ -42,7 +42,7 @@ Per [[DSC progressive-disclosure]]:
 | `## Contract semantics` | Per-entry-point or per-surface-section: idempotency, side-effects, ordering / concurrency guarantees, transactional posture, async-ness, deadlines / timeouts, retries. The behavioral contract beyond the type signature. |
 | `## Error model` | The standardized error envelope used across the surface: typed error variants (Rust `Result<T, E>`, TypeScript discriminated union, Python exception class hierarchy), HTTP status taxonomy, error-code namespace. Declare ONE form per anchor; consumers see one shape. |
 | `## Stability + compatibility` | Stability posture (stable / evolving / experimental / private) + semver commitment (or equivalent — `0.x` rules, hand-rolled versioning) + deprecation policy (how long before a deprecated surface is removed; the smoke-signal callers should watch). |
-| `## Design decisions` | `D-API<n>` rows: each load-bearing API choice with rationale. Bridge to [[FCT Decisions]] for decisions citing a rule set. |
+| `## Design decisions` | `D-API<n>` rows: each load-bearing API choice with rationale. Bridge to [[FCT Decisions]] for decisions citing a ruleset. |
 
 Other H2s (e.g., `## Concurrency`, `## Authentication`, `## Telemetry`, `## Migration`) join when applicable.
 
@@ -65,7 +65,7 @@ See [[CAE API Design]] — the CAE scheduler crate shows the canonical shape for
 - [[FCT UX Design]] — sibling facet covering the human surface.
 - [[FCT API Doc]] — reference documentation for the implemented modules.
 - [[FCT Architecture]] — internal organization that backs the API surface.
-- [[FCT Decisions]] — bridge for D-API rows that cite rule sets.
+- [[FCT Decisions]] — bridge for D-API rows that cite rulesets.
 - [[FCT Status]] — `{NAME} Status.md` carries the API-Design facet state.
 - [[DSC progressive-disclosure]] — preface zone discipline.
 - [[DSC markdown]] — markdown authoring discipline.
@@ -75,7 +75,7 @@ See [[CAE API Design]] — the CAE scheduler crate shows the canonical shape for
 include::
 description:: Rules for `{NAME} API Design.md` — programmatic user-facing surface intent.
 
-Embedded rule set for the API Design facet, co-located with the facet spec above per [[F133 — Rule sets folder convention + facet embedding|F133]]. Adopted via [[R-facet]] umbrella.
+Embedded ruleset for the API Design facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via [[R-facet]] umbrella.
 
 ### RULE R-api-01 — Preface zone carries TLDR (figure recommended) (checked)
 
@@ -157,8 +157,8 @@ When API Design starts enumerating every function in every module, or narrating 
 
 # BRIEF
 
-- **This is the facet spec for `{NAME} API Design.md` — authority over shape, not over the contracts themselves.** Anchor-specific API contracts live in each anchor's own API Design doc; this file defines the spine (`## Consumer`, `## Surface`, `## Contract semantics`, `## Error model`, `## Stability + compatibility`, `## Design decisions`) and the embedded `R-api` rule set those docs are audited against.
-- **Embedded `# RULESET R-api` is co-located, not external.** Per F133 the rule set lives inside this facet file under a top-level `# RULESET R-api` H1, adopted via the `R-facet` umbrella; do NOT split it into a sibling file, and do NOT add per-rule commentary to the facet body — rule rationale belongs in each rule's **Why** paragraph.
+- **This is the facet spec for `{NAME} API Design.md` — authority over shape, not over the contracts themselves.** Anchor-specific API contracts live in each anchor's own API Design doc; this file defines the spine (`## Consumer`, `## Surface`, `## Contract semantics`, `## Error model`, `## Stability + compatibility`, `## Design decisions`) and the embedded `R-api` ruleset those docs are audited against.
+- **Embedded `# RULESET R-api` is co-located, not external.** Per F133 the ruleset lives inside this facet file under a top-level `# RULESET R-api` H1, adopted via the `R-facet` umbrella; do NOT split it into a sibling file, and do NOT add per-rule commentary to the facet body — rule rationale belongs in each rule's **Why** paragraph.
 - **The cut against neighbors is load-bearing — don't blur it.** API Design = *intent* of the programmatic surface; [[FCT API Doc]] = *what exists* in source (reference); [[FCT Architecture]] = *internal organization*; [[FCT UX Design]] = *human* surface. When tempted to add per-module inventories, dependency narratives, or screen flows here, redirect to the sibling facet — citing the redirect is fine, inlining the content is leakage.
 - **Inclusion test for a new section / rule:** does it constrain what *every* anchor's API Design doc must contain or how it's shaped? If yes, it belongs here (as a section in the spine or as an `R-api-<n>` rule). If it's a contract decision specific to one anchor, it belongs in that anchor's API Design doc as a `D-API<n>` row, not here.
 - **Rule numbering is append-only.** New rules get the next free `R-api-<n>`; never renumber existing rules (downstream `D-API<n>` rows in anchor docs cite by number). When a rule is retired, leave the number burned and add a tombstone line — don't reuse the slot.

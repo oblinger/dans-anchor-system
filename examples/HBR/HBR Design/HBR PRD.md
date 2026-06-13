@@ -4,7 +4,7 @@ description: "product requirements"
 # HBR PRD
 Why Harbor exists and what its first version must deliver.
 
-| -[[HBR PRD]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [[HBR]] → [[HBR Design]] → [HBR PRD](hook://p/HBR%20PRD)<br>: product requirements |
+| -[[HBR PRD]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[HBR]] → [[HBR Design]] → [HBR PRD](hook://p/HBR%20PRD)<br>: product requirements |
 | --- | --- |
 | Anchor | [[HBR Design]] (parent) |
 | Related | [[HBR Roadmap]],  [[HBR Architecture]],   |

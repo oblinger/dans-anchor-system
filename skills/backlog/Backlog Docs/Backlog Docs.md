@@ -3,7 +3,7 @@ description: docs root for the Backlog skill anchor
 ---
 # Backlog Docs
 
-| -[[Backlog Docs]]- | → [Backlog Docs](hook://p/Backlog%20Docs)<br>: docs root for the Backlog skill anchor |
+| -[[Backlog Docs]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[backlog/Backlog]] → [Backlog Docs](hook://p/Backlog%20Docs)<br>: docs root for the Backlog skill anchor |
 | --- | --- |
 | [[Backlog Track]] | product requirements, design, execution state, feature docs |
 

@@ -79,7 +79,7 @@ include::
 where:: file:{ANCHOR}/**/* Completed Roadmap.md
 description:: Structural rules for {NAME} Completed Roadmap.md — sibling of CAB Roadmap; preserves migrated milestones in newest-on-top order.
 
-Embedded rule set for the Completed Roadmap facet, co-located with the spec above per [[F133 — Rule sets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella.
+Embedded ruleset for the Completed Roadmap facet, co-located with the spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella.
 
 ### RULE R-completed-roadmap-01 — Location is `{NAME} Design/{NAME} Completed Roadmap.md` (checked)
 

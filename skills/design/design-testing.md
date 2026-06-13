@@ -96,7 +96,7 @@ The agent does NOT proactively invoke roadmapping; the user invokes `/design` ag
 
 - Facet spec: [[FCT Testing]]
 - Worked example: [[CAE Testing]]
-- Embedded rule set: [[FCT Testing#RULESET R-testing|R-testing]] (9 rules)
+- Embedded ruleset: [[FCT Testing#RULESET R-testing|R-testing]] (9 rules)
 - Parent orchestrator: [[design]]
 - Sibling sub-skills: [[design-prd]], [[design-ux]], [[design-architect]], [[design-roadmap]]
 - Verification discipline: [[DSC verification]]

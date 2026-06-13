@@ -146,7 +146,7 @@ Any anchor with a PRD. Activated via [[FCT Design]] facet (the `{NAME} Design/` 
 include::
 description:: Structural rules for the {NAME} Stories facet — folder shape, story file naming, dispatch table, bidirectional linking.
 
-Embedded rule set for the Stories facet, co-located with the facet spec above per [[F133 — Rule sets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella. All rules below authored in the new `<H> RULE R-<slug>-NN` sentinel form per CAB Rules.
+Embedded ruleset for the Stories facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella. All rules below authored in the new `<H> RULE R-<slug>-NN` sentinel form per CAB Rules.
 
 ### RULE R-stories-01 — Folder form lives at `{NAME} Design/{NAME} PRD/` (checked)
 
@@ -228,4 +228,4 @@ The `{NAME} Stories.md` dispatch page contains a wiki-link to `[[{NAME} PRD]]` i
 - **The embedded `RULESET R-stories`** is the load-bearing audit surface — rule numbers (R-stories-01..09) are referenced externally and must remain monotonic and stable; never renumber, never recycle a retired rule's number.
 - **Two forms are mutually exclusive** — the "never mix inline and extracted stories in the same PRD" constraint (and R-stories-01 / R-stories-08 that enforce it) is structurally load-bearing for `/design prd` detection logic; do NOT introduce a hybrid form without coordinating updates across [[FCT PRD]] and [[design-prd]].
 - **`US-<RID>-<N>` is the load-bearing handle** for cross-facet linking (features `Realizes:`, tests `Exercises:`) — any change to the identifier shape ripples through [[FCT Features]] and [[FCT Testing]] and must update those specs in the same edit.
-- **Don't pad the body with rationale** that belongs in the rule-set Why fields — each R-stories-NN already carries its own Why; restating it in the prose duplicates content and creates drift.
+- **Don't pad the body with rationale** that belongs in the ruleset Why fields — each R-stories-NN already carries its own Why; restating it in the prose duplicates content and creates drift.

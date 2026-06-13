@@ -5,7 +5,7 @@ description: "example grouped-dispatch collection (> 15 members)"
 # Devtools
 The team's development tooling — a collection big enough to group.
 
-| -[[Devtools]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [Devtools](hook://p/Devtools)<br>: example grouped-dispatch collection (> 15 members) |
+| -[[Devtools]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [Devtools](hook://p/Devtools)<br>: example grouped-dispatch collection (> 15 members) |
 | --- | --- |
 | Related | [[Bridges]] (flat variant),  [[DSC Dispatch Table]],  [[DSC progressive-disclosure]],  [[FEX]], |
 | [[Devtools Build\|Build]]+ | [[Devtools Compile\|Compile]],  [[Devtools Bundle\|Bundle]],  [[Devtools Watch\|Watch]],  [[Devtools Cache\|Cache]],   |

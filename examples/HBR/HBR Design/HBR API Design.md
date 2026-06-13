@@ -4,7 +4,7 @@ description: "HTTP API"
 # HBR API Design
 The HTTP API the [[HBR UX Design|viewer app]] calls — read-only browse plus one streaming endpoint.
 
-| -[[HBR API Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [[HBR]] → [[HBR Design]] → [HBR API Design](hook://p/HBR%20API%20Design)<br>: HTTP API |
+| -[[HBR API Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[HBR]] → [[HBR Design]] → [HBR API Design](hook://p/HBR%20API%20Design)<br>: HTTP API |
 | --- | --- |
 | Anchor | [[HBR Design]] (parent) |
 | Related | [[HBR CLI]],  [[HBR UX Design]],   |

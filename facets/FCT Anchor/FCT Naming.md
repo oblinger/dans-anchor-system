@@ -62,14 +62,14 @@ These facets each declare an alternative naming pattern, and their pattern is li
 - [[FCT Folder]] — folder layout (the marker-file convention is the simplest instance of this naming rule)
 - [[FCT Anchor Page]] — content of the `{NAME}.md` marker file
 - [[FCT Files]] — source-tree docs
-- F141 (future R-anchor umbrella) — collects R-naming + R-folder + R-anchor-page + R-files when those rule sets exist
+- F141 (future R-anchor umbrella) — collects R-naming + R-folder + R-anchor-page + R-files when those rulesets exist
 
 
 # RULESET R-naming
 include::
 description:: File-naming rules vault-wide — slug-prefix default + explicit exception allowlist.
 
-Embedded rule set for the Naming facet, co-located with the facet spec above per [[F133 — Rule sets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella. Vault-wide application — every anchor's files are subject to this set, no explicit `include::` needed.
+Embedded ruleset for the Naming facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella. Vault-wide application — every anchor's files are subject to this set, no explicit `include::` needed.
 
 ### RULE R-naming-01 — Default file name is `{NAME} <X>.md` inside an anchor (checked)
 check:: name_slug_prefixed
@@ -98,7 +98,7 @@ Files matching a facet-sanctioned alternative pattern are exempt from the slug-p
 - `YYYY-MM <topic>.<ext>` (per [[FCT Log]] — year-month precision)
 - `YYYY <topic>.<ext>` (per [[FCT Log]] — year-only precision)
 - `SKILL.md` (the Claude Code skill entry file — every skill folder has one)
-- `R-<x>.md` (rule-set / rule files, per [[F133 — Rule sets folder convention + facet embedding|F133]])
+- `R-<x>.md` (ruleset / rule files, per [[F133 — Rulesets folder convention + facet embedding|F133]])
 
 **Check pattern:** R-naming-01's check accepts files matching any of the regex shapes above as a pass.
 

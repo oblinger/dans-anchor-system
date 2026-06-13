@@ -4,7 +4,7 @@ description: "command-line surface"
 # HBR CLI
 The `harbor` command — how the owner runs the server.
 
-| -[[HBR CLI]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [[HBR]] → [[HBR Design]] → [HBR CLI](hook://p/HBR%20CLI)<br>: command-line surface |
+| -[[HBR CLI]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[HBR]] → [[HBR Design]] → [HBR CLI](hook://p/HBR%20CLI)<br>: command-line surface |
 | --- | --- |
 | Anchor | [[HBR Design]] (parent) |
 | Related | [[HBR API Design]],  [[HBR UX Design]],   |

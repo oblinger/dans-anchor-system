@@ -3,7 +3,7 @@ description: "skim → click into the rule that applies"
 ---
 # SKL Product
 
-| -[[SKL Product]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [[SKL/SKL]] → [[SKL Search]] → [SKL Product](hook://p/SKL%20Product)<br>: skim → click into the rule that applies |
+| -[[SKL Product]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Search]] → [SKL Product](hook://p/SKL%20Product)<br>: skim → click into the rule that applies |
 | --- | --- |
 | Product rules (any verb) | [[SRC rules/product\|product.md]],   |
 | Verbs | [[SRC rules/find-product\|find-product]],  [[SRC rules/profile-product\|describe-product]],  [[SRC rules/survey-product\|survey-product]],   |

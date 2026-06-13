@@ -36,7 +36,7 @@ The whole point: don't silently edit. Survey first, report, glance, wait.
 
 Read the PRD, then evaluate against three dimensions:
 
-**Rule check — `R-prd` (per [[FCT PRD#RULESET R-prd|the embedded rule set]]):**
+**Rule check — `R-prd` (per [[FCT PRD#RULESET R-prd|the embedded ruleset]]):**
 
 | Rule | What it checks |
 |---|---|

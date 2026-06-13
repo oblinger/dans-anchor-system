@@ -100,7 +100,7 @@ include::
 where:: anchor
 description:: Rules for the general typed-association pattern — three placement methods, cardinality→placement, parent + plural-suffix naming, one-way migration, one-form-per-parent, parent linkage, sibling-folder shape, and the citing-facet method declaration.
 
-Embedded rule set for the file-association discipline, co-located with the spec above per [[F133 — Rule sets folder convention + facet embedding|F133]]. These are the **general** association rules (promoted up from the dated specialization per F154); the dated-only rules live in [[R-dated-entry-stream]]. Catalog stub at [[R-file-association]] under [[R-doc]].
+Embedded ruleset for the file-association discipline, co-located with the spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. These are the **general** association rules (promoted up from the dated specialization per F154); the dated-only rules live in [[R-dated-entry-stream]]. Catalog stub at [[R-file-association]] under [[R-doc]].
 
 ### RULE R-file-association-01 — Three named placement methods (stated)
 

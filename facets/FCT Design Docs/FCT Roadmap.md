@@ -292,7 +292,7 @@ include::
 where:: file:{ANCHOR}/**/* Roadmap.md
 description:: Structural rules for the {NAME} Roadmap.md facet — milestone numbering, checkbox states, Status-line presence, deferral cross-ref, shape consistency.
 
-Embedded rule set for the Roadmap facet, co-located with the facet spec above per [[F133 — Rule sets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella.
+Embedded ruleset for the Roadmap facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella.
 
 ### RULE R-roadmap-01 — Location is `{NAME} Design/{NAME} Roadmap.md` (checked)
 
@@ -396,6 +396,6 @@ After the last body item of each milestone, before the next `## ` H2, a `### .` 
 - **NOT for** roadmap *content* (those live in per-anchor `{NAME} Roadmap.md` files), NOT for execution-time rules about *how* features ship (that's [[FCT Features]]), NOT for the design-phase tier marker (that's [[FCT Status]]'s `roadmap::` field).
 - **Inclusion test:** a rule belongs here only if it constrains the shape, numbering, status convention, deferral pattern, or shape consistency of every `{NAME} Roadmap.md` across anchors. Project-specific milestone naming or content never belongs here.
 - **Two shapes (A — milestone-as-feature-group; B — milestone-as-task-checklist) are load-bearing** — keep both documented; mixing within a project is forbidden but transitioning is allowed. Don't collapse into one shape "for simplicity."
-- **R-roadmap RULESET is co-located** in this same file per [[F133]] (embedded rule set adopted via the `R-facet` umbrella). Don't split it into a separate file; keep rule numbering monotonic-forever (R-roadmap-09, -10, -11 are out-of-sequence by intent — order reflects authoring history, not narrative).
+- **R-roadmap RULESET is co-located** in this same file per [[F133]] (embedded ruleset adopted via the `R-facet` umbrella). Don't split it into a separate file; keep rule numbering monotonic-forever (R-roadmap-09, -10, -11 are out-of-sequence by intent — order reflects authoring history, not narrative).
 - **Named-milestone form (`M-<Name>`) is the new convention** per [[F144]]; legacy numeric (`M1`, `M2`) is migration-only. When updating examples or rules, prefer the named form; keep the legacy section as a documented fallback, don't delete it.
 - **Cross-refs to maintain on edit:** [[FCT Completed Roadmap]] (the migration target), [[FCT Features]] (Shape A milestone bullets are F-numbered wiki-links), [[FCT Status]] (`roadmap::` field), [[design-roadmap]] (authoring skill), [[DSC ask-format]] (Open Questions convention).

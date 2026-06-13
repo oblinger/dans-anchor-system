@@ -56,7 +56,7 @@ The dispatch page `{NAME} Design.md` is the dispatch table (per [[FCT Design Dis
 
 | Child | Facet | When |
 |---|---|---|
-| `{NAME} Decisions.md` | [[FCT Decisions]] | The moment the first load-bearing decision needs auditable form (cites rules from rule sets). |
+| `{NAME} Decisions.md` | [[FCT Decisions]] | The moment the first load-bearing decision needs auditable form (cites rules from rulesets). |
 | `{NAME} Roadmap.md` | [[FCT Roadmap]] | Activated as soon as the project plans more than 1-2 milestones of work. |
 | `{NAME} Features/` | [[FCT Features]] | Activated as soon as the first F-numbered feature doc lands. Holds all per-feature design docs (`F<NNN> — <title>.md`) + a `{NAME} Features.md` dispatch index. |
 
@@ -133,7 +133,7 @@ include::
 where:: anchor
 description:: Structural rules for the {NAME} Design facet — folder presence, required children, dispatch wiring, Code-trait deprecation.
 
-Embedded rule set for the Design facet, co-located with the facet spec above per [[F133 — Rule sets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella.
+Embedded ruleset for the Design facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella.
 
 ### RULE R-design-01 — Folder presence IS the gate (checked)
 
@@ -195,10 +195,10 @@ When `/design` scaffolds a Design folder, the operation creates all required chi
 
 # BRIEF
 
-- **This file is the CAB Design facet spec** — it defines the `{NAME} Design/` folder convention (folder-presence gate, required vs. optional children, scaffolding, lifecycle gate behavior) and embeds the `R-design` rule set. It is the authority cited by `/design` and its sub-skills.
+- **This file is the CAB Design facet spec** — it defines the `{NAME} Design/` folder convention (folder-presence gate, required vs. optional children, scaffolding, lifecycle gate behavior) and embeds the `R-design` ruleset. It is the authority cited by `/design` and its sub-skills.
 - **NOT for per-child facet content** — PRD / Architecture / Testing / UX Design / API Design / Decisions / Roadmap / Features each have their own `CAB <X>.md` spec. Link to those; do not inline their rules or sections here.
 - **Inclusion test for the body** — content belongs here if it answers "what is the Design folder, what must it contain, when does /design scaffold it, and how does the folder-presence gate work?" Anything narrower (a child facet's internal shape) belongs in that child's spec.
-- **`R-design` rule set is co-located** — the `# RULESET R-design` H1 at the bottom is the rule set embedded per F133. Keep it after the prose spec, use `include::` / `description::` Dataview fields, and number rules `R-design-NN` sequentially. Don't split it into a sibling file.
+- **`R-design` ruleset is co-located** — the `# RULESET R-design` H1 at the bottom is the ruleset embedded per F133. Keep it after the prose spec, use `include::` / `description::` Dataview fields, and number rules `R-design-NN` sequentially. Don't split it into a sibling file.
 - **Code-trait deprecation is load-bearing** — R-design-05 and the § Trait system table mark `Code` as a deprecated `/design` gate. If you re-add it as a gate anywhere, you re-introduce the conflation this facet was created to fix (F140 sweep tracks the retirement).
 - **Dispatch graph claim** — § Scaffolding promises pre-wired files so wiki-links resolve from day one. If you change the required-children list, update the scaffolder runbook in `/design` and the R-design-02 check pattern in lockstep.
 - **See Also is a navigation contract** — each child facet wiki-link in § See also is the resolution target a `/design` sub-skill uses to find its spec. Don't rename or remove a row without updating the corresponding sub-skill.

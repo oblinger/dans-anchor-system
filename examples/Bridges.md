@@ -5,7 +5,7 @@ description: "example list-dispatch collection (≤ 15 members)"
 # Bridges
 The machines this host can reach — a small, flat collection.
 
-| -[[Bridges]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [Bridges](hook://p/Bridges)<br>: example list-dispatch collection (≤ 15 members) |
+| -[[Bridges]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [Bridges](hook://p/Bridges)<br>: example list-dispatch collection (≤ 15 members) |
 | --- | --- |
 | Related | [[Devtools]] (grouped variant),  [[DSC Dispatch Table]],  [[FEX]], |
 | [[Bridges Studio\|Studio]] | the M2 Studio — Full Disk Access, the build box |

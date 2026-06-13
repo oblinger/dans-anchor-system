@@ -81,7 +81,7 @@ include:: [[DSC file-association#RULESET R-file-association|R-file-association]]
 where:: sentinel: ^## \d{4}-\d{2}-\d{2} —
 description:: Rules ADDED by the dated specialization on top of [[R-file-association]] — newest-first ordering + prepend immutability, the parallel-entry-skeleton invariant, and ISO-date entry-file naming.
 
-Embedded rule set for the dated-entry-stream specialization, co-located with the spec above per [[F133 — Rule sets folder convention + facet embedding|F133]]. The **general** association rules (three methods, cardinality→placement, naming, migration, one-form, linkage, folder shape, method declaration) live in [[R-file-association]] and are inherited via the `include::` above (promoted there per F154); only the **dated extras** are stated here. Catalog stub at [[R-dated-entry-stream]] under [[R-doc]].
+Embedded ruleset for the dated-entry-stream specialization, co-located with the spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. The **general** association rules (three methods, cardinality→placement, naming, migration, one-form, linkage, folder shape, method declaration) live in [[R-file-association]] and are inherited via the `include::` above (promoted there per F154); only the **dated extras** are stated here. Catalog stub at [[R-dated-entry-stream]] under [[R-doc]].
 
 ### RULE R-dated-entry-stream-01 — Reverse chronological, newest-first, prepend-immutable (checked)
 check:: dated_entries_reverse_chronological

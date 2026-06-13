@@ -80,9 +80,9 @@ include::
 where:: sentinel: ^#+ Discussion
 description:: Discussion-specific rules — scope (doc-scoped, not anchor-scoped), entry skeleton (Problem / Options / Decision), append-only posture, attachment scope guard. Placement / naming / migration rules delegate to [[DSC dated-entry-stream#RULESET R-dated-entry-stream|R-dated-entry-stream]].
 
-Embedded rule set for the Discussion facet, co-located with the facet spec above per [[F133 — Rule sets folder convention + facet embedding|F133]]. Adopted via [[R-facet]] umbrella.
+Embedded ruleset for the Discussion facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via [[R-facet]] umbrella.
 
-**Delegation.** Five placement-shape rules from the prior version moved into [[DSC dated-entry-stream#RULESET R-dated-entry-stream|R-dated-entry-stream]] (preface, naming, one-form-per-parent, reverse-chronological, dispatch linkage). This rule set retains only the rules that are Discussion-specific.
+**Delegation.** Five placement-shape rules from the prior version moved into [[DSC dated-entry-stream#RULESET R-dated-entry-stream|R-dated-entry-stream]] (preface, naming, one-form-per-parent, reverse-chronological, dispatch linkage). This ruleset retains only the rules that are Discussion-specific.
 
 ### RULE R-discussion-01 — Doc-scoped, never anchor-scoped (stated)
 

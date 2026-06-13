@@ -139,7 +139,7 @@ include::
 where:: file:*.md
 description:: Mechanical + authoring rules for every markdown document; cited by every facet and skill that produces markdown.
 
-Embedded rule set for the markdown discipline. Adoption is implicit — every markdown doc in the vault is subject to these rules, no explicit `include::` needed in `{NAME} Decisions.md`. (The catalog still lists R-markdown as a child of R-facet umbrella for completeness.)
+Embedded ruleset for the markdown discipline. Adoption is implicit — every markdown doc in the vault is subject to these rules, no explicit `include::` needed in `{NAME} Decisions.md`. (The catalog still lists R-markdown as a child of R-facet umbrella for completeness.)
 
 ### RULE R-markdown-01 — Escape pipes inside wiki-links inside tables (checked)
 

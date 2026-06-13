@@ -5,7 +5,7 @@ description: "a group container page — the Serve pipeline's three modules"
 # HBR Serve
 The serve pipeline — streams catalog media to players, transcoding on demand.
 
-| -[[HBR Serve]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [[HBR]] → [HBR Serve](hook://p/HBR%20Serve)<br>: a group container page — the Serve pipeline's three modules |
+| -[[HBR Serve]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[HBR]] → [HBR Serve](hook://p/HBR%20Serve)<br>: a group container page — the Serve pipeline's three modules |
 | --- | --- |
 | Anchor | [[HBR Components]] (parent) |
 | Related | [[HBR Ingest]] (sibling group),  [[HBR Operate]] (sibling group), |

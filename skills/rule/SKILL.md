@@ -10,7 +10,7 @@ description: >
   "add a rule", "grade this exception", "what rules should this project have",
   "design rules for this", "create rules", "sync the rules",
   "fix the rules", "make beneficial rule fixes",
-  "discover rules across projects", "curate common rule sets".
+  "discover rules across projects", "curate common rulesets".
   Subcommands: /rule create, /rule check, /rule triage, /rule fix, /rule sync, /rule consider, /rule discover, /rule curate.
 tools: Read, Write, Edit, Bash, Glob, Grep, Agent
 user_invocable: true
@@ -29,9 +29,9 @@ Define semantic rules, validate code against them, manage exceptions, and drive 
 | [[rule-triage\|/rule triage]] | Pilot | Adversarial re-evaluation — challenge grades, find missed violations, demand better alternatives |
 | [[rule-fix\|/rule fix]] | Project agent | Execute a fix spec via `/code bugfix` |
 | [[rule-sync\|/rule sync]] | Either | Reconcile the rules file with code after changes land — add, remove, or regrade exceptions |
-| [[rule-consider\|/rule consider]] | Pilot + User | Recommend standard rule sets for a project, then apply approved ones |
+| [[rule-consider\|/rule consider]] | Pilot + User | Recommend standard rulesets for a project, then apply approved ones |
 | [[rule-discover\|/rule discover]] | Pilot | F082 Phase 1 — walk the vault, find every rule per anchor, group by trait + similarity, emit a normalized report |
-| [[rule-curate\|/rule curate]] | Pilot + User | F082 Phase 2 — walk the discover report with the user, assemble per-trait canonical rule sets into `sets/<trait>/<set>.md` |
+| [[rule-curate\|/rule curate]] | Pilot + User | F082 Phase 2 — walk the discover report with the user, assemble per-trait canonical rulesets into `sets/<trait>/<set>.md` |
 
 ## Concepts
 

@@ -4,7 +4,7 @@ description: "test strategy"
 # HBR Testing
 How Harbor is verified, layer by layer.
 
-| -[[HBR Testing]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [[HBR]] → [[HBR Design]] → [HBR Testing](hook://p/HBR%20Testing)<br>: test strategy |
+| -[[HBR Testing]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[HBR]] → [[HBR Design]] → [HBR Testing](hook://p/HBR%20Testing)<br>: test strategy |
 | --- | --- |
 | Anchor | [[HBR Design]] (parent) |
 | Related | [[HBR Architecture]],   |

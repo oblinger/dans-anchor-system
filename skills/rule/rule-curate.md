@@ -1,10 +1,10 @@
-# Curate — Walk a discovery report and assemble per-trait rule sets
+# Curate — Walk a discovery report and assemble per-trait rulesets
 
-Phase 2 of [[F082 — Common rule set across projects]]. Reads the report produced by `/rule discover`, walks the user through each multi-rule cluster within each trait, helps name candidate rule sets, and writes the canonical sets to `~/.claude/skills/rule/sets/<trait>/<set-name>.md`.
+Phase 2 of [[F082 — Common ruleset across projects]]. Reads the report produced by `/rule discover`, walks the user through each multi-rule cluster within each trait, helps name candidate rulesets, and writes the canonical sets to `~/.claude/skills/rule/sets/<trait>/<set-name>.md`.
 
 ## When to Use
 
-After running `/rule discover` and reading the report. The user wants to consolidate the rules they've authored across anchors into reusable per-trait rule sets.
+After running `/rule discover` and reading the report. The user wants to consolidate the rules they've authored across anchors into reusable per-trait rulesets.
 
 ## Runbook (agent-driven flow)
 
@@ -16,9 +16,9 @@ After running `/rule discover` and reading the report. The user wants to consoli
 
 If missing, fall back to a freshly-run discovery (invoke `/rule discover`). If present, check the date in the H1 — if stale (> 1 day) or the user wants a fresh sweep, re-run discovery first.
 
-### 2. Identify candidate rule sets
+### 2. Identify candidate rulesets
 
-For each trait section in the report, identify the **multi-rule clusters** (Cluster N where the bullet list has more than one rule). Each is a candidate rule set — multiple anchors authored similar rules, so the cluster is a natural canonical-set seed.
+For each trait section in the report, identify the **multi-rule clusters** (Cluster N where the bullet list has more than one rule). Each is a candidate ruleset — multiple anchors authored similar rules, so the cluster is a natural canonical-set seed.
 
 Also surface the user-added rules from online literature (the user manually edits `~/.claude/skills/rule/sets/<trait>/<set>.md` files outside this flow; the curate step doesn't capture those, but the user may want to merge a new discovery cluster with an existing set they've already drafted).
 
@@ -40,7 +40,7 @@ This is a multi-step conversation; the agent shouldn't bulk-create sets without 
 
 ### 4. Write the set file(s)
 
-Each rule set is a standalone markdown doc:
+Each ruleset is a standalone markdown doc:
 
 ```markdown
 ---
@@ -75,7 +75,7 @@ Conventions:
 After all clusters are walked, list the sets created/updated in chat:
 
 ```
-/rule curate — created/updated 3 rule sets:
+/rule curate — created/updated 3 rulesets:
   - sets/Code/frontend.md (5 rules)
   - sets/Code/cloud-backend.md (4 rules)
   - sets/Skill/anchor-shape.md (3 rules)
@@ -87,7 +87,7 @@ Commit. The library lives in the skills repo, so committed sets ship to other ma
 
 ### Multiple sets per trait — design intent
 
-A trait may carry many rule sets, each covering a different sub-style. Examples:
+A trait may carry many rulesets, each covering a different sub-style. Examples:
 
 - `Code/frontend.md` — UI-framework conventions (React/Svelte/Vue patterns).
 - `Code/cloud-backend.md` — server-side service conventions (logging, retries, observability).
@@ -97,7 +97,7 @@ Different code anchors adopt different combinations. Per [[F082]] Q5/Q6: this is
 
 ### Versioning
 
-Rule sets are version-controlled with the skills repo (`ob-skills`). When the user revises a set, the commit message captures the intent. The eventual `/rule sync` (F082 v2) will respect set versions via the three-way merge.
+Rulesets are version-controlled with the skills repo (`ob-skills`). When the user revises a set, the commit message captures the intent. The eventual `/rule sync` (F082 v2) will respect set versions via the three-way merge.
 
 ### Online-literature rules
 
@@ -111,7 +111,7 @@ Per [[F082]] Q6: the user can add rules from online literature directly to a set
 
 ## Related
 
-- [[F082 — Common rule set across projects]] — the feature this implements (Phase 2).
+- [[F082 — Common ruleset across projects]] — the feature this implements (Phase 2).
 - `/rule discover` — Phase 1 (produces the input report).
 - `/rule consider` — pre-existing; recommends curated sets for a project (Phase 3-ish; user-controlled adoption).
 - `/rule sync` — v2 of F082; intelligent three-way-merge distribution.

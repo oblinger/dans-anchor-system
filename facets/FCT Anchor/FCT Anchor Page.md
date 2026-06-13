@@ -66,7 +66,7 @@ The anchor folder carries a non-empty `.anchor` file declaring `slug:`, `title:`
 
 **Check pattern:** the folder has a `.anchor`; parse it and confirm non-blank `slug:` and `traits:` keys.
 
-**Why:** an empty `.anchor` makes breadcrumb inference skip the anchor and jump to its grandparent (the OBSK incident).
+**Why:** an empty `.anchor` makes breadcrumb inference skip the anchor and jump to its grandparent (the DAS incident).
 
 ### RULE R-anchor-page-02 — Page filename equals the slug (checked)
 check:: entry_page_matches_slug
@@ -214,6 +214,6 @@ Rules that apply only to **one kind** of anchor page (skill / list / grouped / p
 
 # BRIEF
 
-- **This file is the spec for the anchor entry page (`{slug}.md`)** — the `.anchor` + page **template**, the **parts**, and the **rule set** `R-anchor-page`. Format *authority*: `/create anchor`, `/rewire`, `/tidy`, `/audit anchor`, and the audit scripts cite it.
+- **This file is the spec for the anchor entry page (`{slug}.md`)** — the `.anchor` + page **template**, the **parts**, and the **ruleset** `R-anchor-page`. Format *authority*: `/create anchor`, `/rewire`, `/tidy`, `/audit anchor`, and the audit scripts cite it.
 - **Don't inline what belongs elsewhere.** Dispatch-table *mechanics* → [[DSC Dispatch Table]]; row *placement / order* → [[SKA Decisions|D07]]; the naming prefix → [[FCT Naming]]; sub-folder dispatch pages have their own facets. Link, don't duplicate.
-- **Examples are never instantiated here** — they live in the `examples/` gallery ([[FEX]]); the masthead `Examples` row links to them by kind. This page carries the template + parts + the rule set only. If the spec changes, fix the examples — never retrofit the spec to a stale copy.
+- **Examples are never instantiated here** — they live in the `examples/` gallery ([[FEX]]); the masthead `Examples` row links to them by kind. This page carries the template + parts + the ruleset only. If the spec changes, fix the examples — never retrofit the spec to a stale copy.

@@ -115,7 +115,7 @@ include::
 where:: file:{ANCHOR}/**/* PRD.md
 description:: Structural rules for the {NAME} PRD facet — location, body-only shape, required sections, user-story numbering, modern Open-Questions handling.
 
-Embedded rule set for the PRD facet, co-located with the facet spec above per [[F133 — Rule sets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella.
+Embedded ruleset for the PRD facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella.
 
 ### RULE R-prd-01 — Location is `{NAME} Design/{NAME} PRD.md` or folder form (checked)
 check:: file_path_matches_prd_locations
@@ -207,7 +207,7 @@ The PRD's top-of-doc dispatch table contains a row whose wiki-link target points
 
 # BRIEF
 
-- **This file is the PRD facet spec** — the authoritative shape, location, section spine, and lifecycle rules for every `{NAME} PRD.md` in the vault. Editors of this file are amending that contract; treat changes as load-bearing for `/design prd`, every downstream design phase, and the embedded `R-prd` rule set.
+- **This file is the PRD facet spec** — the authoritative shape, location, section spine, and lifecycle rules for every `{NAME} PRD.md` in the vault. Editors of this file are amending that contract; treat changes as load-bearing for `/design prd`, every downstream design phase, and the embedded `R-prd` ruleset.
 - **NOT a PRD instance, and NOT a meta-discussion of product management** — don't pile authoring tips, prose about writing good user stories, or example PRDs into the body. Worked examples are cited by wiki-link ([[CAE PRD]]); rationale for one-off prescriptions lives in the rule's **Why** block, not in narrative.
 - **Inclusion test for new content:** does it specify the SHAPE of `{NAME} PRD.md` (where it lives, what sections it must carry, what fields it must declare, how it's surfaced from sibling docs, how its lifecycle interacts with `/ask` and `{NAME} Status.md`)? If yes, it belongs. If it's about technical decisions, principles, or implementation, route to [[FCT Decisions]] / [[FCT Ruleset]] / [[FCT Architecture]] instead — the body already says PRDs are not that.
 - **Two co-located zones — keep them aligned:** the facet-spec prose above and the embedded `# RULESET R-prd` below must agree. When a section-order rule, naming convention, or location prescription changes in the prose, update the matching `### RULE R-prd-NN` block (and its **Check pattern** / **Why**) in the same edit. Drift between the two is the failure mode this file is built to avoid.

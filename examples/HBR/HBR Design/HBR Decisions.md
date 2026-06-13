@@ -4,7 +4,7 @@ description: "durable rulings"
 # HBR Decisions
 The durable rulings that shape Harbor; each is referenced by `// D0n` comments in the code.
 
-| -[[HBR Decisions]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [[HBR]] → [[HBR Design]] → [HBR Decisions](hook://p/HBR%20Decisions)<br>: durable rulings |
+| -[[HBR Decisions]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[HBR]] → [[HBR Design]] → [HBR Decisions](hook://p/HBR%20Decisions)<br>: durable rulings |
 | --- | --- |
 | Anchor | [[HBR Design]] (parent) |
 | Related | [[HBR Architecture]],   |

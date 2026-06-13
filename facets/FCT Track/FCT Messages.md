@@ -11,7 +11,7 @@ include::
 where:: {ANCHOR}/* Messages.md
 description:: Rules for the {NAME} Messages facet — the agent's per-anchor background-process inbox, distinct from the user's {NAME} Inbox.
 
-Embedded rule set for the Messages facet, co-located per [[F133 — Rule sets folder convention + facet embedding|F133]].
+Embedded ruleset for the Messages facet, co-located per [[F133 — Rulesets folder convention + facet embedding|F133]].
 
 ### RULE R-messages-01 — File is `{NAME} Messages.md` at the anchor root (checked)
 check:: h1_is_anchor_messages

@@ -5,12 +5,12 @@ description: "the example gallery — fictional worlds + a per-kind map"
 # FEX - Facet Examples
 A small set of complete, fictional example anchors — reused to illustrate each facet and anchor-page kind.
 
-| -[[FEX]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [FEX](hook://p/FEX)<br>: the example gallery — fictional worlds + a per-kind map |
+| -[[FEX]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [FEX](hook://p/FEX)<br>: the example gallery — fictional worlds + a per-kind map |
 | --- | --- |
-| Related | [[SKL\|Skills]],  [[FCT\|Facets]],  [[DSC\|Disciplines]],  [[LBR\|Library]],  [[OBSK\|ob-skills]],   |
+| Related | [[SKL\|Skills]],  [[FCT\|Facets]],  [[DSC\|Disciplines]],  [[LBR\|Library]],  [[DAS\|ob-skills]],   |
 |  | **THE EXAMPLE WORLDS** |
 | [[HBR]] | **Harbor** — a fictional media-server project (its own slug): project root + grouped dispatch ([[HBR Components]]) + a built-out sub-anchor ([[HBR Ingest]]) + a full, tiny facet set ([[HBR Design]] / [[HBR Track]] / [[HBR User Docs]] / [[HBR Dev Docs]]), all `HBR`-prefixed |
-| [[FEX Repo\|Repo]] | **FEX Repo** — a fake skills repository tying the loose examples together: a skill ([[FEX Snapshot\|Snapshot]]), three facets spanning the kinds ([[FEX Manifest\|Manifest]] / [[FEX Pin\|Pin]] / [[FEX Bundle\|Bundle]]), a discipline ([[FEX Retention\|Retention]]), a rule set ([[R-fex-manifest]]) |
+| [[FEX Repo\|Repo]] | **FEX Repo** — a fake skills repository tying the loose examples together: a skill ([[FEX Snapshot\|Snapshot]]), three facets spanning the kinds ([[FEX Manifest\|Manifest]] / [[FEX Pin\|Pin]] / [[FEX Bundle\|Bundle]]), a discipline ([[FEX Retention\|Retention]]), a ruleset ([[R-fex-manifest]]) |
 | ... |  |
 
 ## By kind / facet — which example shows it
@@ -25,7 +25,7 @@ Two fictional worlds cover the anchor-page kinds and the facets. **Not 1:1** —
 | skill (`SKILL.md`) | [[FEX Snapshot\|Snapshot]] |
 | facet definition — the three kinds | [[FEX Manifest]] (single-file, one) / [[FEX Pin]] (single-file, many) / [[FEX Bundle]] (folder) |
 | discipline page | [[FEX Retention]] |
-| rule set (`# RULESET`) | [[R-fex-manifest]] |
+| ruleset (`# RULESET`) | [[R-fex-manifest]] |
 | [[FCT Anchor Page]] | the anchor-page kinds above (skill / grouped / project / sub-folder) |
 | [[DSC Dispatch Table]] | [[HBR Components]] (grouped, links down) |
 | [[FCT Design Docs]] / [[FCT Design Dispatch]] | [[HBR Design]] (hub) + its members |

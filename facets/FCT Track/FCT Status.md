@@ -120,7 +120,7 @@ include::
 where:: file:{ANCHOR}/**/* Status.md
 description:: Structural rules for the {NAME} Status.md facet doc; enforces the per-facet dataview-line shape and cell ladder.
 
-Embedded rule set for the Status facet, co-located with the facet spec above per the [[F133 — Rule sets folder convention + facet embedding|F133]] embedding convention. Adopted via `R-facet` umbrella.
+Embedded ruleset for the Status facet, co-located with the facet spec above per the [[F133 — Rulesets folder convention + facet embedding|F133]] embedding convention. Adopted via `R-facet` umbrella.
 
 ### RULE R-status-01 — File name `{NAME} Status.md` (checked)
 check:: status_filename_valid
@@ -217,6 +217,6 @@ The state script's `set` operation does not allow downgrading a cell (e.g., `MVP
 - **NOT for workflow-state vocabulary.** The `[Ready]/[Active]/[Verify]/...` graph lives in [[workflow]]; the Status-cell ladder (`none < MVP-agent < MVP-user < Full-agent < Full-user`) is orthogonal. Don't merge, alias, or cross-reference the two vocabularies as if they were interchangeable — keep the § Distinction table the canonical place that contrast lives.
 - **Inclusion test for new rules / sections:** the rule must constrain the *file format, location, or promotion semantics* of `{NAME} Status.md` itself. Picker behavior, `/mint` gate logic, and per-facet authoring belong in [[design]] or the relevant `CAB <Facet>.md`, not here.
 - **Cell ladder is load-bearing — five values, this exact order.** `none < MVP-agent < MVP-user < Full-agent < Full-user`. Do not add tiers, rename them, or change their ordering without coordinated updates to the state script, `/design`'s picker, and every adopting anchor's Status file. Same for the five facet names (`prd`, `ux`, `architecture`, `testing`, `roadmap`) in declared order.
-- **Embedded `# RULESET R-status` is part of this file per F133.** Don't split it into a sibling Rules file; the facet spec + its rule set live co-located. When editing rules, keep `(checked)` / `(sampled)` / `(stated)` markers honest — they tell the audit script which rules it can mechanize.
+- **Embedded `# RULESET R-status` is part of this file per F133.** Don't split it into a sibling Rules file; the facet spec + its ruleset live co-located. When editing rules, keep `(checked)` / `(sampled)` / `(stated)` markers honest — they tell the audit script which rules it can mechanize.
 - **Body-only discipline is itself a rule (R-status-03).** Do not add YAML frontmatter to this spec or to sample files shown here; the first content line is always the `# {NAME} Status` H1.
 - **When the format changes,** update both the § File shape example AND the corresponding `RULE R-status-NN` simultaneously — they are two views of the same constraint and must not drift.
