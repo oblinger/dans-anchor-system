@@ -6,8 +6,8 @@ A narrow, usually file-based aspect of an anchor — and the spec for how to wri
 
 | -[[FCT Facet]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [FCT Facet](hook://p/FCT%20Facet)<br>: the Facet primitive — what a facet is and how to write its spec |
 | --- | --- |
-| Related | [[FCT Skill]],  [[FCT Rules]],  [[FCT Facets]] (the index),  [[CAB Aspects]],   |
-| Examples | [[FEX Manifest\|a small facet]],   |
+| Related | [[FCT Skill]],  [[FCT Rules]],  [[FCT Facets]] (the index),  [[CAB Aspects]], |
+| Examples | [[FEX Manifest\|single-file, one]],  [[FEX Pin\|single-file, many]],  [[FEX Bundle\|folder, many]],   |
 
 A **facet** is a narrow, usually file-based aspect of an anchor — one specific structural feature (a `Backlog` file, an `Architecture` doc, a website subfolder), defined by its own spec doc and detected (by default) through file-existence. This page is the spec for *the facet kind itself*: what a facet is and the shape every facet spec doc takes. It is the singular **definition**; [[FCT Facets]] (plural) is the **index** of all concrete facets.
 

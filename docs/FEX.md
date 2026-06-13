@@ -10,7 +10,7 @@ A small set of complete, fictional example anchors — reused to illustrate each
 | Related | [[SKL\|Skills]],  [[FCT\|Facets]],  [[DSC\|Disciplines]],  [[LBR\|Library]],  [[OBSK\|ob-skills]],   |
 |  | **THE EXAMPLE WORLDS** |
 | [[HBR]] | **Harbor** — a fictional media-server project (its own slug): project root + grouped dispatch ([[HBR Components]]) + a built-out sub-anchor ([[HBR Ingest]]) + a full, tiny facet set ([[HBR Design]] / [[HBR Track]] / [[HBR User Docs]] / [[HBR Dev Docs]]), all `HBR`-prefixed |
-| [[FEX Repo\|Repo]] | **FEX Repo** — a fake skills repository tying the loose examples together: a skill ([[FEX Snapshot\|Snapshot]]), a facet ([[FEX Manifest\|Manifest]]), a discipline ([[FEX Retention\|Retention]]), a rule set ([[R-fex-manifest]]) |
+| [[FEX Repo\|Repo]] | **FEX Repo** — a fake skills repository tying the loose examples together: a skill ([[FEX Snapshot\|Snapshot]]), three facets spanning the kinds ([[FEX Manifest\|Manifest]] / [[FEX Pin\|Pin]] / [[FEX Bundle\|Bundle]]), a discipline ([[FEX Retention\|Retention]]), a rule set ([[R-fex-manifest]]) |
 | ... |  |
 
 ## By kind / facet — which example shows it
@@ -23,7 +23,7 @@ Two fictional worlds cover the anchor-page kinds and the facets. **Not 1:1** —
 | grouped dispatch | [[HBR Components]] |
 | sub-anchor / sub-folder | [[HBR Ingest]] |
 | skill (`SKILL.md`) | [[FEX Snapshot\|Snapshot]] |
-| facet page | [[FEX Manifest]] |
+| facet definition — the three kinds | [[FEX Manifest]] (single-file, one) / [[FEX Pin]] (single-file, many) / [[FEX Bundle]] (folder) |
 | discipline page | [[FEX Retention]] |
 | rule set (`# RULESET`) | [[R-fex-manifest]] |
 | [[FCT Anchor Page]] | the anchor-page kinds above (skill / grouped / project / sub-folder) |
