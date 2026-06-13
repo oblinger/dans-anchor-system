@@ -1,182 +1,64 @@
 ---
-description: anchor page format — the {slug}.md entry point
+description: "Anchor Page facet — the format of an anchor's {slug}.md entry point"
 ---
-# CAB Anchor Page
+# FCT Anchor Page
+The entry page every anchor opens with — its `{slug}.md`.
 
-**Location:** `{NAME}.md`
+| -[[FCT Anchor Page]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [[FCT]] → [FCT Anchor Page](hook://p/FCT%20Anchor%20Page)<br>: the `{slug}.md` entry-page format |
+| --- | --- |
+| Related | [[FCT]],  [[CAB Dispatch Table]],  [[DSC progressive-disclosure]],  [[CAE Facet]] |
 
+## Template
 
-The primary entry point for an anchor: `{NAME}.md`. Contains the breadcrumb, a dispatch table, and optionally a heading with a description property and additional content.
-
-**Working example:** [`~/.claude/skills/CAE/CAE.md`](../../CAE/CAE.md) — a complete, self-consistent anchor page in the canonical reference anchor. Use CAE when you need to see the actual file; use the reference below for a quick look.
-
-Below is a condensed reference example. See the working example linked above for the real file.
-
-# Reference Example
----
-
-
-# CAE — CAE example
-
-| -[[CAE]]-                    | ><br>:                                                                                                                                    |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| External                     | [Repo](https://github.com/oblinger/cae-example), [Project Page](https://oblinger.github.io/gitproj/cae-example/)                          |
-| [[CAE User/CAE User\|User]]+ | [[CAE Interface\|Interface]], [[CAE Guide\|Guide]], [[CAE Architecture\|Architecture]], [[CAE Cards\|Cards]]                              |
-| [[CAE Track\|Plan]]+          | [[CAE PRD\|PRD]], [[CAE System Design\|System Design]], [[CAE UX Design\|UX]], [[CAE Decisions\|Principles]], [[CAE Features\|Features]], [[CAE Discussion\|Discussion]] |
-| [[CAE Track\|Execute]]        | [[CAE Inbox\|Inbox]], [[CAE Open Questions\|Open Q]], [[CAE Backlog\|Backlog]], [[CAE Roadmap\|Roadmap]]                                  |
-| [[CAE Dev/CAE Dev\|Dev]]+    | [[CAE Files\|Files]]                                                                                                                      |
-| Research                     | [[CAE Research\|Research]], [[CAE References\|References]], [[CAE Related Work\|Related Work]]                                            |
-| ...                          |                                                                                                                                           |
-
-*NOTE: Omit rows that aren't relevant for a given anchor type. Row labels (User, Plan, Dev) are wiki-links to the sub-folder dispatch pages — clicking them shows just that section's files.
-
-
----
-
-
-
-# Format Specification
-
-## Naming
-
-An anchor has a **name** — the identifier used for its files and references:
-
-- **slug** (optional) — A short uppercase code like `CLF`, `DMUX`, `HA`. Used when brevity matters.
-- **Full Name** — The complete name in Title Case (e.g., "Claudifier", "2026 Daves Finances"). Always present.
-
-If a slug exists, it is the `{NAME}` used for file naming (`{slug}.md`, `{slug} Docs/`). If no slug, the full name is used.
-
-**Every markdown file and folder inside an anchor is prefixed with `{NAME}`** to avoid collisions in the shared Obsidian namespace. This applies to files, folders, and nested files alike (see [[CAB Naming Conventions]] for the full rule):
-- `{NAME} PRD.md`, `{NAME} Todo.md`, `{NAME} Roadmap.md`
-- `{NAME} Docs/`, `{NAME} Dev/`, `{NAME} bio/`
-- `{NAME} bio/{NAME} Chemistry.md` — nested files still carry the prefix
-
-## Format
-
-RULE (top-of-page order): the page opens **H1 → summary → (optional figure) → dispatch table**, in that order — and there is **no blank line after the H1**: the one-sentence summary sits on the very next line, glued to the heading. (A blank line *does* precede the figure and the table.) The summary says *what the page is* at the broadest stroke; an optional `## Overview` later can say more.
+The shape of an anchor page, top to bottom — H1 → summary → optional figure → dispatch table:
 
 ```
 ---
-description: One-line description of the anchor
+description: one-line description of the anchor
 traits: [Code]
 ---
 
 # {slug} - {Full Name}
-{One-sentence summary — what the page is. No blank line above this line.}
+{one-sentence summary — what the page is, at the broadest stroke; NO blank line above this line}
 
-![[optional-figure.svg]]
+![[{NAME} figure.svg]]                ← optional; no heading above it
 
 | -{NAME}- | → [[kmr]] → … → [{NAME}](hook://p/{NAME})<br>: short description |
-| -------- | ---------------------------------------------------------------- |
-| Related  | …                                                                |
-| ...      |                                                                  |
+| --- | --- |
+| Related | … |
+| {structural / member rows} | … |
+| ... | |
 ```
 
-## Heading
+## The pieces
 
-- **With slug**: `CLF — Claudifier` (as H1 heading)
-- **Without slug**: `2026 Daves Finances` (as H1 heading)
+- **Frontmatter** — `description:` (one line) + `traits:` (the anchor kind). Inline `desc::` is deprecated; migrate to `description:` in YAML.
+- **H1** — `{slug} - {Full Name}`: the slug leads (the jump-key), the readable name follows. Bare-name anchors use just the name.
+- **Summary** — one sentence on the **very next line** (no blank after the H1); says what the page *is*. More detail goes in an optional `## Overview` later, never above the dispatch table.
+- **Figure** — optional; embedded right after the summary with **no heading above it** — the big-picture visual before the navigation.
+- **Dispatch table** — the masthead (+ a member zone for a [[Collection]] anchor). The table's *form* is [[CAB Dispatch Table]]; its row *placement* is [[SKA Decisions|D07]].
 
-## Description Property
+## Rules
 
-The `description:` field goes in the YAML frontmatter (not inline). This is machine-readable and visible to Obsidian's metadata system.
+- RULE (h1-form): H1 is `{slug} - {Full Name}` — slug first (cements the jump-key), readable name after. ([[SKA Decisions|D06]])
+- RULE (top-of-page-order): the page opens **H1 → summary → (figure) → dispatch table**, with **no blank line after the H1** (summary glued to the heading; blanks *do* precede the figure and table). ([[DSC progressive-disclosure]])
+- RULE (name-prefix): every file and folder inside the anchor is prefixed `{NAME}` (`{NAME} PRD.md`, `{NAME} Docs/`, nested files too) to stay collision-free in the shared Obsidian namespace. ([[FCT Naming]])
+- RULE (dispatch-conforms): the dispatch table follows [[CAB Dispatch Table]] — `Related` is the 1st masthead row; `Design` is the 2nd **iff** the anchor has a design facet (members in the fixed D07 order); a skill-ecosystem anchor has **no `Track` row** ([[SKA Decisions|D08]]); a [[Collection]]'s member zone ends with an electric-list marker.
+- RULE (optional-table): a simple anchor may carry **no** dispatch table at all — frontmatter + H1 + summary are sufficient.
 
-```yaml
----
-description: macOS enhancements to speed the use of Claude Code
-traits: [Code]
----
-```
+## Example
 
-**Note:** Older anchors may use `desc::` inline after the heading. This is deprecated — migrate to `description:` in frontmatter.
+Worked examples are **in [[CAE]]**, not instantiated here — reference, don't copy:
 
-## Dispatch Table
+- [[CAE Facet]] — a canonical facet page (this page follows it).
+- [[CAE Project Root]] — a project anchor with a figure + the `Design` row.
+- [[CAE Figure Page]] — the H1 → summary → figure → dispatch ordering.
 
-The anchor page uses a dispatch table to organize links to all related pages. Pattern selection (Grouped / List / Compact) follows the `progressive-disclosure` discipline; format mechanics (top-left cell, separator markers, escaping) follow the [[md dispatch-table]] convention:
-
-- **Top-left cell** — `-[[{NAME}]]-` (wiki-link wrapped in dashes)
-- **Top-right cell** — `>` for breadcrumb and `:` for description, separated by `<br>` (e.g., `><br>: short description`)
-- **Body rows** — each row groups related docs. Row labels link to the sub-folder dispatch page when one exists.
-- **External row** — plain text label in column 1, URL or links in column 2
-
-**Table formatting:** Tables MUST have a blank line before them or they won't render. Escape the pipe in wiki-link aliases inside tables: `[[target\|alias]]` not `[[target|alias]]`. An unescaped `|` breaks the table column.
-
-### Separators and Auto-Management
-
-The table has two zones separated by a marker row:
-
-- **User zone** (above the separator) — fully user-controlled. The system only strikes through deleted links.
-- **System zone** (below the separator) — auto-managed. Wiped and regenerated on every rebuild with children not already listed in the user zone.
-
-| Separator | Meaning |
-|-----------|---------|
-| `---` | Auto-list remaining children alphabetically with descriptions |
-| `^^^` | Same, reverse alphabetical (dates float to top) |
-| `...` | Compact — single row with comma-separated links |
-| `+++` | Auto-list with grandchildren instead of descriptions |
-| `!!!` | Clip — delete everything below (including itself). One-shot. |
-
-Tables without a separator are frozen — the system won't add or remove rows.
-
-### Per-Row Grandchildren (`+` suffix)
-
-Append `+` after a wiki link in the left column to show that command's children in the right column:
-
-```markdown
-| [[CAE Dev/CAE Dev\|Dev]]+ | [[CAE Files\|Files]] |
-```
-
-The `+` is outside the `]]` — it's a directive to the system, not part of the link.
-
-### Standard Rows
-
-| Row | Row label links to | Contents | Part |
-|-----|-------------------|----------|------|
-| **External** | (plain text) | Repo URL, project page URL | [[FCT Code Repository]], [[FCT Documentation Site]] |
-| **User** | `[[{NAME} User/{NAME} User\|User]]` | User Guide, Cards | [[FCT API Doc]], [[FCT Cards]] |
-| **Plan** | `[[{NAME} Plan\|Plan]]` | PRD, System Design, UX, Features, Discussion | [[FCT PRD]], [[FCT System Design]], [[FCT UX Design]], [[FCT Features]], [[CAB Discussion]] |
-| **Execute** | `[[{NAME} Plan\|Execute]]` | Inbox, Open Questions, Backlog, Roadmap | [[FCT Inbox]], [[CAB Open Questions]], [[CAB Backlog]], [[FCT Roadmap]] |
-| **User** | `[[{NAME} User/{NAME} User\|User]]` | Interface (required for code), Guide, Architecture, Cards | [[FCT User Dispatch]], [[FCT Interface]], [[FCT Cards]] |
-| **Dev** | `[[{NAME} Dev/{NAME} Dev\|Dev]]` | Files, per-module docs | [[FCT Files]], [[FCT API Doc]] |
-| **Research** | (plain text) | Research notes, references, related work | [[CAB Research]] |
-
-### Row Labels as Links
-
-The row labels **User**, **Plan**, and **Dev** are wiki-links to their sub-folder dispatch pages:
-
-```markdown
-| [[CAE User/CAE User\|User]]   | [[CAE Interface\|Interface]], [[CAE Guide\|Guide]], [[CAE Architecture\|Architecture]] |
-| [[CAE Track\|Plan]]             | [[CAE PRD\|PRD]], [[CAE System Design\|System Design]] |
-| [[CAE Dev/CAE Dev\|Dev]]       | [[CAE Files\|Files]]                                  |
-```
-
-Clicking the row label navigates to the sub-folder dispatch page, which has a complete list of that section's files. The inline links on the right are just highlights — the dispatch page is the authoritative index.
-
-### Sub-Folder Dispatch Pages
-
-Each Docs sub-folder has its own dispatch page that lists all its children:
-
-| Page | Location | Lists |
-|------|----------|-------|
-| `{NAME} Plan.md` | `{NAME} Docs/{NAME} Plan/` | PRD, System Design, UX, Discussion, Roadmap, Backlog, Inbox, Open Questions, Features |
-| `{NAME} Dev.md` | `{NAME} Docs/{NAME} Dev/` | Files, per-module docs |
-| `{NAME} User.md` | `{NAME} Docs/{NAME} User/` | Interface (required for code), Guide, Architecture, Cards |
-| `{NAME} User.md` | `{NAME} Docs/{NAME} User/` | User Guide, any other user-facing docs |
-
-These are the files that the row labels link to. See [[CAB Docs]] for the full dispatch tree structure.
-
-Not all rows are required — omit rows that aren't relevant for the anchor type. Simple anchors may have no dispatch table at all.
+If the spec changes, fix CAE; never retrofit the spec to a stale inline copy.
 
 # BRIEF
 
-- **This file is the canonical spec for the anchor page (`{NAME}.md`).** It defines the YAML frontmatter, H1, breadcrumb dispatch table, and the standard rows (External / User / Plan / Execute / Dev / Research) every anchor entry point may carry.
-- **Special-role: format authority.** Other CAB facets, skills (`/create anchor`, `/rewire`, `/tidy`, `/lint`), and the audit scripts cite this file for the layout of `{NAME}.md`. Changes here ripple — update [[CAB Docs]], [[md dispatch-table]], and the worked example [[CAE]] in lockstep when the schema changes.
-- **NOT for anchor-type traits or sub-folder dispatch.** Trait-wide rules (Code anchor must have Dev, etc.) belong in `CAB <Trait>.md`; sub-folder dispatch pages (`{NAME} Plan.md`, `{NAME} Dev.md`, `{NAME} User.md`) have their own facets — link, don't inline.
-- **Inclusion test for new content here:** does it constrain the shape of `{NAME}.md` itself (frontmatter, H1, dispatch-table rows, separators, escaping)? If yes, here. If it describes a sibling file or a sub-folder dispatch page, it belongs in that file's facet.
-- **Load-bearing constraints — easy to break:**
-    - Blank line required before the dispatch table or it won't render.
-    - Wiki-link aliases inside table cells MUST escape the pipe (`[[target\|alias]]`).
-    - Top-left cell is `-[[{NAME}]]-` (dash-wrapped wiki-link) — the audit scripts key off this exact form.
-    - The `+` grandchild marker sits OUTSIDE `]]`.
-    - Separators (`---`, `^^^`, `...`, `+++`, `!!!`) split user zone from system zone; the system regenerates everything below the separator on rebuild — don't hand-edit the system zone.
-- **Keep the worked example honest.** The reference block (the embedded CAE example) is illustrative; the live source of truth is `~/.claude/skills/CAE/CAE.md`. If CAE drifts from this spec, fix CAE — don't retrofit the spec to match a stale example.
+- **This file is the spec for the anchor entry page (`{slug}.md`)** — frontmatter, H1, summary, optional figure, and the dispatch table it carries. Format *authority*: `/create anchor`, `/rewire`, `/tidy`, `/audit anchor`, and the audit scripts cite it.
+- **Don't inline what belongs elsewhere.** Dispatch-table *mechanics* → [[CAB Dispatch Table]]; row *placement / order* → [[SKA Decisions|D07]]; the naming prefix → [[FCT Naming]]; sub-folder dispatch pages have their own facets. Link, don't duplicate.
+- **The example is never instantiated here** — it lives in [[CAE]]. Keep CAE the single source of the worked form; this page carries only the Template skeleton + the pieces + the rules.
+- **Load-bearing, easy to break:** no blank line after the H1; a blank line *is* required before the dispatch table; top-left cell is the dash-wrapped `-[[{NAME}]]-`; pipe-escape wiki-link aliases in cells (`[[target\|alias]]`).
