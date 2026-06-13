@@ -14,12 +14,18 @@ Stage 1 (RESOLVE) of the Resolve → Run → Judge pipeline:
      tier + the targets it matched. The agent then follows the recipe — read a flat
      rule file, judge its listed targets — with no rule-selection thinking.
 
+Stage 2 (RUN) executes the mechanical `checked`/`sampled` rules via `--run`: a
+`check::` ref on a rule names a primitive in CHECKERS; verdicts are cached by
+(rule-id, rule-body-hash, target-content-hash). Caches built here: the flattened
+-rules cache (per-ruleset flat files + the shared flattened-umbrella cache, keyed
+by a corpus signature) and the verdict cache.
+
 Deferred to later F161 slices (announced, not silently dropped):
-  - Stage 2 mechanical execution of `checked` rules (needs machine-readable checker
-    refs on each rule). For now `checked` rules are emitted flagged
-    `(mechanical — checker pending)` and routed to the agent like `stated` rules.
-  - The verdict cache (rule-id, rule-body-hash, target-hash, model-id) and the
-    anchor-manifest cache. Only the flattened-rules cache is built here.
+  - Stage 3 agent-judge of the `stated` / unscriptable `sampled` residue, cached
+    by the full Q3 key (adds model-id). `checked` rules without a `check::` ref are
+    still routed to the agent like `stated` rules.
+  - The whole-plan cache (anchor-tree-hash + rules-hash) and anchor-manifest cache
+    that would let an unchanged re-audit skip resolution entirely.
 
 Usage:
   audit-plan <path-or-slug> [--mode anchor|doc] [--order file|rule]
@@ -270,6 +276,73 @@ def flatten_umbrella(umbrella: str, warnings: list[str]) -> list[dict]:
     return out
 
 
+# ── flattened-umbrella cache (shared across all anchors in a batch / re-audit) ─
+#
+# flatten_umbrella() does a repo-wide rglob + parse to resolve the include:: DAG.
+# That work is identical for every anchor in a batch and stable across re-audits
+# until a rule source file changes. Cache it twice: an in-process memo (one batch
+# run touches many anchors) and a disk cache keyed by a signature over every md
+# file's (relpath, mtime, size) — any rule edit bumps an mtime and invalidates it.
+
+_FLATTEN_MEM: dict[str, tuple[list[dict], list[str]]] = {}
+
+
+def _rule_corpus_sig() -> str:
+    h = hashlib.sha256()
+    for p in sorted(REPO_ROOT.rglob("*.md")):
+        if "/.git/" in str(p):
+            continue
+        try:
+            st = p.stat()
+        except OSError:
+            continue
+        h.update(str(p.relative_to(REPO_ROOT)).encode())
+        h.update(f"|{st.st_mtime_ns}|{st.st_size}".encode())
+    return h.hexdigest()[:16]
+
+
+def flatten_umbrella_cached(umbrella: str, cdir: Path | None, warnings: list[str],
+                            stats: dict | None = None) -> list[dict]:
+    def bump(k):
+        if stats is not None:
+            stats[k] = stats.get(k, 0) + 1
+
+    if umbrella in _FLATTEN_MEM:
+        rs, warns = _FLATTEN_MEM[umbrella]
+        warnings.extend(warns)
+        bump("flatten_mem_hit")
+        return rs
+
+    if cdir is None:
+        rs = flatten_umbrella(umbrella, warnings)
+        _FLATTEN_MEM[umbrella] = (rs, [])
+        bump("flatten_miss")
+        return rs
+
+    sig = _rule_corpus_sig()
+    fp = cdir / "umbrella" / f"{umbrella}-{sig}.json"
+    if fp.is_file():
+        try:
+            data = json.loads(fp.read_text(encoding="utf-8"))
+            rs, warns = data["rulesets"], data.get("warnings", [])
+            _FLATTEN_MEM[umbrella] = (rs, warns)
+            warnings.extend(warns)
+            bump("flatten_disk_hit")
+            return rs
+        except (OSError, json.JSONDecodeError):
+            pass
+
+    local: list[str] = []
+    rs = flatten_umbrella(umbrella, local)
+    fp.parent.mkdir(parents=True, exist_ok=True)
+    fp.write_text(json.dumps({"umbrella": umbrella, "rulesets": rs, "warnings": local}),
+                  encoding="utf-8")
+    _FLATTEN_MEM[umbrella] = (rs, local)
+    warnings.extend(local)
+    bump("flatten_miss")
+    return rs
+
+
 # ── selector resolution ─────────────────────────────────────────────────────
 
 def effective_where(rule: dict, ruleset: dict) -> str:
@@ -332,11 +405,34 @@ def match_targets(kind: str, arg: str, scope_files: list[Path], anchor_root: Pat
 
 # ── target enumeration ──────────────────────────────────────────────────────
 
-def enumerate_scope(target: Path, mode: str) -> tuple[Path, list[Path]]:
-    """Return (anchor_root, scope_files). For doc mode the scope is the one file."""
+def sub_anchor_roots(target: Path) -> set[Path]:
+    """Nested anchor roots strictly inside target (target's own .anchor excluded).
+    A file is owned by its *deepest* enclosing anchor; target's scope drops any
+    file under a nested sub-anchor so it isn't double-audited (the sub-anchor's
+    own plan covers it). Applied uniformly — a single audit is a batch-of-one."""
+    t = target.resolve()
+    roots = set()
+    for dot in target.rglob(".anchor"):
+        parent = dot.parent.resolve()
+        if parent != t:
+            roots.add(parent)
+    return roots
+
+
+def enumerate_scope(target: Path, mode: str,
+                    exclude_roots: set[Path] | None = None) -> tuple[Path, list[Path]]:
+    """Return (anchor_root, scope_files). For doc mode the scope is the one file.
+    Files under any path in exclude_roots (nested sub-anchors) are dropped."""
     if mode == "doc":
         return target.parent, [target]
-    files = [p for p in target.rglob("*.md") if "/.git/" not in str(p)]
+    exclude_roots = exclude_roots or set()
+    files = []
+    for p in target.rglob("*.md"):
+        if "/.git/" in str(p):
+            continue
+        if any(r == p.parent or r in p.parents for r in exclude_roots):
+            continue
+        files.append(p)
     return target, files
 
 
@@ -375,10 +471,11 @@ def write_flat_file(rs: dict, cdir: Path) -> Path:
 
 # ── planning ────────────────────────────────────────────────────────────────
 
-def plan_one(target: Path, mode: str, cdir: Path | None, warnings: list[str]) -> dict:
+def plan_one(target: Path, mode: str, cdir: Path | None, warnings: list[str],
+             exclude_roots: set[Path] | None = None, stats: dict | None = None) -> dict:
     umbrella = "R-doc" if mode == "doc" else "R-anchor"
-    rulesets = flatten_umbrella(umbrella, warnings)
-    anchor_root, scope_files = enumerate_scope(target, mode)
+    rulesets = flatten_umbrella_cached(umbrella, cdir, warnings, stats)
+    anchor_root, scope_files = enumerate_scope(target, mode, exclude_roots)
 
     groupings = []
     for rs in rulesets:
@@ -406,6 +503,7 @@ def plan_one(target: Path, mode: str, cdir: Path | None, warnings: list[str]) ->
         "umbrella": umbrella, "mode": mode,
         "target": str(target), "anchor_root": str(anchor_root),
         "scope_file_count": len(scope_files),
+        "excluded_subanchors": sorted(str(r) for r in (exclude_roots or set())),
         "groupings": groupings, "warnings": warnings,
     }
 
@@ -419,6 +517,9 @@ def render_recipe(plan: dict, order: str, cdir: Path | None) -> str:
     out.append(f"- mode: **{plan['mode']}**  ·  order: **{order}-major**  ·  "
                f"scope files: {plan['scope_file_count']}  ·  "
                f"rule sets matched: {len(plan['groupings'])}")
+    if plan.get("excluded_subanchors"):
+        out.append(f"- excluded {len(plan['excluded_subanchors'])} nested sub-anchor(s): "
+                   + ", ".join(Path(r).name for r in plan["excluded_subanchors"]))
     if cdir:
         out.append(f"- flat-rule cache: `{cdir / 'flat'}`")
     out.append("")
@@ -678,15 +779,20 @@ def main(argv):
         root = Path(args.batch).expanduser().resolve()
         anchors = sorted({p.parent for p in root.rglob(".anchor")})
         order = args.order or "rule"
+        stats: dict = {}
         plans = []
         for a in anchors:
-            plans.append(plan_one(a, "anchor", cdir, []))
+            plans.append(plan_one(a, "anchor", cdir, [], sub_anchor_roots(a), stats))
         if args.json:
-            print(json.dumps({"batch": str(root), "plans": plans}, indent=2))
+            print(json.dumps({"batch": str(root), "stats": stats, "plans": plans}, indent=2))
         else:
             for pl in plans:
                 print(render_recipe(pl, order, cdir))
                 print("\n" + "=" * 72 + "\n")
+            print(f"batch: {len(anchors)} anchors  ·  flatten cache: "
+                  f"{stats.get('flatten_miss', 0)} miss / "
+                  f"{stats.get('flatten_disk_hit', 0)} disk-hit / "
+                  f"{stats.get('flatten_mem_hit', 0)} mem-hit")
         return 0
 
     if not args.target:
@@ -694,7 +800,8 @@ def main(argv):
     target = resolve_target(args.target)
     mode = args.mode or ("doc" if target.is_file() else "anchor")
     order = args.order or ("rule" if mode == "anchor" and False else "file")
-    plan = plan_one(target, mode, cdir, [])
+    exclude = sub_anchor_roots(target) if mode == "anchor" else None
+    plan = plan_one(target, mode, cdir, [], exclude)
     if args.run:
         report = execute_plan(plan, cdir)
         if args.json:
