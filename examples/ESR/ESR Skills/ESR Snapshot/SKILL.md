@@ -4,7 +4,7 @@ description: "Capture the repository's current state into a dated, restorable bu
 user_invocable: true
 ---
 
-# /snapshot — checkpoint the repo into a dated bundle
+# Snapshot — checkpoint the repo into a dated bundle
 Capture the working tree into a restorable, dated bundle so any later state can be rolled back to this point.
 
 ## When to Use

@@ -1,5 +1,5 @@
 ---
-description: "Facet Examples — fictional example anchors that illustrate each facet and anchor-page kind."
+description: "the example gallery — fictional worlds + a per-kind map"
 ---
 
 # FEX - Facet Examples

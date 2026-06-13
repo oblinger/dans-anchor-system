@@ -1,3 +1,1 @@
-slug: HBR Ingest
-title: Harbor Ingest
-traits: [Code]
+description: Harbor's ingest subsystem — scan, import, dedup.
