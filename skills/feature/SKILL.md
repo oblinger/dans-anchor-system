@@ -19,7 +19,7 @@ Manage a feature from initial idea through design, agreement, implementation, te
 
 **MANDATORY: Commit discipline.** Before starting a new feature or switching to any other activity, commit all uncommitted work from the current feature. The natural commit point is the transition — not when you think you're done, but when you're about to do something else.
 
-**Question format**: the `## Open Questions` H2 below the H1 follows the [[ask-format]] discipline (five-piece layout, block-IDs, Phase 1/2/3 lifecycle).
+**Question format**: the `## Open Questions` H2 below the H1 follows the [[DSC ask-format]] discipline (five-piece layout, block-IDs, Phase 1/2/3 lifecycle).
 
 ## When to Use
 
@@ -50,7 +50,7 @@ If a feature is `[Questions]` or `[Blocked]` mid-flight, that's tracked via the 
 
 ### 1. Create the Feature Document
 
-**Discipline: write the `## Success Criteria` block at creation time.** Per `[[verification]]`, every feature doc has a `## Success Criteria` H2 near the top (after Summary, before Design) with the verification tier declared explicitly. Four tiers, ranked from most preferred (top) to least preferred (bottom):
+**Discipline: write the `## Success Criteria` block at creation time.** Per `[[DSC verification]]`, every feature doc has a `## Success Criteria` H2 near the top (after Summary, before Design) with the verification tier declared explicitly. Four tiers, ranked from most preferred (top) to least preferred (bottom):
 
 - **Tier 1: Agent-immediate.** Agent runs a check in the same turn the work completes. Runnable command, deterministic observation. (Best.)
 - **Tier 2: Agent-over-time.** Agent owns the deferred check (soak test, recurrence watchdog, scheduled re-run). User is not involved.

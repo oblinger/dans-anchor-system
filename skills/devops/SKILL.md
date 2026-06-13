@@ -111,7 +111,7 @@ These are almost always WAITING ON USER and are the highest-value thing to banne
 
 - [[bridge]] — the control / sync / claude mechanisms DevOps work runs over.
 - [[crank]] — autonomous-progress loop; DevOps is its operational sibling (crank drives the backlog; DevOps drives the machines).
-- [[verification]] — tier discipline for what "done" means on a verify item.
+- [[DSC verification]] — tier discipline for what "done" means on a verify item.
 
 ---
 

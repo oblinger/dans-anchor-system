@@ -27,7 +27,7 @@ Regenerate the anchor's per-anchor section in `~/ob/kmr/Q.md` (the **single tria
 Punctuation trigger: **`"`** (a single double-quote as the entire message), parallel to `crank`/`'` and `/land`/`.`. Slash invocation: `/triage`, `/triage roadmap`, `/triage milestone {N}`. **Slash-only — the spoken word "triage" is NOT a DMUX prefix-trigger** (removed 2026-05-04; too easy to fire by accident in normal speech, same reasoning as /crank and /ask; `"` is the dedicated single-keystroke shortcut).
 
 
-**Question / Verify format**: this skill renders items written per the [[ask-format]] discipline. `/triage` does not enforce format compliance — that's `/audit q`, auto-wired as a post-condition per F076 Q6.
+**Question / Verify format**: this skill renders items written per the [[DSC ask-format]] discipline. `/triage` does not enforce format compliance — that's `/audit q`, auto-wired as a post-condition per F076 Q6.
 
 ## When to Use
 
@@ -87,7 +87,7 @@ description: triage inbox (agent-owned)
 
 **Items in `## Later`: selectively shown in the body** (2026-05-20). Later items with `[Questions]` or `[Verify]` brackets are surfaced under a `## Later` H2 in the body — they're user-actionable, and surfacing them guarantees the H1 banner's `Questions N` / `Verify N` counts match a visible row. All other Later items (`[ ]` / `[Designing]` / `[Blocked]` / `[Waiting]` / `[Watching]` / `[Ready]` / etc.) stay hidden — they're deferred and don't compete for attention. **Items in `## Icebox` are never shown in the body** — only counted in the H1 banner.
 
-**Special case — `[Verify-by YYYY-MM-DD]`** (per [[ask-format]] § Deferred-by-use Verify): surface in Later H2 only while `today < YYYY-MM-DD`. Past the date, hide — the item is awaiting auto-expiration by the next `/groom` sweep, which moves it to `## Done`. This keeps banner counts honest: the `Verify N` count excludes expired-but-not-yet-groomed items, so the user never sees a phantom Verify in the body waiting on nothing.
+**Special case — `[Verify-by YYYY-MM-DD]`** (per [[DSC ask-format]] § Deferred-by-use Verify): surface in Later H2 only while `today < YYYY-MM-DD`. Past the date, hide — the item is awaiting auto-expiration by the next `/groom` sweep, which moves it to `## Done`. This keeps banner counts honest: the `Verify N` count excludes expired-but-not-yet-groomed items, so the user never sees a phantom Verify in the body waiting on nothing.
 
 **Within an H2**: items appear in **source order from the backlog**. The H1 banner already counts items by status, so re-grouping by status inside H2s is redundant. Reorder by editing the backlog (or asking the agent).
 
@@ -245,7 +245,7 @@ For each backlog H2 in this fixed order — `## Active`, `## Ready`, `## Now`, `
 
 `## Verify` (per F100, 2026-06-02) is a dedicated horizon for `[Watching*]` and `[Verify*]` rows. The split surfaces passive-observation work separately from `## Later` (which now holds only `[Waiting*]` / `[Blocked*]` / etc.). All `## Verify` rows are rendered (no filter — every row there is user-relevant since it's awaiting confirmation or recurrence-check).
 
-**Tier check on `[Verify]` rows** (per `[[verification]]`, F101): when rendering a `[Verify]` row, read the linked feature doc's `## Success Criteria` block. The declared tier determines surfacing:
+**Tier check on `[Verify]` rows** (per `[[DSC verification]]`, F101): when rendering a `[Verify]` row, read the linked feature doc's `## Success Criteria` block. The declared tier determines surfacing:
 
 - **Tier 1 (agent-immediate) or Tier 2 (agent-over-time):** the verification is the agent's responsibility, not the user's. Suppress the row from the triage body — render only a one-line note in the chat-summary at the end: *"N Verify rows are agent-tier (1 or 2); not surfaced. /audit q on next pass."* The agent should pick these up and check them; if the check still has not run by the next triage, the agent has neglected its own work and the row needs attention from a different angle (escalate or rebracket).
 - **Tier 3 (user-passive):** render with a brief annotation `(passive — watch in normal use)`; do not block on a user response.

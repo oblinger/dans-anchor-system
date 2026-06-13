@@ -1,6 +1,6 @@
 # Email Access Methods
 
-Email can be reached more than one way. This page is the dispatch over **how** `/io email` gets at your mail — the trade-offs, and which is wired today. Per [[granularity]], these are *surfaces within* the email capability, not separate skills.
+Email can be reached more than one way. This page is the dispatch over **how** `/io email` gets at your mail — the trade-offs, and which is wired today. Per [[DSC granularity]], these are *surfaces within* the email capability, not separate skills.
 
 | Method | Reaches | Auth | Status |
 |---|---|---|---|

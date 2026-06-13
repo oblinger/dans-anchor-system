@@ -47,7 +47,7 @@ main
 
 `/pr-flow` is the underlying mechanism for **PR mode** (the Git-aspect Trait per [[F077 — PR mode — mode-as-trait architecture with per-anchor opt-in|F077]] + [[PR]] trait spec). The relationship:
 
-- **`/pr-flow` user-invoked** — the legacy use. User types "PR flow" / `/pr-flow`; the cycle above runs once. Composes with any Git-aspect mode the anchor declares (the explicit `/pr-flow` invocation temporarily overrides whatever mode is normally active, per [[mode]] § Git Commit *"Inside `/pr-flow` → defer to PR-mode rules until /pr-flow exits"*).
+- **`/pr-flow` user-invoked** — the legacy use. User types "PR flow" / `/pr-flow`; the cycle above runs once. Composes with any Git-aspect mode the anchor declares (the explicit `/pr-flow` invocation temporarily overrides whatever mode is normally active, per [[DSC mode]] § Git Commit *"Inside `/pr-flow` → defer to PR-mode rules until /pr-flow exits"*).
 - **`/pr-flow` auto-deferred-to from PR-mode** — anchors that declare `PR` in their `.anchor` `traits:` list use `/pr-flow` semantics for *every* state-touching commit, not just on explicit invocation. The agent treats every commit boundary in such an anchor as a `/pr-flow` cycle:
   1. Branch named `F<n>-<slug>` (or `B<id>-<slug>` for B-rows).
   2. Commits to that branch.

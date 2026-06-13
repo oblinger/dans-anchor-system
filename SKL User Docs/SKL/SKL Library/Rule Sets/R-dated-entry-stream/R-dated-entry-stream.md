@@ -1,10 +1,10 @@
 # RULESET R-dated-entry-stream
-include:: [[dated-entry-stream#RULESET R-dated-entry-stream|embedded body]]
-description:: Catalog stub — rules for streams of dated, typed, reverse-chronological entries attached to a parent doc or anchor. Canonical body lives embedded in [[dated-entry-stream]].
+include:: [[DSC dated-entry-stream#RULESET R-dated-entry-stream|embedded body]]
+description:: Catalog stub — rules for streams of dated, typed, reverse-chronological entries attached to a parent doc or anchor. Canonical body lives embedded in [[DSC dated-entry-stream]].
 
-Catalog-side stub for the dated-entry-stream sub-discipline's rule set. The canonical body lives embedded inside the [[dated-entry-stream]] discipline file per the [[F133 — Rule sets folder convention + facet embedding|F133]] convention.
+Catalog-side stub for the dated-entry-stream sub-discipline's rule set. The canonical body lives embedded inside the [[DSC dated-entry-stream]] discipline file per the [[F133 — Rule sets folder convention + facet embedding|F133]] convention.
 
-**To see the actual rules:** follow [[dated-entry-stream#RULESET R-dated-entry-stream|the embedded block]]. 9 rules covering:
+**To see the actual rules:** follow [[DSC dated-entry-stream#RULESET R-dated-entry-stream|the embedded block]]. 9 rules covering:
 
 - **Methods (1)** — exactly three placement methods (inline H1 / sibling file / sibling folder).
 - **Naming (1)** — parent name + plural facet suffix when extracted; ISO date prefix for method-3 entry files.
@@ -18,7 +18,7 @@ Catalog-side stub for the dated-entry-stream sub-discipline's rule set. The cano
 
 ## Position in the catalog
 
-Sits under [[R-doc]] (documentation conventions umbrella). Sub-discipline of [[file-association]] (the broader umbrella covering structural patterns for attaching content to a parent). Cited by every facet whose content is a dated entry stream: [[CAB Discussion]] today; [[FCT Log]] pending refactor.
+Sits under [[R-doc]] (documentation conventions umbrella). Sub-discipline of [[DSC file-association]] (the broader umbrella covering structural patterns for attaching content to a parent). Cited by every facet whose content is a dated entry stream: [[CAB Discussion]] today; [[FCT Log]] pending refactor.
 
 ## Adoption
 
@@ -26,8 +26,8 @@ This rule set is cited explicitly by each facet that uses it (in their `R-<facet
 
 ## See also
 
-- [[dated-entry-stream]] — sub-discipline spec; contains the embedded RULESET body.
-- [[file-association]] — parent umbrella discipline.
+- [[DSC dated-entry-stream]] — sub-discipline spec; contains the embedded RULESET body.
+- [[DSC file-association]] — parent umbrella discipline.
 - [[R-doc]] — documentation-conventions catalog row this stub sits under.
 - [[CAB Discussion]] — citing facet (doc-scoped, methods 1 + 2).
 - [[FCT Log]] — citing facet at the anchor scope (forthcoming refactor).

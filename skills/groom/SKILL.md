@@ -37,7 +37,7 @@ The agent determines top-level vs sub-skill from conversation context: if the us
 **Default when ambiguous: top-level.** Better to end with `/triage` once when not strictly needed than to skip it when the user expected it.
 
 
-**Question format when parking**: when `/groom` creates a feature doc with `## Open Questions`, the questions follow the [[ask-format]] discipline.
+**Question format when parking**: when `/groom` creates a feature doc with `## Open Questions`, the questions follow the [[DSC ask-format]] discipline.
 
 ## When to Use
 
@@ -129,7 +129,7 @@ Cases to detect and rewrite:
 - **`[Waiting]` whose awaited event has occurred** — rewrite to `[Verify]` (event happened, needs checking) or `[Active]` (event happened, work can resume).
 - **`[Watching Nd]` whose soak expired with no recurrence** — rewrite to `[Verify]` so the user can confirm the fix held and close to `[Done]`.
 - **`[Watching]` with recurrence during the soak** — rewrite to `[Active]` or `[Designing]` (the fix didn't hold; resume work).
-- **`[Verify-by YYYY-MM-DD]` past its date** (per [[ask-format]] § Deferred-by-use Verify) — default: move the row to `## Done` with note *"Auto-Done <today> — `[Verify-by <date>]` window expired with no failure surfaced"*. Optional alternative: if the agent has evidence the change wasn't actually exercised since the row was filed (e.g., the relevant skill hasn't run, no usage observed), extend the bracket to `[Verify-by <new-date>]` with a body note *"Extended — no usage observed yet"*. Default is auto-Done; extension is the rare case.
+- **`[Verify-by YYYY-MM-DD]` past its date** (per [[DSC ask-format]] § Deferred-by-use Verify) — default: move the row to `## Done` with note *"Auto-Done <today> — `[Verify-by <date>]` window expired with no failure surfaced"*. Optional alternative: if the agent has evidence the change wasn't actually exercised since the row was filed (e.g., the relevant skill hasn't run, no usage observed), extend the bracket to `[Verify-by <new-date>]` with a body note *"Extended — no usage observed yet"*. Default is auto-Done; extension is the rare case.
 - **Lazy-Blocked / Lazy-Waiting / Lazy-Watching** (body doesn't name what makes the state honest) — rewrite per `[[SKA triage]]` § Lazy states (usually `[Ready]` or `[Questions]` in disguise).
 - **Bracket-H2 mismatch** — a row under `## Ready` H2 with a `[Questions]` / `[Blocked]` / `[Waiting]` / `[Watching]` bracket is misplaced (H2 implies state; bracket carries state). Either rewrite the bracket if state changed (the H2 was right) or move the row to a horizon H2 carrying the bracket (the bracket was right). The body usually disambiguates.
 

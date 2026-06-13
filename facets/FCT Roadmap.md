@@ -1,7 +1,7 @@
 # CAB Roadmap
 description:: facet spec (TBD — user authoring)
 
-The Roadmap facet specifies the `{NAME} Roadmap.md` file — the project's **sequencing-design**. It declares what ships in what order, organized as milestones (M1, M2, M3 …) with sub-numbering for finer detail. Open questions at the sequencing/dependency/gating level live as `## Open Questions` H2 on this file per [[ask-format]].
+The Roadmap facet specifies the `{NAME} Roadmap.md` file — the project's **sequencing-design**. It declares what ships in what order, organized as milestones (M1, M2, M3 …) with sub-numbering for finer detail. Open questions at the sequencing/dependency/gating level live as `## Open Questions` H2 on this file per [[DSC ask-format]].
 
 **Relocated to Design 2026-06-10** — previously lived at `{NAME} Track/{NAME} Roadmap.md` (per F094) and pre-F094 at `{NAME} Docs/{NAME} Plan/{NAME} Roadmap.md`. Moved into Design alongside [[FCT Features]] because milestones ARE design — the plan, not the execution. Existing anchors stay at the old location until next `/design roadmap` touch repositions them (F142).
 
@@ -280,7 +280,7 @@ Both directions linked so neither end is lost. A validation pass (per CAB Valida
 
 ## Open Questions on the roadmap
 
-Roadmap-level open questions (sequencing, dependency, gating) — questions whose answer changes the milestone shape rather than a single feature doc — live as `## Open Questions` H2 directly below the file's H1, per [[ask-format]]:
+Roadmap-level open questions (sequencing, dependency, gating) — questions whose answer changes the milestone shape rather than a single feature doc — live as `## Open Questions` H2 directly below the file's H1, per [[DSC ask-format]]:
 
 ```markdown
 # {NAME} Roadmap
@@ -294,7 +294,7 @@ Questions tied to specific features live on the feature doc, not here. Use `/ask
 
 ## Preface zone
 
-Per [[progressive-disclosure]]:
+Per [[DSC progressive-disclosure]]:
 
 - **Dispatch table** — Required.
 - **TLDR** — Optional. Roadmaps often benefit from a 3-5 bullet TLDR naming the milestone count + current state ("M1 done, M2 in progress, M3+ planned").
@@ -314,7 +314,7 @@ Any anchor with a `{NAME} Design/` folder per [[FCT Design]] that's planning mor
 - [[FCT Features]] — feature docs that Shape A roadmaps group into milestones
 - [[FCT Stories]] — user stories that milestones implement (cited from milestone Acceptance lines)
 - [[FCT Status]] — `{NAME} Status.md` carries the design-phase tier for `roadmap::` (separate from per-milestone progress)
-- [[ask-format]] — open-questions discipline
+- [[DSC ask-format]] — open-questions discipline
 - [[design-roadmap]] — authoring sub-skill for `/design roadmap`
 - [[ABIO Roadmap]] — worked example of Shape B (task-checklist; multi-level numbering; deferral cross-refs)
 - [[CAE Roadmap]] — worked example (currently Shape A skeleton; expansion landing alongside CAE refresh)
@@ -428,4 +428,4 @@ After the last body item of each milestone, before the next `## ` H2, a `### .` 
 - **Two shapes (A — milestone-as-feature-group; B — milestone-as-task-checklist) are load-bearing** — keep both documented; mixing within a project is forbidden but transitioning is allowed. Don't collapse into one shape "for simplicity."
 - **R-roadmap RULESET is co-located** in this same file per [[F133]] (embedded rule set adopted via the `R-facet` umbrella). Don't split it into a separate file; keep rule numbering monotonic-forever (R-roadmap-09, -10, -11 are out-of-sequence by intent — order reflects authoring history, not narrative).
 - **Named-milestone form (`M-<Name>`) is the new convention** per [[F144]]; legacy numeric (`M1`, `M2`) is migration-only. When updating examples or rules, prefer the named form; keep the legacy section as a documented fallback, don't delete it.
-- **Cross-refs to maintain on edit:** [[FCT Completed Roadmap]] (the migration target), [[FCT Features]] (Shape A milestone bullets are F-numbered wiki-links), [[FCT Status]] (`roadmap::` field), [[design-roadmap]] (authoring skill), [[ask-format]] (Open Questions convention).
+- **Cross-refs to maintain on edit:** [[FCT Completed Roadmap]] (the migration target), [[FCT Features]] (Shape A milestone bullets are F-numbered wiki-links), [[FCT Status]] (`roadmap::` field), [[design-roadmap]] (authoring skill), [[DSC ask-format]] (Open Questions convention).

@@ -228,7 +228,7 @@ When iteration surfaces a decision, route it through [[ask]]:
 
 The decide-vs-ask judgment **belongs to the /ask discipline**, not this skill. The short version of what /ask enforces: if the choice is **reversible AND the user will see the wrong call and easily redirect**, the agent should decide and log under `## Resolved` as an agent-made-this-call entry — not as a question. Only when the decision is irreversible, invisible, or genuinely undecidable from context does it become a `## Open Questions` Q.
 
-See [[ask]] and [[ask-format]] for the full lifecycle (Q-numbering, recommendation strength, Resolved migration, Q.md dashboard sync).
+See [[ask]] and [[DSC ask-format]] for the full lifecycle (Q-numbering, recommendation strength, Resolved migration, Q.md dashboard sync).
 
 ### 6. Promote status
 
@@ -269,6 +269,6 @@ Audit rules to honor: [[FCT PRD#RULESET R-prd|R-prd]] (9 rules).
 - Parent orchestrator: [[design]]
 - Sibling sub-skills: [[design-ux]], [[design-architect]], [[design-testing]], [[design-roadmap]]
 - Status tracking: [[FCT Status]]
-- Open-question discipline: [[ask-format]]
+- Open-question discipline: [[DSC ask-format]]
 - Question authoring skill: `/ask --doc`
 - F130 (state script + central Status), F094 (Design folder restructure)

@@ -22,9 +22,9 @@ user_invocable: true
 Punctuation trigger: **`'`** (single apostrophe as the entire message), parallel to `triage`/`"` and `land`/`.`. Slash invocation: `/crank` (with optional argument; passed to `/mint` if action is taken). **Slash-only — the spoken word "crank" is intentionally NOT a DMUX prefix-trigger** (too common in casual speech; `'` is the dedicated single-keystroke shortcut).
 
 
-**Surfacing user-actionable items**: when `/crank` is about to ask a Question or request a Verify (e.g., when exiting to `/triage` or chaining to `/ask`), the format follows the [[ask-format]] discipline. This prevents the flatfooted-ask failure mode — every Verify includes what-the-agent-verified / what's-left-for-you / why-human / expected-output.
+**Surfacing user-actionable items**: when `/crank` is about to ask a Question or request a Verify (e.g., when exiting to `/triage` or chaining to `/ask`), the format follows the [[DSC ask-format]] discipline. This prevents the flatfooted-ask failure mode — every Verify includes what-the-agent-verified / what's-left-for-you / why-human / expected-output.
 
-**Verify surfacing follows [[verification]]** (per F101). The recurring failure mode is the blanket ask: *"verify F57, F58, F59"* dumped on the user with no context, requiring them to open each feature doc and reconstruct what "verified" means. The verification discipline replaces this with:
+**Verify surfacing follows [[DSC verification]]** (per F101). The recurring failure mode is the blanket ask: *"verify F57, F58, F59"* dumped on the user with no context, requiring them to open each feature doc and reconstruct what "verified" means. The verification discipline replaces this with:
 
 - **Tier check first.** Read each Verify row's linked feature doc `## Success Criteria` block. Tier 1 and tier 2 are agent-owned: the agent runs the check now (or schedules the deferred check); these do NOT surface to the user. Suppress them from `/ask` and `/triage` body output.
 - **Targeted questions only.** When tier 3 or tier 4 does surface, the question itself embeds the answer-enabling context. *"Have you sent a Voice Memo email since 2026-05-28 and seen the transcript land in `~/ob/kmr/Log/VOX/`?"* not *"Verify F93"*.

@@ -49,9 +49,9 @@
 | [cab-wp](hook://cab-wp) |  |
 | [cab-yore](hook://cab-yore) |  |
 | [Code Anchor markdown](hook://Code%20Anchor%20markdown) |  |
-| ~~[[code-anchor]]~~ |  |
+| [[code-anchor]] |  |
 | [[code-arch-audit]] |  |
-| ~~[[design-architect]]~~ |  |
+| [[design-architect]] |  |
 | [[code-bugfix]] |  |
 | [[code-changelog]] |  |
 | [[code-code]] |  |
@@ -62,12 +62,12 @@
 | [[code-ios]] |  |
 | [[code-mint]] |  |
 | [[code-merge]] |  |
-| ~~[[code-modules]]~~ |  |
+| [[code-modules]] |  |
 | [[code-ask-questions]] |  |
 | [[code-package]] |  |
 | [[code-plan-audit]] |  |
 | [[code-pr-flow]] |  |
-| ~~[[design-prd]]~~ |  |
+| [[design-prd]] |  |
 | [[code-publish]] |  |
 | [[code-release]] |  |
 | [[code-replan]] |  |
@@ -75,19 +75,19 @@
 | [code/code-review](hook://code/code-review) |  |
 | [code/code-rewire](hook://code/code-rewire) |  |
 | [[code-rewire.compiled]] |  |
-| ~~[[design-roadmap]]~~ |  |
+| [[design-roadmap]] |  |
 | [[code-setup]] |  |
 | [[code-ship]] |  |
 | [[code-spec]] |  |
 | [[code-spike]] |  |
-| ~~[[code-system-design]]~~ |  |
+| [[code-system-design]] |  |
 | [[code-test]] |  |
 | [[code-test-external]] |  |
 | [[code-test-plan]] |  |
 | [[code-test-quality]] |  |
 | [[code-test-scaffolds]] |  |
 | [[code-testing]] |  |
-| ~~[[design-ux]]~~ |  |
+| [[design-ux]] |  |
 | [[code-verify]] |  |
 | [[code-version]] |  |
 | [[code-workers]] |  |
@@ -95,19 +95,19 @@
 | [[compile]] | [[audit-docs markdown]],  [[code-rewire markdown]],   |
 | [edit-excalidraw markdown](hook://edit-excalidraw%20markdown) |  |
 | [excalidraw-examples markdown](hook://excalidraw-examples%20markdown) |  |
-| ~~[[google-sheets]]~~ |  |
-| ~~[[google-slides]]~~ |  |
+| [[google-sheets]] |  |
+| [[google-slides]] |  |
 | [io-docs](hook://io-docs) |  |
-| ~~[[io-email]]~~ |  |
+| [[io-email]] |  |
 | [io-email-access](hook://io-email-access) |  |
 | [io-gmail-api](hook://io-gmail-api) |  |
 | [io-sheets](hook://io-sheets) |  |
 | [io-slides](hook://io-slides) |  |
 | [io-sync](hook://io-sync) |  |
 | [md-cards markdown](hook://md-cards%20markdown) |  |
-| ~~[[md-dispatch-table]]~~ |  |
-| ~~[[md-file-tree]]~~ |  |
-| ~~[[md-toc]]~~ |  |
+| [[md-dispatch-table]] |  |
+| [[md-file-tree]] |  |
+| [[md-toc]] |  |
 | [md-track-changes markdown](hook://md-track-changes%20markdown) |  |
 | [Paper Anchor markdown](hook://Paper%20Anchor%20markdown) |  |
 | [product-buy markdown](hook://product-buy%20markdown) |  |
@@ -118,14 +118,14 @@
 | [research/research](hook://research/research) | [[research-person]],  [[SKILL markdown]],  [[research-book]],  [[research-dig]],  [[research-survey]],  [[RSH]],   |
 | [role-pilot markdown](hook://role-pilot%20markdown) |  |
 | [role-pm markdown](hook://role-pm%20markdown) |  |
-| ~~[[role-setup]]~~ |  |
-| ~~[[role-worker]]~~ |  |
-| ~~[[rule-check]]~~ |  |
-| ~~[[rule-consider]]~~ |  |
-| ~~[[rule-create]]~~ |  |
-| ~~[[rule-fix]]~~ |  |
-| ~~[[rule-sync]]~~ |  |
-| ~~[[rule-triage]]~~ |  |
+| [[role-setup]] |  |
+| [[role-worker]] |  |
+| [[rule-check]] |  |
+| [[rule-consider]] |  |
+| [[rule-create]] |  |
+| [[rule-fix]] |  |
+| [[rule-sync]] |  |
+| [[rule-triage]] |  |
 | [[rust-fallbacks]] |  |
 | [Simple Anchor markdown](hook://Simple%20Anchor%20markdown) |  |
 | [edit/SKILL](hook://edit/SKILL) | > |
@@ -140,7 +140,7 @@
 | [migrate/SKILL](hook://migrate/SKILL) | > |
 | [migrate/SKILL](hook://migrate/SKILL) | > |
 | [migrate/SKILL](hook://migrate/SKILL) | > |
-| ~~[[SKILL-retired]]~~ | > |
+| [[SKILL-retired]] | > |
 | [skills markdown](hook://skills%20markdown) |  |
 | [[SKL]] | skills dispatch table |
 | [SKL Audit Guide](hook://SKL%20Audit%20Guide) | How auditing works — design rationale, tool chain, and examples |
@@ -157,13 +157,13 @@
 | [[SKL User Guide]] |  |
 | [[swift-fallbacks]] |  |
 | [Topic Anchor markdown](hook://Topic%20Anchor%20markdown) |  |
-| ~~[[xdg-config]]~~ | Rules for applications using ~/.config/ (XDG Base Directory) conventions |
-| ~~[[oblinger-rules]]~~ |  |
-| ~~[[io-gdoc]]~~ |  |
-| ~~[[io-gsheet]]~~ |  |
-| ~~[[io-gslide]]~~ |  |
-| ~~[[io-gdrive]]~~ |  |
-| ~~[[io-notion]]~~ |  |
+| [[xdg-config]] | Rules for applications using ~/.config/ (XDG Base Directory) conventions |
+| [[oblinger-rules]] |  |
+| [[io-gdoc]] |  |
+| [[io-gsheet]] |  |
+| [[io-gslide]] |  |
+| [[io-gdrive]] |  |
+| [[io-notion]] |  |
 | [io-reauth](hook://io-reauth) |  |
 | [io-gauth](hook://io-gauth) |  |
 | [CAB-parts](hook://CAB-parts) | [[FCT All Files]],  [[CAB Backlog]],  [[FCT Cards]],  [[FCT Claude]],  [[FCT Code Repository]],  [[FCT Dev Dispatch]],  [[CAB Discussion]],  [[CAB Docs]],  [[FCT Documentation Site]],  [[FCT Features]],  [[FCT Files]],  [[FCT Folder]],  [[FCT Inbox]],  [[FCT API Doc]],  [[CAB Open Questions]],  [[FCT Outputs]],  [[FCT Plan Dispatch]],  [[FCT PRD]],  [[FCT Project Page]],  [[CAB slug Page]],  [[FCT Roadmap]],  [[FCT Skill]],  [[FCT System Design]],  [[FCT User Dispatch]],  [[FCT UX Design]],  [[FCT WP]],   |
@@ -175,7 +175,7 @@
 | [[CAB Conventions]] |  |
 | [[CAB Repository Structure]] |  |
 | [[CAB Integrations]] |  |
-| ~~[[role-pm]]~~ |  |
+| [[role-pm]] |  |
 | [[CAB Docs Conventions]] |  |
 | [[Simple Anchor]] |  |
 | [cab-lint](hook://cab-lint) |  |
@@ -183,12 +183,12 @@
 | [[LINT System Suppressions]] |  |
 | [[CAB Markdown Formatting]] |  |
 | [[CAB Research]] |  |
-| ~~[[role-pilot]]~~ |  |
+| [[role-pilot]] |  |
 | [cab-pilot-flow](hook://cab-pilot-flow) |  |
 | [[product-hunt]] |  |
-| ~~[[excalidraw-examples]]~~ |  |
+| [[excalidraw-examples]] |  |
 | [[CAB Rust Rules]] |  |
-| ~~[[md-track-changes]]~~ |  |
+| [[md-track-changes]] |  |
 | [[Paper Anchor]] |  |
 | [[CAB Traits]] |  |
 | [cab-pr-flow](hook://cab-pr-flow) |  |
@@ -199,7 +199,7 @@
 | [[CAB Documentation Publishing]] |  |
 | [cab-move](hook://cab-move) |  |
 | [[CAB Defined Terms]] |  |
-| ~~[[md-cards]]~~ |  |
+| [[md-cards]] |  |
 | [[Topic Anchor]] |  |
 | [[CAB Maintenance]] |  |
 | [[SKL Skills]] | universal list of actions across all skills for any anchor type |

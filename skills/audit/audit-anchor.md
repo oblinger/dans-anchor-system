@@ -33,7 +33,7 @@ Delegate the table's shape to **[[audit-dispatch|/audit dispatch]]** (it already
 - [ ] **Masthead is minimal** — `Related` is the **1st** row (omitted entirely if empty — never blank); no ad-hoc rows the breadcrumb already covers (no `Repo` row). (D07)
 - [ ] **Design row** — if the anchor has the design facet (`{NAME} Design/`), a `Design` row is **present** as the **2nd** row, in the fixed order PRD → UX → CLI → API → Architecture → Decisions → Testing → Roadmap → Features. (D07)
 - [ ] **No `Track` row** for a skill-ecosystem anchor (skill / facet / discipline / example) — tracking is centralized in SKA. (D08)
-- [ ] **Container ending** — a Collection/container's table ends with an electric-list marker (`...` / `---` / `+` group rows); each group-row label links *down* to its container page. (per [[CAB Dispatch Table]] + [[progressive-disclosure]])
+- [ ] **Container ending** — a Collection/container's table ends with an electric-list marker (`...` / `---` / `+` group rows); each group-row label links *down* to its container page. (per [[CAB Dispatch Table]] + [[DSC progressive-disclosure]])
 
 ## Runbook
 
@@ -50,6 +50,6 @@ Delegate the table's shape to **[[audit-dispatch|/audit dispatch]]** (it already
 
 ## Related
 
-- Rules read: [[FCT Anchor Page]], [[CAB Dispatch Table]], [[progressive-disclosure]]; decisions [[SKA Decisions|D06 / D07 / D08]].
+- Rules read: [[FCT Anchor Page]], [[CAB Dispatch Table]], [[DSC progressive-disclosure]]; decisions [[SKA Decisions|D06 / D07 / D08]].
 - Builder it calls: [[audit-dispatch]].
-- Vault-wide connectivity walk: [[anchor-dag]].
+- Vault-wide connectivity walk: [[DSC anchor-dag]].

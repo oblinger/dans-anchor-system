@@ -10,7 +10,7 @@ description: How to read from and write to external services — Google Workspac
 
 # SKL IO Guide
 
-The **io** skill is the gateway between this Mac and external **cloud services** — Google Workspace, email, and Notion. It is an *accessor* (per [[SKA Access]]): its job is the channel, not a produced artifact. Each external surface is a **subcommand** (`/io <surface>`), so the whole family costs one skill in the catalog (per [[granularity]]).
+The **io** skill is the gateway between this Mac and external **cloud services** — Google Workspace, email, and Notion. It is an *accessor* (per [[SKA Access]]): its job is the channel, not a produced artifact. Each external surface is a **subcommand** (`/io <surface>`), so the whole family costs one skill in the catalog (per [[DSC granularity]]).
 
 Say "put this in sheets", "read the spreadsheet", "update the slides", "search my email for X", and the agent routes to the right subskill below.
 

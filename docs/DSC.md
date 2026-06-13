@@ -5,11 +5,11 @@ description: "Disciplines — cross-cutting, non-invocable concepts the agent re
 # DSC - Disciplines
 Cross-cutting concepts the agent reads — non-invocable, they inform behavior.
 
-| -[[DSC]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [DSC](hook://p/DSC)<br>: cross-cutting concepts the agent reads |
+| -[[DSC]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [DSC](hook://p/DSC)<br>: cross-cutting concepts the agent reads |
 | --- | --- |
 | Related | [[SKL\|Skills]],  [[FCT\|Facets]],  [[LBR\|Library]], [[OBSK\|ob-skills]] (root) |
 |  |  |
-| Disciplines | [[anchor-dag]],  [[ask-format]],  [[dated-entry-stream]],  [[file-association]],  [[granularity]],  [[markdown]],  [[mode]],  [[progressive-disclosure]],  [[role]],  [[technical-answer]],  [[verification]],  [[CAB Dispatch Table]],  [[CAB Linked Mode]],   |
+| Disciplines | [[DSC anchor-dag]],  [[DSC ask-format]],  [[DSC dated-entry-stream]],  [[DSC file-association]],  [[DSC granularity]],  [[DSC markdown]],  [[DSC mode]],  [[DSC progressive-disclosure]],  [[DSC role]],  [[DSC technical-answer]],  [[DSC verification]],  [[CAB Dispatch Table]],  [[CAB Linked Mode]],   |
 |  |  |
 | ... |  |
 

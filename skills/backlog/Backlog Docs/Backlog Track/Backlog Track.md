@@ -3,7 +3,7 @@ description: "planning surface for the Backlog skill anchor"
 ---
 # Backlog Plan
 
-| -[[Backlog Track]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [Backlog Track](hook://p/Backlog%20Track)<br>: planning surface for the Backlog skill anchor |
+| -[[Backlog Track]]- | → [[Backlog Docs]] → [Backlog Track](hook://p/Backlog%20Track)<br>: planning surface for the Backlog skill anchor |
 | --- | --- |
 | [[Backlog PRD]] | product requirements — what the skill does and why |
 | [[Backlog Backlog]] | deferred work — items in flight or queued |

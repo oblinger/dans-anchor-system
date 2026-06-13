@@ -2,13 +2,13 @@
 
 Takes one anchor (or folder) and brings its **dispatch table** to good form — the **Masthead** (breadcrumb + anchor-kind structural rows + curated one-off links) followed by the optional **Member zone** (member list / member groups, manual / auto / hybrid). **Fixes by default** — like `/audit q`, it applies the repair rather than just reporting it, because dispatch-table shape is mechanical to get right. Low-confidence choices (grouping categories, structural-vs-member ambiguity) surface to the user; everything mechanical is applied.
 
-Enforces the structure spec'd in [[CAB Dispatch Table]] (see [[F155 — Dispatch-table structure spec + CAE worked examples|F155]] for the Masthead + Member-zone model). The per-anchor counterpart of the vault-wide walk defined in [[anchor-dag]]: SYS owns whole-vault connectivity; `/audit dispatch` owns one table's shape.
+Enforces the structure spec'd in [[CAB Dispatch Table]] (see [[F155 — Dispatch-table structure spec + CAE worked examples|F155]] for the Masthead + Member-zone model). The per-anchor counterpart of the vault-wide walk defined in [[DSC anchor-dag]]: SYS owns whole-vault connectivity; `/audit dispatch` owns one table's shape.
 
 ## When to use
 
 - `/audit dispatch <anchor>` — repair one anchor's dispatch table.
 - `/audit dispatch` (in an anchor's cwd) — repair the current anchor.
-- Called by the [[anchor-dag]] walk to fix a node's down-links + table form.
+- Called by the [[DSC anchor-dag]] walk to fix a node's down-links + table form.
 - Add `dry` anywhere in the args to report the proposed table without writing it.
 
 ## Distinction from `/audit structure`
@@ -31,9 +31,9 @@ The fixed top block — always present:
 
 ### 3. Compute the Member zone (only if the anchor is a Collection)
 If the anchor has the `Collection` trait (or is clearly an enumeration of homogeneous children), render its **members** below the Masthead:
-- **member list vs member groups** — flat list if ≤ 15 members; **grouped** if > 15 (per [[progressive-disclosure]]'s size rule + [[granularity]]). For groups, derive categories from the members (sub-folder, name-prefix, date-bucket) — *this categorization is the low-confidence part; surface it.*
+- **member list vs member groups** — flat list if ≤ 15 members; **grouped** if > 15 (per [[DSC progressive-disclosure]]'s size rule + [[DSC granularity]]). For groups, derive categories from the members (sub-folder, name-prefix, date-bucket) — *this categorization is the low-confidence part; surface it.*
 - **manual / auto / hybrid** — if members are uniform and order doesn't matter, emit an **auto** form (`---` separator → children auto-list, or `...` compact). If the user has pinned/ordered rows, keep them **manual** above a `---` auto-fill line (**hybrid**). Mark expandable groups with `+`.
-- **dated members** — if members are dated ([[dated-entry-stream]]), list newest-first with the ISO-prefixed names.
+- **dated members** — if members are dated ([[DSC dated-entry-stream]]), list newest-first with the ISO-prefixed names.
 
 ### 4. Diff and apply (fix-by-default)
 - Diff the **ideal** table (Masthead + Member zone) against the **current** table.
@@ -50,14 +50,14 @@ On `dry`: print the proposed table instead of writing it.
 
 ## Confidence model
 
-Mirrors [[anchor-dag]]'s two-table report at single-anchor scope: **mechanical fixes applied silently** (missing links, breadcrumb, threshold, normalization); **semantic choices surfaced** (group categories, structural-vs-member ambiguity, stale-curated-link calls). Loop until the table is clean, same discipline as `/audit q`.
+Mirrors [[DSC anchor-dag]]'s two-table report at single-anchor scope: **mechanical fixes applied silently** (missing links, breadcrumb, threshold, normalization); **semantic choices surfaced** (group categories, structural-vs-member ambiguity, stale-curated-link calls). Loop until the table is clean, same discipline as `/audit q`.
 
 ## Related
 
 - [[CAB Dispatch Table]] — the Masthead + Member-zone structure this enforces.
 - [[FCT Anchor Page]] — breadcrumb + structural-row conventions.
-- [[progressive-disclosure]] — member list vs member groups (List / Grouped, > 15 rule).
+- [[DSC progressive-disclosure]] — member list vs member groups (List / Grouped, > 15 rule).
 - [[Collection]] — the trait that means "this anchor has a Member zone."
-- [[granularity]] — compact → grouped graduation.
-- [[anchor-dag]] — the corpus-level discipline whose walk calls this per anchor ([[SYS Anchor DAG]] is this vault's application of it).
+- [[DSC granularity]] — compact → grouped graduation.
+- [[DSC anchor-dag]] — the corpus-level discipline whose walk calls this per anchor ([[SYS Anchor DAG]] is this vault's application of it).
 - [[F155 — Dispatch-table structure spec + CAE worked examples|F155]] — the full structure spec this enforces (pending).

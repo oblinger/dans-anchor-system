@@ -14,7 +14,7 @@ ask-format is *the layout discipline for any user-actionable surface an agent wr
 - **Numbered Q-headers** — Q1, Q2, … per-doc monotonic; persist forever (never recycled).
 - **Standard acceptance phrasing** — answers in the form `F<n> Q<m>: yes` / `verified F<n>` so the receiving skill can mechanically map shorthand → action.
 
-This is a discipline, not a user-invocable skill — other skills cite it via `[[ask-format]]` and Claude Code loads it into context before they run.
+This is a discipline, not a user-invocable skill — other skills cite it via `[[DSC ask-format]]` and Claude Code loads it into context before they run.
 
 
 ## Who cites this discipline
@@ -328,7 +328,7 @@ Auto-answer: **agent does the check.** If a Verify or Q reduces to "open file X 
 2. **Agent has Read access to X** — the file is on disk and reachable by the agent's tools. (Files behind UIs the agent can't reach, screenshots only in the user's head, prod-system queries — fail this gate; surface as a real user task.)
 3. **No human judgment is required** — "did the script execute" / "does the count match" / "is the field present" pass; "does this design feel right" / "does the layout look balanced" / "is this what the user meant" fail.
 
-**Tier mapping** (per `[[verification]]` § The four tiers): items satisfying all three are **Tier 1 (agent-immediate)** — run the check, ship the verified result. Misclassifying a Tier-1 check as Tier 3/4 ("the user will see this in normal use") because asking *feels collaborative* is the failure mode this rule names.
+**Tier mapping** (per `[[DSC verification]]` § The four tiers): items satisfying all three are **Tier 1 (agent-immediate)** — run the check, ship the verified result. Misclassifying a Tier-1 check as Tier 3/4 ("the user will see this in normal use") because asking *feels collaborative* is the failure mode this rule names.
 
 **Counter-example — when to ASK:** the Verify requires looking at UI rendering / human judgment on aesthetics / observation in a system the agent can't reach (an iOS app running on the user's device, a Slack message thread the agent has no API for, a sensation about whether code "feels right"). These are legitimately user-only. Rule 6 narrows to the trivial-grep case.
 

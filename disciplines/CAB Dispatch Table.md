@@ -8,7 +8,7 @@ description: Dispatch Table discipline — the top-of-file table convention used
 | --- | --- |
 | Anchor | [[CAB Disciplines]] (parent catalog),  [[CAB]] |
 | Design | [[CAB Dispatch Table Design\|Design]] — rationale + standing decisions |
-| Related | [[Collection]],  [[progressive-disclosure]],  [[audit-dispatch\|/audit dispatch]],   |
+| Related | [[Collection]],  [[DSC progressive-disclosure]],  [[audit-dispatch\|/audit dispatch]],   |
 
 The top-of-file table convention that gives most anchor pages and many facet pages their navigation surface.
 
@@ -42,7 +42,7 @@ A dispatch table has up to **two zones** (worked examples: [[CAE Dispatch Exampl
 
 Hand-authored, one-of-a-kind to this anchor, and deliberately **small** — a switchboard, not a directory. The breadcrumb identity row plus **at most three standard rows**:
 
-1. **Breadcrumb row** (identity) — a title cell followed by the parent-chain path ending in the page's hook link (full schema in § Anatomy above; rendered live in [[CAE]]). Carries the **up-edge** of the [[anchor-dag]] (parent link). Always present.
+1. **Breadcrumb row** (identity) — a title cell followed by the parent-chain path ending in the page's hook link (full schema in § Anatomy above; rendered live in [[CAE]]). Carries the **up-edge** of the [[DSC anchor-dag]] (parent link). Always present.
 2. **Anchor row** (general dispatch) — the anchor's own contents: its parent catalog and primary sub-pages. The **down-edges** to what this anchor holds.
 3. **Design row** (design-flow dispatch) — **only if the anchor has a design flow** — points into the design pipeline ([[FCT Design Dispatch|Design]] → PRD / Stories / Decisions / …). Absent on anchors with no design folder.
 4. **Related row** — cross-links to siblings and related material, plus any genuine one-off links the user pinned on purpose (preserve them).
@@ -69,10 +69,10 @@ This is the single law for masthead content, replacing any per-row rules: a stan
 
 Below the Masthead, a [[Collection]] anchor enumerates its **members**. Two **orthogonal** axes:
 
-**Axis 1 — layout (the [[progressive-disclosure]] pattern):**
+**Axis 1 — layout (the [[DSC progressive-disclosure]] pattern):**
 - **Member list** — flat; one row (or compact line) per member. Use ≤ ~15 members.
-- **Member groups** — members under labeled group rows; a group row may carry a **`+`** to mark it expandable (it has children of its own). Use > 15 members (the progressive-disclosure size rule; the graduation is [[granularity]]).
-  - RULE (grouped-rows-link-down): **each group row's label is a link** *down* to that group's own anchor page + dispatch table — the group is a **container**, per [[progressive-disclosure]] § The tree of containers. A grouped table is therefore one node of the container tree; clicking a group label descends to a finer node (its members). The `+` is the visible mark that the label is an expandable container, not a leaf.
+- **Member groups** — members under labeled group rows; a group row may carry a **`+`** to mark it expandable (it has children of its own). Use > 15 members (the progressive-disclosure size rule; the graduation is [[DSC granularity]]).
+  - RULE (grouped-rows-link-down): **each group row's label is a link** *down* to that group's own anchor page + dispatch table — the group is a **container**, per [[DSC progressive-disclosure]] § The tree of containers. A grouped table is therefore one node of the container tree; clicking a group label descends to a finer node (its members). The `+` is the visible mark that the label is an expandable container, not a leaf.
   - RULE (container-ends-electric): a **container's** dispatch table **ends with an electric-list marker** — `...` (compact auto), `| --- | |` (auto-list), or trailing `+`-group rows — so newly-added children have a defined place to land. *(Tied to the container trait.)*
 
 **Axis 2 — automation (who orders the rows):**
@@ -90,7 +90,7 @@ The two axes combine freely: a member list or member groups can each be manual, 
 | `...` | **compact** auto-enumeration in one cell (few members, no per-member description) |
 | `+` (suffix on a row label — e.g. a group row written `Group+`) | the row is an **expandable group** (member groups layout) |
 
-Dated members (a [[dated-entry-stream]] Collection like a Log) list newest-first with ISO-prefixed names.
+Dated members (a [[DSC dated-entry-stream]] Collection like a Log) list newest-first with ISO-prefixed names.
 
 **The member zone *is* the [[Collection]] anchor's face** — and `/audit dispatch` ([[audit-dispatch]]) builds/repairs exactly this structure.
 
@@ -100,7 +100,7 @@ A dispatch table is the **form** of a top-of-page switchboard — a reusable nav
 
 - **Form vs role.** This discipline owns the table *form* (breadcrumb cell, category rows, the switchboard shape). The *role* of "dispatching for an anchor" belongs to the [[FCT Anchor Page]] **facet** — the anchor page *uses* this discipline to render its switchboard. ~95% of dispatch tables in the vault are exactly that: an anchor page dispatching to its anchor's contents.
 - **Not a doc facet.** Contrast with the doc facets [[CAB Discussion]] and [[CAB Brief]], which are *content containers* — bounded regions you author doc-specific content into. A dispatch table is **derived navigation**: its rows are determined by *what it points to* (the anchor's structure, or a doc's sections), not authored as standalone content. Derived-convention → discipline; authored-content-container → doc facet.
-- **Boundary with [[progressive-disclosure]].** This discipline owns the table *form* (cell shape, row anatomy, pipe-escape, the `(See …)` variant). `progressive-disclosure` owns *which pattern* — Compact / List / Grouped — and the `>15 → Grouped` size rule. **Form here; pattern there.**
+- **Boundary with [[DSC progressive-disclosure]].** This discipline owns the table *form* (cell shape, row anatomy, pipe-escape, the `(See …)` variant). `progressive-disclosure` owns *which pattern* — Compact / List / Grouped — and the `>15 → Grouped` size rule. **Form here; pattern there.**
 - **Two different "anchor" facets — don't conflate.** The [[FCT Anchor Page]] facet (the structure of the `{NAME}.md` *entry page*, which hosts the dispatch table) is separate from the **anchor spec** itself (what makes a folder *be* an anchor — the `.anchor` file's slug / traits / DAG edges, specified via the anchor crate and the Docket implementation). The dispatch table lives on the anchor *page*, never in the anchor *spec*.
 
 ### Alternative formulation (noted — we may revisit)

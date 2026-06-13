@@ -14,7 +14,7 @@ Progressive disclosure is *layered information presentation — each layer deliv
 - **Content first, meta last** — the first contentful sentence delivers the subject, not the document. "This document specifies..." goes in a tail `## Scope` section, or gets deleted.
 - **Per-facet preface requirements** — TLDR required on Features only (PRDs explicitly excluded); figure required on Architecture + UX.
 
-This is a discipline, not a user-invocable skill — other CAB facets and skills cite it via `[[progressive-disclosure]]` and Claude Code loads it into context before they run.
+This is a discipline, not a user-invocable skill — other CAB facets and skills cite it via `[[DSC progressive-disclosure]]` and Claude Code loads it into context before they run.
 
 
 ## Why this exists — the problem it solves

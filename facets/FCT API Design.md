@@ -28,7 +28,7 @@ Peer of [[FCT Architecture]] and [[FCT UX Design]] under [[FCT Design Dispatch|D
 
 ## Preface zone
 
-Per [[progressive-disclosure]]:
+Per [[DSC progressive-disclosure]]:
 
 - **TLDR** required — 3–8 short bullets: consumer, surface kind (library / sub-skill / service), error model, stability posture, compatibility horizon.
 - **Figure** optional but recommended — schema diagram (struct/types relationship), sequence/interaction diagram (call → response shape), or a representative code snippet of one canonical call.
@@ -67,8 +67,8 @@ See [[CAE API Design]] — the CAE scheduler crate shows the canonical shape for
 - [[FCT Architecture]] — internal organization that backs the API surface.
 - [[FCT Decisions]] — bridge for D-API rows that cite rule sets.
 - [[FCT Status]] — `{NAME} Status.md` carries the API-Design facet state.
-- [[progressive-disclosure]] — preface zone discipline.
-- [[markdown]] — markdown authoring discipline.
+- [[DSC progressive-disclosure]] — preface zone discipline.
+- [[DSC markdown]] — markdown authoring discipline.
 
 
 # RULESET R-api

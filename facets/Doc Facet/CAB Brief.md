@@ -8,9 +8,9 @@ A **Brief** is a **document facet** — a bounded, authored content part attache
 
 > [!note] Classification — doc facet, peer to [[CAB Discussion]]
 > Brief is a **doc facet** (a content container attached to a document), not a discipline. It lives in `CAB Facets/Doc Facet/` alongside [[CAB Discussion]]. As a doc facet it *cites* three disciplines:
-> - **[[file-association]]** — *how it attaches*. Brief is a **non-dated, typically-single** typed association: method 1 (inline `# BRIEF`, default), method 2 (sidecar `{Parent} Brief.md`), escalating to method 3 (a `{Parent} Briefs/` folder) only if a parent accumulates many. This is the exact parallel to Discussion, which attaches via file-association's **dated** specialization [[dated-entry-stream]]; Brief cites the umbrella directly because it adds no dated rules (per [[granularity]]).
-> - **[[progressive-disclosure]]** — *reader-zone layering*. The TLDR → Overview → Body → Brief zones below are progressive disclosure by audience/depth.
-> - **[[markdown]]** — how the prose is written.
+> - **[[DSC file-association]]** — *how it attaches*. Brief is a **non-dated, typically-single** typed association: method 1 (inline `# BRIEF`, default), method 2 (sidecar `{Parent} Brief.md`), escalating to method 3 (a `{Parent} Briefs/` folder) only if a parent accumulates many. This is the exact parallel to Discussion, which attaches via file-association's **dated** specialization [[DSC dated-entry-stream]]; Brief cites the umbrella directly because it adds no dated rules (per [[DSC granularity]]).
+> - **[[DSC progressive-disclosure]]** — *reader-zone layering*. The TLDR → Overview → Body → Brief zones below are progressive disclosure by audience/depth.
+> - **[[DSC markdown]]** — how the prose is written.
 
 > [!important] Audience: agent, not user
 > A Brief is something an agent reads **before editing** the source file. Users glancing at the file should NOT need to read the Brief to understand what the file is — that's what the one-sentence TLDR (and optional Overview) at the top of the source are for. See § Audience — three reader zones.
@@ -144,7 +144,7 @@ The H1 of the brief matches the file basename. No further structural constraints
 ## Related
 
 - [[Doc Facet]] / [[FCT Facets]] — parent catalog (Brief is a doc facet, peer to [[CAB Discussion]]).
-- [[progressive-disclosure]] — the discipline Brief cites for its TLDR → Overview → Body → Brief reader-zone layering.
+- [[DSC progressive-disclosure]] — the discipline Brief cites for its TLDR → Overview → Body → Brief reader-zone layering.
 - [[Briefs]] — vault-wide registry of files carrying inline `# BRIEF` H1 sections (Phase 1 form).
 - [[SV Roots Brief]] — worked example of the Phase 2 sidecar form.
 - F133 — tracking feature for the rule-system migration that surfaced the Brief discipline.

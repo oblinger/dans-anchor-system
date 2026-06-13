@@ -7,7 +7,7 @@ description: >
   cardinality→placement rule, the suffix-naming convention, one-way migration, the
   one-form-per-parent invariant, and parent linkage. Two orthogonal dimensions ride
   on top: dated? and cardinality. The dated case is the specialization
-  [[dated-entry-stream]] (Discussion, Log); non-dated typed associations (Brief,
+  [[DSC dated-entry-stream]] (Discussion, Log); non-dated typed associations (Brief,
   Decisions, …) cite this umbrella directly. NOT progressive-disclosure (reader
   layering) or markdown (text rules).
 tools: Read
@@ -22,7 +22,7 @@ The discipline for **typed content associated with a parent document** — Discu
 
 Every typed association varies along two orthogonal axes; together they pick the placement. Naming the variation as **dimensions** (not separate disciplines) keeps the model concrete — the grouping is always *typed content about this parent*; the dimensions just choose where it sits.
 
-- **Dated?** — does each item carry a date and sort reverse-chronologically? **Yes** → it's a [[dated-entry-stream]] (Discussion, Log) — the dated specialization adds newest-first ordering, prepend semantics, and ISO-date entry-file naming. **No** → a static typed association (Brief, Decisions) — it needs nothing beyond this umbrella.
+- **Dated?** — does each item carry a date and sort reverse-chronologically? **Yes** → it's a [[DSC dated-entry-stream]] (Discussion, Log) — the dated specialization adds newest-first ordering, prepend semantics, and ISO-date entry-file naming. **No** → a static typed association (Brief, Decisions) — it needs nothing beyond this umbrella.
 - **Cardinality** — one item or many? Drives which placement method (below). A single Brief lives inline or as one sidecar; a stream of Discussion entries, or an accumulation of briefs, earns a folder.
 
 In practice: **100%** of these associations are typed + parent-attached; **~90%** are dated; cardinality runs from one to many.
@@ -48,7 +48,7 @@ A **Brief** is usually single → method 1 inline (`# BRIEF`) or method 2 sideca
 - **Parent prefix** — the parent's filename (or anchor name) leads. Parent `CAE PRD.md` → sibling `CAE PRD {Facet}[s].md`, folder `CAE PRD {Facet}s/`.
 - **Plural facet suffix when extracted, multiple** (methods 2–3 holding many items): `Discussions`, `Logs`, `Briefs`. The inline form (method 1) and a single-item sidecar stay **singular** (`# BRIEF`, `{Parent} Brief.md`). Singular-vs-plural is the visual cue for inline/single vs extracted-multiple.
 - **Method-3 anchor file** matches the folder name: `{Parent} {Facet}s/{Parent} {Facet}s.md`, H1 = filename.
-- **Per-item file naming** is dimension-specific: dated streams prefix each file with an ISO date (`YYYY-MM-DD — <Title>.md`) — see [[dated-entry-stream]]; non-dated collections name by title alone.
+- **Per-item file naming** is dimension-specific: dated streams prefix each file with an ISO date (`YYYY-MM-DD — <Title>.md`) — see [[DSC dated-entry-stream]]; non-dated collections name by title alone.
 
 ## Migration is one-way
 
@@ -66,9 +66,9 @@ When extracted (methods 2–3), the parent links to it from its **dispatch table
 
 | Sub-discipline | Adds (on top of the umbrella above) |
 |---|---|
-| [[dated-entry-stream]] | The **dated** case — every item dated; newest-first ordering; prepend (not append) semantics; ISO-date entry-file naming; a parallel per-facet entry skeleton. Examples: Discussion, Log. |
+| [[DSC dated-entry-stream]] | The **dated** case — every item dated; newest-first ordering; prepend (not append) semantics; ISO-date entry-file naming; a parallel per-facet entry skeleton. Examples: Discussion, Log. |
 
-**Non-dated typed associations** (Brief, Decisions, …) cite *this umbrella directly* — they need nothing the umbrella doesn't already provide, so they earn no specialization (per [[granularity]]: specialize only when extra rules warrant it; dated does, static-single doesn't).
+**Non-dated typed associations** (Brief, Decisions, …) cite *this umbrella directly* — they need nothing the umbrella doesn't already provide, so they earn no specialization (per [[DSC granularity]]: specialize only when extra rules warrant it; dated does, static-single doesn't).
 
 ## What this discipline is NOT
 
@@ -80,19 +80,19 @@ When extracted (methods 2–3), the parent links to it from its **dispatch table
 
 When authoring a doc facet (or any facet) that declares *how its content sits relative to a parent*. Name the dimension and the methods it supports:
 
-> Discussion is a [[dated-entry-stream]] (dated). Methods supported: 1 (inline, default) and 2 (sibling file).
-> Brief is a static typed association ([[file-association]], non-dated). Methods: 1 (inline `# BRIEF`, default) and 2 (sidecar); 3 if a parent accumulates many.
+> Discussion is a [[DSC dated-entry-stream]] (dated). Methods supported: 1 (inline, default) and 2 (sibling file).
+> Brief is a static typed association ([[DSC file-association]], non-dated). Methods: 1 (inline `# BRIEF`, default) and 2 (sidecar); 3 if a parent accumulates many.
 
 The facet doesn't re-explain the methods — it names which it supports and which is default.
 
 ## See also
 
-- [[dated-entry-stream]] — the dated specialization.
+- [[DSC dated-entry-stream]] — the dated specialization.
 - [[CAB Brief]] / [[CAB Discussion]] — doc facets citing this discipline (Brief directly; Discussion via the dated specialization).
 - [[FCT Log]] — facet using the dated-entry-stream shape at the anchor scope.
-- [[progressive-disclosure]] — sibling discipline; what-the-reader-sees-when.
-- [[granularity]] — why static-single associations cite the umbrella rather than spawning a specialization.
-- [[markdown]] — sibling discipline; how the markdown text itself is written.
+- [[DSC progressive-disclosure]] — sibling discipline; what-the-reader-sees-when.
+- [[DSC granularity]] — why static-single associations cite the umbrella rather than spawning a specialization.
+- [[DSC markdown]] — sibling discipline; how the markdown text itself is written.
 
 
 # RULESET R-file-association

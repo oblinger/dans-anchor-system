@@ -16,7 +16,7 @@ Peer of [[FCT Architecture]] and [[FCT API Design]] under [[FCT Design Dispatch|
 
 ## Preface zone
 
-Per [[progressive-disclosure]]:
+Per [[DSC progressive-disclosure]]:
 
 - **TLDR** required — 3–8 short bullets covering: audience, the surface's spine (commands / screens / affordances), output-shape posture, error voice.
 - **Figure** required — a representative visual of the surface. For a CLI: an annotated session transcript (one or two real commands with their output). For a GUI: a screen mockup. For a slash-command surface: a typed example with its inline result. SVG preferred; PNG acceptable.
@@ -44,8 +44,8 @@ See [[CAE UX Design]] — the CAE scheduler shows the canonical shape for a CLI-
 - [[FCT CLI]] — exhaustive flag/exit-code reference (downstream of UX Design's *intent*).
 - [[FCT Decisions]] — load-bearing decisions citing rules; bridge from D-UX rows.
 - [[FCT Architecture]] — internal organization; UX entry-points typically map to architecture components.
-- [[progressive-disclosure]] — preface zone discipline.
-- [[markdown]] — markdown authoring discipline.
+- [[DSC progressive-disclosure]] — preface zone discipline.
+- [[DSC markdown]] — markdown authoring discipline.
 
 
 # RULESET R-ux
@@ -131,5 +131,5 @@ When UX Design starts listing every flag, or describing function signatures, or 
 - **Inclusion test** — a change belongs here only if it is a structural rule, required section, or load-bearing definition that applies to *every* UX Design doc across anchors. Anchor-specific guidance, worked examples, or one-off conventions go in [[CAE UX Design]] (canonical exemplar) or the anchor's own doc.
 - **Preserve the facet-cut boundaries** — UX Design owns *human-facing intent*; [[FCT API Design]] owns *programmatic surface*, [[FCT CLI]] owns *exhaustive flag reference*, [[FCT Architecture]] owns *internal organization*. When editing, never absorb content that belongs in a sibling facet; rule R-ux-08 is the load-bearing guard.
 - **Rule set is co-located, not separate** — the `# RULESET R-ux` H1 at the bottom is part of this file per F133. When adding or revising rules, update the rule block in place; do not split it into a sibling file or duplicate it in [[FCT Rules]].
-- **Cross-references are load-bearing** — links to [[FCT API Design]], [[FCT CLI]], [[FCT Decisions]], [[FCT Architecture]], [[progressive-disclosure]], and [[CAE UX Design]] anchor the facet's place in the wider blueprint. Renaming or moving any of those files requires updating the wiki-links here in the same commit.
+- **Cross-references are load-bearing** — links to [[FCT API Design]], [[FCT CLI]], [[FCT Decisions]], [[FCT Architecture]], [[DSC progressive-disclosure]], and [[CAE UX Design]] anchor the facet's place in the wider blueprint. Renaming or moving any of those files requires updating the wiki-links here in the same commit.
 - **Preface zone discipline applies to instances, not this spec** — `R-ux-01` mandates TLDR + figure for each `{NAME} UX Design.md`. Don't import a figure or session transcript here; this is the rulebook, not an instance of the rule.

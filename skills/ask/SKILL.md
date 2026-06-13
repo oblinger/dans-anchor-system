@@ -6,7 +6,7 @@ user_invocable: true
 
 # /Ask — Universal Asking Skill
 
-> **Consult [[technical-answer]] before responding to any user question about how a technical interface, API, signature, library, config, CLI, or wire format works.** `/ask` owns the asking side (formatting agent questions to the user); `[[technical-answer]]` owns the answering side (responding to user questions about technical interfaces). When the user is asking a tech-interface question — even if `/ask` isn't explicitly invoked — apply that discipline's rules. The pair: ask-format for asking; technical-answer for answering.
+> **Consult [[DSC technical-answer]] before responding to any user question about how a technical interface, API, signature, library, config, CLI, or wire format works.** `/ask` owns the asking side (formatting agent questions to the user); `[[DSC technical-answer]]` owns the answering side (responding to user questions about technical interfaces). When the user is asking a tech-interface question — even if `/ask` isn't explicitly invoked — apply that discipline's rules. The pair: ask-format for asking; technical-answer for answering.
 
 `/ask` has **two modes**, distinguished by whether arguments are present.
 
@@ -125,7 +125,7 @@ If the survey returns zero pending items, write a one-line summary (`/ask — no
 
 For each surveyed item, attempt to resolve it autonomously. Calibrate the threshold by the active drive mode (see `[[SKA mode]]`):
 
-- **`[Verify]` items** — read the linked feature doc's `## Success Criteria` block first (per `[[verification]]`). The tier label tells you what to do:
+- **`[Verify]` items** — read the linked feature doc's `## Success Criteria` block first (per `[[DSC verification]]`). The tier label tells you what to do:
   - **Tier 1 (agent-immediate):** run the named check now. If it passes, mark Done via `state task update`; do not surface to the user. If it fails, rebracket to `[Active]` and the work is not done.
   - **Tier 2 (agent-over-time):** the agent owns the deferred check (hook, schedule, watchdog). Do not surface; do not block.
   - **Tier 3 (user-passive):** add a brief reminder in the ask page of what to watch for; do not block on a user answer. Optionally ask once after enough time has passed (typically a week).
@@ -141,10 +141,10 @@ For each surveyed item, attempt to resolve it autonomously. Calibrate the thresh
 
   **Feature docs without a `## Success Criteria` block** (predating F101) default to tier 4 surfacing for safety, but the agent should add the missing block on the next touch rather than perpetuating the bother-the-user default.
 
-  **Batching when multiple tier-3 or tier-4 Verifies surface** (per `[[verification]]` § How to surface a Verify to the user): if several Verify rows reduce to the same user action ("did this work in normal use?", "did the bug recur?"), combine them into one targeted question with the linked feature docs listed. The user gives a single yes-or-no answer; the agent applies it to all listed rows. Never write "verify F57, F58, F59" as separate items if a single observation would resolve all three. The question itself must carry the answer-enabling context, not point at a doc to read.
+  **Batching when multiple tier-3 or tier-4 Verifies surface** (per `[[DSC verification]]` § How to surface a Verify to the user): if several Verify rows reduce to the same user action ("did this work in normal use?", "did the bug recur?"), combine them into one targeted question with the linked feature docs listed. The user gives a single yes-or-no answer; the agent applies it to all listed rows. Never write "verify F57, F58, F59" as separate items if a single observation would resolve all three. The question itself must carry the answer-enabling context, not point at a doc to read.
 - **`[Questions]` items** — *can I confidently pick the most likely answer?* Read the feature doc's `## Open Questions` block, the surrounding code, prior similar decisions in the anchor's `## Resolved`, the user's stated preferences (memory), and the design rationale. For each Q where the answer is clear, write the inline resolution per § Resolution and update the feature doc.
 
-- **Pre-ask self-check (per F105)** — before queuing any Q for the user, run the five named patterns from `[[ask-format]]` § Pre-ask self-check: (1) aggregate across all feature docs + à la carte within this anchor — don't surface one feature's Qs in isolation when others have pending ones; (2) "continue or stop?" → continue; (3) "burn tokens for a better outcome?" → yes; (4) "how to split the work?" → agent decides, file new features `[Ready]` when independently doable; (5) "quick way or complete way?" → complete (file quick-way's complete version as `[Ready]` if doing quick first). Any Q matching one of these is auto-resolved into the relevant `## Resolved` H2 (feature doc) or `## Agent Resolutions` (this anchor's ask page), never surfaced.
+- **Pre-ask self-check (per F105)** — before queuing any Q for the user, run the five named patterns from `[[DSC ask-format]]` § Pre-ask self-check: (1) aggregate across all feature docs + à la carte within this anchor — don't surface one feature's Qs in isolation when others have pending ones; (2) "continue or stop?" → continue; (3) "burn tokens for a better outcome?" → yes; (4) "how to split the work?" → agent decides, file new features `[Ready]` when independently doable; (5) "quick way or complete way?" → complete (file quick-way's complete version as `[Ready]` if doing quick first). Any Q matching one of these is auto-resolved into the relevant `## Resolved` H2 (feature doc) or `## Agent Resolutions` (this anchor's ask page), never surfaced.
 
 **Drive-mode thresholds:**
 
@@ -299,7 +299,7 @@ Every question gets a unique `Q<n>` prefix — `Q1`, `Q2`, ..., `Qn` — assigne
 
 ### 2. Format each question
 
-The full question-format spec — five-piece layout, recommendation-strength labels, spacing rules, block-ID navigation invariant, canonical examples — lives in the **[[ask-format]]** discipline. Every parented `/ask` invocation writes per that discipline. See `skills/ask-format/SKILL.md`.
+The full question-format spec — five-piece layout, recommendation-strength labels, spacing rules, block-ID navigation invariant, canonical examples — lives in the **[[DSC ask-format]]** discipline. Every parented `/ask` invocation writes per that discipline. See `skills/ask-format/SKILL.md`.
 
 Summary of the rules `/ask` applies when writing a question:
 - Question header at top level with mandatory `^<container>-Q<n>` block-ID.
@@ -307,7 +307,7 @@ Summary of the rules `/ask` applies when writing a question:
 - Recommendation outdented as sibling of the Question header — `**Recommendation:**` + Strong/Lean/None + reason.
 - Block-ID link form (`[[file#^id|label]]`) for any external reference to a specific Q.
 
-See [[ask-format]] for details, edge cases (open-ended Qs, follow-on child Qs), and enforcement.
+See [[DSC ask-format]] for details, edge cases (open-ended Qs, follow-on child Qs), and enforcement.
 
 ### 3. Write to the target surface
 

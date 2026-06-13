@@ -66,4 +66,4 @@ v1 supports `Code` trait anchors only. Per-trait artifact rosters for Paper / To
 - Backlog discipline: [[SKL Backlog]]
 - Drive-cluster center: [[SKL Crank]]
 - Feature lifecycle (post-plan): [[SKL Feature]]
-- Verification discipline: [[verification]]
+- Verification discipline: [[DSC verification]]

@@ -1,19 +1,19 @@
 ---
 name: markdown
-description: Discipline. The "every time you write markdown" rules — both mechanical (rendering correctness — table escapes, fence rules, spacing) and authoring (always-apply quality — wiki-links not bare backticks, named lists, RULE/RULESET sentinels). Cited by every CAB facet, every design sub-skill, every authoring skill. Sibling discipline to [[progressive-disclosure]] (which owns *what goes where in a doc*); markdown owns *how the markdown text itself is written*. Skill counterpart is [[md]] which owns user-invokable utility verbs (/md toc, /md file-tree, etc.).
+description: Discipline. The "every time you write markdown" rules — both mechanical (rendering correctness — table escapes, fence rules, spacing) and authoring (always-apply quality — wiki-links not bare backticks, named lists, RULE/RULESET sentinels). Cited by every CAB facet, every design sub-skill, every authoring skill. Sibling discipline to [[DSC progressive-disclosure]] (which owns *what goes where in a doc*); markdown owns *how the markdown text itself is written*. Skill counterpart is [[md]] which owns user-invokable utility verbs (/md toc, /md file-tree, etc.).
 user_invocable: false
 ---
 
 # Markdown Discipline
 
-The discipline for **how markdown TEXT is written** — applied to every markdown document in the vault, every time. Sibling to [[progressive-disclosure]] (*what goes where in a doc*) and to the [[md]] skill (*utility verbs that produce or maintain markdown artifacts*).
+The discipline for **how markdown TEXT is written** — applied to every markdown document in the vault, every time. Sibling to [[DSC progressive-disclosure]] (*what goes where in a doc*) and to the [[md]] skill (*utility verbs that produce or maintain markdown artifacts*).
 
 Two flavors of rule live here, and both apply every time:
 
 - **Mechanical rules** — rendering correctness. Skip these → the doc renders wrong. Examples: escape pipes inside wiki-links inside tables; blank line before / after a table; no wiki-links inside fenced code blocks (they don't render).
 - **Authoring rules** — always-apply quality. Skip these → the doc renders but is wrong. Examples: references to other docs MUST be wiki-links not bare backticks; named-list format when content is naming-natured; the `RULE` / `RULESET` sentinel pattern for rule blocks.
 
-The boundary against [[progressive-disclosure]]: this discipline cares about the markdown *text*. Progressive-disclosure cares about the *doc structure* (preface zone, dispatch table patterns, figure placement, TLDR shape). If the question is "how do I write this line of markdown right," it's here; if "where in the doc does this section go," that's progressive-disclosure.
+The boundary against [[DSC progressive-disclosure]]: this discipline cares about the markdown *text*. Progressive-disclosure cares about the *doc structure* (preface zone, dispatch table patterns, figure placement, TLDR shape). If the question is "how do I write this line of markdown right," it's here; if "where in the doc does this section go," that's progressive-disclosure.
 
 
 ## Mechanical rules — rendering correctness
@@ -113,8 +113,8 @@ If a rule is universal (applies to every Log, every PRD, every Testing doc), it 
 
 ## What's NOT in this discipline (boundaries)
 
-- **Layered information presentation** — preface zone, dispatch table patterns (Linear / Matrix / Grouped / List / Compact), TLDR format, figure placement, three levels of progressive disclosure. → [[progressive-disclosure]].
-- **User-actionable surface format** — Q-numbering, recommendation strength, à la carte items, resolution-acceptance phrases. → [[ask-format]].
+- **Layered information presentation** — preface zone, dispatch table patterns (Linear / Matrix / Grouped / List / Compact), TLDR format, figure placement, three levels of progressive disclosure. → [[DSC progressive-disclosure]].
+- **User-actionable surface format** — Q-numbering, recommendation strength, à la carte items, resolution-acceptance phrases. → [[DSC ask-format]].
 - **Workflow state vocabulary** — `[Ready]` / `[Active]` / `[Verify]` / `[Done]` etc. → [[workflow]].
 - **Anchor-specific operational notes** — per-doc operational content that's not facet-rule-restatement. → the Brief discipline (per-doc `Brief.md` sidecars and embedded `# BRIEF` second-H1s).
 - **Utility verbs** for generating or rewriting markdown — `/md toc` regen, `/md file-tree` format, `/md dispatch-table` build, `/md cards`, `/md track-changes`. → [[md]] skill.
@@ -128,8 +128,8 @@ If a rule is universal (applies to every Log, every PRD, every Testing doc), it 
 ## See also
 
 - [[md]] — the utility-verb skill (sibling, not parent / child); `/md toc`, `/md file-tree`, `/md dispatch-table`, `/md cards`, `/md track-changes`.
-- [[progressive-disclosure]] — sibling discipline; doc-structure rules.
-- [[ask-format]] — sibling discipline; user-actionable surface format.
+- [[DSC progressive-disclosure]] — sibling discipline; doc-structure rules.
+- [[DSC ask-format]] — sibling discipline; user-actionable surface format.
 - [[FCT Rules]] — meta-spec for the RULE / RULESET sentinel format.
 - [[Atlas]] / [[ATL Slugs]] — vault-wide router that wiki-link conventions ultimately serve.
 

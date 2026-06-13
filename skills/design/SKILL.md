@@ -152,5 +152,5 @@ After updating, glance the affected file so the user can verify the field landed
 - CAB facets: [[FCT PRD]], [[FCT UX Design]], [[FCT Architecture]], [[FCT Testing]], [[FCT API Doc]]
 - Track cluster: [[SKL Track]], [[backlog]], [[workflow]]
 - Drive cluster (post-design execution): [[crank]], [[mint]], [[feature]]
-- Verification discipline: [[verification]]
+- Verification discipline: [[DSC verification]]
 - Rename history: [[F136 — Plan→Design skill rename]]

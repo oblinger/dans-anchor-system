@@ -4,7 +4,7 @@ description: Catalog of rule sets. See [[Rule Sets Brief]] for editing conventio
 
 # Rule Sets
 
-| -[[Rule Sets]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[SKL/SKL]] → [[SKL Library]] → [Rule Sets](hook://p/Rule%20Sets)<br>: Curated, versioned bundles of rules. |
+| -[[Rule Sets]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[SKL Library]] → [Rule Sets](hook://p/Rule%20Sets)<br>: Curated, versioned bundles of rules. |
 | --- | --- |
 | Related | [[Rule Sets Brief\|Brief]],  [[FCT Rules]],  [[FCT Decisions]],   |
 | **CAB-aligned umbrellas** | The three primary structural axes — rule sets tied to CAB Facets, Traits, Skills. Adopting an umbrella pulls every per-X rule set under it. |
@@ -15,7 +15,7 @@ description: Catalog of rule sets. See [[Rule Sets Brief]] for editing conventio
 | [[R-arch]] | Architecture rules — code organization, module structure, dependency direction. Placeholder; future: `R-factory-pegboard`, `R-interfaces-folder`, `R-single-source-of-truth`. |
 | [[R-code]] | Code-flavored rule sets — language/platform conventions. Contains [[R-mac]]. Future: `R-rust`, `R-python`, `R-typescript`, `R-shell`. |
 | [[R-diagram]] | Diagram authoring + validation — **umbrella over 7 methodology sub-sets, 22 rules total**: [[R-diagram-geometry]] (6), [[R-sugiyama]] (4), [[R-c4]] (4), [[R-wcag-contrast]] (2), [[R-bringhurst-typography]] (1), [[R-tufte-data-ink]] (2), [[R-svg-hygiene]] (3). Factored 2026-06-09 per F132 Phase 1; see [[R-diagram]] § Migration map for legacy R-diagram-NN → factored-ID lookup. |
-| [[R-doc]] | Documentation conventions. Contains [[R-markdown]] (10 rules — embedded in [[markdown]] discipline; supersedes legacy [[R-md]]), [[R-file-association]] (7 rules — general typed-association pattern, embedded in [[file-association]]) and its dated specialization [[R-dated-entry-stream]] (3 rules — embedded in [[dated-entry-stream]]; inherits R-file-association). Future: `R-progressive-disclosure`, `R-wiki-links`, `R-file-naming`. |
+| [[R-doc]] | Documentation conventions. Contains [[R-markdown]] (10 rules — embedded in [[DSC markdown]] discipline; supersedes legacy [[R-md]]), [[R-file-association]] (7 rules — general typed-association pattern, embedded in [[DSC file-association]]) and its dated specialization [[R-dated-entry-stream]] (3 rules — embedded in [[DSC dated-entry-stream]]; inherits R-file-association). Future: `R-progressive-disclosure`, `R-wiki-links`, `R-file-naming`. |
 | [[R-git]] | Git discipline. Placeholder; future: `R-commit-discipline`, `R-pr-workflow`, `R-no-force-main`. |
 | [[R-process]] | Process rules. Placeholder; future: `R-feature-lifecycle`, `R-verification-tiers`. |
 | [[R-test]] | Testing posture. Placeholder; future: `R-integration-not-mock`, `R-deterministic`, `R-property-based`. |

@@ -20,7 +20,7 @@ A complete anchoring methodology produces a **graph**, so it must include the ch
 
 ## A new *kind* of discipline — global, not per-artifact
 
-The other disciplines ([[markdown]], [[progressive-disclosure]], [[file-association]], [[granularity]]) are **per-artifact authoring** rules — applied *while you write one doc or anchor*. `anchor-dag` is a **global / corpus-level invariant** — a property of *all the anchors together*, verified by **walking the whole graph**, not by authoring any single thing. It opens a second shelf for siblings of the same shape (candidates: *every-slug-resolves*, *no-orphan-files*, *Atlas-covers-every-named-thing*) — each "a property of the whole corpus, verified by a walk." Cite this discipline when defining or running a corpus-wide integrity check; cite the authoring disciplines when shaping one artifact.
+The other disciplines ([[DSC markdown]], [[DSC progressive-disclosure]], [[DSC file-association]], [[DSC granularity]]) are **per-artifact authoring** rules — applied *while you write one doc or anchor*. `anchor-dag` is a **global / corpus-level invariant** — a property of *all the anchors together*, verified by **walking the whole graph**, not by authoring any single thing. It opens a second shelf for siblings of the same shape (candidates: *every-slug-resolves*, *no-orphan-files*, *Atlas-covers-every-named-thing*) — each "a property of the whole corpus, verified by a walk." Cite this discipline when defining or running a corpus-wide integrity check; cite the authoring disciplines when shaping one artifact.
 
 ## The invariant (precise)
 
@@ -78,4 +78,4 @@ This discipline is the reusable check. A specific vault declares its own **appli
 - [[CAB Dispatch Table]] — the down + sideways edges (the table form).
 - [[FCT Anchor Page]] — the breadcrumb (up edge) + dispatch hosting.
 - [[audit-dispatch|/audit dispatch]] — the per-anchor table-repair worker the walk calls.
-- [[progressive-disclosure]] / [[file-association]] / [[granularity]] / [[markdown]] — the per-artifact authoring disciplines (this is their corpus-level sibling).
+- [[DSC progressive-disclosure]] / [[DSC file-association]] / [[DSC granularity]] / [[DSC markdown]] — the per-artifact authoring disciplines (this is their corpus-level sibling).
