@@ -26,7 +26,7 @@ Two fictional worlds cover the anchor-page kinds and the facets. **Not 1:1** —
 | facet page | [[FEX Manifest]] |
 | discipline page | [[FEX Retention]] |
 | [[FCT Anchor Page]] | the anchor-page kinds above (skill / grouped / project / sub-folder) |
-| [[CAB Dispatch Table]] | [[HBR Components]] (grouped, links down) |
+| [[DSC Dispatch Table]] | [[HBR Components]] (grouped, links down) |
 | [[FCT Design Docs]] | [[HBR]] § `Design+` row (D07 order) |
 
 ## Superseded — pending retirement

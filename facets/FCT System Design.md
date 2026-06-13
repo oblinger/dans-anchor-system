@@ -121,7 +121,7 @@ A summary table listing each component, its responsibility, and its source modul
 Key data structures shown as code blocks (dataclasses, schemas, or equivalent).
 
 ### Decisions
-A numbered table recording architectural decisions with rationale. Each decision is a short statement with a one-line justification. Extended analysis belongs in [[CAB Discussion]].
+A numbered table recording architectural decisions with rationale. Each decision is a short statement with a one-line justification. Extended analysis belongs in [[FCT Discussion]].
 
 ## Lifecycle
 
@@ -134,7 +134,7 @@ A numbered table recording architectural decisions with rationale. Each decision
 
 - **This file is the CAB facet spec for `{NAME} System Design.md`** — it defines the canonical shape (location, top-of-doc, TOC + Architecture Overview + Components + Data Model + Decisions sections) that every per-anchor System Design must conform to. Edits here propagate to every project anchor's design doc.
 - **Spec, not an instance.** Do NOT pile real architecture content, real decisions, or real component tables here — those belong in per-anchor `{NAME} System Design.md` files (e.g. the CAE working example). The reference example shown inline is illustrative scaffolding only.
-- **Inclusion test:** content belongs on this page only if it specifies *how System Design docs are shaped vault-wide* — section names, ordering, table formats, lifecycle rules, top-of-doc conventions. Anchor-local rules go in `{NAME} Rules.md` / `{NAME} Decisions.md`; rationale-and-alternatives narrative goes in [[CAB Discussion]] (cite, don't inline).
+- **Inclusion test:** content belongs on this page only if it specifies *how System Design docs are shaped vault-wide* — section names, ordering, table formats, lifecycle rules, top-of-doc conventions. Anchor-local rules go in `{NAME} Rules.md` / `{NAME} Decisions.md`; rationale-and-alternatives narrative goes in [[FCT Discussion]] (cite, don't inline).
 - **Load-bearing constraints:** the `{NAME} Docs/{NAME} Plan/` location, the four canonical H2 sections (Architecture Overview / Components / Data Model / Decisions), the F060 top-of-doc rule (YAML + H1 + dispatch-table placeholder above the topic tables), and the current-spec-only discipline (no historical log) — readers/auditors depend on each. Don't reorder, rename, or merge them without a coordinated update to CAE and any tooling that scans for these sections.
-- **Sibling boundaries:** PRD belongs in [[FCT PRD]]; cross-cutting decisions and their rationale belong in [[FCT Decisions]] / [[CAB Discussion]]; user-facing UX belongs in [[FCT UX Design]]. Link sideways instead of restating their content here.
+- **Sibling boundaries:** PRD belongs in [[FCT PRD]]; cross-cutting decisions and their rationale belong in [[FCT Decisions]] / [[FCT Discussion]]; user-facing UX belongs in [[FCT UX Design]]. Link sideways instead of restating their content here.
 - **Working example is the ground truth for shape disputes** — when the inline reference example and `~/.claude/skills/CAE/CAE Docs/CAE Plan/CAE System Design.md` drift, update both in the same commit; CAE is the live exemplar this spec points readers at.

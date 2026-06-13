@@ -88,7 +88,7 @@ The facet doesn't re-explain the methods — it names which it supports and whic
 ## See also
 
 - [[DSC dated-entry-stream]] — the dated specialization.
-- [[CAB Brief]] / [[CAB Discussion]] — doc facets citing this discipline (Brief directly; Discussion via the dated specialization).
+- [[FCT Brief]] / [[FCT Discussion]] — doc facets citing this discipline (Brief directly; Discussion via the dated specialization).
 - [[FCT Log]] — facet using the dated-entry-stream shape at the anchor scope.
 - [[DSC progressive-disclosure]] — sibling discipline; what-the-reader-sees-when.
 - [[DSC granularity]] — why static-single associations cite the umbrella rather than spawning a specialization.

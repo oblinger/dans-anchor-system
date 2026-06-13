@@ -2,7 +2,7 @@
 description: per-rule-set or per-anchor rules file — body-only markdown (no frontmatter) defining a named rule set with optional includes; rules are H3-numbered with audit-tier annotation. Companion to CAB Decisions (anchor-specific applied choices cite rules from rule sets). Re-activated 2026-06-08 after the rules-vs-decisions vocabulary split.
 ---
 
-# CAB Rules
+# FCT Rules
 
 The Rules facet specifies the format for any file that **defines rules** — whether a catalog rule set under `~/.claude/skills/SKL User Docs/SKL/SKL Library/Rule Sets/` or an anchor-local `{NAME} Rules.md` under `{NAME} Design/`.
 
@@ -268,6 +268,6 @@ A standalone `R-<slug>.md` has no YAML frontmatter (an embedded `# RULESET` live
 - **Not a catalog of rules** — never inline actual rules here. Individual rule sets live under `~/.claude/skills/SKL User Docs/SKL/SKL Library/Rule Sets/`; the catalog is [[Rule Sets]]. This page only specifies *how* such files are shaped.
 - **Not the decisions spec** — anchor-level applied choices belong in [[FCT Decisions]]. Keep the two facets cleanly separated; cross-reference but do not merge. Rules are portable constraints; decisions are anchor-specific applications that cite rules.
 - **Load-bearing sentinels** — the all-caps `RULESET` (in the H1) and `RULE` (in rule headings) are mechanical markers grep / lint / flatten scripts depend on. Never lowercase or rename them; never invent alternates. The `include::` / `description::` lines are Dataview inline fields — preserve the exact `::` double-colon syntax and positional ordering (H1, then `include::`, then `description::`, then body).
-- **Inclusion test for new content here:** does this clarify the *file format* (lines, sentinels, naming, audit ties, composition semantics)? If yes, add it. If it's *content of a specific rule set* — put it in the rule set. If it's *project-wide markdown* — link to [[R-markdown]]. If it's *brief-writing rules* — link to [[CAB Brief]].
+- **Inclusion test for new content here:** does this clarify the *file format* (lines, sentinels, naming, audit ties, composition semantics)? If yes, add it. If it's *content of a specific rule set* — put it in the rule set. If it's *project-wide markdown* — link to [[R-markdown]]. If it's *brief-writing rules* — link to [[FCT Brief]].
 - **When the format evolves**, bump the dated parenthetical in the affected section header (e.g. `## File shape — body-only, prescriptive structure (2026-06-08)`), update the worked examples ([[R-diagram]], [[CAE Rules]]), and check the `/audit rules` checks list at the bottom for new lint cases.
 - **Don't restructure the H2 ordering** — the spec flows History note → When this facet applies → File shape → Naming → Audit tiers → Include composition → How decisions cite rules → Trait applicability → Audit → See also. Auditors and downstream skills locate sections by this order.

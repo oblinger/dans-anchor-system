@@ -26,7 +26,7 @@ See [[CAB Base]] shows files common to all anchors.
 │   │   ├── {NAME} [[FCT Questions|Questions]].md             À la carte questions facet (agent-owned)
 │   │   ├── {NAME} [[FCT UX Design|UX Design]].md           UX spec (screens & external APIs)
 │   │   ├── {NAME} [[FCT System Design|System Design]].md       System architecture & impl design
-│   │   ├── {NAME} [[CAB Discussion|Discussion]].md  Design conversations
+│   │   ├── {NAME} [[FCT Discussion|Discussion]].md  Design conversations
 │   │   ├── {NAME} [[FCT Features|Features]]/              Dated feature specs
 │   │   │   ├── {NAME} Features.md
 │   │   │   ├── 2026-01-15 User Auth.md

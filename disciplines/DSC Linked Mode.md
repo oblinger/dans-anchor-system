@@ -2,7 +2,7 @@
 description: Linked Mode discipline — the pattern for an anchor whose code repository lives outside the vault. Anchor folder contains specs and dispatch pages; the code lives at a separate path declared via the `code:` key in `.anchor`.
 ---
 
-# CAB Linked Mode
+# DSC Linked Mode
 
 The pattern for an anchor whose code repository lives **outside** the vault. The anchor folder contains specs, dispatch pages, and planning content; the actual code lives at a separate filesystem path declared in `.anchor` via the `code:` key.
 
@@ -44,7 +44,7 @@ Skeleton spec — the pattern is in use (see worked examples below) but the full
 - **This file is the discipline spec for Linked Mode**, not a directory of Linked-Mode anchors. Authority: defines the contract for anchors whose code lives outside the vault — the `code:` key in `.anchor`, the metadata-only anchor folder, the responsibilities split between docs and code repo.
 - **NOT for per-anchor content.** Per-anchor specifics (slugs, paths, language traits, build commands) live in the anchor's own pages — never inline an anchor's particulars here. Worked examples are link-only references, not embedded detail.
 - **Inclusion test for content on this page**: does it apply to *every* Linked-Mode anchor regardless of language, host, or repo layout? If yes, it belongs here. If it's specific to one anchor or one language ecosystem, it does not.
-- **Naming and linking**: refer to the discipline as "Linked Mode" (two words, title case). Source anchors link to this spec via wiki-link `[[CAB Linked Mode]]`. The declaration key in `.anchor` is lowercase `code:` — do not rename to `code_path:` / `repo:` / etc. without updating every tool that reads it.
+- **Naming and linking**: refer to the discipline as "Linked Mode" (two words, title case). Source anchors link to this spec via wiki-link `[[DSC Linked Mode]]`. The declaration key in `.anchor` is lowercase `code:` — do not rename to `code_path:` / `repo:` / etc. without updating every tool that reads it.
 - **Load-bearing constraints**: the `code:` key is the single source of truth for where the code lives — never hard-code paths in skills or audits. The split is one-way (anchor → code via `code:`); the code repo does not need to know about the anchor.
 - **Spec is skeleton-stage**: when fleshing out (skill cross-boundary semantics, audit reporting, PR workflow across two repos), update § Current state and add worked examples — do not silently delete the skeleton notice.
-- **Don't restate Brief discipline rules here** — the Brief discipline lives in [[CAB Brief]]; this BRIEF section is the file-specific rule sheet only.
+- **Don't restate Brief discipline rules here** — the Brief discipline lives in [[FCT Brief]]; this BRIEF section is the file-specific rule sheet only.

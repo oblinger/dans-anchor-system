@@ -1,10 +1,10 @@
 ---
-description: Dispatch Table discipline — the top-of-file table convention used in most anchor pages and many facet pages. First row is the breadcrumb cell; subsequent rows group related links by category. Includes the (See …) line variant for files without a dispatch table.
+description: "the top-of-page navigation table — its own spec, dogfooded"
 ---
 
-# CAB Dispatch Table
+# DSC Dispatch Table
 
-| -[[CAB Dispatch Table]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [CAB Dispatch Table](hook://p/CAB%20Dispatch%20Table)<br>: the top-of-page navigation table — its own spec, dogfooded |
+| -[[DSC Dispatch Table]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [DSC Dispatch Table](hook://p/DSC%20Dispatch%20Table)<br>: the top-of-page navigation table — its own spec, dogfooded |
 | --- | --- |
 | Anchor | [[CAB Disciplines]] (parent catalog),  [[CAB]] |
 | Design | [[CAB Dispatch Table Design\|Design]] — rationale + standing decisions |
@@ -27,7 +27,7 @@ A markdown table placed immediately under the H1 of a page. The first row carrie
 ## Anatomy of a dispatch row
 
 ```markdown
-| -[[<This Page>]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [CAB Dispatch Table](hook://p/CAB%20Dispatch%20Table)<br>: <one-line description> |
+| -[[<This Page>]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [DSC Dispatch Table](hook://p/DSC%20Dispatch%20Table)<br>: <one-line description> |
 | --- | --- |
 | <Category 1> | [[Link A\|A]],  [[Link B\|B]],  … |
 | <Category 2> | [[Link C\|C]],  [[Link D\|D]],  … |
@@ -99,7 +99,7 @@ Dated members (a [[DSC dated-entry-stream]] Collection like a Log) list newest-f
 A dispatch table is the **form** of a top-of-page switchboard — a reusable navigation convention, not an authored-content part of one document. That is why it lives here as a **discipline** rather than as a facet:
 
 - **Form vs role.** This discipline owns the table *form* (breadcrumb cell, category rows, the switchboard shape). The *role* of "dispatching for an anchor" belongs to the [[FCT Anchor Page]] **facet** — the anchor page *uses* this discipline to render its switchboard. ~95% of dispatch tables in the vault are exactly that: an anchor page dispatching to its anchor's contents.
-- **Not a doc facet.** Contrast with the doc facets [[CAB Discussion]] and [[CAB Brief]], which are *content containers* — bounded regions you author doc-specific content into. A dispatch table is **derived navigation**: its rows are determined by *what it points to* (the anchor's structure, or a doc's sections), not authored as standalone content. Derived-convention → discipline; authored-content-container → doc facet.
+- **Not a doc facet.** Contrast with the doc facets [[FCT Discussion]] and [[FCT Brief]], which are *content containers* — bounded regions you author doc-specific content into. A dispatch table is **derived navigation**: its rows are determined by *what it points to* (the anchor's structure, or a doc's sections), not authored as standalone content. Derived-convention → discipline; authored-content-container → doc facet.
 - **Boundary with [[DSC progressive-disclosure]].** This discipline owns the table *form* (cell shape, row anatomy, pipe-escape, the `(See …)` variant). `progressive-disclosure` owns *which pattern* — Compact / List / Grouped — and the `>15 → Grouped` size rule. **Form here; pattern there.**
 - **Two different "anchor" facets — don't conflate.** The [[FCT Anchor Page]] facet (the structure of the `{NAME}.md` *entry page*, which hosts the dispatch table) is separate from the **anchor spec** itself (what makes a folder *be* an anchor — the `.anchor` file's slug / traits / DAG edges, specified via the anchor crate and the Docket implementation). The dispatch table lives on the anchor *page*, never in the anchor *spec*.
 
@@ -137,7 +137,7 @@ Format rules:
 ## Related
 
 - [[CAB Disciplines]] — parent catalog.
-- [[CAB Brief]] — the Brief discipline; uses the `Related` row or `(See …)` line to surface from the source file.
+- [[FCT Brief]] — the Brief discipline; uses the `Related` row or `(See …)` line to surface from the source file.
 - [[Anchor TOC Format]] — distinct topic; TOC is generated, not the dispatch table.
 
 # BRIEF

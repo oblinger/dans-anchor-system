@@ -15,6 +15,6 @@ The per-doc structural specs — the shapes documents take.
 | [[FCT Track\|FCT Track]]+ | [[Backlog]],  [[FCT Features\|Features]],  [[FCT Inbox\|Inbox]],  [[FCT Icebox\|Icebox]],  [[FCT Questions\|Questions]],  [[FCT Messages\|Messages]],  [[FCT Log\|Log]],  [[FCT Triage\|Triage]],  [[FCT Status\|Status]],   |
 | [[FCT Dispatch\|FCT Dispatch]]+ | [[FCT Design Dispatch\|Design Dispatch]],  [[FCT Dev Dispatch\|Dev Dispatch]],  [[FCT Plan Dispatch\|Plan Dispatch]],  [[FCT Track Dispatch\|Track Dispatch]],  [[FCT User Dispatch\|User Dispatch]],   |
 | [[FCT Output\|FCT Output]]+ | [[FCT Cards\|Cards]],  [[FCT Outputs\|Outputs]],  [[FCT Documentation Site\|Documentation Site]],  [[FCT WP\|WP]],  [[Docs]],  [[TSK User Guide]],   |
-| [[FCT Doc\|FCT Doc]]+ | [[FCT Rules\|Rule Set]],  [[CAB Brief\|Brief]],  [[CAB Discussion\|Discussion]],   |
+| [[FCT Doc\|FCT Doc]]+ | [[FCT Rules\|Rule Set]],  [[FCT Brief\|Brief]],  [[FCT Discussion\|Discussion]],   |
 
 *Names are the as-moved `CAB <X>` spec filenames; renaming to the `FCT <name>` convention is a "from-there" edit (F158 § D cleanup).*

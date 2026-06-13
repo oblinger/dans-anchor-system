@@ -9,7 +9,7 @@ Cross-cutting concepts the agent reads — non-invocable, they inform behavior.
 | --- | --- |
 | Related | [[SKL\|Skills]],  [[FCT\|Facets]],  [[LBR\|Library]], [[OBSK\|ob-skills]] (root) |
 |  |  |
-| Disciplines | [[DSC anchor-dag]],  [[DSC ask-format]],  [[DSC dated-entry-stream]],  [[DSC file-association]],  [[DSC granularity]],  [[DSC markdown]],  [[DSC mode]],  [[DSC progressive-disclosure]],  [[DSC role]],  [[DSC technical-answer]],  [[DSC verification]],  [[CAB Dispatch Table]],  [[CAB Linked Mode]],   |
+| Disciplines | [[DSC anchor-dag]],  [[DSC ask-format]],  [[DSC dated-entry-stream]],  [[DSC file-association]],  [[DSC granularity]],  [[DSC markdown]],  [[DSC mode]],  [[DSC progressive-disclosure]],  [[DSC role]],  [[DSC technical-answer]],  [[DSC verification]],  [[DSC Dispatch Table]],  [[DSC Linked Mode]],   |
 |  |  |
 | ... |  |
 

@@ -9,7 +9,7 @@ Facets are one of the two sibling sub-categories of [[CAB Aspects|Aspect]] (the 
 | -[[FCT Facets]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [FCT Facets](hook://p/FCT%20Facets)<br>:  |
 | --- | --- |
 | Structure | [[CAB Folder\|Folder]],  [[CAB Anchor Page\|Anchor Page]],  [[CAB All Files\|All Files]],  [[CAB Docs\|Docs Hub]],  [[CAB Plan Dispatch\|Plan Dispatch]],  [[CAB Dev Dispatch\|Dev Dispatch]],  [[CAB User Dispatch\|User Dispatch]],   |
-| Design | [[CAB PRD\|PRD]],  [[CAB System Design\|System Design]],  [[CAB UX Design\|UX]],  [[CAB API Design\|API Design]],  [[CAB Principles\|Principles]],  [[CAB Rules\|Rules]],  [[CAB Features\|Features]],   |
+| Design | [[CAB PRD\|PRD]],  [[CAB System Design\|System Design]],  [[CAB UX Design\|UX]],  [[CAB API Design\|API Design]],  [[CAB Principles\|Principles]],  [[FCT Rules\|Rules]],  [[CAB Features\|Features]],   |
 | Execute | [[CAB Backlog\|Backlog]],  [[CAB Roadmap\|Roadmap]],  ~~[[CAB Triage\|Triage]]~~,  [[CAB Questions\|Questions]],  [[CAB Icebox\|Icebox]],  [[CAB Inbox\|Inbox]],  [[CAB WP\|WP]],  [[CAB Outputs\|Outputs]],   |
 | Code | [[CAB Code Repository\|Code Repo]],  [[CAB Files\|Files]],  [[CAB API Doc\|API Doc]],   |
 | User | [[CAB User Dispatch\|User Dispatch]],  [[CAB Interface\|Interface]],  [[CAB Architecture\|Architecture]],  [[CAB CLI\|CLI]],  [[CAB Cards\|Cards]],   |

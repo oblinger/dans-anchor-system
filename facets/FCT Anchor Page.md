@@ -6,7 +6,7 @@ The entry page every anchor opens with — its `{slug}.md`.
 
 | -[[FCT Anchor Page]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [FCT Anchor Page](hook://p/FCT%20Anchor%20Page)<br>: the `{slug}.md` entry-page format                                  |
 | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Related               | [[FCT]],  [[CAB Dispatch Table]],  [[DSC progressive-disclosure]],  [[FEX]],                                                                                          |
+| Related               | [[FCT]],  [[DSC Dispatch Table]],  [[DSC progressive-disclosure]],  [[FEX]],                                                                                          |
 |                       |                                                                                                                                                                       |
 | Examples | [[HBR\|project]],  [[HBR Components\|grouped]],  [[HBR Ingest\|sub-folder]],  [[FEX Snapshot\|skill]] |
 | OLD Examples          | [[FEX]] — [[Snapper Dapper\|skill]],  [[Espresso\|list]],  [[Harbor Components\|grouped]],  [[Glossary\|facet]],  [[Harbor\|project]],  [[Harbor Ingest\|sub-folder]] |
@@ -47,7 +47,7 @@ traits: [Code]
 - **H1** — `{slug} - {Full Name}`: the slug leads (the jump-key), the readable name follows. Bare-name anchors use just the name.
 - **Summary** — one sentence on the **very next line** (no blank after the H1); says what the page *is*. More detail goes in an optional `## Overview` later, never above the dispatch table.
 - **Figure** — optional; embedded right after the summary with **no heading above it** — the big-picture visual before the navigation.
-- **Dispatch table** — the masthead (+ a member zone for a [[Collection]] anchor). The table's *form* is [[CAB Dispatch Table]]; its row *placement* is [[SKA Decisions|D07]].
+- **Dispatch table** — the masthead (+ a member zone for a [[Collection]] anchor). The table's *form* is [[DSC Dispatch Table]]; its row *placement* is [[SKA Decisions|D07]].
 
 # RULESET R-anchor-page
 include::
@@ -119,7 +119,7 @@ Those elements appear in that order with nothing else between them.
 
 ### RULE R-anchor-page-10 — Table follows the Dispatch Table spec (sampled)
 
-The dispatch table conforms to [[CAB Dispatch Table]] — a breadcrumb row then category rows.
+The dispatch table conforms to [[DSC Dispatch Table]] — a breadcrumb row then category rows.
 
 **Check pattern:** delegate to `/audit dispatch`.
 
@@ -206,5 +206,5 @@ Rules that apply only to **one kind** of anchor page (skill / list / grouped / p
 # BRIEF
 
 - **This file is the spec for the anchor entry page (`{slug}.md`)** — the `.anchor` + page **template**, the **parts**, and the **rule set** `R-anchor-page`. Format *authority*: `/create anchor`, `/rewire`, `/tidy`, `/audit anchor`, and the audit scripts cite it.
-- **Don't inline what belongs elsewhere.** Dispatch-table *mechanics* → [[CAB Dispatch Table]]; row *placement / order* → [[SKA Decisions|D07]]; the naming prefix → [[FCT Naming]]; sub-folder dispatch pages have their own facets. Link, don't duplicate.
+- **Don't inline what belongs elsewhere.** Dispatch-table *mechanics* → [[DSC Dispatch Table]]; row *placement / order* → [[SKA Decisions|D07]]; the naming prefix → [[FCT Naming]]; sub-folder dispatch pages have their own facets. Link, don't duplicate.
 - **Examples are never instantiated here** — they live in the `examples/` gallery ([[FEX]]); the masthead `Examples` row links to them by kind. This page carries the template + parts + the rule set only. If the spec changes, fix the examples — never retrofit the spec to a stale copy.

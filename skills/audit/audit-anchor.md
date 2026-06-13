@@ -4,7 +4,7 @@ Takes one anchor (or folder) and checks it against the **anchor rule set** — t
 
 1. **The `.anchor` file is set** — the folder is a registered anchor with a slug + traits (not empty).
 2. **The anchor page conforms** — the `{slug}.md` page follows [[FCT Anchor Page]] (H1, summary, optional figure, dispatch table — in order).
-3. **The dispatch table conforms** — if the anchor page has (or should have) one, it follows [[CAB Dispatch Table]] (masthead + member zone).
+3. **The dispatch table conforms** — if the anchor page has (or should have) one, it follows [[DSC Dispatch Table]] (masthead + member zone).
 
 **This skill is thin by design.** It does not invent checks — it **reads the rules from the associated rule set and verifies each is satisfied.** As those specs evolve, the audit follows them with no edit here. (Future: the rules consolidate into an explicit `library/rule-sets/anchor` set this audit loads directly; today it reads them from the facet + discipline specs + the SKA decisions named below.)
 
@@ -29,12 +29,12 @@ Takes one anchor (or folder) and checks it against the **anchor rule set** — t
 - [ ] **No blank line after the H1** — the one-sentence summary sits on the very next line. Then a blank, then the optional figure, then the dispatch table. (Top-of-page order: H1 → summary → figure? → dispatch.)
 - [ ] `description:` frontmatter present.
 
-### C — dispatch table conforms *([[CAB Dispatch Table]], + D07 / D08)* — when the page has or should have one
+### C — dispatch table conforms *([[DSC Dispatch Table]], + D07 / D08)* — when the page has or should have one
 Delegate the table's shape to **[[audit-dispatch|/audit dispatch]]** (it already encodes the masthead + member-zone rules). The anchor-level checks layered on top:
 - [ ] **Masthead is minimal** — `Related` is the **1st** row (omitted entirely if empty — never blank); no ad-hoc rows the breadcrumb already covers (no `Repo` row). (D07)
 - [ ] **Design row** — if the anchor has the design facet (`{NAME} Design/`), a `Design` row is **present** as the **2nd** row, in the fixed order PRD → UX → CLI → API → Architecture → Decisions → Testing → Roadmap → Features. (D07)
 - [ ] **No `Track` row** for a skill-ecosystem anchor (skill / facet / discipline / example) — tracking is centralized in SKA. (D08)
-- [ ] **Container ending** — a Collection/container's table ends with an electric-list marker (`...` / `---` / `+` group rows); each group-row label links *down* to its container page. (per [[CAB Dispatch Table]] + [[DSC progressive-disclosure]])
+- [ ] **Container ending** — a Collection/container's table ends with an electric-list marker (`...` / `---` / `+` group rows); each group-row label links *down* to its container page. (per [[DSC Dispatch Table]] + [[DSC progressive-disclosure]])
 
 ## Runbook
 
@@ -51,6 +51,6 @@ Delegate the table's shape to **[[audit-dispatch|/audit dispatch]]** (it already
 
 ## Related
 
-- Rules read: [[FCT Anchor Page]], [[CAB Dispatch Table]], [[DSC progressive-disclosure]]; decisions [[SKA Decisions|D06 / D07 / D08]].
+- Rules read: [[FCT Anchor Page]], [[DSC Dispatch Table]], [[DSC progressive-disclosure]]; decisions [[SKA Decisions|D06 / D07 / D08]].
 - Builder it calls: [[audit-dispatch]].
 - Vault-wide connectivity walk: [[DSC anchor-dag]].

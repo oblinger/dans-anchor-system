@@ -1,4 +1,4 @@
-# CAB Discussion
+# FCT Discussion
 description:: planning trade-offs
 
 Discussion is the first **document-scoped facet** in CAB. Unlike anchor-scoped facets (which carry one instance per anchor — `{NAME} Backlog.md`, `{NAME} PRD.md`), a document-scoped facet attaches to a specific *document* and may exist many times within one anchor (one Discussion per discussable doc). The provenance — *what is being discussed* — is preserved by anchoring the discussion to the document it's about.

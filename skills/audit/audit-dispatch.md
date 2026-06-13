@@ -2,7 +2,7 @@
 
 Takes one anchor (or folder) and brings its **dispatch table** to good form — the **Masthead** (breadcrumb + anchor-kind structural rows + curated one-off links) followed by the optional **Member zone** (member list / member groups, manual / auto / hybrid). **Fixes by default** — like `/audit q`, it applies the repair rather than just reporting it, because dispatch-table shape is mechanical to get right. Low-confidence choices (grouping categories, structural-vs-member ambiguity) surface to the user; everything mechanical is applied.
 
-Enforces the structure spec'd in [[CAB Dispatch Table]] (see [[F155 — Dispatch-table structure spec + CAE worked examples|F155]] for the Masthead + Member-zone model). The per-anchor counterpart of the vault-wide walk defined in [[DSC anchor-dag]]: SYS owns whole-vault connectivity; `/audit dispatch` owns one table's shape.
+Enforces the structure spec'd in [[DSC Dispatch Table]] (see [[F155 — Dispatch-table structure spec + CAE worked examples|F155]] for the Masthead + Member-zone model). The per-anchor counterpart of the vault-wide walk defined in [[DSC anchor-dag]]: SYS owns whole-vault connectivity; `/audit dispatch` owns one table's shape.
 
 ## When to use
 
@@ -54,7 +54,7 @@ Mirrors [[DSC anchor-dag]]'s two-table report at single-anchor scope: **mechanic
 
 ## Related
 
-- [[CAB Dispatch Table]] — the Masthead + Member-zone structure this enforces.
+- [[DSC Dispatch Table]] — the Masthead + Member-zone structure this enforces.
 - [[FCT Anchor Page]] — breadcrumb + structural-row conventions.
 - [[DSC progressive-disclosure]] — member list vs member groups (List / Grouped, > 15 rule).
 - [[Collection]] — the trait that means "this anchor has a Member zone."

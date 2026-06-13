@@ -1,10 +1,10 @@
 # RULESET R-discussion
-include:: [[CAB Discussion#RULESET R-discussion|embedded body]]
-description:: Catalog stub — rules for `# Discussion` (inline) or `{Doc} Discussions.md` (extracted), the first *document-scoped* facet. Canonical body lives embedded in [[CAB Discussion]].
+include:: [[FCT Discussion#RULESET R-discussion|embedded body]]
+description:: Catalog stub — rules for `# Discussion` (inline) or `{Doc} Discussions.md` (extracted), the first *document-scoped* facet. Canonical body lives embedded in [[FCT Discussion]].
 
-Catalog-side stub for the Discussion facet's rule set. The canonical body lives embedded inside the [[CAB Discussion]] facet file per the [[F133 — Rule sets folder convention + facet embedding|F133]] convention.
+Catalog-side stub for the Discussion facet's rule set. The canonical body lives embedded inside the [[FCT Discussion]] facet file per the [[F133 — Rule sets folder convention + facet embedding|F133]] convention.
 
-**To see the actual rules:** follow [[CAB Discussion#RULESET R-discussion|the embedded block]]. 9 rules covering:
+**To see the actual rules:** follow [[FCT Discussion#RULESET R-discussion|the embedded block]]. 9 rules covering:
 
 - **Scope (1)** — doc-scoped, never anchor-scoped; legacy `{NAME} Discussion.md` is deprecated.
 - **Placement (3)** — inline `# Discussion` H1 at parent doc end; OR extracted to sibling `{Doc} Discussions.md` (plural); one form at a time per doc.
@@ -23,7 +23,7 @@ Pulled automatically via the [[R-facet]] umbrella; an anchor adopting `include::
 
 ## See also
 
-- [[CAB Discussion]] — facet spec; contains the embedded RULESET body.
+- [[FCT Discussion]] — facet spec; contains the embedded RULESET body.
 - [[R-facet]] — umbrella catalog.
 - [[FCT Stories]] — sibling facet using the same dual-form pattern (inline → extracted).
 - [[Rule Sets]] — top-level catalog.
