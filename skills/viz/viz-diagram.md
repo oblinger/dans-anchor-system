@@ -16,14 +16,14 @@ The agent disambiguates from the argument: a path that resolves to an existing `
 Before *any* SVG is written or modified, read the umbrella + the sub-sets that govern the mode:
 
 ```
-~/ob/kmr/SYS/Bespoke/Skill Agent/skills/SKL User Docs/SKL/SKL Library/Rule Sets/R-diagram/R-diagram.md
-~/ob/kmr/SYS/Bespoke/Skill Agent/skills/SKL User Docs/SKL/SKL Library/Rule Sets/R-diagram/R-diagram-geometry.md
-~/ob/kmr/SYS/Bespoke/Skill Agent/skills/SKL User Docs/SKL/SKL Library/Rule Sets/R-diagram/R-sugiyama.md
-~/ob/kmr/SYS/Bespoke/Skill Agent/skills/SKL User Docs/SKL/SKL Library/Rule Sets/R-diagram/R-c4.md
-~/ob/kmr/SYS/Bespoke/Skill Agent/skills/SKL User Docs/SKL/SKL Library/Rule Sets/R-diagram/R-wcag-contrast.md
-~/ob/kmr/SYS/Bespoke/Skill Agent/skills/SKL User Docs/SKL/SKL Library/Rule Sets/R-diagram/R-bringhurst-typography.md
-~/ob/kmr/SYS/Bespoke/Skill Agent/skills/SKL User Docs/SKL/SKL Library/Rule Sets/R-diagram/R-tufte-data-ink.md
-~/ob/kmr/SYS/Bespoke/Skill Agent/skills/SKL User Docs/SKL/SKL Library/Rule Sets/R-diagram/R-svg-hygiene.md
+~/ob/kmr/SYS/Bespoke/Skill Agent/ob-skills/library/Rulesets/R-diagram/R-diagram.md
+~/ob/kmr/SYS/Bespoke/Skill Agent/ob-skills/library/Rulesets/R-diagram/R-diagram-geometry.md
+~/ob/kmr/SYS/Bespoke/Skill Agent/ob-skills/library/Rulesets/R-diagram/R-sugiyama.md
+~/ob/kmr/SYS/Bespoke/Skill Agent/ob-skills/library/Rulesets/R-diagram/R-c4.md
+~/ob/kmr/SYS/Bespoke/Skill Agent/ob-skills/library/Rulesets/R-diagram/R-wcag-contrast.md
+~/ob/kmr/SYS/Bespoke/Skill Agent/ob-skills/library/Rulesets/R-diagram/R-bringhurst-typography.md
+~/ob/kmr/SYS/Bespoke/Skill Agent/ob-skills/library/Rulesets/R-diagram/R-tufte-data-ink.md
+~/ob/kmr/SYS/Bespoke/Skill Agent/ob-skills/library/Rulesets/R-diagram/R-svg-hygiene.md
 ```
 
 Read the umbrella first to confirm the current sub-set list; the umbrella is canonical (don't trust this list if it's drifted). The other reads can run in parallel.

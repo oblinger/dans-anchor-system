@@ -10,4 +10,4 @@ Reference material the rest of the repo *consumes* — versioned bundles, lookup
 | Related | [[SKL\|Skills]],  [[FCT\|Facets]],  [[DSC\|Disciplines]],   |
 | Library | [[Rulesets]],  [[figures]],   |
 
-*`rule-sets/` — curated, versioned decision bundles (F113 Phase 3): each set bundles related decisions for a style of anchor (trait-scoped) or a cross-cutting concern; anchors pull sets in via copy-in, and `audit-decisions.py` reads them to grade per-anchor adherence. Plus `figures/`. The CAB **blueprint** (`CAB.md` + `Base` + `Aspects` + `Traits/` + `Conventions/`) lands here once its move is confirmed (F158 § C); `anchor/` arrives via the deferred copy-update-delete (§ D).*
+*`Rulesets/` — curated, versioned decision bundles (F113 Phase 3): each set bundles related decisions for a style of anchor (trait-scoped) or a cross-cutting concern; anchors pull sets in via copy-in, and `audit-decisions.py` reads them to grade per-anchor adherence. Plus `figures/`. The CAB **blueprint** (`CAB.md` + `Base` + `Aspects` + `Traits/` + `Conventions/`) lands here once its move is confirmed (F158 § C); `anchor/` arrives via the deferred copy-update-delete (§ D).*

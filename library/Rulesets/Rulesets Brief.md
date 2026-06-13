@@ -47,7 +47,7 @@ See [[FCT Ruleset]] for the prescriptive RULESET format (H1 sentinel + `include:
 
 ## How to add a new ruleset
 
-1. Create `Rule Sets/R-<name>/R-<name>.md` (with `.anchor` marker).
+1. Create `Rulesets/R-<name>/R-<name>.md` (with `.anchor` marker).
 2. Use the prescriptive RULESET format per [[FCT Ruleset]].
 3. Add a row to [[Rulesets]] dispatch table under the appropriate category.
 4. If the set should auto-aggregate under R-facet / R-trait / R-skill, also add to that umbrella's `includes::`.

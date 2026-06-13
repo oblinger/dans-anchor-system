@@ -6,7 +6,7 @@ Takes one anchor (or folder) and checks it against the **anchor ruleset** — th
 2. **The anchor page conforms** — the `{slug}.md` page follows [[FCT Anchor Page]] (H1, summary, optional figure, dispatch table — in order).
 3. **The dispatch table conforms** — if the anchor page has (or should have) one, it follows [[DSC Dispatch Table]] (masthead + member zone).
 
-**This skill is thin by design.** It does not invent checks — it **reads the rules from the associated ruleset and verifies each is satisfied.** As those specs evolve, the audit follows them with no edit here. (Future: the rules consolidate into an explicit `library/rule-sets/anchor` set this audit loads directly; today it reads them from the facet + discipline specs + the SKA decisions named below.)
+**This skill is thin by design.** It does not invent checks — it **reads the rules from the associated ruleset and verifies each is satisfied.** As those specs evolve, the audit follows them with no edit here. (Future: the rules consolidate into an explicit `library/Rulesets/anchor` set this audit loads directly; today it reads them from the facet + discipline specs + the SKA decisions named below.)
 
 ## When to use
 

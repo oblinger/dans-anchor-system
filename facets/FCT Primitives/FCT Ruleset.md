@@ -17,7 +17,7 @@ A named, reusable bundle of audit-checkable rules — and the spec for how to wr
 - **Detection** — file-existence + the `# RULESET R-` content sentinel (catches embedded rulesets too); cardinality **many**.
 
 ## Overview
-The Ruleset facet specifies the format for any file that **defines rules** — whether a catalog ruleset under `~/.claude/skills/SKL User Docs/SKL/SKL Library/Rule Sets/` or an anchor-local `{NAME} Rules.md` under `{NAME} Design/`.
+The Ruleset facet specifies the format for any file that **defines rules** — whether a catalog ruleset under `~/.claude/skills/SKL User Docs/SKL/SKL Library/Rulesets/` or an anchor-local `{NAME} Rules.md` under `{NAME} Design/`.
 
 A **rule** is a standing constraint or guideline — portable, reusable, audit-checkable. A **ruleset** is a named bundle of rules that travel together. Rules are pulled into an anchor by being cited from the anchor's `{NAME} Decisions.md` (anchor-specific applied choices with rationale).
 
@@ -30,7 +30,7 @@ This spec was previously deprecated post-F113, when "Principles + Rules" were un
 ## When this facet applies
 
 **Required reading for:**
-- Any file in `SKL Library/Rule Sets/` — both individual rulesets and umbrella sets that include others.
+- Any file in `SKL Library/Rulesets/` — both individual rulesets and umbrella sets that include others.
 - Any `{NAME} Rules.md` an anchor authors when it has rules too anchor-specific to belong in a shared ruleset.
 
 **Not required for:**
@@ -278,8 +278,8 @@ A standalone `R-<slug>.md` has no YAML frontmatter (an embedded `# RULESET` live
 
 # BRIEF
 
-- **This file is the prescriptive spec for the Ruleset facet** — the authoritative format definition for any ruleset file (`R-<slug>.md` in `Rule Sets/`) and any anchor-local `{NAME} Rules.md`. Editors of either kind of file consult this page before authoring. (Renamed from `FCT Rules` 2026-06-13 — singular `Ruleset` for the kind, parallel to [[FCT Facet]]; [[Rulesets]] remains the plural catalog.)
-- **Not a catalog of rules** — never inline actual rules here. Individual rulesets live under `~/.claude/skills/SKL User Docs/SKL/SKL Library/Rule Sets/`; the catalog is [[Rulesets]]. This page only specifies *how* such files are shaped.
+- **This file is the prescriptive spec for the Ruleset facet** — the authoritative format definition for any ruleset file (`R-<slug>.md` in `Rulesets/`) and any anchor-local `{NAME} Rules.md`. Editors of either kind of file consult this page before authoring. (Renamed from `FCT Rules` 2026-06-13 — singular `Ruleset` for the kind, parallel to [[FCT Facet]]; [[Rulesets]] remains the plural catalog.)
+- **Not a catalog of rules** — never inline actual rules here. Individual rulesets live under `~/.claude/skills/SKL User Docs/SKL/SKL Library/Rulesets/`; the catalog is [[Rulesets]]. This page only specifies *how* such files are shaped.
 - **Not the decisions spec** — anchor-level applied choices belong in [[FCT Decisions]]. Keep the two facets cleanly separated; cross-reference but do not merge. Rules are portable constraints; decisions are anchor-specific applications that cite rules.
 - **Load-bearing sentinels** — the all-caps `RULESET` (in the H1) and `RULE` (in rule headings) are mechanical markers grep / lint / flatten scripts depend on. Never lowercase or rename them; never invent alternates. The `include::` / `description::` lines are Dataview inline fields — preserve the exact `::` double-colon syntax and positional ordering (H1, then `include::`, then `description::`, then body).
 - **Inclusion test for new content here:** does this clarify the *file format* (lines, sentinels, naming, audit ties, composition semantics)? If yes, add it. If it's *content of a specific ruleset* — put it in the ruleset. If it's *project-wide markdown* — link to [[R-markdown]]. If it's *brief-writing rules* — link to [[FCT Brief]].
