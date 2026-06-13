@@ -1,14 +1,26 @@
 ---
-description: per-rule-set or per-anchor rules file — body-only markdown (no frontmatter) defining a named rule set with optional includes; rules are H3-numbered with audit-tier annotation. Companion to CAB Decisions (anchor-specific applied choices cite rules from rule sets). Re-activated 2026-06-08 after the rules-vs-decisions vocabulary split.
+description: "the Rule Set facet — what a rule set is and the format every rule-set file (a standalone R-<slug> or an anchor-local {NAME} Rules.md) must take"
 ---
 
-# FCT Rules
+# FCT Rule Set
+A named, reusable bundle of audit-checkable rules — and the spec for how to write one.
 
-The Rules facet specifies the format for any file that **defines rules** — whether a catalog rule set under `~/.claude/skills/SKL User Docs/SKL/SKL Library/Rule Sets/` or an anchor-local `{NAME} Rules.md` under `{NAME} Design/`.
+| -[[FCT Rule Set]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [FCT Rule Set](hook://p/FCT%20Rule%20Set)<br>: the Rule-Set primitive — what a rule set is and how to write one |
+| --- | --- |
+| Related | [[FCT Facet]],  [[FCT Skill]],  [[FCT Decisions]] (companion),  [[Rule Sets]] (the catalog),  [[FCT Primitives]], |
+| Examples | [[R-fex-manifest\|small, standalone]],  [[R-diagram\|large, standalone]],  [[CAE Rules\|anchor-local Rules.md]],   |
+
+**TLDR**
+- **What it is** — a named bundle of portable, audit-checkable rules (`# RULESET R-<slug>`), or an anchor-local `{NAME} Rules.md`.
+- **Required form** — `RULESET` / `RULE` sentinels; `include::` + `description::` header; `### RULE R-<slug>-NN (tier)` entries with a `**Check pattern:**`.
+- **How it's used** — adopted by being cited from an anchor's `{NAME} Decisions.md`; checked by `/audit rules`.
+- **Detection** — file-existence + the `# RULESET R-` content sentinel (catches embedded rule sets too); cardinality **many**.
+
+The Rule Set facet specifies the format for any file that **defines rules** — whether a catalog rule set under `~/.claude/skills/SKL User Docs/SKL/SKL Library/Rule Sets/` or an anchor-local `{NAME} Rules.md` under `{NAME} Design/`.
 
 A **rule** is a standing constraint or guideline — portable, reusable, audit-checkable. A **rule set** is a named bundle of rules that travel together. Rules are pulled into an anchor by being cited from the anchor's `{NAME} Decisions.md` (anchor-specific applied choices with rationale).
 
-See [[FCT Decisions]] for the companion facet (anchor-level decisions). See [[Rule Sets]] for the catalog.
+See [[FCT Decisions]] for the companion facet (anchor-level decisions). See [[Rule Sets]] for the catalog. The rules a rule-set file must itself satisfy are the embedded **`# RULESET R-ruleset`** below — this facet's required, self-applying rule set.
 
 ## History note
 
@@ -31,7 +43,7 @@ No YAML frontmatter. Every load-bearing piece is a visible markdown element a re
 ```markdown
 # RULESET R-<slug>
 include:: [[R-other-set]], [[R-third-set]]
-description:: One-line tagline — 8–15 words. Plain prose; no `::` tokens.
+description:: One-line tagline of what this set covers (8-15 words).
 
 Body paragraph: provenance, use-case context, source attribution, history. Plain
 prose; any length. This is where longer "what this set is about" content lives.
@@ -56,7 +68,7 @@ Declarative statement of what the rule requires or forbids.
 - **Line 2 (immediately under H1): `include::` line** — Dataview inline field. Comma-separated list of rule sets included by this set. May be empty (`include::` with nothing after). **Always present** even when empty — the line's existence tells readers and parsers "this is the include slot." Two forms accepted:
     - **Bare names** — `include:: R-sugiyama, R-c4` — resolved by the flatten script via vault search.
     - **Wiki-links** — `include:: [[R-sugiyama]], [[R-c4]]` — clickable in Obsidian reading view; otherwise equivalent. The flatten script unwraps `[[...]]` before resolving. Wiki-link form is preferred for readability when authoring in Obsidian; bare form is fine for machine-generated files.
-    - The two may be mixed within a single line (`include:: R-sugiyama, [[R-c4]]`). Strike-through markers (`~~[[R-foo]]~~`) are an Obsidian rendering artifact and not part of the format; flatten and audit ignore them and resolve the underlying name.
+    - The two may be mixed within a single line (`include:: R-sugiyama, [[R-c4]]`). Strike-through markers (`[[R-foo]]`) are an Obsidian rendering artifact and not part of the format; flatten and audit ignore them and resolve the underlying name.
 - **`where::` line (optional — F161; sits between `include::` and `description::`): the selector.** A **glob** naming which files this set's rules apply to — the default for any rule that doesn't carry its own `where::`. Anchor-root is the explicit token `{ANCHOR}` (`{ANCHOR}/* Backlog.md`); bare globs are anchor-relative. **Precedence:** a rule's own `where::` overrides the set's; absent both, the rule defaults to `always` (every file). Scope kinds: `always`, `file: <glob>` (the default reading of a bare glob), `anchor` (a tree/structure check run once per anchor), and **`sentinel: <regex>`** (content-match — any file containing a matching line, regardless of path; e.g. `R-ruleset` uses `sentinel: ^#+ RULESET R-` to catch every rule set whether standalone or **embedded** in a facet / skill / discipline spec). Consumed by the audit engine ([[F161 — Rule-driven audit engine — resolve, run, judge|F161]]) to bind rules to targets — see it dogfooded in `# RULESET R-ruleset` below.
 - **Line 3: `description::` line** — Dataview inline field. One-line tagline (8–15 words) of what this rule set covers and when it applies. Required. Plain prose only: **no `::` tokens in the value** (the double-colon is reserved syntax for inline-field keys; mentioning `include::` or `description::` as a noun inside the value will collide with the Dataview parser). The single-line constraint forces tightness.
 - **Line 4+ (body paragraph immediately under `description::`):** plain prose paragraph(s) carrying provenance, use-case context, source attribution, history, factoring notes — anything longer than the tagline. Any length. This is the canonical home for the prose that doesn't fit in `description::`; it reads more naturally than `> [!info]` callouts for the standard "what this set is about" content. Callouts remain available for asides (see below).
@@ -264,7 +276,7 @@ A standalone `R-<slug>.md` has no YAML frontmatter (an embedded `# RULESET` live
 
 # BRIEF
 
-- **This file is the prescriptive spec for the Rules facet** — the authoritative format definition for any rule-set file (`R-<slug>.md` in `Rule Sets/`) and any anchor-local `{NAME} Rules.md`. Editors of either kind of file consult this page before authoring.
+- **This file is the prescriptive spec for the Rule Set facet** — the authoritative format definition for any rule-set file (`R-<slug>.md` in `Rule Sets/`) and any anchor-local `{NAME} Rules.md`. Editors of either kind of file consult this page before authoring. (Renamed from `FCT Rules` 2026-06-13 — singular `Rule Set` for the kind, parallel to [[FCT Facet]]; [[Rule Sets]] remains the plural catalog.)
 - **Not a catalog of rules** — never inline actual rules here. Individual rule sets live under `~/.claude/skills/SKL User Docs/SKL/SKL Library/Rule Sets/`; the catalog is [[Rule Sets]]. This page only specifies *how* such files are shaped.
 - **Not the decisions spec** — anchor-level applied choices belong in [[FCT Decisions]]. Keep the two facets cleanly separated; cross-reference but do not merge. Rules are portable constraints; decisions are anchor-specific applications that cite rules.
 - **Load-bearing sentinels** — the all-caps `RULESET` (in the H1) and `RULE` (in rule headings) are mechanical markers grep / lint / flatten scripts depend on. Never lowercase or rename them; never invent alternates. The `include::` / `description::` lines are Dataview inline fields — preserve the exact `::` double-colon syntax and positional ordering (H1, then `include::`, then `description::`, then body).

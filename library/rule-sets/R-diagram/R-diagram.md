@@ -50,6 +50,6 @@ Factored 2026-06-09 from a monolithic 22-rule R-diagram set, per F132 Phase 1. E
 
 - [[viz-diagram]] — `/viz diagram` create + cleanup skill; the user-facing surface for these rules.
 - [[Rule Sets]] — parent catalog.
-- [[FCT Rules]] — RULESET format spec.
+- [[FCT Rule Set]] — RULESET format spec.
 - [[2026-06-08 diagram-auditing-methodologies]] — 20-source survey that seeded these rules.
 - F132 Phase 1 — factoring landed 2026-06-09.

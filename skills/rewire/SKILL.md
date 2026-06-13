@@ -150,7 +150,7 @@ Anything not on this table → "possibly correctly placed" → rewire asks via `
 
 ### Exceptions
 
-Before proposing any move (aggressive or otherwise), rewire reads `{NAME} Rules.md § Rewire Exceptions`. Format is a markdown table under a `## Rewire Exceptions` H2, with two columns: `Path | Reason`. Paths are anchor-relative. Matching rows are **skipped silently** — rewire neither moves nor asks. If `## Rewire Exceptions` H2 is absent from `{NAME} Rules.md`, treat as empty list. See [[FCT Rules]] § Optional sections.
+Before proposing any move (aggressive or otherwise), rewire reads `{NAME} Rules.md § Rewire Exceptions`. Format is a markdown table under a `## Rewire Exceptions` H2, with two columns: `Path | Reason`. Paths are anchor-relative. Matching rows are **skipped silently** — rewire neither moves nor asks. If `## Rewire Exceptions` H2 is absent from `{NAME} Rules.md`, treat as empty list. See [[FCT Rule Set]] § Optional sections.
 
 ## Runbook (full rewire)
 

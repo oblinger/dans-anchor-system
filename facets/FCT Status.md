@@ -3,7 +3,7 @@ description:: status facet — one `{NAME} Status.md` file per anchor; one datav
 
 The Status facet specifies the format of `{NAME} Status.md` — the per-anchor file that tracks **design-phase completeness**. One row per design facet (`prd` / `ux` / `architecture` / `testing` / `roadmap`), each carrying a tier value, a grading-actor, a date, and a one-line rationale. The file is read by `/design`'s picker (bare `/design` dispatches to the lowest-tier facet) and by `/mint`'s pre-implementation gate.
 
-Body-only — no YAML frontmatter. The first content line is the `# CAB Status` H1; the second is the `description::` dataview inline field above; everything else is plain markdown. (Same body-only discipline as [[FCT Rules]].)
+Body-only — no YAML frontmatter. The first content line is the `# CAB Status` H1; the second is the `description::` dataview inline field above; everything else is plain markdown. (Same body-only discipline as [[FCT Rule Set]].)
 
 ## Location
 
@@ -143,7 +143,7 @@ The first non-blank line of the file is `# {NAME} Status` (H1). No `---` YAML bl
 
 **Check pattern:** first non-blank line starts with `# `; does not start with `---`.
 
-**Why:** body-only matches the broader vault discipline ([[FCT Rules]], [[CAB Backlog]] are also body-only). Frontmatter is invisible in normal Obsidian read view and easy to drift.
+**Why:** body-only matches the broader vault discipline ([[FCT Rule Set]], [[CAB Backlog]] are also body-only). Frontmatter is invisible in normal Obsidian read view and easy to drift.
 
 ### RULE R-status-04 — `description::` is line 2 (checked)
 
