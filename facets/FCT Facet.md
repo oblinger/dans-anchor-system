@@ -2,32 +2,34 @@
 description: "the Facet primitive — what a facet is and how to write its spec"
 ---
 # FCT Facet
+A narrow, usually file-based aspect of an anchor — and the spec for how to write one.
+
+| -[[FCT Facet]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [FCT Facet](hook://p/FCT%20Facet)<br>: the Facet primitive — what a facet is and how to write its spec |
+| --- | --- |
+| Related | [[FCT Skill]],  [[FCT Rules]],  [[FCT Facets]] (the index),  [[CAB Aspects]], |
+| Examples | [[FEX Manifest]],  [[HBR Backlog]],  [[HBR Architecture]],  [[HBR PRD]],   |
 
 A **facet** is a narrow, usually file-based aspect of an anchor — one specific structural feature (a `Backlog` file, an `Architecture` doc, a website subfolder), defined by its own spec doc and detected (by default) through file-existence. This page is the spec for *the facet kind itself*: what a facet is and the shape every facet spec doc takes. It is the singular **definition**; [[FCT Facets]] (plural) is the **index** of all concrete facets.
 
 Facets are one of the two kinds of [[CAB Aspects|Aspect]] — the narrow, file-based kind; the broad declared-paradigm kind is the [[CAB Traits|Trait]]. The shared model lives in [[CAB Aspects]]; this page is the facet-authoring view of it.
 
-**Worked examples (real facet instances):** [[FEX Manifest]] (a skill-world doc facet), [[HBR Backlog]], [[HBR Architecture]], [[HBR PRD]], [[HBR Roadmap]] — catalogued in [[FEX]].
-
 # Reference Example
----
 
-A facet spec doc has this shape — illustrated with a small `Manifest` facet:
+A facet spec doc has the shape every Aspect spec uses. Everything below this line — from its frontmatter and its own `# Manifest` H1 down to the next page-level heading — is the example (a small fictional `Manifest` facet); its headings belong to the example, not to this page's outline. For a *worked instance* of this facet — an actual manifest file — see [[FEX Manifest]].
 
-```markdown
 ---
 description: the record a snapshot bundle carries
 ---
 # Manifest
 
 ## What it is
-A manifest.txt written beside each snapshot bundle so a restore knows what state it captured.
+A `manifest.txt` written beside each snapshot bundle so a restore knows what state it captured.
 
 ## How it's detected
-File-existence — a manifest.txt inside a snapshots/<label>/ directory.
+File-existence — a `manifest.txt` inside a `snapshots/<label>/` directory.
 
 ## Format
-One `key: value` per line, keys lower-case; required keys label, commit, branch, created; paths bundle-relative.
+One `key: value` per line, keys lower-case; required keys `label`, `commit`, `branch`, `created`; paths bundle-relative.
 
 ## Constraints
 - Exactly one manifest per bundle (cardinality: one).
@@ -37,12 +39,7 @@ One `key: value` per line, keys lower-case; required keys label, commit, branch,
 - Written by the snapshot skill at capture; read by restore and by the retention sweep.
 
 ## Skills and audits that attach
-- The snapshot skill writes it; an audit checks it against the R-fex-manifest rule set.
-```
-
-For a *worked instance* of this facet — an actual manifest — see [[FEX Manifest]].
-
----
+- The snapshot skill writes it; an audit checks it against [[R-fex-manifest]].
 
 # Format Specification
 
@@ -71,4 +68,5 @@ File-shaped narrow aspect → **Facet** (here). Broad declared paradigm in `trai
 - **This is the spec for the *facet* primitive** — what a facet is and the shape of a facet spec doc. Sibling to [[FCT Skill]] (skill primitive) and [[FCT Rules]] (rule-set primitive); indexed from [[FCT Primitives]].
 - **Singular, not the index.** [[FCT Facets]] (plural) is the *catalog* of concrete facets; this page (singular) *defines the kind*. The Primitives-row "Facet" link points here, not at the index.
 - **The umbrella model lives in [[CAB Aspects]]** — don't duplicate the Aspect/Trait/Facet vocabulary, the six-section rationale, or the composability matrix here; link to it. This page is the facet-authoring view: the six declarations + the spec-doc shape + real examples.
+- **The Reference Example is live markdown, never fenced.** A facet spec *is* markdown; rendering it inside a ``` code fence breaks its wiki-links and headings. Inline it as real markdown (its own frontmatter + `# Manifest` H1); put any commentary *before* the example's frontmatter so it can't bleed into the example.
 - **Examples are real instances**, defined per [[FEX]] — [[FEX Manifest]] and the HBR facet set ([[HBR Backlog]], [[HBR Architecture]], [[HBR PRD]], …). Keep these links current as the gallery evolves.
