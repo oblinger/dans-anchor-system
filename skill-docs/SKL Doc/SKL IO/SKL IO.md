@@ -2,7 +2,7 @@
 description: How to read from and write to external services — Google Workspace, email, Notion. Dispatch over the io subskills.
 ---
 
-| -[[SKL IO]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [[SKL/SKL]] → [[SKL Doc]] → [SKL IO](hook://p/SKL%20IO)<br>: read/write external services — Google Workspace, email, Notion. |
+| -[[SKL IO]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [[SKL Doc]] → [SKL IO](hook://p/SKL%20IO)<br>: read/write external services — Google Workspace, email, Notion. |
 | --- | --- |
 | Skill anchor | [[SKA io]],   |
 | Runtime | [[io/SKILL\|io SKILL.md]],   |
