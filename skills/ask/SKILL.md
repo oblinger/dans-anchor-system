@@ -1,6 +1,6 @@
 ---
 name: ask
-description: Universal asking skill, two modes. Bare `/ask` (no arguments — primary mode) drains an anchor: agent self-resolves what it can (drive-mode-calibrated), writes a three-section `{NAME} ask.md` (Agent Resolutions / User Verifications / Questions), glances it, surfaces 1–3 items in console, iterates idempotently. Parented `/ask` (with `--doc` and/or explicit questions — secondary mode) parks individual questions on a feature doc or the anchor's à la carte facet `{NAME} Questions.md`. Both modes regenerate `{NAME} Triage.md` and the anchor's section in `~/ob/kmr/Q.md`. Slash-only — "ask" is too common a spoken word to be a DMUX prefix-trigger.
+description: Universal asking skill, two modes. Bare /ask (no arguments — primary mode) drains an anchor. agent self-resolves what it can (drive-mode-calibrated), writes a three-section {NAME} ask.md (Agent Resolutions / User Verifications / Questions), glances it, surfaces 1–3 items in console, iterates idempotently. Parented /ask (with --doc and/or explicit questions — secondary mode) parks individual questions on a feature doc, or authors them directly in {NAME} ask.md. Both modes regenerate the anchor's section in ~/ob/kmr/Q.md. Slash-only — "ask" is too common a spoken word to be a DMUX prefix-trigger.
 user_invocable: true
 ---
 
@@ -13,7 +13,7 @@ user_invocable: true
 | Mode | Invocation | What it does |
 |---|---|---|
 | **Bare** (primary) | `/ask` (no arguments) | User-invoked from within an anchor. Drains the anchor's open `[Verify]` and `[Questions]` items: self-resolves what it can (drive-mode-calibrated), writes the three-section `{NAME} ask.md`, glances it, surfaces 1–3 items in console, iterates. |
-| **Parented** (secondary) | `/ask [--doc <path>] <q1> [<q2>...]` | Called from another skill's runbook (`/feature`, `/code plan`, `/groom`, `/crank`). Routes batched, numbered, formatted questions to a feature doc's `## Open Questions` block or the anchor's à la carte facet. |
+| **Parented** (secondary) | `/ask [--doc <path>] <q1> [<q2>...]` | Called from another skill's runbook (`/feature`, `/code plan`, `/groom`, `/crank`). Routes batched, numbered, formatted questions to a feature doc's `## Open Questions` block, or authors them directly in the anchor's `{NAME} ask.md` `## Questions` section. |
 
 Both modes regenerate `{NAME} Triage.md` and the anchor's section in `~/ob/kmr/Q.md`. Both follow the same recommendation-strength format and Phase 1/2/3 lifecycle for `## Open Questions` blocks. The reliability gain comes for free from Claude Code's skill-loading mechanic: when `/ask` is invoked, this runbook executes — including the glance step. That's the fix for the original "agents forget to glance" pain that motivated F10.
 
@@ -33,15 +33,29 @@ Parented triggers (non-exhaustive):
 - An agent is about to ask any question — route through `/ask`.
 
 
-## Render-audit-glance invariant (per F127, 2026-06-07 — supersedes F125's format-by-span)
+## Two valid surfaces + threshold (per F162, 2026-06-13 — supersedes F127's universal-render)
 
-**Every `/ask` invocation MUST execute these three steps before producing any chat response:**
+**A question may live in exactly TWO places — nowhere else:** (1) the anchor ask file `{NAME} ask.md`, or (2) the document where the question exists (feature doc / PRD / spec). Chat is a *dispatch view*, not a question store — a bare reference list in chat (`F113 Q12`) is never valid: it is neither surface and carries no context.
 
-1. **Render.** `python3 ~/.claude/skills/ask/scripts/ask-render.py {NAME}` — writes `{NAME} ask.md` from current source-of-truth markdown (feature docs' `## Open Questions`, `{NAME} Questions.md`, backlog `[Verify]` rows). Always executes; always writes the file (one-line empty-state when nothing's pending).
-2. **Audit.** `python3 ~/.claude/skills/audit/scripts/audit-q.py --scope q --dry` — verifies the rendered report passes C1/C22 link-existence, C35 drift, C36 backtick-filepath checks. If errors surface, fix them at source (feature doc / backlog Open Question that has the broken link) and re-render. Do NOT surface a broken ask report to the user.
+**Threshold — one inline, two-or-more written:**
+
+| Span | Surface | What the agent does |
+|---|---|---|
+| **Exactly 1 question** | home doc (no render needed) | Ask it **inline in chat with full details** — title, context, labeled options with bodies, recommendation + strength, load-bearing flag. The Q still lives in its home doc as source of truth; no aggregation/glance required. User answers in chat. |
+| **2+ Qs, all in ONE feature/doc** | that doc's `## Open Questions` | Write the Qs in (via `state q add`), then **glance the document**. Chat summarizes: *"3 Qs in F123 — Q1 X, Q2 Y, Q3 Z; load-bearing Q2."* User reads full bodies in the glanced doc. No aggregated page — the feature doc IS the surface. |
+| **2+ Qs spanning 2+ features** (or anchor-level / à la carte) | `{NAME} ask.md` | Run the **render → audit → glance** procedure below, then spotlight 1-3 in chat. The ask file is the only coherent surface when no single doc holds them all. |
+
+**As soon as there is more than one question it MUST be written down** in one of the two surfaces before surfacing. The single-Q-inline path is the *only* inline path — two questions inline is not allowed (this tightens F125's floated "maybe 2 inline").
+
+### Render → audit → glance (the multi-feature / bare-drain procedure, per F127)
+
+When the surface is `{NAME} ask.md` (a multi-feature span, or any **bare `/ask`** anchor-drain — multi-feature by nature), execute these three steps before producing any chat response:
+
+1. **Render.** `python3 ~/.claude/skills/ask/scripts/ask-render.py {NAME}` — refreshes `{NAME} ask.md` from current source-of-truth markdown (feature docs' `## Open Questions` and backlog `[Verify]` rows), while **preserving** the page's own authored sections — `## Agent Resolutions` and any anchor-level questions authored directly in `## Questions`. Always writes the file (one-line empty-state when nothing's pending).
+2. **Audit.** `python3 ~/.claude/skills/audit/scripts/audit-q.py --scope q --dry` — verifies the rendered report passes C1/C22 link-existence, C35 drift, C36 backtick-filepath checks. If errors surface, fix them at source (feature doc / backlog Open Question with the broken link) and re-render. Do NOT surface a broken ask report to the user.
 3. **Glance.** `open "{NAME} ask.md"` — the rendered, audited page opens for the user.
 
-Only then does the agent respond in chat with the **spotlight format**: 1-3 items, one line each, naming the load-bearing Q and pointing at the glanced page. **The page is the source of truth for question bodies; chat is the dispatch view.**
+Then respond in chat with the **spotlight format**: 1-3 items, one line each, naming the load-bearing Q and pointing at the glanced page. **The written surface is the source of truth for question bodies; chat is the dispatch view.**
 
 ```
 Up next (1-3 of N pending):
@@ -53,18 +67,17 @@ Up next (1-3 of N pending):
 (Full bodies in [[{NAME} ask]] — glanced.)
 ```
 
-**No count-based dispatch.** There is no "is this short enough to inline?" decision; no "should I skip the page for 1 Q?" branch. Render every time. The page IS the contract. Chat is short precisely because the page carries the load.
+**Bare `/ask` always uses the ask-file procedure** — it drains the whole anchor, multi-feature by nature; render → audit → glance is mandatory there regardless of how many Qs surface. The inline path is for *targeted* single-Q asks (e.g. crank's cascade landing on one decision), not anchor drains.
 
-**Failure mode this defeats (2026-06-07 — user direction):** *"I'm struggling with sloppy questions given to me by different agents. … I can't find the context information quickly to understand the questions. That's really the problem."* The pre-F127 F125 format-by-span table tried to optimize away the page for small batches, but agents reliably short-cut the "verbatim inline" discipline and produced context-less questions. The render-audit-glance invariant sidesteps the agent-judgment problem: agents can't truncate what they don't write inline.
-
-**F125 format-by-span is superseded.** The historical decision-tree is preserved in F125's feature doc for context; the live runbook no longer dispatches on count. See [[F127 — Always-render ask report — ask invariant render + audit + glance before dialogue|F127]].
+**Relationship to F125 / F127.** [[F125 — Stop-and-ask cascade — crank must invoke ask on no-Ready; ask format scales with Q-count and feature-span|F125]] first scaled the format by span; [[F127 — Always-render ask report — ask invariant render + audit + glance before dialogue|F127]] replaced it with universal render-audit-glance because agents short-cut the inline path and produced context-less questions. F162 keeps F127's load-bearing lesson — once N>1, questions live in a written, navigable, link-resolvable surface — while restoring the single-Q-inline and single-feature-doc paths; the render-audit-glance machinery is retained on the ask-file surface. See [[F162 — Two-surface ask rule + crank-must-ask cascade|F162]].
 
 ### User-story scenarios
 
-- **Story 1 — Crank cascades to /ask.** Crank invoked /ask after exhausting Ready. /ask renders, audits, glances, spotlights 1-3.
-- **Story 2 — One Q pending.** /ask renders the page (with that one Q in `## Questions`), audits, glances, spotlights the one Q in chat. User reads the body from the glanced page.
-- **Story 3 — N Qs across M features.** Same flow. Page has every Q with link-resolvable context; chat spotlights the most load-bearing 1-3.
-- **Story 4 — Zero pending.** Render writes the empty-state page (`_Nothing pending in scope._`), audit passes (no Qs to drift on), glance opens it, chat says *"nothing pending in {NAME}."*
+- **Story 1 — Crank cascades, one decision.** Crank exhausted Ready, groom dry, exactly one Q remains → ask it **inline with full details**, no page. User answers in chat.
+- **Story 2 — 2+ Qs in one feature.** Write them into the feature doc (`state q add`), **glance the doc**, summarize topics + load-bearing one in chat. No aggregated page.
+- **Story 3 — 2+ Qs across features.** Render → audit → glance `{NAME} ask.md`; spotlight the load-bearing 1-3.
+- **Story 4 — Bare /ask anchor-drain.** Always the ask-file procedure; render → audit → glance, spotlight 1-3.
+- **Story 5 — Zero pending.** Bare-drain renders the empty-state page (`_Nothing pending in scope._`), audit passes, glance opens it, chat says *"nothing pending in {NAME}."* A targeted single-Q ask with nothing pending simply doesn't fire.
 
 
 ## Two question shapes
@@ -73,14 +86,14 @@ Every question lands on one of two surfaces. The parent skill (or the user invok
 
 | Shape | Flag | Surface | When |
 |---|---|---|---|
-| **Document-attached** | `--doc <path>` | The doc's `## Open Questions` H2 below the H1 | Question is about a specific feature doc / PRD / design doc / spec. |
-| **À la carte** | (default — no flag) | The anchor's `{NAME} Questions.md` facet, `## Open Questions` H2 | Question is anchor-level, cross-cutting, agent-raised, or planning-time — doesn't belong to one document. |
+| **Document-attached** | `--doc <path>` | The doc's `## Open Questions` H2 below the H1 | Question is about a specific feature doc / PRD / design doc / spec — it's already being asked inside that document. |
+| **Ask-file** | (default — no flag) | The anchor's `{NAME} ask.md`, authored directly in `## Questions` | Question is anchor-level, cross-cutting, agent-raised, or planning-time — doesn't belong to one document. |
 
-If the parent skill is ambiguous about which shape applies, default to **à la carte** — the question still gets surfaced, just at the anchor level rather than attached to a specific doc.
+If the parent skill is ambiguous about which shape applies, default to **ask-file** — the question still gets surfaced, just at the anchor level rather than attached to a specific doc.
 
-Per F28, à la carte Qs live in their own per-anchor facet file `{NAME} Questions.md` (spec: `[[FCT Questions]]`) — not inside `{NAME} Triage.md` anymore. The Triage file just carries one bullet line under its H1 (`- **[N Questions]**  [[{NAME} Questions]]`) when there are pending à la carte Qs.
+**There is no separate per-anchor questions file.** Anchor-level questions are written, in full ask-format, straight into `{NAME} ask.md` under its `## Questions` H2, where they sit alongside the rendered pointers to feature docs that have pending questions. The render **preserves** them across re-renders, exactly the way it preserves `## Agent Resolutions`.
 
-**À la carte questions use `Q<n>` numbering, not `A<n>`** — same `Q<n>` prefix as feature-attached Qs, scoped per container (each feature doc has its own Q-namespace; each anchor's `{NAME} Questions.md` has its own Q-namespace). When referenced in conversation: feature-scoped → `F010 Q3`; à la carte → `{NAME} Q3` (e.g., "SKA Q3").
+**Anchor-level questions use `Q<n>` numbering, not `A<n>`** — same `Q<n>` prefix as feature-attached Qs, scoped per container (each feature doc has its own Q-namespace; the anchor's `{NAME} ask.md` has its own Q-namespace). When referenced in conversation: feature-scoped → `F010 Q3`; anchor-level → `{NAME} Q3` (e.g., "SKA Q3").
 
 
 ## Invocation
@@ -94,7 +107,7 @@ Per F28, à la carte Qs live in their own per-anchor facet file `{NAME} Question
 - **No arguments** → bare mode; runs the § Bare invocation runbook against the **current anchor** (detected by walking up from cwd to the nearest `.anchor`).
 - **Single positional argument matching an anchor slug** (e.g. `/ask SKA`, `/ask MUX`) → bare mode against the **named anchor**. The current agent does the work but reads the target anchor's Triage / Questions / feature docs. **Uncommon** — the local agent for that anchor usually has more context and will do a better self-resolution pass; use cross-anchor only when you specifically want the current agent to handle it.
 - `--doc <path>` → parented document-attached mode; questions go in that doc's `## Open Questions` block (created if absent).
-- No flag + positional `<question>` arguments → parented à la carte mode; questions go in the anchor's `{NAME} Questions.md` facet's `## Open Questions` block (created if absent).
+- No flag + positional `<question>` arguments → parented ask-file mode; questions are authored directly in the anchor's `{NAME} ask.md` `## Questions` section.
 - Multiple positional questions → batched — number them all in one pass, never trickle.
 
 **Disambiguation: anchor slug vs. question text.** A single positional argument is treated as an anchor slug if all three hold:
@@ -102,7 +115,7 @@ Per F28, à la carte Qs live in their own per-anchor facet file `{NAME} Question
 2. It matches the shape `[A-Z][A-Za-z0-9]+` (starts with a capital, alphanumeric).
 3. It resolves to a known anchor (walk the vault's `slug-index`, or check that `<SLUG>/.anchor` exists, or that `<SLUG> Triage.md` / `<SLUG> Backlog.md` exists somewhere reachable).
 
-If any check fails, treat the argument as à la carte question text and run the parented runbook. Multiple positional arguments are always parented (no anchor slug has spaces).
+If any check fails, treat the argument as anchor-level question text and run the parented runbook. Multiple positional arguments are always parented (no anchor slug has spaces).
 
 **Slash-only invocation.** Unlike `crank`, `groom`, `triage`, etc., the spoken word "ask" is **not** a DMUX prefix-trigger — it's too common in everyday speech. Invoke via `/ask` only.
 
@@ -117,7 +130,7 @@ Bare `/ask` (no arguments) drains the anchor's open `[Verify]` and `[Questions]`
 
 **Cross-anchor (single slug argument):** if invoked as `/ask <SLUG>` and the slug resolves to a known anchor (per the § Invocation disambiguation rules), set `{NAME}` = `<SLUG>` and read that anchor's files instead of the current one. The current agent does the work using the target anchor's Triage / Questions / feature docs.
 
-Then read `{NAME} Backlog.md` and enumerate every item bracketed `**[N Questions]**` or `**[Verify]**` across the **Active / Ready / Now / Next** sections only. **`## Later` and `## Icebox` are disregarded entirely** — regardless of bracket, regardless of why the item is there. Later means *not in scope for now*; if the user has parked something in Later, that's the user's explicit signal to not surface it. This applies *universally* to every path through bare `/ask` — survey (this step), reasoning (step 2), drain-page write (step 3), and console interleave (step 6). Even a `[Questions]` or `[Verify]` row sitting in `## Later` is out of scope; bare `/ask` does not see it, does not self-resolve it, does not list it, does not mention it. (Triage's selective-surfacing of Later items is a Triage behavior; bare `/ask` does not inherit it.) If `{NAME} Questions.md` exists, also include its pending à la carte Qs.
+Then read `{NAME} Backlog.md` and enumerate every item bracketed `**[N Questions]**` or `**[Verify]**` across the **Active / Ready / Now / Next / Verify** sections. The dedicated `## Verify` horizon (per F100) is where most user-actionable `[Verify]` rows live — surfacing them is a core purpose of bare `/ask`, so it is **in scope**. **`## Later` and `## Icebox` are disregarded entirely** — regardless of bracket, regardless of why the item is there. Later means *not in scope for now*; if the user has parked something in Later, that's the user's explicit signal to not surface it. This applies *universally* to every path through bare `/ask` — survey (this step), reasoning (step 2), drain-page write (step 3), and console interleave (step 6). Even a `[Questions]` or `[Verify]` row sitting in `## Later` is out of scope; bare `/ask` does not see it, does not self-resolve it, does not list it, does not mention it. (Triage's selective-surfacing of Later items is a Triage behavior; bare `/ask` does not inherit it.) Also include any anchor-level Qs already authored in `{NAME} ask.md` § `## Questions`.
 
 If the survey returns zero pending items, write a one-line summary (`/ask — nothing pending in {NAME}.`), refresh the anchor's section in `Q.md` (will likely drop it), and exit.
 
@@ -144,7 +157,7 @@ For each surveyed item, attempt to resolve it autonomously. Calibrate the thresh
   **Batching when multiple tier-3 or tier-4 Verifies surface** (per `[[DSC verification]]` § How to surface a Verify to the user): if several Verify rows reduce to the same user action ("did this work in normal use?", "did the bug recur?"), combine them into one targeted question with the linked feature docs listed. The user gives a single yes-or-no answer; the agent applies it to all listed rows. Never write "verify F57, F58, F59" as separate items if a single observation would resolve all three. The question itself must carry the answer-enabling context, not point at a doc to read.
 - **`[Questions]` items** — *can I confidently pick the most likely answer?* Read the feature doc's `## Open Questions` block, the surrounding code, prior similar decisions in the anchor's `## Resolved`, the user's stated preferences (memory), and the design rationale. For each Q where the answer is clear, write the inline resolution per § Resolution and update the feature doc.
 
-- **Pre-ask self-check (per F105)** — before queuing any Q for the user, run the five named patterns from `[[DSC ask-format]]` § Pre-ask self-check: (1) aggregate across all feature docs + à la carte within this anchor — don't surface one feature's Qs in isolation when others have pending ones; (2) "continue or stop?" → continue; (3) "burn tokens for a better outcome?" → yes; (4) "how to split the work?" → agent decides, file new features `[Ready]` when independently doable; (5) "quick way or complete way?" → complete (file quick-way's complete version as `[Ready]` if doing quick first). Any Q matching one of these is auto-resolved into the relevant `## Resolved` H2 (feature doc) or `## Agent Resolutions` (this anchor's ask page), never surfaced.
+- **Pre-ask self-check (per F105)** — before queuing any Q for the user, run the five named patterns from `[[DSC ask-format]]` § Pre-ask self-check: (1) aggregate across all feature docs + the ask file's anchor-level Qs within this anchor — don't surface one feature's Qs in isolation when others have pending ones; (2) "continue or stop?" → continue; (3) "burn tokens for a better outcome?" → yes; (4) "how to split the work?" → agent decides, file new features `[Ready]` when independently doable; (5) "quick way or complete way?" → complete (file quick-way's complete version as `[Ready]` if doing quick first). Any Q matching one of these is auto-resolved into the relevant `## Resolved` H2 (feature doc) or `## Agent Resolutions` (this anchor's ask page), never surfaced.
 
 **Drive-mode thresholds:**
 
@@ -161,16 +174,16 @@ The reasoning pass produces three buckets:
 
 ### 3. Write `{NAME} ask.md` — **run `ask-render.py`** (per F117, 2026-06-07)
 
-Per F117 the ask page is a **rendered view** of canonical markdown sources; markdown IS the durable state. Don't hand-author the file.
+Per F117 the ask page is a **rendered view** of canonical markdown sources (feature docs + backlog), with two **authored** sections that live only here and are preserved across renders: `## Agent Resolutions`, and any anchor-level questions inside `## Questions`. Don't hand-edit the *rendered* lines (feature-doc Q pointers, Verify rows) — fix those at source. Do author anchor-level Qs directly into `## Questions`.
 
 ```bash
 python3 ~/.claude/skills/ask/scripts/ask-render.py {NAME}
 ```
 
 The script:
-- Walks reachable feature docs + `{NAME} Questions.md` via `extract_q_entries` (audit-q's H3-aware Q parser) → `## Questions` body.
-- Walks `{NAME} Backlog.md` for `[Verify]` / `[Verify-by ...]` rows in **active horizons only** (`Active`/`Ready`/`Now`/`Next` — `## Later` is disregarded, mirroring step 1) → `## User Verifications` body.
-- Reads the existing `{NAME} ask.md`'s `## Agent Resolutions` body verbatim and writes it back — F086 carry-forward is **preserved** at the markdown level.
+- Walks reachable feature docs via `extract_q_entries` (audit-q's H3-aware Q parser) for pending Qs → rendered pointer lines in `## Questions` (e.g. `- [[F28]] — 3 Qs (Q1, Q2, Q5).`).
+- Walks `{NAME} Backlog.md` for `[Verify]` / `[Verify-by ...]` rows in **in-scope horizons** (`Active`/`Ready`/`Now`/`Next`/`Verify` — `## Later` and `## Icebox` disregarded, mirroring step 1; the dedicated `## Verify` horizon per F100 is where most live) → `## User Verifications` body. Each row renders the row's `**Verify (you):** <actionable steps>` marker after the link (falling back to the title only when the marker is absent — see the actionability rule below).
+- **Preserves the page's authored content verbatim**: the `## Agent Resolutions` body (F086 carry-forward) AND any anchor-level Q bullets already in `## Questions` (those not matching the rendered feature-pointer shape). Drift-checking belongs to `/ask`, not the script.
 - Writes the three-section page atomically.
 
 **Agent-side responsibilities (the script does NOT do these — the runbook does):**
@@ -198,16 +211,23 @@ description: bare `/ask` snapshot — agent resolutions and what the user still 
 
 ## User Verifications
 
-- [[F26 — Manual UX flow]] **[Verify]** — needs human eyes on the UI; can't be automated. Run the app, click through, confirm the panel renders.
+- [[F26 — Manual UX flow]] **[Verify]** — Open the Window Settings dialog (Cmd+R), resize it, Cmd+Q and relaunch — confirm the panel reopens at the size you left it.
 
 ## Questions
 
 - [[F28 — Naming]] — 3 Qs (Q1, Q2, Q5). Naming-convention fork; see the feature doc.
 - [[F29 — Retry policy]] **Q1** — max-retries cap: 3, 5, or unbounded?
-- [[{NAME} Q3]] — the à la carte slug-renaming question.
+
+- **Q3 — Rename the `foo` slug to `bar`?** — `foo` collides with [[bar]] vault-wide; renaming sweeps ~12 refs. ^{NAME}-Q3
+  - (A) Rename to `bar` — removes the collision.
+  - (B) Keep `foo` — accept the ambiguity.
+  - **Recommendation:** None — user-preference call.
 ```
 
+(The first two bullets are **rendered pointers** to feature docs with pending Qs; `Q3` is an **anchor-level question authored directly here** in full ask-format — its durable home is this file. The render keeps the pointers fresh and leaves the authored Q untouched.)
+
 Rules:
+- **Every User Verification states the concrete action, not the feature name.** "verify F125" is useless — the user can't tell what cognitive work is required, so they'd either rubber-stamp it or ignore it. Each row, *after* the header link, must say exactly what to do: *go to this screen, click this button, do X, confirm Y.* The source is a `**Verify (you):** <do this — open X, click Y, confirm Z>` marker placed on the backlog `[Verify]` row (or distilled from the feature doc's `## Success Criteria` → "How it will be verified"); `ask-render` renders that marker after the link, falling back to the row title only when the marker is absent (a gap to fix, not a valid state). Tier-1/Tier-2 verifies are agent-owned and self-resolved in step 2 — they never reach this section; only Tier-3/Tier-4 user-actionable verifies render here, so every one MUST carry runnable steps.
 - **Agent Resolutions section first** — the user's first action is to review and challenge wrong calls.
 - **Order each section** by backlog source order (mirrors Triage).
 - **Condense large Q batches** — when a single feature has many Qs, list the feature with a count rather than every Q inline (`- [[F28]] — 3 Qs (Q1, Q2, Q5).`).
@@ -293,7 +313,7 @@ Every question gets a unique `Q<n>` prefix — `Q1`, `Q2`, ..., `Qn` — assigne
 
 **Numbering policy** — lowest unused integer in the **target file**:
 - For `--doc` mode: scan the target doc's `## Open Questions` H2 (and the `### Resolved` sub-section, plus any bottom `## Resolved` H2) for existing `Q<n>` markers. Pick the lowest unused integer.
-- For à la carte mode: scan the anchor's `{NAME} Questions.md` for existing `Q<n>` markers across `## Open Questions` (pending + `### Resolved`) and any bottom `## Resolved` H2. Pick the lowest unused integer. (À la carte uses `Q<n>` — same prefix as feature-attached Qs, in its own scoped namespace.)
+- For ask-file mode: scan the anchor's `{NAME} ask.md` `## Questions` section for `Q<n>` markers on anchor-level questions. Pick the lowest unused integer. (Anchor-level Qs use `Q<n>` — same prefix as feature-attached Qs, in their own scoped namespace.)
 
 **Q-numbers are stable references.** Once assigned, never renumber, even when questions get resolved out of order. Skipped numbers are fine. Same soft policy as backlog F-numbers — see [[CAB Backlog]] § Numbering policy.
 
@@ -361,32 +381,20 @@ If the script isn't reachable (rare), append the formatted questions to the doc'
 
 The `### Resolved` H3 inside `## Open Questions` is a temporary holding pen — resolutions accumulate there until **all** questions on this doc are resolved (Phase 2 transition; see § Phase lifecycle).
 
-#### À la carte mode (default)
+#### Ask-file mode (default)
 
-Append the formatted questions to the anchor's per-anchor questions facet at `{NAME} Docs/{NAME} Plan/{NAME} Questions.md`, inside its `## Open Questions` H2 (per `[[FCT Questions]]`). Format is identical to a feature doc's `## Open Questions` block: pending Qs as top-level bullets; resolutions accumulate in a `### Resolved` H3 holding pen until all pending Qs resolve, then migrate to a bottom `## Resolved` H2 (Phase 1 / Phase 2 / Phase 3 lifecycle, identical to feature docs).
+Author the formatted questions **directly** into the anchor's `{NAME} ask.md`, under its `## Questions` H2, as full ask-format bullets (block-ID, labeled options, `**Recommendation:**`). They sit below any rendered feature-doc pointer lines and are **preserved** by `ask-render.py` across re-renders. **There is no separate questions file.**
 
-**À la carte numbering uses `Q<n>`** — Q1, Q2, Q3, ... — same prefix as feature-attached Qs, scoped to this anchor's `{NAME} Questions.md` (each anchor has its own à la carte Q-namespace, independent of any feature doc's Q-namespace). Same lowest-unused-integer policy. Q-numbers are stable references; never renumber.
+- **Block-ID:** `^{NAME}-Q<n>` (e.g. `^SKA-Q3`) — the anchor slug scopes the namespace.
+- **Numbering:** lowest unused `Q<n>` among the anchor-level questions already in `## Questions` (per § 1).
+- **If `## Questions` doesn't exist yet**, add the H2 when authoring the first anchor-level Q (or let `ask-render.py` create it on the next render).
+- **Resolution:** when the user answers, write the resolution into `## Agent Resolutions` (per § 7) and remove the answered Q bullet from `## Questions`. The ask file is a live drain, not an archive — there is no `### Resolved` holding pen here. When an anchor-level decision deserves a durable record, it goes in the relevant feature doc's `## Resolved` or in `[[SKA Decisions]]`, not in the ask file.
 
-**Create the file if it doesn't exist.** Frontmatter `description: anchor-level à la carte questions (agent-owned)`, then H1 `# [[{NAME}]] Questions`, then `## Open Questions`. See `[[FCT Questions]]` for the full spec.
+Workflow: author the Q into `## Questions`, then run `ask-render.py {NAME}` (it preserves the authored Q and refreshes the feature-doc pointers), then audit + glance per the F127 invariant.
 
-```markdown
----
-description: anchor-level à la carte questions (agent-owned)
----
+`state q` (F128/F129) operates on feature docs only — anchor-level Qs are hand-authored into `## Questions` and don't go through it.
 
-
-# [[{NAME}]] Questions
-
-## Open Questions
-
-- **Q1 — {short name}** — {context}.
-  - **Recommendation:** Lean (B). {reason}.
-
-- **Q2 — {short name}** — {context}.
-  - **Recommendation:** Strong (A). {reason}.
-```
-
-**Legacy migration**: if the anchor's `{NAME} Triage.md` still has a `## À la carte` H2 (pre-F28), move that content into `{NAME} Questions.md` § `## Open Questions` (preserving Q-numbers), then strip the H2 from Triage. The next regeneration of `{NAME} Triage.md` (in step 4) will produce the new format with the bullet line under H1.
+**Legacy migration**: if an anchor still has a `{NAME} Questions.md` file (pre-removal), move its pending `## Open Questions` bullets into `{NAME} ask.md` § `## Questions` (preserving Q-numbers and `^{NAME}-Q<n>` block-IDs), then delete `{NAME} Questions.md`. Resolved/archived Qs in that file can be dropped, or moved to the relevant feature doc / `[[SKA Decisions]]` if still useful.
 
 ### 4. Regenerate the anchor's section in `~/ob/kmr/Q.md` — **run the script** (per F104)
 
@@ -400,7 +408,7 @@ The script walks `{NAME} Backlog.md` (whose state step 3's `## Open Questions` e
 
 If TAG is `[]` (anchor has zero live items anywhere), the script removes the section. Done.
 
-The full spec for what the script writes (banner format, bracket forms, à la carte bullet line, body rendering rules, overflow handling) lives in `triage/SKILL.md` § 2–5 — those sections are the script's contract.
+The full spec for what the script writes (banner format, bracket forms, body rendering rules, overflow handling) lives in `triage/SKILL.md` § 2–5 — those sections are the script's contract.
 
 **Format of the global page:**
 
@@ -463,7 +471,7 @@ After writing and (maybe) glancing, print a single-line summary to chat:
 /ask — added N Qs to <target>; refreshed Q.md.
 ```
 
-`<target>` is the doc path or `{NAME} Questions.md`.
+`<target>` is the doc path or `{NAME} ask.md`.
 
 
 ## Active vs Parking mode
@@ -583,6 +591,5 @@ After resolution, **`/ask` itself doesn't usually run** — the parent skill tha
 ## Cross-references
 
 - `[[FCT Triage]]` — sibling facet that surfaces (reads) the questions `/ask` writes. `/ask` is the writer; `/triage` is the reader/router.
-- `[[FCT Questions]]` — sibling facet for à la carte Qs (the per-anchor file `/ask` writes to in à la carte mode).
 - `[[CAB Backlog]]` § Numbering policy — same lowest-unused-integer rule for Q numbers.
 - `~/ob/kmr/Q.md` — the vault-level Agent Status dashboard, regenerated by `triage-section.py` per F104.
