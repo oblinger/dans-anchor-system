@@ -219,3 +219,11 @@ A per-anchor doc (e.g., `Disk Log.md`, `MUX PRD.md`) does NOT include a section 
 **Check pattern:** for any per-anchor doc, grep for `# BRIEF`, `## Convention`, `## Rules`, `## Format`; flag for review if the body contains general format prescriptions.
 
 **Why:** restated rules drift when the facet evolves; the facet is the single source of truth.
+
+### RULE R-markdown-11 — Never put markdown inside a fenced code block (stated)
+
+A fenced code block (triple backticks) must NEVER contain markdown intended to be read *as* markdown — `[[wiki-links]]` go inert, and headings, tables, and emphasis do not render. To show what a markdown document looks like, write it as **live markdown** — its own frontmatter and `# H1`, with any commentary placed BEFORE the example's frontmatter so it can't bleed into the example — or link to a real worked instance. Fenced blocks are reserved for literal **non-markdown** content: shell, code, JSON, `key: value` data files, file trees.
+
+**Check pattern:** scan fenced blocks; flag any whose body contains `[[wiki-links]]`, `#`/`##` headings, or pipe-tables that are meant to render (as opposed to literal data shown verbatim).
+
+**Why:** the whole point of an example is to show the *rendered* form — a fence defeats that (links aren't clickable, structure doesn't render). The user has corrected this repeatedly; it is an absolute rule.
