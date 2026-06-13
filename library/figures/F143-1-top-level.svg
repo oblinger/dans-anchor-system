@@ -10,7 +10,7 @@
 
   <!-- Title -->
   <text id="title" x="450" y="36" font-size="22" font-weight="600" text-anchor="middle"
-        fill="#1e1e1e">Key system parts</text>
+        fill="#1e1e1e">Dan's Anchor System</text>
 
   <!-- Skills box (top-left, blue, full height) -->
   <rect id="skills-box" x="80" y="70" width="180" height="160" rx="10"
@@ -45,8 +45,8 @@
   <!-- Rules band (bottom, orange, thin, full width) -->
   <rect id="rules-box" x="80" y="270" width="740" height="48" rx="10"
         fill="#ffe8cc" stroke="#1e1e1e" stroke-width="2"/>
-  <text id="rules-title" x="220" y="302" font-size="22" font-weight="600" text-anchor="start"
-        fill="#1e1e1e">Rules</text>
+  <text id="rules-title" x="200" y="302" font-size="22" font-weight="600" text-anchor="start"
+        fill="#1e1e1e">Rule Sets</text>
   <text id="rules-subtitle" x="550" y="302" font-size="22" font-style="italic" text-anchor="middle"
         font-family="Palatino, 'Palatino Linotype', Georgia, serif" fill="#1e1e1e">directives and constraints</text>
 
