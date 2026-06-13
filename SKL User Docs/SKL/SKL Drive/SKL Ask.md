@@ -3,7 +3,7 @@ description: "The **`/ask` skill** is the universal asking subroutine."
 ---
 # /Ask
 
-The **`/ask` skill** is the universal asking subroutine. Whenever an agent in any anchor has a question for you, it routes through `/ask` — which formats the question, picks the right surface (a feature doc or the anchor's à la carte `{NAME} Questions.md` facet), maintains the vault-level Agent Status dashboard at `[[Q]]`, and (if you're engaging with the work right now) opens the file at you.
+The **`/ask` skill** is the universal asking subroutine. Whenever an agent in any anchor has a question for you, it routes through `/ask` — which formats the question, picks the right surface (a feature doc, or directly in the anchor's `{NAME} ask.md` § `## Questions`), maintains the vault-level Agent Status dashboard at `[[Q]]`, and (if you're engaging with the work right now) opens the file at you.
 
 `/ask` replaces the old `ask-questions` discipline. The behavior is the same; the difference is structural — instead of "every skill should remember to follow this discipline" (which broke), parent skills *invoke* `/ask` as a subroutine, and the runbook (including the glance step) executes uniformly.
 
@@ -12,14 +12,13 @@ The **`/ask` skill** is the universal asking subroutine. Whenever an agent in an
 
 **The vault-level Agent Status dashboard at `[[Q]]`** — `~/ob/kmr/Q.md` — lists every anchor with active questions or ready work. Bind a keyboard shortcut to it; one press surfaces everything across all your agents.
 
-The H1 banner counts anchors needing user input (Questions: N) and anchors with agent-actionable work (Ready: M). Below the banner, each anchor appears as a per-anchor section whose body is **identical** to that anchor's `{NAME} Triage.md` — same H1 banner (with the slug as a wiki-link to Triage via `[[Q#NAME Triage|NAME]]`), same à la carte bullet, same H2s, same bullets. Most-recently-touched anchors at the top.
+The H1 banner counts anchors needing user input (Questions: N) and anchors with agent-actionable work (Ready: M). Below the banner, each anchor appears as a per-anchor section — H1 banner (with the slug as a wiki-link to the anchor's ask page via `[[Q#NAME Triage|NAME]]`), the workflow-state H2s, and one bullet per item. Most-recently-touched anchors at the top.
 
 ```
 # Agent Status   -   Questions: 2    Ready: 1
 
 
 # [U+A]  [[Q#CAE Triage|CAE]] Triage  -  Questions 2    Verify 1   |   Active 1    Ready 1   |   Now 2    Next 1    Later 1    Icebox 0
-- **[3 Questions]**  [[CAE Questions]]
 ## Active
 - **[Active]** [[F001 — Cron Syntax]] — Cron expressions for recurring task schedules.
 ## Ready
@@ -38,9 +37,7 @@ If `Q.md` grows too large overall, individual per-anchor sections collapse to **
 **Inside each anchor**, questions live in two places:
 
 - **Document-attached** — questions about a specific feature/PRD/design doc live in that doc's `## Open Questions` H2 (directly below the H1).
-- **À la carte** — cross-cutting questions (planning, agent-raised, no specific doc) live in `{NAME} Questions.md`, the per-anchor à la carte facet, numbered `Q1`, `Q2`, ...
-
-The Triage file carries one bullet line directly under its H1 — `- **[N Questions]**  [[{NAME} Questions]]` — when there are pending à la carte Qs. The Q.md per-anchor section mirrors this line. Either click leads to `{NAME} Questions.md`.
+- **Anchor-level** — cross-cutting questions (planning, agent-raised, no specific doc) are authored directly in `{NAME} ask.md` § `## Questions`, numbered `Q1`, `Q2`, ... There is no separate questions file.
 
 
 ## How agents invoke it
@@ -54,7 +51,7 @@ Direct invocation works too:
 ```
 
 - `--doc <path>` — document-attached mode; questions go in that doc's `## Open Questions` block.
-- No flag — à la carte mode; questions go in the anchor's `{NAME} Questions.md` facet.
+- No flag — anchor-level mode; questions are authored directly in the anchor's `{NAME} ask.md` § `## Questions`.
 
 
 ## Question format
@@ -83,7 +80,7 @@ Same shorthand as `/triage`:
 |---|---|
 | `F005 Q4: yes` | Resolves Q4 in F5's feature doc with answer "yes". Moves the question to `### Resolved`. |
 | `Q4: yes` (after sticky context "I'm in F5 now") | Same as above. |
-| `{NAME} Q3: option A, because...` | Resolves the à la carte Q3 in the anchor's `{NAME} Questions.md` facet. |
+| `{NAME} Q3: option A, because...` | Resolves the anchor-level Q3 authored in the anchor's `{NAME} ask.md` § `## Questions`. |
 
 
 ## Active vs Parking mode
@@ -97,7 +94,7 @@ Default when ambiguous is parking, since the cost of an unwanted glance (interru
 
 ## Phase lifecycle of `## Open Questions` blocks
 
-Same in feature docs and in the per-anchor `{NAME} Questions.md` facet:
+Applies to **feature docs** (anchor-level Qs in `{NAME} ask.md` use the same Q format but are a live drain — answered Qs move to `## Agent Resolutions` and the bullet is removed, with no phased `### Resolved` archive):
 
 1. **Pending exists** — `## Open Questions` H2 sits below the H1; resolved questions accumulate in a `### Resolved` H3 holding pen.
 2. **All resolved** — the `## Open Questions` H2 is deleted; resolved questions migrate down to a `## Resolved` H2 at the **bottom** (permanent archive).

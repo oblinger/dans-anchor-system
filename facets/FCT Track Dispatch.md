@@ -28,8 +28,7 @@ Below is a condensed reference example.
 | [[CAE Discussion\|Discussion]] | tracking-level discussion (planning trade-offs only — design discussions go in [[CAE Design Discussion]]) |
 | [[CAE Icebox\|Icebox]] | cold-storage / someday-maybe (optional) |
 | [[CAE Inbox\|Inbox]] | raw input to process (optional) |
-| [[CAE Questions\|Questions]] | à la carte open questions (optional) |
-| [[CAE ask\|ask]] | agent-regenerated ask snapshot (optional) |
+| [[CAE ask\|ask]] | agent-regenerated ask snapshot; also holds anchor-level questions (optional) |
 
 *Roadmap + Features moved to [[CAE Design]] 2026-06-10 per the design-includes-features restructure — feature docs are design artifacts, the roadmap is sequencing-design. See [[FCT Design]] for the new home.*
 
@@ -62,8 +61,7 @@ The Track dispatch page lists all children of the Track folder:
 | `{NAME} Discussion.md` | tracking-level discussion |
 | `{NAME} Icebox.md` | [[FCT Icebox]] (optional) |
 | `{NAME} Inbox.md` | [[FCT Inbox]] (optional) |
-| `{NAME} Questions.md` | [[FCT Questions]] (à la carte open Qs, optional) |
-| `{NAME} ask.md` | agent-regenerated ask snapshot (optional) |
+| `{NAME} ask.md` | agent-regenerated ask snapshot; also holds anchor-level questions (optional) |
 | `{NAME} Messages.md` | [[FCT Messages]] — agent's inbox for background-process notifications (optional; written by watchers / audit-q) |
 
 Not all entries are required — only list documents that exist for this anchor.

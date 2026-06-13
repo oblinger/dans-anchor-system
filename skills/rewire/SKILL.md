@@ -110,7 +110,6 @@ Canonical-location table (auto-move candidates) — **updated per [[F094 — Anc
 | `{NAME} Roadmap.md` | `{NAME} Docs/{NAME} Track/` |
 | `{NAME} Icebox.md` | `{NAME} Docs/{NAME} Track/` |
 | `{NAME} Inbox.md` | `{NAME} Docs/{NAME} Track/` |
-| `{NAME} Questions.md` | `{NAME} Docs/{NAME} Track/` |
 | `{NAME} ask.md` | `{NAME} Docs/{NAME} Track/` |
 | `{NAME} Rules.md` | `{NAME} Docs/{NAME} Track/` |
 | `{NAME} Features.md` | `{NAME} Docs/{NAME} Track/{NAME} Features/` |
@@ -288,7 +287,7 @@ Recognition pattern: the **first cell containing `-[[NAME]]-`** is the dispatch-
 **Exceptions to the placeholder rule.** A small set of facet docs are explicit F060 exceptions because they have custom H1-only tops or a fixed required structure:
 
 - `{NAME} Triage.md` — H1 banner already encodes breadcrumb + dispatch info per [[FCT Triage]] § H1 banner. Skip placeholder check.
-- `{NAME} Questions.md` — H1-only top with no dispatch table per [[FCT Questions]] § H1. Skip placeholder check.
+- `{NAME} ask.md` — agent-owned, destructively-rewritten drain page (frontmatter + H1 + sections, no dispatch table). Skip placeholder check.
 - **Feature docs** (`F<n> — {Title}.md` inside `{NAME} Features/`) — H1 carries an inline breadcrumb (`# [[{NAME}]] · F<n> — {Title}`) per [[FCT Features]] § Document zone. Placeholder is optional, not required; rewire neither inserts nor strips it.
 - **`SKILL.md`** (skill anchor entry point) — fixed frontmatter + body structure per [[FCT Skill]]. F060 applies to the sibling `{Slug}.md` anchor root page, not to SKILL.md itself.
 - **`CLAUDE.md`** — Claude Code configuration file. Not a CAB doc.

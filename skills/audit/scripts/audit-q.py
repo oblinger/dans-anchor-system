@@ -933,7 +933,7 @@ def find_ask_format_files(
 
     Container IDs:
     - Feature doc F089-...md → 'F089'
-    - À la carte '<NAME> Questions.md' → '<NAME>'
+    - Anchor ask file '<NAME> ask.md' → '<NAME>' (authored anchor-level Qs)
 
     By default (`reachable_only=True`, per user direction 2026-05-26): only
     audit feature docs that are *linked from the anchor's backlog*. Orphan
@@ -948,8 +948,8 @@ def find_ask_format_files(
     out: list[tuple[str, Path]] = []
     for name, backlog_file in anchor_backlogs.items():
         if reachable_only and vault_index is not None:
-            # Reachability-limited: walk backlog wiki-links, pick out F<n> targets
-            # and `{NAME} Questions.md`. Each reachable doc audited once.
+            # Reachability-limited: walk backlog wiki-links, pick out F<n> targets.
+            # Each reachable feature doc audited once.
             seen_paths: set[Path] = set()
             for link in links_in_file(backlog_file, vault_index):
                 if not link.target_resolves or link.target_file_path is None:
@@ -962,16 +962,13 @@ def find_ask_format_files(
                         seen_paths.add(link.target_file_path)
                         out.append((m.group(1), link.target_file_path))
                     continue
-                # À la carte Questions doc
-                if stem == f"{name} Questions":
-                    if link.target_file_path not in seen_paths:
-                        seen_paths.add(link.target_file_path)
-                        out.append((name, link.target_file_path))
-            # Always include `{NAME} Questions.md` if it exists (the backlog may
-            # not link to it directly; /triage surfaces it via the per-anchor H1 bullet).
-            questions_file = backlog_file.parent / f"{name} Questions.md"
-            if questions_file.is_file() and questions_file not in seen_paths:
-                out.append((name, questions_file))
+            # Always include `{NAME} ask.md` if it exists — anchor-level Qs are
+            # authored directly there (there is no `{NAME} Questions.md`).
+            # extract_q_entries picks up only the authored `**Q<n>` bullets in
+            # `## Questions`; rendered pointer lines and resolutions are ignored.
+            ask_file = backlog_file.parent / f"{name} ask.md"
+            if ask_file.is_file() and ask_file not in seen_paths:
+                out.append((name, ask_file))
         else:
             # Vault-wide: every F<n>.md in the anchor's Features/ folder.
             features_dir = backlog_file.parent / f"{name} Features"
@@ -980,9 +977,9 @@ def find_ask_format_files(
                     m = F_NUMBER_PREFIX_RE.match(feature_file.stem)
                     if m:
                         out.append((m.group(1), feature_file))
-            questions_file = backlog_file.parent / f"{name} Questions.md"
-            if questions_file.is_file():
-                out.append((name, questions_file))
+            ask_file = backlog_file.parent / f"{name} ask.md"
+            if ask_file.is_file():
+                out.append((name, ask_file))
     return out
 
 
@@ -2344,7 +2341,8 @@ def check_c34_inline_q_in_row_body(backlog_files: list[Path]) -> list[Finding]:
     """C34: inline `Q<n>` bullets inside backlog row bodies are forbidden.
 
     Qs belong in feature docs (`{NAME} Features/F<n> — Title.md` §
-    `## Open Questions`) or à la carte (`{NAME} Questions.md`), per
+    `## Open Questions`) or authored directly in the anchor ask file
+    (`{NAME} ask.md` § `## Questions`), per
     [[ask-format]]. Embedding Qs in a backlog row body bypasses /ask's
     surfacing (Q.md banner, /triage) and produces a row that contains
     decision content the rest of the workflow can't see.
@@ -2382,7 +2380,7 @@ def check_c34_inline_q_in_row_body(backlog_files: list[Path]) -> list[Finding]:
                     message=(
                         f"inline `Q<n>` bullet in backlog row body (`## {current_h2}`) "
                         f"— Qs belong in a feature doc's `## Open Questions` H2 or in "
-                        f"`{{NAME}} Questions.md` per [[ask-format]]. Move the Q to "
+                        f"`{{NAME}} ask.md` § `## Questions` per [[ask-format]]. Move the Q to "
                         f"the appropriate surface and replace this row's body with "
                         f"a `→ [[F<n> — Title]]` link."
                     ),
@@ -3409,7 +3407,7 @@ def main() -> int:
         banner = derive_anchor_banner(name, backlog_file, vault_index)
         if banner:
             derived_banners[name] = banner
-    # B16 — C6 / C8 / C9 / C10 walk feature docs + Questions.md per anchor.
+    # B16 — C6 / C8 / C9 / C10 walk feature docs + the anchor ask file per anchor.
     # Default (scope=q or scope=backlog): reachability-limited via backlog wiki-links.
     # `--scope all` gives the original vault-wide behavior.
     if args.scope == "feature-doc":

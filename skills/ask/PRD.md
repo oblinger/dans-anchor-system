@@ -55,7 +55,7 @@ The page needs to:
 
 The page is a **generated view**. The user reads it; they don't edit it. Edits get overwritten by the next `/ask` or `/triage` call.
 
-Per F25, every H2 starts with the dominant state (`QUESTIONS` or `READY` in ALL CAPS), then slug, then wiki-links + count summary. Body for QUESTIONS-prefixed entries: à la carte questions as bare bullets first, then `### F<n>` H3 per feature with condensed-inline Q bullets (12-line soft cap). Body for READY-prefixed entries: empty (the H2 line is the entry).
+Per F25, every H2 starts with the dominant state (`QUESTIONS` or `READY` in ALL CAPS), then slug, then wiki-links + count summary. Body for QUESTIONS-prefixed entries: `### F<n>` H3 per feature with condensed-inline Q bullets (12-line soft cap). Body for READY-prefixed entries: empty (the H2 line is the entry).
 
 ### Why `~/ob/kmr/Q.md`
 
@@ -75,13 +75,13 @@ Originally `ask-questions` only described doc-attached questions (`## Open Quest
 So `/ask` supports two shapes:
 
 - **`--doc <path>`** — document-attached. Question lives in the doc's `## Open Questions` block.
-- **(default — no flag)** — à la carte. Question lives in the anchor's `{NAME} Triage.md § ## À la carte` block.
+- **(default — no flag)** — anchor-level. Question is authored directly in the anchor's `{NAME} ask.md § ## Questions`. There is no separate questions file.
 
-Both shapes use **`Q<n>` numbering**, scoped per-container — each feature doc has its own Q-namespace; each anchor's à la carte block has its own Q-namespace. (Per F025 Q5: dropped the earlier `A<n>` naming because the audio "A1" sounds like "ate one" — same prefix is cleaner; the per-container scoping handles disambiguation.)
+Both shapes use **`Q<n>` numbering**, scoped per-container — each feature doc has its own Q-namespace; the anchor's `{NAME} ask.md` has its own Q-namespace. (Per F025 Q5: dropped the earlier `A<n>` naming because the audio "A1" sounds like "ate one" — same prefix is cleaner; the per-container scoping handles disambiguation.)
 
 Reference shorthand:
 - Feature-scoped → `F010 Q3`.
-- À la carte → `{NAME} Q3` (e.g., "SKA Q3"). The colloquial term "à la carte questions" persists for verbal reference.
+- Anchor-level → `{NAME} Q3` (e.g., "SKA Q3").
 
 ### Why active vs parking mode
 
@@ -98,7 +98,7 @@ Parking mode signals: "put it on the backlog" / "for later" / batch operations l
 
 1. Parent skill (e.g., `/feature` mid-design) detects it has decisions for the user.
 2. Parent calls `/ask` via the Skill tool, passing the questions in batch + (optionally) `--doc <path>`.
-3. `/ask` numbers them (`Q1..Qn`), formats per the spec, writes to the target surface (feature doc's `## Open Questions` or anchor's `## À la carte`), regenerates `{NAME} Triage.md`, regenerates the anchor's H2 in `Q.md` (per F25), and (if active mode) glances the target.
+3. `/ask` numbers them (`Q1..Qn`), formats per the spec, writes to the target surface (feature doc's `## Open Questions` or the anchor's `{NAME} ask.md § ## Questions`), regenerates the anchor's H2 in `Q.md` (per F25), and (if active mode) glances the target.
 4. User sees the file (or opens `Q.md` later in parking mode), answers via shorthand to the parent skill or via the standard answer pattern (`F005 Q4: yes`).
 5. Parent skill (or `/triage`) acts on the answers — moves Qs to `### Resolved`, updates the design, regenerates `Q.md` (next `/ask` or `/triage` invocation will refresh; `/crank` no-action chain handles the case where neither runs explicitly).
 
@@ -135,5 +135,5 @@ Parking mode signals: "put it on the backlog" / "for later" / batch operations l
 - **Not for active design churn.** In-flight Qs / decisions / journey-of-thought live in the feature docs (`F10 — Ask Skill.md`, `F25 — Q.md as Agent Status Dashboard.md`). Only *resolved, durable* rationale graduates into this PRD.
 - **Inclusion test for a section here**: would a future maintainer revising `/ask` want this context to make a sensible call? If yes, it belongs. If it's a transient implementation note or unresolved debate, it does not.
 - **Update the rationale together with the skill.** When SKILL.md changes the surface (new flag, new file location, new mode), update the matching § Design rationale / § Lifecycle / § Maintenance constraints subsection here so the PRD doesn't drift into folklore.
-- **Naming conventions are load-bearing.** `Q.md` at vault root, `Q<n>` numbering (not `A<n>`), `{NAME} Triage.md` per anchor, `## À la carte` H2 — these names are cited by SKILL.md, by `/triage`, and by `/crank`'s no-action chain. Do not rename in this file without sweeping all citations.
+- **Naming conventions are load-bearing.** `Q.md` at vault root, `Q<n>` numbering (not `A<n>`), `{NAME} ask.md § ## Questions` for anchor-level Qs — these names are cited by SKILL.md, by `/triage`, and by `/crank`'s no-action chain. Do not rename in this file without sweeping all citations.
 - **Cross-references at the bottom are the contract.** When a sibling skill or surface is added/removed/renamed, update § Cross-references — readers use it to navigate the constellation.

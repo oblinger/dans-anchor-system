@@ -27,7 +27,6 @@ description: triage inbox (agent-owned)
 ---
 
 # [U+A]  [[Q#CAE Triage|CAE Triage]]  -  Questions 2    Verify 1   |   Active 1    Ready 1   |   Now 2    Next 1    Later 1    Icebox 0
-- **[3 Questions]**  [[CAE Questions]]
 ## Active
 - **[Active]** [[F001 — Cron Syntax]] — Cron expressions for recurring task schedules.
 ## Ready
@@ -96,17 +95,9 @@ Decide the H1 TAG by checking in order; the first match wins, except U and A com
 | `[]` | Nothing anywhere. Empty brackets, literal `[]`. |
 
 
-## À la carte bullet — directly under H1
+## No anchor-level questions bullet
 
-If `{NAME} Questions.md` has any pending Qs, add **one line** directly under the H1 (no blank line, no H2 wrapper):
-
-```
-- **[N Questions]**  [[{NAME} Questions]]
-```
-
-Two spaces between `**[N Questions]**` and the wiki-link (matches the user's reference example). Bracket form: `**[Questions]**` for N=1, `**[N Questions]**` for N>1. Omitted entirely when there are zero pending à la carte Qs.
-
-The legacy `## À la carte` H2 inside `{NAME} Triage.md` is **removed** (per F28). À la carte content lives in `[[FCT Questions]]` now.
+Triage carries **no** questions bullet under the H1. Anchor-level (non-feature) questions are authored directly in `{NAME} ask.md` § `## Questions` (per `[[SKA ask]]`) — there is no separate questions facet, and triage does not surface or count them. The H1 already links to `[[{NAME} ask]]`, which is where those questions live.
 
 
 ## Body H2s
@@ -195,7 +186,7 @@ Each anchor's section inside Q.md is agent-owned. Every `/triage` run — or pos
 
 - **[[CAB Backlog]]** — source of truth for what's in flight, including item ordering. Triage filters/lists the backlog rows (excluding Later/Icebox) and applies the bracket-form rules. The backlog file is NOT reordered by triage; bubble-to-top happens only in Q.md (per F075 Q2).
 - **`## Open Questions` blocks inside feature docs** (per `[[SKA ask]]`) — source of truth for question text. Triage points at them via wiki-link to the feature doc; it doesn't duplicate the Q content.
-- **[[FCT Questions]]** — sibling facet for à la carte Qs. The anchor's Q.md section carries the count + link bullet directly under its H1; the Questions facet holds the actual Q content.
+- **`{NAME} ask.md` § `## Questions`** (per `[[SKA ask]]`) — where anchor-level (non-feature) questions are authored directly. Triage neither counts nor surfaces them; they reach the user via the H1 link to the ask page.
 - **`/roster`** — counts every item once per backlog H2; triage's H1 banner uses the same scheme so the two views agree.
 - **`~/ob/kmr/Q.md`** — the single triage surface (per F075). Each anchor's per-anchor section here IS the triage view; it lives nowhere else.
 - **Anchor pages (`{NAME}.md`)** — do **not** carry a dispatch-table row pointing at this facet, since no per-anchor file exists to link to. The anchor's Q.md section is reached via the global dashboard, not via per-anchor navigation.

@@ -23,7 +23,6 @@ See [[CAB Base]] shows files common to all anchors.
 │   │   ├── {NAME} Plan.md                Dispatch page
 │   │   ├── {NAME} [[FCT PRD|PRD]].md                 Product requirements
 │   │   ├── {NAME} [[FCT Triage|Triage]].md                Triage inbox (agent-owned; status of the anchor)
-│   │   ├── {NAME} [[FCT Questions|Questions]].md             À la carte questions facet (agent-owned)
 │   │   ├── {NAME} [[FCT UX Design|UX Design]].md           UX spec (screens & external APIs)
 │   │   ├── {NAME} [[FCT System Design|System Design]].md       System architecture & impl design
 │   │   ├── {NAME} [[FCT Discussion|Discussion]].md  Design conversations

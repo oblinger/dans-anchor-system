@@ -34,7 +34,7 @@ This is a discipline, not a user-invocable skill — other skills cite it via `[
 | Item shape | Surface |
 |---|---|
 | Doc-attached `Q<n>` | The doc's `## Open Questions` H2 below H1 |
-| À la carte `Q<n>` | `{NAME} Questions.md`, `## Open Questions` H2 |
+| Anchor-level `Q<n>` | `{NAME} ask.md`, `## Questions` H2 (authored directly) |
 | Inline-on-backlog-row `Q<n>` | Under the B-row in `{NAME} Backlog.md` |
 | `[Verify]` request | Standalone item in the backlog row's bracket, body describes the verify |
 | Drain snapshot | `{NAME} ask.md` (bare `/ask`'s output, three sections) |
@@ -197,7 +197,7 @@ Every `Q<n>` / `Verify` bullet ends with an Obsidian block-ID:
 - **Q-items**: `^<container>-Q<n>` (e.g., `^F082-Q3`, `^SKA-Q1`, `^QFix-Q2`)
 - **Verify-items**: `^<container>-V<n>` (e.g., `^F058-V1`, `^B-skl-user-docs-V1`)
 
-Where `<container>` is the F-number for feature-doc Qs, the slug for à la carte, or the row-ID for B-row inline.
+Where `<container>` is the F-number for feature-doc Qs, the slug for anchor-level Qs, or the row-ID for B-row inline.
 
 ### Link form for references
 
@@ -206,7 +206,7 @@ When referring to a specific Q or Verify from elsewhere:
 | Container | Link form |
 |---|---|
 | Feature doc | `[[F<NNN> — Title#^F<NNN>-Q<n>\|F<NNN> Q<n>]]` |
-| À la carte | `[[{NAME} Questions#^{NAME}-Q<n>\|{NAME} Q<n>]]` |
+| Anchor-level | `[[{NAME} ask#^{NAME}-Q<n>\|{NAME} Q<n>]]` |
 | B-row inline | `[[{NAME} Backlog#^<row-id>-Q<n>\|<row-id> Q<n>]]` |
 | Verify item | Same pattern with `-V<n>` instead of `-Q<n>` |
 
@@ -218,7 +218,7 @@ When referring to a specific Q or Verify from elsewhere:
 `Q<n>` and `V<n>` numbers are stable references — once assigned, never renumber, even when items resolve out of order. Skipped numbers are fine. Same lowest-unused-integer policy as backlog F-numbers (per [[CAB Backlog]] § Numbering policy), scoped per container:
 
 - Each feature doc has its own Q-namespace.
-- Each anchor's `{NAME} Questions.md` has its own Q-namespace.
+- Each anchor's `{NAME} ask.md` § `## Questions` has its own Q-namespace.
 - Each B-row's inline Qs have their own namespace.
 - V-namespace is independent of Q-namespace (so `F23` can have both `Q3` and `V1`).
 
@@ -287,7 +287,7 @@ Before adding any Q to the queue, the agent runs this self-check. If any rule ma
 
 ### Rule 1 — Aggregate within the anchor before surfacing
 
-Gather every pending Q across the anchor's surfaces — every feature doc's `## Open Questions` block + the anchor's à la carte `{NAME} Questions.md` — into one batch. Don't surface one feature's Qs in isolation when other features have pending Qs the user could answer in the same turn. If three feature docs each have a few open Qs, surface all of them together; if one has 4 and another has 2, surface 6 not 4.
+Gather every pending Q across the anchor's surfaces — every feature doc's `## Open Questions` block + the anchor-level Qs authored in `{NAME} ask.md` § `## Questions` — into one batch. Don't surface one feature's Qs in isolation when other features have pending Qs the user could answer in the same turn. If three feature docs each have a few open Qs, surface all of them together; if one has 4 and another has 2, surface 6 not 4.
 
 **Scope is per-anchor.** Q formulation belongs to the agent who owns the anchor's context; cross-anchor aggregation is rejected. Within-anchor across-feature aggregation is the rule. No quantitative threshold — "everything pending in this anchor" is the batch.
 
@@ -350,7 +350,7 @@ When any rule auto-resolves a Q, the decision is recorded in the relevant doc's 
 
 ## Chat & transient-channel asks — restate context inline
 
-The five-piece layout above governs **written surfaces** (ask doc, feature doc, à la carte facet). When an agent surfaces a pending question into a **transient channel** — a chat message, a console status line, a one-shot prompt — the rules tighten further:
+The five-piece layout above governs **written surfaces** (the ask file, feature docs). When an agent surfaces a pending question into a **transient channel** — a chat message, a console status line, a one-shot prompt — the rules tighten further:
 
 - **Full question text inline.** Restate the actual question. Don't write *"your read on F77 Q7?"* — write *"F77 Q7 — naming convention for flow-Traits: bare nouns (`Drive`/`PR`/`Commit`) vs `-Mode` suffix vs `-Flow` suffix vs mixed-by-category."*
 - **Full option content inline.** Don't write *"A vs B."* Write each option's actual text — *"(A) bare nouns / (B) -Mode suffix / (C) -Flow suffix / (D) mixed."*

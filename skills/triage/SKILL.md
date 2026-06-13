@@ -9,9 +9,9 @@ description: >
   Source order from the backlog, one bullet per qualifying item. Status
   brackets carry counts (`**[3 Questions]**`, `**[Verify]**`).
   H1 banner has an anchor TAG (`[U]` / `[A]` / `[U+A]` / `[G]` / `[-]` / `[]`)
-  and pipe-grouped totals. À la carte questions live in the sibling
-  `{NAME} Questions.md` facet — Triage carries one bullet line linking to it
-  directly under the H1. The user can answer with shorthand like "F005 Q4: yes"
+  and pipe-grouped totals. Anchor-level (non-feature) questions are authored
+  directly in `{NAME} ask.md`; the H1 links to that ask page. The user can
+  answer with shorthand like "F005 Q4: yes"
   (resolves a question) or "verified F23" (moves the item to `## Done` and
   updates the feature-doc Status). Use when the user types `/triage` or
   sends `"` (a single double-quote) as the entire message. Slash-only — the
@@ -59,7 +59,6 @@ description: triage inbox (agent-owned)
 ---
 
 # [<TAG>]  [[{NAME} ask|{NAME}]]  -  Ready N    Questions N   |   Now N    Next N    Later N    Verify N    Icebox N
-- **[N Questions]**  [[{NAME} Questions]]
 ## Active
 - **[Active]** [[F<n> Title]] — description.
 ## Ready
@@ -81,7 +80,7 @@ description: triage inbox (agent-owned)
 
 **No meta prose.** No "this page is maintained by the agent..." text. The user knows what the page is.
 
-**No `## À la carte` H2.** Replaced by the single bullet line directly under the H1 linking to `[[{NAME} Questions]]` (only present when à la carte has pending Qs).
+**No à la carte surface in triage.** Anchor-level (non-feature) questions live in `{NAME} ask.md` § `## Questions`, reachable via the H1 link to the ask page. Triage does not carry a separate questions bullet line.
 
 **Sections with no qualifying items are omitted** entirely (not even an empty H2). If the anchor has no items at all in Active/Ready/Now/Next, the body is just the H1 banner — nothing else.
 
@@ -119,7 +118,7 @@ Link target by row class:
 
 - **Feature row** → feature doc's `## Open Questions` H2 below H1; Qs are top-level bullets `**Q1 — …**`, `**Q2 — …**` (per `[[SKA ask]]`).
 - **B-row (no feature doc)** → backlog row itself; Qs are sub-bullets `**Q1 — …**`, `**Q2 — …**` at the top of the row body (per `[[CAB Backlog]]` § B-row inline Qs).
-- **À la carte (anchor-level)** → `{NAME} Questions.md` § Open Questions; same Q format as feature docs (per `[[FCT Questions]]`).
+- **Anchor-level (non-feature)** → `{NAME} ask.md` § `## Questions`; authored directly there in the same Q format as feature docs (per `[[SKA ask]]`).
 
 **The bracket is forbidden when the link target has zero numbered Qs.** Before emitting `[Questions]`, verify the target contains at least one `Q<n>`. If zero: either hoist the informal Qs to numbered form (the right fix), or rebracket to a state the row actually satisfies (`[Designing]` / `[Blocked]` / etc.). This is the rule that — without it — produces the failure mode where the user clicks `[Questions]` and lands on prose with no answerable Qs (cf. [[feedback_close_round_trip_loopholes]]).
 
@@ -183,17 +182,9 @@ The user reads `[Ready]` and trusts it. If a row's description includes "we'll s
 Three count groups: user-actionable (`Questions`, `Verify`) | agent-actionable (`Active`, `Ready`) | horizon (`Now`, `Next`, `Later`, `Icebox`).
 
 
-## À la carte — lives in `{NAME} Questions.md`
+## Anchor-level questions — authored in `{NAME} ask.md`
 
-À la carte (anchor-level, cross-cutting, agent-raised) questions live in a **separate facet file**: `{NAME} Docs/{NAME} Plan/{NAME} Questions.md`. Spec: `[[FCT Questions]]`. Same `## Open Questions` block format as feature docs (per `[[SKA ask]]`); same Phase 1 / 2 / 3 lifecycle.
-
-In the Triage file, à la carte presence is just **one line directly under the H1**:
-
-```
-- **[N Questions]**  [[{NAME} Questions]]
-```
-
-Two spaces between the bracket and the wiki-link. Bracket form: `**[Questions]**` for N=1, `**[N Questions]**` for N>1. Omitted when there are zero pending à la carte Qs.
+Anchor-level (cross-cutting, agent-raised, non-feature) questions are authored **directly in the anchor's ask file** `{NAME} ask.md` § `## Questions` (per `[[SKA ask]]`) — there is no separate questions facet. Triage does **not** render them and carries no questions bullet line: they surface through `/ask` (render → glance) and are reachable from the Q.md H1, which links to `[[{NAME} ask]]`. The banner's `Questions N` count comes from backlog `[Questions]` / `[Verify]` rows only.
 
 
 ## Runbook
@@ -203,7 +194,6 @@ Two spaces between the bracket and the wiki-link. Bracket form: `**[Questions]**
 - Walk up from `cwd` to find `.anchor`. If none, say "No anchor found from `{cwd}` upward." and stop.
 - Read `{NAME} Docs/{NAME} Plan/{NAME} Backlog.md`. If absent, say so and stop.
 - Note `{NAME} Icebox.md` for the Icebox count (zero if absent).
-- Note `{NAME} Questions.md` for the à la carte Q count (zero if absent).
 - Resolve the target file: `~/ob/kmr/Q.md` (the global Agent Status dashboard; create if absent). The anchor's per-anchor section within Q.md is identified by its H1-equivalent line `# [<TAG>]  [[{NAME} ask|{NAME}]]  -  ...` (per B14 — link target moved from in-page heading anchor to the `{NAME} ask.md` file where the user actually answers questions; display text dropped "Triage" since the page IS triage).
 
 ### 2. Compute the H1 banner counts
@@ -213,7 +203,7 @@ Two spaces between the bracket and the wiki-link. Bracket form: `**[Questions]**
 Walk every bullet in the backlog. Compute the H1 banner with **two merged groups** (per 2026-05-24 banner simplification):
 
 - **Ready** = bullets with `[Active]` bracket + bullets with `[Ready]` (or `[Agreed]` synonym) bracket — summed. Both states are "agent-actionable"; the banner doesn't differentiate. The body H2s (`## Active`, `## Ready`) still render separately for clarity.
-- **Questions** = bullets with `[Verify]` bracket + sum of pending `Q<n>` across feature docs whose backlog rows have `[Questions]` bracket + pending `Q<n>` in `{NAME} Questions.md` — summed. Both states are "user-actionable"; the banner doesn't differentiate. The body H2s still surface `[Verify]` and `[N Questions]` brackets separately for clarity.
+- **Questions** = bullets with `[Verify]` bracket + sum of pending `Q<n>` across feature docs whose backlog rows have `[Questions]` bracket — summed. Both states are "user-actionable"; the banner doesn't differentiate. The body H2s still surface `[Verify]` and `[N Questions]` brackets separately for clarity. (Anchor-level Qs authored in `{NAME} ask.md` are not counted in the banner.)
 - **Now / Next / Later** — bullet count under each horizon H2 (these are horizon labels, not workflow states — H2-membership is correct here).
 - **Icebox** — bullet count in `{NAME} Icebox.md` (zero if absent).
 
@@ -227,19 +217,7 @@ In all cases, **exclude any bullet with a `[Done]` or `[Done YYYY-MM-DD]` bracke
 
 Apply the cascading rule above to pick `[U]` / `[A]` / `[U+A]` / `[G]` / `[-]` / `[]`.
 
-### 4. Compute the à la carte bullet
-
-Read `{NAME} Questions.md`. If it has pending `Q<n>` in `## Open Questions`, render the count and emit:
-
-```
-- **[N Questions]**  [[{NAME} Questions]]
-```
-
-(Two spaces between the bracket and the wiki-link.) Omit the line entirely when N=0.
-
-(Legacy `## À la carte` H2s inside any surviving `{NAME} Triage.md` are no longer relevant — those files are retired per F075. Any pre-F25 anchor with `A<n>` Q-numbering in `{NAME} Questions.md` should be flipped to `Q<n>` per F025 Q5.)
-
-### 5. Render body H2s
+### 4. Render body H2s
 
 For each backlog H2 in this fixed order — `## Active`, `## Ready`, `## Now`, `## Next`, `## Later`, `## Verify` — render the H2 line and one bullet per qualifying item, **in source order from the backlog**. Skip the H2 entirely when no items qualify.
 
@@ -285,9 +263,9 @@ Three link forms by row class — pick the most specific that exists:
 
 If you find yourself writing a row whose title is bold-only (no `[[...]]`), stop — that's the failure mode this rule names. Pick a link form above.
 
-### 6. Regenerate the anchor's section in `~/ob/kmr/Q.md` — **run the script**
+### 5. Regenerate the anchor's section in `~/ob/kmr/Q.md` — **run the script**
 
-Per F104 (2026-06-02): the entire per-anchor regeneration is mechanical — done by a Python script, not by agent prose. Sections § 2–5 above describe the script's **spec** (what it computes); they are not steps the agent runs by hand. The agent's only job here is to shell out:
+Per F104 (2026-06-02): the entire per-anchor regeneration is mechanical — done by a Python script, not by agent prose. Sections § 2–4 above describe the script's **spec** (what it computes); they are not steps the agent runs by hand. The agent's only job here is to shell out:
 
 ```bash
 python3 ~/.claude/skills/triage/scripts/triage-section.py {NAME}
@@ -303,7 +281,7 @@ The script:
 
 The script's stdout is a single line like `triage-section: SKA — wrote new section at top; rendered 20 bullet(s)` — surface it in the chat summary so the user knows what changed.
 
-**This is the only write target.** The agent does not edit Q.md directly; the script does. The prose in § 2–5 above is preserved for auditability — anyone wanting to know what the canonical Q.md section format looks like can read those sections; the script's behavior IS that spec.
+**This is the only write target.** The agent does not edit Q.md directly; the script does. The prose in § 2–4 above is preserved for auditability — anyone wanting to know what the canonical Q.md section format looks like can read those sections; the script's behavior IS that spec.
 
 **Then invoke `/audit q` to verify (per F076 Q6 auto-wiring) — and loop until clean** (the loop-until-clean discipline, landed 2026-06-04 alongside [[F091 — Trigger discipline]] v2 anticipation):
 
@@ -317,7 +295,7 @@ loop (max 3 iterations):
   # else: some fixes landed; loop again to catch second-order drift
 ```
 
-After the loop, **before printing the banner** (§ 8), read `{NAME} Backlog.md` for the singleton `B-QFix` row. If present, append its sub-bullet list verbatim to the chat output as:
+After the loop, **before printing the banner** (§ 7), read `{NAME} Backlog.md` for the singleton `B-QFix` row. If present, append its sub-bullet list verbatim to the chat output as:
 
 ```
 audit-q residual — N findings outstanding (see B-QFix on the backlog):
@@ -334,7 +312,7 @@ audit-q residual — N findings outstanding (see B-QFix on the backlog):
 2. **Iteration cap = 3.** Matches `audit-q-fix.md` 3-pass cap. On cap, the (rare) genuinely-stuck residual is filed as QFix and surfaced — the loop is bounded.
 3. **Anchor-local.** `/triage`'s loop iterates on findings whose `surface_file` is under the cwd anchor's tree. Cross-anchor findings route to the owning anchor's `QFix` row by `surface_file` path; they're visible (informational at chat-exit time) and the owning anchor's next `/triage` loop addresses them under the same 100%-fix rule.
 
-### 7. Glance Q.md — NEVER glance the per-anchor Triage file
+### 6. Glance Q.md — NEVER glance the per-anchor Triage file
 
 Always glance the global Agent Status dashboard after the regen completes:
 
@@ -342,13 +320,13 @@ Always glance the global Agent Status dashboard after the regen completes:
 open ~/ob/kmr/Q.md
 ```
 
-The just-updated per-anchor section sits at the top of Q.md (per § 7's move-to-front rule), so the user sees this anchor's freshly-rendered state immediately *and* sees its place relative to other anchors needing attention. Q.md is the single user-facing glance surface.
+The just-updated per-anchor section sits at the top of Q.md (per § 6's move-to-front rule), so the user sees this anchor's freshly-rendered state immediately *and* sees its place relative to other anchors needing attention. Q.md is the single user-facing glance surface.
 
 **Never glance `{NAME} Triage.md` directly.** The per-anchor Triage file is the agent's persistent intermediate state — Q.md is the dashboard the user actually reads. Opening the per-anchor file would force the user to navigate to the global view themselves, which is exactly the friction Q.md was built to eliminate. **There is only one glance target for `/triage`, and it is `~/ob/kmr/Q.md`.**
 
 (Per `[[SKA ask]]` the glance is allowed: the agent has just modified Q.md with new state, and the user is in active mode by virtue of having invoked `/triage`.)
 
-### 8. Print the anchor's banner as the LAST line of chat output — visually emphasized
+### 7. Print the anchor's banner as the LAST line of chat output — visually emphasized
 
 The final lines of chat output after a `/triage` run MUST be the anchor's just-rendered banner, **wrapped in equal-sign rules above and below and rendered bold**. This is the user's "boom — this is the status" signal; the visual delimiter makes the banner unmistakable even when chat is dense.
 
@@ -427,7 +405,7 @@ When the user responds with `F005 Q4: yes` (or the sticky-context shorthand `Q4:
 
 If F5 has zero pending Qs after the resolution, follow Phase 1 → Phase 2 in `[[SKA ask]]`: delete `## Open Questions` H2, migrate accumulated `### Resolved` to a `## Resolved` H2 at the bottom.
 
-For à la carte Qs (`{NAME} Q3: …`), the same path applies against `{NAME} Questions.md` instead of a feature doc.
+For anchor-level Qs (`{NAME} Q3: …`), the same path applies against `{NAME} ask.md` § `## Questions` instead of a feature doc.
 
 
 ## What `/triage` does NOT do
@@ -459,9 +437,8 @@ Strictly idempotent + destructive. The agent rewrites the entire anchor section 
 ## Cross-references
 
 - **`[[FCT Triage]]`** — presentation-form spec (no per-anchor file location per F075).
-- **`[[FCT Questions]]`** — sibling à la carte facet.
 - **`[[CAB Backlog]]`** — backlog format, F-numbering, status brackets, `[Verify]` semantics.
-- **`[[SKA ask]]`** — `## Open Questions` block format inside feature docs (the source of question text), and the writer for à la carte Qs.
+- **`[[SKA ask]]`** — `## Open Questions` block format inside feature docs (the source of question text), and the writer for anchor-level Qs (authored in `{NAME} ask.md`).
 - **`[[SKA backlog]]`** — horizon H2s (Now / Next / Later) and the per-bucket count scheme.
 - **`[[SKA workflow]]`** — `[Questions]` / `[Verify]` / `[Done]` state semantics and transitions.
 - **`/groom`** — pairs with triage; groom *creates* the question state by parking, triage *gathers* and surfaces it.
