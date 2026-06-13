@@ -3,10 +3,9 @@ description: "Library — reference material (rule-sets, the anchor crate, figur
 ---
 
 # LBR - Library
+Ob-skills repo reference material.
 
-Reference material — not invocable.
-
-| -[[LBR]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [LBR](hook://p/LBR)<br>: reference material — not invocable |
+| -[[LBR]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [LBR](hook://p/LBR)<br>: reference material — not invocable |
 | --- | --- |
 | Related | [[SKL\|Skills]],  [[FCT\|Facets]],  [[DSC\|Disciplines]],   |
 | Library | [[figures]],   |
