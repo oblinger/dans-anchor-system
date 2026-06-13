@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-"""audit-api-doc.py — CAB API Doc facet conformance checker (F119).
+"""audit-module-doc.py — Module Doc facet conformance checker (F119).
 
-Validates a target Markdown file against the [[CAB API Doc]] facet rules.
+Validates a target Markdown file against the [[FCT Module Doc]] facet rules.
 Emits findings with line numbers, rule references (C1..C30), and (where
 applicable) suggested fixes. --fix flag auto-repairs the mechanical
 spacing checks (C3, C21, C22, C23, C24/C28).
 
 Usage:
-  audit-api-doc <path>                   # report-only
-  audit-api-doc <path> --fix             # apply mechanical fixes
-  audit-api-doc <path> --dry             # report-only AND refuse to write
-  audit-api-doc <path> --verbose         # include per-check rule references
+  audit-module-doc <path>                   # report-only
+  audit-module-doc <path> --fix             # apply mechanical fixes
+  audit-module-doc <path> --dry             # report-only AND refuse to write
+  audit-module-doc <path> --verbose         # include per-check rule references
 
 Per F119 v1: standard check set across top-of-doc, figure, SECTIONS table,
 per-class blocks, Class Method Details zone, spacing, method body, dispatch
@@ -890,10 +890,10 @@ def relpath_from_cwd(path: Path) -> str:
 
 def main(argv: Optional[list[str]] = None) -> int:
     parser = argparse.ArgumentParser(
-        prog="audit-api-doc",
-        description="CAB API Doc facet conformance checker (F119).",
+        prog="audit-module-doc",
+        description="Module Doc facet conformance checker (F119).",
     )
-    parser.add_argument("path", type=Path, help="Path to the API doc .md file to audit.")
+    parser.add_argument("path", type=Path, help="Path to the module doc .md file to audit.")
     parser.add_argument("--fix", action="store_true",
                         help="Apply mechanical fixes (C3, C21, C22, C23, C24).")
     parser.add_argument("--dry", action="store_true",
@@ -903,7 +903,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     args = parser.parse_args(argv)
 
     if not args.path.is_file():
-        print(f"audit-api-doc: file not found: {args.path}", file=sys.stderr)
+        print(f"audit-module-doc: file not found: {args.path}", file=sys.stderr)
         return 2
 
     do_fix = args.fix and not args.dry
@@ -912,7 +912,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     rel = relpath_from_cwd(args.path)
 
     if findings:
-        print(f"audit-api-doc: {rel}")
+        print(f"audit-module-doc: {rel}")
         # Group by severity (just by line for now)
         for f in findings:
             print(f.fmt(rel, verbose=args.verbose))
@@ -926,7 +926,7 @@ def main(argv: Optional[list[str]] = None) -> int:
             print("  --fix applied; re-run to see remaining findings.")
         return 1 if not written else 0
     else:
-        print(f"audit-api-doc: {rel}: 0 findings — conforms to [[CAB API Doc]] facet.")
+        print(f"audit-module-doc: {rel}: 0 findings — conforms to [[FCT Module Doc]] facet.")
         return 0
 
 

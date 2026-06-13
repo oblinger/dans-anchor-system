@@ -7,7 +7,7 @@ Facet spec for per-module documentation — the auto-generatable, source-code-gr
 
 **Location:** `{NAME} Docs/{NAME} Dev/{NAME} {ModuleName}.md` (one per module).
 
-API docs describe the classes and interfaces in a software project's source code. Each source module (a file or logical grouping of files) gets its own markdown document. The docs mirror the source tree structure under `{NAME} Dev/`.
+module docs describe the classes and interfaces in a software project's source code. Each source module (a file or logical grouping of files) gets its own markdown document. The docs mirror the source tree structure under `{NAME} Dev/`.
 
 **Related:** [[FCT Interface]] — the required top-level human-authored layer contract that groups modules into a vocabulary callers above the layer use. A module doc is auto-generated ground-truth reference for one module in isolation; the Interface is the human-validated contract for the whole layer. Every `code`-trait anchor has one Interface and one module doc per source module.
 
@@ -21,7 +21,7 @@ This spec was rewritten 2026-06-06 based on extended iteration on the CAE Schedu
 
 ## Location — mirroring the source tree
 
-API docs live under `{NAME} Dev/` in a subfolder structure that **mirrors the repository's source tree**. Every source directory that contains modules gets a parallel documentation directory.
+module docs live under `{NAME} Dev/` in a subfolder structure that **mirrors the repository's source tree**. Every source directory that contains modules gets a parallel documentation directory.
 
 ```
 Repository (source)                    Documentation (vault)
@@ -48,7 +48,7 @@ src/                                   {NAME} Docs/{NAME} Dev/
 
 ## Document structure
 
-A API doc has two zones:
+A module doc has two zones:
 
 - **Overview zone** at the top — frontmatter, breadcrumb, H1+brief, SECTIONS table, one per-class overview section per class. Every per-class section has the prose description + the class table. **No method-body prose in this zone.**
 - **Class Method Details zone** at the bottom under a `# Class Method Details` H1 — per-class deep-dive H2 sections, each containing class-level concept H3s (design discussions) and per-method H3s (Args / Returns / Raises bodies).
@@ -70,7 +70,7 @@ description: <one-line module summary>
 
 Rules:
 
-- YAML frontmatter with `description:` field. Optional — present when the API doc carries machine-readable metadata.
+- YAML frontmatter with `description:` field. Optional — present when the module doc carries machine-readable metadata.
 - Breadcrumb line in the `:>>` form pointing back through the anchor hierarchy.
 - H1 = `# {NAME} {ModuleName}` where `{NAME}` is the anchor prefix and `{ModuleName}` matches the file name.
 - **No blank line between the H1 and the file overview prose** — text starts on the next line. This is the compact-H2/H1 rule applied to the file H1.
@@ -79,7 +79,7 @@ Rules:
 
 ### Figure (between overview prose and SECTIONS table)
 
-Every major API doc carries a **figure** at the top — a single diagram that gives the reader the gist of the whole document in one glance. Position: after the file overview paragraph, before the SECTIONS table.
+Every major module doc carries a **figure** at the top — a single diagram that gives the reader the gist of the whole document in one glance. Position: after the file overview paragraph, before the SECTIONS table.
 
 The figure's job is to show **how the sections fit together as a whole**:
 
@@ -88,7 +88,7 @@ The figure's job is to show **how the sections fit together as a whole**:
 - Key data structures the document discusses (queues, caches, pools, registries) appear as their own nodes.
 - Topics that govern a structural relationship (e.g. a queue's ordering rule) are highlighted via styling or annotation so the reader sees which topic anchors which structural feature.
 
-**Format: SVG always. Mermaid is forbidden. ASCII art in code fences is forbidden.** Figures are SVG files co-located with the API doc (`{NAME} {ModuleName}.svg` next to `{NAME} {ModuleName}.md`), referenced via Obsidian wiki-embed syntax: `![[{NAME} {ModuleName}.svg]]`.
+**Format: SVG always. Mermaid is forbidden. ASCII art in code fences is forbidden.** Figures are SVG files co-located with the module doc (`{NAME} {ModuleName}.svg` next to `{NAME} {ModuleName}.md`), referenced via Obsidian wiki-embed syntax: `![[{NAME} {ModuleName}.svg]]`.
 
 Why SVG only:
 
@@ -390,11 +390,11 @@ The "2 blank lines before H2" rule is the visual separator that makes the zone-l
 
 ## Folder docs
 
-Every source folder that contains modules should have a **folder doc** — a API doc for the folder itself. Named `{NAME} {FolderName}.md` (e.g., `DMUX Speech.md`, `HA core.md`).
+Every source folder that contains modules should have a **folder doc** — a module doc for the folder itself. Named `{NAME} {FolderName}.md` (e.g., `DMUX Speech.md`, `HA core.md`).
 
 ### Purpose
 
-The folder doc describes the folder as a **coherent subsystem**: what it does, how the modules within it relate, and what API it presents to the rest of the system. This is often the most valuable documentation because it captures the architectural thinking that individual API docs can't.
+The folder doc describes the folder as a **coherent subsystem**: what it does, how the modules within it relate, and what API it presents to the rest of the system. This is often the most valuable documentation because it captures the architectural thinking that individual module docs can't.
 
 ### Structure
 
@@ -433,7 +433,7 @@ When the folder is just organizational (e.g., `utils/`), the folder doc is just 
 
 ### Location
 
-Folder docs live alongside the API docs they describe:
+Folder docs live alongside the module docs they describe:
 
 ```
 {NAME} Dev/
@@ -446,30 +446,30 @@ Folder docs live alongside the API docs they describe:
 
 ## Proposed API convention
 
-During planning, API docs describe the **proposed** design before code exists. Mark each property, method, and type description with **(proposed)** inline — e.g., `Priority queue engine **(proposed)**`. Remove **(proposed)** from each item once the implementation matches.
+During planning, module docs describe the **proposed** design before code exists. Mark each property, method, and type description with **(proposed)** inline — e.g., `Priority queue engine **(proposed)**`. Remove **(proposed)** from each item once the implementation matches.
 
 
 ## Linking rule — CRITICAL
 
-**Before writing a API doc, first add its entry to `{NAME} Dev.md` and `{NAME} Files.md`.** Do the linking first so you don't forget. An unlinked API doc is invisible — no one will find it.
+**Before writing a module doc, first add its entry to `{NAME} Dev.md` and `{NAME} Files.md`.** Do the linking first so you don't forget. An unlinked module doc is invisible — no one will find it.
 
 - Add a row to the **Dev dispatch table** (`{NAME} Dev.md`) with a wiki-link and one-line description.
 - Add the file to the **Files tree** (`{NAME} Files.md`) in the correct location.
-- When creating multiple API docs in a batch, link ALL of them before writing any content. Then verify the Dev dispatch table has an entry for every API doc in the Dev folder.
+- When creating multiple module docs in a batch, link ALL of them before writing any content. Then verify the Dev dispatch table has an entry for every module doc in the Dev folder.
 
 
 ## Lifecycle
 
-API docs are **living documents** — they must stay current with the code:
+module docs are **living documents** — they must stay current with the code:
 
 - **Create** when a new module is added — link to Dev and Files FIRST.
 - **Update** when the public interface or architecture changes.
-- **Outdated docs are worse than no docs** — if a API doc can't be kept current, delete it.
+- **Outdated docs are worse than no docs** — if a module doc can't be kept current, delete it.
 
 
 ## `{NAME} Dev.md` frontmatter — `module_docs_audited:` contract (per F074, 2026-05-19)
 
-`{NAME} Dev.md` (the Dev folder's dispatch page) carries a YAML frontmatter field that records when API docs were last audited against source code:
+`{NAME} Dev.md` (the Dev folder's dispatch page) carries a YAML frontmatter field that records when module docs were last audited against source code:
 
 ```yaml
 ---
@@ -493,16 +493,16 @@ Every module doc's dispatch table (when present) carries an **`Arch` row** maint
 | Arch | [[{NAME} <Subsystem> Arch]] |       ← architect-managed
 ```
 
-The `Arch` row points to the **most-specific** architecture destination — the per-module arch doc if one exists, otherwise the subsystem arch doc, otherwise the top-level `{NAME} Architecture.md` (single-subsystem case). Every API doc has exactly one such row. See `[[FCT Architecture]]` § Bidirectional cross-linking.
+The `Arch` row points to the **most-specific** architecture destination — the per-module arch doc if one exists, otherwise the subsystem arch doc, otherwise the top-level `{NAME} Architecture.md` (single-subsystem case). Every module doc has exactly one such row. See `[[FCT Architecture]]` § Bidirectional cross-linking.
 
 (In the new format demonstrated by `CAE Scheduler.md`, the breadcrumb `:>>` line carries the cross-references explicitly and the dispatch-table `Arch` row is optional. Use whichever shape matches the rest of the anchor.)
 
 # BRIEF
 
-- **This is the facet spec for one API doc per source module** — the rules below govern the file shape, structure, naming, and linking of `{NAME} {ModuleName}.md` files under `{NAME} Dev/`. The canonical worked example is `[[CAE Scheduler]]`; read it before authoring or revising.
+- **This is the facet spec for one module doc per source module** — the rules below govern the file shape, structure, naming, and linking of `{NAME} {ModuleName}.md` files under `{NAME} Dev/`. The canonical worked example is `[[CAE Scheduler]]`; read it before authoring or revising.
 - **Not for layer-wide contracts** — those belong in `[[FCT Interface]]` (the human-authored layer contract that groups modules). Don't pile architecture-level discussion here either; that goes in `[[FCT Architecture]]` and the per-anchor `Arch` row points to it.
-- **Inclusion test** — a rule belongs in this spec only when it constrains how a single API doc is shaped (sections, tables, casing, block-ID format, figure workflow, frontmatter contract). Cross-module rules go in the trait or anchor-level spec; rendering rules belong in `[[R-markdown]]`.
+- **Inclusion test** — a rule belongs in this spec only when it constrains how a single module doc is shaped (sections, tables, casing, block-ID format, figure workflow, frontmatter contract). Cross-module rules go in the trait or anchor-level spec; rendering rules belong in `[[R-markdown]]`.
 - **Load-bearing conventions** — the SECTIONS / per-class-table / Class Method Details two-zone structure, the bold-identifier-outside-code-span linking form (backticks inside wiki-link aliases do NOT render), the block-ID format `^ClassName-methodname`, the `module_docs_audited:` frontmatter contract on `{NAME} Dev.md` (per F074), and SVG-only figures via the `[[viz-excalidraw]]` workflow. Breaking any of these breaks downstream readers (`[[skills/architect/SKILL\|/architect]]`, `[[audit-docs]]`, Obsidian rendering).
-- **Cite this spec, don't inline it** — the `[[api-doc]]` skill, `[[audit-docs]]`, and the `architect` skill all read this file as authority. When updating a rule, update it here once; consumers pick it up automatically. Don't restate format rules in the skills.
+- **Cite this spec, don't inline it** — the `[[module-doc]]` skill, `[[audit-docs]]`, and the `architect` skill all read this file as authority. When updating a rule, update it here once; consumers pick it up automatically. Don't restate format rules in the skills.
 - **When format conventions evolve** (as in the 2026-06-06 rewrite), update the dated working-example pointer at the top AND make sure the "Naming and casing summary" + "Spacing summary" tables stay in sync with the prose above — those tables are what auditors check against.
 - **Don't pad the body upward from this brief** — the format spec is the canonical body content; user-facing orientation is the one-sentence TLDR under the H1. Detail that only an editing agent needs (e.g. why backticks inside aliases break) lives here, not in the body.

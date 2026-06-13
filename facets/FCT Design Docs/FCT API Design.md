@@ -55,7 +55,7 @@ See [[CAE API Design]] — the CAE scheduler crate shows the canonical shape for
 | Facet | Owns | Boundary |
 |---|---|---|
 | **[[FCT UX Design]]** | Human user-facing surface (CLI commands, screens, organization, output shapes for the eye). | Different *consumer*. |
-| **[[FCT Module Doc]]** | Per-module reference documentation (what exists in the source tree, often generated). | Different *altitude* — API Design is intent; API Doc is reference. |
+| **[[FCT Module Doc]]** | Per-module reference documentation (what exists in the source tree, often generated). | Different *altitude* — API Design is intent; Module Doc is reference. |
 | **[[FCT Architecture]]** | Internal organization (modules, dependency direction, layering). | Different *audience* — Architecture is for the system's builders; API Design is for consumers. |
 | **[[FCT Interface]]** | Internal layer/component contracts (between subsystems within the anchor). | Different *visibility scope* — Interface is internal; API Design is the public surface. |
 | **[[FCT CLI]]** | Exhaustive flag/exit-code reference for CLI binaries. | Different *form* — CLI doc is reference; API Design covers structured (`--json`) output contract when the CLI doubles as a programmatic surface. |
@@ -141,7 +141,7 @@ Load-bearing API choices (a chosen error envelope over an obvious alternative, a
 
 **Why:** API design choices look obvious in retrospect but were contingent — capturing them prevents the next consumer from re-litigating settled questions.
 
-### RULE R-api-09 — Distinct from API Doc, Architecture, UX Design (stated)
+### RULE R-api-09 — Distinct from Module Doc, Architecture, UX Design (stated)
 
 API Design owns the *intent* of the programmatic surface. It is NOT:
 
@@ -151,9 +151,9 @@ API Design owns the *intent* of the programmatic surface. It is NOT:
 
 When API Design starts enumerating every function in every module, or narrating the dependency graph, or describing what the human sees on the screen, it is leaking the wrong content. Migrate the leak to the sibling facet.
 
-**Check pattern:** sample API Design docs; assert no per-module function inventories (API Doc scope), no internal dependency narratives (Architecture scope), no human screen / command lists (UX Design scope).
+**Check pattern:** sample API Design docs; assert no per-module function inventories (Module Doc scope), no internal dependency narratives (Architecture scope), no human screen / command lists (UX Design scope).
 
-**Why:** facet leakage erodes the cut. The consumer who wants reference goes to API Doc; if it lives in API Design, they don't find it where they look.
+**Why:** facet leakage erodes the cut. The consumer who wants reference goes to Module Doc; if it lives in API Design, they don't find it where they look.
 
 # BRIEF
 

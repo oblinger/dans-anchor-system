@@ -11,7 +11,7 @@ The Architecture facet is the **system-level overview** — how the codebase is 
 
 **Scope clarification.** "Architecture" here means **the system-architecture story** specifically — components, modules, interfaces, data flow, thread model. It is NOT the umbrella for all design content; that's `{NAME} Design/`. UX Design is a peer of Architecture, not a child.
 
-**Architecture vs Public API doc.** Architecture is internal structure ("how is this codebase organized?"). Public API documentation — the surface a caller imports against — lives in a **separate sub-document** inside the Architecture folder (e.g., `{NAME} API.md`), linked from the main Architecture doc. The main page shows the conceptual structure; the API doc shows the contract. See [[FCT Module Doc]] for the API doc rules.
+**Architecture vs Public API doc.** Architecture is internal structure ("how is this codebase organized?"). Public API documentation — the surface a caller imports against — lives in a **separate sub-document** inside the Architecture folder (e.g., `{NAME} API.md`), linked from the main Architecture doc. The main page shows the conceptual structure; the module doc shows the contract. See [[FCT Module Doc]] for the module doc rules.
 
 
 ## Folder shape
@@ -146,4 +146,4 @@ Available to any anchor with the `Code` trait. Optional for non-code anchors —
 - **Inclusion test for new content:** a rule belongs in this spec only if it applies to *every* Code-trait anchor's Architecture facet. Anchor-local quirks → `{NAME} Decisions.md`. Rules-set-wide diagram constraints → [[R-diagram]]. Markdown-rendering rules → [[R-markdown]].
 - **Load-bearing invariants — do not weaken without a corresponding CAB Log entry:** (1) the first four sections in exact order (`Overview → Architecture diagram → Subsystems → first supporting H2`); (2) subsystem doc naming uses kebab form `{NAME}-{Subsystem}.md`; (3) `[[double-bracket]]` = real doc, `[single-bracket]` = placeholder — this convention drives `/audit architecture`'s `missing-subsystem-doc` check; (4) ASCII diagrams are forbidden (`ascii-diagram` audit finding).
 - **The `## Audit` table is the contract with `/audit architecture`.** When a finding ID is added or renamed here, the audit script must change in lockstep. Don't introduce a finding name in the script without listing it here, and don't list one here without wiring it in the script.
-- **Keep the See also list curated, not exhaustive.** Peer specs that a reader genuinely needs to cross-reference (API Doc, Rules, R-diagram, Decisions, Design Dispatch, worked example) — not every distantly-related CAB file. New peers added here should also link back.
+- **Keep the See also list curated, not exhaustive.** Peer specs that a reader genuinely needs to cross-reference (Module Doc, Rules, R-diagram, Decisions, Design Dispatch, worked example) — not every distantly-related CAB file. New peers added here should also link back.

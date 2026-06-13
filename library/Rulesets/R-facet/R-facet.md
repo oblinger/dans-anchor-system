@@ -12,7 +12,7 @@ Per the 2026-06-09 design decision, each CAB facet spec file (`CAB <facet>.md`) 
 - **R-api** ([[FCT API Design]]) — paired peer to R-ux, landed 2026-06-11. 9 rules covering preface zone, consumer, surface spine, contract semantics, single error envelope, stability posture, concrete compatibility commitments, D-API rationale rows, and the leakage guard.
 - **R-discussion** ([[FCT Discussion]]) — first *doc-scoped* (per document, not per anchor) facet ruleset, landed 2026-06-11. Trimmed to 5 Discussion-specific rules after placement / migration / naming / one-form-per-parent / reverse-chronological / dispatch-linkage rules were lifted into [[DSC dated-entry-stream]] (the discipline Discussion cites). Remaining rules: doc-scoped not anchor-scoped, methods-1-and-2-declared, Problem/Options/Decision entry skeleton, append-only after Decision, attachment scope guard.
 
-Pending — each lands as its CAB facet's RULESET block is drafted: R-architecture, R-decisions, R-rules, R-features, R-backlog, R-cli, R-api-doc, … (40 CAB facets total; rollout deferred to a dedicated sweep, tracked separately).
+Pending — each lands as its CAB facet's RULESET block is drafted: R-architecture, R-decisions, R-rules, R-features, R-backlog, R-cli, R-module-doc, … (40 CAB facets total; rollout deferred to a dedicated sweep, tracked separately).
 
 ## Adoption
 

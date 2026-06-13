@@ -10,11 +10,11 @@ Catalog-side stub for the API Design facet's ruleset. The canonical body lives e
 - **Spine (2)** — Consumer declared, Surface spine table covers every public callable / endpoint / sub-skill entry.
 - **Behavior + envelope (2)** — Contract semantics named (idempotency, side-effects, concurrency, deadlines); single error envelope across the surface.
 - **Stability + compatibility (2)** — Stability posture + version scheme declared; compatibility commitments concrete (measurable horizons, not "we'll try").
-- **Rationale + scope (2)** — D-API rows for load-bearing decisions; leakage guard against API Doc / Architecture / UX Design content.
+- **Rationale + scope (2)** — D-API rows for load-bearing decisions; leakage guard against Module Doc / Architecture / UX Design content.
 
 ## Position in the catalog
 
-Sits under [[R-facet]] (per-facet umbrella). Paired peer to [[R-ux]] — both fire when the anchor has a public user surface; the cut is programmatic vs human consumer. Distinct from R-api-doc (per-module reference rules; pending).
+Sits under [[R-facet]] (per-facet umbrella). Paired peer to [[R-ux]] — both fire when the anchor has a public user surface; the cut is programmatic vs human consumer. Distinct from R-module-doc (per-module reference rules; pending).
 
 ## Adoption
 

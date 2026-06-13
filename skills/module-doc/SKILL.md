@@ -1,38 +1,38 @@
 ---
-name: api-doc
+name: module-doc
 description: >
-  Author or revise an API documentation file conforming to [[FCT Module Doc]]
+  Author or revise an module documentation file conforming to [[FCT Module Doc]]
   facet. Reads source code, generates the doc skeleton (SECTIONS table,
   per-class tables with bold-identifier rows, Class Method Details zone with
   block-ID-targeted method H3s), authors the figure via the viz/excalidraw
-  workflow, runs `/audit api-doc` to validate, fixes warnings to zero, does
+  workflow, runs `/audit module-doc` to validate, fixes warnings to zero, does
   a subjective re-read against the facet, links in dispatch tables, commits.
-  Mirrors the `/architect` skill pattern. Use when the user says "/api-doc",
-  "write the API doc for X", "document this class", "document this module",
+  Mirrors the `/architect` skill pattern. Use when the user says "/module-doc",
+  "write the module doc for X", "document this class", "document this module",
   or hands a source path or wiki-link to revise.
 tools: Read, Write, Edit, Bash, Glob, Grep
 user_invocable: true
 ---
 
-# /api-doc — Author and Maintain API Documentation
+# /module-doc — Author and Maintain Module Documentation
 
-`/api-doc` authors or revises an API documentation file conforming to the [[FCT Module Doc]] facet. The facet is the rule source; this skill is the procedure. A companion `audit-api-doc.py` script (invoked as `/audit api-doc <file>`) performs mechanical conformance checks; the agent fixes warnings to zero, then does a subjective re-read for the rules mechanical checks can't cover (figure readability, prose clarity, layout judgment).
+`/module-doc` authors or revises an module documentation file conforming to the [[FCT Module Doc]] facet. The facet is the rule source; this skill is the procedure. A companion `audit-module-doc.py` script (invoked as `/audit module-doc <file>`) performs mechanical conformance checks; the agent fixes warnings to zero, then does a subjective re-read for the rules mechanical checks can't cover (figure readability, prose clarity, layout judgment).
 
 Feature spec: `[[F119 — api-doc skill + audit-api-doc.py — author audit iterate for CAB API Doc facet]]`. Companion spec: `[[FCT Module Doc]]` (the facet — read it before authoring).
 
 
 ## When to Use
 
-- User says `/api-doc`, "write the API doc for X", "document this class", "document this module/subsystem", "API doc for ...".
-- User hands a source-code path (single file or folder) or an existing API doc wiki-link.
-- After significant source-code changes — to refresh the API doc against the new interface.
+- User says `/module-doc`, "write the module doc for X", "document this class", "document this module/subsystem", "module doc for ...".
+- User hands a source-code path (single file or folder) or an existing module doc wiki-link.
+- After significant source-code changes — to refresh the module doc against the new interface.
 
-**Don't** invoke `/api-doc` for:
-- Module-level prose updates that aren't API-doc-shaped (use direct edit).
+**Don't** invoke `/module-doc` for:
+- Module-level prose updates that aren't module-doc-shaped (use direct edit).
 - Architecture-level synthesis (use `/architect`).
 - README / user-facing prose (different audience).
 - **Generated code** — auto-generated bindings, protobuf stubs, OpenAPI-generated clients. Document the generator's contract instead, not the output.
-- **Vendor-bundled libraries** in the repo for build convenience (third_party/, vendor/). The vendor owns the API doc.
+- **Vendor-bundled libraries** in the repo for build convenience (third_party/, vendor/). The vendor owns the module doc.
 - **Single throwaway scripts** — one-shot migrations, dev-loop helpers under 50 LOC with no public surface. Inline comments are sufficient.
 - **Internal-only helpers** with no public API (every symbol is `_underscore`-prefixed or `private`/`internal` keyword). Document via inline comments.
 
@@ -41,9 +41,9 @@ Feature spec: `[[F119 — api-doc skill + audit-api-doc.py — author audit iter
 
 Before any authoring step, validate the environment is set up:
 
-1. **Facet readable** — `[[FCT Module Doc]]` exists at `~/ob/kmr/SYS/Bespoke/Skill Agent/CAB/CAB Facets/CAB API Doc.md`. Use `ha -p "CAB API Doc"` to confirm. If missing, STOP — surface to user.
+1. **Facet readable** — `[[FCT Module Doc]]` exists at `~/ob/kmr/SYS/Bespoke/Skill Agent/ob-skills/facets/FCT Code/FCT Module Doc.md`. Use `ha -p "FCT Module Doc"` to confirm. If missing, STOP — surface to user.
 2. **viz/excalidraw available** — `~/.claude/skills/viz/excalidraw_to_svg.py` exists. Required for figure authoring. If missing, surface to user before proceeding.
-3. **audit script available** — `~/.claude/skills/audit/scripts/audit-api-doc.py` exists. Required for the iterate loop.
+3. **audit script available** — `~/.claude/skills/audit/scripts/audit-module-doc.py` exists. Required for the iterate loop.
 4. **Source exists and is readable** — the target source file/folder exists; not a broken symlink.
 5. **Public API present** — does the source actually expose a public surface? If everything is `_private` / file-internal, surface to user and ask whether to proceed (likely answer is no — see "When NOT to invoke" above).
 6. **Target location resolvable** — the chosen `{NAME} {ModuleName}.md` path doesn't collide with an existing doc in another anchor. If it does, ask the user before overwriting.
@@ -52,9 +52,9 @@ Before any authoring step, validate the environment is set up:
 ## Invocation
 
 ```
-/api-doc <source-path>              ← author a new API doc for this source
-/api-doc <existing-api-doc.md>      ← revise / refresh an existing API doc
-/api-doc                            ← (bare) ask the user for the target
+/module-doc <source-path>              ← author a new module doc for this source
+/module-doc <existing-module-doc.md>      ← revise / refresh an existing module doc
+/module-doc                            ← (bare) ask the user for the target
 ```
 
 **Smart-detect:** if the target is a `.md` file matching `{NAME} {ModuleName}.md` shape, treat as revision; otherwise treat as new authoring.
@@ -63,15 +63,15 @@ Before any authoring step, validate the environment is set up:
 ## Runbook — new authoring
 
 ### 1. Read the facet
-**Read `[[FCT Module Doc]]`** in full before authoring. The facet defines what an API doc IS — every formatting decision, naming convention, spacing rule, table shape lives there. The subjective re-read at the end (step 8) consults this same file again, so it must be loaded fully.
+**Read `[[FCT Module Doc]]`** in full before authoring. The facet defines what an module doc IS — every formatting decision, naming convention, spacing rule, table shape lives there. The subjective re-read at the end (step 8) consults this same file again, so it must be loaded fully.
 
 ```bash
 # Locate via ha (or direct path)
-ha -p "CAB API Doc"
+ha -p "FCT Module Doc"
 ```
 
-### 2. Resolve where the API doc lives
-- **Per-module API docs** (the common case): `{NAME} Docs/{NAME} Dev/{NAME} <sub-folder>/{NAME} {ModuleName}.md`, mirroring the source repository tree under `{NAME} Dev/`.
+### 2. Resolve where the module doc lives
+- **Per-module module docs** (the common case): `{NAME} Docs/{NAME} Dev/{NAME} <sub-folder>/{NAME} {ModuleName}.md`, mirroring the source repository tree under `{NAME} Dev/`.
 - **Subsystem / API-surface docs**: `{NAME} Docs/{NAME} Design/{NAME} API/{NAME} <Subsystem> API.md`.
 - **If the location is ambiguous**, ask the user — this is creation-time, one-question, active mode.
 
@@ -113,15 +113,15 @@ Apply the layout guidelines from `[[FCT Module Doc]]` § Layout guidelines: mini
 
 **Figure size: HARD RULE — spans full page width.** Author the `.excalidraw` content area ~1400-1600 px wide. In the markdown embed, use `![[{NAME} {ModuleName}.svg|1200]]` if Obsidian doesn't auto-scale to column width.
 
-### 6. Run `/audit api-doc`
+### 6. Run `/audit module-doc`
 ```bash
-/audit api-doc "<path to .md>"
+/audit module-doc "<path to .md>"
 ```
 
 The script emits warnings with line numbers and rule references (C1-C26). Read the full warning list before fixing.
 
 ### 7. Fix warnings to zero
-- **Mechanical fixes** (spacing, blank-line runs, normalization) — re-run with `--fix`: `/audit api-doc <file> --fix`. The script auto-fixes C3, C21, C22, C23, C24.
+- **Mechanical fixes** (spacing, blank-line runs, normalization) — re-run with `--fix`: `/audit module-doc <file> --fix`. The script auto-fixes C3, C21, C22, C23, C24.
 - **Manual fixes** — every other warning needs hand-edit. The warning's rule reference points at the specific section of `[[FCT Module Doc]]` that governs it.
 - **Re-run audit after fixing.** Iterate until the script reports zero warnings.
 
@@ -153,24 +153,24 @@ Re-read `[[FCT Module Doc]]` and walk through this **concrete subjective checkli
 13. **Arg descriptions explain WHY, not just what** — `task: Callable. The function to run.` is filler. `task: Callable with no arguments. Side effects are the caller's responsibility.` says something the signature doesn't.
 14. **Returns and Raises actually exist** — if the method has a return type or declared exceptions, the corresponding bullets must be present. Missing them is silent under the mechanical script but a real defect.
 
-If any subjective check fails, fix the doc, then re-run `/audit api-doc` to confirm no mechanical regressions, then re-do the subjective check.
+If any subjective check fails, fix the doc, then re-run `/audit module-doc` to confirm no mechanical regressions, then re-do the subjective check.
 
 ### 9. Link in dispatch tables
 Per the facet's CRITICAL linking rule:
 1. Add a row to the `{NAME} Dev.md` dispatch table linking the new doc with a one-line description.
 2. Add the file to the `{NAME} Files.md` tree in the correct location.
 
-Don't skip this — an unlinked API doc is invisible.
+Don't skip this — an unlinked module doc is invisible.
 
 ### 10. Commit + glance
 
 Single commit containing:
-- The `.md` API doc.
+- The `.md` module doc.
 - The `.excalidraw` source.
 - The generated `.svg` and `.png`.
 - The `{NAME} Dev.md` and `{NAME} Files.md` updates.
 
-Commit message: `<NAME> {ModuleName}: API doc shipped (per F119)`.
+Commit message: `<NAME> {ModuleName}: module doc shipped (per F119)`.
 
 **After commit, glance the file** so the user sees the result:
 
@@ -187,17 +187,17 @@ open -a ExcalidrawZ "<path to {NAME} {ModuleName}.excalidraw>"
 
 ## Worked example — `CAE Scheduler`
 
-Reference example showing the full flow. Source: `CAE/src/execution/scheduler.py` (hypothetical). Target API doc: `~/ob/kmr/SYS/Bespoke/Skill Agent/CAE/CAE Docs/CAE Dev/CAE Scheduler.md`.
+Reference example showing the full flow. Source: `CAE/src/execution/scheduler.py` (hypothetical). Target module doc: `~/ob/kmr/SYS/Bespoke/Skill Agent/CAE/CAE Docs/CAE Dev/CAE Scheduler.md`.
 
 **Pre-flight:**
 ```bash
-ha -p "CAB API Doc"                              # facet readable ✓
+ha -p "FCT Module Doc"                              # facet readable ✓
 ls ~/.claude/skills/viz/excalidraw_to_svg.py     # converter present ✓
-ls ~/.claude/skills/audit/scripts/audit-api-doc.py  # auditor present ✓
+ls ~/.claude/skills/audit/scripts/audit-module-doc.py  # auditor present ✓
 ```
 
 **Step 1-3 — Read facet, resolve location, read source:**
-- Facet: `CAB API Doc.md` loaded.
+- Facet: `FCT Module Doc.md` loaded.
 - Location: `CAE Docs/CAE Dev/CAE Scheduler.md` (mirrors `src/execution/scheduler.py`).
 - Source: identified `TaskScheduler` (class), `TaskHandle` (class), `TaskState` (enum), `SchedulerStatus` (class), plus a `Priority and starvation` topic (the queue's aging-promotion rule, justified as a top-level section because it's a load-bearing scheduling invariant).
 
@@ -224,7 +224,7 @@ Embed in the markdown: `![[CAE Scheduler.svg]]` (or `![[CAE Scheduler.svg|1200]]
 
 **Step 6 — Audit:**
 ```bash
-/audit api-doc "CAE/CAE Docs/CAE Dev/CAE Scheduler.md"
+/audit module-doc "CAE/CAE Docs/CAE Dev/CAE Scheduler.md"
 # Sample output:
 # [C22] line 39: expected 2 blank lines before H2, found 3
 #       fix: Remove 1 blank line before this H2 to match the 2-blank-line separator rule.
@@ -235,7 +235,7 @@ Embed in the markdown: `![[CAE Scheduler.svg]]` (or `![[CAE Scheduler.svg|1200]]
 
 **Step 7 — Fix:**
 ```bash
-/audit api-doc "CAE/CAE Docs/CAE Dev/CAE Scheduler.md" --fix
+/audit module-doc "CAE/CAE Docs/CAE Dev/CAE Scheduler.md" --fix
 # 5 of 6 fixed automatically; re-run to see the 1 remaining.
 ```
 The remaining C30 (SVG older than excalidraw) means a manual re-convert: `python3 ~/.claude/skills/viz/excalidraw_to_svg.py "CAE Scheduler.excalidraw"`. Re-run audit: zero findings.
@@ -251,7 +251,7 @@ Add the file to `CAE Docs/CAE Dev/CAE Files.md` tree at the appropriate node.
 **Step 10 — Commit + glance:**
 ```bash
 git add "CAE Docs/CAE Dev/CAE Scheduler.md" "CAE Docs/CAE Dev/CAE Scheduler.excalidraw" "CAE Docs/CAE Dev/CAE Scheduler.svg" "CAE Docs/CAE Dev/CAE Scheduler.png" "CAE Docs/CAE Dev/CAE Dev.md" "CAE Docs/CAE Dev/CAE Files.md"
-git commit -m "CAE Scheduler: API doc shipped (per F119)"
+git commit -m "CAE Scheduler: module doc shipped (per F119)"
 open "CAE Docs/CAE Dev/CAE Scheduler.md"
 ```
 
@@ -267,20 +267,20 @@ Same as new authoring with adjustments:
 3. **Read the source.** Identify drift between source and existing doc.
 4. **Refresh content.** Update class tables, add new methods, mark deleted methods, refresh prose. Don't wipe user-authored prose without confirmation (conservative-edit posture).
 5. **Refresh figure if needed.** If sections changed, re-author the `.excalidraw`; re-run the converter.
-6. **`/audit api-doc <file>`.** Same loop as new authoring.
+6. **`/audit module-doc <file>`.** Same loop as new authoring.
 7-10. Same as new authoring (subjective re-read, link in dispatch, commit).
 
 
 ## Failure modes
 
-- **User invokes without a target** — bare `/api-doc`. Ask which source/doc to work on; don't guess.
-- **Source is too large for one API doc** — propose splitting per source file (one API doc per source file is the convention). Confirm with user before authoring multiple docs.
-- **Existing API doc was hand-authored under the old format** — treat as new authoring (re-skeleton from scratch) with conservative-edit preservation of any custom prose. Run `/audit api-doc` to verify conformance.
+- **User invokes without a target** — bare `/module-doc`. Ask which source/doc to work on; don't guess.
+- **Source is too large for one module doc** — propose splitting per source file (one module doc per source file is the convention). Confirm with user before authoring multiple docs.
+- **Existing module doc was hand-authored under the old format** — treat as new authoring (re-skeleton from scratch) with conservative-edit preservation of any custom prose. Run `/audit module-doc` to verify conformance.
 - **Audit warnings won't go to zero** — if a check fires that the agent can't satisfy (e.g. block-ID resolution failing because the SECTIONS table refs don't match the H2s), STOP and surface to user. Don't ship a partially-conforming doc; the facet's rules are the contract.
 
 
 ## Notes
 
-- This skill is the consumer of `[[FCT Module Doc]]`. If the facet rules change, the skill stays the same; only the verifier (`audit-api-doc.py`) and the agent's behavior need to track the spec.
+- This skill is the consumer of `[[FCT Module Doc]]`. If the facet rules change, the skill stays the same; only the verifier (`audit-module-doc.py`) and the agent's behavior need to track the spec.
 - Mirrors the existing `/architect` + `audit-architecture.py` pattern. Same split: facet owns rules, skill owns procedure, script owns mechanical checks.
 - Two queued user consumers were the motivation for shipping (per F119). After this lands, exercise on those consumers and iterate any rough edges.
