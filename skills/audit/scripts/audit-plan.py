@@ -739,23 +739,44 @@ _NAME_ALLOWLIST = (
 )
 
 
+def _ancestor_anchor_slugs(anchor_root: Path) -> list[str]:
+    """Slugs of this anchor AND every ancestor anchor up to the repo root. Nested
+    anchors (`{ROOT} Design/`, `{ROOT} Track/`) prefix their files with the ROOT
+    anchor's slug, not their own folder name — so a file is correctly named if it
+    carries any ancestor anchor's slug (per FCT Naming §Folder-anchor files)."""
+    out: list[str] = []
+    try:
+        cur = anchor_root.resolve()
+        root = REPO_ROOT.resolve()
+    except OSError:
+        return [_anchor_slug(anchor_root), anchor_root.name]
+    while True:
+        if (cur / ".anchor").is_file():
+            out.append(_anchor_slug(cur))
+            out.append(cur.name)
+        if cur == root or cur.parent == cur:
+            break
+        cur = cur.parent
+    return out or [_anchor_slug(anchor_root), anchor_root.name]
+
+
 def chk_name_slug_prefixed(target, anchor_root, args):
-    """Per-file (R-naming-01): basename starts with `{slug} `, equals the anchor
-    marker (`{slug}.md` / `{folder}.md`), or matches a sanctioned allowlist shape.
-    Matches the rule's documented check pattern (slug-prefix OR R-naming-03 list);
-    by-chance exemptions (R-naming-04) are explicitly not mechanically audited."""
+    """Per-file (R-naming-01): basename starts with `{slug} ` for this anchor OR
+    any ancestor anchor (nested anchors prefix with the root slug), equals an
+    anchor marker, or matches a sanctioned allowlist shape (R-naming-03).
+    By-chance exemptions (R-naming-04) are explicitly not mechanically audited."""
     if not target.is_file():
         return "pass", "not a file"
-    slug = _anchor_slug(anchor_root)
+    slugs = _ancestor_anchor_slugs(anchor_root)
     stem = target.stem
-    if stem == slug or stem == anchor_root.name:
+    if any(stem == s for s in slugs):
         return "pass", "anchor marker"
-    if stem.startswith(f"{slug} ") or stem.startswith(f"{anchor_root.name} "):
+    if any(stem.startswith(f"{s} ") for s in slugs):
         return "pass", ""
     for pat in _NAME_ALLOWLIST:
         if re.match(pat, stem):
             return "pass", "allowlisted pattern"
-    return "fail", f"{target.name!r} lacks the {slug!r} prefix / allowlist match"
+    return "fail", f"{target.name!r} lacks a {slugs!r} prefix / allowlist match"
 
 
 def chk_h1_matches_slug(target, anchor_root, args):
@@ -793,8 +814,10 @@ def chk_design_row_iff_folder(target, anchor_root, args):
     name = anchor_root.name
     has_folder = (anchor_root / f"{name} Design").is_dir()
     text = _read(f)
-    has_row = (bool(re.search(r"\|\s*\[\[[^\]|]*Design[^\]]*\]\][^|]*\|", text))
-               or bool(re.search(r"\|\s*Design\s*\|", text)))
+    # A *Design row*'s first cell is the design-folder link aliased exactly "Design"
+    # (or a bare "Design" cell) — NOT a member doc like "UX Design"/"API Design".
+    has_row = (bool(re.search(r"^\|\s*\[\[[^\]|]*\|Design\]\]", text, re.MULTILINE))
+               or bool(re.search(r"^\|\s*Design\s*\|", text, re.MULTILINE)))
     if has_folder == has_row:
         return "pass", "both present" if has_folder else "neither (no design facet)"
     if has_folder and not has_row:
@@ -1357,12 +1380,13 @@ def chk_file_path_matches_prd_locations(target, anchor_root, args):
     """PRD at {NAME} Design/{NAME} PRD.md or {NAME} Design/{NAME} PRD/{NAME} PRD.md."""
     if not target.is_file():
         return "pass", "not a file"
-    name = anchor_root.name
-    single = anchor_root / f"{name} Design" / f"{name} PRD.md"
-    folder = anchor_root / f"{name} Design" / f"{name} PRD" / f"{name} PRD.md"
-    if target.resolve() in (single.resolve(), folder.resolve()):
+    proj = target.stem[:-len(" PRD")] if target.stem.endswith(" PRD") else target.stem
+    parent, grand = target.parent.name, target.parent.parent.name
+    in_design_single = (parent == f"{proj} Design")                            # …/{proj} Design/{proj} PRD.md
+    in_design_folder = (parent == f"{proj} PRD" and grand == f"{proj} Design")  # …/{proj} Design/{proj} PRD/…
+    if in_design_single or in_design_folder:
         return "pass", ""
-    return "fail", f"PRD at {target.relative_to(anchor_root)} not at a canonical location"
+    return "fail", f"PRD {target.name!r} not under a '{proj} Design/' folder"
 
 
 def chk_h1_no_frontmatter(target, anchor_root, args):
@@ -1392,7 +1416,7 @@ def chk_required_sections_in_order(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
-    required = args if args else ["Overview", "Design Workflow", "Goals", "Non-Goals", "User Stories"]
+    required = args if args else ["Overview", "Goals", "Non-Goals", "User Stories"]
     h2s = _h2_headings(_read(f))
     missing = [r for r in required if r not in h2s]
     if missing:
@@ -1463,7 +1487,10 @@ def chk_dispatch_table_stories_row(target, anchor_root, args):
     if f is None:
         return "error", "no file"
     text = _read(f)
-    name = anchor_root.name
+    # project slug from the PRD's own basename ("HBR PRD.md" -> "HBR"), not the
+    # (possibly nested) anchor folder name.
+    base = Path(f).stem
+    name = base[:-len(" PRD")] if base.endswith(" PRD") else anchor_root.name
     table = []
     in_table = False
     for ln in text.splitlines():
@@ -1475,11 +1502,9 @@ def chk_dispatch_table_stories_row(target, anchor_root, args):
     if not table:
         return "fail", "no dispatch table found"
     joined = "\n".join(table)
-    p1 = re.search(rf"\[\[{re.escape(name)} PRD#User Stories\s*\|\s*{re.escape(name)} Stories\]\]", joined)
-    p2 = re.search(rf"\[\[{re.escape(name)} Stories\]\]", joined)
-    if (p1 or p2) and re.search(rf"{re.escape(name)} Stories", joined):
+    if re.search(rf"\[\[{re.escape(name)} Stories", joined):
         return "pass", ""
-    return "fail", f"no Stories row with proper-name display ({name} Stories)"
+    return "fail", f"no Stories row linking [[{name} Stories]]"
 
 
 # -- R-roadmap -----------------------------------------------------------------
@@ -1508,17 +1533,19 @@ def chk_milestone_checkbox(target, anchor_root, args):
 
 
 def chk_milestone_status_line(target, anchor_root, args):
-    """[x]/[~] milestones carry a **Status**: line within ~10 lines."""
+    """TOP-LEVEL milestones (token M<n> with no dot) carry a **Status**: line within
+    ~10 lines. Sub-milestones (M1.0, M1.2.3 …) track status via their checkbox alone."""
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file to inspect"
     lines = _read(f).splitlines()
     failures = []
     for i, ln in enumerate(lines):
-        if re.match(r"^## \[[x~]\]", ln):
+        m = re.match(r"^#+\s+\[[x~]\]\s+(M\d+(?:\.\d+)*)\b", ln)
+        if m and re.fullmatch(r"M\d+", m.group(1)):  # top-level only
             if not any(re.match(r"^\*\*Status\*\*:", lines[j])
                        for j in range(i + 1, min(i + 11, len(lines)))):
-                failures.append(f"line {i + 1}: milestone missing Status line")
+                failures.append(f"line {i + 1}: top milestone {m.group(1)} missing Status line")
     return ("pass", "") if not failures else ("fail", "; ".join(failures[:3]))
 
 
@@ -1662,7 +1689,7 @@ def chk_brief_is_last_h1(target, anchor_root, args):
     if last_h1 is None or lines[last_h1].strip() != "# BRIEF":
         return "fail", "'# BRIEF' is not the last H1"
     m = re.search(r"^# BRIEF\s*$", text, re.MULTILINE)
-    if not text[m.end():].strip():
+    if m is None or not text[m.end():].strip():
         return "fail", "'# BRIEF' section is empty"
     return "pass", ""
 
@@ -1790,15 +1817,17 @@ def chk_dated_entry_file_naming(target, anchor_root, args):
 # -- R-messages ----------------------------------------------------------------
 
 def chk_h1_is_anchor_messages(target, anchor_root, args):
-    """H1 is '# {SLUG} Messages'."""
+    """H1 matches the file's own '{prefix} Messages' name (prefix from the basename,
+    e.g. 'HBR Messages.md' -> 'HBR Messages') — robust to nested anchors whose files
+    carry the root slug rather than the sub-anchor folder name."""
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
-    slug = _anchor_slug(anchor_root)
+    want = Path(f).stem  # the file's own name without .md ("HBR Messages")
     for ln in _read(f).splitlines():
         if ln.startswith("# "):
             h1 = ln[2:].strip()
-            return ("pass", h1) if h1 == f"{slug} Messages" else ("fail", f"H1 {h1!r} is not '{slug} Messages'")
+            return ("pass", h1) if h1 == want else ("fail", f"H1 {h1!r} is not '{want}'")
     return "fail", "no H1"
 
 

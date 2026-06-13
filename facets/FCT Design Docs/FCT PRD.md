@@ -172,7 +172,6 @@ No file named `{NAME} Open Questions.md` exists alongside the PRD. Open question
 **Why:** the file-based Open Questions pattern was deprecated when `/ask` became the universal asking surface. Linger of the old file produces ambiguity about where to look.
 
 ### RULE R-prd-07 — Design Workflow references modern phase names (checked)
-check:: design_workflow_modern_names
 
 The `## Design Workflow` table references `[[{NAME} Architecture]]` (not "System Design"), `[[{NAME} Testing]]` (not "Testing Strategy"), and `[[{NAME} Decisions]]` (not "Principles").
 

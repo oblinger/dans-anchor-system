@@ -1,0 +1,67 @@
+# HBR Architecture — three pipelines meeting at the SQLite catalog.
+# Source of truth for HBR Architecture.svg. Render:
+#   d2 "HBR Architecture.d2" "HBR Architecture.svg"
+
+direction: right
+
+config: {
+  label: "harbor.toml\n(watched roots · catalog path · listen addr)"
+  shape: page
+  style.fill: "#fff7e6"
+  style.stroke: "#d9a441"
+}
+
+catalog: {
+  label: "SQLite catalog\n(single file)"
+  shape: cylinder
+  style.fill: "#e8f0fe"
+  style.stroke: "#3b6fb6"
+  style.bold: true
+}
+
+ingest: {
+  label: "Ingest — writes rows"
+  style.fill: "#eef7ee"
+  style.stroke: "#4a8a4a"
+  scanner: Scanner
+  importer: Importer
+  deduper: Deduper
+  scanner -> importer -> deduper
+}
+
+serve: {
+  label: "Serve — reads to stream"
+  style.fill: "#f3eefa"
+  style.stroke: "#7a52a8"
+  streamer: Streamer
+  transcoder: Transcoder
+  cache: Cache
+  streamer -> transcoder
+  streamer -> cache
+}
+
+operate: {
+  label: "Operate — watches the whole"
+  style.fill: "#fdeef0"
+  style.stroke: "#b6536a"
+  backup: Backup
+  metrics: Metrics
+  alerts: Alerts
+}
+
+viewer: {
+  label: "Viewer (LAN web app)\nLibrary · Player"
+  shape: rectangle
+  style.fill: "#f5f5f5"
+  style.stroke: "#888888"
+}
+
+config -> ingest: configures {style.stroke-dash: 3}
+config -> serve: configures {style.stroke-dash: 3}
+config -> operate: configures {style.stroke-dash: 3}
+
+ingest.deduper -> catalog: write rows
+catalog -> serve.streamer: read rows
+catalog -> operate.backup: checkpoint
+operate.metrics -> serve: sample load {style.stroke-dash: 3}
+serve -> viewer: stream + UI

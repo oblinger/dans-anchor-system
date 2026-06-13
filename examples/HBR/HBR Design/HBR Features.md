@@ -8,6 +8,7 @@ The feature index for Harbor — one row per F-numbered feature doc, newest firs
 | --- | --- |
 | Anchor | [[HBR Design]] (parent) |
 | Related | [[HBR Backlog]],  [[HBR Roadmap]],   |
+| ^^^ | |
 
 - **F003 — Transcode fallback** `[Designing]` — pick the output codec when direct play fails. → [[HBR Backlog]]
 - **F002 — Direct-play streaming** `[Active]` — byte-range session for already-playable files.
