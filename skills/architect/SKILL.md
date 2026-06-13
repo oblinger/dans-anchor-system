@@ -66,7 +66,7 @@ Feature spec: `[[F074 — Architect skill — Architecture as anchor folder with
 
 **Subsystem-as-folder upgrade** is reversible and case-by-case: subsystems start as a single file and upgrade only when one or more modules within them grow architecture-level discussion that won't fit in a modules-table cell. Single-subsystem systems collapse the top-level Architecture and the lone subsystem doc into one file.
 
-`{NAME} Principles.md` continues to live in `{NAME} Docs/{NAME} Plan/` (sibling to Rules, PRD) per `[[FCT Principles]]`. Architecture cross-links to Principles; it doesn't absorb them.
+A project's value statements (formerly `{NAME} Principles.md`) now live as D-records in `{NAME} Decisions.md` per `[[FCT Decisions]]` — the Principles facet was retired and absorbed into Decisions (F113). Architecture cross-links to those decisions; it doesn't absorb them.
 
 
 ## Top-level `{NAME} Architecture.md`
@@ -227,7 +227,7 @@ The skill presumes the user is the original author of the design. Every `/archit
 - `[[FCT Architecture]]` — the facet spec for `{NAME} Architecture/` and subsystem docs.
 - **Legacy `{NAME} System Design/`** — `[[FCT System Design]]` was kept as a parallel facet per F074 Q4=a, but that was reversed 2026-05-26. New anchors never create a System Design folder. Legacy ones (currently only MUX) get absorbed: `### Architectural Commitments` migrates into Architecture; the rest of the System Design content moves to `{NAME} Postmortems/legacy System Design/` as preserved historical reference.
 - `[[FCT API Doc]]` — defines the `Arch` row in module-doc dispatch tables and the `module_docs_audited:` frontmatter contract.
-- `[[FCT Principles]]` — Architecture cross-links to Principles; Architecture does not absorb them.
+- `[[FCT Decisions]]` — value statements (formerly Principles, now retired) live here as D-records; Architecture cross-links to them, doesn't absorb them.
 - `[[audit-docs]]` — writes `module_docs_audited:` to `{NAME} Dev.md` frontmatter at the end of every audit pass; the source of truth `/architect`'s staleness precondition reads.
 - `[[SKA ask]]` — universal Q-parking subroutine.
 - `[[SKA triage]]` — provides the Q.md regen helper that `/architect` calls as its post-condition.

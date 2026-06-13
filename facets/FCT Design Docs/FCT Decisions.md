@@ -10,6 +10,10 @@ A **decision** is a specific applied choice with rationale, recorded at the anch
 
 See [[FCT Ruleset]] for the companion facet (rule sets + per-anchor optional `{NAME} Rules.md`). See [[Rule Sets]] for the catalog.
 
+## Value statements (absorbed from the retired Principles facet)
+
+A decision is not only a concrete applied choice ("we use `Sys` as the singleton clock"). It can also be a **value statement** — the load-bearing *why* behind the codebase's recurring choices ("Fail Loudly — errors propagate, no silent fallbacks"; "One Queue, One Clock — all scheduling flows through a single priority queue and injected clock"). These were formerly their own `{NAME} Principles.md` facet (P-records); per [[F113 — Decisions facet — unify Principles + Rules; relocate Architecture|F113]] they are now ordinary **D-records** — typically the most foundational and rarely-changing ones (a value-statement change signals a project pivot). Other docs reference them by ID exactly as they reference any decision: System Design and Architecture cite them when explaining a choice (`shaped by [[{NAME} Decisions#D01|D01]]`), and a rule may name the decision it encodes via its `**Cites:**` reciprocity. The separate Principles file is retired — value statements live here.
+
 ## Architecture (per 2026-06-08)
 
 `{NAME} Decisions.md` is the **master adoption + decision record** for an anchor. It has three load-bearing sections in order:
