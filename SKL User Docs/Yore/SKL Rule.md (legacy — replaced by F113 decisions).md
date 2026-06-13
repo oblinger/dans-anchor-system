@@ -19,7 +19,7 @@ Rules are not aspirational — they describe how the code should work right now.
 | `/rule triage` | Adversarial re-evaluation — challenge grades, find missed violations |
 | `/rule fix` | Execute a fix spec via `/code bugfix` |
 | `/rule sync` | Reconcile rules file with code after changes land |
-| `/rule consider` | Recommend standard rule sets for a project, then apply approved ones |
+| `/rule consider` | Recommend standard rulesets for a project, then apply approved ones |
 
 ## Key Concepts
 
@@ -29,5 +29,5 @@ Rules are not aspirational — they describe how the code should work right now.
 - **Grades** — A (necessary, keep), B (reasonable), C (tolerable), D (weak, needs redesign), F (remove). Optional +/- modifiers
 - **For/Against** — Each exception documents Purpose, Keep rationale, Alternative (concrete spec), and Gain/Loss assessment
 - **Rules file** — Located via `cab-config get rules`. Contains H2 category sections, H3 rules with RULE: declarations, and exception tables
-- **Standard rule sets** — `/rule consider` recommends pre-built rule categories appropriate for your project type
+- **Standard rulesets** — `/rule consider` recommends pre-built rule categories appropriate for your project type
 - **Triage is adversarial** — `/rule triage` deliberately challenges existing grades, looking for exceptions that are graded too generously

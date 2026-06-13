@@ -2,7 +2,7 @@
 include:: [[FCT API Design#RULESET R-api|embedded body]]
 description:: Catalog stub — rules for `{NAME} API Design.md`, the *programmatic* user-facing surface intent. Canonical body lives embedded in [[FCT API Design]].
 
-Catalog-side stub for the API Design facet's rule set. The canonical body lives embedded inside the [[FCT API Design]] facet file per the [[F133 — Rule sets folder convention + facet embedding|F133]] convention.
+Catalog-side stub for the API Design facet's ruleset. The canonical body lives embedded inside the [[FCT API Design]] facet file per the [[F133 — Rulesets folder convention + facet embedding|F133]] convention.
 
 **To see the actual rules:** follow [[FCT API Design#RULESET R-api|the embedded block]]. 9 rules covering:
 
@@ -23,7 +23,7 @@ Pulled automatically via the [[R-facet]] umbrella; an anchor adopting `include::
 ## See also
 
 - [[FCT API Design]] — facet spec; contains the embedded RULESET body.
-- [[R-ux]] — paired peer rule set for human surface.
+- [[R-ux]] — paired peer ruleset for human surface.
 - [[R-facet]] — umbrella catalog.
 - [[CAE API Design]] — worked example.
 - [[FCT API Doc]] — distinct facet covering per-module reference documentation (different altitude — intent vs reference).

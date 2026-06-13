@@ -2,31 +2,30 @@
 description: "Curated, versioned bundles of rules."
 ---
 
-# Rule Sets
+# Rulesets
 
 | -[[Rulesets]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [Rulesets](hook://p/Rulesets)<br>: Curated, versioned bundles of rules. |
 | --- | --- |
-| Related | [[Rule Sets Brief\|Brief]],  [[FCT Ruleset]],  [[FCT Decisions]],   |
-| **CAB-aligned umbrellas** | The three primary structural axes — rule sets tied to CAB Facets, Traits, Skills. Adopting an umbrella pulls every per-X rule set under it. |
-| [[R-facet]] | Per-facet rule sets. Each child is a thin catalog stub pointing at a `# RULESET R-<facet>` block embedded in its `CAB Facets/<Facet>.md` spec. Children: [[R-testing]] (9 rules), [[R-status]] (10 rules), [[R-log]] (9 rules), [[R-stories]] (9 rules), [[R-prd]] (9 rules), [[R-design]] (7 rules), [[R-naming]] (5 rules), [[R-roadmap]] (11 rules), [[R-completed-roadmap]] (6 rules), [[R-ux]] (8 rules), [[R-api]] (9 rules), [[R-discussion]] (9 rules — first doc-scoped facet). Remaining ~40 facets to populate via dedicated sweep. |
-| [[R-trait]] | Per-trait rule sets — to embed in `CAB Traits/<Trait>.md` specs. Children: [[R-paper]], [[R-simple]], [[R-skill-anchor]], [[R-topic]]. |
-| [[R-skill]] | Per-skill rule sets — to embed in `~/.claude/skills/<skill>/SKILL.md` specs. First candidates: R-ask, R-feature, R-atlas. |
+| Related | [[Rulesets Brief\|Brief]],  [[FCT Ruleset]],  [[FCT Decisions]],   |
+| **CAB-aligned umbrellas** | The three primary structural axes — rulesets tied to CAB Facets, Traits, Skills. Adopting an umbrella pulls every per-X ruleset under it. |
+| [[R-facet]] | Per-facet rulesets. Each child is a thin catalog stub pointing at a `# RULESET R-<facet>` block embedded in its `CAB Facets/<Facet>.md` spec. Children: [[R-testing]] (9 rules), [[R-status]] (10 rules), [[R-log]] (9 rules), [[R-stories]] (9 rules), [[R-prd]] (9 rules), [[R-design]] (7 rules), [[R-naming]] (5 rules), [[R-roadmap]] (11 rules), [[R-completed-roadmap]] (6 rules), [[R-ux]] (8 rules), [[R-api]] (9 rules), [[R-discussion]] (9 rules — first doc-scoped facet). Remaining ~40 facets to populate via dedicated sweep. |
+| [[R-trait]] | Per-trait rulesets — to embed in `CAB Traits/<Trait>.md` specs. Children: [[R-paper]], [[R-simple]], [[R-skill-anchor]], [[R-topic]]. |
+| [[R-skill]] | Per-skill rulesets — to embed in `~/.claude/skills/<skill>/SKILL.md` specs. First candidates: R-ask, R-feature, R-atlas. |
 | **Cross-cutting** | Not tied to a specific facet, trait, or skill. Pulled in when explicitly opted into. |
 | [[R-arch]] | Architecture rules — code organization, module structure, dependency direction. Placeholder; future: `R-factory-pegboard`, `R-interfaces-folder`, `R-single-source-of-truth`. |
-| [[R-code]] | Code-flavored rule sets — language/platform conventions. Contains [[R-mac]]. Future: `R-rust`, `R-python`, `R-typescript`, `R-shell`. |
+| [[R-code]] | Code-flavored rulesets — language/platform conventions. Contains [[R-mac]]. Future: `R-rust`, `R-python`, `R-typescript`, `R-shell`. |
 | [[R-diagram]] | Diagram authoring + validation — **umbrella over 7 methodology sub-sets, 22 rules total**: [[R-diagram-geometry]] (6), [[R-sugiyama]] (4), [[R-c4]] (4), [[R-wcag-contrast]] (2), [[R-bringhurst-typography]] (1), [[R-tufte-data-ink]] (2), [[R-svg-hygiene]] (3). Factored 2026-06-09 per F132 Phase 1; see [[R-diagram]] § Migration map for legacy R-diagram-NN → factored-ID lookup. |
 | [[R-doc]] | Documentation conventions. Contains [[R-markdown]] (10 rules — embedded in [[DSC markdown]] discipline; supersedes legacy [[R-md]]), [[R-file-association]] (7 rules — general typed-association pattern, embedded in [[DSC file-association]]) and its dated specialization [[R-dated-entry-stream]] (3 rules — embedded in [[DSC dated-entry-stream]]; inherits R-file-association). Future: `R-progressive-disclosure`, `R-wiki-links`, `R-file-naming`. |
 | [[R-git]] | Git discipline. Placeholder; future: `R-commit-discipline`, `R-pr-workflow`, `R-no-force-main`. |
 | [[R-process]] | Process rules. Placeholder; future: `R-feature-lifecycle`, `R-verification-tiers`. |
 | [[R-test]] | Testing posture. Placeholder; future: `R-integration-not-mock`, `R-deterministic`, `R-property-based`. |
 | **Owner-scoped** | Apply to every anchor a given owner owns, regardless of trait. |
-| [[R-ob]] | Dan's personal Ob-flavored rule sets. Children: [[R-ob-state-mgt]] (3 rules), [[R-ob-observability]] (2 rules), [[R-ob-cmd-proc]] (13 rules). |
+| [[R-ob]] | Dan's personal Ob-flavored rulesets. Children: [[R-ob-state-mgt]] (3 rules), [[R-ob-observability]] (2 rules), [[R-ob-cmd-proc]] (13 rules). |
 | --- | |
-| [[R-anchor]] | Everything checked when auditing a whole anchor — the entry page + naming + planning facets, plus the doc-level rule sets (via R-doc) for every document the anchor contains. |
+| [[R-anchor]] | Everything checked when auditing a whole anchor — the entry page + naming + planning facets, plus the doc-level rulesets (via R-doc) for every document the anchor contains. |
 | [[R-brief]] | Rules for the Brief doc facet — agent-facing per-file maintenance content (inline `# BRIEF` or `<Name> Brief.md` sidecar). Canonical body embedded in |
 | [[R-messages]] | Rules for the {NAME} Messages facet — the agent's per-anchor background-process inbox, distinct from the user's Inbox. Canonical body embedded in |
 | [[Rulesets/README]] |  |
-| [[Rulesets Brief\|Brief]] |  |
 
 ## Status
 

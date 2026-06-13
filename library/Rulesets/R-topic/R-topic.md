@@ -1,5 +1,5 @@
 # RULESET R-topic
-description:: Topic-anchor rule sets — knowledge/reference anchors (folders of notes, surveys, glossaries). Adopt the umbrella to pull all topic rule sets.
+description:: Topic-anchor rulesets — knowledge/reference anchors (folders of notes, surveys, glossaries). Adopt the umbrella to pull all topic rulesets.
 includes::
 
 (Placeholder — speculative; trait-scoped scaffolding for the topic-anchor trait.)

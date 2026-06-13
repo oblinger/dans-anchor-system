@@ -2,7 +2,7 @@
 
 This folder holds **canonical decision sets** (post-F113 successor to `~/.claude/skills/rule/sets/`). Each set is a standalone markdown doc bundling related decisions that apply to a specific style of anchor or a specific cross-cutting concern.
 
-Per [[F113 — Decisions facet — unify Principles + Rules; relocate Architecture]] Phase 3: decision sets supersede rule sets. When an anchor pulls a set in, the set's decisions get renumbered into the anchor's local D-NN namespace and appended as an H2 grouping in `{NAME} Decisions.md` (per F113 Q2 — copy-in semantics).
+Per [[F113 — Decisions facet — unify Principles + Rules; relocate Architecture]] Phase 3: decision sets supersede rulesets. When an anchor pulls a set in, the set's decisions get renumbered into the anchor's local D-NN namespace and appended as an H2 grouping in `{NAME} Decisions.md` (per F113 Q2 — copy-in semantics).
 
 ## Layout
 
@@ -117,6 +117,6 @@ Brief paragraph: what this set is, when it applies.
 ## Related
 
 - [[F113 — Decisions facet — unify Principles + Rules; relocate Architecture]] — the umbrella feature; Phase 3 commissions decision sets.
-- [[F082 — Common rule set across projects]] — F082 ships the predecessor `rule/sets/` library; F113 Phase 3 migrates it here.
+- [[F082 — Common ruleset across projects]] — F082 ships the predecessor `rule/sets/` library; F113 Phase 3 migrates it here.
 - [[FCT Decisions]] — per-anchor Decisions facet spec.
 - [[CAB Traits]] — the canonical trait taxonomy.

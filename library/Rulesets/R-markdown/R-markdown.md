@@ -2,7 +2,7 @@
 include:: [[DSC markdown#RULESET R-markdown\|embedded body]]
 description:: Mechanical + authoring rules for every markdown document; cited by every facet and skill that produces markdown.
 
-Catalog-side stub for the markdown discipline's rule set. Canonical body lives embedded inside the [[DSC markdown]] discipline file per the [[F133 — Rule sets folder convention + facet embedding|F133]] convention.
+Catalog-side stub for the markdown discipline's ruleset. Canonical body lives embedded inside the [[DSC markdown]] discipline file per the [[F133 — Rulesets folder convention + facet embedding|F133]] convention.
 
 **To see the actual rules:** follow [[DSC markdown#RULESET R-markdown|the embedded block]]. 10 rules covering:
 
@@ -11,7 +11,7 @@ Catalog-side stub for the markdown discipline's rule set. Canonical body lives e
 
 ## Position in the catalog
 
-Sits under [[R-doc]] (cross-cutting documentation conventions umbrella). [[R-md]] (the older "markdown rendering" rule set under R-doc) is **superseded** by R-markdown — F139 sweeps remaining `[[R-md]]` citations.
+Sits under [[R-doc]] (cross-cutting documentation conventions umbrella). [[R-md]] (the older "markdown rendering" ruleset under R-doc) is **superseded** by R-markdown — F139 sweeps remaining `[[R-md]]` citations.
 
 ## Adoption
 

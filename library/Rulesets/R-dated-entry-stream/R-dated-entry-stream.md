@@ -2,7 +2,7 @@
 include:: [[DSC dated-entry-stream#RULESET R-dated-entry-stream|embedded body]]
 description:: Catalog stub — rules for streams of dated, typed, reverse-chronological entries attached to a parent doc or anchor. Canonical body lives embedded in [[DSC dated-entry-stream]].
 
-Catalog-side stub for the dated-entry-stream sub-discipline's rule set. The canonical body lives embedded inside the [[DSC dated-entry-stream]] discipline file per the [[F133 — Rule sets folder convention + facet embedding|F133]] convention.
+Catalog-side stub for the dated-entry-stream sub-discipline's ruleset. The canonical body lives embedded inside the [[DSC dated-entry-stream]] discipline file per the [[F133 — Rulesets folder convention + facet embedding|F133]] convention.
 
 **To see the actual rules:** follow [[DSC dated-entry-stream#RULESET R-dated-entry-stream|the embedded block]]. 9 rules covering:
 
@@ -22,7 +22,7 @@ Sits under [[R-doc]] (documentation conventions umbrella). Sub-discipline of [[D
 
 ## Adoption
 
-This rule set is cited explicitly by each facet that uses it (in their `R-<facet>` block, via a delegation note). Not pulled by the [[R-facet]] umbrella — it is a discipline rule set, not a per-facet rule set.
+This ruleset is cited explicitly by each facet that uses it (in their `R-<facet>` block, via a delegation note). Not pulled by the [[R-facet]] umbrella — it is a discipline ruleset, not a per-facet ruleset.
 
 ## See also
 

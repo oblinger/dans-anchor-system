@@ -3,10 +3,10 @@ description: "Diagram authoring + validation rules: ASCII-forbidden, hand-writte
 ---
 # Diagram
 
-> [!info] Rule-set category folder
-> This folder groups all rule sets related to diagram authoring + validation. Currently one set: [[R-diagram]] (umbrella, 22 rules in 5 zones). Future composition candidates: `R-sugiyama` (graph-drawing aesthetics), `R-c4` (diagram semantic conventions), `R-wcag-contrast` (accessibility) — each could be factored out and included by `R-diagram` as the catalog grows.
+> [!info] Ruleset category folder
+> This folder groups all rulesets related to diagram authoring + validation. Currently one set: [[R-diagram]] (umbrella, 22 rules in 5 zones). Future composition candidates: `R-sugiyama` (graph-drawing aesthetics), `R-c4` (diagram semantic conventions), `R-wcag-contrast` (accessibility) — each could be factored out and included by `R-diagram` as the catalog grows.
 
-## Rule sets in this folder
+## Rulesets in this folder
 
 - **[[R-diagram]]** — Umbrella set: 22 rules across structural (DRC-blockers) / aesthetic (Sugiyama-style) / semantic (C4) / accessibility-typography (WCAG/Bringhurst) / hygiene zones. Adopted by [[CAE Rules]] as the worked example.
 
@@ -17,5 +17,5 @@ description: "Diagram authoring + validation rules: ASCII-forbidden, hand-writte
 ## See also
 
 - [[Rulesets]] — parent catalog
-- [[FCT Ruleset]] — rule-set format spec
+- [[FCT Ruleset]] — ruleset format spec
 - [[viz-svg]] — companion skill for hand-authoring SVG figures

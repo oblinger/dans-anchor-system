@@ -2,7 +2,7 @@
 
 Facet spec for `{NAME} PRD.md` — the first doc in an anchor's Design folder, defining what the product does (goals, non-goals, user stories) for every downstream design phase to consume.
 
-description:: PRD facet — `{NAME} PRD.md` defines what the product does; goals, non-goals, user stories. First doc in the Design folder; consumed by every downstream design phase.
+description:: facet spec this doc follows
 
 The PRD (`{NAME} PRD.md`) is the **what** of the product — what it does, who it serves, what's in and out of scope, and the user stories that downstream work realizes. It is the first document written during `/design`, and every downstream phase (UX, Architecture, Testing, Roadmap, Features) reads it as authoritative input.
 

@@ -2,7 +2,7 @@
 include:: [[FCT Discussion#RULESET R-discussion|embedded body]]
 description:: Catalog stub — rules for `# Discussion` (inline) or `{Doc} Discussions.md` (extracted), the first *document-scoped* facet. Canonical body lives embedded in [[FCT Discussion]].
 
-Catalog-side stub for the Discussion facet's rule set. The canonical body lives embedded inside the [[FCT Discussion]] facet file per the [[F133 — Rule sets folder convention + facet embedding|F133]] convention.
+Catalog-side stub for the Discussion facet's ruleset. The canonical body lives embedded inside the [[FCT Discussion]] facet file per the [[F133 — Rulesets folder convention + facet embedding|F133]] convention.
 
 **To see the actual rules:** follow [[FCT Discussion#RULESET R-discussion|the embedded block]]. 9 rules covering:
 

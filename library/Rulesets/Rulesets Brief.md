@@ -1,6 +1,6 @@
-# Rule Sets Brief
+# Rulesets Brief
 
-Editing-and-maintenance brief for [[Rulesets]]. Read before adding a new rule set folder, restructuring the catalog, or auditing what belongs here.
+Editing-and-maintenance brief for [[Rulesets]]. Read before adding a new ruleset folder, restructuring the catalog, or auditing what belongs here.
 
 ## What this catalog is
 
@@ -8,7 +8,7 @@ Curated, versioned bundles of rules. Each set is a standalone markdown doc bundl
 
 ## Five kinds of sets
 
-- **CAB-aligned umbrellas** — the three primary structural axes paralleling CAB's own categories: [[R-facet]] (per-facet), [[R-trait]] (per-trait), [[R-skill]] (per-skill). Each umbrella's `includes::` rolls up rule sets that eventually embed into the corresponding CAB spec file (`CAB Facets/<Facet>.md`, `CAB Traits/<Trait>.md`, or `~/.claude/skills/<skill>/SKILL.md`).
+- **CAB-aligned umbrellas** — the three primary structural axes paralleling CAB's own categories: [[R-facet]] (per-facet), [[R-trait]] (per-trait), [[R-skill]] (per-skill). Each umbrella's `includes::` rolls up rulesets that eventually embed into the corresponding CAB spec file (`CAB Facets/<Facet>.md`, `CAB Traits/<Trait>.md`, or `~/.claude/skills/<skill>/SKILL.md`).
 - **Cross-cutting / global** — not tied to a specific facet, trait, or skill (`R-arch`, `R-code`, `R-diagram`, `R-doc`, `R-git`, `R-process`, `R-test`). Pulled in when an anchor explicitly opts in. "Cross-cutting" and "global" mean essentially the same thing — global = not within a particular topic area.
 - **Trait-scoped** — children of [[R-trait]] (`R-paper`, `R-simple`, `R-skill-anchor`, `R-topic`). Activate when the anchor declares the matching Trait. Migrate into `CAB Traits/<Trait>.md` specs as content firms up.
 - **Owner-scoped** — pulled in by every anchor a given owner owns, regardless of trait (`R-ob` = Dan's personal set).
@@ -16,13 +16,13 @@ Curated, versioned bundles of rules. Each set is a standalone markdown doc bundl
 
 ## Rules vs decisions — the vocabulary distinction
 
-A **rule** is a standing constraint or guideline — portable, reusable, audit-checkable. Lives in a Rule Set; gets adopted across many anchors. "ASCII forbidden in architecture diagrams." "Must use Helvetica."
+A **rule** is a standing constraint or guideline — portable, reusable, audit-checkable. Lives in a Ruleset; gets adopted across many anchors. "ASCII forbidden in architecture diagrams." "Must use Helvetica."
 
 A **decision** is a specific applied choice with rationale, recorded at the anchor level in `{NAME} Decisions.md`. "We chose SQLite for TaskStore because of operator-readability." A decision cites the rule(s) it applies; the rationale is what makes it a *decision* and not just a rule citation.
 
 The relationship:
 
-- **Rule Sets** (this catalog) bundle rules. Each rule has an audit-tier annotation (`tracked` / `checked` / `sampled` / `stated`).
+- **Rulesets** (this catalog) bundle rules. Each rule has an audit-tier annotation (`tracked` / `checked` / `sampled` / `stated`).
 - **Anchor Decisions** (`{NAME} Decisions.md`) record the anchor's specific applied choices.
 - **Audit** walks the decisions in an anchor's `{NAME} Decisions.md`, collects every referenced rule, and verifies each rule is satisfied. The rules are what get checked; the decisions are how the anchor declares which rules apply here and why.
 
@@ -30,11 +30,11 @@ The relationship:
 
 ## Folder-file convention
 
-Every rule-set folder named `R-<name>/` contains a folder-file `R-<name>.md` that is itself a RULESET. The folder-file's `includes::` line rolls up all child rule sets in the folder. Adopting the folder umbrella (e.g., `include:: [[R-code]]`) is equivalent to adopting every child set; cherry-pick individual children for finer control.
+Every ruleset folder named `R-<name>/` contains a folder-file `R-<name>.md` that is itself a RULESET. The folder-file's `includes::` line rolls up all child rulesets in the folder. Adopting the folder umbrella (e.g., `include:: [[R-code]]`) is equivalent to adopting every child set; cherry-pick individual children for finer control.
 
 ## Pull semantics
 
-When an anchor adopts a rule set:
+When an anchor adopts a ruleset:
 
 1. The set's rules are referenced from the anchor's `{NAME} Decisions.md` as a top-of-file `include::` line.
 2. Each rule retains its source-set identity (`R-sugiyama-01` doesn't become `R-mine-23`).
@@ -45,7 +45,7 @@ When an anchor adopts a rule set:
 
 See [[FCT Ruleset]] for the prescriptive RULESET format (H1 sentinel + `include::` + `description::` + H3 rule entries with tier annotation). The earlier YAML-frontmatter form is legacy; remaining instances ([[R-mac]]) will be migrated per F133.
 
-## How to add a new rule set
+## How to add a new ruleset
 
 1. Create `Rule Sets/R-<name>/R-<name>.md` (with `.anchor` marker).
 2. Use the prescriptive RULESET format per [[FCT Ruleset]].

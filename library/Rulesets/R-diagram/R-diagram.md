@@ -6,9 +6,9 @@ Hand-authored figures (architecture, flow, sequence, mockup diagrams) ship clean
 
 Factored 2026-06-09 from a monolithic 22-rule R-diagram set, per F132 Phase 1. Each sub-set carries its own provenance callout in its file.
 
-## Diagram rule sets
+## Diagram rulesets
 
-| Rule set | Rules | What it covers |
+| Ruleset | Rules | What it covers |
 | --- | --- | --- |
 | [[R-diagram-geometry]] | 6 | Hard-fail geometric correctness — overlap, floating endpoints, tunneling, text overflow, label-target ambiguity, label-label collision. A violation means *broken*, not stylistically off. |
 | [[R-sugiyama]] | 4 | Graph-drawing aesthetics — edge-crossing minimization, bend budget, monotone flow direction, grid alignment. Below the hard-fail threshold; violations are warnings. |
