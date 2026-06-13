@@ -117,8 +117,8 @@ In codebases without a clear single root (multi-binary workspaces, monorepos), t
 
 ## Cross-references
 
-- **[[FCT Files]]** — the audit-tied tree; Interface is linked from row 1.
-- **[[FCT API Doc]]** — auto-generated per-module reference; Interface is the human-authored layer contract that groups modules into a vocabulary.
+- **[[FCT All Files]]** — the audit-tied tree; Interface is linked from row 1.
+- **[[FCT Module Doc]]** — auto-generated per-module reference; Interface is the human-authored layer contract that groups modules into a vocabulary.
 - **[[FCT Architecture]]** — the *how* (internal structure, flow, design rationale); Interface is the *what callers see*.
 - **[[FCT User Dispatch]]** — Interface lives here.
 - **[[SKA workflow]]** § Interface-validation gate — user-collaboration gate for new and significantly-modified Interfaces.
@@ -130,6 +130,6 @@ In codebases without a clear single root (multi-binary workspaces, monorepos), t
 - **NOT for per-anchor Interface content** — concrete Interface text for OBU, MUX, etc. lives in those anchors' own `{NAME} Interface.md`; this file holds only the rule, never an instance of the rule.
 - **Inclusion test** — a change belongs here only if it alters the contract every Interface doc must satisfy (invariants, required sections, required links, lifecycle gates, audit checks). Anchor-specific guidance, scaffold templates, and rewire mechanics belong in [[SKA rewire]] or the anchor itself, not here.
 - **Load-bearing constraints to preserve** — the four Defining Properties, the two Required Links (`{NAME} Files.md` row 1 ends with `→ [[{NAME} Interface]]`; `{NAME} User.md` lists it), the `## What's Hidden` self-check pattern, and the audit category names under § Audit Categories (those names are cited by `/audit docs`); do not rename or drop without updating callers.
-- **Cross-spec consistency** — when editing, keep aligned with [[FCT Files]] (row 1 link contract), [[FCT API Doc]] (auto-generated vs. human-authored split), [[FCT Architecture]] (the *how* vs. *what callers see* distinction), [[FCT User Dispatch]] (location/listing), and [[SKA workflow]] (validation gate). A drift here propagates to all of them.
+- **Cross-spec consistency** — when editing, keep aligned with [[FCT All Files]] (row 1 link contract), [[FCT Module Doc]] (auto-generated vs. human-authored split), [[FCT Architecture]] (the *how* vs. *what callers see* distinction), [[FCT User Dispatch]] (location/listing), and [[SKA workflow]] (validation gate). A drift here propagates to all of them.
 - **Section menu is a menu, not a checklist** — the `## Document Structure` table lists canonical sections; not every Interface uses all of them. Don't add "always required" to optional rows or remove rows because some anchor doesn't use them.
 - **Hiding discipline applies to this spec too** — resist adding implementation-detail prose about how rewire scaffolds, how validation runs, or how audits execute; link to [[SKA rewire]] / [[SKA workflow]] / [[audit-docs]] and let those own the mechanics.

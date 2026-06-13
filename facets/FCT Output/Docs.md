@@ -49,7 +49,7 @@ Most anchors (beyond simple ones) have a `{NAME} Docs/` folder containing planni
 | `{NAME} Icebox.md` | Cold-storage / someday-maybe items (see [[FCT Icebox]]) — optional |
 | `{NAME} Todo.md` | Active task tracking |
 | `{NAME} Features/` | Individual feature specs (see [[FCT Features]]) |
-| `{NAME} {Module}.md` | Source code module documentation (see [[FCT API Doc]]) |
+| `{NAME} {Module}.md` | Source code module documentation (see [[FCT Module Doc]]) |
 
 Not all files are required — create what's useful for the anchor. The Inbox is always created with new anchors.
 

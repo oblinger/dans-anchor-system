@@ -3,7 +3,6 @@ description: The Brief doc facet — agent-facing per-file editing-and-maintenan
 ---
 
 # FCT Brief
-
 A **Brief** is a **document facet** — a bounded, authored content part attached to a source file (the `# BRIEF` H1 section in Phase 1; a `<Name> Brief.md` sidecar in Phase 2). It is **agent-facing** operational content: the information an agent needs to maintain that specific source file correctly — content too specific for project-wide CLAUDE.md, too narrow for a CAB facet spec, and too verbose to inline at the top of every source file.
 
 > [!note] Classification — doc facet, peer to [[FCT Discussion]]

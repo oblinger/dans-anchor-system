@@ -26,5 +26,5 @@ Pulled automatically via the [[R-facet]] umbrella; an anchor adopting `include::
 - [[R-ux]] — paired peer ruleset for human surface.
 - [[R-facet]] — umbrella catalog.
 - [[CAE API Design]] — worked example.
-- [[FCT API Doc]] — distinct facet covering per-module reference documentation (different altitude — intent vs reference).
+- [[FCT Module Doc]] — distinct facet covering per-module reference documentation (different altitude — intent vs reference).
 - [[Rulesets]] — top-level catalog.

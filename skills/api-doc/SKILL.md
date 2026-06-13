@@ -1,7 +1,7 @@
 ---
 name: api-doc
 description: >
-  Author or revise an API documentation file conforming to [[FCT API Doc]]
+  Author or revise an API documentation file conforming to [[FCT Module Doc]]
   facet. Reads source code, generates the doc skeleton (SECTIONS table,
   per-class tables with bold-identifier rows, Class Method Details zone with
   block-ID-targeted method H3s), authors the figure via the viz/excalidraw
@@ -16,9 +16,9 @@ user_invocable: true
 
 # /api-doc — Author and Maintain API Documentation
 
-`/api-doc` authors or revises an API documentation file conforming to the [[FCT API Doc]] facet. The facet is the rule source; this skill is the procedure. A companion `audit-api-doc.py` script (invoked as `/audit api-doc <file>`) performs mechanical conformance checks; the agent fixes warnings to zero, then does a subjective re-read for the rules mechanical checks can't cover (figure readability, prose clarity, layout judgment).
+`/api-doc` authors or revises an API documentation file conforming to the [[FCT Module Doc]] facet. The facet is the rule source; this skill is the procedure. A companion `audit-api-doc.py` script (invoked as `/audit api-doc <file>`) performs mechanical conformance checks; the agent fixes warnings to zero, then does a subjective re-read for the rules mechanical checks can't cover (figure readability, prose clarity, layout judgment).
 
-Feature spec: `[[F119 — api-doc skill + audit-api-doc.py — author audit iterate for CAB API Doc facet]]`. Companion spec: `[[FCT API Doc]]` (the facet — read it before authoring).
+Feature spec: `[[F119 — api-doc skill + audit-api-doc.py — author audit iterate for CAB API Doc facet]]`. Companion spec: `[[FCT Module Doc]]` (the facet — read it before authoring).
 
 
 ## When to Use
@@ -41,7 +41,7 @@ Feature spec: `[[F119 — api-doc skill + audit-api-doc.py — author audit iter
 
 Before any authoring step, validate the environment is set up:
 
-1. **Facet readable** — `[[FCT API Doc]]` exists at `~/ob/kmr/SYS/Bespoke/Skill Agent/CAB/CAB Facets/CAB API Doc.md`. Use `ha -p "CAB API Doc"` to confirm. If missing, STOP — surface to user.
+1. **Facet readable** — `[[FCT Module Doc]]` exists at `~/ob/kmr/SYS/Bespoke/Skill Agent/CAB/CAB Facets/CAB API Doc.md`. Use `ha -p "CAB API Doc"` to confirm. If missing, STOP — surface to user.
 2. **viz/excalidraw available** — `~/.claude/skills/viz/excalidraw_to_svg.py` exists. Required for figure authoring. If missing, surface to user before proceeding.
 3. **audit script available** — `~/.claude/skills/audit/scripts/audit-api-doc.py` exists. Required for the iterate loop.
 4. **Source exists and is readable** — the target source file/folder exists; not a broken symlink.
@@ -63,7 +63,7 @@ Before any authoring step, validate the environment is set up:
 ## Runbook — new authoring
 
 ### 1. Read the facet
-**Read `[[FCT API Doc]]`** in full before authoring. The facet defines what an API doc IS — every formatting decision, naming convention, spacing rule, table shape lives there. The subjective re-read at the end (step 8) consults this same file again, so it must be loaded fully.
+**Read `[[FCT Module Doc]]`** in full before authoring. The facet defines what an API doc IS — every formatting decision, naming convention, spacing rule, table shape lives there. The subjective re-read at the end (step 8) consults this same file again, so it must be loaded fully.
 
 ```bash
 # Locate via ha (or direct path)
@@ -85,7 +85,7 @@ Read the source file(s) directly. For a folder, walk every source file with a pu
 Per F068 — don't ask the user about API content; the source IS authoritative.
 
 ### 4. Generate the doc skeleton
-Author the markdown structure per [[FCT API Doc]]. Key elements (full rules in the facet):
+Author the markdown structure per [[FCT Module Doc]]. Key elements (full rules in the facet):
 
 - **Frontmatter** — YAML with `description:` field.
 - **Breadcrumb** — `:>> [[anchor]] → [[Docs]] → [[Dev]] → [[Architecture]]` line.
@@ -109,7 +109,7 @@ Workflow:
 3. Embed: `![[{NAME} {ModuleName}.svg]]` (Obsidian wiki-embed syntax, NOT markdown image syntax).
 4. Open in ExcalidrawZ for user-editing: `open -a ExcalidrawZ "/path/to/file.excalidraw"`.
 
-Apply the layout guidelines from `[[FCT API Doc]]` § Layout guidelines: minimize crossings (one acceptable load-bearing crossing is OK), push secondary nodes off primary flow paths, keep text out of lines, short labels (`submit` not `submit(task, deadline)`), legend out of the way (default bottom), solid arrows for primary flow / dotted for derivation.
+Apply the layout guidelines from `[[FCT Module Doc]]` § Layout guidelines: minimize crossings (one acceptable load-bearing crossing is OK), push secondary nodes off primary flow paths, keep text out of lines, short labels (`submit` not `submit(task, deadline)`), legend out of the way (default bottom), solid arrows for primary flow / dotted for derivation.
 
 **Figure size: HARD RULE — spans full page width.** Author the `.excalidraw` content area ~1400-1600 px wide. In the markdown embed, use `![[{NAME} {ModuleName}.svg|1200]]` if Obsidian doesn't auto-scale to column width.
 
@@ -122,12 +122,12 @@ The script emits warnings with line numbers and rule references (C1-C26). Read t
 
 ### 7. Fix warnings to zero
 - **Mechanical fixes** (spacing, blank-line runs, normalization) — re-run with `--fix`: `/audit api-doc <file> --fix`. The script auto-fixes C3, C21, C22, C23, C24.
-- **Manual fixes** — every other warning needs hand-edit. The warning's rule reference points at the specific section of `[[FCT API Doc]]` that governs it.
+- **Manual fixes** — every other warning needs hand-edit. The warning's rule reference points at the specific section of `[[FCT Module Doc]]` that governs it.
 - **Re-run audit after fixing.** Iterate until the script reports zero warnings.
 
 ### 8. Subjective re-read
 
-Re-read `[[FCT API Doc]]` and walk through this **concrete subjective checklist**:
+Re-read `[[FCT Module Doc]]` and walk through this **concrete subjective checklist**:
 
 **File-level:**
 1. **One-glance gist** — could a reader who's never seen this module understand its purpose from the H1 + overview paragraph alone? If they'd need to scroll to the SECTIONS table or read prose past sentence 3, the overview is too dense or too abstract.
@@ -281,6 +281,6 @@ Same as new authoring with adjustments:
 
 ## Notes
 
-- This skill is the consumer of `[[FCT API Doc]]`. If the facet rules change, the skill stays the same; only the verifier (`audit-api-doc.py`) and the agent's behavior need to track the spec.
+- This skill is the consumer of `[[FCT Module Doc]]`. If the facet rules change, the skill stays the same; only the verifier (`audit-api-doc.py`) and the agent's behavior need to track the spec.
 - Mirrors the existing `/architect` + `audit-architecture.py` pattern. Same split: facet owns rules, skill owns procedure, script owns mechanical checks.
 - Two queued user consumers were the motivation for shipping (per F119). After this lands, exercise on those consumers and iterate any rough edges.

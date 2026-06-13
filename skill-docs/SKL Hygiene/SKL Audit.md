@@ -34,7 +34,7 @@ Audit results go to stat via `skl-stat add`. The punch list is a detail file. Th
 
 ### /code modules (the fixer)
 
-When the user approves fixes, the agent runs `/code modules` for each item. This reads the [[FCT API Doc]] reference example and creates/updates the doc.
+When the user approves fixes, the agent runs `/code modules` for each item. This reads the [[FCT Module Doc]] reference example and creates/updates the doc.
 
 ## Audit Types by Anchor Type
 

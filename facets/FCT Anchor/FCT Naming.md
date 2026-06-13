@@ -61,7 +61,7 @@ These facets each declare an alternative naming pattern, and their pattern is li
 
 - [[FCT Folder]] — folder layout (the marker-file convention is the simplest instance of this naming rule)
 - [[FCT Anchor Page]] — content of the `{NAME}.md` marker file
-- [[FCT Files]] — source-tree docs
+- [[FCT All Files]] — source-tree docs
 - F141 (future R-anchor umbrella) — collects R-naming + R-folder + R-anchor-page + R-files when those rulesets exist
 
 

@@ -36,5 +36,5 @@ The Messages-vs-Inbox split (agent-read background notes vs. user-dropped raw in
 - **What does NOT go here.** Project-wide rules → CLAUDE.md. Markdown-rendering rules → [[R-markdown]]. Inbox-facet rules → `CAB Inbox.md`. Brief / discipline content → the relevant CAB discipline file.
 - **Load-bearing distinction to preserve.** The frontmatter `description` and TLDR both call out the Messages-vs-Inbox split (agent-read background notes vs. user-dropped raw input); any future edit that loosens or removes that distinction breaks the facet's reason for existing.
 - **Linking conventions.** Refer to sibling facets by their CAB filename in wiki-links (`[[FCT Inbox]]`, `[[CAB Backlog]]`); refer to per-anchor instances with the `{NAME}` placeholder (`{NAME} Messages.md`), never a concrete anchor's name.
-- **Cross-references to keep in sync when this spec changes.** [[CAB Base]] dispatch tables, [[FCT All Files]] tree, and any anchor template that scaffolds a `{NAME} Messages.md` file.
+- **Cross-references to keep in sync when this spec changes.** [[CAB Base]] dispatch tables, [[FCT Anchor Tree]] tree, and any anchor template that scaffolds a `{NAME} Messages.md` file.
 

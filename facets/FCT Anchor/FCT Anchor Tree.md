@@ -1,9 +1,9 @@
 ---
 cssclasses:
   - monospace
-description: master file tree listing all possible anchor files
+description: anchor master tree — every possible doc/folder in an anchor, linked to its facet spec
 ---
-# FCT All Files
+# FCT Anchor Tree
 
 The annotated master file tree showing every possible file and folder that may appear inside a CAB anchor, with each named element wiki-linked to its governing facet spec.
 
@@ -32,7 +32,7 @@ See [[CAB Base]] shows files common to all anchors.
 │   │   │   └── ...
 │   │   ├── {NAME} [[CAB Backlog|Backlog]].md             Deferred work
 │   │   ├── {NAME} [[FCT Icebox|Icebox]].md              Cold-storage / someday-maybe (optional)
-│   │   ├── {NAME} [[FCT Files|Files]].md               File map with → doc links
+│   │   ├── {NAME} [[FCT All Files|Files]].md               File map with → doc links
 │   │   ├── {NAME} [[FCT Roadmap|Roadmap]].md             Milestones with checkbox tracking
 │   │   └── {NAME} [[FCT Inbox|Inbox]].md               Raw content to process
 │   │
@@ -45,8 +45,8 @@ See [[CAB Base]] shows files common to all anchors.
 │       ├── {NAME} Dev.md                Dispatch page (links Files + all modules)
 │       ├── {NAME} Architecture.md       System-level design
 │       ├── {NAME} engine/               ← mirrors src/engine/
-│       │   ├── {NAME} engine.md         [[FCT API Doc|Module doc]] for the folder
-│       │   └── {NAME} Scheduler.md      [[FCT API Doc|Module doc]] for a class
+│       │   ├── {NAME} engine.md         [[FCT Module Doc|Module doc]] for the folder
+│       │   └── {NAME} Scheduler.md      [[FCT Module Doc|Module doc]] for a class
 │       └── {NAME} api/                  ← mirrors src/api/
 │           ├── {NAME} api.md
 │           └── {NAME} Router.md
@@ -66,7 +66,7 @@ See [[CAB Base]] shows files common to all anchors.
 ├── docs/                        [[FCT Documentation Site|sync-pushed]] from {NAME} Docs/
 │   ├── user/                    ← from {NAME} User/
 │   └── dev/                     ← from {NAME} Dev/
-└── src/						 See [[FCT API Doc]] for format of linked module docs.
+└── src/						 See [[FCT Module Doc]] for format of linked module docs.
 
 
 ## Software Design Documents

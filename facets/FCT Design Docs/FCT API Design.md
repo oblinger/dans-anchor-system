@@ -7,7 +7,7 @@ description:: facet spec this doc follows
 API Design specifies the **programmatic user surface** of the anchor — what shape another piece of code (or another agent invoking this as a sub-skill) sees when integrating. It is sibling to [[FCT UX Design]] (the *human* user surface). The cut between them is **who the consumer is**: API = code calling; UX = human reading or invoking.
 
 > [!info] Scope guard
-> "API" here means the *intent* of the programmatic surface — how it's shaped, what it commits to. Distinct from [[FCT API Doc]] (per-module reference; *what exists* in the source tree, often generated) and from [[FCT Architecture]] (internal organization; *how* the system is built). API Design is the *what* of the public contract.
+> "API" here means the *intent* of the programmatic surface — how it's shaped, what it commits to. Distinct from [[FCT Module Doc]] (per-module reference; *what exists* in the source tree, often generated) and from [[FCT Architecture]] (internal organization; *how* the system is built). API Design is the *what* of the public contract.
 
 The API Design doc is the **current spec** — the contract surface today. Rationale lives in [[FCT Decisions]] or in the document's own *D-API<n>* design-decision rows (see [[#RULESET R-api|R-api]]). If the anchor has no programmatic consumer (no library form, no sub-skill invocation surface, no integration story), this facet is N/A; mark it `none` in [[FCT Status]] and omit the file.
 
@@ -55,7 +55,7 @@ See [[CAE API Design]] — the CAE scheduler crate shows the canonical shape for
 | Facet | Owns | Boundary |
 |---|---|---|
 | **[[FCT UX Design]]** | Human user-facing surface (CLI commands, screens, organization, output shapes for the eye). | Different *consumer*. |
-| **[[FCT API Doc]]** | Per-module reference documentation (what exists in the source tree, often generated). | Different *altitude* — API Design is intent; API Doc is reference. |
+| **[[FCT Module Doc]]** | Per-module reference documentation (what exists in the source tree, often generated). | Different *altitude* — API Design is intent; API Doc is reference. |
 | **[[FCT Architecture]]** | Internal organization (modules, dependency direction, layering). | Different *audience* — Architecture is for the system's builders; API Design is for consumers. |
 | **[[FCT Interface]]** | Internal layer/component contracts (between subsystems within the anchor). | Different *visibility scope* — Interface is internal; API Design is the public surface. |
 | **[[FCT CLI]]** | Exhaustive flag/exit-code reference for CLI binaries. | Different *form* — CLI doc is reference; API Design covers structured (`--json`) output contract when the CLI doubles as a programmatic surface. |
@@ -63,7 +63,7 @@ See [[CAE API Design]] — the CAE scheduler crate shows the canonical shape for
 ## See also
 
 - [[FCT UX Design]] — sibling facet covering the human surface.
-- [[FCT API Doc]] — reference documentation for the implemented modules.
+- [[FCT Module Doc]] — reference documentation for the implemented modules.
 - [[FCT Architecture]] — internal organization that backs the API surface.
 - [[FCT Decisions]] — bridge for D-API rows that cite rulesets.
 - [[FCT Status]] — `{NAME} Status.md` carries the API-Design facet state.
@@ -145,7 +145,7 @@ Load-bearing API choices (a chosen error envelope over an obvious alternative, a
 
 API Design owns the *intent* of the programmatic surface. It is NOT:
 
-- The per-module reference of *what exists* — that's [[FCT API Doc]].
+- The per-module reference of *what exists* — that's [[FCT Module Doc]].
 - The internal organization of the system — that's [[FCT Architecture]].
 - The human-facing surface — that's [[FCT UX Design]].
 
@@ -159,7 +159,7 @@ When API Design starts enumerating every function in every module, or narrating 
 
 - **This is the facet spec for `{NAME} API Design.md` — authority over shape, not over the contracts themselves.** Anchor-specific API contracts live in each anchor's own API Design doc; this file defines the spine (`## Consumer`, `## Surface`, `## Contract semantics`, `## Error model`, `## Stability + compatibility`, `## Design decisions`) and the embedded `R-api` ruleset those docs are audited against.
 - **Embedded `# RULESET R-api` is co-located, not external.** Per F133 the ruleset lives inside this facet file under a top-level `# RULESET R-api` H1, adopted via the `R-facet` umbrella; do NOT split it into a sibling file, and do NOT add per-rule commentary to the facet body — rule rationale belongs in each rule's **Why** paragraph.
-- **The cut against neighbors is load-bearing — don't blur it.** API Design = *intent* of the programmatic surface; [[FCT API Doc]] = *what exists* in source (reference); [[FCT Architecture]] = *internal organization*; [[FCT UX Design]] = *human* surface. When tempted to add per-module inventories, dependency narratives, or screen flows here, redirect to the sibling facet — citing the redirect is fine, inlining the content is leakage.
+- **The cut against neighbors is load-bearing — don't blur it.** API Design = *intent* of the programmatic surface; [[FCT Module Doc]] = *what exists* in source (reference); [[FCT Architecture]] = *internal organization*; [[FCT UX Design]] = *human* surface. When tempted to add per-module inventories, dependency narratives, or screen flows here, redirect to the sibling facet — citing the redirect is fine, inlining the content is leakage.
 - **Inclusion test for a new section / rule:** does it constrain what *every* anchor's API Design doc must contain or how it's shaped? If yes, it belongs here (as a section in the spine or as an `R-api-<n>` rule). If it's a contract decision specific to one anchor, it belongs in that anchor's API Design doc as a `D-API<n>` row, not here.
 - **Rule numbering is append-only.** New rules get the next free `R-api-<n>`; never renumber existing rules (downstream `D-API<n>` rows in anchor docs cite by number). When a rule is retired, leave the number burned and add a tombstone line — don't reuse the slot.
 - **`## Relationship to other facets` and `## See also` are the canonical cross-link surfaces.** When a new sibling facet ships or an existing one is renamed, update both tables here (and the corresponding `R-api-09` rule body which enumerates the cut) — stale cross-references silently teach the wrong boundary.

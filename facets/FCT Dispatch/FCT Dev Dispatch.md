@@ -61,8 +61,8 @@ The `{NAME} Dev.md` dispatch page inside the `{NAME} Dev/` folder. Lists the **a
 
 | Row | Part |
 |-----|------|
-| Files | [[FCT Files]] — single-page codebase file tree |
-| Module docs | [[FCT API Doc]] — one row per documented module, grouped by source folder |
+| Files | [[FCT All Files]] — single-page codebase file tree |
+| Module docs | [[FCT Module Doc]] — one row per documented module, grouped by source folder |
 
 Module doc rows mirror the source tree structure. Each source folder gets a bold header row, followed by its module doc entries.
 
@@ -81,5 +81,5 @@ If an audit finds either in Dev, that's a **dev-synthesis-misplaced** finding �
 - **NOT a place for per-anchor Dev dispatches** — concrete instances (e.g. `CAE Dev.md`) live in their anchor's `{NAME} Docs/{NAME} Dev/` folder. Only the canonical Reference Example block stays here, as a worked illustration.
 - **Inclusion test for new content:** does it apply to *every* `{NAME} Dev.md` in *every* code anchor? If yes, edit here. If it's anchor-local, edit the anchor's Dev dispatch. If it's a synthesis-zone rule, edit [[FCT User Dispatch]] instead.
 - **Load-bearing constraint — the Dev/User split:** Dev is audit-tied (Files + per-module docs); User is curated (Interface + Architecture). Do not reintroduce Interface or Architecture rows into the Dev spec — they were intentionally moved per F060. The §"What does NOT belong in Dev" section is the canonical guard.
-- **Cross-references to keep current:** [[FCT Files]], [[FCT API Doc]], [[FCT Interface]], [[FCT User Dispatch]], [[CAE Dev]] (working example). If any of these slugs rename or move, update the wiki-links in the body — the dispatch contract refers to them by basename.
+- **Cross-references to keep current:** [[FCT All Files]], [[FCT Module Doc]], [[FCT Interface]], [[FCT User Dispatch]], [[CAE Dev]] (working example). If any of these slugs rename or move, update the wiki-links in the body — the dispatch contract refers to them by basename.
 - **Cite, don't inline:** markdown rendering rules live in [[R-markdown]]; dispatch-table formatting rules live in [[FCT Anchor Page]]. Reference those rather than duplicating their content here.

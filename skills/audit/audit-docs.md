@@ -58,10 +58,10 @@ Status values:
 - [ ] Flag docs where methods or properties changed signature as **stale-methods**
 
 ## 1.6 Validate module doc format
-For each existing module doc, check every item in the [[FCT API Doc]] format checklist:
+For each existing module doc, check every item in the [[FCT Module Doc]] format checklist:
 - [ ] Flag format violations as **format-error** with the specific rule broken
 
-(See [[FCT API Doc]] for the canonical checklist — naming, headings, CLASSES table, per-class tables, METHOD DETAILS, casing, spacing, table formatting. The audit *flags* violations; it does not apply the format. Fixes happen later, when the corresponding backlog entry is pulled.)
+(See [[FCT Module Doc]] for the canonical checklist — naming, headings, CLASSES table, per-class tables, METHOD DETAILS, casing, spacing, table formatting. The audit *flags* violations; it does not apply the format. Fixes happen later, when the corresponding backlog entry is pulled.)
 
 ## 1.7 Check Files.md column alignment
 
@@ -180,7 +180,7 @@ module_docs_audited: <today's date in YYYY-MM-DD>
 - This stamp is written **even when findings are non-empty** — it records "we audited on this date," not "everything was clean." Stale findings linger as backlog rows; the audit-date stamp is an independent fact.
 - **Skip in `dry` mode** — dry runs don't write to the backlog and don't stamp.
 
-**Why.** `[[skills/architect/SKILL|/architect]]` reads `module_docs_audited:` as a staleness precondition (per F074) — it runs `git log <audited-date>..HEAD -- <source-tree>` to count commits in source since the audit, and warns if module docs are likely stale. This stamp is the source of truth. No other skill writes this field. See `[[FCT API Doc]]` § `{NAME} Dev.md` frontmatter.
+**Why.** `[[skills/architect/SKILL|/architect]]` reads `module_docs_audited:` as a staleness precondition (per F074) — it runs `git log <audited-date>..HEAD -- <source-tree>` to count commits in source since the audit, and warns if module docs are likely stale. This stamp is the source of truth. No other skill writes this field. See `[[FCT Module Doc]]` § `{NAME} Dev.md` frontmatter.
 
 # Phase 5: Report
 
@@ -195,8 +195,8 @@ The orchestrator (or single-skill caller) will roll this up into the final stat 
 
 - [ ] Audits never modify documentation files.
 - [ ] All findings flow into a backlog entry under `## Upcoming` (unless `dry`).
-- [ ] Use [[FCT API Doc]] as the canonical reference when describing what's wrong with a doc — link to the spec, don't inline the format.
+- [ ] Use [[FCT Module Doc]] as the canonical reference when describing what's wrong with a doc — link to the spec, don't inline the format.
 - [ ] B-number assignment: lowest unused integer in the file (gap-fill).
-- [ ] `module_docs_audited:` frontmatter on `{NAME} Dev.md` is owned by this skill — no other skill writes it (per F074, [[FCT API Doc]] § `{NAME} Dev.md` frontmatter).
+- [ ] `module_docs_audited:` frontmatter on `{NAME} Dev.md` is owned by this skill — no other skill writes it (per F074, [[FCT Module Doc]] § `{NAME} Dev.md` frontmatter).
 
 <!-- compiled:end -->

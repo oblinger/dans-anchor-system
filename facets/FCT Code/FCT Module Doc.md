@@ -1,15 +1,15 @@
 ---
 description: per-module source code documentation
 ---
-# FCT API Doc
+# FCT Module Doc
 
-Facet spec for per-module API documentation — the auto-generatable, source-code-grounded reference doc that mirrors one source module under `{NAME} Dev/`.
+Facet spec for per-module documentation — the auto-generatable, source-code-grounded reference doc that mirrors one source module under `{NAME} Dev/`.
 
 **Location:** `{NAME} Docs/{NAME} Dev/{NAME} {ModuleName}.md` (one per module).
 
 API docs describe the classes and interfaces in a software project's source code. Each source module (a file or logical grouping of files) gets its own markdown document. The docs mirror the source tree structure under `{NAME} Dev/`.
 
-**Related:** [[FCT Interface]] — the required top-level human-authored layer contract that groups modules into a vocabulary callers above the layer use. A API doc is auto-generated ground-truth reference for one module in isolation; the Interface is the human-validated contract for the whole layer. Every `code`-trait anchor has one Interface and one API doc per source module.
+**Related:** [[FCT Interface]] — the required top-level human-authored layer contract that groups modules into a vocabulary callers above the layer use. A module doc is auto-generated ground-truth reference for one module in isolation; the Interface is the human-validated contract for the whole layer. Every `code`-trait anchor has one Interface and one module doc per source module.
 
 **Working example:** `~/ob/kmr/SYS/Bespoke/Skill Agent/CAE/CAE Docs/CAE Dev/CAE Scheduler.md` — the canonical instance. Every rule below is demonstrated there. When in doubt, read the example.
 

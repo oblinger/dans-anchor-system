@@ -7,7 +7,7 @@ File tree diagrams using Unicode box-drawing characters. The standard approach i
 ## 1. MONOSPACE FILE TREE  (Default for whole-file file trees)
 
 See these real examples:
-- [[FCT All Files]] — the CAB master file tree with links to every part spec
+- [[FCT Anchor Tree]] — the CAB master file tree with links to every part spec
 - [[MUX Files]] — a real project file tree with `→` doc association links
 
 

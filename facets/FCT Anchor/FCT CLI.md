@@ -149,7 +149,7 @@ Inside the fence: every command the CLI exposes, one per line, with a `#` commen
 - **Fenced code block (```...```), NOT 4-space indent.** The fence must be the first non-frontmatter content under the H1.
 - **Complete.** Every command the binary exposes appears here. Include `--help` and `--version` as their own lines.
 - **One line per command.** Multi-line invocations are disallowed in the block; split rare corner cases to the per-command H2 section below.
-- **Trailing `# comment` on every line.** The comment is the one-line purpose. Align the comments to a consistent column across rows (same alignment discipline as [[FCT Files]]).
+- **Trailing `# comment` on every line.** The comment is the one-line purpose. Align the comments to a consistent column across rows (same alignment discipline as [[FCT All Files]]).
 - **Flags in summary form.** `[--json]`, `[--filter <state>]` — just enough to know what the command takes. Full flag reference lives in the per-command H2 sections below.
 - **No wiki-links inside the block.** Code blocks don't render them; navigation links go in the line immediately after the block.
 - **Matches `{app-name} --help` output as closely as reasonable.** If the binary supports `--help`, the block is a rendered version of that output.

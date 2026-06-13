@@ -11,7 +11,7 @@ The Architecture facet is the **system-level overview** — how the codebase is 
 
 **Scope clarification.** "Architecture" here means **the system-architecture story** specifically — components, modules, interfaces, data flow, thread model. It is NOT the umbrella for all design content; that's `{NAME} Design/`. UX Design is a peer of Architecture, not a child.
 
-**Architecture vs Public API doc.** Architecture is internal structure ("how is this codebase organized?"). Public API documentation — the surface a caller imports against — lives in a **separate sub-document** inside the Architecture folder (e.g., `{NAME} API.md`), linked from the main Architecture doc. The main page shows the conceptual structure; the API doc shows the contract. See [[FCT API Doc]] for the API doc rules.
+**Architecture vs Public API doc.** Architecture is internal structure ("how is this codebase organized?"). Public API documentation — the surface a caller imports against — lives in a **separate sub-document** inside the Architecture folder (e.g., `{NAME} API.md`), linked from the main Architecture doc. The main page shows the conceptual structure; the API doc shows the contract. See [[FCT Module Doc]] for the API doc rules.
 
 
 ## Folder shape
@@ -32,7 +32,7 @@ The Architecture facet is the **system-level overview** — how the codebase is 
 
 **Module-to-subsystem invariant**: every module belongs to exactly one subsystem. Orphans + duplicates surface via `/audit architecture`.
 
-**Bidirectional cross-linking**: every module doc carries an `Arch` row in its top-of-doc dispatch table (see [[FCT API Doc]]) pointing at the most-specific architecture destination. `/architect` maintains both directions.
+**Bidirectional cross-linking**: every module doc carries an `Arch` row in its top-of-doc dispatch table (see [[FCT Module Doc]]) pointing at the most-specific architecture destination. `/architect` maintains both directions.
 
 **Working example:** [[CAE Architecture]] (`~/ob/kmr/SYS/Bespoke/Skill Agent/CAE/CAE Architecture/`).
 
@@ -104,7 +104,7 @@ The main `{NAME} Architecture.md` is a **conceptual map**. Detail belongs elsewh
 
 | Content kind | Belongs in |
 |---|---|
-| Public API surface (modules, classes, functions, signatures) | `{NAME} API.md` (sub-doc inside `{NAME} Architecture/`); follows [[FCT API Doc]] rules |
+| Public API surface (modules, classes, functions, signatures) | `{NAME} API.md` (sub-doc inside `{NAME} Architecture/`); follows [[FCT Module Doc]] rules |
 | Class/function/method tables for a specific subsystem | That subsystem's own doc (e.g., `{NAME} Scheduler.md`) |
 | Per-module schemas, error types, CLI surface | `{NAME} API.md` or the relevant subsystem doc |
 | Project-wide principles | `{NAME} Decisions/{NAME} Decisions.md` — reference by `[[…|D<n>]]`, don't restate |
@@ -132,7 +132,7 @@ Available to any anchor with the `Code` trait. Optional for non-code anchors —
 
 ## See also
 
-- [[FCT API Doc]] — companion spec for the public-API sub-document.
+- [[FCT Module Doc]] — companion spec for the public-API sub-document.
 - [[FCT Ruleset]] — ruleset format spec. Diagrams in architecture docs are audited against rulesets cited by the anchor's decisions.
 - [[R-diagram]] — the ruleset every architecture diagram is audited against (22 rules covering structural / aesthetic / semantic / accessibility / hygiene).
 - [[FCT Decisions]] — anchor-level applied choices that cite rules from rulesets.
@@ -142,7 +142,7 @@ Available to any anchor with the `Code` trait. Optional for non-code anchors —
 # BRIEF
 
 - **This file is the authoritative facet spec for the Architecture anchor-folder** — `/architect`, `/audit architecture`, and every per-anchor `{NAME} Architecture/` doc derive their structure from here. Edits here change behavior across every Code-trait anchor.
-- **NOT a tutorial, not a worked example, not API-doc rules.** Walk-throughs live at [[CAE Architecture]]; API-doc structure lives at [[FCT API Doc]]; per-anchor decisions live in `{NAME} Decisions/`. Link to those — don't inline their content here.
+- **NOT a tutorial, not a worked example, not API-doc rules.** Walk-throughs live at [[CAE Architecture]]; API-doc structure lives at [[FCT Module Doc]]; per-anchor decisions live in `{NAME} Decisions/`. Link to those — don't inline their content here.
 - **Inclusion test for new content:** a rule belongs in this spec only if it applies to *every* Code-trait anchor's Architecture facet. Anchor-local quirks → `{NAME} Decisions.md`. Rules-set-wide diagram constraints → [[R-diagram]]. Markdown-rendering rules → [[R-markdown]].
 - **Load-bearing invariants — do not weaken without a corresponding CAB Log entry:** (1) the first four sections in exact order (`Overview → Architecture diagram → Subsystems → first supporting H2`); (2) subsystem doc naming uses kebab form `{NAME}-{Subsystem}.md`; (3) `[[double-bracket]]` = real doc, `[single-bracket]` = placeholder — this convention drives `/audit architecture`'s `missing-subsystem-doc` check; (4) ASCII diagrams are forbidden (`ascii-diagram` audit finding).
 - **The `## Audit` table is the contract with `/audit architecture`.** When a finding ID is added or renamed here, the audit script must change in lockstep. Don't introduce a finding name in the script without listing it here, and don't list one here without wiring it in the script.

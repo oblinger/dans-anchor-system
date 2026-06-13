@@ -24,7 +24,7 @@ The `/architect` skill — creates and maintains the top-level system-architectu
 
 `/architect` creates and maintains the top-level system-architecture document for an anchor. The doc lives at `{NAME} Docs/{NAME} User/{NAME} Architecture/{NAME} Architecture.md` (anchor-folder form). It decomposes the system into **subsystems** — each subsystem has a dispatch table, a **mandatory summary table** linking to its parts, an **optional figure**, and a **modules table** linking to the relevant module docs.
 
-Feature spec: `[[F074 — Architect skill — Architecture as anchor folder with subsystems]]`. Companion specs: `[[FCT Architecture]]` (the facet), `[[FCT API Doc]]` (defines the `Arch` row in module-doc dispatch tables). **F074 Q4=a (kept-System-Design-parallel) REVERSED 2026-05-26 per user direction**: Architecture is the sole architectural-synthesis facet; legacy `{NAME} System Design/` folders (pre-F074 anchors only) are absorbed during `/architect` runs — pull their `### Architectural Commitments` content into `{NAME} Architecture/{NAME} Architecture.md § Architectural Commitments`, archive the folder under `{NAME} Postmortems/legacy System Design/`. New anchors never create one.
+Feature spec: `[[F074 — Architect skill — Architecture as anchor folder with subsystems]]`. Companion specs: `[[FCT Architecture]]` (the facet), `[[FCT Module Doc]]` (defines the `Arch` row in module-doc dispatch tables). **F074 Q4=a (kept-System-Design-parallel) REVERSED 2026-05-26 per user direction**: Architecture is the sole architectural-synthesis facet; legacy `{NAME} System Design/` folders (pre-F074 anchors only) are absorbed during `/architect` runs — pull their `### Architectural Commitments` content into `{NAME} Architecture/{NAME} Architecture.md § Architectural Commitments`, archive the folder under `{NAME} Postmortems/legacy System Design/`. New anchors never create one.
 
 ## Sub-actions
 
@@ -119,7 +119,7 @@ The `Arch` row points to the **most-specific** architecture destination:
 - Else if a subsystem arch doc exists → link to it.
 - Else (single-subsystem systems) → link to the top-level `{NAME} Architecture.md`.
 
-**Every module doc has exactly one `Arch` row.** Both directions are maintained by `/architect`: each run reconciles the dispatch-table `Arch` rows and the modules-table links so they always point at each other (or surfaces the disagreement as a proposal). `[[FCT API Doc]]`'s dispatch-table spec reserves the `Arch` row name.
+**Every module doc has exactly one `Arch` row.** Both directions are maintained by `/architect`: each run reconciles the dispatch-table `Arch` rows and the modules-table links so they always point at each other (or surfaces the disagreement as a proposal). `[[FCT Module Doc]]`'s dispatch-table spec reserves the `Arch` row name.
 
 
 ## Runbook
@@ -226,7 +226,7 @@ The skill presumes the user is the original author of the design. Every `/archit
 
 - `[[FCT Architecture]]` — the facet spec for `{NAME} Architecture/` and subsystem docs.
 - **Legacy `{NAME} System Design/`** — `[[FCT System Design]]` was kept as a parallel facet per F074 Q4=a, but that was reversed 2026-05-26. New anchors never create a System Design folder. Legacy ones (currently only MUX) get absorbed: `### Architectural Commitments` migrates into Architecture; the rest of the System Design content moves to `{NAME} Postmortems/legacy System Design/` as preserved historical reference.
-- `[[FCT API Doc]]` — defines the `Arch` row in module-doc dispatch tables and the `module_docs_audited:` frontmatter contract.
+- `[[FCT Module Doc]]` — defines the `Arch` row in module-doc dispatch tables and the `module_docs_audited:` frontmatter contract.
 - `[[FCT Decisions]]` — value statements (formerly Principles, now retired) live here as D-records; Architecture cross-links to them, doesn't absorb them.
 - `[[audit-docs]]` — writes `module_docs_audited:` to `{NAME} Dev.md` frontmatter at the end of every audit pass; the source of truth `/architect`'s staleness precondition reads.
 - `[[SKA ask]]` — universal Q-parking subroutine.

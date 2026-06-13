@@ -149,7 +149,7 @@ After updating, glance the affected file so the user can verify the field landed
 ## Related
 
 - Per-phase sub-skills: [[design-prd]], [[design-ux]], [[design-architect]], [[design-testing]], [[design-roadmap]]
-- CAB facets: [[FCT PRD]], [[FCT UX Design]], [[FCT Architecture]], [[FCT Testing]], [[FCT API Doc]]
+- CAB facets: [[FCT PRD]], [[FCT UX Design]], [[FCT Architecture]], [[FCT Testing]], [[FCT Module Doc]]
 - Track cluster: [[SKL Track]], [[backlog]], [[workflow]]
 - Drive cluster (post-design execution): [[crank]], [[mint]], [[feature]]
 - Verification discipline: [[DSC verification]]
