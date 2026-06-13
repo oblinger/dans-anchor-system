@@ -4,10 +4,12 @@ description: "Anchor Page facet — the format of an anchor's {slug}.md entry po
 # FCT Anchor Page
 The entry page every anchor opens with — its `{slug}.md`.
 
-| -[[FCT Anchor Page]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [FCT Anchor Page](hook://p/FCT%20Anchor%20Page)<br>: the `{slug}.md` entry-page format                   |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Related               | [[FCT]],  [[CAB Dispatch Table]],  [[DSC progressive-disclosure]],  [[FEX]],                                                                           |
-| Examples | [[FEX]] — [[Snap\|skill]],  [[Espresso\|list]],  [[Harbor Components\|grouped]],  [[Glossary\|facet]],  [[Harbor\|project]],  [[Harbor Ingest\|sub-folder]] |
+| -[[FCT Anchor Page]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [FCT Anchor Page](hook://p/FCT%20Anchor%20Page)<br>: the `{slug}.md` entry-page format                                  |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Related               | [[FCT]],  [[CAB Dispatch Table]],  [[DSC progressive-disclosure]],  [[FEX]],                                                                                          |
+|                       |                                                                                                                                                                       |
+| Examples              | [[Snapper Dapper\|skill ex]],  [[Espresso\|list ex]],  [[Harbor Components\|grouped]],  [[Harbor\|project ex]],  [[Harbor Ingest\|sub-folder ex]]                     |
+| OLD Examples          | [[FEX]] — [[Snapper Dapper\|skill]],  [[Espresso\|list]],  [[Harbor Components\|grouped]],  [[Glossary\|facet]],  [[Harbor\|project]],  [[Harbor Ingest\|sub-folder]] |
 
 ## Anchor Page Template
 
@@ -51,7 +53,7 @@ traits: [Code]
 include::
 description:: The {slug}.md entry-page format — identity, top-of-page order, dispatch table, member zone, naming.
 
-What `/audit anchor` checks every `{slug}.md` against. All anchor-page kinds (skill / list / grouped / facet / project root / sub-folder) share this set; worked instances of each kind live in [[FEX]]. Audit a page by reading these rules **or** by diffing it against the matching example. Format of this set: [[FCT Rules]].
+What `/audit anchor` checks every `{slug}.md` against. All anchor-page kinds (skill / list / grouped / project root / sub-folder) share this set; worked instances of each kind live in [[FEX]]. Audit a page by reading these rules **or** by diffing it against the matching example. Format of this set: [[FCT Rules]].
 
 ## Identity & frontmatter
 
@@ -199,15 +201,7 @@ A simple / leaf anchor may have no dispatch table at all — frontmatter + H1 + 
 
 ## Kind-specific rules
 
-Rules that apply only to **one kind** of anchor page (skill / list / grouped / facet / project root / sub-folder). For now they live here at the tail of the shared set; if a kind accumulates enough of its own, it graduates to a dedicated sub-ruleset (e.g. `R-anchor-page-facet`) pulled in via `include::`.
-
-### RULE R-anchor-page-23 — A facet page links to a covering example set (stated)
-
-*(kind: facet)* A **facet** anchor page's dispatch table carries an `Examples` row that links to a set of examples spanning the **full range of instance kinds** that facet has. For the anchor-page facet itself that means one example per anchor-page kind — skill / list / grouped / facet / project / sub-folder.
-
-**Check pattern:** if the page is a facet spec, assert a masthead `Examples` row exists and its links cover each enumerated kind of that facet.
-
-**Why:** the examples are how a reader — and `/audit anchor` — learns what each kind looks like; an unillustrated kind is an unspecified, untestable kind.
+Rules that apply only to **one kind** of anchor page (skill / list / grouped / project root / sub-folder). None yet — when a kind accumulates its own rules they live here at the tail, graduating to a dedicated sub-ruleset (e.g. `R-anchor-page-project`) pulled in via `include::` once there are enough.
 
 # BRIEF
 
