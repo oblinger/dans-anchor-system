@@ -11,7 +11,7 @@ A self-hosted media server that ingests, transcodes, and streams a personal libr
 | Related | [[Clarifier]] (sibling project),  [[Devtools]] (grouped variant),  [[FEX]] (the example gallery) |
 | [[HBR Components\|Components]]+ | [[HBR Ingest\|Ingest]],  [[HBR Serve\|Serve]],  [[HBR Operate\|Operate]],   |
 | [[HBR Design\|Design]]+ | [[HBR PRD\|PRD]],  [[HBR UX Design\|UX Design]],  [[HBR CLI\|CLI]],  [[HBR API Design\|API]],  [[HBR Architecture\|Architecture]],  [[HBR Decisions\|Decisions]],  [[HBR Testing\|Testing]],  [[HBR Roadmap\|Roadmap]],  [[HBR Features\|Features]],   |
-| [[HBR Track\|Track]]+ | [[HBR Backlog\|Backlog]],   |
+| [[HBR Track\|Track]]+ | [[HBR Backlog\|Backlog]],  [[HBR Messages\|Messages]],   |
 | [[HBR User Docs\|User Docs]]+ | [[HBR Guide\|Guide]],   |
 | [[HBR Dev Docs\|Dev Docs]]+ | [[HBR Files\|Files]],   |
 | External | [Repo](https://github.com/example/harbor),  [Docs site](https://example.github.io/harbor/) |

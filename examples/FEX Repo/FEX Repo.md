@@ -8,5 +8,5 @@ A fictional miniature skills repository — one worked skill, facet, and discipl
 | -[[FEX Repo]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [FEX Repo](hook://p/FEX%20Repo)<br>: a fake skills repository — skill / facet / discipline in miniature |
 | --- | --- |
 | Related | [[FEX]] (the gallery),  [[HBR]] (the project example), |
-| Members | [[FEX Snapshot\|Snapshot]] (skill),  [[FEX Manifest\|Manifest]] (facet),  [[FEX Retention\|Retention]] (discipline), |
+| Members | [[FEX Snapshot\|Snapshot]] (skill),  [[FEX Manifest\|Manifest]] (facet),  [[FEX Retention\|Retention]] (discipline),  [[R-fex-manifest\|R-fex-manifest]] (rule set), |
 | ... |  |
