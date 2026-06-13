@@ -818,6 +818,37 @@ def record_verdict(cdir: Path, key: str, status: str, detail: str) -> None:
     _verdict_cache_put(cdir, key, {"status": status, "detail": detail})
 
 
+def render_report(plan: dict, mech: dict, man: dict) -> str:
+    """One unified audit view: mechanical verdicts + the agent-judgment residue."""
+    c = mech["counts"]
+    out = [f"# audit report — {plan['umbrella']} on {Path(plan['target']).name}", ""]
+    out.append(f"- scope files: {plan['scope_file_count']}  ·  "
+               f"rule sets: {len(plan['groupings'])}")
+    out.append(f"- mechanical: **{c['pass']} pass · {c['fail']} fail · {c['error']} error** "
+               f"(cache hits {c['cached']})")
+    out.append(f"- to judge: **{man['task_count']}**  ·  judged-cached: {man['cached_count']}")
+    out.append("")
+    fails = [v for v in mech["results"] if v["status"] != "pass"]
+    out.append("## mechanical failures" if fails else "## mechanical — all clean")
+    for v in fails:
+        mark = {"fail": "✗", "error": "!"}.get(v["status"], "?")
+        out.append(f"- {mark} {v['rule']} — {v['target']}"
+                   + (f"  ({v['detail']})" if v["detail"] else ""))
+    out.append("")
+    out.append(f"## judgment residue ({man['task_count']} tasks)")
+    if not man["tasks"]:
+        out.append("_none — every applicable rule was mechanical or cached._")
+    else:
+        out.append("Run `audit-plan <target> --judge --model <M>` for the full manifest; "
+                   "judge each, then `--record-verdict`. Summary by rule set:")
+        by_rs: dict[str, int] = {}
+        for t in man["tasks"]:
+            by_rs[t["ruleset"]] = by_rs.get(t["ruleset"], 0) + 1
+        for rs in sorted(by_rs):
+            out.append(f"- {rs}: {by_rs[rs]} task(s)")
+    return "\n".join(out)
+
+
 def render_manifest(man: dict) -> str:
     out = [f"# agent-judge manifest — model {man['model']}  ·  "
            f"{man['task_count']} to judge  ·  {man['cached_count']} cached", ""]
@@ -858,6 +889,8 @@ def main(argv):
                     help="execute the mechanical (check::) rules and report verdicts")
     ap.add_argument("--judge", action="store_true",
                     help="emit the agent-judgment manifest (residue after --run, cache-filtered)")
+    ap.add_argument("--report", action="store_true",
+                    help="unified audit view: mechanical verdicts + judgment residue summary")
     ap.add_argument("--model", default="unknown",
                     help="model-id for the judgment verdict cache key (Q3)")
     ap.add_argument("--record-verdict", action="store_true",
@@ -920,6 +953,14 @@ def main(argv):
             print(json.dumps(man, indent=2))
         else:
             print(render_manifest(man))
+        return 0
+    if args.report:
+        mech = execute_plan(plan, cdir)
+        man = judge_manifest(plan, cdir, args.model)
+        if args.json:
+            print(json.dumps({"plan": plan, "mechanical": mech, "judgment": man}, indent=2))
+        else:
+            print(render_report(plan, mech, man))
         return 0
     if args.json:
         print(json.dumps(plan, indent=2))
