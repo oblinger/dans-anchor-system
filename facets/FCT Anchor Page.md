@@ -131,11 +131,11 @@ Row one is the breadcrumb: a title cell `-[[This Page]]-`, then the parent-chain
 
 **Why:** the breadcrumb carries the [[DSC anchor-dag]] up-edge.
 
-### RULE R-anchor-page-12 — `Related` is the first masthead row, omitted if empty (checked)
+### RULE R-anchor-page-12 — `Related`: lateral links only, first, omit-if-empty (checked)
 
-`Related` is the first row after the breadcrumb when it has content, and is omitted entirely when empty — never left blank.
+`Related` is the first masthead row after the breadcrumb (when it has content), and is **omitted entirely when empty** — never left blank. It carries **only links that ordinary navigation cannot already reach**: NOT the anchor's own contents (reach those by going *in / down*), NOT its ancestors (reach those via the breadcrumb, going *up*), and NOT anything reachable from a parent anchor (you'd arrive there *through* the parent). `Related` is reserved for genuinely **lateral / cross-cutting** links none of those paths surface — e.g. a sibling project, a spec in another tree.
 
-**Check pattern:** no `Related` row with an empty value; if present, it precedes any other category row. ([[SKA Decisions|D07]])
+**Check pattern:** if present, `Related` has content and precedes other category rows; **none of its links is a breadcrumb ancestor, a member listed below, or the parent anchor** (those are redundant — drop them). ([[SKA Decisions|D07]])
 
 ### RULE R-anchor-page-13 — `Design` row present iff a design folder exists (checked)
 

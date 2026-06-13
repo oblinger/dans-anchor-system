@@ -7,7 +7,6 @@ The doc facets — bounded content **regions authored inside a document** (vs. t
 
 | -[[FCT Doc]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[OBSK]] → [FCT Doc](hook://p/FCT%20Doc)<br>: document facets — content regions a document carries |
 | --- | --- |
-| Related | [[FCT\|Facets]] (parent) |
 | Facets | [[FCT Rules\|Rule Set]],  [[CAB Brief\|Brief]],  [[CAB Discussion\|Discussion]],   |
 
 ## Overview
