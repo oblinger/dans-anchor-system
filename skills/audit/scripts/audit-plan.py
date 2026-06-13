@@ -726,6 +726,38 @@ def chk_regex_absent(target, anchor_root, args):
     return ("fail", f"pattern present: {pat}") if re.search(pat, _read(f), re.MULTILINE) else ("pass", "")
 
 
+# Sanctioned non-slug-prefixed name patterns (R-naming-03 allowlist). Matched
+# against the file stem (basename without .md).
+_NAME_ALLOWLIST = (
+    r"^F\d+ [—-] ",              # F<NNN> — title  (Features)
+    r"^US-[A-Za-z]+-\d+ [—-] ",  # US-<RID>-<N> — title  (Stories)
+    r"^\d{4}-\d{2}-\d{2}\b",     # YYYY-MM-DD topic  (Log)
+    r"^\d{4}-\d{2}\b",           # YYYY-MM topic
+    r"^\d{4}\b",                 # YYYY topic
+    r"^SKILL$",                  # SKILL.md  (Claude Code skill entry convention)
+    r"^R-[a-z]",                 # R-<x>.md  (rule-set / rule files, F133)
+)
+
+
+def chk_name_slug_prefixed(target, anchor_root, args):
+    """Per-file (R-naming-01): basename starts with `{slug} `, equals the anchor
+    marker (`{slug}.md` / `{folder}.md`), or matches a sanctioned allowlist shape.
+    Matches the rule's documented check pattern (slug-prefix OR R-naming-03 list);
+    by-chance exemptions (R-naming-04) are explicitly not mechanically audited."""
+    if not target.is_file():
+        return "pass", "not a file"
+    slug = _anchor_slug(anchor_root)
+    stem = target.stem
+    if stem == slug or stem == anchor_root.name:
+        return "pass", "anchor marker"
+    if stem.startswith(f"{slug} ") or stem.startswith(f"{anchor_root.name} "):
+        return "pass", ""
+    for pat in _NAME_ALLOWLIST:
+        if re.match(pat, stem):
+            return "pass", "allowlisted pattern"
+    return "fail", f"{target.name!r} lacks the {slug!r} prefix / allowlist match"
+
+
 def chk_h1_matches_slug(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
@@ -776,6 +808,7 @@ CHECKERS = {
     "frontmatter_has": chk_frontmatter_has,
     "h1_present": chk_h1_present,
     "h1_matches_slug": chk_h1_matches_slug,
+    "name_slug_prefixed": chk_name_slug_prefixed,
     "no_blank_after_h1": chk_no_blank_after_h1,
     "breadcrumb_row": chk_breadcrumb_row,
     "design_row_iff_folder": chk_design_row_iff_folder,

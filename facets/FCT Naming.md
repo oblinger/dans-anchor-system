@@ -72,6 +72,7 @@ description:: File-naming rules vault-wide — slug-prefix default + explicit ex
 Embedded rule set for the Naming facet, co-located with the facet spec above per [[F133 — Rule sets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella. Vault-wide application — every anchor's files are subject to this set, no explicit `include::` needed.
 
 ### RULE R-naming-01 — Default file name is `{NAME} <X>.md` inside an anchor (checked)
+check:: name_slug_prefixed
 
 A markdown file inside `{anchor}/` (or any sub-folder rooted at the anchor) is named `{NAME} <X>.md` where `{NAME}` is the anchor's slug. Sub-folder marker files match their folder name: `{NAME} Design/{NAME} Design.md`, `{NAME} Track/{NAME} Track.md`.
 
@@ -96,6 +97,8 @@ Files matching a facet-sanctioned alternative pattern are exempt from the slug-p
 - `YYYY-MM-DD <topic>.<ext>` (per [[FCT Log]])
 - `YYYY-MM <topic>.<ext>` (per [[FCT Log]] — year-month precision)
 - `YYYY <topic>.<ext>` (per [[FCT Log]] — year-only precision)
+- `SKILL.md` (the Claude Code skill entry file — every skill folder has one)
+- `R-<x>.md` (rule-set / rule files, per [[F133 — Rule sets folder convention + facet embedding|F133]])
 
 **Check pattern:** R-naming-01's check accepts files matching any of the regex shapes above as a pass.
 
