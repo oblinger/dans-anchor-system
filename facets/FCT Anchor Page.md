@@ -53,17 +53,23 @@ If a slug exists, it is the `{NAME}` used for file naming (`{slug}.md`, `{slug} 
 
 ## Format
 
+RULE (top-of-page order): the page opens **H1 → summary → (optional figure) → dispatch table**, in that order — and there is **no blank line after the H1**: the one-sentence summary sits on the very next line, glued to the heading. (A blank line *does* precede the figure and the table.) The summary says *what the page is* at the broadest stroke; an optional `## Overview` later can say more.
+
 ```
 ---
 description: One-line description of the anchor
 traits: [Code]
 ---
 
-# {slug} — {Full Name}
+# {slug} - {Full Name}
+{One-sentence summary — what the page is. No blank line above this line.}
 
-| -{NAME}-       | ><br>: short description                      |
-| -------------- | --------------------------------------------- |
-| ...            |                                               |
+![[optional-figure.svg]]
+
+| -{NAME}- | → [[kmr]] → … → [{NAME}](hook://p/{NAME})<br>: short description |
+| -------- | ---------------------------------------------------------------- |
+| Related  | …                                                                |
+| ...      |                                                                  |
 ```
 
 ## Heading
