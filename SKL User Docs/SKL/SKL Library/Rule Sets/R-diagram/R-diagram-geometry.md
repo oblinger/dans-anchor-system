@@ -1,6 +1,7 @@
 # RULESET R-diagram-geometry
-description:: Hard-fail geometric correctness for hand-authored diagrams — overlap, floating endpoints, tunneling, text overflow, label-association ambiguity, label-label collision.
 include::
+where:: {ANCHOR}/**/*.svg
+description:: Hard-fail geometric correctness for hand-authored diagrams — overlap, floating endpoints, tunneling, text overflow, label-association ambiguity, label-label collision.
 
 > [!info] Provenance
 > Inspired by the **PCB Design Rule Check (DRC)** discipline from circuit-board layout — a violation means *broken*, not stylistically off. Specific rules drawn from: **Eichelberger** (UML-readability empirical study; overlap + label-label collision as top readability killers), **Sourcetrail** (system-diagram review criteria; edge tunneling), **Imhof** (cartographic labeling; proximity-disambiguation as the foundational label-target rule). Renamed from `R-pcb-drc-structural` 2026-06-10 to name the subject instead of the lineage.

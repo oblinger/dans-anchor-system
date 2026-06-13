@@ -57,6 +57,7 @@ Declarative statement of what the rule requires or forbids.
     - **Bare names** — `include:: R-sugiyama, R-c4` — resolved by the flatten script via vault search.
     - **Wiki-links** — `include:: [[R-sugiyama]], [[R-c4]]` — clickable in Obsidian reading view; otherwise equivalent. The flatten script unwraps `[[...]]` before resolving. Wiki-link form is preferred for readability when authoring in Obsidian; bare form is fine for machine-generated files.
     - The two may be mixed within a single line (`include:: R-sugiyama, [[R-c4]]`). Strike-through markers (`~~[[R-foo]]~~`) are an Obsidian rendering artifact and not part of the format; flatten and audit ignore them and resolve the underlying name.
+- **`where::` line (optional — F161; sits between `include::` and `description::`): the selector.** A **glob** naming which files this set's rules apply to — the default for any rule that doesn't carry its own `where::`. Anchor-root is the explicit token `{ANCHOR}` (`{ANCHOR}/* Backlog.md`); bare globs are anchor-relative. **Precedence:** a rule's own `where::` overrides the set's; absent both, the rule defaults to `always` (every file). Scope kinds: `always`, `file: <glob>` (the default reading of a bare glob), `anchor` (a tree/structure check run once per anchor). Consumed by the audit engine ([[F161 — Rule-driven audit engine — resolve, run, judge|F161]]) to bind rules to targets — see it dogfooded in `# RULESET R-ruleset` below.
 - **Line 3: `description::` line** — Dataview inline field. One-line tagline (8–15 words) of what this rule set covers and when it applies. Required. Plain prose only: **no `::` tokens in the value** (the double-colon is reserved syntax for inline-field keys; mentioning `include::` or `description::` as a noun inside the value will collide with the Dataview parser). The single-line constraint forces tightness.
 - **Line 4+ (body paragraph immediately under `description::`):** plain prose paragraph(s) carrying provenance, use-case context, source attribution, history, factoring notes — anything longer than the tagline. Any length. This is the canonical home for the prose that doesn't fit in `description::`; it reads more naturally than `> [!info]` callouts for the standard "what this set is about" content. Callouts remain available for asides (see below).
 
@@ -185,6 +186,81 @@ Available to any anchor that needs to author or adopt rules. Most anchors won't 
 - [[Rule Sets]] — the catalog of cross-cutting, owner-scoped, and trait-scoped rule sets.
 - [[R-diagram]] — worked example (22 diagram-validation rules in 5 zones, from the 2026-06-08 survey).
 - [[CAE Rules]] — worked example of `{NAME} Rules.md` (anchor-local; adopts `R-diagram`).
+
+# RULESET R-ruleset
+include::
+where:: {ANCHOR}/**/R-*.md
+description:: Format every rule-set definition obeys — sentinels, header fields, per-rule structure, numbering, includes.
+
+The rules a `# RULESET` definition must satisfy — what `/audit doc` checks on rule-set files. `where::` targets standalone `R-*.md` files; a facet that embeds a `# RULESET` block pulls these checks onto it by adding `include:: R-ruleset` to its own set. Self-applying: this set obeys its own rules.
+
+### RULE R-ruleset-01 — H1 carries the `RULESET` sentinel (checked)
+
+The set opens with `# RULESET R-<slug>` — the all-caps `RULESET` sentinel plus the set's `R-<slug>` id.
+
+**Check pattern:** the opening heading matches `^#+ RULESET R-[a-z0-9-]+$`.
+
+**Why:** the sentinel is how flatten / lint scripts identify a rule set unambiguously.
+
+### RULE R-ruleset-02 — `include::` line present under the header (checked)
+
+An `include::` Dataview line sits in the header block — present even when empty (the empty line is the include slot).
+
+**Check pattern:** a header line (before the first blank line after the H1) matches `^include::`.
+
+### RULE R-ruleset-03 — `description::` line present (checked)
+
+A one-line `description::` tagline is in the header; its value carries no `::` token.
+
+**Check pattern:** a header line matches `^description:: .+` and the value contains no `::`.
+
+### RULE R-ruleset-04 — every rule heading carries the `RULE` sentinel + id (checked)
+
+Each rule is a heading of the form `<H> RULE R-<slug>-NN[ — name][ (tier)]`.
+
+**Check pattern:** every rule heading matches `^#+ RULE R-[a-z0-9-]+-\d{2}\b`.
+
+### RULE R-ruleset-05 — rule numbers are two-digit, unique, non-recycled (checked)
+
+`NN` is zero-padded to two digits and unique within the set; retired numbers are never reused.
+
+**Check pattern:** collect every `R-<slug>-NN`; assert each `NN` is `\d{2}` and there are no duplicates within the set.
+
+### RULE R-ruleset-06 — every rule has a tier annotation (checked)
+
+Each rule title ends with `(tracked)` / `(stated)` / `(sampled)` / `(checked)`.
+
+**Check pattern:** each `RULE` heading matches `\((tracked|stated|sampled|checked)\)\s*$`.
+
+### RULE R-ruleset-07 — `checked` / `sampled` rules carry a Check pattern (checked)
+
+A `(checked)` or `(sampled)` rule has a `**Check pattern:**` block in its body.
+
+**Check pattern:** for each such rule, the body up to the next heading contains `**Check pattern:**`.
+
+### RULE R-ruleset-08 — includes resolve (checked)
+
+Every name / wiki-link in `include::` resolves to an existing rule set.
+
+**Check pattern:** resolve each `include::` target by vault search; flag any that miss.
+
+### RULE R-ruleset-09 — no include cycle (checked)
+
+The `include::` graph is acyclic.
+
+**Check pattern:** depth-first walk the include graph from this set; flag any back-edge.
+
+### RULE R-ruleset-10 — every rule resolves a selector (stated)
+
+Each rule has an effective `where::` — its own, else the set's, else the `always` default. A set whose rules are *not* universal declares an explicit `where::` rather than silently relying on `always`.
+
+**Check pattern:** for each rule, confirm an own-or-inherited `where::`; warn when a file-specific set has none (it would default to `always` and run on every file).
+
+### RULE R-ruleset-11 — standalone rule-set files are body-only (checked)
+
+A standalone `R-<slug>.md` has no YAML frontmatter (an embedded `# RULESET` lives inside a facet page that may carry its own frontmatter).
+
+**Check pattern:** if the file's first non-blank line is `# RULESET`, assert no `---` frontmatter precedes it.
 
 # BRIEF
 
