@@ -779,6 +779,24 @@ def chk_name_slug_prefixed(target, anchor_root, args):
     return "fail", f"{target.name!r} lacks a {slugs!r} prefix / allowlist match"
 
 
+def chk_h1_after_frontmatter(target, anchor_root, args):
+    """The H1 is the first non-blank line after the YAML frontmatter. Frontmatter
+    (the `--- … ---` description block) is canonical, not forbidden — this replaces
+    the old body-only / inline-`description::` rules."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    text = _read(f)
+    m = re.match(r"^---\n.*?\n---\n", text, re.DOTALL)
+    body = text[m.end():] if m else text
+    for ln in body.splitlines():
+        if ln.strip():
+            if re.match(r"^# \S", ln):
+                return "pass", ""
+            return "fail", f"first line after frontmatter is not an H1: {ln!r}"
+    return "fail", "no body after frontmatter"
+
+
 def chk_h1_matches_slug(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
@@ -2060,6 +2078,7 @@ CHECKERS = {
     "frontmatter_has": chk_frontmatter_has,
     "h1_present": chk_h1_present,
     "h1_matches_slug": chk_h1_matches_slug,
+    "h1_after_frontmatter": chk_h1_after_frontmatter,
     "name_slug_prefixed": chk_name_slug_prefixed,
     "no_blank_after_h1": chk_no_blank_after_h1,
     "breadcrumb_row": chk_breadcrumb_row,

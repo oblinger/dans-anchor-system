@@ -126,23 +126,23 @@ The PRD lives at `{NAME} Design/{NAME} PRD.md` (single-file form) or `{NAME} Des
 
 **Why:** F094 moved Design docs out of the legacy `{NAME} Plan/` folder; surfacing stale paths breaks `/design`'s anchor-detection.
 
-### RULE R-prd-02 — Body-only, no YAML frontmatter (checked)
-check:: h1_no_frontmatter
+### RULE R-prd-02 — Opens with YAML frontmatter carrying `description:` (checked)
+check:: frontmatter_has description
 
-The first non-blank line of `{NAME} PRD.md` is `# {NAME} PRD` (H1). No `---` YAML block precedes it.
+`{NAME} PRD.md` opens with a `---` YAML frontmatter block carrying a one-line `description:` (the doc metadata — the only thing in the frontmatter).
 
-**Check pattern:** first non-blank line starts with `# `; does not start with `---`.
+**Check pattern:** the file begins with a `--- … ---` block; `description:` key present and non-empty.
 
-**Why:** body-only matches the broader vault discipline (CAB Rules, CAB Status, CAB Log, CAB Stories all body-only). Frontmatter is invisible in Obsidian read view and drifts silently.
+**Why:** YAML frontmatter is the canonical metadata form across the vault (anchor pages, design docs); the inline `desc::`/`description::` form is deprecated.
 
-### RULE R-prd-03 — `description::` is the second non-blank line (checked)
-check:: description_field_line
+### RULE R-prd-03 — H1 is the first line after the frontmatter (checked)
+check:: h1_after_frontmatter
 
-Immediately after the H1, the next non-blank line is a `description::` dataview inline field with a one-line tagline.
+The first non-blank line after the frontmatter is the H1 `# {NAME} PRD`, then the one-sentence summary.
 
-**Check pattern:** second non-blank line matches `^description:: .+$` and contains no `::` tokens inside its value.
+**Check pattern:** skip the leading `--- … ---` block; the next non-blank line starts with `# `.
 
-**Why:** Dataview discoverability; consistency with sibling facet specs.
+**Why:** the title leads the rendered body; frontmatter carries only metadata, not content.
 
 ### RULE R-prd-04 — Required sections present in order (checked)
 check:: required_sections_in_order
