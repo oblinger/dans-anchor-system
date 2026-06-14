@@ -1,5 +1,5 @@
 ---
-description: "content-hashes imports and folds duplicates into one entry"
+description: "a leaf component — the ingest deduper"
 ---
 
 # HBR Deduper

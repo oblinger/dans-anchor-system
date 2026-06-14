@@ -2,11 +2,11 @@
 description: "the top-of-page navigation table — its own spec, dogfooded"
 ---
 
-# DSC Dispatch Table
+# FCT Dispatch Table
 
-| -[[DSC Dispatch Table]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DSC Dispatch Table](hook://p/DSC%20Dispatch%20Table)<br>: the top-of-page navigation table — its own spec, dogfooded |
+| -[[FCT Dispatch Table]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Dispatch Table](hook://p/FCT%20Dispatch%20Table)<br>: the top-of-page navigation table — its own spec, dogfooded |
 | --- | --- |
-| Anchor | [[CAB Disciplines]] (parent catalog),  [[CAB]] |
+| Anchor | [[FCT Dispatch]] (parent catalog),  [[FCT]] |
 | Design | [[CAB Dispatch Table Design\|Design]] — rationale + standing decisions |
 | Related | [[Collection]],  [[DSC progressive-disclosure]],  [[audit-dispatch\|/audit dispatch]],   |
 
@@ -27,7 +27,7 @@ A markdown table placed immediately under the H1 of a page. The first row carrie
 ## Anatomy of a dispatch row
 
 ```markdown
-| -[[<This Page>]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DSC Dispatch Table](hook://p/DSC%20Dispatch%20Table)<br>: <one-line description> |
+| -[[<This Page>]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Dispatch Table](hook://p/FCT%20Dispatch%20Table)<br>: <one-line description> |
 | --- | --- |
 | <Category 1> | [[Link A\|A]],  [[Link B\|B]],  … |
 | <Category 2> | [[Link C\|C]],  [[Link D\|D]],  … |
@@ -94,18 +94,14 @@ Dated members (a [[DSC dated-entry-stream]] Collection like a Log) list newest-f
 
 **The member zone *is* the [[Collection]] anchor's face** — and `/audit dispatch` ([[audit-dispatch]]) builds/repairs exactly this structure.
 
-## Classification — a discipline (the form), not a facet
+## Classification — a facet (the table form)
 
-A dispatch table is the **form** of a top-of-page switchboard — a reusable navigation convention, not an authored-content part of one document. That is why it lives here as a **discipline** rather than as a facet:
+A dispatch table is the **form** of an anchor's top-of-page switchboard — a concrete, auditable artifact (`/audit dispatch`, the masthead-placement law, the member-zone mechanics) embedded across many surfaces. It is a **facet**, not a discipline: unlike the principles it *obeys* ([[DSC progressive-disclosure]], [[DSC granularity]]), it is a thing you **build and audit**, not a way of thinking. *(Reclassified discipline → facet; the prior "the form is a discipline" framing is retired.)*
 
-- **Form vs role.** This discipline owns the table *form* (breadcrumb cell, category rows, the switchboard shape). The *role* of "dispatching for an anchor" belongs to the [[FCT Anchor Page]] **facet** — the anchor page *uses* this discipline to render its switchboard. ~95% of dispatch tables in the vault are exactly that: an anchor page dispatching to its anchor's contents.
-- **Not a doc facet.** Contrast with the doc facets [[FCT Discussion]] and [[FCT Brief]], which are *content containers* — bounded regions you author doc-specific content into. A dispatch table is **derived navigation**: its rows are determined by *what it points to* (the anchor's structure, or a doc's sections), not authored as standalone content. Derived-convention → discipline; authored-content-container → doc facet.
-- **Boundary with [[DSC progressive-disclosure]].** This discipline owns the table *form* (cell shape, row anatomy, pipe-escape, the `(See …)` variant). `progressive-disclosure` owns *which pattern* — Compact / List / Grouped — and the `>15 → Grouped` size rule. **Form here; pattern there.**
-- **Two different "anchor" facets — don't conflate.** The [[FCT Anchor Page]] facet (the structure of the `{NAME}.md` *entry page*, which hosts the dispatch table) is separate from the **anchor spec** itself (what makes a folder *be* an anchor — the `.anchor` file's slug / traits / DAG edges, specified via the anchor crate and the Docket implementation). The dispatch table lives on the anchor *page*, never in the anchor *spec*.
-
-### Alternative formulation (noted — we may revisit)
-
-Because ~95% of dispatch tables are the anchor page's switchboard, keeping this as a *standalone discipline* is slightly messy — most of the spec is really describing its application in that one spot. An alternative formulation: **fold the dispatch table into the [[FCT Anchor Page]] facet** — either as its own facet of the anchor page, or merged directly into the Anchor Page facet spec. We keep it a separate discipline because the form **recurs on non-anchor pages** — the per-sub-folder dispatch pages ([[FCT Design Dispatch]], [[FCT User Dispatch]], …) and plain top-of-doc TOCs — where there is no Anchor Page facet to host it. If that non-anchor 5% proves negligible in practice, merging into Anchor Page would be the cleaner home; this note exists so the decision is reopenable.
+- **Form vs role.** This facet owns the table *form* (breadcrumb cell, category rows, masthead-placement law, member-zone axes). The *role* of "dispatching for this particular anchor kind" is layered on by [[FCT Anchor Page]] and its per-kind rulesets — the anchor page **delegates** its table to this facet. ~95% of dispatch tables are exactly that: an anchor page dispatching to its anchor's contents.
+- **Shared across surfaces → factored out, not merged.** The form recurs on the per-sub-folder dispatch pages ([[FCT Design Dispatch]], [[FCT User Dispatch]], …) as well as the anchor masthead. Keeping it as its own facet lets every surface cite **one** spec — which is exactly why it is *not* folded into [[FCT Anchor Page]] (that would orphan the sub-folder dispatch facets).
+- **Boundary with [[DSC progressive-disclosure]].** This facet owns the table *form* (cell shape, row anatomy, pipe-escape, the `(See …)` variant). `progressive-disclosure` owns *which pattern* — Compact / List / Grouped — and the `>15 → Grouped` size rule. **Form here; pattern there.**
+- **Two different "anchor" facets — don't conflate.** [[FCT Anchor Page]] (the `{NAME}.md` *entry page* that hosts the dispatch table) is separate from the **anchor spec** itself (the `.anchor` file's slug / traits / DAG edges). The dispatch table lives on the anchor *page*, never in the anchor *spec*.
 
 ## Current state
 
@@ -136,13 +132,13 @@ Format rules:
 
 ## Related
 
-- [[CAB Disciplines]] — parent catalog.
+- [[FCT Dispatch]] — parent catalog.
 - [[FCT Brief]] — the Brief discipline; uses the `Related` row or `(See …)` line to surface from the source file.
 - [[Anchor TOC Format]] — distinct topic; TOC is generated, not the dispatch table.
 
 # BRIEF
 
-- **This file is the spec for the Dispatch Table discipline** — the prescriptive rules for the top-of-file table convention used across anchor and facet pages. Edit here only to refine the convention itself.
+- **This file is the spec for the Dispatch Table facet** — the prescriptive rules for the top-of-file table convention used across anchor and facet pages. Edit here only to refine the convention itself.
 - **NOT a catalog of pages that use dispatch tables** — don't pile worked-example links here beyond a small representative set; per-page application of the convention belongs in those pages' own files or in [[FCT Facets]] / trait specs.
 - **Inclusion test** — content belongs on this page if it is a *rule* about dispatch-table shape (row order, cell format, breadcrumb syntax, escape conventions, the `Related` row, the `(See …)` variant). Anything about *how a specific anchor uses* its dispatch table goes in that anchor's docs.
 - **Two surface forms coexist** — full dispatch table (under H1, breadcrumb row + category rows) and the `(See …)` line variant for files without a dispatch table. Keep both spec'd in lockstep; don't let one drift.

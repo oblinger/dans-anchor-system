@@ -37,7 +37,7 @@ The **top table** is the document's progressive-disclosure entry point — the n
 
 > **Is this an anchor file? → dispatch table. If not → content outline table.**
 
-- **Anchor file → dispatch table** — breadcrumb masthead + member / links zone (per [[DSC Dispatch Table]] / [[FCT Anchor Page]]).
+- **Anchor file → dispatch table** — breadcrumb masthead + member / links zone (per [[FCT Dispatch Table]] / [[FCT Anchor Page]]).
 - **Non-anchor file → content outline table** — left column links to the document's own sections (in-document `[[#Heading]]` links); right column says, in one line, what each section is. A table of contents *with descriptions*.
 - **Short docs (≲ 3 pages) → no top table needed.**
 

@@ -4,7 +4,7 @@ description: "skim → click into the rule that applies"
 # SKL Find
 | -[[SKL Find]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Search]] → [SKL Find](hook://p/SKL%20Find)<br>: skim → click into the rule that applies |
 | --- | --- |
-| Related | [[skills/find/SKILL.md\|SKILL]] |
+| Related | [[skills/find/SKILL.md\|SKILL]],   |
 | Find rules (any type) | [[SRC rules/find\|find.md]],   |
 | Types | [[SRC rules/find-person\|find-person]],  [[SRC rules/find-corp\|find-corp]],  [[SRC rules/find-product\|find-product]],   |
 | [[SKL Find Design\|Design]] |  |

@@ -179,7 +179,7 @@ Distinct from the `SKILL.md` runbook specified above: every skill also has a **d
   - `SKL <Name> Design.md` — the **design root** (a child anchor page)
   - `.anchor`
 
-**Masthead rows** on the entry page (a [[DSC Dispatch Table]]):
+**Masthead rows** on the entry page (a [[FCT Dispatch Table]]):
 
 1. **breadcrumb** — `… → [[SKL <Group>]] → SKL <Name>`.
 2. **Related** — **always links the actual skill runbook**: `[[skills/<name>/SKILL.md\|SKILL]]`. This is the rule — every skill doc points at its runbook, and that is the minimum Related row.

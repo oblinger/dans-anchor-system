@@ -4,7 +4,7 @@ description: "skim → click into the rule that applies"
 # SKL Describe
 | -[[SKL Profile]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Search]] → [SKL Profile](hook://p/SKL%20Profile)<br>: skim → click into the rule that applies |
 | --- | --- |
-| Related | [[skills/profile/SKILL.md\|SKILL]] |
+| Related | [[skills/profile/SKILL.md\|SKILL]],   |
 | Describe rules (any type) | [[SRC rules/profile\|describe.md]],   |
 | Types | [[SRC rules/profile-person\|describe-person]],  [[SRC rules/profile-corp\|describe-corp]],  [[SRC rules/profile-product\|describe-product]],   |
 | [[SKL Profile Design\|Design]] |  |

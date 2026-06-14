@@ -6,9 +6,9 @@ The entry page every anchor opens with — its `{slug}.md`.
 
 | -[[FCT Anchor Page]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [FCT Anchor Page](hook://p/FCT%20Anchor%20Page)<br>: the `{slug}.md` entry-page format                                  |
 | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Related               | [[FCT]],  [[DSC Dispatch Table]],  [[DSC progressive-disclosure]],  [[FEX]],                                                                                          |
+| Related               | [[FCT]],  [[FCT Dispatch Table]],  [[DSC progressive-disclosure]],  [[FEX]],                                                                                          |
 | Design                |                                                                                                                                                                       |
-| Examples              | [[HBR\|Code Project]],  [[FCT Anchor Page\|Sub-project · facet]],  [[DSC Dispatch Table\|Sub-project · discipline]],  [[SKL Mint\|Sub-project · skill-doc]],  [[SKL\|Container · grouped]],  [[SKA Access\|Container · list]],  [[Career\|Topic]] |
+| Examples              | [[HBR\|Code Project]],  [[FCT Anchor Page\|Sub-project · facet]],  [[DSC progressive-disclosure\|Sub-project · discipline]],  [[SKL Mint\|Sub-project · skill-doc]],  [[SKL\|Container · grouped]],  [[SKA Access\|Container · list]],  [[Career\|Topic]] |
 | Rulesets              |                                                                                                                                                                       |
 |                       |                                                                                                                                                                       |
 | OLD Examples          | [[FEX]] — [[Snapper Dapper\|skill]],  [[Espresso\|list]],  [[Harbor Components\|grouped]],  [[Glossary\|facet]],  [[Harbor\|project]],  [[Harbor Ingest\|sub-folder]] |
@@ -51,7 +51,7 @@ traits: [Code]
 - **H1** — `{slug} - {Full Name}`: the slug leads (the jump-key), the readable name follows. Bare-name anchors use just the name.
 - **Summary** — one sentence on the **very next line** (no blank after the H1); states the **essence** — what the page *is* or *does* at its core, not incidental detail (per R-anchor-page-06). More goes in an optional `## Overview` later, never above the dispatch table.
 - **Figure** — optional; embedded right after the summary with **no heading above it** — the big-picture visual before the navigation.
-- **Dispatch table** — the masthead (+ a member zone for a [[Collection]] anchor). The table's *form* is [[DSC Dispatch Table]]; its row *placement* is [[SKA Decisions|D07]].
+- **Dispatch table** — the masthead (+ a member zone for a [[Collection]] anchor). The table's *form* is [[FCT Dispatch Table]]; its row *placement* is [[SKA Decisions|D07]].
 
 # RULESET R-anchor-page
 include::
@@ -131,7 +131,7 @@ Those elements appear in that order with nothing else between them.
 
 ### RULE R-anchor-page-10 — Table follows the Dispatch Table spec (sampled)
 
-The dispatch table conforms to [[DSC Dispatch Table]] — a breadcrumb row then category rows.
+The dispatch table conforms to [[FCT Dispatch Table]] — a breadcrumb row then category rows.
 
 **Check pattern:** delegate to `/audit dispatch`.
 
@@ -215,7 +215,7 @@ A simple / leaf anchor may have no dispatch table at all — frontmatter + H1 + 
 
 ## Kind-specific rules
 
-Each anchor-page **kind** layers a small delta over the shared chassis (R-anchor-page-01…22) plus the [[DSC Dispatch Table]] form. The kind is read from `traits:`; a page is audited as **chassis + its kind's delta**. There are four kinds, each one-to-one with its dispatch-table shape (HookAnchor computes the table from the `.anchor`, so there is exactly one page — and one table kind — per anchor). The deltas are thin; each may graduate to its own `include::` sub-ruleset file once it grows.
+Each anchor-page **kind** layers a small delta over the shared chassis (R-anchor-page-01…22) plus the [[FCT Dispatch Table]] form. The kind is read from `traits:`; a page is audited as **chassis + its kind's delta**. There are four kinds, each one-to-one with its dispatch-table shape (HookAnchor computes the table from the `.anchor`, so there is exactly one page — and one table kind — per anchor). The deltas are thin; each may graduate to its own `include::` sub-ruleset file once it grows.
 
 ### R-anchor-page-project — Code Project (stated)
 
@@ -231,7 +231,7 @@ A single skill-ecosystem spec page — a **facet**, a **discipline**, or a **ski
 - **No `Track` row** — tracking is centralized in SKA (this is R-anchor-page-15 in kind terms).
 - **Member zone:** none.
 - **Content** differs by sub-kind (facet spec vs. discipline vs. skill-doc) but the page *structure* is shared — one ruleset, three example flavors.
-- **Examples:** facet → [[FCT Anchor Page]]; discipline → [[DSC Dispatch Table]]; skill-doc → [[SKL Mint]] *(currently a thin doc with no masthead — the bring-up target, tracked separately; do not treat as compliant).*
+- **Examples:** facet → [[FCT Anchor Page]]; discipline → [[DSC progressive-disclosure]]; skill-doc → [[SKL Mint]] *(currently a thin doc with no masthead — the bring-up target, tracked separately; do not treat as compliant).*
 
 ### R-anchor-page-container — Container: grouped / list / reverse-dated (sampled)
 
@@ -254,5 +254,5 @@ A topic / domain-of-life folder page.
 # BRIEF
 
 - **This file is the spec for the anchor entry page (`{slug}.md`)** — the `.anchor` + page **template**, the **parts**, and the **ruleset** `R-anchor-page`. Format *authority*: `/create anchor`, `/rewire`, `/tidy`, `/audit anchor`, and the audit scripts cite it.
-- **Don't inline what belongs elsewhere.** Dispatch-table *mechanics* → [[DSC Dispatch Table]]; row *placement / order* → [[SKA Decisions|D07]]; the naming prefix → [[FCT Naming]]; sub-folder dispatch pages have their own facets. Link, don't duplicate.
+- **Don't inline what belongs elsewhere.** Dispatch-table *mechanics* → [[FCT Dispatch Table]]; row *placement / order* → [[SKA Decisions|D07]]; the naming prefix → [[FCT Naming]]; sub-folder dispatch pages have their own facets. Link, don't duplicate.
 - **Examples are never instantiated here** — they live in the `examples/` gallery ([[FEX]]); the masthead `Examples` row links to them by kind. This page carries the template + parts + the ruleset only. If the spec changes, fix the examples — never retrofit the spec to a stale copy.

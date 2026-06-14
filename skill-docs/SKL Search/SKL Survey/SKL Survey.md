@@ -4,7 +4,7 @@ description: "skim → click into the rule that applies"
 # SKL Survey
 | -[[SKL Survey]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Search]] → [SKL Survey](hook://p/SKL%20Survey)<br>: skim → click into the rule that applies |
 | --- | --- |
-| Related | [[skills/survey/SKILL.md\|SKILL]] |
+| Related | [[skills/survey/SKILL.md\|SKILL]],   |
 | Survey rules (any type) | [[SRC rules/survey\|survey.md]],   |
 | Types | [[SRC rules/survey-person\|survey-person]],  [[SRC rules/survey-corp\|survey-corp]],  [[SRC rules/survey-product\|survey-product]],  [[SRC rules/survey-software\|survey-software]],  [[SRC rules/survey-skill\|survey-skill]],   |
 | Meta-survey | [[SKL Meta Survey]] — high-rigor three-stage form (sources × dimensions × items), cells annotated for certainty |

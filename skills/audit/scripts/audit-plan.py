@@ -2241,6 +2241,17 @@ def chk_facet_cardinality_declared(target, anchor_root, args):
     return "fail", "cardinality (one / many) not declared"
 
 
+def chk_facet_examples_row(target, anchor_root, args):
+    """R-facet-spec-25: the masthead carries an `Examples` row with >= 1 wiki-link."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    for line in _read(f).splitlines():
+        if re.match(r"^\|\s*Examples\s*\|", line):
+            return ("pass", "examples row present") if "[[" in line else ("fail", "Examples row has no wiki-link")
+    return "fail", "no Examples row in masthead"
+
+
 CHECKERS = {
     "anchor_has": chk_anchor_has,
     "entry_page_matches_slug": chk_entry_page_matches_slug,

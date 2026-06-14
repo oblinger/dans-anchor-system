@@ -4,13 +4,13 @@ description: "product requirements — why Harbor exists and what v1 must delive
 # HBR PRD
 Why Harbor exists and what its first version must deliver.
 
-| Outline | |
-| --- | --- |
-| [[#Overview\|Overview]] | what Harbor is + v1 scope |
-| [[#Goals\|Goals]] | what v1 must deliver |
-| [[#Non-Goals\|Non-Goals]] | what v1 deliberately defers |
+| Outline                         |                                  |
+| ------------------------------- | -------------------------------- |
+| [[#Overview\|Overview]]         | what Harbor is + v1 scope        |
+| [[#Goals\|Goals]]               | what v1 must deliver             |
+| [[#Non-Goals\|Non-Goals]]       | what v1 deliberately defers      |
 | [[#User Stories\|User Stories]] | US-HBR-1..5, grouped by pipeline |
-| [[#See also\|See also]] | sibling design docs |
+| [[#See also\|See also]]         | sibling design docs              |
 
 ## Overview
 

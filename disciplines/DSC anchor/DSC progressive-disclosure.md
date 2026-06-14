@@ -38,7 +38,7 @@ The two-level ideal: **project anchor → subsystem anchor → leaf doc**. Two c
 
 RULE (tree-of-containers): information is organized as a **tree of nested containers**, and **every container has an anchor page that carries a dispatch table**. Each step *down* the tree reveals **progressively greater detail** — a container's dispatch table lists its members; any member that is itself a container links *down* to **its own** anchor page + dispatch table, and so on to the leaves.
 
-This is the *general* principle; the three levels above (project / folder / within-doc) are merely its instances, and it **applies everywhere**. A **dispatch table is the specific instantiation** of this rule at one container. A **grouped dispatch table** is the case where the members are themselves containers: each **group row's label is a link** *down* to that group's own anchor page + dispatch table — so the grouped table is one node of the container tree, and each group row expands to a finer node. (Table mechanics live in [[DSC Dispatch Table]].)
+This is the *general* principle; the three levels above (project / folder / within-doc) are merely its instances, and it **applies everywhere**. A **dispatch table is the specific instantiation** of this rule at one container. A **grouped dispatch table** is the case where the members are themselves containers: each **group row's label is a link** *down* to that group's own anchor page + dispatch table — so the grouped table is one node of the container tree, and each group row expands to a finer node. (Table mechanics live in [[FCT Dispatch Table]].)
 
 
 ## The preface zone
