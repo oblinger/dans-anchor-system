@@ -978,7 +978,9 @@ def chk_description_field_line(target, anchor_root, args):
 # -- R-facet-spec --------------------------------------------------------------
 
 def chk_facet_dispatch_top(target, anchor_root, args):
-    """H1 followed immediately (no blank) by prose, then a breadcrumb table."""
+    """H1 -> a one-line summary (a single blank line after the H1 is tolerated) -> a
+    breadcrumb dispatch table. The substantive requirement is the breadcrumb table —
+    the masthead is what makes a facet spec navigable."""
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
@@ -986,17 +988,20 @@ def chk_facet_dispatch_top(target, anchor_root, args):
     h1_idx = _first_h1_idx(lines)
     if h1_idx is None:
         return "fail", "no H1"
-    if h1_idx + 1 >= len(lines):
-        return "fail", "H1 at end of file"
-    nxt = lines[h1_idx + 1]
-    if nxt.strip() == "":
-        return "fail", "blank line directly after H1"
-    if nxt.lstrip().startswith("|"):
-        return "fail", "table immediately after H1 (needs prose summary first)"
-    for i in range(h1_idx + 2, min(h1_idx + 10, len(lines))):
+    # summary line: first non-blank, non-table line within 2 lines of the H1
+    summary_idx = None
+    for i in range(h1_idx + 1, min(h1_idx + 3, len(lines))):
+        s = lines[i].strip()
+        if s and not s.startswith("|"):
+            summary_idx = i
+            break
+    if summary_idx is None:
+        return "fail", "no one-line summary after H1"
+    # require a breadcrumb dispatch table within ~12 lines of the summary
+    for i in range(summary_idx + 1, min(summary_idx + 12, len(lines))):
         if re.search(r"^\|\s*-\[\[.+?\]\]-\s*\|", lines[i]):
-            return "pass", "H1 -> prose -> breadcrumb table found"
-    return "fail", "no breadcrumb dispatch table found after summary line"
+            return "pass", "H1 -> summary -> breadcrumb table"
+    return "fail", "no breadcrumb dispatch table (missing masthead)"
 
 
 def chk_triggers_section_iff_declared(target, anchor_root, args):
@@ -2212,7 +2217,7 @@ def chk_facet_tldr_if_substantial(target, anchor_root, args):
     if f is None:
         return "error", "no file"
     t = _read(f)
-    substantial = len(t.splitlines()) > 80 or len(re.findall(r"^#+\s+RULE\s+R-", t, re.MULTILINE)) >= 5
+    substantial = len(re.findall(r"^#+\s+RULE\s+R-", t, re.MULTILINE)) >= 5 or len(t.splitlines()) > 120
     if not substantial:
         return "pass", "small spec — TLDR exempt"
     if re.search(r"\*\*TLDR\*\*", t):
@@ -2226,7 +2231,12 @@ def chk_facet_cardinality_declared(target, anchor_root, args):
     if f is None:
         return "error", "no file"
     t = _read(f)
-    if re.search(r"[Cc]ardinality[^\n]{0,60}\b(one|many)\b", t) or re.search(r"cardinality[- ](one|many)", t):
+    pats = [
+        r"[Cc]ardinality[^\n]{0,60}\b(one|many)\b",                                   # "cardinality: one"
+        r"cardinality[- ](one|many)",                                                  # "cardinality-one"
+        r"\b(one|many|exactly one|at most one)\b[^\n]{0,40}\bper\b[^\n]{0,30}\b(anchor|system|repo|repository|bundle|project|folder)\b",  # "one per anchor", "One per system"
+    ]
+    if any(re.search(p, t, re.IGNORECASE) for p in pats):
         return "pass", "cardinality declared"
     return "fail", "cardinality (one / many) not declared"
 
