@@ -1,5 +1,15 @@
+---
+description: "status facet — one {NAME} Status.md per anchor tracking design-phase completeness via a tier ladder"
+---
 # FCT Status
-description:: status facet — one `{NAME} Status.md` file per anchor; one dataview line per design facet; cell vocabulary `none < MVP-agent < MVP-user < Full-agent < Full-user`; read/written by the state script; consumed by `/design`'s picker.
+One file per anchor that tracks design-phase completeness, one dataview line per design facet, using a monotonic tier ladder read/written by the state script.
+
+| -[[FCT Status]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Status](hook://p/FCT%20Status)<br>: status facet — one `{NAME} Status.md` per anchor tracking design-phase completeness via a tier ladder |
+| --- | --- |
+| Related | [[FCT Backlog]],  [[FCT Roadmap]],  [[design]],  [[workflow]],   |
+| Examples | [[HBR Status\|example]] |
+
+**TLDR** — One `{NAME} Status.md` per anchor (cardinality: **one**), body-only (no YAML frontmatter), with a `description::` line followed by exactly five `<facet>::` dataview lines in declared order (`prd`, `ux`, `architecture`, `testing`, `roadmap`). Each cell is one of `none < MVP-agent < MVP-user < Full-agent < Full-user`. Reads/writes are mediated by the `state` script; the picker walks the ladder bottom-up; promotion is monotonic.
 
 The Status facet specifies the format of `{NAME} Status.md` — the per-anchor file that tracks **design-phase completeness**. One row per design facet (`prd` / `ux` / `architecture` / `testing` / `roadmap`), each carrying a tier value, a grading-actor, a date, and a one-line rationale. The file is read by `/design`'s picker (bare `/design` dispatches to the lowest-tier facet) and by `/mint`'s pre-implementation gate.
 
@@ -26,7 +36,7 @@ A facet can be `[Ready]` in workflow terms AND `MVP-agent` in Status terms simul
 
 ```markdown
 # {NAME} Status
-description:: design-phase completeness per facet; consumed by /design picker.
+description:: status facet — one `{NAME} Status.md` per anchor tracking design-phase completeness via a tier ladder
 
 prd::          MVP-user  (2026-06-08) — covers golden path; edge cases unspecified
 ux::           MVP-agent (2026-06-07) — three screens sketched; flow validated

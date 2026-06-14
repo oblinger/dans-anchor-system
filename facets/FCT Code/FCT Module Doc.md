@@ -1,9 +1,15 @@
 ---
-description: per-module source code documentation
+description: "per-module source code documentation — one doc per source module mirroring the repo tree"
 ---
 # FCT Module Doc
-
 Facet spec for per-module documentation — the auto-generatable, source-code-grounded reference doc that mirrors one source module under `{NAME} Dev/`.
+
+| -[[FCT Module Doc]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Code]] → [FCT Module Doc](hook://p/FCT%20Module%20Doc)<br>: per-module source code documentation — one doc per source module mirroring the repo tree |
+| --- | --- |
+| Related | [[FCT Interface]],  [[FCT Architecture]],  [[FCT Dev]],  [[FCT Code]],   |
+| Examples | [[CAE-Scheduler\|fuller (two-zone, SVG figure)]],  [[HBR Scanner\|minimal (leaf module)]], |
+
+**TLDR** — Each source module gets a `{NAME} {ModuleName}.md` doc under `{NAME} Dev/` mirroring the repo's folder structure. Docs have two zones: an Overview zone (SECTIONS table + per-class overview + figure) and a Class Method Details zone. SVG figures only (via `[[viz-excalidraw]]`); bold-identifier-outside-code-span for all table links; block-ID format `^ClassName-methodname`. **Cardinality: many** — one doc per source module.
 
 **Location:** `{NAME} Docs/{NAME} Dev/{NAME} {ModuleName}.md` (one per module).
 
@@ -62,7 +68,7 @@ The overview zone is everything a reader needs to see the API surface at a glanc
 ---
 description: <one-line module summary>
 ---
-:>> [[{NAME}]] → [[{NAME} Docs]] → [[{NAME} Dev]] → [[{NAME} Architecture]]
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Code]] → [FCT Module Doc](hook://p/FCT%20Module%20Doc)
 
 # {NAME} {ModuleName}
 <file-level overview paragraph — no blank line after H1, description prose immediately follows>

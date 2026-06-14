@@ -2,7 +2,6 @@
 description: "skim → click into the rule that applies"
 ---
 # SKL Software
-
 | -[[SKL Software]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Search]] → [SKL Software](hook://p/SKL%20Software)<br>: skim → click into the rule that applies |
 | --- | --- |
 | Software rules (any verb) | [[SRC rules/software\|software.md]],   |

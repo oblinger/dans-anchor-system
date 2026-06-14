@@ -1,15 +1,23 @@
 ---
-description: design docs dispatch page — high-level system spec (Architecture, UX Design, Interface, Data Model, Principles) for the anchor
+description: "design docs dispatch page — Architecture, UX Design, Interface, Data Model, Principles, PRD"
 ---
 # FCT Design Dispatch
+Facet spec for `{NAME} Design.md` — the dispatch page listing all high-level system-spec documents for an anchor.
 
-Facet spec for `{NAME} Design.md` — the dispatch page that lists all high-level system-spec documents (Architecture, UX Design, Interface, Data Model, Principles, PRD) for an anchor.
+| -[[FCT Design Dispatch]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Design Dispatch](hook://p/FCT%20Design%20Dispatch)<br>: design docs dispatch page — Architecture, UX Design, Interface, Data Model, Principles, PRD |
+| --- | --- |
+| Related | [[FCT Architecture]],  [[FCT UX Design]],  [[FCT Interface]],  [[FCT PRD]],   |
+| Examples | [[HBR Design\|minimal]],  [[CAE Design\|fuller]],   |
+
+**TLDR** — `{NAME} Design.md` is the one-per-anchor dispatch page listing every high-level system-spec document (Architecture, UX Design, Interface, Data Model, Principles, PRD, Design Discussion) for an anchor. It lives at `{NAME} Docs/{NAME} Design/{NAME} Design.md`. Architecture and UX Design are siblings here, not parent/child (F094). Interface is required for Code anchors.
 
 **Location:** `{NAME} Docs/{NAME} Design/{NAME} Design.md`
 
 The `{NAME} Design.md` dispatch page inside the `{NAME} Design/` folder. Lists all **high-level system-spec documents** for the anchor.
 
 Per [[F094 — Anchor docs folder restructure — Track _ User _ Architecture _ Dev|F094]] (2026-06-01) — Design is the **umbrella** that holds Architecture (system-architecture story), UX Design (user-interaction shape), Interface (public-API / layer contract), Data Model, Principles, and design-trade-off discussion. **Architecture and UX Design are siblings here, not parent/child** (Q1=B). Interface relocates here from `{NAME} User/` per Q3=A — its content describes a system contract, not an end-user task.
+
+**Cardinality:** one per anchor — each anchor has exactly one `{NAME} Design.md` dispatch page inside its `{NAME} Design/` folder.
 
 **Working example:** the live working example is migrated per anchor as part of F094 Phase 1; CAE / SKA / CAB are the first to land.
 
@@ -21,7 +29,7 @@ Below is a condensed reference example.
 
 # CAE Design
 
-| -[[CAE Design]]- | ><br>: design — system spec, UX, interface, data, principles |
+| -[[CAE Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Design Dispatch](hook://p/FCT%20Design%20Dispatch)<br>: design — system spec, UX, interface, data, principles |
 | --- | --- |
 | [[CAE Architecture\|Architecture]] | system-architecture story — components, modules, data flow (folder per F074) |
 | [[CAE UX Design\|UX Design]] | user-interaction shape — screens, commands, output formats |
@@ -45,7 +53,7 @@ Below is a condensed reference example.
 
 - **YAML frontmatter** — optional, when the dispatch carries a `description:`.
 - **H1** — `# {NAME} Design`. Blank line after.
-- **Dispatch table** — top-left cell is `-[[{NAME} Design]]-`, top-right is `><br>: design — system spec, UX, interface, data, principles`.
+-[[{NAME} Design]]-`, top-right is `><br>: design — system spec, UX, interface, data, principles`.
 - **Body rows** — one row per design document, with wiki-link in column 1 and short description in column 2.
 - **Auto-management separator** — a `---` row enables auto-listing of remaining children. See [[FCT Anchor Page]] § Separators.
 
@@ -81,12 +89,37 @@ System designers, architects, integrators-above-the-layer, and anyone evaluating
 - [[FCT User Dispatch|User]] — **end-user / consumer** surface (Guide, CLI, FAQ)
 - [[FCT Dev Dispatch|Dev]] — **implementer** surface (Files.md, per-module reference)
 
+# RULESET R-design-dispatch
+include::
+where:: file: **/{{NAME}} Design.md
+description:: Rules every `{NAME} Design.md` dispatch page must satisfy — location, H1 form, dispatch-table structure, and required-document coverage for Code anchors.
+
+### RULE R-design-dispatch-01 — File lives inside `{NAME} Design/` (checked)
+The dispatch page `{NAME} Design.md` must reside at `{NAME} Docs/{NAME} Design/{NAME} Design.md` — not at the anchor root or under a different subfolder.
+**Check pattern:** the file's parent directory name matches `{NAME} Design`.
+**Why:** the location is the facet's contract; a misplaced dispatch page is invisible to anchor-page resolution and breaks folder-relative linking. (sampled)
+
+### RULE R-design-dispatch-02 — H1 is `# {NAME} Design` (checked)
+The file's H1 reads exactly `# {NAME} Design` where `{NAME}` is the anchor's root ID.
+**Check pattern:** H1 matches `^# \S+ Design$`.
+**Why:** the H1 is used as the anchor-page title in dispatch tables; a wrong H1 surfaces the wrong name everywhere it appears. (checked)
+
+-[[{NAME} Design]]-` form (checked)
+-[[{NAME} Design]]-` in column 1 and the `><br>: design — …` description in column 2.
+**Check pattern:** first table row starts with `| -[[` and ends with a `><br>:` description.
+**Why:** the strikethrough self-link form is the FCT Anchor Page standard for dispatch tables; deviating breaks the consistent navigation pattern across all anchors. (sampled)
+
+### RULE R-design-dispatch-04 — Interface entry present for Code anchors (sampled)
+Anchors that carry the Code trait MUST include a `{NAME} Interface.md` row in the dispatch table (per F094 Q3=A — Interface is a system contract, not an end-user doc).
+**Check pattern:** for anchors with `traits: [code]` or equivalent, the dispatch table contains a row linking `{NAME} Interface`.
+**Why:** Interface is required for Code anchors; omitting it leaves callers without the public-API contract the Design folder exists to surface. (sampled)
+
 # BRIEF
 
 - **This file is the facet spec for `{NAME} Design.md`** — it defines the shape, location, and contents of the Design dispatch page that every anchor's `{NAME} Design/` folder carries. Edits here cascade to every anchor that conforms to the facet.
 - **Not for per-anchor instances** — concrete `CAE Design.md`, `SKA Design.md`, etc. live in their own anchors. Do not pile anchor-specific content here; only the Reference Example block is allowed as an inline illustration.
 - **Inclusion test for the dispatch table** — a document belongs in the Design dispatch table iff it lives inside `{NAME} Design/` AND describes the system's *design* (architecture / UX shape / interface contract / data model / principles / PRD / design-trade-off discussion). Implementation details, end-user guides, and planning artifacts route to Dev / User / Track dispatches respectively per the § Audience section.
 - **Architecture and UX Design are siblings, not parent/child** (per F094 Q1=B) — preserve this invariant when editing the Contents table; do not nest UX under Architecture or vice versa. Interface lives here too per F094 Q3=A (system contract, not end-user task).
-- **Linking convention** — wiki-links in the dispatch table use `[[{NAME} <Doc>\|<Doc>]]` aliasing, matching the Reference Example. The top-left cell uses the `-[[...]]-` strikethrough form; the top-right uses the `><br>:` description prefix per [[FCT Anchor Page]].
+-[[...]]-` strikethrough form; the top-right uses the `><br>:` description prefix per [[FCT Anchor Page]].
 - **Load-bearing — folder name is "Design", not "Architecture"** — this disambiguates the umbrella from the system-architecture facet. Renaming the folder would collide "Architecture" against itself; do not rename without coordinating an F094-scale migration.
 - **Cited by** [[CAB Base]], [[FCT Anchor Page]], the Architecture / UX Design / Interface / PRD facets, and the `/design` and `/architect` skills. Changes to facet shape ripple through those; check cross-references before structural edits.

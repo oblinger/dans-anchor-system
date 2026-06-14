@@ -2,8 +2,16 @@
 description: CLAUDE.md agent configuration
 ---
 # FCT Claude
-
 Facet spec for the optional `CLAUDE.md` file at an anchor's root that configures Claude Code behavior when the agent is rooted in that anchor.
+
+| -[[FCT Claude]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Claude](hook://p/FCT%20Claude)<br>: CLAUDE.md agent configuration |
+| --- | --- |
+| Related | [[FCT Anchor Page]],  [[FCT Dot Anchor]],  [[CAB Aspects]],  [[FCT Facet]],   |
+| Examples | [[CAE CLAUDE\|agentic-project form]],  [[SYS CLAUDE\|plain-content form]],   |
+
+**Cardinality:** one per anchor — at most one `CLAUDE.md` sits at the anchor root.
+
+**TLDR** — This facet governs the optional `CLAUDE.md` config file at an anchor root. It is exempt from the F060 dispatch-table rule (the harness, not anchor readers, consumes it). Two usage tiers: plain-content anchors get only a mission/commands section; agentic-project anchors add a Pilot role header as the first line.
 
 **Location:** `CLAUDE.md`
 
@@ -83,6 +91,31 @@ You are the Pilot for the {PROJECT} project. Role: `~/.claude/skills/role/role-p
 ```
 
 This ensures the Claude session running in that folder adopts the Pilot role on startup and after context compaction. Only add this header when the anchor will actually be driven by agents — it is not part of the default template.
+
+# RULESET R-fct-claude
+include::
+where:: file: **/CLAUDE.md
+description:: The rules every anchor-level `CLAUDE.md` instance must satisfy — location, shape, and agentic-project header discipline.
+
+### RULE R-fct-claude-01 — File sits at the anchor root (checked)
+The `CLAUDE.md` file, when present, lives at the anchor folder root alongside `{NAME}.md` and `.anchor`.
+**Check pattern:** `CLAUDE.md` path = `<anchor-root>/CLAUDE.md` (depth 0 inside the anchor, not inside a subfolder).
+**Why:** the Claude Code harness only auto-loads `CLAUDE.md` from the folder it's opened in; a misplaced file is silently ignored.
+
+### RULE R-fct-claude-02 — Pilot role declaration appears first, or is absent (checked)
+When the anchor is an agentic project, the very first line(s) of `CLAUDE.md` are the Pilot role declaration (`You are the Pilot for … Role: …`). Plain-content anchors omit it entirely — the header is **not** a default.
+**Check pattern:** if a Pilot declaration exists, it is on line 1; no stray lines precede it.
+**Why:** the harness reads `CLAUDE.md` top-to-bottom on startup; a Pilot declaration buried after other text is missed by context-compaction logic.
+
+### RULE R-fct-claude-03 — Mission section is present (sampled)
+Every `CLAUDE.md` carries a `## Mission` section explaining the agent's job in this folder.
+**Check pattern:** `## Mission` heading exists with at least one non-empty paragraph.
+**Why:** the mission is the agent's primary orientation; without it the agent infers from context and often draws the wrong scope.
+
+### RULE R-fct-claude-04 — No F060 dispatch-table at the file top (stated)
+`CLAUDE.md` is consumed by the Claude Code harness, not by anchor-doc readers. The F060 CAB dispatch-table rule does not apply — do **not** add a breadcrumb dispatch table to a `CLAUDE.md` instance.
+-[[…]]-`) appears at the top of the file.
+**Why:** a dispatch table in `CLAUDE.md` would confuse the harness and occupy the slot that belongs to the Pilot declaration or mission.
 
 # BRIEF
 

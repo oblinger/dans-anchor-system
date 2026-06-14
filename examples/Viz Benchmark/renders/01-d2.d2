@@ -1,0 +1,69 @@
+# 01 — Layered system architecture
+# Real-time analytics platform: ingest -> process -> serve over a Kafka bus,
+# with config-svc + metrics-col fanning out dashed control/observability edges.
+# FIDELITY benchmark: exactly 12 nodes, 18 edges (10 solid, 8 dashed).
+
+direction: down
+
+classes: {
+  ext: {
+    style: { font-size: 36; fill: "#e8eef7"; stroke: "#3b5b92"; stroke-width: 2 }
+    width: 270; height: 110
+  }
+  svc: {
+    style: { font-size: 36; fill: "#dbeede"; stroke: "#2f7d4f"; stroke-width: 2 }
+    width: 270; height: 110
+  }
+  store: {
+    style: { font-size: 36; fill: "#f7efd6"; stroke: "#b8860b"; stroke-width: 2 }
+    width: 270; height: 110
+  }
+  hub: {
+    style: { font-size: 38; fill: "#f6dede"; stroke: "#a23b3b"; stroke-width: 3 }
+    width: 300; height: 120
+  }
+  ops: {
+    style: { font-size: 36; fill: "#ece1f5"; stroke: "#6b3fa0"; stroke-width: 2 }
+    width: 270; height: 110
+  }
+}
+
+# ---- Nodes (12) ----
+web-sdk: "Web/Mobile\nEvent SDK" { class: ext }
+order-svc: "Order\nService" { class: ext }
+ingest-gw: "Ingestion\nGateway" { class: svc }
+kafka-bus: "Kafka\nEvent Bus" { class: hub; shape: queue }
+enrich-proc: "Enrichment\nProcessor" { class: svc }
+agg-proc: "Aggregation\nProcessor" { class: svc }
+profile-db: "User\nProfile DB" { class: store; shape: cylinder }
+serving-store: "Serving Store\n(ClickHouse)" { class: store; shape: cylinder }
+query-api: "Analytics\nQuery API" { class: svc }
+dashboard: "Analytics\nDashboard" { class: ext }
+config-svc: "Config\nService" { class: ops }
+metrics-col: "Metrics\nCollector" { class: ops }
+
+# ---- Edges (18): 10 solid data-flow + 8 dashed control/observability ----
+
+# Solid data flow (10)
+web-sdk -> ingest-gw: "click events (HTTPS)" { style.font-size: 30 }
+order-svc -> ingest-gw: "order events (HTTPS)" { style.font-size: 30 }
+ingest-gw -> kafka-bus: "publish raw events" { style.font-size: 30 }
+kafka-bus -> enrich-proc: "consume raw topic" { style.font-size: 30 }
+enrich-proc -> profile-db: "lookup profile" { style.font-size: 30 }
+enrich-proc -> kafka-bus: "publish enriched topic" { style.font-size: 30 }
+kafka-bus -> agg-proc: "consume enriched topic" { style.font-size: 30 }
+agg-proc -> serving-store: "write aggregates" { style.font-size: 30 }
+query-api -> serving-store: "read aggregates" { style.font-size: 30 }
+dashboard -> query-api: "query (REST)" { style.font-size: 30 }
+
+# Dashed config-svc fan-out (4)
+config-svc -> ingest-gw: "config (sampling rules)" { style.stroke-dash: 4; style.font-size: 30; style.stroke: "#6b3fa0" }
+config-svc -> enrich-proc: "config (join rules)" { style.stroke-dash: 4; style.font-size: 30; style.stroke: "#6b3fa0" }
+config-svc -> agg-proc: "config (window sizes)" { style.stroke-dash: 4; style.font-size: 30; style.stroke: "#6b3fa0" }
+config-svc -> query-api: "config (feature flags)" { style.stroke-dash: 4; style.font-size: 30; style.stroke: "#6b3fa0" }
+
+# Dashed metrics-col fan-out (4)
+metrics-col -> ingest-gw: "scrape /metrics" { style.stroke-dash: 4; style.font-size: 30; style.stroke: "#8a6d1f" }
+metrics-col -> enrich-proc: "scrape /metrics" { style.stroke-dash: 4; style.font-size: 30; style.stroke: "#8a6d1f" }
+metrics-col -> agg-proc: "scrape /metrics" { style.stroke-dash: 4; style.font-size: 30; style.stroke: "#8a6d1f" }
+metrics-col -> query-api: "scrape /metrics" { style.stroke-dash: 4; style.font-size: 30; style.stroke: "#8a6d1f" }

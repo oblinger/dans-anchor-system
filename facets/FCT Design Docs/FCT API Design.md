@@ -1,8 +1,13 @@
+---
+description: "facet spec for {NAME} API Design.md — the programmatic (code-to-code or sub-skill) user surface"
+---
 # FCT API Design
-
 Facet spec defining the shape, required sections, and ruleset for an anchor's `{NAME} API Design.md` — the programmatic (code-to-code or sub-skill) user surface.
 
-description:: facet spec this doc follows
+| -[[FCT API Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT API Design](hook://p/FCT%20API%20Design)<br>: facet spec for the programmatic user surface doc |
+| --- | --- |
+| Related | [[FCT UX Design]],  [[FCT Architecture]],  [[FCT Module Doc]],  [[FCT Decisions]],   |
+| Examples | [[CAE API Design\|minimal (library crate)]],  [[HBR API Design\|fuller (service + sub-skill)]] |
 
 API Design specifies the **programmatic user surface** of the anchor — what shape another piece of code (or another agent invoking this as a sub-skill) sees when integrating. It is sibling to [[FCT UX Design]] (the *human* user surface). The cut between them is **who the consumer is**: API = code calling; UX = human reading or invoking.
 
@@ -73,7 +78,7 @@ See [[CAE API Design]] — the CAE scheduler crate shows the canonical shape for
 
 # RULESET R-api
 include::
-description:: Rules for `{NAME} API Design.md` — programmatic user-facing surface intent.
+description:: facet spec for the programmatic user surface doc
 
 Embedded ruleset for the API Design facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via [[R-facet]] umbrella.
 

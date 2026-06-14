@@ -3,6 +3,14 @@ description: per-anchor master file for applied decisions — declares which rul
 ---
 
 # FCT Decisions
+The per-anchor master file for applied decisions — declares adopted rulesets (`include::`) and records D-numbered design choices with rationale.
+
+| -[[FCT Decisions]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Decisions](hook://p/FCT%20Decisions)<br>: per-anchor master file for applied decisions — adopted rulesets and D-records |
+| --- | --- |
+| Related | [[FCT Ruleset]],  [[FCT Architecture]],  [[FCT Design Docs]],  [[Rulesets]],   |
+| Examples | [[CAE Decisions\|minimal (D-records only, no include::)]],  [[HBR Decisions\|fuller (masthead + durable rulings)]] |
+
+**TLDR** — `{NAME} Decisions.md` is the single record of what an anchor has committed to: top-of-file `include::` lists adopted rulesets; the `## Adoption implementation map` bridges each rule to its anchor-specific code/script/table; `## D<N>` entries record applied choices with rationale and a `**Cites:**` back-link to the rules they satisfy. One per anchor.
 
 The Decisions facet is the **per-anchor master file** for everything the anchor has applied — both *which rulesets it adopts* and *what specific design choices it made for this project*. Lives at `{NAME} Design/{NAME} Architecture/{NAME} Decisions.md` (alongside the architecture entry-point) for anchors with architecture folders, or `{NAME} Design/{NAME} Decisions.md` otherwise.
 
@@ -27,11 +35,11 @@ If the anchor has truly anchor-local rules (constraints that don't belong in any
 ## File shape
 
 ```markdown
-:>> [[NAME]] → [NAME Decisions](hook://...)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Decisions](hook://p/FCT%20Decisions)
 
 # {NAME} Decisions
 include:: R-other-set, R-third-set
-description:: Master file for {NAME}'s applied decisions...
+description:: per-anchor master file for applied decisions — adopted rulesets and D-records
 
 > [!info] Architecture
 > One-paragraph commentary about how this file is organized.
@@ -110,7 +118,7 @@ When `{NAME} Rules.md` is just a stub pointer to `{NAME} Decisions.md`, that's f
 
 ## Trait applicability
 
-Available to every anchor. Most anchors will have a `{NAME} Decisions.md` even if it only carries the `include::` declarations and a few D-records.
+**Cardinality: one per anchor.** Each anchor has exactly one `{NAME} Decisions.md` — the single adoption + decision record for that anchor. Available to every anchor; most will have one even if it only carries the `include::` declarations and a few D-records.
 
 ## Audit
 

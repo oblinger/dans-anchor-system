@@ -1,0 +1,29 @@
+# 04 — State machine (video transcoding job lifecycle)
+# 9 nodes, 14 declared edges (spec header says 15 but its own Edges list enumerates 14)
+
+direction: down
+
+Queued: Queued {style.fill: "#dbeafe"}        # initial
+Downloading
+Probing
+Transcoding
+Validating
+Uploading
+Published: Published {style.fill: "#dcfce7"}   # terminal: success
+Failed: Failed {style.fill: "#fee2e2"}         # terminal: failure
+Cancelled: Cancelled {style.fill: "#f3e8ff"}   # terminal: cancelled
+
+Queued -> Downloading: worker claims job
+Downloading -> Probing: source fetched
+Downloading -> Downloading: chunk timeout — resume
+Probing -> Transcoding: format supported
+Probing -> Failed: unsupported codec
+Transcoding -> Transcoding: rendition complete — next profile
+Transcoding -> Validating: all renditions encoded
+Validating -> Uploading: checks pass
+Validating -> Transcoding: corrupt output — re-encode {style.stroke-dash: 4}
+Uploading -> Published: all parts confirmed
+Uploading -> Queued: storage 5xx — re-queue job {style.stroke-dash: 4}
+Queued -> Cancelled: operator abort {style.stroke-dash: 4}
+Transcoding -> Cancelled: operator abort {style.stroke-dash: 4}
+Validating -> Failed: max retries reached

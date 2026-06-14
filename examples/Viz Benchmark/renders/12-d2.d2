@@ -1,0 +1,97 @@
+# Swimlane process — mortgage loan application
+# 14 nodes across 4 lanes, 15 edges (2 dashed rework loops)
+
+grid-columns: 1
+vertical-gap: 60
+
+classes: {
+  lane: {
+    style.font-size: 34
+    style.bold: true
+    style.fill: "#eef2f7"
+    style.stroke: "#5b6b7f"
+  }
+  step: {
+    width: 250
+    height: 118
+    style.font-size: 33
+    style.fill: "#dbe7f3"
+    style.stroke: "#2f4a66"
+  }
+  start: {
+    width: 250
+    height: 118
+    style.font-size: 33
+    style.fill: "#cdebd6"
+    style.stroke: "#2f6647"
+  }
+  decision: {
+    width: 250
+    height: 130
+    style.font-size: 33
+    style.fill: "#f5e6c8"
+    style.stroke: "#8a6d2f"
+  }
+  endn: {
+    width: 250
+    height: 118
+    style.font-size: 33
+    style.fill: "#f3d6d6"
+    style.stroke: "#7a3030"
+  }
+}
+
+Applicant: Applicant {
+  grid-rows: 1
+  horizontal-gap: 50
+  class: lane
+  N1: "Submit\napplication" { class: start }
+  N2: "Upload\nincome &\nasset docs" { class: step }
+  N3: "Resubmit\ncorrected\ndocs" { class: step }
+}
+
+LoanOfficer: Loan Officer {
+  grid-rows: 1
+  horizontal-gap: 50
+  class: lane
+  N4: "Receive & log\napplication" { class: step }
+  N5: "Verify\ndocument\ncompleteness" { class: decision }
+  N6: "Request\nmissing items" { class: step }
+  N7: "Order credit\nreport &\nappraisal" { class: step }
+}
+
+Underwriting: Underwriting {
+  grid-rows: 1
+  horizontal-gap: 50
+  class: lane
+  N8: "Assess\ncreditworthiness" { class: step }
+  N9: "Underwriting\ndecision" { class: decision }
+  N10: "Issue\nconditional\napproval" { class: step }
+  N11: "Decline\napplication" { class: endn }
+}
+
+Funding: Funding {
+  grid-rows: 1
+  horizontal-gap: 50
+  class: lane
+  N12: "Prepare\nclosing package" { class: step }
+  N13: "Disburse\nloan funds" { class: step }
+  N14: "Notify\nborrower\nof funding" { class: endn }
+}
+
+# edges — forward (solid) + 2 rework loops (dashed)
+Applicant.N1 -> LoanOfficer.N4: "application submitted" { style.font-size: 27 }
+Applicant.N2 -> LoanOfficer.N4: "documents attached" { style.font-size: 27 }
+LoanOfficer.N4 -> LoanOfficer.N5: "logged" { style.font-size: 27 }
+LoanOfficer.N5 -> LoanOfficer.N6: "incomplete" { style.font-size: 27 }
+LoanOfficer.N5 -> LoanOfficer.N7: "complete" { style.font-size: 27 }
+LoanOfficer.N6 -> Applicant.N3: "missing items requested" { style.font-size: 27; style.stroke-dash: 4 }
+Applicant.N3 -> LoanOfficer.N4: "corrected documents" { style.font-size: 27 }
+LoanOfficer.N7 -> Underwriting.N8: "file ready for review" { style.font-size: 27 }
+Underwriting.N8 -> Underwriting.N9: "assessment done" { style.font-size: 27 }
+Underwriting.N9 -> Underwriting.N10: "approved" { style.font-size: 27 }
+Underwriting.N9 -> Underwriting.N11: "rejected" { style.font-size: 27 }
+Underwriting.N9 -> LoanOfficer.N6: "needs more info" { style.font-size: 27; style.stroke-dash: 4 }
+Underwriting.N10 -> Funding.N12: "conditional approval" { style.font-size: 27 }
+Funding.N12 -> Funding.N13: "package signed" { style.font-size: 27 }
+Funding.N13 -> Funding.N14: "funds released" { style.font-size: 27 }

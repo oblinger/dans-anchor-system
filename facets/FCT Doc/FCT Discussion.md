@@ -1,5 +1,15 @@
+---
+description: "per-document discussion log — dated trade-off threads attached to the doc they're about"
+---
 # FCT Discussion
-description:: planning trade-offs
+Per-document discussion log — dated trade-off threads attached to the doc they're about.
+
+| -[[FCT Discussion]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Doc]] → [FCT Discussion](hook://p/FCT%20Discussion)<br>: per-document discussion log — dated trade-off threads attached to the doc they're about |
+| --- | --- |
+| Related | [[FCT Decisions]],  [[FCT Log]],  [[FCT PRD]],  [[DSC dated-entry-stream]],   |
+| Examples | [[HA Frontmatter\|inline method-1]],  [[HA Design Discussions\|sibling-file method-2]],   |
+
+**TLDR** — A doc-scoped dated-entry-stream (cardinality: many) that attaches to spec docs — PRDs, Architecture, feature docs, etc. Each entry follows a Problem / Options Considered / Decision skeleton. Two placement methods: inline `# Discussion` H1 (default) or sibling `{Parent} Discussions.md` (when inline grows past ~2 screens). Append-only after Decision is filled. Does NOT attach to navigation/sequencing artifacts (anchor pages, dispatch pages, Backlog, Roadmap).
 
 Discussion is the first **document-scoped facet** in CAB. Unlike anchor-scoped facets (which carry one instance per anchor — `{NAME} Backlog.md`, `{NAME} PRD.md`), a document-scoped facet attaches to a specific *document* and may exist many times within one anchor (one Discussion per discussable doc). The provenance — *what is being discussed* — is preserved by anchoring the discussion to the document it's about.
 
@@ -78,7 +88,7 @@ Discussion is **append-only**. Entries are never edited after the Decision is fi
 # RULESET R-discussion
 include::
 where:: sentinel: ^#+ Discussion
-description:: Discussion-specific rules — scope (doc-scoped, not anchor-scoped), entry skeleton (Problem / Options / Decision), append-only posture, attachment scope guard. Placement / naming / migration rules delegate to [[DSC dated-entry-stream#RULESET R-dated-entry-stream|R-dated-entry-stream]].
+description:: per-document discussion log — dated trade-off threads attached to the doc they're about
 
 Embedded ruleset for the Discussion facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via [[R-facet]] umbrella.
 
@@ -123,3 +133,9 @@ Discussion does NOT attach to: anchor pages (`{NAME}.md`), dispatch pages (`{NAM
 **Check pattern:** for each `# Discussion` H1 or `{X} Discussions.md` found, assert `{X}` is NOT one of the forbidden kinds.
 
 **Why:** discussion on a dispatch page would be discussion of the navigation choice (rare and unhelpful); discussion on the Backlog would discuss the sequencing of work (which belongs on the milestone's feature doc, not on the Backlog itself). Confining to spec surfaces keeps the log focused.
+
+# BRIEF
+
+- **This is the Discussion facet spec** — the doc-scoped dated-entry-stream for design trade-off threads. It was re-scoped from anchor-scoped to doc-scoped on 2026-06-11; legacy `{NAME} Discussion.md` files are deprecated (migration tracked in [[SKA Backlog]] § F149). Do not revert to anchor-scoped wiring.
+- **Cardinality: many** — one Discussion per attachable doc (PRDs, Architecture, feature docs, spec sub-pages). Each Discussion belongs to the doc it's about — inlined under `# Discussion` H1 (method 1, default) or extracted to `{Parent} Discussions.md` (method 2). Method 3 is out of scope; if an inline Discussion grows that large, split the parent doc instead.
+- **Placement rules and naming delegate to [[DSC dated-entry-stream]]** — this spec owns only Discussion-specific rules (entry skeleton, methods 1+2 declaration, attachment-scope guard, append-only posture). When editing placement or naming logic, update `R-dated-entry-stream`, not this file.

@@ -1,0 +1,80 @@
+direction: down
+
+classes: {
+  ext: {
+    width: 320
+    height: 120
+    style: { font-size: 40; fill: "#ffe8cc"; stroke: "#d9480f"; border-radius: 24 }
+  }
+  edge: {
+    width: 320
+    height: 120
+    style: { font-size: 40; fill: "#e7f5ff"; stroke: "#1971c2" }
+  }
+  app: {
+    width: 320
+    height: 120
+    style: { font-size: 40; fill: "#ebfbee"; stroke: "#2f9e44" }
+  }
+  data: {
+    width: 340
+    height: 140
+    style: { font-size: 40; fill: "#fff9db"; stroke: "#e67700" }
+  }
+  tier: {
+    style: { font-size: 44; fill: "#f8f9fa"; stroke: "#868e96"; stroke-width: 2 }
+  }
+  lbl: {
+    style: { font-size: 36 }
+  }
+}
+
+INET: "INET\nPublic Internet" { shape: cloud; class: ext }
+
+Edge: "Edge tier" {
+  class: tier
+  CDN: "CDN\nCloudflare CDN edge" { class: edge }
+  WAF: "WAF\nAWS WAF firewall" { class: edge }
+  LB: "LB\nAWS ALB :443" { class: edge }
+}
+
+App: "Application tier" {
+  class: tier
+  WEB1: "WEB1\nweb-1 :8080" { class: app }
+  WEB2: "WEB2\nweb-2 :8080" { class: app }
+  WORKER: "WORKER\nworker-1" { class: app }
+}
+
+Data: "Data tier" {
+  class: tier
+  grid-columns: 2
+  REDIS: "REDIS\nRedis :6379" { shape: cylinder; class: data }
+  PG_PRIMARY: "PG_PRIMARY\ndb-primary :5432" { shape: cylinder; class: data }
+  PG_REPLICA: "PG_REPLICA\ndb-replica :5432" { shape: cylinder; class: data }
+  S3: "S3\nassets bucket" { shape: cylinder; class: data }
+}
+
+SES: "SES\nAWS SES email" { class: ext }
+
+# north-south request flow
+INET -> Edge.CDN: "HTTPS :443" { class: lbl }
+Edge.CDN -> Edge.WAF: "HTTPS :443" { class: lbl }
+Edge.WAF -> Edge.LB: "HTTPS :443" { class: lbl }
+Edge.LB -> App.WEB1: "HTTP :8080" { class: lbl }
+Edge.LB -> App.WEB2: "HTTP :8080" { class: lbl }
+
+# east-west data calls
+App.WEB1 -> Data.REDIS: "session/cache :6379" { class: lbl }
+App.WEB2 -> Data.REDIS: "session/cache :6379" { class: lbl }
+App.WEB1 -> Data.PG_PRIMARY: "read/write :5432" { class: lbl }
+App.WEB2 -> Data.PG_PRIMARY: "read/write :5432" { class: lbl }
+App.WEB1 -> Data.PG_REPLICA: "read-only :5432" { class: lbl; style.stroke-dash: 4 }
+App.WEB2 -> Data.PG_REPLICA: "read-only :5432" { class: lbl; style.stroke-dash: 4 }
+App.WEB1 -> Data.S3: "asset GET/PUT" { class: lbl }
+App.WEB2 -> Data.S3: "asset GET/PUT" { class: lbl }
+Data.PG_PRIMARY -> Data.PG_REPLICA: "streaming replication" { class: lbl; style.stroke-dash: 4 }
+
+# worker flows
+App.WORKER -> Data.REDIS: "consume queue :6379" { class: lbl }
+App.WORKER -> Data.PG_PRIMARY: "write :5432" { class: lbl }
+App.WORKER -> SES: "send email" { class: lbl }

@@ -1,0 +1,47 @@
+# 12 — Swimlane process (D2 source for the d2 renderer)
+# Mortgage loan application across four swimlanes.
+# Direction left-to-right; lanes modeled as containers.
+
+direction: right
+
+Applicant: {
+  N1: Submit application
+  N2: Upload income & asset documents
+  N3: Resubmit corrected documents
+}
+
+"Loan Officer": {
+  N4: Receive & log application
+  N5: Verify document completeness
+  N6: Request missing items
+  N7: Order credit report & appraisal
+}
+
+Underwriting: {
+  N8: Assess creditworthiness
+  N9: Underwriting decision
+  N10: Issue conditional approval
+  N11: Decline application
+}
+
+Funding: {
+  N12: Prepare closing package
+  N13: Disburse loan funds
+  N14: Notify borrower of funding
+}
+
+Applicant.N1 -> "Loan Officer".N4: application submitted
+Applicant.N2 -> "Loan Officer".N4: documents attached
+"Loan Officer".N4 -> "Loan Officer".N5: logged
+"Loan Officer".N5 -> "Loan Officer".N6: incomplete
+"Loan Officer".N5 -> "Loan Officer".N7: complete
+"Loan Officer".N6 -> Applicant.N3: missing items requested {style.stroke-dash: 4}
+Applicant.N3 -> "Loan Officer".N4: corrected documents
+"Loan Officer".N7 -> Underwriting.N8: file ready for review
+Underwriting.N8 -> Underwriting.N9: assessment done
+Underwriting.N9 -> Underwriting.N10: approved
+Underwriting.N9 -> Underwriting.N11: rejected
+Underwriting.N9 -> "Loan Officer".N6: needs more info {style.stroke-dash: 4}
+Underwriting.N10 -> Funding.N12: conditional approval
+Funding.N12 -> Funding.N13: package signed
+Funding.N13 -> Funding.N14: funds released

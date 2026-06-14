@@ -1,0 +1,87 @@
+# Benchmark 02 — Linear data pipeline (ETL)
+# 11 nodes, 10 edges. Fidelity render.
+# Folded into a compact grid to avoid an ultra-wide / ultra-tall strip.
+
+grid-columns: 3
+grid-gap: 120
+
+classes: {
+  stage: {
+    style: {
+      font-size: 28
+      stroke-width: 2
+      border-radius: 8
+    }
+    width: 260
+    height: 110
+  }
+  source: {
+    style: {
+      font-size: 28
+      stroke-width: 3
+      fill: "#e8f0fe"
+      border-radius: 8
+    }
+    width: 260
+    height: 110
+  }
+  store: {
+    style: {
+      font-size: 28
+      stroke-width: 3
+      fill: "#fff3e0"
+      border-radius: 8
+    }
+    width: 260
+    height: 110
+  }
+  sink: {
+    style: {
+      font-size: 28
+      stroke-width: 3
+      fill: "#e6f4ea"
+      border-radius: 8
+    }
+    width: 260
+    height: 110
+  }
+  quarantine: {
+    style: {
+      font-size: 28
+      stroke-width: 3
+      fill: "#fce8e6"
+      border-radius: 8
+      stroke-dash: 3
+    }
+    width: 260
+    height: 110
+  }
+}
+
+# Serpentine declaration order so the grid (column-major, top->bottom) folds
+# the chain with SHORT horizontal seams instead of long diagonal back-jumps.
+# col0 (down): src -> ingest -> validate -> enrich
+# col1 (declared top->bottom = load,qc,aggregate,sessionize so flow reads bottom->up)
+# col2 (down): warehouse -> dashboard ; dlq parked as the side branch
+src: "Raw event files\n(S3 landing)" { class: source }
+ingest: "Ingestion job\n(Airflow loader)" { class: stage }
+validate: "Schema validation\n& dedup" { class: stage }
+enrich: "Enrichment\n(geo-IP + UA parse)" { class: stage }
+load: "Warehouse load\n(Snowflake COPY)" { class: stage }
+qc: "Data-quality check\n(row-count / null)" { class: stage }
+aggregate: "Daily aggregation\n(rollups)" { class: stage }
+sessionize: "Sessionization\n(group into sessions)" { class: stage }
+warehouse: "Analytics warehouse\n(events_daily)" { class: store }
+dashboard: "BI dashboard\n(Looker report)" { class: sink }
+dlq: "Dead-letter /\nquarantine" { class: quarantine }
+
+src -> ingest: "raw JSON files" { style.font-size: 22 }
+ingest -> validate: "parsed records" { style.font-size: 22 }
+validate -> dlq: "rejected records" { style.font-size: 22; style.stroke-dash: 4 }
+validate -> enrich: "valid records" { style.font-size: 22 }
+enrich -> sessionize: "enriched events" { style.font-size: 22 }
+sessionize -> aggregate: "sessions" { style.font-size: 22 }
+aggregate -> qc: "daily rollups" { style.font-size: 22 }
+qc -> load: "passed rollups" { style.font-size: 22 }
+load -> warehouse: "COPY INTO" { style.font-size: 22 }
+warehouse -> dashboard: "query / refresh" { style.font-size: 22 }

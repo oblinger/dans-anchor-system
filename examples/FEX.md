@@ -27,7 +27,7 @@ Two fictional worlds cover the anchor-page kinds and the facets. **Not 1:1** —
 | discipline page | [[FEX Retention]] |
 | ruleset (`# RULESET`) | [[R-fex-manifest]] |
 | [[FCT Anchor Page]] | the anchor-page kinds above (skill / grouped / project / sub-folder) |
-| [[DSC Dispatch Table]] | [[HBR Components]] (grouped, links down) |
+| [[FCT Dispatch Table]] | [[HBR Components]] (grouped, links down) |
 | [[FCT Design Docs]] / [[FCT Design Dispatch]] | [[HBR Design]] (hub) + its members |
 | [[FCT PRD]] | [[HBR PRD]] |
 | [[FCT Roadmap]] | [[HBR Roadmap]] |

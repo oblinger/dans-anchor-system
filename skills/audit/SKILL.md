@@ -37,6 +37,23 @@ This principle governs **`/audit q`** specifically (and any sub-audit that adopt
 
 **Exception — `/audit q`** (per F076): fixes by default because Q.md drift is mechanical and unambiguous to repair. The three-tier flow (mechanical via Python script → agent-inline-judgment → singleton `QFix` backlog entry only for the rare cases where the answer genuinely requires user-private information the agent can't reach) keeps the audit-fixes-it model contained to the Q.md surface where the cost/benefit decisively favors auto-repair. The broader principle "audit never fixes" still applies to every OTHER subaction.
 
+## Fix discipline — preserve content; recommend, never delete
+
+When a sub-audit *does* apply fixes (the fix-by-default subactions, or an explicit conformance / fix pass), the agent **preserves the author's content**. It MAY:
+- **Move** content — reorder sections, relocate a paragraph to where it belongs.
+- **Rewrite** content — tighten prose, repair structure, correct format.
+- **Simplify** content — condense, deduplicate, cut filler *words*.
+
+It MUST NOT **delete whole chunks of content** — a section, a paragraph, a list, a worked example. The author put it there; an audit pass is not the place to decide it is worthless.
+
+**If a chunk genuinely seems like it should go, do not delete it — surface it for the user.** Lift it out of the flow into an informational callout so the user can review and delete it later, on their own pass:
+
+> [!info] Recommend deleting
+> &lt;the chunk, verbatim&gt;
+> *Why: &lt;one line — redundant with X, stale, out of scope&gt;.*
+
+The user walks these callouts later and deletes (or keeps) each. This keeps the audit **non-destructive**: it never silently loses content, and the delete decision stays with the author. (Same spirit as the edit-conservatism discipline — moving / rewriting is the agent's call; destroying distinct content is the user's.)
+
 ## Runbook
 
 ### Single sub-audit (`/audit structure`, `/audit docs`, `/audit rules`, `/audit publish`, `/audit code`, `/audit q`, `/audit q-fix`)

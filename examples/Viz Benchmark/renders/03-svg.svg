@@ -1,0 +1,163 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1880" viewBox="0 0 1500 1880" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrowSolid" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,0 L12,6 L0,12 z" fill="#1f2937"/>
+    </marker>
+    <marker id="arrowDashed" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,1.5 L12,6 L0,10.5" fill="none" stroke="#6b21a8" stroke-width="2"/>
+    </marker>
+    <marker id="arrowSelf" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,0 L12,6 L0,12 z" fill="#b45309"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1500" height="1880" fill="#ffffff"/>
+  <text x="750" y="50" text-anchor="middle" font-size="40" font-weight="700" fill="#111827">OAuth 2.0 Authorization-Code + PKCE login flow</text>
+
+  <!-- ===================== LIFELINES ===================== -->
+  <!-- x: User=85, Browser=290, AppServer=520, AuthZ=755, TokenSvc=965, UserDB=1175, SessionStore=1385 -->
+  <g stroke-dasharray="6 8" stroke-width="2">
+    <line x1="85"   y1="150" x2="85"   y2="1730" stroke="#9ca3af"/>
+    <line x1="290"  y1="150" x2="290"  y2="1730" stroke="#9ca3af"/>
+    <line x1="520"  y1="150" x2="520"  y2="1730" stroke="#9ca3af"/>
+    <line x1="755"  y1="150" x2="755"  y2="1730" stroke="#9ca3af"/>
+    <line x1="965"  y1="150" x2="965"  y2="1730" stroke="#9ca3af"/>
+    <line x1="1175" y1="150" x2="1175" y2="1730" stroke="#9ca3af"/>
+    <line x1="1385" y1="150" x2="1385" y2="1730" stroke="#9ca3af"/>
+  </g>
+
+  <!-- ===================== PARTICIPANT HEAD BOXES ===================== -->
+  <!-- color-coded by role: client (blue), app server (green), IdP (purple), data stores (amber) -->
+  <g font-size="30" font-weight="700" text-anchor="middle">
+    <!-- User : actor -->
+    <circle cx="85" cy="80" r="14" fill="none" stroke="#1d4ed8" stroke-width="3"/>
+    <line x1="85" y1="94" x2="85" y2="122" stroke="#1d4ed8" stroke-width="3"/>
+    <line x1="62" y1="103" x2="108" y2="103" stroke="#1d4ed8" stroke-width="3"/>
+    <line x1="85" y1="122" x2="66" y2="140" stroke="#1d4ed8" stroke-width="3"/>
+    <line x1="85" y1="122" x2="104" y2="140" stroke="#1d4ed8" stroke-width="3"/>
+    <text x="85" y="172" fill="#1e3a8a" font-size="28">User</text>
+    <!-- Browser : client (blue) -->
+    <rect x="198" y="62" width="184" height="68" rx="11" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2.5"/>
+    <text x="290" y="106" fill="#1e3a8a">Browser</text>
+    <!-- AppServer : app (green) -->
+    <rect x="416" y="62" width="208" height="68" rx="11" fill="#dcfce7" stroke="#15803d" stroke-width="2.5"/>
+    <text x="520" y="106" fill="#14532d">AppServer</text>
+    <!-- AuthZ : IdP (purple) -->
+    <rect x="671" y="62" width="168" height="68" rx="11" fill="#f3e8ff" stroke="#7e22ce" stroke-width="2.5"/>
+    <text x="755" y="106" fill="#581c87">AuthZ</text>
+    <!-- TokenSvc : IdP (purple) -->
+    <rect x="869" y="62" width="192" height="68" rx="11" fill="#f3e8ff" stroke="#7e22ce" stroke-width="2.5"/>
+    <text x="965" y="106" fill="#581c87">TokenSvc</text>
+    <!-- UserDB : data store (amber) -->
+    <rect x="1087" y="62" width="176" height="68" rx="11" fill="#fef3c7" stroke="#b45309" stroke-width="2.5"/>
+    <text x="1175" y="106" fill="#78350f">UserDB</text>
+    <!-- SessionStore : data store (amber) -->
+    <rect x="1271" y="62" width="220" height="68" rx="11" fill="#fef3c7" stroke="#b45309" stroke-width="2.5"/>
+    <text x="1385" y="106" fill="#78350f" font-size="26">SessionStore</text>
+  </g>
+
+  <!-- ===================== MESSAGES (18, ordered top->bottom) ===================== -->
+  <!-- solid #1f2937 = call/request; dashed #6b21a8 = return/redirect; amber #b45309 = self-message -->
+  <!-- rows y = 250 + (n-1)*85 for the arrow; label sits ~14px above. -->
+  <g font-size="34">
+
+    <!-- 1. User -> Browser : click 'Sign in' [solid] -->
+    <text x="187" y="238" text-anchor="middle" fill="#1f2937">1. click 'Sign in'</text>
+    <line x1="85" y1="250" x2="286" y2="250" stroke="#1f2937" stroke-width="3" marker-end="url(#arrowSolid)"/>
+
+    <!-- 2. Browser -> AppServer : GET /login [solid] -->
+    <text x="405" y="323" text-anchor="middle" fill="#1f2937">2. GET /login</text>
+    <line x1="290" y1="335" x2="516" y2="335" stroke="#1f2937" stroke-width="3" marker-end="url(#arrowSolid)"/>
+
+    <!-- 3. AppServer -> AppServer : self-message PKCE [amber loop] -->
+    <path d="M520,408 H600 V436 H524" fill="none" stroke="#b45309" stroke-width="3" marker-end="url(#arrowSelf)"/>
+    <text x="614" y="430" text-anchor="start" fill="#92400e" font-size="30">3. generate code_verifier + code_challenge (PKCE)</text>
+
+    <!-- 4. AppServer -> Browser : 302 redirect to /authorize [dashed] -->
+    <text x="405" y="493" text-anchor="middle" fill="#6b21a8" font-size="30">4. 302 redirect to /authorize (challenge, state)</text>
+    <line x1="520" y1="505" x2="294" y2="505" stroke="#6b21a8" stroke-width="3" stroke-dasharray="10 7" marker-end="url(#arrowDashed)"/>
+
+    <!-- 5. Browser -> AuthZ : GET /authorize [solid] -->
+    <text x="522" y="578" text-anchor="middle" fill="#1f2937" font-size="30">5. GET /authorize?challenge,state</text>
+    <line x1="290" y1="590" x2="751" y2="590" stroke="#1f2937" stroke-width="3" marker-end="url(#arrowSolid)"/>
+
+    <!-- 6. AuthZ -> Browser : render login form [dashed] -->
+    <text x="522" y="663" text-anchor="middle" fill="#6b21a8">6. render login form</text>
+    <line x1="755" y1="675" x2="294" y2="675" stroke="#6b21a8" stroke-width="3" stroke-dasharray="10 7" marker-end="url(#arrowDashed)"/>
+
+    <!-- 7. User -> Browser : submit credentials [solid] -->
+    <text x="187" y="748" text-anchor="middle" fill="#1f2937" font-size="30">7. submit credentials</text>
+    <line x1="85" y1="760" x2="286" y2="760" stroke="#1f2937" stroke-width="3" marker-end="url(#arrowSolid)"/>
+
+    <!-- 8. Browser -> AuthZ : POST credentials [solid] -->
+    <text x="522" y="833" text-anchor="middle" fill="#1f2937">8. POST credentials</text>
+    <line x1="290" y1="845" x2="751" y2="845" stroke="#1f2937" stroke-width="3" marker-end="url(#arrowSolid)"/>
+
+    <!-- 9. AuthZ -> Browser : 302 redirect to /callback [dashed] -->
+    <text x="522" y="918" text-anchor="middle" fill="#6b21a8" font-size="30">9. 302 redirect to /callback?code,state</text>
+    <line x1="755" y1="930" x2="294" y2="930" stroke="#6b21a8" stroke-width="3" stroke-dasharray="10 7" marker-end="url(#arrowDashed)"/>
+
+    <!-- 10. Browser -> AppServer : GET /callback [solid] -->
+    <text x="405" y="1003" text-anchor="middle" fill="#1f2937" font-size="30">10. GET /callback?code,state</text>
+    <line x1="290" y1="1015" x2="516" y2="1015" stroke="#1f2937" stroke-width="3" marker-end="url(#arrowSolid)"/>
+
+    <!-- 11. AppServer -> TokenSvc : POST /token [solid] -->
+    <text x="742" y="1088" text-anchor="middle" fill="#1f2937" font-size="30">11. POST /token (code, code_verifier)</text>
+    <line x1="520" y1="1100" x2="961" y2="1100" stroke="#1f2937" stroke-width="3" marker-end="url(#arrowSolid)"/>
+
+    <!-- 12. TokenSvc -> AppServer : 200 tokens [dashed] -->
+    <text x="742" y="1173" text-anchor="middle" fill="#6b21a8" font-size="30">12. 200 {access_token, id_token}</text>
+    <line x1="965" y1="1185" x2="524" y2="1185" stroke="#6b21a8" stroke-width="3" stroke-dasharray="10 7" marker-end="url(#arrowDashed)"/>
+
+    <!-- 13. AppServer -> UserDB : upsert user [solid] -->
+    <text x="847" y="1258" text-anchor="middle" fill="#1f2937" font-size="30">13. upsert user from id_token claims</text>
+    <line x1="520" y1="1270" x2="1171" y2="1270" stroke="#1f2937" stroke-width="3" marker-end="url(#arrowSolid)"/>
+
+    <!-- 14. UserDB -> AppServer : user record [dashed] -->
+    <text x="847" y="1343" text-anchor="middle" fill="#6b21a8">14. user record</text>
+    <line x1="1175" y1="1355" x2="524" y2="1355" stroke="#6b21a8" stroke-width="3" stroke-dasharray="10 7" marker-end="url(#arrowDashed)"/>
+
+    <!-- 15. AppServer -> SessionStore : SET session [solid] -->
+    <text x="952" y="1428" text-anchor="middle" fill="#1f2937" font-size="30">15. SET session (user_id, tokens)</text>
+    <line x1="520" y1="1440" x2="1381" y2="1440" stroke="#1f2937" stroke-width="3" marker-end="url(#arrowSolid)"/>
+
+    <!-- 16. SessionStore -> AppServer : OK session_id [dashed] -->
+    <text x="952" y="1513" text-anchor="middle" fill="#6b21a8">16. OK (session_id)</text>
+    <line x1="1385" y1="1525" x2="524" y2="1525" stroke="#6b21a8" stroke-width="3" stroke-dasharray="10 7" marker-end="url(#arrowDashed)"/>
+
+    <!-- 17. AppServer -> Browser : 302 redirect to /account [dashed] -->
+    <text x="430" y="1598" text-anchor="middle" fill="#6b21a8" font-size="30">17. 302 redirect to /account (Set-Cookie: session_id)</text>
+    <line x1="520" y1="1610" x2="294" y2="1610" stroke="#6b21a8" stroke-width="3" stroke-dasharray="10 7" marker-end="url(#arrowDashed)"/>
+
+    <!-- 18. Browser -> User : show account dashboard [dashed] -->
+    <text x="187" y="1683" text-anchor="middle" fill="#6b21a8" font-size="30">18. show account dashboard</text>
+    <line x1="290" y1="1695" x2="89" y2="1695" stroke="#6b21a8" stroke-width="3" stroke-dasharray="10 7" marker-end="url(#arrowDashed)"/>
+  </g>
+
+  <!-- ===================== FOOT BOXES ===================== -->
+  <g font-size="28" font-weight="700" text-anchor="middle">
+    <text x="85" y="1768" fill="#1e3a8a">User</text>
+    <rect x="198" y="1742" width="184" height="52" rx="11" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2.5"/>
+    <text x="290" y="1778" fill="#1e3a8a">Browser</text>
+    <rect x="416" y="1742" width="208" height="52" rx="11" fill="#dcfce7" stroke="#15803d" stroke-width="2.5"/>
+    <text x="520" y="1778" fill="#14532d">AppServer</text>
+    <rect x="671" y="1742" width="168" height="52" rx="11" fill="#f3e8ff" stroke="#7e22ce" stroke-width="2.5"/>
+    <text x="755" y="1778" fill="#581c87">AuthZ</text>
+    <rect x="869" y="1742" width="192" height="52" rx="11" fill="#f3e8ff" stroke="#7e22ce" stroke-width="2.5"/>
+    <text x="965" y="1778" fill="#581c87">TokenSvc</text>
+    <rect x="1087" y="1742" width="176" height="52" rx="11" fill="#fef3c7" stroke="#b45309" stroke-width="2.5"/>
+    <text x="1175" y="1778" fill="#78350f">UserDB</text>
+    <rect x="1271" y="1742" width="220" height="52" rx="11" fill="#fef3c7" stroke="#b45309" stroke-width="2.5"/>
+    <text x="1385" y="1778" fill="#78350f" font-size="26">SessionStore</text>
+  </g>
+
+  <!-- ===================== LEGEND ===================== -->
+  <g font-size="28">
+    <line x1="95" y1="1840" x2="165" y2="1840" stroke="#1f2937" stroke-width="3" marker-end="url(#arrowSolid)"/>
+    <text x="178" y="1849" text-anchor="start" fill="#374151">call / request</text>
+    <line x1="450" y1="1840" x2="520" y2="1840" stroke="#6b21a8" stroke-width="3" stroke-dasharray="10 7" marker-end="url(#arrowDashed)"/>
+    <text x="533" y="1849" text-anchor="start" fill="#6b21a8">return / redirect</text>
+    <path d="M850,1830 H895 V1850 H854" fill="none" stroke="#b45309" stroke-width="3" marker-end="url(#arrowSelf)"/>
+    <text x="908" y="1849" text-anchor="start" fill="#92400e">self-message</text>
+  </g>
+</svg>

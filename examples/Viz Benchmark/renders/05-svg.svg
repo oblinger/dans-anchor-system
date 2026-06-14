@@ -1,0 +1,214 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 1420" font-family="'Helvetica Neue',Arial,sans-serif">
+  <defs>
+    <marker id="many" markerWidth="26" markerHeight="26" refX="22" refY="12" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M22,12 L3,2 M22,12 L3,12 M22,12 L3,22" fill="none" stroke="#607d8b" stroke-width="2.4"/>
+    </marker>
+    <marker id="one" markerWidth="16" markerHeight="26" refX="6" refY="12" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M6,2 L6,22" fill="none" stroke="#607d8b" stroke-width="2.8"/>
+    </marker>
+  </defs>
+
+  <style>
+    .ent     { stroke-width:2.4; }
+    .core    { fill:#e3f2fd; stroke:#1565c0; }
+    .lookup  { fill:#f1f8e9; stroke:#558b2f; }
+    .junction{ fill:#fff3e0; stroke:#e65100; }
+    .txn     { fill:#fce4ec; stroke:#ad1457; }
+    .hdr-core    { fill:#1565c0; }
+    .hdr-lookup  { fill:#558b2f; }
+    .hdr-junction{ fill:#e65100; }
+    .hdr-txn     { fill:#ad1457; }
+    .title   { font-size:30px; font-weight:700; fill:#ffffff; }
+    .attr    { font-size:28px; fill:#263238; }
+    .pk      { font-weight:700; }
+    .fk      { font-style:italic; fill:#5d4037; }
+    .rel     { font-size:27px; fill:#37474f; font-weight:600; }
+    .relbg   { fill:#ffffff; opacity:0.9; }
+    .edge    { fill:none; stroke:#607d8b; stroke-width:2.8; }
+    .card    { font-size:28px; font-weight:700; fill:#b71c1c; }
+  </style>
+
+  <rect x="0" y="0" width="1160" height="1420" fill="#ffffff"/>
+  <text x="580" y="46" text-anchor="middle" font-size="34" font-weight="700" fill="#102027">E-commerce Store — Entity-Relationship Model</text>
+
+  <!-- ================= EDGES ================= -->
+  <!-- 1 CUSTOMER -> ADDRESS : has -->
+  <path class="edge" d="M150,320 L150,470" marker-start="url(#one)" marker-end="url(#many)"/>
+  <!-- 2 CUSTOMER -> ORDER : places -->
+  <path class="edge" d="M330,240 L470,320" marker-start="url(#one)" marker-end="url(#many)"/>
+  <!-- 3 ADDRESS -> ORDER : ships to -->
+  <path class="edge" d="M330,540 L470,390" marker-start="url(#one)" marker-end="url(#many)"/>
+  <!-- 4 ORDER -> ORDER_ITEM : contains -->
+  <path class="edge" d="M760,360 L860,360" marker-start="url(#one)" marker-end="url(#many)"/>
+  <!-- 5 PRODUCT -> ORDER_ITEM : ordered as -->
+  <path class="edge" d="M1005,580 L1005,520" marker-start="url(#one)" marker-end="url(#many)"/>
+  <!-- 6 PRODUCT -> PRODUCT_CATEGORY : classified in -->
+  <path class="edge" d="M970,770 L970,840" marker-start="url(#one)" marker-end="url(#many)"/>
+  <!-- 7 CATEGORY -> PRODUCT_CATEGORY : groups -->
+  <path class="edge" d="M1040,1070 L1040,1000" marker-start="url(#one)" marker-end="url(#many)"/>
+  <!-- 8 ORDER -> PAYMENT : paid by -->
+  <path class="edge" d="M540,520 L420,790" marker-start="url(#one)" marker-end="url(#many)"/>
+  <!-- 9 ORDER -> SHIPMENT : fulfilled by -->
+  <path class="edge" d="M650,520 L650,790" marker-start="url(#one)" marker-end="url(#many)"/>
+  <!-- 10 PRODUCT -> REVIEW : reviewed in -->
+  <path class="edge" d="M860,690 L855,690 L855,1130 L760,1130" marker-start="url(#one)" marker-end="url(#many)"/>
+  <!-- 11 CUSTOMER -> REVIEW : writes -->
+  <path class="edge" d="M20,260 L8,260 L8,1370 L600,1370 L600,1280" marker-start="url(#one)" marker-end="url(#many)"/>
+
+  <!-- ============ EDGE LABELS ============ -->
+  <g text-anchor="middle">
+    <rect class="relbg" x="116" y="378" width="68" height="30"/>  <text class="rel" x="150" y="400">has</text>
+    <rect class="relbg" x="356" y="250" width="86" height="30"/>  <text class="rel" x="399" y="272">places</text>
+    <rect class="relbg" x="340" y="438" width="98" height="30"/>  <text class="rel" x="389" y="460">ships to</text>
+    <rect class="relbg" x="758" y="328" width="104" height="30"/> <text class="rel" x="810" y="350">contains</text>
+    <rect class="relbg" x="1012" y="538" width="126" height="30"/><text class="rel" x="1075" y="560">ordered as</text>
+    <rect class="relbg" x="978" y="792" width="130" height="30"/> <text class="rel" x="1043" y="814">classified in</text>
+    <rect class="relbg" x="1052" y="1020" width="86" height="30"/><text class="rel" x="1095" y="1042">groups</text>
+    <rect class="relbg" x="408" y="636" width="92" height="30"/>  <text class="rel" x="454" y="658">paid by</text>
+    <rect class="relbg" x="586" y="636" width="132" height="30"/> <text class="rel" x="652" y="658">fulfilled by</text>
+    <rect class="relbg" x="760" y="1086" width="130" height="30"/><text class="rel" x="825" y="1108">reviewed in</text>
+    <rect class="relbg" x="300" y="1346" width="86" height="30"/> <text class="rel" x="343" y="1368">writes</text>
+  </g>
+
+  <!-- ============ CARDINALITY GLYPHS (1 parent / N child) ============ -->
+  <g class="card" text-anchor="middle">
+    <text x="172" y="340">1</text>   <text x="172" y="466">N</text>     <!-- has -->
+    <text x="344" y="262">1</text>   <text x="462" y="318">N</text>     <!-- places -->
+    <text x="346" y="538">1</text>   <text x="462" y="392">N</text>     <!-- ships to -->
+    <text x="770" y="348">1</text>   <text x="852" y="348">N</text>     <!-- contains -->
+    <text x="1023" y="580">1</text>  <text x="1023" y="530">N</text>     <!-- ordered as -->
+    <text x="988" y="784">1</text>   <text x="988" y="838">N</text>     <!-- classified in -->
+    <text x="1058" y="1066">1</text> <text x="1058" y="1000">N</text>    <!-- groups -->
+    <text x="554" y="540">1</text>   <text x="426" y="780">N</text>     <!-- paid by -->
+    <text x="668" y="540">1</text>   <text x="668" y="780">N</text>     <!-- fulfilled by -->
+    <text x="838" y="684">1</text>   <text x="776" y="1118">N</text>    <!-- reviewed in -->
+    <text x="34" y="250">1</text>    <text x="618" y="1300">N</text>    <!-- writes -->
+  </g>
+
+  <!-- ================= ENTITY BOXES ================= -->
+
+  <!-- CUSTOMER (core) -->
+  <g>
+    <rect class="ent core" x="20" y="120" width="300" height="200" rx="7"/>
+    <rect class="hdr-core" x="20" y="120" width="300" height="44" rx="7"/>
+    <text class="title" x="170" y="152" text-anchor="middle">CUSTOMER</text>
+    <text class="attr pk" x="36" y="200">customer_id (PK)</text>
+    <text class="attr"    x="36" y="234">email</text>
+    <text class="attr"    x="36" y="268">full_name</text>
+    <text class="attr"    x="36" y="302">created_at</text>
+  </g>
+
+  <!-- ADDRESS (core) -->
+  <g>
+    <rect class="ent core" x="20" y="470" width="300" height="240" rx="7"/>
+    <rect class="hdr-core" x="20" y="470" width="300" height="44" rx="7"/>
+    <text class="title" x="170" y="502" text-anchor="middle">ADDRESS</text>
+    <text class="attr pk" x="36" y="550">address_id (PK)</text>
+    <text class="attr fk" x="36" y="584">customer_id (FK)</text>
+    <text class="attr"    x="36" y="618">line1, city</text>
+    <text class="attr"    x="36" y="652">postal_code</text>
+    <text class="attr"    x="36" y="686">country</text>
+  </g>
+
+  <!-- ORDER (txn) -->
+  <g>
+    <rect class="ent txn" x="470" y="240" width="290" height="280" rx="7"/>
+    <rect class="hdr-txn" x="470" y="240" width="290" height="44" rx="7"/>
+    <text class="title" x="615" y="272" text-anchor="middle">ORDER</text>
+    <text class="attr pk" x="486" y="320">order_id (PK)</text>
+    <text class="attr fk" x="486" y="354">customer_id (FK)</text>
+    <text class="attr fk" x="486" y="388" font-size="24">shipping_address_id (FK)</text>
+    <text class="attr"    x="486" y="424">status</text>
+    <text class="attr"    x="486" y="458">placed_at</text>
+  </g>
+
+  <!-- ORDER_ITEM (junction) -->
+  <g>
+    <rect class="ent junction" x="860" y="240" width="290" height="280" rx="7"/>
+    <rect class="hdr-junction" x="860" y="240" width="290" height="44" rx="7"/>
+    <text class="title" x="1005" y="272" text-anchor="middle">ORDER_ITEM</text>
+    <text class="attr pk" x="876" y="320" font-size="26">order_item_id (PK)</text>
+    <text class="attr fk" x="876" y="354">order_id (FK)</text>
+    <text class="attr fk" x="876" y="388">product_id (FK)</text>
+    <text class="attr"    x="876" y="424">quantity</text>
+    <text class="attr"    x="876" y="458">unit_price</text>
+    <text x="1005" y="496" text-anchor="middle" font-size="18" fill="#e65100" font-style="italic">associative entity</text>
+  </g>
+
+  <!-- PRODUCT (lookup) -->
+  <g>
+    <rect class="ent lookup" x="860" y="580" width="290" height="190" rx="7"/>
+    <rect class="hdr-lookup" x="860" y="580" width="290" height="44" rx="7"/>
+    <text class="title" x="1005" y="612" text-anchor="middle">PRODUCT</text>
+    <text class="attr pk" x="876" y="660">product_id (PK)</text>
+    <text class="attr"    x="876" y="694">sku, name</text>
+    <text class="attr"    x="876" y="728">price, stock_qty</text>
+  </g>
+
+  <!-- PRODUCT_CATEGORY (junction) -->
+  <g>
+    <rect class="ent junction" x="880" y="840" width="270" height="160" rx="7"/>
+    <rect class="hdr-junction" x="880" y="840" width="270" height="44" rx="7"/>
+    <text class="title" x="1015" y="872" text-anchor="middle" font-size="24">PRODUCT_CATEGORY</text>
+    <text class="attr fk" x="896" y="920" font-size="25">product_id (FK)</text>
+    <text class="attr fk" x="896" y="954" font-size="25">category_id (FK)</text>
+    <text x="1015" y="988" text-anchor="middle" font-size="18" fill="#e65100" font-style="italic">junction entity</text>
+  </g>
+
+  <!-- CATEGORY (lookup) -->
+  <g>
+    <rect class="ent lookup" x="920" y="1070" width="230" height="190" rx="7"/>
+    <rect class="hdr-lookup" x="920" y="1070" width="230" height="44" rx="7"/>
+    <text class="title" x="1035" y="1102" text-anchor="middle">CATEGORY</text>
+    <text class="attr pk" x="936" y="1150">category_id (PK)</text>
+    <text class="attr"    x="936" y="1184">name</text>
+    <text class="attr"    x="936" y="1218">slug</text>
+  </g>
+
+  <!-- PAYMENT (txn) -->
+  <g>
+    <rect class="ent txn" x="300" y="790" width="250" height="210" rx="7"/>
+    <rect class="hdr-txn" x="300" y="790" width="250" height="44" rx="7"/>
+    <text class="title" x="425" y="822" text-anchor="middle">PAYMENT</text>
+    <text class="attr pk" x="316" y="870">payment_id (PK)</text>
+    <text class="attr fk" x="316" y="904">order_id (FK)</text>
+    <text class="attr"    x="316" y="938" font-size="25">method, amount</text>
+    <text class="attr"    x="316" y="972">paid_at</text>
+  </g>
+
+  <!-- SHIPMENT (txn) -->
+  <g>
+    <rect class="ent txn" x="580" y="790" width="250" height="210" rx="7"/>
+    <rect class="hdr-txn" x="580" y="790" width="250" height="44" rx="7"/>
+    <text class="title" x="705" y="822" text-anchor="middle">SHIPMENT</text>
+    <text class="attr pk" x="596" y="870">shipment_id (PK)</text>
+    <text class="attr fk" x="596" y="904">order_id (FK)</text>
+    <text class="attr"    x="596" y="938">carrier</text>
+    <text class="attr"    x="596" y="972" font-size="23">tracking_no, shipped_at</text>
+  </g>
+
+  <!-- REVIEW (txn) -->
+  <g>
+    <rect class="ent txn" x="460" y="1090" width="300" height="190" rx="7"/>
+    <rect class="hdr-txn" x="460" y="1090" width="300" height="44" rx="7"/>
+    <text class="title" x="610" y="1122" text-anchor="middle">REVIEW</text>
+    <text class="attr pk" x="476" y="1170">review_id (PK)</text>
+    <text class="attr fk" x="476" y="1204">product_id (FK)</text>
+    <text class="attr fk" x="476" y="1238">customer_id (FK)</text>
+    <text class="attr"    x="476" y="1272" font-size="23">rating, body, created_at</text>
+  </g>
+
+  <!-- ============ LEGEND ============ -->
+  <g>
+    <rect x="40" y="1080" width="310" height="250" rx="8" fill="#fafafa" stroke="#90a4ae" stroke-width="1.5"/>
+    <text x="60" y="1118" font-size="26" font-weight="700" fill="#102027">Legend — entity role</text>
+    <rect x="60" y="1138" width="32" height="24" class="ent core"/>     <text class="attr" x="106" y="1158">core entity</text>
+    <rect x="60" y="1174" width="32" height="24" class="ent txn"/>      <text class="attr" x="106" y="1194">transaction</text>
+    <rect x="60" y="1210" width="32" height="24" class="ent lookup"/>   <text class="attr" x="106" y="1230">lookup / catalog</text>
+    <rect x="60" y="1246" width="32" height="24" class="ent junction"/> <text class="attr" x="106" y="1266">associative / junction</text>
+    <text class="card" x="60" y="1310" text-anchor="start">1</text>
+    <line class="edge" x1="84" y1="1303" x2="164" y2="1303" marker-end="url(#many)"/>
+    <text class="card" x="176" y="1310" text-anchor="start">N</text>
+    <text class="attr" x="206" y="1310">crow's-foot 1-to-N</text>
+  </g>
+</svg>

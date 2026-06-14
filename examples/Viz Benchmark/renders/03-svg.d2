@@ -1,0 +1,30 @@
+# OAuth 2.0 Authorization-Code + PKCE login flow
+# 7 participants, 18 ordered messages (incl. self-message #3 and dashed returns)
+shape: sequence_diagram
+
+User:        "User" { style.fill: "#dbeafe"; style.stroke: "#1d4ed8" }
+Browser:     "Browser" { style.fill: "#dbeafe"; style.stroke: "#1d4ed8" }
+AppServer:   "AppServer" { style.fill: "#dcfce7"; style.stroke: "#15803d" }
+AuthZ:       "AuthZ" { style.fill: "#f3e8ff"; style.stroke: "#7e22ce" }
+TokenSvc:    "TokenSvc" { style.fill: "#f3e8ff"; style.stroke: "#7e22ce" }
+UserDB:      "UserDB" { style.fill: "#fef3c7"; style.stroke: "#b45309" }
+SessionStore: "SessionStore" { style.fill: "#fef3c7"; style.stroke: "#b45309" }
+
+User -> Browser: "1. click 'Sign in'"
+Browser -> AppServer: "2. GET /login"
+AppServer -> AppServer: "3. generate code_verifier + code_challenge (PKCE)"
+AppServer -> Browser: "4. 302 redirect to /authorize (challenge, state)" { style.stroke-dash: 4 }
+Browser -> AuthZ: "5. GET /authorize?challenge,state"
+AuthZ -> Browser: "6. render login form" { style.stroke-dash: 4 }
+User -> Browser: "7. submit credentials"
+Browser -> AuthZ: "8. POST credentials"
+AuthZ -> Browser: "9. 302 redirect to /callback?code,state" { style.stroke-dash: 4 }
+Browser -> AppServer: "10. GET /callback?code,state"
+AppServer -> TokenSvc: "11. POST /token (code, code_verifier)"
+TokenSvc -> AppServer: "12. 200 {access_token, id_token}" { style.stroke-dash: 4 }
+AppServer -> UserDB: "13. upsert user from id_token claims"
+UserDB -> AppServer: "14. user record" { style.stroke-dash: 4 }
+AppServer -> SessionStore: "15. SET session (user_id, tokens)"
+SessionStore -> AppServer: "16. OK (session_id)" { style.stroke-dash: 4 }
+AppServer -> Browser: "17. 302 redirect to /account (Set-Cookie: session_id)" { style.stroke-dash: 4 }
+Browser -> User: "18. show account dashboard" { style.stroke-dash: 4 }

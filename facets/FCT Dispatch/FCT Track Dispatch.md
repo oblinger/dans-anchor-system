@@ -2,8 +2,14 @@
 description: track docs dispatch page — work tracking + planning for a Track-trait anchor
 ---
 # FCT Track Dispatch
-
 Spec for the `{NAME} Track.md` dispatch page that lists all work-tracking and planning documents inside a Track-trait anchor's `{NAME} Track/` folder.
+
+| -[[FCT Track Dispatch]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Track Dispatch](hook://p/FCT%20Track%20Dispatch)<br>: track docs dispatch page — work tracking + planning for a Track-trait anchor |
+| --- | --- |
+| Related | [[FCT Dispatch]],  [[FCT Backlog]],  [[FCT Design Dispatch]],  [[CAB Track]],   |
+| Examples | [[CAE Track\|fuller example]],  [[HBR Track\|minimal example]],   |
+
+**Cardinality:** one per anchor (each Track-trait anchor has exactly one `{NAME} Track.md` dispatch page).
 
 **Location:** `{NAME} Docs/{NAME} Track/{NAME} Track.md`
 
@@ -21,7 +27,7 @@ Below is a condensed reference example.
 
 # CAE Track
 
-| -[[CAE Track]]- | ><br>: tracking metadata + backlog |
+| -[[CAE Track]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Track Dispatch](hook://p/FCT%20Track%20Dispatch)<br>: tracking metadata + backlog |
 | --- | --- |
 | [[CAE Backlog\|Backlog]] | workflow-state core (required for Track) |
 | [[CAE Status\|Status]] | per-facet design-phase completeness (consumed by `/design` picker) |
@@ -46,7 +52,7 @@ Below is a condensed reference example.
 
 - **YAML frontmatter** — optional, when the dispatch carries a `description:`.
 - **H1** — `# {NAME} Track`. Blank line after.
-- **Dispatch table** — top-left cell is `-[[{NAME} Track]]-`, top-right is `><br>: work tracking + planning`.
+-[[{NAME} Track]]-`, top-right is `><br>: work tracking + planning`.
 - **Body rows** — one row per planning document, with wiki-link in column 1 and short description in column 2.
 - **Auto-management separator** — a `---` row enables auto-listing of remaining children. See [[FCT Anchor Page]] § Separators.
 
@@ -77,6 +83,31 @@ Not all entries are required — only list documents that exist for this anchor.
 
 Track holds **tracking metadata**: backlog (work queue), status (design completeness rollup), and ephemeral surfaces (icebox, inbox, ask, messages). The "what to build" surface — including feature docs and roadmap — lives in Design alongside PRD / UX / Architecture / Testing / Decisions.
 
+# RULESET R-track-dispatch
+include::
+where:: file: **/{NAME} Track.md
+description:: Rules every `{NAME} Track.md` dispatch page must satisfy — location, structure, top-left cell identity, and contents restricted to tracking metadata only.
+
+### RULE R-track-dispatch-01 — File lives inside the Track folder (checked)
+The file is named `{NAME} Track.md` and lives at `{NAME} Docs/{NAME} Track/{NAME} Track.md` — not at the anchor root, not in another subfolder.
+**Check pattern:** the file's path matches `{NAME} Docs/{NAME} Track/{NAME} Track.md`.
+**Why:** the Track dispatch page is the entry point for the Track folder; misplacing it breaks the folder's navigation chain.
+
+-[[{NAME} Track]]-` (checked)
+-[[{NAME} Track]]-` (with surrounding dashes); the second cell begins with `>` and includes a `: work tracking + planning` label.
+**Check pattern:** the first table row matches `| -\[\[.+ Track\]\]- |`.
+**Why:** the top-left cell anchors CAB Anchor Page mechanics (the `-...-` dash pattern wires the dispatch table to the auto-management system); reformatting it breaks structural tooling.
+
+### RULE R-track-dispatch-03 — Contents restricted to tracking metadata (sampled)
+Body rows list only tracking-metadata documents: Backlog (required), Status, Discussion, Icebox, Inbox, ask, Messages, Questions. Design artifacts (PRD, UX, Architecture, Features, Roadmap, Testing, Decisions) MUST NOT appear as rows.
+**Check pattern:** no row links a file from the `{NAME} Design/` subtree or any design-artifact type listed in § What does NOT live in Track.
+**Why:** Track holds workflow state and ephemeral surfaces; design artifacts live in `{NAME} Design/`. Mixing them collapses the Track/Design split that F094 and the 2026-06-10 restructure established.
+
+### RULE R-track-dispatch-04 — Backlog row is required when Track trait is present (checked)
+The dispatch table includes a row linking `{NAME} Backlog.md`; this is the only mandatory child of the Track folder.
+**Check pattern:** a row linking `[[{NAME} Backlog]]` (or its pipe-aliased form) exists.
+**Why:** the [[CAB Backlog]] is required for the Track trait; a Track dispatch page without a Backlog row signals the backlog is missing, not optional.
+
 # BRIEF
 
 - **This is the spec for the Track-folder dispatch page**, not a Track dispatch instance — describes the required H1, dispatch-table shape, body rows, and auto-management separator for `{NAME} Track.md` in any Track-trait anchor.
@@ -85,4 +116,4 @@ Track holds **tracking metadata**: backlog (work queue), status (design complete
 - **The Reference Example block is illustrative, not normative** — when CAE / SKA / CAB ship their migrated Track pages per F094 Phase 1, refresh this example but do not turn it into a directive (the Format Specification section is the authority).
 - **Wiki-links use the bare anchor `{NAME}` placeholder** in spec text and the live RID in the Reference Example. Don't mix the two within one row.
 - **Don't pile per-anchor Track guidance here** — anchor-specific tracking conventions live in that anchor's `{NAME} Decisions.md` or local rules, not in this facet spec.
-- **Load-bearing constraint**: the top-left cell `-[[{NAME} Track]]-` and the `---` auto-management separator row are what wire the dispatch table to CAB Anchor Page mechanics — do not reformat or remove either when editing example rows.
+-[[{NAME} Track]]-` and the `---` auto-management separator row are what wire the dispatch table to CAB Anchor Page mechanics — do not reformat or remove either when editing example rows.

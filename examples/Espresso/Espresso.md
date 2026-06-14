@@ -6,7 +6,7 @@ Working notes on pulling espresso — the variables, the gear, and what to do wh
 
 | -[[Espresso]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [Espresso](hook://p/Espresso)<br>: Espresso — example topic collection (≤ 15 members) — notes on pulling espresso |
 | --- | --- |
-| Related | [[Bridges]] (list variant),  [[DSC Dispatch Table]],  [[FEX]], |
+| Related | [[Bridges]] (list variant),  [[FCT Dispatch Table]],  [[FEX]], |
 | [[Espresso Beans\|Beans]] | choosing roast, freshness, and origin for espresso |
 | [[Espresso Grind\|Grind]] | grind size as the master dial — finer slows the shot |
 | [[Espresso Dose\|Dose]] | weight of dry grounds in the basket (the input mass) |

@@ -2,11 +2,14 @@
 description: CLI command reference — every command, flag, and exit code
 ---
 # FCT CLI
-
 Facet spec for `{NAME} CLI.md` — the exhaustive command/flag/exit-code reference page for an anchor that ships a CLI.
 
-**Location:** `{NAME} Docs/{NAME} User/{NAME} CLI.md`
+| -[[FCT CLI]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT CLI](hook://p/FCT%20CLI)<br>: CLI command reference — every command, flag, and exit code |
+| --- | --- |
+| Related | [[FCT UX Design]],  [[CAB User Guide]],  [[FCT All Files]],  [[FCT Anchor Page]],   |
+| Examples | [[CAE CLI\|minimal]],  [[HBR CLI\|fuller]],   |
 
+**TLDR** — `{NAME} CLI.md` is the exhaustive man-page-style command reference for an anchor's CLI: mandatory fenced help block first (directly under H1), then per-command H2 sections with Usage / Flags / Exit codes / Example, then a global exit-code table. **Cardinality: one per anchor** (only when the anchor ships a CLI). Detection: file-existence at `{NAME} Docs/{NAME} User/{NAME} CLI.md`.
 
 `{NAME} CLI.md` is the **complete command reference** for an application that ships a command-line interface. Every command the app exposes, every flag on each command, every exit code — one page, reference-style. Think "man page" as a markdown doc.
 
@@ -32,7 +35,7 @@ description: CLI command reference for {app-name}
 
 # {NAME} CLI
 
-| -[[{NAME} CLI]]- | |
+| -[[{NAME} CLI]]- |  |
 | --- | --- |
 | --- | |
 
@@ -126,7 +129,7 @@ Inside the fence: every command the CLI exposes, one per line, with a `#` commen
 ````
 # {NAME} CLI
 
-| -[[{NAME} CLI]]- | |
+| -[[{NAME} CLI]]- |  |
 | --- | --- |
 | --- | |
 
@@ -209,5 +212,5 @@ Applications with only a one-shot entry point (e.g., `tool --input FILE --output
 - **Inclusion test for new rules:** a rule belongs here only if it applies to *every* `{NAME} CLI.md` regardless of anchor. Anchor-specific quirks belong in that anchor's CLI doc or its `{NAME} Rules.md`, not here.
 - **Load-bearing constraint — the help-block-first rule is non-negotiable.** The fenced help block sits directly under the H1 + dispatch table with no preamble. Do not weaken this rule or add intro-paragraph exceptions; the §The Help Block section is the canonical source.
 - **Cross-cite rather than inline.** Tutorial/narrative content belongs in [[CAB User Guide]]; CLI-shape design belongs in [[FCT UX Design]]; markdown rendering rules belong in [[R-markdown]]. If a rule starts to drift toward one of those, move or link rather than duplicate.
-- **When updating the template:** keep the Reference Example block, the Format Specification, and the dispatch-table placeholder (`| -[[{NAME} CLI]]- | |`) in sync — readers copy from the Reference Example, validators read the Format Specification.
+-[[{NAME} CLI]]- | |`) in sync — readers copy from the Reference Example, validators read the Format Specification.
 - **Linking discipline (§Linking) is load-bearing for `/audit docs`.** Do not change the required link locations (`{NAME} User.md` row + `{NAME}.md` User cell) without updating the audit script in lockstep.

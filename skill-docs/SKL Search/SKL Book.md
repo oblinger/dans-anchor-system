@@ -2,7 +2,6 @@
 description: "skim → click into the rule that applies"
 ---
 # SKL Book
-
 | -[[SKL Book]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Search]] → [SKL Book](hook://p/SKL%20Book)<br>: skim → click into the rule that applies |
 | --- | --- |
 | Book rules (any verb) | [[SRC rules/book\|book.md]],   |

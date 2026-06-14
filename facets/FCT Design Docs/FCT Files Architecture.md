@@ -10,6 +10,8 @@ The facet spec for a **Files Architecture** document — the top-down design of 
 | Related | [[FCT Architecture\|Architecture]] (subsystem-interaction story — the sibling design facet),  [[FCT All Files\|All Files]] (the realized source tree this designs),  [[FCT Module Doc\|Module Doc]],  [[FCT Design Docs\|Design Docs]] (parent group) |
 | Examples | [[SKA File Tree Architecture]] — the worked instance: the top-down design of the `ob-skills` / SKA tree |
 
+**TLDR** — A Files Architecture doc is the top-down canonical map of where every file/module/content kind lives in a system and why the tree is shaped that way. Required parts: a folder→role structure table (the load-bearing piece) and its design rationale. Cardinality: one per anchor/repo. Sibling to [[FCT Architecture]] (subsystem interactions), not a replacement for it.
+
 # Files Architecture Document Structure
 
 A Files Architecture doc is a **design document**, not a catalog. It captures the *intended* shape of a system's file/module/content tree and the reasoning behind it. Typical top-to-bottom parts (materialize the ones the system needs — none is mandatory except the target structure + its rationale):
@@ -37,7 +39,7 @@ The tree/layout is **the** content; keep prose tight and let the structure table
 - [[FCT Module Doc]] — the per-module docs the realized tree links into.
 
 # RULESET R-files-architecture
-description:: The rules a Files Architecture document must satisfy. Adopt with `include:: [[FCT Files Architecture]]`; `/audit` checks each.
+description:: the file-tree / content-structure design doc kind
 
 ### RULE R-files-architecture-01 — Target structure is present and explicit (checked)
 **Check pattern:** the doc contains a folder→role mapping (a table or annotated tree) that names every top-level category/folder of the system and what lives in it.

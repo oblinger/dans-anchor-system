@@ -229,3 +229,11 @@ A fenced code block (triple backticks) must NEVER contain markdown intended to b
 **Check pattern:** scan fenced blocks; flag any whose body contains `[[wiki-links]]`, `#`/`##` headings, or pipe-tables that are meant to render (as opposed to literal data shown verbatim).
 
 **Why:** the whole point of an example is to show the *rendered* form — a fence defeats that (links aren't clickable, structure doesn't render). The user has corrected this repeatedly; it is an absolute rule.
+
+### RULE R-markdown-12 — Figures are embedded images; never mermaid, never text-based diagrams (checked)
+
+A figure is an **embedded image** — an Excalidraw / matplotlib / D2 artifact exported to SVG/PNG and embedded (`![[name.svg]]`), with its editable source kept alongside (same basename). **Never use `mermaid` code blocks, and never draw text-based / ASCII figures** (boxes-and-arrows built from characters, pipe-and-dash "diagrams"). This is absolute.
+
+**Check pattern:** flag any ```` ```mermaid ```` fenced block; flag fenced blocks whose body is box-drawing / ASCII-diagram content (`┌ ─ │ └ ├ → ╮` runs, or `+---+` / character-art used as a diagram rather than a literal data table or file tree).
+
+**Why:** a figure must be a real, editable, consistently-rendering artifact; mermaid and ASCII are neither — they render inconsistently across surfaces, can't be edited as diagrams, and read as broken. Diagrams use the Excalidraw-source-alongside-export convention.

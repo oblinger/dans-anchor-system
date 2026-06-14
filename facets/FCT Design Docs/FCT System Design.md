@@ -1,12 +1,17 @@
 ---
-description: architecture and system design
+description: "the current technical-architecture document for a software project anchor"
 ---
 # FCT System Design
-
 Facet spec for `{NAME} System Design.md` — the current technical-architecture document (components, data model, decisions) for a software project anchor.
 
-**Location:** `{NAME} Docs/{NAME} Plan/{NAME} System Design.md`
+| -[[FCT System Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT System Design](hook://p/FCT%20System%20Design)<br>: the current technical-architecture document for a software project anchor |
+| --- | --- |
+| Related | [[FCT PRD]],  [[FCT Decisions]],  [[FCT Discussion]],  [[FCT UX Design]],   |
+| Examples | [[SKA System Design\|real anchor example]] |
 
+**TLDR** One per anchor. `{NAME} System Design.md` lives in `{NAME} Docs/{NAME} Plan/` and records the *current* technical architecture — components, data model, APIs, and architectural decisions. Not a history log; rationale and alternatives belong in [[FCT Discussion]].
+
+**Cardinality: one per anchor** — a software project anchor has exactly one System Design document at any given time.
 
 The System Design document (`{NAME} System Design.md`) specifies the technical architecture, component boundaries, data models, and APIs for a software project. It contains the current design — not the history of how it was reached.
 
@@ -19,7 +24,7 @@ Below is a condensed reference example. See the working example linked above for
 
 # CAE System Design
 
-| -[[CAE System Design]]- | |
+| -[[CAE System Design]]- |  |
 | --- | --- |
 | --- | |
 
@@ -129,6 +134,31 @@ A numbered table recording architectural decisions with rationale. Each decision
 - **Update** when architecture changes — this is the current spec, not a historical log
 - **Decisions table** grows over time as new architectural choices are made
 - **Current spec only** — rationale and alternatives belong in Discussion
+
+# RULESET R-fct-system-design
+include::
+where:: file: **/{NAME} Docs/{NAME} Plan/{NAME} System Design.md
+description:: Rules every `{NAME} System Design.md` instance must satisfy — location, top-of-doc shape, required sections, and currency discipline.
+
+### RULE R-fct-system-design-01 — Location is `{NAME} Docs/{NAME} Plan/` (checked)
+The System Design file lives at `{NAME} Docs/{NAME} Plan/{NAME} System Design.md` — not at the anchor root, not under `{NAME} Docs/` directly.
+**Check pattern:** file path matches `*/{NAME} Docs/{NAME} Plan/{NAME} System Design.md`.
+**Why:** consistent location allows skills and audits to find and link the doc without per-anchor config.
+
+### RULE R-fct-system-design-02 — Top-of-doc shape: YAML + H1 + dispatch table (checked)
+The file opens with YAML frontmatter, then `# {NAME} System Design`, then a dispatch-table placeholder — in that order, before any topic tables (TOC, Components, Data Model, Decisions).
+**Check pattern:** the first three structural blocks are frontmatter → H1 → a `| … | … |` table row.
+**Why:** F060 top-of-doc convention; topic tables below the dispatch table per F060 § Q5.
+
+### RULE R-fct-system-design-03 — Required sections present (checked)
+The document contains at minimum four H2 sections: `Architecture Overview`, `Components`, `Data Model`, and `Decisions`.
+**Check pattern:** all four headings are present (exact names or close paraphrases); none are empty.
+**Why:** these four sections are the load-bearing structure of a System Design; omitting one leaves the design incomplete.
+
+### RULE R-fct-system-design-04 — Current-spec-only discipline (stated)
+The document records the *current* architecture, not a changelog. Historical decisions belong in [[FCT Discussion]] (rationale) or [[FCT Decisions]] (decision log). The Decisions table records *what was decided*, not the deliberation.
+**Check pattern:** no `## History` or changelog section; the Decisions table rows are statements, not thread summaries.
+**Why:** mixing current spec with historical narrative makes the doc unreliable as a reference for the active design.
 
 # BRIEF
 

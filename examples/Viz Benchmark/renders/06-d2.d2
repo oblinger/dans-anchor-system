@@ -1,0 +1,51 @@
+# Render with compacted rank spacing for a near-square aspect:
+#   d2 --layout=elk --elk-nodeNodeBetweenLayers=45 06-d2.d2 06-d2.svg
+direction: down
+
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+}
+
+classes: {
+  box: {
+    style: {
+      font-size: 46
+      stroke-width: 2
+      border-radius: 8
+    }
+    width: 360
+    height: 230
+  }
+  lbl: {
+    style.font-size: 30
+  }
+}
+
+CTO: "CTO\nPriya Nair\nChief Technology\nOfficer" { class: box }
+VP_ENG: "VP_ENG\nMarcus Webb\nVP of\nEngineering" { class: box }
+VP_INFRA: "VP_INFRA\nDana Olsen\nVP of\nInfrastructure" { class: box }
+DIR_PLATFORM: "DIR_PLATFORM\nSofia Ruiz\nDirector,\nPlatform" { class: box }
+DIR_PRODUCT: "DIR_PRODUCT\nLiam Chen\nDirector, Product\nEngineering" { class: box }
+DIR_SRE: "DIR_SRE\nTom Becker\nDirector,\nSite Reliability" { class: box }
+MGR_API: "MGR_API\nAisha Khan\nManager,\nAPI Team" { class: box }
+MGR_WEB: "MGR_WEB\nJordan Lee\nManager,\nWeb Team" { class: box }
+MGR_DATA: "MGR_DATA\nElena Petrova\nManager,\nData Platform" { class: box }
+LEAD_API_CORE: "LEAD_API_CORE\nRaj Mehta\nTech Lead,\nAPI Core" { class: box }
+LEAD_API_GW: "LEAD_API_GW\nNora Sato\nTech Lead,\nAPI Gateway" { class: box }
+ENG_GW_1: "ENG_GW_1\nCarlos Diaz\nSenior Engineer,\nAPI Gateway" { class: box }
+ENG_GW_2: "ENG_GW_2\nMina Park\nEngineer,\nAPI Gateway" { class: box }
+
+CTO -> VP_ENG: "reports to" { class: lbl }
+CTO -> VP_INFRA: "reports to" { class: lbl }
+VP_ENG -> DIR_PLATFORM: "reports to" { class: lbl }
+VP_ENG -> DIR_PRODUCT: "reports to" { class: lbl }
+VP_INFRA -> DIR_SRE: "reports to" { class: lbl }
+DIR_PLATFORM -> MGR_API: "reports to" { class: lbl }
+DIR_PLATFORM -> MGR_DATA: "reports to" { class: lbl }
+DIR_PRODUCT -> MGR_WEB: "reports to" { class: lbl }
+MGR_API -> LEAD_API_CORE: "reports to" { class: lbl }
+MGR_API -> LEAD_API_GW: "reports to" { class: lbl }
+LEAD_API_GW -> ENG_GW_1: "reports to" { class: lbl }
+LEAD_API_GW -> ENG_GW_2: "reports to" { class: lbl }

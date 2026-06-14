@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 910" font-family="Helvetica, Arial, sans-serif">
+<defs>
+<marker id="arr-app" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7c3aed"/></marker>
+<marker id="arr-svc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/></marker>
+<marker id="arr-plat" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#0d9488"/></marker>
+<marker id="arr-leaf" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b45309"/></marker>
+</defs>
+<rect x="0" y="0" width="1240" height="910" fill="#ffffff"/>
+<text x="40" y="44" font-size="34" font-weight="bold" fill="#111">Build Dependency DAG &#8212; food-delivery monorepo (14 pkgs, 41 deps)</text>
+<line x1="212.0" y1="690.0" x2="212.0" y2="750.0" stroke="#0d9488" stroke-width="2" opacity="0.55" marker-end="url(#arr-plat)"/>
+<line x1="300.0" y1="690.0" x2="512.0" y2="750.0" stroke="#0d9488" stroke-width="2" opacity="0.55" marker-end="url(#arr-plat)"/>
+<line x1="388.0" y1="690.0" x2="812.0" y2="750.0" stroke="#0d9488" stroke-width="2" opacity="0.55" marker-end="url(#arr-plat)"/>
+<line x1="512.0" y1="690.0" x2="300.0" y2="750.0" stroke="#0d9488" stroke-width="2" opacity="0.55" marker-end="url(#arr-plat)"/>
+<line x1="688.0" y1="690.0" x2="570.7" y2="750.0" stroke="#0d9488" stroke-width="2" opacity="0.55" marker-end="url(#arr-plat)"/>
+<line x1="812.0" y1="690.0" x2="388.0" y2="750.0" stroke="#0d9488" stroke-width="2" opacity="0.55" marker-end="url(#arr-plat)"/>
+<line x1="988.0" y1="690.0" x2="688.0" y2="750.0" stroke="#0d9488" stroke-width="2" opacity="0.55" marker-end="url(#arr-plat)"/>
+<line x1="888.0" y1="570.0" x2="958.7" y2="750.0" stroke="#0d9488" stroke-width="2" opacity="0.55" marker-end="url(#arr-plat)"/>
+<line x1="800.0" y1="570.0" x2="688.0" y2="630.0" stroke="#0d9488" stroke-width="2" opacity="0.55" marker-end="url(#arr-plat)"/>
+<line x1="712.0" y1="570.0" x2="352.8" y2="630.0" stroke="#0d9488" stroke-width="2" opacity="0.55" marker-end="url(#arr-plat)"/>
+<line x1="212.0" y1="450.0" x2="212.0" y2="630.0" stroke="#2563eb" stroke-width="2" opacity="0.55" marker-end="url(#arr-svc)"/>
+<line x1="300.0" y1="450.0" x2="712.0" y2="510.0" stroke="#2563eb" stroke-width="2" opacity="0.55" marker-end="url(#arr-svc)"/>
+<line x1="388.0" y1="450.0" x2="841.3" y2="750.0" stroke="#2563eb" stroke-width="2" opacity="0.55" marker-end="url(#arr-svc)"/>
+<line x1="362.0" y1="570.0" x2="247.2" y2="630.0" stroke="#2563eb" stroke-width="2" opacity="0.55" marker-end="url(#arr-svc)"/>
+<line x1="450.0" y1="570.0" x2="512.0" y2="630.0" stroke="#2563eb" stroke-width="2" opacity="0.55" marker-end="url(#arr-svc)"/>
+<line x1="538.0" y1="570.0" x2="870.7" y2="750.0" stroke="#2563eb" stroke-width="2" opacity="0.55" marker-end="url(#arr-svc)"/>
+<line x1="512.0" y1="450.0" x2="282.4" y2="630.0" stroke="#2563eb" stroke-width="2" opacity="0.55" marker-end="url(#arr-svc)"/>
+<line x1="629.3" y1="450.0" x2="600.0" y2="630.0" stroke="#2563eb" stroke-width="2" opacity="0.55" marker-end="url(#arr-svc)"/>
+<line x1="570.7" y1="450.0" x2="362.0" y2="510.0" stroke="#2563eb" stroke-width="2" opacity="0.55" marker-end="url(#arr-svc)"/>
+<line x1="688.0" y1="450.0" x2="900.0" y2="750.0" stroke="#2563eb" stroke-width="2" opacity="0.55" marker-end="url(#arr-svc)"/>
+<line x1="512.0" y1="330.0" x2="317.6" y2="630.0" stroke="#2563eb" stroke-width="2" opacity="0.55" marker-end="url(#arr-svc)"/>
+<line x1="556.0" y1="330.0" x2="212.0" y2="390.0" stroke="#2563eb" stroke-width="2" opacity="0.55" marker-end="url(#arr-svc)"/>
+<line x1="600.0" y1="330.0" x2="512.0" y2="390.0" stroke="#2563eb" stroke-width="2" opacity="0.55" marker-end="url(#arr-svc)"/>
+<line x1="644.0" y1="330.0" x2="812.0" y2="390.0" stroke="#2563eb" stroke-width="2" opacity="0.55" marker-end="url(#arr-svc)"/>
+<line x1="688.0" y1="330.0" x2="929.3" y2="750.0" stroke="#2563eb" stroke-width="2" opacity="0.55" marker-end="url(#arr-svc)"/>
+<line x1="812.0" y1="450.0" x2="388.0" y2="630.0" stroke="#2563eb" stroke-width="2" opacity="0.55" marker-end="url(#arr-svc)"/>
+<line x1="929.3" y1="450.0" x2="988.0" y2="630.0" stroke="#2563eb" stroke-width="2" opacity="0.55" marker-end="url(#arr-svc)"/>
+<line x1="870.7" y1="450.0" x2="888.0" y2="510.0" stroke="#2563eb" stroke-width="2" opacity="0.55" marker-end="url(#arr-svc)"/>
+<line x1="988.0" y1="450.0" x2="988.0" y2="750.0" stroke="#2563eb" stroke-width="2" opacity="0.55" marker-end="url(#arr-svc)"/>
+<line x1="688.0" y1="210.0" x2="812.0" y2="630.0" stroke="#2563eb" stroke-width="2" opacity="0.55" marker-end="url(#arr-svc)"/>
+<line x1="512.0" y1="210.0" x2="300.0" y2="390.0" stroke="#2563eb" stroke-width="2" opacity="0.55" marker-end="url(#arr-svc)"/>
+<line x1="570.7" y1="210.0" x2="512.0" y2="270.0" stroke="#2563eb" stroke-width="2" opacity="0.55" marker-end="url(#arr-svc)"/>
+<line x1="629.3" y1="210.0" x2="629.3" y2="750.0" stroke="#2563eb" stroke-width="2" opacity="0.55" marker-end="url(#arr-svc)"/>
+<line x1="637.7" y1="100.0" x2="800.0" y2="510.0" stroke="#7c3aed" stroke-width="2" opacity="0.55" marker-end="url(#arr-app)"/>
+<line x1="512.0" y1="100.0" x2="388.0" y2="390.0" stroke="#7c3aed" stroke-width="2" opacity="0.55" marker-end="url(#arr-app)"/>
+<line x1="537.1" y1="100.0" x2="538.0" y2="510.0" stroke="#7c3aed" stroke-width="2" opacity="0.55" marker-end="url(#arr-app)"/>
+<line x1="562.3" y1="100.0" x2="688.0" y2="390.0" stroke="#7c3aed" stroke-width="2" opacity="0.55" marker-end="url(#arr-app)"/>
+<line x1="587.4" y1="100.0" x2="688.0" y2="270.0" stroke="#7c3aed" stroke-width="2" opacity="0.55" marker-end="url(#arr-app)"/>
+<line x1="662.9" y1="100.0" x2="988.0" y2="390.0" stroke="#7c3aed" stroke-width="2" opacity="0.55" marker-end="url(#arr-app)"/>
+<line x1="612.6" y1="100.0" x2="600.0" y2="150.0" stroke="#7c3aed" stroke-width="2" opacity="0.55" marker-end="url(#arr-app)"/>
+<line x1="688.0" y1="100.0" x2="900.0" y2="630.0" stroke="#7c3aed" stroke-width="2" opacity="0.55" marker-end="url(#arr-app)"/>
+<rect x="500.0" y="40.0" width="200" height="60" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="2.5"/>
+<text x="600" y="66" font-size="28" font-weight="bold" text-anchor="middle" fill="#111">gateway</text>
+<text x="600" y="90" font-size="18" text-anchor="middle" fill="#444">@app/gateway</text>
+<rect x="500.0" y="150.0" width="200" height="60" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2.5"/>
+<text x="600" y="176" font-size="28" font-weight="bold" text-anchor="middle" fill="#111">notifications</text>
+<text x="600" y="200" font-size="18" text-anchor="middle" fill="#444">@svc/notifications</text>
+<rect x="500.0" y="270.0" width="200" height="60" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2.5"/>
+<text x="600" y="296" font-size="28" font-weight="bold" text-anchor="middle" fill="#111">orders</text>
+<text x="600" y="320" font-size="18" text-anchor="middle" fill="#444">@svc/orders</text>
+<rect x="200.0" y="390.0" width="200" height="60" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2.5"/>
+<text x="300" y="416" font-size="28" font-weight="bold" text-anchor="middle" fill="#111">users</text>
+<text x="300" y="440" font-size="18" text-anchor="middle" fill="#444">@svc/users</text>
+<rect x="500.0" y="390.0" width="200" height="60" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2.5"/>
+<text x="600" y="416" font-size="28" font-weight="bold" text-anchor="middle" fill="#111">menu</text>
+<text x="600" y="440" font-size="18" text-anchor="middle" fill="#444">@svc/menu</text>
+<rect x="800.0" y="390.0" width="200" height="60" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2.5"/>
+<text x="900" y="416" font-size="28" font-weight="bold" text-anchor="middle" fill="#111">payments</text>
+<text x="900" y="440" font-size="18" text-anchor="middle" fill="#444">@svc/payments</text>
+<rect x="350.0" y="510.0" width="200" height="60" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2.5"/>
+<text x="450" y="536" font-size="28" font-weight="bold" text-anchor="middle" fill="#111">restaurants</text>
+<text x="450" y="560" font-size="18" text-anchor="middle" fill="#444">@svc/restaurants</text>
+<rect x="700.0" y="510.0" width="200" height="60" rx="10" fill="#ccfbf1" stroke="#0d9488" stroke-width="2.5"/>
+<text x="800" y="536" font-size="28" font-weight="bold" text-anchor="middle" fill="#111">auth</text>
+<text x="800" y="560" font-size="18" text-anchor="middle" fill="#444">@plat/auth</text>
+<rect x="200.0" y="630.0" width="200" height="60" rx="10" fill="#ccfbf1" stroke="#0d9488" stroke-width="2.5"/>
+<text x="300" y="656" font-size="28" font-weight="bold" text-anchor="middle" fill="#111">db</text>
+<text x="300" y="680" font-size="18" text-anchor="middle" fill="#444">@plat/db</text>
+<rect x="500.0" y="630.0" width="200" height="60" rx="10" fill="#ccfbf1" stroke="#0d9488" stroke-width="2.5"/>
+<text x="600" y="656" font-size="28" font-weight="bold" text-anchor="middle" fill="#111">cache</text>
+<text x="600" y="680" font-size="18" text-anchor="middle" fill="#444">@plat/cache</text>
+<rect x="800.0" y="630.0" width="200" height="60" rx="10" fill="#ccfbf1" stroke="#0d9488" stroke-width="2.5"/>
+<text x="900" y="656" font-size="28" font-weight="bold" text-anchor="middle" fill="#111">http</text>
+<text x="900" y="680" font-size="18" text-anchor="middle" fill="#444">@plat/http</text>
+<rect x="200.0" y="750.0" width="200" height="60" rx="10" fill="#fef3c7" stroke="#b45309" stroke-width="2.5"/>
+<text x="300" y="776" font-size="28" font-weight="bold" text-anchor="middle" fill="#111">logger</text>
+<text x="300" y="800" font-size="18" text-anchor="middle" fill="#444">@plat/logger</text>
+<rect x="500.0" y="750.0" width="200" height="60" rx="10" fill="#fef3c7" stroke="#b45309" stroke-width="2.5"/>
+<text x="600" y="776" font-size="28" font-weight="bold" text-anchor="middle" fill="#111">config</text>
+<text x="600" y="800" font-size="18" text-anchor="middle" fill="#444">@plat/config</text>
+<rect x="800.0" y="750.0" width="200" height="60" rx="10" fill="#fef3c7" stroke="#b45309" stroke-width="2.5"/>
+<text x="900" y="776" font-size="28" font-weight="bold" text-anchor="middle" fill="#111">types</text>
+<text x="900" y="800" font-size="18" text-anchor="middle" fill="#444">@plat/types</text>
+<text x="40" y="852" font-size="20" font-weight="bold" fill="#111">edge = "depends on" (source &#8594; target); color by source role</text>
+<rect x="40" y="866" width="26" height="20" rx="4" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+<text x="74" y="882" font-size="20" fill="#222">app entry (root)</text>
+<rect x="276" y="866" width="26" height="20" rx="4" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+<text x="310" y="882" font-size="20" fill="#222">@svc service</text>
+<rect x="468" y="866" width="26" height="20" rx="4" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+<text x="502" y="882" font-size="20" fill="#222">@plat platform</text>
+<rect x="682" y="866" width="26" height="20" rx="4" fill="#fef3c7" stroke="#b45309" stroke-width="2"/>
+<text x="716" y="882" font-size="20" fill="#222">@plat leaf (no deps)</text>
+</svg>

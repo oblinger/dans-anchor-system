@@ -2,7 +2,6 @@
 description: "skim → click into the rule that applies"
 ---
 # SKL Person
-
 | -[[SKL Person]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Search]] → [SKL Person](hook://p/SKL%20Person)<br>: skim → click into the rule that applies |
 | --- | --- |
 | Person rules (any verb) | [[SRC rules/person\|person.md]],   |

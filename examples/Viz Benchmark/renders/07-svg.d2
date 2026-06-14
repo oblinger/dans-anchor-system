@@ -1,0 +1,51 @@
+# 07 — Network / deployment topology (Bookstack SaaS)
+# 12 nodes, 17 edges. North-south request flow + east-west data calls.
+direction: right
+
+INET: "INET\nPublic Internet" { style.fill: "#eeeeee"; style.stroke: "#7f7f7f" }
+SES: "SES\nAWS email" { style.fill: "#eeeeee"; style.stroke: "#7f7f7f" }
+
+edge: "Edge tier" {
+  style.stroke: "#1f77b4"
+  CDN: "CDN\nCloudflare edge" { style.fill: "#d6e8f5"; style.stroke: "#1f77b4" }
+  WAF: "WAF\nAWS WAF" { style.fill: "#d6e8f5"; style.stroke: "#1f77b4" }
+  LB: "LB\nAWS ALB :443" { style.fill: "#d6e8f5"; style.stroke: "#1f77b4" }
+}
+
+app: "Application tier" {
+  style.stroke: "#2ca02c"
+  WEB1: "WEB1\nweb-1 :8080" { style.fill: "#d8f0d8"; style.stroke: "#2ca02c" }
+  WEB2: "WEB2\nweb-2 :8080" { style.fill: "#d8f0d8"; style.stroke: "#2ca02c" }
+  WORKER: "WORKER\nworker-1" { style.fill: "#d8f0d8"; style.stroke: "#2ca02c" }
+}
+
+data: "Data tier" {
+  style.stroke: "#d62728"
+  REDIS: "REDIS\ncache/queue :6379" { style.fill: "#f7d6d6"; style.stroke: "#d62728" }
+  PG_PRIMARY: "PG_PRIMARY\ndb-primary :5432" { style.fill: "#f7d6d6"; style.stroke: "#d62728" }
+  PG_REPLICA: "PG_REPLICA\ndb-replica :5432" { style.fill: "#f7d6d6"; style.stroke: "#d62728" }
+  S3: "S3\nassets bucket" { style.fill: "#f7d6d6"; style.stroke: "#d62728" }
+}
+
+# North-south request flow
+INET -> edge.CDN: "HTTPS :443"
+edge.CDN -> edge.WAF: "HTTPS :443"
+edge.WAF -> edge.LB: "HTTPS :443"
+edge.LB -> app.WEB1: "HTTP :8080"
+edge.LB -> app.WEB2: "HTTP :8080"
+
+# East-west data calls
+app.WEB1 -> data.REDIS: "session/cache :6379"
+app.WEB2 -> data.REDIS: "session/cache :6379"
+app.WEB1 -> data.PG_PRIMARY: "read/write :5432"
+app.WEB2 -> data.PG_PRIMARY: "read/write :5432"
+app.WEB1 -> data.PG_REPLICA: "read-only :5432" { style.stroke-dash: 4 }
+app.WEB2 -> data.PG_REPLICA: "read-only :5432" { style.stroke-dash: 4 }
+app.WEB1 -> data.S3: "asset GET/PUT"
+app.WEB2 -> data.S3: "asset GET/PUT"
+data.PG_PRIMARY -> data.PG_REPLICA: "streaming replication" { style.stroke-dash: 4 }
+
+# Worker
+app.WORKER -> data.REDIS: "consume queue :6379"
+app.WORKER -> data.PG_PRIMARY: "write :5432"
+app.WORKER -> SES: "send email"

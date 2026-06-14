@@ -1,10 +1,11 @@
 ---
-description: How to create and export visual content — Excalidraw diagrams, SVG, PNG, Google Slides
+description: "the SKL Edit doc"
 ---
-
-# SKL Edit Guide (Skill: [[edit/SKILL]])
-
+# SKL Edit Guide
 The Edit skill handles visual content creation, primarily through Excalidraw diagrams. The agent can create `.excalidraw` files programmatically by writing the JSON format directly, then export them to SVG or PNG for use in documents and presentations.
+
+| -[[SKL Edit]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Doc]] → [SKL Edit](hook://p/SKL%20Edit)<br>: the SKL Edit doc |
+| --- | --- |
 
 The typical workflow is: describe what you want in a diagram, the agent creates or updates an Excalidraw file, exports it to SVG/PNG, and optionally inserts it into Google Slides. This is useful for architecture diagrams, flowcharts, mockups, and any visual that needs to live alongside project documentation.
 

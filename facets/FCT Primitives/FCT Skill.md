@@ -1,9 +1,15 @@
 ---
-description: SKILL.md entry point for skill anchors
+description: "the Skill primitive — SKILL.md entry-point structure and conventions"
 ---
 # FCT Skill
-
 An omnibus Claude Code skill that groups related actions, reference data, and scripts under a single `/name` command. Invoked via `/name action` (e.g., `/cab setup`, `/md toc`).
+
+| -[[FCT Skill]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Primitives]] → [FCT Skill](hook://p/FCT%20Skill)<br>: the Skill primitive — SKILL.md entry-point structure and conventions |
+| --- | --- |
+| Related | [[FCT Facet]],  [[FCT Ruleset]],  [[FCT Primitives]],  [[CAB Aspects]],   |
+| Examples | [[CAE Skill\|canonical exemplar]],  [[CAE Minimal Skill\|minimal capsule]] |
+
+**TLDR** — Every skill anchor ships a `SKILL.md` with fixed frontmatter (`name`, `description`, `tools`, `user_invocable`) and a fixed section order (Title → Brief → dispatch tables → Actions → Reference → Dispatch protocol). Disciplines (`user_invocable: false`) additionally require a parallel user-facing doc at `SKL User Docs/SKL Skills/SKL <Name>.md`. **Cardinality: one per anchor** — each skill folder has exactly one `SKILL.md` entry point.
 
 **Working example:** `~/.claude/skills/CAE/SKILL.md` — SKILL.md (CAE is a skill folder).
 
@@ -162,6 +168,34 @@ A discipline is a *rule the agent follows*, not a command the user issues. Makin
 - **Skill** (`user_invocable: true`) — has a clear "do this thing now" semantic. The user invokes it. Examples: `/audit`, `/groom`, `/feature`.
 - **Discipline** (`user_invocable: false`) — a methodology that other skills follow. The user doesn't invoke it; skills cite it. Examples: `finalize`, `workflow`, `backlog-horizons`.
 - **Both?** — if a single concept has both a "the user wants to run this now" form and an "agent always follows this when applicable" form, split into a skill + discipline pair (e.g., `/finalize` could in principle be invoked, but the *ceremony* is the discipline; we kept only the discipline form for now).
+
+# Skill anchor page — the `SKL <Name>` doc
+
+Distinct from the `SKILL.md` runbook specified above: every skill also has a **doc / anchor page** in the SKL tree — `SKL <Name>` — the user-facing entry for the skill. It is a **sub-project** anchor page ([[FCT Anchor Page]] → `R-anchor-page-subproject`): a folder anchor with a switchboard masthead plus a body that is the skill's user guide.
+
+**A skill is a folder.** Minimal shape:
+
+- `SKL <Name>/`
+  - `SKL <Name>.md` — the entry page
+  - `SKL <Name> Design.md` — the **design root** (a child anchor page)
+  - `.anchor`
+
+**Masthead rows** on the entry page (a [[FCT Dispatch Table]]):
+
+1. **breadcrumb** — `… → [[SKL <Group>]] → SKL <Name>`.
+2. **Related** — **always links the actual skill runbook**: `[[skills/<name>/SKILL.md\|SKILL]]`. This is the rule — every skill doc points at its runbook, and that is the minimum Related row.
+3. **Design** — links the design root, `[[SKL <Name> Design\|Design]]`. The Design row carries **only the design elements that actually exist**; the minimum is the design root alone.
+
+**Summary line** — the one sentence directly under the H1 states the skill's **essence** — what the command does at its core, per [[FCT Anchor Page]] R-anchor-page-06. Convention: lead with the backticked command, e.g. `/feature` — creates a new feature document specifying work to be done — not a feature list or mechanism tour.
+
+**Body** — below the masthead, the skill's user-facing guide. It ranges from a one-line summary (minimal) to a full guide with `## What it does` / `## When NOT to use` sections (maximal). Genuine guide prose **stays**; enumerations that belong to *other* skills do not (they route to those skills — e.g. `/mint`'s page must not list `/code` / `/spike` / `/forge`).
+
+**Design root** — `SKL <Name> Design.md` is itself an anchor page that is **empty until there is design material** (PRD, decisions, design discussion). Emptiness-until-needed is a *rule, not text*: do **not** write a "this is the design surface, empty until the pieces are needed" sentence into each one — the name says it. When material arrives it lands as rows in the design root, and the parent's Design row lists what now exists.
+
+**Examples — minimal and maximal:**
+
+- **Minimal skill** → [[SKL Mint]]: folder + entry page (breadcrumb + Related + Design) + empty design root. The floor.
+- **Maximal skill** → [[SKL Ask]]: the same skeleton, but a full user-guide body; its design root fills in once a PRD / decisions / discussion exist.
 
 # BRIEF
 

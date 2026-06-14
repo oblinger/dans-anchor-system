@@ -1,7 +1,13 @@
 ---
-description: "dated feature specs (F-numbered)"
+description: "specification for F-numbered per-feature design docs and their index page"
 ---
 # FCT Features
+Specification for the **Features** facet — F-numbered per-feature design docs that live under `{NAME} Design/{NAME} Features/`, with their index page and pre-document Open-Questions zone.
+
+| -[[FCT Features]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Features](hook://p/FCT%20Features)<br>: specification for F-numbered per-feature design docs and their index page |
+| --- | --- |
+| Related | [[FCT Roadmap]],  [[CAB Backlog]],  [[FCT Status]],  [[FCT Facet]],   |
+| Examples | [[CAE Features\|minimal]],  [[HBR Features\|fuller]],   |
 
 Specification for the **Features** facet — the F-numbered per-feature design docs that live under an anchor's `{NAME} Design/{NAME} Features/` folder, with their index page and pre-document Open-Questions zone.
 
@@ -9,7 +15,7 @@ Specification for the **Features** facet — the F-numbered per-feature design d
 
 **Relocated to Design 2026-06-10** — previously lived at `{NAME} Track/{NAME} Features/` (per F094) and `{NAME} Docs/{NAME} Plan/{NAME} Features/` (pre-F094). Moved into Design alongside [[FCT Roadmap]] because feature docs are themselves design artifacts — each carries a Summary, Success Criteria, and Design section that the PRD / Architecture / Testing facets refer to. Track now holds only [[CAB Backlog]], [[FCT Status]], and tracking metadata. Lazy migration: existing anchors stay at the old location until next `/feature` or `/design` touch repositions them (F142).
 
-Individual feature specifications, each in an F-numbered file inside the Features subfolder of the Design folder.
+Individual feature specifications, each in an F-numbered file inside the Features subfolder of the Design folder. **Cardinality: many** — each anchor holds any number of feature docs (one file per feature, F-numbered).
 
 **Worked examples:** `examples/HBR/HBR Design/HBR Features/` (in this repo) — three rendered feature docs (`F001 — Content-Hash Dedup.md`, `F002 — On-the-Fly Transcode Session.md`, `F003 — Scheduled Catalog Checkpoint.md`) plus their `HBR Features.md` index, demonstrating the Open-Questions-above-H1 convention, the `F<NNN> — <Title>.md` filename pattern, and a clean/empty vs. populated Open-Questions zone. Open them for rendered instances; the structure is specified in prose in the sections below.
 
@@ -114,6 +120,31 @@ When the Roadmap section drives the feature's tracking, the feature doc's `## St
 **Referencing as-yet-undesigned sub-features.** Bare-bracket entries `[F<NNN+k> — <Title>]` signal "this sub-feature will exist when authoring catches up." When the agent / user reaches that sub-item and creates the actual feature doc, the bare brackets upgrade to `[[F<NNN+k> — <Title>]]` wiki-links. The roadmap captures intent without requiring all sub-features to be designed up front.
 
 ---
+
+# RULESET R-fct-features
+include::
+where:: file: **/Features/F*.md, **/{NAME} Features.md
+description:: The rules every Features-facet instance must satisfy — covering the folder layout, filename pattern, the two-zone feature-doc structure, and the index page shape. Embedded per F133. Tier legend: **checked** (mechanically verifiable), **sampled** (spot-checked), **stated** (author-honored principle).
+
+### RULE R-fct-features-01 — F-numbered filename pattern (checked)
+Each individual feature doc filename matches `F<NNN> — <Title>.md` where `<NNN>` is a zero-padded three-digit decimal number unique within the anchor. Dated `YYYY-MM-DD <Title>.md` filenames are legacy — do not author new ones.
+**Check pattern:** filename matches `^F\d{3} — .+\.md$`.
+**Why:** the F-number is the stable cross-reference key; padded triple digits keep filename sort equal to numeric sort and distinguish per-anchor feature series from each other.
+
+### RULE R-fct-features-02 — Two-zone layout: Open Questions above H1 (checked)
+Every feature doc opens with a `## Open Questions` H2 (and a `### Resolved` H3 beneath it) **before** the `# [[{NAME}]] · F{n} — {Feature Name}` H1. The pre-document zone is mandatory even when empty; a placeholder line such as `_None — design is clean._` must be present when there are no open questions.
+**Check pattern:** the first heading in the file is `## Open Questions` (not the `#` H1); a `### Resolved` H3 follows it; the `# ` H1 appears after both.
+**Why:** blocking decisions must be visible the moment the file opens — placing them above the H1 guarantees they are never buried below the feature spec body.
+
+### RULE R-fct-features-03 — H1 carries anchor-slug breadcrumb (checked)
+The feature-doc H1 reads `# [[{NAME}]] · F{n} — {Feature Name}` — a wiki-link to the anchor page, a middle dot, and the feature title. The filename matches the title portion without brackets: `F{n} — {Feature Name}.md`.
+**Check pattern:** H1 matches `^# \[\[.+\]\] · F\d+ — .+$`.
+**Why:** the `[[{NAME}]]` breadcrumb lets the reader jump back to the anchor page and immediately see which anchor they're in — load-bearing when many anchors are active and feature docs look similar across them.
+
+### RULE R-fct-features-04 — Index page lists features reverse-chronologically with status brackets (sampled)
+The `{NAME} Features.md` index page lists features newest-first. Each row is a wiki-link `[[F<NNN> — <Title>]]` followed by the lifecycle state in backtick-brackets (e.g. `` `[Done]` ``), an em-dash, and a one-line description. The lifecycle state in the index mirrors the `## Status` section of the feature doc.
+**Check pattern:** index rows match `- \[\[F\d+ — .+\]\] \`\[.+\]\` — `.
+**Why:** the index is the navigation surface; backtick-brackets make lifecycle state scannable at a glance without opening each feature doc.
 
 # BRIEF
 

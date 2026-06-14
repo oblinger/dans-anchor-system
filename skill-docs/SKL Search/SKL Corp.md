@@ -2,7 +2,6 @@
 description: "skim → click into the rule that applies"
 ---
 # SKL Corp
-
 | -[[SKL Corp]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Search]] → [SKL Corp](hook://p/SKL%20Corp)<br>: skim → click into the rule that applies |
 | --- | --- |
 | Corp rules (any verb) | [[SRC rules/corp\|corp.md]],   |

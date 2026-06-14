@@ -1,0 +1,89 @@
+# Benchmark 04 — State machine: video transcoding job lifecycle
+# Fidelity render: 9 nodes, 14 enumerated edges (spec prose says "15" but the list enumerates 14)
+
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+}
+
+direction: down
+
+# ---- legibility classes (big quantized fonts, uniform sibling boxes) ----
+classes: {
+  node: {
+    style: {
+      font-size: 28
+      stroke-width: 2
+      border-radius: 8
+      fill: "#eef4ff"
+      stroke: "#3355aa"
+    }
+    width: 170
+    height: 70
+  }
+  initial: {
+    style: {
+      font-size: 28
+      stroke-width: 3
+      border-radius: 8
+      fill: "#e6f7e6"
+      stroke: "#2e8b2e"
+    }
+    width: 170
+    height: 70
+  }
+  terminal: {
+    style: {
+      font-size: 28
+      stroke-width: 3
+      border-radius: 40
+      multiple: true
+    }
+    width: 170
+    height: 70
+  }
+  back: {
+    style: {
+      font-size: 24
+      stroke-width: 2
+      stroke-dash: 4
+      stroke: "#b03030"
+    }
+  }
+  fwd: {
+    style: {
+      font-size: 24
+      stroke-width: 2
+    }
+  }
+}
+
+# ---- nodes (9) ----
+Queued.class: initial
+Downloading.class: node
+Probing.class: node
+Transcoding.class: node
+Validating.class: node
+Uploading.class: node
+Published.class: terminal
+Failed.class: terminal
+Cancelled.class: terminal
+
+# ---- forward edges (solid) ----
+Queued -> Downloading: "worker claims job" { class: fwd }
+Downloading -> Probing: "source fetched" { class: fwd }
+Downloading -> Downloading: "chunk timeout — resume" { class: fwd }
+Probing -> Transcoding: "format supported" { class: fwd }
+Probing -> Failed: "unsupported codec" { class: fwd }
+Transcoding -> Transcoding: "rendition complete — next profile" { class: fwd }
+Transcoding -> Validating: "all renditions encoded" { class: fwd }
+Validating -> Uploading: "checks pass" { class: fwd }
+Uploading -> Published: "all parts confirmed" { class: fwd }
+Validating -> Failed: "max retries reached" { class: fwd }
+
+# ---- back-edges / aborts (dashed) ----
+Validating -> Transcoding: "corrupt output — re-encode" { class: back }
+Uploading -> Queued: "storage 5xx — re-queue job" { class: back }
+Queued -> Cancelled: "operator abort" { class: back }
+Transcoding -> Cancelled: "operator abort" { class: back }

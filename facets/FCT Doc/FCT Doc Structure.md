@@ -8,11 +8,14 @@ The standard top-to-bottom structure every document follows — progressive disc
 | -[[FCT Doc Structure]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Doc]] → [FCT Doc Structure](hook://p/FCT%20Doc%20Structure)<br>: the canonical document layering — progressive disclosure for a document |
 | --- | --- |
 | Related | [[DSC progressive-disclosure]] (the discipline this specializes),  [[FCT Brief]],  [[FCT Anchor Page]] |
+| Examples | [[CAE Minimal Facet\|minimal — short doc, no table]],  [[HBR Architecture\|fuller — non-anchor doc with structured body]] |
 | Document examples | [[FEX Manifest]] (facet spec),  [[FEX Retention]] (discipline),  [[FCT Brief]] (facet spec) |
 | Anchor examples | [[HBR]] (project),  [[FEX Snapshot]] (skill),  [[FEX Repo]] (repo) |
 
 ## Overview
 [[DSC progressive-disclosure]] is the general discipline — reveal information in layers so a reader gets the gist first and drills in only as far as they need. **Doc Structure** is that discipline applied to a *single document*: a fixed top-to-bottom order of layers, each aimed at a more-committed reader than the last. Every document the system owns — anchor page, facet spec, feature doc, design doc, user guide — follows this skeleton; specific document kinds (e.g. [[FCT Anchor Page]]) refine it but never violate the layer order.
+
+**Cardinality: one per document.** Every authored `.md` file has exactly one Doc Structure — each document follows this top-to-bottom skeleton once. Across an anchor the facet applies to each individual document independently.
 
 ## The standard structure (top to bottom)
 
@@ -35,7 +38,7 @@ The **top table** is the document's progressive-disclosure entry point — the n
 
 > **Is this an anchor file? → dispatch table. If not → content outline table.**
 
-- **Anchor file → dispatch table** — breadcrumb masthead + member / links zone (per [[DSC Dispatch Table]] / [[FCT Anchor Page]]).
+- **Anchor file → dispatch table** — breadcrumb masthead + member / links zone (per [[FCT Dispatch Table]] / [[FCT Anchor Page]]).
 - **Non-anchor file → content outline table** — left column links to the document's own sections (in-document `[[#Heading]]` links); right column says, in one line, what each section is. A table of contents *with descriptions*.
 - **Short docs (≲ 3 pages) → no top table needed.**
 
@@ -61,7 +64,7 @@ The actual content the document holds. At the very bottom, the agent-facing `# B
 # RULESET R-doc-structure
 include::
 where:: every authored document — any `.md` the system owns, identified by a leading `# ` H1
-description:: The canonical top-to-bottom information order for a document (progressive disclosure). The audit reads this one rule and walks the document top-down to check its structure.
+description:: the canonical document layering — progressive disclosure for a document
 
 Embedded ruleset for the Doc Structure facet. One compact ordering rule; per-element rules can be split out later if finer-grained auditing is wanted.
 

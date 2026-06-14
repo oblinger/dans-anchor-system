@@ -1,9 +1,15 @@
 ---
-description: triage — presentation form. The view of an anchor's status (banner, H2s, brackets) as rendered into the anchor's section of the global `~/ob/kmr/Q.md` dashboard.
+description: "triage — presentation form for an anchor's status inside the global Q.md dashboard"
 ---
 # FCT Triage
-
 Specification for the **Triage view** — the format and rules for rendering an anchor's status (banner, H2s, brackets) into its section of the global `~/ob/kmr/Q.md` dashboard.
+
+| -[[FCT Triage]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Triage](hook://p/FCT%20Triage)<br>: triage — presentation form for an anchor's status inside the global Q.md dashboard |
+| --- | --- |
+| Related | [[FCT Backlog]] (source of items), [[CAB Backlog]] (status brackets), [[SKA triage]] (renderer), [[FCT Ask]] (anchor questions surface), |
+| Examples | [[Q#CAE Triage\|CAE section (minimal)]], [[Q#SKA Triage\|SKA section (fuller)]], |
+
+**TLDR** — The Triage facet defines the *rendered format* of an anchor's status section inside `~/ob/kmr/Q.md`: the H1 banner (TAG, counts, exact spacing), body H2s (`## Active` … `## Later`, skipping empty), bullet form (bolded bracket + mandatory wiki-link + em-dash description), and the selective-Later rule (only `[Questions]`/`[Verify]` items surface under `## Later`). **Cardinality: one per anchor** — each anchor owns exactly one section in `Q.md`, destructively rewritten on each `/triage` run. No per-anchor file; the view lives only in `Q.md`.
 
 **Presentation form — no per-anchor file location.** As of F075 (2026-05-19), per-anchor `{NAME} Triage.md` files are retired. The triage view is rendered into the anchor's per-anchor section of `~/ob/kmr/Q.md`, which is the single triage surface for the vault. This facet remains a real concept (the triage view of an anchor's state) and its format is specified here; it just no longer corresponds to a per-anchor file. **Anchor-page dispatch tables do NOT link to this facet** (there is no per-anchor file to link to). CAB-level references to `[[FCT Triage]]` (from `CAB Base.md`, this spec) remain — the facet definition is still a real artifact.
 
@@ -165,6 +171,31 @@ Each anchor's section inside Q.md is agent-owned. Every `/triage` run — or pos
 - **`/roster`** — counts every item once per backlog H2; triage's H1 banner uses the same scheme so the two views agree.
 - **`~/ob/kmr/Q.md`** — the single triage surface (per F075). Each anchor's per-anchor section here IS the triage view; it lives nowhere else.
 - **Anchor pages (`{NAME}.md`)** — do **not** carry a dispatch-table row pointing at this facet, since no per-anchor file exists to link to. The anchor's Q.md section is reached via the global dashboard, not via per-anchor navigation.
+
+# RULESET R-fct-triage
+include::
+where:: context: Q.md anchor-sections
+description:: Rules for the triage view rendered into each anchor's section of `~/ob/kmr/Q.md`. Governs the H1 banner format, body H2 inclusion, bullet form, and the selective-Later invariant. Cardinality: **one per anchor** — each anchor owns exactly one section in Q.md.
+
+### RULE R-fct-triage-01 — H1 banner has exact spacing (checked)
+The H1 section heading follows the form `# [<TAG>]  [[Q#{NAME} Triage|{NAME} Triage]]   -   <count groups>` with: two spaces between TAG and the link; three spaces around the `-` separator; four spaces between counts within a group; `   |   ` (three-space-pipe-three-space) between the three count groups (User-actionable / Agent-actionable / Horizon).
+**Check pattern:** H1 matches the prescribed spacing pattern — deviations (single spaces, missing pipe groups) are a failure.
+**Why:** the renderer (`[[SKA triage]]`) references the exact spacing; relaxing it silently breaks the renderer.
+
+### RULE R-fct-triage-02 — Every bullet title is a wiki-link (checked)
+Every body bullet's title MUST be a wiki-link — `[[F<n> — Title]]` for feature rows, `[[{NAME} Backlog#B<n>|B<n>]]` for backlog-only rows, or a bug-doc link — with no exceptions. A row without a wiki-link is a broken row.
+**Check pattern:** each `-` bullet starts with `**[<status>]** [[` — any bullet missing the `[[` link-open is a failure.
+**Why:** triage is navigation; a row without a link leaves the user with no path to the source.
+
+### RULE R-fct-triage-03 — Selective Later: only [Questions]/[Verify] items render (checked)
+Under `## Later`, only items carrying a `[Questions]` or `[Verify]` bracket qualify. Later items without those brackets are omitted. If no Later item qualifies, the `## Later` H2 is omitted entirely.
+**Check pattern:** every row under `## Later` has a bolded `[Questions]`, `[N Questions]`, `[Verify]`, or `[N Verify]` bracket; the `## Later` H2 is absent when zero qualify.
+**Why:** a counting invariant — the H1 banner's `Questions N` and `Verify N` counts must each have a clickable row; surfacing all Later items would clutter a high-traffic surface.
+
+### RULE R-fct-triage-04 — Empty H2s are omitted (checked)
+Any body H2 (`## Active`, `## Ready`, `## Now`, `## Next`, `## Later`) with zero qualifying items is omitted entirely. The `## Icebox` H2 is never rendered (counted only in the banner).
+**Check pattern:** the rendered section has no `## <H2>` immediately followed by another `## ` or end-of-section without at least one bullet.
+**Why:** empty H2s add noise on a high-density, no-blank-lines surface.
 
 # BRIEF
 

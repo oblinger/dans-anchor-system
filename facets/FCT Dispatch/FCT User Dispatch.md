@@ -2,11 +2,14 @@
 description: user-facing docs dispatch page — curated, synthesis-level human-authored docs for any audience
 ---
 # FCT User Dispatch
-
 Facet spec for the `{NAME} User.md` dispatch page that catalogs an anchor's end-user / consumer-facing documentation (Guide, Installation, CLI, FAQ, Cards).
 
-**Location:** `{NAME} Docs/{NAME} User/{NAME} User.md`
+| -[[FCT User Dispatch]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT User Dispatch](hook://p/FCT%20User%20Dispatch)<br>: user-facing docs dispatch page — curated, synthesis-level human-authored docs for any audience |
+| --- | --- |
+| Related | [[FCT Design Dispatch]],  [[FCT Dev Dispatch]],  [[FCT Track Dispatch]],  [[FCT Dispatch]],   |
+| Examples | [[CAE User Docs\|minimal (code anchor)]], [[HBR User Docs\|fuller (server anchor)]] |
 
+**TLDR** — `{NAME} User.md` is the dispatch page for end-user / consumer-facing documentation (Guide, Installation, CLI, FAQ, Cards). Cardinality: **one per anchor**. Scope boundary: user-task docs only; system-spec docs (Interface, Architecture) belong in [[FCT Design Dispatch|Design]] per F094.
 
 The `{NAME} User.md` dispatch page inside the `{NAME} User/` folder. Lists **end-user / consumer-facing documentation** for the anchor — Guide, Installation, CLI reference, FAQ, Cards.
 
@@ -25,6 +28,8 @@ System-level audiences (integrators-above-the-layer, architects, designers) read
 
 The defining property is **what the content describes**: User docs describe *user tasks*; Design docs describe *system shape*. Compare with [[FCT Dev Dispatch]] which holds **audit-tied, machine-checkable reference** (Files tree, per-module docs).
 
+**Cardinality: one per anchor.** Every anchor that has a Docs folder has exactly one `{NAME} User/` sub-folder with one `{NAME} User.md` dispatch page.
+
 **Working example:** `~/.claude/skills/CAE/CAE Docs/CAE User/CAE User.md` — User dispatch.
 
 # Reference Example
@@ -33,7 +38,7 @@ The defining property is **what the content describes**: User docs describe *use
 
 # CAE User
 
-| -[[CAE User]]- | ><br>: end-user / consumer documentation |
+| -[[CAE User]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT User Dispatch](hook://p/FCT%20User%20Dispatch)<br>: end-user / consumer documentation |
 | --- | --- |
 | [[CAE Guide\|Guide]] | getting started and usage |
 | [[CAE Installation\|Installation]] | installation instructions (when applicable) |
@@ -55,7 +60,7 @@ The defining property is **what the content describes**: User docs describe *use
 
 - **YAML frontmatter** — optional.
 - **H1** — `# {NAME} User`. Blank line after.
-- **Dispatch table** — top-left cell is `-[[{NAME} User]]-`, top-right is `><br>: user-facing documentation` (or `+>` legacy shorthand).
+-[[{NAME} User]]-`, top-right is `><br>: user-facing documentation` (or `+>` legacy shorthand).
 - **Body rows** — one row per user-facing document.
 - **Auto-management separator** — a `---` row enables auto-listing of remaining children.
 
@@ -87,12 +92,37 @@ Anchors that still have `{NAME} User Guide.md` continue to resolve correctly (wi
 
 Anchors that still have `{NAME} Rollup.md` (the predecessor to Interface — see F062) continue to resolve correctly for now, but should be renamed to `{NAME} Interface.md` when the anchor is next touched. The semantic shift (Rollup was a loose summarization pattern; Interface is a tightened layer contract with a user-validation gate) usually warrants a content review at rename time. Migration is forward-only; no bulk pass.
 
+# RULESET R-fct-user-dispatch
+include::
+where:: file: **/{NAME} Docs/{NAME} User/{NAME} User.md
+description:: Rules every `{NAME} User.md` dispatch page must satisfy — the file must exist in the right location, open with the right dispatch-table header, and contain only user-task-shaped documentation (not system-spec docs).
+
+### RULE R-fct-user-dispatch-01 — file lives at the correct path (checked)
+The dispatch page is at `{NAME} Docs/{NAME} User/{NAME} User.md` — one level inside `{NAME} Docs/`, inside `{NAME} User/`.
+**Check pattern:** path matches `{NAME} Docs/{NAME} User/{NAME} User.md`.
+**Why:** the folder context supplies the "User" qualifier; a misfiled page is invisible to dispatch resolution.
+
+### RULE R-fct-user-dispatch-02 — dispatch table top-left cell is the self-link (checked)
+-[[{NAME} User]]-` in the left cell and a brief description beginning with `>` or `+>` in the right cell.
+**Check pattern:** first table row matches `-\[\[.+ User\]\]-` in cell 1 and starts with `>` or `+>` in cell 2.
+**Why:** the self-link is what makes the dispatch table navigable; wrong or absent cell breaks the anchor-page contract per F060.
+
+### RULE R-fct-user-dispatch-03 — contains only user-task documentation (sampled)
+Every body row links a doc that describes a *user task* (Guide, Installation, CLI, FAQ, Cards) — not a system-spec doc (Interface, Architecture, UX Design, Data Model, Principles), which belong in [[FCT Design Dispatch|Design]] per F094.
+**Check pattern:** body rows do not link `{NAME} Interface.md`, `{NAME} Architecture.md`, `{NAME} Data Model.md`, `{NAME} Principles.md`, or `{NAME} UX Design.md`.
+**Why:** scope leakage lets Design docs accumulate here; the F094 boundary is load-bearing for `/audit docs`.
+
+### RULE R-fct-user-dispatch-04 — primary guide uses bare filename (stated)
+The primary user-facing guide is `{NAME} Guide.md`, not `{NAME} User Guide.md`. The folder context already supplies "user-facing."
+**Check pattern:** no file named `{NAME} User Guide.md` is linked as the primary row (legacy files may exist pending forward-migration).
+**Why:** the filename convention prevents "User User Guide" redundancy and is the canonical form going forward.
+
 # BRIEF
 
 - **This is the facet spec for the User dispatch page** — `{NAME} User.md` inside `{NAME} Docs/{NAME} User/`. Edits here change how every anchor's User dispatch is structured; cross-check the Reference Example and Format Specification stay in sync.
 - **In-scope content is consumer/end-user task documentation only** — Guide, Installation, CLI, FAQ, Cards. Per F094 Q3=A (2026-06-01), system-spec docs (Interface, Architecture, UX Design, Data Model, Principles) belong in [[FCT Design Dispatch|Design]], even when public-facing — don't drift them back here.
 - **Inclusion test** — ask "does this doc describe a *user task*, or does it describe the *system's shape/contract*?" Task-shaped → User. Shape-shaped → Design. Machine-checkable per-module reference → [[FCT Dev Dispatch|Dev]].
 - **Filename convention is load-bearing** — `{NAME} Guide.md` (not `{NAME} User Guide.md`); the folder context already supplies "user-facing." H1 inside the file may still spell out "User Guide" if it reads better. Don't bulk-rename legacy `{NAME} User Guide.md` or `{NAME} Rollup.md` — migration is forward-only when the anchor is next touched.
-- **Dispatch table header is fixed** — top-left `-[[{NAME} User]]-`, top-right `><br>: end-user / consumer documentation` (legacy `+>` shorthand still accepted). A `---` separator row enables auto-listing of remaining children — preserve it when present.
+-[[{NAME} User]]-`, top-right `><br>: end-user / consumer documentation` (legacy `+>` shorthand still accepted). A `---` separator row enables auto-listing of remaining children — preserve it when present.
 - **Don't pile facet-shape rules from sibling dispatches here** — Design / Dev / Track facet specifics live in their own CAB facet files. This file owns only the User dispatch rules; cross-link, don't inline.
 - **Working example is canonical** — `~/.claude/skills/CAE/CAE Docs/CAE User/CAE User.md`. If the example and the spec disagree, fix one or the other; don't leave them drifted.

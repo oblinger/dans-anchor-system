@@ -6,11 +6,14 @@ The entry page every anchor opens with — its `{slug}.md`.
 
 | -[[FCT Anchor Page]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [FCT Anchor Page](hook://p/FCT%20Anchor%20Page)<br>: the `{slug}.md` entry-page format                                  |
 | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Related               | [[FCT]],  [[DSC Dispatch Table]],  [[DSC progressive-disclosure]],  [[FEX]],                                                                                          |
+| Related               | [[FCT]],  [[FCT Dispatch Table]],  [[DSC progressive-disclosure]],  [[FEX]],                                                                                          |
 | Design                |                                                                                                                                                                       |
-| Examples              | [[HBR\|project]],  [[HBR Components\|grouped]],  [[HBR Ingest\|sub-folder]],  [[FEX Snapshot\|skill]]                                                                 |
+| Examples              | [[HBR\|Code Project]],  [[FCT Anchor Page\|Sub-project · facet]],  [[DSC progressive-disclosure\|Sub-project · discipline]],  [[SKL Mint\|Sub-project · skill-doc]],  [[SKL\|Container · grouped]],  [[SKA Access\|Container · list]],  [[Career\|Topic]] |
+| Rulesets              |                                                                                                                                                                       |
 |                       |                                                                                                                                                                       |
 | OLD Examples          | [[FEX]] — [[Snapper Dapper\|skill]],  [[Espresso\|list]],  [[Harbor Components\|grouped]],  [[Glossary\|facet]],  [[Harbor\|project]],  [[Harbor Ingest\|sub-folder]] |
+
+**TLDR** — **Cardinality: one per anchor.** Every anchor has exactly one `{slug}.md` entry page. It opens with YAML `description:` frontmatter, then H1 → one-line summary → optional figure → dispatch table (breadcrumb + Related + kind-specific rows). The embedded `R-anchor-page` ruleset (22 shared rules + four kind deltas — Code Project / Sub-project / Container / Topic) is the auditable contract; `/audit anchor` and `/create anchor` cite it. Member zones and group rows appear only on [[Collection]] / Container anchors.
 
 ## Anchor Page Template
 
@@ -34,7 +37,7 @@ traits: [Code]
 …then the body, which renders **live** (markdown is never shown in back-ticks — it does not render there):
 
 # {SLUG} - {Full Name}
-{one-sentence summary — what the page is, at the broadest stroke; NO blank line above this line}
+{one-sentence summary — the essence: what the page is/does at its core, not incidental detail; NO blank line above this line}
 
 | -{SLUG}- | → [[kmr]] → … → [{NAME}](hook://p/{NAME})<br>: short description |
 | --- | --- |
@@ -46,9 +49,9 @@ traits: [Code]
 
 - **Frontmatter** — `description:` (one line) + `traits:` (the anchor kind). Inline `desc::` is deprecated; migrate to `description:` in YAML.
 - **H1** — `{slug} - {Full Name}`: the slug leads (the jump-key), the readable name follows. Bare-name anchors use just the name.
-- **Summary** — one sentence on the **very next line** (no blank after the H1); says what the page *is*. More detail goes in an optional `## Overview` later, never above the dispatch table.
+- **Summary** — one sentence on the **very next line** (no blank after the H1); states the **essence** — what the page *is* or *does* at its core, not incidental detail (per R-anchor-page-06). More goes in an optional `## Overview` later, never above the dispatch table.
 - **Figure** — optional; embedded right after the summary with **no heading above it** — the big-picture visual before the navigation.
-- **Dispatch table** — the masthead (+ a member zone for a [[Collection]] anchor). The table's *form* is [[DSC Dispatch Table]]; its row *placement* is [[SKA Decisions|D07]].
+- **Dispatch table** — the masthead (+ a member zone for a [[Collection]] anchor). The table's *form* is [[FCT Dispatch Table]]; its row *placement* is [[SKA Decisions|D07]].
 
 # RULESET R-anchor-page
 include::
@@ -97,9 +100,11 @@ The H1 leads with the slug, then ` - `, then the readable name. Bare-name anchor
 
 ## Top of page (fixed order)
 
-### RULE R-anchor-page-06 — One-sentence summary under the H1 (stated)
+### RULE R-anchor-page-06 — First sentence states the essence (stated)
 
-A single sentence saying what the page *is*, at the broadest stroke. Deeper detail goes in an optional `## Overview`, never above the dispatch table.
+A single sentence that states the **essence** — the core of what the page *is* or *does*, in one stroke. It answers "what is this, fundamentally?", not "what are its features, mechanisms, or edge cases". Lead with the essence; a little qualifying detail is fine, but a grab-bag of incidental facts is the failure. Everything that isn't the essence goes in an optional `## Overview` (or the body), never in this line and never above the dispatch table.
+
+**Why:** this is the one line every reader — and every dispatch table that links the page — sees first; if the essence is buried under incidental detail, the reader must dig for what the thing fundamentally is. E.g. a skill page leads with the essence — *`/feature` creates a new feature document specifying work to be done* — not with a lead-in about collision-handling or status mechanics.
 
 ### RULE R-anchor-page-07 — No blank line after the H1 (checked)
 check:: no_blank_after_h1
@@ -126,7 +131,7 @@ Those elements appear in that order with nothing else between them.
 
 ### RULE R-anchor-page-10 — Table follows the Dispatch Table spec (sampled)
 
-The dispatch table conforms to [[DSC Dispatch Table]] — a breadcrumb row then category rows.
+The dispatch table conforms to [[FCT Dispatch Table]] — a breadcrumb row then category rows.
 
 **Check pattern:** delegate to `/audit dispatch`.
 
@@ -210,10 +215,44 @@ A simple / leaf anchor may have no dispatch table at all — frontmatter + H1 + 
 
 ## Kind-specific rules
 
-Rules that apply only to **one kind** of anchor page (skill / list / grouped / project root / sub-folder). None yet — when a kind accumulates its own rules they live here at the tail, graduating to a dedicated sub-ruleset (e.g. `R-anchor-page-project`) pulled in via `include::` once there are enough.
+Each anchor-page **kind** layers a small delta over the shared chassis (R-anchor-page-01…22) plus the [[FCT Dispatch Table]] form. The kind is read from `traits:`; a page is audited as **chassis + its kind's delta**. There are four kinds, each one-to-one with its dispatch-table shape (HookAnchor computes the table from the `.anchor`, so there is exactly one page — and one table kind — per anchor). The deltas are thin; each may graduate to its own `include::` sub-ruleset file once it grows.
+
+### R-anchor-page-project — Code Project (stated)
+
+A code/software project anchor (`traits: [Code]`).
+- **Masthead roster:** breadcrumb + Anchor + **Design** (design flow present) + **Track** (**required**) + Related.
+- **Member zone:** none — a switchboard masthead only.
+- **Example:** [[HBR]].
+
+### R-anchor-page-subproject — Sub-project: facet / discipline / skill-doc (checked)
+
+A single skill-ecosystem spec page — a **facet**, a **discipline**, or a **skill-doc** (the documentation page for a skill; *not* the skill folder's `SKILL.md` runbook, which is out of scope).
+- **Masthead roster:** breadcrumb + Anchor + **Design** (only if a `{NAME} Design/` folder exists) + Related.
+- **No `Track` row** — tracking is centralized in SKA (this is R-anchor-page-15 in kind terms).
+- **Member zone:** none.
+- **Content** differs by sub-kind (facet spec vs. discipline vs. skill-doc) but the page *structure* is shared — one ruleset, three example flavors.
+- **Examples:** facet → [[FCT Anchor Page]]; discipline → [[DSC progressive-disclosure]]; skill-doc → [[SKL Mint]] *(currently a thin doc with no masthead — the bring-up target, tracked separately; do not treat as compliant).*
+
+### R-anchor-page-container — Container: grouped / list / reverse-dated (sampled)
+
+A [[Collection]] anchor whose body enumerates **homogeneous members** (a features folder of feature docs, a log folder of log entries, the `SKL` catalog of skill-docs).
+- **Masthead roster:** breadcrumb + Anchor + Related (minimal).
+- **Member zone required** — the generic member rules R-anchor-page-17…20 apply. Layout variant (one axis, three values):
+  - **grouped** — `+` group rows past ~15 members. Example: [[SKL]], [[FCT]].
+  - **list** — a flat list ≤ ~15 members. Example: [[SKA Access]].
+  - **reverse-dated** — a [[DSC dated-entry-stream]]; newest-first, ISO-prefixed member names.
+- Member zone ends with an electric marker (R-anchor-page-20) so new children have a place to land.
+
+### R-anchor-page-topic — Topic (stated)
+
+A topic / domain-of-life folder page.
+- **Masthead roster:** breadcrumb + optional Related; usually no Anchor enumeration.
+- **Table optional** (R-anchor-page-22) — a minimal topic page may be frontmatter + H1 + summary, or breadcrumb-only.
+- **Member zone:** none required.
+- **Example:** [[Career]].
 
 # BRIEF
 
 - **This file is the spec for the anchor entry page (`{slug}.md`)** — the `.anchor` + page **template**, the **parts**, and the **ruleset** `R-anchor-page`. Format *authority*: `/create anchor`, `/rewire`, `/tidy`, `/audit anchor`, and the audit scripts cite it.
-- **Don't inline what belongs elsewhere.** Dispatch-table *mechanics* → [[DSC Dispatch Table]]; row *placement / order* → [[SKA Decisions|D07]]; the naming prefix → [[FCT Naming]]; sub-folder dispatch pages have their own facets. Link, don't duplicate.
+- **Don't inline what belongs elsewhere.** Dispatch-table *mechanics* → [[FCT Dispatch Table]]; row *placement / order* → [[SKA Decisions|D07]]; the naming prefix → [[FCT Naming]]; sub-folder dispatch pages have their own facets. Link, don't duplicate.
 - **Examples are never instantiated here** — they live in the `examples/` gallery ([[FEX]]); the masthead `Examples` row links to them by kind. This page carries the template + parts + the ruleset only. If the spec changes, fix the examples — never retrofit the spec to a stale copy.

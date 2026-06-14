@@ -1,8 +1,15 @@
+---
+description: "facet spec for user stories as first-class siblings of a PRD — inline-bullet form for small PRDs, extracted-folder form for large ones"
+---
 # FCT Stories
-
 Facet spec for the user-stories surface of a PRD — defines the inline-bullet form for small PRDs and the extracted-folder form (`{NAME} PRD/` with per-story files indexed by `{NAME} Stories.md`) for PRDs whose stories outgrow a single sentence.
 
-description:: facet spec
+| -[[FCT Stories]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Stories](hook://p/FCT%20Stories)<br>: facet spec for user stories as first-class siblings of a PRD |
+| --- | --- |
+| Related | [[FCT PRD]],  [[FCT Testing]],  [[FCT Features]],  [[FCT Design]],   |
+| Examples | [[HBR PRD\|inline-stories (single-file form)]],  [[CAE Stories\|folder-form dispatch index (extracted stories)]],   |
+
+**TLDR** — Stories are part of the PRD. Small PRDs keep stories inline as bullets under `## User Stories`; large PRDs extract them to `{NAME} PRD/` folder form with a `{NAME} Stories.md` dispatch index and per-story `US-<RID>-<N> — <Title>.md` files. The two forms are mutually exclusive. **Cardinality: many** — a PRD in folder form can have any number of story files. The embedded `R-stories` ruleset enforces folder shape, naming, dispatch table structure, and bidirectional linking.
 
 The Stories facet specifies the format for **user stories as first-class siblings** of the PRD. When a PRD grows enough that its user stories warrant their own scrollable pages (multi-paragraph rationale, acceptance criteria, mockups, decision history), the PRD migrates from single-file form to **folder form** — `{NAME} PRD/` — and stories live as siblings indexed by `{NAME} Stories.md`. Small PRDs whose stories compress to a single bullet each keep the inline `## User Stories` H2 inside `{NAME} PRD.md` and never need this facet.
 
@@ -46,7 +53,7 @@ Body-only — no YAML frontmatter. First lines:
 
 ```markdown
 # {NAME} Stories
-description:: user stories for {NAME}; one row per story.
+description:: facet spec for user stories as first-class siblings of a PRD
 
 | Story                                  | Description                                                                |
 | -------------------------------------- | -------------------------------------------------------------------------- |
@@ -72,10 +79,10 @@ Each `US-<RID>-N — <Title>.md` file is body-only. Standard structure:
 # US-<RID>-<N> — <Title>
 description:: <one-line summary identical to the row in {NAME} Stories.md>
 
-| -[[US-{RID}-{N}]]- | : <description><br>→ [[kmr]] → ... → [[{NAME}]] → [[{NAME} PRD]] → [[{NAME} Stories]] → [US-{RID}-{N}](hook://p/...) |
+| -[[US-{RID}-{N}]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Stories](hook://p/FCT%20Stories)<br>: <description> |
 | --- | --- |
-| [[{NAME} PRD]]     | parent PRD                                                       |
-| [[{NAME} Stories]] | sibling stories index                                            |
+| [[{NAME} PRD]] | parent PRD |
+| [[{NAME} Stories]] | sibling stories index |
 
 ## As a <role>, I want <goal> so that <reason>
 

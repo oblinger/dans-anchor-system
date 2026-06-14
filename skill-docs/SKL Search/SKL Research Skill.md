@@ -1,13 +1,11 @@
 ---
-description: "Specialized survey for **comparing agent skills** that do similar work."
+description: "the SKL Research Skill doc"
 ---
 # /research skill
-
 Specialized survey for **comparing agent skills** that do similar work. You give it a concept ("architect", "feature designer", "PRD writer"), it finds skills others have built that address it, and produces a comparison report with **choice-point analysis** and a recommendation.
 
-
-
-
+| -[[SKL Research Skill]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Search]] → [SKL Research Skill](hook://p/SKL%20Research%20Skill)<br>: the SKL Research Skill doc |
+| --- | --- |
 
 # Details
 

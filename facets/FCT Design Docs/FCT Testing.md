@@ -3,10 +3,16 @@ description: testing facet — the project's testing strategy (kinds, amounts, r
 ---
 
 # FCT Testing
-
 Spec for the `{NAME} Testing.md` design facet — a two-part doc combining the project's testing strategy with a proposed-tests inventory, peer to Architecture and UX Design under Design.
 
+| -[[FCT Testing]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Testing](hook://p/FCT%20Testing)<br>: spec for the `{NAME} Testing.md` design facet — strategy + proposed-tests inventory |
+| --- | --- |
+| Related | [[FCT Architecture]],  [[FCT UX Design]],  [[FCT PRD]],  [[FCT Design Docs]],   |
+| Examples | [[CAE Testing\|minimal worked example]],  [[HBR Testing\|fuller worked example]],   |
+
 **Location:** `{NAME} Design/{NAME} Testing.md` (or `{NAME} Testing/` if it grows to anchor-folder form, parallel to Architecture).
+
+**Cardinality:** one per anchor — a project has exactly one testing facet doc.
 
 The Testing facet is the **system-level testing story** — how this project gets tested. It is a peer of [[FCT Architecture|Architecture]] and [[FCT UX Design|UX Design]] under [[FCT Design Dispatch|Design]]: where Architecture says *how the system is structured* and UX Design says *what users see*, Testing says *how we will know it works*.
 
@@ -118,7 +124,7 @@ Available to any anchor that ships testable behavior — primarily `Code` trait 
 # RULESET R-testing
 include::
 where:: file:{ANCHOR}/**/* Testing.md
-description:: facet spec this doc instantiates
+description:: spec for the `{NAME} Testing.md` design facet — strategy + proposed-tests inventory
 
 Embedded ruleset for the Testing facet, co-located with the facet spec above per the [[F133 — Rulesets folder convention + facet embedding|F133]] embedding convention. Adopted via `R-facet` umbrella; an anchor that wants its `{NAME} Testing.md` audited pulls `R-facet` from its `{NAME} Decisions.md`.
 

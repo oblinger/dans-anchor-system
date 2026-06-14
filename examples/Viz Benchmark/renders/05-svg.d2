@@ -1,0 +1,101 @@
+# ER model — e-commerce store (10 entities, 11 relationships)
+# Crow's-foot cardinalities: 1 — N on every edge.
+
+CUSTOMER: {
+  shape: sql_table
+  customer_id: PK
+  email
+  full_name
+  created_at
+}
+
+ADDRESS: {
+  shape: sql_table
+  address_id: PK
+  customer_id: FK
+  line1
+  city
+  postal_code
+  country
+}
+
+ORDER: {
+  shape: sql_table
+  order_id: PK
+  customer_id: FK
+  shipping_address_id: FK
+  status
+  placed_at
+}
+
+ORDER_ITEM: {
+  shape: sql_table
+  order_item_id: PK
+  order_id: FK
+  product_id: FK
+  quantity
+  unit_price
+}
+
+PRODUCT: {
+  shape: sql_table
+  product_id: PK
+  sku
+  name
+  price
+  stock_qty
+}
+
+CATEGORY: {
+  shape: sql_table
+  category_id: PK
+  name
+  slug
+}
+
+PRODUCT_CATEGORY: {
+  shape: sql_table
+  product_id: FK
+  category_id: FK
+}
+
+PAYMENT: {
+  shape: sql_table
+  payment_id: PK
+  order_id: FK
+  method
+  amount
+  paid_at
+}
+
+SHIPMENT: {
+  shape: sql_table
+  shipment_id: PK
+  order_id: FK
+  carrier
+  tracking_no
+  shipped_at
+}
+
+REVIEW: {
+  shape: sql_table
+  review_id: PK
+  product_id: FK
+  customer_id: FK
+  rating
+  body
+  created_at
+}
+
+# Relationships — all 1 — N (parent → child)
+CUSTOMER -> ADDRESS: "has  1—N"
+CUSTOMER -> ORDER: "places  1—N"
+ADDRESS -> ORDER: "ships to  1—N"
+ORDER -> ORDER_ITEM: "contains  1—N"
+PRODUCT -> ORDER_ITEM: "ordered as  1—N"
+PRODUCT -> PRODUCT_CATEGORY: "classified in  1—N"
+CATEGORY -> PRODUCT_CATEGORY: "groups  1—N"
+ORDER -> PAYMENT: "paid by  1—N"
+ORDER -> SHIPMENT: "fulfilled by  1—N"
+PRODUCT -> REVIEW: "reviewed in  1—N"
+CUSTOMER -> REVIEW: "writes  1—N"

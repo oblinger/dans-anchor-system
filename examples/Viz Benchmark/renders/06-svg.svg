@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1415 976" font-family="Helvetica Neue, Arial, sans-serif">
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#64748b"/></marker></defs>
+<rect x="0" y="0" width="1415" height="976" fill="#f8fafc"/>
+<text x="44" y="40" font-size="32" font-weight="700" fill="#0f172a">Engineering Reporting Tree</text>
+<path d="M 978.6875 99.0 L 978.6875 135.0 L 717.375 135.0 L 717.375 171.0" fill="none" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M 978.6875 99.0 L 978.6875 135.0 L 1240 135.0 L 1240 171.0" fill="none" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M 717.375 257.0 L 717.375 293.0 L 646.75 293.0 L 646.75 329.0" fill="none" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M 717.375 257.0 L 717.375 293.0 L 788 293.0 L 788 329.0" fill="none" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M 1240 257.0 L 1240 293.0 L 1240 293.0 L 1240 329.0" fill="none" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M 646.75 415.0 L 646.75 451.0 L 279.5 451.0 L 279.5 487.0" fill="none" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M 646.75 415.0 L 646.75 451.0 L 1014 451.0 L 1014 487.0" fill="none" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M 788 415.0 L 788 451.0 L 788 451.0 L 788 487.0" fill="none" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M 279.5 573.0 L 279.5 609.0 L 110 609.0 L 110 645.0" fill="none" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M 279.5 573.0 L 279.5 609.0 L 449.0 609.0 L 449.0 645.0" fill="none" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M 449.0 731.0 L 449.0 767.0 L 336 767.0 L 336 803.0" fill="none" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M 449.0 731.0 L 449.0 767.0 L 562 767.0 L 562 803.0" fill="none" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#arrow)"/>
+<text x="1391" y="930" font-size="22" text-anchor="end" font-style="italic" fill="#64748b">every edge: “reports to”</text>
+<text x="44" y="943" font-size="20" font-weight="700" fill="#334155">Level:</text>
+<rect x="122" y="928" width="20" height="20" rx="4" fill="#5b21b6"/>
+<text x="148" y="944" font-size="19" fill="#334155">CTO</text>
+<rect x="205" y="928" width="20" height="20" rx="4" fill="#1d4ed8"/>
+<text x="231" y="944" font-size="19" fill="#334155">VP</text>
+<rect x="277" y="928" width="20" height="20" rx="4" fill="#0e7490"/>
+<text x="303" y="944" font-size="19" fill="#334155">Director</text>
+<rect x="415" y="928" width="20" height="20" rx="4" fill="#047857"/>
+<text x="441" y="944" font-size="19" fill="#334155">Manager</text>
+<rect x="542" y="928" width="20" height="20" rx="4" fill="#b45309"/>
+<text x="568" y="944" font-size="19" fill="#334155">Tech Lead</text>
+<rect x="691" y="928" width="20" height="20" rx="4" fill="#9f1239"/>
+<text x="717" y="944" font-size="19" fill="#334155">Engineer</text>
+<rect x="873.6875" y="13.0" width="210" height="86" rx="11" fill="#5b21b6" stroke="#3b0d80" stroke-width="2.5"/>
+<text x="978.6875" y="50" font-size="32" font-weight="700" text-anchor="middle" fill="#ffffff">Priya Nair</text>
+<text x="978.6875" y="80" font-size="18" text-anchor="middle" fill="#e2e8f0">Chief Tech Officer</text>
+<rect x="612.375" y="171.0" width="210" height="86" rx="11" fill="#1d4ed8" stroke="#15309c" stroke-width="2.5"/>
+<text x="717.375" y="208" font-size="32" font-weight="700" text-anchor="middle" fill="#ffffff">Marcus Webb</text>
+<text x="717.375" y="238" font-size="18" text-anchor="middle" fill="#e2e8f0">VP, Engineering</text>
+<rect x="1135.0" y="171.0" width="210" height="86" rx="11" fill="#1d4ed8" stroke="#15309c" stroke-width="2.5"/>
+<text x="1240" y="208" font-size="32" font-weight="700" text-anchor="middle" fill="#ffffff">Dana Olsen</text>
+<text x="1240" y="238" font-size="18" text-anchor="middle" fill="#e2e8f0">VP, Infrastructure</text>
+<rect x="541.75" y="329.0" width="210" height="86" rx="11" fill="#0e7490" stroke="#0a5566" stroke-width="2.5"/>
+<text x="646.75" y="366" font-size="32" font-weight="700" text-anchor="middle" fill="#ffffff">Sofia Ruiz</text>
+<text x="646.75" y="396" font-size="18" text-anchor="middle" fill="#e2e8f0">Dir, Platform</text>
+<rect x="683.0" y="329.0" width="210" height="86" rx="11" fill="#0e7490" stroke="#0a5566" stroke-width="2.5"/>
+<text x="788" y="366" font-size="32" font-weight="700" text-anchor="middle" fill="#ffffff">Liam Chen</text>
+<text x="788" y="396" font-size="18" text-anchor="middle" fill="#e2e8f0">Dir, Product Eng</text>
+<rect x="1135.0" y="329.0" width="210" height="86" rx="11" fill="#0e7490" stroke="#0a5566" stroke-width="2.5"/>
+<text x="1240" y="366" font-size="32" font-weight="700" text-anchor="middle" fill="#ffffff">Tom Becker</text>
+<text x="1240" y="396" font-size="18" text-anchor="middle" fill="#e2e8f0">Dir, Site Reliability</text>
+<rect x="174.5" y="487.0" width="210" height="86" rx="11" fill="#047857" stroke="#03543e" stroke-width="2.5"/>
+<text x="279.5" y="524" font-size="32" font-weight="700" text-anchor="middle" fill="#ffffff">Aisha Khan</text>
+<text x="279.5" y="554" font-size="18" text-anchor="middle" fill="#e2e8f0">Mgr, API Team</text>
+<rect x="683.0" y="487.0" width="210" height="86" rx="11" fill="#047857" stroke="#03543e" stroke-width="2.5"/>
+<text x="788" y="524" font-size="32" font-weight="700" text-anchor="middle" fill="#ffffff">Jordan Lee</text>
+<text x="788" y="554" font-size="18" text-anchor="middle" fill="#e2e8f0">Mgr, Web Team</text>
+<rect x="909.0" y="487.0" width="210" height="86" rx="11" fill="#047857" stroke="#03543e" stroke-width="2.5"/>
+<text x="1014" y="524" font-size="32" font-weight="700" text-anchor="middle" fill="#ffffff">Elena Petrova</text>
+<text x="1014" y="554" font-size="18" text-anchor="middle" fill="#e2e8f0">Mgr, Data Platform</text>
+<rect x="5.0" y="645.0" width="210" height="86" rx="11" fill="#b45309" stroke="#7c3a06" stroke-width="2.5"/>
+<text x="110" y="682" font-size="32" font-weight="700" text-anchor="middle" fill="#ffffff">Raj Mehta</text>
+<text x="110" y="712" font-size="18" text-anchor="middle" fill="#e2e8f0">Lead, API Core</text>
+<rect x="344.0" y="645.0" width="210" height="86" rx="11" fill="#b45309" stroke="#7c3a06" stroke-width="2.5"/>
+<text x="449.0" y="682" font-size="32" font-weight="700" text-anchor="middle" fill="#ffffff">Nora Sato</text>
+<text x="449.0" y="712" font-size="18" text-anchor="middle" fill="#e2e8f0">Lead, API Gateway</text>
+<rect x="231.0" y="803.0" width="210" height="86" rx="11" fill="#9f1239" stroke="#7a0c2c" stroke-width="2.5"/>
+<text x="336" y="840" font-size="32" font-weight="700" text-anchor="middle" fill="#ffffff">Carlos Diaz</text>
+<text x="336" y="870" font-size="18" text-anchor="middle" fill="#e2e8f0">Sr Eng, Gateway</text>
+<rect x="457.0" y="803.0" width="210" height="86" rx="11" fill="#9f1239" stroke="#7a0c2c" stroke-width="2.5"/>
+<text x="562" y="840" font-size="32" font-weight="700" text-anchor="middle" fill="#ffffff">Mina Park</text>
+<text x="562" y="870" font-size="18" text-anchor="middle" fill="#e2e8f0">Eng, Gateway</text>
+</svg>

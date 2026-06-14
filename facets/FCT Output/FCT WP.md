@@ -2,13 +2,19 @@
 description: dated work products — papers, reports, polished outputs
 ---
 # FCT WP
-
 Facet spec for the **Work Products** zone of an anchor — dated, polished outputs (papers, reports, analyses) organized as one folder per work product under `{slug} WP/`.
+
+| -[[FCT WP]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Output]] → [FCT WP](hook://p/FCT%20WP)<br>: dated work products — papers, reports, polished outputs |
+| --- | --- |
+| Related | [[FCT Log]],  [[FCT Feature]],  [[FCT Brief]],  [[FCT Dispatch]],   |
+| Examples | [[AIS WP\|example dispatch page]] |
 
 **Location:** `{NAME} Docs/Work Products/YYYY-MM-DD {Title}.md   (dated work product)`
 
 
 Work Products — polished, dated outputs of human+agent collaboration. Papers, reports, analyses, presentations.
+
+**Cardinality:** one `{slug} WP/` zone per anchor (the folder + dispatch page), containing **many** individual dated work-product entries.
 
 ## Location
 
@@ -41,12 +47,11 @@ Work Products — polished, dated outputs of human+agent collaboration. Papers, 
 ```markdown
 # {NAME} WP
 
-| -[[{NAME} WP]]- | ><br>: work products |
+| -[[{NAME} WP]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Output]] → [FCT WP](hook://p/FCT%20WP)<br>: work products |
 | --- | --- |
 | [[2026-04-15 Security Audit]] |  |
 | [[2026-03-28 Architecture Review]] |  |
-| --- |  |
-```
+| --- | |
 
 The `---` separator at the bottom enables rewire/rescan to auto-list any remaining work-product folders.
 

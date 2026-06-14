@@ -1,0 +1,35 @@
+# Benchmark 11 — Mind map / radial
+# Mediterranean meal plan: 1 hub, 5 branches, 9 leaves = 15 nodes; 14 edges.
+
+C: "Mediterranean Meal Plan" { style.fill: "#34495e"; style.font-color: "#ffffff" }
+
+B1: "Proteins" { style.fill: "#f9dedb" }
+B2: "Vegetables" { style.fill: "#dff0df" }
+B3: "Grains & Carbs" { style.fill: "#f6ecd2" }
+B4: "Pantry Staples" { style.fill: "#ece3f5" }
+B5: "Weekly Schedule" { style.fill: "#dcebfa" }
+
+L1a: "Grilled salmon"
+L1b: "Chickpeas"
+L2a: "Roasted eggplant"
+L2b: "Cherry tomatoes"
+L3a: "Farro"
+L3b: "Whole-wheat pita"
+L4a: "Olive oil"
+L4b: "Feta cheese"
+L5a: "Sunday batch cook"
+
+C -> B1
+C -> B2
+C -> B3
+C -> B4
+C -> B5
+B1 -> L1a
+B1 -> L1b
+B2 -> L2a
+B2 -> L2b
+B3 -> L3a
+B3 -> L3b
+B4 -> L4a
+B4 -> L4b
+B5 -> L5a

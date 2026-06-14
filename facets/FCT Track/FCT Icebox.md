@@ -2,8 +2,14 @@
 description: optional file for distant-future / someday-maybe items
 ---
 # FCT Icebox
+Optional cold-storage counterpart to the Backlog — holds distant-future / someday-maybe items the user wants to remember but is not actively considering.
 
-Facet spec for the optional `{NAME} Icebox.md` file — the cold-storage counterpart to Backlog that holds distant-future / someday-maybe items the user wants to remember but is not actively considering.
+| -[[FCT Icebox]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Icebox](hook://p/FCT%20Icebox)<br>: optional file for distant-future / someday-maybe items |
+| --- | --- |
+| Related | [[FCT Backlog]],  [[FCT Roadmap]],  [[CAB Backlog]],  [[FCT Track]],   |
+| Examples | [[CAE Icebox\|example]] |
+
+**Cardinality: one per anchor** — at most one `{NAME} Icebox.md` exists per anchor (and it is optional; most anchors do not have one).
 
 **Location:** `{NAME} Docs/{NAME} Plan/{NAME} Icebox.md` (optional)
 
@@ -23,7 +29,7 @@ Below is a condensed reference example. See the working example linked above for
 
 # CAE Icebox
 
-| -[[CAE Icebox]]- | |
+| -[[CAE Icebox]]- |  |
 | --- | --- |
 | --- | |
 
@@ -74,6 +80,31 @@ Entries are grouped under H2 sections. Suggested sections (use whichever fit; ad
 - **Icebox** — cold-storage list, not under active consideration
 
 The cut between Backlog and Icebox is *intent to consider*, not age. A two-year-old item that the user still expects to revisit is Backlog; a two-week-old item the user has decided is out of scope is Icebox.
+
+# RULESET R-fct-icebox
+include::
+where:: file: **/{NAME} Icebox.md
+description:: Rules every `{NAME} Icebox.md` instance must satisfy — location, cardinality, and entry format.
+
+### RULE R-fct-icebox-01 — Location is inside the Plan folder (checked)
+The file lives at `{NAME} Docs/{NAME} Plan/{NAME} Icebox.md` — not at the anchor root or alongside Backlog at a different path.
+**Check pattern:** path matches `*/{NAME} Docs/{NAME} Plan/{NAME} Icebox.md`.
+**Why:** the Plan folder groups all planning docs together; a misplaced Icebox is not found by skills expecting the canonical path.
+
+### RULE R-fct-icebox-02 — At most one per anchor (checked)
+No more than one `{NAME} Icebox.md` exists per anchor root. The facet is **optional** — most anchors do not have one.
+**Check pattern:** count of `*Icebox.md` files under `{NAME} Docs/{NAME} Plan/` ≤ 1.
+**Why:** cardinality is one; two Icebox files under the same anchor produce split inventories that drift apart.
+
+### RULE R-fct-icebox-03 — Entries are named-list items under H2 sections (sampled)
+Each frozen item is a named-list bullet — `- **Name** — reason it's frozen` — grouped under an H2 section (e.g. `## Frozen`, `## Maybe Someday`, `## Revisit Later`). A bare unstructured list is non-conformant.
+**Check pattern:** the file body contains at least one `## ` H2 section and at least one `- **…**` bullet with an em-dash.
+**Why:** the named-list + section structure lets a reader scan quickly and see the freeze reason, which determines whether a thaw trigger applies.
+
+### RULE R-fct-icebox-04 — Items move by intent to consider, not age (stated)
+Movement into or out of the Icebox is triggered by whether the user *intends to consider* the item, not by how old it is. An old item still under consideration belongs in the Backlog; a new item the user has decided is out of scope belongs in the Icebox.
+**Check pattern:** no date-based or age-based pruning rule is declared in the file.
+**Why:** age-based deletion defeats the "durable parking" purpose; the correct trigger for removal is genuine obsolescence, not elapsed time.
 
 # BRIEF
 

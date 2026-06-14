@@ -1,0 +1,56 @@
+# 03 — Sequence diagram: OAuth 2.0 Authorization-Code-with-PKCE login flow
+# Native D2 sequence diagram. 7 participants (lifelines), 18 ordered messages.
+# Solid = call/request; dashed = return/response/redirect.
+
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+}
+
+# ---- legibility classes (big quantized fonts) ----
+classes: {
+  ret: {
+    style.stroke-dash: 4
+    style.font-size: 40
+  }
+  call: {
+    style.font-size: 40
+  }
+  box: {
+    style.font-size: 44
+  }
+}
+
+seq: {
+  shape: sequence_diagram
+
+  # ---- participants (lifelines), declared in order; AuthZ & TokenSvc kept distinct ----
+  User:         "User" { shape: person; class: box }
+  Browser:      { class: box }
+  AppServer:    { class: box }
+  AuthZ:        { class: box }
+  TokenSvc:     { class: box }
+  UserDB:       { class: box }
+  SessionStore: { class: box }
+
+  # ---- messages (ordered top-to-bottom 1..18) ----
+  User -> Browser:        "1. click 'Sign in'" { class: call }
+  Browser -> AppServer:   "2. GET /login" { class: call }
+  AppServer -> AppServer: "3. generate code_verifier + code_challenge (PKCE)" { class: call }
+  AppServer -> Browser:   "4. 302 redirect to /authorize (challenge, state)" { class: ret }
+  Browser -> AuthZ:       "5. GET /authorize?challenge,state" { class: call }
+  AuthZ -> Browser:       "6. render login form" { class: ret }
+  User -> Browser:        "7. submit credentials" { class: call }
+  Browser -> AuthZ:       "8. POST credentials" { class: call }
+  AuthZ -> Browser:       "9. 302 redirect to /callback?code,state" { class: ret }
+  Browser -> AppServer:   "10. GET /callback?code,state" { class: call }
+  AppServer -> TokenSvc:  "11. POST /token (code, code_verifier)" { class: call }
+  TokenSvc -> AppServer:  "12. 200 {access_token, id_token}" { class: ret }
+  AppServer -> UserDB:    "13. upsert user from id_token claims" { class: call }
+  UserDB -> AppServer:    "14. user record" { class: ret }
+  AppServer -> SessionStore: "15. SET session (user_id, tokens)" { class: call }
+  SessionStore -> AppServer: "16. OK (session_id)" { class: ret }
+  AppServer -> Browser:   "17. 302 redirect to /account (Set-Cookie: session_id)" { class: ret }
+  Browser -> User:        "18. show account dashboard" { class: ret }
+}
