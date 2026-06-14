@@ -237,3 +237,7 @@ A figure is an **embedded image** — an Excalidraw / matplotlib / D2 artifact e
 **Check pattern:** flag any ```` ```mermaid ```` fenced block; flag fenced blocks whose body is box-drawing / ASCII-diagram content (`┌ ─ │ └ ├ → ╮` runs, or `+---+` / character-art used as a diagram rather than a literal data table or file tree).
 
 **Why:** a figure must be a real, editable, consistently-rendering artifact; mermaid and ASCII are neither — they render inconsistently across surfaces, can't be edited as diagrams, and read as broken. Diagrams use the Excalidraw-source-alongside-export convention.
+
+# BRIEF
+- **Markdown is a discipline, not a document facet — settled, do not re-litigate.** A `FCT Markdown` facet was created and reverted 2026-06-14. The discriminator: a *document facet* is a pointable structural part of a doc (Brief, Discussion, Ruleset, the ToC table) or the umbrella skeleton ([[FCT Doc Structure]]); markdown is uniform text-correctness applied to *every line, every time*, which is the definition of a discipline. Specializing into structure → facet; staying text-rules-everywhere → discipline. Markdown never becomes structural, so it lives here only.
+- **Single source of truth** — the rules live embedded in this file's `# RULESET R-markdown`; [[R-markdown]] is the catalog stub, [[md]] is the utility skill. Don't duplicate the rules into a facet or per-anchor doc (R-markdown-10 forbids the latter).
