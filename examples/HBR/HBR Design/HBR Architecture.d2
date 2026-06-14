@@ -1,70 +1,62 @@
 # HBR Architecture — three pipelines meeting at the SQLite catalog.
 # Source of truth for HBR Architecture.svg. Render:
-#   d2 "HBR Architecture.d2" "HBR Architecture.svg"
+#   d2 --layout=elk "HBR Architecture.d2" "HBR Architecture.svg"
+#
+# Diagram-rule application (R-diagram):
+#  - Tufte data-ink: SUBSYSTEM-level only (6 boxes) — module breakdown lives in the
+#    Subsystems table below, not crammed into the figure. Keeps it legible at page width.
+#  - Bringhurst: 2 quantized font sizes (34 box / 24 edge label).
+#  - Tufte sibling-sizing: the three pipeline boxes share one size.
+#  - WCAG: dark text on light fills (>= 4.5:1).
+#  - Sugiyama: single downward flow, config fans in, viewer terminal.
 
-direction: down
+grid-columns: 2
+horizontal-gap: 110
+vertical-gap: 90
 
-config: {
-  label: "harbor.toml\n(watched roots · catalog path · listen addr)"
-  shape: page
-  style.fill: "#fff7e6"
-  style.stroke: "#d9a441"
+vars: { d2-config: { theme-id: 0 } }
+classes: {
+  pipe: { width: 300; height: 110; style.font-size: 34; style.bold: true }
+  edge: { style.font-size: 24 }
 }
 
+config: {
+  label: "harbor.toml"
+  shape: page
+  width: 240; height: 110
+  style.font-size: 30
+  style.fill: "#fff7e6"
+  style.stroke: "#8a6d1f"
+}
+
+ingest: { label: "Ingest\n(Scanner · Importer · Deduper)"; class: pipe; style.fill: "#e6f3e6"; style.stroke: "#2f5d2f" }
+serve:  { label: "Serve\n(Streamer · Transcoder · Cache)"; class: pipe; style.fill: "#efe6fa"; style.stroke: "#4e2f7a" }
+operate: { label: "Operate\n(Backup · Metrics · Alerts)"; class: pipe; style.fill: "#fbe3e7"; style.stroke: "#7d2f44" }
+
 catalog: {
-  label: "SQLite catalog\n(single file)"
+  label: "SQLite catalog"
   shape: cylinder
-  style.fill: "#e8f0fe"
-  style.stroke: "#3b6fb6"
+  width: 300; height: 130
+  style.font-size: 34
+  style.fill: "#dbe7fb"
+  style.stroke: "#274d80"
   style.bold: true
 }
 
-ingest: {
-  label: "Ingest — writes rows"
-  direction: right
-  style.fill: "#eef7ee"
-  style.stroke: "#4a8a4a"
-  scanner: Scanner
-  importer: Importer
-  deduper: Deduper
-  scanner -> importer -> deduper
-}
-
-serve: {
-  label: "Serve — reads to stream"
-  direction: right
-  style.fill: "#f3eefa"
-  style.stroke: "#7a52a8"
-  streamer: Streamer
-  transcoder: Transcoder
-  cache: Cache
-  streamer -> transcoder
-  streamer -> cache
-}
-
-operate: {
-  label: "Operate — watches the whole"
-  direction: right
-  style.fill: "#fdeef0"
-  style.stroke: "#b6536a"
-  backup: Backup
-  metrics: Metrics
-  alerts: Alerts
-}
-
 viewer: {
-  label: "Viewer (LAN web app)\nLibrary · Player"
+  label: "Viewer (LAN web app)"
   shape: rectangle
-  style.fill: "#f5f5f5"
-  style.stroke: "#888888"
+  width: 300; height: 110
+  style.font-size: 30
+  style.fill: "#ededed"
+  style.stroke: "#555555"
 }
 
-config -> ingest: configures {style.stroke-dash: 3}
-config -> serve: configures {style.stroke-dash: 3}
-config -> operate: configures {style.stroke-dash: 3}
-
-ingest.deduper -> catalog: write rows
-catalog -> serve.streamer: read rows
-catalog -> operate.backup: checkpoint
-operate.metrics -> serve: sample load {style.stroke-dash: 3}
-serve -> viewer: stream + UI
+config -> ingest: configures { class: edge; style.stroke-dash: 4 }
+config -> serve: configures { class: edge; style.stroke-dash: 4 }
+config -> operate: configures { class: edge; style.stroke-dash: 4 }
+ingest -> catalog: write rows { class: edge }
+catalog -> serve: read rows { class: edge }
+catalog -> operate: checkpoint { class: edge }
+operate -> serve: sample load { class: edge; style.stroke-dash: 4 }
+serve -> viewer: stream + UI { class: edge }

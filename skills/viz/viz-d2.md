@@ -20,7 +20,14 @@ Determined by whether `--into <target-doc.md>` is provided.
 
 Both `.d2` source and `.svg` output land **adjacent to the target doc** (same folder). The SVG is embedded directly in the target doc, **page-width**, via `![[<derived-name>.svg|800]]`. **No wrapper** — the target doc IS the iteration surface.
 
-**Legibility — figures span the page, and read at that width.** Embed at ~800px (an 8.5×11 page width) so the figure is never a tiny fit-to-column thumbnail. Equally important: author the diagram with a **page-friendly aspect** — an ultra-wide graph (e.g. `direction: right` across many nodes) shrinks to illegible text when fit to page width, and an ultra-tall one scrolls forever. Prefer `direction: down` with each sub-pipeline/container set `direction: right` (a compact grid) so the rendered width is near page-width and the text is legible at the embedded size. If a render comes out wildly wide (≫ ~1200px) or tall, adjust direction/grouping and re-render before embedding.
+**Legibility — apply the [[R-diagram]] rules so the figure reads at page width.** Embed at ~800px (8.5×11 page width); the figure must be legible *at that width*, not a thumbnail. Target: body text renders **≥ ~18px at the embedded width**, and the canvas **aspect stays ~0.6–1.6** (near-square / gentle landscape). The levers, in order of impact:
+
+1. **Fewer nodes (Tufte data-ink).** A top architecture figure shows **subsystems, not their internal modules** — the module breakdown lives in the Subsystems table below, never crammed into the figure. ~6 boxes, not ~12. Cramming is the #1 cause of tiny text.
+2. **Compact aspect — `grid-columns` for linear flows.** A flow graph (config→pipelines→catalog→viewer) is a *chain*; ELK stretches it to an extreme (ultra-wide with `direction: right`, ultra-tall with `direction: down`) and an extreme aspect renders tiny at page width *regardless of font size*. Force a 2-D layout: set `grid-columns: 2` (or 3) + `horizontal-gap`/`vertical-gap` at the root so the nodes tile into a near-square grid (edges drawn over it). Check the rendered `width × height` aspect after every render.
+3. **Big, quantized fonts (Bringhurst).** Set explicit `style.font-size` via `classes` — at most ~4 distinct sizes (e.g. 34 box / 30 secondary / 24 edge-label). Don't rely on d2's small default; set edge-label font too (it defaults to 16 and is the usual "too small" culprit).
+4. **Uniform sibling boxes (Tufte) + WCAG contrast.** Same-role boxes share one `width`/`height`; dark text on light fills (≥ 4.5:1).
+
+Verify with the math after rendering: `text_px_at_display = font_size × (display_width / svg_width)` — if that's < ~18px, the canvas is too wide → fewer nodes or fewer grid columns, then re-render. (Worked example: HBR Architecture went 3343×805 illegible → `grid-columns: 2` + subsystem-level + 34px fonts → 1034×732, ~26px at 800px.)
 
 ```
 {dirname(<target-doc>)}/<derived-name>.d2
