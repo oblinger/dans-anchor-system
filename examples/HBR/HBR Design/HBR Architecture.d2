@@ -2,7 +2,7 @@
 # Source of truth for HBR Architecture.svg. Render:
 #   d2 "HBR Architecture.d2" "HBR Architecture.svg"
 
-direction: right
+direction: down
 
 config: {
   label: "harbor.toml\n(watched roots · catalog path · listen addr)"
@@ -21,6 +21,7 @@ catalog: {
 
 ingest: {
   label: "Ingest — writes rows"
+  direction: right
   style.fill: "#eef7ee"
   style.stroke: "#4a8a4a"
   scanner: Scanner
@@ -31,6 +32,7 @@ ingest: {
 
 serve: {
   label: "Serve — reads to stream"
+  direction: right
   style.fill: "#f3eefa"
   style.stroke: "#7a52a8"
   streamer: Streamer
@@ -42,6 +44,7 @@ serve: {
 
 operate: {
   label: "Operate — watches the whole"
+  direction: right
   style.fill: "#fdeef0"
   style.stroke: "#b6536a"
   backup: Backup

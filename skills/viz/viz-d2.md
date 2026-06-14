@@ -18,7 +18,9 @@ Determined by whether `--into <target-doc.md>` is provided.
 /viz d2 --into <target-doc.md> "<prose>"
 ```
 
-Both `.d2` source and `.svg` output land **adjacent to the target doc** (same folder). The SVG is embedded directly in the target doc via `![[<derived-name>.svg]]`. **No wrapper** — the target doc IS the iteration surface.
+Both `.d2` source and `.svg` output land **adjacent to the target doc** (same folder). The SVG is embedded directly in the target doc, **page-width**, via `![[<derived-name>.svg|800]]`. **No wrapper** — the target doc IS the iteration surface.
+
+**Legibility — figures span the page, and read at that width.** Embed at ~800px (an 8.5×11 page width) so the figure is never a tiny fit-to-column thumbnail. Equally important: author the diagram with a **page-friendly aspect** — an ultra-wide graph (e.g. `direction: right` across many nodes) shrinks to illegible text when fit to page width, and an ultra-tall one scrolls forever. Prefer `direction: down` with each sub-pipeline/container set `direction: right` (a compact grid) so the rendered width is near page-width and the text is legible at the embedded size. If a render comes out wildly wide (≫ ~1200px) or tall, adjust direction/grouping and re-render before embedding.
 
 ```
 {dirname(<target-doc>)}/<derived-name>.d2
@@ -82,13 +84,13 @@ For every invocation after Phase 0 (or for every edit):
    ```bash
    d2 --layout=elk "<dirname>/<derived-name>.d2" "<dirname>/<derived-name>.svg"
    ```
-4. **Wire the embed:**
-   - **Branch 1** (target doc): if `<target-doc>.md` doesn't already contain `![[<derived-name>.svg]]`, insert it at the end (or at a `<!-- viz-d2 -->` HTML comment if one exists).
+4. **Wire the embed — page-width:** always embed with an explicit display width so the figure **spans the page** (an 8.5×11 page ≈ 800px of content), never the tiny fit-to-column default. Use `![[<derived-name>.svg|800]]`.
+   - **Branch 1** (target doc): if `<target-doc>.md` doesn't already contain the embed, insert `![[<derived-name>.svg|800]]` at the end (or at a `<!-- viz-d2 -->` HTML comment if one exists).
    - **Branch 2** (scratch): if the wrapper doesn't exist, write it:
      ```markdown
      # <derived-name>
 
-     ![[<derived-name>.svg]]
+     ![[<derived-name>.svg|800]]
 
      <!-- D2 source: <derived-name>.d2 — edit via /viz d2 --update -->
      ```

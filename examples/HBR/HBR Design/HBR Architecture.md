@@ -15,7 +15,7 @@ Harbor is a single Rust binary (a Cargo workspace) over one SQLite **catalog**. 
 
 ## Architecture diagram
 
-![[HBR Architecture.svg]]
+![[HBR Architecture.svg|800]]
 
 *Source: [[HBR Architecture.d2]] — regenerate with `d2 "HBR Architecture.d2" "HBR Architecture.svg"`.* Solid arrows are data flow through the catalog (write rows, read rows, checkpoint, stream); dashed arrows are `harbor.toml` configuration fan-out and Operate's load sampling.
 
