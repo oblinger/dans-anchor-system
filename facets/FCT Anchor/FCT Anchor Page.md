@@ -8,9 +8,12 @@ The entry page every anchor opens with — its `{slug}.md`.
 | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Related               | [[FCT]],  [[DSC Dispatch Table]],  [[DSC progressive-disclosure]],  [[FEX]],                                                                                          |
 | Design                |                                                                                                                                                                       |
-| Examples              | [[HBR\|project]],  [[HBR Components\|grouped]],  [[HBR Ingest\|sub-folder]],  [[FEX Snapshot\|skill]]                                                                 |
+| Examples              | [[HBR\|Code Project]],  [[FCT Anchor Page\|Sub-project · facet]],  [[DSC Dispatch Table\|Sub-project · discipline]],  [[SKL Mint\|Sub-project · skill-doc]],  [[SKL\|Container · grouped]],  [[SKA Access\|Container · list]],  [[Career\|Topic]] |
+| Rulesets              |                                                                                                                                                                       |
 |                       |                                                                                                                                                                       |
 | OLD Examples          | [[FEX]] — [[Snapper Dapper\|skill]],  [[Espresso\|list]],  [[Harbor Components\|grouped]],  [[Glossary\|facet]],  [[Harbor\|project]],  [[Harbor Ingest\|sub-folder]] |
+
+**TLDR** — **Cardinality: one per anchor.** Every anchor has exactly one `{slug}.md` entry page. It opens with YAML `description:` frontmatter, then H1 → one-line summary → optional figure → dispatch table (breadcrumb + Related + kind-specific rows). The embedded `R-anchor-page` ruleset (22 shared rules + four kind deltas — Code Project / Sub-project / Container / Topic) is the auditable contract; `/audit anchor` and `/create anchor` cite it. Member zones and group rows appear only on [[Collection]] / Container anchors.
 
 ## Anchor Page Template
 
@@ -210,7 +213,41 @@ A simple / leaf anchor may have no dispatch table at all — frontmatter + H1 + 
 
 ## Kind-specific rules
 
-Rules that apply only to **one kind** of anchor page (skill / list / grouped / project root / sub-folder). None yet — when a kind accumulates its own rules they live here at the tail, graduating to a dedicated sub-ruleset (e.g. `R-anchor-page-project`) pulled in via `include::` once there are enough.
+Each anchor-page **kind** layers a small delta over the shared chassis (R-anchor-page-01…22) plus the [[DSC Dispatch Table]] form. The kind is read from `traits:`; a page is audited as **chassis + its kind's delta**. There are four kinds, each one-to-one with its dispatch-table shape (HookAnchor computes the table from the `.anchor`, so there is exactly one page — and one table kind — per anchor). The deltas are thin; each may graduate to its own `include::` sub-ruleset file once it grows.
+
+### R-anchor-page-project — Code Project (stated)
+
+A code/software project anchor (`traits: [Code]`).
+- **Masthead roster:** breadcrumb + Anchor + **Design** (design flow present) + **Track** (**required**) + Related.
+- **Member zone:** none — a switchboard masthead only.
+- **Example:** [[HBR]].
+
+### R-anchor-page-subproject — Sub-project: facet / discipline / skill-doc (checked)
+
+A single skill-ecosystem spec page — a **facet**, a **discipline**, or a **skill-doc** (the documentation page for a skill; *not* the skill folder's `SKILL.md` runbook, which is out of scope).
+- **Masthead roster:** breadcrumb + Anchor + **Design** (only if a `{NAME} Design/` folder exists) + Related.
+- **No `Track` row** — tracking is centralized in SKA (this is R-anchor-page-15 in kind terms).
+- **Member zone:** none.
+- **Content** differs by sub-kind (facet spec vs. discipline vs. skill-doc) but the page *structure* is shared — one ruleset, three example flavors.
+- **Examples:** facet → [[FCT Anchor Page]]; discipline → [[DSC Dispatch Table]]; skill-doc → [[SKL Mint]] *(currently a thin doc with no masthead — the bring-up target, tracked separately; do not treat as compliant).*
+
+### R-anchor-page-container — Container: grouped / list / reverse-dated (sampled)
+
+A [[Collection]] anchor whose body enumerates **homogeneous members** (a features folder of feature docs, a log folder of log entries, the `SKL` catalog of skill-docs).
+- **Masthead roster:** breadcrumb + Anchor + Related (minimal).
+- **Member zone required** — the generic member rules R-anchor-page-17…20 apply. Layout variant (one axis, three values):
+  - **grouped** — `+` group rows past ~15 members. Example: [[SKL]], [[FCT]].
+  - **list** — a flat list ≤ ~15 members. Example: [[SKA Access]].
+  - **reverse-dated** — a [[DSC dated-entry-stream]]; newest-first, ISO-prefixed member names.
+- Member zone ends with an electric marker (R-anchor-page-20) so new children have a place to land.
+
+### R-anchor-page-topic — Topic (stated)
+
+A topic / domain-of-life folder page.
+- **Masthead roster:** breadcrumb + optional Related; usually no Anchor enumeration.
+- **Table optional** (R-anchor-page-22) — a minimal topic page may be frontmatter + H1 + summary, or breadcrumb-only.
+- **Member zone:** none required.
+- **Example:** [[Career]].
 
 # BRIEF
 
