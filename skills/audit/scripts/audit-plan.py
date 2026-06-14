@@ -1952,6 +1952,35 @@ def chk_md_angle_brackets_safe(target, anchor_root, args):
     return "pass", ""
 
 
+def chk_md_angle_brackets_backtick_only(target, anchor_root, args):
+    """Strict (R-md-03): a literal `<` or `>` may appear ONLY inside an inline code
+    span or a fenced code block — everywhere else it must be backticked or escaped.
+    Code spans/fences are masked out first (that is the case we must exclude); then
+    two sanctioned forms are dropped — the masthead `<br>` line-break, and the leading
+    `>` of a blockquote / callout line (structural, not a content bracket) — then any
+    surviving angle bracket fails. Masking preserves newlines so line numbers stay accurate."""
+    if not target.is_file():
+        return "pass", "not a file"
+    text = _read(target)
+    blank = lambda m: re.sub(r"[^\n]", " ", m.group(0))      # mask, keep line count
+    masked = re.sub(r"```[\s\S]*?```", blank, text)          # fenced code (backtick)
+    masked = re.sub(r"~~~[\s\S]*?~~~", blank, masked)        # fenced code (tilde)
+    masked = re.sub(r"(`+)[^\n]*?\1", blank, masked)         # inline code spans
+    masked = re.sub(r"(?i)<br\s*/?>", "  ", masked)          # sanctioned masthead <br>
+    hits = []
+    for ln, raw in enumerate(masked.splitlines(), 1):
+        line = re.sub(r"^\s*(?:>\s?)+", "", raw)             # drop blockquote / callout `>` markers
+        m = re.search(r"[<>]", line)
+        if m:
+            c = m.start()
+            hits.append(f"line {ln}: …{line[max(0, c - 12):c + 13].strip()}…")
+            if len(hits) >= 5:
+                break
+    if hits:
+        return "fail", "raw angle bracket(s) outside code — " + "; ".join(hits)
+    return "pass", ""
+
+
 def chk_md_table_blank_lines(target, anchor_root, args):
     """Markdown tables need blank lines before the header and after the table."""
     if not target.is_file():
@@ -2218,6 +2247,7 @@ CHECKERS = {
     "folder_marker_exists": chk_folder_marker_exists,
     # R-md
     "md_angle_brackets_safe": chk_md_angle_brackets_safe,
+    "md_angle_brackets_backtick_only": chk_md_angle_brackets_backtick_only,
     "md_table_blank_lines": chk_md_table_blank_lines,
     # R-diagram-geometry / R-svg-hygiene / R-c4
     "svg_geometry_overlap": chk_svg_geometry_overlap,
