@@ -19,4 +19,3 @@ User guides for anchor-lifecycle skills — creating, installing, migrating, mov
 | [[SKL WP\|WP]] | `/wp <name>` creates a new dated **work product** folder inside the current anchor's `{slug} WP/` folder. |
 | [[SKL Yore\|Yore]] | `/yore` archives a folder or file to **Yore**, the standard archival location. |
 | --- | |
-| [[SKL WP Design]] | design surface for `/wp` |

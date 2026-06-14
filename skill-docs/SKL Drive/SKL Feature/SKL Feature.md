@@ -2,9 +2,7 @@
 description: "Manage a feature from idea through design, agreement, implementation, testing, and completion."
 ---
 # Feature
-`/feature` -- Creates, plans, and readies a new feature document.
-- Designs and plans feature
-- `/groom` -- ensures all open questions are resolved and ready for build
+`/feature` -- Creates a new feature document specifying work to be done.
 
 | -[[SKL Feature]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Drive]] → [SKL Feature](hook://p/SKL%20Feature)<br>: the `/feature` skill |
 | --- | --- |

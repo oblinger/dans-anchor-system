@@ -1,0 +1,1 @@
+description: "`/architect` creates and maintains the top-level architecture document for an anchor — the system-level view that decomposes your project into **subsystems**, each with its own dispatch table, summ…"

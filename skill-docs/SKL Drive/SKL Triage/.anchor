@@ -1,1 +1,1 @@
-description: the `/triage` skill
+description: "`/triage` (or the punctuation trigger `\"` — a single double-quote as the entire message) regenerates the current anchor's per-anchor section inside `~/ob/kmr/Q.md`, the vault-level Agent Status das…"

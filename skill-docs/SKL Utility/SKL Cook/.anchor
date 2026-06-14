@@ -1,0 +1,1 @@
+description: "`/cook <recipe>` (or `/cook <recipe> and <recipe> and ...`) answers the question \"what do I need to do before I start cooking?\" The skill looks up each recipe in your Paprika library, pulls its ing…"
