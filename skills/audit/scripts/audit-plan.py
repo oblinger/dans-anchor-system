@@ -376,20 +376,83 @@ def _glob_to_relpattern(glob: str) -> str:
     return g
 
 
+def _anchor_name(anchor_root: Path) -> str:
+    """{NAME} token → the anchor's slug (from .anchor), else its folder name."""
+    dot = anchor_root / ".anchor"
+    if dot.is_file():
+        try:
+            for line in dot.read_text(encoding="utf-8").splitlines():
+                m = re.match(r"\s*(?:slug|name)\s*:\s*(.+?)\s*$", line)
+                if m:
+                    return m.group(1).strip().strip('"').strip("'")
+        except OSError:
+            pass
+    return anchor_root.name
+
+
+def _expand_braces(pat: str) -> list[str]:
+    """Expand glob brace-alternation {a,b,c} (cartesian over groups). Predefined
+    {ALL-CAPS} tokens must already be substituted out before this runs."""
+    m = re.search(r"\{([^{}]*,[^{}]*)\}", pat)
+    if not m:
+        return [pat]
+    pre, post = pat[:m.start()], pat[m.end():]
+    out = []
+    for alt in m.group(1).split(","):
+        out.extend(_expand_braces(pre + alt.strip() + post))
+    return out
+
+
+def _split_terms(glob: str) -> list[str]:
+    """Split a where:: file value on TOP-LEVEL commas. Commas inside {} are
+    brace-alternation, not list separators."""
+    terms, depth, cur = [], 0, ""
+    for ch in glob:
+        if ch == "{":
+            depth += 1; cur += ch
+        elif ch == "}":
+            depth = max(0, depth - 1); cur += ch
+        elif ch == "," and depth == 0:
+            terms.append(cur); cur = ""
+        else:
+            cur += ch
+    terms.append(cur)
+    return [t.strip() for t in terms if t.strip()]
+
+
+def _match_file_glob(arg: str, scope_files: list[Path], anchor_root: Path) -> list[Path]:
+    """Resolve a `file:` where-glob to scope files, honoring the full spec
+    ([[FCT Ruleset]] § Where clause): {ANCHOR}/{NAME} tokens, brace-alternation,
+    comma-union, and gitignore-style !-negation."""
+    name = _anchor_name(anchor_root)
+    include: set[Path] = set()
+    exclude: set[Path] = set()
+    for term in _split_terms(arg):
+        neg = term.startswith("!")
+        if neg:
+            term = term[1:].strip()
+        rel = _glob_to_relpattern(term).replace("{NAME}", name)
+        if not rel:
+            paths = {anchor_root.resolve()}
+        else:
+            paths = set()
+            for pat in _expand_braces(rel):
+                try:
+                    paths |= {p.resolve() for p in anchor_root.glob(pat)}
+                except (ValueError, IndexError):
+                    pass
+        (exclude if neg else include).update(paths)
+    hits = include - exclude
+    return [p for p in scope_files if p.resolve() in hits]
+
+
 def match_targets(kind: str, arg: str, scope_files: list[Path], anchor_root: Path) -> list[Path]:
     if kind == "always":
         return list(scope_files)
     if kind == "anchor":
         return [anchor_root]  # synthetic: one structural check per anchor
     if kind == "file":
-        rel = _glob_to_relpattern(arg)
-        if not rel:
-            return [anchor_root]
-        try:
-            hits = {p.resolve() for p in anchor_root.glob(rel)}
-        except (ValueError, IndexError):
-            hits = set()
-        return [p for p in scope_files if p.resolve() in hits]
+        return _match_file_glob(arg, scope_files, anchor_root)
     if kind == "sentinel":
         try:
             rx = re.compile(arg, re.MULTILINE)
