@@ -1,1 +1,1 @@
-description: the `/install` skill
+description: "`/install` is the one-time setup skill for getting CAB command-line tools (`cab-scan`, `cab-config`, `skl-stat`, `cab-maintain`, `cab-lint`) onto a fresh machine."

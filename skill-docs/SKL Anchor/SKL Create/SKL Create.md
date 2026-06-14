@@ -6,7 +6,7 @@ Create a new thing — anchor, feature, work product, spec, or rule.
 
 | -[[SKL Create]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Anchor]] → [SKL Create](hook://p/SKL%20Create)<br>: the `/create` skill |
 | --- | --- |
-| Related | [[skills/create/SKILL.md\|SKILL]] |
+| Related | [[skills/create/SKILL.md\|SKILL]],   |
 | [[SKL Create Design\|Design]] |  |
 
 `/create` requires an argument specifying what to create:

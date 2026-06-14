@@ -6,7 +6,7 @@ description: "`/install` is the one-time setup skill for getting CAB command-lin
 
 | -[[SKL Install]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Anchor]] → [SKL Install](hook://p/SKL%20Install)<br>: the `/install` skill |
 | --- | --- |
-| Related | [[skills/install/SKILL.md\|SKILL]] |
+| Related | [[skills/install/SKILL.md\|SKILL]],   |
 | [[SKL Install Design\|Design]] |  |
 
 You run it once when setting up a new machine, and again whenever a new CAB script is added to the toolkit. It's strictly a system-level wiring step — no anchor work, no edits to your projects.

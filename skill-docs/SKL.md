@@ -22,7 +22,7 @@ Skills — the `/`-invocable runbooks (the things you type `/` for).
 | --- | |
 
 
-Mapped:  
+Mapped:  [[SKL Feature]], [[SKL Crank]], [[SKL Triage]], [[SKL Ask]], [[SKL Groom]], [[SKL Mint]], [[SKL Finalize]], [[SKL Land]], [[SKL Fortify]], [[SKL Query]], [[SKL Anchor Toolkit]], [[SKL Create]], [[SKL Install]], [[SKL Migrate]], [[SKL Move]], [[SKL Publish]], [[SKL Streams]], [[SKL WP]], [[SKL Yore]], [[SKL Audit]], [[SKL Tidy]]
 
 # OLDER
 
