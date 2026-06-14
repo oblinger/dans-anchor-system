@@ -47,11 +47,13 @@ Each facet is defined by exactly one spec doc — `facets/FCT <Name>.md` (single
 **Why:** one authoritative source per facet — split or duplicate specs drift and the audit can't decide which wins.
 
 ### RULE R-facet-spec-02 — Name is the facet's name, singular (checked)
+check:: facet_h1_form
 The filename and H1 read `FCT <Name>`, with `<Name>` in **singular** form (the facet is used as a kind/adjective — "the Backlog facet").
 **Check pattern:** H1 matches `# FCT <Name>`; `<Name>` is not a needless plural.
 **Why:** facet names are used as adjectives; singular reads correctly (per the singular-naming convention) and keeps `FCT Facet` (the kind) distinct from `FCT Facets` (the index).
 
 ### RULE R-facet-spec-03 — Registered in the index (checked)
+check:: facet_registered
 Every facet spec has a wiki-link row in [[FCT Facets]], in the semantic group matching its category (Structure / Design / Execute / Code / User / …) — promoted out of the staging `...` row once its category is clear.
 **Check pattern:** the spec's name appears as a link in exactly one [[FCT Facets]] group row.
 **Why:** the index is the discovery surface; an unregistered facet is invisible to anyone browsing the catalog.
@@ -76,6 +78,7 @@ The dispatch table's `Related` row carries only lateral / cross-cutting links �
 **Why:** the Related row earns its space with links you can't already reach by ordinary navigation (per the anchor-page Related rule).
 
 ### RULE R-facet-spec-07 — Substantial specs carry a TLDR (sampled)
+check:: facet_tldr_if_substantial
 A facet spec with a non-trivial body opens its preface zone (after the dispatch table, before the first body H2) with a `**TLDR**` block per [[DSC progressive-disclosure]].
 **Check pattern:** a `**TLDR**` line precedes the first body `## `; small specs (a few sentences) are exempt.
 **Why:** lets a reader graze the facet's shape in five seconds without reading the whole spec.
@@ -95,6 +98,7 @@ The spec (typically its ruleset) makes clear how presence is decided. Default is
 **Why:** detection is owned by the spec, not hard-coded globally — a folder or file-less facet is mis-detected if a reader assumes "look for the file" (per [[CAB Aspects]] § Facet).
 
 ### RULE R-facet-spec-10 — Makes cardinality knowable (sampled)
+check:: facet_cardinality_declared
 The spec makes cardinality clear — `one` (one per anchor) or `many`.
 **Check pattern:** `one` / `many` (or an explicit cardinality statement) is findable.
 **Why:** audits and skills behave differently for `one` vs `many`; leaving it implicit invites bugs.

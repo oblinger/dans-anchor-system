@@ -2178,6 +2178,59 @@ def chk_facet_has_ruleset(target, anchor_root, args):
     return "fail", "no embedded # RULESET R- and no linked [[R-...]] ruleset"
 
 
+def chk_facet_h1_form(target, anchor_root, args):
+    """R-facet-spec-02 (mechanical part): a catalog facet's H1 reads `# FCT <Name>`.
+    The singular-vs-plural judgment is left to the agent."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    for line in _read(f).splitlines():
+        if line.startswith("# "):
+            return ("pass", "") if re.match(r"^#\s+FCT\s+\S", line) else ("fail", f"H1 is not `# FCT <Name>`: {line!r}")
+    return "fail", "no H1"
+
+
+def chk_facet_registered(target, anchor_root, args):
+    """R-facet-spec-03: the facet is linked in the facet index — FCT.md (the current
+    dispatch/registry) or FCT Facets.md (the dedicated index, currently mid-migration)."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    name = f.stem
+    # dispatch tables use escaped pipes — `[[Name\|alias]]` — so allow an optional backslash
+    pat = re.compile(r"\[\[" + re.escape(name) + r"\s*(\\?\||\]|/)")
+    indices = [REPO_ROOT / "facets" / "FCT.md", *(REPO_ROOT / "facets").rglob("FCT Facets.md")]
+    for idx in indices:
+        if idx.is_file() and pat.search(_read(idx)):
+            return "pass", "registered in index"
+    return "fail", f"'{name}' not linked in FCT.md or FCT Facets.md"
+
+
+def chk_facet_tldr_if_substantial(target, anchor_root, args):
+    """R-facet-spec-07: a substantial facet spec carries a **TLDR**; small specs are exempt."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    t = _read(f)
+    substantial = len(t.splitlines()) > 80 or len(re.findall(r"^#+\s+RULE\s+R-", t, re.MULTILINE)) >= 5
+    if not substantial:
+        return "pass", "small spec — TLDR exempt"
+    if re.search(r"\*\*TLDR\*\*", t):
+        return "pass", "TLDR present"
+    return "fail", "substantial spec lacks a **TLDR** block"
+
+
+def chk_facet_cardinality_declared(target, anchor_root, args):
+    """R-facet-spec-10: the spec declares cardinality — one (per anchor) or many."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    t = _read(f)
+    if re.search(r"[Cc]ardinality[^\n]{0,60}\b(one|many)\b", t) or re.search(r"cardinality[- ](one|many)", t):
+        return "pass", "cardinality declared"
+    return "fail", "cardinality (one / many) not declared"
+
+
 CHECKERS = {
     "anchor_has": chk_anchor_has,
     "entry_page_matches_slug": chk_entry_page_matches_slug,
@@ -2261,6 +2314,10 @@ CHECKERS = {
     "folder_marker_exists": chk_folder_marker_exists,
     # R-facet-spec (extra)
     "facet_has_ruleset": chk_facet_has_ruleset,
+    "facet_h1_form": chk_facet_h1_form,
+    "facet_registered": chk_facet_registered,
+    "facet_tldr_if_substantial": chk_facet_tldr_if_substantial,
+    "facet_cardinality_declared": chk_facet_cardinality_declared,
     # R-md
     "md_angle_brackets_safe": chk_md_angle_brackets_safe,
     "md_angle_brackets_backtick_only": chk_md_angle_brackets_backtick_only,
