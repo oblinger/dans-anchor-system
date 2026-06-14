@@ -7,6 +7,7 @@ Facet spec for the user-stories surface of a PRD — defines the inline-bullet f
 | -[[FCT Stories]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Stories](hook://p/FCT%20Stories)<br>: facet spec for user stories as first-class siblings of a PRD |
 | --- | --- |
 | Related | [[FCT PRD]],  [[FCT Testing]],  [[FCT Features]],  [[FCT Design]],   |
+| Examples | [[HBR PRD\|inline-stories (single-file form)]],  [[CAE Stories\|folder-form dispatch index (extracted stories)]],   |
 
 **TLDR** — Stories are part of the PRD. Small PRDs keep stories inline as bullets under `## User Stories`; large PRDs extract them to `{NAME} PRD/` folder form with a `{NAME} Stories.md` dispatch index and per-story `US-<RID>-<N> — <Title>.md` files. The two forms are mutually exclusive. **Cardinality: many** — a PRD in folder form can have any number of story files. The embedded `R-stories` ruleset enforces folder shape, naming, dispatch table structure, and bidirectional linking.
 

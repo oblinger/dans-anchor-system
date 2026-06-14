@@ -8,6 +8,7 @@ Spec for the `{NAME} Testing.md` design facet — a two-part doc combining the p
 | -[[FCT Testing]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Testing](hook://p/FCT%20Testing)<br>: spec for the `{NAME} Testing.md` design facet — strategy + proposed-tests inventory |
 | --- | --- |
 | Related | [[FCT Architecture]],  [[FCT UX Design]],  [[FCT PRD]],  [[FCT Design Docs]],   |
+| Examples | [[CAE Testing\|minimal worked example]],  [[HBR Testing\|fuller worked example]],   |
 
 **Location:** `{NAME} Design/{NAME} Testing.md` (or `{NAME} Testing/` if it grows to anchor-folder form, parallel to Architecture).
 

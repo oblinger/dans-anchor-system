@@ -7,6 +7,7 @@ Facet spec for `{NAME} Design.md` — the dispatch page listing all high-level s
 | -[[FCT Design Dispatch]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Design Dispatch](hook://p/FCT%20Design%20Dispatch)<br>: design docs dispatch page — Architecture, UX Design, Interface, Data Model, Principles, PRD |
 | --- | --- |
 | Related | [[FCT Architecture]],  [[FCT UX Design]],  [[FCT Interface]],  [[FCT PRD]],   |
+| Examples | [[HBR Design\|minimal]],  [[CAE Design\|fuller]],   |
 
 **TLDR** — `{NAME} Design.md` is the one-per-anchor dispatch page listing every high-level system-spec document (Architecture, UX Design, Interface, Data Model, Principles, PRD, Design Discussion) for an anchor. It lives at `{NAME} Docs/{NAME} Design/{NAME} Design.md`. Architecture and UX Design are siblings here, not parent/child (F094). Interface is required for Code anchors.
 

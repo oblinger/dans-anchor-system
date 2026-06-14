@@ -7,6 +7,7 @@ The All Files facet — a fixed-width file-tree page linking every source file t
 | -[[FCT All Files]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Code]] → [FCT All Files](hook://p/FCT%20All%20Files)<br>: the repo's complete source file tree, every file linked to its module doc (monospace) |
 | --- | --- |
 | Related | [[FCT Interface]],  [[FCT Module]],  [[FCT Architecture]],  [[FCT Dev]],   |
+| Examples | [[CAE Files\|minimal]],  [[HBR Files\|fuller]],   |
 
 **TLDR** — A `{NAME} Files.md` page renders the full repo tree in monospace (via `cssclasses: monospace`) with each source file as a wiki-link to its module doc. Cardinality: one per anchor. The no-code-fence rule is load-bearing: wrapping the tree in triple-backticks kills wiki-links. Filenames ARE the links; the `→ [[doc]]` arrow form is reserved for non-source files.
 

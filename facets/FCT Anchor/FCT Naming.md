@@ -7,6 +7,7 @@ File-naming facet — every file inside an anchor uses `{NAME} <X>.md` form by d
 | -[[FCT Naming]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Naming](hook://p/FCT%20Naming)<br>: file-naming facet — `{NAME} <X>.md` default + explicit exception allowlist |
 | --- | --- |
 | Related | [[FCT Folder]],  [[FCT Anchor Page]],  [[FCT All Files]],  [[FCT Features]],   |
+| Examples | [[CAE\|minimal anchor]], [[HBR\|fuller anchor]] |
 
 **TLDR** — Every `.md` file inside an anchor is named `{NAME} <X>.md` (the anchor slug as prefix). Three exception classes are allowed: vault-global files, facet-sanctioned alternative patterns (F-numbers, US-IDs, ISO dates), and genuinely unique domain-specific names. **Cardinality: one per anchor** — a single naming convention applies to each anchor, not a per-file choice.
 

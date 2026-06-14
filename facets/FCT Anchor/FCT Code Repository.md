@@ -7,6 +7,7 @@ Facet spec for how an anchor declares and resolves its associated code repositor
 | -[[FCT Code Repository]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Code Repository](hook://p/FCT%20Code%20Repository)<br>: facet spec for the code repository association declared in an anchor's `.anchor` file |
 | --- | --- |
 | Related | [[FCT Anchor Page]],  [[CAB Traits]],  [[FCT Facet]],  [[FCT Manifest]],   |
+| Examples | [[OBU\|linked-absolute]],  [[HA\|linked-relative]],   |
 
 **TLDR** — An anchor with a `code` trait declares its repo via `code:` in `.anchor` (absolute, relative, or `.` for inline). No symlink, no `.git/`-probing fallback. Doc folders sync one-way vault → repo via `sync-push`. **Cardinality: one** — one code repo association per anchor.
 

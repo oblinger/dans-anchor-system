@@ -3,14 +3,17 @@ description: "the top-of-page navigation table — its own spec, dogfooded"
 ---
 
 # FCT Dispatch Table
+The top-of-file table convention that gives most anchor pages and many facet pages their navigation surface.
 
 | -[[FCT Dispatch Table]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Dispatch Table](hook://p/FCT%20Dispatch%20Table)<br>: the top-of-page navigation table — its own spec, dogfooded |
 | --- | --- |
 | Anchor | [[FCT Dispatch]] (parent catalog),  [[FCT]] |
 | Design | [[CAB Dispatch Table Design\|Design]] — rationale + standing decisions |
 | Related | [[Collection]],  [[DSC progressive-disclosure]],  [[audit-dispatch\|/audit dispatch]],   |
+| Examples | [[CAE\|minimal (masthead-only)]],  [[HBR\|fuller (member-groups + hybrid)]],  [[CAE Dispatch Examples\|full gallery]] |
 
-The top-of-file table convention that gives most anchor pages and many facet pages their navigation surface.
+**TLDR** — **Cardinality: many** — one dispatch table per page; most anchor and facet pages carry one. The masthead is exactly the breadcrumb + Anchor + (Design) + Related rows (a switchboard, not a directory); anything enumerable drops to the Member zone below. `/audit dispatch` builds and repairs it.
+
 
 **Examples** — below the masthead (this page's member zone is its four live exemplars; each row is itself a tiny member list, dogfooding the form):
 
@@ -135,6 +138,25 @@ Format rules:
 - [[FCT Dispatch]] — parent catalog.
 - [[FCT Brief]] — the Brief discipline; uses the `Related` row or `(See …)` line to surface from the source file.
 - [[Anchor TOC Format]] — distinct topic; TOC is generated, not the dispatch table.
+
+# RULESET R-dispatch-table
+include::
+where:: file: {ANCHOR}/**/*.md
+description:: The shape every dispatch table must take — masthead-placement law, member-zone mechanics, and pipe-escaped cell links.
+
+### RULE R-dispatch-table-01 — Masthead is breadcrumb + Anchor + (Design) + Related, in that order (checked)
+The masthead is **exactly** the breadcrumb identity row plus the standard rows `Anchor`, `Design` (only if the anchor has a design flow), and `Related` — in that order, no others. Each standard kind of information has one row, present iff that information exists.
+**Check pattern:** masthead rows are drawn only from {breadcrumb, Anchor, Design, Related, Examples}; the canonical names are used verbatim (never e.g. "Sibling" for Related).
+**Why:** a switchboard, not a directory — ad-hoc rows scatter information and break the one-row-per-kind law.
+
+### RULE R-dispatch-table-02 — Anything enumerable drops to the Member zone (stated)
+Members, sub-items, and worked examples are **not** masthead rows — they live in the Member zone below, on [[Collection]] anchors.
+**Why:** the masthead stays small and fixed; enumerable content grows and belongs in the auditable member zone.
+
+### RULE R-dispatch-table-03 — Cell wiki-links escape the pipe (checked)
+Inside table cells, aliased wiki-links escape the pipe: `[[Target\|Display]]`.
+**Check pattern:** no unescaped `[[Target|Display]]` appears inside a table row.
+**Why:** an unescaped pipe ends the table cell, breaking the row.
 
 # BRIEF
 

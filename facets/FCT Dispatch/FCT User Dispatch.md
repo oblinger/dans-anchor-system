@@ -7,6 +7,7 @@ Facet spec for the `{NAME} User.md` dispatch page that catalogs an anchor's end-
 | -[[FCT User Dispatch]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT User Dispatch](hook://p/FCT%20User%20Dispatch)<br>: user-facing docs dispatch page — curated, synthesis-level human-authored docs for any audience |
 | --- | --- |
 | Related | [[FCT Design Dispatch]],  [[FCT Dev Dispatch]],  [[FCT Track Dispatch]],  [[FCT Dispatch]],   |
+| Examples | [[CAE User Docs\|minimal (code anchor)]], [[HBR User Docs\|fuller (server anchor)]] |
 
 **TLDR** — `{NAME} User.md` is the dispatch page for end-user / consumer-facing documentation (Guide, Installation, CLI, FAQ, Cards). Cardinality: **one per anchor**. Scope boundary: user-task docs only; system-spec docs (Interface, Architecture) belong in [[FCT Design Dispatch|Design]] per F094.
 

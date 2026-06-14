@@ -7,6 +7,7 @@ Spec for the `{NAME} Track.md` dispatch page that lists all work-tracking and pl
 | -[[FCT Track Dispatch]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Track Dispatch](hook://p/FCT%20Track%20Dispatch)<br>: track docs dispatch page — work tracking + planning for a Track-trait anchor |
 | --- | --- |
 | Related | [[FCT Dispatch]],  [[FCT Backlog]],  [[FCT Design Dispatch]],  [[CAB Track]],   |
+| Examples | [[CAE Track\|fuller example]],  [[HBR Track\|minimal example]],   |
 
 **Cardinality:** one per anchor (each Track-trait anchor has exactly one `{NAME} Track.md` dispatch page).
 

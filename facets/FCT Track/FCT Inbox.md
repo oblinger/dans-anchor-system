@@ -7,6 +7,7 @@ Facet spec for the `{NAME} Inbox.md` drop-zone file — the chronological log of
 | -[[FCT Inbox]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Inbox](hook://p/FCT%20Inbox)<br>: raw incoming content to process |
 | --- | --- |
 | Related | [[FCT Discussion]],  [[FCT Backlog]],  [[FCT PRD]],  [[FCT Roadmap]],   |
+| Examples | [[CAE Inbox\|example]] |
 
 **TLDR** — A single `{NAME} Inbox.md` file (one per anchor) is the paste-first drop zone for raw input; processed entries stay with a `DONE` or `MOVED →` status tag as a permanent log.
 

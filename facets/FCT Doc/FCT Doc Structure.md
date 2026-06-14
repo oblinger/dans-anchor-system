@@ -8,6 +8,7 @@ The standard top-to-bottom structure every document follows — progressive disc
 | -[[FCT Doc Structure]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Doc]] → [FCT Doc Structure](hook://p/FCT%20Doc%20Structure)<br>: the canonical document layering — progressive disclosure for a document |
 | --- | --- |
 | Related | [[DSC progressive-disclosure]] (the discipline this specializes),  [[FCT Brief]],  [[FCT Anchor Page]] |
+| Examples | [[CAE Minimal Facet\|minimal — short doc, no table]],  [[HBR Architecture\|fuller — non-anchor doc with structured body]] |
 | Document examples | [[FEX Manifest]] (facet spec),  [[FEX Retention]] (discipline),  [[FCT Brief]] (facet spec) |
 | Anchor examples | [[HBR]] (project),  [[FEX Snapshot]] (skill),  [[FEX Repo]] (repo) |
 

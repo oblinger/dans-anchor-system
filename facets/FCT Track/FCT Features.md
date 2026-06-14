@@ -7,6 +7,7 @@ Specification for the **Features** facet — F-numbered per-feature design docs 
 | -[[FCT Features]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Features](hook://p/FCT%20Features)<br>: specification for F-numbered per-feature design docs and their index page |
 | --- | --- |
 | Related | [[FCT Roadmap]],  [[CAB Backlog]],  [[FCT Status]],  [[FCT Facet]],   |
+| Examples | [[CAE Features\|minimal]],  [[HBR Features\|fuller]],   |
 
 Specification for the **Features** facet — the F-numbered per-feature design docs that live under an anchor's `{NAME} Design/{NAME} Features/` folder, with their index page and pre-document Open-Questions zone.
 

@@ -7,6 +7,7 @@ A move relocates an anchor's folder and updates every system that references it 
 | -[[FCT Move]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Move](hook://p/FCT%20Move)<br>: Moving an anchor to a new location — concept and related skills |
 | --- | --- |
 | Related | [[FCT Migrate]],  [[FCT Install]],  [[FCT Anchor]],  [[FCT Anchor Page]],   |
+| Examples | [[SKL Move\|skill runbook]],  [[SKA move\|managing anchor]],   |
 
 **TLDR** — A Move is a multi-step orchestrated operation: physical folder relocation + HA reindex + Claude session rename + path scan. Distinct from Migrate (type change) and Fix Session (session-only repair). Cardinality: **one per anchor** (an anchor has at most one current location; move is a one-time operation per anchor per event).
 

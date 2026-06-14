@@ -7,6 +7,7 @@ Facet spec for the optional `CLAUDE.md` file at an anchor's root that configures
 | -[[FCT Claude]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Claude](hook://p/FCT%20Claude)<br>: CLAUDE.md agent configuration |
 | --- | --- |
 | Related | [[FCT Anchor Page]],  [[FCT Dot Anchor]],  [[CAB Aspects]],  [[FCT Facet]],   |
+| Examples | [[CAE CLAUDE\|agentic-project form]],  [[SYS CLAUDE\|plain-content form]],   |
 
 **Cardinality:** one per anchor — at most one `CLAUDE.md` sits at the anchor root.
 

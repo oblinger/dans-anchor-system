@@ -8,6 +8,7 @@ A **Brief** is a **document facet** — agent-facing per-file editing-and-mainte
 | -[[FCT Brief]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Doc]] → [FCT Brief](hook://p/FCT%20Brief)<br>: agent-facing per-file editing-and-maintenance content paired with a source file |
 | --- | --- |
 | Related | [[FCT Discussion]],  [[DSC progressive-disclosure]],  [[DSC file-association]],  [[Briefs]],   |
+| Examples | [[SV Roots\|inline # BRIEF (Phase 1)]], [[SV Roots Brief\|sidecar Brief.md (Phase 2)]] |
 
 > [!note] Classification — doc facet, peer to [[FCT Discussion]]
 > Brief is a **doc facet** (a content container attached to a document), not a discipline. It lives in `CAB Facets/Doc Facet/` alongside [[FCT Discussion]]. As a doc facet it *cites* three disciplines:

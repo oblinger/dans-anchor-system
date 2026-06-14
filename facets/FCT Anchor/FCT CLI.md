@@ -7,6 +7,7 @@ Facet spec for `{NAME} CLI.md` — the exhaustive command/flag/exit-code referen
 | -[[FCT CLI]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT CLI](hook://p/FCT%20CLI)<br>: CLI command reference — every command, flag, and exit code |
 | --- | --- |
 | Related | [[FCT UX Design]],  [[CAB User Guide]],  [[FCT All Files]],  [[FCT Anchor Page]],   |
+| Examples | [[CAE CLI\|minimal]],  [[HBR CLI\|fuller]],   |
 
 **TLDR** — `{NAME} CLI.md` is the exhaustive man-page-style command reference for an anchor's CLI: mandatory fenced help block first (directly under H1), then per-command H2 sections with Usage / Flags / Exit codes / Example, then a global exit-code table. **Cardinality: one per anchor** (only when the anchor ships a CLI). Detection: file-existence at `{NAME} Docs/{NAME} User/{NAME} CLI.md`.
 

@@ -9,6 +9,7 @@ The annotated master file tree showing every possible file and folder that may a
 | -[[FCT Anchor Tree]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Anchor Tree](hook://p/FCT%20Anchor%20Tree)<br>: anchor master tree — every possible doc/folder in an anchor, linked to its facet spec |
 | --- | --- |
 | Related | [[FCT Anchor Page]],  [[CAB Base]],  [[CAB Docs]],  [[FCT Facet]],   |
+| Examples | [[CAE\|minimal Code anchor]],  [[HBR\|fuller anchor with components]],   |
 
 **Cardinality: one per anchor** — each anchor has exactly one canonical file tree (this spec is the reference; an anchor's actual tree is its on-disk directory).
 

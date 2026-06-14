@@ -8,6 +8,7 @@ The per-anchor master file for applied decisions — declares adopted rulesets (
 | -[[FCT Decisions]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Decisions](hook://p/FCT%20Decisions)<br>: per-anchor master file for applied decisions — adopted rulesets and D-records |
 | --- | --- |
 | Related | [[FCT Ruleset]],  [[FCT Architecture]],  [[FCT Design Docs]],  [[Rulesets]],   |
+| Examples | [[CAE Decisions\|minimal (D-records only, no include::)]],  [[HBR Decisions\|fuller (masthead + durable rulings)]] |
 
 **TLDR** — `{NAME} Decisions.md` is the single record of what an anchor has committed to: top-of-file `include::` lists adopted rulesets; the `## Adoption implementation map` bridges each rule to its anchor-specific code/script/table; `## D<N>` entries record applied choices with rationale and a `**Cites:**` back-link to the rules they satisfy. One per anchor.
 
