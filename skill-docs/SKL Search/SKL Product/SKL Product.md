@@ -6,9 +6,6 @@ description: "skim → click into the rule that applies"
 | --- | --- |
 | Product rules (any verb) | [[SRC rules/product\|product.md]],   |
 | Verbs | [[SRC rules/find-product\|find-product]],  [[SRC rules/profile-product\|describe-product]],  [[SRC rules/survey-product\|survey-product]],   |
-
-| -[[SKL Product]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Search]] → [SKL Product](hook://p/SKL%20Product)<br>: the SKL Product doc |
-| --- | --- |
 | [[SKL Product Design\|Design]] |  |
 
 When the search agent runs against a **product** — finding, describing, or surveying — these are the rules that apply.
@@ -21,4 +18,4 @@ When the search agent runs against a **product** — finding, describing, or sur
 
 Sub-types worth knowing about: consumer physical · B2B SaaS · consumer apps · large purchases (cars / appliances).
 
-Verbs: [[SKL Find]] · [[SKL Profile]] · [[SKL Survey]] · Composition: ~~[[SKL Search Overview]]~~.
+Verbs: [[SKL Find]] · [[SKL Profile]] · [[SKL Survey]] · Composition: [[SKL Search Overview]].

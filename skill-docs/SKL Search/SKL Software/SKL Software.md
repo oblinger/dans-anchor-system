@@ -6,9 +6,6 @@ description: "skim → click into the rule that applies"
 | --- | --- |
 | Software rules (any verb) | [[SRC rules/software\|software.md]],   |
 | Verbs | [[SRC rules/find-software\|find-software]],  [[SRC rules/profile-software\|describe-software]],  [[SRC rules/survey-software\|survey-software]],   |
-
-| -[[SKL Software]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Search]] → [SKL Software](hook://p/SKL%20Software)<br>: the SKL Software doc |
-| --- | --- |
 | [[SKL Software Design\|Design]] |  |
 
 When the search agent runs against **software** — an OSS project, a SaaS product, a library, a CLI tool, a mobile / desktop app — these are the rules that apply.
@@ -24,6 +21,6 @@ When the search agent runs against **software** — an OSS project, a SaaS produ
 
 Sub-types worth knowing about: OSS library / framework · self-hostable OSS app · open-core · pure SaaS · consumer software / app · CLI tool.
 
-Verbs: [[SKL Find]] · [[SKL Profile]] · [[SKL Survey]] · Composition: ~~[[SKL Search Overview]]~~.
+Verbs: [[SKL Find]] · [[SKL Profile]] · [[SKL Survey]] · Composition: [[SKL Search Overview]].
 
 Sibling under **Digital content**: [[SKL Skill]] (agent skills — also digital, but distinct enough to merit its own rules).

@@ -6,9 +6,6 @@ description: "high-rigor three-stage form of /survey for high-stakes comparisons
 | --- | --- |
 | Runbook | [[survey/meta-survey\|meta-survey.md]],   |
 | Standard /survey | [[SKL Survey]],   |
-
-| -[[SKL Meta Survey]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Search]] → [SKL Meta Survey](hook://p/SKL%20Meta%20Survey)<br>: the SKL Meta Survey doc |
-| --- | --- |
 | [[SKL Meta Survey Design\|Design]] |  |
 
 **Meta-survey** is the high-rigor form of `/survey`. Reach for it when the user is about to commit (purchase, adopt, hire, publish), the domain is contested or rapidly changing, sources disagree, or "we got it wrong" has a real cost.
@@ -52,4 +49,4 @@ A row of `***bold-italic***` cells with stars is one the user can act on. A row 
 - Single entity, not a comparison → [[SKL Profile]].
 - Single-instance lookup → [[SKL Find]].
 
-Skill methodology: [[survey/SKILL|survey/SKILL.md]] · Full runbook: [[survey/meta-survey|meta-survey.md]] · Composition: ~~[[SKL Search Overview]]~~.
+Skill methodology: [[survey/SKILL|survey/SKILL.md]] · Full runbook: [[survey/meta-survey|meta-survey.md]] · Composition: [[SKL Search Overview]].

@@ -1,1 +1,1 @@
-description: "`exp` is the remote-experimentation toolkit — it lets you run ML workloads on ephemeral GPU instances (typically vast.ai) without juggling SSH sessions and rsync invocations by hand."
+description: the SKL Exp doc

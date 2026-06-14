@@ -22,7 +22,7 @@ Skills — the `/`-invocable runbooks (the things you type `/` for).
 | --- | |
 
 
-Mapped:  [[SKL Feature]], [[SKL Crank]], [[SKL Triage]], [[SKL Ask]], [[SKL Groom]], [[SKL Mint]], [[SKL Finalize]], [[SKL Land]], [[SKL Fortify]], [[SKL Query]], [[SKL Anchor Toolkit]], [[SKL Create]], [[SKL Install]], [[SKL Migrate]], [[SKL Move]], [[SKL Publish]], [[SKL Streams]], [[SKL WP]], [[SKL Yore]], [[SKL Audit]], [[SKL Tidy]]
+Mapped:  [[SKL Feature]], [[SKL Crank]], [[SKL Triage]], [[SKL Ask]], [[SKL Groom]], [[SKL Mint]], [[SKL Finalize]], [[SKL Land]], [[SKL Fortify]], [[SKL Query]], [[SKL Anchor Toolkit]], [[SKL Create]], [[SKL Install]], [[SKL Migrate]], [[SKL Move]], [[SKL Publish]], [[SKL Streams]], [[SKL WP]], [[SKL Yore]], [[SKL Audit]], [[SKL Tidy]], [[SKL Dupes]], [[SKL Lint]], [[SKL Maintain]], [[SKL Rewire]], [[SKL Slug Scan]], [[SKL Architect]], [[SKL Code]], [[SKL Fix]], [[SKL PR Flow]], [[SKL Pilot Flow]], [[SKL MD]], [[SKL Viz]], [[SKL Find]], [[SKL Profile]], [[SKL Purchase]], [[SKL Survey]], [[SKL Cook]], [[SKL Ctrl]], [[SKL Exp]], [[SKL Parley]], [[SKL Snip]], [[SKL CAB]], [[SKL ask-inline]], [[SKL Edit]], [[SKL Book]], [[SKL Corp]], [[SKL Meta Survey]], [[SKL Person]], [[SKL Product]], [[SKL Research Skill]], [[SKL Research]], [[SKL Search Overview]], [[SKL Skill]], [[SKL Software]]
 
 # OLDER
 

@@ -4,15 +4,11 @@ description: "/query — the clean skill for asking you questions, formatted so 
 # SKL Query
 `/query` is how an agent asks you a question — and the one promise it makes is that every question is answerable from what's written.
 
-| -[[SKL Query]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Drive]] → [SKL Query](hook://p/SKL%20Query)<br>: the `/query` skill |
-| --- | --- |
-| Related | [[skills/query/SKILL.md\|SKILL]],   |
-| [[SKL Query Design\|Design]] |  |
-
 | -[[SKL Query]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Drive]] → [SKL Query](hook://p/SKL%20Query)<br>: the clean asking skill |
 | --- | --- |
 | Related | [[SKL Drive]],  [[SKL Triage]],  [[Q]],   |
 | Skill | [[query]] — the `SKILL.md` runbook |
+| [[SKL Query Design\|Design]] |  |
 
 ## What it's for
 
