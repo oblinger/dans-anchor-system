@@ -6,7 +6,6 @@ The Common Anchor Blueprint (CAB) defines a standard folder structure for organi
 
 | -[[SKL CAB]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Anchor]] → [SKL CAB](hook://p/SKL%20CAB)<br>: the SKL CAB doc |
 | --- | --- |
-| [[SKL CAB Design\|Design]] |  |
 
 CAB is the structural backbone of the system. When you create a new project, CAB gives it a standardized shape. When you reorganize, CAB validates that nothing is broken. The specification lives in `~/.claude/skills/CAB/` with separate files for types, parts, and rules.
 

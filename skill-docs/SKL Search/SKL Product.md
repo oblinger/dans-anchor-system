@@ -6,7 +6,6 @@ description: "skim → click into the rule that applies"
 | --- | --- |
 | Product rules (any verb) | [[SRC rules/product\|product.md]],   |
 | Verbs | [[SRC rules/find-product\|find-product]],  [[SRC rules/profile-product\|describe-product]],  [[SRC rules/survey-product\|survey-product]],   |
-| [[SKL Product Design\|Design]] |  |
 
 When the search agent runs against a **product** — finding, describing, or surveying — these are the rules that apply.
 

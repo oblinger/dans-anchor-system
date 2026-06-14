@@ -6,7 +6,6 @@ description: "skim → click into the rule that applies"
 | --- | --- |
 | Software rules (any verb) | [[SRC rules/software\|software.md]],   |
 | Verbs | [[SRC rules/find-software\|find-software]],  [[SRC rules/profile-software\|describe-software]],  [[SRC rules/survey-software\|survey-software]],   |
-| [[SKL Software Design\|Design]] |  |
 
 When the search agent runs against **software** — an OSS project, a SaaS product, a library, a CLI tool, a mobile / desktop app — these are the rules that apply.
 

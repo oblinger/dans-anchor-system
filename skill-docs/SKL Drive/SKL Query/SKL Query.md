@@ -6,6 +6,7 @@ description: "/query — the clean skill for asking you questions, formatted so 
 
 | -[[SKL Query]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Drive]] → [SKL Query](hook://p/SKL%20Query)<br>: the clean asking skill |
 | --- | --- |
+| Related | [[skills/query/SKILL.md\|SKILL]] |
 | Related | [[SKL Drive]],  [[SKL Triage]],  [[Q]],   |
 | Skill | [[query]] — the `SKILL.md` runbook |
 | [[SKL Query Design\|Design]] |  |

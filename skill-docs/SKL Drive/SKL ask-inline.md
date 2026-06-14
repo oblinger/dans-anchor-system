@@ -6,7 +6,6 @@ description: How to ask the user a question inline — ONE crisp, bold, `[questi
 
 | -[[SKL ask-inline]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Drive]] → [SKL ask-inline](hook://p/SKL%20ask-inline)<br>: the SKL ask-inline doc |
 | --- | --- |
-| [[SKL ask-inline Design\|Design]] |  |
 
 ## The format
 

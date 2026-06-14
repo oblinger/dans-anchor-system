@@ -6,7 +6,6 @@ description: "skim → click into the rule that applies"
 | --- | --- |
 | Corp rules (any verb) | [[SRC rules/corp\|corp.md]],   |
 | Verbs | [[SRC rules/find-corp\|find-corp]],  [[SRC rules/profile-corp\|describe-corp]],  [[SRC rules/survey-corp\|survey-corp]],   |
-| [[SKL Corp Design\|Design]] |  |
 
 When the search agent runs against an **organization** — finding, describing, or surveying — these are the rules that apply.
 

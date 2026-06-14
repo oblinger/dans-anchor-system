@@ -6,7 +6,6 @@ Structured research workflows. You give it a target (entity / topic / person / b
 
 | -[[SKL Research]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Search]] → [SKL Research](hook://p/SKL%20Research)<br>: the SKL Research doc |
 | --- | --- |
-| [[SKL Research Design\|Design]] |  |
 
 Every research action shares the same output skeleton: a dated report folder with a results table at the top, written analysis below, and full URLs in a Sources section so links work outside Obsidian.
 

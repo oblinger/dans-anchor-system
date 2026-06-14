@@ -6,7 +6,6 @@ The Edit skill handles visual content creation, primarily through Excalidraw dia
 
 | -[[SKL Edit]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Doc]] → [SKL Edit](hook://p/SKL%20Edit)<br>: the SKL Edit doc |
 | --- | --- |
-| [[SKL Edit Design\|Design]] |  |
 
 The typical workflow is: describe what you want in a diagram, the agent creates or updates an Excalidraw file, exports it to SVG/PNG, and optionally inserts it into Google Slides. This is useful for architecture diagrams, flowcharts, mockups, and any visual that needs to live alongside project documentation.
 

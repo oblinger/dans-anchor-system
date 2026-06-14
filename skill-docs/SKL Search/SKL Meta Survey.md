@@ -6,7 +6,6 @@ description: "high-rigor three-stage form of /survey for high-stakes comparisons
 | --- | --- |
 | Runbook | [[survey/meta-survey\|meta-survey.md]],   |
 | Standard /survey | [[SKL Survey]],   |
-| [[SKL Meta Survey Design\|Design]] |  |
 
 **Meta-survey** is the high-rigor form of `/survey`. Reach for it when the user is about to commit (purchase, adopt, hire, publish), the domain is contested or rapidly changing, sources disagree, or "we got it wrong" has a real cost.
 

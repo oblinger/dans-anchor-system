@@ -6,7 +6,6 @@ The mental model behind the **search skill family** (`find`, `describe`, `survey
 
 | -[[SKL Search Overview]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Search]] → [SKL Search Overview](hook://p/SKL%20Search%20Overview)<br>: the SKL Search Overview doc |
 | --- | --- |
-| [[SKL Search Overview Design\|Design]] |  |
 
 ## The two axes
 
