@@ -1,0 +1,150 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 920" width="900" height="920" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#37474f"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c62828"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="900" height="920" fill="#ffffff"/>
+  <text x="30" y="40" font-size="26" font-weight="bold" fill="#1a1a1a">Linear data pipeline (ETL) — daily clickstream</text>
+
+  <!-- ============ EDGES (under nodes) ============ -->
+  <g fill="none" stroke="#37474f" stroke-width="3">
+    <!-- Row 1 (L->R): src->ingest->validate->enrich -->
+    <line x1="230" y1="130" x2="280" y2="130" marker-end="url(#arrow)"/>
+    <line x1="480" y1="130" x2="490" y2="130" marker-end="url(#arrow)"/>
+    <line x1="690" y1="130" x2="700" y2="130" marker-end="url(#arrow)"/>
+    <!-- enrich -> sessionize (fold down, right side) -->
+    <path d="M795,178 L795,420" marker-end="url(#arrow)"/>
+    <!-- Row 2 (R->L): sessionize->aggregate->qc->load -->
+    <line x1="700" y1="466" x2="690" y2="466" marker-end="url(#arrow)"/>
+    <line x1="490" y1="466" x2="480" y2="466" marker-end="url(#arrow)"/>
+    <line x1="280" y1="466" x2="230" y2="466" marker-end="url(#arrow)"/>
+    <!-- load -> warehouse (fold down, left side) -->
+    <path d="M125,512 L125,750" marker-end="url(#arrow)"/>
+    <!-- Row 3 (L->R): warehouse->dashboard -->
+    <line x1="230" y1="796" x2="280" y2="796" marker-end="url(#arrow)"/>
+  </g>
+
+  <!-- validate -> dlq : dashed error side-branch -->
+  <g fill="none" stroke="#c62828" stroke-width="3" stroke-dasharray="9 6">
+    <line x1="595" y1="178" x2="595" y2="300" marker-end="url(#arrowRed)"/>
+  </g>
+
+  <!-- ============ NODES (color-coded by role) ============ -->
+  <!-- Row 1 -->
+  <g>
+    <rect x="40"  y="84"  width="190" height="92" rx="12" fill="#e8f5e9" stroke="#2e7d32" stroke-width="3"/>
+    <text x="135" y="122" font-size="22" font-weight="bold" text-anchor="middle" fill="#1b5e20">Raw event files</text>
+    <text x="135" y="148" font-size="21" text-anchor="middle" fill="#2e7d32">(S3 landing bucket)</text>
+  </g>
+  <g>
+    <rect x="280" y="84"  width="200" height="92" rx="12" fill="#e3f2fd" stroke="#1565c0" stroke-width="3"/>
+    <text x="380" y="122" font-size="22" font-weight="bold" text-anchor="middle" fill="#0d47a1">Ingestion job</text>
+    <text x="380" y="148" font-size="21" text-anchor="middle" fill="#1565c0">(Airflow loader)</text>
+  </g>
+  <g>
+    <rect x="490" y="84"  width="210" height="92" rx="12" fill="#e3f2fd" stroke="#1565c0" stroke-width="3"/>
+    <text x="595" y="122" font-size="22" font-weight="bold" text-anchor="middle" fill="#0d47a1">Schema validation</text>
+    <text x="595" y="148" font-size="21" text-anchor="middle" fill="#1565c0">&amp; dedup</text>
+  </g>
+  <g>
+    <rect x="700" y="84"  width="190" height="92" rx="12" fill="#e3f2fd" stroke="#1565c0" stroke-width="3"/>
+    <text x="795" y="122" font-size="22" font-weight="bold" text-anchor="middle" fill="#0d47a1">Enrichment</text>
+    <text x="795" y="148" font-size="21" text-anchor="middle" fill="#1565c0">geo-IP + UA</text>
+  </g>
+
+  <!-- DLQ side branch below validate -->
+  <g>
+    <rect x="490" y="300" width="210" height="92" rx="12" fill="#ffebee" stroke="#c62828" stroke-width="3"/>
+    <text x="595" y="338" font-size="22" font-weight="bold" text-anchor="middle" fill="#b71c1c">Dead-letter /</text>
+    <text x="595" y="364" font-size="21" text-anchor="middle" fill="#c62828">quarantine bucket</text>
+  </g>
+
+  <!-- Row 2 (R->L visual) -->
+  <g>
+    <rect x="700" y="420" width="190" height="92" rx="12" fill="#e3f2fd" stroke="#1565c0" stroke-width="3"/>
+    <text x="795" y="458" font-size="22" font-weight="bold" text-anchor="middle" fill="#0d47a1">Sessionization</text>
+    <text x="795" y="484" font-size="21" text-anchor="middle" fill="#1565c0">(group sessions)</text>
+  </g>
+  <g>
+    <rect x="490" y="420" width="210" height="92" rx="12" fill="#e3f2fd" stroke="#1565c0" stroke-width="3"/>
+    <text x="595" y="458" font-size="22" font-weight="bold" text-anchor="middle" fill="#0d47a1">Daily aggregation</text>
+    <text x="595" y="484" font-size="21" text-anchor="middle" fill="#1565c0">(rollups)</text>
+  </g>
+  <g>
+    <rect x="280" y="420" width="200" height="92" rx="12" fill="#e3f2fd" stroke="#1565c0" stroke-width="3"/>
+    <text x="380" y="458" font-size="22" font-weight="bold" text-anchor="middle" fill="#0d47a1">Quality check</text>
+    <text x="380" y="484" font-size="21" text-anchor="middle" fill="#1565c0">(row / null gates)</text>
+  </g>
+  <g>
+    <rect x="40"  y="420" width="190" height="92" rx="12" fill="#e3f2fd" stroke="#1565c0" stroke-width="3"/>
+    <text x="135" y="458" font-size="22" font-weight="bold" text-anchor="middle" fill="#0d47a1">Warehouse load</text>
+    <text x="135" y="484" font-size="21" text-anchor="middle" fill="#1565c0">(Snowflake COPY)</text>
+  </g>
+
+  <!-- Row 3 -->
+  <g>
+    <rect x="40"  y="750" width="190" height="92" rx="12" fill="#fff8e1" stroke="#f9a825" stroke-width="3"/>
+    <text x="135" y="788" font-size="22" font-weight="bold" text-anchor="middle" fill="#e65100">Analytics WH</text>
+    <text x="135" y="814" font-size="21" text-anchor="middle" fill="#f57f17">events_daily</text>
+  </g>
+  <g>
+    <rect x="280" y="750" width="200" height="92" rx="12" fill="#eceff1" stroke="#546e7a" stroke-width="3"/>
+    <text x="380" y="788" font-size="22" font-weight="bold" text-anchor="middle" fill="#37474f">BI dashboard</text>
+    <text x="380" y="814" font-size="21" text-anchor="middle" fill="#546e7a">(Looker report)</text>
+  </g>
+
+  <!-- ============ EDGE LABELS (white halo) ============ -->
+  <g font-size="21" text-anchor="middle">
+    <text x="255" y="112" fill="#37474f" stroke="#fff" stroke-width="4" paint-order="stroke">raw JSON</text>
+    <text x="255" y="112" fill="#37474f">raw JSON</text>
+
+    <text x="485" y="70" fill="#37474f" stroke="#fff" stroke-width="4" paint-order="stroke">parsed records</text>
+    <text x="485" y="70" fill="#37474f">parsed records</text>
+
+    <text x="695" y="70" fill="#37474f" stroke="#fff" stroke-width="4" paint-order="stroke">valid records</text>
+    <text x="695" y="70" fill="#37474f">valid records</text>
+
+    <text x="795" y="304" fill="#37474f" stroke="#fff" stroke-width="4" paint-order="stroke">enriched events</text>
+    <text x="795" y="304" fill="#37474f">enriched events</text>
+
+    <text x="695" y="448" fill="#37474f" stroke="#fff" stroke-width="4" paint-order="stroke">sessions</text>
+    <text x="695" y="448" fill="#37474f">sessions</text>
+
+    <text x="485" y="406" fill="#37474f" stroke="#fff" stroke-width="4" paint-order="stroke">daily rollups</text>
+    <text x="485" y="406" fill="#37474f">daily rollups</text>
+
+    <text x="255" y="448" fill="#37474f" stroke="#fff" stroke-width="4" paint-order="stroke">passed rollups</text>
+    <text x="255" y="448" fill="#37474f">passed rollups</text>
+
+    <text x="125" y="636" fill="#37474f" stroke="#fff" stroke-width="4" paint-order="stroke">COPY INTO</text>
+    <text x="125" y="636" fill="#37474f">COPY INTO</text>
+
+    <text x="255" y="778" fill="#37474f" stroke="#fff" stroke-width="4" paint-order="stroke">query / refresh</text>
+    <text x="255" y="778" fill="#37474f">query / refresh</text>
+
+    <text x="660" y="248" fill="#c62828" text-anchor="start" stroke="#fff" stroke-width="4" paint-order="stroke">rejected records</text>
+    <text x="660" y="248" fill="#c62828" text-anchor="start">rejected records</text>
+  </g>
+
+  <!-- ============ LEGEND ============ -->
+  <g font-size="21">
+    <text x="520" y="585" font-size="22" font-weight="bold" fill="#263238">Legend</text>
+    <rect x="520" y="600" width="22" height="22" rx="4" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+    <text x="552" y="618" fill="#37474f">source</text>
+    <rect x="520" y="632" width="22" height="22" rx="4" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+    <text x="552" y="650" fill="#37474f">process</text>
+    <rect x="520" y="664" width="22" height="22" rx="4" fill="#fff8e1" stroke="#f9a825" stroke-width="2"/>
+    <text x="552" y="682" fill="#37474f">datastore</text>
+    <rect x="520" y="696" width="22" height="22" rx="4" fill="#eceff1" stroke="#546e7a" stroke-width="2"/>
+    <text x="552" y="714" fill="#37474f">sink</text>
+    <rect x="520" y="728" width="22" height="22" rx="4" fill="#ffebee" stroke="#c62828" stroke-width="2"/>
+    <text x="552" y="746" fill="#37474f">dead-letter (error)</text>
+    <line x1="520" y1="775" x2="556" y2="775" stroke="#c62828" stroke-width="3" stroke-dasharray="9 6"/>
+    <text x="566" y="782" fill="#37474f">dashed = error path</text>
+  </g>
+</svg>

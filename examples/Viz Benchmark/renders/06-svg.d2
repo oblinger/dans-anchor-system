@@ -1,0 +1,31 @@
+direction: down
+
+# Engineering Reporting Tree — strict single-parent hierarchy, 13 nodes / 12 edges.
+# Color-coded by role level (CTO > VP > Director > Manager > Tech Lead > Engineer).
+
+CTO: "Priya Nair\nChief Technology Officer" { style.fill: "#5b21b6"; style.font-color: "#ffffff" }
+VP_ENG: "Marcus Webb\nVP of Engineering" { style.fill: "#1d4ed8"; style.font-color: "#ffffff" }
+VP_INFRA: "Dana Olsen\nVP of Infrastructure" { style.fill: "#1d4ed8"; style.font-color: "#ffffff" }
+DIR_PLATFORM: "Sofia Ruiz\nDirector, Platform" { style.fill: "#0e7490"; style.font-color: "#ffffff" }
+DIR_PRODUCT: "Liam Chen\nDirector, Product Engineering" { style.fill: "#0e7490"; style.font-color: "#ffffff" }
+DIR_SRE: "Tom Becker\nDirector, Site Reliability" { style.fill: "#0e7490"; style.font-color: "#ffffff" }
+MGR_API: "Aisha Khan\nManager, API Team" { style.fill: "#047857"; style.font-color: "#ffffff" }
+MGR_WEB: "Jordan Lee\nManager, Web Team" { style.fill: "#047857"; style.font-color: "#ffffff" }
+MGR_DATA: "Elena Petrova\nManager, Data Platform" { style.fill: "#047857"; style.font-color: "#ffffff" }
+LEAD_API_CORE: "Raj Mehta\nTech Lead, API Core" { style.fill: "#b45309"; style.font-color: "#ffffff" }
+LEAD_API_GW: "Nora Sato\nTech Lead, API Gateway" { style.fill: "#b45309"; style.font-color: "#ffffff" }
+ENG_GW_1: "Carlos Diaz\nSenior Engineer, API Gateway" { style.fill: "#9f1239"; style.font-color: "#ffffff" }
+ENG_GW_2: "Mina Park\nEngineer, API Gateway" { style.fill: "#9f1239"; style.font-color: "#ffffff" }
+
+CTO -> VP_ENG: "reports to"
+CTO -> VP_INFRA: "reports to"
+VP_ENG -> DIR_PLATFORM: "reports to"
+VP_ENG -> DIR_PRODUCT: "reports to"
+VP_INFRA -> DIR_SRE: "reports to"
+DIR_PLATFORM -> MGR_API: "reports to"
+DIR_PLATFORM -> MGR_DATA: "reports to"
+DIR_PRODUCT -> MGR_WEB: "reports to"
+MGR_API -> LEAD_API_CORE: "reports to"
+MGR_API -> LEAD_API_GW: "reports to"
+LEAD_API_GW -> ENG_GW_1: "reports to"
+LEAD_API_GW -> ENG_GW_2: "reports to"

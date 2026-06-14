@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 820" width="1000" height="820" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5b6470"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1000" height="820" fill="#fbfbf9"/>
+  <text x="500" y="40" text-anchor="middle" font-size="30" font-weight="700" fill="#2a2f36">Mediterranean Meal Plan — Mind Map</text>
+
+  <!-- ======================= EDGES (drawn first, behind nodes) ======================= -->
+  <!-- hub -> branches -->
+  <g stroke-width="3" fill="none" marker-end="url(#arrow)">
+    <line x1="500" y1="420" x2="560" y2="244" stroke="#c0392b"/>
+    <line x1="500" y1="420" x2="676" y2="358" stroke="#2e7d32"/>
+    <line x1="500" y1="420" x2="612" y2="566" stroke="#b8860b"/>
+    <line x1="500" y1="420" x2="396" y2="566" stroke="#7b4fa3"/>
+    <line x1="500" y1="420" x2="328" y2="360" stroke="#1565c0"/>
+  </g>
+  <!-- B1 (Proteins) -> leaves -->
+  <g stroke-width="2.5" fill="none" marker-end="url(#arrow)" stroke="#c0392b">
+    <line x1="566" y1="216" x2="538" y2="93"/>
+    <line x1="566" y1="216" x2="666" y2="135"/>
+  </g>
+  <!-- B2 (Vegetables) -> leaves -->
+  <g stroke-width="2.5" fill="none" marker-end="url(#arrow)" stroke="#2e7d32">
+    <line x1="704" y1="354" x2="787" y2="258"/>
+    <line x1="704" y1="354" x2="833" y2="385"/>
+  </g>
+  <!-- B3 (Grains & Carbs) -> leaves -->
+  <g stroke-width="2.5" fill="none" marker-end="url(#arrow)" stroke="#b8860b">
+    <line x1="626" y1="594" x2="745" y2="645"/>
+    <line x1="626" y1="594" x2="644" y2="722"/>
+  </g>
+  <!-- B4 (Pantry Staples) -> leaves -->
+  <g stroke-width="2.5" fill="none" marker-end="url(#arrow)" stroke="#7b4fa3">
+    <line x1="374" y1="594" x2="361" y2="722"/>
+    <line x1="374" y1="594" x2="256" y2="645"/>
+  </g>
+  <!-- B5 (Weekly Schedule) -> leaf -->
+  <g stroke-width="2.5" fill="none" marker-end="url(#arrow)" stroke="#1565c0">
+    <line x1="246" y1="324" x2="170" y2="246"/>
+  </g>
+
+  <!-- ======================= NODES ======================= -->
+  <!-- Central hub -->
+  <circle cx="500" cy="420" r="78" fill="#34495e" stroke="#222b35" stroke-width="3"/>
+  <text x="500" y="412" text-anchor="middle" font-size="26" font-weight="700" fill="#ffffff">Mediterranean</text>
+  <text x="500" y="442" text-anchor="middle" font-size="26" font-weight="700" fill="#ffffff">Meal Plan</text>
+
+  <!-- Branch nodes (rounded rects, branch hue) -->
+  <!-- B1 Proteins -->
+  <g>
+    <rect x="476" y="186" width="180" height="60" rx="14" fill="#f9dedb" stroke="#c0392b" stroke-width="3"/>
+    <text x="566" y="223" text-anchor="middle" font-size="26" font-weight="700" fill="#902519">Proteins</text>
+  </g>
+  <!-- B2 Vegetables -->
+  <g>
+    <rect x="614" y="324" width="180" height="60" rx="14" fill="#dff0df" stroke="#2e7d32" stroke-width="3"/>
+    <text x="704" y="361" text-anchor="middle" font-size="26" font-weight="700" fill="#1f5723">Vegetables</text>
+  </g>
+  <!-- B3 Grains & Carbs -->
+  <g>
+    <rect x="520" y="564" width="212" height="60" rx="14" fill="#f6ecd2" stroke="#b8860b" stroke-width="3"/>
+    <text x="626" y="601" text-anchor="middle" font-size="26" font-weight="700" fill="#85620a">Grains &amp; Carbs</text>
+  </g>
+  <!-- B4 Pantry Staples -->
+  <g>
+    <rect x="278" y="564" width="192" height="60" rx="14" fill="#ece3f5" stroke="#7b4fa3" stroke-width="3"/>
+    <text x="374" y="601" text-anchor="middle" font-size="26" font-weight="700" fill="#583776">Pantry Staples</text>
+  </g>
+  <!-- B5 Weekly Schedule -->
+  <g>
+    <rect x="196" y="324" width="200" height="60" rx="14" fill="#dcebfa" stroke="#1565c0" stroke-width="3"/>
+    <text x="296" y="361" text-anchor="middle" font-size="26" font-weight="700" fill="#0f4a88">Weekly Schedule</text>
+  </g>
+
+  <!-- Leaf nodes (lighter pill, branch hue outline) -->
+  <!-- B1 leaves -->
+  <g>
+    <rect x="430" y="63" width="216" height="50" rx="25" fill="#fff" stroke="#c0392b" stroke-width="2.5"/>
+    <text x="538" y="95" text-anchor="middle" font-size="24" fill="#902519">Grilled salmon</text>
+  </g>
+  <g>
+    <rect x="592" y="105" width="160" height="50" rx="25" fill="#fff" stroke="#c0392b" stroke-width="2.5"/>
+    <text x="672" y="137" text-anchor="middle" font-size="24" fill="#902519">Chickpeas</text>
+  </g>
+  <!-- B2 leaves -->
+  <g>
+    <rect x="697" y="228" width="240" height="50" rx="25" fill="#fff" stroke="#2e7d32" stroke-width="2.5"/>
+    <text x="817" y="260" text-anchor="middle" font-size="24" fill="#1f5723">Roasted eggplant</text>
+  </g>
+  <g>
+    <rect x="725" y="362" width="232" height="50" rx="25" fill="#fff" stroke="#2e7d32" stroke-width="2.5"/>
+    <text x="841" y="394" text-anchor="middle" font-size="24" fill="#1f5723">Cherry tomatoes</text>
+  </g>
+  <!-- B3 leaves -->
+  <g>
+    <rect x="690" y="624" width="120" height="50" rx="25" fill="#fff" stroke="#b8860b" stroke-width="2.5"/>
+    <text x="750" y="656" text-anchor="middle" font-size="24" fill="#85620a">Farro</text>
+  </g>
+  <g>
+    <rect x="524" y="724" width="248" height="50" rx="25" fill="#fff" stroke="#b8860b" stroke-width="2.5"/>
+    <text x="648" y="756" text-anchor="middle" font-size="24" fill="#85620a">Whole-wheat pita</text>
+  </g>
+  <!-- B4 leaves -->
+  <g>
+    <rect x="285" y="724" width="152" height="50" rx="25" fill="#fff" stroke="#7b4fa3" stroke-width="2.5"/>
+    <text x="361" y="756" text-anchor="middle" font-size="24" fill="#583776">Olive oil</text>
+  </g>
+  <g>
+    <rect x="158" y="624" width="172" height="50" rx="25" fill="#fff" stroke="#7b4fa3" stroke-width="2.5"/>
+    <text x="244" y="656" text-anchor="middle" font-size="24" fill="#583776">Feta cheese</text>
+  </g>
+  <!-- B5 leaf -->
+  <g>
+    <rect x="20" y="214" width="232" height="50" rx="25" fill="#fff" stroke="#1565c0" stroke-width="2.5"/>
+    <text x="136" y="246" text-anchor="middle" font-size="24" fill="#0f4a88">Sunday batch cook</text>
+  </g>
+</svg>

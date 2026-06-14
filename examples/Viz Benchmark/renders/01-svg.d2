@@ -1,0 +1,39 @@
+direction: down
+
+# ---- Nodes (color-coded by role) ----
+web-sdk:     "web-sdk\nWeb/Mobile Event SDK"   { style.fill: "#e7f0ff"; style.stroke: "#3b6fb0" }
+order-svc:   "order-svc\nOrder Service"        { style.fill: "#e7f0ff"; style.stroke: "#3b6fb0" }
+ingest-gw:   "ingest-gw\nIngestion Gateway"    { style.fill: "#dff5e6"; style.stroke: "#2e8b57" }
+kafka-bus:   "kafka-bus\nKafka Event Bus"      { style.fill: "#fff2cc"; style.stroke: "#c9a227"; shape: cylinder }
+enrich-proc: "enrich-proc\nEnrichment Processor" { style.fill: "#dff5e6"; style.stroke: "#2e8b57" }
+agg-proc:    "agg-proc\nAggregation Processor"  { style.fill: "#dff5e6"; style.stroke: "#2e8b57" }
+profile-db:  "profile-db\nUser Profile DB"      { style.fill: "#fde9d9"; style.stroke: "#c97a2b"; shape: cylinder }
+serving-store: "serving-store\nServing Store"   { style.fill: "#fde9d9"; style.stroke: "#c97a2b"; shape: cylinder }
+query-api:   "query-api\nAnalytics Query API"   { style.fill: "#dff5e6"; style.stroke: "#2e8b57" }
+dashboard:   "dashboard\nAnalytics Dashboard"   { style.fill: "#e7f0ff"; style.stroke: "#3b6fb0" }
+config-svc:  "config-svc\nConfig Service"       { style.fill: "#f3e1f3"; style.stroke: "#8e44ad" }
+metrics-col: "metrics-col\nMetrics Collector"   { style.fill: "#f3e1f3"; style.stroke: "#8e44ad" }
+
+# ---- Solid data edges (10) ----
+web-sdk -> ingest-gw: "click events (HTTPS)"
+order-svc -> ingest-gw: "order events (HTTPS)"
+ingest-gw -> kafka-bus: "publish raw events"
+kafka-bus -> enrich-proc: "consume raw topic"
+enrich-proc -> profile-db: "lookup profile"
+enrich-proc -> kafka-bus: "publish enriched topic"
+kafka-bus -> agg-proc: "consume enriched topic"
+agg-proc -> serving-store: "write aggregates"
+query-api -> serving-store: "read aggregates"
+dashboard -> query-api: "query (REST)"
+
+# ---- Dashed control edges: config-svc fan-out (4) ----
+config-svc -> ingest-gw: "config (sampling rules)" { style.stroke-dash: 4 }
+config-svc -> enrich-proc: "config (join rules)" { style.stroke-dash: 4 }
+config-svc -> agg-proc: "config (window sizes)" { style.stroke-dash: 4 }
+config-svc -> query-api: "config (feature flags)" { style.stroke-dash: 4 }
+
+# ---- Dashed observability edges: metrics-col fan-out (4) ----
+metrics-col -> ingest-gw: "scrape /metrics" { style.stroke-dash: 4 }
+metrics-col -> enrich-proc: "scrape /metrics" { style.stroke-dash: 4 }
+metrics-col -> agg-proc: "scrape /metrics" { style.stroke-dash: 4 }
+metrics-col -> query-api: "scrape /metrics" { style.stroke-dash: 4 }

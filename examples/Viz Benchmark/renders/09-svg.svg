@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1140 1520" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#37474f"/>
+    </marker>
+  </defs>
+
+  <style>
+    .lbl   { font-size: 26px; fill: #102027; }
+    .lblw  { font-size: 26px; fill: #ffffff; }
+    .elbl  { font-size: 24px; fill: #1565c0; font-weight: 600; }
+    .elblr { font-size: 24px; fill: #c62828; font-weight: 600; }
+    .edge  { stroke: #37474f; stroke-width: 3; fill: none; }
+    .dash  { stroke: #e65100; stroke-width: 3; fill: none; stroke-dasharray: 9 7; }
+  </style>
+
+  <rect x="0" y="0" width="1140" height="1520" fill="#ffffff"/>
+
+  <!-- ================= EDGES (under nodes) ================= -->
+
+  <!-- start -> build -->
+  <path class="edge" d="M400,118 L400,160" marker-end="url(#arrow)"/>
+  <!-- build -> build_ok -->
+  <path class="edge" d="M400,230 L400,272" marker-end="url(#arrow)"/>
+  <!-- build_ok -> unit_tests (yes) -->
+  <path class="edge" d="M400,392 L400,432" marker-end="url(#arrow)"/>
+  <text class="elbl" x="412" y="418">yes</text>
+  <!-- unit_tests -> tests_pass -->
+  <path class="edge" d="M400,502 L400,544" marker-end="url(#arrow)"/>
+  <!-- tests_pass -> approval (yes) -->
+  <path class="edge" d="M400,664 L400,704" marker-end="url(#arrow)"/>
+  <text class="elbl" x="412" y="690">yes</text>
+  <!-- tests_pass -> flaky_check (no), left out then down -->
+  <path class="edge" d="M310,604 L150,604 L150,664" marker-end="url(#arrow)"/>
+  <text class="elblr" x="200" y="594">no</text>
+  <!-- flaky_check -> unit_tests (yes - retry), dashed loop-back up & right -->
+  <path class="dash" d="M150,664 L150,467 L235,467" marker-end="url(#arrow)"/>
+  <text x="40" y="560" fill="#e65100" font-weight="600" font-size="24">yes — retry</text>
+  <!-- approval -> approved -->
+  <path class="edge" d="M400,774 L400,816" marker-end="url(#arrow)"/>
+  <!-- approved -> deploy_staging (yes) -->
+  <path class="edge" d="M400,936 L400,976" marker-end="url(#arrow)"/>
+  <text class="elbl" x="412" y="962">yes</text>
+  <!-- deploy_staging -> smoke -->
+  <path class="edge" d="M400,1046 L400,1088" marker-end="url(#arrow)"/>
+  <!-- smoke -> smoke_ok -->
+  <path class="edge" d="M400,1158 L400,1200" marker-end="url(#arrow)"/>
+  <!-- smoke_ok -> promote (yes) -->
+  <path class="edge" d="M400,1320 L400,1360" marker-end="url(#arrow)"/>
+  <text class="elbl" x="412" y="1346">yes</text>
+  <!-- promote -> done_success -->
+  <path class="edge" d="M400,1430 L400,1432" marker-end="url(#arrow)"/>
+
+  <!-- ===== FAILURE BUS on far right (x=1060) into notify_fail (right side y=664) ===== -->
+  <!-- build_ok -> notify_fail (no): right to bus, down to notify_fail right edge -->
+  <path class="edge" d="M490,332 L1060,332 L1060,664 L872,664" marker-end="url(#arrow)"/>
+  <text class="elblr" x="640" y="322">no</text>
+  <!-- approved -> notify_fail (no): right to bus -->
+  <path class="edge" d="M490,876 L1060,876 L1060,664" />
+  <text class="elblr" x="640" y="866">no</text>
+  <!-- flaky_check -> notify_fail (no): down, right (clear band y=1175) to bus, up -->
+  <path class="edge" d="M150,784 L150,1175 L1060,1175 L1060,876" />
+  <text class="elblr" x="160" y="900">no</text>
+  <!-- smoke_ok -> rollback (no) -->
+  <path class="edge" d="M500,1260 L630,1260 L630,1120" marker-end="url(#arrow)"/>
+  <text class="elblr" x="535" y="1250">no</text>
+  <!-- rollback -> notify_fail: right to bus, up -->
+  <path class="edge" d="M880,1085 L1060,1085 L1060,1175" />
+  <!-- notify_fail -> done_fail -->
+  <path class="edge" d="M755,706 L755,760" marker-end="url(#arrow)"/>
+
+  <!-- ================= NODES ================= -->
+
+  <!-- start (terminator) -->
+  <rect x="235" y="60" width="330" height="58" rx="29" ry="29" fill="#43a047" stroke="#2e7d32" stroke-width="3"/>
+  <text class="lblw" x="400" y="97" text-anchor="middle" font-size="24">Developer pushes commit</text>
+
+  <!-- build (process) -->
+  <rect x="255" y="160" width="290" height="70" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="3"/>
+  <text class="lbl" x="400" y="202" text-anchor="middle">Build &amp; compile artifact</text>
+
+  <!-- build_ok (decision) -->
+  <polygon points="400,272 490,332 400,392 310,332" fill="#fff8e1" stroke="#f9a825" stroke-width="3"/>
+  <text class="lbl" x="400" y="340" text-anchor="middle">Build succeeded?</text>
+
+  <!-- unit_tests (process) -->
+  <rect x="240" y="432" width="320" height="70" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="3"/>
+  <text class="lbl" x="400" y="467" text-anchor="middle">Run unit +</text>
+  <text class="lbl" x="400" y="495" text-anchor="middle">integration tests</text>
+
+  <!-- tests_pass (decision) -->
+  <polygon points="400,544 490,604 400,664 310,604" fill="#fff8e1" stroke="#f9a825" stroke-width="3"/>
+  <text class="lbl" x="400" y="612" text-anchor="middle">Tests pass?</text>
+
+  <!-- flaky_check (decision) -->
+  <polygon points="150,664 245,724 150,784 55,724" fill="#fff8e1" stroke="#f9a825" stroke-width="3"/>
+  <text class="lbl" x="150" y="732" text-anchor="middle">Failure flaky?</text>
+
+  <!-- approval (process) -->
+  <rect x="245" y="704" width="310" height="70" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="3"/>
+  <text class="lbl" x="400" y="746" text-anchor="middle">Await manual approval</text>
+
+  <!-- approved (decision) -->
+  <polygon points="400,816 490,876 400,936 310,876" fill="#fff8e1" stroke="#f9a825" stroke-width="3"/>
+  <text class="lbl" x="400" y="884" text-anchor="middle">Approved?</text>
+
+  <!-- deploy_staging (process) -->
+  <rect x="255" y="976" width="290" height="70" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="3"/>
+  <text class="lbl" x="400" y="1018" text-anchor="middle">Deploy to staging</text>
+
+  <!-- smoke (process) -->
+  <rect x="265" y="1088" width="270" height="70" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="3"/>
+  <text class="lbl" x="400" y="1130" text-anchor="middle">Run smoke tests</text>
+
+  <!-- smoke_ok (decision) -->
+  <polygon points="400,1200 500,1260 400,1320 300,1260" fill="#fff8e1" stroke="#f9a825" stroke-width="3"/>
+  <text class="lbl" x="400" y="1268" text-anchor="middle">Smoke tests pass?</text>
+
+  <!-- promote (process) -->
+  <rect x="255" y="1360" width="290" height="70" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="3"/>
+  <text class="lbl" x="400" y="1402" text-anchor="middle">Promote to production</text>
+
+  <!-- done_success (terminator) -->
+  <rect x="225" y="1432" width="350" height="58" rx="29" ry="29" fill="#43a047" stroke="#2e7d32" stroke-width="3"/>
+  <text class="lblw" x="400" y="1469" text-anchor="middle" font-size="24">Pipeline complete (deployed)</text>
+
+  <!-- rollback (process) — sits right of smoke -->
+  <rect x="600" y="1048" width="280" height="70" rx="6" fill="#fde8e8" stroke="#c62828" stroke-width="3"/>
+  <text class="lbl" x="740" y="1083" text-anchor="middle">Auto-rollback</text>
+  <text class="lbl" x="740" y="1108" text-anchor="middle" font-size="22">staging</text>
+
+  <!-- notify_fail (process, four-way merge) -->
+  <rect x="640" y="624" width="230" height="80" rx="6" fill="#fde8e8" stroke="#c62828" stroke-width="3"/>
+  <text class="lbl" x="755" y="660" text-anchor="middle">Notify team</text>
+  <text class="lbl" x="755" y="688" text-anchor="middle">of failure</text>
+
+  <!-- done_fail (terminator) -->
+  <rect x="600" y="760" width="310" height="58" rx="29" ry="29" fill="#c62828" stroke="#8e0000" stroke-width="3"/>
+  <text class="lblw" x="755" y="797" text-anchor="middle" font-size="23">Pipeline failed (no deploy)</text>
+
+</svg>

@@ -1,0 +1,159 @@
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+}
+
+classes: {
+  assoc: {
+    style: {
+      font-size: 22
+      stroke-width: 2
+    }
+  }
+  generalize: {
+    target-arrowhead: { shape: triangle }
+    style: {
+      font-size: 22
+      stroke-width: 3
+      stroke: "#1a5fb4"
+    }
+  }
+  compose: {
+    source-arrowhead: { shape: diamond; style: { filled: true } }
+    style: {
+      font-size: 22
+      stroke-width: 3
+      stroke: "#9c2d2d"
+    }
+  }
+  depend: {
+    style: {
+      font-size: 22
+      stroke-width: 2
+      stroke-dash: 4
+      stroke: "#6c3da0"
+    }
+  }
+}
+
+# ---- Classes (UML boxes with attribute + operation compartments) ----
+
+Account: {
+  shape: class
+  "\#abstract": "{abstract}"
+  id: UUID
+  email: String
+  createdAt: Date
+  "login()": Boolean
+  "logout()": void
+  style: { font-size: 26 }
+}
+
+FreeAccount: {
+  shape: class
+  adInterval: Int
+  "showAd()": void
+  style: { font-size: 26 }
+}
+
+PremiumAccount: {
+  shape: class
+  renewalDate: Date
+  priceTier: String
+  "downloadOffline(t: Track)": Boolean
+  style: { font-size: 26 }
+}
+
+User: {
+  shape: class
+  displayName: String
+  country: String
+  "follow(u: User)": void
+  style: { font-size: 26 }
+}
+
+Playlist: {
+  shape: class
+  title: String
+  isPublic: Boolean
+  "addTrack(t: Track)": void
+  "reorder()": void
+  style: { font-size: 26 }
+}
+
+PlaylistItem: {
+  shape: class
+  position: Int
+  addedAt: Date
+  style: { font-size: 26 }
+}
+
+Track: {
+  shape: class
+  title: String
+  durationSec: Int
+  isrc: String
+  "play()": Stream
+  style: { font-size: 26 }
+}
+
+Album: {
+  shape: class
+  title: String
+  releaseDate: Date
+  style: { font-size: 26 }
+}
+
+Artist: {
+  shape: class
+  name: String
+  verified: Boolean
+  style: { font-size: 26 }
+}
+
+PlaybackSession: {
+  shape: class
+  startedAt: Date
+  deviceId: String
+  "pause()": void
+  "skip()": void
+  style: { font-size: 26 }
+}
+
+AudioStream: {
+  shape: class
+  bitrateKbps: Int
+  codec: String
+  style: { font-size: 26 }
+}
+
+Genre: {
+  shape: class
+  name: String
+  style: { font-size: 26 }
+}
+
+# ---- Edges ----
+
+# generalization (hollow triangle) — 2
+FreeAccount -> Account: "is-a" { class: generalize }
+PremiumAccount -> Account: "is-a" { class: generalize }
+
+# composition (filled diamond at whole-end) — 3
+Playlist -> PlaylistItem: "contains items [1..*]" { class: compose }
+Album -> Track: "contains tracks [1..*]" { class: compose }
+PlaybackSession -> AudioStream: "owns stream [1]" { class: compose }
+
+# association (plain solid) — 8
+User -> Account: "has — owns 1 account [1]" { class: assoc }
+User -> Playlist: "creates — owns playlists [0..*]" { class: assoc }
+PlaylistItem -> Track: "references — points to track [1]" { class: assoc }
+Artist -> Album: "produces — releases albums [0..*]" { class: assoc }
+Track -> Artist: "performedBy — credited artists [1..*]" { class: assoc }
+Track -> Genre: "taggedWith — genres [0..*]" { class: assoc }
+User -> PlaybackSession: "starts — active sessions [0..*]" { class: assoc }
+PlaybackSession -> Track: "nowPlaying — current track [1]" { class: assoc }
+
+# dependency (dashed arrow) — 1
+PremiumAccount -> Track: "downloads (dependency) — offline copy" { class: depend }

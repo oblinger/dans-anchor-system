@@ -1,0 +1,117 @@
+# UML class model — music-streaming app (benchmark 10)
+# Source for the d2 renderer track; the hand-authored SVG (10-svg.svg) is the
+# primary deliverable. 12 classes, 14 relationships across 4 semantics.
+
+# ---- account hierarchy ----
+Account: {
+  shape: class
+  "\{abstract\}": ""
+  id: UUID
+  email: String
+  createdAt: Date
+  login(): Boolean
+  logout(): void
+  style.fill: "#eaf3ee"
+}
+FreeAccount: {
+  shape: class
+  adInterval: Int
+  showAd(): void
+  style.fill: "#eaf3ee"
+}
+PremiumAccount: {
+  shape: class
+  renewalDate: Date
+  priceTier: String
+  downloadOffline(t: Track): Boolean
+  style.fill: "#eaf3ee"
+}
+
+# ---- user / playlist ----
+User: {
+  shape: class
+  displayName: String
+  country: String
+  follow(u: User): void
+  style.fill: "#eef0fb"
+}
+Playlist: {
+  shape: class
+  title: String
+  isPublic: Boolean
+  addTrack(t: Track): void
+  reorder(): void
+  style.fill: "#eef0fb"
+}
+PlaylistItem: {
+  shape: class
+  position: Int
+  addedAt: Date
+  style.fill: "#eef0fb"
+}
+
+# ---- catalog ----
+Track: {
+  shape: class
+  title: String
+  durationSec: Int
+  isrc: String
+  play(): Stream
+  style.fill: "#fbf0ea"
+}
+Album: {
+  shape: class
+  title: String
+  releaseDate: Date
+  style.fill: "#fbf0ea"
+}
+Artist: {
+  shape: class
+  name: String
+  verified: Boolean
+  style.fill: "#fbf0ea"
+}
+Genre: {
+  shape: class
+  name: String
+  style.fill: "#fbf0ea"
+}
+
+# ---- playback ----
+PlaybackSession: {
+  shape: class
+  startedAt: Date
+  deviceId: String
+  pause(): void
+  skip(): void
+  style.fill: "#f6ecf4"
+}
+AudioStream: {
+  shape: class
+  bitrateKbps: Int
+  codec: String
+  style.fill: "#f6ecf4"
+}
+
+# ===== edges =====
+# generalization (hollow triangle)
+FreeAccount -> Account: "is-a" { target-arrowhead.shape: triangle; style.stroke: "#2f6f4f" }
+PremiumAccount -> Account: "is-a" { target-arrowhead.shape: triangle; style.stroke: "#2f6f4f" }
+
+# associations (navigable arrow)
+User -> Account: "has — owns account [1]" { style.stroke: "#2b5e8a" }
+User -> Playlist: "creates — owns playlists [0..*]" { style.stroke: "#2b5e8a" }
+PlaylistItem -> Track: "references — track [1]" { style.stroke: "#2b5e8a" }
+Artist -> Album: "produces — albums [0..*]" { style.stroke: "#2b5e8a" }
+Track -> Artist: "performedBy — credited artists [1..*]" { style.stroke: "#2b5e8a" }
+Track -> Genre: "taggedWith — genres [0..*]" { style.stroke: "#2b5e8a" }
+User -> PlaybackSession: "starts — active sessions [0..*]" { style.stroke: "#2b5e8a" }
+PlaybackSession -> Track: "nowPlaying — current track [1]" { style.stroke: "#2b5e8a" }
+
+# composition (filled diamond at whole)
+Playlist -> PlaylistItem: "composition — items [1..*]" { source-arrowhead.shape: diamond; source-arrowhead.style.filled: true; style.stroke: "#9b4a8a" }
+Album -> Track: "composition — tracks [1..*]" { source-arrowhead.shape: diamond; source-arrowhead.style.filled: true; style.stroke: "#9b4a8a" }
+PlaybackSession -> AudioStream: "composition — owns stream [1]" { source-arrowhead.shape: diamond; source-arrowhead.style.filled: true; style.stroke: "#9b4a8a" }
+
+# dependency (dashed)
+PremiumAccount -> Track: "downloads «dependency» — offline copy" { style.stroke-dash: 5; style.stroke: "#b06a18" }

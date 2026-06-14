@@ -1,0 +1,119 @@
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+}
+
+classes: {
+  ent: {
+    style: { stroke-width: 2 }
+  }
+}
+
+CUSTOMER: {
+  shape: sql_table
+  class: ent
+  customer_id: int {constraint: primary_key}
+  email: text
+  full_name: text
+  created_at: timestamp
+}
+
+ADDRESS: {
+  shape: sql_table
+  class: ent
+  address_id: int {constraint: primary_key}
+  customer_id: int {constraint: foreign_key}
+  line1: text
+  city: text
+  postal_code: text
+  country: text
+}
+
+ORDER: {
+  shape: sql_table
+  class: ent
+  order_id: int {constraint: primary_key}
+  customer_id: int {constraint: foreign_key}
+  shipping_address_id: int {constraint: foreign_key}
+  status: text
+  placed_at: timestamp
+}
+
+ORDER_ITEM: {
+  shape: sql_table
+  class: ent
+  order_item_id: int {constraint: primary_key}
+  order_id: int {constraint: foreign_key}
+  product_id: int {constraint: foreign_key}
+  quantity: int
+  unit_price: decimal
+}
+
+PRODUCT: {
+  shape: sql_table
+  class: ent
+  product_id: int {constraint: primary_key}
+  sku: text
+  name: text
+  price: decimal
+  stock_qty: int
+}
+
+CATEGORY: {
+  shape: sql_table
+  class: ent
+  category_id: int {constraint: primary_key}
+  name: text
+  slug: text
+}
+
+PRODUCT_CATEGORY: {
+  shape: sql_table
+  class: ent
+  product_id: int {constraint: foreign_key}
+  category_id: int {constraint: foreign_key}
+}
+
+PAYMENT: {
+  shape: sql_table
+  class: ent
+  payment_id: int {constraint: primary_key}
+  order_id: int {constraint: foreign_key}
+  method: text
+  amount: decimal
+  paid_at: timestamp
+}
+
+SHIPMENT: {
+  shape: sql_table
+  class: ent
+  shipment_id: int {constraint: primary_key}
+  order_id: int {constraint: foreign_key}
+  carrier: text
+  tracking_no: text
+  shipped_at: timestamp
+}
+
+REVIEW: {
+  shape: sql_table
+  class: ent
+  review_id: int {constraint: primary_key}
+  product_id: int {constraint: foreign_key}
+  customer_id: int {constraint: foreign_key}
+  rating: int
+  body: text
+  created_at: timestamp
+}
+
+CUSTOMER -> ADDRESS: "has  1—N" { style.font-size: 22 }
+CUSTOMER -> ORDER: "places  1—N" { style.font-size: 22 }
+ADDRESS -> ORDER: "ships to  1—N" { style.font-size: 22 }
+ORDER -> ORDER_ITEM: "contains  1—N" { style.font-size: 22 }
+PRODUCT -> ORDER_ITEM: "ordered as  1—N" { style.font-size: 22 }
+PRODUCT -> PRODUCT_CATEGORY: "classified in  1—N" { style.font-size: 22 }
+CATEGORY -> PRODUCT_CATEGORY: "groups  1—N" { style.font-size: 22 }
+ORDER -> PAYMENT: "paid by  1—N" { style.font-size: 22 }
+ORDER -> SHIPMENT: "fulfilled by  1—N" { style.font-size: 22 }
+PRODUCT -> REVIEW: "reviewed in  1—N" { style.font-size: 22 }
+CUSTOMER -> REVIEW: "writes  1—N" { style.font-size: 22 }

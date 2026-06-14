@@ -1,0 +1,266 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1640 1240" font-family="'Helvetica Neue',Arial,sans-serif">
+  <defs>
+    <!-- generalization: hollow triangle -->
+    <marker id="tri" markerWidth="22" markerHeight="22" refX="20" refY="11" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M1,1 L20,11 L1,21 Z" fill="#ffffff" stroke="#2f6f4f" stroke-width="2"/>
+    </marker>
+    <!-- composition: filled diamond (placed at WHOLE / source end) -->
+    <marker id="diamond" markerWidth="30" markerHeight="20" refX="1" refY="9" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M1,9 L14,1 L27,9 L14,17 Z" fill="#9b4a8a" stroke="#9b4a8a" stroke-width="1.5"/>
+    </marker>
+    <!-- association: open arrow (navigable) -->
+    <marker id="open" markerWidth="20" markerHeight="20" refX="14" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M2,1 L15,8 L2,15" fill="none" stroke="#2b5e8a" stroke-width="2.2"/>
+    </marker>
+    <!-- dependency: open arrow -->
+    <marker id="dep" markerWidth="20" markerHeight="20" refX="14" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M2,1 L15,8 L2,15" fill="none" stroke="#b06a18" stroke-width="2.2"/>
+    </marker>
+  </defs>
+
+  <style>
+    .box      { stroke:#33373d; stroke-width:2.5; }
+    .acct     { fill:#eaf3ee; }
+    .acct-h   { fill:#cfe6d8; }
+    .usr      { fill:#eef0fb; }
+    .usr-h    { fill:#d6dbf5; }
+    .cat      { fill:#fbf0ea; }
+    .cat-h    { fill:#f4d9c8; }
+    .play     { fill:#f6ecf4; }
+    .play-h   { fill:#ead2e6; }
+    .cname    { font-size:27px; font-weight:700; fill:#1c1f24; text-anchor:middle; }
+    .cabs     { font-size:27px; font-weight:700; font-style:italic; fill:#1c1f24; text-anchor:middle; }
+    .stereo   { font-size:18px; font-style:italic; fill:#555; text-anchor:middle; }
+    .mem      { font-size:21px; fill:#22252b; }
+
+    .e-gen    { stroke:#2f6f4f; stroke-width:2.6; fill:none; }
+    .e-comp   { stroke:#9b4a8a; stroke-width:2.6; fill:none; }
+    .e-assoc  { stroke:#2b5e8a; stroke-width:2.6; fill:none; }
+    .e-dep    { stroke:#b06a18; stroke-width:2.6; fill:none; stroke-dasharray:9 7; }
+
+    .lbl      { font-size:20px; }
+    .lbl-gen  { fill:#2f6f4f; }
+    .lbl-comp { fill:#9b4a8a; }
+    .lbl-assoc{ fill:#2b5e8a; }
+    .lbl-dep  { fill:#b06a18; }
+  </style>
+
+  <rect x="0" y="0" width="1640" height="1240" fill="#ffffff"/>
+
+  <!-- ===================== EDGES (under boxes) ===================== -->
+
+  <!-- 1. FreeAccount -> Account : generalization -->
+  <path class="e-gen" d="M205,580 L205,500 L300,500 L300,418" marker-end="url(#tri)"/>
+  <!-- 2. PremiumAccount -> Account : generalization -->
+  <path class="e-gen" d="M440,580 L440,500 L340,500 L340,418" marker-end="url(#tri)"/>
+
+  <!-- 3. User -> Account : has owns 1 account [1] (assoc) -->
+  <path class="e-assoc" d="M680,300 L500,300" marker-end="url(#open)"/>
+
+  <!-- 4. User -> Playlist : creates owns playlists [0..*] (assoc) -->
+  <path class="e-assoc" d="M800,420 L800,580" marker-end="url(#open)"/>
+
+  <!-- 5. Playlist -> PlaylistItem : composition contains items [1..*] -->
+  <path class="e-comp" d="M800,820 L800,940" marker-start="url(#diamond)" marker-end="url(#open)"/>
+
+  <!-- 6. PlaylistItem -> Track : references points to track [1] (assoc) -->
+  <path class="e-assoc" d="M920,1010 L1190,1010 L1190,830" marker-end="url(#open)"/>
+
+  <!-- 7. Album -> Track : composition contains tracks [1..*] (diamond at Album) -->
+  <path class="e-comp" d="M1470,580 L1470,665 L1352,665" marker-start="url(#diamond)" marker-end="url(#open)"/>
+
+  <!-- 8. Artist -> Album : produces releases albums [0..*] (assoc) -->
+  <path class="e-assoc" d="M1470,320 L1470,460" marker-end="url(#open)"/>
+
+  <!-- 9. Track -> Artist : performedBy credited artists [1..*] (assoc) -->
+  <path class="e-assoc" d="M1310,520 L1310,300 L1360,300" marker-end="url(#open)"/>
+
+  <!-- 10. Track -> Genre : taggedWith genres [0..*] (assoc) -->
+  <path class="e-assoc" d="M1210,640 L1210,1120 L1060,1120" marker-end="url(#open)"/>
+
+  <!-- 11. User -> PlaybackSession : starts active sessions [0..*] (assoc) -->
+  <path class="e-assoc" d="M700,420 L450,420 L450,820" marker-end="url(#open)"/>
+
+  <!-- 12. PlaybackSession -> Track : nowPlaying current track [1] (assoc) -->
+  <path class="e-assoc" d="M680,890 L600,890 L600,1180 L1160,1180 L1160,684" marker-end="url(#open)"/>
+
+  <!-- 13. PlaybackSession -> AudioStream : composition owns stream [1] (diamond at session) -->
+  <path class="e-comp" d="M540,1010 L540,1100 L300,1100 L300,1030" marker-start="url(#diamond)" marker-end="url(#open)"/>
+
+  <!-- 14. PremiumAccount -> Track : downloads (dependency) (dashed) -->
+  <path class="e-dep" d="M620,670 L1195,775" marker-end="url(#dep)"/>
+
+  <!-- ===================== EDGE LABELS ===================== -->
+  <!-- 1 -->
+  <text class="lbl lbl-gen" x="252" y="493">is-a</text>
+  <!-- 2 -->
+  <text class="lbl lbl-gen" x="348" y="493">is-a</text>
+  <!-- 3 -->
+  <text class="lbl lbl-assoc" x="590" y="262" text-anchor="middle"><tspan x="590" dy="0">has — owns</tspan><tspan x="590" dy="22">account [1]</tspan></text>
+  <!-- 4 -->
+  <text class="lbl lbl-assoc" x="812" y="495"><tspan x="812" dy="0">creates — owns</tspan><tspan x="812" dy="22">playlists [0..*]</tspan></text>
+  <!-- 5 -->
+  <text class="lbl lbl-comp" x="812" y="882"><tspan x="812" dy="0">composition —</tspan><tspan x="812" dy="22">items [1..*]</tspan></text>
+  <!-- 6 -->
+  <text class="lbl lbl-assoc" x="945" y="985"><tspan x="945" dy="0">references —</tspan><tspan x="945" dy="22">track [1]</tspan></text>
+  <!-- 7 -->
+  <text class="lbl lbl-comp" x="1390" y="710"><tspan x="1390" dy="0">composition —</tspan><tspan x="1390" dy="22">tracks [1..*]</tspan></text>
+  <!-- 8 -->
+  <text class="lbl lbl-assoc" x="1482" y="398"><tspan x="1482" dy="0">produces —</tspan><tspan x="1482" dy="22">albums [0..*]</tspan></text>
+  <!-- 9 -->
+  <text class="lbl lbl-assoc" x="1335" y="270" text-anchor="middle"><tspan x="1335" dy="0">performedBy</tspan><tspan x="1335" dy="22">[1..*]</tspan></text>
+  <!-- 10 -->
+  <text class="lbl lbl-assoc" x="1230" y="900"><tspan x="1230" dy="0">taggedWith</tspan><tspan x="1230" dy="22">genres [0..*]</tspan></text>
+  <!-- 11 -->
+  <text class="lbl lbl-assoc" x="462" y="610"><tspan x="462" dy="0">starts —</tspan><tspan x="462" dy="22">sessions [0..*]</tspan></text>
+  <!-- 12 -->
+  <text class="lbl lbl-assoc" x="830" y="1208" text-anchor="middle"><tspan x="830" dy="0">nowPlaying — current track [1]</tspan></text>
+  <!-- 13 -->
+  <text class="lbl lbl-comp" x="410" y="1080" text-anchor="middle"><tspan x="410" dy="0">composition —</tspan><tspan x="410" dy="22">stream [1]</tspan></text>
+  <!-- 14 -->
+  <text class="lbl lbl-dep" x="845" y="700" text-anchor="middle"><tspan x="845" dy="0">downloads «dependency»</tspan><tspan x="845" dy="22">— offline copy</tspan></text>
+
+  <!-- ===================== NODES ===================== -->
+
+  <!-- Account (abstract) center 300, x160..480 -->
+  <g>
+    <rect class="box acct-h" x="160" y="200" width="320" height="48"/>
+    <rect class="box acct"   x="160" y="248" width="320" height="92"/>
+    <rect class="box acct"   x="160" y="340" width="320" height="78"/>
+    <text class="cabs" x="320" y="222">Account</text>
+    <text class="stereo" x="320" y="242">{abstract}</text>
+    <text class="mem" x="172" y="272">id: UUID</text>
+    <text class="mem" x="172" y="298">email: String</text>
+    <text class="mem" x="172" y="324">createdAt: Date</text>
+    <text class="mem" x="172" y="366">login(): Boolean</text>
+    <text class="mem" x="172" y="392">logout(): void</text>
+  </g>
+
+  <!-- FreeAccount center 205, x100..310 -->
+  <g>
+    <rect class="box acct-h" x="100" y="580" width="210" height="40"/>
+    <rect class="box acct"   x="100" y="620" width="210" height="40"/>
+    <rect class="box acct"   x="100" y="660" width="210" height="40"/>
+    <text class="cname" x="205" y="608">FreeAccount</text>
+    <text class="mem" x="112" y="646">adInterval: Int</text>
+    <text class="mem" x="112" y="686">showAd(): void</text>
+  </g>
+
+  <!-- PremiumAccount center 455, x330..620 (w290) -->
+  <g>
+    <rect class="box acct-h" x="330" y="580" width="290" height="40"/>
+    <rect class="box acct"   x="330" y="620" width="290" height="66"/>
+    <rect class="box acct"   x="330" y="686" width="290" height="40"/>
+    <text class="cname" x="475" y="608">PremiumAccount</text>
+    <text class="mem" x="342" y="646">renewalDate: Date</text>
+    <text class="mem" x="342" y="672">priceTier: String</text>
+    <text class="mem" x="342" y="712">downloadOffline(t): Boolean</text>
+  </g>
+
+  <!-- User center 800, x680..930 -->
+  <g>
+    <rect class="box usr-h" x="680" y="220" width="250" height="40"/>
+    <rect class="box usr"   x="680" y="260" width="250" height="66"/>
+    <rect class="box usr"   x="680" y="326" width="250" height="40"/>
+    <text class="cname" x="805" y="248">User</text>
+    <text class="mem" x="692" y="286">displayName: String</text>
+    <text class="mem" x="692" y="312">country: String</text>
+    <text class="mem" x="692" y="352">follow(u: User): void</text>
+  </g>
+
+  <!-- Playlist center 800, x680..930 -->
+  <g>
+    <rect class="box usr-h" x="680" y="620" width="250" height="40"/>
+    <rect class="box usr"   x="680" y="660" width="250" height="66"/>
+    <rect class="box usr"   x="680" y="726" width="250" height="66"/>
+    <text class="cname" x="805" y="648">Playlist</text>
+    <text class="mem" x="692" y="686">title: String</text>
+    <text class="mem" x="692" y="712">isPublic: Boolean</text>
+    <text class="mem" x="692" y="752">addTrack(t: Track): void</text>
+    <text class="mem" x="692" y="778">reorder(): void</text>
+  </g>
+
+  <!-- PlaylistItem center 800, x680..920 -->
+  <g>
+    <rect class="box usr-h" x="680" y="940" width="240" height="40"/>
+    <rect class="box usr"   x="680" y="980" width="240" height="66"/>
+    <text class="cname" x="800" y="968">PlaylistItem</text>
+    <text class="mem" x="692" y="1006">position: Int</text>
+    <text class="mem" x="692" y="1032">addedAt: Date</text>
+  </g>
+
+  <!-- Track center 1190, x1070..1310 (w240) y520..830 -->
+  <g>
+    <rect class="box cat-h" x="1070" y="510" width="280" height="40"/>
+    <rect class="box cat"   x="1070" y="550" width="280" height="92"/>
+    <rect class="box cat"   x="1070" y="642" width="280" height="40"/>
+    <text class="cname" x="1210" y="538">Track</text>
+    <text class="mem" x="1082" y="578">title: String</text>
+    <text class="mem" x="1082" y="604">durationSec: Int</text>
+    <text class="mem" x="1082" y="630">isrc: String</text>
+    <text class="mem" x="1082" y="670">play(): Stream</text>
+  </g>
+
+  <!-- Album center 1470, x1360..1580 y460..580 -->
+  <g>
+    <rect class="box cat-h" x="1360" y="460" width="220" height="40"/>
+    <rect class="box cat"   x="1360" y="500" width="220" height="66"/>
+    <text class="cname" x="1470" y="488">Album</text>
+    <text class="mem" x="1372" y="526">title: String</text>
+    <text class="mem" x="1372" y="552">releaseDate: Date</text>
+  </g>
+
+  <!-- Artist center 1470, x1360..1580 y200..320 -->
+  <g>
+    <rect class="box cat-h" x="1360" y="200" width="220" height="40"/>
+    <rect class="box cat"   x="1360" y="240" width="220" height="66"/>
+    <text class="cname" x="1470" y="228">Artist</text>
+    <text class="mem" x="1372" y="266">name: String</text>
+    <text class="mem" x="1372" y="292">verified: Boolean</text>
+  </g>
+
+  <!-- Genre center 940, x830..1060 y1080..1160 -->
+  <g>
+    <rect class="box cat-h" x="830" y="1080" width="230" height="40"/>
+    <rect class="box cat"   x="830" y="1120" width="230" height="40"/>
+    <text class="cname" x="945" y="1108">Genre</text>
+    <text class="mem" x="842" y="1146">name: String</text>
+  </g>
+
+  <!-- PlaybackSession center 540, x400..680 y820..1010 -->
+  <g>
+    <rect class="box play-h" x="400" y="820" width="280" height="40"/>
+    <rect class="box play"   x="400" y="860" width="280" height="66"/>
+    <rect class="box play"   x="400" y="926" width="280" height="66"/>
+    <text class="cname" x="540" y="848">PlaybackSession</text>
+    <text class="mem" x="412" y="886">startedAt: Date</text>
+    <text class="mem" x="412" y="912">deviceId: String</text>
+    <text class="mem" x="412" y="952">pause(): void</text>
+    <text class="mem" x="412" y="978">skip(): void</text>
+  </g>
+
+  <!-- AudioStream center 300, x170..430 y930..1030 -->
+  <g>
+    <rect class="box play-h" x="170" y="930" width="260" height="40"/>
+    <rect class="box play"   x="170" y="970" width="260" height="66"/>
+    <text class="cname" x="300" y="958">AudioStream</text>
+    <text class="mem" x="182" y="996">bitrateKbps: Int</text>
+    <text class="mem" x="182" y="1022">codec: String</text>
+  </g>
+
+  <!-- ===================== LEGEND (bottom-right empty area) ===================== -->
+  <g>
+    <rect x="1090" y="940" width="520" height="225" fill="#fbfbfc" stroke="#9aa0a8" stroke-width="1.5" rx="8"/>
+    <text x="1110" y="975" font-size="23" font-weight="700" fill="#1c1f24">Relationship semantics</text>
+    <line class="e-gen" x1="1110" y1="1010" x2="1190" y2="1010" marker-end="url(#tri)"/>
+    <text class="lbl lbl-gen" x="1218" y="1016">generalization (is-a)</text>
+    <line class="e-comp" x1="1110" y1="1050" x2="1190" y2="1050" marker-start="url(#diamond)" marker-end="url(#open)"/>
+    <text class="lbl lbl-comp" x="1230" y="1056">composition (whole/part)</text>
+    <line class="e-assoc" x1="1110" y1="1090" x2="1190" y2="1090" marker-end="url(#open)"/>
+    <text class="lbl lbl-assoc" x="1218" y="1096">association (navigable)</text>
+    <line class="e-dep" x1="1110" y1="1130" x2="1190" y2="1130" marker-end="url(#dep)"/>
+    <text class="lbl lbl-dep" x="1218" y="1136">dependency (dashed)</text>
+  </g>
+
+  <text x="40" y="64" font-size="34" font-weight="700" fill="#1c1f24">Music-Streaming App — Class Model</text>
+</svg>

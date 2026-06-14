@@ -1,0 +1,114 @@
+# 08 — Dependency DAG (dense) — Node monorepo build graph
+# 14 packages, 41 "depends on" edges (uniform solid; label elided to legend per spec)
+# direction: up  →  dependencies sit above dependents (edges point toward what they depend on)
+
+direction: up
+
+classes: {
+  leaf: {
+    style: {
+      font-size: 34
+      fill: "#e8f0e8"
+      stroke: "#2e6b2e"
+      border-radius: 8
+    }
+    width: 132
+    height: 70
+  }
+  infra: {
+    style: {
+      font-size: 34
+      fill: "#e6eef7"
+      stroke: "#2a5d8f"
+      border-radius: 8
+    }
+    width: 132
+    height: 70
+  }
+  svc: {
+    style: {
+      font-size: 34
+      fill: "#fbf0e0"
+      stroke: "#b8860b"
+      border-radius: 8
+    }
+    width: 132
+    height: 70
+  }
+  app: {
+    style: {
+      font-size: 36
+      fill: "#f7e0e6"
+      stroke: "#9f2b4a"
+      bold: true
+      border-radius: 8
+    }
+    width: 140
+    height: 76
+  }
+}
+
+# ── leaf packages (no outgoing edges) ──
+logger: logger { class: leaf }
+config: config { class: leaf }
+types: types { class: leaf }
+
+# ── infra packages ──
+db: db { class: infra }
+cache: cache { class: infra }
+http: http { class: infra }
+auth: auth { class: infra }
+
+# ── services ──
+users: users { class: svc }
+restaurants: restaurants { class: svc }
+menu: menu { class: svc }
+orders: orders { class: svc }
+payments: payments { class: svc }
+notifications: notifications { class: svc }
+
+# ── app entry (root, no incoming edges) ──
+gateway: gateway { class: app }
+
+# ── edges (41) — all "depends on" [solid] ──
+db -> logger
+db -> config
+db -> types
+cache -> logger
+cache -> config
+http -> logger
+http -> config
+auth -> types
+auth -> cache
+auth -> db
+users -> db
+users -> auth
+users -> types
+restaurants -> db
+restaurants -> cache
+restaurants -> types
+menu -> db
+menu -> cache
+menu -> restaurants
+menu -> types
+orders -> db
+orders -> users
+orders -> menu
+orders -> payments
+orders -> types
+payments -> db
+payments -> http
+payments -> auth
+payments -> types
+notifications -> http
+notifications -> users
+notifications -> orders
+notifications -> config
+gateway -> auth
+gateway -> users
+gateway -> restaurants
+gateway -> menu
+gateway -> orders
+gateway -> payments
+gateway -> notifications
+gateway -> http

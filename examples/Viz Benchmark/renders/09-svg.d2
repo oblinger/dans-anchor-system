@@ -1,0 +1,42 @@
+# 09 — Flowchart with decisions (CI/CD pipeline)
+# Companion D2 source for the hand-authored SVG render.
+# 16 nodes, 19 edges.
+
+direction: down
+
+start: Developer pushes commit { shape: oval; style.fill: "#43a047"; style.font-color: "#ffffff" }
+build: Build & compile artifact { shape: rectangle; style.fill: "#e3f2fd" }
+build_ok: Build succeeded? { shape: diamond; style.fill: "#fff8e1" }
+unit_tests: Run unit + integration tests { shape: rectangle; style.fill: "#e3f2fd" }
+tests_pass: Tests pass? { shape: diamond; style.fill: "#fff8e1" }
+flaky_check: Failure flaky? { shape: diamond; style.fill: "#fff8e1" }
+approval: Await manual approval { shape: rectangle; style.fill: "#e3f2fd" }
+approved: Approved? { shape: diamond; style.fill: "#fff8e1" }
+deploy_staging: Deploy to staging { shape: rectangle; style.fill: "#e3f2fd" }
+smoke: Run smoke tests { shape: rectangle; style.fill: "#e3f2fd" }
+smoke_ok: Smoke tests pass? { shape: diamond; style.fill: "#fff8e1" }
+promote: Promote to production { shape: rectangle; style.fill: "#e3f2fd" }
+rollback: Auto-rollback staging { shape: rectangle; style.fill: "#fde8e8" }
+notify_fail: Notify team of failure { shape: rectangle; style.fill: "#fde8e8" }
+done_success: Pipeline complete (deployed) { shape: oval; style.fill: "#43a047"; style.font-color: "#ffffff" }
+done_fail: Pipeline failed (no deploy) { shape: oval; style.fill: "#c62828"; style.font-color: "#ffffff" }
+
+start -> build
+build -> build_ok
+build_ok -> unit_tests: yes
+build_ok -> notify_fail: no
+unit_tests -> tests_pass
+tests_pass -> approval: yes
+tests_pass -> flaky_check: no
+flaky_check -> unit_tests: yes — retry { style.stroke-dash: 4 }
+flaky_check -> notify_fail: no
+approval -> approved
+approved -> deploy_staging: yes
+approved -> notify_fail: no
+deploy_staging -> smoke
+smoke -> smoke_ok
+smoke_ok -> promote: yes
+smoke_ok -> rollback: no
+rollback -> notify_fail
+promote -> done_success
+notify_fail -> done_fail

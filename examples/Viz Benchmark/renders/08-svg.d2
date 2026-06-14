@@ -1,0 +1,66 @@
+direction: down
+
+# Build Dependency DAG — food-delivery monorepo (14 packages, 41 deps)
+# edge = "depends on" (source -> target). Color-coded by source role.
+
+# --- nodes (role classes) ---
+gateway: gateway\n@app/gateway { style.fill: "#ede9fe"; style.stroke: "#7c3aed" }
+
+notifications: notifications\n@svc/notifications { style.fill: "#dbeafe"; style.stroke: "#2563eb" }
+orders: orders\n@svc/orders { style.fill: "#dbeafe"; style.stroke: "#2563eb" }
+users: users\n@svc/users { style.fill: "#dbeafe"; style.stroke: "#2563eb" }
+menu: menu\n@svc/menu { style.fill: "#dbeafe"; style.stroke: "#2563eb" }
+payments: payments\n@svc/payments { style.fill: "#dbeafe"; style.stroke: "#2563eb" }
+restaurants: restaurants\n@svc/restaurants { style.fill: "#dbeafe"; style.stroke: "#2563eb" }
+
+auth: auth\n@plat/auth { style.fill: "#ccfbf1"; style.stroke: "#0d9488" }
+db: db\n@plat/db { style.fill: "#ccfbf1"; style.stroke: "#0d9488" }
+cache: cache\n@plat/cache { style.fill: "#ccfbf1"; style.stroke: "#0d9488" }
+http: http\n@plat/http { style.fill: "#ccfbf1"; style.stroke: "#0d9488" }
+
+logger: logger\n@plat/logger { style.fill: "#fef3c7"; style.stroke: "#b45309" }
+config: config\n@plat/config { style.fill: "#fef3c7"; style.stroke: "#b45309" }
+types: types\n@plat/types { style.fill: "#fef3c7"; style.stroke: "#b45309" }
+
+# --- edges (41) ---
+db -> logger: depends on
+db -> config: depends on
+db -> types: depends on
+cache -> logger: depends on
+cache -> config: depends on
+http -> logger: depends on
+http -> config: depends on
+auth -> types: depends on
+auth -> cache: depends on
+auth -> db: depends on
+users -> db: depends on
+users -> auth: depends on
+users -> types: depends on
+restaurants -> db: depends on
+restaurants -> cache: depends on
+restaurants -> types: depends on
+menu -> db: depends on
+menu -> cache: depends on
+menu -> restaurants: depends on
+menu -> types: depends on
+orders -> db: depends on
+orders -> users: depends on
+orders -> menu: depends on
+orders -> payments: depends on
+orders -> types: depends on
+payments -> db: depends on
+payments -> http: depends on
+payments -> auth: depends on
+payments -> types: depends on
+notifications -> http: depends on
+notifications -> users: depends on
+notifications -> orders: depends on
+notifications -> config: depends on
+gateway -> auth: depends on
+gateway -> users: depends on
+gateway -> restaurants: depends on
+gateway -> menu: depends on
+gateway -> orders: depends on
+gateway -> payments: depends on
+gateway -> notifications: depends on
+gateway -> http: depends on

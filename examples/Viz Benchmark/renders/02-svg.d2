@@ -1,0 +1,26 @@
+# 02 — Linear data pipeline (ETL) — D2 source (sibling of hand-authored 02-svg.svg)
+# 11 nodes, 10 edges. Serpentine fold to hold near-square aspect.
+direction: right
+
+src: "Raw event files\n(S3 landing bucket)" { style.fill: "#d6e4ff" }      # source
+ingest: "Ingestion job\n(Airflow loader)" { style.fill: "#fff2cc" }         # process
+validate: "Schema validation\n& dedup" { style.fill: "#fff2cc" }            # process
+dlq: "Dead-letter /\nquarantine bucket" { style.fill: "#ffd6d6" }           # sink
+enrich: "Enrichment\n(geo-IP + UA parse)" { style.fill: "#fff2cc" }         # process
+sessionize: "Sessionization\n(group into sessions)" { style.fill: "#fff2cc" } # process
+aggregate: "Daily aggregation\n(rollups)" { style.fill: "#fff2cc" }         # process
+qc: "Data-quality check\n(row-count & null gates)" { style.fill: "#fff2cc" } # process
+load: "Warehouse load\n(Snowflake COPY)" { style.fill: "#fff2cc" }          # process
+warehouse: "Analytics warehouse\n(Snowflake events_daily)" { style.fill: "#d5f5e3" } # datastore
+dashboard: "BI dashboard\n(Looker daily report)" { style.fill: "#d6e4ff" }  # sink
+
+src -> ingest: "raw JSON files"
+ingest -> validate: "parsed records"
+validate -> dlq: "rejected records" { style.stroke-dash: 4 }
+validate -> enrich: "valid records"
+enrich -> sessionize: "enriched events"
+sessionize -> aggregate: "sessions"
+aggregate -> qc: "daily rollups"
+qc -> load: "passed rollups"
+load -> warehouse: "COPY INTO"
+warehouse -> dashboard: "query / refresh"

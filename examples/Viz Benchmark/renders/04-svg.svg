@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 1060" width="940" height="1060" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#334155"/>
+    </marker>
+    <marker id="arrowDash" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#b45309"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="940" height="1060" fill="#ffffff"/>
+  <text x="30" y="42" font-size="30" font-weight="bold" fill="#0f172a">Video transcoding job lifecycle</text>
+
+  <!-- ============ EDGES (drawn under nodes) ============ -->
+  <!-- solid transitions: stroke #334155 ; dashed abort/back-edges: stroke #b45309 dashed -->
+
+  <!-- 1. Queued -> Downloading : worker claims job [solid] -->
+  <line x1="450" y1="118" x2="450" y2="186" stroke="#334155" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="462" y="158" font-size="23" fill="#1e293b">worker claims job</text>
+
+  <!-- 2. Downloading -> Probing : source fetched [solid] -->
+  <line x1="450" y1="256" x2="450" y2="324" stroke="#334155" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="462" y="296" font-size="23" fill="#1e293b">source fetched</text>
+
+  <!-- 3. Downloading -> Downloading : chunk timeout — resume [solid] self-loop (right) -->
+  <path d="M550,212 C648,200 648,256 550,244" fill="none" stroke="#334155" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="658" y="220" font-size="23" fill="#1e293b">chunk timeout</text>
+  <text x="658" y="246" font-size="23" fill="#1e293b">— resume</text>
+
+  <!-- 4. Probing -> Transcoding : format supported [solid] -->
+  <line x1="450" y1="394" x2="450" y2="462" stroke="#334155" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="462" y="434" font-size="23" fill="#1e293b">format supported</text>
+
+  <!-- 5. Probing -> Failed : unsupported codec [solid] (to right terminal) -->
+  <line x1="550" y1="372" x2="688" y2="372" stroke="#334155" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="551" y="335" font-size="23" fill="#1e293b">unsupported</text>
+  <text x="551" y="358" font-size="23" fill="#1e293b">codec</text>
+
+  <!-- 6. Transcoding -> Transcoding : rendition complete — next profile [solid] self-loop (right) -->
+  <path d="M550,512 C648,500 648,556 550,544" fill="none" stroke="#334155" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="658" y="520" font-size="23" fill="#1e293b">rendition complete</text>
+  <text x="658" y="546" font-size="23" fill="#1e293b">— next profile</text>
+
+  <!-- 7. Transcoding -> Validating : all renditions encoded [solid] -->
+  <line x1="450" y1="562" x2="450" y2="630" stroke="#334155" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="462" y="602" font-size="23" fill="#1e293b">all renditions encoded</text>
+
+  <!-- 8. Validating -> Uploading : checks pass [solid] -->
+  <line x1="450" y1="700" x2="450" y2="768" stroke="#334155" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="462" y="740" font-size="23" fill="#1e293b">checks pass</text>
+
+  <!-- 9. Validating -> Transcoding : corrupt output — re-encode [dashed] back-edge (far left, upward) -->
+  <path d="M350,668 C228,668 228,512 350,512" fill="none" stroke="#b45309" stroke-width="2.5" stroke-dasharray="8 5" marker-end="url(#arrowDash)"/>
+  <text x="40" y="582" font-size="23" fill="#b45309">corrupt output</text>
+  <text x="40" y="608" font-size="23" fill="#b45309">— re-encode</text>
+
+  <!-- 10. Uploading -> Published : all parts confirmed [solid] -->
+  <line x1="450" y1="838" x2="450" y2="906" stroke="#334155" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="462" y="878" font-size="23" fill="#1e293b">all parts confirmed</text>
+
+  <!-- 11. Uploading -> Queued : storage 5xx — re-queue job [dashed] long back-edge (far right, upward) -->
+  <path d="M550,803 L888,803 L888,84 L550,84" fill="none" stroke="#b45309" stroke-width="2.5" stroke-dasharray="8 5" marker-end="url(#arrowDash)"/>
+  <text x="724" y="436" font-size="23" fill="#b45309">storage 5xx</text>
+  <text x="724" y="462" font-size="23" fill="#b45309">— re-queue job</text>
+
+  <!-- 12. Queued -> Cancelled : operator abort [dashed] (left side, down to terminal) -->
+  <path d="M350,96 C160,108 150,360 150,646" fill="none" stroke="#b45309" stroke-width="2.5" stroke-dasharray="8 5" marker-end="url(#arrowDash)"/>
+  <text x="44" y="250" font-size="23" fill="#b45309">operator abort</text>
+
+  <!-- 13. Transcoding -> Cancelled : operator abort [dashed] (left side) -->
+  <path d="M350,524 C236,560 200,620 178,652" fill="none" stroke="#b45309" stroke-width="2.5" stroke-dasharray="8 5" marker-end="url(#arrowDash)"/>
+  <text x="186" y="560" font-size="23" fill="#b45309">operator abort</text>
+
+  <!-- 14. Validating -> Failed : max retries reached [solid] (right, upward to terminal) -->
+  <path d="M550,648 C680,612 700,500 720,448" fill="none" stroke="#334155" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="560" y="672" font-size="23" fill="#1e293b">max retries reached</text>
+
+  <!-- ============ NODES ============ -->
+  <!-- initial=blue, process=slate, success=green, failure=red, cancelled=purple -->
+
+  <rect x="350" y="56" width="200" height="62" rx="12" fill="#dbeafe" stroke="#2563eb" stroke-width="3"/>
+  <text x="450" y="95" font-size="26" font-weight="bold" fill="#1e3a8a" text-anchor="middle">Queued</text>
+
+  <rect x="350" y="186" width="200" height="62" rx="12" fill="#f1f5f9" stroke="#475569" stroke-width="2.5"/>
+  <text x="450" y="225" font-size="26" fill="#0f172a" text-anchor="middle">Downloading</text>
+
+  <rect x="350" y="324" width="200" height="62" rx="12" fill="#f1f5f9" stroke="#475569" stroke-width="2.5"/>
+  <text x="450" y="363" font-size="26" fill="#0f172a" text-anchor="middle">Probing</text>
+
+  <rect x="350" y="462" width="200" height="62" rx="12" fill="#f1f5f9" stroke="#475569" stroke-width="2.5"/>
+  <text x="450" y="501" font-size="26" fill="#0f172a" text-anchor="middle">Transcoding</text>
+
+  <rect x="350" y="630" width="200" height="62" rx="12" fill="#f1f5f9" stroke="#475569" stroke-width="2.5"/>
+  <text x="450" y="669" font-size="26" fill="#0f172a" text-anchor="middle">Validating</text>
+
+  <rect x="350" y="768" width="200" height="62" rx="12" fill="#f1f5f9" stroke="#475569" stroke-width="2.5"/>
+  <text x="450" y="807" font-size="26" fill="#0f172a" text-anchor="middle">Uploading</text>
+
+  <rect x="350" y="906" width="200" height="62" rx="14" fill="#dcfce7" stroke="#16a34a" stroke-width="3.5"/>
+  <text x="450" y="945" font-size="26" font-weight="bold" fill="#14532d" text-anchor="middle">Published</text>
+
+  <rect x="690" y="329" width="190" height="62" rx="14" fill="#fee2e2" stroke="#dc2626" stroke-width="3.5"/>
+  <text x="785" y="368" font-size="26" font-weight="bold" fill="#7f1d1d" text-anchor="middle">Failed</text>
+
+  <rect x="60" y="646" width="190" height="62" rx="14" fill="#f3e8ff" stroke="#9333ea" stroke-width="3.5"/>
+  <text x="155" y="685" font-size="26" font-weight="bold" fill="#581c87" text-anchor="middle">Cancelled</text>
+
+  <!-- ============ LEGEND ============ -->
+  <g transform="translate(620,930)">
+    <rect x="0" y="0" width="300" height="110" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+    <text x="16" y="30" font-size="21" font-weight="bold" fill="#334155">Legend</text>
+    <line x1="16" y1="54" x2="60" y2="54" stroke="#334155" stroke-width="2.5"/>
+    <text x="70" y="61" font-size="19" fill="#334155">solid transition</text>
+    <line x1="16" y1="86" x2="60" y2="86" stroke="#b45309" stroke-width="2.5" stroke-dasharray="8 5"/>
+    <text x="70" y="93" font-size="19" fill="#334155">dashed (abort / re-queue)</text>
+  </g>
+</svg>

@@ -1,0 +1,189 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1050 920" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#444"/>
+    </marker>
+    <marker id="arrowDash" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#9467bd"/>
+    </marker>
+  </defs>
+
+  <style>
+    .node { stroke-width:2; rx:10; }
+    .lbl  { font-size:24px; font-weight:700; text-anchor:middle; }
+    .sub  { font-size:18px; text-anchor:middle; fill:#333; }
+    .edge { fill:none; stroke:#444; stroke-width:2; marker-end:url(#arrow); }
+    .edashed { fill:none; stroke:#9467bd; stroke-width:2; stroke-dasharray:7 5; marker-end:url(#arrowDash); }
+    .elbl { font-size:16px; fill:#444; text-anchor:middle; }
+    .elbl-d { font-size:16px; fill:#7a4fa0; text-anchor:middle; }
+    .elbl-bg { fill:#ffffff; opacity:0.88; }
+    .cluster { fill:none; stroke-width:2; stroke-dasharray:5 4; rx:16; }
+    .clbl { font-size:22px; font-weight:700; text-anchor:middle; }
+  </style>
+
+  <!-- ===================== CLUSTER BOXES ===================== -->
+  <rect class="cluster" x="225" y="130" width="170" height="640" stroke="#1f77b4"/>
+  <text class="clbl" x="310" y="118" fill="#1f77b4">Edge tier</text>
+
+  <rect class="cluster" x="455" y="130" width="180" height="780" stroke="#2ca02c"/>
+  <text class="clbl" x="545" y="118" fill="#2ca02c">Application tier</text>
+
+  <rect class="cluster" x="830" y="90" width="210" height="820" stroke="#d62728"/>
+  <text class="clbl" x="935" y="78" fill="#d62728">Data tier</text>
+
+  <text class="clbl" x="90" y="60" fill="#7f7f7f" font-size="18">external (outside VPC)</text>
+
+  <!-- ===================== NODES ===================== -->
+  <!-- INET (external) -->
+  <rect class="node" x="20" y="360" width="150" height="80" fill="#eeeeee" stroke="#7f7f7f"/>
+  <text class="lbl" x="95" y="395">INET</text>
+  <text class="sub" x="95" y="420">Public Internet</text>
+
+  <!-- Edge tier nodes -->
+  <rect class="node" x="240" y="180" width="140" height="80" fill="#d6e8f5" stroke="#1f77b4"/>
+  <text class="lbl" x="310" y="213">CDN</text>
+  <text class="sub" x="310" y="238">Cloudflare edge</text>
+
+  <rect class="node" x="240" y="360" width="140" height="80" fill="#d6e8f5" stroke="#1f77b4"/>
+  <text class="lbl" x="310" y="393">WAF</text>
+  <text class="sub" x="310" y="418">AWS WAF</text>
+
+  <rect class="node" x="240" y="600" width="140" height="80" fill="#d6e8f5" stroke="#1f77b4"/>
+  <text class="lbl" x="310" y="633">LB</text>
+  <text class="sub" x="310" y="658">AWS ALB :443</text>
+
+  <!-- Application tier nodes -->
+  <rect class="node" x="470" y="200" width="150" height="80" fill="#d8f0d8" stroke="#2ca02c"/>
+  <text class="lbl" x="545" y="233">WEB1</text>
+  <text class="sub" x="545" y="258">web-1 :8080</text>
+
+  <rect class="node" x="470" y="440" width="150" height="80" fill="#d8f0d8" stroke="#2ca02c"/>
+  <text class="lbl" x="545" y="473">WEB2</text>
+  <text class="sub" x="545" y="498">web-2 :8080</text>
+
+  <rect class="node" x="470" y="790" width="150" height="80" fill="#d8f0d8" stroke="#2ca02c"/>
+  <text class="lbl" x="545" y="823">WORKER</text>
+  <text class="sub" x="545" y="848">worker-1</text>
+
+  <!-- Data tier nodes -->
+  <rect class="node" x="840" y="130" width="190" height="80" fill="#f7d6d6" stroke="#d62728"/>
+  <text class="lbl" x="935" y="163">REDIS</text>
+  <text class="sub" x="935" y="188">cache/queue :6379</text>
+
+  <rect class="node" x="840" y="370" width="190" height="80" fill="#f7d6d6" stroke="#d62728"/>
+  <text class="lbl" x="935" y="403">PG_PRIMARY</text>
+  <text class="sub" x="935" y="428">db-primary :5432</text>
+
+  <rect class="node" x="840" y="600" width="190" height="80" fill="#f7d6d6" stroke="#d62728"/>
+  <text class="lbl" x="935" y="633">PG_REPLICA</text>
+  <text class="sub" x="935" y="658">db-replica :5432</text>
+
+  <rect class="node" x="840" y="820" width="190" height="80" fill="#f7d6d6" stroke="#d62728"/>
+  <text class="lbl" x="935" y="853">S3</text>
+  <text class="sub" x="935" y="878">assets bucket</text>
+
+  <!-- SES (external) -->
+  <rect class="node" x="620" y="930" width="150" height="80" fill="#eeeeee" stroke="#7f7f7f" transform="translate(0,-90)"/>
+  <text class="lbl" x="695" y="875">SES</text>
+  <text class="sub" x="695" y="900">AWS email</text>
+
+  <!-- ===================== EDGES ===================== -->
+  <!-- === North-south request flow (edge chain) === -->
+  <!-- INET -> CDN -->
+  <path class="edge" d="M170,390 L240,250"/>
+  <rect class="elbl-bg" x="158" y="308" width="78" height="20"/>
+  <text class="elbl" x="197" y="323">HTTPS :443</text>
+
+  <!-- CDN -> WAF -->
+  <path class="edge" d="M310,260 L310,360"/>
+  <rect class="elbl-bg" x="312" y="300" width="78" height="20"/>
+  <text class="elbl" x="351" y="315">HTTPS :443</text>
+
+  <!-- WAF -> LB -->
+  <path class="edge" d="M310,440 L310,600"/>
+  <rect class="elbl-bg" x="312" y="510" width="78" height="20"/>
+  <text class="elbl" x="351" y="525">HTTPS :443</text>
+
+  <!-- LB -> WEB1 -->
+  <path class="edge" d="M380,615 L470,250"/>
+  <rect class="elbl-bg" x="382" y="415" width="76" height="20"/>
+  <text class="elbl" x="420" y="430">HTTP :8080</text>
+
+  <!-- LB -> WEB2 -->
+  <path class="edge" d="M380,635 L470,485"/>
+  <rect class="elbl-bg" x="382" y="558" width="76" height="20"/>
+  <text class="elbl" x="420" y="573">HTTP :8080</text>
+
+  <!-- === East-west data calls from WEB1 === -->
+  <!-- WEB1 -> REDIS -->
+  <path class="edge" d="M620,215 L840,165"/>
+  <rect class="elbl-bg" x="668" y="178" width="120" height="20"/>
+  <text class="elbl" x="728" y="193">session/cache :6379</text>
+
+  <!-- WEB1 -> PG_PRIMARY -->
+  <path class="edge" d="M620,235 L840,390"/>
+  <rect class="elbl-bg" x="650" y="290" width="98" height="20"/>
+  <text class="elbl" x="699" y="305">read/write :5432</text>
+
+  <!-- WEB1 -> PG_REPLICA (dashed) -->
+  <path class="edashed" d="M620,260 L840,615"/>
+  <rect class="elbl-bg" x="648" y="398" width="92" height="20"/>
+  <text class="elbl-d" x="694" y="413">read-only :5432</text>
+
+  <!-- WEB1 -> S3 -->
+  <path class="edge" d="M620,275 L840,835"/>
+  <rect class="elbl-bg" x="650" y="530" width="92" height="20"/>
+  <text class="elbl" x="696" y="545">asset GET/PUT</text>
+
+  <!-- === East-west data calls from WEB2 === -->
+  <!-- WEB2 -> REDIS -->
+  <path class="edge" d="M620,450 L840,190"/>
+  <rect class="elbl-bg" x="690" y="318" width="120" height="20"/>
+  <text class="elbl" x="750" y="333">session/cache :6379</text>
+
+  <!-- WEB2 -> PG_PRIMARY -->
+  <path class="edge" d="M620,475 L840,415"/>
+  <rect class="elbl-bg" x="676" y="430" width="98" height="20"/>
+  <text class="elbl" x="725" y="445">read/write :5432</text>
+
+  <!-- WEB2 -> PG_REPLICA (dashed) -->
+  <path class="edashed" d="M620,500 L840,640"/>
+  <rect class="elbl-bg" x="676" y="560" width="92" height="20"/>
+  <text class="elbl-d" x="722" y="575">read-only :5432</text>
+
+  <!-- WEB2 -> S3 -->
+  <path class="edge" d="M620,515 L840,855"/>
+  <rect class="elbl-bg" x="676" y="660" width="92" height="20"/>
+  <text class="elbl" x="722" y="675">asset GET/PUT</text>
+
+  <!-- === PG_PRIMARY -> PG_REPLICA (dashed, replication) === -->
+  <path class="edashed" d="M935,450 L935,600"/>
+  <rect class="elbl-bg" x="783" y="518" width="150" height="20"/>
+  <text class="elbl-d" x="858" y="533">streaming replication</text>
+
+  <!-- === WORKER edges === -->
+  <!-- WORKER -> REDIS -->
+  <path class="edge" d="M620,800 L840,205"/>
+  <rect class="elbl-bg" x="772" y="478" width="128" height="20"/>
+  <text class="elbl" x="836" y="493">consume queue :6379</text>
+
+  <!-- WORKER -> PG_PRIMARY -->
+  <path class="edge" d="M620,815 L840,440"/>
+  <rect class="elbl-bg" x="752" y="640" width="72" height="20"/>
+  <text class="elbl" x="788" y="655">write :5432</text>
+
+  <!-- WORKER -> SES -->
+  <path class="edge" d="M620,840 L620,840 C660,845 660,845 695,842"/>
+  <rect class="elbl-bg" x="624" y="822" width="76" height="20"/>
+  <text class="elbl" x="662" y="837">send email</text>
+
+  <!-- ===================== LEGEND ===================== -->
+  <g transform="translate(30,520)">
+    <rect x="-12" y="-22" width="280" height="92" fill="#ffffff" stroke="#cccccc" rx="8"/>
+    <text x="0" y="0" font-size="18" font-weight="700" fill="#333">Legend</text>
+    <line x1="0" y1="24" x2="44" y2="24" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="52" y="29" font-size="16" fill="#333">solid call</text>
+    <line x1="0" y1="52" x2="44" y2="52" stroke="#9467bd" stroke-width="2" stroke-dasharray="7 5" marker-end="url(#arrowDash)"/>
+    <text x="52" y="57" font-size="16" fill="#333">dashed: read-only / replication</text>
+  </g>
+</svg>
