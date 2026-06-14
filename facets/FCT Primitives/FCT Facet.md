@@ -7,7 +7,7 @@ A narrow, usually file-based aspect of an anchor — and the spec for how to wri
 | -[[FCT Facet]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Primitives]] → [FCT Facet](hook://p/FCT%20Facet)<br>: the Facet primitive — what a facet is and how to write its spec |
 | --- | --- |
 | Related | [[FCT Skill]],  [[FCT Ruleset]],  [[FCT Facets]] (the index),  [[CAB Aspects]], |
-| Examples | [[FEX Manifest\|single file — one per anchor]],  [[FEX Pin\|single file — many per anchor]],  [[FEX Bundle\|folder — many per anchor]],   |
+| Examples | [[FEX Manifest\|one per anchor example]],  [[FEX Pin\|many per anchor example]],  [[FEX Bundle\|many folders per anchor example]],   |
 
 # Facet Document Structure
 A facet spec is one file (`facets/FCT <Name>.md`), authoritative for that facet. Its parts, top to bottom — densest first, per [[DSC progressive-disclosure]]:
