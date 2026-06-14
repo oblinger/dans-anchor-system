@@ -22,9 +22,10 @@ user_invocable: true
 Slug-prefixed (sorts to front), agent-owned, four sections in **fixed order** (omit a section when empty):
 
 1. **`## Agent Resolutions`** — decisions the agent made on its own. One line each: what was decided + why + a link to the question's home. The user's catch-a-wrong-guess surface.
-2. **`## Verifications`** — checks only the user can do. **Each names a concrete action.** ✅ "Open the app, press ⌘R, confirm the panel reopens at the size you left it." ❌ "verify F113" / "check the doc looks good" / any whole-document general eyeball. If the user can't act from the line itself, it's invalid.
+2. **`## Verifications`** (numbered **V1, V2, …**) — a check the user **judges**, never one they run. The agent runs it; the user only looks and answers **yes/no**. Default: run it **ahead of time** and embed the result in the line (image / output / rendered artifact), then ask — e.g. *"V1 — I rendered ![[X.svg]]; is it legible? (yes/no)"*. If it genuinely must run live: *"V1 — tell me when you're ready; I'll run it and show you the result to judge."* **Forbidden:** asking the user to run/execute anything ("run X and tell me…"), "verify F113", or a whole-document general eyeball. Every verification ends in a yes/no on something the agent produced. (No yes/no, no judgeable artifact ⇒ it isn't a verification — see determination §6.)
 3. **`## Immediate Questions`** (preferred user-question form) — self-contained yes/no questions: **one context line** (names the feature + what it's about) then **one line** (the question, ideally yes/no; ≤ 2 lines). Readable without opening anything. Link the feature-doc question (`F<n> Q<m>`) when one exists.
 4. **`## Questions`** (least preferred catch-all) — links to feature-doc questions in `F<n> Q<m>` form (clickable to background). For non-yes/no questions, or features with **> 3** open questions (link the feature, don't enumerate).
+5. **`## Ready`** (optional, bottom) — features that are decided + ready to build (on the backlog as `[Ready]`), listed for visibility. Where actionable non-question items land (determination §6). Source of truth is the backlog; listing here is optional.
 
 ## Determination logic — route every open question
 
@@ -32,9 +33,10 @@ Walk each feature's `## Open Questions` (enumerate only when **≤ 3**; if **> 3
 
 1. **Auto-resolve → `## Agent Resolutions`** — if (a) the user would **likely notice** a wrong choice soon in the natural course of work, AND (b) it's **relatively reversible**, AND (c) the agent has a **reasonable idea** of the right answer → the agent **guesses and records** the determination. Does not ask.
 2. **Do-it-yourself (don't ask)** — if the item is a check the agent **can run itself**, run the test now and answer it (or file the answering task on the backlog). Never pose a self-answerable check to the user.
-3. **Specific verification → `## Verifications`** — a check that genuinely needs the user's eyes/hands, written as a concrete action (the §2 forbidden-form rule).
+3. **User-judged verification → `## Verifications`** — a check whose *judgment* needs the user. The agent still **runs** it (ahead of time + embed the result, or live-on-ready); the user only answers yes/no. Never ask the user to run anything (the §2 rule).
 4. **Immediate yes/no → `## Immediate Questions`** — a real user decision framable as a self-contained yes/no.
 5. **Catch-all → `## Questions`** — not yes/no, or > 3 per feature → a `F<n> Q<m>` link. Reshape into 1–4 first if you can.
+6. **Actionable, but not a user question/verification → land it or make it a Ready feature (never an orphan line).** If an item is neither a question the user answers nor a check the user judges, it is **not** a queries item. Either **land it now** (small + clear) or make it a **`[Ready]` feature on the backlog** (commission one with `/feature` if none exists) — optionally surfaced in `## Ready`. A line with no yes/no and no user-judgeable artifact is forbidden: convert it to a question, a verification, an immediate landing, or a Ready feature.
 
 ## Console echo
 
