@@ -2164,6 +2164,20 @@ def chk_svg_title_or_legend(target, anchor_root, args):
     return "fail", f"no title (y<{y_thresh}, font>={min_font}) or legend group"
 
 
+def chk_facet_has_ruleset(target, anchor_root, args):
+    """R-facet-spec-18: a facet spec has a ruleset — an embedded `# RULESET R-<x>`
+    OR a linked sibling `[[R-<x>]]`. Either form satisfies the requirement."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    t = _read(f)
+    if re.search(r"^#+\s*RULESET\s+R-", t, re.MULTILINE):
+        return "pass", "embedded ruleset"
+    if re.search(r"\[\[R-[^\]|]+", t):
+        return "pass", "linked sibling ruleset"
+    return "fail", "no embedded # RULESET R- and no linked [[R-...]] ruleset"
+
+
 CHECKERS = {
     "anchor_has": chk_anchor_has,
     "entry_page_matches_slug": chk_entry_page_matches_slug,
@@ -2245,6 +2259,8 @@ CHECKERS = {
     "h1_is_anchor_messages": chk_h1_is_anchor_messages,
     # R-naming (extra)
     "folder_marker_exists": chk_folder_marker_exists,
+    # R-facet-spec (extra)
+    "facet_has_ruleset": chk_facet_has_ruleset,
     # R-md
     "md_angle_brackets_safe": chk_md_angle_brackets_safe,
     "md_angle_brackets_backtick_only": chk_md_angle_brackets_backtick_only,

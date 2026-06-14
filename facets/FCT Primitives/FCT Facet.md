@@ -125,10 +125,10 @@ A `## Triggers` section appears **only** when the facet declares behavioral trig
 
 ## The ruleset — REQUIRED
 
-### RULE R-facet-spec-18 — Every facet spec embeds a ruleset — REQUIRED (checked)
-check:: regex_present ^#+\s*RULESET
-Every facet spec carries an embedded `# RULESET R-<facet>` (per the F133 convention; a tiny facet may have just a few rules). It is the one part that makes the facet **validatable and creatable** — detection, format, and constraints in auditable form (e.g. [[FEX Manifest]] → [[R-fex-manifest]]).
-**Check pattern:** the spec contains a `# RULESET R-<facet>` H1 with ≥ 1 `### RULE` entry.
+### RULE R-facet-spec-18 — Every facet spec has a ruleset — REQUIRED (checked)
+check:: facet_has_ruleset
+Every facet spec has a `# RULESET R-<facet>` — **embedded** inline (the default, per the F133 convention; a tiny facet may carry just a few rules) OR a **linked sibling** standalone `[[R-<facet>]]` file. Either form is the one part that makes the facet **validatable and creatable** — detection, format, and constraints in auditable form. Embedded example: [[FEX Pin]]; linked-sibling example: [[FEX Manifest]] → [[R-fex-manifest]].
+**Check pattern:** the spec embeds a `# RULESET R-<facet>` H1 (≥ 1 `### RULE`), or links a sibling `[[R-<facet>]]`.
 **Why:** prose rots and varies; the ruleset is the single source an audit reads and an author follows to build a conformant instance. Without it we don't actually know how to validate or create the facet — so it is required, not optional. (One of the two required parts, alongside the `# BRIEF`.)
 
 ### RULE R-facet-spec-16 — Rules are enforceable statements (sampled)

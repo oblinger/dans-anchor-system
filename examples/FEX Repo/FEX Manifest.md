@@ -36,3 +36,9 @@ Written by [[FEX Snapshot|Snapshot]] at capture; read by restore and by the [[FE
 
 ## Skills and audits that attach
 [[FEX Snapshot]] writes it; `/audit` checks it against [[R-fex-manifest]].
+
+# BRIEF
+
+- **This is the Manifest facet definition** — the `manifest.txt` written into every snapshot bundle. The worked **one-per-anchor** (cardinality-one, single-file) facet example. Its instance rules live in the **linked sibling** [[R-fex-manifest]] (which doubles as [[FCT Ruleset]]'s standalone-ruleset example) — the linked form, contrast the embedded rulesets in [[FEX Pin]] / [[FEX Bundle]].
+- **Detection = file-existence** (`manifest.txt` inside `snapshots/<label>/`); **cardinality = one** per bundle. Keep both explicit — they drive how the audit binds.
+- **Defines the facet only** — write/read behavior belongs to [[FEX Snapshot]]; don't grow this into a how-to.

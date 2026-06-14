@@ -27,3 +27,24 @@ Created by `snapshot pin <label>`, removed by `snapshot unpin <label>`; read by 
 
 ## Skills and audits that attach
 [[FEX Snapshot]] writes and removes pins; the retention sweep reads them; `/audit` flags a pin whose bundle no longer exists.
+
+# RULESET R-fex-pin
+include::
+where:: file: pins/*
+description:: The rules every pin marker must satisfy — the filename is the bundle label, and it names a real bundle.
+
+### RULE R-fex-pin-01 — filename is a valid bundle label (checked)
+The pin's filename is a `YYYY-MM-DD-HHMM` label with no extension; the body is empty or a one-line reason.
+**Check pattern:** the basename matches `^\d{4}-\d{2}-\d{2}-\d{4}$`.
+**Why:** the filename IS the key — the label it pins; a malformed name pins nothing.
+
+### RULE R-fex-pin-02 — names an existing bundle (sampled)
+The label in the filename matches a `snapshots/<label>/` bundle that exists.
+**Check pattern:** `snapshots/<filename>/` is a directory.
+**Why:** a pin for an absent bundle is a dangling marker the retention sweep can't honor.
+
+# BRIEF
+
+- **This is the Pin facet definition** — a keep-forever marker under `pins/`. The worked **many-per-anchor** (cardinality-many, single-file) facet example: the *filename* is the key, so a repo holds any number of pins.
+- **Embedded ruleset** — instance rules are the inline `# RULESET R-fex-pin` (the embedded form; contrast the linked-sibling [[FEX Manifest]]).
+- **Detection = file-existence** in `pins/`, name = the bundle label; **cardinality = many**. The body is optional — an empty file is valid.

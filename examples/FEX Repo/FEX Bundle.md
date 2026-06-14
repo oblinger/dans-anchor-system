@@ -27,3 +27,24 @@ Created by [[FEX Snapshot|Snapshot]]; pruned by the [[FEX Retention|Retention]] 
 
 ## Skills and audits that attach
 [[FEX Snapshot]] creates bundles; the retention sweep prunes them; restore reads them.
+
+# RULESET R-fex-bundle
+include::
+where:: file: snapshots/*/
+description:: The rules every snapshot bundle directory must satisfy — a dated-label name and exactly one manifest.
+
+### RULE R-fex-bundle-01 — directory named with a valid dated label (checked)
+The bundle is a directory under `snapshots/` named `YYYY-MM-DD-HHMM`.
+**Check pattern:** the directory name matches `^\d{4}-\d{2}-\d{2}-\d{4}$`.
+**Why:** the label is the bundle's identity and sort key; a malformed name breaks restore + retention ordering.
+
+### RULE R-fex-bundle-02 — contains exactly one manifest (checked)
+Every bundle directory contains exactly one `manifest.txt` (the [[FEX Manifest|Manifest]] facet, co-required).
+**Check pattern:** exactly one `manifest.txt` directly inside the bundle directory.
+**Why:** restore reads the manifest to know what it is restoring; zero or duplicate manifests make the bundle unrestorable or ambiguous.
+
+# BRIEF
+
+- **This is the Bundle facet definition** — a snapshot stored as a dated directory. The worked **folder-detected, many-per-anchor** facet example: detection is **folder-existence**, not the default file-existence.
+- **Embedded ruleset** — instance rules are the inline `# RULESET R-fex-bundle`. The non-default (directory) detection is stated explicitly per [[FCT Facet]] R-facet-spec-09.
+- **Co-requires [[FEX Manifest]]** — every bundle carries exactly one `manifest.txt`; that co-requirement lives in the ruleset (R-fex-bundle-02), not just prose.
