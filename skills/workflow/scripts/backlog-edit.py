@@ -869,6 +869,11 @@ def perform_edit(
         full_m = ROW_FULL_RE.match(lines[existing[0]])
         if full_m:
             existing_status_for_check = full_m.group("status") or ""
+        # F147 — status=="same" means "keep the existing bracket". Without this,
+        # render_row would write the literal `[same]`, silently clobbering the
+        # real status (e.g. a body-only `state task update` losing [Designing]).
+        if status == "same" and existing_status_for_check:
+            status = existing_status_for_check
 
     # Constraint check — the Questions promise. Refuse the write if the
     # status asserts [Questions] but the body's wiki-link target has no
