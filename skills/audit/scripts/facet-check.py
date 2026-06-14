@@ -24,6 +24,7 @@ CHECKS = [
     ("R-facet-spec-10 cardinality declared", "facet_cardinality_declared"),
     ("R-facet-spec-15 triggers section", "triggers_section_iff_declared"),
     ("R-facet-spec-18 has ruleset", "facet_has_ruleset"),
+    ("R-facet-spec-25 examples row", "facet_examples_row"),
     ("R-facet-spec-22 has BRIEF", "regex_present ^#+\\s*BRIEF"),
 ]
 

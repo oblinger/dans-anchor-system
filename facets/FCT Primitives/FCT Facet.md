@@ -180,7 +180,15 @@ A facet that gates a design phase (Architecture, Testing, …) declares a `statu
 ### RULE R-facet-spec-24 — Links peer facets in `## See also` (sampled)
 A facet that sits among peers (the Design or Track groups) links them in a `## See also`, and names its authoring skill if one exists.
 **Check pattern:** a `## See also` lists peer facets + the authoring skill (e.g. `/design testing` for [[FCT Testing]]).
-**Why:** facets are read as a set; a peerless spec hides the doc the reader needs next.
+**Why:** facets are read as a set; ### RULE R-facet-spec-25 — Masthead carries an Examples row spanning the facet's instantiation kinds (checked)
+check:: facet_examples_row
+The dispatch masthead includes an **`Examples`** row linking worked instances that **span the range** of how this facet is instantiated — at minimum a *minimal* and a *maximal* instantiation, plus any other meaningful breakdown (by trait, by cardinality form, by sub-kind). Each entry is a wiki-link (never an embedded instance — R-facet-spec-20), aliased to name which kind it exemplifies, e.g. `[[CAE Backlog\|minimal]]`, `[[SKA Backlog\|maximal]]`.
+**Check pattern:** the masthead has an `Examples` row carrying at least one wiki-link.
+**Why:** a reader learns a facet fastest from real instances at the edges of its range — one example shows the shape, the spread shows the variation the format must absorb. (Worked-example facets that *are* the instance, e.g. those under `examples/`, are exempt; this governs the `facets/` catalog.)
+
+### RULE R-facet-spec-26 — A body reference example is live markdown, never fenced (stated)
+Usually a facet spec carries **no** reference example in its body — the worked instances are linked in the Examples row (R-25). If a spec does inline a small reference example *of markdown*, it is written as **live markdown** (so its wiki-links, headings, and tables render), never wrapped in a triple-backtick code fence — a fence makes markdown inert (per [[DSC markdown]] R-markdown-11). Code fences stay correct for literal **non-markdown** content (shell, JSON, a `key: value` data file, a file tree).
+**Why:** a fenced markdown "example" renders as dead text — links go inert, structure doesn't show — defeating its purpose. Prefer a linked instance; inline only when a tiny illustration genuinely helps, and keep it live.
 
 # BRIEF
 

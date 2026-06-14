@@ -2339,6 +2339,7 @@ CHECKERS = {
     "facet_registered": chk_facet_registered,
     "facet_tldr_if_substantial": chk_facet_tldr_if_substantial,
     "facet_cardinality_declared": chk_facet_cardinality_declared,
+    "facet_examples_row": chk_facet_examples_row,
     # R-md
     "md_angle_brackets_safe": chk_md_angle_brackets_safe,
     "md_angle_brackets_backtick_only": chk_md_angle_brackets_backtick_only,
