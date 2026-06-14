@@ -185,6 +185,8 @@ Distinct from the `SKILL.md` runbook specified above: every skill also has a **d
 2. **Related** — **always links the actual skill runbook**: `[[skills/<name>/SKILL.md\|SKILL]]`. This is the rule — every skill doc points at its runbook, and that is the minimum Related row.
 3. **Design** — links the design root, `[[SKL <Name> Design\|Design]]`. The Design row carries **only the design elements that actually exist**; the minimum is the design root alone.
 
+**Summary line** — the one sentence directly under the H1 states the skill's **essence** — what the command does at its core, per [[FCT Anchor Page]] R-anchor-page-06. Convention: lead with the backticked command, e.g. `/feature` — creates a new feature document specifying work to be done — not a feature list or mechanism tour.
+
 **Body** — below the masthead, the skill's user-facing guide. It ranges from a one-line summary (minimal) to a full guide with `## What it does` / `## When NOT to use` sections (maximal). Genuine guide prose **stays**; enumerations that belong to *other* skills do not (they route to those skills — e.g. `/mint`'s page must not list `/code` / `/spike` / `/forge`).
 
 **Design root** — `SKL <Name> Design.md` is itself an anchor page that is **empty until there is design material** (PRD, decisions, design discussion). Emptiness-until-needed is a *rule, not text*: do **not** write a "this is the design surface, empty until the pieces are needed" sentence into each one — the name says it. When material arrives it lands as rows in the design root, and the parent's Design row lists what now exists.

@@ -37,7 +37,7 @@ traits: [Code]
 …then the body, which renders **live** (markdown is never shown in back-ticks — it does not render there):
 
 # {SLUG} - {Full Name}
-{one-sentence summary — what the page is, at the broadest stroke; NO blank line above this line}
+{one-sentence summary — the essence: what the page is/does at its core, not incidental detail; NO blank line above this line}
 
 | -{SLUG}- | → [[kmr]] → … → [{NAME}](hook://p/{NAME})<br>: short description |
 | --- | --- |
@@ -49,7 +49,7 @@ traits: [Code]
 
 - **Frontmatter** — `description:` (one line) + `traits:` (the anchor kind). Inline `desc::` is deprecated; migrate to `description:` in YAML.
 - **H1** — `{slug} - {Full Name}`: the slug leads (the jump-key), the readable name follows. Bare-name anchors use just the name.
-- **Summary** — one sentence on the **very next line** (no blank after the H1); says what the page *is*. More detail goes in an optional `## Overview` later, never above the dispatch table.
+- **Summary** — one sentence on the **very next line** (no blank after the H1); states the **essence** — what the page *is* or *does* at its core, not incidental detail (per R-anchor-page-06). More goes in an optional `## Overview` later, never above the dispatch table.
 - **Figure** — optional; embedded right after the summary with **no heading above it** — the big-picture visual before the navigation.
 - **Dispatch table** — the masthead (+ a member zone for a [[Collection]] anchor). The table's *form* is [[DSC Dispatch Table]]; its row *placement* is [[SKA Decisions|D07]].
 
@@ -100,9 +100,11 @@ The H1 leads with the slug, then ` - `, then the readable name. Bare-name anchor
 
 ## Top of page (fixed order)
 
-### RULE R-anchor-page-06 — One-sentence summary under the H1 (stated)
+### RULE R-anchor-page-06 — First sentence states the essence (stated)
 
-A single sentence saying what the page *is*, at the broadest stroke. Deeper detail goes in an optional `## Overview`, never above the dispatch table.
+A single sentence that states the **essence** — the core of what the page *is* or *does*, in one stroke. It answers "what is this, fundamentally?", not "what are its features, mechanisms, or edge cases". Lead with the essence; a little qualifying detail is fine, but a grab-bag of incidental facts is the failure. Everything that isn't the essence goes in an optional `## Overview` (or the body), never in this line and never above the dispatch table.
+
+**Why:** this is the one line every reader — and every dispatch table that links the page — sees first; if the essence is buried under incidental detail, the reader must dig for what the thing fundamentally is. E.g. a skill page leads with the essence — *`/feature` creates a new feature document specifying work to be done* — not with a lead-in about collision-handling or status mechanics.
 
 ### RULE R-anchor-page-07 — No blank line after the H1 (checked)
 check:: no_blank_after_h1
