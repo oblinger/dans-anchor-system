@@ -3,13 +3,18 @@ description: Messages facet — the agent's per-anchor inbox of background-proce
 ---
 
 # FCT Messages
-
 Spec for the **Messages facet** — the per-anchor file `{NAME} Messages.md` that holds background-process notes for the agent to read on every pause, separate from the user's raw-input `{NAME} Inbox.md`.
+
+| -[[FCT Messages]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Messages](hook://p/FCT%20Messages)<br>: the Messages facet — agent's per-anchor background-process inbox, distinct from the user's Inbox |
+| --- | --- |
+| Related | [[FCT Inbox]],  [[FCT Backlog]],  [[FCT Track]],  [[CAB Base]],   |
+
+**Cardinality: one per anchor** — each anchor has exactly one `{NAME} Messages.md` file at its root.
 
 # RULESET R-messages
 include::
 where:: {ANCHOR}/* Messages.md
-description:: Rules for the {NAME} Messages facet — the agent's per-anchor background-process inbox, distinct from the user's {NAME} Inbox.
+description:: the Messages facet — agent's per-anchor background-process inbox, distinct from the user's Inbox
 
 Embedded ruleset for the Messages facet, co-located per [[F133 — Rulesets folder convention + facet embedding|F133]].
 
@@ -37,4 +42,3 @@ The Messages-vs-Inbox split (agent-read background notes vs. user-dropped raw in
 - **Load-bearing distinction to preserve.** The frontmatter `description` and TLDR both call out the Messages-vs-Inbox split (agent-read background notes vs. user-dropped raw input); any future edit that loosens or removes that distinction breaks the facet's reason for existing.
 - **Linking conventions.** Refer to sibling facets by their CAB filename in wiki-links (`[[FCT Inbox]]`, `[[CAB Backlog]]`); refer to per-anchor instances with the `{NAME}` placeholder (`{NAME} Messages.md`), never a concrete anchor's name.
 - **Cross-references to keep in sync when this spec changes.** [[CAB Base]] dispatch tables, [[FCT Anchor Tree]] tree, and any anchor template that scaffolds a `{NAME} Messages.md` file.
-

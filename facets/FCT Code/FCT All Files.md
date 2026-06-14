@@ -2,8 +2,15 @@
 description: the repo's complete source file tree, every file linked to its module doc (monospace)
 ---
 # FCT All Files
+The All Files facet — a fixed-width file-tree page linking every source file to its module doc.
 
-`{NAME} Files.md` maps the file tree of an anchor's code repository. Each line has a filename and a one-line description, aligned in fixed-width columns. It provides a single-page codebase overview for onboarding, planning, and AI context.
+| -[[FCT All Files]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Code]] → [FCT All Files](hook://p/FCT%20All%20Files)<br>: the repo's complete source file tree, every file linked to its module doc (monospace) |
+| --- | --- |
+| Related | [[FCT Interface]],  [[FCT Module]],  [[FCT Architecture]],  [[FCT Dev]],   |
+
+**TLDR** — A `{NAME} Files.md` page renders the full repo tree in monospace (via `cssclasses: monospace`) with each source file as a wiki-link to its module doc. Cardinality: one per anchor. The no-code-fence rule is load-bearing: wrapping the tree in triple-backticks kills wiki-links. Filenames ARE the links; the `→ [[doc]]` arrow form is reserved for non-source files.
+
+**Cardinality: one per anchor** — each code anchor has exactly one Files page.
 
 **Location:** `{NAME} Docs/{NAME} Dev/{NAME} Files.md`
 
@@ -28,7 +35,7 @@ description: ...
 
 # {NAME} Files
 
-| -[[{NAME} Files]]- | |
+| -[[{NAME} Files]]- |  |
 | --- | --- |
 | --- | |
 
@@ -59,7 +66,7 @@ The ``` ``` fences above are showing you the *content* of the file. **Your file 
 Every Files page has:
 1. Frontmatter: `cssclasses: monospace` — renders the entire page in fixed-width font
 2. H1 heading: `# {NAME} Files`
-3. Dispatch-table placeholder per F060 (`\| -[[{NAME} Files]]- \| \|` + standard separator)
+-[[{NAME} Files]]- \| \|` + standard separator)
 4. Description line: "File tree for the {repo-name} repository with descriptions."
 5. Two blank lines before the tree
 6. Tree starting with `{repo-name}/`
@@ -110,6 +117,31 @@ The Interface (see [[FCT Interface]]) is the **required top-level human-authored
 
 ## Maintenance
 Update the Files page when the repository structure changes significantly — new modules added, packages reorganized, or major files renamed. It does not need to track every individual file change.
+
+# RULESET R-all-files
+include::
+where:: file: **/Docs/**/*Files.md, **/*Dev/**/*Files.md
+description:: Rules every `{NAME} Files.md` instance must satisfy — frontmatter, no-code-fence, tree structure, and link format.
+
+### RULE R-all-files-01 — cssclasses monospace in frontmatter (checked)
+The instance's YAML frontmatter contains `cssclasses: [monospace]` or a `cssclasses:` block with `monospace` as an entry.
+**Check pattern:** frontmatter block contains `cssclasses` with a `monospace` entry.
+**Why:** `cssclasses: monospace` is what renders the page in fixed-width font; without it the file tree does not align correctly.
+
+### RULE R-all-files-02 — Tree not wrapped in a code fence (checked)
+The file tree (lines containing box-drawing characters `├──`, `└──`, `│`) is plain markdown, not inside a triple-backtick fence.
+**Check pattern:** no ` ``` ` fence delimiter appears before tree lines containing `├──` or `└──`.
+**Why:** wiki-links inside a code fence become inert text; fencing the tree kills all module-doc navigation.
+
+### RULE R-all-files-03 — Filename-as-link pattern for source files (sampled)
+Each source file that has a module doc uses `[[{NAME} DocPage\|filename.ext]]` so the filename renders but links to the doc. The `→ [[doc]]` arrow form is used only for non-source files referencing an external spec.
+**Check pattern:** source-file links follow `[[Page\|filename.ext]]`; `→ [[...]]` does not appear on source-file lines.
+**Why:** the filename-as-link pattern keeps the tree readable while preserving navigation; mixing the arrow form on source files breaks the visual convention.
+
+### RULE R-all-files-04 — Description column alignment is consistent (sampled)
+All tree lines that carry a description start their description text at the same rendered display width (within ±2 characters). Alignment is based on rendered width (wiki-links collapse to the alias), not raw source width.
+**Check pattern:** sampled description-column offsets are within 2 characters of each other across the tree.
+**Why:** the monospace page is only visually useful when columns align; misaligned rows look broken and are flagged `files-misaligned` by `/audit docs`.
 
 # BRIEF
 

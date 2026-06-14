@@ -3,8 +3,13 @@ description: top-level human-authored layer contract — complete vocabulary for
 ---
 
 # FCT Interface
-
 The facet spec for `{NAME} Interface.md` — the top-level human-authored layer contract on a code anchor, defining the complete caller-facing vocabulary while hiding the implementation below.
+
+| -[[FCT Interface]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Interface](hook://p/FCT%20Interface)<br>: top-level human-authored layer contract — complete vocabulary for using the layer, hides everything below |
+| --- | --- |
+| Related | [[FCT Architecture]],  [[FCT Module Doc]],  [[FCT User Dispatch]],  [[FCT All Files]],   |
+
+**TLDR** — `{NAME} Interface.md` is the **one** doc a caller reads to fully use a code anchor's layer — layer-complete, hiding, human-authored, and human-audited. Required on every `code`-trait anchor. **Cardinality: one per anchor** (plus optional named sub-Interfaces for internal layers). Audited by `/audit docs` under `§ 1.8`; scaffolded by `rewire`.
 
 **Location:** `{NAME} Docs/{NAME} Design/{NAME} Interface.md`
 
@@ -64,7 +69,473 @@ An Interface composes from canonical section types. Pick the ones that apply; no
 | Section | When to include | Purpose |
 |---------|-----------------|---------|
 | H1 `# {NAME} Interface` | always | Title |
-| Dispatch-table placeholder (per F060) | always | `\| -[[{NAME} Interface]]- \| \|` + standard separator; rewire fills in breadcrumb cell. |
+| -[[{NAME} Interface]]- | always | `\ | -[[{NAME} Interface]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| --- | --- | --- | --- | --- | --- |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ |\ | -[[{NAME} Interface]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | -[[{NAME} Interface]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ |face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | -[[{NAME} Interface]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ |face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | -[[{NAME} Interface]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ |face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | -[[{NAME} Interface]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ |face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | -[[{NAME} Interface]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ |face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | -[[{NAME} Interface]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ |face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | -[[{NAME} Interface]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ |face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | -[[{NAME} Interface]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ |face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | -[[{NAME} Interface]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ |face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | -[[{NAME} Interface]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ |face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | -[[{NAME} Interface]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ |face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | -[[{NAME} Interface]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ |face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | -[[{NAME} Interface]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ |face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | -[[{NAME} Interface]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ |face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | -[[{NAME} Interface]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ |face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | -[[{NAME} Interface]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ |face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | -[[{NAME} Interface]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ |face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | -[[{NAME} Interface]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ |face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | \ | -[[{NAME} Interface]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ |face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | \ | -[[{NAME} Interface]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ |face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | \ | -[[{NAME} Interface]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ |face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | \ | -[[{NAME} Interface]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ |face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | \ | -[[{NAME} Interface]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ |face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | \ | -[[{NAME} Interface]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ |face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | \ | -[[{NAME} Interface]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ |face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | \ | -[[{NAME} Interface]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ |face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | \ | -[[{NAME} Interface]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | \ |face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| --- | --- | --- | --- | --- | --- | --- |
+| Dispatch-table placeholder (per F060) | always | `\ | \ | -[[{NAME} Interface]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ | face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| Dispatch-table placeholder (per F060) | always | `\ |face]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
+| --- | --- | --- | --- | --- | --- |
+| Dispatch-table placeholder (per F060) | always | `\ | -[[{NAME} Interface]]- \ | \ | ` + standard separator; rewire fills in breadcrumb cell. |
 | Brief paragraph | always | What layer this is + what callers above the layer gain access to |
 | "Top-level layer contract" line | always (top-level Interface) | Explicit statement that this is THE top-level Interface for the anchor (or names which layer for a sub-Interface) |
 | Source line | always (code anchors) | Absolute path to the root module / entry point |
@@ -123,6 +594,31 @@ In codebases without a clear single root (multi-binary workspaces, monorepos), t
 - **[[FCT User Dispatch]]** — Interface lives here.
 - **[[SKA workflow]]** § Interface-validation gate — user-collaboration gate for new and significantly-modified Interfaces.
 - **[[SKA rewire]]** — creates the scaffold and files the backlog row when an Interface is missing.
+
+# RULESET R-fct-interface
+include::
+where:: file: **/{NAME} Interface.md, **/{NAME} * Interface.md
+description:: The rules every `{NAME} Interface.md` (and sub-Interface) must satisfy — layer-completeness, hiding discipline, required structural links, and lifecycle gates.
+
+### RULE R-fct-interface-01 — Layer-completeness: required sections present (checked)
+Every top-level Interface doc contains at minimum a brief paragraph naming the layer + what callers gain, and at least one of: `## Public Modules`, `## Schemas`, `## CLI Surface`. Sub-Interfaces follow the same rule for their own layer.
+**Check pattern:** the file has a non-empty H1-summary paragraph and at least one of the listed sections.
+**Why:** an Interface that omits the caller vocabulary fails its core completeness invariant — a caller cannot use the layer from it.
+
+### RULE R-fct-interface-02 — Required link from Files.md row 1 (checked)
+`{NAME} Files.md` row 1 (the repo-root row) ends with `→ [[{NAME} Interface]]`.
+**Check pattern:** `{NAME} Files.md` row 1 ends with the Interface wiki-link.
+**Why:** the Files entry point must direct readers to the layer contract first; a missing link makes the Interface invisible to file-tree navigation.
+
+### RULE R-fct-interface-03 — Required link from User/Design dispatch (checked)
+`{NAME} User.md` (or `{NAME} Design.md` if the anchor uses the Design dispatch) lists `[[{NAME} Interface]]` as a top-level entry.
+**Check pattern:** the dispatch page includes a `[[{NAME} Interface]]` link.
+**Why:** the dispatch page is the caller's entry; an Interface not listed there cannot be discovered without knowing to search for it.
+
+### RULE R-fct-interface-04 — Human-review gate before Done (stated)
+An Interface transitions to `[Done]` only after user verification that it accurately describes the layer contract (per [[SKA workflow]] § Interface-validation gate). Auto-generated or agent-only drafts are `[Designing]` until reviewed.
+**Check pattern:** status on the backlog row is not `[Done]` unless the Interface has passed user review.
+**Why:** layer-completeness and correctness can only be confirmed by a caller-perspective review; agent drafts are starting points, not finished contracts.
 
 # BRIEF
 

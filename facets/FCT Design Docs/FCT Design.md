@@ -1,5 +1,14 @@
+---
+description: "design facet — the {NAME} Design/ folder marks an anchor as following the designed-lifecycle convention; folder presence IS the signal (no trait field required)"
+---
 # FCT Design
-description:: design facet — the `{NAME} Design/` folder marks an anchor as following the designed-lifecycle convention; folder presence IS the signal (no trait field required).
+The Design folder facet — marks an anchor as following the designed-lifecycle convention; folder presence is the gate.
+
+| -[[FCT Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Design](hook://p/FCT%20Design)<br>: design facet — the `{NAME} Design/` folder marks an anchor as following the designed-lifecycle convention; folder presence IS the signal (no trait field required) |
+| --- | --- |
+| Related | [[FCT PRD]],  [[FCT Architecture]],  [[FCT Testing]],  [[FCT Design Dispatch\|Dispatch]],   |
+
+**TLDR** — The Design facet is triggered by the **existence of a `{NAME} Design/` folder** (not by any `.anchor` trait field). When the folder exists, three children are required (PRD, Architecture, Testing), several others are recommended, and the `/design` skill operates on the anchor. Cardinality: **one per anchor** — an anchor has at most one Design folder. The embedded `R-design` ruleset encodes the auditable rules; `# BRIEF` is the agent-maintenance guide.
 
 The Design facet is the **structural marker** that an anchor follows the designed-lifecycle convention. **If `{NAME} Design/` exists, the anchor is in design-mode** — `/design` operates on it, the PRD → UX Design → API Design → Architecture → Testing → Decisions → Roadmap pipeline applies, and the design sub-facets become the canonical homes for what the anchor *is* and *how it works*.
 
@@ -131,7 +140,7 @@ Any anchor that commits to the designed-lifecycle convention.
 # RULESET R-design
 include::
 where:: anchor
-description:: Structural rules for the {NAME} Design facet — folder presence, required children, dispatch wiring, Code-trait deprecation.
+description:: design facet — the `{NAME} Design/` folder marks an anchor as following the designed-lifecycle convention; folder presence IS the signal (no trait field required)
 
 Embedded ruleset for the Design facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella.
 

@@ -4,11 +4,18 @@ cssclasses:
 description: anchor master tree — every possible doc/folder in an anchor, linked to its facet spec
 ---
 # FCT Anchor Tree
-
 The annotated master file tree showing every possible file and folder that may appear inside a CAB anchor, with each named element wiki-linked to its governing facet spec.
+
+| -[[FCT Anchor Tree]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Anchor Tree](hook://p/FCT%20Anchor%20Tree)<br>: anchor master tree — every possible doc/folder in an anchor, linked to its facet spec |
+| --- | --- |
+| Related | [[FCT Anchor Page]],  [[CAB Base]],  [[CAB Docs]],  [[FCT Facet]],   |
+
+**Cardinality: one per anchor** — each anchor has exactly one canonical file tree (this spec is the reference; an anchor's actual tree is its on-disk directory).
 
 An anchor is a standardized folder structure that serves as the home for a project, topic, or content area.
 See [[CAB Base]] shows files common to all anchors.
+
+**TLDR** — The annotated master file tree for a CAB anchor: every recognized file/folder placeholder wiki-linked to its governing facet spec. Two trees: the anchor folder tree (top) and the optional Code Repository tree (bottom). Use this as a lookup when setting up or auditing an anchor's on-disk structure.
 
 > **Note:** This file serves as the reference example itself — the annotated file tree below IS the canonical illustration of a complete anchor structure.
 
@@ -101,6 +108,31 @@ The PRD should include a workflow table like this to orient readers:
 | 7 | Dispatch tree | Verify all docs reachable from Docs.md (see [[CAB Docs]]) |
 
 Steps are iterative — resolving open questions may require revisiting the PRD or UX design.
+
+# RULESET R-anchor-tree
+include::
+where:: file: **/FCT Anchor Tree.md
+description:: Rules governing the FCT Anchor Tree facet spec — the annotated master file tree of a CAB anchor. Covers content integrity, naming conventions, tree rendering, and cross-reference sync.
+
+### RULE R-anchor-tree-01 — Every named element is wiki-linked to its facet spec (checked)
+Every named file or folder placeholder in the tree (e.g. `{NAME} Backlog.md`, `CLAUDE.md`) carries a `[[FCT <Name>]]` wiki-link to the governing facet spec. Inline aliases to the on-disk filename are permitted (`[[FCT Anchor Page|{NAME}.md]]`).
+**Check pattern:** no unlinked placeholder name in the tree body (scan for `{NAME} <Word>.md` lines lacking `[[`).
+**Tier:** checked
+
+### RULE R-anchor-tree-02 — Box-drawing characters and monospace cssclass are preserved (checked)
+The tree uses Unicode box-drawing characters (`├──`, `│`, `└──`). The frontmatter must carry `cssclasses: monospace` (or a list including `monospace`) so the tree renders correctly in Obsidian.
+**Check pattern:** frontmatter contains `cssclasses` with `monospace`; tree lines contain `├──` or `└──`.
+**Tier:** checked
+
+### RULE R-anchor-tree-03 — Two trees are kept separate by the Optional divider (sampled)
+The anchor folder tree (top) and the optional Code Repository tree (bottom) are separated by a `─── Optional … ───` divider line. No code-repo paths appear above the divider; no anchor-tree placeholders appear below it.
+**Check pattern:** the divider line `─── Optional` is present; `{repo}/` section is below it.
+**Tier:** sampled
+
+### RULE R-anchor-tree-04 — Cross-reference sync with CAB Base, SKILL.md, and CAB Rules.md (stated)
+When adding or removing a named element in the tree, the corresponding dispatch tables in `CAB Base.md`, `SKILL.md`, and `CAB Rules.md` are updated to stay in sync.
+**Check pattern:** stated principle; agent verifies on each tree-content edit.
+**Tier:** stated
 
 # BRIEF
 

@@ -2,8 +2,13 @@
 description: per-anchor architecture overview — anchor-folder form with subsystems; standard section order; mandatory visual diagram (Excalidraw, never ASCII); subsystem dispatch table with link convention; API detail lives in sub-docs, not the main page.
 ---
 # FCT Architecture
-
 Facet spec defining the per-anchor system-architecture overview — its anchor-folder shape, standard section order, mandatory visual figure, subsystem dispatch table, and split between conceptual map (entry-point doc) and contract surface (API sub-doc).
+
+| -[[FCT Architecture]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Architecture](hook://p/FCT%20Architecture)<br>: per-anchor architecture overview — anchor-folder form with subsystems; standard section order; mandatory visual diagram (Excalidraw, never ASCII); subsystem dispatch table with link convention; API detail lives in sub-docs, not the main page. |
+| --- | --- |
+| Related | [[FCT Module Doc]],  [[FCT Decisions]],  [[FCT Design Dispatch]],  [[R-diagram]],   |
+
+**TLDR** — One `{NAME} Architecture/` folder per anchor (cardinality: **one**). Entry-point doc has four required sections in order: Overview → Architecture diagram → Subsystems → supporting context. Diagram must be a real visual artifact (SVG/Excalidraw/D2); ASCII art is forbidden. Subsystem docs use kebab naming `{NAME}-{Subsystem}.md`; `[[double-bracket]]` = real doc, `[single-bracket]` = placeholder. Public API detail lives in a sibling `{NAME} API.md`, not the entry-point page.
 
 **Location:** `{NAME} Architecture/` (anchor-folder at the **anchor root**, per CAB Log 2026-06-08; previously `{NAME} Docs/{NAME} Design/{NAME} Architecture/`). The entry-point doc is `{NAME} Architecture/{NAME} Architecture.md`; subsystem docs are siblings inside that folder.
 
@@ -116,6 +121,8 @@ If a class table starts showing up on the Architecture page, that's a smell that
 ## Trait applicability
 
 Available to any anchor with the `Code` trait. Optional for non-code anchors — a `Topic` anchor's "architecture" might be its content taxonomy, but that's usually expressed in the anchor page or PRD instead.
+
+**Cardinality: one** — each anchor has exactly one `{NAME} Architecture/` folder and one `{NAME} Architecture.md` entry-point doc. Subsystem docs inside the folder are many, but the facet itself (the entry-point doc + folder) is singular per anchor.
 
 
 ## Audit

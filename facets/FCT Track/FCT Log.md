@@ -1,12 +1,22 @@
+---
+description: "the Log facet — dated entries capturing what happened on what day, in folder or single-file form"
+---
 # FCT Log
-
 Facet spec defining the standardized format for an anchor's running narrative — dated entries capturing what happened on what day, in either folder form (default) or single-file form (minimal).
 
-description:: log facet — `{NAME} Log/` folder of dated entries documenting what happened on what day; dispatch page lists entries newest-first.
+| -[[FCT Log]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Log](hook://p/FCT%20Log)<br>: the Log facet — dated entries capturing what happened on what day |
+| --- | --- |
+| Related | [[FCT Backlog]],  [[FCT Roadmap]],  [[FCT Anchor Page]],  [[FCT Track]],   |
+
+**TLDR** — The Log facet standardizes how any anchor records its running history. Instances live at `{NAME} Log/` (folder form, default) or `{NAME} Log.md` (single-file, minimal). **Cardinality: one per anchor** — each anchor has at most one Log. Folder form uses a `{NAME} Log.md` dispatch page (entries newest-first); single-file form inlines entries as H2s. Entry filenames are ISO-date-prefixed (`YYYY-MM-DD <topic>.<ext>`). Logs capture what *happened*; spec/convention content belongs in dedicated facets.
+
+description:: the Log facet — dated entries capturing what happened on what day
 
 The Log facet specifies the format for an anchor's running narrative of work done over time. **Many anchors have a Log** — Disk, MED, SV, RR, Topic/BUY, Topic/COM, Topic/Doc/AWS, etc. — and the format is standardized across all of them so a reader who knows one knows them all.
 
 A Log captures **what happened on what day**: per-session plans + outcomes + decisions, in chronological order. It is **not** a spec, a convention, a roadmap, a backlog, or a synthesis surface. Those belong in their own facets and are linked-to from log entries, not restated there.
+
+**Cardinality: one per anchor** — each anchor has at most one Log (in either folder or single-file form).
 
 ## Two forms — folder (default) and single-file (minimal)
 
@@ -46,11 +56,11 @@ The `{NAME} Log.md` file itself is body-only — no YAML frontmatter. First line
 # {NAME} Log
 description:: dated entries — what happened on what day in the {NAME} anchor.
 
-| -[[{NAME} Log]]- | : <tagline><br>→ <breadcrumb> → [{NAME} Log](hook://p/{NAME}%20Log) |
+| -[[{NAME} Log]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Log](hook://p/FCT%20Log)<br>: <tagline> |
 | --- | --- |
 | [[YYYY-MM-DD <topic>]] | <one-line summary> |
 | [[YYYY-MM-DD <topic>]] | <one-line summary> |
-| ... | ... |
+| ... |  |
 
 ## What this is
 

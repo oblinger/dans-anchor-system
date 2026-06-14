@@ -1,7 +1,23 @@
+---
+description: "facet spec for `{NAME} UX Design.md` — the human user-facing surface (CLI commands, screens, organization, naming, output shapes, error voice)"
+---
 # FCT UX Design
-description:: facet spec for `{NAME} UX Design.md` — the *human* user-facing surface (CLI commands, screens, organization, naming, output shapes, error voice). Sibling peer to [[FCT API Design]] (programmatic surface).
+Facet spec for `{NAME} UX Design.md` — the *human* user-facing surface: CLI commands, screens, organization, naming, output shapes, error voice.
+
+| -[[FCT UX Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT UX Design](hook://p/FCT%20UX%20Design)<br>: facet spec for the human user-facing surface doc |
+| --- | --- |
+| Related | [[FCT API Design]],  [[FCT CLI]],  [[FCT Decisions]],  [[FCT Architecture]],   |
+
+**TLDR**
+- **One per anchor** — a single `{NAME} UX Design.md` captures all human-facing surface intent for the anchor.
+- Covers CLI command sets, screen flows, slash-command surfaces, output shapes, and error voice.
+- Sibling to [[FCT API Design]] (programmatic surface); the cut is *who the consumer is* (human vs code).
+- Preface zone of each instance requires TLDR + representative figure before body H2s.
+- See [[CAE UX Design]] for the canonical worked example.
 
 UX Design specifies the **human user surface** of the anchor — how a person discovers, invokes, reads, and recovers from errors. It is sibling to [[FCT API Design]] (the *programmatic* user surface). The cut between them is **who the consumer is**, not where the surface lives: UX = human reading or invoking; API Design = code calling.
+
+**Cardinality: one per anchor** — a single `{NAME} UX Design.md` file per anchor captures the full human-facing surface intent. If the anchor has no human consumer, mark this facet `none` in [[FCT Status]] and omit the file.
 
 > [!info] Scope guard
 > "UX" here is the broad sense — *user-facing surface* — not narrowly "visual interface." For a CLI scheduler the UX is the command set, output shapes, and error voice. For a GUI app it is screens + flows. For a skill repository (no pixels) it is the slash-command surface and organization. If the anchor has no human consumer, this facet is N/A; mark it `none` in [[FCT Status]] and omit the file.
@@ -50,7 +66,7 @@ See [[CAE UX Design]] — the CAE scheduler shows the canonical shape for a CLI-
 
 # RULESET R-ux
 include::
-description:: Rules for `{NAME} UX Design.md` — human user-facing surface intent.
+description:: facet spec for the human user-facing surface doc
 
 Embedded ruleset for the UX Design facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via [[R-facet]] umbrella.
 

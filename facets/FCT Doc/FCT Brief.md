@@ -3,7 +3,11 @@ description: The Brief doc facet — agent-facing per-file editing-and-maintenan
 ---
 
 # FCT Brief
-A **Brief** is a **document facet** — a bounded, authored content part attached to a source file (the `# BRIEF` H1 section in Phase 1; a `<Name> Brief.md` sidecar in Phase 2). It is **agent-facing** operational content: the information an agent needs to maintain that specific source file correctly — content too specific for project-wide CLAUDE.md, too narrow for a CAB facet spec, and too verbose to inline at the top of every source file.
+A **Brief** is a **document facet** — agent-facing per-file editing-and-maintenance content paired with a source file (inline `# BRIEF` section in Phase 1; `<Name> Brief.md` sidecar in Phase 2).
+
+| -[[FCT Brief]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Doc]] → [FCT Brief](hook://p/FCT%20Brief)<br>: agent-facing per-file editing-and-maintenance content paired with a source file |
+| --- | --- |
+| Related | [[FCT Discussion]],  [[DSC progressive-disclosure]],  [[DSC file-association]],  [[Briefs]],   |
 
 > [!note] Classification — doc facet, peer to [[FCT Discussion]]
 > Brief is a **doc facet** (a content container attached to a document), not a discipline. It lives in `CAB Facets/Doc Facet/` alongside [[FCT Discussion]]. As a doc facet it *cites* three disciplines:
@@ -23,6 +27,8 @@ A **Brief** is a **document facet** — a bounded, authored content part attache
 
 > [!info] Renamed 2026-06-09
 > Previously called "Guide." Renamed to "Brief" to disambiguate from `<App> User Guide.md` (product documentation for end-users). A brief is *operational content for the agent/maintainer about to edit a file*; a user guide is *how-to-use-the-app content for end-users*. Two different audiences, two different jobs — different words.
+
+**Cardinality: many per anchor** — each source file may have its own Brief; a project accumulates as many Briefs as there are source files that carry one.
 
 ## Audience — three reader zones in every source file
 
@@ -152,7 +158,7 @@ The H1 of the brief matches the file basename. No further structural constraints
 # RULESET R-brief
 include::
 where:: sentinel: ^#+ BRIEF\b
-description:: Rules for the Brief doc facet — agent-facing per-file maintenance content (inline `# BRIEF` or `<Name> Brief.md` sidecar).
+description:: agent-facing per-file editing-and-maintenance content paired with a source file
 
 Embedded ruleset for the Brief facet, co-located per [[F133 — Rulesets folder convention + facet embedding|F133]]. `where::` is the inline-`# BRIEF` sentinel; the sidecar rule (R-brief-02) targets `* Brief.md`.
 

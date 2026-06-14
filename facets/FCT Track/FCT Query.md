@@ -8,6 +8,8 @@ The asking surface: one `{NAME} queries.md` per anchor, in `{NAME} Track/`, that
 | --- | --- |
 | Related | [[SKL Query]] (the skill that builds it),  [[FCT Status]],  [[FCT Messages]] |
 
+**TLDR** — One `{NAME} queries.md` per anchor (cardinality: one), in `{NAME} Track/`, owned by the `/query` skill. Fixed five-section order (`## Agent Resolutions` → `## Verifications` → `## Immediate Questions` → `## Questions` → `## Ready`); empty sections omitted. Verifications are agent-run / user-judged — never "user runs X". Questions are self-contained or wiki-linked. The file shrinks toward empty as answers are applied. Validated by `/audit doc` via `R-query`.
+
 ## What it is
 
 `{NAME} queries.md` is the single per-anchor surface where the user answers everything the agents need from them. The **`/query` skill** ([[SKL Query]]) *builds* it (the procedure — walking open questions, the determination routing, running verifications ahead of time, console echo); **this facet** governs what the resulting *file* must look like, so it can be audited (`/audit doc`, the F167 on-write hook). The skill cites these rules rather than restating them.
@@ -21,7 +23,7 @@ The asking surface: one `{NAME} queries.md` per anchor, in `{NAME} Track/`, that
 # RULESET R-query
 include::
 where:: file:{ANCHOR}/**/* queries.md
-description:: What a valid `{NAME} queries.md` looks like — sections + order, and the discipline that no item asks the user to *do* anything they shouldn't, every line is answerable, and nothing orphan survives.
+description:: the `{NAME} queries.md` format
 
 What `/audit doc` checks on a queries file. The skill that produces it is [[SKL Query]]; these are the file-invariants it must satisfy. Format of this set: [[FCT Ruleset]].
 

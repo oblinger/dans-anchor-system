@@ -2,11 +2,15 @@
 description: raw incoming content to process
 ---
 # FCT Inbox
-
 Facet spec for the `{NAME} Inbox.md` drop-zone file — the chronological log of raw input pasted in for later processing into the anchor's planning docs.
 
-**Location:** `{NAME} Docs/{NAME} Plan/{NAME} Inbox.md`
+| -[[FCT Inbox]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Inbox](hook://p/FCT%20Inbox)<br>: raw incoming content to process |
+| --- | --- |
+| Related | [[FCT Discussion]],  [[FCT Backlog]],  [[FCT PRD]],  [[FCT Roadmap]],   |
 
+**TLDR** — A single `{NAME} Inbox.md` file (one per anchor) is the paste-first drop zone for raw input; processed entries stay with a `DONE` or `MOVED →` status tag as a permanent log.
+
+**Cardinality:** one per anchor.
 
 The inbox (`{NAME} Inbox.md`) is a drop zone for raw input — long descriptions, change requests, design thoughts, reference material — pasted in for processing and integration into the planning and execution docs.
 
@@ -19,7 +23,7 @@ Below is a condensed reference example. See the working example linked above for
 
 # CAE Inbox
 
-| -[[CAE Inbox]]- | |
+| -[[CAE Inbox]]- |  |
 | --- | --- |
 | --- | |
 
@@ -68,6 +72,31 @@ Every Inbox file opens with the standard top-of-doc format: YAML frontmatter + `
 - Content is pasted in, then processed by an agent or the user who integrates it into the appropriate planning docs (PRD, Roadmap, Todo, Backlog)
 - Processed entries remain with a status tag as a persistent log of what was communicated
 - Rarely revisited after processing
+
+# RULESET R-fct-inbox
+include::
+where:: file: **/{NAME} Inbox.md
+description:: Rules every `{NAME} Inbox.md` instance must satisfy — location, heading format, and status-tag vocabulary.
+
+### RULE R-fct-inbox-01 — File exists at the anchor root (checked)
+The Inbox file lives at the anchor root: `{NAME} Inbox.md`, alongside the anchor page.
+**Check pattern:** file is present at `<anchor-root>/{NAME} Inbox.md`.
+**Why:** co-location with top-level anchor docs ensures consistent discoverability by agents and users. (Tier: checked)
+
+### RULE R-fct-inbox-02 — Sections are reverse-chronological H2s with a status tag (checked)
+Each entry heading follows `## YYYY-MM-DD — <Topic>    \`<STATUS>\`` where `<STATUS>` is one of the two sanctioned tags.
+**Check pattern:** every H2 matches `^## \d{4}-\d{2}-\d{2} — .+` and carries a backtick-wrapped status tag.
+**Why:** consistent heading format lets agents scan for processed vs. pending entries without parsing free-form prose. (Tier: checked)
+
+### RULE R-fct-inbox-03 — Only sanctioned status tags are used (checked)
+The only permitted status values are `DONE` (processed in place) and `MOVED → {destination}` (content relocated). No other tags may be used without updating this spec.
+**Check pattern:** no H2 carries a status tag other than `DONE` or `MOVED → …`.
+**Why:** downstream tooling and agent skills key off these exact strings; ad-hoc tags silently break detection. (Tier: checked)
+
+### RULE R-fct-inbox-04 — Processed entries are retained, not deleted (stated)
+After processing, entries remain in the file with their status tag intact as a permanent log of what was communicated and where it went.
+**Check pattern:** no H2 entry disappears upon processing; entries only gain a status tag.
+**Why:** the Inbox doubles as an audit trail; deleting processed entries destroys the history of what input arrived and where it was routed. (Tier: stated)
 
 # BRIEF
 

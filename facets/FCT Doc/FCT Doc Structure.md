@@ -14,6 +14,8 @@ The standard top-to-bottom structure every document follows — progressive disc
 ## Overview
 [[DSC progressive-disclosure]] is the general discipline — reveal information in layers so a reader gets the gist first and drills in only as far as they need. **Doc Structure** is that discipline applied to a *single document*: a fixed top-to-bottom order of layers, each aimed at a more-committed reader than the last. Every document the system owns — anchor page, facet spec, feature doc, design doc, user guide — follows this skeleton; specific document kinds (e.g. [[FCT Anchor Page]]) refine it but never violate the layer order.
 
+**Cardinality: one per document.** Every authored `.md` file has exactly one Doc Structure — each document follows this top-to-bottom skeleton once. Across an anchor the facet applies to each individual document independently.
+
 ## The standard structure (top to bottom)
 
 The fixed order. The top layers are always present; lower layers appear only when the document is big enough to warrant them.
@@ -61,7 +63,7 @@ The actual content the document holds. At the very bottom, the agent-facing `# B
 # RULESET R-doc-structure
 include::
 where:: every authored document — any `.md` the system owns, identified by a leading `# ` H1
-description:: The canonical top-to-bottom information order for a document (progressive disclosure). The audit reads this one rule and walks the document top-down to check its structure.
+description:: the canonical document layering — progressive disclosure for a document
 
 Embedded ruleset for the Doc Structure facet. One compact ordering rule; per-element rules can be split out later if finer-grained auditing is wanted.
 

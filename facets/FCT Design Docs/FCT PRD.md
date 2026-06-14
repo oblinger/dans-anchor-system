@@ -1,8 +1,12 @@
+---
+description: "facet spec for {NAME} PRD.md — the anchor's product requirements document"
+---
 # FCT PRD
-
 Facet spec for `{NAME} PRD.md` — the first doc in an anchor's Design folder, defining what the product does (goals, non-goals, user stories) for every downstream design phase to consume.
 
-description:: facet spec this doc follows
+| -[[FCT PRD]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT PRD](hook://p/FCT%20PRD)<br>: facet spec for {NAME} PRD.md — the anchor's product requirements document |
+| --- | --- |
+| Related | [[FCT Architecture]],  [[FCT Testing]],  [[FCT Decisions]],  [[FCT Stories]],   |
 
 The PRD (`{NAME} PRD.md`) is the **what** of the product — what it does, who it serves, what's in and out of scope, and the user stories that downstream work realizes. It is the first document written during `/design`, and every downstream phase (UX, Architecture, Testing, Roadmap, Features) reads it as authoritative input.
 
@@ -89,6 +93,10 @@ PRD discussions surface questions throughout. The PRD does NOT carry a separate 
 
 Design-phase completeness for the PRD is tracked in `{NAME} Track/{NAME} Status.md` per [[FCT Status]], on the `prd::` line. The PRD file itself does NOT carry a `status::` dataview field — the centralized Status facet is the single source of truth. Legacy per-doc `status::` is acceptable as a fallback when the Status file doesn't exist yet.
 
+## Cardinality
+
+**One per anchor.** An anchor has at most one PRD — the single authoritative statement of what the product is. When user stories grow large enough to extract, they move to [[FCT Stories]] (folder form), but the PRD itself remains one file per anchor.
+
 ## Trait applicability
 
 Any anchor that has a `{NAME} Design/` folder per [[FCT Design]]. Initially supports anchors with code-shaped artifacts; broader applicability (Paper / Topic / Simple traits) covered as those traits land.
@@ -113,7 +121,7 @@ Any anchor that has a `{NAME} Design/` folder per [[FCT Design]]. Initially supp
 # RULESET R-prd
 include::
 where:: file:{ANCHOR}/**/* PRD.md
-description:: Structural rules for the {NAME} PRD facet — location, body-only shape, required sections, user-story numbering, modern Open-Questions handling.
+description:: facet spec for {NAME} PRD.md — the anchor's product requirements document
 
 Embedded ruleset for the PRD facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella.
 

@@ -1,9 +1,12 @@
 ---
-description: developer docs dispatch page — audit-tied implementation reference
+description: "audit-tied developer docs dispatch page — file tree and per-module docs"
 ---
 # FCT Dev Dispatch
-
 Facet spec for `{NAME} Dev.md` — the audit-tied dispatch page that lists the Files tree and per-module docs under `{NAME} Docs/{NAME} Dev/`.
+
+| -[[FCT Dev Dispatch]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Dev Dispatch](hook://p/FCT%20Dev%20Dispatch)<br>: audit-tied developer docs dispatch page — file tree and per-module docs |
+| --- | --- |
+| Related | [[FCT User Dispatch]],  [[FCT All Files]],  [[FCT Module Doc]],  [[FCT Anchor Page]],   |
 
 **Location:** `{NAME} Docs/{NAME} Dev/{NAME} Dev.md`
 
@@ -28,13 +31,13 @@ The `{NAME} Dev.md` dispatch page inside the `{NAME} Dev/` folder. Lists the **a
 
 # CAE Dev
 
-| -[[CAE Dev]]- | ><br>: developer documentation |
+| -[[CAE Dev]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Dev Dispatch](hook://p/FCT%20Dev%20Dispatch)<br>: developer documentation |
 | --- | --- |
 | [[CAE Files\|Files]] | repository file tree (audit-generated) |
-| **engine/** | |
+| **engine/** |  |
 | [[CAE Scheduler\|Scheduler]] | priority queue and worker pool |
 | [[CAE RetryManager\|RetryManager]] | backoff and retry logic |
-| **api/** | |
+| **api/** |  |
 | [[CAE Router\|Router]] | CLI command routing |
 
 (Note: Interface and Architecture used to lead this dispatch; they moved to [[CAE User]] in the synthesis/reference split. The [[CAE Files]] row-1 link points at `[[CAE Interface]]` — wiki-link by basename resolves regardless of folder.)
@@ -52,7 +55,7 @@ The `{NAME} Dev.md` dispatch page inside the `{NAME} Dev/` folder. Lists the **a
 
 - **YAML frontmatter** — optional.
 - **H1** — `# {NAME} Dev`. Blank line after.
-- **Dispatch table** — top-left cell is `-[[{NAME} Dev]]-`, top-right is `><br>: developer documentation` (or `+>` legacy shorthand).
+-[[{NAME} Dev]]-`, top-right is `><br>: developer documentation` (or `+>` legacy shorthand).
 - **First row** — `[[{NAME} Files]]` (always present for code anchors).
 - **Module rows** — grouped by source folder, with bold folder headers (e.g., `**engine/**`).
 - **Auto-management separator** — a `---` row enables auto-listing of remaining module docs.

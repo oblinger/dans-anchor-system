@@ -1,5 +1,14 @@
+---
+description: "file-naming facet — every file inside an anchor uses `{NAME} <X>.md` form by default; exceptions for vault-global files and facet-sanctioned unique patterns"
+---
 # FCT Naming
-description:: file-naming facet — every file inside an anchor uses `{NAME} <X>.md` form by default; exceptions for vault-global files and facet-sanctioned unique patterns.
+File-naming facet — every file inside an anchor uses `{NAME} <X>.md` form by default; exceptions for vault-global files and facet-sanctioned unique patterns.
+
+| -[[FCT Naming]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Naming](hook://p/FCT%20Naming)<br>: file-naming facet — `{NAME} <X>.md` default + explicit exception allowlist |
+| --- | --- |
+| Related | [[FCT Folder]],  [[FCT Anchor Page]],  [[FCT All Files]],  [[FCT Features]],   |
+
+**TLDR** — Every `.md` file inside an anchor is named `{NAME} <X>.md` (the anchor slug as prefix). Three exception classes are allowed: vault-global files, facet-sanctioned alternative patterns (F-numbers, US-IDs, ISO dates), and genuinely unique domain-specific names. **Cardinality: one per anchor** — a single naming convention applies to each anchor, not a per-file choice.
 
 The Naming facet specifies the **default file-naming convention** for files that live inside an anchor folder, plus the canonical list of exceptions where another pattern is allowed.
 
@@ -41,7 +50,9 @@ Names so domain-specific they're unlikely to collide with anything in another an
 
 The anchor marker file (the `{NAME}.md` inside `{NAME}/` per [[FCT Folder]]) is itself an instance of the default rule: file name = folder name. Sub-anchor folders nested inside an anchor (like `{NAME} Design/`, `{NAME} Track/`) carry their own marker files (`{NAME} Design.md`, `{NAME} Track.md`) — same convention all the way down.
 
-## Trait applicability
+## Cardinality and applicability
+
+**Cardinality: one per anchor.** Each anchor has exactly one naming convention — the `{NAME} <X>.md` default — not a per-file or per-folder choice. The exception classes are part of that single convention, not alternatives to it.
 
 Vault-wide. Every anchor in the vault is subject to this naming convention; the exceptions are explicit.
 
@@ -67,7 +78,7 @@ These facets each declare an alternative naming pattern, and their pattern is li
 
 # RULESET R-naming
 include::
-description:: File-naming rules vault-wide — slug-prefix default + explicit exception allowlist.
+description:: file-naming facet — `{NAME} <X>.md` default + explicit exception allowlist
 
 Embedded ruleset for the Naming facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella. Vault-wide application — every anchor's files are subject to this set, no explicit `include::` needed.
 

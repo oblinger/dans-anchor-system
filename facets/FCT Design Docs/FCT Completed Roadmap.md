@@ -1,5 +1,14 @@
+---
+description: "completed-roadmap facet — migrated milestones in newest-on-top order, sibling of the forward-looking Roadmap"
+---
 # FCT Completed Roadmap
-description:: facet spec this doc follows
+The migration target for completed milestones — preserves shipped milestone structure in newest-to-oldest order alongside the forward-looking Roadmap.
+
+| -[[FCT Completed Roadmap]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Completed Roadmap](hook://p/FCT%20Completed%20Roadmap)<br>: completed-roadmap facet — migrated milestones in newest-on-top order, sibling of the forward-looking Roadmap |
+| --- | --- |
+| Related | [[FCT Roadmap]],  [[FCT Design]],  [[FCT Features]],  [[FCT Design Docs]],   |
+
+**TLDR** — One doc per anchor (when any milestone has migrated). Lives at `{NAME} Design/{NAME} Completed Roadmap.md`. Newest migrated milestone at top; standalone-completed-features groupings interleave between milestones. Cardinality: **one per anchor**.
 
 The Completed Roadmap is the **migration target** for whole milestones that reach completion. Roadmap stays forward-looking; this doc captures everything that's shipped — preserving the milestone structure that the project used to plan it.
 
@@ -77,7 +86,7 @@ Per [[DSC progressive-disclosure]]:
 # RULESET R-completed-roadmap
 include::
 where:: file:{ANCHOR}/**/* Completed Roadmap.md
-description:: Structural rules for {NAME} Completed Roadmap.md — sibling of CAB Roadmap; preserves migrated milestones in newest-on-top order.
+description:: completed-roadmap facet — migrated milestones in newest-on-top order, sibling of the forward-looking Roadmap
 
 Embedded ruleset for the Completed Roadmap facet, co-located with the spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella.
 

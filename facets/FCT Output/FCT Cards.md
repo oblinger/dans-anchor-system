@@ -1,12 +1,16 @@
 ---
-description: cheat sheets and flashcards
+description: "cheat sheets and spaced-repetition flashcards for an anchor topic"
 ---
 # FCT Cards
+Facet spec for the optional `{NAME} Cards.md` page — a three-tier mix of cheat sheets and spaced-repetition flashcards that lets an anchor double as a study deck for its own topic.
 
-Facet spec for the optional `{NAME} Cards.md` page — a three-tier mix of cheat sheets and spaced-repetition flashcards (summary + detail) that lets an anchor double as a study deck for its own topic.
+| -[[FCT Cards]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Output]] → [FCT Cards](hook://p/FCT%20Cards)<br>: cheat sheets and spaced-repetition flashcards for an anchor topic |
+| --- | --- |
+| Related | [[FCT Brief]],  [[FCT Anchor Page]],  [[CAB Aspects]],  [[FCT Output]],   |
 
-**Location:** `{NAME} Docs/{NAME} User/{NAME} Cards.md`
+**TLDR** — A `{NAME} Cards.md` file (one per anchor, optional) holds three tiers of study material: bold-heading cheat sheets (reference, no SR), summary cards (the gist/rule), and detail cards (exceptions/gotchas). Requires an SR tag on line 1, `-?-` separators, 69-char line width, and `.` for in-card blank lines.
 
+**Cardinality:** one per anchor — each anchor has at most one Cards file (`{NAME} Cards.md`).
 
 The `{NAME} Cards.md` document contains cheat sheets and spaced repetition flashcards for a given topic. It lives in the anchor folder or a subfolder dedicated to cards.
 
@@ -64,7 +68,7 @@ FORMAT:  f"..."  format  %
 
 > `#sr-tag` — a spaced repetition tag (first line; required by the SR plugin)
 >
-> `# {NAME} Cards` — H1, followed by the standard F060 dispatch-table placeholder (`\| -[[{NAME} Cards]]- \| \|` + standard separator)
+-[[{NAME} Cards]]- \| \|` + standard separator)
 >
 > `## **CHEAT SHEET TOPIC A**`
 > code block with grouped reference content
