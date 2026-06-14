@@ -19,13 +19,11 @@ user_invocable: true
 
 ## The document — `{NAME} queries.md` in `{NAME} Track/`
 
-Slug-prefixed (sorts to front), agent-owned, four sections in **fixed order** (omit a section when empty):
+The file's validity rules — sections + order, what each item must look like, the no-user-imperative and no-orphan invariants — live in the **[[FCT Query]] facet** (`R-query`), so the file is auditable (`/audit doc`, the on-write hook) and there's one source of truth. **Write to conform to `R-query`; don't restate it here.** Quick orientation only — five sections, fixed order, omit-if-empty:
 
-1. **`## Agent Resolutions`** — decisions the agent made on its own. One line each: what was decided + why + a link to the question's home. The user's catch-a-wrong-guess surface.
-2. **`## Verifications`** (numbered **V1, V2, …**) — a check the user **judges**, never one they run. The agent runs it; the user only looks and answers **yes/no**. Default: run it **ahead of time** and embed the result in the line (image / output / rendered artifact), then ask — e.g. *"V1 — I rendered ![[X.svg]]; is it legible? (yes/no)"*. If it genuinely must run live: *"V1 — tell me when you're ready; I'll run it and show you the result to judge."* **Forbidden:** asking the user to run/execute anything ("run X and tell me…"), "verify F113", or a whole-document general eyeball. Every verification ends in a yes/no on something the agent produced. (No yes/no, no judgeable artifact ⇒ it isn't a verification — see determination §6.)
-3. **`## Immediate Questions`** (preferred user-question form) — self-contained yes/no questions: **one context line** (names the feature + what it's about) then **one line** (the question, ideally yes/no; ≤ 2 lines). Readable without opening anything. Link the feature-doc question (`F<n> Q<m>`) when one exists.
-4. **`## Questions`** (least preferred catch-all) — links to feature-doc questions in `F<n> Q<m>` form (clickable to background). For non-yes/no questions, or features with **> 3** open questions (link the feature, don't enumerate).
-5. **`## Ready`** (optional, bottom) — features that are decided + ready to build (on the backlog as `[Ready]`), listed for visibility. Where actionable non-question items land (determination §6). Source of truth is the backlog; listing here is optional.
+`## Agent Resolutions` (reversible-guess records) → `## Verifications` (V-numbered; agent-run, user-judged yes/no; never "you run X") → `## Immediate Questions` (self-contained yes/no) → `## Questions` (catch-all `F<n> Q<m>` links) → `## Ready` (optional; backlog `[Ready]` features, for visibility).
+
+The skill's job below is the *procedure* that produces a conforming file.
 
 ## Determination logic — route every open question
 
