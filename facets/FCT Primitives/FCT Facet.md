@@ -34,7 +34,7 @@ Facets are one of the two kinds of [[CAB Aspects|Aspect]] — the narrow, file-b
 
 # RULESET R-facet-spec
 include::
-where:: file:facets/FCT *.md
+where:: file: facets/**/FCT *.md, !facets/FCT.md, !**/FCT Facets.md, !**/FCT Primitives.md, !**/FCT Anchor.md, !**/FCT Code.md, !**/FCT Design Docs.md, !**/FCT Dispatch.md, !**/FCT Doc.md, !**/FCT Output.md, !**/FCT Track.md
 description:: The rules for authoring a facet — what every `FCT <Name>.md` (a facet definition) must contain and conform to. **Distinct from the umbrella [[R-facet]]**, which aggregates each materialized facet's *own* embedded rules (so an anchor's `{NAME} Backlog.md`, `{NAME} Testing.md`, … get audited); `R-facet-spec` instead governs the **facet-spec documents themselves**, in the `facets/` catalog.
 
 Embedded here per the [[F133 — Rulesets folder convention + facet embedding|F133]] convention. Tiers: **checked** (mechanically verifiable), **sampled** (spot-checked), **stated** (a principle the author honors). The authoritative model these rules enforce is [[CAB Aspects]] § Facet + § Spec-doc structure.
@@ -126,6 +126,7 @@ A `## Triggers` section appears **only** when the facet declares behavioral trig
 ## The ruleset — REQUIRED
 
 ### RULE R-facet-spec-18 — Every facet spec embeds a ruleset — REQUIRED (checked)
+check:: regex_present ^#+\s*RULESET
 Every facet spec carries an embedded `# RULESET R-<facet>` (per the F133 convention; a tiny facet may have just a few rules). It is the one part that makes the facet **validatable and creatable** — detection, format, and constraints in auditable form (e.g. [[FEX Manifest]] → [[R-fex-manifest]]).
 **Check pattern:** the spec contains a `# RULESET R-<facet>` H1 with ≥ 1 `### RULE` entry.
 **Why:** prose rots and varies; the ruleset is the single source an audit reads and an author follows to build a conformant instance. Without it we don't actually know how to validate or create the facet — so it is required, not optional. (One of the two required parts, alongside the `# BRIEF`.)
@@ -160,6 +161,7 @@ The spec does not duplicate the Aspect / Trait / Facet vocabulary, the six-secti
 **Why:** one source of truth for the umbrella model; copies drift from it.
 
 ### RULE R-facet-spec-22 — Every facet spec carries a `# BRIEF` — REQUIRED (checked)
+check:: regex_present ^#+\s*BRIEF
 The spec ends with a `# BRIEF` H1 — **agent-facing documentation** (per [[FCT Brief]]): what an agent reads *before editing* this facet spec — what belongs, what doesn't, the inclusion test, cross-reference-integrity notes. The agent is usually the maintainer, but the audience is the agent, not the user.
 **Check pattern:** a `# BRIEF` H1 exists with agent-facing maintenance bullets.
 **Why:** the BRIEF is how the next agent edits the spec correctly without re-deriving its conventions, and keeps foreign content from piling in. Required on every facet spec — one of the two required parts, alongside the `# RULESET`.
