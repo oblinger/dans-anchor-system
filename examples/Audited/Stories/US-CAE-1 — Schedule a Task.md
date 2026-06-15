@@ -1,12 +1,6 @@
 # US-CAE-1 — Schedule a Task
 description:: Schedule a deferred shell task with absolute or relative time
 
-| -[[US-CAE-1]]- | : Schedule a deferred shell task with a specific time.<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[CAE]] → [[CAE Design]] → [[CAE PRD]] → [[CAE Stories]] → [US-CAE-1](hook://p/US-CAE-1) |
-| --- | --- |
-| [[CAE PRD]] | parent PRD |
-| [[CAE Stories]] | sibling stories index |
-| [[FCT Stories]] | facet spec |
-
 ## As a developer, I want to schedule a shell command to run at a specific time so that I can defer work to off-peak hours.
 
 ## Why
@@ -32,3 +26,5 @@ Developers run resource-heavy commands (backups, batch jobs, data migrations) th
 - [[CAE Testing]] — e2e test `e2e_schedule_a_task` exercises this story
 - [[CAE CLI]] — full `schedule` command reference (flags, exit codes)
 - [[FCT Stories]] — facet spec governing this file's shape
+- [[CAE PRD]] — parent PRD
+- [[CAE Stories]] — sibling stories index

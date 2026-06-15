@@ -1,9 +1,8 @@
 # Forum Stories
 description:: User stories for the Forum debate platform.
 
-| -[[Forum Stories]]- | : User stories for the Forum debate platform.<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [Forum Stories](hook://p/Forum%20Stories) |
-| --- | --- |
 | Story | Description |
+| --- | --- |
 | **Administrator** |  |
 | [[US-FORUM-1 — Create Topic\|US-FORUM-1]] | Create new topic categories so participants can organize discussions |
 | [[US-FORUM-2 — Onboard Users\|US-FORUM-2]] | Invite users and assign political affiliation for categorization |

@@ -1,8 +1,6 @@
 # CAE Stories
 description:: three user stories — index for US-CAE-1..3 (folder-form per FCT Stories)
 
-| -[[CAE Stories]]- | : User stories for the CAE Example CLI scheduler.<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[CAE]] → [[CAE Design]] → [[CAE PRD]] → [CAE Stories](hook://p/CAE%20Stories) |
-| --- | --- |
 | Story | Description |
 | --- | --- |
 | [[US-CAE-1 — Schedule a Task\|US-CAE-1]] | Schedule a deferred shell task with absolute or relative time |

@@ -1,12 +1,6 @@
 # US-CAE-3 — Retry Failed Tasks
 description:: Auto-retry failed tasks with exponential backoff to a cap
 
-| -[[US-CAE-3]]- | : Automatically retry failed tasks with exponential backoff.<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[CAE]] → [[CAE Design]] → [[CAE PRD]] → [[CAE Stories]] → [US-CAE-3](hook://p/US-CAE-3) |
-| --- | --- |
-| [[CAE PRD]] | parent PRD |
-| [[CAE Stories]] | sibling stories index |
-| [[FCT Stories]] | facet spec |
-
 ## As a developer, I want failed tasks to automatically retry with backoff so that transient failures don't require manual intervention.
 
 ## Why
@@ -32,3 +26,5 @@ Network blips, locked databases, momentary disk-full conditions — most task fa
 - [[CAE Testing]] — e2e test `e2e_failed_task_retries_then_visible` exercises this story; property-based test `prop_retry_delays_monotonic_to_cap` checks the backoff invariant
 - [[CAE Decisions]] — D5 "Retry logic in its own module" centralizes the policy
 - [[FCT Stories]] — facet spec governing this file's shape
+- [[CAE PRD]] — parent PRD
+- [[CAE Stories]] — sibling stories index

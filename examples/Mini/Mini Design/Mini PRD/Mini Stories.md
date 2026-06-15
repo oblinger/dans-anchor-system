@@ -1,9 +1,8 @@
 # Mini Stories
-description:: User stories for Mini.
+description:: one user story — index for US-MINI-1 (folder-form per
 
-| -[[Mini Stories]]- | : User stories for Mini.<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[Mini]] → [[Mini PRD/Mini PRD]] → [Mini Stories](hook://p/Mini%20Stories) |
-| --- | --- |
 | Story | Description |
+| --- | --- |
 | [[US-MINI-1 — Stamp a file\|US-MINI-1]] | Prepend today's date to a text file in one command |
 
 ## See also

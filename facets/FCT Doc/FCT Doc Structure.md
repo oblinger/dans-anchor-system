@@ -8,7 +8,7 @@ The standard top-to-bottom structure every document follows — progressive disc
 | -[[FCT Doc Structure]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Doc]] → [FCT Doc Structure](hook://p/FCT%20Doc%20Structure)<br>: the canonical document layering — progressive disclosure for a document |
 | --- | --- |
 | Related | [[DSC progressive-disclosure]] (the discipline this specializes),  [[FCT Brief]],  [[FCT Anchor Page]] |
-| Examples | [[CAE Minimal Facet\|minimal — short doc, no table]],  [[HBR Architecture\|fuller — non-anchor doc with structured body]] |
+| Examples | [[CAE Minimal Facet\|minimal — short doc, no table]],  [[HBR Architecture\|fuller — non-anchor doc with structured body]],   |
 | Document examples | [[FEX Manifest]] (facet spec),  [[FEX Retention]] (discipline),  [[FCT Brief]] (facet spec) |
 | Anchor examples | [[HBR]] (project),  [[FEX Snapshot]] (skill),  [[FEX Repo]] (repo) |
 
@@ -33,16 +33,20 @@ The fixed order. The top layers are always present; lower layers appear only whe
 ### 3. Central figure — *optional, comes next*
 A single defining/central figure (Excalidraw + embedded export, never ASCII) when a picture orients faster than prose. Very optional — most documents have none.
 
-### 4. Top table — **required once the document runs more than ~3 pages of content**
-The **top table** is the document's progressive-disclosure entry point — the navigation surface a reader hits right after the H1 / summary. **One rule picks the form:**
+### 4. Top table — the **document table** *(presence governed by two independent rules)*
+The **top table** (the *document table*) is the document's progressive-disclosure entry point — the navigation surface a reader hits right after the H1 / summary. There are **two distinct kinds**, each governed by its own rule, and a document may carry zero, one, or (rarely) both:
 
-> **Is this an anchor file? → dispatch table. If not → content outline table.**
+**(a) Dispatch table — iff the document is an anchor.**
+- **Anchor file → MUST have a dispatch table** — breadcrumb masthead + member / links zone (per [[FCT Dispatch Table]] / [[FCT Anchor Page]]).
+- **Non-anchor file → MUST NOT have a dispatch table.** A breadcrumb-masthead dispatch table on a non-anchor document (e.g. a user-story file, a feature doc, a plain content page) is a violation — remove it. Back-links to a parent / sibling belong in a `## Related` / `## See also` section, not a masthead.
 
-- **Anchor file → dispatch table** — breadcrumb masthead + member / links zone (per [[FCT Dispatch Table]] / [[FCT Anchor Page]]).
-- **Non-anchor file → content outline table** — left column links to the document's own sections (in-document `[[#Heading]]` links); right column says, in one line, what each section is. A table of contents *with descriptions*.
-- **Short docs (≲ 3 pages) → no top table needed.**
+**(b) Table of contents table — iff the document is long (more than ~3 pages of content).**
+- **Long document (more than ~3 pages) → MUST have a TOC table** — a content-outline table: left column links to the document's own sections (in-document `[[#Heading]]` links), right column says in one line what each section is. A table of contents *with descriptions*.
+- **Short document (≲ 3 pages) → MUST NOT have a TOC table** — it adds navigation overhead a reader who can scroll the whole document doesn't need.
 
-*(The **content outline table** likely deserves its own facet — e.g. `FCT Content Outline` — described inline here for now.)*
+**(c) Specialized tables.** Some specialized documents legitimately carry *another kind of table* at the top — e.g. a stories **index** table (`{NAME} Stories.md`), a status board, a glossary. These are neither a dispatch table nor a TOC table; they are the document's content, and rules (a) / (b) do not forbid them.
+
+*(The **TOC / content-outline table** likely deserves its own facet — e.g. `FCT Content Outline` — described inline here for now.)*
 
 ### 5. TLDR — *optional; immediately below the table, before any Overview*
 A short gist for the reader who has navigated past the table and wants the bottom line before committing to the body. (For a small document with no table, the summary line under the H1 already serves this role — a separate TLDR isn't needed.)
@@ -78,16 +82,41 @@ Embedded constraints:
 - **H1 (required):** `# {slug} - {Name}` for an anchor page, `# {Name}` otherwise; optionally suffixed ` — {phrase}`.
 - **Summary line:** one sentence on the line **immediately after the H1, with no blank line between** — UNLESS the H1 already carries the ` — {phrase}` (one or the other carries the "what this is", not both).
 - **Central figure:** optional; if present, sits before the table.
-- **Top table:** **required once the document runs more than ~3 pages of content** — one rule: **anchor file → dispatch table; non-anchor file → content outline table** (left column = in-document `[[#Heading]]` links, right column = one-line description of each section); placed before the first body section.
+- **Top table (the document table):** governed by two independent rules — `R-doc-structure-02` (dispatch table iff anchor) and `R-doc-structure-03` (TOC table iff long); placed before the first body section. See those rules for the must / must-not conditions.
 - **TLDR, then Overview:** optional, in that order, after the table and before the body.
 
-**Check pattern:** line 1 matches `^# `; the line immediately after the H1 is non-blank (the summary) OR the H1 contains ` — `; count `^## ` headings — if > 3, a table appears before the first body `^## ` (dispatch masthead `^\| -\[\[.+\]\]- \|` for an anchor page, else any `^\|.*\|` outline table); no element appears out of the order above.
+**Check pattern:** line 1 matches `^# `; the line immediately after the H1 is non-blank (the summary) OR the H1 contains ` — `; the document table, when present, sits before the first body `^## `; no element appears out of the order above. (Table presence itself is checked by `R-doc-structure-02` / `-03`.)
 
 **Why:** progressive disclosure — each layer down serves a more-committed reader, and a fixed order means a glance-reader and the audit both know exactly where to look.
+
+### RULE R-doc-structure-02 — Dispatch table iff the document is an anchor (checked)
+check:: dispatch_table_iff_anchor
+
+The breadcrumb-masthead **dispatch table** appears on a document **if and only if** that document is an anchor (its file is the `{slug}.md` / anchor file of an anchor folder, marked by a sibling `.anchor` or by being the folder's namesake page).
+
+- **Anchor document → MUST carry a dispatch table** (per [[FCT Dispatch Table]] / [[FCT Anchor Page]]).
+- **Non-anchor document → MUST NOT carry a dispatch table.** User-story files, feature docs, individual design docs, and plain content pages are not anchors; a breadcrumb masthead on them is a violation. Parent / sibling back-links belong in a `## Related` or `## See also` section instead.
+
+**Check pattern:** detect a dispatch masthead by `^\| -\[\[.+\]\]- \|` as the first table row. Assert it is present when the file is an anchor file and absent otherwise. Anchor-ness: the file is named `{folder} .md` matching its enclosing folder, or a sibling `.anchor` marker designates it.
+
+**Why:** the dispatch table is the *anchor* navigation surface — breadcrumb up the tree plus the anchor's member links. On a non-anchor it is noise that falsely implies the document roots a subtree, and it pushes the real content below the fold. This is the rule that makes a story file with a masthead (e.g. a `US-<RID>-<N>` file) fail.
+
+### RULE R-doc-structure-03 — TOC table iff the document is long (checked)
+check:: toc_table_iff_long
+
+A **table-of-contents table** (content-outline table — left column links the document's own `[[#Heading]]` sections, right column describes each in one line) appears **if and only if** the document runs more than roughly three pages of content.
+
+- **Long document (more than ~3 pages) → MUST carry a TOC table.**
+- **Short document (about 3 pages or fewer) → MUST NOT carry a TOC table** — it is navigation overhead for a document a reader can simply scroll.
+- **Specialized exception:** a document may carry *another kind of table* at the top (a stories index, a status board, a glossary) that is neither a dispatch table nor a TOC table. Such content tables are permitted regardless of length and are not the subject of this rule.
+
+**Check pattern:** estimate length by content (heading count + body lines as a page proxy). If long, assert a content-outline table (in-document `[[#...]]` links) precedes the first body section. If short, assert no such TOC table is present. A specialized content table (neither dispatch masthead nor in-document-heading TOC) does not count either way.
+
+**Why:** the TOC earns its space only when the document is too long to scan; on a short document it is friction. Tying presence to length keeps every document's top as light as it can be while still navigable.
 
 # BRIEF
 - **This is the main / umbrella facet for a document** — it defines the whole top-to-bottom skeleton; the other doc facets (Brief, Discussion, Ruleset) describe regions inside it. It is listed **first** in the [[FCT Doc]] group for that reason.
 - **This is the spec for the skeleton**, not an instance — never paste a real document here.
 - **Open to confirm:** whether the under-H1 *summary line* (§2) and the below-table *TLDR* (§5) are one element (collapsing for small docs) or two distinct ones. Modeled here as two, collapsing when there's no table.
-- **RULESET:** one compact ordering rule (`R-doc-structure-01`) — the audit reads it and walks the document top-down. Split into per-element rules later only if finer-grained auditing is wanted.
+- **RULESET:** the ordering rule (`R-doc-structure-01`) plus the two document-table rules — `R-doc-structure-02` (dispatch table iff anchor) and `R-doc-structure-03` (TOC table iff long). The two table rules are independent: a doc can have a dispatch table (anchor) and a TOC table (long) at once, or neither (short non-anchor). Specialized content tables (e.g. a stories index) are exempt from both. Rule numbers are monotonic-forever — never recycle.
 - **Don't duplicate [[FCT Anchor Page]] or [[FCT Brief]]** — this facet is the *general* layering; those refine or own specific layers. Stay document-scoped (anchor-folder / multi-file structure is [[FCT Folder]] / [[FCT Anchor Tree]]).
