@@ -199,7 +199,7 @@ Distinct from the `SKILL.md` runbook specified above: every skill also has a **d
 
 ## SKA anchors own Design, not Track — shared by skills, facets, disciplines
 
-A skill anchor — like **every** SKA sub-project anchor — **owns its own design but never its own tracking.** Activity-tracking for the whole skills ecosystem is centralized on the shared SKA surface ([[SKA Decisions|D08]]); a skill carries a `{NAME} Design/` folder (minimum: just an `.anchor`, growing as design docs are earned) and **no `{NAME} Track/`**. **Facets ([[FCT Facet]]) and disciplines share this exact strategy** — the single normative rule lives on the anchor-page facet as `R-anchor-page-subproject` ([[FCT Anchor Page]]); this section is the skill-facet pointer to it. The design surface is flat (`{NAME} Design/` directly under the anchor, no `{NAME} Docs/` wrapper).
+A skill anchor — like **every** SKA sub-project anchor — **owns its own design but never its own tracking.** Activity-tracking for the whole skills ecosystem is centralized on the shared SKA surface ([[SKA Decisions|D08]]); a skill carries a `{NAME} Design/` folder (minimum: just an `.anchor`, growing as design docs are earned), **no `{NAME} Track/`**, and **no `{NAME} Status.md`** (design-phase completeness is tracked only for SKA-the-project, not per sub-project). **Facets ([[FCT Facet]]) and disciplines share this exact strategy** — the single normative rule lives on the anchor-page facet as `R-anchor-page-subproject` ([[FCT Anchor Page]]); this section is the skill-facet pointer to it. The design surface is flat (`{NAME} Design/` directly under the anchor, no `{NAME} Docs/` wrapper).
 
 # BRIEF
 
