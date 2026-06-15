@@ -142,6 +142,8 @@ description:: Mechanical + authoring rules for every markdown document; cited by
 Embedded ruleset for the markdown discipline. Adoption is implicit — every markdown doc in the vault is subject to these rules, no explicit `include::` needed in `{NAME} Decisions.md`. (The catalog still lists R-markdown as a child of R-facet umbrella for completeness.)
 
 ### RULE R-markdown-01 — Escape pipes inside wiki-links inside tables (checked)
+check:: md_table_pipe_escape
+fix:: md_table_pipe_escape
 
 A wiki-link inside a markdown table cell uses `\|` to escape the alias pipe: `[[Target\|alias]]`. Unescaped `|` terminates the cell early.
 
@@ -175,7 +177,9 @@ If a reference points to a markdown doc, anchor, or vault-internal page, it is a
 
 **Why:** wiki-links resolve, survive renames, and participate in the link graph; backtick references rot silently. Conversely, wiki-linking code identifiers creates fake links and pollutes the graph.
 
-### RULE R-markdown-05 — Em-dash is `—` (U+2014), not `--` (sampled)
+### RULE R-markdown-05 — Em-dash is `—` (U+2014), not `--` (checked)
+check:: md_em_dash
+fix:: md_em_dash
 
 Named lists and prose use the em-dash character. Double-hyphen `--` doesn't auto-convert in Obsidian.
 
@@ -240,6 +244,25 @@ A figure is an **embedded image** — an Excalidraw / matplotlib / D2 artifact e
 **Check pattern:** flag any ```` ```mermaid ```` fenced block; flag fenced blocks whose body is box-drawing / ASCII-diagram content (`┌ ─ │ └ ├ → ╮` runs, or `+---+` / character-art used as a diagram rather than a literal data table or file tree).
 
 **Why:** a figure must be a real, editable, consistently-rendering artifact; mermaid and ASCII are neither — they render inconsistently across surfaces, can't be edited as diagrams, and read as broken. Diagrams use the Excalidraw-source-alongside-export convention.
+
+### RULE R-markdown-13 — Angle brackets only inside backticks (checked)
+check:: md_angle_brackets_backtick_only
+
+A literal `<` or `>` may appear only inside an inline code span or fenced code block; everywhere else it must be backticked or escaped (`&lt;` / `&gt;`). Sanctioned exceptions: the masthead `<br>` line-break and a leading blockquote / callout `>`. The right fix needs judgment (backtick vs escape vs restructure), so this rule **flags** — it carries no `fix::`.
+
+**Check pattern:** mask code spans / fences + `<br>` + leading `>`; any surviving `<` / `>` fails.
+
+**Why:** raw angle brackets outside code render as broken/empty HTML and silently eat text; the hard rule is that no angle brackets get written to any file. Flag so the agent fixes with intent.
+
+### RULE R-markdown-14 — No trailing whitespace (checked)
+check:: md_trailing_ws
+fix:: md_trailing_ws
+
+A line must not end in spaces or tabs. Pure normalization — auto-fixed, since stripping trailing whitespace never removes content.
+
+**Check pattern:** any line where `line != line.rstrip()`.
+
+**Why:** trailing whitespace is invisible noise that pollutes diffs and can create accidental hard-breaks; safe to strip mechanically.
 
 # BRIEF
 - **Markdown is a discipline, not a document facet — settled, do not re-litigate.** A `FCT Markdown` facet was created and reverted 2026-06-14. The discriminator: a *document facet* is a pointable structural part of a doc (Brief, Discussion, Ruleset, the ToC table) or the umbrella skeleton ([[FCT Doc Structure]]); markdown is uniform text-correctness applied to *every line, every time*, which is the definition of a discipline. Specializing into structure → facet; staying text-rules-everywhere → discipline. Markdown never becomes structural, so it lives here only.

@@ -18,16 +18,25 @@ fp=$(printf '%s' "$payload" | sed -n 's/.*"file_path"[[:space:]]*:[[:space:]]*"\
 [ -z "$fp" ] && exit 0
 case "$fp" in *.md) ;; *) exit 0 ;; esac
 
-# Opt-in roots — one path per line; the hook acts only on files beneath one.
+# Never touch VCS / dependency dirs.
+case "$fp" in */.git/*|*/node_modules/*) exit 0 ;; esac
+
+# Scope. A `__VAULT__` sentinel line in the roots file = vault-wide (every .md under
+# ~/ob/kmr); otherwise the file lists explicit roots and the hook acts only beneath
+# one. Tests pass AUDIT_ON_WRITE_ROOTS to a scratch roots file for isolation.
 ROOTS_FILE="${AUDIT_ON_WRITE_ROOTS:-$HOME/.config/ob-skills/audit-on-write-roots}"
 [ -f "$ROOTS_FILE" ] || exit 0
-match=0
-while IFS= read -r root; do
-    [ -z "$root" ] && continue
-    root="${root/#\~/$HOME}"
-    case "$fp" in "$root"*) match=1; break ;; esac
-done < "$ROOTS_FILE"
-[ "$match" = 1 ] || exit 0
+if grep -qx '__VAULT__' "$ROOTS_FILE" 2>/dev/null; then
+    case "$fp" in "$HOME/ob/kmr/"*) ;; *) exit 0 ;; esac
+else
+    match=0
+    while IFS= read -r root; do
+        [ -z "$root" ] && continue
+        root="${root/#\~/$HOME}"
+        case "$fp" in "$root"*) match=1; break ;; esac
+    done < "$ROOTS_FILE"
+    [ "$match" = 1 ] || exit 0
+fi
 
 AP="$HOME/.claude/skills/audit/scripts/audit-plan.py"
 [ -f "$AP" ] || exit 0

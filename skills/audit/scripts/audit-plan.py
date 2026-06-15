@@ -2035,6 +2035,48 @@ def chk_md_fence_no_markdown(target, anchor_root, args):
     return "pass", ""
 
 
+def chk_md_table_pipe_escape(target, anchor_root, args):
+    """R-markdown-01: a wiki-link inside a table cell must escape its pipe (`[[A\\|B]]`)."""
+    if not target.is_file():
+        return "pass", "not a file"
+    hits = []
+    for ln, raw in enumerate(_read(target).splitlines(), 1):
+        if not raw.lstrip().startswith("|"):
+            continue
+        for m in re.finditer(r"\[\[[^\]]*?\]\]", raw):
+            if re.search(r"(?<!\\)\|", m.group(0)):
+                hits.append(f"line {ln}")
+                break
+    if hits:
+        return "fail", "unescaped pipe in table wiki-link — " + ", ".join(hits[:5])
+    return "pass", ""
+
+
+def chk_md_em_dash(target, anchor_root, args):
+    """R-markdown-05 (conservative): the spaced double-hyphen ` -- ` (a typed em-dash)
+    outside code should be `—`. Only the spaced form is flagged — never `--flag`, `---`."""
+    if not target.is_file():
+        return "pass", "not a file"
+    blank = lambda m: re.sub(r"[^\n]", " ", m.group(0))
+    masked = re.sub(r"```[\s\S]*?```", blank, _read(target))
+    masked = re.sub(r"~~~[\s\S]*?~~~", blank, masked)
+    masked = re.sub(r"(`+)[^\n]*?\1", blank, masked)
+    hits = [f"line {ln}" for ln, raw in enumerate(masked.splitlines(), 1) if " -- " in raw][:5]
+    if hits:
+        return "fail", "spaced double-hyphen em-dash — " + ", ".join(hits)
+    return "pass", ""
+
+
+def chk_md_trailing_ws(target, anchor_root, args):
+    """Trailing whitespace on a line (never content — pure normalization)."""
+    if not target.is_file():
+        return "pass", "not a file"
+    hits = [str(ln) for ln, raw in enumerate(_read(target).splitlines(), 1) if raw != raw.rstrip()][:5]
+    if hits:
+        return "fail", "trailing whitespace at line(s) " + ", ".join(hits)
+    return "pass", ""
+
+
 # -- SVG geometry / hygiene / c4 (R-diagram-geometry, R-svg-hygiene, R-c4) -----
 
 def _svg_root(target):
@@ -2370,6 +2412,9 @@ CHECKERS = {
     "md_angle_brackets_backtick_only": chk_md_angle_brackets_backtick_only,
     "md_table_blank_lines": chk_md_table_blank_lines,
     "md_fence_no_markdown": chk_md_fence_no_markdown,
+    "md_table_pipe_escape": chk_md_table_pipe_escape,
+    "md_em_dash": chk_md_em_dash,
+    "md_trailing_ws": chk_md_trailing_ws,
     # R-diagram-geometry / R-svg-hygiene / R-c4
     "svg_geometry_overlap": chk_svg_geometry_overlap,
     "svg_label_collision": chk_svg_label_collision,
@@ -2492,8 +2537,74 @@ def fix_table_blank_lines(target, anchor_root, args):
     return changed, ("inserted blank line(s) around table" if changed else "")
 
 
+def _alnum(s):
+    return [c for c in s if c.isalnum()]
+
+
+def _alnum_subseq(orig: str, new: str) -> bool:
+    """True iff every alphanumeric char of `orig`, in order, still appears in `new`
+    — i.e. the fix may insert / escape / normalize whitespace, but must NOT DELETE
+    any letter or digit of content. The structural no-delete safety invariant (F179)."""
+    it = iter(_alnum(new))
+    return all(c in it for c in _alnum(orig))
+
+
+def _repl_outside_code(text: str, repl):
+    """Apply `repl` to the parts of `text` outside fenced blocks and inline code spans."""
+    out, i = [], 0
+    for m in re.finditer(r"```[\s\S]*?```|~~~[\s\S]*?~~~", text):
+        out.append(_repl_outside_inline(text[i:m.start()], repl)); out.append(m.group(0)); i = m.end()
+    out.append(_repl_outside_inline(text[i:], repl))
+    return "".join(out)
+
+
+def _repl_outside_inline(seg: str, repl):
+    out, i = [], 0
+    for m in re.finditer(r"(`+)[^`\n]*?\1", seg):
+        out.append(repl(seg[i:m.start()])); out.append(m.group(0)); i = m.end()
+    out.append(repl(seg[i:]))
+    return "".join(out)
+
+
+def fix_md_em_dash(target, anchor_root, args):
+    text = _read(target)
+    new = _repl_outside_code(text, lambda s: s.replace(" -- ", " \u2014 "))
+    if new != text:
+        target.write_text(new, encoding="utf-8")
+        return True, "converted spaced ` -- ` to ` \u2014 `"
+    return False, ""
+
+
+def fix_md_trailing_ws(target, anchor_root, args):
+    lines = _read(target).split("\n")
+    new = [l.rstrip() for l in lines]
+    if new != lines:
+        target.write_text("\n".join(new), encoding="utf-8")
+        return True, "stripped trailing whitespace"
+    return False, ""
+
+
+def fix_md_table_pipe_escape(target, anchor_root, args):
+    lines = _read(target).split("\n")
+    changed = False
+    for i, raw in enumerate(lines):
+        if not raw.lstrip().startswith("|"):
+            continue
+        newline = re.sub(r"\[\[[^\]]*?\]\]",
+                         lambda m: re.sub(r"(?<!\\)\|", r"\\|", m.group(0)), raw)
+        if newline != raw:
+            lines[i] = newline; changed = True
+    if changed:
+        target.write_text("\n".join(lines), encoding="utf-8")
+        return True, "escaped pipe(s) in table wiki-link(s)"
+    return False, ""
+
+
 FIXERS = {
     "md_table_blank_lines": fix_table_blank_lines,
+    "md_table_pipe_escape": fix_md_table_pipe_escape,
+    "md_em_dash": fix_md_em_dash,
+    "md_trailing_ws": fix_md_trailing_ws,
 }
 
 
@@ -2527,13 +2638,22 @@ def execute_on_write(plan: dict, cdir: Path | None) -> dict:
                     continue
                 fx = r.get("fix")
                 if fx:
+                    orig = tp.read_text(encoding="utf-8")
                     changed, fdetail = run_fixer(fx, tp, anchor_root)
-                    status2, _ = run_checker(chk, tp, anchor_root)
-                    if changed and status2 == "pass":
-                        fixed.append({"rule": r["id"], "target": disp,
-                                      "detail": fdetail or detail})
-                        continue
-                    # fix didn't resolve it — fall through to a message
+                    if changed:
+                        new = tp.read_text(encoding="utf-8")
+                        if not _alnum_subseq(orig, new):
+                            tp.write_text(orig, encoding="utf-8")  # never delete content
+                            messages.append({"rule": r["id"], "target": disp,
+                                             "detail": (detail or "") + " — auto-fix SUPPRESSED (would alter content); fix by hand",
+                                             "why": r.get("why"), "check_pattern": r.get("check_pattern")})
+                            continue
+                        status2, _ = run_checker(chk, tp, anchor_root)
+                        if status2 == "pass":
+                            fixed.append({"rule": r["id"], "target": disp,
+                                          "detail": fdetail or detail})
+                            continue
+                    # no change, or change didn't resolve it — fall through to a message
                 messages.append({"rule": r["id"], "target": disp, "detail": detail,
                                  "why": r.get("why"), "check_pattern": r.get("check_pattern")})
     return {"fixed": fixed, "messages": messages}
