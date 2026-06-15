@@ -233,13 +233,15 @@ check:: md_fence_no_markdown
 
 A fenced code block (triple backticks) must NEVER contain markdown intended to be read *as* markdown — `[[wiki-links]]` go inert, and headings, tables, and emphasis do not render. To show what a markdown document looks like, write it as **live markdown** — its own frontmatter and `# H1`, with any commentary placed BEFORE the example's frontmatter so it can't bleed into the example — or link to a real worked instance. Fenced blocks are reserved for literal **non-markdown** content: shell, code, JSON, `key: value` data files, file trees.
 
-**Check pattern:** scan fenced blocks; flag any whose body contains `[[wiki-links]]`, `#`/`##` headings, or pipe-tables that are meant to render (as opposed to literal data shown verbatim).
+**Language-tagged code fences are exempt.** The rule targets fences that are *meant to show rendered markdown* — those are unlabeled ` ``` ` fences or ` ```markdown ` / ` ```md ` fences. A fence carrying a code-language tag (` ```python `, ` ```bash `, ` ```json `, ` ```yaml `, …) is literal source and is **not checked**: its body legitimately contains `[[` (e.g. a regex) or `#` (a comment), and flagging those is a false positive.
+
+**Check pattern:** scan fenced blocks whose info-string is empty or `markdown`/`md`; flag any whose body contains `[[wiki-links]]`, `#`/`##` headings, or pipe-tables that are meant to render. Skip fences with any other language tag (literal code).
 
 **Why:** the whole point of an example is to show the *rendered* form — a fence defeats that (links aren't clickable, structure doesn't render). The user has corrected this repeatedly; it is an absolute rule.
 
 ### RULE R-markdown-12 — Figures are embedded images; never mermaid, never text-based diagrams (checked)
 
-A figure is an **embedded image** — an Excalidraw / matplotlib / D2 artifact exported to SVG/PNG and embedded (`![[name.svg]]`), with its editable source kept alongside (same basename). **Never use `mermaid` code blocks, and never draw text-based / ASCII figures** (boxes-and-arrows built from characters, pipe-and-dash "diagrams"). This is absolute.
+A figure is an **embedded image** — an Excalidraw / matplotlib / D2 artifact exported to SVG/PNG and embedded with a page-fill width hint (`![[name.svg|2400]]` — never bare, which renders tiny; see [[FCT Architecture]] § Architecture diagram requirements), with its editable source kept alongside (same basename). **Never use `mermaid` code blocks, and never draw text-based / ASCII figures** (boxes-and-arrows built from characters, pipe-and-dash "diagrams"). This is absolute.
 
 **Check pattern:** flag any ```` ```mermaid ```` fenced block; flag fenced blocks whose body is box-drawing / ASCII-diagram content (`┌ ─ │ └ ├ → ╮` runs, or `+---+` / character-art used as a diagram rather than a literal data table or file tree).
 

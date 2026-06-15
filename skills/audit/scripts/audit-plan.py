@@ -2045,16 +2045,25 @@ def chk_md_fence_no_markdown(target, anchor_root, args):
         return "pass", "not a file"
     lines = _read(target).splitlines()
     in_fence = False
+    exempt = False
     body = []
     for ln in lines:
         if ln.lstrip().startswith("```"):
             if not in_fence:
+                # Capture the info string (language tag) on the opening fence.
+                # A language-tagged code fence (```python, ```bash, ```json, …) is
+                # literal content and is EXEMPT — code legitimately contains `[[`
+                # (regex) or `#` (comments). Only fences meant to SHOW rendered
+                # markdown — unlabeled ``` or ```markdown / ```md — are checked.
+                info = ln.lstrip()[3:].strip().lower()
+                exempt = bool(info) and info not in ("markdown", "md")
                 in_fence, body = True, []
             else:
-                blob = "\n".join(body)
-                if "[[" in blob or re.search(r"^#{1,6}\s", blob, re.M):
-                    return "fail", "fenced code block contains markdown (wiki-link or heading) — re-express as live markdown"
-                in_fence = False
+                if not exempt:
+                    blob = "\n".join(body)
+                    if "[[" in blob or re.search(r"^#{1,6}\s", blob, re.M):
+                        return "fail", "fenced code block contains markdown (wiki-link or heading) — re-express as live markdown"
+                in_fence, exempt = False, False
         elif in_fence:
             body.append(ln)
     return "pass", ""
