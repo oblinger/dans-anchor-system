@@ -1,52 +1,61 @@
-# Audit Architecture — unified rule-processing engine
+# Audit Architecture — system block diagram (structure, not flow)
 # Source for "Audit Architecture.svg" (regenerate: d2 "Audit Architecture.d2" "Audit Architecture.svg")
+# Two regions: the rule sets audit runs over (the base), and the components (skills + scripts).
 
-direction: right
+direction: down
 
-rules: "Rule sources" {
-  facets: "Facets + Disciplines\nembedded RULESETs\n(check:: / fix:: / where::)" {
-    shape: page
+rules: "RULE SETS — the base /audit runs over" {
+  style: {fill: "#f5f6fb"; stroke: "#7b83b4"; font-size: 22; bold: true}
+  grid-rows: 1
+  grid-gap: 60
+
+  facets: "Facets\n(one structural spec per artifact kind)" {
+    style: {fill: "#e9eeff"; stroke: "#5566aa"}
+    grid-columns: 1
+    r1: "R-anchor-page · R-prd · R-stories" {style.fill: "#ffffff"}
+    r2: "R-architecture · R-design · R-testing" {style.fill: "#ffffff"}
+    r3: "R-dispatch-table · R-decisions …" {style.fill: "#ffffff"}
+  }
+  disciplines: "Disciplines\n(vault-wide text practices)" {
+    style: {fill: "#e7f8ee"; stroke: "#3f9d6b"}
+    grid-columns: 1
+    r1: "R-markdown" {style.fill: "#ffffff"}
+    r2: "R-dated-entry-stream" {style.fill: "#ffffff"}
+    r3: "R-file-association …" {style.fill: "#ffffff"}
+  }
+  skills: "Skills\n(skill-anchor specs)" {
+    style: {fill: "#fff4e6"; stroke: "#c98a3a"}
+    grid-columns: 1
+    r1: "skill-spec · skill-doc" {style.fill: "#ffffff"}
+    r2: "skill-script · skill-config …" {style.fill: "#ffffff"}
   }
 }
 
-distill: "/distill" {
-  shape: hexagon
-}
-merged: "Merged rule module\n~/.config/ob-skills" {
-  shape: cylinder
+components: "COMPONENTS — the skills + scripts of /audit" {
+  style: {fill: "#f5f6fb"; stroke: "#7b83b4"; font-size: 22; bold: true}
+  grid-rows: 1
+  grid-gap: 60
+
+  auditskills: "Audit skills" {
+    style: {fill: "#e9eeff"; stroke: "#5566aa"}
+    grid-columns: 1
+    a: "/audit  (orchestrator)" {style.fill: "#ffffff"}
+    b: "actions: structure · doc · q ·\narchitecture · markdown · dispatch · …" {style.fill: "#ffffff"}
+  }
+  mgmt: "Rule-set scripts" {
+    style: {fill: "#e9eeff"; stroke: "#5566aa"}
+    grid-columns: 1
+    a: "audit-plan.py — resolve rule sets,\ncontainment (include::), run, judge, fix" {style.fill: "#ffffff"}
+    b: "audit-q.py · audit-architecture.py ·\naudit-markdown.py (per-surface checkers)" {style.fill: "#ffffff"}
+  }
+  distill: "Distillation → hook" {
+    style: {fill: "#e9eeff"; stroke: "#5566aa"}
+    grid-columns: 1
+    a: "/distill — merge rule bodies\ninto one fast module" {style.fill: "#ffffff"}
+    b: "on-write hook code\n(~/.config/ob-skills/hooks)" {style.fill: "#ffffff"}
+  }
 }
 
-engine: "Explicit  /audit  (Standard)" {
-  resolve -> run: ""
-  run -> judge: ""
-  judge -> fix: ""
-  resolve: "resolve\n(where:: → targets)"
-  run: "run\n(mechanical, cached)"
-  judge: "judge\n(agent)"
-  fix: "fix\n(fix:: + bounded judgment)"
+rules -> components: "the components run over these rule sets" {
+  style: {stroke: "#5566aa"; font-size: 20; stroke-width: 2}
 }
-
-hook: "Online hooks\nPostToolUse read/write\n(Online level)" {
-  shape: rectangle
-}
-
-guard: "Safety guard\nno-delete subsequence" {
-  shape: diamond
-}
-
-out: "Outputs" {
-  fixed: "Fixed files"
-  flags: "Flags / agent messages"
-  marks: "Deletion-mark callouts"
-}
-
-rules.facets -> engine.resolve: "bind rules to targets"
-rules.facets -> distill: "gather rule bodies"
-distill -> merged: ""
-merged -> hook: "fast checks"
-hook -> engine.run: "shared corpus" {
-  style.stroke-dash: 4
-}
-engine.fix -> guard: ""
-hook -> guard: ""
-guard -> out: "content-preserving only"
