@@ -67,7 +67,7 @@ Two **optional extension states** that not every surface uses:
       │    │ user input needed
       │    ↓
       │  ┌─────────────┐
-      │  │ [Questions] │ ◄─── /ask skill
+      │  │ [Questions] │ ◄─── /query skill
       │  │             │      (mandatory → [[Doc]] link)
       │  └─────┬───────┘
       │        │ user resolves
@@ -141,7 +141,7 @@ Every transition is driven by an explicit skill or trigger. There are no silent 
 | From | To | Triggered by | Notes |
 |---|---|---|---|
 | `[ ]` | `[Designing]` | `/feature`, manual edit, `/code plan` | A feature doc is created OR planning begins. |
-| `[Designing]` | `[Questions]` | `/ask` skill | Pending Qs added to `## Open Questions`; bullet description rewritten as `→ [[Feature Doc]]` (link is mandatory). |
+| `[Designing]` | `[Questions]` | `/query` skill | Pending Qs added to `## Open Questions`; bullet description rewritten as `→ [[Feature Doc]]` (link is mandatory). |
 | `[Questions]` | `[Designing]` | User answers Qs | When pending Qs are resolved (`### Resolved`), description gets rewritten to reflect the resolved design. |
 | any non-terminal | `[Blocked]` (or `[Blocked F<NNN>]`) | External blocker arises | Dependency, external review, CI failure, missing diagnostics, another feature's progression, etc. The work was at any state — `[Designing]`, `[Ready]`, `[Active]` — and hit a blocker that prevents further progress until something external resolves. |
 | `[Blocked]` (or `[Blocked F<NNN>]`) | prior state | Blocker resolves | When a chained `F<NNN>` reaches `[Done]` (or otherwise the blocking condition clears), the item returns to whatever state it was in pre-block. Often `[Ready]` if it was design-clean, otherwise `[Designing]`. |
@@ -268,7 +268,7 @@ The bracket should be checkable against the row's body in one read.
 |---|---|
 | `/feature` | `[ ]` → `[Designing]` (creates feature doc); `[Designing]` → `[Ready]` at the Agreed gate. |
 | `/groom` | `[ ]` or `[Designing]` → `[Ready]` autonomously, or `[Designing]` → `[Questions]` if questions remain (parks them in a feature doc with a `→ [[Doc]]` link). |
-| `/ask` (skill) | Manages `[Questions]` ↔ `[Designing]` via question batching and resolution. The `→ [[Doc]]` link is the source of truth for where the questions live. Maintains the global `~/ob/kmr/Q.md` index. |
+| `/query` (skill) | Manages `[Questions]` ↔ `[Designing]` via question batching and resolution. The `→ [[Doc]]` link is the source of truth for where the questions live. Maintains the global `~/ob/kmr/Q.md` index. |
 | `/mint`, `/code mint` | `[Ready]` → `[Active]` → `[Verify]`. |
 | `/code bugfix` | Same as `/mint` but with a red-test gate at the start. |
 | `/code spike` | Stays in `[Active]` while diagnosing root cause. |
@@ -332,7 +332,7 @@ The script enforces ask-format spec (block-IDs, Q-numbering, Phase 1/2/3 lifecyc
 1. Mutates the target row in `{slug} Backlog.md` (`task` mode) or the feature doc's `## Open Questions` block (`q` mode).
 2. Invokes `~/.claude/skills/audit/scripts/audit-q.py --scope backlog --anchor <slug> --fix` to refresh `~/ob/kmr/Q.md` (banner counts, status drift).
 3. Appends one `[INFO]` entry to the per-anchor `{slug} Messages.md` and one to the global sentinel `~/.claude/state/agent-messages` (surfaced to the next agent on Stop hook).
-4. For `q` mode: also runs `ask-render.py {NAME}` + lenient `audit-q --scope q --dry` as post-conditions (per F127's render-audit-glance invariant).
+4. For `q` mode: also runs a lenient `audit-q --scope q --dry` as a post-condition. (The `{NAME} queries.md` page is built on demand by `/query`'s determination logic — there is no separate render step.)
 
 **Output:** stdout = `<slug>: <verb> <row-id> in <horizon> [<status>]` (one line). For `task create` (mint operations), the assigned row-id is in the output — parse it when the caller needs to reference the new row (e.g., `/feature` naming a new feature doc file).
 
@@ -431,7 +431,7 @@ This is the structural sharpening of the per-surface mappings above: those say *
 The feature doc is **work-TBD + meta-discussion**:
 - *Why* decisions were made (trade-offs, alternatives, rationale).
 - *What work needs to be done* (implementation plan, acceptance criteria, sub-tasks).
-- Open questions during design (per `[[SKA ask]]`).
+- Open questions during design (per `[[SKA queries]]`).
 
 The user-facing and system-facing **spec content** (API surfaces, command syntax, screens, architecture, data models) lives in:
 - **User docs** (`{NAME} User/`) — what the user sees / types / configures.

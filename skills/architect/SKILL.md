@@ -172,13 +172,13 @@ Diff the proposed structure against what's already documented. Categorize each d
 
 For every module doc: ensure exactly one `Arch` row exists in the top-of-doc dispatch table, pointing at the most-specific architecture destination (per § Bidirectional cross-linking). Fix or propose-to-fix any mismatch. Reverse direction is enforced by the modules-table content.
 
-### 6. Surface proposals via `/ask`
+### 6. Surface proposals via `/query`
 
 Each significant delta becomes a Q on the architecture doc. Trivial deltas can be made silently in Drive mode under the assume-and-announce gates:
 - **Trivial — silent**: adding a new module to an existing modules-table; correcting an `Arch` row; updating a one-line module description in the modules table.
-- **Substantive — `/ask`**: creating a new subsystem; promoting a subsystem from file to folder; removing a phantom subsystem; reassigning a module to a different subsystem.
+- **Substantive — `/query`**: creating a new subsystem; promoting a subsystem from file to folder; removing a phantom subsystem; reassigning a module to a different subsystem.
 
-`/ask` parks Qs in the architecture doc's `## Open Questions` H2 per `[[SKA ask]]`.
+`/query` parks Qs in the architecture doc's `## Open Questions` H2 per `[[SKA queries]]`.
 
 ### 7. Source dip on demand
 
@@ -209,7 +209,7 @@ The skill presumes the user is the original author of the design. Every `/archit
 
 - **(a) Structural-only** (creating an empty subsystem doc, regenerating a dispatch table, fixing a broken link) — silent in Drive mode.
 - **(b) Tightens an existing description** (one-line update flagged in the commit message) — silent in Drive mode.
-- **(c) Adds substantive new prose** (new subsystem rationale, narrative section) — requires user agreement via `/ask`.
+- **(c) Adds substantive new prose** (new subsystem rationale, narrative section) — requires user agreement via `/query`.
 
 **Never wipe user-authored content.** If `/architect` would replace a paragraph the user wrote, it surfaces the change as a Q and waits.
 
@@ -229,6 +229,6 @@ The skill presumes the user is the original author of the design. Every `/archit
 - `[[FCT Module Doc]]` — defines the `Arch` row in module-doc dispatch tables and the `module_docs_audited:` frontmatter contract.
 - `[[FCT Decisions]]` — value statements (formerly Principles, now retired) live here as D-records; Architecture cross-links to them, doesn't absorb them.
 - `[[audit-docs]]` — writes `module_docs_audited:` to `{NAME} Dev.md` frontmatter at the end of every audit pass; the source of truth `/architect`'s staleness precondition reads.
-- `[[SKA ask]]` — universal Q-parking subroutine.
+- `[[SKA queries]]` — universal Q-parking subroutine.
 - `[[SKA triage]]` — provides the Q.md regen helper that `/architect` calls as its post-condition.
 - `[[F074 — Architect skill — Architecture as anchor folder with subsystems]]` — design doc.

@@ -132,10 +132,10 @@ BRACKET_RE = re.compile(r"\[([A-Za-z][A-Za-z0-9 \-]*?)\]")
 Q_MARKER_RE = re.compile(r"\bQ\d+\s+—")
 # Q.md per-anchor section H1 banner.
 QMD_BANNER_RE = re.compile(
-    # Match both the new format `[[X ask|X]]` and the legacy
+    # Match both the new format `[[X queries|X]]` and the legacy
     # `[[Q#X Triage|X Triage]]` form so banner-rewrite works either way.
     r"^# \[(?P<tag>[^\]]*)\]\s+"
-    r"\[\[(?:Q#)?(?P<name>[^\|\]]+?)(?:\s+(?:Triage|ask))?(?:\|[^\]]+)?\]\]"
+    r"\[\[(?:Q#)?(?P<name>[^\|\]]+?)(?:\s+(?:Triage|ask|queries))?(?:\|[^\]]+)?\]\]"
     r"\s+-\s+(?P<rest>.+)$"
 )
 
@@ -933,7 +933,7 @@ def find_ask_format_files(
 
     Container IDs:
     - Feature doc F089-...md → 'F089'
-    - Anchor ask file '<NAME> ask.md' → '<NAME>' (authored anchor-level Qs)
+    - Anchor queries file '<NAME> queries.md' → '<NAME>' (authored anchor-level Qs)
 
     By default (`reachable_only=True`, per user direction 2026-05-26): only
     audit feature docs that are *linked from the anchor's backlog*. Orphan
@@ -962,13 +962,13 @@ def find_ask_format_files(
                         seen_paths.add(link.target_file_path)
                         out.append((m.group(1), link.target_file_path))
                     continue
-            # Always include `{NAME} ask.md` if it exists — anchor-level Qs are
+            # Always include `{NAME} queries.md` if it exists — anchor-level Qs are
             # authored directly there (there is no `{NAME} Questions.md`).
             # extract_q_entries picks up only the authored `**Q<n>` bullets in
             # `## Questions`; rendered pointer lines and resolutions are ignored.
-            ask_file = backlog_file.parent / f"{name} ask.md"
-            if ask_file.is_file() and ask_file not in seen_paths:
-                out.append((name, ask_file))
+            queries_file = backlog_file.parent / f"{name} queries.md"
+            if queries_file.is_file() and queries_file not in seen_paths:
+                out.append((name, queries_file))
         else:
             # Vault-wide: every F<n>.md in the anchor's Features/ folder.
             features_dir = backlog_file.parent / f"{name} Features"
@@ -977,9 +977,9 @@ def find_ask_format_files(
                     m = F_NUMBER_PREFIX_RE.match(feature_file.stem)
                     if m:
                         out.append((m.group(1), feature_file))
-            ask_file = backlog_file.parent / f"{name} ask.md"
-            if ask_file.is_file():
-                out.append((name, ask_file))
+            queries_file = backlog_file.parent / f"{name} queries.md"
+            if queries_file.is_file():
+                out.append((name, queries_file))
     return out
 
 
@@ -1661,7 +1661,7 @@ def check_c22_link_existence_extended(
 ) -> list[Finding]:
     """C22: extend C1's link-existence check beyond Q.md to feature docs +
     backlogs. C1 covers Q.md; C22 covers everything else where broken
-    wiki-links are user-visible (feature docs, backlogs, ask.md files)."""
+    wiki-links are user-visible (feature docs, backlogs, queries.md files)."""
     findings: list[Finding] = []
     for file_path in scope_files:
         for link in links_in_file(file_path, vault_index):
@@ -2341,9 +2341,9 @@ def check_c34_inline_q_in_row_body(backlog_files: list[Path]) -> list[Finding]:
     """C34: inline `Q<n>` bullets inside backlog row bodies are forbidden.
 
     Qs belong in feature docs (`{NAME} Features/F<n> — Title.md` §
-    `## Open Questions`) or authored directly in the anchor ask file
-    (`{NAME} ask.md` § `## Questions`), per
-    [[ask-format]]. Embedding Qs in a backlog row body bypasses /ask's
+    `## Open Questions`) or authored directly in the anchor queries file
+    (`{NAME} queries.md` § `## Questions`), per
+    [[ask-format]]. Embedding Qs in a backlog row body bypasses /query's
     surfacing (Q.md banner, /triage) and produces a row that contains
     decision content the rest of the workflow can't see.
     """
@@ -2380,7 +2380,7 @@ def check_c34_inline_q_in_row_body(backlog_files: list[Path]) -> list[Finding]:
                     message=(
                         f"inline `Q<n>` bullet in backlog row body (`## {current_h2}`) "
                         f"— Qs belong in a feature doc's `## Open Questions` H2 or in "
-                        f"`{{NAME}} ask.md` § `## Questions` per [[ask-format]]. Move the Q to "
+                        f"`{{NAME}} queries.md` § `## Questions` per [[ask-format]]. Move the Q to "
                         f"the appropriate surface and replace this row's body with "
                         f"a `→ [[F<n> — Title]]` link."
                     ),
@@ -2393,15 +2393,16 @@ def check_c35_ask_md_drift(
     anchor_backlogs: dict[str, Path],
     vault_index: dict[str, list[Path]],
 ) -> list[Finding]:
-    """C35 (F124): each Q<n> reference in `{NAME} ask.md` § Questions must
-    correspond to a pending Q in the linked feature doc.
+    """C35 (F124; queries-surface per F176): each Q<n> reference in
+    `{NAME} queries.md` § Questions must correspond to a pending Q in the
+    linked feature doc.
 
-    Surfacing case (F077 Q7, 2026-06-06): SKA ask.md carried 'F077 ... (Q1, Q7)'
-    forward as pending, but F077's doc had Q7 in `### Resolved` (choice A).
-    The /ask runbook step 3 requires 'live re-check each carried-forward
-    entry' — this check mechanizes it.
+    Surfacing case (F077 Q7, 2026-06-06): the carried-forward 'F077 ... (Q1, Q7)'
+    listed Q7 as pending while F077's doc had Q7 in `### Resolved` (choice A).
+    `/query` rebuilds from current state, but a stale view can persist between
+    runs — this check mechanizes the drift catch.
 
-    Walks each anchor backlog's sibling `{NAME} ask.md` file, parses the
+    Walks each anchor backlog's sibling `{NAME} queries.md` file, parses the
     `## Questions` H2 region, extracts wiki-linked feature docs + the
     Q-numbers each bullet claims pending, then cross-checks against the
     linked doc's actual pending-Q set via `extract_q_entries` (which is
@@ -2411,11 +2412,11 @@ def check_c35_ask_md_drift(
     q_ref_re = re.compile(r"\bQ(\d+)\b")
     wiki_link_re = re.compile(r"\[\[([^|\]]+?)(?:\|[^\]]+)?\]\]")
     for name, backlog_file in anchor_backlogs.items():
-        ask_file = backlog_file.parent / f"{name} ask.md"
-        if not ask_file.is_file():
+        queries_file = backlog_file.parent / f"{name} queries.md"
+        if not queries_file.is_file():
             continue
         try:
-            text = ask_file.read_text(encoding="utf-8")
+            text = queries_file.read_text(encoding="utf-8")
         except (OSError, UnicodeDecodeError):
             continue
         lines = text.splitlines()
@@ -2442,7 +2443,7 @@ def check_c35_ask_md_drift(
             # Strip any block-ID fragment from target name
             if "#" in target_name:
                 target_name = target_name.split("#", 1)[0]
-            target_file = resolve_target(target_name, ask_file, vault_index)
+            target_file = resolve_target(target_name, queries_file, vault_index)
             if target_file is None or not target_file.is_file():
                 continue  # link resolution belongs to C1/C22
             # Only feature docs participate (skip non-F<n> targets like
@@ -2478,14 +2479,14 @@ def check_c35_ask_md_drift(
             stale_str = ", ".join(f"Q{n}" for n in stale)
             findings.append(Finding(
                 severity="warning",
-                surface_file=ask_file,
+                surface_file=queries_file,
                 surface_line=line_num + 1,
                 code="C35",
                 message=(
-                    f"ask.md claims {stale_str} pending in {container_id} "
+                    f"queries.md claims {stale_str} pending in {container_id} "
                     f"but linked doc has those resolved or absent "
-                    f"(actual pending: {pending_str}). /ask runbook step 3 "
-                    f"requires live re-check; drift carried forward."
+                    f"(actual pending: {pending_str}). Re-run /query to rebuild "
+                    f"from current state; drift carried forward."
                 ),
                 mechanically_fixable=False,
             ))
@@ -2550,7 +2551,7 @@ def _c36_is_path_like(token: str) -> bool:
     if t.startswith(".") and _C36_EXT_RE.fullmatch(t):
         return False
     # Reject slash-commands: leading `/` followed by a single segment of
-    # lowercase letters / digits / hyphens — these are `/ask`, `/groom`,
+    # lowercase letters / digits / hyphens — these are `/query`, `/groom`,
     # `/audit foo`, etc., NOT file paths.
     if t.startswith("/"):
         rest = t[1:]
@@ -2635,11 +2636,11 @@ def _c36_is_inside_existing_link(line: str, span_start: int) -> bool:
 def check_c36_backtick_filepath(
     file_path: Path, vault_index: dict[str, list[Path]]
 ) -> list[Finding]:
-    """C36: backtick-quoted file-paths on Q.md / ask.md should be wiki-links
+    """C36: backtick-quoted file-paths on Q.md / queries.md should be wiki-links
     or markdown-links so they're clickable.
 
     Surfacing case (F126, 2026-06-07): the user observed that bare backtick
-    file-path tokens in `Q.md` / `{NAME} ask.md` aren't navigable from
+    file-path tokens in `Q.md` / `{NAME} queries.md` aren't navigable from
     Obsidian — they look like links but aren't, forcing the user to manually
     copy the path. C36 forbids them and `--fix` mechanically replaces them.
     """
@@ -2672,20 +2673,24 @@ def check_c36_backtick_filepath(
             if _c36_is_inside_existing_link(line, m.start()):
                 continue
             replacement = _c36_resolve_replacement(token, vault_index)
-            mech_fixable = replacement is not None
+            if replacement is None:
+                # No resolvable link target exists — a code-source file
+                # (`lib.rs`, `cocoa.rs`), a config/runtime file with no vault
+                # doc (`config.yaml`, `mux-targets.json`), or a non-existent
+                # absolute path (`/tmp/hidmove`). Backticks are the CORRECT
+                # rendering for these; C36's premise ("should be a link") only
+                # holds when the path CAN become one. Skip — never file an
+                # unfixable "manual review" residual that can never be cleared
+                # (the QFix-never-clears bug). Genuinely-broken doc references
+                # are C1/C22's job, not C36's. 2026-06-14.
+                continue
             findings.append(Finding(
                 severity="warning",
                 surface_file=file_path,
                 surface_line=line_num,
                 code="C36",
-                message=(
-                    f"backtick file-path `{token}` should be a link — "
-                    + (f"suggested: `{replacement}`"
-                       if replacement
-                       else "basename doesn't resolve in vault index "
-                            "(manual review)")
-                ),
-                mechanically_fixable=mech_fixable,
+                message=f"backtick file-path `{token}` should be a link — suggested: `{replacement}`",
+                mechanically_fixable=True,
             ))
     return findings
 
@@ -3316,7 +3321,7 @@ def derive_anchor_banner(name: str, backlog_file: Path,
     if not tag and horizon_counts["Icebox"] == 0:
         return None
     banner = (
-        f"# [{tag}]  [[{name} ask|{name}]]  -  "
+        f"# [{tag}]  [[{name} queries|{name}]]  -  "
         f"Ready {ready_n}    Questions {questions_n}   |   "
         f"Now {horizon_counts['Now']}    Next {horizon_counts['Next']}    "
         f"Later {horizon_counts['Later']}    Verify {horizon_counts['Verify']}    "
@@ -3407,7 +3412,7 @@ def main() -> int:
         banner = derive_anchor_banner(name, backlog_file, vault_index)
         if banner:
             derived_banners[name] = banner
-    # B16 — C6 / C8 / C9 / C10 walk feature docs + the anchor ask file per anchor.
+    # B16 — C6 / C8 / C9 / C10 walk feature docs + the anchor queries file per anchor.
     # Default (scope=q or scope=backlog): reachability-limited via backlog wiki-links.
     # `--scope all` gives the original vault-wide behavior.
     if args.scope == "feature-doc":
@@ -3434,14 +3439,14 @@ def main() -> int:
     findings.extend(check_c19_option_bullets(all_q_entries))
     findings.extend(check_c20_blank_after_recommendation(all_q_entries))
     findings.extend(check_c21_empty_open_questions(ask_format_files, all_q_entries))
-    # C22 — link existence across feature docs + backlogs + ask.md files
+    # C22 — link existence across feature docs + backlogs + queries.md files
     c22_scope: list[Path] = []
     c22_scope.extend(p for _, p in ask_format_files)
     c22_scope.extend(anchor_backlogs.values())
     for backlog_file in anchor_backlogs.values():
-        ask_md = backlog_file.parent / f"{backlog_file.stem.replace(' Backlog', ' ask')}.md"
-        if ask_md.is_file():
-            c22_scope.append(ask_md)
+        queries_md = backlog_file.parent / f"{backlog_file.stem.replace(' Backlog', ' queries')}.md"
+        if queries_md.is_file():
+            c22_scope.append(queries_md)
     findings.extend(check_c22_link_existence_extended(c22_scope, vault_index))
     # B16 — C7 walks the same ask-format files + backlogs + Q.md (when in scope)
     c7_scope: list[Path] = []
@@ -3468,12 +3473,12 @@ def main() -> int:
         findings.extend(check_c32_h3_rows_forbidden([backlog_file]))
         findings.extend(check_c33_designing_needs_link(entries))
         findings.extend(check_c34_inline_q_in_row_body([backlog_file]))
-    # F124 — C35 ask.md drift check walks every anchor backlog's sibling
-    # `{NAME} ask.md`. Runs once after the per-anchor loop (not per anchor),
-    # since each ask.md is keyed by its sibling backlog's anchor name.
+    # F124 — C35 queries.md drift check walks every anchor backlog's sibling
+    # `{NAME} queries.md` (per F176). Runs once after the per-anchor loop (not
+    # per anchor), since each queries file is keyed by its sibling backlog's name.
     findings.extend(check_c35_ask_md_drift(anchor_backlogs, vault_index))
     # F126 — C36 backtick-filepath check. Runs on Q.md (when in scope),
-    # every per-anchor `{NAME} ask.md`, AND every anchor backlog —
+    # every per-anchor `{NAME} queries.md`, AND every anchor backlog —
     # backlog rows are the source content that triage-section.py copies
     # into Q.md, so fixing the surface alone gets overwritten by the
     # next D1 banner-rewrite. Source-fix is durable.
@@ -3482,9 +3487,9 @@ def main() -> int:
         c36_surfaces.append(Q_MD)
     for name, backlog_file in anchor_backlogs.items():
         c36_surfaces.append(backlog_file)
-        ask_md = backlog_file.parent / f"{name} ask.md"
-        if ask_md.is_file():
-            c36_surfaces.append(ask_md)
+        queries_md = backlog_file.parent / f"{name} queries.md"
+        if queries_md.is_file():
+            c36_surfaces.append(queries_md)
     for surface in c36_surfaces:
         findings.extend(check_c36_backtick_filepath(surface, vault_index))
     for name, backlog_file in sorted(anchor_backlogs.items()):

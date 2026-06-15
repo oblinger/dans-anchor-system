@@ -96,7 +96,7 @@ If the Features folder doesn't exist, create it. Filenames carry the F-number pr
      Wait for the user's pick before writing the file.
    - **Match in the *same* anchor** — within-anchor title collision is genuinely bad (within-anchor titles must be unique). Surface as a stronger error: "Within-anchor title collision — pick a different title." Block creation; do not write the file.
 
-This is the one place in `/feature` where an inline question is appropriate (vs. routing through `/ask`'s batch surface): it's a yes/no creation-time prompt that needs an answer in the same turn, and the user is in active mode by virtue of having invoked `/feature`.
+This is the one place in `/feature` where an inline question is appropriate (vs. routing through `/query`'s batch surface): it's a yes/no creation-time prompt that needs an answer in the same turn, and the user is in active mode by virtue of having invoked `/feature`.
 
 **Feature doc structure — Open Questions sits BELOW the H1 while any pending Qs exist; deleted entirely once all are resolved, with answered Qs migrating to a `## Resolved` H2 at the bottom of the doc.** The lifecycle:
 
@@ -165,7 +165,7 @@ Designing — awaiting design discussion.
 - **H1 carries the anchor-slug breadcrumb + F-number.** Format: `# [[{NAME}]] · F{n} — {Feature Name}`. The leading `[[{NAME}]]` is a wiki-link to the anchor page (jumps back to the anchor's home from any feature doc) and tells the reader at a glance which anchor they're in — load-bearing when many anchors are active and feature docs look similar across them.
 - **`## Open Questions` lives below H1 only while pending user Qs exist** — deleted otherwise.
 - **`## Resolved` at the bottom holds all resolved decisions as H3 entries** — both agent-decided and user-answered. The H3 outline IS the decision list; click any H3 to read its full record. H3 title format: `### Q{N} — {Title}` for user-answered (Q-numbered); `### {Title}` for agent-decided (no Q-number — they were never asked). Each H3 body has: `**Choice:** X.` + brief reasoning + alternatives considered + why rejected.
-- The `/ask` skill (`[[SKA ask]]`) is the universal asking subroutine — feature docs, PRDs, plan docs, anything with questions follows the same shape. Invoke `/ask --doc <path>` to add questions to a feature doc; the runbook handles formatting, glance, and global-page maintenance.
+- The `/query` skill (`[[SKA queries]]`) is the universal asking subroutine — feature docs, PRDs, plan docs, anything with questions follows the same shape. Invoke `/query --doc <path>` to add questions to a feature doc; the runbook handles formatting, glance, and global-page maintenance.
 
 **When to ask vs auto-decide (per [[F068 — Assume-and-announce discipline (Drive mode)|F068]] amendment 2026-05-22):**
 
@@ -202,7 +202,7 @@ Use `--horizon Later` for parking-mode stubs (`/feature` used to file something 
 
 ### 1a. Surface the Doc — glance only when adding/modifying a pending question AND the user is engaging now
 
-Glance the doc *only when both conditions hold*: (1) the edit added or modified a pending question, AND (2) you're in **active mode** — the user is engaging with this feature right now. See [[SKA ask]] § Active vs Parking mode for the full rule. (Better still: invoke `/ask --doc <path>` and the skill handles the glance for you.)
+Glance the doc *only when both conditions hold*: (1) the edit added or modified a pending question, AND (2) you're in **active mode** — the user is engaging with this feature right now. See [[SKA queries]] § Active vs Parking mode for the full rule. (Better still: invoke `/query --doc <path>` and the skill handles the glance for you.)
 
 ```bash
 open "<path to feature doc>"

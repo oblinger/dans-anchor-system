@@ -52,6 +52,18 @@ After glancing the doc, `/query` may print a few **immediate** items — resolut
 6. **Echo** (optional) a few immediate items to the console in inline-ask format — all also in the doc.
 7. **On answer** (`Q1: yes`, `F115 Q3: A`, "verified the panel reopen", prose): record the resolution at the question's home and **trim** the answered item from `{NAME} queries.md`. Re-running `/query` rebuilds from current state, so the doc shrinks monotonically. Sticky context: once the user names a feature, bare `Q<n>` targets it.
 
+## Parented mode — `/query --doc <path> <q1> [<q2> …]`
+
+The secondary invocation, called from another skill's runbook (`/feature`, `/code plan`, `/groom`, `/design`) when it has decisions to park in a *specific* document. It authors numbered, ask-format questions directly into `<path>`'s `## Open Questions` block (created below the H1 if absent) and does **not** build the anchor's `queries.md` — the Qs surface there on the next bare `/query` pass via the determination logic.
+
+- **Mechanism:** resolve `<path>` to its feature/PRD doc, then delegate to `state q add` (which enforces the ask-format spec — block-IDs, `Q<n>` numbering, recommendation strength, Phase 1/2/3 lifecycle):
+  ```bash
+  ~/.claude/skills/workflow/scripts/state --anchor {NAME} q add F<n> < q-body.md
+  ```
+- **Multiple questions** are batched — numbered in one pass, never trickled.
+- **Glance** the doc only in active mode (the user is engaging now); skip the glance in parking mode (batch filing for later). Mirrors `/feature` § 1a.
+- This is the successor to `/ask --doc`; the question *format* discipline is unchanged — it still lives in [[DSC ask-format]], which `/query` cites.
+
 ## Boundaries
 
 `/query` only asks, records, and trims. The cross-anchor dashboard (`[[Q]]`), `[Verify]`-row surfacing, and banner/TAG rendering belong to `/triage`. Never write an unanswerable item: if it can't be made a concrete decision/verification, the agent decides it (reversible → guess + record) or does the work that resolves it.

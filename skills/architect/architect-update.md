@@ -157,7 +157,7 @@ Decision rubric for each element in the greenfield draft:
 | Action / data | yes | same | keep |
 | Action / data | no | new | INTEGRATE if motivated; otherwise note in `## Changes since` as "proposed but not adopted" |
 
-When in doubt, prefer asking via `/ask` to silently dropping or silently adding. The user spent effort on the existing architecture; surprise drops are costly.
+When in doubt, prefer asking via `/query` to silently dropping or silently adding. The user spent effort on the existing architecture; surprise drops are costly.
 
 ## What `/architect update` does NOT do
 

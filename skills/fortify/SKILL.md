@@ -108,7 +108,7 @@ Once the foundation is fortified, re-derive the working hypothesis from the new 
    The agent should not minimize compute or reasoning time — it should minimize the number of times the user is pulled into the loop. Take longer; ask less.
 
 2. **Batch open questions, never trickle them.**
-   If user input is genuinely needed, gather all questions and surface them in one batch via the /ask skill. Never stop / ask / resume / stop / ask / resume.
+   If user input is genuinely needed, gather all questions and surface them in one batch via the /query skill. Never stop / ask / resume / stop / ask / resume.
 
 3. **Default to "do more, not less."**
    When the choice is between *less* and *more* coverage / robustness / test rigor / hardening, choose *more* without asking. The user does not need to be consulted for "should I add more tests or fewer?" — the answer is always more.
@@ -134,7 +134,7 @@ When invoked (`/fortify <task>`, "fortify <task>", or `/fortify` bare):
    3. Identify test coverage gaps; write red tests in a batch.
    4. Identify weak assertions; tighten them.
    5. Add invariant pins / explicit checks in the code itself.
-   6. (If warranted) Propose simplification or application-shape change → escalate to user via /ask skill.
+   6. (If warranted) Propose simplification or application-shape change → escalate to user via /query skill.
 4. **Drive the red tests green.** Once the foundation is firmer, resume red-green systematically.
 5. **Surface only what needs surfacing.** Batch any open questions; otherwise keep going. Wall-clock is not the constraint — interruptions are.
 6. **Resume `crank`** when the foundation is fortified and the working hypothesis has been re-derived from the new evidence.

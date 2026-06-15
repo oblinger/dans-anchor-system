@@ -22,11 +22,11 @@ user_invocable: true
 Punctuation trigger: **`'`** (single apostrophe as the entire message), parallel to `triage`/`"` and `land`/`.`. Slash invocation: `/crank` (with optional argument; passed to `/mint` if action is taken). **Slash-only — the spoken word "crank" is intentionally NOT a DMUX prefix-trigger** (too common in casual speech; `'` is the dedicated single-keystroke shortcut).
 
 
-**Surfacing user-actionable items**: when `/crank` is about to ask a Question or request a Verify (e.g., when exiting to `/triage` or chaining to `/ask`), the format follows the [[DSC ask-format]] discipline. This prevents the flatfooted-ask failure mode — every Verify includes what-the-agent-verified / what's-left-for-you / why-human / expected-output.
+**Surfacing user-actionable items**: when `/crank` is about to ask a Question or request a Verify (e.g., when exiting to `/triage` or chaining to `/query`), the format follows the [[DSC ask-format]] discipline. This prevents the flatfooted-ask failure mode — every Verify includes what-the-agent-verified / what's-left-for-you / why-human / expected-output.
 
 **Verify surfacing follows [[DSC verification]]** (per F101). The recurring failure mode is the blanket ask: *"verify F57, F58, F59"* dumped on the user with no context, requiring them to open each feature doc and reconstruct what "verified" means. The verification discipline replaces this with:
 
-- **Tier check first.** Read each Verify row's linked feature doc `## Success Criteria` block. Tier 1 and tier 2 are agent-owned: the agent runs the check now (or schedules the deferred check); these do NOT surface to the user. Suppress them from `/ask` and `/triage` body output.
+- **Tier check first.** Read each Verify row's linked feature doc `## Success Criteria` block. Tier 1 and tier 2 are agent-owned: the agent runs the check now (or schedules the deferred check); these do NOT surface to the user. Suppress them from `/query` and `/triage` body output.
 - **Targeted questions only.** When tier 3 or tier 4 does surface, the question itself embeds the answer-enabling context. *"Have you sent a Voice Memo email since 2026-05-28 and seen the transcript land in `~/ob/kmr/Log/VOX/`?"* not *"Verify F93"*.
 - **Batch by ask, not by feature.** If several Verify rows collapse to the same user action ("did this work in normal use?", "did the bug recur?"), surface as one combined question with the feature-doc links listed. The user gives one answer; the agent applies it to all listed rows.
 - **No "see the feature doc."** If the surfacing requires the user to open a doc to understand the question, the question is not targeted enough. Rewrite until the question itself names the specific observation.
@@ -131,7 +131,7 @@ The Q-escape is the ONLY allowed escape — which means the agent is incentivize
 - **The Q must list concrete labeled `(A)` / `(B)` / `(C)` options** per ask-format C19. A prose-only Q with no decision shape is formally invalid (audit-q will flag it).
 - **The Q must be about the work, not about continuation.** *"Should I keep going?"* or *"Is the user happy with this approach?"* are invalid. *"Should this run in-process or as a separate daemon?"* or *"Frontmatter schema: `traits:` as YAML list or comma-string?"* are potentially valid (subject to the two-gate test above).
 - **The Q must have a Recommendation field with `None`.** If the agent has any Lean or Strong, gate 1 fails — the Q is fake.
-- **The user reviews accumulated Qs on the next `/ask`.** Fake Qs surface in `{NAME} ask.md` for rollback. After a few rollbacks the agent recalibrates.
+- **The user reviews accumulated Qs on the next `/query`.** Fake Qs surface in `{NAME} queries.md` for rollback. After a few rollbacks the agent recalibrates.
 
 ### Mandatory exit message — agent must make the argument explicit
 
@@ -177,7 +177,7 @@ If ANY gate's blank can't be filled with a specific, concrete sentence, the rule
 **Before exiting, every stop reason except context-< 40% MUST route through this cascade:**
 
 1. **Run `/groom`** — re-promote any stale brackets, surface freshly-Ready work. If `/groom` produces Ready items, **continue cranking** — do NOT stop. The groom output is the new queue.
-2. **If `/groom` is dry (no new Ready), invoke `/ask`** — do not exit silently and do not exit with a reference list of Q-numbers. `/ask` surfaces per the **two-surface rule** (`ask/SKILL.md` § Two valid surfaces, per [[F162 — Two-surface ask rule + crank-must-ask cascade|F162]]): exactly one pending question → ask it **inline in chat with full details**; two or more → they MUST be written into a surface first (all-in-one-feature → that feature doc, glanced; spanning features → `{NAME} ask.md`, glanced). A question never lives only in chat.
+2. **If `/groom` is dry (no new Ready), invoke `/query`** — do not exit silently and do not exit with a reference list of Q-numbers. `/query` builds `{NAME} queries.md` by determination logic and glances it, surfacing per the **two-surface rule** (per [[F162 — Two-surface ask rule + crank-must-ask cascade|F162]]): exactly one pending question → ask it **inline in chat with full details**; two or more → they live in a surface (all-in-one-feature → that feature doc's `## Open Questions`, glanced; spanning features → `{NAME} queries.md`, glanced) with a spotlight in chat. A question never lives only in chat.
 3. **Context < 40% is the only exception.** When stopping for token-budget reasons, print *"stopping — context window below 40%"* and exit immediately. The cascade is suspended because the surfacing itself would consume the remaining budget; the user can re-invoke `/crank` after compaction.
 
 **Reference-only Q-lists in the chat exit message are forbidden.** *"Pending input: F113 Q12, F117 (4 Qs), F118 (3 Qs)"* is NOT a valid stop surface — the user cannot understand what "Q12" is from "Q12" alone. The Q-escape's three-gate argument (Gate 1 / Gate 2 / Gate 3) is independent and still required as the JUSTIFICATION for stopping; the cascade governs what HAPPENS after that justification — which surface the user sees.
@@ -195,11 +195,11 @@ Symmetric to the `[Ready]` hedging-phrases discipline (`[[SKA triage]]` § Recon
 
 - **"The next item looks hard."** — Not a stop reason. Do it carefully.
 - **"I've made meaningful progress."** — Not a stop reason. Progress earned more time, not less.
-- **"The user might want to look at this."** — Not a stop reason. The workflow has structural surfacing (`[Verify]`, `/triage`, `/ask`); use them.
+- **"The user might want to look at this."** — Not a stop reason. The workflow has structural surfacing (`[Verify]`, `/triage`, `/query`); use them.
 - **"I should stop and check in."** — Not a stop reason unless the work product *needs* checking (i.e., a `[Verify]` row exists). Generic checking-in is round-trip cost without benefit.
 - **"There's a lot left and I'm getting low on cycles."** — Not a stop reason **unless** token budget is actually near-exhausted (< 30% remaining). Vague resource anxiety doesn't qualify.
 - **"Sub-skill invocation — stopping here."** — Not a stop reason. The cascade (§ 2a) IS the next action; running it is the answer, not stopping before it.
-- **"Pausing for the other agent."** — Not a stop reason on its own. Conflict-avoidance is a reason to pick a different surfacing channel (e.g., `/ask` instead of `/triage` when triage.md is being edited), not a reason to skip surfacing entirely.
+- **"Pausing for the other agent."** — Not a stop reason on its own. Conflict-avoidance is a reason to pick a different surfacing channel (e.g., `/query` instead of `/triage` when triage.md is being edited), not a reason to skip surfacing entirely.
 
 If the agent is about to stop and the reason matches one of the above, the agent **must** continue. (And if it announces the disqualifying reason in chat as a substitute for action, that is itself a spec violation — see § Anti-patterns above.)
 
@@ -297,13 +297,13 @@ After the crank loop exits (quality stop / queue exhaustion / fatigue gate / all
 |---|---|---|---|
 | > 0 | any | (no surfacing — silent on Q.md side) | Success one-liner: items minted + Ready count remaining |
 | == 0 | == 0 | `/groom` → `/triage` | **Triage banner** (per `[[SKA triage]]` § 8) |
-| == 0 | > 0 | `/groom` → `/ask` → `/triage` | **Triage banner** (`/ask` regens Q.md internally; explicit `/triage` keeps the invariant simple) |
+| == 0 | > 0 | `/groom` → `/query` → `/triage` | **Triage banner** (`/query` regens Q.md internally; explicit `/triage` keeps the invariant simple) |
 
 **Invariant: Ready == 0 always ends with the triage banner as the last line of chat output.** No exceptions. When the queue is dry the user needs to see anchor state to direct next steps; when the queue still has items the agent will keep cranking on the next press and surfacing would interrupt.
 
 **Why /groom always fires when Ready == 0.** The queue dropping to zero is the right moment to reassess brackets (rebracket stale Watching/Waiting/Blocked rows, auto-expire `[Verify-by]` past dates, promote freshly-resolvable items). Without this pass, Ready==0 can be a false negative — items that *could* be Ready stay parked under stale brackets.
 
-**Why /ask before /triage when Questions > 0.** /ask drains the actionable inbox; /triage paints the resulting state. Order matters: if /triage ran first, it'd show the un-drained Qs; running /ask first means the triage view shows only what genuinely needs the user's attention after the agent has self-resolved what it could.
+**Why /query before /triage when Questions > 0.** /query drains the actionable inbox; /triage paints the resulting state. Order matters: if /triage ran first, it'd show the un-drained Qs; running /query first means the triage view shows only what genuinely needs the user's attention after the agent has self-resolved what it could.
 
 **No "narrate-and-stop" branch.** The agent's last tool call before the one-liner is the surfacing call (/triage on every Ready==0 path). If chat is about to say *"will run /triage next"* or *"pausing for the X agent"* or *"drafted N questions to surface"* — stop, do the call now, then write the summary.
 
@@ -313,7 +313,7 @@ After the crank loop exits (quality stop / queue exhaustion / fatigue gate / all
 
 > *"Pausing for the cascade agent — no clean mintables without risking conflict on the rules doc / backlog / triage that they're editing. Status: B1 proposal drafted with 4 ABC questions to surface."*
 
-Both buy a guaranteed extra round-trip for zero added value. The first because /triage hasn't actually run yet. The second because the 4 questions are drafted but not surfaced — and the "conflict with the other agent on triage.md" argument **doesn't apply to `/ask`**, which writes to a different file (`{NAME} ask.md` / the feature docs). When `/triage` would race, `/ask` is the non-conflicting surfacing path. Conflict-avoidance is a reason to pick a different surfacing channel, not a reason to skip surfacing.
+Both buy a guaranteed extra round-trip for zero added value. The first because /triage hasn't actually run yet. The second because the 4 questions are drafted but not surfaced — and the "conflict with the other agent on triage.md" argument **doesn't apply to `/query`**, which writes to a different file (`{NAME} queries.md` / the feature docs). When `/triage` would race, `/query` is the non-conflicting surfacing path. Conflict-avoidance is a reason to pick a different surfacing channel, not a reason to skip surfacing.
 
 **The "drafted with N questions to surface" sentence is itself the violation.** If the questions are drafted and the agent KNOWS to surface them, the surfacing must already have happened before that sentence gets written.
 
@@ -328,9 +328,9 @@ After the loop + branch resolves, print one line to chat for the mint summary. O
 |---|---|
 | Ready > 0 (silent) | `/crank — minted N items: F<a>, F<b>, ...; Ready queue still has M items.` |
 | Ready == 0, Q == 0 | `/crank — minted N items; Ready queue dry. Ran /groom + /triage.` (then triage banner) |
-| Ready == 0, Q > 0 | `/crank — minted N items; Ready queue dry, K Qs waiting. Ran /groom + /ask + /triage.` (then triage banner) |
+| Ready == 0, Q > 0 | `/crank — minted N items; Ready queue dry, K Qs waiting. Ran /groom + /query + /triage.` (then triage banner) |
 | Zero-mint, Q == 0 | `/crank — no Ready work this turn. Ran /groom (M promoted) + /triage.` (then triage banner) |
-| Zero-mint, Q > 0 | `/crank — no Ready work this turn, K Qs waiting. Ran /groom + /ask + /triage.` (then triage banner) |
+| Zero-mint, Q > 0 | `/crank — no Ready work this turn, K Qs waiting. Ran /groom + /query + /triage.` (then triage banner) |
 
 
 ## Runbook
@@ -407,7 +407,7 @@ Else (zero successful mints this turn):
 
 **Forcing-function check before you emit any user-visible text on this branch:** have you actually called the /triage skill in this turn? If your last tool call was /groom and you are about to write a chat message saying anything resembling "will run /triage next" — stop, call /triage first, then write the summary. The summary describes what already happened in this turn, including the /triage you just ran.
 
-**MANDATORY: the no-action chat output includes the /triage banner verbatim.** The H1 banner line for the current anchor (e.g., `# [U+A]  [[SKA ask|SKA]]  -  Ready 2    Questions 25   |   Now 10    Next 1    Later 4    Icebox 0`) MUST appear in chat. Read it from the just-regenerated `~/ob/kmr/Q.md` section for the current anchor. **The one-liner alone is NOT sufficient.** Emitting only `/crank — no Ready work this turn. Ran /groom + /triage.` without the banner is a spec violation — the user has no idea what state the anchor is in. The banner *is* the status; the one-liner just labels the exit path. (Failure mode observed 2026-05-24: agent ran /triage as a tool call but omitted the banner from chat, leaving the user blind to the anchor's actual state.) If the banner is missing from your draft response, stop and add it before sending.
+**MANDATORY: the no-action chat output includes the /triage banner verbatim.** The H1 banner line for the current anchor (e.g., `# [U+A]  [[SKA queries|SKA]]  -  Ready 2    Questions 25   |   Now 10    Next 1    Later 4    Icebox 0`) MUST appear in chat. Read it from the just-regenerated `~/ob/kmr/Q.md` section for the current anchor. **The one-liner alone is NOT sufficient.** Emitting only `/crank — no Ready work this turn. Ran /groom + /triage.` without the banner is a spec violation — the user has no idea what state the anchor is in. The banner *is* the status; the one-liner just labels the exit path. (Failure mode observed 2026-05-24: agent ran /triage as a tool call but omitted the banner from chat, leaving the user blind to the anchor's actual state.) If the banner is missing from your draft response, stop and add it before sending.
 
 ### 5. Print the one-liner
 
@@ -423,7 +423,7 @@ Use one of the two formats from § Output format above.
 - **Doesn't stop after a single successful mint just to "report progress."** Keep going until the queue is empty or the next item would drop quality. Stopping early is the failure mode.
 - **Doesn't name blockers and exit without running /triage.** If zero items were minted this turn, the spec is `/groom` → `/triage` → no-action summary, **all in this same turn**. Naming the blockers in chat without surfacing /triage's full state is a spec violation (and was second-press behavior, which has been removed).
 - **Doesn't announce that /triage will run "next" and stop.** That sentence — "Crank will run /triage next" or "Sub-skill invocation — stopping here" — is one canonical failure mode for this skill. If you are about to write it, invoke /triage *right now* in this same response and then write the no-action summary describing what already ran. There is no "two-press triage" — every press runs the loop end to end, including the /triage call on the no-mint branch.
-- **Doesn't pause-with-status when there's pending user-facing state to surface.** *"Pausing for the cascade agent — no clean mintables without risking conflict on the rules doc / backlog / triage they're editing. Status: B1 proposal drafted with 4 ABC questions to surface."* is the same anti-pattern in different costume — status announcement as a substitute for action. If 4 questions are drafted, they must be surfaced via `/ask` (which writes to `{NAME} ask.md` / the feature docs, not triage.md, so it doesn't race the other agent) **before** the pause message gets written. Pausing is fine; pausing while leaving known pending state unsurfaced is not.
+- **Doesn't pause-with-status when there's pending user-facing state to surface.** *"Pausing for the cascade agent — no clean mintables without risking conflict on the rules doc / backlog / triage they're editing. Status: B1 proposal drafted with 4 ABC questions to surface."* is the same anti-pattern in different costume — status announcement as a substitute for action. If 4 questions are drafted, they must be surfaced via `/query` (which writes to `{NAME} queries.md` / the feature docs, not triage.md, so it doesn't race the other agent) **before** the pause message gets written. Pausing is fine; pausing while leaving known pending state unsurfaced is not.
 
 
 ## Idempotence

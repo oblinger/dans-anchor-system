@@ -1343,22 +1343,12 @@ def _format_q_bullet(q_num, container_id, body):
 
 
 def _post_conditions(slug, feature_path):
-    """Run F127 invariant post-conditions: render ask.md, then audit-q lenient.
+    """Run the post-edit invariant check: audit-q lenient over the q scope.
+    Per F176 the `{NAME} queries.md` page is built on demand by /query's
+    determination logic — there is no render step.
     Returns list of warning lines (printed by caller).
     """
     warnings = []
-    # Render
-    ask_render = Path.home() / ".claude" / "skills" / "ask" / "scripts" / "ask-render.py"
-    if ask_render.is_file():
-        try:
-            r = subprocess.run(
-                [sys.executable, str(ask_render), slug],
-                capture_output=True, text=True, timeout=60,
-            )
-            if r.returncode != 0:
-                warnings.append(f"ask-render exit {r.returncode}: {r.stderr.strip()[:300]}")
-        except Exception as e:
-            warnings.append(f"ask-render failed: {e}")
     # Audit (lenient — surface errors but don't unwind)
     audit_q = Path.home() / ".claude" / "skills" / "audit" / "scripts" / "audit-q.py"
     if audit_q.is_file():
@@ -1391,8 +1381,8 @@ def main_q(argv):
         description=(
             "F128 Q-management — add / resolve / remove / rewrite Open Questions "
             "in a feature doc. The script enforces ask-format spec (block-IDs, "
-            "Q-numbering, Phase 1/2/3 lifecycle) and runs ask-render + audit-q "
-            "lenient as post-conditions per F127's render-audit-glance invariant. "
+            "Q-numbering, Phase 1/2/3 lifecycle) and runs audit-q lenient as a "
+            "post-condition (queries.md is built on demand by /query — no render step). "
             "Body content via stdin (primary), --from-file (fallback for long Qs), "
             "or -m (inline one-liner)."
         ),
