@@ -180,6 +180,7 @@ def parse_ruleset_block(block: list[str], source: Path) -> dict:
                 "tier": rm.group(3),
                 "where": None,
                 "check": None,
+                "fix": None,
                 "check_pattern": None,
                 "why": None,
             }
@@ -189,7 +190,7 @@ def parse_ruleset_block(block: list[str], source: Path) -> dict:
             continue
         s = ln.strip()
         wm = _FIELD_RE.match(s)
-        if wm and wm.group(1) in ("where", "check"):
+        if wm and wm.group(1) in ("where", "check", "fix"):
             cur[wm.group(1)] = wm.group(2).strip() or None
         elif s.startswith("**Check pattern:**"):
             cur["check_pattern"] = s.split("**Check pattern:**", 1)[1].strip()
@@ -566,7 +567,7 @@ def _plan_rules_hash(rulesets: list[dict]) -> str:
     for rs in rulesets:
         h.update(f"RS|{rs['name']}|{rs.get('where')}".encode())
         for r in rs["rules"]:
-            h.update(f"R|{r['id']}|{r['tier']}|{r.get('where')}|{r.get('check')}".encode())
+            h.update(f"R|{r['id']}|{r['tier']}|{r.get('where')}|{r.get('check')}|{r.get('fix')}".encode())
     return h.hexdigest()[:12]
 
 
@@ -609,6 +610,7 @@ def plan_one(target: Path, mode: str, cdir: Path | None, warnings: list[str],
             matched_rules.append({
                 "id": r["id"], "tier": r["tier"], "title": r["title"],
                 "selector": effective_where(r, rs), "check": r.get("check"),
+                "fix": r.get("fix"),
                 "check_pattern": r.get("check_pattern"), "why": r.get("why"),
                 "targets": [str(p.relative_to(anchor_root)) if p != anchor_root else "{ANCHOR}"
                             for p in tgts],
@@ -2010,6 +2012,29 @@ def chk_md_table_blank_lines(target, anchor_root, args):
     return "pass", ""
 
 
+def chk_md_fence_no_markdown(target, anchor_root, args):
+    """R-markdown-11: a fenced code block must not contain markdown meant to render
+    (wiki-links or headings). Mechanically detectable; the *fix* needs judgment
+    (re-express as live markdown), so this rule carries NO `fix::` — it messages."""
+    if not target.is_file():
+        return "pass", "not a file"
+    lines = _read(target).splitlines()
+    in_fence = False
+    body = []
+    for ln in lines:
+        if ln.lstrip().startswith("```"):
+            if not in_fence:
+                in_fence, body = True, []
+            else:
+                blob = "\n".join(body)
+                if "[[" in blob or re.search(r"^#{1,6}\s", blob, re.M):
+                    return "fail", "fenced code block contains markdown (wiki-link or heading) — re-express as live markdown"
+                in_fence = False
+        elif in_fence:
+            body.append(ln)
+    return "pass", ""
+
+
 # -- SVG geometry / hygiene / c4 (R-diagram-geometry, R-svg-hygiene, R-c4) -----
 
 def _svg_root(target):
@@ -2344,6 +2369,7 @@ CHECKERS = {
     "md_angle_brackets_safe": chk_md_angle_brackets_safe,
     "md_angle_brackets_backtick_only": chk_md_angle_brackets_backtick_only,
     "md_table_blank_lines": chk_md_table_blank_lines,
+    "md_fence_no_markdown": chk_md_fence_no_markdown,
     # R-diagram-geometry / R-svg-hygiene / R-c4
     "svg_geometry_overlap": chk_svg_geometry_overlap,
     "svg_label_collision": chk_svg_label_collision,
@@ -2431,6 +2457,98 @@ def render_verdicts(report: dict) -> str:
             line += f"  ({v['detail']})"
         out.append(line)
     return "\n".join(out)
+
+
+# ── Fix stage (F177): mechanical repairs + on-write hook driver ──────────
+#
+# A `checked` rule may carry a `fix::` naming a FIXER that REPAIRS the target in
+# place. The on-write hook (F177, the first buildable slice of F166) runs the doc
+# audit on each write and splits failures two ways: a fail WITH a `fix::` is
+# repaired silently (auto-fix bucket); a fail WITHOUT one is surfaced to the agent
+# (message bucket) — because its correct fix needs judgment we must not guess at.
+
+
+def fix_table_blank_lines(target, anchor_root, args):
+    """Insert a blank line before and after every markdown table block. Paired to
+    the `md_table_blank_lines` check. Deterministic and safe — only adds blanks."""
+    if not target.is_file():
+        return False, "not a file"
+    lines = _read(target).split("\n")
+    is_tbl = lambda l: l.lstrip().startswith("|")
+    out, i, changed = [], 0, False
+    n = len(lines)
+    while i < n:
+        if is_tbl(lines[i]):
+            if out and out[-1].strip() != "":
+                out.append(""); changed = True
+            while i < n and is_tbl(lines[i]):
+                out.append(lines[i]); i += 1
+            if i < n and lines[i].strip() != "":
+                out.append(""); changed = True
+        else:
+            out.append(lines[i]); i += 1
+    if changed:
+        target.write_text("\n".join(out), encoding="utf-8")
+    return changed, ("inserted blank line(s) around table" if changed else "")
+
+
+FIXERS = {
+    "md_table_blank_lines": fix_table_blank_lines,
+}
+
+
+def run_fixer(fix: str, target: Path, anchor_root: Path) -> tuple[bool, str]:
+    parts = fix.split()
+    name, args = parts[0], parts[1:]
+    fn = FIXERS.get(name)
+    if fn is None:
+        return False, f"unknown fixer {name!r}"
+    try:
+        return fn(target, anchor_root, args)
+    except Exception as e:  # a fixer bug must not corrupt the file silently
+        return False, f"{type(e).__name__}: {e}"
+
+
+def execute_on_write(plan: dict, cdir: Path | None) -> dict:
+    """The on-write driver. For each matched mechanical rule that FAILS on its
+    target: apply its `fix::` (and re-check) when it has one — else collect a
+    message. Returns {fixed:[...], messages:[...]} (no cache: the file just changed)."""
+    anchor_root = Path(plan["anchor_root"])
+    fixed, messages = [], []
+    for g in plan["groupings"]:
+        for r in g["rules"]:
+            chk = r.get("check")
+            if not chk:
+                continue
+            for disp, tgt in zip(r["targets"], r["_target_paths"]):
+                tp = Path(tgt)
+                status, detail = run_checker(chk, tp, anchor_root)
+                if status != "fail":
+                    continue
+                fx = r.get("fix")
+                if fx:
+                    changed, fdetail = run_fixer(fx, tp, anchor_root)
+                    status2, _ = run_checker(chk, tp, anchor_root)
+                    if changed and status2 == "pass":
+                        fixed.append({"rule": r["id"], "target": disp,
+                                      "detail": fdetail or detail})
+                        continue
+                    # fix didn't resolve it — fall through to a message
+                messages.append({"rule": r["id"], "target": disp, "detail": detail,
+                                 "why": r.get("why"), "check_pattern": r.get("check_pattern")})
+    return {"fixed": fixed, "messages": messages}
+
+
+def render_on_write(report: dict) -> str:
+    out = []
+    for f in report["fixed"]:
+        out.append(f"✓ fixed {f['rule']} — {f['target']}  ({f['detail']})")
+    for m in report["messages"]:
+        line = f"⚑ {m['rule']} — {m['target']}: {m['detail']}"
+        if m.get("why"):
+            line += f"  [why: {m['why']}]"
+        out.append(line)
+    return "\n".join(out) if out else "(clean — nothing to fix or flag)"
 
 
 # ── Stage 3: agent-judge scaffolding (manifest + verdict record) ─────────────
@@ -2575,6 +2693,8 @@ def main(argv):
     ap.add_argument("--key")
     ap.add_argument("--status", choices=("pass", "fail", "error"))
     ap.add_argument("--detail", default="")
+    ap.add_argument("--on-write", action="store_true",
+                    help="F177 hook driver: fix mechanical fails in place; emit messages for fails with no fixer")
     ap.add_argument("--cache-dir")
     ap.add_argument("--no-cache", action="store_true")
     args = ap.parse_args(argv)
@@ -2619,6 +2739,13 @@ def main(argv):
     order = args.order or ("rule" if mode == "anchor" and False else "file")
     exclude = sub_anchor_roots(target) if mode == "anchor" else None
     plan = plan_one(target, mode, cdir, [], exclude)
+    if args.on_write:
+        report = execute_on_write(plan, cdir)
+        if args.json:
+            print(json.dumps(report))
+        else:
+            print(render_on_write(report))
+        return 0
     if args.run:
         report = execute_plan(plan, cdir)
         if args.json:

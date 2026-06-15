@@ -149,7 +149,9 @@ A wiki-link inside a markdown table cell uses `\|` to escape the alias pipe: `[[
 
 **Why:** the table breaks visibly — column counts go wrong, content disappears.
 
-### RULE R-markdown-02 — Tables have blank line before and after (sampled)
+### RULE R-markdown-02 — Tables have blank line before and after (checked)
+check:: md_table_blank_lines
+fix:: md_table_blank_lines
 
 A markdown table is preceded and followed by a blank line.
 
@@ -222,7 +224,8 @@ A per-anchor doc (e.g., `Disk Log.md`, `MUX PRD.md`) does NOT include a section 
 
 **Why:** restated rules drift when the facet evolves; the facet is the single source of truth.
 
-### RULE R-markdown-11 — Never put markdown inside a fenced code block (stated)
+### RULE R-markdown-11 — Never put markdown inside a fenced code block (checked)
+check:: md_fence_no_markdown
 
 A fenced code block (triple backticks) must NEVER contain markdown intended to be read *as* markdown — `[[wiki-links]]` go inert, and headings, tables, and emphasis do not render. To show what a markdown document looks like, write it as **live markdown** — its own frontmatter and `# H1`, with any commentary placed BEFORE the example's frontmatter so it can't bleed into the example — or link to a real worked instance. Fenced blocks are reserved for literal **non-markdown** content: shell, code, JSON, `key: value` data files, file trees.
 
