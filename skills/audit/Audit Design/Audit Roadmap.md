@@ -1,5 +1,5 @@
 ---
-description: "V2 audit milestones — flesh out the rule-processing engine first (fix-by-default, levels, distill/on-write), refactor the legacy sub-audits onto it later."
+description: "milestones"
 ---
 
 # Audit Roadmap
@@ -16,7 +16,7 @@ The arc: get the unified rule-processing engine fully built — fix-by-default, 
 - **M3 — Fix-by-default + the four levels.** Generalize the `fix::` companion across rulesets; wire the automation level as a fix-stage parameter (Informational / Online / Standard / Aggressive); `/audit` fixes at Standard by default, `dry` reports. [[F002 — Audit fix-by-default + Python rule functions|F002]].
 - **M4 — Distill generalization.** Extend the distilled on-write module beyond the markdown slice to the full doc/anchor rule corpus; `where::`-relevance-gated judgment-title reminders, throttled once per file per session. [[F003 — On-write rule hook + test workflow|F003]], with rule-attention discipline [[F006 — Rule triggering — when the agent attends to rules|F006]].
 - **M5 — Deletion mark + sweep.** The `> [!info] Recommend deleting` callout as the universal annotate-don't-delete path, plus the separate `/audit sweep` operation that removes only marked content.
-- **M6 — `where::` hardening.** Backtick-wrap every `where::` expression with a coordinated parser swap, gated by a green rule-set test suite before and after. [[F007 — Backtick all where:: expressions — parser swap|F007]].
+- **M6 — `where::` hardening.** Backtick-wrap every `where::` expression with a coordinated parser swap, gated by a green rule-set test suite before and after. [[F007 — Backtick all where expressions — parser swap|F007]].
 - **M7 — Test workflow.** The cross-use on-write checklist runnable as one workflow that asserts each case and tallies pass/fail ([[F003 — On-write rule hook + test workflow|F003]] § Testing strategy).
 
 ## Later — migrate the legacy sub-audits

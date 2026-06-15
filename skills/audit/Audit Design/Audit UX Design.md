@@ -1,5 +1,5 @@
 ---
-description: "The /audit interaction surface — command grammar, sub-action roster, level selection, the on-write surfacing format, and the deletion-mark callout + sweep."
+description: "invocation surface + output format"
 ---
 
 # Audit UX Design

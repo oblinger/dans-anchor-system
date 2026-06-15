@@ -1,5 +1,5 @@
 ---
-description: "User stories for V2 audit — online auto-fix, the explicit Standard pass, annotate-don't-delete + sweep, and the opt-in aggressive pass."
+description: "user stories elaborating the PRD"
 ---
 
 # Audit Stories

@@ -1,5 +1,5 @@
 ---
-description: "The unified rule-processing engine — rule sources → resolve/run/judge/fix, shared by the explicit pass and the online hooks, gated by the no-delete safety guard."
+description: "system-architecture story — modules, data flow"
 ---
 
 # Audit Architecture
@@ -40,4 +40,4 @@ A future per-anchor setting selects the level; the engine reads it and masks the
 
 ## Where the rule format lives
 
-The engine is **format-driven and audit-independent**: rules declare their `check::`/`fix::`/`where::` in the specs, and the engine reads them — as specs evolve, audit follows with no script edit. The selector grammar (`always` / `file:<glob>` / `anchor` / `sentinel:<regex>`, `{ANCHOR}`/`{NAME}` tokens; backtick-wrapped per [[F007 — Backtick all where:: expressions — parser swap|F007]]) is the one binding language shared by resolve and the distilled hook.
+The engine is **format-driven and audit-independent**: rules declare their `check::`/`fix::`/`where::` in the specs, and the engine reads them — as specs evolve, audit follows with no script edit. The selector grammar (`always` / `file:<glob>` / `anchor` / `sentinel:<regex>`, `{ANCHOR}`/`{NAME}` tokens; backtick-wrapped per [[F007 — Backtick all where expressions — parser swap|F007]]) is the one binding language shared by resolve and the distilled hook.

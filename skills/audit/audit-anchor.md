@@ -38,7 +38,7 @@ Delegate the table's shape to **[[audit-dispatch|/audit dispatch]]** (it already
 
 ## Mechanism — the F161 audit engine
 
-Per [[F161 — Rule-driven audit engine — resolve, run, judge|F161]], this skill no longer hand-walks the checks above — it **drives `audit-plan`**, the resolver/runner that binds the `R-anchor` umbrella's rules to this anchor's targets, runs the mechanical ones by script, and emits the judgment residue for the agent. The A/B/C rule list above is the human-readable summary of what `R-anchor` contains; the engine is the executable form (so the two never drift — change the facet's `# RULESET` block and the audit follows).
+Per [[F001 — Rule-driven audit engine — resolve, run, judge|F001]], this skill no longer hand-walks the checks above — it **drives `audit-plan`**, the resolver/runner that binds the `R-anchor` umbrella's rules to this anchor's targets, runs the mechanical ones by script, and emits the judgment residue for the agent. The A/B/C rule list above is the human-readable summary of what `R-anchor` contains; the engine is the executable form (so the two never drift — change the facet's `# RULESET` block and the audit follows).
 
 Script: `~/.claude/skills/audit/scripts/audit-plan.py`.
 

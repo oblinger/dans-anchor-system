@@ -9,7 +9,7 @@ Validates the shape contract of every reachable Architecture doc in the vault. C
 1. **Shape:** every Arch doc must begin with a block diagram (within the first 30 lines after H1), immediately followed by a markdown table (within 5 lines of the diagram). The diagram-then-table pattern is the doc's reader contract — "here's the shape; here's the legend."
 2. **Wiki-link integrity:** every cell of the component table that names a vault file must be a wiki-link `[[X]]`, not plain text. The opt-out `[ext: <name>]` tag is available for legitimate external references.
 
-Sibling of `/audit q` / `/audit markdown` / `/audit docs`. Spec: `[[F092 — Audit architecture]]`.
+Sibling of `/audit q` / `/audit markdown` / `/audit docs`. Spec: `[[F015 — Audit architecture]]`.
 
 ## When to invoke
 
