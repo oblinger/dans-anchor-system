@@ -8,7 +8,7 @@ The entry page every anchor opens with — its `{slug}.md`.
 | --- | --- |
 | Related | [[FCT]],  [[FCT Dispatch Table]],  [[DSC progressive-disclosure]],  [[FEX]],   |
 | Design |  |
-| Examples | [[HBR\|Code project]],  [[FCT Anchor Page\|Sub-project · facet]],  [[DSC progressive-disclosure\|Sub-project · discipline]],  [[SKL Mint\|Sub-project · skill-doc]],  [[SKL\|Container · grouped]],  [[SKA Access\|Container · list]],  [[HBR Log\|Container · chronological]],  [[Career\|Topic]],   |
+| Examples | [[HBR\|Code project]],  [[FCT Anchor Page\|Sub-project · facet]],  [[DSC progressive-disclosure\|Sub-project · discipline]],  [[SKL Mint\|Sub-project · skill-doc]],  [[SKL\|Container · grouped]],  [[SKA Access\|Container · list]],  [[HBR Log\|Container · chronological]],  [[Life\|Topic]],   |
 | Rulesets |  |
 |  |  |
 | OLD Examples | [[FEX]] — [[Snapper Dapper\|skill]],  [[Espresso\|list]],  [[Harbor Components\|grouped]],  [[Glossary\|facet]],  [[Harbor\|project]],  [[Harbor Ingest\|sub-folder]] |
@@ -67,7 +67,7 @@ Real anchor pages found in the vault and brought to conformance, so the spec can
 - [[Roots]] *(list)*
 - [[Journal]] *(chronological)*
 
-**TLDR** — **Cardinality: one per anchor.** Every anchor has exactly one `{slug}.md` entry page. It opens with YAML `description:` frontmatter, then H1 → one-line summary → optional figure → dispatch table (breadcrumb + Related + kind-specific rows). The embedded `R-anchor-page` ruleset (22 shared rules + five kind deltas — Topic / Code / Paper / SKA sub-project / Container) is the auditable contract; `/audit anchor` and `/create anchor` cite it. Member zones and group rows appear only on [[Collection]] / Container anchors.
+**TLDR** — **Cardinality: one per anchor.** Every anchor has exactly one `{slug}.md` entry page. It opens with YAML `description:` frontmatter, then H1 → one-line summary → optional figure → dispatch table (breadcrumb + Related + kind-specific rows). The embedded `R-anchor-page` ruleset (22 shared rules + five kind deltas — Topic / Code / Paper / SKA sub-project / Container) is the auditable contract; `/audit anchor` and `/create anchor` cite it. Member groups appear only on Container anchors; a Topic carries a `...` auto-summary of its contents.
 
 
 
@@ -265,9 +265,11 @@ Every file and folder inside the anchor is prefixed `{NAME}` (`{NAME} PRD.md`, `
 
 **Check pattern:** list the anchor tree; assert each entry name starts with `{NAME}`. (See [[FCT Naming]] / `R-naming`.)
 
-### RULE R-anchor-page-22 — Simple anchors may carry no table (stated)
+### RULE R-anchor-page-22 — Every anchor carries a dispatch table (checked)
 
-A simple / leaf anchor may have no dispatch table at all — frontmatter + H1 + summary suffice.
+An anchor page is **never table-less** — it always carries a dispatch table whose first row is the breadcrumb (which carries the [[DSC anchor-dag]] up-edge, so every anchor needs it). A leaf / topic anchor with no hand-authored rows still carries **breadcrumb + a `...` auto-summary row**. Only **non-anchor** documents may omit the table.
+
+**Check pattern:** every `{slug}.md` has a dispatch table with a breadcrumb row 1 (per R-anchor-page-11). ([[FCT Doc Structure]] § Top table states the same rule at the document layer.)
 
 ## Kind-specific rules
 
@@ -308,11 +310,11 @@ A [[Collection]] anchor whose body enumerates **homogeneous members** (a feature
 
 ### R-anchor-page-topic — Topic (stated)
 
-A topic / domain-of-life folder page.
-- **Masthead roster:** breadcrumb + optional Related; usually no Anchor enumeration.
-- **Table optional** (R-anchor-page-22) — a minimal topic page may be frontmatter + H1 + summary, or breadcrumb-only.
-- **Member zone:** none required.
-- **Example:** [[Career]].
+A topic / domain-of-life folder page — a hub that routes to the pages within the topic.
+- **Masthead roster:** breadcrumb + optional Related.
+- **`...` auto-summary required** — the member zone is a single compact `...` row (`| ... |  |`) that auto-enumerates the topic's contents (HookAnchor fills it). Every topic page carries it, so the whole topic is summarized and new children have a place to land. A topic is thus a compact auto-listing container.
+- **Table required** — like every anchor (R-anchor-page-22), a topic page always has a dispatch table; the minimum is breadcrumb + `...`. Never table-less.
+- **Example:** [[Life]].
 
 # BRIEF
 

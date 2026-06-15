@@ -37,7 +37,7 @@ A single defining/central figure (Excalidraw + embedded export, never ASCII) whe
 The **top table** (the *document table*) is the document's progressive-disclosure entry point — the navigation surface a reader hits right after the H1 / summary. There are **two distinct kinds**, each governed by its own rule, and a document may carry zero, one, or (rarely) both:
 
 **(a) Dispatch table — iff the document is an anchor.**
-- **Anchor file → MUST have a dispatch table** — breadcrumb masthead + member / links zone (per [[FCT Dispatch Table]] / [[FCT Anchor Page]]).
+- **Anchor file → MUST have a dispatch table** — breadcrumb masthead + member / links zone (per [[FCT Dispatch Table]] / [[FCT Anchor Page]]). **No anchor is ever table-less** (enforced by `R-anchor-page-22`); a leaf / topic anchor still carries breadcrumb + a `...` auto-summary.
 - **Non-anchor file → MUST NOT have a dispatch table.** A breadcrumb-masthead dispatch table on a non-anchor document (e.g. a user-story file, a feature doc, a plain content page) is a violation — remove it. Back-links to a parent / sibling belong in a `## Related` / `## See also` section, not a masthead.
 
 **(b) Table of contents table — iff the document is long (more than ~3 pages of content).**
