@@ -6,7 +6,7 @@ include::
 
 Architectural and implementation decisions for the UCM project. Each is a D-record: the choice, the rationale, and the downstream commitments.
 
-## D01 — Implement the parser in Rust using nom (checked)
+### D01 — Implement the parser in Rust using nom (checked)
 **Ratified:** 2026-01-08
 
 **Choice.** Implement the UCM parser in **Rust using nom** (parser combinators), with a runtime-configurable grammar:

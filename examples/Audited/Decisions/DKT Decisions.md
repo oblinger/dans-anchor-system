@@ -11,7 +11,7 @@ include::
 
 Each entry records a decision once: the fork, what was chosen, why, and what it commits downstream docs to. Docs that implement a decision link back here rather than re-arguing it.
 
-## D01 — Standard documents semantics; API documents the concrete interface (checked)
+### D01 — Standard documents semantics; API documents the concrete interface (checked)
 
 **Decision.** The **Standard** ([[DKT Standard]] folder) documents *semantics only* — what anchors are, do, and mean; what a Markdown-Based Item Store *is*; the semantics of agent orchestration. It deliberately does **not** pin down a specific programmatic API. The **API** ([[DKT API]] folder) pins down the concrete interface, **making the standard's abstract claims concrete**. A standard doc and its API doc form a **pair** — e.g. [[DKT Anchor]] (semantics) ⟷ [[DKT Anchor API]] (concrete surface) — that travel together conceptually.
 
@@ -22,7 +22,7 @@ Each entry records a decision once: the fork, what was chosen, why, and what it 
 - Resolves [[F083 — Reconcile DKT Anchor API as the definitive crate spec]] Q1: `DKT Anchor API.md` **stays in `DKT API/`** (not moved into `DKT Standard/`); it is conceptually paired with [[DKT Anchor]], not physically co-located.
 - API docs therefore should **not restate** the standard's semantics (F083 Q3 leans the same way) — they map types → behavior *by reference* to the standard.
 
-## D02 — One API document per surface serves both Rust and Python (checked)
+### D02 — One API document per surface serves both Rust and Python (checked)
 
 **Decision.** DKT supports **both** a Rust implementation and a Python implementation. Each API surface ([[DKT API]], [[DKT Anchor API]], [[DKT MBIS API]], [[DKT Agent API]]) is documented by a **single common document** that specifies both languages: the mental model is identical; only idioms differ (Rust closures ⟷ Python context managers / kwargs — already shown in [[DKT API]] § Python parity). The common document is kept common **as long as the surfaces stay close**. Split into per-language module docs **only if and when they diverge** enough that one doc becomes confusing.
 
@@ -33,7 +33,7 @@ Each entry records a decision once: the fork, what was chosen, why, and what it 
 - The [[DKT API]] § "Naming layers" row split (`docket` Python *module* vs `docket` Rust *crate*) stands; the API docs sit above that split and describe both.
 - **Divergence trigger to watch:** the first time a single doc can no longer describe both languages without per-language caveats on most rows, split that surface into `… (Rust)` / `… (Python)` module docs and leave the common doc as the shared mental model. Record the split as a new D-record.
 
-## D03 — The anchor crate is separate from the `docket` crate (shares the common API docs) (checked)
+### D03 — The anchor crate is separate from the `docket` crate (shares the common API docs) (checked)
 
 **Decision (current direction; finalized in [[F083 — Reconcile DKT Anchor API as the definitive crate spec]]).** `anchor` is its **own leaf crate**, separate from `docket`; `docket` *depends on it and re-exposes* its surface via `db.anchor`. The common API docs (D02) remain the shared spec for both.
 
@@ -44,7 +44,7 @@ Each entry records a decision once: the fork, what was chosen, why, and what it 
 - The anchor crate depends only on light external crates (serde / serde_yaml / regex / thiserror), never on docket internals.
 - Full reconciliation of the anchor API doc to this shape is tracked in [[F083 — Reconcile DKT Anchor API as the definitive crate spec]] (R1–R11).
 
-## D04 — Anchor writes are surgical: byte-precise frontmatter, order-preserving anchor section (checked)
+### D04 — Anchor writes are surgical: byte-precise frontmatter, order-preserving anchor section (checked)
 
 **Decision.** When an anchor is written back to disk — whether to a Form A `.anchor` dotfile, a Form B markdown file's YAML frontmatter, or a Form B markdown file's `## anchor` H2 section — the write touches **only the anchor's storage region**. Everything else in the file is bit-identical before and after. The `Anchor` record exposes an **ordered (key, value) sequence** reflecting the on-disk order, and the writer consults this sequence when re-serializing. Two contracts, calibrated to what users are likely to hand-edit:
 
@@ -62,7 +62,7 @@ In both surfaces, content **outside** the anchor's storage region — body prose
 - A heavy round-trip test corpus pins these invariants: read → modify-one-field → write → diff. Frontmatter diff is one line; anchor-section diff allows whitespace normalization only. Tracked in [[DKT Anchor Roadmap]] § Surgical-write test strategy and the new F-row.
 - Cross-language: the Python and Rust writers must produce the same byte sequence for the same input + same edit. F022-style fixtures pin this.
 
-## D05 — Anchor parsing is total: always yields a verdict, never panics (checked)
+### D05 — Anchor parsing is total: always yields a verdict, never panics (checked)
 
 **Decision.** The anchor layer **never crashes on input** — no panic, no exception escape, no infinite loop, no resource leak — regardless of how malformed the input is. For any byte sequence (valid UTF-8 or not, syntactically valid YAML or not, semantically consistent or not), the parser returns exactly one of two verdicts:
 

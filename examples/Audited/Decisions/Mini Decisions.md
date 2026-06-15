@@ -6,7 +6,7 @@ include::
 
 The durable rulings that shape Mini. Each is a D-record with a one-line rationale.
 
-## D01 — Plain-text store, no database (checked)
+### D01 — Plain-text store, no database (checked)
 
 **Choice.** Mini keeps its data in a single newline-delimited text file, not a database.
 

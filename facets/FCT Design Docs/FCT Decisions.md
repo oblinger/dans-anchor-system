@@ -12,7 +12,7 @@ The per-anchor master file for applied decisions — declares adopted rulesets (
 | Related | [[FCT Ruleset]],  [[FCT Architecture]],  [[FCT Design Docs]],  [[Rulesets]],   |
 | Examples | [[CAE Decisions\|minimal (D-records only, no include::)]],  [[HBR Decisions\|fuller (masthead + durable rulings)]],   |
 
-**TLDR** — `{NAME} Decisions.md` is the single record of what an anchor has committed to: top-of-file `include::` lists adopted rulesets; the `## Adoption implementation map` bridges each rule to its anchor-specific code/script/table; `## D<N>` entries record applied choices with rationale and a `**Cites:**` back-link to the rules they satisfy. One per anchor.
+**TLDR** — `{NAME} Decisions.md` is the single record of what an anchor has committed to: top-of-file `include::` lists adopted rulesets; the `## Adoption implementation map` bridges each rule to its anchor-specific code/script/table; `### D<N>` entries record applied choices with rationale and a `**Cites:**` back-link to the rules they satisfy. One per anchor.
 
 The Decisions facet is the **per-anchor master file** for everything the anchor has applied — both *which rulesets it adopts* and *what specific design choices it made for this project*. Lives at `{NAME} Design/{NAME} Architecture/{NAME} Decisions.md` (alongside the architecture entry-point) for anchors with architecture folders, or `{NAME} Design/{NAME} Decisions.md` otherwise.
 
@@ -30,7 +30,7 @@ A decision is not only a concrete applied choice ("we use `Sys` as the singleton
 
 1. **Top-of-file `include::`** — declares which rulesets the anchor adopts. Same Dataview inline-field syntax as inside rulesets, but here the semantics is *adoption* (the anchor commits to following these rules) rather than *composition* (one ruleset absorbing another).
 2. **`## Adoption implementation map`** — a table that bridges each adopted rule to its anchor-specific implementation. Names the code module, audit script, exception table, etc. for each rule. This is where "we use Sys as our singleton" gets recorded once, instead of being scattered across decision bodies.
-3. **`## D-records`** (`## D<N> — Title (status)`) — anchor-specific applied choices with rationale, alternatives, and consequences. Each may carry a `**Cites:**` line referencing specific rules from the adopted sets.
+3. **`### D-records`** (`### D<N> — Title (status)`) — anchor-specific applied choices with rationale, alternatives, and consequences. Each may carry a `**Cites:**` line referencing specific rules from the adopted sets.
 
 If the anchor has truly anchor-local rules (constraints that don't belong in any shared ruleset), they live in `{NAME} Rules.md` — but most anchors don't need this. [[MUX Rules]] is the worked example of a stub.
 
@@ -43,7 +43,7 @@ Real instances cluster into two shapes, both valid:
 
 Both forms share the same required spine: top-of-file `include::` (present, may be empty), a `description::` posture line (frontmatter or inline), and D-records as headings. The Adoption implementation map and `**Cites:**` lines are required *only* in the master form (when rulesets are adopted).
 
-**D-record heading level.** Records may be `## D<N>` (when the file groups records under no enclosing H2) or `### D<N>` (when records sit under topical `## ` groupings, as in [[CAE Decisions]], or when the lead-in occupies the H2 level). The audit keys off the `D<N> — Title` token, not the heading depth. Use `D<N>` — the `DEC-<N>` form ([[DKT Decisions]]) is a tolerated legacy variant; new files use `D<N>`.
+**D-record heading level — always `### D<N>` (H3).** Decision records are always H3, in every file, whether or not the file groups them. `## ` (H2) is reserved for *optional topical grouping* (e.g. `## Values`, `## Parser`) — each group then holds its `### D<N>` records — and for the structural sections (`## Adoption implementation map`, `## See also`). A flat file simply carries its `### D<N>` records directly under the lead-in (`# {NAME} Decisions` → `### D<N>`, intentionally skipping H2, which stays reserved for grouping). This keeps every decision at one uniform depth across all files while leaving the H2 level free for structure. The audit enforces H3 (R-decisions-04). Use the `D<N>` token; the `DEC-<N>` form ([[DKT Decisions]]) is a tolerated legacy token variant.
 
 ## File shape
 
@@ -72,7 +72,7 @@ description:: per-anchor master file for applied decisions — adopted rulesets 
 Any brief notes about how D-records are numbered, what the status field means, etc.
 
 
-## D01 — Decision title (checked)
+### D01 — Decision title (checked)
 **Subsystem:** [[NAME-Subsystem]]
 **Ratified:** date / via [[F-link]]
 
@@ -88,7 +88,7 @@ Body of the decision — what was decided and why.
 
 **Cites:** [[R-other-set-01]] (relevant rule from an adopted set)
 
-## D02 — ...
+### D02 — ...
 ```
 
 ## Required structure
@@ -96,13 +96,13 @@ Body of the decision — what was decided and why.
 - **Top-of-file `include::`** — list every adopted ruleset. May be empty (`include::` with nothing after). Always present.
 - **`description::`** — one-line summary of the anchor's decision posture. In YAML frontmatter or as an inline `description::` line.
 - **`## Adoption implementation map`** — table mapping each adopted rule (from the included sets, recursively) to anchor-specific implementation. Required **only in the master form** — i.e. when `include::` adopts at least one ruleset. Omit it in the lean form (empty `include::`).
-- **`D<N> — Title (status)` records** — each decision as a heading (`## ` or `### `). D-numbers monotonic-forever, never recycled.
+- **`D<N> — Title (status)` records** — each decision as an `### ` (H3) heading. D-numbers monotonic-forever, never recycled.
 
 ## D-record structure
 
 Each D-record has:
 
-- **H2 title** — `## D<N> — <short title> (<status>)`. Status is one of `checked` (ratified, in force), `open` (under design), `revised` (superseded — link to replacement), `retired` (no longer applies).
+- **H3 heading** — `### D<N> — <short title> (<status>)`. Status is one of `checked` (ratified, in force), `open` (under design), `revised` (superseded — link to replacement), `retired` (no longer applies).
 - **Optional metadata block** — `**Subsystem:** [[...]]`, `**Ratified:** date via [[F-link]]`, etc.
 - **Body** — the decision in prose. Often includes `**Why.**`, `**Alternatives considered.**`, `**Consequences.**` sub-blocks.
 - **Optional `**Cites:**` line** — wiki-links to specific rules in adopted sets that this decision applies. Audit walks these to verify the rule is satisfied for this decision.
@@ -182,14 +182,14 @@ The header carries an `include::` line declaring adopted rulesets. It may be emp
 
 **Why:** the audit / flatten scripts key the dual `include::` semantics off this line's presence under a `# {NAME} Decisions` H1. Without it the file cannot declare (even an empty set of) adoptions and audit cannot walk adopted rulesets.
 
-### RULE R-decisions-04 — At least one D-record present (checked)
-check:: regex_present (?m)^#{2,3}\s+(D|DEC-)\d
+### RULE R-decisions-04 — At least one D-record present, always at H3 (checked)
+check:: regex_present (?m)^###\s+(D|DEC-)\d
 
-The file records at least one decision as a `## D<N>` / `### D<N>` heading (the legacy `DEC-<N>` form is tolerated). A decision file with zero records is a stub, not a facet instance.
+The file records at least one decision as a `### D<N>` heading (**H3 — the standard, uniform depth for every decision**; the `DEC-<N>` token is tolerated as legacy). An `## D<N>` (H2) record is non-standard and fails this check — demote it to `### `. `## ` is reserved for optional topical grouping and structural sections, never for the decision records themselves. A decision file with zero records is a stub, not a facet instance.
 
-**Check pattern:** grep for a heading matching `^#{2,3}\s+(D|DEC-)\d`.
+**Check pattern:** grep for a heading matching `^###\s+(D|DEC-)\d`.
 
-**Why:** the whole point of the file is to record decisions; an empty one carries no information and should either gain a record or be removed.
+**Why:** decisions live at one uniform depth (H3) across every file so the eye, the audit, and any "walk all D-records" tooling never have to reconcile mixed depths; H2 stays free for grouping. The whole point of the file is to record decisions; an empty one carries no information and should either gain a record or be removed.
 
 ### RULE R-decisions-05 — D-record titles carry a status token (sampled)
 
