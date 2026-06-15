@@ -56,7 +56,7 @@ Type-specific structure checks for Topic Anchors.
 
 ## Anchor-page example
 
-Anchor-page kinds catalog: [[FCT Anchor Page]]. Synthetic Topic example: *(none yet)*; real instances: [[Life]], [[Food]], [[Legal]].
+Anchor-page kinds catalog: [[FCT Anchor Page]]. Synthetic example: [[Knots]]; real instances: [[Life]], [[Food]], [[Legal]].
 
 # BRIEF
 

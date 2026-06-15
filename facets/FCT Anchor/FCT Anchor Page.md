@@ -19,12 +19,12 @@ The entry page every anchor opens with — its `{slug}.md`.
 
 | Kind | FEX examples | Description and external examples |
 | --- | --- | --- |
-| Topic ([[Topic Anchor]]) | *(none yet)* | Domain-of-life hub folder that routes to the pages within it; masthead = breadcrumb + optional Related + a `...` auto-summary member zone. *Ext:* [[Life]], [[Food]], [[Legal]] |
+| Topic ([[Topic Anchor]]) | [[Knots]] | Domain-of-life hub folder that routes to the pages within it; masthead = breadcrumb + optional Related + a `...` auto-summary member zone. *Ext:* [[Life]], [[Food]], [[Legal]] |
 | Project | *(abstract)* | Active-work anchor that moves through states; splits by output kind into Code vs Paper. |
 | - Code project ([[Code Anchor]]) | [[HBR]] | Software project (`traits: [Code]`); switchboard masthead (Design iff a design folder, Track iff a track folder), full design+track scaffold once a `Status` doc exists. *Ext:* [[HA]], [[MUX]], [[DMUX]] |
-| - Paper project ([[Paper Anchor]]) | *(none yet)* | Long-form writeup (`traits: [Paper]`) through revision cycles; signature is a `## Version history` table with per-section `s1, s2, …` track-changes markup. *Ext:* [[ABP]], [[ASP]] |
+| - Paper project ([[Paper Anchor]]) | [[HWP]] | Long-form writeup (`traits: [Paper]`) through revision cycles; signature is a `## Version history` table with per-section `s1, s2, …` track-changes markup. *Ext:* [[ABP]], [[ASP]] |
 | - SKA sub-project | [[FEX Repo]] | A skill-ecosystem spec page that owns its own design but no tracking or status (SKA owns the tracking — [[SKA Decisions\|D08]]). Three flavors below. |
-| - - skill | *(FEX Snapshot — stub)* | The documentation page for a skill (the skill-doc — **not** the `SKILL.md` runbook). *Ext:* [[SKL Mint]] |
+| - - skill | [[FEX Snapshot]] | The documentation page for a skill (the skill-doc — **not** the `SKILL.md` runbook). *Ext:* [[SKL Mint]] |
 | - - facet | [[FEX Manifest]] | A reusable document-shape spec — the format a recurring kind of doc must follow. *Ext:* [[FCT Anchor Page]], [[FCT Naming]] |
 | - - discipline | [[FEX Retention]] | A cross-cutting principle or practice applied across many anchors. *Ext:* [[DSC progressive-disclosure]], [[DSC verification]] |
 | Container ([[Collection]]) | *(abstract)* | A [[Collection]] anchor whose body enumerates homogeneous members; required member zone in one of three structural shapes. |

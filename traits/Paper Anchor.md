@@ -100,7 +100,7 @@ Type-specific structure checks for Paper Anchors.
 
 ## Anchor-page example
 
-Anchor-page kinds catalog: [[FCT Anchor Page]]. Synthetic Paper example: *(none yet)*; real instances: [[ABP]], [[ASP]].
+Anchor-page kinds catalog: [[FCT Anchor Page]]. Synthetic example: [[HWP]]; real instances: [[ABP]], [[ASP]].
 
 # BRIEF
 
