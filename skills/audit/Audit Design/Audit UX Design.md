@@ -9,21 +9,21 @@ How the user and agent invoke audit and what they see back. The interaction shap
 ## Command grammar
 
 ```
-/audit [sub] [target] [dry] [aggressive]
+/audit [action] [target] [dry] [aggressive]
 ```
 
-- **`sub`** — optional sub-action (below). Omitted → the orchestrator runs every sub-audit applicable to the target's traits.
+- **`action`** — optional audit action (below). Omitted → the orchestrator runs every action applicable to the target's traits.
 - **`target`** — an anchor, a path, or omitted (walk up from cwd to the nearest `.anchor`).
 - **`dry`** — report-only; forces the Informational level regardless of anchor setting. The opt-out from fix-by-default.
 - **`aggressive`** — opt in to the Aggressive level for this run (structural refactors). Absent → Standard.
 
 The default explicit run **fixes** at Standard and prints a per-rule summary. There is no level flag for Online — that level belongs to the hooks, never the command line.
 
-## Sub-action roster (preserved)
+## Action roster (preserved)
 
 `structure · anchor · doc · dispatch · rules · docs · publish · code · q · q-fix · features · markdown · architecture · integrity`
 
-Each keeps its current behavior; the roadmap ([[Audit Roadmap]]) migrates them onto the unified engine. `dispatch`, `q`, and `features` already fix by default; under V2 every sub-action does, with `dry` as the universal opt-out.
+Each keeps its current behavior; the roadmap ([[Audit Roadmap]]) migrates them onto the unified engine. `dispatch`, `q`, and `features` already fix by default; under V2 every action does, with `dry` as the universal opt-out.
 
 ## Explicit-pass output
 
