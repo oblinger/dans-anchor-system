@@ -43,10 +43,12 @@ The "first 30 lines after H1" gives writers room for a brief intro paragraph (1-
 Right after the diagram (within 5 lines), the doc must contain a markdown table. Recommended shape — but the audit doesn't enforce column structure beyond "is a table":
 
 ```markdown
+
 | Component | Role | Notes |
 |---|---|---|
 | [[ComponentA]] | Renders ... | Owns the dispatch loop |
 | [[ComponentB]] | Coordinates ... | |
+
 ```
 
 ### Wiki-link integrity in the table

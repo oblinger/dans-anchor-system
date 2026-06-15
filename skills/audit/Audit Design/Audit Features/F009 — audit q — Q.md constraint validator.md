@@ -1,7 +1,7 @@
 ---
 description: "Q.md constraint validator with mechanical-fix mode; the three-tier fix flow."
 ---
-just 
+just
 # [[SKA]] · F076 — `audit q` — Q.md constraint validator with mechanical-fix mode
 
 ## Summary

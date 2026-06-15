@@ -2,6 +2,7 @@
 description: "How a single audit runs — the resolve → run → judge → fix pipeline, with automation level as a fix-stage parameter and the no-delete safety guard."
 ---
 
+
 # Audit System Design
 
 The per-audit pipeline — how one audit executes against a target. [[Audit Architecture]] gives the system's structure (rule sets + components); this page is the flow inside the engine.

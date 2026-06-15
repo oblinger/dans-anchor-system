@@ -28,19 +28,19 @@ These features were authored on the SKA backlog, then relocated here and renumbe
 
 | SKA (tracking id) | Audit (design doc) |
 | --- | --- |
-| F161 | [[F001 — Rule-driven audit engine — resolve, run, judge|F001]] |
-| F166 | [[F002 — Audit fix-by-default + Python rule functions|F002]] |
-| F167 | [[F003 — On-write rule hook + test workflow|F003]] |
-| F177 | [[F004 — Audit-on-write hook — closed-off E2E slice|F004]] |
-| F179 | [[F005 — Doc audit-on-write — vault-wide rollout + safety guard|F005]] |
-| F134 | [[F006 — Rule triggering — when the agent attends to rules|F006]] |
-| F172 | [[F007 — Backtick all where expressions — parser swap|F007]] |
-| F081 | [[F008 — audit markdown — markdown hygiene rule library|F008]] |
-| F076 | [[F009 — audit q — Q.md constraint validator|F009]] |
-| F089 | [[F010 — audit-q bracket-H2 consistency rules|F010]] |
-| F106 | [[F011 — audit-q — Designing requires justification|F011]] |
-| F123 | [[F012 — audit-q recognize H3-form Open Questions|F012]] |
-| F124 | [[F013 — audit-q ask.md ↔ feature-doc drift check|F013]] |
-| F126 | [[F014 — audit-q ask.md coverage + backtick-filepath link|F014]] |
-| F092 | [[F015 — Audit architecture|F015]] |
-| F078 | [[F016 — Migrate lint to audit|F016]] |
+| F161 | [[F001 — Rule-driven audit engine — resolve, run, judge\|F001]] |
+| F166 | [[F002 — Audit fix-by-default + Python rule functions\|F002]] |
+| F167 | [[F003 — On-write rule hook + test workflow\|F003]] |
+| F177 | [[F004 — Audit-on-write hook — closed-off E2E slice\|F004]] |
+| F179 | [[F005 — Doc audit-on-write — vault-wide rollout + safety guard\|F005]] |
+| F134 | [[F006 — Rule triggering — when the agent attends to rules\|F006]] |
+| F172 | [[F007 — Backtick all where expressions — parser swap\|F007]] |
+| F081 | [[F008 — audit markdown — markdown hygiene rule library\|F008]] |
+| F076 | [[F009 — audit q — Q.md constraint validator\|F009]] |
+| F089 | [[F010 — audit-q bracket-H2 consistency rules\|F010]] |
+| F106 | [[F011 — audit-q — Designing requires justification\|F011]] |
+| F123 | [[F012 — audit-q recognize H3-form Open Questions\|F012]] |
+| F124 | [[F013 — audit-q ask.md ↔ feature-doc drift check\|F013]] |
+| F126 | [[F014 — audit-q ask.md coverage + backtick-filepath link\|F014]] |
+| F092 | [[F015 — Audit architecture\|F015]] |
+| F078 | [[F016 — Migrate lint to audit\|F016]] |
