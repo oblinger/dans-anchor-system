@@ -47,7 +47,7 @@ skills/audit/
 
 Each rule is an H2 in a markdown file. The H2 slug (kebab → snake_case) is the Python function name. The English content explains the rule for human readers; the fenced ```python``` block implements it.
 
-```markdown
+```text
 ## description_chars
 
 The frontmatter `description:` field must parse cleanly under standard YAML.
@@ -55,12 +55,11 @@ Agents often write wiki-links and backticks here that break YAML escaping;
 this rule catches that and suggests either character-escape or switching to
 block-literal `description: |` form.
 
-```python
+[python check]
 def description_chars(path: Path, frontmatter: dict, body: str) -> list[Finding]:
     desc = frontmatter.get("description", "")
     # detection logic returns a Finding with suggested_fix
     ...
-```
 ```
 
 **Multiple rules per file** are allowed — one H2 per rule, any number of H2s per file. Useful for grouping related rules (e.g. all frontmatter rules in `frontmatter_rules.md`).
@@ -95,7 +94,7 @@ v1 implements compile inside `skills/audit/`. v2 may refactor to `/cab compile` 
 6. If findings exist: print to stdout in agent-readable format (file:line — message — suggested fix).
 7. Exit. (The Stop hook's stdout is captured by Claude Code and surfaced to the agent in the next turn.)
 
-Total per-turn cost: ~50-150ms cold (Python startup + module import + N file reads). For sessions touching <10 markdown files, that's invisible against agent thinking time. If this ever becomes a hot path, promote to MCP per the deferred Q1.
+Total per-turn cost: ~50-150ms cold (Python startup + module import + N file reads). For sessions touching under 10 markdown files, that's invisible against agent thinking time. If this ever becomes a hot path, promote to MCP per the deferred Q1.
 
 ### Configuration (per F080)
 
@@ -152,7 +151,7 @@ Merger respects existing entries — re-running init.sh is safe.
 - **MCP server form** (Q1 (b)/(c) deferred) — in-session live checking via MCP. Promote if measurement justifies; v1 doesn't.
 - **Refactor to share infra with `/audit q`** (Q7 (a) v2) — both auditors have similar bundled-vs-user-space + rule-library patterns; common foundation is a v2 refactor opportunity.
 
-These tracked inline on the F081 backlog Done row for now; promote to discrete B-rows if they remain dormant > 30 days.
+These tracked inline on the F081 backlog Done row for now; promote to discrete B-rows if they remain dormant over 30 days.
 
 All 7 Qs were resolved 2026-05-24 (Q1 per-session no MCP, Q2 (b) small varied set, Q3 Stop-hook only, Q4 (a) auto-register via init.sh, Q5 yes ship backfill, Q6 (a) bundled + user-space split, Q7 (b) parallel in v1 / (a) refactor in v2).
 

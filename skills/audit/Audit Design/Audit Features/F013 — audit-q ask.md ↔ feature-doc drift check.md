@@ -47,7 +47,7 @@ Only `## Active` / `## Ready` / `## Now` / `## Next` horizons (matches existing 
 ### Implementation notes
 
 - Add `check_c<N>_question_count_drift()` function in `audit-q.py` following the pattern of `check_c24_questions_count_match()` (which already does a partial version of this for in-row sub-bullets vs. bracket).
-- C24 currently checks bracket vs. ROW-INTERNAL Q sub-bullets. C<N> extends to bracket vs. LINKED-DOC Q count. Different concerns; both needed.
+- C24 currently checks bracket vs. ROW-INTERNAL Q sub-bullets. `C<N>` extends to bracket vs. LINKED-DOC Q count. Different concerns; both needed.
 - Reuse the H3-Q parser landing in F123 — F124 ships after F123 if both pending; can ship independently if F123 hasn't landed yet (using bullet-only counting + caveat in finding message).
 
 ## Status

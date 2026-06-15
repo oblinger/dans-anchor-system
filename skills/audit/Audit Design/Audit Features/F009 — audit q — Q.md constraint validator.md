@@ -153,7 +153,7 @@ This replaces the previous validate-banner-against-body check entirely. Banner i
 
 **Output after a `--fix` run** (printed to chat by the skill, stdout by the script):
 
-```
+```text
 audit q --fix
   applied:
     3 anchor banners derived + rewritten (SKA, A2X, HA)
@@ -195,7 +195,7 @@ Stable identifier: **`QFix`** (not F-numbered — regenerated each audit pass; F
 
 Position: **top of `## Ready`** in `{NAME} Backlog.md`. Bracket: `[Ready]`. The entry is ready-to-mint work — pulling it off the top is the user's path to "make the audit pass clean."
 
-```markdown
+```text
 ## Ready
 - **QFix — auditing errors to fix** [Ready] — work surfaced by `/audit q`. Errors below were found but couldn't be fixed mechanically. Run `/audit q-fix` to work through them; the skill loops back to `/audit q` after each pass until errors resolve. ^QFix
   - Q.md:48 — entry links to [[NAME Triage]] which does not resolve in vault. Likely stale from before F075. Suggested fix: `[[Q#NAME Triage|NAME Triage]]` or remove.

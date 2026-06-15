@@ -50,7 +50,7 @@ Re-distill whenever rule sets change (the script is a derived artifact, like the
 
 A **`PostToolUse` hook on `Write` | `Edit` | `NotebookEdit`** runs the distilled script against the just-written file and injects its output back to the agent:
 
-- **Mechanical violations** — asserted as errors ("R-x violated: <detail> — fix it"). Always surfaced.
+- **Mechanical violations** — asserted as errors (`R-x violated: <detail> — fix it`). Always surfaced.
 - **Judgment-rule reminders** — the **rule titles** (the free abbreviation; no new authoring) for rules whose `where::` matches, e.g. *"backlog file — review against: R-backlog-03 source-order, R-backlog-07 one-form-per-parent."* The trip-wire; the agent fetches full text only on doubt.
 
 **Posture: advisory feedback, not a hard pre-write block.** `PostToolUse` fires *after* the write, so the agent gets immediate feedback and self-corrects — it does not gate the write. (A `PreToolUse` hard-block mode is a future option, parked with the leveled-fixing aspiration in F166.)
@@ -84,7 +84,7 @@ This capability is complex enough to need its own strategy, and the test surface
 | Unit | the `where::` path-matcher; the distiller (corpus → baked script); each mechanical checker | Strong — every `where::` scope kind + every shipped checker |
 | Integration | distilled script: path+content in → correct violations + reminders out | Strong — one case per file kind (backlog / anchor page / PRD / status / log / messages) |
 | Live | a real `Write`/`Edit` in a session fires the real hook and the agent sees the output | Heavy — the load-bearing path; ≥1 per surfaced channel (violation, reminder) |
-| Speed | the distilled script returns in milliseconds | Bounded — assert < ~50 ms on a representative file |
+| Speed | the distilled script returns in milliseconds | Bounded — assert under ~50 ms on a representative file |
 | Negative | a write to a non-matching file surfaces **nothing**; throttle suppresses repeat reminders | Strong — false-positive guard is as important as detection |
 
 **The single workflow (the deliverable checklist).** A named workflow stands up scratch files, performs writes, and asserts per case — at minimum:
