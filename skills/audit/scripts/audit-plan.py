@@ -605,6 +605,13 @@ def plan_one(target: Path, mode: str, cdir: Path | None, warnings: list[str],
             if mode == "doc" and kind == "anchor":
                 continue  # anchor-structure rules are N/A at the doc level
             tgts = match_targets(kind, arg, scope_files, anchor_root)
+            # A facet spec is the SOURCE of its embedded ruleset, never an instance
+            # of it — e.g. FCT Decisions.md (source of R-decisions) matches the
+            # `* Decisions.md` selector but must not be audited as a Decisions
+            # instance. Drop a ruleset's own source file from its rule targets.
+            if tgts and rs.get("source"):
+                src_abs = (REPO_ROOT / rs["source"]).resolve()
+                tgts = [t for t in tgts if t.resolve() != src_abs]
             if not tgts:
                 continue  # selector miss → N/A
             matched_rules.append({
