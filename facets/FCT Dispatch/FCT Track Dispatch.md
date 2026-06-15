@@ -83,6 +83,19 @@ Not all entries are required — only list documents that exist for this anchor.
 
 Track holds **tracking metadata**: backlog (work queue), status (design completeness rollup), and ephemeral surfaces (icebox, inbox, ask, messages). The "what to build" surface — including feature docs and roadmap — lives in Design alongside PRD / UX / Architecture / Testing / Decisions.
 
+## Masthead track row — canonical doc order
+
+The anchor page's dispatch-table masthead carries a **Track row** whenever a `{NAME} Track/` folder exists (per [[FCT Dispatch Table]] § Masthead). The Track facet owns the row's **contents and order**:
+
+- **Left cell** — a link to the track anchor page: `[[{NAME} Track]]`.
+- **Right cell** — the ordered list of links to the track documents, in the canonical order below. **A link appears only if its file exists.**
+
+**Canonical order** (Backlog first — the one required child — then the design-completeness rollup, then the ephemeral surfaces):
+
+`Backlog` → `Status` → `Discussion` → `Icebox` → `Inbox` → `ask` → `Messages`
+
+The structural rule enforcing row-presence + existing-file-only lives in [[FCT Dispatch Table]] (`R-dispatch-table-05`); **this facet is the source of truth for the order.**
+
 # RULESET R-track-dispatch
 include::
 where:: file: **/{NAME} Track.md
@@ -107,6 +120,15 @@ Body rows list only tracking-metadata documents: Backlog (required), Status, Dis
 The dispatch table includes a row linking `{NAME} Backlog.md`; this is the only mandatory child of the Track folder.
 **Check pattern:** a row linking `[[{NAME} Backlog]]` (or its pipe-aliased form) exists.
 **Why:** the [[CAB Backlog]] is required for the Track trait; a Track dispatch page without a Backlog row signals the backlog is missing, not optional.
+
+### RULE R-track-dispatch-05 — Masthead Track row enumerates present docs in canonical order (sampled)
+where:: file: {ANCHOR}/{NAME}.md
+
+When `{NAME} Track/` exists, the anchor page's dispatch masthead carries a Track row whose left cell links `[[{NAME} Track]]` and whose right cell lists the present track docs in the canonical order (§ Masthead track row — canonical doc order). Links appear only for files that exist.
+
+**Check pattern:** on the anchor page, locate the Track row; assert the left cell is `[[{NAME} Track]]`; assert the right-cell links are a subsequence of the canonical track order and every linked file exists.
+
+**Why:** a stable, ordered, existing-only Track row gives one-glance access to the work surfaces. Order owned here; structural enforcement is `R-dispatch-table-05`.
 
 # BRIEF
 

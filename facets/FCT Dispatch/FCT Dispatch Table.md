@@ -47,10 +47,11 @@ Hand-authored, one-of-a-kind to this anchor, and deliberately **small** — a sw
 
 1. **Breadcrumb row** (identity) — a title cell followed by the parent-chain path ending in the page's hook link (full schema in § Anatomy above; rendered live in [[CAE]]). Carries the **up-edge** of the [[DSC anchor-dag]] (parent link). Always present.
 2. **Anchor row** (general dispatch) — the anchor's own contents: its parent catalog and primary sub-pages. The **down-edges** to what this anchor holds.
-3. **Design row** (design-flow dispatch) — **only if the anchor has a design flow** — points into the design pipeline ([[FCT Design Dispatch|Design]] → PRD / Stories / Decisions / …). Absent on anchors with no design folder.
-4. **Related row** — cross-links to siblings and related material, plus any genuine one-off links the user pinned on purpose (preserve them).
+3. **Design row** (design-flow dispatch) — **only if a `{NAME} Design/` folder exists** — left cell links the design anchor page `[[{NAME} Design]]`; right cell enumerates the present design docs **in the canonical order owned by [[FCT Design]]** (PRD → UX Design → API Design → Architecture → Testing → Decisions → Roadmap → Features), a link appearing only when its file exists. Absent on anchors with no design folder.
+4. **Track row** (work-surface dispatch) — **only if a `{NAME} Track/` folder exists** — left cell links the track anchor page `[[{NAME} Track]]`; right cell enumerates the present track docs **in the canonical order owned by [[FCT Track Dispatch]]** (Backlog → Status → Discussion → Icebox → Inbox → ask → Messages), existing files only. Absent on anchors with no track folder.
+5. **Related row** — cross-links to siblings and related material, plus any genuine one-off links the user pinned on purpose (preserve them).
 
-That's the whole masthead: identity + Anchor + (Design) + Related. Anything **enumerable** — members, sub-items, worked examples — is **not** a masthead row; it drops to the Member zone below. (This page is the live demonstration: its masthead is Anchor + Related, and its four examples hang underneath as the member zone.)
+That's the whole masthead: identity + Anchor + (Design) + (Track) + Related. Anything **enumerable** — members, sub-items, worked examples — is **not** a masthead row; it drops to the Member zone below. (This page is the live demonstration: its masthead is Anchor + Related, and its four examples hang underneath as the member zone.)
 
 A non-collection anchor with no design flow is **Masthead-only** — just the breadcrumb + Anchor + Related.
 
@@ -66,7 +67,9 @@ RULE (masthead-placement): the masthead is **exactly** the breadcrumb row plus t
 | cross-links to related / sibling anchors, plus any deliberately-pinned one-off links | **Related** |
 | **anything enumerable** — members, sub-items, worked examples | **none** — it drops to the Member zone |
 
-This is the single law for masthead content, replacing any per-row rules: a standard row exists **exactly when** its information does, standard information never scatters into ad-hoc rows, and the canonical row *names* are fixed (`Anchor` / `Design` / `Related` — e.g. never "Sibling" for the last one).
+This is the single law for masthead content, replacing any per-row rules: a standard row exists **exactly when** its information does, standard information never scatters into ad-hoc rows, and the canonical row *names* are fixed (`Anchor` / `Design` / `Track` / `Related` — e.g. never "Sibling" for the last one).
+
+**Design / Track rows are the fixed-vocabulary exception to "enumerable drops to the Member zone."** Their right cells *do* enumerate — but a **closed, ordered vocabulary** (the design pipeline / the track surfaces), not an open-ended member list. The order is owned by the facet ([[FCT Design]] / [[FCT Track Dispatch]]); the row shows only the docs that **exist**, in that order. Open-ended members (skills, examples, log entries) still drop to the Member zone.
 
 ### Member zone — the members (only on a [[Collection]] anchor)
 
@@ -144,9 +147,9 @@ include::
 where:: file: {ANCHOR}/**/*.md
 description:: The shape every dispatch table must take — masthead-placement law, member-zone mechanics, and pipe-escaped cell links.
 
-### RULE R-dispatch-table-01 — Masthead is breadcrumb + Anchor + (Design) + Related, in that order (checked)
-The masthead is **exactly** the breadcrumb identity row plus the standard rows `Anchor`, `Design` (only if the anchor has a design flow), and `Related` — in that order, no others. Each standard kind of information has one row, present iff that information exists.
-**Check pattern:** masthead rows are drawn only from {breadcrumb, Anchor, Design, Related, Examples}; the canonical names are used verbatim (never e.g. "Sibling" for Related).
+### RULE R-dispatch-table-01 — Masthead is breadcrumb + Anchor + (Design) + (Track) + Related, in that order (checked)
+The masthead is **exactly** the breadcrumb identity row plus the standard rows `Anchor`, `Design` (only if a `{NAME} Design/` folder exists), `Track` (only if a `{NAME} Track/` folder exists), and `Related` — in that order, no others. Each standard kind of information has one row, present iff that information exists.
+**Check pattern:** masthead rows are drawn only from {breadcrumb, Anchor, Design, Track, Related, Examples}; the canonical names are used verbatim (never e.g. "Sibling" for Related).
 **Why:** a switchboard, not a directory — ad-hoc rows scatter information and break the one-row-per-kind law.
 
 ### RULE R-dispatch-table-02 — Anything enumerable drops to the Member zone (stated)
@@ -157,6 +160,16 @@ Members, sub-items, and worked examples are **not** masthead rows — they live 
 Inside table cells, aliased wiki-links escape the pipe: `[[Target\|Display]]`.
 **Check pattern:** no unescaped `[[Target|Display]]` appears inside a table row.
 **Why:** an unescaped pipe ends the table cell, breaking the row.
+
+### RULE R-dispatch-table-04 — Design row present iff Design folder exists; left = anchor link, right = ordered existing docs (checked)
+On an anchor page, a `Design` masthead row exists **iff** `{NAME} Design/` exists. Its left cell links `[[{NAME} Design]]`; its right cell lists the present design docs in the canonical order owned by [[FCT Design]], and a link appears only when its target file exists.
+**Check pattern:** if `{NAME} Design/` exists, assert a Design row whose left cell is `[[{NAME} Design]]` and whose right-cell links form a subsequence of FCT Design's canonical order, each resolving to an existing file; if the folder is absent, assert no Design row.
+**Why:** the design pipeline is the anchor's spine; a stable, ordered, existing-only row is its one-glance index. The *order* is owned by [[FCT Design]]; this rule enforces presence + shape.
+
+### RULE R-dispatch-table-05 — Track row present iff Track folder exists; left = anchor link, right = ordered existing docs (checked)
+On an anchor page, a `Track` masthead row exists **iff** `{NAME} Track/` exists. Its left cell links `[[{NAME} Track]]`; its right cell lists the present track docs in the canonical order owned by [[FCT Track Dispatch]], links appearing only for existing files.
+**Check pattern:** if `{NAME} Track/` exists, assert a Track row whose left cell is `[[{NAME} Track]]` and whose right-cell links form a subsequence of FCT Track Dispatch's canonical order, each an existing file; if the folder is absent, assert no Track row.
+**Why:** parallels the Design row for the work surfaces. The *order* is owned by [[FCT Track Dispatch]]; this rule enforces presence + shape.
 
 # BRIEF
 
