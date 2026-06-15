@@ -1,5 +1,5 @@
 ---
-description: "test strategy + proposed-tests overview"
+description: "test strategy + proposed tests"
 status:: drafting
 ---
 # HBR Testing

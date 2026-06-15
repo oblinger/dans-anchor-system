@@ -4,16 +4,31 @@ description: "Anchor Page facet — the format of an anchor's {slug}.md entry po
 # FCT Anchor Page
 The entry page every anchor opens with — its `{slug}.md`.
 
-| -[[FCT Anchor Page]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [FCT Anchor Page](hook://p/FCT%20Anchor%20Page)<br>: the `{slug}.md` entry-page format                                  |
-| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Related               | [[FCT]],  [[FCT Dispatch Table]],  [[DSC progressive-disclosure]],  [[FEX]],                                                                                          |
-| Design                |                                                                                                                                                                       |
-| Examples              | [[HBR\|Code Project]],  [[FCT Anchor Page\|Sub-project · facet]],  [[DSC progressive-disclosure\|Sub-project · discipline]],  [[SKL Mint\|Sub-project · skill-doc]],  [[SKL\|Container · grouped]],  [[SKA Access\|Container · list]],  [[Career\|Topic]] |
-| Rulesets              |                                                                                                                                                                       |
-|                       |                                                                                                                                                                       |
-| OLD Examples          | [[FEX]] — [[Snapper Dapper\|skill]],  [[Espresso\|list]],  [[Harbor Components\|grouped]],  [[Glossary\|facet]],  [[Harbor\|project]],  [[Harbor Ingest\|sub-folder]] |
+| -[[FCT Anchor Page]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Anchor Page](hook://p/FCT%20Anchor%20Page)<br>: the `{slug}.md` entry-page format |
+| --- | --- |
+| Related | [[FCT]],  [[FCT Dispatch Table]],  [[DSC progressive-disclosure]],  [[FEX]],   |
+| Design |  |
+| Examples | [[HBR\|Code project]],  [[FCT Anchor Page\|Sub-project · facet]],  [[DSC progressive-disclosure\|Sub-project · discipline]],  [[SKL Mint\|Sub-project · skill-doc]],  [[SKL\|Container · grouped]],  [[SKA Access\|Container · list]],  [[HBR Log\|Container · chronological]],  [[Career\|Topic]],   |
+| Rulesets |  |
+|  |  |
+| OLD Examples | [[FEX]] — [[Snapper Dapper\|skill]],  [[Espresso\|list]],  [[Harbor Components\|grouped]],  [[Glossary\|facet]],  [[Harbor\|project]],  [[Harbor Ingest\|sub-folder]] |
 
-**TLDR** — **Cardinality: one per anchor.** Every anchor has exactly one `{slug}.md` entry page. It opens with YAML `description:` frontmatter, then H1 → one-line summary → optional figure → dispatch table (breadcrumb + Related + kind-specific rows). The embedded `R-anchor-page` ruleset (22 shared rules + four kind deltas — Code Project / Sub-project / Container / Topic) is the auditable contract; `/audit anchor` and `/create anchor` cite it. Member zones and group rows appear only on [[Collection]] / Container anchors.
+| Kind                      | Anchor Page Taxonomy     |
+| ------------------------- | ------------------------ |
+| Topic                     |                          |
+| Project                   |                          |
+| - Code project            |                          |
+| - Paper project           |                          |
+| - SKA sub-project            | Skill, Facet, Discipline |
+| Container                 |                          |
+| - Grouped Container       |                          |
+| - List Container          |                          |
+| - Chronological Container |                          |
+
+
+**TLDR** — **Cardinality: one per anchor.** Every anchor has exactly one `{slug}.md` entry page. It opens with YAML `description:` frontmatter, then H1 → one-line summary → optional figure → dispatch table (breadcrumb + Related + kind-specific rows). The embedded `R-anchor-page` ruleset (22 shared rules + five kind deltas — Topic / Code / Paper / SKA sub-project / Container) is the auditable contract; `/audit anchor` and `/create anchor` cite it. Member zones and group rows appear only on [[Collection]] / Container anchors.
+
+
 
 ## Anchor Page Template
 
@@ -56,7 +71,7 @@ traits: [Code]
 # RULESET R-anchor-page
 include::
 where:: anchor
-description:: The {slug}.md entry-page format — identity, top-of-page order, dispatch table, member zone, naming.
+description:: the `{slug}.md` entry-page format
 
 What `/audit anchor` checks every `{slug}.md` against. All anchor-page kinds (skill / list / grouped / project root / sub-folder) share this set; worked instances of each kind live in [[FEX]]. Audit a page by reading these rules **or** by diffing it against the matching example. Format of this set: [[FCT Ruleset]].
 
@@ -138,7 +153,7 @@ The dispatch table conforms to [[FCT Dispatch Table]] — a breadcrumb row then 
 ### RULE R-anchor-page-11 — First row is the breadcrumb cell (checked)
 check:: breadcrumb_row
 
-Row one is the breadcrumb: a title cell `-[[This Page]]-`, then the parent-chain path ending in the page's `hook://` link + a one-line description.
+-[[This Page]]-`, then the parent-chain path ending in the page's `hook://` link + a one-line description.
 
 **Check pattern:** row 1 matches `\| -\[\[.+\]\]- \| → .+\(hook://.+\)`.
 
@@ -215,16 +230,23 @@ A simple / leaf anchor may have no dispatch table at all — frontmatter + H1 + 
 
 ## Kind-specific rules
 
-Each anchor-page **kind** layers a small delta over the shared chassis (R-anchor-page-01…22) plus the [[FCT Dispatch Table]] form. The kind is read from `traits:`; a page is audited as **chassis + its kind's delta**. There are four kinds, each one-to-one with its dispatch-table shape (HookAnchor computes the table from the `.anchor`, so there is exactly one page — and one table kind — per anchor). The deltas are thin; each may graduate to its own `include::` sub-ruleset file once it grows.
+Each anchor-page **kind** layers a small delta over the shared chassis (R-anchor-page-01…22) plus the [[FCT Dispatch Table]] form. The kind is read from `traits:`; a page is audited as **chassis + its kind's delta**. There are five kinds, each one-to-one with its dispatch-table shape (HookAnchor computes the table from the `.anchor`, so there is exactly one page — and one table kind — per anchor). The deltas are thin; each may graduate to its own `include::` sub-ruleset file once it grows.
 
-### R-anchor-page-project — Code Project (stated)
+### R-anchor-page-code — Code project (stated)
 
 A code/software project anchor (`traits: [Code]`).
 - **Masthead roster:** breadcrumb + Anchor + **Design** (design flow present) + **Track** (**required**) + Related.
 - **Member zone:** none — a switchboard masthead only.
 - **Example:** [[HBR]].
 
-### R-anchor-page-subproject — Sub-project: facet / discipline / skill-doc (checked)
+### R-anchor-page-paper — Paper project (stated)
+
+A paper / writeup project anchor (`traits: [Paper]`).
+- **Masthead roster:** breadcrumb + Anchor + **Design** (outline / draft folder, if present) + Related.
+- **Member zone:** none — switchboard masthead.
+- **Example:** *(TBD — no paper anchor wired yet).*
+
+### R-anchor-page-subproject — SKA sub-project: facet / discipline / skill-doc (checked)
 
 A single skill-ecosystem spec page — a **facet**, a **discipline**, or a **skill-doc** (the documentation page for a skill; *not* the skill folder's `SKILL.md` runbook, which is out of scope).
 - **Masthead roster:** breadcrumb + Anchor + **Design** (only if a `{NAME} Design/` folder exists) + Related.
@@ -240,7 +262,7 @@ A [[Collection]] anchor whose body enumerates **homogeneous members** (a feature
 - **Member zone required** — the generic member rules R-anchor-page-17…20 apply. Layout variant (one axis, three values):
   - **grouped** — `+` group rows past ~15 members. Example: [[SKL]], [[FCT]].
   - **list** — a flat list ≤ ~15 members. Example: [[SKA Access]].
-  - **reverse-dated** — a [[DSC dated-entry-stream]]; newest-first, ISO-prefixed member names.
+  - **chronological (reverse-dated)** — a [[DSC dated-entry-stream]]; newest-first, ISO-prefixed member names. Example: [[HBR Log]].
 - Member zone ends with an electric marker (R-anchor-page-20) so new children have a place to land.
 
 ### R-anchor-page-topic — Topic (stated)
