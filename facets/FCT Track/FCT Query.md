@@ -7,7 +7,7 @@ The asking surface: one `{NAME} queries.md` per anchor, in `{NAME} Track/`, that
 | -[[FCT Query]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Query](hook://p/FCT%20Query)<br>: the `{NAME} queries.md` format |
 | --- | --- |
 | Related | [[SKL Query]] (the skill that builds it),  [[FCT Status]],  [[FCT Messages]] |
-| Examples | [[SKA queries\|real instance (SKA anchor)]] |
+| Examples | [[SKA queries\|real instance (SKA anchor)]],   |
 
 **TLDR** — One `{NAME} queries.md` per anchor (cardinality: one), in `{NAME} Track/`, owned by the `/query` skill. Fixed five-section order (`## Agent Resolutions` → `## Verifications` → `## Immediate Questions` → `## Questions` → `## Ready`); empty sections omitted. Verifications are agent-run / user-judged — never "user runs X". Questions are self-contained or wiki-linked. The file shrinks toward empty as answers are applied. Validated by `/audit doc` via `R-query`.
 
@@ -62,7 +62,7 @@ The user is never told to *do* a thing — the agent runs it (ahead of time + em
 
 **Check pattern:** no Verifications line contains a user-directed run/execute imperative. (The live-fallback form "tell me when you're ready; I'll run it" is the agent offering to run — allowed.)
 
-### RULE R-query-06 — No "verify F<n>" / whole-document eyeball (stated)
+### RULE R-query-06 — No "verify `F<n>`" / whole-document eyeball (stated)
 
 Forbidden verification forms: "verify F113" with no concrete artifact; "does this doc look right?" pointed at a whole multi-page document. A verification names the *specific* thing being judged.
 
@@ -74,9 +74,11 @@ Every line under Verifications / Immediate Questions / Questions is either a que
 
 ## Questions
 
-### RULE R-query-08 — Immediate Questions are self-contained (stated)
+### RULE R-query-08 — Immediate Questions are numbered and self-contained (checked)
 
-Each `## Immediate Questions` item is readable without opening anything: one line of context (names the feature + what it's about) then a ≤2-line question, ideally yes/no.
+Each `## Immediate Questions` item leads with a **bold citation handle** so the user can answer by reference (`F176 Q1: yes`, `Q2: B`), and is readable without opening anything: the handle, one line of context (names the feature + what it's about), then a ≤2-line question, ideally yes/no. The handle is the source feature's native `F<n> Q<m>` when the item routes a feature-doc open question; otherwise an anchor-local `Q<n>` numbered within the section.
+
+**Check pattern:** each Immediate Questions bullet's visible lead token is bold and matches `F<n> Q<m>` or `Q<n>`; the bullet contains a question (ideally `(yes / …)`).
 
 ### RULE R-query-09 — Catch-all Questions link in `F<n> Q<m>` form (checked)
 
@@ -84,7 +86,7 @@ Each `## Immediate Questions` item is readable without opening anything: one lin
 
 **Check pattern:** each Questions bullet contains a `[[…]]` wiki-link; the visible token is `F<n>` or `F<n> Q<m>`.
 
-### RULE R-query-10 — A feature with > 3 open questions is linked, not enumerated (stated)
+### RULE R-query-10 — A feature with more than 3 open questions is linked, not enumerated (stated)
 
 When a feature has more than three open questions, `## Questions` carries a single link to the feature (answer in the doc), never the enumerated list.
 
