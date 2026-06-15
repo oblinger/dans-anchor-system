@@ -84,6 +84,7 @@ Section 4's subsystems list takes this shape:
 | [CAE-Store]        | SQLite-backed task persistence (no doc yet)                   |
 | [CAE-Retry]        | exponential backoff + dead-letter handling (no doc yet)       |
 | [CAE-Clock]        | injectable Clock; production WallClock impl (no doc yet)      |
+
 ```
 
 **Subsystem doc naming — kebab form (2026-06-08).** Every subsystem doc filename inside `{NAME} Architecture/` uses the form `{NAME}-{Subsystem}.md` — the anchor slug joined to the subsystem name with a hyphen, no spaces around it. Examples: `CAE-Scheduler.md`, `MUX-Data.md`, `MUX-Native-Bridge.md`. Multi-word subsystem names use internal hyphens (`MUX-Native-Bridge.md`, not `MUX-Native Bridge.md`).
@@ -109,6 +110,7 @@ The figure in § 3 must:
 1. **Be a real visual artifact.** Default authoring path: **hand-written SVG** (`/viz svg`) — the agent writes the XML directly with full control over color, font, layout, geometry. The `.svg` file IS the editable source. Alternatives, in order of preference: Excalidraw (`/viz excalidraw`) when a hand-drawn aesthetic is wanted; D2 (`/viz d2`) only when the user asks for D2 specifically. **ASCII art is forbidden** (per durable feedback memory) — it renders too small in Obsidian, doesn't scale, and signals casualness.
 2. **Show arrows.** Boxes without arrows aren't an architecture — they're a list. Every relationship that matters in the system structure needs a labeled or directional connection.
 3. **Match the subsystems table.** Every box in the diagram should be in the subsystem dispatch table; every subsystem in the table should appear in the diagram (or be a tangent acknowledged in the prose).
+4. **Fill the reading pane — ABSOLUTE DEFAULT.** The embed MUST carry a large width hint so the figure fills the page: `![[<NAME> Architecture.svg|2400]]`. Obsidian caps the hint to the pane, so over-specifying is safe and correct. A **bare embed `![[x.svg]]` is forbidden** — it renders as a tiny fit-to-column thumbnail. A smaller fixed width is permitted ONLY for a figure explicitly marked inline/thumbnail. (Same enforcement lives in the markdown discipline — see [[DSC markdown]] R-markdown diagram-sizing rule.)
 
 Same rules for `## Thread layout` and any other in-architecture diagrams.
 
@@ -122,7 +124,7 @@ The main `{NAME} Architecture.md` is a **conceptual map**. Detail belongs elsewh
 | Public API surface (modules, classes, functions, signatures) | `{NAME} API.md` (sub-doc inside `{NAME} Architecture/`); follows [[FCT Module Doc]] rules |
 | Class/function/method tables for a specific subsystem | That subsystem's own doc (e.g., `{NAME} Scheduler.md`) |
 | Per-module schemas, error types, CLI surface | `{NAME} API.md` or the relevant subsystem doc |
-| Project-wide principles | `{NAME} Decisions/{NAME} Decisions.md` — reference by `[[…|D<n>]]`, don't restate |
+| Project-wide principles | `{NAME} Decisions/{NAME} Decisions.md` — reference by `[[…\|D<n>]]`, don't restate |
 | File-tree / source layout | `{NAME} Dev Docs/{NAME} Files.md` |
 
 If a class table starts showing up on the Architecture page, that's a smell that the doc is doing two jobs. Split it.

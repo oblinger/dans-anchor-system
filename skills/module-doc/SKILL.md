@@ -90,7 +90,7 @@ Author the markdown structure per [[FCT Module Doc]]. Key elements (full rules i
 - **Frontmatter** — YAML with `description:` field.
 - **Breadcrumb** — `:>> [[anchor]] → [[Docs]] → [[Dev]] → [[Architecture]]` line.
 - **H1 + file overview prose** — `# {NAME} {ModuleName}` immediately followed (no blank line) by a 2-4 sentence overview.
-- **Figure embed slot** — `![[{NAME} {ModuleName}.svg]]` (the actual SVG is authored in step 5).
+- **Figure embed slot** — `![[{NAME} {ModuleName}.svg|2400]]` (the actual SVG is authored in step 5).
 - **SECTIONS table** — `| SECTIONS | Role |` header; each row is `[[#^anchor|Name]] type` linking to the section's block-ID, with a role description in column 2. Type word lowercase after the link (`class`, `enum`, `topic`, `struct`, `protocol`).
 - **Per-section H2s** — `## Name Type` for code-typed sections (Type capitalized, only when there IS a code type: `## TaskScheduler Class`, `## TaskState Enum`); `## Name` bare for topics / conceptual sections (no qualifier: `## Priority and starvation`). H2 immediately followed (no blank) by description prose ending with the block-ID inline (no space): `...flows through it.^TaskScheduler`.
 - **Class tables** — header first column carries the class name in `ALL CAPS WITH SPACES TYPE` form (`TASK SCHEDULER CLASS`); second column header is `Description`. Field rows use bold-identifier-only form `**\`name\`**\`: Type\``. `**Methods**` divider row between fields and methods. Method rows use `**[[#^anchor|name]]**\`(args) -> Return\`` — backticks NOT inside the wiki-link alias.
@@ -106,12 +106,12 @@ Author the markdown structure per [[FCT Module Doc]]. Key elements (full rules i
 Workflow:
 1. Create `{NAME} {ModuleName}.excalidraw` alongside the `.md`. The JSON describes the figure: a node per section, edges showing data flow, a legend (typically at the bottom).
 2. Convert: `python3 ~/.claude/skills/viz/excalidraw_to_svg.py "/path/to/file.excalidraw"` — generates `.svg` and `.png`.
-3. Embed: `![[{NAME} {ModuleName}.svg]]` (Obsidian wiki-embed syntax, NOT markdown image syntax).
+3. Embed: `![[{NAME} {ModuleName}.svg|2400]]` (Obsidian wiki-embed syntax, NOT markdown image syntax).
 4. Open in ExcalidrawZ for user-editing: `open -a ExcalidrawZ "/path/to/file.excalidraw"`.
 
 Apply the layout guidelines from `[[FCT Module Doc]]` § Layout guidelines: minimize crossings (one acceptable load-bearing crossing is OK), push secondary nodes off primary flow paths, keep text out of lines, short labels (`submit` not `submit(task, deadline)`), legend out of the way (default bottom), solid arrows for primary flow / dotted for derivation.
 
-**Figure size: HARD RULE — spans full page width.** Author the `.excalidraw` content area ~1400-1600 px wide. In the markdown embed, use `![[{NAME} {ModuleName}.svg|1200]]` if Obsidian doesn't auto-scale to column width.
+**Figure size: HARD RULE — fills the reading pane (default, absolute).** Author the `.excalidraw` content area ~1400-1600 px wide. In the markdown embed, ALWAYS carry a large width hint so the figure fills the pane — `![[{NAME} {ModuleName}.svg|2400]]` (Obsidian caps the hint to the pane; a bare embed renders as a tiny thumbnail). A smaller width is only for an explicitly-inline figure.
 
 ### 6. Run `/audit module-doc`
 ```bash
@@ -204,11 +204,13 @@ ls ~/.claude/skills/audit/scripts/audit-module-doc.py  # auditor present ✓
 **Step 4 — Skeleton.** Author the four section H2s + SECTIONS table + class tables. Class table headers:
 
 ```markdown
+
 | TASK SCHEDULER CLASS | Description |
 | --- | --- |
 | **`queue`**`: PriorityQueue` | Pending tasks ordered by deadline |
 | **Methods** | |
-| **[[#^TaskScheduler-submit|submit]]**`(task: Callable, deadline: datetime) -> TaskHandle` | Enqueue a task with a deadline |
+| **[[#^TaskScheduler-submit\|submit]]**`(task: Callable, deadline: datetime) -> TaskHandle` | Enqueue a task with a deadline |
+
 ```
 
 Note: bold-name-only fields, methods bold-wrap-link with no backticks in alias, code-tail outside link.
@@ -220,7 +222,7 @@ python3 ~/.claude/skills/viz/excalidraw_to_svg.py "CAE Scheduler.excalidraw"
 # → CAE Scheduler.svg + CAE Scheduler.png
 ```
 
-Embed in the markdown: `![[CAE Scheduler.svg]]` (or `![[CAE Scheduler.svg|1200]]` if Obsidian doesn't auto-scale).
+Embed in the markdown with a page-fill width hint: `![[CAE Scheduler.svg|2400]]` (Obsidian caps to the pane; never a bare embed — it renders tiny).
 
 **Step 6 — Audit:**
 ```bash
@@ -244,7 +246,9 @@ The remaining C30 (SVG older than excalidraw) means a manual re-convert: `python
 
 **Step 9 — Link in dispatch tables.** Add a row to `CAE Docs/CAE Dev/CAE Dev.md`:
 ```markdown
+
 | [[CAE-Scheduler]] | Priority queue engine + worker pool for deferred task execution |
+
 ```
 Add the file to `CAE Docs/CAE Dev/CAE Files.md` tree at the appropriate node.
 

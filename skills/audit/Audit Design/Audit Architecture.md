@@ -6,7 +6,7 @@ description: "system-architecture story — the rule sets audit runs over, and t
 
 The audit system is two things: the **rule sets** it runs over, and the **components** — skills and scripts — that run over them. This page is the structural overview; the detailed per-audit pipeline is a subdocument.
 
-![[Audit Architecture.svg]]
+![[Audit Architecture.svg|2400]]
 
 ## Rule sets — the base
 

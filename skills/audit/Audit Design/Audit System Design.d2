@@ -1,0 +1,17 @@
+# Audit System Design — the per-audit pipeline (flow)
+# Source for "Audit System Design.svg" (regenerate: d2 "Audit System Design.d2" "Audit System Design.svg")
+
+direction: right
+*.style.font-size: 26
+
+target: "Target\n(anchor / doc)" {style: {fill: "#fff4e6"; stroke: "#c98a3a"}}
+resolve: "Resolve\nfacets → include::\n→ bind via where::" {style: {fill: "#e9eeff"; stroke: "#5566aa"}}
+run: "Run\nmechanical checks,\nverdict-cached" {style: {fill: "#e9eeff"; stroke: "#5566aa"}}
+judge: "Judge\nremaining rules\nby agent" {style: {fill: "#e9eeff"; stroke: "#5566aa"}}
+fix: "Fix\nlevel-appropriate\nfixers, re-run to\nconvergence" {style: {fill: "#e9eeff"; stroke: "#5566aa"}}
+guard: "Safety guard\nno-delete\nsubsequence" {style: {fill: "#fdeaea"; stroke: "#c0504d"}}
+out: "Outputs\nfixed files\n+ flags" {style: {fill: "#e7f8ee"; stroke: "#3f9d6b"}}
+level: "Automation level\nInfo · Online ·\nStandard · Aggressive" {style: {fill: "#f5f6fb"; stroke: "#7b83b4"}}
+
+target -> resolve -> run -> judge -> fix -> guard -> out
+level -> fix: "masks the fixer set"
