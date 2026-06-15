@@ -11,7 +11,8 @@ This rule flags **bare** image embeds (`.svg` / `.png` / `.excalidraw`) that car
 
 ```python
 EMBED_RE = re.compile(r"!\[\[[^\]|]*\.(?:svg|png|excalidraw)\]\]", re.IGNORECASE)
-FENCE_RE = re.compile(r"^\s*(```|~~~)")
+# Build the backtick fence marker via chr() so this rule's own fence isn't cut short.
+TRIPLE_BACKTICK = chr(96) * 3
 
 
 def check(file_path):
@@ -22,7 +23,8 @@ def check(file_path):
         return findings
     in_fence = False
     for line_num, line in enumerate(text.splitlines(), start=1):
-        if FENCE_RE.match(line):
+        stripped = line.lstrip()
+        if stripped.startswith(TRIPLE_BACKTICK) or stripped.startswith("~~~"):
             in_fence = not in_fence
             continue
         if in_fence:
