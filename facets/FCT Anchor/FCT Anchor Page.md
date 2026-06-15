@@ -58,9 +58,9 @@ Real anchor pages found in the vault and brought to conformance, so the spec can
 - [[SKL Doc]]
 
 ### Container
-- [[Log]] *(grouped)*
-- [[SV]] *(grouped)*
-- [[RR]] *(grouped)*
+- [[Log]] *(grouped — many entries per row)*
+- [[SV]] *(list — `---` auto-generates one row per entry)*
+- [[RR]] *(list — `---` auto, one row per entry)*
 - [[Roots]] *(list)*
 - [[Journal]] *(chronological)*
 
@@ -234,11 +234,11 @@ In-cell wiki-links use `[[target\|alias]]`.
 
 Members are listed below the masthead only on a [[Collection]] anchor; every other kind is masthead-only.
 
-### RULE R-anchor-page-18 — List ≤ ~15, groups past ~15 (sampled)
+### RULE R-anchor-page-18 — List = one row per member; grouped = many per row (sampled)
 
-A flat member list up to ~15 members; member groups (labeled `+` rows) beyond that.
+A **list** member zone puts **one member per row** (a `| --- | |` auto-list generates exactly that); a **grouped** zone puts **many members per row** under labeled `+` group rows. The split is **structural** (rows-per-member), not a count — though a flat list is usually grouped once it grows past ~15 ([[DSC granularity]]).
 
-**Check pattern:** member count vs. layout (flat list vs. group rows). ([[DSC granularity]])
+**Check pattern:** rows-per-member — one-per-row (list) vs many-per-row / `+` groups (grouped). ([[DSC granularity]])
 
 ### RULE R-anchor-page-19 — Group labels link down; `+` marks expandable (sampled)
 
@@ -314,9 +314,9 @@ A single skill-ecosystem spec page — a **facet**, a **discipline**, or a **ski
 
 A [[Collection]] anchor whose body enumerates **homogeneous members** (a features folder of feature docs, a log folder of log entries, the `SKL` catalog of skill-docs).
 - **Masthead roster:** breadcrumb + Anchor + Related (minimal).
-- **Member zone required** — the generic member rules R-anchor-page-17…20 apply. Layout variant (one axis, three values):
-  - **grouped** — `+` group rows past ~15 members. Example: [[SKL]], [[FCT]].
-  - **list** — a flat list ≤ ~15 members. Example: [[SKA Access]].
+- **Member zone required** — the generic member rules R-anchor-page-17…20 apply. The layout split is **structural — rows-per-member — not a count** (one axis, three values):
+  - **list** — **one row per member** (each row is a single entry). A `| --- | |` separator auto-generates exactly this: HookAnchor emits one row per child. Count is irrelevant — a 30-entry auto-list is still a list. Examples: [[SV]], [[RR]], [[Roots]], [[SKA Access]].
+  - **grouped** — **each row is a group holding many members** (a category row, often `+`-expandable, carrying several links). Typically chosen once a flat list grows past ~15 ([[DSC granularity]], R-anchor-page-18), but the defining mark is **many-members-per-row**. Examples: [[Log]], [[FCT]], [[SKL]].
   - **chronological (reverse-dated)** — a [[DSC dated-entry-stream]]; newest-first, ISO-prefixed member names. Example: [[HBR Log]].
 - Member zone ends with an electric marker (R-anchor-page-20) so new children have a place to land.
 
