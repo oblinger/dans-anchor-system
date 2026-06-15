@@ -88,7 +88,7 @@ Discussion is **append-only**. Entries are never edited after the Decision is fi
 # RULESET R-discussion
 include::
 where:: sentinel: ^#+ Discussion
-description:: per-document discussion log — dated trade-off threads attached to the doc they're about
+description:: planning trade-offs
 
 Embedded ruleset for the Discussion facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via [[R-facet]] umbrella.
 

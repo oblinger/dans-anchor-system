@@ -11,7 +11,7 @@ A self-hosted media server that ingests, transcodes, and streams a personal libr
 | Related | [[Clarifier]] (sibling project),  [[Devtools]] (grouped variant),  [[FEX]] (the example gallery) |
 | [[HBR Components\|Components]]+ | [[HBR Ingest\|Ingest]],  [[HBR Serve\|Serve]],  [[HBR Operate\|Operate]],   |
 | [[HBR Log\|Log]] | Harbor changelog — chronological-container example |
-| [[HBR Design\|Design]]+ | [[HBR PRD\|PRD]],  [[HBR UX Design\|UX Design]],  [[HBR CLI\|CLI]],  [[HBR API Design\|API]],  [[HBR Architecture\|Architecture]],  [[HBR Decisions\|Decisions]],  [[HBR Testing\|Testing]],  [[HBR Roadmap\|Roadmap]],  [[HBR Features\|Features]],  [[HBR Design/HBR Features\|Design/HBR Features]],  [[HBR Stories\|Stories]],  [[HBR Design/HBR Features\|Design/HBR Features]],   |
+| [[HBR Design\|Design]]+ | [[HBR PRD\|PRD]],  [[HBR UX Design\|UX Design]],  [[HBR CLI\|CLI]],  [[HBR API Design\|API]],  [[HBR Architecture\|Architecture]],  [[HBR Decisions\|Decisions]],  [[HBR Testing\|Testing]],  [[HBR Roadmap\|Roadmap]],  [[HBR Features\|Features]],  [[HBR Design/HBR Features\|Design/HBR Features]],  ~~[[HBR Stories\|Stories]]~~,   |
 | [[HBR Track\|Track]]+ | [[HBR Backlog\|Backlog]],  [[HBR Messages\|Messages]],  [[HBR Status\|Status]],   |
 | [[HBR User Docs\|User Docs]]+ | [[HBR Guide\|Guide]],   |
 | [[HBR Dev Docs\|Dev Docs]]+ | [[HBR Files\|Files]],   |

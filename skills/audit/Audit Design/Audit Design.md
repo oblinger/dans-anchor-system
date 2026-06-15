@@ -4,7 +4,7 @@ description: "design-pipeline docs for the Audit skill (the Audit Design/ conten
 
 # Audit Design
 
-| -[[Audit Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[Audit]] → [Audit Design](hook://p/Audit%20Design)<br>: design-pipeline docs for the Audit skill |
+| -[[Audit Design]]- | → [[KM]] → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[Audit]] → [Audit Design](hook://p/Audit%20Design)<br>: design-pipeline docs for the Audit skill |
 | --- | --- |
 | [[Audit PRD\|PRD]] | product requirements — what /audit produces and for whom |
 | [[Audit Stories\|Stories]] | user stories elaborating the PRD |

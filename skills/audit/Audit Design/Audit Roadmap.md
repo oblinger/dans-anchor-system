@@ -1,5 +1,5 @@
 # Audit Roadmap
-description:: sequencing-design — milestones for V2 audit; flesh out the rule-processing engine first, refactor the legacy sub-audits onto it later.
+description:: milestones
 
 
 ## [x] M-Engine — Rule-driven engine

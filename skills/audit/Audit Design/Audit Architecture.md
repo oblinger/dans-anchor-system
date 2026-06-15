@@ -1,5 +1,5 @@
 ---
-description: "system-architecture story — the rule sets audit runs over, and the skills + scripts that make up the system."
+description: "system-architecture story — modules, data flow"
 ---
 
 # Audit Architecture

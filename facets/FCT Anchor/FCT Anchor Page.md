@@ -4,27 +4,32 @@ description: "Anchor Page facet — the format of an anchor's {slug}.md entry po
 # FCT Anchor Page
 The entry page every anchor opens with — its `{slug}.md`.
 
-| -[[FCT Anchor Page]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Anchor Page](hook://p/FCT%20Anchor%20Page)<br>: the `{slug}.md` entry-page format                                                                                         |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Related               | [[FCT]],  [[FCT Dispatch Table]],  [[DSC progressive-disclosure]],  [[FEX]],                                                                                                                                                                            |
-| Design                |                                                                                                                                                                                                                                                         |
-| Examples              | [[HBR\|Code project]],  [[FCT Anchor Page\|facet]],  [[DSC progressive-disclosure\|discipline]],  [[SKL Mint\|skill-doc]],  [[SKL\|Container · grouped]],  [[SKA Access\|Container · list]],  [[HBR Log\|Container · chronological]],  [[Life\|Topic]], |
-| Rulesets              |                                                                                                                                                                                                                                                         |
-|                       |                                                                                                                                                                                                                                                         |
-| OLD Examples          | [[FEX]] — [[Snapper Dapper\|skill]],  [[Espresso\|list]],  [[Harbor Components\|grouped]],  [[Glossary\|facet]],  [[Harbor\|project]],  [[Harbor Ingest\|sub-folder]]                                                                                   |
+| -[[FCT Anchor Page]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Anchor Page](hook://p/FCT%20Anchor%20Page)<br>: the `{slug}.md` entry-page format |
+| --- | --- |
+| Related | [[FCT]],  [[FCT Dispatch Table]],  [[DSC progressive-disclosure]],  [[FEX]],   |
+| Design |  |
+| Examples | [[HBR\|Code project]],  [[FCT Anchor Page\|facet]],  [[DSC progressive-disclosure\|discipline]],  [[SKL Mint\|skill-doc]],  [[SKL\|Container · grouped]],  [[SKA Access\|Container · list]],  [[HBR Log\|Container · chronological]],  [[Life\|Topic]],   |
+|  |  |
+|  |  |
+| Rulesets |  |
+|  |  |
+| OLD Examples | [[FEX]] — [[Snapper Dapper\|skill]],  [[Espresso\|list]],  [[Harbor Components\|grouped]],  [[Glossary\|facet]],  [[Harbor\|project]],  [[Harbor Ingest\|sub-folder]] |
 
 
-| Kind                      | Anchor Page Taxonomy     |
-| ------------------------- | ------------------------ |
-| Topic                     |                          |
-| Project                   |                          |
-| - Code project            |                          |
-| - Paper project           |                          |
-| - SKA sub-project            | Skill, Facet, Discipline |
-| Container                 |                          |
-| - Grouped Container       |                          |
-| - List Container          |                          |
-| - Chronological Container |                          |
+| Kind | FEX examples | Description and external examples |
+| --- | --- | --- |
+| Topic | *(none yet)* | Domain-of-life hub folder that routes to the pages within it; masthead = breadcrumb + optional Related + a `...` auto-summary member zone. *Ext:* [[Life]], [[Food]], [[Legal]] |
+| Project | *(abstract)* | Active-work anchor that moves through states; splits by output kind into Code vs Paper. |
+| - Code project | [[HBR]] | Software project (`traits: [Code]`); switchboard masthead (Design iff a design folder, Track iff a track folder), full design+track scaffold once a `Status` doc exists. *Ext:* [[HA]], [[MUX]], [[DMUX]] |
+| - Paper project | *(none yet)* | Long-form writeup (`traits: [Paper]`) through revision cycles; signature is a `## Version history` table with per-section `s1, s2, …` track-changes markup. *Ext:* [[ABP]], [[ASP]] |
+| - SKA sub-project | [[FEX Repo]] | A skill-ecosystem spec page that owns its own design but no tracking or status (SKA owns the tracking — [[SKA Decisions\|D08]]). Three flavors below. |
+| - - skill | *(FEX Snapshot — stub)* | The documentation page for a skill (the skill-doc — **not** the `SKILL.md` runbook). *Ext:* [[SKL Mint]] |
+| - - facet | [[FEX Manifest]] | A reusable document-shape spec — the format a recurring kind of doc must follow. *Ext:* [[FCT Anchor Page]], [[FCT Naming]] |
+| - - discipline | [[FEX Retention]] | A cross-cutting principle or practice applied across many anchors. *Ext:* [[DSC progressive-disclosure]], [[DSC verification]] |
+| Container | *(abstract)* | A [[Collection]] anchor whose body enumerates homogeneous members; required member zone in one of three structural shapes. |
+| - Grouped Container | [[HBR Components]] | Each row is a group holding many members (often `+`-expandable); chosen once a flat list outgrows ~15. *Ext:* [[Log]], [[FCT]], [[SKL]] |
+| - List Container | [[Espresso]] | One row per member (an auto-list separator emits one row per child); count-independent. *Ext:* [[SV]], [[RR]], [[Roots]], [[SKA Access]] |
+| - Chronological Container | [[HBR Log]] | Reverse-dated entry stream; newest-first, ISO-prefixed member names. *Ext:* [[Journal]], [[HBR Log]] |
 
 
 ## Worked example sets — five real vault instances per kind

@@ -1,5 +1,5 @@
 ---
-description: "How a single audit runs — the resolve → run → judge → fix pipeline, with automation level as a fix-stage parameter and the no-delete safety guard."
+description: "how the audit engine is built"
 ---
 
 
