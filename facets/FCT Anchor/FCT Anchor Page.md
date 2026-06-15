@@ -67,7 +67,7 @@ Real anchor pages found in the vault and brought to conformance, so the spec can
 - [[Roots]] *(list)*
 - [[Journal]] *(chronological)*
 
-**TLDR** — **Cardinality: one per anchor.** Every anchor has exactly one `{slug}.md` entry page. It opens with YAML `description:` frontmatter, then H1 → one-line summary → optional figure → dispatch table (breadcrumb + Related + kind-specific rows). The embedded `R-anchor-page` ruleset (22 shared rules + five kind deltas — Topic / Code / Paper / SKA sub-project / Container) is the auditable contract; `/audit anchor` and `/create anchor` cite it. Member groups appear only on Container anchors; a Topic carries a `...` auto-summary of its contents.
+**TLDR** — **Cardinality: one per anchor.** Every anchor has exactly one `{slug}.md` entry page. It opens with YAML `description:` frontmatter, then H1 → one-line summary → optional figure → dispatch table (breadcrumb + Related + kind-specific rows). The embedded `R-anchor-page` ruleset (23 shared rules + five kind deltas — Topic / Code / Paper / SKA sub-project / Container) is the auditable contract; `/audit anchor` and `/create anchor` cite it. Member groups appear only on Container anchors; a Topic carries a `...` auto-summary of its contents.
 
 
 
@@ -271,14 +271,29 @@ An anchor page is **never table-less** — it always carries a dispatch table wh
 
 **Check pattern:** every `{slug}.md` has a dispatch table with a breadcrumb row 1 (per R-anchor-page-11). ([[FCT Doc Structure]] § Top table states the same rule at the document layer.)
 
+### RULE R-anchor-page-23 — Track row, and Status-triggered full scaffolding (checked)
+
+Parallel to the Design row (R-anchor-page-13): a **`Track` row** is present iff `{NAME} Track/` exists — it links the track dispatch `[[{NAME} Track\|Track]]`, members in the fixed order **Backlog → Status → Messages → Discussion → Inbox → Icebox → Log → ask**. (Roadmap + Features are *design* artifacts — they live in the Design row, not here, per the 2026-06-10 restructure.)
+
+**The status document is the full-scaffolding signal.** When `{NAME} Status.md` exists, the anchor is a **fully-scaffolded** project and MUST carry the **complete** design + track doc set:
+
+- **Every design document exists** (created even if empty), in `{NAME} Design/`, listed in the `{NAME} Design` dispatch, and surfaced as the **full Design row** in the PRD-first order of R-anchor-page-13: PRD → UX Design → CLI → API → Architecture → Decisions → Testing → Roadmap → Features.
+- **Every track document exists** (created even if empty), in `{NAME} Track/`, listed in the `{NAME} Track` dispatch, and surfaced as the **full Track row** in the order above.
+- **Each doc is linked in all three places** — its folder's dispatch page (the Design anchor / the Track anchor) **and** the matching masthead row. The two folders and the two masthead rows must agree.
+
+Absent a Status doc, the Design / Track rows may be **partial** — listing only the docs that actually exist. The Status doc is what flips a project from partial to full. **This holds for most Code projects.**
+
+**Check pattern:** `{NAME} Status.md` exists ⇒ assert (a) every design doc + every track doc exists (empty allowed), (b) each is listed in its dispatch page, (c) the masthead Design + Track rows carry the full sets in the fixed orders. ([[SKA Decisions|D07]], [[FCT Design Dispatch]], [[FCT Track Dispatch]])
+
 ## Kind-specific rules
 
-Each anchor-page **kind** layers a small delta over the shared chassis (R-anchor-page-01…22) plus the [[FCT Dispatch Table]] form. The kind is read from `traits:`; a page is audited as **chassis + its kind's delta**. There are five kinds, each one-to-one with its dispatch-table shape (HookAnchor computes the table from the `.anchor`, so there is exactly one page — and one table kind — per anchor). The deltas are thin; each may graduate to its own `include::` sub-ruleset file once it grows.
+Each anchor-page **kind** layers a small delta over the shared chassis (R-anchor-page-01…23) plus the [[FCT Dispatch Table]] form. The kind is read from `traits:`; a page is audited as **chassis + its kind's delta**. There are five kinds, each one-to-one with its dispatch-table shape (HookAnchor computes the table from the `.anchor`, so there is exactly one page — and one table kind — per anchor). The deltas are thin; each may graduate to its own `include::` sub-ruleset file once it grows.
 
 ### R-anchor-page-code — Code project (stated)
 
 A code/software project anchor (`traits: [Code]`).
-- **Masthead roster:** breadcrumb + Anchor + **Design** (design flow present) + **Track** (**required**) + Related.
+- **Masthead roster:** breadcrumb + Anchor + **Design** (iff `{NAME} Design/` — R-anchor-page-13) + **Track** (iff `{NAME} Track/` — R-anchor-page-23) + Related.
+- **Full scaffolding when a Status doc exists** — `{NAME} Status.md` present ⇒ the complete design + track doc set exists (even empty) and is linked into both dispatch folders and the masthead Design + Track rows (R-anchor-page-23). True for most Code projects.
 - **Member zone:** none — a switchboard masthead only.
 - **Example:** [[HBR]].
 
