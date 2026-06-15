@@ -45,13 +45,10 @@ Real anchor pages found in the vault and brought to conformance, so the spec can
 - [[DMUX]]
 
 ### Paper project
-- [[2026-03-18 AI Model Pricing]]
-- [[2026-05-22 Architect Skill Survey]]
-- [[2026-04-13 Drone Comparison]]
-- [[2026-03-14 Personal Skill Trees and Project Organization Survey]]
-- [[2026-03-04 Mukesh Murugan Dossier]]
+- [[ABP]] *(Alien Biology Paper — the canonical paper project)*
+- [[ASP]] *(Alienbio Safety Paper — legacy-formatted, version table TBD)*
 
-*(promoted from RR Research Reports — no native Paper anchors existed)*
+*(Only ~1–2 genuine paper projects exist in the vault. The giveaway is a `## Version history` **version table** with `s1, s2, s3 …` per-section markup (per [[Paper Anchor]]) — NOT promotable from research reports or paper collections.)*
 
 ### SKA sub-project
 - [[FCT Code Repository]]
@@ -299,10 +296,10 @@ A code/software project anchor (`traits: [Code]`).
 
 ### R-anchor-page-paper — Paper project (stated)
 
-A paper / writeup project anchor (`traits: [Paper]`).
-- **Masthead roster:** breadcrumb + Anchor + **Design** (outline / draft folder, if present) + Related.
-- **Member zone:** none — switchboard masthead.
-- **Example:** *(TBD — no paper anchor wired yet).*
+A long-form writeup anchor (`traits: [Paper]`) — a paper / whitepaper that goes through revision cycles. **Signature / giveaway:** a `## Version history` **version table** of dated drafts with `s1, s2, s3 …` per-section markup (track-changes HTML per section). Full trait spec: [[Paper Anchor]].
+- **Masthead roster:** breadcrumb + a **Drafts** row (dated versions, newest = Current) + **Research** + optional **External** (published landing) + Related; ends with `...`.
+- **Member zone:** the version table under `## Version history` (the dated-draft × section-markup grid).
+- **Example:** [[ABP]].
 
 ### R-anchor-page-subproject — SKA sub-project: facet / discipline / skill-doc (checked)
 
