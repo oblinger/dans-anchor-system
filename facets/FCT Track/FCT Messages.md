@@ -8,7 +8,7 @@ Spec for the **Messages facet** — the per-anchor file `{NAME} Messages.md` tha
 | -[[FCT Messages]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Messages](hook://p/FCT%20Messages)<br>: the Messages facet — agent's per-anchor background-process inbox, distinct from the user's Inbox |
 | --- | --- |
 | Related | [[FCT Inbox]],  [[FCT Backlog]],  [[FCT Track]],  [[CAB Base]],   |
-| Examples | [[CAE Messages\|minimal]], [[HBR Messages\|with real system messages]] |
+| Examples | [[CAE Messages\|minimal]],  [[HBR Messages\|with real system messages]],   |
 
 **Cardinality: one per anchor** — each anchor has exactly one `{NAME} Messages.md` file at its root.
 

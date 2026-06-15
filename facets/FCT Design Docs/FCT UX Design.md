@@ -7,7 +7,7 @@ Facet spec for `{NAME} UX Design.md` — the *human* user-facing surface: CLI co
 | -[[FCT UX Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT UX Design](hook://p/FCT%20UX%20Design)<br>: facet spec for the human user-facing surface doc |
 | --- | --- |
 | Related | [[FCT API Design]],  [[FCT CLI]],  [[FCT Decisions]],  [[FCT Architecture]],   |
-| Examples | [[CAE UX Design\|minimal (CLI surface)]], [[HBR UX Design\|fuller (multi-surface)]] |
+| Examples | [[CAE UX Design\|minimal (CLI surface)]],  [[HBR UX Design\|fuller (multi-surface)]],   |
 
 **TLDR**
 - **One per anchor** — a single `{NAME} UX Design.md` captures all human-facing surface intent for the anchor.

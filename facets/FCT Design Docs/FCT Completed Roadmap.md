@@ -7,7 +7,7 @@ The migration target for completed milestones — preserves shipped milestone st
 | -[[FCT Completed Roadmap]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Completed Roadmap](hook://p/FCT%20Completed%20Roadmap)<br>: completed-roadmap facet — migrated milestones in newest-on-top order, sibling of the forward-looking Roadmap |
 | --- | --- |
 | Related | [[FCT Roadmap]],  [[FCT Design]],  [[FCT Features]],  [[FCT Design Docs]],   |
-| Examples | [[CAE Completed Roadmap\|example]] |
+| Examples | [[CAE Completed Roadmap\|example]],   |
 
 **TLDR** — One doc per anchor (when any milestone has migrated). Lives at `{NAME} Design/{NAME} Completed Roadmap.md`. Newest migrated milestone at top; standalone-completed-features groupings interleave between milestones. Cardinality: **one per anchor**.
 

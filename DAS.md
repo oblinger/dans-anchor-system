@@ -9,5 +9,6 @@ An **anchor system** is an information-organization system — a disciplined way
 
 | -[[DAS]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [DAS](hook://p/DAS)<br>: ob-skills — Dan's Anchor System (DAS) — the ob-skills repository: skills / facets / disciplines / rulesets / library / examples |
 | --- | --- |
+| External | [Repo](https://github.com/oblinger/ob-skills/) |
 | Sections | [[SKL\|Skills]],  [[FCT\|Facets]],  [[DSC\|Disciplines]],  [[Rulesets\|Rulesets]],  [[LBR\|Library]],  [[FEX\|Facet Examples]],   |
 

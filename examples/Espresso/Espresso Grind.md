@@ -1,5 +1,5 @@
 ---
-description: "grind size as the master dial — finer slows the shot"
+description: "grind — the master dial for shot speed"
 ---
 # Espresso Grind
 Grind size is the single most powerful dial on an espresso setup — it sets how fast water can move through the puck.

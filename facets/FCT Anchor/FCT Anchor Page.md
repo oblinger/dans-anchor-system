@@ -26,6 +26,47 @@ The entry page every anchor opens with — its `{slug}.md`.
 | - Chronological Container |                          |
 
 
+## Worked example sets — five real vault instances per kind
+
+Real anchor pages found in the vault and brought to conformance, so the spec can be judged against actual instances (not the gallery). Five per kind:
+
+### Topic
+- [[Life]]
+- [[Courses]]
+- [[Food]]
+- [[Legal]]
+- [[SRC]]
+
+### Code project
+- [[HA]]
+- [[SKD]]
+- [[MUX]]
+- [[CMP]]
+- [[DMUX]]
+
+### Paper project
+- [[2026-03-18 AI Model Pricing]]
+- [[2026-05-22 Architect Skill Survey]]
+- [[2026-04-13 Drone Comparison]]
+- [[2026-03-14 Personal Skill Trees and Project Organization Survey]]
+- [[2026-03-04 Mukesh Murugan Dossier]]
+
+*(promoted from RR Research Reports — no native Paper anchors existed)*
+
+### SKA sub-project
+- [[FCT Code Repository]]
+- [[FCT Naming]]
+- [[DSC verification]]
+- [[DSC Linked Mode]]
+- [[SKL Doc]]
+
+### Container
+- [[Log]] *(grouped)*
+- [[SV]] *(grouped)*
+- [[RR]] *(grouped)*
+- [[Roots]] *(list)*
+- [[Journal]] *(chronological)*
+
 **TLDR** — **Cardinality: one per anchor.** Every anchor has exactly one `{slug}.md` entry page. It opens with YAML `description:` frontmatter, then H1 → one-line summary → optional figure → dispatch table (breadcrumb + Related + kind-specific rows). The embedded `R-anchor-page` ruleset (22 shared rules + five kind deltas — Topic / Code / Paper / SKA sub-project / Container) is the auditable contract; `/audit anchor` and `/create anchor` cite it. Member zones and group rows appear only on [[Collection]] / Container anchors.
 
 

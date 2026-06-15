@@ -1,1 +1,1 @@
-description: "`/lint` (or `/cab lint`) is the static-analysis pass over an anchor — it scans the folder structure, dispatch tables, and module docs against the CAB type rules and tells you what's missing, stale,…"
+description: the SKL Lint doc

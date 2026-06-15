@@ -7,7 +7,7 @@ Facet spec defining the standardized format for an anchor's running narrative �
 | -[[FCT Log]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Log](hook://p/FCT%20Log)<br>: the Log facet — dated entries capturing what happened on what day |
 | --- | --- |
 | Related | [[FCT Backlog]],  [[FCT Roadmap]],  [[FCT Anchor Page]],  [[FCT Track]],   |
-| Examples | [[Disk Log\|folder-form (conformant)]],  [[SV Log\|folder-form (mixed-format entries)]],  |
+| Examples | [[Disk Log\|folder-form (conformant)]],  [[SV Log\|folder-form (mixed-format entries)]],   |
 
 **TLDR** — The Log facet standardizes how any anchor records its running history. Instances live at `{NAME} Log/` (folder form, default) or `{NAME} Log.md` (single-file, minimal). **Cardinality: one per anchor** — each anchor has at most one Log. Folder form uses a `{NAME} Log.md` dispatch page (entries newest-first); single-file form inlines entries as H2s. Entry filenames are ISO-date-prefixed (`YYYY-MM-DD <topic>.<ext>`). Logs capture what *happened*; spec/convention content belongs in dedicated facets.
 

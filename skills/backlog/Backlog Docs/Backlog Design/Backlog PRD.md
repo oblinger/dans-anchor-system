@@ -1,5 +1,5 @@
 ---
-description: "product requirements — what the skill does and why"
+description: "product requirements"
 ---
 # Backlog PRD
 

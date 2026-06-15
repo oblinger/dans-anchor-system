@@ -7,7 +7,7 @@ Facet spec defining the shape, required sections, and ruleset for an anchor's `{
 | -[[FCT API Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT API Design](hook://p/FCT%20API%20Design)<br>: facet spec for the programmatic user surface doc |
 | --- | --- |
 | Related | [[FCT UX Design]],  [[FCT Architecture]],  [[FCT Module Doc]],  [[FCT Decisions]],   |
-| Examples | [[CAE API Design\|minimal (library crate)]],  [[HBR API Design\|fuller (service + sub-skill)]] |
+| Examples | [[CAE API Design\|minimal (library crate)]],  [[HBR API Design\|fuller (service + sub-skill)]],   |
 
 API Design specifies the **programmatic user surface** of the anchor — what shape another piece of code (or another agent invoking this as a sub-skill) sees when integrating. It is sibling to [[FCT UX Design]] (the *human* user surface). The cut between them is **who the consumer is**: API = code calling; UX = human reading or invoking.
 
