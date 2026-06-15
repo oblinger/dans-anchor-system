@@ -1,0 +1,52 @@
+# Audit Architecture — unified rule-processing engine
+# Source for "Audit Architecture.svg" (regenerate: d2 "Audit Architecture.d2" "Audit Architecture.svg")
+
+direction: right
+
+rules: "Rule sources" {
+  facets: "Facets + Disciplines\nembedded RULESETs\n(check:: / fix:: / where::)" {
+    shape: page
+  }
+}
+
+distill: "/distill" {
+  shape: hexagon
+}
+merged: "Merged rule module\n~/.config/ob-skills" {
+  shape: cylinder
+}
+
+engine: "Explicit  /audit  (Standard)" {
+  resolve -> run: ""
+  run -> judge: ""
+  judge -> fix: ""
+  resolve: "resolve\n(where:: → targets)"
+  run: "run\n(mechanical, cached)"
+  judge: "judge\n(agent)"
+  fix: "fix\n(fix:: + bounded judgment)"
+}
+
+hook: "Online hooks\nPostToolUse read/write\n(Online level)" {
+  shape: rectangle
+}
+
+guard: "Safety guard\nno-delete subsequence" {
+  shape: diamond
+}
+
+out: "Outputs" {
+  fixed: "Fixed files"
+  flags: "Flags / agent messages"
+  marks: "Deletion-mark callouts"
+}
+
+rules.facets -> engine.resolve: "bind rules to targets"
+rules.facets -> distill: "gather rule bodies"
+distill -> merged: ""
+merged -> hook: "fast checks"
+hook -> engine.run: "shared corpus" {
+  style.stroke-dash: 4
+}
+engine.fix -> guard: ""
+hook -> guard: ""
+guard -> out: "content-preserving only"
