@@ -1965,51 +1965,42 @@ def chk_folder_marker_exists(target, anchor_root, args):
 
 # -- R-md ----------------------------------------------------------------------
 
-def chk_md_angle_brackets_safe(target, anchor_root, args):
-    """Angle brackets need surrounding whitespace (outside code fences/spans)."""
+def chk_md_angle_brackets_html_or_spaced(target, anchor_root, args):
+    """An angle bracket is allowed only when it is (a) inside an inline code span or
+    fenced code block, (b) part of a valid HTML construct — an HTML comment
+    `<!-- … -->` or a curated inline tag (br/hr/ins/del/sub/sup/kbd/mark/u/wbr/s/q/
+    abbr/cite) — or (c) a comparison/operator with whitespace on the inner side
+    (`a < b`). The failure mode this targets is a stray `<identifier>` glued to a
+    tag-name character: the viewer parses it as an unknown HTML element and silently
+    eats text up to the next `>` (LLMs emit these constantly for placeholders and
+    generics, e.g. `<Name>`, `List<int>`). Masks code, comments, and sanctioned tags,
+    then flags any surviving `<` immediately followed by `[A-Za-z!/]`. `.html`/`.htm`
+    files are real HTML and are skipped. Masking preserves newlines for line numbers."""
     if not target.is_file():
         return "pass", "not a file"
-    text = _read(target)
-    text = re.sub(r"```[\s\S]*?```", "", text)
-    text = re.sub(r"`[^`]*`", " ", text)
-    bad_start = re.search(r"\S<[A-Za-z_]", text)
-    bad_end = re.search(r"[A-Za-z_]>\S", text)
-    if bad_start or bad_end:
-        msgs = []
-        if bad_start:
-            msgs.append(f"\\S<[A-Za-z_] at line {text[:bad_start.start()].count(chr(10)) + 1}")
-        if bad_end:
-            msgs.append(f"[A-Za-z_]>\\S at line {text[:bad_end.start()].count(chr(10)) + 1}")
-        return "fail", "; ".join(msgs)
-    return "pass", ""
-
-
-def chk_md_angle_brackets_backtick_only(target, anchor_root, args):
-    """Strict (R-md-03): a literal `<` or `>` may appear ONLY inside an inline code
-    span or a fenced code block — everywhere else it must be backticked or escaped.
-    Code spans/fences are masked out first (that is the case we must exclude); then
-    two sanctioned forms are dropped — the masthead `<br>` line-break, and the leading
-    `>` of a blockquote / callout line (structural, not a content bracket) — then any
-    surviving angle bracket fails. Masking preserves newlines so line numbers stay accurate."""
-    if not target.is_file():
-        return "pass", "not a file"
+    if target.suffix.lower() in (".html", ".htm"):
+        return "pass", "html file"
     text = _read(target)
     blank = lambda m: re.sub(r"[^\n]", " ", m.group(0))      # mask, keep line count
     masked = re.sub(r"```[\s\S]*?```", blank, text)          # fenced code (backtick)
     masked = re.sub(r"~~~[\s\S]*?~~~", blank, masked)        # fenced code (tilde)
     masked = re.sub(r"(`+)[^\n]*?\1", blank, masked)         # inline code spans
-    masked = re.sub(r"(?i)<br\s*/?>", "  ", masked)          # sanctioned masthead <br>
+    masked = re.sub(r"<!--[\s\S]*?-->", blank, masked)       # HTML comments (valid)
+    masked = re.sub(                                         # curated valid inline HTML tags
+        r"(?i)</?(?:br|hr|ins|del|sub|sup|kbd|mark|u|wbr|s|q|abbr|cite)(?:\s[^<>\n]*?)?/?>",
+        blank, masked)
     hits = []
     for ln, raw in enumerate(masked.splitlines(), 1):
         line = re.sub(r"^\s*(?:>\s?)+", "", raw)             # drop blockquote / callout `>` markers
-        m = re.search(r"[<>]", line)
+        m = re.search(r"<[A-Za-z!/]", line)                 # tag-like opener that survived masking
         if m:
             c = m.start()
             hits.append(f"line {ln}: …{line[max(0, c - 12):c + 13].strip()}…")
             if len(hits) >= 5:
                 break
     if hits:
-        return "fail", "raw angle bracket(s) outside code — " + "; ".join(hits)
+        return "fail", ("tag-like `<…>` angle bracket(s) — backtick, escape "
+                        "(&lt;/&gt;), or space them — " + "; ".join(hits))
     return "pass", ""
 
 
@@ -2444,8 +2435,7 @@ CHECKERS = {
     "facet_cardinality_declared": chk_facet_cardinality_declared,
     "facet_examples_row": chk_facet_examples_row,
     # R-md
-    "md_angle_brackets_safe": chk_md_angle_brackets_safe,
-    "md_angle_brackets_backtick_only": chk_md_angle_brackets_backtick_only,
+    "md_angle_brackets_html_or_spaced": chk_md_angle_brackets_html_or_spaced,
     "md_table_blank_lines": chk_md_table_blank_lines,
     "md_fence_no_markdown": chk_md_fence_no_markdown,
     "md_table_pipe_escape": chk_md_table_pipe_escape,

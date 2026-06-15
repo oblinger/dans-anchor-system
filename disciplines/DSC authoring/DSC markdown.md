@@ -247,14 +247,14 @@ A figure is an **embedded image** — an Excalidraw / matplotlib / D2 artifact e
 
 **Why:** a figure must be a real, editable, consistently-rendering artifact; mermaid and ASCII are neither — they render inconsistently across surfaces, can't be edited as diagrams, and read as broken. Diagrams use the Excalidraw-source-alongside-export convention.
 
-### RULE R-markdown-13 — Angle brackets only inside backticks (checked)
-check:: md_angle_brackets_backtick_only
+### RULE R-markdown-13 — No stray `<tag>`-like angle brackets (checked)
+check:: md_angle_brackets_html_or_spaced
 
-A literal `<` or `>` may appear only inside an inline code span or fenced code block; everywhere else it must be backticked or escaped (`&lt;` / `&gt;`). Sanctioned exceptions: the masthead `<br>` line-break and a leading blockquote / callout `>`. The right fix needs judgment (backtick vs escape vs restructure), so this rule **flags** — it carries no `fix::`.
+An angle bracket is allowed when it is **(a)** inside an inline code span or fenced code block, **(b)** part of a valid HTML construct — an HTML comment `<!-- … -->` or a curated inline tag (`<br>`, `<hr>`, `<ins>`, `<del>`, `<sub>`, `<sup>`, `<kbd>`, `<mark>`, `<u>`, `<wbr>`, `<s>`, `<q>`, `<abbr>`, `<cite>`), or **(c)** a comparison/operator with whitespace on the inner side (`a < b`). What it forbids is a stray **`<identifier>`** — a `<` glued to a tag-name character — which the viewer parses as an unknown HTML element and silently eats the text up to the next `>`. LLMs emit these constantly for placeholders and generics (`<Name>`, `List<int>`). `.html` / `.htm` files are real HTML and are skipped. The right fix needs judgment (backtick, escape `&lt;`/`&gt;`, add spaces, or restructure), so this rule **flags** — it carries no `fix::`.
 
-**Check pattern:** mask code spans / fences + `<br>` + leading `>`; any surviving `<` / `>` fails.
+**Check pattern:** mask code spans / fences, HTML comments, the curated inline tags, and leading blockquote / callout `>`; then flag any surviving `<` immediately followed by `[A-Za-z!/]` (a tag-like opener).
 
-**Why:** raw angle brackets outside code render as broken/empty HTML and silently eat text; the hard rule is that no angle brackets get written to any file. Flag so the agent fixes with intent.
+**Why:** a `<word>` construct is read as an HTML tag and dropped, eating the text up to the next `>` — the actual breakage. Valid HTML and whitespace-surrounded comparisons render fine, so only the glued tag-like form is dangerous; flag so the agent fixes with intent.
 
 ### RULE R-markdown-14 — No trailing whitespace (checked)
 check:: md_trailing_ws
