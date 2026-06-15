@@ -148,7 +148,7 @@ Worked anchor-page example carrying this trait: [[HBR]] (a synthetic Code projec
 # BRIEF
 
 - **This file IS the Code trait specification** — the authoritative delta-from-[[CAB Base]] for anchors that own a git repository; the `code` trait in `cab-traits:` resolves here for structure, audit, and setup rules.
-- **NOT a place for general anchor rules** — anything that applies to every anchor regardless of trait belongs in [[CAB Base]]; trait-specific rules for other traits (Skill, Paper, Topic, Simple) belong in their own `CAB Traits/<Trait>.md` file, not here.
+- **NOT a place for general anchor rules** — anything that applies to every anchor regardless of trait belongs in [[CAB Base]]; trait-specific rules for other traits (Skill, Paper, Topic, Simple) belong in their own `traits/<Trait>.md` file, not here.
 - **Inclusion test** — a rule belongs here only if it is true for *every* Code anchor and *false or absent* for non-Code anchors (e.g. the `code:` key in `.anchor`, the README.md in repo root, the inline-vs-linked repo modes). Generic markdown/dispatch-table rules go to [[markdown]] or [[CAB Base]] respectively.
 - **Two repo modes are load-bearing** — Inline (`code: .`, repo IS anchor folder) and Linked (`code:` points outside vault, typically to `~/ob/proj/`). Don't conflate; both must remain documented as first-class because real projects use both (e.g. `ob-utils` is Linked, most private projects are Inline).
 - **Audit section mirrors `/audit structure` script behavior** — Required files / Required dispatch rows / Code-specific checks correspond to actual checks; changing wording here without updating the audit script (or vice versa) silently desyncs the spec from enforcement.

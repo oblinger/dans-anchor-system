@@ -82,4 +82,4 @@ The `docs/` folder lives in different places depending on anchor type:
 
 Simple anchors and paper anchors typically don't have published docs.
 
-See [[CAB Traits]] for details on each anchor type.
+See [[TRT]] for details on each anchor type.

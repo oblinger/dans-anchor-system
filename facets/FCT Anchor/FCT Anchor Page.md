@@ -4,16 +4,17 @@ description: "Anchor Page facet — the format of an anchor's {slug}.md entry po
 # FCT Anchor Page
 The entry page every anchor opens with — its `{slug}.md`.
 
-| -[[FCT Anchor Page]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Anchor Page](hook://p/FCT%20Anchor%20Page)<br>: the `{slug}.md` entry-page format |
-| --- | --- |
-| Related | [[FCT]],  [[FCT Dispatch Table]],  [[DSC progressive-disclosure]],  [[FEX]],   |
-| Design |  |
-| Examples | [[HBR\|Code project]],  [[FCT Anchor Page\|facet]],  [[DSC progressive-disclosure\|discipline]],  [[SKL Mint\|skill-doc]],  [[SKL\|Container · grouped]],  [[SKA Access\|Container · list]],  [[HBR Log\|Container · chronological]],  [[Life\|Topic]],   |
-|  |  |
-|  |  |
-| Rulesets |  |
-|  |  |
-| OLD Examples | [[FEX]] — [[Snapper Dapper\|skill]],  [[Espresso\|list]],  [[Harbor Components\|grouped]],  [[Glossary\|facet]],  [[Harbor\|project]],  [[Harbor Ingest\|sub-folder]] |
+| -[[FCT Anchor Page]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Anchor Page](hook://p/FCT%20Anchor%20Page)<br>: the `{slug}.md` entry-page format                                                                                         |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Related               | [[FCT]],  [[FCT Dispatch Table]],  [[DSC progressive-disclosure]],  [[FEX]],                                                                                                                                                                            |
+| Design                |                                                                                                                                                                                                                                                         |
+| Examples              | [[HBR\|Code project]],  [[FCT Anchor Page\|facet]],  [[DSC progressive-disclosure\|discipline]],  [[SKL Mint\|skill-doc]],  [[SKL\|Container · grouped]],  [[SKA Access\|Container · list]],  [[HBR Log\|Container · chronological]],  [[Life\|Topic]], |
+|                       |                                                                                                                                                                                                                                                         |
+|                       |                                                                                                                                                                                                                                                         |
+| Rulesets              |                                                                                                                                                                                                                                                         |
+|                       |                                                                                                                                                                                                                                                         |
+| OLD Examples          | [[FEX]] — [[Snapper Dapper\|skill]],  [[Espresso\|list]],  [[Harbor Components\|grouped]],  [[Glossary\|facet]],  [[Harbor\|project]],  [[Harbor Ingest\|sub-folder]]                                                                                   |
+|                       |                                                                                                                                                                                                                                                         |
 
 
 | Kind | FEX examples | Description and external examples |
