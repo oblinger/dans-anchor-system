@@ -197,6 +197,10 @@ Distinct from the `SKILL.md` runbook specified above: every skill also has a **d
 - **Minimal skill** → [[SKL Mint]]: folder + entry page (breadcrumb + Related + Design) + empty design root. The floor.
 - **Maximal skill** → [[SKL Ask]]: the same skeleton, but a full user-guide body; its design root fills in once a PRD / decisions / discussion exist.
 
+## SKA anchors own Design, not Track — shared by skills, facets, disciplines
+
+A skill anchor — like **every** SKA sub-project anchor — **owns its own design but never its own tracking.** Activity-tracking for the whole skills ecosystem is centralized on the shared SKA surface ([[SKA Decisions|D08]]); a skill carries a `{NAME} Design/` folder (minimum: just an `.anchor`, growing as design docs are earned) and **no `{NAME} Track/`**. **Facets ([[FCT Facet]]) and disciplines share this exact strategy** — the single normative rule lives on the anchor-page facet as `R-anchor-page-subproject` ([[FCT Anchor Page]]); this section is the skill-facet pointer to it. The design surface is flat (`{NAME} Design/` directly under the anchor, no `{NAME} Docs/` wrapper).
+
 # BRIEF
 
 - **This is the CAB facet spec for SKILL.md** — the authority on the required frontmatter fields, fixed section order, and dispatch-protocol footer that every Claude Code skill entry-point file must conform to. Edits here change the contract every skill in `~/.claude/skills/` is audited against.

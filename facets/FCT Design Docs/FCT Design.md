@@ -121,19 +121,6 @@ A Code-shaped project that's designed has the `{NAME} Design/` folder AND benefi
 
 Any anchor that commits to the designed-lifecycle convention.
 
-## Masthead design row — canonical doc order
-
-The anchor page's dispatch-table masthead carries a **Design row** whenever a `{NAME} Design/` folder exists (per [[FCT Dispatch Table]] § Masthead). The Design facet owns the row's **contents and order**:
-
-- **Left cell** — a link to the design anchor page: `[[{NAME} Design]]`.
-- **Right cell** — the ordered list of links to the design documents, in the canonical pipeline order below. **A link appears only if its file exists** — the row enumerates present docs, never dangling targets.
-
-**Canonical order** (the `/design` pipeline — requirements → user surfaces → structure → verification → sequencing → output):
-
-`PRD` → `Stories` → `UX Design` → `API Design` → `Architecture` → `System Design` → `Files Architecture` → `Interface` → `Testing` → `Decisions` → `Roadmap` → `Completed Roadmap` → `Features`
-
-The spine is **PRD … Roadmap, Features** (PRD first; Roadmap + Features last); the optional facets (Stories, System Design, Files Architecture, Interface, Completed Roadmap) slot into their pipeline positions when present. The structural rule enforcing row-presence + existing-file-only lives in [[FCT Dispatch Table]] (`R-dispatch-table-04`); **this facet is the source of truth for the order.**
-
 ## Audit
 
 `/audit design` (future) would flag the rules captured in `R-design` below — folder presence, required-child presence, dispatch wiring, Status file initialization, etc.
@@ -215,15 +202,6 @@ When `/design` scaffolds a Design folder, the operation creates all required chi
 **Check pattern:** sample freshly-scaffolded Design folders; assert each required child has its required-H2 stubs (per its facet spec).
 
 **Why:** dispatch links work from day one; user has obvious places to add content; "file moved / link broken" bugs avoided.
-
-### RULE R-design-08 — Masthead Design row enumerates present docs in canonical order (sampled)
-where:: file: {ANCHOR}/{NAME}.md
-
-When `{NAME} Design/` exists, the anchor page's dispatch masthead carries a Design row whose left cell links `[[{NAME} Design]]` and whose right cell lists the present design docs in the canonical order (§ Masthead design row — canonical doc order). Links appear only for files that exist.
-
-**Check pattern:** on the anchor page, locate the Design row; assert the left cell is `[[{NAME} Design]]`; assert the right-cell links are a subsequence of the canonical order and every linked file exists.
-
-**Why:** the masthead is the navigation hub; an ordered, existing-only Design row gives a stable one-glance index of the design pipeline. Order is owned here; structural enforcement is `R-dispatch-table-04`.
 
 # BRIEF
 

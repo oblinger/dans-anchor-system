@@ -305,7 +305,10 @@ A long-form writeup anchor (`traits: [Paper]`) — a paper / whitepaper that goe
 
 A single skill-ecosystem spec page — a **facet**, a **discipline**, or a **skill-doc** (the documentation page for a skill; *not* the skill folder's `SKILL.md` runbook, which is out of scope).
 - **Masthead roster:** breadcrumb + Anchor + **Design** (only if a `{NAME} Design/` folder exists) + Related.
-- **No `Track` row** — tracking is centralized in SKA (this is R-anchor-page-15 in kind terms).
+- **Owns Design, not Track** — every SKA sub-project anchor (skill / facet / discipline / example) **owns its own design but never its own tracking**. Per [[SKA Decisions|D08]] all activity-tracking for the skills ecosystem lives on the **shared SKA surface** (`SKA Backlog` / `SKA Features` / `SKA Messages` / …); a per-anchor `{NAME} Track/` is forbidden for these kinds.
+- **No `Track` row** — follows from the above (this is R-anchor-page-15 in kind terms).
+- **Minimum shape** — a dispatch table + a `{NAME} Design/` folder that may hold **only its `.anchor` marker** (no design docs yet). It grows by adding `{NAME} PRD.md` and other design docs as the anchor earns them — many skills / facets need little design. The Design row (R-anchor-page-13) appears once the folder holds linkable docs.
+- **Flat layout** — `{NAME} Design/` sits **directly under the anchor root**, with **no `{NAME} Docs/` wrapper** (the wrapper is for large project anchors; SKA sub-projects stay flat).
 - **Member zone:** none.
 - **Content** differs by sub-kind (facet spec vs. discipline vs. skill-doc) but the page *structure* is shared — one ruleset, three example flavors.
 - **Examples:** facet → [[FCT Anchor Page]]; discipline → [[DSC progressive-disclosure]]; skill-doc → [[SKL Mint]] *(currently a thin doc with no masthead — the bring-up target, tracked separately; do not treat as compliant).*
