@@ -1595,6 +1595,24 @@ def chk_dispatch_table_stories_row(target, anchor_root, args):
     return "fail", f"no Stories row linking [[{name} Stories]]"
 
 
+# -- R-doc-structure / R-stories ----------------------------------------------
+
+def chk_no_dispatch_table(target, anchor_root, args):
+    """Fail if the document carries a breadcrumb-masthead dispatch table.
+
+    Used by R-stories-12: story files and the stories index are non-anchors and
+    must not carry a dispatch table (per [[FCT Doc Structure]] R-doc-structure-02).
+    Back-links belong in a ## Related / ## See also section, not a masthead."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    for i, ln in enumerate(_read(f).splitlines(), 1):
+        if re.search(r"^\|\s*-\[\[.+?\]\]-\s*\|", ln):
+            return "fail", (f"non-anchor doc has a dispatch-masthead table (line {i}); "
+                            "remove it — back-links go in ## Related")
+    return "pass", "no dispatch table"
+
+
 # -- R-roadmap -----------------------------------------------------------------
 
 def chk_file_exists(target, anchor_root, args):
@@ -2372,6 +2390,8 @@ CHECKERS = {
     "no_legacy_open_questions_file": chk_no_legacy_open_questions_file,
     "design_workflow_modern_names": chk_design_workflow_modern_names,
     "dispatch_table_stories_row": chk_dispatch_table_stories_row,
+    # R-doc-structure / R-stories
+    "no_dispatch_table": chk_no_dispatch_table,
     # R-roadmap
     "file_exists": chk_file_exists,
     "milestone_checkbox": chk_milestone_checkbox,
