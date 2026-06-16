@@ -4,7 +4,7 @@ description: "Curated, versioned bundles of rules."
 
 # Rulesets
 
-| -[[Rulesets]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [Rulesets](hook://p/Rulesets)<br>: Curated, versioned bundles of rules. |
+| -[[Rulesets]]- | → [[KM]] → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [Rulesets](hook://p/Rulesets)<br>: Curated, versioned bundles of rules. |
 | --- | --- |
 | Related | [[Rulesets Brief\|Brief]],  [[FCT Ruleset]],  [[FCT Decisions]],   |
 | **CAB-aligned umbrellas** | The three primary structural axes — rulesets tied to CAB Facets, Traits, Skills. Adopting an umbrella pulls every per-X ruleset under it. |
@@ -14,7 +14,7 @@ description: "Curated, versioned bundles of rules."
 | **Cross-cutting** | Not tied to a specific facet, trait, or skill. Pulled in when explicitly opted into. |
 | [[R-arch]] | Architecture rules — code organization, module structure, dependency direction. Placeholder; future: `R-factory-pegboard`, `R-interfaces-folder`, `R-single-source-of-truth`. |
 | [[R-code]] | Code-flavored rulesets — language/platform conventions. Contains [[R-mac]]. Future: `R-rust`, `R-python`, `R-typescript`, `R-shell`. |
-| [[R-diagram]] | Diagram authoring + validation — **umbrella over 7 methodology sub-sets, 22 rules total**: [[R-diagram-geometry]] (6), [[R-sugiyama]] (4), [[R-c4]] (4), [[R-wcag-contrast]] (2), [[R-bringhurst-typography]] (1), [[R-tufte-data-ink]] (2), [[R-svg-hygiene]] (3). Factored 2026-06-09 per F132 Phase 1; see [[R-diagram]] § Migration map for legacy R-diagram-NN → factored-ID lookup. |
+| [[R-diagram]] | Diagram authoring + validation — **umbrella over 7 methodology sub-sets, 22 rules total**: [[R-diagram-geometry]] (6), [[R-sugiyama]] (4), [[R-c4]] (4), [[R-wcag-contrast]] (2), [[R-bringhurst-typography]] (1), [[R-tufte-data-ink]] (2), [[R-svg-hygiene]] (3). Factored 2026-06-09 per F132 Phase 1; reorganized 2026-06-16 per F132 Q5=B into **per-domain folders** under `Rulesets/` — `Diagram/` ([[R-diagram]] umbrella + [[R-c4]]), `Graph/` ([[R-sugiyama]]), `Structural/` ([[R-diagram-geometry]]), `Accessibility/` ([[R-wcag-contrast]]), `Typography/` ([[R-bringhurst-typography]]), `Visualization/` ([[R-tufte-data-ink]]), `SVG/` ([[R-svg-hygiene]]) — so cross-cutting domains can later hold non-diagram rulesets; the umbrella re-composes them via wiki-link `include::`. See [[R-diagram]] § Migration map for legacy R-diagram-NN → factored-ID lookup. |
 | [[R-doc]] | Documentation conventions. Contains [[R-markdown]] (10 rules — embedded in [[DSC markdown]] discipline; supersedes legacy [[R-md]]), [[R-file-association]] (7 rules — general typed-association pattern, embedded in [[DSC file-association]]) and its dated specialization [[R-dated-entry-stream]] (3 rules — embedded in [[DSC dated-entry-stream]]; inherits R-file-association). Future: `R-progressive-disclosure`, `R-wiki-links`, `R-file-naming`. |
 | [[R-git]] | Git discipline. Placeholder; future: `R-commit-discipline`, `R-pr-workflow`, `R-no-force-main`. |
 | [[R-process]] | Process rules. Placeholder; future: `R-feature-lifecycle`, `R-verification-tiers`. |

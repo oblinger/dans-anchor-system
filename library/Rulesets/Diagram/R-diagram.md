@@ -4,7 +4,7 @@ description:: Umbrella for hand-authored figure validation; composes 7 methodolo
 
 Hand-authored figures (architecture, flow, sequence, mockup diagrams) ship clean under a structural-correctness-first discipline: the diagram doesn't ship until the rule-checker emits zero errors. Adopting R-diagram pulls all 22 rules via the sub-sets composed in `include::` above; cherry-pick an individual sub-set for finer control. R-diagram has no rules of its own.
 
-Factored 2026-06-09 from a monolithic 22-rule R-diagram set, per F132 Phase 1. Each sub-set carries its own provenance callout in its file.
+Factored 2026-06-09 from a monolithic 22-rule R-diagram set, per F132 Phase 1. Each sub-set carries its own provenance callout in its file. Reorganized 2026-06-16 (F132 Q5=B): the 5 cross-cutting methodology sub-sets moved into per-domain sibling folders (`Graph/`, `Structural/`, `Accessibility/`, `Typography/`, `Visualization/`, `SVG/`); the umbrella and `R-c4` stay in `Diagram/`. The `include::` above is unchanged — it resolves by wiki-link basename regardless of folder.
 
 ## Diagram rulesets
 
@@ -52,4 +52,4 @@ Factored 2026-06-09 from a monolithic 22-rule R-diagram set, per F132 Phase 1. E
 - [[Rulesets]] — parent catalog.
 - [[FCT Ruleset]] — RULESET format spec.
 - [[2026-06-08 diagram-auditing-methodologies]] — 20-source survey that seeded these rules.
-- F132 Phase 1 — factoring landed 2026-06-09.
+- F132 Phase 1 — factoring landed 2026-06-09; per-domain reorganization landed 2026-06-16 (Q5=B).
