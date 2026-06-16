@@ -312,6 +312,21 @@ audit-q residual — N findings outstanding (see B-QFix on the backlog):
 2. **Iteration cap = 3.** Matches `audit-q-fix.md` 3-pass cap. On cap, the (rare) genuinely-stuck residual is filed as QFix and surfaced — the loop is bounded.
 3. **Anchor-local.** `/triage`'s loop iterates on findings whose `surface_file` is under the cwd anchor's tree. Cross-anchor findings route to the owning anchor's `QFix` row by `surface_file` path; they're visible (informational at chat-exit time) and the owning anchor's next `/triage` loop addresses them under the same 100%-fix rule.
 
+### 5.5. Worktree check (lazy refresh)
+
+Surface git worktrees carrying **un-landed work** — uncommitted changes, or commits never merged back to the default branch — in `claude --worktree` / Cmd+T checkouts under `<repo>/.claude/worktrees/`. The risk is **lost or stale work**, not disk (these worktrees are tiny). `/triage` does **NO git work itself**: it reads a cache the `worktree-check` script maintains, and only triggers a rescan in the background when that cache is stale. The scan thus lives entirely off triage's critical path (same principle as Q.md being a rendered cache).
+
+1. **Read the cache** `~/.config/worktree-check/findings.md`. If it is **non-empty**, include its contents verbatim in the chat output, immediately **before** the banner line (§ 7), under its own `## Worktrees needing attention` heading. If empty or absent, surface nothing.
+2. **Lazy background refresh** — fire the rescan without blocking, then move on:
+
+```bash
+python3 ~/.claude/skills/triage/scripts/worktree-check --if-stale 72 --quiet &
+```
+
+   The script no-ops if it last ran < 72h ago; otherwise it rescans all worktrees under the configured roots and rewrites the cache for the *next* `/triage`. **Never wait on it** — the current pass uses whatever the cache already holds.
+
+Manual use: `worktree-check` (scan + print now) or `worktree-check --help`. Roots default to `~/ob/proj` + `~/ob/kmr`; override via `~/.config/worktree-check/roots.txt`.
+
 ### 6. Glance Q.md — NEVER glance the per-anchor Triage file
 
 Always glance the global Agent Status dashboard after the regen completes:
