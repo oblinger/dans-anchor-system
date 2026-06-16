@@ -23,7 +23,7 @@ UX Design specifies the **human user surface** of the anchor — how a person di
 > [!info] Scope guard
 > "UX" here is the broad sense — *user-facing surface* — not narrowly "visual interface." For a CLI scheduler the UX is the command set, output shapes, and error voice. For a GUI app it is screens + flows. For a skill repository (no pixels) it is the slash-command surface and organization. If the anchor has no human consumer, this facet is N/A; mark it `none` in [[FCT Status]] and omit the file.
 
-The UX Design doc is the **current spec** — what the surface looks like today, not what alternatives were considered. Rationale lives in [[FCT Decisions]] or in the document's own *D-UX<n>* design-decision rows (see [[#RULESET R-ux|R-ux]]). Exhaustive flag/option reference for CLIs lives in the sibling [[FCT CLI]] doc; UX Design captures the *intent* (what commands exist, what they mean, what output they produce), CLI doc is the *reference* (every flag, every exit code).
+The UX Design doc is the **current spec** — what the surface looks like today, not what alternatives were considered. Rationale lives in [[FCT Decisions]] or in the document's own `D-UX<n>` design-decision rows (see [[#RULESET R-ux|R-ux]]). Exhaustive flag/option reference for CLIs lives in the sibling [[FCT CLI]] doc; UX Design captures the *intent* (what commands exist, what they mean, what output they produce), CLI doc is the *reference* (every flag, every exit code).
 
 ## Location
 
@@ -43,7 +43,7 @@ Per [[DSC progressive-disclosure]]:
 | H2 | What it carries |
 |---|---|
 | `## Audience` | One paragraph: who the human consumer is, what context they're in (terminal? Obsidian? browser?), what they know going in, what their goal is. Sets the frame for every following decision. |
-| `## Entry-points` | The spine table. Every command / screen / affordance listed once with: name, one-line purpose, source story (US-<RID>-<N>). For CLIs: command name + one-line synopsis. For GUIs: screen name + one-line purpose. |
+| `## Entry-points` | The spine table. Every command / screen / affordance listed once with: name, one-line purpose, source story (`US-<RID>-<N>`). For CLIs: command name + one-line synopsis. For GUIs: screen name + one-line purpose. |
 | `## Output shapes` | Both forms named explicitly: human-readable default (what the user sees with their eyes) AND structured opt-in (`--json`, machine-readable export, copyable payload). Realistic example for each. |
 | `## Error voice` | The named error situations + the exact (or templated) message + exit code (CLI) or alert pattern (GUI). Tone is declared at the top (terse / friendly / verbose). |
 | `## Discovery` | How the human finds the entry-points: `--help` text, dispatch table in `{NAME}.md`, hotkey hints, banner copy. Names the signal the user follows on first encounter. |
@@ -119,7 +119,7 @@ A `## Discovery` H2 (or equivalent) names how the human finds the entry-points o
 
 **Why:** a surface without discovery is invisible; UX Design is incomplete without naming how the user finds the surface in the first place.
 
-### RULE R-ux-07 — Design decisions captured as D-UX<n> rows (sampled)
+### RULE R-ux-07 — Design decisions captured as `D-UX<n>` rows (sampled)
 
 Load-bearing UX choices (a chosen affordance over an obvious alternative, a chosen output shape over a sibling, a chosen naming convention) appear as `D-UX<n>` rows under `## Design decisions` with: choice, alternatives considered, rationale (one or two sentences).
 

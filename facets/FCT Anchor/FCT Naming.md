@@ -39,7 +39,7 @@ Some facets define alternative naming patterns that are unique enough on their o
 
 These patterns appear inside anchor sub-folders (`{NAME} Track/{NAME} Features/`, `{NAME} Design/{NAME} PRD/`, `{NAME}/{NAME} Log/`) where the parent folder already encodes the anchor scope. The filename itself doesn't need to.
 
-Each exception pattern is **declared by the facet that owns it**. Facets that define alternative patterns also state their uniqueness contract (e.g., F-numbers are monotonic-forever per anchor; US-<RID>-<N> encodes the RID directly). When a new facet introduces an alternative pattern, this list grows.
+Each exception pattern is **declared by the facet that owns it**. Facets that define alternative patterns also state their uniqueness contract (e.g., F-numbers are monotonic-forever per anchor; `US-<RID>-<N>` encodes the RID directly). When a new facet introduces an alternative pattern, this list grows.
 
 ## Exception C — slug-prefix sufficient by chance
 
@@ -114,7 +114,7 @@ Files matching a facet-sanctioned alternative pattern are exempt from the slug-p
 
 **Check pattern:** R-naming-01's check accepts files matching any of the regex shapes above as a pass.
 
-**Why:** these patterns are unique enough on their own (F-numbers monotonic-forever, US-<RID>-<N> encodes RID directly, ISO dates plus topic). Adding a slug prefix would be redundant. The parent folder (`{NAME} Track/{NAME} Features/`, `{NAME} Design/{NAME} PRD/`, `{NAME}/{NAME} Log/`) already encodes anchor scope.
+**Why:** these patterns are unique enough on their own (F-numbers monotonic-forever, `US-<RID>-<N>` encodes RID directly, ISO dates plus topic). Adding a slug prefix would be redundant. The parent folder (`{NAME} Track/{NAME} Features/`, `{NAME} Design/{NAME} PRD/`, `{NAME}/{NAME} Log/`) already encodes anchor scope.
 
 ### RULE R-naming-04 — Slug-prefix-sufficient-by-chance allowed sparingly (stated)
 

@@ -118,7 +118,7 @@ Any anchor that has a `{NAME} Design/` folder per [[FCT Design]]. Initially supp
 
 ## Audit
 
-`/audit prd` (future) would flag the rules captured in `R-prd` below — body-only shape, required-section presence, US-<RID>-<N> story numbering, no legacy Open Questions file, etc.
+`/audit prd` (future) would flag the rules captured in `R-prd` below — body-only shape, required-section presence, `US-<RID>-<N>` story numbering, no legacy Open Questions file, etc.
 
 ## See also
 

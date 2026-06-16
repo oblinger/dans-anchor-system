@@ -1,7 +1,7 @@
 ---
-description: skill-search-rules — facet specifying how search-family skills layer methodology, default rules, and user rules. Defaults at <skill>/rules/; user overrides at SRC rules/.
+description: skill-search-rules — facet specifying how search-family skills layer methodology, default rules, and user rules. Defaults at `<skill>`/rules/; user overrides at SRC rules/.
 applies-when-trait: Skill Anchor
-location: ~/.claude/skills/<skill-name>/rules/  (defaults)  +  ~/ob/kmr/Topic/Search/SRC rules/  (user overrides)
+location: ~/.claude/skills/`<skill-name>`/rules/  (defaults)  +  ~/ob/kmr/Topic/Search/SRC rules/  (user overrides)
 ---
 
 # CAB skill-search-rules

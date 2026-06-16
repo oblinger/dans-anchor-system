@@ -4,7 +4,7 @@ description:: File-naming rules vault-wide — slug-prefix default + explicit ex
 
 Catalog-side stub for the Naming facet ruleset. Canonical body lives embedded inside [[FCT Naming]] per [[F133 — Rulesets folder convention + facet embedding|F133]].
 
-**To see the actual rules:** follow [[FCT Naming#RULESET R-naming|the embedded block]]. 5 rules covering: default `{NAME} <X>.md` form inside anchors, vault-global exemption (Atlas, MY, etc.), facet-sanctioned unique patterns allowlist (F-numbers, US-<RID>-<N>, ISO dates per CAB Features / Stories / Log), slug-prefix-sufficient-by-chance escape valve, folder-anchor marker-file matches folder name.
+**To see the actual rules:** follow [[FCT Naming#RULESET R-naming|the embedded block]]. 5 rules covering: default `{NAME} <X>.md` form inside anchors, vault-global exemption (Atlas, MY, etc.), facet-sanctioned unique patterns allowlist (F-numbers, `US-<RID>-<N>`, ISO dates per CAB Features / Stories / Log), slug-prefix-sufficient-by-chance escape valve, folder-anchor marker-file matches folder name.
 
 ## Adoption
 

@@ -1,5 +1,5 @@
 ---
-description: "the Ruleset facet — what a ruleset is and the format every ruleset file (a standalone R-<slug> or an anchor-local {NAME} Rules.md) must take"
+description: "the Ruleset facet — what a ruleset is and the format every ruleset file (a standalone `R-<slug>` or an anchor-local {NAME} Rules.md) must take"
 ---
 
 # FCT Ruleset
