@@ -2466,9 +2466,29 @@ def check_c35_ask_md_drift(
                 else:
                     break
             claimed = sorted({int(m.group(1)) for m in q_ref_re.finditer(bullet_text)})
+            pending_qs = {q.q_num for q in extract_q_entries(target_file, container_id)}
+            # Core drift (F176 fix): a feature listed under `## Questions` whose
+            # linked doc has ZERO pending Qs is wrong regardless of whether the
+            # bullet enumerates specific `Q<n>` numbers. The earlier logic only
+            # fired when explicit Q-numbers were claimed, so a prose pendingness
+            # claim ("4 design Qs pending", no Q<n> token) against an all-resolved
+            # doc slipped through (observed: MUX F125, 2026-06-16).
+            if not pending_qs:
+                findings.append(Finding(
+                    severity="warning",
+                    surface_file=queries_file,
+                    surface_line=line_num + 1,
+                    code="C35",
+                    message=(
+                        f"queries.md lists {container_id} under `## Questions` but "
+                        f"its linked doc has no pending Qs (all resolved or absent). "
+                        f"Remove the entry / re-run /query to rebuild from current state."
+                    ),
+                    mechanically_fixable=False,
+                ))
+                continue
             if not claimed:
                 continue
-            pending_qs = {q.q_num for q in extract_q_entries(target_file, container_id)}
             stale = [q for q in claimed if q not in pending_qs]
             if not stale:
                 continue
