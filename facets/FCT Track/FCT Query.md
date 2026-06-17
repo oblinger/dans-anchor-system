@@ -49,11 +49,29 @@ Sections, when present, appear in this order and no foreign H2s interleave: `## 
 
 ## Verifications — agent runs, user judges
 
-### RULE R-query-04 — Verifications are `V<n>` and end in a yes/no on an agent-produced artifact (checked)
+### RULE R-query-04 — Verifications begin with a bold `**V<n>` handle and carry an answer shape (checked)
+check:: queries_verification_handle_and_shape
 
-Each `## Verifications` item is numbered `V1`, `V2`, … and asks the user to **judge** something the agent produced (an embedded image / output / rendered artifact), ending in a yes/no.
+Each `## Verifications` bullet **begins** with a bold `**V<n>` handle (so it's answerable by reference — `V1: yes`) and asks the user to **judge** something the agent produced (an embedded image / output / rendered artifact), carrying an answer shape — a bold `**yes/no**`. Enforced mechanically by audit-q **C38** (handle) + **C40** (answer shape).
 
-**Check pattern:** each Verifications bullet starts with `V<n>` and contains a yes/no prompt (e.g. `(yes / no)`); ideally an embed (`![[…]]`) or quoted output is present.
+**Check pattern:** each Verifications bullet starts with `- **V<n>` and contains a bold yes/no prompt; ideally an embed (`![[…]]`) or quoted output is present.
+
+```python
+import re
+V_HANDLE = re.compile(r"^\s*-\s+\*\*V\d+\b")
+YESNO    = re.compile(r"\*\*[^*]*yes\s*/\s*no[^*]*\*\*", re.IGNORECASE)
+OPTION   = re.compile(r"\*\*\([A-Za-z]\)\*\*")
+
+def check_verification(bullet_opener: str, full_bullet: str) -> list[str]:
+    """bullet_opener = the `- …` line; full_bullet = opener + indented
+    continuations joined. Returns a list of violation codes."""
+    out = []
+    if not V_HANDLE.match(bullet_opener):
+        out.append("C38: must begin with a bold **V<n> handle")
+    if not (YESNO.search(full_bullet) or OPTION.search(full_bullet)):
+        out.append("C40: needs a bold **yes/no** (or labeled options)")
+    return out
+```
 
 ### RULE R-query-05 — A verification never asks the user to run/execute anything (checked)
 check:: regex_absent (?im)^[-*]\s+\*\*V\d+.*\b(run|execute|launch|invoke)\b
@@ -74,11 +92,34 @@ Every line under Verifications / Immediate Questions / Questions is either a que
 
 ## Questions
 
-### RULE R-query-08 — Immediate Questions are numbered and self-contained (checked)
+### RULE R-query-08 — Immediate Questions begin with `**Q<n>`, carry an answer shape, and a Recommendation (checked)
+check:: queries_immediate_question_format
 
-Each `## Immediate Questions` item leads with a **bold citation handle** so the user can answer by reference (`F176 Q1: yes`, `Q2: B`), and is readable without opening anything: the handle, one line of context (names the feature + what it's about), then a ≤2-line question, ideally yes/no. The handle is the source feature's native `F<n> Q<m>` when the item routes a feature-doc open question; otherwise an anchor-local `Q<n>` numbered within the section.
+Each `## Immediate Questions` bullet **begins** with a bold anchor-local `**Q<n>` handle (so the user answers by reference — `Q1: A`), is readable without opening anything (one line of context naming the feature + what it's about), and carries **both**:
+- an **answer shape** — a bold `**yes/no**` or bold labeled options `**(A)** / **(B)** / **(C)**`; and
+- the word **Recommendation** (which may be `None`) — the rule forces the agent to *consider* whether it has a recommendation, not to manufacture one.
 
-**Check pattern:** each Immediate Questions bullet's visible lead token is bold and matches `F<n> Q<m>` or `Q<n>`; the bullet contains a question (ideally `(yes / …)`).
+Any feature the item names is a wiki-link (R-query-13), to the feature doc or the backlog row. The handle is always an anchor-local `Q<n>` numbered within the section — a feature's *native* `F<n> Q<m>` is referenced in the body, but the answer handle is the queries-local `Q<n>`. Enforced by audit-q **C39** (handle) + **C40** (shape) + **C41** (recommendation).
+
+**Check pattern:** each Immediate Questions bullet starts with `- **Q<n>`, contains a bold yes/no or bold `(A)`/`(B)` options, and contains the word `Recommendation`.
+
+```python
+import re
+Q_HANDLE = re.compile(r"^\s*-\s+\*\*Q\d+\b")
+YESNO    = re.compile(r"\*\*[^*]*yes\s*/\s*no[^*]*\*\*", re.IGNORECASE)
+OPTION   = re.compile(r"\*\*\([A-Za-z]\)\*\*")
+RECO     = re.compile(r"\bRecommendation\b")
+
+def check_immediate_question(bullet_opener: str, full_bullet: str) -> list[str]:
+    out = []
+    if not Q_HANDLE.match(bullet_opener):
+        out.append("C39: must begin with a bold **Q<n> handle")
+    if not (YESNO.search(full_bullet) or OPTION.search(full_bullet)):
+        out.append("C40: needs a bold **yes/no** or bold **(A)/(B)/(C)** options")
+    if not RECO.search(full_bullet):
+        out.append('C41: missing the word "Recommendation" (may be "None")')
+    return out
+```
 
 ### RULE R-query-09 — Catch-all Questions link in `F<n> Q<m>` form (checked)
 
@@ -99,6 +140,25 @@ When a feature has more than three open questions, `## Questions` carries a sing
 ### RULE R-query-12 — Ready lists backlog `[Ready]` features and carries no questions (stated)
 
 `## Ready` (optional) lists features that are `[Ready]` on the backlog, for visibility only. It contains no questions or verifications; the backlog is the source of truth.
+
+## Cross-cutting
+
+### RULE R-query-13 — A bullet that names an F-number links it (checked)
+check:: queries_fnumber_is_link
+
+Any `F<n>` token appearing in *any* queries bullet must be inside a `[[…]]` wiki-link — to its feature doc `[[F<n> — Title|F<n>]]` when one exists, else to the backlog row `[[{NAME} Backlog#^F<n>|F<n>]]` (many items are bare backlog rows with no feature doc — e.g. an undesigned `[Ready]` sweep). A bare `F135` is forbidden: the user must always be one click from the item's home. Enforced by audit-q **C37**.
+
+**Check pattern:** blank every `[[…]]` span, then search the remainder of the bullet for `\bF\d+\b`; any match is a bare (unlinked) F-number.
+
+```python
+import re
+WIKILINK = re.compile(r"\[\[[^\]]*\]\]")
+FNUM     = re.compile(r"\bF\d{1,4}\b")
+
+def bare_fnumbers(full_bullet: str) -> list[str]:
+    """F-numbers in the bullet that are NOT inside a wiki-link → violations."""
+    return sorted(set(FNUM.findall(WIKILINK.sub("", full_bullet))))
+```
 
 # BRIEF
 

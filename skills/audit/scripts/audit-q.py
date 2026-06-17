@@ -2577,9 +2577,10 @@ def check_c37_queries_item_format(anchor_backlogs: dict[str, Path]) -> list[Find
                 findings.append(Finding(
                     severity="error", surface_file=qf, surface_line=ln, code="C37",
                     message=(
-                        f"bare F-number `{fn}` must be a wiki-link "
-                        f"(e.g. `[[{fn} — Title|{fn}]]`) — a queries bullet that "
-                        f"names a feature must link it."),
+                        f"bare F-number `{fn}` must be a wiki-link — to its feature "
+                        f"doc `[[{fn} — Title|{fn}]]` if one exists, else to the "
+                        f"backlog row `[[{{NAME}} Backlog#^{fn}|{fn}]]` (many items "
+                        f"are bare backlog rows with no feature doc)."),
                     mechanically_fixable=False))
 
             if is_verif and not _Q_VHANDLE_RE.match(line):
