@@ -2514,6 +2514,110 @@ def check_c35_ask_md_drift(
 
 
 ################################################################
+# C37–C41 — {NAME} queries.md answer-section format
+# (user direction 2026-06-16): the items a user answers must be
+# referenceable + well-formed so an answer like "Q2: A" / "V1: yes"
+# is unambiguous, and every decision forces the agent to state a
+# recommendation (even "None").
+################################################################
+
+_Q_WIKILINK_RE = re.compile(r"\[\[[^\]]*\]\]")
+_Q_FNUM_RE = re.compile(r"\bF\d{1,4}\b")
+_Q_BULLET_RE = re.compile(r"^\s*-\s+")
+_Q_VHANDLE_RE = re.compile(r"^\s*-\s+\*\*V\d+\b")
+_Q_QHANDLE_RE = re.compile(r"^\s*-\s+\*\*Q\d+\b")
+_Q_YESNO_RE = re.compile(r"\*\*[^*]*yes\s*/\s*no[^*]*\*\*", re.IGNORECASE)
+_Q_OPTION_RE = re.compile(r"\*\*\([A-Za-z]\)\*\*")
+_Q_RECO_RE = re.compile(r"\bRecommendation\b")
+
+
+def check_c37_queries_item_format(anchor_backlogs: dict[str, Path]) -> list[Finding]:
+    """Format rules for the answer-requiring sections of `{NAME} queries.md`:
+
+      C37 — bare F-number must be a wiki-link (any bullet, any section).
+      C38 — `## Verifications` bullets begin with a bold `**V<n>` handle.
+      C39 — `## Immediate Questions` bullets begin with a bold `**Q<n>` handle.
+      C40 — `## Verifications` + `## Immediate Questions` bullets carry an answer
+            shape: bold `**yes/no**`, or bold labeled options `**(A)** / **(B)**`.
+      C41 — `## Immediate Questions` bullets contain the word `Recommendation`
+            (may be 'None' — the rule forces the agent to *consider* whether it
+            has a recommendation, not to manufacture one).
+    """
+    findings: list[Finding] = []
+    for name, backlog_file in anchor_backlogs.items():
+        qf = backlog_file.parent / f"{name} queries.md"
+        if not qf.is_file():
+            continue
+        try:
+            lines = qf.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeDecodeError):
+            continue
+        section: Optional[str] = None
+        for i, line in enumerate(lines):
+            h = re.match(r"^##\s+(.+?)\s*$", line)
+            if h:
+                section = h.group(1).strip()
+                continue
+            if not _Q_BULLET_RE.match(line):
+                continue
+            ln = i + 1
+            # Whole bullet = opener line + indented continuation lines.
+            bullet = line
+            j = i + 1
+            while j < len(lines) and (lines[j].startswith("  ")
+                                      or lines[j].startswith("\t")):
+                bullet += " " + lines[j].strip()
+                j += 1
+            is_verif = (section == "Verifications")
+            is_imm = (section == "Immediate Questions")
+
+            # C37 — bare F-number anywhere in the bullet (links blanked first).
+            bare = sorted(set(_Q_FNUM_RE.findall(_Q_WIKILINK_RE.sub("", bullet))))
+            for fn in bare:
+                findings.append(Finding(
+                    severity="error", surface_file=qf, surface_line=ln, code="C37",
+                    message=(
+                        f"bare F-number `{fn}` must be a wiki-link "
+                        f"(e.g. `[[{fn} — Title|{fn}]]`) — a queries bullet that "
+                        f"names a feature must link it."),
+                    mechanically_fixable=False))
+
+            if is_verif and not _Q_VHANDLE_RE.match(line):
+                findings.append(Finding(
+                    severity="error", surface_file=qf, surface_line=ln, code="C38",
+                    message=("Verifications bullet must begin with a bold `**V<n>` "
+                             "handle (e.g. `- **V1 — …`) so you can answer it by "
+                             "reference (`V1: yes`)."),
+                    mechanically_fixable=False))
+            if is_imm and not _Q_QHANDLE_RE.match(line):
+                findings.append(Finding(
+                    severity="error", surface_file=qf, surface_line=ln, code="C39",
+                    message=("Immediate Questions bullet must begin with a bold "
+                             "`**Q<n>` handle (e.g. `- **Q1 — …`) so you can answer "
+                             "it by reference (`Q1: A`)."),
+                    mechanically_fixable=False))
+            if is_verif or is_imm:
+                if not (_Q_YESNO_RE.search(bullet) or _Q_OPTION_RE.search(bullet)):
+                    findings.append(Finding(
+                        severity="error", surface_file=qf, surface_line=ln, code="C40",
+                        message=("no answer shape — a user-answered item needs a "
+                                 "bold `**yes/no**` or bold labeled options "
+                                 "`**(A)** / **(B)** / …`."),
+                        mechanically_fixable=False))
+            if is_imm and not _Q_RECO_RE.search(bullet):
+                hm = re.match(r"^\s*-\s+\*\*([A-Za-z]*\d+)", line)
+                handle = hm.group(1) if hm else f"line {ln}"
+                findings.append(Finding(
+                    severity="error", surface_file=qf, surface_line=ln, code="C41",
+                    message=(
+                        f"{handle} (line {ln}) has no Recommendation (the word "
+                        f"\"Recommendation\" must appear — it may be \"None\"). "
+                        f"You're forced to consider whether you have one."),
+                    mechanically_fixable=False))
+    return findings
+
+
+################################################################
 # C36 (F126) — backtick-quoted file-paths must be links
 ################################################################
 
@@ -3452,12 +3556,22 @@ def main() -> int:
     all_q_entries: list[QEntry] = []
     for container_id, file_path in ask_format_files:
         all_q_entries.extend(extract_q_entries(file_path, container_id))
-    findings.extend(check_c6_block_id_present(all_q_entries))
-    findings.extend(check_c8_inline_alternatives(all_q_entries))
-    findings.extend(check_c9_recommendation_present(all_q_entries))
-    findings.extend(check_c10_recommendation_outdent(all_q_entries))
-    findings.extend(check_c19_option_bullets(all_q_entries))
-    findings.extend(check_c20_blank_after_recommendation(all_q_entries))
+    # The C6/C8/C9/C10/C19/C20 checks enforce the *multi-line* feature-doc
+    # `## Open Questions` format (block-ID, options as own-line sub-bullets, a
+    # separate `- **Recommendation:**` bullet). `{NAME} queries.md` uses the
+    # *compact inline* item format instead, governed by its own checks
+    # (C35/C36/C37–C41 per [[FCT Query]] / R-query). Exclude queries.md from the
+    # feature-doc checks so the two formats don't fight (C8 would otherwise
+    # demand un-inlining the endorsed compact options).
+    feature_q_entries = [
+        q for q in all_q_entries if not q.source_file.name.endswith("queries.md")
+    ]
+    findings.extend(check_c6_block_id_present(feature_q_entries))
+    findings.extend(check_c8_inline_alternatives(feature_q_entries))
+    findings.extend(check_c9_recommendation_present(feature_q_entries))
+    findings.extend(check_c10_recommendation_outdent(feature_q_entries))
+    findings.extend(check_c19_option_bullets(feature_q_entries))
+    findings.extend(check_c20_blank_after_recommendation(feature_q_entries))
     findings.extend(check_c21_empty_open_questions(ask_format_files, all_q_entries))
     # C22 — link existence across feature docs + backlogs + queries.md files
     c22_scope: list[Path] = []
@@ -3497,6 +3611,7 @@ def main() -> int:
     # `{NAME} queries.md` (per F176). Runs once after the per-anchor loop (not
     # per anchor), since each queries file is keyed by its sibling backlog's name.
     findings.extend(check_c35_ask_md_drift(anchor_backlogs, vault_index))
+    findings.extend(check_c37_queries_item_format(anchor_backlogs))
     # F126 — C36 backtick-filepath check. Runs on Q.md (when in scope),
     # every per-anchor `{NAME} queries.md`, AND every anchor backlog —
     # backlog rows are the source content that triage-section.py copies
