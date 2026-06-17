@@ -2523,12 +2523,10 @@ def check_c35_ask_md_drift(
 
 _Q_WIKILINK_RE = re.compile(r"\[\[[^\]]*\]\]")
 _Q_FNUM_RE = re.compile(r"\bF\d{1,4}\b")
-_Q_BULLET_RE = re.compile(r"^\s*-\s+")
 _Q_VHANDLE_RE = re.compile(r"^\s*-\s+\*\*V\d+\b")
 _Q_QHANDLE_RE = re.compile(r"^\s*-\s+\*\*Q\d+\b")
 _Q_YESNO_RE = re.compile(r"\*\*[^*]*yes\s*/\s*no[^*]*\*\*", re.IGNORECASE)
 _Q_OPTION_RE = re.compile(r"\*\*\([A-Za-z]\)\*\*")
-_Q_RECO_RE = re.compile(r"\bRecommendation\b")
 
 
 def check_c37_queries_item_format(anchor_backlogs: dict[str, Path]) -> list[Finding]:
@@ -2553,26 +2551,41 @@ def check_c37_queries_item_format(anchor_backlogs: dict[str, Path]) -> list[Find
         except (OSError, UnicodeDecodeError):
             continue
         section: Optional[str] = None
+        toplevel = re.compile(r"^-\s+")
+        reco_bullet = re.compile(r"^-\s+\*\*Recommendation\b")
         for i, line in enumerate(lines):
             h = re.match(r"^##\s+(.+?)\s*$", line)
             if h:
                 section = h.group(1).strip()
                 continue
-            if not _Q_BULLET_RE.match(line):
+            # Only a TOP-LEVEL bullet opens an item. Indented bullets (option
+            # sub-bullets in the standard expanded format) and the
+            # `- **Recommendation:**` bullet are PART of the item they follow,
+            # not new items — they must not be checked as standalone handles.
+            if not toplevel.match(line):
+                continue
+            if reco_bullet.match(line):
                 continue
             ln = i + 1
-            # Whole bullet = opener line + indented continuation lines.
-            bullet = line
+            # Gather the whole item: opener + following indented lines (options)
+            # + a following top-level `**Recommendation` bullet.
+            item = line
             j = i + 1
-            while j < len(lines) and (lines[j].startswith("  ")
-                                      or lines[j].startswith("\t")):
-                bullet += " " + lines[j].strip()
-                j += 1
+            while j < len(lines):
+                nxt = lines[j]
+                if nxt.startswith("  ") or nxt.startswith("\t"):
+                    item += " " + nxt.strip()
+                    j += 1
+                elif reco_bullet.match(nxt):
+                    item += " " + nxt.strip()
+                    j += 1
+                else:
+                    break
             is_verif = (section == "Verifications")
             is_imm = (section == "Immediate Questions")
 
-            # C37 — bare F-number anywhere in the bullet (links blanked first).
-            bare = sorted(set(_Q_FNUM_RE.findall(_Q_WIKILINK_RE.sub("", bullet))))
+            # C37 — bare F-number anywhere in the item (links blanked first).
+            bare = sorted(set(_Q_FNUM_RE.findall(_Q_WIKILINK_RE.sub("", item))))
             for fn in bare:
                 findings.append(Finding(
                     severity="error", surface_file=qf, surface_line=ln, code="C37",
@@ -2586,35 +2599,27 @@ def check_c37_queries_item_format(anchor_backlogs: dict[str, Path]) -> list[Find
             if is_verif and not _Q_VHANDLE_RE.match(line):
                 findings.append(Finding(
                     severity="error", surface_file=qf, surface_line=ln, code="C38",
-                    message=("Verifications bullet must begin with a bold `**V<n>` "
+                    message=("Verifications item must begin with a bold `**V<n>` "
                              "handle (e.g. `- **V1 — …`) so you can answer it by "
                              "reference (`V1: yes`)."),
                     mechanically_fixable=False))
             if is_imm and not _Q_QHANDLE_RE.match(line):
                 findings.append(Finding(
                     severity="error", surface_file=qf, surface_line=ln, code="C39",
-                    message=("Immediate Questions bullet must begin with a bold "
+                    message=("Immediate Questions item must begin with a bold "
                              "`**Q<n>` handle (e.g. `- **Q1 — …`) so you can answer "
                              "it by reference (`Q1: A`)."),
                     mechanically_fixable=False))
             if is_verif or is_imm:
-                if not (_Q_YESNO_RE.search(bullet) or _Q_OPTION_RE.search(bullet)):
+                if not (_Q_YESNO_RE.search(item) or _Q_OPTION_RE.search(item)):
                     findings.append(Finding(
                         severity="error", surface_file=qf, surface_line=ln, code="C40",
                         message=("no answer shape — a user-answered item needs a "
-                                 "bold `**yes/no**` or bold labeled options "
-                                 "`**(A)** / **(B)** / …`."),
+                                 "bold `**yes/no**` (Verifications) or bold labeled "
+                                 "options `**(A)** / **(B)** / …` (Immediate "
+                                 "Questions). The Recommendation line + option "
+                                 "format are enforced by C9 / C19."),
                         mechanically_fixable=False))
-            if is_imm and not _Q_RECO_RE.search(bullet):
-                hm = re.match(r"^\s*-\s+\*\*([A-Za-z]*\d+)", line)
-                handle = hm.group(1) if hm else f"line {ln}"
-                findings.append(Finding(
-                    severity="error", surface_file=qf, surface_line=ln, code="C41",
-                    message=(
-                        f"{handle} (line {ln}) has no Recommendation (the word "
-                        f"\"Recommendation\" must appear — it may be \"None\"). "
-                        f"You're forced to consider whether you have one."),
-                    mechanically_fixable=False))
     return findings
 
 
@@ -3557,22 +3562,20 @@ def main() -> int:
     all_q_entries: list[QEntry] = []
     for container_id, file_path in ask_format_files:
         all_q_entries.extend(extract_q_entries(file_path, container_id))
-    # The C6/C8/C9/C10/C19/C20 checks enforce the *multi-line* feature-doc
-    # `## Open Questions` format (block-ID, options as own-line sub-bullets, a
-    # separate `- **Recommendation:**` bullet). `{NAME} queries.md` uses the
-    # *compact inline* item format instead, governed by its own checks
-    # (C35/C36/C37–C41 per [[FCT Query]] / R-query). Exclude queries.md from the
-    # feature-doc checks so the two formats don't fight (C8 would otherwise
-    # demand un-inlining the endorsed compact options).
-    feature_q_entries = [
-        q for q in all_q_entries if not q.source_file.name.endswith("queries.md")
-    ]
-    findings.extend(check_c6_block_id_present(feature_q_entries))
-    findings.extend(check_c8_inline_alternatives(feature_q_entries))
-    findings.extend(check_c9_recommendation_present(feature_q_entries))
-    findings.extend(check_c10_recommendation_outdent(feature_q_entries))
-    findings.extend(check_c19_option_bullets(feature_q_entries))
-    findings.extend(check_c20_blank_after_recommendation(feature_q_entries))
+    # `{NAME} queries.md` Immediate Questions use the SAME standard expanded
+    # format as feature-doc `## Open Questions` (option per own-line `**(A)**`
+    # sub-bullet + a `- **Recommendation:**` line) — one format vault-wide
+    # (user direction 2026-06-16). So the shared checks apply to queries.md too:
+    # C6 block-IDs, C8 no-inline, C9 recommendation, C10 outdent, C19 option
+    # bullets, C20 blank-after. (Verifications are `**V<n>` yes/no and aren't
+    # Q-entries, so these don't touch them; queries-specific shape lives in
+    # C37/C38/C39/C40.)
+    findings.extend(check_c6_block_id_present(all_q_entries))
+    findings.extend(check_c8_inline_alternatives(all_q_entries))
+    findings.extend(check_c9_recommendation_present(all_q_entries))
+    findings.extend(check_c10_recommendation_outdent(all_q_entries))
+    findings.extend(check_c19_option_bullets(all_q_entries))
+    findings.extend(check_c20_blank_after_recommendation(all_q_entries))
     findings.extend(check_c21_empty_open_questions(ask_format_files, all_q_entries))
     # C22 — link existence across feature docs + backlogs + queries.md files
     c22_scope: list[Path] = []

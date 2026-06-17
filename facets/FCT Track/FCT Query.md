@@ -92,33 +92,26 @@ Every line under Verifications / Immediate Questions / Questions is either a que
 
 ## Questions
 
-### RULE R-query-08 — Immediate Questions begin with `**Q<n>`, carry an answer shape, and a Recommendation (checked)
-check:: queries_immediate_question_format
+### RULE R-query-08 — Immediate Questions begin with `**Q<n>` and use the standard expanded question format (checked)
+check:: queries_immediate_question_handle
 
-Each `## Immediate Questions` bullet **begins** with a bold anchor-local `**Q<n>` handle (so the user answers by reference — `Q1: A`), is readable without opening anything (one line of context naming the feature + what it's about), and carries **both**:
-- an **answer shape** — a bold `**yes/no**` or bold labeled options `**(A)** / **(B)** / **(C)**`; and
-- the word **Recommendation** (which may be `None`) — the rule forces the agent to *consider* whether it has a recommendation, not to manufacture one.
+Each `## Immediate Questions` item **begins** with a bold anchor-local `**Q<n>` handle (so the user answers by reference — `Q1: A`) and is otherwise the **same standard expanded format as a feature-doc `## Open Questions` item** ([[DSC ask-format]]): a one-line context lead naming the feature + what it's about, a `^{NAME}-Q<n>` block-ID, each option a **bold `**(A)**` sub-bullet on its own line** (never inline — readability over density, user direction 2026-06-16), and a `- **Recommendation:**` line (which may be `None` — the rule forces the agent to *consider* whether it has a recommendation, not to manufacture one).
 
-Any feature the item names is a wiki-link (R-query-13), to the feature doc or the backlog row. The handle is always an anchor-local `Q<n>` numbered within the section — a feature's *native* `F<n> Q<m>` is referenced in the body, but the answer handle is the queries-local `Q<n>`. Enforced by audit-q **C39** (handle) + **C40** (shape) + **C41** (recommendation).
+One format vault-wide: the option-own-line + recommendation-line + block-ID invariants are the **shared** ask-format checks (audit-q **C6/C8/C9/C19/C20**, the same ones feature-doc Qs get); the queries-specific additions are the **`Q<n>` handle** (C39) and that any feature named is a **wiki-link** (R-query-13/C37). The handle is always an anchor-local `Q<n>` — a feature's *native* `F<n> Q<m>` is referenced in the body, but the answer handle is the queries-local `Q<n>`. (Verifications, by contrast, are compact `**V<n>` yes/no — they have no options to expand; see R-query-04.)
 
-**Check pattern:** each Immediate Questions bullet starts with `- **Q<n>`, contains a bold yes/no or bold `(A)`/`(B)` options, and contains the word `Recommendation`.
+**Check pattern (queries-specific, C39):** the *opener* line of each Immediate Questions item starts with `- **Q<n>`. The expanded-format checks are inherited from ask-format and run on the same Q-entries.
 
 ```python
 import re
 Q_HANDLE = re.compile(r"^\s*-\s+\*\*Q\d+\b")
-YESNO    = re.compile(r"\*\*[^*]*yes\s*/\s*no[^*]*\*\*", re.IGNORECASE)
-OPTION   = re.compile(r"\*\*\([A-Za-z]\)\*\*")
-RECO     = re.compile(r"\bRecommendation\b")
 
-def check_immediate_question(bullet_opener: str, full_bullet: str) -> list[str]:
-    out = []
-    if not Q_HANDLE.match(bullet_opener):
-        out.append("C39: must begin with a bold **Q<n> handle")
-    if not (YESNO.search(full_bullet) or OPTION.search(full_bullet)):
-        out.append("C40: needs a bold **yes/no** or bold **(A)/(B)/(C)** options")
-    if not RECO.search(full_bullet):
-        out.append('C41: missing the word "Recommendation" (may be "None")')
-    return out
+def check_immediate_question_handle(opener_line: str) -> list[str]:
+    """opener_line = the top-level `- …` line that opens the item (option
+    sub-bullets and the `- **Recommendation:**` line belong to it, not new
+    items). Only the opener is checked for the handle."""
+    if not Q_HANDLE.match(opener_line):
+        return ["C39: Immediate Questions item must begin with a bold **Q<n> handle"]
+    return []
 ```
 
 ### RULE R-query-09 — Catch-all Questions link in `F<n> Q<m>` form (checked)
