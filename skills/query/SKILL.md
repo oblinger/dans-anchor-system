@@ -50,14 +50,19 @@ After glancing the doc, `/query` may print a few **immediate** items — resolut
 2. **Collect** open questions: each feature doc's `## Open Questions` (≤3 enumerate / >3 link) + backlog questions.
 3. **Route** each via the determination logic. For auto-resolves, make the guess and (where it shapes a doc) apply it. For do-it-yourself checks, run them now / backlog them.
 4. **Write** the four sections in order, each item in its section's format. Verifications are `V<n>` and specific; immediate questions lead with a bold handle (`F<n> Q<m>` from the source feature, else anchor-local `Q<n>`) and are self-contained; catch-all questions are `F<n> Q<m>` links.
-5. **Refresh the Q.md dashboard** — after writing `{NAME} queries.md`, paste it into the vault Q.md so the anchor's per-anchor section shows the freshly-computed queries body (not stale state):
+5. **Audit the file before surfacing it — MANDATORY** (the F125 lesson: the C35 check only protects you if `/query` actually *runs* it). The on-write hook covers markdown/format on the Write, but the cross-doc consistency checks (C35 stale-pending, C6/C9 Q-format, C36 link-not-backtick) live in `audit-q.py` and are **not** triggered by writing the file — run them explicitly:
+   ```bash
+   python3 ~/.claude/skills/audit/scripts/audit-q.py --scope backlog --anchor {NAME} --dry
+   ```
+   **Fix every finding at its source, then re-run until the `{NAME} queries.md` line count is 0.** A C35 ("lists F<n> under ## Questions but its linked doc has no pending Qs") means you violated the pending-only gate — remove that entry. Do **not** proceed to the Q.md refresh or the glance with a dirty audit; surfacing a broken queries file is the exact failure this step exists to prevent.
+6. **Refresh the Q.md dashboard** — after writing `{NAME} queries.md`, paste it into the vault Q.md so the anchor's per-anchor section shows the freshly-computed queries body (not stale state):
    ```bash
    python3 ~/.claude/skills/triage/scripts/triage-section.py {NAME}
    ```
    `triage-section.py` reads `{NAME} queries.md`, strips its frontmatter + H1, and renders the Q.md section as `<count banner → links to queries.md>` + `_queries computed <timestamp>_` + the queries body. (This is the F176 model — Q.md per-anchor body **is** the queries paste, replacing the legacy backlog-row/ask dump. Anchors with no `queries.md` fall back to the backlog-derived body.)
-6. **Glance** `{NAME} queries.md` (`open "<path>"`).
-7. **Echo** (optional) a few immediate items to the console in inline-ask format — all also in the doc.
-8. **On answer** (`Q1: yes`, `F115 Q3: A`, "verified the panel reopen", prose): record the resolution at the question's home and **trim** the answered item from `{NAME} queries.md`. Re-running `/query` rebuilds from current state, so the doc shrinks monotonically. Sticky context: once the user names a feature, bare `Q<n>` targets it.
+7. **Glance** `{NAME} queries.md` (`open "<path>"`).
+8. **Echo** (optional) a few immediate items to the console in inline-ask format — all also in the doc.
+9. **On answer** (`Q1: yes`, `F115 Q3: A`, "verified the panel reopen", prose): record the resolution at the question's home and **trim** the answered item from `{NAME} queries.md`. Re-running `/query` rebuilds from current state, so the doc shrinks monotonically. Sticky context: once the user names a feature, bare `Q<n>` targets it.
 
 ## Parented mode — `/query --doc <path> <q1> [<q2> …]`
 
