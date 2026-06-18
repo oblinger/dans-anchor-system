@@ -61,13 +61,9 @@ If a feature is `[Questions]` or `[Blocked]` mid-flight, that's tracked via the 
 
 **Pick the highest applicable tier.** If you find yourself writing tier 4 with no Blocks-next, pause and reconsider: could a passive signal work? Could the user notice this in normal use? Often the answer is yes and the right tier is 3.
 
-Per `[[CAB Backlog]]` § Numbering policy, F-numbers are monotonic-forever, never recycled, **zero-padded to three digits** as `F001` … `F999`. The F-number is **minted by the workflow skill's `state task create`** in § 1.5 below — run § 1.5 first (after the collision check in § 1b), parse the assigned `F<NNN>` from its stdout, then create the feature doc in the project's Features folder:
+Per `[[CAB Backlog]]` § Numbering policy, F-numbers are monotonic-forever, never recycled, **zero-padded to three digits** as `F001` … `F999`. The F-number is **minted by the workflow skill's `state task create`** in § 1.5 below — run § 1.5 first (after the collision check in § 1b), parse the assigned `F<NNN>` from its stdout, then create the feature doc in the anchor's Features folder. Per **F142** the canonical location is the **Design** folder (Features is a design artifact, D07): `{NAME} Design/{NAME} Features/F{NNN} — {Feature Name}.md`.
 
-```
-{anchor}/Docs/Plan/Features/F{NNN} — {Feature Name}.md
-```
-
-If the Features folder doesn't exist, create it. Filenames carry the F-number prefix from the mint (zero-padded). **Do not read the backlog file directly to compute the next F-number** — `state task create` is the canonical mint.
+If `{NAME} Design/{NAME} Features/` doesn't exist, create it. (Legacy anchors still hold features at `{NAME} Track/{NAME} Features/`; the workflow scripts read both during the F142 rollout — but **new** docs go in the Design location.) Filenames carry the F-number prefix from the mint (zero-padded). **Do not read the backlog file directly to compute the next F-number** — `state task create` is the canonical mint.
 
 #### 1b. Collision check — vault grep for duplicate H1 (per F27)
 
@@ -260,7 +256,7 @@ state --anchor {NAME} q remove F<n> -n <Q-num> --reason "..."
 state --anchor {NAME} q rewrite F<n> -n <Q-num> < new-body.md
 ```
 
-After EVERY Q-state change, update the Design (or relevant) section with what the resolution means in the spec. The resolved question and the updated design ship together. **Resolution body should include "Incorporated into Design § <section>"** as the closing line so the audit trail in `## Resolved` cross-references where the answer shaped the design.
+After EVERY Q-state change, update the Design (or relevant) section with what the resolution means in the spec. The resolved question and the updated design ship together. **Resolution body should include "Incorporated into Design § `<section>`"** as the closing line so the audit trail in `## Resolved` cross-references where the answer shaped the design.
 
 When a new question arises mid-discussion, add it via `q add` and glance the file (per step 1a). When you resolve a question, **don't** glance — even if other questions are still pending. The glance is only for moments when the user needs to react to *new or changed* questions.
 

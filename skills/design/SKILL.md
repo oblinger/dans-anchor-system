@@ -129,7 +129,7 @@ After updating, glance the affected file so the user can verify the field landed
 | design-ux | [[design-ux]] | `{NAME} Design/{NAME} UX.md` (per CAB UX Design facet) |
 | design-architect | [[design-architect]] | `{NAME} Design/{NAME} Architecture.md` + subsystems (per CAB Architecture facet) |
 | design-testing | [[design-testing]] | `{NAME} Design/{NAME} Testing.md` (per CAB Testing facet) |
-| design-roadmap | [[design-roadmap]] | `{NAME} Track/{NAME} Roadmap.md` + per-milestone `{NAME} Features/M*.md` |
+| design-roadmap | [[design-roadmap]] | `{NAME} Design/{NAME} Roadmap.md` + per-milestone `{NAME} Design/{NAME} Features/M*.md` (moved from Track per F142; legacy `{NAME} Track/` still read during rollout) |
 
 ## Anti-patterns
 
