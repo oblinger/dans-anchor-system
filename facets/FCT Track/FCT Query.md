@@ -153,6 +153,40 @@ def bare_fnumbers(full_bullet: str) -> list[str]:
     return sorted(set(FNUM.findall(WIKILINK.sub("", full_bullet))))
 ```
 
+### RULE R-query-14 — Never surface a commit/push question; steer the agent to its Git-aspect policy (when:: skill:audit-q)
+when:: skill:audit-q
+
+An agent must **never** ask the user "should I commit / push this branch?" — the anchor's Git aspect already answers it (**Commit** mode: commit at logical boundaries without asking; **PR** mode: commit freely on the branch + open/update the PR; **NoGit**: nothing to commit). This is an **executable when-rule** (F180): when the `audit-q` skill runs, `trigger(ctx)` scans the freshly-built `{NAME} queries.md` for such a question and, instead of letting it reach the user, returns an **agent-directed steer** — telling the agent to follow its mode and decide for itself (and since it's *asking*, commit now). It never asks the user; it corrects the agent.
+
+**Trigger:** if `ctx.queries_text` contains a "should I … commit/push?"-shaped question, return a mode-appropriate steer using `ctx.git_aspect` (`PR` / `Commit` / `NoGit`).
+
+```python
+import re
+PUSHCOMMIT = re.compile(r"(?i)\b(push|commit)\b")
+IMMEDIATE_Q = re.compile(r"^\s*-\s*\*\*Q\d+\b")
+
+def trigger(ctx):
+    # An Immediate Question (a user DECISION) that is about push/commit is the
+    # bug — that decision belongs to the anchor's Git aspect, not the user.
+    text = ctx.queries_text or ""
+    hits = [ln for ln in text.splitlines()
+            if IMMEDIATE_Q.match(ln) and PUSHCOMMIT.search(ln) and "?" in ln]
+    if not hits:
+        return []
+    aspect = (ctx.git_aspect or "").lower()
+    if aspect == "commit":
+        steer = "commit at logical boundaries WITHOUT asking — and since you're asking, commit now."
+    elif aspect == "pr":
+        steer = "follow PR flow: commit freely on the branch, open/update the PR per policy — don't ask."
+    elif aspect == "nogit":
+        steer = "this anchor is NoGit — there is nothing to commit/push; just drop the question."
+    else:
+        steer = "resolve it from the anchor's Git aspect yourself; never ask the user whether to commit/push."
+    mode = ctx.git_aspect or "unknown"
+    return [f"Do NOT ask the user about commit/push ({ctx.anchor}, {mode} mode): "
+            f"{steer} Remove the question from queries.md."]
+```
+
 # BRIEF
 
 - **This file governs the `{NAME} queries.md` *file*** — sections + order + per-item validity. The *procedure* that builds it ( walking open questions, determination routing, run-verifications-ahead, console echo, trim-on-answer ) lives in the **[[SKL Query]]** skill, which cites `R-query` for the output shape. Two views of one system: facet = the artifact's rules; skill = how to produce it.

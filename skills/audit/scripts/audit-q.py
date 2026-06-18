@@ -3461,6 +3461,143 @@ def derive_anchor_banner(name: str, backlog_file: Path,
 
 
 # ============================================================
+# F180 — when:: action-triggered executable rules
+# ============================================================
+
+
+def _rulesets_roots() -> list[Path]:
+    """Roots under the ob-skills repo that hold rulesets (standalone catalog +
+    facet/discipline-embedded RULESET blocks)."""
+    base = Path(__file__).resolve().parents[3]  # …/ob-skills
+    return [base / "library" / "Rulesets", base / "facets", base / "disciplines"]
+
+
+def _discover_when_rules() -> list[dict]:
+    """Walk the ruleset roots for rules carrying a `when::` clause. Returns a list
+    of {events, rule_id, source, code} — code is the rule's adjacent embedded
+    ```python block (its trigger), or None."""
+    out: list[dict] = []
+    for root in _rulesets_roots():
+        if not root.is_dir():
+            continue
+        for md in root.rglob("*.md"):
+            try:
+                lines = md.read_text(encoding="utf-8").splitlines()
+            except (OSError, UnicodeDecodeError):
+                continue
+            cur_rule: Optional[str] = None
+            for i, ln in enumerate(lines):
+                rm = re.match(r"^###\s+RULE\s+(R-[\w-]+)", ln)
+                if rm:
+                    cur_rule = rm.group(1)
+                    continue
+                wm = re.match(r"^when::\s*(.+?)\s*$", ln)
+                if not wm:
+                    continue
+                events = [e.strip() for e in wm.group(1).split(",") if e.strip()]
+                code: Optional[str] = None
+                for j in range(i + 1, min(i + 80, len(lines))):
+                    if re.match(r"^###\s+RULE", lines[j]):
+                        break
+                    if lines[j].strip().startswith("```python"):
+                        buf = []
+                        for k in range(j + 1, len(lines)):
+                            if lines[k].strip().startswith("```"):
+                                break
+                            buf.append(lines[k])
+                        code = "\n".join(buf)
+                        break
+                out.append({"events": events, "rule_id": cur_rule or "?",
+                            "source": md, "code": code})
+    return out
+
+
+def list_when_rules() -> int:
+    rules = _discover_when_rules()
+    if not rules:
+        print("audit-q: no when-triggered rules found.")
+        return 0
+    print(f"audit-q: {len(rules)} when-triggered rule(s):")
+    for r in rules:
+        tag = "py" if r["code"] else "no-code"
+        print(f"  {r['rule_id']:26s} when:: {', '.join(r['events']):18s} "
+              f"[{tag}]  {r['source'].name}")
+    return 0
+
+
+def _anchor_git_aspect(anchor: str) -> tuple[Optional[str], Optional[Path]]:
+    """Resolve an anchor's Git aspect (PR / Commit / NoGit) from its `.anchor`
+    traits, walking up from its backlog. Returns (aspect, anchor_dir)."""
+    bl = find_anchor_backlogs(VAULT_ROOT).get(anchor)
+    if not bl:
+        return None, None
+    d = bl.parent
+    for _ in range(10):
+        a = d / ".anchor"
+        if a.is_file():
+            try:
+                t = a.read_text(encoding="utf-8")
+            except (OSError, UnicodeDecodeError):
+                return None, d
+            for asp in ("PR", "Commit", "NoGit"):
+                if re.search(rf"(?im)^\s*-\s*{asp}\b", t):
+                    return asp, d
+            return None, d
+        if d.parent == d:
+            break
+        d = d.parent
+    return None, None
+
+
+def run_when_rules(event: str, anchor: Optional[str]) -> int:
+    rules = [r for r in _discover_when_rules() if event in r["events"]]
+    if not rules:
+        print(f"audit-q: no when-triggered rules for event '{event}'.")
+        return 0
+    git_aspect, anchor_path = (_anchor_git_aspect(anchor) if anchor else (None, None))
+    queries_text = ""
+    if anchor:
+        bl = find_anchor_backlogs(VAULT_ROOT).get(anchor)
+        if bl:
+            qf = bl.parent / f"{anchor} queries.md"
+            if qf.is_file():
+                try:
+                    queries_text = qf.read_text(encoding="utf-8")
+                except (OSError, UnicodeDecodeError):
+                    queries_text = ""
+
+    class Ctx:
+        pass
+    ctx = Ctx()
+    ctx.anchor = anchor          # type: ignore[attr-defined]
+    ctx.git_aspect = git_aspect  # type: ignore[attr-defined]
+    ctx.anchor_path = anchor_path  # type: ignore[attr-defined]
+    ctx.queries_text = queries_text  # type: ignore[attr-defined]
+
+    fired = 0
+    for r in rules:
+        if not r["code"]:
+            continue
+        ns: dict = {}
+        try:
+            exec(r["code"], ns)  # rules are first-party content
+            trig = ns.get("trigger")
+            if not callable(trig):
+                continue
+            msgs = trig(ctx) or []
+        except Exception as e:  # noqa: BLE001 — a bad rule shouldn't crash the run
+            print(f"audit-q: when-rule {r['rule_id']} errored: {e}", file=sys.stderr)
+            continue
+        for m in (msgs if isinstance(msgs, list) else [msgs]):
+            print(f"[when:{event}] {r['rule_id']}: {m}")
+            fired += 1
+    if fired == 0:
+        print(f"audit-q: {len(rules)} when-rule(s) matched '{event}'; "
+              f"none emitted a message.")
+    return 0
+
+
+# ============================================================
 # Main + CLI
 # ============================================================
 
@@ -3490,7 +3627,22 @@ def main() -> int:
                         help="(scope=backlog) anchor name, e.g. 'SKA'")
     parser.add_argument("--feature-doc", type=str, default=None,
                         help="(scope=feature-doc) path to a feature doc")
+    parser.add_argument("--when", metavar="EVENT", default=None,
+                        help="[F180] fire WHEN-triggered rules for EVENT: discover "
+                             "ruleset rules whose `when:: EVENT` clause matches, run "
+                             "each rule's embedded trigger(ctx), and print its "
+                             "agent-directed steer messages. EVENT is an action "
+                             "name — `skill:<name>` (a skill executing, e.g. "
+                             "`skill:audit-q`), `compact`, or `markdown-write`. "
+                             "Use with --anchor to bind ctx to an anchor.")
+    parser.add_argument("--list-when", action="store_true",
+                        help="[F180] list discovered when-triggered rules (event + "
+                             "rule id + source ruleset) without running them.")
     args = parser.parse_args()
+    if args.list_when:
+        return list_when_rules()
+    if args.when is not None:
+        return run_when_rules(args.when, args.anchor)
     if args.scope == "backlog" and not args.anchor:
         print("error: --scope backlog requires --anchor NAME", file=sys.stderr)
         return 2
