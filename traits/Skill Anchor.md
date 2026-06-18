@@ -21,7 +21,7 @@ For trivial skills with no design history (one-shot recipes that won't see itera
 
 ## Structure
 
-```
+```text
 # Runtime location (where SKILL.md and skill-* facet content lives)
 ~/.claude/skills/<folder>/                   ← kebab-case folder name (Claude Code requirement)
 ├── SKILL.md                                 the agent-loaded entry point — the "code"
@@ -62,12 +62,12 @@ The two locations are formally part of the same anchor. The `skill-*` facets doc
 
 ## Anchor Page Dispatch Table
 
-The anchor root page (`{Slug}.md`) follows [[CAB Anchor Page]] with one Skill-Anchor-specific row shape: the **first row** is `Skill` and carries two surfaces:
+The anchor root page (`{Slug}.md`) follows [[CAB Anchor Page]] with one Skill-Anchor-specific row shape: the **first row** is `Skill` and carries two surfaces — the skill spec (`[[<folder>/SKILL|SKILL.md]]`) and the user-facing doc (`[[SKL <Slug>|User Docs]]`); the second row is the optional `Track` row carrying `[[<Slug> Backlog|Backlog]]` and `[[<Slug> Features|Features]]`. As a rendered two-row example:
 
-```markdown
-| Skill | [[<folder>/SKILL\|SKILL.md]], [[SKL <Slug>\|User Docs]] |
-| [[<Slug> Track\|Track]]+ | [[<Slug> Backlog\|Backlog]], [[<Slug> Features\|Features]] |
-```
+| Row | Surfaces |
+| --- | --- |
+| Skill | `[[<folder>/SKILL\|SKILL.md]]`, `[[SKL <Slug>\|User Docs]]` |
+| `[[<Slug> Track\|Track]]`+ | `[[<Slug> Backlog\|Backlog]]`, `[[<Slug> Features\|Features]]` |
 
 The `Skill` row replaces the `Dev` and `User` rows that a Code Anchor would have. It carries the two things a reader of the anchor most needs to find: the skill spec (agent-loaded) and the user-facing doc.
 
