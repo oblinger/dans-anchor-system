@@ -971,9 +971,24 @@ def find_ask_format_files(
                 out.append((name, queries_file))
         else:
             # Vault-wide: every F<n>.md in the anchor's Features/ folder.
-            features_dir = backlog_file.parent / f"{name} Features"
-            if features_dir.is_dir():
+            # F142 transition — features live in the new `{name} Design/{name}
+            # Features/` location (Design is a sibling of `{name} Track/`) or the
+            # legacy `{name} Features/` sibling of the backlog. Glob both.
+            track_dir = backlog_file.parent          # {name} Track/
+            anchor_root = track_dir.parent           # Design/Track siblings
+            feature_dirs = [
+                anchor_root / f"{name} Design" / f"{name} Features",  # new canonical
+                track_dir / f"{name} Features",                       # legacy sibling
+                anchor_root / f"{name} Features",                     # older flat variant
+            ]
+            seen_feat: set[Path] = set()
+            for features_dir in feature_dirs:
+                if not features_dir.is_dir():
+                    continue
                 for feature_file in sorted(features_dir.glob("F*.md")):
+                    if feature_file in seen_feat:
+                        continue
+                    seen_feat.add(feature_file)
                     m = F_NUMBER_PREFIX_RE.match(feature_file.stem)
                     if m:
                         out.append((m.group(1), feature_file))

@@ -1111,22 +1111,46 @@ def mint_cross_file_id(backlog_path, icebox_path, kind):
 # ============================================================
 
 
+def _candidate_feature_dirs(slug, backlog_path):
+    """Ordered candidate `{slug} Features/` folders (F142 transition).
+
+    New canonical location is `{slug} Design/{slug} Features/` (Design is a
+    sibling of the backlog's `{slug} Track/` folder, whatever level it sits at);
+    legacy location is `{slug} Features/` as a sibling of the backlog. We return
+    both, preferred-first, so callers transparently find docs in either place
+    during the rollout. See F142.
+    """
+    track_dir = backlog_path.parent          # {slug} Track/
+    anchor_root = track_dir.parent           # anchor docs root (Design/Track siblings)
+    return [
+        anchor_root / f"{slug} Design" / f"{slug} Features",  # new canonical
+        track_dir / f"{slug} Features",                       # legacy sibling
+        anchor_root / f"{slug} Features",                     # older flat variant
+    ]
+
+
 def _find_feature_doc(slug, row_id):
     """Find the feature doc whose filename starts with `{row_id} — ` under
-    slug's `{slug} Features/` folder. Raises BacklogEditError on miss /
-    ambiguity.
+    slug's Features folder — the new `{slug} Design/{slug} Features/` location
+    or the legacy `{slug} Track/{slug} Features/` fallback (F142). Raises
+    BacklogEditError on miss / ambiguity.
     """
     backlog_path = find_backlog(slug)
-    features_dir = backlog_path.parent / f"{slug} Features"
-    if not features_dir.is_dir():
+    cand_dirs = _candidate_feature_dirs(slug, backlog_path)
+    existing = [d for d in cand_dirs if d.is_dir()]
+    if not existing:
+        tried = ", ".join(f"'{d}'" for d in cand_dirs)
         raise BacklogEditError(
-            f"no '{slug} Features/' folder under {backlog_path.parent} "
+            f"no Features/ folder for '{slug}' (tried {tried}) "
             f"— can't locate feature doc for {row_id}"
         )
-    matches = list(features_dir.glob(f"{row_id} — *.md"))
+    matches = []
+    for d in existing:
+        matches.extend(d.glob(f"{row_id} — *.md"))
     if not matches:
+        where = ", ".join(str(d) for d in existing)
         raise BacklogEditError(
-            f"no feature doc matching '{row_id} — *.md' under {features_dir}"
+            f"no feature doc matching '{row_id} — *.md' under {where}"
         )
     if len(matches) > 1:
         names = ", ".join(p.name for p in matches)
