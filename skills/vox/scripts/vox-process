@@ -381,7 +381,15 @@ handle_vox() {
             echo
             printf '%s\n' "$assent"
         fi
-    } >"$dest_md" || die "failed to write transcript doc: $dest_md"
+    } >"$dest_md.partial" || die "failed to write transcript doc: $dest_md.partial"
+    # Atomic publish — the file-watcher must NEVER observe a half-written .md.
+    # A partial read during a concurrent VOX.md electric rebuild can splice the
+    # parent's dispatch table into this child's frontmatter (the date truncates
+    # mid-value and the parent's `-[[VOX]]-` table lands where the rest of the
+    # frontmatter should be). rename(2) is atomic on one filesystem, and the
+    # `.partial` suffix isn't a `.md` so the watcher ignores it until the rename
+    # publishes the complete document in a single step.
+    mv -f "$dest_md.partial" "$dest_md" || die "failed to publish transcript doc: $dest_md"
     log "wrote transcript -> $dest_md"
 
     trim_old_audio   # retention sweep
