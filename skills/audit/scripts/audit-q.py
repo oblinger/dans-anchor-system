@@ -3526,34 +3526,35 @@ def list_when_rules() -> int:
 
 
 def _anchor_git_aspect(anchor: str) -> tuple[Optional[str], Optional[Path]]:
-    """Resolve an anchor's Git aspect (PR / Commit / NoGit) from its `.anchor`
-    traits, walking up from its backlog. Returns (aspect, anchor_dir)."""
+    """Resolve an anchor's Git aspect (PR / Push / Commit / NoGit) from its
+    `.anchor` traits, walking up from its backlog. The Git aspect **inherits**:
+    a sub-anchor that declares no aspect falls through to its parent, so the walk
+    continues past intermediate `.anchor` markers until one declares an aspect
+    (the nearest declaration wins). Returns (aspect, anchor_dir)."""
     bl = find_anchor_backlogs(VAULT_ROOT).get(anchor)
     if not bl:
         return None, None
     d = bl.parent
-    for _ in range(10):
+    for _ in range(12):
         a = d / ".anchor"
         if a.is_file():
             try:
                 t = a.read_text(encoding="utf-8")
             except (OSError, UnicodeDecodeError):
-                return None, d
-            for asp in ("PR", "Commit", "NoGit"):
+                t = ""
+            for asp in ("PR", "Push", "Commit", "NoGit"):
                 if re.search(rf"(?im)^\s*-\s*{asp}\b", t):
                     return asp, d
-            return None, d
+            # this `.anchor` declares no Git aspect — inherit from the parent
         if d.parent == d:
             break
         d = d.parent
     return None, None
 
 
-def run_when_rules(event: str, anchor: Optional[str]) -> int:
-    rules = [r for r in _discover_when_rules() if event in r["events"]]
-    if not rules:
-        print(f"audit-q: no when-triggered rules for event '{event}'.")
-        return 0
+def _build_when_ctx(anchor: Optional[str]):
+    """Build the `ctx` passed to a when-rule's trigger(): anchor name, Git aspect
+    (from .anchor traits), anchor path, and the anchor's queries.md text."""
     git_aspect, anchor_path = (_anchor_git_aspect(anchor) if anchor else (None, None))
     queries_text = ""
     if anchor:
@@ -3573,7 +3574,13 @@ def run_when_rules(event: str, anchor: Optional[str]) -> int:
     ctx.git_aspect = git_aspect  # type: ignore[attr-defined]
     ctx.anchor_path = anchor_path  # type: ignore[attr-defined]
     ctx.queries_text = queries_text  # type: ignore[attr-defined]
+    return ctx
 
+
+def _fire_when_rules(rules: list[dict], event: str, anchor: Optional[str]) -> int:
+    """Run each rule's trigger(ctx) and print its agent-directed steer messages.
+    Returns the number of messages emitted."""
+    ctx = _build_when_ctx(anchor)
     fired = 0
     for r in rules:
         if not r["code"]:
@@ -3591,10 +3598,40 @@ def run_when_rules(event: str, anchor: Optional[str]) -> int:
         for m in (msgs if isinstance(msgs, list) else [msgs]):
             print(f"[when:{event}] {r['rule_id']}: {m}")
             fired += 1
-    if fired == 0:
+    return fired
+
+
+def run_when_rules(event: str, anchor: Optional[str]) -> int:
+    """Explicit `--when EVENT`: fire all matching when-rules for one anchor."""
+    rules = [r for r in _discover_when_rules() if event in r["events"]]
+    if not rules:
+        print(f"audit-q: no when-triggered rules for event '{event}'.")
+        return 0
+    if _fire_when_rules(rules, event, anchor) == 0:
         print(f"audit-q: {len(rules)} when-rule(s) matched '{event}'; "
               f"none emitted a message.")
     return 0
+
+
+def autofire_audit_q(anchor: Optional[str],
+                     anchor_backlogs: dict[str, Path]) -> None:
+    """F180 — at the END of a normal audit-q run, automatically fire the
+    `when:: skill:audit-q` rules (e.g. R-query-14 push/commit interception) for
+    the audited anchor(s) — so they trigger without an explicit `--when` flag
+    (this is what makes `/query` building a queries.md → audit-q run → steer).
+    Single-anchor run fires for that anchor; vault-scope run fires for every
+    anchor that has a queries.md."""
+    rules = [r for r in _discover_when_rules()
+             if "skill:audit-q" in r["events"] and r["code"]]
+    if not rules:
+        return
+    if anchor:
+        targets = [anchor]
+    else:
+        targets = [a for a, bl in anchor_backlogs.items()
+                   if (bl.parent / f"{a} queries.md").is_file()]
+    for a in targets:
+        _fire_when_rules(rules, "skill:audit-q", a)
 
 
 # ============================================================
@@ -3874,6 +3911,9 @@ def main() -> int:
     # Ready > 0). Phrase-patching the chat-summary loses to paraphrases;
     # status-line embedding doesn't, because it IS the status the agent reads.
     _print_hard_continuation_directive(derived_banners)
+    # F180 — auto-fire `when:: skill:audit-q` rules (e.g. the push/commit steer)
+    # for the audited anchor(s), so they trigger on every normal run.
+    autofire_audit_q(args.anchor, anchor_backlogs)
     return 1 if errors else 0
 
 

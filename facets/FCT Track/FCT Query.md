@@ -175,9 +175,11 @@ def trigger(ctx):
         return []
     aspect = (ctx.git_aspect or "").lower()
     if aspect == "commit":
-        steer = "commit at logical boundaries WITHOUT asking — and since you're asking, commit now."
+        steer = "commit at logical boundaries WITHOUT asking, and NEVER push — since you're asking, commit now (no push)."
+    elif aspect == "push":
+        steer = "commit at logical boundaries AND push, WITHOUT asking — since you're asking, commit and push now."
     elif aspect == "pr":
-        steer = "follow PR flow: commit freely on the branch, open/update the PR per policy — don't ask."
+        steer = "commit freely on the branch and open/update the PR per policy — never ask."
     elif aspect == "nogit":
         steer = "this anchor is NoGit — there is nothing to commit/push; just drop the question."
     else:
