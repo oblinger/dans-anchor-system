@@ -34,6 +34,7 @@ set -u
 
 OB_SKILLS_ROOT="${OB_SKILLS_ROOT:-$HOME/.config/ob-skills}"
 F072_LEGACY_FILE="${OB_SKILLS_CONFIG:-$HOME/.claude/ob-skills.md}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # ---- helpers -----------------------------------------------------------------
 
@@ -198,6 +199,16 @@ case "$SUBCOMMAND" in
     echo "$DIR"
     ;;
 
+  env)
+    # Per-machine User Environment doc accessor (per F182). Delegates path
+    # resolution + section/key get + --set to user_env.py.
+    #   ob-skills env                          → resolved doc path
+    #   ob-skills env <section>                → that section's H2 body
+    #   ob-skills env <section> <key>          → one scalar (exit 1 if absent)
+    #   ob-skills env --set <section> <key> <value>   → set/replace a key
+    exec python3 "$SCRIPT_DIR/user_env.py" "$@"
+    ;;
+
   ""|-h|--help|help)
     cat <<'EOF'
 ob-skills — omnibus helper for the ob-skills suite.
@@ -217,6 +228,18 @@ SUBCOMMANDS
     path <skill>
             Print + ensure the per-skill namespace path
             (~/.config/ob-skills/<skill>/). Use to anchor writes.
+
+    env [<section> [<key>]]
+            Read the per-machine User Environment doc (per F182). Bare prints
+            the resolved doc path; <section> prints that `## <section>` body;
+            <section> <key> prints one scalar from its `key: value` block
+            (exit 1 if absent → caller asks the user once + --set).
+            Doc path: user_env_doc (env/global) else {vault_root}/MY/User
+            Environment.md.
+
+    env --set <section> <key> <value>
+            Set/replace a key in a section (creates doc/section as needed) —
+            the write path for ask-once self-provisioning.
 
     help    Show this help.
 
