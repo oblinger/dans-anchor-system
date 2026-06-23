@@ -1,0 +1,195 @@
+#!/usr/bin/env python3
+"""worktree-check — warn about git worktrees carrying un-landed work.
+
+Risk it guards: a `claude --worktree` / MuxUX Cmd+T worktree can sit around with
+uncommitted changes (work that gets silently lost) or commits never merged back
+to the default branch (a branch that goes stale and becomes dangerous to pull).
+Disk is NOT the concern — these worktrees are tiny (shared .git). Surfacing the
+un-landed state IS.
+
+What it does: discovers git worktrees under configured roots (default
+~/ob/proj and ~/ob/kmr, override via ~/.config/worktree-check/roots.txt), and
+for each NON-main worktree flags:
+  - dirty     — uncommitted changes / untracked files in the worktree
+  - ahead     — commits on its branch not in the repo's default branch
+  - prunable  — registered but its directory is gone
+
+Findings are written as a markdown block to ~/.config/worktree-check/findings.md
+(empty file when all clear). /triage splices that file in WITHOUT doing any git
+work itself — the scan lives entirely off triage's critical path (lazy-refresh):
+triage always reads the cached file, and only fires this script in the
+background when the cache is older than its throttle window.
+
+Usage:
+  worktree-check                 scan now; write cache; print findings
+  worktree-check --quiet         scan now; write cache; no stdout (background use)
+  worktree-check --if-stale N    no-op (exit 0) if last run was < N hours ago,
+                                 else scan. Combine with --quiet for triage's
+                                 background refresh: `worktree-check --if-stale 72 --quiet &`
+"""
+
+import argparse
+import os
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+CONFIG_DIR = Path.home() / ".config" / "worktree-check"
+FINDINGS = CONFIG_DIR / "findings.md"
+LASTRUN = CONFIG_DIR / "last-run"
+ROOTS_FILE = CONFIG_DIR / "roots.txt"
+DEFAULT_ROOTS = [Path.home() / "ob" / "proj", Path.home() / "ob" / "kmr"]
+FIND_MAXDEPTH = "8"  # bounds the discovery walk; worktrees live at <repo>/.claude/worktrees/<name>
+
+
+def _git(repo, *args):
+    """Run git in `repo`; return stripped stdout, or None on failure."""
+    r = subprocess.run(
+        ["git", "-C", str(repo), *args],
+        capture_output=True, text=True,
+    )
+    return r.stdout.strip() if r.returncode == 0 else None
+
+
+def _roots():
+    if ROOTS_FILE.is_file():
+        out = []
+        for line in ROOTS_FILE.read_text().splitlines():
+            line = line.strip()
+            if line and not line.startswith("#"):
+                out.append(Path(os.path.expanduser(line)))
+        return out
+    return DEFAULT_ROOTS
+
+
+def _discover_worktree_repos():
+    """Repos that have a `.claude/worktrees/` dir, found (depth-bounded) under
+    the roots. Returns a sorted list of repo paths (the dir containing .claude)."""
+    repos = set()
+    for root in _roots():
+        if not root.is_dir():
+            continue
+        r = subprocess.run(
+            ["find", str(root), "-maxdepth", FIND_MAXDEPTH, "-type", "d",
+             "-name", "worktrees", "-path", "*/.claude/worktrees"],
+            capture_output=True, text=True,
+        )
+        for line in r.stdout.splitlines():
+            wt_dir = Path(line.strip())
+            # <repo>/.claude/worktrees  ->  <repo>
+            repos.add(wt_dir.parent.parent)
+    return sorted(repos)
+
+
+def _default_branch(repo):
+    b = _git(repo, "symbolic-ref", "--short", "refs/remotes/origin/HEAD")
+    if b:
+        return b.split("/", 1)[-1] if "/" in b else b
+    for cand in ("main", "master"):
+        if _git(repo, "rev-parse", "--verify", cand) is not None:
+            return cand
+    return None
+
+
+def _parse_worktree_list(repo):
+    """Parse `git worktree list --porcelain` into a list of dicts."""
+    out = _git(repo, "worktree", "list", "--porcelain")
+    if out is None:
+        return []
+    records, cur = [], {}
+    for line in out.splitlines():
+        if line.startswith("worktree "):
+            if cur:
+                records.append(cur)
+            cur = {"path": line[len("worktree "):]}
+        elif line.startswith("branch "):
+            cur["branch"] = line[len("branch "):].replace("refs/heads/", "")
+        elif line.startswith("prunable") or line.strip() == "prunable":
+            cur["prunable"] = True
+        elif line.strip() == "detached":
+            cur["detached"] = True
+        elif line.strip() == "bare":
+            cur["bare"] = True
+    if cur:
+        records.append(cur)
+    return records
+
+
+def _check_repo(repo):
+    """Return [(path, branch_label, [flags])] for non-main worktrees with issues."""
+    deflt = _default_branch(repo)
+    main_real = os.path.realpath(str(repo))
+    findings = []
+    for rec in _parse_worktree_list(repo):
+        if rec.get("bare"):
+            continue
+        path = rec["path"]
+        if os.path.realpath(path) == main_real:
+            continue  # the primary worktree is not a candidate
+        flags = []
+        if rec.get("prunable"):
+            flags.append("prunable (directory gone)")
+        else:
+            if Path(path).is_dir():
+                dirty = _git(Path(path), "status", "--porcelain")
+                if dirty:
+                    flags.append("dirty (uncommitted/untracked)")
+            branch = rec.get("branch")
+            if deflt and branch:
+                cnt = _git(repo, "rev-list", "--count", f"{deflt}..{branch}")
+                if cnt and cnt.isdigit() and int(cnt) > 0:
+                    flags.append(f"{cnt} commit(s) ahead of {deflt}")
+        if flags:
+            label = rec.get("branch") or ("(detached)" if rec.get("detached") else "?")
+            findings.append((path, label, flags))
+    return findings
+
+
+def _render(all_findings):
+    """all_findings: list of (repo_name, [(path, branch, flags)])."""
+    if not all_findings:
+        return ""
+    lines = ["## Worktrees needing attention",
+             "_Un-landed work in `claude --worktree` checkouts — commit, merge back, or remove. (worktree-check)_"]
+    for repo_name, items in all_findings:
+        for path, branch, flags in items:
+            lines.append(f"- **{repo_name} / {branch}** — {', '.join(flags)}  ·  `{path}`")
+    return "\n".join(lines) + "\n"
+
+
+def main():
+    ap = argparse.ArgumentParser(prog="worktree-check", add_help=True,
+                                 description="Warn about git worktrees carrying un-landed work.")
+    ap.add_argument("--quiet", action="store_true", help="no stdout (background use)")
+    ap.add_argument("--if-stale", type=float, metavar="HOURS", default=None,
+                    help="exit 0 without scanning if last run was < HOURS ago")
+    args = ap.parse_args()
+
+    CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+
+    if args.if_stale is not None and LASTRUN.is_file():
+        age_h = (time.time() - LASTRUN.stat().st_mtime) / 3600.0
+        if age_h < args.if_stale:
+            return 0  # fresh enough — leave the cache as-is
+
+    all_findings = []
+    for repo in _discover_worktree_repos():
+        items = _check_repo(repo)
+        if items:
+            all_findings.append((Path(repo).name, items))
+
+    block = _render(all_findings)
+    FINDINGS.write_text(block)            # empty file when all clear
+    LASTRUN.write_text(str(int(time.time())))
+
+    if not args.quiet:
+        if block:
+            sys.stdout.write(block)
+        else:
+            sys.stdout.write("worktree-check: all worktrees clean (no un-landed work).\n")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

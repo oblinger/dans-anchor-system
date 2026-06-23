@@ -1,7 +1,7 @@
 ---
 description: skill-script — facet defining the scripts/ folder of a Skill Anchor. Python (preferred) or Bash; shebang + docstring; CLI args via argparse; logging to stderr.
 applies-when-trait: Skill Anchor
-location: ~/.claude/skills/<skill-folder>/scripts/
+location: ~/.claude/skills/`<skill-folder>`/scripts/
 ---
 
 # CAB skill-script

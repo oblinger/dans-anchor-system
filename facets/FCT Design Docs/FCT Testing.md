@@ -3,16 +3,25 @@ description: testing facet — the project's testing strategy (kinds, amounts, r
 ---
 
 # FCT Testing
+**Audited examples:** [[HBR Testing]], [[Mini Testing]], [[CAE Testing]], [[MUX Testing]], [[SKA Bridge Testing]]
+
 Spec for the `{NAME} Testing.md` design facet — a two-part doc combining the project's testing strategy with a proposed-tests inventory, peer to Architecture and UX Design under Design.
 
 | -[[FCT Testing]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Testing](hook://p/FCT%20Testing)<br>: spec for the `{NAME} Testing.md` design facet — strategy + proposed-tests inventory |
 | --- | --- |
 | Related | [[FCT Architecture]],  [[FCT UX Design]],  [[FCT PRD]],  [[FCT Design Docs]],   |
-| Examples | [[CAE Testing\|minimal worked example]],  [[HBR Testing\|fuller worked example]],   |
+| Examples | [[Mini Testing\|minimal worked example]],  [[HBR Testing\|maximal worked example]],  [[CAE Testing\|fuller worked example]],   |
 
 **Location:** `{NAME} Design/{NAME} Testing.md` (or `{NAME} Testing/` if it grows to anchor-folder form, parallel to Architecture).
 
 **Cardinality:** one per anchor — a project has exactly one testing facet doc.
+
+**Two forms in the wild.** Real instances span a range:
+
+- **Single-file, lean** — the common case (e.g. [[Mini Testing]], [[CAE Testing]]): one `{NAME} Testing.md` with the standard sections below.
+- **Single-file, grown** — a large project keeps the single file but adds project-specific strategy sections between Strategy and Proposed Tests (e.g. [[MUX Testing]] adds `## Relevance Gating` and a `## Subjective implementation notes` block, and carries an extra **Scope** / **Recipe** column on its tables). These additions are allowed — the load-bearing invariant is the `Overview → Strategy → Proposed Tests` spine, not the absence of extra sections or columns.
+
+**Anti-pattern — inlined specs.** Some legacy instances (e.g. `SKA Bridge Testing.md`) skip the `## Proposed Tests` inventory and instead inline each test's Precondition / Steps / Pass directly under per-test H3s. That is the **altitude inversion** R-testing-07 exists to prevent: the facet doc becomes the test file and the three-altitude split collapses. The fix is to lift those low-level specs into module docs and replace the H3 blocks with one inventory row each, the spec body moving behind the Spec-column link.
 
 The Testing facet is the **system-level testing story** — how this project gets tested. It is a peer of [[FCT Architecture|Architecture]] and [[FCT UX Design|UX Design]] under [[FCT Design Dispatch|Design]]: where Architecture says *how the system is structured* and UX Design says *what users see*, Testing says *how we will know it works*.
 
@@ -216,14 +225,24 @@ The doc carries a `**TLDR**` block in the preface zone (after the dispatch table
 
 **Why:** Testing docs reduce cleanly to a short posture statement that lets a reader graze in 5 seconds — "this project's testing is X-shaped, with bar Y." Requiring the TLDR makes the grazer-altitude unmissable and prevents the Overview paragraph from carrying the whole burden of high-altitude reading. Worked example: [[CAE Testing]] § preface zone.
 
-(Authored 2026-06-10 in the new `<H> RULE R-<slug>-NN` sentinel form per CAB Rules update. The other 9 rules above are slated for sentinel-form rewrite in F138.)
+### RULE R-testing-11 — `## Overview` H2 present, single-paragraph posture (checked)
+check:: overview_section_present
+
+The doc has a `## Overview` H2 between the preface zone and `## Strategy`, carrying a short prose statement (typically one paragraph) of the project's testing posture in plain English — the *shape* of the test investment, not the inventory.
+
+**Check pattern:** grep for `^## Overview$` appearing before the first `^## Strategy$`. The section body is non-empty prose (not a table, not a bare bullet list).
+
+**Why:** the Overview is the bridge between the grazer-altitude TLDR and the load-bearing Strategy. A reviewer answers "what is this project's testing posture in a sentence?" from here before drilling in. Skipping it forces the TLDR or the Strategy intro to carry that burden and the reader loses the one-paragraph framing every real instance (HBR, CAE, MUX) provides.
+
+(R-testing-01..10 authored 2026-06-10; R-testing-11 added 2026-06-14 in the F178 Testing-facet pilot lane. The sentinel form `### RULE R-<slug>-NN — <title> (tier)` is canonical; rule IDs are monotonic-forever and never renumbered.)
 
 # BRIEF
 
 - **This is the CAB facet spec for `{NAME} Testing.md`** — it defines the doc shape (Strategy + Proposed Tests, with the four required Strategy subsections), the section order, the proposed-tests table contract, the `status::` gate field, and the embedded `R-testing` ruleset. Edits here ripple to every anchor that adopts the facet.
 - **Don't pile per-project content here.** Worked examples (e.g., [[CAE Testing]]) live in their own anchors and are linked from § See also; the spec stays general. Per-source-file editing notes for an actual `{NAME} Testing.md` instance go in that file's own Brief / inline section, not this one.
 - **The three-altitude split is load-bearing** — Strategy (this facet) → Proposed Tests inventory (this facet) → low-level test specs (module docs per [[FCT Module Doc]]). Don't blur the boundary by inlining test code, fixtures, or assertions into the Spec column; that's the altitude inversion R-testing-07 exists to prevent.
-- **Keep the spec and the `R-testing` RULESET in sync.** When the section order, table contract, or `status::` value set changes in the prose above, audit each `RULE R-testing-NN` block for matching wording, check-pattern accuracy, and any new rule that should be added. The 10 numbered rules are the auditable form of this spec.
+- **Keep the spec and the `R-testing` RULESET in sync.** When the section order, table contract, or `status::` value set changes in the prose above, audit each `RULE R-testing-NN` block for matching wording, check-pattern accuracy, and any new rule that should be added. The 11 numbered rules are the auditable form of this spec.
+- **Two forms are valid; inlined specs are not.** Real instances range from lean single-file ([[Mini Testing]], [[CAE Testing]]) to grown single-file with extra strategy sections + Scope/Recipe columns ([[MUX Testing]]). The one anti-pattern is collapsing the `## Proposed Tests` inventory into inlined per-test Precondition/Steps/Pass blocks (`SKA Bridge Testing.md`) — that is the altitude inversion R-testing-07 / R-testing-03 catch.
 - **Authoring authority flows through `/design testing`** — the [[skills/design/design-testing|design-testing]] sub-skill is the canonical authoring path; do not duplicate its runbook here. When the facet shape evolves, update design-testing's runbook in lockstep (the 2026-06-10 F136 rewrite is the precedent).
 - **Cross-references that must stay live:** [[FCT Architecture]] (peer facet, drives integration-test bar), [[DSC verification]] (four-tier vocabulary the Tier Mapping cites), [[DSC progressive-disclosure]] (TLDR formatting requirement per R-testing-10), [[CAE Testing]] (worked example), [[F133 — Rulesets folder convention + facet embedding|F133]] (the embedding convention the RULESET below follows).
 - **Naming convention is canonical** — `{NAME} Testing.md`, not `Testing Strategy.md` (legacy scaffold). R-testing-01 enforces this; don't reintroduce the longer name when editing examples or migration notes.

@@ -7,7 +7,7 @@ Facet spec for `{NAME} Dev.md` — the audit-tied dispatch page that lists the F
 | -[[FCT Dev Dispatch]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Dev Dispatch](hook://p/FCT%20Dev%20Dispatch)<br>: audit-tied developer docs dispatch page — file tree and per-module docs |
 | --- | --- |
 | Related | [[FCT User Dispatch]],  [[FCT All Files]],  [[FCT Module Doc]],  [[FCT Anchor Page]],   |
-| Examples | [[CAE Dev Docs\|minimal (Files + one module group)]], [[HBR Dev Docs\|starter stub]] |
+| Examples | [[CAE Dev Docs\|minimal (Files + one module group)]],  [[HBR Dev Docs\|starter stub]],   |
 
 **Location:** `{NAME} Docs/{NAME} Dev/{NAME} Dev.md`
 

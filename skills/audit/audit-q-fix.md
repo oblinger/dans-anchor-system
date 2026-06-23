@@ -21,7 +21,7 @@ Sub-action of `/audit`. Two modes distinguished by argument:
 | `/audit q-fix` (no args, inside an anchor) | Pick up THIS anchor's `B-QFix [Ready]` row and drive its sub-bullets to zero with agent judgment. The single-anchor mode. |
 | `/audit q-fix all` | Broadcast routing — run vault-wide `audit-q.py --fix` so every anchor with outstanding warnings gets a current `B-QFix [Ready]` row on its backlog. Does NOT do the cross-anchor sub-bullet-driving; that's each owning Pilot's job on their own `/crank` or `/triage`. The vault-wide setup mode. |
 
-Spec: `[[F076 — audit q — Q.md constraint validator with mechanical-fix mode]]` § 4.5.
+Spec: `[[F009 — audit q — Q.md constraint validator]]` § 4.5.
 
 ## When to use
 
@@ -77,7 +77,7 @@ The broadcast-routing mode. Does NOT drive any anchor's sub-bullets to zero — 
 
 ## Cross-references
 
-- `[[F076 — audit q — Q.md constraint validator with mechanical-fix mode]]` § 4.5 — design.
+- `[[F009 — audit q — Q.md constraint validator]]` § 4.5 — design.
 - `[[audit-q]]` — the audit this skill loops back to.
 - `[[audit]]` § Governing principle — the 100%-fix discipline.
 - `skills/audit/scripts/audit-q.py` — the underlying validator + router.

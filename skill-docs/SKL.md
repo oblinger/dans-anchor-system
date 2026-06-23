@@ -5,6 +5,11 @@ description: "Skills — the `/`-invocable runbooks"
 # Skills
 Skills — the `/`-invocable runbooks (the things you type `/` for).
 
+![[F143-1-top-level.svg|2400]]
+*Dan's Anchor System — the kinds of system parts: **Skills** (verbs) create **Facets** (nouns); **Disciplines** (adjectives) modify both; **Rulesets** constrain all three.*
+
+
+
 | -[[SKL]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [SKL](hook://p/SKL)<br>: Skills — the `/`-invocable runbooks |
 | --- | --- |
 | Siblings | [[FCT\|Facets]],  [[DSC\|Disciplines]],  [[LBR\|Library]],   |

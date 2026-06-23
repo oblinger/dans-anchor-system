@@ -7,7 +7,7 @@ An omnibus Claude Code skill that groups related actions, reference data, and sc
 | -[[FCT Skill]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Primitives]] → [FCT Skill](hook://p/FCT%20Skill)<br>: the Skill primitive — SKILL.md entry-point structure and conventions |
 | --- | --- |
 | Related | [[FCT Facet]],  [[FCT Ruleset]],  [[FCT Primitives]],  [[CAB Aspects]],   |
-| Examples | [[CAE Skill\|canonical exemplar]],  [[CAE Minimal Skill\|minimal capsule]] |
+| Examples | [[CAE Skill\|canonical exemplar]],  [[CAE Minimal Skill\|minimal capsule]],   |
 
 **TLDR** — Every skill anchor ships a `SKILL.md` with fixed frontmatter (`name`, `description`, `tools`, `user_invocable`) and a fixed section order (Title → Brief → dispatch tables → Actions → Reference → Dispatch protocol). Disciplines (`user_invocable: false`) additionally require a parallel user-facing doc at `SKL User Docs/SKL Skills/SKL <Name>.md`. **Cardinality: one per anchor** — each skill folder has exactly one `SKILL.md` entry point.
 
@@ -196,6 +196,10 @@ Distinct from the `SKILL.md` runbook specified above: every skill also has a **d
 
 - **Minimal skill** → [[SKL Mint]]: folder + entry page (breadcrumb + Related + Design) + empty design root. The floor.
 - **Maximal skill** → [[SKL Ask]]: the same skeleton, but a full user-guide body; its design root fills in once a PRD / decisions / discussion exist.
+
+## SKA anchors own Design, not Track — shared by skills, facets, disciplines
+
+A skill anchor — like **every** SKA sub-project anchor — **owns its own design but never its own tracking.** Activity-tracking for the whole skills ecosystem is centralized on the shared SKA surface ([[SKA Decisions|D08]]); a skill carries a `{NAME} Design/` folder (minimum: just an `.anchor`, growing as design docs are earned), **no `{NAME} Track/`**, and **no `{NAME} Status.md`** (design-phase completeness is tracked only for SKA-the-project, not per sub-project). **Facets ([[FCT Facet]]) and disciplines share this exact strategy** — the single normative rule lives on the anchor-page facet as `R-anchor-page-subproject` ([[FCT Anchor Page]]); this section is the skill-facet pointer to it. The design surface is flat (`{NAME} Design/` directly under the anchor, no `{NAME} Docs/` wrapper).
 
 # BRIEF
 

@@ -180,6 +180,7 @@ def parse_ruleset_block(block: list[str], source: Path) -> dict:
                 "tier": rm.group(3),
                 "where": None,
                 "check": None,
+                "fix": None,
                 "check_pattern": None,
                 "why": None,
             }
@@ -189,7 +190,7 @@ def parse_ruleset_block(block: list[str], source: Path) -> dict:
             continue
         s = ln.strip()
         wm = _FIELD_RE.match(s)
-        if wm and wm.group(1) in ("where", "check"):
+        if wm and wm.group(1) in ("where", "check", "fix"):
             cur[wm.group(1)] = wm.group(2).strip() or None
         elif s.startswith("**Check pattern:**"):
             cur["check_pattern"] = s.split("**Check pattern:**", 1)[1].strip()
@@ -566,7 +567,7 @@ def _plan_rules_hash(rulesets: list[dict]) -> str:
     for rs in rulesets:
         h.update(f"RS|{rs['name']}|{rs.get('where')}".encode())
         for r in rs["rules"]:
-            h.update(f"R|{r['id']}|{r['tier']}|{r.get('where')}|{r.get('check')}".encode())
+            h.update(f"R|{r['id']}|{r['tier']}|{r.get('where')}|{r.get('check')}|{r.get('fix')}".encode())
     return h.hexdigest()[:12]
 
 
@@ -604,11 +605,19 @@ def plan_one(target: Path, mode: str, cdir: Path | None, warnings: list[str],
             if mode == "doc" and kind == "anchor":
                 continue  # anchor-structure rules are N/A at the doc level
             tgts = match_targets(kind, arg, scope_files, anchor_root)
+            # A facet spec is the SOURCE of its embedded ruleset, never an instance
+            # of it — e.g. FCT Decisions.md (source of R-decisions) matches the
+            # `* Decisions.md` selector but must not be audited as a Decisions
+            # instance. Drop a ruleset's own source file from its rule targets.
+            if tgts and rs.get("source"):
+                src_abs = (REPO_ROOT / rs["source"]).resolve()
+                tgts = [t for t in tgts if t.resolve() != src_abs]
             if not tgts:
                 continue  # selector miss → N/A
             matched_rules.append({
                 "id": r["id"], "tier": r["tier"], "title": r["title"],
                 "selector": effective_where(r, rs), "check": r.get("check"),
+                "fix": r.get("fix"),
                 "check_pattern": r.get("check_pattern"), "why": r.get("why"),
                 "targets": [str(p.relative_to(anchor_root)) if p != anchor_root else "{ANCHOR}"
                             for p in tgts],
@@ -1593,6 +1602,24 @@ def chk_dispatch_table_stories_row(target, anchor_root, args):
     return "fail", f"no Stories row linking [[{name} Stories]]"
 
 
+# -- R-doc-structure / R-stories ----------------------------------------------
+
+def chk_no_dispatch_table(target, anchor_root, args):
+    """Fail if the document carries a breadcrumb-masthead dispatch table.
+
+    Used by R-stories-12: story files and the stories index are non-anchors and
+    must not carry a dispatch table (per [[FCT Doc Structure]] R-doc-structure-02).
+    Back-links belong in a ## Related / ## See also section, not a masthead."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    for i, ln in enumerate(_read(f).splitlines(), 1):
+        if re.search(r"^\|\s*-\[\[.+?\]\]-\s*\|", ln):
+            return "fail", (f"non-anchor doc has a dispatch-masthead table (line {i}); "
+                            "remove it — back-links go in ## Related")
+    return "pass", "no dispatch table"
+
+
 # -- R-roadmap -----------------------------------------------------------------
 
 def chk_file_exists(target, anchor_root, args):
@@ -1938,51 +1965,42 @@ def chk_folder_marker_exists(target, anchor_root, args):
 
 # -- R-md ----------------------------------------------------------------------
 
-def chk_md_angle_brackets_safe(target, anchor_root, args):
-    """Angle brackets need surrounding whitespace (outside code fences/spans)."""
+def chk_md_angle_brackets_html_or_spaced(target, anchor_root, args):
+    """An angle bracket is allowed only when it is (a) inside an inline code span or
+    fenced code block, (b) part of a valid HTML construct — an HTML comment
+    `<!-- … -->` or a curated inline tag (br/hr/ins/del/sub/sup/kbd/mark/u/wbr/s/q/
+    abbr/cite) — or (c) a comparison/operator with whitespace on the inner side
+    (`a < b`). The failure mode this targets is a stray `<identifier>` glued to a
+    tag-name character: the viewer parses it as an unknown HTML element and silently
+    eats text up to the next `>` (LLMs emit these constantly for placeholders and
+    generics, e.g. `<Name>`, `List<int>`). Masks code, comments, and sanctioned tags,
+    then flags any surviving `<` immediately followed by `[A-Za-z!/]`. `.html`/`.htm`
+    files are real HTML and are skipped. Masking preserves newlines for line numbers."""
     if not target.is_file():
         return "pass", "not a file"
-    text = _read(target)
-    text = re.sub(r"```[\s\S]*?```", "", text)
-    text = re.sub(r"`[^`]*`", " ", text)
-    bad_start = re.search(r"\S<[A-Za-z_]", text)
-    bad_end = re.search(r"[A-Za-z_]>\S", text)
-    if bad_start or bad_end:
-        msgs = []
-        if bad_start:
-            msgs.append(f"\\S<[A-Za-z_] at line {text[:bad_start.start()].count(chr(10)) + 1}")
-        if bad_end:
-            msgs.append(f"[A-Za-z_]>\\S at line {text[:bad_end.start()].count(chr(10)) + 1}")
-        return "fail", "; ".join(msgs)
-    return "pass", ""
-
-
-def chk_md_angle_brackets_backtick_only(target, anchor_root, args):
-    """Strict (R-md-03): a literal `<` or `>` may appear ONLY inside an inline code
-    span or a fenced code block — everywhere else it must be backticked or escaped.
-    Code spans/fences are masked out first (that is the case we must exclude); then
-    two sanctioned forms are dropped — the masthead `<br>` line-break, and the leading
-    `>` of a blockquote / callout line (structural, not a content bracket) — then any
-    surviving angle bracket fails. Masking preserves newlines so line numbers stay accurate."""
-    if not target.is_file():
-        return "pass", "not a file"
+    if target.suffix.lower() in (".html", ".htm"):
+        return "pass", "html file"
     text = _read(target)
     blank = lambda m: re.sub(r"[^\n]", " ", m.group(0))      # mask, keep line count
     masked = re.sub(r"```[\s\S]*?```", blank, text)          # fenced code (backtick)
     masked = re.sub(r"~~~[\s\S]*?~~~", blank, masked)        # fenced code (tilde)
     masked = re.sub(r"(`+)[^\n]*?\1", blank, masked)         # inline code spans
-    masked = re.sub(r"(?i)<br\s*/?>", "  ", masked)          # sanctioned masthead <br>
+    masked = re.sub(r"<!--[\s\S]*?-->", blank, masked)       # HTML comments (valid)
+    masked = re.sub(                                         # curated valid inline HTML tags
+        r"(?i)</?(?:br|hr|ins|del|sub|sup|kbd|mark|u|wbr|s|q|abbr|cite)(?:\s[^<>\n]*?)?/?>",
+        blank, masked)
     hits = []
     for ln, raw in enumerate(masked.splitlines(), 1):
         line = re.sub(r"^\s*(?:>\s?)+", "", raw)             # drop blockquote / callout `>` markers
-        m = re.search(r"[<>]", line)
+        m = re.search(r"<[A-Za-z!/]", line)                 # tag-like opener that survived masking
         if m:
             c = m.start()
             hits.append(f"line {ln}: …{line[max(0, c - 12):c + 13].strip()}…")
             if len(hits) >= 5:
                 break
     if hits:
-        return "fail", "raw angle bracket(s) outside code — " + "; ".join(hits)
+        return "fail", ("tag-like `<…>` angle bracket(s) — backtick, escape "
+                        "(&lt;/&gt;), or space them — " + "; ".join(hits))
     return "pass", ""
 
 
@@ -2007,6 +2025,80 @@ def chk_md_table_blank_lines(target, anchor_root, args):
         i += 1
     if issues:
         return "fail", "; ".join(issues)
+    return "pass", ""
+
+
+def chk_md_fence_no_markdown(target, anchor_root, args):
+    """R-markdown-11: a fenced code block must not contain markdown meant to render
+    (wiki-links or headings). Mechanically detectable; the *fix* needs judgment
+    (re-express as live markdown), so this rule carries NO `fix::` — it messages."""
+    if not target.is_file():
+        return "pass", "not a file"
+    lines = _read(target).splitlines()
+    in_fence = False
+    exempt = False
+    body = []
+    for ln in lines:
+        if ln.lstrip().startswith("```"):
+            if not in_fence:
+                # Capture the info string (language tag) on the opening fence.
+                # A language-tagged code fence (```python, ```bash, ```json, …) is
+                # literal content and is EXEMPT — code legitimately contains `[[`
+                # (regex) or `#` (comments). Only fences meant to SHOW rendered
+                # markdown — unlabeled ``` or ```markdown / ```md — are checked.
+                info = ln.lstrip()[3:].strip().lower()
+                exempt = bool(info) and info not in ("markdown", "md")
+                in_fence, body = True, []
+            else:
+                if not exempt:
+                    blob = "\n".join(body)
+                    if "[[" in blob or re.search(r"^#{1,6}\s", blob, re.M):
+                        return "fail", "fenced code block contains markdown (wiki-link or heading) — re-express as live markdown"
+                in_fence, exempt = False, False
+        elif in_fence:
+            body.append(ln)
+    return "pass", ""
+
+
+def chk_md_table_pipe_escape(target, anchor_root, args):
+    """R-markdown-01: a wiki-link inside a table cell must escape its pipe (`[[A\\|B]]`)."""
+    if not target.is_file():
+        return "pass", "not a file"
+    hits = []
+    for ln, raw in enumerate(_read(target).splitlines(), 1):
+        if not raw.lstrip().startswith("|"):
+            continue
+        for m in re.finditer(r"\[\[[^\]]*?\]\]", raw):
+            if re.search(r"(?<!\\)\|", m.group(0)):
+                hits.append(f"line {ln}")
+                break
+    if hits:
+        return "fail", "unescaped pipe in table wiki-link — " + ", ".join(hits[:5])
+    return "pass", ""
+
+
+def chk_md_em_dash(target, anchor_root, args):
+    """R-markdown-05 (conservative): the spaced double-hyphen ` -- ` (a typed em-dash)
+    outside code should be `—`. Only the spaced form is flagged — never `--flag`, `---`."""
+    if not target.is_file():
+        return "pass", "not a file"
+    blank = lambda m: re.sub(r"[^\n]", " ", m.group(0))
+    masked = re.sub(r"```[\s\S]*?```", blank, _read(target))
+    masked = re.sub(r"~~~[\s\S]*?~~~", blank, masked)
+    masked = re.sub(r"(`+)[^\n]*?\1", blank, masked)
+    hits = [f"line {ln}" for ln, raw in enumerate(masked.splitlines(), 1) if " -- " in raw][:5]
+    if hits:
+        return "fail", "spaced double-hyphen em-dash — " + ", ".join(hits)
+    return "pass", ""
+
+
+def chk_md_trailing_ws(target, anchor_root, args):
+    """Trailing whitespace on a line (never content — pure normalization)."""
+    if not target.is_file():
+        return "pass", "not a file"
+    hits = [str(ln) for ln, raw in enumerate(_read(target).splitlines(), 1) if raw != raw.rstrip()][:5]
+    if hits:
+        return "fail", "trailing whitespace at line(s) " + ", ".join(hits)
     return "pass", ""
 
 
@@ -2305,6 +2397,8 @@ CHECKERS = {
     "no_legacy_open_questions_file": chk_no_legacy_open_questions_file,
     "design_workflow_modern_names": chk_design_workflow_modern_names,
     "dispatch_table_stories_row": chk_dispatch_table_stories_row,
+    # R-doc-structure / R-stories
+    "no_dispatch_table": chk_no_dispatch_table,
     # R-roadmap
     "file_exists": chk_file_exists,
     "milestone_checkbox": chk_milestone_checkbox,
@@ -2341,9 +2435,12 @@ CHECKERS = {
     "facet_cardinality_declared": chk_facet_cardinality_declared,
     "facet_examples_row": chk_facet_examples_row,
     # R-md
-    "md_angle_brackets_safe": chk_md_angle_brackets_safe,
-    "md_angle_brackets_backtick_only": chk_md_angle_brackets_backtick_only,
+    "md_angle_brackets_html_or_spaced": chk_md_angle_brackets_html_or_spaced,
     "md_table_blank_lines": chk_md_table_blank_lines,
+    "md_fence_no_markdown": chk_md_fence_no_markdown,
+    "md_table_pipe_escape": chk_md_table_pipe_escape,
+    "md_em_dash": chk_md_em_dash,
+    "md_trailing_ws": chk_md_trailing_ws,
     # R-diagram-geometry / R-svg-hygiene / R-c4
     "svg_geometry_overlap": chk_svg_geometry_overlap,
     "svg_label_collision": chk_svg_label_collision,
@@ -2431,6 +2528,173 @@ def render_verdicts(report: dict) -> str:
             line += f"  ({v['detail']})"
         out.append(line)
     return "\n".join(out)
+
+
+# ── Fix stage (F177): mechanical repairs + on-write hook driver ──────────
+#
+# A `checked` rule may carry a `fix::` naming a FIXER that REPAIRS the target in
+# place. The on-write hook (F177, the first buildable slice of F166) runs the doc
+# audit on each write and splits failures two ways: a fail WITH a `fix::` is
+# repaired silently (auto-fix bucket); a fail WITHOUT one is surfaced to the agent
+# (message bucket) — because its correct fix needs judgment we must not guess at.
+
+
+def fix_table_blank_lines(target, anchor_root, args):
+    """Insert a blank line before and after every markdown table block. Paired to
+    the `md_table_blank_lines` check. Deterministic and safe — only adds blanks."""
+    if not target.is_file():
+        return False, "not a file"
+    lines = _read(target).split("\n")
+    is_tbl = lambda l: l.lstrip().startswith("|")
+    out, i, changed = [], 0, False
+    n = len(lines)
+    while i < n:
+        if is_tbl(lines[i]):
+            if out and out[-1].strip() != "":
+                out.append(""); changed = True
+            while i < n and is_tbl(lines[i]):
+                out.append(lines[i]); i += 1
+            if i < n and lines[i].strip() != "":
+                out.append(""); changed = True
+        else:
+            out.append(lines[i]); i += 1
+    if changed:
+        target.write_text("\n".join(out), encoding="utf-8")
+    return changed, ("inserted blank line(s) around table" if changed else "")
+
+
+def _alnum(s):
+    return [c for c in s if c.isalnum()]
+
+
+def _alnum_subseq(orig: str, new: str) -> bool:
+    """True iff every alphanumeric char of `orig`, in order, still appears in `new`
+    — i.e. the fix may insert / escape / normalize whitespace, but must NOT DELETE
+    any letter or digit of content. The structural no-delete safety invariant (F179)."""
+    it = iter(_alnum(new))
+    return all(c in it for c in _alnum(orig))
+
+
+def _repl_outside_code(text: str, repl):
+    """Apply `repl` to the parts of `text` outside fenced blocks and inline code spans."""
+    out, i = [], 0
+    for m in re.finditer(r"```[\s\S]*?```|~~~[\s\S]*?~~~", text):
+        out.append(_repl_outside_inline(text[i:m.start()], repl)); out.append(m.group(0)); i = m.end()
+    out.append(_repl_outside_inline(text[i:], repl))
+    return "".join(out)
+
+
+def _repl_outside_inline(seg: str, repl):
+    out, i = [], 0
+    for m in re.finditer(r"(`+)[^`\n]*?\1", seg):
+        out.append(repl(seg[i:m.start()])); out.append(m.group(0)); i = m.end()
+    out.append(repl(seg[i:]))
+    return "".join(out)
+
+
+def fix_md_em_dash(target, anchor_root, args):
+    text = _read(target)
+    new = _repl_outside_code(text, lambda s: s.replace(" -- ", " \u2014 "))
+    if new != text:
+        target.write_text(new, encoding="utf-8")
+        return True, "converted spaced ` -- ` to ` \u2014 `"
+    return False, ""
+
+
+def fix_md_trailing_ws(target, anchor_root, args):
+    lines = _read(target).split("\n")
+    new = [l.rstrip() for l in lines]
+    if new != lines:
+        target.write_text("\n".join(new), encoding="utf-8")
+        return True, "stripped trailing whitespace"
+    return False, ""
+
+
+def fix_md_table_pipe_escape(target, anchor_root, args):
+    lines = _read(target).split("\n")
+    changed = False
+    for i, raw in enumerate(lines):
+        if not raw.lstrip().startswith("|"):
+            continue
+        newline = re.sub(r"\[\[[^\]]*?\]\]",
+                         lambda m: re.sub(r"(?<!\\)\|", r"\\|", m.group(0)), raw)
+        if newline != raw:
+            lines[i] = newline; changed = True
+    if changed:
+        target.write_text("\n".join(lines), encoding="utf-8")
+        return True, "escaped pipe(s) in table wiki-link(s)"
+    return False, ""
+
+
+FIXERS = {
+    "md_table_blank_lines": fix_table_blank_lines,
+    "md_table_pipe_escape": fix_md_table_pipe_escape,
+    "md_em_dash": fix_md_em_dash,
+    "md_trailing_ws": fix_md_trailing_ws,
+}
+
+
+def run_fixer(fix: str, target: Path, anchor_root: Path) -> tuple[bool, str]:
+    parts = fix.split()
+    name, args = parts[0], parts[1:]
+    fn = FIXERS.get(name)
+    if fn is None:
+        return False, f"unknown fixer {name!r}"
+    try:
+        return fn(target, anchor_root, args)
+    except Exception as e:  # a fixer bug must not corrupt the file silently
+        return False, f"{type(e).__name__}: {e}"
+
+
+def execute_on_write(plan: dict, cdir: Path | None) -> dict:
+    """The on-write driver. For each matched mechanical rule that FAILS on its
+    target: apply its `fix::` (and re-check) when it has one — else collect a
+    message. Returns {fixed:[...], messages:[...]} (no cache: the file just changed)."""
+    anchor_root = Path(plan["anchor_root"])
+    fixed, messages = [], []
+    for g in plan["groupings"]:
+        for r in g["rules"]:
+            chk = r.get("check")
+            if not chk:
+                continue
+            for disp, tgt in zip(r["targets"], r["_target_paths"]):
+                tp = Path(tgt)
+                status, detail = run_checker(chk, tp, anchor_root)
+                if status != "fail":
+                    continue
+                fx = r.get("fix")
+                if fx:
+                    orig = tp.read_text(encoding="utf-8")
+                    changed, fdetail = run_fixer(fx, tp, anchor_root)
+                    if changed:
+                        new = tp.read_text(encoding="utf-8")
+                        if not _alnum_subseq(orig, new):
+                            tp.write_text(orig, encoding="utf-8")  # never delete content
+                            messages.append({"rule": r["id"], "target": disp,
+                                             "detail": (detail or "") + " — auto-fix SUPPRESSED (would alter content); fix by hand",
+                                             "why": r.get("why"), "check_pattern": r.get("check_pattern")})
+                            continue
+                        status2, _ = run_checker(chk, tp, anchor_root)
+                        if status2 == "pass":
+                            fixed.append({"rule": r["id"], "target": disp,
+                                          "detail": fdetail or detail})
+                            continue
+                    # no change, or change didn't resolve it — fall through to a message
+                messages.append({"rule": r["id"], "target": disp, "detail": detail,
+                                 "why": r.get("why"), "check_pattern": r.get("check_pattern")})
+    return {"fixed": fixed, "messages": messages}
+
+
+def render_on_write(report: dict) -> str:
+    out = []
+    for f in report["fixed"]:
+        out.append(f"✓ fixed {f['rule']} — {f['target']}  ({f['detail']})")
+    for m in report["messages"]:
+        line = f"⚑ {m['rule']} — {m['target']}: {m['detail']}"
+        if m.get("why"):
+            line += f"  [why: {m['why']}]"
+        out.append(line)
+    return "\n".join(out) if out else "(clean — nothing to fix or flag)"
 
 
 # ── Stage 3: agent-judge scaffolding (manifest + verdict record) ─────────────
@@ -2575,6 +2839,8 @@ def main(argv):
     ap.add_argument("--key")
     ap.add_argument("--status", choices=("pass", "fail", "error"))
     ap.add_argument("--detail", default="")
+    ap.add_argument("--on-write", action="store_true",
+                    help="F177 hook driver: fix mechanical fails in place; emit messages for fails with no fixer")
     ap.add_argument("--cache-dir")
     ap.add_argument("--no-cache", action="store_true")
     args = ap.parse_args(argv)
@@ -2619,6 +2885,13 @@ def main(argv):
     order = args.order or ("rule" if mode == "anchor" and False else "file")
     exclude = sub_anchor_roots(target) if mode == "anchor" else None
     plan = plan_one(target, mode, cdir, [], exclude)
+    if args.on_write:
+        report = execute_on_write(plan, cdir)
+        if args.json:
+            print(json.dumps(report))
+        else:
+            print(render_on_write(report))
+        return 0
     if args.run:
         report = execute_plan(plan, cdir)
         if args.json:

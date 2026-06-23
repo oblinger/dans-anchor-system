@@ -105,11 +105,10 @@ Pick ONE. Priority order if multiple given:
 
 ## POST-CONDITIONS (Q-mode)
 
-Every `state q` invocation runs as post-conditions, per F127's render-audit-glance invariant:
+Every `state q` invocation runs the following post-condition. (The `{ANCHOR} queries.md` page is built on demand by `/query`'s determination logic — there is no separate render step.)
 
 ```
-1. ask-render.py ANCHOR       — regenerates {ANCHOR} ask.md from current source.
-2. audit-q.py --scope q --dry — lenient warn. errors print to stderr; don't unwind the Q-edit.
+1. audit-q.py --scope q --dry — lenient warn. errors print to stderr; don't unwind the Q-edit.
                                 cross-anchor errors never block a local Q-edit.
 ```
 
@@ -169,7 +168,7 @@ echo '**Q5 — rewritten** — fresh body.' | state q rewrite F091 -n 5
 
 ## IMPLEMENTATION STATUS
 
-- **Shipped (F129, 2026-06-07):** `~/.claude/skills/workflow/scripts/state` is canonical. Verb-first restructure (`task create|update|delete` + `q add|answer|remove|rewrite`); `-a/--anchor` (path|slug|cwd-walkup); no `--force` on rewrite; `--slug` hybrid. Caller doc-sweep across `/feature`, `/ask`, `/groom`, `/triage`, `/crank`, `/mint`, `/finalize`, `/rewire`, `/audit` SKILL.md files is incremental — both scripts coexist.
+- **Shipped (F129, 2026-06-07):** `~/.claude/skills/workflow/scripts/state` is canonical. Verb-first restructure (`task create|update|delete` + `q add|answer|remove|rewrite`); `-a/--anchor` (path|slug|cwd-walkup); no `--force` on rewrite; `--slug` hybrid. Caller doc-sweep across `/feature`, `/query`, `/groom`, `/triage`, `/crank`, `/mint`, `/finalize`, `/rewire`, `/audit` SKILL.md files is incremental — both scripts coexist.
 - **Legacy:** `~/.claude/skills/workflow/scripts/backlog-edit.py` ships the F128-era positional CLI + `-Q add|resolve|remove|rewrite` flag-mode. `state` delegates to its helpers via importlib — single source of truth at the helper level; both scripts share the same state.json file used by `/audit integrity`.
 
 ## RELATED

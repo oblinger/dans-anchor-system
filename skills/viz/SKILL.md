@@ -101,6 +101,8 @@ Examples:
 
 If the user gives an explicit output path, honor it instead. The MyDesk default keeps generated artifacts findable across sessions instead of scattered through `/tmp/` or working dirs.
 
+**Portability fallback** — resolve the output dir in this order: (1) an explicit `--output` / user-given path; (2) `~/ob/data/MyDesk/` **if it exists**; (3) the current working directory. On a fresh machine without the vault, MyDesk won't exist, so artifacts land in the cwd rather than failing — never assume the directory is present.
+
 This convention applies retroactively — `/viz matplot` (which previously dropped to caller-specified paths) should also default to MyDesk when no path is given.
 
 

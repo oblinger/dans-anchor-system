@@ -54,7 +54,7 @@ sets/
     └── ob.md                     ← Dan's personal cross-project decisions (markdown-valid-for-Obsidian, ...)
 ```
 
-- **Trait-scoped folders** match trait names per the [[CAB Traits]] taxonomy (post-F090: Code / Skill / Topic / Paper / Simple). Sets here apply when an anchor declares the matching trait.
+- **Trait-scoped folders** match trait names per the [[TRT]] taxonomy (post-F090: Code / Skill / Topic / Paper / Simple). Sets here apply when an anchor declares the matching trait.
 - **Cross-cutting folders** are not trait-scoped — they apply across traits when the anchor opts in. Naming is by concern (Doc / Git / Test / Process / Arch).
 - **Owner-scoped folders** are pulled in by every anchor a person owns, regardless of trait. (`Ob/` = Dan's personal set.)
 - **Set files** are kebab-case `.md` files. Multiple sets per category are expected — different sub-styles within a category have different decision needs.
@@ -119,4 +119,4 @@ Brief paragraph: what this set is, when it applies.
 - [[F113 — Decisions facet — unify Principles + Rules; relocate Architecture]] — the umbrella feature; Phase 3 commissions decision sets.
 - [[F082 — Common ruleset across projects]] — F082 ships the predecessor `rule/sets/` library; F113 Phase 3 migrates it here.
 - [[FCT Decisions]] — per-anchor Decisions facet spec.
-- [[CAB Traits]] — the canonical trait taxonomy.
+- [[TRT]] — the canonical trait taxonomy.

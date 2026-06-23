@@ -7,7 +7,7 @@ The Roadmap facet — the project's sequencing-design doc, organized as named mi
 | -[[FCT Roadmap]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Roadmap](hook://p/FCT%20Roadmap)<br>: facet spec for the project sequencing-design doc — milestones, shapes, and numbering |
 | --- | --- |
 | Related | [[FCT Features]],  [[FCT Completed Roadmap]],  [[FCT Status]],  [[FCT Design]],   |
-| Examples | [[CAE Roadmap\|Shape A named-milestone]], [[HBR Roadmap\|Shape B legacy-numbered]] |
+| Examples | [[CAE Roadmap\|Shape A named-milestone]],  [[HBR Roadmap\|Shape B legacy-numbered]],   |
 
 The Roadmap facet specifies the `{NAME} Roadmap.md` file — the project's **sequencing-design**. It declares what ships in what order, organized as milestones (M1, M2, M3 …) with sub-numbering for finer detail. Open questions at the sequencing/dependency/gating level live as `## Open Questions` H2 on this file per [[DSC ask-format]].
 

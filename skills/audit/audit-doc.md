@@ -1,6 +1,6 @@
 # /audit doc — audit one document against the doc ruleset
 
-Takes a single markdown document and checks it against the **`R-doc` umbrella** — the doc-level facet rulesets ([[FCT Document]]: markdown hygiene, file-association, ruleset form, brief, discussion, log, messages). The doc-mode sibling of [[audit-anchor|/audit anchor]]: same [[F161 — Rule-driven audit engine — resolve, run, judge|F161]] engine, smaller facet set, targets are *regions within the file* rather than files in a tree.
+Takes a single markdown document and checks it against the **`R-doc` umbrella** — the doc-level facet rulesets ([[FCT Document]]: markdown hygiene, file-association, ruleset form, brief, discussion, log, messages). The doc-mode sibling of [[audit-anchor|/audit anchor]]: same [[F001 — Rule-driven audit engine — resolve, run, judge|F001]] engine, smaller facet set, targets are *regions within the file* rather than files in a tree.
 
 ## When to use
 
@@ -41,6 +41,6 @@ P=~/.claude/skills/audit/scripts/audit-plan.py
 
 ## Related
 
-- Engine: [[F161 — Rule-driven audit engine — resolve, run, judge|F161]]; planner script `audit-plan.py`.
+- Engine: [[F001 — Rule-driven audit engine — resolve, run, judge|F001]]; planner script `audit-plan.py`.
 - Umbrella: `R-doc` (see [[FCT Document]] / the doc-facet `# RULESET` blocks).
 - Anchor-level sibling: [[audit-anchor]].

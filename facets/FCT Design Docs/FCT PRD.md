@@ -2,6 +2,8 @@
 description: "facet spec for {NAME} PRD.md — the anchor's product requirements document"
 ---
 # FCT PRD
+**Audited examples:** [[HBR PRD]], [[Mini PRD]], [[CAE PRD]], [[DMUX PRD]], [[OBU PRD]]
+
 Facet spec for `{NAME} PRD.md` — the first doc in an anchor's Design folder, defining what the product does (goals, non-goals, user stories) for every downstream design phase to consume.
 
 | -[[FCT PRD]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT PRD](hook://p/FCT%20PRD)<br>: facet spec for {NAME} PRD.md — the anchor's product requirements document |
@@ -57,6 +59,8 @@ Per [[FCT Stories]]. The PRD's `## User Stories` section then links to `[[{NAME}
 
 The spine is `Overview → Design Workflow → Goals → Non-Goals → User Stories`. Sections 7-9 appear as needed.
 
+Real instances vary in section *naming* around this spine (e.g. `## Purpose` for Overview, `## Primary Goals`/`## Core Capabilities` for Goals) and some predate the `## Design Workflow` row entirely. The conformant target is the canonical names and order above; older PRDs migrate toward it during normal anchor work rather than being rewritten wholesale.
+
 **Working example:** [[CAE PRD]] — single-file form; three inline stories.
 
 ## Preface zone requirements
@@ -98,13 +102,23 @@ Design-phase completeness for the PRD is tracked in `{NAME} Track/{NAME} Status.
 
 **One per anchor.** An anchor has at most one PRD — the single authoritative statement of what the product is. When user stories grow large enough to extract, they move to [[FCT Stories]] (folder form), but the PRD itself remains one file per anchor.
 
+## Common deviations in real instances
+
+Surveying live PRDs across the vault, these are the recurring drifts from the canonical shape — each maps to a rule below and is a migration target, not an accepted variant:
+
+- **Legacy header form** — `desc::`/`description::` inline + `:>>` breadcrumb instead of YAML frontmatter (`R-prd-02`/`R-prd-03`), or no metadata line at all (e.g. `[[HA Track]] > [[HA PRD]]` breadcrumb-only).
+- **`US-<N>` without RID** — inline stories numbered `US-1`, `US-2` rather than `US-<RID>-<N>` (`R-prd-05`); collides across anchors.
+- **`## Design Constraints` (DC-N)** — architectural/technical constraints living in the PRD instead of [[FCT Decisions]] / [[FCT Ruleset]] (`R-prd-09`).
+- **Missing `## Design Workflow`** — older PRDs jump from Overview straight to Goals (`R-prd-04`).
+- **No `## User Stories` at all** — stub or library PRDs (e.g. consumer-table-only) that never grew a story section (`R-prd-04`/`R-prd-05`); the Goals serve as a stand-in until stories are authored.
+
 ## Trait applicability
 
 Any anchor that has a `{NAME} Design/` folder per [[FCT Design]]. Initially supports anchors with code-shaped artifacts; broader applicability (Paper / Topic / Simple traits) covered as those traits land.
 
 ## Audit
 
-`/audit prd` (future) would flag the rules captured in `R-prd` below — body-only shape, required-section presence, US-<RID>-<N> story numbering, no legacy Open Questions file, etc.
+`/audit prd` (future) would flag the rules captured in `R-prd` below — body-only shape, required-section presence, `US-<RID>-<N>` story numbering, no legacy Open Questions file, etc.
 
 ## See also
 
@@ -122,7 +136,7 @@ Any anchor that has a `{NAME} Design/` folder per [[FCT Design]]. Initially supp
 # RULESET R-prd
 include::
 where:: file:{ANCHOR}/**/* PRD.md
-description:: facet spec for {NAME} PRD.md — the anchor's product requirements document
+description:: facet spec this doc follows
 
 Embedded ruleset for the PRD facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella.
 

@@ -1,12 +1,15 @@
 ---
 name: verification
-description: Discipline. Four-tier hierarchy for how a feature gets verified, with a blocking-action escape hatch. Cited at feature creation (write Success Criteria sized to the highest applicable tier) and at verification time (do not escalate to tier 4 if a lower tier would work). Owns the structural rule that the verification mechanism is declared up front, not chosen on the fly.
+description: "Discipline — four-tier verification preference ordering (agent-immediate → user-explicit), declared up front and consulted at verification time"
 user_invocable: false
 ---
 
 # Verification Discipline
-
 The four-tier preference ordering (agent-immediate → user-explicit) for how a feature gets verified, declared up front in each feature doc and consulted at verification time so user attention is spent only when no lower tier works.
+
+| -[[DSC verification]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DSC verification](hook://p/DSC%20verification)<br>: Discipline — four-tier verification preference ordering (agent-immediate → user-explicit), declared up front and consulted at verification time |
+| --- | --- |
+| Related | [[CAB Disciplines]],  [[feature]],  [[ask]],  [[triage]],  [[workflow]],   |
 
 Verification is *the four-tier preference ordering an agent uses to choose how a feature gets verified — from agent-immediate (best) to user-explicit (last resort).* The single load-bearing rule: pick the highest applicable tier; never escalate to a higher one when a lower one would work. What distinguishes a tier from a feeling:
 
@@ -92,6 +95,20 @@ The escape only fires when:
 If the escape fires, the success criteria must be tier 1 or tier 2 so the next action can begin without an arbitrary user-attention delay.
 
 If the escape does not fire (no strict downstream block), the normal preference holds: prefer tier 1, fall back to 2, fall back to 3, only escalate to 4 when 3 genuinely does not apply.
+
+## Verification runs at completion — not deferred, not assumed
+
+A feature is not Done until its declared verification has actually been **run** and **passed**. Flipping a row to `[Done]` is the *record* of a verification that happened — never a substitute for it. At the moment work completes, the agent executes the `## Success Criteria` check for the declared tier: Tier 1 → run it now; Tier 2 → arm the deferred check; Tier 3/4 → surface the targeted ask. "The code compiles and the unit tests pass" is not the feature's verification unless the Success Criteria says so — run the criteria as written.
+
+The failure mode this closes: work finishes, the row flips to Done on the strength of "it should work," and a defect the declared check would have caught ships anyway.
+
+## GUI-altering features: screengrab the changed region (Tier 1, mandatory)
+
+When a feature changes anything the user sees on screen — a dialog, panel, layout, control, label, color, spacing — the agent's Tier-1 verification **must** include a **screen capture of the altered region**, which the agent then **reads back and inspects** against the intended change. Headless/unit tests verify the data and the IPC; they cannot see that a new field overflowed the window and clipped the OK button, that two labels overlap, that a control rendered off-screen, or that the visible text is the wrong string. The eyes-on capture is the only check that sees what the user sees.
+
+Mechanism (macOS): deploy the change → drive the UI to the altered state (e.g. open the dialog) → locate the window via `CGWindowListCopyWindowInfo` (owner/title → bounds) → `screencapture -x -R<x,y,w,h> /tmp/<feat>.png` → **Read the PNG** and confirm both the intended change AND the absence of regressions (clipping, overlap, off-screen, wrong text). This is agent-immediate (Tier 1) and necessarily runs on the machine with the **live UI**. A GUI feature is not verified — and not Done — until this capture has been taken and inspected.
+
+(Origin: F145's added dialog field overflowed the window and clipped the OK/Cancel buttons; the mechanical `test_078` passed because it only exercised the IPC. A completion screengrab would have caught it. 2026-06-14.)
 
 ## The Success Criteria block in a feature doc
 

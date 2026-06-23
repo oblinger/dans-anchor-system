@@ -11,6 +11,8 @@ A small set of complete, fictional example anchors — reused to illustrate each
 |  | **THE EXAMPLE WORLDS** |
 | [[HBR]] | **Harbor** — a fictional media-server project (its own slug): project root + grouped dispatch ([[HBR Components]]) + a built-out sub-anchor ([[HBR Ingest]]) + a full, tiny facet set ([[HBR Design]] / [[HBR Track]] / [[HBR User Docs]] / [[HBR Dev Docs]]), all `HBR`-prefixed |
 | [[FEX Repo\|Repo]] | **FEX Repo** — a fake skills repository tying the loose examples together: a skill ([[FEX Snapshot\|Snapshot]]), three facets spanning the kinds ([[FEX Manifest\|Manifest]] / [[FEX Pin\|Pin]] / [[FEX Bundle\|Bundle]]), a discipline ([[FEX Retention\|Retention]]), a ruleset ([[R-fex-manifest]]) |
+| [[Knots]] | **Knots** — a tiny **Topic** anchor: a no-code evergreen knowledge hub routing to sub-topics ([[Knots Hitches\|Hitches]] / [[Knots Bends\|Bends]]) |
+| [[HWP\|Harbor Whitepaper]] | **Harbor Whitepaper** — a **Paper** anchor: a short whitepaper on Harbor carrying the dated version-table + per-section track-changes signature |
 | ... |  |
 
 ## By kind / facet — which example shows it
@@ -19,6 +21,8 @@ Two fictional worlds cover the anchor-page kinds and the facets. **Not 1:1** —
 
 | Kind / facet | Shown by |
 |---|---|
+| Topic anchor | [[Knots]] |
+| Paper anchor | [[HWP]] |
 | project root | [[HBR]] |
 | grouped dispatch | [[HBR Components]] |
 | sub-anchor / sub-folder | [[HBR Ingest]] |

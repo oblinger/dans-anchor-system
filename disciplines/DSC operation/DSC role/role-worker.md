@@ -33,7 +33,9 @@ Workers own their git workflow. Commits happen automatically as part of executio
 ### Branching
 Create a feature branch from main on receiving a task:
 
-    git checkout -b feat/<task-slug>
+```bash
+git checkout -b feat/<task-slug>
+```
 
 One branch per task. Name derives from the task ID or title.
 

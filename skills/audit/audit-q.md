@@ -15,7 +15,7 @@ user_invocable: true
 
 # audit-q — Q.md constraint validator (per F076)
 
-Sub-action of `/audit`. Spec: `[[F076 — audit q — Q.md constraint validator with mechanical-fix mode]]`.
+Sub-action of `/audit`. Spec: `[[F009 — audit q — Q.md constraint validator]]`.
 
 ## Runbook
 
@@ -63,7 +63,7 @@ Sub-action of `/audit`. Spec: `[[F076 — audit q — Q.md constraint validator 
 
 ## Cross-references
 
-- `[[F076 — audit q — Q.md constraint validator with mechanical-fix mode]]` — design spec.
+- `[[F009 — audit q — Q.md constraint validator]]` — design spec.
 - `[[audit-q-fix]]` — companion skill for picking up a `QFix` backlog entry (rare).
 - `skills/audit/scripts/audit-q.py` — the underlying Python script.
 - `[[SKA audit]]` — parent audit skill family.

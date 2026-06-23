@@ -132,10 +132,10 @@ BRACKET_RE = re.compile(r"\[([A-Za-z][A-Za-z0-9 \-]*?)\]")
 Q_MARKER_RE = re.compile(r"\bQ\d+\s+—")
 # Q.md per-anchor section H1 banner.
 QMD_BANNER_RE = re.compile(
-    # Match both the new format `[[X ask|X]]` and the legacy
+    # Match both the new format `[[X queries|X]]` and the legacy
     # `[[Q#X Triage|X Triage]]` form so banner-rewrite works either way.
     r"^# \[(?P<tag>[^\]]*)\]\s+"
-    r"\[\[(?:Q#)?(?P<name>[^\|\]]+?)(?:\s+(?:Triage|ask))?(?:\|[^\]]+)?\]\]"
+    r"\[\[(?:Q#)?(?P<name>[^\|\]]+?)(?:\s+(?:Triage|ask|queries))?(?:\|[^\]]+)?\]\]"
     r"\s+-\s+(?P<rest>.+)$"
 )
 
@@ -933,7 +933,7 @@ def find_ask_format_files(
 
     Container IDs:
     - Feature doc F089-...md → 'F089'
-    - Anchor ask file '<NAME> ask.md' → '<NAME>' (authored anchor-level Qs)
+    - Anchor queries file '<NAME> queries.md' → '<NAME>' (authored anchor-level Qs)
 
     By default (`reachable_only=True`, per user direction 2026-05-26): only
     audit feature docs that are *linked from the anchor's backlog*. Orphan
@@ -962,24 +962,39 @@ def find_ask_format_files(
                         seen_paths.add(link.target_file_path)
                         out.append((m.group(1), link.target_file_path))
                     continue
-            # Always include `{NAME} ask.md` if it exists — anchor-level Qs are
+            # Always include `{NAME} queries.md` if it exists — anchor-level Qs are
             # authored directly there (there is no `{NAME} Questions.md`).
             # extract_q_entries picks up only the authored `**Q<n>` bullets in
             # `## Questions`; rendered pointer lines and resolutions are ignored.
-            ask_file = backlog_file.parent / f"{name} ask.md"
-            if ask_file.is_file() and ask_file not in seen_paths:
-                out.append((name, ask_file))
+            queries_file = backlog_file.parent / f"{name} queries.md"
+            if queries_file.is_file() and queries_file not in seen_paths:
+                out.append((name, queries_file))
         else:
             # Vault-wide: every F<n>.md in the anchor's Features/ folder.
-            features_dir = backlog_file.parent / f"{name} Features"
-            if features_dir.is_dir():
+            # F142 transition — features live in the new `{name} Design/{name}
+            # Features/` location (Design is a sibling of `{name} Track/`) or the
+            # legacy `{name} Features/` sibling of the backlog. Glob both.
+            track_dir = backlog_file.parent          # {name} Track/
+            anchor_root = track_dir.parent           # Design/Track siblings
+            feature_dirs = [
+                anchor_root / f"{name} Design" / f"{name} Features",  # new canonical
+                track_dir / f"{name} Features",                       # legacy sibling
+                anchor_root / f"{name} Features",                     # older flat variant
+            ]
+            seen_feat: set[Path] = set()
+            for features_dir in feature_dirs:
+                if not features_dir.is_dir():
+                    continue
                 for feature_file in sorted(features_dir.glob("F*.md")):
+                    if feature_file in seen_feat:
+                        continue
+                    seen_feat.add(feature_file)
                     m = F_NUMBER_PREFIX_RE.match(feature_file.stem)
                     if m:
                         out.append((m.group(1), feature_file))
-            ask_file = backlog_file.parent / f"{name} ask.md"
-            if ask_file.is_file():
-                out.append((name, ask_file))
+            queries_file = backlog_file.parent / f"{name} queries.md"
+            if queries_file.is_file():
+                out.append((name, queries_file))
     return out
 
 
@@ -1661,7 +1676,7 @@ def check_c22_link_existence_extended(
 ) -> list[Finding]:
     """C22: extend C1's link-existence check beyond Q.md to feature docs +
     backlogs. C1 covers Q.md; C22 covers everything else where broken
-    wiki-links are user-visible (feature docs, backlogs, ask.md files)."""
+    wiki-links are user-visible (feature docs, backlogs, queries.md files)."""
     findings: list[Finding] = []
     for file_path in scope_files:
         for link in links_in_file(file_path, vault_index):
@@ -2341,9 +2356,9 @@ def check_c34_inline_q_in_row_body(backlog_files: list[Path]) -> list[Finding]:
     """C34: inline `Q<n>` bullets inside backlog row bodies are forbidden.
 
     Qs belong in feature docs (`{NAME} Features/F<n> — Title.md` §
-    `## Open Questions`) or authored directly in the anchor ask file
-    (`{NAME} ask.md` § `## Questions`), per
-    [[ask-format]]. Embedding Qs in a backlog row body bypasses /ask's
+    `## Open Questions`) or authored directly in the anchor queries file
+    (`{NAME} queries.md` § `## Questions`), per
+    [[ask-format]]. Embedding Qs in a backlog row body bypasses /query's
     surfacing (Q.md banner, /triage) and produces a row that contains
     decision content the rest of the workflow can't see.
     """
@@ -2380,7 +2395,7 @@ def check_c34_inline_q_in_row_body(backlog_files: list[Path]) -> list[Finding]:
                     message=(
                         f"inline `Q<n>` bullet in backlog row body (`## {current_h2}`) "
                         f"— Qs belong in a feature doc's `## Open Questions` H2 or in "
-                        f"`{{NAME}} ask.md` § `## Questions` per [[ask-format]]. Move the Q to "
+                        f"`{{NAME}} queries.md` § `## Questions` per [[ask-format]]. Move the Q to "
                         f"the appropriate surface and replace this row's body with "
                         f"a `→ [[F<n> — Title]]` link."
                     ),
@@ -2393,15 +2408,16 @@ def check_c35_ask_md_drift(
     anchor_backlogs: dict[str, Path],
     vault_index: dict[str, list[Path]],
 ) -> list[Finding]:
-    """C35 (F124): each Q<n> reference in `{NAME} ask.md` § Questions must
-    correspond to a pending Q in the linked feature doc.
+    """C35 (F124; queries-surface per F176): each Q<n> reference in
+    `{NAME} queries.md` § Questions must correspond to a pending Q in the
+    linked feature doc.
 
-    Surfacing case (F077 Q7, 2026-06-06): SKA ask.md carried 'F077 ... (Q1, Q7)'
-    forward as pending, but F077's doc had Q7 in `### Resolved` (choice A).
-    The /ask runbook step 3 requires 'live re-check each carried-forward
-    entry' — this check mechanizes it.
+    Surfacing case (F077 Q7, 2026-06-06): the carried-forward 'F077 ... (Q1, Q7)'
+    listed Q7 as pending while F077's doc had Q7 in `### Resolved` (choice A).
+    `/query` rebuilds from current state, but a stale view can persist between
+    runs — this check mechanizes the drift catch.
 
-    Walks each anchor backlog's sibling `{NAME} ask.md` file, parses the
+    Walks each anchor backlog's sibling `{NAME} queries.md` file, parses the
     `## Questions` H2 region, extracts wiki-linked feature docs + the
     Q-numbers each bullet claims pending, then cross-checks against the
     linked doc's actual pending-Q set via `extract_q_entries` (which is
@@ -2411,11 +2427,11 @@ def check_c35_ask_md_drift(
     q_ref_re = re.compile(r"\bQ(\d+)\b")
     wiki_link_re = re.compile(r"\[\[([^|\]]+?)(?:\|[^\]]+)?\]\]")
     for name, backlog_file in anchor_backlogs.items():
-        ask_file = backlog_file.parent / f"{name} ask.md"
-        if not ask_file.is_file():
+        queries_file = backlog_file.parent / f"{name} queries.md"
+        if not queries_file.is_file():
             continue
         try:
-            text = ask_file.read_text(encoding="utf-8")
+            text = queries_file.read_text(encoding="utf-8")
         except (OSError, UnicodeDecodeError):
             continue
         lines = text.splitlines()
@@ -2442,7 +2458,7 @@ def check_c35_ask_md_drift(
             # Strip any block-ID fragment from target name
             if "#" in target_name:
                 target_name = target_name.split("#", 1)[0]
-            target_file = resolve_target(target_name, ask_file, vault_index)
+            target_file = resolve_target(target_name, queries_file, vault_index)
             if target_file is None or not target_file.is_file():
                 continue  # link resolution belongs to C1/C22
             # Only feature docs participate (skip non-F<n> targets like
@@ -2465,9 +2481,29 @@ def check_c35_ask_md_drift(
                 else:
                     break
             claimed = sorted({int(m.group(1)) for m in q_ref_re.finditer(bullet_text)})
+            pending_qs = {q.q_num for q in extract_q_entries(target_file, container_id)}
+            # Core drift (F176 fix): a feature listed under `## Questions` whose
+            # linked doc has ZERO pending Qs is wrong regardless of whether the
+            # bullet enumerates specific `Q<n>` numbers. The earlier logic only
+            # fired when explicit Q-numbers were claimed, so a prose pendingness
+            # claim ("4 design Qs pending", no Q<n> token) against an all-resolved
+            # doc slipped through (observed: MUX F125, 2026-06-16).
+            if not pending_qs:
+                findings.append(Finding(
+                    severity="warning",
+                    surface_file=queries_file,
+                    surface_line=line_num + 1,
+                    code="C35",
+                    message=(
+                        f"queries.md lists {container_id} under `## Questions` but "
+                        f"its linked doc has no pending Qs (all resolved or absent). "
+                        f"Remove the entry / re-run /query to rebuild from current state."
+                    ),
+                    mechanically_fixable=False,
+                ))
+                continue
             if not claimed:
                 continue
-            pending_qs = {q.q_num for q in extract_q_entries(target_file, container_id)}
             stale = [q for q in claimed if q not in pending_qs]
             if not stale:
                 continue
@@ -2478,17 +2514,127 @@ def check_c35_ask_md_drift(
             stale_str = ", ".join(f"Q{n}" for n in stale)
             findings.append(Finding(
                 severity="warning",
-                surface_file=ask_file,
+                surface_file=queries_file,
                 surface_line=line_num + 1,
                 code="C35",
                 message=(
-                    f"ask.md claims {stale_str} pending in {container_id} "
+                    f"queries.md claims {stale_str} pending in {container_id} "
                     f"but linked doc has those resolved or absent "
-                    f"(actual pending: {pending_str}). /ask runbook step 3 "
-                    f"requires live re-check; drift carried forward."
+                    f"(actual pending: {pending_str}). Re-run /query to rebuild "
+                    f"from current state; drift carried forward."
                 ),
                 mechanically_fixable=False,
             ))
+    return findings
+
+
+################################################################
+# C37–C41 — {NAME} queries.md answer-section format
+# (user direction 2026-06-16): the items a user answers must be
+# referenceable + well-formed so an answer like "Q2: A" / "V1: yes"
+# is unambiguous, and every decision forces the agent to state a
+# recommendation (even "None").
+################################################################
+
+_Q_WIKILINK_RE = re.compile(r"\[\[[^\]]*\]\]")
+_Q_FNUM_RE = re.compile(r"\bF\d{1,4}\b")
+_Q_VHANDLE_RE = re.compile(r"^\s*-\s+\*\*V\d+\b")
+_Q_QHANDLE_RE = re.compile(r"^\s*-\s+\*\*Q\d+\b")
+_Q_YESNO_RE = re.compile(r"\*\*[^*]*yes\s*/\s*no[^*]*\*\*", re.IGNORECASE)
+_Q_OPTION_RE = re.compile(r"\*\*\([A-Za-z]\)\*\*")
+
+
+def check_c37_queries_item_format(anchor_backlogs: dict[str, Path]) -> list[Finding]:
+    """Format rules for the answer-requiring sections of `{NAME} queries.md`:
+
+      C37 — bare F-number must be a wiki-link (any bullet, any section).
+      C38 — `## Verifications` bullets begin with a bold `**V<n>` handle.
+      C39 — `## Immediate Questions` bullets begin with a bold `**Q<n>` handle.
+      C40 — `## Verifications` + `## Immediate Questions` bullets carry an answer
+            shape: bold `**yes/no**`, or bold labeled options `**(A)** / **(B)**`.
+      C41 — `## Immediate Questions` bullets contain the word `Recommendation`
+            (may be 'None' — the rule forces the agent to *consider* whether it
+            has a recommendation, not to manufacture one).
+    """
+    findings: list[Finding] = []
+    for name, backlog_file in anchor_backlogs.items():
+        qf = backlog_file.parent / f"{name} queries.md"
+        if not qf.is_file():
+            continue
+        try:
+            lines = qf.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeDecodeError):
+            continue
+        section: Optional[str] = None
+        toplevel = re.compile(r"^-\s+")
+        reco_bullet = re.compile(r"^-\s+\*\*Recommendation\b")
+        for i, line in enumerate(lines):
+            h = re.match(r"^##\s+(.+?)\s*$", line)
+            if h:
+                section = h.group(1).strip()
+                continue
+            # Only a TOP-LEVEL bullet opens an item. Indented bullets (option
+            # sub-bullets in the standard expanded format) and the
+            # `- **Recommendation:**` bullet are PART of the item they follow,
+            # not new items — they must not be checked as standalone handles.
+            if not toplevel.match(line):
+                continue
+            if reco_bullet.match(line):
+                continue
+            ln = i + 1
+            # Gather the whole item: opener + following indented lines (options)
+            # + a following top-level `**Recommendation` bullet.
+            item = line
+            j = i + 1
+            while j < len(lines):
+                nxt = lines[j]
+                if nxt.startswith("  ") or nxt.startswith("\t"):
+                    item += " " + nxt.strip()
+                    j += 1
+                elif reco_bullet.match(nxt):
+                    item += " " + nxt.strip()
+                    j += 1
+                else:
+                    break
+            is_verif = (section == "Verifications")
+            is_imm = (section == "Immediate Questions")
+
+            # C37 — bare F-number anywhere in the item (links blanked first).
+            bare = sorted(set(_Q_FNUM_RE.findall(_Q_WIKILINK_RE.sub("", item))))
+            for fn in bare:
+                findings.append(Finding(
+                    severity="error", surface_file=qf, surface_line=ln, code="C37",
+                    message=(
+                        f"bare F-number `{fn}` must be a wiki-link — to its feature "
+                        f"doc `[[{fn} — Title|{fn}]]` if one exists, else to the "
+                        f"backlog row `[[{{NAME}} Backlog#^{fn}|{fn}]]` (many items "
+                        f"are bare backlog rows with no feature doc)."),
+                    mechanically_fixable=False))
+
+            if is_verif and not _Q_VHANDLE_RE.match(line):
+                findings.append(Finding(
+                    severity="error", surface_file=qf, surface_line=ln, code="C38",
+                    message=("Verifications item must begin with a bold `**V<n>` "
+                             "handle (e.g. `- **V1 — …`) so you can answer it by "
+                             "reference (`V1: yes`)."),
+                    mechanically_fixable=False))
+            if is_imm and not _Q_QHANDLE_RE.match(line):
+                findings.append(Finding(
+                    severity="error", surface_file=qf, surface_line=ln, code="C39",
+                    message=("Immediate Questions item must begin with a bold "
+                             "`**Q<n>` handle (e.g. `- **Q1 — …`) so you can answer "
+                             "it by reference (`Q1: A`)."),
+                    mechanically_fixable=False))
+            if is_verif or is_imm:
+                if not (_Q_YESNO_RE.search(item) or _Q_OPTION_RE.search(item)):
+                    findings.append(Finding(
+                        severity="error", surface_file=qf, surface_line=ln, code="C40",
+                        message=("no answer shape — a user-answered item needs a "
+                                 "bold `**yes/no**` (Verifications) or bold labeled "
+                                 "options `**(A)** / **(B)** / …` (Immediate "
+                                 "Questions). The Recommendation line + option "
+                                 "format are enforced by C9 / C19."),
+                        mechanically_fixable=False))
     return findings
 
 
@@ -2550,7 +2696,7 @@ def _c36_is_path_like(token: str) -> bool:
     if t.startswith(".") and _C36_EXT_RE.fullmatch(t):
         return False
     # Reject slash-commands: leading `/` followed by a single segment of
-    # lowercase letters / digits / hyphens — these are `/ask`, `/groom`,
+    # lowercase letters / digits / hyphens — these are `/query`, `/groom`,
     # `/audit foo`, etc., NOT file paths.
     if t.startswith("/"):
         rest = t[1:]
@@ -2635,11 +2781,11 @@ def _c36_is_inside_existing_link(line: str, span_start: int) -> bool:
 def check_c36_backtick_filepath(
     file_path: Path, vault_index: dict[str, list[Path]]
 ) -> list[Finding]:
-    """C36: backtick-quoted file-paths on Q.md / ask.md should be wiki-links
+    """C36: backtick-quoted file-paths on Q.md / queries.md should be wiki-links
     or markdown-links so they're clickable.
 
     Surfacing case (F126, 2026-06-07): the user observed that bare backtick
-    file-path tokens in `Q.md` / `{NAME} ask.md` aren't navigable from
+    file-path tokens in `Q.md` / `{NAME} queries.md` aren't navigable from
     Obsidian — they look like links but aren't, forcing the user to manually
     copy the path. C36 forbids them and `--fix` mechanically replaces them.
     """
@@ -2672,20 +2818,24 @@ def check_c36_backtick_filepath(
             if _c36_is_inside_existing_link(line, m.start()):
                 continue
             replacement = _c36_resolve_replacement(token, vault_index)
-            mech_fixable = replacement is not None
+            if replacement is None:
+                # No resolvable link target exists — a code-source file
+                # (`lib.rs`, `cocoa.rs`), a config/runtime file with no vault
+                # doc (`config.yaml`, `mux-targets.json`), or a non-existent
+                # absolute path (`/tmp/hidmove`). Backticks are the CORRECT
+                # rendering for these; C36's premise ("should be a link") only
+                # holds when the path CAN become one. Skip — never file an
+                # unfixable "manual review" residual that can never be cleared
+                # (the QFix-never-clears bug). Genuinely-broken doc references
+                # are C1/C22's job, not C36's. 2026-06-14.
+                continue
             findings.append(Finding(
                 severity="warning",
                 surface_file=file_path,
                 surface_line=line_num,
                 code="C36",
-                message=(
-                    f"backtick file-path `{token}` should be a link — "
-                    + (f"suggested: `{replacement}`"
-                       if replacement
-                       else "basename doesn't resolve in vault index "
-                            "(manual review)")
-                ),
-                mechanically_fixable=mech_fixable,
+                message=f"backtick file-path `{token}` should be a link — suggested: `{replacement}`",
+                mechanically_fixable=True,
             ))
     return findings
 
@@ -3316,13 +3466,187 @@ def derive_anchor_banner(name: str, backlog_file: Path,
     if not tag and horizon_counts["Icebox"] == 0:
         return None
     banner = (
-        f"# [{tag}]  [[{name} ask|{name}]]  -  "
+        f"# [{tag}]  [[{name} queries|{name}]]  -  "
         f"Ready {ready_n}    Questions {questions_n}   |   "
         f"Now {horizon_counts['Now']}    Next {horizon_counts['Next']}    "
         f"Later {horizon_counts['Later']}    Verify {horizon_counts['Verify']}    "
         f"Icebox {horizon_counts['Icebox']}"
     )
     return banner
+
+
+# ============================================================
+# F180 — when:: action-triggered executable rules
+# ============================================================
+
+
+def _rulesets_roots() -> list[Path]:
+    """Roots under the ob-skills repo that hold rulesets (standalone catalog +
+    facet/discipline-embedded RULESET blocks)."""
+    base = Path(__file__).resolve().parents[3]  # …/ob-skills
+    return [base / "library" / "Rulesets", base / "facets", base / "disciplines"]
+
+
+def _discover_when_rules() -> list[dict]:
+    """Walk the ruleset roots for rules carrying a `when::` clause. Returns a list
+    of {events, rule_id, source, code} — code is the rule's adjacent embedded
+    ```python block (its trigger), or None."""
+    out: list[dict] = []
+    for root in _rulesets_roots():
+        if not root.is_dir():
+            continue
+        for md in root.rglob("*.md"):
+            try:
+                lines = md.read_text(encoding="utf-8").splitlines()
+            except (OSError, UnicodeDecodeError):
+                continue
+            cur_rule: Optional[str] = None
+            for i, ln in enumerate(lines):
+                rm = re.match(r"^###\s+RULE\s+(R-[\w-]+)", ln)
+                if rm:
+                    cur_rule = rm.group(1)
+                    continue
+                wm = re.match(r"^when::\s*(.+?)\s*$", ln)
+                if not wm:
+                    continue
+                events = [e.strip() for e in wm.group(1).split(",") if e.strip()]
+                code: Optional[str] = None
+                for j in range(i + 1, min(i + 80, len(lines))):
+                    if re.match(r"^###\s+RULE", lines[j]):
+                        break
+                    if lines[j].strip().startswith("```python"):
+                        buf = []
+                        for k in range(j + 1, len(lines)):
+                            if lines[k].strip().startswith("```"):
+                                break
+                            buf.append(lines[k])
+                        code = "\n".join(buf)
+                        break
+                out.append({"events": events, "rule_id": cur_rule or "?",
+                            "source": md, "code": code})
+    return out
+
+
+def list_when_rules() -> int:
+    rules = _discover_when_rules()
+    if not rules:
+        print("audit-q: no when-triggered rules found.")
+        return 0
+    print(f"audit-q: {len(rules)} when-triggered rule(s):")
+    for r in rules:
+        tag = "py" if r["code"] else "no-code"
+        print(f"  {r['rule_id']:26s} when:: {', '.join(r['events']):18s} "
+              f"[{tag}]  {r['source'].name}")
+    return 0
+
+
+def _anchor_git_aspect(anchor: str) -> tuple[Optional[str], Optional[Path]]:
+    """Resolve an anchor's Git aspect (PR / Push / Commit / NoGit) from its
+    `.anchor` traits, walking up from its backlog. The Git aspect **inherits**:
+    a sub-anchor that declares no aspect falls through to its parent, so the walk
+    continues past intermediate `.anchor` markers until one declares an aspect
+    (the nearest declaration wins). Returns (aspect, anchor_dir)."""
+    bl = find_anchor_backlogs(VAULT_ROOT).get(anchor)
+    if not bl:
+        return None, None
+    d = bl.parent
+    for _ in range(12):
+        a = d / ".anchor"
+        if a.is_file():
+            try:
+                t = a.read_text(encoding="utf-8")
+            except (OSError, UnicodeDecodeError):
+                t = ""
+            for asp in ("PR", "Push", "Commit", "NoGit"):
+                if re.search(rf"(?im)^\s*-\s*{asp}\b", t):
+                    return asp, d
+            # this `.anchor` declares no Git aspect — inherit from the parent
+        if d.parent == d:
+            break
+        d = d.parent
+    return None, None
+
+
+def _build_when_ctx(anchor: Optional[str]):
+    """Build the `ctx` passed to a when-rule's trigger(): anchor name, Git aspect
+    (from .anchor traits), anchor path, and the anchor's queries.md text."""
+    git_aspect, anchor_path = (_anchor_git_aspect(anchor) if anchor else (None, None))
+    queries_text = ""
+    if anchor:
+        bl = find_anchor_backlogs(VAULT_ROOT).get(anchor)
+        if bl:
+            qf = bl.parent / f"{anchor} queries.md"
+            if qf.is_file():
+                try:
+                    queries_text = qf.read_text(encoding="utf-8")
+                except (OSError, UnicodeDecodeError):
+                    queries_text = ""
+
+    class Ctx:
+        pass
+    ctx = Ctx()
+    ctx.anchor = anchor          # type: ignore[attr-defined]
+    ctx.git_aspect = git_aspect  # type: ignore[attr-defined]
+    ctx.anchor_path = anchor_path  # type: ignore[attr-defined]
+    ctx.queries_text = queries_text  # type: ignore[attr-defined]
+    return ctx
+
+
+def _fire_when_rules(rules: list[dict], event: str, anchor: Optional[str]) -> int:
+    """Run each rule's trigger(ctx) and print its agent-directed steer messages.
+    Returns the number of messages emitted."""
+    ctx = _build_when_ctx(anchor)
+    fired = 0
+    for r in rules:
+        if not r["code"]:
+            continue
+        ns: dict = {}
+        try:
+            exec(r["code"], ns)  # rules are first-party content
+            trig = ns.get("trigger")
+            if not callable(trig):
+                continue
+            msgs = trig(ctx) or []
+        except Exception as e:  # noqa: BLE001 — a bad rule shouldn't crash the run
+            print(f"audit-q: when-rule {r['rule_id']} errored: {e}", file=sys.stderr)
+            continue
+        for m in (msgs if isinstance(msgs, list) else [msgs]):
+            print(f"[when:{event}] {r['rule_id']}: {m}")
+            fired += 1
+    return fired
+
+
+def run_when_rules(event: str, anchor: Optional[str]) -> int:
+    """Explicit `--when EVENT`: fire all matching when-rules for one anchor."""
+    rules = [r for r in _discover_when_rules() if event in r["events"]]
+    if not rules:
+        print(f"audit-q: no when-triggered rules for event '{event}'.")
+        return 0
+    if _fire_when_rules(rules, event, anchor) == 0:
+        print(f"audit-q: {len(rules)} when-rule(s) matched '{event}'; "
+              f"none emitted a message.")
+    return 0
+
+
+def autofire_audit_q(anchor: Optional[str],
+                     anchor_backlogs: dict[str, Path]) -> None:
+    """F180 — at the END of a normal audit-q run, automatically fire the
+    `when:: skill:audit-q` rules (e.g. R-query-14 push/commit interception) for
+    the audited anchor(s) — so they trigger without an explicit `--when` flag
+    (this is what makes `/query` building a queries.md → audit-q run → steer).
+    Single-anchor run fires for that anchor; vault-scope run fires for every
+    anchor that has a queries.md."""
+    rules = [r for r in _discover_when_rules()
+             if "skill:audit-q" in r["events"] and r["code"]]
+    if not rules:
+        return
+    if anchor:
+        targets = [anchor]
+    else:
+        targets = [a for a, bl in anchor_backlogs.items()
+                   if (bl.parent / f"{a} queries.md").is_file()]
+    for a in targets:
+        _fire_when_rules(rules, "skill:audit-q", a)
 
 
 # ============================================================
@@ -3355,7 +3679,22 @@ def main() -> int:
                         help="(scope=backlog) anchor name, e.g. 'SKA'")
     parser.add_argument("--feature-doc", type=str, default=None,
                         help="(scope=feature-doc) path to a feature doc")
+    parser.add_argument("--when", metavar="EVENT", default=None,
+                        help="[F180] fire WHEN-triggered rules for EVENT: discover "
+                             "ruleset rules whose `when:: EVENT` clause matches, run "
+                             "each rule's embedded trigger(ctx), and print its "
+                             "agent-directed steer messages. EVENT is an action "
+                             "name — `skill:<name>` (a skill executing, e.g. "
+                             "`skill:audit-q`), `compact`, or `markdown-write`. "
+                             "Use with --anchor to bind ctx to an anchor.")
+    parser.add_argument("--list-when", action="store_true",
+                        help="[F180] list discovered when-triggered rules (event + "
+                             "rule id + source ruleset) without running them.")
     args = parser.parse_args()
+    if args.list_when:
+        return list_when_rules()
+    if args.when is not None:
+        return run_when_rules(args.when, args.anchor)
     if args.scope == "backlog" and not args.anchor:
         print("error: --scope backlog requires --anchor NAME", file=sys.stderr)
         return 2
@@ -3407,7 +3746,7 @@ def main() -> int:
         banner = derive_anchor_banner(name, backlog_file, vault_index)
         if banner:
             derived_banners[name] = banner
-    # B16 — C6 / C8 / C9 / C10 walk feature docs + the anchor ask file per anchor.
+    # B16 — C6 / C8 / C9 / C10 walk feature docs + the anchor queries file per anchor.
     # Default (scope=q or scope=backlog): reachability-limited via backlog wiki-links.
     # `--scope all` gives the original vault-wide behavior.
     if args.scope == "feature-doc":
@@ -3427,6 +3766,14 @@ def main() -> int:
     all_q_entries: list[QEntry] = []
     for container_id, file_path in ask_format_files:
         all_q_entries.extend(extract_q_entries(file_path, container_id))
+    # `{NAME} queries.md` Immediate Questions use the SAME standard expanded
+    # format as feature-doc `## Open Questions` (option per own-line `**(A)**`
+    # sub-bullet + a `- **Recommendation:**` line) — one format vault-wide
+    # (user direction 2026-06-16). So the shared checks apply to queries.md too:
+    # C6 block-IDs, C8 no-inline, C9 recommendation, C10 outdent, C19 option
+    # bullets, C20 blank-after. (Verifications are `**V<n>` yes/no and aren't
+    # Q-entries, so these don't touch them; queries-specific shape lives in
+    # C37/C38/C39/C40.)
     findings.extend(check_c6_block_id_present(all_q_entries))
     findings.extend(check_c8_inline_alternatives(all_q_entries))
     findings.extend(check_c9_recommendation_present(all_q_entries))
@@ -3434,14 +3781,14 @@ def main() -> int:
     findings.extend(check_c19_option_bullets(all_q_entries))
     findings.extend(check_c20_blank_after_recommendation(all_q_entries))
     findings.extend(check_c21_empty_open_questions(ask_format_files, all_q_entries))
-    # C22 — link existence across feature docs + backlogs + ask.md files
+    # C22 — link existence across feature docs + backlogs + queries.md files
     c22_scope: list[Path] = []
     c22_scope.extend(p for _, p in ask_format_files)
     c22_scope.extend(anchor_backlogs.values())
     for backlog_file in anchor_backlogs.values():
-        ask_md = backlog_file.parent / f"{backlog_file.stem.replace(' Backlog', ' ask')}.md"
-        if ask_md.is_file():
-            c22_scope.append(ask_md)
+        queries_md = backlog_file.parent / f"{backlog_file.stem.replace(' Backlog', ' queries')}.md"
+        if queries_md.is_file():
+            c22_scope.append(queries_md)
     findings.extend(check_c22_link_existence_extended(c22_scope, vault_index))
     # B16 — C7 walks the same ask-format files + backlogs + Q.md (when in scope)
     c7_scope: list[Path] = []
@@ -3468,12 +3815,13 @@ def main() -> int:
         findings.extend(check_c32_h3_rows_forbidden([backlog_file]))
         findings.extend(check_c33_designing_needs_link(entries))
         findings.extend(check_c34_inline_q_in_row_body([backlog_file]))
-    # F124 — C35 ask.md drift check walks every anchor backlog's sibling
-    # `{NAME} ask.md`. Runs once after the per-anchor loop (not per anchor),
-    # since each ask.md is keyed by its sibling backlog's anchor name.
+    # F124 — C35 queries.md drift check walks every anchor backlog's sibling
+    # `{NAME} queries.md` (per F176). Runs once after the per-anchor loop (not
+    # per anchor), since each queries file is keyed by its sibling backlog's name.
     findings.extend(check_c35_ask_md_drift(anchor_backlogs, vault_index))
+    findings.extend(check_c37_queries_item_format(anchor_backlogs))
     # F126 — C36 backtick-filepath check. Runs on Q.md (when in scope),
-    # every per-anchor `{NAME} ask.md`, AND every anchor backlog —
+    # every per-anchor `{NAME} queries.md`, AND every anchor backlog —
     # backlog rows are the source content that triage-section.py copies
     # into Q.md, so fixing the surface alone gets overwritten by the
     # next D1 banner-rewrite. Source-fix is durable.
@@ -3482,9 +3830,9 @@ def main() -> int:
         c36_surfaces.append(Q_MD)
     for name, backlog_file in anchor_backlogs.items():
         c36_surfaces.append(backlog_file)
-        ask_md = backlog_file.parent / f"{name} ask.md"
-        if ask_md.is_file():
-            c36_surfaces.append(ask_md)
+        queries_md = backlog_file.parent / f"{name} queries.md"
+        if queries_md.is_file():
+            c36_surfaces.append(queries_md)
     for surface in c36_surfaces:
         findings.extend(check_c36_backtick_filepath(surface, vault_index))
     for name, backlog_file in sorted(anchor_backlogs.items()):
@@ -3578,6 +3926,9 @@ def main() -> int:
     # Ready > 0). Phrase-patching the chat-summary loses to paraphrases;
     # status-line embedding doesn't, because it IS the status the agent reads.
     _print_hard_continuation_directive(derived_banners)
+    # F180 — auto-fire `when:: skill:audit-q` rules (e.g. the push/commit steer)
+    # for the audited anchor(s), so they trigger on every normal run.
+    autofire_audit_q(args.anchor, anchor_backlogs)
     return 1 if errors else 0
 
 

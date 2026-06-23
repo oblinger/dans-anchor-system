@@ -18,9 +18,11 @@ Determined by whether `--into <target-doc.md>` is provided.
 /viz d2 --into <target-doc.md> "<prose>"
 ```
 
-Both `.d2` source and `.svg` output land **adjacent to the target doc** (same folder). The SVG is embedded directly in the target doc, **page-width**, via `![[<derived-name>.svg|800]]`. **No wrapper** — the target doc IS the iteration surface.
+Both `.d2` source and `.svg` output land **adjacent to the target doc** (same folder). The SVG is embedded directly in the target doc and **MUST fill the reading-pane width by default** — `![[<derived-name>.svg|2400]]`. **No wrapper** — the target doc IS the iteration surface.
 
-**Legibility — apply the [[R-diagram]] rules so the figure reads at page width.** Embed at ~800px (8.5×11 page width); the figure must be legible *at that width*, not a thumbnail. Target: body text renders **≥ ~18px at the embedded width**, and the canvas **aspect stays ~0.6–1.6** (near-square / gentle landscape). The levers, in order of impact:
+**🚨 Page-width is the default — an ABSOLUTE REQUIREMENT.** Every diagram embeds at a width hint that **fills the reading pane**. Obsidian caps the hint to the actual pane width, so over-specify with a large value — **`|2400`** is the standard. **Never a bare `![[x.svg]]`** — a bare embed renders as a tiny fit-to-column thumbnail (this is the recurring mistake the requirement exists to kill). A **smaller fixed width (e.g. `|500`) is allowed ONLY when the figure is explicitly an inline / thumbnail diagram** — and that intent must be stated. There is no middle default: page-wide, or deliberately-inline.
+
+**Legibility — apply the [[R-diagram]] rules so the figure reads at the displayed (pane) width.** Body text must render **≥ ~18px at the displayed width**, and the canvas **aspect stays ~0.6–1.6** (near-square / gentle landscape) so a wide pane doesn't crush it into a short strip. The levers, in order of impact:
 
 1. **Fewer nodes (Tufte data-ink).** A top architecture figure shows **subsystems, not their internal modules** — the module breakdown lives in the Subsystems table below, never crammed into the figure. ~6 boxes, not ~12. Cramming is the #1 cause of tiny text.
 2. **Compact aspect — `grid-columns` for linear flows.** A flow graph (config→pipelines→catalog→viewer) is a *chain*; ELK stretches it to an extreme (ultra-wide with `direction: right`, ultra-tall with `direction: down`) and an extreme aspect renders tiny at page width *regardless of font size*. Force a 2-D layout: set `grid-columns: 2` (or 3) + `horizontal-gap`/`vertical-gap` at the root so the nodes tile into a near-square grid (edges drawn over it). Check the rendered `width × height` aspect after every render.
@@ -91,13 +93,13 @@ For every invocation after Phase 0 (or for every edit):
    ```bash
    d2 --layout=elk "<dirname>/<derived-name>.d2" "<dirname>/<derived-name>.svg"
    ```
-4. **Wire the embed — page-width:** always embed with an explicit display width so the figure **spans the page** (an 8.5×11 page ≈ 800px of content), never the tiny fit-to-column default. Use `![[<derived-name>.svg|800]]`.
-   - **Branch 1** (target doc): if `<target-doc>.md` doesn't already contain the embed, insert `![[<derived-name>.svg|800]]` at the end (or at a `<!-- viz-d2 -->` HTML comment if one exists).
+4. **Wire the embed — fill the pane (default, absolute):** always embed with a large display width so the figure **fills the reading pane**, never the tiny fit-to-column default. Use `![[<derived-name>.svg|2400]]` (Obsidian caps the hint to the pane). A smaller width is ONLY for an explicitly-inline/thumbnail figure.
+   - **Branch 1** (target doc): if `<target-doc>.md` doesn't already contain the embed, insert `![[<derived-name>.svg|2400]]` at the end (or at a `<!-- viz-d2 -->` HTML comment if one exists).
    - **Branch 2** (scratch): if the wrapper doesn't exist, write it:
      ```markdown
      # <derived-name>
 
-     ![[<derived-name>.svg|800]]
+     ![[<derived-name>.svg|2400]]
 
      <!-- D2 source: <derived-name>.d2 — edit via /viz d2 --update -->
      ```

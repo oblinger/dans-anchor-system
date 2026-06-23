@@ -10,7 +10,7 @@ The top-of-file table convention that gives most anchor pages and many facet pag
 | Anchor | [[FCT Dispatch]] (parent catalog),  [[FCT]] |
 | Design | [[CAB Dispatch Table Design\|Design]] — rationale + standing decisions |
 | Related | [[Collection]],  [[DSC progressive-disclosure]],  [[audit-dispatch\|/audit dispatch]],   |
-| Examples | [[CAE\|minimal (masthead-only)]],  [[HBR\|fuller (member-groups + hybrid)]],  [[CAE Dispatch Examples\|full gallery]] |
+| Examples | [[CAE\|minimal (masthead-only)]],  [[HBR\|fuller (member-groups + hybrid)]],  [[CAE Dispatch Examples\|full gallery]],   |
 
 **TLDR** — **Cardinality: many** — one dispatch table per page; most anchor and facet pages carry one. The masthead is exactly the breadcrumb + Anchor + (Design) + Related rows (a switchboard, not a directory); anything enumerable drops to the Member zone below. `/audit dispatch` builds and repairs it.
 

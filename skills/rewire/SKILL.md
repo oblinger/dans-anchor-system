@@ -83,7 +83,7 @@ That's the entire scope. Beyond the canonical row set, rewire does nothing — a
 
 ## Three duplicate guards (per F059)
 
-Before any add-action, rewire runs the matching guard. If the guard trips, **rewire does not add** — it surfaces the finding for user adjudication via `/ask`.
+Before any add-action, rewire runs the matching guard. If the guard trips, **rewire does not add** — it surfaces the finding for user adjudication via `/query`.
 
 | Add action | Guard | Failure mode if skipped |
 |---|---|---|
@@ -98,7 +98,7 @@ The principle: rewire's "add what's missing" pattern must recognize **non-canoni
 Rewire splits "misplaced file" into two categories:
 
 - **Obviously misplaced** — the file's basename matches a CAB facet whose canonical location is unambiguously defined by spec. Rewire moves these silently in default mode.
-- **Possibly correctly placed** — anything else (basename matches no canonical facet, OR the file is in a plausible-looking location). Default mode **asks** the user before moving (via `/ask`).
+- **Possibly correctly placed** — anything else (basename matches no canonical facet, OR the file is in a plausible-looking location). Default mode **asks** the user before moving (via `/query`).
 
 Canonical-location table (auto-move candidates) — **updated per [[F094 — Anchor docs folder restructure — Track _ User _ Architecture _ Dev|F094]] 2026-06-01** for the four-bucket Track / User / Design / Dev layout:
 
@@ -110,7 +110,7 @@ Canonical-location table (auto-move candidates) — **updated per [[F094 — Anc
 | `{NAME} Roadmap.md` | `{NAME} Docs/{NAME} Track/` |
 | `{NAME} Icebox.md` | `{NAME} Docs/{NAME} Track/` |
 | `{NAME} Inbox.md` | `{NAME} Docs/{NAME} Track/` |
-| `{NAME} ask.md` | `{NAME} Docs/{NAME} Track/` |
+| `{NAME} queries.md` | `{NAME} Docs/{NAME} Track/` |
 | `{NAME} Rules.md` | `{NAME} Docs/{NAME} Track/` |
 | `{NAME} Features.md` | `{NAME} Docs/{NAME} Track/{NAME} Features/` |
 | `{NAME} User.md` | `{NAME} Docs/{NAME} User/` |
@@ -142,7 +142,7 @@ Canonical-location table (auto-move candidates) — **updated per [[F094 — Anc
 
 During F094 Phase 1, rewire **recognizes both the old and new locations** for files that haven't been migrated yet (`{NAME} Plan/` still exists for some anchors, `{NAME} Track/` exists for others). When both exist on an anchor, the new location is canonical; rewire flags the old one for migration.
 
-Anything not on this table → "possibly correctly placed" → rewire asks via `/ask` before moving.
+Anything not on this table → "possibly correctly placed" → rewire asks via `/query` before moving.
 
 ### Aggressive mode (`--aggressive` flag)
 
@@ -287,7 +287,7 @@ Recognition pattern: the **first cell containing `-[[NAME]]-`** is the dispatch-
 **Exceptions to the placeholder rule.** A small set of facet docs are explicit F060 exceptions because they have custom H1-only tops or a fixed required structure:
 
 - `{NAME} Triage.md` — H1 banner already encodes breadcrumb + dispatch info per [[FCT Triage]] § H1 banner. Skip placeholder check.
-- `{NAME} ask.md` — agent-owned, destructively-rewritten drain page (frontmatter + H1 + sections, no dispatch table). Skip placeholder check.
+- `{NAME} queries.md` — agent-owned page built on demand by `/query`'s determination logic (frontmatter + H1 + sections, no dispatch table). Skip placeholder check.
 - **Feature docs** (`F<n> — {Title}.md` inside `{NAME} Features/`) — H1 carries an inline breadcrumb (`# [[{NAME}]] · F<n> — {Title}`) per [[FCT Features]] § Document zone. Placeholder is optional, not required; rewire neither inserts nor strips it.
 - **`SKILL.md`** (skill anchor entry point) — fixed frontmatter + body structure per [[FCT Skill]]. F060 applies to the sibling `{Slug}.md` anchor root page, not to SKILL.md itself.
 - **`CLAUDE.md`** — Claude Code configuration file. Not a CAB doc.
@@ -453,7 +453,7 @@ A skill anchor IS a CAB anchor — `SKILL.md` is the agent-loaded code, the rest
   - **Anchor / Structure** — CAB, create, migrate, rewire, rule (skills that shape anchors / structure / rules)
   - **Investigation / Coord** — parley, research, role (skills that explore or coordinate)
   - **Environment / I-O / Content** — ctrl, edit, fix, IO, MD, product, snip (skills that interact with environment, files, or external systems)
-  - **Disciplines** — finalize, ask, workflow, backlog-horizons, **mode** (`user_invocable: false` skills cited by other skills)
+  - **Disciplines** — finalize, query, workflow, backlog-horizons, **mode** (`user_invocable: false` skills cited by other skills)
 - [ ] If `user_invocable: false`: skill goes in the **Disciplines** column.
 - [ ] If no SKL user-doc exists: skill is hidden from the table (the table only shows skills with user-facing docs); rewire flags this as a finding rather than fixing.
 

@@ -2,6 +2,8 @@
 description: per-anchor architecture overview — anchor-folder form with subsystems; standard section order; mandatory visual diagram (Excalidraw, never ASCII); subsystem dispatch table with link convention; API detail lives in sub-docs, not the main page.
 ---
 # FCT Architecture
+**Audited examples:** [[HBR Architecture]], [[CAE Architecture]], [[OBU Architecture]], [[MUX Architecture]], [[HA Architecture]]
+
 Facet spec defining the per-anchor system-architecture overview — its anchor-folder shape, standard section order, mandatory visual figure, subsystem dispatch table, and split between conceptual map (entry-point doc) and contract surface (API sub-doc).
 
 | -[[FCT Architecture]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Architecture](hook://p/FCT%20Architecture)<br>: per-anchor architecture overview — anchor-folder form with subsystems; standard section order; mandatory visual diagram (Excalidraw, never ASCII); subsystem dispatch table with link convention; API detail lives in sub-docs, not the main page. |
@@ -61,6 +63,13 @@ The Architecture entry-point doc follows this order. Sections are required unles
 
 **No fixed-order requirement past the first four** — the spine is `Overview → Architecture diagram → Subsystems → [supporting context]`. The first four sections in that exact order are the load-bearing invariant.
 
+**Common deviations seen in real instances (all flagged, all fixable):**
+- **Inline-body spine** — older docs (CAE, MUX, OBU) put the Overview paragraph and the diagram embed directly under the H1 with no `## Overview` / `## Architecture diagram` headers. The content is present but unsectioned; the fix is to promote the inline prose into the two required H2s so the spine is machine-detectable.
+- **ASCII diagram** — OBU shipped a fenced-code-block box-and-arrow drawing. Forbidden; replace with a real visual artifact (SVG/Excalidraw embed).
+- **Missing figure** — HA shipped a subsystems roll-up with no diagram at all. The `## Architecture diagram` section with an `![[…]]` embed is required, even for a placeholder-heavy architecture.
+- **Subsystems in the breadcrumb table** — MUX folded its subsystem inventory into the top-of-doc dispatch table rather than a dedicated `## Subsystems` H2 with the `SUBSYSTEMS | Description` table. The fix is a standalone `## Subsystems` section.
+- **Non-kebab subsystem names** — HA/OBU used space-form (`HA Anchor Arch`, `OBU Client`) or `… Arch` suffixes. Normalize to kebab `{NAME}-{Subsystem}` per § Subsystem dispatch.
+
 
 ## Subsystem dispatch table
 
@@ -75,6 +84,7 @@ Section 4's subsystems list takes this shape:
 | [CAE-Store]        | SQLite-backed task persistence (no doc yet)                   |
 | [CAE-Retry]        | exponential backoff + dead-letter handling (no doc yet)       |
 | [CAE-Clock]        | injectable Clock; production WallClock impl (no doc yet)      |
+
 ```
 
 **Subsystem doc naming — kebab form (2026-06-08).** Every subsystem doc filename inside `{NAME} Architecture/` uses the form `{NAME}-{Subsystem}.md` — the anchor slug joined to the subsystem name with a hyphen, no spaces around it. Examples: `CAE-Scheduler.md`, `MUX-Data.md`, `MUX-Native-Bridge.md`. Multi-word subsystem names use internal hyphens (`MUX-Native-Bridge.md`, not `MUX-Native Bridge.md`).
@@ -100,6 +110,7 @@ The figure in § 3 must:
 1. **Be a real visual artifact.** Default authoring path: **hand-written SVG** (`/viz svg`) — the agent writes the XML directly with full control over color, font, layout, geometry. The `.svg` file IS the editable source. Alternatives, in order of preference: Excalidraw (`/viz excalidraw`) when a hand-drawn aesthetic is wanted; D2 (`/viz d2`) only when the user asks for D2 specifically. **ASCII art is forbidden** (per durable feedback memory) — it renders too small in Obsidian, doesn't scale, and signals casualness.
 2. **Show arrows.** Boxes without arrows aren't an architecture — they're a list. Every relationship that matters in the system structure needs a labeled or directional connection.
 3. **Match the subsystems table.** Every box in the diagram should be in the subsystem dispatch table; every subsystem in the table should appear in the diagram (or be a tangent acknowledged in the prose).
+4. **Fill the reading pane — ABSOLUTE DEFAULT.** The embed MUST carry a large width hint so the figure fills the page: `![[<NAME> Architecture.svg|2400]]`. Obsidian caps the hint to the pane, so over-specifying is safe and correct. A **bare embed `![[x.svg]]` is forbidden** — it renders as a tiny fit-to-column thumbnail. A smaller fixed width is permitted ONLY for a figure explicitly marked inline/thumbnail. (Same enforcement lives in the markdown discipline — see [[DSC markdown]] R-markdown diagram-sizing rule.)
 
 Same rules for `## Thread layout` and any other in-architecture diagrams.
 
@@ -113,7 +124,7 @@ The main `{NAME} Architecture.md` is a **conceptual map**. Detail belongs elsewh
 | Public API surface (modules, classes, functions, signatures) | `{NAME} API.md` (sub-doc inside `{NAME} Architecture/`); follows [[FCT Module Doc]] rules |
 | Class/function/method tables for a specific subsystem | That subsystem's own doc (e.g., `{NAME} Scheduler.md`) |
 | Per-module schemas, error types, CLI surface | `{NAME} API.md` or the relevant subsystem doc |
-| Project-wide principles | `{NAME} Decisions/{NAME} Decisions.md` — reference by `[[…|D<n>]]`, don't restate |
+| Project-wide principles | `{NAME} Decisions/{NAME} Decisions.md` — reference by `[[…\|D<n>]]`, don't restate |
 | File-tree / source layout | `{NAME} Dev Docs/{NAME} Files.md` |
 
 If a class table starts showing up on the Architecture page, that's a smell that the doc is doing two jobs. Split it.
@@ -147,6 +158,122 @@ Available to any anchor with the `Code` trait. Optional for non-code anchors —
 - [[FCT Design Dispatch]] — Architecture sits alongside PRD / Decisions / Interface in `{NAME} Design/`.
 - [[CAE Architecture]] — worked example.
 
+
+# RULESET R-architecture
+include::
+where:: file:{ANCHOR}/**/* Architecture.md
+description:: spec for the `{NAME} Architecture.md` entry-point design facet — section spine, mandatory visual figure, subsystem dispatch + link convention, API content kept off the page
+
+Embedded ruleset for the Architecture facet, co-located with the facet spec above per the [[F133 — Rulesets folder convention + facet embedding|F133]] embedding convention. Adopted via the `R-facet` umbrella; an anchor that wants its `{NAME} Architecture.md` audited pulls `R-facet` from its `{NAME} Decisions.md`. The `where::` glob selects the entry-point doc only (`* Architecture.md`); subsystem docs (kebab `{NAME}-*.md`) follow [[FCT Module Doc]], not this ruleset.
+
+### RULE R-architecture-01 — Entry-point doc is `{NAME} Architecture.md` (checked)
+check:: architecture_filename_correct
+
+The facet entry-point doc is named `{NAME} Architecture.md`. In current layout it lives at `{NAME} Architecture/{NAME} Architecture.md` (anchor-folder at the anchor root); legacy instances under `{NAME} Docs/{NAME} Design/` are tolerated but flagged for migration.
+
+**Check pattern:** a file matching `{NAME} Architecture.md` exists; its enclosing folder is `{NAME} Architecture/`.
+
+**Why:** the basename is what `/architect` and `/audit architecture` key on; subsystem docs use the kebab `{NAME}-*` form so they never collide with this name.
+
+### RULE R-architecture-02 — `# {NAME} Architecture` H1 present (checked)
+check:: architecture_h1_present
+
+The doc's first markdown heading is `# {NAME} Architecture` (single H1, matching the basename). No `[[wiki]] ·`-prefixed or otherwise decorated H1.
+
+**Check pattern:** first `^# ` line equals `# {NAME} Architecture`.
+
+**Why:** a clean H1 is the doc title every dispatch table and breadcrumb echoes; decorated H1s (`# [[HA]] · HA Architecture`) break title extraction.
+
+### RULE R-architecture-03 — `## Overview` H2 present (checked)
+check:: overview_section_present
+
+The doc has a `## Overview` H2 carrying one paragraph (rarely two) that says what kind of system this is at the highest structural level.
+
+**Check pattern:** grep for `^## Overview`; assert non-empty body before the next H2.
+
+**Why:** the most common deviation is an inline Overview under the H1 with no header — present but unsectioned, so the spine isn't machine-detectable. The H2 makes the framing explicit and orderable.
+
+### RULE R-architecture-04 — `## Architecture diagram` H2 present with a figure embed (checked)
+check:: architecture_diagram_section_with_embed
+
+The doc has a `## Architecture diagram` H2 containing at least one image embed (`![[…]]` or `![](…)`) pointing at a real visual artifact (`.svg` / `.png` / `.excalidraw`-derived).
+
+**Check pattern:** grep for `^## Architecture diagram`; within its body assert ≥ 1 `!\[\[.+\]\]` or `!\[.*\]\(.+\)`.
+
+**Why:** this is the `missing-figure` audit finding. A subsystems-only roll-up with no diagram (seen in HA) fails the core promise of the facet — the visual component map.
+
+### RULE R-architecture-05 — No ASCII-art diagram (checked)
+check:: no_ascii_diagram
+
+No fenced code block in the doc contains box-drawing characters (`┌ ┐ └ ┘ │ ─ ▼ ▲ ◄ ►`) or an arrow-and-pipe layout used as a diagram.
+
+**Check pattern:** scan fenced blocks for box-drawing / arrow glyphs forming a diagram; flag any match (`ascii-diagram` finding).
+
+**Why:** ASCII art renders too small in Obsidian, doesn't scale, and signals casualness (durable feedback). OBU shipped one — the fix is a real SVG embed.
+
+### RULE R-architecture-06 — `## Subsystems` H2 present with a dispatch table (checked)
+check:: subsystems_section_present
+
+The doc has a `## Subsystems` H2 containing a markdown table whose first column lists the subsystems and whose header reads `SUBSYSTEMS | Description` (or close kin).
+
+**Check pattern:** grep for `^## Subsystems`; assert a markdown table follows with ≥ 1 data row.
+
+**Why:** the subsystem inventory is the load-bearing structural index. MUX folded it into the breadcrumb dispatch table; the fix is a dedicated `## Subsystems` section so the inventory is unambiguous and audit-detectable.
+
+### RULE R-architecture-07 — First four sections in spine order (checked)
+check:: spine_order_correct
+
+The first four H2 (or H1-then-H2) sections appear in the order `Overview → Architecture diagram → Subsystems → [first supporting H2]`. No supporting section (Process model, Design decisions, …) precedes Subsystems.
+
+**Check pattern:** extract H2 sequence; assert the first three are `Overview`, `Architecture diagram`, `Subsystems` in that order.
+
+**Why:** the spine is the load-bearing invariant (`section-order` finding). A reader should always meet what-it-is, then the picture, then the parts, before any supporting context.
+
+### RULE R-architecture-08 — Subsystem docs use kebab `{NAME}-{Subsystem}` naming (checked)
+check:: subsystem_kebab_naming
+
+Every subsystem referenced in the Subsystems table uses kebab form `{NAME}-{Subsystem}` (anchor slug, hyphen, subsystem name; internal hyphens for multi-word). No space-form (`MUX Data`), no `… Arch` / `… Subsystem` suffix.
+
+**Check pattern:** each subsystem link/placeholder target matches `^{NAME}-[A-Za-z0-9-]+$`.
+
+**Why:** kebab form gives basename uniqueness against module docs, no markdown collision, and visual grouping (`{NAME}-*` sorts together). HA/OBU used space-form + `Arch` suffixes that collide and clutter.
+
+### RULE R-architecture-09 — Link convention: `[[double]]` = real doc, `[single]` = placeholder (sampled)
+check:: subsystem_link_convention
+
+In the Subsystems table, `[[double-bracket]]` entries resolve to an existing subsystem doc; `[single-bracket]` entries are plain-text placeholders for unauthored docs (no broken wiki-link).
+
+**Check pattern:** for each `[[…]]` subsystem link assert the target file exists (`missing-subsystem-doc`); single-bracket entries skip the existence check.
+
+**Why:** lets a partially-authored architecture be honest — complete inventory, only real docs link. A `[[double-bracket]]` to a non-existent doc pollutes the link graph and lies about what's authored.
+
+### RULE R-architecture-10 — No API / class-table content on the entry-point page (sampled)
+check:: no_api_content_on_arch_page
+
+The entry-point doc carries no per-module class / function / method / signature tables. That detail lives in `{NAME} API.md` or the relevant subsystem doc.
+
+**Check pattern:** flag tables whose header rows name classes/methods/signatures, or fenced code blocks of API signatures, in the entry-point doc (`api-content-on-arch-page` finding).
+
+**Why:** the entry-point page is a conceptual map; when a class table appears it's doing two jobs and both altitudes are lost. Split it out.
+
+### RULE R-architecture-11 — Diagram has arrows, not just boxes (sampled)
+check:: diagram_has_arrows
+
+The architecture figure shows directional/labeled connections between components, not a bare collection of boxes.
+
+**Check pattern:** sampled judgment over the embedded figure — assert at least one connecting arrow/edge between named boxes.
+
+**Why:** boxes without arrows are a list, not an architecture. Every relationship that matters needs a connection. Audited against [[R-diagram]] for the full structural/aesthetic ruleset.
+
+### RULE R-architecture-12 — Project-wide principles referenced, not restated (sampled)
+check:: principles_referenced_not_restated
+
+Anchor-wide principles/rulings are linked to `{NAME} Decisions` (e.g. `[[… |D<n>]]`), not copy-pasted into the Architecture doc. Tactical architecture-only decisions may live here in a numbered `## Design decisions` table.
+
+**Check pattern:** sampled — flag long restated principle prose that duplicates `{NAME} Decisions` content verbatim.
+
+**Why:** restating principles forks the source of truth; the Architecture doc drifts from Decisions. Reference keeps one canonical home (HBR/CAE both reference; this is the good pattern).
+
 # BRIEF
 
 - **This file is the authoritative facet spec for the Architecture anchor-folder** — `/architect`, `/audit architecture`, and every per-anchor `{NAME} Architecture/` doc derive their structure from here. Edits here change behavior across every Code-trait anchor.
@@ -154,4 +281,6 @@ Available to any anchor with the `Code` trait. Optional for non-code anchors —
 - **Inclusion test for new content:** a rule belongs in this spec only if it applies to *every* Code-trait anchor's Architecture facet. Anchor-local quirks → `{NAME} Decisions.md`. Rules-set-wide diagram constraints → [[R-diagram]]. Markdown-rendering rules → [[R-markdown]].
 - **Load-bearing invariants — do not weaken without a corresponding CAB Log entry:** (1) the first four sections in exact order (`Overview → Architecture diagram → Subsystems → first supporting H2`); (2) subsystem doc naming uses kebab form `{NAME}-{Subsystem}.md`; (3) `[[double-bracket]]` = real doc, `[single-bracket]` = placeholder — this convention drives `/audit architecture`'s `missing-subsystem-doc` check; (4) ASCII diagrams are forbidden (`ascii-diagram` audit finding).
 - **The `## Audit` table is the contract with `/audit architecture`.** When a finding ID is added or renamed here, the audit script must change in lockstep. Don't introduce a finding name in the script without listing it here, and don't list one here without wiring it in the script.
+- **The embedded `# RULESET R-architecture` block is the machine-readable form of this spec.** Twelve rules (`R-architecture-01..12`) mirror the `## Audit` findings + the section-spine / link-convention / kebab-naming invariants. Rule IDs are monotonic-forever — never renumber. Keep the rules and the prose above in AGREEMENT: a spec change that alters a section or convention must update the matching rule, and vice versa.
+- **Audited examples (top of file) are the canonical worked instances** — HBR (clean maximal), CAE (inline-spine fix), OBU (ASCII→SVG fix), MUX (subsystems-out-of-breadcrumb fix), HA (missing-figure fix). They demonstrate the common deviations and their good fixes.
 - **Keep the See also list curated, not exhaustive.** Peer specs that a reader genuinely needs to cross-reference (Module Doc, Rules, R-diagram, Decisions, Design Dispatch, worked example) — not every distantly-related CAB file. New peers added here should also link back.

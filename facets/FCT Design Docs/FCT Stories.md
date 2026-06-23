@@ -2,6 +2,8 @@
 description: "facet spec for user stories as first-class siblings of a PRD — inline-bullet form for small PRDs, extracted-folder form for large ones"
 ---
 # FCT Stories
+**Audited examples:** [[CAE Stories]], [[US-CAE-1 — Schedule a Task]], [[US-CAE-3 — Retry Failed Tasks]], [[Forum Stories]], [[HBR PRD User Stories]]
+
 Facet spec for the user-stories surface of a PRD — defines the inline-bullet form for small PRDs and the extracted-folder form (`{NAME} PRD/` with per-story files indexed by `{NAME} Stories.md`) for PRDs whose stories outgrow a single sentence.
 
 | -[[FCT Stories]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Stories](hook://p/FCT%20Stories)<br>: facet spec for user stories as first-class siblings of a PRD |
@@ -20,10 +22,15 @@ Stories are **part of the PRD**, not a separate design phase. Capturing them is 
 ### Single-file form (default for small PRDs)
 
 ```
-{NAME} Design/{NAME} PRD.md         ← PRD with `## User Stories` H2 listing stories inline as bullets
+{NAME} Design/{NAME} PRD.md         ← PRD with `## User Stories` H2 listing stories inline
 ```
 
-Stories live as bullets under `## User Stories`. One sentence each. No separate Stories facet needed. This is the right shape when stories are simple enough that a one-line description per story conveys everything a downstream reader needs.
+Stories live under `## User Stories` inside the PRD. Two inline shapes are valid, smallest first:
+
+- **Compact bullets** — one bullet per story, one sentence each. Right when a one-line description conveys everything a downstream reader needs.
+- **Inline `### US-<RID>-N` subsections** — each story gets a short `### US-<RID>-N — <Title>` H3 carrying the canonical `As a … I want … so that …` sentence plus a single `**Acceptance:**` line. Optionally fronted by a compact index table grouping the stories (e.g. by pipeline stage). This is the right inline shape once stories deserve an explicit identifier and acceptance line but still don't warrant their own scrollable pages. The maximal worked example ([[HBR PRD]]) uses exactly this shape — US-HBR-1..5 grouped Ingest / Serve / Operate.
+
+Either way the stories stay **inside `{NAME} PRD.md`** — no separate Stories facet file is created. This is the right shape for most PRDs.
 
 ### Folder form (when stories grow)
 
@@ -47,25 +54,16 @@ Stories live as bullets under `## User Stories`. One sentence each. No separate 
 
 `{NAME} Design/{NAME} PRD/{NAME} Stories.md` — directly inside the PRD's anchor folder, alongside the PRD anchor file and the story files.
 
-## `{NAME} Stories.md` dispatch shape
+## `{NAME} Stories.md` index shape
 
-Body-only — no YAML frontmatter. First lines:
+Body-only — no YAML frontmatter. The Stories index is **not an anchor** (the PRD anchor file `{NAME} PRD.md` roots the folder), so per [[FCT Doc Structure]] `R-doc-structure-02` it carries **no breadcrumb-masthead dispatch table** — its story-list table is a permitted **specialized content table** (an index), not a dispatch table. Required elements, top to bottom:
 
-```markdown
-# {NAME} Stories
-description:: facet spec for user stories as first-class siblings of a PRD
+- **H1** — `# {NAME} Stories`.
+- **Summary line** — one-line gist of the stories surface, directly under the H1.
+- **Stories index table** — a header row (`Story | Description`), then one row per story: column 1 is the `[[US-{RID}-N — <Title>]]` wiki-link, column 2 is the one-line summary. Optionally interleave bold role/pipeline group rows (e.g. `**Ingest**`). No breadcrumb row.
+- **`## See also`** — links to `[[{NAME} PRD]]` (parent) and `[[FCT Stories]]` (this facet spec).
 
-| Story                                  | Description                                                                |
-| -------------------------------------- | -------------------------------------------------------------------------- |
-| [[US-{RID}-1 — <Title>]]              | <One-line summary of what the user accomplishes>                          |
-| [[US-{RID}-2 — <Title>]]              | <One-line summary>                                                         |
-| ...                                    | ...                                                                        |
-
-## See also
-
-- [[{NAME} PRD]] — parent PRD this stories surface belongs to
-- [[FCT Stories]] — facet spec that governs this file
-```
+See the audited live instance [[CAE Stories]] for the rendered form, and [[Forum Stories]] for the role-grouped variant.
 
 The table is the file's load-bearing content — a reader scanning Stories.md sees every story name and its one-line gist in one screen. The story files themselves carry the full content.
 
@@ -73,44 +71,20 @@ The table is the file's load-bearing content — a reader scanning Stories.md se
 
 ## Story file shape
 
-Each `US-<RID>-N — <Title>.md` file is body-only. Standard structure:
+Each `US-<RID>-N — <Title>.md` file is body-only. Standard structure, top to bottom:
 
-```markdown
-# US-<RID>-<N> — <Title>
-description:: <one-line summary identical to the row in {NAME} Stories.md>
+- **H1** — `# US-<RID>-<N> — <Title>` (matches the filename exactly — R-stories-07).
+- **`description::` line** — one-line summary identical to the row in `{NAME} Stories.md`.
+- **NO dispatch table.** A story file is **not an anchor** — per [[FCT Doc Structure]] `R-doc-structure-02` it MUST NOT carry a breadcrumb-masthead dispatch table. Back-links to `[[{NAME} PRD]]` (parent), `[[{NAME} Stories]]` (sibling index), and `[[FCT Stories]]` (facet spec) live in the `## Related` section at the bottom, not in a top table.
+- **`## As a <role>, I want <goal> so that <reason>`** — the canonical user-story sentence (required — R-stories-11). One line. Everything below is recommended but optional.
+- **`## Why`** — 2-4 paragraphs: what the user is trying to accomplish, why it matters, what's broken without this.
+- **`## Acceptance criteria`** — specific observable outcomes.
+- **`## Edge cases`** — unusual conditions and failure modes.
+- **`## Related`** — peer stories, implementing feature docs, architecture docs this story exercises.
 
-| -[[US-{RID}-{N}]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Stories](hook://p/FCT%20Stories)<br>: <description> |
-| --- | --- |
-| [[{NAME} PRD]] | parent PRD |
-| [[{NAME} Stories]] | sibling stories index |
+See the audited live instances [[US-CAE-1 — Schedule a Task]] and [[US-CAE-3 — Retry Failed Tasks]] for the rendered form.
 
-## As a <role>, I want <goal> so that <reason>
-
-(The canonical user-story sentence. One line. Italicize the goal if it helps readability.)
-
-## Why
-
-<2-4 paragraphs — what the user is trying to accomplish, why it matters, what's broken without this>
-
-## Acceptance criteria
-
-- [Specific observable outcome 1]
-- [Specific observable outcome 2]
-- [Specific observable outcome 3]
-
-## Edge cases
-
-- [What about <unusual condition>?]
-- [What happens when <failure mode>?]
-
-## Related
-
-- [[<peer story>]] — short note on relationship
-- [[<feature doc that implements this>]] — features delivering this story
-- [[<architecture doc>]] — subsystems this story exercises
-```
-
-**Required sections:** H1 + dispatch table + `## As a ...` (the canonical story sentence). Everything else is recommended but optional — a thin story file with just the canonical sentence is valid for a story that doesn't yet have unfolded rationale.
+**Required sections:** H1 + `## As a ...` (the canonical story sentence). Everything else is recommended but optional — a thin story file with just the canonical sentence is valid for a story that doesn't yet have unfolded rationale. (No dispatch table — see R-stories-12 / [[FCT Doc Structure]] R-doc-structure-02.)
 
 ## Naming convention
 
@@ -132,9 +106,12 @@ Any anchor with a PRD. Activated via [[FCT Design]] facet (the `{NAME} Design/` 
 
 ## When to use which form
 
-- **Single-file (inline stories) by default.** Bullets under `## User Stories` in `{NAME} PRD.md`. One sentence each. This is the right shape for most PRDs.
+A progression of increasing weight — adopt the lightest form that fits:
+
+- **Compact bullets (default).** One-sentence bullets under `## User Stories` in `{NAME} PRD.md`. The right shape for most PRDs.
+- **Inline `### US-<RID>-N` subsections** when stories deserve a stable identifier and an explicit acceptance line but still fit comfortably inside the PRD. Each story is a short H3 with the canonical sentence + one `**Acceptance:**` line, optionally fronted by a grouping index table (see [[HBR PRD]]).
 - **Folder form (extracted stories) when ≥ 1 story qualifies as "needs its own page":** acceptance criteria more than 3 bullets, multi-paragraph rationale, mockups embedded, decision-history needed, story spawns embedded RULES. Migration extracts ALL stories — not just the heavy ones — for consistency.
-- **Never mix inline and extracted stories in the same PRD.** Pick one form per PRD.
+- **Never mix inline stories and an extracted `{NAME} Stories.md` in the same PRD.** Inline (either inline shape) and folder form are mutually exclusive — pick one per PRD.
 
 ## Audit
 
@@ -151,6 +128,7 @@ Any anchor with a PRD. Activated via [[FCT Design]] facet (the `{NAME} Design/` 
 
 # RULESET R-stories
 include::
+where:: file:{ANCHOR}/**/{NAME} Stories.md, {ANCHOR}/**/US-*.md
 description:: Structural rules for the {NAME} Stories facet — folder shape, story file naming, dispatch table, bidirectional linking.
 
 Embedded ruleset for the Stories facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella. All rules below authored in the new `<H> RULE R-<slug>-NN` sentinel form per CAB Rules.
@@ -163,13 +141,13 @@ When the PRD uses folder form (extracted stories), it lives at `{NAME} Design/{N
 
 **Why:** the form is a load-bearing structural choice; mixing or having both forms simultaneously breaks `/design prd`'s detection logic.
 
-### RULE R-stories-02 — `{NAME} Stories.md` is the dispatch index (checked)
+### RULE R-stories-02 — `{NAME} Stories.md` is the stories index (checked)
 
-When PRD is in folder form, a `{NAME} Stories.md` file exists inside `{NAME} PRD/`. Its H1 is `# {NAME} Stories`.
+When PRD is in folder form, a `{NAME} Stories.md` file exists inside `{NAME} PRD/`. Its H1 is `# {NAME} Stories`. It is an **index** (a specialized content table), not an anchor — it carries no breadcrumb-masthead dispatch table (see R-stories-12).
 
 **Check pattern:** `ls "{anchor}/{NAME} Design/{NAME} PRD/{NAME} Stories.md"` exists; first non-blank line is `# {NAME} Stories`.
 
-**Why:** the stories dispatch is the surface readers reach for to see "what user stories does this product serve?" Without it, story files are an unbrowsable folder listing.
+**Why:** the stories index is the surface readers reach for to see "what user stories does this product serve?" Without it, story files are an unbrowsable folder listing.
 
 ### RULE R-stories-03 — Story files match `US-<RID>-<N> — <Title>.md` (sampled)
 
@@ -187,17 +165,17 @@ Story numbers are monotonic-forever within the anchor — never recycled, never 
 
 **Why:** stable identifiers across feature docs, e2e tests, decision docs, and external references. Recycling a number silently breaks every downstream link.
 
-### RULE R-stories-05 — Stories dispatch table has Story + Description columns (checked)
+### RULE R-stories-05 — Stories index table has Story + Description columns (checked)
 
-The `{NAME} Stories.md` body contains a markdown table with at least two columns: a Story column (wiki-link to the story file) and a Description column (one-line summary).
+The `{NAME} Stories.md` body contains a markdown table with at least two columns: a Story column (wiki-link to the story file) and a Description column (one-line summary). This index table is a permitted specialized content table (not a dispatch table).
 
-**Check pattern:** parse the first markdown table after the H1; assert two columns; assert column 1 entries are wiki-links matching `\[\[US-{RID}-\d+`.
+**Check pattern:** parse the first markdown table after the H1; assert two columns; assert the story rows' column-1 entries are wiki-links matching `\[\[US-{RID}-\d+` (ignoring a `Story | Description` header row and any bold group rows).
 
-**Why:** the table IS the index — without it, the dispatch file is just a heading with no machine-readable list of stories.
+**Why:** the table IS the index — without it, the index file is just a heading with no machine-readable list of stories.
 
 ### RULE R-stories-06 — Each story file links back to its PRD (sampled)
 
-Every story file's body contains a wiki-link to `[[{NAME} PRD]]` — typically in the top-of-doc dispatch table.
+Every story file's body contains a wiki-link to `[[{NAME} PRD]]` — in its `## Related` section (NOT in a top-of-doc dispatch table, which story files must not have — see R-stories-12).
 
 **Check pattern:** grep each story file for `\[\[{NAME} PRD\]\]`.
 
@@ -219,20 +197,46 @@ A `{NAME} Stories.md` file exists ONLY when the PRD is in folder form. Single-fi
 
 **Why:** prevents the dual-form failure mode where a stories file lingers after a stories-extraction was rolled back.
 
-### RULE R-stories-09 — Stories dispatch links to its parent PRD (checked)
+### RULE R-stories-09 — Stories index links to its parent PRD (checked)
 
-The `{NAME} Stories.md` dispatch page contains a wiki-link to `[[{NAME} PRD]]` in its `## See also` section (or equivalent).
+The `{NAME} Stories.md` index page contains a wiki-link to `[[{NAME} PRD]]` in its `## See also` section (or equivalent).
 
 **Check pattern:** grep `{NAME} Stories.md` for `\[\[{NAME} PRD\]\]`.
 
 **Why:** as with story → PRD links — the index is reachable from the PRD, but readers landing on Stories.md from elsewhere need the upward pointer.
+
+### RULE R-stories-10 — Story / index links the facet spec as `[[FCT Stories]]` (stated)
+
+Where a story file or the `{NAME} Stories.md` dispatch references the governing facet spec, it links `[[FCT Stories]]` — the current facet name. The legacy `[[CAB Stories]]` form is stale and must be rewritten on touch.
+
+**Check pattern:** grep story files + `{NAME} Stories.md` for `\[\[CAB Stories\]\]`; any hit is a violation (should be `[[FCT Stories]]`).
+
+**Why:** the facet was renamed CAB → FCT; dangling `[[CAB Stories]]` links resolve to nothing and break the audit walk from instance back to spec.
+
+### RULE R-stories-11 — Folder-form story files carry the canonical `As a …` sentence (sampled)
+
+Every `US-<RID>-N — <Title>.md` file contains the canonical user-story sentence in the form `As a <role>, I want <goal> so that <reason>` — typically as an H2 (`## As a …`) or the first body line. A story file without it is a stub, not a story.
+
+**Check pattern:** for each story file, grep for `(?i)^#*\s*As an?\s+.+\bI want\b.+\bso that\b`.
+
+**Why:** the `As a/I want/so that` clause is the irreducible content of a user story; everything else (Why, acceptance, edges) is elaboration. A file missing it isn't a valid Stories instance.
+
+### RULE R-stories-12 — Story files and the index carry no dispatch table (checked)
+check:: no_dispatch_table
+
+Neither a `US-<RID>-<N> — <Title>.md` story file nor the `{NAME} Stories.md` index is an anchor, so per [[FCT Doc Structure]] `R-doc-structure-02` neither may carry a breadcrumb-masthead **dispatch table**. Story files put parent/sibling back-links in `## Related`; the index's story-list table is a permitted specialized content table (a header row plus story rows), not a dispatch table.
+
+**Check pattern:** for each story file and `{NAME} Stories.md`, assert NO line matches the dispatch-masthead pattern `^\| -\[\[.+\]\]- \|`.
+
+**Why:** stories are short, non-anchor documents; a breadcrumb masthead falsely implies they root a subtree and pushes the one sentence that matters below the fold. This rule is what makes a `US-<RID>-<N>` file (or a Stories index) with a masthead fail — the failure the cleanup of 2026-06-14 corrected.
 
 # BRIEF
 
 - **This file is the facet spec for user stories under a PRD** — authoritative for both the inline-bullet shape (small PRDs) and the extracted folder shape (`{NAME} PRD/` + `{NAME} Stories.md` + per-story files). Cited by [[FCT PRD]], [[FCT Testing]], [[FCT Features]], and [[design-prd]].
 - **NOT a catalog of actual stories** and NOT a place to inline anchor-specific story content — worked examples belong in `[[CAE PRD]]`-style anchors, not here. Keep the body abstract and shape-focused.
 - **Inclusion test for new content:** a rule, shape, or convention belongs here only if it governs the *structure* of stories or the `{NAME} Stories.md` dispatch across all anchors. Trait-specific variations (Paper / Topic / Simple) live with those traits; PRD-wide rules live in [[FCT PRD]]; cross-facet integrity (story ↔ feature ↔ test) gets *referenced* here but defined in the respective facet specs.
-- **The embedded `RULESET R-stories`** is the load-bearing audit surface — rule numbers (R-stories-01..09) are referenced externally and must remain monotonic and stable; never renumber, never recycle a retired rule's number.
-- **Two forms are mutually exclusive** — the "never mix inline and extracted stories in the same PRD" constraint (and R-stories-01 / R-stories-08 that enforce it) is structurally load-bearing for `/design prd` detection logic; do NOT introduce a hybrid form without coordinating updates across [[FCT PRD]] and [[design-prd]].
+- **The embedded `RULESET R-stories`** is the load-bearing audit surface — rule numbers (R-stories-01..12) are referenced externally and must remain monotonic and stable; never renumber, never recycle a retired rule's number. Its `where::` selects the Stories-facet files only — `{NAME} Stories.md` + `US-*.md` — NOT the PRD (the PRD is governed by [[FCT PRD]]).
+- **Inline form has two shapes** — compact one-sentence bullets, or `### US-<RID>-N` subsections with an `**Acceptance:**` line ([[HBR PRD]] uses the latter). Both stay inside `{NAME} PRD.md`. Folder form is the third, heaviest shape.
+- **Inline and folder form are mutually exclusive** — the "never mix inline stories with an extracted `{NAME} Stories.md`" constraint (and R-stories-01 / R-stories-08 that enforce it) is structurally load-bearing for `/design prd` detection logic; do NOT introduce a hybrid form without coordinating updates across [[FCT PRD]] and [[design-prd]].
 - **`US-<RID>-<N>` is the load-bearing handle** for cross-facet linking (features `Realizes:`, tests `Exercises:`) — any change to the identifier shape ripples through [[FCT Features]] and [[FCT Testing]] and must update those specs in the same edit.
 - **Don't pad the body with rationale** that belongs in the ruleset Why fields — each R-stories-NN already carries its own Why; restating it in the prose duplicates content and creates drift.

@@ -164,7 +164,7 @@ The goal: the next session can start immediately without sorting out stale branc
 
 ## POST-COMPACT RELOAD
 
-<OPERATING_CONSTANTS>
+`<OPERATING_CONSTANTS>`
 
 ⚠️ THESE ARE OPERATING CONSTANTS. FOLLOW EVERY BULLET, EVERY TURN, NO EXCEPTIONS.
 ⚠️ THESE ARE OPERATING CONSTANTS. FOLLOW EVERY BULLET, EVERY TURN, NO EXCEPTIONS.
@@ -214,4 +214,4 @@ These are not style preferences. Deviation is an incident to report.
 - **🚨 NEVER put markdown inside a fenced code block (triple-backtick fence).** Markdown does NOT render in backticks — `[[wiki-links]]` go inert, headings/tables/emphasis don't render. Show example markdown as **live markdown** (own frontmatter + `# H1`, commentary placed BEFORE it) or link a real instance. Fenced blocks are ONLY for literal non-markdown (shell, code, JSON, `key: value` data, file trees). Absolute — the user has corrected this repeatedly; do not forget it.
 - **After /compact** — Re-read this section. Run `skd task list` and `skd agent list` to restore awareness.
 
-</OPERATING_CONSTANTS>
+`</OPERATING_CONSTANTS>`

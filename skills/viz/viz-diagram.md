@@ -16,15 +16,17 @@ The agent disambiguates from the argument: a path that resolves to an existing `
 Before *any* SVG is written or modified, read the umbrella + the sub-sets that govern the mode:
 
 ```
-~/ob/kmr/SYS/Bespoke/Skill Agent/ob-skills/library/Rulesets/R-diagram/R-diagram.md
-~/ob/kmr/SYS/Bespoke/Skill Agent/ob-skills/library/Rulesets/R-diagram/R-diagram-geometry.md
-~/ob/kmr/SYS/Bespoke/Skill Agent/ob-skills/library/Rulesets/R-diagram/R-sugiyama.md
-~/ob/kmr/SYS/Bespoke/Skill Agent/ob-skills/library/Rulesets/R-diagram/R-c4.md
-~/ob/kmr/SYS/Bespoke/Skill Agent/ob-skills/library/Rulesets/R-diagram/R-wcag-contrast.md
-~/ob/kmr/SYS/Bespoke/Skill Agent/ob-skills/library/Rulesets/R-diagram/R-bringhurst-typography.md
-~/ob/kmr/SYS/Bespoke/Skill Agent/ob-skills/library/Rulesets/R-diagram/R-tufte-data-ink.md
-~/ob/kmr/SYS/Bespoke/Skill Agent/ob-skills/library/Rulesets/R-diagram/R-svg-hygiene.md
+library/Rulesets/Diagram/R-diagram.md
+library/Rulesets/Structural/R-diagram-geometry.md
+library/Rulesets/Graph/R-sugiyama.md
+library/Rulesets/Diagram/R-c4.md
+library/Rulesets/Accessibility/R-wcag-contrast.md
+library/Rulesets/Typography/R-bringhurst-typography.md
+library/Rulesets/Visualization/R-tufte-data-ink.md
+library/Rulesets/SVG/R-svg-hygiene.md
 ```
+
+These paths are **relative to the ob-skills repo root**. The rulesets ship in the repo alongside the skills, so they travel with any clone — never hardcode an absolute vault path (it breaks on every other machine). Resolve them from this skill's own directory: `skills/viz/` → `../../library/Rulesets/…` (the `..` segments resolve through the `~/.claude/skills` install symlink to the real repo root).
 
 Read the umbrella first to confirm the current sub-set list; the umbrella is canonical (don't trust this list if it's drifted). The other reads can run in parallel.
 

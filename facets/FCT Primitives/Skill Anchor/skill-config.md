@@ -1,7 +1,7 @@
 ---
-description: skill-config — facet defining the per-machine mutable configuration of a Skill Anchor. Lives at ~/.config/ob-skills/<skill-name>/ per F080. YAML format. Defaults hardcoded in the skill; overrides centralized here.
+description: skill-config — facet defining the per-machine mutable configuration of a Skill Anchor. Lives at ~/.config/ob-skills/`<skill-name>`/ per F080. YAML format. Defaults hardcoded in the skill; overrides centralized here.
 applies-when-trait: Skill Anchor
-location: ~/.config/ob-skills/<skill-name>/
+location: ~/.config/ob-skills/`<skill-name>`/
 ---
 
 # CAB skill-config

@@ -17,7 +17,7 @@ sets/
 └── Paper/
 ```
 
-- **Trait folders** match trait names per the [[CAB Traits]] taxonomy (post-F090: Code / Skill / Topic / Paper / Simple, plus file-existence traits where applicable).
+- **Trait folders** match trait names per the [[TRT]] taxonomy (post-F090: Code / Skill / Topic / Paper / Simple, plus file-existence traits where applicable).
 - **Set files** are kebab-case `.md` files inside the trait folder. Multiple sets per trait are expected — different sub-styles within a trait have different rule needs.
 
 ## File format
@@ -70,4 +70,4 @@ The library is **bootstrapping**. F082 v1 ships `/rule discover` + `/rule curate
 
 - [[F082 — Common ruleset across projects]] — the feature commissioning this library.
 - [[F090 — Retire CAB Types, unify under Traits, Facets-as-Traits-by-file-existence]] — provides the trait taxonomy.
-- [[CAB Traits]] — the canonical trait taxonomy.
+- [[TRT]] — the canonical trait taxonomy.

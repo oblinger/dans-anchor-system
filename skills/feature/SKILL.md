@@ -61,13 +61,9 @@ If a feature is `[Questions]` or `[Blocked]` mid-flight, that's tracked via the 
 
 **Pick the highest applicable tier.** If you find yourself writing tier 4 with no Blocks-next, pause and reconsider: could a passive signal work? Could the user notice this in normal use? Often the answer is yes and the right tier is 3.
 
-Per `[[CAB Backlog]]` § Numbering policy, F-numbers are monotonic-forever, never recycled, **zero-padded to three digits** as `F001` … `F999`. The F-number is **minted by the workflow skill's `state task create`** in § 1.5 below — run § 1.5 first (after the collision check in § 1b), parse the assigned `F<NNN>` from its stdout, then create the feature doc in the project's Features folder:
+Per `[[CAB Backlog]]` § Numbering policy, F-numbers are monotonic-forever, never recycled, **zero-padded to three digits** as `F001` … `F999`. The F-number is **minted by the workflow skill's `state task create`** in § 1.5 below — run § 1.5 first (after the collision check in § 1b), parse the assigned `F<NNN>` from its stdout, then create the feature doc in the anchor's Features folder. Per **F142** the canonical location is the **Design** folder (Features is a design artifact, D07): `{NAME} Design/{NAME} Features/F{NNN} — {Feature Name}.md`.
 
-```
-{anchor}/Docs/Plan/Features/F{NNN} — {Feature Name}.md
-```
-
-If the Features folder doesn't exist, create it. Filenames carry the F-number prefix from the mint (zero-padded). **Do not read the backlog file directly to compute the next F-number** — `state task create` is the canonical mint.
+If `{NAME} Design/{NAME} Features/` doesn't exist, create it. (Legacy anchors still hold features at `{NAME} Track/{NAME} Features/`; the workflow scripts read both during the F142 rollout — but **new** docs go in the Design location.) Filenames carry the F-number prefix from the mint (zero-padded). **Do not read the backlog file directly to compute the next F-number** — `state task create` is the canonical mint.
 
 #### 1b. Collision check — vault grep for duplicate H1 (per F27)
 
@@ -96,7 +92,7 @@ If the Features folder doesn't exist, create it. Filenames carry the F-number pr
      Wait for the user's pick before writing the file.
    - **Match in the *same* anchor** — within-anchor title collision is genuinely bad (within-anchor titles must be unique). Surface as a stronger error: "Within-anchor title collision — pick a different title." Block creation; do not write the file.
 
-This is the one place in `/feature` where an inline question is appropriate (vs. routing through `/ask`'s batch surface): it's a yes/no creation-time prompt that needs an answer in the same turn, and the user is in active mode by virtue of having invoked `/feature`.
+This is the one place in `/feature` where an inline question is appropriate (vs. routing through `/query`'s batch surface): it's a yes/no creation-time prompt that needs an answer in the same turn, and the user is in active mode by virtue of having invoked `/feature`.
 
 **Feature doc structure — Open Questions sits BELOW the H1 while any pending Qs exist; deleted entirely once all are resolved, with answered Qs migrating to a `## Resolved` H2 at the bottom of the doc.** The lifecycle:
 
@@ -165,7 +161,7 @@ Designing — awaiting design discussion.
 - **H1 carries the anchor-slug breadcrumb + F-number.** Format: `# [[{NAME}]] · F{n} — {Feature Name}`. The leading `[[{NAME}]]` is a wiki-link to the anchor page (jumps back to the anchor's home from any feature doc) and tells the reader at a glance which anchor they're in — load-bearing when many anchors are active and feature docs look similar across them.
 - **`## Open Questions` lives below H1 only while pending user Qs exist** — deleted otherwise.
 - **`## Resolved` at the bottom holds all resolved decisions as H3 entries** — both agent-decided and user-answered. The H3 outline IS the decision list; click any H3 to read its full record. H3 title format: `### Q{N} — {Title}` for user-answered (Q-numbered); `### {Title}` for agent-decided (no Q-number — they were never asked). Each H3 body has: `**Choice:** X.` + brief reasoning + alternatives considered + why rejected.
-- The `/ask` skill (`[[SKA ask]]`) is the universal asking subroutine — feature docs, PRDs, plan docs, anything with questions follows the same shape. Invoke `/ask --doc <path>` to add questions to a feature doc; the runbook handles formatting, glance, and global-page maintenance.
+- The `/query` skill (`[[SKA queries]]`) is the universal asking subroutine — feature docs, PRDs, plan docs, anything with questions follows the same shape. Invoke `/query --doc <path>` to add questions to a feature doc; the runbook handles formatting, glance, and global-page maintenance.
 
 **When to ask vs auto-decide (per [[F068 — Assume-and-announce discipline (Drive mode)|F068]] amendment 2026-05-22):**
 
@@ -202,7 +198,7 @@ Use `--horizon Later` for parking-mode stubs (`/feature` used to file something 
 
 ### 1a. Surface the Doc — glance only when adding/modifying a pending question AND the user is engaging now
 
-Glance the doc *only when both conditions hold*: (1) the edit added or modified a pending question, AND (2) you're in **active mode** — the user is engaging with this feature right now. See [[SKA ask]] § Active vs Parking mode for the full rule. (Better still: invoke `/ask --doc <path>` and the skill handles the glance for you.)
+Glance the doc *only when both conditions hold*: (1) the edit added or modified a pending question, AND (2) you're in **active mode** — the user is engaging with this feature right now. See [[SKA queries]] § Active vs Parking mode for the full rule. (Better still: invoke `/query --doc <path>` and the skill handles the glance for you.)
 
 ```bash
 open "<path to feature doc>"
@@ -260,7 +256,7 @@ state --anchor {NAME} q remove F<n> -n <Q-num> --reason "..."
 state --anchor {NAME} q rewrite F<n> -n <Q-num> < new-body.md
 ```
 
-After EVERY Q-state change, update the Design (or relevant) section with what the resolution means in the spec. The resolved question and the updated design ship together. **Resolution body should include "Incorporated into Design § <section>"** as the closing line so the audit trail in `## Resolved` cross-references where the answer shaped the design.
+After EVERY Q-state change, update the Design (or relevant) section with what the resolution means in the spec. The resolved question and the updated design ship together. **Resolution body should include "Incorporated into Design § `<section>`"** as the closing line so the audit trail in `## Resolved` cross-references where the answer shaped the design.
 
 When a new question arises mid-discussion, add it via `q add` and glance the file (per step 1a). When you resolve a question, **don't** glance — even if other questions are still pending. The glance is only for moments when the user needs to react to *new or changed* questions.
 

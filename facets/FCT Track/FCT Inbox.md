@@ -7,7 +7,7 @@ Facet spec for the `{NAME} Inbox.md` drop-zone file — the chronological log of
 | -[[FCT Inbox]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Inbox](hook://p/FCT%20Inbox)<br>: raw incoming content to process |
 | --- | --- |
 | Related | [[FCT Discussion]],  [[FCT Backlog]],  [[FCT PRD]],  [[FCT Roadmap]],   |
-| Examples | [[CAE Inbox\|example]] |
+| Examples | [[CAE Inbox\|example]],   |
 
 **TLDR** — A single `{NAME} Inbox.md` file (one per anchor) is the paste-first drop zone for raw input; processed entries stay with a `DONE` or `MOVED →` status tag as a permanent log.
 
@@ -85,7 +85,7 @@ The Inbox file lives at the anchor root: `{NAME} Inbox.md`, alongside the anchor
 **Why:** co-location with top-level anchor docs ensures consistent discoverability by agents and users. (Tier: checked)
 
 ### RULE R-fct-inbox-02 — Sections are reverse-chronological H2s with a status tag (checked)
-Each entry heading follows `## YYYY-MM-DD — <Topic>    \`<STATUS>\`` where `<STATUS>` is one of the two sanctioned tags.
+Each entry heading follows the form `## YYYY-MM-DD — {Topic}` followed by a backtick-wrapped `{STATUS}` tag, where `{STATUS}` is one of the two sanctioned tags.
 **Check pattern:** every H2 matches `^## \d{4}-\d{2}-\d{2} — .+` and carries a backtick-wrapped status tag.
 **Why:** consistent heading format lets agents scan for processed vs. pending entries without parsing free-form prose. (Tier: checked)
 

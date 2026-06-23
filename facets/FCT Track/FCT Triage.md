@@ -7,7 +7,7 @@ Specification for the **Triage view** — the format and rules for rendering an 
 | -[[FCT Triage]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Triage](hook://p/FCT%20Triage)<br>: triage — presentation form for an anchor's status inside the global Q.md dashboard |
 | --- | --- |
 | Related | [[FCT Backlog]] (source of items), [[CAB Backlog]] (status brackets), [[SKA triage]] (renderer), [[FCT Ask]] (anchor questions surface), |
-| Examples | [[Q#CAE Triage\|CAE section (minimal)]], [[Q#SKA Triage\|SKA section (fuller)]], |
+| Examples | [[Q#CAE Triage\|CAE section (minimal)]],  [[Q#SKA Triage\|SKA section (fuller)]],   |
 
 **TLDR** — The Triage facet defines the *rendered format* of an anchor's status section inside `~/ob/kmr/Q.md`: the H1 banner (TAG, counts, exact spacing), body H2s (`## Active` … `## Later`, skipping empty), bullet form (bolded bracket + mandatory wiki-link + em-dash description), and the selective-Later rule (only `[Questions]`/`[Verify]` items surface under `## Later`). **Cardinality: one per anchor** — each anchor owns exactly one section in `Q.md`, destructively rewritten on each `/triage` run. No per-anchor file; the view lives only in `Q.md`.
 

@@ -1,21 +1,16 @@
----
-description: macOS app development — code signing, TCC permissions, sandboxing, build conventions
-trait: Code
-applies-when: anchor builds a macOS application (`.app` bundle) — Swift, Objective-C, Catalyst, Electron-on-macOS, or any other framework producing a macOS app
-set-id: MA
----
-
-# R-mac — macOS app rules
+# RULESET R-mac
+include::
+description:: macOS app development — code signing, TCC permissions, sandboxing, and build conventions. Applies when an anchor builds a macOS `.app` bundle (Swift / Obj-C / Catalyst / Electron-on-macOS / any framework producing a macOS app).
 
 Decisions that apply when an anchor builds a macOS app — a `.app` bundle deployed beyond throwaway debugging. Covers code signing, TCC (Transparency, Consent, Control) permissions, sandboxing, and the build conventions that interact with those systems.
 
-The two load-bearing rules are **D-MA01** (stable code identity) and **D-MA02** (TCC will actually trust that identity) — every other decision in this set assumes both. Without them, the permission system fights you on every rebuild.
+The two load-bearing rules are **R-mac-01** (stable code identity) and **R-mac-02** (TCC will actually trust that identity) — every other decision in this set assumes both. Without them, the permission system fights you on every rebuild.
 
 
 ## App Permission Handling (Avoids need to re-granting permissions during development)
 
 
-### D-MA01 — Never use ad-hoc code signing (checked)
+### RULE R-mac-01 — Never use ad-hoc code signing (checked)
 
 **Decision:** Never sign a macOS app with ad-hoc code signing (`codesign -s -` or `codesign --sign -`). Always sign with a proper Apple Developer signing identity (`Developer ID Application: <Name> (<TEAM>)` or `Apple Development: <Name> (<TEAM>)`), issued from the Apple Developer Program.
 
@@ -40,11 +35,11 @@ Any match is a violation. Replace with `Developer ID Application: <Name> (<TEAM>
 **Exceptions (none currently allowed):** This decision is `(checked)` not `(tracked)` — there should be zero hits. If a legitimate exception ever arises (e.g., a one-off CI binary that explicitly will never request a TCC permission and has no persistent identity needs), promote the decision to `(tracked)` and document the exception in an EX-table.
 
 
-### D-MA02 — Never enable `get-task-allow` in the default build (checked)
+### RULE R-mac-02 — Never enable `get-task-allow` in the default build (checked)
 
 **Decision:** A macOS app's default build must NOT carry the `com.apple.security.get-task-allow` entitlement set to `<true/>`. The default-build entitlements file either omits the key entirely or sets it to `<false/>`. When debugger attach is genuinely needed (lldb attach, runtime view-hierarchy diagnostics, process introspection), create a **separate build target / recipe** — e.g., `just build-debug` alongside `just build` — that points at a different entitlements file with `get-task-allow=true`. The two targets coexist; you opt into the debuggable one only when you actually need it.
 
-**Why:** TCC refuses to persist permission grants for debuggable binaries. A binary with `get-task-allow=true` could have arbitrary code injected after the grant is given, so the security model treats it as "this app's identity is meaningfully forgeable." Every rebuild of a `get-task-allow=true` binary re-prompts the user to grant Accessibility / Screen Recording / Input Monitoring / etc. — **even when D-MA01 is satisfied and the signing identity is otherwise stable**. The two decisions compose: D-MA01 establishes stable code identity, D-MA02 makes TCC actually willing to trust it.
+**Why:** TCC refuses to persist permission grants for debuggable binaries. A binary with `get-task-allow=true` could have arbitrary code injected after the grant is given, so the security model treats it as "this app's identity is meaningfully forgeable." Every rebuild of a `get-task-allow=true` binary re-prompts the user to grant Accessibility / Screen Recording / Input Monitoring / etc. — **even when R-mac-01 is satisfied and the signing identity is otherwise stable**. The two decisions compose: R-mac-01 establishes stable code identity, R-mac-02 makes TCC actually willing to trust it.
 
 Splitting into two build recipes gives you both: the default (`just build`) ships TCC-stable and skips the prompt-every-rebuild cycle; the opt-in (`just build-debug`) supports lldb attach for the rare sessions that need it. Daily dev runs against the stable build; you flip to debug only when actively introspecting the running process.
 
@@ -70,7 +65,7 @@ Any default-build path that ends with `get-task-allow=true` is a violation. The 
 **Exceptions:** `(checked)` — there should be zero hits in default-build paths. An explicit `build-debug` / `build-with-lldb` recipe pointing at a `<true/>` entitlements file is allowed and expected; that separation is the discipline this decision encodes, not a violation. Hits flagged by the check pattern are only violations if they appear in the default build's entitlements file.
 
 
-### D-MA03 — Self-signed dev cert: long-lived, generated once, never regenerated (checked)
+### RULE R-mac-03 — Self-signed dev cert: long-lived, generated once, never regenerated (checked)
 
 **Decision:** When the signing identity is a **self-signed** certificate (the path for projects without paid Apple Developer Program membership, or for additional dev-only identities), that cert must:
 1. Be generated with a validity period of **≥100 years** (e.g., `openssl req ... -days 36500`).
@@ -101,7 +96,7 @@ grep -nE 'security find-certificate|security delete-certificate|openssl req' scr
 **Exceptions:** `(checked)` — none. A long-lived self-signed cert costs nothing; cert churn costs repeated re-prompts that this decision exists to prevent.
 
 
-### D-MA04 — Strip the quarantine xattr on every install / deploy (checked)
+### RULE R-mac-04 — Strip the quarantine xattr on every install / deploy (checked)
 
 **Decision:** Every recipe that copies a `.app` bundle into a run location (local install, redeploy, rsync-to-remote, scp, CI deploy) must end with:
 
@@ -138,7 +133,7 @@ grep -nE 'xattr.*quarantine' justfile scripts/
 **Exceptions:** `(checked)` — none. One line; no downside for self-controlled binaries; asymmetric cost of forgetting it.
 
 
-### D-MA05 — All codesign invocations produce an identical designated requirement per bundle ID (checked)
+### RULE R-mac-05 — All codesign invocations produce an identical designated requirement per bundle ID (checked)
 
 **Decision:** Every `codesign` invocation in the project's build, install, deploy, refresh, and helper-signing recipes — including every fallback branch — must produce a **byte-for-byte identical designated requirement (DR)** for a given bundle ID. The string output of `codesign -d -r-` must be the same regardless of which recipe produced the installed bundle.
 
@@ -148,11 +143,11 @@ In practice, every codesign call for a given bundle ID uses:
 - the same **`--options`** flags (especially `runtime`)
 - the same **entitlements file** (or no entitlements file — but consistent)
 
-The D-MA02 `build` / `build-debug` split is **not** an exception — it intentionally produces two distinct bundles, each DR-deterministic within itself.
+The R-mac-02 `build` / `build-debug` split is **not** an exception — it intentionally produces two distinct bundles, each DR-deterministic within itself.
 
 **Why:** TCC stores the grant against whatever DR it observed at grant time. If any later build presents a different DR, TCC sees a new app and re-prompts. This is the most insidious cause of "permissions sometimes work and sometimes don't" — the build is non-deterministic at the DR level, you don't notice until an unlucky branch fires, and the symptom is indistinguishable from a flaky OS. Common offenders:
 
-- **Adhoc-fallback branches** ("if the stable cert isn't found, fall back to `codesign -s -`"). The first time the fallback fires, the DR becomes `Signature=adhoc` and every stable-cert grant is orphaned. D-MA01 forbids the fallback existing at all; D-MA05 catches the case where someone "kept the fallback for robustness."
+- **Adhoc-fallback branches** ("if the stable cert isn't found, fall back to `codesign -s -`"). The first time the fallback fires, the DR becomes `Signature=adhoc` and every stable-cert grant is orphaned. R-mac-01 forbids the fallback existing at all; R-mac-05 catches the case where someone "kept the fallback for robustness."
 - **Refresh / redeploy / forge** paths that re-sign with slightly different arguments than the original build path.
 - **Helper-app or framework signing** that uses different flags than the parent app's signing call.
 - **Hardened-runtime drift** — one recipe adds `--options runtime`, another doesn't.
@@ -169,11 +164,11 @@ diff /tmp/dr-build.txt /tmp/dr-redeploy.txt        # must be empty
 diff /tmp/dr-redeploy.txt /tmp/dr-refresh.txt      # must be empty
 ```
 
-Also grep for hidden adhoc-fallback branches that D-MA01's static check might miss inside conditional logic:
+Also grep for hidden adhoc-fallback branches that R-mac-01's static check might miss inside conditional logic:
 
 ```bash
 grep -nE 'codesign.*(--sign|^-s)\s+-($|\s)' justfile scripts/
 # Any match — even inside an `if` branch that "shouldn't fire" — is a violation.
 ```
 
-**Exceptions:** `(checked)` — none. Any intentional DR variation should be modeled as a separate bundle ID (the D-MA02 split is the template), never as same-bundle variants.
+**Exceptions:** `(checked)` — none. Any intentional DR variation should be modeled as a separate bundle ID (the R-mac-02 split is the template), never as same-bundle variants.

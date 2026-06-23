@@ -144,7 +144,7 @@ These are tracked as follow-on backlog items rather than blocking v1.
 
 ## Cross-references
 
-- [[F081 — audit markdown — markdown hygiene via MCP server]] — full design + open-q resolutions.
-- [[F076 — audit q — Q.md constraint validator with mechanical-fix mode]] — sibling auditor with a similar bundled-vs-user-space pattern; v2 refactor will share infrastructure.
+- [[F008 — audit markdown — markdown hygiene rule library]] — full design + open-q resolutions.
+- [[F009 — audit q — Q.md constraint validator]] — sibling auditor with a similar bundled-vs-user-space pattern; v2 refactor will share infrastructure.
 - [[F080 — Skill config — unified namespace YAML]] — user-rule location depends on the F080 namespace; `vault_root` is read from F080 config.
 - [[CAB Markdown Formatting]] — the rules library should grow to cover most of CAB's markdown conventions.

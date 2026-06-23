@@ -7,7 +7,7 @@ Facet spec for the **Work Products** zone of an anchor — dated, polished outpu
 | -[[FCT WP]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Output]] → [FCT WP](hook://p/FCT%20WP)<br>: dated work products — papers, reports, polished outputs |
 | --- | --- |
 | Related | [[FCT Log]],  [[FCT Feature]],  [[FCT Brief]],  [[FCT Dispatch]],   |
-| Examples | [[AIS WP\|example dispatch page]] |
+| Examples | [[AIS WP\|example dispatch page]],   |
 
 **Location:** `{NAME} Docs/Work Products/YYYY-MM-DD {Title}.md   (dated work product)`
 

@@ -7,7 +7,7 @@ Dated agent-generated outputs (audit reports, code analysis, automated assessmen
 | -[[FCT Outputs]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Output]] → [FCT Outputs](hook://p/FCT%20Outputs)<br>: dated agent-generated outputs — audit reports, analysis |
 | --- | --- |
 | Related | [[FCT WP]],  [[CAB Stat]],  [[CAB Backlog]],  [[FCT Facet]],   |
-| Examples | [[MUX Outputs\|example dispatch page]] |
+| Examples | [[MUX Outputs\|example dispatch page]],   |
 
 **TLDR** — A folder of dated `{date} {name}.md` files auto-created by `stat add`; cardinality **many** (any number of output files per anchor). The dispatch page (`{slug} Outputs.md`) is **one per anchor**; individual output files are **many**. Never list specific files here — instances live in per-anchor dispatch pages.
 

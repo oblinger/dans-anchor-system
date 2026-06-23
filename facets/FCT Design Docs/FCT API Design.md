@@ -7,14 +7,14 @@ Facet spec defining the shape, required sections, and ruleset for an anchor's `{
 | -[[FCT API Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT API Design](hook://p/FCT%20API%20Design)<br>: facet spec for the programmatic user surface doc |
 | --- | --- |
 | Related | [[FCT UX Design]],  [[FCT Architecture]],  [[FCT Module Doc]],  [[FCT Decisions]],   |
-| Examples | [[CAE API Design\|minimal (library crate)]],  [[HBR API Design\|fuller (service + sub-skill)]] |
+| Examples | [[CAE API Design\|minimal (library crate)]],  [[HBR API Design\|fuller (service + sub-skill)]],   |
 
 API Design specifies the **programmatic user surface** of the anchor — what shape another piece of code (or another agent invoking this as a sub-skill) sees when integrating. It is sibling to [[FCT UX Design]] (the *human* user surface). The cut between them is **who the consumer is**: API = code calling; UX = human reading or invoking.
 
 > [!info] Scope guard
 > "API" here means the *intent* of the programmatic surface — how it's shaped, what it commits to. Distinct from [[FCT Module Doc]] (per-module reference; *what exists* in the source tree, often generated) and from [[FCT Architecture]] (internal organization; *how* the system is built). API Design is the *what* of the public contract.
 
-The API Design doc is the **current spec** — the contract surface today. Rationale lives in [[FCT Decisions]] or in the document's own *D-API<n>* design-decision rows (see [[#RULESET R-api|R-api]]). If the anchor has no programmatic consumer (no library form, no sub-skill invocation surface, no integration story), this facet is N/A; mark it `none` in [[FCT Status]] and omit the file.
+The API Design doc is the **current spec** — the contract surface today. Rationale lives in [[FCT Decisions]] or in the document's own `D-API<n>` design-decision rows (see [[#RULESET R-api|R-api]]). If the anchor has no programmatic consumer (no library form, no sub-skill invocation surface, no integration story), this facet is N/A; mark it `none` in [[FCT Status]] and omit the file.
 
 ## When this facet applies
 
@@ -138,7 +138,7 @@ Deprecation policy is concrete: "deprecated entries are removed no sooner than t
 
 **Why:** vague commitments are unilaterally adjustable; callers can't plan against them. Concrete horizons are commitments.
 
-### RULE R-api-08 — Design decisions captured as D-API<n> rows (sampled)
+### RULE R-api-08 — Design decisions captured as `D-API<n>` rows (sampled)
 
 Load-bearing API choices (a chosen error envelope over an obvious alternative, a chosen async-ness model, a chosen schema-serialization format) appear as `D-API<n>` rows under `## Design decisions` with: choice, alternatives considered, rationale.
 

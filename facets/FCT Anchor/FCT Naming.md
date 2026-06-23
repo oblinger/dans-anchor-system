@@ -7,7 +7,7 @@ File-naming facet — every file inside an anchor uses `{NAME} <X>.md` form by d
 | -[[FCT Naming]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Naming](hook://p/FCT%20Naming)<br>: file-naming facet — `{NAME} <X>.md` default + explicit exception allowlist |
 | --- | --- |
 | Related | [[FCT Folder]],  [[FCT Anchor Page]],  [[FCT All Files]],  [[FCT Features]],   |
-| Examples | [[CAE\|minimal anchor]], [[HBR\|fuller anchor]] |
+| Examples | [[CAE\|minimal anchor]],  [[HBR\|fuller anchor]],   |
 
 **TLDR** — Every `.md` file inside an anchor is named `{NAME} <X>.md` (the anchor slug as prefix). Three exception classes are allowed: vault-global files, facet-sanctioned alternative patterns (F-numbers, US-IDs, ISO dates), and genuinely unique domain-specific names. **Cardinality: one per anchor** — a single naming convention applies to each anchor, not a per-file choice.
 
@@ -39,7 +39,7 @@ Some facets define alternative naming patterns that are unique enough on their o
 
 These patterns appear inside anchor sub-folders (`{NAME} Track/{NAME} Features/`, `{NAME} Design/{NAME} PRD/`, `{NAME}/{NAME} Log/`) where the parent folder already encodes the anchor scope. The filename itself doesn't need to.
 
-Each exception pattern is **declared by the facet that owns it**. Facets that define alternative patterns also state their uniqueness contract (e.g., F-numbers are monotonic-forever per anchor; US-<RID>-<N> encodes the RID directly). When a new facet introduces an alternative pattern, this list grows.
+Each exception pattern is **declared by the facet that owns it**. Facets that define alternative patterns also state their uniqueness contract (e.g., F-numbers are monotonic-forever per anchor; `US-<RID>-<N>` encodes the RID directly). When a new facet introduces an alternative pattern, this list grows.
 
 ## Exception C — slug-prefix sufficient by chance
 
@@ -114,7 +114,7 @@ Files matching a facet-sanctioned alternative pattern are exempt from the slug-p
 
 **Check pattern:** R-naming-01's check accepts files matching any of the regex shapes above as a pass.
 
-**Why:** these patterns are unique enough on their own (F-numbers monotonic-forever, US-<RID>-<N> encodes RID directly, ISO dates plus topic). Adding a slug prefix would be redundant. The parent folder (`{NAME} Track/{NAME} Features/`, `{NAME} Design/{NAME} PRD/`, `{NAME}/{NAME} Log/`) already encodes anchor scope.
+**Why:** these patterns are unique enough on their own (F-numbers monotonic-forever, `US-<RID>-<N>` encodes RID directly, ISO dates plus topic). Adding a slug prefix would be redundant. The parent folder (`{NAME} Track/{NAME} Features/`, `{NAME} Design/{NAME} PRD/`, `{NAME}/{NAME} Log/`) already encodes anchor scope.
 
 ### RULE R-naming-04 — Slug-prefix-sufficient-by-chance allowed sparingly (stated)
 

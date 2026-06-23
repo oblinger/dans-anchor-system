@@ -1,6 +1,6 @@
 ---
 name: ask-format
-description: Discipline. The format for any user-actionable surface that an agent writes — Questions (Q<n>), Verifies, à la carte items, resolution-acceptance phrases. Owns the navigation invariant (every Q / Verify is link-targetable). Cited by /ask, /triage, /feature, /groom, /crank, and /audit q.
+description: Discipline. The format for any user-actionable surface that an agent writes — Questions (`Q<n>`), Verifies, à la carte items, resolution-acceptance phrases. Owns the navigation invariant (every Q / Verify is link-targetable). Cited by /ask, /triage, /feature, /groom, /crank, and /audit q.
 user_invocable: false
 ---
 
@@ -173,8 +173,8 @@ This keeps the banner counts honest (the Verify count doesn't include expired-bu
 
 Per `[[SKA groom]]` § Bracket reassessment: when scanning, for each `[Verify-by <date>]` row where today >= date:
 
-1. **Default**: move to `## Done` with note *"Auto-Done <today-date> — `[Verify-by <bracket-date>]` window expired with no failure surfaced."*
-2. **Optional extension**: if the agent has evidence the change wasn't actually exercised (e.g., the relevant skill hasn't run since the row was filed), extend the bracket date and add a note *"Extended to <new-date> — no usage observed yet."*
+1. **Default**: move to `## Done` with note *"Auto-Done `<today-date>` — `[Verify-by <bracket-date>]` window expired with no failure surfaced."*
+2. **Optional extension**: if the agent has evidence the change wasn't actually exercised (e.g., the relevant skill hasn't run since the row was filed), extend the bracket date and add a note *"Extended to `<new-date>` — no usage observed yet."*
 
 The agent's call between (1) and (2) depends on whether "naturally exercised" actually happened. Default is auto-Done; extension is the rare case.
 
@@ -334,7 +334,7 @@ Auto-answer: **agent does the check.** If a Verify or Q reduces to "open file X 
 
 ### How auto-resolution surfaces
 
-When any rule auto-resolves a Q, the decision is recorded in the relevant doc's `## Resolved` H2 (feature doc) or in `## Agent Resolutions` (bare `/ask`'s drain page) with a one-line note: *"Auto-resolved per ask-format § Pre-ask self-check rule N: <decision>."* The user reviews on next `/ask` and can roll back if any auto-call was wrong (per F086 acceptance & rollback).
+When any rule auto-resolves a Q, the decision is recorded in the relevant doc's `## Resolved` H2 (feature doc) or in `## Agent Resolutions` (bare `/ask`'s drain page) with a one-line note: *"Auto-resolved per ask-format § Pre-ask self-check rule N: `<decision>`."* The user reviews on next `/ask` and can roll back if any auto-call was wrong (per F086 acceptance & rollback).
 
 ## Anti-patterns
 
@@ -354,7 +354,7 @@ The five-piece layout above governs **written surfaces** (the ask file, feature 
 
 - **Full question text inline.** Restate the actual question. Don't write *"your read on F77 Q7?"* — write *"F77 Q7 — naming convention for flow-Traits: bare nouns (`Drive`/`PR`/`Commit`) vs `-Mode` suffix vs `-Flow` suffix vs mixed-by-category."*
 - **Full option content inline.** Don't write *"A vs B."* Write each option's actual text — *"(A) bare nouns / (B) -Mode suffix / (C) -Flow suffix / (D) mixed."*
-- **F<n>-Q<n> reference required.** Always cite the canonical-record location so the user can locate the durable version, but the chat itself stays self-contained.
+- **`F<n>-Q<n>` reference required.** Always cite the canonical-record location so the user can locate the durable version, but the chat itself stays self-contained.
 - **Recommendation strength inline.** *"Lean (A) — matches F090 unsuffixed names."* Not just *"recommend A."*
 
 **Why:** chat is read linearly. By the time the user sees *"waiting on A or B,"* the message that defined A and B may be 20 messages back. Bare letter references force a context-rebuild that the user reasonably refuses. Per durable user feedback (2026-06-06): *"You should never ask me waiting on A or B. Because there's no context with that... F18 Q3, A or B. That would be a well formed question to me."*

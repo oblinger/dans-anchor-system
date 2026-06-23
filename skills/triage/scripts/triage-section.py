@@ -98,7 +98,7 @@ TRAILING_BLOCK_ID_RE = re.compile(r"\s+\^[A-Za-z][A-Za-z0-9_\-]*\s*$")
 # Q.md banner line for an anchor
 QMD_BANNER_RE_TEMPLATE = (
     # H1 banner detection. Matches the section's H1 regardless of which target
-    # the fallback chain landed on — `[[{NAME} ask|{NAME}]]`, `[[{NAME} Triage|{NAME}]]`,
+    # the fallback chain landed on — `[[{NAME} queries|{NAME}]]`, `[[{NAME} Triage|{NAME}]]`,
     # `[[{NAME}|{NAME}]]`, or plain `{NAME}` (no link). The display label is
     # always `{NAME}`; that's what we match on. Critical for the dedupe step:
     # without this, a fresh regen at the top wouldn't recognize an older OLD
@@ -378,11 +378,11 @@ def derive_banner(name: str, rows: list[Row], backlog_file: Path,
         tag = ""
     if not tag:
         return None
-    # Per B14: H1 link target is `{NAME} ask.md` (the bare-/ask drain page where
+    # Per F176: H1 link target is `{NAME} queries.md` (the /query drain page where
     # the user actually answers questions). Fallback chain when files don't
     # exist yet (avoids emitting a C1-failing wiki-link in Q.md):
-    #   `{NAME} ask` → `{NAME} Triage` → `{NAME}` (anchor page) → plain text
-    candidates = [f"{name} ask", f"{name} Triage", name]
+    #   `{NAME} queries` → `{NAME} Triage` → `{NAME}` (anchor page) → plain text
+    candidates = [f"{name} queries", f"{name} Triage", name]
     h1_target = next((c for c in candidates if c in vault_index), None)
     if h1_target:
         slug_label = f"[[{h1_target}|{name}]]"
@@ -597,6 +597,57 @@ def render_body(rows: list[Row], name: str, backlog_file: Path,
 
 
 # ============================================================
+# Queries-body paste (F176 — Q.md per-anchor body = {NAME} queries.md)
+# ============================================================
+
+
+def read_queries_body(name: str, backlog_file: Path) -> Optional[tuple[Optional[str], list[str]]]:
+    """Read `{NAME} queries.md` (sibling of the backlog) and return
+    `(computed_timestamp, body_lines)` where body_lines is everything below the
+    H1 (the `## Agent Resolutions` / `## Verifications` / `## Immediate Questions`
+    / `## Questions` / `## Ready` sections), with the YAML frontmatter and the H1
+    stripped.
+
+    The H1 is stripped on purpose: the queries H1 (`# [[NAME|NAME]] Queries …`)
+    begins with `# [`, which is exactly the Q.md per-anchor section-boundary
+    marker — pasting it verbatim would split this anchor's Q.md section. The
+    `_computed …_` timestamp is lifted out of the H1 and returned separately so
+    the caller can surface it as a non-`# [` sub-line.
+
+    Returns None when no queries file exists (caller falls back to the
+    backlog-derived body, preserving behavior for anchors not yet on /query)."""
+    qfile = backlog_file.parent / f"{name} queries.md"
+    if not qfile.is_file():
+        return None
+    try:
+        lines = qfile.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError):
+        return None
+    i = 0
+    # Strip YAML frontmatter.
+    if lines and lines[0].strip() == "---":
+        i = 1
+        while i < len(lines) and lines[i].strip() != "---":
+            i += 1
+        i += 1  # past the closing ---
+    while i < len(lines) and lines[i].strip() == "":
+        i += 1
+    # Lift the timestamp out of the H1, then skip the H1 line.
+    timestamp: Optional[str] = None
+    if i < len(lines) and lines[i].lstrip().startswith("# "):
+        m = re.search(r"_computed\s+([^_]+?)_", lines[i])
+        if m:
+            timestamp = m.group(1).strip()
+        i += 1
+    while i < len(lines) and lines[i].strip() == "":
+        i += 1
+    body = lines[i:]
+    while body and body[-1].strip() == "":
+        body.pop()
+    return (timestamp, body)
+
+
+# ============================================================
 # Q.md section management
 # ============================================================
 
@@ -717,8 +768,14 @@ def main() -> int:
     # Derive banner
     banner = derive_banner(name, rows, backlog_file, vault_index)
 
-    # Render body
-    body = render_body(rows, name, backlog_file, vault_index)
+    # Body: prefer the {NAME} queries.md paste (F176); fall back to the
+    # backlog-derived rows for anchors not yet on /query.
+    queries = read_queries_body(name, backlog_file)
+    qts: Optional[str] = None
+    if queries is not None:
+        qts, body = queries
+    else:
+        body = render_body(rows, name, backlog_file, vault_index)
 
     # Compose section
     if banner is None and not body:
@@ -728,6 +785,11 @@ def main() -> int:
         section_lines = []
         if banner:
             section_lines.append(banner)
+            section_lines.append("")
+        if qts:
+            # Staleness signal — when the queries list was computed. Non-`# [`
+            # so it can't be mistaken for a section boundary.
+            section_lines.append(f"_queries computed {qts}_")
             section_lines.append("")
         section_lines.extend(body)
 

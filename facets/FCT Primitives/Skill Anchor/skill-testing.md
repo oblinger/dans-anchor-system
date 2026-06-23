@@ -1,7 +1,7 @@
 ---
 description: skill-testing — facet specifying how a skill verifies its own behavior. tests/ folder split unit/ vs live/, mechanical PASS/FAIL, non-destructive.
 applies-when-trait: Skill Anchor
-location: ~/.claude/skills/<skill-name>/tests/
+location: ~/.claude/skills/`<skill-name>`/tests/
 ---
 
 # CAB skill-testing

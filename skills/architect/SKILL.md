@@ -36,8 +36,11 @@ Feature spec: `[[F074 — Architect skill — Architecture as anchor folder with
 | `/architect new` | [[architect-new]] | Greenfield architecture draft from features/PRD only. No anchoring bias from existing code/arch. Writes to `Versions/{date} Architecture (greenfield).md`. |
 | `/architect update` | [[architect-update]] | Snapshot current arch → integrate new ideas in-place → `## Changes since [[snapshot]]` at bottom. **Bare `/architect` routes here** per F084. |
 | `/architect changes` | [[architect-changes]] | Re-derive `## Changes since` section from structural diff (recovery tool). Shares arch-doc parser + semantic-diff engine with `/architect update`. |
+| `/architect overview` | [[architect-overview]] | **Portable bare-project mode (per F184).** Produces an `Architecture Overview.md` + embedded hand-drawn SVG (via `/viz svg`) for a codebase with **no** CAB scaffolding (no `.anchor`, no module docs, no vault). Requires a subject: `/architect overview <subject>` — names what to architect; asks *"what do you want me to architect?"* if none is given, never no-ops. Skips all CAB preconditions and vault post-conditions; runs anywhere. |
 
-**Bare `/architect`** (no sub-action) routes to `/architect update` — the most common action. The legacy single-pass behavior documented below is superseded by the four-sub-skill family ([[architect-new]] / [[architect-update]] / [[architect-drift]] / [[architect-changes]]); retained inline for historical reference and may be removed in a follow-up cleanup.
+**Bare `/architect`** (no sub-action) routes to `/architect update` — the most common action. The legacy single-pass behavior documented below is superseded by the sub-skill family ([[architect-new]] / [[architect-update]] / [[architect-drift]] / [[architect-changes]] / [[architect-overview]]); retained inline for historical reference and may be removed in a follow-up cleanup.
+
+**Off-vault / non-CAB codebases use `/architect overview <subject>`** ([[architect-overview]], per F184) — the portable bare-project path. The full runbook below assumes a CAB anchor (`.anchor`, module docs, `{NAME} Docs/…` layout); when none of that is present, `overview` is the entry point. It still **requires an explicit subject** — a bare architect with nothing to architect must ask what to architect, not no-op.
 
 
 ## When to Use
@@ -172,13 +175,13 @@ Diff the proposed structure against what's already documented. Categorize each d
 
 For every module doc: ensure exactly one `Arch` row exists in the top-of-doc dispatch table, pointing at the most-specific architecture destination (per § Bidirectional cross-linking). Fix or propose-to-fix any mismatch. Reverse direction is enforced by the modules-table content.
 
-### 6. Surface proposals via `/ask`
+### 6. Surface proposals via `/query`
 
 Each significant delta becomes a Q on the architecture doc. Trivial deltas can be made silently in Drive mode under the assume-and-announce gates:
 - **Trivial — silent**: adding a new module to an existing modules-table; correcting an `Arch` row; updating a one-line module description in the modules table.
-- **Substantive — `/ask`**: creating a new subsystem; promoting a subsystem from file to folder; removing a phantom subsystem; reassigning a module to a different subsystem.
+- **Substantive — `/query`**: creating a new subsystem; promoting a subsystem from file to folder; removing a phantom subsystem; reassigning a module to a different subsystem.
 
-`/ask` parks Qs in the architecture doc's `## Open Questions` H2 per `[[SKA ask]]`.
+`/query` parks Qs in the architecture doc's `## Open Questions` H2 per `[[SKA queries]]`. **If `/query` isn't installed** (a minimal clone), degrade to asking the proposal inline in chat instead — never skip the user's decision just because the parking surface is absent.
 
 ### 7. Source dip on demand
 
@@ -186,17 +189,21 @@ If the user asks a question about a specific module (or `/architect` detects an 
 
 ### 8. Q.md update post-condition (per F075)
 
-After the architecture pass commits, regenerate the anchor's per-anchor section in `~/ob/kmr/Q.md` per `[[SKA triage]]` § 6 — walk the backlog, compute the section, remove any existing section for this anchor, insert at the top of Q.md's body (bubble-to-top). The backlog file is NOT reordered.
+**Skip-if-absent (portability, per F184).** This post-condition is vault-coupled. Perform it **only when `~/ob/kmr/Q.md` exists**. On a machine without the kmr vault (a colleague's clone), skip it silently with a one-line note — the architecture is still written and committed; only the dashboard refresh is skipped. The `/architect overview` (bare-project) path always skips it.
+
+When `~/ob/kmr/Q.md` is present: after the architecture pass commits, regenerate the anchor's per-anchor section in `~/ob/kmr/Q.md` per `[[SKA triage]]` § 6 — walk the backlog, compute the section, remove any existing section for this anchor, insert at the top of Q.md's body (bubble-to-top). The backlog file is NOT reordered.
 
 ### 8a. `/audit architecture` post-condition (per F092)
 
-Invoke the architecture audit on the touched anchor's reachability set:
+**Skip-if-absent (portability, per F184).** Run this **only when `~/.claude/skills/audit/scripts/audit-architecture.py` is reachable**. On a minimal clone that ships `viz` + `architect` but not the `audit` skill, skip it with a one-line note — the architecture is still written; it just isn't post-audited. The `/architect overview` (bare-project) path skips it by default.
+
+When the script is present, invoke the architecture audit on the touched anchor's reachability set:
 
 ```bash
 ~/.claude/skills/audit/scripts/audit-architecture.py --scope anchor --anchor <NAME>
 ```
 
-The audit checks two structural rules over the anchor's Arch docs: (R1) diagram-at-top + component-table-immediately-after, and (R2) wiki-link integrity on every module reference in component tables. Non-zero findings are **surfaced inline but do NOT block the mint** — they're reported, and (when the violation is the agent's own work this turn) addressed in the same pass; or filed as a backlog row for downstream cleanup. Pass `--fix` to apply A3 wrap-in-brackets auto-fixes when the basename match is unambiguous. Full rule reference: `[[F092 — Audit architecture]]`; runbook: `[[audit-architecture]]`.
+The audit checks two structural rules over the anchor's Arch docs: (R1) diagram-at-top + component-table-immediately-after, and (R2) wiki-link integrity on every module reference in component tables. Non-zero findings are **surfaced inline but do NOT block the mint** — they're reported, and (when the violation is the agent's own work this turn) addressed in the same pass; or filed as a backlog row for downstream cleanup. Pass `--fix` to apply A3 wrap-in-brackets auto-fixes when the basename match is unambiguous. Full rule reference: `[[F015 — Audit architecture]]`; runbook: `[[audit-architecture]]`.
 
 ### 9. Commit on transition
 
@@ -209,7 +216,7 @@ The skill presumes the user is the original author of the design. Every `/archit
 
 - **(a) Structural-only** (creating an empty subsystem doc, regenerating a dispatch table, fixing a broken link) — silent in Drive mode.
 - **(b) Tightens an existing description** (one-line update flagged in the commit message) — silent in Drive mode.
-- **(c) Adds substantive new prose** (new subsystem rationale, narrative section) — requires user agreement via `/ask`.
+- **(c) Adds substantive new prose** (new subsystem rationale, narrative section) — requires user agreement via `/query`.
 
 **Never wipe user-authored content.** If `/architect` would replace a paragraph the user wrote, it surfaces the change as a Q and waits.
 
@@ -229,6 +236,6 @@ The skill presumes the user is the original author of the design. Every `/archit
 - `[[FCT Module Doc]]` — defines the `Arch` row in module-doc dispatch tables and the `module_docs_audited:` frontmatter contract.
 - `[[FCT Decisions]]` — value statements (formerly Principles, now retired) live here as D-records; Architecture cross-links to them, doesn't absorb them.
 - `[[audit-docs]]` — writes `module_docs_audited:` to `{NAME} Dev.md` frontmatter at the end of every audit pass; the source of truth `/architect`'s staleness precondition reads.
-- `[[SKA ask]]` — universal Q-parking subroutine.
+- `[[SKA queries]]` — universal Q-parking subroutine.
 - `[[SKA triage]]` — provides the Q.md regen helper that `/architect` calls as its post-condition.
 - `[[F074 — Architect skill — Architecture as anchor folder with subsystems]]` — design doc.

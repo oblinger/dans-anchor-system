@@ -105,7 +105,7 @@ End the report by asking the user how to proceed: drive end-to-end, pick one mov
 
 Based on the user's response:
 
-- **"go" / "drive" / `'` / `/crank`** — execute all the suggested moves end-to-end. For each move, edit the PRD, glance (only when user-facing review needed), surface genuine questions via `/ask --doc` per § 5.
+- **"go" / "drive" / `'` / `/crank`** — execute all the suggested moves end-to-end. For each move, edit the PRD, glance (only when user-facing review needed), surface genuine questions via `/query --doc` per § 5.
 - **Pick one** ("do A") — execute that one move, re-survey, re-report.
 - **Discuss** — answer the user's questions; iterate the report; no edits until directed.
 
@@ -209,7 +209,7 @@ Same as § 2d above.
 
 ### 4. Fleshing-out checklist (used during iteration)
 
-Use these as internal questions when surveying or refining a section. They become user-facing `/ask` questions only when genuinely undecidable from context.
+Use these as internal questions when surveying or refining a section. They become user-facing `/query` questions only when genuinely undecidable from context.
 
 - Can the Overview explain what this is and why in two sentences? If not, frame is unclear.
 - What's the smallest version that would be useful? That's the v1 scope.
@@ -220,15 +220,15 @@ Use these as internal questions when surveying or refining a section. They becom
 
 ### 5. Surface open questions OR agent-resolutions (when iteration hits a decision)
 
-When iteration surfaces a decision, route it through [[ask]]:
+When iteration surfaces a decision, route it through [[query]]:
 
 ```bash
-/ask --doc "{anchor}/{NAME} Design/{NAME} PRD.md" "<question>"
+/query --doc "{anchor}/{NAME} Design/{NAME} PRD.md" "<question>"
 ```
 
-The decide-vs-ask judgment **belongs to the /ask discipline**, not this skill. The short version of what /ask enforces: if the choice is **reversible AND the user will see the wrong call and easily redirect**, the agent should decide and log under `## Resolved` as an agent-made-this-call entry — not as a question. Only when the decision is irreversible, invisible, or genuinely undecidable from context does it become a `## Open Questions` Q.
+The decide-vs-ask judgment **belongs to the /query discipline**, not this skill. The short version of what /query enforces: if the choice is **reversible AND the user will see the wrong call and easily redirect**, the agent should decide and log under `## Resolved` as an agent-made-this-call entry — not as a question. Only when the decision is irreversible, invisible, or genuinely undecidable from context does it become a `## Open Questions` Q.
 
-See [[ask]] and [[DSC ask-format]] for the full lifecycle (Q-numbering, recommendation strength, Resolved migration, Q.md dashboard sync).
+See [[query]] and [[DSC ask-format]] for the full lifecycle (Q-numbering, recommendation strength, Resolved migration, Q.md dashboard sync).
 
 ### 6. Promote status
 
@@ -259,7 +259,7 @@ Audit rules to honor: [[FCT PRD#RULESET R-prd|R-prd]] (9 rules).
 - **Don't gate by separate ceremony.** Promotion to `MVP-agent` is a `state status set` call, not a Verify row or a banner. The user-grade `MVP-user` comes from natural-language confirmation.
 - **Don't ask "should we have a PRD?"** — `/design prd` was invoked. Author it (bootstrap) or assess it (existing).
 
-(For the decide-vs-ask judgment on open questions, defer to [[ask]] — that discipline owns the lifecycle, not this skill. For shape rules — body-only, no DC-N, no per-doc `status::`, no separate Open Questions file — defer to [[FCT PRD#RULESET R-prd|R-prd]]; the audit catches them mechanically.)
+(For the decide-vs-ask judgment on open questions, defer to [[query]] — that discipline owns the lifecycle, not this skill. For shape rules — body-only, no DC-N, no per-doc `status::`, no separate Open Questions file — defer to [[FCT PRD#RULESET R-prd|R-prd]]; the audit catches them mechanically.)
 
 ## Related
 
@@ -270,5 +270,5 @@ Audit rules to honor: [[FCT PRD#RULESET R-prd|R-prd]] (9 rules).
 - Sibling sub-skills: [[design-ux]], [[design-architect]], [[design-testing]], [[design-roadmap]]
 - Status tracking: [[FCT Status]]
 - Open-question discipline: [[DSC ask-format]]
-- Question authoring skill: `/ask --doc`
+- Question authoring skill: `/query --doc`
 - F130 (state script + central Status), F094 (Design folder restructure)

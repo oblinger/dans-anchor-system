@@ -7,7 +7,7 @@ Optional cold-storage counterpart to the Backlog — holds distant-future / some
 | -[[FCT Icebox]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Icebox](hook://p/FCT%20Icebox)<br>: optional file for distant-future / someday-maybe items |
 | --- | --- |
 | Related | [[FCT Backlog]],  [[FCT Roadmap]],  [[CAB Backlog]],  [[FCT Track]],   |
-| Examples | [[CAE Icebox\|example]] |
+| Examples | [[CAE Icebox\|example]],   |
 
 **Cardinality: one per anchor** — at most one `{NAME} Icebox.md` exists per anchor (and it is optional; most anchors do not have one).
 

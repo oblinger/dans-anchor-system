@@ -8,9 +8,9 @@ Curated, versioned bundles of rules. Each set is a standalone markdown doc bundl
 
 ## Five kinds of sets
 
-- **CAB-aligned umbrellas** — the three primary structural axes paralleling CAB's own categories: [[R-facet]] (per-facet), [[R-trait]] (per-trait), [[R-skill]] (per-skill). Each umbrella's `includes::` rolls up rulesets that eventually embed into the corresponding CAB spec file (`CAB Facets/<Facet>.md`, `CAB Traits/<Trait>.md`, or `~/.claude/skills/<skill>/SKILL.md`).
+- **CAB-aligned umbrellas** — the three primary structural axes paralleling CAB's own categories: [[R-facet]] (per-facet), [[R-trait]] (per-trait), [[R-skill]] (per-skill). Each umbrella's `includes::` rolls up rulesets that eventually embed into the corresponding CAB spec file (`CAB Facets/<Facet>.md`, `traits/<Trait>.md`, or `~/.claude/skills/<skill>/SKILL.md`).
 - **Cross-cutting / global** — not tied to a specific facet, trait, or skill (`R-arch`, `R-code`, `R-diagram`, `R-doc`, `R-git`, `R-process`, `R-test`). Pulled in when an anchor explicitly opts in. "Cross-cutting" and "global" mean essentially the same thing — global = not within a particular topic area.
-- **Trait-scoped** — children of [[R-trait]] (`R-paper`, `R-simple`, `R-skill-anchor`, `R-topic`). Activate when the anchor declares the matching Trait. Migrate into `CAB Traits/<Trait>.md` specs as content firms up.
+- **Trait-scoped** — children of [[R-trait]] (`R-paper`, `R-simple`, `R-skill-anchor`, `R-topic`). Activate when the anchor declares the matching Trait. Migrate into `traits/<Trait>.md` specs as content firms up.
 - **Owner-scoped** — pulled in by every anchor a given owner owns, regardless of trait (`R-ob` = Dan's personal set).
 - **Folder-file convention** — every `R-<name>/` folder contains an `R-<name>.md` folder-file RULESET (see below).
 
