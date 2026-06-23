@@ -4,7 +4,7 @@ Generate Tufte-grade static charts using `vizcharts.py`, a 1,162-line matplotlib
 
 ## Tool
 
-`vizcharts.py` lives at `~/ob/data/MyDesk/vizcharts.py` (subject to relocation per F034).
+`vizcharts.py` ships with this skill at `~/.claude/skills/viz/vizcharts.py`.
 
 ## Available chart types
 
@@ -24,7 +24,7 @@ Generate Tufte-grade static charts using `vizcharts.py`, a 1,162-line matplotlib
 ## Usage
 
 ```bash
-python3 ~/ob/data/MyDesk/vizcharts.py <chart_type> <input.json> --output <output.png> [--theme <theme>]
+python3 ~/.claude/skills/viz/vizcharts.py <chart_type> <input.json> --output <output.png> [--theme <theme>]
 ```
 
 Themes (after F034): `light` (default), `dark`, `neutral`.
