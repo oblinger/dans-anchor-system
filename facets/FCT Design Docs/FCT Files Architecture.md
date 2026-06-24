@@ -38,6 +38,16 @@ The tree/layout is **the** content; keep prose tight and let the structure table
 - [[FCT Architecture]] — the *system-architecture* design (subsystems, data flow, how parts interact). Files Architecture is its file-layout sibling; the two cross-reference but don't overlap.
 - [[FCT Module Doc]] — the per-module docs the realized tree links into.
 
+# By-name hierarchies (optional pattern)
+
+Some systems don't keep one tree — they split artifacts across **two or more by-name hierarchies** keyed on a shared **concept name** (e.g. a *verbs* pillar and a *nouns* pillar). When a Files Architecture uses this pattern it must state three things, because they are exactly what someone needs to place a new artifact without relitigating:
+
+- **Primary-placement rule** — *which* hierarchy a concept lands in, decided by **what it primarily is**; and that a concept which is *significantly both* is placed in **both**, under the same name, **cross-linked each way**. The shared concept-name is the correspondence key.
+- **Absence semantics** — a missing projection is a **deliberate signal** ("not governed / not applicable"), kept distinct from "forgotten" by the cross-link discipline (mastheads link only what exists, so a missing link reads as intentional).
+- **Non-hierarchies** — which artifact kinds are **assets** of a placed item (they nest under it) or shared **worlds** that items *point into*, rather than their own by-name hierarchy — so they aren't mistaken for another pillar.
+
+[[SKA File Tree Architecture]] § *Two hierarchies* is the worked instance: skills (verbs) + facets (nouns) as the two by-name pillars; scripts are skill assets; examples are coherent worlds pointed into (never a per-concept page).
+
 # RULESET R-files-architecture
 description:: the file-tree / content-structure design doc kind
 
@@ -69,11 +79,16 @@ description:: the file-tree / content-structure design doc kind
 **Check pattern:** any file-tree shown in the body renders via `cssclasses: monospace` (or equivalent), not wrapped in a ```` ``` ```` code fence — so wiki-links inside the tree stay live.
 **Why:** same load-bearing rule as [[FCT All Files]]: fencing a tree kills its links and turns the page into a dead zone.
 
+### RULE R-files-architecture-08 — By-name hierarchies state placement, absence, and non-hierarchies (stated)
+**Check pattern:** if the tree splits artifacts across two or more concept-name-keyed hierarchies, the doc states all three: (a) the primary-placement rule + dual-placement-with-cross-links for *significantly-both* concepts, (b) what a missing projection means, and (c) which artifact kinds are assets/worlds rather than their own hierarchy.
+**Why:** the entire value of by-name hierarchies is mechanical placement ("where does this go?"); without these three statements the split *adds* ambiguity instead of removing it.
+
 # BRIEF
 
 - **This is the facet spec for the Files Architecture doc kind** — the top-down design of a system's file/module/content layout. Instances (e.g. [[SKA File Tree Architecture]]) cite this page as authority; this page never holds a specific system's tree.
 - **Required parts are the target structure + its rationale** — everything else (naming, supersession, status/open-questions) is materialize-when-needed. The doc is a *design*, so the reasoning is as load-bearing as the layout.
 - **Sibling of [[FCT Architecture]], not a replacement** — Architecture = how subsystems interact; Files Architecture = where things live and why. Keep the boundary; cross-link, don't duplicate.
 - **It designs what [[FCT All Files]] realizes** — All Files is the concrete source tree (an instance with live module-doc links); Files Architecture is the spec that tree is built to. When they disagree, the architecture doc is the intended state and the tree is brought into line (or the architecture is revised deliberately).
+- **By-name hierarchies are an optional pattern with a three-part contract** — when a tree splits artifacts across concept-name-keyed pillars (verbs/nouns), it must state placement, absence-semantics, and which kinds are assets/worlds (not pillars). `R-files-architecture-08`. Worked instance: [[SKA File Tree Architecture]] § *Two hierarchies*.
 - **Required, per [[FCT Facet]]: this RULESET and this BRIEF.** Both present.
 - **No `module-doc` discipline yet** — the cross-cutting module-doc linking convention currently lives inside [[FCT All Files]] and [[FCT Module Doc]]; a `module-doc` discipline may be extracted later if it grows enough independent reference sites (per [[F165 — Files Architecture + Code facets (All Files, Module Doc)]] Q2).
