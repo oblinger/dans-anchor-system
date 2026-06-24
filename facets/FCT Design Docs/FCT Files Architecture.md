@@ -40,13 +40,13 @@ The tree/layout is **the** content; keep prose tight and let the structure table
 
 # By-name hierarchies (optional pattern)
 
-Some systems don't keep one tree — they split artifacts across **two or more by-name hierarchies** keyed on a shared **concept name** (e.g. a *verbs* pillar and a *nouns* pillar). When a Files Architecture uses this pattern it must state three things, because they are exactly what someone needs to place a new artifact without relitigating:
+Some systems don't keep one tree — they split artifacts across **two or more by-name indexes** keyed on a shared **concept name** (e.g. a *verbs* list and a *nouns* list, plus smaller ones). When a Files Architecture uses this pattern it must state three things, because they are exactly what someone needs to place a new artifact without relitigating:
 
-- **Primary-placement rule** — *which* hierarchy a concept lands in, decided by **what it primarily is**; and that a concept which is *significantly both* is placed in **both**, under the same name, **cross-linked each way**. The shared concept-name is the correspondence key.
-- **Absence semantics** — a missing projection is a **deliberate signal** ("not governed / not applicable"), kept distinct from "forgotten" by the cross-link discipline (mastheads link only what exists, so a missing link reads as intentional).
-- **Non-hierarchies** — which artifact kinds are **assets** of a placed item (they nest under it) or shared **worlds** that items *point into*, rather than their own by-name hierarchy — so they aren't mistaken for another pillar.
+- **One-list placement** — each concept is named in **exactly one** index, chosen by **what it primarily is**, and **never** in two. The entry points at the concept's single **dispatch page**, the hub that cross-links everything else. (No dual-listing: a concept with both a verb and a noun aspect is still listed once, in its primary list, with the other aspect reached from its page.)
+- **Satellites are unlisted** — a concept's sub-files (examples, a facet spec, scripts) exist freely but get **no index entry of their own**; the only place they're linked is the dispatch page, reached by direct link, not by browsing a list. Thin secondary content shouldn't even spawn a file — it lives on the dispatch page until it's substantial.
+- **Absence semantics** — a missing sub-file / cross-link is a **deliberate signal** ("not governed / not applicable"), kept distinct from "forgotten" by the cross-link discipline (a page links only what exists, so a missing link reads as intentional).
 
-[[SKA File Tree Architecture]] § *Two hierarchies* is the worked instance: skills (verbs) + facets (nouns) as the two by-name pillars; scripts are skill assets; examples are coherent worlds pointed into (never a per-concept page).
+[[SKA File Tree Architecture]] § *One concept, one list* is the worked instance: skills (verbs) + facets (nouns) as the two primary lists, traits + disciplines as smaller ones; each concept listed once; scripts and examples are un-listed satellites.
 
 # RULESET R-files-architecture
 description:: the file-tree / content-structure design doc kind
@@ -79,9 +79,9 @@ description:: the file-tree / content-structure design doc kind
 **Check pattern:** any file-tree shown in the body renders via `cssclasses: monospace` (or equivalent), not wrapped in a ```` ``` ```` code fence — so wiki-links inside the tree stay live.
 **Why:** same load-bearing rule as [[FCT All Files]]: fencing a tree kills its links and turns the page into a dead zone.
 
-### RULE R-files-architecture-08 — By-name hierarchies state placement, absence, and non-hierarchies (stated)
-**Check pattern:** if the tree splits artifacts across two or more concept-name-keyed hierarchies, the doc states all three: (a) the primary-placement rule + dual-placement-with-cross-links for *significantly-both* concepts, (b) what a missing projection means, and (c) which artifact kinds are assets/worlds rather than their own hierarchy.
-**Why:** the entire value of by-name hierarchies is mechanical placement ("where does this go?"); without these three statements the split *adds* ambiguity instead of removing it.
+### RULE R-files-architecture-08 — By-name indexes state one-list placement, unlisted satellites, and absence (stated)
+**Check pattern:** if the tree splits artifacts across two or more concept-name-keyed indexes, the doc states all three: (a) **one-list placement** — each concept named in exactly one index, never two, with a single dispatch page as the hub; (b) **satellites unlisted** — sub-files (examples, specs, scripts) carry no index entry and are reached only from the dispatch page; (c) what a missing sub-file / cross-link means.
+**Why:** the value of these indexes is mechanical placement and one navigable home per concept; dual-listing, or listing satellites, reintroduces exactly the ambiguity the split was meant to remove.
 
 # BRIEF
 
@@ -89,6 +89,6 @@ description:: the file-tree / content-structure design doc kind
 - **Required parts are the target structure + its rationale** — everything else (naming, supersession, status/open-questions) is materialize-when-needed. The doc is a *design*, so the reasoning is as load-bearing as the layout.
 - **Sibling of [[FCT Architecture]], not a replacement** — Architecture = how subsystems interact; Files Architecture = where things live and why. Keep the boundary; cross-link, don't duplicate.
 - **It designs what [[FCT All Files]] realizes** — All Files is the concrete source tree (an instance with live module-doc links); Files Architecture is the spec that tree is built to. When they disagree, the architecture doc is the intended state and the tree is brought into line (or the architecture is revised deliberately).
-- **By-name hierarchies are an optional pattern with a three-part contract** — when a tree splits artifacts across concept-name-keyed pillars (verbs/nouns), it must state placement, absence-semantics, and which kinds are assets/worlds (not pillars). `R-files-architecture-08`. Worked instance: [[SKA File Tree Architecture]] § *Two hierarchies*.
+- **By-name indexes are an optional pattern with a three-part contract** — when a tree splits artifacts across concept-name-keyed indexes (verbs / nouns / …), it must state one-list placement (each concept in exactly one index), that satellites are unlisted, and absence-semantics. `R-files-architecture-08`. Worked instance: [[SKA File Tree Architecture]] § *One concept, one list*.
 - **Required, per [[FCT Facet]]: this RULESET and this BRIEF.** Both present.
 - **No `module-doc` discipline yet** — the cross-cutting module-doc linking convention currently lives inside [[FCT All Files]] and [[FCT Module Doc]]; a `module-doc` discipline may be extracted later if it grows enough independent reference sites (per [[F165 — Files Architecture + Code facets (All Files, Module Doc)]] Q2).

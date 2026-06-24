@@ -4,7 +4,7 @@ description: How auditing works — design rationale, tool chain, and examples
 # SKL Audit Guide
 ## Philosophy
 
-| -[[SKL Audit]]- | → [[KM]] → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Hygiene]] → [SKL Audit](hook://p/SKL%20Audit)<br>: the `/audit` skill |
+| -[[SKL Audit]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Hygiene]] → [SKL Audit](hook://p/SKL%20Audit)<br>: the `/audit` skill |
 | --- | --- |
 | Related | [[skills/audit/SKILL.md\|SKILL]],   |
 | [[SKL Audit Design\|Design]] |  |
@@ -66,8 +66,9 @@ Use `--recheck` for a full pass when you suspect the incremental check missed so
 
 ## Examples & related artifacts
 
-Per the one-page-per-concept model ([[SKA File Tree Architecture]] § Two hierarchies), `audit` lives **primarily as a skill**; its satellites are reached from here, not from a separate facet-index entry:
+Per the one-concept-one-list model ([[SKA File Tree Architecture]] § One concept, one list), `audit` is listed **once, as a skill (a verb)**; its satellites are reached from here:
 
-- **Examples** — the `examples/Audited/` world: real artifacts (Architecture, PRD, Decisions, Stories, Testing) in their audited form. This is the FEX fixture for what `/audit` produces and checks; specific example audit-run docs are added there and linked from this page (never a standalone `FEX Audit` index entry).
-- **Facet (candidate)** — [[FCT Audit]] stubs what an audit *report* would have to contain. It is **intentionally not in the facets index**: audit's noun-aspect is light, so it stays a satellite of this page until (and unless) it becomes a substantial, independently-referenced spec.
+- **Examples** — the `examples/Audited/` world: real artifacts (Architecture, PRD, Decisions, Stories, Testing) in their audited form — the FEX fixture for what `/audit` produces and checks. Specific example audit-run docs are added there and linked from this page (never a standalone `FEX Audit` index entry).
 - **Scripts** — `skills/audit/scripts/` (audit's mechanism; assets of this skill).
+
+**No separate facet.** Audit's noun-aspect — what a recorded audit report would contain — is too light to warrant its own `FCT Audit` file. Per the model, thin noun-content stays here on the skill page rather than spawning a facet; a facet is minted only if that spec ever becomes substantial and independently referenced.
