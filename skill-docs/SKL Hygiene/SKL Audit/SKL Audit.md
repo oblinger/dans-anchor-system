@@ -4,7 +4,7 @@ description: How auditing works — design rationale, tool chain, and examples
 # SKL Audit Guide
 ## Philosophy
 
-| -[[SKL Audit]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Hygiene]] → [SKL Audit](hook://p/SKL%20Audit)<br>: the `/audit` skill |
+| -[[SKL Audit]]- | → [[KM]] → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Hygiene]] → [SKL Audit](hook://p/SKL%20Audit)<br>: the `/audit` skill |
 | --- | --- |
 | Related | [[skills/audit/SKILL.md\|SKILL]],   |
 | [[SKL Audit Design\|Design]] |  |
@@ -63,3 +63,11 @@ Use `--recheck` for a full pass when you suspect the incremental check missed so
 ## Connection to Rules
 
 `/audit rules` delegates entirely to `/rule check --all`. The rule system has its own exception tracking (EX numbers, grades, For/Against). Audit just triggers it.
+
+## Examples & related artifacts
+
+Per the one-page-per-concept model ([[SKA File Tree Architecture]] § Two hierarchies), `audit` lives **primarily as a skill**; its satellites are reached from here, not from a separate facet-index entry:
+
+- **Examples** — the `examples/Audited/` world: real artifacts (Architecture, PRD, Decisions, Stories, Testing) in their audited form. This is the FEX fixture for what `/audit` produces and checks; specific example audit-run docs are added there and linked from this page (never a standalone `FEX Audit` index entry).
+- **Facet (candidate)** — [[FCT Audit]] stubs what an audit *report* would have to contain. It is **intentionally not in the facets index**: audit's noun-aspect is light, so it stays a satellite of this page until (and unless) it becomes a substantial, independently-referenced spec.
+- **Scripts** — `skills/audit/scripts/` (audit's mechanism; assets of this skill).
