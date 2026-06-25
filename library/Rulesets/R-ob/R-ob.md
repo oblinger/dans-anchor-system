@@ -1,5 +1,5 @@
 ---
-description: Umbrella folder-file for Ob's rulesets — applies to every project Dan owns regardless of trait. Children listed in the dispatch table below and rolled up via `includes::`. Commit-discipline and em-dash rules pending capture as separate rulesets.
+description: Umbrella folder-file for Ob's rulesets — applies to every project Dan owns regardless of trait. Children listed in the dispatch table below and rolled up via `include::`. Commit-discipline and em-dash rules pending capture as separate rulesets.
 applies-when: every project Dan owns (cross-cutting, not trait-scoped).
 set-id: OB
 ---
@@ -12,8 +12,8 @@ set-id: OB
 | --- | |
 
 # RULESET R-ob
-description:: Umbrella folder-file for Ob's rulesets — applies to every anchor Dan owns. Children rolled up via `includes::` below. The markdown rule formerly here (D-OB01) moved to [[R-md]] under [[R-doc]] (2026-06-09) since it's not Ob-specific. Commit-discipline and em-dash rules pending capture as their own rulesets.
-includes:: [[R-ob-cmd-proc]], [[R-ob-observability]], [[R-ob-state-mgt]]
+description:: Umbrella folder-file for Ob's rulesets — applies to every anchor Dan owns. Children rolled up via `include::` below. The markdown rule formerly here (D-OB01) moved to [[R-md]] under [[R-doc]] (2026-06-09) since it's not Ob-specific. Commit-discipline and em-dash rules pending capture as their own rulesets.
+include:: [[R-ob-cmd-proc]], [[R-ob-observability]], [[R-ob-state-mgt]]
 
 
 # Notes

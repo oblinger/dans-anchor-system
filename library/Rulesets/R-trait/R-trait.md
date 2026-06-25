@@ -1,9 +1,9 @@
 # RULESET R-trait
 description:: Umbrella ruleset aggregating the per-trait rulesets — rulesets that activate when an anchor declares the matching Trait in its `.anchor`. Parallel to [[R-facet]] (per-facet) and [[R-skill]] (per-skill).
-includes:: [[R-paper]], [[R-simple]], [[R-skill-anchor]], [[R-topic]]
+include:: [[R-paper]], [[R-simple]], [[R-skill-anchor]], [[R-topic]]
 
 > [!info] How this set is wired
-> Per the 2026-06-09 design: each CAB Trait spec file (`traits/<Trait Name>.md`) will carry a `# RULESET R-<trait>` second-H1 block with the trait's structural rules — co-located with the prose that defines the Trait. This file is the catalog-side umbrella that walks all those trait-scoped rulesets via `includes::` so adopters get a single name to pull.
+> Per the 2026-06-09 design: each CAB Trait spec file (`traits/<Trait Name>.md`) will carry a `# RULESET R-<trait>` second-H1 block with the trait's structural rules — co-located with the prose that defines the Trait. This file is the catalog-side umbrella that walks all those trait-scoped rulesets via `include::` so adopters get a single name to pull.
 >
 > Today, the per-trait sets still sit as folder-files at the top of the Rulesets catalog (`R-paper/`, `R-simple/`, `R-skill-anchor/`, `R-topic/`). As each one's content firms up, it migrates into the corresponding `traits/<Trait Name>.md` spec as an embedded RULESET block — exactly the pattern facet rulesets follow with CAB Facet specs.
 

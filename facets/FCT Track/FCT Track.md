@@ -8,3 +8,20 @@ The the work-surface facets (centralized in SKA per D08, but specified here).
 | -[[FCT Track]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [FCT Track](hook://p/FCT%20Track)<br>: the work-surface facets (centralized in SKA per D08, but specified here) |
 | --- | --- |
 | Facets | [[Backlog]],  [[FCT Features\|Features]],  [[FCT Inbox\|Inbox]],  [[FCT Icebox\|Icebox]],  [[FCT Messages\|Messages]],  [[FCT Log\|Log]],  [[FCT Triage\|Triage]],  [[FCT Status\|Status]],   |
+
+# RULESET R-track-group
+include::
+where:: anchor
+description:: the FCT Track family index — the work-surface facet group page
+
+What `/audit` checks on this facet-group index page. It is a grouped-Container anchor page (chassis governed by `R-anchor-page`); the rules here are the **group-membership** invariants for the work-surface facet family. Format of this set: [[FCT Ruleset]].
+
+### RULE R-track-group-01 — The Facets row indexes every work-surface facet (checked)
+
+The `Facets` row links every track / work-surface facet (Backlog, Features, Inbox, Icebox, Messages, Log, Triage, Status), and each member's breadcrumb routes through this page.
+
+**Check pattern:** the `Facets`-row link set equals the work-surface facet files under `FCT Track/`; each member breadcrumb passes through `[[FCT Track]]`.
+
+### RULE R-track-group-02 — Specifies the work surfaces; SKA owns the instances (stated)
+
+This family *specifies* the work-surface facets, but the live tracking instances for the skills ecosystem are centralized on the shared SKA surface ([[SKA Decisions|D08]]) — SKA sub-projects carry no `{NAME} Track/` of their own.

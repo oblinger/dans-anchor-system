@@ -4,7 +4,7 @@ description: "Curated, versioned bundles of rules."
 
 # Rulesets
 
-| -[[Rulesets]]- | → [[KM]] → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [Rulesets](hook://p/Rulesets)<br>: Curated, versioned bundles of rules. |
+| -[[Rulesets]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [Rulesets](hook://p/Rulesets)<br>: Curated, versioned bundles of rules. |
 | --- | --- |
 | Related | [[Rulesets Brief\|Brief]],  [[FCT Ruleset]],  [[FCT Decisions]],   |
 | **CAB-aligned umbrellas** | The three primary structural axes — rulesets tied to CAB Facets, Traits, Skills. Adopting an umbrella pulls every per-X ruleset under it. |
@@ -22,6 +22,7 @@ description: "Curated, versioned bundles of rules."
 | **Owner-scoped** | Apply to every anchor a given owner owns, regardless of trait. |
 | [[R-ob]] | Dan's personal Ob-flavored rulesets. Children: [[R-ob-state-mgt]] (3 rules), [[R-ob-observability]] (2 rules), [[R-ob-cmd-proc]] (13 rules). |
 | --- | |
+| [[Diagram]] | Diagram authoring + validation — **umbrella over 7 methodology sub-sets, 22 rules total**: |
 | [[R-anchor]] | Everything checked when auditing a whole anchor — the entry page + naming + planning facets, plus the doc-level rulesets (via R-doc) for every document the anchor contains. |
 | [[R-brief]] | Rules for the Brief doc facet — agent-facing per-file maintenance content (inline `# BRIEF` or `<Name> Brief.md` sidecar). Canonical body embedded in |
 | [[R-messages]] | Rules for the {NAME} Messages facet — the agent's per-anchor background-process inbox, distinct from the user's Inbox. Canonical body embedded in |

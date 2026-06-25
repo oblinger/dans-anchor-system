@@ -1,6 +1,6 @@
 # RULESET R-skill-anchor
 description:: Skill-anchor trait-scoped rulesets — apply to anchors that declare the `Skill` trait in `.anchor`. Structural shape of skill folders, ask-format / verification / mode-style conventions specific to skill anchors. Sits under the [[R-trait]] umbrella.
-includes::
+include::
 
 (Placeholder — speculative; trait-scoped scaffolding for the skill-anchor trait. Long-term, content here moves into the Skill-Anchor Trait spec embedded as a `# RULESET R-skill-anchor` block, in the same pattern facet rulesets embed into CAB Facet specs.)
 

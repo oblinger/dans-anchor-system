@@ -42,7 +42,7 @@ description: CLI command reference for {app-name}
 ```
 {app-name} --help                                                 # Show this help text
 {app-name} --version                                              # Print version
-{app-name} submit --deadline <time> [--retry N] -- <cmd>          # Enqueue a task at the deadline
+{app-name} submit --deadline <time> [--retry N] — <cmd>          # Enqueue a task at the deadline
 {app-name} status [--json] [--filter <state>]                     # Show task states and queue depth
 {app-name} cancel <task-id>                                       # Cancel a pending task
 {app-name} drain [--timeout <sec>]                                # Wait for all pending tasks
@@ -57,7 +57,7 @@ Enqueue a task for execution at or after a deadline.
 
 **Usage:**
 ```
-{app-name} submit --deadline <ISO-8601> [--retry <N>] [--priority <0-9>] -- <command> [args...]
+{app-name} submit --deadline <ISO-8601> [--retry <N>] [--priority <0-9>] — <command> [args...]
 ```
 
 **Flags:**
@@ -78,7 +78,7 @@ Enqueue a task for execution at or after a deadline.
 
 **Example:**
 ```bash
-{app-name} submit --deadline 2026-04-21T15:00:00 --retry 5 -- ./build.sh
+{app-name} submit --deadline 2026-04-21T15:00:00 --retry 5 — ./build.sh
 # → t-4f2
 ```
 
@@ -98,6 +98,7 @@ Print current scheduler state and task list.
 | 1    | Usage error — bad flags, missing args, invalid values.    |
 | 2    | Runtime error — scheduler down, DB locked, permission.    |
 | 64   | Configuration error — invalid config file.                |
+
 ```
 
 ---
@@ -204,6 +205,51 @@ Applications with only a one-shot entry point (e.g., `tool --input FILE --output
 - **Create** when the CLI surface becomes non-trivial — typically right after the first user-facing release
 - **Update** with every new command, flag, or exit code — the CLI doc is generated or hand-written, but either way it must reflect what the binary actually does
 - `/audit docs` can cross-check the CLI doc against `--help` output if the CLI supports a machine-readable help mode
+
+# RULESET R-cli
+include::
+where:: file:{ANCHOR}/**/{NAME} CLI.md
+description:: the `{NAME} CLI.md` command-reference format
+
+What `/audit docs` checks on a CLI reference doc. Optional — only an anchor that ships a CLI carries one. Format of this set: [[FCT Ruleset]].
+
+### RULE R-cli-01 — Lives at `{NAME} Docs/{NAME} User/{NAME} CLI.md` (checked)
+
+The CLI reference is a user-facing doc at the fixed path under `{NAME} User/`.
+
+**Check pattern:** the file's basename is `{slug} CLI.md` and its parent chain includes `{slug} User`.
+
+**Why:** readers reach for it as a reference; it lives beside the tutorial [[CAB User Guide]].
+
+### RULE R-cli-02 — Help block is the first content under the H1 (checked)
+
+Directly under the `# {NAME} CLI` H1 + dispatch-table placeholder, the very next content is the fenced help code block — no intro paragraph, no Synopsis section, nothing between the dispatch table and the fence.
+
+**Check pattern:** the first non-frontmatter, non-table block after the H1 is a fenced code block (` ``` `), not prose.
+
+**Why:** the help block is the reader's single-page reference; preamble buries it (the non-negotiable rule, § The Help Block).
+
+### RULE R-cli-03 — Help block is complete, one line per command, trailing `# comment` (checked)
+
+Inside the fence: every command the binary exposes (including `--help` and `--version`), one per line, each with an aligned trailing `# comment` stating its one-line purpose. Multi-line invocations are disallowed in the block.
+
+**Check pattern:** every non-blank line in the help fence is a single command with a `#` comment; comments are column-aligned.
+
+### RULE R-cli-04 — No wiki-links inside the help block (checked)
+
+The help fence carries no `[[…]]` links — code fences don't render them; navigation links go on the line immediately after the block.
+
+**Check pattern:** no `[[…]]` token appears between the help fence's open and close.
+
+### RULE R-cli-05 — Per-command H2 has Usage / Flags / Exit codes / Example (sampled)
+
+Each command gets an H2 with the same shape: one-line description, a `**Usage:**` code block, a 4-column `**Flags:**` table (`Flag | Type | Default | Description`), command-specific `**Exit codes:**` (or fall back to global), and at least one realistic `**Example:**`.
+
+**Check pattern:** sample a per-command H2; confirm the Usage / Flags / Example sub-sections are present in that order.
+
+### RULE R-cli-06 — A global exit-code table is present (stated)
+
+The doc carries an app-level `## Exit Codes (global)` table in addition to any per-command exit codes.
 
 # BRIEF
 

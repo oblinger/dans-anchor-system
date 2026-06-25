@@ -5,7 +5,7 @@ description: Index of every Facet — the narrow, usually-file-based Aspects an 
 # FCT Facets
 Facets are one of the two sibling sub-categories of [[CAB Aspects|Aspect]] (the other is [[TRT|Trait]]). Each Facet is a narrow, specific aspect of an anchor — almost always tied to one or more files. Each spec doc under this folder is authoritative for its Facet's detection mechanism, cardinality, format constraints, behavior, Constraints, and Expected Usage (per [[CAB Aspects]] § Facet + § Spec-doc structure).
 
-| -[[FCT Facets]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Primitives]] → [FCT Facets](hook://p/FCT%20Facets)<br>:  |
+| -[[FCT Facets]]- | → [[KM]] → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Primitives]] → [FCT Facets](hook://p/FCT%20Facets)<br>:  |
 | --- | --- |
 | [[FCT Primitives\|Primitives]] | [[FCT Skill\|Skill]],  [[FCT Facet\|Facet]],  [[CAB Disciplines\|Discipline]],  [[FCT Ruleset\|Ruleset]],  [[TRT\|Trait]],   |
 | Structure | [[CAB Folder\|Folder]],  [[CAB Anchor Page\|Anchor Page]],  [[CAB All Files\|All Files]],  [[CAB Docs\|Docs Hub]],  [[CAB Plan Dispatch\|Plan Dispatch]],  [[CAB Dev Dispatch\|Dev Dispatch]],  [[CAB User Dispatch\|User Dispatch]],   |

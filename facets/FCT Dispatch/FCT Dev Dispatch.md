@@ -79,6 +79,45 @@ The following used to live in Dev and have moved to User as part of the synthesi
 
 If an audit finds either in Dev, that's a **dev-synthesis-misplaced** finding — migrate to User.
 
+# RULESET R-dev-dispatch
+include::
+where:: file:{ANCHOR}/**/{NAME} Dev.md
+description:: the `{NAME} Dev.md` developer-docs dispatch page
+
+What `/audit docs` checks on the Dev dispatch page. Cardinality: one per code anchor. Format of this set: [[FCT Ruleset]].
+
+### RULE R-dev-dispatch-01 — Lives at `{NAME} Docs/{NAME} Dev/{NAME} Dev.md` (checked)
+
+The Dev dispatch page sits inside the `{NAME} Dev/` folder.
+
+**Check pattern:** the file's basename is `{slug} Dev.md` and its parent is `{slug} Dev`.
+
+### RULE R-dev-dispatch-02 — First content row is the Files link (checked)
+
+For a code anchor, the first dispatch row links `[[{NAME} Files]]` — the audit-generated repository file tree.
+
+**Check pattern:** the first non-breadcrumb row links `{slug} Files`.
+
+### RULE R-dev-dispatch-03 — Module rows are grouped by source folder with bold headers (sampled)
+
+Per-module doc rows mirror the source tree: each source folder gets a bold header row (e.g. `**engine/**`) followed by its module-doc entries.
+
+**Check pattern:** module rows appear under bold folder-header rows matching the source-tree grouping.
+
+### RULE R-dev-dispatch-04 — Ends with a `---` auto-management separator (checked)
+
+A `---` row enables auto-listing of remaining module docs.
+
+**Check pattern:** the dispatch table contains a `---` auto-list separator row.
+
+### RULE R-dev-dispatch-05 — No Interface or Architecture rows — those are User-zone (checked)
+
+Dev is audit-tied (Files + per-module docs); the synthesis docs Interface and Architecture live under `{NAME} User/`, not here. Either appearing in Dev is a dev-synthesis-misplaced finding.
+
+**Check pattern:** the Dev dispatch lists no Interface or Architecture row.
+
+**Why:** the Dev/User split keeps machine-checkable reference separate from human-authored synthesis (F060).
+
 # BRIEF
 
 - **This file is the CAB facet spec for the Dev dispatch page** — it defines the shape and contents of `{NAME} Dev.md`. Edit here when the Dev-dispatch contract changes (new required rows, structural conventions, location moves).

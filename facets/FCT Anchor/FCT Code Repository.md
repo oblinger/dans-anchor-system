@@ -176,6 +176,41 @@ and pushed to the repo. Do not edit the `docs/user/` or `docs/dev/`
 folders in the repo directly — `sync-push` will detect conflicts and
 refuse to overwrite if target files have been modified.
 
+# RULESET R-code-repository
+include::
+where:: file:{ANCHOR}/.anchor
+description:: how an anchor declares & resolves its associated code repository
+
+What `/audit` checks on a `code`-trait anchor's repository association. Format of this set: [[FCT Ruleset]].
+
+### RULE R-code-repository-01 — A `code`-trait anchor declares `code:` in `.anchor` (checked)
+check:: anchor_has code
+
+An anchor with the `code` trait carries a `code:` key in its `.anchor`; its presence *is* the declaration that code belongs to this anchor.
+
+**Check pattern:** if `traits` contains `code`, assert a non-empty `code:` key in `.anchor`.
+
+**Why:** the `code:` key is the single source of truth — there is no `Code` symlink and no path-convention fallback.
+
+### RULE R-code-repository-02 — No implicit fallback when `code:` is absent (checked)
+check:: no_git_probe_fallback
+
+A `code`-trait anchor with no `code:` key is an error — scripts must fail, never probe for `.git/` at the anchor root or look up a legacy `Code` symlink.
+
+**Check pattern:** resolver errors (does not silently locate a repo) when the trait is present but `code:` is missing.
+
+**Why:** silent fallbacks hide misconfiguration; the spec forbids them generally.
+
+### RULE R-code-repository-03 — Relative `code:` resolves against the anchor root (stated)
+
+An absolute `code:` value is used as-is; a relative value resolves against the **anchor root** (the folder holding `.anchor`), not the caller's cwd; `code: .` is inline mode (repo == anchor root, `.git/` beside `.anchor`).
+
+### RULE R-code-repository-04 — Doc sync flows one way, vault → repo (stated)
+
+`{NAME} User/` and `{NAME} Dev/` doc folders are sync-pushed into the repo's lowercase `docs/user/` and `docs/dev/`; the repo copies are never hand-edited — `sync-push` refuses to overwrite a modified target.
+
+**Why:** docs are authored in the vault; a reverse path would create two sources of truth.
+
 # BRIEF
 
 - **This is a CAB facet spec, not a per-anchor record.** Rules here describe how *any* anchor with the `code` trait declares and resolves its repository — never inline a specific anchor's `code:` value or repo path as canonical content; use [[CAE example]] (or similar) as a worked reference instead.

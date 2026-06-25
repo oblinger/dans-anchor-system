@@ -1,6 +1,6 @@
 # RULESET R-md
 description:: Markdown rules — files render correctly across CommonMark renderers, with attention to Obsidian-specific gotchas. Adopt when authoring any .md file.
-includes::
+include::
 
 ### RULE R-md-01 — Angle brackets need surrounding whitespace (checked)
 

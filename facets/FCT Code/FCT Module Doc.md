@@ -158,6 +158,7 @@ Rules:
 After the file overview, a 2-column SECTIONS table indexes the classes (and any other sections) the document covers.
 
 ```markdown
+
 | SECTIONS                                                   | Role                                                            |
 | ---------------------------------------------------------- | --------------------------------------------------------------- |
 | [[#^TaskScheduler\|TaskScheduler]] class                   | Priority queue engine that orchestrates deferred task execution |
@@ -165,6 +166,7 @@ After the file overview, a 2-column SECTIONS table indexes the classes (and any 
 | [[#^TaskHandle\|TaskHandle]] class                         | Async result handle returned by `submit()`                      |
 | [[#^TaskState\|TaskState]] enum                            | Lifecycle states for a task                                     |
 | [[#^SchedulerStatus\|SchedulerStatus]] class               | Immutable snapshot of the scheduler's current state             |
+
 ```
 
 Rules:
@@ -251,6 +253,7 @@ Priority queue engine that orchestrates deferred task execution. Owns the worker
 | **Methods**                                                                                  |                                        |
 | **[[#^TaskScheduler-submit\|submit]]**`(task: Callable, deadline: datetime) -> TaskHandle`   | Enqueue a task with a deadline         |
 | **[[#^TaskScheduler-cancel\|cancel]]**`(handle: TaskHandle) -> bool`                         | Cancel a pending task by handle        |
+
 ```
 
 Rules for the H2:
@@ -496,12 +499,57 @@ module_docs_audited: 2026-05-19
 Every module doc's dispatch table (when present) carries an **`Arch` row** maintained by `[[skills/architect/SKILL\|/architect]]`:
 
 ```
+
 | Arch | [[{NAME} <Subsystem> Arch]] |       ← architect-managed
+
 ```
 
 The `Arch` row points to the **most-specific** architecture destination — the per-module arch doc if one exists, otherwise the subsystem arch doc, otherwise the top-level `{NAME} Architecture.md` (single-subsystem case). Every module doc has exactly one such row. See `[[FCT Architecture]]` § Bidirectional cross-linking.
 
 (In the new format demonstrated by `CAE Scheduler.md`, the breadcrumb `:>>` line carries the cross-references explicitly and the dispatch-table `Arch` row is optional. Use whichever shape matches the rest of the anchor.)
+
+# RULESET R-module-doc
+include::
+where:: file:{ANCHOR}/**/{NAME} Dev/**/{NAME} *.md
+description:: per-module source documentation — one doc per source module under `{NAME} Dev/`
+
+What `/audit module-doc` checks on a module doc. Cardinality: many — one per source module, mirroring the repo tree. Format of this set: [[FCT Ruleset]].
+
+### RULE R-module-doc-01 — Doc tree mirrors the source tree under `{NAME} Dev/` (checked)
+
+Every source directory gets a parallel `{NAME} {dir}/` folder under `{NAME} Dev/`; every source file with public API gets a `{NAME} {ClassName}.md` named after its **primary class**, not the filename. All files/folders carry the `{NAME}` prefix.
+
+**Check pattern:** for each module doc, a corresponding source module exists at the mirrored path; the doc name matches the primary class.
+
+### RULE R-module-doc-02 — Two zones: Overview then Class Method Details (checked)
+
+A module doc has an Overview zone (frontmatter, H1+brief, SECTIONS table, per-class overview sections with class tables — no method-body prose) and a `# Class Method Details` zone (per-class deep-dive H2s with concept H3s and per-method H3s).
+
+**Check pattern:** the doc has exactly two H1s — `# {NAME} {ModuleName}` and `# Class Method Details`; no method-body prose appears in the overview zone.
+
+### RULE R-module-doc-03 — SECTIONS table indexes each section with a typed block-ID link (checked)
+
+After the file overview, a 2-column `SECTIONS` table (header literally `SECTIONS`, not `CLASSES`) lists each section: column 1 is a block-ID wiki-link plus a trailing lowercase type word (`class`, `enum`, `topic`, …); column 2 is a one-line role.
+
+**Check pattern:** the index table's header is `SECTIONS`; each row's first cell is `[[#^id\|Name]] <type>`.
+
+### RULE R-module-doc-04 — Method links bold-wrap the link with the tail as a separate code span (checked)
+
+Class-table method rows use `**[[#^Class-method\|method]]**\`(args) -> Return\`` — bold wraps the wiki-link, the alias is plain text (NO backticks inside the alias), the signature tail is a separate code span. Method block-IDs are `^ClassName-methodname`.
+
+**Check pattern:** no method-row link puts backticks inside the alias; every method block-ID is class-prefixed.
+
+**Why:** backticks inside a wiki-link alias do not render in Obsidian — the literal asterisks and backticks show.
+
+### RULE R-module-doc-05 — Figures are SVG only, authored via `[[viz-excalidraw]]` (checked)
+
+The top-of-doc figure is an SVG co-located with the doc (`{NAME} {ModuleName}.svg`), embedded `![[{NAME} {ModuleName}.svg]]`, authored from a sibling `.excalidraw` source via the viz workflow. Mermaid and ASCII-art-in-fences are forbidden.
+
+**Check pattern:** any embedded figure is `.svg` (not mermaid, not an ASCII fence); an `.excalidraw` source sits beside it.
+
+### RULE R-module-doc-06 — Module doc is linked into Dev + Files dispatch before authoring (stated)
+
+Before writing a module doc, add its row to `{NAME} Dev.md` (Dev dispatch) and to `{NAME} Files.md` (Files tree). An unlinked module doc is invisible.
 
 # BRIEF
 

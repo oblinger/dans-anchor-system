@@ -201,6 +201,43 @@ Distinct from the `SKILL.md` runbook specified above: every skill also has a **d
 
 A skill anchor — like **every** SKA sub-project anchor — **owns its own design but never its own tracking.** Activity-tracking for the whole skills ecosystem is centralized on the shared SKA surface ([[SKA Decisions|D08]]); a skill carries a `{NAME} Design/` folder (minimum: just an `.anchor`, growing as design docs are earned), **no `{NAME} Track/`**, and **no `{NAME} Status.md`** (design-phase completeness is tracked only for SKA-the-project, not per sub-project). **Facets ([[FCT Facet]]) and disciplines share this exact strategy** — the single normative rule lives on the anchor-page facet as `R-anchor-page-subproject` ([[FCT Anchor Page]]); this section is the skill-facet pointer to it. The design surface is flat (`{NAME} Design/` directly under the anchor, no `{NAME} Docs/` wrapper).
 
+# RULESET R-skill-md
+include::
+where:: file:{ANCHOR}/SKILL.md
+description:: the `SKILL.md` entry-point structure for a Claude Code skill
+
+What `/audit` checks on a skill's `SKILL.md` entry point. Cardinality: one per skill anchor. Format of this set: [[FCT Ruleset]].
+
+### RULE R-skill-md-01 — Frontmatter declares name / description / tools / user_invocable (checked)
+
+`SKILL.md` opens with YAML frontmatter carrying the required fields `name`, `description`, `tools`, and `user_invocable`.
+
+**Check pattern:** frontmatter parses; all four keys are present and non-empty.
+
+### RULE R-skill-md-02 — Sections appear in the fixed order (checked)
+
+The body follows the fixed sequence: Title (`# {NAME} — {Full Name}`) → Brief → optional dispatch table → Actions → Reference → optional Topics → optional Scripts → Dispatch protocol.
+
+**Check pattern:** the H1/H2 sequence is a subsequence of that fixed order; no foreign top-level section interleaves.
+
+### RULE R-skill-md-03 — Ends with the 4-step dispatch protocol (checked)
+
+`SKILL.md` ends with the standard dispatch protocol: parse the argument, look up the file in the Actions table, read + execute it, else show the dispatch table.
+
+**Check pattern:** a `## Dispatch` section is the final section and enumerates the 4 steps.
+
+### RULE R-skill-md-04 — Action files are lowercase-hyphenated `{name}-{action}.md` (checked)
+
+Each action referenced in the Actions table is its own file named `{name}-{action}.md` (lowercase, hyphenated); reference-data files keep their original names — the casing distinguishes actions from reference data.
+
+**Check pattern:** every Actions-table target resolves to a `{name}-*.md` file in the skill root.
+
+### RULE R-skill-md-05 — A discipline (`user_invocable: false`) ships a parallel user doc and a no-slash H1 (checked)
+
+A discipline carries `user_invocable: false`, no Actions table, a parallel user-facing doc at `SKL User Docs/SKL Skills/SKL <Name>.md`, and a `# Name Discipline` user-doc H1 (no slash — a slash would imply it's invocable).
+
+**Check pattern:** if `user_invocable: false`, assert the parallel `SKL <Name>.md` exists and its H1 is `# {Name} Discipline`.
+
 # BRIEF
 
 - **This is the CAB facet spec for SKILL.md** — the authority on the required frontmatter fields, fixed section order, and dispatch-protocol footer that every Claude Code skill entry-point file must conform to. Edits here change the contract every skill in `~/.claude/skills/` is audited against.

@@ -8,7 +8,7 @@ Curated, versioned bundles of rules. Each set is a standalone markdown doc bundl
 
 ## Five kinds of sets
 
-- **CAB-aligned umbrellas** — the three primary structural axes paralleling CAB's own categories: [[R-facet]] (per-facet), [[R-trait]] (per-trait), [[R-skill]] (per-skill). Each umbrella's `includes::` rolls up rulesets that eventually embed into the corresponding CAB spec file (`CAB Facets/<Facet>.md`, `traits/<Trait>.md`, or `~/.claude/skills/<skill>/SKILL.md`).
+- **CAB-aligned umbrellas** — the three primary structural axes paralleling CAB's own categories: [[R-facet]] (per-facet), [[R-trait]] (per-trait), [[R-skill]] (per-skill). Each umbrella's `include::` rolls up rulesets that eventually embed into the corresponding CAB spec file (`CAB Facets/<Facet>.md`, `traits/<Trait>.md`, or `~/.claude/skills/<skill>/SKILL.md`).
 - **Cross-cutting / global** — not tied to a specific facet, trait, or skill (`R-arch`, `R-code`, `R-diagram`, `R-doc`, `R-git`, `R-process`, `R-test`). Pulled in when an anchor explicitly opts in. "Cross-cutting" and "global" mean essentially the same thing — global = not within a particular topic area.
 - **Trait-scoped** — children of [[R-trait]] (`R-paper`, `R-simple`, `R-skill-anchor`, `R-topic`). Activate when the anchor declares the matching Trait. Migrate into `traits/<Trait>.md` specs as content firms up.
 - **Owner-scoped** — pulled in by every anchor a given owner owns, regardless of trait (`R-ob` = Dan's personal set).
@@ -30,7 +30,7 @@ The relationship:
 
 ## Folder-file convention
 
-Every ruleset folder named `R-<name>/` contains a folder-file `R-<name>.md` that is itself a RULESET. The folder-file's `includes::` line rolls up all child rulesets in the folder. Adopting the folder umbrella (e.g., `include:: [[R-code]]`) is equivalent to adopting every child set; cherry-pick individual children for finer control.
+Every ruleset folder named `R-<name>/` contains a folder-file `R-<name>.md` that is itself a RULESET. The folder-file's `include::` line rolls up all child rulesets in the folder. Adopting the folder umbrella (e.g., `include:: [[R-code]]`) is equivalent to adopting every child set; cherry-pick individual children for finer control.
 
 ## Pull semantics
 
@@ -50,7 +50,7 @@ See [[FCT Ruleset]] for the prescriptive RULESET format (H1 sentinel + `include:
 1. Create `Rulesets/R-<name>/R-<name>.md` (with `.anchor` marker).
 2. Use the prescriptive RULESET format per [[FCT Ruleset]].
 3. Add a row to [[Rulesets]] dispatch table under the appropriate category.
-4. If the set should auto-aggregate under R-facet / R-trait / R-skill, also add to that umbrella's `includes::`.
+4. If the set should auto-aggregate under R-facet / R-trait / R-skill, also add to that umbrella's `include::`.
 
 ## Related
 

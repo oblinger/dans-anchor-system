@@ -1,11 +1,11 @@
 # RULESET R-skill
 description:: Umbrella ruleset aggregating the per-skill rulesets — rules associated with individual skills the agent performs (mint, ask, atlas, redline, feature, groom, etc.). Parallel to [[R-facet]] (per-facet) and [[R-trait]] (per-trait).
-includes::
+include::
 
 > [!info] How this set is wired
-> Per the 2026-06-09 design: each skill spec file (`~/.claude/skills/<skill>/SKILL.md`) will carry a `# RULESET R-<skill>` block with the skill's structural rules — co-located with the runbook that defines the skill. This file is the catalog-side umbrella that walks all those skill-scoped rulesets via `includes::`.
+> Per the 2026-06-09 design: each skill spec file (`~/.claude/skills/<skill>/SKILL.md`) will carry a `# RULESET R-<skill>` block with the skill's structural rules — co-located with the runbook that defines the skill. This file is the catalog-side umbrella that walks all those skill-scoped rulesets via `include::`.
 >
-> `includes::` is empty for now — embedded rulesets land skill-by-skill as the catalog matures. Likely first candidates: `R-ask` (the ask-format discipline as enforceable rules), `R-feature` (feature-doc structural invariants), `R-atlas` (Atlas discipline as rules).
+> `include::` is empty for now — embedded rulesets land skill-by-skill as the catalog matures. Likely first candidates: `R-ask` (the ask-format discipline as enforceable rules), `R-feature` (feature-doc structural invariants), `R-atlas` (Atlas discipline as rules).
 
 > [!info] Renamed from prior R-skill (2026-06-09)
 > The previous `R-skill/` folder was trait-scoped (rulesets for anchors declaring the Skill trait). That folder was renamed [[R-skill-anchor]] to free the name `R-skill` for this umbrella. The previous content was an empty placeholder; no rules were lost.

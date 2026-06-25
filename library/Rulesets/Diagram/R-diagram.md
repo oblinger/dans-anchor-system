@@ -1,6 +1,6 @@
 # RULESET R-diagram
 include:: [[R-diagram-geometry]], [[R-sugiyama]], [[R-c4]], [[R-wcag-contrast]], [[R-bringhurst-typography]], [[R-tufte-data-ink]], [[R-svg-hygiene]]
-description:: Umbrella for hand-authored figure validation; composes 7 methodology sub-sets, 22 rules total.
+description:: Diagram authoring + validation — **umbrella over 7 methodology sub-sets, 22 rules total**:
 
 Hand-authored figures (architecture, flow, sequence, mockup diagrams) ship clean under a structural-correctness-first discipline: the diagram doesn't ship until the rule-checker emits zero errors. Adopting R-diagram pulls all 22 rules via the sub-sets composed in `include::` above; cherry-pick an individual sub-set for finer control. R-diagram has no rules of its own.
 
