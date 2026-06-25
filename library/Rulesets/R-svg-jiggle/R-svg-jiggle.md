@@ -1,62 +1,76 @@
 # RULESET R-svg-jiggle
 include::
 where:: {ANCHOR}/**/*.svg
-description:: Geometry-aware layout-repair ("jiggle") for hand-authored SVG diagrams — clear label-over-box overlaps with the cheapest topological move (slide / flip), governed by a three-tier severity order.
+description:: Geometry-aware layout-repair ("jiggle") for hand-authored SVG diagrams — detect a named, explicit issue list, then resolve each issue with the cheapest resolution that closes it without opening a new one.
 
 > [!info] Provenance
-> The *repair* counterpart to [[R-diagram-geometry]]'s *detection*. Where R-diagram-geometry reports geometric faults, R-svg-jiggle **fixes** them — modelled on the audit fix-by-default engine ([[F161 — Rule-driven audit engine]] / F166): each move is a rule with a `check::` (overlap predicate) and a `fix::` (the move). Runs over the geometry primitive layer in `skills/viz/svg-jiggle.py` (SVG bbox reader + intersection test + edge association). Captured 2026-06-25 per [[F186 — SVG Jiggle — geometry-aware layout-repair ruleset for the viz svg track]].
+> Modelled on the audit fix-by-default engine ([[F161 — Rule-driven audit engine]] / F166): an **issue rule is a `check::` that emits a finding**; a **resolution is a `fix::` candidate tagged to that issue type**. Runs over the geometry primitive layer in `skills/viz/svg-jiggle.py` (SVG bbox reader + intersection test + edge association). Captured 2026-06-25 per [[F186 — SVG Jiggle — geometry-aware layout-repair ruleset for the viz svg track]].
 
-A diagram is **repaired** when the loop reports zero hard overlaps. This is not a layout engine — it is the repair pass that runs *after* the generator: detect → apply the cheapest move that clears each hard overlap without creating a new one → repeat until clean or the iteration budget is hit.
+**The model — explicit issue list, then resolutions.** Jiggle is not a layout engine; it is the repair pass that runs *after* the generator. It **detects and emits a named, located issue list** (`svg-jiggle.py --issues` prints it), then per issue applies the **cheapest resolution that closes it without opening a new issue**, re-detects, and repeats until the list is empty (or only honestly-residual issues remain) or the iteration budget is hit. The materialized issue list is the point: it is the repair's goals, its termination test, and its inspectable residual (the audit-QFix hand-off pattern). Resolution selection minimizes `cost = Wh·(label-over-box) + Ws·(label-over-wrong-line) + Wa·(overweighted-head + crowded-band)`, `Wh ≫ Ws ≫ Wa`.
 
-**Representation boundary.** This ruleset owns the **SVG** track, where the agent controls every coordinate so moves rewrite `<text>` x/y directly. The sibling **D2 Jiggle** (deferred) expresses the same abstract moves as ELK directives. Cross-translation lives in the shared abstract-move vocabulary, not in either ruleset — so this is **not** a CAB-conformance facet and is deliberately absent from [[R-facet]].
+**Representation boundary.** This ruleset owns the **SVG** track, where the agent controls every coordinate so resolutions rewrite geometry directly. The sibling **D2 Jiggle** (deferred) expresses the same abstract moves as ELK directives. Cross-translation lives in the shared abstract-move vocabulary, not in either ruleset — so this is **not** a CAB-conformance facet and is deliberately absent from [[R-facet]].
 
-### RULE R-svg-jiggle-01 — Severity order governs every move (governing)
-check:: svg_hard_overlap
+## Governing rule
 
-Every trade-off is decided by three tiers, cheapest-first:
+### RULE R-svg-jiggle-01 — Severity order governs resolution selection (governing)
+A `<text>` **≥ 70 % contained in a single box** is that box's **node label** — EXEMPT, never moved. A `<text>` fully outside all boxes (title, legend) is exempt. Every issue and every resolution is weighted by three tiers: **hard** (`label ∩ box`, `box ∩ box`) ≫ **soft** (`label ∩ wrong-line`, `overweighted-head`, `crowded-band`) ≫ **free** (whitespace). A resolution that trades a hard issue for a soft one is a **win**; the reverse is forbidden; a resolution that opens a *new* hard issue is rejected.
+**Check pattern:** parse geometry — `<text>` (x/y + inherited `font-size`/`text-anchor` → bbox `width ≈ len·font_size·0.58`, `top ≈ y−0.8·font_size`), `<rect>` boxes (stroked, not the canvas background), edges (`<line>`/`<path>` polyline; `<defs>`/`<marker>` skipped). Coverage ≥ 0.70 → node (exempt).
+**Why:** the severity order *is* the cost function — without it, the repair has no principled basis to choose a resolution and could "fix" a hard issue by opening another.
 
-- **Hard-forbidden** — `label ∩ box` (a `<text>` that intersects a `<rect>` box but is *not* a node label) and `box ∩ box` (two boxes overlapping, neither containing the other). The loop **must** clear every hard overlap.
-- **Soft (acceptable only if nothing cheaper clears the hard one)** — `label ∩ edge-line` / `label ∩ arc`. A label resting on its own arrow is fine.
-- **Free** — whitespace. The target state for every moved label.
+## Issue catalog (detection — each a `check::` with a crisp threshold)
 
-A move that trades a hard overlap for a soft one is a **win**; the reverse is forbidden. A `<text>` that is **≥ 70 % contained in a single box** is that box's **node label** — EXEMPT, never moved (the box title). A `<text>` fully outside all boxes (diagram title, legend, axis band) is also exempt. Only a label that *spills across a box boundary* (intersects a box but is < 70 % inside it) is the hard overlap to fix.
+### RULE R-svg-jiggle-02 — issue: label-over-box (hard) (checked)
+check:: svg_label_over_box
+**Check pattern:** an edge-label intersects a box with ≥ 5 px overlap in **both** axes while < 70 % contained. Resolutions: `slide-label` → `flip-label` → `nudge-box`.
+**Why:** a label printed across a box is the primary readability killer; it must reach zero.
 
-**Check pattern:** parse the SVG into geometry — `<text>` labels (x/y + inherited `font-size`/`text-anchor` → estimated bbox: `width ≈ len·font_size·0.58`, `top ≈ y − 0.8·font_size`, `height ≈ font_size`), `<rect>` boxes (a *box* is a stroked rect that is not the full-canvas background; no-stroke rects — background fills, white label halos — are not boxes), and edges (`<line>`, `<path>` sampled to a polyline; `<defs>`/`<marker>` skipped). For each label compute max single-box coverage; ≥ 0.70 → node (exempt). Otherwise an intersection with overlap ≥ 5 px in **both** axes against any box → **hard**. Count hard label-over-box + box-over-box incidents; the repaired count must be 0.
+### RULE R-svg-jiggle-03 — issue: label-over-wrong-line (soft) (checked)
+check:: svg_label_over_wrong_line
+**Check pattern:** a label intersects a line/path it is **not** associated with (associated = its nearest, color-preferring edge). Resolutions: `flip-label` (to the empty side of its *own* edge) → `slide-label`.
+**Why:** a label sitting on a foreign arrow reads as annotating the wrong edge; flipping to the clean side of its own edge fixes it for free.
 
-**Why:** the severity order *is* the cost function. Without it, a repair pass has no principled basis to choose between candidate moves and can "fix" a hard overlap by creating an equally bad one. Hard overlaps (label-over-box, box-over-box) are the readability killers; soft overlaps (label on its own arrow) read fine.
+### RULE R-svg-jiggle-04 — issue: overweighted-head (soft) (checked)
+check:: svg_overweighted_head
+**Check pattern:** an arrow's marker/head length exceeds **20 %** of its segment length (head swallows a short arrow). Resolutions: `shrink-arrowhead` → `lengthen-segment` (widen).
+**Why:** between close boxes the default arrowhead eats the whole arrow, so the direction reads as a blob, not an arrow.
 
-### RULE R-svg-jiggle-02 — slide-label-along-edge (free)
-check:: svg_hard_overlap
+### RULE R-svg-jiggle-05 — issue: crowded-band (soft) (checked)
+check:: svg_crowded_band
+**Check pattern:** a row/column of arrow segments whose lengths fall below the visibility threshold (~24 px) — boxes too close to show their arrows. Resolutions: `widen` → `shrink-arrowhead`. Often **residual** (widen is gated; see R-svg-jiggle-10).
+**Why:** when a whole band is cramped, no per-label move helps — the band itself must gain length.
+
+## Resolution catalog (fixes — each a `fix::` tagged to its issue type)
+
+### RULE R-svg-jiggle-06 — slide-label-along-edge (free) (sampled)
 fix:: slide_label_along_edge
+Translate the label along its associated edge (+ modest perpendicular), accept the **minimum-displacement** clean position (zero box intersection, in-canvas, within ~110 px of the edge). Twins (halo+fill) move together. Tried first for label-over-box / label-over-wrong-line — zero cascade, label stays bound to its edge.
 
-A hard label may travel **along the direction of its associated edge** (plus a modest perpendicular offset) and still read as belonging to that edge. The first free move tried.
-
-**Check pattern:** the label is hard per R-svg-jiggle-01 (`label ∩ box`, < 70 % contained). Associate it with its nearest edge — minimum distance from the label's center to any edge segment.
-
-**fix::** search candidate positions = `center + t·d + s·n` (where `d` is the unit edge direction at the nearest segment and `n` its perpendicular), over parallel offsets `t` (bounded to ≈ half the edge length + pad, so the label stays within the edge's span) and perpendicular offsets `s`. Accept the **minimum-displacement** candidate that (a) has **zero** box intersection, (b) stays inside the canvas, and (c) keeps the label's center within ~110 px of its edge. Rewrite only the `<text>` x/y (and any identical twin — e.g. a halo + fill pair — by the same delta).
-
-**Why:** sliding a label along its arrow is the cheapest repair — zero cascade (no box moves), and the label remains visually bound to the edge it annotates. Almost every label-over-box case on a clean diagram is a label dropped into a box that has open whitespace a short slide away (typically just above/below the arrow).
-
-### RULE R-svg-jiggle-03 — flip-label-across-edge (free)
-check:: svg_hard_overlap
+### RULE R-svg-jiggle-07 — flip-label-across-edge (free) (sampled)
 fix:: flip_label_across_edge
+Mirror the label to the empty side of its **own** edge (foot-of-perpendicular reflection); accept only if clean. Clears label-over-wrong-line (rejected-records → other side of its dashed arrow) and label-over-box where one side is crowded but the mirror side is open. Still free.
 
-When no slide clears the label, mirror it to the **empty side** of its edge — same perpendicular distance, opposite side. The second free move.
+### RULE R-svg-jiggle-08 — nudge-box (cascading) (sampled)
+fix:: nudge_box
+Move a box into adjacent whitespace when that closes a label/box collision and opens clearance; **reconnect every incident edge endpoint** to the box's new boundary, move the box's node label(s) with it, and **reject any nudge that overlaps another box**. The first cascading move — applied only when slide/flip can't clear a hard issue, or to open band clearance (e.g. dead-letter box up → "daily rollups" clears).
+**Why:** some hard overlaps can't be cleared by moving the label alone; moving the *box* is the user's "local move of one object, see if it fits," generalized.
 
-**Check pattern:** the label is hard per R-svg-jiggle-01 and `slide-label-along-edge` (R-svg-jiggle-02) found no clean position.
+### RULE R-svg-jiggle-09 — shrink-arrowhead (local) (sampled)
+fix:: shrink_arrowhead
+Scale a specific short edge's marker down so the head is ≤ 20 % of its segment (per-edge, long edges untouched). Resolves overweighted-head; helps crowded-band.
 
-**fix::** reflect the label's center across the line of its associated edge segment (foot-of-perpendicular reflection); translate the `<text>` x/y by that delta (twins together). Accept only if the reflected position is clean (zero box intersection, inside canvas, within ~110 px of the edge); otherwise leave the label and report it **unresolved** — the signal that a cascading move (`nudge-box`, `space-rank`; deferred) is needed. Never fake the count.
-
-**Why:** flip handles the case where one side of the edge is crowded but the mirror side is open — a label that overlaps a box below its arrow may sit cleanly above it. It is still free (no cascade). When both free moves fail, honesty about the residual is the correct output: a cascading move is a later phase, not a reason to under-count.
+### RULE R-svg-jiggle-10 — widen (global, gated) (stated)
+fix:: try_widen
+Uniformly scale inter-box **gaps** (and the canvas) on the cramped axis so a crowded band gains arrow length; boxes keep relative order, only gaps grow. The most invasive resolution — **gated**: applied only when `shrink-arrowhead` alone cannot clear the crowded-band, and when it can be done without distorting the layout. When unsafe, the crowded-band is left as an **honest residual** in the issue list rather than forced.
+**Why:** widen is the only fix for a whole-band crowd, but it is structural; honesty about an un-widened residual beats a distorted diagram.
 
 # BRIEF
 
-**R-svg-jiggle** is the repair pass for hand-authored SVG diagrams: it clears **label-over-box** overlaps (the hard tier) by applying the cheapest topological move and repeating until clean. Detection lives in the geometry primitive layer (`skills/viz/svg-jiggle.py`); the three rules here are the policy.
+**R-svg-jiggle** repairs hand-authored SVG diagrams by the **issue-list model**: detect a named, located issue list (`--issues`), then resolve each with the cheapest resolution that closes it without opening a new one, until the list is empty or only honest residuals remain. Detection + geometry live in `skills/viz/svg-jiggle.py`; the rules here are the policy. It mirrors the F161/F166 engine — issue = `check::`, resolution = `fix::` candidate.
 
-- **R-svg-jiggle-01** — the **three severity tiers** (hard = label∩box / box∩box; soft = label∩edge; free = whitespace) govern every choice; node labels (≥ 70 % inside one box) and outside-all-boxes labels are exempt. Hard count must reach 0.
-- **R-svg-jiggle-02** — **slide-label-along-edge**: translate the label parallel to its edge (+ modest perpendicular), pick the nearest clean spot within the edge's span. Tried first.
-- **R-svg-jiggle-03** — **flip-label-across-edge**: mirror to the empty side of the edge. Tried second. If neither clears it, report the label **unresolved** (cascading move deferred) — never fake the count.
+- **R-svg-jiggle-01** — severity tiers (hard = label∩box/box∩box ≫ soft = wrong-line/overweighted-head/crowded ≫ free) are the cost function governing every selection; node labels (≥70% inside a box) and outside-all-boxes labels are exempt.
+- **Issue catalog (02–05)** — label-over-box (hard), label-over-wrong-line, overweighted-head (head >20% of segment), crowded-band (arrows <~24px). Each names its candidate resolutions.
+- **Resolution catalog (06–10)** — slide (free, first), flip (free), nudge-box (cascading, edge-reconnecting), shrink-arrowhead (local), widen (global, gated; honest residual when unsafe).
 
-Cheapest-first: both moves are **free** (no box moves, no cascade). Box-nudging and rank-spacing are deferred until the free moves demonstrably fail to converge. This ruleset owns the **SVG** representation only; D2 Jiggle is the deferred sibling, sharing the abstract-move vocabulary, not these rules. It is a viz ruleset, **not** a CAB-conformance facet — not listed under [[R-facet]].
+Cheapest-first; hard issues must reach 0; soft issues are cleared when a cheap resolution exists, else listed as residual (never faked). SVG track only — D2 Jiggle is the deferred sibling sharing the abstract-move vocabulary, not these rules. Not a CAB-conformance facet; not under [[R-facet]].
 
-Run: `svg-jiggle.py <in.svg> [-o <out.svg>] [--max-iter 20] [--report]`. Prints `hard overlaps: before N → after M` + a per-move log; writes only the moved `<text>` x/y (rest of the file byte-identical).
+Run: `svg-jiggle.py <in.svg> [-o <out>] [--max-iter 20] [--report] [--issues]`.
