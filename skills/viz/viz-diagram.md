@@ -51,9 +51,9 @@ Default when no SVG path is in the argument.
 6. **Glance the figure in its rendering context** — see § Glance in context below. The bare `.svg` / `.png` preview is NOT the right surface to show the user.
 7. **Report** — confirm rule conformance: "Diagram written at `<path>`. 22/22 rules check; no violations." If any soft-fail rule was deliberately relaxed (e.g., chartjunk budget for an exception case), name it.
 
-## Optional — `svg-jiggle` repair pass
+## Refinement pass (engine from user environment)
 
-After authoring (or any hand-edit that may have nudged a label onto a box), run the geometry-aware repair pass to mechanically clear **label-over-box** overlaps before the glance:
+After authoring (or any hand-edit that may have nudged a label onto a box), apply the user's chosen **refinement engine** — `ob-skills env viz refine_engine` (default `svg-jiggle`; see SKILL.md § Engine selection). `none` → skip the pass; a skill name (e.g. `drawio`) → hand the SVG to that skill's refinement instead. For the default `svg-jiggle`, run the geometry-aware repair pass to mechanically clear **label-over-box** overlaps before the glance:
 
 ```bash
 python3 skills/viz/svg-jiggle.py "<path>.svg" -o "<path>.jiggled.svg" --report

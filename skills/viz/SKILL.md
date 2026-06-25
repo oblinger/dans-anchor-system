@@ -190,11 +190,27 @@ Expected output: `Detected font: Inter` (if Inter is installed); `Themes: ['ligh
 If `Detected font:` shows `DejaVu Sans` instead of `Inter`, fonts didn't install correctly — re-run step 2.
 
 
+## Engine selection (user environment)
+
+Who **creates** a diagram and who **refines** (cleans up) it are user-configurable via the [[User Environment]] doc (per F182, `## viz` section), so the user picks the engines without editing this skill. Read them at the start of any create flow — both fall back to defaults when unset, so the skill works with no user-env configured.
+
+- **Creation engine** — `ob-skills env viz create_engine` (default `builtin`):
+  - `builtin` / unset → use this skill's own per-action engine (the Actions table — svg / d2 / dot / mermaid / …). The normal path.
+  - any other value naming an installed skill (e.g. `drawio`) → **hand creation off to that skill**: invoke `/<engine>` with the user's description and let it produce the artifact, skipping the built-in author step.
+- **Refinement engine** — `ob-skills env viz refine_engine` (default `svg-jiggle`), applied **after an SVG exists**:
+  - `svg-jiggle` → run the built-in deterministic geometric repair: `python3 skills/viz/svg-jiggle.py "<path>.svg" -o "<path>.jiggled.svg" --report` (clears label-over-box / overweighted-head / … per [[R-svg-jiggle]]).
+  - any other value naming a skill (e.g. `drawio`) → hand the artifact to that skill's refinement / vision self-check.
+  - `none` → skip refinement.
+
+Read with the CLI (`ob-skills env viz <key>`) or, from Python, the importable `user_env.get("viz", "<key>", default=…)` in `skills/ob-skills/scripts/user_env.py`.
+
 ## Dispatch
 
 On invocation:
 
 1. Parse the argument to determine the action (svg, diagram, excalidraw, d2, matplot, mermaid, dot, pptx, docx, pdf).
-2. Look up the file from the Action Files table above.
-3. Read that file from this skill's directory and execute its workflow.
-4. If no argument or unrecognized argument, show the user-facing Actions table at the top.
+2. **Creation engine (§ Engine selection):** for a create flow, read `viz create_engine`. If it names an external skill, hand creation to `/<engine>` with the user's description and skip to step 5. If `builtin` / unset, continue.
+3. Look up the file from the Action Files table above.
+4. Read that file from this skill's directory and execute its workflow.
+5. **Refinement engine (§ Engine selection):** once an SVG artifact exists, read `viz refine_engine` and apply it — `svg-jiggle` → run `svg-jiggle.py`; a skill name → invoke that skill's refinement; `none` → skip.
+6. If no argument or unrecognized argument, show the user-facing Actions table at the top.

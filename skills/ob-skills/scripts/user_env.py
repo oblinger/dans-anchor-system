@@ -92,6 +92,39 @@ def _key_in_body(body: list[str], key: str) -> str | None:
     return None
 
 
+def get(section: str, key: str | None = None, default=None):
+    """Importable accessor — read a User Environment value from Python.
+
+    The Python counterpart to the `ob-skills env` CLI, so a script can read a
+    user-env value without shelling out:
+
+        import sys, os
+        sys.path.insert(0, os.path.expanduser(
+            "~/.claude/skills/ob-skills/scripts"))
+        import user_env
+        engine = user_env.get("viz", "create_engine", default="builtin")
+
+    - get("viz", "create_engine")  → the scalar string, or `default`
+    - get("viz")                   → the whole section body (str), or `default`
+    Returns `default` (None unless given) on any miss — never raises for
+    absence (missing doc, section, or key all fall through to `default`).
+    """
+    doc = resolve_doc()
+    try:
+        lines = open(doc, encoding="utf-8").read().splitlines()
+    except OSError:
+        return default
+    b = _section_bounds(lines, section)
+    if b is None:
+        return default
+    body = lines[b[0]:b[1]]
+    if key is None:
+        text = "\n".join(body).strip()
+        return text if text else default
+    val = _key_in_body(body, key)
+    return default if val is None else val
+
+
 def cmd_get(doc: str, section: str | None, key: str | None) -> int:
     if section is None:
         print(doc)
