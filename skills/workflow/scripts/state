@@ -16,6 +16,9 @@ Surface (terse):
     state q    rewrite [--anchor A] ROW-ID (-n N | --slug NAME) [--slug NEW] [BODY-source]
     state status set   [--anchor A] FACET CELL [--note TEXT]    # F130
     state status show  [--anchor A] [FACET]                     # F130
+    state roadmap status get  [--anchor A] (--feature F<n> | --milestone M-<Name>[.<n>])    # F145
+    state roadmap status set  [--anchor A] (--feature F<n> | --milestone M-<Name>[.<n>]) --state {checked|unchecked|deferred}  # F145
+    state roadmap migrate     [--anchor A] M-<Name> --date YYYY-MM-DD     # F145
 """
 from __future__ import annotations
 
@@ -286,8 +289,49 @@ def _delegate_row_edit(slug, horizon, row_id_arg, status, title, body,
     be.append_messages(slug, result["summary"], backlog_path)
     be.write_state(slug, result)
     be.refresh_q_md(slug)
+    # F145 auto-sync — a Done transition on an F-row flips the matching roadmap
+    # checkbox (if the F-number appears on the roadmap). Same post-condition slot
+    # `task update` already uses for refresh_q_md; failure here is non-fatal.
+    if status not in ("delete", "same") and status.startswith("Done") \
+            and row_id_arg.upper().startswith("F"):
+        sync_msg = _sync_roadmap_on_done(slug, backlog_path, row_id_arg)
+        if sync_msg:
+            print(f"{slug}: {sync_msg}")
     print(f"{slug}: {result['summary']}")
     return 0
+
+
+def _sync_roadmap_on_done(slug, backlog_path, row_id):
+    """F145 — on a feature-doc Done transition, grep the roadmap for the
+    F-number marker and flip its checkbox to `[x]`. Returns a one-line summary
+    if a checkbox was flipped, else None. Never raises (best-effort post-cond).
+    """
+    try:
+        roadmap = backlog_path.parent.parent / f"{slug} Design" / f"{slug} Roadmap.md"
+        if not roadmap.exists():
+            return None
+        text = roadmap.read_text(encoding="utf-8")
+        lines = text.splitlines()
+        fnum = _feature_num(row_id)
+        changed = False
+        for i, line in enumerate(lines):
+            hm = _MILESTONE_HEADING_RE.match(line)
+            bm = _INLINE_CHECKBOX_RE.match(line)
+            rest = hm.group("rest") if hm else (bm.group("rest") if bm else None)
+            box = hm.group("box") if hm else (bm.group("box") if bm else None)
+            if rest is None:
+                continue
+            fnums = [int(n) for n in _F_REF_RE.findall(rest)]
+            if fnum in fnums and box != "x":
+                lines[i] = _set_box_on_line(line, "x")
+                changed = True
+        if not changed:
+            return None
+        roadmap.write_text("\n".join(lines) + ("\n" if text.endswith("\n") else ""),
+                           encoding="utf-8")
+        return f"roadmap auto-sync — flipped {row_id} checkbox to [x]"
+    except (be.BacklogEditError, OSError, UnicodeDecodeError):
+        return None
 
 
 # ============================================================
@@ -647,6 +691,329 @@ def cmd_status_show(slug, anchor_path, args):
 
 
 # ============================================================
+# Roadmap subcommands (F145) — status get/set + whole-milestone migrate
+# ============================================================
+#
+# The roadmap lives at `{NAME} Design/{NAME} Roadmap.md`; the Completed Roadmap
+# is its sibling. Milestone headings carry a checkbox in the title:
+#   ## [ ] M-Store — Persistence Layer
+#   ### [x] M-Store.1 — SQLite schema  [F050]
+# Sub-items may also be inline bullets:  `- [x] [[F017 — ...]] — ...`.
+#
+# These commands mutate roadmap files in place. They are deliberately
+# defensive — every parse failure raises BacklogEditError with the offending
+# context rather than corrupting the file.
+
+
+# Milestone heading: hashes, checkbox, identifier, trailing text.
+_MILESTONE_HEADING_RE = re.compile(
+    r"^(?P<hashes>#{1,3})\s+\[(?P<box>[ x~])\]\s+(?P<ident>M[-\w.]*)(?P<rest>.*)$"
+)
+# Inline checkbox bullet carrying an `[[F<n>` wiki-link or an `[F<n>]` marker.
+_INLINE_CHECKBOX_RE = re.compile(r"^(?P<indent>\s*)- \[(?P<box>[ x~])\]\s+(?P<rest>.*)$")
+# `[F123]` marker / `[[F123 — ...` wiki-link F-number extractor.
+_F_REF_RE = re.compile(r"\[\[?F(\d+)\b")
+
+# State name → checkbox character.
+_STATE_TO_BOX = {"checked": "x", "unchecked": " ", "deferred": "~"}
+_BOX_TO_STATE = {"x": "checked", " ": "unchecked", "~": "deferred"}
+
+
+def _roadmap_path(slug, anchor_path, completed=False):
+    """`{NAME} Design/{NAME} [Completed ]Roadmap.md` — the canonical location.
+
+    Falls back to a vault-walk via find_backlog's anchor when the Design folder
+    isn't directly under anchor_path (sub-anchors, linked-mode, etc.).
+    """
+    suffix = "Completed Roadmap.md" if completed else "Roadmap.md"
+    direct = anchor_path / f"{slug} Design" / f"{slug} {suffix}"
+    if direct.exists():
+        return direct
+    # Vault-walk: locate `{slug} {suffix}` near the backlog.
+    backlog = be.find_backlog(slug)
+    design_dir = backlog.parent.parent / f"{slug} Design"
+    cand = design_dir / f"{slug} {suffix}"
+    return cand  # may not exist yet (Completed Roadmap is created on first migrate)
+
+
+def _find_roadmap_entry(lines, feature=None, milestone=None):
+    """Locate a roadmap entry by F-number or milestone id.
+
+    Returns (line_index, kind, current_box) where kind is 'heading' or 'inline'.
+    Raises BacklogEditError on miss / ambiguity.
+    """
+    if (feature is None) == (milestone is None):
+        raise be.BacklogEditError("specify exactly one of --feature F<n> / --milestone M-<Name>")
+    matches = []
+    for i, line in enumerate(lines):
+        hm = _MILESTONE_HEADING_RE.match(line)
+        if hm:
+            if milestone is not None and hm.group("ident") == milestone:
+                matches.append((i, "heading", hm.group("box")))
+            elif feature is not None:
+                fnums = [int(n) for n in _F_REF_RE.findall(hm.group("rest"))]
+                if _feature_num(feature) in fnums:
+                    matches.append((i, "heading", hm.group("box")))
+            continue
+        bm = _INLINE_CHECKBOX_RE.match(line)
+        if bm:
+            if milestone is not None:
+                # An inline bullet naming the milestone id literally.
+                if re.search(rf"\bM-?{re.escape(milestone[2:])}\b", bm.group("rest")) \
+                        and milestone.startswith("M-"):
+                    matches.append((i, "inline", bm.group("box")))
+            elif feature is not None:
+                fnums = [int(n) for n in _F_REF_RE.findall(bm.group("rest"))]
+                if _feature_num(feature) in fnums:
+                    matches.append((i, "inline", bm.group("box")))
+    if not matches:
+        ref = milestone or feature
+        raise be.BacklogEditError(f"no roadmap entry found for {ref!r}")
+    if len(matches) > 1:
+        ref = milestone or feature
+        ln = ", ".join(str(i + 1) for i, _, _ in matches)
+        raise be.BacklogEditError(
+            f"multiple roadmap entries match {ref!r} (lines {ln}); "
+            f"narrow by --milestone with full sub-position or fix duplicates"
+        )
+    return matches[0]
+
+
+def _feature_num(feature):
+    """Normalize 'F145' / 'f145' / '145' → int 145."""
+    m = re.match(r"^[Ff]?(\d+)$", feature.strip())
+    if not m:
+        raise be.BacklogEditError(f"invalid --feature {feature!r} (expected F<n>)")
+    return int(m.group(1))
+
+
+def _set_box_on_line(line, new_box):
+    """Replace the checkbox char on a milestone heading or inline bullet."""
+    hm = _MILESTONE_HEADING_RE.match(line)
+    if hm:
+        return f"{hm.group('hashes')} [{new_box}] {hm.group('ident')}{hm.group('rest')}"
+    bm = _INLINE_CHECKBOX_RE.match(line)
+    if bm:
+        return f"{bm.group('indent')}- [{new_box}] {bm.group('rest')}"
+    raise be.BacklogEditError(f"cannot set checkbox on non-milestone line: {line!r}")
+
+
+def cmd_roadmap_status_get(slug, anchor_path, args):
+    """Print a roadmap entry's current checkbox state."""
+    path = _roadmap_path(slug, anchor_path)
+    if not path.exists():
+        raise be.BacklogEditError(f"no roadmap at {path}")
+    lines = path.read_text(encoding="utf-8").splitlines()
+    idx, kind, box = _find_roadmap_entry(lines, args.feature, args.milestone)
+    state = _BOX_TO_STATE.get(box, "unknown")
+    ref = args.milestone or args.feature
+    print(f"{slug}: {ref} → {state} (line {idx + 1})")
+    return 0
+
+
+def cmd_roadmap_status_set(slug, anchor_path, args):
+    """Set a roadmap entry's checkbox state by F-number or milestone id."""
+    if args.state not in _STATE_TO_BOX:
+        raise be.BacklogEditError(
+            f"invalid --state {args.state!r}; expected one of {list(_STATE_TO_BOX)}"
+        )
+    path = _roadmap_path(slug, anchor_path)
+    if not path.exists():
+        raise be.BacklogEditError(f"no roadmap at {path}")
+    text = path.read_text(encoding="utf-8")
+    lines = text.splitlines()
+    idx, kind, old_box = _find_roadmap_entry(lines, args.feature, args.milestone)
+    new_box = _STATE_TO_BOX[args.state]
+    lines[idx] = _set_box_on_line(lines[idx], new_box)
+    path.write_text("\n".join(lines) + ("\n" if text.endswith("\n") else ""),
+                    encoding="utf-8")
+    ref = args.milestone or args.feature
+    print(f"{slug}: roadmap {ref} {_BOX_TO_STATE[old_box]} → {args.state} (line {idx + 1})")
+    return 0
+
+
+def _extract_milestone_section(lines, milestone):
+    """Extract a whole top-level milestone H2 section.
+
+    Returns (start_idx, end_idx) where the slice lines[start:end] covers the
+    `## [ ] M-<Name> …` heading through (and including) the trailing `### .`
+    separator if present, up to but excluding the next `## ` H2 (or EOF).
+    Raises BacklogEditError if the milestone isn't a top-level H2.
+    """
+    start = None
+    for i, line in enumerate(lines):
+        hm = _MILESTONE_HEADING_RE.match(line)
+        if hm and hm.group("ident") == milestone and len(hm.group("hashes")) == 2:
+            start = i
+            break
+    if start is None:
+        raise be.BacklogEditError(
+            f"milestone {milestone!r} not found as a top-level (## H2) heading"
+        )
+    end = len(lines)
+    for j in range(start + 1, len(lines)):
+        if re.match(r"^## ", lines[j]):
+            end = j
+            break
+    # Trim trailing blank lines out of the section (they stay with the source).
+    sec_end = end
+    while sec_end > start + 1 and lines[sec_end - 1].strip() == "":
+        sec_end -= 1
+    return start, sec_end, end
+
+
+def _milestone_all_complete(section_lines):
+    """True if the milestone heading is [x] AND no sub-item is unchecked `[ ]`.
+
+    Deferred `[~]` sub-items are allowed (they migrate in their deferred state).
+    """
+    heading = section_lines[0]
+    hm = _MILESTONE_HEADING_RE.match(heading)
+    if not hm or hm.group("box") != "x":
+        return False
+    for line in section_lines[1:]:
+        bm = _INLINE_CHECKBOX_RE.match(line)
+        sm = _MILESTONE_HEADING_RE.match(line)
+        box = (bm.group("box") if bm else (sm.group("box") if sm else None))
+        if box == " ":
+            return False
+    return True
+
+
+_STANDALONE_GROUPING_RE = re.compile(
+    r"^## Completed standalone features\b", re.IGNORECASE
+)
+
+
+def _ensure_completed_roadmap(slug, completed_path):
+    """Create the Completed Roadmap with an H1 if absent. Returns its text."""
+    if completed_path.exists():
+        return completed_path.read_text(encoding="utf-8")
+    if not completed_path.parent.exists():
+        raise be.BacklogEditError(
+            f"can't create {completed_path.name}: parent "
+            f"{completed_path.parent} doesn't exist"
+        )
+    header = f"# {slug} Completed Roadmap\n\n"
+    completed_path.write_text(header, encoding="utf-8")
+    return header
+
+
+def cmd_roadmap_migrate(slug, anchor_path, args):
+    """Atomically migrate a whole completed milestone from Roadmap to Completed
+    Roadmap, preserving checkbox states + adding a `migrated <date>` note.
+
+    Steps:
+      1. Extract the `## [x] M-<Name> …` section from the live Roadmap.
+      2. Verify it's complete (heading [x], no [ ] sub-items).
+      3. Stamp the heading with `(migrated YYYY-MM-DD)`.
+      4. Seal the current standalone grouping in the Completed Roadmap and
+         insert the migrated milestone below it; open a fresh standalone
+         grouping at the top.
+      5. Remove the section from the live Roadmap.
+    """
+    milestone = args.milestone
+    if not milestone.startswith("M-"):
+        raise be.BacklogEditError(f"milestone must be named form M-<Name>, got {milestone!r}")
+    date_str = args.date  # required by the parser; never call Date.now() unguarded
+    if not re.match(r"^\d{4}-\d{2}-\d{2}$", date_str):
+        raise be.BacklogEditError(f"--date must be YYYY-MM-DD, got {date_str!r}")
+
+    roadmap = _roadmap_path(slug, anchor_path)
+    if not roadmap.exists():
+        raise be.BacklogEditError(f"no roadmap at {roadmap}")
+    rm_text = roadmap.read_text(encoding="utf-8")
+    rm_lines = rm_text.splitlines()
+
+    start, sec_end, next_h2 = _extract_milestone_section(rm_lines, milestone)
+    section = rm_lines[start:sec_end]
+    if not _milestone_all_complete(section):
+        raise be.BacklogEditError(
+            f"milestone {milestone!r} is not fully complete "
+            f"(heading must be [x] and no sub-item may be [ ]); "
+            f"refusing to migrate. Mark it complete first or salvage sub-items."
+        )
+
+    # Stamp the heading with the migrated-date note (idempotent: don't double-stamp).
+    hm = _MILESTONE_HEADING_RE.match(section[0])
+    rest = hm.group("rest").rstrip()
+    if "(migrated " not in rest:
+        rest = f"{rest} (migrated {date_str})"
+    migrated_heading = f"## [x] {hm.group('ident')}{rest}"
+    migrated_section = [migrated_heading] + section[1:]
+
+    # --- Build the new Completed Roadmap ---
+    completed = _roadmap_path(slug, anchor_path, completed=True)
+    comp_text = _ensure_completed_roadmap(slug, completed)
+    comp_lines = comp_text.splitlines()
+
+    # Find the H1 line.
+    h1_idx = next((i for i, l in enumerate(comp_lines) if l.startswith("# ")), -1)
+    insert_base = h1_idx + 1 if h1_idx >= 0 else 0
+
+    # Seal the existing top standalone grouping (if any) by leaving it in place,
+    # then insert the migrated milestone just below it; finally open a fresh
+    # standalone grouping at the very top.
+    fresh_grouping = [
+        "",
+        f"## Completed standalone features (since {milestone} migration, {date_str})",
+        "",
+    ]
+    # Locate the first existing standalone grouping after the H1 (the current one).
+    existing_group_idx = None
+    for i in range(insert_base, len(comp_lines)):
+        if _STANDALONE_GROUPING_RE.match(comp_lines[i]):
+            existing_group_idx = i
+            break
+
+    if existing_group_idx is not None:
+        # End of the existing (now-sealed) grouping = next H2 or EOF.
+        seal_end = len(comp_lines)
+        for j in range(existing_group_idx + 1, len(comp_lines)):
+            if comp_lines[j].startswith("## "):
+                seal_end = j
+                break
+        # Trim trailing blanks of the sealed grouping.
+        while seal_end > existing_group_idx + 1 and comp_lines[seal_end - 1].strip() == "":
+            seal_end -= 1
+        # New layout: H1 + fresh grouping + sealed grouping + migrated milestone + rest.
+        new_comp = (
+            comp_lines[:insert_base]
+            + fresh_grouping
+            + comp_lines[existing_group_idx:seal_end]
+            + [""]
+            + migrated_section
+            + [""]
+            + comp_lines[seal_end:]
+        )
+    else:
+        # No existing grouping — start fresh grouping then the milestone.
+        new_comp = (
+            comp_lines[:insert_base]
+            + fresh_grouping
+            + migrated_section
+            + [""]
+            + comp_lines[insert_base:]
+        )
+    completed.write_text("\n".join(new_comp).rstrip("\n") + "\n", encoding="utf-8")
+
+    # --- Remove the milestone from the live Roadmap ---
+    # Drop lines[start:next_h2] (heading through the blank run before next H2).
+    del rm_lines[start:next_h2]
+    # Collapse any doubled blank lines left at the seam.
+    cleaned = []
+    for i, l in enumerate(rm_lines):
+        if l.strip() == "" and cleaned and cleaned[-1].strip() == "":
+            continue
+        cleaned.append(l)
+    roadmap.write_text("\n".join(cleaned).rstrip("\n") + "\n", encoding="utf-8")
+
+    print(f"{slug}: migrated {milestone} → {completed.name} (migrated {date_str}); "
+          f"sealed standalone grouping + opened fresh one")
+    return 0
+
+
+# ============================================================
 # CLI dispatch
 # ============================================================
 
@@ -741,6 +1108,30 @@ def build_parser():
     stsh.add_argument("facet", nargs="?", default=None,
                       help="facet name (omit to show all)")
 
+    # roadmap domain (F145) — milestone status get/set + whole-milestone migrate
+    rm = subs.add_parser("roadmap",
+                         help="manage {NAME} Roadmap.md milestone state + migration (F145)")
+    rm_subs = rm.add_subparsers(dest="verb", required=True)
+
+    rmst = rm_subs.add_parser("status", help="get/set a roadmap entry's checkbox state")
+    rmst_subs = rmst.add_subparsers(dest="subverb", required=True)
+    for sv, sv_help in (("get", "read a roadmap entry's checkbox state"),
+                        ("set", "write a roadmap entry's checkbox state")):
+        sp = rmst_subs.add_parser(sv, help=sv_help)
+        sp.add_argument("--feature", default=None, help="identify entry by F<n>")
+        sp.add_argument("--milestone", default=None,
+                        help="identify entry by milestone id (M-<Name> or M-<Name>.<n>)")
+        if sv == "set":
+            sp.add_argument("--state", required=True,
+                            choices=["checked", "unchecked", "deferred"],
+                            help="new checkbox state")
+
+    rmm = rm_subs.add_parser("migrate",
+                             help="migrate a whole completed milestone to Completed Roadmap")
+    rmm.add_argument("milestone", help="top-level milestone id, e.g. M-Store")
+    rmm.add_argument("--date", required=True,
+                     help="migration date YYYY-MM-DD (REQUIRED — never auto-now)")
+
     return p
 
 
@@ -776,6 +1167,14 @@ def main(argv):
                 return cmd_status_set(slug, anchor_path, args)
             if args.verb == "show":
                 return cmd_status_show(slug, anchor_path, args)
+        elif args.domain == "roadmap":
+            if args.verb == "status":
+                if args.subverb == "get":
+                    return cmd_roadmap_status_get(slug, anchor_path, args)
+                if args.subverb == "set":
+                    return cmd_roadmap_status_set(slug, anchor_path, args)
+            if args.verb == "migrate":
+                return cmd_roadmap_migrate(slug, anchor_path, args)
         print(f"state: unknown verb {args.domain} {args.verb}", file=sys.stderr)
         return 2
     except be.BacklogEditError as e:
