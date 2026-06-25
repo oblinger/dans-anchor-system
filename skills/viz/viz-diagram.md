@@ -51,6 +51,16 @@ Default when no SVG path is in the argument.
 6. **Glance the figure in its rendering context** — see § Glance in context below. The bare `.svg` / `.png` preview is NOT the right surface to show the user.
 7. **Report** — confirm rule conformance: "Diagram written at `<path>`. 22/22 rules check; no violations." If any soft-fail rule was deliberately relaxed (e.g., chartjunk budget for an exception case), name it.
 
+## Optional — `svg-jiggle` repair pass
+
+After authoring (or any hand-edit that may have nudged a label onto a box), run the geometry-aware repair pass to mechanically clear **label-over-box** overlaps before the glance:
+
+```bash
+python3 skills/viz/svg-jiggle.py "<path>.svg" -o "<path>.jiggled.svg" --report
+```
+
+It detects every hard overlap (`label ∩ box`), slides each offending edge-label along its arrow (or flips it to the empty side) into clean whitespace, and prints `hard overlaps: before N → after M` plus a per-move log. It writes a **new** file (`--report` to see the moves; only `<text>` x/y change, rest byte-identical) — inspect, then re-render the PNG and re-glance. If it reports any label **unresolved**, a cascading move (box-nudge / rank-spacing) is needed — surface that rather than forcing it. Governed by [[R-svg-jiggle]] (the three severity tiers + the two free moves). Optional: reach for it when a label is sitting on a box; skip it when the figure is already clean.
+
 ## Description sidecar — `{base}.desc.md`
 
 Every figure authored via `/viz diagram` ships with a **description sidecar** at `{base}.desc.md` next to the `.svg`. The sidecar captures the user's *stated intent* — what the figure should convey, what is deliberately included, what is deliberately omitted, layout decisions, style decisions, audit-posture relaxations. The sidecar is the durable record of editorial choices that are NOT visible in the SVG itself; without it, the next agent to touch the figure is one user-correction away from re-introducing something the user already rejected.
