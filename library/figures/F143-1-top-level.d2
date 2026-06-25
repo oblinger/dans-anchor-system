@@ -1,0 +1,53 @@
+# F143-1 — Dan's Anchor System (top-level): the four kinds of system parts.
+# NOTE: the canonical rendering is the hand-authored F143-1-top-level.svg, whose
+# precise geometry (Facets deliberately shorter so the "modifies" arrow passes
+# over its top) is editorially load-bearing and cannot be reproduced by D2
+# auto-layout. This .d2 records the same graph as editable source per policy;
+# regenerate the canonical SVG by hand if the geometry trick must be preserved.
+
+title: Dan's Anchor System {
+  near: top-center
+  shape: text
+  style.font-size: 22
+  style.bold: true
+}
+
+skills: |md
+  ## Skills
+  *verbs*
+  Actions taken
+| {
+  style.fill: "#bac8ff"
+  style.stroke: "#1e1e1e"
+}
+
+facets: |md
+  ## Facets
+  *nouns*
+  Docs created
+| {
+  style.fill: "#ebfbee"
+  style.stroke: "#1e1e1e"
+}
+
+disciplines: |md
+  ## Disciplines
+  *adjectives*
+  Systematic behaviors
+| {
+  style.fill: "#fff9db"
+  style.stroke: "#1e1e1e"
+}
+
+rulesets: "Rulesets — directives and constraints" {
+  style.fill: "#ffe8cc"
+  style.stroke: "#1e1e1e"
+}
+
+skills -> facets: creates { style.font-color: "#1971c2"; style.italic: true }
+disciplines -> skills: modifies { style.font-color: "#1971c2"; style.italic: true }
+disciplines -> facets
+
+rulesets -> skills
+rulesets -> facets
+rulesets -> disciplines

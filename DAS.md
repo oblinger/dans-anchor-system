@@ -6,8 +6,15 @@ An **anchor system** is an information-organization system — a disciplined way
 
 **Dan's Anchor System (DAS)** is the user's own instantiation of that system, published as the **ob-skills** repository (slug `DAS`). Skills is the headline pillar; the system also carries **facets** (per-doc structural specs), **disciplines** (cross-cutting concepts the agent reads), **rulesets** (directives and constraints, kept in the library), and **examples** (worked, realistic anchors that illustrate the facets). This root routes out to the section landing pages — the operational folders (`skills/ facets/ disciplines/ library/ examples/`) are page-less storage; their human entry points are the slugged pages in `docs/`. A future, de-personalized *Anchor System* would ship the generic structure without the user's specifics.
 ![[F143-1-top-level.svg]]
+*Top-level: skills, facets, disciplines — three peer kinds; one big idea (rulesets underneath).*
+![[F143-2-skills.svg]]
+*Skills detail: design loop, feature loop, drive cluster, viz cluster, search cluster.*
+![[F143-3-facets.svg]]
+*Facets detail: anchor base, design pipeline, track & governance, doc & output.*
+![[F143-4-disciplines.svg]]
+*Disciplines detail: writing form, workflow & verification, anchor organization, operation.*
 
-| -[[DAS]]- | → [[KM]] → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [DAS](hook://p/DAS)<br>: ob-skills — Dan's Anchor System (DAS) — the ob-skills repository: skills / facets / disciplines / rulesets / library / examples |
+| -[[DAS]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [DAS](hook://p/DAS)<br>: ob-skills — Dan's Anchor System (DAS) — the ob-skills repository: skills / facets / disciplines / rulesets / library / examples |
 | --- | --- |
 | External | [Repo](https://github.com/oblinger/ob-skills/) |
 | Sections | [[SKL\|Skills]],  [[FCT\|Facets]],  [[DSC\|Disciplines]],  [[TRT\|Traits]],  [[Rulesets\|Rulesets]],  [[LBR\|Library]],  [[FEX\|Facet Examples]],   |

@@ -1,0 +1,36 @@
+# F143-3 — Facets detail. Facets grouped by domain.
+# Green (#ebfbee) is the facets color, locked across figures 1-4.
+
+title: Facets — grouped by domain {
+  near: top-center
+  shape: text
+  style.font-size: 22
+  style.bold: true
+}
+
+anchor_base: Anchor base {
+  style.fill: "#ebfbee"
+  style.stroke: "#1e1e1e"
+  page: Anchor Page;  tree: Anchor Tree;  naming: Naming;  folder: Folder
+}
+
+design_pipeline: Design pipeline {
+  style.fill: "#ebfbee"
+  style.stroke: "#1e1e1e"
+  prd: PRD;  ux: UX Design;  arch: Architecture;  test: Testing;  stories: Stories;  road: Roadmap
+}
+
+track: Track & governance {
+  style.fill: "#ebfbee"
+  style.stroke: "#1e1e1e"
+  backlog: Backlog;  status: Status;  log: Log;  query: Query;  features: Features
+}
+
+doc_output: Doc & output {
+  style.fill: "#ebfbee"
+  style.stroke: "#1e1e1e"
+  brief: Brief;  cards: Cards;  wp: WP;  docsite: Doc Site
+}
+
+anchor_base -> design_pipeline: scaffolds { style.font-color: "#1971c2"; style.italic: true }
+design_pipeline -> track: feeds { style.font-color: "#1971c2"; style.italic: true }

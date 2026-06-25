@@ -1,0 +1,44 @@
+# F143-2 — Skills detail. Major skill clusters, as pictures not lists.
+# Blue (#bac8ff) is the skills color, locked across figures 1-4.
+
+title: Skills — the major clusters {
+  near: top-center
+  shape: text
+  style.font-size: 22
+  style.bold: true
+}
+
+design_loop: Design loop {
+  style.fill: "#bac8ff"
+  style.stroke: "#1e1e1e"
+  prd: PRD;  ux: UX;  api: API;  arch: Architecture;  test: Testing;  road: Roadmap
+  prd -> ux -> api -> arch -> test -> road
+}
+
+feature_loop: Feature flow loop {
+  style.fill: "#bac8ff"
+  style.stroke: "#1e1e1e"
+  des: Designing;  agr: Agreed;  imp: Implementing;  tst: Testing;  done: Done
+  des -> agr -> imp -> tst -> done
+}
+
+drive: Drive cluster {
+  style.fill: "#bac8ff"
+  style.stroke: "#1e1e1e"
+  crank;  land;  fortify;  triage;  query
+}
+
+viz: Viz cluster {
+  style.fill: "#bac8ff"
+  style.stroke: "#1e1e1e"
+  excalidraw;  matplot;  diagram
+}
+
+search: Search cluster {
+  style.fill: "#bac8ff"
+  style.stroke: "#1e1e1e"
+  find;  profile;  survey
+}
+
+design_loop -> feature_loop: design then build { style.font-color: "#1971c2"; style.italic: true }
+drive -> feature_loop: advances { style.font-color: "#1971c2"; style.italic: true }
