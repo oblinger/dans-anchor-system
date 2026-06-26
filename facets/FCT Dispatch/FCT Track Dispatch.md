@@ -11,9 +11,9 @@ Spec for the `{NAME} Track.md` dispatch page that lists all work-tracking and pl
 
 **Cardinality:** one per anchor (each Track-trait anchor has exactly one `{NAME} Track.md` dispatch page).
 
-**Location:** `{NAME} Docs/{NAME} Track/{NAME} Track.md`
+**Location:** `{NAME} Track/{NAME} Track.md` (root-level folder, Gen-3)
 
-The `{NAME} Track.md` dispatch page inside the `{NAME} Track/` folder. Lists all work-tracking and planning documents for the anchor.
+The `{NAME} Track.md` dispatch page inside the root-level `{NAME} Track/` folder. Lists all work-tracking and planning documents for the anchor.
 
 Per [[F094 — Anchor docs folder restructure — Track _ User _ Architecture _ Dev|F094]] (2026-06-01) — renamed from `{NAME} Plan/` to `{NAME} Track/` matching the [[Track]] trait name. The `Plan` slot is freed for a future top-level strategic-plan *document* inside the tree.
 
@@ -46,7 +46,7 @@ Below is a condensed reference example.
 
 ## Location
 
-`{NAME} Track.md` lives inside `{NAME} Docs/{NAME} Track/`.
+`{NAME} Track.md` lives inside the root-level `{NAME} Track/` folder.
 
 ## Structure (per F060)
 
@@ -75,7 +75,7 @@ Not all entries are required — only list documents that exist for this anchor.
 **Note — what does NOT live in Track** (moved by successive restructures):
 
 - `{NAME} PRD.md` (F094) — product-shape decisions belong in `{NAME} Design/`.
-- `{NAME} System Design.md` (F094) — system-design content belongs in `{NAME} Design/{NAME} Architecture/`.
+- `{NAME} System Design.md` (F094) — system-design / architecture content belongs in the root-level `{NAME} Architecture/` folder.
 - `{NAME} UX Design.md` (F094) — UX shape belongs in `{NAME} Design/`.
 - `{NAME} Roadmap.md` **(2026-06-10 restructure)** — sequencing-design belongs in `{NAME} Design/`.
 - `{NAME} Features/` **(2026-06-10 restructure)** — feature docs are design artifacts; belong in `{NAME} Design/{NAME} Features/`.
@@ -89,8 +89,8 @@ where:: file: **/{NAME} Track.md
 description:: Rules every `{NAME} Track.md` dispatch page must satisfy — location, structure, top-left cell identity, and contents restricted to tracking metadata only.
 
 ### RULE R-track-dispatch-01 — File lives inside the Track folder (checked)
-The file is named `{NAME} Track.md` and lives at `{NAME} Docs/{NAME} Track/{NAME} Track.md` — not at the anchor root, not in another subfolder.
-**Check pattern:** the file's path matches `{NAME} Docs/{NAME} Track/{NAME} Track.md`.
+The file is named `{NAME} Track.md` and lives at `{NAME} Track/{NAME} Track.md` — inside the root-level `{NAME} Track/` folder.
+**Check pattern:** the file's path matches `{NAME} Track/{NAME} Track.md`.
 **Why:** the Track dispatch page is the entry point for the Track folder; misplacing it breaks the folder's navigation chain.
 
 -[[{NAME} Track]]-` (checked)

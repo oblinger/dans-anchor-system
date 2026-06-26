@@ -9,13 +9,13 @@ Facet spec for `{NAME} Design.md` — the dispatch page listing all high-level s
 | Related | [[FCT Architecture]],  [[FCT UX Design]],  [[FCT Interface]],  [[FCT PRD]],   |
 | Examples | [[HBR Design\|minimal]],  [[CAE Design\|fuller]],   |
 
-**TLDR** — `{NAME} Design.md` is the one-per-anchor dispatch page listing every high-level system-spec document (Architecture, UX Design, Interface, Data Model, Principles, PRD, Design Discussion) for an anchor. It lives at `{NAME} Docs/{NAME} Design/{NAME} Design.md`. Architecture and UX Design are siblings here, not parent/child (F094). Interface is required for Code anchors.
+**TLDR** — `{NAME} Design.md` is the one-per-anchor dispatch page listing the high-level system-spec documents (UX Design, Interface, Decisions, Data Model, Principles, PRD, Features, Roadmap, Design Discussion) for an anchor. It lives at the root-level `{NAME} Design/{NAME} Design.md`. The system-architecture story is **not** a Design child in Gen-3 — it lives in its own root-level `{NAME} Architecture/` folder (cross-linked from here). Interface is required for Code anchors.
 
-**Location:** `{NAME} Docs/{NAME} Design/{NAME} Design.md`
+**Location:** `{NAME} Design/{NAME} Design.md` (root-level folder, Gen-3)
 
-The `{NAME} Design.md` dispatch page inside the `{NAME} Design/` folder. Lists all **high-level system-spec documents** for the anchor.
+The `{NAME} Design.md` dispatch page inside the root-level `{NAME} Design/` folder. Lists the **high-level system-spec documents** for the anchor.
 
-Per [[F094 — Anchor docs folder restructure — Track _ User _ Architecture _ Dev|F094]] (2026-06-01) — Design is the **umbrella** that holds Architecture (system-architecture story), UX Design (user-interaction shape), Interface (public-API / layer contract), Data Model, Principles, and design-trade-off discussion. **Architecture and UX Design are siblings here, not parent/child** (Q1=B). Interface relocates here from `{NAME} User/` per Q3=A — its content describes a system contract, not an end-user task.
+Design holds UX Design (user-interaction shape), Interface (public-API / layer contract), Decisions, Data Model, Principles, PRD, Features, Roadmap, and design-trade-off discussion. The **system-architecture story is its own root-level `{NAME} Architecture/` folder** (per [[FCT Architecture]]), not a child of Design — it's cross-linked from the Design dispatch but governed separately. Interface lives here (not in `{NAME} User Docs/`) because its content describes a system contract, not an end-user task.
 
 **Cardinality:** one per anchor — each anchor has exactly one `{NAME} Design.md` dispatch page inside its `{NAME} Design/` folder.
 
@@ -31,7 +31,7 @@ Below is a condensed reference example.
 
 | -[[CAE Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Design Dispatch](hook://p/FCT%20Design%20Dispatch)<br>: design — system spec, UX, interface, data, principles |
 | --- | --- |
-| [[CAE Architecture\|Architecture]] | system-architecture story — components, modules, data flow (folder per F074) |
+| [[CAE Architecture\|Architecture]] | system-architecture story — root-level sibling folder (cross-link) |
 | [[CAE UX Design\|UX Design]] | user-interaction shape — screens, commands, output formats |
 | [[CAE Interface\|Interface]] | top-level layer contract — public API for callers (required for Code anchors) |
 | [[CAE Data Model\|Data Model]] | data shapes & schemas |
@@ -47,7 +47,7 @@ Below is a condensed reference example.
 
 ## Location
 
-`{NAME} Design.md` lives inside `{NAME} Docs/{NAME} Design/`.
+`{NAME} Design.md` lives inside the root-level `{NAME} Design/` folder.
 
 ## Structure (per F060)
 
@@ -59,35 +59,38 @@ Below is a condensed reference example.
 
 ## Contents
 
-The Design dispatch page lists all children of the Design folder:
+The Design dispatch page lists the children of the Design folder (plus a cross-link to the root-level Architecture folder):
 
 | Document | Part | Notes |
 |----------|------|-------|
-| `{NAME} Architecture/` | [[FCT Architecture]] | Anchor-folder form (per F074). System-architecture story. |
-| `{NAME} UX Design.md` (or `{NAME} UX Design/` if it grows) | [[FCT UX Design]] | User-interaction shape; sibling to Architecture per F094 Q1=B. |
-| `{NAME} Interface.md` | [[FCT Interface]] | Top-level layer contract — REQUIRED for Code anchors. Relocated from `{NAME} User/` per F094 Q3=A. |
+| `{NAME} Architecture/` | [[FCT Architecture]] | **Root-level sibling folder, NOT a Design child** (Gen-3). Cross-linked here for navigation; governed by [[FCT Architecture]]. |
+| `{NAME} UX Design.md` (or `{NAME} UX Design/` if it grows) | [[FCT UX Design]] | User-interaction shape. |
+| `{NAME} Interface.md` | [[FCT Interface]] | Top-level layer contract — REQUIRED for Code anchors. Lives in Design (not `{NAME} User Docs/`). |
+| `{NAME} Decisions.md` | [[FCT Decisions]] | Load-bearing rulings / invariants. |
 | `{NAME} Data Model.md` | (when applicable) | Data shapes, schemas, type contracts. |
 | `{NAME} Principles.md` | (when applicable) | Load-bearing rules / invariants. |
 | `{NAME} PRD.md` | [[FCT PRD]] | Product requirements (when applicable). |
+| `{NAME} Features/` | [[FCT Features]] | Dated feature specs (feature docs are design artifacts). |
+| `{NAME} Roadmap.md` | [[FCT Roadmap]] | Implementation milestones (sequencing-design). |
 | `{NAME} Design Discussion.md` | design-level discussion | Trade-off conversations whose outcomes land in PRD / Architecture / Interface. |
 
 Not all entries are required — only list documents that exist for this anchor.
 
-**Note — separation of concerns** (per F094 Q1+Q3):
+**Note — separation of concerns:**
 
-- **Architecture** describes the *system* (modules, interfaces, data flow) — internal structure.
-- **UX Design** describes the *user-interaction* (screens, commands, output) — external shape.
-- **Interface** describes the *contract callers consume* (types, operations, invariants) — public API.
+- **Architecture** describes the *system* (modules, interfaces, data flow) — internal structure. Its own **root-level folder** in Gen-3.
+- **UX Design** describes the *user-interaction* (screens, commands, output) — external shape. A Design child.
+- **Interface** describes the *contract callers consume* (types, operations, invariants) — public API. A Design child.
 
-All three live here because they're all aspects of how the system is *designed*. They're peers; none subordinates the others. The folder name is **Design** (not **Architecture**) so "Architecture" stays precise as the system-architecture facet — instead of being overloaded to mean both "the umbrella" and "one of its facets."
+The folder is named **Design** (not **Architecture**) so "Architecture" stays precise as the system-architecture facet — a peer root-level folder, never the umbrella over Design.
 
 ## Audience
 
 System designers, architects, integrators-above-the-layer, and anyone evaluating the design. Distinct from:
 
-- [[FCT Track Dispatch|Track]] — **planning-agent** surface (Backlog, Features, Roadmap)
-- [[FCT User Dispatch|User]] — **end-user / consumer** surface (Guide, CLI, FAQ)
-- [[FCT Dev Dispatch|Dev]] — **implementer** surface (Files.md, per-module reference)
+- [[FCT Track Dispatch|Track]] — **planning-agent** surface (Backlog, Status, ephemeral surfaces)
+- [[FCT User Dispatch|User Docs]] — **end-user / consumer** surface (Guide, CLI, FAQ)
+- [[FCT Dev Dispatch|Dev Docs]] — **implementer** surface (Files.md, per-module reference)
 
 # RULESET R-design-dispatch
 include::
@@ -95,7 +98,7 @@ where:: file: **/{{NAME}} Design.md
 description:: Rules every `{NAME} Design.md` dispatch page must satisfy — location, H1 form, dispatch-table structure, and required-document coverage for Code anchors.
 
 ### RULE R-design-dispatch-01 — File lives inside `{NAME} Design/` (checked)
-The dispatch page `{NAME} Design.md` must reside at `{NAME} Docs/{NAME} Design/{NAME} Design.md` — not at the anchor root or under a different subfolder.
+The dispatch page `{NAME} Design.md` must reside at `{NAME} Design/{NAME} Design.md` — inside the root-level `{NAME} Design/` folder.
 **Check pattern:** the file's parent directory name matches `{NAME} Design`.
 **Why:** the location is the facet's contract; a misplaced dispatch page is invisible to anchor-page resolution and breaks folder-relative linking. (sampled)
 
@@ -118,8 +121,8 @@ Anchors that carry the Code trait MUST include a `{NAME} Interface.md` row in th
 
 - **This file is the facet spec for `{NAME} Design.md`** — it defines the shape, location, and contents of the Design dispatch page that every anchor's `{NAME} Design/` folder carries. Edits here cascade to every anchor that conforms to the facet.
 - **Not for per-anchor instances** — concrete `CAE Design.md`, `SKA Design.md`, etc. live in their own anchors. Do not pile anchor-specific content here; only the Reference Example block is allowed as an inline illustration.
-- **Inclusion test for the dispatch table** — a document belongs in the Design dispatch table iff it lives inside `{NAME} Design/` AND describes the system's *design* (architecture / UX shape / interface contract / data model / principles / PRD / design-trade-off discussion). Implementation details, end-user guides, and planning artifacts route to Dev / User / Track dispatches respectively per the § Audience section.
-- **Architecture and UX Design are siblings, not parent/child** (per F094 Q1=B) — preserve this invariant when editing the Contents table; do not nest UX under Architecture or vice versa. Interface lives here too per F094 Q3=A (system contract, not end-user task).
+- **Inclusion test for the dispatch table** — a document belongs in the Design dispatch table iff it lives inside `{NAME} Design/` AND describes the system's *design* (UX shape / interface contract / decisions / data model / principles / PRD / features / roadmap / design-trade-off discussion). Implementation details, end-user guides, and planning metadata route to Dev Docs / User Docs / Track dispatches respectively per the § Audience section.
+- **Architecture is NOT a Design child in Gen-3** — the system-architecture story is its own root-level `{NAME} Architecture/` folder (governed by [[FCT Architecture]]); the Design dispatch only cross-links to it. Interface lives in Design (system contract, not end-user task); UX Design lives in Design too.
 -[[...]]-` strikethrough form; the top-right uses the `><br>:` description prefix per [[FCT Anchor Page]].
-- **Load-bearing — folder name is "Design", not "Architecture"** — this disambiguates the umbrella from the system-architecture facet. Renaming the folder would collide "Architecture" against itself; do not rename without coordinating an F094-scale migration.
+- **Load-bearing — folder name is "Design", not "Architecture"** — Design and Architecture are peer root-level folders; keeping the names distinct stops "Architecture" being overloaded. Renaming would collide the two; do not rename without coordinating a vault-wide migration.
 - **Cited by** [[CAB Base]], [[FCT Anchor Page]], the Architecture / UX Design / Interface / PRD facets, and the `/design` and `/architect` skills. Changes to facet shape ripple through those; check cross-references before structural edits.

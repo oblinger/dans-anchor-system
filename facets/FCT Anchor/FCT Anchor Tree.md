@@ -24,40 +24,43 @@ See [[CAB Base]] shows files common to all anchors.
 ├── {CAB Folder}.md                       [[FCT Folder|marker file]]   (if NAME ≠ folder)
 ├── [[FCT Anchor Page|{NAME}.md]]                             Primary entry point
 │
-├── {NAME} [[CAB Docs|Docs]]/
-│   ├── {NAME} Docs.md                    Dispatch page
-│   │
-│   ├── {NAME} Plan/                      Planning & spec
-│   │   ├── {NAME} Plan.md                Dispatch page
-│   │   ├── {NAME} [[FCT PRD|PRD]].md                 Product requirements
-│   │   ├── {NAME} [[FCT Triage|Triage]].md                Triage inbox (agent-owned; status of the anchor)
-│   │   ├── {NAME} [[FCT UX Design|UX Design]].md           UX spec (screens & external APIs)
-│   │   ├── {NAME} [[FCT System Design|System Design]].md       System architecture & impl design
-│   │   ├── {NAME} [[FCT Discussion|Discussion]].md  Design conversations
-│   │   ├── {NAME} [[FCT Features|Features]]/              Dated feature specs
-│   │   │   ├── {NAME} Features.md
-│   │   │   ├── 2026-01-15 User Auth.md
-│   │   │   └── ...
-│   │   ├── {NAME} [[CAB Backlog|Backlog]].md             Deferred work
-│   │   ├── {NAME} [[FCT Icebox|Icebox]].md              Cold-storage / someday-maybe (optional)
-│   │   ├── {NAME} [[FCT All Files|Files]].md               File map with → doc links
-│   │   ├── {NAME} [[FCT Roadmap|Roadmap]].md             Milestones with checkbox tracking
-│   │   └── {NAME} [[FCT Inbox|Inbox]].md               Raw content to process
-│   │
-│   ├── {NAME} User/                      User-facing documentation
-│   │   ├── {NAME} User.md
-│   │   ├── {NAME} User Guide.md
-│   │   └── CONFIG_REFERENCE.md
-│   │
-│   └── {NAME} Dev/                       Developer & implementation docs
-│       ├── {NAME} Dev.md                Dispatch page (links Files + all modules)
-│       ├── {NAME} Architecture.md       System-level design
-│       ├── {NAME} engine/               ← mirrors src/engine/
-│       │   ├── {NAME} engine.md         [[FCT Module Doc|Module doc]] for the folder
-│       │   └── {NAME} Scheduler.md      [[FCT Module Doc|Module doc]] for a class
-│       └── {NAME} api/                  ← mirrors src/api/
-│           ├── {NAME} api.md
-│           └── {NAME} Router.md
+├── {NAME} [[FCT Architecture|Architecture]]/            System-architecture story (root-level folder)
+│   ├── {NAME} Architecture.md            Entry-point doc + subsystem docs
+│   └── {NAME} API.md                     Public-API sub-doc (optional)
+│
+├── {NAME} [[FCT Design Dispatch|Design]]/               Design specs (PRD, UX, Interface, Features, Roadmap)
+│   ├── {NAME} Design.md                  Dispatch page
+│   ├── {NAME} [[FCT PRD|PRD]].md                 Product requirements
+│   ├── {NAME} [[FCT UX Design|UX Design]].md           UX spec (screens & external APIs)
+│   ├── {NAME} Interface.md               Top-level layer contract (required for Code anchors)
+│   ├── {NAME} Decisions.md               Load-bearing rulings & invariants
+│   ├── {NAME} [[FCT Features|Features]]/              Dated feature specs
+│   │   ├── {NAME} Features.md
+│   │   ├── 2026-01-15 User Auth.md
+│   │   └── ...
+│   ├── {NAME} [[FCT Roadmap|Roadmap]].md             Milestones with checkbox tracking
+│   └── {NAME} [[FCT Discussion|Discussion]].md  Design conversations
+│
+├── {NAME} [[FCT Track Dispatch|Track]]/                 Work-tracking metadata
+│   ├── {NAME} Track.md                   Dispatch page
+│   ├── {NAME} [[CAB Backlog|Backlog]].md             Workflow-state core (required for Track)
+│   ├── {NAME} [[FCT Icebox|Icebox]].md              Cold-storage / someday-maybe (optional)
+│   └── {NAME} [[FCT Inbox|Inbox]].md               Raw content to process (optional)
+│
+├── {NAME} [[FCT User Dispatch|User Docs]]/              User-facing documentation
+│   ├── {NAME} User Docs.md               Dispatch page
+│   ├── {NAME} Guide.md                   Primary user guide
+│   └── CONFIG_REFERENCE.md
+│
+├── {NAME} [[FCT Dev Dispatch|Dev Docs]]/                Developer & implementation docs
+│   ├── {NAME} Dev Docs.md                Dispatch page (links Files + all modules)
+│   ├── {NAME} [[FCT All Files|Files]].md               File map with → doc links
+│   ├── {NAME} engine/                    ← mirrors src/engine/
+│   │   ├── {NAME} engine.md              [[FCT Module Doc|Module doc]] for the folder
+│   │   └── {NAME} Scheduler.md           [[FCT Module Doc|Module doc]] for a class
+│   └── {NAME} api/                       ← mirrors src/api/
+│       ├── {NAME} api.md
+│       └── {NAME} Router.md
 │
 ├── {NAME} [[FCT Cards|Cards]]/                         Cheat sheets & flashcards (optional)
 ├── [[FCT Claude|CLAUDE.md]]                             Claude Code config (optional)
@@ -71,27 +74,25 @@ See [[CAB Base]] shows files common to all anchors.
 ├── .git/
 ├── README.md
 ├── justfile                     [[CAB Repository Structure|Standard task recipes]]
-├── docs/                        [[FCT Documentation Site|sync-pushed]] from {NAME} Docs/
-│   ├── user/                    ← from {NAME} User/
-│   └── dev/                     ← from {NAME} Dev/
+├── docs/                        [[FCT Documentation Site|sync-pushed]] from the anchor's docs folders
+│   ├── user/                    ← from {NAME} User Docs/
+│   └── dev/                     ← from {NAME} Dev Docs/
 └── src/						 See [[FCT Module Doc]] for format of linked module docs.
 
 
 ## Software Design Documents
 
-Software project anchors use four design documents in Plan/. These are specification-only — they contain the current design, not the history of how it was reached.
+Software project anchors keep their design documents in `{NAME} Design/`; the system-architecture story lives in its own root-level `{NAME} Architecture/` folder. These are specification-only — they contain the current design, not the history of how it was reached.
 
 {NAME} PRD.md — **Product Requirements** — Defines what the product does: goals, user stories, scope, constraints, success criteria. The PRD also contains a design workflow table (see below) that links to the other design documents and describes their sequence.
 
-{NAME} Triage.md — **Triage** — Agent-owned inbox showing the **status of the anchor** — every item except those in `## Later` and `## Icebox`, grouped by workflow state (Active / Ready / Now / Next), in source order from the backlog. Status brackets carry counts (`**[3 Questions]**`, `**[Verify]**`). H1 banner has an anchor TAG (`[U]` / `[A]` / `[U+A]` / `[G]` / `[?]` / `[]`) plus pipe-grouped totals. À la carte questions live in the sibling `{NAME} Questions.md` facet; Triage just carries a bullet line linking to it. Destructively rewritten on each `/ask` or `/triage` run; the user reads and responds with shorthand.
-
-{NAME} Questions.md — **Questions** — Agent-owned facet for **à la carte** (cross-cutting, anchor-level, agent-raised) questions that don't belong to any feature doc. Same `## Open Questions` block format as feature docs (per [[SKA ask]]); same Phase 1 / 2 / 3 lifecycle. Created on first à la carte `/ask` against the anchor; updated on every à la carte `/ask`.
-
 {NAME} UX Design.md — **UX Design** — Specifies screens, navigation flows, user interactions, and visual layout. Current spec only — no rationale or alternatives.
 
-{NAME} System Design.md — **System Design** — Specifies system architecture, component boundaries, data models, APIs, and technical decisions. Current spec only — no rationale or alternatives.
+{NAME} Architecture/ — **Architecture** — Its own root-level folder (entry-point `{NAME} Architecture.md` + subsystem docs + optional `{NAME} API.md`). Specifies system architecture, component boundaries, data models, APIs, and technical decisions. See [[FCT Architecture]]. Current spec only — no rationale or alternatives.
 
 {NAME} Discussion.md — **Discussion** (optional) — Extended conversations about design choices, trade-offs, and redesign decisions. This is the place for "why" and "what we considered." Use dated sections. Unlike the other design docs, this file is a log, not a specification.
+
+Anchor-level questions are surfaced through `/query` into `{NAME} Track/{NAME} queries.md`; per-anchor status is surfaced into the vault-wide `~/ob/kmr/Q.md` (the standalone `{NAME} Triage.md` and `{NAME} Questions.md` Plan-era docs are retired).
 
 
 ### Design Workflow
@@ -100,13 +101,13 @@ The PRD should include a workflow table like this to orient readers:
 
 | Step | Document | Purpose |
 |------|----------|---------|
-| 1 | {NAME} PRD.md | Clarify requirements and scope |
-| 2 | {NAME} Triage.md | Inbox of items needing user input (auto-generated) |
-| 3 | {NAME} UX Design.md | Design user-facing experience |
-| 4 | {NAME} System Design.md | Design technical architecture |
-| 5 | {NAME} Files.md + Dev/ | File tree and module docs |
-| 6 | {NAME} Roadmap.md | Implementation milestones |
-| 7 | Dispatch tree | Verify all docs reachable from Docs.md (see [[CAB Docs]]) |
+| 1 | {NAME} Design/{NAME} PRD.md | Clarify requirements and scope |
+| 2 | {NAME} Track/{NAME} queries.md | Items needing user input (via `/query`) |
+| 3 | {NAME} Design/{NAME} UX Design.md | Design user-facing experience |
+| 4 | {NAME} Architecture/{NAME} Architecture.md | Design technical architecture |
+| 5 | {NAME} Dev Docs/{NAME} Files.md + Dev Docs/ | File tree and module docs |
+| 6 | {NAME} Design/{NAME} Roadmap.md | Implementation milestones |
+| 7 | Dispatch tree | Verify all docs reachable from the anchor page (see [[FCT Anchor Page]]) |
 
 Steps are iterative — resolving open questions may require revisiting the PRD or UX design.
 

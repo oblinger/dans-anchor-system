@@ -17,7 +17,7 @@ private, whether it lives inside the vault or outside.
 - **CLAUDE.md** — present at anchor root only. Never duplicated in the
   repo — a single source of truth prevents drift.
 - **README.md** — present in repo root
-- **Docs sync** — `{NAME} User/` and `{NAME} Dev/` can be sync-pushed to
+- **Docs sync** — `{NAME} User Docs/` and `{NAME} Dev Docs/` can be sync-pushed to
   the repo's `docs/`
 
 ## Repo Mode
@@ -37,10 +37,14 @@ projects where docs are public).
 ├── README.md
 ├── CLAUDE.md
 ├── {NAME}.md                        anchor page
-├── {NAME} Docs/                     planning docs (standard base structure)
+├── {NAME} Architecture/             system-architecture story (root-level folder)
+├── {NAME} Design/                   PRD / UX / Decisions / Interface
+├── {NAME} Track/                    backlog / features / roadmap
+├── {NAME} User Docs/                end-user / consumer guides
+├── {NAME} Dev Docs/                 Files.md + per-module docs
 ├── justfile                         build recipes
 ├── src/                             source code
-└── docs/                            sync-pushed from Docs/ (optional)
+└── docs/                            sync-pushed from User Docs/ + Dev Docs/ (optional)
 ```
 
 `.anchor` contains: `code: .`
@@ -56,7 +60,11 @@ files.
 ├── .anchor                          has `code: ../../proj/{path}/{repo}` (or absolute)
 ├── {CAB Folder}.md                  marker file
 ├── {NAME}.md                        anchor page
-├── {NAME} Docs/                     planning docs (standard base structure)
+├── {NAME} Architecture/             system-architecture story (root-level folder)
+├── {NAME} Design/                   PRD / UX / Decisions / Interface
+├── {NAME} Track/                    backlog / features / roadmap
+├── {NAME} User Docs/                end-user / consumer guides
+├── {NAME} Dev Docs/                 Files.md + per-module docs
 └── CLAUDE.md
 
 ~/ob/proj/{path}/{repo}/             outside vault, reached via `.anchor` code:
@@ -100,18 +108,20 @@ Type-specific structure checks for Code Anchors. These are run by
 ### Required files
 
 - `.anchor` with a `code:` key — the code repository must be declared
-- `{NAME} Docs/{NAME} Dev/` folder with dispatch page (`{NAME} Dev.md`)
-- `{NAME} Docs/{NAME} Design/` folder with dispatch page (`{NAME} Design.md`) — per [[F094 — Anchor docs folder restructure — Track _ User _ Architecture _ Dev|F094]]; holds Architecture + Interface
-- `{NAME} Docs/{NAME} User/` folder with dispatch page (`{NAME} User.md`)
-- `{NAME} Docs/{NAME} Dev/{NAME} Files.md` — codebase file tree
-- `{NAME} Docs/{NAME} Design/{NAME} Interface.md` — top-level layer contract (REQUIRED for Code, per [[CAB Interface]]; relocated from `{NAME} User/` per F094 Q3=A — 2026-06-01)
+- `{NAME} Architecture/` root-level folder with dispatch page (`{NAME} Architecture.md`) — system-architecture story, its own folder at the anchor root (per [[FCT Architecture]]; not nested under `{NAME} Design/`)
+- `{NAME} Dev Docs/` folder with dispatch page (`{NAME} Dev Docs.md`)
+- `{NAME} Design/` folder with dispatch page (`{NAME} Design.md`) — PRD / UX / Decisions / Interface
+- `{NAME} User Docs/` folder with dispatch page (`{NAME} User Docs.md`)
+- `{NAME} Dev Docs/{NAME} Files.md` — codebase file tree
+- `{NAME} Design/{NAME} Interface.md` — top-level layer contract (REQUIRED for Code, per [[CAB Interface]])
 - `README.md` in the repo root
 
 ### Required dispatch rows
 
-- **Dev** row in anchor page dispatch table, linking to Dev dispatch
-- **Design** row linking to Design dispatch (per F094)
-- **User** row if User folder exists
+- **Architecture** row in anchor page dispatch table, linking to the root-level Architecture folder
+- **Design** row linking to Design dispatch
+- **Dev Docs** row linking to Dev Docs dispatch
+- **User Docs** row if User Docs folder exists
 
 ### Dispatch row format
 
