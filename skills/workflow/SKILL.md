@@ -197,6 +197,18 @@ Honest categorization. `[Ready]` means *I (the agent) know how to do this withou
 
 The point of being honest is that a `[Ready]` count the user trusts is more valuable than a `[Ready]` count that has drifted into "items the agent has read."
 
+### The self-unblock test — before ANY item rests as `[Blocked]` (load-bearing)
+
+A blocker is real **only if it is outside the agent's control.** The four real blockers:
+1. a pending **user** decision/answer (often better expressed as `[Questions]`),
+2. an **external system** the agent can't make happen now — a remote host being reachable, a third-party API shipping, a CI run completing,
+3. **another unfinished feature's** outcome (`[Blocked F<NNN>]` — and only while that `F<NNN>` is genuinely unfinished),
+4. an explicit user **"do not build ahead of X"** directive.
+
+Before leaving anything `[Blocked]`, ask: **"Can I unblock this myself?"** If the "blocker" is **work the agent could just do** — *a script not yet written, a spec/doc not yet authored, a sweep / migration / rename not yet run, a refactor not yet done* — then it is **NOT blocked. It is unstarted `[Ready]`/`[Active]` work. Build it.** "I'd have to make X first" is never a blocker; X *is* the work.
+
+This is the failure mode the test kills: items parked `[Blocked]` for months whose only "blocker" is that nobody wrote the obvious prerequisite — the agent chasing its tail instead of building the thing. (Canonical example: F156 sat `[Blocked]` because `audit-dispatch.py` "didn't exist" — but writing it was exactly the agent's job.) **When in doubt, it's Ready, not Blocked.** `/groom` and `/triage` apply this test on every pass: a `[Blocked]` row whose blocker is agent-doable gets rebracketed to `[Ready]` (or `[Active]`) and surfaced for the agent to land.
+
 **Forms:**
 
 - `[Blocked]` — generic. Body describes what's blocking (diagnostic capture, external review, missing dependency, cross-agent decision, future API, …).
