@@ -34,6 +34,25 @@ These files are expected for ALL anchor types:
 
 Read the trait spec file from `~/.claude/skills/CAB/cab-traits/` for each of this anchor's traits (e.g., `Code Anchor.md`, `Topic Anchor.md`). If a trait spec has an `## Audit` section, run those checks. For multi-trait anchors, run the union of all trait-specific checks. This covers trait-specific files, folders, and conventions.
 
+### 4a. Check Sparse-Linked Anchor (`remotes:`)
+
+If the anchor's `.anchor` declares a `remotes:` list (a Sparse-Linked anchor per [[Anchor Remotes]] — the "docs in the vault, code at `~/ob/proj`, synced via git" pattern), verify the declaration against what is actually on disk. This is a read-only check delegated to the `code` tool (the `remotes:` realization logic has no place in this runbook's ad-hoc checks — it lives with the tool that builds the layout):
+
+```bash
+# Path: ob-skills/skills/ob-skills/scripts/code  (the `das` host). Read-only.
+ob-skills/skills/ob-skills/scripts/code audit <anchor-path>
+```
+
+`code audit` verifies, for the anchor:
+
+- each declared checkout's working tree exists and is a git work tree;
+- checkouts that share a `repo` are realized as **worktrees of one clone** (one `.git`, shared objects) — not two independent clones;
+- each checkout's **actual sparse cone matches its declared `from`** (no code leaked into a docs checkout, no docs leaked into the code checkout);
+- checkouts sharing a `repo` are **complementary** (their `from` subtrees don't overlap);
+- the top-level `code:` field equals the `at:` of the code checkout.
+
+It exits `0` when clean, `1` on any drift (printing one finding per problem), and `0` (skip) when the anchor has no `remotes:`. Fold any findings into the findings table in step 8 with action `code reattach <anchor> --apply` (rebuild) or `code link <anchor> --apply` (re-set a drifted sparse cone). **Audit never fixes** — surface the findings only.
+
 ### 5. Check Link Integrity
 
 Scan all markdown files in the anchor for wiki-links. For each `[[link]]`:

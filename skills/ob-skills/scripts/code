@@ -1,0 +1,627 @@
+#!/usr/bin/env python3
+"""code — sparse-link tool that realizes the `remotes:` anchor declaration.
+
+Wires up the "docs in the vault, code at ~/ob/proj, synced via git" pattern
+described by [[Anchor Remotes]] (DKT Standard). An anchor's `.anchor` file
+carries a `remotes:` list; each entry is one **checkout** — one slice
+(`from:`) of one repo (`repo:`) at one place on disk (`at:`). Checkouts that
+share a `repo` are realized as **git worktrees of a single clone** (one
+`.git`, shared objects), each sparse-set to its declared `from` cone.
+
+Subcommands (all take an anchor path; link/reattach are DRY unless --apply):
+
+  code link    <anchor>  [--apply]   set up every declared checkout (idempotent)
+  code reattach <anchor> [--apply]   rebuild any missing/detached checkout
+  code status  <anchor>              report declared-vs-on-disk for each checkout
+  code audit   <anchor>              read-only verification (exit!=0 on drift);
+                                     consumed by /audit structure
+
+`.anchor` is parsed as plain YAML (no `---` fences). `from`/`at` both default
+to `.`. The tool never touches working trees without --apply and never runs
+git commit/add.
+"""
+import argparse
+import os
+import subprocess
+import sys
+from dataclasses import dataclass, field
+from pathlib import Path
+
+try:
+    import yaml
+except ImportError:
+    sys.stderr.write("code: PyYAML is required (pip install pyyaml)\n")
+    sys.exit(2)
+
+
+# ── ANSI helpers ──────────────────────────────────────────────────────────────
+def _c(code, s):
+    return f"\033[{code}m{s}\033[0m" if sys.stdout.isatty() else s
+
+
+def ok(s):    return _c("32", s)
+def warn(s):  return _c("33", s)
+def err(s):   return _c("31", s)
+def dim(s):   return _c("2", s)
+def bold(s):  return _c("1", s)
+
+
+class CodeError(Exception):
+    """A user-facing, non-destructive failure."""
+
+
+# ── data model ────────────────────────────────────────────────────────────────
+@dataclass
+class Checkout:
+    repo: str
+    frm: str            # 'from' subtree, '.' = whole repo
+    at_raw: str         # as written in .anchor
+    at: Path            # resolved absolute path
+    is_anchor_root: bool  # at == the anchor dir itself
+
+    def label(self):
+        return f"{self.repo} [from {self.frm} → at {self.at_raw}]"
+
+
+@dataclass
+class RepoGroup:
+    repo: str
+    checkouts: list = field(default_factory=list)
+    main: Checkout = None     # the checkout that hosts the clone / main worktree
+
+
+# ── parsing ───────────────────────────────────────────────────────────────────
+def find_anchor_file(anchor_path: Path) -> Path:
+    """Resolve the .anchor file for an anchor given a dir or the file itself."""
+    anchor_path = anchor_path.expanduser().resolve()
+    if anchor_path.is_file() and anchor_path.name == ".anchor":
+        return anchor_path
+    if anchor_path.is_dir():
+        cand = anchor_path / ".anchor"
+        if cand.is_file():
+            return cand
+        raise CodeError(f"no .anchor file in {anchor_path}")
+    raise CodeError(f"not an anchor dir or .anchor file: {anchor_path}")
+
+
+def resolve_at(at_raw: str, anchor_dir: Path) -> tuple:
+    """Return (resolved_abs_path, is_anchor_root)."""
+    if at_raw in (".", "", None):
+        return anchor_dir, True
+    p = Path(os.path.expanduser(at_raw))
+    if not p.is_absolute():
+        p = anchor_dir / p
+    p = p.resolve()
+    return p, (p == anchor_dir)
+
+
+def load_anchor(anchor_path: Path):
+    """Return (anchor_dir, anchor_file, parsed_yaml, list[RepoGroup], code_field)."""
+    anchor_file = find_anchor_file(anchor_path)
+    anchor_dir = anchor_file.parent
+    text = anchor_file.read_text()
+    try:
+        data = yaml.safe_load(text) or {}
+    except yaml.YAMLError as e:
+        raise CodeError(f"could not parse {anchor_file} as YAML: {e}")
+    if not isinstance(data, dict):
+        raise CodeError(f"{anchor_file}: top-level YAML is not a mapping")
+
+    remotes = data.get("remotes")
+    if not remotes:
+        raise CodeError(
+            f"{anchor_file}: no `remotes:` list — this is not a Sparse-Linked anchor"
+        )
+    if not isinstance(remotes, list):
+        raise CodeError(f"{anchor_file}: `remotes:` must be a list")
+
+    checkouts = []
+    for i, entry in enumerate(remotes):
+        if not isinstance(entry, dict):
+            raise CodeError(f"{anchor_file}: remotes[{i}] is not a mapping")
+        repo = entry.get("repo")
+        if not repo:
+            raise CodeError(f"{anchor_file}: remotes[{i}] missing required `repo`")
+        frm = (entry.get("from") or ".").strip()
+        at_raw = (entry.get("at") or ".").strip()
+        at, is_root = resolve_at(at_raw, anchor_dir)
+        checkouts.append(Checkout(repo, frm, at_raw, at, is_root))
+
+    # group by repo, preserve declaration order
+    groups = {}
+    order = []
+    for co in checkouts:
+        if co.repo not in groups:
+            groups[co.repo] = RepoGroup(co.repo)
+            order.append(co.repo)
+        groups[co.repo].checkouts.append(co)
+
+    repo_groups = [groups[r] for r in order]
+    for g in repo_groups:
+        g.main = _pick_main(g.checkouts)
+
+    code_field = data.get("code")
+    return anchor_dir, anchor_file, data, repo_groups, code_field
+
+
+def _pick_main(checkouts: list) -> Checkout:
+    """The checkout that hosts the real clone / main worktree.
+
+    Prefer an off-mount checkout (keeps the heavy object store out of the
+    vault); among those prefer `from: .` (the largest slice). If every
+    checkout lands at the anchor root, the first one becomes the in-place clone.
+    """
+    offmount = [c for c in checkouts if not c.is_anchor_root]
+    if offmount:
+        whole = [c for c in offmount if c.frm == "."]
+        return whole[0] if whole else offmount[0]
+    return checkouts[0]
+
+
+# ── sparse cone derivation ────────────────────────────────────────────────────
+def _norm_subtree(frm: str) -> str:
+    return "/" + frm.strip("/") + "/"
+
+
+def expected_patterns(co: Checkout, group: RepoGroup):
+    """Derive the non-cone sparse-checkout patterns for one checkout.
+
+    Returns None when no sparse cone is needed (whole repo, no siblings claiming
+    a subtree), else a list of gitignore-style include/negate lines.
+    """
+    siblings = [c for c in group.checkouts if c is not co]
+    if co.frm == ".":
+        claimed = sorted({_norm_subtree(c.frm) for c in siblings if c.frm != "."})
+        if not claimed:
+            return None  # plain whole-repo checkout — no sparse needed
+        return ["/*"] + [f"!{c}" for c in claimed]
+    return [_norm_subtree(co.frm)]
+
+
+# ── git helpers ───────────────────────────────────────────────────────────────
+def git(args, cwd=None, check=True, capture=True):
+    res = subprocess.run(
+        ["git"] + args, cwd=cwd, text=True,
+        stdout=subprocess.PIPE if capture else None,
+        stderr=subprocess.PIPE if capture else None,
+    )
+    if check and res.returncode != 0:
+        msg = (res.stderr or res.stdout or "").strip()
+        raise CodeError(f"git {' '.join(args)} failed: {msg}")
+    return res
+
+
+def is_git_worktree(path: Path) -> bool:
+    if not path.exists():
+        return False
+    res = git(["-C", str(path), "rev-parse", "--is-inside-work-tree"], check=False)
+    return res.returncode == 0 and res.stdout.strip() == "true"
+
+
+def worktree_toplevel(path: Path):
+    res = git(["-C", str(path), "rev-parse", "--show-toplevel"], check=False)
+    if res.returncode != 0:
+        return None
+    return Path(res.stdout.strip()).resolve()
+
+
+def clone_remote_url(path: Path):
+    res = git(["-C", str(path), "remote", "get-url", "origin"], check=False)
+    return res.stdout.strip() if res.returncode == 0 else None
+
+
+def registered_worktrees(clone: Path):
+    res = git(["-C", str(clone), "worktree", "list", "--porcelain"], check=False)
+    paths = []
+    if res.returncode == 0:
+        for line in res.stdout.splitlines():
+            if line.startswith("worktree "):
+                paths.append(Path(line[len("worktree "):]).resolve())
+    return paths
+
+
+def default_branch(clone: Path):
+    res = git(["-C", str(clone), "rev-parse", "--abbrev-ref", "HEAD"], check=False)
+    b = res.stdout.strip()
+    if b and b != "HEAD":
+        return b
+    res = git(["-C", str(clone), "symbolic-ref", "--short", "refs/remotes/origin/HEAD"],
+              check=False)
+    ref = res.stdout.strip()
+    return ref.split("/", 1)[1] if "/" in ref else (ref or "main")
+
+
+def sparse_file(path: Path):
+    res = git(["-C", str(path), "rev-parse", "--git-path", "info/sparse-checkout"],
+              check=False)
+    if res.returncode != 0:
+        return None
+    gp = Path(res.stdout.strip())
+    if not gp.is_absolute():
+        gp = (path / gp).resolve()
+    return gp
+
+
+def actual_patterns(path: Path):
+    """Current sparse patterns for a worktree, or None if sparse not enabled."""
+    res = git(["-C", str(path), "config", "core.sparseCheckout"], check=False)
+    if res.stdout.strip() != "true":
+        return None
+    sf = sparse_file(path)
+    if not sf or not sf.exists():
+        return []
+    return [ln.strip() for ln in sf.read_text().splitlines()
+            if ln.strip() and not ln.strip().startswith("#")]
+
+
+def patterns_match(expected, actual) -> bool:
+    if expected is None:
+        return actual is None or actual == []
+    if actual is None:
+        return False
+    return set(expected) == set(actual)
+
+
+# ── plan / action engine ──────────────────────────────────────────────────────
+class Runner:
+    def __init__(self, apply: bool):
+        self.apply = apply
+        self.actions = 0
+
+    def do(self, desc, fn):
+        """Record/print one action; execute it only when --apply."""
+        self.actions += 1
+        if self.apply:
+            print("  " + ok("apply ") + desc)
+            fn()
+        else:
+            print("  " + warn("plan  ") + desc)
+
+    def note(self, desc):
+        print("  " + dim("ok    " + desc))
+
+
+def _set_sparse(path: Path, patterns):
+    if patterns is None:
+        # whole repo — make sure sparse is off
+        git(["-C", str(path), "sparse-checkout", "disable"], check=False)
+        return
+    git(["-C", str(path), "sparse-checkout", "init", "--no-cone"])
+    sf = sparse_file(path)
+    sf.parent.mkdir(parents=True, exist_ok=True)
+    sf.write_text("\n".join(patterns) + "\n")
+    git(["-C", str(path), "sparse-checkout", "reapply"])
+
+
+def _setup_main(group: RepoGroup, r: Runner):
+    co = group.main
+    pats = expected_patterns(co, group)
+    cone = co.frm if co.frm != "." else "(whole)"
+
+    # already a valid clone?
+    if is_git_worktree(co.at) and worktree_toplevel(co.at) == co.at:
+        url = clone_remote_url(co.at)
+        if url == co.repo:
+            if patterns_match(pats, actual_patterns(co.at)):
+                r.note(f"clone present + sparse ok at {co.at} [{cone}]")
+            else:
+                r.do(f"reset sparse cone at {co.at} → {pats}",
+                     lambda: _set_sparse(co.at, pats))
+            return
+        raise CodeError(
+            f"{co.at} is a git work tree but origin={url!r} != declared repo "
+            f"{co.repo!r}; refusing to touch it")
+
+    if co.at.exists() and not co.is_anchor_root and any(co.at.iterdir()):
+        raise CodeError(f"clone target {co.at} exists and is non-empty; refusing "
+                        f"to clobber — move it aside or remove it first")
+
+    if co.is_anchor_root:
+        # in-place init: preserve untracked vault files (.anchor, existing docs)
+        def _inplace():
+            git(["init", str(co.at)])
+            git(["-C", str(co.at), "remote", "add", "origin", co.repo], check=False)
+            git(["-C", str(co.at), "fetch", "origin"])
+            br = default_branch_after_fetch(co.at)
+            _set_sparse(co.at, pats)
+            git(["-C", str(co.at), "checkout", br])
+        r.do(f"in-place clone {co.repo} at anchor root {co.at} [{cone}] "
+             f"(preserves untracked files)", _inplace)
+    else:
+        def _clone():
+            co.at.parent.mkdir(parents=True, exist_ok=True)
+            git(["clone", co.repo, str(co.at)])
+            _set_sparse(co.at, pats)
+        r.do(f"clone {co.repo} → {co.at} [{cone}]", _clone)
+
+
+def default_branch_after_fetch(path: Path):
+    res = git(["-C", str(path), "symbolic-ref", "--short", "refs/remotes/origin/HEAD"],
+              check=False)
+    if res.returncode == 0 and res.stdout.strip():
+        return res.stdout.strip().split("/", 1)[1]
+    for cand in ("main", "master"):
+        if git(["-C", str(path), "rev-parse", "--verify", f"origin/{cand}"],
+               check=False).returncode == 0:
+            return cand
+    # fall back to first remote branch
+    res = git(["-C", str(path), "branch", "-r"], check=False)
+    for ln in res.stdout.splitlines():
+        ln = ln.strip()
+        if ln and "->" not in ln:
+            return ln.split("/", 1)[1]
+    return "main"
+
+
+def _setup_worktree(group: RepoGroup, co: Checkout, r: Runner):
+    clone = group.main.at
+    pats = expected_patterns(co, group)
+    cone = co.frm if co.frm != "." else "(whole)"
+
+    # already a registered worktree?
+    if co.at.exists() and is_git_worktree(co.at) and co.at in registered_worktrees(clone):
+        if patterns_match(pats, actual_patterns(co.at)):
+            r.note(f"worktree present + sparse ok at {co.at} [{cone}]")
+        else:
+            r.do(f"reset sparse cone at {co.at} → {pats}",
+                 lambda: _set_sparse(co.at, pats))
+        return
+
+    # guard: anchor-root worktree may only hold .anchor (+ nothing else untracked)
+    preserved = None
+    if co.at.exists():
+        entries = [p for p in co.at.iterdir() if p.name not in (".git",)]
+        if co.is_anchor_root and {p.name for p in entries} <= {".anchor"}:
+            preserved = co.at / ".anchor" if (co.at / ".anchor").exists() else None
+        elif entries:
+            raise CodeError(
+                f"worktree target {co.at} is non-empty (not just .anchor); refusing "
+                f"to clobber — migrate its contents into {co.repo} first")
+
+    branch = None
+
+    def _add():
+        nonlocal branch
+        branch = default_branch(clone)
+        tmp = None
+        if preserved is not None:
+            tmp = preserved.parent.parent / (".anchor.codetmp")
+            preserved.rename(tmp)
+        if co.at.exists():
+            co.at.rmdir()
+        git(["-C", str(clone), "worktree", "add", "--detach", str(co.at), branch])
+        if tmp is not None:
+            tmp.rename(co.at / ".anchor")
+        _set_sparse(co.at, pats)
+
+    r.do(f"add worktree at {co.at} [{cone}] (detached @ default branch, "
+         f"shares {clone}/.git)", _add)
+
+
+def cmd_link(anchor_path, apply, reattach=False):
+    anchor_dir, anchor_file, data, groups, code_field = load_anchor(anchor_path)
+    mode = "reattach" if reattach else "link"
+    print(bold(f"code {mode}: {anchor_file}"))
+    print(dim(f"  anchor dir: {anchor_dir}"))
+    r = Runner(apply)
+    for g in groups:
+        print(bold(f"\nrepo {g.repo}  ({len(g.checkouts)} checkout"
+                   f"{'s' if len(g.checkouts) != 1 else ''})"))
+        if reattach and g.main.at.exists() and is_git_worktree(g.main.at):
+            # clear stale worktree registrations so missing trees can be re-added
+            git(["-C", str(g.main.at), "worktree", "prune"], check=False)
+        _setup_main(g, r)
+        for co in g.checkouts:
+            if co is g.main:
+                continue
+            _setup_worktree(g, co, r)
+
+    _report_code_field(groups, code_field)
+    print()
+    if apply:
+        print(ok(f"done — {r.actions} action(s) executed"))
+    else:
+        print(warn(f"dry-run — {r.actions} action(s) planned; re-run with --apply"))
+    return 0
+
+
+def _code_checkout(groups):
+    """The checkout that `code:` should point at — the off-mount code slice."""
+    for g in groups:
+        offmount = [c for c in g.checkouts if not c.is_anchor_root]
+        whole = [c for c in offmount if c.frm == "."]
+        if whole:
+            return whole[0]
+        if offmount:
+            return offmount[0]
+    return None
+
+
+def _report_code_field(groups, code_field):
+    cc = _code_checkout(groups)
+    if cc is None:
+        return
+    if code_field is None:
+        print(dim(f"\n  note: no `code:` field set; code checkout is at {cc.at}"))
+        return
+    declared = Path(os.path.expanduser(code_field)).resolve()
+    if declared == cc.at:
+        print(dim(f"\n  code: {code_field} ✓ matches code checkout {cc.at}"))
+    else:
+        print(warn(f"\n  code: {code_field} → {declared} does NOT match code "
+                   f"checkout {cc.at}"))
+
+
+# ── status / audit ────────────────────────────────────────────────────────────
+def _inspect(groups, code_field):
+    """Return (rows, problems). rows: list of dicts; problems: list of str."""
+    rows = []
+    problems = []
+    for g in groups:
+        clone = g.main.at
+        clone_ok = is_git_worktree(clone) and clone_remote_url(clone) == g.repo
+        for co in g.checkouts:
+            pats = expected_patterns(co, g)
+            wt_present = co.at.exists() and is_git_worktree(co.at)
+            shared = False
+            sparse_ok = None
+            if wt_present:
+                if co is g.main:
+                    shared = True
+                else:
+                    shared = co.at in registered_worktrees(clone)
+                sparse_ok = patterns_match(pats, actual_patterns(co.at))
+            row = {
+                "co": co, "is_main": co is g.main,
+                "clone_ok": clone_ok, "wt_present": wt_present,
+                "shared": shared, "sparse_ok": sparse_ok,
+                "cone": co.frm,
+            }
+            rows.append(row)
+            if not wt_present:
+                problems.append(f"{co.label()}: working tree missing at {co.at}")
+            else:
+                if not co.is_anchor_root and not shared:
+                    problems.append(
+                        f"{co.label()}: at {co.at} is NOT a worktree of clone {clone} "
+                        f"(not sharing one .git)")
+                if sparse_ok is False:
+                    problems.append(
+                        f"{co.label()}: sparse cone at {co.at} does not match declared "
+                        f"from={co.frm} (expected {pats}, got {actual_patterns(co.at)})")
+            if not clone_ok and co is g.main:
+                problems.append(f"{g.repo}: clone at {clone} missing or wrong origin")
+
+    # code: field
+    cc = _code_checkout(groups)
+    if cc is not None and code_field is not None:
+        declared = Path(os.path.expanduser(code_field)).resolve()
+        if declared != cc.at:
+            problems.append(
+                f"code: {code_field} ({declared}) != code checkout at {cc.at}")
+    return rows, problems
+
+
+def cmd_status(anchor_path):
+    anchor_dir, anchor_file, data, groups, code_field = load_anchor(anchor_path)
+    print(bold(f"code status: {anchor_file}"))
+    rows, problems = _inspect(groups, code_field)
+    print()
+    hdr = f"  {'checkout':46} {'clone':6} {'worktree':9} {'shared':7} {'sparse':7}"
+    print(bold(hdr))
+    for row in rows:
+        co = row["co"]
+        name = co.label()
+        if len(name) > 45:
+            name = name[:44] + "…"
+
+        def mark(v, true="yes", false="NO", na="-"):
+            if v is None:
+                return dim(na)
+            return ok(true) if v else err(false)
+
+        role = " (main)" if row["is_main"] else ""
+        print(f"  {name:46} "
+              f"{mark(row['clone_ok']):>15} "
+              f"{mark(row['wt_present']):>18} "
+              f"{mark(True if row['shared'] else (None if not row['wt_present'] else False)):>16} "
+              f"{mark(row['sparse_ok']):>16}{role}")
+
+    cc = _code_checkout(groups)
+    print()
+    if cc is not None:
+        if code_field is None:
+            print(dim(f"  code: (unset) — code checkout at {cc.at}"))
+        else:
+            declared = Path(os.path.expanduser(code_field)).resolve()
+            good = declared == cc.at
+            print(f"  code: {code_field} → "
+                  + (ok("matches") if good else err("MISMATCH"))
+                  + f" code checkout {cc.at}")
+
+    print()
+    if problems:
+        print(err(f"{len(problems)} problem(s):"))
+        for p in problems:
+            print("  - " + p)
+        return 1
+    print(ok("clean — every declared checkout matches disk"))
+    return 0
+
+
+def cmd_audit(anchor_path):
+    """Read-only structural verification of a Sparse-Linked anchor.
+
+    Used by /audit structure (see audit-structure.md). Prints findings and
+    exits non-zero on any drift. Never modifies anything.
+    """
+    try:
+        anchor_dir, anchor_file, data, groups, code_field = load_anchor(anchor_path)
+    except CodeError as e:
+        # not a sparse-linked anchor → nothing to check, exit clean
+        if "no `remotes:`" in str(e):
+            print(dim("code audit: no remotes: — not a Sparse-Linked anchor (skip)"))
+            return 0
+        raise
+    rows, problems = _inspect(groups, code_field)
+
+    # complementary-cone check: checkouts sharing a repo must not overlap
+    for g in groups:
+        subtrees = [c for c in g.checkouts if c.frm != "."]
+        for i in range(len(subtrees)):
+            for j in range(i + 1, len(subtrees)):
+                a, b = subtrees[i].frm.strip("/"), subtrees[j].frm.strip("/")
+                if a == b or a.startswith(b + "/") or b.startswith(a + "/"):
+                    problems.append(
+                        f"{g.repo}: checkouts {a!r} and {b!r} overlap — sparse cones "
+                        f"are not complementary")
+
+    print(bold(f"code audit: {anchor_file}"))
+    if problems:
+        print(err(f"  {len(problems)} finding(s):"))
+        for p in problems:
+            print("  - " + p)
+        return 1
+    print(ok("  Sparse-Linked anchor verified — cones complementary, "
+             "worktrees shared, code: agrees"))
+    return 0
+
+
+# ── CLI ───────────────────────────────────────────────────────────────────────
+def main(argv=None):
+    parser = argparse.ArgumentParser(
+        prog="code",
+        description="Sparse-link tool realizing the remotes: anchor declaration.")
+    sub = parser.add_subparsers(dest="cmd", required=True)
+
+    for name, helptext in [
+        ("link", "set up every declared checkout (DRY unless --apply)"),
+        ("reattach", "rebuild missing/detached checkouts (DRY unless --apply)"),
+        ("status", "report declared-vs-on-disk for each checkout"),
+        ("audit", "read-only verification; exit!=0 on drift"),
+    ]:
+        p = sub.add_parser(name, help=helptext)
+        p.add_argument("anchor", help="path to the anchor dir or its .anchor file")
+        if name in ("link", "reattach"):
+            p.add_argument("--apply", action="store_true",
+                           help="execute the plan (default: dry-run)")
+
+    args = parser.parse_args(argv)
+    anchor = Path(args.anchor)
+    try:
+        if args.cmd == "link":
+            return cmd_link(anchor, args.apply)
+        if args.cmd == "reattach":
+            return cmd_link(anchor, args.apply, reattach=True)
+        if args.cmd == "status":
+            return cmd_status(anchor)
+        if args.cmd == "audit":
+            return cmd_audit(anchor)
+    except CodeError as e:
+        sys.stderr.write(err("code: ") + str(e) + "\n")
+        return 2
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
