@@ -1,7 +1,7 @@
 ---
-description: "Side-by-side review gallery for the Viz Benchmark — each of the 12 prompts rendered by both the /viz svg (hand-authored SVG) and /viz d2 (D2 engine) renderers, with fidelity and legibility verdicts scored against each prompt's acceptance criteria."
+description: "Side-by-side review gallery for the Viz Bench — each of the 12 prompts rendered by both the /viz svg (hand-authored SVG) and /viz d2 (D2 engine) renderers, with fidelity and legibility verdicts scored against each prompt's acceptance criteria."
 ---
-# Viz Benchmark Gallery
+# Viz Bench Gallery
 
 This gallery assembles every render from the viz benchmark for side-by-side review: each of the 12 prompts is shown twice — once via the hand-authored `/viz svg` track and once via the `/viz d2` (D2 + ELK) track. Both renderers achieved **perfect fidelity (12/12)** — every node, edge, label, direction, and style in each spec was reproduced with nothing added, dropped, merged, or reordered. The renderers diverge on **legibility at the 800px embed width**: hand-authored SVG passes 8/12 (it controls font size against canvas width directly), while D2 passes 7/12 (its layout grows the canvas to satisfy ELK's crossing-free spacing, so text scales down proportionally at a fixed embed width — the misses are dense diagrams whose native resolution is genuinely large). Legibility misses are noted per render; in every case the diagram is fully legible at native resolution and only falls short of the strict `font_px × 800 / width ≥ 18` thumbnail metric.
 

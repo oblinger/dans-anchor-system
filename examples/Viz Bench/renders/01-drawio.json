@@ -1,0 +1,171 @@
+{
+ "direction": "TB",
+ "nodes": [
+  {
+   "id": "web-sdk",
+   "label": "Web/Mobile Event SDK",
+   "style": "rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;",
+   "width": 160
+  },
+  {
+   "id": "order-svc",
+   "label": "Order Service",
+   "style": "rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;",
+   "width": 160
+  },
+  {
+   "id": "ingest-gw",
+   "label": "Ingestion Gateway",
+   "style": "rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+   "width": 160
+  },
+  {
+   "id": "kafka-bus",
+   "label": "Kafka Event Bus",
+   "style": "rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;",
+   "width": 160
+  },
+  {
+   "id": "enrich-proc",
+   "label": "Enrichment Processor",
+   "style": "rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+   "width": 160
+  },
+  {
+   "id": "agg-proc",
+   "label": "Aggregation Processor",
+   "style": "rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+   "width": 160
+  },
+  {
+   "id": "profile-db",
+   "label": "User Profile DB",
+   "style": "shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;",
+   "width": 150,
+   "height": 80
+  },
+  {
+   "id": "serving-store",
+   "label": "Serving Store (ClickHouse)",
+   "style": "shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;",
+   "width": 160,
+   "height": 80
+  },
+  {
+   "id": "query-api",
+   "label": "Analytics Query API",
+   "style": "rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+   "width": 160
+  },
+  {
+   "id": "dashboard",
+   "label": "Analytics Dashboard",
+   "style": "rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;",
+   "width": 160
+  },
+  {
+   "id": "config-svc",
+   "label": "Config Service",
+   "style": "rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;",
+   "width": 160
+  },
+  {
+   "id": "metrics-col",
+   "label": "Metrics Collector",
+   "style": "rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;",
+   "width": 160
+  }
+ ],
+ "edges": [
+  {
+   "source": "web-sdk",
+   "target": "ingest-gw",
+   "label": "click events"
+  },
+  {
+   "source": "order-svc",
+   "target": "ingest-gw",
+   "label": "order events"
+  },
+  {
+   "source": "ingest-gw",
+   "target": "kafka-bus",
+   "label": "publish raw"
+  },
+  {
+   "source": "kafka-bus",
+   "target": "enrich-proc",
+   "label": "consume raw"
+  },
+  {
+   "source": "enrich-proc",
+   "target": "profile-db",
+   "label": "lookup profile"
+  },
+  {
+   "source": "enrich-proc",
+   "target": "kafka-bus",
+   "label": "publish enriched"
+  },
+  {
+   "source": "kafka-bus",
+   "target": "agg-proc",
+   "label": "consume enriched"
+  },
+  {
+   "source": "agg-proc",
+   "target": "serving-store",
+   "label": "write aggregates"
+  },
+  {
+   "source": "query-api",
+   "target": "serving-store",
+   "label": "read aggregates"
+  },
+  {
+   "source": "dashboard",
+   "target": "query-api",
+   "label": "query (REST)"
+  },
+  {
+   "source": "config-svc",
+   "target": "ingest-gw",
+   "label": "sampling"
+  },
+  {
+   "source": "config-svc",
+   "target": "enrich-proc",
+   "label": "join rules"
+  },
+  {
+   "source": "config-svc",
+   "target": "agg-proc",
+   "label": "window sizes"
+  },
+  {
+   "source": "config-svc",
+   "target": "query-api",
+   "label": "feature flags"
+  },
+  {
+   "source": "metrics-col",
+   "target": "ingest-gw",
+   "label": "scrape"
+  },
+  {
+   "source": "metrics-col",
+   "target": "enrich-proc",
+   "label": "scrape"
+  },
+  {
+   "source": "metrics-col",
+   "target": "agg-proc",
+   "label": "scrape"
+  },
+  {
+   "source": "metrics-col",
+   "target": "query-api",
+   "label": "scrape"
+  }
+ ]
+}

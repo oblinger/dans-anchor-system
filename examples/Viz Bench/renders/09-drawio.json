@@ -1,0 +1,194 @@
+{
+ "direction": "TB",
+ "nodes": [
+  {
+   "id": "start",
+   "label": "Developer pushes commit",
+   "style": "rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;",
+   "width": 180
+  },
+  {
+   "id": "build",
+   "label": "Build & compile artifact",
+   "style": "rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+   "width": 170
+  },
+  {
+   "id": "build_ok",
+   "label": "Build succeeded?",
+   "style": "rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;",
+   "width": 150,
+   "height": 80
+  },
+  {
+   "id": "unit_tests",
+   "label": "Run unit + integration tests",
+   "style": "rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+   "width": 180
+  },
+  {
+   "id": "tests_pass",
+   "label": "Tests pass?",
+   "style": "rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;",
+   "width": 150,
+   "height": 80
+  },
+  {
+   "id": "flaky_check",
+   "label": "Failure flaky?",
+   "style": "rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;",
+   "width": 150,
+   "height": 80
+  },
+  {
+   "id": "approval",
+   "label": "Await manual approval",
+   "style": "rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+   "width": 170
+  },
+  {
+   "id": "approved",
+   "label": "Approved?",
+   "style": "rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;",
+   "width": 150,
+   "height": 80
+  },
+  {
+   "id": "deploy_staging",
+   "label": "Deploy to staging",
+   "style": "rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+   "width": 170
+  },
+  {
+   "id": "smoke",
+   "label": "Run smoke tests",
+   "style": "rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+   "width": 170
+  },
+  {
+   "id": "smoke_ok",
+   "label": "Smoke tests pass?",
+   "style": "rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;",
+   "width": 150,
+   "height": 80
+  },
+  {
+   "id": "promote",
+   "label": "Promote to production",
+   "style": "rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+   "width": 170
+  },
+  {
+   "id": "rollback",
+   "label": "Auto-rollback staging",
+   "style": "rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+   "width": 170
+  },
+  {
+   "id": "notify_fail",
+   "label": "Notify team of failure",
+   "style": "rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+   "width": 170
+  },
+  {
+   "id": "done_success",
+   "label": "Pipeline complete (deployed)",
+   "style": "rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;",
+   "width": 190
+  },
+  {
+   "id": "done_fail",
+   "label": "Pipeline failed (no deploy)",
+   "style": "rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;",
+   "width": 190
+  }
+ ],
+ "edges": [
+  {
+   "source": "start",
+   "target": "build"
+  },
+  {
+   "source": "build",
+   "target": "build_ok"
+  },
+  {
+   "source": "build_ok",
+   "target": "unit_tests",
+   "label": "yes"
+  },
+  {
+   "source": "build_ok",
+   "target": "notify_fail",
+   "label": "no"
+  },
+  {
+   "source": "unit_tests",
+   "target": "tests_pass"
+  },
+  {
+   "source": "tests_pass",
+   "target": "approval",
+   "label": "yes"
+  },
+  {
+   "source": "tests_pass",
+   "target": "flaky_check",
+   "label": "no"
+  },
+  {
+   "source": "flaky_check",
+   "target": "unit_tests",
+   "label": "yes - retry"
+  },
+  {
+   "source": "flaky_check",
+   "target": "notify_fail",
+   "label": "no"
+  },
+  {
+   "source": "approval",
+   "target": "approved"
+  },
+  {
+   "source": "approved",
+   "target": "deploy_staging",
+   "label": "yes"
+  },
+  {
+   "source": "approved",
+   "target": "notify_fail",
+   "label": "no"
+  },
+  {
+   "source": "deploy_staging",
+   "target": "smoke"
+  },
+  {
+   "source": "smoke",
+   "target": "smoke_ok"
+  },
+  {
+   "source": "smoke_ok",
+   "target": "promote",
+   "label": "yes"
+  },
+  {
+   "source": "smoke_ok",
+   "target": "rollback",
+   "label": "no"
+  },
+  {
+   "source": "rollback",
+   "target": "notify_fail"
+  },
+  {
+   "source": "promote",
+   "target": "done_success"
+  },
+  {
+   "source": "notify_fail",
+   "target": "done_fail"
+  }
+ ]
+}
