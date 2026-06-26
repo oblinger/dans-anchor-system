@@ -27,6 +27,10 @@ The top-of-file table convention that gives most anchor pages and many facet pag
 
 A markdown table placed immediately under the H1 of a page. The first row carries the breadcrumb cell (anchor path + hook URL); subsequent rows group related links by category. Wiki-links inside table cells escape the pipe as `[[Target\|Display]]`.
 
+**Page-top discipline (every page).** `# <H1>` on the first line, the **one-line summary directly underneath — no blank line between** — then one blank line, then this dispatch table. (An overview figure, if any, sits between the summary and the table.)
+
+**Masthead rows — the confirmed model** (worked exemplars: [[SKA crank]] / [[SKA audit]] / [[SKA workflow]]; vault-wide rollout tracked in [[F189]]). After the breadcrumb identity row, each of the following appears **only if it applies**, in order: an optional **Related** row; a **type-specific row** whose label is the anchor's *type* word (`Skill`, `Discipline`, …) carrying the type's external/runtime links (the user docs `[[SKL <Name>\|User Docs]]` + the `SKILL` object); and a **container group-row per sub-area** (`Track`, `Design`) whose label links *down* to the container page and whose cell surfaces that container's key members for a one-click jump. This **supersedes the generic `Anchor` row** — "everything is an anchor", so the label conveyed nothing; the type-specific row replaces it. **List only members that exist** — never pre-populate phantom/empty links (they render as strikethrough cruft, and a mis-click mints a blank doc); new docs auto-appear under the `| --- | |` electric marker, and the menu of *possible* docs lives in the facet + the creating skill, not as dead links.
+
 ## Anatomy of a dispatch row
 
 ```markdown
@@ -147,10 +151,10 @@ include::
 where:: file: {ANCHOR}/**/*.md
 description:: The shape every dispatch table must take — masthead-placement law, member-zone mechanics, and pipe-escaped cell links.
 
-### RULE R-dispatch-table-01 — Masthead is breadcrumb + Anchor + (Design) + Related, in that order (checked)
-The masthead is **exactly** the breadcrumb identity row plus the standard rows `Anchor`, `Design` (only if the anchor has a design flow), and `Related` — in that order, no others. Each standard kind of information has one row, present iff that information exists.
-**Check pattern:** masthead rows are drawn only from {breadcrumb, Anchor, Design, Related, Examples}; the canonical names are used verbatim (never e.g. "Sibling" for Related).
-**Why:** a switchboard, not a directory — ad-hoc rows scatter information and break the one-row-per-kind law.
+### RULE R-dispatch-table-01 — Masthead = breadcrumb + [Related] + type-specific row + container group-rows (checked)
+The masthead is the breadcrumb identity row plus, each present **only if it applies** and in order: an optional **Related** row; a **type-specific row** whose label is the anchor's *type* word (`Skill`, `Discipline`, …) carrying the type's external/runtime links; and a **container group-row** per sub-area (`Track`, `Design`, …) whose label links *down* to the container page. There is **no generic `Anchor` row** — superseded (everything is an anchor; the label conveyed nothing). Full model + worked exemplars: § What it is.
+**Check pattern:** no row labeled `Anchor`; the type-specific row's label is the anchor's type word; each container row's label is a link to its container page.
+**Why:** a switchboard whose rows name *what kind of thing* they reach.
 
 ### RULE R-dispatch-table-02 — Anything enumerable drops to the Member zone (stated)
 Members, sub-items, and worked examples are **not** masthead rows — they live in the Member zone below, on [[Collection]] anchors.
