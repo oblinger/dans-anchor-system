@@ -15,6 +15,18 @@ Enforces the structure spec'd in [[FCT Dispatch Table]] (see [[F155 — Dispatch
 
 `/audit structure` *diagnoses* broad structural issues across an anchor (missing files, broken links, orphans) and files a backlog row. `/audit dispatch` *fixes* exactly one thing — the **shape of one dispatch table** — by default. Use `/audit dispatch` to make a table good; use `/audit structure` to find what's wrong across the anchor.
 
+## Engine
+
+The mechanical work is done by `scripts/audit-dispatch.py` — it parses the current table, rebuilds it to the Masthead + Member-zone shape, and (the load-bearing guarantee) carries forward any curated link the rebuild would otherwise drop. **Dry by default; `--fix` writes.**
+
+```bash
+python3 ~/.claude/skills/audit/scripts/audit-dispatch.py "<anchor>"        # dry: print proposed table (default)
+python3 ~/.claude/skills/audit/scripts/audit-dispatch.py "<anchor>" --fix  # write the rebuilt table back
+python3 ~/.claude/skills/audit/scripts/audit-dispatch.py "<anchor>" --json # machine-readable report
+```
+
+The script exits non-zero only when the safety net fired (a curated link would have been dropped and was rescued) — that signals a rebuild bug to fix before applying. The runbook steps below describe the same logic and the semantic calls (grouping names, structural-vs-member ambiguity) the script surfaces for the agent to confirm.
+
 ## Runbook
 
 ### 1. Read the anchor
