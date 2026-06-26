@@ -7,10 +7,10 @@ The top-of-file table convention that gives most anchor pages and many facet pag
 
 | -[[FCT Dispatch Table]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Dispatch Table](hook://p/FCT%20Dispatch%20Table)<br>: the top-of-page navigation table — its own spec, dogfooded |
 | --- | --- |
-| Anchor | [[FCT Dispatch]] (parent catalog),  [[FCT]] |
-| Design | [[CAB Dispatch Table Design\|Design]] — rationale + standing decisions |
+| Anchor | [[FCT]],   |
+| Design | [[CAB Dispatch Table Design\|Design]],   |
 | Related | [[Collection]],  [[DSC progressive-disclosure]],  [[audit-dispatch\|/audit dispatch]],   |
-| Examples | [[CAE\|minimal (masthead-only)]],  [[HBR\|fuller (member-groups + hybrid)]],  [[CAE Dispatch Examples\|full gallery]],   |
+| Examples | [[CAE\|minimal]],  [[HBR\|fuller]],  [[CAE Dispatch Examples\|full gallery]],   |
 
 **TLDR** — **Cardinality: many** — one dispatch table per page; most anchor and facet pages carry one. The masthead is exactly the breadcrumb + Anchor + (Design) + Related rows (a switchboard, not a directory); anything enumerable drops to the Member zone below. `/audit dispatch` builds and repairs it.
 
@@ -30,6 +30,7 @@ A markdown table placed immediately under the H1 of a page. The first row carrie
 ## Anatomy of a dispatch row
 
 ```markdown
+
 | -[[<This Page>]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Dispatch Table](hook://p/FCT%20Dispatch%20Table)<br>: <one-line description> |
 | --- | --- |
 | <Category 1> | [[Link A\|A]],  [[Link B\|B]],  … |
@@ -46,9 +47,11 @@ A dispatch table has up to **two zones** (worked examples: [[CAE Dispatch Exampl
 Hand-authored, one-of-a-kind to this anchor, and deliberately **small** — a switchboard, not a directory. The breadcrumb identity row plus **at most three standard rows**:
 
 1. **Breadcrumb row** (identity) — a title cell followed by the parent-chain path ending in the page's hook link (full schema in § Anatomy above; rendered live in [[CAE]]). Carries the **up-edge** of the [[DSC anchor-dag]] (parent link). Always present.
-2. **Anchor row** (general dispatch) — the anchor's own contents: its parent catalog and primary sub-pages. The **down-edges** to what this anchor holds.
+2. **Anchor row** (general dispatch) — the anchor's own contents: its primary sub-pages — the **down-edges** to what this anchor holds. The parent lives in the breadcrumb and is **never re-linked here** (`R-dispatch-table-04`).
 3. **Design row** (design-flow dispatch) — **only if the anchor has a design flow** — points into the design pipeline ([[FCT Design Dispatch|Design]] → PRD / Stories / Decisions / …). Absent on anchors with no design folder.
-4. **Related row** — cross-links to siblings and related material, plus any genuine one-off links the user pinned on purpose (preserve them).
+4. **Related row** — cross-links to *genuinely* related siblings/material, plus any one-off links the user pinned on purpose (preserve them). **Optional:** never a breadcrumb anchor (`R-dispatch-table-04`), and never manufactured — leave it empty or omit it when nothing is truly related (`R-dispatch-table-05`).
+
+**A dispatch table is a pure link table** (`R-dispatch-table-06`): the distilled set of jump-destinations, not an explanation of them. No prose about what a link *means* in a cell — at most one or two parenthetical words, preferably none. A destination's meaning lives on the destination's own top line + `description`.
 
 That's the whole masthead: identity + Anchor + (Design) + Related. Anything **enumerable** — members, sub-items, worked examples — is **not** a masthead row; it drops to the Member zone below. (This page is the live demonstration: its masthead is Anchor + Related, and its four examples hang underneath as the member zone.)
 
@@ -157,6 +160,19 @@ Members, sub-items, and worked examples are **not** masthead rows — they live 
 Inside table cells, aliased wiki-links escape the pipe: `[[Target\|Display]]`.
 **Check pattern:** no unescaped `[[Target|Display]]` appears inside a table row.
 **Why:** an unescaped pipe ends the table cell, breaking the row.
+
+### RULE R-dispatch-table-04 — No breadcrumb-redundant links (checked)
+No masthead row may link to an anchor that already appears in the **breadcrumb path**. The parent / up-edge lives **only** in the breadcrumb; re-linking it (in the Anchor row, the Related row, or anywhere) is forbidden — every anchor is trivially related to its parent, so the link adds nothing. (The Anchor row therefore carries **down-edges only** — the anchor's own sub-pages — never its parent catalog.)
+**Check pattern:** no wiki-link target in a non-breadcrumb row matches any anchor in the breadcrumb chain.
+**Why:** redundant — the breadcrumb already carries the up-edge directly above; the duplicate link only clutters the switchboard.
+
+### RULE R-dispatch-table-05 — Related is optional; never manufactured (stated)
+The **Related** row may be **empty or omitted**. List only *genuinely* related siblings/material plus any one-off links the user deliberately pinned. Do **not** invent a relation to fill the row — when nothing is truly related, the correct Related row is no row (or an empty one).
+**Why:** a forced relation is noise; an honest empty is information. The table is a switchboard, not a quota to fill.
+
+### RULE R-dispatch-table-06 — Pure link table; minimal annotation (stated)
+A dispatch table is the **distilled set of jump-destinations**, not an explanation of them. No meta-discussion of what a link *means* belongs in a cell. At most **one or two words in parentheses** as an adjective — and **prefer none**. A link's meaning belongs on the linked page itself — its top line (H1 + first sentence) and its `description` frontmatter — not in the table that points at it.
+**Why:** the table's value is the distilled essence of *where you can jump*; prose about each destination dilutes that and duplicates what the destination already says about itself.
 
 # BRIEF
 
