@@ -1,16 +1,13 @@
 ---
-description: "the formal `when::` moment taxonomy — one recursive single-parameter tree"
+description: "the formal `when::` moment taxonomy — one unified tree, one refining parameter per level"
 ---
 
 # Warden Trigger Taxonomy
 
-The `when::` clause names a **moment** — a point in the agent's life when a rule should fire. Every moment in the system lives in **one unified taxonomy**: a tree in which each node is refined into its children by exactly **one parameter**. `when:: tool` is every tool use; add one parameter to get `when:: tool:post` (every moment *after* a tool); add another to get `when:: tool:post:Bash` (after a Bash call); add another to get `when:: tool:post:Bash:git-commit`. A rule names the moment at whatever depth it cares about; a shallow moment matches all its descendants.
+| -[[Warden Trigger Taxonomy]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[Warden]] → [[Warden Design]] → [Warden Trigger Taxonomy](hook://p/Warden%20Trigger%20Taxonomy)<br>: the formal `when::` moment taxonomy — one unified tree, one refining parameter per level |
+| --- | --- |
 
-This page is the formal specification of that taxonomy — the moment classes, the grammar, the matching rules, the friendly aliases, and the way `where::` cross-cuts the tree. It is part of the [[Warden Architecture]] (§5 binding) and the source of truth the rule compiler ([[Warden Architecture]] §7) indexes against.
-
-## The taxonomy at a glance
-
-The whole moment tree in one table — each class refined one parameter per level, deepening left-to-right. A `→ where::` marker means that level's refinement is *spatial* and is written in the cross-cutting `where::` clause, not in `when::`. Everything below this table elaborates these same rows in detail.
+**The whole moment tree in one table** — each class refined one parameter per level, deepening left-to-right. A `→ where::` tail means that level's refinement is *spatial* and is written in the cross-cutting `where::` clause, not in `when::`. Everything below this table elaborates these same rows in detail.
 
 | Moment class | Refinement path (one parameter per level) | Example leaf | Runtime source | Alias |
 |---|---|---|---|---|
@@ -22,6 +19,12 @@ The whole moment tree in one table — each class refined one parameter per leve
 | `prompt` | → phase (`submit`/`stop`) | `prompt:submit` | UserPromptSubmit / Stop | — |
 
 **Read a row as a path:** `tool` ⊃ `tool:post` ⊃ `tool:post:Bash` ⊃ `tool:post:Bash:git-commit` — a rule may bind at any depth, and a shallower binding prefix-matches everything below it. `,` in a `when::` is OR across rows; the spatial tail of `tool:*:Write` / `write:*` lives in `where::`.
+
+## Overview
+
+The `when::` clause names a **moment** — a point in the agent's life when a rule should fire. Every moment in the system lives in **one unified taxonomy**: a tree in which each node is refined into its children by exactly **one parameter**. `when:: tool` is every tool use; add one parameter to get `when:: tool:post` (every moment *after* a tool); add another to get `when:: tool:post:Bash` (after a Bash call); add another to get `when:: tool:post:Bash:git-commit`. A rule names the moment at whatever depth it cares about; a shallow moment matches all its descendants.
+
+This page is the formal specification of that taxonomy — the moment classes, the grammar, the matching rules, the friendly aliases, and the way `where::` cross-cuts the tree. It is part of the [[Warden Architecture]] (§5 binding) and the source of truth the rule compiler ([[Warden Architecture]] §7) indexes against.
 
 > [!info] Why one recursive parameter per level
 > Keeping refinement to a single parameter per level makes the taxonomy **uniform** (every node has the same shape), **prefix-matchable** (a shorter path is a strict generalization of a longer one), and **extensible** (a new discriminator is just a new level under an existing node — never a new top-level concept). It is the same discipline that makes the `where::` glob namespace tractable.
