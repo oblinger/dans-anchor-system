@@ -8,6 +8,21 @@ The `when::` clause names a **moment** — a point in the agent's life when a ru
 
 This page is the formal specification of that taxonomy — the moment classes, the grammar, the matching rules, the friendly aliases, and the way `where::` cross-cuts the tree. It is part of the [[Warden Architecture]] (§5 binding) and the source of truth the rule compiler ([[Warden Architecture]] §7) indexes against.
 
+## The taxonomy at a glance
+
+The whole moment tree in one table — each class refined one parameter per level, deepening left-to-right. A `→ where::` marker means that level's refinement is *spatial* and is written in the cross-cutting `where::` clause, not in `when::`. Everything below this table elaborates these same rows in detail.
+
+| Moment class | Refinement path (one parameter per level) | Example leaf | Runtime source | Alias |
+|---|---|---|---|---|
+| `tool` | → phase (`pre`/`post`) → tool name → arg (Bash command · Write/Edit/Read path `→ where::` · Task subagent) | `tool:post:Bash:git-commit` | Pre/PostToolUse | — |
+| `skill` | → phase (`pre`/`post`) → skill name → action | `skill:post:audit-q` | skill-runner enter/exit | `skill:<name>` |
+| `session` | → phase (`start`/`compact`/`stop`) → source (`startup`/`resume`/`clear`) | `session:compact` | SessionStart / Stop | `compact` |
+| `write` / `read` | → content kind (`markdown`/`rust`/…) → path `→ where::` | `write:markdown` | PostToolUse(Write/Edit/Read) + sniff | `markdown-write` |
+| `git` | → op (`commit`/`push`/`merge`/`pre-commit`) | `git:commit` | Bash-argv parse / git hook | `on-commit` |
+| `prompt` | → phase (`submit`/`stop`) | `prompt:submit` | UserPromptSubmit / Stop | — |
+
+**Read a row as a path:** `tool` ⊃ `tool:post` ⊃ `tool:post:Bash` ⊃ `tool:post:Bash:git-commit` — a rule may bind at any depth, and a shallower binding prefix-matches everything below it. `,` in a `when::` is OR across rows; the spatial tail of `tool:*:Write` / `write:*` lives in `where::`.
+
 > [!info] Why one recursive parameter per level
 > Keeping refinement to a single parameter per level makes the taxonomy **uniform** (every node has the same shape), **prefix-matchable** (a shorter path is a strict generalization of a longer one), and **extensible** (a new discriminator is just a new level under an existing node — never a new top-level concept). It is the same discipline that makes the `where::` glob namespace tractable.
 
