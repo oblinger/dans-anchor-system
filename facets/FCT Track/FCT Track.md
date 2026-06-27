@@ -7,7 +7,10 @@ The the work-surface facets (centralized in SKA per D08, but specified here).
 
 | -[[FCT Track]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [FCT Track](hook://p/FCT%20Track)<br>: the work-surface facets (centralized in SKA per D08, but specified here) |
 | --- | --- |
+| Design | [[Workflow Design\|Design]],   |
 | Facets | [[Backlog]],  [[FCT Features\|Features]],  [[FCT Inbox\|Inbox]],  [[FCT Icebox\|Icebox]],  [[FCT Messages\|Messages]],  [[FCT Log\|Log]],  [[FCT Triage\|Triage]],  [[FCT Status\|Status]],   |
+
+**Linkage** — this facet's existence ⟺ the anchor runs the [[workflow]] discipline; the two share one design folder, [[Workflow Design]] (hosted on the behavioral core), reachable from either page per [[SKA Decisions]] D10.
 
 # RULESET R-track-group
 include::
