@@ -59,4 +59,4 @@ Safe to run repeatedly. Items already Ready, Active, blocked-on-questions, Verif
 
 ## Design principle
 
-`/groom` follows the **Minimize User Back-and-Forth** principle from [[CAB Backlog]]: every batch operation against the backlog processes the entire batch autonomously before involving the user, then surfaces the first blocked doc as the user's single next action. Each round-trip costs scrollback context and stalls the batch — design for *one* round-trip per pass, not N.
+`/groom` follows the **Minimize User Back-and-Forth** principle from ~~[[CAB Backlog]]~~: every batch operation against the backlog processes the entire batch autonomously before involving the user, then surfaces the first blocked doc as the user's single next action. Each round-trip costs scrollback context and stalls the batch — design for *one* round-trip per pass, not N.

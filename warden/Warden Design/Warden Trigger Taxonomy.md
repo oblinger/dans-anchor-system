@@ -1,22 +1,18 @@
 ---
-description: "the formal `when::` moment taxonomy — one unified tree, one refining parameter per level"
+description: "the formal `when::` moment taxonomy — one recursive single-parameter tree"
 ---
-
+:>> 
 # Warden Trigger Taxonomy
-
-| -[[Warden Trigger Taxonomy]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[Warden]] → [[Warden Design]] → [Warden Trigger Taxonomy](hook://p/Warden%20Trigger%20Taxonomy)<br>: the formal `when::` moment taxonomy — one unified tree, one refining parameter per level |
-| --- | --- |
-
 **The whole moment vocabulary in one table.** Each class refines into its moments by one parameter; the common moments are **two levels** deep, with optional deeper refinement available. Tokens for tools and events are **Claude Code's own** (we don't invent them); the tree structure is ours. Every entry links to its detail below, or to its spec. A path-valued tail (which file) lives in the cross-cutting [[FCT Ruleset\|where::]] clause, not in `when::`.
 
-| Moment class | Moments it refines into (level 2) | Optional deeper | Fires on (Claude Code) |
-|---|---|---|---|
-| [[#Tool moments\|tool]] | `:pre` / `:post`  ×  `Bash` · `Write` · `Edit` · `Read` · `Glob` · `Grep` · `Task` · `WebFetch` · `WebSearch` *(+ MCP tools)* | `:Bash:<cmd>` · `:Task:<subagent>` · Write/Edit/Read path → [[FCT Ruleset\|where::]] | `PreToolUse` / `PostToolUse` |
-| [[#Skill moments\|skill]] | `:pre` / `:post`  ×  `<skill>` *(any skill — `audit` · `query` · `crank` · `audit-q` · …)* | `:<skill>:<action>` (e.g. `audit:rules`) | skill-runner enter / exit |
-| [[#Session moments\|session]] | `:start` · `:compact` · `:stop` | — | `SessionStart` / `Stop` |
-| [[#Content moments\|write]] / [[#Content moments\|read]] | × kind: `markdown` · `rust` · `python` · `json` · `svg` | path → [[FCT Ruleset\|where::]] | `PostToolUse`(Write/Edit/Read) |
-| [[#VCS moments\|git]] | `:commit` · `:push` · `:merge` · `:pre-commit` | — | Bash-argv parse / git hook |
-| [[#Turn moments\|prompt]] | `:submit` · `:stop` | — | `UserPromptSubmit` / `Stop` |
+| Moment class                                             | Moments it refines into (level 2)                                                                                             | Optional deeper                                                                      | Fires on (Claude Code)         |
+| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------ |
+| [[#Tool moments\|tool]]                                  | `:pre` / `:post`  ×  `Bash` · `Write` · `Edit` · `Read` · `Glob` · `Grep` · `Task` · `WebFetch` · `WebSearch` *(+ MCP tools)* | `:Bash:<cmd>` · `:Task:<subagent>` · Write/Edit/Read path → [[FCT Ruleset\|where::]] | `PreToolUse` / `PostToolUse`   |
+| [[#Skill moments\|skill]]                                | `:pre` / `:post`  ×  `<skill>` *(any skill — `audit` · `query` · `crank` · `audit-q` · …)*                                    | `:<skill>:<action>` (e.g. `audit:rules`)                                             | skill-runner enter / exit      |
+| [[#Session moments\|session]]                            | `:start` · `:compact` · `:stop`                                                                                               | —                                                                                    | `SessionStart` / `Stop`        |
+| [[#Content moments\|write]] / [[#Content moments\|read]] | × kind: `markdown` · `rust` · `python` · `json` · `svg`                                                                       | path → [[FCT Ruleset\|where::]]                                                      | `PostToolUse`(Write/Edit/Read) |
+| [[#VCS moments\|git]]                                    | `:commit` · `:push` · `:merge` · `:pre-commit`                                                                                | —                                                                                    | Bash-argv parse / git hook     |
+| [[#Turn moments\|prompt]]                                | `:submit` · `:stop`                                                                                                           | —                                                                                    | `UserPromptSubmit` / `Stop`    |
 
 **Read a row as a path:** `tool` ⊃ `tool:post` ⊃ `tool:post:Bash` (⊃ `tool:post:Bash:git-commit`). A rule binds at whatever depth it cares about, and a shallower binding **prefix-matches** everything below it. `,` in a `when::` is OR across moments. The Claude-Code event mapping is detailed in [[Warden Architecture]] §6 (hook subsystem). A rule is the conjunction [[#The conjunction model — when ∧ where ∧ if\|when ∧ where ∧ if]].
 
