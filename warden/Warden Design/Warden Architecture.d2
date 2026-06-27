@@ -1,0 +1,110 @@
+# Warden Architecture — system block diagram (structure, not flow)
+# Source for "Warden Architecture.svg" (regenerate: d2 "Warden Architecture.d2" "Warden Architecture.svg")
+# Four layers: how a rule is DEFINED, how rules COMPOSE + are PLACED, how each rule BINDS
+# to a context (where::) and an event (when::), and the two CONSUMERS that run the corpus.
+
+direction: down
+
+define: "1 · DEFINITION — the two primitives" {
+  style: {fill: "#f5f6fb"; stroke: "#7b83b4"; font-size: 22; bold: true}
+  grid-rows: 1
+  grid-gap: 70
+
+  rule: "The RULE\n(atomic, greppable anywhere)" {
+    style: {fill: "#e9eeff"; stroke: "#5566aa"}
+    grid-columns: 1
+    a: "<H> RULE R-<slug>-NN — name (tier)" {style.fill: "#ffffff"}
+    b: "declarative statement\nCheck pattern: · Why: · Exceptions:" {style.fill: "#ffffff"}
+    c: "tier: tracked · stated · sampled · checked" {style.fill: "#ffffff"}
+  }
+  ruleset: "The RULESET\n(named bundle of rules)" {
+    style: {fill: "#e9eeff"; stroke: "#5566aa"}
+    grid-columns: 1
+    a: "# RULESET R-<slug>" {style.fill: "#ffffff"}
+    b: "include:: — composition\nwhere:: — place · when:: — moment" {style.fill: "#ffffff"}
+    c: "description:: + prose body" {style.fill: "#ffffff"}
+  }
+}
+
+place: "2 · COMPOSITION & PLACEMENT — where rules live, how they aggregate, how they're adopted" {
+  style: {fill: "#f5f6fb"; stroke: "#7b83b4"; font-size: 22; bold: true}
+  grid-rows: 1
+  grid-gap: 55
+
+  homes: "Three homes for rules" {
+    style: {fill: "#fff4e6"; stroke: "#c98a3a"}
+    grid-columns: 1
+    a: "Catalog — standalone R-<slug>.md\n(Rulesets/ library, per-domain)" {style.fill: "#ffffff"}
+    b: "Embedded — # RULESET inside a\nfacet / skill / discipline spec" {style.fill: "#ffffff"}
+    c: "Anchor-local — {NAME} Rules.md\n(in {NAME} Design/)" {style.fill: "#ffffff"}
+  }
+  compose: "Containment (include:: DAG)" {
+    style: {fill: "#e7f8ee"; stroke: "#3f9d6b"}
+    grid-columns: 1
+    a: "Umbrellas: R-anchor · R-doc · R-diagram" {style.fill: "#ffffff"}
+    b: "depth-first flatten · cycles forbidden\ncomposition does NOT renumber" {style.fill: "#ffffff"}
+  }
+  adopt: "Adoption ({NAME} Decisions.md)" {
+    style: {fill: "#e7f8ee"; stroke: "#3f9d6b"}
+    grid-columns: 1
+    a: "include:: a ruleset = adopt it\n(vs compose, inside # RULESET)" {style.fill: "#ffffff"}
+    b: "D-records cite rules: Cites: R-…-NN\n+ Adoption implementation map" {style.fill: "#ffffff"}
+  }
+}
+
+bind: "3 · BINDING — a rule is the conjunction  when ∧ where ∧ if  (engine picks the dispatch)" {
+  style: {fill: "#f5f6fb"; stroke: "#7b83b4"; font-size: 22; bold: true}
+  grid-rows: 1
+  grid-gap: 55
+
+  when: "when:: — the MOMENT (temporal)" {
+    style: {fill: "#fbe9f0"; stroke: "#b4537b"}
+    grid-columns: 1
+    a: "one unified taxonomy tree;\none refining parameter per level" {style.fill: "#ffffff"}
+    b: "tool: · skill: · session: · write: · git: · prompt:\ntool:post:Bash:git-commit  (prefix-match)" {style.fill: "#ffffff"}
+    c: "aliases: compact · markdown-write · skill:<name>\nactive rule carries def trigger(ctx) -> steer msg" {style.fill: "#ffffff"}
+  }
+  where: "where:: — the PLACE (spatial, cross-cutting)" {
+    style: {fill: "#fbe9f0"; stroke: "#b4537b"}
+    grid-columns: 1
+    a: "always · file:<glob> · anchor · sentinel:<regex>" {style.fill: "#ffffff"}
+    b: "tokens {ANCHOR} {NAME} · glob {a,b} ! union" {style.fill: "#ffffff"}
+    c: "the file/dir a moment concerns (factored out\nof when:: because it recurs under many moments)" {style.fill: "#ffffff"}
+  }
+  guard: "if:: — the GUARD (condition, optional)" {
+    style: {fill: "#fbe9f0"; stroke: "#b4537b"}
+    grid-columns: 1
+    a: "declarative: if:: git-aspect == Commit\nif:: trait has Code   (table lookup)" {style.fill: "#ffffff"}
+    b: "or Python: def guard(ctx) -> bool" {style.fill: "#ffffff"}
+    c: "multiple guards AND together (a conjunct)" {style.fill: "#ffffff"}
+  }
+}
+
+run: "4 · EXECUTION — one corpus, two paths (implicit by default, explicit backstop)" {
+  style: {fill: "#f5f6fb"; stroke: "#7b83b4"; font-size: 22; bold: true}
+  grid-rows: 1
+  grid-gap: 55
+
+  compiler: "Rule compiler / installer  (implicit path)" {
+    style: {fill: "#e9eeff"; stroke: "#5566aa"}
+    grid-columns: 1
+    a: "resolve active set (per anchor) ->\nindex by when (or by where) -> pre-compile" {style.fill: "#ffffff"}
+    b: "one fast module per moment\n(generalizes /distill) — ms-budget path" {style.fill: "#ffffff"}
+  }
+  audit: "On-demand audit  (explicit path)" {
+    style: {fill: "#e9eeff"; stroke: "#5566aa"}
+    grid-columns: 1
+    a: "audit-plan.py — Resolve -> Run -> Judge -> Fix" {style.fill: "#ffffff"}
+    b: "checked by script · stated judged by agent\n3 caches (flatten · verdict · plan)" {style.fill: "#ffffff"}
+  }
+  hook: "Hook subsystem  (delivers the moments)" {
+    style: {fill: "#e9eeff"; stroke: "#5566aa"}
+    grid-columns: 1
+    a: "settings.json — PreToolUse · PostToolUse ·\nSessionStart · Stop" {style.fill: "#ffffff"}
+    b: "runs the compiled per-moment module ·\naow-safety.py — never-delete floor" {style.fill: "#ffffff"}
+  }
+}
+
+define -> place: "rules bundle into sets;\nsets compose + are placed" {style: {stroke: "#5566aa"; font-size: 18; stroke-width: 2}}
+place -> bind: "each rule carries\nwhen:: ∧ where:: ∧ if::" {style: {stroke: "#5566aa"; font-size: 18; stroke-width: 2}}
+bind -> run: "compiler indexes the conjunction\nonto runtime moments" {style: {stroke: "#5566aa"; font-size: 18; stroke-width: 2}}
