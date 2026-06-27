@@ -180,6 +180,11 @@ The **Related** row may be **empty or omitted**. List only *genuinely* related s
 A dispatch table is the **distilled set of jump-destinations**, not an explanation of them. No meta-discussion of what a link *means* belongs in a cell. At most **one or two words in parentheses** as an adjective — and **prefer none**. A link's meaning belongs on the linked page itself — its top line (H1 + first sentence) and its `description` frontmatter — not in the table that points at it.
 **Why:** the table's value is the distilled essence of *where you can jump*; prose about each destination dilutes that and duplicates what the destination already says about itself.
 
+### RULE R-dispatch-table-07 — Every dispatch table ends with a catch-all marker (checked)
+Every dispatch table's **last row is a catch-all auto-enumeration marker**, so no document sitting in the folder can be hidden from the table: **`...`** (compact — the default; one cell that surfaces anything uncovered) or **`| --- | |`** (full auto-list — each uncovered/new doc as its own row, for list containers). Applies to **every** dispatch table, not just list containers — a masthead gets `...` too, so a stray doc dropped in the anchor's folder still shows.
+**Check pattern:** the table's final row is `...`, `| --- | |`, or a trailing `+`-group row.
+**Why:** the dispatch table must be an honest index of its folder — a catch-all guarantees stray or newly-added docs surface instead of silently disappearing.
+
 # BRIEF
 
 - **This file is the spec for the Dispatch Table facet** — the prescriptive rules for the top-of-file table convention used across anchor and facet pages. Edit here only to refine the convention itself.
