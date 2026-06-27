@@ -4,6 +4,8 @@ description: "`/triage` (or the punctuation trigger `\"` — a single double-quo
 # /Triage
 `/triage` (or the punctuation trigger `"` — a single double-quote as the entire message) regenerates the current anchor's per-anchor section inside `~/ob/kmr/Q.md`, the vault-level Agent Status dashboard. The section is the **status of the anchor**: it walks the backlog, counts `[Questions]`, `[Verify]`, `[Active]`, and `[Ready]` items, picks an anchor TAG (`[U]` / `[A]` / `[U+A]` / `[G]` / `[-]` / `[]`), and writes one bullet per qualifying item under workflow-state H2s (Active / Ready / Now / Next, plus user-actionable Later items). The just-touched anchor bubbles to the top of Q.md, then the file opens at you so you see where everything stands in one glance.
 
+Before it renders, `/triage` runs a fast (~1s) **self-grooming sweep** so you never see stale state: completed `[Done]` rows left sitting in a live section get filed to `## Done`, and `[Verify-by <date>]` items past their deadline are auto-closed. It's conditional — a clean backlog is a no-op — and it only touches the mechanical, date/placement-decidable cases. The judgment-heavy grooming (promoting items to Ready, parking open questions, reassessing `[Blocked]`/`[Watching]`/hedged `[Ready]` rows) still lives in `/groom`, which you run explicitly.
+
 | -[[SKL Triage]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Drive]] → [SKL Triage](hook://p/SKL%20Triage)<br>: the `/triage` skill |
 | --- | --- |
 | Related | [[skills/triage/SKILL.md\|SKILL]],   |

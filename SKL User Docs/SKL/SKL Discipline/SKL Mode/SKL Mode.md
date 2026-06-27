@@ -1,7 +1,7 @@
 ---
 description: operating-mode framework — defines what a mode is, the metric it optimizes, and how modes are declared
 ---
-| -[[SKL Mode]]- | : <br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Discipline]] → [SKL Mode](hook://p/SKL%20Mode) |
+| -[[SKL Mode]]- | : <br>→ [[KM]] → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Discipline]] → [SKL Mode](hook://p/SKL%20Mode) |
 | --- | --- |
 | Trade-off posture | [[SKL Mode Drive\|Drive]],   |
 | Git boundaries | [[SKL Mode Git Commit\|Commit]],  [[SKL Mode Git PR\|PR]],   |
@@ -57,5 +57,5 @@ The whole posture follows from this metric: **minimize content-full batches firs
 ## History
 
 - **2026-05-04** — Mode framework established. **Drive** defined as the first mode and rolled out as the system default. Captured in `SKL Mode.md` (this page) + `SKL Mode Drive.md` (the assertions); inline copy in `role-pilot.md` POST-COMPACT RELOAD. Per-anchor switching deferred until ≥2 modes exist.
-- **2026-05-24** — **Git Standard** mode added per ~~[[F085]]~~. Three load-bearing rules (commit on logical boundary, terse messages, never auto-push). Composed with Drive as the canonical pair.
+- **2026-05-24** — **Git Standard** mode added per [[F085]]. Three load-bearing rules (commit on logical boundary, terse messages, never auto-push). Composed with Drive as the canonical pair.
 - **2026-06-01** — **Renamed Git Standard → Commit** per [[F077 — PR mode — mode-as-trait architecture with per-anchor opt-in|F077]] Q7 (bare-noun naming convention `Drive`/`Lean`/`PR`/`Commit`/`NoGit`). Added explicit "never ask permission to commit" rule and "always new commit on top — never amend" rule. **Commit-mode bullets inlined into `role-pilot.md` POST-COMPACT RELOAD** — closes the gap where F085's rules existed in mode/SKILL.md but didn't prime the Pilot at session start (the cause of the observed "agent keeps asking to commit" symptom).

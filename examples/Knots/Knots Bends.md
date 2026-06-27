@@ -1,5 +1,5 @@
 ---
-description: "bends — knots that join two ropes end-to-end"
+description: "knots that join two ropes end-to-end"
 ---
 
 # Knots Bends - Bends

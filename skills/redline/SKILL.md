@@ -202,6 +202,9 @@ The .html uses the `[[md-track-changes]]` HTML format. Template:
     h2 { border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-top: 36px; }
     del { background-color: #fdd; color: #900; text-decoration: line-through; }
     ins { background-color: #dfd; color: #060; text-decoration: none; }
+    .del-block { background-color: #fdd; color: #900; border-left: 3px solid #c62828; padding: 6px 14px; margin: 8px 0; }
+    .ins-block { background-color: #dfd; color: #060; border-left: 3px solid #4caf50; padding: 6px 14px; margin: 8px 0; }
+    .del-block p, .del-block li { text-decoration: line-through; }
     .comment { background-color: #fffde7; border-left: 3px solid #ffc107; padding: 10px 14px; margin: 12px 0; font-size: 0.9em; color: #555; }
     .comment::before { content: "💬 "; }
     .empty-current { color: #888; font-style: italic; }
@@ -231,6 +234,7 @@ The .html uses the `[[md-track-changes]]` HTML format. Template:
 - Render the markdown text of the *target* version (the one the section is about) with inline `<del>` for deletions and `<ins>` for insertions showing what changed from the previous version.
 - Format the surrounding markdown as HTML (bold, italic, lists, headings) — the reader sees formatted prose, not raw markdown.
 - Mark changes at the word/phrase level, not whole paragraphs. The reader should be able to see the *minimum* unit that changed.
+- **🚨 Block-level changes (whole `<p>`, `<ul>`, `<ol>`, table, or multi-paragraph section added or removed) MUST use `<div class="ins-block">` / `<div class="del-block">` wrappers — NEVER `<ins>` / `<del>` wrapped around block elements.** `<ins>` and `<del>` are inline elements; while HTML5's transparent content model technically permits block content inside them, **most browsers silently drop or collapse the contained block content at render time**, leaving the diff invisible to the reader even though the markup looks right in the source. This is a *silent-failure mode* — the change exists in the file but never renders. **Default to `<div class="ins-block">` / `<div class="del-block">` for any block-level diff; reserve raw `<ins>` / `<del>` for inline word/phrase changes only.** When in doubt, use the div wrapper.
 - Add `.comment` divs after each change or group, explaining the reasoning briefly ("tightened the second clause," "removed redundant qualifier," "user's manual edit"). Comments are optional but helpful when the change isn't self-evident.
 
 ## Diff computation

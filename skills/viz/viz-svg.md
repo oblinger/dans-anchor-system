@@ -1,5 +1,27 @@
 # viz-svg — Hand-written SVG diagrams
 
+## 🚨🚨🚨 MANDATORY — EVERY `<svg>` ROOT MUST HAVE EXPLICIT `width` AND `height` 🚨🚨🚨
+## 🚨🚨🚨 viewBox ALONE = a TINY 300px IMAGE. THIS FAILS EVERY SINGLE TIME. 🚨🚨🚨
+
+**⚠️ THIS IS THE #1 RECURRING FAILURE OF THIS SKILL. The user has to send the figure back as "still tiny" almost every time. READ THIS BEFORE YOU WRITE OR EDIT ANY SVG. ⚠️**
+
+An SVG embedded via `![[file.svg]]` is loaded as an `<img>`. An `<img>` whose SVG has **only a `viewBox`** and **no intrinsic `width`/`height`** falls back to the CSS replaced-element default — **300×150px** — and renders as a useless thumbnail. **The `viewBox` does NOT set the rendered size.** This is not a maybe; it is deterministic, and it is the thing you keep getting wrong.
+
+**THE RULE — the root element MUST look exactly like this:**
+
+`<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1360" viewBox="0 0 1200 680" preserveAspectRatio="xMidYMid meet" ...>`
+
+- `width`/`height` = explicit pixels, set to **~2× the viewBox numbers** (same aspect ratio). 2× guarantees the figure fills the page on wide screens — Obsidian caps embedded images at the content width via `max-width:100%`, so a large intrinsic width renders **full-width and scales down to fit**, never tiny.
+- Keep the `viewBox` too (it's the logical coordinate space you draw in). You need BOTH: `viewBox` for coordinates, `width`+`height` for rendered size.
+
+**SELF-CHECK before you finish — run this, every time:**
+```bash
+head -1 "YourFigure.svg" | grep -E 'width="[0-9]+".*height="[0-9]+"' && echo "OK — has explicit px size" || echo "❌ TINY-RENDER BUG — add width/height to the <svg> root"
+```
+If it prints ❌, you shipped the bug. Fix it before you glance or hand back. Do not rely on `viewBox` to size the image — it never has and never will.
+
+---
+
 Author SVG figures directly via the `Write` tool. SVG is XML — the agent writes the file, no rendering pipeline required, no companion source format. The `.svg` file IS the editable source; subsequent revisions edit the SVG directly.
 
 **This is the default for architecture diagrams** (and any figure where the agent wants full visual control over color, font, layout, and geometry). Reach for `/viz excalidraw` when the user wants a hand-drawn aesthetic, `/viz d2` only when the user names D2 specifically.

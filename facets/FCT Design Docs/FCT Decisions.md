@@ -22,7 +22,7 @@ See [[FCT Ruleset]] for the companion facet (rulesets + per-anchor optional `{NA
 
 ## Value statements (absorbed from the retired Principles facet)
 
-A decision is not only a concrete applied choice ("we use `Sys` as the singleton clock"). It can also be a **value statement** — the load-bearing *why* behind the codebase's recurring choices ("Fail Loudly — errors propagate, no silent fallbacks"; "One Queue, One Clock — all scheduling flows through a single priority queue and injected clock"). These were formerly their own `{NAME} Principles.md` facet (P-records); per [[F113 — Decisions facet — unify Principles + Rules; relocate Architecture|F113]] they are now ordinary **D-records** — typically the most foundational and rarely-changing ones (a value-statement change signals a project pivot). Other docs reference them by ID exactly as they reference any decision: System Design and Architecture cite them when explaining a choice (`shaped by [[{NAME} Decisions#D01|D01]]`), and a rule may name the decision it encodes via its `**Cites:**` reciprocity. The separate Principles file is retired — value statements live here.
+A decision is not only a concrete applied choice ("we use `Sys` as the singleton clock"). It can also be a **value statement** — the load-bearing *why* behind the codebase's recurring choices ("Fail Loudly — errors propagate, no silent fallbacks"; "One Queue, One Clock — all scheduling flows through a single priority queue and injected clock"). These were formerly their own `{NAME} Principles.md` facet (P-records); per [[F113 — Decisions facet — unify Principles + Rules; relocate Architecture|F113]] they are now ordinary **D-records** — typically the most foundational and rarely-changing ones (a value-statement change signals a project pivot). Other docs reference them by ID exactly as they reference any decision: System Design and Architecture cite them when explaining a choice (`shaped by ~~[[{NAME} Decisions#D01|D01]]~~`), and a rule may name the decision it encodes via its `**Cites:**` reciprocity. The separate Principles file is retired — value statements live here.
 
 ## Architecture (per 2026-06-08)
 
@@ -73,8 +73,8 @@ Any brief notes about how D-records are numbered, what the status field means, e
 
 
 ### D01 — Decision title (checked)
-**Subsystem:** [[NAME-Subsystem]]
-**Ratified:** date / via [[F-link]]
+**Subsystem:** ~~[[NAME-Subsystem]]~~
+**Ratified:** date / via ~~[[F-link]]~~
 
 Body of the decision — what was decided and why.
 
@@ -86,7 +86,7 @@ Body of the decision — what was decided and why.
 
 **Consequences.** Downstream effects.
 
-**Cites:** [[R-other-set-01]] (relevant rule from an adopted set)
+**Cites:** ~~[[R-other-set-01]]~~ (relevant rule from an adopted set)
 
 ### D02 — ...
 ```
@@ -103,7 +103,7 @@ Body of the decision — what was decided and why.
 Each D-record has:
 
 - **H3 heading** — `### D<N> — <short title> (<status>)`. Status is one of `checked` (ratified, in force), `open` (under design), `revised` (superseded — link to replacement), `retired` (no longer applies).
-- **Optional metadata block** — `**Subsystem:** [[...]]`, `**Ratified:** date via [[F-link]]`, etc.
+- **Optional metadata block** — `**Subsystem:** ~~[[...]]~~`, `**Ratified:** date via ~~[[F-link]]~~`, etc.
 - **Body** — the decision in prose. Often includes `**Why.**`, `**Alternatives considered.**`, `**Consequences.**` sub-blocks.
 - **Optional `**Cites:**` line** — wiki-links to specific rules in adopted sets that this decision applies. Audit walks these to verify the rule is satisfied for this decision.
 
@@ -171,7 +171,7 @@ The first heading is `# {NAME} Decisions` — the anchor slug plus the facet wor
 
 **Check pattern:** an H1 line is present; its text is `{NAME} Decisions`.
 
-**Why:** the H1 is the rendered title and the anchor of every `[[{NAME} Decisions]]` wiki-link. A missing or off-name H1 breaks navigation.
+**Why:** the H1 is the rendered title and the anchor of every `~~[[{NAME} Decisions]]~~` wiki-link. A missing or off-name H1 breaks navigation.
 
 ### RULE R-decisions-03 — Top-of-file `include::` present (checked)
 check:: header_has_field include
@@ -205,7 +205,7 @@ D-numbers increase and are never reused. A retired or revised decision keeps its
 
 **Check pattern:** parse all `D<N>` (and `DEC-<N>`) ids; assert no duplicate number within the file.
 
-**Why:** other docs cite decisions by id (`shaped by [[{NAME} Decisions#D01|D01]]`). Recycling a number silently re-points every existing citation at a different decision — a correctness hazard with no error signal.
+**Why:** other docs cite decisions by id (`shaped by ~~[[{NAME} Decisions#D01|D01]]~~`). Recycling a number silently re-points every existing citation at a different decision — a correctness hazard with no error signal.
 
 ### RULE R-decisions-07 — Each D-record states its rationale (sampled)
 

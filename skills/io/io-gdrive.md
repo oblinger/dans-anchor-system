@@ -1,5 +1,16 @@
 # /io gdrive — Google Drive
 
+## WEBSHARE upload convention (date-prefix — REQUIRED)
+
+The WEBSHARE public folder is id `1asHv4t89nzMF0nCyz0uL6sneQ4mR2d5z` (link-viewable, not discoverable — share anyone/reader, allowFileDiscovery=false).
+
+**Every file placed in WEBSHARE must have its Drive name begin with `YYYY-MM-DD ` (ISO date, then a space, then the title).** Pick the date as:
+
+1. **Source date first** — if the source file carries a date (a `YYYY-MM-DD` prefix in its filename, an embedded `(YYYY-MM-DD)`, or an explicit "as of" date in the doc), reuse that exact date.
+2. **Upload date otherwise** — if the source has no date, use today's date (the day it goes into WEBSHARE).
+
+Strip any redundant trailing date from the title once it's been moved to the front (e.g. `Foo Survey (2026-06-17)` → `2026-06-17 Foo Survey`). This applies to uploads *and* to renaming anything already in the folder that predates this convention.
+
 ## Method 1: gsa CLI (preferred)
 
 ```bash

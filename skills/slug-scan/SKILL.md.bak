@@ -43,7 +43,7 @@ Rows use a 2-column layout — date+slug on the left, description + structured s
 
 - **breadcrumbs** — slug ancestry only, e.g. `[[SYS]] > [[MAC]]` for `MACAPP`. Omitted if the slug is anchor-root level.
 - **filename** — appears inside parens when the anchor's full name differs from the slug. Omitted when they're identical.
-- **atlas** — appears inside parens (as the 2nd item when both present) when the slug or full-name matches a `## H2` heading in `~/ob/kmr/SYS/Atlas/Atlas.md`.
+- **atlas** — appears inside parens (as the 2nd item when both present) when the slug or full-name matches a `## H2` heading in `~/ob/kmr/MY/Atlas/Atlas.md`.
 - The period separator appears only when both a description and a structured suffix are present.
 
 ## Step 4: Verify Descriptions

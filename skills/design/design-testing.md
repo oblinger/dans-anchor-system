@@ -25,7 +25,7 @@ Module-level test details belong in module docs under `{NAME} Dev Docs/` or `{NA
 **Read [[FCT Testing]] before authoring.** The facet spec is the canonical recipe — required sections, dataview fields, the three-altitude split, the Spec-column convention. This sub-skill owns the *process*; the facet owns the *shape*. If anything below conflicts with the facet, the facet wins.
 
 Worked example to crib from: [[CAE Testing]].
-Audit rules to honor: [[FCT Testing#RULESET R-testing|R-testing]] (9 rules).
+Audit rules to honor: [[FCT Testing#RULESET R-testing|R-testing]] (12 rules).
 
 ## Runbook
 
@@ -49,7 +49,7 @@ When no `{NAME} Testing.md` exists yet, draft both halves by combining three sig
 2. **Read `{NAME} Architecture.md`.** Extract subsystems and integration boundaries. For each boundary, propose an integration-test row in § Proposed Tests § Integration. Identify load-bearing pure-logic units (queue invariants, retry schedules, parsing). Propose property-based-test rows when the invariant is universally-quantifiable.
 3. **Apply default template for code-shaped projects.** When the anchor produces code, baseline includes unit tests for all public surfaces of every subsystem (one row per `<subsystem>` × <golden-path test>), a CI pipeline, and standard tooling for the project's language. Use the canonical file shape above as the scaffold. (For non-code-shaped designed anchors, adapt the kinds to match the artifact — e.g., review-rubrics for written content, smoke checks for methodology.)
 
-Compose the three signals into a draft `{NAME} Testing.md`. Set `status:: drafting` in the frontmatter. Use deliberate `[bare brackets]` for Spec columns where the destination module doc doesn't yet exist — these mark intentional roadmap.
+Compose the three signals into a draft `{NAME} Testing.md`. Set `status:: drafting` in the frontmatter. Use deliberate `[bare brackets]` for Spec columns where the destination module doc doesn't yet exist — these mark intentional roadmap. Author the required **`## Tests` coverage table** in the preface (one row per kind; **In system** + **Expected** columns; each Kind cell linking to [[Common Testing Types]]#<kind> for vanilla use, or an in-doc section for project-special use — per R-testing-12).
 
 Glance the file so the user can review and edit.
 
@@ -57,6 +57,7 @@ Glance the file so the user can review and edit.
 
 Open the file. For each section:
 
+- **`## Tests`** (required coverage table, in the preface below the TLDR) — one row per test kind: **Kind** (a link — to [[Common Testing Types]]#<kind> for vanilla use, or to an in-doc section for project-special use) · **In system** (current count of that kind's tests, `0` if none) · **Expected** (target count and/or qualitative coverage). Keep the kind set equal to § Strategy § Test Kinds. (R-testing-12.)
 - **`## Overview`** — write the one-sentence testing-posture summary. ("Heavy unit + integration, modest e2e" / etc.)
 - **`## Strategy § Test Kinds`** — confirm the category list. Add/remove based on project shape.
 - **`## Strategy § Completeness Targets`** — set the bar per kind. Enforce the kind-target one-to-one symmetry (every declared kind has a target).
@@ -95,8 +96,9 @@ The agent does NOT proactively invoke roadmapping; the user invokes `/design` ag
 ## Related
 
 - Facet spec: [[FCT Testing]]
+- Kind catalogue (Tests-table link target): [[Common Testing Types]]
 - Worked example: [[CAE Testing]]
-- Embedded ruleset: [[FCT Testing#RULESET R-testing|R-testing]] (9 rules)
+- Embedded ruleset: [[FCT Testing#RULESET R-testing|R-testing]] (12 rules)
 - Parent orchestrator: [[design]]
 - Sibling sub-skills: [[design-prd]], [[design-ux]], [[design-architect]], [[design-roadmap]]
 - Verification discipline: [[DSC verification]]

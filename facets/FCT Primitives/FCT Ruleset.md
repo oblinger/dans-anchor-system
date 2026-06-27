@@ -43,7 +43,7 @@ No YAML frontmatter. Every load-bearing piece is a visible markdown element a re
 
 ```markdown
 # RULESET R-<slug>
-include:: [[R-other-set]], [[R-third-set]]
+include:: ~~[[R-other-set]]~~, ~~[[R-third-set]]~~
 description:: the Ruleset primitive — what a ruleset is and how to write one
 
 Body paragraph: provenance, use-case context, source attribution, history. Plain
@@ -68,8 +68,8 @@ Declarative statement of what the rule requires or forbids.
 - **Line 1: H1 with sentinel word `RULESET`.** Exactly `# RULESET R-<slug>`. The all-caps `RULESET` is a sentinel that lint scripts and human readers use to identify "this file is a ruleset" definitively — no ambiguity with anchor pages, decision docs, or feature docs that share folder space.
 - **Line 2 (immediately under H1): `include::` line** — Dataview inline field. Comma-separated list of rulesets included by this set. May be empty (`include::` with nothing after). **Always present** even when empty — the line's existence tells readers and parsers "this is the include slot." Two forms accepted:
     - **Bare names** — `include:: R-sugiyama, R-c4` — resolved by the flatten script via vault search.
-    - **Wiki-links** — `include:: [[R-sugiyama]], [[R-c4]]` — clickable in Obsidian reading view; otherwise equivalent. The flatten script unwraps `[[...]]` before resolving. Wiki-link form is preferred for readability when authoring in Obsidian; bare form is fine for machine-generated files.
-    - The two may be mixed within a single line (`include:: R-sugiyama, [[R-c4]]`). Strike-through markers (`[[R-foo]]`) are an Obsidian rendering artifact and not part of the format; flatten and audit ignore them and resolve the underlying name.
+    - **Wiki-links** — `include:: [[R-sugiyama]], [[R-c4]]` — clickable in Obsidian reading view; otherwise equivalent. The flatten script unwraps `~~[[...]]~~` before resolving. Wiki-link form is preferred for readability when authoring in Obsidian; bare form is fine for machine-generated files.
+    - The two may be mixed within a single line (`include:: R-sugiyama, [[R-c4]]`). Strike-through markers (`~~[[R-foo]]~~`) are an Obsidian rendering artifact and not part of the format; flatten and audit ignore them and resolve the underlying name.
 - **`where::` line (optional — F161; sits between `include::` and `description::`): the set-level selector.** Names which files this set's rules apply to — the default for any rule without its own `where::`. A glob (with the anchor-root token `{ANCHOR}`), or `always` / `anchor` / `sentinel: <regex>`. **Full syntax — the predefined `{ANCHOR}` / `{NAME}` tokens, glob rules, precedence, and exhaustive examples — is in § Where clause — the rule selector below.** Consumed by the audit engine ([[F001 — Rule-driven audit engine — resolve, run, judge|F001]]) to bind rules to targets; dogfooded in `# RULESET R-ruleset` below.
 - **Line 3: `description::` line** — Dataview inline field. One-line tagline (8–15 words) of what this ruleset covers and when it applies. Required. Plain prose only: **no `::` tokens in the value** (the double-colon is reserved syntax for inline-field keys; mentioning `include::` or `description::` as a noun inside the value will collide with the Dataview parser). The single-line constraint forces tightness.
 - **Line 4+ (body paragraph immediately under `description::`):** plain prose paragraph(s) carrying provenance, use-case context, source attribution, history, factoring notes — anything longer than the tagline. Any length. This is the canonical home for the prose that doesn't fit in `description::`; it reads more naturally than `> [!info]` callouts for the standard "what this set is about" content. Callouts remain available for asides (see below).
@@ -101,7 +101,7 @@ Each individual rule is a markdown heading whose first content is the all-caps `
 
 - **`<H>`** — any heading level (`#` … `######`). H3 is the customary default inside `# RULESET` blocks; H4 is appropriate when nested under a zone H3; H2 / H1 are valid when a rule stands alone in a doc that doesn't carry other H1 / H2 content. **No level is reserved**; choose whatever fits the surrounding structure.
 - **`RULE`** — literal all-caps sentinel. Parallel to the `RULESET` sentinel that opens a ruleset's H1. The sentinel is the mechanical marker; the slug is the human identifier.
-- **`R-<slug>-NN`** — the rule's identifier and unique handle. NN is zero-padded two digits, monotonic-forever within the slug's namespace. Cross-document and cross-vault references use this string directly (`see [[R-testing-04]]`, `cites: [[R-mux-design-02]]`).
+- **`R-<slug>-NN`** — the rule's identifier and unique handle. NN is zero-padded two digits, monotonic-forever within the slug's namespace. Cross-document and cross-vault references use this string directly (`see ~~[[R-testing-04]]~~`, `cites: ~~[[R-mux-design-02]]~~`).
 - **`— <short name>`** *(optional)* — em-dash separator followed by a brief human-readable title. Recommended in any ruleset or any spot where multiple rules cluster; omit only when the slug itself is self-explanatory.
 - **`(<tier>)`** *(optional)* — audit tier annotation in parentheses. Recommended whenever the rule's verification posture is known. Omit if the rule is purely informational and not audit-bound.
 
@@ -269,7 +269,7 @@ In `{NAME} Decisions.md`, each decision body ends with a `Cites:` line listing t
 
 We chose hand-written SVG over D2 or Excalidraw to keep full control of palette, font, and arrow style consistent with the project's existing diagram aesthetic. Every arrow carries an italic-blue verb label.
 
-**Cites:** [[R-c4-01]] (every arrow labeled), [[R-wcag-contrast-01]] (contrast ≥4.5:1), [[R-wcag-contrast-02]] (color is not the sole communicator).
+**Cites:** ~~[[R-c4-01]]~~ (every arrow labeled), ~~[[R-wcag-contrast-01]]~~ (contrast ≥4.5:1), ~~[[R-wcag-contrast-02]]~~ (color is not the sole communicator).
 ```
 
 Audit walks decisions, collects every `Cites:` reference, flattens through includes, and verifies each cited rule.

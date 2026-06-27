@@ -295,7 +295,10 @@ def derive_banner(name: str, rows: list[Row], backlog_file: Path,
             and not r.bracket.startswith("Done")]
     actionable = [r for r in live if r.horizon in ACTIVE_HORIZONS_BANNER]
     active_n = sum(1 for r in actionable if r.bracket == "Active")
-    ready_n = sum(1 for r in actionable if r.bracket == "Ready")
+    # `Agreed` is the feature-lifecycle synonym for `Ready` (per [[SKA workflow]]
+    # / feature/SKILL.md) — count it as Ready so the banner doesn't drop Agreed
+    # rows from the agent-actionable headline.
+    ready_n = sum(1 for r in actionable if r.bracket in ("Ready", "Agreed"))
     verify_n = sum(1 for r in actionable if r.bracket == "Verify")
     # Questions count: sum of Q-markers across linked feature docs for each
     # `[Questions]` / `[N Questions]` row, across **every rendered horizon**
@@ -395,9 +398,15 @@ def derive_banner(name: str, rows: list[Row], backlog_file: Path,
     # the anchors needing attention.
     qfix_n = _count_qfix_subs(backlog_file)
     qfix_suffix = f"    {{{qfix_n}}}" if qfix_n > 0 else ""
+    # Headline numbers are the two MERGED groups (per the 2026-05-24 banner
+    # simplification): agent-actionable = Active + Ready (+Agreed); user-actionable
+    # = pending Questions + [Verify]-bracket rows. The per-horizon group below
+    # still shows raw counts (Now/Next/Later/Verify/Icebox) for placement.
+    agent_actionable_n = active_n + ready_n
+    user_actionable_n = questions_n + verify_n
     banner = (
         f"# [{tag}]  {slug_label}  -  "
-        f"Ready {ready_n}    Questions {questions_n}   |   "
+        f"Ready {agent_actionable_n}    Questions {user_actionable_n}   |   "
         f"Now {horizon_counts['Now']}    Next {horizon_counts['Next']}    "
         f"Later {horizon_counts['Later']}    Verify {horizon_counts['Verify']}    "
         f"Icebox {horizon_counts['Icebox']}"
@@ -436,8 +445,11 @@ def _row_should_render(row: Row) -> bool:
 def _truncate_body(text: str, soft_cap: int = 250) -> str:
     """Truncate body text at a sentence boundary near soft_cap; append '...' if cut."""
     text = text.strip()
-    # Strip trailing arrow-link `→ [[X]]` (it's redundant with the bullet's link)
-    text = ARROW_LINK_RE.sub("", text).rstrip()
+    # Strip the arrow-link `→ [[X]]` (it's redundant with the bullet's link)
+    text = ARROW_LINK_RE.sub("", text).strip()
+    # An arrow-link at the start often leaves a dangling ` — ` separator
+    # (`→ [[X]] — body` → ` — body`); drop it so the bullet reads cleanly.
+    text = re.sub(r"^\s*[—–-]\s*", "", text)
     # Strip trailing block-ID
     text = TRAILING_BLOCK_ID_RE.sub("", text).rstrip()
     if len(text) <= soft_cap:
@@ -521,6 +533,145 @@ def _extract_h3_headings(backlog_file: Path) -> set[str]:
     return set(m.strip() for m in re.findall(r"^### ([^\n]+)$", text, re.MULTILINE))
 
 
+# Brackets whose rows MUST declare a concrete next autonomous action (the step
+# the agent will take WITHOUT user involvement). A [Ready]/[Active] row with no
+# stateable autonomous next-action isn't really Ready — the missing Next is
+# surfaced as a warning so it can't masquerade.
+READY_ACTIVE_BRACKETS = {"Ready", "Agreed", "Active"}
+
+# Labeled sub-bullets under a row carry the concrete, user-facing text the
+# render surfaces (so the mechanical render isn't stuck quoting the row's
+# internal-jargon body):
+#   `  - **Next:** <no-user action>`     on [Ready]/[Active] rows
+#   `  - **Verify:** <yes/no question>`  on [Verify*]/[Watching*] rows
+# Both accept a `(...)` qualifier and a non-bold fallback.
+def _subbullet_res(label: str) -> tuple[re.Pattern, re.Pattern]:
+    return (
+        re.compile(rf"^\s+-\s+\*\*{label}(?:\s*\([^)]*\))?:\*\*\s*(.+?)\s*$"),
+        re.compile(rf"^\s+-\s+{label}(?:\s*\([^)]*\))?:\s*(.+?)\s*$"),
+    )
+
+
+def _extract_labeled_subbullets(backlog_file: Path, label: str) -> dict[str, str]:
+    """Map each top-level row identifier → the text of its `**<label>:**`
+    sub-bullet, if present. Generic over the label (Next / Verify)."""
+    bold_re, plain_re = _subbullet_res(label)
+    try:
+        lines = backlog_file.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError):
+        return {}
+    out: dict[str, str] = {}
+    current: Optional[str] = None
+    for line in lines:
+        if H2_HEADING_RE.match(line):
+            current = None
+            continue
+        m3 = ROW_OPENER_H3_RE.match(line)
+        if m3:
+            current = m3.group(1)
+            continue
+        mb = ROW_OPENER_BULLET_RE.match(line)
+        if mb and _extract_bullet_bracket(line):
+            current = mb.group(1)
+            continue
+        if current is None:
+            continue
+        m = bold_re.match(line) or plain_re.match(line)
+        if m:
+            out[current] = m.group(1).strip()
+    return out
+
+
+def extract_next_actions(backlog_file: Path) -> dict[str, str]:
+    """`Next:` sub-bullets — the no-user next step on each [Ready]/[Active] row."""
+    return _extract_labeled_subbullets(backlog_file, "Next")
+
+
+def extract_verify_questions(backlog_file: Path) -> dict[str, str]:
+    """`Verify:` sub-bullets — the concrete yes/no question on each
+    [Verify*]/[Watching*] row, surfaced verbatim as the V-item so the user sees
+    a real question, not the row's internal verify-plan jargon."""
+    return _extract_labeled_subbullets(backlog_file, "Verify")
+
+
+def render_queries_doc(name: str, banner: Optional[str], rows: list[Row],
+                       vault_index: dict, next_actions: dict[str, str],
+                       verify_questions: dict[str, str], backlog_file: Path) -> bool:
+    """Mechanically (re)write `{name} queries.md` from backlog state, as part of
+    every triage — the page the user clicks into from Q.md. Fully script-owned
+    (per user direction 2026-06-26: *"purely mechanical, done as part of the
+    process of doing a triage"*); no agent-authored prose is preserved. To change
+    what shows here, edit the backlog rows, not this file.
+
+    Layout: banner H1 (anchor-linked) + three sections rendered from the same
+    rows `_row_should_render` admits —
+      ## Verifications  ← `[Verify*]` / `[Watching*]` rows (each `**V<n>**` + the
+                          row's verify-plan body + `· **yes / no**`)
+      ## Ready          ← `[Ready]`/`[Agreed]`/`[Active]` rows, each with its
+                          declared `**Next:**` no-user action (⚠ if none)
+      ## Questions      ← `[Questions]` rows, linking to the source's open Qs
+    Returns False (writes nothing) when the anchor is empty (banner is None)."""
+    if banner is None:
+        return False
+    queries_file = backlog_file.parent / f"{name} queries.md"
+    # The Q.md banner links the name to `{name} queries` (so the user clicks
+    # over); inside queries.md that would be a self-link — retarget to the anchor.
+    h1 = banner.replace(f"[[{name} queries|{name}]]", f"[[{name}|{name}]]")
+    block_ids = _extract_block_ids(backlog_file)
+    h3_headings = _extract_h3_headings(backlog_file)
+    eligible = [r for r in rows if _row_should_render(r)]
+    verifs = [r for r in eligible if r.bracket.startswith("Verify") or r.bracket.startswith("Watching")]
+    ready = [r for r in eligible if r.bracket in READY_ACTIVE_BRACKETS]
+    qs = [r for r in eligible if "Questions" in r.bracket]
+
+    body: list[str] = []
+    if verifs:
+        body.append("## Verifications")
+        for i, r in enumerate(verifs, 1):
+            link = _bullet_link(r, name, vault_index, block_ids, h3_headings)
+            # Prefer the row's concrete `Verify:` question; fall back to a ⚠ so a
+            # row with only jargon body is flagged (not silently shown vague).
+            q = verify_questions.get(r.identifier)
+            qtxt = (_truncate_body(q, 240) if q
+                    else "⚠ no concrete question — add a `- **Verify:** <yes/no question>` sub-bullet to the row")
+            body.append(f"- **V{i}** {link} — {qtxt} · **yes / no**")
+    if ready:
+        body.append("## Ready")
+        for r in ready:
+            link = _bullet_link(r, name, vault_index, block_ids, h3_headings)
+            na = next_actions.get(r.identifier)
+            na_txt = (_truncate_body(na, 200) if na
+                      else "⚠ none declared — not really Ready; add a no-user next-action or rebracket")
+            body.append(f"- {link} — **Next:** {na_txt}")
+    if qs:
+        body.append("## Questions")
+        for r in qs:
+            link = _bullet_link(r, name, vault_index, block_ids, h3_headings)
+            txt = _truncate_body(r.body, 160)
+            body.append(f"- {link}" + (f" — {txt}" if txt else ""))
+    if not body:
+        body.append("_Nothing pending._")
+
+    # Preserve existing frontmatter; else write a default.
+    fm = ["---",
+          f"description: {name} queries — mechanically rendered from the backlog by "
+          "triage (Verifications / Ready+Next / Questions). Do not hand-edit; edit the backlog rows.",
+          "---"]
+    if queries_file.is_file():
+        try:
+            existing = queries_file.read_text(encoding="utf-8").splitlines()
+            if existing and existing[0].strip() == "---":
+                for j in range(1, len(existing)):
+                    if existing[j].strip() == "---":
+                        fm = existing[:j + 1]
+                        break
+        except (OSError, UnicodeDecodeError):
+            pass
+    out = fm + ["", h1, ""] + body + [""]
+    queries_file.write_text("\n".join(out), encoding="utf-8")
+    return True
+
+
 def _bullet_link(row: Row, name: str, vault_index: dict,
                  block_ids: set[str], h3_headings: set[str]) -> str:
     """Return the wiki-link form for the row's bullet.
@@ -576,10 +727,12 @@ def _render_bullet(row: Row, name: str, vault_index: dict,
 
 
 def render_body(rows: list[Row], name: str, backlog_file: Path,
-                vault_index: dict) -> list[str]:
+                vault_index: dict, next_actions: dict[str, str]) -> list[str]:
     """Render the body H2s + bullets. Returns a list of lines (no trailing
     newline). Resolves every emitted link against vault_index + the backlog's
-    actual block-ids + H3 headings — no dead links emitted."""
+    actual block-ids + H3 headings — no dead links emitted. For each
+    [Ready]/[Active] row, renders a `  - **Next:**` sub-line with the row's
+    declared autonomous next-action (or a ⚠ warning when none is declared)."""
     out: list[str] = []
     eligible = [r for r in rows if _row_should_render(r)]
     by_horizon: dict[str, list[Row]] = {}
@@ -593,58 +746,14 @@ def render_body(rows: list[Row], name: str, backlog_file: Path,
         out.append(f"## {h}")
         for r in by_horizon[h]:
             out.append(_render_bullet(r, name, vault_index, block_ids, h3_headings))
+            if r.bracket in READY_ACTIVE_BRACKETS:
+                na = next_actions.get(r.identifier)
+                if na:
+                    out.append(f"  - **Next:** {_truncate_body(na, 200)}")
+                else:
+                    out.append("  - **Next:** ⚠ none declared — not really Ready; "
+                               "add a no-user next-action or rebracket")
     return out
-
-
-# ============================================================
-# Queries-body paste (F176 — Q.md per-anchor body = {NAME} queries.md)
-# ============================================================
-
-
-def read_queries_body(name: str, backlog_file: Path) -> Optional[tuple[Optional[str], list[str]]]:
-    """Read `{NAME} queries.md` (sibling of the backlog) and return
-    `(computed_timestamp, body_lines)` where body_lines is everything below the
-    H1 (the `## Agent Resolutions` / `## Verifications` / `## Immediate Questions`
-    / `## Questions` / `## Ready` sections), with the YAML frontmatter and the H1
-    stripped.
-
-    The H1 is stripped on purpose: the queries H1 (`# [[NAME|NAME]] Queries …`)
-    begins with `# [`, which is exactly the Q.md per-anchor section-boundary
-    marker — pasting it verbatim would split this anchor's Q.md section. The
-    `_computed …_` timestamp is lifted out of the H1 and returned separately so
-    the caller can surface it as a non-`# [` sub-line.
-
-    Returns None when no queries file exists (caller falls back to the
-    backlog-derived body, preserving behavior for anchors not yet on /query)."""
-    qfile = backlog_file.parent / f"{name} queries.md"
-    if not qfile.is_file():
-        return None
-    try:
-        lines = qfile.read_text(encoding="utf-8").splitlines()
-    except (OSError, UnicodeDecodeError):
-        return None
-    i = 0
-    # Strip YAML frontmatter.
-    if lines and lines[0].strip() == "---":
-        i = 1
-        while i < len(lines) and lines[i].strip() != "---":
-            i += 1
-        i += 1  # past the closing ---
-    while i < len(lines) and lines[i].strip() == "":
-        i += 1
-    # Lift the timestamp out of the H1, then skip the H1 line.
-    timestamp: Optional[str] = None
-    if i < len(lines) and lines[i].lstrip().startswith("# "):
-        m = re.search(r"_computed\s+([^_]+?)_", lines[i])
-        if m:
-            timestamp = m.group(1).strip()
-        i += 1
-    while i < len(lines) and lines[i].strip() == "":
-        i += 1
-    body = lines[i:]
-    while body and body[-1].strip() == "":
-        body.pop()
-    return (timestamp, body)
 
 
 # ============================================================
@@ -739,6 +848,134 @@ def rewrite_qmd_section(name: str, section_lines: list[str]) -> str:
 
 
 # ============================================================
+# Mechanical staleness sweep — the cheap, script-decidable subset of
+# /groom § 2a, run on the backlog BEFORE rendering so /triage never shows or
+# counts a stale row. ONLY date/placement-decidable cases (no agent judgment):
+#   1. A `[Done]`-bracketed row sitting in a non-Done H2 → relocated to the
+#      first `## Done` section (keeps the file honest; the render already hides
+#      Done rows, but the backlog shouldn't accumulate them in live horizons).
+#   2. A `[Verify-by YYYY-MM-DD]` row whose date is past → bracket rewritten to
+#      `[Done — auto-Done …]` and relocated to `## Done` (removes the phantom
+#      Verify from the display).
+# Everything judgment-heavy ([Watching Nd] body-date expiry, lazy states,
+# blocker-resolved, [Ready] hedging, bracket/H2 mismatch) stays in /groom.
+# ============================================================
+
+_VERIFY_BY_RE = re.compile(r"^Verify-by\s+(\d{4}-\d{2}-\d{2})", re.I)
+
+
+def _is_top_level_row(line: str) -> bool:
+    if ROW_OPENER_H3_RE.match(line):
+        return True
+    if line.startswith("- **") and ROW_OPENER_BULLET_RE.match(line) and _extract_bullet_bracket(line):
+        return True
+    return False
+
+
+def sweep_stale_brackets(backlog_file: Path) -> list[str]:
+    """Apply the two mechanical staleness fixes to the backlog IN PLACE.
+    Returns a list of change descriptions (empty == no-op). Conservative: only
+    rewrites rows it is certain about; leaves everything else for /groom."""
+    import datetime
+    try:
+        lines = backlog_file.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError):
+        return []
+    today = datetime.date.today().isoformat()
+    n = len(lines)
+
+    cur_h2 = None
+    row_starts: list[tuple[int, str]] = []
+    for idx, l in enumerate(lines):
+        m = H2_HEADING_RE.match(l)
+        if m:
+            cur_h2 = m.group(1).strip()
+            continue
+        if cur_h2 is None:
+            continue
+        if _is_top_level_row(l):
+            row_starts.append((idx, cur_h2))
+    h2_idxs = [idx for idx, l in enumerate(lines) if H2_HEADING_RE.match(l)]
+    start_only = sorted(s for s, _ in row_starts)
+
+    def next_boundary(start: int) -> int:
+        cands = [s for s in start_only if s > start] + [h for h in h2_idxs if h > start] + [n]
+        return min(cands)
+
+    moves: list[tuple[int, int, Optional[str], str]] = []
+    for (start, h2) in row_starts:
+        if h2.startswith("Done"):
+            continue
+        opener = lines[start]
+        bracket = _extract_bullet_bracket(opener) or _extract_h3_bracket(opener)
+        end = next_boundary(start)
+        if bracket.startswith("Done"):
+            moves.append((start, end, None, f"moved stale [Done] row out of ## {h2} → ## Done"))
+        else:
+            mvb = _VERIFY_BY_RE.match(bracket)
+            if mvb and mvb.group(1) < today:
+                new_opener = opener.replace(
+                    f"[{bracket}]",
+                    f"[Done — auto-Done {today}: Verify-by {mvb.group(1)} window expired]",
+                    1,
+                )
+                moves.append((start, end, new_opener,
+                              f"auto-Done expired [Verify-by {mvb.group(1)}] from ## {h2}"))
+
+    if not moves:
+        return []
+
+    remove: set[int] = set()
+    moved_blocks: list[list[str]] = []
+    descs: list[str] = []
+    for (start, end, new_opener, desc) in moves:
+        block = lines[start:end]
+        if new_opener is not None:
+            block = [new_opener] + block[1:]
+        while block and block[-1].strip() == "":
+            block.pop()
+        moved_blocks.append(block)
+        remove.update(range(start, end))
+        descs.append(desc)
+
+    out: list[str] = []
+    inserted = False
+    for idx, l in enumerate(lines):
+        if idx in remove:
+            continue
+        out.append(l)
+        if not inserted:
+            mm = H2_HEADING_RE.match(l)
+            if mm and mm.group(1).strip().startswith("Done"):
+                out.append("")
+                for block in moved_blocks:
+                    out.extend(block)
+                    out.append("")
+                inserted = True
+    if not inserted:
+        out.append("")
+        out.append("## Done")
+        for block in moved_blocks:
+            out.extend(block)
+            out.append("")
+
+    # Collapse any 3+ consecutive blank lines introduced at the seams.
+    collapsed: list[str] = []
+    blanks = 0
+    for l in out:
+        if l.strip() == "":
+            blanks += 1
+            if blanks <= 1:
+                collapsed.append(l)
+        else:
+            blanks = 0
+            collapsed.append(l)
+
+    backlog_file.write_text("\n".join(collapsed) + "\n", encoding="utf-8")
+    return descs
+
+
+# ============================================================
 # Main
 # ============================================================
 
@@ -748,6 +985,8 @@ def main() -> int:
     p.add_argument("name", help="anchor slug, e.g. 'SKA'")
     p.add_argument("--print-only", action="store_true",
                    help="print the would-be section to stdout, don't touch Q.md")
+    p.add_argument("--no-sweep", action="store_true",
+                   help="skip the mechanical staleness sweep (render only)")
     args = p.parse_args()
     name = args.name.strip()
 
@@ -759,7 +998,14 @@ def main() -> int:
         sys.stderr.write(f"  searched {VAULT_ROOT} for '* Backlog.md' under */Plan|*/Track\n")
         return 1
 
-    # Parse the backlog
+    # Mechanical staleness sweep — conditional by nature (only rewrites rows that
+    # are actually stale), run BEFORE the render so /triage never surfaces stale
+    # state. Skipped with --print-only (don't mutate when just previewing).
+    sweep_descs: list[str] = []
+    if not args.no_sweep and not args.print_only:
+        sweep_descs = sweep_stale_brackets(backlog_file)
+
+    # Parse the backlog (after the sweep, so the render reflects the fixes)
     rows = parse_backlog(backlog_file)
 
     # Build vault index for link resolution (needed for Q-marker counts)
@@ -768,14 +1014,20 @@ def main() -> int:
     # Derive banner
     banner = derive_banner(name, rows, backlog_file, vault_index)
 
-    # Body: prefer the {NAME} queries.md paste (F176); fall back to the
-    # backlog-derived rows for anchors not yet on /query.
-    queries = read_queries_body(name, backlog_file)
-    qts: Optional[str] = None
-    if queries is not None:
-        qts, body = queries
-    else:
-        body = render_body(rows, name, backlog_file, vault_index)
+    # Per-Ready/Active next-action sub-bullets (the no-user next step each
+    # agent-actionable row will take) — surfaced under each such row.
+    next_actions = extract_next_actions(backlog_file)
+    # Per-Verify/Watching concrete-question sub-bullets — the yes/no the user answers.
+    verify_questions = extract_verify_questions(backlog_file)
+
+    # Body: the backlog-derived rows (## Active / ## Ready / ## Now / ## Next /
+    # ## Later / ## Verify), per triage SKILL.md § 4. The {NAME} queries.md drain
+    # page is the USER-question surface and is reachable via the H1 link (F176) —
+    # it is deliberately NOT pasted into the body. Pasting it (the prior F176
+    # over-reach) replaced the agent-actionable rows with the queries page, so
+    # the banner's Ready/Now counts pointed at an empty body ("Ready 4" with
+    # nothing shown). The banner reads the backlog; the body must too.
+    body = render_body(rows, name, backlog_file, vault_index, next_actions)
 
     # Compose section
     if banner is None and not body:
@@ -786,11 +1038,6 @@ def main() -> int:
         if banner:
             section_lines.append(banner)
             section_lines.append("")
-        if qts:
-            # Staleness signal — when the queries list was computed. Non-`# [`
-            # so it can't be mistaken for a section boundary.
-            section_lines.append(f"_queries computed {qts}_")
-            section_lines.append("")
         section_lines.extend(body)
 
     if args.print_only:
@@ -798,9 +1045,16 @@ def main() -> int:
         return 0
 
     summary = rewrite_qmd_section(name, section_lines)
+    # Mechanically render {name} queries.md from the backlog (banner +
+    # Verifications/Ready+Next/Questions) — the click-into page, fully script-owned.
+    rendered_q = render_queries_doc(name, banner, rows, vault_index, next_actions, verify_questions, backlog_file)
     # Counts for the summary line
     eligible = [r for r in rows if _row_should_render(r)]
-    print(f"triage-section: {name} — {summary}; rendered {len(eligible)} bullet(s)")
+    sweep_note = f"; swept {len(sweep_descs)} stale row(s)" if sweep_descs else ""
+    q_note = "; rendered queries.md" if rendered_q else ""
+    print(f"triage-section: {name} — {summary}; rendered {len(eligible)} bullet(s){sweep_note}{q_note}")
+    for d in sweep_descs:
+        print(f"  sweep: {d}")
     return 0
 
 

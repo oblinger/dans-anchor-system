@@ -6,7 +6,7 @@ Specification for the **Triage view** — the format and rules for rendering an 
 
 | -[[FCT Triage]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Triage](hook://p/FCT%20Triage)<br>: triage — presentation form for an anchor's status inside the global Q.md dashboard |
 | --- | --- |
-| Related | [[FCT Backlog]] (source of items), [[CAB Backlog]] (status brackets), [[SKA triage]] (renderer), [[FCT Ask]] (anchor questions surface), |
+| Related | [[FCT Backlog]] (source of items), [[CAB Backlog]] (status brackets), [[SKA triage]] (renderer), [[FCT Query]] (anchor questions surface), |
 | Examples | [[Q#CAE Triage\|CAE section (minimal)]],  [[Q#SKA Triage\|SKA section (fuller)]],   |
 
 **TLDR** — The Triage facet defines the *rendered format* of an anchor's status section inside `~/ob/kmr/Q.md`: the H1 banner (TAG, counts, exact spacing), body H2s (`## Active` … `## Later`, skipping empty), bullet form (bolded bracket + mandatory wiki-link + em-dash description), and the selective-Later rule (only `[Questions]`/`[Verify]` items surface under `## Later`). **Cardinality: one per anchor** — each anchor owns exactly one section in `Q.md`, destructively rewritten on each `/triage` run. No per-anchor file; the view lives only in `Q.md`.
@@ -38,27 +38,27 @@ Each anchor's section in Q.md is **agent-owned and destructively rewritten** on 
 
 ## H1 line — the anchor's section heading inside Q.md
 
-```
-# [<TAG>]  [[Q#{NAME} Triage|{NAME} Triage]]  -  Ready N    Questions N   |   Now N    Next N    Later N    Icebox N
-```
+The section heading is a level-1 heading (the literal `# [` prefix is also the section-boundary marker the renderer scans for) of this exact form:
 
-**Heading-anchor link form** (per F075 Q1): `[[Q#{NAME} Triage|{NAME} Triage]]` — heading-anchor into Q.md itself. Display text is `{NAME} Triage`. Clicking jumps to the same section; survives bubble-to-front re-ordering because Obsidian resolves headings by text (not position).
+`# [<TAG>]  [[{NAME} queries|{NAME}]]  -  Ready N    Questions N   |   Now N    Next N    Later N    Verify N    Icebox N`
+
+**Link form** (per F176, supersedes F075 Q1's heading-anchor form): `[[{NAME} queries|{NAME}]]` — links to the anchor's `{NAME} queries.md` drain page (where the user actually answers questions), display text `{NAME}`. Fallback chain when that file doesn't exist yet: `{NAME} queries` → `{NAME} Triage` → `{NAME}` → plain text (avoids emitting a dead link).
 
 **Spacing — lock exact** (per F028 Q6):
-- Two spaces between `[<TAG>]` and the heading-anchor link.
-- **Three spaces around the `-`** separating the link from the count groups.
+- Two spaces between `[<TAG>]` and the link.
+- **Three spaces around the `-`** separating the link from the counts.
 - **Four spaces between counts within a group**.
-- **Three-space-pipe-three-space (`   |   `)** between the three count groups.
+- **Three-space-pipe-three-space (`   |   `)** between the two headline numbers and the horizon group.
 
-**Three count groups, in order:**
-1. **User-actionable** — `Questions N    Verify N`
-2. **Agent-actionable** — `Active N    Ready N`
-3. **Horizon** — `Now N    Next N    Later N    Icebox N`
+**Two headline numbers + a horizon group** (per the 2026-05-24 banner simplification — each headline number MERGES two states):
+1. **Ready** (agent-actionable) — `[Active]` + `[Ready]` rows summed, **including the `[Agreed]` feature-lifecycle synonym for Ready**. The body H2s still render `## Active` and `## Ready` separately.
+2. **Questions** (user-actionable) — pending `Q<n>` across feature docs whose rows carry `[Questions]`, **plus `[Verify]`-bracket rows**, summed. The body still surfaces `[Verify]` and `[N Questions]` rows separately.
+3. **Horizon group** — `Now`, `Next`, `Later`, `Verify`, `Icebox`: raw per-H2 bullet counts (placement, not state).
 
 **Counts:**
-- `Questions` — sum of pending `Q<n>` across all feature docs that have rows in `## Active` / `## Ready` / `## Now` / `## Next` (i.e., not Later or Icebox), plus pending `Q<n>` in `{NAME} Questions.md` (the new à la carte facet).
-- `Verify` — bullets across `## Active` / `## Ready` / `## Now` / `## Next` with the `[Verify]` bracket.
-- `Active`, `Ready`, `Now`, `Next`, `Later` — bullets under each backlog H2 (one count each).
+- `Ready` (headline) — count of `[Active]` + `[Ready]` + `[Agreed]` rows in the active horizons (`## Active` / `## Ready` / `## Now` / `## Next`).
+- `Questions` (headline) — pending `Q<n>` across feature docs with `[Questions]` rows in the active horizons, plus `[Verify]`-bracket rows in those horizons, summed.
+- `Now`, `Next`, `Later`, `Verify` (horizon) — bullets under each backlog H2, one count each, excluding `[Done]`-bracketed rows. (`Verify` here is the `## Verify` H2 count, distinct from the `[Verify]`-bracket rows folded into the headline `Questions`.)
 - `Icebox` — bullets in `{NAME} Icebox.md` if it exists; else 0.
 
 
@@ -78,7 +78,7 @@ Decide the H1 TAG by checking in order; the first match wins, except U and A com
 
 ## No anchor-level questions bullet
 
-Triage carries **no** questions bullet under the H1. Anchor-level (non-feature) questions are authored directly in `{NAME} ask.md` § `## Questions` (per `[[SKA ask]]`) — there is no separate questions facet, and triage does not surface or count them. The H1 already links to `[[{NAME} ask]]`, which is where those questions live.
+Triage carries **no** questions bullet under the H1. Anchor-level (non-feature) questions are authored directly in `{NAME} queries.md` § `## Questions` (per `[[FCT Query]]`) — there is no separate questions facet, and triage does not surface or count them. The H1 already links to `[[{NAME} queries]]`, which is where those questions live.
 
 
 ## Body H2s
@@ -97,13 +97,11 @@ If the anchor has zero items in Active/Ready/Now/Next, the body is just the H1 (
 
 ## Bullet format — exact
 
-Each bullet is one line, with **a wiki-link as the title — mandatory, no exceptions, every row class**:
+Each bullet is one line, with **a wiki-link as the title — mandatory, no exceptions, every row class**. The three row-class forms (literal templates):
 
-```
-- **[<status>]** [[F<n> — Title]] — description.              ← feature row
-- **[<status>]** [[{NAME} Backlog#B<n>|B<n>]] — description.  ← backlog-only B-row
-- **[<status>]** [[YYYY-MM-DD Title]] — description.          ← bug/ad-hoc with its own doc
-```
+- `- **[<status>]** [[F<n> — Title]] — description.` — feature row
+- `- **[<status>]** [[{NAME} Backlog#B<n>|B<n>]] — description.` — backlog-only B-row
+- `- **[<status>]** [[YYYY-MM-DD Title]] — description.` — bug/ad-hoc with its own doc
 
 - **Bracket bolded** — `**[Active]**`, `**[Ready]**`, `**[Verify]**`, `**[Questions]**` (or `**[N Questions]**` / `**[N Ready]**` / `**[N Verify]**` when count > 1).
 - **One space** between the bracket and the wiki-link. The wiki-link is **not** bold.
@@ -120,9 +118,7 @@ The renderer-side enforcement of this rule lives in `[[SKA triage]]` § Mandator
 
 **Verify items: one-line text + `(details)` link.** The bracket wiki-link `[[F<n> — Title]]` already links to the whole feature doc; if the feature doc has a detailed `## Verify` section, **append `([[F<n> — Title#Verify|details]])`** at the end of the line so the user can click straight to the verification details. **No indented sub-bullets** for extended verify text — link to the section instead. The one-line summary is usually enough; the link is there when more is needed.
 
-```
-- **[Verify]** [[F007 — Webhook Notifications]] — Webhook fires on task completion. ([[F007 — Webhook Notifications#Verify|details]])
-```
+Example: `- **[Verify]** [[F007 — Webhook Notifications]] — Webhook fires on task completion. ([[F007 — Webhook Notifications#Verify|details]])`
 
 
 ## Status brackets — count and form
@@ -157,7 +153,7 @@ Each anchor's section inside Q.md is agent-owned. Every `/triage` run — or pos
 
 ## Lifecycle
 
-- **Created on first `/triage` (or à la carte `/ask`) run** — the anchor's section is inserted at the top of Q.md if absent.
+- **Created on first `/triage` (or à la carte `/query`) run** — the anchor's section is inserted at the top of Q.md if absent.
 - **Rewritten + bubbled-to-top** on every subsequent participating-skill run.
 - **Removed from Q.md entirely** when the anchor has TAG `[]` (zero items anywhere).
 - **Glanced at end of an active-mode run** — but the glance target is `~/ob/kmr/Q.md`, not any per-anchor file. See `[[SKA triage]]` § 7.
@@ -166,8 +162,8 @@ Each anchor's section inside Q.md is agent-owned. Every `/triage` run — or pos
 ## Relationship to other planning docs
 
 - **[[CAB Backlog]]** — source of truth for what's in flight, including item ordering. Triage filters/lists the backlog rows (excluding Later/Icebox) and applies the bracket-form rules. The backlog file is NOT reordered by triage; bubble-to-top happens only in Q.md (per F075 Q2).
-- **`## Open Questions` blocks inside feature docs** (per `[[SKA ask]]`) — source of truth for question text. Triage points at them via wiki-link to the feature doc; it doesn't duplicate the Q content.
-- **`{NAME} ask.md` § `## Questions`** (per `[[SKA ask]]`) — where anchor-level (non-feature) questions are authored directly. Triage neither counts nor surfaces them; they reach the user via the H1 link to the ask page.
+- **`## Open Questions` blocks inside feature docs** (per `[[FCT Query]]`) — source of truth for question text. Triage points at them via wiki-link to the feature doc; it doesn't duplicate the Q content.
+- **`{NAME} queries.md` § `## Questions`** (per `[[FCT Query]]`) — where anchor-level (non-feature) questions are authored directly. Triage neither counts nor surfaces them; they reach the user via the H1 link to the queries page.
 - **`/roster`** — counts every item once per backlog H2; triage's H1 banner uses the same scheme so the two views agree.
 - **`~/ob/kmr/Q.md`** — the single triage surface (per F075). Each anchor's per-anchor section here IS the triage view; it lives nowhere else.
 - **Anchor pages (`{NAME}.md`)** — do **not** carry a dispatch-table row pointing at this facet, since no per-anchor file exists to link to. The anchor's Q.md section is reached via the global dashboard, not via per-anchor navigation.
@@ -205,4 +201,4 @@ Any body H2 (`## Active`, `## Ready`, `## Now`, `## Next`, `## Later`) with zero
 - **Load-bearing: exact spacing in the H1 banner.** The two-space / three-space-around-dash / four-space-within-group / three-space-pipe-three-space scheme (per F028 Q6) is referenced by the renderer; do not relax to "use any whitespace" without updating `[[SKA triage]]` in lockstep.
 - **Load-bearing: the mandatory wiki-link rule for every row.** Every triage bullet's title MUST be a wiki-link (feature doc, backlog heading-anchor, or bug doc). Removing this constraint breaks user navigation through triage; the renderer enforces it via `[[SKA triage]]` § Mandatory wiki-link.
 - **Selective Later is a counting invariant, not a style choice.** Later items with `[Questions]` or `[Verify]` brackets MUST surface under `## Later` because every banner Q/V count needs a clickable row. Do not "clean up" by hiding all Later items — that breaks the count-vs-row correspondence.
-- **No inline reference example** — a facet spec must not embed a sample instance (markdown inside ``` fences doesn't render anyway). The canonical shape lives in the literal-syntax snippets under `# Format Specification` (H1 banner, bullet form); the live rendered instance is the **Working example** (SKA's section in `~/ob/kmr/Q.md`). Keep the Format Specification snippets in lockstep with the renderer `[[SKA triage]]`.
+- **No inline reference example** — a facet spec must not embed a rendered sample instance. The canonical shape lives in the literal inline-code templates under `# Format Specification` (H1 banner, bullet form — inline code, never fenced, so the linter's no-markdown-in-fences rule is satisfied while the placeholders stay literal); the live rendered instance is the **Working example** (SKA's section in `~/ob/kmr/Q.md`). Keep the Format Specification templates in lockstep with the renderer `[[SKA triage]]`.

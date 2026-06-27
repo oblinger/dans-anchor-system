@@ -5,7 +5,7 @@ description: "the example gallery — fictional worlds + a per-kind map"
 # FEX - Facet Examples
 A small set of complete, fictional example anchors — reused to illustrate each facet and anchor-page kind.
 
-| -[[FEX]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [FEX](hook://p/FEX)<br>: the example gallery — fictional worlds + a per-kind map |
+| -[[FEX]]- | → [[KM]] → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [FEX](hook://p/FEX)<br>: the example gallery — fictional worlds + a per-kind map |
 | --- | --- |
 | Related | [[SKL\|Skills]],  [[FCT\|Facets]],  [[DSC\|Disciplines]],  [[LBR\|Library]],  [[DAS\|ob-skills]],   |
 |  | **THE EXAMPLE WORLDS** |

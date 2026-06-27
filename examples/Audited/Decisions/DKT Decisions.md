@@ -13,23 +13,23 @@ Each entry records a decision once: the fork, what was chosen, why, and what it 
 
 ### D01 — Standard documents semantics; API documents the concrete interface (checked)
 
-**Decision.** The **Standard** ([[DKT Standard]] folder) documents *semantics only* — what anchors are, do, and mean; what a Markdown-Based Item Store *is*; the semantics of agent orchestration. It deliberately does **not** pin down a specific programmatic API. The **API** ([[DKT API]] folder) pins down the concrete interface, **making the standard's abstract claims concrete**. A standard doc and its API doc form a **pair** — e.g. [[DKT Anchor]] (semantics) ⟷ [[DKT Anchor API]] (concrete surface) — that travel together conceptually.
+**Decision.** The **Standard** ([[DKT Standard]] folder) documents *semantics only* — what anchors are, do, and mean; what a Markdown-Based Item Store *is*; the semantics of agent orchestration. It deliberately does **not** pin down a specific programmatic API. The **API** ([[DKT API]] folder) pins down the concrete interface, **making the standard's abstract claims concrete**. A standard doc and its API doc form a **pair** — e.g. [[ANC Standard]] (semantics) ⟷ [[ANC API]] (concrete surface) — that travel together conceptually.
 
 **Why.** Semantics and interface change at different rates and serve different readers (a spec reader vs. a crate consumer). Keeping the API out of the standard lets the standard stay language-agnostic and stable while the concrete surface evolves; keeping them paired (not merged) means the API can be read as "the standard, made executable."
 
 **Consequences.**
 - The two stay in their respective folders (`DKT Standard/`, `DKT API/`) and **cross-link** rather than merging.
-- Resolves [[F083 — Reconcile DKT Anchor API as the definitive crate spec]] Q1: `DKT Anchor API.md` **stays in `DKT API/`** (not moved into `DKT Standard/`); it is conceptually paired with [[DKT Anchor]], not physically co-located.
+- Resolves [[F083 — Reconcile DKT Anchor API as the definitive crate spec]] Q1: `DKT Anchor API.md` **stays in `DKT API/`** (not moved into `DKT Standard/`); it is conceptually paired with [[ANC Standard]], not physically co-located.
 - API docs therefore should **not restate** the standard's semantics (F083 Q3 leans the same way) — they map types → behavior *by reference* to the standard.
 
 ### D02 — One API document per surface serves both Rust and Python (checked)
 
-**Decision.** DKT supports **both** a Rust implementation and a Python implementation. Each API surface ([[DKT API]], [[DKT Anchor API]], [[DKT MBIS API]], [[DKT Agent API]]) is documented by a **single common document** that specifies both languages: the mental model is identical; only idioms differ (Rust closures ⟷ Python context managers / kwargs — already shown in [[DKT API]] § Python parity). The common document is kept common **as long as the surfaces stay close**. Split into per-language module docs **only if and when they diverge** enough that one doc becomes confusing.
+**Decision.** DKT supports **both** a Rust implementation and a Python implementation. Each API surface ([[DKT API]], [[ANC API]], [[MBIS API]], [[DKT Agent API]]) is documented by a **single common document** that specifies both languages: the mental model is identical; only idioms differ (Rust closures ⟷ Python context managers / kwargs — already shown in [[DKT API]] § Python parity). The common document is kept common **as long as the surfaces stay close**. Split into per-language module docs **only if and when they diverge** enough that one doc becomes confusing.
 
 **Why.** The two languages are meant to mirror each other 1:1 in shape; a common doc keeps them honest (divergence becomes visible as soon as one doc can't describe both) and avoids maintaining two parallel specs that silently drift.
 
 **Consequences.**
-- "DKT API" (and each sub-API doc) **simultaneously represents two things on purpose**: the Rust crate being built (currently by the HookAnchor Pilot, see [[DKT Anchor Roadmap]]) *and* DKT's Python implementation. This dual-representation is the intended common-document state, not a naming bug.
+- "DKT API" (and each sub-API doc) **simultaneously represents two things on purpose**: the Rust crate being built (currently by the HookAnchor Pilot, see [[ANC Roadmap]]) *and* DKT's Python implementation. This dual-representation is the intended common-document state, not a naming bug.
 - The [[DKT API]] § "Naming layers" row split (`docket` Python *module* vs `docket` Rust *crate*) stands; the API docs sit above that split and describe both.
 - **Divergence trigger to watch:** the first time a single doc can no longer describe both languages without per-language caveats on most rows, split that surface into `… (Rust)` / `… (Python)` module docs and leave the common doc as the shared mental model. Record the split as a new D-record.
 
@@ -59,7 +59,7 @@ In both surfaces, content **outside** the anchor's storage region — body prose
 - The `Anchor` record (both crates) exposes an ordered (key, value) sequence — not just a map — so writers can preserve source order. `field_names()` returns them in source order.
 - Field-level writes (e.g. `set_field("status", "done")`) **patch one line** in the frontmatter; they do not trigger a full re-emit.
 - The frontmatter parser captures (and the writer passes through) blank lines, comments, and unrecognized keys.
-- A heavy round-trip test corpus pins these invariants: read → modify-one-field → write → diff. Frontmatter diff is one line; anchor-section diff allows whitespace normalization only. Tracked in [[DKT Anchor Roadmap]] § Surgical-write test strategy and the new F-row.
+- A heavy round-trip test corpus pins these invariants: read → modify-one-field → write → diff. Frontmatter diff is one line; anchor-section diff allows whitespace normalization only. Tracked in [[ANC Roadmap]] § Surgical-write test strategy and the new F-row.
 - Cross-language: the Python and Rust writers must produce the same byte sequence for the same input + same edit. F022-style fixtures pin this.
 
 ### D05 — Anchor parsing is total: always yields a verdict, never panics (checked)
@@ -78,6 +78,6 @@ This also separates **two orthogonal concerns**: *is this an anchor?* (verdict) 
 **Consequences.**
 - The Anchor API's parse functions return `Result<AnchorVerdict, FatalError>` where `AnchorVerdict ∈ { Valid(Anchor, Warnings), NotAnAnchor }`. `FatalError` is reserved for I/O / OOM / programmer error — never user-input errors.
 - Per-field degradation: a malformed `traits: foo: bar` doesn't kill the anchor — the field stays empty, a warning records the input shape, the rest of the record (slug, title, description, etc.) populates normally.
-- The warnings catalog in [[DKT Anchor]] § S4 is the canonical list; any new degradation mode adds a row.
-- A heavy fuzz + adversarial corpus pins these invariants — see [[DKT Anchor Roadmap]] § Robustness test strategy and the new F-row.
+- The warnings catalog in [[ANC Standard]] § S4 is the canonical list; any new degradation mode adds a row.
+- A heavy fuzz + adversarial corpus pins these invariants — see [[ANC Roadmap]] § Robustness test strategy and the new F-row.
 - Property-based test (cross-language): for any byte sequence, `parse(bytes)` terminates within a bounded time and returns a verdict. The Python implementation uses Hypothesis; the Rust uses proptest.

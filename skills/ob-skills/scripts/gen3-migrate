@@ -1,0 +1,586 @@
+#!/usr/bin/env python3
+"""gen3-migrate — convert an anchor's docs from the Gen-2 container shape to Gen-3.
+
+Gen-2 (old):                          Gen-3 (new, the OBU/CAE reference shape):
+  {NAME}/                               {NAME}/
+    {NAME} Docs/                          {NAME} Design/        <- promoted to root
+      {NAME} Design/                      {NAME} Track/         <- promoted to root
+        {NAME} Architecture/              {NAME} Architecture/  <- promoted out of Design
+      {NAME} Track/                       {NAME} User Docs/     <- renamed from {NAME} User
+      {NAME} User/                        {NAME} Dev Docs/      <- renamed from {NAME} Dev
+      {NAME} Dev/                       (no {NAME} Docs/ container)
+      {NAME} Docs.md                    (container page + its .anchor removed)
+
+Dry by default: prints the per-anchor plan (every move / rename / page edit / link
+rewrite it WOULD do). Pass --apply to execute. --anchor <NAME> scopes to one anchor.
+
+Reference end-states read while authoring this script:
+  SYS/Bespoke/ob-utils/            (already Gen-3, migrated by hand)
+  SYS/Bespoke/Skill Agent/CAE/     (canonical template)
+
+After an --apply run, the HookAnchor index MUST be refreshed:
+    ha --update-anchors && ha --rescan
+(the OBU migration found the on-write hook reverts breadcrumbs if the index is stale).
+"""
+
+import argparse
+import os
+import re
+import subprocess
+import sys
+import urllib.parse
+from pathlib import Path
+
+VAULT = Path(os.path.expanduser("~/ob/kmr"))
+
+# Directories never scanned / never migrated.
+EXCLUDE_PARTS = ("/Yore/", "/.git/", "/.claude/worktrees/", "/ob-utils/")
+
+# Files whose path references are append-only history — never rewritten.
+# Matched as suffixes so `{NAME} Messages.md` (e.g. 'Create Messages.md') is caught.
+HISTORY_SUFFIXES = ("Messages.md", ".log")
+
+FIGURE_SPACE = " "  # U+2007, used in anchor TOC indentation — never rewrite those rows.
+
+# The doc-subfolder rename map (old leaf name suffix -> new root leaf name).
+# Order matters for path-string rewriting: Architecture (nested under Design) first.
+
+
+def is_excluded(p: Path) -> bool:
+    s = "/" + str(p) + "/"
+    return any(part in s for part in EXCLUDE_PARTS)
+
+
+# --------------------------------------------------------------------------- #
+# Anchor discovery
+# --------------------------------------------------------------------------- #
+
+def find_containers(scope_name=None):
+    """Find every Gen-2 `{NAME} Docs/` container anchor under the vault.
+
+    A real Gen-2 container is a dir named `{NAME} Docs` that contains at least one
+    of `{NAME} Design/` or `{NAME} Track/`. That requirement filters out:
+      - already-Gen-3 folders (`{NAME} User Docs`, `{NAME} Dev Docs`, `{NAME} Design Docs`)
+      - non-anchor folders that merely end in " Docs" (Death Docs, Chat Docs, ...)
+    """
+    out = []
+    for dirpath, dirnames, _ in os.walk(VAULT):
+        # prune excluded dirs early
+        dp = Path(dirpath)
+        if is_excluded(dp):
+            dirnames[:] = []
+            continue
+        for d in list(dirnames):
+            if not d.endswith(" Docs"):
+                continue
+            name = d[: -len(" Docs")]
+            container = dp / d
+            has_design = (container / f"{name} Design").is_dir()
+            has_track = (container / f"{name} Track").is_dir()
+            if has_design or has_track:
+                if scope_name and name != scope_name:
+                    continue
+                out.append((name, container))
+    out.sort(key=lambda t: str(t[1]))
+    return out
+
+
+# --------------------------------------------------------------------------- #
+# Git helpers
+# --------------------------------------------------------------------------- #
+
+_repo_cache = {}
+
+
+def git_root(path: Path):
+    d = str(path if path.is_dir() else path.parent)
+    if d in _repo_cache:
+        return _repo_cache[d]
+    try:
+        r = subprocess.run(["git", "-C", d, "rev-parse", "--show-toplevel"],
+                           capture_output=True, text=True)
+        root = Path(r.stdout.strip()) if r.returncode == 0 else None
+    except Exception:
+        root = None
+    _repo_cache[d] = root
+    return root
+
+
+def is_tracked(path: Path) -> bool:
+    root = git_root(path)
+    if root is None:
+        return False
+    r = subprocess.run(["git", "-C", str(root), "ls-files", "--error-unmatch", str(path)],
+                       capture_output=True, text=True)
+    return r.returncode == 0
+
+
+def do_move(src: Path, dst: Path, apply: bool, log):
+    tracked = is_tracked(src)
+    tool = "git mv" if tracked else "mv"
+    log(f"    MOVE [{tool}]  {rel(src)}  ->  {rel(dst)}")
+    if not apply:
+        return
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    if tracked:
+        root = git_root(src)
+        subprocess.run(["git", "-C", str(root), "mv", str(src), str(dst)], check=True)
+    else:
+        src.rename(dst)
+
+
+def do_remove(path: Path, apply: bool, log):
+    tracked = is_tracked(path)
+    tool = "git rm" if tracked else "rm"
+    log(f"    REMOVE [{tool}]  {rel(path)}")
+    if not apply:
+        return
+    if tracked:
+        root = git_root(path)
+        subprocess.run(["git", "-C", str(root), "rm", "-r", str(path)], check=True)
+    else:
+        if path.is_dir():
+            path.rmdir()
+        else:
+            path.unlink()
+
+
+def rel(p: Path) -> str:
+    try:
+        return str(p.relative_to(VAULT))
+    except ValueError:
+        return str(p)
+
+
+# --------------------------------------------------------------------------- #
+# Dispatch-page content edits (H1 / breadcrumb / hook slug / self-link)
+# --------------------------------------------------------------------------- #
+
+def slug(name: str) -> str:
+    return urllib.parse.quote(name)
+
+
+def edit_page_text(text: str, name: str, old_leaf: str, new_leaf: str,
+                   drop_design_hop: bool):
+    """Return (new_text, [change descriptions]).
+
+    old_leaf/new_leaf are the page's own name (e.g. 'CSE User' -> 'CSE User Docs').
+    Always drops the dissolved `[[{NAME} Docs]]` breadcrumb hop. When the page was
+    nested under Design (Architecture promotion) drop_design_hop also removes the
+    `[[{NAME} Design]]` hop.
+    """
+    changes = []
+    renamed = old_leaf != new_leaf
+
+    if renamed:
+        # H1
+        new, n = re.subn(rf"^# {re.escape(old_leaf)}\s*$", f"# {new_leaf}",
+                         text, flags=re.M)
+        if n:
+            text = new
+            changes.append(f"H1 '# {old_leaf}' -> '# {new_leaf}'")
+        # masthead self-link  -[[old]]-
+        new, n = re.subn(rf"-\[\[{re.escape(old_leaf)}\]\]-", f"-[[{new_leaf}]]-", text)
+        if n:
+            text = new
+            changes.append(f"masthead -[[{old_leaf}]]- -> -[[{new_leaf}]]-")
+        # hook link text + slug:  [old](hook://p/old%20slug)
+        new, n = re.subn(
+            rf"\[{re.escape(old_leaf)}\]\(hook://p/{re.escape(slug(old_leaf))}\)",
+            f"[{new_leaf}](hook://p/{slug(new_leaf)})", text)
+        if n:
+            text = new
+            changes.append(f"hook slug {slug(old_leaf)} -> {slug(new_leaf)}")
+
+    # Drop the dissolved container breadcrumb hop  ` → [[{NAME} Docs]]`
+    new, n = re.subn(rf"\s*→\s*\[\[{re.escape(name)} Docs\]\]", "", text)
+    if n:
+        text = new
+        changes.append(f"dropped breadcrumb hop [[{name} Docs]] ({n}x)")
+
+    if drop_design_hop:
+        new, n = re.subn(rf"\s*→\s*\[\[{re.escape(name)} Design\]\]", "", text)
+        if n:
+            text = new
+            changes.append(f"dropped breadcrumb hop [[{name} Design]] ({n}x)")
+
+    return text, changes
+
+
+def plan_page_edit(page: Path, name, old_leaf, new_leaf, drop_design_hop, apply, log):
+    """page is the CURRENT (pre-move) location; edits applied post-move are described
+    against the new location but here we just read/preview/write in place pre-move."""
+    if not page.is_file():
+        return
+    text = page.read_text(encoding="utf-8")
+    new_text, changes = edit_page_text(text, name, old_leaf, new_leaf, drop_design_hop)
+    if not changes:
+        return
+    log(f"    EDIT  {rel(page)}")
+    for c in changes:
+        log(f"           - {c}")
+    if apply and new_text != text:
+        page.write_text(new_text, encoding="utf-8")
+
+
+# --------------------------------------------------------------------------- #
+# Vault-wide link + path sweep
+# --------------------------------------------------------------------------- #
+
+def candidate_files(patterns):
+    """Use ripgrep to list files containing any literal pattern; fall back to walk."""
+    files = set()
+    rg = subprocess.run(["which", "rg"], capture_output=True, text=True)
+    if rg.returncode == 0:
+        for pat in patterns:
+            r = subprocess.run(
+                ["rg", "-l", "-F", pat, str(VAULT),
+                 "-g", "!Yore/**", "-g", "!.git/**",
+                 "-g", "!.claude/worktrees/**", "-g", "!ob-utils/**"],
+                capture_output=True, text=True)
+            for line in r.stdout.splitlines():
+                files.add(Path(line))
+    else:
+        for dirpath, dirnames, filenames in os.walk(VAULT):
+            dp = Path(dirpath)
+            if is_excluded(dp):
+                dirnames[:] = []
+                continue
+            for fn in filenames:
+                if fn.endswith(".md") or fn == ".anchor":
+                    files.add(dp / fn)
+    return files
+
+
+def build_link_rules(name):
+    """Ordered (regex, replacement, label). Applied left-to-right; order matters."""
+    N = re.escape(name)
+    rules = []
+    # path strings — Architecture (nested) BEFORE Design
+    rules.append((rf"{N} Docs/{N} Design/{N} Architecture/",
+                  f"{name} Architecture/", "path nested-Architecture"))
+    rules.append((rf"{N} Docs/{N} Design/", f"{name} Design/", "path Design"))
+    rules.append((rf"{N} Docs/{N} Track/", f"{name} Track/", "path Track"))
+    rules.append((rf"{N} Docs/{N} User/", f"{name} User Docs/", "path User"))
+    rules.append((rf"{N} Docs/{N} Dev/", f"{name} Dev Docs/", "path Dev"))
+    # wiki-links — folder/page renames.  boundary lookahead so 'User Guide' is untouched
+    rules.append((rf"\[\[{N} User(?=[\]|#\\])", f"[[{name} User Docs", "link User"))
+    rules.append((rf"\[\[{N} Dev(?=[\]|#\\])", f"[[{name} Dev Docs", "link Dev"))
+    return rules
+
+
+def sweep_links(name, apply, log):
+    """Returns dict of counts. Skips history files, figure-space TOC rows, fenced blocks.
+    Reports (does not auto-rewrite) bare `[[{NAME} Docs]]` container links outside
+    breadcrumb hops — those need human judgement."""
+    rules = build_link_rules(name)
+    container_link_re = re.compile(rf"\[\[{re.escape(name)} Docs(?=[\]|#\\])")
+    # Pre-compile rule regexes; the Dev/User idempotency guard avoids re-appending Docs.
+    compiled = [(re.compile(rx), rep, lab) for rx, rep, lab in rules]
+    devuser_idem = re.compile(rf"\[\[{re.escape(name)} (User|Dev) Docs")
+
+    patterns = [f"{name} Docs/", f"[[{name} User", f"[[{name} Dev", f"[[{name} Docs"]
+    files = candidate_files(patterns)
+
+    counts = {"rewrites": 0, "files": 0, "skipped_history": 0,
+              "skipped_fenced": 0, "toc_flag": 0, "container_links": 0}
+    examples = []
+    toc_files = set()
+    container_files = set()
+
+    for f in sorted(files):
+        if is_excluded(f):
+            continue
+        bn = f.name
+        is_history = any(bn.endswith(s) for s in HISTORY_SUFFIXES)
+        try:
+            lines = f.read_text(encoding="utf-8").splitlines(keepends=True)
+        except Exception:
+            continue
+        changed = False
+        in_fence = False
+        new_lines = []
+        file_hit = False
+        for ln in lines:
+            stripped = ln.lstrip()
+            if stripped.startswith("```") or stripped.startswith("~~~"):
+                in_fence = not in_fence
+                new_lines.append(ln)
+                continue
+
+            # does this line reference anything of interest?
+            relevant = (f"{name} Docs/" in ln or container_link_re.search(ln)
+                        or re.search(rf"\[\[{re.escape(name)} (User|Dev)(?=[\]|#\\])", ln))
+            if not relevant:
+                new_lines.append(ln)
+                continue
+
+            if is_history:
+                counts["skipped_history"] += 1
+                new_lines.append(ln)
+                continue
+            if in_fence:
+                counts["skipped_fenced"] += 1
+                new_lines.append(ln)
+                continue
+            if FIGURE_SPACE in ln:
+                counts["toc_flag"] += 1
+                toc_files.add(f)
+                new_lines.append(ln)  # never rewrite TOC rows; flag for regen
+                continue
+
+            # container-link (non-breadcrumb) — report only
+            for m in container_link_re.finditer(ln):
+                # a breadcrumb hop ' → [[NAME Docs]]' is handled by page edits, but in
+                # arbitrary files we just report all container links for human review.
+                counts["container_links"] += 1
+                container_files.add(f)
+
+            newln = ln
+            for rx, rep, lab in compiled:
+                if "User Docs" in rep or "Dev Docs" in rep:
+                    # idempotency: skip if already 'User Docs'/'Dev Docs'
+                    pass
+                newln2 = rx.sub(rep, newln)
+                if newln2 != newln:
+                    if len(examples) < 3:
+                        examples.append((rel(f), lab, ln.strip()[:90]))
+                    newln = newln2
+                    file_hit = True
+            if newln != ln:
+                counts["rewrites"] += 1
+                changed = True
+            new_lines.append(newln)
+
+        if file_hit:
+            counts["files"] += 1
+        if changed and apply:
+            f.write_text("".join(new_lines), encoding="utf-8")
+
+    if examples:
+        for relf, lab, snip in examples:
+            log(f"    LINK  [{lab}]  {relf}:  {snip}")
+    if counts["rewrites"]:
+        log(f"    LINK  total rewritable lines: {counts['rewrites']} across {counts['files']} files")
+    if counts["container_links"]:
+        log(f"    LINK  [[{name} Docs]] container links (REVIEW, not auto-rewritten): "
+            f"{counts['container_links']} in {len(container_files)} files")
+    if counts["toc_flag"]:
+        log(f"    LINK  figure-space TOC rows referencing moved paths (REGEN needed): "
+            f"{counts['toc_flag']} rows in {len(toc_files)} files")
+        for tf in sorted(toc_files):
+            log(f"           - {rel(tf)}")
+    if counts["skipped_history"]:
+        log(f"    LINK  skipped append-only history lines: {counts['skipped_history']}")
+    return counts
+
+
+# --------------------------------------------------------------------------- #
+# .anchor path-key rewrite
+# --------------------------------------------------------------------------- #
+
+def rewrite_anchor_keys(anchor_file: Path, name, apply, log):
+    if not anchor_file.is_file():
+        return
+    text = anchor_file.read_text(encoding="utf-8")
+    new = text
+    for old_seg, new_seg in (
+        (f"{name} Docs/{name} Track/", f"{name} Track/"),
+        (f"{name} Docs/{name} Design/{name} Architecture/", f"{name} Architecture/"),
+        (f"{name} Docs/{name} Design/", f"{name} Design/"),
+        (f"{name} Docs/{name} User/", f"{name} User Docs/"),
+        (f"{name} Docs/{name} Dev/", f"{name} Dev Docs/"),
+    ):
+        new = new.replace(old_seg, new_seg)
+    if new != text:
+        log(f"    EDIT  {rel(anchor_file)}  (.anchor path keys -> Gen-3 locations)")
+        if apply:
+            anchor_file.write_text(new, encoding="utf-8")
+
+
+# --------------------------------------------------------------------------- #
+# Per-anchor migration
+# --------------------------------------------------------------------------- #
+
+def migrate(name, container: Path, apply: bool, do_sweep: bool, log):
+    anchor_root = container.parent
+    anomalies = []
+    log(f"\n=== {name}   ({rel(anchor_root)}) ===")
+
+    # idempotency: already migrated?
+    if (anchor_root / f"{name} Design").is_dir() and not container.exists():
+        log("    (already Gen-3 — nothing to do)")
+        return anomalies
+
+    children = sorted(p.name for p in container.iterdir()) if container.exists() else []
+
+    # ---- map known children ----
+    known = {
+        f"{name} Design": ("dir", "design"),
+        f"{name} Track": ("dir", "track"),
+        f"{name} User": ("dir", "user"),
+        f"{name} Dev": ("dir", "dev"),
+        f"{name} Docs.md": ("file", "page"),
+        f"{name} Docs.anchor": ("file", "page-anchor"),
+        ".anchor": ("file", "container-anchor"),
+    }
+    unexpected = [c for c in children if c not in known and c != "Yore"]
+    if unexpected:
+        anomalies.append(f"{name}: UNEXPECTED items in container: {unexpected}")
+    if "Yore" in children:
+        anomalies.append(f"{name}: container holds a Yore/ — cannot fully remove container "
+                         f"(decide where {rel(container)}/Yore goes)")
+
+    # ---- Architecture promotion ----
+    design = container / f"{name} Design"
+    nested_arch = design / f"{name} Architecture"
+    root_arch = anchor_root / f"{name} Architecture"
+    if nested_arch.is_dir():
+        do_move(nested_arch, root_arch, apply, log)
+        # fix the promoted arch page breadcrumbs (drop Docs + Design hops)
+        archpage = (nested_arch if not apply else root_arch) / f"{name} Architecture.md"
+        plan_page_edit(archpage if archpage.exists() else nested_arch / f"{name} Architecture.md",
+                       name, f"{name} Architecture", f"{name} Architecture",
+                       drop_design_hop=True, apply=False, log=log)
+    else:
+        # look for Architecture elsewhere
+        stray = list(container.rglob(f"{name} Architecture")) if container.exists() else []
+        stray = [s for s in stray if s != nested_arch]
+        if stray:
+            anomalies.append(f"{name}: Architecture NOT nested under Design — found at "
+                             f"{[rel(s) for s in stray]} (promotion skipped, needs judgement)")
+        else:
+            anomalies.append(f"{name}: no {name} Architecture/ folder (none to promote — informational)")
+
+    # ---- page content edits (do BEFORE moving so paths are simple) ----
+    if design.is_dir():
+        plan_page_edit(design / f"{name} Design.md", name, f"{name} Design",
+                       f"{name} Design", False, apply, log)
+    track = container / f"{name} Track"
+    if track.is_dir():
+        plan_page_edit(track / f"{name} Track.md", name, f"{name} Track",
+                       f"{name} Track", False, apply, log)
+    user = container / f"{name} User"
+    if user.is_dir():
+        up = user / f"{name} User.md"
+        if not up.exists():
+            anomalies.append(f"{name}: {name} User/ has no {name} User.md dispatch page")
+        plan_page_edit(up, name, f"{name} User", f"{name} User Docs", False, apply, log)
+    dev = container / f"{name} Dev"
+    if dev.is_dir():
+        dp = dev / f"{name} Dev.md"
+        if not dp.exists():
+            anomalies.append(f"{name}: {name} Dev/ has no {name} Dev.md dispatch page")
+        plan_page_edit(dp, name, f"{name} Dev", f"{name} Dev Docs", False, apply, log)
+
+    # ---- moves to root ----
+    if design.is_dir():
+        do_move(design, anchor_root / f"{name} Design", apply, log)
+    if track.is_dir():
+        do_move(track, anchor_root / f"{name} Track", apply, log)
+    if user.is_dir():
+        # rename dispatch page file inside, then move folder
+        do_move(user, anchor_root / f"{name} User Docs", apply, log)
+        rename_dispatch_file(anchor_root / f"{name} User Docs", f"{name} User",
+                             f"{name} User Docs", apply, log)
+    if dev.is_dir():
+        do_move(dev, anchor_root / f"{name} Dev Docs", apply, log)
+        rename_dispatch_file(anchor_root / f"{name} Dev Docs", f"{name} Dev",
+                             f"{name} Dev Docs", apply, log)
+
+    # ---- remove container page + container ----
+    cpage = container / f"{name} Docs.md"
+    if cpage.exists():
+        do_remove(cpage, apply, log)
+    cpage_anchor = container / f"{name} Docs.anchor"
+    if cpage_anchor.exists():
+        do_remove(cpage_anchor, apply, log)
+    container_anchor = container / ".anchor"
+
+    # remove container dir if it would be empty (no Yore, nothing unexpected)
+    if "Yore" not in children and not unexpected:
+        if container_anchor.exists():
+            do_remove(container_anchor, apply, log)
+        log(f"    REMOVE [dir]  {rel(container)}  (empty container)")
+        if apply:
+            try:
+                container.rmdir()
+            except OSError as e:
+                log(f"           ! could not rmdir: {e}")
+    else:
+        log(f"    KEEP   {rel(container)}  (non-empty — see anomalies)")
+
+    # ---- .anchor path-key rewrite (anchor root's .anchor) ----
+    rewrite_anchor_keys(anchor_root / ".anchor", name, apply, log)
+
+    # ---- vault-wide link sweep ----
+    if do_sweep:
+        sweep_links(name, apply, log)
+
+    return anomalies
+
+
+def rename_dispatch_file(folder: Path, old_leaf, new_leaf, apply, log):
+    """Rename the dispatch .md inside a just-moved folder ({old_leaf}.md -> {new_leaf}.md)."""
+    # pre-apply the folder still has old file name; post-apply we look in new folder
+    src = folder / f"{old_leaf}.md"
+    dst = folder / f"{new_leaf}.md"
+    if not apply:
+        log(f"    RENAME  {old_leaf}.md  ->  {new_leaf}.md   (in {rel(folder)})")
+        return
+    if src.exists():
+        do_move(src, dst, apply, log)
+
+
+# --------------------------------------------------------------------------- #
+# main
+# --------------------------------------------------------------------------- #
+
+def main():
+    ap = argparse.ArgumentParser(description="Gen-2 -> Gen-3 anchor docs migration (dry by default).")
+    ap.add_argument("--apply", action="store_true", help="execute (default: dry run)")
+    ap.add_argument("--anchor", metavar="NAME", help="scope to one anchor NAME")
+    ap.add_argument("--no-sweep", action="store_true", help="skip the vault-wide link sweep")
+    ap.add_argument("--list", action="store_true", help="just list container anchors and exit")
+    args = ap.parse_args()
+
+    containers = find_containers(args.anchor)
+
+    if args.list:
+        for name, c in containers:
+            print(f"{name}\t{rel(c)}")
+        print(f"\n{len(containers)} container anchors", file=sys.stderr)
+        return
+
+    if not containers:
+        print("No Gen-2 container anchors found"
+              + (f" for --anchor {args.anchor}" if args.anchor else "") + ".")
+        return
+
+    mode = "APPLY" if args.apply else "DRY RUN"
+    print(f"gen3-migrate — {mode} — {len(containers)} container anchor(s)\n")
+
+    out_lines = []
+    def log(s):
+        out_lines.append(s)
+        print(s)
+
+    all_anomalies = []
+    for name, container in containers:
+        all_anomalies += migrate(name, container, args.apply, not args.no_sweep, log)
+
+    print("\n" + "=" * 70)
+    print("ANOMALIES (need human judgement before --apply):")
+    if all_anomalies:
+        for a in all_anomalies:
+            print(f"  * {a}")
+    else:
+        print("  (none)")
+
+    if args.apply:
+        print("\nDONE. Now refresh the HookAnchor index (REQUIRED):")
+        print("    ha --update-anchors && ha --rescan")
+
+
+if __name__ == "__main__":
+    main()

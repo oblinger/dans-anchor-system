@@ -3,7 +3,7 @@ description: Audit — SKA skill anchor; design tree + dispatch for `/audit`.
 ---
 # Audit
 
-| -[[Audit]]- | → [[KM]] → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [Audit](hook://p/Audit)<br>: SKA skill anchor for `/audit` |
+| -[[Audit]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [Audit](hook://p/Audit)<br>: SKA skill anchor for `/audit` |
 | --- | --- |
 | Skill | [[audit/SKILL\|SKILL.md]],  [[SKL Audit\|User Docs]],   |
 | Design | [[Audit Design\|Design]] — [[Audit PRD\|PRD]],  [[Audit UX Design\|UX Design]],  [[Audit API Design\|API Design]],  [[Audit Architecture\|Architecture]],  [[Audit Decisions\|Decisions]],  [[Audit Testing\|Testing]],  [[Audit Roadmap\|Roadmap]] |

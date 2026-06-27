@@ -45,6 +45,7 @@ The facet doc reads top-down: a reviewer can answer "is this enough testing?" fr
 | # | Section | Purpose |
 |---|---|---|
 | 1 | Top of doc | YAML frontmatter (with `status::` field) + `# {NAME} Testing` H1 + dispatch table + **TLDR** (required per [[DSC progressive-disclosure]] § Per-facet preface requirements). |
+| 1b | `## Tests` | **REQUIRED coverage table** directly below the preface (after TLDR, before Overview). One row per test kind: **Kind** (a link — see § The tests-table) · **In system** (current test count) · **Expected** (target count and/or qualitative coverage). The grazer-altitude coverage map. |
 | 2 | `## Overview` | One paragraph — what this project's testing posture is in a sentence (e.g., "Heavy unit + integration; minimal e2e because the surface is library-shaped"). The reader leaves knowing the *shape* of the test investment. Often elaborates on what the TLDR has already gestured at. |
 | 3 | `## Strategy` | The first part of the facet. Subsections below. |
 | 3a | `### Test Kinds` | List of categories used (unit / integration / e2e / property-based / smoke / regression / performance / …). One sentence each: definition + scope. |
@@ -54,7 +55,24 @@ The facet doc reads top-down: a reviewer can answer "is this enough testing?" fr
 | 4 | `## Proposed Tests` | The second part. Inventory table — one row per proposed test, grouped by kind. See § Proposed-tests table below. |
 | 5 | `## See also` (optional) | Links to peer design docs (PRD, Architecture, UX), to `[[DSC verification]]`, to `/mint` and `/code test` for execution context. |
 
-The spine is `Overview → Strategy → Proposed Tests`. § 2–4 are the load-bearing invariant; § 5 is optional.
+The spine is `Overview → Strategy → Proposed Tests`. § 2–4 are the load-bearing invariant; § 5 is optional. The `## Tests` coverage table (§ 1b) sits in the preface, above the spine.
+
+## The tests-table (required)
+
+Directly below the preface (after the **TLDR**, before `## Overview`), every `{NAME} Testing.md` carries a **`## Tests`** table — the at-a-glance coverage map. **One row per test kind** the project uses, in the same kind set as `## Strategy § Test Kinds`. Columns:
+
+| Column | Contents |
+|---|---|
+| **Kind** | the test kind, as a **link** (target rule below). |
+| **In system** | how many tests of this kind exist *today* — a count (`0` if none yet). |
+| **Expected** | the coverage bar: an estimated count and/or a qualitative statement (e.g. "~25 — one per invariant", "exhaustive on the pure core", "sampled — no fixed target"). |
+
+**The Kind cell is always a link**, and the target depends on whether the project's use of that kind is ordinary:
+
+- **Vanilla** — the project uses the kind the standard way → link to the matching H2 in [[Common Testing Types]] (e.g. `[[Common Testing Types#Property\|Property]]`).
+- **Special** — the project does something noteworthy with the kind → link to a section **within this same `{NAME} Testing.md`** explaining the twist (e.g. `[[#Wire-contract goldens\|Golden]]`). That in-doc section carries only what is *different* from the generic, and may itself cite the Common Testing Types H2.
+
+A reviewer reads `## Tests` to answer "what kinds, how much now, how much intended?" in one glance, then drops into `## Strategy` for the why and `## Proposed Tests` for the individual rows. The kind set here must equal the kinds in `## Strategy § Test Kinds` (and thus the H3 groups in `## Proposed Tests`).
 
 ## Proposed-tests table
 
@@ -75,6 +93,7 @@ The spine is `Overview → Strategy → Proposed Tests`. § 2–4 are the load-b
 | Test                                 | Exercises                                          | Spec                          |
 | ------------------------------------ | -------------------------------------------------- | ----------------------------- |
 | `test_schedule_then_drain_end_to_end` | Schedule N tasks, drain blocks until all complete | [[CAE Dev Docs/CAE-Boundary]] |
+
 ```
 
 **Spec column rules:**
@@ -126,6 +145,7 @@ Available to any anchor that ships testable behavior — primarily `Code` trait 
 - [[FCT UX Design]] — peer facet under Design.
 - [[FCT PRD]] — user stories drive e2e test inventory in § Proposed Tests.
 - [[DSC verification]] — four-tier verification discipline that § Tier Mapping cites.
+- [[Common Testing Types]] — the standard test-kind catalogue (one H2 per kind) that the required `## Tests` table's Kind cells link to for vanilla kinds.
 - [[CAE Testing]] — worked example for CAE Example CLI.
 - [[skills/design/design-testing|design-testing]] — authoring sub-skill for `/design testing`.
 
@@ -234,7 +254,16 @@ The doc has a `## Overview` H2 between the preface zone and `## Strategy`, carry
 
 **Why:** the Overview is the bridge between the grazer-altitude TLDR and the load-bearing Strategy. A reviewer answers "what is this project's testing posture in a sentence?" from here before drilling in. Skipping it forces the TLDR or the Strategy intro to carry that burden and the reader loses the one-paragraph framing every real instance (HBR, CAE, MUX) provides.
 
-(R-testing-01..10 authored 2026-06-10; R-testing-11 added 2026-06-14 in the F178 Testing-facet pilot lane. The sentinel form `### RULE R-<slug>-NN — <title> (tier)` is canonical; rule IDs are monotonic-forever and never renumbered.)
+### RULE R-testing-12 — `## Tests` coverage table present below the preface (checked)
+check:: tests_table_present
+
+Directly after the preface (TLDR), before `## Overview`, the doc has a `## Tests` H2 containing a table with one row per test kind. Each row's first cell is a wiki-link — to a [[Common Testing Types]] H2 for a vanilla kind, or to a section within this same doc for a project-special kind — and the table carries an "in system" (current count) column and an "expected coverage" column.
+
+**Check pattern:** grep for `^## Tests$` appearing before the first `^## Overview$`; verify it contains a markdown table; verify the kind set equals `## Strategy § Test Kinds`; verify each kind cell is a `[[wiki-link]]`.
+
+**Why:** the tests-table is the coverage map a reviewer reads first — current vs. expected per kind, each kind linked to its strategy (generic in [[Common Testing Types]] or project-special in-doc). Without it the only coverage signal is buried in prose, and the link discipline (vanilla → shared catalogue, special → in-doc section) decays.
+
+(R-testing-01..10 authored 2026-06-10; R-testing-11 added 2026-06-14 in the F178 Testing-facet pilot lane; R-testing-12 added 2026-06-26 — the required `## Tests` coverage table + [[Common Testing Types]] linking. The sentinel form `### RULE R-<slug>-NN — <title> (tier)` is canonical; rule IDs are monotonic-forever and never renumbered.)
 
 # BRIEF
 
@@ -244,5 +273,6 @@ The doc has a `## Overview` H2 between the preface zone and `## Strategy`, carry
 - **Keep the spec and the `R-testing` RULESET in sync.** When the section order, table contract, or `status::` value set changes in the prose above, audit each `RULE R-testing-NN` block for matching wording, check-pattern accuracy, and any new rule that should be added. The 11 numbered rules are the auditable form of this spec.
 - **Two forms are valid; inlined specs are not.** Real instances range from lean single-file ([[Mini Testing]], [[CAE Testing]]) to grown single-file with extra strategy sections + Scope/Recipe columns ([[MUX Testing]]). The one anti-pattern is collapsing the `## Proposed Tests` inventory into inlined per-test Precondition/Steps/Pass blocks (`SKA Bridge Testing.md`) — that is the altitude inversion R-testing-07 / R-testing-03 catch.
 - **Authoring authority flows through `/design testing`** — the [[skills/design/design-testing|design-testing]] sub-skill is the canonical authoring path; do not duplicate its runbook here. When the facet shape evolves, update design-testing's runbook in lockstep (the 2026-06-10 F136 rewrite is the precedent).
-- **Cross-references that must stay live:** [[FCT Architecture]] (peer facet, drives integration-test bar), [[DSC verification]] (four-tier vocabulary the Tier Mapping cites), [[DSC progressive-disclosure]] (TLDR formatting requirement per R-testing-10), [[CAE Testing]] (worked example), [[F133 — Rulesets folder convention + facet embedding|F133]] (the embedding convention the RULESET below follows).
+- **The required `## Tests` coverage table (R-testing-12)** sits in the preface below the TLDR — one row per kind, with current-count + expected-coverage columns, each Kind cell linking to [[Common Testing Types]] (vanilla) or an in-doc section (project-special). Keep this in sync with [[Common Testing Types]] when either changes.
+- **Cross-references that must stay live:** [[FCT Architecture]] (peer facet, drives integration-test bar), [[DSC verification]] (four-tier vocabulary the Tier Mapping cites), [[DSC progressive-disclosure]] (TLDR formatting requirement per R-testing-10), [[Common Testing Types]] (the kind catalogue the `## Tests` table links to), [[CAE Testing]] (worked example), [[F133 — Rulesets folder convention + facet embedding|F133]] (the embedding convention the RULESET below follows).
 - **Naming convention is canonical** — `{NAME} Testing.md`, not `Testing Strategy.md` (legacy scaffold). R-testing-01 enforces this; don't reintroduce the longer name when editing examples or migration notes.

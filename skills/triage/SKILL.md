@@ -166,6 +166,24 @@ This re-evaluation is *the* primary value of these states; without it, Blocked /
 
 The user reads `[Ready]` and trusts it. If a row's description includes "we'll see if F23 fixes it; if not we'll do this one" — that row is `[Blocked F23]`, not `[Ready]`. If it says "fix shipped; let's watch for a week" — that's `[Watching 7d]`, not `[Ready]`. The whole point of having `[Blocked]`, `[Waiting]`, and `[Watching]` brackets is that they're more honest than a vague `[Ready]` — use them.
 
+**Every `[Ready]`/`[Active]` row MUST declare its next autonomous action (per user direction 2026-06-26).** Ready isn't a feeling — it's a *commitment to a concrete next step the agent will take WITHOUT user involvement*. So every `[Ready]`/`[Active]` row carries a sub-bullet directly beneath it:
+
+```
+- **[Ready]** [[F<n> — Title]] — description.
+  - **Next:** <the one concrete step the agent will take next, with zero user involvement>
+```
+
+`triage-section.py` reads that `- **Next:**` sub-bullet and renders it under the row in Q.md and stamps it into the queries doc. **If a `[Ready]`/`[Active]` row has no `Next:` sub-bullet, the script renders `⚠ none declared — not really Ready`** — that warning is the forcing function: a row whose next step you *can't* state without the user (e.g. "user drag-to-pin", "user runs the test on an idle box") is **not Ready** and must be rebracketed (`[Verify]` if the next step is a user verification, `[Blocked]`/`[Questions]` if it needs a user decision/action). This is what catches the "it says ready but it's not really ready" failure: if you can't write a no-user `Next:`, the bracket is lying.
+
+**Symmetrically, every `[Verify*]`/`[Watching*]` row MUST declare a concrete yes/no question (per user direction 2026-06-26 — "ask a very concrete question").** The mechanical render quotes this verbatim as the V-item, so it must be answerable *without* the reader knowing the row's internals — a specific action + a specific thing to look for, ending in a yes/no:
+
+```
+- **[Verify]** [[F<n> — Title]] — internal verify-plan / jargon is fine here.
+  - **Verify:** <concrete: do X, observe Y — did Y happen? yes/no>
+```
+
+`triage-section.py` surfaces the `- **Verify:**` sub-bullet as the V-item question (not the row's body). **If a `[Verify*]`/`[Watching*]` row has no `Verify:` sub-bullet, the render shows `⚠ no concrete question`** — same forcing function. And the same honesty check applies: if the only "verification" you can write requires setup the user can't do right now (e.g. "deploy standalone Compact first, then drag"), it isn't a user-verify — rebracket to `[Blocked]`. A V-item must be a question the user can answer from where they sit.
+
 
 ## H1 banner spacing — exact
 
@@ -273,13 +291,27 @@ python3 ~/.claude/skills/triage/scripts/triage-section.py {NAME}
 
 The script:
 
+- **Runs a mechanical staleness sweep on `{NAME} Backlog.md` FIRST** (see § 5a) — so triage never renders or counts a stale row.
 - Walks `{NAME} Backlog.md` (handles both bullet-style and HA-style H3 rows).
 - Derives the H1 banner with TAG cascade + horizon counts + Questions/Verify totals.
 - Renders body H2s (`## Active`, `## Ready`, `## Now`, `## Next`, `## Later`, `## Verify`) with one bullet per qualifying item in source order. `## Later` is filtered to `[Questions]` and `[Verify*]` brackets; `## Icebox` is never rendered; `[Done]` rows are skipped.
 - De-dupes any existing section for `{NAME}` and bubbles the fresh one to the top of `~/ob/kmr/Q.md`'s body (immediately after frontmatter).
 - Removes the section entirely if the anchor has zero live items.
 
-The script's stdout is a single line like `triage-section: SKA — wrote new section at top; rendered 20 bullet(s)` — surface it in the chat summary so the user knows what changed.
+The script's stdout is a single line like `triage-section: SKA — wrote new section at top; rendered 20 bullet(s)`, plus one `sweep:` line per stale row fixed — surface it in the chat summary so the user knows what changed.
+
+### 5a. Mechanical staleness sweep — the cheap groom subset, baked into the render
+
+**Why it exists:** triage was sometimes showing/carrying stale state because the backlog hadn't been groomed. A full `/groom` before every triage is too expensive (it's agent reasoning over the whole backlog — tens of seconds + tokens). But the *staleness that erodes trust* is almost always the **script-decidable** subset of `/groom` § 2a — date/placement facts no agent judgment is needed for. So `triage-section.py` runs just that subset, in place, before the render. Measured cost: **~1s** (the render already parses the backlog). Conditional by nature — it only rewrites rows that are actually stale; a clean backlog is a no-op.
+
+The sweep handles exactly two cases (anything judgment-heavy stays in explicit `/groom`):
+
+1. **Stale `[Done]` row in a non-Done H2** → relocated to the first `## Done` section. (The render already hides `[Done]` rows and the banner already excludes them, so this is file-hygiene — but it keeps the backlog itself honest so horizons don't silently accumulate completed work.)
+2. **`[Verify-by YYYY-MM-DD]` past its date** → bracket rewritten to `[Done — auto-Done …]` and relocated to `## Done`. This one is **display-affecting**: it removes the phantom Verify from the body.
+
+**Deliberately NOT swept** (needs agent judgment or fragile body-parsing — left for `/groom`): `[Watching Nd]`/`[Watching Nh]` soak expiry (absolute date lives in freeform body), `[Blocked]` whose blocker resolved, `[Ready]` hedging-language, lazy `[Blocked]`/`[Waiting]`/`[Watching]`, bracket/H2 mismatch, and all promotion / question-parking (forward progress, not staleness).
+
+The sweep mutates the backlog file directly (no per-row `state` round-trips — that would be ~3.8s each); Q.md is regenerated by the render that immediately follows, so it stays in sync. Disable with `--no-sweep` (render only) or `--print-only` (preview; never mutates).
 
 **This is the only write target.** The agent does not edit Q.md directly; the script does. The prose in § 2–4 above is preserved for auditability — anyone wanting to know what the canonical Q.md section format looks like can read those sections; the script's behavior IS that spec.
 
@@ -343,7 +375,7 @@ The just-updated per-anchor section sits at the top of Q.md (per § 6's move-to-
 
 ### 7. Print the anchor's banner as the LAST line of chat output — visually emphasized
 
-The final lines of chat output after a `/triage` run MUST be the anchor's just-rendered banner, **wrapped in equal-sign rules above and below and rendered bold**. This is the user's "boom — this is the status" signal; the visual delimiter makes the banner unmistakable even when chat is dense.
+The final lines of chat output after a `/triage` run MUST be the anchor's just-rendered banner, **wrapped in equal-sign rules above and below and rendered bold**. This is the user's "boom — this is the status" signal; the visual delimiter makes the banner unmistakable even when chat is dense. (The queries page is rendered mechanically during § 5, so the banner is always the final chat line — there is no post-banner `/query` step. § 8 documents the mechanical render; it adds no closing action.)
 
 **Format — three lines, exactly:**
 
@@ -390,6 +422,20 @@ Note: {K} stale [Done] rows still in horizon H2s — run /groom to move to ## Do
 ```
 
 The directive appears **only when N > 0**; omitted when Ready 0 (no agent action available, banner stands alone). The placement matters: outside the `===` block frames the line as a comment to the agent (the way a code reviewer leaves a note for the implementer), not as part of the user-facing status. Direct second-person address (`you MUST continue`) makes the recipient unambiguous.
+
+### 8. The queries doc is rendered MECHANICALLY by the script — no `/query` invocation needed
+
+Per user direction 2026-06-26 — *"it should be purely mechanical … just done as part of the process of doing a triage"* — `{NAME} queries.md` is **not** hand-authored by the `/query` skill anymore. **`triage-section.py` renders it directly from the backlog as part of § 5**, every run, for the anchor being triaged. There is **no separate `/query` step** in the triage runbook and **nothing for the agent to author** — the page is a pure rendered view, like the Q.md section.
+
+What the script writes into `{NAME} queries.md` (only when the anchor is non-empty, TAG ≠ `[]`):
+- **H1** — the live banner (§ 7), anchor-linked (`[[{NAME}|{NAME}]]`), identical to chat/Q.md.
+- **`## Verifications`** — every `[Verify*]` / `[Watching*]` row (the eligibility is `_row_should_render`, so active horizons + `## Later`'s verify rows), each as `**V<n>**` + the row's verify-plan body + `· **yes / no**`.
+- **`## Ready`** — every `[Ready]`/`[Agreed]`/`[Active]` row, each with its declared `**Next:**` no-user action (or the ⚠ warning when none is declared).
+- **`## Questions`** — every `[Questions]` row, linking to the source's open Qs.
+
+**To change what shows on the queries page, edit the backlog rows** (the verify-plan lives in the `[Verify]` row's body; the next-action in the `[Ready]`/`[Active]` row's `Next:` sub-bullet). The page itself is overwritten on every triage — never hand-edit it.
+
+**`/query` is now narrowed to question *determination*** — when there are open `## Open Questions` to route (auto-resolve a reversible guess, run a self-answerable check, escalate a real decision), invoke `/query` to apply that logic *to the feature docs / backlog rows*. The queries *page* is then produced by the mechanical render, not by `/query`. (This is what fixes the 2026-06-26 failure where a verify-only anchor left its verifications stranded: the render is unconditional, so nothing depends on the agent remembering to author the page.)
 
 
 ## Sticky-context protocol

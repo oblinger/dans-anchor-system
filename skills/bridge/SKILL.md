@@ -18,17 +18,18 @@ description: Connect this Mac to another machine. Umbrella over three kinds of b
 
 See the `devops` skill for the general heartbeat/watcher discipline; this section makes it **non-optional** the moment a bridge is in play.
 
-## The three kinds of bridge
+## The four kinds of bridge
 
-Two are **mechanisms** (how control / bytes move); one is a **goal** built on top of them.
+Two are **mechanisms** (how control / bytes move); two are **goals** built on top of them.
 
 | Verb | Kind | What it does |
 |---|---|---|
 | `bridge <host>` / `bridge mux <host>` | mechanism — **control** | SSH + tmux + TCC inheritance. Drive the remote as a local box with FDA. |
 | `bridge sync [host]` | mechanism — **data** | File sync (Syncthing today). Mirror folder trees at identical paths. |
 | `bridge claude [host]` | **goal** | Make the remote a Claude environment-twin. *Composes* `sync` (content) + `~/.claude` provisioning. |
+| `bridge agent <host>` | **goal** | Deploy a working Claude *agent* on the remote with a brief. *Composes* `claude` (env-twin) + tmux launch + status-doc + heartbeat. See F007. |
 
-`bridge <host>` with a bare hostname defaults to the **control** bridge (the common interactive case). `sync` and `claude` are explicit named intents.
+`bridge <host>` with a bare hostname defaults to the **control** bridge (the common interactive case). `sync` / `claude` / `agent` are explicit named intents.
 
 **Two design contracts that run through everything:**
 - **Same-relative-path:** the remote path always matches the local path absolutely (`/Users/oblinger/ob/kmr/` ↔ same on remote). Preserves wiki-links, absolute-path references, `~/ob/...`-baked tooling, and Claude's path-keyed session lookup.
@@ -305,14 +306,134 @@ Then `bridge <host>` (control) into the twin and run `claude` there — same ski
 
 ---
 
+---
+
+# Agent bridge — `bridge agent <host>`
+
+Deploy a working Claude **agent** on `<host>` with a task brief. The agent runs end-to-end in a tmux session; the user views status via a vault-resident doc rendered in Obsidian on the remote. Replaces the eight-step manual recipe we ran by hand on 2026-06-23 to stand up the M1+M2 BEAST verification agent on haorui. Spec: `[[F007 — bridge agent]]`.
+
+### When to use
+
+Multi-hour dev-ops work (disk verification, hash sweeps, migration, anything where the laptop coordinator would degenerate into "SSH-probe every 20 minutes and hope"). Latency-to-detection of a stuck script via SSH-probing is minutes-to-hours; a local agent on the remote catches the same stall in 30 seconds — and survives whatever happens to the laptop session. See the `offload-long-devops-to-bridge-agent` memory for full motivation.
+
+### Subcommand surface
+
+```
+bridge agent <host> --brief <path>          # standard invocation
+bridge agent <host> --brief <path> --restart # tear down existing agent session, start fresh
+bridge agent <host> --no-sync               # skip the push-pull step (trusted-fresh vault)
+bridge agent <host> --no-layout             # skip window arrangement
+bridge agent <host> --session <name>        # override the default session name (rare)
+bridge agent <host> --role <path>           # override the agent's cwd (rare; default = invoker's cwd)
+bridge agent <host> --model <id>            # override model (default = invoker's model)
+```
+
+### Standard tmux session — `agent`, one per host
+
+The skill names the remote tmux session `agent` — one agent per host. Re-invoking when the session exists attaches local windows to the existing session (idempotent); `--restart` forces tear-down + fresh launch. To run a concurrent second agent on the same host (rare), `--session <name>` overrides.
+
+### Setup recipe — composition with `bridge claude` + tmux launch + windows
+
+The skill is the top-of-stack action; internally it calls existing bridge helpers, then does the deploy-specific work.
+
+**Step 1 — env-twin check + provision if missing.** `python3 ~/.claude/skills/bridge/claude-provision.py verify --host <host>` to confirm `twin_ready: true`. If not, run `apply` to provision.
+
+**Step 2 — vault freshness (push-then-pull, always).** Two-layer mechanism: Syncthing rescan-and-wait first (POST `/rest/db/scan` on both sides, poll `/rest/db/status` until convergence, 30s deadline), `rsync -a --delete` fallback if Syncthing daemon is unreachable or doesn't converge. Skill blocks on this step. `--no-sync` opts out.
+
+**Step 3 — ensure `MY/Bridge agents/` exists + is excluded from sync and git.** On first use:
+- Append `MY/Bridge agents/**` to `~/ob/kmr/.gitignore` if not present.
+- Append the same to `~/ob/kmr/.stignore` on both sides (Syncthing exclude).
+- `mkdir -p "~/ob/kmr/MY/Bridge agents/"` on the remote.
+
+**Step 4 — ship the brief.** `scp <brief> oblinger@<host>:/Users/oblinger/agent-brief.md`. The brief is the spec; agent reads it on bootstrap.
+
+**Step 5 — start tmux session + launch claude.** `ssh oblinger@<host>.local "tmux new -ds agent -x 220 -y 50 'cd <cwd> && claude'"`. Cwd defaults to invoker's cwd (path-identity invariant carries the role forward — same `CLAUDE.md` stack loads on the remote).
+
+**Step 6 — handle /login if needed.** Capture the pane (`tmux capture-pane -t agent -p`). If "Not logged in" appears, **pause and instruct the user**: "Attach via `ssh oblinger@<host> tmux attach -t agent`, run `/login`, complete OAuth, detach with Ctrl-B D, re-run `bridge agent` to continue." One-time per host.
+
+**Step 7 — pick model.** If invoker's model differs from the remote's default, send `/model <id>` and confirm.
+
+**Step 8 — bootstrap prompt.** Send the prompt that tells the agent to read `/Users/oblinger/agent-brief.md` and execute. Standard text:
+
+> You are the local SYS agent on `<host>`. Your handoff brief is at `/Users/oblinger/agent-brief.md` — read it in full, then execute end-to-end. Write status to `~/ob/kmr/MY/Bridge agents/<host> agent.md`. Use assume-and-announce (F068) for ambiguity; the user has explicitly stepped out for this task. Arm a `ScheduleWakeup` heartbeat that verifies ground-truth progress. Begin.
+
+**Step 9 — open local Terminal + attach.** `open -a Terminal` with a fresh window running `ssh oblinger@<host>.local "tmux attach -t agent"`. If a Terminal window is already attached, focus it instead.
+
+**Step 10 — open Obsidian on the remote** showing the status doc. `ssh oblinger@<host>.local 'open -a Obsidian "~/ob/kmr/MY/Bridge agents/<host> agent.md"'`.
+
+**Step 11 — arrange windows on the laptop.** `osascript` to position: Terminal middle column (~33% width × ~60-70% height, centered), local Obsidian right column (~33% width × full height, anchored right). `--no-layout` skips.
+
+**Step 12 — stand down banner.** Print: `WORKING — agent on <host> owns task; coordinator polling on demand.`
+
+### Brief format — YAML frontmatter + redundant body-top table
+
+YAML for the skill to parse (`mission` required; `status_doc` / `heartbeat` / `role` optional overrides). The body opens with a redundant markdown table mirroring the same fields as wiki-links — the user reads the table in Obsidian (frontmatter isn't visible in rendered mode).
+
+Canonical template at `~/.claude/skills/bridge/templates/brief-template.md` — start there for new briefs. Body content: Mission / Current state snapshot / File inventory / Hard rules / Status protocol / Escalation / First action.
+
+### Status doc — one canonical doc per host at a computed path
+
+`~/ob/kmr/MY/Bridge agents/<host> agent.md`. The skill creates the folder + the gitignore + the stignore entries on first use. One doc per host; subsequent tasks overwrite. Brief's frontmatter MAY override the path via `status_doc:` for unusual cases.
+
+Canonical format (template at `~/.claude/skills/bridge/templates/status-doc-template.md`):
+
+- H1 + dim italic timestamp line
+- **Three one-line headlines** at top — one per phase or workstream — each `<emoji> <phase> <verb> — <X/Y> · <key info> · ETA <when>`. Emoji vocabulary: `🟢 progressing` / `🟡 slow` / `⏸ paused` / `🟠 stalled` / `🔴 attention` / `✅ complete`.
+- `## ATTENTION` H2 only when user input is needed. Format: `**Recommended action:** … · **Why:** … · **Decision needed from you:** … · **If we wait:** …`.
+- `## Now` (one short line — current activity).
+- Detail sections below the fold.
+
+### Status doc transport — SSH-pull on demand; NOT Syncthing; NOT git
+
+The status doc churns on every heartbeat. We don't want that in git history or Syncthing's conflict tracking. **The doc is gitignored + stignored + lives only on the remote** (write-side). Primary user-facing surface: the remote's Obsidian, which the layout step also opens.
+
+When the laptop coordinator agent (the SYS agent on the invoking machine) needs the status — typically because the user asked — pull on demand:
+
+```
+ssh oblinger@<host>.local 'cat "~/ob/kmr/MY/Bridge agents/<host> agent.md"'
+```
+
+The pull populates the coordinator's chat summary. The coordinator never writes a local copy — that would just be stale. Optional follow-up: a periodic `launchd` that `scp`'s every N minutes for laptop-side Obsidian viewing; out of scope for v1.
+
+### Heartbeat — hard convention while there's active work
+
+The remote agent owns its own heartbeat rate via `ScheduleWakeup`. **Whenever there's active work in flight, a heartbeat MUST be armed** — non-optional. Standard ranges (agent picks):
+
+- 60-300s during setup / first targets / OAuth pause
+- 1200-1800s during steady-state (20-30 min)
+- 30-600s during final wind-down / waiting on a single long target
+
+Every heartbeat verifies *ground-truth* progress (results file row count advancing, log mtime moving, in-progress process alive), regenerates the status doc, and console-prints a one-line `WORKING — ...` banner. No progress between two heartbeats → `🟠 stalled` in the headline + investigate.
+
+### Idempotency
+
+| Re-invoke scenario | Behavior |
+|---|---|
+| Same host, `agent` session running | Attach local Terminal + Obsidian to existing; print `Reusing existing agent on <host>`. No new launch. |
+| Same host, `agent` running + `--restart` | Kill, re-ship brief, fresh launch. |
+| Same host, no session | Full setup as if first invocation. Vault sync runs. |
+| Different host | Independent — each host has its own `agent` session. |
+
+### Gotchas (live, from the 2026-06-23 hand-run)
+
+- **`tmux capture-pane -p`** sometimes returns empty when the pane is in TUI alternate-screen mode. Use `-S 0 -E -` to capture the visible buffer fresh.
+- **OAuth URL line-wrapping** in `capture-pane` output can mangle the `state` parameter if you try to reassemble the URL programmatically. That's why the OAuth UX is "pause + instruct the user to attach and click locally," not "extract URL and open in laptop browser."
+- **`zsh` on the remote eats `==`** in pipelines (zsh equal-expansion). Use single-quoted or escaped markers like `--- HEADER ---` instead of `=== HEADER ===` in SSH-wrapped probes.
+- **Uninterruptible I/O wait on a bad-sector path** (e.g. BEAST corruption on the M1+M2 run) can leave a bash process unresponsive to SIGTERM. `kill -9` works only sometimes; the cleanest recovery is to kill the tmux session entirely. Briefs should specify per-target timeouts to prevent this from blocking the whole run.
+
+---
+
 ## When NOT to use bridge
 
 - One-shot read on a non-TCC path → plain `ssh user@host 'cmd'`.
 - One-shot op on a TCC path → have the user run a self-contained script in their Terminal that writes to `/tmp/`, then SSH-read `/tmp/`.
 - One-time file push with no ongoing mirror → `rsync`/`scp` directly (sync-bridge is for a *standing* mirror).
+- Quick remote command that takes < 30 minutes — overhead of `bridge agent` not worth it; just SSH-probe.
 
 ## Status
 
 **Active** (F150, 2026-06-11). Control plane captured 2026-06-06 (COPPER → 10T). Sync (Syncthing) + Claude bridge built and **verified live against haorui.local** 2026-06-11: 14.4 GB vault seeded via tar over a Thunderbolt bridge, `.claude/` excluded both sides, `bridge claude` provisioned 65 skills + CLAUDE.md with `projects/` excluded (`twin_ready: true`). Renamed from `mux-bridge`; helpers at `~/.claude/skills/bridge/`; config at `~/.config/bridge/`. NFS (Phase 2) and rsync (Phase 3) still deferred per F122.
 
 **F159 (2026-06-12)** — Claude bridge grew three layers, all verified live against haorui.local: vault path derived from ob-skills `vault_root` (removed from bridge config); bidirectional **memory sharing** via the `claude-memory` ignore-filtered share (two-way probe converged ~15s each direction; shared index verified `.jsonl`-free while haorui's own transcripts stayed local); one-way **ob-skills config** provisioning. Full F151 harness: 10 pass, 0 fail. Known gap (out of scope): `~/bin` shell tools (`ctrl`, `ha`, `exp`) referenced by the synced CLAUDE.md are machine installs and don't travel.
+
+**F007 (2026-06-23)** — Agent bridge added. The `bridge agent <host>` subcommand composes `bridge claude` (env-twin) with a deploy step: env-check → vault push-pull → ensure `MY/Bridge agents/` git+stignored → ship brief → tmux launch with cwd identity → /login pause-and-instruct if needed → model pick → bootstrap prompt → local Terminal + Obsidian opens → window arrangement → coordinator stands down. Status doc convention: one canonical doc per host at `~/ob/kmr/MY/Bridge agents/<host> agent.md`, gitignored, transported by SSH-pull on demand (never Syncthing, never git). Heartbeat is a hard convention while work is active. Templates at `~/.claude/skills/bridge/templates/`. Hand-run dress rehearsal: M1+M2 BEAST verification on haorui (the recipe was extracted from that experience).

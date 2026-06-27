@@ -1,5 +1,5 @@
 ---
-description: "The **backlog discipline** organizes a backlog along two independent axes — *when* the user wants work to happen (horizon) and *how far* the work has progressed (workflow state) — so items…"
+description: "Organizes a backlog along two independent axes — *when* the user wants work to happen (horizon) and *how far* the work has progressed (workflow state)."
 ---
 # Backlog-Horizons Discipline
 

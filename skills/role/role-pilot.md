@@ -1,0 +1,1 @@
+/Users/oblinger/ob/kmr/SYS/Bespoke/Skill Agent/ob-skills/disciplines/DSC operation/DSC role/role-pilot.md

@@ -1055,7 +1055,10 @@ def extract_q_entries(file_path: Path, container_id: str) -> list[QEntry]:
             heading_text = heading_m.group(3).strip()
             if level == 2:
                 flush()
-                in_h2_resolved = (heading_text.lower() == "resolved")
+                # Recognize the "Resolved" section and its common descriptive
+                # variants ("Resolved decisions", "Resolved questions") so
+                # already-decided Q-records there aren't mis-scanned as open Qs.
+                in_h2_resolved = heading_text.lower().startswith("resolved")
                 in_h3_resolved = False
                 continue
             if level == 3:
@@ -1086,7 +1089,7 @@ def extract_q_entries(file_path: Path, container_id: str) -> list[QEntry]:
                     )
                     in_h3_resolved = False
                     continue
-                in_h3_resolved = (heading_text.lower() == "resolved")
+                in_h3_resolved = heading_text.lower().startswith("resolved")
                 continue
             # Level 1 or 4+: leave state alone (rare in feature docs)
         if in_h2_resolved or in_h3_resolved:

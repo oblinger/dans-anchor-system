@@ -45,8 +45,8 @@ The trade-off table for picking a viz approach by its Obsidian + external capabi
 
 ## Where things go from here
 
-- **Trade-off discussions, design questions, round-trip investigations** → [[SKA viz discussion]] (the open-questions surface for the /viz skill).
+- **Trade-off discussions, design questions, round-trip investigations** → ~~[[SKA viz discussion]]~~ (the open-questions surface for the /viz skill).
 - **Agent runbook** (decisive rules the agent reads; not for browsing) → `viz/SKILL.md`.
-- **Backlog + planning** → [[SKA viz backlog]] under [[SKA viz]].
+- **Backlog + planning** → ~~[[SKA viz backlog]]~~ under [[SKA viz]].
 
 This matrix is a living reference — extend rows as new approaches land, and tighten cells as the round-trip experiments resolve.

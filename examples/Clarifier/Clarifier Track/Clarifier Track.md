@@ -9,5 +9,5 @@ The live work surface for the Clarifier project — its roadmap and backlog.
 | --- | --- |
 | Anchor | [[Clarifier]] (parent) |
 | Related | [[FCT Track Dispatch]],   |
-| Members | ~~[[Clarifier Roadmap\|Roadmap]]~~,  ~~[[Clarifier Backlog\|Backlog]]~~,   |
+| Members | [[Clarifier Roadmap\|Roadmap]],  [[Clarifier Backlog\|Backlog]],   |
 | ... |  |

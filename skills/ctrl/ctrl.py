@@ -953,9 +953,12 @@ def launch_chrome_debug(port: int = 9222) -> subprocess.Popen:
 
     print(f"🚀 Launching Chrome with remote debugging on port {port}...")
 
-    # Create temp directory for Chrome user data
-    import tempfile
-    user_data_dir = tempfile.mkdtemp(prefix='ctrl-chrome-')
+    # Use a PERSISTENT profile dir so the automation Chrome stays signed in
+    # (and keeps extensions like 1Password) across runs. A throwaway temp
+    # profile is always logged out with no extensions — that was the root
+    # cause of the recurring "not-signed-in Chrome" problem.
+    user_data_dir = os.path.expanduser('~/.config/ctrl/chrome-profile')
+    os.makedirs(user_data_dir, exist_ok=True)
 
     # Launch Chrome with remote debugging
     process = subprocess.Popen([
@@ -2447,6 +2450,14 @@ Commands:
     outbox [lines]              Get last N lines from box session (default: 50)
     outbox2-9 [lines]           Get last N lines from boxN session
 
+    screen <subcmd> [args]      See/drive the Mac's screen (delegates to screen.py)
+        grab [OUT] [-R x,y,w,h]   screenshot full screen / region (default /tmp/screen.png)
+        size                      report capture px / logical pts / scale
+        click X Y [--px] [--right] [--double]   click at logical points
+        move X Y [--px]           move cursor
+        type TEXT                 type a string
+        key KEYSPEC               press a key/combo (return, cmd+j, esc)
+
     jsearch <query>             Perform Google search and return JSON results
         --output <file>         Save results to file (default: print to stdout)
 
@@ -2701,6 +2712,12 @@ def parse_arguments():
     edit_parser = subparsers.add_parser('edit', help='Edit file in Sublime Text')
     edit_parser.add_argument('file_path', help='Path to file to edit')
 
+    # Screen command — see & drive the Mac's screen (delegates to the screen skill)
+    screen_parser = subparsers.add_parser('screen',
+        help='See/drive the screen: grab, size, click, move, type, key')
+    screen_parser.add_argument('screen_args', nargs=argparse.REMAINDER,
+        help='Passed through to screen.py (e.g. "grab /tmp/s.png", "click 100 200")')
+
     return parser.parse_args()
 
 
@@ -2713,6 +2730,24 @@ def cmd_edit(args):
     except Exception as e:
         print(f"Error opening file in Sublime: {e}", file=sys.stderr)
         sys.exit(1)
+
+
+def cmd_screen(args):
+    """See/drive the Mac's screen. Delegates to the canonical screen.py in the
+    screen skill (single source of truth) — grab/size/click/move/type/key.
+    ctrl is just the entry point so screen-grab is reachable alongside box/surf."""
+    candidates = [
+        os.path.expanduser('~/.claude/skills/screen/screen.py'),
+        os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                     '..', 'screen', 'screen.py'),
+    ]
+    screen_py = next((p for p in candidates if os.path.isfile(p)), None)
+    if not screen_py:
+        print("Error: screen.py not found (looked in ~/.claude/skills/screen/)",
+              file=sys.stderr)
+        sys.exit(1)
+    result = subprocess.run([sys.executable, screen_py, *args.screen_args])
+    sys.exit(result.returncode)
 
 
 def main():
@@ -2762,6 +2797,7 @@ def main():
         'x': cmd_x,
         'tab': cmd_tab,
         'edit': cmd_edit,
+        'screen': cmd_screen,
     }
 
     handler = command_handlers.get(args.command)
