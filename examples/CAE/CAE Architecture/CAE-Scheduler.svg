@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="48 18 1504 774" width="3008" height="1548" style="background:white">
+<text x="510.0" y="52.9" font-family="Helvetica, Arial, sans-serif" font-size="26" fill="#1e1e1e" text-anchor="middle">CAE Scheduler — sections and data flow</text>
+<rect x="540" y="130" width="280" height="110" fill="#fef3c7" stroke="#1e1e1e" stroke-width="2" rx="6"/>
+<text x="680.0" y="166.1" font-family="Helvetica, Arial, sans-serif" font-size="24" fill="#1e1e1e" text-anchor="middle">PriorityQueue</text>
+<text x="680.0" y="191.2" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#1e1e1e" text-anchor="middle">deadline order</text>
+<text x="680.0" y="212.6" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1e1e1e" text-anchor="middle">(governed by Topic)</text>
+<rect x="1300" y="130" width="240" height="110" fill="#d1fae5" stroke="#1e1e1e" stroke-width="2" rx="6"/>
+<text x="1420.0" y="166.1" font-family="Helvetica, Arial, sans-serif" font-size="24" fill="#1e1e1e" text-anchor="middle">Worker pool</text>
+<text x="1420.0" y="191.2" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#1e1e1e" text-anchor="middle">pool_size threads</text>
+<text x="1420.0" y="212.6" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1e1e1e" text-anchor="middle">(data structure)</text>
+<rect x="60" y="360" width="160" height="100" fill="#f3f4f6" stroke="#1e1e1e" stroke-width="2" rx="6"/>
+<text x="140.0" y="411.1" font-family="Helvetica, Arial, sans-serif" font-size="24" fill="#1e1e1e" text-anchor="middle">Caller</text>
+<rect x="320" y="340" width="280" height="130" fill="#dbeafe" stroke="#1e1e1e" stroke-width="2" rx="6"/>
+<text x="460.0" y="376.1" font-family="Helvetica, Arial, sans-serif" font-size="24" fill="#1e1e1e" text-anchor="middle">TaskScheduler</text>
+<text x="460.0" y="400.3" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle">(class)</text>
+<text x="460.0" y="425.2" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#1e1e1e" text-anchor="middle">orchestrates dispatch</text>
+<rect x="940" y="340" width="260" height="130" fill="#dbeafe" stroke="#1e1e1e" stroke-width="2" rx="6"/>
+<text x="1070.0" y="376.1" font-family="Helvetica, Arial, sans-serif" font-size="24" fill="#1e1e1e" text-anchor="middle">TaskHandle</text>
+<text x="1070.0" y="400.3" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle">(class)</text>
+<text x="1070.0" y="425.2" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#1e1e1e" text-anchor="middle">await / cancel reference</text>
+<rect x="320" y="560" width="320" height="140" fill="#dbeafe" stroke="#1e1e1e" stroke-width="2" rx="6"/>
+<text x="480.0" y="599.1" font-family="Helvetica, Arial, sans-serif" font-size="24" fill="#1e1e1e" text-anchor="middle">SchedulerStatus</text>
+<text x="480.0" y="623.3" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle">(class)</text>
+<text x="480.0" y="650.3" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle">queue_depth,</text>
+<text x="480.0" y="674.3" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle">active_workers, error_count</text>
+<rect x="940" y="560" width="380" height="140" fill="#e9d5ff" stroke="#1e1e1e" stroke-width="2" rx="6"/>
+<text x="1130.0" y="599.1" font-family="Helvetica, Arial, sans-serif" font-size="24" fill="#1e1e1e" text-anchor="middle">TaskState</text>
+<text x="1130.0" y="623.3" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle">(enum)</text>
+<text x="1130.0" y="651.2" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#1e1e1e" text-anchor="middle">Pending → Running →</text>
+<text x="1130.0" y="675.2" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#1e1e1e" text-anchor="middle">Done / Failed / Cancelled</text>
+<text x="275.0" y="400.3" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle">submit</text>
+<text x="770.0" y="400.3" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle">returns</text>
+<text x="630.0" y="301.4" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#1e1e1e" text-anchor="middle">enqueue</text>
+<text x="1045.0" y="167.3" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle">next due</text>
+<text x="465.0" y="121.4" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#1e1e1e" text-anchor="middle">aging promotion</text>
+<text x="1275.0" y="391.4" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#1e1e1e" text-anchor="middle">on done / fail / retry</text>
+<text x="1120.0" y="511.4" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#1e1e1e" text-anchor="middle">carries</text>
+<text x="550.0" y="506.4" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#1e1e1e" text-anchor="middle">status() returns</text>
+<text x="520.0" y="87.3" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle">await_result() / cancel()</text>
+<rect x="60" y="730" width="1480" height="50" fill="#ffffff" stroke="#1e1e1e" stroke-width="2" rx="6"/>
+<text x="120.0" y="757.3" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle">Legend:</text>
+<rect x="175" y="747" width="22" height="22" fill="#dbeafe" stroke="#1e1e1e" stroke-width="2" rx="6"/>
+<text x="245.0" y="760.4" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#1e1e1e" text-anchor="middle">class</text>
+<rect x="300" y="747" width="22" height="22" fill="#e9d5ff" stroke="#1e1e1e" stroke-width="2" rx="6"/>
+<text x="370.0" y="760.4" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#1e1e1e" text-anchor="middle">enum</text>
+<rect x="420" y="747" width="22" height="22" fill="#fef3c7" stroke="#1e1e1e" stroke-width="2" rx="6"/>
+<text x="540.0" y="760.4" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#1e1e1e" text-anchor="middle">topic-governed</text>
+<rect x="640" y="747" width="22" height="22" fill="#d1fae5" stroke="#1e1e1e" stroke-width="2" rx="6"/>
+<text x="770.0" y="760.4" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#1e1e1e" text-anchor="middle">data structure</text>
+<rect x="870" y="747" width="22" height="22" fill="#f3f4f6" stroke="#1e1e1e" stroke-width="2" rx="6"/>
+<text x="950.0" y="760.4" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#1e1e1e" text-anchor="middle">actor</text>
+<text x="1260.0" y="760.4" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#1e1e1e" text-anchor="middle">→  primary flow     ⇢  derivation / reference</text>
+</svg>

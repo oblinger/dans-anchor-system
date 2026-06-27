@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="88 8 574 524" width="1148" height="1048" style="background:white">
+<text x="400.0" y="44.6" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="28" fill="#1e1e1e" text-anchor="middle">CAE Architecture — Threads</text>
+<rect x="100" y="100" width="460" height="100" fill="#e7f5ff" stroke="#1e1e1e" stroke-width="2" rx="6"/>
+<text x="330.0" y="134.4" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="22" fill="#1e1e1e" text-anchor="middle">Main thread</text>
+<text x="330.0" y="157.3" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle">parses CLI args, opens TaskStore,</text>
+<text x="330.0" y="177.3" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle">drives the scheduler for long-lived commands</text>
+<rect x="100" y="260" width="460" height="100" fill="#edf2ff" stroke="#1e1e1e" stroke-width="2" rx="6"/>
+<text x="330.0" y="294.4" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="22" fill="#1e1e1e" text-anchor="middle">Scheduler thread</text>
+<text x="330.0" y="317.3" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle">holds the priority queue, feeds ready tasks</text>
+<text x="330.0" y="337.3" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle">to worker pool, handles retry re-enqueue</text>
+<rect x="100" y="420" width="460" height="100" fill="#ebfbee" stroke="#1e1e1e" stroke-width="2" rx="6"/>
+<text x="330.0" y="454.4" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="22" fill="#1e1e1e" text-anchor="middle">Worker pool (N threads)</text>
+<text x="330.0" y="477.3" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle">each pulls from a shared channel,</text>
+<text x="330.0" y="497.3" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle">executes the shell command and reports back</text>
+</svg>

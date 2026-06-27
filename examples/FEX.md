@@ -13,6 +13,8 @@ A small set of complete, fictional example anchors — reused to illustrate each
 | [[FEX Repo\|Repo]] | **FEX Repo** — a fake skills repository tying the loose examples together: a skill ([[FEX Snapshot\|Snapshot]]), three facets spanning the kinds ([[FEX Manifest\|Manifest]] / [[FEX Pin\|Pin]] / [[FEX Bundle\|Bundle]]), a discipline ([[FEX Retention\|Retention]]), a ruleset ([[R-fex-manifest]]) |
 | [[Knots]] | **Knots** — a tiny **Topic** anchor: a no-code evergreen knowledge hub routing to sub-topics ([[Knots Hitches\|Hitches]] / [[Knots Bends\|Bends]]) |
 | [[HWP\|Harbor Whitepaper]] | **Harbor Whitepaper** — a **Paper** anchor: a short whitepaper on Harbor carrying the dated version-table + per-section track-changes signature |
+| [[CAE]] | **Common Anchor Example** — the fully-wired worked-example anchor (PRD / UX / API / Architecture / Decisions / Testing / Roadmap / Features), cited by the FCT facet specs as the **minimal** reference instance. Relocated here from `CAB/` 2026-06-27. |
+| [[CSE]] | **Common Skill Example** — the fully-wired worked-example **skill** anchor (`SKILL.md` shape), cited by the Skill-Anchor trait spec. Relocated here from `CAB/` 2026-06-27. |
 | ... |  |
 
 ## By kind / facet — which example shows it
