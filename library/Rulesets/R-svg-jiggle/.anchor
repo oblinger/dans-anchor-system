@@ -1,0 +1,1 @@
+description: "Geometry-aware layout-repair (\"jiggle\") for hand-authored SVG diagrams — clear label-over-box overlaps with the cheapest topological move (slide / flip), governed by a three-tier severity order."

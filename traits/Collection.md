@@ -1,6 +1,6 @@
 # Collection
 
-The **Collection** trait — an anchor whose page **enumerates a collection of members**: an anchor that exists *to be* the set of its children, where the children are an expected, **usually one** kind of thing (projects, dated entries, entities, drives). Declared by `Collection` in the anchor's `.anchor` `traits:` key.
+The **Collection** trait — an anchor whose page **enumerates a collection of members of a like kind**: an anchor that exists *to be* the set of its children, where the children are an expected, **usually one** kind of thing (projects, dated entries, entities, drives). Declared by `collection` (lowercase) in the anchor's `.anchor` `traits:` key. It is a **semantic** claim about the members, not a layout claim — the dispatch-table *shape* (compact `...` / auto-list `| --- | |` / grouped `+`) is read off the table itself, never declared.
 
 Follows [[CAB Base]] with these deltas. Sibling identity traits: [[Topic Anchor]], [[Code Anchor]], [[Paper Anchor]], [[Simple Anchor]], [[Skill Anchor]].
 
@@ -58,4 +58,4 @@ This trait underlies the three Container shapes in the [[FCT Anchor Page]] kinds
 - [[progressive-disclosure]] — member list vs member groups (List / Grouped).
 - [[file-association]] — dated-or-not + member placement/naming.
 - [[granularity]] — when a member list graduates compact → grouped.
-- [[F152 — Set Anchor trait — homogeneous-collection anchor kind; dispatch-organization via existing disciplines|F152]] — the design feature; "Set Anchor" was the working name, renamed **Collection** 2026-06-11 (set is too math-technical; list collides with the dispatch List pattern).
+- [[F152 — Set Anchor trait — homogeneous-collection anchor kind; dispatch-organization via existing disciplines|F152]] — the design feature; "Set Anchor" was the working name, renamed **Collection** 2026-06-11 (set is too math-technical; list collides with the dispatch List pattern). **Re-confirmed 2026-06-26:** D11's `container` trait was found to be an accidental re-invention of this trait and collapsed back into `collection`; `set` was reconsidered and rejected again for the same math-technical reason. The vault sweep was re-run under the *semantic* (like-kind members) test — not the layout test that had over-tagged structural folders (Design/Track/Docs) — leaving 45 genuine collections tagged.

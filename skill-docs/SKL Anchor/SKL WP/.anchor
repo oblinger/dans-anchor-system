@@ -1,1 +1,1 @@
-description: "`/wp <name>` creates a new dated **work product** folder inside the current anchor's `{slug} WP/` folder."
+description: the `/wp` skill

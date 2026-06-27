@@ -1,1 +1,1 @@
-description: read/write external services — Google Workspace, email, Notion.
+description: user-facing dispatch over the subskills (`/io gsheet` … `/io email` …)
