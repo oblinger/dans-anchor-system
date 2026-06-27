@@ -1,1 +1,2 @@
+traits: [collection]
 description: "Operating-mode discipline — Drive vs Lean; how the agent makes the recurring \"more complete vs faster\" trade-off. See `SKL Mode/` sub-folder for the framework + per-mode docs."

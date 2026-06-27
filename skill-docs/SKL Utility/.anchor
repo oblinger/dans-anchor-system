@@ -1,1 +1,2 @@
+traits: [collection]
 description: User guides for cross-cutting helpers — local-environment control, agent-to-agent communication, recipe lookups, remote experimentation, capture.
