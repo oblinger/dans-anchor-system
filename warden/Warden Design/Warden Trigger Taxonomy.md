@@ -1,18 +1,18 @@
 ---
 description: "the formal `when::` moment taxonomy — one recursive single-parameter tree"
 ---
-:>> 
 # Warden Trigger Taxonomy
-**The whole moment vocabulary in one table.** Each class refines into its moments by one parameter; the common moments are **two levels** deep, with optional deeper refinement available. Tokens for tools and events are **Claude Code's own** (we don't invent them); the tree structure is ours. Every entry links to its detail below, or to its spec. A path-valued tail (which file) lives in the cross-cutting [[FCT Ruleset\|where::]] clause, not in `when::`.
 
-| Moment class                                             | Moments it refines into (level 2)                                                                                             | Optional deeper                                                                      | Fires on (Claude Code)         |
-| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------ |
-| [[#Tool moments\|tool]]                                  | `:pre` / `:post`  ×  `Bash` · `Write` · `Edit` · `Read` · `Glob` · `Grep` · `Task` · `WebFetch` · `WebSearch` *(+ MCP tools)* | `:Bash:<cmd>` · `:Task:<subagent>` · Write/Edit/Read path → [[FCT Ruleset\|where::]] | `PreToolUse` / `PostToolUse`   |
-| [[#Skill moments\|skill]]                                | `:pre` / `:post`  ×  `<skill>` *(any skill — `audit` · `query` · `crank` · `audit-q` · …)*                                    | `:<skill>:<action>` (e.g. `audit:rules`)                                             | skill-runner enter / exit      |
-| [[#Session moments\|session]]                            | `:start` · `:compact` · `:stop`                                                                                               | —                                                                                    | `SessionStart` / `Stop`        |
-| [[#Content moments\|write]] / [[#Content moments\|read]] | × kind: `markdown` · `rust` · `python` · `json` · `svg`                                                                       | path → [[FCT Ruleset\|where::]]                                                      | `PostToolUse`(Write/Edit/Read) |
-| [[#VCS moments\|git]]                                    | `:commit` · `:push` · `:merge` · `:pre-commit`                                                                                | —                                                                                    | Bash-argv parse / git hook     |
-| [[#Turn moments\|prompt]]                                | `:submit` · `:stop`                                                                                                           | —                                                                                    | `UserPromptSubmit` / `Stop`    |
+**Every moment Warden can fire on.** Read each row left to right — a **class** (with its `pre` / `post` phase, where it has one), then the **moment** that refines it. Deeper refinements — a specific Bash command, a skill's action — are in the per-class sections below; a path-valued tail (*which* file) lives in the cross-cutting [[FCT Ruleset\|where::]] clause. Tool and event tokens are Claude Code's own; the tree is ours. Each class links to its detail.
+
+| Moment class | Moment (2nd level) | Fires on (Claude Code) |
+| --- | --- | --- |
+| [[#Tool moments\|tool]] — pre, post | `Bash`, `Write`, `Edit`, `Read`, `Glob`, `Grep`, `Task`, `WebFetch`, `WebSearch` (+ MCP) | `PreToolUse` / `PostToolUse` |
+| [[#Skill moments\|skill]] — pre, post | any skill — `audit`, `query`, `crank`, `audit-q`, … | skill-runner enter / exit |
+| [[#Session moments\|session]] | `start`, `compact`, `stop` | `SessionStart` / `Stop` |
+| [[#Content moments\|write]], [[#Content moments\|read]] | `markdown`, `rust`, `python`, `json`, `svg` | `PostToolUse` (Write/Edit/Read) |
+| [[#VCS moments\|git]] | `commit`, `push`, `merge`, `pre-commit` | Bash-argv / git hook |
+| [[#Turn moments\|prompt]] | `submit`, `stop` | `UserPromptSubmit` / `Stop` |
 
 **Read a row as a path:** `tool` ⊃ `tool:post` ⊃ `tool:post:Bash` (⊃ `tool:post:Bash:git-commit`). A rule binds at whatever depth it cares about, and a shallower binding **prefix-matches** everything below it. `,` in a `when::` is OR across moments. The Claude-Code event mapping is detailed in [[Warden Architecture]] §6 (hook subsystem). A rule is the conjunction [[#The conjunction model — when ∧ where ∧ if\|when ∧ where ∧ if]].
 
@@ -20,7 +20,7 @@ description: "the formal `when::` moment taxonomy — one recursive single-param
 
 The `when::` clause names a **moment** — a point in the agent's life when a rule should fire. Every moment lives in **one unified taxonomy**: a tree in which each node is refined into its children by exactly **one parameter**. `when:: tool` is every tool use; `when:: tool:post` is every moment *after* a tool; `when:: tool:post:Bash` is after a Bash call. A rule names the moment at whatever depth it cares about; a shallow moment matches all its descendants.
 
-This page is the formal specification of that taxonomy — the moment classes, the grammar, the matching rules, and how [[FCT Ruleset\|where::]] cross-cuts the tree. It is part of [[Warden Architecture]] (§5 binding) and the source of truth the rule compiler ([[Warden Architecture]] §7) indexes against.
+This page is the formal specification of that taxonomy — the moment classes, the grammar, the matching rules, and how [[FCT Ruleset\|where::]] cross-cuts the tree. It is part of [[Warden Architecture]] (§5 binding) and the source of truth the rule compiler ([[Warden Architecture]] §7) indexes against. The **rule/ruleset format** these moments live inside is [[Warden Rule]].
 
 > [!info] Why one parameter per level
 > Refining by a single parameter per level makes the taxonomy **uniform** (every node has the same shape), **prefix-matchable** (a shorter path is a strict generalization of a longer one), and **extensible** (a new discriminator is one more level under an existing node — never a new top-level concept). Common moments stay shallow (≈2 levels); depth is *available*, not *required*.
