@@ -4,11 +4,11 @@
 <text x="16" y="49" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">where:: `*.md`</tspan></text>
 <text x="16" y="69" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">when:: write:markdown</tspan></text>
 <text x="16" y="89" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">if:: absent `^# `</tspan></text>
-<text x="16" y="109" xml:space="preserve"><tspan font-weight="normal" fill="#1a1a2e">tell:: add a top-level title</tspan></text>
+<text x="16" y="109" xml:space="preserve"><tspan font-weight="normal" fill="#1a1a2e">Add a top-level title.</tspan></text>
 <path d="M273,17 H268 V33 H273" fill="none" stroke="#7b2d52" stroke-width="1.6"/>
 <text x="281" y="29" fill="#7b2d52" font-size="12" font-weight="bold">name</text>
 <path d="M273,37 H268 V93 H273" fill="none" stroke="#2d5b7b" stroke-width="1.6"/>
 <text x="281" y="69" fill="#2d5b7b" font-size="12" font-weight="bold">IF — condition</text>
 <path d="M273,97 H268 V113 H273" fill="none" stroke="#2f7d4f" stroke-width="1.6"/>
-<text x="281" y="109" fill="#2f7d4f" font-size="12" font-weight="bold">THEN — action</text>
+<text x="281" y="109" fill="#2f7d4f" font-size="12" font-weight="bold">THEN — the tell (just prose)</text>
 </svg>

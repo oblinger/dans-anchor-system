@@ -52,12 +52,12 @@ On a hit, the rule performs zero or more actions. Three are **mediated** — War
 | Action | Emitted by | What happens | Goes to |
 |---|---|---|---|
 | *(pass)* | — | nothing — the test found no problem | — |
-| **tell** | `ctx.tell(msg)` | say something to the agent — a problem *or* a directive ("commit now", "don't ask the user") | a **steer** injected into the agent's context (live) · a **finding** in the report (audit) |
+| **tell** | **bare prose** — or `ctx.tell(msg)` | say something to the agent — a problem *or* a directive ("commit now", "don't ask the user") | a **steer** injected into the agent's context (live) · a **finding** in the report (audit) |
 | **edit** | `ctx.edit(path, change)` | write to a file — repair the target, append a log, drop data elsewhere | the file(s) — gated by the never-delete floor |
 | **deny** | `ctx.deny(reason)` | block the pending action | the tool call — `tool:pre` only |
 | **run** *(future)* | the Python body, directly | arbitrary execution — run commands, drive Warden / other agents | **deferred** — needs a security model first |
 
-**Default action.** A test that yields findings and names no explicit action **tells** them — so the common "check" rule is just `if:: <test>` with an implicit `tell`. `message:: <text>` is sugar for a fixed `tell`; a rule that also repairs adds an `edit`. **Emit nothing → the rule passed.**
+**A bare prose body *is* the tell.** When the action is just "tell the agent this," you write the prose — no keyword (the `tell` payload is the whole point). `edit`, `deny`, and an *explicit* `tell` are `ctx.*` calls inside a `python` body — readable code the agent can also follow. (`message:: <text>` is the sugar for a fixed prose tell; a *fix* is an `edit` that repairs a violation.) **Emit nothing → the rule passed.**
 
 **What `tell` actually does.** **Live** → text the hook injects into the agent's context (what you'd picture as "printed to the agent" — the F180 steer); **audit** → a finding written into the report the user reads. Same `ctx.tell`; the trigger picks the channel.
 

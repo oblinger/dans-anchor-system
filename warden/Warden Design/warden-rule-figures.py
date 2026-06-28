@@ -111,53 +111,57 @@ HEADER = [
     "description:: worked examples of Warden's rule-execution modes",
 ]
 RULES = {
-    # the body shows the kind (check:: / python / prose); no tier needed.
-    # passive (no when::) rules run at /audit time; live ones declare when::.
-    "primitive": [
-        "### RULE R-ex-01 — Has a description",
-        "where:: `{ANCHOR}/**/R-*.md`",
-        "check:: regex_present `^description::`",
+    # a bare-prose body IS the tell; edit/deny/explicit-tell are ctx.* in python.
+    # no when:: → passive (audit-time); a when:: → live.
+    "prose": [
+        "### RULE R-ex-01 — Ruleset has a description",
+        "where:: `**/R-*.md`",
+        "if:: absent `^description::`",
+        "Every ruleset needs a `description::` line — add one.",
     ],
     "python": [
-        "### RULE R-ex-02 — Every H2 section has a body",
-        "where:: `{ANCHOR}/**/*.md`",
+        "### RULE R-ex-02 — No empty sections",
+        "where:: `**/*.md`",
         "```python",
         "def check(ctx):",
-        "    for sec in ctx.sections(level=2):",
-        "        if not sec.body.strip():",
-        "            ctx.report(f'empty section: {sec.title}')",
+        "    for s in ctx.sections(level=2):",
+        "        if not s.body.strip():",
+        "            ctx.tell(f\"'{s.title}' is empty — add a body or drop it\")",
         "```",
     ],
-    "llm": [
+    "judgment": [
         "### RULE R-ex-03 — Summary matches the body",
-        "where:: `{ANCHOR}/**/F[0-9][0-9][0-9] — *.md`",
-        "The ## Summary faithfully reflects ## Design — no drift.",
+        "where:: `**/F[0-9][0-9][0-9] — *.md`",
+        "The `## Summary` should faithfully reflect `## Design`.",
+        "If it has drifted, say what no longer matches.",
     ],
     "script-assisted": [
         "### RULE R-ex-04 — Open Questions still open",
-        "where:: `{ANCHOR}/**/*.md`",
+        "where:: `**/*.md`",
         "```python",
-        "def prepare(ctx):     # cheap: hand the LLM only one section",
+        "def focus(ctx):        # hand the LLM just one section",
         "    return ctx.section('## Open Questions')",
         "```",
-        "Judge each item prepare() returns: still unresolved? Report stale ones.",
+        "For each item, is it still unresolved given the rest of the doc?",
+        "Flag the stale ones.",
     ],
-    "message": [
-        "### RULE R-ex-05 — Don't ask whether to commit",
-        "when:: skill:audit-q",
-        "where:: `{ANCHOR}/**/{NAME} queries.md`",
+    "edit": [
+        "### RULE R-ex-05 — Stamp the reviewed-date",
+        "where:: `**/*Architecture*.md`",
+        "when:: write:markdown",
         "```python",
-        "def check(ctx):",
-        "    if ctx.has_question('push', 'commit'):",
-        "        ctx.report(steer_for(ctx.git_aspect))  # tell the agent, don't ask",
+        "def check(ctx):                          # an edit, no tell",
+        "    ctx.edit(ctx.path, set_frontmatter('reviewed', ctx.today))",
         "```",
     ],
-    "gated": [
-        "### RULE R-ex-06 — Diagram matches prose",
-        "where:: `{ANCHOR}/**/*Architecture*.md`",
-        "when:: write:markdown",
-        "rerun:: significant",
-        "The figure reflects the components in the prose; report drift.",
+    "deny": [
+        "### RULE R-ex-06 — No force-push to main",
+        "when:: tool:pre:Bash",
+        "```python",
+        "def check(ctx):",
+        "    if ctx.bash('git push') and '--force' in ctx.command and ctx.on_main:",
+        "        ctx.deny('never force-push main — open a PR instead')",
+        "```",
     ],
 }
 
@@ -199,12 +203,12 @@ ANATOMY = [
     "where:: `*.md`",
     "when:: write:markdown",
     "if:: absent `^# `",
-    "tell:: add a top-level title",
+    "Add a top-level title.",
 ]
 ANATOMY_ANNOTS = [
     (0, 0, "name", "#7b2d52"),
     (1, 3, "IF — condition", "#2d5b7b"),
-    (4, 4, "THEN — action", "#2f7d4f"),
+    (4, 4, "THEN — the tell (just prose)", "#2f7d4f"),
 ]
 
 here = Path(__file__).parent
