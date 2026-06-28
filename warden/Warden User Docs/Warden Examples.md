@@ -30,7 +30,7 @@ The whole body is one line of prose — *that's the tell.* `if::` is a one-line 
 
 ![[Warden Example python.svg]]
 
-When a regex won't do, the body is a bare `python` **snippet** (no `def`, no magic name — `file` / `anchor` / `event` are in scope): it walks every H2 section and `tell(...)`s each empty one — one finding, with its own message, per violation. `tell` is the same action as a prose body; here it's called from code because the message is computed.
+When a regex won't do, the body is a bare `python` **snippet** (no `def`, no magic name — `file` / `anchor` / `git` / `event` are in scope): it walks every H2 section and `tell(...)`s each empty one — one finding, with its own message, per violation. Note the **line under the heading**: that's the rule's *meaning* — documentation, **never sent** — so a Python rule still reads as a sentence (the dual-use promise). The `tell()` calls are what actually reach the agent.
 
 ## 03 · An LLM judgment
 
@@ -54,7 +54,7 @@ Not every rule tells — some just *do*. On every write to an architecture doc t
 
 ![[Warden Example deny.svg]]
 
-The one rule that *blocks*. On `when:: tool:pre:Bash` it inspects `event.command` and `deny(...)`s a force-push to main before it runs — the veto. `deny` only makes sense at a `tool:pre` moment (a command, not a file, so `where::` doesn't apply).
+The one rule that *blocks*. On `when:: tool:pre:Bash` it inspects `event.command` and the **`git`** object (auto-resolved to the command's repo) and `deny(...)`s a force-push to main before it runs — the veto. `deny` only makes sense at a `tool:pre` moment (a command, not a file, so `where::` doesn't apply).
 
 > [!info] Status — `ask_oracle`, `edit`, `deny`, and `rerun::` are *designed, not all built*
 > The prose-tell and `python`-tell shapes (F180's executable rules) are the established core. The `ask_oracle` narrowing, the `edit`/`deny` actions, and the `rerun:: significant` gate are on the [[Warden Roadmap]] (M7 for the economy gate, [[F215 — Re-evaluation economy — the significant-edit gate|F215]]). The `run` (arbitrary-effect) action is **deferred** pending a security model.

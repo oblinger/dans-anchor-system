@@ -130,6 +130,7 @@ RULES = {
     ],
     "python": [
         "### RULE R-ex-02 — No empty sections",
+        "Every H2 section needs a body; an empty heading is a stub to fill or cut.",
         "where:: `**/*.md`",
         "```",
         "for s in file.sections(level=2):",
@@ -163,7 +164,7 @@ RULES = {
         "when:: tool:pre:Bash",
         "```",
         "# the pending command — not yet run; we inspect it",
-        "if 'git push' in event.command and anchor.branch == 'main':",
+        "if 'git push' in event.command and git.branch == 'main':",
         "    deny('never force-push main — open a PR instead')",
         "```",
     ],

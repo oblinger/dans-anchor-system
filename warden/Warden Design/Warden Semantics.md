@@ -12,6 +12,7 @@ How the Warden engine runs a rule. [[Warden Rule]] is the file format; this is t
 > - **The `edit` family** — define the method set (`set_frontmatter`, `replace_section`, …) and the never-delete floor it rides on.
 > - **`ask_oracle(prompt) → str`** — settled: **one prompt arg in, a `str` out** (it's an LLM — text in, text out; merge material into the prompt, parse the reply if you need structure). Vocabulary settled too (**the agent** = steered, **the oracle** = the spawned context-less helper). Still open: whether F215's economy gate wants the material as a separate diffable arg after all.
 > - **`file.frontmatter`** — confirm merging YAML block + inline `::` fields is what we want.
+> - **`git` when an anchor nests a code repo** — `git` follows the subject's repo now; may need an `anchor.repo` / `code.repo` split when both exist.
 
 ## A rule at a glance
 
@@ -75,7 +76,9 @@ On a hit, the rule performs zero or more actions. Three are **mediated** — War
 | **deny** | `deny(reason)` | block the pending action | the tool call — `tool:pre` only |
 | **run** *(future)* | the Python body, directly | arbitrary execution — run commands, drive Warden / other agents | **deferred** — needs a security model first |
 
-**A bare prose body *is* the tell.** When the action is just "tell the agent this," you write the prose — no keyword (the `tell` payload is the whole point). For anything more, the body is **Python, marked by backticks** — an inline `` `expr` `` for a one-liner, a bare ` ``` ` fence for several lines (**no `python` tag — backticked means Python**). `file` / `anchor` / `event` and the verbs are in scope; no `def`, no function name; it calls `tell` / `file.set_frontmatter` / `deny`. (`message:: <text>` is the sugar for a fixed prose tell; a *fix* is an `edit` that repairs a violation.) **Emit nothing → the rule passed.**
+**A bare prose body *is* the tell.** When the action is just "tell the agent this," you write the prose — no keyword (the `tell` payload is the whole point). For anything more, the body is **Python, marked by backticks** — an inline `` `expr` `` for a one-liner, a bare ` ``` ` fence for several lines (**no `python` tag — backticked means Python**). `file` / `anchor` / `git` / `event` and the verbs are in scope; no `def`, no function name; it calls `tell` / `file.set_frontmatter` / `deny`. (`message:: <text>` is the sugar for a fixed prose tell; a *fix* is an `edit` that repairs a violation.) **Emit nothing → the rule passed.**
+
+**The rule's *meaning* — a description line under the heading.** A Python body executes but doesn't *read* as a sentence, which breaks the dual-use promise ([[Warden Rule]] — read a rule, understand the system). So a prose line **directly under the rule heading** is the rule's **meaning** — documentation, **never sent** (R-ex-02). The split is positional and unsurprising: prose *under the heading* = meaning; prose *in body position* (no Python) = the `tell`; Python `tell()`s explicitly. (A pure-prose rule needs no description — its `tell` already says it.)
 
 > **The one lexical rule: backticks = Python.** A backticked `if::` value, a backticked one-line body, a fenced block — all are Python run by the engine; un-backticked prose is the `tell`. (It also subsumes [[F007 — Backtick all where expressions — parser swap|F007]]: backticked = code, so Dataview leaves it alone.)
 
@@ -89,9 +92,9 @@ On a hit, the rule performs zero or more actions. Three are **mediated** — War
 
 > **Open — `run`'s trust model.** Your own rules are as trusted as your own scripts, so unbounded effect is arguably fine; an *imported* ruleset carrying effectful Python is a **supply-chain risk** (adopting it runs its code on your moments). Leaning: **ship the mediated three first; add `run` only behind explicit trust, off for imported rules.**
 
-## What a rule sees — `file`, `anchor`, `event`
+## What a rule sees — `file`, `anchor`, `git`, `event`
 
-A rule body runs with **three objects in scope** — the three things the rule matched on — plus the action verbs. No `ctx.` prefix: they're aliased in directly (under the hood they're `ctx.file` / `ctx.anchor` / `ctx.event`, but you write them bare).
+A rule body runs with a few objects in scope — `file`, `anchor`, `git`, `event` — plus the verbs and the environment. `file` / `anchor` / `event` are the three things the rule **matched on**; `git` is **derived** (the subject's repo). No `ctx.` prefix: they're aliased in directly.
 
 **`file`** — the matched file (from `where::`, or a file-bearing moment like `write:*`; a command-only moment like `tool:pre:Bash` has **no** `file`):
 
@@ -110,7 +113,14 @@ A rule body runs with **three objects in scope** — the three things the rule m
 |---|---|
 | `anchor.name` · `anchor.root` | RID · root path |
 | `anchor.traits` | its traits |
-| `anchor.branch` · `anchor.git_aspect` | current branch · git mode (`Commit`, …) |
+
+**`git`** — the repository of the rule's **subject**, auto-resolved to the nearest enclosing `.git` (the `file`'s repo, or the command's working dir for a Bash moment):
+
+| Member | What it is |
+|---|---|
+| `git.branch` | current branch (`main`, …) |
+| `git.aspect` | git mode — `Commit`, … |
+| `git.is_dirty` · `git.ahead` | uncommitted changes? · commits ahead of upstream |
 
 **`event`** — the moment (from `when::`; **live runs only** — absent under `/audit`):
 
@@ -132,7 +142,8 @@ A rule body runs with **three objects in scope** — the three things the rule m
 
 So `file.set_frontmatter('reviewed', today)` writes `reviewed: 2026-06-28`. (Which stdlib modules are reachable is bounded by the sandbox — same trust question as `run`; the reference impl is permissive, the hot-path interpreter restricted.)
 
-- **Three objects, not one bag — and they mirror the clauses.** `where::` → `file`, the adopting anchor → `anchor`, `when::` → `event`. "Event," **not** "action": *action* is the rule's *output* (`tell` / `edit` / `deny`), so reusing the word would muddle the two.
+- **Objects, not one bag — and the core three mirror the clauses.** `where::` → `file`, the adopting anchor → `anchor`, `when::` → `event`; `git` is derived from the subject. "Event," **not** "action": *action* is the rule's *output* (`tell` / `edit` / `deny`), so reusing the word would muddle the two.
+- **`git` auto-resolves to the subject's repo** — the `file`'s enclosing `.git`, or the command's working dir for a Bash moment. *(Open: when an anchor nests its own code repo, "the git" is ambiguous — anchor repo vs code repo. For now it follows the subject; a future `anchor.repo` / `code.repo` split may be needed.)*
 - **`ask_oracle` runs a *separate* LLM — the oracle — never the agent's own model.** A hook is a synchronous subprocess (event in → output → exit); it can't block-and-await the agent's model. So `ask_oracle` spawns a **fresh headless oracle** — *context-less*, it sees only the **prompt** you pass — and returns its answer as a **string** (it's an LLM — text in, text out; merge material into the prompt, and parse the reply yourself if you need structure): on the **audit path** (not latency-bound) the pipeline blocks on it and parses the answer — its real home; on the **live path** (hot hook, ms-budget) it can't block, so the call is **delegated to the agent as a steer** instead. Because the oracle is context-less, the prompt must say *how* to answer so the result is usable; the body then `tell`s the reply. A bare-prose body is the sugar for `tell(ask_oracle(<the prose, with file.text>))`. (Mechanism: [[Warden Architecture]] §7.)
 - **Small on purpose.** When a member is missing, reach for `file.text` + the Python stdlib — not a new method. The accessors exist only because re-parsing markdown structure by hand would be worse; they expose *data*, never hide a check.
 - **A reading LLM understands these** — ordinary nouns it's seen in thousands of APIs; `file.sections(level=2)` plainly means "the level-2 sections." That's the dual-use payoff: the names that *run* the rule also let a reader *understand* it.
