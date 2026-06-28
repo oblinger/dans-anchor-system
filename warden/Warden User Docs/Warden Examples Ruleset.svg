@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="717" height="565" viewBox="0 0 717 565" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="15">
+<rect x="0" y="0" width="717" height="565" rx="10" fill="#f8f9fb" stroke="#c9cde0" stroke-width="1.5"/>
+<text x="18" y="34" fill="#7b2d52" font-weight="bold" xml:space="preserve"># RULESET R-warden-examples</text>
+<text x="18" y="57" fill="#2d5b7b" font-weight="normal" xml:space="preserve">include::</text>
+<text x="18" y="80" fill="#2d5b7b" font-weight="normal" xml:space="preserve">description:: worked examples of Warden's rule-execution modes</text>
+<text x="18" y="126" fill="#7b2d52" font-weight="bold" xml:space="preserve">### RULE R-ex-01 — Ruleset has a description (checked · script)</text>
+<text x="18" y="149" fill="#2d5b7b" font-weight="normal" xml:space="preserve">check:: regex_present ^description::</text>
+<text x="18" y="172" fill="#555555" font-weight="normal" xml:space="preserve">**Check pattern:** a header line matches ^description::</text>
+<text x="18" y="218" fill="#7b2d52" font-weight="bold" xml:space="preserve">### RULE R-ex-02 — Summary matches the body (stated · LLM)</text>
+<text x="18" y="241" fill="#2d5b7b" font-weight="normal" xml:space="preserve">where:: {ANCHOR}/**/F[0-9][0-9][0-9] — *.md</text>
+<text x="18" y="264" fill="#1a1a2e" font-weight="normal" xml:space="preserve">The ## Summary faithfully reflects ## Design — no drift, no</text>
+<text x="18" y="287" fill="#1a1a2e" font-weight="normal" xml:space="preserve">promises the design abandoned.   (the LLM reads + judges)</text>
+<text x="18" y="333" fill="#7b2d52" font-weight="bold" xml:space="preserve">### RULE R-ex-03 — Open Questions still open (stated · script-assisted)</text>
+<text x="18" y="356" fill="#2d5b7b" font-weight="normal" xml:space="preserve">check:: extract_section "## Open Questions"</text>
+<text x="18" y="379" fill="#1a1a2e" font-weight="normal" xml:space="preserve">Judge each extracted item: still unresolved given the rest of</text>
+<text x="18" y="402" fill="#1a1a2e" font-weight="normal" xml:space="preserve">the doc? Flag the stale ones.   (script narrows the LLM's input)</text>
+<text x="18" y="448" fill="#7b2d52" font-weight="bold" xml:space="preserve">### RULE R-ex-04 — Diagram matches prose (stated · LLM, gated)</text>
+<text x="18" y="471" fill="#2d5b7b" font-weight="normal" xml:space="preserve">where:: {ANCHOR}/**/*Architecture*.md</text>
+<text x="18" y="494" fill="#2d5b7b" font-weight="normal" xml:space="preserve">when:: write:markdown</text>
+<text x="18" y="517" fill="#1a1a2e" font-weight="normal" xml:space="preserve">rerun:: significant         # skip re-eval for typo-scale edits</text>
+<text x="18" y="540" fill="#1a1a2e" font-weight="normal" xml:space="preserve">The figure reflects the components in the prose; flag drift.</text>
+</svg>

@@ -1,5 +1,5 @@
 ---
-description: "prior-art survey + recommended adaptation"
+description: "prior-art survey of existing rule/hook systems + recommended adaptation"
 ---
 # Warden Survey
 

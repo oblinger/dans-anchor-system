@@ -26,6 +26,7 @@ A rule is a markdown **heading** whose first token is the all-caps `RULE` sentin
 | `**Check pattern:**` | for `checked` / `sampled` | how a violation is detected (the human spec) |
 | `check::` | for mechanical `checked` | a machine-ref naming a checker primitive |
 | `when::` / `where::` / `if::` | optional | the rule's own binding clauses, overriding the set's |
+| `rerun::` | optional | re-evaluation economy — `always` (default) or `significant` to re-run an expensive rule only on significant change ([[F215 — Re-evaluation economy — the significant-edit gate\|F215]]) |
 | `**Why:**` | optional | rationale / prior-incident context |
 | `**Exceptions:**` | optional | acknowledged-exception table or list |
 
@@ -70,6 +71,8 @@ The tier annotation declares how a rule is verified — the mechanical-vs-judgme
 | `stated` | the **agent** — judgment, batched + cached |
 | `sampled` | script where possible, else agent (risk-prioritized) |
 | `checked` | a **script** — deterministic, content-hash cached |
+
+The tier sets the rule's **execution mode** — mechanical (`checked`, a script), judgment (`stated`/`sampled`, the LLM), or **script-assisted** (a `check::` script narrows the input the LLM then judges). Worked examples of all three, plus the `rerun::` significant-edit gate, are in [[Warden Examples]].
 
 A `checked` rule names a checker **primitive** via `check::` (e.g. `check:: regex_present ^#+ RULESET R-`); the prose `**Check pattern:**` stays the human spec. The primitive vocabulary is specified as a **superset of Vale's check-type taxonomy** (existence / substitution / occurrence / … native; spelling / metric / sequence / script via an opt-in Vale adapter) — see [[Warden Integration Strategy]] D8. Tiers are aspirational ladders: a rule starts `stated` and graduates to `checked` once its primitive exists.
 

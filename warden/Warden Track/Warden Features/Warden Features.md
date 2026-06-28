@@ -11,4 +11,5 @@ description: dated feature specs for the Warden engine
 | [[F212 — Python reference implementation]] | F212 — Python reference implementation |
 | [[F213 — Rust performance implementation + ms budget]] | F213 — Rust performance implementation + ms budget |
 | [[F214 — Rule-system testing regime]] | F214 — Rule-system testing regime |
+| [[F215 — Re-evaluation economy — the significant-edit gate]] | F215 — Re-evaluation economy — the significant-edit gate |
 | [[F017 — Standard Rulesets]] | F017 — Standard Rulesets (legacy — predates the Warden rebrand) |

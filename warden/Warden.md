@@ -5,8 +5,9 @@ description: Warden — the rule engine that powers /rule, /audit, and the rules
 
 | -[[Warden]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [Warden](hook://p/Warden)<br>: the rule engine — declarative rules fired at agent moments, validated against whole-file format specs, with agent-steering feedback |
 | --- | --- |
-| [[Warden Design\|Design]] | architecture · trigger taxonomy · PRD · roadmap · integration strategy · survey |
-| [[Warden Track\|Track]] | backlog (milestones M0–M5) + feature specs |
+| [[Warden Design\|Design]] | architecture · rule language · trigger taxonomy · PRD · roadmap · integration strategy · survey |
+| [[Warden User Docs\|User Docs]] | the manual — worked examples of every rule-execution mode |
+| [[Warden Track\|Track]] | backlog (milestones M0–M8) + feature specs |
 
 ## Overview
 

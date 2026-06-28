@@ -63,6 +63,16 @@ Profile the hot path, tighten the budget, add the budget-enforcement policy (adv
 
 The heavy, careful test discipline — see [[F214 — Rule-system testing regime\|F214]]. Not a phase; a standing gate on every milestone.
 
+### M7 — Re-evaluation economy (so expensive rules can be everywhere)
+
+Two pieces that let **LLM-judged** rules be instrumented as widely as mechanical ones without exhausting the agent: the **script-assisted mode** (a `check::` script narrows the input the LLM judges — reasons over a section, not the whole file) and the **`rerun:: significant` gate** (an expensive rule re-runs only when a file changed *significantly* since it last passed). v1 measures significance by **diff magnitude** (lines / % changed) — a cheap, no-LLM gate.
+
+**Doc:** [[F215 — Re-evaluation economy — the significant-edit gate\|F215]]. **Done-when:** a `rerun:: significant` rule skips typo-scale edits (cached verdict reused) and re-fires on a structural edit, spending no LLM tokens on the gate itself.
+
+### M8 — Semantic update levels  *(later)*
+
+Upgrade M7's significance measure from diff-magnitude to a **cheap classifier** rating each edit `typo → wording → structural → semantic`; rules declare a level (`rerun:: level >= structural`) and only edits at or above it re-trigger. The classifier is small/cheap, never the full rule. **Doc:** [[F215 — Re-evaluation economy — the significant-edit gate\|F215]] § What "significant" means — staged.
+
 ## The testing regime (summary — full spec in F214)
 
 Because this instruments almost every action, correctness and performance regressions are both high-stakes. The regime has five layers:

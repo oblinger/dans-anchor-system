@@ -86,6 +86,33 @@ RULESET = [
     "**Check pattern:** exactly one \"* Backlog.md\" under the root.",
 ]
 
+EXAMPLES = [
+    "# RULESET R-warden-examples",
+    "include::",
+    "description:: worked examples of Warden's rule-execution modes",
+    "",
+    "### RULE R-ex-01 — Ruleset has a description (checked · script)",
+    "check:: regex_present ^description::",
+    "**Check pattern:** a header line matches ^description::",
+    "",
+    "### RULE R-ex-02 — Summary matches the body (stated · LLM)",
+    "where:: {ANCHOR}/**/F[0-9][0-9][0-9] — *.md",
+    "The ## Summary faithfully reflects ## Design — no drift, no",
+    "promises the design abandoned.   (the LLM reads + judges)",
+    "",
+    "### RULE R-ex-03 — Open Questions still open (stated · script-assisted)",
+    "check:: extract_section \"## Open Questions\"",
+    "Judge each extracted item: still unresolved given the rest of",
+    "the doc? Flag the stale ones.   (script narrows the LLM's input)",
+    "",
+    "### RULE R-ex-04 — Diagram matches prose (stated · LLM, gated)",
+    "where:: {ANCHOR}/**/*Architecture*.md",
+    "when:: write:markdown",
+    "rerun:: significant         # skip re-eval for typo-scale edits",
+    "The figure reflects the components in the prose; flag drift.",
+]
+
 here = Path(__file__).parent
 render(RULE, here / "Warden Rule Example.svg")
 render(RULESET, here / "Warden Ruleset Example.svg")
+render(EXAMPLES, here.parent / "Warden User Docs" / "Warden Examples Ruleset.svg")
