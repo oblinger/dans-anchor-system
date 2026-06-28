@@ -9,7 +9,7 @@ The four-tier preference ordering (agent-immediate → user-explicit) for how a 
 
 | -[[DSC verification]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DSC verification](hook://p/DSC%20verification)<br>: Discipline — four-tier verification preference ordering (agent-immediate → user-explicit), declared up front and consulted at verification time |
 | --- | --- |
-| Related | [[CAB Disciplines]],  [[feature]],  [[ask]],  [[triage]],  [[workflow]],   |
+| Related | [[CAB Disciplines]],  [[feature]],  [[query]],  [[triage]],  [[workflow]],   |
 
 Verification is *the four-tier preference ordering an agent uses to choose how a feature gets verified — from agent-immediate (best) to user-explicit (last resort).* The single load-bearing rule: pick the highest applicable tier; never escalate to a higher one when a lower one would work. What distinguishes a tier from a feeling:
 
@@ -216,7 +216,7 @@ A tier 3 Verify periodically reaches the user once enough time has passed that t
 ## Cross-references
 
 - `[[feature]]` — at creation, writes the `## Success Criteria` block with tier declared.
-- `[[ask]]` — at verification time, consults tier before surfacing a Verify to the user.
+- `[[query]]` — at verification time, consults tier before surfacing a Verify to the user.
 - `[[triage]]` — at verification time, consults tier when displaying Verify rows in the banner.
 - `[[F098]]` — the Completion block discipline (Done time enumeration); the Verification sub-section in Completion records what was actually checked, referring back to this discipline.
 - `[[workflow]]` — owns the state graph; Verify-state semantics inherit from this discipline's tier system.

@@ -28,7 +28,7 @@ Lean is **orthogonal to identity traits**. `Code + Track + Lean + PR` is the can
 2. **Re-read existing evidence first.** Before adding more logs or tests, re-read what's already there for clues missed.
 3. **Add coverage and rigor — silently and aggressively.** Realistic edge cases, error paths, boundary conditions. Tighten weak assertions that pass without actually verifying the property they claim. **More tests, not fewer** is the default; the user does not need to be asked.
 4. **Pin invariants and replace silent fallbacks with explicit failures.** Impossible states surface early, not silently.
-5. **Application-shape changes require approval.** Bug fixes, hardening, test expansion, log expansion, invariant pinning — autonomous. Anything that changes how the application behaves visibly, alters a public API, or reshapes architecture — escalate via [[ask]].
+5. **Application-shape changes require approval.** Bug fixes, hardening, test expansion, log expansion, invariant pinning — autonomous. Anything that changes how the application behaves visibly, alters a public API, or reshapes architecture — escalate via [[query]].
 6. **Wall-clock cost is irrelevant; user-interruption cost is the constraint.** Take longer; ask less. **Batch open questions, never trickle them.**
 7. **Update the model, then resume cranking.** Once the foundation is fortified, re-derive the working hypothesis from the new evidence — do not re-use the old one.
 
@@ -68,7 +68,7 @@ Lean is a behavioral mode, not a structural one. Compositional expectations:
   - **Re-read existing evidence first** before adding more logs/tests. Wrong log file, wrong place in log, wrong process attribution — common misses.
   - **More tests, not fewer.** Realistic edge cases, error paths, boundary conditions get tests. Tighten weak assertions. Red-batch then drive green together. **Never ask "should I add more tests or fewer?" — the answer is always more.**
   - **Pin invariants. Replace silent fallbacks with explicit failures.** Impossible states surface early.
-  - **Wall-clock cost is irrelevant; user-interruption cost is the constraint.** Take longer; ask less. **Batch open questions via [[ask]] — never trickle.**
+  - **Wall-clock cost is irrelevant; user-interruption cost is the constraint.** Take longer; ask less. **Batch open questions via [[query]] — never trickle.**
   - **Bug fixes, hardening, test expansion, log expansion, invariant pinning — autonomous.** Application-shape changes (visible behavior, public API, architectural reshape) require approval.
   - **Resume Drive when foundation is firm.** Re-derive the working hypothesis from new evidence — do not re-use the old one. When the test suite covers the gaps and the model converges, switch back.
   - Full user-facing spec: `~/.claude/skills/fortify/SKILL.md`. Mode framework: [[SKL Mode]].

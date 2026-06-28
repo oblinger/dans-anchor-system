@@ -225,7 +225,7 @@ When referring to a specific Q or Verify from elsewhere:
 
 ## Phase 1 / 2 / 3 lifecycle (Open Questions blocks)
 
-A document with `Q<n>` items moves through three phases (per [[SKA ask]]):
+A document with `Q<n>` items moves through three phases (per [[SKA query]]):
 
 **Phase 1 — pending Qs exist.** `## Open Questions` H2 sits below H1, containing pending Qs. Resolved Qs accumulate inside as a `### Resolved` H3 sub-section.
 
@@ -364,7 +364,7 @@ The principle generalizes to **any user-actionable item in a transient channel**
 
 ## Cross-references
 
-- `[[SKA ask]]` — the writer skill. Both parented and bare modes write per this discipline.
+- `[[SKA query]]` — the writer skill. Both parented and bare modes write per this discipline.
 - `[[SKA triage]]` — the reader skill. Renders items written per this discipline.
 - `[[SKA feature]]` — creates `## Open Questions` blocks at feature-doc creation.
 - `[[SKA groom]]` — parks questions into feature docs per this discipline.
