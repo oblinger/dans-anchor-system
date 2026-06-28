@@ -161,8 +161,55 @@ RULES = {
     ],
 }
 
+def render_annotated(lines, annots, out_path: Path):
+    """annots: list of (start_idx, end_idx, label, color) — labeled brackets in a right gutter."""
+    content_w = int(max((disp_len(l) for l in lines), default=10) * CHAR_W) + 2 * PAD
+    gutter = 168
+    width = content_w + gutter
+    height = len(lines) * LINE_H + 2 * PAD
+    parts = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
+        f'viewBox="0 0 {width} {height}" font-family="{FONT}" font-size="{FSIZE}">',
+        f'<rect x="0" y="0" width="{width}" height="{height}" rx="9" '
+        f'fill="#f8f9fb" stroke="#c9cde0" stroke-width="1.3"/>',
+    ]
+    y = PAD + 13
+    line_y = []
+    for line in lines:
+        line_y.append(y)
+        if line.strip():
+            c, w = line_style(line)
+            parts.append(f'<text x="{PAD}" y="{y}" xml:space="preserve">{tspans(line, c, w)}</text>')
+        y += LINE_H
+    gx = content_w + 4
+    for (s, e, label, color) in annots:
+        yt, yb = line_y[s] - 12, line_y[e] + 4
+        parts.append(f'<path d="M{gx+5},{yt} H{gx} V{yb} H{gx+5}" fill="none" stroke="{color}" stroke-width="1.6"/>')
+        parts.append(
+            f'<text x="{gx+13}" y="{(yt+yb)//2+4}" fill="{color}" font-size="12" '
+            f'font-weight="bold">{esc(label)}</text>'
+        )
+    parts.append("</svg>")
+    out_path.write_text("\n".join(parts), encoding="utf-8")
+    print(f"wrote {out_path.name}  ({width}x{height})")
+
+
+ANATOMY = [
+    "### RULE R-ex — Has a title",
+    "where:: `*.md`",
+    "when:: write:markdown",
+    "if:: trait has Code",
+    "check:: regex_present `^# `",
+]
+ANATOMY_ANNOTS = [
+    (0, 0, "name", "#7b2d52"),
+    (1, 3, "IF — condition", "#2d5b7b"),
+    (4, 4, "THEN — body", "#2f7d4f"),
+]
+
 here = Path(__file__).parent
 udocs = here.parent / "Warden User Docs"
+render_annotated(ANATOMY, ANATOMY_ANNOTS, here / "Warden Rule Anatomy.svg")
 render(RULE, here / "Warden Rule Example.svg")
 render(RULESET, here / "Warden Ruleset Example.svg")
 

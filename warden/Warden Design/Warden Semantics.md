@@ -7,12 +7,22 @@ How the Warden engine runs a rule. [[Warden Rule]] is the file format; this is t
 
 ## A rule at a glance
 
-| Half | Parts | Says |
-|---|---|---|
-| **`IF`** — the condition | `when::` · `where::` · `if::` | *when* it activates · over *which* files · *only if* a guard holds |
-| **`THEN`** — the body | one or more **actions** | *what it does* when the condition holds |
+![[Warden Rule Anatomy.svg]]
 
-Plus its **name** (`R-<slug>-NN`) and an optional `rerun::` modifier. That is the whole rule — no separate *evaluator*, *outcome*, *tier*, or *economy* concept; each was extra vocabulary for what the body already does. The two sections below expand each half.
+Every clause a rule can carry — the `IF` clauses are the **condition**, the `THEN` clauses are the **body**:
+
+| Clause               | What it does                                                             |
+| -------------------- | ------------------------------------------------------------------------ |
+| `where::`            | which files it runs over — **required** (default `always`)               |
+| `when::`             | which moment triggers a **live** run — omit → *passive* (audit-time)     |
+| `if::`               | an extra state guard (`git-aspect == Commit`, …)                         |
+| `check::`            | run a named library **primitive**; report a problem if it finds one      |
+| `python` *(code)*    | a `def check(ctx)` block — arbitrary logic; `ctx.report(…)` on a problem |
+| *prose* *(judgment)* | the **LLM** reads `ctx` and reports the problems it finds                |
+| `message::`          | report a fixed **steer** to the agent (F180's shape)                     |
+| `fix=`               | a repair applied on a report (gated by the never-delete floor)           |
+
+Plus its **name** (`R-<slug>-NN`) and an optional `rerun::` modifier (below). That is the whole rule — there's no separate *evaluator*, *outcome*, *tier*, or *economy* concept; each was extra vocabulary for what these clauses already do. The two sections below expand each half.
 
 ## `IF` — the condition
 
