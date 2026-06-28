@@ -148,9 +148,11 @@ RULES = {
         "### RULE R-ex-04 — Open Questions still open",
         "where:: `**/*.md`",
         "```",
-        "# narrow to just this slice, merged into the prompt; the oracle replies in prose",
+        "# the oracle is context-less, so the prompt must make the reply a usable steer",
         "q = file.section('## Open Questions')",
-        "tell(ask_oracle(f'Which of these are already resolved elsewhere?\\n\\n{q}'))",
+        "response = ask_oracle(f'Which of these are already answered elsewhere? Name'",
+        "                      f' each and say to close it. None? reply empty.\\n\\n{q}')",
+        "tell(response)   # empty reply -> nothing told -> the rule passed",
         "```",
     ],
     "edit": [

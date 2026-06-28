@@ -42,7 +42,7 @@ Also just prose — but prose that states an *expectation* ("Summary should refl
 
 ![[Warden Example script-assisted.svg]]
 
-The expensive part of a judgment is reading the whole file, so narrow it. `ask_oracle` takes **one prompt and returns a string** (it's an LLM — text in, text out), so you **merge** the slice into the prompt with an f-string and `tell` the reply. It's the same call a bare-prose judgment desugars to, just scoped to a section instead of the whole `file`. **Python narrows, the oracle answers in prose.**
+Narrow the slice, ask, `tell` the reply — three lines. But the **catch**, and it's the crux of using an oracle: it's **context-less**. It sees only your prompt; the agent sees only the reply. So a terse answer like "Q5, Q7" is *useless* — the agent has no idea what to do with it. The prompt must make the oracle write a **complete, actionable steer** (full sentences, what to do) **and reply empty when nothing's wrong**, so `tell(response)` stays silent and the rule passes. `ask_oracle` is one prompt in, a string out; you merge the slice with an f-string. **Python narrows, the oracle answers — but only if you tell it how to answer.**
 
 ## 05 · An `edit`
 
