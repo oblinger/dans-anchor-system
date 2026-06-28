@@ -10,7 +10,8 @@ How the Warden engine runs a rule. [[Warden Rule]] is the file format; this is t
 > - **Sync `Warden Architecture` §7** with the two-path `ask` mechanism (sub-agent on audit / steer on live).
 > - **`run` action** — trust/security model before it ships (deferred).
 > - **The `edit` family** — define the method set (`set_frontmatter`, `replace_section`, …) and the never-delete floor it rides on.
-> - **`ask`** — is it the right word (vs `consult`/`inquire`)? And the return-shape convention (list / bool / string).
+> - **The LLM-call op (`ask`)** — several open: (a) **name** — it spawns a *separate, context-less helper*, not the agent, so `ask` may mislead → `consult` / `oracle`? (b) **one prompt vs `(content, instruction)`** — one is simpler; splitting lets the rerun-economy gate diff content (F215). (c) the prompt must **shape the response** so it's usable by the agent (or the body wraps it). (d) return-shape convention (list / bool / string).
+> - **Words for the two LLMs** — the **agent** / **ward** (the steered one) vs the **helper** / **oracle** (the spawned one). Pick the pair and use it everywhere.
 > - **`file.frontmatter`** — confirm merging YAML block + inline `::` fields is what we want.
 
 ## A rule at a glance

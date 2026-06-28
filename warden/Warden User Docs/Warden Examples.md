@@ -1,5 +1,5 @@
 ---
-description: "worked examples — every kind of test and action, as complete rules (start here)"
+description: "worked examples of every rule-execution mode (start here)"
 ---
 # Warden Examples
 
