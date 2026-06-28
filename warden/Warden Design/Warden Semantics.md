@@ -100,7 +100,7 @@ On a hit, the rule performs zero or more actions. Three are **mediated** — War
 |---|---|
 | **`file`** | `.path`, `.name`, `.text`, `.lines`, `.title`, `.frontmatter`, `.section(h)`, `.sections(level)`, `.links` |
 | **`anchor`** | `.name`, `.slug`, `.root`, `.traits`, `.get(name)` |
-| **`git`** | `.branch`, `.aspect`, `.is_dirty`, `.ahead` |
+| **`git`** | `.branch`, `.mode`, `.is_dirty`, `.ahead` |
 | **`event`** | `.kind`, `.diff`, `.command`, `.tool` |
 | *ambient* | `today`, `now` (+ plain Python: builtins, `re`, `json`, `datetime`) |
 | *verbs* | `tell(msg)`, `deny(reason)`, `ask_oracle(prompt)→str`, and `file.…` (edits — under File) |
@@ -135,7 +135,7 @@ The rest of this section unpacks each — which are present when, and (verbs) ho
 | Member | What it is |
 |---|---|
 | `git.branch` | current branch (`main`, …) |
-| `git.aspect` | git mode — `Commit`, … |
+| `git.mode` | the anchor's git workflow mode — `Commit` (commit freely), review/PR, … (from Decisions) |
 | `git.is_dirty`, `git.ahead` | uncommitted changes? · commits ahead of upstream |
 
 **`event`** — the moment (from `when::`; **live runs only** — absent under `/audit`):
