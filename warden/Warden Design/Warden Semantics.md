@@ -55,7 +55,7 @@ Three clauses, **two kinds**. `where::` and `when::` are **indexes** — the com
 
 **Why `if` stays separate from `when`.** `when`/`where` are *indexical* — clean tokens (`write:markdown`, `*.md`) the compiler matches without execution. `if` is *computed*. Folding `if` into `when` would either uglify the simple `when` clause or mix a dispatch index with computation, so they stay apart.
 
-**The test (`if::`) is a Python expression** — there's **no condition DSL, not even a vocabulary of predicates.** it reads the **data nouns** on `file` / `anchor` / `event` (§ *What a rule sees*) — `file.title`, `file.frontmatter`, `file.text`, `file.sections`, `event.command` — and you write the **predicate in plain Python** (`not`, `in`, `re.search`). No `.has`/`.matches` verbs baked into the API:
+**The test (`if::`) is a Python expression** — there's **no condition DSL, not even a vocabulary of predicates.** it reads the **data nouns** on `file` / `anchor` / `event` (§ *Rule interpretation*) — `file.title`, `file.frontmatter`, `file.text`, `file.sections`, `event.command` — and you write the **predicate in plain Python** (`not`, `in`, `re.search`). No `.has`/`.matches` verbs baked into the API:
 
 ```
 if:: not file.title                        # no H1 title
@@ -92,9 +92,20 @@ On a hit, the rule performs zero or more actions. Three are **mediated** — War
 
 > **Open — `run`'s trust model.** Your own rules are as trusted as your own scripts, so unbounded effect is arguably fine; an *imported* ruleset carrying effectful Python is a **supply-chain risk** (adopting it runs its code on your moments). Leaning: **ship the mediated three first; add `run` only behind explicit trust, off for imported rules.**
 
-## What a rule sees — `file`, `anchor`, `git`, `event`
+## Rule interpretation — the runnable environment
 
-A rule body runs with a few objects in scope — `file`, `anchor`, `git`, `event` — plus the verbs and the environment. `file` / `anchor` / `event` are the three things the rule **matched on**; `git` is **derived** (the subject's repo). No `ctx.` prefix: they're aliased in directly.
+**North star: this environment is a real, runnable Python API — not just notation.** A rule body is plain Python over a handful of injected objects, and *any agent can call them*. Skills already run Python, so an agent that **reads** a rule (`file.sections(...)`, `ask_oracle(...)`) is in a position to **run** it and get the result back — Warden *schedules* these calls, but it doesn't own them. The whole surface, at a glance:
+
+| In scope | Accessors / calls |
+|---|---|
+| **`file`** | `.path` · `.name` · `.text` · `.lines` · `.title` · `.frontmatter` · `.section(h)` · `.sections(level)` · `.links` |
+| **`anchor`** | `.name` · `.root` · `.traits` |
+| **`git`** | `.branch` · `.aspect` · `.is_dirty` · `.ahead` |
+| **`event`** | `.kind` · `.diff` · `.command` · `.tool` |
+| *ambient* | `today` · `now` (+ plain Python: builtins, `re`, `json`, `datetime`) |
+| *verbs* | `tell(msg)` · `deny(reason)` · `file.set_frontmatter(…)` · `file.replace_section(…)` · `ask_oracle(prompt)→str` |
+
+The rest of this section unpacks each — which are present when, and (verbs) how they behave (action semantics live in § THEN). `file` / `anchor` / `event` are the three things the rule **matched on**; `git` is **derived** (the subject's repo); none take a `ctx.` prefix — they're aliased in directly.
 
 **`file`** — the matched file (from `where::`, or a file-bearing moment like `write:*`; a command-only moment like `tool:pre:Bash` has **no** `file`):
 

@@ -16,8 +16,11 @@ The vault accumulates standing constraints — structural ("every anchor has one
 
 - **Read it** (statically, filtered by `where::`) to *understand the system* — the rules that touch `*.svg` *are* the SVG conventions, in prose an agent or human can read. The corpus is living documentation.
 - **Fire it** (dynamically, at its `when::`) to *steer the agent* — the rule's `tell` lands in context at the right moment.
+- **Run it** (directly, by any agent) — the interpretation environment (`file`, `git`, `ask_oracle`, …) is a **real, runnable Python API**, not just notation. Skills already execute Python, so an agent that reads a rule's body is positioned to *run* it and get the result. Warden *schedules* these calls; it doesn't own them. ([[Warden Semantics]] § Rule interpretation.)
 
-Because the guardrail and the documentation are the **same artifact**, they can't drift. That's the wedge: prose the agent "knows about" but doesn't attend to is useless — Warden fixes the *attention* problem, not a knowledge problem. The `where::`/`tell` are written for a reader; only `when::` is pure delivery machinery the reader can ignore.
+Because the guardrail, the documentation, and the runnable code are the **same artifact**, they can't drift. That's the wedge: prose the agent "knows about" but doesn't attend to is useless — Warden fixes the *attention* problem, not a knowledge problem. The `where::`/`tell` are written for a reader; only `when::` is pure delivery machinery the reader can ignore.
+
+This North Star — **read / fire / run from one artifact** — is the design constraint behind the whole language: the interpretation environment ([[Warden Semantics]] § Rule interpretation) is deliberately plain Python over a small, legible object surface, so the same rule serves all three.
 
 One declarative rule language and one runtime:
 
