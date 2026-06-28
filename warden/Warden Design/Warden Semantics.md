@@ -1,97 +1,91 @@
 ---
-description: "how the engine runs a rule — a rule as IF (condition) THEN (body of actions), expanded into the if and the then"
+description: "how the engine runs a rule — IF (dispatch indexes + a condition) THEN (actions)"
 ---
 # Warden Semantics
 
-How the Warden engine runs a rule. [[Warden Rule]] is the file format; this is the operational model — kept deliberately small: **a rule is `IF` a condition `THEN` a body, and the engine runs the body when the condition holds.** When the body runs over a file it may `tell` the agent, `edit` a file, or `deny` an action; a rule **passes** when its body does none of these.
+How the Warden engine runs a rule. [[Warden Rule]] is the file format; this is the operational model — kept small: **a rule is `IF` a condition `THEN` an action.** The engine dispatches to a rule cheaply (by moment + file), evaluates its condition, and on a hit performs its action(s).
 
 ## A rule at a glance
 
 ![[Warden Rule Anatomy.svg]]
 
-Every clause a rule can carry — the `IF` clauses are the **condition**, the `THEN` clauses are the **body**:
+| Clause | Part | What it does |
+|---|---|---|
+| `where::` | `IF` · index | which files it runs over — a glob (default `always`) |
+| `when::` | `IF` · index | which moment triggers a **live** run — omit → *passive* (audit-time) |
+| `if::` | `IF` · test | the condition — a primitive (`regex_present …`), Python, or LLM prose; yields the findings to act on |
+| `tell` | `THEN` | say something to the agent — a problem *or* a directive (a steer live / a finding under audit) |
+| `edit` | `THEN` | write to a file — repair, log, stamp, drop data (never-delete floored) |
+| `deny` | `THEN` | block the pending tool (`tool:pre` only) |
+| `run` | `THEN` · *future* | arbitrary effects — **deferred** (a security model first; see [[Warden PRD]]) |
 
-| Clause               | What it does                                                             |
-| -------------------- | ------------------------------------------------------------------------ |
-| `where::`            | which files it runs over — **required** (default `always`)               |
-| `when::`             | which moment triggers a **live** run — omit → *passive* (audit-time)     |
-| `if::`               | an extra state guard (`git-aspect == Commit`, …)                         |
-| `check::`            | run a named library **primitive**; `tell` on a problem      |
-| `python` *(code)*    | a `def check(ctx)` block — arbitrary logic; emits actions (`tell`/`edit`/…) |
-| *prose* *(judgment)* | the **LLM** reads `ctx` and `tell`s what's wrong                |
-| `message::`          | sugar for a fixed `tell` — a steer/directive (F180's shape)                     |
-| `fix=`               | an `edit` that repairs a violation (never-delete floored)           |
-
-Plus its **name** (`R-<slug>-NN`) and an optional `rerun::` modifier (below). That is the whole rule — there's no separate *evaluator*, *outcome*, *tier*, or *economy* concept; each was extra vocabulary for what these clauses already do. The two sections below expand each half.
+Plus its **name** (`R-<slug>-NN`) and an optional `rerun::` modifier. There is no separate *check*, *evaluator*, *tier*, *outcome*, or *economy* concept — **a check is just an `if::` condition.**
 
 ## `IF` — the condition
 
-The rule activates for a file when **all three** hold:
+Three clauses, **two kinds**. `where::` and `when::` are **indexes** — the compiler uses them to pick candidate rules *without running any code* (a glob match, a moment-path match); that's what keeps "instrument almost everything" cheap. `if::` is the **test** — the computed predicate, evaluated only after dispatch has narrowed the field.
 
-| Clause | Says | Required? |
+| Clause | Kind | |
 |---|---|---|
-| `where::` | which files it runs over | **yes** (default `always`) — [[FCT Ruleset]] § Where clause |
-| `when::` | which moment triggers a *live* run | no — omit it and the rule is *passive* ([[Warden Trigger Taxonomy]]) |
-| `if::` | an extra state guard (`git-aspect == Commit`, …) | no — [[Warden Trigger Taxonomy]] § Guards |
+| `where::` | **index** (glob) | which files — required (default `always`); [[FCT Ruleset]] § Where clause |
+| `when::` | **index** (moment) | which live moment — omit → *passive*; [[Warden Trigger Taxonomy]] |
+| `if::` | **test** (computed) | the condition — written one of three ways (below); yields findings |
 
-**Live vs. passive.** A rule **with** a `when::` fires **live** at that moment — the fast guardrail. A rule with **no `when::` is passive** — it runs only when **`/audit`** visits its `where::` files — the thorough backstop. (Live rules are also re-checked by audit.) `where::` is always required; `when::` and `if::` are optional.
+**Live vs. passive** — a `when::` makes the rule fire **live** at that moment (the fast guardrail); with **no `when::` it is passive**, run only when `/audit` visits its `where::` files (the backstop).
 
-## `THEN` — the body
+**Why `if` stays separate from `when`.** `when`/`where` are *indexical* — clean tokens (`write:markdown`, `*.md`) the compiler matches without execution. `if` is *computed* — a real expression. Folding `if` into `when` would either uglify the simple `when` clause or mix a dispatch index with arbitrary computation, so they stay apart: dispatch is indexes, the test is `if`.
 
-The body says **what to do when the condition holds**. Two separate questions: *how the test/logic is written*, and *what it can actually do about a problem*. The second is a **small closed set** — which is exactly what keeps "test" and "action" from exploding into a cross-product.
+**The test (`if::`) is written one of three ways** — this is where the old `check::` now lives:
 
-**How the body is written** — one form, or a mix:
+| Written as | The test is… |
+|---|---|
+| `if:: <primitive>` (e.g. `regex_present …`) | a named library check — fast, native |
+| a `python` block — `def check(ctx)` | arbitrary logic |
+| **prose** | the LLM reads `ctx` and judges |
 
-| Form | Written as | |
-|---|---|---|
-| **check** | `check:: <primitive>` | a named library check — fast, native |
-| **code** | a `python` block — `def check(ctx)` | arbitrary logic |
-| **judgment** | **prose** in the body | the LLM reads `ctx` and decides |
+A test yields **findings** (each a message), or a bare boolean. The cheap-narrowing trick still applies — a `python def prepare(ctx)` can hand the LLM only a slice before it judges (**script-assisted**).
 
-`python` is the general form; `check::` is a native-library shorthand for a common check; **script-assisted** = a `python def prepare(ctx)` then prose (cheap Python narrows what the LLM reads).
+## `THEN` — the actions
 
-**What a body can do — the actions.** A body inspects `ctx` and performs zero or more actions. Three are **mediated** — Warden controls exactly what each does, so they're safe even in a rule you didn't write — and one is the **unmediated** escape hatch:
+On a hit, the rule performs zero or more actions. Three are **mediated** — Warden controls exactly what each does, so they're safe even in a rule you didn't write — and one is the **unmediated**, *deferred* escape hatch:
 
 | Action | Emitted by | What happens | Goes to |
 |---|---|---|---|
-| *(pass)* | — | nothing — no problem found | — |
+| *(pass)* | — | nothing — the test found no problem | — |
 | **tell** | `ctx.tell(msg)` | say something to the agent — a problem *or* a directive ("commit now", "don't ask the user") | a **steer** injected into the agent's context (live) · a **finding** in the report (audit) |
 | **edit** | `ctx.edit(path, change)` | write to a file — repair the target, append a log, drop data elsewhere | the file(s) — gated by the never-delete floor |
 | **deny** | `ctx.deny(reason)` | block the pending action | the tool call — `tool:pre` only |
-| **run** *(effect)* | the Python body, directly | arbitrary execution — run commands, spawn processes, drive Warden / other agents | **unmediated** — see below |
+| **run** *(future)* | the Python body, directly | arbitrary execution — run commands, drive Warden / other agents | **deferred** — needs a security model first |
 
-**`tell` is more than "report".** It isn't only "X is wrong" — a live `tell` can *direct* the agent (F180's steers do exactly this). Mechanically: **live** → text the hook injects into the agent's context (what you'd picture as "printed to the agent"); **audit** → a finding written into the report the user reads. Same `ctx.tell` call; the trigger picks the channel. (`message:: <text>` is sugar for a body whose one action is a fixed `tell`.)
+**Default action.** A test that yields findings and names no explicit action **tells** them — so the common "check" rule is just `if:: <test>` with an implicit `tell`. `message:: <text>` is sugar for a fixed `tell`; a rule that also repairs adds an `edit`. **Emit nothing → the rule passed.**
 
-**`edit` is more than "fix".** A `fix` is just an `edit` that *repairs a found violation* — but the same action writes a log line, stamps metadata, or drops data in another file. One action covers all mediated file writes (each floor-gated against content loss).
+**What `tell` actually does.** **Live** → text the hook injects into the agent's context (what you'd picture as "printed to the agent" — the F180 steer); **audit** → a finding written into the report the user reads. Same `ctx.tell`; the trigger picks the channel.
 
-**Mediated vs. unmediated — and the cross-product.** The three mediated actions (**tell · edit · deny**) are a **closed, small set**, so the body just *calls* the one it wants — a bare `check::` implies a **tell**; a rule that changes a file uses an **edit** — **no test × action cross-product, no action language to invent.** The **run** action is the exception: the body is arbitrary Python, so it can do *anything*, including controlling Warden or other agents (the orchestration story) — which makes such a rule equal to arbitrary code execution. **Emit nothing → the rule passed.**
+**Mediated vs. unmediated.** The three mediated actions (**tell · edit · deny**) are a **closed, small set**, so the body just *calls* the one it wants — **no test × action cross-product, no action language to invent.** `run` is the exception (arbitrary Python = arbitrary code execution, incl. controlling Warden or other agents) and is **deferred** — see [[Warden PRD]] § Security and the open question below.
 
-> **Open — is `run` allowed, and is the body sandboxed?** Your own rules are as trusted as your own scripts, so unbounded effect is arguably fine; but an *imported* ruleset carrying effectful Python is a **supply-chain risk** — adopting it runs its code on your moments. Leaning: **v1 = mediated actions only (`tell` / `edit` / `deny`); `run`/effect gated behind explicit trust and off for imported rules** (ties to [[Warden Integration Strategy]]).
+> **Open — `run`'s trust model.** Your own rules are as trusted as your own scripts, so unbounded effect is arguably fine; an *imported* ruleset carrying effectful Python is a **supply-chain risk** (adopting it runs its code on your moments). Leaning: **ship the mediated three first; add `run` only behind explicit trust, off for imported rules.**
 
-**What a body sees** — `ctx` is the file under evaluation: `ctx.path` · `ctx.text` · `ctx.lines()` · `ctx.frontmatter` · `ctx.section("## X")` · `ctx.sections(level=N)` · `ctx.anchor` · `ctx.git_aspect`. A `when::`-triggered body also gets the event payload (e.g. `ctx.diff` for a `write:*` moment).
-
-> **On the old tiers.** `(checked)` / `(stated)` / `(sampled)` / `(tracked)` are **not** a separate concept — the body already shows whether a script (`check::` / `python`) or the LLM (prose) decides. An optional posture hint at most; nothing in the engine requires it.
+**What a body sees** — `ctx`: `ctx.path` · `ctx.text` · `ctx.lines()` · `ctx.frontmatter` · `ctx.section("## X")` · `ctx.sections(level=N)` · `ctx.anchor` · `ctx.git_aspect`. A `when::`-triggered test also gets the event payload (e.g. `ctx.diff` for a `write:*` moment).
 
 ## The pipeline
 
 ```
 on trigger:  a when:: moment fires,  OR  /audit visits an anchor
-  for each file T matching the rule's where:::
-    if any if:: guard is false:  skip
+  candidates = rules whose where:: (and when::) INDEXES match   # cheap, no code
+  for each candidate rule, for each file T it matches:
     if a cached result for (rule, T) is fresh under rerun:::  reuse it
-    else:  run the body over ctx(T)  → the actions it emits
+    else:  evaluate if:: over ctx(T)  → findings (or false)
            cache it by (rule, hash(T)[, model])
-    carry out each action:  tell → steer (live) / finding (audit);   edit → apply if floor-safe;
-                            deny → block the tool;   run → execute (if trusted)
+    for each finding:  perform the action(s) — tell / edit / deny
 ```
 
-## Re-running an expensive body
+## Re-running an expensive test
 
-A body that calls the LLM costs tokens, so its result is cached by file-content-hash and reused until the file changes. **`rerun:: significant`** relaxes that — re-run only on *significant* change, not every edit ([[F215 — Re-evaluation economy — the significant-edit gate|F215]]). Cheap (script) bodies leave it default (re-run whenever).
+An `if::` test that calls the LLM costs tokens, so its result is cached by file-content-hash and reused until the file changes. **`rerun:: significant`** relaxes that — re-run only on *significant* change, not every edit ([[F215 — Re-evaluation economy — the significant-edit gate|F215]]). Cheap (primitive) tests leave it default.
 
 ## See also
 
 - [[Warden Rule]] — the file format these semantics run over.
-- [[Warden Trigger Taxonomy]] — the `when::` moment; [[FCT Ruleset]] — the `where::` selector.
-- [[Warden Architecture]] — how the pipeline is compiled + scheduled.
-- [[Warden Examples]] — every kind of action, as a complete rule conforming to this page.
+- [[Warden Trigger Taxonomy]] — the `when::` index; [[FCT Ruleset]] — the `where::` index.
+- [[Warden Architecture]] — how dispatch is compiled (incl. the resident-Python implementation, §7a).
+- [[Warden Examples]] — every kind of test + action, as complete rules.

@@ -195,16 +195,16 @@ def render_annotated(lines, annots, out_path: Path):
 
 
 ANATOMY = [
-    "### RULE R-ex — Has a title",
+    "### RULE R-ex — Title present",
     "where:: `*.md`",
     "when:: write:markdown",
-    "if:: trait has Code",
-    "check:: regex_present `^# `",
+    "if:: absent `^# `",
+    "tell:: add a top-level title",
 ]
 ANATOMY_ANNOTS = [
     (0, 0, "name", "#7b2d52"),
     (1, 3, "IF — condition", "#2d5b7b"),
-    (4, 4, "THEN — body", "#2f7d4f"),
+    (4, 4, "THEN — action", "#2f7d4f"),
 ]
 
 here = Path(__file__).parent

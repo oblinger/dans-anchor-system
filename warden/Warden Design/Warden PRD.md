@@ -12,9 +12,16 @@ The vault accumulates standing constraints — structural ("every anchor has one
 
 ## Overview
 
+**A Warden rule is a piece of natural-language guidance about the system that knows when it's relevant** — and the engine's core job is **timely relevance**: putting the right guidance in front of the agent at exactly the moment it's actionable. So a rule is **dual-use**:
+
+- **Read it** (statically, filtered by `where::`) to *understand the system* — the rules that touch `*.svg` *are* the SVG conventions, in prose an agent or human can read. The corpus is living documentation.
+- **Fire it** (dynamically, at its `when::`) to *steer the agent* — the rule's `tell` lands in context at the right moment.
+
+Because the guardrail and the documentation are the **same artifact**, they can't drift. That's the wedge: prose the agent "knows about" but doesn't attend to is useless — Warden fixes the *attention* problem, not a knowledge problem. The `where::`/`tell` are written for a reader; only `when::` is pure delivery machinery the reader can ignore.
+
 One declarative rule language and one runtime:
 
-- **State once.** A rule is `when:: <moment> · where:: <place> · if:: <guard>` + a body (a `check`, or an executable `trigger`). The author writes the truth condition; never the plumbing.
+- **State once.** A rule is dispatch (`where::` + `when::`) + a condition (`if::`) + an action (`tell` / `edit` / `deny`). The author writes the guidance and the test; never the plumbing.
 - **Fires everywhere it applies.** The runtime guarantees the rule triggers at its moment — at session start, on a markdown write, after a Bash `git commit`, when a skill runs — across every agent, without per-rule wiring.
 - **Cheap enough to be everywhere.** The system instruments **almost every tool use and agent action**. That is only viable if the per-moment cost is negligible, so performance is a first-class product requirement, not an afterthought (§ Performance).
 - **Implicit by default, explicit on demand.** Most rules fire implicitly via the compiler/installer; the `/audit` pipeline is the thorough explicit backstop over the same corpus.
@@ -29,9 +36,9 @@ One declarative rule language and one runtime:
 
 ## Non-Goals
 
-- Replacing prose guidance that is genuinely judgment-only and not mechanizable (those stay `stated`-tier, agent-judged).
 - A GUI for authoring rules (markdown + the `/rule` skill is the authoring surface).
 - Cross-anchor / vault-global rule *orchestration* beyond per-anchor active-set resolution.
+- **The `run` (arbitrary-effect) action — deferred** (see [[Warden Semantics]] § THEN). A rule is otherwise *readable guidance*, not arbitrary code; `run` breaks that — it's arbitrary execution, so adopting an *imported* rule would run its code on your moments (a supply-chain risk). If we add it, it needs a **security/trust model first** (sandboxing; effectful actions off for imported rules; explicit opt-in). v1 ships the mediated actions only (`tell` / `edit` / `deny`).
 
 ## User Stories
 
