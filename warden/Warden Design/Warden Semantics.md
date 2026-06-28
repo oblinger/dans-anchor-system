@@ -27,13 +27,22 @@ Three clauses, **two kinds**. `where::` and `when::` are **indexes** — the com
 
 | Clause | Kind | |
 |---|---|---|
-| `where::` | **index** (glob) | which files — required (default `always`), **anchor-relative**; [[FCT Ruleset]] § Where clause |
+| `where::` | **index** (glob) | which files — **anchor-relative**; required for a *passive* rule, optional for a live one; [[FCT Ruleset]] § Where clause |
 | `when::` | **index** (moment) | which live moment — omit → *passive*; [[Warden Trigger Taxonomy]] |
 | `if::` | **test** (computed) | the condition — a Python expression, or prose (below) |
 
 **`where::` is anchor-relative.** A glob resolves under whatever anchor *adopts* the rule — `**/*.md` means "every markdown file in this anchor." That's why one rule is reusable across anchors. The explicit `{ANCHOR}/` token is optional (clearer in shared rulesets); a bare glob is equivalent.
 
-**Live vs. passive** — a `when::` makes the rule fire **live** at that moment (the fast guardrail); with **no `when::` it is passive**, run only when `/audit` visits its `where::` files (the backstop).
+**A rule needs at least one of `where::` / `when::` to be *dispatched*** — that's how Warden finds it at the right place/moment. The combinations:
+
+| `where::` | `when::` | what it is |
+|---|---|---|
+| ✓ | — | **passive** — runs at `/audit` over those files (R-ex-01…04) |
+| — | ✓ | **live** at a moment; the subject is the *event* (a command, a session). File data only if the moment is file-bearing (R-ex-06: `tool:pre:Bash` — a command, no file) |
+| ✓ | ✓ | **live** at the moment, scoped to the file (R-ex-05) |
+| — | — | **ambient** — see below |
+
+**The ambient rule (no `where::`, no `when::`) is legal — and it's the weakest form.** With no dispatch key, Warden can't deliver it at the right moment (its whole superpower), so it falls back to the only option left: **always loaded into the agent's context** — the CLAUDE.md model, where "the LLM just has to remember it," competing for attention with everything else. Use it only for guidance that genuinely can't be pinned to a file or a moment; otherwise add a clause so Warden can do its job. *(Distinct from `where:: always`, which is an explicit "every file" scope that Warden still dispatches — at audit, over everything.)*
 
 **Why `if` stays separate from `when`.** `when`/`where` are *indexical* — clean tokens (`write:markdown`, `*.md`) the compiler matches without execution. `if` is *computed*. Folding `if` into `when` would either uglify the simple `when` clause or mix a dispatch index with computation, so they stay apart.
 
@@ -74,7 +83,7 @@ On a hit, the rule performs zero or more actions. Three are **mediated** — War
 
 `ctx` is the one object every test and body receives — **the subject under test**: the file `where::` matched, the moment `when::` fired, and what's parsed from them. It's deliberately small, and every member is a plain noun (data) or verb (action), so a rule reads without a manual.
 
-**Data — the target file** (from `where::`, always present):
+**Data — the file under test** (present *when a file is in scope* — a `where::` match, or a file-bearing moment like `write:*`; a command-only moment like `tool:pre:Bash` has **no** file data):
 
 | Member | What it is |
 |---|---|
