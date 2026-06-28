@@ -203,6 +203,14 @@ When `/design` scaffolds a Design folder, the operation creates all required chi
 
 **Why:** dispatch links work from day one; user has obvious places to add content; "file moved / link broken" bugs avoided.
 
+### RULE R-design-08 — No empty/boilerplate Design folder; presence asserts a maintained design (checked)
+
+The `{NAME} Design/` folder exists **iff** the anchor has real design content — a PRD, design docs, or feature docs (feature docs are themselves design artifacts and migrate INTO the Design folder). A folder containing only template boilerplate (empty `prd`/`plan`/`principles`/`discussion` stubs) does **not** count as a design: during migration, **wipe the boilerplate and omit the Design folder entirely**. Add the folder later, when the first real design or feature doc lands — or via `/design` scaffolding (R-design-07), which is the user's explicit commitment-to-design and the one case where a freshly-spined folder is expected before content arrives.
+
+**Check pattern:** for each `{NAME} Design/`, assert at least one child carries distinct authored content (not a bare H1 + description stub); a folder whose every child is boilerplate — and that was not just scaffolded by `/design` — is a violation: remove it.
+
+**Why:** folder presence is a trait (cf. R-design-01) — its existence tells the reader "this anchor has a maintained design." An empty placeholder folder lies about that state and clutters the tree; absence honestly signals "not yet designed."
+
 # BRIEF
 
 - **This file is the CAB Design facet spec** — it defines the `{NAME} Design/` folder convention (folder-presence gate, required vs. optional children, scaffolding, lifecycle gate behavior) and embeds the `R-design` ruleset. It is the authority cited by `/design` and its sub-skills.
