@@ -83,6 +83,8 @@ On a hit, the rule performs zero or more actions. Three are **mediated** — War
 
 **What `tell` actually does.** **Live** → text the hook injects into the agent's context (what you'd picture as "printed to the agent" — the F180 steer); **audit** → a finding written into the report the user reads. Same `tell`; the trigger picks the channel.
 
+**Calling `tell` many times** (e.g. once per finding in a loop, as R-ex-02 does) **accumulates** — they don't each fire separately. Live, the messages are **joined newline-separated into one steer block**, so the agent sees all of them at once; under audit, each is a **separate finding** (its own row/bullet). Zero `tell`s over the whole body = the rule passed.
+
 **Mediated vs. unmediated.** The three mediated actions (**tell · edit · deny**) are a **closed, small set**, so the body just *calls* the one it wants — **no test × action cross-product, no action language to invent.** `run` is the exception (arbitrary Python = arbitrary code execution, incl. controlling Warden or other agents) and is **deferred** — see [[Warden PRD]] § Security and the open question below.
 
 > **Open — `run`'s trust model.** Your own rules are as trusted as your own scripts, so unbounded effect is arguably fine; an *imported* ruleset carrying effectful Python is a **supply-chain risk** (adopting it runs its code on your moments). Leaning: **ship the mediated three first; add `run` only behind explicit trust, off for imported rules.**
@@ -119,7 +121,16 @@ A rule body runs with **three objects in scope** — the three things the rule m
 | `event.command` | the pending / just-run command (Bash moments) |
 | `event.tool` | the tool name + input (tool moments) |
 
-**The verbs**, bare in scope: the **actions** **`tell(msg)`** · **`deny(reason)`** and the `file.set_*` / `file.replace_*` **edits**; plus **`ask_oracle(question, content)`** — *hand a fresh **oracle** (a context-less helper LLM) a question + content, get its answer back* (a reader, not an action). (And `today` for a timestamp.)
+**The verbs**, bare in scope: the **actions** **`tell(msg)`** · **`deny(reason)`** and the `file.set_*` / `file.replace_*` **edits**; plus **`ask_oracle(question, content)`** — *hand a fresh **oracle** (a context-less helper LLM) a question + content, get its answer back* (a reader, not an action).
+
+**The environment** — a body is **plain Python**: every builtin (`len`, `any`, `in`, `for`, `str`, …) and a safe stdlib subset (`re`, `json`, `datetime`) are available, no import needed for the common ones. On top of that, Warden injects the three objects, the verbs, and two ambient values:
+
+| Name | What it is |
+|---|---|
+| `today` | the current **date** — evaluated at run; serializes to ISO (`2026-06-28`) when written to frontmatter |
+| `now` | the current **datetime** (timestamp) |
+
+So `file.set_frontmatter('reviewed', today)` writes `reviewed: 2026-06-28`. (Which stdlib modules are reachable is bounded by the sandbox — same trust question as `run`; the reference impl is permissive, the hot-path interpreter restricted.)
 
 - **Three objects, not one bag — and they mirror the clauses.** `where::` → `file`, the adopting anchor → `anchor`, `when::` → `event`. "Event," **not** "action": *action* is the rule's *output* (`tell` / `edit` / `deny`), so reusing the word would muddle the two.
 - **`ask_oracle` runs a *separate* LLM — the oracle — never the agent's own model.** A hook is a synchronous subprocess (event in → output → exit); it can't block-and-await the agent's model. So `ask_oracle` spawns a **fresh headless oracle** — *context-less*, it sees only the question + content you pass — and returns its answer (a list, a bool, a string — whatever the question asked for): on the **audit path** (not latency-bound) the pipeline blocks on it and parses the answer — its real home; on the **live path** (hot hook, ms-budget) it can't block, so the call is **delegated to the agent as a steer** instead. Because the oracle is context-less, the question must say *how* to answer so the result is usable; the body then shapes it into a `tell`. A bare-prose body is the sugar for `ask_oracle(<the prose>, file)`. (Mechanism: [[Warden Architecture]] §7.)
