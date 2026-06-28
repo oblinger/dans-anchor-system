@@ -98,32 +98,37 @@ On a hit, the rule performs zero or more actions. Three are **mediated** — War
 
 | In scope | Accessors / calls |
 |---|---|
-| **`file`** | `.path` · `.name` · `.text` · `.lines` · `.title` · `.frontmatter` · `.section(h)` · `.sections(level)` · `.links` |
-| **`anchor`** | `.name` · `.root` · `.traits` |
-| **`git`** | `.branch` · `.aspect` · `.is_dirty` · `.ahead` |
-| **`event`** | `.kind` · `.diff` · `.command` · `.tool` |
-| *ambient* | `today` · `now` (+ plain Python: builtins, `re`, `json`, `datetime`) |
-| *verbs* | `tell(msg)` · `deny(reason)` · `file.set_frontmatter(…)` · `file.replace_section(…)` · `ask_oracle(prompt)→str` |
+| **`file`** | `.path`, `.name`, `.text`, `.lines`, `.title`, `.frontmatter`, `.section(h)`, `.sections(level)`, `.links` |
+| **`anchor`** | `.name`, `.slug`, `.root`, `.traits`, `.get(name)` |
+| **`git`** | `.branch`, `.aspect`, `.is_dirty`, `.ahead` |
+| **`event`** | `.kind`, `.diff`, `.command`, `.tool` |
+| *ambient* | `today`, `now` (+ plain Python: builtins, `re`, `json`, `datetime`) |
+| *verbs* | `tell(msg)`, `deny(reason)`, `ask_oracle(prompt)→str`, and `file.…` (edits — under File) |
 
 The rest of this section unpacks each — which are present when, and (verbs) how they behave (action semantics live in § THEN). `file` / `anchor` / `event` are the three things the rule **matched on**; `git` is **derived** (the subject's repo); none take a `ctx.` prefix — they're aliased in directly.
+
+### File
 
 **`file`** — the matched file (from `where::`, or a file-bearing moment like `write:*`; a command-only moment like `tool:pre:Bash` has **no** `file`):
 
 | Member | What it is |
 |---|---|
-| `file.path` · `file.name` | path · basename |
-| `file.text` · `file.lines` | full text · list of lines |
+| `file.path`, `file.name` | path · basename |
+| `file.text`, `file.lines` | full text · list of lines |
 | `file.title` | the H1 title (or `None`) |
 | `file.frontmatter` | the file's metadata — YAML block **and** Dataview `::` inline fields, merged (as Dataview sees them) |
-| `file.section("## X")` · `file.sections(level=N)` | one section · the sections |
+| `file.section("## X")`, `file.sections(level=N)` | one section · the sections |
 | `file.links` | the wiki / markdown links |
+
+**`file` also has edit methods** — the `edit` action (§ THEN), floor-gated: `file.set_frontmatter(k, v)`, `file.replace_section(h, text)`, … each writes back to the file. (These are the `file.…` in the verbs row.)
 
 **`anchor`** — the anchor the rule is operating in:
 
 | Member | What it is |
 |---|---|
-| `anchor.name` · `anchor.root` | RID · root path |
-| `anchor.traits` | its traits |
+| `anchor.name`, `anchor.slug` | RID, kebab slug |
+| `anchor.root`, `anchor.traits` | root path, its traits |
+| `anchor.get(name)` | any other anchor field, by name |
 
 **`git`** — the repository of the rule's **subject**, auto-resolved to the nearest enclosing `.git` (the `file`'s repo, or the command's working dir for a Bash moment):
 
@@ -131,7 +136,7 @@ The rest of this section unpacks each — which are present when, and (verbs) ho
 |---|---|
 | `git.branch` | current branch (`main`, …) |
 | `git.aspect` | git mode — `Commit`, … |
-| `git.is_dirty` · `git.ahead` | uncommitted changes? · commits ahead of upstream |
+| `git.is_dirty`, `git.ahead` | uncommitted changes? · commits ahead of upstream |
 
 **`event`** — the moment (from `when::`; **live runs only** — absent under `/audit`):
 
@@ -142,7 +147,7 @@ The rest of this section unpacks each — which are present when, and (verbs) ho
 | `event.command` | the pending / just-run command (Bash moments) |
 | `event.tool` | the tool name + input (tool moments) |
 
-**The verbs**, bare in scope: the **actions** **`tell(msg)`** · **`deny(reason)`** and the `file.set_*` / `file.replace_*` **edits**; plus **`ask_oracle(prompt) → str`** — *hand a fresh **oracle** (a context-less helper LLM) a prompt, get its text answer back* (a reader, not an action); merge any material into the prompt yourself (`f'…{file.section(…)}'`).
+**The verbs**, bare in scope: **`tell(msg)`**, **`deny(reason)`**, and **`ask_oracle(prompt) → str`** — *hand a fresh **oracle** (a context-less helper LLM) a prompt, get its text answer back* (a reader, not an action); merge any material into the prompt yourself (`f'…{file.section(…)}'`). (The `edit` action is methods on `file` — see File above.)
 
 **The environment** — a body is **plain Python**: every builtin (`len`, `any`, `in`, `for`, `str`, …) and a safe stdlib subset (`re`, `json`, `datetime`) are available, no import needed for the common ones. On top of that, Warden injects the three objects, the verbs, and two ambient values:
 
@@ -156,6 +161,7 @@ So `file.set_frontmatter('reviewed', today)` writes `reviewed: 2026-06-28`. (Whi
 - **Objects, not one bag — and the core three mirror the clauses.** `where::` → `file`, the adopting anchor → `anchor`, `when::` → `event`; `git` is derived from the subject. "Event," **not** "action": *action* is the rule's *output* (`tell` / `edit` / `deny`), so reusing the word would muddle the two.
 - **`git` auto-resolves to the subject's repo** — the `file`'s enclosing `.git`, or the command's working dir for a Bash moment. *(Open: when an anchor nests its own code repo, "the git" is ambiguous — anchor repo vs code repo. For now it follows the subject; a future `anchor.repo` / `code.repo` split may be needed.)*
 - **`ask_oracle` runs a *separate* LLM — the oracle — never the agent's own model.** A hook is a synchronous subprocess (event in → output → exit); it can't block-and-await the agent's model. So `ask_oracle` spawns a **fresh headless oracle** — *context-less*, it sees only the **prompt** you pass — and returns its answer as a **string** (it's an LLM — text in, text out; merge material into the prompt, and parse the reply yourself if you need structure): on the **audit path** (not latency-bound) the pipeline blocks on it and parses the answer — its real home; on the **live path** (hot hook, ms-budget) it can't block, so the call is **delegated to the agent as a steer** instead. Because the oracle is context-less (it sees only your prompt; the agent sees only what *you* `tell`), the robust idiom is: give the oracle the **narrow judgment** ("which are wrong? reply `none` if none"), gate on a **sentinel** in code, and let the **rule author the directive** the agent sees. **LLM for the judgment, code for the control flow and the message** — don't make the oracle write the steer (a terse "Q5, Q7" would be noise). A bare-prose body is the sugar for `tell(ask_oracle(<the prose, with file.text>))`. (Mechanism: [[Warden Architecture]] §7.)
+- **When to reach for the oracle vs. let the agent judge.** At **audit**, a bare-prose judgment and an explicit `ask_oracle` *both* spawn an oracle — so choose by **control** (explicit lets code condition + author the directive). On the **live** path the choice is real: an oracle is narrow, can run on a cheap model, and is **cached** (re-auditing an unchanged file is ~free), and it spares the agent's attention — but it's an extra round-trip you can't afford on the hot path, which is why a live bare-prose judgment **delegates to the running agent** instead. *Rule of thumb:* the **agent** when it's already in-context and you want it steered now; the **oracle** when the judgment is narrow, repeated, or wants caching + control. Per-judgment the oracle can be 10–100× lighter (cheap model, small slice, cached) than the agent reasoning over its full context every time.
 - **Small on purpose.** When a member is missing, reach for `file.text` + the Python stdlib — not a new method. The accessors exist only because re-parsing markdown structure by hand would be worse; they expose *data*, never hide a check.
 - **A reading LLM understands these** — ordinary nouns it's seen in thousands of APIs; `file.sections(level=2)` plainly means "the level-2 sections." That's the dual-use payoff: the names that *run* the rule also let a reader *understand* it.
 
