@@ -7,12 +7,11 @@ The top-of-file table convention that gives most anchor pages and many facet pag
 
 | -[[FCT Dispatch Table]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Dispatch Table](hook://p/FCT%20Dispatch%20Table)<br>: the top-of-page navigation table — its own spec, dogfooded |
 | --- | --- |
-| Anchor | [[FCT]],   |
-| Design | [[CAB Dispatch Table Design\|Design]],   |
 | Related | [[Collection]],  [[DSC progressive-disclosure]],  [[audit-dispatch\|/audit dispatch]],   |
+| Design | [[CAB Dispatch Table Design\|Design]],   |
 | Examples | [[CAE\|minimal]],  [[HBR\|fuller]],  [[CAE Dispatch Examples\|full gallery]],   |
 
-**TLDR** — **Cardinality: many** — one dispatch table per page; most anchor and facet pages carry one. The masthead is exactly the breadcrumb + Anchor + (Design) + Related rows (a switchboard, not a directory); anything enumerable drops to the Member zone below. `/audit dispatch` builds and repairs it.
+**TLDR** — **Cardinality: many** — one dispatch table per page; most anchor and facet pages carry one. The masthead is the breadcrumb plus, in fixed order, the optional **Related → type → Design → Track → User Docs → Dev Docs** rows (a switchboard, not a directory) — each row a link down to a sub-area plus its key parts; anything enumerable beyond those drops to the Member zone below. `/audit dispatch` builds and repairs it.
 
 
 **Examples** — below the masthead (this page's member zone is its four live exemplars; each row is itself a tiny member list, dogfooding the form):
@@ -29,20 +28,22 @@ A markdown table placed immediately under the H1 of a page. The first row carrie
 
 **Page-top discipline (every page).** `# <H1>` on the first line, the **one-line summary directly underneath — no blank line between** — then one blank line, then this dispatch table. (An overview figure, if any, sits between the summary and the table.)
 
-**Masthead rows — the confirmed model** (worked exemplars: [[SKA crank]] / [[SKA audit]] / [[SKA workflow]]; vault-wide rollout tracked in [[F189]]). After the breadcrumb identity row, each of the following appears **only if it applies**, in order: an optional **Related** row; a **type-specific row** whose label is the anchor's *type* word (`Skill`, `Discipline`, …) carrying the type's external/runtime links (the user docs `[[SKL <Name>\|User Docs]]` + the `SKILL` object); and a **container group-row per sub-area** (`Track`, `Design`) whose label links *down* to the container page and whose cell surfaces that container's key members for a one-click jump. This **supersedes the generic `Anchor` row** — "everything is an anchor", so the label conveyed nothing; the type-specific row replaces it. **List only members that exist** — never pre-populate phantom/empty links (they render as strikethrough cruft, and a mis-click mints a blank doc); new docs auto-appear under the `| --- | |` electric marker, and the menu of *possible* docs lives in the facet + the creating skill, not as dead links.
+**Masthead rows — the model** (worked exemplars: [[CAE]] (project), [[SKA crank]] / [[SKA workflow]] (leaf); vault-wide rollout tracked in [[F189]]). After the breadcrumb identity row, the optional rows appear in a **fixed order**, each present **only if it applies**:
+
+1. **Related** — related anchors / siblings **and external resources** (code repo, project page, docs site) that are **not** already in the breadcrumb. First, because it answers "what else is near this?" before the reader descends into the anchor's own contents. *(This replaces the former `External` row — repo / site links live in Related now.)*
+2. **Type row** *(typed leaf anchors only — skill / discipline / facet)* — label is the type word (`Skill`, `Discipline`, `Facet`); cell carries the runtime / external links (the `SKILL` object + `[[SKL <Name>\|User Docs]]`).
+3. **Design** — left cell `[[<X> Design\|Design]]`, right cell the design parts that exist: PRD, Architecture, Decisions, UX Design, Roadmap, Stories.
+4. **Track** — left cell `[[<X> Track\|Track]]`, right cell the tracking items that exist: Backlog, Features, Roadmap, Now. *(Absent when tracking is unified at a parent — D10.)*
+5. **User Docs** — left cell `[[<X> User Docs\|User Docs]]` (or `[[<X> User\|User Docs]]`), right cell the user docs (Guide, …). Always labeled **User Docs**, never *User*.
+6. **Dev Docs** — left cell `[[<X> Dev Docs\|Dev Docs]]` (or `[[<X> Dev\|Dev Docs]]`), right cell the dev docs (Files, …). Always labeled **Dev Docs**, never *Dev*.
+
+Every row after the breadcrumb has the **same shape**: its **left cell is a link *down* to a sub-area** (the row's name) and its **right cell enumerates that sub-area's key parts**. There is **no generic `Anchor` row** — superseded ("everything is an anchor", so the label conveyed nothing). A skill / discipline / facet leaf anchor uses the **type row** (and a Design row) and carries **no** Track / User Docs / Dev Docs rows; a project (Code) anchor uses **Design / Track / User Docs / Dev Docs**. **List only members that exist** — never pre-populate phantom/empty links (they render as strikethrough cruft, and a mis-click mints a blank doc); a stray/new doc is caught by the trailing catch-all marker (R-07), not by dead links.
 
 **Tracking can be unified at a parent** ([[SKA Decisions]] D10). A `Track` group-row appears **only on an anchor that owns its own tracking**; sub-anchors whose tracking is unified at a parent (skills / facets / disciplines → the SKA-level backlog) carry **no Track row** — just the type-specific row + a `Design` row. **Coupled facet+discipline share one design folder, dual-linked:** a Track facet + its Workflow discipline (and a Design facet + its Architect skill) each carry a `Design` row pointing at the **same** single design folder (hosted on the behavioral core — `workflow` / `architect`); the folder is reached from either page, never duplicated.
 
 ## Anatomy of a dispatch row
 
-```markdown
-
-| -[[<This Page>]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Dispatch Table](hook://p/FCT%20Dispatch%20Table)<br>: <one-line description> |
-| --- | --- |
-| <Category 1> | [[Link A\|A]],  [[Link B\|B]],  … |
-| <Category 2> | [[Link C\|C]],  [[Link D\|D]],  … |
-| Related | [[<This Page> Guide\|Guide]],  …other related links… |
-| --- | |
+A dispatch row is `| left-cell | right-cell |`. The **breadcrumb identity row** is special: its left cell is the page's own name as a struck self-link, its right cell is the parent-chain path ending in the page's `hook://` link, followed by a `<br>` and a one-line description. Every **other** row has the same shape — the left cell names a sub-area (a link *down* to it), the right cell enumerates that sub-area's key parts, comma-separated. Aliased wiki-links inside cells escape the pipe as `[[Target\|Display]]` (R-03). The table's final row is the catch-all marker (R-07). The live rendered form is on [[CAE]] (masthead) and [[CAE Dispatch Examples]] (full gallery).
 
 ## Structure — Masthead + Member zone
 
@@ -50,32 +51,28 @@ A dispatch table has up to **two zones** (worked examples: [[CAE Dispatch Exampl
 
 ### Masthead — the fixed top block (always present)
 
-Hand-authored, one-of-a-kind to this anchor, and deliberately **small** — a switchboard, not a directory. The breadcrumb identity row plus **at most three standard rows**:
-
-1. **Breadcrumb row** (identity) — a title cell followed by the parent-chain path ending in the page's hook link (full schema in § Anatomy above; rendered live in [[CAE]]). Carries the **up-edge** of the [[DSC anchor-dag]] (parent link). Always present.
-2. **Anchor row** (general dispatch) — the anchor's own contents: its primary sub-pages — the **down-edges** to what this anchor holds. The parent lives in the breadcrumb and is **never re-linked here** (`R-dispatch-table-04`).
-3. **Design row** (design-flow dispatch) — **only if the anchor has a design flow** — points into the design pipeline ([[FCT Design Dispatch|Design]] → PRD / Stories / Decisions / …). Absent on anchors with no design folder.
-4. **Related row** — cross-links to *genuinely* related siblings/material, plus any one-off links the user pinned on purpose (preserve them). **Optional:** never a breadcrumb anchor (`R-dispatch-table-04`), and never manufactured — leave it empty or omit it when nothing is truly related (`R-dispatch-table-05`).
+Hand-authored, one-of-a-kind to this anchor, and deliberately **small** — a switchboard, not a directory. It is the breadcrumb identity row, then the optional rows in the fixed order of § Masthead rows — **Related → type row → Design → Track → User Docs → Dev Docs** — each present **only if it applies**. Every row after the breadcrumb is *sub-area link → that sub-area's key parts*. There is **no** generic `Anchor` row.
 
 **A dispatch table is a pure link table** (`R-dispatch-table-06`): the distilled set of jump-destinations, not an explanation of them. No prose about what a link *means* in a cell — at most one or two parenthetical words, preferably none. A destination's meaning lives on the destination's own top line + `description`.
 
-That's the whole masthead: identity + Anchor + (Design) + Related. Anything **enumerable** — members, sub-items, worked examples — is **not** a masthead row; it drops to the Member zone below. (This page is the live demonstration: its masthead is Anchor + Related, and its four examples hang underneath as the member zone.)
-
-A non-collection anchor with no design flow is **Masthead-only** — just the breadcrumb + Anchor + Related.
+Anything **enumerable beyond a sub-area's key parts** — a Collection's full member list, sub-items, worked examples — is **not** a masthead row; it drops to the Member zone below.
 
 #### The unified placement rule (one law, not a rule per row)
 
-RULE (masthead-placement): the masthead is **exactly** the breadcrumb row plus the standard rows **Anchor**, **Design** (only if the anchor has a design flow), and **Related** — in that order, and no others. Each kind of standard information has **one** row it must occupy, and that row is present **iff** that information exists:
+RULE (masthead-placement): the masthead is **exactly** the breadcrumb row plus the standard rows **Related**, **type row** (skill / discipline / facet only), **Design**, **Track**, **User Docs**, **Dev Docs** — in that order, each present **iff** its information exists:
 
 | Information — *if it exists* | …lives in this row |
 |---|---|
 | the parent / up-edge | **breadcrumb** (always present) |
-| the anchor's own contents / down-edges | **Anchor** |
-| an entry into the design pipeline | **Design** (only if a design flow exists) |
-| cross-links to related / sibling anchors, plus any deliberately-pinned one-off links | **Related** |
-| **anything enumerable** — members, sub-items, worked examples | **none** — it drops to the Member zone |
+| related anchors + external resources (repo / site) not in the breadcrumb | **Related** (first) |
+| a typed leaf anchor's runtime / external links | **type row** (Skill / Discipline / Facet) |
+| the design flow — PRD, Architecture, Decisions, … | **Design** — `[[X Design\|Design]]` + parts |
+| the tracking surface — Backlog, Features, … | **Track** — `[[X Track\|Track]]` + items |
+| user-facing documentation | **User Docs** — `[[X User Docs\|User Docs]]` + members |
+| developer documentation | **Dev Docs** — `[[X Dev Docs\|Dev Docs]]` + members |
+| **anything enumerable beyond key parts** | **none** — it drops to the Member zone |
 
-This is the single law for masthead content, replacing any per-row rules: a standard row exists **exactly when** its information does, standard information never scatters into ad-hoc rows, and the canonical row *names* are fixed (`Anchor` / `Design` / `Related` — e.g. never "Sibling" for the last one).
+This is the single law for masthead content: a standard row exists **exactly when** its information does, in the fixed order above, and the canonical row *names* are fixed — never bare `User` / `Dev` (use `User Docs` / `Dev Docs`), never `External` (use `Related`), never a generic `Anchor`.
 
 ### Member zone — the members (only on a [[Collection]] anchor)
 
@@ -123,13 +120,7 @@ The convention is in active use across the vault; this spec covers the anatomy, 
 
 When a file has no dispatch table (typically smaller content pages), the related-links surface becomes a single `(See …)` line under the H1:
 
-```markdown
-# Some Page
-
-(See [[Some Page Guide]], [[Related Topic]], [[Other Anchor]])
-
-…rest of content…
-```
+Placed directly under the H1 on its own line — e.g. `(See …)` listing the page's Guide and a couple of related anchors, then the rest of the content follows. Format rules:
 
 Format rules:
 - Single set of parentheses around the whole list.
@@ -153,10 +144,35 @@ include::
 where:: file: {ANCHOR}/**/*.md
 description:: The shape every dispatch table must take — masthead-placement law, member-zone mechanics, and pipe-escaped cell links.
 
-### RULE R-dispatch-table-01 — Masthead = breadcrumb + [Related] + type-specific row + container group-rows (checked)
-The masthead is the breadcrumb identity row plus, each present **only if it applies** and in order: an optional **Related** row; a **type-specific row** whose label is the anchor's *type* word (`Skill`, `Discipline`, …) carrying the type's external/runtime links; and a **container group-row** per sub-area (`Track`, `Design`, …) whose label links *down* to the container page. There is **no generic `Anchor` row** — superseded (everything is an anchor; the label conveyed nothing). Full model + worked exemplars: § What it is.
-**Check pattern:** no row labeled `Anchor`; the type-specific row's label is the anchor's type word; each container row's label is a link to its container page.
-**Why:** a switchboard whose rows name *what kind of thing* they reach.
+### RULE R-dispatch-table-01 — Masthead rows appear in a fixed order (checked)
+After the breadcrumb identity row, the masthead's optional rows appear in this **fixed order**, each present **only if it applies**: **Related** → **type row** (skill / discipline / facet leaf anchors only) → **Design** → **Track** → **User Docs** → **Dev Docs**. There is **no generic `Anchor` row** (superseded — everything is an anchor; the label conveyed nothing). Every row after the breadcrumb has the **same shape**: its **left cell is a link *down* to that sub-area** (the row's name), and its **right cell enumerates that sub-area's key parts** for one-click access. Per-row rules: R-08 (Related) … R-12 (Dev Docs). Full model: § What it is.
+**Check pattern:** rows, where present, occur in the order Related, [type], Design, Track, User Docs, Dev Docs; no row labeled `Anchor`.
+**Why:** a stable left-to-top-to-bottom reading order makes every anchor page scan the same way; the row *names* the sub-area and the cell jumps you into it.
+
+### RULE R-dispatch-table-08 — Related is the first optional row and absorbs external links (checked)
+The first optional row is **Related**. It carries links to genuinely-related anchors / siblings **and external resources** — the code repo, the published project page, a docs site — i.e. anything related that is **not already in the breadcrumb path**. There is **no separate `External` row**; repo / site URLs live in **Related**. Optional and never manufactured (per R-05).
+**Check pattern:** no masthead row is labeled `External`; if a `Related` row exists it precedes every sub-area row.
+**Why:** "what else is near this?" is answered once, up top, before the reader descends into the anchor's own contents; one row for all not-in-breadcrumb links keeps the switchboard small.
+
+### RULE R-dispatch-table-09 — Design row links the sub-anchor and enumerates the design parts (checked)
+When the anchor has a Design sub-area, the masthead carries a **Design** row whose **left cell is `[[{X} Design\|Design]]`** (a link down to the design sub-anchor) and whose **right cell lists the design's key parts** that exist — PRD, Architecture, Decisions, UX Design, Roadmap, Stories. It is **never a bare self-link** (`| Design | [[{X} Design]] |` with nothing else is wrong).
+**Check pattern:** a row whose left cell links to `{X} Design` and whose right cell holds ≥1 design-part link, whenever a `{X} Design` folder exists.
+**Why:** the design row is the entry into the design flow; surfacing its parts gives one-click reach to the architecture and the rest without opening the sub-page first.
+
+### RULE R-dispatch-table-10 — Track row links the sub-anchor and enumerates the tracking items (checked)
+When the anchor **owns its tracking**, the masthead carries a **Track** row: **left cell `[[{X} Track\|Track]]`**, **right cell the key tracking items** that exist — Backlog, Features, Roadmap, Now. Absent when tracking is unified at a parent (per [[SKA Decisions]] D10).
+**Check pattern:** a row whose left cell links to `{X} Track` and whose right cell holds ≥1 tracking-item link, whenever the anchor owns a `{X} Track` folder.
+**Why:** the track row is the direct line to the backlog and in-flight work; surfacing the items makes the anchor's status reachable in one click.
+
+### RULE R-dispatch-table-11 — User-docs row is labeled "User Docs" (checked)
+When the anchor has user-facing docs, the masthead carries a row **labeled `User Docs`** — never bare `User`. Left cell `[[{X} User Docs\|User Docs]]` (or `[[{X} User\|User Docs]]` where the folder is `{X} User`); right cell the user docs (Guide, …).
+**Check pattern:** no masthead row is labeled bare `User`; the user-docs row's display text is `User Docs`.
+**Why:** the bare word "User" reads as a person/role; "User Docs" names the artifact and keeps the four doc-area rows (Design / Track / User Docs / Dev Docs) parallel.
+
+### RULE R-dispatch-table-12 — Dev-docs row is labeled "Dev Docs" (checked)
+When the anchor has developer docs, the masthead carries a row **labeled `Dev Docs`** — never bare `Dev`. Left cell `[[{X} Dev Docs\|Dev Docs]]` (or `[[{X} Dev\|Dev Docs]]` where the folder is `{X} Dev`); right cell the dev docs (Files, …).
+**Check pattern:** no masthead row is labeled bare `Dev`; the dev-docs row's display text is `Dev Docs`.
+**Why:** parallel to R-11 — "Dev Docs" names the artifact, not a stage, and keeps the doc-area rows uniform.
 
 ### RULE R-dispatch-table-02 — Anything enumerable drops to the Member zone (stated)
 Members, sub-items, and worked examples are **not** masthead rows — they live in the Member zone below, on [[Collection]] anchors.
@@ -168,7 +184,7 @@ Inside table cells, aliased wiki-links escape the pipe: `[[Target\|Display]]`.
 **Why:** an unescaped pipe ends the table cell, breaking the row.
 
 ### RULE R-dispatch-table-04 — No breadcrumb-redundant links (checked)
-No masthead row may link to an anchor that already appears in the **breadcrumb path**. The parent / up-edge lives **only** in the breadcrumb; re-linking it (in the Anchor row, the Related row, or anywhere) is forbidden — every anchor is trivially related to its parent, so the link adds nothing. (The Anchor row therefore carries **down-edges only** — the anchor's own sub-pages — never its parent catalog.)
+No masthead row may link to an anchor that already appears in the **breadcrumb path**. The parent / up-edge lives **only** in the breadcrumb; re-linking it (in any sub-area row, the Related row, or anywhere) is forbidden — every anchor is trivially related to its parent, so the link adds nothing. (The sub-area rows therefore carry **down-edges only** — the anchor's own contents — never its parent catalog.)
 **Check pattern:** no wiki-link target in a non-breadcrumb row matches any anchor in the breadcrumb chain.
 **Why:** redundant — the breadcrumb already carries the up-edge directly above; the duplicate link only clutters the switchboard.
 

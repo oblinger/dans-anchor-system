@@ -59,10 +59,10 @@ Published to `oblinger.github.io/gitproj/{SLUG}/` and linked from the projects h
 
 ## Dispatch Table Entry
 
-The project page URL appears in the **External** row of the anchor's dispatch table:
+The repo + project-page URLs live in the **Related** row of the anchor's dispatch table (the first optional row; there is no separate `External` row — see [[FCT Dispatch Table]] R-08):
 
 ```markdown
-| External | [Repo](https://github.com/oblinger/{repo}), [Project Page](https://oblinger.github.io/gitproj/{SLUG}/) |
+| Related | [Repo](https://github.com/oblinger/{repo}),  [Project Page](https://oblinger.github.io/gitproj/{SLUG}/) |
 ```
 
 ## Relationship to Documentation Site
@@ -89,15 +89,15 @@ The anchor contains a `website/` subdirectory with at minimum an `index.md` and 
 **Tier:** checked
 **Why:** the cayman layout and permalink are what Jekyll needs to render and route the page; missing fields produce a broken or invisible page.
 
-### RULE R-project-page-03 — Dispatch-table External row present (sampled)
-The anchor's dispatch table (root `{NAME}.md`) includes an `External` row with both the GitHub repo link and the project page URL `https://oblinger.github.io/gitproj/{SLUG}/`.
-**Check pattern:** the anchor page has `| External |` containing `oblinger.github.io/gitproj/`.
+### RULE R-project-page-03 — Dispatch-table Related row carries the published URLs (sampled)
+The anchor's dispatch table (root `{NAME}.md`) includes a `Related` row carrying both the GitHub repo link and the project page URL `https://oblinger.github.io/gitproj/{SLUG}/` (repo/site links live in Related, not a separate External row).
+**Check pattern:** the anchor page has a `| Related |` row containing `oblinger.github.io/gitproj/`.
 **Tier:** sampled
-**Why:** the External row is how readers discover the published page; without it the deployment is silent to navigators.
+**Why:** the Related row is how readers discover the published page; without it the deployment is silent to navigators.
 
 ### RULE R-project-page-04 — Permalink and dispatch-table URL stay in sync (stated)
-The `permalink:` value in `website/index.md` frontmatter and the URL in the anchor's `External` dispatch row must use the same `{SLUG}` — they cannot drift.
-**Check pattern:** extract `{SLUG}` from frontmatter `permalink:`; verify the same path appears in the `External` row.
+The `permalink:` value in `website/index.md` frontmatter and the URL in the anchor's `Related` dispatch row must use the same `{SLUG}` — they cannot drift.
+**Check pattern:** extract `{SLUG}` from frontmatter `permalink:`; verify the same path appears in the `Related` row.
 **Tier:** stated
 **Why:** mismatched slugs cause the dispatch row to link a 404; the projects hub `/gitproj/` lists all pages by permalink.
 
@@ -107,5 +107,5 @@ The `permalink:` value in `website/index.md` frontmatter and the URL in the anch
 - **F060 explicitly does NOT apply** to this facet — the Project Page is a static-website artifact (Jekyll front matter shapes it), not an in-anchor doc with a CAB dispatch-table placeholder. Don't add an H1+placeholder to the structure described above.
 - **Inclusion test for new content here**: does it describe the *shape, location, front matter, or publish path* of a project page across all anchors? If yes, add. If it's anchor-specific or deploy-tooling-specific, route to [[code-publish]] (workflow) or that anchor's own `website/` folder.
 - **No inline reference example** — the page describes the project-page shape in prose/outline (§ Location, § Jekyll Front Matter); a facet spec must not embed a sample instance. TODO: link a worked example (a real anchor's `website/` folder) once one exists.
-- **Cross-references to keep aligned**: [[code-publish]] (the workflow that builds + deploys), [[FCT Documentation Site]] (sibling facet for full doc sites), and the anchor's dispatch-table `External` row format shown in § Dispatch Table Entry. If any of those names change, update here.
-- **Permalink and dispatch-table-row formats are load-bearing**: `permalink: /gitproj/{SLUG}/` and the `External` row `[Project Page](https://oblinger.github.io/gitproj/{SLUG}/)` must stay in sync — both are consumed by the projects hub at `/gitproj/`.
+- **Cross-references to keep aligned**: [[code-publish]] (the workflow that builds + deploys), [[FCT Documentation Site]] (sibling facet for full doc sites), and the anchor's dispatch-table `Related` row format shown in § Dispatch Table Entry. If any of those names change, update here.
+- **Permalink and dispatch-table-row formats are load-bearing**: `permalink: /gitproj/{SLUG}/` and the `Related` row `[Project Page](https://oblinger.github.io/gitproj/{SLUG}/)` must stay in sync — both are consumed by the projects hub at `/gitproj/`.
