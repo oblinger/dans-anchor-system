@@ -8,6 +8,18 @@ description: "the top-of-page navigation table — its own spec, dogfooded"
 The top-of-file table convention that gives most anchor pages and many facet pages their navigation surface.
 
 **Related:** [[Collection]],  [[DSC progressive-disclosure]],  [[audit-dispatch\|/audit dispatch]]
+
+| Table of Contents |  |
+|---|---|
+| [[#What it is]] |  |
+| [[#Anatomy of a dispatch row]] |  |
+| [[#Structure — Masthead + Member zone]] |  |
+| [[#Classification — a facet (the table form)]] |  |
+| [[#Current state]] |  |
+| [[#The (See …) variant — for files without a dispatch table]] |  |
+| [[#Worked examples]] |  |
+| [[#Related]] |  |
+| **[[#BRIEF]]** |  |
 **Design:** [[CAB Dispatch Table Design\|Design]]
 **Examples:** [[CAE\|minimal]],  [[HBR\|fuller]],  [[CAE Dispatch Examples\|full gallery]]
 

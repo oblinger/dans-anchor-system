@@ -8,6 +8,19 @@ description: "Anchor Page facet — the format of an anchor's {slug}.md entry po
 The entry page every anchor opens with — its `{slug}.md`.
 
 **Related:** [[FCT]],  [[FCT Dispatch Table]],  [[DSC progressive-disclosure]],  [[FEX]]
+
+| Table of Contents |  |
+|---|---|
+| [[#Worked example sets — five real vault instances per kind]] |  |
+| [[#Anchor Page Template]] |  |
+| [[#Anchor Page Parts]] |  |
+| [[#Identity & frontmatter]] |  |
+| [[#Top of page (fixed order)]] |  |
+| [[#Dispatch table — masthead]] |  |
+| [[#Member zone — Collection anchors only]] |  |
+| [[#Naming & exceptions]] |  |
+| [[#Kind-specific rules]] |  |
+| **[[#BRIEF]]** |  |
 Design
 **Examples:** [[HBR\|Code project]],  [[FCT Anchor Page\|facet]],  [[DSC progressive-disclosure\|discipline]],  [[SKL Mint\|skill-doc]],  [[SKL\|Container · grouped]],  [[SKA Access\|Container · list]],  [[HBR Log\|Container · chronological]],  [[Life\|Topic]]
 Rulesets

@@ -10,6 +10,17 @@ Facet spec defining the shape, required sections, and ruleset for an anchor's `{
 **Related:** [[FCT UX Design]],  [[FCT Architecture]],  [[FCT Module Doc]],  [[FCT Decisions]]
 **Examples:** [[CAE API Design\|minimal (library crate)]],  [[HBR API Design\|fuller (service + sub-skill)]]
 
+| Table of Contents |  |
+|---|---|
+| [[#When this facet applies]] |  |
+| [[#Location]] |  |
+| [[#Preface zone]] |  |
+| [[#Required section spine]] |  |
+| [[#Reference example]] |  |
+| [[#Relationship to other facets]] |  |
+| [[#See also]] |  |
+| **[[#BRIEF]]** |  |
+
 API Design specifies the **programmatic user surface** of the anchor — what shape another piece of code (or another agent invoking this as a sub-skill) sees when integrating. It is sibling to [[FCT UX Design]] (the *human* user surface). The cut between them is **who the consumer is**: API = code calling; UX = human reading or invoking.
 
 > [!info] Scope guard

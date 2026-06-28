@@ -10,6 +10,20 @@ One file per anchor that tracks design-phase completeness, one dataview line per
 **Related:** [[FCT Backlog]],  [[FCT Roadmap]],  [[design]],  [[workflow]]
 **Examples:** [[HBR Status\|example]]
 
+| Table of Contents |  |
+|---|---|
+| [[#Location]] |  |
+| [[#Distinction — workflow state vs Status cell]] |  |
+| [[#File shape]] |  |
+| [[#Cell format]] |  |
+| [[#Cell semantics — when each tier applies]] |  |
+| [[#State script]] |  |
+| [[#Track dispatch wiring]] |  |
+| [[#Trait applicability]] |  |
+| [[#Audit]] |  |
+| [[#See also]] |  |
+| **[[#BRIEF]]** |  |
+
 **TLDR** — One `{NAME} Status.md` per anchor (cardinality: **one**), body-only (no YAML frontmatter), with a `description::` line followed by exactly five `<facet>::` dataview lines in declared order (`prd`, `ux`, `architecture`, `testing`, `roadmap`). Each cell is one of `none < MVP-agent < MVP-user < Full-agent < Full-user`. Reads/writes are mediated by the `state` script; the picker walks the ladder bottom-up; promotion is monotonic.
 
 The Status facet specifies the format of `{NAME} Status.md` — the per-anchor file that tracks **design-phase completeness**. One row per design facet (`prd` / `ux` / `architecture` / `testing` / `roadmap`), each carrying a tier value, a grading-actor, a date, and a one-line rationale. The file is read by `/design`'s picker (bare `/design` dispatches to the lowest-tier facet) and by `/mint`'s pre-implementation gate.

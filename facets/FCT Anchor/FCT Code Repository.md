@@ -10,6 +10,15 @@ Facet spec for how an anchor declares and resolves its associated code repositor
 **Related:** [[FCT Anchor Page]],  [[TRT]],  [[FCT Facet]],  [[FCT Manifest]]
 **Examples:** [[OBU\|linked-absolute]],  [[HA\|linked-relative]]
 
+| Table of Contents |  |
+|---|---|
+| [[#Location]] |  |
+| [[#Path resolution]] |  |
+| [[#Inline vs linked]] |  |
+| [[#Doc Sync with sync-push]] |  |
+| [[#Edits Flow One Way]] |  |
+| **[[#BRIEF]]** |  |
+
 **TLDR** — An anchor with a `code` trait declares its repo via `code:` in `.anchor` (absolute, relative, or `.` for inline). No symlink, no `.git/`-probing fallback. Doc folders sync one-way vault → repo via `sync-push`. **Cardinality: one** — one code repo association per anchor.
 
 An anchor may optionally have an associated code repository. The anchor

@@ -10,6 +10,21 @@ Facet spec for `{NAME} CLI.md` — the exhaustive command/flag/exit-code referen
 **Related:** [[FCT UX Design]],  [[CAB User Guide]],  [[FCT All Files]],  [[FCT Anchor Page]]
 **Examples:** [[CAE CLI\|minimal]],  [[HBR CLI\|fuller]]
 
+| Table of Contents |  |
+|---|---|
+| [[#submit]] |  |
+| [[#status]] |  |
+| [[#Location]] |  |
+| [[#Required Sections]] |  |
+| [[#The Help Block — READ THIS]] |  |
+| [[#<cmd-1>]] |  |
+| [[#Optional Sections]] |  |
+| [[#Per-Command Structure]] |  |
+| [[#Linking]] |  |
+| [[#When to Create]] |  |
+| [[#Lifecycle]] |  |
+| **[[#BRIEF]]** |  |
+
 **TLDR** — `{NAME} CLI.md` is the exhaustive man-page-style command reference for an anchor's CLI: mandatory fenced help block first (directly under H1), then per-command H2 sections with Usage / Flags / Exit codes / Example, then a global exit-code table. **Cardinality: one per anchor** (only when the anchor ships a CLI). Detection: file-existence at `{NAME} Docs/{NAME} User/{NAME} CLI.md`.
 
 `{NAME} CLI.md` is the **complete command reference** for an application that ships a command-line interface. Every command the app exposes, every flag on each command, every exit code — one page, reference-style. Think "man page" as a markdown doc.

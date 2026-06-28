@@ -10,6 +10,18 @@ Published web presence for an anchor. Two levels: a simple project page (Jekyll)
 **Related:** [[FCT Output]],  [[FCT Track]],  [[FCT Code]],  [[code-publish]]
 **Examples:** [[ABIO\|fuller (project page + full MkDocs site)]],  [[DCP\|minimal (project page only)]]
 
+| Table of Contents |  |
+|---|---|
+| [[#What it is]] |  |
+| [[#Project Page]] |  |
+| [[#Documentation Site]] |  |
+| [[#Stack]] |  |
+| [[#Setup Recipe]] |  |
+| [[#Three Output Format Pattern]] |  |
+| [[#Deployment Options]] |  |
+| [[#Applicability]] |  |
+| **[[#BRIEF]]** |  |
+
 **TLDR** — One per anchor. Two tiers: a lightweight Jekyll project page (`website/`) for anchors that need a splash, and a full MkDocs documentation site (`docs/` + `mkdocs.yml`) for anchors with substantial reference material. The stack is MkDocs Material + mkdocstrings + mkdocs-jupyter + mkdocs-roamlinks. Deployment is via `just docs-deploy` (copy to website repo) or `mkdocs gh-deploy` (gh-pages branch). See [[code-publish]] for the publishing workflow.
 
 Below is a condensed reference example. See the working example linked above for the real file.

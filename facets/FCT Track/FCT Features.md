@@ -10,6 +10,14 @@ Specification for the **Features** facet — F-numbered per-feature design docs 
 **Related:** [[FCT Roadmap]],  [[CAB Backlog]],  [[FCT Status]],  [[FCT Facet]]
 **Examples:** [[CAE Features\|minimal]],  [[HBR Features\|fuller]]
 
+| Table of Contents |  |
+|---|---|
+| [[#Features Folder Structure]] |  |
+| [[#Features Index Page]] |  |
+| [[#Feature Document Format]] |  |
+| [[#Roadmap]] |  |
+| **[[#BRIEF]]** |  |
+
 Specification for the **Features** facet — the F-numbered per-feature design docs that live under an anchor's `{NAME} Design/{NAME} Features/` folder, with their index page and pre-document Open-Questions zone.
 
 **Location:** `{NAME} Design/{NAME} Features/` (folder; one file per feature, `F<NNN> — <Title>.md`).

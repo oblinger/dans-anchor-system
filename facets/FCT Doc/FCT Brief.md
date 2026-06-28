@@ -10,6 +10,24 @@ A **Brief** is a **document facet** — agent-facing per-file editing-and-mainte
 **Related:** [[FCT Discussion]],  [[DSC progressive-disclosure]],  [[DSC file-association]],  [[Briefs]]
 **Examples:** [[SV Roots\|inline # BRIEF (Phase 1)]],  [[SV Roots Brief\|sidecar Brief.md (Phase 2)]]
 
+| Table of Contents |  |
+|---|---|
+| [[#Audience — three reader zones in every source file]] |  |
+| [[#What belongs in a Brief]] |  |
+| [[#What does NOT belong in a Brief]] |  |
+| [[#When to write a Brief]] |  |
+| [[#File location and naming]] |  |
+| [[#How it's surfaced from the source file]] |  |
+| [[#File structure]] |  |
+| [[#What this page is for]] |  |
+| [[#What this page is NOT for]] |  |
+| [[#The test for inclusion]] |  |
+| [[#How to add an entry]] |  |
+| [[#Constraints]] |  |
+| [[#Worked example]] |  |
+| [[#Related]] |  |
+| **[[#BRIEF]]** |  |
+
 > [!note] Classification — doc facet, peer to [[FCT Discussion]]
 > Brief is a **doc facet** (a content container attached to a document), not a discipline. It lives in `CAB Facets/Doc Facet/` alongside [[FCT Discussion]]. As a doc facet it *cites* three disciplines:
 > - **[[DSC file-association]]** — *how it attaches*. Brief is a **non-dated, typically-single** typed association: method 1 (inline `# BRIEF`, default), method 2 (sidecar `{Parent} Brief.md`), escalating to method 3 (a `{Parent} Briefs/` folder) only if a parent accumulates many. This is the exact parallel to Discussion, which attaches via file-association's **dated** specialization [[DSC dated-entry-stream]]; Brief cites the umbrella directly because it adds no dated rules (per [[DSC granularity]]).

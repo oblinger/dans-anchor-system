@@ -11,6 +11,21 @@ The four-tier preference ordering (agent-immediate → user-explicit) for how a 
 
 **Related:** [[CAB Disciplines]],  [[feature]],  [[query]],  [[triage]],  [[workflow]]
 
+| Table of Contents |  |
+|---|---|
+| [[#Why this exists]] |  |
+| [[#The four tiers]] |  |
+| [[#The blocking-action escape hatch]] |  |
+| [[#Verification runs at completion — not deferred, not assumed]] |  |
+| [[#GUI-altering features: screengrab the changed region (Tier 1, mandatory)]] |  |
+| [[#The Success Criteria block in a feature doc]] |  |
+| [[#Success Criteria]] |  |
+| [[#How `/feature` consults this]] |  |
+| [[#How `/ask` and `/triage` consult this]] |  |
+| [[#How to surface a Verify to the user (the asking discipline)]] |  |
+| [[#Anti-patterns this discipline prevents]] |  |
+| [[#Cross-references]] |  |
+
 Verification is *the four-tier preference ordering an agent uses to choose how a feature gets verified — from agent-immediate (best) to user-explicit (last resort).* The single load-bearing rule: pick the highest applicable tier; never escalate to a higher one when a lower one would work. What distinguishes a tier from a feeling:
 
 - **Tier 1 — agent-immediate** — agent runs a check in the same turn the work completes. Runnable command, deterministic observation.

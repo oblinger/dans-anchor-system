@@ -10,6 +10,22 @@ A named, reusable bundle of audit-checkable rules — and the spec for how to wr
 **Related:** [[FCT Facet]],  [[FCT Skill]],  [[FCT Decisions]] (companion),  [[Rulesets]] (the catalog),  [[FCT Primitives]]
 **Examples:** [[R-fex-manifest\|small, standalone]],  [[R-diagram\|large, standalone]],  [[CAE Rules\|anchor-local Rules.md]]
 
+| Table of Contents |  |
+|---|---|
+| [[#Overview]] |  |
+| [[#History note]] |  |
+| [[#When this facet applies]] |  |
+| [[#File shape — body-only, prescriptive structure (2026-06-08)]] |  |
+| [[#Where clause — the rule selector (`where::`)]] |  |
+| [[#Naming convention]] |  |
+| [[#Audit-tier annotation (after the rule title)]] |  |
+| [[#Include composition — semantics]] |  |
+| [[#How decisions cite rules]] |  |
+| [[#Trait applicability]] |  |
+| [[#Audit]] |  |
+| [[#See also]] |  |
+| **[[#BRIEF]]** |  |
+
 **TLDR**
 - **What it is** — a named bundle of portable, audit-checkable rules (`# RULESET R-<slug>`), or an anchor-local `{NAME} Rules.md`.
 - **Required form** — `RULESET` / `RULE` sentinels; `include::` + `description::` header; `### RULE R-<slug>-NN (tier)` entries with a `**Check pattern:**`.

@@ -7,6 +7,20 @@ description: testing facet — the project's testing strategy (kinds, amounts, r
 # FCT Testing
 **Audited examples:** [[HBR Testing]], [[Mini Testing]], [[CAE Testing]], [[MUX Testing]], [[SKA Bridge Testing]]
 
+| Table of Contents |  |
+|---|---|
+| [[#Standard section order]] |  |
+| [[#The tests-table (required)]] |  |
+| [[#Proposed-tests table]] |  |
+| [[#Proposed Tests]] |  |
+| [[#YAML status field]] |  |
+| [[#Naming convention]] |  |
+| [[#Trait applicability]] |  |
+| [[#Relationship to existing infrastructure]] |  |
+| [[#Audit]] |  |
+| [[#See also]] |  |
+| **[[#BRIEF]]** |  |
+
 Spec for the `{NAME} Testing.md` design facet — a two-part doc combining the project's testing strategy with a proposed-tests inventory, peer to Architecture and UX Design under Design.
 
 **Related:** [[FCT Architecture]],  [[FCT UX Design]],  [[FCT PRD]],  [[FCT Design Docs]]

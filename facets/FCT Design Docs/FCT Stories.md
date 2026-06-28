@@ -7,6 +7,20 @@ description: "facet spec for user stories as first-class siblings of a PRD — i
 # FCT Stories
 **Audited examples:** [[CAE Stories]], [[US-CAE-1 — Schedule a Task]], [[US-CAE-3 — Retry Failed Tasks]], [[Forum Stories]], [[HBR PRD User Stories]]
 
+| Table of Contents |  |
+|---|---|
+| [[#Two forms — single-file PRD (inline stories) and folder PRD (extracted stories)]] |  |
+| [[#Location]] |  |
+| [[#`{NAME} Stories.md` index shape]] |  |
+| [[#Story file shape]] |  |
+| [[#Naming convention]] |  |
+| [[#Wiki-link conventions]] |  |
+| [[#Trait applicability]] |  |
+| [[#When to use which form]] |  |
+| [[#Audit]] |  |
+| [[#See also]] |  |
+| **[[#BRIEF]]** |  |
+
 Facet spec for the user-stories surface of a PRD — defines the inline-bullet form for small PRDs and the extracted-folder form (`{NAME} PRD/` with per-story files indexed by `{NAME} Stories.md`) for PRDs whose stories outgrow a single sentence.
 
 **Related:** [[FCT PRD]],  [[FCT Testing]],  [[FCT Features]],  [[FCT Design]]

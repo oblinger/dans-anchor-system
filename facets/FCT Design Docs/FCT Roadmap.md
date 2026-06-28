@@ -10,6 +10,28 @@ The Roadmap facet — the project's sequencing-design doc, organized as named mi
 **Related:** [[FCT Features]],  [[FCT Completed Roadmap]],  [[FCT Status]],  [[FCT Design]]
 **Examples:** [[CAE Roadmap\|Shape A named-milestone]],  [[HBR Roadmap\|Shape B legacy-numbered]]
 
+| Table of Contents |  |
+|---|---|
+| [[#Location]] |  |
+| [[#Two roadmap shapes — pick one per project]] |  |
+| [[#Numbering grammar]] |  |
+| [[#Feature naming when commissioned from a roadmap]] |  |
+| [[#Roadmap is future + present only; completed milestones migrate]] |  |
+| [[#Status-tracking conventions — three layered axes]] |  |
+| [[#[x] M1.5 — Spec Language Module]] |  |
+| [[#Reference-block convention]] |  |
+| [[#[x] M1.8 — Spec Evaluation Implementation]] |  |
+| [[#Section separator — `### .`]] |  |
+| [[#Deferred items — paired cross-references]] |  |
+| [[#[~] M1.11 - Documentation Sync (Deferred - see M3.14)]] |  |
+| [[#Open Questions on the roadmap]] |  |
+| [[#Open Questions]] |  |
+| [[#Preface zone]] |  |
+| [[#Trait applicability]] |  |
+| [[#Audit]] |  |
+| [[#See also]] |  |
+| **[[#BRIEF]]** |  |
+
 The Roadmap facet specifies the `{NAME} Roadmap.md` file — the project's **sequencing-design**. It declares what ships in what order, organized as milestones (M1, M2, M3 …) with sub-numbering for finer detail. Open questions at the sequencing/dependency/gating level live as `## Open Questions` H2 on this file per [[DSC ask-format]].
 
 **Relocated to Design 2026-06-10** — previously lived at `{NAME} Track/{NAME} Roadmap.md` (per F094) and pre-F094 at `{NAME} Docs/{NAME} Plan/{NAME} Roadmap.md`. Moved into Design alongside [[FCT Features]] because milestones ARE design — the plan, not the execution. Existing anchors stay at the old location until next `/design roadmap` touch repositions them (F142).

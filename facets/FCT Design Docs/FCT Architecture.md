@@ -7,6 +7,19 @@ description: per-anchor architecture overview — anchor-folder form with subsys
 # FCT Architecture
 **Audited examples:** [[HBR Architecture]], [[CAE Architecture]], [[OBU Architecture]], [[MUX Architecture]], [[HA Architecture]]
 
+| Table of Contents |  |
+|---|---|
+| [[#Folder shape]] |  |
+| [[#Standard section order (entry-point doc)]] |  |
+| [[#Subsystem dispatch table]] |  |
+| [[#Subsystems]] |  |
+| [[#Architecture diagram requirements]] |  |
+| [[#What does NOT belong on the entry-point Architecture page]] |  |
+| [[#Trait applicability]] |  |
+| [[#Audit]] |  |
+| [[#See also]] |  |
+| **[[#BRIEF]]** |  |
+
 Facet spec defining the per-anchor system-architecture overview — its anchor-folder shape, standard section order, mandatory visual figure, subsystem dispatch table, and split between conceptual map (entry-point doc) and contract surface (API sub-doc).
 
 **Related:** [[FCT Module Doc]],  [[FCT Decisions]],  [[FCT Design Dispatch]],  [[R-diagram]]

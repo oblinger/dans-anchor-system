@@ -10,6 +10,15 @@ Facet spec for the optional `{NAME} Cards.md` page — a three-tier mix of cheat
 **Related:** [[FCT Brief]],  [[FCT Anchor Page]],  [[CAB Aspects]],  [[FCT Output]]
 **Examples:** [[DOCPY Cheat Cards\|cheat-sheet-heavy example]],  [[TPM Core Cards\|summary+detail cards example]]
 
+| Table of Contents |  |
+|---|---|
+| [[#Formats]] |  |
+| [[#**`PYTHON STRING METHODS`**]] |  |
+| [[#File Layout and Formatting Rules]] |  |
+| [[#Three-Tier Structure]] |  |
+| [[#Maintenance]] |  |
+| **[[#BRIEF]]** |  |
+
 **TLDR** — A `{NAME} Cards.md` file (one per anchor, optional) holds three tiers of study material: bold-heading cheat sheets (reference, no SR), summary cards (the gist/rule), and detail cards (exceptions/gotchas). Requires an SR tag on line 1, `-?-` separators, 69-char line width, and `.` for in-card blank lines.
 
 **Cardinality:** one per anchor — each anchor has at most one Cards file (`{NAME} Cards.md`).

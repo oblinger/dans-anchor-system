@@ -7,6 +7,21 @@ description: per-anchor master file for applied decisions — declares which rul
 # FCT Decisions
 **Audited examples:** [[HBR Decisions]], [[Mini Decisions]], [[CAE Decisions]], [[UCM Decisions]], [[DKT Decisions]]
 
+| Table of Contents |  |
+|---|---|
+| [[#Value statements (absorbed from the retired Principles facet)]] |  |
+| [[#Architecture (per 2026-06-08)]] |  |
+| [[#Two forms in the wild]] |  |
+| [[#File shape]] |  |
+| [[#Adoption implementation map]] |  |
+| [[#Required structure]] |  |
+| [[#How `include::` semantics differ between rulesets and decision files]] |  |
+| [[#When `{NAME} Rules.md` is still useful]] |  |
+| [[#Trait applicability]] |  |
+| [[#Audit]] |  |
+| [[#See also]] |  |
+| **[[#BRIEF]]** |  |
+
 The per-anchor master file for applied decisions — declares adopted rulesets (`include::`) and records D-numbered design choices with rationale.
 
 **Related:** [[FCT Ruleset]],  [[FCT Architecture]],  [[FCT Design Docs]],  [[Rulesets]]

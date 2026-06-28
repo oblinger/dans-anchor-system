@@ -10,6 +10,18 @@ Facet spec for `{NAME} System Design.md` — the current technical-architecture 
 **Related:** [[FCT PRD]],  [[FCT Decisions]],  [[FCT Discussion]],  [[FCT UX Design]]
 **Examples:** [[SKA System Design\|real anchor example]]
 
+| Table of Contents |  |
+|---|---|
+| [[#1 Architecture Overview]] |  |
+| [[#2 Components]] |  |
+| [[#3 Data Model]] |  |
+| [[#4 Decisions]] |  |
+| [[#Location]] |  |
+| [[#Top of doc (canonical, per F060)]] |  |
+| [[#Document Structure]] |  |
+| [[#Lifecycle]] |  |
+| **[[#BRIEF]]** |  |
+
 **TLDR** One per anchor. `{NAME} System Design.md` lives in `{NAME} Docs/{NAME} Plan/` and records the *current* technical architecture — components, data model, APIs, and architectural decisions. Not a history log; rationale and alternatives belong in [[FCT Discussion]].
 
 **Cardinality: one per anchor** — a software project anchor has exactly one System Design document at any given time.

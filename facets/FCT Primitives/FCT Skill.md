@@ -10,6 +10,18 @@ An omnibus Claude Code skill that groups related actions, reference data, and sc
 **Related:** [[FCT Facet]],  [[FCT Ruleset]],  [[FCT Primitives]],  [[CAB Aspects]]
 **Examples:** [[CAE Skill\|canonical exemplar]],  [[CAE Minimal Skill\|minimal capsule]]
 
+| Table of Contents |  |
+|---|---|
+| [[#Location]] |  |
+| [[#SKILL.md Structure]] |  |
+| [[#Action Files]] |  |
+| [[#Reference Data Subdirectories]] |  |
+| [[#Scripts]] |  |
+| [[#Dispatch Protocol]] |  |
+| [[#Disciplines (`user_invocable: false`)]] |  |
+| [[#SKA anchors own Design, not Track — shared by skills, facets, disciplines]] |  |
+| **[[#BRIEF]]** |  |
+
 **TLDR** — Every skill anchor ships a `SKILL.md` with fixed frontmatter (`name`, `description`, `tools`, `user_invocable`) and a fixed section order (Title → Brief → dispatch tables → Actions → Reference → Dispatch protocol). Disciplines (`user_invocable: false`) additionally require a parallel user-facing doc at `SKL User Docs/SKL Skills/SKL <Name>.md`. **Cardinality: one per anchor** — each skill folder has exactly one `SKILL.md` entry point.
 
 **Working example:** `~/.claude/skills/CAE/SKILL.md` — SKILL.md (CAE is a skill folder).

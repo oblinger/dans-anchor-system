@@ -10,6 +10,20 @@ The Design folder facet — marks an anchor as following the designed-lifecycle 
 **Related:** [[FCT PRD]],  [[FCT Architecture]],  [[FCT Testing]],  [[FCT Design Dispatch\|Dispatch]]
 **Examples:** [[CAE Design\|minimal]],  [[HBR Design\|fuller]]
 
+| Table of Contents |  |
+|---|---|
+| [[#Location]] |  |
+| [[#Folder shape]] |  |
+| [[#Design vs. user docs vs. reference]] |  |
+| [[#Required vs optional children]] |  |
+| [[#Scaffolding — pre-wire the whole structure]] |  |
+| [[#Lifecycle gate behavior]] |  |
+| [[#Trait system — what's still in scope]] |  |
+| [[#Trait applicability]] |  |
+| [[#Audit]] |  |
+| [[#See also]] |  |
+| **[[#BRIEF]]** |  |
+
 **TLDR** — The Design facet is triggered by the **existence of a `{NAME} Design/` folder** (not by any `.anchor` trait field). When the folder exists, three children are required (PRD, Architecture, Testing), several others are recommended, and the `/design` skill operates on the anchor. Cardinality: **one per anchor** — an anchor has at most one Design folder. The embedded `R-design` ruleset encodes the auditable rules; `# BRIEF` is the agent-maintenance guide.
 
 The Design facet is the **structural marker** that an anchor follows the designed-lifecycle convention. **If `{NAME} Design/` exists, the anchor is in design-mode** — `/design` operates on it, the PRD → UX Design → API Design → Architecture → Testing → Decisions → Roadmap pipeline applies, and the design sub-facets become the canonical homes for what the anchor *is* and *how it works*.

@@ -10,6 +10,18 @@ The asking surface: one `{NAME} queries.md` per anchor, in `{NAME} Track/`, that
 **Related:** [[SKL Query]] (the skill that builds it),  [[FCT Status]],  [[FCT Messages]]
 **Examples:** [[SKA queries\|real instance (SKA anchor)]]
 
+| Table of Contents |  |
+|---|---|
+| [[#What it is]] |  |
+| [[#Parts]] |  |
+| [[#Structure]] |  |
+| [[#Verifications — agent runs, user judges]] |  |
+| [[#No orphan items]] |  |
+| [[#Questions]] |  |
+| [[#Resolutions & Ready]] |  |
+| [[#Cross-cutting]] |  |
+| **[[#BRIEF]]** |  |
+
 **TLDR** — One `{NAME} queries.md` per anchor (cardinality: one), in `{NAME} Track/`, owned by the `/query` skill. Fixed five-section order (`## Agent Resolutions` → `## Verifications` → `## Immediate Questions` → `## Questions` → `## Ready`); empty sections omitted. Verifications are agent-run / user-judged — never "user runs X". Questions are self-contained or wiki-linked. The file shrinks toward empty as answers are applied. Validated by `/audit doc` via `R-query`.
 
 ## What it is

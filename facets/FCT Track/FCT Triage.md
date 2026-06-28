@@ -10,6 +10,23 @@ Specification for the **Triage view** — the format and rules for rendering an 
 **Related:** [[FCT Backlog]] (source of items), [[CAB Backlog]] (status brackets), [[SKA triage]] (renderer), [[FCT Query]] (anchor questions surface)
 **Examples:** [[Q#CAE Triage\|CAE section (minimal)]],  [[Q#SKA Triage\|SKA section (fuller)]]
 
+| Table of Contents |  |
+|---|---|
+| [[#Location]] |  |
+| [[#No blank lines]] |  |
+| [[#H1 line — the anchor's section heading inside Q.md]] |  |
+| [[#Anchor TAG — cascading rule]] |  |
+| [[#No anchor-level questions bullet]] |  |
+| [[#Body H2s]] |  |
+| [[#Bullet format — exact]] |  |
+| [[#Status brackets — count and form]] |  |
+| [[#Ordering within a body H2]] |  |
+| [[#No meta prose, no breadcrumb, no Notes]] |  |
+| [[#Agent-owned, destructively rewritten]] |  |
+| [[#Lifecycle]] |  |
+| [[#Relationship to other planning docs]] |  |
+| **[[#BRIEF]]** |  |
+
 **TLDR** — The Triage facet defines the *rendered format* of an anchor's status section inside `~/ob/kmr/Q.md`: the H1 banner (TAG, counts, exact spacing), body H2s (`## Active` … `## Later`, skipping empty), bullet form (bolded bracket + mandatory wiki-link + em-dash description), and the selective-Later rule (only `[Questions]`/`[Verify]` items surface under `## Later`). **Cardinality: one per anchor** — each anchor owns exactly one section in `Q.md`, destructively rewritten on each `/triage` run. No per-anchor file; the view lives only in `Q.md`.
 
 **Presentation form — no per-anchor file location.** As of F075 (2026-05-19), per-anchor `{NAME} Triage.md` files are retired. The triage view is rendered into the anchor's per-anchor section of `~/ob/kmr/Q.md`, which is the single triage surface for the vault. This facet remains a real concept (the triage view of an anchor's state) and its format is specified here; it just no longer corresponds to a per-anchor file. **Anchor-page dispatch tables do NOT link to this facet** (there is no per-anchor file to link to). CAB-level references to `[[FCT Triage]]` (from `CAB Base.md`, this spec) remain — the facet definition is still a real artifact.

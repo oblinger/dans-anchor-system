@@ -10,6 +10,20 @@ The facet spec for `{NAME} Interface.md` — the top-level human-authored layer 
 **Related:** [[FCT Architecture]],  [[FCT Module Doc]],  [[FCT User Dispatch]],  [[FCT All Files]]
 **Examples:** [[HA Interface\|minimal — CLI tool, one caller surface]],  [[MUX Interface\|fuller — app with multiple caller surfaces + sub-Interfaces]]
 
+| Table of Contents |  |
+|---|---|
+| [[#Defining Properties]] |  |
+| [[#Trait Applicability]] |  |
+| [[#Sub-Interfaces — Nested Layers]] |  |
+| [[#Required Links]] |  |
+| [[#Document Structure]] |  |
+| [[#The Hiding Invariant]] |  |
+| [[#Lifecycle]] |  |
+| [[#Relationship to the Root-Module Doc]] |  |
+| [[#Audit Categories]] |  |
+| [[#Cross-references]] |  |
+| **[[#BRIEF]]** |  |
+
 **TLDR** — `{NAME} Interface.md` is the **one** doc a caller reads to fully use a code anchor's layer — layer-complete, hiding, human-authored, and human-audited. Required on every `code`-trait anchor. **Cardinality: one per anchor** (plus optional named sub-Interfaces for internal layers). Audited by `/audit docs` under `§ 1.8`; scaffolded by `rewire`.
 
 **Location:** `{NAME} Docs/{NAME} Design/{NAME} Interface.md`

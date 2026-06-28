@@ -7,6 +7,22 @@ description: "facet spec for {NAME} PRD.md — the anchor's product requirements
 # FCT PRD
 **Audited examples:** [[HBR PRD]], [[Mini PRD]], [[CAE PRD]], [[DMUX PRD]], [[OBU PRD]]
 
+| Table of Contents |  |
+|---|---|
+| [[#Location]] |  |
+| [[#Two forms — single-file (default) and folder (when stories extract)]] |  |
+| [[#Standard section order]] |  |
+| [[#Preface zone requirements]] |  |
+| [[#User stories — naming and lifecycle]] |  |
+| [[#Open questions — handled by `/ask`]] |  |
+| [[#Status tracking]] |  |
+| [[#Cardinality]] |  |
+| [[#Common deviations in real instances]] |  |
+| [[#Trait applicability]] |  |
+| [[#Audit]] |  |
+| [[#See also]] |  |
+| **[[#BRIEF]]** |  |
+
 Facet spec for `{NAME} PRD.md` — the first doc in an anchor's Design folder, defining what the product does (goals, non-goals, user stories) for every downstream design phase to consume.
 
 **Related:** [[FCT Architecture]],  [[FCT Testing]],  [[FCT Decisions]],  [[FCT Stories]]

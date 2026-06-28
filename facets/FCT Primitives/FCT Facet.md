@@ -10,6 +10,17 @@ A narrow, usually file-based aspect of an anchor — and the spec for how to wri
 **Related:** [[FCT Skill]],  [[FCT Ruleset]],  [[FCT Facets]] (the index),  [[CAB Aspects]]
 **Examples:** [[FEX Manifest\|one per anchor example]],  [[FEX Pin\|many per anchor example]],  [[FEX Bundle\|many folders per anchor example]]
 
+| Table of Contents |  |
+|---|---|
+| [[#Location & registration]] |  |
+| [[#Anchor-page top (a facet spec is itself an anchor page)]] |  |
+| [[#What a facet spec conveys — mostly via the ruleset (sections optional)]] |  |
+| [[#The ruleset — REQUIRED]] |  |
+| [[#Facet vs Trait — don't conflate]] |  |
+| [[#Authority & maintenance]] |  |
+| [[#Design-facet extras (when the facet is a Design doc)]] |  |
+| **[[#BRIEF]]** |  |
+
 # Facet Document Structure
 A facet spec is one file (`facets/FCT <Name>.md`), authoritative for that facet. Its parts, top to bottom — densest first, per [[DSC progressive-disclosure]]:
 
