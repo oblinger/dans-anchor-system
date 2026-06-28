@@ -24,12 +24,9 @@ See [[CAB Base]] shows files common to all anchors.
 ├── {CAB Folder}.md                       [[FCT Folder|marker file]]   (if NAME ≠ folder)
 ├── [[FCT Anchor Page|{NAME}.md]]                             Primary entry point
 │
-├── {NAME} [[FCT Architecture|Architecture]]/            System-architecture story (root-level folder)
-│   ├── {NAME} Architecture.md            Entry-point doc + subsystem docs
-│   └── {NAME} API.md                     Public-API sub-doc (optional)
-│
-├── {NAME} [[FCT Design Dispatch|Design]]/               Design specs (PRD, UX, Interface, Features, Roadmap)
+├── {NAME} [[FCT Design Dispatch|Design]]/               Design specs (PRD, UX, Interface, Architecture, Features, Roadmap)
 │   ├── {NAME} Design.md                  Dispatch page
+│   ├── {NAME} [[FCT Architecture|Architecture]].md       System-architecture story (single file → {NAME} Architecture/ folder-doc, + subsystem docs / optional {NAME} API.md, once it grows)
 │   ├── {NAME} [[FCT PRD|PRD]].md                 Product requirements
 │   ├── {NAME} [[FCT UX Design|UX Design]].md           UX spec (screens & external APIs)
 │   ├── {NAME} Interface.md               Top-level layer contract (required for Code anchors)
@@ -82,13 +79,13 @@ See [[CAB Base]] shows files common to all anchors.
 
 ## Software Design Documents
 
-Software project anchors keep their design documents in `{NAME} Design/`; the system-architecture story lives in its own root-level `{NAME} Architecture/` folder. These are specification-only — they contain the current design, not the history of how it was reached.
+Software project anchors keep their design documents in `{NAME} Design/` — including the system-architecture story (`{NAME} Architecture`, a single `.md` → a `{NAME} Architecture/` folder-doc once it grows subsystems). These are specification-only — they contain the current design, not the history of how it was reached.
 
 {NAME} PRD.md — **Product Requirements** — Defines what the product does: goals, user stories, scope, constraints, success criteria. The PRD also contains a design workflow table (see below) that links to the other design documents and describes their sequence.
 
 {NAME} UX Design.md — **UX Design** — Specifies screens, navigation flows, user interactions, and visual layout. Current spec only — no rationale or alternatives.
 
-{NAME} Architecture/ — **Architecture** — Its own root-level folder (entry-point `{NAME} Architecture.md` + subsystem docs + optional `{NAME} API.md`). Specifies system architecture, component boundaries, data models, APIs, and technical decisions. See [[FCT Architecture]]. Current spec only — no rationale or alternatives.
+{NAME} Architecture — **Architecture** — A child of `{NAME} Design/`: a single `{NAME} Architecture.md` that upgrades to a `{NAME} Architecture/` folder-doc (entry-point + subsystem docs + optional `{NAME} API.md`) once it grows. Specifies system architecture, component boundaries, data models, APIs, and technical decisions. See [[FCT Architecture]]. Current spec only — no rationale or alternatives.
 
 {NAME} Discussion.md — **Discussion** (optional) — Extended conversations about design choices, trade-offs, and redesign decisions. This is the place for "why" and "what we considered." Use dated sections. Unlike the other design docs, this file is a log, not a specification.
 
@@ -104,7 +101,7 @@ The PRD should include a workflow table like this to orient readers:
 | 1 | {NAME} Design/{NAME} PRD.md | Clarify requirements and scope |
 | 2 | {NAME} Track/{NAME} queries.md | Items needing user input (via `/query`) |
 | 3 | {NAME} Design/{NAME} UX Design.md | Design user-facing experience |
-| 4 | {NAME} Architecture/{NAME} Architecture.md | Design technical architecture |
+| 4 | {NAME} Design/{NAME} Architecture.md | Design technical architecture |
 | 5 | {NAME} Dev Docs/{NAME} Files.md + Dev Docs/ | File tree and module docs |
 | 6 | {NAME} Design/{NAME} Roadmap.md | Implementation milestones |
 | 7 | Dispatch tree | Verify all docs reachable from the anchor page (see [[FCT Anchor Page]]) |

@@ -75,7 +75,7 @@ Not all entries are required — only list documents that exist for this anchor.
 **Note — what does NOT live in Track** (moved by successive restructures):
 
 - `{NAME} PRD.md` (F094) — product-shape decisions belong in `{NAME} Design/`.
-- `{NAME} System Design.md` (F094) — system-design / architecture content belongs in the root-level `{NAME} Architecture/` folder.
+- `{NAME} System Design.md` (F094) — system-design / architecture content belongs in `{NAME} Design/` (the `{NAME} Architecture` doc).
 - `{NAME} UX Design.md` (F094) — UX shape belongs in `{NAME} Design/`.
 - `{NAME} Roadmap.md` **(2026-06-10 restructure)** — sequencing-design belongs in `{NAME} Design/`.
 - `{NAME} Features/` **(2026-06-10 restructure)** — feature docs are design artifacts; belong in `{NAME} Design/{NAME} Features/`.

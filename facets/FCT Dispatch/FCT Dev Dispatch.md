@@ -11,14 +11,14 @@ Facet spec for `{NAME} Dev Docs.md` — the audit-tied dispatch page that lists 
 
 **Location:** `{NAME} Dev Docs/{NAME} Dev Docs.md` (root-level folder, Gen-3)
 
-The `{NAME} Dev Docs.md` dispatch page inside the root-level `{NAME} Dev Docs/` folder. Lists the **audit-tied implementation reference** for the codebase: file tree (`Files`) and per-module docs (one `.md` per source file or logical module). The synthesis-level overviews live elsewhere — Interface in `{NAME} Design/`, the system-architecture story in its own root-level `{NAME} Architecture/` folder.
+The `{NAME} Dev Docs.md` dispatch page inside the root-level `{NAME} Dev Docs/` folder. Lists the **audit-tied implementation reference** for the codebase: file tree (`Files`) and per-module docs (one `.md` per source file or logical module). The synthesis-level overviews live elsewhere — Interface in `{NAME} Design/`, the system-architecture story in `{NAME} Design/` (the `{NAME} Architecture` doc).
 
 **Dev Docs vs the synthesis docs:**
 
 | Dev Docs (audit-tied) | Synthesis docs (curated) |
 |---|---|
 | Files (audit-generated tree) | Interface — human-authored layer contract, in `{NAME} Design/` |
-| Per-module docs (one per source file) | Architecture — system overview, in `{NAME} Architecture/` |
+| Per-module docs (one per source file) | Architecture — system overview, in `{NAME} Design/` |
 | Reader = engineer doing surgery on the code | Reader = anyone consuming the synthesis layer (integrator, architect, contributor getting oriented) |
 
 **Working example:** `HBR Dev Docs/HBR Dev Docs.md` — Dev Docs dispatch.
@@ -39,7 +39,7 @@ The `{NAME} Dev Docs.md` dispatch page inside the root-level `{NAME} Dev Docs/` 
 | **api/** |  |
 | [[CAE Router\|Router]] | CLI command routing |
 
-(Note: the synthesis docs are not listed here — Interface lives in `{NAME} Design/`, the Architecture story in its own root-level `{NAME} Architecture/` folder. Dev Docs carries only Files + per-module docs.)
+(Note: the synthesis docs are not listed here — Interface lives in `{NAME} Design/`, the Architecture story in `{NAME} Design/` (the `{NAME} Architecture` doc). Dev Docs carries only Files + per-module docs.)
 
 ---
 
@@ -73,7 +73,7 @@ Module doc rows mirror the source tree structure. Each source folder gets a bold
 The synthesis-level docs are not audit-tied reference and live in their own Gen-3 homes:
 
 - **Interface** ([[FCT Interface]]) — required top-level human-authored layer contract. Lives in `{NAME} Design/{NAME} Interface.md`.
-- **Architecture** — system-level synthesis (module diagram, data flow). Lives in its own root-level `{NAME} Architecture/{NAME} Architecture.md` folder.
+- **Architecture** — system-level synthesis (module diagram, data flow). Lives in `{NAME} Design/{NAME} Architecture.md`.
 
 If an audit finds either in Dev Docs, that's a **dev-synthesis-misplaced** finding — migrate to its Gen-3 home.
 
@@ -110,7 +110,7 @@ A `---` row enables auto-listing of remaining module docs.
 
 ### RULE R-dev-dispatch-05 — No Interface or Architecture rows — those are synthesis docs (checked)
 
-Dev Docs is audit-tied (Files + per-module docs); the synthesis docs live elsewhere — Interface in `{NAME} Design/`, the Architecture story in its own root-level `{NAME} Architecture/` folder. Either appearing in Dev Docs is a dev-synthesis-misplaced finding.
+Dev Docs is audit-tied (Files + per-module docs); the synthesis docs live elsewhere — Interface in `{NAME} Design/`, the Architecture story in `{NAME} Design/` (the `{NAME} Architecture` doc). Either appearing in Dev Docs is a dev-synthesis-misplaced finding.
 
 **Check pattern:** the Dev Docs dispatch lists no Interface or Architecture row.
 
@@ -121,6 +121,6 @@ Dev Docs is audit-tied (Files + per-module docs); the synthesis docs live elsewh
 - **This file is the CAB facet spec for the Dev Docs dispatch page** — it defines the shape and contents of `{NAME} Dev Docs.md`. Edit here when the Dev-dispatch contract changes (new required rows, structural conventions, location moves).
 - **NOT a place for per-anchor Dev Docs dispatches** — concrete instances (e.g. `HBR Dev Docs.md`) live in their anchor's root-level `{NAME} Dev Docs/` folder. Only the canonical Reference Example block stays here, as a worked illustration.
 - **Inclusion test for new content:** does it apply to *every* `{NAME} Dev Docs.md` in *every* code anchor? If yes, edit here. If it's anchor-local, edit the anchor's Dev Docs dispatch. If it's a synthesis-zone rule, edit the relevant facet ([[FCT Interface]] / [[FCT Architecture]]) instead.
-- **Load-bearing constraint — audit-tied vs synthesis:** Dev Docs is audit-tied (Files + per-module docs); the synthesis docs live elsewhere (Interface in `{NAME} Design/`, the Architecture story in its own root-level `{NAME} Architecture/` folder). Do not reintroduce Interface or Architecture rows into the Dev Docs spec — they were intentionally moved. The §"What does NOT belong in Dev Docs" section is the canonical guard.
+- **Load-bearing constraint — audit-tied vs synthesis:** Dev Docs is audit-tied (Files + per-module docs); the synthesis docs live elsewhere (Interface in `{NAME} Design/`, the Architecture story in `{NAME} Design/` (the `{NAME} Architecture` doc)). Do not reintroduce Interface or Architecture rows into the Dev Docs spec — they were intentionally moved. The §"What does NOT belong in Dev Docs" section is the canonical guard.
 - **Cross-references to keep current:** [[FCT All Files]], [[FCT Module Doc]], [[FCT Interface]], [[FCT Architecture]], [[FCT User Dispatch]]. If any of these slugs rename or move, update the wiki-links in the body — the dispatch contract refers to them by basename.
 - **Cite, don't inline:** markdown rendering rules live in [[R-markdown]]; dispatch-table formatting rules live in [[FCT Anchor Page]]. Reference those rather than duplicating their content here.

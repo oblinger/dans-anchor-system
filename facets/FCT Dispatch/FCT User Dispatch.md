@@ -9,11 +9,11 @@ Facet spec for the `{NAME} User Docs.md` dispatch page that catalogs an anchor's
 | Related | [[FCT Design Dispatch]],  [[FCT Dev Dispatch]],  [[FCT Track Dispatch]],  [[FCT Dispatch]],   |
 | Examples | [[CAE User Docs\|minimal (code anchor)]],  [[HBR User Docs\|fuller (server anchor)]],   |
 
-**TLDR** — `{NAME} User Docs.md` is the dispatch page for end-user / consumer-facing documentation (Guide, Installation, CLI, FAQ, Cards). It lives in the root-level `{NAME} User Docs/` folder. Cardinality: **one per anchor**. Scope boundary: user-task docs only; system-spec docs (Interface, Architecture) live elsewhere — Interface in [[FCT Design Dispatch|Design]], the Architecture story in its own root-level `{NAME} Architecture/` folder.
+**TLDR** — `{NAME} User Docs.md` is the dispatch page for end-user / consumer-facing documentation (Guide, Installation, CLI, FAQ, Cards). It lives in the root-level `{NAME} User Docs/` folder. Cardinality: **one per anchor**. Scope boundary: user-task docs only; system-spec docs (Interface, Architecture) live elsewhere — Interface in [[FCT Design Dispatch|Design]], the Architecture story in `{NAME} Design/`.
 
 The `{NAME} User Docs.md` dispatch page inside the root-level `{NAME} User Docs/` folder. Lists **end-user / consumer-facing documentation** for the anchor — Guide, Installation, CLI reference, FAQ, Cards.
 
-Per [[F094 — Anchor docs folder restructure — Track _ User _ Architecture _ Dev|F094]] Q3=A (2026-06-01), the User Docs folder scope is **end-user / consumer documentation only**. System-spec docs (Interface, UX Design, Data Model, Principles) live in [[FCT Design Dispatch|Design]], and the system-architecture story lives in its own root-level `{NAME} Architecture/` folder — even when their content is "public-facing," because they describe the system's contract, not an end-user task.
+Per [[F094 — Anchor docs folder restructure — Track _ User _ Architecture _ Dev|F094]] Q3=A (2026-06-01), the User Docs folder scope is **end-user / consumer documentation only**. System-spec docs (Interface, UX Design, Data Model, Principles) live in [[FCT Design Dispatch|Design]], and the system-architecture story lives in `{NAME} Design/` — even when their content is "public-facing," because they describe the system's contract, not an end-user task.
 
 ## Audience — end users and consumers
 
@@ -24,7 +24,7 @@ The User folder is for **anyone reading the docs to *use* the system as a consum
 - **CLI users** read the CLI reference for exact syntax.
 - **Anyone** reads the FAQ for quick answers.
 
-System-level audiences (integrators-above-the-layer, architects, designers) read [[FCT Design Dispatch|Design]] (the Interface layer contract) and the root-level `{NAME} Architecture/` folder (the system structure) instead.
+System-level audiences (integrators-above-the-layer, architects, designers) read [[FCT Design Dispatch|Design]] (the Interface layer contract) and the `{NAME} Architecture` doc in `{NAME} Design/` (the system structure) instead.
 
 The defining property is **what the content describes**: User docs describe *user tasks*; Design docs describe *system shape*. Compare with [[FCT Dev Dispatch]] which holds **audit-tied, machine-checkable reference** (Files tree, per-module docs).
 
@@ -85,7 +85,7 @@ Typical entries include:
 | `{NAME} Cards.md` | Cheat sheets and flashcards |
 | `{NAME} {Topic} Guide.md` | Topic-specific guides for specialized workflows |
 
-All rows are optional except the primary Guide, and are listed only when those docs exist. The system-spec docs (Interface, Architecture) are **not** User Docs — Interface lives in `{NAME} Design/` (`/audit docs` flags its absence on a code anchor as `missing-interface`), and the Architecture story lives in its own root-level `{NAME} Architecture/` folder.
+All rows are optional except the primary Guide, and are listed only when those docs exist. The system-spec docs (Interface, Architecture) are **not** User Docs — Interface lives in `{NAME} Design/` (`/audit docs` flags its absence on a code anchor as `missing-interface`), and the Architecture story lives in `{NAME} Design/`.
 
 ## Migration note
 
@@ -121,7 +121,7 @@ The primary user-facing guide is `{NAME} Guide.md`, not `{NAME} User Guide.md`. 
 # BRIEF
 
 - **This is the facet spec for the User Docs dispatch page** — `{NAME} User Docs.md` inside the root-level `{NAME} User Docs/` folder. Edits here change how every anchor's User Docs dispatch is structured; cross-check the Reference Example and Format Specification stay in sync.
-- **In-scope content is consumer/end-user task documentation only** — Guide, Installation, CLI, FAQ, Cards. System-spec docs (Interface, UX Design, Data Model, Principles) belong in [[FCT Design Dispatch|Design]] and the Architecture story in its own root-level `{NAME} Architecture/` folder, even when public-facing — don't drift them back here.
+- **In-scope content is consumer/end-user task documentation only** — Guide, Installation, CLI, FAQ, Cards. System-spec docs (Interface, UX Design, Data Model, Principles) belong in [[FCT Design Dispatch|Design]] and the Architecture story in `{NAME} Design/`, even when public-facing — don't drift them back here.
 - **Inclusion test** — ask "does this doc describe a *user task*, or does it describe the *system's shape/contract*?" Task-shaped → User Docs. Shape-shaped → Design (or the Architecture folder). Machine-checkable per-module reference → [[FCT Dev Dispatch|Dev Docs]].
 - **Filename convention is load-bearing** — `{NAME} Guide.md` (not `{NAME} User Guide.md`); the folder context already supplies "user-facing." H1 inside the file may still spell out "User Guide" if it reads better. Don't bulk-rename legacy `{NAME} User Guide.md` or `{NAME} Rollup.md` — migration is forward-only when the anchor is next touched.
 -[[{NAME} User Docs]]-`, top-right `><br>: end-user / consumer documentation` (legacy `+>` shorthand still accepted). A `---` separator row enables auto-listing of remaining children — preserve it when present.

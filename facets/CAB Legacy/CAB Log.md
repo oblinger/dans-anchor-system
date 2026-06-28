@@ -100,7 +100,7 @@ Empty when no field applies; trim freely. The `From` / `To` / `Affects` block is
 
 ## 2026-06-08 — Architecture becomes a folder anchor; fold Rollup + System Design
 
-**Change:** Architecture transitions from a single `{NAME} Architecture.md` file inside `{NAME} Design/` into its own folder anchor `{NAME} Architecture/` at the anchor root. The folder contains a top-level `{NAME} Architecture.md` entry point plus one child per subsystem (a single `.md` file OR a sub-folder, depending on the subsystem's complexity). `{NAME} Rollup.md` and `{NAME} System Design.md` are folded in.
+**Change:** Architecture transitions from a single `{NAME} Architecture.md` file inside `{NAME} Design/` into its own folder anchor `{NAME} Architecture/` at the anchor root. **[Reversed 2026-06-27 — Architecture moved back into `{NAME} Design/`; see FCT Architecture / FCT Design.]** The folder contains a top-level `{NAME} Architecture.md` entry point plus one child per subsystem (a single `.md` file OR a sub-folder, depending on the subsystem's complexity). `{NAME} Rollup.md` and `{NAME} System Design.md` are folded in.
 
 **Rules:**
 
