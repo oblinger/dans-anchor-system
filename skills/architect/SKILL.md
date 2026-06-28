@@ -2,12 +2,13 @@
 name: architect
 description: >
   Create and maintain the top-level architecture document for an anchor.
-  Architecture lives at `{NAME} Docs/{NAME} User/{NAME} Architecture/` as an
-  anchor-folder. Decomposes the system into one or more subsystems (each with
+  Architecture lives in `{NAME} Design/` — a single `{NAME} Architecture.md`
+  by default, upgraded to a `{NAME} Architecture/` folder-doc once it grows
+  subsystems. Decomposes the system into one or more subsystems (each with
   a dispatch table + mandatory summary table + optional figure + module list).
-  Subsystems are single-file by default; upgrade to folder-doc form when a
-  module within them grows architecture-level discussion that won't fit in a
-  modules-table cell. Bidirectional `module ↔ arch` linking via an `Arch` row
+  Both the top-level doc and each subsystem are single-file by default and
+  upgrade to a folder-doc when they grow discussion that won't fit in one
+  file; the same-named index keeps the upgrade link-transparent. Bidirectional `module ↔ arch` linking via an `Arch` row
   in every module doc's dispatch table. Reads module docs as ground truth
   (with a commit-log staleness precondition); source-dip on demand for specific
   module questions. Conservative-edit posture: proposes additions/refinements,
@@ -20,9 +21,9 @@ user_invocable: true
 
 # Architect — Maintain `{NAME} Architecture/`
 
-The `/architect` skill — creates and maintains the top-level system-architecture document for an anchor as a subsystem decomposition rooted at `{NAME} Docs/{NAME} User/{NAME} Architecture/`.
+The `/architect` skill — creates and maintains the top-level system-architecture document for an anchor as a subsystem decomposition rooted in `{NAME} Design/` (a single `{NAME} Architecture.md`, upgraded to a `{NAME} Architecture/` folder-doc once it grows subsystems).
 
-`/architect` creates and maintains the top-level system-architecture document for an anchor. The doc lives at `{NAME} Docs/{NAME} User/{NAME} Architecture/{NAME} Architecture.md` (anchor-folder form). It decomposes the system into **subsystems** — each subsystem has a dispatch table, a **mandatory summary table** linking to its parts, an **optional figure**, and a **modules table** linking to the relevant module docs.
+`/architect` creates and maintains the top-level system-architecture document for an anchor. The doc lives in `{NAME} Design/` — as `{NAME} Architecture.md` by default, upgrading to `{NAME} Architecture/{NAME} Architecture.md` (folder-doc form) once it grows subsystems (see § Folder layout). It decomposes the system into **subsystems** — each subsystem has a dispatch table, a **mandatory summary table** linking to its parts, an **optional figure**, and a **modules table** linking to the relevant module docs.
 
 Feature spec: `[[F074 — Architect skill — Architecture as anchor folder with subsystems]]`. Companion specs: `[[FCT Architecture]]` (the facet), `[[FCT Module Doc]]` (defines the `Arch` row in module-doc dispatch tables). **F074 Q4=a (kept-System-Design-parallel) REVERSED 2026-05-26 per user direction**: Architecture is the sole architectural-synthesis facet; legacy `{NAME} System Design/` folders (pre-F074 anchors only) are absorbed during `/architect` runs — pull their `### Architectural Commitments` content into `{NAME} Architecture/{NAME} Architecture.md § Architectural Commitments`, archive the folder under `{NAME} Postmortems/legacy System Design/`. New anchors never create one.
 
@@ -53,21 +54,23 @@ Feature spec: `[[F074 — Architect skill — Architecture as anchor folder with
 **Don't** invoke `/architect` for module-level rewriting. That's `/audit docs` (and its downstream module-doc refresh skill). Architect operates *above* module docs — it's rollup-of-rollup.
 
 
-## Folder layout — Architecture as anchor-folder, subsystems as file-or-folder
+## Folder layout — Architecture file-by-default, folder-doc when it grows
 
 ```
-{NAME} Docs/
-└── {NAME} User/
-    └── {NAME} Architecture/
-        ├── {NAME} Architecture.md                  ← top-level anchor doc
-        ├── {NAME} Foo Arch.md                      ← simple subsystem: single markdown file
-        └── {NAME} Bar Arch/                        ← complex subsystem: upgraded to a folder doc
-            ├── {NAME} Bar Arch.md                  ← folder doc (same name as folder)
-            ├── {NAME} <Module-1> Arch.md           ← per-module arch doc (only when needed)
-            └── {NAME} <Module-2> Arch.md
+{NAME} Design/
+├── {NAME} Architecture.md                 ← DEFAULT: a single file (most anchors stop here)
+└── {NAME} Architecture/                   ← UPGRADED to a folder-doc once it grows subsystems
+    ├── {NAME} Architecture.md             ← the index (same basename as the folder)
+    ├── {NAME} Foo Arch.md                 ← simple subsystem: single file
+    └── {NAME} Bar Arch/                   ← complex subsystem: itself a folder-doc
+        ├── {NAME} Bar Arch.md             ← folder-doc index
+        ├── {NAME} <Module-1> Arch.md      ← per-module arch doc (only when needed)
+        └── {NAME} <Module-2> Arch.md
 ```
 
-**Subsystem-as-folder upgrade** is reversible and case-by-case: subsystems start as a single file and upgrade only when one or more modules within them grow architecture-level discussion that won't fit in a modules-table cell. Single-subsystem systems collapse the top-level Architecture and the lone subsystem doc into one file.
+The two top rows are the same artifact in its two states — a one-document architecture is **just `{NAME} Architecture.md`** in `{NAME} Design/`; the `{NAME} Architecture/` folder is created only on upgrade. Don't pre-create the folder.
+
+**File-by-default, folder-doc when it grows — at every level.** Both the top-level architecture and each subsystem start as a single file and upgrade to a folder-doc only when they accumulate more than one document's worth of discussion (the top-level grows *subsystems*; a subsystem grows *per-module arch docs*). The upgrade is **mechanical and link-transparent**: a folder-doc is a folder plus an index file of the *same basename*, so `[[{NAME} Architecture]]` resolves whether it is a file or a folder-doc — **no reference breaks across the upgrade**. Because nothing breaks, upgrade *timing* is a tidiness call, not a correctness one: `/architect` performs it when it detects a second document is warranted, and it is reversible.
 
 A project's value statements (formerly `{NAME} Principles.md`) now live as D-records in `{NAME} Decisions.md` per `[[FCT Decisions]]` — the Principles facet was retired and absorbed into Decisions (F113). Architecture cross-links to those decisions; it doesn't absorb them.
 
@@ -76,7 +79,7 @@ A project's value statements (formerly `{NAME} Principles.md`) now live as D-rec
 
 Standard top-of-doc per F060 (YAML frontmatter + H1 + dispatch-table placeholder). The dispatch table links to every subsystem doc and to `{NAME} Principles.md`. Below the dispatch:
 
-- **Single-subsystem systems** — the body is the contents of the one subsystem (no need to indirect). The subsystem-A doc and the top-level doc collapse into one file. The Architecture folder still exists for forward-compatibility.
+- **Single-document systems** — the architecture is just `{NAME} Architecture.md` (a single file in `{NAME} Design/`); there is **no** `{NAME} Architecture/` folder until subsystems appear. Don't pre-create it — the file→folder upgrade is link-transparent (§ Folder layout), so wait until a second document is actually warranted.
 - **Multi-subsystem systems** — the body is **a figure showing the relationships between subsystems and other major components** (third-party services, external systems, persistence boundary, etc.) followed by a **summary table** of subsystems (one row per subsystem, linking to its Arch doc, with a one-line description). Build the figure with the **SVG-in-MD** sub-pattern (see `[[SKA viz]]` § SVG in Markdown): an `![[…svg]]` embed + a `↗ Clickable | Index | ✎ Edit` link row, with an **Index** table that mirrors the figure.
 
 **Figure rule: NO title text inside the figure.** The H2 section heading immediately above the embed names the figure (e.g. `## DictaMux Permissions Architecture`); the figure shows it. Duplicating a title inside the SVG wastes pixels, drifts when one is renamed without the other, and makes the figure less reusable when embedded elsewhere. The H2 + a focused figure is the canonical form. Same rule applies to subsystem-doc optional figures (§ Subsystem doc shape).
@@ -111,10 +114,12 @@ Single-subsystem systems use exactly this format inside `{NAME} Architecture.md`
 Architecture-to-modules links live in each subsystem's **modules table** (above). The reverse — module-to-architecture — lives in the **module doc's dispatch table** at the top:
 
 ```
+
 | -[[{NAME} <Module>]]- | |
 | --- | --- |
 | Arch | [[{NAME} <Subsystem> Arch]] |       ← architect-managed row
 | --- | |
+
 ```
 
 The `Arch` row points to the **most-specific** architecture destination:

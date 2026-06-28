@@ -52,6 +52,20 @@ The Design folder is an anchor folder with the standard structure:
 
 The dispatch page `{NAME} Design.md` is the dispatch table (per [[FCT Design Dispatch]] — different facet covering the dispatch-page format).
 
+## Design vs. user docs vs. reference
+
+Three buckets, split by **who reads them and why** — only the first lives in `{NAME} Design/`:
+
+| Bucket | The reader is… | Read to… | Home |
+|---|---|---|---|
+| **Design** (this folder) | a builder / maintainer | *understand why & how* it's built | `{NAME} Design/` — PRD, UX/API Design, Architecture, Decisions, Roadmap, Features |
+| **User docs** | a consumer | *learn how to do a task* (tutorials, how-tos) | a **separate** `{NAME} User Docs/` tree (or the published / SKL surface) — **never** in Design |
+| **Reference** | someone working *against* it | *look up an exact detail* (the precise format / API spec) | a **role, not a third folder** (below) |
+
+**Reference is a migrating role.** A spec (a rule-language format, an API reference) is *authored during design* — so it sits in `{NAME} Design/` while it is still moving — and *consulted by users* — so it **graduates to `{NAME} User Docs/` (or the published reference) once stable**. There is no third folder; a reference doc simply changes homes as it matures. So the standing rule is **two physical trees** — `{NAME} Design/` (blueprint) and `{NAME} User Docs/` (manual) — with reference docs migrating from the first to the second.
+
+**Architecture is a Design child**, not a user doc — it's the *why/how-structured* story, author-facing. It is a single `{NAME} Architecture.md` by default and upgrades to a `{NAME} Architecture/` folder-doc when it grows subsystems; the same-named index keeps that upgrade link-transparent (see [[FCT Architecture]] / the `/architect` skill). *(Note: § Location below still references F094's anchor-root placement — that conflicts with this and with § Folder shape; treat Architecture-in-Design as current pending an explicit reconciliation of F094.)*
+
 ## Required vs optional children
 
 **Required** when the Design folder exists:
