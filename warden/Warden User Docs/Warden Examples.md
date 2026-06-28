@@ -40,13 +40,13 @@ Also just prose — but prose that states an *expectation* ("Summary should refl
 
 ![[Warden Example script-assisted.svg]]
 
-The expensive part of a judgment is reading the whole file. A `focus::` clause hands the LLM only the slice it needs (`ctx.section('## Open Questions')`); the prose then judges *that* — *for each question*, specifically, so the model knows what it's reasoning over. **Python narrows, the LLM judges** — the cheapest way to do a judgment.
+The expensive part of a judgment is reading the whole file. So narrow it: `ctx.judge(ctx.section('## Open Questions'), '…')` runs the LLM over **just that slice** and returns the stale questions, which the snippet `ctx.tell`s. There's no special `focus` clause — the slice is just an argument, and `ctx.judge` is the same call a bare-prose judgment desugars to (over the whole doc). **Python narrows, the LLM judges.**
 
 ## 05 · An `edit`
 
 ![[Warden Example edit.svg]]
 
-Not every rule tells — some just *do*. On every write to an architecture doc this one stamps a reviewed-date via `ctx.edit(...)` and says nothing. `edit` is a `ctx.*` call (readable as code, floor-gated against content loss); a "fix" is just an `edit` that repairs a violation.
+Not every rule tells — some just *do*. On every write to an architecture doc this one stamps a reviewed-date via `ctx.set_frontmatter('reviewed', ctx.today)` and says nothing. Edits are **specific `ctx` methods** (`set_frontmatter`, `replace_section`, …) — each a flavor of the `edit` action, not a whole-file replace — readable as code and floor-gated against content loss. A "fix" is just an `edit` that repairs a violation.
 
 ## 06 · A `deny`
 
@@ -54,8 +54,8 @@ Not every rule tells — some just *do*. On every write to an architecture doc t
 
 The one rule that *blocks*. On `when:: tool:pre:Bash` it inspects the pending command and `ctx.deny(...)`s a force-push to main before it runs — the veto. `deny` only makes sense at a `tool:pre` moment (a command, not a file, so `where::` doesn't apply).
 
-> [!info] Status — script-assisted `focus()`, `edit`, `deny`, and `rerun::` are *designed, not all built*
-> The prose-tell and `python`-tell shapes (F180's executable rules) are the established core. The `focus()` hand-off, the `edit`/`deny` actions, and the `rerun:: significant` gate are on the [[Warden Roadmap]] (M7 for the economy gate, [[F215 — Re-evaluation economy — the significant-edit gate|F215]]). The `run` (arbitrary-effect) action is **deferred** pending a security model.
+> [!info] Status — `ctx.judge`, `edit`, `deny`, and `rerun::` are *designed, not all built*
+> The prose-tell and `python`-tell shapes (F180's executable rules) are the established core. The `ctx.judge` narrowing, the `edit`/`deny` actions, and the `rerun:: significant` gate are on the [[Warden Roadmap]] (M7 for the economy gate, [[F215 — Re-evaluation economy — the significant-edit gate|F215]]). The `run` (arbitrary-effect) action is **deferred** pending a security model.
 
 ## Rule of thumb
 

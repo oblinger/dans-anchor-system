@@ -43,7 +43,7 @@ Three clauses, **two kinds**. `where::` and `when::` are **indexes** — the com
 if:: not ctx.has(r'^# ')        # a primitive check, written as Python
 ```
 
-(A value that itself contains `::` — like a regex for `description::` — is **backticked**, per [[F007 — Backtick all where expressions — parser swap|F007]], so Dataview doesn't choke on it.) Or **prose**, when the test needs judgment — the LLM reads `ctx` and decides. (For a computed, per-violation test, skip `if::` and write a body **snippet** that conditions and tells inline — § THEN.) Either way a test yields **findings** (each a message) or a boolean. A `focus:: <expr>` clause hands the LLM just a slice before it judges — **script-assisted**.
+(A value that itself contains `::` — like a regex for `description::` — is **backticked**, per [[F007 — Backtick all where expressions — parser swap|F007]], so Dataview doesn't choke on it.) Or **prose**, when the test needs judgment — the LLM reads `ctx` and decides. (For a computed, per-violation test, skip `if::` and write a body **snippet** that conditions and tells inline — § THEN.) Either way a test yields **findings** (each a message) or a boolean. To make a judgment cheap, narrow it in Python: **`ctx.judge(slice, 'question')`** runs the LLM over just that slice — and a bare-prose judgment is simply the sugar for `ctx.judge(<the whole doc>, <the prose>)`. (No `focus::` clause — the slice is just an argument; `ctx.judge` is an *inspector* that returns findings, and `tell` delivers them.)
 
 ## `THEN` — the actions
 
@@ -53,13 +53,13 @@ On a hit, the rule performs zero or more actions. Three are **mediated** — War
 |---|---|---|---|
 | *(pass)* | — | nothing — the test found no problem | — |
 | **tell** | **bare prose** — or `ctx.tell(msg)` | say something to the agent — a problem *or* a directive ("commit now", "don't ask the user") | a **steer** injected into the agent's context (live) · a **finding** in the report (audit) |
-| **edit** | `ctx.edit(path, change)` | write to a file — repair the target, append a log, drop data elsewhere | the file(s) — gated by the never-delete floor |
+| **edit** | a specific method — `ctx.set_frontmatter(…)`, `ctx.replace_section(…)`, … | write to a file — repair, stamp metadata, append a log | the file(s) — gated by the never-delete floor |
 | **deny** | `ctx.deny(reason)` | block the pending action | the tool call — `tool:pre` only |
 | **run** *(future)* | the Python body, directly | arbitrary execution — run commands, drive Warden / other agents | **deferred** — needs a security model first |
 
 **A bare prose body *is* the tell.** When the action is just "tell the agent this," you write the prose — no keyword (the `tell` payload is the whole point). For anything more, the body is a **bare Python snippet** — `ctx` is in scope, no `def`, no magic function name — and it calls `ctx.tell` / `ctx.edit` / `ctx.deny`. (`message:: <text>` is the sugar for a fixed prose tell; a *fix* is an `edit` that repairs a violation.) **Emit nothing → the rule passed.**
 
-**`ctx` splits in two — and the split is load-bearing for readability.** **Inspectors** are read-only — `ctx.text`, `ctx.command`, `ctx.has(regex)`, `ctx.section(…)` — they *look*, never act (so the LLM reading `ctx.command` knows nothing runs). **Actions** are the only things that *do* — `ctx.tell` / `ctx.edit` / `ctx.deny`. A method name should never blur the two (e.g. `ctx.bash(…)` would wrongly read as "run bash" — inspect `ctx.command` instead).
+**`ctx` splits in two — and the split is load-bearing for readability.** **Inspectors** are read-only — `ctx.text`, `ctx.command`, `ctx.has(regex)`, `ctx.section(…)`, even `ctx.judge(slice, q)` (it reads via the LLM) — they *look*, never act (so the LLM reading `ctx.command` knows nothing runs). **Actions** are the only things that *do* — `ctx.tell`, the `ctx.edit`-family (`ctx.set_frontmatter`, `ctx.replace_section`, …), `ctx.deny`. A method name should never blur the two (e.g. `ctx.bash(…)` would wrongly read as "run bash" — inspect `ctx.command` instead).
 
 **What `tell` actually does.** **Live** → text the hook injects into the agent's context (what you'd picture as "printed to the agent" — the F180 steer); **audit** → a finding written into the report the user reads. Same `ctx.tell`; the trigger picks the channel.
 

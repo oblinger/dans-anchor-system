@@ -1,8 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="576" height="132" viewBox="0 0 576 132" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="13">
-<rect x="0" y="0" width="576" height="132" rx="9" fill="#f8f9fb" stroke="#c9cde0" stroke-width="1.3"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="592" height="192" viewBox="0 0 592 192" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="13">
+<rect x="0" y="0" width="592" height="192" rx="9" fill="#f8f9fb" stroke="#c9cde0" stroke-width="1.3"/>
 <text x="16" y="29" xml:space="preserve"><tspan font-weight="bold" fill="#7b2d52">### RULE R-ex-04 — Open Questions still open</tspan></text>
 <text x="16" y="49" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">where:: `**/*.md`</tspan></text>
-<text x="16" y="69" xml:space="preserve"><tspan font-weight="normal" fill="#1a1a2e">focus:: `ctx.section('## Open Questions')`</tspan></text>
-<text x="16" y="89" xml:space="preserve"><tspan font-weight="normal" fill="#1a1a2e">For each question, is it still unresolved given the rest of the doc?</tspan></text>
-<text x="16" y="109" xml:space="preserve"><tspan font-weight="normal" fill="#1a1a2e">Flag the stale ones.</tspan></text>
+<text x="16" y="69" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">```python</tspan></text>
+<text x="16" y="89" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f"># narrow first (cheap), then ask the LLM about just that slice</tspan></text>
+<text x="16" y="109" xml:space="preserve"><tspan font-weight="normal" fill="#1a1a2e">for q in ctx.judge(ctx.section('## Open Questions'),</tspan></text>
+<text x="16" y="129" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">                   'which questions are already resolved elsewhere?'):</tspan></text>
+<text x="16" y="149" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">    ctx.tell(q)</tspan></text>
+<text x="16" y="169" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">```</tspan></text>
 </svg>

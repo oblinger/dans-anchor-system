@@ -26,12 +26,12 @@ def esc(s: str) -> str:
 
 def line_style(line: str):
     s = line.lstrip()
-    if s.startswith("#"):
-        return "#7b2d52", "bold"      # heading / sentinel
+    if re.match(r"^#{1,6}\s+(RULE|RULESET)\b", s):
+        return "#7b2d52", "bold"      # markdown heading sentinel (### RULE / # RULESET)
     if FIELD.match(line):
         return "#2d5b7b", "normal"    # :: field
-    if PYLINE.match(line):
-        return "#2f7d4f", "normal"    # embedded python
+    if PYLINE.match(line) or s.startswith("#"):
+        return "#2f7d4f", "normal"    # embedded python (incl. # comments)
     return "#1a1a2e", "normal"        # default
 
 
@@ -137,16 +137,19 @@ RULES = {
     "script-assisted": [
         "### RULE R-ex-04 — Open Questions still open",
         "where:: `**/*.md`",
-        "focus:: `ctx.section('## Open Questions')`",
-        "For each question, is it still unresolved given the rest of the doc?",
-        "Flag the stale ones.",
+        "```python",
+        "# narrow first (cheap), then ask the LLM about just that slice",
+        "for q in ctx.judge(ctx.section('## Open Questions'),",
+        "                   'which questions are already resolved elsewhere?'):",
+        "    ctx.tell(q)",
+        "```",
     ],
     "edit": [
         "### RULE R-ex-05 — Stamp the reviewed-date",
         "where:: `**/*Architecture*.md`",
         "when:: write:markdown",
         "```python",
-        "ctx.edit_frontmatter(reviewed=ctx.today)        # an edit, no tell",
+        "ctx.set_frontmatter('reviewed', ctx.today)        # an edit, no tell",
         "```",
     ],
     "deny": [
