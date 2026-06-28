@@ -10,7 +10,7 @@ How the Warden engine runs a rule. [[Warden Rule]] is the file format; this is t
 > - **Sync `Warden Architecture` §7** with the two-path `ask_oracle` mechanism (oracle on audit / steer on live).
 > - **`run` action** — trust/security model before it ships (deferred).
 > - **The `edit` family** — define the method set (`set_frontmatter`, `replace_section`, …) and the never-delete floor it rides on.
-> - **`ask_oracle(question, content)`** — name + 2-arg shape + vocabulary settled (**the agent** = steered, **the oracle** = the spawned context-less helper). Still open: the **return-shape convention** (when does it give a list vs bool vs string?), and whether the rerun-economy gate (F215) needs `content` diffed separately.
+> - **`ask_oracle(prompt) → str`** — settled: **one prompt arg in, a `str` out** (it's an LLM — text in, text out; merge material into the prompt, parse the reply if you need structure). Vocabulary settled too (**the agent** = steered, **the oracle** = the spawned context-less helper). Still open: whether F215's economy gate wants the material as a separate diffable arg after all.
 > - **`file.frontmatter`** — confirm merging YAML block + inline `::` fields is what we want.
 
 ## A rule at a glance
@@ -61,7 +61,7 @@ if:: not file.title                        # no H1 title
 if:: 'description' not in file.frontmatter # no description
 ```
 
-(A value that contains `::` gets **backticked**, per [[F007 — Backtick all where expressions — parser swap|F007]], so Dataview doesn't choke on it.) Or **prose**, when the test needs judgment — the LLM reads the `file` and decides. (For a computed, per-violation test, skip `if::` and write a body **snippet** that conditions and tells inline — § THEN.) Either way a test yields **findings** (each a message) or a boolean. To make a judgment cheap, narrow it in Python: **`ask_oracle(question, slice)`** runs a fresh **oracle** over just that slice — and a bare-prose judgment is simply the sugar for `ask_oracle(<the prose>, file)`. (No `focus::` clause; the slice is just an argument, and the body shapes the oracle's answer into a `tell`.)
+(A value that contains `::` gets **backticked**, per [[F007 — Backtick all where expressions — parser swap|F007]], so Dataview doesn't choke on it.) Or **prose**, when the test needs judgment — the LLM reads the `file` and decides. (For a computed, per-violation test, skip `if::` and write a body **snippet** that conditions and tells inline — § THEN.) Either way a test yields **findings** (each a message) or a boolean. To make a judgment cheap, narrow it in Python: **`ask_oracle(f'…{slice}')`** runs a fresh **oracle** over just that slice and returns its prose answer, which you `tell` — and a bare-prose judgment is simply the sugar for `tell(ask_oracle(<the prose + file.text>))`. (No `focus::` clause; you merge the slice into the prompt string.)
 
 ## `THEN` — the actions
 
@@ -121,7 +121,7 @@ A rule body runs with **three objects in scope** — the three things the rule m
 | `event.command` | the pending / just-run command (Bash moments) |
 | `event.tool` | the tool name + input (tool moments) |
 
-**The verbs**, bare in scope: the **actions** **`tell(msg)`** · **`deny(reason)`** and the `file.set_*` / `file.replace_*` **edits**; plus **`ask_oracle(question, content)`** — *hand a fresh **oracle** (a context-less helper LLM) a question + content, get its answer back* (a reader, not an action).
+**The verbs**, bare in scope: the **actions** **`tell(msg)`** · **`deny(reason)`** and the `file.set_*` / `file.replace_*` **edits**; plus **`ask_oracle(prompt) → str`** — *hand a fresh **oracle** (a context-less helper LLM) a prompt, get its text answer back* (a reader, not an action); merge any material into the prompt yourself (`f'…{file.section(…)}'`).
 
 **The environment** — a body is **plain Python**: every builtin (`len`, `any`, `in`, `for`, `str`, …) and a safe stdlib subset (`re`, `json`, `datetime`) are available, no import needed for the common ones. On top of that, Warden injects the three objects, the verbs, and two ambient values:
 
@@ -133,7 +133,7 @@ A rule body runs with **three objects in scope** — the three things the rule m
 So `file.set_frontmatter('reviewed', today)` writes `reviewed: 2026-06-28`. (Which stdlib modules are reachable is bounded by the sandbox — same trust question as `run`; the reference impl is permissive, the hot-path interpreter restricted.)
 
 - **Three objects, not one bag — and they mirror the clauses.** `where::` → `file`, the adopting anchor → `anchor`, `when::` → `event`. "Event," **not** "action": *action* is the rule's *output* (`tell` / `edit` / `deny`), so reusing the word would muddle the two.
-- **`ask_oracle` runs a *separate* LLM — the oracle — never the agent's own model.** A hook is a synchronous subprocess (event in → output → exit); it can't block-and-await the agent's model. So `ask_oracle` spawns a **fresh headless oracle** — *context-less*, it sees only the question + content you pass — and returns its answer (a list, a bool, a string — whatever the question asked for): on the **audit path** (not latency-bound) the pipeline blocks on it and parses the answer — its real home; on the **live path** (hot hook, ms-budget) it can't block, so the call is **delegated to the agent as a steer** instead. Because the oracle is context-less, the question must say *how* to answer so the result is usable; the body then shapes it into a `tell`. A bare-prose body is the sugar for `ask_oracle(<the prose>, file)`. (Mechanism: [[Warden Architecture]] §7.)
+- **`ask_oracle` runs a *separate* LLM — the oracle — never the agent's own model.** A hook is a synchronous subprocess (event in → output → exit); it can't block-and-await the agent's model. So `ask_oracle` spawns a **fresh headless oracle** — *context-less*, it sees only the **prompt** you pass — and returns its answer as a **string** (it's an LLM — text in, text out; merge material into the prompt, and parse the reply yourself if you need structure): on the **audit path** (not latency-bound) the pipeline blocks on it and parses the answer — its real home; on the **live path** (hot hook, ms-budget) it can't block, so the call is **delegated to the agent as a steer** instead. Because the oracle is context-less, the prompt must say *how* to answer so the result is usable; the body then `tell`s the reply. A bare-prose body is the sugar for `tell(ask_oracle(<the prose, with file.text>))`. (Mechanism: [[Warden Architecture]] §7.)
 - **Small on purpose.** When a member is missing, reach for `file.text` + the Python stdlib — not a new method. The accessors exist only because re-parsing markdown structure by hand would be worse; they expose *data*, never hide a check.
 - **A reading LLM understands these** — ordinary nouns it's seen in thousands of APIs; `file.sections(level=2)` plainly means "the level-2 sections." That's the dual-use payoff: the names that *run* the rule also let a reader *understand* it.
 

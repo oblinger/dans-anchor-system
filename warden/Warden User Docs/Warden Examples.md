@@ -42,7 +42,7 @@ Also just prose — but prose that states an *expectation* ("Summary should refl
 
 ![[Warden Example script-assisted.svg]]
 
-The expensive part of a judgment is reading the whole file. So narrow it: `ask_oracle(question, file.section('## Open Questions'))` hands a fresh **oracle** (a context-less helper LLM) just that slice and returns a list — assigned to `resolved`, so the loop is obvious. The body then **shapes** each into a `tell` the agent can act on (you control the message, not the oracle). No `focus` clause — the slice is just an argument; it's the same call a bare-prose judgment desugars to over the whole `file`. **Python narrows, the oracle answers, the body phrases the steer.**
+The expensive part of a judgment is reading the whole file, so narrow it. `ask_oracle` takes **one prompt and returns a string** (it's an LLM — text in, text out), so you **merge** the slice into the prompt with an f-string and `tell` the reply. It's the same call a bare-prose judgment desugars to, just scoped to a section instead of the whole `file`. **Python narrows, the oracle answers in prose.**
 
 ## 05 · An `edit`
 
