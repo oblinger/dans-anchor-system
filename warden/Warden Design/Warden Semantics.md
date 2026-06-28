@@ -7,11 +7,10 @@ How the Warden engine runs a rule. [[Warden Rule]] is the file format; this is t
 
 > [!todo] Open threads (everything here is in flux — park items so we don't forget)
 > - **Sync `Warden Rule`** (format spec) to this model — it still has `check::`/tiers, and defaults a clause-less rule to `where:: always` (now the **ambient** case).
-> - **Sync `Warden Architecture` §7** with the two-path `ask` mechanism (sub-agent on audit / steer on live).
+> - **Sync `Warden Architecture` §7** with the two-path `ask_oracle` mechanism (oracle on audit / steer on live).
 > - **`run` action** — trust/security model before it ships (deferred).
 > - **The `edit` family** — define the method set (`set_frontmatter`, `replace_section`, …) and the never-delete floor it rides on.
-> - **The LLM-call op (`ask`)** — several open: (a) **name** — it spawns a *separate, context-less helper*, not the agent, so `ask` may mislead → `consult` / `oracle`? (b) **one prompt vs `(content, instruction)`** — one is simpler; splitting lets the rerun-economy gate diff content (F215). (c) the prompt must **shape the response** so it's usable by the agent (or the body wraps it). (d) return-shape convention (list / bool / string).
-> - **Words for the two LLMs** — the **agent** / **ward** (the steered one) vs the **helper** / **oracle** (the spawned one). Pick the pair and use it everywhere.
+> - **`ask_oracle(question, content)`** — name + 2-arg shape + vocabulary settled (**the agent** = steered, **the oracle** = the spawned context-less helper). Still open: the **return-shape convention** (when does it give a list vs bool vs string?), and whether the rerun-economy gate (F215) needs `content` diffed separately.
 > - **`file.frontmatter`** — confirm merging YAML block + inline `::` fields is what we want.
 
 ## A rule at a glance
@@ -62,7 +61,7 @@ if:: not file.title                        # no H1 title
 if:: 'description' not in file.frontmatter # no description
 ```
 
-(A value that contains `::` gets **backticked**, per [[F007 — Backtick all where expressions — parser swap|F007]], so Dataview doesn't choke on it.) Or **prose**, when the test needs judgment — the LLM reads the `file` and decides. (For a computed, per-violation test, skip `if::` and write a body **snippet** that conditions and tells inline — § THEN.) Either way a test yields **findings** (each a message) or a boolean. To make a judgment cheap, narrow it in Python: **`ask(slice, 'question')`** runs the LLM over just that slice — and a bare-prose judgment is simply the sugar for `ask(file, <the prose>)`. (No `focus::` clause — the slice is just an argument; `ask` returns the model's answer, which `tell` then delivers.)
+(A value that contains `::` gets **backticked**, per [[F007 — Backtick all where expressions — parser swap|F007]], so Dataview doesn't choke on it.) Or **prose**, when the test needs judgment — the LLM reads the `file` and decides. (For a computed, per-violation test, skip `if::` and write a body **snippet** that conditions and tells inline — § THEN.) Either way a test yields **findings** (each a message) or a boolean. To make a judgment cheap, narrow it in Python: **`ask_oracle(question, slice)`** runs a fresh **oracle** over just that slice — and a bare-prose judgment is simply the sugar for `ask_oracle(<the prose>, file)`. (No `focus::` clause; the slice is just an argument, and the body shapes the oracle's answer into a `tell`.)
 
 ## `THEN` — the actions
 
@@ -80,7 +79,7 @@ On a hit, the rule performs zero or more actions. Three are **mediated** — War
 
 > **The one lexical rule: backticks = Python.** A backticked `if::` value, a backticked one-line body, a fenced block — all are Python run by the engine; un-backticked prose is the `tell`. (It also subsumes [[F007 — Backtick all where expressions — parser swap|F007]]: backticked = code, so Dataview leaves it alone.)
 
-**Data vs. actions — the split is load-bearing for readability.** The **data** is read-only nouns on `file` / `anchor` / `event` — `file.text`, `file.title`, `file.frontmatter`, `event.command`, `file.section(…)` (and `ask`, which reads *via* the LLM) — they *look*, never change anything. The **actions** are the only things that *do* — `tell`, `deny`, and the `file.set_*` / `file.replace_*` edits. A name should never blur the two (e.g. inspecting `event.command` reads the pending command; nothing *runs* it).
+**Data vs. actions — the split is load-bearing for readability.** The **data** is read-only nouns on `file` / `anchor` / `event` — `file.text`, `file.title`, `file.frontmatter`, `event.command`, `file.section(…)` (and `ask_oracle`, which reads *via* a fresh oracle) — they *look*, never change anything. The **actions** are the only things that *do* — `tell`, `deny`, and the `file.set_*` / `file.replace_*` edits. A name should never blur the two (e.g. inspecting `event.command` reads the pending command; nothing *runs* it).
 
 **What `tell` actually does.** **Live** → text the hook injects into the agent's context (what you'd picture as "printed to the agent" — the F180 steer); **audit** → a finding written into the report the user reads. Same `tell`; the trigger picks the channel.
 
@@ -120,10 +119,10 @@ A rule body runs with **three objects in scope** — the three things the rule m
 | `event.command` | the pending / just-run command (Bash moments) |
 | `event.tool` | the tool name + input (tool moments) |
 
-**The verbs**, bare in scope: the **actions** **`tell(msg)`** · **`deny(reason)`** and the `file.set_*` / `file.replace_*` **edits**; plus **`ask(content, instruction)`** — *send content + an instruction to the LLM, get its answer back* (a reader, not an action). (And `today` for a timestamp.)
+**The verbs**, bare in scope: the **actions** **`tell(msg)`** · **`deny(reason)`** and the `file.set_*` / `file.replace_*` **edits**; plus **`ask_oracle(question, content)`** — *hand a fresh **oracle** (a context-less helper LLM) a question + content, get its answer back* (a reader, not an action). (And `today` for a timestamp.)
 
 - **Three objects, not one bag — and they mirror the clauses.** `where::` → `file`, the adopting anchor → `anchor`, `when::` → `event`. "Event," **not** "action": *action* is the rule's *output* (`tell` / `edit` / `deny`), so reusing the word would muddle the two.
-- **`ask` is run by the LLM — a *separate* model call, never the hook listening in.** A hook is a synchronous subprocess (event in → output → exit); it can't block-and-await the conversation's model. So `ask` spawns a **fresh headless sub-agent** given *only* the `content` + `instruction`, and returns its answer (a list, a bool, a string — whatever you asked for): on the **audit path** (not latency-bound) the pipeline blocks on it and parses the answer — its real home; on the **live path** (hot hook, ms-budget) it can't block on a model, so the call is **delegated to the running agent as a steer** instead. A bare-prose body is just the sugar for `ask(file, <the prose>)`. (Mechanism: [[Warden Architecture]] §7.)
+- **`ask_oracle` runs a *separate* LLM — the oracle — never the agent's own model.** A hook is a synchronous subprocess (event in → output → exit); it can't block-and-await the agent's model. So `ask_oracle` spawns a **fresh headless oracle** — *context-less*, it sees only the question + content you pass — and returns its answer (a list, a bool, a string — whatever the question asked for): on the **audit path** (not latency-bound) the pipeline blocks on it and parses the answer — its real home; on the **live path** (hot hook, ms-budget) it can't block, so the call is **delegated to the agent as a steer** instead. Because the oracle is context-less, the question must say *how* to answer so the result is usable; the body then shapes it into a `tell`. A bare-prose body is the sugar for `ask_oracle(<the prose>, file)`. (Mechanism: [[Warden Architecture]] §7.)
 - **Small on purpose.** When a member is missing, reach for `file.text` + the Python stdlib — not a new method. The accessors exist only because re-parsing markdown structure by hand would be worse; they expose *data*, never hide a check.
 - **A reading LLM understands these** — ordinary nouns it's seen in thousands of APIs; `file.sections(level=2)` plainly means "the level-2 sections." That's the dual-use payoff: the names that *run* the rule also let a reader *understand* it.
 

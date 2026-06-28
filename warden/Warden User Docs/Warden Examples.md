@@ -14,7 +14,7 @@ One worked ruleset, six complete rules. A rule is **`IF` a condition `THEN` an a
 Every rule binds with `where::` (which files) and optionally `when::` (which moment); then a condition and an action. Two facts ([[Warden Semantics]] has the pipeline):
 
 - **A bare prose body *is* the tell.** When the action is just "tell the agent this," you don't write `tell` — the prose *is* the message (R-ex-01, R-ex-03). `edit` and `deny` (and an explicit `tell`) are calls in **backticked Python** — `tell` / `deny` bare, `file.set_frontmatter(…)` for an edit.
-- **A rule sees three objects** — `file` (the matched file), `anchor` (its project), `event` (the live moment) — plus the verbs `tell` / `deny` / `ask`. Read members as `file.text`, `event.command`, `anchor.branch`.
+- **A rule sees three objects** — `file` (the matched file), `anchor` (its project), `event` (the live moment) — plus the verbs `tell` / `deny` / `ask_oracle`. Read members as `file.text`, `event.command`, `anchor.branch`.
 - **Backticks = Python.** A backticked `if::`, an inline one-line body (`` `file.set_frontmatter(…)` ``, R-ex-05), or a bare ` ``` ` fence (R-ex-02/04/06) — all are Python the engine runs; **no `python` tag**. Un-backticked prose is the `tell`.
 - **No `when::` means passive.** R-ex-01…04 run when **`/audit`** visits their files; R-ex-05/06 declare a `when::` and fire **live**.
 - **`where::` is anchor-relative.** `**/*.md` means "every markdown file *in the anchor that adopts this rule*" — no `{ANCHOR}/` needed; that's why one rule is reusable across anchors.
@@ -42,7 +42,7 @@ Also just prose — but prose that states an *expectation* ("Summary should refl
 
 ![[Warden Example script-assisted.svg]]
 
-The expensive part of a judgment is reading the whole file. So narrow it: `ask(file.section('## Open Questions'), '…')` runs the LLM over **just that slice** and returns the stale questions, which the snippet `tell`s. There's no special `focus` clause — the slice is just an argument, and `ask` is the same call a bare-prose judgment desugars to (over the whole `file`). **Python narrows, the LLM answers.**
+The expensive part of a judgment is reading the whole file. So narrow it: `ask_oracle(question, file.section('## Open Questions'))` hands a fresh **oracle** (a context-less helper LLM) just that slice and returns a list — assigned to `resolved`, so the loop is obvious. The body then **shapes** each into a `tell` the agent can act on (you control the message, not the oracle). No `focus` clause — the slice is just an argument; it's the same call a bare-prose judgment desugars to over the whole `file`. **Python narrows, the oracle answers, the body phrases the steer.**
 
 ## 05 · An `edit`
 
@@ -56,8 +56,8 @@ Not every rule tells — some just *do*. On every write to an architecture doc t
 
 The one rule that *blocks*. On `when:: tool:pre:Bash` it inspects `event.command` and `deny(...)`s a force-push to main before it runs — the veto. `deny` only makes sense at a `tool:pre` moment (a command, not a file, so `where::` doesn't apply).
 
-> [!info] Status — `ask`, `edit`, `deny`, and `rerun::` are *designed, not all built*
-> The prose-tell and `python`-tell shapes (F180's executable rules) are the established core. The `ask` narrowing, the `edit`/`deny` actions, and the `rerun:: significant` gate are on the [[Warden Roadmap]] (M7 for the economy gate, [[F215 — Re-evaluation economy — the significant-edit gate|F215]]). The `run` (arbitrary-effect) action is **deferred** pending a security model.
+> [!info] Status — `ask_oracle`, `edit`, `deny`, and `rerun::` are *designed, not all built*
+> The prose-tell and `python`-tell shapes (F180's executable rules) are the established core. The `ask_oracle` narrowing, the `edit`/`deny` actions, and the `rerun:: significant` gate are on the [[Warden Roadmap]] (M7 for the economy gate, [[F215 — Re-evaluation economy — the significant-edit gate|F215]]). The `run` (arbitrary-effect) action is **deferred** pending a security model.
 
 ## Rule of thumb
 
