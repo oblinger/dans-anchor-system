@@ -114,7 +114,7 @@ On a hit, the rule performs zero or more actions. Three are **mediated** — War
 | `ctx.deny(reason)` | block the pending tool |
 | `ctx.judge(slice, question)` | **ask the LLM** — returns findings (the one member that costs tokens) |
 
-- **`ctx.judge` is run by the LLM.** It hands `slice` + `question` to the model and gets findings back — how a Python body delegates a judgment. A bare-prose body is just the sugar for `ctx.judge(<whole doc>, <the prose>)`; everything else is plain computation.
+- **`ctx.judge` is run by the LLM — as a *separate* model call, never by the hook listening in.** A hook is a synchronous subprocess (event in → output → exit); it can't block-and-await the conversation's model. So `ctx.judge` spawns a **fresh headless sub-agent** given *only* `slice` + `question`, and where it runs differs by path: on the **audit path** (not latency-bound) the pipeline blocks on that sub-call and parses its findings — `ctx.judge`'s real home; on the **live path** (hot hook, ms-budget) it can't block on a model, so the judgment is **delegated to the running agent as a steer** instead. A bare-prose body is just the sugar for `ctx.judge(<whole doc>, <the prose>)`; everything else is plain computation. (Mechanism: [[Warden Architecture]] §7.)
 - **Small on purpose.** When a member is missing, reach for `ctx.text` + the Python stdlib — not a new method. The accessors exist only because re-parsing markdown structure by hand would be worse; they expose *data*, never hide a check.
 - **Will a reading LLM understand `ctx.sections`?** Yes — they're ordinary nouns it's seen in thousands of APIs; `ctx.sections(level=2)` plainly means "the level-2 sections." That's the dual-use payoff: the names that *run* the rule also let a reader *understand* it.
 
