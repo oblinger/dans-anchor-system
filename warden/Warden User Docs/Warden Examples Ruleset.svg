@@ -8,7 +8,7 @@
 <text x="16" y="149" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">if:: `'description' not in file.frontmatter`</tspan></text>
 <text x="16" y="169" xml:space="preserve"><tspan font-weight="normal" fill="#1a1a2e">Every ruleset needs a `description::` line — add one.</tspan></text>
 <text x="16" y="209" xml:space="preserve"><tspan font-weight="bold" fill="#7b2d52">### RULE R-ex-02 — No empty sections</tspan></text>
-<text x="16" y="229" xml:space="preserve"><tspan font-weight="normal" fill="#1a1a2e">Every H2 section needs a body; an empty heading is a stub to fill or cut.</tspan></text>
+<text x="16" y="229" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">description:: Every H2 section needs a body; an empty heading is a stub.</tspan></text>
 <text x="16" y="249" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">where:: `**/*.md`</tspan></text>
 <text x="16" y="269" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">```</tspan></text>
 <text x="16" y="289" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">for s in file.sections(level=2):</tspan></text>

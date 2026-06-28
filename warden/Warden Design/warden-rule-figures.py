@@ -130,7 +130,7 @@ RULES = {
     ],
     "python": [
         "### RULE R-ex-02 — No empty sections",
-        "Every H2 section needs a body; an empty heading is a stub to fill or cut.",
+        "description:: Every H2 section needs a body; an empty heading is a stub.",
         "where:: `**/*.md`",
         "```",
         "for s in file.sections(level=2):",
