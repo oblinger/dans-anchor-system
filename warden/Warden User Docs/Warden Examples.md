@@ -22,7 +22,7 @@ Every rule binds with `where::` (which files) and optionally `when::` (which mom
 
 ![[Warden Example prose.svg]]
 
-The whole body is one line of prose — *that's the tell.* `if::` is a one-line Python condition (`not ctx.has(...)` — the common predicates are `ctx` methods, not an invented language), and when it holds the prose lands in front of the agent. This is the common shape, and it doubles as documentation: read it and you know the convention, no engine required.
+The whole body is one line of prose — *that's the tell.* `if::` is a one-line Python condition — `'description' not in ctx.fields` — plain Python (`in`, `not`) over `ctx`'s **data** (`ctx.fields`), with no invented predicate verbs. When it holds, the prose lands in front of the agent. This is the common shape, and it doubles as documentation: read it and you know the convention, no engine required.
 
 ## 02 · A Python test (tells per finding)
 

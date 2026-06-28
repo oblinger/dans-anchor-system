@@ -37,13 +37,14 @@ Three clauses, **two kinds**. `where::` and `when::` are **indexes** — the com
 
 **Why `if` stays separate from `when`.** `when`/`where` are *indexical* — clean tokens (`write:markdown`, `*.md`) the compiler matches without execution. `if` is *computed*. Folding `if` into `when` would either uglify the simple `when` clause or mix a dispatch index with computation, so they stay apart.
 
-**The test (`if::`) is a Python expression** — there's **no condition DSL**. The common predicates are read-only **`ctx` inspectors**, so a check reads as plain Python:
+**The test (`if::`) is a Python expression** — there's **no condition DSL, not even a vocabulary of predicates.** `ctx` exposes the file as **data (nouns)** — `ctx.title`, `ctx.fields`, `ctx.text`, `ctx.sections`, `ctx.command` — and you write the **predicate in plain Python** (`not`, `in`, `re.search`). No `ctx.has`/`ctx.matches`-style verbs baked into the API; the only irreducible primitive is `ctx` itself (the thing under test, like `self`):
 
 ```
-if:: not ctx.has(r'^# ')        # a primitive check, written as Python
+if:: not ctx.title                     # no H1 title
+if:: 'description' not in ctx.fields    # the description field is missing
 ```
 
-(A value that itself contains `::` — like a regex for `description::` — is **backticked**, per [[F007 — Backtick all where expressions — parser swap|F007]], so Dataview doesn't choke on it.) Or **prose**, when the test needs judgment — the LLM reads `ctx` and decides. (For a computed, per-violation test, skip `if::` and write a body **snippet** that conditions and tells inline — § THEN.) Either way a test yields **findings** (each a message) or a boolean. To make a judgment cheap, narrow it in Python: **`ctx.judge(slice, 'question')`** runs the LLM over just that slice — and a bare-prose judgment is simply the sugar for `ctx.judge(<the whole doc>, <the prose>)`. (No `focus::` clause — the slice is just an argument; `ctx.judge` is an *inspector* that returns findings, and `tell` delivers them.)
+(A value that contains `::` gets **backticked**, per [[F007 — Backtick all where expressions — parser swap|F007]], so Dataview doesn't choke on it.) Or **prose**, when the test needs judgment — the LLM reads `ctx` and decides. (For a computed, per-violation test, skip `if::` and write a body **snippet** that conditions and tells inline — § THEN.) Either way a test yields **findings** (each a message) or a boolean. To make a judgment cheap, narrow it in Python: **`ctx.judge(slice, 'question')`** runs the LLM over just that slice — and a bare-prose judgment is simply the sugar for `ctx.judge(<the whole doc>, <the prose>)`. (No `focus::` clause — the slice is just an argument; `ctx.judge` is an *inspector* that returns findings, and `tell` delivers them.)
 
 ## `THEN` — the actions
 
@@ -59,7 +60,7 @@ On a hit, the rule performs zero or more actions. Three are **mediated** — War
 
 **A bare prose body *is* the tell.** When the action is just "tell the agent this," you write the prose — no keyword (the `tell` payload is the whole point). For anything more, the body is a **bare Python snippet** — `ctx` is in scope, no `def`, no magic function name — and it calls `ctx.tell` / `ctx.edit` / `ctx.deny`. (`message:: <text>` is the sugar for a fixed prose tell; a *fix* is an `edit` that repairs a violation.) **Emit nothing → the rule passed.**
 
-**`ctx` splits in two — and the split is load-bearing for readability.** **Inspectors** are read-only — `ctx.text`, `ctx.command`, `ctx.has(regex)`, `ctx.section(…)`, even `ctx.judge(slice, q)` (it reads via the LLM) — they *look*, never act (so the LLM reading `ctx.command` knows nothing runs). **Actions** are the only things that *do* — `ctx.tell`, the `ctx.edit`-family (`ctx.set_frontmatter`, `ctx.replace_section`, …), `ctx.deny`. A method name should never blur the two (e.g. `ctx.bash(…)` would wrongly read as "run bash" — inspect `ctx.command` instead).
+**`ctx` splits in two — and the split is load-bearing for readability.** **Inspectors** are read-only **data** — `ctx.text`, `ctx.title`, `ctx.fields`, `ctx.command`, `ctx.section(…)`, even `ctx.judge(slice, q)` (it reads via the LLM) — they *look*, never act (so the LLM reading `ctx.command` knows nothing runs). **Actions** are the only things that *do* — `ctx.tell`, the `ctx.edit`-family (`ctx.set_frontmatter`, `ctx.replace_section`, …), `ctx.deny`. A method name should never blur the two (e.g. `ctx.bash(…)` would wrongly read as "run bash" — inspect `ctx.command` instead).
 
 **What `tell` actually does.** **Live** → text the hook injects into the agent's context (what you'd picture as "printed to the agent" — the F180 steer); **audit** → a finding written into the report the user reads. Same `ctx.tell`; the trigger picks the channel.
 

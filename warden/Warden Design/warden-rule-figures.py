@@ -116,7 +116,7 @@ RULES = {
     "prose": [
         "### RULE R-ex-01 — Ruleset has a description",
         "where:: `**/R-*.md`",
-        "if:: `not ctx.has(r'^description::')`",
+        "if:: `'description' not in ctx.fields`",
         "Every ruleset needs a `description::` line — add one.",
     ],
     "python": [
@@ -200,7 +200,7 @@ ANATOMY = [
     "### RULE R-ex — Title present",
     "where:: `*.md`",
     "when:: write:markdown",
-    "if:: `not ctx.has(r'^# ')`",
+    "if:: `not ctx.title`",
     "Add a top-level title.",
 ]
 ANATOMY_ANNOTS = [

@@ -3,7 +3,7 @@
 <text x="16" y="29" xml:space="preserve"><tspan font-weight="bold" fill="#7b2d52">### RULE R-ex — Title present</tspan></text>
 <text x="16" y="49" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">where:: `*.md`</tspan></text>
 <text x="16" y="69" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">when:: write:markdown</tspan></text>
-<text x="16" y="89" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">if:: `not ctx.has(r'^# ')`</tspan></text>
+<text x="16" y="89" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">if:: `not ctx.title`</tspan></text>
 <text x="16" y="109" xml:space="preserve"><tspan font-weight="normal" fill="#1a1a2e">Add a top-level title.</tspan></text>
 <path d="M273,17 H268 V33 H273" fill="none" stroke="#7b2d52" stroke-width="1.6"/>
 <text x="281" y="29" fill="#7b2d52" font-size="12" font-weight="bold">name</text>
