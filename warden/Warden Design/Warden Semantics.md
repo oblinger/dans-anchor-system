@@ -3,7 +3,7 @@ description: "how the engine runs a rule — a rule as IF (condition) THEN (body
 ---
 # Warden Semantics
 
-How the Warden engine runs a rule. [[Warden Rule]] is the file format; this is the operational model — kept deliberately small: **a rule is `IF` a condition `THEN` a body, and the engine runs the body when the condition holds.** When the body runs over a file it may `report` problems; a rule **passes** on a file when its body reports nothing.
+How the Warden engine runs a rule. [[Warden Rule]] is the file format; this is the operational model — kept deliberately small: **a rule is `IF` a condition `THEN` a body, and the engine runs the body when the condition holds.** When the body runs over a file it may `tell` the agent, `edit` a file, or `deny` an action; a rule **passes** when its body does none of these.
 
 ## A rule at a glance
 
@@ -16,11 +16,11 @@ Every clause a rule can carry — the `IF` clauses are the **condition**, the `T
 | `where::`            | which files it runs over — **required** (default `always`)               |
 | `when::`             | which moment triggers a **live** run — omit → *passive* (audit-time)     |
 | `if::`               | an extra state guard (`git-aspect == Commit`, …)                         |
-| `check::`            | run a named library **primitive**; report a problem if it finds one      |
-| `python` *(code)*    | a `def check(ctx)` block — arbitrary logic; `ctx.report(…)` on a problem |
-| *prose* *(judgment)* | the **LLM** reads `ctx` and reports the problems it finds                |
-| `message::`          | report a fixed **steer** to the agent (F180's shape)                     |
-| `fix=`               | a repair applied on a report (gated by the never-delete floor)           |
+| `check::`            | run a named library **primitive**; `tell` on a problem      |
+| `python` *(code)*    | a `def check(ctx)` block — arbitrary logic; emits actions (`tell`/`edit`/…) |
+| *prose* *(judgment)* | the **LLM** reads `ctx` and `tell`s what's wrong                |
+| `message::`          | sugar for a fixed `tell` — a steer/directive (F180's shape)                     |
+| `fix=`               | an `edit` that repairs a violation (never-delete floored)           |
 
 Plus its **name** (`R-<slug>-NN`) and an optional `rerun::` modifier (below). That is the whole rule — there's no separate *evaluator*, *outcome*, *tier*, or *economy* concept; each was extra vocabulary for what these clauses already do. The two sections below expand each half.
 
@@ -50,16 +50,23 @@ The body says **what to do when the condition holds**. Two separate questions: *
 
 `python` is the general form; `check::` is a native-library shorthand for a common check; **script-assisted** = a `python def prepare(ctx)` then prose (cheap Python narrows what the LLM reads).
 
-**What a body can do — the actions.** A body inspects `ctx` and performs zero or more of these. This is the *whole* set of things that can happen:
+**What a body can do — the actions.** A body inspects `ctx` and performs zero or more actions. Three are **mediated** — Warden controls exactly what each does, so they're safe even in a rule you didn't write — and one is the **unmediated** escape hatch:
 
 | Action | Emitted by | What happens | Goes to |
 |---|---|---|---|
 | *(pass)* | — | nothing — no problem found | — |
-| **report** | `ctx.report(msg)` | surface a problem | a **finding** (audit) or a **steer** to the agent (live) — *the moment decides which* |
-| **fix** | `ctx.fix(edit)` / `fix=` | apply a repair to the file | the file — gated by the never-delete floor |
-| **deny** | `ctx.deny(reason)` | block the pending action | the tool call — only at a `tool:pre` moment |
+| **tell** | `ctx.tell(msg)` | say something to the agent — a problem *or* a directive ("commit now", "don't ask the user") | a **steer** injected into the agent's context (live) · a **finding** in the report (audit) |
+| **edit** | `ctx.edit(path, change)` | write to a file — repair the target, append a log, drop data elsewhere | the file(s) — gated by the never-delete floor |
+| **deny** | `ctx.deny(reason)` | block the pending action | the tool call — `tool:pre` only |
+| **run** *(effect)* | the Python body, directly | arbitrary execution — run commands, spawn processes, drive Warden / other agents | **unmediated** — see below |
 
-Because the set is **closed and small**, the body just *calls* the action it wants — there's **no test × action cross-product** and no action language to invent. A bare `check::` implies **report**; `message:: <text>` is sugar for a body whose one action is a fixed report; a rule that also repairs adds a `fix`. **Zero actions = the rule passed.**
+**`tell` is more than "report".** It isn't only "X is wrong" — a live `tell` can *direct* the agent (F180's steers do exactly this). Mechanically: **live** → text the hook injects into the agent's context (what you'd picture as "printed to the agent"); **audit** → a finding written into the report the user reads. Same `ctx.tell` call; the trigger picks the channel. (`message:: <text>` is sugar for a body whose one action is a fixed `tell`.)
+
+**`edit` is more than "fix".** A `fix` is just an `edit` that *repairs a found violation* — but the same action writes a log line, stamps metadata, or drops data in another file. One action covers all mediated file writes (each floor-gated against content loss).
+
+**Mediated vs. unmediated — and the cross-product.** The three mediated actions (**tell · edit · deny**) are a **closed, small set**, so the body just *calls* the one it wants — a bare `check::` implies a **tell**; a rule that changes a file uses an **edit** — **no test × action cross-product, no action language to invent.** The **run** action is the exception: the body is arbitrary Python, so it can do *anything*, including controlling Warden or other agents (the orchestration story) — which makes such a rule equal to arbitrary code execution. **Emit nothing → the rule passed.**
+
+> **Open — is `run` allowed, and is the body sandboxed?** Your own rules are as trusted as your own scripts, so unbounded effect is arguably fine; but an *imported* ruleset carrying effectful Python is a **supply-chain risk** — adopting it runs its code on your moments. Leaning: **v1 = mediated actions only (`tell` / `edit` / `deny`); `run`/effect gated behind explicit trust and off for imported rules** (ties to [[Warden Integration Strategy]]).
 
 **What a body sees** — `ctx` is the file under evaluation: `ctx.path` · `ctx.text` · `ctx.lines()` · `ctx.frontmatter` · `ctx.section("## X")` · `ctx.sections(level=N)` · `ctx.anchor` · `ctx.git_aspect`. A `when::`-triggered body also gets the event payload (e.g. `ctx.diff` for a `write:*` moment).
 
@@ -72,9 +79,10 @@ on trigger:  a when:: moment fires,  OR  /audit visits an anchor
   for each file T matching the rule's where:::
     if any if:: guard is false:  skip
     if a cached result for (rule, T) is fresh under rerun:::  reuse it
-    else:  run the body over ctx(T)  → a list of reports
+    else:  run the body over ctx(T)  → the actions it emits
            cache it by (rule, hash(T)[, model])
-    for each report:  deliver it (steer if live, finding if audit);  apply its fix if safe
+    carry out each action:  tell → steer (live) / finding (audit);   edit → apply if floor-safe;
+                            deny → block the tool;   run → execute (if trusted)
 ```
 
 ## Re-running an expensive body
