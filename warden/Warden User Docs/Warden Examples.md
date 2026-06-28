@@ -3,42 +3,49 @@ description: "worked examples of every rule-execution mode (start here)"
 ---
 # Warden Examples
 
-One worked ruleset, four rules — each a different **execution mode**. A Warden rule isn't always run the same way: some are decided by a cheap script, some need the LLM to read and reason, and some combine the two. This page walks through all of them.
+One worked ruleset, five rules — each a different way a rule's "what to check" is written and run. A Warden rule isn't decided the same way every time: some are a one-line **named primitive**, some carry their own **Python**, some are **judged by the LLM**, and some combine a cheap script with the LLM. This page walks through all of them.
 
 ![[Warden Examples Ruleset.svg]]
 
-*One ruleset, four modes.* ✎ [regenerate](../Warden%20Design/warden-rule-figures.py)
+*One ruleset, five rules.* ✎ [regenerate](../Warden%20Design/warden-rule-figures.py)
 
-## The four modes
+## How a check is written
 
-| # | Mode | Tier | Who decides it | Cost | Use it when |
-|---|---|---|---|---|---|
-| 01 | **Mechanical** | `checked` | a **script** (`check::` primitive) | ~free | the rule is a deterministic pattern — a regex, a required field, a structural fact |
-| 02 | **Judgment** | `stated` | the **LLM** reads + reasons | tokens | the rule needs *understanding*, not a pattern ("does the summary match the body?") |
-| 03 | **Script-assisted** | `stated` + `check::` | a **script narrows the input**, then the LLM judges the slice | reduced tokens | a cheap script can extract or detect the relevant part first, so the LLM reasons over a page, not the whole file |
-| 04 | **Judgment, gated** | `stated` + `rerun::` | the LLM — but **only when the edit is significant** | amortized | an expensive rule that shouldn't re-run on every typo (the re-evaluation economy, below) |
+The executable part of a rule is written one of two ways — and which one you can use is mostly about **speed**:
 
-### 01 · Mechanical — `R-ex-01`
+- **A named `check::` primitive** (`check:: regex_present …`) — a curated checker from Warden's library. Fast and native, so it can run on the hot (Rust) path. Use it whenever a primitive fits.
+- **An embedded ` ```python ` block** (`def check(ctx)` / `def prepare(ctx)` / `def trigger(ctx)`) — arbitrary logic when no primitive fits. Maximally flexible, but arbitrary Python runs on the Python path (post-hoc, not the fastest hot path). This is the same executable-rule mechanism F180 already uses for steer messages.
 
-`check:: regex_present ^description::` is a deterministic primitive. The script answers pass/fail with zero LLM involvement, and the verdict is content-hash cached. Most structural rules are mechanical — they're effectively free, so run them everywhere.
+Plus the LLM, for anything that needs *reasoning* rather than a *pattern*. Note every glob / regex value is wrapped in **backticks** — the standing convention ([[F007 — Backtick all where expressions — parser swap|F007]]) so the expression can't trip Obsidian's renderer; the parser strips the backticks.
 
-### 02 · Judgment — `R-ex-02`
+## The five rules
 
-"The `## Summary` faithfully reflects `## Design`" can't be a regex — it needs reading and reasoning. So it's a `stated` rule: the LLM reads both sections and judges, returning pass/fail + reason. Judgment rules cost tokens, so Warden batches and caches them (a verdict is reused until the file changes).
+| # | Rule | "What to check" is… | Who decides | Cost |
+|---|---|---|---|---|
+| 01 | Has a description | a **`check::` primitive** | script (hot path) | ~free |
+| 02 | Custom mechanical check | **embedded `python`** `def check(ctx)` | script (Python path) | ~free |
+| 03 | Summary matches the body | **prose** | the LLM reads + reasons | tokens |
+| 04 | Open Questions still open | **embedded `python`** `def prepare(ctx)` → prose | Python narrows, then LLM judges the slice | reduced tokens |
+| 05 | Diagram matches prose | prose + **`rerun:: significant`** | the LLM, only on significant change | amortized |
 
-### 03 · Script-assisted — `R-ex-03`
+### 01 · Mechanical, by primitive — `R-ex-01`
+`check:: regex_present \`^description::\`` names a library primitive; the script answers pass/fail with no LLM and the verdict is content-hash cached. Most structural rules are primitives — effectively free, so run them everywhere.
 
-The expensive part of a judgment rule is usually *reading the whole file*. `R-ex-03` puts a cheap script in front: `check:: extract_section "## Open Questions"` pulls just that section, and the LLM reasons over **only that slice** — "are these items still open given the rest of the doc?". The script narrows the LLM's input, so a rule that would have cost a full-file read costs a paragraph. This is the bridge between the two pure modes: **script prepares, LLM judges.**
+### 02 · Mechanical, by Python — `R-ex-02`
+When no primitive fits, the rule carries its own check as an embedded ` ```python ` block: `def check(ctx) -> bool`. Same *result* as a primitive (a mechanical pass/fail), but arbitrary — it can do anything Python can. The cost is that arbitrary Python runs on the Python path, not the native hot path.
 
-### 04 · Judgment, gated — `R-ex-04` (the re-evaluation economy)
+### 03 · Judgment — `R-ex-03`
+"The `## Summary` faithfully reflects `## Design`" can't be a regex or a tidy function — it needs reading and reasoning. So there's **no code**: the LLM reads both sections and judges, returning pass/fail + reason. Judgment rules cost tokens, so Warden batches and caches them (a verdict is reused until the file changes).
 
-Here's the problem this mode solves. `R-ex-04` is an expensive LLM rule — "does the architecture figure still match the prose?". Its `when:: write:markdown` means it *could* fire on every edit to an architecture doc. But re-reading the whole doc and re-reasoning on every keystroke-scale edit would **exhaust the agent and burn tokens** for no benefit — the diagram didn't become wrong because you fixed a typo.
+### 04 · Script-assisted — `R-ex-04`
+The expensive part of a judgment rule is usually *reading the whole file*. `R-ex-04`'s embedded `def prepare(ctx)` is cheap Python that hands the LLM **only the slice it needs** (`ctx.section('## Open Questions')`); the LLM then reasons over a paragraph, not the document. **Python prepares, LLM judges** — the bridge between the two pure modes, and the most token-efficient way to do a judgment rule.
 
-So the rule adds `rerun:: significant`: after the first evaluation, the expensive body **re-runs only when the file has changed *significantly*** since it last passed. A cheap gate (a script measuring the change) decides "significant?" before any LLM tokens are spent. The first check is full; subsequent tiny edits are skipped; a real structural edit re-triggers it.
+### 05 · Judgment, gated — `R-ex-05` (the re-evaluation economy)
+`R-ex-05` is an expensive LLM rule that *could* fire on every edit to an architecture doc (`when:: write:markdown`). Re-reading and re-reasoning on every keystroke-scale edit would **exhaust the agent** for no benefit. So it adds **`rerun:: significant`**: after the first evaluation the body re-runs only when the file changed *significantly* since it last passed — a cheap gate decides "significant?" before any LLM tokens are spent.
 
-> [!info] Status — `rerun::`, `extract_section`, and `significant` are *designed, not yet built*
-> Modes 01 and 02 work today. The script-assisted hook (`check::` feeding the judgment), the `rerun::` re-evaluation gate, and what counts as a "significant" edit are on the [[Warden Roadmap]] — the design is [[F215 — Re-evaluation economy — the significant-edit gate|F215]]. v1 measures significance by **diff magnitude** (lines / % changed); a later milestone adds **semantic update levels** (a cheap classifier rating an edit typo → structural, so only meaningful edits re-trigger expensive rules). The syntax above is the intended form.
+> [!info] Status — `rerun::`, `prepare()`/script-assisted, and `significant` are *designed, not yet built*
+> Modes 01–03 are the established shape (primitive checks, embedded-Python executables per F180, LLM judgment). The script-assisted `prepare()` hand-off and the **`rerun::`** gate are on the [[Warden Roadmap]] (M7) — design in [[F215 — Re-evaluation economy — the significant-edit gate|F215]]. v1 measures "significant" by diff magnitude; a later milestone (M8) adds semantic update levels. The syntax above is the intended form.
 
 ## Rule of thumb
 
-Reach for the cheapest mode that can express the rule: **mechanical if a script can decide it; script-assisted if a script can at least narrow it; pure judgment only when it genuinely needs the model.** And gate any expensive rule that fires on writes with `rerun:: significant`, so Warden can instrument almost every edit without exhausting the agent.
+Reach for the cheapest expression that works: **a `check::` primitive if one fits; embedded `python` if you need custom mechanical logic; pure judgment only when it needs the model; script-assisted to keep judgment cheap.** And gate any expensive rule that fires on writes with `rerun:: significant`, so Warden can instrument almost every edit without exhausting the agent.

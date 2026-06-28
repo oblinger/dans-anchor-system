@@ -24,7 +24,7 @@ A rule is a markdown **heading** whose first token is the all-caps `RULE` sentin
 | **Rule body ↓** | | |
 | declarative statement | first paragraph | what is required or forbidden |
 | `**Check pattern:**` | for `checked` / `sampled` | how a violation is detected (the human spec) |
-| `check::` | for mechanical `checked` | a machine-ref naming a checker primitive |
+| `check::` *or* a ```` ```python ```` block | for mechanical `checked` | a named checker **primitive** (`check:: …`), or an embedded `def check(ctx)` Python block for custom logic |
 | `when::` / `where::` / `if::` | optional | the rule's own binding clauses, overriding the set's |
 | `rerun::` | optional | re-evaluation economy — `always` (default) or `significant` to re-run an expensive rule only on significant change ([[F215 — Re-evaluation economy — the significant-edit gate\|F215]]) |
 | `**Why:**` | optional | rationale / prior-incident context |
@@ -74,7 +74,9 @@ The tier annotation declares how a rule is verified — the mechanical-vs-judgme
 
 The tier sets the rule's **execution mode** — mechanical (`checked`, a script), judgment (`stated`/`sampled`, the LLM), or **script-assisted** (a `check::` script narrows the input the LLM then judges). Worked examples of all three, plus the `rerun::` significant-edit gate, are in [[Warden Examples]].
 
-A `checked` rule names a checker **primitive** via `check::` (e.g. `check:: regex_present ^#+ RULESET R-`); the prose `**Check pattern:**` stays the human spec. The primitive vocabulary is specified as a **superset of Vale's check-type taxonomy** (existence / substitution / occurrence / … native; spelling / metric / sequence / script via an opt-in Vale adapter) — see [[Warden Integration Strategy]] D8. Tiers are aspirational ladders: a rule starts `stated` and graduates to `checked` once its primitive exists.
+A `checked` rule's check is written one of two ways: a named **primitive** via `check::` (e.g. `` check:: regex_present `^#+ RULESET R-` ``), or — when no primitive fits — an embedded ```` ```python ```` `def check(ctx) -> bool` block (the same executable-rule mechanism [[F180 — When-trigger executable rules|F180]] uses for `trigger` / `guard`). **Primitives run on the fast native path; arbitrary Python runs on the slower Python path** — so prefer a primitive when one fits. The prose `**Check pattern:**` stays the human spec. The primitive vocabulary is a **superset of Vale's check-type taxonomy** (existence / substitution / occurrence / … native; spelling / metric / sequence / script via an opt-in Vale adapter) — see [[Warden Integration Strategy]] D8.
+
+**Glob and regex values are backticked** — `` where:: `{ANCHOR}/**/*.md` ``, `` check:: regex_present `^…` `` — the standing convention ([[F007 — Backtick all where expressions — parser swap|F007]]) so the expression never trips the Obsidian renderer; the parser strips the backticks. Tiers are aspirational ladders: a rule starts `stated` and graduates to `checked` once its check exists.
 
 ## Composition — include
 

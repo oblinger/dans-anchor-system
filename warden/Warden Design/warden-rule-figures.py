@@ -14,8 +14,9 @@ PAD = 18
 FONT = "ui-monospace, 'SF Mono', Menlo, Consolas, monospace"
 
 SENTINEL = re.compile(r"\b(RULE|RULESET)\b")
-FIELD = re.compile(r"^(include|where|when|description|check)::")
+FIELD = re.compile(r"^(include|where|when|if|rerun|description|check)::")
 BOLDFIELD = re.compile(r"^\*\*[^*]+:\*\*")  # **Check pattern:** / **Why:**
+PYLINE = re.compile(r"^(```|def |    |\treturn|    return)")  # embedded python block
 
 
 def esc(s: str) -> str:
@@ -29,6 +30,8 @@ def line_color(line: str) -> str:
         return "#2d5b7b"          # :: field line
     if BOLDFIELD.match(line):
         return "#555555"          # **Label:** prose
+    if PYLINE.match(line):
+        return "#2f7d4f"          # embedded python
     return "#1a1a2e"              # default
 
 
@@ -91,24 +94,31 @@ EXAMPLES = [
     "include::",
     "description:: worked examples of Warden's rule-execution modes",
     "",
-    "### RULE R-ex-01 — Ruleset has a description (checked · script)",
-    "check:: regex_present ^description::",
-    "**Check pattern:** a header line matches ^description::",
+    "### RULE R-ex-01 — Has a description (checked · primitive)",
+    "check:: regex_present `^description::`        # glob/regex backticked (F007)",
+    "**Check pattern:** a header line matches `^description::`",
     "",
-    "### RULE R-ex-02 — Summary matches the body (stated · LLM)",
-    "where:: {ANCHOR}/**/F[0-9][0-9][0-9] — *.md",
-    "The ## Summary faithfully reflects ## Design — no drift, no",
-    "promises the design abandoned.   (the LLM reads + judges)",
+    "### RULE R-ex-02 — Custom mechanical check (checked · python)",
+    "```python",
+    "def check(ctx):                 # arbitrary logic, no primitive fits",
+    "    return any(l.startswith('description::') for l in ctx.header_lines())",
+    "```",
     "",
-    "### RULE R-ex-03 — Open Questions still open (stated · script-assisted)",
-    "check:: extract_section \"## Open Questions\"",
-    "Judge each extracted item: still unresolved given the rest of",
-    "the doc? Flag the stale ones.   (script narrows the LLM's input)",
+    "### RULE R-ex-03 — Summary matches the body (stated · LLM)",
+    "where:: `{ANCHOR}/**/F[0-9][0-9][0-9] — *.md`",
+    "The ## Summary faithfully reflects ## Design — no drift.  (LLM judges)",
     "",
-    "### RULE R-ex-04 — Diagram matches prose (stated · LLM, gated)",
-    "where:: {ANCHOR}/**/*Architecture*.md",
+    "### RULE R-ex-04 — Open Questions still open (stated · script-assisted)",
+    "```python",
+    "def prepare(ctx):               # cheap: hand the LLM just one section",
+    "    return ctx.section('## Open Questions')",
+    "```",
+    "Judge each item prepare() returns: still unresolved? Flag stale ones.",
+    "",
+    "### RULE R-ex-05 — Diagram matches prose (stated · LLM, gated)",
+    "where:: `{ANCHOR}/**/*Architecture*.md`",
     "when:: write:markdown",
-    "rerun:: significant         # skip re-eval for typo-scale edits",
+    "rerun:: significant             # re-judge only on significant edits",
     "The figure reflects the components in the prose; flag drift.",
 ]
 
