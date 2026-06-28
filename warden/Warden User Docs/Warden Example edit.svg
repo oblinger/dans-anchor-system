@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="384" height="112" viewBox="0 0 384 112" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="13">
-<rect x="0" y="0" width="384" height="112" rx="9" fill="#f8f9fb" stroke="#c9cde0" stroke-width="1.3"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="368" height="112" viewBox="0 0 368 112" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="13">
+<rect x="0" y="0" width="368" height="112" rx="9" fill="#f8f9fb" stroke="#c9cde0" stroke-width="1.3"/>
 <text x="16" y="29" xml:space="preserve"><tspan font-weight="bold" fill="#7b2d52">### RULE R-ex-05 — Stamp the reviewed-date</tspan></text>
 <text x="16" y="49" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">where:: `**/*Architecture*.md`</tspan></text>
 <text x="16" y="69" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">when:: write:markdown</tspan></text>
-<text x="16" y="89" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">`ctx.set_frontmatter('reviewed', ctx.today)`</tspan></text>
+<text x="16" y="89" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">`file.set_frontmatter('reviewed', today)`</tspan></text>
 </svg>

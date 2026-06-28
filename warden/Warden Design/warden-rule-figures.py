@@ -120,21 +120,21 @@ HEADER = [
     "description:: worked examples of Warden's rule-execution modes",
 ]
 RULES = {
-    # bare prose body = the tell; otherwise a bare python SNIPPET (ctx in scope,
-    # no def, no magic function name). if::/focus:: are python-expression clauses.
+    # body scope: file / anchor / event (the matched sub-objects) + bare verbs
+    # tell / deny / judge. bare prose body = the tell; backticks = python.
     "prose": [
         "### RULE R-ex-01 — Ruleset has a description",
         "where:: `**/R-*.md`",
-        "if:: `'description' not in ctx.fields`",
+        "if:: `'description' not in file.frontmatter`",
         "Every ruleset needs a `description::` line — add one.",
     ],
     "python": [
         "### RULE R-ex-02 — No empty sections",
         "where:: `**/*.md`",
         "```",
-        "for s in ctx.sections(level=2):",
+        "for s in file.sections(level=2):",
         "    if not s.body.strip():",
-        "        ctx.tell(f\"'{s.title}' is empty — add a body or drop it\")",
+        "        tell(f\"'{s.title}' is empty — add a body or drop it\")",
         "```",
     ],
     "judgment": [
@@ -148,24 +148,24 @@ RULES = {
         "where:: `**/*.md`",
         "```",
         "# narrow first (cheap), then ask the LLM about just that slice",
-        "for q in ctx.judge(ctx.section('## Open Questions'),",
-        "                   'which questions are already resolved elsewhere?'):",
-        "    ctx.tell(q)",
+        "for q in ask(file.section('## Open Questions'),",
+        "             'which questions are already resolved elsewhere?'):",
+        "    tell(q)",
         "```",
     ],
     "edit": [
         "### RULE R-ex-05 — Stamp the reviewed-date",
         "where:: `**/*Architecture*.md`",
         "when:: write:markdown",
-        "`ctx.set_frontmatter('reviewed', ctx.today)`",
+        "`file.set_frontmatter('reviewed', today)`",
     ],
     "deny": [
         "### RULE R-ex-06 — No force-push to main",
         "when:: tool:pre:Bash",
         "```",
         "# the pending command — not yet run; we inspect it",
-        "if 'git push' in ctx.command and '--force' in ctx.command and ctx.on_main:",
-        "    ctx.deny('never force-push main — open a PR instead')",
+        "if 'git push' in event.command and anchor.branch == 'main':",
+        "    deny('never force-push main — open a PR instead')",
         "```",
     ],
 }
@@ -207,7 +207,7 @@ ANATOMY = [
     "### RULE R-ex — Title present",
     "where:: `*.md`",
     "when:: write:markdown",
-    "if:: `not ctx.title`",
+    "if:: `not file.title`",
     "Add a top-level title.",
 ]
 ANATOMY_ANNOTS = [

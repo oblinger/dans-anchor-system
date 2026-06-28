@@ -1,18 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="624" height="892" viewBox="0 0 624 892" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="13">
-<rect x="0" y="0" width="624" height="892" rx="9" fill="#f8f9fb" stroke="#c9cde0" stroke-width="1.3"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="544" height="892" viewBox="0 0 544 892" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="13">
+<rect x="0" y="0" width="544" height="892" rx="9" fill="#f8f9fb" stroke="#c9cde0" stroke-width="1.3"/>
 <text x="16" y="29" xml:space="preserve"><tspan font-weight="bold" fill="#7b2d52"># RULESET R-warden-examples</tspan></text>
 <text x="16" y="49" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">include::</tspan></text>
 <text x="16" y="69" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">description:: worked examples of Warden's rule-execution modes</tspan></text>
 <text x="16" y="109" xml:space="preserve"><tspan font-weight="bold" fill="#7b2d52">### RULE R-ex-01 — Ruleset has a description</tspan></text>
 <text x="16" y="129" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">where:: `**/R-*.md`</tspan></text>
-<text x="16" y="149" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">if:: `'description' not in ctx.fields`</tspan></text>
+<text x="16" y="149" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">if:: `'description' not in file.frontmatter`</tspan></text>
 <text x="16" y="169" xml:space="preserve"><tspan font-weight="normal" fill="#1a1a2e">Every ruleset needs a `description::` line — add one.</tspan></text>
 <text x="16" y="209" xml:space="preserve"><tspan font-weight="bold" fill="#7b2d52">### RULE R-ex-02 — No empty sections</tspan></text>
 <text x="16" y="229" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">where:: `**/*.md`</tspan></text>
 <text x="16" y="249" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">```</tspan></text>
-<text x="16" y="269" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">for s in ctx.sections(level=2):</tspan></text>
+<text x="16" y="269" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">for s in file.sections(level=2):</tspan></text>
 <text x="16" y="289" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">    if not s.body.strip():</tspan></text>
-<text x="16" y="309" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">        ctx.tell(f"'{s.title}' is empty — add a body or drop it")</tspan></text>
+<text x="16" y="309" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">        tell(f"'{s.title}' is empty — add a body or drop it")</tspan></text>
 <text x="16" y="329" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">```</tspan></text>
 <text x="16" y="369" xml:space="preserve"><tspan font-weight="bold" fill="#7b2d52">### RULE R-ex-03 — Summary matches the body</tspan></text>
 <text x="16" y="389" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">where:: `**/F[0-9][0-9][0-9] — *.md`</tspan></text>
@@ -22,19 +22,19 @@
 <text x="16" y="489" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">where:: `**/*.md`</tspan></text>
 <text x="16" y="509" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">```</tspan></text>
 <text x="16" y="529" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f"># narrow first (cheap), then ask the LLM about just that slice</tspan></text>
-<text x="16" y="549" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">for q in ctx.judge(ctx.section('## Open Questions'),</tspan></text>
-<text x="16" y="569" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">                   'which questions are already resolved elsewhere?'):</tspan></text>
-<text x="16" y="589" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">    ctx.tell(q)</tspan></text>
+<text x="16" y="549" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">for q in ask(file.section('## Open Questions'),</tspan></text>
+<text x="16" y="569" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">             'which questions are already resolved elsewhere?'):</tspan></text>
+<text x="16" y="589" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">    tell(q)</tspan></text>
 <text x="16" y="609" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">```</tspan></text>
 <text x="16" y="649" xml:space="preserve"><tspan font-weight="bold" fill="#7b2d52">### RULE R-ex-05 — Stamp the reviewed-date</tspan></text>
 <text x="16" y="669" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">where:: `**/*Architecture*.md`</tspan></text>
 <text x="16" y="689" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">when:: write:markdown</tspan></text>
-<text x="16" y="709" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">`ctx.set_frontmatter('reviewed', ctx.today)`</tspan></text>
+<text x="16" y="709" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">`file.set_frontmatter('reviewed', today)`</tspan></text>
 <text x="16" y="749" xml:space="preserve"><tspan font-weight="bold" fill="#7b2d52">### RULE R-ex-06 — No force-push to main</tspan></text>
 <text x="16" y="769" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">when:: tool:pre:Bash</tspan></text>
 <text x="16" y="789" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">```</tspan></text>
 <text x="16" y="809" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f"># the pending command — not yet run; we inspect it</tspan></text>
-<text x="16" y="829" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">if 'git push' in ctx.command and '--force' in ctx.command and ctx.on_main:</tspan></text>
-<text x="16" y="849" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">    ctx.deny('never force-push main — open a PR instead')</tspan></text>
+<text x="16" y="829" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">if 'git push' in event.command and anchor.branch == 'main':</tspan></text>
+<text x="16" y="849" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">    deny('never force-push main — open a PR instead')</tspan></text>
 <text x="16" y="869" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">```</tspan></text>
 </svg>
