@@ -12,6 +12,7 @@ CAE is a self-contained reference anchor that demonstrates the canonical CAB str
 | [[CAE Track\|Track]] | [[CAE Backlog\|Backlog]],   |
 | [[CAE User Docs\|User Docs]] | [[CAE Guide\|Guide]],   |
 | [[CAE Dev Docs\|Dev Docs]] | [[CAE Files\|Files]],  [[CAE-Scheduler\|Scheduler]],   |
+| ... | [ANC](hook://ANC),   |
 
 **Examples** — CAE doubles as the dispatch-form gallery (member zone):
 
@@ -48,6 +49,7 @@ Writing the principle once (in Rules) and referencing it by ID everywhere else k
 - **Inclusion test for a dispatch row:** the row must point at a file/folder that itself exemplifies a canonical CAB facet or zone (Design, Architecture, User Docs, Dev Docs, Track). Do not add rows for one-off content that wouldn't appear in a real anchor.
 - **Mirror, don't invent.** When CAB facet specs change (in `Skill Agent/CAB/`), reflect the new shape here; do NOT pioneer new structural conventions in CAE — it follows CAB, never leads it. Cross-trait counterpart is [[CSE]] (Skill-trait); keep the two aligned in structure where applicable.
 -[[CAE]]-	: Common Anchor Example — reference anchor — a fully-wired example of the canonical CAB structure
+[ANC](hook://ANC)
 [[CAE Design|Design]] — design — system spec, architecture, principles
 [[CAE Dev Docs|Dev Docs]] — source file tree and per-module reference for CAE (audit-tied implementation docs)
 [[CAE Track|Track]] — work tracking + planning

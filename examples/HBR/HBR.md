@@ -15,3 +15,4 @@ A self-hosted media server that ingests, transcodes, and streams a personal libr
 | [[HBR Dev Docs\|Dev Docs]]+ | [[HBR Files\|Files]],  [[HBR Versions\|Versions]],   |
 | [[HBR Components\|Components]]+ | [[HBR Ingest\|Ingest]],  [[HBR Serve\|Serve]],  [[HBR Operate\|Operate]],   |
 | [[HBR Log\|Log]] | [[HBR Log\|Log]] (changelog — chronological-container example) |
+| ... |  |

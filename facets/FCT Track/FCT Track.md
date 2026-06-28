@@ -36,3 +36,8 @@ A `{NAME} Track/` folder exists **iff** the anchor maintains active tracking —
 **Check pattern:** for each `{NAME} Track/`, assert at least one child carries distinct authored tracking content; a boilerplate-only Track folder is a violation — remove it.
 
 **Why:** parallel to the Design facet (R-design-08) — folder existence is an honest trait. An empty Track folder claims a tracking process the anchor doesn't run.
+
+### RULE R-track-group-04 — Inbox lives in the Track folder (checked)
+The anchor's `{NAME} Inbox.md` (the agent message inbox) lives **inside `{NAME} Track/`**, never at the anchor root — Inbox is a track / work-surface facet, alongside Backlog, Messages, and Icebox.
+**Check pattern:** no `{NAME} Inbox.md` sits at the anchor root; any Inbox that exists is under `{NAME} Track/`. An empty / boilerplate Inbox is wiped, not relocated (R-track-group-03).
+**Why:** the inbox is part of the tracking surface; stranding it at the root hides it from the Track dispatch and breaks the one-place-for-the-work-surface convention.
