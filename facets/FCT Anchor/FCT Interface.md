@@ -2,13 +2,13 @@
 description: top-level human-authored layer contract — complete vocabulary for using the layer, hides everything below
 ---
 
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Interface](hook://p/FCT%20Interface)
+
 # FCT Interface
 The facet spec for `{NAME} Interface.md` — the top-level human-authored layer contract on a code anchor, defining the complete caller-facing vocabulary while hiding the implementation below.
 
-| -[[FCT Interface]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Interface](hook://p/FCT%20Interface)<br>: top-level human-authored layer contract — complete vocabulary for using the layer, hides everything below |
-| --- | --- |
-| Related | [[FCT Architecture]],  [[FCT Module Doc]],  [[FCT User Dispatch]],  [[FCT All Files]],   |
-| Examples | [[HA Interface\|minimal — CLI tool, one caller surface]],  [[MUX Interface\|fuller — app with multiple caller surfaces + sub-Interfaces]],   |
+**Related:** [[FCT Architecture]],  [[FCT Module Doc]],  [[FCT User Dispatch]],  [[FCT All Files]]
+**Examples:** [[HA Interface\|minimal — CLI tool, one caller surface]],  [[MUX Interface\|fuller — app with multiple caller surfaces + sub-Interfaces]]
 
 **TLDR** — `{NAME} Interface.md` is the **one** doc a caller reads to fully use a code anchor's layer — layer-complete, hiding, human-authored, and human-audited. Required on every `code`-trait anchor. **Cardinality: one per anchor** (plus optional named sub-Interfaces for internal layers). Audited by `/audit docs` under `§ 1.8`; scaffolded by `rewire`.
 

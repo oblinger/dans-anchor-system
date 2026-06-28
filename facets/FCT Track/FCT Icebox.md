@@ -1,18 +1,18 @@
 ---
 description: optional file for distant-future / someday-maybe items
 ---
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Icebox](hook://p/FCT%20Icebox)
+
 # FCT Icebox
 Optional cold-storage counterpart to the Backlog — holds distant-future / someday-maybe items the user wants to remember but is not actively considering.
 
-| -[[FCT Icebox]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Icebox](hook://p/FCT%20Icebox)<br>: optional file for distant-future / someday-maybe items |
-| --- | --- |
-| Related | [[FCT Backlog]],  [[FCT Roadmap]],  [[CAB Backlog]],  [[FCT Track]],   |
-| Examples | [[CAE Icebox\|example]],   |
+**Related:** [[FCT Backlog]],  [[FCT Roadmap]],  [[CAB Backlog]],  [[FCT Track]]
+**Examples:** [[CAE Icebox\|example]]
 
 **Cardinality: one per anchor** — at most one `{NAME} Icebox.md` exists per anchor (and it is optional; most anchors do not have one).
 
 **Location:** `{NAME} Docs/{NAME} Plan/{NAME} Icebox.md` (optional)
-
 
 The icebox file (`{NAME} Icebox.md`) holds items the user wants to remember but is **not** actively considering — distant-future ideas, parked features, "someday-maybe" entries. It is the cold-storage counterpart to the [[CAB Backlog]]: Backlog is the *active* deferred-work list, Icebox is the *frozen* one.
 
@@ -33,7 +33,6 @@ Below is a condensed reference example. See the working example linked above for
 | --- | --- |
 | --- | |
 
-
 ## Frozen
 - **GUI dashboard** — Web interface for task monitoring (out of scope for CLI-first phase)
 - **Multi-tenant support** — Not needed until enterprise tier
@@ -44,8 +43,6 @@ Below is a condensed reference example. See the working example linked above for
 - **Distributed scheduling** — Multi-host coordination; not relevant until single-host limits hit
 
 ---
-
-
 
 # Format Specification
 

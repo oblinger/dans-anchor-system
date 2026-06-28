@@ -1,13 +1,14 @@
 ---
 description: "the Facet primitive — what a facet is and how to write its spec"
 ---
+
+:>> [[KM]] → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Primitives]] → [FCT Facet](hook://p/FCT%20Facet)
+
 # FCT Facet
 A narrow, usually file-based aspect of an anchor — and the spec for how to write one.
 
-| -[[FCT Facet]]- | → [[KM]] → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Primitives]] → [FCT Facet](hook://p/FCT%20Facet)<br>: the Facet primitive — what a facet is and how to write its spec |
-| --- | --- |
-| Related | [[FCT Skill]],  [[FCT Ruleset]],  [[FCT Facets]] (the index),  [[CAB Aspects]], |
-| Examples | [[FEX Manifest\|one per anchor example]],  [[FEX Pin\|many per anchor example]],  [[FEX Bundle\|many folders per anchor example]],   |
+**Related:** [[FCT Skill]],  [[FCT Ruleset]],  [[FCT Facets]] (the index),  [[CAB Aspects]]
+**Examples:** [[FEX Manifest\|one per anchor example]],  [[FEX Pin\|many per anchor example]],  [[FEX Bundle\|many folders per anchor example]]
 
 # Facet Document Structure
 A facet spec is one file (`facets/FCT <Name>.md`), authoritative for that facet. Its parts, top to bottom — densest first, per [[DSC progressive-disclosure]]:
@@ -23,14 +24,12 @@ A facet spec is one file (`facets/FCT <Name>.md`), authoritative for that facet.
 
 For a worked facet, open an example in the dispatch table above — there is no embedded copy here, because a facet is itself a full anchor page and embedding one inside this spec just blurs example-vs-spec. The enforceable form of the rules below is the embedded **`R-facet-spec`** ruleset.
 
-
 # Facet Overview
 A **facet** is a narrow, usually file-based aspect of an anchor — one specific structural feature (a `Backlog` file, an `Architecture` doc, a website subfolder), defined by its own spec doc and detected (by default) through file-existence. This page is the spec for *the facet kind itself*: what a facet is and the shape every facet spec doc takes. It is the singular **definition**; [[FCT Facets]] (plural) is the **index** of all concrete facets.
 
 A facet **defines a kind**. The concrete `<NAME> Backlog.md` inside a real project is an *instance* of the Backlog facet, not a facet itself — keep the two apart.
 
 Facets are one of the two kinds of [[CAB Aspects|Aspect]] — the narrow, file-based kind; the broad declared-paradigm kind is the [[TRT|Trait]] (full distinction: [[CAB Aspects]] § Trait vs Facet). The shared model lives in [[CAB Aspects]]; this page is the facet-authoring view of it.
-
 
 # RULESET R-facet-spec
 include::

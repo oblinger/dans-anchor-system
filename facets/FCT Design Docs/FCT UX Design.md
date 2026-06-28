@@ -1,13 +1,14 @@
 ---
 description: "facet spec for `{NAME} UX Design.md` — the human user-facing surface (CLI commands, screens, organization, naming, output shapes, error voice)"
 ---
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT UX Design](hook://p/FCT%20UX%20Design)
+
 # FCT UX Design
 Facet spec for `{NAME} UX Design.md` — the *human* user-facing surface: CLI commands, screens, organization, naming, output shapes, error voice.
 
-| -[[FCT UX Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT UX Design](hook://p/FCT%20UX%20Design)<br>: facet spec for the human user-facing surface doc |
-| --- | --- |
-| Related | [[FCT API Design]],  [[FCT CLI]],  [[FCT Decisions]],  [[FCT Architecture]],   |
-| Examples | [[CAE UX Design\|minimal (CLI surface)]],  [[HBR UX Design\|fuller (multi-surface)]],   |
+**Related:** [[FCT API Design]],  [[FCT CLI]],  [[FCT Decisions]],  [[FCT Architecture]]
+**Examples:** [[CAE UX Design\|minimal (CLI surface)]],  [[HBR UX Design\|fuller (multi-surface)]]
 
 **TLDR**
 - **One per anchor** — a single `{NAME} UX Design.md` captures all human-facing surface intent for the anchor.
@@ -63,7 +64,6 @@ See [[CAE UX Design]] — the CAE scheduler shows the canonical shape for a CLI-
 - [[FCT Architecture]] — internal organization; UX entry-points typically map to architecture components.
 - [[DSC progressive-disclosure]] — preface zone discipline.
 - [[DSC markdown]] — markdown authoring discipline.
-
 
 # RULESET R-ux
 include::

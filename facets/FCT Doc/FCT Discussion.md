@@ -1,13 +1,14 @@
 ---
 description: "per-document discussion log — dated trade-off threads attached to the doc they're about"
 ---
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Doc]] → [FCT Discussion](hook://p/FCT%20Discussion)
+
 # FCT Discussion
 Per-document discussion log — dated trade-off threads attached to the doc they're about.
 
-| -[[FCT Discussion]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Doc]] → [FCT Discussion](hook://p/FCT%20Discussion)<br>: per-document discussion log — dated trade-off threads attached to the doc they're about |
-| --- | --- |
-| Related | [[FCT Decisions]],  [[FCT Log]],  [[FCT PRD]],  [[DSC dated-entry-stream]],   |
-| Examples | [[HA Frontmatter\|inline method-1]],  [[HA Design Discussions\|sibling-file method-2]],   |
+**Related:** [[FCT Decisions]],  [[FCT Log]],  [[FCT PRD]],  [[DSC dated-entry-stream]]
+**Examples:** [[HA Frontmatter\|inline method-1]],  [[HA Design Discussions\|sibling-file method-2]]
 
 **TLDR** — A doc-scoped dated-entry-stream (cardinality: many) that attaches to spec docs — PRDs, Architecture, feature docs, etc. Each entry follows a Problem / Options Considered / Decision skeleton. Two placement methods: inline `# Discussion` H1 (default) or sibling `{Parent} Discussions.md` (when inline grows past ~2 screens). Append-only after Decision is filled. Does NOT attach to navigation/sequencing artifacts (anchor pages, dispatch pages, Backlog, Roadmap).
 
@@ -83,7 +84,6 @@ Discussion is **append-only**. Entries are never edited after the Decision is fi
 - [[FCT Log]] — sibling dated-entry-stream facet.
 - [[FCT Facets]] — facet catalog with the Document-scoped row.
 - [[CAE Discussion]] — legacy anchor-scoped example, pending migration (see [[SKA Backlog]] § F149).
-
 
 # RULESET R-discussion
 include::

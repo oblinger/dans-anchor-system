@@ -2,13 +2,13 @@
 description: "the top-down design of a system's module & content structure — the file-tree architecture doc kind"
 ---
 
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Files Architecture](hook://p/FCT%20Files%20Architecture)
+
 # FCT Files Architecture
 The facet spec for a **Files Architecture** document — the top-down design of how a system's files, modules, and content are laid out: every folder, what lives in it, and why the tree is shaped that way.
 
-| -[[FCT Files Architecture]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Files Architecture](hook://p/FCT%20Files%20Architecture)<br>: the file-tree / content-structure design doc kind |
-| --- | --- |
-| Related | [[FCT Architecture\|Architecture]] (subsystem-interaction story — the sibling design facet),  [[FCT All Files\|All Files]] (the realized source tree this designs),  [[FCT Module Doc\|Module Doc]],  [[FCT Design Docs\|Design Docs]] (parent group) |
-| Examples | [[SKA File Tree Architecture]] — the worked instance: the top-down design of the `ob-skills` / SKA tree |
+**Related:** [[FCT Architecture\|Architecture]] (subsystem-interaction story — the sibling design facet),  [[FCT All Files\|All Files]] (the realized source tree this designs),  [[FCT Module Doc\|Module Doc]],  [[FCT Design Docs\|Design Docs]] (parent group)
+**Examples:** [[SKA File Tree Architecture]] — the worked instance: the top-down design of the `ob-skills` / SKA tree
 
 **TLDR** — A Files Architecture doc is the top-down canonical map of where every file/module/content kind lives in a system and why the tree is shaped that way. Required parts: a folder→role structure table (the load-bearing piece) and its design rationale. Cardinality: one per anchor/repo. Sibling to [[FCT Architecture]] (subsystem interactions), not a replacement for it.
 

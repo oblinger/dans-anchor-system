@@ -1,15 +1,16 @@
 ---
 description: "facet spec for user stories as first-class siblings of a PRD — inline-bullet form for small PRDs, extracted-folder form for large ones"
 ---
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Stories](hook://p/FCT%20Stories)
+
 # FCT Stories
 **Audited examples:** [[CAE Stories]], [[US-CAE-1 — Schedule a Task]], [[US-CAE-3 — Retry Failed Tasks]], [[Forum Stories]], [[HBR PRD User Stories]]
 
 Facet spec for the user-stories surface of a PRD — defines the inline-bullet form for small PRDs and the extracted-folder form (`{NAME} PRD/` with per-story files indexed by `{NAME} Stories.md`) for PRDs whose stories outgrow a single sentence.
 
-| -[[FCT Stories]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Stories](hook://p/FCT%20Stories)<br>: facet spec for user stories as first-class siblings of a PRD |
-| --- | --- |
-| Related | [[FCT PRD]],  [[FCT Testing]],  [[FCT Features]],  [[FCT Design]],   |
-| Examples | [[HBR PRD\|inline-stories (single-file form)]],  [[CAE Stories\|folder-form dispatch index (extracted stories)]],   |
+**Related:** [[FCT PRD]],  [[FCT Testing]],  [[FCT Features]],  [[FCT Design]]
+**Examples:** [[HBR PRD\|inline-stories (single-file form)]],  [[CAE Stories\|folder-form dispatch index (extracted stories)]]
 
 **TLDR** — Stories are part of the PRD. Small PRDs keep stories inline as bullets under `## User Stories`; large PRDs extract them to `{NAME} PRD/` folder form with a `{NAME} Stories.md` dispatch index and per-story `US-<RID>-<N> — <Title>.md` files. The two forms are mutually exclusive. **Cardinality: many** — a PRD in folder form can have any number of story files. The embedded `R-stories` ruleset enforces folder shape, naming, dispatch table structure, and bidirectional linking.
 
@@ -124,7 +125,6 @@ A progression of increasing weight — adopt the lightest form that fits:
 - [[FCT Features]] — feature docs carry a `Realizes:` line linking back to the stories they implement
 - [[design-prd]] — authoring sub-skill; capturing user stories is an explicit step in PRD design
 - [[CAE PRD]] — worked example (currently single-file form; will migrate to folder form when CAE stories grow)
-
 
 # RULESET R-stories
 include::

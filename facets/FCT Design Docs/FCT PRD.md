@@ -1,15 +1,16 @@
 ---
 description: "facet spec for {NAME} PRD.md — the anchor's product requirements document"
 ---
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT PRD](hook://p/FCT%20PRD)
+
 # FCT PRD
 **Audited examples:** [[HBR PRD]], [[Mini PRD]], [[CAE PRD]], [[DMUX PRD]], [[OBU PRD]]
 
 Facet spec for `{NAME} PRD.md` — the first doc in an anchor's Design folder, defining what the product does (goals, non-goals, user stories) for every downstream design phase to consume.
 
-| -[[FCT PRD]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT PRD](hook://p/FCT%20PRD)<br>: facet spec for {NAME} PRD.md — the anchor's product requirements document |
-| --- | --- |
-| Related | [[FCT Architecture]],  [[FCT Testing]],  [[FCT Decisions]],  [[FCT Stories]],   |
-| Examples | [[HBR PRD\|single-file form]],  [[CAE PRD\|folder form (stories extracted)]],   |
+**Related:** [[FCT Architecture]],  [[FCT Testing]],  [[FCT Decisions]],  [[FCT Stories]]
+**Examples:** [[HBR PRD\|single-file form]],  [[CAE PRD\|folder form (stories extracted)]]
 
 The PRD (`{NAME} PRD.md`) is the **what** of the product — what it does, who it serves, what's in and out of scope, and the user stories that downstream work realizes. It is the first document written during `/design`, and every downstream phase (UX, Architecture, Testing, Roadmap, Features) reads it as authoritative input.
 
@@ -131,7 +132,6 @@ Any anchor that has a `{NAME} Design/` folder per [[FCT Design]]. Initially supp
 - [[DSC progressive-disclosure]] — preface-zone requirements
 - [[design-prd]] — authoring sub-skill for `/design prd`
 - [[CAE PRD]] — worked example (single-file form, three inline stories)
-
 
 # RULESET R-prd
 include::

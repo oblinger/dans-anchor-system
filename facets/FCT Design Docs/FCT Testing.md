@@ -2,15 +2,15 @@
 description: testing facet — the project's testing strategy (kinds, amounts, responsibilities) followed by an overview of the actual tests proposed, consistent with that strategy. Low-level test specs live in module docs, not here.
 ---
 
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Testing](hook://p/FCT%20Testing)
+
 # FCT Testing
 **Audited examples:** [[HBR Testing]], [[Mini Testing]], [[CAE Testing]], [[MUX Testing]], [[SKA Bridge Testing]]
 
 Spec for the `{NAME} Testing.md` design facet — a two-part doc combining the project's testing strategy with a proposed-tests inventory, peer to Architecture and UX Design under Design.
 
-| -[[FCT Testing]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Testing](hook://p/FCT%20Testing)<br>: spec for the `{NAME} Testing.md` design facet — strategy + proposed-tests inventory |
-| --- | --- |
-| Related | [[FCT Architecture]],  [[FCT UX Design]],  [[FCT PRD]],  [[FCT Design Docs]],   |
-| Examples | [[Mini Testing\|minimal worked example]],  [[HBR Testing\|maximal worked example]],  [[CAE Testing\|fuller worked example]],   |
+**Related:** [[FCT Architecture]],  [[FCT UX Design]],  [[FCT PRD]],  [[FCT Design Docs]]
+**Examples:** [[Mini Testing\|minimal worked example]],  [[HBR Testing\|maximal worked example]],  [[CAE Testing\|fuller worked example]]
 
 **Location:** `{NAME} Design/{NAME} Testing.md` (or `{NAME} Testing/` if it grows to anchor-folder form, parallel to Architecture).
 
@@ -148,7 +148,6 @@ Available to any anchor that ships testable behavior — primarily `Code` trait 
 - [[Common Testing Types]] — the standard test-kind catalogue (one H2 per kind) that the required `## Tests` table's Kind cells link to for vanilla kinds.
 - [[CAE Testing]] — worked example for CAE Example CLI.
 - [[skills/design/design-testing|design-testing]] — authoring sub-skill for `/design testing`.
-
 
 # RULESET R-testing
 include::

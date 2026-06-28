@@ -1,13 +1,14 @@
 ---
 description: "completed-roadmap facet — migrated milestones in newest-on-top order, sibling of the forward-looking Roadmap"
 ---
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Completed Roadmap](hook://p/FCT%20Completed%20Roadmap)
+
 # FCT Completed Roadmap
 The migration target for completed milestones — preserves shipped milestone structure in newest-to-oldest order alongside the forward-looking Roadmap.
 
-| -[[FCT Completed Roadmap]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Completed Roadmap](hook://p/FCT%20Completed%20Roadmap)<br>: completed-roadmap facet — migrated milestones in newest-on-top order, sibling of the forward-looking Roadmap |
-| --- | --- |
-| Related | [[FCT Roadmap]],  [[FCT Design]],  [[FCT Features]],  [[FCT Design Docs]],   |
-| Examples | [[CAE Completed Roadmap\|example]],   |
+**Related:** [[FCT Roadmap]],  [[FCT Design]],  [[FCT Features]],  [[FCT Design Docs]]
+**Examples:** [[CAE Completed Roadmap\|example]]
 
 **TLDR** — One doc per anchor (when any milestone has migrated). Lives at `{NAME} Design/{NAME} Completed Roadmap.md`. Newest migrated milestone at top; standalone-completed-features groupings interleave between milestones. Cardinality: **one per anchor**.
 
@@ -82,7 +83,6 @@ Per [[DSC progressive-disclosure]]:
 - [[FCT Design]] — Completed Roadmap is an OPTIONAL child of {NAME} Design/; activated when the first milestone migrates
 - [[F144 — Completed Roadmap + named milestones]] — the feature that landed this convention
 - F145 (future) — `state roadmap migrate` script automation
-
 
 # RULESET R-completed-roadmap
 include::

@@ -1,13 +1,14 @@
 ---
 description: "audit-tied developer docs dispatch page — file tree and per-module docs"
 ---
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Dev Dispatch](hook://p/FCT%20Dev%20Dispatch)
+
 # FCT Dev Dispatch
 Facet spec for `{NAME} Dev Docs.md` — the audit-tied dispatch page that lists the Files tree and per-module docs under the root-level `{NAME} Dev Docs/` folder.
 
-| -[[FCT Dev Dispatch]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Dev Dispatch](hook://p/FCT%20Dev%20Dispatch)<br>: audit-tied developer docs dispatch page — file tree and per-module docs |
-| --- | --- |
-| Related | [[FCT User Dispatch]],  [[FCT All Files]],  [[FCT Module Doc]],  [[FCT Anchor Page]],   |
-| Examples | [[CAE Dev Docs\|minimal (Files + one module group)]],  [[HBR Dev Docs\|starter stub]],   |
+**Related:** [[FCT User Dispatch]],  [[FCT All Files]],  [[FCT Module Doc]],  [[FCT Anchor Page]]
+**Examples:** [[CAE Dev Docs\|minimal (Files + one module group)]],  [[HBR Dev Docs\|starter stub]]
 
 **Location:** `{NAME} Dev Docs/{NAME} Dev Docs.md` (root-level folder, Gen-3)
 
@@ -23,10 +24,8 @@ The `{NAME} Dev Docs.md` dispatch page inside the root-level `{NAME} Dev Docs/` 
 
 **Working example:** `HBR Dev Docs/HBR Dev Docs.md` — Dev Docs dispatch.
 
-
 # Reference Example
 ---
-
 
 # CAE Dev Docs
 
@@ -42,7 +41,6 @@ The `{NAME} Dev Docs.md` dispatch page inside the root-level `{NAME} Dev Docs/` 
 (Note: the synthesis docs are not listed here — Interface lives in `{NAME} Design/`, the Architecture story in `{NAME} Design/` (the `{NAME} Architecture` doc). Dev Docs carries only Files + per-module docs.)
 
 ---
-
 
 # Format Specification
 

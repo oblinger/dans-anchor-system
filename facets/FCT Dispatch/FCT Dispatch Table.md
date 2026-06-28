@@ -2,17 +2,16 @@
 description: "the top-of-page navigation table — its own spec, dogfooded"
 ---
 
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Dispatch Table](hook://p/FCT%20Dispatch%20Table)
+
 # FCT Dispatch Table
 The top-of-file table convention that gives most anchor pages and many facet pages their navigation surface.
 
-| -[[FCT Dispatch Table]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Dispatch Table](hook://p/FCT%20Dispatch%20Table)<br>: the top-of-page navigation table — its own spec, dogfooded |
-| --- | --- |
-| Related | [[Collection]],  [[DSC progressive-disclosure]],  [[audit-dispatch\|/audit dispatch]],   |
-| Design | [[CAB Dispatch Table Design\|Design]],   |
-| Examples | [[CAE\|minimal]],  [[HBR\|fuller]],  [[CAE Dispatch Examples\|full gallery]],   |
+**Related:** [[Collection]],  [[DSC progressive-disclosure]],  [[audit-dispatch\|/audit dispatch]]
+**Design:** [[CAB Dispatch Table Design\|Design]]
+**Examples:** [[CAE\|minimal]],  [[HBR\|fuller]],  [[CAE Dispatch Examples\|full gallery]]
 
 **TLDR** — **Cardinality: many** — one dispatch table per page; most anchor and facet pages carry one. The masthead is the breadcrumb plus, in fixed order, the optional **Related → type → Design → Track → User Docs → Dev Docs** rows (a switchboard, not a directory) — each row a link down to a sub-area plus its key parts; anything enumerable beyond those drops to the Member zone below. `/audit dispatch` builds and repairs it.
-
 
 **Examples** — below the masthead (this page's member zone is its four live exemplars; each row is itself a tiny member list, dogfooding the form):
 

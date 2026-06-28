@@ -1,13 +1,14 @@
 ---
 description: track docs dispatch page — work tracking + planning for a Track-trait anchor
 ---
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Track Dispatch](hook://p/FCT%20Track%20Dispatch)
+
 # FCT Track Dispatch
 Spec for the `{NAME} Track.md` dispatch page that lists all work-tracking and planning documents inside a Track-trait anchor's `{NAME} Track/` folder.
 
-| -[[FCT Track Dispatch]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Track Dispatch](hook://p/FCT%20Track%20Dispatch)<br>: track docs dispatch page — work tracking + planning for a Track-trait anchor |
-| --- | --- |
-| Related | [[FCT Dispatch]],  [[FCT Backlog]],  [[FCT Design Dispatch]],  [[CAB Track]],   |
-| Examples | [[CAE Track\|fuller example]],  [[HBR Track\|minimal example]],   |
+**Related:** [[FCT Dispatch]],  [[FCT Backlog]],  [[FCT Design Dispatch]],  [[CAB Track]]
+**Examples:** [[CAE Track\|fuller example]],  [[HBR Track\|minimal example]]
 
 **Cardinality:** one per anchor (each Track-trait anchor has exactly one `{NAME} Track.md` dispatch page).
 
@@ -24,7 +25,6 @@ Below is a condensed reference example.
 # Reference Example
 ---
 
-
 # CAE Track
 
 | -[[CAE Track]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Track Dispatch](hook://p/FCT%20Track%20Dispatch)<br>: tracking metadata + backlog |
@@ -39,8 +39,6 @@ Below is a condensed reference example.
 *Roadmap + Features moved to [[CAE Design]] 2026-06-10 per the design-includes-features restructure — feature docs are design artifacts, the roadmap is sequencing-design. See [[FCT Design]] for the new home.*
 
 ---
-
-
 
 # Format Specification
 

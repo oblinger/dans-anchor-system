@@ -1,13 +1,14 @@
 ---
 description: "the current technical-architecture document for a software project anchor"
 ---
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT System Design](hook://p/FCT%20System%20Design)
+
 # FCT System Design
 Facet spec for `{NAME} System Design.md` — the current technical-architecture document (components, data model, decisions) for a software project anchor.
 
-| -[[FCT System Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT System Design](hook://p/FCT%20System%20Design)<br>: the current technical-architecture document for a software project anchor |
-| --- | --- |
-| Related | [[FCT PRD]],  [[FCT Decisions]],  [[FCT Discussion]],  [[FCT UX Design]],   |
-| Examples | [[SKA System Design\|real anchor example]],   |
+**Related:** [[FCT PRD]],  [[FCT Decisions]],  [[FCT Discussion]],  [[FCT UX Design]]
+**Examples:** [[SKA System Design\|real anchor example]]
 
 **TLDR** One per anchor. `{NAME} System Design.md` lives in `{NAME} Docs/{NAME} Plan/` and records the *current* technical architecture — components, data model, APIs, and architectural decisions. Not a history log; rationale and alternatives belong in [[FCT Discussion]].
 
@@ -28,15 +29,12 @@ Below is a condensed reference example. See the working example linked above for
 | --- | --- |
 | --- | |
 
-
 | TOC |  |
 | --- | --- |
 | 1 | Architecture Overview |
 | 2 | Components |
 | 3 | Data Model |
 | 4 | Decisions |
-
-
 
 ## 1 Architecture Overview
 
@@ -47,8 +45,6 @@ CLI → Scheduler → PriorityQueue → WorkerPool → TaskResult
                        ↑
                   RetryManager (requeues failed tasks)
 ```
-
-
 
 ## 2 Components
 
@@ -65,8 +61,6 @@ The scheduler is the central dispatch engine. It owns the priority queue and wor
 
 ### RetryManager
 On task failure, the retry manager computes the next deadline using exponential backoff capped at `3 × task_duration` for short tasks. After `retry_limit` attempts, the task moves to the dead-letter list.
-
-
 
 ## 3 Data Model
 
@@ -87,8 +81,6 @@ class TaskResult:
     duration: float
 ```
 
-
-
 ## 4 Decisions
 
 | # | Decision | Rationale |
@@ -98,8 +90,6 @@ class TaskResult:
 | D3 | Fixed pool size | Dynamic sizing adds complexity without measurable benefit at target scale |
 
 ---
-
-
 
 # Format Specification
 

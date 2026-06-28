@@ -1,13 +1,14 @@
 ---
 description: "facet spec for the project sequencing-design doc — milestones, shapes, and numbering"
 ---
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Roadmap](hook://p/FCT%20Roadmap)
+
 # FCT Roadmap
 The Roadmap facet — the project's sequencing-design doc, organized as named milestones with sub-numbering.
 
-| -[[FCT Roadmap]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Roadmap](hook://p/FCT%20Roadmap)<br>: facet spec for the project sequencing-design doc — milestones, shapes, and numbering |
-| --- | --- |
-| Related | [[FCT Features]],  [[FCT Completed Roadmap]],  [[FCT Status]],  [[FCT Design]],   |
-| Examples | [[CAE Roadmap\|Shape A named-milestone]],  [[HBR Roadmap\|Shape B legacy-numbered]],   |
+**Related:** [[FCT Features]],  [[FCT Completed Roadmap]],  [[FCT Status]],  [[FCT Design]]
+**Examples:** [[CAE Roadmap\|Shape A named-milestone]],  [[HBR Roadmap\|Shape B legacy-numbered]]
 
 The Roadmap facet specifies the `{NAME} Roadmap.md` file — the project's **sequencing-design**. It declares what ships in what order, organized as milestones (M1, M2, M3 …) with sub-numbering for finer detail. Open questions at the sequencing/dependency/gating level live as `## Open Questions` H2 on this file per [[DSC ask-format]].
 
@@ -122,7 +123,6 @@ User initially proposed M-numbers replacing F-numbers when promoted. Rejected be
 
 **Renumbering within a milestone:** legal but adds cost when features have already been commissioned. Grep by `M-<Name>.<old>` finds the feature doc; rename the file (Obsidian propagates wiki-links). Commit history references stay frozen with the old position — accept this as the cost of renumbering. Renumbering should be rare; usually new sub-items append at the end.
 
-
 ## Roadmap is future + present only; completed milestones migrate
 
 The roadmap is **forward-looking** — it shows what's planned and what's in progress. Completed milestones do NOT accumulate in the roadmap doc; they migrate to a companion **Completed Roadmap** doc at `{NAME} Design/{NAME} Completed Roadmap.md` (per [[FCT Completed Roadmap]]).
@@ -136,7 +136,6 @@ Long-running roadmaps that retain completed work become hard to navigate — "wh
 **Migration is currently manual** (F145 will ship the automation: `state roadmap migrate M-<Name>`).
 
 **Within an in-flight milestone:** sub-items CAN be `[x]` checked while parent milestone is still `[ ]`. This shows partial progress. The milestone's `**Status:**` line tracks the overall state ("Core complete — 3/5 sub-items done").
-
 
 ## Status-tracking conventions — three layered axes
 
@@ -293,7 +292,6 @@ Any anchor with a `{NAME} Design/` folder per [[FCT Design]] that's planning mor
 - [[design-roadmap]] — authoring sub-skill for `/design roadmap`
 - [[ABIO Roadmap]] — worked example of Shape B (task-checklist; multi-level numbering; deferral cross-refs)
 - [[CAE Roadmap]] — worked example (currently Shape A skeleton; expansion landing alongside CAE refresh)
-
 
 # RULESET R-roadmap
 include::

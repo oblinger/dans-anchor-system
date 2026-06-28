@@ -2,12 +2,12 @@
 description: "Linked Mode discipline — anchor folder is metadata-only, code lives at an external path declared via `code:` in `.anchor`"
 ---
 
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DSC Linked Mode](hook://p/DSC%20Linked%20Mode)
+
 # DSC Linked Mode
 The pattern for an anchor whose code repository lives outside the vault — anchor folder holds specs and dispatch pages; code lives at a separate path declared via the `code:` key in `.anchor`.
 
-| -[[DSC Linked Mode]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DSC Linked Mode](hook://p/DSC%20Linked%20Mode)<br>: Linked Mode discipline — anchor folder is metadata-only, code lives at an external path declared via `code:` in `.anchor` |
-| --- | --- |
-| Related | [[CAB Disciplines]],  [[CAB Aspects]],  [[FCT Code Repository]],   |
+**Related:** [[CAB Disciplines]],  [[CAB Aspects]],  [[FCT Code Repository]]
 
 The pattern for an anchor whose code repository lives **outside** the vault. The anchor folder contains specs, dispatch pages, and planning content; the actual code lives at a separate filesystem path declared in `.anchor` via the `code:` key.
 

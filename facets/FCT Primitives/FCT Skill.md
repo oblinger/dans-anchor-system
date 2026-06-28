@@ -1,13 +1,14 @@
 ---
 description: "the Skill primitive — SKILL.md entry-point structure and conventions"
 ---
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Primitives]] → [FCT Skill](hook://p/FCT%20Skill)
+
 # FCT Skill
 An omnibus Claude Code skill that groups related actions, reference data, and scripts under a single `/name` command. Invoked via `/name action` (e.g., `/cab setup`, `/md toc`).
 
-| -[[FCT Skill]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Primitives]] → [FCT Skill](hook://p/FCT%20Skill)<br>: the Skill primitive — SKILL.md entry-point structure and conventions |
-| --- | --- |
-| Related | [[FCT Facet]],  [[FCT Ruleset]],  [[FCT Primitives]],  [[CAB Aspects]],   |
-| Examples | [[CAE Skill\|canonical exemplar]],  [[CAE Minimal Skill\|minimal capsule]],   |
+**Related:** [[FCT Facet]],  [[FCT Ruleset]],  [[FCT Primitives]],  [[CAB Aspects]]
+**Examples:** [[CAE Skill\|canonical exemplar]],  [[CAE Minimal Skill\|minimal capsule]]
 
 **TLDR** — Every skill anchor ships a `SKILL.md` with fixed frontmatter (`name`, `description`, `tools`, `user_invocable`) and a fixed section order (Title → Brief → dispatch tables → Actions → Reference → Dispatch protocol). Disciplines (`user_invocable: false`) additionally require a parallel user-facing doc at `SKL User Docs/SKL Skills/SKL <Name>.md`. **Cardinality: one per anchor** — each skill folder has exactly one `SKILL.md` entry point.
 
@@ -68,15 +69,11 @@ On invocation:
 
 ---
 
-
-
 # Format Specification
-
 
 ## Location
 
 Skills live at `~/.claude/skills/{name}/`. The skill folder is typically symlinked into the Obsidian vault so files are navigable from both Claude Code and Obsidian.
-
 
 ## SKILL.md Structure
 
@@ -96,13 +93,11 @@ SKILL.md has these sections in order:
 8. **Scripts** — Optional table of utility scripts with usage examples
 9. **Dispatch** — Standard 4-step dispatch protocol
 
-
 ## Action Files
 
 Each action is a separate markdown file in the skill root:
 - **Naming** — lowercase, hyphenated: `{name}-{action}.md` (e.g., `cab-create.md`, `md-toc.md`)
 - **Content** — Workflow steps the agent follows when the action is invoked. Should be self-contained enough to execute without reading SKILL.md again.
-
 
 ## Reference Data Subdirectories
 
@@ -111,13 +106,11 @@ Large reference data lives in subdirectories within the skill folder:
 - **File naming** — Reference files keep their original names (e.g., `CAB Simple Anchor.md`). Action files use the lowercase hyphenated convention. This distinction makes it clear which files are actions and which are reference data.
 - **Wiki-links** — Since Obsidian resolves wiki-links by filename regardless of path, moving files into skill subdirectories does not break existing links.
 
-
 ## Scripts
 
 Scripts are utility programs that live in the skill folder:
 - Run via `uv run ~/.claude/skills/{name}/{script}` for Python scripts
 - Listed in the Scripts section of SKILL.md with usage examples
-
 
 ## Dispatch Protocol
 
@@ -127,7 +120,6 @@ Every SKILL.md ends with the same dispatch protocol:
 2. Look up the file from the Actions table
 3. Read that file from the skill's directory and execute its workflow
 4. If no argument or unrecognized argument, show the dispatch table
-
 
 ## Disciplines (`user_invocable: false`)
 

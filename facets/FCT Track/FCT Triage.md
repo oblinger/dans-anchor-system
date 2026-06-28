@@ -1,18 +1,18 @@
 ---
 description: "triage — presentation form for an anchor's status inside the global Q.md dashboard"
 ---
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Triage](hook://p/FCT%20Triage)
+
 # FCT Triage
 Specification for the **Triage view** — the format and rules for rendering an anchor's status (banner, H2s, brackets) into its section of the global `~/ob/kmr/Q.md` dashboard.
 
-| -[[FCT Triage]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Triage](hook://p/FCT%20Triage)<br>: triage — presentation form for an anchor's status inside the global Q.md dashboard |
-| --- | --- |
-| Related | [[FCT Backlog]] (source of items), [[CAB Backlog]] (status brackets), [[SKA triage]] (renderer), [[FCT Query]] (anchor questions surface), |
-| Examples | [[Q#CAE Triage\|CAE section (minimal)]],  [[Q#SKA Triage\|SKA section (fuller)]],   |
+**Related:** [[FCT Backlog]] (source of items), [[CAB Backlog]] (status brackets), [[SKA triage]] (renderer), [[FCT Query]] (anchor questions surface)
+**Examples:** [[Q#CAE Triage\|CAE section (minimal)]],  [[Q#SKA Triage\|SKA section (fuller)]]
 
 **TLDR** — The Triage facet defines the *rendered format* of an anchor's status section inside `~/ob/kmr/Q.md`: the H1 banner (TAG, counts, exact spacing), body H2s (`## Active` … `## Later`, skipping empty), bullet form (bolded bracket + mandatory wiki-link + em-dash description), and the selective-Later rule (only `[Questions]`/`[Verify]` items surface under `## Later`). **Cardinality: one per anchor** — each anchor owns exactly one section in `Q.md`, destructively rewritten on each `/triage` run. No per-anchor file; the view lives only in `Q.md`.
 
 **Presentation form — no per-anchor file location.** As of F075 (2026-05-19), per-anchor `{NAME} Triage.md` files are retired. The triage view is rendered into the anchor's per-anchor section of `~/ob/kmr/Q.md`, which is the single triage surface for the vault. This facet remains a real concept (the triage view of an anchor's state) and its format is specified here; it just no longer corresponds to a per-anchor file. **Anchor-page dispatch tables do NOT link to this facet** (there is no per-anchor file to link to). CAB-level references to `[[FCT Triage]]` (from `CAB Base.md`, this spec) remain — the facet definition is still a real artifact.
-
 
 The Triage **view** is the **status of the anchor** — the single place the user looks to see "where everything stands and what wants my attention next." It lists items grouped by workflow-state H2: `## Active`, `## Ready`, `## Now`, `## Next`, and **selectively** `## Later`. Within each H2, items appear in **source order from the backlog** (per F028 Q2).
 
@@ -30,11 +30,9 @@ Each anchor's section in Q.md is **agent-owned and destructively rewritten** on 
 
 **None — per-anchor.** The triage view is rendered into the anchor's section inside `~/ob/kmr/Q.md` (per F075). There is no per-anchor file. CAB-level dispatch tables continue to reference `[[FCT Triage]]` (this spec file); anchor-page dispatch tables do not.
 
-
 ## No blank lines
 
 **No blank lines in the body.** Every line carries information; the user wants maximum signal density on a high-traffic surface. The single blank line between the YAML frontmatter and the H1 (rendered by the frontmatter delimiters) is the only whitespace.
-
 
 ## H1 line — the anchor's section heading inside Q.md
 
@@ -61,7 +59,6 @@ The section heading is a level-1 heading (the literal `# [` prefix is also the s
 - `Now`, `Next`, `Later`, `Verify` (horizon) — bullets under each backlog H2, one count each, excluding `[Done]`-bracketed rows. (`Verify` here is the `## Verify` H2 count, distinct from the `[Verify]`-bracket rows folded into the headline `Questions`.)
 - `Icebox` — bullets in `{NAME} Icebox.md` if it exists; else 0.
 
-
 ## Anchor TAG — cascading rule
 
 Decide the H1 TAG by checking in order; the first match wins, except U and A combine:
@@ -75,11 +72,9 @@ Decide the H1 TAG by checking in order; the first match wins, except U and A com
 | `[-]` | No U, A, G; anchor has items in `## Later`. |
 | `[]` | Nothing anywhere. Empty brackets, literal `[]`. |
 
-
 ## No anchor-level questions bullet
 
 Triage carries **no** questions bullet under the H1. Anchor-level (non-feature) questions are authored directly in `{NAME} queries.md` § `## Questions` (per `[[FCT Query]]`) — there is no separate questions facet, and triage does not surface or count them. The H1 already links to `[[{NAME} queries]]`, which is where those questions live.
-
 
 ## Body H2s
 
@@ -93,7 +88,6 @@ Body H2s, in this fixed order: `## Active`, `## Ready`, `## Now`, `## Next`, `##
 **`## Icebox` is never rendered** in the body — only counted in the H1 banner.
 
 If the anchor has zero items in Active/Ready/Now/Next, the body is just the H1 (and possibly the à la carte bullet line). No explanatory prose.
-
 
 ## Bullet format — exact
 
@@ -120,7 +114,6 @@ The renderer-side enforcement of this rule lives in `[[SKA triage]]` § Mandator
 
 Example: `- **[Verify]** [[F007 — Webhook Notifications]] — Webhook fires on task completion. ([[F007 — Webhook Notifications#Verify|details]])`
 
-
 ## Status brackets — count and form
 
 | Form | When |
@@ -134,11 +127,9 @@ Example: `- **[Verify]** [[F007 — Webhook Notifications]] — Webhook fires on
 | `**[Active]**` | In flight (a worker is currently minting). |
 | `**[Designing]**`, `**[Blocked]**` | Reserved — typically not surfaced in Triage body since they're not user/agent-actionable now. |
 
-
 ## Ordering within a body H2
 
 **Source order from the backlog** (per F028 Q2): items appear in the order they appear in `{NAME} Backlog.md` under the same H2. The backlog is the source of truth for ordering; the user reorders by editing the backlog (or asking the agent to). The H1 banner already counts items by status, so re-grouping by status inside H2s is redundant.
-
 
 ## No meta prose, no breadcrumb, no Notes
 
@@ -150,14 +141,12 @@ Example: `- **[Verify]** [[F007 — Webhook Notifications]] — Webhook fires on
 
 Each anchor's section inside Q.md is agent-owned. Every `/triage` run — or post-condition run by `/groom`, `/mint`, `/finalize`, `/feature` (Phase transitions), or `/audit` (finding-row writes) — regenerates the section from scratch by walking the backlog, removes the existing section from Q.md, and inserts the new one at the top of Q.md (bubble-to-top). There are no marker comments, no preserve-user-edits regions inside the section.
 
-
 ## Lifecycle
 
 - **Created on first `/triage` (or à la carte `/query`) run** — the anchor's section is inserted at the top of Q.md if absent.
 - **Rewritten + bubbled-to-top** on every subsequent participating-skill run.
 - **Removed from Q.md entirely** when the anchor has TAG `[]` (zero items anywhere).
 - **Glanced at end of an active-mode run** — but the glance target is `~/ob/kmr/Q.md`, not any per-anchor file. See `[[SKA triage]]` § 7.
-
 
 ## Relationship to other planning docs
 

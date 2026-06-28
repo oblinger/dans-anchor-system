@@ -2,13 +2,13 @@
 description: "the Ruleset facet — what a ruleset is and the format every ruleset file (a standalone `R-<slug>` or an anchor-local {NAME} Rules.md) must take"
 ---
 
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Primitives]] → [FCT Ruleset](hook://p/FCT%20Ruleset)
+
 # FCT Ruleset
 A named, reusable bundle of audit-checkable rules — and the spec for how to write one.
 
-| -[[FCT Ruleset]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Primitives]] → [FCT Ruleset](hook://p/FCT%20Ruleset)<br>: the Ruleset primitive — what a ruleset is and how to write one |
-| --- | --- |
-| Related | [[FCT Facet]],  [[FCT Skill]],  [[FCT Decisions]] (companion),  [[Rulesets]] (the catalog),  [[FCT Primitives]], |
-| Examples | [[R-fex-manifest\|small, standalone]],  [[R-diagram\|large, standalone]],  [[CAE Rules\|anchor-local Rules.md]],   |
+**Related:** [[FCT Facet]],  [[FCT Skill]],  [[FCT Decisions]] (companion),  [[Rulesets]] (the catalog),  [[FCT Primitives]]
+**Examples:** [[R-fex-manifest\|small, standalone]],  [[R-diagram\|large, standalone]],  [[CAE Rules\|anchor-local Rules.md]]
 
 **TLDR**
 - **What it is** — a named bundle of portable, audit-checkable rules (`# RULESET R-<slug>`), or an anchor-local `{NAME} Rules.md`.

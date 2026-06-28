@@ -1,13 +1,14 @@
 ---
 description: user-facing docs dispatch page — curated, synthesis-level human-authored docs for any audience
 ---
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT User Dispatch](hook://p/FCT%20User%20Dispatch)
+
 # FCT User Dispatch
 Facet spec for the `{NAME} User Docs.md` dispatch page that catalogs an anchor's end-user / consumer-facing documentation (Guide, Installation, CLI, FAQ, Cards).
 
-| -[[FCT User Dispatch]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT User Dispatch](hook://p/FCT%20User%20Dispatch)<br>: user-facing docs dispatch page — curated, synthesis-level human-authored docs for any audience |
-| --- | --- |
-| Related | [[FCT Design Dispatch]],  [[FCT Dev Dispatch]],  [[FCT Track Dispatch]],  [[FCT Dispatch]],   |
-| Examples | [[CAE User Docs\|minimal (code anchor)]],  [[HBR User Docs\|fuller (server anchor)]],   |
+**Related:** [[FCT Design Dispatch]],  [[FCT Dev Dispatch]],  [[FCT Track Dispatch]],  [[FCT Dispatch]]
+**Examples:** [[CAE User Docs\|minimal (code anchor)]],  [[HBR User Docs\|fuller (server anchor)]]
 
 **TLDR** — `{NAME} User Docs.md` is the dispatch page for end-user / consumer-facing documentation (Guide, Installation, CLI, FAQ, Cards). It lives in the root-level `{NAME} User Docs/` folder. Cardinality: **one per anchor**. Scope boundary: user-task docs only; system-spec docs (Interface, Architecture) live elsewhere — Interface in [[FCT Design Dispatch|Design]], the Architecture story in `{NAME} Design/`.
 
@@ -35,7 +36,6 @@ The defining property is **what the content describes**: User docs describe *use
 # Reference Example
 ---
 
-
 # CAE User Docs
 
 | -[[CAE User Docs]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT User Dispatch](hook://p/FCT%20User%20Dispatch)<br>: end-user / consumer documentation |
@@ -47,8 +47,6 @@ The defining property is **what the content describes**: User docs describe *use
 | [[CAE Cards\|Cards]] | cheat sheets and flashcards |
 
 ---
-
-
 
 # Format Specification
 

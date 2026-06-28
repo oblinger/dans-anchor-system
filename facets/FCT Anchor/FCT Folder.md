@@ -1,13 +1,14 @@
 ---
 description: "the anchor folder facet — the named directory + marker file that makes an anchor"
 ---
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Folder](hook://p/FCT%20Folder)
+
 # FCT Folder
 Facet spec for the anchor folder itself — the named directory containing a marker file that identifies it as an anchor.
 
-| -[[FCT Folder]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Folder](hook://p/FCT%20Folder)<br>: the anchor folder facet — the named directory + marker file that makes an anchor |
-| --- | --- |
-| Related | [[FCT Anchor Page]],  [[FCT Marker]],  [[CAB Aspects]],  [[FCT Facet]],   |
-| Examples | [[CAE\|marker-is-anchor-page example]],  [[HBR\|richer anchor with sub-anchors]],   |
+**Related:** [[FCT Anchor Page]],  [[FCT Marker]],  [[CAB Aspects]],  [[FCT Facet]]
+**Examples:** [[CAE\|marker-is-anchor-page example]],  [[HBR\|richer anchor with sub-anchors]]
 
 **Location:** `{NAME}/   (the anchor folder itself)`
 

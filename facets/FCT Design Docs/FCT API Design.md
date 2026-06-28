@@ -1,13 +1,14 @@
 ---
 description: "facet spec for {NAME} API Design.md — the programmatic (code-to-code or sub-skill) user surface"
 ---
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT API Design](hook://p/FCT%20API%20Design)
+
 # FCT API Design
 Facet spec defining the shape, required sections, and ruleset for an anchor's `{NAME} API Design.md` — the programmatic (code-to-code or sub-skill) user surface.
 
-| -[[FCT API Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT API Design](hook://p/FCT%20API%20Design)<br>: facet spec for the programmatic user surface doc |
-| --- | --- |
-| Related | [[FCT UX Design]],  [[FCT Architecture]],  [[FCT Module Doc]],  [[FCT Decisions]],   |
-| Examples | [[CAE API Design\|minimal (library crate)]],  [[HBR API Design\|fuller (service + sub-skill)]],   |
+**Related:** [[FCT UX Design]],  [[FCT Architecture]],  [[FCT Module Doc]],  [[FCT Decisions]]
+**Examples:** [[CAE API Design\|minimal (library crate)]],  [[HBR API Design\|fuller (service + sub-skill)]]
 
 API Design specifies the **programmatic user surface** of the anchor — what shape another piece of code (or another agent invoking this as a sub-skill) sees when integrating. It is sibling to [[FCT UX Design]] (the *human* user surface). The cut between them is **who the consumer is**: API = code calling; UX = human reading or invoking.
 
@@ -74,7 +75,6 @@ See [[CAE API Design]] — the CAE scheduler crate shows the canonical shape for
 - [[FCT Status]] — `{NAME} Status.md` carries the API-Design facet state.
 - [[DSC progressive-disclosure]] — preface zone discipline.
 - [[DSC markdown]] — markdown authoring discipline.
-
 
 # RULESET R-api
 include::

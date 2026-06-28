@@ -3,13 +3,14 @@ cssclasses:
   - monospace
 description: anchor master tree — every possible doc/folder in an anchor, linked to its facet spec
 ---
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Anchor Tree](hook://p/FCT%20Anchor%20Tree)
+
 # FCT Anchor Tree
 The annotated master file tree showing every possible file and folder that may appear inside a CAB anchor, with each named element wiki-linked to its governing facet spec.
 
-| -[[FCT Anchor Tree]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Anchor Tree](hook://p/FCT%20Anchor%20Tree)<br>: anchor master tree — every possible doc/folder in an anchor, linked to its facet spec |
-| --- | --- |
-| Related | [[FCT Anchor Page]],  [[CAB Base]],  [[CAB Docs]],  [[FCT Facet]],   |
-| Examples | [[CAE\|minimal Code anchor]],  [[HBR\|fuller anchor with components]],   |
+**Related:** [[FCT Anchor Page]],  [[CAB Base]],  [[CAB Docs]],  [[FCT Facet]]
+**Examples:** [[CAE\|minimal Code anchor]],  [[HBR\|fuller anchor with components]]
 
 **Cardinality: one per anchor** — each anchor has exactly one canonical file tree (this spec is the reference; an anchor's actual tree is its on-disk directory).
 
@@ -63,8 +64,6 @@ See [[CAB Base]] shows files common to all anchors.
 ├── [[FCT Claude|CLAUDE.md]]                             Claude Code config (optional)
 └── [[FCT Code Repository|Code]] -> {repo-path}                   Symlink to code repository (optional)
 
-
-
 ─── Optional [[FCT Code Repository]] (under ~/ob/proj/) ───
 
 {repo}/                          [[FCT Code Repository]]
@@ -75,7 +74,6 @@ See [[CAB Base]] shows files common to all anchors.
 │   ├── user/                    ← from {NAME} User Docs/
 │   └── dev/                     ← from {NAME} Dev Docs/
 └── src/						 See [[FCT Module Doc]] for format of linked module docs.
-
 
 ## Software Design Documents
 
@@ -90,7 +88,6 @@ Software project anchors keep their design documents in `{NAME} Design/` — inc
 {NAME} Discussion.md — **Discussion** (optional) — Extended conversations about design choices, trade-offs, and redesign decisions. This is the place for "why" and "what we considered." Use dated sections. Unlike the other design docs, this file is a log, not a specification.
 
 Anchor-level questions are surfaced through `/query` into `{NAME} Track/{NAME} queries.md`; per-anchor status is surfaced into the vault-wide `~/ob/kmr/Q.md` (the standalone `{NAME} Triage.md` and `{NAME} Questions.md` Plan-era docs are retired).
-
 
 ### Design Workflow
 

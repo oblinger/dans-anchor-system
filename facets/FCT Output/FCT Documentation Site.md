@@ -1,13 +1,14 @@
 ---
 description: "published web presence for an anchor — Jekyll project page or MkDocs full documentation site"
 ---
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Output]] → [FCT Documentation Site](hook://p/FCT%20Documentation%20Site)
+
 # FCT Documentation Site
 Published web presence for an anchor. Two levels: a simple project page (Jekyll) or a full documentation site (MkDocs).
 
-| -[[FCT Documentation Site]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Output]] → [FCT Documentation Site](hook://p/FCT%20Documentation%20Site)<br>: published web presence for an anchor — Jekyll project page or MkDocs full documentation site |
-| --- | --- |
-| Related | [[FCT Output]],  [[FCT Track]],  [[FCT Code]],  [[code-publish]],   |
-| Examples | [[ABIO\|fuller (project page + full MkDocs site)]],  [[DCP\|minimal (project page only)]],   |
+**Related:** [[FCT Output]],  [[FCT Track]],  [[FCT Code]],  [[code-publish]]
+**Examples:** [[ABIO\|fuller (project page + full MkDocs site)]],  [[DCP\|minimal (project page only)]]
 
 **TLDR** — One per anchor. Two tiers: a lightweight Jekyll project page (`website/`) for anchors that need a splash, and a full MkDocs documentation site (`docs/` + `mkdocs.yml`) for anchors with substantial reference material. The stack is MkDocs Material + mkdocstrings + mkdocs-jupyter + mkdocs-roamlinks. Deployment is via `just docs-deploy` (copy to website repo) or `mkdocs gh-deploy` (gh-pages branch). See [[code-publish]] for the publishing workflow.
 
@@ -44,8 +45,6 @@ cae-example/                  (code repository)
 Published at `oblinger.github.io/gitproj/cae-example/`.
 
 ---
-
-
 
 ## What it is
 

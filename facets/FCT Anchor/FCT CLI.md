@@ -1,13 +1,14 @@
 ---
 description: CLI command reference — every command, flag, and exit code
 ---
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT CLI](hook://p/FCT%20CLI)
+
 # FCT CLI
 Facet spec for `{NAME} CLI.md` — the exhaustive command/flag/exit-code reference page for an anchor that ships a CLI.
 
-| -[[FCT CLI]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT CLI](hook://p/FCT%20CLI)<br>: CLI command reference — every command, flag, and exit code |
-| --- | --- |
-| Related | [[FCT UX Design]],  [[CAB User Guide]],  [[FCT All Files]],  [[FCT Anchor Page]],   |
-| Examples | [[CAE CLI\|minimal]],  [[HBR CLI\|fuller]],   |
+**Related:** [[FCT UX Design]],  [[CAB User Guide]],  [[FCT All Files]],  [[FCT Anchor Page]]
+**Examples:** [[CAE CLI\|minimal]],  [[HBR CLI\|fuller]]
 
 **TLDR** — `{NAME} CLI.md` is the exhaustive man-page-style command reference for an anchor's CLI: mandatory fenced help block first (directly under H1), then per-command H2 sections with Usage / Flags / Exit codes / Example, then a global exit-code table. **Cardinality: one per anchor** (only when the anchor ships a CLI). Detection: file-existence at `{NAME} Docs/{NAME} User/{NAME} CLI.md`.
 
@@ -23,7 +24,6 @@ Facet spec for `{NAME} CLI.md` — the exhaustive command/flag/exit-code referen
 - [[FCT UX Design]] — specifies the CLI shape during design. When an anchor's UX Design calls for a CLI, `/feature`-style work should produce this CLI doc as the user-facing output.
 
 When both exist, User Guide links to CLI for "full reference" and CLI can link back to User Guide for "getting started."
-
 
 # Reference Example
 ---
@@ -49,7 +49,6 @@ description: CLI command reference for {app-name}
 ```
 
 For a tutorial introduction, see [[{NAME} User Guide]]. Per-command detail below: [[#submit]], [[#status]], [[#cancel]], [[#drain]].
-
 
 ## submit
 
@@ -82,13 +81,11 @@ Enqueue a task for execution at or after a deadline.
 # → t-4f2
 ```
 
-
 ## status
 
 Print current scheduler state and task list.
 
 ... (same shape for each command)
-
 
 ## Exit Codes (global)
 
@@ -102,8 +99,6 @@ Print current scheduler state and task list.
 ```
 
 ---
-
-
 
 # Format Specification
 

@@ -1,20 +1,20 @@
 ---
 description: CLAUDE.md agent configuration
 ---
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Claude](hook://p/FCT%20Claude)
+
 # FCT Claude
 Facet spec for the optional `CLAUDE.md` file at an anchor's root that configures Claude Code behavior when the agent is rooted in that anchor.
 
-| -[[FCT Claude]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Claude](hook://p/FCT%20Claude)<br>: CLAUDE.md agent configuration |
-| --- | --- |
-| Related | [[FCT Anchor Page]],  [[FCT Dot Anchor]],  [[CAB Aspects]],  [[FCT Facet]],   |
-| Examples | [[CAE CLAUDE\|agentic-project form]],  [[SYS CLAUDE\|plain-content form]],   |
+**Related:** [[FCT Anchor Page]],  [[FCT Dot Anchor]],  [[CAB Aspects]],  [[FCT Facet]]
+**Examples:** [[CAE CLAUDE\|agentic-project form]],  [[SYS CLAUDE\|plain-content form]]
 
 **Cardinality:** one per anchor — at most one `CLAUDE.md` sits at the anchor root.
 
 **TLDR** — This facet governs the optional `CLAUDE.md` config file at an anchor root. It is exempt from the F060 dispatch-table rule (the harness, not anchor readers, consumes it). Two usage tiers: plain-content anchors get only a mission/commands section; agentic-project anchors add a Pilot role header as the first line.
 
 **Location:** `CLAUDE.md`
-
 
 The `CLAUDE.md` file configures Claude Code behavior when working inside an anchor folder. It is optional — only needed when the anchor will be used with Claude Code.
 
@@ -57,8 +57,6 @@ cd Code && python -m taskrunner --help  # CLI help
 Follow CAB markdown conventions. H1/H2 get 3 blank lines before, 1 after.
 
 ---
-
-
 
 # Format Specification
 

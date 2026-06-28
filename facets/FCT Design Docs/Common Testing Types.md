@@ -2,12 +2,11 @@
 description: "standard test-kind catalogue — generic strategy per kind, linked from each project's Testing tests-table"
 ---
 
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [Common Testing Types](hook://p/Common%20Testing%20Types)
+
 # Common Testing Types
 
-| -[[Common Testing Types]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [Common Testing Types](hook://p/Common%20Testing%20Types)<br>: standard test-kind catalogue — generic strategy per kind, linked from each project's Testing tests-table |
-| --- | --- |
-| Up | [[FCT Testing]],   |
-| --- | |
+**Up:** [[FCT Testing]]
 
 This is the **shared reference** for the standard kinds of test. Each project's `{NAME} Testing.md` carries a required **tests-table** (see [[FCT Testing]]) whose left column names the kinds it uses; each kind cell **links here** (e.g. `[[Common Testing Types#Property]]`) when the project's use of that kind is *vanilla*. When a project does something *special* with a kind, the cell instead links to a section **within that project's** `{NAME} Testing.md` explaining the twist. One H2 per kind below; add a kind here only when it recurs across projects.
 

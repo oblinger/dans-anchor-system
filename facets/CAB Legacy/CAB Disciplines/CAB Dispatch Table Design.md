@@ -2,12 +2,12 @@
 description: "Design rationale + standing decisions for the Dispatch Table discipline — the why behind the spec, so it isn't relitigated."
 ---
 
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[CAB]] → [[CAB Disciplines]] → [CAB Dispatch Table Design](hook://p/CAB%20Dispatch%20Table%20Design)
+
 # CAB Dispatch Table Design
 
-| -[[CAB Dispatch Table Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[CAB]] → [[CAB Disciplines]] → [CAB Dispatch Table Design](hook://p/CAB%20Dispatch%20Table%20Design)<br>: design rationale + standing decisions behind the Dispatch Table spec |
-| --- | --- |
-| Anchor | [[DSC Dispatch Table]] (the spec this explains) |
-| Related | [[Collection]],  [[progressive-disclosure]],  [[audit-dispatch\|/audit dispatch]],   |
+**Anchor:** [[DSC Dispatch Table]] (the spec this explains)
+**Related:** [[Collection]],  [[progressive-disclosure]],  [[audit-dispatch\|/audit dispatch]]
 
 The **design-flow** companion to [[DSC Dispatch Table]]: it holds the *why* — the standing decisions, what was considered and rejected — so future work doesn't relitigate them. The spec is the *what*; this is the *why*. It's also the first worked instance of the **minimal-facet capsule** ([[CAE Minimal Facet]]).
 

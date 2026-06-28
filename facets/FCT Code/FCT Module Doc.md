@@ -1,13 +1,14 @@
 ---
 description: "per-module source code documentation — one doc per source module mirroring the repo tree"
 ---
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Code]] → [FCT Module Doc](hook://p/FCT%20Module%20Doc)
+
 # FCT Module Doc
 Facet spec for per-module documentation — the auto-generatable, source-code-grounded reference doc that mirrors one source module under `{NAME} Dev/`.
 
-| -[[FCT Module Doc]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Code]] → [FCT Module Doc](hook://p/FCT%20Module%20Doc)<br>: per-module source code documentation — one doc per source module mirroring the repo tree |
-| --- | --- |
-| Related | [[FCT Interface]],  [[FCT Architecture]],  [[FCT Dev]],  [[FCT Code]],   |
-| Examples | [[CAE-Scheduler\|fuller (two-zone, SVG figure)]],  [[HBR Scanner\|minimal (leaf module)]],   |
+**Related:** [[FCT Interface]],  [[FCT Architecture]],  [[FCT Dev]],  [[FCT Code]]
+**Examples:** [[CAE-Scheduler\|fuller (two-zone, SVG figure)]],  [[HBR Scanner\|minimal (leaf module)]]
 
 **TLDR** — Each source module gets a `{NAME} {ModuleName}.md` doc under `{NAME} Dev/` mirroring the repo's folder structure. Docs have two zones: an Overview zone (SECTIONS table + per-class overview + figure) and a Class Method Details zone. SVG figures only (via `[[viz-excalidraw]]`); bold-identifier-outside-code-span for all table links; block-ID format `^ClassName-methodname`. **Cardinality: many** — one doc per source module.
 
@@ -19,11 +20,9 @@ module docs describe the classes and interfaces in a software project's source c
 
 **Working example:** `~/ob/kmr/SYS/Bespoke/Skill Agent/CAE/CAE Docs/CAE Dev/CAE Scheduler.md` — the canonical instance. Every rule below is demonstrated there. When in doubt, read the example.
 
-
 # Format Specification
 
 This spec was rewritten 2026-06-06 based on extended iteration on the CAE Scheduler example. The rules below supersede earlier 3-column / ALL-CAPS / per-class-prose conventions.
-
 
 ## Location — mirroring the source tree
 
@@ -51,7 +50,6 @@ src/                                   {NAME} Docs/{NAME} Dev/
 - All files and folders carry the `{NAME}` prefix to avoid Obsidian namespace collisions.
 - Each doc subfolder can have a `{NAME} {dir}.md` dispatch page listing its module docs.
 
-
 ## Document structure
 
 A module doc has two zones:
@@ -60,7 +58,6 @@ A module doc has two zones:
 - **Class Method Details zone** at the bottom under a `# Class Method Details` H1 — per-class deep-dive H2 sections, each containing class-level concept H3s (design discussions) and per-method H3s (Args / Returns / Raises bodies).
 
 The overview zone is everything a reader needs to see the API surface at a glance. The details zone is where they jump when they want the per-method specifics.
-
 
 ### Top of doc
 
@@ -81,7 +78,6 @@ Rules:
 - H1 = `# {NAME} {ModuleName}` where `{NAME}` is the anchor prefix and `{ModuleName}` matches the file name.
 - **No blank line between the H1 and the file overview prose** — text starts on the next line. This is the compact-H2/H1 rule applied to the file H1.
 - One paragraph (2-4 sentences) immediately after the H1. Describes the module's purpose, role in the system, and any cross-references to rules / standards documents.
-
 
 ### Figure (between overview prose and SECTIONS table)
 
@@ -130,7 +126,6 @@ Reference (canonical example from `CAE Scheduler.md`):
 - **HARD RULE — figures span the full width of the page.** When rendered in Obsidian, the SVG fills the available column width. Author the `.excalidraw` content area wide enough that the natural rendered scale fills the column (typically ~1400-1600 px wide source). If a figure renders smaller than column width, explicitly set width via `![[file.svg|1200]]` or re-author the source wider. Tiny figures break the "one-glance gist of the whole document" purpose of the convention.
 - **GUIDELINE — prefer landscape aspect ratio** (wider than tall). Module-doc diagrams tend to have lateral data flow; landscape matches that shape and renders cleanly inline. This is a preference, not a hard rule — a figure that's genuinely portrait-shaped (a deep call stack, a vertical pipeline) should stay portrait. The hard rule is full-page-width; the layout direction is the agent's choice if portrait reads better.
 
-
 ### Layout guidelines (not hard rules)
 
 Construction patterns that produce readable figures. Each is a guideline — break it when the alternative reads worse.
@@ -151,7 +146,6 @@ Rules:
 - **One-line caption below the figure** is allowed — italicized — to call out which topic anchors which structural element. Example: *Priority and starvation is the topic that governs the queue's ordering rule (deadline + aging promotion).*
 - **Keep it readable** — 5-15 nodes is the sweet spot. If the diagram is too dense, split into two figures (one per zone of concern). If it's too sparse, drop it (the SECTIONS table already covers low-density modules).
 - **Solid arrows** for the primary data/control flow; **dotted arrows** for secondary relationships (returns, enqueue/dequeue, contains, derives-from). Convention helps the reader scan.
-
 
 ### SECTIONS table
 
@@ -175,7 +169,6 @@ Rules:
 - **Column 1 is a wiki-link to the section's block-ID followed by the section type** — `[[#^anchor\|Name]] type`. The type appears lowercase outside the link (`class`, `topic`, `enum`, `struct`, `protocol`, `record`, etc.). The type word is what tells the reader at a glance whether the section documents an API surface or a conceptual rule.
 - **Column 2 is the section's role** — a one-line orientation telling the reader what they'll find. Short.
 - Class / enum / struct names in PascalCase (matches source code identifiers); topic names in sentence case (they're concepts, not code identifiers).
-
 
 ### Section H2 indicates the type — only when there IS a type
 
@@ -205,7 +198,6 @@ If none of these apply, the section documents a concept rather than an API surfa
 
 **Audit detection rule:** if the H2's last word is one of `{Class, Enum, Struct, Protocol, Interface, Trait, Record}`, treat as code-typed (expect class-table form); otherwise treat as a topic (expect bulleted concept-list form). No "Topic" sentinel word.
 
-
 ### Topic section
 
 A **topic** is a top-level non-code section in the overview zone. It documents a concept that's important enough to deserve prominent placement at the same level as classes — typically a design rule, an invariant, or a cross-cutting behavior — but isn't an API surface.
@@ -215,7 +207,6 @@ A **topic** is a top-level non-code section in the overview zone. It documents a
 Canonical shape (the default — bullet list):
 
 ```markdown
-
 
 ## Priority and starvation
 <one or two sentences naming what the rule is, why it exists, and what it gates>^PriorityAndStarvation
@@ -235,13 +226,11 @@ Rules:
 - **Sentence case for topic names**: "Priority and starvation", not "Priority And Starvation". Topics are concepts, not code identifiers.
 - **Use a table instead of a bullet list ONLY when the content genuinely has tabular shape** — e.g. a state-transition table, a decision matrix, side-by-side comparisons. Otherwise default to the bullet list.
 
-
 ### Per-class overview section
 
 Each class gets a section in the overview zone consisting of an H2 + description + class table. The detail prose (method bodies, design discussions) goes in the Class Method Details zone at the bottom, not here.
 
 ```markdown
-
 
 ## TaskScheduler
 Priority queue engine that orchestrates deferred task execution. Owns the worker pool, the queue, and the retry policy — callers submit, get a handle back, and either await or cancel. Single instance per process; all timed work flows through it.^TaskScheduler
@@ -273,18 +262,13 @@ Rules for the class table:
 - **Enum variants follow the same 2-column shape** — variant name in the first column with its parameters (e.g. `**\`Pending\`**\`(deadline: datetime)\``), description in the second. No `**Methods**` divider needed for enums.
 - **No blank line between H2 / description / table** in the overview zone — this entire per-class block is one tight cluster. The 3-blank-lines rule provides the visual separation between clusters.
 
-
 ### Class Method Details zone
 
 After the last per-class overview section, the deep-dive content lives under a `# Class Method Details` H1.
 
 ```markdown
 
-
-
 # Class Method Details
-
-
 
 ## TaskScheduler
 
@@ -327,13 +311,11 @@ Rules:
 - **Sentence-case for H3 concept headings** — `### Priority and starvation`, not `### Priority and Starvation`. Method-signature H3s preserve the exact source-code casing.
 - **No blank line after `# Class Method Details`** — the first H2 follows directly (or with the 3-blank-line separator if the H2 starts a new class section after preamble).
 
-
 ### See Also (optional, at bottom)
 
 After the Class Method Details zone, an optional `## See Also` H2 lists related source files / docs.
 
 ```markdown
-
 
 ## See Also
 
@@ -343,7 +325,6 @@ After the Class Method Details zone, an optional `## See Also` H2 lists related 
 ```
 
 File-level concern, not class-scoped. Uses normal H2 (single, not duplicated like class H2s).
-
 
 ## Naming and casing summary
 
@@ -361,14 +342,12 @@ File-level concern, not class-scoped. Uses normal H2 (single, not duplicated lik
 | Block-ID                                 | `^ClassName-methodname`                 | `^TaskScheduler-submit`                |
 | Topic block-ID                           | `^PascalCaseTopicName` (spaces removed) | `^PriorityAndStarvation`               |
 
-
 ## Bold and code conventions
 
 - **Identifiers bolded inside code spans.** Bold wraps the code span containing only the name; the rest of the signature is a separate code span (no bold). Markdown form: `**\`name\`**\`: Type\`` or `**\`method\`**\`(args) -> Return\``.
 - **Identifier-only variants** (enum cases with no payload, methods with no args) stay as `**\`Name\`**` — no second code span needed.
 - **Plain `**Methods**` divider** — a bold-text row label, NOT a code span. It's a section marker, not an identifier.
 - **No backticks around method H3 names in Details zone? No — keep them.** Method H3s ARE code; the H3 is `### \`submit(...)\` ^block-id`.
-
 
 ## Spacing summary
 
@@ -388,14 +367,12 @@ File-level concern, not class-scoped. Uses normal H2 (single, not duplicated lik
 
 The "2 blank lines before H2" rule is the visual separator that makes the zone-level structure readable even without the H1 label. Apply consistently. (Updated 2026-06-06 from 3 to 2.)
 
-
 ## Linking conventions
 
 - **SECTIONS table → class anchors.** Use block-ID links: `[[#^TaskScheduler\|TaskScheduler]]`. The block-ID lives at the end of the class description prose in the overview zone (concatenated, no space).
 - **Class table → method details.** Bold wraps the wiki-link, the alias is plain text (NO backticks), the tail is a separate code span: `**[[#^TaskScheduler-submit\|submit]]**\`(args) -> Return\``. Backticks inside the alias don't render — Obsidian shows the literal asterisks and backticks. The name segment ends up bold-regular (not monospace) while the tail is monospace; this visual asymmetry is the cost of using a working link form.
 - **Method H3 in Details zone.** Block-ID at end of the H3, no space: `### \`submit(...)\` ^TaskScheduler-submit`. This is what the class-table link targets.
 - **No raw heading-text links.** Because class names appear as H2 in both zones, raw `[[#TaskScheduler]]` resolves to the FIRST occurrence (overview zone). Always use block-IDs for cross-zone navigation.
-
 
 ## Folder docs
 
@@ -419,8 +396,6 @@ description: <one-line subsystem summary>
 | [[{NAME} ModuleA\|ModuleA]] | What ModuleA does |
 | [[{NAME} ModuleB\|ModuleB]] | What ModuleB does |
 | [[{NAME} ModuleC\|ModuleC]] | What ModuleC does |
-
-
 
 ## Overview
 <How the modules work together. Data flow, responsibilities, key interactions. This is the high-value content — the folder-level architecture you can't see by reading individual module docs.>
@@ -452,11 +427,9 @@ Folder docs live alongside the module docs they describe:
 │   └── {NAME} Config.md            module doc
 ```
 
-
 ## Proposed API convention
 
 During planning, module docs describe the **proposed** design before code exists. Mark each property, method, and type description with **(proposed)** inline — e.g., `Priority queue engine **(proposed)**`. Remove **(proposed)** from each item once the implementation matches.
-
 
 ## Linking rule — CRITICAL
 
@@ -466,7 +439,6 @@ During planning, module docs describe the **proposed** design before code exists
 - Add the file to the **Files tree** (`{NAME} Files.md`) in the correct location.
 - When creating multiple module docs in a batch, link ALL of them before writing any content. Then verify the Dev dispatch table has an entry for every module doc in the Dev folder.
 
-
 ## Lifecycle
 
 module docs are **living documents** — they must stay current with the code:
@@ -474,7 +446,6 @@ module docs are **living documents** — they must stay current with the code:
 - **Create** when a new module is added — link to Dev and Files FIRST.
 - **Update** when the public interface or architecture changes.
 - **Outdated docs are worse than no docs** — if a module doc can't be kept current, delete it.
-
 
 ## `{NAME} Dev.md` frontmatter — `module_docs_audited:` contract (per F074, 2026-05-19)
 
@@ -492,7 +463,6 @@ module_docs_audited: 2026-05-19
 **Readers.** `[[skills/architect/SKILL\|/architect]]` reads this field as its staleness precondition — runs `git log <audited-date>..HEAD -- <source-tree>` to count commits in source since the audit. Other architecture/spec-consuming skills may read it similarly.
 
 **Format.** ISO date `YYYY-MM-DD`. If the field is absent, the contract is "never audited under this discipline" — readers treat as fully stale and recommend an audit pass.
-
 
 ## Reserved `Arch` row (per F074, 2026-05-19)
 

@@ -2,13 +2,13 @@
 description: Messages facet — the agent's per-anchor inbox of background-process messages that the agent reads on every pause. Distinct from `{NAME} Inbox.md` which is the user's drop-zone for raw input.
 ---
 
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Messages](hook://p/FCT%20Messages)
+
 # FCT Messages
 Spec for the **Messages facet** — the per-anchor file `{NAME} Messages.md` that holds background-process notes for the agent to read on every pause, separate from the user's raw-input `{NAME} Inbox.md`.
 
-| -[[FCT Messages]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Messages](hook://p/FCT%20Messages)<br>: the Messages facet — agent's per-anchor background-process inbox, distinct from the user's Inbox |
-| --- | --- |
-| Related | [[FCT Inbox]],  [[FCT Backlog]],  [[FCT Track]],  [[CAB Base]],   |
-| Examples | [[CAE Messages\|minimal]],  [[HBR Messages\|with real system messages]],   |
+**Related:** [[FCT Inbox]],  [[FCT Backlog]],  [[FCT Track]],  [[CAB Base]]
+**Examples:** [[CAE Messages\|minimal]],  [[HBR Messages\|with real system messages]]
 
 **Cardinality: one per anchor** — each anchor has exactly one `{NAME} Messages.md` file at its root.
 

@@ -1,13 +1,14 @@
 ---
 description: "status facet — one {NAME} Status.md per anchor tracking design-phase completeness via a tier ladder"
 ---
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Status](hook://p/FCT%20Status)
+
 # FCT Status
 One file per anchor that tracks design-phase completeness, one dataview line per design facet, using a monotonic tier ladder read/written by the state script.
 
-| -[[FCT Status]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Status](hook://p/FCT%20Status)<br>: status facet — one `{NAME} Status.md` per anchor tracking design-phase completeness via a tier ladder |
-| --- | --- |
-| Related | [[FCT Backlog]],  [[FCT Roadmap]],  [[design]],  [[workflow]],   |
-| Examples | [[HBR Status\|example]],   |
+**Related:** [[FCT Backlog]],  [[FCT Roadmap]],  [[design]],  [[workflow]]
+**Examples:** [[HBR Status\|example]]
 
 **TLDR** — One `{NAME} Status.md` per anchor (cardinality: **one**), body-only (no YAML frontmatter), with a `description::` line followed by exactly five `<facet>::` dataview lines in declared order (`prd`, `ux`, `architecture`, `testing`, `roadmap`). Each cell is one of `none < MVP-agent < MVP-user < Full-agent < Full-user`. Reads/writes are mediated by the `state` script; the picker walks the ladder bottom-up; promotion is monotonic.
 
@@ -123,7 +124,6 @@ Available to any anchor with a `{NAME} Design/` folder per [[FCT Design]]. v1 fa
 - [[FCT Testing]] — peer Design facet whose `status:: accepted` is consumed by `/design`'s gate.
 - [[design]] — picker consumer; reads Status to pick next facet.
 - [[F130 — Planning Status facet — per-facet tier+approver; plan picker; pre-impl gate]] — the feature that introduced this facet.
-
 
 # RULESET R-status
 include::

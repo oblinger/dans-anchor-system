@@ -2,15 +2,15 @@
 description: per-anchor master file for applied decisions — declares which rulesets the anchor adopts (top-of-file include::), maps each adopted rule to its anchor-specific implementation, and records D-numbered project-specific decisions with rationale.
 ---
 
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Decisions](hook://p/FCT%20Decisions)
+
 # FCT Decisions
 **Audited examples:** [[HBR Decisions]], [[Mini Decisions]], [[CAE Decisions]], [[UCM Decisions]], [[DKT Decisions]]
 
 The per-anchor master file for applied decisions — declares adopted rulesets (`include::`) and records D-numbered design choices with rationale.
 
-| -[[FCT Decisions]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Decisions](hook://p/FCT%20Decisions)<br>: per-anchor master file for applied decisions — adopted rulesets and D-records |
-| --- | --- |
-| Related | [[FCT Ruleset]],  [[FCT Architecture]],  [[FCT Design Docs]],  [[Rulesets]],   |
-| Examples | [[CAE Decisions\|minimal (D-records only, no include::)]],  [[HBR Decisions\|fuller (masthead + durable rulings)]],   |
+**Related:** [[FCT Ruleset]],  [[FCT Architecture]],  [[FCT Design Docs]],  [[Rulesets]]
+**Examples:** [[CAE Decisions\|minimal (D-records only, no include::)]],  [[HBR Decisions\|fuller (masthead + durable rulings)]]
 
 **TLDR** — `{NAME} Decisions.md` is the single record of what an anchor has committed to: top-of-file `include::` lists adopted rulesets; the `## Adoption implementation map` bridges each rule to its anchor-specific code/script/table; `### D<N>` entries record applied choices with rationale and a `**Cites:**` back-link to the rules they satisfy. One per anchor.
 
@@ -57,7 +57,6 @@ description:: per-anchor master file for applied decisions — adopted rulesets 
 > [!info] Architecture
 > One-paragraph commentary about how this file is organized.
 
-
 ## Adoption implementation map
 
 | Rule | {NAME} implementation |
@@ -66,11 +65,9 @@ description:: per-anchor master file for applied decisions — adopted rulesets 
 | `R-other-set-02` | ... |
 | `R-third-set-01` | ... |
 
-
 ## D-records context note (optional)
 
 Any brief notes about how D-records are numbered, what the status field means, etc.
-
 
 ### D01 — Decision title (checked)
 **Subsystem:** ~~[[NAME-Subsystem]]~~

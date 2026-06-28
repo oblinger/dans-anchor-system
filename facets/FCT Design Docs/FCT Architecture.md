@@ -1,15 +1,16 @@
 ---
 description: per-anchor architecture overview — anchor-folder form with subsystems; standard section order; mandatory visual diagram (Excalidraw, never ASCII); subsystem dispatch table with link convention; API detail lives in sub-docs, not the main page.
 ---
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Architecture](hook://p/FCT%20Architecture)
+
 # FCT Architecture
 **Audited examples:** [[HBR Architecture]], [[CAE Architecture]], [[OBU Architecture]], [[MUX Architecture]], [[HA Architecture]]
 
 Facet spec defining the per-anchor system-architecture overview — its anchor-folder shape, standard section order, mandatory visual figure, subsystem dispatch table, and split between conceptual map (entry-point doc) and contract surface (API sub-doc).
 
-| -[[FCT Architecture]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Architecture](hook://p/FCT%20Architecture)<br>: per-anchor architecture overview — anchor-folder form with subsystems; standard section order; mandatory visual diagram (Excalidraw, never ASCII); subsystem dispatch table with link convention; API detail lives in sub-docs, not the main page. |
-| --- | --- |
-| Related | [[FCT Module Doc]],  [[FCT Decisions]],  [[FCT Design Dispatch]],  [[R-diagram]],   |
-| Examples | [[CAE Architecture\|minimal (Excalidraw, partial subsystem docs)]],  [[HBR Architecture\|fuller (D2/SVG, all subsystems linked)]],   |
+**Related:** [[FCT Module Doc]],  [[FCT Decisions]],  [[FCT Design Dispatch]],  [[R-diagram]]
+**Examples:** [[CAE Architecture\|minimal (Excalidraw, partial subsystem docs)]],  [[HBR Architecture\|fuller (D2/SVG, all subsystems linked)]]
 
 **TLDR** — One `{NAME} Architecture/` folder per anchor (cardinality: **one**). Entry-point doc has four required sections in order: Overview → Architecture diagram → Subsystems → supporting context. Diagram must be a real visual artifact (SVG/Excalidraw/D2); ASCII art is forbidden. Subsystem docs use kebab naming `{NAME}-{Subsystem}.md`; `[[double-bracket]]` = real doc, `[single-bracket]` = placeholder. Public API detail lives in a sibling `{NAME} API.md`, not the entry-point page.
 
@@ -20,7 +21,6 @@ The Architecture facet is the **system-level overview** — how the codebase is 
 **Scope clarification.** "Architecture" here means **the system-architecture story** specifically — components, modules, interfaces, data flow, thread model. It is NOT the umbrella for all design content; that's `{NAME} Design/`. UX Design is a peer of Architecture, not a child.
 
 **Architecture vs Public API doc.** Architecture is internal structure ("how is this codebase organized?"). Public API documentation — the surface a caller imports against — lives in a **separate sub-document** inside the Architecture folder (e.g., `{NAME} API.md`), linked from the main Architecture doc. The main page shows the conceptual structure; the module doc shows the contract. See [[FCT Module Doc]] for the module doc rules.
-
 
 ## Folder shape
 
@@ -43,7 +43,6 @@ The Architecture facet is the **system-level overview** — how the codebase is 
 **Bidirectional cross-linking**: every module doc carries an `Arch` row in its top-of-doc dispatch table (see [[FCT Module Doc]]) pointing at the most-specific architecture destination. `/architect` maintains both directions.
 
 **Working example:** [[CAE Architecture]] (`~/ob/kmr/SYS/Bespoke/Skill Agent/CAE/CAE Architecture/`).
-
 
 ## Standard section order (entry-point doc)
 
@@ -69,7 +68,6 @@ The Architecture entry-point doc follows this order. Sections are required unles
 - **Missing figure** — HA shipped a subsystems roll-up with no diagram at all. The `## Architecture diagram` section with an `![[…]]` embed is required, even for a placeholder-heavy architecture.
 - **Subsystems in the breadcrumb table** — MUX folded its subsystem inventory into the top-of-doc dispatch table rather than a dedicated `## Subsystems` H2 with the `SUBSYSTEMS | Description` table. The fix is a standalone `## Subsystems` section.
 - **Non-kebab subsystem names** — HA/OBU used space-form (`HA Anchor Arch`, `OBU Client`) or `… Arch` suffixes. Normalize to kebab `{NAME}-{Subsystem}` per § Subsystem dispatch.
-
 
 ## Subsystem dispatch table
 
@@ -102,7 +100,6 @@ Rationale:
 
 This lets the example anchor (CAE) demonstrate a partially-authored architecture honestly — the subsystem inventory is complete, but only the docs that genuinely exist resolve as links.
 
-
 ## Architecture diagram requirements
 
 The figure in § 3 must:
@@ -113,7 +110,6 @@ The figure in § 3 must:
 4. **Fill the reading pane — ABSOLUTE DEFAULT.** The embed MUST carry a large width hint so the figure fills the page: `![[<NAME> Architecture.svg|2400]]`. Obsidian caps the hint to the pane, so over-specifying is safe and correct. A **bare embed `![[x.svg]]` is forbidden** — it renders as a tiny fit-to-column thumbnail. A smaller fixed width is permitted ONLY for a figure explicitly marked inline/thumbnail. (Same enforcement lives in the markdown discipline — see [[DSC markdown]] R-markdown diagram-sizing rule.)
 
 Same rules for `## Thread layout` and any other in-architecture diagrams.
-
 
 ## What does NOT belong on the entry-point Architecture page
 
@@ -129,13 +125,11 @@ The main `{NAME} Architecture.md` is a **conceptual map**. Detail belongs elsewh
 
 If a class table starts showing up on the Architecture page, that's a smell that the doc is doing two jobs. Split it.
 
-
 ## Trait applicability
 
 Available to any anchor with the `Code` trait. Optional for non-code anchors — a `Topic` anchor's "architecture" might be its content taxonomy, but that's usually expressed in the anchor page or PRD instead.
 
 **Cardinality: one** — each anchor has exactly one `{NAME} Architecture/` folder and one `{NAME} Architecture.md` entry-point doc. Subsystem docs inside the folder are many, but the facet itself (the entry-point doc + folder) is singular per anchor.
-
 
 ## Audit
 
@@ -148,7 +142,6 @@ Available to any anchor with the `Code` trait. Optional for non-code anchors —
 - **api-content-on-arch-page** — class / function / method tables appearing in the entry-point Architecture doc (should be in API or subsystem doc).
 - **section-order** — required first four sections (Overview → Architecture diagram → Subsystems → first supporting H2) out of order.
 
-
 ## See also
 
 - [[FCT Module Doc]] — companion spec for the public-API sub-document.
@@ -157,7 +150,6 @@ Available to any anchor with the `Code` trait. Optional for non-code anchors —
 - [[FCT Decisions]] — anchor-level applied choices that cite rules from rulesets.
 - [[FCT Design Dispatch]] — Architecture sits alongside PRD / Decisions / Interface in `{NAME} Design/`.
 - [[CAE Architecture]] — worked example.
-
 
 # RULESET R-architecture
 include::

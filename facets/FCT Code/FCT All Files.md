@@ -1,13 +1,14 @@
 ---
 description: the repo's complete source file tree, every file linked to its module doc (monospace)
 ---
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Code]] → [FCT All Files](hook://p/FCT%20All%20Files)
+
 # FCT All Files
 The All Files facet — a fixed-width file-tree page linking every source file to its module doc.
 
-| -[[FCT All Files]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Code]] → [FCT All Files](hook://p/FCT%20All%20Files)<br>: the repo's complete source file tree, every file linked to its module doc (monospace) |
-| --- | --- |
-| Related | [[FCT Interface]],  [[FCT Module]],  [[FCT Architecture]],  [[FCT Dev]],   |
-| Examples | [[CAE Files\|minimal]],  [[HBR Files\|fuller]],   |
+**Related:** [[FCT Interface]],  [[FCT Module]],  [[FCT Architecture]],  [[FCT Dev]]
+**Examples:** [[CAE Files\|minimal]],  [[HBR Files\|fuller]]
 
 **TLDR** — A `{NAME} Files.md` page renders the full repo tree in monospace (via `cssclasses: monospace`) with each source file as a wiki-link to its module doc. Cardinality: one per anchor. The no-code-fence rule is load-bearing: wrapping the tree in triple-backticks kills wiki-links. Filenames ARE the links; the `→ [[doc]]` arrow form is reserved for non-source files.
 
@@ -42,7 +43,6 @@ description: ...
 
 File tree for the {repo-name} repository with descriptions.
 
-
 {repo-name}/
 ├── Cargo.toml                         Workspace config + dependencies
 ├── [[FCT Claude|CLAUDE.md]]                          Claude Code configuration
@@ -58,8 +58,6 @@ File tree for the {repo-name} repository with descriptions.
 The ``` ``` fences above are showing you the *content* of the file. **Your file does not start or end with triple-backticks.** It starts with `---` (YAML frontmatter opener) and ends with the last tree line.
 
 ---
-
-
 
 # Format Specification
 

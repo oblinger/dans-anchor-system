@@ -4,12 +4,12 @@ description: "Discipline — four-tier verification preference ordering (agent-i
 user_invocable: false
 ---
 
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DSC verification](hook://p/DSC%20verification)
+
 # Verification Discipline
 The four-tier preference ordering (agent-immediate → user-explicit) for how a feature gets verified, declared up front in each feature doc and consulted at verification time so user attention is spent only when no lower tier works.
 
-| -[[DSC verification]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DSC verification](hook://p/DSC%20verification)<br>: Discipline — four-tier verification preference ordering (agent-immediate → user-explicit), declared up front and consulted at verification time |
-| --- | --- |
-| Related | [[CAB Disciplines]],  [[feature]],  [[query]],  [[triage]],  [[workflow]],   |
+**Related:** [[CAB Disciplines]],  [[feature]],  [[query]],  [[triage]],  [[workflow]]
 
 Verification is *the four-tier preference ordering an agent uses to choose how a feature gets verified — from agent-immediate (best) to user-explicit (last resort).* The single load-bearing rule: pick the highest applicable tier; never escalate to a higher one when a lower one would work. What distinguishes a tier from a feeling:
 

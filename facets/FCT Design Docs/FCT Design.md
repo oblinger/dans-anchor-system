@@ -1,13 +1,14 @@
 ---
 description: "design facet — the {NAME} Design/ folder marks an anchor as following the designed-lifecycle convention; folder presence IS the signal (no trait field required)"
 ---
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Design](hook://p/FCT%20Design)
+
 # FCT Design
 The Design folder facet — marks an anchor as following the designed-lifecycle convention; folder presence is the gate.
 
-| -[[FCT Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Design](hook://p/FCT%20Design)<br>: design facet — the `{NAME} Design/` folder marks an anchor as following the designed-lifecycle convention; folder presence IS the signal (no trait field required) |
-| --- | --- |
-| Related | [[FCT PRD]],  [[FCT Architecture]],  [[FCT Testing]],  [[FCT Design Dispatch\|Dispatch]],   |
-| Examples | [[CAE Design\|minimal]],  [[HBR Design\|fuller]],   |
+**Related:** [[FCT PRD]],  [[FCT Architecture]],  [[FCT Testing]],  [[FCT Design Dispatch\|Dispatch]]
+**Examples:** [[CAE Design\|minimal]],  [[HBR Design\|fuller]]
 
 **TLDR** — The Design facet is triggered by the **existence of a `{NAME} Design/` folder** (not by any `.anchor` trait field). When the folder exists, three children are required (PRD, Architecture, Testing), several others are recommended, and the `/design` skill operates on the anchor. Cardinality: **one per anchor** — an anchor has at most one Design folder. The embedded `R-design` ruleset encodes the auditable rules; `# BRIEF` is the agent-maintenance guide.
 
@@ -150,7 +151,6 @@ Any anchor that commits to the designed-lifecycle convention.
 - [[design]] — orchestrator skill; gate moved from Code-trait check to Design-folder check 2026-06-10
 - [[CAE Design]] — worked example
 - F140 (vault sweep — retire `Code` trait from anchors with Design folder)
-
 
 # RULESET R-design
 include::

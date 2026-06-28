@@ -1,13 +1,14 @@
 ---
 description: raw incoming content to process
 ---
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Inbox](hook://p/FCT%20Inbox)
+
 # FCT Inbox
 Facet spec for the `{NAME} Inbox.md` drop-zone file — the chronological log of raw input pasted in for later processing into the anchor's planning docs.
 
-| -[[FCT Inbox]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Inbox](hook://p/FCT%20Inbox)<br>: raw incoming content to process |
-| --- | --- |
-| Related | [[FCT Discussion]],  [[FCT Backlog]],  [[FCT PRD]],  [[FCT Roadmap]],   |
-| Examples | [[CAE Inbox\|example]],   |
+**Related:** [[FCT Discussion]],  [[FCT Backlog]],  [[FCT PRD]],  [[FCT Roadmap]]
+**Examples:** [[CAE Inbox\|example]]
 
 **TLDR** — A single `{NAME} Inbox.md` file (one per anchor) is the paste-first drop zone for raw input; processed entries stay with a `DONE` or `MOVED →` status tag as a permanent log.
 
@@ -28,10 +29,7 @@ Below is a condensed reference example. See the working example linked above for
 | --- | --- |
 | --- | |
 
-
 Items below have been processed and moved to their destination docs.
-
-
 
 ## 2026-02-28 — Retry backoff tuning    `DONE`
 User reported exponential backoff too aggressive for short tasks. Captured in [[CAE Open Questions#14]].
@@ -39,19 +37,13 @@ User reported exponential backoff too aggressive for short tasks. Captured in [[
 Original input:
 > When I schedule a 2-second task and it fails, the retry waits 4s, then 8s, then 16s. For quick tasks this feels excessive. Could we cap the backoff or use linear for tasks under 10s?
 
-
-
 ## 2026-02-25 — Priority starvation fix    `MOVED → CAE Roadmap#M3`
 Discussed promotion logic for starved low-priority tasks. Design notes moved to [[CAE Discussion#2026-02-25]]. Implementation planned for M3.
-
-
 
 ## 2026-02-20 — Initial feature brainstorm    `DONE`
 Raw feature list from kickoff meeting. Items distributed to [[CAE PRD]] and [[CAE Backlog]].
 
 ---
-
-
 
 # Format Specification
 

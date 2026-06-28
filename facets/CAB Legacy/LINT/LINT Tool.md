@@ -2,9 +2,10 @@
 traits: [Code]
 description: Lint an anchor — static analysis against CAB type rules.
 ---
-| -[[LINT]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[CAB]] → [LINT](hook://p/LINT)<br>:  |
-| --- | --- |
-| [[LINT Docs\|Docs]] | ~~, [[LINT Plan\|Plan]] |
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[CAB]] → [LINT](hook://p/LINT)
+
+**[[LINT Docs\|Docs]]:** ~~, [[LINT Plan\|Plan]]
 
 # LINT — CAB Lint
 

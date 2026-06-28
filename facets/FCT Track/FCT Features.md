@@ -1,13 +1,14 @@
 ---
 description: "specification for F-numbered per-feature design docs and their index page"
 ---
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Features](hook://p/FCT%20Features)
+
 # FCT Features
 Specification for the **Features** facet — F-numbered per-feature design docs that live under `{NAME} Design/{NAME} Features/`, with their index page and pre-document Open-Questions zone.
 
-| -[[FCT Features]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Features](hook://p/FCT%20Features)<br>: specification for F-numbered per-feature design docs and their index page |
-| --- | --- |
-| Related | [[FCT Roadmap]],  [[CAB Backlog]],  [[FCT Status]],  [[FCT Facet]],   |
-| Examples | [[CAE Features\|minimal]],  [[HBR Features\|fuller]],   |
+**Related:** [[FCT Roadmap]],  [[CAB Backlog]],  [[FCT Status]],  [[FCT Facet]]
+**Examples:** [[CAE Features\|minimal]],  [[HBR Features\|fuller]]
 
 Specification for the **Features** facet — the F-numbered per-feature design docs that live under an anchor's `{NAME} Design/{NAME} Features/` folder, with their index page and pre-document Open-Questions zone.
 
@@ -47,7 +48,6 @@ The `{NAME} Features.md` page lists all features in reverse chronological order 
 
 - **FILE NAME** — Each feature is an F-numbered file using the format `F<NNN> — <Title>.md` (zero-padded triple-digit F-number, unique within the anchor). Dated `YYYY-MM-DD <Title>.md` filenames are the legacy form (pre-F-numbering) — do not author new ones; existing dated docs are left until next touch.
 - **FEATURE STATUS** — The lifecycle state (`Designing` / `Agreed` / `Implementing` / `Testing` / `Done`) is the single source of truth in the feature doc's `## Status` section. The index row mirrors it in `` `[<State>]` `` backtick-brackets as a navigation convenience; keep the two aligned.
-
 
 ## Feature Document Format
 
