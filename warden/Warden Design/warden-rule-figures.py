@@ -30,6 +30,8 @@ def line_style(line: str):
         return "#7b2d52", "bold"      # markdown heading sentinel (### RULE / # RULESET)
     if FIELD.match(line):
         return "#2d5b7b", "normal"    # :: field
+    if s.startswith("`"):
+        return "#2f7d4f", "normal"    # inline-backtick one-liner = python body
     if PYLINE.match(line) or s.startswith("#"):
         return "#2f7d4f", "normal"    # embedded python (incl. # comments)
     return "#1a1a2e", "normal"        # default
@@ -66,9 +68,16 @@ def render(lines, out_path: Path):
         f'fill="#f8f9fb" stroke="#c9cde0" stroke-width="1.3"/>',
     ]
     y = PAD + 13
+    in_fence = False
     for line in lines:
         if line.strip():
-            c, w = line_style(line)
+            if line.lstrip().startswith("```"):
+                c, w = "#2f7d4f", "normal"
+                in_fence = not in_fence
+            elif in_fence:
+                c, w = "#2f7d4f", "normal"   # everything inside a fence is python
+            else:
+                c, w = line_style(line)
             parts.append(f'<text x="{PAD}" y="{y}" xml:space="preserve">{tspans(line, c, w)}</text>')
         y += LINE_H
     parts.append("</svg>")
@@ -122,7 +131,7 @@ RULES = {
     "python": [
         "### RULE R-ex-02 — No empty sections",
         "where:: `**/*.md`",
-        "```python",
+        "```",
         "for s in ctx.sections(level=2):",
         "    if not s.body.strip():",
         "        ctx.tell(f\"'{s.title}' is empty — add a body or drop it\")",
@@ -137,7 +146,7 @@ RULES = {
     "script-assisted": [
         "### RULE R-ex-04 — Open Questions still open",
         "where:: `**/*.md`",
-        "```python",
+        "```",
         "# narrow first (cheap), then ask the LLM about just that slice",
         "for q in ctx.judge(ctx.section('## Open Questions'),",
         "                   'which questions are already resolved elsewhere?'):",
@@ -148,14 +157,12 @@ RULES = {
         "### RULE R-ex-05 — Stamp the reviewed-date",
         "where:: `**/*Architecture*.md`",
         "when:: write:markdown",
-        "```python",
-        "ctx.set_frontmatter('reviewed', ctx.today)        # an edit, no tell",
-        "```",
+        "`ctx.set_frontmatter('reviewed', ctx.today)`",
     ],
     "deny": [
         "### RULE R-ex-06 — No force-push to main",
         "when:: tool:pre:Bash",
-        "```python",
+        "```",
         "# the pending command — not yet run; we inspect it",
         "if 'git push' in ctx.command and '--force' in ctx.command and ctx.on_main:",
         "    ctx.deny('never force-push main — open a PR instead')",

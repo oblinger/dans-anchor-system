@@ -2,9 +2,9 @@
 <rect x="0" y="0" width="624" height="172" rx="9" fill="#f8f9fb" stroke="#c9cde0" stroke-width="1.3"/>
 <text x="16" y="29" xml:space="preserve"><tspan font-weight="bold" fill="#7b2d52">### RULE R-ex-06 — No force-push to main</tspan></text>
 <text x="16" y="49" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">when:: tool:pre:Bash</tspan></text>
-<text x="16" y="69" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">```python</tspan></text>
+<text x="16" y="69" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">```</tspan></text>
 <text x="16" y="89" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f"># the pending command — not yet run; we inspect it</tspan></text>
-<text x="16" y="109" xml:space="preserve"><tspan font-weight="normal" fill="#1a1a2e">if 'git push' in ctx.command and '--force' in ctx.command and ctx.on_main:</tspan></text>
+<text x="16" y="109" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">if 'git push' in ctx.command and '--force' in ctx.command and ctx.on_main:</tspan></text>
 <text x="16" y="129" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">    ctx.deny('never force-push main — open a PR instead')</tspan></text>
 <text x="16" y="149" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">```</tspan></text>
 </svg>

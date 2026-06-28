@@ -58,7 +58,9 @@ On a hit, the rule performs zero or more actions. Three are **mediated** — War
 | **deny** | `ctx.deny(reason)` | block the pending action | the tool call — `tool:pre` only |
 | **run** *(future)* | the Python body, directly | arbitrary execution — run commands, drive Warden / other agents | **deferred** — needs a security model first |
 
-**A bare prose body *is* the tell.** When the action is just "tell the agent this," you write the prose — no keyword (the `tell` payload is the whole point). For anything more, the body is a **bare Python snippet** — `ctx` is in scope, no `def`, no magic function name — and it calls `ctx.tell` / `ctx.edit` / `ctx.deny`. (`message:: <text>` is the sugar for a fixed prose tell; a *fix* is an `edit` that repairs a violation.) **Emit nothing → the rule passed.**
+**A bare prose body *is* the tell.** When the action is just "tell the agent this," you write the prose — no keyword (the `tell` payload is the whole point). For anything more, the body is **Python, marked by backticks** — an inline `` `expr` `` for a one-liner, a bare ` ``` ` fence for several lines (**no `python` tag — backticked means Python**). `ctx` is in scope; no `def`, no function name; it calls `ctx.tell` / `ctx.edit` / `ctx.deny`. (`message:: <text>` is the sugar for a fixed prose tell; a *fix* is an `edit` that repairs a violation.) **Emit nothing → the rule passed.**
+
+> **The one lexical rule: backticks = Python.** A backticked `if::` value, a backticked one-line body, a fenced block — all are Python run by the engine; un-backticked prose is the `tell`. (It also subsumes [[F007 — Backtick all where expressions — parser swap|F007]]: backticked = code, so Dataview leaves it alone.)
 
 **`ctx` splits in two — and the split is load-bearing for readability.** **Inspectors** are read-only **data** — `ctx.text`, `ctx.title`, `ctx.fields`, `ctx.command`, `ctx.section(…)`, even `ctx.judge(slice, q)` (it reads via the LLM) — they *look*, never act (so the LLM reading `ctx.command` knows nothing runs). **Actions** are the only things that *do* — `ctx.tell`, the `ctx.edit`-family (`ctx.set_frontmatter`, `ctx.replace_section`, …), `ctx.deny`. A method name should never blur the two (e.g. `ctx.bash(…)` would wrongly read as "run bash" — inspect `ctx.command` instead).
 
@@ -68,7 +70,44 @@ On a hit, the rule performs zero or more actions. Three are **mediated** — War
 
 > **Open — `run`'s trust model.** Your own rules are as trusted as your own scripts, so unbounded effect is arguably fine; an *imported* ruleset carrying effectful Python is a **supply-chain risk** (adopting it runs its code on your moments). Leaning: **ship the mediated three first; add `run` only behind explicit trust, off for imported rules.**
 
-**What a body sees** — `ctx`: `ctx.path` · `ctx.text` · `ctx.lines()` · `ctx.frontmatter` · `ctx.section("## X")` · `ctx.sections(level=N)` · `ctx.anchor` · `ctx.git_aspect`. A `when::`-triggered test also gets the event payload (e.g. `ctx.diff` for a `write:*` moment).
+## What's in `ctx`
+
+`ctx` is the one object every test and body receives — **the subject under test**: the file `where::` matched, the moment `when::` fired, and what's parsed from them. It's deliberately small, and every member is a plain noun (data) or verb (action), so a rule reads without a manual.
+
+**Data — the target file** (from `where::`, always present):
+
+| Member | What it is |
+|---|---|
+| `ctx.path` · `ctx.name` | the file's path · basename |
+| `ctx.text` · `ctx.lines` | full text · list of lines |
+| `ctx.title` | the H1 title (or `None`) |
+| `ctx.frontmatter` · `ctx.fields` | parsed YAML frontmatter · Dataview inline fields (dicts) |
+| `ctx.section("## X")` · `ctx.sections(level=N)` | one section · the sections |
+| `ctx.links` | the wiki / markdown links |
+| `ctx.anchor` · `ctx.traits` | the anchor it lives in · its traits |
+
+**Data — the moment** (from `when::`, on a live run only):
+
+| Member | What it is |
+|---|---|
+| `ctx.event` | the moment that fired (`write:markdown`, …) |
+| `ctx.diff` | what changed (write moments) |
+| `ctx.command` | the pending / just-run command (Bash moments) |
+| `ctx.tool` | the tool name + input (tool moments) |
+| `ctx.git_aspect` · `ctx.today` | the git mode (`Commit`, …) · today's date |
+
+**Actions** (the verbs — § THEN):
+
+| Member | What it does |
+|---|---|
+| `ctx.tell(msg)` | steer the agent / file a finding |
+| `ctx.set_frontmatter(…)` · `ctx.replace_section(…)` · … | the `edit` family |
+| `ctx.deny(reason)` | block the pending tool |
+| `ctx.judge(slice, question)` | **ask the LLM** — returns findings (the one member that costs tokens) |
+
+- **`ctx.judge` is run by the LLM.** It hands `slice` + `question` to the model and gets findings back — how a Python body delegates a judgment. A bare-prose body is just the sugar for `ctx.judge(<whole doc>, <the prose>)`; everything else is plain computation.
+- **Small on purpose.** When a member is missing, reach for `ctx.text` + the Python stdlib — not a new method. The accessors exist only because re-parsing markdown structure by hand would be worse; they expose *data*, never hide a check.
+- **Will a reading LLM understand `ctx.sections`?** Yes — they're ordinary nouns it's seen in thousands of APIs; `ctx.sections(level=2)` plainly means "the level-2 sections." That's the dual-use payoff: the names that *run* the rule also let a reader *understand* it.
 
 ## The pipeline
 

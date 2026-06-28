@@ -13,7 +13,8 @@ One worked ruleset, six complete rules. A rule is **`IF` a condition `THEN` an a
 
 Every rule binds with `where::` (which files) and optionally `when::` (which moment); then a condition and an action. Two facts ([[Warden Semantics]] has the pipeline):
 
-- **A bare prose body *is* the tell.** When the action is just "tell the agent this," you don't write `tell` — the prose *is* the message (R-ex-01, R-ex-03). `edit` and `deny` (and an explicit `tell`) are `ctx.*` calls inside a `python` body — readable code the agent can follow.
+- **A bare prose body *is* the tell.** When the action is just "tell the agent this," you don't write `tell` — the prose *is* the message (R-ex-01, R-ex-03). `edit` and `deny` (and an explicit `tell`) are `ctx.*` calls in **backticked Python**.
+- **Backticks = Python.** A backticked `if::`, an inline one-line body (`` `ctx.set_frontmatter(…)` ``, R-ex-05), or a bare ` ``` ` fence (R-ex-02/04/06) — all are Python the engine runs; **no `python` tag**. Un-backticked prose is the `tell`.
 - **No `when::` means passive.** R-ex-01…04 run when **`/audit`** visits their files; R-ex-05/06 declare a `when::` and fire **live**.
 - **`where::` is anchor-relative.** `**/*.md` means "every markdown file *in the anchor that adopts this rule*" — no `{ANCHOR}/` needed; that's why one rule is reusable across anchors.
 - **No condition DSL.** `if::` is Python; `ctx` *inspectors* (`ctx.has`, `ctx.command`, `ctx.section`) are read-only and never act — only `ctx.tell`/`edit`/`deny` do.
