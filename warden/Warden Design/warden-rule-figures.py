@@ -111,43 +111,53 @@ HEADER = [
     "description:: worked examples of Warden's rule-execution modes",
 ]
 RULES = {
-    # passive (no when::) rules run at /audit time; the gated one fires live.
+    # the body shows the kind (check:: / python / prose); no tier needed.
+    # passive (no when::) rules run at /audit time; live ones declare when::.
     "primitive": [
-        "### RULE R-ex-01 — Has a description (checked)",
+        "### RULE R-ex-01 — Has a description",
         "where:: `{ANCHOR}/**/R-*.md`",
         "check:: regex_present `^description::`",
     ],
     "python": [
-        "### RULE R-ex-02 — Every H2 section has a body (checked)",
+        "### RULE R-ex-02 — Every H2 section has a body",
         "where:: `{ANCHOR}/**/*.md`",
         "```python",
         "def check(ctx):",
         "    for sec in ctx.sections(level=2):",
         "        if not sec.body.strip():",
-        "            return Fail(f'empty section: {sec.title}')",
-        "    return Pass()",
+        "            ctx.report(f'empty section: {sec.title}')",
         "```",
     ],
     "llm": [
-        "### RULE R-ex-03 — Summary matches the body (stated)",
+        "### RULE R-ex-03 — Summary matches the body",
         "where:: `{ANCHOR}/**/F[0-9][0-9][0-9] — *.md`",
         "The ## Summary faithfully reflects ## Design — no drift.",
     ],
     "script-assisted": [
-        "### RULE R-ex-04 — Open Questions still open (stated)",
+        "### RULE R-ex-04 — Open Questions still open",
         "where:: `{ANCHOR}/**/*.md`",
         "```python",
         "def prepare(ctx):     # cheap: hand the LLM only one section",
         "    return ctx.section('## Open Questions')",
         "```",
-        "Judge each item prepare() returns: still unresolved? Flag stale ones.",
+        "Judge each item prepare() returns: still unresolved? Report stale ones.",
+    ],
+    "message": [
+        "### RULE R-ex-05 — Don't ask whether to commit",
+        "when:: skill:audit-q",
+        "where:: `{ANCHOR}/**/{NAME} queries.md`",
+        "```python",
+        "def check(ctx):",
+        "    if ctx.has_question('push', 'commit'):",
+        "        ctx.report(steer_for(ctx.git_aspect))  # tell the agent, don't ask",
+        "```",
     ],
     "gated": [
-        "### RULE R-ex-05 — Diagram matches prose (stated)",
+        "### RULE R-ex-06 — Diagram matches prose",
         "where:: `{ANCHOR}/**/*Architecture*.md`",
         "when:: write:markdown",
         "rerun:: significant",
-        "The figure reflects the components in the prose; flag drift.",
+        "The figure reflects the components in the prose; report drift.",
     ],
 }
 

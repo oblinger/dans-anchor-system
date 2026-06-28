@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="132" viewBox="0 0 512 132" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="13">
-<rect x="0" y="0" width="512" height="132" rx="9" fill="#f8f9fb" stroke="#c9cde0" stroke-width="1.3"/>
-<text x="16" y="29" xml:space="preserve"><tspan font-weight="bold" fill="#7b2d52">### RULE R-ex-05 — Diagram matches prose (stated)</tspan></text>
+<svg xmlns="http://www.w3.org/2000/svg" width="528" height="132" viewBox="0 0 528 132" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="13">
+<rect x="0" y="0" width="528" height="132" rx="9" fill="#f8f9fb" stroke="#c9cde0" stroke-width="1.3"/>
+<text x="16" y="29" xml:space="preserve"><tspan font-weight="bold" fill="#7b2d52">### RULE R-ex-06 — Diagram matches prose</tspan></text>
 <text x="16" y="49" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">where:: `{ANCHOR}/**/*Architecture*.md`</tspan></text>
 <text x="16" y="69" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">when:: write:markdown</tspan></text>
 <text x="16" y="89" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">rerun:: significant</tspan></text>
-<text x="16" y="109" xml:space="preserve"><tspan font-weight="normal" fill="#1a1a2e">The figure reflects the components in the prose; flag drift.</tspan></text>
+<text x="16" y="109" xml:space="preserve"><tspan font-weight="normal" fill="#1a1a2e">The figure reflects the components in the prose; report drift.</tspan></text>
 </svg>

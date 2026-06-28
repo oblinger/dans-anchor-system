@@ -1,12 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="480" height="212" viewBox="0 0 480 212" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="13">
-<rect x="0" y="0" width="480" height="212" rx="9" fill="#f8f9fb" stroke="#c9cde0" stroke-width="1.3"/>
-<text x="16" y="29" xml:space="preserve"><tspan font-weight="bold" fill="#7b2d52">### RULE R-ex-02 — Every H2 section has a body (checked)</tspan></text>
+<svg xmlns="http://www.w3.org/2000/svg" width="456" height="192" viewBox="0 0 456 192" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="13">
+<rect x="0" y="0" width="456" height="192" rx="9" fill="#f8f9fb" stroke="#c9cde0" stroke-width="1.3"/>
+<text x="16" y="29" xml:space="preserve"><tspan font-weight="bold" fill="#7b2d52">### RULE R-ex-02 — Every H2 section has a body</tspan></text>
 <text x="16" y="49" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">where:: `{ANCHOR}/**/*.md`</tspan></text>
 <text x="16" y="69" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">```python</tspan></text>
 <text x="16" y="89" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">def check(ctx):</tspan></text>
 <text x="16" y="109" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">    for sec in ctx.sections(level=2):</tspan></text>
 <text x="16" y="129" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">        if not sec.body.strip():</tspan></text>
-<text x="16" y="149" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">            return Fail(f'empty section: {sec.title}')</tspan></text>
-<text x="16" y="169" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">    return Pass()</tspan></text>
-<text x="16" y="189" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">```</tspan></text>
+<text x="16" y="149" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">            ctx.report(f'empty section: {sec.title}')</tspan></text>
+<text x="16" y="169" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">```</tspan></text>
 </svg>
