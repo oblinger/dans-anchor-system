@@ -27,23 +27,23 @@ Three clauses, **two kinds**. `where::` and `when::` are **indexes** — the com
 
 | Clause | Kind | |
 |---|---|---|
-| `where::` | **index** (glob) | which files — required (default `always`); [[FCT Ruleset]] § Where clause |
+| `where::` | **index** (glob) | which files — required (default `always`), **anchor-relative**; [[FCT Ruleset]] § Where clause |
 | `when::` | **index** (moment) | which live moment — omit → *passive*; [[Warden Trigger Taxonomy]] |
-| `if::` | **test** (computed) | the condition — written one of three ways (below); yields findings |
+| `if::` | **test** (computed) | the condition — a Python expression, or prose (below) |
+
+**`where::` is anchor-relative.** A glob resolves under whatever anchor *adopts* the rule — `**/*.md` means "every markdown file in this anchor." That's why one rule is reusable across anchors. The explicit `{ANCHOR}/` token is optional (clearer in shared rulesets); a bare glob is equivalent.
 
 **Live vs. passive** — a `when::` makes the rule fire **live** at that moment (the fast guardrail); with **no `when::` it is passive**, run only when `/audit` visits its `where::` files (the backstop).
 
-**Why `if` stays separate from `when`.** `when`/`where` are *indexical* — clean tokens (`write:markdown`, `*.md`) the compiler matches without execution. `if` is *computed* — a real expression. Folding `if` into `when` would either uglify the simple `when` clause or mix a dispatch index with arbitrary computation, so they stay apart: dispatch is indexes, the test is `if`.
+**Why `if` stays separate from `when`.** `when`/`where` are *indexical* — clean tokens (`write:markdown`, `*.md`) the compiler matches without execution. `if` is *computed*. Folding `if` into `when` would either uglify the simple `when` clause or mix a dispatch index with computation, so they stay apart.
 
-**The test (`if::`) is written one of three ways** — this is where the old `check::` now lives:
+**The test (`if::`) is a Python expression** — there's **no condition DSL**. The common predicates are read-only **`ctx` inspectors**, so a check reads as plain Python:
 
-| Written as | The test is… |
-|---|---|
-| `if:: <primitive>` (e.g. `regex_present …`) | a named library check — fast, native |
-| a `python` block — `def check(ctx)` | arbitrary logic |
-| **prose** | the LLM reads `ctx` and judges |
+```
+if:: not ctx.has(r'^# ')        # a primitive check, written as Python
+```
 
-A test yields **findings** (each a message), or a bare boolean. The cheap-narrowing trick still applies — a `python def prepare(ctx)` can hand the LLM only a slice before it judges (**script-assisted**).
+(A value that itself contains `::` — like a regex for `description::` — is **backticked**, per [[F007 — Backtick all where expressions — parser swap|F007]], so Dataview doesn't choke on it.) Or **prose**, when the test needs judgment — the LLM reads `ctx` and decides. (For a computed, per-violation test, skip `if::` and write a body **snippet** that conditions and tells inline — § THEN.) Either way a test yields **findings** (each a message) or a boolean. A `focus:: <expr>` clause hands the LLM just a slice before it judges — **script-assisted**.
 
 ## `THEN` — the actions
 
@@ -57,7 +57,9 @@ On a hit, the rule performs zero or more actions. Three are **mediated** — War
 | **deny** | `ctx.deny(reason)` | block the pending action | the tool call — `tool:pre` only |
 | **run** *(future)* | the Python body, directly | arbitrary execution — run commands, drive Warden / other agents | **deferred** — needs a security model first |
 
-**A bare prose body *is* the tell.** When the action is just "tell the agent this," you write the prose — no keyword (the `tell` payload is the whole point). `edit`, `deny`, and an *explicit* `tell` are `ctx.*` calls inside a `python` body — readable code the agent can also follow. (`message:: <text>` is the sugar for a fixed prose tell; a *fix* is an `edit` that repairs a violation.) **Emit nothing → the rule passed.**
+**A bare prose body *is* the tell.** When the action is just "tell the agent this," you write the prose — no keyword (the `tell` payload is the whole point). For anything more, the body is a **bare Python snippet** — `ctx` is in scope, no `def`, no magic function name — and it calls `ctx.tell` / `ctx.edit` / `ctx.deny`. (`message:: <text>` is the sugar for a fixed prose tell; a *fix* is an `edit` that repairs a violation.) **Emit nothing → the rule passed.**
+
+**`ctx` splits in two — and the split is load-bearing for readability.** **Inspectors** are read-only — `ctx.text`, `ctx.command`, `ctx.has(regex)`, `ctx.section(…)` — they *look*, never act (so the LLM reading `ctx.command` knows nothing runs). **Actions** are the only things that *do* — `ctx.tell` / `ctx.edit` / `ctx.deny`. A method name should never blur the two (e.g. `ctx.bash(…)` would wrongly read as "run bash" — inspect `ctx.command` instead).
 
 **What `tell` actually does.** **Live** → text the hook injects into the agent's context (what you'd picture as "printed to the agent" — the F180 steer); **audit** → a finding written into the report the user reads. Same `ctx.tell`; the trigger picks the channel.
 

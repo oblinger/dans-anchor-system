@@ -15,18 +15,20 @@ Every rule binds with `where::` (which files) and optionally `when::` (which mom
 
 - **A bare prose body *is* the tell.** When the action is just "tell the agent this," you don't write `tell` — the prose *is* the message (R-ex-01, R-ex-03). `edit` and `deny` (and an explicit `tell`) are `ctx.*` calls inside a `python` body — readable code the agent can follow.
 - **No `when::` means passive.** R-ex-01…04 run when **`/audit`** visits their files; R-ex-05/06 declare a `when::` and fire **live**.
+- **`where::` is anchor-relative.** `**/*.md` means "every markdown file *in the anchor that adopts this rule*" — no `{ANCHOR}/` needed; that's why one rule is reusable across anchors.
+- **No condition DSL.** `if::` is Python; `ctx` *inspectors* (`ctx.has`, `ctx.command`, `ctx.section`) are read-only and never act — only `ctx.tell`/`edit`/`deny` do.
 
 ## 01 · A prose tell
 
 ![[Warden Example prose.svg]]
 
-The whole body is one line of prose — *that's the tell.* `if:: absent` is the condition (a fast primitive), and when it holds the prose lands in front of the agent. This is the common shape, and it doubles as documentation: read it and you know the convention, no engine required.
+The whole body is one line of prose — *that's the tell.* `if::` is a one-line Python condition (`not ctx.has(...)` — the common predicates are `ctx` methods, not an invented language), and when it holds the prose lands in front of the agent. This is the common shape, and it doubles as documentation: read it and you know the convention, no engine required.
 
 ## 02 · A Python test (tells per finding)
 
 ![[Warden Example python.svg]]
 
-When a regex won't do, the body is `python`: `def check(ctx)` walks every H2 section and `ctx.tell(...)`s each empty one — one finding, with its own message, per violation. `ctx.tell` is the same action as a prose body; here it's called from code because the message is computed.
+When a regex won't do, the body is a bare `python` **snippet** (no `def`, no magic name — `ctx` is in scope): it walks every H2 section and `ctx.tell(...)`s each empty one — one finding, with its own message, per violation. `ctx.tell` is the same action as a prose body; here it's called from code because the message is computed.
 
 ## 03 · An LLM judgment
 
@@ -38,7 +40,7 @@ Also just prose — but prose that states an *expectation* ("Summary should refl
 
 ![[Warden Example script-assisted.svg]]
 
-The expensive part of a judgment is reading the whole file. A cheap `def focus(ctx)` hands the LLM only the slice it needs (`## Open Questions`); the prose then judges *that*. **Python narrows, the LLM judges** — the cheapest way to do a judgment.
+The expensive part of a judgment is reading the whole file. A `focus::` clause hands the LLM only the slice it needs (`ctx.section('## Open Questions')`); the prose then judges *that* — *for each question*, specifically, so the model knows what it's reasoning over. **Python narrows, the LLM judges** — the cheapest way to do a judgment.
 
 ## 05 · An `edit`
 

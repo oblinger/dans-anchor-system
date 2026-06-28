@@ -2,6 +2,6 @@
 <rect x="0" y="0" width="456" height="112" rx="9" fill="#f8f9fb" stroke="#c9cde0" stroke-width="1.3"/>
 <text x="16" y="29" xml:space="preserve"><tspan font-weight="bold" fill="#7b2d52">### RULE R-ex-01 — Ruleset has a description</tspan></text>
 <text x="16" y="49" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">where:: `**/R-*.md`</tspan></text>
-<text x="16" y="69" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">if:: absent `^description::`</tspan></text>
+<text x="16" y="69" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">if:: `not ctx.has(r'^description::')`</tspan></text>
 <text x="16" y="89" xml:space="preserve"><tspan font-weight="normal" fill="#1a1a2e">Every ruleset needs a `description::` line — add one.</tspan></text>
 </svg>

@@ -111,22 +111,21 @@ HEADER = [
     "description:: worked examples of Warden's rule-execution modes",
 ]
 RULES = {
-    # a bare-prose body IS the tell; edit/deny/explicit-tell are ctx.* in python.
-    # no when:: → passive (audit-time); a when:: → live.
+    # bare prose body = the tell; otherwise a bare python SNIPPET (ctx in scope,
+    # no def, no magic function name). if::/focus:: are python-expression clauses.
     "prose": [
         "### RULE R-ex-01 — Ruleset has a description",
         "where:: `**/R-*.md`",
-        "if:: absent `^description::`",
+        "if:: `not ctx.has(r'^description::')`",
         "Every ruleset needs a `description::` line — add one.",
     ],
     "python": [
         "### RULE R-ex-02 — No empty sections",
         "where:: `**/*.md`",
         "```python",
-        "def check(ctx):",
-        "    for s in ctx.sections(level=2):",
-        "        if not s.body.strip():",
-        "            ctx.tell(f\"'{s.title}' is empty — add a body or drop it\")",
+        "for s in ctx.sections(level=2):",
+        "    if not s.body.strip():",
+        "        ctx.tell(f\"'{s.title}' is empty — add a body or drop it\")",
         "```",
     ],
     "judgment": [
@@ -138,11 +137,8 @@ RULES = {
     "script-assisted": [
         "### RULE R-ex-04 — Open Questions still open",
         "where:: `**/*.md`",
-        "```python",
-        "def focus(ctx):        # hand the LLM just one section",
-        "    return ctx.section('## Open Questions')",
-        "```",
-        "For each item, is it still unresolved given the rest of the doc?",
+        "focus:: `ctx.section('## Open Questions')`",
+        "For each question, is it still unresolved given the rest of the doc?",
         "Flag the stale ones.",
     ],
     "edit": [
@@ -150,17 +146,16 @@ RULES = {
         "where:: `**/*Architecture*.md`",
         "when:: write:markdown",
         "```python",
-        "def check(ctx):                          # an edit, no tell",
-        "    ctx.edit(ctx.path, set_frontmatter('reviewed', ctx.today))",
+        "ctx.edit_frontmatter(reviewed=ctx.today)        # an edit, no tell",
         "```",
     ],
     "deny": [
         "### RULE R-ex-06 — No force-push to main",
         "when:: tool:pre:Bash",
         "```python",
-        "def check(ctx):",
-        "    if ctx.bash('git push') and '--force' in ctx.command and ctx.on_main:",
-        "        ctx.deny('never force-push main — open a PR instead')",
+        "# the pending command — not yet run; we inspect it",
+        "if 'git push' in ctx.command and '--force' in ctx.command and ctx.on_main:",
+        "    ctx.deny('never force-push main — open a PR instead')",
         "```",
     ],
 }
@@ -202,7 +197,7 @@ ANATOMY = [
     "### RULE R-ex — Title present",
     "where:: `*.md`",
     "when:: write:markdown",
-    "if:: absent `^# `",
+    "if:: `not ctx.has(r'^# ')`",
     "Add a top-level title.",
 ]
 ANATOMY_ANNOTS = [
