@@ -5,16 +5,19 @@ description: Common Anchor Example — reference anchor — a fully-wired exampl
 
 CAE is a self-contained reference anchor that demonstrates the canonical CAB structure by showing exactly what each file type looks like in a fully-wired Code-trait project.
 
-| -[[CAE]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [CAE](hook://p/CAE)<br>: Common Anchor Example — reference anchor — a fully-wired example of the canonical CAB structure |
+| -[[CAE]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [CAE](hook://p/CAE)<br>: Common Anchor Example — reference anchor — a fully-wired example of the canonical CAB structure |
 | --- | --- |
 | Related | [[CAB]],  [[SKA]],   |
-| [[CAE Design\|Design]] | [[CAE PRD\|PRD]],  [[CAE UX Design\|UX Design]],  [[CAE CLI\|CLI]],  [[CAE API\|API]],  [[CAE Architecture\|Architecture]],  [[CAE Decisions\|Decisions]],  [[CAE Testing\|Testing]],  [[CAE Roadmap\|Roadmap]],  [[CAE Features\|Features]],   |
-|  |  |
-| Examples | [[CAE Facet\|Facet]],  [[CAE Skill\|Skill]],  [[CAE Project Root\|Project Root]],  [[CAE Grouped Dispatch\|Grouped Dispatch]],  [[CAE List Dispatch\|List Dispatch]],  [[CAE Figure Page\|Figure Page]],  [[CAE Dispatch Examples\|Dispatch Examples]],  [[CAE Minimal Facet\|Minimal Facet]],  [[CAE Minimal Skill\|Minimal Skill]],   |
-| External |  |
-|  | [[CAE-Scheduler\|Scheduler]],   |
+| [[CAE Design\|Design]] | [[CAE PRD\|PRD]],  [[CAE Architecture\|Architecture]],  [[CAE Decisions\|Decisions]],  [[CAE UX Design\|UX Design]],  [[CAE CLI\|CLI]],  [[CAE API\|API]],  [[CAE Roadmap\|Roadmap]],  [[CAE Testing\|Testing]],  [[CAE Features\|Features]],   |
+| [[CAE Track\|Track]] | [[CAE Backlog\|Backlog]],   |
 | [[CAE User Docs\|User Docs]] | [[CAE Guide\|Guide]],   |
-| [[CAE Dev Docs\|Dev Docs]] | [[CAE Files\|Files]],   |
+| [[CAE Dev Docs\|Dev Docs]] | [[CAE Files\|Files]],  [[CAE-Scheduler\|Scheduler]],   |
+
+**Examples** — CAE doubles as the dispatch-form gallery (member zone):
+
+| [[CAE Facet\|Facet]] | [[CAE Skill\|Skill]] | [[CAE Project Root\|Project Root]] | [[CAE Grouped Dispatch\|Grouped Dispatch]] | [[CAE List Dispatch\|List Dispatch]] |
+| --- | --- | --- | --- | --- |
+| [[CAE Figure Page\|Figure Page]] | [[CAE Dispatch Examples\|Dispatch Examples]] | [[CAE Minimal Facet\|Minimal Facet]] | [[CAE Minimal Skill\|Minimal Skill]] |   |
 
 
 
@@ -47,14 +50,5 @@ Writing the principle once (in Rules) and referencing it by ID everywhere else k
 -[[CAE]]-	: Common Anchor Example — reference anchor — a fully-wired example of the canonical CAB structure
 [[CAE Design|Design]] — design — system spec, architecture, principles
 [[CAE Dev Docs|Dev Docs]] — source file tree and per-module reference for CAE (audit-tied implementation docs)
-[[CAE Dispatch Examples|Dispatch Examples]] — Worked examples of the dispatch-table structure (Masthead + Member zone) — real, live anchor pages demonstrating each alternative. Per CAB Dispatch Table § Structure.
-[[CAE Facet|Facet]] — Canonical facet exemplar — the structure every FCT facet page follows, worked with the Design facet. Roll this out to all facets.
-[[CAE Figure Page|Figure Page]] — Worked example — an anchor page WITH a figure: the canonical progressive-disclosure ordering (H1 → one-liner → figure → dispatch table).
-[[CAE Grouped Dispatch|Grouped Dispatch]] — Canonical grouped-dispatch exemplar — a Collection with > 15 members, grouped, each group row linking down to its own container page. Roll out to grouped anchors.
-[[CAE List Dispatch|List Dispatch]] — Canonical list-dispatch exemplar — a small Collection (≤ 15 members), flat member list, one row per member. Roll out to small grouped anchors.
-[[CAE Minimal Facet|Minimal Facet]] — The minimal-facet capsule — the leanest complete file set for a CAB facet, with a live worked instance. Lazy, no empty stubs.
-[[CAE Minimal Skill|Minimal Skill]] — The minimal-skill capsule — the leanest complete file set for a skill, keeping design thinking out of the published repo. Lazy, no empty stubs.
-[[CAE Project Root|Project Root]] — Canonical project-root exemplar — the {NAME}.md anchor page for a designed software project (masthead-only; structural rows, no member zone). Roll out to project anchors.
-[[CAE Skill|Skill]] — Canonical skill exemplar (SKILL.md). Capture a screenshot, file it with a generated title, and drop a transcribed note beside it. Use when the user says '/snap', 'grab a screenshot', 'snap this'. Roll this structure out to all skills.
 [[CAE Track|Track]] — work tracking + planning
 [[CAE User Docs|User Docs]] — curated, synthesis-level docs for any human audience
