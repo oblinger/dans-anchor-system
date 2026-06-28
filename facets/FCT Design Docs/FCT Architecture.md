@@ -13,9 +13,9 @@ Facet spec defining the per-anchor system-architecture overview — its anchor-f
 
 **TLDR** — One `{NAME} Architecture/` folder per anchor (cardinality: **one**). Entry-point doc has four required sections in order: Overview → Architecture diagram → Subsystems → supporting context. Diagram must be a real visual artifact (SVG/Excalidraw/D2); ASCII art is forbidden. Subsystem docs use kebab naming `{NAME}-{Subsystem}.md`; `[[double-bracket]]` = real doc, `[single-bracket]` = placeholder. Public API detail lives in a sibling `{NAME} API.md`, not the entry-point page.
 
-**Location:** `{NAME} Architecture/` (anchor-folder at the **anchor root**, per CAB Log 2026-06-08; previously `{NAME} Docs/{NAME} Design/{NAME} Architecture/`). The entry-point doc is `{NAME} Architecture/{NAME} Architecture.md`; subsystem docs are siblings inside that folder.
+**Location:** `{NAME} Design/` — a single `{NAME} Architecture.md` by default, upgraded to a `{NAME} Architecture/` folder-doc (entry-point `{NAME} Architecture/{NAME} Architecture.md`, subsystem docs as siblings) once it grows subsystems. **Architecture is a child of Design** — the F094 / CAB-Log-2026-06-08 anchor-root placement was **reversed 2026-06-27** per user direction: architecture is a design artifact and lives with the rest of the design.
 
-The Architecture facet is the **system-level overview** — how the codebase is structured, how its components interact, the thread model, the data flow. It's a synthesis-level doc (`/architect`-maintained with conservative-edit posture); lives at the anchor root alongside `{NAME} Design/`, `{NAME} Track/`, `{NAME} User Docs/`, `{NAME} Dev Docs/`. Maintained by `[[skills/architect/SKILL|/architect]]`.
+The Architecture facet is the **system-level overview** — how the codebase is structured, how its components interact, the thread model, the data flow. It's a synthesis-level doc (`/architect`-maintained with conservative-edit posture); lives in `{NAME} Design/` alongside the PRD, UX/API Design, Decisions, and Roadmap (the `{NAME} Track/`, `{NAME} User Docs/`, `{NAME} Dev Docs/` trees are siblings of Design at the anchor root). Maintained by `[[skills/architect/SKILL|/architect]]`.
 
 **Scope clarification.** "Architecture" here means **the system-architecture story** specifically — components, modules, interfaces, data flow, thread model. It is NOT the umbrella for all design content; that's `{NAME} Design/`. UX Design is a peer of Architecture, not a child.
 
@@ -169,7 +169,7 @@ Embedded ruleset for the Architecture facet, co-located with the facet spec abov
 ### RULE R-architecture-01 — Entry-point doc is `{NAME} Architecture.md` (checked)
 check:: architecture_filename_correct
 
-The facet entry-point doc is named `{NAME} Architecture.md`. In current layout it lives at `{NAME} Architecture/{NAME} Architecture.md` (anchor-folder at the anchor root); legacy instances under `{NAME} Docs/{NAME} Design/` are tolerated but flagged for migration.
+The facet entry-point doc is named `{NAME} Architecture.md` and lives in `{NAME} Design/` — as a single file by default, or `{NAME} Design/{NAME} Architecture/{NAME} Architecture.md` in folder-doc form once it grows subsystems. (Anchor-root instances from the reversed F094 placement are tolerated but flagged for migration back into Design.)
 
 **Check pattern:** a file matching `{NAME} Architecture.md` exists; its enclosing folder is `{NAME} Architecture/`.
 
