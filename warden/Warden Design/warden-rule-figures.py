@@ -111,13 +111,15 @@ HEADER = [
     "description:: worked examples of Warden's rule-execution modes",
 ]
 RULES = {
+    # passive (no when::) rules run at /audit time; the gated one fires live.
     "primitive": [
-        "### RULE R-ex-01 — Has a description (checked · primitive)",
+        "### RULE R-ex-01 — Has a description (checked)",
+        "where:: `{ANCHOR}/**/R-*.md`",
         "check:: regex_present `^description::`",
-        "**Check pattern:** a header line matches `^description::`",
     ],
     "python": [
-        "### RULE R-ex-02 — Every H2 section has a body (checked · python)",
+        "### RULE R-ex-02 — Every H2 section has a body (checked)",
+        "where:: `{ANCHOR}/**/*.md`",
         "```python",
         "def check(ctx):",
         "    for sec in ctx.sections(level=2):",
@@ -127,13 +129,13 @@ RULES = {
         "```",
     ],
     "llm": [
-        "### RULE R-ex-03 — Summary matches the body (stated · LLM)",
+        "### RULE R-ex-03 — Summary matches the body (stated)",
         "where:: `{ANCHOR}/**/F[0-9][0-9][0-9] — *.md`",
         "The ## Summary faithfully reflects ## Design — no drift.",
-        "**(the LLM reads both sections and judges)**",
     ],
     "script-assisted": [
-        "### RULE R-ex-04 — Open Questions still open (stated · script-assisted)",
+        "### RULE R-ex-04 — Open Questions still open (stated)",
+        "where:: `{ANCHOR}/**/*.md`",
         "```python",
         "def prepare(ctx):     # cheap: hand the LLM only one section",
         "    return ctx.section('## Open Questions')",
@@ -141,10 +143,10 @@ RULES = {
         "Judge each item prepare() returns: still unresolved? Flag stale ones.",
     ],
     "gated": [
-        "### RULE R-ex-05 — Diagram matches prose (stated · LLM, gated)",
+        "### RULE R-ex-05 — Diagram matches prose (stated)",
         "where:: `{ANCHOR}/**/*Architecture*.md`",
         "when:: write:markdown",
-        "rerun:: significant     # re-judge only on significant edits",
+        "rerun:: significant",
         "The figure reflects the components in the prose; flag drift.",
     ],
 }

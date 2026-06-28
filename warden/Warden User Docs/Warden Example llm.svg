@@ -1,7 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="496" height="112" viewBox="0 0 496 112" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="13">
-<rect x="0" y="0" width="496" height="112" rx="9" fill="#f8f9fb" stroke="#c9cde0" stroke-width="1.3"/>
-<text x="16" y="29" xml:space="preserve"><tspan font-weight="bold" fill="#7b2d52">### RULE R-ex-03 — Summary matches the body (stated · LLM)</tspan></text>
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="92" viewBox="0 0 480 92" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="13">
+<rect x="0" y="0" width="480" height="92" rx="9" fill="#f8f9fb" stroke="#c9cde0" stroke-width="1.3"/>
+<text x="16" y="29" xml:space="preserve"><tspan font-weight="bold" fill="#7b2d52">### RULE R-ex-03 — Summary matches the body (stated)</tspan></text>
 <text x="16" y="49" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">where:: `{ANCHOR}/**/F[0-9][0-9][0-9] — *.md`</tspan></text>
 <text x="16" y="69" xml:space="preserve"><tspan font-weight="normal" fill="#1a1a2e">The ## Summary faithfully reflects ## Design — no drift.</tspan></text>
-<text x="16" y="89" xml:space="preserve"><tspan font-weight="bold" fill="#1a1a2e">(the LLM reads both sections and judges)</tspan></text>
 </svg>

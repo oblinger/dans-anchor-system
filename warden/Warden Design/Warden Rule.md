@@ -72,7 +72,7 @@ The tier annotation declares how a rule is verified — the mechanical-vs-judgme
 | `sampled` | script where possible, else agent (risk-prioritized) |
 | `checked` | a **script** — deterministic, content-hash cached |
 
-The tier sets the rule's **execution mode** — mechanical (`checked`, a script), judgment (`stated`/`sampled`, the LLM), or **script-assisted** (a `check::` script narrows the input the LLM then judges). Worked examples of all three, plus the `rerun::` significant-edit gate, are in [[Warden Examples]].
+The tier sets the rule's **execution mode** — mechanical (`checked`, a script), judgment (`stated`/`sampled`, the LLM), or **script-assisted** (a `check::` script narrows the input the LLM then judges). Worked examples of all three, plus the `rerun::` significant-edit gate, are in [[Warden Examples]]; the precise run-time pipeline — how a rule becomes a verdict — is [[Warden Semantics]].
 
 A `checked` rule's check is written one of two ways: a named **primitive** via `check::` (e.g. `` check:: regex_present `^#+ RULESET R-` ``), or — when no primitive fits — an embedded ```` ```python ```` `def check(ctx) -> bool` block (the same executable-rule mechanism [[F180 — When-trigger executable rules|F180]] uses for `trigger` / `guard`). **Primitives run on the fast native path; arbitrary Python runs on the slower Python path** — so prefer a primitive when one fits. The prose `**Check pattern:**` stays the human spec. The primitive vocabulary is a **superset of Vale's check-type taxonomy** (existence / substitution / occurrence / … native; spelling / metric / sequence / script via an opt-in Vale adapter) — see [[Warden Integration Strategy]] D8.
 

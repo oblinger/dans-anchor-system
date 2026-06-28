@@ -1,9 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="600" height="152" viewBox="0 0 600 152" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="13">
-<rect x="0" y="0" width="600" height="152" rx="9" fill="#f8f9fb" stroke="#c9cde0" stroke-width="1.3"/>
-<text x="16" y="29" xml:space="preserve"><tspan font-weight="bold" fill="#7b2d52">### RULE R-ex-04 — Open Questions still open (stated · script-assisted)</tspan></text>
-<text x="16" y="49" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">```python</tspan></text>
-<text x="16" y="69" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">def prepare(ctx):     # cheap: hand the LLM only one section</tspan></text>
-<text x="16" y="89" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">    return ctx.section('## Open Questions')</tspan></text>
-<text x="16" y="109" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">```</tspan></text>
-<text x="16" y="129" xml:space="preserve"><tspan font-weight="normal" fill="#1a1a2e">Judge each item prepare() returns: still unresolved? Flag stale ones.</tspan></text>
+<svg xmlns="http://www.w3.org/2000/svg" width="584" height="172" viewBox="0 0 584 172" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="13">
+<rect x="0" y="0" width="584" height="172" rx="9" fill="#f8f9fb" stroke="#c9cde0" stroke-width="1.3"/>
+<text x="16" y="29" xml:space="preserve"><tspan font-weight="bold" fill="#7b2d52">### RULE R-ex-04 — Open Questions still open (stated)</tspan></text>
+<text x="16" y="49" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">where:: `{ANCHOR}/**/*.md`</tspan></text>
+<text x="16" y="69" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">```python</tspan></text>
+<text x="16" y="89" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">def prepare(ctx):     # cheap: hand the LLM only one section</tspan></text>
+<text x="16" y="109" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">    return ctx.section('## Open Questions')</tspan></text>
+<text x="16" y="129" xml:space="preserve"><tspan font-weight="normal" fill="#2f7d4f">```</tspan></text>
+<text x="16" y="149" xml:space="preserve"><tspan font-weight="normal" fill="#1a1a2e">Judge each item prepare() returns: still unresolved? Flag stale ones.</tspan></text>
 </svg>
