@@ -3,51 +3,52 @@ description: "the rule language — the file format for a rule and a ruleset (se
 ---
 # Warden Rule
 
-The format of the Warden rule language: what a **rule** is and what a **ruleset** is, as written in a file. A rule is the atomic, audit-checkable constraint; a ruleset is a named bundle of rules that travel together. This page defines both. The two clause vocabularies a rule binds with — `when::` (the moment) and `where::` (the place) — have their own detailed specs ([[Warden Trigger Taxonomy]] and [[FCT Ruleset]] § Where clause); this page is the **container**: the sentinels, header fields, rule body, tiers, naming, and composition that everything else sits inside.
+The format of the Warden rule language: what a **rule** is and what a **ruleset** is, as written in a file. A rule is the atomic, audit-checkable constraint; a ruleset is a named bundle of rules that travel together. This page defines both — the sentinels, header fields, rule body, tiers, naming, and composition. The two clause vocabularies a rule binds with — `when::` (the moment) and `where::` (the place) — have their own specs ([[Warden Trigger Taxonomy]] and [[FCT Ruleset]] § Where clause).
 
 Worked instances: [[R-diagram]] (a large umbrella), [[CAE Rules]] (an anchor-local set), and the self-applying `R-ruleset` block in [[FCT Ruleset]].
 
-## The rule — the atom
+## The rule
 
-A rule is a markdown **heading** whose first token is the all-caps `RULE` sentinel, followed by a permanent identifier — so a rule is greppable anywhere (`grep -rnE '^#+\s+RULE\s+R-'`), not only inside a ruleset file.
+![[Warden Rule Example.svg]]
 
-Heading form: `<H> RULE R-<slug>-NN[ — <short name>][ (<tier>)]`
+*An example rule.* ✎ [regenerate the figures](warden-rule-figures.py)
 
-| Part | Form | Notes |
+A rule is a markdown **heading** whose first token is the all-caps `RULE` sentinel + a permanent identifier — so it is greppable anywhere (`grep -rnE '^#+\s+RULE\s+R-'`), not only inside a ruleset. The heading **binds** the rule; the body says **what it checks**. One table, two parts:
+
+| Part | Form / when present | Notes |
 |---|---|---|
-| Heading level | any (`#`…`######`) | H3 customary inside a `# RULESET` block; H2/H1 valid standalone. |
-| Sentinel | `RULE` | literal, all-caps — the mechanical marker grep/lint depend on. |
-| Identifier | `R-<slug>-NN` | the rule's permanent handle (see [[#Naming]]). |
-| Short name | `— <name>` *(optional)* | brief human title. |
-| Tier | `(checked)` / `(sampled)` / `(stated)` / `(tracked)` | verification posture (see [[#Tiers and check primitives]]). |
+| `<H> RULE R-<slug>-NN` | the heading (any H-level; H3 customary) | `RULE` = the all-caps sentinel grep / lint depend on |
+| `R-<slug>-NN` | the identifier | the rule's permanent handle (see [[#Naming]]) |
+| `— <short name>` | optional | brief human title |
+| `(<tier>)` | `checked` / `sampled` / `stated` / `tracked` | verification posture (see [[#Tiers and check primitives]]) |
+| **Rule body ↓** | | |
+| declarative statement | first paragraph | what is required or forbidden |
+| `**Check pattern:**` | for `checked` / `sampled` | how a violation is detected (the human spec) |
+| `check::` | for mechanical `checked` | a machine-ref naming a checker primitive |
+| `when::` / `where::` / `if::` | optional | the rule's own binding clauses, overriding the set's |
+| `**Why:**` | optional | rationale / prior-incident context |
+| `**Exceptions:**` | optional | acknowledged-exception table or list |
 
-**Rule body** (the paragraphs after the heading, until the next same-or-shallower heading):
+## The ruleset
 
-| Field | Required? | Purpose |
-|---|---|---|
-| declarative statement | yes (first paragraph) | what is required or forbidden. |
-| `**Check pattern:**` | for `checked`/`sampled` | how a violation is detected (the human spec). |
-| `check::` | for mechanical `checked` | a machine-ref naming a checker primitive (see below). |
-| `when::` / `where::` / `if::` | optional | the rule's own binding clauses, overriding the set's. |
-| `**Why:**` | optional | rationale / prior-incident context. |
-| `**Exceptions:**` | optional | acknowledged-exception table or list. |
+![[Warden Ruleset Example.svg]]
 
-## The ruleset — the bundle
+*An example ruleset* (a set-level `where::` that two rules share; the second overrides it). ✎ [regenerate](warden-rule-figures.py)
 
 A ruleset is a `# RULESET R-<slug>` block plus a prescriptive header. The all-caps `RULESET` sentinel identifies the block unambiguously to lint / flatten / compile.
 
 | Header line | Required? | Purpose |
 |---|---|---|
-| `# RULESET R-<slug>` | yes | sentinel H1 + the set's identifier. |
-| `include:: …` | yes (may be empty) | composition / adoption (see [[#Composition — include]]). The empty line is the slot. |
-| `where:: …` | optional | set-level default **place** for every rule ([[FCT Ruleset]] § Where clause). |
-| `when:: …` | optional | set-level default **moment** for every rule ([[Warden Trigger Taxonomy]]). |
-| `description:: …` | yes | one-line (8–15 word) tagline; no `::` in the value. |
-| prose body | optional | provenance, attribution, factoring history; any length. |
+| `# RULESET R-<slug>` | yes | sentinel H1 + the set's identifier |
+| `include:: …` | yes (may be empty) | composition / adoption (see [[#Composition — include]]); the empty line is the slot |
+| `where:: …` | optional | set-level default **place** for every rule ([[FCT Ruleset]] § Where clause) |
+| `when:: …` | optional | set-level default **moment** for every rule ([[Warden Trigger Taxonomy]]) |
+| `description:: …` | yes | one-line (8–15 word) tagline; no `::` in the value |
+| prose body | optional | provenance, attribution, factoring history; any length |
 
 `include::` / `where::` / `when::` / `description::` are Obsidian Dataview inline fields (`key:: value`). A single file may carry **multiple** rulesets — each `# RULESET` H1 opens a new scope whose header fields apply until the next H1. Standalone `R-<slug>.md` files are body-only (no YAML frontmatter); an embedded block lives inside a host doc that may have its own frontmatter.
 
-## The three clauses — `when ∧ where ∧ if`
+## The three clauses — when ∧ where ∧ if
 
 A rule means the **conjunction** of its clauses (full model: [[Warden Trigger Taxonomy]] § The conjunction model). Each is one key — which is what lets a rule round-trip to flat YAML for the importer.
 
@@ -65,10 +66,10 @@ The tier annotation declares how a rule is verified — the mechanical-vs-judgme
 
 | Tier | Verified by |
 |---|---|
-| `tracked` | nobody — recorded for awareness only. |
-| `stated` | the **agent** — judgment, batched + cached. |
-| `sampled` | script where possible, else agent (risk-prioritized). |
-| `checked` | a **script** — deterministic, content-hash cached. |
+| `tracked` | nobody — recorded for awareness only |
+| `stated` | the **agent** — judgment, batched + cached |
+| `sampled` | script where possible, else agent (risk-prioritized) |
+| `checked` | a **script** — deterministic, content-hash cached |
 
 A `checked` rule names a checker **primitive** via `check::` (e.g. `check:: regex_present ^#+ RULESET R-`); the prose `**Check pattern:**` stays the human spec. The primitive vocabulary is specified as a **superset of Vale's check-type taxonomy** (existence / substitution / occurrence / … native; spelling / metric / sequence / script via an opt-in Vale adapter) — see [[Warden Integration Strategy]] D8. Tiers are aspirational ladders: a rule starts `stated` and graduates to `checked` once its primitive exists.
 
