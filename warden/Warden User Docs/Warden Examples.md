@@ -42,7 +42,7 @@ Also just prose — but prose that states an *expectation* ("Summary should refl
 
 ![[Warden Example script-assisted.svg]]
 
-Narrow the slice, ask, `tell` the reply — three lines. But the **catch**, and it's the crux of using an oracle: it's **context-less**. It sees only your prompt; the agent sees only the reply. So a terse answer like "Q5, Q7" is *useless* — the agent has no idea what to do with it. The prompt must make the oracle write a **complete, actionable steer** (full sentences, what to do) **and reply empty when nothing's wrong**, so `tell(response)` stays silent and the rule passes. `ask_oracle` is one prompt in, a string out; you merge the slice with an f-string. **Python narrows, the oracle answers — but only if you tell it how to answer.**
+The crux of using an oracle: it's **context-less** — it sees only your prompt, the agent sees only what *you* `tell`. So don't make the oracle write the steer; give it the **narrow** job (identify *which* are answered elsewhere, reply `"none"` if none) and let the **rule** author the directive ("close or move to Resolved"). Code gates on the `"none"` sentinel — so the agent gets a consistent, controlled instruction, and a clean pass when there's nothing to say. **LLM for the judgment, code for the control flow and the directive** — the general idiom for using the oracle well.
 
 ## 05 · An `edit`
 
