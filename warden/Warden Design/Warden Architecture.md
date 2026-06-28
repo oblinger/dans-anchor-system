@@ -255,7 +255,14 @@ Conceptually a **compiler**, not an interpreter: it takes the rules active in an
 2. **Index each rule.** It picks an **index key** per rule — usually the `when::` moment (so the runtime hook for that moment dispatches straight to it), sometimes the `where::` place (a `when:: always` rule that touches one rare file indexes cheaper by path). The author never chooses this; the firing semantics (the conjunction, §4) are identical either way.
 3. **Pre-compile to a fast per-moment module.** All rules sharing a moment compile into one module: a generalization of today's `/distill`. At fire time the runtime hook (§6) for that moment runs the module, which checks the residual `where::` + `if::` conjuncts and runs each rule's `trigger`/`check`.
 
-This is the path the **performance budget** rides on — it instruments nearly every tool use and action, so the per-moment module must be tiny and fast (see [[Warden PRD]] § Performance; reference impl in Python, performance impl in Rust per the roadmap).
+This is the path the **performance budget** rides on — it instruments nearly every tool use and action, so the per-moment module must be tiny and fast (see [[Warden PRD]] § Performance).
+
+#### Two implementations — pure-Python reference, and Rust + resident Python
+
+The engine has two implementations ([[F212 — Python reference implementation|F212]] / [[F213 — Rust performance implementation + ms budget|F213]]):
+
+- **Pure-Python reference** — the clear, executable spec; runs the whole pipeline in Python. Correct, not fast; the behavioral oracle.
+- **Rust hot-path + resident Python** — for the per-moment budget. A Rust binary owns moment dispatch and runs **native primitives** directly (no interpreter at all for the common `check::` cases). For a rule whose body is *Python* (an arbitrary `def check` / `guard` / `prepare`), the Rust binary talks over a socket/IPC to a **resident Python interpreter** that holds the active rules **preloaded in memory** — so a Python body pays an IPC round-trip, never an interpreter *startup* (the cost that would blow the budget). The net: **one logic language** (Python), at near-native dispatch cost — glob/moment dispatch + native primitives on the hot path, the warm interpreter for anything Python. (A Rust-reimplemented Python subset was considered and rejected: more to build, and it amputates the language.)
 
 ### 7b · The on-demand audit pipeline (explicit path)
 

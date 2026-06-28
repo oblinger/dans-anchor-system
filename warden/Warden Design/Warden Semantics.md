@@ -38,21 +38,30 @@ The rule activates for a file when **all three** hold:
 
 ## `THEN` — the body
 
-The body is one or more **actions**, run in order. An action is one of:
+The body says **what to do when the condition holds**. Two separate questions: *how the test/logic is written*, and *what it can actually do about a problem*. The second is a **small closed set** — which is exactly what keeps "test" and "action" from exploding into a cross-product.
 
-| Action | Written as | What it does |
+**How the body is written** — one form, or a mix:
+
+| Form | Written as | |
 |---|---|---|
-| **check** | `check:: <primitive>` | run a named library checker; report a problem if it finds one |
-| **code** | a `python` block — `def check(ctx)` | arbitrary logic: inspect `ctx`, `ctx.report(msg, fix=…)` on a problem |
-| **judgment** | **prose** in the body | the LLM reads `ctx` and reports the problems it finds |
-| **message** | `message:: <text>` | report this text unconditionally — a steer to the agent (F180's shape) |
-| **fix** | a `fix=` on any report | a repair Warden applies, gated by the never-delete floor |
+| **check** | `check:: <primitive>` | a named library check — fast, native |
+| **code** | a `python` block — `def check(ctx)` | arbitrary logic |
+| **judgment** | **prose** in the body | the LLM reads `ctx` and decides |
 
-`python` is the general form; `check::`, `message::`, and prose are common shapes of it. A judgment that wants to stay cheap puts a `python def prepare(ctx)` action *first* to hand the LLM only the slice it needs — **script-assisted** (two actions: prepare, then judge). A rule may mix actions.
+`python` is the general form; `check::` is a native-library shorthand for a common check; **script-assisted** = a `python def prepare(ctx)` then prose (cheap Python narrows what the LLM reads).
+
+**What a body can do — the actions.** A body inspects `ctx` and performs zero or more of these. This is the *whole* set of things that can happen:
+
+| Action | Emitted by | What happens | Goes to |
+|---|---|---|---|
+| *(pass)* | — | nothing — no problem found | — |
+| **report** | `ctx.report(msg)` | surface a problem | a **finding** (audit) or a **steer** to the agent (live) — *the moment decides which* |
+| **fix** | `ctx.fix(edit)` / `fix=` | apply a repair to the file | the file — gated by the never-delete floor |
+| **deny** | `ctx.deny(reason)` | block the pending action | the tool call — only at a `tool:pre` moment |
+
+Because the set is **closed and small**, the body just *calls* the action it wants — there's **no test × action cross-product** and no action language to invent. A bare `check::` implies **report**; `message:: <text>` is sugar for a body whose one action is a fixed report; a rule that also repairs adds a `fix`. **Zero actions = the rule passed.**
 
 **What a body sees** — `ctx` is the file under evaluation: `ctx.path` · `ctx.text` · `ctx.lines()` · `ctx.frontmatter` · `ctx.section("## X")` · `ctx.sections(level=N)` · `ctx.anchor` · `ctx.git_aspect`. A `when::`-triggered body also gets the event payload (e.g. `ctx.diff` for a `write:*` moment).
-
-**What a body emits** — `ctx.report("message", fix=optional)`. **Zero reports = the rule passed.** Each report becomes a **steer** to the agent (when the rule fired live) or a **finding** in the report (under audit); its `fix`, if present and safe, is applied. (A `check::` primitive and LLM prose report through the same channel — they're just bodies not written out as Python.)
 
 > **On the old tiers.** `(checked)` / `(stated)` / `(sampled)` / `(tracked)` are **not** a separate concept — the body already shows whether a script (`check::` / `python`) or the LLM (prose) decides. An optional posture hint at most; nothing in the engine requires it.
 
