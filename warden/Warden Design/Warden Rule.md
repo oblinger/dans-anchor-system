@@ -19,7 +19,7 @@ A rule is a markdown **heading** whose first token is the all-caps `RULE` sentin
 |---|---|---|
 | `<H> RULE R-<slug>-NN` | the heading (any H-level; H3 customary) | `RULE` = the all-caps sentinel grep / lint depend on; `R-<slug>-NN` is the permanent id ([[#Naming]]) |
 | `— <short name>` | optional, on the heading | a brief human title |
-| `description::` | optional | the rule's **meaning** in one line — documentation, **never sent**. Use it when the body is Python (which doesn't read as a sentence). |
+| `description::` | optional, encouraged | the rule's **meaning / goal** in one line — context for anyone (human or LLM) *reading* the rule, per the North Star (rules are meaningful without Warden). **Not sent on rule fire** (token economy). Especially valuable when the body is Python, but useful on any rule. |
 | `where::` · `when::` · `if::` | the **condition** | which files · which moment · the test (§ The condition) |
 | **the body** | bare prose, or backticked Python | the **action** — bare prose *is* the `tell`; Python runs the verbs (`tell` / `edit` / `deny` / `sh` / `ask_oracle`). [[Warden Semantics]] § The actions. |
 | `rerun::` | optional | re-evaluation economy — `significant` re-runs an expensive (LLM) body only on a significant change ([[F215 — Re-evaluation economy — the significant-edit gate\|F215]]) |
@@ -64,7 +64,7 @@ The body is the **action** the rule performs when its condition holds:
 
 - **Bare prose** *is* the `tell` — the message sent to the agent (a steer live, a finding under audit). Prose that states an expectation also serves as an **LLM judgment** (the model evaluates it).
 - **Backticked Python** runs the verbs — `tell`, the `file.set_frontmatter`/`replace_section` **edits**, `deny`, `sh`, `ask_oracle` — over the interpretation environment. An inline `` `expr` `` for one line; a bare ` ``` ` fence for several. No `def`, no magic function name.
-- A **`description::`** carries the rule's *meaning* (never sent), so a Python-bodied rule still reads as a sentence.
+- A **`description::`** carries the rule's *meaning / goal* — its intent for a reader (the North Star: rules read as guidance without Warden). **Not sent on rule fire**, but it's why a Python-bodied rule still reads as a sentence.
 
 > **Backticks = Python.** A backticked `if::` value, a backticked one-line body, or a fenced block — all are Python the engine runs; un-backticked prose is the `tell`. This subsumes [[F007 — Backtick all where expressions — parser swap|F007]] (backticked = code → Dataview leaves it alone).
 

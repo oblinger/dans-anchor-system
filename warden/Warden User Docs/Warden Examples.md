@@ -30,7 +30,7 @@ The whole body is one line of prose — *that's the tell.* `if::` is a one-line 
 
 ![[Warden Example python.svg]]
 
-When a regex won't do, the body is a bare `python` **snippet** (no `def`, no magic name — `file` / `anchor` / `git` / `event` are in scope): it walks every H2 section and `tell(...)`s each empty one — one finding, with its own message, per violation. Note the **`description::`** field: that's the rule's *meaning* — documentation, **never sent** — so a Python rule still reads as a sentence (the dual-use promise; same field rulesets carry). The `tell()` calls are what actually reach the agent.
+When a regex won't do, the body is a bare `python` **snippet** (no `def`, no magic name — `file` / `anchor` / `git` / `event` are in scope): it walks every H2 section and `tell(...)`s each empty one — one finding, with its own message, per violation. Note the **`description::`** field: the rule's *meaning / goal* — **not sent on rule fire**, but the rule's intent for a reader, so a Python rule still reads as a sentence (the dual-use / North-Star promise; same field rulesets carry). The `tell()` calls are what actually reach the agent.
 
 ## 03 · An LLM judgment
 
