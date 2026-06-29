@@ -6,7 +6,9 @@ description: "F215 — Re-evaluation economy — the significant-edit gate"
 
 ## Summary
 
-Warden instruments almost every edit. For **mechanical** rules that's free. For **LLM-judged** rules it is not — re-reading a file and re-reasoning costs tokens, and doing it on *every* edit (including typo-scale ones) would **exhaust the agent** for no benefit: the diagram didn't go wrong because someone fixed a spelling mistake. F215 adds a **re-evaluation gate** — a rule may declare `rerun:: significant`, and after its first evaluation the expensive body re-runs only when the file has changed *significantly* since it last passed. A **cheap gate decides "significant?"** before any LLM tokens are spent. This is the [[Warden Examples|script-assisted mode]] applied to the *re-run decision*: a cheap script guards an expensive judgment.
+Warden instruments almost every edit. For **mechanical** rules that's free. For **LLM-judged** rules it is not — re-reading a file and re-reasoning costs tokens, and doing it on *every* edit (including typo-scale ones) would **exhaust the agent** for no benefit: the diagram didn't go wrong because someone fixed a spelling mistake. F215 adds a **re-evaluation gate** — after its first evaluation, an expensive body re-runs only when the file has changed *significantly* since it last passed. A **cheap gate decides "significant?"** before any LLM tokens are spent: the [[Warden Examples|script-assisted]] pattern applied to the *re-run decision*.
+
+**The gate is automatic by body cost** — an LLM-judged rule gets the significant-only policy *by default*, with no clause to write; a cheap (Python/primitive) rule re-runs on any change. **`rerun::` is only the explicit override** (force-always, or a custom threshold), not the normal way to opt in. So this is a cache/re-evaluation axis the engine manages, distinct from `if` / `when` ([[Warden Semantics]] § Re-running) — not a clause authors usually carry.
 
 ## Success Criteria
 

@@ -227,7 +227,9 @@ on trigger:  a when:: moment fires,  OR  /audit visits the anchor
 
 ## Re-running an expensive test
 
-An `if::` test that calls the oracle costs tokens, so its result is cached by file-content-hash and reused until the file changes. **`rerun:: significant`** relaxes that — re-run only on *significant* change, not every edit ([[F215 — Re-evaluation economy — the significant-edit gate|F215]]). Cheap (primitive) tests leave it default.
+An `if::` test that calls the oracle costs tokens, so its verdict is **cached by file-content-hash** and reused until the file changes. This re-evaluation policy is **automatic by body cost**: a cheap (Python/primitive) test re-runs on *any* change; an **expensive (LLM) test defaults to re-running only on a *significant* change** — re-judging on every keystroke is waste. `rerun::` is the explicit **override** for the rare case, not something you normally write.
+
+This is a *third* temporal axis, distinct from the condition: `when::` is *which moment*, `if::` is *whether it fires now*, re-evaluation is *recompute vs. reuse the cached verdict* — keyed to the rule's own last-pass cache, so it can't fold into `if` / `when` (significance is per-rule, not a property of the write). Conceptually it's the script-assisted gate (a cheap "significant?" check guarding the expensive judgment). ([[F215 — Re-evaluation economy — the significant-edit gate|F215]].)
 
 ## See also
 
