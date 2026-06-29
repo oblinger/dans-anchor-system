@@ -101,7 +101,7 @@ The **interpretation environment** is the Python scope a rule is *interpreted* i
 
 | In scope | Accessors / calls |
 |---|---|
-| **`file`** | `.path`, `.name`, `.text`, `.lines`, `.title`, `.frontmatter`, `.section(h)`, `.sections(level)`, `.links`, `.diff` |
+| **`file`** | the document as the root **`Section`** — `.path`, `.name`, `.frontmatter`, `.diff` (root only); `.title`, `.level`, `.text`, `.body`, `.lines`, `.links`, `.sections`, `.section("X")`, `.tables` (recursive tree; lazy) |
 | **`anchor`** | `.name`, `.slug`, `.root`, `.traits`, `.get(name)` |
 | **`git`** | `.branch`, `.mode`, `.is_dirty`, `.ahead`, `.changed` |
 | **`event`** | `.kind`, `.diff`, `.command`, `.tool` |
@@ -114,21 +114,26 @@ None of these take a `ctx.` prefix — they are aliased into the scope directly.
 
 **Naming convention.** Accessor names are **snake_case** for multi-word identifiers (`is_dirty`, `set_frontmatter`, `replace_section`); single domain words stay one word (`frontmatter` — as in the `python-frontmatter` library — `sections`, `links`). The all-caps brace form (`{NAME}`) is reserved for the `where::` substitution variables.
 
-### `file`
+### `file` — the document, as the root `Section`
 
-Binds to the matched file (from `where::`, or a file-bearing moment like `write:*`):
+A document is a **tree of sections**, and `file` is its **level-0 root** — its children (`.sections`) are the H1 sections, of which there may be zero, one, or **many** (a facet page is often `# FCT X` / `# RULESET` / `# BRIEF` — a root with three children). So `file` and any `file.section(…)` are the **same type**; everything composes. Members are **lazy** (parsed on first access, cached per pass) and **read in `if::` / written in the body**:
 
-| Member | What it is |
-|---|---|
-| `file.path`, `file.name` | path, basename |
-| `file.text`, `file.lines` | full text, list of lines |
-| `file.title` | the H1 title (or `None`) |
-| `file.frontmatter` | the file's metadata — YAML block **and** Dataview `::` inline fields, merged |
-| `file.section("## X")`, `file.sections(level=N)` | one section, the sections |
-| `file.links` | the wiki / markdown links |
-| `file.diff` | the change **since this rule last evaluated** the file — `.lines` (count changed), `.text` (unified diff), `.added` / `.removed` (line lists); the whole file on first pass. (Distinct from `event.diff`, which is the *current* write.) |
+| Member | What it is | Write |
+|---|---|---|
+| `file.path`, `file.name` | path, basename *(root only)* | — |
+| `file.frontmatter` | metadata — YAML block **and** Dataview `::` inline fields, merged *(root only)* | `file.frontmatter["k"] = v` — floored |
+| `file.diff` | the change since this rule last evaluated the file — `.lines`, `.text`, `.added` / `.removed`; whole file on first pass *(root only; distinct from `event.diff`, the current write)* | — |
+| `file.title`, `file.level` | the H1 title (or `None`); heading depth (root = 0) | `.title = "X"` renames the heading |
+| `file.text`, `file.body` | full raw subtree (root: whole file); own prose to the first child heading (root: the preamble) | `.body = …` floored · `.text = …` **unfloored** |
+| `file.lines`, `file.links` | the section's lines; its wiki / markdown links | — |
+| `file.sections`, `file.section("X")` | child sections (**recursive** — each a `Section`); named lookup, first match | mutate the returned `Section` |
+| `file.tables` | the section's tables, lazy — each a `Table` | mutate its cells / rows |
 
-(`file`'s **edit** operations — `set_frontmatter`, `replace_section`, … — are *actions*, listed under § Verbs.)
+**`Section`** is the recursive node (`file` is the root): `.title` / `.level` / `.text` / `.body` / `.lines` / `.links` / `.sections` / `.section(name)` / `.tables`. The root also carries `.path` / `.name` / `.frontmatter` / `.diff`; inner sections return `None` for those.
+
+**`Table`** — `.rows` is a 2-D `list[list[str]]`, the contract (robust for a dispatch masthead, which has no real header); plus `.header` (`rows[0]`), `.cell(r, c)`, and `.dicts` (header-keyed sugar, unique headers only). Cells resolve the `\|` escape.
+
+**Reads in `if::`, writes in the body — the writable structure is what gives `edit` its vocabulary.** A structured write is the **`edit`** action, **floored by construction**: it targets a named region (a section's `.body`, a frontmatter key, a table cell), so it splices only that region and can never wipe content it didn't target. Most fixes become "assign to the thing" — `file.section("Mission").body = …`, `table.rows[0][1] = "[[X\|Y]]"`. The **one unfloored** write is whole-text assignment (`file.text = …`): a full replace, **run-class** (your code, same trust as a skill) — the escape hatch for a pure text transform. (`file.set_frontmatter` / `file.replace_section` remain as named forms of the same floored writes — § Verbs.)
 
 ### `anchor`
 

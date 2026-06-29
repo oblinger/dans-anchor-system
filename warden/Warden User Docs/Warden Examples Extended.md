@@ -55,13 +55,30 @@ The old model marked exactly this with the `(sampled)` tier — "imprecise; samp
 
 > [!warning] Gap: finding confidence / sampling. Warden has one firing mode — `if::` true ⇒ the tell lands as a directive. There is no dimension for a low-confidence / heuristic finding: no way to mark it review-not-assert, to rate-limit or sample it, or to render it as a soft suggestion rather than a steer. Candidates: a `confidence::` field, a `sample::` rate, or a soft-`tell` variant. (Adjacent to, but distinct from, the re-evaluation economy gate of [[F215 — Re-evaluation economy — the significant-edit gate|F215]], which throttles *expensive* rules; this throttles *uncertain* ones.)
 
+## E103 · A structured-document rule — the dispatch masthead
+
+The dispatch facets (~50 rules across [[FCT Dispatch Table]] and [[FCT Anchor Page]]) all operate on one artifact: the masthead table. `R-dispatch-table-01` wants its rows in a fixed order:
+
+```
+### RULE R-dispatch-table-01 — Masthead rows appear in a fixed order
+description:: After the breadcrumb, masthead rows occur in order — Related, type, Design, Track, User Docs, Dev Docs — each only if present.
+where:: `{ANCHOR}/**/*.md`
+if:: `dispatch.masthead_order_violated(file)`
+The masthead rows are out of order — reorder them to Related, type, Design, Track, User Docs, Dev Docs.
+```
+
+With only `.text` / `.lines` / `.links`, this is unwritable — there's no structured access to tables, and ~50 rules want exactly that one artifact. That drove the resolution: **`file` becomes the root `Section`**, a document a **recursive section tree** with lazy **`.tables`** (`Table.rows`, a 2-D list — robust for a masthead with no real header) — and the structure is **read/write**, so a fix is a floored assignment (`table.rows[0][1] = …`). Dispatch semantics stay in `dispatch.*` helpers reading `.rows`; nothing dispatch-specific enters the language. ([[Warden Semantics]] § `file`.)
+
+> [!success] Gaps G4 + G1 — resolved by one change. **G4** (structured-document access): added the Section tree + lazy `.tables`, ~130 LOC read. **G1** (mechanical-edit verb): the same structure is read/**write** (~40–60 marginal LOC, mostly table re-serialization), so most fixes are floored assignments — no special edit verb. Residual G1: a pure whole-text transform uses the run-class `file.text = …` escape hatch.
+
 ## The running gap list
 
-| # | Gap | One-line |
-|---|---|---|
-| G1 | mechanical-edit verb | `edit` can't express a floored line/regex transform, so lossless auto-fixes become steers (E100) |
-| G2 | ruleset helper namespace | no spec for a ruleset's own reusable checker/fixer functions (`md.*`) — packaging, import, trust (E101) |
-| G3 | finding confidence / sampling | one firing mode only; no review-don't-assert / sampled / soft-tell dimension (E102) |
+| # | Gap | One-line | Status |
+|---|---|---|---|
+| G1 | mechanical-edit verb | lossless auto-fixes had no edit verb (E100) | **largely resolved** — writable structure (E103); residual = run-class `file.text =` |
+| G2 | ruleset helper namespace | no spec for a ruleset's own reusable `md.*` / `dispatch.*` helpers — packaging, import, trust (E101) | open |
+| G3 | finding confidence / sampling | one firing mode; no review-don't-assert / sampled / soft-tell dimension (E102) | open |
+| G4 | structured-document access | no structured tables / section tree on `file` (E103) | **resolved** — `file` = root Section + lazy `.tables`, read/write |
 
 ## See also
 
