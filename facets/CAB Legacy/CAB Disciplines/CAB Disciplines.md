@@ -6,7 +6,7 @@ description: Catalog of CAB Disciplines — cross-anchor patterns for how we wor
 
 Catalog of CAB Disciplines — cross-anchor patterns for how we work, sibling to CAB Facets and skill-level [[SKL Discipline]].
 
-| -[[CAB Disciplines]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[CAB Legacy]] → [CAB Disciplines](hook://p/CAB%20Disciplines)<br>: Cross-anchor patterns for how we work. |
+| -[[CAB Disciplines]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[CAB Legacy]] → [CAB Disciplines](hook://p/CAB%20Disciplines)<br>: Cross-anchor patterns for how we work. |
 | --- | --- |
 | Related | [[CAB Disciplines Brief\|Brief]],  ~~[[CAB Facets]]~~,  [[CAB Aspects]],  [[SKL Discipline]],   |
 | Global disciplines | ~~[[DSC Dispatch Table\|Dispatch Table]]~~,   |
@@ -14,6 +14,7 @@ Catalog of CAB Disciplines — cross-anchor patterns for how we work, sibling to
 | Anchor-level disciplines | [[DSC Linked Mode\|Linked Mode]],   |
 | Skill-level disciplines | [[SKL Discipline\|SKL Discipline catalog]] — [[SKL Mode\|Mode]] (Drive / Discuss / Active / Parking), [[SKL Drive\|Drive]], ask-format, verification, … |
 | --- | |
+| [[CAB Dispatch Table Design]] | Design rationale + standing decisions for the Dispatch Table discipline — the why behind the spec, so it isn't relitigated. |
 
 **Two kinds of discipline by *scope of application*.** Most disciplines are **per-artifact authoring** rules — applied while you write one doc or anchor (~~[[markdown]]~~, ~~[[progressive-disclosure]]~~, ~~[[file-association]]~~, ~~[[granularity]]~~, the per-facet shape rules). A newer kind is the **corpus-level invariant** — a property of *all the anchors together*, verified by **walking the whole graph**, not by authoring any single thing. ~~[[anchor-dag]]~~ is the first; siblings of the same shape would be *every-slug-resolves*, *no-orphan-files*, *Atlas-covers-every-named-thing*. When defining a vault-wide integrity check, it's a corpus-level invariant; when shaping one artifact, it's an authoring discipline.
 
