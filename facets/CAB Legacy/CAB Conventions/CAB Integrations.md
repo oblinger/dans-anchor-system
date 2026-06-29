@@ -1,29 +1,15 @@
+---
+description: "SUPERSEDED — the opt-in external-integration conventions now live in the git-aspect traits, FCT Code Repository, FCT Documentation Site, and FCT Claude. Retained as a redirect until F191 sweeps CAB links."
+---
+
 # CAB Integrations
 
-Optional tools and services that anchors may integrate with.
-
-## Git
-- Anchor may have its own git repository at the repo subdirectory
-- Default remote: private repo on GitHub
-- Repository name matches subdirectory name
-
-## GitHub Pages
-- Published documentation hosted via GitHub Pages
-- URL pattern: `username.github.io/repo-name/`
-- Built from `docs/` folder or `gh-pages` branch
-
-## Claude (CLAUDE.md)
-- See [[CAB Claude]] for full specification
-- `CLAUDE.md` at anchor root configures Claude Code behavior
-
-## tmux
-- Project may have associated tmux session for development
-- Session name typically matches slug
-
-# BRIEF
-
-- **This file catalogs optional external integrations** an anchor MAY adopt (git, GitHub Pages, Claude/CLAUDE.md, tmux) — purely opt-in surface conventions, not anchor-shape rules.
-- **NOT for required anchor structure** — folder layout, dispatch tables, facet conventions belong in [[CAB Anchor]], [[CAB All Files]], or the relevant `CAB <Facet>.md`. Don't pile structural rules here.
-- **Inclusion test:** an integration belongs here only if (a) it's an **external tool/service** an anchor connects to, (b) adoption is **optional**, and (c) the convention is **cross-anchor** (any anchor MAY adopt it). One-anchor-specific tooling belongs in that anchor's docs, not here.
-- **Each integration is a short H2 section** with a bulleted named list of conventions (URL patterns, naming rules, default locations). Keep entries terse — link out to the canonical spec (e.g. `[[CAB Claude]]` for CLAUDE.md) rather than inlining details.
-- **Load-bearing:** integration H2 names are referenced from other CAB docs and anchor specs; renaming an H2 (e.g. `## GitHub Pages` → `## Pages`) silently breaks wiki-link anchors. Add new H2s freely; rename only with a cross-reference sweep.
+> [!info] Superseded (F218, 2026-06-29)
+> Each optional integration now has a live home in the trait / facet system:
+>
+> - **Git** (per-anchor repo, default remote, repo-name = subdir) → the git-aspect traits [[Commit]] / [[Push]] / [[PR]] / [[NoGit]] + [[FCT Code Repository]] (the `code:` association mechanism).
+> - **GitHub Pages** (published docs, `username.github.io/repo`, built from `docs/`) → [[FCT Documentation Site]] (canonical publishing stack + deploy workflow).
+> - **Claude / `CLAUDE.md`** → [[FCT Claude]] (the full spec; this file only ever pointed there).
+> - **tmux** (session name ≈ slug) — a trivial, non-load-bearing dev convenience; not promoted to a facet (no rule keys off it).
+>
+> This stub is kept only so inbound `[[CAB Integrations]]` links resolve; **[[SKA Backlog#^F191|F191]]** will repoint them and remove the holding folder.

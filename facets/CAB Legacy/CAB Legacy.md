@@ -30,9 +30,9 @@ The actionable map driving [[SKA Backlog#^F218|F218]] (CAB → FCT content migra
 | [[CAB Template]] | `FCT Template` / `DSC template` | net-new → **routed to [[SKA Backlog#^F220\|F220]]** | |
 | [[CAB Defined Terms]] | vault glossary / [[Atlas]] | net-new (glossary) | |
 | [[CAB Rust Rules]] | `DSC rust` | net-new (language discipline) | |
-| [[CAB Research]] | Paper-trait convention | net-new (thin) | |
-| [[CAB Integrations]] | opt-in tools cross-ref | net-new (thin) | |
-| [[CAB Maintenance]] | audit/lint at-rest checklist | net-new (thin) | |
+| [[CAB Research]] | [[Paper Anchor]] (home) — reconcile two paper paradigms | reconcile — **routed 2026-06-29** | ⏸ NOT a clean supersede: [[Paper Anchor]] uses `sN`+version-table+HTML-track-changes; CAB Research defines a *divergent* academic paradigm (markdown section files `{NAME} N Title.md`, logs, appendix `A1`, experiments `B1`). Folding = a design call on which paradigm wins / coexists → Paper-trait owner, not a mechanical merge. Home = Paper Anchor; physical fold deferred |
+| [[CAB Integrations]] | git-aspect traits + [[FCT Code Repository]] / [[FCT Documentation Site]] / [[FCT Claude]] | supersede | ✅ 2026-06-29 — re-triaged net-new→supersede: Git → git-aspect traits + [[FCT Code Repository]]; GitHub Pages → [[FCT Documentation Site]]; Claude → [[FCT Claude]] (only ever pointed there); tmux trivial/non-load-bearing (dropped). Stub redirect; F191 sweep |
+| [[CAB Maintenance]] | the /audit system + FCT rulesets | supersede | ✅ 2026-06-29 — re-triaged net-new→supersede: all 4 checklist items are now enforceable rules (anchor-page→`R-dispatch-table-07`; roadmap→[[FCT Roadmap]]; link-table→`R-dispatch-table`; slug→[[ATL Slugs]]). Stub redirect; F191 sweep |
 | [[CAB Conventions]] | — | umbrella index — retire once members placed | |
 | CAB.md (root) / [[CAB Base\|CAB.md]] | FCT system entry point | fold conceptual entry | |
 | [[CAB Log]] | — | keep (CAB change history + rewire-spec source) | |
