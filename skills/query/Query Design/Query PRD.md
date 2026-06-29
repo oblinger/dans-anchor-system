@@ -12,6 +12,8 @@ description: PRD for the /query skill — the system for NOT asking the user que
 
 **The cardinal sin is asking the user a question in chat** — and asking one *after a triage* is the worst form of it. A chat question (1) fragments the one-shot pile triage just built, (2) scrolls away and is lost, and (3) defeats the entire purpose of consolidation. **If the agent wants something from the user, it goes into `{NAME} queries.md` — never into chat.**
 
+**And the goal is not merely *fewer* interruptions — it is the longest possible *unblocked runway* between them.** Query does not only surface the questions that exist *right now*; it **looks ahead**. For each backlog item it proactively reasons about the decisions execution *will* hit — the forks, the missing specs, the taste calls that surface only once you start building — and surfaces those **early**, in the same pile, *before* they block anything. The metric query optimizes is **work-done-per-answered-pile**: how far the agent can execute after the user answers one round of questions before it is forced to stop and ask again. Front-loading every foreseeable question for an item means that once its pile is answered, the agent runs that item to completion — and ideally the *next* items too — without another interruption. This is the backlog-wide generalization of "Ready means ready: ask **all** implementation questions upfront."
+
 `/query` is the **resolution + consolidation** half of the triage machine; `triage-section.py` is the mechanical **render** half. Together with `/groom` they form one autonomous loop that grooms, resolves, piles, and presents — and never asks.
 
 ## Goals
@@ -21,6 +23,7 @@ description: PRD for the /query skill — the system for NOT asking the user que
 - **G3 — Never ask in chat (R1).** No skill surfaces a user-question in chat. Questions live in the queries doc.
 - **G4 — Triage is the bulletproof orchestrator (R5).** `"` / `/triage` runs the resolution layer (groom + query) then the render layer then glances — fully autonomously — and ends with a **status report, never a question (R6).**
 - **G5 — One-shot answerable (R3/R4).** The user can answer the entire pile in one pass without opening any other document to understand a question.
+- **G6 — Maximize the unblocked runway (anticipatory surfacing).** Don't only surface the questions you have *now* — **look ahead**: for each backlog item, proactively reason about the decisions execution *will* hit and surface those *early*, in the same pile, before they block anything. The optimization target is **work-done-per-answered-pile** — the stretch of autonomous work one answering pass buys before the next forced question. Front-load every foreseeable question per item so that answering its pile runs the item (and ideally the next ones) to completion uninterrupted.
 
 ## Non-Goals
 
@@ -35,6 +38,7 @@ description: PRD for the /query skill — the system for NOT asking the user que
 - **US2 — One shot, zero hunting.** *As the user, when I do turn my attention to the pile, I want every question lined up with all the context I need to answer it right there, so I can go down the whole list and answer them all in one sitting — bam, bam, bam — without opening other docs.*
 - **US3 — One pile, counted.** *As the user, I want all residual questions in one place with a count per feature, so I know exactly how much input is being asked of me at a glance.*
 - **US4 — Triage never asks.** *As the user, after I press `"`, I want a status report — what was groomed, what was resolved, how many questions remain in the doc — and NOT a question in chat, because a chat question fragments the pile that triage exists to consolidate.*
+- **US5 — Front-load so my answers go far.** *As the user, when I answer the pile, I want to unblock the maximum amount of work — so I want the agent to have thought ahead about every decision each item's execution will hit and asked them all now, rather than answering, watching it work briefly, then being stopped for the next question it could have foreseen.*
 
 ## Success criteria
 
