@@ -1,13 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="544" height="272" viewBox="0 0 544 272" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="13">
-<rect x="0" y="0" width="544" height="272" rx="9" fill="#f8f9fb" stroke="#c9cde0" stroke-width="1.3"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="496" height="272" viewBox="0 0 496 272" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="13">
+<rect x="0" y="0" width="496" height="272" rx="9" fill="#f8f9fb" stroke="#c9cde0" stroke-width="1.3"/>
 <text x="16" y="29" xml:space="preserve"><tspan font-weight="bold" fill="#7b2d52"># RULESET R-backlog</tspan></text>
 <text x="16" y="49" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">include::</tspan></text>
 <text x="16" y="69" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">where:: `{ANCHOR}/**/{NAME} Backlog.md`</tspan></text>
 <text x="16" y="89" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">description:: Structure every {NAME} Backlog.md obeys.</tspan></text>
-<text x="16" y="129" xml:space="preserve"><tspan font-weight="bold" fill="#7b2d52">### RULE R-backlog-01 — Rows carry a status bracket (checked)</tspan></text>
-<text x="16" y="149" xml:space="preserve"><tspan font-weight="bold" fill="#1a1a2e">Check pattern:</tspan><tspan font-weight="normal" fill="#1a1a2e"> every item under a horizon H2 ends with a</tspan></text>
-<text x="16" y="169" xml:space="preserve"><tspan font-weight="normal" fill="#1a1a2e">[Ready] / [Questions] bracket.</tspan></text>
-<text x="16" y="209" xml:space="preserve"><tspan font-weight="bold" fill="#7b2d52">### RULE R-backlog-07 — Anchor has exactly one backlog (checked)</tspan></text>
+<text x="16" y="129" xml:space="preserve"><tspan font-weight="bold" fill="#7b2d52">### RULE R-backlog-01 — Rows carry a status bracket</tspan></text>
+<text x="16" y="149" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">if:: `'[Ready]' not in file.text`</tspan></text>
+<text x="16" y="169" xml:space="preserve"><tspan font-weight="normal" fill="#1a1a2e">Every row needs a [Ready] / [Questions] status bracket.</tspan></text>
+<text x="16" y="209" xml:space="preserve"><tspan font-weight="bold" fill="#7b2d52">### RULE R-backlog-07 — One backlog per anchor</tspan></text>
 <text x="16" y="229" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">where:: anchor</tspan></text>
-<text x="16" y="249" xml:space="preserve"><tspan font-weight="bold" fill="#1a1a2e">Check pattern:</tspan><tspan font-weight="normal" fill="#1a1a2e"> exactly one Backlog.md under the anchor root.</tspan></text>
+<text x="16" y="249" xml:space="preserve"><tspan font-weight="normal" fill="#1a1a2e">Exactly one Backlog.md should exist under the anchor root.</tspan></text>
 </svg>

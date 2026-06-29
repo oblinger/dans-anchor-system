@@ -1,9 +1,9 @@
 ---
-description: "the rule language — the file format for a rule and a ruleset (sentinels, clauses, composition)"
+description: "the rule language — the file format for a rule and a ruleset (sentinels, clauses, body, composition)"
 ---
 # Warden Rule
 
-The format of the Warden rule language: what a **rule** is and what a **ruleset** is, as written in a file. A rule is the atomic, audit-checkable constraint; a ruleset is a named bundle of rules that travel together. This page defines both — the sentinels, header fields, rule body, tiers, naming, and composition. The two clause vocabularies a rule binds with — `when::` (the moment) and `where::` (the place) — have their own specs ([[Warden Events]] and [[FCT Ruleset]] § Where clause).
+The **file format** of the Warden rule language: what a **rule** is and what a **ruleset** is, as written on disk. A rule is the atomic constraint; a ruleset is a named bundle of rules that travel together. This page defines the format — the sentinels, fields, and composition. How a rule *runs* — the condition, the actions, the interpretation environment — is [[Warden Semantics]]; worked runnable rules are [[Warden Examples]]; the `when::` moment vocabulary is [[Warden Events]] and `where::` is [[FCT Ruleset]] § Where clause.
 
 Worked instances: [[R-diagram]] (a large umbrella), [[CAE Rules]] (an anchor-local set), and the self-applying `R-ruleset` block in [[FCT Ruleset]].
 
@@ -13,65 +13,64 @@ Worked instances: [[R-diagram]] (a large umbrella), [[CAE Rules]] (an anchor-loc
 
 *An example rule.* ✎ [regenerate the figures](warden-rule-figures.py)
 
-A rule is a markdown **heading** whose first token is the all-caps `RULE` sentinel + a permanent identifier — so it is greppable anywhere (`grep -rnE '^#+\s+RULE\s+R-'`), not only inside a ruleset. The heading **binds** the rule; the body says **what it checks**. One table, two parts:
+A rule is a markdown **heading** whose first token is the all-caps `RULE` sentinel + a permanent identifier — so it is greppable anywhere (`grep -rnE '^#+\s+RULE\s+R-'`), not only inside a ruleset. The heading **names** the rule; the fields and body below it say what it does:
 
-| Part | Form / when present | Notes |
+| Part | Form | Notes |
 |---|---|---|
-| `<H> RULE R-<slug>-NN` | the heading (any H-level; H3 customary) | `RULE` = the all-caps sentinel grep / lint depend on |
-| `R-<slug>-NN` | the identifier | the rule's permanent handle (see [[#Naming]]) |
-| `— <short name>` | optional | brief human title |
-| `(<tier>)` | `checked` / `sampled` / `stated` / `tracked` | verification posture (see [[#Tiers and check primitives]]) |
-| **Rule body ↓** | | |
-| declarative statement | first paragraph | what is required or forbidden |
-| `**Check pattern:**` | for `checked` / `sampled` | how a violation is detected (the human spec) |
-| `check::` *or* a ```` ```python ```` block | for mechanical `checked` | a named checker **primitive** (`check:: …`), or an embedded `def check(ctx)` Python block for custom logic |
-| `when::` / `where::` / `if::` | optional | the rule's own binding clauses, overriding the set's |
-| `rerun::` | optional | re-evaluation economy — `always` (default) or `significant` to re-run an expensive rule only on significant change ([[F215 — Re-evaluation economy — the significant-edit gate\|F215]]) |
-| `**Why:**` | optional | rationale / prior-incident context |
-| `**Exceptions:**` | optional | acknowledged-exception table or list |
+| `<H> RULE R-<slug>-NN` | the heading (any H-level; H3 customary) | `RULE` = the all-caps sentinel grep / lint depend on; `R-<slug>-NN` is the permanent id ([[#Naming]]) |
+| `— <short name>` | optional, on the heading | a brief human title |
+| `description::` | optional | the rule's **meaning** in one line — documentation, **never sent**. Use it when the body is Python (which doesn't read as a sentence). |
+| `where::` · `when::` · `if::` | the **condition** | which files · which moment · the test (§ The condition) |
+| **the body** | bare prose, or backticked Python | the **action** — bare prose *is* the `tell`; Python runs the verbs (`tell` / `edit` / `deny` / `sh` / `ask_oracle`). [[Warden Semantics]] § The actions. |
+| `rerun::` | optional | re-evaluation economy — `significant` re-runs an expensive (LLM) body only on a significant change ([[F215 — Re-evaluation economy — the significant-edit gate\|F215]]) |
+| `**Why:**` · `**Exceptions:**` | optional | rationale / acknowledged exceptions — prose, never sent |
+
+There is **no `tier`, no `check::`, no `Check pattern:`** — those were the earlier model. A "check" is just an `if::` condition; the body is the action ([[Warden Semantics]]).
 
 ## The ruleset
 
 ![[Warden Ruleset Example.svg]]
 
-*An example ruleset* (a set-level `where::` that two rules share; the second overrides it). ✎ [regenerate](warden-rule-figures.py)
+*An example ruleset* (a set-level `where::` two rules share; the second overrides it). ✎ [regenerate](warden-rule-figures.py)
 
 A ruleset is a `# RULESET R-<slug>` block plus a prescriptive header. The all-caps `RULESET` sentinel identifies the block unambiguously to lint / flatten / compile.
 
 | Header line | Required? | Purpose |
 |---|---|---|
 | `# RULESET R-<slug>` | yes | sentinel H1 + the set's identifier |
-| `include:: …` | yes (may be empty) | composition / adoption (see [[#Composition — include]]); the empty line is the slot |
-| `where:: …` | optional | set-level default **place** for every rule ([[FCT Ruleset]] § Where clause) |
-| `when:: …` | optional | set-level default **moment** for every rule ([[Warden Events]]) |
+| `include:: …` | yes (may be empty) | composition / adoption (§ Composition); the empty line is the slot |
+| `where:: …` | optional | set-level default **place** every rule inherits ([[FCT Ruleset]] § Where clause) |
+| `when:: …` | optional | set-level default **moment** every rule inherits ([[Warden Events]]) |
 | `description:: …` | yes | one-line (8–15 word) tagline; no `::` in the value |
 | prose body | optional | provenance, attribution, factoring history; any length |
 
 `include::` / `where::` / `when::` / `description::` are Obsidian Dataview inline fields (`key:: value`). A single file may carry **multiple** rulesets — each `# RULESET` H1 opens a new scope whose header fields apply until the next H1. Standalone `R-<slug>.md` files are body-only (no YAML frontmatter); an embedded block lives inside a host doc that may have its own frontmatter.
 
-## The three clauses — when ∧ where ∧ if
+## The condition — `when ∧ where ∧ if`
 
-A rule means the **conjunction** of its clauses (full model: [[Warden Events]] § The conjunction model). Each is one key — which is what lets a rule round-trip to flat YAML for the importer.
+A rule fires only when the **conjunction** of its present clauses holds. Each is one Dataview key, so a rule round-trips cleanly to flat YAML (for the importer):
 
 | Clause | Binds to | Spec |
 |---|---|---|
-| `when::` | the **moment** it fires at | [[Warden Events]] |
-| `where::` | the **place** (file/dir/target) it concerns | [[FCT Ruleset]] § Where clause |
-| `if::` | a **condition** that must hold *(declarative form planned)* | [[Warden Events]] § Guards |
+| `where::` | the **file** it concerns — an anchor-relative glob | [[FCT Ruleset]] § Where clause |
+| `when::` | the **moment** it fires at — omit → *passive* (audit-time) | [[Warden Events]] |
+| `if::` | the **test** — a **Python expression** over `file` / `anchor` / `git` / `event` (or prose, for an LLM judgment) | [[Warden Semantics]] § The condition |
 
-**Precedence:** a rule's own clause overrides its set's; absent both, the defaults are `when:: always-passive` (a file check, no event) and `where:: always`.
+**Precedence:** a rule's own clause overrides its set's. With **no `where::` and no `when::`** the rule is **ambient** — always loaded into context, not dispatched ([[Warden Semantics]] § Ambient rules). The operational detail (indexes vs. computed test, live vs. passive) is in [[Warden Semantics]].
 
-## The body and check primitives
+## The body
 
-> **A rule is a *condition* (`when` / `where` / `if`) and a *body* (one or more actions).** The body is the part that runs; an action is a `check::` primitive, a `python` block, LLM **prose**, a `message::`, or a `fix`. The operational model — how the condition triggers and the body emits reports — is **[[Warden Semantics]]**.
+The body is the **action** the rule performs when its condition holds:
 
-The **tier** annotation (`(checked)` / `(stated)` / `(sampled)` / `(tracked)`) that older rules carry is an **optional posture hint, not a separate concept** — the body already shows whether a script (`check::` / `python`) or the LLM (prose) decides. Keep it for at-a-glance readability if you like; nothing in the engine requires it (`checked` = a script body, `stated` = an LLM body). Worked examples of every body kind are in [[Warden Examples]].
+- **Bare prose** *is* the `tell` — the message sent to the agent (a steer live, a finding under audit). Prose that states an expectation also serves as an **LLM judgment** (the model evaluates it).
+- **Backticked Python** runs the verbs — `tell`, the `file.set_frontmatter`/`replace_section` **edits**, `deny`, `sh`, `ask_oracle` — over the interpretation environment. An inline `` `expr` `` for one line; a bare ` ``` ` fence for several. No `def`, no magic function name.
+- A **`description::`** carries the rule's *meaning* (never sent), so a Python-bodied rule still reads as a sentence.
 
-A `checked` rule's check is written one of two ways: a named **primitive** via `check::` (e.g. `` check:: regex_present `^#+ RULESET R-` ``), or — when no primitive fits — an embedded ```` ```python ```` `def check(ctx) -> bool` block (the same executable-rule mechanism [[F180 — When-trigger executable rules|F180]] uses for `trigger` / `guard`). **Primitives run on the fast native path; arbitrary Python runs on the slower Python path** — so prefer a primitive when one fits. The prose `**Check pattern:**` stays the human spec. The primitive vocabulary is a **superset of Vale's check-type taxonomy** (existence / substitution / occurrence / … native; spelling / metric / sequence / script via an opt-in Vale adapter) — see [[Warden Integration Strategy]] D8.
+> **Backticks = Python.** A backticked `if::` value, a backticked one-line body, or a fenced block — all are Python the engine runs; un-backticked prose is the `tell`. This subsumes [[F007 — Backtick all where expressions — parser swap|F007]] (backticked = code → Dataview leaves it alone).
 
-**Glob and regex values are backticked** — `` where:: `{ANCHOR}/**/*.md` ``, `` check:: regex_present `^…` `` — the standing convention ([[F007 — Backtick all where expressions — parser swap|F007]]) so the expression never trips the Obsidian renderer; the parser strips the backticks. Tiers are aspirational ladders: a rule starts `stated` and graduates to `checked` once its check exists.
+The full action set, the verbs, and the object surface they run over are **[[Warden Semantics]]** (§ The actions, § The interpretation environment); every body kind appears as a complete rule in **[[Warden Examples]]**.
 
-## Composition — include
+## Composition — `include`
 
 A ruleset absorbs others by naming them on `include::` (bare names or `[[wiki-links]]`, mixed). This is the language's single inheritance mechanism.
 
@@ -88,11 +87,11 @@ Three homes (detail: [[FCT Ruleset]], [[F133 — Rulesets folder convention + fa
 
 | Home | When |
 |---|---|
-| **Catalog** — standalone `R-<slug>.md` in `Rulesets/` | cross-cutting, reusable, owner/trait-scoped sets |
+| **Catalog** — standalone `R-<slug>.md` in `Rulesets/` | cross-cutting, reusable, owner / trait-scoped sets |
 | **Embedded** — `# RULESET` inside a facet / skill / discipline spec | rules that *are* the structural spec for an artifact kind |
 | **Anchor-local** — `{NAME} Rules.md` | rules truly specific to one anchor |
 
-**Adoption is `include::` under a `# {NAME} Decisions` H1** (vs *composition* under a `# RULESET` H1 — same syntax, different host). An anchor's `{NAME} Decisions.md` lists adopted sets on `include::`, maps each rule to its local implementation, and records D-records that cite rules via `**Cites:** [[R-…-NN]]`. Spec: [[FCT Decisions]].
+**Adoption is `include::` under a `# {NAME} Decisions` H1** (vs *composition* under a `# RULESET` H1 — same syntax, different host). An anchor's `{NAME} Decisions.md` lists adopted sets, maps each rule to its local implementation, and records D-records that cite rules via `**Cites:** [[R-…-NN]]`. And an anchor's **traits/facets are themselves adoptions** — a facet's embedded ruleset is active wherever that facet is present (activation semantics: [[Warden Semantics]] § Rulesets). Spec: [[FCT Decisions]].
 
 ## Naming
 
@@ -101,13 +100,13 @@ Three homes (detail: [[FCT Ruleset]], [[F133 — Rulesets folder convention + fa
 
 ## Relationship to FCT Ruleset
 
-[[FCT Ruleset]] is the CAB **facet** — it integrates Warden rules into the anchor system (which anchors author/adopt rulesets, how `/audit` binds them) and currently still carries the prescriptive format text + the self-applying `R-ruleset` block. **`Warden Rule` is the canonical home of the rule *language*** going forward; the intended end-state is for `FCT Ruleset` to slim to the facet-integration role and reference this page for format. (Migration not yet done — flagged, not unilateral, since the facet is widely referenced.) The `where::` glob grammar still lives authoritatively in `FCT Ruleset § Where clause`; folding it into Warden is part of the same migration.
+[[FCT Ruleset]] is the CAB **facet** — it integrates Warden rules into the anchor system (which anchors author/adopt rulesets, how `/audit` binds them) and currently still carries the prescriptive format text + the self-applying `R-ruleset` block. **`Warden Rule` is the canonical home of the rule *language*** going forward; the end-state is for `FCT Ruleset` to slim to the facet-integration role and reference this page for format. (Migration not yet done — flagged, not unilateral, since the facet is widely referenced.) The `where::` glob grammar still lives authoritatively in `FCT Ruleset § Where clause`; folding it into Warden is part of the same migration.
 
 ## See also
 
-- [[Warden Events]] — the `when::` clause.
-- [[FCT Ruleset]] — the CAB facet + the `where::` grammar (today's authoritative home).
+- [[Warden Semantics]] — how a rule *runs*: the condition, the actions, the interpretation environment, ruleset activation.
+- [[Warden Examples]] — every kind of rule as a complete, runnable example.
+- [[Warden Events]] — the `when::` moment catalog; [[FCT Ruleset]] — the `where::` grammar (today's authoritative home).
 - [[FCT Decisions]] — adoption + `Cites:`.
-- [[Warden Integration Strategy]] — D8 (check:: as a Vale superset), the importer.
-- [[Warden Architecture]] — how the format is resolved, compiled, and run.
+- [[Warden Architecture]] / [[Warden Runtime]] — how the format is resolved, compiled, and run.
 - [[R-diagram]], [[CAE Rules]] — worked instances.

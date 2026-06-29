@@ -87,16 +87,12 @@ def render(lines, out_path: Path):
 
 # ── the rule/ruleset format figures (for Warden Rule) ──────────────────
 RULE = [
-    "### RULE R-diagram-04 — Text fits its container (checked)",
-    "where:: `{ANCHOR}/**/*.svg`",
-    "",
-    "Every text element sits fully within the shape it labels —",
-    "no overflow past the container edge.",
-    "",
-    "**Check pattern:** for each text element, assert its bbox is",
-    "inside the parent shape's bbox.",
-    "",
-    "**Why:** overflowing labels are the commonest hand-SVG defect.",
+    "### RULE R-backlog-01 — Rows carry a status bracket",
+    "description:: Every backlog item ends with a [Ready] / [Questions] bracket.",
+    "where:: `{ANCHOR}/**/{NAME} Backlog.md`",
+    "when:: write:markdown",
+    "if:: `'[Ready]' not in file.text and '[Questions]' not in file.text`",
+    "A row is missing its status bracket — add [Ready] / [Questions] / [Verify].",
 ]
 RULESET = [
     "# RULESET R-backlog",
@@ -104,13 +100,13 @@ RULESET = [
     "where:: `{ANCHOR}/**/{NAME} Backlog.md`",
     "description:: Structure every {NAME} Backlog.md obeys.",
     "",
-    "### RULE R-backlog-01 — Rows carry a status bracket (checked)",
-    "**Check pattern:** every item under a horizon H2 ends with a",
-    "[Ready] / [Questions] bracket.",
+    "### RULE R-backlog-01 — Rows carry a status bracket",
+    "if:: `'[Ready]' not in file.text`",
+    "Every row needs a [Ready] / [Questions] status bracket.",
     "",
-    "### RULE R-backlog-07 — Anchor has exactly one backlog (checked)",
+    "### RULE R-backlog-07 — One backlog per anchor",
     "where:: anchor",
-    "**Check pattern:** exactly one Backlog.md under the anchor root.",
+    "Exactly one Backlog.md should exist under the anchor root.",
 ]
 
 # ── the execution-mode examples (for Warden Examples) ──────────────────

@@ -3,8 +3,6 @@ description: "how the engine runs a rule — the condition, the actions, the run
 ---
 
 > [!todo] Open threads (everything here is in flux — park items so we don't forget)
-> - **Sync `Warden Rule`** (format spec) to this model — it still has `check::`/tiers, and defaults a clause-less rule to `where:: always` (now the **ambient** case).
-> - **Sync `Warden Architecture` §7** with the two-path `ask_oracle` mechanism (oracle on audit / steer on live).
 > - **`run` / `sh` effect helper** — a convenience for arbitrary effects (it's just Python — same trust class as a skill, not a sandbox question); ship after the mediated three. Real policy work is *vetting imported rulesets* (effects off until vetted), argv-form shell to block injection.
 > - **The `edit` family** — define the method set (`set_frontmatter`, `replace_section`, …) and the never-delete floor it rides on.
 > - **`ask_oracle` + F215** — shape/vocabulary settled; one open question: whether F215's economy gate wants the prompt's *material* as a separate diffable arg (vs one merged prompt).

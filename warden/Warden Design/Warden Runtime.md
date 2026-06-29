@@ -1,5 +1,5 @@
 ---
-description: "Warden runtime — how it observes tool uses, file changes, and the agent, and runs rule checks without per-moment cost"
+description: "the efficiency commitments — how it tracks tool uses, file changes, and the agent, and runs checks without per-moment cost"
 ---
 # Warden Runtime
 
