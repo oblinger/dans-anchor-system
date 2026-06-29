@@ -163,13 +163,13 @@ After the breadcrumb identity row, the masthead's optional rows appear in this *
 **Why:** a stable left-to-top-to-bottom reading order makes every anchor page scan the same way; the row *names* the sub-area and the cell jumps you into it.
 
 ### RULE R-dispatch-table-08 — Related is the first optional row and absorbs external links (checked)
-The first optional row is **Related**. It carries links to genuinely-related anchors / siblings **and external resources** — the code repo, the published project page, a docs site — i.e. anything related that is **not already in the breadcrumb path**. There is **no separate `External` row**; repo / site URLs live in **Related**. **An anchor that has a code repo (a `code:` key in its `.anchor`) carries a `[code](hook://f/{SLUG}/code)` link in Related** — the hook `f/` (finder) verb opens the anchor's code folder in Finder (`{SLUG}` = the anchor's slug). Optional and never manufactured (per R-05).
+The first optional row is **Related**. It carries links to genuinely-related anchors / siblings **and external resources** — the code repo, the published project page, a docs site — i.e. anything related that is **not already in the breadcrumb path**. There is **no separate `External` row**; repo / site URLs live in **Related**. **An anchor that has a code repo (a `code:` key in its `.anchor`) carries a `[code](hook://f/{SLUG}?facet=code)` link in Related** — the hook `f/` (finder) verb opens the anchor's code folder in Finder (`{SLUG}` = the anchor's slug). Optional and never manufactured (per R-05).
 **Check pattern:** no masthead row is labeled `External`; if a `Related` row exists it precedes every sub-area row.
 **Why:** "what else is near this?" is answered once, up top, before the reader descends into the anchor's own contents; one row for all not-in-breadcrumb links keeps the switchboard small.
 
 ### RULE R-dispatch-table-13 — Code anchors carry a `[code]` link in Related (checked)
-Every anchor whose `.anchor` declares a `code:` key (equivalently, carries the `Code` trait) includes, in its **Related** row, a markdown link **`[code](hook://f/{SLUG}/code)`** where `{SLUG}` is the anchor's slug. The `f/` (finder) hook verb opens the anchor's code folder; one-click reach from the masthead to the code, with no hardcoded path. The link text is exactly `code`.
-**Check pattern:** for every dispatch-table page whose anchor has a `code:` key, the Related row contains a `[code](hook://f/<slug>/code)` link.
+Every anchor whose `.anchor` declares a `code:` key (equivalently, carries the `Code` trait) includes, in its **Related** row, a markdown link **`[code](hook://f/{SLUG}?facet=code)`** where `{SLUG}` is the anchor's slug. The `f/` (finder) hook verb opens the anchor's code folder; one-click reach from the masthead to the code, with no hardcoded path. The link text is exactly `code`.
+**Check pattern:** for every dispatch-table page whose anchor has a `code:` key, the Related row contains a `[code](hook://f/<slug>?facet=code)` link.
 **Why:** the code is the point of a code anchor; a uniform, path-free `[code]` link makes it reachable from every such masthead and stays correct even if the repo moves (resolution is via the `.anchor` `code:` key, not a hardcoded path).
 
 ### RULE R-dispatch-table-09 — Design row links the sub-anchor and enumerates the design parts (checked)
