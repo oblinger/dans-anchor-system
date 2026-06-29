@@ -1,102 +1,96 @@
 ---
-description: "the build sequence — design → compiler → Python ref → Rust perf → testing regime"
+description: "the build sequence to a strong landing — language freeze, all design, corpus proof, replan, then one build, dogfood on SKA, efficiency last"
 ---
 
 # Warden Roadmap
 
-The sequenced build plan for the rule system. The **language design** is largely complete ([[Warden Architecture]], [[Warden Events]], [[FCT Ruleset]]); the runway ahead is the **compiler/installer**, the **two implementations** (Python reference → Rust performance), and a **heavy testing regime** that runs alongside every milestone — not after. Requirements + perf budgets: [[Warden PRD]].
+The sequenced plan to a **strong landing spot**: Warden running, and complete enough to codify a large fraction of SKA's facets, skills, disciplines, and operations as real rules — with strong testing that the whole system fires correctly. Requirements + perf budgets: [[Warden PRD]]. The language surface is [[Warden Semantics]] / [[Warden Rule]]; worked rules are [[Warden Examples]] + [[Warden Examples Extended]].
 
-> [!info] How to read this
-> Milestones are roughly sequential but the testing regime (M6) is **continuous** — every milestone ships with its tests green before the next starts. Each milestone names its feature doc(s) in [[Warden Features]]. "Done-when" is the gate to the next milestone.
+> [!info] The shape of this plan
+> Every cheap, decision-dense activity — language, engine design, test design, corpus proof, replan — is **batched ahead of the single expensive thing (the build)**. We spend the big execution budget once, against a spec validated four ways. Milestones are sequential; "Done-when" gates the next. Test design lands at M3 but tests **run continuously** from M6 on.
+
+## The strong landing spot (definition of done)
+
+Reached at the end of **M7**: Warden is installed and firing; a large fraction of SKA facets/skills/disciplines/operations are authored as Warden rules that fire at their moments; the test regime is green. **M8 (efficiency, incl. Rust) is a follow-on** — it makes the landed system fast, it is not part of being landed.
 
 ## Milestones
 
-### M0 — Language design  *(in progress — mostly done)*
+### M1 — Language completion & freeze
 
-The declarative surface: what a rule is and how it binds.
+Close the language. Review every gap the example work surfaced (G1 mechanical-edit verb, G2 ruleset helper namespace, G3 finding confidence — [[Warden Examples Extended]]), decide each **cosmetic** (a predicate / object member / verb — patch) or **structural** (changes the model — escalate), patch [[Warden Semantics]] / [[Warden Rule]] / [[Warden Architecture]], then **freeze**.
 
-| Piece | State | Doc |
-|---|---|---|
-| Rule + Ruleset format, `include::`, `where::` | done | [[FCT Ruleset]] |
-| `when::` clause + executable rules | done (F180) | [[F180 — When-trigger executable rules\|F180]] |
-| Unified moment taxonomy | **drafted** | [[Warden Events]], [[F209 — Unified trigger taxonomy + when language\|F209]] |
-| Conjunction model (`when ∧ where ∧ if`) + `if::` guards | **drafted** | [[Warden Architecture]] §4–5, [[F210 — Conjunction binding + indexing\|F210]] |
+- **Diverse-family stress test (the freeze insurance).** Before freezing, hand-pick ~15–25 **deliberately difficult** rules from the corpus — one per family (dispatch, anchor-structure, naming, content-lint, LLM-judgment, `deny`, `edit`, agent-state, code, diagram, …) — and write each in Warden. The hard ones drive the language; this is what keeps the freeze from being a blind bet ahead of the full M4 proof.
 
-**Done-when:** the taxonomy + conjunction specs are reviewed and frozen; every existing trigger surface (`compact`, `markdown-write`, `skill:*`) maps cleanly onto a moment path; F209/F210 open questions resolved.
+**Done-when:** the diverse sample all expresses cleanly; every surfaced gap is resolved or consciously deferred with a recorded reason; the language docs carry no open gap that blocks rule authoring.
 
-### M1 — Compiler / installer design + skeleton
+### M2 — Engine design
 
-The engine that turns the active rule set into installed, fast-firing dispatch.
+Spec the engine for the frozen language (designs, not code): the compiler/installer ([[F211 — Rule compiler and installer|F211]]), the Python reference architecture ([[F212 — Python reference implementation|F212]]), the resident runtime / daemon + OS-selected notifier ([[Warden Runtime]]), and trait-driven activation.
 
-- Active-set resolution (per anchor, from `{NAME} Decisions.md` adoption + structural facets).
-- Index selection (by-`when` vs by-`where`) and the per-moment grouping.
-- Pre-compilation to one module per moment (generalizing `/distill`).
-- The fire-time contract the hook subsystem calls.
+**Done-when:** a reader could implement each piece without a design decision left open; the fire-time contract, the compile step, and the activation resolution are fully specified.
 
-**Doc:** [[F211 — Rule compiler and installer\|F211]]. **Done-when:** a moment fires a compiled module that evaluates the residual conjunction and emits steers/fixes, on the Python path, for one real rule (port `R-query-14`).
+### M3 — Testing & verification design
 
-### M2 — Python reference implementation
+Spec the test regime ([[F214 — Rule-system testing regime|F214]]): unit checks, the **differential harness** (the oracle that keeps two implementations honest), the **golden corpus** (rules × fixtures × expected outcomes), performance gates, and the **end-to-end smoke** (a rule authored → adopted → fires at its moment in a live session).
 
-The clear, correct, executable spec. Owns authoring-time compilation and the agent-judgment path; the behavioral oracle the Rust impl is validated against.
+**Done-when:** each test layer has a concrete spec + fixture plan; the differential-harness contract is defined well enough to validate M6 and M8.
 
-**Doc:** [[F212 — Python reference implementation\|F212]]. **Done-when:** the full Resolve→compile→install→fire loop runs in Python; all M0–M1 rules fire correctly; differential-test harness (M6) green.
+### M4 — Corpus migration (the expressibility proof)
 
-### M3 — Rust performance implementation
+Express **all ~477 rules** across the facets, disciplines, and the ruleset library in the frozen Warden language, in place. Each hard rule yields an extended example + a named gap. This is the comprehensive proof the language is sufficient — beyond the M1 sample. (The first gold-standard file, `R-markdown`, and four recovered fan-out files are already done; the mechanical fan-out script is saved.)
 
-The hot-path engine. Owns fire-time dispatch + compiled-module execution under the ms budget. Behavior-identical to the Python reference (differential-tested).
+**Done-when:** every non-meta rule is in Warden; the meta bucket (`FCT Ruleset` / `R-ruleset` self-spec) is reconciled by hand; all gaps are harvested into [[Warden Examples Extended]].
 
-**Doc:** [[F213 — Rust performance implementation + ms budget\|F213]]. **Done-when:** fire-time p99 meets the per-moment budget ([[Warden PRD]] § Performance) on a representative workload; differential tests vs. Python show zero verdict/steer divergence.
+### M5 — Replan / redesign  *(scheduled, not contingent)*
 
-### M4 — Migration of existing surfaces
+Absorb everything M2–M4 taught. Re-read the harvested gaps and the engine/test designs together; apply any change the corpus proof forced. This **may ripple back** into the M2/M3 designs — that is expected, and is why build comes after. Re-run this whole roadmap as a planning pass: confirm the milestones still hold or revise them.
 
-Fold today's bespoke paths onto the unified compiler: F180 `audit-q` autofire, F091 `compact` / `markdown-write`, the `audit-on-write` distill module. Each becomes "just rules" on the compiler.
+**Done-when:** the spec is internally consistent post-corpus; no known structural gap remains; the build scope is frozen.
 
-**Done-when:** no bespoke per-rule hook code remains for the migrated surfaces; behavior unchanged (regression-tested).
+### M6 — Build  *(the one autopilot phase)*
 
-### M5 — Perf hardening
+Implement the Python engine against the triple-validated spec: the full resolve → compile → install → fire loop ([[F212 — Python reference implementation|F212]]), then fold today's bespoke hook surfaces (`compact`, `markdown-write`, `audit-q`) onto it. Tests (M3) run green continuously.
 
-Profile the hot path, tighten the budget, add the budget-enforcement policy (advisory vs. demote-to-audit, [[Warden PRD]] Q3), cache invalidation correctness.
+**Done-when:** a real rule, authored in Warden, compiles, installs, and fires at its moment in a live session; the migrated surfaces behave unchanged; the regime is green.
 
-**Done-when:** budgets enforced; no regression under a stress workload (instrument-every-tool simulation).
+### M7 — Dogfood on SKA  *(the acceptance test — strong landing here)*
 
-### M6 — Testing regime  *(continuous, spans M0–M5)*
+Actually **use** Warden: codify a large fraction of SKA facets / skills / disciplines / operations as Warden rules and watch them fire. The corpus migrated at M4 becomes live, adopted, firing rulesets. Run it for real, Rust out.
 
-The heavy, careful test discipline — see [[F214 — Rule-system testing regime\|F214]]. Not a phase; a standing gate on every milestone.
+**Done-when:** a large fraction of SKA's conventions are enforced by live Warden rules; authoring a new rule is a routine, low-friction act; the system has run in daily use without correctness regressions.
 
-### M7 — Re-evaluation economy (so expensive rules can be everywhere)
+### M8 — Performance & efficiency (incl. Rust)  *(follow-on)*
 
-Two pieces that let **LLM-judged** rules be instrumented as widely as mechanical ones without exhausting the agent: the **script-assisted mode** (a cheap Python / `sh` gate narrows the input the LLM judges — reasons over a section, not the whole file) and the **re-evaluation gate** (an expensive rule throttles re-judging with an ordinary `if::` over **`file.diff`** — `if:: file.diff.lines > 15` — so it re-runs only on a *significant* change). v1 measures significance by **diff magnitude** (lines / % changed) — a cheap, no-LLM gate.
+Everything efficiency-oriented, parked behind a system that already works and has earned its keep: the Rust hot-path implementation ([[F213 — Rust performance implementation + ms budget|F213]]), perf hardening + budget enforcement, the re-evaluation economy build ([[F215 — Re-evaluation economy — the significant-edit gate|F215]]), and semantic-update levels. The Rust impl is **behavior-identical** to the Python reference — the M3 differential harness is the oracle, zero verdict/steer divergence.
 
-**Doc:** [[F215 — Re-evaluation economy — the significant-edit gate\|F215]]. **Done-when:** a `rerun:: significant` rule skips typo-scale edits (cached verdict reused) and re-fires on a structural edit, spending no LLM tokens on the gate itself.
+**Done-when:** fire-time p99 meets the per-moment budget; differential tests show zero divergence; the efficiency gates are enforced.
 
-### M8 — Semantic update levels  *(later)*
+## The autopilot discipline — the structural tripwire
 
-Upgrade M7's significance measure from diff-magnitude to a **cheap classifier** rating each edit `typo → wording → structural → semantic`; rules declare a level (`rerun:: level >= structural`) and only edits at or above it re-trigger. The classifier is small/cheap, never the full rule. **Doc:** [[F215 — Re-evaluation economy — the significant-edit gate\|F215]] § What "significant" means — staged.
+The plan assumes the M1/M4 gaps are **small** (extra predicates, object members, verbs). That assumption is held honestly by one rule: every gap is tagged **cosmetic** (patch and proceed) or **structural** (changes the execution model). A structural gap **stops the autopilot** and routes to an M5-style replan rather than being absorbed silently mid-build.
 
 ## The testing regime (summary — full spec in F214)
 
-Because this instruments almost every action, correctness and performance regressions are both high-stakes. The regime has five layers:
+Because Warden instruments almost every action, correctness and performance regressions are both high-stakes. Five layers:
 
 | Layer | What it proves | Runs |
 |---|---|---|
 | **Unit** | each checker primitive, each taxonomy match, each guard | every commit |
-| **Differential (Python ↔ Rust)** | the two implementations agree on every `(rule, target, moment)` verdict/steer | every commit touching either impl |
+| **Differential (Python ↔ Rust)** | the two implementations agree on every `(rule, target, moment)` verdict/steer | every commit touching either impl (M8) |
 | **Golden corpus** | a fixed set of rules × fixtures with recorded expected outcomes; catches semantic drift | every commit |
 | **Performance** | per-moment p99 vs. budget; a regression fails CI | every impl commit |
-| **End-to-end / live** | a rule authored → adopted → fires at its moment in a real session (the F180-style smoke test, generalized) | per milestone |
+| **End-to-end / live** | a rule authored → adopted → fires at its moment in a real session | per milestone |
 
-Guiding rules (per the dev discipline): when a bug is found, **first write the failing test, then fix** — never iterate by hand; tests live in the vault/repo, not `/tmp`; the differential harness is the primary oracle so neither implementation can drift silently.
+Per the dev discipline: when a bug is found, **first write the failing test, then fix**; tests live in the repo, not `/tmp`; the differential harness is the primary oracle so neither implementation drifts silently.
 
 ## Sequencing at a glance
 
-```
-M0 design ──► M1 compiler ──► M2 Python ref ──► M3 Rust perf ──► M4 migrate ──► M5 harden
-                                   │                  │
-                                   └──── M6 testing regime (continuous) ────┘
-```
+M1 freeze → M2 engine design → M3 test design → M4 corpus proof → M5 replan → **M6 build** → M7 dogfood on SKA *(strong landing)* → M8 efficiency + Rust.
+
+All of M1–M5 is design / validation; M6 is the single expensive build; M7 is acceptance; M8 is follow-on.
 
 ## Open questions
 
-1. **Repo home for the implementations.** Python ref + Rust impl — new code anchor under SKA, or alongside the audit scripts? (Affects `.anchor` + build wiring.)
-2. **Migration ordering (M4).** Which existing surface ports first — `audit-q` (smallest, already `when::`) is the natural pilot.
-3. **Budget-enforcement policy (M5).** Advisory logging vs. hard demote-to-audit for over-budget rules (also [[Warden PRD]] Q3).
+1. **Repo home for the implementations.** Python ref (+ later Rust) — new code anchor under SKA, or alongside the audit scripts? (Affects `.anchor` + build wiring.) Resolve in M2.
+2. **Migration ordering (M6 surface fold).** Which existing surface ports first — `audit-q` (smallest, already `when::`) is the natural pilot.
+3. **Budget-enforcement policy (M8).** Advisory logging vs. hard demote-to-audit for over-budget rules (also [[Warden PRD]] Q3).
