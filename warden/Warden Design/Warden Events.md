@@ -5,7 +5,7 @@ description: "the moment catalog a `when::` clause names — the tree, the gramm
 
 **Every moment Warden can fire on.** A `when::` clause names one of these. Read each row left to right — a **class** (with its `pre` / `post` phase, where it has one), then the **moment** that refines it. Deeper refinements — a specific Bash command, a skill's action — are in the per-class sections below; a path-valued tail (*which* file) lives in the cross-cutting [[FCT Ruleset\|where::]] clause. Tool and event tokens are Claude Code's own; the tree is ours.
 
-| Moment class | Moment (2nd level) | Fires on (Claude Code) |
+| Moment class | Refinements | Fires on (Claude Code) |
 | --- | --- | --- |
 | [[#Tool moments\|tool]] — pre, post | `Bash`, `Write`, `Edit`, `Read`, `Glob`, `Grep`, `Task`, `WebFetch`, `WebSearch` (+ MCP) | `PreToolUse` / `PostToolUse` |
 | [[#Skill moments\|skill]] — pre, post | any skill — `audit`, `query`, `crank`, `audit-q`, … | skill-runner enter / exit |
@@ -37,6 +37,7 @@ segment  := literal | glob             ; a level's parameter value (a glob match
 - **`,` is OR.** `when:: session:compact, skill:post:audit-q` fires at either moment.
 - **A glob segment** matches sibling values at one level: `when:: tool:post:Bash:git-*`.
 - **Path-valued tails move to [[FCT Ruleset\|where::]].** When a level's refinement *is a file path*, it is not a `when::` segment — `when:: write:markdown` + `where:: {ANCHOR}/**/*.md` *is* "after writing a markdown file under the anchor." `when::` stays the event; `where::` the place.
+- **Casing mirrors the source.** Our own vocabulary is lowercase — classes (`tool`, `skill`, `session`, `write`, `git`, `prompt`), phases (`pre`, `post`), and coined leaves (`markdown`, `commit`, `audit`). A token that names a **Claude Code entity** uses Claude Code's exact spelling: tool names stay Capitalized (`tool:pre:Bash`, `…:WebFetch`) so they match the real matcher, and the *Fires on* events are PascalCase (`PreToolUse`). Skill names are lowercase because the commands are. (So `tool:pre:Bash`, never `bash` — fidelity to the matcher beats uniformity.)
 
 ## Tool moments
 

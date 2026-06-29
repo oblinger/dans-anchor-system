@@ -43,7 +43,7 @@ A path glob, resolved **relative to the anchor that adopts the rule**: `**/*.md`
 
 The moment that fires the rule **live**. Omit it and the rule is **passive**: it runs only when `/audit` visits its `where::` files. The moments:
 
-| Moment class           | Moment Refinements (2nd level)                                         | Fires on                            |
+| Moment class           | Refinements                                                            | Fires on                            |
 | ---------------------- | ---------------------------------------------------------------------- | ----------------------------------- |
 | `tool` — `pre`/`post`  | `Bash`, `Write`, `Edit`, `Read`, `Glob`, `Grep`, `Task`, `WebFetch`, … | `PreToolUse` / `PostToolUse`        |
 | `skill` — `pre`/`post` | any skill — `audit`, `query`, `crank`, …                               | skill enter / exit                  |
@@ -57,11 +57,11 @@ Read a row as a path — `tool` ⊃ `tool:post` ⊃ `tool:post:Bash` — and a s
 
 **What triggers each.** A live rule fires when its `when::` moment occurs (the hook). A passive rule fires only on an **`/audit` pass** — run manually, or wired to a moment (SessionStart, post-commit, a skill post-condition). Nothing watches the filesystem; a file changing on its own triggers nothing.
 
-**Change detection.** Inside an audit pass the **content-hash gates** which files re-run: unchanged files reuse their cached verdict, changed (and never-seen) files re-evaluate. A never-seen anchor has no prior hashes, so all its files run once. An **agent write** fires only live rules, not passive ones (this keeps writes cheap). An **external** edit (Obsidian, `git pull`) fires no hook and is caught at the next audit. Live reaction to external edits would need a filesystem watcher (deferred).
+**Change detection.** Inside an audit pass the **content-hash gates** which files re-run: unchanged files reuse their cached verdict, changed (and never-seen) files re-evaluate. A never-seen anchor has no prior hashes, so all its files run once. An **agent write** fires only live rules, not passive ones (this keeps writes cheap). An **external** edit (Obsidian, `git pull`) fires no hook and is caught at the next audit. **Warden runs no file-change tracker of its own** — an *agent* write is a `write:*` moment for free (the tool hook), and *external* changes ride **git / the audit content-hash**, which already exist. A dedicated filesystem watcher would duplicate those and is heavy, so it stays deferred — and if live external-change reaction is ever needed, the move is to *subscribe* to an existing watcher (git hooks, the on-write framework), not build one.
 
 ### `if::` — the test
 
-A **Python expression** over the data nouns (§ Rule interpretation), written with plain Python — there are no `.has`/`.matches` predicate verbs:
+The `if::` test is a **Python expression evaluated in the interpretation environment** (§ below) — the same Python scope a rule's body runs in, holding `file` / `anchor` / `git` / `event`. You write the predicate with ordinary Python operators (`not`, `in`, `re.search`) over those objects, so the condition language *is* Python — nothing to learn beyond the object surface:
 
 ```
 if:: not file.title                        # no H1 title
@@ -96,9 +96,9 @@ On a hit, the body performs zero or more actions. Three are **mediated** (Warden
 
 > **Open — `run`'s trust model.** Your own rules are as trusted as your own scripts; an *imported* ruleset carrying effectful Python is a supply-chain risk (adopting it runs its code on your moments). Leaning: ship the mediated three first; add `run` only behind explicit trust, off for imported rules.
 
-## Rule interpretation
+## The interpretation environment
 
-A rule body is plain Python over a handful of injected objects (`file`, `anchor`, `git`, `event`) plus the verbs and the ambient environment. The whole surface, at a glance:
+The **interpretation environment** is the Python scope a rule is *interpreted* in — where both its `if::` test and its body run. The engine pre-populates that scope with three things: the **injected objects** (`file`, `anchor`, `git`, `event` — the matched subject and its repo), the **action verbs** (`tell`, `deny`, `ask_oracle`, and `file`'s edit methods), and the **ambient runtime** (`today`, `now`, plus plain-Python builtins and a stdlib subset). Evaluating an `if::` condition or running a body is just executing Python in this scope — there is no separate interpreter or rule-language to learn, only this object surface:
 
 | In scope | Accessors / calls |
 |---|---|
@@ -109,6 +109,7 @@ A rule body is plain Python over a handful of injected objects (`file`, `anchor`
 | *ambient* | `today`, `now` (+ plain Python: builtins, `re`, `json`, `datetime`) |
 | *verbs* | `tell(msg)`, `deny(reason)`, `ask_oracle(prompt)→str`, and `file.…` (edits — under File) |
 
+(Delete this?  it is explained below right?)
 `file` / `anchor` / `event` are the three things the rule **matched on** (`where::` → `file`, the adopting anchor → `anchor`, `when::` → `event`); `git` is **derived** (the subject's repo). None take a `ctx.` prefix — they are aliased in directly.
 
 ### `file`
