@@ -9,13 +9,12 @@ description: anchor master tree — every possible doc/folder in an anchor, link
 # FCT Anchor Tree
 The annotated master file tree showing every possible file and folder that may appear inside a CAB anchor, with each named element wiki-linked to its governing facet spec.
 
-**Related:** [[FCT Anchor Page]],  [[CAB Base]],  [[CAB Docs]],  [[FCT Facet]]
+**Related:** [[FCT Anchor Page]],  [[FCT Anchor]],  [[FCT Facet]]
 **Examples:** [[CAE\|minimal Code anchor]],  [[HBR\|fuller anchor with components]]
 
 **Cardinality: one per anchor** — each anchor has exactly one canonical file tree (this spec is the reference; an anchor's actual tree is its on-disk directory).
 
-An anchor is a standardized folder structure that serves as the home for a project, topic, or content area.
-See [[CAB Base]] shows files common to all anchors.
+An anchor is a standardized folder structure that serves as the home for a project, topic, or content area. This tree is the canonical reference for the files common to all anchors.
 
 **TLDR** — The annotated master file tree for a CAB anchor: every recognized file/folder placeholder wiki-linked to its governing facet spec. Two trees: the anchor folder tree (top) and the optional Code Repository tree (bottom). Use this as a lookup when setting up or auditing an anchor's on-disk structure.
 
@@ -125,9 +124,9 @@ The anchor folder tree (top) and the optional Code Repository tree (bottom) are 
 **Check pattern:** the divider line `─── Optional` is present; `{repo}/` section is below it.
 **Tier:** sampled
 
-### RULE R-anchor-tree-04 — Cross-reference sync with CAB Base, SKILL.md, and CAB Rules.md (stated)
-When adding or removing a named element in the tree, the corresponding dispatch tables in `CAB Base.md`, `SKILL.md`, and `CAB Rules.md` are updated to stay in sync.
-**Check pattern:** stated principle; agent verifies on each tree-content edit.
+### RULE R-anchor-tree-04 — This tree is the self-canonical anchor file tree (stated)
+This file is the single canonical anchor file tree; named elements are kept in sync with their governing `FCT <Name>.md` facet specs (via the wiki-links in the tree), not with any external dispatch table. (The legacy CAB-era three-way sync with `CAB Base.md` / `SKILL.md` / `CAB Rules.md` is retired — CAB Base is superseded by this file.)
+**Check pattern:** stated principle; agent verifies each named element resolves to a live facet spec on tree edits.
 **Tier:** stated
 
 # BRIEF
@@ -137,5 +136,5 @@ When adding or removing a named element in the tree, the corresponding dispatch 
 - **Inclusion test for adding a row:** the element is a recognized CAB anchor file/folder (named via the `{NAME}` / `{CAB Folder}` placeholders) that can legitimately appear in *some* anchor. One-off project-specific files do NOT belong here.
 - **Naming conventions:** placeholders use `{NAME}` for the anchor name and `{CAB Folder}` for the folder name; wiki-link the canonical facet, aliased to the on-disk filename when the link target differs (e.g. `[[FCT Anchor Page|{NAME}.md]]`). Preserve the box-drawing characters (`├──`, `│`, `└──`) — the monospace `cssclasses` frontmatter is load-bearing for tree rendering.
 - **Two trees live here**: the anchor folder tree (top) and the optional Code Repository tree (bottom, separated by `─── Optional ... ───`). Keep them separated; don't merge code-repo files into the anchor tree.
-- **Load-bearing cross-references** — `CAB Base.md`, `SKILL.md`, and `CAB Rules.md` index this file's contents per the SKA CLAUDE.md cross-reference checklist. When adding or removing a named element here, verify the corresponding dispatch tables in those three files stay in sync.
+- **Self-canonical** — this is the single source of truth for the anchor file tree; each named element stays in sync with its governing `FCT <Name>.md` facet spec via the in-tree wiki-link. (The legacy CAB-era sync triangle with `CAB Base.md` / `SKILL.md` / `CAB Rules.md` is retired; `CAB Base` is superseded by this file.)
 - **Software Design Documents section is descriptive, not prescriptive** — the per-document paragraphs orient readers to the four (now six) Plan/ design docs; the authoritative shape of each lives in its own `CAB <Facet>.md`. Don't drift those summaries away from the linked specs.
