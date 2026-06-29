@@ -287,6 +287,28 @@ def _read_q_marker_count(target_path: Path) -> int:
     return len(re.findall(r"\bQ\d+\s+—", target_text))
 
 
+def _row_q_count(r: "Row", vault_index: dict) -> int:
+    """Pending-question count for a `[Questions]` row — the `(NQ)` the user sees.
+    Prefer an explicit `[N Questions]` bracket; else count `Q<n> —` markers in the
+    linked feature doc. Returns 0 when nothing resolves (no count shown)."""
+    m = re.match(r"(\d+)\s+Questions", r.bracket)
+    if m:
+        return int(m.group(1))
+    target_basename = r.arrow_link or (r.identifier if r.identifier.startswith("F") else None)
+    if not target_basename:
+        return 0
+    target_basename = target_basename.split("#")[0].split("|")[0].strip()
+    candidates = vault_index.get(target_basename) or vault_index.get(target_basename + ".md") or []
+    if not candidates and r.identifier.startswith("F"):
+        for bn, paths in vault_index.items():
+            if bn.startswith(r.identifier + " —") or bn == r.identifier:
+                candidates = paths
+                break
+    if not candidates:
+        return 0
+    return _read_q_marker_count(candidates[0])
+
+
 def derive_banner(name: str, rows: list[Row], backlog_file: Path,
                   vault_index: dict) -> Optional[str]:
     """Compute the H1 banner line. Returns None if anchor has zero items."""
@@ -298,7 +320,10 @@ def derive_banner(name: str, rows: list[Row], backlog_file: Path,
     # `Agreed` is the feature-lifecycle synonym for `Ready` (per [[SKA workflow]]
     # / feature/SKILL.md) — count it as Ready so the banner doesn't drop Agreed
     # rows from the agent-actionable headline.
-    ready_n = sum(1 for r in actionable if r.bracket in ("Ready", "Agreed"))
+    # Exclude an empty B-QFix (0 residuals) — it's not actionable Ready work.
+    _qfix_empty = _count_qfix_subs(backlog_file) == 0
+    ready_n = sum(1 for r in actionable if r.bracket in ("Ready", "Agreed")
+                  and not (r.identifier == "B-QFix" and _qfix_empty))
     verify_n = sum(1 for r in actionable if r.bracket == "Verify")
     # Questions count: sum of Q-markers across linked feature docs for each
     # `[Questions]` / `[N Questions]` row, across **every rendered horizon**
@@ -621,7 +646,11 @@ def render_queries_doc(name: str, banner: Optional[str], rows: list[Row],
     h3_headings = _extract_h3_headings(backlog_file)
     eligible = [r for r in rows if _row_should_render(r)]
     verifs = [r for r in eligible if r.bracket.startswith("Verify") or r.bracket.startswith("Watching")]
-    ready = [r for r in eligible if r.bracket in READY_ACTIVE_BRACKETS]
+    # An empty B-QFix (zero residuals) is NOT Ready — nothing to do — so drop it
+    # from the Ready render (per user 2026-06-29: "not really ready, what's it doing there").
+    qfix_empty = _count_qfix_subs(backlog_file) == 0
+    ready = [r for r in eligible if r.bracket in READY_ACTIVE_BRACKETS
+             and not (r.identifier == "B-QFix" and qfix_empty)]
     qs = [r for r in eligible if "Questions" in r.bracket]
 
     body: list[str] = []
@@ -648,7 +677,11 @@ def render_queries_doc(name: str, banner: Optional[str], rows: list[Row],
         for r in qs:
             link = _bullet_link(r, name, vault_index, block_ids, h3_headings)
             txt = _truncate_body(r.body, 160)
-            body.append(f"- {link}" + (f" — {txt}" if txt else ""))
+            # Pending-Q count in bold parens — the user sees how many answers the
+            # feature needs at a glance (`[[F181 …]] **(5Q)**`). Per /query North Star.
+            n = _row_q_count(r, vault_index)
+            cnt = f" **({n}Q)**" if n else ""
+            body.append(f"- {link}{cnt}" + (f" — {txt}" if txt else ""))
     if not body:
         body.append("_Nothing pending._")
 
