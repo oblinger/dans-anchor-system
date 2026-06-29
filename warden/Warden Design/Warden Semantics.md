@@ -3,8 +3,7 @@ description: "how the engine runs a rule — the condition, the actions, the run
 ---
 
 > [!todo] Open threads (everything here is in flux — park items so we don't forget)
-> - **`run` / `sh` effect helper** — a convenience for arbitrary effects (it's just Python — same trust class as a skill, not a sandbox question); ship after the mediated three. Real policy work is *vetting imported rulesets* (effects off until vetted), argv-form shell to block injection.
-> - **The `edit` family** — define the method set (`set_frontmatter`, `replace_section`, …) and the never-delete floor it rides on.
+> - **The `edit` family** — define the full method set (beyond `set_frontmatter` / `replace_section`) and the never-delete floor it rides on.
 > - **`ask_oracle` + F215** — shape/vocabulary settled; one open question: whether F215's economy gate wants the prompt's *material* as a separate diffable arg (vs one merged prompt).
 > - **`git` when an anchor nests a code repo** — `git` follows the subject's repo now; may need an `anchor.repo` / `code.repo` split when both exist.
 
@@ -34,7 +33,11 @@ A rule activates for a target when **all of its present clauses hold**. `where::
 
 ### `where::` — which files
 
-A path glob, resolved **relative to the anchor that adopts the rule**: `**/*.md` means "every markdown file in this anchor," which is what makes one rule reusable across anchors. The explicit `{ANCHOR}/` token is equivalent to a bare glob. **Required for a passive rule**; optional for a live one (the moment supplies the subject). Default `always`. Grammar: [[FCT Ruleset]] § Where clause.
+A path glob, resolved **relative to the anchor that adopts the rule**: `**/*.md` means "every markdown file in this anchor," which is what makes one rule reusable across anchors. **Required for a passive rule**; optional for a live one (the moment supplies the subject). Default `always`. Grammar: [[FCT Ruleset]] § Where clause.
+
+**Substitution variables** stand in for the adopting anchor's values — all-caps, brace-delimited: **`{ANCHOR}`** (its root path), **`{NAME}`** (its name), **`{SLUG}`** (its kebab slug). They mirror the `anchor.*` accessors used in Python (`{NAME}` ↔ `anchor.name`) and resolve when the rule binds to an anchor — `where:: {ANCHOR}/**/{NAME} Backlog.md`.
+
+**Backticks on a clause value are optional but recommended.** A `where::` / `when::` / `if::` value is one line and the parser strips backticks, so they change *nothing* semantically. But Obsidian/Dataview mangle a bare value containing `*`, `[`, `|`, or `::` (a glob, a regex, a `::`-bearing expression), so backticking — `` where:: `**/*.md` `` — keeps it from rendering wrong or colliding with Dataview. A plain token (`when:: write:markdown`) needs none; backtick anything with special characters ([[F007 — Backtick all where expressions — parser swap|F007]]).
 
 ### `when::` — which moments
 
@@ -107,9 +110,12 @@ The **interpretation environment** is the Python scope a rule is *interpreted* i
 | **`event`** | `.kind`, `.diff`, `.command`, `.tool` |
 | **`agent`** | `.state` (`working`/`landed`/`asking`/`idle`), `.skill`, `.is_asking` |
 | *ambient* | `today`, `now` (+ plain Python: builtins, `re`, `json`, `datetime`) |
+| *variables* | `{ANCHOR}`, `{NAME}`, `{SLUG}` — anchor substitutions in `where::` (mirror `anchor.root` / `.name` / `.slug`; § `where::`) |
 | *verbs* | `tell(msg)`, `deny(reason)`, the `file` edits, `ask_oracle(prompt)→str`, `sh(argv)` — § Verbs |
 
 None of these take a `ctx.` prefix — they are aliased into the scope directly. Each is **computed lazily and cached per pass** — most rules touch only a couple, so the daemon pays for `git` / `agent` / parsed sections only when a rule actually reads them ([[Warden Architecture]] §7).
+
+**Naming convention.** Accessor names are **snake_case** for multi-word identifiers (`is_dirty`, `set_frontmatter`, `replace_section`); single domain words stay one word (`frontmatter` — as in the `python-frontmatter` library — `sections`, `links`). The all-caps brace form (`{NAME}`) is reserved for the `where::` substitution variables.
 
 ### `file`
 
