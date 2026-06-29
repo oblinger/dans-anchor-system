@@ -7,7 +7,7 @@ description: Index of every Facet — the narrow, usually-file-based Aspects an 
 # FCT Facets
 Facets are one of the two sibling sub-categories of [[CAB Aspects|Aspect]] (the other is [[TRT|Trait]]). Each Facet is a narrow, specific aspect of an anchor — almost always tied to one or more files. Each spec doc under this folder is authoritative for its Facet's detection mechanism, cardinality, format constraints, behavior, Constraints, and Expected Usage (per [[CAB Aspects]] § Facet + § Spec-doc structure).
 
-**[[FCT Primitives\|Primitives]]:** [[FCT Skill\|Skill]],  [[FCT Facet\|Facet]],  [[CAB Disciplines\|Discipline]],  [[FCT Ruleset\|Ruleset]],  [[TRT\|Trait]]
+**[[FCT Primitives\|Primitives]]:** [[FCT Skill\|Skill]],  [[FCT Facet\|Facet]],  [[CAB Disciplines\|Discipline]],  [[FCT Ruleset\|Ruleset]],  [[TRT\|Trait]],  [[FCT Template\|Template]]
 **Structure:** [[CAB Folder\|Folder]],  [[CAB Anchor Page\|Anchor Page]],  [[CAB All Files\|All Files]],  [[CAB Docs\|Docs Hub]],  [[CAB Plan Dispatch\|Plan Dispatch]],  [[CAB Dev Dispatch\|Dev Dispatch]],  [[CAB User Dispatch\|User Dispatch]]
 **Design:** [[CAB PRD\|PRD]],  [[CAB System Design\|System Design]],  [[CAB UX Design\|UX]],  [[CAB API Design\|API Design]],  [[CAB Decisions\|Decisions]],  [[FCT Ruleset\|Ruleset]],  [[CAB Features\|Features]]
 **Execute:** [[CAB Backlog\|Backlog]],  [[CAB Roadmap\|Roadmap]],  [[CAB Triage\|Triage]],  [[CAB Icebox\|Icebox]],  [[CAB Inbox\|Inbox]],  [[CAB WP\|WP]],  [[CAB Outputs\|Outputs]]
