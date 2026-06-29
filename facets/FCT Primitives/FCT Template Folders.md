@@ -9,19 +9,22 @@ A **folder template** — a `_{Name} Template/` folder whose marker + skeleton d
 | Related | [[FCT Template]] (umbrella),  [[FCT Template Files]],  [[FCT Template Variables]],  [[FCT Dispatch Table]] (the Template row) |
 | Examples | [[_Disk Template\|disk folder]],   |
 
-## Reference example
+## At a glance
 
-A folder template for a *disk* — each disk is a folder because it carries more than one document (a main record **plus** a generated manifest). The marker doc, shown live:
+A tiny folder template — the gist (a fuller worked instance is the FEX example below):
 
-![[_Disk Template]]
-
-## Reading the example
+![[FCT Template Folder Example.svg]]
 
 A folder template is a `_{Name} Template/` **folder**, not a single file. Its parts:
 
-- **The marker — `_{Name} Template/_{Name} Template.md`.** Same name as the folder, inside it. Its body is the live exemplar of the folder's *main* document (here, the disk's record) — same anatomy as a [[FCT Template Files|file template]] (exemplar above `---`, About, Variables).
-- **The skeleton (optional).** Other starter files the folder should contain. In the example the manifest is *named* in `# About this template` but added later — so the template ships only the marker; a skeleton file would be included literally when the folder always starts with it.
-- **`# About this template`** says *why a folder and not a file*: the item needs more than one document, so it gets its own folder.
+| Part | What it is |
+|---|---|
+| **The folder** (`_{Name} Template/`) | cloned as a unit → `{Item}/`. Use when one item needs **more than one** document. |
+| **The marker** (`_{Name} Template/_{Name} Template.md`) | same name, inside the folder; its body is the live exemplar of the folder's *main* document — same anatomy as a [[FCT Template Files|file template]]. |
+| **Skeleton** (optional) | other starter files the folder always contains. In the example the manifest is *named* but added later, so the template ships only the marker. |
+| **`# About this template`** | one line on *why a folder and not a file*: the item needs >1 document, so it gets its own folder. |
+
+**Full worked example:** [[_Disk Template]] — a complete folder template under `examples/FEX Templates/` (a real markdown marker, with its commentary at the bottom).
 
 ## What's specific to folder templates
 

@@ -9,19 +9,23 @@ A **file template** — a `_{Name} Template.md` whose body IS a live specimen of
 | Related | [[FCT Template]] (umbrella),  [[FCT Template Folders]],  [[FCT Template Variables]] |
 | Examples | [[_Computer Template\|computer record]],   |
 
-## Reference example
+## At a glance
 
-A file template for one *computer record* in a `Computers/` folder — shown live (the actual in-repo instance, rendered, not fenced):
+A tiny file template — the gist (a fuller worked instance is the FEX example below):
 
-![[_Computer Template]]
+![[FCT Template File Example.svg]]
 
-## Reading the example
+A file template is a **working specimen**, not a description of one. Its parts:
 
-The file is a **working specimen**, not a description of one. Top to bottom:
+| Part | What it is |
+|---|---|
+| **Exemplar** (above the `---`) | live markdown — real H1 `# {{HOSTNAME}}`, real sections, bare `{{UPPER_SNAKE}}` placeholders. **No fences**, so it copies straight into a working record. |
+| **Cumulative section** (`# LOG`) | header only at creation — no placeholder entries underneath (R-template-03). |
+| **`---` divider** | separates the exemplar (above) from the template's own metadata (below). |
+| **`# About this template`** | the clone target (`{Hostname}.md` in the same folder) + one line on *why this is a template, not a facet*: a list of your computers exists in exactly one place, so its shape is local. |
+| **`## Variables`** | one bullet per placeholder: what to put **and what to do with no data** — what lets an instantiator finish with **zero** leftover `{{}}` (R-template-02; full spec [[FCT Template Variables]]). |
 
-- **Above the `---` divider — the exemplar.** Real frontmatter (`kind: computer`), a real H1 (`# {{HOSTNAME}}`), real sections (`## Specs`, `## Access`, `## Notes`), and a cumulative `# LOG`. Every fill-in is a bare `{{UPPER_SNAKE}}` placeholder. **No code fences** — so the headings, list, and any wiki-links render and the file can be copied straight into a working record.
-- **`# About this template`** — names the clone target (`{Hostname}.md` in the same folder) and says, in one line, *why this is a template and not a facet*: a list of your computers exists in exactly one place, so its shape is local, not part of any global standard.
-- **`## Variables`** — one bullet per placeholder, each saying what to put **and what to do when there's no data** (e.g. "delete the line you don't know yet"). This is what lets an instantiator finish with **zero** leftover `{{}}`. Full rules: [[FCT Template Variables]].
+**Full worked example:** [[_Computer Template]] — a complete file template under `examples/FEX Templates/`. (FEX examples are real markdown files, not figures: they carry their own "About this template" commentary at the bottom, understood as not part of the example, so no figure is needed.)
 
 ## What's specific to file templates
 

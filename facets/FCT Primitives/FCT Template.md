@@ -26,6 +26,10 @@ The test: *"does this shape recur across many anchors of a type?"* If yes → it
 
 A template can also serve as the **starting instance** when you create a new item (clone → rename → fill/drop placeholders), but that genesis use is secondary to its primary role: *standardizing the shape of what's already in the folder*.
 
+## Seeding from a type, then specializing
+
+A template need not be hand-built from scratch. When an anchor of a given **type** is created, the type can **seed** a starting template into the new anchor — a sensible default shape pasted in — which the agent or user then **specializes over time** for that project. The local template thus *starts* as the global standard's default and diverges as the project's domain demands; it's the bridge from the global facet/type down to a project-specific shape. The same `_{Name} Template` form is reused this way as **instances throughout the skill hierarchy** — each a local specialization of the shared standard. *(Seeding-on-creation is a wiring detail for the anchor-creation flow, not yet built.)*
+
 ## Scope & applicability — where a template governs
 
 A `_{Name} Template` governs the items in **its own folder** (and, by default, the tree beneath it). Detection is by the `_{Name} Template` name (the leading underscore sorts it to the top and marks it meta).
