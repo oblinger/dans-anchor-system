@@ -53,6 +53,26 @@ A Dataview inline field is `key:: <value>`. The value is the rest of the line an
 
 Vault-wide preference: docs are body-only with `description::` inline as the second non-blank line, not YAML frontmatter. Frontmatter is invisible in Obsidian read view and drifts silently. Exception: skill SKILL.md files use frontmatter because Claude Code reads it; that's the only legitimate use case.
 
+### Python comments in fenced code blocks: fullwidth `＃` (U+FF03)
+
+Obsidian's folding engine treats a `#` at the **start of a line inside a fenced code block** as a markdown heading, which breaks heading folds at every Python comment. Workaround: use the fullwidth number sign `＃` (U+FF03) for Python comments shown inside Obsidian code blocks:
+
+```python
+def activate(entity):
+    ＃ check energy threshold before activation
+    if entity.energy > MIN_ENERGY:
+        entity.state = "active"
+```
+
+This applies **only** to comments in fenced code blocks within Obsidian markdown — actual source `.py` files use a normal `#`. Don't "normalize" the `＃` back to `#`.
+
+### Figure spaces (U+2007): non-collapsing indentation
+
+Figure spaces (U+2007) do not collapse the way regular spaces do in markdown renderers, so they indent file-tree diagrams and TOC tables (the [[md-file-tree]] / [[md-toc]] forms). Two load-bearing consequences:
+
+- **The Edit tool cannot match figure spaces** — any edit to a line containing U+2007 must go through Python via Bash (or the `/md` regeneration scripts), never a literal Edit match. (This is why anchor TOC rows are never hand-edited.)
+- Insert them programmatically: `fig = '\u2007'` (Python escape for the code point).
+
 
 ## Authoring rules — always-apply quality
 

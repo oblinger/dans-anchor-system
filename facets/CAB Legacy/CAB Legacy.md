@@ -18,10 +18,10 @@ The actionable map driving [[SKA Backlog#^F218|F218]] (CAB → FCT content migra
 | CAB doc | → FCT target | Action | Status |
 |---|---|---|---|
 | [[CAB Naming Conventions]] | [[FCT Naming]] | supersede | ✅ 2026-06-29 — hard-exceptions folded → FCT Naming § Exception D + R-naming-06; slug-system content already in [[FCT Anchor Page]] / [[ATL Slugs]] / HA; stub redirects pending F191 link-sweep |
-| [[CAB Page Conventions]] | [[FCT Anchor Page]] | supersede | |
-| [[CAB Repository Structure]] | [[FCT Code Repository]] | supersede | |
-| [[CAB Documentation Publishing]] | [[FCT Documentation Site]] | supersede | |
-| [[CAB Markdown Formatting]] | `[[DSC markdown]]` | supersede | |
+| [[CAB Page Conventions]] | [[FCT Anchor Page]] | supersede | ✅ 2026-06-29 — fully redundant; covered by [[FCT Anchor Page]] + [[FCT Dispatch Table]] (old link-table taxonomy is pre-Gen-3, superseded); nothing unique to fold; stub redirect pending F191 |
+| [[CAB Repository Structure]] | [[FCT Code Repository]] | ⚠ re-scoped → **needs placement** | 2026-06-29 — **NOT a clean supersede.** [[FCT Code Repository]] is scoped to the `code:` *association mechanism* and its inclusion test **excludes** repo-internal conventions (justfile shape, test layout). CAB Repository Structure's content (justfile standard-recipe list `SETUP/BUILD/TEST/LINT/CHECK/DOCS/…`, key-files catalog, `site/` gitignore) is a cross-project convention with **no FCT home** → needs a **net-new home** (a `DSC justfile` / repo-conventions discipline?). Content preserved; surfaced as a query. |
+| [[CAB Documentation Publishing]] | [[FCT Documentation Site]] | supersede | ✅ 2026-06-29 — fully covered by [[FCT Documentation Site]] (which is richer: canonical stack + two-tier + 3-output pattern); stray code-interface-style snippet routed to language disciplines; stub redirect pending F191 |
+| [[CAB Markdown Formatting]] | [[DSC markdown]] | supersede | ✅ 2026-06-29 — core already in [[DSC markdown]]; folded the `＃` (U+FF03) + figure-space (U+2007) mechanics into [[DSC markdown]] § Mechanical rules; file-tree/TOC forms → [[md]] skill; date-format/dated-sections → [[FCT Log]]/[[FCT Naming]]; stub redirect pending F191 |
 | [[CAB Aspects]] | [[FCT Facet]] + [[FCT Primitives]] | reconcile (authoritative Aspect/Trait/Facet model; ~68 inbound) | |
 | [[CAB Base]] | [[FCT Anchor]] | reconcile (file-tree skeleton; ~36 inbound) | |
 | [[CAB Dispatch Table Design]] | [[FCT Dispatch Table]] | reconcile (fold as design rationale) | |
