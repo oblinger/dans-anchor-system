@@ -24,6 +24,17 @@ user_invocable: true
 
 Regenerate the anchor's per-anchor section in `~/ob/kmr/Q.md` (the **single triage surface** per F075, 2026-05-19 — per-anchor `{NAME} Triage.md` files retired). The section is the **status of the anchor**: it walks the backlog and writes one bullet per item under workflow-state H2s (`## Active`, `## Ready`, `## Now`, `## Next`). Items in `## Later` are normally hidden, **except** Later items that carry `[Questions]` or `[Verify]` brackets — those are user-actionable and get surfaced under a `## Later` H2 in the body so the banner's Q/V counts always match a visible row (2026-05-20). Items in `## Icebox` are never shown in the body. The user reads Q.md to see "where everything stands and what's waiting on me."
 
+> ## ⚠️ TOP-LEVEL `"` IS THE BULLETPROOF ORCHESTRATOR — AND IT NEVER ASKS A QUESTION
+>
+> When the user invokes `"` / `/triage` **directly** (not as another skill's sub-step), it is not merely a render. It runs the **full autonomous chain, in one shot, asking the user nothing**:
+> 1. **Groom (resolution).** Walk the backlog; rebracket every stale/dishonest state; promote what's genuinely Ready; for `[Ready]` rows with no declared next-action, *either* add the no-user next-action *or* rebracket honestly (`[Designing]` / `[Questions]` / `[Blocked]`). Per `[[SKA groom]]` § 2a. Never ask — decide and rewrite.
+> 2. **Query (resolution).** Run the `/query` determination ladder over **every** open question across all features + the backlog: **ELIMINATE** everything the agent can (auto-resolve reversible/soon-visible guesses + record them; run every agent-runnable check and answer it; decide the low-stakes/visible/reversible calls; infer from the codebase), and **CONSOLIDATE** the irreducible residue into `{NAME} queries.md` — each entry self-documenting, counted (`**(5Q)**`), ordered for one-shot answering. Per `[[SKA query]]` / [[Query PRD]].
+> 3. **Render + glance.** `triage-section.py` paints `Q.md` + `queries.md`; glance `Q.md`.
+>
+> **THE INVARIANT (Query PRD R6): the post-triage chat is a STATUS REPORT, never a question.** It reports *what was groomed, what was resolved, and how many residual questions await in the doc* — and contains **no question directed at the user** (no "Want me to…?", "Should I…?", "which do you prefer?", no trailing offer). **Asking the user a question after a triage is the cardinal violation** — it fragments the one-shot pile triage just built and it scrolls away. Everything the agent wants from the user lives in the queries doc; the chat asks nothing. *If you catch yourself about to end a triage with a question, that question is a queries-doc entry you failed to file — file it, then report the count.*
+>
+> **Sub-step invocations** (when `/groom` or `/crank` call triage to render) skip the orchestration and just render — the parent already drove resolution.
+
 Punctuation trigger: **`"`** (a single double-quote as the entire message), parallel to `crank`/`'` and `/land`/`.`. Slash invocation: `/triage`, `/triage roadmap`, `/triage milestone {N}`. **Slash-only — the spoken word "triage" is NOT a DMUX prefix-trigger** (removed 2026-05-04; too easy to fire by accident in normal speech, same reasoning as /crank and /query; `"` is the dedicated single-keystroke shortcut).
 
 

@@ -15,7 +15,7 @@ user_invocable: true
 
 # /query — ask the user questions
 
-`/query` builds and maintains the anchor's **`{NAME} queries.md`** — the single surface where the user answers everything the agents need from them. Its discipline: most "questions" should never reach the user; only genuine user decisions and genuine user-only verifications survive, each made answerable from what's written. Full spec: [[F169 — Query skill — queries document + determination logic|F169]]. Replaces `/ask` (which rotted by accreting dashboard + render-pipeline + triage coupling — keep `/query` narrow).
+`/query` builds and maintains the anchor's **`{NAME} queries.md`** — the single surface where the user answers everything the agents need from them. Its discipline: most "questions" should never reach the user; only genuine user decisions and genuine user-only verifications survive, each made answerable from what's written. **Authoritative purpose + the never-ask invariant: [[Query PRD]]** (the agent's prime directive is to NOT ask — eliminate every question it can, consolidate the irreducible residue into one self-documenting, one-shot-answerable pile; asking in chat, especially after a triage, is the cardinal violation). Full spec: [[F169 — Query skill — queries document + determination logic|F169]]. Replaces `/ask` (which rotted by accreting dashboard + render-pipeline + triage coupling — keep `/query` narrow).
 
 > ## ⚠️ TWO NORTH STARS — NON-NEGOTIABLE
 >

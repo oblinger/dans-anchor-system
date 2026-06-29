@@ -1,0 +1,54 @@
+---
+description: PRD for the /query skill — the system for NOT asking the user questions. Eliminate every question the agent can; consolidate the irreducible residual into one self-documenting, one-shot-answerable pile. Asking in chat (especially after triage) is the cardinal violation.
+---
+
+# Query PRD
+
+:>> [[SKA]] → [[SKA query]] → Query Design
+
+## Overview
+
+`/query` exists for one reason: **so the agent does not interrupt the user with questions.** Every question put to the user is a cost — it fragments their attention, arrives out of context, and scrolls away. The agent's prime directive is to **resolve, decide, and verify on its own**; and for the small irreducible residue that *genuinely* needs the user, to **consolidate it into one place, fully prepared**, so the user answers everything in a single pass — *bam, bam, bam, down the list* — instead of being dribbled questions one at a time across a conversation.
+
+**The cardinal sin is asking the user a question in chat** — and asking one *after a triage* is the worst form of it. A chat question (1) fragments the one-shot pile triage just built, (2) scrolls away and is lost, and (3) defeats the entire purpose of consolidation. **If the agent wants something from the user, it goes into `{NAME} queries.md` — never into chat.**
+
+`/query` is the **resolution + consolidation** half of the triage machine; `triage-section.py` is the mechanical **render** half. Together with `/groom` they form one autonomous loop that grooms, resolves, piles, and presents — and never asks.
+
+## Goals
+
+- **G1 — Eliminate.** Drive the open-question count toward zero by the agent's own effort. Every open question runs the full determination ladder *to exhaustion* before any of it reaches the user: auto-resolve reversible/soon-visible guesses (and record them); run every check the agent can run itself and answer it; decide the low-stakes / visible / reversible calls (assume-and-announce); infer from context and the codebase. A question survives to the user **only** when it genuinely needs *user judgment* AND is high-stakes / irreversible / a matter of taste the agent has no basis to pick. Most "questions" die here — that is the point. "I could resolve this myself but it's easier to ask" is a violation.
+- **G2 — Consolidate.** The survivors land in `{NAME} queries.md`: one pile, each entry **self-documenting** (answerable from the entry text + the links *inside* it, nothing to hunt for), each carrying its **pending-Q count** (`[[F181 …]] **(5Q)**`), ordered so the user rips through the whole stack in one sitting. Everything they need has been lined up in advance.
+- **G3 — Never ask in chat (R1).** No skill surfaces a user-question in chat. Questions live in the queries doc.
+- **G4 — Triage is the bulletproof orchestrator (R5).** `"` / `/triage` runs the resolution layer (groom + query) then the render layer then glances — fully autonomously — and ends with a **status report, never a question (R6).**
+- **G5 — One-shot answerable (R3/R4).** The user can answer the entire pile in one pass without opening any other document to understand a question.
+
+## Non-Goals
+
+- **Not a dashboard / status renderer.** Painting `Q.md` and the queries-doc body is `triage-section.py`'s mechanical job. `/query`'s job is *determination* — deciding what dies and what survives — not formatting.
+- **Not a chat channel.** `/query` never emits a question to chat. (Sole exception, owned by the *invoking* skill, not query: a creation-time inline yes/no the user is actively engaged in *that instant* — e.g. `/feature`'s title-collision prompt. Never deferred; never post-triage.)
+- **Not an agent action-log.** `## Agent Resolutions` records reversible *guesses*, not a diary of edits the agent made (per the durable feedback rule).
+- **Not a place to defer work the agent could do.** If an item is actionable-but-not-a-user-question, the agent lands it or files it as a `[Ready]` feature — it never becomes an orphan "question."
+
+## User Stories
+
+- **US1 — Don't interrupt me.** *As the user, I want the agent to figure out everything it possibly can on its own, so that I am not pulled into a conversation for things the agent could have decided, run, or inferred itself.*
+- **US2 — One shot, zero hunting.** *As the user, when I do turn my attention to the pile, I want every question lined up with all the context I need to answer it right there, so I can go down the whole list and answer them all in one sitting — bam, bam, bam — without opening other docs.*
+- **US3 — One pile, counted.** *As the user, I want all residual questions in one place with a count per feature, so I know exactly how much input is being asked of me at a glance.*
+- **US4 — Triage never asks.** *As the user, after I press `"`, I want a status report — what was groomed, what was resolved, how many questions remain in the doc — and NOT a question in chat, because a chat question fragments the pile that triage exists to consolidate.*
+
+## Success criteria
+
+**Tier 1 (agent-immediate).** After `"`, the agent's own chat turn contains **no question directed at the user** (no "Want me to…?", "Should I…?", "which do you prefer?"). Every user-answerable item is present in `{NAME} queries.md`, self-documenting, with a count. `audit-q` is clean before the doc is surfaced.
+
+## The composition — triage / groom / query are one autonomous machine
+
+| Layer | What it does | Skills |
+|---|---|---|
+| **Resolution** | rebracket stale states, promote ready items, auto-resolve reversible guesses, run every agent-runnable check, decide low-stakes calls, **park the irreducible residue into the queries surface** | `/groom` (backlog states) + `/query` (determination ladder) |
+| **Render** | mechanically paint `Q.md` + `{NAME} queries.md` from current state, then glance | `triage-section.py` |
+
+- **`"` / `/triage` (top-level)** = resolution layer **+** render + glance. The bulletproof button: grooms, queries, piles, presents — and **never asks**.
+- **`/groom` (top-level)** = resolution layer + render. Same never-ask rule.
+- **`/crank` dry-fallback** = resolution layer (groom → query); no question ever dribbled to chat.
+
+The agent does **everything it can** to figure things out, line them up, and resolve them in one shot. What remains — the honest residual it *cannot* resolve without the user — is stacked in the doc, each entry prepared so that when the user turns to it, they answer the whole stack in one pass. That is the whole product.

@@ -5,9 +5,8 @@ description: >
   roadmap or a named section). Each invocation moves the artifact toward a
   defined groomed state — promotes items to Ready where possible, parks
   questions in feature docs, repairs link integrity, enforces invariants.
-  Safe to call anytime. Never interrupts the user mid-run. Ends with the
-  first blocked-on-questions doc opened for the user, then a roster, then
-  optionally one final trivial inline question. Use when the user says
+  Safe to call anytime. Asks the user NOTHING — every residual question is
+  parked in the queries doc, never raised in chat (per Query PRD R1). Use when the user says
   "groom", "groom the backlog", "/groom", "/groom roadmap", "/groom
   milestone {N}", "tidy the backlog".
 tools: Read, Write, Edit, Bash, Glob, Grep
@@ -21,6 +20,10 @@ Convergent maintenance operator that walks an anchor's backlog (or roadmap) and 
 Walk the current anchor's backlog and move it toward the **groomed state** — a state that satisfies the invariants documented in [[CAB Backlog]] (numbering, status well-formed, link integrity, section coverage, ordering, Definition of Ready). Items that can be promoted to Ready are promoted; items with open questions get parked in feature docs; broken links get repaired or flagged.
 
 Convergent — not strictly idempotent. Safe to call anytime. May leave partial state when user input is needed; a follow-up call after the user resolves questions will continue from there.
+
+> ## ⚠️ Groom asks the user NOTHING — not even one trivial question
+>
+> Per [[Query PRD]] R1/R2, groom is the backlog half of the **resolution layer**: it resolves, rebrackets, promotes, and **parks every residual question into the queries surface** — and it raises **zero** questions in chat. **The "inline-deferred slot" (one trivial inline question at end-of-run) described below is RETIRED.** There is no exception, no "one short yes/no." Even a one-word question goes into the queries doc as a numbered entry; the determination ladder ([[SKA query]] / [[Query PRD]]) decides whether it even survives to the user or the agent just resolves it. A groom (or a triage that grooms) that ends with a question in chat is the cardinal violation. Where this runbook still says "inline-deferred slot" / "one final trivial inline question," read it as **"file it in the queries doc."**
 
 DMUX trigger: **`groom`** (prefix-trigger; whatever you dictate after becomes the argument). Slash invocation: `/groom`, `/groom roadmap`, `/groom milestone {N}`, `/groom F{n}` (single-item).
 
@@ -179,6 +182,7 @@ Print a summary table:
 | Promoted to feature doc | N | F5 → [[F005 — X]], F12 → [[F012 — Y]] |
 | Deferred inline | 0 or 1 | F9 |
 | Skipped | N | {reasons summarized} |
+
 ```
 
 ### 5. Q.md update post-condition — automatic via `state`
