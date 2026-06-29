@@ -77,21 +77,21 @@ Two senses — the answer differs by which:
 
 **Surface syntax (host Vale's YAML rule files verbatim): no.** That splits our surface into two grammars, makes Vale's schema a permanent input contract (couples us to their roadmap — the Semgrep risk), and abandons our markdown-native format + `include::` composition + the moment taxonomy. Violates single-source-of-truth and simple-to-load.
 
-**Capability model (express everything Vale can, and more): yes — this is the target.** Vale's design is `extends:` a **check-type** — a small set of parameterized content-check primitives. That is *exactly* our `check::`-a-primitive design; the two independently arrived at the same architecture. So we spec **our `check::` vocabulary as a superset of Vale's check-type taxonomy**:
+**Capability model (express everything Vale can, and more): yes — this is the target.** Vale's design is `extends:` a **check-type** — a small fixed set of parameterized content-check primitives. Our checks are **arbitrary Python** (`if::`), trivially more expressive than any fixed check-type set — so there is no taxonomy to match, only a mapping:
 
 | Vale | Ours | Native or adapter |
 |---|---|---|
 | path glob (`.vale.ini [*.md]`) | `where::` file glob | native |
 | `scope:` heading / sentence / paragraph / code / raw | `where::` extended with in-file **region scopes** | native for heading/code; prose scopes need a segmenter |
-| `extends:` existence · substitution · occurrence · repetition · consistency · conditional · capitalization | `check::` regex primitives | **native** |
-| `extends:` spelling · metric · sequence(POS) · script | `check::` … | **opt-in Vale adapter** (Hunspell / readability / NLP / Tengo — not reimplemented) |
-| `message:` (+ `%s`) | rule message / steer + interpolation | native (add interpolation) |
-| `level:` suggestion / warning / error | a **severity** field — *distinct from our verification `tier`* | add field |
+| `extends:` existence · substitution · occurrence · repetition · consistency · conditional · capitalization | a Python `if::` (`re.search`, `in`, …) over `file` | **native** |
+| `extends:` spelling · metric · sequence(POS) · script | `sh(['vale', …])` / `sh(['hunspell', …])` | **opt-in adapter** (Hunspell / readability / NLP — not reimplemented) |
+| `message:` (+ `%s`) | the `tell` / steer + interpolation | native (add interpolation) |
+| `level:` suggestion / warning / error | a **severity** field | add field |
 | `link:` · `limit:` | link · per-file cap | add fields |
 
-So: **our language is a superset of Vale's *capability*, not a host for its *syntax*.** A Vale rule maps 1:1 into ours, so the integration is (1) a **Vale importer** (trivial given the mapping) + (2) an **opt-in Vale execution adapter** for the NLP / spelling / script / metric check-types we don't reimplement (confined to the explicit audit path — they're slow anyway; consistent with D3). The regex/structural subset runs natively on the hot path.
+So: **our language expresses Vale's *capability* in plain Python, and is not a host for its *syntax*.** A Vale rule maps 1:1 into ours, so the integration is (1) a **Vale importer** (trivial given the mapping) + (2) an **opt-in `sh` adapter** for the NLP / spelling / script / metric checks we don't reimplement (confined to the explicit audit path — they're slow anyway; consistent with D3). The regex/structural subset is plain Python on the hot path.
 
-Two genuine additions Vale forces into our format: an in-file **scope/region** dimension on `where::`, and a **severity** axis separate from `tier`. Both are clean extensions (downstream touches to [[FCT Ruleset]] + the `check::` primitive library).
+Two genuine additions Vale motivates in our format: an in-file **scope/region** dimension on `where::`, and a **severity** axis. Both are clean extensions (downstream touches to [[Warden Rule]] / [[FCT Ruleset]]).
 
 ## Licensing — can we vendor?
 
@@ -115,7 +115,7 @@ Two genuine additions Vale forces into our format: an in-file **scope/region** d
 - **D5 — Rules may block** (`tool:pre` deny / `tool:post` block) **via JSON hook output, gated by the `aow-safety` floor;** never via exit-code-2.
 - **D6 — Adoption alignment targets the agent-rules standards layer** (hooks, AGENTS.md), not Vale/Semgrep *consistency*. Their value is realized via opt-in **rule-corpus importers** (an on-ramp), Vale-first, Opengrep-over-Semgrep.
 - **D7 — Vendoring posture.** Engines are legally vendorable (Vale MIT; Semgrep/Opengrep LGPL with obligations) but **Semgrep's registry rules are not**. Default remains detect-if-present, no vendoring (D1/D3); if we ever bundle, prefer MIT/LGPL engines and never Semgrep's restricted rules.
-- **D8 — Our language is a superset of Vale's *capability*, not a host for its *syntax*.** Spec the `check::` primitive vocabulary as a superset of Vale's check-type taxonomy; add an in-file `scope`/region dimension to `where::`, a `severity` axis (distinct from `tier`), message interpolation, and `link`. Integration = a Vale **importer** (1:1 mapping) + an **opt-in execution adapter** for the NLP/spelling/script/metric check-types (native for the regex/structural subset). We do **not** accept Vale's YAML as a surface dialect. Downstream: [[FCT Ruleset]] (severity + scope), [[F211 — Rule compiler and installer]] (the adapter).
+- **D8 — Our language expresses Vale's *capability* in plain Python, not a host for its *syntax*.** Native checks are arbitrary Python `if::` (trivially a superset of Vale's fixed check-types); Vale is an **opt-in `sh` adapter** for the NLP/spelling/script/metric niches (native for the regex/structural subset). The genuine format additions are an in-file `scope`/region dimension on `where::`, a `severity` axis, message interpolation, and `link`. Integration = a Vale **importer** (1:1 mapping) + the opt-in adapter. We do **not** accept Vale's YAML as a surface dialect. Downstream: [[Warden Rule]] / [[FCT Ruleset]] (severity + scope), [[F211 — Rule compiler and installer]] (the adapter).
 
 ## Open questions
 

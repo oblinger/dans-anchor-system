@@ -13,7 +13,7 @@ Defines what a rule *means* and how it gets dispatched. A rule is the **conjunct
 **Tier:** 1 (design + spec)
 **Blocks next:** [[F211 — Rule compiler and installer|F211]]
 
-**What done looks like.** The conjunction semantics are specified; `if::` guard syntax (declarative `key op value` + Python `def guard(ctx) -> bool`) is defined; the indexing rule (when-major default, where-major fallback) is specified with the residual-check contract.
+**What done looks like.** The conjunction semantics are specified; the `if::` test (a Python expression over the interpretation environment) is defined; the indexing rule (when-major default, where-major fallback) is specified with the residual-test contract.
 
 **How it will be verified.** Worked examples: a `when:: write:markdown` + `where:: {ANCHOR}/**/*.md` rule, and a `when:: always` + rare-`where::` rule, each shown resolving to the cheaper index with the correct residual check. Guard examples (`if:: git-aspect == Commit`) evaluate correctly.
 

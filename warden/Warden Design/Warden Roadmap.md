@@ -65,7 +65,7 @@ The heavy, careful test discipline — see [[F214 — Rule-system testing regime
 
 ### M7 — Re-evaluation economy (so expensive rules can be everywhere)
 
-Two pieces that let **LLM-judged** rules be instrumented as widely as mechanical ones without exhausting the agent: the **script-assisted mode** (a `check::` script narrows the input the LLM judges — reasons over a section, not the whole file) and the **`rerun:: significant` gate** (an expensive rule re-runs only when a file changed *significantly* since it last passed). v1 measures significance by **diff magnitude** (lines / % changed) — a cheap, no-LLM gate.
+Two pieces that let **LLM-judged** rules be instrumented as widely as mechanical ones without exhausting the agent: the **script-assisted mode** (a cheap Python / `sh` gate narrows the input the LLM judges — reasons over a section, not the whole file) and the **automatic re-evaluation gate** (an expensive rule re-runs only when a file changed *significantly* since it last passed; `rerun::` is the override). v1 measures significance by **diff magnitude** (lines / % changed) — a cheap, no-LLM gate.
 
 **Doc:** [[F215 — Re-evaluation economy — the significant-edit gate\|F215]]. **Done-when:** a `rerun:: significant` rule skips typo-scale edits (cached verdict reused) and re-fires on a structural edit, spending no LLM tokens on the gate itself.
 
