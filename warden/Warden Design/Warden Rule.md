@@ -58,15 +58,14 @@ A rule fires only when the **conjunction** of its present clauses holds. Each is
 
 ## The body
 
-The body is the **action** the rule performs when its condition holds:
+The body — what runs when the condition holds — is written one of two ways:
 
-- **Bare prose** *is* the `tell` — the message sent to the agent (a steer live, a finding under audit). Prose that states an expectation also serves as an **LLM judgment** (the model evaluates it).
-- **Backticked Python** runs the verbs — `tell`, the `file.set_frontmatter`/`replace_section` **edits**, `deny`, `sh`, `ask_oracle` — over the interpretation environment. An inline `` `expr` `` for one line; a bare ` ``` ` fence for several. No `def`, no magic function name.
-- A **`description::`** carries the rule's *meaning / goal* — its intent for a reader (the North Star: rules read as guidance without Warden). **Not sent on rule fire**, but it's why a Python-bodied rule still reads as a sentence.
+- **Bare prose** — a one-line message or a multi-line paragraph.
+- **Backticked Python** — an inline `` `expr` `` for one line, a bare ` ``` ` fence for several. No `def`, no magic function name.
 
-> **Backticks = Python.** A backticked `if::` value, a backticked one-line body, or a fenced block — all are Python the engine runs; un-backticked prose is the `tell`. This subsumes [[F007 — Backtick all where expressions — parser swap|F007]] (backticked = code → Dataview leaves it alone).
+> **Backticks = Python.** A backticked `if::` value, a backticked one-line body, or a fenced block are Python the engine runs; un-backticked prose is sent verbatim. (Subsumes [[F007 — Backtick all where expressions — parser swap|F007]]: backticked = code, so Dataview leaves it alone.)
 
-The full action set, the verbs, and the object surface they run over are **[[Warden Semantics]]** (§ The actions, § The interpretation environment); every body kind appears as a complete rule in **[[Warden Examples]]**.
+*What* a body does — the action it performs (`tell` / `edit` / `deny` / `sh` / `ask_oracle`) and the object surface it runs over — is **[[Warden Semantics]]** (§ The actions, § The interpretation environment); every body kind appears as a complete rule in **[[Warden Examples]]**.
 
 ## Composition — `include`
 

@@ -1,12 +1,5 @@
 ---
 description: "how the engine runs a rule — the condition, the actions, the runnable interpretation environment, and ruleset activation"
----
-
-> [!todo] Open threads (everything here is in flux — park items so we don't forget)
-> - **The `edit` family** — define the full method set (beyond `set_frontmatter` / `replace_section`) and the never-delete floor it rides on.
-> - **`ask_oracle` + F215** — shape/vocabulary settled; one open question: whether F215's economy gate wants the prompt's *material* as a separate diffable arg (vs one merged prompt).
-> - **`git` when an anchor nests a code repo** — `git` follows the subject's repo now; may need an `anchor.repo` / `code.repo` split when both exist.
-
 # Warden Semantics
 
 How the Warden engine runs a rule. [[Warden Rule]] is the file format; this is the operational model. A rule is a **condition** and a set of **actions**. The engine resolves which rules are active for an anchor, dispatches the candidates cheaply (by moment and file), evaluates each candidate's condition, and on a hit performs its actions.
@@ -236,6 +229,12 @@ on trigger:  a when:: moment fires,  OR  /audit visits the anchor
 An `if::` test that calls the oracle costs tokens, so its verdict is **cached by file-content-hash** and reused until the file changes. This re-evaluation policy is **automatic by body cost**: a cheap (Python/primitive) test re-runs on *any* change; an **expensive (LLM) test defaults to re-running only on a *significant* change** — re-judging on every keystroke is waste. `rerun::` is the explicit **override** for the rare case, not something you normally write.
 
 This is a *third* temporal axis, distinct from the condition: `when::` is *which moment*, `if::` is *whether it fires now*, re-evaluation is *recompute vs. reuse the cached verdict* — keyed to the rule's own last-pass cache, so it can't fold into `if` / `when` (significance is per-rule, not a property of the write). Conceptually it's the script-assisted gate (a cheap "significant?" check guarding the expensive judgment). ([[F215 — Re-evaluation economy — the significant-edit gate|F215]].)
+
+## Open Questions
+
+1. **The `edit` family.** What is the full set of `file` edit methods (beyond `set_frontmatter` / `replace_section`), and how does the never-delete floor apply to each?
+2. **`ask_oracle` material (F215).** Does the re-evaluation economy gate want the prompt's *material* as a **separate, diffable argument** (so the engine can tell when only the question changed vs. the content), or is one merged prompt string enough?
+3. **`git` in a nested repo.** When an anchor nests its own code repo (the vault repo *and* a project repo under one anchor), `git` follows the rule's subject — but does that need an explicit **`anchor.repo` / `code.repo`** split when both exist?
 
 ## See also
 
