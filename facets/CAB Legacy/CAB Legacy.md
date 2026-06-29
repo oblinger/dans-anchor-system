@@ -17,7 +17,7 @@ The actionable map driving [[SKA Backlog#^F218|F218]] (CAB → FCT content migra
 
 | CAB doc | → FCT target | Action | Status |
 |---|---|---|---|
-| [[CAB Naming Conventions]] | [[FCT Naming]] | supersede | |
+| [[CAB Naming Conventions]] | [[FCT Naming]] | supersede | ✅ 2026-06-29 — hard-exceptions folded → FCT Naming § Exception D + R-naming-06; slug-system content already in [[FCT Anchor Page]] / [[ATL Slugs]] / HA; stub redirects pending F191 link-sweep |
 | [[CAB Page Conventions]] | [[FCT Anchor Page]] | supersede | |
 | [[CAB Repository Structure]] | [[FCT Code Repository]] | supersede | |
 | [[CAB Documentation Publishing]] | [[FCT Documentation Site]] | supersede | |

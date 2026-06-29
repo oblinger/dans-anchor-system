@@ -48,6 +48,20 @@ Names so domain-specific they're unlikely to collide with anything in another an
 
 **Stated rule, not checked** — manual judgment at authoring time. If you're unsure, prefix.
 
+## Exception D — external-discovery-contract files
+
+Files whose name is fixed by an **external discovery contract** — a tool, runtime, or repo convention that hard-codes the filename — are never prefixed; a slug prefix would break the contract that finds them.
+
+| File | Contract |
+|---|---|
+| `CLAUDE.md` | Claude Code config — hard-coded discovery path, one per project root |
+| `SKILL.md` | Claude Code skill entry — hard-coded discovery path, one per skill folder |
+| `README.md`, `API_REFERENCE.md`, `CONFIG_REFERENCE.md` | repo / GitHub conventions |
+| `.anchor` | anchor marker file — named by HookAnchor |
+| code files (`.py`, `.ts`, `.rs`, …) | not markdown; outside Obsidian's link graph entirely |
+
+Distinct from Exception B (which is *facet*-sanctioned **markdown** patterns living inside an anchor): these are *external*-tool-mandated names, several of them non-markdown. **Stated rule** — don't add a row without naming the external contract that forces the exemption.
+
 ## Folder-anchor files follow the same rule
 
 The anchor marker file (the `{NAME}.md` inside `{NAME}/` per [[FCT Folder]]) is itself an instance of the default rule: file name = folder name. Sub-anchor folders nested inside an anchor (like `{NAME} Design/`, `{NAME} Track/`) carry their own marker files (`{NAME} Design.md`, `{NAME} Track.md`) — same convention all the way down.
@@ -131,6 +145,14 @@ A folder-anchor's marker file is named `{folder name}.md` — i.e., `{NAME} Desi
 **Check pattern:** for each folder whose `.anchor` file is present, assert `<folder>/<folder basename>.md` exists.
 
 **Why:** matches [[FCT Folder]]'s marker-file convention; ensures the folder-anchor pattern is consistent vault-wide.
+
+### RULE R-naming-06 — External-discovery-contract files exempt (stated)
+
+Files whose name is fixed by an external tool / runtime / repo discovery contract are exempt from the slug-prefix default: `CLAUDE.md`, `SKILL.md`, `README.md`, `API_REFERENCE.md`, `CONFIG_REFERENCE.md`, `.anchor`, and non-markdown code files (`.py`/`.ts`/`.rs`/…). See § Exception D.
+
+**Check pattern:** these exact names (and non-`.md` files) excluded from R-naming-01's check; the exempt set is fixed by external contracts, not author choice.
+
+**Why:** the filename *is* the discovery key — Claude Code finds `CLAUDE.md`/`SKILL.md` by hard-coded path, GitHub renders `README.md`, HookAnchor names `.anchor`. Prefixing any of them breaks the tool that depends on the literal name.
 
 # BRIEF
 
