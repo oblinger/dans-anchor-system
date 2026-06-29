@@ -53,9 +53,14 @@ where:: file: **/_* Template.md, **/_* Template/**
 description:: the Template facet — a domain-specific, folder-local structure for the items in one folder/tree
 
 ### RULE R-template-01 — the exemplar IS a live instance, never a description (checked)
-The content above the `---` divider is **live markdown** — real H1, frontmatter, sections — with bare `{{PLACEHOLDERS}}`; it is **not** wrapped in code fences and is **not** a `## How to use` description of a template.
+The **exemplar** — everything above the reserved `# About this template` marker (R-template-08) — is **live markdown** (real H1, frontmatter, sections) with bare `{{PLACEHOLDERS}}`; it is **not** wrapped in code fences and is **not** a `## How to use` description of a template.
 **Check pattern:** no triple-backtick fence encloses the exemplar; the file is not structured as prose *about* the form. *(Audit category: `template-is-spec`.)*
 **Why:** a fenced or described "template" can't be copied into a working instance — wiki-links go inert, tables and headings don't render. A template must BE an entry.
+
+### RULE R-template-08 — the exemplar ends at the reserved `# About this template` marker (checked)
+A template file's **exemplar** (the part that becomes the instance) ends at a reserved `# About this template` H1; everything from that heading to end-of-file is *template metadata* (filling conventions + the Variables section) and is **discarded on clone**. There is **no** bare `---` divider — that is ambiguous with YAML frontmatter and with an ordinary horizontal rule in real content.
+**Check pattern:** exactly one `# About this template` H1; nothing below it is treated as exemplar content; no bare `---`-as-divider is relied on as the boundary.
+**Why:** the boundary between "copied into the record" and "instructions for whoever clones it" must be unmistakable to both an agent and a human; a reserved heading a real record would never contain is unambiguous where a bare `---` is not.
 
 ### RULE R-template-02 — every placeholder is defined in a Variables section, with no-data handling (checked)
 Each distinct `{{PLACEHOLDER}}` in the exemplar has one bullet in a `## Variables` section stating what to put **and what to do when there is no data** (fill / delete the line / delete the section). Full spec: [[FCT Template Variables]].

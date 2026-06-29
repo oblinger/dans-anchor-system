@@ -9,20 +9,17 @@ A **file template** — a `_{Name} Template.md` whose body IS a live specimen of
 | Related | [[FCT Template]] (umbrella),  [[FCT Template Folders]],  [[FCT Template Variables]] |
 | Examples | [[_Computer Template\|computer record]],   |
 
-## At a glance
-
-A tiny file template — the gist (a fuller worked instance is the FEX example below):
+## Example File Template
+A file template is a **working specimen**, not a full description of one.
 
 ![[FCT Template File Example.svg]]
 
-A file template is a **working specimen**, not a description of one. Its parts:
 
 | Part | What it is |
 |---|---|
-| **Exemplar** (above the `---`) | live markdown — real H1 `# {{HOSTNAME}}`, real sections, bare `{{UPPER_SNAKE}}` placeholders. **No fences**, so it copies straight into a working record. |
-| **Cumulative section** (`# LOG`) | header only at creation — no placeholder entries underneath (R-template-03). |
-| **`---` divider** | separates the exemplar (above) from the template's own metadata (below). |
-| **`# About this template`** | the clone target (`{Hostname}.md` in the same folder) + one line on *why this is a template, not a facet*: a list of your computers exists in exactly one place, so its shape is local. |
+| **Exemplar** (everything *above* `# About this template`) | live markdown — real H1 `# {{HOSTNAME}}`, real sections, bare `{{UPPER_SNAKE}}` placeholders, an empty cumulative `# LOG`. **No fences**, so it copies straight into a record. This is the part that becomes the instance. |
+| **`# About this template`** | the **unambiguous end-of-exemplar marker** — a reserved H1 a real record would never contain. Everything from here down is *about the template* and is **discarded on clone**. (No bare `---` divider — that's ambiguous with frontmatter and horizontal rules.) |
+| **Conventions** (under the marker) | metadata about the data *as a whole*, **not tied to one variable** — e.g. "list specs in alphabetical order; values are as-of the purchase date." |
 | **`## Variables`** | one bullet per placeholder: what to put **and what to do with no data** — what lets an instantiator finish with **zero** leftover `{{}}` (R-template-02; full spec [[FCT Template Variables]]). |
 
 **Full worked example:** [[_Computer Template]] — a complete file template under `examples/FEX Templates/`. (FEX examples are real markdown files, not figures: they carry their own "About this template" commentary at the bottom, understood as not part of the example, so no figure is needed.)

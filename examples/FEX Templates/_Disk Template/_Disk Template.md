@@ -20,8 +20,6 @@ See `{{DISK_LABEL}} Manifest.md` in this folder for the full file listing.
 
 # LOG
 
----
-
 # About this template
 
 A **folder template** (worked example for [[FCT Template Folders]]). Each disk is a *folder*, not a single file, because a disk record carries more than one document — this main record plus a generated manifest. Clone the whole `_Disk Template/` folder → `{Disk Label}/`, rename the marker to `{Disk Label}.md`, and add the manifest as it is produced.

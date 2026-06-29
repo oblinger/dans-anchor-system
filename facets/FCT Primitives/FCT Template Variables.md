@@ -15,7 +15,7 @@ A **variable** is a bare `{{UPPER_SNAKE_CASE}}` token in the exemplar where live
 
 ## The Variables section — definition + no-data handling
 
-Below the `---` divider, a `## Variables` section carries **one bullet per distinct placeholder**, and each bullet states two things:
+Below the reserved `# About this template` marker (the end-of-exemplar boundary — see [[FCT Template Files]]), a `## Variables` section carries **one bullet per distinct placeholder**, and each bullet states two things:
 
 1. **What to put** — the meaning of the field.
 2. **What to do when there is no data** — fill it, **delete the line**, or **delete the whole section**.

@@ -1,11 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="470" height="196" viewBox="0 0 470 196" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="13">
-<rect x="0" y="0" width="470" height="196" rx="9" fill="#f8f9fb" stroke="#c9cde0" stroke-width="1.3"/>
-<text x="16" y="30" xml:space="preserve"><tspan font-weight="bold" fill="#7b2d52"># </tspan><tspan font-weight="bold" fill="#b5651d">{{HOSTNAME}}</tspan></text>
-<text x="16" y="50" xml:space="preserve"><tspan fill="#b5651d">{{ONE_LINE_ROLE}}</tspan></text>
-<text x="16" y="70" xml:space="preserve"><tspan fill="#2d5b7b">## Specs</tspan></text>
-<text x="16" y="90" xml:space="preserve"><tspan fill="#1a1a2e">- CPU: </tspan><tspan fill="#b5651d">{{CPU}}</tspan><tspan fill="#1a1a2e">   - OS: </tspan><tspan fill="#b5651d">{{OS}}</tspan></text>
-<text x="16" y="110" xml:space="preserve"><tspan fill="#2d5b7b"># LOG</tspan></text>
-<text x="16" y="130" xml:space="preserve"><tspan fill="#9aa0b4">———————————  divider  ———————————</tspan></text>
-<text x="16" y="150" xml:space="preserve"><tspan fill="#2d5b7b">## Variables</tspan></text>
-<text x="16" y="170" xml:space="preserve"><tspan fill="#1a1a2e">- </tspan><tspan fill="#b5651d">{{CPU}}</tspan><tspan fill="#1a1a2e"> — fill, or delete the line if unknown</tspan></text>
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="272" viewBox="0 0 500 272" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="13">
+<rect x="0" y="0" width="500" height="272" rx="9" fill="#f8f9fb" stroke="#c9cde0" stroke-width="1.3"/>
+<text x="16" y="28" xml:space="preserve"><tspan font-weight="bold" fill="#7b2d52"># </tspan><tspan font-weight="bold" fill="#b5651d">{{HOSTNAME}}</tspan></text>
+<text x="16" y="48" xml:space="preserve"><tspan fill="#b5651d">{{ROLE}}</tspan><tspan fill="#9aa0b4">      (1–3 sentences, may span lines)</tspan></text>
+<text x="16" y="68" xml:space="preserve"><tspan fill="#1a1a2e">**Acquired:** </tspan><tspan fill="#b5651d">{{PURCHASE_DATE}}</tspan><tspan fill="#1a1a2e">  **Spec rev:** </tspan><tspan fill="#b5651d">{{SPEC_VERSION}}</tspan></text>
+<text x="16" y="88" xml:space="preserve"><tspan fill="#2d5b7b">## Specs</tspan></text>
+<text x="16" y="108" xml:space="preserve"><tspan fill="#1a1a2e">- **CPU:** </tspan><tspan fill="#b5651d">{{CPU}}</tspan></text>
+<text x="16" y="128" xml:space="preserve"><tspan fill="#1a1a2e">- **OS:** </tspan><tspan fill="#b5651d">{{OS}}</tspan></text>
+<text x="16" y="148" xml:space="preserve"><tspan fill="#2d5b7b"># LOG</tspan><tspan fill="#9aa0b4">      (cumulative — empty at creation)</tspan></text>
+<text x="16" y="176" xml:space="preserve"><tspan font-weight="bold" fill="#7b2d52"># About this template</tspan><tspan fill="#9aa0b4">   ← end of exemplar</tspan></text>
+<text x="16" y="196" xml:space="preserve"><tspan fill="#5a6072">specs in alphabetical order; values as-of purchase date</tspan></text>
+<text x="16" y="220" xml:space="preserve"><tspan fill="#2d5b7b">## Variables</tspan></text>
+<text x="16" y="240" xml:space="preserve"><tspan fill="#1a1a2e">- </tspan><tspan fill="#b5651d">{{PURCHASE_DATE}}</tspan><tspan fill="#1a1a2e"> — date YYYY-MM; delete if unknown</tspan></text>
+<text x="16" y="260" xml:space="preserve"><tspan fill="#9aa0b4">… one bullet per placeholder (see the full example)</tspan></text>
 </svg>
