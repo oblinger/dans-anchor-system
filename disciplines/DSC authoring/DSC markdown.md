@@ -156,135 +156,90 @@ If a rule is universal (applies to every Log, every PRD, every Testing doc), it 
 
 # RULESET R-markdown
 include::
-where:: file:*.md
+where:: `**/*.md`
 description:: Mechanical + authoring rules for every markdown document; cited by every facet and skill that produces markdown.
 
-Embedded ruleset for the markdown discipline. Adoption is implicit — every markdown doc in the vault is subject to these rules, no explicit `include::` needed in `{NAME} Decisions.md`. (The catalog still lists R-markdown as a child of R-facet umbrella for completeness.)
+Embedded ruleset for the markdown discipline. Adoption is implicit — every markdown doc in the vault is subject to these rules, no explicit include:: needed in {NAME} Decisions.md. (The catalog still lists R-markdown as a child of the R-facet umbrella for completeness.) The rules are written in the [[Warden Semantics|Warden]] language: a `description::` of what the rule means, a `where::` / `when::` / `if::` condition, and a body that is either a bare-prose **tell** or backticked Python. Checks reusable across rules call shared `md.*` helpers (the markdown-checker library these rules ship with).
 
-### RULE R-markdown-01 — Escape pipes inside wiki-links inside tables (checked)
-check:: md_table_pipe_escape
-fix:: md_table_pipe_escape
-
-A wiki-link inside a markdown table cell uses `\|` to escape the alias pipe: `[[Target\|alias]]`. Unescaped `|` terminates the cell early.
-
-**Check pattern:** parse markdown tables; for each cell, find `[[…|…]]` patterns; assert the `|` is escaped as `\|`.
+### RULE R-markdown-01 — Escape pipes inside wiki-links inside tables
+description:: A wiki-link in a table cell escapes its alias pipe — [[Target\|alias]] — so the cell doesn't terminate early.
+when:: write:markdown
+if:: `md.unescaped_table_pipe(file)`
+A wiki-link in a table cell has an unescaped `|` — write it `\|` so the cell keeps its column count.
 
 **Why:** the table breaks visibly — column counts go wrong, content disappears.
 
-### RULE R-markdown-02 — Tables have blank line before and after (checked)
-check:: md_table_blank_lines
-fix:: md_table_blank_lines
+### RULE R-markdown-02 — Tables have blank line before and after
+description:: A markdown table is preceded and followed by a blank line so Obsidian renders it.
+when:: write:markdown
+if:: `md.table_missing_blank_line(file)`
+A table is touching the line above or below it — add a blank line on each side so Obsidian doesn't merge it into the surrounding paragraph.
 
-A markdown table is preceded and followed by a blank line.
+### RULE R-markdown-03 — No wiki-links or headings inside fenced code blocks
+description:: A fenced block holding renderable markdown ([[links]], headings, tables) the reader expects to click is a smell.
+if:: `md.fence_holds_renderable_markdown(file)`
+A fenced code block contains a `[[wiki-link]]`, heading, or table the reader would expect to click or navigate — they render as inert literal text. If you're quoting syntax for illustration, use single backticks; if the reader should click it, move it outside the fence.
 
-**Check pattern:** for each `^|.*|$` line that starts a table, assert the previous non-blank line is at least 2 lines back (i.e., a blank line intervenes). Symmetric for the last row.
+**Why:** a link-shaped string with no link is worse than no string at all.
 
-**Why:** Obsidian sometimes silently merges tables into surrounding paragraphs without the spacing.
+### RULE R-markdown-04 — References to vault documents use wiki-links, not backticks
+description:: A reference to a vault doc / anchor / page is a [[wiki-link]]; backticks are reserved for code identifiers.
+if:: `re.search(r'`[^`]+\.md`', file.text) or re.search(r'`[A-Z]{2,5} [A-Z][a-z]', file.text)`
+A backtick-wrapped string looks like a reference to a vault document. If a reader could open it in Obsidian, make it a [[wiki-link]] — backticks are for code identifiers (source paths, function names, CLI flags, config keys), which rot silently when used for vault references.
 
-### RULE R-markdown-03 — No wiki-links or headings inside fenced code blocks (sampled)
+### RULE R-markdown-05 — Em-dash is `—` (U+2014), not `--`
+description:: Named lists and prose use the em-dash character; double-hyphen does not auto-convert in Obsidian.
+when:: write:markdown
+if:: `re.search(r'^- \*\*[^*]+\*\*\s+--\s', file.text, re.M)`
+A named-list bullet uses `--` where it wants an em-dash — replace it with ` — ` so the bullet reads right in Obsidian's reading view.
 
-Fenced code blocks (``` ``` ```) should not contain renderable markdown elements (`[[wiki-links]]`, `#` headings, `|` table rows) that the reader expects to click or navigate. If quoting wiki-link syntax for illustration, use single backticks: `` `[[Target|alias]]` ``.
+### RULE R-markdown-06 — Dataview inline fields have no `::` in the value
+description:: For any key:: value line, the value carries no further :: token, which would collide with the Dataview parser.
+when:: write:markdown
+if:: `re.search(r'^[a-z][a-z0-9_-]*::[^\n]*::', file.text, re.M)`
+A `key:: value` inline field has a second `::` in its value — Dataview will misparse it (the value truncates or the next field is eaten). Move any mention of a field name into a regular paragraph below the field line.
 
-**Check pattern:** for each fenced code block, grep for `[[`, `^#+\s+`, or `^|.*|$` rows; flag for review (heuristic — some uses are intentional).
+### RULE R-markdown-07 — Body-only preferred for vault docs
+description:: Vault docs are body-only with description:: inline as the second line; YAML frontmatter is reserved for SKILL.md.
+if:: `file.text.startswith('---') and file.name != 'SKILL.md'`
+This vault doc opens with YAML frontmatter — prefer the body-only form with a visible `description::` inline as the second non-blank line. Frontmatter is invisible in Obsidian read view and drifts silently; only SKILL.md (read by Claude Code) needs it.
 
-**Why:** they don't render; the reader sees literal `[[Target|alias]]` and can't click. A link-shaped string with no link is worse than no string at all.
+### RULE R-markdown-08 — Wiki-link form for code identifiers is forbidden
+description:: Source paths, function names, CLI commands, and config keys go in backticks, never wiki-links.
+if:: `any(re.search(r'\.(py|rs|js|ts|sh)$|^/|\(\)', l) for l in file.links)`
+A `[[wiki-link]]` names a code identifier (a source path, a function, a CLI command) — that fabricates a link and pollutes the vault graph. Put code identifiers in backticks; keep wiki-links for vault-internal navigation.
 
-### RULE R-markdown-04 — References to vault documents use wiki-links, not backticks (sampled)
+### RULE R-markdown-09 — Named list format for naming-natured content
+description:: A list of named things uses the bolded-handle + em-dash + single-line-description form; procedural lists are exempt.
+The lists in this doc whose items are *named things* (each has a recognizable handle or concept name) should use the named-list form — a bolded 2–3 word handle, an em-dash, then a one-line description. Plain procedural lists ("first X, then Y") are exempt. Point out any naming-natured list that isn't in this form.
 
-If a reference points to a markdown doc, anchor, or vault-internal page, it is a `[[wiki-link]]`. Backticks are reserved for code identifiers (source file paths, function names, CLI flags, config keys).
+### RULE R-markdown-10 — Per-anchor docs don't restate facet-level rules
+description:: A per-anchor doc does not restate rules that live in a facet spec; the facet is the single source of truth.
+where:: `{ANCHOR}/**/{NAME} *.md`
+This per-anchor doc looks like it restates universal format rules that belong in a facet (a Log's format rules live in [[FCT Log]], a PRD's in [[FCT PRD]]) — restated rules drift when the facet evolves. Drop the restatement and rely on the facet's embedded ruleset.
 
-**Check pattern:** grep for backtick-wrapped strings matching common doc-name shapes (`PRD\.md`, ` Log\.md`, `[A-Z]{2,5} `); flag for review.
+### RULE R-markdown-11 — Never put markdown inside a fenced code block
+description:: A fence meant to show rendered markdown ([[links]], headings, tables) defeats itself; show live markdown or link a real instance.
+if:: `md.fence_shows_rendered_markdown(file)`
+A fenced code block (unlabeled or `markdown`/`md`-tagged) contains markdown meant to be *read as markdown* — `[[wiki-links]]` go inert and headings, tables, and emphasis don't render. Show the example as **live markdown** (its own `# H1`, with commentary BEFORE it so it can't bleed in) or link a real worked instance. Language-tagged fences (`python`, `bash`, `json`, …) are literal source and are not flagged.
 
-**Why:** wiki-links resolve, survive renames, and participate in the link graph; backtick references rot silently. Conversely, wiki-linking code identifiers creates fake links and pollutes the graph.
+**Why:** the whole point of an example is to show the *rendered* form. The user has corrected this repeatedly; it is absolute.
 
-### RULE R-markdown-05 — Em-dash is `—` (U+2014), not `--` (checked)
-check:: md_em_dash
-fix:: md_em_dash
+### RULE R-markdown-12 — Figures are embedded images; never mermaid, never text-based diagrams
+description:: A figure is an exported image embedded with a width hint; mermaid blocks and ASCII box-art are forbidden.
+if:: `md.mermaid_or_ascii_diagram(file)`
+This doc draws a diagram as a `mermaid` block or ASCII box-art (`┌ ─ │ └ → ╮` runs, `+---+` character art used as a figure). A figure must be a real editable artifact — an Excalidraw / D2 / matplotlib export embedded with a page-fill width hint (`![[name.svg|2400]]`), source kept alongside. Redraw it that way.
 
-Named lists and prose use the em-dash character. Double-hyphen `--` doesn't auto-convert in Obsidian.
+### RULE R-markdown-13 — No stray `<tag>`-like angle brackets
+description:: A bare <identifier> glued to a tag-name character is parsed as an unknown HTML element and eats text up to the next >.
+if:: `md.stray_angle_tag(file)`
+A stray `<identifier>` (a `<` glued to a tag-name character, e.g. `<Name>` or `List<int>`) is read as an unknown HTML element and silently eats the text up to the next `>`. Fix it with intent — backtick it, escape as `&lt;`/`&gt;`, add spaces (`a < b`), or restructure. Inline code, real HTML constructs, and whitespace-surrounded comparisons are fine; `.html` files are skipped.
 
-**Check pattern:** for named-list bullets, expect the descriptor + ` — ` + body shape; flag bullets matching `^- \*\*[^*]+\*\*: ` or `^- \*\*[^*]+\*\*\s+--\s+`.
-
-**Why:** consistency; the em-dash signals a named-list bullet visually.
-
-### RULE R-markdown-06 — Dataview inline fields have no `::` in the value (checked)
-check:: regex_absent ^[a-z][a-z0-9_-]*::[^\n]*::[^\n]*$
-
-For any `^<key>:: <value>` line, the value contains no `::` tokens (which would collide with the Dataview parser).
-
-**Check pattern:** for each `^[a-z][a-z0-9_-]*::` line, assert the rest of the line has no `::`.
-
-**Why:** Dataview misparses on collision; the field value gets truncated or the next field gets eaten.
-
-### RULE R-markdown-07 — Body-only preferred for vault docs (stated)
-
-Vault docs are body-only with `description::` inline as the second non-blank line. YAML frontmatter is reserved for skill SKILL.md files (where Claude Code reads it).
-
-**Check pattern:** for each vault doc, first non-blank line starts with `#`; no `---` block precedes. Skill SKILL.md files exempt.
-
-**Why:** frontmatter is invisible in Obsidian read view; the description belongs visible.
-
-### RULE R-markdown-08 — Wiki-link form for code identifiers is forbidden (sampled)
-
-Source file paths, function names, CLI commands, config keys go in backticks, not wiki-links. The vault link graph is for vault-internal navigation.
-
-**Check pattern:** flag `[[...]]` patterns whose name matches code-identifier shapes (`.*\.(py|rs|js|ts|sh)$`, leading `/`, contains `::` or `()`).
-
-**Why:** fake wiki-links pollute the link graph and unresolved-link reports; backticks are the right vehicle for code references.
-
-### RULE R-markdown-09 — Named list format for naming-natured content (stated)
-
-A list whose items are *named things* uses the bolded-handle + em-dash + single-line description format. Unstructured procedural lists are exempt.
-
-**Check pattern:** heuristic — for bullets matching `^- [A-Z]`, suggest named-list form unless the bullet reads as a step.
-
-**Why:** named lists are visually scannable; the reader's eye anchors on the bolded handle.
-
-### RULE R-markdown-10 — Per-anchor docs don't restate facet-level rules (stated)
-
-A per-anchor doc (e.g., `Disk Log.md`, `MUX PRD.md`) does NOT include a section restating rules that live in the facet spec (e.g., the Log format rules belong in [[FCT Log]], not in every Log file's body or Brief).
-
-**Check pattern:** for any per-anchor doc, grep for `# BRIEF`, `## Convention`, `## Rules`, `## Format`; flag for review if the body contains general format prescriptions.
-
-**Why:** restated rules drift when the facet evolves; the facet is the single source of truth.
-
-### RULE R-markdown-11 — Never put markdown inside a fenced code block (checked)
-check:: md_fence_no_markdown
-
-A fenced code block (triple backticks) must NEVER contain markdown intended to be read *as* markdown — `[[wiki-links]]` go inert, and headings, tables, and emphasis do not render. To show what a markdown document looks like, write it as **live markdown** — its own frontmatter and `# H1`, with any commentary placed BEFORE the example's frontmatter so it can't bleed into the example — or link to a real worked instance. Fenced blocks are reserved for literal **non-markdown** content: shell, code, JSON, `key: value` data files, file trees.
-
-**Language-tagged code fences are exempt.** The rule targets fences that are *meant to show rendered markdown* — those are unlabeled ` ``` ` fences or ` ```markdown ` / ` ```md ` fences. A fence carrying a code-language tag (` ```python `, ` ```bash `, ` ```json `, ` ```yaml `, …) is literal source and is **not checked**: its body legitimately contains `[[` (e.g. a regex) or `#` (a comment), and flagging those is a false positive.
-
-**Check pattern:** scan fenced blocks whose info-string is empty or `markdown`/`md`; flag any whose body contains `[[wiki-links]]`, `#`/`##` headings, or pipe-tables that are meant to render. Skip fences with any other language tag (literal code).
-
-**Why:** the whole point of an example is to show the *rendered* form — a fence defeats that (links aren't clickable, structure doesn't render). The user has corrected this repeatedly; it is an absolute rule.
-
-### RULE R-markdown-12 — Figures are embedded images; never mermaid, never text-based diagrams (checked)
-
-A figure is an **embedded image** — an Excalidraw / matplotlib / D2 artifact exported to SVG/PNG and embedded with a page-fill width hint (`![[name.svg|2400]]` — never bare, which renders tiny; see [[FCT Architecture]] § Architecture diagram requirements), with its editable source kept alongside (same basename). **Never use `mermaid` code blocks, and never draw text-based / ASCII figures** (boxes-and-arrows built from characters, pipe-and-dash "diagrams"). This is absolute.
-
-**Check pattern:** flag any ```` ```mermaid ```` fenced block; flag fenced blocks whose body is box-drawing / ASCII-diagram content (`┌ ─ │ └ ├ → ╮` runs, or `+---+` / character-art used as a diagram rather than a literal data table or file tree).
-
-**Why:** a figure must be a real, editable, consistently-rendering artifact; mermaid and ASCII are neither — they render inconsistently across surfaces, can't be edited as diagrams, and read as broken. Diagrams use the Excalidraw-source-alongside-export convention.
-
-### RULE R-markdown-13 — No stray `<tag>`-like angle brackets (checked)
-check:: md_angle_brackets_html_or_spaced
-
-An angle bracket is allowed when it is **(a)** inside an inline code span or fenced code block, **(b)** part of a valid HTML construct — an HTML comment `<!-- … -->` or a curated inline tag (`<br>`, `<hr>`, `<ins>`, `<del>`, `<sub>`, `<sup>`, `<kbd>`, `<mark>`, `<u>`, `<wbr>`, `<s>`, `<q>`, `<abbr>`, `<cite>`), or **(c)** a comparison/operator with whitespace on the inner side (`a < b`). What it forbids is a stray **`<identifier>`** — a `<` glued to a tag-name character — which the viewer parses as an unknown HTML element and silently eats the text up to the next `>`. LLMs emit these constantly for placeholders and generics (`<Name>`, `List<int>`). `.html` / `.htm` files are real HTML and are skipped. The right fix needs judgment (backtick, escape `&lt;`/`&gt;`, add spaces, or restructure), so this rule **flags** — it carries no `fix::`.
-
-**Check pattern:** mask code spans / fences, HTML comments, the curated inline tags, and leading blockquote / callout `>`; then flag any surviving `<` immediately followed by `[A-Za-z!/]` (a tag-like opener).
-
-**Why:** a `<word>` construct is read as an HTML tag and dropped, eating the text up to the next `>` — the actual breakage. Valid HTML and whitespace-surrounded comparisons render fine, so only the glued tag-like form is dangerous; flag so the agent fixes with intent.
-
-### RULE R-markdown-14 — No trailing whitespace (checked)
-check:: md_trailing_ws
-fix:: md_trailing_ws
-
-A line must not end in spaces or tabs. Pure normalization — auto-fixed, since stripping trailing whitespace never removes content.
-
-**Check pattern:** any line where `line != line.rstrip()`.
-
-**Why:** trailing whitespace is invisible noise that pollutes diffs and can create accidental hard-breaks; safe to strip mechanically.
+### RULE R-markdown-14 — No trailing whitespace
+description:: A line must not end in spaces or tabs; stripping trailing whitespace never removes content, so it is safe to normalize.
+when:: write:markdown
+if:: `any(l != l.rstrip() for l in file.lines)`
+A line ends in trailing whitespace — invisible noise that pollutes diffs and can create accidental hard-breaks. Strip it.
 
 # BRIEF
 - **Markdown is a discipline, not a document facet — settled, do not re-litigate.** A `FCT Markdown` facet was created and reverted 2026-06-14. The discriminator: a *document facet* is a pointable structural part of a doc (Brief, Discussion, Ruleset, the ToC table) or the umbrella skeleton ([[FCT Doc Structure]]); markdown is uniform text-correctness applied to *every line, every time*, which is the definition of a discipline. Specializing into structure → facet; staying text-rules-everywhere → discipline. Markdown never becomes structural, so it lives here only.
