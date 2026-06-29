@@ -11,7 +11,7 @@ The unified anchor-property model: an Aspect is any named property an anchor car
 An **Aspect** is any named property an anchor carries. Aspects come in two sub-categories, distinguished by *what they describe*:
 
 - **Trait** — a **broad paradigm / intended usage** of the anchor, independent of any specific file or folder. Declared explicitly in the anchor's `traits:` list. Examples: `Code` (this is a code project), `Publishable` (this anchor is intended for the public website), `Skill` (this anchor is a Claude skill).
-- **Facet** — a **narrow, specific aspect** of the anchor, almost always tied to one or more files. Defined by its spec under `CAB/CAB Facets/<Name>.md`; detection is whatever the spec says (usually file-existence). Examples: `Backlog` (a `<NAME> Backlog.md` file), `Architecture`, `Website Subfolder` (the specific folder to deploy).
+- **Facet** — a **narrow, specific aspect** of the anchor, almost always tied to one or more files. Defined by its spec under `facets/FCT <Name>.md`; detection is whatever the spec says (usually file-existence). Examples: `Backlog` (a `<NAME> Backlog.md` file), `Architecture`, `Website Subfolder` (the specific folder to deploy).
 
 Use **"Aspect"** only when discussing the umbrella; default to **"Trait"** or **"Facet"** when the specific sub-category is known. (User framing 2026-05-25: *"a facet is really just an aspect of an anchor."*)
 
@@ -32,7 +32,7 @@ A **Trait** declares a *paradigm* the author intends for the anchor — a way of
 - **Where declared.** `traits: [Code, Publishable]` in the anchor's `.anchor` frontmatter. The anchor page's dispatch table may render the Traits row for human readability, but the `.anchor` field is canonical.
 - **Detection.** Read `traits:`. Done — no file walks, no inference.
 - **Cardinality.** Inherently many — one anchor can carry multiple Traits (e.g., `Code + Skill`), subject to per-Trait Constraints (see below).
-- **Spec doc.** `ob-skills/traits/<Trait Name>.md`, with required sections covering: (a) what paradigm this Trait names, (b) what shape the anchor takes when it carries this Trait, (c) **Constraints**, (d) **Expected Usage**, (e) which skills/audits attach.
+- **Spec doc.** `ob-skills/traits/<Trait Name>.md` (e.g. [[Code]], [[Skill]], [[Track]]), with required sections covering: (a) what paradigm this Trait names, (b) what shape the anchor takes when it carries this Trait, (c) **Constraints**, (d) **Expected Usage**, (e) which skills/audits attach.
 - **Examples (current set, F090-pending expansion):** identity traits `Code`, `Topic`, `Skill`, `Paper`, `Simple`; capability trait `Track` (drive-loop / backlog lifecycle — see [[Track]]). New Traits anticipated: `Publishable`.
 
 **Why Traits are declared (not detected).** A Trait is *what the author intends the anchor to be*, not what the files happen to look like. Implicit detection would let the system disagree with the author's intent; the explicit `traits:` field eliminates that. Two anchors with identical file shapes can carry different Traits because the author meant different things.
@@ -43,7 +43,7 @@ A **Trait** declares a *paradigm* the author intends for the anchor — a way of
 
 A **Facet** describes a *specific structural feature* of the anchor — almost always tied to one or more files. "This anchor has a Backlog (`<NAME> Backlog.md`)." "This anchor has an Architecture folder." "This anchor has a website subfolder for GitHub deployment."
 
-- **Spec doc.** `CAB/CAB Facets/<Facet Name>.md`. The spec is authoritative for **six** things (the four mechanics + Constraints + Expected Usage):
+- **Spec doc.** `facets/FCT <Facet Name>.md`. The spec is authoritative for **six** things (the four mechanics + Constraints + Expected Usage):
   1. **Detection mechanism** — how the system decides whether this Facet is present on an anchor. Default: file-existence (most Facets work this way). Override: anything else (e.g., a `Composability` Facet might check capability requirements rather than files).
   2. **Cardinality** — `one` (one Backlog per anchor) or `many` (many Feature docs per anchor); the spec declares.
   3. **Format constraints** — filename pattern, frontmatter shape, body section requirements, naming rules.
@@ -95,7 +95,7 @@ Both are Aspects, but they describe different things:
 | | Trait | Facet |
 |---|---|---|
 | **What it describes** | Broad paradigm / intended usage of the anchor | Narrow specific aspect, usually tied to file(s) |
-| **Spec lives** | `ob-skills/traits/<Name>.md` | `CAB/CAB Facets/<Name>.md` |
+| **Spec lives** | `ob-skills/traits/<Name>.md` | `ob-skills/facets/FCT <Name>.md` |
 | **How presence is determined** | Read the `traits:` list (one rule) | Whatever the Facet's spec says (usually file-existence) |
 | **Author intent vs system inference** | Author-declared intent | System-detected feature |
 | **Typical examples** | `Code`, `Skill`, `Publishable`, `Paper` | `Backlog`, `Architecture`, `Interface`, `Website Subfolder` |
@@ -194,19 +194,9 @@ New Traits introduced later (e.g., `Publishable`) extend the matrix with new row
 
 The matrix is **enforceable** — `/audit aspects` (proposed; tracks under F090 Phase 6) walks every anchor, checks the declared `traits:` list against this matrix, and surfaces violations as backlog rows.
 
-## Migration history
-
-The Aspect / Trait / Facet model lands as part of [[F090 — Retire CAB Types, unify under Traits, Facets-as-Traits-by-file-existence]]. Pre-F090, CAB had three terms — Types, Traits (near-synonym for Types), Facets — with overlapping semantics. F090:
-
-- **Retires** "Type" terminology entirely.
-- **Keeps** "Trait" and "Facet" as sibling sub-categories, with sharpened semantics (broad paradigm vs narrow file-based aspect).
-- **Introduces** "Aspect" as the umbrella.
-- **Mandates** Constraints + Expected Usage sections on every Trait and Facet spec.
-- **Ships** the central composability matrix above (per F090 Q3 = (A)).
-
 # BRIEF
 
-- **This is the umbrella spec for the Aspect / Trait / Facet vocabulary** — the authoritative definition of what those three words mean, how they relate, and what every Trait/Facet spec must contain. Per-Trait and per-Facet specs live under `ob-skills/traits/<Name>.md` and `CAB/CAB Facets/<Name>.md`; this file is the model they all conform to.
+- **This is the umbrella spec for the Aspect / Trait / Facet vocabulary** — the authoritative definition of what those three words mean, how they relate, and what every Trait/Facet spec must contain. Per-Trait and per-Facet specs live under `ob-skills/traits/<Name>.md` and `ob-skills/facets/FCT <Name>.md`; this file is the model they all conform to.
 - **Do NOT inline per-Trait or per-Facet content here.** "What the Code trait means," "what the Backlog facet requires" — those belong in their own spec files. This page only carries the shared model (the six required sections, the Trait-vs-Facet distinction, the composability matrix).
 - **The inclusion test for content here:** does it apply to *every* Trait spec and *every* Facet spec equally? If yes (e.g., "every spec needs Constraints + Expected Usage"), it belongs here. If it's about one specific Aspect, it belongs in that Aspect's spec.
 - **The composability matrix is the single source of truth for legal Trait-vs-Trait combinations.** When a new Trait ships, add a row + column here AND mirror in the Trait's spec. Do not let the matrix drift from per-spec declarations — audits read both and flag divergence.

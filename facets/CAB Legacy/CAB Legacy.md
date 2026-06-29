@@ -22,7 +22,7 @@ The actionable map driving [[SKA Backlog#^F218|F218]] (CAB → FCT content migra
 | [[CAB Repository Structure]] | [[FCT Code Repository]] | ⚠ re-scoped → **needs placement** | 2026-06-29 — **NOT a clean supersede.** [[FCT Code Repository]] is scoped to the `code:` *association mechanism* and its inclusion test **excludes** repo-internal conventions (justfile shape, test layout). CAB Repository Structure's content (justfile standard-recipe list `SETUP/BUILD/TEST/LINT/CHECK/DOCS/…`, key-files catalog, `site/` gitignore) is a cross-project convention with **no FCT home** → needs a **net-new home** (a `DSC justfile` / repo-conventions discipline?). Content preserved; surfaced as a query. |
 | [[CAB Documentation Publishing]] | [[FCT Documentation Site]] | supersede | ✅ 2026-06-29 — fully covered by [[FCT Documentation Site]] (which is richer: canonical stack + two-tier + 3-output pattern); stray code-interface-style snippet routed to language disciplines; stub redirect pending F191 |
 | [[CAB Markdown Formatting]] | [[DSC markdown]] | supersede | ✅ 2026-06-29 — core already in [[DSC markdown]]; folded the `＃` (U+FF03) + figure-space (U+2007) mechanics into [[DSC markdown]] § Mechanical rules; file-tree/TOC forms → [[md]] skill; date-format/dated-sections → [[FCT Log]]/[[FCT Naming]]; stub redirect pending F191 |
-| [[CAB Aspects]] | **3 homes** (corrected) — facet-half→[[FCT Facet]]; trait-half+matrix→[[TRT]]; **umbrella stays** (library) | reconcile — **scoped + de-risked 2026-06-29**, plan below ↓ | 🔎 planned; ~68 inbound; ready to execute as a coordinated pass |
+| [[CAB Aspects]] | **library umbrella — keep WHOLE** (no split); relocation + de-CAB rename → [[SKA Backlog#^F191\|F191]] | keep — **resolved 2026-06-29**, note below ↓ | ✅ 2026-06-29 — confirmed canonical: [[FCT Facet]]/[[FCT Primitives]]/[[TRT]] + every git-aspect trait all *delegate to it* for the matrix + umbrella model; slimmed (dropped F090 migration-history; fixed dead `CAB/CAB Facets/` paths → `facets/FCT`); physical move/rename owned by F191 |
 | [[CAB Base]] | [[FCT Anchor]] | reconcile (file-tree skeleton; ~36 inbound) | |
 | [[CAB Dispatch Table Design]] | [[FCT Dispatch Table]] | reconcile (fold as design rationale) | |
 | [[CAB Docs Conventions]] | [[FCT Design Docs]] / [[FCT Track]] | reconcile (roadmap + deferral format) | |
@@ -42,19 +42,24 @@ The actionable map driving [[SKA Backlog#^F218|F218]] (CAB → FCT content migra
 
 **Companion features** (the rest of the "land everything in the new representation" set): branding retirement → [[SKA Backlog#^F191|F191]]; Decisions-record + skill-scaffold unification → [[SKA Backlog#^F221|F221]]; Template facet/discipline + placement sweep → [[SKA Backlog#^F220|F220]].
 
-## CAB Aspects reconcile — execution plan (scoped + de-risked 2026-06-29)
+## CAB Aspects reconcile — resolved 2026-06-29 (keep-whole library umbrella; do NOT split)
 
-**Why this row is different from the supersedes.** [[CAB Aspects]] is a **two-half umbrella doc** — the umbrella term *Aspect* over **Trait** (broad, declared in `traits:`) and **Facet** (narrow, file-detected). The modern system split those halves into **different homes**, so the original target ("→ FCT Facet + FCT Primitives") was wrong on two counts: [[FCT Primitives]] is only a thin router that *explicitly disclaims* "aspect" as a blueprint-level root living in the library, and the **trait half has no home in either** named target. Correct split is **three homes**.
+**The fresh-read overturn.** An earlier pass recorded a "3-home split" (facet-half→FCT Facet, matrix→TRT, umbrella→library). Reading the actual delegation links overturned it: [[CAB Aspects]] is **the canonical, deliberately-centralized umbrella** for the Aspect/Trait/Facet model + the composability matrix, and the rest of the subsystem **delegates *to* it**, not the reverse. Three explicit statements prove this:
 
-**Hazard cleared:** there is **no built `/audit aspects` script** (only `audit-q.py` exists), so CAB Aspects' "six required sections" / matrix-enforcement claims are aspirational — slimming the doc breaks **no live audit**. The Constraints/Expected-Usage *required→optional* change and the fixed-H2 *→ ruleset-knowable* change in [[FCT Facet]] are the **intentional, newer authority** (post-date F090); adopt them.
+1. **[[FCT Facet]]** `R-facet-spec-21` + BRIEF — *"does not duplicate … the composability matrix — it links [[CAB Aspects]]."*
+2. **[[TRT]]** BRIEF — *"Composability and exclusion rules are authoritative in [[CAB Aspects]]."*
+3. **[[FCT Primitives]]** Overview — *"the deeper roots — anchor and aspect — are blueprint-level concepts … so they **live in the library** (see [[CAB Aspects]])."*
 
-**Coordinated execution (do as one pass — touches the ~68-inbound center + ≥6 trait specs):**
-1. **Facet half → [[FCT Facet]]** (clean supersede; FCT Facet is a strict superset). Replace CAB Aspects' `## Facet` detail with a pointer.
-2. **Composability matrix (12×12 Trait×Trait) + trait conceptual content → [[TRT]].** Physically move the matrix + "why traits are declared not detected" argument into TRT; **repoint** the `[[CAB Aspects]] composability matrix` self-references in [[TRT]] (line ~25 + the add-a-trait recipe) and the matrix citations in [[PR]] / [[NoGit]] / [[Push]] / [[Commit]] / [[Track]].
-3. **Aspect umbrella stays as the library doc** (the term + the `Aspect ├ Trait └ Facet` tree + Constraints/Expected-Usage *contract* + anti-patterns) — per [[FCT Primitives]]' own statement that aspect lives in the library. **Keep it** (slimmed to umbrella-only) rather than retire, so the ~68 inbound + the [[FCT Facet]]/[[FCT Primitives]] delegations stay valid. De-CAB rename is **F191's** job, not this.
-4. Drop the F090 migration-history block (historical; no live home).
+Splitting the doc would **hollow out the exact page ~14 files point at** and force ≥6 trait specs ([[PR]]/[[NoGit]]/[[Push]]/[[Commit]]/[[Track]]/[[TRT]]) to repoint their matrix citations *away* from the center — the opposite of consolidation. So the matrix and facet-half **stay put**; the delegating specs already say so.
 
-**Net:** this row is **keep-and-slim**, not stub-and-retire — the only "supersede" piece is the facet half (step 1). Translation latitude per the F218 user direction covers steps 1–4; no open user question remains.
+**Hazard (recorded earlier, still cleared):** no built `/audit aspects` script exists (only `audit-q.py`), so the doc's matrix-enforcement / "six required sections" language is aspirational — editing it breaks no live audit.
+
+**F218 action (done this pass — keep-and-slim, no relocation):**
+1. **Kept whole** as the library umbrella (term + `Aspect ├ Trait └ Facet` tree + Constraints/Expected-Usage contract + the 12×12 composability matrix + anti-patterns + Triggers).
+2. **Dropped** the `## Migration history` (F090) block — historical, no live home.
+3. **Fixed** dead CAB-era paths inside it (`CAB/CAB Facets/<Name>.md` → `facets/FCT <Name>.md`).
+
+**Owned by [[SKA Backlog#^F191|F191]] (not F218):** the physical relocation `facets/CAB Legacy/` → `library/`, the de-CAB **rename**, and the vault-wide `[[CAB Aspects]]` inbound-link sweep (~68 refs) — these are one atomic branding pass, wrong to do piecemeal for a single doc. No open user question remains.
 
 
 Until the user decides, treat the contents here as **frozen**. The `CAB/CAB Track/` backlog has already been migrated: its one substantive item (legacy anchor-root page migration) became SKA **F217**; the `B-QFix` audit residuals were reconciled into SKA's own `B-QFix` (CAE/CSE-targeted residuals dropped as their targets were relocated).
