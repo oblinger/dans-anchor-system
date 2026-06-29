@@ -107,10 +107,9 @@ The **interpretation environment** is the Python scope a rule is *interpreted* i
 | **`git`** | `.branch`, `.mode`, `.is_dirty`, `.ahead` |
 | **`event`** | `.kind`, `.diff`, `.command`, `.tool` |
 | *ambient* | `today`, `now` (+ plain Python: builtins, `re`, `json`, `datetime`) |
-| *verbs* | `tell(msg)`, `deny(reason)`, `ask_oracle(prompt)→str`, and `file.…` (edits — under File) |
+| *verbs* | `tell(msg)`, `deny(reason)`, the `file` edits (`set_frontmatter`, …), `ask_oracle(prompt)→str` — § Verbs |
 
-(Delete this?  it is explained below right?)
-`file` / `anchor` / `event` are the three things the rule **matched on** (`where::` → `file`, the adopting anchor → `anchor`, `when::` → `event`); `git` is **derived** (the subject's repo). None take a `ctx.` prefix — they are aliased in directly.
+None of `file` / `anchor` / `git` / `event` take a `ctx.` prefix — they are aliased into the scope directly.
 
 ### `file`
 
@@ -125,7 +124,7 @@ Binds to the matched file (from `where::`, or a file-bearing moment like `write:
 | `file.section("## X")`, `file.sections(level=N)` | one section, the sections |
 | `file.links` | the wiki / markdown links |
 
-**Edit methods** (the `edit` action, floor-gated): `file.set_frontmatter(k, v)`, `file.replace_section(h, text)`, … each writes back to the file. (These are the `file.…` in the verbs row.)
+(`file`'s **edit** operations — `set_frontmatter`, `replace_section`, … — are *actions*, listed under § Verbs.)
 
 ### `anchor`
 
@@ -158,9 +157,24 @@ The moment (from `when::`; **live runs only** — absent under `/audit`):
 | `event.command` | the pending / just-run command (Bash moments) |
 | `event.tool` | the tool name + input (tool moments) |
 
-### Verbs and ambient
+### Verbs
 
-`tell(msg)` and `deny(reason)` are bare in scope; the `edit` action is methods on `file` (above). `ask_oracle(prompt) → str` hands a fresh **oracle** (a separate, context-less helper LLM) a prompt and returns its text — merge any material into the prompt yourself (`f'…{file.section(…)}'`). Ambient: `today` (current date, ISO-serializing), `now` (current datetime), plus plain-Python builtins and a stdlib subset (`re`, `json`, `datetime`); reachable stdlib is bounded by the sandbox (same trust question as `run`).
+The callable operations — the actions a body emits (`tell` / `edit` / `deny`), plus the `ask_oracle` reader:
+
+| Call | What it does |
+|---|---|
+| `tell(msg)` | steer the agent (live) / file a finding (audit) |
+| `deny(reason)` | block the pending tool — `tool:pre` only |
+| `file.set_frontmatter(k, v)` | **edit** — set a frontmatter key (never-delete floored) |
+| `file.replace_section(h, text)` | **edit** — replace a section's body (never-delete floored) |
+| `ask_oracle(prompt) → str` | ask a fresh **oracle** (a context-less helper LLM); returns its text — merge material into the prompt yourself |
+
+### Ambient
+
+| Name | What it is |
+|---|---|
+| `today`, `now` | current date (ISO-serializing on write), current datetime |
+| Python | builtins + a stdlib subset (`re`, `json`, `datetime`); the reachable set is bounded by the sandbox (same trust question as `run`) |
 
 **How `ask_oracle` executes.** A hook is a synchronous subprocess and cannot block-and-await the agent's model, so `ask_oracle` spawns a **separate headless oracle** that sees only the prompt and returns a string. On the **audit path** (not latency-bound) the pipeline blocks on it and parses the answer — its home. On the **live path** (the ms-budget hot hook) it cannot block, so a live judgment is **delegated to the agent as a steer** instead. (Mechanism: [[Warden Architecture]] §7.)
 
