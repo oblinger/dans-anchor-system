@@ -9,7 +9,6 @@ description: "how the engine runs a rule — the condition, the actions, the run
 > - **The `edit` family** — define the method set (`set_frontmatter`, `replace_section`, …) and the never-delete floor it rides on.
 > - **`ask_oracle` + F215** — shape/vocabulary settled; one open question: whether F215's economy gate wants the prompt's *material* as a separate diffable arg (vs one merged prompt).
 > - **`git` when an anchor nests a code repo** — `git` follows the subject's repo now; may need an `anchor.repo` / `code.repo` split when both exist.
-> - **Live external-edit detection** — agent writes fire `write:*`; external edits (Obsidian, `git pull`) are only caught at the next `/audit`. A filesystem watcher would make them live — heavier, deferred; decide if any rule needs it.
 
 # Warden Semantics
 

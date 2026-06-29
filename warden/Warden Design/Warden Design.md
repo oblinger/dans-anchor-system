@@ -10,6 +10,7 @@ description: system design for the rule system — PRD, architecture, rule langu
 | [[Warden Rule]] | the rule language — the file format for a rule and a ruleset (sentinels, clauses, composition) |
 | [[Warden Semantics]] | how the engine runs a rule — the condition, the actions, the runnable interpretation environment, and ruleset activation |
 | [[Warden Events]] | the moment catalog a `when::` clause names — the tree, the grammar, the per-class events |
+| [[Warden Runtime]] | the efficiency commitments — how it tracks tool uses, file changes, and the agent, and runs checks without per-moment cost |
 | [[Warden Roadmap]] | the build sequence — design → compiler → Python ref → Rust perf → testing regime |
 | [[Warden Integration Strategy]] | what to adopt vs. build (prior art) + the dependency/repository policy |
 | [[Warden Survey]] | prior-art survey of existing rule/hook systems + recommended adaptation |

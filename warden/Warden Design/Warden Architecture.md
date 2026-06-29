@@ -259,7 +259,7 @@ This is the path the **performance budget** rides on — it instruments nearly e
 
 #### The committed design — a resident daemon + a tiny notifier
 
-The hot path is a **stateful resident Python daemon** plus a **non-Python notifier**:
+*(Full detail — the daemon, the pluggable OS-selected notifiers, dual-mode file tracking, agent tracking, the oracle, and the cost picture — is [[Warden Runtime]].)* The hot path is a **stateful resident Python daemon** plus a **non-Python notifier**:
 
 - **The daemon** is a long-running Python process holding the compiled, **indexed** rule set and **cached / lazy `ctx` state** in memory. Because it stays warm, evaluating a moment is a single pre-compiled function call over already-loaded rules — **sub-millisecond, and constant in total rule count**. It never pays interpreter startup. Its **lifecycle is the real complexity this buys**: it warm-starts lazily on the first hook (the first call pays the load+compile), **fails open** if it is down or still warming — never blocking the agent — and **recompiles** the affected index when a rule or `Decisions.md` changes (itself just a `write:*` moment it subscribes to).
 - **The notifier** is what Claude Code's hook actually spawns: a tiny **non-Python** signaler whose only job is to tell the daemon a moment occurred (and, for a `tool:pre` veto, get the verdict back). It must avoid Python's ~30–80 ms startup. Two forms, both fast:
