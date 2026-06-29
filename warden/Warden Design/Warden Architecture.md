@@ -39,7 +39,7 @@ A rule is a markdown **heading** whose first token is the all-caps `RULE` sentin
 | `description::` | a queryable one-liner | the rule's **meaning** — never sent on fire. |
 | condition | `where::` · `when::` · `if::` | which files · which moment · the Python test (§4–5). |
 | body | bare prose, or backticked Python | the **action** — prose *is* the `tell`; Python runs `tell` / `edit` / `deny` / `run` ([[Warden Semantics]]). |
-| `rerun::` · `**Why:**` · `**Exceptions:**` | optional | re-eval override · rationale · exceptions. |
+| `**Why:**` · `**Exceptions:**` | optional | rationale · exceptions. (Re-eval economy rides an `if::` over `file.diff`.) |
 
 The **identifier `R-<slug>-NN`** is permanent: `NN` zero-padded, two-digit, monotonic within the slug, never recycled. Cross-document references use the bare id (`see [[R-testing-04]]`).
 

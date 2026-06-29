@@ -101,7 +101,7 @@ The **interpretation environment** is the Python scope a rule is *interpreted* i
 
 | In scope | Accessors / calls |
 |---|---|
-| **`file`** | `.path`, `.name`, `.text`, `.lines`, `.title`, `.frontmatter`, `.section(h)`, `.sections(level)`, `.links` |
+| **`file`** | `.path`, `.name`, `.text`, `.lines`, `.title`, `.frontmatter`, `.section(h)`, `.sections(level)`, `.links`, `.diff` |
 | **`anchor`** | `.name`, `.slug`, `.root`, `.traits`, `.get(name)` |
 | **`git`** | `.branch`, `.mode`, `.is_dirty`, `.ahead`, `.changed` |
 | **`event`** | `.kind`, `.diff`, `.command`, `.tool` |
@@ -126,6 +126,7 @@ Binds to the matched file (from `where::`, or a file-bearing moment like `write:
 | `file.frontmatter` | the file's metadata — YAML block **and** Dataview `::` inline fields, merged |
 | `file.section("## X")`, `file.sections(level=N)` | one section, the sections |
 | `file.links` | the wiki / markdown links |
+| `file.diff` | the change **since this rule last evaluated** the file — `.lines` (count changed), `.text` (unified diff), `.added` / `.removed` (line lists); the whole file on first pass. (Distinct from `event.diff`, which is the *current* write.) |
 
 (`file`'s **edit** operations — `set_frontmatter`, `replace_section`, … — are *actions*, listed under § Verbs.)
 
@@ -222,21 +223,25 @@ for the anchor in scope:
 on trigger:  a when:: moment fires,  OR  /audit visits the anchor
   candidates = active rules whose where::/when:: INDEXES match    # cheap, no code
   for each candidate, for each file T it matches:
-    if a cached verdict for (rule, T) is fresh under rerun:::  reuse it
+    if a cached verdict for (rule, T) is fresh (content unchanged):  reuse it
     else:  evaluate if:: over file(T)  → findings (or false);  cache by (rule, hash(T)[, model])
     for each finding:  perform the action(s) — tell / edit / deny
 ```
 
-## Re-running an expensive test
+## Re-evaluating an expensive test
 
-An `if::` test that calls the oracle costs tokens, so its verdict is **cached by file-content-hash** and reused until the file changes. This re-evaluation policy is **automatic by body cost**: a cheap (Python/primitive) test re-runs on *any* change; an **expensive (LLM) test defaults to re-running only on a *significant* change** — re-judging on every keystroke is waste. `rerun::` is the explicit **override** for the rare case, not something you normally write.
+The LLM-judged **body is the costly thing** — it goes to the main (expensive) model; even an `ask_oracle` (Sonnet) costs tokens. So you don't re-judge on every keystroke. The verdict is **cached by file content**, and you throttle re-judging with an ordinary condition over the **change itself** — `file.diff` exposes what changed since this rule last evaluated the file:
 
-This is a *third* temporal axis, distinct from the condition: `when::` is *which moment*, `if::` is *whether it fires now*, re-evaluation is *recompute vs. reuse the cached verdict* — keyed to the rule's own last-pass cache, so it can't fold into `if` / `when` (significance is per-rule, not a property of the write). Conceptually it's the script-assisted gate (a cheap "significant?" check guarding the expensive judgment). ([[F215 — Re-evaluation economy — the significant-edit gate|F215]].)
+```
+if:: file.diff.lines > 5      # only (re)judge when the change is non-trivial
+```
+
+So "significant change" is **not a separate clause** — it is a normal `if::` over `file.diff`, in the same language as every other condition, and far cheaper than the body it guards (the script-assisted pattern, applied to the re-run decision). The engine reuses the cached verdict between significant changes, so a throttled rule's prior finding still stands; it re-judges only when the rule fires. (The precise verdict-persistence rule under audit is an open question — below. [[F215 — Re-evaluation economy — the significant-edit gate|F215]].)
 
 ## Open Questions
 
 1. **The `edit` family.** What is the full set of `file` edit methods (beyond `set_frontmatter` / `replace_section`), and how does the never-delete floor apply to each?
-2. **`ask_oracle` material (F215).** Does the re-evaluation economy gate want the prompt's *material* as a **separate, diffable argument** (so the engine can tell when only the question changed vs. the content), or is one merged prompt string enough?
+2. **Verdict persistence when throttled (F215).** When a `file.diff` gate suppresses an expensive *audit* rule (the change is sub-threshold), its prior **finding must persist** — the engine reuses the cached verdict rather than reading the silence as a pass (a still-present issue can't be cleared by a one-line edit elsewhere). What is the exact cache key + reuse rule? (Live steers have no such issue — emitting nothing on a small edit is correct.)
 3. **`git` in a nested repo.** When an anchor nests its own code repo (the vault repo *and* a project repo under one anchor), `git` follows the rule's subject — but does that need an explicit **`anchor.repo` / `code.repo`** split when both exist?
 
 ## See also

@@ -22,8 +22,9 @@ A rule is a markdown **heading** whose first token is the all-caps `RULE` sentin
 | `description::` | optional, encouraged | the rule's **meaning / goal** — a **queryable** Dataview field (hence one line) stating the rule's intent for anyone (human or LLM) *reading* it, per the North Star. **Not sent on rule fire**. Especially valuable when the body is Python. |
 | `where::` · `when::` · `if::` | the **condition** | which files · which moment · the test (§ The condition) |
 | **the body** | bare prose, or backticked Python | the **action** — bare prose *is* the `tell`; Python runs the verbs (`tell` / `edit` / `deny` / `sh` / `ask_oracle`). [[Warden Semantics]] § The actions. |
-| `rerun::` | optional **override** | re-evaluation economy — *automatic by body cost* (an expensive LLM body defaults to re-running only on a *significant* change; a cheap body re-runs on any change). `rerun::` overrides that default; you rarely write it. The cache/re-evaluation axis, distinct from `if`/`when` ([[F215 — Re-evaluation economy — the significant-edit gate\|F215]]). |
 | `**Why:**` · `**Exceptions:**` | optional | rationale / acknowledged exceptions — **freeform prose** (a bold marker, not a queryable `::` field), so they can run long. Not sent on fire. |
+
+Re-evaluation economy rides the condition: an expensive (LLM-judged) rule throttles re-judging with an ordinary `if::` over **`file.diff`** — `if:: file.diff.lines > 5` — gating the body on the size of the change ([[Warden Semantics]] § Re-evaluating an expensive test).
 
 ## The ruleset
 

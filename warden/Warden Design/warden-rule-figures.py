@@ -15,7 +15,7 @@ PAD = 16
 FONT = "ui-monospace, 'SF Mono', Menlo, Consolas, monospace"
 FSIZE = 13
 
-FIELD = re.compile(r"^(include|where|when|if|rerun|description|check)::")
+FIELD = re.compile(r"^(include|where|when|if|description)::")
 PYLINE = re.compile(r"^(```|def |    |\treturn)")
 BOLD = re.compile(r"\*\*(.+?)\*\*")
 
