@@ -41,7 +41,7 @@ One declarative rule language and one runtime:
 
 - A GUI for authoring rules (markdown + the `/rule` skill is the authoring surface).
 - Cross-anchor / vault-global rule *orchestration* beyond per-anchor active-set resolution.
-- **The `run` (arbitrary-effect) action — deferred** (see [[Warden Semantics]] § THEN). A rule is otherwise *readable guidance*, not arbitrary code; `run` breaks that — it's arbitrary execution, so adopting an *imported* rule would run its code on your moments (a supply-chain risk). If we add it, it needs a **security/trust model first** (sandboxing; effectful actions off for imported rules; explicit opt-in). v1 ships the mediated actions only (`tell` / `edit` / `deny`).
+- **The `run` (arbitrary-effect) action — deferred** (see [[Warden Semantics]] § The actions). A rule is otherwise *readable guidance*, not arbitrary code; `run` breaks that — it's arbitrary execution, so adopting an *imported* rule would run its code on your moments (a supply-chain risk). If we add it, it needs a **security/trust model first** (sandboxing; effectful actions off for imported rules; explicit opt-in). v1 ships the mediated actions only (`tell` / `edit` / `deny`).
 
 ## User Stories
 
