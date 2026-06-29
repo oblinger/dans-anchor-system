@@ -10,6 +10,8 @@ The Design folder facet — marks an anchor as following the designed-lifecycle 
 **Related:** [[FCT PRD]],  [[FCT Architecture]],  [[FCT Testing]],  [[FCT Design Dispatch\|Dispatch]]
 **Examples:** [[CAE Design\|minimal]],  [[HBR Design\|fuller]]
 
+**Linkage** — this facet's existence ⟺ the anchor has been architected by the [[architect]] skill; the two share one design folder, [[Architect Design]] (hosted on the behavioral core), reachable from either page per [[SKA Decisions]] D10.
+
 | Table of Contents |  |
 |---|---|
 | [[#Location]] |  |
