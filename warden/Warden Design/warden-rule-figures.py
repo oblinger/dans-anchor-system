@@ -176,7 +176,7 @@ RULES = {
 def render_annotated(lines, annots, out_path: Path):
     """annots: list of (start_idx, end_idx, label, color) — labeled brackets in a right gutter."""
     content_w = int(max((disp_len(l) for l in lines), default=10) * CHAR_W) + 2 * PAD
-    gutter = 168
+    gutter = 200
     width = content_w + gutter
     height = len(lines) * LINE_H + 2 * PAD
     parts = [
@@ -216,7 +216,7 @@ ANATOMY = [
 ANATOMY_ANNOTS = [
     (0, 0, "name", "#7b2d52"),
     (1, 3, "IF — condition", "#2d5b7b"),
-    (4, 4, "THEN — the tell (just prose)", "#2f7d4f"),
+    (4, 4, "THEN — the tell", "#2f7d4f"),
 ]
 
 here = Path(__file__).parent

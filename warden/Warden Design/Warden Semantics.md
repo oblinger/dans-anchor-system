@@ -19,20 +19,17 @@ How the Warden engine runs a rule. [[Warden Rule]] is the file format; this is t
 
 ![[Warden Rule Anatomy.svg]]
 
-| Clause | What it does |
-|---|---|
-| **Condition** | |
-| `where::` | which files it runs over — an anchor-relative glob (default `always`) |
-| `when::` | which moment triggers a **live** run — omit → *passive* (audit-time) |
-| `if::` | the test — a Python expression, or prose for a judgment |
-| | |
-| **Actions** | |
-| `tell` | say something to the agent — a steer (live) or a finding (audit) |
-| `edit` | write to a file (`file.set_frontmatter`, …) — never-delete floored |
-| `deny` | block the pending tool (`tool:pre` only) |
-| `run` | *(future)* arbitrary effects — deferred, pending a security model |
-
-A rule also has a **name** (`R-<slug>-NN`, [[Warden Rule]]) and an optional `rerun::` modifier (§ Re-running). A "check" is just an `if::` condition — there is no separate check / evaluator / tier concept.
+| Condition  | What it does                                                          |
+| ---------- | --------------------------------------------------------------------- |
+| `where::`  | which files it runs over — an anchor-relative glob (default `always`) |
+| `when::`   | which moment triggers a **live** run — omit → *passive* (audit-time)  |
+| `if::`     | the test — a Python expression, or prose for a judgment               |
+|            |                                                                       |
+| **Action** |                                                                       |
+| `tell`     | say something to the agent — a steer (live) or a finding (audit)      |
+| `edit`     | write to a file (`file.set_frontmatter`, …) — never-delete floored    |
+| `deny`     | block the pending tool (`tool:pre` only)                              |
+| `run`      | *(future)* arbitrary effects — deferred, pending a security model     |
 
 ## The condition — `where`, `when`, `if`
 
@@ -44,7 +41,18 @@ A path glob, resolved **relative to the anchor that adopts the rule**: `**/*.md`
 
 ### `when::` — which moment
 
-The moment that fires the rule **live** — a markdown write, a Bash `git commit`, a skill run, session start. Omit it and the rule is **passive**: it runs only when `/audit` visits its `where::` files. Taxonomy: [[Warden Trigger Taxonomy]].
+The moment that fires the rule **live**. Omit it and the rule is **passive**: it runs only when `/audit` visits its `where::` files. The moments:
+
+| Moment class | Moments (2nd level) | Fires on |
+|---|---|---|
+| `tool` — pre, post | `Bash`, `Write`, `Edit`, `Read`, `Glob`, `Grep`, `Task`, `WebFetch`, … | `PreToolUse` / `PostToolUse` |
+| `skill` — pre, post | any skill — `audit`, `query`, `crank`, … | skill enter / exit |
+| `session` | `start`, `compact`, `stop` | `SessionStart` / `Stop` |
+| `write`, `read` | `markdown`, `rust`, `python`, `json`, `svg` | `PostToolUse` (Write / Edit / Read) |
+| `git` | `commit`, `push`, `merge`, `pre-commit` | Bash-argv / git hook |
+| `prompt` | `submit`, `stop` | `UserPromptSubmit` / `Stop` |
+
+Read a row as a path — `tool` ⊃ `tool:post` ⊃ `tool:post:Bash` — and a shallow moment **prefix-matches** everything under it; `,` is OR (`when:: session:compact, git:commit`). Full grammar and per-class detail: [[Warden Trigger Taxonomy]].
 
 **What triggers each.** A live rule fires when its `when::` moment occurs (the hook). A passive rule fires only on an **`/audit` pass** — run manually, or wired to a moment (SessionStart, post-commit, a skill post-condition). Nothing watches the filesystem; a file changing on its own triggers nothing.
 
