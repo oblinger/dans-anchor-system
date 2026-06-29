@@ -5,7 +5,7 @@ description: "how the engine runs a rule — the condition, the actions, the run
 > [!todo] Open threads (everything here is in flux — park items so we don't forget)
 > - **Sync `Warden Rule`** (format spec) to this model — it still has `check::`/tiers, and defaults a clause-less rule to `where:: always` (now the **ambient** case).
 > - **Sync `Warden Architecture` §7** with the two-path `ask_oracle` mechanism (oracle on audit / steer on live).
-> - **`run` action** — trust/security model before it ships (deferred).
+> - **`run` / `sh` effect helper** — a convenience for arbitrary effects (it's just Python — same trust class as a skill, not a sandbox question); ship after the mediated three. Real policy work is *vetting imported rulesets* (effects off until vetted), argv-form shell to block injection.
 > - **The `edit` family** — define the method set (`set_frontmatter`, `replace_section`, …) and the never-delete floor it rides on.
 > - **`ask_oracle` + F215** — shape/vocabulary settled; one open question: whether F215's economy gate wants the prompt's *material* as a separate diffable arg (vs one merged prompt).
 > - **`git` when an anchor nests a code repo** — `git` follows the subject's repo now; may need an `anchor.repo` / `code.repo` split when both exist.
@@ -84,7 +84,7 @@ On a hit, the body performs zero or more actions. Three are **mediated** (Warden
 | **tell** | bare prose, or `tell(msg)` | say something to the agent — a problem or a directive | a **steer** in the agent's context (live) · a **finding** in the report (audit) |
 | **edit** | a method on `file` — `file.set_frontmatter(…)`, `file.replace_section(…)`, … | write to a file — repair, stamp metadata, append a log | the file(s) — never-delete floored |
 | **deny** | `deny(reason)` | block the pending action | the tool call — `tool:pre` only |
-| **run** *(future)* | the Python body, directly | arbitrary execution — commands, drive Warden / other agents | **deferred** — needs a security model first |
+| **run** *(future helper)* | the Python body, directly | arbitrary execution — shell, drive Warden / other agents | it's just Python — trusted like a skill; off for imported rules |
 
 **The body form.** A bare-prose body **is** the `tell` (no keyword). For anything more, the body is **Python, marked by backticks** — an inline `` `expr` `` for a one-liner, a bare ` ``` ` fence for several lines (no `python` tag). `file` / `anchor` / `git` / `event` and the verbs are in scope; no `def`. A `description::` field carries the rule's **meaning** — documentation, **never sent**; bare prose in body position is the `tell`; `message:: <text>` is sugar for a fixed `tell`; a *fix* is an `edit` that repairs a violation. **Emit nothing → the rule passed.**
 
@@ -92,9 +92,11 @@ On a hit, the body performs zero or more actions. Three are **mediated** (Warden
 
 **`tell` delivery.** Live, a `tell` is text the hook injects into the agent's context (the F180 steer); under audit it is a finding in the report. Calling `tell` **many times accumulates**: live, the messages are joined newline-separated into one steer block; under audit, each is a separate finding.
 
-**Mediated vs. unmediated.** `tell` / `edit` / `deny` are a closed, small set the body calls directly. `run` is arbitrary code execution (it can drive Warden or other agents) and is **deferred**.
+**Mediated vs. unmediated.** `tell` / `edit` / `deny` are a closed, small set the engine *applies* (the `edit` never-delete floor, the steer formatting) — conveniences, not a sandbox. Beyond them, the body is just Python (`run` — arbitrary effects); that's gated by trusting the rule's **source**, like a skill, not by the engine.
 
-> **Open — `run`'s trust model.** Your own rules are as trusted as your own scripts; an *imported* ruleset carrying effectful Python is a supply-chain risk (adopting it runs its code on your moments). Leaning: ship the mediated three first; add `run` only behind explicit trust, off for imported rules.
+> **`run` / arbitrary effects — the trust boundary is the *source*, same as a skill.** A Python rule body is real code: it can already do what Python does — exactly like a **skill**, which you also adopt and let run Python. So a rule is **no more or less dangerous than a skill**; the only question is whether you trust where it came from (your own rules are as trusted as your own scripts). The one asterisk is *exposure*, not capability: rules fire **automatically and pervasively**, are **adopted in bulk** (a whole facet's set), and **read like documentation** — so an *imported* effectful rule hides more easily and runs more often than a skill you deliberately invoke. Hence: **vet imported rulesets like you'd vet a skill**, and keep effectful operations off for imported rules until vetted. (The never-delete floor on mediated `edit`s is *accident*-safety, not a security wall — a real Python sandbox is leaky and not worth pretending.)
+>
+> **Shell is the canonical effect** — `sh(['git', 'add', file.path])`, a Python call (no new syntax; backtick is spent), **argv-form only** so interpolated `ctx` data can't inject. To merely *check* command-derived state, read a **data accessor** (`git.is_dirty`) instead — run once, cached, no subprocess per `if::`. (An expensive shell read in a condition parallels `ask_oracle`: fine on audit, can't-block on the live hot path.)
 
 ## The interpretation environment
 
@@ -174,7 +176,7 @@ The callable operations — the actions a body emits (`tell` / `edit` / `deny`),
 | Name | What it is |
 |---|---|
 | `today`, `now` | current date (ISO-serializing on write), current datetime |
-| Python | builtins + a stdlib subset (`re`, `json`, `datetime`); the reachable set is bounded by the sandbox (same trust question as `run`) |
+| Python | full Python — builtins + stdlib (`re`, `json`, `datetime`, …); it's real code, trusted like a skill (the hot-path interpreter may limit imports for *speed*, not security) |
 
 **How `ask_oracle` executes.** A hook is a synchronous subprocess and cannot block-and-await the agent's model, so `ask_oracle` spawns a **separate headless oracle** that sees only the prompt and returns a string. On the **audit path** (not latency-bound) the pipeline blocks on it and parses the answer — its home. On the **live path** (the ms-budget hot hook) it cannot block, so a live judgment is **delegated to the agent as a steer** instead. (Mechanism: [[Warden Architecture]] §7.)
 

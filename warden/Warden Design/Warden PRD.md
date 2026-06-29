@@ -41,7 +41,7 @@ One declarative rule language and one runtime:
 
 - A GUI for authoring rules (markdown + the `/rule` skill is the authoring surface).
 - Cross-anchor / vault-global rule *orchestration* beyond per-anchor active-set resolution.
-- **The `run` (arbitrary-effect) action — deferred** (see [[Warden Semantics]] § The actions). A rule is otherwise *readable guidance*, not arbitrary code; `run` breaks that — it's arbitrary execution, so adopting an *imported* rule would run its code on your moments (a supply-chain risk). If we add it, it needs a **security/trust model first** (sandboxing; effectful actions off for imported rules; explicit opt-in). v1 ships the mediated actions only (`tell` / `edit` / `deny`).
+- **A Python sandbox for rule bodies.** A Python rule body is **real code — the same trust class as a skill** (skills also run Python you adopt). So the trust boundary is the rule's *source*, not an engine sandbox (a real Python sandbox is leaky anyway). The asterisk is *exposure*: rules fire automatically, are adopted in bulk, and read like docs — so **imported rulesets get vetted like skills**, with effectful operations off until vetted. v1 ships the mediated conveniences (`tell` / `edit` / `deny`, the latter floor-gated); a `run` / `sh` effect helper is a later convenience, not a new threat class. (Detail: [[Warden Semantics]] § The actions.)
 
 ## User Stories
 
