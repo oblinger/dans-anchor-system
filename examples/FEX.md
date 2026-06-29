@@ -30,6 +30,7 @@ Two fictional worlds cover the anchor-page kinds and the facets. **Not 1:1** —
 | sub-anchor / sub-folder | [[HBR Ingest]] |
 | skill (`SKILL.md`) | [[FEX Snapshot\|Snapshot]] |
 | facet definition — the three kinds | [[FEX Manifest]] (single-file, one) / [[FEX Pin]] (single-file, many) / [[FEX Bundle]] (folder) |
+| [[FCT Template]] — the two kinds | [[_Computer Template]] (file template) / [[_Disk Template]] (folder template), under `FEX Templates/` |
 | discipline page | [[FEX Retention]] |
 | ruleset (`# RULESET`) | [[R-fex-manifest]] |
 | [[FCT Anchor Page]] | the anchor-page kinds above (skill / grouped / project / sub-folder) |
