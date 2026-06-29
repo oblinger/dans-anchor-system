@@ -1,5 +1,5 @@
 ---
-description: per-anchor master file for applied decisions — declares which rulesets the anchor adopts (top-of-file include::), maps each adopted rule to its anchor-specific implementation, and records D-numbered project-specific decisions with rationale.
+description: decisions are recorded where they belong — a `## Decisions` section (the recognizable label) in the design doc the decision is about, holding `### D<N>` records. A per-anchor `{NAME} Decisions.md` is OPTIONAL — the home for cross-cutting / value-statement decisions and ruleset adoption only. The "decision set" is a computed view over all `## Decisions` sections (a label, not an activation), never a mandatory single file.
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Decisions](hook://p/FCT%20Decisions)
@@ -9,31 +9,55 @@ description: per-anchor master file for applied decisions — declares which rul
 
 | Table of Contents |  |
 |---|---|
-| [[#Value statements (absorbed from the retired Principles facet)]] |  |
-| [[#Architecture (per 2026-06-08)]] |  |
-| [[#Two forms in the wild]] |  |
-| [[#File shape]] |  |
-| [[#Adoption implementation map]] |  |
-| [[#Required structure]] |  |
-| [[#How `include::` semantics differ between rulesets and decision files]] |  |
-| [[#When `{NAME} Rules.md` is still useful]] |  |
-| [[#Trait applicability]] |  |
-| [[#Audit]] |  |
-| [[#See also]] |  |
-| **[[#BRIEF]]** |  |
+| **[[#Where decisions live — distributed by default]]** |  |
+| **[[#Value statements (absorbed from the retired Principles facet)]]** |  |
+| **[[#Architecture (per 2026-06-08)]]** |  |
+| **[[#Two forms in the wild]]** |  |
+| **[[#File shape]]** |  |
+| **[[#Required structure]]** |  |
+| **[[#D-record structure]]** |  |
+| **[[#How `include::` semantics differ between rulesets and decision files]]** |  |
+| **[[#When `{NAME} Rules.md` is still useful]]** |  |
+| **[[#Trait applicability]]** |  |
+| **[[#Audit]]** |  |
+| **[[#See also]]** |  |
+|    [[#RULE R-decisions-01 — Decisions live under a `## Decisions` section; the optional central file is `{NAME} Decisions.md` (checked)]] |  |
+|    [[#RULE R-decisions-02 — H1 is `{NAME} Decisions` (checked)]] |  |
+|    [[#RULE R-decisions-03 — Top-of-file `include::` present (checked)]] |  |
+|    [[#RULE R-decisions-04 — At least one D-record present, always at H3 (checked)]] |  |
+|    [[#RULE R-decisions-05 — D-record titles carry a status token (sampled)]] |  |
+|    [[#RULE R-decisions-06 — D-numbers are monotonic and never recycled (sampled)]] |  |
+|    [[#RULE R-decisions-07 — Each D-record states its rationale (sampled)]] |  |
+|    [[#RULE R-decisions-08 — Master form: every adopted rule has an implementation-map row (stated)]] |  |
+|    [[#RULE R-decisions-09 — `**Cites:**` lines reference existing rules (stated)]] |  |
 
 The per-anchor master file for applied decisions — declares adopted rulesets (`include::`) and records D-numbered design choices with rationale.
 
 **Related:** [[FCT Ruleset]],  [[FCT Architecture]],  [[FCT Design Docs]],  [[Rulesets]]
-**Examples:** [[CAE Decisions\|minimal (D-records only, no include::)]],  [[HBR Decisions\|fuller (masthead + durable rulings)]]
+**Examples:** [[Mini Architecture#Decisions\|distributed — decision in the doc it shapes (new model)]],  [[Mini Decisions\|optional central — cross-cutting value only]],  [[CAE Decisions\|legacy central master (D-records + include::)]],  [[HBR Decisions\|legacy central (durable rulings)]]
 
-**TLDR** — `{NAME} Decisions.md` is the single record of what an anchor has committed to: top-of-file `include::` lists adopted rulesets; the `## Adoption implementation map` bridges each rule to its anchor-specific code/script/table; `### D<N>` entries record applied choices with rationale and a `**Cites:**` back-link to the rules they satisfy. One per anchor.
+**TLDR** — A decision is recorded under a **`## Decisions` section** (the recognizable label) in the design doc it shapes, as `### D<N> — Title (status)` records with rationale. The decision *set* is the computed sweep of those sections — not a file. A central `{NAME} Decisions.md` is **OPTIONAL**: the home for cross-cutting / value decisions and (master form) ruleset adoption via top-of-file `include::` + an `## Adoption implementation map`.
 
-The Decisions facet is the **per-anchor master file** for everything the anchor has applied — both *which rulesets it adopts* and *what specific design choices it made for this project*. Lives at `{NAME} Design/{NAME} Architecture/{NAME} Decisions.md` (alongside the architecture entry-point) for anchors with architecture folders, or `{NAME} Design/{NAME} Decisions.md` otherwise.
+The Decisions facet defines the **`### D<N>` record shape and its `## Decisions` label**, used wherever decisions live — distributed in the design docs they shape (the default) and, for cross-cutting decisions + ruleset adoption, in the optional central `{NAME} Decisions.md` (at `{NAME} Design/{NAME} Architecture/` or `{NAME} Design/`). It records both *which rulesets the anchor adopts* (central master form) and *what specific choices it made* (everywhere).
 
 A **decision** is a specific applied choice with rationale, recorded at the anchor level. A **rule** is a portable constraint, defined in a ruleset ([[FCT Ruleset]]) and reused across many anchors. Decisions reference rules; rules are what get audited.
 
 See [[FCT Ruleset]] for the companion facet (rulesets + per-anchor optional `{NAME} Rules.md`). See [[Rulesets]] for the catalog.
+
+## Where decisions live — distributed by default
+
+A decision is *about* something — an architecture choice, an API shape, a tradeoff. **It is recorded where that something is designed**, not exiled to a central file. The unit is a **`## Decisions` section** — the recognizable label ("this section is decisions") — placed in whatever design doc the decision belongs to, holding one or more `### D<N>` records:
+
+- An **architecture** decision → a `## Decisions` section in `{NAME} Architecture.md`.
+- A **PRD / product** decision → a `## Decisions` section in the PRD.
+- A decision local to one **feature** → that feature doc's `## Decisions` (the same record shape as its bottom `## Resolved`).
+- A **cross-cutting / value-statement** decision (Fail-loudly; one-clock) that belongs to no single doc → the **optional** `{NAME} Decisions.md`.
+
+This mirrors rulesets, with the load-bearing difference: **rulesets are *activated* (the engine runs them; `where::` binds them); decisions are *records* — not activated, just labeled.** A "decision set" therefore needs no activation machinery — it needs a recognizable marker so it can be *found and gathered*. The `## Decisions` H2 (with its `### D<N>` headers) is that marker. You can put **just one** record under it, or many.
+
+**The "decision set" is a computed view, not a file.** Because every decision carries the `## Decisions` / `### D<N>` label, a sweep gathers them all into one view on demand — exactly how `Q.md` aggregates questions that physically live in feature docs. Source of truth is distributed (next to what it decides); the aggregate is derived (`/audit decisions` and any "walk all decisions" tool sweep the label, not a single file).
+
+**`{NAME} Decisions.md` is now OPTIONAL.** It is the home for cross-cutting / value-statement decisions and — in the master form — ruleset adoption + the implementation map. It is **not** the forced container for every decision. When every decision has a natural home in a design doc, the anchor has **no** central Decisions file at all (file existence is a trait — omit it). The sections below describe that optional central form; the `### D<N>` record shape they define is identical wherever a `## Decisions` section lives.
 
 ## Value statements (absorbed from the retired Principles facet)
 
@@ -62,46 +86,12 @@ Both forms share the same required spine: top-of-file `include::` (present, may 
 
 ## File shape
 
-```markdown
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Decisions](hook://p/FCT%20Decisions)
+The form is identical wherever a `## Decisions` section lives — see the **real worked instances** rather than a fenced fake copy:
 
-# {NAME} Decisions
-include:: R-other-set, R-third-set
-description:: per-anchor master file for applied decisions — adopted rulesets and D-records
+- **Distributed form (primary):** [[Mini Architecture#Decisions]] — a `## Decisions` H2 inside the doc it shapes, holding `### D<N> — Title (status)` records, each cross-linking the value it serves.
+- **Optional central form:** [[Mini Decisions]] — `# {NAME} Decisions` + `include::` + cross-cutting `### D<N>` records only. The fuller master variant [[CAE Decisions]] adds a `## Adoption implementation map` table and `**Cites:**` back-links when the anchor adopts shared rulesets.
 
-> [!info] Architecture
-> One-paragraph commentary about how this file is organized.
-
-## Adoption implementation map
-
-| Rule | {NAME} implementation |
-| ---- | ---------------------- |
-| `R-other-set-01` | path/to/specific/code; audit script; exception table |
-| `R-other-set-02` | ... |
-| `R-third-set-01` | ... |
-
-## D-records context note (optional)
-
-Any brief notes about how D-records are numbered, what the status field means, etc.
-
-### D01 — Decision title (checked)
-**Subsystem:** ~~[[NAME-Subsystem]]~~
-**Ratified:** date / via ~~[[F-link]]~~
-
-Body of the decision — what was decided and why.
-
-**Why.** Rationale.
-
-**Alternatives considered.**
-- *Alternative A*. Rejected because...
-- *Alternative B*. Deferred because...
-
-**Consequences.** Downstream effects.
-
-**Cites:** ~~[[R-other-set-01]]~~ (relevant rule from an adopted set)
-
-### D02 — ...
-```
+Each `### D<N>` record carries: the H3 heading `### D<N> — <title> (<status>)`; optional `**Subsystem:** [[…]]` / `**Ratified:** date via [[F-link]]` metadata; a body with `**Why.**` (required), optional `**Alternatives considered.**` and `**Consequences.**`; and — master form only — an optional `**Cites:** [[R-set-NN]]` line bridging to an adopted rule.
 
 ## Required structure
 
@@ -143,7 +133,7 @@ When `{NAME} Rules.md` is just a stub pointer to `{NAME} Decisions.md`, that's f
 
 ## Trait applicability
 
-**Cardinality: one per anchor.** Each anchor has exactly one `{NAME} Decisions.md` — the single adoption + decision record for that anchor. Available to every anchor; most will have one even if it only carries the `include::` declarations and a few D-records.
+**Cardinality: distributed.** A `## Decisions` section may appear in **any** design doc under the anchor's Design surface (Architecture, PRD, System Design, Interface, a feature doc's design) — wherever a decision belongs. The central `{NAME} Decisions.md` is **optional and at most one** per anchor: present only when the anchor has cross-cutting / value-statement decisions, or adopts shared rulesets (the master form). An anchor whose every decision has a natural home in a design doc has **no** central Decisions file. Available to every anchor; required of none.
 
 ## Audit
 
@@ -162,19 +152,19 @@ When `{NAME} Rules.md` is just a stub pointer to `{NAME} Decisions.md`, that's f
 
 # RULESET R-decisions
 include::
-where:: file:{ANCHOR}/**/* Decisions.md
-description:: spec for the `{NAME} Decisions.md` design facet — adopted rulesets + D-numbered decision records
+where:: file:{ANCHOR}/** Design/**/*.md contains:(?m)^##\s+Decisions\s*$ ; file:{ANCHOR}/**/* Decisions.md
+description:: spec for decisions — a `## Decisions` section (with `### D<N>` records) in any design doc, plus the optional central `{NAME} Decisions.md`
 
 Embedded ruleset for the Decisions facet, co-located with the facet spec above per the [[F133 — Rulesets folder convention + facet embedding|F133]] embedding convention. Adopted via the `R-facet` umbrella; an anchor that wants its `{NAME} Decisions.md` audited pulls `R-facet` from its own `{NAME} Decisions.md`. Rules cover the spine common to both forms (lean D-record list + master adoption record); the Adoption-implementation-map and `**Cites:**` rules are stated/sampled so they apply only when the master form is in use.
 
-### RULE R-decisions-01 — File name is `{NAME} Decisions.md` (checked)
-check:: regex_present (?m)^#\s+\S
+### RULE R-decisions-01 — Decisions live under a `## Decisions` section; the optional central file is `{NAME} Decisions.md` (checked)
+check:: regex_present (?m)^##\s+Decisions\s*$
 
-The facet doc is named `{NAME} Decisions.md` and lives under the anchor's Design surface (`{NAME} Design/` or `{NAME} Design/{NAME} Architecture/`). The `where::` glob `file:{ANCHOR}/**/* Decisions.md` is what selects real instances; this rule confirms the selected file is a well-formed markdown doc with an H1.
+The canonical unit is a `## Decisions` H2 section holding `### D<N>` records, placed in the design doc the decision is *about*. The optional per-anchor central file is named `{NAME} Decisions.md` (the home for cross-cutting / value-statement decisions + ruleset adoption) — when present it opens with `# {NAME} Decisions` and its records sit directly under it (the file's H1 stands in for the `## Decisions` marker). The `where::` selector matches both: any Design-surface doc carrying a `## Decisions` section, and the central `* Decisions.md` file.
 
-**Check pattern:** the `where::` selector matches `* Decisions.md`; the file opens with an H1 heading.
+**Check pattern:** the selected doc contains a `## Decisions` H2 (or, for the central file, a `# {NAME} Decisions` H1) introducing `### D<N>` records.
 
-**Why:** the canonical name is what every cross-reference and the `/audit decisions` selector depend on. A mis-named file is invisible to the audit.
+**Why:** the `## Decisions` label is what makes decisions findable and aggregatable wherever they live. A decision recorded with no recognizable label is invisible to `/audit decisions` and to the computed decision-set view.
 
 ### RULE R-decisions-02 — H1 is `{NAME} Decisions` (checked)
 check:: h1_present
