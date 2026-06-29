@@ -4,7 +4,7 @@ description: "the Pin facet definition"
 # FEX Pin
 The Pin facet — a marker that keeps one snapshot bundle forever. A worked example of a **single-file, cardinality-many** facet (the filename is the key).
 
-| -[[FEX Pin]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FEX Repo]] → [FEX Pin](hook://p/FEX%20Pin)<br>: the Pin facet definition |
+| -[[FEX Pin]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[FEX Repo]] → [FEX Pin](hook://p/FEX%20Pin)<br>: the Pin facet definition |
 | --- | --- |
 | Anchor | [[FEX Repo]] (parent) |
 | Related | [[FEX Retention]] (honors it),  [[FEX Bundle]] (what it protects),  [[FCT Facet]] (the facet spec), |
@@ -30,17 +30,22 @@ Created by `snapshot pin <label>`, removed by `snapshot unpin <label>`; read by 
 
 # RULESET R-fex-pin
 include::
-where:: file: pins/*
+where:: `pins/*`
 description:: The rules every pin marker must satisfy — the filename is the bundle label, and it names a real bundle.
 
-### RULE R-fex-pin-01 — filename is a valid bundle label (checked)
-The pin's filename is a `YYYY-MM-DD-HHMM` label with no extension; the body is empty or a one-line reason.
-**Check pattern:** the basename matches `^\d{4}-\d{2}-\d{2}-\d{4}$`.
+### RULE R-fex-pin-01 — filename is a valid bundle label
+description:: A pin file's basename must match the bundle-label format YYYY-MM-DD-HHMM with no extension; the filename is the key that identifies which bundle is pinned.
+when:: write:*
+if:: `re.search(r'^\d{4}-\d{2}-\d{2}-\d{4}$', file.name) is None`
+The pin filename is not a valid bundle label — it must match `YYYY-MM-DD-HHMM` with no extension. Rename it to exactly the label of the bundle it protects.
+
 **Why:** the filename IS the key — the label it pins; a malformed name pins nothing.
 
-### RULE R-fex-pin-02 — names an existing bundle (sampled)
-The label in the filename matches a `snapshots/<label>/` bundle that exists.
-**Check pattern:** `snapshots/<filename>/` is a directory.
+### RULE R-fex-pin-02 — names an existing bundle
+description:: A pin's filename must match a real bundle directory under snapshots/; a pin for an absent bundle is a dangling marker the retention sweep cannot honor.
+if:: `not (anchor.root / 'snapshots' / file.name).is_dir()`
+The bundle named by this pin does not exist under `snapshots/` — this pin is dangling and the retention sweep cannot honor it. Remove the pin file or restore the missing bundle.
+
 **Why:** a pin for an absent bundle is a dangling marker the retention sweep can't honor.
 
 # BRIEF

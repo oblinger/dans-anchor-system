@@ -4,7 +4,7 @@ description: "the Bundle facet definition"
 # FEX Bundle
 The Bundle facet — one snapshot, captured as a dated directory. A worked example of a **folder-detected, cardinality-many** facet (the facet is a directory, not a file).
 
-| -[[FEX Bundle]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FEX Repo]] → [FEX Bundle](hook://p/FEX%20Bundle)<br>: the Bundle facet definition |
+| -[[FEX Bundle]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[FEX Repo]] → [FEX Bundle](hook://p/FEX%20Bundle)<br>: the Bundle facet definition |
 | --- | --- |
 | Anchor | [[FEX Repo]] (parent) |
 | Related | [[FEX Snapshot]] (creates it),  [[FEX Manifest]] (it carries),  [[FEX Pin]] (protects it),  [[FCT Facet]] (the facet spec), |
@@ -30,17 +30,21 @@ Created by [[FEX Snapshot|Snapshot]]; pruned by the [[FEX Retention|Retention]] 
 
 # RULESET R-fex-bundle
 include::
-where:: file: snapshots/*/
+where:: `snapshots/*/`
 description:: The rules every snapshot bundle directory must satisfy — a dated-label name and exactly one manifest.
 
-### RULE R-fex-bundle-01 — directory named with a valid dated label (checked)
-The bundle is a directory under `snapshots/` named `YYYY-MM-DD-HHMM`.
-**Check pattern:** the directory name matches `^\d{4}-\d{2}-\d{2}-\d{4}$`.
+### RULE R-fex-bundle-01 — directory named with a valid dated label
+description:: A bundle directory under snapshots/ must be named with the YYYY-MM-DD-HHMM label format.
+if:: `not re.search(r'^\d{4}-\d{2}-\d{2}-\d{4}$', file.name)`
+This bundle directory's name is not a valid dated label — rename it to `YYYY-MM-DD-HHMM` so restore and retention operations can sort it correctly.
+
 **Why:** the label is the bundle's identity and sort key; a malformed name breaks restore + retention ordering.
 
-### RULE R-fex-bundle-02 — contains exactly one manifest (checked)
-Every bundle directory contains exactly one `manifest.txt` (the [[FEX Manifest|Manifest]] facet, co-required).
-**Check pattern:** exactly one `manifest.txt` directly inside the bundle directory.
+### RULE R-fex-bundle-02 — contains exactly one manifest
+description:: A bundle directory must contain exactly one manifest.txt, co-required with the Manifest facet.
+if:: `fex_bundle.manifest_count(file) != 1`
+This bundle directory does not contain exactly one `manifest.txt` — add or remove copies until exactly one is present so restore can identify what it is restoring.
+
 **Why:** restore reads the manifest to know what it is restoring; zero or duplicate manifests make the bundle unrestorable or ambiguous.
 
 # BRIEF
