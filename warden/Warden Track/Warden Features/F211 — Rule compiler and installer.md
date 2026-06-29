@@ -6,7 +6,7 @@ description: "F211 — Rule compiler / installer"
 
 ## Summary
 
-The engine that makes active rules fire **implicitly** at runtime moments — a *compiler*, not an interpreter. It resolves the rules active in an environment (per anchor, from `{NAME} Decisions.md` adoption + structural facets), indexes each onto its dispatch key (by `when::` moment, or by `where::` place), and **pre-compiles** all rules sharing a moment into one fast module (generalizing today's `/distill`). At fire time the hook subsystem ([[Audit Architecture]]) runs the compiled module for that moment, which checks the residual conjunction and emits steers/fixes. This is the hot path the millisecond budget rides on.
+The engine that makes active rules fire **implicitly** at runtime moments — a *compiler*, not an interpreter. It resolves the rules active for an anchor — a pure function of its `.anchor` **traits**, each trait pulling in its omnibus rulesets — indexes each onto its dispatch key (by `when::` moment, or by `where::` place), and **pre-compiles** all rules sharing a moment into one fast module (generalizing today's `/distill`). At fire time the hook subsystem ([[Audit Architecture]]) runs the compiled module for that moment, which checks the residual conjunction and emits steers/fixes. This is the hot path the millisecond budget rides on.
 
 ## Success Criteria
 
@@ -19,11 +19,11 @@ The engine that makes active rules fire **implicitly** at runtime moments — a 
 
 ## Design
 
-1. **Resolve active set** — per anchor: flatten adopted (`include::`) + structurally-present facet rulesets → the rule list.
+1. **Resolve active set** — per anchor, the active-set is the union of its `.anchor` **traits'** rule sets (each trait → its omnibus rulesets, flattened; `{NAME} Rules.md` is active for its own anchor). Compile each trait to a hash-set of rule-ids; at fire time resolve the anchor by a cached path **reverse-index** to `.anchor`. ([[Warden Runtime]] § Activation.)
 2. **Index** — choose key per rule (when-major default; where-major when a `when:: always` rule touches a rare path).
-3. **Pre-compile** — group by moment; emit one module per moment (the residual checks + each rule's `check`/`trigger`).
+3. **Pre-compile** — group by moment; emit one module per moment (the residual `where::`/`if::` checks + each rule's body).
 4. **Install** — register each moment's module with the runtime hook surface; cache keyed by (active-set hash, rules hash); invalidate on change.
-5. **Fire** — the hook calls the module; module evaluates residual conjunction; emits steers (agent-directed) + mechanical fixes (safety-floored). Output uses **JSON `deny`/`block`/`reason`**, never exit-code-2 (per [[Warden Survey]] / [[Warden Integration Strategy]] D5).
+5. **Fire** — the hook calls the module; module checks **active-set membership** + the residual `where::`/`if::` conjunction; emits steers (agent-directed) + mechanical fixes (safety-floored). Output uses **JSON `deny`/`block`/`reason`**, never exit-code-2 (per [[Warden Survey]] / [[Warden Integration Strategy]] D5).
 
 The interception substrate is Claude Code hooks, used natively behind a thin portability adapter ([[Warden Integration Strategy]] D2); external checker engines (Vale/Semgrep) are opt-in, adapter-isolated, and confined to the explicit audit path (D3) — the compiler's hot-path modules are self-contained native code.
 
@@ -31,7 +31,7 @@ The interception substrate is Claude Code hooks, used natively behind a thin por
 
 1. **When does the compiler run** — once at session start (install all), or incrementally per anchor entered? (Active-set resolution cost trade-off; also [[Warden PRD]] Q1.)
 2. **Module format** — emitted Python source vs. a data table the runtime interprets vs. (for Rust) generated/compiled code.
-3. **Rule-authored Python in the hot path** — can a compiled module call a rule's `trigger`/`guard` cheaply, or are code-carrying rules confined to post-hoc moments? (Also [[Warden PRD]] Q2.)
+3. **Rule-authored Python in the hot path** — can a compiled module run a rule's Python `if::` / body cheaply, or are code-carrying rules confined to post-hoc moments? (Also [[Warden PRD]] Q2.)
 
 ## Status
 
