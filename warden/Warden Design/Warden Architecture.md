@@ -31,30 +31,19 @@ Two primitives, both spec'd prescriptively in [[FCT Ruleset]]. Worked instances:
 
 ### The Rule — the atomic unit
 
-A rule is a markdown **heading** whose first token is the all-caps `RULE` sentinel, followed by an immutable identifier. The sentinel makes every rule greppable anywhere in the vault (`grep -rnE '^#+\s+RULE\s+R-'`), not just inside ruleset files.
+A rule is a markdown **heading** whose first token is the all-caps `RULE` sentinel + an immutable identifier — greppable anywhere in the vault (`grep -rnE '^#+\s+RULE\s+R-'`), not just inside ruleset files. The heading **names** the rule; the fields and body below say what it does. Full format: [[Warden Rule]].
 
 | Part | Form | Notes |
 |---|---|---|
-| Heading | `<H> RULE R-<slug>-NN` | Any heading level; H3 is customary inside a `# RULESET` block. |
-| Name | `— <short name>` | Optional em-dash title. |
-| Tier | `(tracked)` / `(stated)` / `(sampled)` / `(checked)` | The verification posture — see table below. |
-| Body — statement | first paragraph | Declarative: what is required or forbidden. |
-| Body — `Check pattern:` | a `**Check pattern:**` paragraph | How a violation is detected. Required for `checked` / `sampled`. |
-| Body — `Why:` | a `**Why:**` paragraph | Optional rationale / prior-incident context. |
-| Body — `Exceptions:` | a `**Exceptions:**` block | Optional acknowledged-exception table or list. |
+| Heading | `<H> RULE R-<slug>-NN — name` | the `RULE` sentinel + the permanent id; H3 customary inside a `# RULESET`. |
+| `description::` | a queryable one-liner | the rule's **meaning** — never sent on fire. |
+| condition | `where::` · `when::` · `if::` | which files · which moment · the Python test (§4–5). |
+| body | bare prose, or backticked Python | the **action** — prose *is* the `tell`; Python runs `tell` / `edit` / `deny` / `run` ([[Warden Semantics]]). |
+| `rerun::` · `**Why:**` · `**Exceptions:**` | optional | re-eval override · rationale · exceptions. |
 
-The **identifier `R-<slug>-NN`** is the rule's permanent handle: `NN` is zero-padded, two-digit, monotonic-forever within the slug's namespace, and **never recycled**. Cross-document references use the bare string (`see [[R-testing-04]]`).
+The **identifier `R-<slug>-NN`** is permanent: `NN` zero-padded, two-digit, monotonic within the slug, never recycled. Cross-document references use the bare id (`see [[R-testing-04]]`).
 
-**Audit tiers** declare how a rule is verified — they are the mechanical-vs-judgment split the engine rides on (§7):
-
-| Tier | Verified by |
-|---|---|
-| `tracked` | nobody — recorded for awareness only. |
-| `stated` | the **agent** — judgment, batched + cached. |
-| `sampled` | script where possible, else agent (risk-prioritized). |
-| `checked` | a **script** — deterministic, content-hash cached. |
-
-A `checked` rule additionally carries a machine-ref `check::` field naming a checker primitive (`regex_present`, `frontmatter_has`, …); the prose `Check pattern:` stays the human spec. Tiers are aspirational ladders — a rule starts `stated` and graduates to `checked` once the checker is written.
+**Mechanical vs. judgment is read off the body.** A **Python** body decides by script — deterministic, content-hash cached; a **prose** body that states an expectation is an **LLM judgment** — batched, cached, re-run only on significant change. The engine rides exactly this split (§7).
 
 ### The Ruleset — the named bundle
 
@@ -146,7 +135,7 @@ A rule is a standing constraint that means the **conjunction** of its clauses; i
 |---|---|---|---|
 | `when::` | **moment** (temporal) | *at what moment?* | §5 + [[Warden Events]] |
 | `where::` | **place** (spatial, cross-cutting) | *concerning which file / directory / target?* | this section + [[FCT Ruleset]] § Where clause |
-| `if::` *(optional guard)* | **condition** | *and only if …?* | §5 (guards) + [[Warden Events]] |
+| `if::` | **test** (computed) | *and only if …?* — a **Python expression** (or prose, for an LLM judgment) | [[Warden Semantics]] § The condition |
 
 `where::` is a deliberately **separate cross-cutting axis** rather than more depth in `when::`: the same place-predicate (`{ANCHOR}/**/*.md`) recurs under many moments (write it, read it, audit it), so it factors out. A passive file-check rule (today's default) is just one with no `when::` — it is evaluated whenever the audit visits, with `where::` doing all the binding.
 
@@ -163,7 +152,7 @@ A rule is a standing constraint that means the **conjunction** of its clauses; i
 | `anchor` | the anchor as a whole — a once-per-anchor structural / tree check. |
 | `sentinel: <regex>` | any file containing a matching line, **regardless of path** — how `R-ruleset` catches every embedded ruleset. |
 
-**Predefined tokens** are `{ALL-CAPS}` in braces, substituted per adopting anchor: `{ANCHOR}` (the anchor's root directory) and `{NAME}` (its name string). `{VAULT}` and `{REPO}` are reserved. The ALL-CAPS rule is what keeps `{ANCHOR}` (substitution) unambiguous from `{svg,png}` (glob alternation).
+**Substitution variables** are `{ALL-CAPS}` in braces, expanded per adopting anchor: `{ANCHOR}` (root directory), `{NAME}` (name), `{SLUG}` (kebab slug) — the where-clause counterpart of `anchor.*` ([[Warden Semantics]] § Ambient and variables). The ALL-CAPS rule keeps `{ANCHOR}` (substitution) unambiguous from `{svg,png}` (glob alternation).
 
 **Glob syntax** is gitignore/picomatch flavor: `*` `**` `?` `[a-z]` `{a,b}` alternation, trailing `/` for dirs, leading `!` for negation; `where::` takes a comma-separated **union** of positive patterns minus negated ones.
 
@@ -190,19 +179,11 @@ A rule is a standing constraint that means the **conjunction** of its clauses; i
 
 The taxonomy is **open-ended and extensible**: a new trigger is one more parameter level beneath the deepest existing node (a new Bash subcommand is `tool:*:Bash:<new>`, never a new top-level concept), and only common moments earn a flat alias. Where a moment's next refinement is *spatial* (which file written/read), that refinement moves out to the cross-cutting `where::` clause (§4) — `when:: write:markdown` + `where:: {ANCHOR}/**/*.md`.
 
-**Active rules carry an executable.** A passive rule (no `when::`) is a file check evaluated when the audit visits. An active rule fires *at* its moment and may carry a fenced Python `def trigger(ctx) -> list[str]` returning **agent-directed steer messages** (not user-facing findings) — the F180 shape:
-
-```python
-def trigger(ctx) -> list[str]:
-    # ctx exposes: anchor name + path, Git aspect (PR / Commit / NoGit from
-    # .anchor traits), and relevant content (e.g. ctx.queries_text).
-    # Returned strings STEER THE AGENT; they do not bother the user.
-    ...
-```
+**Active rules carry a body that runs.** A passive rule (no `when::`) is evaluated when the audit visits. An active rule fires *at* its moment and runs its **body** — bare prose (the `tell` — an agent-directed steer, not a user-facing finding) or **backticked Python** (the `tell` / `edit` / `deny` / `run` verbs over the interpretation environment; no `def`, no magic name — [[Warden Semantics]]). Lineage: [[F180 — When-trigger executable rules|F180]] shipped the first executable shape (a fenced `def trigger(ctx) → list[str]`); the current model generalizes it to prose / backticked-Python bodies.
 
 First live rule: `R-query-14` (push/commit interception in `FCT Query`) fires on `when:: skill:audit-q`; `audit-q.py` discovers and **autofires** `when:: skill:audit-q` rules on every run (`--when <event>` / `--list-when`).
 
-**Guards (`if::`) — the optional conditional.** When the moment (`when::`) and the place (`where::`) don't capture the firing condition, a rule adds one or more `if::` guards — declarative (`if:: git-aspect == Commit`, `if:: trait has Code`) compiling to table lookups, or a Python `def guard(ctx) -> bool` for the rare arbitrary case. Multiple guards AND together; a guard is just another conjunct of the rule's truth condition (§4).
+**The `if::` test.** When `when::` (moment) and `where::` (place) don't capture the firing condition, a rule adds an `if::` — a **Python expression** over `file` / `anchor` / `git` / `event` (or prose, for an LLM judgment). It is the computed conjunct of the rule's truth condition (§4): cheap data-accessor tests (`git.is_dirty`) ride the live path, expensive ones (`ask_oracle`, `sh`) run at audit.
 
 ---
 
@@ -264,9 +245,9 @@ This is the path the **performance budget** rides on — it instruments nearly e
 
 The thorough backstop — `Resolve → Run → Judge → Fix`, mechanical-by-script and judgment-by-agent, cached so re-audits are cheap. Full design + ship status: [[F001 — Rule-driven audit engine — resolve, run, judge|F001]]; pipeline detail: [[Audit Architecture]].
 
-1. **Resolve** (`audit-plan.py`, pure compute, cached) — detect the target's facets → flatten the union of their sets through `include::` (§2) → bind each rule to concrete targets via `where::` (§4). A selector that matches nothing ⇒ the rule is **N/A** (skipped, never failed). Output: a `(rule-id, tier, target, checker)` worklist.
-2. **Run** mechanical (`checked`) rules by script, verdict-cached by `(rule-id, rule-body-hash, target-content-hash)`.
-3. **Judge** the residue (`stated`, unscriptable `sampled`) by agent, batched, same cache key + `model-id`.
+1. **Resolve** (`audit-plan.py`, pure compute, cached) — detect the target's facets → flatten the union of their sets through `include::` (§2) → bind each rule to concrete targets via `where::` (§4). A selector that matches nothing ⇒ the rule is **N/A** (skipped, never failed). Output: a `(rule-id, target, body-kind)` worklist.
+2. **Run** the **Python-bodied** rules by script, verdict-cached by `(rule-id, rule-body-hash, target-content-hash)`.
+3. **Judge** the **prose-bodied** (LLM-judged) rules by agent, batched, same cache key + `model-id`.
 4. **Fix** at the automation level appropriate to the trigger (Informational / Online / Standard / Aggressive — a mask on which fixers may apply).
 
 **Scheduling** picks iteration order by job: **file-major** for a single anchor (walk files, run each file's matched rules) and **rule-major** for a batch/vault sweep (one set in context over many homogeneous files — better cache locality). Same match set both ways.
@@ -281,7 +262,7 @@ The thorough backstop — `Resolve → Run → Judge → Fix`, mechanical-by-scr
 
 - **Sentinels are load-bearing.** The all-caps `RULESET` and `RULE` are mechanical markers grep/lint/flatten depend on — never lowercase, rename, or invent alternates.
 - **Identifiers are forever.** `R-<slug>-NN` numbers are zero-padded, unique within the slug, monotonic, never recycled; composition never renumbers.
-- **A rule is a conjunction.** It fires iff `when::` (moment) ∧ `where::` (place) ∧ every `if::` (guard) hold. The author writes the truth condition; the compiler picks the dispatch (index by-when or by-where) — firing semantics are identical either way.
+- **A rule is a conjunction.** It fires iff `when::` (moment) ∧ `where::` (place) ∧ its `if::` (test) hold. The author writes the truth condition; the compiler picks the dispatch (index by-when or by-where) — firing semantics are identical either way.
 - **One unified moment taxonomy.** Every trigger is a node in the single tree of [[Warden Events]], refined one parameter per level; new triggers extend an existing node, never add a parallel concept.
 - **Never wipe authored content.** Auto-fix is gated by `aow-safety.py`; the never-delete floor holds on every automated path.
 - **One corpus, two paths.** The implicit compiler/installer (runtime moments) and the explicit audit pipeline run the *same* rules through one `when::`/`where::`/`if::` vocabulary; they differ only in trigger and automation level.

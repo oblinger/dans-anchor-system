@@ -13,8 +13,8 @@ The survey scores every candidate on four legs — **(a)** path match · **(b)**
 | Survey layer | Closest prior art | Our subsystem | Verdict |
 |---|---|---|---|
 | Interception (a/c/d) | **Claude Code hooks** (native) | the **hook subsystem** (§6) | **Already ours** — same mechanism; we sit on it. |
-| Declarative rule-file UX | **Hookify** (official, ~90%) | **[[FCT Ruleset]]** + [[Warden Events]] | **We exceed it** — rulesets, `include::` composition, tiers, the moment taxonomy, the `when ∧ where ∧ if` conjunction. Hookify is one-regex-per-condition on the *edit text*; we validate the *whole resulting file*. |
-| Content engine (b) | **Vale** (markdown), **Semgrep** (code) | the `check::` primitive library + the audit engine (§7b) | **Mixed** — our primitives cover the common cases; Vale/Semgrep are richer for their niches. Integration seam, not a rebuild. |
+| Declarative rule-file UX | **Hookify** (official, ~90%) | **[[Warden Rule]]** + [[Warden Events]] | **We exceed it** — rulesets, `include::` composition, the moment taxonomy, the `when ∧ where ∧ if` conjunction. Hookify is one-regex-per-condition on the *edit text*; we validate the *whole resulting file*. |
+| Content engine (b) | **Vale** (markdown), **Semgrep** (code) | native Python `if::` tests + the audit engine (§7b) | **Mixed** — plain Python covers the common cases; Vale/Semgrep are richer for their niches, reachable via `sh`. Integration seam, not a rebuild. |
 | The under-served **gap** | *(nobody ships it turnkey)* | the **audit engine** (Resolve→Run→Judge) | **This is our core IP.** Whole-file validation against a multi-rule format spec, per-violation messages — the survey's headline finding is that this is exactly what's missing off-the-shelf. Build it; that's the point. |
 
 **Conclusion:** our design is aimed squarely at the confirmed gap, on top of the confirmed-standard plumbing. We are not reinventing the interception layer (it's native) and not reinventing rich rule files (we already exceed Hookify). The novel, build-it-ourselves core is the moment taxonomy + the whole-file rule engine + the compiler/installer.
@@ -31,7 +31,7 @@ The survey scores every candidate on four legs — **(a)** path match · **(b)**
 
 2. **Rule-file UX → stay independent; offer interop, not dependency.** Our format is a richer superset of Hookify's. Borrow its author-facing *ergonomics* (a one-line English rule that compiles to the full form is worth having) but own the format end to end. Optionally ship a **Hookify-import** so existing Hookify rules migrate in. We do not depend on the Hookify plugin.
 
-3. **Content engine → self-contained primitives by default; external checkers as opt-in adapters.** Our `check::` library is the default and covers the regex/frontmatter/structural cases natively (and must, for the hot path — see below). Vale and Semgrep are excellent but are **optional, adapter-isolated backends** (`check:: vale:<rule>`, `check:: semgrep:<rule>`) that **fail loud** if a rule invokes a tool that isn't installed — never a silent skip, never required by any core ruleset. A clean install runs the whole core with none of them present.
+3. **Content engine → self-contained by default; external checkers as opt-in.** Native Python `if::` tests are the default and cover the regex/frontmatter/structural cases (and must, for the hot path — see below). Vale and Semgrep are excellent but **optional**, reached via `sh(['vale', …])` / `sh(['semgrep', …])` that **fail loud** if the tool isn't installed — never a silent skip, never required by any core ruleset. A clean install runs the whole core with none of them present.
 
 ## Dependency & repository policy
 

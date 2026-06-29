@@ -52,10 +52,10 @@ One declarative rule language and one runtime:
 
 ## Capabilities (what the system must do)
 
-1. **Define** rules and rulesets in the prescriptive format ([[FCT Ruleset]]) — sentinels, tiers, `check::` primitives, executable `trigger`/`guard`.
+1. **Define** rules and rulesets in the prescriptive format ([[Warden Rule]]) — sentinels, the condition (`where` / `when` / `if`), and a prose-or-Python body.
 2. **Compose** rulesets via `include::` (acyclic, depth-first flatten, no-renumber) and aggregate them into umbrellas.
 3. **Place & adopt** — catalog / facet-embedded / anchor-local homes; per-anchor adoption via `{NAME} Decisions.md`. The active rule set for an anchor is resolvable.
-4. **Bind** each rule to its moment(s) (`when::`, the unified taxonomy), place (`where::`), and optional guard (`if::`) — the conjunction.
+4. **Bind** each rule to its moment(s) (`when::`, the unified taxonomy), place (`where::`), and test (`if::`) — the conjunction.
 5. **Compile & install** the active rules onto runtime moments — index (by-when or by-where), pre-compile to one fast module per moment, run implicitly via the hook subsystem.
 6. **Audit** explicitly — `Resolve → Run → Judge → Fix`, mechanical-by-script / judgment-by-agent, cached.
 7. **Stay safe** — every automated fix gated by the never-delete floor (`aow-safety`).
