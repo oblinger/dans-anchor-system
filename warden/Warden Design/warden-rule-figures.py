@@ -171,6 +171,38 @@ RULES = {
         "    deny('never force-push main — open a PR instead')",
         "```",
     ],
+    "sh-cond": [
+        "### RULE R-ex-07 — Markdown lint clean",
+        "where:: `**/*.md`",
+        "if:: `sh(['markdownlint', file.path])`",
+        "markdownlint flagged this file — run it and fix what it reports.",
+    ],
+    "run-python": [
+        "### RULE R-ex-08 — Log architecture edits",
+        "description:: Every edit to an architecture doc is appended to an audit log.",
+        "where:: `**/*Architecture*.md`",
+        "when:: write:markdown",
+        "```",
+        "with open(f'{anchor.root}/.audit/edits.log', 'a') as log:   # a run: plain Python",
+        "    log.write(f'{now}  {file.path}\\n')",
+        "```",
+    ],
+    "run-shell": [
+        "### RULE R-ex-09 — Auto-format Python on write",
+        "description:: Python files are formatted with black on every write.",
+        "where:: `**/*.py`",
+        "when:: write:python",
+        "```",
+        "sh(['black', '-q', file.path])     # a run via shell — format in place",
+        "```",
+    ],
+    "agent-state": [
+        "### RULE R-ex-10 — Surface an open question before ending the turn",
+        "when:: prompt:stop",
+        "if:: `agent.state == 'asking'`",
+        "You're ending the turn with an open question — add it to {NAME} queries.md",
+        "so the user can answer by reference.",
+    ],
 }
 
 def render_annotated(lines, annots, out_path: Path):

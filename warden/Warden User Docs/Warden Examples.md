@@ -3,7 +3,7 @@ description: "worked examples of every rule-execution mode (start here)"
 ---
 # Warden Examples
 
-One worked ruleset, six complete rules. A rule is **`IF` a condition `THEN` an action** — and these show every shape: a plain-prose tell, a Python test, an LLM judgment, a script-assisted judgment, an `edit`, and a `deny`. How the engine runs them is [[Warden Semantics]]; this is the tour.
+One worked ruleset, ten complete rules. A rule is **`IF` a condition `THEN` an action** — and these show every shape: a prose tell, a Python test, an LLM judgment, a script-assisted judgment, an `edit`, a `deny`, a shell (`sh`) condition, a Python `run`, a shell `run`, and sensing `agent` state. How the engine runs them is [[Warden Semantics]]; this is the tour.
 
 ![[Warden Examples Ruleset.svg]]
 
@@ -56,8 +56,32 @@ Not every rule tells — some just *do*. On every write to an architecture doc t
 
 The one rule that *blocks*. On `when:: tool:pre:Bash` it inspects `event.command` and the **`git`** object (auto-resolved to the command's repo) and `deny(...)`s a force-push to main before it runs — the veto. `deny` only makes sense at a `tool:pre` moment (a command, not a file, so `where::` doesn't apply).
 
-> [!info] Status — `ask_oracle`, `edit`, `deny`, and `rerun::` are *designed, not all built*
-> The prose-tell and `python`-tell shapes (F180's executable rules) are the established core. The `ask_oracle` narrowing, the `edit`/`deny` actions, and the `rerun:: significant` gate are on the [[Warden Roadmap]] (M7 for the economy gate, [[F215 — Re-evaluation economy — the significant-edit gate|F215]]). The `run` (arbitrary-effect) action is **deferred** pending a security model.
+## 07 · `sh` in a condition
+
+![[Warden Example sh-cond.svg]]
+
+A condition can shell out: `if:: sh(['markdownlint', file.path])` runs the linter and is truthy when it reports anything (→ the prose `tell` fires). No `when::` on purpose — a subprocess is expensive, so it belongs at audit, like an oracle judgment. **argv-form** (a list) means `file.path` can't inject a shell command. For a *cheap* state check, prefer a data accessor (`git.is_dirty`); `sh` is for when there's no accessor.
+
+## 08 · A Python `run`
+
+![[Warden Example run-python.svg]]
+
+Beyond the mediated verbs, a body is just Python — a **`run`**. This one appends to an audit log with plain `open(...).write(...)`. Arbitrary effects are the **same trust class as a skill** (it's your code), so the `description::` line carries the meaning and the Python carries the doing.
+
+## 09 · A shell `run`
+
+![[Warden Example run-shell.svg]]
+
+The shell flavor of a `run`: `sh(['black', '-q', file.path])` formats the file in place on every write. Same trust as a skill; argv-form blocks injection. (`sh` returns output too, so the same call serves a condition — § 07.)
+
+## 10 · Sensing agent state
+
+![[Warden Example agent-state.svg]]
+
+Rules can sense the **agent** itself. On `when:: prompt:stop` (the agent returns) this checks `agent.state == 'asking'` and nudges it to record the open question. `agent.state` (`working` / `landed` / `asking` / `idle`) is *sensed* in `if::`; the turn boundary is the *moment*. Same trigger-vs-sense split as a file change (the `write:*` moment vs `event.diff`).
+
+> [!info] Status — designed, not all built
+> The prose-tell and `python`-tell shapes (F180's executable rules) are the established core. The `ask_oracle` narrowing, the `edit` / `deny` actions, `sh` / `run` effects, the `agent` object, and the `rerun:: significant` gate are designed but not all built ([[Warden Roadmap]]; economy gate = M7, [[F215 — Re-evaluation economy — the significant-edit gate|F215]]). `run` / `sh` effects are real Python — the **same trust class as a skill** (vet imported rulesets), not a sandbox question.
 
 ## Rule of thumb
 

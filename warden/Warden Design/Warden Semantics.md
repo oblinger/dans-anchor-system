@@ -100,18 +100,19 @@ On a hit, the body performs zero or more actions. Three are **mediated** (Warden
 
 ## The interpretation environment
 
-The **interpretation environment** is the Python scope a rule is *interpreted* in — where both its `if::` test and its body run. The engine pre-populates that scope with three things: the **injected objects** (`file`, `anchor`, `git`, `event` — the matched subject and its repo), the **action verbs** (`tell`, `deny`, `ask_oracle`, and `file`'s edit methods), and the **ambient runtime** (`today`, `now`, plus plain-Python builtins and a stdlib subset). Evaluating an `if::` condition or running a body is just executing Python in this scope — there is no separate interpreter or rule-language to learn, only this object surface:
+The **interpretation environment** is the Python scope a rule is *interpreted* in — where both its `if::` test and its body run. The engine pre-populates that scope with: the **injected objects** (`file`, `anchor`, `git`, `event`, `agent` — the matched subject, its repo, and the running agent), the **action verbs** (`tell`, `deny`, `ask_oracle`, `file`'s edits, and `sh`), and the **ambient runtime** (`today`, `now`, plus plain Python). Evaluating an `if::` condition or running a body is just executing Python in this scope — there is no separate interpreter or rule-language to learn, only this object surface:
 
 | In scope | Accessors / calls |
 |---|---|
 | **`file`** | `.path`, `.name`, `.text`, `.lines`, `.title`, `.frontmatter`, `.section(h)`, `.sections(level)`, `.links` |
 | **`anchor`** | `.name`, `.slug`, `.root`, `.traits`, `.get(name)` |
-| **`git`** | `.branch`, `.mode`, `.is_dirty`, `.ahead` |
+| **`git`** | `.branch`, `.mode`, `.is_dirty`, `.ahead`, `.changed` |
 | **`event`** | `.kind`, `.diff`, `.command`, `.tool` |
+| **`agent`** | `.state` (`working`/`landed`/`asking`/`idle`), `.skill`, `.is_asking` |
 | *ambient* | `today`, `now` (+ plain Python: builtins, `re`, `json`, `datetime`) |
-| *verbs* | `tell(msg)`, `deny(reason)`, the `file` edits (`set_frontmatter`, …), `ask_oracle(prompt)→str` — § Verbs |
+| *verbs* | `tell(msg)`, `deny(reason)`, the `file` edits, `ask_oracle(prompt)→str`, `sh(argv)` — § Verbs |
 
-None of `file` / `anchor` / `git` / `event` take a `ctx.` prefix — they are aliased into the scope directly.
+None of these take a `ctx.` prefix — they are aliased into the scope directly.
 
 ### `file`
 
@@ -145,6 +146,7 @@ The repository of the rule's **subject**, auto-resolved to the nearest enclosing
 | `git.branch` | current branch (`main`, …) |
 | `git.mode` | the anchor's git workflow mode — `Commit` (commit freely), review/PR, … (from Decisions) |
 | `git.is_dirty`, `git.ahead` | uncommitted changes?, commits ahead of upstream |
+| `git.changed` | paths changed since the last commit (a list) |
 
 *(Open: when an anchor nests its own code repo, "the git" is ambiguous — anchor repo vs code repo. For now it follows the subject.)*
 
@@ -159,6 +161,18 @@ The moment (from `when::`; **live runs only** — absent under `/audit`):
 | `event.command` | the pending / just-run command (Bash moments) |
 | `event.tool` | the tool name + input (tool moments) |
 
+### `agent`
+
+The running agent's state — sense it at a return / lifecycle moment (`when:: prompt:stop`, `session:*`) to react to *how a turn ended*:
+
+| Member | What it is |
+|---|---|
+| `agent.state` | `working` (mid-task), `landed` (finished clean), `asking` (waiting on a user answer), `idle` |
+| `agent.skill` | the skill running now — `land`, `query`, `crank`, … (or `None`) |
+| `agent.is_asking` | a user question is pending (sugar for `state == 'asking'`) |
+
+**Trigger vs. sense — for both agent-state and file-change.** The agent's turn boundary is a *moment* (`prompt:submit` / `prompt:stop`, [[Warden Events]]); its *state* is **sensed** here in `if::`. A **file change** has the same shape: an agent write is the `write:*` *moment* (trigger), `event.diff` is what changed (sense), and repo-wide change is sensed via `git.is_dirty` / `git.changed`. Warden *senses* change from git / the audit content-hash; it doesn't watch the filesystem (§ `when::` Change detection).
+
 ### Verbs
 
 The callable operations — the actions a body emits (`tell` / `edit` / `deny`), plus the `ask_oracle` reader:
@@ -170,6 +184,7 @@ The callable operations — the actions a body emits (`tell` / `edit` / `deny`),
 | `file.set_frontmatter(k, v)` | **edit** — set a frontmatter key (never-delete floored) |
 | `file.replace_section(h, text)` | **edit** — replace a section's body (never-delete floored) |
 | `ask_oracle(prompt) → str` | ask a fresh **oracle** (a context-less helper LLM); returns its text — merge material into the prompt yourself |
+| `sh(argv)` | run a shell command (an argv **list**); returns its output — an **effect** (`run`), trusted like a skill; argv-form blocks injection |
 
 ### Ambient
 

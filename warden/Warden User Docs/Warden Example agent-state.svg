@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="624" height="132" viewBox="0 0 624 132" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="13">
+<rect x="0" y="0" width="624" height="132" rx="9" fill="#f8f9fb" stroke="#c9cde0" stroke-width="1.3"/>
+<text x="16" y="29" xml:space="preserve"><tspan font-weight="bold" fill="#7b2d52">### RULE R-ex-10 — Surface an open question before ending the turn</tspan></text>
+<text x="16" y="49" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">when:: prompt:stop</tspan></text>
+<text x="16" y="69" xml:space="preserve"><tspan font-weight="normal" fill="#2d5b7b">if:: `agent.state == 'asking'`</tspan></text>
+<text x="16" y="89" xml:space="preserve"><tspan font-weight="normal" fill="#1a1a2e">You're ending the turn with an open question — add it to {NAME} queries.md</tspan></text>
+<text x="16" y="109" xml:space="preserve"><tspan font-weight="normal" fill="#1a1a2e">so the user can answer by reference.</tspan></text>
+</svg>
