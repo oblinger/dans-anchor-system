@@ -253,16 +253,21 @@ Conceptually a **compiler**, not an interpreter: it takes the rules active in an
 
 1. **Resolve the active set.** Active rulesets are known at the **anchor level** — an anchor adopts sets via `{NAME} Decisions.md` (§3). The installer resolves, per anchor, the flattened union of adopted + structurally-present sets.
 2. **Index each rule.** It picks an **index key** per rule — usually the `when::` moment (so the runtime hook for that moment dispatches straight to it), sometimes the `where::` place (a `when:: always` rule that touches one rare file indexes cheaper by path). The author never chooses this; the firing semantics (the conjunction, §4) are identical either way.
-3. **Pre-compile to a fast per-moment module.** All rules sharing a moment compile into one module: a generalization of today's `/distill`. At fire time the runtime hook (§6) for that moment runs the module, which checks the residual `where::` + `if::` conjuncts and runs each rule's `trigger`/`check`.
+3. **Pre-compile to an *indexed* per-moment dispatch.** All rules sharing a moment compile into one pre-built function, reached by an **index lookup** (moment → function), so fire time is *one call* — never a linear scan of the rule list (a scan is the last-resort fallback only). The function checks the residual `where::` + `if::` conjuncts and runs each rule's body.
 
-This is the path the **performance budget** rides on — it instruments nearly every tool use and action, so the per-moment module must be tiny and fast (see [[Warden PRD]] § Performance).
+This is the path the **performance budget** rides on — it instruments nearly every tool use and action (see [[Warden PRD]] § Performance).
 
-#### Two implementations — pure-Python reference, and Rust + resident Python
+#### The committed design — a resident daemon + a tiny notifier
 
-The engine has two implementations ([[F212 — Python reference implementation|F212]] / [[F213 — Rust performance implementation + ms budget|F213]]):
+The hot path is a **stateful resident Python daemon** plus a **non-Python notifier**:
 
-- **Pure-Python reference** — the clear, executable spec; runs the whole pipeline in Python. Correct, not fast; the behavioral oracle.
-- **Rust hot-path + resident Python** — for the per-moment budget. A Rust binary owns moment dispatch and runs **native primitives** directly (no interpreter at all for the common `check::` cases). For a rule whose body is *Python* (an arbitrary `def check` / `guard` / `prepare`), the Rust binary talks over a socket/IPC to a **resident Python interpreter** that holds the active rules **preloaded in memory** — so a Python body pays an IPC round-trip, never an interpreter *startup* (the cost that would blow the budget). The net: **one logic language** (Python), at near-native dispatch cost — glob/moment dispatch + native primitives on the hot path, the warm interpreter for anything Python. (A Rust-reimplemented Python subset was considered and rejected: more to build, and it amputates the language.)
+- **The daemon** is a long-running Python process holding the compiled, **indexed** rule set and **cached / lazy `ctx` state** in memory. Because it stays warm, evaluating a moment is a single pre-compiled function call over already-loaded rules — **sub-millisecond, and constant in total rule count**. It never pays interpreter startup. Its **lifecycle is the real complexity this buys**: it warm-starts lazily on the first hook (the first call pays the load+compile), **fails open** if it is down or still warming — never blocking the agent — and **recompiles** the affected index when a rule or `Decisions.md` changes (itself just a `write:*` moment it subscribes to).
+- **The notifier** is what Claude Code's hook actually spawns: a tiny **non-Python** signaler whose only job is to tell the daemon a moment occurred (and, for a `tool:pre` veto, get the verdict back). It must avoid Python's ~30–80 ms startup. Two forms, both fast:
+  - **Non-blocking** (a write, `tool:post`, a turn boundary): a one-line shell hook — `printf '%s' "$EVENT" >> warden.fifo` — `sh` boot + a FIFO write, **~1–3 ms** — and the daemon drains the FIFO **off the agent's critical path**.
+  - **Blocking** (`tool:pre` veto): a request/response round-trip over a Unix socket (`nc -U`, or a tiny native binary), **~2–4 ms**, only on the rare veto moments.
+- **Lazy `ctx`.** Most objects (`git`, `agent`, a file's parsed sections) aren't touched by most rules, so the daemon computes each **on first access and caches it per pass** — one `git` call, one content-hash, one `agent.state` read, shared across every rule that pass, regardless of rule count.
+- **The pure-Python reference** ([[F212 — Python reference implementation|F212]]) runs the same logic cold and in-process — correct, not fast; the behavioral oracle the daemon is tested against. A **native (Rust) notifier/dispatcher** ([[F213 — Rust performance implementation + ms budget|F213]]) is an *optional later optimization*, **not required**: the warm daemon already meets the budget; Rust only shaves the notifier's last millisecond.
+- **The oracle is a cheaper model.** An `if::` judgment / `ask_oracle` routes to a **Sonnet API** call (≈5× cheaper than the main Opus agent; ~1¢ per check), so judgment rules are affordable even at ~10% coverage.
 
 ### 7b · The on-demand audit pipeline (explicit path)
 

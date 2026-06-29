@@ -112,7 +112,7 @@ The **interpretation environment** is the Python scope a rule is *interpreted* i
 | *ambient* | `today`, `now` (+ plain Python: builtins, `re`, `json`, `datetime`) |
 | *verbs* | `tell(msg)`, `deny(reason)`, the `file` edits, `ask_oracle(prompt)→str`, `sh(argv)` — § Verbs |
 
-None of these take a `ctx.` prefix — they are aliased into the scope directly.
+None of these take a `ctx.` prefix — they are aliased into the scope directly. Each is **computed lazily and cached per pass** — most rules touch only a couple, so the daemon pays for `git` / `agent` / parsed sections only when a rule actually reads them ([[Warden Architecture]] §7).
 
 ### `file`
 
@@ -193,7 +193,7 @@ The callable operations — the actions a body emits (`tell` / `edit` / `deny`),
 | `today`, `now` | current date (ISO-serializing on write), current datetime |
 | Python | full Python — builtins + stdlib (`re`, `json`, `datetime`, …); it's real code, trusted like a skill (the hot-path interpreter may limit imports for *speed*, not security) |
 
-**How `ask_oracle` executes.** A hook is a synchronous subprocess and cannot block-and-await the agent's model, so `ask_oracle` spawns a **separate headless oracle** that sees only the prompt and returns a string. On the **audit path** (not latency-bound) the pipeline blocks on it and parses the answer — its home. On the **live path** (the ms-budget hot hook) it cannot block, so a live judgment is **delegated to the agent as a steer** instead. (Mechanism: [[Warden Architecture]] §7.)
+**How `ask_oracle` executes.** A hook is a synchronous subprocess and cannot block-and-await the agent's model, so `ask_oracle` spawns a **separate headless oracle** that sees only the prompt and returns a string. On the **audit path** (not latency-bound) the pipeline blocks on it and parses the answer — its home. On the **live path** (the ms-budget hot hook) it cannot block, so a live judgment is **delegated to the agent as a steer** instead. The oracle is a **cheaper model** — a Sonnet API call (≈5× cheaper than the main agent, ~1¢ per check) — so judgment rules stay affordable even at ~10% coverage. (Mechanism: [[Warden Architecture]] §7.)
 
 **Oracle idiom.** The oracle is context-less — it sees only the prompt, and the agent sees only what you `tell`. Give the oracle the narrow judgment (e.g. "which are wrong? reply `none` if none"), gate on a sentinel in code, and let the **rule author the directive** the agent sees — don't make the oracle write the steer. *When to use it:* the **agent** when it already has the context and you want it steered now; the **oracle** when the judgment is narrow, repeated, or wants caching and control (per-judgment an oracle can be far lighter — a cheap model on a small slice, cached — than the agent reasoning over its full context every time).
 
