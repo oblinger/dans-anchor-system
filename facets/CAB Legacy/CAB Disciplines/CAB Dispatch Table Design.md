@@ -6,10 +6,10 @@ description: "Design rationale + standing decisions for the Dispatch Table disci
 
 # CAB Dispatch Table Design
 
-**Anchor:** [[DSC Dispatch Table]] (the spec this explains)
-**Related:** [[Collection]],  [[progressive-disclosure]],  [[audit-dispatch\|/audit dispatch]]
+**Anchor:** [[FCT Dispatch Table]] (the spec this explains)
+**Related:** [[Collection]],  [[DSC progressive-disclosure]],  [[audit-dispatch\|/audit dispatch]]
 
-The **design-flow** companion to [[DSC Dispatch Table]]: it holds the *why* — the standing decisions, what was considered and rejected — so future work doesn't relitigate them. The spec is the *what*; this is the *why*. It's also the first worked instance of the **minimal-facet capsule** ([[CAE Minimal Facet]]).
+The **design-flow** companion to [[FCT Dispatch Table]]: it holds the *why* — the standing decisions, what was considered and rejected — so future work doesn't relitigate them. The spec is the *what*; this is the *why*. It's also the first worked instance of the **minimal-facet capsule** ([[CAE Minimal Facet]]).
 
 ## Standing decisions
 
@@ -28,7 +28,7 @@ Each entry: what was decided, what was considered, why. Append-only; this is the
 **Considered & rejected:** (B) a full anchor with a design scaffold — it re-creates the empty-stub bloat the vault is currently *deleting* (the legacy `{name} plan/` dozen-doc scaffold; see [[SYS]] F005). Wiki-links resolve by filename regardless of folder, so a later promotion stays link-safe — low lock-in is *why* we start minimal.
 
 ### Classification: a discipline (the form), not a doc facet
-**Decided earlier; reaffirmed.** The dispatch table is the *form* of a switchboard (derived navigation), distinct from content-container doc facets like [[FCT Brief]] / [[FCT Discussion]]. The reopenable alternative — folding it into [[CAB Anchor Page]] — is parked in the spec's § Alternative formulation.
+**Decided earlier; reaffirmed.** The dispatch table is the *form* of a switchboard (derived navigation), distinct from content-container doc facets like [[FCT Brief]] / [[FCT Discussion]]. The reopenable alternative — folding it into [[FCT Anchor Page]] — is parked in the spec's § Alternative formulation.
 
 ### No markdown inside backticks
 **Decided 2026-06-11.** Wiki-links inside inline code spans mangle on render (the linter rewrites them). Use bare wiki-links in prose; reserve backticks for literal tokens (`---`, `...`, `+`, paths, commands). Fenced blocks may show literal row *syntax* (placeholders render as plain text), but never as a stand-in for a real page — link to the live instance instead.
