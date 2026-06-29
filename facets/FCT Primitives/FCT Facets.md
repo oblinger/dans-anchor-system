@@ -16,7 +16,7 @@ Facets are one of the two sibling sub-categories of [[CAB Aspects|Aspect]] (the 
 **External / Publish:** [[CAB Documentation Site\|Doc Site]],  [[CAB Project Page\|Project Page]],  [[FCT Versions\|Versions]]
 **Skill / Ops:** [[CAB Skill\|Skill]],  [[CAB Claude\|CLAUDE.md]],  [[CAB Move\|Move]]
 **Skill Anchor (per F116):** [[CAB Facets/Skill Anchor/skill-testing\|skill-testing]],  [[CAB Facets/Skill Anchor/skill-search-rules\|skill-search-rules]],  [[CAB Facets/Skill Anchor/skill-script\|skill-script]],  [[CAB Facets/Skill Anchor/skill-config\|skill-config]]
-**Doc Facet:** [[CAB Facets/Doc Facet/CAB Discussion\|Discussion]],  [[CAB Facets/Doc Facet/CAB Brief\|Brief]]
+**Doc Facet:** [[FCT Discussion\|Discussion]],  [[FCT Brief\|Brief]]
 
 # BRIEF
 
