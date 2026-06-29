@@ -11,31 +11,36 @@ This folder holds the **entire former `CAB/` anchor** (the Common Anchor Bluepri
 
 **Why a holding area instead of scattering into the live FCT facets:** every CAB convention doc has an apparent FCT counterpart (e.g. `CAB Naming Conventions` ↔ `[[FCT Naming]]`, `CAB Page Conventions` ↔ `[[FCT Anchor Page]]`). Placing each one therefore requires a **merge-or-supersede decision per doc** — which the user should drive — rather than dropping duplicate spec files next to the live FCT docs (that would violate single-source-of-truth). The CAB Aspects (68 inbound refs) and CAB Base (36 inbound refs) docs are the load-bearing centers of this network.
 
-## Proposed placement (for user review — NOT yet executed)
+## CAB → FCT Migration Map (F218 execution worksheet)
 
-| Doc | Proposed disposition |
-|---|---|
-| [[CAB Naming Conventions]] | merge into / supersede by [[FCT Naming]] |
-| [[CAB Page Conventions]] | merge into / supersede by [[FCT Anchor Page]] |
-| [[CAB Repository Structure]] | merge into / supersede by [[FCT Code Repository]] |
-| [[CAB Documentation Publishing]] | merge into / supersede by [[FCT Documentation Site]] |
-| [[CAB Aspects]] | reconcile with [[FCT Facet]] + [[FCT Primitives]] (authoritative Aspect/Trait/Facet model) |
-| [[CAB Base]] | reconcile file-tree skeleton with [[FCT Anchor]] |
-| [[CAB Markdown Formatting]] | merge into / supersede by `[[DSC markdown]]` discipline |
-| [[CAB Dispatch Table Design]] | pair with [[FCT Dispatch Table]] (design rationale) |
-| [[CAB Docs Conventions]] | reconcile with [[FCT Design Docs]] / [[FCT Track]] (roadmap + deferral format) |
-| [[CAB Template]] | net-new — promote to an FCT Template facet (or [[FCT Primitives]]) |
-| [[CAB Defined Terms]] | net-new glossary — promote or fold into a vault glossary |
-| [[CAB Rust Rules]] | net-new — language-specific discipline (e.g. DSC rust) |
-| [[CAB Research]] | net-new — Paper-trait convention |
-| [[CAB Integrations]] | net-new thin — opt-in tools cross-ref |
-| [[CAB Maintenance]] | net-new thin — at-rest validation checklist (audit/lint) |
-| [[CAB Conventions]] | umbrella index — retire once members are placed |
-| [[CAB Disciplines]] / [[CAB Disciplines Brief]] | reconcile with the disciplines (DSC) system |
-| [[CAB Log]] | net-new — CAB change history + rewire-spec source; keep |
-| [[CAB Base\|CAB.md]] / CAB.md (anchor root) | conceptual entry point — fold into FCT system |
-| LINT/ (LINT Tool, LINT Log, LINT Design, LINT PRD, LINT Rules, LINT System Suppressions) | operational tooling → SKA / the `audit` skill. **Note:** `LINT/audit-docs.py` is a known **duplicate** of `skills/audit/scripts/audit-docs.py` (single-source-of-truth cleanup); `LINT PRD.md` is an empty stub (deletable). |
-| compile/ (compile.md + targets) | operational tooling → SKA / rewire skill |
-| CAB Design/CAB Maintain Design.md | skill design → the `maintain` skill |
+The actionable map driving [[SKA Backlog#^F218|F218]] (CAB → FCT content migration). **Action** legend: *supersede* = FCT doc already covers it, fold any unique content in then retire the CAB doc; *reconcile* = both are load-bearing, merge into the authoritative FCT model; *net-new* = no FCT home yet, create one (or route to the owning feature); *tooling* = operational code, relocate to a skill; *keep* = retain as-is. Status column starts blank — fill as F218 executes.
+
+| CAB doc | → FCT target | Action | Status |
+|---|---|---|---|
+| [[CAB Naming Conventions]] | [[FCT Naming]] | supersede | |
+| [[CAB Page Conventions]] | [[FCT Anchor Page]] | supersede | |
+| [[CAB Repository Structure]] | [[FCT Code Repository]] | supersede | |
+| [[CAB Documentation Publishing]] | [[FCT Documentation Site]] | supersede | |
+| [[CAB Markdown Formatting]] | `[[DSC markdown]]` | supersede | |
+| [[CAB Aspects]] | [[FCT Facet]] + [[FCT Primitives]] | reconcile (authoritative Aspect/Trait/Facet model; ~68 inbound) | |
+| [[CAB Base]] | [[FCT Anchor]] | reconcile (file-tree skeleton; ~36 inbound) | |
+| [[CAB Dispatch Table Design]] | [[FCT Dispatch Table]] | reconcile (fold as design rationale) | |
+| [[CAB Docs Conventions]] | [[FCT Design Docs]] / [[FCT Track]] | reconcile (roadmap + deferral format) | |
+| [[CAB Disciplines]] / [[CAB Disciplines Brief]] | the DSC system | reconcile | |
+| [[CAB Template]] | `FCT Template` / `DSC template` | net-new → **routed to [[SKA Backlog#^F220\|F220]]** | |
+| [[CAB Defined Terms]] | vault glossary / [[Atlas]] | net-new (glossary) | |
+| [[CAB Rust Rules]] | `DSC rust` | net-new (language discipline) | |
+| [[CAB Research]] | Paper-trait convention | net-new (thin) | |
+| [[CAB Integrations]] | opt-in tools cross-ref | net-new (thin) | |
+| [[CAB Maintenance]] | audit/lint at-rest checklist | net-new (thin) | |
+| [[CAB Conventions]] | — | umbrella index — retire once members placed | |
+| CAB.md (root) / [[CAB Base\|CAB.md]] | FCT system entry point | fold conceptual entry | |
+| [[CAB Log]] | — | keep (CAB change history + rewire-spec source) | |
+| LINT/ (Tool, Log, Design, PRD, Rules, Suppressions) | the `audit` skill / SKA tooling | tooling — `LINT/audit-docs.py` is a dup of `skills/audit/scripts/audit-docs.py`; `LINT PRD.md` is an empty stub (deletable) | |
+| compile/ (compile.md + targets) | the `rewire` skill / SKA tooling | tooling | |
+| CAB Design/CAB Maintain Design.md | the `maintain` skill | skill design | |
+
+**Companion features** (the rest of the "land everything in the new representation" set): branding retirement → [[SKA Backlog#^F191|F191]]; Decisions-record + skill-scaffold unification → [[SKA Backlog#^F221|F221]]; Template facet/discipline + placement sweep → [[SKA Backlog#^F220|F220]].
+
 
 Until the user decides, treat the contents here as **frozen**. The `CAB/CAB Track/` backlog has already been migrated: its one substantive item (legacy anchor-root page migration) became SKA **F217**; the `B-QFix` audit residuals were reconciled into SKA's own `B-QFix` (CAE/CSE-targeted residuals dropped as their targets were relocated).
