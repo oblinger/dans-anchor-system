@@ -109,10 +109,13 @@ The **interpretation environment** is the Python scope a rule is *interpreted* i
 | *verbs* | `tell(msg)`, `deny(reason)`, the `file` edits, `ask_oracle(prompt)→str`, `sh(argv)` — § Verbs |
 | *ambient* | `today`, `now` (+ plain Python: builtins, `re`, `json`, `datetime`) |
 | *variables* | `{ANCHOR}`, `{NAME}`, `{SLUG}` — `where::` substitutions (§ Ambient and variables) |
+| *helpers* | the ruleset's own module(s), namespaced — `md.*`, `dispatch.*` (declared via `helpers::`, § below) |
 
 None of these take a `ctx.` prefix — they are aliased into the scope directly. Each is **computed lazily and cached per pass** — most rules touch only a couple, so the daemon pays for `git` / `agent` / parsed sections only when a rule actually reads them ([[Warden Architecture]] §7).
 
 **Naming convention.** Accessor names are **snake_case** for multi-word identifiers (`is_dirty`, `set_frontmatter`, `replace_section`); single domain words stay one word (`frontmatter` — as in the `python-frontmatter` library — `sections`, `links`). The all-caps brace form (`{NAME}`) is reserved for the `where::` substitution variables.
+
+**Helper modules (`helpers::`).** A ruleset whose checks outgrow an inline `if::` ships a sibling Python module and declares it in its header — `helpers:: ./R-markdown.py as md` — binding that module under the namespace into every rule's scope (`md.unescaped_table_pipe(file)`). The module is ordinary, **unit-testable** Python (the M3 regime tests it directly), **namespaced** so composed rulesets never collide, and **skill-class trust** — it's the author's code, vetted on adoption like any imported ruleset (the same trust class as a `run` body, so nothing new). Only helper-bearing rulesets grow a sidecar; simple ones stay a single doc. *(The ruleset-header `helpers::` field is specced alongside `include::` / `where::` in [[FCT Ruleset]], folded in during the meta-bucket pass.)*
 
 ### `file` — the document, as the root `Section`
 

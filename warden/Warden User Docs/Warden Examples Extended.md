@@ -92,7 +92,7 @@ The reach is `anchor.files(glob)` (each match loaded as a root `Section`, lazy) 
 | # | Gap | One-line | Status |
 |---|---|---|---|
 | G1 | mechanical-edit verb | lossless auto-fixes had no edit verb (E100) | **largely resolved** — writable structure (E103); residual = run-class `file.text =` |
-| G2 | ruleset helper namespace | no spec for a ruleset's own reusable `md.*` / `dispatch.*` helpers — packaging, import, trust (E101) | open |
+| G2 | ruleset helper namespace | a ruleset's own reusable `md.*` / `dispatch.*` helpers (E101) | **resolved** — sidecar `.py` via `helpers:: ./X.py as ns`; namespaced, unit-testable, skill-class trust |
 | G3 | finding confidence / sampling | one firing mode; no review-don't-assert / sampled / soft-tell dimension (E102) | open |
 | G4 | structured-document access | no structured tables / section tree on `file` (E103) | **resolved** — `file` = root Section + lazy `.tables`, read/write |
 | G5 | cross-file reach | rules need to read past the trigger file (E104) | **resolved (scoped)** — `anchor.files()` / `.doc()`; live invalidation deferred to M8 (audit-passive) |
