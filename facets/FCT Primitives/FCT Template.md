@@ -94,8 +94,9 @@ Copying the template, renaming it, and replacing-or-deleting every `{{VARIABLE}}
 
 # BRIEF
 
-- **This is the Template facet umbrella** — the concept (a domain-specific, folder-local structure) + the load-bearing **Template-vs-Facet** distinction (local/one-place vs global/type-wide) + the scope/reuse model. Per-part detail lives in the three children: [[FCT Template Files]], [[FCT Template Folders]], [[FCT Template Variables]]. Design rationale: [[F220 — Template facet-or-discipline — design review + vault-wide placement sweep|F220]].
-- **Keep the corrected model load-bearing.** A template is NOT cross-anchor and is NOT just "how an item starts." It is the *local* analog of a facet: it standardizes the items of one folder/tree when the shape is too domain-specific to be a global facet (the Computer-folder / Disk-tree / one-off-engine cases). A facet that would only ever exist in one place is a template.
-- **The four audit identifiers are load-bearing** — `template-is-spec`, `template-has-fake-cumulative-entries`, `missing-folder-template-row`, `orphan-template` map to R-template-01/03/05/06 and are consumed by [[rewire]] + audit tooling. Don't rename without updating consumers.
-- **Examples are real in-repo instances, shown live** (never embedded as a fenced block — a fence makes the example's markdown inert, the exact failure R-template-01 forbids; never an external link — this repo is standalone). The two worked examples are [[_Computer Template]] (file) and [[_Disk Template]] (folder), under `examples/FEX Templates/`.
-- **Reuse/scoping (§ Scope & applicability) is unsettled** — the hierarchy-climb vs template-alias mechanisms are recorded as [[F220]] Q4, not yet decided. Don't harden either into a rule until the review settles it.
+*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body above; per-part detail is in [[FCT Template Files]] / [[FCT Template Folders]] / [[FCT Template Variables]]; design rationale is [[F220 — Template facet-or-discipline — design review + vault-wide placement sweep|F220]].)*
+
+- **Don't regress the model** to "cross-anchor" or "genesis-only" — the local/domain-specific framing (§ Template vs Facet) was a deliberate correction of an earlier wrong draft.
+- **Audit identifiers are consumed by tooling** — `template-is-spec` / `template-has-fake-cumulative-entries` / `missing-folder-template-row` / `orphan-template` (R-template-01/03/05/06) are read by [[rewire]] + audit; don't rename without updating consumers.
+- **Examples must be in-repo** (`examples/FEX Templates/`), never external links — this repo is published standalone.
+- **Reuse/scoping is deferred** ([[F220]] Q4) — don't harden a mechanism into a rule until it's decided.
