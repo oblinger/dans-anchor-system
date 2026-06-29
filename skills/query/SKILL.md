@@ -1,14 +1,15 @@
 ---
 name: query
 description: >
-  Ask the user questions by building the anchor's `{NAME} queries.md` (in
-  `{NAME} Track/`). Walk every open question; decide per question how to raise it
-  — auto-resolve a reversible soon-visible guess, do a check yourself rather than
-  ask, request a SPECIFIC user verification, ask a self-contained yes/no, or link
-  out — into four sections (Agent Resolutions / Verifications / Immediate
-  Questions / Questions). Glance the doc, optionally echo immediate items to the
-  console in the inline-ask format, and trim answered items. The clean successor
-  to /ask. Use when the user runs /query or an agent needs a decision. Per F169.
+  The system for NOT asking the user questions piecemeal. Prime directive:
+  ELIMINATE every question the agent can (auto-resolve reversible/soon-visible
+  guesses, run checks itself, decide low-stakes/visible calls, infer from the
+  codebase), then CONSOLIDATE the irreducible residue into one self-documenting,
+  counted, one-shot-answerable pile in the anchor's `{NAME} queries.md` (sections
+  Agent Resolutions / Verifications / Immediate Questions / Questions). NEVER ask
+  in chat — especially after a triage; that is the cardinal violation. Glance the
+  doc and trim answered items. Use when the user runs /query or an agent has a
+  decision to route. Per F169 + [[Query PRD]].
 tools: Read, Write, Edit, Bash, Glob
 user_invocable: true
 ---
