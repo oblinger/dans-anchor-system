@@ -19,13 +19,11 @@ A rule is a markdown **heading** whose first token is the all-caps `RULE` sentin
 |---|---|---|
 | `<H> RULE R-<slug>-NN` | the heading (any H-level; H3 customary) | `RULE` = the all-caps sentinel grep / lint depend on; `R-<slug>-NN` is the permanent id ([[#Naming]]) |
 | `— <short name>` | optional, on the heading | a brief human title |
-| `description::` | optional, encouraged | the rule's **meaning / goal** in one line — context for anyone (human or LLM) *reading* the rule, per the North Star (rules are meaningful without Warden). **Not sent on rule fire** (token economy). Especially valuable when the body is Python, but useful on any rule. |
+| `description::` | optional, encouraged | the rule's **meaning / goal** — a **queryable** Dataview field (hence one line) stating the rule's intent for anyone (human or LLM) *reading* it, per the North Star. **Not sent on rule fire**. Especially valuable when the body is Python. |
 | `where::` · `when::` · `if::` | the **condition** | which files · which moment · the test (§ The condition) |
 | **the body** | bare prose, or backticked Python | the **action** — bare prose *is* the `tell`; Python runs the verbs (`tell` / `edit` / `deny` / `sh` / `ask_oracle`). [[Warden Semantics]] § The actions. |
 | `rerun::` | optional **override** | re-evaluation economy — *automatic by body cost* (an expensive LLM body defaults to re-running only on a *significant* change; a cheap body re-runs on any change). `rerun::` overrides that default; you rarely write it. The cache/re-evaluation axis, distinct from `if`/`when` ([[F215 — Re-evaluation economy — the significant-edit gate\|F215]]). |
-| `**Why:**` · `**Exceptions:**` | optional | rationale / acknowledged exceptions — **prose** (a bold marker, *not* a `::` field: these are often multi-line, and a `::` field holds only a single line). Not sent on fire. |
-
-There is **no `tier`, no `check::`, no `Check pattern:`** — those were the earlier model. A "check" is just an `if::` condition; the body is the action ([[Warden Semantics]]).
+| `**Why:**` · `**Exceptions:**` | optional | rationale / acknowledged exceptions — **freeform prose** (a bold marker, not a queryable `::` field), so they can run long. Not sent on fire. |
 
 ## The ruleset
 
