@@ -6,7 +6,7 @@ description: "F209 — Unified trigger taxonomy + `when::` language"
 
 ## Summary
 
-Today's triggers are a flat, ad-hoc set (`compact`, `markdown-write`, `skill:<name>`) spread across F180 (`when::`) and F091 (`.anchor` trait declarations). F209 replaces that with **one unified taxonomy**: a tree of agent *moments* where each node is refined into its children by exactly one parameter (`tool` → `tool:post` → `tool:post:Bash` → `tool:post:Bash:git-commit`). A rule's `when::` names a moment at any depth; a shallow moment prefix-matches all descendants. The full spec is [[Warden Trigger Taxonomy]]; this feature is the work to finalize it and make it the single source for triggers.
+Today's triggers are a flat, ad-hoc set (`compact`, `markdown-write`, `skill:<name>`) spread across F180 (`when::`) and F091 (`.anchor` trait declarations). F209 replaces that with **one unified taxonomy**: a tree of agent *moments* where each node is refined into its children by exactly one parameter (`tool` → `tool:post` → `tool:post:Bash` → `tool:post:Bash:git-commit`). A rule's `when::` names a moment at any depth; a shallow moment prefix-matches all descendants. The full spec is [[Warden Events]]; this feature is the work to finalize it and make it the single source for triggers.
 
 ## Success Criteria
 
@@ -19,7 +19,7 @@ Today's triggers are a flat, ad-hoc set (`compact`, `markdown-write`, `skill:<na
 
 ## Design
 
-See [[Warden Trigger Taxonomy]] for the full tables. Key decisions this feature locks:
+See [[Warden Events]] for the full tables. Key decisions this feature locks:
 
 - **Single refining parameter per level** — uniform shape, prefix-matchable, additive extension.
 - **Path-valued refinements move to `where::`** — `when::` stays about the event class; the file/dir it concerns is the cross-cutting `where::` (see [[F210 — Conjunction binding + indexing|F210]]).
@@ -34,4 +34,4 @@ See [[Warden Trigger Taxonomy]] for the full tables. Key decisions this feature 
 
 ## Status
 
-**Drafted 2026-06-26.** Taxonomy spec authored at [[Warden Trigger Taxonomy]]; architecture §5 updated to defer to it. Remaining: resolve the open questions and freeze.
+**Drafted 2026-06-26.** Taxonomy spec authored at [[Warden Events]]; architecture §5 updated to defer to it. Remaining: resolve the open questions and freeze.

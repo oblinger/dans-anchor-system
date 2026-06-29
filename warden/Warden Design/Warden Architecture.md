@@ -26,7 +26,7 @@ The rule system is how a portable, audit-checkable constraint is **defined** (th
 | | Adoption | An anchor's `{NAME} Decisions.md` `include::`s a ruleset and cites rules. → [§3](#3--placement-and-association--where-rules-live) |
 | **3 · Binding** | conjunction `when ∧ where ∧ if` | A rule fires only when all clauses hold; the engine picks the dispatch. → §4 |
 | | `where::` | The **place** selector (spatial, cross-cutting): `always` / `file:<glob>` / `anchor` / `sentinel:<regex>`. → §4 |
-| | `when::` | The **moment** trigger (temporal): the unified taxonomy → [[Warden Trigger Taxonomy]]. → §5 |
+| | `when::` | The **moment** trigger (temporal): the unified taxonomy → [[Warden Events]]. → §5 |
 | | `if::` | The optional **guard** (condition): declarative or Python. → §5 |
 | **4 · Execution** | Compiler / installer | Indexes active rules onto runtime moments; pre-compiles per-moment modules (implicit path). → §7a |
 | | On-demand audit | `audit-plan.py` — Resolve → Run → Judge → Fix, three caches (explicit path). → §7b |
@@ -153,9 +153,9 @@ A rule is a standing constraint that means the **conjunction** of its clauses; i
 
 | Clause | Dimension | Answers | Spec |
 |---|---|---|---|
-| `when::` | **moment** (temporal) | *at what moment?* | §5 + [[Warden Trigger Taxonomy]] |
+| `when::` | **moment** (temporal) | *at what moment?* | §5 + [[Warden Events]] |
 | `where::` | **place** (spatial, cross-cutting) | *concerning which file / directory / target?* | this section + [[FCT Ruleset]] § Where clause |
-| `if::` *(optional guard)* | **condition** | *and only if …?* | §5 (guards) + [[Warden Trigger Taxonomy]] |
+| `if::` *(optional guard)* | **condition** | *and only if …?* | §5 (guards) + [[Warden Events]] |
 
 `where::` is a deliberately **separate cross-cutting axis** rather than more depth in `when::`: the same place-predicate (`{ANCHOR}/**/*.md`) recurs under many moments (write it, read it, audit it), so it factors out. A passive file-check rule (today's default) is just one with no `when::` — it is evaluated whenever the audit visits, with `where::` doing all the binding.
 
@@ -184,9 +184,9 @@ A rule is a standing constraint that means the **conjunction** of its clauses; i
 
 ## 5 · The `when::` trigger — the moment taxonomy
 
-`when::` answers *at what moment does this rule fire?* Every moment in the system lives in **one unified taxonomy** — a tree in which each node is refined into its children by exactly **one parameter**: `tool` → `tool:post` → `tool:post:Bash` → `tool:post:Bash:git-commit`. A rule names the moment at whatever depth it cares about; a shallow moment matches all its descendants. The full grammar, the dense per-group moment tables, the aliases, and the matching rules are the dedicated spec: **[[Warden Trigger Taxonomy]]**. Design lineage: [[F180 — When-trigger executable rules|F180]] (the `when::` clause + executables, shipped 2026-06-25), [[F091 — Trigger discipline|F091]] (the `compact` / `markdown-write` surfaces), [[F006 — Rule triggering — when the agent attends to rules|F006]] (the trigger-axis exploration).
+`when::` answers *at what moment does this rule fire?* Every moment in the system lives in **one unified taxonomy** — a tree in which each node is refined into its children by exactly **one parameter**: `tool` → `tool:post` → `tool:post:Bash` → `tool:post:Bash:git-commit`. A rule names the moment at whatever depth it cares about; a shallow moment matches all its descendants. The full grammar, the dense per-group moment tables, the aliases, and the matching rules are the dedicated spec: **[[Warden Events]]**. Design lineage: [[F180 — When-trigger executable rules|F180]] (the `when::` clause + executables, shipped 2026-06-25), [[F091 — Trigger discipline|F091]] (the `compact` / `markdown-write` surfaces), [[F006 — Rule triggering — when the agent attends to rules|F006]] (the trigger-axis exploration).
 
-**Moment groups** (each a recursive single-parameter subtree — see [[Warden Trigger Taxonomy]] for the full tables):
+**Moment groups** (each a recursive single-parameter subtree — see [[Warden Events]] for the full tables):
 
 | Group | Root → refinement | Representative leaves | Friendly alias |
 |---|---|---|---|
@@ -286,7 +286,7 @@ The thorough backstop — `Resolve → Run → Judge → Fix`, mechanical-by-scr
 - **Sentinels are load-bearing.** The all-caps `RULESET` and `RULE` are mechanical markers grep/lint/flatten depend on — never lowercase, rename, or invent alternates.
 - **Identifiers are forever.** `R-<slug>-NN` numbers are zero-padded, unique within the slug, monotonic, never recycled; composition never renumbers.
 - **A rule is a conjunction.** It fires iff `when::` (moment) ∧ `where::` (place) ∧ every `if::` (guard) hold. The author writes the truth condition; the compiler picks the dispatch (index by-when or by-where) — firing semantics are identical either way.
-- **One unified moment taxonomy.** Every trigger is a node in the single tree of [[Warden Trigger Taxonomy]], refined one parameter per level; new triggers extend an existing node, never add a parallel concept.
+- **One unified moment taxonomy.** Every trigger is a node in the single tree of [[Warden Events]], refined one parameter per level; new triggers extend an existing node, never add a parallel concept.
 - **Never wipe authored content.** Auto-fix is gated by `aow-safety.py`; the never-delete floor holds on every automated path.
 - **One corpus, two paths.** The implicit compiler/installer (runtime moments) and the explicit audit pipeline run the *same* rules through one `when::`/`where::`/`if::` vocabulary; they differ only in trigger and automation level.
 
@@ -294,7 +294,7 @@ The thorough backstop — `Resolve → Run → Judge → Fix`, mechanical-by-scr
 
 | Subsystem | Source of truth |
 |---|---|
-| `when::` moment taxonomy + conjunction model | [[Warden Trigger Taxonomy]] |
+| `when::` moment taxonomy + conjunction model | [[Warden Events]] |
 | Prior art + integration/dependency policy | [[Warden Survey]], [[Warden Integration Strategy]] |
 | Rule + Ruleset format, `where::` | [[FCT Ruleset]] |
 | Adoption, Decisions, Cites | [[FCT Decisions]] |

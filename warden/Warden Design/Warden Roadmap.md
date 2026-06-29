@@ -4,7 +4,7 @@ description: "the build sequence — design → compiler → Python ref → Rust
 
 # Warden Roadmap
 
-The sequenced build plan for the rule system. The **language design** is largely complete ([[Warden Architecture]], [[Warden Trigger Taxonomy]], [[FCT Ruleset]]); the runway ahead is the **compiler/installer**, the **two implementations** (Python reference → Rust performance), and a **heavy testing regime** that runs alongside every milestone — not after. Requirements + perf budgets: [[Warden PRD]].
+The sequenced build plan for the rule system. The **language design** is largely complete ([[Warden Architecture]], [[Warden Events]], [[FCT Ruleset]]); the runway ahead is the **compiler/installer**, the **two implementations** (Python reference → Rust performance), and a **heavy testing regime** that runs alongside every milestone — not after. Requirements + perf budgets: [[Warden PRD]].
 
 > [!info] How to read this
 > Milestones are roughly sequential but the testing regime (M6) is **continuous** — every milestone ships with its tests green before the next starts. Each milestone names its feature doc(s) in [[Warden Features]]. "Done-when" is the gate to the next milestone.
@@ -19,7 +19,7 @@ The declarative surface: what a rule is and how it binds.
 |---|---|---|
 | Rule + Ruleset format, `include::`, `where::` | done | [[FCT Ruleset]] |
 | `when::` clause + executable rules | done (F180) | [[F180 — When-trigger executable rules\|F180]] |
-| Unified moment taxonomy | **drafted** | [[Warden Trigger Taxonomy]], [[F209 — Unified trigger taxonomy + when language\|F209]] |
+| Unified moment taxonomy | **drafted** | [[Warden Events]], [[F209 — Unified trigger taxonomy + when language\|F209]] |
 | Conjunction model (`when ∧ where ∧ if`) + `if::` guards | **drafted** | [[Warden Architecture]] §4–5, [[F210 — Conjunction binding + indexing\|F210]] |
 
 **Done-when:** the taxonomy + conjunction specs are reviewed and frozen; every existing trigger surface (`compact`, `markdown-write`, `skill:*`) maps cleanly onto a moment path; F209/F210 open questions resolved.

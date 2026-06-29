@@ -4,7 +4,7 @@ description: "product requirements — the rule system, its goals, and the perfo
 
 # Warden PRD
 
-The **rule system** is the vault's mechanism for stating a standing constraint once — declaratively — and having it enforced everywhere it applies, at the right moment, for every agent, automatically. A rule names *what must be true* (`when ∧ where ∧ if`); the system makes it fire. This PRD covers the whole system — the language, the corpus, the compiler/installer, and the two run paths — not just the `/rule` skill (which is one surface onto it). Architecture: [[Warden Architecture]]. Format spec: [[FCT Ruleset]]. Moment taxonomy: [[Warden Trigger Taxonomy]].
+The **rule system** is the vault's mechanism for stating a standing constraint once — declaratively — and having it enforced everywhere it applies, at the right moment, for every agent, automatically. A rule names *what must be true* (`when ∧ where ∧ if`); the system makes it fire. This PRD covers the whole system — the language, the corpus, the compiler/installer, and the two run paths — not just the `/rule` skill (which is one surface onto it). Architecture: [[Warden Architecture]]. Format spec: [[FCT Ruleset]]. Moment taxonomy: [[Warden Events]].
 
 ## Problem
 
@@ -33,7 +33,7 @@ One declarative rule language and one runtime:
 
 - A constraint is **declared once** in the rule language and enforced everywhere it applies, with **no per-rule plumbing**.
 - The implicit path is **fast enough to instrument nearly every action** (meets the per-moment budget, § Performance).
-- One **unified moment taxonomy** ([[Warden Trigger Taxonomy]]) subsumes every existing trigger surface (`compact`, `markdown-write`, `skill:*`) and is open-ended.
+- One **unified moment taxonomy** ([[Warden Events]]) subsumes every existing trigger surface (`compact`, `markdown-write`, `skill:*`) and is open-ended.
 - The implicit (compiler) and explicit (audit) paths produce **identical verdicts** over the same corpus.
 - A **Python reference** implementation and a **Rust performance** implementation are behavior-identical, with Rust owning the hot path.
 

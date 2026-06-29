@@ -52,7 +52,7 @@ The moment that fires the rule **live**. Omit it and the rule is **passive**: it
 | `git` | `commit`, `push`, `merge`, `pre-commit` | Bash-argv / git hook |
 | `prompt` | `submit`, `stop` | `UserPromptSubmit` / `Stop` |
 
-Read a row as a path — `tool` ⊃ `tool:post` ⊃ `tool:post:Bash` — and a shallow moment **prefix-matches** everything under it; `,` is OR (`when:: session:compact, git:commit`). Full grammar and per-class detail: [[Warden Trigger Taxonomy]].
+Read a row as a path — `tool` ⊃ `tool:post` ⊃ `tool:post:Bash` — and a shallow moment **prefix-matches** everything under it; `,` is OR (`when:: session:compact, git:commit`). Full grammar and per-class detail: [[Warden Events]].
 
 **What triggers each.** A live rule fires when its `when::` moment occurs (the hook). A passive rule fires only on an **`/audit` pass** — run manually, or wired to a moment (SessionStart, post-commit, a skill post-condition). Nothing watches the filesystem; a file changing on its own triggers nothing.
 
@@ -196,7 +196,7 @@ An `if::` test that calls the oracle costs tokens, so its result is cached by fi
 ## See also
 
 - [[Warden Rule]] — the file format these semantics run over.
-- [[Warden Trigger Taxonomy]] — the `when::` index; [[FCT Ruleset]] — the `where::` index.
+- [[Warden Events]] — the `when::` index; [[FCT Ruleset]] — the `where::` index.
 - [[FCT Decisions]] — adoption / activation of rulesets by an anchor.
 - [[Warden Architecture]] — how the active set is compiled and dispatched (incl. the resident-Python implementation, §7a).
 - [[Warden Examples]] — every kind of test + action, as complete rules.

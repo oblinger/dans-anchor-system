@@ -10,7 +10,7 @@ description: Warden user documentation — the manual for writing and running ru
 **Warden** lets you state a rule once — *when* a moment happens, *where* (which file), and optionally *if* a condition holds — and have it enforced automatically, with a corrective message fed back to the agent. This is the user-facing manual: how to author rules and what they can do.
 
 > [!note] Where the precise specs live
-> This manual is task-oriented (*how do I…*). The authoritative formats are the reference specs: the rule/ruleset file format is [[Warden Rule]], the `when::` moment vocabulary is [[Warden Trigger Taxonomy]], and `where::` is [[FCT Ruleset]] § Where clause. New here? **[[Warden Examples]]** is the fastest way in.
+> This manual is task-oriented (*how do I…*). The authoritative formats are the reference specs: the rule/ruleset file format is [[Warden Rule]], the `when::` moment vocabulary is [[Warden Events]], and `where::` is [[FCT Ruleset]] § Where clause. New here? **[[Warden Examples]]** is the fastest way in.
 
 ## Contents
 

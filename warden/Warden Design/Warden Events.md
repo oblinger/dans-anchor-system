@@ -1,9 +1,9 @@
 ---
-description: "the formal `when::` moment taxonomy — one recursive single-parameter tree"
+description: "the moment catalog a `when::` clause names — the tree, the grammar, the per-class events"
 ---
-# Warden Trigger Taxonomy
+# Warden Events
 
-**Every moment Warden can fire on.** Read each row left to right — a **class** (with its `pre` / `post` phase, where it has one), then the **moment** that refines it. Deeper refinements — a specific Bash command, a skill's action — are in the per-class sections below; a path-valued tail (*which* file) lives in the cross-cutting [[FCT Ruleset\|where::]] clause. Tool and event tokens are Claude Code's own; the tree is ours. Each class links to its detail.
+**Every moment Warden can fire on.** A `when::` clause names one of these. Read each row left to right — a **class** (with its `pre` / `post` phase, where it has one), then the **moment** that refines it. Deeper refinements — a specific Bash command, a skill's action — are in the per-class sections below; a path-valued tail (*which* file) lives in the cross-cutting [[FCT Ruleset\|where::]] clause. Tool and event tokens are Claude Code's own; the tree is ours.
 
 | Moment class | Moment (2nd level) | Fires on (Claude Code) |
 | --- | --- | --- |
@@ -14,32 +14,16 @@ description: "the formal `when::` moment taxonomy — one recursive single-param
 | [[#VCS moments\|git]] | `commit`, `push`, `merge`, `pre-commit` | Bash-argv / git hook |
 | [[#Turn moments\|prompt]] | `submit`, `stop` | `UserPromptSubmit` / `Stop` |
 
-**Read a row as a path:** `tool` ⊃ `tool:post` ⊃ `tool:post:Bash` (⊃ `tool:post:Bash:git-commit`). A rule binds at whatever depth it cares about, and a shallower binding **prefix-matches** everything below it. `,` in a `when::` is OR across moments. The Claude-Code event mapping is detailed in [[Warden Architecture]] §6 (hook subsystem). A rule is the conjunction [[#The conjunction model — when ∧ where ∧ if\|when ∧ where ∧ if]].
+**Read a row as a path:** `tool` ⊃ `tool:post` ⊃ `tool:post:Bash` (⊃ `tool:post:Bash:git-commit`). A rule binds at whatever depth it cares about, and a shallower binding **prefix-matches** everything below it. `,` in a `when::` is OR across moments. The Claude-Code event mapping is in [[Warden Architecture]] §6 (hook subsystem). How a moment combines with `where::` / `if::` to fire a rule is **[[Warden Semantics]] § The condition** — this page is only the catalog of moments.
 
 ## Overview
 
 The `when::` clause names a **moment** — a point in the agent's life when a rule should fire. Every moment lives in **one unified taxonomy**: a tree in which each node is refined into its children by exactly **one parameter**. `when:: tool` is every tool use; `when:: tool:post` is every moment *after* a tool; `when:: tool:post:Bash` is after a Bash call. A rule names the moment at whatever depth it cares about; a shallow moment matches all its descendants.
 
-This page is the formal specification of that taxonomy — the moment classes, the grammar, the matching rules, and how [[FCT Ruleset\|where::]] cross-cuts the tree. It is part of [[Warden Architecture]] (§5 binding) and the source of truth the rule compiler ([[Warden Architecture]] §7) indexes against. The **rule/ruleset format** these moments live inside is [[Warden Rule]].
+This page catalogs the moment classes, the `when::` path grammar, and the matching rules. It is the source of truth the rule compiler ([[Warden Architecture]] §7) indexes against.
 
 > [!info] Why one parameter per level
 > Refining by a single parameter per level makes the taxonomy **uniform** (every node has the same shape), **prefix-matchable** (a shorter path is a strict generalization of a longer one), and **extensible** (a new discriminator is one more level under an existing node — never a new top-level concept). Common moments stay shallow (≈2 levels); depth is *available*, not *required*.
-
-## The conjunction model — when ∧ where ∧ if
-
-A rule means the **conjunction** of its clauses; it fires only when all hold. Three separate clauses — each maps to one key, which is what lets a rule drop cleanly into a flat YAML / Hookify-style form (and is why we do **not** fold `if` into `when` or allow mixed multi-`when` expressions).
-
-| Clause | Dimension | Answers | Spec |
-|---|---|---|---|
-| `when::` | **moment** (temporal) | *at what moment?* | this page |
-| `where::` | **place** (spatial, cross-cutting) | *concerning which file / directory / target?* | [[FCT Ruleset]] § Where clause |
-| `if::` | **condition** (state) | *and only if …?* | [[#Guards\|§ Guards]] |
-
-The author writes the clauses; the **engine decides how to make the conjunction fire** ([[#Indexing\|§ Indexing]]) — the author never specifies the dispatch. `where::` is a *separate* cross-cutting axis rather than more `when::` depth: the same place-predicate (`{ANCHOR}/**/*.md`) recurs under many moments (write it, read it, audit it), so it factors out.
-
-```
-rule  ⟺  fires at  ( moment ∈ when::  ∧  target ∈ where::  ∧  guard(ctx) )
-```
 
 ## Grammar
 
@@ -114,33 +98,15 @@ Fire on the conversational turn boundary.
 No "friendly alias" layer — the canonical moment path is the only first-class form. Two narrow conveniences only:
 
 - **Phase default.** A bare `skill:<name>` or `tool:<name>` (no `pre`/`post`) defaults to **`post`** — `skill:audit-q` ≡ `skill:post:audit-q`. This is a default, not a second name.
-- **Legacy shims (deprecated).** The already-shipped tokens `compact` → `session:compact` and `markdown-write` → `write:markdown` (from [[F091 — Trigger discipline|F091]] / [[F180 — When-trigger executable rules|F180]]) are accepted for back-compat with existing rules, and rewritten to canonical form. New rules use the canonical path.
+- **Legacy shims (deprecated).** The already-shipped tokens `compact` → `session:compact` and `markdown-write` → `write:markdown` (from [[F091 — Trigger discipline|F091]] / [[F180 — When-trigger executable rules|F180]]) are accepted for back-compat, and rewritten to canonical form. New rules use the canonical path.
 
 ## Matching semantics
 
 1. **Prefix match.** A rule's `when::` matches the fired moment iff it is an **ancestor-or-equal** of it. `when:: tool` matches `tool:post:Bash:git-commit`; `when:: tool:post:Write` matches that moment and any spatial child. Shorter = more general.
 2. **Glob within a segment.** A glob matches sibling values at that one level (`git-*` → `git-commit`, `git-push`).
 3. **OR across the comma list.** The rule is active if **any** listed moment matches.
-4. **Conjunction with [[FCT Ruleset\|where::]] / [[#Guards\|if::]].** A moment-match makes the rule a *candidate*; it *fires* only if `where::` matches the target and every `if::` guard holds.
+4. **Then the rest of the condition.** A moment-match makes the rule a *candidate*; it *fires* only if `where::` matches the target and `if::` holds ([[Warden Semantics]] § The condition).
 5. **Unknown moment = inert.** A `when::` naming a moment the runtime never fires is valid but never triggers (forward-compatible — e.g. reserved `git:merge` before a git hook exists).
-
-## Guards
-
-The optional `if::` clause — the **condition** axis of the conjunction. The common conditions are already carried by `when::` (moment) and `where::` (place); `if::` covers the rest (state the file path can't express). **Status:** declarative `if::` is *planned* — until it ships, the same conditions live inside a rule's executable body (the `def trigger(ctx)` / `guard(ctx)` of [[F180 — When-trigger executable rules|F180]], which already reads `ctx.git_aspect` etc.). `if::` is the forthcoming sugar for the common cases.
-
-- **Declarative guard** *(planned)* — `if:: <key> <op> <value>` over a fixed vocabulary (`git-aspect`, `mode`, `trait`, `facet`): `if:: git-aspect == Commit`, `if:: trait has Code`. Compiles to a fast table lookup.
-- **Code guard** *(today)* — a Python `def guard(ctx) -> bool` in the rule body, for the arbitrary case.
-
-Multiple `if::` conjoin (AND). A guard is just another conjunct of the truth condition — kept a *separate clause* (not folded into `when::`) so each clause stays one YAML key and the moment taxonomy stays about *moments*, the guard about *state*.
-
-## Indexing
-
-A rule states *what is true*; the **rule compiler** ([[Warden Architecture]] §7) decides *how to make it fire cheaply*. It picks an **index key** per rule — usually the `when::` moment (the runtime hook for that moment dispatches straight to it), sometimes the `where::` place (a `when:: always` rule touching one rare file indexes cheaper by path). The unindexed clauses become the fire-time residual check:
-
-- indexed **by when** → at the moment, check `where::` + guards.
-- indexed **by where** → on touching the place, check the moment + guards.
-
-Firing semantics are identical either way — the conjunction. The choice is a pure optimization the author never sees, and is what keeps "almost every tool use is instrumented" cheap.
 
 ## Extending the taxonomy
 
@@ -151,7 +117,11 @@ Firing semantics are identical either way — the conjunction. The choice is a p
 
 ## Open questions
 
-1. **`tool:pre` veto.** Resolved in principle ([[Warden Integration Strategy]] D5): a `tool:pre` rule *may* deny via JSON `deny`+reason, gated by the `aow-safety` floor. Open: the exact guard/return shape.
-2. **Content-kind detection cost.** `write:<kind>` needs an extension/sniff per write — extension-only for v1 (cheap), content-sniff reserved for ambiguous cases?
-3. **`skill:pre`/`post` emission point.** Skills are runbooks, not processes — the "skill runs" moment must be emitted by the skill-dispatch layer. Where exactly? (Ties to the harness skill-runner.)
-4. **Declarative `if::` timing.** When does declarative `if::` land vs. staying in the executable body? (Soon — the user expects to need it.)
+1. **Content-kind detection cost.** `write:<kind>` needs an extension/sniff per write — extension-only for v1 (cheap), content-sniff reserved for ambiguous cases?
+2. **`skill:pre`/`post` emission point.** Skills are runbooks, not processes — the "skill runs" moment must be emitted by the skill-dispatch layer. Where exactly? (Ties to the harness skill-runner.)
+
+## See also
+
+- [[Warden Semantics]] § The condition — how a moment combines with `where::` / `if::` to fire a rule.
+- [[Warden Rule]] — the rule / ruleset format these moments live inside.
+- [[Warden Architecture]] §6 — the hook subsystem that emits these moments; §7 — how they're indexed for cheap dispatch.

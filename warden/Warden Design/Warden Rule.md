@@ -3,7 +3,7 @@ description: "the rule language — the file format for a rule and a ruleset (se
 ---
 # Warden Rule
 
-The format of the Warden rule language: what a **rule** is and what a **ruleset** is, as written in a file. A rule is the atomic, audit-checkable constraint; a ruleset is a named bundle of rules that travel together. This page defines both — the sentinels, header fields, rule body, tiers, naming, and composition. The two clause vocabularies a rule binds with — `when::` (the moment) and `where::` (the place) — have their own specs ([[Warden Trigger Taxonomy]] and [[FCT Ruleset]] § Where clause).
+The format of the Warden rule language: what a **rule** is and what a **ruleset** is, as written in a file. A rule is the atomic, audit-checkable constraint; a ruleset is a named bundle of rules that travel together. This page defines both — the sentinels, header fields, rule body, tiers, naming, and composition. The two clause vocabularies a rule binds with — `when::` (the moment) and `where::` (the place) — have their own specs ([[Warden Events]] and [[FCT Ruleset]] § Where clause).
 
 Worked instances: [[R-diagram]] (a large umbrella), [[CAE Rules]] (an anchor-local set), and the self-applying `R-ruleset` block in [[FCT Ruleset]].
 
@@ -43,7 +43,7 @@ A ruleset is a `# RULESET R-<slug>` block plus a prescriptive header. The all-ca
 | `# RULESET R-<slug>` | yes | sentinel H1 + the set's identifier |
 | `include:: …` | yes (may be empty) | composition / adoption (see [[#Composition — include]]); the empty line is the slot |
 | `where:: …` | optional | set-level default **place** for every rule ([[FCT Ruleset]] § Where clause) |
-| `when:: …` | optional | set-level default **moment** for every rule ([[Warden Trigger Taxonomy]]) |
+| `when:: …` | optional | set-level default **moment** for every rule ([[Warden Events]]) |
 | `description:: …` | yes | one-line (8–15 word) tagline; no `::` in the value |
 | prose body | optional | provenance, attribution, factoring history; any length |
 
@@ -51,13 +51,13 @@ A ruleset is a `# RULESET R-<slug>` block plus a prescriptive header. The all-ca
 
 ## The three clauses — when ∧ where ∧ if
 
-A rule means the **conjunction** of its clauses (full model: [[Warden Trigger Taxonomy]] § The conjunction model). Each is one key — which is what lets a rule round-trip to flat YAML for the importer.
+A rule means the **conjunction** of its clauses (full model: [[Warden Events]] § The conjunction model). Each is one key — which is what lets a rule round-trip to flat YAML for the importer.
 
 | Clause | Binds to | Spec |
 |---|---|---|
-| `when::` | the **moment** it fires at | [[Warden Trigger Taxonomy]] |
+| `when::` | the **moment** it fires at | [[Warden Events]] |
 | `where::` | the **place** (file/dir/target) it concerns | [[FCT Ruleset]] § Where clause |
-| `if::` | a **condition** that must hold *(declarative form planned)* | [[Warden Trigger Taxonomy]] § Guards |
+| `if::` | a **condition** that must hold *(declarative form planned)* | [[Warden Events]] § Guards |
 
 **Precedence:** a rule's own clause overrides its set's; absent both, the defaults are `when:: always-passive` (a file check, no event) and `where:: always`.
 
@@ -105,7 +105,7 @@ Three homes (detail: [[FCT Ruleset]], [[F133 — Rulesets folder convention + fa
 
 ## See also
 
-- [[Warden Trigger Taxonomy]] — the `when::` clause.
+- [[Warden Events]] — the `when::` clause.
 - [[FCT Ruleset]] — the CAB facet + the `where::` grammar (today's authoritative home).
 - [[FCT Decisions]] — adoption + `Cites:`.
 - [[Warden Integration Strategy]] — D8 (check:: as a Vale superset), the importer.

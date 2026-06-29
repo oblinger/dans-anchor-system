@@ -13,7 +13,7 @@ The survey scores every candidate on four legs — **(a)** path match · **(b)**
 | Survey layer | Closest prior art | Our subsystem | Verdict |
 |---|---|---|---|
 | Interception (a/c/d) | **Claude Code hooks** (native) | the **hook subsystem** (§6) | **Already ours** — same mechanism; we sit on it. |
-| Declarative rule-file UX | **Hookify** (official, ~90%) | **[[FCT Ruleset]]** + [[Warden Trigger Taxonomy]] | **We exceed it** — rulesets, `include::` composition, tiers, the moment taxonomy, the `when ∧ where ∧ if` conjunction. Hookify is one-regex-per-condition on the *edit text*; we validate the *whole resulting file*. |
+| Declarative rule-file UX | **Hookify** (official, ~90%) | **[[FCT Ruleset]]** + [[Warden Events]] | **We exceed it** — rulesets, `include::` composition, tiers, the moment taxonomy, the `when ∧ where ∧ if` conjunction. Hookify is one-regex-per-condition on the *edit text*; we validate the *whole resulting file*. |
 | Content engine (b) | **Vale** (markdown), **Semgrep** (code) | the `check::` primitive library + the audit engine (§7b) | **Mixed** — our primitives cover the common cases; Vale/Semgrep are richer for their niches. Integration seam, not a rebuild. |
 | The under-served **gap** | *(nobody ships it turnkey)* | the **audit engine** (Resolve→Run→Judge) | **This is our core IP.** Whole-file validation against a multi-rule format spec, per-violation messages — the survey's headline finding is that this is exactly what's missing off-the-shelf. Build it; that's the point. |
 
