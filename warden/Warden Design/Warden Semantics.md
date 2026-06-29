@@ -69,29 +69,31 @@ A rule with neither clause has no dispatch key, so Warden cannot place it. It is
 
 A `where::` / `when::` / `if::` value is one line, and the parser strips backticks — so they change *nothing* semantically. They are **optional but recommended**: Obsidian/Dataview mangle a bare value containing `*`, `[`, `|`, or `::` (a glob, a regex, a `::`-bearing expression), so backticking — `` where:: `**/*.md` `` — keeps it from rendering wrong or colliding with Dataview. A plain token (`when:: write:markdown`) needs none; backtick anything with special characters ([[F007 — Backtick all where expressions — parser swap|F007]]).
 
-## The actions — `tell`, `edit`, `deny`, `run`
+## The actions
 
-On a hit, the body performs zero or more actions. Three are **mediated** (Warden controls exactly what each does); `run` is the **unmediated**, deferred escape hatch.
-
-| Action                    | Emitted by                                                                  | What happens                                             | Goes to                                                                         |
-| ------------------------- | --------------------------------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| *(pass)*                  | —                                                                           | nothing — the test found no problem                      | —                                                                               |
-| **tell**                  | bare prose, or `tell(msg)`                                                  | say something to the agent — a problem or a directive    | a **steer** in the agent's context (live) · a **finding** in the report (audit) |
-| **edit**                  | methods on `file` — `file.set_frontmatter(…)`, `file.replace_section(…)`, … | write to a file — repair, stamp metadata, append a log   | the file(s) — never-delete floored                                              |
-| **deny**                  | `deny(reason)`                                                              | block the pending action                                 | the tool call — `tool:pre` only                                                 |
-| **run** *(future helper)* | the Python body, directly                                                   | arbitrary execution — shell, drive Warden / other agents | it's just Python — trusted like a skill; off for imported rules                 |
+On a hit, the body performs zero or more actions. **`tell` / `edit` / `deny`** are the **mediated verbs** — a small, closed set the engine *applies* with controlled effects (the steer formatting, the `edit` never-delete floor). Beyond them the body is just Python — that's `run` (§ below). A body that **emits nothing is a pass**: the rule found no problem.
 
 **The body form.** A bare-prose body **is** the `tell` (no keyword). For anything more, the body is **Python, marked by backticks** — an inline `` `expr` `` for a one-liner, a bare ` ``` ` fence for several lines (no `python` tag). `file` / `anchor` / `git` / `event` and the verbs are in scope; no `def`. A `description::` field carries the rule's **meaning / goal** — its intent for a reader (the North Star), **not sent on rule fire**; bare prose in body position is the `tell`; `message:: <text>` is sugar for a fixed `tell`; a *fix* is an `edit` that repairs a violation. **Emit nothing → the rule passed.**
 
 > **The one lexical rule: backticks = Python.** A backticked `if::` value, a backticked one-line body, a fenced block — all are Python run by the engine; un-backticked prose is the `tell`. (Subsumes [[F007 — Backtick all where expressions — parser swap|F007]]: backticked = code, so Dataview leaves it alone.)
 
-**`tell` delivery.** Live, a `tell` is text the hook injects into the agent's context (the F180 steer); under audit it is a finding in the report. Calling `tell` **many times accumulates**: live, the messages are joined newline-separated into one steer block; under audit, each is a separate finding.
+### `tell`
 
-**Mediated vs. unmediated.** `tell` / `edit` / `deny` are a closed, small set the engine *applies* (the `edit` never-delete floor, the steer formatting) — conveniences, not a sandbox. Beyond them, the body is just Python (`run` — arbitrary effects); that's gated by trusting the rule's **source**, like a skill, not by the engine.
+`tell(msg)` — or a bare-prose body, which *is* a `tell`. Says something to the agent: a problem or a directive. Live, it is a **steer** the hook injects into the agent's context (the F180 steer); under audit, a **finding** in the report. Calling it **many times accumulates** — joined newline-separated into one steer (live), or separate findings (audit).
 
-> **`run` / arbitrary effects — the trust boundary is the *source*, same as a skill.** A Python rule body is real code: it can already do what Python does — exactly like a **skill**, which you also adopt and let run Python. So a rule is **no more or less dangerous than a skill**; the only question is whether you trust where it came from (your own rules are as trusted as your own scripts). The one asterisk is *exposure*, not capability: rules fire **automatically and pervasively**, are **adopted in bulk** (a whole facet's set), and **read like documentation** — so an *imported* effectful rule hides more easily and runs more often than a skill you deliberately invoke. Hence: **vet imported rulesets like you'd vet a skill**, and keep effectful operations off for imported rules until vetted. (The never-delete floor on mediated `edit`s is *accident*-safety, not a security wall — a real Python sandbox is leaky and not worth pretending.)
->
-> **Shell is the canonical effect** — `sh(['git', 'add', file.path])`, a Python call (no new syntax; backtick is spent), **argv-form only** so interpolated `ctx` data can't inject. To merely *check* command-derived state, read a **data accessor** (`git.is_dirty`) instead — run once, cached, no subprocess per `if::`. (An expensive shell read in a condition parallels `ask_oracle`: fine on audit, can't-block on the live hot path.)
+### `edit`
+
+Methods on `file` — `file.set_frontmatter(…)`, `file.replace_section(…)`, … — write to the file: repair, stamp metadata, append a log. Each is **never-delete floored** (adds or replaces within a named region, never wipes content it didn't target). A *fix* is just an `edit` that repairs a violation.
+
+### `deny`
+
+`deny(reason)` — block the pending action. Only at a **`tool:pre`** moment (a command, not a file).
+
+### `run`
+
+Not a verb — there is **no `run()` to call**. A Python body *runs directly*, so beyond the mediated verbs it can do anything Python can: call a function, open a file, or shell out with **`sh(argv)`** (argv-form, so interpolated data can't inject). "`run`" just names *arbitrary Python in a body*. To merely *read* command-derived state, prefer a data accessor (`git.is_dirty`) over a subprocess per `if::`; an expensive `sh` read in a condition parallels `ask_oracle` — fine at audit, can't block the live hot path.
+
+> **A rule is code — trust the source, same as a skill.** Any Python a rule runs — an `if::` test *or* a body — is real code that can do what Python does, exactly like a **skill** you adopt and let run. So a rule is **no more or less dangerous than a skill**; the only question is whether you trust where it came from. The asterisk is *exposure*, not capability: rules fire **automatically and pervasively**, are **adopted in bulk**, and **read like documentation** — so an *imported* effectful rule hides more easily than a skill you deliberately invoke. Hence: **vet imported rulesets like a skill**, and keep effects off for imported rules until vetted. (The `edit` never-delete floor is *accident*-safety, not a security wall.)
 
 ## The interpretation environment
 
@@ -104,9 +106,9 @@ The **interpretation environment** is the Python scope a rule is *interpreted* i
 | **`git`** | `.branch`, `.mode`, `.is_dirty`, `.ahead`, `.changed` |
 | **`event`** | `.kind`, `.diff`, `.command`, `.tool` |
 | **`agent`** | `.state` (`working`/`landed`/`asking`/`idle`), `.skill`, `.is_asking` |
+| *verbs* | `tell(msg)`, `deny(reason)`, the `file` edits, `ask_oracle(prompt)→str`, `sh(argv)` — § Verbs |
 | *ambient* | `today`, `now` (+ plain Python: builtins, `re`, `json`, `datetime`) |
 | *variables* | `{ANCHOR}`, `{NAME}`, `{SLUG}` — `where::` substitutions (§ Ambient and variables) |
-| *verbs* | `tell(msg)`, `deny(reason)`, the `file` edits, `ask_oracle(prompt)→str`, `sh(argv)` — § Verbs |
 
 None of these take a `ctx.` prefix — they are aliased into the scope directly. Each is **computed lazily and cached per pass** — most rules touch only a couple, so the daemon pays for `git` / `agent` / parsed sections only when a rule actually reads them ([[Warden Architecture]] §7).
 
@@ -200,21 +202,15 @@ The **variables** are *substitution tokens*, not Python values: in a `where::` g
 
 **Oracle idiom.** The oracle is context-less — it sees only the prompt, and the agent sees only what you `tell`. Give the oracle the narrow judgment (e.g. "which are wrong? reply `none` if none"), gate on a sentinel in code, and let the **rule author the directive** the agent sees — don't make the oracle write the steer. *When to use it:* the **agent** when it already has the context and you want it steered now; the **oracle** when the judgment is narrow, repeated, or wants caching and control (per-judgment an oracle can be far lighter — a cheap model on a small slice, cached — than the agent reasoning over its full context every time).
 
-## Rulesets — composition and activation
+## Rulesets — composition, inheritance, activation
 
-A **ruleset** is a named bundle of rules ([[Warden Rule]] § The ruleset). Two relations govern which rules are in force, and where.
+A **ruleset** is a named bundle of rules ([[Warden Rule]] § The ruleset).
 
-**Composition — `include::`.** A ruleset may `include::` other rulesets (by name or wiki-link). Resolving a set **flattens** it: its own rules, plus — depth-first, cycles forbidden — the rules of every included set, concatenated into one list. Composition **never renumbers**: an included rule keeps its source-set id (`R-<source>-NN`), so cross-references stay stable. A pure-composition set (`include::` only, no own rules) is an **umbrella**.
+**Composition — `include::`.** A ruleset `include::`s other rulesets (by name or wiki-link) and thereby contains **all of their rules, recursively** — depth-first, cycles forbidden. Composition **never renumbers**: an included rule keeps its source-set id (`R-<source>-NN`), so cross-references stay stable. A pure-composition set (`include::` only, no own rules) is an **umbrella**.
 
-**Activation — by the anchor's traits.** A ruleset in the catalog does nothing until an **anchor adopts it**. Adoption is recorded in the anchor's `# {NAME} Decisions` ([[FCT Decisions]]) — and an anchor's **traits/facets *are* its adoptions**: a facet's ruleset is active wherever that facet is present, plus any catalog sets the anchor adopts explicitly (`include::` under Decisions). So the active rule set is per-anchor state, owned by `{NAME} Decisions.md`.
+**Clause inheritance.** A ruleset may carry a set-level `where::` / `when::` / `if::`; its rules **inherit** them (recursively through `include::`), and a rule's own clause **overrides and disregards** the set's. That is all there is to clauses at the set level — a convenience for stating a default once, not new behavior.
 
-**Co-location is organizational, not semantic.** A ruleset embedded in a facet / discipline / skill spec is there for **authoring locality** and because the rules *are* that artifact's documentation (the *read* leg of dual-use) — location confers **no firing behavior**. What a rule fires or audits over is its `where::`; the common pattern is a **set-level `where::`** on the embedded ruleset (every rule inherits it unless it overrides), scoping the whole set to the facet's artifacts.
-
-**Salient vs. obligating.** Only a `when::` **obligates** — it fires a live steer at that moment. A rule with `where::` and no `when::` is **passive**: a backstop at `/audit`, and readable in place as the spec, but it never nags mid-work. So a facet's dozen rules are *salient* (read, and audited) without forcing action; `when::` is for the few that must guard live.
-
-**`where::` gates activation, so lean broad.** A rule whose `where::` matches no file in the anchor is **inert** — N/A, never fires, never fails. Over-activation therefore costs only a glob check, while under-activation actually drops a guardrail — so erring broad is correct. Activate an anchor's facet rulesets and let `where::` keep the irrelevant ones asleep.
-
-**Two uses of `include::`, by host:** under a `# RULESET` heading it is **composition** (one set built from others); under a `# {NAME} Decisions` heading it is **activation** (an anchor turning a set on). Same syntax, different scope.
+**Activation.** A ruleset does nothing until an **anchor adopts it**, recorded in `# {NAME} Decisions` ([[FCT Decisions]]) — where an anchor's **traits/facets *are* its adoptions** (a facet's ruleset is active wherever the facet is present), plus any sets it adopts explicitly. **Activating a ruleset activates all its rules** (its `include::` children with it). The active set is per-anchor state in `{NAME} Decisions.md`.
 
 **Resolution.** For a given anchor, the engine computes the **active rule set** = flatten(the anchor's adopted rulesets), with every rule's `where::`/`when::` resolved relative to that anchor's root. At a moment or audit, only the active rules for the relevant anchor are considered — then narrowed by the `where::`/`when::` indexes and evaluated by `if::`. The compiler/installer ([[Warden Architecture]]) precompiles this active set into the per-moment dispatch so the hot path stays cheap; editing `Decisions.md` recompiles it.
 
