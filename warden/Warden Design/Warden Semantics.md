@@ -1,5 +1,7 @@
 ---
 description: "how the engine runs a rule — the condition, the actions, the runnable interpretation environment, and ruleset activation"
+---
+
 # Warden Semantics
 
 How the Warden engine runs a rule. [[Warden Rule]] is the file format; this is the operational model. A rule is a **condition** and a set of **actions**. The engine resolves which rules are active for an anchor, dispatches the candidates cheaply (by moment and file), evaluates each candidate's condition, and on a hit performs its actions.
