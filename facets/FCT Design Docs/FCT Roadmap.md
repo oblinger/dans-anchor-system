@@ -420,10 +420,10 @@ After the last body item of each milestone, before the next `## ` H2, a `### .` 
 
 # BRIEF
 
-- **This is the facet spec for `{NAME} Roadmap.md`** — it defines structure, numbering, status-tracking, and shape rules for the project sequencing-design doc. Edits here change the rule, not any one project's roadmap.
-- **NOT for** roadmap *content* (those live in per-anchor `{NAME} Roadmap.md` files), NOT for execution-time rules about *how* features ship (that's [[FCT Features]]), NOT for the design-phase tier marker (that's [[FCT Status]]'s `roadmap::` field).
-- **Inclusion test:** a rule belongs here only if it constrains the shape, numbering, status convention, deferral pattern, or shape consistency of every `{NAME} Roadmap.md` across anchors. Project-specific milestone naming or content never belongs here.
-- **Two shapes (A — milestone-as-feature-group; B — milestone-as-task-checklist) are load-bearing** — keep both documented; mixing within a project is forbidden but transitioning is allowed. Don't collapse into one shape "for simplicity."
-- **R-roadmap RULESET is co-located** in this same file per [[F133]] (embedded ruleset adopted via the `R-facet` umbrella). Don't split it into a separate file; keep rule numbering monotonic-forever (R-roadmap-09, -10, -11 are out-of-sequence by intent — order reflects authoring history, not narrative).
-- **Named-milestone form (`M-<Name>`) is the new convention** per [[F144]]; legacy numeric (`M1`, `M2`) is migration-only. When updating examples or rules, prefer the named form; keep the legacy section as a documented fallback, don't delete it.
-- **Cross-refs to maintain on edit:** [[FCT Completed Roadmap]] (the migration target), [[FCT Features]] (Shape A milestone bullets are F-numbered wiki-links), [[FCT Status]] (`roadmap::` field), [[design-roadmap]] (authoring skill), [[DSC ask-format]] (Open Questions convention).
+*(Maintainer note — what belongs in this spec and what doesn't.)*
+
+- **Inclusion test + boundary:** a rule belongs only if it constrains the shape / numbering / status / deferral convention of *every* `{NAME} Roadmap.md`. Roadmap *content* lives in per-anchor files; *how* features ship is [[FCT Features]]; the design-phase tier is [[FCT Status]]'s `roadmap::`.
+- **Don't collapse the two shapes** (A milestone-as-feature-group / B milestone-as-task-checklist) "for simplicity" — both are load-bearing; mixing is forbidden, transitioning allowed.
+- **`R-roadmap` is co-located** (per [[F133]]); don't split it out. Rule numbering is monotonic-forever — **R-roadmap-09/-10/-11 are out-of-sequence by intent** (authoring order, not narrative).
+- **Don't delete the legacy numeric section** — named-milestone `M-<Name>` is the convention ([[F144]]); legacy `M1`/`M2` is migration-only and stays documented.
+- **Cross-refs to keep live on edit:** [[FCT Completed Roadmap]], [[FCT Features]], [[FCT Status]], [[design-roadmap]], [[DSC ask-format]].

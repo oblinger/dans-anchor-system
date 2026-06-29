@@ -4,7 +4,7 @@ description: "the `{{PLACEHOLDER}}` system shared by file and folder templates"
 # FCT Template Variables
 The `{{PLACEHOLDER}}` system shared by file and folder templates — how each variable is defined, what to do when there is no data, and the structural-vs-cumulative distinction.
 
-| -[[FCT Template Variables]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[FCT Primitives]] → [FCT Template Variables](hook://p/FCT%20Template%20Variables)<br>: the `{{PLACEHOLDER}}` system shared by file and folder templates |
+| -[[FCT Template Variables]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[Skill Agent]] → [ob-skills](hook://ob-skills) → [[facets]] → [[FCT Primitives]] → [FCT Template Variables](hook://p/FCT%20Template%20Variables)<br>: the `{{PLACEHOLDER}}` system shared by file and folder templates |
 | --- | --- |
 | Related | [[FCT Template]] (umbrella),  [[FCT Template Files]],  [[FCT Template Folders]] |
 | Examples | [[_Computer Template\|file]],  [[_Disk Template\|folder]] (both show Variables sections) |
@@ -41,7 +41,4 @@ Variables work identically in a [[FCT Template Files|file template]] and in the 
 
 # BRIEF
 
-- **This page is the variables part of the [[FCT Template]] facet** — the `{{PLACEHOLDER}}` + `## Variables` system shared by [[FCT Template Files]] and [[FCT Template Folders]].
-- **The two load-bearing rules:** every placeholder is defined **with explicit no-data handling** (R-template-02 — this is what kills leftover `{{}}`), and **cumulative sections are header-only** (R-template-03 — structural vs cumulative is the classic mistake). Keep both sharp.
-- **Bare placeholders, no fences** — `{{UPPER_SNAKE}}` tokens sit in the live exemplar bare (no backticks, no fence); they are find-and-replace targets, so never fence the exemplar (R-template-01).
-- **Rules live on the umbrella's `R-template`** — this page is the readable spec for the variable mechanics R-template-02/-03 enforce; cite, don't duplicate the ruleset.
+*(Maintainer note.)* Part-view of the [[FCT Template]] facet — the model and the `R-template` ruleset live on the umbrella, so edit them there, not here. This page is the readable spec for the variable mechanics **R-template-02** (no-data handling — what kills leftover `{{}}`) and **R-template-03** (cumulative sections header-only) enforce.

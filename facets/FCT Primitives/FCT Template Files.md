@@ -4,7 +4,7 @@ description: "file templates — one document's canonical shape"
 # FCT Template Files
 A **file template** — a `_{Name} Template.md` whose body IS a live specimen of one document, defining the canonical shape of each like item in its folder.
 
-| -[[FCT Template Files]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[FCT Primitives]] → [FCT Template Files](hook://p/FCT%20Template%20Files)<br>: file templates — one document's canonical shape |
+| -[[FCT Template Files]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[Skill Agent]] → [ob-skills](hook://ob-skills) → [[facets]] → [[FCT Primitives]] → [FCT Template Files](hook://p/FCT%20Template%20Files)<br>: file templates — one document's canonical shape |
 | --- | --- |
 | Related | [[FCT Template]] (umbrella),  [[FCT Template Folders]],  [[FCT Template Variables]] |
 | Examples | [[_Computer Template\|computer record]],   |
@@ -36,7 +36,4 @@ File templates are governed by the shared `R-template` ruleset on [[FCT Template
 
 # BRIEF
 
-- **This page is the file-template part of the [[FCT Template]] facet** — a `_{Name} Template.md` defining one document's canonical shape. Sibling: [[FCT Template Folders]]; shared placeholder system: [[FCT Template Variables]].
-- **Lead with the live reference example** ([[_Computer Template]] transcluded), then read its parts. Don't fence a markdown exemplar here — it would go inert (R-template-01); transclude the real instance instead.
-- **File vs folder decision is load-bearing:** one document per item → file template (here); item needs >1 document → [[FCT Template Folders|folder template]]. Keep that test crisp.
-- **Rules live on the umbrella's `R-template`** — don't duplicate the ruleset here; cite it.
+*(Maintainer note.)* Part-view of the [[FCT Template]] facet — the model and the `R-template` ruleset live on the umbrella, so edit them there, not here. This page only adds what's **file-specific** (one document per item; no dispatch row, unlike a folder template).

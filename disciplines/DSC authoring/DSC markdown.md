@@ -242,5 +242,7 @@ if:: `any(l != l.rstrip() for l in file.lines)`
 A line ends in trailing whitespace — invisible noise that pollutes diffs and can create accidental hard-breaks. Strip it.
 
 # BRIEF
-- **Markdown is a discipline, not a document facet — settled, do not re-litigate.** A `FCT Markdown` facet was created and reverted 2026-06-14. The discriminator: a *document facet* is a pointable structural part of a doc (Brief, Discussion, Ruleset, the ToC table) or the umbrella skeleton ([[FCT Doc Structure]]); markdown is uniform text-correctness applied to *every line, every time*, which is the definition of a discipline. Specializing into structure → facet; staying text-rules-everywhere → discipline. Markdown never becomes structural, so it lives here only.
-- **Single source of truth** — the rules live embedded in this file's `# RULESET R-markdown`; [[R-markdown]] is the catalog stub, [[md]] is the utility skill. Don't duplicate the rules into a facet or per-anchor doc (R-markdown-10 forbids the latter).
+*(Maintainer note — editing the markdown discipline.)*
+
+- **Markdown is a discipline, not a document facet — settled, do not re-litigate.** A `FCT Markdown` facet was created and reverted 2026-06-14. Discriminator: a *document facet* is a pointable structural part of a doc; markdown is uniform text-correctness on *every line, every time* — the definition of a discipline. It never becomes structural, so it lives here only.
+- **Single source of truth:** the rules are embedded in this file's `# RULESET R-markdown`; [[R-markdown]] is the catalog stub, [[md]] the utility skill. Don't duplicate them into a facet or per-anchor doc (R-markdown-10 forbids the latter).

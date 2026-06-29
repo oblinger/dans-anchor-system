@@ -4,7 +4,7 @@ description: "folder templates — a folder's canonical multi-doc structure"
 # FCT Template Folders
 A **folder template** — a `_{Name} Template/` folder whose marker + skeleton define the canonical structure of a folder that carries more than one document per item.
 
-| -[[FCT Template Folders]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[FCT Primitives]] → [FCT Template Folders](hook://p/FCT%20Template%20Folders)<br>: folder templates — a folder's canonical multi-doc structure |
+| -[[FCT Template Folders]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[Skill Agent]] → [ob-skills](hook://ob-skills) → [[facets]] → [[FCT Primitives]] → [FCT Template Folders](hook://p/FCT%20Template%20Folders)<br>: folder templates — a folder's canonical multi-doc structure |
 | --- | --- |
 | Related | [[FCT Template]] (umbrella),  [[FCT Template Files]],  [[FCT Template Variables]],  [[FCT Dispatch Table]] (the Template row) |
 | Examples | [[_Disk Template\|disk folder]],   |
@@ -38,8 +38,4 @@ Folder templates are governed by the shared `R-template` ruleset on [[FCT Templa
 
 # BRIEF
 
-- **This page is the folder-template part of the [[FCT Template]] facet** — a `_{Name} Template/` folder (marker + optional skeleton). Sibling: [[FCT Template Files]]; shared placeholder system: [[FCT Template Variables]].
-- **Lead with the live reference example** ([[_Disk Template]] transcluded). Don't fence the exemplar (R-template-01); transclude the real instance.
-- **The two folder-specific load-bearing facts:** the same-named marker inside the folder (R-template-04), and the `Template` dispatch row that file templates don't have (R-template-05, inserted by [[rewire]]). Keep both crisp.
-- **File-vs-folder test:** >1 document per item → folder template (here); one document → [[FCT Template Files|file template]].
-- **Rules live on the umbrella's `R-template`** — cite, don't duplicate.
+*(Maintainer note.)* Part-view of the [[FCT Template]] facet — the model and the `R-template` ruleset live on the umbrella, so edit them there, not here. This page only adds what's **folder-specific**: the in-folder same-named marker (R-template-04) and the `Template` dispatch row file templates lack (R-template-05, inserted by [[rewire]]).

@@ -221,10 +221,10 @@ Every dispatch table's **last row is a catch-all auto-enumeration marker**, so n
 
 # BRIEF
 
-- **This file is the spec for the Dispatch Table facet** — the prescriptive rules for the top-of-file table convention used across anchor and facet pages. Edit here only to refine the convention itself.
-- **NOT a catalog of pages that use dispatch tables** — don't pile worked-example links here beyond a small representative set; per-page application of the convention belongs in those pages' own files or in [[FCT Facets]] / trait specs.
-- **Inclusion test** — content belongs on this page if it is a *rule* about dispatch-table shape (row order, cell format, breadcrumb syntax, escape conventions, the `Related` row, the `(See …)` variant). Anything about *how a specific anchor uses* its dispatch table goes in that anchor's docs.
-- **Two surface forms coexist** — full dispatch table (under H1, breadcrumb row + category rows) and the `(See …)` line variant for files without a dispatch table. Keep both spec'd in lockstep; don't let one drift.
-- **Load-bearing constraints** — the pipe-escape rule for wiki-links inside cells (`[[Target\|Display]]`), the breadcrumb cell shape (`→ [[kmr]] → … → [Name](hook://...)`), and the `Related`-row convention (Brief first, comma-separated thereafter) are downstream-cited from many places; changing them requires a vault-wide sweep.
-- **Sibling-discipline boundary** — TOC generation is governed by [[Anchor TOC Format]] (figure-space mechanics, regeneration tooling), not here. Don't inline TOC rules into this spec; cross-reference instead.
-- **Current state is skeleton** — the page is a stub pending a full prescriptive spec; new rules added here should be marked as such if not yet enforced vault-wide.
+*(Maintainer note — editing the Dispatch Table spec.)*
+
+- **Inclusion/exclusion:** content belongs only if it's a *rule* about dispatch-table shape (row order, cell format, breadcrumb syntax, pipe-escape, the `Related` row, the `(See …)` variant). How a *specific anchor* uses its table goes in that anchor's docs — don't accumulate worked-example links here.
+- **Keep the two surface forms in lockstep:** the full table (breadcrumb + category rows) and the `(See …)` line variant; don't let one drift from the other.
+- **The load-bearing constraints are downstream-cited everywhere** — the pipe-escape (`[[Target\|Display]]`), the breadcrumb cell shape, and the `Related`-row convention. Changing any requires a **vault-wide sweep**.
+- **Boundary:** TOC generation is governed by [[Anchor TOC Format]], not here — cross-reference, don't inline.
+- **Status: skeleton** — pending a full prescriptive spec; mark new rules not-yet-enforced-vault-wide as such.

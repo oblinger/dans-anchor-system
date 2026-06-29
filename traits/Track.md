@@ -87,9 +87,9 @@ Structural expectations on a Track anchor as a whole:
 
 # BRIEF
 
-- **This is the Track *trait* spec — the rule, not an instance.** What belongs here: what the trait means, how it's detected, the tree shape, wiring steps, constraints, and which skills/audits attach. Per-anchor Track instances (e.g. [[SKA Track]]) live in their own anchor's tree and never replicate spec content.
-- **Sub-catalogs the Track tree references** are facet specs, not parts of this page: [[CAB Track Dispatch]] (dispatch shape), [[CAB Backlog]] (the irreducible core), [[CAB Features]], [[CAB Roadmap]], [[CAB Icebox]], [[CAB Inbox]]. When the tree shape changes, update the *Track tree* table here AND the relevant facet spec — don't pile facet detail into this file.
-- **Cross-link discipline**: every part listed in the Track tree table cites its facet spec in the *Facet spec* column. Disciplines ([[workflow]], [[backlog]], [[ask-format]]) own the cross-cutting rules and are linked from *Skills and audits that attach* — never inline their content here.
-- **Composability is load-bearing.** The `Track ⇒ Backlog` co-requirement and the `excludes Simple` rule are the constraints `/audit aspects` will enforce (F090 Phase 6). Keep both surfaced in *Constraints*; the full composability matrix lives in [[CAB Aspects]] — link, don't duplicate.
-- **What does NOT belong here:** per-anchor backlog rows or feature lists (those live in `{NAME} Backlog.md` / `{NAME} Features/`); drive-loop skill runbooks (those live in each skill's SKILL.md); the workflow state graph and Definition of Ready (owned by [[workflow]]); markdown-rendering conventions (owned by [[R-markdown]]).
-- **Naming-rename watch.** The `{NAME} Plan/` → `{NAME} Track/` migration ships under [[F094 — Anchor docs folder restructure — Track _ User _ Architecture _ Dev|F094]]; until Phase 2 completes, examples may reference either name. When updating examples, prefer `{NAME} Track/` and note legacy `{NAME} Plan/` only where migration phasing matters.
+*(Maintainer note — editing the Track *trait* spec.)*
+
+- **Inclusion/exclusion:** this page holds what the trait means, how it's detected, the tree shape, wiring, constraints, and the attach list. It does **not** hold per-anchor backlog rows or feature lists, drive-loop skill runbooks, the workflow state graph / Definition of Ready (owned by [[workflow]]), or markdown rules (owned by [[R-markdown]]) — link, don't inline.
+- **Two-place edit on tree-shape change:** the *Track tree* table cites each part's facet spec; when the tree changes, update the table **and** that facet spec — don't pile facet detail into this page.
+- **Composability is audit-enforced:** the `Track ⇒ Backlog` co-requirement and `excludes Simple` are what `/audit aspects` will check (F090 Phase 6); keep them surfaced in *Constraints*. Full matrix lives in [[CAB Aspects]].
+- **Active-migration watch:** the `{NAME} Plan/` → `{NAME} Track/` rename ships under [[F094 — Anchor docs folder restructure — Track _ User _ Architecture _ Dev|F094]]; prefer `{NAME} Track/` in examples, flag legacy `{NAME} Plan/` only where phasing matters.

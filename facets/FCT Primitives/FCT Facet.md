@@ -202,9 +202,7 @@ Usually a facet spec carries **no** reference example in its body — the worked
 
 # BRIEF
 
-- **This is the spec for the *facet* primitive** — what a facet is and the shape of a facet spec doc. Sibling to [[FCT Skill]] (skill primitive) and [[FCT Ruleset]] (ruleset primitive); indexed from [[FCT Primitives]].
-- **Carries the embedded `R-facet-spec` ruleset** — the enforceable rules for authoring *any* facet. Keep it distinct from the umbrella [[R-facet]] (which aggregates each facet's *instance* rules); `R-facet-spec` governs facet *spec docs*. Keep the `Facet Document Structure` bullet list and the ruleset in sync — the list is the readable form, the RULESET is the auditable form.
-- **Singular, not the index.** [[FCT Facets]] (plural) is the *catalog* of concrete facets; this page (singular) *defines the kind*. The Primitives-row "Facet" link points here.
-- **Don't embed a worked example.** A facet example is itself a full anchor page (dispatch table, sections, often a paired ruleset); embedding one inside this spec confuses example-vs-spec. Describe the shape with the `Facet Document Structure` bullet list; link real examples in the dispatch `Examples` row.
-- **`Examples` lists *facets* (definitions), never instances.** A project's `Architecture.md` is an *instance* of the Architecture facet — it belongs on that facet's own page, not here. Label each `Examples` entry by what kind of facet example it is (small / complete; single-file / folder / many-cardinality).
-- **The umbrella model lives in [[CAB Aspects]]** — don't duplicate the Aspect/Trait/Facet vocabulary or the composability matrix here; link to it.
+*(Maintainer note — facet-specific cautions for editing this spec.)*
+
+- **`R-facet-spec` (embedded here) ≠ the umbrella [[R-facet]].** This page's ruleset governs facet *spec docs*; `R-facet` aggregates each materialized facet's *instance* rules. Keep the `Facet Document Structure` bullet list and the `R-facet-spec` ruleset **in sync** — the list is the readable form, the ruleset the auditable one.
+- **This page deliberately embeds no worked example** (R-facet-spec-20) — it models the rule it states; don't add one.
