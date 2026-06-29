@@ -28,11 +28,7 @@ A rule activates for a target when **all of its present clauses hold**. `where::
 
 ### `where::` — which files
 
-A path glob, resolved **relative to the anchor that adopts the rule**: `**/*.md` means "every markdown file in this anchor," which is what makes one rule reusable across anchors. **Required for a passive rule**; optional for a live one (the moment supplies the subject). Default `always`. Grammar: [[FCT Ruleset]] § Where clause.
-
-The all-caps `{ANCHOR}` / `{NAME}` / `{SLUG}` **substitution variables** expand to the adopting anchor's values here (§ Ambient and variables).
-
-**Backticks on a clause value are optional but recommended.** A `where::` / `when::` / `if::` value is one line and the parser strips backticks, so they change *nothing* semantically. But Obsidian/Dataview mangle a bare value containing `*`, `[`, `|`, or `::` (a glob, a regex, a `::`-bearing expression), so backticking — `` where:: `**/*.md` `` — keeps it from rendering wrong or colliding with Dataview. A plain token (`when:: write:markdown`) needs none; backtick anything with special characters ([[F007 — Backtick all where expressions — parser swap|F007]]).
+A path glob, resolved **relative to the anchor that adopts the rule**: `**/*.md` means "every markdown file in this anchor," which is what makes one rule reusable across anchors. **Required for a passive rule**; optional for a live one (the moment supplies the subject). Default `always`. A glob may use the `{ANCHOR}` / `{NAME}` / `{SLUG}` substitution tokens (§ Ambient and variables). Grammar: [[FCT Ruleset]] § Where clause.
 
 ### `when::` — which moments
 
@@ -63,23 +59,27 @@ if:: not file.title                        # no H1 title
 if:: 'description' not in file.frontmatter # no description
 ```
 
-A value containing `::` is backticked ([[F007 — Backtick all where expressions — parser swap|F007]]) so Dataview doesn't mis-parse it. When the test needs **judgment**, write it as **prose** (the LLM reads the `file` and decides) or call **`ask_oracle(f'…{slice}')`** for a narrowed judgment. A test yields **findings** (each a message) or a boolean. For a per-violation test, skip `if::` and write a body snippet that conditions and `tell`s inline (§ The actions).
+When the test needs **judgment**, write it as **prose** (the LLM reads the `file` and decides) or call **`ask_oracle(f'…{slice}')`** for a narrowed judgment. A test yields **findings** (each a message) or a boolean. For a per-violation test, skip `if::` and write a body snippet that conditions and `tell`s inline (§ The actions).
 
 ### Ambient rules — no `where::`, no `when::`
 
 A rule with neither clause has no dispatch key, so Warden cannot place it. It is **ambient**: always loaded into the agent's context (the CLAUDE.md model), **not automatically dispatched** — the weakest form, for guidance that can't be pinned to a file or a moment. (Distinct from `where:: always`, which is an explicit all-files scope that audit still dispatches.)
 
+### Backticking clause values
+
+A `where::` / `when::` / `if::` value is one line, and the parser strips backticks — so they change *nothing* semantically. They are **optional but recommended**: Obsidian/Dataview mangle a bare value containing `*`, `[`, `|`, or `::` (a glob, a regex, a `::`-bearing expression), so backticking — `` where:: `**/*.md` `` — keeps it from rendering wrong or colliding with Dataview. A plain token (`when:: write:markdown`) needs none; backtick anything with special characters ([[F007 — Backtick all where expressions — parser swap|F007]]).
+
 ## The actions — `tell`, `edit`, `deny`, `run`
 
 On a hit, the body performs zero or more actions. Three are **mediated** (Warden controls exactly what each does); `run` is the **unmediated**, deferred escape hatch.
 
-| Action | Emitted by | What happens | Goes to |
-|---|---|---|---|
-| *(pass)* | — | nothing — the test found no problem | — |
-| **tell** | bare prose, or `tell(msg)` | say something to the agent — a problem or a directive | a **steer** in the agent's context (live) · a **finding** in the report (audit) |
-| **edit** | a method on `file` — `file.set_frontmatter(…)`, `file.replace_section(…)`, … | write to a file — repair, stamp metadata, append a log | the file(s) — never-delete floored |
-| **deny** | `deny(reason)` | block the pending action | the tool call — `tool:pre` only |
-| **run** *(future helper)* | the Python body, directly | arbitrary execution — shell, drive Warden / other agents | it's just Python — trusted like a skill; off for imported rules |
+| Action                    | Emitted by                                                                  | What happens                                             | Goes to                                                                         |
+| ------------------------- | --------------------------------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| *(pass)*                  | —                                                                           | nothing — the test found no problem                      | —                                                                               |
+| **tell**                  | bare prose, or `tell(msg)`                                                  | say something to the agent — a problem or a directive    | a **steer** in the agent's context (live) · a **finding** in the report (audit) |
+| **edit**                  | methods on `file` — `file.set_frontmatter(…)`, `file.replace_section(…)`, … | write to a file — repair, stamp metadata, append a log   | the file(s) — never-delete floored                                              |
+| **deny**                  | `deny(reason)`                                                              | block the pending action                                 | the tool call — `tool:pre` only                                                 |
+| **run** *(future helper)* | the Python body, directly                                                   | arbitrary execution — shell, drive Warden / other agents | it's just Python — trusted like a skill; off for imported rules                 |
 
 **The body form.** A bare-prose body **is** the `tell` (no keyword). For anything more, the body is **Python, marked by backticks** — an inline `` `expr` `` for a one-liner, a bare ` ``` ` fence for several lines (no `python` tag). `file` / `anchor` / `git` / `event` and the verbs are in scope; no `def`. A `description::` field carries the rule's **meaning / goal** — its intent for a reader (the North Star), **not sent on rule fire**; bare prose in body position is the `tell`; `message:: <text>` is sugar for a fixed `tell`; a *fix* is an `edit` that repairs a violation. **Emit nothing → the rule passed.**
 
