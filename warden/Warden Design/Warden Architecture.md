@@ -9,28 +9,19 @@ The rule system is how a portable, audit-checkable constraint is **defined** (th
 > [!info] Scope
 > This is the architecture *of the rule language and its runtime*. The prescriptive file-format spec is [[FCT Ruleset]]; the per-audit execution pipeline is [[Audit Architecture]] and [[F001 — Rule-driven audit engine — resolve, run, judge|F001]]. This page is the connective tissue: it names the subsystems, shows how they fit, and points at the source of truth for each.
 
-## Rule system — the four layers
+## Rule system — define · compose · run
 
 ![[Warden Architecture.svg|1100]]
 
-[↗ Open figure](Warden%20Architecture.svg) · [Index ↓](#figure-index) · [✎ Edit source](Warden%20Architecture.d2)
+[↗ Open figure](Warden%20Architecture.svg) · [✎ Edit source](Warden%20Architecture.d2)
 
 ### Figure index
 
-| Layer | Subsystem | What it is |
+| Grouping | What it covers | Spec |
 |---|---|---|
-| **1 · Definition** | The Rule | The atomic, greppable primitive: `RULE R-<slug>-NN (tier)` + body. → [§1](#1--definition--the-rule-and-the-ruleset) |
-| | The Ruleset | A named bundle: `# RULESET R-<slug>` + `include:: / where:: / when:: / description::` header. → [§1](#1--definition--the-rule-and-the-ruleset) |
-| **2 · Composition & placement** | Containment | `include::` DAG; umbrellas (`R-anchor`, `R-doc`, `R-diagram`); depth-first flatten; no-renumber. → [§2](#2--containment-and-inheritance--include) |
-| | Three homes | Catalog `R-<slug>.md` · embedded `# RULESET` in a facet/skill/discipline · anchor-local `{NAME} Rules.md`. → [§3](#3--placement-and-association--where-rules-live) |
-| | Adoption | An anchor's `{NAME} Decisions.md` `include::`s a ruleset and cites rules. → [§3](#3--placement-and-association--where-rules-live) |
-| **3 · Binding** | conjunction `when ∧ where ∧ if` | A rule fires only when all clauses hold; the engine picks the dispatch. → §4 |
-| | `where::` | The **place** selector (spatial, cross-cutting): `always` / `file:<glob>` / `anchor` / `sentinel:<regex>`. → §4 |
-| | `when::` | The **moment** trigger (temporal): the unified taxonomy → [[Warden Events]]. → §5 |
-| | `if::` | The optional **guard** (condition): declarative or Python. → §5 |
-| **4 · Execution** | Compiler / installer | Indexes active rules onto runtime moments; pre-compiles per-moment modules (implicit path). → §7a |
-| | On-demand audit | `audit-plan.py` — Resolve → Run → Judge → Fix, three caches (explicit path). → §7b |
-| | Hook subsystem | `settings.json` hooks deliver the moments. → §6 |
+| **DEFINE** — a rule on disk | `RULE` / `RULESET` sentinels; the **condition** (`where` · `when` · `if`); the **actions** (`tell` · `edit` · `deny` · `run`); `description::`. | [[Warden Rule]] |
+| **COMPOSE & ADOPT** | `include::` depth-first flatten + umbrellas; three homes (catalog · embedded · anchor-local); adoption via anchor **traits** + `{NAME} Decisions`; `where::` keeps unmatched rules asleep. | [[Warden Rule]] · [[FCT Decisions]] |
+| **RUN** — the engine | resident **daemon** + tiny notifier; **dispatch** by `where`/`when` indexes; **interpret** `if` + body over `file`·`anchor`·`git`·`event`·`agent`; **consumers** (live hooks · `/audit`); the **oracle**. | [[Warden Semantics]] · [[Warden Runtime]] |
 
 ---
 

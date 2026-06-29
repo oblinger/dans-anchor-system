@@ -30,7 +30,7 @@ A rule activates for a target when **all of its present clauses hold**. `where::
 
 A path glob, resolved **relative to the anchor that adopts the rule**: `**/*.md` means "every markdown file in this anchor," which is what makes one rule reusable across anchors. **Required for a passive rule**; optional for a live one (the moment supplies the subject). Default `always`. Grammar: [[FCT Ruleset]] § Where clause.
 
-**Substitution variables** stand in for the adopting anchor's values — all-caps, brace-delimited: **`{ANCHOR}`** (its root path), **`{NAME}`** (its name), **`{SLUG}`** (its kebab slug). They mirror the `anchor.*` accessors used in Python (`{NAME}` ↔ `anchor.name`) and resolve when the rule binds to an anchor — `where:: {ANCHOR}/**/{NAME} Backlog.md`.
+The all-caps `{ANCHOR}` / `{NAME}` / `{SLUG}` **substitution variables** expand to the adopting anchor's values here (§ Ambient and variables).
 
 **Backticks on a clause value are optional but recommended.** A `where::` / `when::` / `if::` value is one line and the parser strips backticks, so they change *nothing* semantically. But Obsidian/Dataview mangle a bare value containing `*`, `[`, `|`, or `::` (a glob, a regex, a `::`-bearing expression), so backticking — `` where:: `**/*.md` `` — keeps it from rendering wrong or colliding with Dataview. A plain token (`when:: write:markdown`) needs none; backtick anything with special characters ([[F007 — Backtick all where expressions — parser swap|F007]]).
 
@@ -105,7 +105,7 @@ The **interpretation environment** is the Python scope a rule is *interpreted* i
 | **`event`** | `.kind`, `.diff`, `.command`, `.tool` |
 | **`agent`** | `.state` (`working`/`landed`/`asking`/`idle`), `.skill`, `.is_asking` |
 | *ambient* | `today`, `now` (+ plain Python: builtins, `re`, `json`, `datetime`) |
-| *variables* | `{ANCHOR}`, `{NAME}`, `{SLUG}` — anchor substitutions in `where::` (mirror `anchor.root` / `.name` / `.slug`; § `where::`) |
+| *variables* | `{ANCHOR}`, `{NAME}`, `{SLUG}` — `where::` substitutions (§ Ambient and variables) |
 | *verbs* | `tell(msg)`, `deny(reason)`, the `file` edits, `ask_oracle(prompt)→str`, `sh(argv)` — § Verbs |
 
 None of these take a `ctx.` prefix — they are aliased into the scope directly. Each is **computed lazily and cached per pass** — most rules touch only a couple, so the daemon pays for `git` / `agent` / parsed sections only when a rule actually reads them ([[Warden Architecture]] §7).
@@ -175,21 +175,26 @@ The running agent's state — sense it at a return / lifecycle moment (`when:: p
 
 The callable operations — the actions a body emits (`tell` / `edit` / `deny`), plus the `ask_oracle` reader:
 
-| Call | What it does |
-|---|---|
-| `tell(msg)` | steer the agent (live) / file a finding (audit) |
-| `deny(reason)` | block the pending tool — `tool:pre` only |
-| `file.set_frontmatter(k, v)` | **edit** — set a frontmatter key (never-delete floored) |
-| `file.replace_section(h, text)` | **edit** — replace a section's body (never-delete floored) |
-| `ask_oracle(prompt) → str` | ask a fresh **oracle** (a context-less helper LLM); returns its text — merge material into the prompt yourself |
-| `sh(argv)` | run a shell command (an argv **list**); returns its output — an **effect** (`run`), trusted like a skill; argv-form blocks injection |
+| VERBS                           | What it does                                                                                                                         |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `tell(msg)`                     | steer the agent (live) / file a finding (audit)                                                                                      |
+| `deny(reason)`                  | block the pending tool — `tool:pre` only                                                                                             |
+| `ask_oracle(prompt) → str`      | ask a fresh **oracle** (a context-less helper LLM); returns its text — merge material into the prompt yourself                       |
+| `sh(argv)`                      | run a shell command (an argv **list**); returns its output — an **effect** (`run`), trusted like a skill; argv-form blocks injection |
+| `file.replace_section(h, text)` | **edit** — replace a section's body (never-delete floored)                                                                           |
+| `file.set_frontmatter(k, v)`    | **edit** — set a frontmatter key (never-delete floored)                                                                              |
 
-### Ambient
+### Ambient and variables
+
+Both are always in scope, no setup. **Ambient values** are the plain runtime; **variables** are the all-caps anchor substitutions used in a `where::` glob.
 
 | Name | What it is |
 |---|---|
 | `today`, `now` | current date (ISO-serializing on write), current datetime |
 | Python | full Python — builtins + stdlib (`re`, `json`, `datetime`, …); it's real code, trusted like a skill (the hot-path interpreter may limit imports for *speed*, not security) |
+| `{ANCHOR}` · `{NAME}` · `{SLUG}` | the adopting anchor's root path · name · kebab slug |
+
+The **variables** are *substitution tokens*, not Python values: in a `where::` glob they expand to the adopting anchor's values when the rule binds to that anchor — `where:: {ANCHOR}/**/{NAME} Backlog.md`. They are the where-clause counterpart of the `anchor.*` accessors — use the brace form (`{NAME}`) in `where::`, the dotted form (`anchor.name`) in an `if::` or a body.
 
 **How `ask_oracle` executes.** A hook is a synchronous subprocess and cannot block-and-await the agent's model, so `ask_oracle` spawns a **separate headless oracle** that sees only the prompt and returns a string. On the **audit path** (not latency-bound) the pipeline blocks on it and parses the answer — its home. On the **live path** (the ms-budget hot hook) it cannot block, so a live judgment is **delegated to the agent as a steer** instead. The oracle is a **cheaper model** (Sonnet, ≈5× cheaper, ~1¢ per check) reached through Claude Code's *own* access — a sub-agent of the `/audit` turn, the running agent on the live path, or `claude -p` headless — so there's **no API key to set up** (the external API is opt-in, only to dodge subscription usage caps). (Mechanism: [[Warden Architecture]] §7.)
 
