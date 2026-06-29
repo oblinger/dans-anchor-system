@@ -85,7 +85,7 @@ After glancing the doc, `/query` may print a few **immediate** items — resolut
 
 ## Parented mode — `/query --doc <path> <q1> [<q2> …]`
 
-The secondary invocation, called from another skill's runbook (`/feature`, `/code plan`, `/groom`, `/design`) when it has decisions to park in a *specific* document. It authors numbered, ask-format questions directly into `<path>`'s `## Open Questions` block (created below the H1 if absent) and does **not** build the anchor's `queries.md` — the Qs surface there on the next bare `/query` pass via the determination logic.
+The secondary invocation, called from another skill's runbook (`/feature`, `/code plan`, `/groom`, `/design`) when it has decisions to park in a *specific* document. It authors numbered, ask-format questions directly into `<path>`'s `## Open Questions` block (created **above the H1** — between frontmatter and H1 — if absent, per the placement rule) and does **not** build the anchor's `queries.md` — the Qs surface there on the next bare `/query` pass via the determination logic.
 
 - **Mechanism:** resolve `<path>` to its feature/PRD doc, then delegate to `state q add` (which enforces the ask-format spec — block-IDs, `Q<n>` numbering, recommendation strength, Phase 1/2/3 lifecycle):
   ```bash

@@ -1297,13 +1297,16 @@ def _section_at(lines, line_idx):
 
 
 def _ensure_open_questions_h2(lines):
-    """Ensure ## Open Questions H2 exists below H1. Returns lines (possibly
-    modified) AND the (h2_start, h2_end) range after insertion.
+    """Ensure ## Open Questions H2 exists ABOVE the H1 — between the frontmatter
+    and the H1 (per the 2026-06-29 placement rule: pending questions precede the
+    document; they aren't part of it until answered, when they migrate to the
+    bottom ## Resolved H2). Returns lines (possibly modified) AND the
+    (h2_start, h2_end) content range after insertion.
     """
     existing = _find_h2(lines, "Open Questions")
     if existing is not None:
         return lines, existing
-    # Find H1 to insert after
+    # Find the H1 to insert BEFORE.
     h1_idx = None
     for i, line in enumerate(lines):
         if line.startswith("# "):
@@ -1311,13 +1314,10 @@ def _ensure_open_questions_h2(lines):
             break
     if h1_idx is None:
         raise BacklogEditError("feature doc has no H1; cannot insert ## Open Questions")
-    insert_at = h1_idx + 1
-    # Skip blank lines after H1
-    while insert_at < len(lines) and not lines[insert_at].strip():
-        insert_at += 1
-    new_block = ["", "## Open Questions", ""]
-    lines = lines[:insert_at] + new_block + lines[insert_at:]
-    return lines, (insert_at + 1, insert_at + 3)
+    # Insert the block just above the H1; a trailing blank separates it from the H1.
+    new_block = ["## Open Questions", "", ""]
+    lines = lines[:h1_idx] + new_block + lines[h1_idx:]
+    return lines, (h1_idx + 1, h1_idx + 3)
 
 
 def _ensure_bottom_resolved_h2(lines):

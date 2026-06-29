@@ -19,7 +19,7 @@ Manage a feature from initial idea through design, agreement, implementation, te
 
 **MANDATORY: Commit discipline.** Before starting a new feature or switching to any other activity, commit all uncommitted work from the current feature. The natural commit point is the transition — not when you think you're done, but when you're about to do something else.
 
-**Question format**: the `## Open Questions` H2 below the H1 follows the [[DSC ask-format]] discipline (five-piece layout, block-IDs, Phase 1/2/3 lifecycle).
+**Question format**: the `## Open Questions` H2 above the H1 follows the [[DSC ask-format]] discipline (five-piece layout, block-IDs, Phase 1/2/3 lifecycle).
 
 ## When to Use
 
@@ -94,14 +94,12 @@ If `{NAME} Design/{NAME} Features/` doesn't exist, create it. (Legacy anchors st
 
 This is the one place in `/feature` where an inline question is appropriate (vs. routing through `/query`'s batch surface): it's a yes/no creation-time prompt that needs an answer in the same turn, and the user is in active mode by virtue of having invoked `/feature`.
 
-**Feature doc structure — Open Questions sits BELOW the H1 while any pending Qs exist; deleted entirely once all are resolved, with answered Qs migrating to a `## Resolved` H2 at the bottom of the doc.** The lifecycle:
+**Feature doc structure — Open Questions sits ABOVE the H1 (between the frontmatter and the H1) while any pending Qs exist; deleted entirely once all are resolved, with answered Qs migrating to a `## Resolved` H2 at the bottom of the doc.** The lifecycle:
 
 ```markdown
 ---
 description: {one-line description}
 ---
-
-# [[{NAME}]] · F{n} — {Feature Name}
 
 ## Open Questions
 
@@ -112,7 +110,9 @@ description: {one-line description}
 
 - **Q0 — {earlier question}** — **Resolution:** {decided X because Y}. Incorporated into Design § {section}.
 
-(**No boilerplate prose** under `## Open Questions` or `### Resolved` headings. No "Blocking decisions / cannot move from Designing → Agreed" intro. Just the heading then the bullets. Per durable feedback memory.)
+(**No boilerplate prose** under `## Open Questions` or `### Resolved` headings. No "Blocking decisions / cannot move from Designing → Agreed" intro. Just the heading then the bullets. Per durable feedback memory. **Placement:** while pending Qs exist this block sits ABOVE the H1 — questions precede the document; they aren't part of it until answered. On resolution the doc enters Phase 2: this block is deleted and its decisions migrate to the bottom `## Resolved` H2.)
+
+# [[{NAME}]] · F{n} — {Feature Name}
 
 ## Summary
 
@@ -152,14 +152,14 @@ Designing — awaiting design discussion.
 
 **Lifecycle phases for Questions:**
 
-- **Phase 1 — pending user Qs exist.** `## Open Questions` H2 sits directly below the H1, containing pending Qs. Resolved Qs accumulate inside as a `### Resolved` H3 sub-section *until all are answered*.
+- **Phase 1 — pending user Qs exist.** `## Open Questions` H2 sits directly ABOVE the H1 (between the frontmatter and the H1) — questions precede the document, not part of it until answered — containing pending Qs. Resolved Qs accumulate inside as a `### Resolved` H3 sub-section *until all are answered*.
 - **Phase 2 — all Qs resolved.** Delete the `## Open Questions` H2 entirely. Migrate the staged `### Resolved` H3 content to the bottom `## Resolved` H2 (creating it if absent). Top of doc is now clean: H1 → Summary → Design → Status → Resolved.
-- **Phase 3 — new Q arises later.** Recreate `## Open Questions` H2 below H1 with the new Q. Same lifecycle as Phase 1.
+- **Phase 3 — new Q arises later.** Recreate `## Open Questions` H2 above H1 with the new Q. Same lifecycle as Phase 1.
 - **Auto-decisions skip Phase 1 entirely.** Agent decisions made under the [[F068 — Assume-and-announce discipline (Drive mode)|F068]] visibility + low-recoverability rule go *directly* into the bottom `## Resolved` H2 as H3 entries, without staging at top. They co-exist there with user-answered Qs.
 
 **Structural rules:**
 - **H1 carries the anchor-slug breadcrumb + F-number.** Format: `# [[{NAME}]] · F{n} — {Feature Name}`. The leading `[[{NAME}]]` is a wiki-link to the anchor page (jumps back to the anchor's home from any feature doc) and tells the reader at a glance which anchor they're in — load-bearing when many anchors are active and feature docs look similar across them.
-- **`## Open Questions` lives below H1 only while pending user Qs exist** — deleted otherwise.
+- **`## Open Questions` lives above H1 (between frontmatter and H1) only while pending user Qs exist** — deleted otherwise; questions precede the document and migrate to the bottom `## Resolved` H2 once answered.
 - **`## Resolved` at the bottom holds all resolved decisions as H3 entries** — both agent-decided and user-answered. The H3 outline IS the decision list; click any H3 to read its full record. H3 title format: `### Q{N} — {Title}` for user-answered (Q-numbered); `### {Title}` for agent-decided (no Q-number — they were never asked). Each H3 body has: `**Choice:** X.` + brief reasoning + alternatives considered + why rejected.
 - The `/query` skill (`[[SKA queries]]`) is the universal asking subroutine — feature docs, PRDs, plan docs, anything with questions follows the same shape. Invoke `/query --doc <path>` to add questions to a feature doc; the runbook handles formatting, glance, and global-page maintenance.
 
