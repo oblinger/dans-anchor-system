@@ -1,9 +1,6 @@
 ---
 description: "how the engine runs a rule — IF (dispatch indexes + a condition) THEN (actions)"
 ---
-# Warden Semantics
-
-How the Warden engine runs a rule. [[Warden Rule]] is the file format; this is the operational model — kept small: **a rule is `IF` a condition `THEN` an action.** The engine dispatches to a rule cheaply (by moment + file), evaluates its condition, and on a hit performs its action(s).
 
 > [!todo] Open threads (everything here is in flux — park items so we don't forget)
 > - **Sync `Warden Rule`** (format spec) to this model — it still has `check::`/tiers, and defaults a clause-less rule to `where:: always` (now the **ambient** case).
@@ -13,6 +10,11 @@ How the Warden engine runs a rule. [[Warden Rule]] is the file format; this is t
 > - **`ask_oracle(prompt) → str`** — settled: **one prompt arg in, a `str` out** (it's an LLM — text in, text out; merge material into the prompt, parse the reply if you need structure). Vocabulary settled too (**the agent** = steered, **the oracle** = the spawned context-less helper). Still open: whether F215's economy gate wants the material as a separate diffable arg after all.
 > - **`file.frontmatter`** — confirm merging YAML block + inline `::` fields is what we want.
 > - **`git` when an anchor nests a code repo** — `git` follows the subject's repo now; may need an `anchor.repo` / `code.repo` split when both exist.
+> - **Live external-edit detection** — agent writes fire `write:*`; external edits (Obsidian, `git pull`) are only caught at the next `/audit`. A filesystem watcher would make them live — heavier, deferred; decide if any rule needs it.
+
+# Warden Semantics
+
+How the Warden engine runs a rule. [[Warden Rule]] is the file format; this is the operational model — kept small: **a rule is `IF` a condition `THEN` an action.** The engine dispatches to a rule cheaply (by moment + file), evaluates its condition, and on a hit performs its action(s).
 
 ## A rule at a glance
 
@@ -52,6 +54,8 @@ Three clauses, **two kinds**. `where::` and `when::` are **indexes** — the com
 | — | — | **ambient** — see below |
 
 **The ambient rule (no `where::`, no `when::`) is legal — and it's the weakest form.** With no dispatch key, Warden can't deliver it at the right moment (its whole superpower), so it falls back to the only option left: **always loaded into the agent's context** — the CLAUDE.md model, where "the LLM just has to remember it," competing for attention with everything else. Use it only for guidance that genuinely can't be pinned to a file or a moment; otherwise add a clause so Warden can do its job. *(Distinct from `where:: always`, which is an explicit "every file" scope that Warden still dispatches — at audit, over everything.)*
+
+**How a passive rule notices a change.** A passive rule re-evaluates at `/audit`, but only over files whose **content-hash moved** since its last verdict (the cache from § *Re-running*) — so *"when the file changed"* is realized **without** a `when::` clause, and unchanged files reuse their verdict (cheap re-audits). A **never-seen anchor** has no prior hashes, so *every* file counts as changed and all its passive rules run once — the bootstrap, for free. The gap this leaves: an **external** edit (you in Obsidian, a `git pull`) fires **no hook** — it's caught only at the **next audit** (its hash moved), not live. Catching external edits live would need a **filesystem watcher** — heavier, a separate capability (see to-do); for an expensive judgment like R-ex-03, audit-catches-it is the right default anyway.
 
 **Why `if` stays separate from `when`.** `when`/`where` are *indexical* — clean tokens (`write:markdown`, `*.md`) the compiler matches without execution. `if` is *computed*. Folding `if` into `when` would either uglify the simple `when` clause or mix a dispatch index with computation, so they stay apart.
 

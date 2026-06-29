@@ -36,7 +36,7 @@ When a regex won't do, the body is a bare `python` **snippet** (no `def`, no mag
 
 ![[Warden Example judgment.svg]]
 
-Also just prose — but prose that states an *expectation* ("Summary should reflect Design"). The LLM reads the `file`, judges, and tells what drifted. Same shape as R-ex-01; the difference is the LLM evaluates it rather than a primitive. (Judgments cost tokens, so Warden caches the verdict until the file changes.)
+Also just prose — but prose that states an *expectation* ("Summary should reflect Design"). The LLM reads the `file`, judges, and tells what drifted. Same shape as R-ex-01; the difference is the LLM evaluates it. **No `when::` is deliberate**: an LLM judgment is expensive, so it runs **passively at `/audit`**, re-checked only when the file's content changed (the verdict is cached until then). Firing it live on every write would be the wrong trade — `when::` + `rerun:: significant` is how you'd opt into live, throttled.
 
 ## 04 · Script-assisted
 
