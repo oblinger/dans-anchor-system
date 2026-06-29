@@ -98,9 +98,9 @@ On a hit, the rule performs zero or more actions. Three are **mediated** — War
 
 > **Open — `run`'s trust model.** Your own rules are as trusted as your own scripts, so unbounded effect is arguably fine; an *imported* ruleset carrying effectful Python is a **supply-chain risk** (adopting it runs its code on your moments). Leaning: **ship the mediated three first; add `run` only behind explicit trust, off for imported rules.**
 
-## Rule interpretation — the runnable environment
+## Rule Interpretation Environment
 
-**North star: this environment is a real, runnable Python API — not just notation.** A rule body is plain Python over a handful of injected objects, and *any agent can call them*. Skills already run Python, so an agent that **reads** a rule (`file.sections(...)`, `ask_oracle(...)`) is in a position to **run** it and get the result back — Warden *schedules* these calls, but it doesn't own them. The whole surface, at a glance:
+A rule body is plain Python over a handful of injected objects (`file`, `anchor`, `git`, `event`) plus the verbs and the ambient environment. The whole surface, at a glance:
 
 | In scope | Accessors / calls |
 |---|---|
@@ -114,8 +114,7 @@ On a hit, the rule performs zero or more actions. Three are **mediated** — War
 The rest of this section unpacks each — which are present when, and (verbs) how they behave (action semantics live in § THEN). `file` / `anchor` / `event` are the three things the rule **matched on**; `git` is **derived** (the subject's repo); none take a `ctx.` prefix — they're aliased in directly.
 
 ### File
-
-**`file`** — the matched file (from `where::`, or a file-bearing moment like `write:*`; a command-only moment like `tool:pre:Bash` has **no** `file`):
+**`file`** — binds to the matched file (from the `where::` clause, or a file-bearing moment like `write:*`; a command-only moment like `tool:pre:Bash` has **no** `file`):
 
 | Member | What it is |
 |---|---|
