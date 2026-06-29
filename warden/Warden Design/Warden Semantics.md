@@ -170,7 +170,13 @@ A **ruleset** is a named bundle of rules ([[Warden Rule]] § The ruleset). Two r
 
 **Composition — `include::`.** A ruleset may `include::` other rulesets (by name or wiki-link). Resolving a set **flattens** it: its own rules, plus — depth-first, cycles forbidden — the rules of every included set, concatenated into one list. Composition **never renumbers**: an included rule keeps its source-set id (`R-<source>-NN`), so cross-references stay stable. A pure-composition set (`include::` only, no own rules) is an **umbrella**.
 
-**Activation — adoption by an anchor.** A ruleset in the catalog does nothing until an **anchor adopts it**. Adoption is an `include::` under the anchor's `# {NAME} Decisions` heading ([[FCT Decisions]]) — the same `include::` mechanism, a different host. So **the active rule set is per-anchor state, owned by `{NAME} Decisions.md`**: that file is the source of truth for "which rules are on, here."
+**Activation — by the anchor's traits.** A ruleset in the catalog does nothing until an **anchor adopts it**. Adoption is recorded in the anchor's `# {NAME} Decisions` ([[FCT Decisions]]) — and an anchor's **traits/facets *are* its adoptions**: a facet's ruleset is active wherever that facet is present, plus any catalog sets the anchor adopts explicitly (`include::` under Decisions). So the active rule set is per-anchor state, owned by `{NAME} Decisions.md`.
+
+**Co-location is organizational, not semantic.** A ruleset embedded in a facet / discipline / skill spec is there for **authoring locality** and because the rules *are* that artifact's documentation (the *read* leg of dual-use) — location confers **no firing behavior**. What a rule fires or audits over is its `where::`; the common pattern is a **set-level `where::`** on the embedded ruleset (every rule inherits it unless it overrides), scoping the whole set to the facet's artifacts.
+
+**Salient vs. obligating.** Only a `when::` **obligates** — it fires a live steer at that moment. A rule with `where::` and no `when::` is **passive**: a backstop at `/audit`, and readable in place as the spec, but it never nags mid-work. So a facet's dozen rules are *salient* (read, and audited) without forcing action; `when::` is for the few that must guard live.
+
+**`where::` gates activation, so lean broad.** A rule whose `where::` matches no file in the anchor is **inert** — N/A, never fires, never fails. Over-activation therefore costs only a glob check, while under-activation actually drops a guardrail — so erring broad is correct. Activate an anchor's facet rulesets and let `where::` keep the irrelevant ones asleep.
 
 **Two uses of `include::`, by host:** under a `# RULESET` heading it is **composition** (one set built from others); under a `# {NAME} Decisions` heading it is **activation** (an anchor turning a set on). Same syntax, different scope.
 
