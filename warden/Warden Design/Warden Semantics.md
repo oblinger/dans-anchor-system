@@ -7,8 +7,7 @@ description: "how the engine runs a rule — the condition, the actions, the int
 > - **Sync `Warden Architecture` §7** with the two-path `ask_oracle` mechanism (oracle on audit / steer on live).
 > - **`run` action** — trust/security model before it ships (deferred).
 > - **The `edit` family** — define the method set (`set_frontmatter`, `replace_section`, …) and the never-delete floor it rides on.
-> - **`ask_oracle(prompt) → str`** — settled: **one prompt arg in, a `str` out** (it's an LLM — text in, text out; merge material into the prompt, parse the reply if you need structure). Vocabulary settled too (**the agent** = steered, **the oracle** = the spawned context-less helper). Still open: whether F215's economy gate wants the material as a separate diffable arg after all.
-> - **`file.frontmatter`** — confirm merging YAML block + inline `::` fields is what we want.
+> - **`ask_oracle` + F215** — shape/vocabulary settled; one open question: whether F215's economy gate wants the prompt's *material* as a separate diffable arg (vs one merged prompt).
 > - **`git` when an anchor nests a code repo** — `git` follows the subject's repo now; may need an `anchor.repo` / `code.repo` split when both exist.
 > - **Live external-edit detection** — agent writes fire `write:*`; external edits (Obsidian, `git pull`) are only caught at the next `/audit`. A filesystem watcher would make them live — heavier, deferred; decide if any rule needs it.
 
@@ -88,7 +87,7 @@ On a hit, the body performs zero or more actions. Three are **mediated** (Warden
 
 > **Open — `run`'s trust model.** Your own rules are as trusted as your own scripts; an *imported* ruleset carrying effectful Python is a supply-chain risk (adopting it runs its code on your moments). Leaning: ship the mediated three first; add `run` only behind explicit trust, off for imported rules.
 
-## Rule interpretation environment
+## Rule interpretation
 
 A rule body is plain Python over a handful of injected objects (`file`, `anchor`, `git`, `event`) plus the verbs and the ambient environment. The whole surface, at a glance:
 
