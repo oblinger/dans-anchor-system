@@ -6,10 +6,12 @@ description: >
   guesses, run checks itself, decide low-stakes/visible calls, infer from the
   codebase), then CONSOLIDATE the irreducible residue into one self-documenting,
   counted, one-shot-answerable pile in the anchor's `{NAME} queries.md` (sections
-  Agent Resolutions / Verifications / Immediate Questions / Questions). NEVER ask
-  in chat — especially after a triage; that is the cardinal violation. Glance the
-  doc and trim answered items. Use when the user runs /query or an agent has a
-  decision to route. Per F169 + [[Query PRD]].
+  Agent Resolutions / Verifications / Immediate Questions / Questions). The doc is
+  the always-current STORE of open questions — write every question there the
+  moment it is raised; chat is at most a VIEW, never carrying a question the doc
+  lacks (the user runs many agents; chat scrolls away). Glance the doc and trim
+  answered items. Use when the user runs /query or an agent has a decision to
+  route. Per F169 + [[Query PRD]].
 tools: Read, Write, Edit, Bash, Glob
 user_invocable: true
 ---
@@ -20,8 +22,8 @@ user_invocable: true
 
 > ## ⚠️ TWO NORTH STARS — NON-NEGOTIABLE
 >
-> **1. The queries doc is the deliverable — NOT the chat. If you ask the user a question, you MUST write it into `{NAME} queries.md`.**
-> Asking a question only in chat — without recording it in the queries doc — is a **violation**, not a shortcut. The doc is the durable surface the user answers from at their own pace; a chat message scrolls away and is lost. The rule has no exceptions: **the moment you have a question for the user, you run the determination logic and write the surviving questions into `{NAME} queries.md`, *then* (optionally) echo a spotlight to chat.** A chat question with no corresponding queries-doc entry means the question was *not actually asked* — redo it through the doc. (This is the recurring failure the user has called out: agents ask in chat and never touch the doc. Treat a bare chat-ask as a bug in your own behavior.)
+> **1. The queries doc is the always-current STORE of open questions — chat is at most a VIEW of it.**
+> `{NAME} queries.md` holds the anchor's open questions *at all times*. **The moment you have a question for the user, write it into the doc — at that same moment** (run the determination logic, write the survivors), and *then* you may optionally echo a spotlight to chat. Chat may point *into* the doc, but it **never carries a question the doc doesn't**, and **the doc is never behind chat**. A chat question with no corresponding doc entry means the question was *not actually asked* — redo it through the doc. Why this is non-negotiable: the user runs **many agents at once** and **chat scrolls away**; `queries.md` is the one place they can always return to for the latest open questions. (The doc may legitimately lag only during live back-and-forth before the next triage; every triage — and every question raised — re-syncs it. This is the recurring failure the user has called out: agents ask in chat and never touch the doc. Treat a bare chat-ask as a bug in your own behavior.)
 >
 > **2. Every surfaced question is SELF-DOCUMENTING.** Reading the entry *alone*, the user must (a) know exactly **what is being asked**, and (b) have **everything needed to answer it** — either stated in the entry or reachable through a link *in* the entry. If answering requires the user to go hunt for context that isn't linked, the entry fails. And every entry that routes a feature's open questions **states its pending-Q count in bold parens** — `[[F181 — …|F181]] **(5Q)**` — so the user sees at a glance how many answers that feature needs from them.
 
