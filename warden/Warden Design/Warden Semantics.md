@@ -102,7 +102,7 @@ The **interpretation environment** is the Python scope a rule is *interpreted* i
 | In scope | Accessors / calls |
 |---|---|
 | **`file`** | the document as the root **`Section`** — `.path`, `.name`, `.frontmatter`, `.diff` (root only); `.title`, `.level`, `.text`, `.body`, `.lines`, `.links`, `.sections`, `.section("X")`, `.tables` (recursive tree; lazy) |
-| **`anchor`** | `.name`, `.slug`, `.root`, `.traits`, `.get(name)` |
+| **`anchor`** | `.name`, `.slug`, `.root`, `.traits`, `.get(name)`, `.files(glob)`, `.doc(path)` (cross-file reach — audit-passive) |
 | **`git`** | `.branch`, `.mode`, `.is_dirty`, `.ahead`, `.changed` |
 | **`event`** | `.kind`, `.diff`, `.command`, `.tool` |
 | **`agent`** | `.state` (`working`/`landed`/`asking`/`idle`), `.skill`, `.is_asking` |
@@ -142,6 +142,10 @@ A document is a **tree of sections**, and `file` is its **level-0 root** — its
 | `anchor.name`, `anchor.slug` | RID, kebab slug |
 | `anchor.root`, `anchor.traits` | root path, its traits |
 | `anchor.get(name)` | any other anchor field, by name |
+| `anchor.files(glob)` | the anchor's files matching an anchor-relative glob, each loaded as a root `Section` — lazy (`len(anchor.files("**/{NAME} Backlog.md")) == 1`) |
+| `anchor.doc(path)` | one named file as a root `Section` (or `None`) |
+
+**Cross-file rules are audit-passive.** A rule that reads beyond its trigger file via `anchor.files` / `anchor.doc` is no longer a pure function of `(file, event)` — so it does **not** fire live. It runs at `/audit`, which re-scans the anchor whole (no incremental-invalidation state to keep). Live incremental cross-file re-evaluation is deferred to [[Warden Roadmap]] M8 (efficiency); until then the trigger surface (an audit pass) is arranged to re-check often enough.
 
 ### `git`
 

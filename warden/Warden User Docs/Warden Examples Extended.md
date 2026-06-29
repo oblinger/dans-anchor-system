@@ -71,6 +71,22 @@ With only `.text` / `.lines` / `.links`, this is unwritable — there's no struc
 
 > [!success] Gaps G4 + G1 — resolved by one change. **G4** (structured-document access): added the Section tree + lazy `.tables`, ~130 LOC read. **G1** (mechanical-edit verb): the same structure is read/**write** (~40–60 marginal LOC, mostly table re-serialization), so most fixes are floored assignments — no special edit verb. Residual G1: a pure whole-text transform uses the run-class `file.text = …` escape hatch.
 
+## E104 · A cross-file rule — reaching past the trigger
+
+Some checks are about the *tree*, not the file: "exactly one `{NAME} Backlog.md` under the anchor," or "this doc doesn't restate a rule that lives in its facet." They must read other files:
+
+```
+### RULE R-backlog-07 — One backlog per anchor
+description:: Exactly one {NAME} Backlog.md exists under the anchor root.
+where:: anchor
+if:: `len(anchor.files("**/{NAME} Backlog.md")) != 1`
+This anchor has zero or several backlogs — there must be exactly one {NAME} Backlog.md.
+```
+
+The reach is `anchor.files(glob)` (each match loaded as a root `Section`, lazy) and `anchor.doc(path)`. The catch: a rule that reads beyond its trigger is no longer a pure function of `(file, event)` — a sibling change can stale its verdict. Rather than a live cross-file dependency graph, **cross-file rules are audit-passive** — they run at `/audit`, which re-scans the anchor whole.
+
+> [!success] Gap G5 — resolved (scoped). Added `anchor.files(glob)` / `anchor.doc(path)` (cosmetic, ~20 LOC). The structural part — live incremental invalidation of cross-file rules — is consciously deferred to [[Warden Roadmap]] M8; cross-file rules are audit-passive until then.
+
 ## The running gap list
 
 | # | Gap | One-line | Status |
@@ -79,6 +95,7 @@ With only `.text` / `.lines` / `.links`, this is unwritable — there's no struc
 | G2 | ruleset helper namespace | no spec for a ruleset's own reusable `md.*` / `dispatch.*` helpers — packaging, import, trust (E101) | open |
 | G3 | finding confidence / sampling | one firing mode; no review-don't-assert / sampled / soft-tell dimension (E102) | open |
 | G4 | structured-document access | no structured tables / section tree on `file` (E103) | **resolved** — `file` = root Section + lazy `.tables`, read/write |
+| G5 | cross-file reach | rules need to read past the trigger file (E104) | **resolved (scoped)** — `anchor.files()` / `.doc()`; live invalidation deferred to M8 (audit-passive) |
 
 ## See also
 
