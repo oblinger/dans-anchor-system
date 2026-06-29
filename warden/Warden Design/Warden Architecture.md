@@ -1,5 +1,5 @@
 ---
-description: "the unified map: rules, rulesets, `include::` containment, the `when ∧ where ∧ if` binding, the hook subsystem, and the compiler/audit engine"
+description: "the unified map: rules, rulesets, `include::` composition, dispatch, the hook subsystem, and the compiler/audit engine"
 ---
 
 # Warden Architecture

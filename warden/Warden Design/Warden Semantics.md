@@ -1,5 +1,5 @@
 ---
-description: "how the engine runs a rule — the condition, the actions, the interpretation environment, and ruleset activation"
+description: "how the engine runs a rule — the condition, the actions, the runnable interpretation environment, and ruleset activation"
 ---
 
 > [!todo] Open threads (everything here is in flux — park items so we don't forget)
@@ -39,18 +39,19 @@ A rule activates for a target when **all of its present clauses hold**. `where::
 
 A path glob, resolved **relative to the anchor that adopts the rule**: `**/*.md` means "every markdown file in this anchor," which is what makes one rule reusable across anchors. The explicit `{ANCHOR}/` token is equivalent to a bare glob. **Required for a passive rule**; optional for a live one (the moment supplies the subject). Default `always`. Grammar: [[FCT Ruleset]] § Where clause.
 
-### `when::` — which moment
+### `when::` — which moments
 
 The moment that fires the rule **live**. Omit it and the rule is **passive**: it runs only when `/audit` visits its `where::` files. The moments:
 
-| Moment class | Moments (2nd level) | Fires on |
-|---|---|---|
-| `tool` — pre, post | `Bash`, `Write`, `Edit`, `Read`, `Glob`, `Grep`, `Task`, `WebFetch`, … | `PreToolUse` / `PostToolUse` |
-| `skill` — pre, post | any skill — `audit`, `query`, `crank`, … | skill enter / exit |
-| `session` | `start`, `compact`, `stop` | `SessionStart` / `Stop` |
-| `write`, `read` | `markdown`, `rust`, `python`, `json`, `svg` | `PostToolUse` (Write / Edit / Read) |
-| `git` | `commit`, `push`, `merge`, `pre-commit` | Bash-argv / git hook |
-| `prompt` | `submit`, `stop` | `UserPromptSubmit` / `Stop` |
+| Moment class           | Moment Refinements (2nd level)                                         | Fires on                            |
+| ---------------------- | ---------------------------------------------------------------------- | ----------------------------------- |
+| `tool` — `pre`/`post`  | `Bash`, `Write`, `Edit`, `Read`, `Glob`, `Grep`, `Task`, `WebFetch`, … | `PreToolUse` / `PostToolUse`        |
+| `skill` — `pre`/`post` | any skill — `audit`, `query`, `crank`, …                               | skill enter / exit                  |
+| `session`              | `start`, `stop`, `compact`                                             | `SessionStart` / `Stop`             |
+| `read`/`write`         | `markdown`, `rust`, `python`, `json`, `svg`                            | `PostToolUse` (Write / Edit / Read) |
+| `git`                  | `commit`, `push`, `merge`, `pre-commit`                                | Bash-argv / git hook                |
+| `prompt`               | `submit`, `stop`                                                       | `UserPromptSubmit` / `Stop`         |
+|                        |                                                                        |                                     |
 
 Read a row as a path — `tool` ⊃ `tool:post` ⊃ `tool:post:Bash` — and a shallow moment **prefix-matches** everything under it; `,` is OR (`when:: session:compact, git:commit`). Full grammar and per-class detail: [[Warden Events]].
 

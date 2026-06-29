@@ -1,5 +1,5 @@
 ---
-description: "the rule language — the file format for a rule and a ruleset (sentinels, clauses, tiers, composition)"
+description: "the rule language — the file format for a rule and a ruleset (sentinels, clauses, composition)"
 ---
 # Warden Rule
 

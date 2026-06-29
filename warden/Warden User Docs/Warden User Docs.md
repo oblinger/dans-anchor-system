@@ -14,5 +14,5 @@ description: Warden user documentation — the manual for writing and running ru
 
 ## Contents
 
-- **[[Warden Examples]]** — a single worked ruleset showing each kind of rule: a mechanical (script) check, an LLM-judged rule, a script-assisted LLM rule, and an expensive rule gated to re-run only on *significant* edits.
+- **[[Warden Examples]]** — one worked ruleset, six complete rules: a prose `tell`, a Python test, an LLM judgment, a script-assisted judgment, an `edit`, and a `deny`.
 - *Getting started, the importer (Vale/Hookify), and the CLI — to come as Warden is built (see [[Warden Roadmap]]).*
