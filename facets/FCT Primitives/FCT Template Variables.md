@@ -7,15 +7,24 @@ The `{{PLACEHOLDER}}` system shared by file and folder templates — how each va
 | -[[FCT Template Variables]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[Skill Agent]] → [ob-skills](hook://ob-skills) → [[facets]] → [[FCT Primitives]] → [FCT Template Variables](hook://p/FCT%20Template%20Variables)<br>: the `{{PLACEHOLDER}}` system shared by file and folder templates |
 | --- | --- |
 | Related | [[FCT Template]] (umbrella),  [[FCT Template Files]],  [[FCT Template Folders]] |
-| Examples | [[_Computer Template\|file]],  [[_Disk Template\|folder]] (both show Variables sections) |
+| Examples | [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template\|file]],  [[_{{DISK_LABEL}} Template\|folder]] (both show the two placeholder forms) |
 
-## What a variable is
+## Two placeholder forms — distinguished by case
 
-A **variable** is a bare `{{UPPER_SNAKE_CASE}}` token in the exemplar where live data goes. It is **bare** — no code fence, no backticks around it in the exemplar — so the exemplar stays copyable and the placeholder is a literal find-and-replace target. The set of `{{…}}` tokens in the exemplar is the contract; every one must be accounted for in the `## Variables` section.
+Every `{{…}}` is **bare** in the exemplar (no fence, no backticks) so it stays a literal find-and-replace target. Two forms, told apart by **case**:
 
-## The Variables section — definition + no-data handling
+| Form | Meaning | Defined? |
+|---|---|---|
+| **`{{UPPER_SNAKE}}`** | a **variable** — reused across sites or structural (filename, key) | **yes** — named once in the definition list above the notes; referenceable |
+| **`{{Mixed Case description}}`** | a **one-off** — appears once, self-explanatory | **no** — the placeholder text *is* its description, in place |
 
-Below the reserved `# About this template` marker (the end-of-exemplar boundary — see [[FCT Template Files]]), a `## Variables` section carries **one bullet per distinct placeholder**, and each bullet states two things:
+The case is the detector (all-caps → variable). The point: a value that repeats or builds the filename earns a named, defined variable; a field that appears once is lighter described in place than mapped to a list (R-template-02).
+
+**Single-line vs multi-line.** An **inline** placeholder holds one line (`{{event title}}`); **braces spanning their own lines** hold a block — `{{` on a line, the content, `}}` on a line (R-template-09).
+
+## Defining a variable — no-data handling
+
+In the definition list (above the notes — below the `template notes` cut-line; see [[FCT Template Files]]), each `{{UPPER_SNAKE}}` variable (and each in-place description) states two things:
 
 1. **What to put** — the meaning of the field.
 2. **What to do when there is no data** — fill it, **delete the line**, or **delete the whole section**.
@@ -24,16 +33,16 @@ The second half is the load-bearing one. It is what lets an instantiator (LLM or
 
 A variable that is **always present** (a key — `{{HOSTNAME}}`, `{{DISK_LABEL}}`, often also the filename) is marked so; it has no delete case.
 
-## Structural placeholder vs cumulative section
+## Structural placeholder vs repeating section
 
 Two kinds of content need opposite treatment — the most common template mistake is conflating them:
 
 | Kind | The form has this content… | Treatment |
 |---|---|---|
-| **Structural placeholder** | …**at creation** (the instantiator HAS the data — a computer's CPU, a disk's capacity) | keep as `{{VARIABLE}}`; define it in Variables with its no-data behavior. |
-| **Cumulative section** | …**only after creation** (it accrues over time — a `# LOG`, a change history) | **header only** — no placeholder entry underneath. |
+| **Structural placeholder** | …**at creation** (the instantiator HAS the data — a computer's CPU, a disk's capacity) | keep as a placeholder with its no-data behavior. |
+| **Repeating section** | …**only after creation**, one block per event (a `# LOG`, a change history) | ship **one variableized entry-pattern** + a **`...` repeat-marker at the repeating unit's level** — e.g. `### ...` below a `### {{date}} — …` entry. |
 
-Shipping a fake `### {{YYYY-MM-DD}}  {{TOPIC}}` under a `# LOG` invites the instantiator to either leave it (polluting the new record) or invent a fake event (also polluting). The empty `# LOG` header invites *real* entries when real events occur (R-template-03). In the worked examples, `# LOG` is header-only and `## Notes` is an empty structural section with no placeholder.
+A *filled* fake entry (`### 2026-06-29 — Bought RAM`) invites the instantiator to leave it or invent another (pollution). A *variableized* pattern + a level-marked `### ...` instead shows the **shape** and **what repeats** — the `### ` level says the whole entry recurs, not the detail line — without inviting a fake row (R-template-03). The filename analog: a member file whose name carries an **unbound** variable repeats, one per value (R-template-10).
 
 ## Why this lives across both kinds
 
@@ -41,4 +50,4 @@ Variables work identically in a [[FCT Template Files|file template]] and in the 
 
 # BRIEF
 
-*(Maintainer note.)* Part-view of the [[FCT Template]] facet — the model and the `R-template` ruleset live on the umbrella, so edit them there, not here. This page is the readable spec for the variable mechanics **R-template-02** (no-data handling — what kills leftover `{{}}`) and **R-template-03** (cumulative sections header-only) enforce.
+*(Maintainer note.)* Part-view of the [[FCT Template]] facet — the model and the `R-template` ruleset live on the umbrella, so edit them there, not here. This page is the readable spec for the variable mechanics **R-template-02** (two placeholder forms by case + no-data handling), **R-template-03** (repeating structure = pattern + `### ...`), and **R-template-09** (multi-line = spanning braces) enforce.

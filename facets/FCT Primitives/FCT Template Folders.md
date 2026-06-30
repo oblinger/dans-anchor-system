@@ -22,7 +22,7 @@ A folder template is a `_{Name} Template/` **folder**, not a single file. Its pa
 | **The folder** (`_{Name} Template/`) | cloned as a unit → `{Item}/`. Use when one item needs **more than one** document. |
 | **The marker** (`_{Name} Template/_{Name} Template.md`) | same name, inside the folder; its body is the live exemplar of the folder's *main* document — same anatomy as a [[FCT Template Files|file template]]. |
 | **Skeleton** (optional) | other starter files the folder always contains. In the example the manifest is *named* but added later, so the template ships only the marker. |
-| **`# About this template`** | one line on *why a folder and not a file*: the item needs >1 document, so it gets its own folder. |
+| **`✂ … template notes … ✂`** | the cut-line; below it, the template notes say *why a folder and not a file* (the item needs >1 document) and define the **unified variable** shared by the folder name, the marker, and the sibling members (R-template-10). |
 
 **Full worked example:** [[_Disk Template]] — a complete folder template under `examples/FEX Templates/` (a real markdown marker, with its commentary at the bottom).
 
