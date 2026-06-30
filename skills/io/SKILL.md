@@ -18,6 +18,7 @@ Read from and write to external services. Each sub-skill is an access card with 
 
 | Usage | File | Description |
 |-------|------|-------------|
+| `/io excel` | [[io-excel]] | **Microsoft Excel** — local `.xlsx`, live-coordinated (save-before-read / reload-after-write), formatting-preserving |
 | `/io gsheet` | [[io-gsheet]] | Google Sheets |
 | `/io gslide` | [[io-gslide]] | Google Slides |
 | `/io gdoc` | [[io-gdoc]] | Google Docs |

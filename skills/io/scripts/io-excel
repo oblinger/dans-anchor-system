@@ -1,0 +1,357 @@
+#!/usr/bin/env python3
+"""io-excel — live-coordinated Excel (.xlsx) reader/editor for the `io` skill.
+
+Treats a local .xlsx as if it were live-editable alongside a running Excel:
+  - before every READ  : flush Excel's in-memory copy to disk (save that workbook
+                         by name) so we read the user's latest state.
+  - after  every WRITE : reload that workbook in Excel from disk, so Excel shows
+                         the change AND can't silently clobber it on a later save.
+
+Edits are formatting-preserving: load-modify-save through openpyxl's object model;
+we set cell .value only and never touch styles, widths, heights, or conditional
+formatting. (Caveat: openpyxl drops charts/images/pivots/macros on save — don't
+use this on workbooks that contain them.)
+
+Subcommands:
+  probe   <file>                              sheets, dims, headers
+  read    <file> [--sheet S] [--cols ...] [--where "COL op VAL"] [--format md|tsv|json]
+  set     <file> (--cell A1 | --key-col A --key S4 --col Header) --value "..."
+  from-md <file> --md <doc.md> [--table N | --list] [--sheet NAME]
+
+Live coordination is on by default; pass --no-live to skip the Excel handshake.
+"""
+import argparse, json, platform, re, subprocess, sys
+from pathlib import Path
+
+IS_MAC = platform.system() == "Darwin"   # live Excel coordination is macOS/AppleScript-only
+
+try:
+    import openpyxl
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from openpyxl.utils import get_column_letter, column_index_from_string
+except ImportError:
+    sys.exit("io-excel: openpyxl not installed (python3 -m pip install openpyxl)")
+
+LIVE = True   # toggled off by --no-live
+
+
+# ───────────────────────── live Excel coordination (AppleScript) ─────────────────────────
+
+def _osa(script):
+    try:
+        r = subprocess.run(["osascript", "-e", script],
+                           capture_output=True, text=True, timeout=25)
+        out = r.stdout.strip()
+        if out:
+            return out
+        err = r.stderr.strip().splitlines()
+        return f"err({err[-1]})" if err else ""
+    except Exception as e:
+        return f"err({e})"
+
+
+def _excel_running():
+    if not IS_MAC:
+        return False   # no AppleScript off-Mac → live ops cleanly skip; disk ops still work
+    return _osa('tell application "System Events" to (exists process "Microsoft Excel")') == "true"
+
+
+def flush_live(path, verbose=False):
+    """Save the target workbook in Excel (by name) if it's open & dirty, so disk == live."""
+    if not LIVE or not _excel_running():
+        return "skip"
+    name = Path(path).name.replace('"', '')
+    res = _osa(f'''
+tell application "Microsoft Excel"
+  if (name of workbooks) contains "{name}" then
+    set wb to workbook "{name}"
+    if not (saved of wb) then save wb
+    return "flushed"
+  else
+    return "not-open"
+  end if
+end tell''')
+    if verbose:
+        print(f"  [live] flush: {res}", file=sys.stderr)
+    return res
+
+
+def reload_live(path, verbose=False):
+    """If the workbook is open in Excel, close-without-saving and reopen → Excel shows disk."""
+    if not LIVE or not _excel_running():
+        return "skip"
+    name = Path(path).name.replace('"', '')
+    posix = str(Path(path).resolve())
+    res = _osa(f'''
+tell application "Microsoft Excel"
+  if (name of workbooks) contains "{name}" then
+    close (workbook "{name}") saving no
+    open POSIX file "{posix}"
+    activate
+    return "reloaded"
+  else
+    return "not-open"
+  end if
+end tell''')
+    if verbose:
+        print(f"  [live] reload: {res}", file=sys.stderr)
+    return res
+
+
+# ───────────────────────── helpers ─────────────────────────
+
+def _load(path, data_only=True):
+    p = Path(path)
+    if not p.exists():
+        sys.exit(f"io-excel: no such file: {path}")
+    return openpyxl.load_workbook(path, data_only=data_only)
+
+
+def _pick_sheet(wb, name):
+    if name:
+        if name not in wb.sheetnames:
+            sys.exit(f"io-excel: no sheet {name!r} (have: {', '.join(wb.sheetnames)})")
+        return wb[name]
+    return wb.worksheets[0]
+
+
+def _col_to_idx(spec, header):
+    """0-based column index from a header name or a column letter."""
+    if spec in header:
+        return header.index(spec)
+    try:
+        return column_index_from_string(spec.upper()) - 1
+    except Exception:
+        sys.exit(f"io-excel: unknown column {spec!r} (headers: {', '.join(h for h in header if h)})")
+
+
+def _coerce(v):
+    for cast in (int, float):
+        try:
+            return cast(v)
+        except (ValueError, TypeError):
+            pass
+    return v
+
+
+def _predicate(where, header):
+    if not where:
+        return lambda row: True
+    m = re.match(r'^\s*(\S+)\s+(contains|startswith|=|!=)\s+(.*)$', where)
+    if not m:
+        sys.exit(f"io-excel: bad --where {where!r} (use: COL [contains|startswith|=|!=] VALUE)")
+    col, op, val = m.group(1), m.group(2), m.group(3).strip().strip('"')
+    idx = _col_to_idx(col, header)
+    def pred(row):
+        cell = "" if idx >= len(row) or row[idx] is None else str(row[idx])
+        return {"contains":   val.lower() in cell.lower(),
+                "startswith": cell.lower().startswith(val.lower()),
+                "=":          cell == val,
+                "!=":         cell != val}[op]
+    return pred
+
+
+def _emit(rows, header, sel, fmt):
+    hdr = [header[i] if i < len(header) else get_column_letter(i + 1) for i in sel]
+    def proj(r): return ["" if i >= len(r) or r[i] is None else r[i] for i in sel]
+    data = [proj(r) for r in rows]
+    if fmt == "json":
+        print(json.dumps([dict(zip(hdr, d)) for d in data], ensure_ascii=False, indent=2))
+    elif fmt == "tsv":
+        print("\t".join(map(str, hdr)))
+        for d in data:
+            print("\t".join(map(str, d)))
+    else:  # md
+        print("| " + " | ".join(map(str, hdr)) + " |")
+        print("| " + " | ".join("---" for _ in hdr) + " |")
+        for d in data:
+            print("| " + " | ".join(str(x).replace("|", "\\|") for x in d) + " |")
+
+
+# ───────────────────────── markdown-table extraction (for from-md) ─────────────────────────
+
+def _clean(s):
+    s = re.sub(r'\[\[[^\]|]+\|([^\]]+)\]\]', r'\1', s)   # [[a|b]] -> b
+    s = re.sub(r'\[\[([^\]]+)\]\]', r'\1', s)             # [[a]]   -> a
+    s = re.sub(r'\[([^\]]+)\]\([^)]*\)', r'\1', s)        # [t](u)  -> t
+    s = s.replace("**", "").replace("`", "").replace("<br>", " ").replace("\\|", "|")
+    return re.sub(r'\s+', ' ', s).strip()
+
+
+def _parse_block(lines):
+    rows = [[c.strip() for c in ln.strip().strip("|").split("|")] for ln in lines]
+    sep = None
+    for i, r in enumerate(rows):
+        cells = [c for c in r if c != ""]
+        if cells and all(re.fullmatch(r':?-{3,}:?', c.replace(" ", "")) for c in cells):
+            sep = i
+            break
+    if sep is None or sep == 0:
+        return None
+    header = [_clean(c) for c in rows[sep - 1]]
+    out = [header]
+    for r in rows[sep + 1:]:
+        r = (r + [""] * len(header))[:len(header)]
+        out.append([_clean(c) for c in r])
+    return out
+
+
+def _extract_md_tables(md):
+    tables, cur = [], []
+    for line in md.splitlines():
+        if line.strip().startswith("|"):
+            cur.append(line)
+        elif cur:
+            t = _parse_block(cur); cur = []
+            if t:
+                tables.append(t)
+    if cur:
+        t = _parse_block(cur)
+        if t:
+            tables.append(t)
+    return tables
+
+
+def _apply_default_style(ws, ncols, nrows):
+    hf = PatternFill("solid", fgColor="1F4E78")
+    hfont = Font(bold=True, color="FFFFFF")
+    thin = Side(style="thin", color="D9D9D9")
+    border = Border(left=thin, right=thin, top=thin, bottom=thin)
+    for c in range(1, ncols + 1):
+        cell = ws.cell(row=1, column=c)
+        cell.fill, cell.font = hf, hfont
+        cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+    for r in range(2, nrows + 1):
+        for c in range(1, ncols + 1):
+            cell = ws.cell(row=r, column=c)
+            cell.border = border
+            cell.alignment = Alignment(vertical="top", wrap_text=True)
+    for c in range(1, ncols + 1):
+        longest = max((len(str(ws.cell(row=r, column=c).value or "")) for r in range(1, nrows + 1)), default=8)
+        ws.column_dimensions[get_column_letter(c)].width = min(max(longest + 2, 8), 50)
+    ws.freeze_panes = "B2"
+    ws.auto_filter.ref = ws.dimensions
+
+
+# ───────────────────────── subcommands ─────────────────────────
+
+def cmd_probe(args):
+    flush_live(args.file, args.verbose)
+    wb = _load(args.file)
+    for ws in wb.worksheets:
+        hdr = next(ws.iter_rows(min_row=1, max_row=1, values_only=True), ())
+        cols = " | ".join(f"{get_column_letter(i+1)}={v}" for i, v in enumerate(hdr) if v is not None)
+        print(f"sheet {ws.title!r}: {ws.max_row} rows x {ws.max_column} cols  [{ws.dimensions}]")
+        print(f"  headers: {cols}")
+
+
+def cmd_read(args):
+    flush_live(args.file, args.verbose)
+    wb = _load(args.file)
+    ws = _pick_sheet(wb, args.sheet)
+    all_rows = list(ws.iter_rows(values_only=True))
+    if not all_rows:
+        print("(empty sheet)"); return
+    header = ["" if v is None else str(v) for v in all_rows[0]]
+    pred = _predicate(args.where, header)
+    rows = [r for r in all_rows[1:] if pred(r)]
+    sel = _resolve_cols(args.cols, header) if args.cols else list(range(len(header)))
+    _emit(rows, header, sel, args.format)
+    print(f"# {len(rows)} row(s)", file=sys.stderr)
+
+
+def _resolve_cols(spec, header):
+    return [_col_to_idx(tok.strip(), header) for tok in spec.split(",") if tok.strip()]
+
+
+def cmd_set(args):
+    flush_live(args.file, args.verbose)
+    wb = _load(args.file, data_only=False)
+    ws = _pick_sheet(wb, args.sheet)
+    if args.cell:
+        loc = args.cell.upper()
+        ws[loc].value = _coerce(args.value)
+    else:
+        if not (args.key_col and args.key and args.col):
+            sys.exit("io-excel set: need either --cell, or all of --key-col/--key/--col")
+        header = ["" if c.value is None else str(c.value) for c in ws[1]]
+        kidx = _col_to_idx(args.key_col, header)
+        cidx = _col_to_idx(args.col, header)
+        row_idx = next((r for r in range(2, ws.max_row + 1)
+                        if str(ws.cell(row=r, column=kidx + 1).value) == args.key), None)
+        if row_idx is None:
+            sys.exit(f"io-excel: key {args.key!r} not found in column {args.key_col}")
+        ws.cell(row=row_idx, column=cidx + 1).value = _coerce(args.value)
+        loc = f"{get_column_letter(cidx + 1)}{row_idx}"
+    wb.save(args.file)
+    res = reload_live(args.file, args.verbose)
+    print(f"set {loc} = {args.value!r}  (live: {res})")
+
+
+def cmd_from_md(args):
+    tables = _extract_md_tables(Path(args.md).read_text(encoding="utf-8"))
+    if not tables:
+        sys.exit("io-excel: no markdown table found in " + args.md)
+    if args.list:
+        for i, t in enumerate(tables, 1):
+            print(f"table {i}: {len(t)-1} rows x {len(t[0])} cols  | header: {' · '.join(t[0])[:90]}")
+        return
+    idx = (args.table or 1) - 1
+    if not 0 <= idx < len(tables):
+        sys.exit(f"io-excel: --table {args.table} out of range (found {len(tables)} tables; use --list)")
+    rows = tables[idx]
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = args.sheet or "Sheet1"
+    for r in rows:
+        ws.append(r)
+    _apply_default_style(ws, len(rows[0]), len(rows))
+    wb.save(args.file)
+    res = reload_live(args.file, args.verbose)
+    print(f"from-md: wrote {args.file} — {len(rows)-1} rows x {len(rows[0])} cols (table {idx+1})  (live: {res})")
+
+
+# ───────────────────────── CLI ─────────────────────────
+
+def main():
+    ap = argparse.ArgumentParser(prog="io-excel", description="Live-coordinated Excel reader/editor.")
+    ap.add_argument("--no-live", action="store_true", help="skip the Excel save/reload handshake")
+    ap.add_argument("-v", "--verbose", action="store_true", help="print live-handshake results to stderr")
+    sub = ap.add_subparsers(dest="cmd", required=True)
+
+    p = sub.add_parser("probe"); p.add_argument("file"); p.set_defaults(func=cmd_probe)
+
+    p = sub.add_parser("read")
+    p.add_argument("file")
+    p.add_argument("--sheet")
+    p.add_argument("--cols", help="comma list of header names or column letters")
+    p.add_argument("--where", help='filter: "COL [contains|startswith|=|!=] VALUE"')
+    p.add_argument("--format", choices=["md", "tsv", "json"], default="md")
+    p.set_defaults(func=cmd_read)
+
+    p = sub.add_parser("set")
+    p.add_argument("file")
+    p.add_argument("--sheet")
+    p.add_argument("--cell", help="direct address, e.g. G5")
+    p.add_argument("--key-col", help="key column (header name or letter) for locate-by-key")
+    p.add_argument("--key", help="key value to match in --key-col")
+    p.add_argument("--col", help="target column (header name or letter)")
+    p.add_argument("--value", required=True)
+    p.set_defaults(func=cmd_set)
+
+    p = sub.add_parser("from-md")
+    p.add_argument("file")
+    p.add_argument("--md", required=True, help="source markdown file")
+    p.add_argument("--table", type=int, help="1-based table index within the doc")
+    p.add_argument("--list", action="store_true", help="list tables found and exit")
+    p.add_argument("--sheet", help="sheet/tab name")
+    p.set_defaults(func=cmd_from_md)
+
+    args = ap.parse_args()
+    global LIVE
+    LIVE = not args.no_live
+    args.func(args)
+
+
+if __name__ == "__main__":
+    main()
