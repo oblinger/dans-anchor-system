@@ -138,6 +138,8 @@ A document is a **tree of sections**, and `file` is its **level-0 root** — its
 
 **Reads in `if::`, writes in the body — the writable structure is what gives `edit` its vocabulary.** A structured write is the **`edit`** action, **floored by construction**: it targets a named region (a section's `.body`, a frontmatter key, a table cell), so it splices only that region and can never wipe content it didn't target. Most fixes become "assign to the thing" — `file.section("Mission").body = …`, `table.rows[0][1] = "[[X\|Y]]"`. The **one unfloored** write is whole-text assignment (`file.text = …`): a full replace, **run-class** (your code, same trust as a skill) — the escape hatch for a pure text transform. (`file.set_frontmatter` / `file.replace_section` remain as named forms of the same floored writes — § Verbs.)
 
+**Non-markdown files.** The markdown-structured members (`.sections`, `.tables`, `.frontmatter`, `.title`, `.links`) are empty / `None` on a non-markdown file (`.svg`, `.py`, …); a rule bound to those files uses `.text` / `.lines` plus a `helpers::` module for any type-specific structure. Type-specific parsing stays in helpers, never core — e.g. SVG geometry needs *rendering* (a `<text>` bounding box depends on font metrics), which fails the cheap-and-broadly-wanted bar and would be the wrong thing to build into the engine.
+
 ### `anchor`
 
 | Member | What it is |

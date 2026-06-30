@@ -87,6 +87,22 @@ The reach is `anchor.files(glob)` (each match loaded as a root `Section`, lazy) 
 
 > [!success] Gap G5 — resolved (scoped). Added `anchor.files(glob)` / `anchor.doc(path)` (cosmetic, ~20 LOC). The structural part — live incremental invalidation of cross-file rules — is consciously deferred to [[Warden Roadmap]] M8; cross-file rules are audit-passive until then.
 
+## E105 · A geometric rule over a non-markdown file — and why it needs no new language
+
+The diagram-geometry ruleset checks hand-authored SVGs for box overlap, edge tunneling, text overflow, and label collision — pure geometry:
+
+```
+### RULE R-diagram-geometry-01 — No box-on-box overlap
+description:: No two container boxes have intersecting bounding boxes unless one contains the other.
+where:: `{ANCHOR}/**/*.svg`
+if:: `geom.box_overlap(file)`
+Two boxes overlap without one containing the other — separate them; overlap breaks the visual hierarchy.
+```
+
+This looked like the family most likely to force a new primitive, and it forces none. The geometry is a `helpers:: ./R-diagram-geometry.py as geom` module (G2). Where a check needs *rendered* text bounding boxes (rules 04/06), the helper shells out to an SVG renderer — expensive, so the rule is **audit-passive** (the existing expensive→passive pattern). SVG structure stays **out of core**: rendering text bboxes isn't cheap and only diagram rulesets want it (the razor). The markdown-structured members (`.tables`, `.sections`) are simply empty on a `.svg`.
+
+> [!success] No new gap. Diagram-geometry is fully covered by G2 (helpers) + audit-passive (expensive rendering) + the core razor (type-specific structure stays in helpers). A strong freeze signal — the hardest-looking family needed zero language change. (Rule-05, `(sampled)`, re-surfaces **G3** — finding confidence — a third time.)
+
 ## The running gap list
 
 | # | Gap | One-line | Status |
