@@ -106,17 +106,34 @@ ssh user@host 'uname -s ; zsh -lc "which tmux ; which screen ; which brew"'
 
 **Ask the user** before installing if brew/package-manager isn't present. Don't bootstrap homebrew without consent.
 
-**Step 5 — start the multiplexer on the remote *from a TCC-blessed Terminal*.** **CRITICAL**: the user must start the session **from Terminal.app on the remote**, not via SSH. SSH-launched mux has SSH's TCC context (no FDA); Terminal-launched mux has Terminal's FDA.
+**Step 5 — start the multiplexer on the remote *from a TCC-blessed Terminal*.**
+
+> 🚨 **THE ONE CHOICE THAT DETERMINES WHAT THE BRIDGE CAN DO — get it right at setup.** Start the canonical mux session **from Terminal.app on the remote's own screen — NEVER over SSH.** This single decision is load-bearing:
+> - **Terminal-launched** server lives inside the GUI/Aqua session → its panes inherit **Full Disk Access** *and* **window-server access** *and* can drive **GUI apps** (`utmctl`, AppleScript, `screencapture`/`screen.py`). This is the *full-capability* bridge.
+> - **SSH-launched** server has **none** of that → `screencapture` → *"could not create image from display"*, `utmctl` → `OSStatus -1743`, `/Volumes/*` → "Operation not permitted." This trap cost a whole debugging session on haorui (2026-06-29) trying to drive a UTM VM + grab the screen over an SSH-launched bridge.
+> **Do NOT** spin up a *second* server later to "add" GUI capability — make the **one** canonical server Terminal-launched from the start, so file-control, screen-vision, and GUI-app control all come from the same place.
+
 ```
-tmux new -s work      # or:  screen -S work
+tmux new -s work      # run THIS from Terminal.app ON THE REMOTE, not over ssh
 ```
 Persists on detach (`Ctrl-B D` tmux, `Ctrl-A D` screen).
+
+**Step 5b — grant TCC to that Terminal** (one-time, remote's System Settings → Privacy & Security): **Full Disk Access**, **Screen Recording** (for `screen.py grab`), and **Accessibility** (for `screen.py` click/type). Quit & reopen Terminal after granting so the server inherits them. Skip these and the bridge silently degrades to file-only.
 
 **Step 6 — attach from the local box.**
 ```
 ctrl box2 "ssh -t oblinger@<host>.local 'tmux attach -t work'"     # or 'screen -x work'
 ```
 From here every `ctrl box2 "cmd"` runs inside the remote pane with full FDA; `ctrl outbox2` reads back stdout.
+
+**Step 7 — VERIFY the bridge has the capabilities you expect — at setup AND cheaply at each (re)connect.** A bridge that *looks* up but silently lacks GUI context is the exact failure this section exists to prevent, so **test, don't assume**:
+```
+ctrl box2 "ls /Volumes >/dev/null 2>&1 && echo FDA_OK || echo FDA_FAIL"          # file/FDA reach
+# screen-vision (only if GUI capability is needed):
+ssh <host> 'tmux new-window -t work -d -n cap "~/.claude/skills/screen/screen.py grab /tmp/v.png"'
+scp <host>:/tmp/v.png /tmp/v.png   # Read it: a real image = GUI context OK; "could not create image" = SSH-launched server → redo Step 5
+```
+The half-second self-test (a test grab, or the task's own `verify.sh`) on every connect catches a degraded bridge *before* you build work on top of it.
 
 ### Control gotchas (2026-06-06, COPPER → 10T verification)
 
