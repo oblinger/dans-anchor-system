@@ -7,7 +7,7 @@ A **folder template** — a `_{Name} Template/` folder whose marker + skeleton d
 | -[[FCT Template Folders]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[Skill Agent]] → [ob-skills](hook://ob-skills) → [[facets]] → [[FCT Primitives]] → [FCT Template Folders](hook://p/FCT%20Template%20Folders)<br>: folder templates — a folder's canonical multi-doc structure |
 | --- | --- |
 | Related | [[FCT Template]] (umbrella),  [[FCT Template Files]],  [[FCT Template Variables]],  [[FCT Dispatch Table]] (the Template row) |
-| Examples | [[_Disk Template\|disk folder]],   |
+| Examples | [[_{{DISK_LABEL}} Template\|disk folder]],   |
 
 ## At a glance
 
@@ -24,7 +24,7 @@ A folder template is a `_{Name} Template/` **folder**, not a single file. Its pa
 | **Skeleton** (optional) | other starter files the folder always contains. In the example the manifest is *named* but added later, so the template ships only the marker. |
 | **`✂ … template notes … ✂`** | the cut-line; below it, the template notes say *why a folder and not a file* (the item needs >1 document) and define the **unified variable** shared by the folder name, the marker, and the sibling members (R-template-10). |
 
-**Full worked example:** [[_Disk Template]] — a complete folder template under `examples/FEX Templates/` (a real markdown marker, with its commentary at the bottom).
+**Full worked example:** [[_{{DISK_LABEL}} Template]] — a complete folder template under `examples/FEX Templates/`: a variableized folder name, a marker + a `{{DISK_LABEL}} Manifest.md` member, all sharing the unified `{{DISK_LABEL}}`.
 
 ## What's specific to folder templates
 

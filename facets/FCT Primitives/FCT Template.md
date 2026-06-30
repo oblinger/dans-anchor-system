@@ -8,7 +8,7 @@ The Template facet — a **domain-specific, folder-local structure**: the shared
 | --- | --- |
 | Parts | [[FCT Template Files\|Files]],  [[FCT Template Folders\|Folders]],  [[FCT Template Variables\|Variables]],   |
 | Related | [[FCT Facet]] (the *global* counterpart),  [[FCT Ruleset]],  [[FCT Dispatch Table]] (the Template row),  [[rewire]] |
-| Examples | [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template\|file template]],  [[_Disk Template\|folder template]],   |
+| Examples | [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template\|file template]],  [[_{{DISK_LABEL}} Template\|folder template]],   |
 
 **TLDR** — A template defines the **shared structure of the items in one folder/tree** — what each computer record, each disk folder, each member of a domain-specific set looks like. It is a `_{Name} Template.md` file or `_{Name} Template/` folder whose body is a **live working specimen** (real H1 / frontmatter / sections, bare `{{PLACEHOLDERS}}`, **no code fences**) plus a Variables section defining each placeholder *and what to do when there's no data*. Three parts: **[[FCT Template Files|Files]]** (file templates), **[[FCT Template Folders|Folders]]** (folder templates), **[[FCT Template Variables|Variables]]** (the `{{…}}` system, shared by both).
 
