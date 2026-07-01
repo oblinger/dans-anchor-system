@@ -1,10 +1,10 @@
 ---
-description: How to format markdown — file trees, TOC tables, dispatch tables, cards, named lists
+description: How to format markdown — file trees, TOC tables, dispatch tables, cards, definition lists
 ---
 # SKL MD Guide
-The MD skill defines standard markdown formatting conventions used across all documents in the system. It covers structural patterns (file trees, tables of contents, dispatch tables) and inline conventions (named lists, heading spacing, date formats).
+The MD skill defines standard markdown formatting conventions used across all documents in the system. It covers structural patterns (file trees, tables of contents, dispatch tables) and inline conventions (definition lists, heading spacing, date formats).
 
-| -[[SKL MD]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Doc]] → [SKL MD](hook://p/SKL%20MD)<br>: the SKL MD doc |
+| -[[SKL MD]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[skill-docs]] → [[SKL Doc]] → [SKL MD](hook://p/SKL%20MD)<br>: the SKL MD doc |
 | --- | --- |
 | Related | [[skills/md/SKILL.md\|SKILL]],   |
 | [[SKL MD Design\|Design]] |  |
@@ -26,7 +26,7 @@ The skill also includes a Python script (`md-toc.py`) that auto-generates TOC ta
 ## Key Concepts
 
 - **Heading spacing** — H1/H2 get three blank lines before and one after. H3 and below get no blank line after. Lists follow headings with no blank line between
-- **Named lists** — Bullet items with a bold ALL CAPS name, em-dash, and description. Used for defining terms and listing standard entries
+- **Definition lists** — Bullet items with a bold ALL CAPS name, em-dash, and description. Used for defining terms and listing standard entries
 - **File trees** — Use box-drawing characters (not ASCII). Four forms available depending on detail level
 - **TOC generation** — Run `uv run ~/.claude/skills/md/md-toc.py <file.md>` to regenerate. Use `--dry-run` to preview
 - **Dispatch tables** — Dense tables linking to sub-files, used as navigation hubs in anchor pages and skill files

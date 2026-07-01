@@ -1,6 +1,6 @@
 ---
 name: markdown
-description: Discipline. The "every time you write markdown" rules — both mechanical (rendering correctness — table escapes, fence rules, spacing) and authoring (always-apply quality — wiki-links not bare backticks, named lists, RULE/RULESET sentinels). Cited by every CAB facet, every design sub-skill, every authoring skill. Sibling discipline to [[DSC progressive-disclosure]] (which owns *what goes where in a doc*); markdown owns *how the markdown text itself is written*. Skill counterpart is [[md]] which owns user-invokable utility verbs (/md toc, /md file-tree, etc.).
+description: Discipline. The "every time you write markdown" rules — both mechanical (rendering correctness — table escapes, fence rules, spacing) and authoring (always-apply quality — wiki-links not bare backticks, definition lists, RULE/RULESET sentinels). Cited by every CAB facet, every design sub-skill, every authoring skill. Sibling discipline to [[DSC progressive-disclosure]] (which owns *what goes where in a doc*); markdown owns *how the markdown text itself is written*. Skill counterpart is [[md]] which owns user-invokable utility verbs (/md toc, /md file-tree, etc.).
 user_invocable: false
 ---
 
@@ -11,7 +11,7 @@ The discipline for **how markdown TEXT is written** — applied to every markdow
 Two flavors of rule live here, and both apply every time:
 
 - **Mechanical rules** — rendering correctness. Skip these → the doc renders wrong. Examples: escape pipes inside wiki-links inside tables; blank line before / after a table; no wiki-links inside fenced code blocks (they don't render).
-- **Authoring rules** — always-apply quality. Skip these → the doc renders but is wrong. Examples: references to other docs MUST be wiki-links not bare backticks; named-list format when content is naming-natured; the `RULE` / `RULESET` sentinel pattern for rule blocks.
+- **Authoring rules** — always-apply quality. Skip these → the doc renders but is wrong. Examples: references to other docs MUST be wiki-links not bare backticks; definition-list format when content is naming-natured; the `RULE` / `RULESET` sentinel pattern for rule blocks.
 
 The boundary against [[DSC progressive-disclosure]]: this discipline cares about the markdown *text*. Progressive-disclosure cares about the *doc structure* (preface zone, dispatch table patterns, figure placement, TLDR shape). If the question is "how do I write this line of markdown right," it's here; if "where in the doc does this section go," that's progressive-disclosure.
 
@@ -33,7 +33,7 @@ A markdown table requires a blank line immediately before its header row and a b
 
 ### Fenced code blocks: no markdown inside
 
-Wiki-links, headings, dispatch tables, named-list em-dashes inside ``` ``` ``` blocks **do not render** — they appear as literal text. If you need to *quote* a wiki-link form to show its syntax (e.g., teaching the wiki-link discipline), use single backticks: `` `[[Target|alias]]` ``. If you need to *use* a wiki-link (the reader should be able to click it), put it outside the fence as ordinary markdown.
+Wiki-links, headings, dispatch tables, definition-list em-dashes inside ``` ``` ``` blocks **do not render** — they appear as literal text. If you need to *quote* a wiki-link form to show its syntax (e.g., teaching the wiki-link discipline), use single backticks: `` `[[Target|alias]]` ``. If you need to *use* a wiki-link (the reader should be able to click it), put it outside the fence as ordinary markdown.
 
 **Smell test:** if a fenced block contains `[[`, ask whether the reader needs to click that link. If yes → move it outside the fence. If no (it's example syntax) → fine, but verify it renders the way you intended.
 
@@ -43,7 +43,7 @@ Every heading (`#`, `##`, etc.) has a blank line above it (except the first H1 o
 
 ### Em-dash: `—` (U+2014), not `--`
 
-Named lists and prose use the proper em-dash character `—`. Double-hyphen `--` doesn't auto-convert in Obsidian reading view. (Authorship caveat: when output is for external use where AI-tells matter, drop em-dashes; that's a separate authorship rule per the per-doc preference — see your memory.)
+Definition lists and prose use the proper em-dash character `—`. Double-hyphen `--` doesn't auto-convert in Obsidian reading view. (Authorship caveat: when output is for external use where AI-tells matter, drop em-dashes; that's a separate authorship rule per the per-doc preference — see your memory.)
 
 ### Dataview inline fields: `key:: value` on its own line, no `::` in the value
 
@@ -106,9 +106,9 @@ The standard forms, in order of complexity:
 
 Inside tables, escape the pipe: `[[Name\|alias]]` (per § Mechanical rules above).
 
-### Named-list format when content is naming-natured
+### Definition-list format when content is naming-natured
 
-A list whose items are *named* (each entry has a recognizable handle / category / concept name) follows the named-list discipline: bolded handle (2-3 words), em-dash, single-line description.
+A list whose items are *named* (each entry has a recognizable handle / category / concept name) follows the definition-list discipline: bolded handle (2-3 words), em-dash, single-line description.
 
 ```markdown
 - **Drive cluster** — the post-design phase: /mint, /crank, /land, /finalize.
@@ -142,7 +142,7 @@ If a rule is universal (applies to every Log, every PRD, every Testing doc), it 
 
 ## Audit
 
-`/audit markdown` (future) would flag the rules captured in `R-markdown` below — wiki-link pipe-escapes in tables, fence-code wiki-link smells, bare-backtick vault references, named-list format violations, RULE-sentinel format compliance, etc.
+`/audit markdown` (future) would flag the rules captured in `R-markdown` below — wiki-link pipe-escapes in tables, fence-code wiki-link smells, bare-backtick vault references, definition-list format violations, RULE-sentinel format compliance, etc.
 
 
 ## See also
@@ -188,10 +188,10 @@ if:: `re.search(r'`[^`]+\.md`', file.text) or re.search(r'`[A-Z]{2,5} [A-Z][a-z]
 A backtick-wrapped string looks like a reference to a vault document. If a reader could open it in Obsidian, make it a [[wiki-link]] — backticks are for code identifiers (source paths, function names, CLI flags, config keys), which rot silently when used for vault references.
 
 ### RULE R-markdown-05 — Em-dash is `—` (U+2014), not `--`
-description:: Named lists and prose use the em-dash character; double-hyphen does not auto-convert in Obsidian.
+description:: Definition lists and prose use the em-dash character; double-hyphen does not auto-convert in Obsidian.
 when:: write:markdown
 if:: `re.search(r'^- \*\*[^*]+\*\*\s+--\s', file.text, re.M)`
-A named-list bullet uses `--` where it wants an em-dash — replace it with ` — ` so the bullet reads right in Obsidian's reading view.
+A definition-list bullet uses `--` where it wants an em-dash — replace it with ` — ` so the bullet reads right in Obsidian's reading view.
 
 ### RULE R-markdown-06 — Dataview inline fields have no `::` in the value
 description:: For any key:: value line, the value carries no further :: token, which would collide with the Dataview parser.
@@ -209,9 +209,9 @@ description:: Source paths, function names, CLI commands, and config keys go in 
 if:: `any(re.search(r'\.(py|rs|js|ts|sh)$|^/|\(\)', l) for l in file.links)`
 A `[[wiki-link]]` names a code identifier (a source path, a function, a CLI command) — that fabricates a link and pollutes the vault graph. Put code identifiers in backticks; keep wiki-links for vault-internal navigation.
 
-### RULE R-markdown-09 — Named list format for naming-natured content
+### RULE R-markdown-09 — Definition list format for naming-natured content
 description:: A list of named things uses the bolded-handle + em-dash + single-line-description form; procedural lists are exempt.
-The lists in this doc whose items are *named things* (each has a recognizable handle or concept name) should use the named-list form — a bolded 2–3 word handle, an em-dash, then a one-line description. Plain procedural lists ("first X, then Y") are exempt. Point out any naming-natured list that isn't in this form.
+The lists in this doc whose items are *named things* (each has a recognizable handle or concept name) should use the definition-list form — a bolded 2–3 word handle, an em-dash, then a one-line description. Plain procedural lists ("first X, then Y") are exempt. Point out any naming-natured list that isn't in this form.
 
 ### RULE R-markdown-10 — Per-anchor docs don't restate facet-level rules
 description:: A per-anchor doc does not restate rules that live in a facet spec; the facet is the single source of truth.

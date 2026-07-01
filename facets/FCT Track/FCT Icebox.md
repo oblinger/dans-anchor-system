@@ -52,7 +52,7 @@ When created, the Icebox file opens with the standard top-of-doc format: YAML fr
 
 ## Format
 
-Each entry is a named-list item: bold name, em-dash, short description with the *reason* it's frozen (so a future reader knows whether the freeze still applies).
+Each entry is a definition-list item: bold name, em-dash, short description with the *reason* it's frozen (so a future reader knows whether the freeze still applies).
 
 Entries are grouped under H2 sections. Suggested sections (use whichever fit; add others as needed):
 
@@ -93,10 +93,10 @@ No more than one `{NAME} Icebox.md` exists per anchor root. The facet is **optio
 **Check pattern:** count of `*Icebox.md` files under `{NAME} Docs/{NAME} Plan/` ≤ 1.
 **Why:** cardinality is one; two Icebox files under the same anchor produce split inventories that drift apart.
 
-### RULE R-fct-icebox-03 — Entries are named-list items under H2 sections (sampled)
-Each frozen item is a named-list bullet — `- **Name** — reason it's frozen` — grouped under an H2 section (e.g. `## Frozen`, `## Maybe Someday`, `## Revisit Later`). A bare unstructured list is non-conformant.
+### RULE R-fct-icebox-03 — Entries are definition-list items under H2 sections (sampled)
+Each frozen item is a definition-list bullet — `- **Name** — reason it's frozen` — grouped under an H2 section (e.g. `## Frozen`, `## Maybe Someday`, `## Revisit Later`). A bare unstructured list is non-conformant.
 **Check pattern:** the file body contains at least one `## ` H2 section and at least one `- **…**` bullet with an em-dash.
-**Why:** the named-list + section structure lets a reader scan quickly and see the freeze reason, which determines whether a thaw trigger applies.
+**Why:** the definition-list + section structure lets a reader scan quickly and see the freeze reason, which determines whether a thaw trigger applies.
 
 ### RULE R-fct-icebox-04 — Items move by intent to consider, not age (stated)
 Movement into or out of the Icebox is triggered by whether the user *intends to consider* the item, not by how old it is. An old item still under consideration belongs in the Backlog; a new item the user has decided is out of scope belongs in the Icebox.

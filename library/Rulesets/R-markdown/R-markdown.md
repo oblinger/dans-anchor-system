@@ -7,7 +7,7 @@ Catalog-side stub for the markdown discipline's ruleset. Canonical body lives em
 **To see the actual rules:** follow [[DSC markdown#RULESET R-markdown|the embedded block]]. 10 rules covering:
 
 - **Mechanical (5)** — pipe-escape in table wiki-links, blank-line-around-tables, no-markdown-in-fences, em-dash character, dataview `::` collision.
-- **Authoring (5)** — vault refs use wiki-links not backticks, body-only preference, no wiki-link form for code identifiers, named-list shape, per-anchor docs don't restate facet rules.
+- **Authoring (5)** — vault refs use wiki-links not backticks, body-only preference, no wiki-link form for code identifiers, definition-list shape, per-anchor docs don't restate facet rules.
 
 ## Position in the catalog
 

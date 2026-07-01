@@ -21,7 +21,7 @@ A few conventions are wired into automated checks (`/audit`, `/rule check`, lint
 |---|---|
 | [[CAB Naming Conventions]]      | Slugs, the `{NAME}` prefix rule, file/folder naming, auxiliary commands |
 | [[CAB Page Conventions]]        | Anchor page format — description field, breadcrumb, dispatch table conventions |
-| [[CAB Markdown Formatting]]     | Vertical spacing, named lists, file trees, table of contents, dispatch tables, cards, track changes |
+| [[CAB Markdown Formatting]]     | Vertical spacing, definition lists, file trees, table of contents, dispatch tables, cards, track changes |
 | [[CAB Docs Conventions]]        | Standard documents — PRD, Roadmap, Backlog, etc. — and the formats each follows |
 | [[CAB Documentation Publishing]]| Private vs user docs, MkDocs setup, generators, where published docs live |
 | [[CAB Repository Structure]]    | Key repo files, `justfile`, `site/` folder, doc-sync layout |

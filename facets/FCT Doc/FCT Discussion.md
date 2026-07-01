@@ -50,7 +50,7 @@ What was chosen and (one sentence) the deciding factor.
 Additional rationale, links to evidence, edge cases handled. Skip when the Decision section is self-evident.
 ```
 
-H3 headings (`### The Problem`, `### Decision`, etc.) are required — they make entries skimmable and link-targetable. Body content uses the [[DSC markdown]] discipline (named lists, wiki-links, no markdown in fenced code blocks).
+H3 headings (`### The Problem`, `### Decision`, etc.) are required — they make entries skimmable and link-targetable. Body content uses the [[DSC markdown]] discipline (definition lists, wiki-links, no markdown in fenced code blocks).
 
 ## Where to attach Discussion
 

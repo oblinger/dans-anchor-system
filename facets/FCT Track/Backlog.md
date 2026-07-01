@@ -61,7 +61,7 @@ Every Backlog opens with the standard top-of-doc format: YAML frontmatter + `# {
 
 ## Format
 
-Each entry is a named-list item with a unique **F-number** prefix, **zero-padded to three digits** (`F001` … `F999`):
+Each entry is a definition-list item with a unique **F-number** prefix, **zero-padded to three digits** (`F001` … `F999`):
 
 ```
 - **F{NNN} — Item Name** [Status] — short description.
