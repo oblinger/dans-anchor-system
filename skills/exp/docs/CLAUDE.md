@@ -1,7 +1,5 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## What This Is
 
 EXP is a bash-based toolkit for running ML experiments on ephemeral remote GPU instances (vast.ai). It manages SSH connections, file syncing (rsync), and command execution through a watcher daemon pattern. The system also supports delegating experiment execution to autonomous Claude Code worker sessions.
