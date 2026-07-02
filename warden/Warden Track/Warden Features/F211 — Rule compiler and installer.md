@@ -27,12 +27,12 @@ The engine that makes active rules fire **implicitly** at runtime moments — a 
 
 The interception substrate is Claude Code hooks, used natively behind a thin portability adapter ([[Warden Integration Strategy]] D2); external checker engines (Vale/Semgrep) are opt-in, adapter-isolated, and confined to the explicit audit path (D3) — the compiler's hot-path modules are self-contained native code.
 
-## Open Questions
+## Status
+
+**Designed 2026-06-26** (this doc + [[Warden Architecture]] §7a). Not yet implemented — M1 of [[Warden Roadmap]].
+
+## Resolved
 
 1. **When does the compiler run** — once at session start (install all), or incrementally per anchor entered? (Active-set resolution cost trade-off; also [[Warden PRD]] Q1.)
 2. **Module format** — emitted Python source vs. a data table the runtime interprets vs. (for Rust) generated/compiled code.
 3. **Rule-authored Python in the hot path** — can a compiled module run a rule's Python `if::` / body cheaply, or are code-carrying rules confined to post-hoc moments? (Also [[Warden PRD]] Q2.)
-
-## Status
-
-**Designed 2026-06-26** (this doc + [[Warden Architecture]] §7a). Not yet implemented — M1 of [[Warden Roadmap]].

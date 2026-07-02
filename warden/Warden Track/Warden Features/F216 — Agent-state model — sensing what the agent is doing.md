@@ -71,9 +71,9 @@ Fully **mechanical — no LLM at any rung** (resolving prior open question 3): t
 
 **The pending-question predicate Q** — true if any of three tests holds, checked cheapest-first:
 
-- **Q1 — skill signal.** An asking-class skill (`query`; registry-extensible) ran this turn: a `skill:post:query` moment in the ledger. Exact when skill moments are emitted (dependency below).
-- **Q2 — queue signal.** `{NAME} queries.md` of the cwd anchor carries open items **that this session touched** — the ledger saw a `write:markdown` to that file this session, and its question sections are non-empty now. *Session-scoping is a deliberate narrowing of the Summary's "carries open items":* vault practice parks long-lived queries in every active anchor, so an unscoped Q2 would pin nearly every agent permanently to `asking` and make `landed` unreachable. (Open fork: § Open Questions Q1.)
-- **Q3 — chat-question heuristic.** The turn's final agent message addresses a question to the user: last non-code paragraph ends in `?`, or carries an options pattern (`(A)`/`(B)`, `Q<n>:`). Read from the transcript's last assistant record. Explicitly a **mechanical heuristic** — occasional misses on rhetorical questions are accepted; a rule needing judgment-grade detection layers F217 on top.
+- **T1 — skill signal.** An asking-class skill (`query`; registry-extensible) ran this turn: a `skill:post:query` moment in the ledger. Exact when skill moments are emitted (dependency below).
+- **T2 — queue signal.** `{NAME} queries.md` of the cwd anchor carries open items **that this session touched** — the ledger saw a `write:markdown` to that file this session, and its question sections are non-empty now. *Session-scoping is a deliberate narrowing of the Summary's "carries open items":* vault practice parks long-lived queries in every active anchor, so an unscoped Q2 would pin nearly every agent permanently to `asking` and make `landed` unreachable. (Open fork: § Open Questions Q1.)
+- **T3 — chat-question heuristic.** The turn's final agent message addresses a question to the user: last non-code paragraph ends in `?`, or carries an options pattern (`(A)`/`(B)`, `Q<n>:`). Read from the transcript's last assistant record. Explicitly a **mechanical heuristic** — occasional misses on rhetorical questions are accepted; a rule needing judgment-grade detection layers F217 on top.
 
 **Debounce / hysteresis** — restated as the invariants an implementation must hold:
 
@@ -123,8 +123,19 @@ What a rule actually gets at fire time:
 
 ## Open Questions
 
-1. **Q2 scope — which `queries.md` items make the agent `asking`?** (A) **Session-scoped** — only open items this session touched count; parked long-lived queries don't pin the state. (B) **Anchor-scoped** — any open item in the anchor's `queries.md` ⇒ `asking`, as the Summary's original wording reads. Lean **(A)**: under (B), `landed` is unreachable on any anchor with a standing queue, which is most active anchors — the state stops discriminating.
-2. **Does `asking` survive session end?** (A) **Ends with the session** — a dead session is `idle`; the leftover queue stays sensible to rules via `anchor.doc("{NAME} queries.md")`. (B) **Persists** — unanswered session-raised queries keep `agent.state == 'asking'` after the process exits, so a turn-boundary rule elsewhere can still see it. Lean **(A)**: `agent` describes a running agent; cross-session queue pressure is anchor state, already reachable through `anchor.*`.
+### Q1 — Q2-signal scope: which `queries.md` items make the agent `asking`? ^F216-Q1
+
+The classifier's queue-signal test (pending-question predicate, § The classifier).
+
+- **(A)** Session-scoped — only open items this session touched count; parked long-lived queries don't pin the state.
+- **(B)** Anchor-scoped — any open item in the anchor's `queries.md` ⇒ `asking`, as the Summary's original wording reads.
+- **Recommendation:** Lean (A) — under (B), `landed` is unreachable on any anchor with a standing queue (most active anchors); the state stops discriminating.
+
+### Q2 — Does `asking` survive session end? ^F216-Q2
+
+- **(A)** Ends with the session — a dead session is `idle`; the leftover queue stays visible to rules via `anchor.doc("{NAME} queries.md")`.
+- **(B)** Persists — unanswered session-raised queries keep `agent.state == 'asking'` after the process exits, so a turn-boundary rule elsewhere can still see it.
+- **Recommendation:** Lean (A) — `agent` describes a running agent; cross-session queue pressure is anchor state, already reachable through `anchor.*`.
 
 ## Status
 

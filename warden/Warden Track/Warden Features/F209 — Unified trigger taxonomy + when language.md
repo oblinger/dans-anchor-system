@@ -28,9 +28,28 @@ See [[Warden Events]] for the full tables. Key decisions this feature locks:
 
 ## Open Questions
 
-1. Phase default for bare `skill:<name>` / `tool:<name>` — `post` (F180 current) vs `any`. (Leaning `post`.)
-2. Whether `git:*` is first-class or purely derived from `tool:*:Bash:git-*`.
-3. The exact emission point for `skill:pre/post` (skills are runbooks, not processes) — ties to the harness skill-runner.
+### Q1 — Phase default for bare `skill:<name>` / `tool:<name>` ^F209-Q1
+
+When a rule names a moment without a phase, which phase does it bind to?
+
+- **(A)** `post` — matches F180's current behavior; steer-after is the common case.
+- **(B)** `any` — bare form fires at both pre and post; explicit phase narrows.
+- **Recommendation:** Lean (A) `post` — the pre phase is the dangerous (veto-capable) one and should always be named explicitly.
+
+### Q2 — Is `git:*` first-class or derived? ^F209-Q2
+
+- **(A)** First-class moment family (`git:commit`, `git:push`, …) with its own taxonomy branch.
+- **(B)** Purely derived sugar over `tool:*:Bash:git-*` — one taxonomy, git is pattern-matching.
+- **Recommendation:** None — (A) reads better in rules and survives non-Bash git surfaces (jj, GUI); (B) keeps the taxonomy minimal. Genuine language-freeze call.
+
+### Q3 — Emission point for `skill:pre/post` ^F209-Q3
+
+Skills are runbooks, not processes — there is no natural process boundary to hook. Where do `skill:pre` / `skill:post` moments get emitted?
+
+- **(A)** The harness Skill-tool invocation (pre = tool call, post = next Stop) — mechanical, but post is approximate.
+- **(B)** Explicit emission lines in each SKILL.md runbook (skills self-announce) — precise, but adoption-dependent.
+- **(C)** Defer: ship without `skill:pre/post`; add when the harness exposes a skill-runner boundary.
+- **Recommendation:** None — depends on how much you trust runbook self-announcement; ties to the harness skill-runner design.
 
 ## Status
 

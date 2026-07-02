@@ -30,8 +30,21 @@ Defines what a rule *means* and how it gets dispatched. A rule is the **conjunct
 
 ## Open Questions
 
-1. Declarative guard vocabulary — fixed set (`git-aspect`, `mode`, `trait`, `facet`) vs. extensible registry.
-2. Does `where::` precedence (rule > set > always) interact with the index choice, or is it resolved before indexing? (Leaning: resolved first.)
+### Q1 — Declarative guard vocabulary: fixed set or extensible registry? ^F210-Q1
+
+The `if::` guard compiles context predicates to table lookups over a vocabulary.
+
+- **(A)** Fixed set (`git-aspect`, `mode`, `trait`, `facet`) — closed, every engine knows every key; extending it is a language change.
+- **(B)** Extensible registry — new context keys register with a resolver; flexible, but engines can diverge and rules can name keys an engine lacks.
+- **Recommendation:** Lean (A) for the freeze — a closed set is what "freeze" means; reopen with a registry only when a real key is missing.
+
+### Q2 — Does `where::` precedence interact with index choice? ^F210-Q2
+
+`where::` resolves rule > set > always. Does that precedence resolution happen before the compiler picks index keys, or must the index be precedence-aware?
+
+- **(A)** Resolved first — precedence collapses to one effective `where::` per rule before indexing; the compiler indexes the collapsed form.
+- **(B)** Precedence-aware indexing — the index carries the layered predicates; more complex, only needed if collapsed forms explode.
+- **Recommendation:** Lean (A) resolved-first — simpler compiler contract; nothing observed so far needs (B).
 
 ## Status
 

@@ -24,12 +24,12 @@ The **performance implementation** in Rust, owning the fire-time critical path: 
 - **Resident Python over IPC (the code-rule path)** — the engine keeps **one logic language**. Cheap data-accessor reads (`git.is_dirty`, parsed `file` fields from the cached `ctx`) are served in-Rust with no interpreter. A rule whose `if::` or body is *Python* is dispatched to a **resident Python interpreter** — rules **preloaded in memory**, queried by the Rust binary over a socket/IPC. The body pays an IPC round-trip, **never an interpreter startup** (the cost that blows the budget). Full Python is available at near-native dispatch cost. (A Rust-reimplemented Python *subset* is the costlier alternative — more to build, and it amputates the language.) See [[Warden Architecture]] §7a.
 - **Safety floor** — `aow-safety` invariant enforced in Rust on every fix.
 
-## Open Questions
+## Status
+
+**Planned** — M3 of [[Warden Roadmap]]. Depends on F212 (the oracle).
+
+## Resolved
 
 1. Distribution — the Rust binary + the resident-interpreter process must ship without `~/bin` runtime deps (per the packaged-app rule); where do they live and how are they launched/kept warm?
 2. IPC shape + budget — socket vs. shared-memory vs. embedded (PyO3); the round-trip cost a `tool:pre` Python body can afford vs. confining heavy Python bodies to `tool:post`.
 3. Build/CI — cross-compilation + the differential gate in the SKA build.
-
-## Status
-
-**Planned** — M3 of [[Warden Roadmap]]. Depends on F212 (the oracle).

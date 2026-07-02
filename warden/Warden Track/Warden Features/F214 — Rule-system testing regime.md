@@ -71,7 +71,11 @@ The corpus fixtures are the common pool: unit tests inline what they can; the go
 
 ## Open Questions
 
-1. **CI home** — where the suite runs beyond the dev Mac. **(A)** `just` recipes on the dev machine only; defer CI until Warden extracts to its own repo ([[Warden Roadmap]] Q1) and gets Actions with pinned toolchains there. **(B)** Stand up GitHub Actions in ob-skills now. *(Lean: A — the repo-home decision lands first, and CI built here would move with it.)*
+### Q1 — CI home: where does the suite run beyond the dev Mac? ^F214-Q1
+
+- **(A)** `just` recipes on the dev machine only; defer CI until Warden extracts to its own repo ([[Warden Roadmap]] Q1) and gets Actions with pinned toolchains there.
+- **(B)** Stand up GitHub Actions in ob-skills now.
+- **Recommendation:** Lean (A) — the repo-home decision lands first, and CI built here would move with it.
 
 ## Status
 

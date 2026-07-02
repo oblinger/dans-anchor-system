@@ -24,11 +24,11 @@ The **reference implementation** of the whole compile→install→fire loop in P
 - **Expose** a stable verdict/steer API the differential harness snapshots.
 - Clarity-first: this is the spec, so readability and exhaustive comments over micro-optimization.
 
-## Open Questions
-
-1. Module representation that is *also* faithfully portable to Rust (data-table interchange vs. Python-only source emission).
-2. How the in-process dispatcher maps to the real harness hook events (PreToolUse/PostToolUse/SessionStart) for the e2e tests.
-
 ## Status
 
 **Planned** — M2 of [[Warden Roadmap]]. Depends on F211. Reuses `audit-plan.py` (F001, shipped).
+
+## Resolved
+
+1. Module representation that is *also* faithfully portable to Rust (data-table interchange vs. Python-only source emission).
+2. How the in-process dispatcher maps to the real harness hook events (PreToolUse/PostToolUse/SessionStart) for the e2e tests.
