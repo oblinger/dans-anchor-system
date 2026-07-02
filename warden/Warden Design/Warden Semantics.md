@@ -107,8 +107,7 @@ The **interpretation environment** is the Python scope a rule is *interpreted* i
 | **`anchor`** | `.name`, `.slug`, `.root`, `.traits`, `.get(name)`, `.files(glob)`, `.doc(path)` (cross-file reach — audit-passive) |
 | **`git`** | `.branch`, `.mode`, `.is_dirty`, `.ahead`, `.changed` |
 | **`event`** | `.kind`, `.diff`, `.command`, `.tool` · `.target` — the tool call's file target as a lazy stat view |
-| **`agent`** | `.state` (`working`/`landed`/`asking`/`idle`), `.skill`, `.is_asking` · expanded property set — § `agent` |
-| **`turn`** | the conversation turn, lazy — `.agent_said`, `.user_said`, `.text`, `.messages`, `.tools`, `.commands`, `.asks_question` ([[F217 — Conversation-content gating — rules on what was said|F217]]; user-endorsed 2026-07-01) |
+| **`agent`** | `.state` (`working`/`landed`/`asking`/`idle`), `.skill`, `.is_asking`, `.response` · `.turn` — the conversation turn as a lazy sub-object (`.agent_said`, `.user_said`, `.text`, `.messages`, `.tools`, `.commands`; [[F217 — Conversation-content gating — rules on what was said|F217]], nested 2026-07-02) · expanded property set — § `agent` |
 | *verbs* | `tell(msg)`, `deny(reason)`, the `file` edits, `ask_oracle(prompt)→str`, `sh(argv)` — § Verbs |
 | *ambient* | `today`, `now` (+ plain Python: builtins, `re`, `json`, `datetime`) |
 | *variables* | `{ANCHOR}`, `{NAME}`, `{SLUG}` — `where::` substitutions (§ Ambient and variables) |
@@ -189,22 +188,23 @@ The running agent's state — sense it at a return / lifecycle moment (`when:: p
 |---|---|
 | `agent.state` | `working` (mid-task), `landed` (finished clean), `asking` (waiting on a user answer), `idle` |
 | `agent.skill` | the skill running now — `land`, `query`, `crank`, … (or `None`) |
-| `agent.is_asking` | a user question is pending (sugar for `state == 'asking'`) |
+| `agent.is_asking` | a user question is pending (sugar for `state == 'asking'`) — the **one** asking predicate: the classifier's question test is the shared last-paragraph heuristic, so no separate turn-level predicate exists ([[F217 — Conversation-content gating — rules on what was said|F217]], 2026-07-02) |
 
 **Expanded property set *(accepted 2026-07-02)*.** Per the user's consumer review — *many rules condition on the state of the agent, so `agent` should carry a pretty complete set of state properties, all lazy* (they cost computation, occasionally resources; most rules read none, and each is computed on first read and cached per pass, the standard environment contract). The proposed starter surface, every member reading from what the session registry + moment ledger + transcript tail already hold:
 
 | Member | What it is |
 |---|---|
-| `agent.response` | the agent's visible words this turn — **alias of `turn.agent_said`** (the user's sketched name for the common case: `re.search(r'…', agent.response)` as an `if::` gate) |
+| `agent.turn` | the conversation turn as a lazy, capped sub-object — `.agent_said`, `.user_said`, `.text`, `.messages`, `.tools`, `.commands` ([[F217 — Conversation-content gating — rules on what was said|F217]]; nested under `agent` 2026-07-02 — the turn is an aspect of the agent, kept a distinct sub-object: `agent`'s members are interpreted state, `agent.turn`'s are raw content) |
+| `agent.response` | the agent's visible words this turn — **alias of `agent.turn.agent_said`** (the user's sketched name for the common case: `re.search(r'…', agent.response)` as an `if::` gate) |
 | `agent.session_id`, `agent.cwd`, `agent.worktree` | identity — the session UUID; working directory; worktree name (`SKA-7`-style, `None` outside one). Worktree-per-agent makes `.worktree` the agent's *name* (the F148 resolution) |
 | `agent.model` | the model id the session runs on |
 | `agent.turns`, `agent.started` | activity — turns this session; session start time |
-| `agent.last_tool`, `agent.tools_this_turn` | the most recent tool invocation; this turn's `(name, key input)` pairs (sugar over `turn.tools`) |
+| `agent.last_tool`, `agent.tools_this_turn` | the most recent tool invocation; this turn's `(name, key input)` pairs (sugar over `agent.turn.tools`) |
 | `agent.context_used` | fraction of the context window consumed (`None` where the harness doesn't expose it) — what a "wrap up before compaction"-class rule conditions on |
 | `agent.state_seconds` | seconds the agent has been in its current state — `if:: agent.state == 'asking' and agent.state_seconds > 600` ("asked ten minutes ago and still waiting"). *Naming open — user dislikes "state seconds"; candidates: `state_seconds`, `state_age`, `since`.* Read-time it's a cheap ledger subtraction; **rules that want to be *woken* by elapsed time (rather than test it when some other moment fires) are the § `when::` elapsed-time proposal** |
 | `agent.open_tasks` | open items on the harness task list — count (or list) of tasks not yet completed; the signal behind the `paused` state ([[F216 — Agent-state model — sensing what the agent is doing|F216]]) |
 
-Growth rule: the *namespace and laziness contract* are the frozen thing; individual members join by proposal (a one-row addition), each justified by a real rule that reads it. Members degrade to their error values (`''`/`None`/`[]`) when a rung can't supply them — same contract as `turn.*`.
+Growth rule: the *namespace and laziness contract* are the frozen thing; individual members join by proposal (a one-row addition), each justified by a real rule that reads it. Members degrade to their error values (`''`/`None`/`[]`) when a rung can't supply them — `agent.turn`'s members carry the same contract.
 
 **Trigger vs. sense — for both agent-state and file-change.** The agent's turn boundary is a *moment* (`prompt:submit` / `prompt:stop`, [[Warden Events]]); its *state* is **sensed** here in `if::`. A **file change** has the same shape: an agent write is the `write:*` *moment* (trigger), `event.diff` is what changed (sense), and repo-wide change is sensed via `git.is_dirty` / `git.changed`. Warden *senses* change from git / the audit content-hash; it doesn't watch the filesystem (§ `when::` Change detection).
 
