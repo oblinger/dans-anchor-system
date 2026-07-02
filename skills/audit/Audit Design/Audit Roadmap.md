@@ -1,6 +1,8 @@
-# Audit Roadmap
-description:: milestones
+---
+description: "milestones — the V2 audit build sequence, engine → fix/levels → on-write → sub-audit migration"
+---
 
+# Audit Roadmap
 
 ## [x] M-Engine — Rule-driven engine
 
