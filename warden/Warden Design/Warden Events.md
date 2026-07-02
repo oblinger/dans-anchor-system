@@ -13,6 +13,7 @@ description: "the moment catalog a `when::` clause names — the tree, the gramm
 | [[#Content moments\|write]], [[#Content moments\|read]] | `markdown`, `rust`, `python`, `json`, `svg` | `PostToolUse` (Write/Edit/Read) |
 | [[#VCS moments\|git]] | `commit`, `push`, `merge`, `pre-commit` | Bash-argv / git hook |
 | [[#Turn moments\|prompt]] | `submit`, `stop` | `UserPromptSubmit` / `Stop` |
+| [[#Timer moments\|timer]] *(accepted 2026-07-02 — reserved, lands M8)* | elapsed thresholds | daemon-scheduled (no Claude Code hook) |
 
 **Read a row as a path:** `tool` ⊃ `tool:post` ⊃ `tool:post:Bash` (⊃ `tool:post:Bash:git-commit`). A rule binds at whatever depth it cares about, and a shallower binding **prefix-matches** everything below it. `,` in a `when::` is OR across moments. The Claude-Code event mapping is in [[Warden Architecture]] §6 (hook subsystem). How a moment combines with `where::` / `if::` to fire a rule is **[[Warden Semantics]] § The condition** — this page is only the catalog of moments.
 
@@ -46,10 +47,12 @@ Fire around any tool the agent invokes — the densest group, where "instrument 
 | Moment | Refines by | Children / leaves | Runtime |
 |---|---|---|---|
 | `tool` | phase | `tool:pre`, `tool:post` | PreToolUse / PostToolUse |
-| `tool:pre` / `tool:post` | tool name | `…:Bash`, `…:Write`, `…:Edit`, `…:Read`, `…:Glob`, `…:Grep`, `…:Task`, `…:WebFetch`, `…:WebSearch` (+ MCP tools) | the hook `matcher` |
+| `tool:pre` / `tool:post` | tool name | `…:Bash`, `…:Write`, `…:Edit`, `…:Read`, `…:Glob`, `…:Grep`, `…:Task`, `…:WebFetch`, `…:WebSearch`, `…:AskUserQuestion`, `…:TaskCreate`, `…:TaskUpdate` (+ MCP tools) | the hook `matcher` |
 | `tool:*:Bash` | command head *(optional)* | `…:Bash:git-commit`, `…:Bash:rm`, `…:Bash:npm` | argv parse |
 | `tool:*:Task` | subagent type *(optional)* | `…:Task:Explore`, `…:Task:general-purpose` | `subagent_type` input |
 | `tool:*:Write` / `…:Edit` / `…:Read` | *(path → [[FCT Ruleset\|where::]])* | — | `file_path` input |
+| `tool:*:AskUserQuestion` *(accepted 2026-07-02)* | *(the dialog-ask signal)* | — | drives [[F216 — Agent-state model — sensing what the agent is doing\|F216]]'s **T1** pending-question predicate |
+| `tool:*:TaskCreate` / `…:TaskUpdate` *(accepted 2026-07-02)* | *(the task-list signal)* | — | feeds F216's `paused` / open-work state (`agent.open_tasks`) |
 
 ## Skill moments
 
@@ -93,6 +96,16 @@ Fire on the conversational turn boundary.
 | Moment | Refines by | Children / leaves | Runtime |
 |---|---|---|---|
 | `prompt` | phase | `prompt:submit`, `prompt:stop` | UserPromptSubmit / Stop |
+
+## Timer moments *(accepted 2026-07-02 — reserved, lands M8)*
+
+The one **genuinely new class** the language extensions add: a moment that fires **not on a Claude Code hook but on elapsed time**. It exists to serve the accepted **elapsed-time conjunctive `when::`** ([[Warden Semantics]] § `when::`) — a rule like *"when the agent has been `paused` for N seconds, remind it"* without busy-waiting. The daemon schedules **one timer at the threshold** (no polling); when it fires, the residual condition is re-tested. This is the only moment class with no CC-hook source — it is daemon-internal.
+
+| Moment | Refines by | Children / leaves | Runtime |
+|---|---|---|---|
+| `timer` *(reserved)* | elapsed threshold | `timer:<seconds>` bound to a state predicate | daemon-scheduled at compile-derived thresholds |
+
+Reserved, not v1: the conjunctive-`when::` machinery (splitting a conjunction into an indexable dispatch key + a residual test) is [[F210 — Conjunction binding + indexing\|F210]] territory and the timer scheduler lands at **M8** per [[Warden Roadmap]]. A `when:: timer:*` rule authored before then is **inert** (§ Matching semantics rule 5), not an error.
 
 ## Defaults & legacy compatibility
 
