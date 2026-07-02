@@ -1,0 +1,339 @@
+#!/usr/bin/env python3
+"""das — DAS skill activation manager (F225).
+
+Operates on THIS pinned clone (located from the script's own path) and the
+Claude-visible skills folder ($HOME/.claude/skills). Nothing auto-loads:
+adopters enable skills explicitly, by skill or by group.
+
+  das                    mouse-capable TUI (toggle skills/groups)
+  das status             active vs available, by group
+  das enable  <name>...  symlink skill(s)/group(s) into ~/.claude/skills
+  das disable <name>...  remove the symlink(s) (real dirs never touched)
+  das fork    <name>     copy a skill to a real dir (frozen; diffable)
+  das diff    <name>     diff a forked skill against this clone
+
+Enable = create symlink; disable = remove symlink. Real (non-symlink) dirs
+are always preserved, never clobbered. Activation is session-scoped: restart
+agents to apply.
+"""
+
+import argparse
+import os
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+CLONE = Path(__file__).resolve().parent.parent
+SKILLS_SRC = CLONE / "skills"
+
+# Skill-group taxonomy — mirrors the SKA.md skill-groups table (the repo
+# layout's one grouping, reused for activation). Skills present in skills/
+# but absent here render under "Other".
+GROUPS = {
+    "Drive": ["crank", "feature", "finalize", "fortify", "groom", "land",
+              "mint", "query", "triage"],
+    "Anchor": ["create", "install", "migrate", "move", "publish", "streams",
+               "wp", "yore"],
+    "Dev": ["code", "fix", "pilot-flow", "pr-flow"],
+    "Hygiene": ["audit", "lint", "maintain", "rewire", "rule", "slug-scan",
+                "tidy"],
+    "Doc": ["io", "md", "viz"],
+    "Search": ["find", "survey"],
+    "Utility": ["bridge", "ctrl", "parley", "snip"],
+    "Discipline": ["backlog", "mode", "role", "workflow"],
+}
+
+
+def target_dir() -> Path:
+    override = os.environ.get("DAS_TARGET")
+    return Path(override) if override else Path.home() / ".claude" / "skills"
+
+
+def available_skills() -> list[str]:
+    if not SKILLS_SRC.is_dir():
+        sys.exit(f"das: no skills/ dir at {SKILLS_SRC} — not a DAS clone?")
+    return sorted(p.name for p in SKILLS_SRC.iterdir() if p.is_dir())
+
+
+def grouped_skills() -> dict[str, list[str]]:
+    """Group name -> member skills actually present in the clone."""
+    avail = available_skills()
+    out, seen = {}, set()
+    for group, members in GROUPS.items():
+        present = [s for s in members if s in avail]
+        if present:
+            out[group] = present
+            seen.update(present)
+    other = [s for s in avail if s not in seen]
+    if other:
+        out["Other"] = other
+    return out
+
+
+def skill_state(name: str) -> str:
+    """One of: active | linked-elsewhere | forked | inactive."""
+    dst = target_dir() / name
+    if dst.is_symlink():
+        try:
+            resolved = dst.resolve()
+        except OSError:
+            return "linked-elsewhere"
+        return "active" if resolved == (SKILLS_SRC / name).resolve() \
+            else "linked-elsewhere"
+    if dst.exists():
+        return "forked"
+    return "inactive"
+
+
+def expand_names(names: list[str]) -> list[str]:
+    """Expand group names (case-insensitive) to member skills; pass skills."""
+    groups = grouped_skills()
+    by_lower = {g.lower(): members for g, members in groups.items()}
+    avail = set(available_skills())
+    out: list[str] = []
+    for name in names:
+        if name.lower() in by_lower:
+            out.extend(by_lower[name.lower()])
+        elif name in avail:
+            out.append(name)
+        else:
+            sys.exit(f"das: '{name}' is neither a skill nor a group "
+                     f"(see: das status)")
+    deduped = list(dict.fromkeys(out))
+    return deduped
+
+
+def enable(names: list[str]) -> int:
+    tgt = target_dir()
+    tgt.mkdir(parents=True, exist_ok=True)
+    changed = 0
+    for name in expand_names(names):
+        src, dst = SKILLS_SRC / name, tgt / name
+        state = skill_state(name)
+        if state == "forked":
+            print(f"  SKIP {name} (real dir — forked; das diff {name})")
+        elif state == "active":
+            print(f"  OK   {name} (already active)")
+        else:
+            if dst.is_symlink():
+                dst.unlink()
+            dst.symlink_to(src)
+            print(f"  LINK {name}")
+            changed += 1
+    return changed
+
+
+def disable(names: list[str]) -> int:
+    tgt = target_dir()
+    changed = 0
+    for name in expand_names(names):
+        dst = tgt / name
+        if dst.is_symlink():
+            dst.unlink()
+            print(f"  UNLINK {name}")
+            changed += 1
+        elif dst.exists():
+            print(f"  SKIP {name} (real dir — forked; remove manually "
+                  f"if intended)")
+        else:
+            print(f"  OK   {name} (already inactive)")
+    return changed
+
+
+def fork(name: str) -> None:
+    if name not in available_skills():
+        sys.exit(f"das: unknown skill '{name}'")
+    src, dst = SKILLS_SRC / name, target_dir() / name
+    if dst.exists() and not dst.is_symlink():
+        sys.exit(f"das: {dst} is already a real dir — refusing to overwrite")
+    if dst.is_symlink():
+        dst.unlink()
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(src, dst)
+    print(f"  FORK {name} → {dst}")
+    print(f"  (frozen copy; upstream stays in the clone — das diff {name})")
+
+
+def diff(name: str) -> int:
+    src, dst = SKILLS_SRC / name, target_dir() / name
+    if not dst.exists():
+        sys.exit(f"das: '{name}' is not present at {dst} — nothing to diff")
+    if dst.is_symlink():
+        print(f"  {name} is symlinked (track-live) — no divergence possible")
+        return 0
+    rc = subprocess.call(
+        ["diff", "-ru", "--exclude=.git", str(src), str(dst)])
+    if rc == 0:
+        print(f"  {name}: fork is identical to upstream")
+    return rc
+
+
+def status() -> None:
+    marks = {"active": "●", "forked": "◆", "linked-elsewhere": "○?",
+             "inactive": "·"}
+    print(f"clone:  {CLONE}")
+    print(f"target: {target_dir()}")
+    print("  ● active (symlink→clone)   ◆ forked (real dir)   · inactive")
+    for group, members in grouped_skills().items():
+        cells = "  ".join(f"{marks[skill_state(s)]}{s}" for s in members)
+        print(f"  {group:<10} {cells}")
+    print("(restart agents to apply changes — discovery is session-scoped)")
+
+
+# ---------------------------------------------------------------- TUI
+
+def tui() -> None:
+    import curses
+
+    def run(scr):
+        curses.curs_set(0)
+        curses.mousemask(curses.ALL_MOUSE_EVENTS)
+        groups = grouped_skills()
+        rows = list(groups.items())          # [(group, [skills])]
+        cur_r, cur_c = 0, 0
+        msg = ""
+
+        def toggle(name):
+            nonlocal msg
+            st = skill_state(name)
+            tgt = target_dir() / name
+            if st == "forked":
+                msg = f"{name}: forked (real dir) — not toggleable here"
+                return
+            if st in ("active", "linked-elsewhere"):
+                tgt.unlink()
+                msg = f"disabled {name}"
+            else:
+                tgt.parent.mkdir(parents=True, exist_ok=True)
+                if tgt.is_symlink():
+                    tgt.unlink()
+                tgt.symlink_to(SKILLS_SRC / name)
+                msg = f"enabled {name}"
+
+        def toggle_group(gi):
+            nonlocal msg
+            members = rows[gi][1]
+            togglable = [s for s in members if skill_state(s) != "forked"]
+            any_inactive = any(skill_state(s) == "inactive" for s in togglable)
+            for s in togglable:
+                st = skill_state(s)
+                if any_inactive and st == "inactive":
+                    toggle(s)
+                elif not any_inactive and st != "inactive":
+                    toggle(s)
+            msg = f"{'enabled' if any_inactive else 'disabled'} group " \
+                  f"{rows[gi][0]}"
+
+        while True:
+            scr.erase()
+            h, w = scr.getmaxyx()
+            scr.addnstr(0, 0, "das — click label = toggle group, "
+                        "cell = toggle skill; arrows+space; q quits", w - 1,
+                        curses.A_BOLD)
+            hits = []                        # (y, x0, x1, r, c) click map
+            for gi, (group, members) in enumerate(rows):
+                y = gi + 2
+                if y >= h - 2:
+                    break
+                label = f"{group:<10}"
+                attr = curses.A_UNDERLINE
+                if cur_r == gi and cur_c == 0:
+                    attr |= curses.A_STANDOUT
+                scr.addnstr(y, 1, label, w - 2, attr)
+                hits.append((y, 1, 1 + len(label), gi, 0))
+                x = 13
+                for si, s in enumerate(members):
+                    st = skill_state(s)
+                    cell = s if st != "forked" else s + "*"
+                    attr = curses.A_NORMAL
+                    if st == "active":
+                        attr = curses.A_BOLD | curses.A_REVERSE
+                    elif st == "forked":
+                        attr = curses.A_BOLD
+                    elif st == "inactive":
+                        attr = curses.A_DIM
+                    if cur_r == gi and cur_c == si + 1:
+                        attr |= curses.A_UNDERLINE
+                    if x + len(cell) + 2 >= w:
+                        break
+                    scr.addnstr(y, x, cell, w - x - 1, attr)
+                    hits.append((y, x, x + len(cell), gi, si + 1))
+                    x += len(cell) + 2
+            scr.addnstr(h - 2, 1, "inverted=active  bold*=forked  dim=off   "
+                        "(restart agents to apply)", w - 2, curses.A_DIM)
+            scr.addnstr(h - 1, 1, msg, w - 2)
+            scr.refresh()
+
+            k = scr.getch()
+            if k in (ord("q"), 27):
+                return
+            if k == curses.KEY_MOUSE:
+                try:
+                    _, mx, my, _, _ = curses.getmouse()
+                except curses.error:
+                    continue
+                for y, x0, x1, r, c in hits:
+                    if my == y and x0 <= mx < x1:
+                        cur_r, cur_c = r, c
+                        if c == 0:
+                            toggle_group(r)
+                        else:
+                            toggle(rows[r][1][c - 1])
+                        break
+            elif k == curses.KEY_UP:
+                cur_r = max(0, cur_r - 1)
+                cur_c = min(cur_c, len(rows[cur_r][1]))
+            elif k == curses.KEY_DOWN:
+                cur_r = min(len(rows) - 1, cur_r + 1)
+                cur_c = min(cur_c, len(rows[cur_r][1]))
+            elif k == curses.KEY_LEFT:
+                cur_c = max(0, cur_c - 1)
+            elif k == curses.KEY_RIGHT:
+                cur_c = min(len(rows[cur_r][1]), cur_c + 1)
+            elif k in (ord(" "), ord("\n"), curses.KEY_ENTER):
+                if cur_c == 0:
+                    toggle_group(cur_r)
+                else:
+                    toggle(rows[cur_r][1][cur_c - 1])
+
+    import curses
+    curses.wrapper(run)
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(
+        prog="das", description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    sub = ap.add_subparsers(dest="cmd")
+    sub.add_parser("status")
+    p = sub.add_parser("enable")
+    p.add_argument("names", nargs="+")
+    p = sub.add_parser("disable")
+    p.add_argument("names", nargs="+")
+    p = sub.add_parser("fork")
+    p.add_argument("name")
+    p = sub.add_parser("diff")
+    p.add_argument("name")
+    args = ap.parse_args()
+
+    if args.cmd == "status":
+        status()
+    elif args.cmd == "enable":
+        if enable(args.names):
+            print("(restart agents to apply)")
+    elif args.cmd == "disable":
+        if disable(args.names):
+            print("(restart agents to apply)")
+    elif args.cmd == "fork":
+        fork(args.name)
+    elif args.cmd == "diff":
+        sys.exit(diff(args.name))
+    elif sys.stdout.isatty():
+        tui()
+    else:
+        status()
+
+
+if __name__ == "__main__":
+    main()
