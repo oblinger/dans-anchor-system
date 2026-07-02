@@ -1,6 +1,6 @@
 ---
 name: install
-description: Install CAB command-line tools — make stat, cab-config, cab-scan, cab-lint available from any shell. Run once per machine.
+description: Install CAB command-line tools — make stat, cab-config, cab-scan, cab-audit available from any shell. Run once per machine.
 tools: Read, Write, Edit, Bash, Glob, Grep
 user_invocable: true
 ---
@@ -25,7 +25,7 @@ The CAB command-line tools live as scripts in the skills folder. This skill wire
 | `cab-config` | cab-config.py | Manage `.skl/config.yaml` anchor orchestration |
 | `skl-stat` | stat.py | Activity status tracking across projects |
 | `cab-maintain` | maintain-check.py | Run maintenance checks (file triggers, event triggers) |
-| `cab-lint` | LINT/cab-lint.py | Lint anchor structure against CAB type rules |
+| `cab-audit` | audit/scripts/cab-audit.py | Audit anchor structure against CAB type rules |
 
 ## Workflow
 

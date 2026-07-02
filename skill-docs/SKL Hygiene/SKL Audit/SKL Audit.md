@@ -4,7 +4,7 @@ description: How auditing works — design rationale, tool chain, and examples
 # SKL Audit Guide
 ## Philosophy
 
-| -[[SKL Audit]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Hygiene]] → [SKL Audit](hook://p/SKL%20Audit)<br>: the `/audit` skill |
+| -[[SKL Audit]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[skill-docs]] → [[SKL Hygiene]] → [SKL Audit](hook://p/SKL%20Audit)<br>: the `/audit` skill |
 | --- | --- |
 | Related | [[skills/audit/SKILL.md\|SKILL]],   |
 | [[SKL Audit Design\|Design]] |  |
@@ -13,23 +13,26 @@ Auditing finds problems. It does NOT fix them. The output is a **punch list** �
 
 ## Tool Chain
 
-### cab-lint (the scanner)
+### cab-audit (the scanner)
 
-`cab-lint` is a Python script using tree-sitter to parse source code. It extracts class/method/field definitions and compares them against module docs. It runs in <100ms with caching.
+`cab-audit` (formerly `cab-lint`, renamed per F078) is a Python script using tree-sitter to parse source code. It extracts class/method/field definitions and compares them against module docs. It runs in <100ms with caching. It lives at `skills/audit/scripts/cab-audit.py`.
 
 ```bash
-cab-lint <path> --level 5 --json    # full scan, JSON output
-cab-lint <path> --level 3           # structural only
-cab-lint <path> --level 5 --pub-only  # only public APIs
+cab-audit <path> --level 5 --json    # full scan, JSON output
+cab-audit <path> --level 3           # structural only
+cab-audit <path> --level 5 --pub-only  # only public APIs
 ```
 
-Levels:
-- 1-3: structural checks (files exist, dispatch tables wired)
-- 4-5: source-to-doc comparison (module docs match source code)
+Levels run 1 (bare-bones marker-file checks) through 9 (pedantic spacing and TOC formatting):
+- 1-4: structural checks (files exist, dispatch tables wired, frontmatter/breadcrumb present)
+- 5: source-to-doc comparison (module docs match source code) — the default
+- 6-9: link reachability, wiki-link resolution, naming conventions, pedantic formatting
 
 Cache: `.skl/lint/source-cache/` — keyed by file mtime. Second runs are instant.
 
-The agent never calls cab-lint directly for user-facing work. `/audit docs` calls it internally.
+The scanner is **detect-only by design** (migrated from the retired `/lint` skill). Even when a finding implies an obvious fix — missing dispatch row, missing module doc, misplaced file — it never edits or moves things itself; that's `/rewire`'s job. Findings either get fixed in the relevant markdown file or get an entry in the anchor's `.anchor.d/lint/exceptions.md` file (for genuinely-private items, trivial accessors, or whole categories you want to skip via glob).
+
+The agent never calls cab-audit directly for user-facing work. `/audit docs` calls it internally.
 
 ### stat (the reporter)
 
@@ -54,7 +57,7 @@ Type-specific checks are in the `## Audit` section of each type spec file in `~/
 ## Why Incremental
 
 `/audit docs` defaults to incremental — only checking files where source is newer than docs. This is fast because:
-- cab-lint caches parsed source by mtime
+- cab-audit caches parsed source by mtime
 - Git timestamps tell us what changed
 - Most runs find 0-5 stale docs, not 50
 

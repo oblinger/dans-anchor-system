@@ -116,7 +116,7 @@ When and how the agent attends to surfaced rules at write-time.
 
 **Reference:** [[Audit PRD]] § Scope; [[Audit Architecture]] § Where the rule format lives
 
-### [ ] M-Migrate.1 — Retire `/lint` into `/audit`  [F016]
+### [x] M-Migrate.1 — Retire `/lint` into `/audit`  [F016]
 
 Hard rename, 1:1 subaction map, vault-wide reference sweep.
 

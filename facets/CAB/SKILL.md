@@ -16,7 +16,7 @@ user_invocable: false
 |---|---|
 | `/cab tidy`        | `/tidy` |
 | `/cab publish`     | `/publish` |
-| `/cab lint`        | `/lint` |
+| `/cab lint`        | `/audit` (per F078 — `/lint` retired into `/audit`) |
 | `/cab maintain`    | `/maintain` |
 | `/cab wp <name>`   | `/wp <name>` |
 | `/cab yore`        | `/yore` |

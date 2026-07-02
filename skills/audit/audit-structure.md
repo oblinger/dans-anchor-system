@@ -156,3 +156,45 @@ Print a one-line summary:
 - Dry: `structure: N findings (dry-run, no entry written)`
 
 The orchestrator (or single-skill caller) will roll this up into the final stat post.
+
+## Mechanical scanner — `cab-audit.py` (migrated from `/lint`, F078)
+
+`cab-audit.py` (formerly `cab-lint.py`) is the standalone static scanner covering the structural checks above plus the module-doc comparison consumed by `/audit docs`. Run it as the mechanical first pass; the workflow steps 2–7 cover the judgment calls the script can't make. The script is **read-only** — its output feeds the findings table (step 8), never direct repairs.
+
+```bash
+python3 ~/.claude/skills/audit/scripts/cab-audit.py <anchor-path> [--level 5] [--verbose] [--show-exceptions]
+# or, once wired onto $PATH by /install:
+cab-audit <anchor-path> --level 3
+```
+
+Requires `tree-sitter-analyzer` (`pip install tree-sitter-analyzer`) for source parsing at level 5+. Tests and private items are excluded by default (`--private` / `--pub-only` to adjust). Exit codes: 0 = PASS, 1 = CONCERNS, 2 = FAIL.
+
+### Scan levels
+
+| Level | Name | What it checks |
+|-------|------|----------------|
+| 1 | Bare Bones | Marker file, anchor page exist |
+| 2 | Core | CLAUDE.md, `.anchor` `code:` key resolves (type-specific), README.md, SKILL.md (type-specific) |
+| 3 | Structure | Docs folder, Plan folder, Dev folder |
+| 4 | Content | `description:` in frontmatter, breadcrumb, dispatch table present |
+| 5 | **Default** | Module doc comparison — classes, methods, fields match source code |
+| 6 | Links | All markdown files reachable from dispatch tree |
+| 7 | Cross-ref | Wiki-links resolve, no broken internal links |
+| 8 | Naming | `{NAME}` prefix on all files/folders |
+| 9 | Pedantic | Spacing rules, TOC format, column alignment |
+
+### Detect-only rules (per F059)
+
+The scanner and this audit are **detect-only**. Even when a finding implies a clear repair, do NOT take the repair action — that's `/rewire`'s job (or the downstream backlog pull). Three categorical rules:
+
+- **No dispatch-table edits.** "Missing row" / "missing dispatch table" findings are flagged for `/rewire` — never add the row or table inline. Auto-fixing a `dispatch-duplication` finding by adding a third canonical-form table is the DMUX bug (F059 root cause).
+- **No file creation.** Missing module docs / missing facet files are flagged — never created here.
+- **No moves.** Misplaced files (basename in wrong location) are flagged — never moved here.
+
+### Exceptions file
+
+Per-anchor suppressions live at `.anchor.d/lint/exceptions.md` (directory name retained for now — renaming `.anchor.d/lint/` is deferred per F078 scope). Rows are sorted by module path, then target; both Module and Target columns support **glob patterns** (`*`, `?`) — prefer glob exceptions over per-item entries when a whole category should be excluded.
+
+Row shape (Module | Target | Rule | Reason), e.g. `src/ui/popup.rs | WindowSizeMode | class-undocumented | Private enum, internal only` or `tests/* | | class-undocumented | Test files`.
+
+**No blanket rule suppressions** — an exception with `*` module AND empty target for a content rule is rejected by the tool. Every exception must name either a Module path or a Target; this forces case-by-case judgment instead of sweeping categories under the rug.

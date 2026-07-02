@@ -9,4 +9,4 @@ description: "`/tidy` validates an anchor's folder structure against its CAB typ
 | Related | [[skills/tidy/SKILL.md\|SKILL]],   |
 | [[SKL Tidy Design\|Design]] |  |
 
-The skill walks the type-specific spec from `CAB Types/`, runs the checklist top to bottom (naming → links → roadmap content → slug → file structure → CLAUDE.md), and reports what was fixed plus anything that needs your manual attention. It's the "make this conform to the blueprint" pass — narrower than `/audit` (which reports without fixing), narrower than `/rewire` (which is the structural-repair workhorse), but broader than `/lint` (which is detect-only static analysis).
+The skill walks the type-specific spec from `CAB Types/`, runs the checklist top to bottom (naming → links → roadmap content → slug → file structure → CLAUDE.md), and reports what was fixed plus anything that needs your manual attention. It's the "make this conform to the blueprint" pass — narrower than `/audit` (which reports without fixing), narrower than `/rewire` (which is the structural-repair workhorse), but broader than the `cab-audit` scanner (which is detect-only static analysis).

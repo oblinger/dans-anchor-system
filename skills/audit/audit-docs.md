@@ -200,3 +200,16 @@ The orchestrator (or single-skill caller) will roll this up into the final stat 
 - [ ] `module_docs_audited:` frontmatter on `{NAME} Dev.md` is owned by this skill — no other skill writes it (per F074, [[FCT Module Doc]] § `{NAME} Dev.md` frontmatter).
 
 <!-- compiled:end -->
+
+# Module-doc warning reference (migrated from `/lint`, F078)
+
+The mechanical scanner (`cab-audit.py`, level 5 — see [[audit-structure]] § Mechanical scanner) compares source code against module docs and emits per-item warnings. **This audit only reports them** (findings → backlog entry, per the phases above); the fix-vs-exception guidance below applies downstream, when the backlog entry is pulled.
+
+- **`class-undocumented`** — class in source, no module-doc entry. *Fix:* add it to the CLASSES table + a per-class table (per [[FCT Module Doc]]). *Exception:* private/internal class whose documentation adds noise (e.g., a small internally-used enum).
+- **`method-undocumented`** — method in source, missing from the per-class table. *Fix:* add it to the Methods section. *Exception:* trivial accessor/getter/setter, or a private implementation detail.
+- **`enum-undocumented`** — enum in source, no module-doc entry. *Fix:* add to CLASSES table (`Enum —` prefix in description) + a two-column variant table. *Exception:* trivial internal state (e.g., `LoadingState { Loading, Loaded, Error }`).
+- **`field-undocumented`** — field in source, missing from the per-class table. *Fix:* add it to the properties section. *Exception:* rarely — fields are usually worth documenting.
+- **`class-stale-doc` / `method-stale-doc` / `field-stale-doc`** — in the doc but no longer in source. *Fix:* remove the stale entry. *Exception:* never — stale docs are always cleaned up.
+- **`no-module-docs` / `source-no-module-doc`** — source files with no module docs in the Dev folder. *Fix:* create module docs per [[FCT Module Doc]] (Linking Rule: add to Dev dispatch table and Files FIRST, then write the doc). Test files use the test module doc format (SCAFFOLDS + TEST AREAS tables — see [[code-test]]).
+
+**When to except:** the item is private/internal and documenting it clutters the doc; a trivial accessor; a non-API file (build scripts, config, test helpers); or a whole category (use a glob). **When NOT to except:** public API (always document); non-obvious behavior (document even if private); stale docs (fix, don't except). Exceptions file mechanics: [[audit-structure]] § Exceptions file.

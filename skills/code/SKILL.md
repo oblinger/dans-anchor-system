@@ -53,7 +53,7 @@ The unified development skill. Invoke with an action to run a workflow.
 | 53  | `/code test-verify`    | (in dev-test)          | Run suite, completion proof, red-green at level 6+                            |
 |     | **6x Verify**         |                        | *Validate structure and docs*                                                 |
 | 60  | `/rewire`              | (top-level skill)       | Idempotent structural repair — wire dispatch tables, link files               |
-| 61  | `/cab lint`           | [[cab-lint]]           | Validate anchor structure and module docs                                     |
+| 61  | `/audit structure`     | [[audit-structure]]    | Validate anchor structure and module docs                                     |
 |     | **7x Adapt**          |                        | *When requirements or design changes*                                         |
 | 70  | `/code ask-questions`  | [[code-ask-questions]]  | Surface, track, and resolve open questions                                    |
 | 71  | `/code replan`         | [[code-replan]]         | Selective replanning when requirements change                                 |

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""CAB Lint — Static analysis of anchor structures against CAB type rules.
+"""CAB Audit — Static analysis of anchor structures against CAB type rules.
 
 Usage:
-    python cab-lint.py <anchor-path> [--level 5] [--type code] [--json] [--verbose]
+    python cab-audit.py <anchor-path> [--level 5] [--type code] [--json] [--verbose]
 
 Default level is 5, which includes module doc comparison.
 """
@@ -1013,7 +1013,7 @@ def gate(results: list[LintResult]) -> str:
 
 def report_markdown(anchor: Anchor, results: list[LintResult], level: int) -> str:
     lines = [
-        f"## CAB Lint: {anchor.folder_name}",
+        f"## CAB Audit: {anchor.folder_name}",
         f"Type: {anchor.anchor_type.value.title()} Anchor | Level: {level}",
         "",
     ]
@@ -1150,7 +1150,7 @@ def filter_exceptions(results: list[LintResult],
 
 
 def main():
-    parser = argparse.ArgumentParser(description="CAB Lint — anchor structure linter")
+    parser = argparse.ArgumentParser(description="CAB Audit — anchor structure scanner (formerly cab-lint)")
     parser.add_argument("path", type=Path, nargs="?", default=Path("."),
                         help="Path to anchor folder (default: current dir)")
     parser.add_argument("--level", type=int, default=5, help="Lint level 1-9 (default: 5)")

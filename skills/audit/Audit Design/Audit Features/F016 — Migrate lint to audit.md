@@ -37,7 +37,7 @@ Migrate the `/lint` skill family into `/audit`, per the user's direction to unif
 
 ## Status
 
-Designing — parked in `## Later`. No urgency.
+**Done** — executed 2026-07-01. `/lint` deleted (skill folder, SKL Lint doc, SKA lint anchor all retired); unique content folded into [[audit-structure]] § Mechanical scanner + [[audit-docs]] § Module-doc warning reference + [[SKL Audit]] § cab-audit; `cab-lint.py` renamed to `skills/audit/scripts/cab-audit.py` with `~/bin/cab-audit` symlink; vault-wide reference sweep complete (historical records left verbatim).
 
 ## Resolved
 

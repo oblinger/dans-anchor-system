@@ -10,13 +10,13 @@ Skills — the `/`-invocable runbooks (the things you type `/` for).
 
 
 
-| -[[SKL]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [SKL](hook://p/SKL)<br>: Skills — the `/`-invocable runbooks |
+| -[[SKL]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[skill-docs]] → [SKL](hook://p/SKL)<br>: Skills — the `/`-invocable runbooks |
 | --- | --- |
 | Siblings | [[FCT\|Facets]],  [[DSC\|Disciplines]],  [[LBR\|Library]],   |
 |  |  |
 |  | **SKILL GROUPS** |
 | [[SKL Anchor\|Anchor]]+ | [[SKL Anchor Toolkit\|Anchor Toolkit]],  [[SKL CAB\|CAB]],  [[SKL Create\|Create]],  [[SKL Install\|Install]],  [[SKL Migrate\|Migrate]],  [[SKL Move\|Move]],  [[SKL Publish\|Publish]],  [[SKL Streams\|Streams]],  [[SKL WP\|WP]],  [[SKL Yore\|Yore]],   |
-| [[SKL Hygiene\|Hygiene]]+ | [[SKL Audit\|Audit]],  [[SKL Dupes\|Dupes]],  [[SKL Lint\|Lint]],  [[SKL Maintain\|Maintain]],  [[SKL Rewire\|Rewire]],  [[SKL Slug Scan\|Slug Scan]],  [[SKL Tidy\|Tidy]],   |
+| [[SKL Hygiene\|Hygiene]]+ | [[SKL Audit\|Audit]],  [[SKL Dupes\|Dupes]],  [[SKL Maintain\|Maintain]],  [[SKL Rewire\|Rewire]],  [[SKL Slug Scan\|Slug Scan]],  [[SKL Tidy\|Tidy]],   |
 | [[SKL Track\|Track]]+ | [[SKL Plan\|Plan]],  [[SKL Workflow\|Workflow]],  [[SKL Backlog\|Backlog]],  [[SKL Messages\|Messages]],   |
 | [[SKL Drive\|Drive]]+ | [[SKL Feature\|Feature]],  [[SKL Crank\|Crank]],  [[SKL Triage\|Triage]],  [[SKL Ask\|Ask]],  [[SKL Groom\|Groom]],  [[SKL Mint\|Mint]],  [[SKL Finalize\|Finalize]],  [[SKL Land\|Land]],  [[SKL Fortify\|Fortify]],  [[SKL ask-inline\|ask-inline]],  [[SKL Query\|Query]],   |
 | [[SKL Dev\|Dev]]+ | [[SKL Architect\|Architect]],  [[SKL Code\|Code]],  [[SKL Fix\|Fix]],  [[SKL Pilot Flow\|Pilot Flow]],  [[SKL PR Flow\|PR Flow]],   |
@@ -27,7 +27,7 @@ Skills — the `/`-invocable runbooks (the things you type `/` for).
 | --- | |
 
 
-Mapped:  [[SKL Feature]], [[SKL Crank]], [[SKL Triage]], [[SKL Ask]], [[SKL Groom]], [[SKL Mint]], [[SKL Finalize]], [[SKL Land]], [[SKL Fortify]], [[SKL Query]], [[SKL Anchor Toolkit]], [[SKL Create]], [[SKL Install]], [[SKL Migrate]], [[SKL Move]], [[SKL Publish]], [[SKL Streams]], [[SKL WP]], [[SKL Yore]], [[SKL Audit]], [[SKL Tidy]], [[SKL Dupes]], [[SKL Lint]], [[SKL Maintain]], [[SKL Rewire]], [[SKL Slug Scan]], [[SKL Architect]], [[SKL Code]], [[SKL Fix]], [[SKL PR Flow]], [[SKL Pilot Flow]], [[SKL MD]], [[SKL Viz]], [[SKL Find]], [[SKL Profile]], [[SKL Purchase]], [[SKL Survey]], [[SKL Cook]], [[SKL Ctrl]], [[SKL Exp]], [[SKL Parley]], [[SKL Snip]]
+Mapped:  [[SKL Feature]], [[SKL Crank]], [[SKL Triage]], [[SKL Ask]], [[SKL Groom]], [[SKL Mint]], [[SKL Finalize]], [[SKL Land]], [[SKL Fortify]], [[SKL Query]], [[SKL Anchor Toolkit]], [[SKL Create]], [[SKL Install]], [[SKL Migrate]], [[SKL Move]], [[SKL Publish]], [[SKL Streams]], [[SKL WP]], [[SKL Yore]], [[SKL Audit]], [[SKL Tidy]], [[SKL Dupes]], [[SKL Maintain]], [[SKL Rewire]], [[SKL Slug Scan]], [[SKL Architect]], [[SKL Code]], [[SKL Fix]], [[SKL PR Flow]], [[SKL Pilot Flow]], [[SKL MD]], [[SKL Viz]], [[SKL Find]], [[SKL Profile]], [[SKL Purchase]], [[SKL Survey]], [[SKL Cook]], [[SKL Ctrl]], [[SKL Exp]], [[SKL Parley]], [[SKL Snip]]
 
 # OLDER
 
@@ -36,7 +36,7 @@ Mapped:  [[SKL Feature]], [[SKL Crank]], [[SKL Triage]], [[SKL Ask]], [[SKL Groo
 |              | Create → Plan → ↻( [[SKL Feature\|Feature]] ([[SKL Groom\|Groom]]) → [[SKL Mint\|Mint]]  ([[SKL Finalize\|Finalize]]) |
 | **Setup**    | Distill, [[cab/cab-install\|Install]], [[cab/cab-slug-scan\|Rid-scan]], [[cab/cab-scan\|Scan]]  \|  [[SKL Migrate\|Migrate]], [[code/code-rewire\|Rewire]], [[cab/cab-tidy\|Tidy]], [[CAB Move\|Move]] |
 | **Create**   | [[cab/cab-create\|Anchor]], [[feature/SKILL\|Feature]], [[cab/cab-wp\|Wp]]                                        |
-| **Audit**    | [[audit/audit-structure\|Structure]], [[audit/audit-docs\|Docs]], [[audit/audit-rules\|Rules]], [[audit/audit-code\|Code]], [[audit/audit-publish\|Pre-publish]], [[cab/cab-lint\|Lint]] |
+| **Audit**    | [[audit/audit-structure\|Structure]], [[audit/audit-docs\|Docs]], [[audit/audit-rules\|Rules]], [[audit/audit-code\|Code]], [[audit/audit-publish\|Pre-publish]] |
 | **Maintain** | [[cab/cab-maintain\|Maintain]]                                                                                        |
 | **Publish**  | [[cab/cab-publish\|Publish]]                                                                                          |
 | **Status**   | Add, Update, Archive, Show, Activate                                                                                  |

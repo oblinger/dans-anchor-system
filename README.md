@@ -9,7 +9,7 @@ Personal skills for AI coding agents. Many are fairly general-purpose — please
 
 | Skill | Description |
 |-------|-------------|
-| **[CAB](CAB/SKILL.md)** | Common Anchor Blueprint — structured folder systems with typed anchors, dispatch tables, and lint validation |
+| **[CAB](CAB/SKILL.md)** | Common Anchor Blueprint — structured folder systems with typed anchors, dispatch tables, and audit validation |
 | **[Dev](dev/SKILL.md)** | Full development lifecycle — 9 stages from planning through release, with testing, debugging, and multi-agent orchestration |
 | **[Ctrl](ctrl/SKILL.md)** | Local environment control — browser automation, persistent tmux sessions, system interaction |
 | **[IO](io/SKILL.md)** | External system I/O — Google Sheets/Slides/Drive, Dropbox, Notion, file sync via rclone |
@@ -33,7 +33,7 @@ The largest skill. 40+ actions organized into a numbered lifecycle:
 | 4x | Release | changelog, version, package, publish, ship |
 | | ***Capabilities*** | |
 | 5x | Test | assess, scaffold, write-tests, verify |
-| 6x | Verify | rewire, lint, fix |
+| 6x | Verify | rewire, audit, fix |
 | 7x | Adapt | ask-questions, replan |
 | 8x | Tactical | forge, debug, refactor |
 | 9x | Orchestrate | workers, worktrees, pr-flow, merge |
@@ -41,12 +41,12 @@ The largest skill. 40+ actions organized into a numbered lifecycle:
 
 ## CAB Skill — Common Anchor Blueprint
 
-A system for organizing projects into typed anchor folders with consistent structure, dispatch tables for navigation, module documentation that tracks source code, and a lint tool that validates everything.
+A system for organizing projects into typed anchor folders with consistent structure, dispatch tables for navigation, module documentation that tracks source code, and an audit tool that validates everything.
 
 | Action | What it does |
 |--------|-------------|
 | `/cab setup` | Create a new anchor with full doc skeleton |
-| `/cab lint` | Validate structure and module docs against source code |
+| `/audit` | Validate structure and module docs against source code |
 | `/cab tidy` | Fix structural issues |
 | `/cab yore` | Archive to Yore |
 | `/cab move` | Rename/relocate an anchor |

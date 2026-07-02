@@ -14,7 +14,7 @@ This delegates to `/cab setup` (the [[cab-create]] skill), which handles:
 2. Create the full file skeleton — ALL doc files upfront (PRD, System Design, Discussion, Roadmap, etc.)
 3. Wire all dispatch tables — every file linked from its parent
 4. Register with HookAnchor
-5. Verify with `cab-lint --level 3`
+5. Verify with `cab-audit --level 3`
 
 After the anchor is created, return to `/code plan` to continue with the PRD step.
 

@@ -9,4 +9,4 @@ The `anchor` skill is the low-level toolkit for working with **anchors** — the
 | Related | [[skills/anchor/SKILL.md\|SKILL]],   |
 | [[SKL Anchor Toolkit Design\|Design]] |  |
 
-You usually won't invoke `/anchor` directly — higher-level skills like `/audit`, `/tidy`, `/lint`, and the `/code` family delegate to it under the hood. Reach for it when you need the underlying operation by itself, or when you're debugging anchor-level behavior. The full spec for what an anchor actually is — its slug, traits, required files — lives in `[[SKD Anchor]]`.
+You usually won't invoke `/anchor` directly — higher-level skills like `/audit`, `/tidy`, and the `/code` family delegate to it under the hood. Reach for it when you need the underlying operation by itself, or when you're debugging anchor-level behavior. The full spec for what an anchor actually is — its slug, traits, required files — lives in `~~[[SKD Anchor]]~~`.

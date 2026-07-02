@@ -4,7 +4,7 @@ description: "How to create and manage anchor folder structures using the Common
 # SKL CAB Guide
 The Common Anchor Blueprint (CAB) defines a standard folder structure for organizing projects and content areas. Every anchor has a type that determines which files and folders it contains. The five types are Simple, Topic, Code, Paper, and Skill — each building on a common base with type-specific additions.
 
-| -[[SKL CAB]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Anchor]] → [SKL CAB](hook://p/SKL%20CAB)<br>: the SKL CAB doc |
+| -[[SKL CAB]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[skill-docs]] → [[SKL Anchor]] → [SKL CAB](hook://p/SKL%20CAB)<br>: the SKL CAB doc |
 | --- | --- |
 
 CAB is the structural backbone of the system. When you create a new project, CAB gives it a standardized shape. When you reorganize, CAB validates that nothing is broken. The specification lives in `~/.claude/skills/CAB/` with separate files for types, parts, and rules.
@@ -21,8 +21,8 @@ An anchor's identity comes from its slug (slug) — a short uppercase code like 
 | `/cab migrate` | Convert an anchor from one type to another |
 | `/cab config` | Manage `.skl/config.yaml` — init, set, get, show paths |
 | `/cab scan` | Discover all anchors and write registry to `~/.config/skl/anchors.yaml` |
-| `/cab install` | Install CAB tools (stat, cab-config, cab-scan, cab-lint) onto the user's machine |
-| `/cab lint` | Check structure, files, and links against CAB type rules |
+| `/cab install` | Install CAB tools (stat, cab-config, cab-scan, cab-audit) onto the user's machine |
+| `/audit` | Check structure, files, and links against CAB type rules |
 | `/cab maintain` | Run standing maintenance orders (keep derived files in sync) |
 | `/cab slug-scan` | Scan for new slugs and sync the index |
 | `/cab yore` | Archive folders/anchors to Yore with date-prefixed zip |

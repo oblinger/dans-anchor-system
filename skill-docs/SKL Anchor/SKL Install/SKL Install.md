@@ -1,10 +1,10 @@
 ---
-description: "`/install` is the one-time setup skill for getting CAB command-line tools (`cab-scan`, `cab-config`, `skl-stat`, `cab-maintain`, `cab-lint`) onto a fresh machine."
+description: "`/install` is the one-time setup skill for getting CAB command-line tools (`cab-scan`, `cab-config`, `skl-stat`, `cab-maintain`, `cab-audit`) onto a fresh machine."
 ---
 # /Install
-`/install` is the one-time setup skill for getting CAB command-line tools (`cab-scan`, `cab-config`, `skl-stat`, `cab-maintain`, `cab-lint`) onto a fresh machine. The skill asks the user where they keep user-installed tools (a directory on `$PATH`), then wires the scripts from `~/.claude/skills/` to that location, and verifies each one runs.
+`/install` is the one-time setup skill for getting CAB command-line tools (`cab-scan`, `cab-config`, `skl-stat`, `cab-maintain`, `cab-audit`) onto a fresh machine. The skill asks the user where they keep user-installed tools (a directory on `$PATH`), then wires the scripts from `~/.claude/skills/` to that location, and verifies each one runs.
 
-| -[[SKL Install]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Anchor]] → [SKL Install](hook://p/SKL%20Install)<br>: the `/install` skill |
+| -[[SKL Install]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[skill-docs]] → [[SKL Anchor]] → [SKL Install](hook://p/SKL%20Install)<br>: the `/install` skill |
 | --- | --- |
 | Related | [[skills/install/SKILL.md\|SKILL]],   |
 | [[SKL Install Design\|Design]] |  |
