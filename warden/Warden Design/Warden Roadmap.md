@@ -49,7 +49,7 @@ Absorb everything M2–M4 taught. Re-read the harvested gaps and the engine/test
 
 ### M6 — Build  *(the one autopilot phase)*
 
-Implement the Python engine against the triple-validated spec: the full resolve → compile → install → fire loop ([[F212 — Python reference implementation|F212]]), then fold today's bespoke hook surfaces (`compact`, `markdown-write`, `audit-q`) onto it. Tests (M3) run green continuously.
+Implement the Python engine against the triple-validated spec: the full resolve → compile → install → fire loop ([[F212 — Python reference implementation|F212]]), then fold today's bespoke hook surfaces (`compact`, `markdown-write`, `audit-q`) onto it, and emit **`skill:pre`** mechanically from the Skill-tool invocation (`skill:post` is deferred to a later version — § Beyond v1; a v1 `skill:post` is treated as `skill:pre` per [[F209 — Unified trigger taxonomy + when language|F209]] Q3). Tests (M3) run green continuously.
 
 **Done-when:** a real rule, authored in Warden, compiles, installs, and fires at its moment in a live session; the migrated surfaces behave unchanged; the regime is green.
 
@@ -64,6 +64,12 @@ Actually **use** Warden: codify a large fraction of SKA facets / skills / discip
 Everything efficiency-oriented, parked behind a system that already works and has earned its keep: the Rust hot-path implementation ([[F213 — Rust performance implementation + ms budget|F213]]), perf hardening + budget enforcement, the re-evaluation economy build ([[F215 — Re-evaluation economy — the significant-edit gate|F215]]), and semantic-update levels. The Rust impl is **behavior-identical** to the Python reference — the M3 differential harness is the oracle, zero verdict/steer divergence. Also parked here *(accepted 2026-07-02)*: **elapsed-time conditions in `when::`** (conjunctive when — the daemon schedules a timer at the threshold instead of rules polling `agent.state_seconds`; [[Warden Semantics]] § `when::`).
 
 **Done-when:** fire-time p99 meets the per-moment budget; differential tests show zero divergence; the efficiency gates are enforced.
+
+## Beyond v1 — later versions (V2 / V3)
+
+Deliberately parked past the strong landing (M7) and the M8 efficiency follow-on, so the first system ships, is tested end-to-end, and is **in real rule use** before we take on this complexity *(user, 2026-07-02)*:
+
+- **`skill:post` — the end-of-skill moment.** v1 ships **`skill:pre` only** (emitted mechanically from the Skill-tool invocation — the precise, cooperation-free signal); a `skill:post` authored in v1 is accepted and treated as `skill:pre` ([[F209 — Unified trigger taxonomy + when language|F209]] Q3). "When did a runbook finish?" has no clean mechanical answer, so post lands later as a **ladder of increasingly-precise approximations**, none blocking, adopted in order: (1) **agent-stop catchall** — post-actions run when the agent stops (the universal floor); (2) **an agreed "done" sentinel** — one mutually-agreed phrase skills emit to mark end-of-work; (3) a **per-skill end-phrase registry**; (4) **next-moment inference** — a following tool use / hook implies the prior finished (caveat: recursive / nested tool use may break this, so it may be unusable as a reliable signal).
 
 ## The autopilot discipline — the structural tripwire
 

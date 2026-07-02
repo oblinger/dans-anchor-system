@@ -60,9 +60,11 @@ Fire around a skill executing. Skill names are our own registry; the action sub-
 
 | Moment | Refines by | Children / leaves | Runtime |
 |---|---|---|---|
-| `skill` | phase | `skill:pre`, `skill:post` | skill-runner enter / exit |
-| `skill:pre` / `skill:post` | skill name | `…:audit`, `…:query`, `…:crank`, `…:audit-q`, … | the running skill's id |
+| `skill` | phase | `skill:pre`, `skill:post` | Skill-tool invocation (`pre`); end-of-skill deferred (`post` → V2/V3) |
+| `skill:pre` / `skill:post` | skill name | `…:audit`, `…:query`, `…:crank`, `…:audit-q`, … | `pre` from the Skill-tool call; the running skill's id |
 | `skill:*:<name>` | action *(optional)* | `…:audit:rules`, `…:audit:docs` | the sub-action arg |
+
+> **v1: `skill:pre` only** *(F209 Q3, accepted 2026-07-02).* `skill:pre` is emitted mechanically from the **Skill-tool invocation** — a skill *starting* is a real tool call the `PreToolUse` hook already sees. `skill:post` (the end-of-skill moment) has no clean mechanical boundary — the Skill tool returns the instant the runbook is *injected*, not when the work finishes — so it is **deferred to a later version**. Until then a v1 `skill:post` (and a bare `skill:<name>`) resolves to `skill:pre`, accepted, not an error. The post-side emission ladder (agent-stop catchall → agreed "done" sentinel → per-skill phrase registry → next-moment inference) is [[Warden Roadmap]] § Beyond v1.
 
 ## Session moments
 
@@ -132,7 +134,7 @@ No "friendly alias" layer — the canonical moment path is the only first-class 
 ## Open questions
 
 1. **Content-kind detection cost.** `write:<kind>` needs an extension/sniff per write — extension-only for v1 (cheap), content-sniff reserved for ambiguous cases?
-2. **`skill:pre`/`post` emission point.** Skills are runbooks, not processes — the "skill runs" moment must be emitted by the skill-dispatch layer. Where exactly? (Ties to the harness skill-runner.)
+2. ~~**`skill:pre`/`post` emission point.**~~ **Resolved** (F209 Q3, 2026-07-02): `skill:pre` emits from the Skill-tool invocation; `skill:post` is deferred to a later version, its emission ladder recorded at [[Warden Roadmap]] § Beyond v1. See the `skill:pre`-only note under § Skill moments.
 
 ## See also
 
