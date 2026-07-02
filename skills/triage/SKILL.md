@@ -193,7 +193,15 @@ The user reads `[Ready]` and trusts it. If a row's description includes "we'll s
   - **Verify:** <concrete: do X, observe Y — did Y happen? yes/no>
 ```
 
-`triage-section.py` surfaces the `- **Verify:**` sub-bullet as the V-item question (not the row's body). **If a `[Verify*]`/`[Watching*]` row has no `Verify:` sub-bullet, the render shows `⚠ no concrete question`** — same forcing function. And the same honesty check applies: if the only "verification" you can write requires setup the user can't do right now (e.g. "deploy standalone Compact first, then drag"), it isn't a user-verify — rebracket to `[Blocked]`. A V-item must be a question the user can answer from where they sit.
+`triage-section.py` surfaces the `- **Verify:**` sub-bullet as the V-item question (not the row's body). **If a `[Verify*]`/`[Watching*]` row has no `Verify:` sub-bullet, the render shows `⚠ no concrete question`** — same forcing function. A V-item must be a question the user can answer from where they sit.
+
+**`⚠` is never a valid resting state — and it is never a catch-22.** A row that renders `⚠` is *half-authored*, not stuck; there is ALWAYS a resolving move, and the agent MUST take one before declaring the triage clean. When a `[Verify*]`/`[Watching*]` row has no concrete question, resolve it exactly one of three ways:
+
+- **(a) Write the passive / next-use yes/no** — almost always possible. A shipped-and-soaking fix has, at minimum, a *recurrence* question ("since {date}, has {bad thing} happened again? no = held") or a *next-use* question ("next time you {do X}, does {Y} happen?"). This is the common case; reach for it first.
+- **(b) Promote to `[Done]`** — if the soak has effectively already passed (enough clean time, or the check is moot), close it rather than ask.
+- **(c) Rebracket to `[Blocked]`/`[Waiting]` naming the event** — only when the verification genuinely cannot begin until some named event occurs (a deploy that hasn't shipped, a machine the user can't reach right now). The body must name what's being waited on.
+
+Symmetrically for `⚠ none declared — not really Ready` on a `[Ready]`/`[Active]` row: write the no-user next-action, or rebracket (`[Verify]` if the next step is a user check, `[Blocked]`/`[Questions]` if it needs the user). **The failure this defeats (2026-07-02, F171): the bracket was set to `[Watching 7d]` but the `Verify:` question was never written, so the queries page rendered `⚠` while triage falsely reported "clean."** That gap is now closed by **`audit-q` C41**, which flags any `[Verify*]`/`[Watching*]` row missing `Verify:` and any `[Ready]`/`[Active]` row missing `Next:` — so the triage loop-until-clean (§ 5) cannot exit while any row is half-authored. Setting the bracket and writing its companion sub-bullet is one atomic act; never do the first without the second.
 
 
 ## H1 banner spacing — exact
