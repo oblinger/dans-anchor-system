@@ -135,4 +135,4 @@ This `CLAUDE.md` opens with a `:>>` breadcrumb — remove it. `CLAUDE.md` is con
 - **The F060 exemption is load-bearing** — `CLAUDE.md` does NOT carry the standard CAB dispatch-table placeholder because it is consumed by the Claude Code harness, not by anchor-doc readers. Do not "fix" the missing dispatch table by adding the F060 rule here.
 - **Reference Example uses escaped headings** (`\# CLAUDE.md`, `\## Mission`) so the example's H1/H2s don't collide with this facet spec's outline — preserve the backslash escapes when editing the example block.
 - **Pilot role header is opt-in, not default** — keep the "only add when driven by agents" guard intact; agentic-project anchors get the header, plain-content anchors do not.
-- **Cited by:** SKD Anchor (lists `CLAUDE.md` as an optional facet), [[Skill Agent]] pilot setup, any anchor adopting agentic-project workflow. When the format changes, audit those citations.
+- **Cited by:** SKD Anchor (lists `CLAUDE.md` as an optional facet), [[SKA|Skill Agent]] pilot setup, any anchor adopting agentic-project workflow. When the format changes, audit those citations.
