@@ -4,7 +4,7 @@ description: "the Manifest facet definition"
 # FEX Manifest
 The Manifest facet — the fixed key/value record written into every snapshot bundle. A worked example of a **single-file, cardinality-one, fixed-format** facet.
 
-| -[[FEX Manifest]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FEX Repo]] → [FEX Manifest](hook://p/FEX%20Manifest)<br>: the Manifest facet definition |
+| -[[FEX Manifest]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[FEX Repo]] → [FEX Manifest](hook://p/FEX%20Manifest)<br>: the Manifest facet definition |
 | --- | --- |
 | Anchor | [[FEX Repo]] (parent) |
 | Related | [[FEX Snapshot]] (writes it),  [[R-fex-manifest]] (its rules),  [[FEX Bundle]] (carries it),  [[FCT Facet]] (the facet spec), |
@@ -39,6 +39,8 @@ Written by [[FEX Snapshot|Snapshot]] at capture; read by restore and by the [[FE
 
 # BRIEF
 
-- **This is the Manifest facet definition** — the `manifest.txt` written into every snapshot bundle. The worked **one-per-anchor** (cardinality-one, single-file) facet example. Its instance rules live in the **linked sibling** [[R-fex-manifest]] (which doubles as [[FCT Ruleset]]'s standalone-ruleset example) — the linked form, contrast the embedded rulesets in [[FEX Pin]] / [[FEX Bundle]].
-- **Detection = file-existence** (`manifest.txt` inside `snapshots/<label>/`); **cardinality = one** per bundle. Keep both explicit — they drive how the audit binds.
-- **Defines the facet only** — write/read behavior belongs to [[FEX Snapshot]]; don't grow this into a how-to.
+*(Maintainer note — this file is the worked **single-file, cardinality-one** facet example; the normative spec is the body above.)*
+
+- **Rules stay in the linked sibling** [[R-fex-manifest]] — it doubles as [[FCT Ruleset]]'s standalone-ruleset example (the linked form, contrast the embedded rulesets in [[FEX Pin]] / [[FEX Bundle]]); don't inline it here.
+- **Keep detection and cardinality explicit** in § How it's detected — they drive how the audit binds.
+- **Facet definition only** — write/read behavior belongs to [[FEX Snapshot]]; don't grow this into a how-to.

@@ -49,6 +49,7 @@ This bundle directory does not contain exactly one `manifest.txt` — add or rem
 
 # BRIEF
 
-- **This is the Bundle facet definition** — a snapshot stored as a dated directory. The worked **folder-detected, many-per-anchor** facet example: detection is **folder-existence**, not the default file-existence.
-- **Embedded ruleset** — instance rules are the inline `# RULESET R-fex-bundle`. The non-default (directory) detection is stated explicitly per [[FCT Facet]] R-facet-spec-09.
-- **Co-requires [[FEX Manifest]]** — every bundle carries exactly one `manifest.txt`; that co-requirement lives in the ruleset (R-fex-bundle-02), not just prose.
+*(Maintainer note — this file is the worked **folder-detected, cardinality-many** facet example; the normative spec is the body above.)*
+
+- **Keep the "directory exists" detection statement explicit** — non-default detection must be stated per [[FCT Facet]] R-facet-spec-09.
+- **Ruleset stays embedded** — the inline `# RULESET R-fex-bundle` is the embedded-form example (contrast the linked-sibling form in [[FEX Manifest]]); the manifest co-requirement stays enforced in it (R-fex-bundle-02), never demoted to prose only.

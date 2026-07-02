@@ -80,6 +80,8 @@ A typical `CLAUDE.md` includes:
 - **Formatting rules** — project-specific conventions
 - **Cross-reference integrity** — what to check when making changes
 
+Project-wide agent policy (commit conventions, trigger words, shared tool usage) is not duplicated into an anchor's `CLAUDE.md` — it lives in the global `~/.claude/CLAUDE.md` and is cited from anchor `CLAUDE.md` files where relevant.
+
 ## Agentic Project Header
 
 When an anchor is used as an agentic project (multi-agent workflow with SKD), add a pilot role declaration as the first lines of `CLAUDE.md`:
@@ -129,10 +131,9 @@ This `CLAUDE.md` opens with a `:>>` breadcrumb — remove it. `CLAUDE.md` is con
 
 # BRIEF
 
-- **This file is the facet spec for `CLAUDE.md`** — it defines the shape, location, and contents of the anchor-root Claude Code config file. It is NOT itself a `CLAUDE.md` template; the body holds a reference example and the format rules.
-- **Inclusion test for new content** — only add material here if it constrains the shape, location, or contents of `CLAUDE.md` as a CAB facet across all anchors. Per-anchor mission text, role declarations, or commands belong in the actual `CLAUDE.md` files inside each anchor, not here.
-- **Do NOT inline project-wide agent policy** (commit conventions, trigger words, `ctrl`/`gsa`/`exp` usage) — that lives in `~/.claude/CLAUDE.md` (global) and is cited from anchor `CLAUDE.md` files, not duplicated into this spec.
-- **The F060 exemption is load-bearing** — `CLAUDE.md` does NOT carry the standard CAB dispatch-table placeholder because it is consumed by the Claude Code harness, not by anchor-doc readers. Do not "fix" the missing dispatch table by adding the F060 rule here.
-- **Reference Example uses escaped headings** (`\# CLAUDE.md`, `\## Mission`) so the example's H1/H2s don't collide with this facet spec's outline — preserve the backslash escapes when editing the example block.
-- **Pilot role header is opt-in, not default** — keep the "only add when driven by agents" guard intact; agentic-project anchors get the header, plain-content anchors do not.
-- **Cited by:** SKD Anchor (lists `CLAUDE.md` as an optional facet), [[SKA|Skill Agent]] pilot setup, any anchor adopting agentic-project workflow. When the format changes, audit those citations.
+*(Maintainer note — facet-specific cautions for whoever edits this spec. This file is the facet spec for `CLAUDE.md`, not itself a `CLAUDE.md` template; the normative spec is the body above.)*
+
+- **Inclusion test** — add material only if it constrains the shape, location, or contents of `CLAUDE.md` as a CAB facet across all anchors; per-anchor mission text, role declarations, or commands belong in each anchor's own `CLAUDE.md`, and project-wide agent policy stays in the global `~/.claude/CLAUDE.md` (see § Contents), not in this spec.
+- **Don't regress the F060 exemption or the opt-in Pilot guard** — `CLAUDE.md` intentionally carries no dispatch table (R-fct-claude-04); the "only add the Pilot header when driven by agents" guard stays intact.
+- **Reference Example headings are escaped** (`\# CLAUDE.md`, `\## Mission`) so they don't collide with this spec's outline — preserve the backslash escapes when editing the example block.
+- **Cited by:** SKD Anchor (lists `CLAUDE.md` as an optional facet), [[SKA|Skill Agent]] pilot setup, any anchor adopting agentic-project workflow — audit those citations when the format changes.

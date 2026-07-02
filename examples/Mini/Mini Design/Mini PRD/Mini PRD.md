@@ -1,7 +1,7 @@
 # Mini PRD
 description:: Product requirements for Mini — the minimal example project.
 
-| -[[Mini PRD]]- | : Product requirements for Mini.<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[Mini]] → [Mini PRD](hook://p/Mini%20PRD) |
+| -[[Mini PRD]]- | : Product requirements for Mini.<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[Mini]] → [Mini PRD](hook://p/Mini%20PRD) |
 | --- | --- |
 | [[Mini Stories]] | one user story — index for US-MINI-1 (folder-form per [[FCT Stories]]) |
 

@@ -15,6 +15,8 @@ The pattern for an anchor whose code repository lives **outside** the vault. The
 
 A normal anchor under `~/ob/kmr/` is fully self-contained — code (if any) lives inside the anchor folder. A **Linked Mode** anchor inverts this: the anchor folder is metadata-only; code lives at an external path like `~/ob/proj/<name>/`. The skills and audits that operate on the code follow the `code:` pointer; the user reading the anchor in Obsidian sees the planning content here, but the executable bits are elsewhere.
 
+The discipline is named **Linked Mode** — two words, title case. Anchors adopting the pattern cite this spec via the wiki-link form `[[DSC Linked Mode]]`.
+
 ## When to use it
 
 - The code repo predates the anchor (long-standing project) and the user doesn't want to move it.
@@ -31,6 +33,8 @@ code: ~/ob/proj/<name>
 
 Tools that need the code path read `.anchor`'s `code:` key. Tools that operate on docs ignore it (they walk the anchor folder normally).
 
+The `code:` key is the **single source of truth** for where the code lives — skills and audits follow the pointer, never hard-code the path. The key is lowercase `code:` exactly. The split is one-way: the anchor points at the code via `code:`; the code repo does not need to know about the anchor.
+
 ## Current state
 
 Skeleton spec — the pattern is in use (see worked examples below) but the full spec is TBD: how skills locate code, how audits report cross-boundary issues, how PR workflow handles two repos.
@@ -46,10 +50,8 @@ Skeleton spec — the pattern is in use (see worked examples below) but the full
 
 # BRIEF
 
-- **This file is the discipline spec for Linked Mode**, not a directory of Linked-Mode anchors. Authority: defines the contract for anchors whose code lives outside the vault — the `code:` key in `.anchor`, the metadata-only anchor folder, the responsibilities split between docs and code repo.
-- **NOT for per-anchor content.** Per-anchor specifics (slugs, paths, language traits, build commands) live in the anchor's own pages — never inline an anchor's particulars here. Worked examples are link-only references, not embedded detail.
-- **Inclusion test for content on this page**: does it apply to *every* Linked-Mode anchor regardless of language, host, or repo layout? If yes, it belongs here. If it's specific to one anchor or one language ecosystem, it does not.
-- **Naming and linking**: refer to the discipline as "Linked Mode" (two words, title case). Source anchors link to this spec via wiki-link `[[DSC Linked Mode]]`. The declaration key in `.anchor` is lowercase `code:` — do not rename to `code_path:` / `repo:` / etc. without updating every tool that reads it.
-- **Load-bearing constraints**: the `code:` key is the single source of truth for where the code lives — never hard-code paths in skills or audits. The split is one-way (anchor → code via `code:`); the code repo does not need to know about the anchor.
-- **Spec is skeleton-stage**: when fleshing out (skill cross-boundary semantics, audit reporting, PR workflow across two repos), update § Current state and add worked examples — do not silently delete the skeleton notice.
-- **Don't restate Brief discipline rules here** — the Brief discipline lives in [[FCT Brief]]; this BRIEF section is the file-specific rule sheet only.
+*(Maintainer note — cautions for whoever edits this discipline spec. The normative contract is the body above.)*
+
+- **Inclusion test** — content belongs here only if it applies to *every* Linked-Mode anchor regardless of language, host, or repo layout. Per-anchor specifics (slugs, paths, language traits, build commands) live in the anchor's own pages; worked examples stay link-only, never embedded detail.
+- **`code:` is tooling-consumed** — do not rename the key (`code_path:` / `repo:` / …) without updating every tool that reads it.
+- **Skeleton-stage** — when fleshing out (skill cross-boundary semantics, audit reporting, two-repo PR workflow), update § Current state and add worked examples; do not silently delete the skeleton notice.

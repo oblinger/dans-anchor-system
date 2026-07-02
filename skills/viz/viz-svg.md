@@ -42,7 +42,7 @@ Author SVG figures directly via the `Write` tool. SVG is XML — the agent write
 ## Workflow
 
 1. **Author the SVG** with the `Write` tool. Hand-write the XML. No Python heredoc unless there's real parameterization (≥10 boxes, computed coordinates, data-driven figure).
-2. **Embed in markdown** via `![[Name.svg]]` (Obsidian) or `![](Name.svg)` (vanilla markdown).
+2. **Embed in markdown** via `![[Name.svg|3000]]` (Obsidian) or `![](Name.svg)` (vanilla markdown / GitHub). The **`|3000` width hint is the default for any screen-spanning figure** — it forces the embed to fill the reading pane regardless of the SVG's intrinsic size (Obsidian caps it to the pane; `3000` covers even a 4K pane; the file is byte-identical at any display width, so it costs nothing on disk). The explicit root `width`/`height` above is still required for renderers that ignore the hint (GitHub, PNG conversion). A smaller hint (e.g. `|500`) is ONLY for a deliberately-inline / thumbnail figure.
 3. **(Optional) Generate PNG** for Obsidian-cache-friendliness or for tools that don't render SVG:
    ```bash
    rsvg-convert -w 1800 "Name.svg" -o "Name.png"

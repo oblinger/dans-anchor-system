@@ -1,14 +1,16 @@
 # CAE PRD
 description:: Product requirements for the CAE Example CLI scheduler.
 
-| -[[CAE PRD]]- | : Product requirements for the CAE Example CLI scheduler.<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[CAE]] → [[CAE Design]] → [CAE PRD](hook://p/CAE%20PRD) |
+| -[[CAE PRD]]- | : Product requirements for the CAE Example CLI scheduler.<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[CAE]] → [[CAE Design]] → [CAE PRD](hook://p/CAE%20PRD) |
 | --- | --- |
-| [[CAE Stories]] | three user stories — index for US-CAE-1..3 (folder-form per [[CAB Stories]]) |
+| [[CAE Stories]] | three user stories — index for US-CAE-1..3 (folder-form per ~~[[CAB Stories]]~~) |
 | [[CAE UX Design]] | CLI command surface, output shapes, error voice |
 | [[CAE Architecture]] | system-architecture story (peer Design facet) |
 | [[CAE Testing]] | testing strategy + proposed-tests overview |
 | [[CAE Decisions]] | load-bearing decisions citing rules |
 | --- | |
+| [[CAE PRD/CAE Stories]] | three user stories — index for US-CAE-1..3 (folder-form per |
+| [[CAE PRD/US-CAE-3 — Retry Failed Tasks]] | Auto-retry failed tasks with exponential backoff to a cap |
 
 ## Overview
 
@@ -25,7 +27,7 @@ CAE Example is a CLI tool for scheduling and running deferred shell tasks with p
 | 5 | [[CAE Decisions]] | Encode load-bearing decisions citing R-rules |
 | 6 | [[CAE Track]] | Roadmap + features that implement the user stories |
 
-Steps are iterative — open questions arising in any step land inline as `## Open Questions` H2 (per [[ask-format]]) and resolve back into the originating section.
+Steps are iterative — open questions arising in any step land inline as `## Open Questions` H2 (per ~~[[ask-format]]~~) and resolve back into the originating section.
 
 ## Goals
 
@@ -41,7 +43,7 @@ Steps are iterative — open questions arising in any step land inline as `## Op
 
 ## User Stories
 
-See [[CAE Stories]] for the index. Three stories in folder-form per [[CAB Stories]]:
+See [[CAE Stories]] for the index. Three stories in folder-form per ~~[[CAB Stories]]~~:
 
 - [[US-CAE-1 — Schedule a Task|US-CAE-1: Schedule a Task]]
 - [[US-CAE-2 — Monitor Task Status|US-CAE-2: Monitor Task Status]]
@@ -50,6 +52,6 @@ See [[CAE Stories]] for the index. Three stories in folder-form per [[CAB Storie
 ## See also
 
 - [[CAB PRD]] — facet spec
-- [[CAB Stories]] — stories sub-facet (active here in folder form)
+- ~~[[CAB Stories]]~~ — stories sub-facet (active here in folder form)
 - [[CAE UX Design]], [[CAE Architecture]], [[CAE Testing]], [[CAE Decisions]] — peer Design facets
 - [[CAE Track]] — features and roadmap implementing these stories

@@ -59,7 +59,8 @@ Beyond valid-YAML + slug, each field's rules are owned by its facet (§ Fields):
 
 # BRIEF
 
-- **This is the consolidated spec for the `.anchor` file** — the field set, the format, the `cab-config` tooling, and the code-access path. It is the index; per-field rules live in the facets named in § Fields.
-- **Not a second copy of the per-field rules** — `slug`/naming, `traits`, `code`, `parents` each have their own facet (single source of truth). Add a field row to § Fields and route; never restate the rule.
-- **`.anchor` vs frontmatter** — the same keys may live in a page's YAML frontmatter; keep both framings here so neither is treated as a separate mechanism.
-- **Sibling boundary** — [[FCT Folder]] owns the *marker/presence* (folder → anchor, one-per-root); this facet owns the *field set inside the file*. Keep that split.
+*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body above; per-field rules live in the facets named in § Fields.)*
+
+- **New field → add a row to § Fields and route** to its owning facet; never restate a field's rule here (R-dot-anchor-02).
+- **Keep both framings** — `.anchor` file and page-frontmatter carry the same key set; don't let the doc drift into treating them as two mechanisms.
+- **Sibling boundary** — [[FCT Folder]] owns the *marker/presence* role (folder → anchor, one-per-root); this facet owns the *field set inside the file*. Keep that split.

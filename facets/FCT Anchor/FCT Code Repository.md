@@ -221,9 +221,8 @@ An absolute `code:` value is used as-is; a relative value resolves against the *
 
 # BRIEF
 
-- **This is a CAB facet spec, not a per-anchor record.** Rules here describe how *any* anchor with the `code` trait declares and resolves its repository — never inline a specific anchor's `code:` value or repo path as canonical content; use [[CAE example]] (or similar) as a worked reference instead.
-- **The `code:` key is the single source of truth** — no `Code` symlink, no `.git/`-probing fallback, no path-convention guessing. If you find yourself describing a fallback, stop: this spec forbids them (see § Path resolution) and the surrounding facet rules forbid silent fallbacks generally.
-- **Inclusion test for additions:** content belongs here only if it concerns the vault↔repo *association mechanism* (declaration, resolution, inline vs linked, doc sync direction). Repo-internal conventions (justfile shape, test layout, language choices) live in `<App> Dev/` or the repo's own docs — not here.
-- **Doc-sync is one-way, vault → repo.** Any edit to this spec that softens that invariant or adds a reverse path is load-bearing — flag it explicitly and update [[FCT Facets]] / related facet specs in the same pass.
-- **Don't pile cross-facet rules here.** Trait-wide rules (every `code`-trait anchor) belong in `CAB code.md` (the trait spec); markdown-rendering rules in [[R-markdown]]; project-wide policy in `CLAUDE.md`. This file is scoped to the *code repository association* facet only.
-- **Reference example is illustrative, not normative.** The `CAE example/` tree and minimal justfile are condensed for orientation; don't grow them into a full template — point readers at the live anchor instead.
+*(Maintainer note — facet-specific cautions for whoever edits this spec. This is a CAB facet spec, never a per-anchor record — don't inline a specific anchor's `code:` value or repo path as canonical content; use [[CAE example]] (or similar) as a worked reference. The normative spec is the body above.)*
+
+- **Inclusion test** — content belongs here only if it concerns the vault↔repo *association mechanism* (declaration, resolution, inline vs linked, doc-sync direction). Repo-internal conventions (justfile shape, test layout, language choices) live in `<App> Dev/` or the repo's own docs; trait-wide rules in `CAB code.md`; markdown-rendering rules in [[R-markdown]]; project-wide policy in `CLAUDE.md`.
+- **Two load-bearing invariants — don't soften them:** the `code:` key is the single source of truth (no symlink / `.git/`-probing / path-convention fallback), and doc-sync is strictly one-way vault → repo. Any edit weakening either must be flagged explicitly, with [[FCT Facets]] / related facet specs updated in the same pass.
+- **Reference example stays condensed** — the `CAE example/` tree and minimal justfile are illustrative orientation, not normative; don't grow them into a full template — point readers at the live anchor.

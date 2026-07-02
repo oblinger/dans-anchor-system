@@ -4,7 +4,7 @@ description: "`/tidy` validates an anchor's folder structure against its CAB typ
 # /Tidy
 `/tidy` validates an anchor's folder structure against its CAB type spec and fixes the structural issues it finds — naming compliance (every file and folder prefixed with `{NAME}`), broken links from the anchor page, roadmap-vs-detail separation, slug index entries, marker file consistency, and CLAUDE.md headers. Use it when you say "tidy this," "fix the structure," or "validate the anchor."
 
-| -[[SKL Tidy]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Hygiene]] → [SKL Tidy](hook://p/SKL%20Tidy)<br>: the `/tidy` skill |
+| -[[SKL Tidy]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[skill-docs]] → [[SKL Hygiene]] → [SKL Tidy](hook://p/SKL%20Tidy)<br>: the `/tidy` skill |
 | --- | --- |
 | Related | [[skills/tidy/SKILL.md\|SKILL]],   |
 | [[SKL Tidy Design\|Design]] |  |

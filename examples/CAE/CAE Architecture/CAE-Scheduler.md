@@ -1,5 +1,5 @@
 ---
-description: "priority queue engine and worker pool"
+description: "priority queue engine + worker dispatch. Source: `src/execution/scheduler.rs`."
 ---
 :>> [[CAE]] → [[CAE Architecture]] → [CAE Scheduler](hook://p/CAE%20Scheduler)
 

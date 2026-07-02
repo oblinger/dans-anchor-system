@@ -72,7 +72,7 @@ Architecture/
 `Architecture Overview.md` shape (top-of-doc → body):
 
 - YAML frontmatter `description:` + an H1 naming the project.
-- `## <Project> Architecture` H2, then the figure embed `![[architecture.svg]]` (or a relative `![](architecture.svg)` when the consuming tool isn't Obsidian).
+- `## <Project> Architecture` H2, then the figure embed `![[architecture.svg|3000]]` (the `|3000` width hint = page-width default, fills the reading pane; or a relative `![](architecture.svg)` when the consuming tool isn't Obsidian).
 - A prose overview paragraph.
 - The **component table** (component → one-line role).
 - Optional short H2s — Boundaries, Data Flow, External Dependencies — only when they add signal.

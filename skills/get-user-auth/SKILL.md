@@ -38,6 +38,58 @@ console session where dialogs render and the keychain is reachable.
 (See `[[project_muxux_haorui_obutils_pathdep]]` for the concrete haorui case
 this skill was distilled from.)
 
+## Two delivery methods — pick by what the credential needs
+
+- **Method A — GUI-session window / dialog** (the `open -a Terminal <script>.command`
+  or `open -a "<App>"` path below). Use for: GUI permission/trust dialogs, keychain
+  unlock, anything that *must* render on the Aqua session. The user clicks/types in
+  a window you launched but can't see into; you verify via screen-grab + a
+  completion probe.
+
+- **Method B — shared tmux pane (PREFERRED for CLI credential prompts).** When the
+  credential is collected by a **terminal command with interactive prompts**
+  (`xcrun notarytool store-credentials`, `gh auth login`, `op signin`, an
+  app-specific-password paste, an ssh passphrase), run that command **in a tmux
+  session you both share**, and have the user **type directly into the live command**.
+  This is better than Method A whenever it applies: you watch the real prompts via
+  `capture-pane` (the secret still never echoes — `getpass` reads the tty), there's
+  no opaque window, and it works identically on a **remote** machine (start the
+  tmux there; the user attaches). Strongly preferred when the user already lives in
+  tmux (e.g. a MuxUX/overlay user).
+
+  Recipe (local or remote — prefix `ssh <host>` for remote):
+  ```bash
+  tmux kill-session -t auth 2>/dev/null
+  tmux new-session -d -s auth -x 220 -y 50
+  tmux send-keys -t auth "clear; echo '=== <task> — type directly here ==='; <the interactive command>" Enter
+  sleep 3; tmux capture-pane -t auth -p | tail -12     # the command reached its prompt
+  ```
+  **`capture-pane` proves the command is waiting — it does NOT prove anything is on
+  the user's physical screen.** A detached tmux session is invisible to the user. So
+  you MUST then put the pane on screen AND `screencapture` + Read to confirm it is
+  actually visible and frontmost (same verify-it-on-screen discipline as Method A —
+  the buffer is not the display):
+  ```bash
+  printf '#!/bin/bash\nexec tmux attach -t auth\n' > /tmp/attach-auth.command
+  chmod +x /tmp/attach-auth.command
+  open -a Terminal /tmp/attach-auth.command          # a REAL window the user sees
+  osascript -e 'tell application "Terminal" to activate'   # bring it frontmost
+  sleep 2; screencapture -x -t jpg /tmp/auth-onscreen.jpg  # then READ this image
+  ```
+  Only after you have *looked at the screen-grab* and confirmed the prompt is visible
+  do you talk to the user. (This is the failure that motivated the rule: an agent
+  created a tmux session, `capture-pane`'d it, and told the user to "type into it" —
+  but nothing was on their screen. Never announce a prompt you have not seen on the
+  actual display.) The opened window is also where the user types directly.
+  Alternatives to reach the pane: in MuxUX, the session picker; in a plain terminal,
+  `tmux attach -t auth`; on a remote, `ssh <host> -t tmux attach -t auth`. Watch for
+  completion with a
+  **success-only probe** (e.g. the keychain item now exists) in a background loop —
+  do NOT bail just because the command process briefly vanishes (a retry loop in the
+  pane re-spawns it); only the success artifact counts. For a remote GUI permission
+  (Accessibility, etc.) combine: drive the GUI **over there** (Method A via `open` in
+  the remote's Aqua session) while the user watches that machine's screen.
+
 ## Runbook
 
 ### 1. Pop the prompt in the user's GUI session
@@ -99,7 +151,11 @@ scp <host>:/tmp/auth-verify.jpg <scratchpad>/auth-verify.jpg
   calendars, anything open). Use it **only** to confirm the target window/pane —
   do not read, quote, or surface unrelated on-screen content, and **delete the
   grab** as soon as you've verified. Treat it like a credential: minimal,
-  single-purpose, discarded.
+  single-purpose, discarded. **An auth flow is an especially likely moment to
+  capture a live secret** — the user often has a password manager (1Password,
+  etc.) open and *revealing* an entry while authenticating, so the grab is more
+  likely than usual to contain a plaintext credential. If you see one, note it to
+  the user (without quoting it) and discard the grab immediately.
 
 ### 3. Surface a bold USER ACTION callout — name the window + the steps
 

@@ -4,7 +4,7 @@ description: "the Template facet — a domain-specific, folder-local structure f
 # FCT Template
 The Template facet — a **domain-specific, folder-local structure**: the shared shape of the items inside one folder or tree, defined right where they live.
 
-| -[[FCT Template]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[Skill Agent]] → [ob-skills](hook://ob-skills) → [[facets]] → [[FCT Primitives]] → [FCT Template](hook://p/FCT%20Template)<br>: the Template facet — a domain-specific, folder-local structure for the items in one folder/tree |
+| -[[FCT Template]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[FCT Primitives]] → [FCT Template](hook://p/FCT%20Template)<br>: the Template facet — a domain-specific, folder-local structure for the items in one folder/tree |
 | --- | --- |
 | Parts | [[FCT Template Files\|Files]],  [[FCT Template Folders\|Folders]],  [[FCT Template Variables\|Variables]],   |
 | Related | [[FCT Facet]] (the *global* counterpart),  [[FCT Ruleset]],  [[FCT Dispatch Table]] (the Template row),  [[rewire]] |
