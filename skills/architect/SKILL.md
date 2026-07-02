@@ -80,7 +80,7 @@ A project's value statements (formerly `{NAME} Principles.md`) now live as D-rec
 Standard top-of-doc per F060 (YAML frontmatter + H1 + dispatch-table placeholder). The dispatch table links to every subsystem doc and to `{NAME} Principles.md`. Below the dispatch:
 
 - **Single-document systems** — the architecture is just `{NAME} Architecture.md` (a single file in `{NAME} Design/`); there is **no** `{NAME} Architecture/` folder until subsystems appear. Don't pre-create it — the file→folder upgrade is link-transparent (§ Folder layout), so wait until a second document is actually warranted.
-- **Multi-subsystem systems** — the body is **a figure showing the relationships between subsystems and other major components** (third-party services, external systems, persistence boundary, etc.) followed by a **summary table** of subsystems (one row per subsystem, linking to its Arch doc, with a one-line description). Build the figure with the **SVG-in-MD** sub-pattern (see `[[SKA viz]]` § SVG in Markdown): an `![[…svg]]` embed + a `↗ Clickable | Index | ✎ Edit` link row, with an **Index** table that mirrors the figure.
+- **Multi-subsystem systems** — the body is **a figure showing the relationships between subsystems and other major components** (third-party services, external systems, persistence boundary, etc.) followed by a **summary table** of subsystems (one row per subsystem, linking to its Arch doc, with a one-line description). Build the figure with the **SVG-in-MD** sub-pattern (see `[[SKA viz]]` § SVG in Markdown): an `![[…svg|3000]]` embed (the `|3000` width hint is the page-width default — fills the reading pane regardless of intrinsic size; never a bare `![[…svg]]`) + a `↗ Clickable | Index | ✎ Edit` link row, with an **Index** table that mirrors the figure.
 
 **Figure rule: NO title text inside the figure.** The H2 section heading immediately above the embed names the figure (e.g. `## DictaMux Permissions Architecture`); the figure shows it. Duplicating a title inside the SVG wastes pixels, drifts when one is renamed without the other, and makes the figure less reusable when embedded elsewhere. The H2 + a focused figure is the canonical form. Same rule applies to subsystem-doc optional figures (§ Subsystem doc shape).
 
@@ -229,7 +229,7 @@ The skill presumes the user is the original author of the design. Every `/archit
 ## Out of scope (v1)
 
 - Auto-generating subsystem groupings from module-import graphs. v1 takes the user's manual groupings; future versions might propose groupings algorithmically.
-- Hand-illustrating the inter-subsystem figure. The figure is produced with the **SVG-in-MD** sub-pattern from the viz skill (`[[SKA viz]]` § SVG in Markdown) — a source `.svg` (edit in Inkscape) embedded via `![[svg]]`, a `Clickable | Index | Edit` link row, and a figure-mirroring **Index** table. v1 may drop a placeholder SVG and refine it later.
+- Hand-illustrating the inter-subsystem figure. The figure is produced with the **SVG-in-MD** sub-pattern from the viz skill (`[[SKA viz]]` § SVG in Markdown) — a source `.svg` (edit in Inkscape) embedded via `![[svg|3000]]` (page-width default), a `Clickable | Index | Edit` link row, and a figure-mirroring **Index** table. v1 may drop a placeholder SVG and refine it later.
 - Cross-anchor architecture (e.g., SYS-level "how all my projects fit together"). Out of scope; per-anchor only.
 - Rewriting module docs. Module-doc maintenance is `/audit docs`'s domain.
 

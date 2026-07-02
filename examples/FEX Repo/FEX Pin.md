@@ -33,6 +33,8 @@ include::
 where:: `pins/*`
 description:: The rules every pin marker must satisfy — the filename is the bundle label, and it names a real bundle.
 
+This inline ruleset is the **embedded** form — the rules live in the facet page itself; contrast the linked-sibling ruleset of [[FEX Manifest]].
+
 ### RULE R-fex-pin-01 — filename is a valid bundle label
 description:: A pin file's basename must match the bundle-label format YYYY-MM-DD-HHMM with no extension; the filename is the key that identifies which bundle is pinned.
 when:: write:*
@@ -47,9 +49,3 @@ if:: `not (anchor.root / 'snapshots' / file.name).is_dir()`
 The bundle named by this pin does not exist under `snapshots/` — this pin is dangling and the retention sweep cannot honor it. Remove the pin file or restore the missing bundle.
 
 **Why:** a pin for an absent bundle is a dangling marker the retention sweep can't honor.
-
-# BRIEF
-
-- **This is the Pin facet definition** — a keep-forever marker under `pins/`. The worked **many-per-anchor** (cardinality-many, single-file) facet example: the *filename* is the key, so a repo holds any number of pins.
-- **Embedded ruleset** — instance rules are the inline `# RULESET R-fex-pin` (the embedded form; contrast the linked-sibling [[FEX Manifest]]).
-- **Detection = file-existence** in `pins/`, name = the bundle label; **cardinality = many**. The body is optional — an empty file is valid.

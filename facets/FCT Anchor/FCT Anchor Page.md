@@ -349,6 +349,8 @@ A topic / domain-of-life folder page — a hub that routes to the pages within t
 
 # BRIEF
 
-- **This file is the spec for the anchor entry page (`{slug}.md`)** — the `.anchor` + page **template**, the **parts**, and the **ruleset** `R-anchor-page`. Format *authority*: `/create anchor`, `/rewire`, `/tidy`, `/audit anchor`, and the audit scripts cite it.
-- **Don't inline what belongs elsewhere.** Dispatch-table *mechanics* → [[FCT Dispatch Table]]; row *placement / order* → [[SKA Decisions|D07]]; the naming prefix → [[FCT Naming]]; sub-folder dispatch pages have their own facets. Link, don't duplicate.
-- **Examples are never instantiated here** — they live in the `examples/` gallery ([[FEX]]); the masthead `Examples` row links to them by kind. This page carries the template + parts + the ruleset only. If the spec changes, fix the examples — never retrofit the spec to a stale copy.
+*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body above: the `.anchor` + page template, the parts, and the `R-anchor-page` ruleset.)*
+
+- **Consumers cite this file as the format authority** — `/create anchor`, `/rewire`, `/tidy`, `/audit anchor`, and the audit scripts.
+- **Link, don't duplicate** — dispatch-table *mechanics* stay in [[FCT Dispatch Table]], row *placement / order* in [[SKA Decisions|D07]], the naming prefix in [[FCT Naming]]; sub-folder dispatch pages have their own facets. Don't inline them here.
+- **Examples are never instantiated here** — they live in the `examples/` gallery ([[FEX]]); the masthead `Examples` row links to them by kind. If the spec changes, fix the examples — never retrofit the spec to a stale copy.

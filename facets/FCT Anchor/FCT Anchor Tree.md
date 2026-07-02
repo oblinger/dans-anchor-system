@@ -20,6 +20,8 @@ An anchor is a standardized folder structure that serves as the home for a proje
 
 > **Note:** This file serves as the reference example itself — the annotated file tree below IS the canonical illustration of a complete anchor structure.
 
+Placeholders: `{NAME}` stands for the anchor's name and `{CAB Folder}` for the anchor folder's name; each named element wiki-links its governing facet spec, aliased to the on-disk filename when the link target differs (e.g. `[[FCT Anchor Page|{NAME}.md]]`).
+
 {[[FCT Folder|CAB Folder]]}/
 ├── {CAB Folder}.md                       [[FCT Folder|marker file]]   (if NAME ≠ folder)
 ├── [[FCT Anchor Page|{NAME}.md]]                             Primary entry point
@@ -131,10 +133,8 @@ This file is the single canonical anchor file tree; named elements are kept in s
 
 # BRIEF
 
-- **This file is the canonical illustration of a complete CAB anchor file tree** — it is itself the reference example, not just a description of one. Every name in the tree wiki-links to the facet spec that governs that name.
-- **NOT a place to author facet semantics.** Each named file/folder gets ONE line of inline annotation max; full semantics, rules, and shape live in the linked `CAB <Facet>.md` (`[[CAB Backlog]]`, `[[FCT Anchor Page]]`, etc.). Don't grow this page into a multi-paragraph spec for any single facet.
-- **Inclusion test for adding a row:** the element is a recognized CAB anchor file/folder (named via the `{NAME}` / `{CAB Folder}` placeholders) that can legitimately appear in *some* anchor. One-off project-specific files do NOT belong here.
-- **Naming conventions:** placeholders use `{NAME}` for the anchor name and `{CAB Folder}` for the folder name; wiki-link the canonical facet, aliased to the on-disk filename when the link target differs (e.g. `[[FCT Anchor Page|{NAME}.md]]`). Preserve the box-drawing characters (`├──`, `│`, `└──`) — the monospace `cssclasses` frontmatter is load-bearing for tree rendering.
-- **Two trees live here**: the anchor folder tree (top) and the optional Code Repository tree (bottom, separated by `─── Optional ... ───`). Keep them separated; don't merge code-repo files into the anchor tree.
-- **Self-canonical** — this is the single source of truth for the anchor file tree; each named element stays in sync with its governing `FCT <Name>.md` facet spec via the in-tree wiki-link. (The legacy CAB-era sync triangle with `CAB Base.md` / `SKILL.md` / `CAB Rules.md` is retired; `CAB Base` is superseded by this file.)
-- **Software Design Documents section is descriptive, not prescriptive** — the per-document paragraphs orient readers to the four (now six) Plan/ design docs; the authoritative shape of each lives in its own `CAB <Facet>.md`. Don't drift those summaries away from the linked specs.
+*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body + ruleset R-anchor-tree above; each named element's full semantics live in its linked facet spec.)*
+
+- **One line of inline annotation max per element** — full semantics, rules, and shape live in the linked facet spec ([[CAB Backlog]], [[FCT Anchor Page]], etc.); don't grow this page into a multi-paragraph spec for any single facet.
+- **Inclusion test for adding a row** — the element is a recognized CAB anchor file/folder (named via the `{NAME}` / `{CAB Folder}` placeholders) that can legitimately appear in *some* anchor; one-off project-specific files do NOT belong here.
+- **§ Software Design Documents is descriptive, not prescriptive** — its per-document paragraphs only orient readers; the authoritative shape of each doc lives in its own facet spec. Don't drift those summaries away from the linked specs.

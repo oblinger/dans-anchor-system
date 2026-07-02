@@ -54,7 +54,7 @@ This folder holds dated/numbered feature specs for [[CAE]]. The exemplar above s
 ## Structure
 
 - **YAML frontmatter** with a one-phrase `description:` field at the top.
-- **`## Open Questions`** block ABOVE the H1 — pre-document material per the [[SKA ask]] discipline. The `### Resolved` subsection accumulates answered questions with their resolutions; never delete a resolved question, just move it.
+- **`## Open Questions`** block ABOVE the H1 — pre-document material per the [[SKA query]] discipline. The `### Resolved` subsection accumulates answered questions with their resolutions; never delete a resolved question, just move it.
 - **H1:** `# [[{ANCHOR}]] · F### — {Feature Name}` — the wiki-link to the parent anchor and the F-number make the file self-locating.
 - **Body sections** vary by feature; common ones include `## Summary`, `## Interface`, `## Requirements`, `## Design`, `## Status`. Add or omit as the feature shape dictates.
 - **`## Status`** line at the end. One of: `Designing` / `Agreed` / `Implementing` / `Testing` / `Done`. Tracks lifecycle position; the `[[SKA feature]]` skill drives transitions.

@@ -1,5 +1,5 @@
 ---
-description: PRD for the /query skill — the system for NOT asking the user questions. Eliminate every question the agent can; consolidate the irreducible residual into one self-documenting, one-shot-answerable pile. Asking in chat (especially after triage) is the cardinal violation.
+description: "product requirements"
 ---
 
 # Query PRD

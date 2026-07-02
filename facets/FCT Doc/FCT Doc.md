@@ -5,7 +5,7 @@ description: "document facets — content regions a document carries"
 # Document facets
 The doc facets — bounded content **regions authored inside a document** (vs. the structural files/folders that make up an anchor).
 
-| -[[FCT Doc]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [FCT Doc](hook://p/FCT%20Doc)<br>: document facets — content regions a document carries |
+| -[[FCT Doc]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [FCT Doc](hook://p/FCT%20Doc)<br>: document facets — content regions a document carries |
 | --- | --- |
 | Facets | [[FCT Doc Structure\|Doc Structure]],  [[FCT Ruleset\|Ruleset]],  [[FCT Brief\|Brief]],  [[FCT Discussion\|Discussion]],   |
 

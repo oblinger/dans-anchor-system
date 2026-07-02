@@ -14,7 +14,7 @@ Facet spec for the anchor folder itself — the named directory containing a mar
 
 **Cardinality: one** — every anchor has exactly one root folder; this facet applies once per anchor.
 
-Every anchor is a folder. The folder name follows the conventions of its parent anchor (e.g., PP children get a year prefix like `2026 My Project/`).
+Every anchor is a folder. The folder name follows the conventions of its parent anchor (e.g., PP children get a year prefix like `2026 My Project/`); each parent's specific naming rule lives in that parent trait's spec, not here.
 
 **Working example:** `~/.claude/skills/CAE/` — CAE/ itself is a canonical anchor folder.
 
@@ -64,9 +64,9 @@ There is exactly one root folder per anchor; sub-folders inside the anchor are n
 
 # BRIEF
 
-- **This is the facet spec for the anchor folder itself** — the rule that every anchor is a named directory containing a marker file. Edits here change what counts as a valid anchor folder vault-wide.
-- **NOT the place for marker-file content rules** — the marker may also be the anchor page; that format is owned by [[FCT Anchor Page]]. Cite, don't re-specify.
-- **Inclusion test for content here:** does it describe the folder-and-marker contract (folder naming, marker presence, slug-vs-folder-name redirect)? If so, here. If it's about what goes INSIDE the anchor page, it belongs in [[FCT Anchor Page]] instead.
-- **Two marker shapes are load-bearing** — (1) folder name == anchor name → marker IS the anchor page (F060 applies); (2) folder name != slug → marker is a one-line `(See [[slug]])` redirect stub (F060 does NOT apply). Don't collapse this distinction.
-- **Parent-anchor naming conventions cascade** — e.g. PP children carry a year prefix. Keep the example generic; don't enumerate every parent-trait's naming rule here (those live in the parent trait's spec).
-- **Working example is canonical** — `~/.claude/skills/CAE/` is the live reference. If the contract changes, update the working example, not just this spec.
+*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body above; the anchor-page format is owned by [[FCT Anchor Page]].)*
+
+- **Inclusion test** — the folder-and-marker contract (folder naming, marker presence, slug-vs-folder-name redirect) belongs here; anything about what goes INSIDE the anchor page belongs in [[FCT Anchor Page]] — cite, don't re-specify.
+- **Don't collapse the two marker shapes** — page-marker (F060 applies) vs one-line redirect stub (F060 does not) is a load-bearing distinction.
+- **Keep the naming example generic** — don't enumerate per-parent-trait naming rules here (they live in each parent trait's spec).
+- **Working example is canonical** — if the contract changes, update `~/.claude/skills/CAE/`, not just this spec.

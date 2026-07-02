@@ -280,11 +280,30 @@ def parse_backlog(backlog_file: Path) -> list[Row]:
 
 
 def _read_q_marker_count(target_path: Path) -> int:
+    """Count PENDING Q-markers only — skip anything inside a Resolved section
+    (`## Resolved` H2 or `### Resolved` H3, case-insensitive), mirroring
+    audit-q's extract_q_entries gate. Counting the whole file over-reported
+    docs that archive answered Qs at the bottom (F171 bug, 2026-07-02)."""
     try:
-        target_text = target_path.read_text(encoding="utf-8")
+        lines = target_path.read_text(encoding="utf-8").splitlines()
     except (OSError, UnicodeDecodeError):
         return 0
-    return len(re.findall(r"\bQ\d+\s+—", target_text))
+    count = 0
+    in_h2_resolved = False
+    in_h3_resolved = False
+    for line in lines:
+        if line.startswith("## "):
+            in_h2_resolved = line[3:].strip().lower().startswith("resolved")
+            in_h3_resolved = False
+            continue
+        if line.startswith("### "):
+            in_h3_resolved = line[4:].strip().lower().startswith("resolved")
+            continue
+        if in_h2_resolved or in_h3_resolved:
+            continue
+        if re.match(r"\s*-\s+\*\*Q\d+\s+—", line):
+            count += 1
+    return count
 
 
 def _row_q_count(r: "Row", vault_index: dict) -> int:

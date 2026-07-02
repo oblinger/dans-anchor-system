@@ -10,7 +10,7 @@ The standard path is to create the `.excalidraw` file, export to SVG, and embed 
 
 1. **Create/update** the `.excalidraw` file
 2. **Export to SVG**: `python3 ~/.claude/skills/viz/excalidraw_to_svg.py /path/to/file.excalidraw` (~200ms)
-3. **Embed in markdown**: `![[filename.svg]]`
+3. **Embed in markdown**: `![[filename.svg|3000]]` — the `|3000` width hint is the default for any screen-spanning figure (fills the reading pane regardless of intrinsic size; Obsidian caps it to the pane; covers a 4K pane; byte-identical file at any width). Use a smaller hint only for a deliberately-inline / thumbnail figure.
 4. **Open in ExcalidrawZ** for the user to see/edit interactively
 
 SVG is the default format — scales without blur, smaller files, searchable text, no extra dependencies.

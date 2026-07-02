@@ -5,10 +5,10 @@ description: Common Skill Example — reference anchor — a fully-wired example
 
 A self-contained reference anchor demonstrating the canonical CAB skill-trait anchor structure — sibling to [[CAE]] for the Code trait.
 
-| -[[CSE]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [CSE](hook://p/CSE)<br>: Common Skill Example — reference anchor — a fully-wired example of a CAB skill anchor |
+| -[[CSE]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [CSE](hook://p/CSE)<br>: Common Skill Example — reference anchor — a fully-wired example of a CAB skill anchor |
 | --- | --- |
 | Skill | [[CSE/SKILL\|SKILL.md]],  [[SKL CSE\|User Docs]],   |
-| ~~[[CSE Plan\|Plan]]~~ | [[CSE PRD\|PRD]],  [[CSE Backlog\|Backlog]],  [[CSE Features\|Features]],  ~~[[CSE Triage\|Triage]]~~,   |
+| [[CSE Plan\|Plan]] | [[CSE PRD\|PRD]],  [[CSE Backlog\|Backlog]],  [[CSE Features\|Features]],  [[CSE Triage\|Triage]],   |
 | Research | — |
 
 
@@ -60,7 +60,7 @@ Design discussions and feature specs for changes to a skill live in *that skill'
 
 Cross-skill features (touching 2+ skills) and meta-anchor features (about SKA itself) still belong in the SKA-level Features folder. Skill-specific features belong with the skill.
 
-F-numbers stay anchor-wide (per the [[SKA feature]] skill's convention) — `F042` is unique within an anchor regardless of which folder its doc lives in. The folder is a *location*, not a *namespace*.
+F-numbers stay anchor-wide and zero-padded triple-digit (`F001`…`F999`, per the [[SKA feature]] skill's convention) — `F042` is unique within an anchor regardless of which folder its doc lives in. The folder is a *location*, not a *namespace*.
 
 
 
@@ -70,10 +70,9 @@ CSE describes a fictional skill `/cse` with one example action `/cse demo`. The 
 
 # BRIEF
 
-- **This anchor is a reference exemplar, not a working skill.** CSE exists to *show* the canonical CAB skill-trait anchor shape; the `/cse` skill and its `demo` action are illustrative placeholders. Don't wire CSE into real workflows or treat it as a dependency.
-- **Scope is the Skill trait only.** CSE demonstrates skill-anchor structure (SKILL.md as code, action files at root, SKL user-docs, Plan folder for design). Code-trait examples belong in [[CAE]]; cross-trait or generic CAB content belongs in [[CAB]] facets, not here.
-- **Inclusion test for changes.** Add or change content here only when it makes the example more faithful to the canonical Skill-trait shape per current CAB specs. If a change would teach a new general rule rather than illustrate one, it belongs in the relevant CAB facet (then reflect it here).
-- **Keep structure aligned with live CAB specs.** When CAB Skill-trait conventions change (dispatch row shape, folder layout, SKL location), update CSE in the same pass — a stale exemplar misleads readers more than a missing one.
-- **Dispatch first row is load-bearing.** The `Skill` row with `[[CSE/SKILL|SKILL.md]]` + `[[SKL CSE|User Docs]]` is the canonical first-row shape for skill anchors; don't split into separate Dev/User rows or rename — other docs cite this as the reference.
-- **F-numbers are anchor-wide, zero-padded.** `F001`...`F999` unique across the whole CSE anchor regardless of which Features subfolder the doc sits in. The folder is location, not namespace.
-- **Don't pile cross-anchor or meta-SKA content here.** Meta-anchor features (about SKA itself) and cross-skill features belong at the SKA-level Features folder, not in CSE.
+*(Maintainer note — exemplar-specific cautions for whoever edits this anchor. CSE follows the CAB Skill-trait specs; the normative shapes live there, not here.)*
+
+- **Not a working skill** — the `/cse` skill and its `demo` action are illustrative placeholders; don't wire CSE into real workflows or treat it as a dependency.
+- **Inclusion test for changes** — add or change content here only when it makes the example more faithful to the canonical Skill-trait shape per current CAB specs. Code-trait examples belong in [[CAE]]; a change that would teach a new general rule (or cross-trait / generic CAB content) belongs in the relevant [[CAB]] facet, then gets reflected here.
+- **Keep aligned with live CAB specs** — when Skill-trait conventions change (dispatch row shape, folder layout, SKL location), update CSE in the same pass; a stale exemplar misleads readers more than a missing one.
+- **The dispatch first row is cited as the reference** — other docs point at the `Skill` row (§ How a skill anchor differs) as the canonical first-row shape for skill anchors; don't split it into separate Dev/User rows or rename it.

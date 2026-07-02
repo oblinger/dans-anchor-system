@@ -5,7 +5,7 @@ description: "code facets — the actual source files of a repo and their per-mo
 # Code
 The code facets — a repo's actual source files and the per-module docs they link into.
 
-| -[[FCT Code]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [FCT Code](hook://p/FCT%20Code)<br>: code facets — source files and their module docs |
+| -[[FCT Code]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [FCT Code](hook://p/FCT%20Code)<br>: code facets — source files and their module docs |
 | --- | --- |
 | Facets | [[FCT All Files\|All Files]],  [[FCT Module Doc\|Module Doc]],   |
 

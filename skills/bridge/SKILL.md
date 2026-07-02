@@ -405,13 +405,49 @@ The skill is the top-of-stack action; internally it calls existing bridge helper
 
 > You are the local SYS agent on `<host>`. Your handoff brief is at `/Users/oblinger/agent-brief.md` — read it in full, then execute end-to-end. Write status to `~/ob/kmr/MY/Bridge agents/<host> agent.md`. Use assume-and-announce (F068) for ambiguity; the user has explicitly stepped out for this task. Arm a `ScheduleWakeup` heartbeat that verifies ground-truth progress. Begin.
 
-**Step 9 — open local Terminal + attach.** `open -a Terminal` with a fresh window running `ssh oblinger@<host>.local "tmux attach -t agent"`. If a Terminal window is already attached, focus it instead.
+**Step 9 — open Terminal on the REMOTE's display + attach + screen-grab (single-shot, MANDATORY).** The agent's tmux session MUST be visible on the remote machine's own monitor so the user can walk up to `<host>` and physically see the agent working. The remote Terminal window is the primary "the agent is alive" signal; the local Terminal (step 9b) is redundant and can be skipped. **A tmux session that is only reachable via SSH — no window on the remote's Aqua display — is a spec violation.**
+
+Use a **single self-verifying `.command` file** that (a) attaches to tmux and (b) forks a delayed screencapture in the background so the capture fires while its own tab is guaranteed to be frontmost. This pattern beats the two-file variant (`bridge-attach-*.command` + `bridge-grab-*.command`) because Terminal.app opens each `open <.command>` as a new tab that becomes frontmost — so a separate grab command reliably captures itself, not the attach tab. The single-shot pattern sidesteps the whole tab-focus race.
+
+Per [[reference_remote_mac_gui_via_open_command]] — SSH lives in launchd Background context; `osascript`-driving Terminal.app or invoking `screencapture` from that context intermittently fails with -1712 or hits TCC prompts. An `open`-ed `.command` file runs in the Aqua session cleanly with no permission dialogs.
+
+```bash
+ssh oblinger@<host>.local 'cat > /tmp/bridge-attach-<session>.command <<EOF
+#!/bin/bash
+# Fork a delayed screencapture — fires while THIS tab is frontmost
+(sleep 4 && screencapture -x /tmp/bridge-verify-<session>.png) &
+exec tmux attach -t <session>
+EOF
+chmod +x /tmp/bridge-attach-<session>.command
+# Quit Terminal first so this .command opens as a fresh single-tab window
+osascript -e "tell application \"Terminal\" to quit" 2>/dev/null
+sleep 3
+open /tmp/bridge-attach-<session>.command
+sleep 7   # 4s screencapture delay + 3s buffer
+'
+scp oblinger@<host>.local:/tmp/bridge-verify-<session>.png /tmp/bridge-verify-<session>.png
+```
+
+**Verify by Reading the screenshot.** Expected: a Terminal window on the remote's screen showing tmux content (claude's prompt banner + working output + tmux status bar naming the session). **If the screenshot does not show the Terminal window OR does not show recognizable tmux content, the bridge is not fully deployed** — halt and surface to the user with the specific failure. Do NOT declare deploy successful without this verification.
+
+**Step 9b — open local Terminal + attach (OPTIONAL — for laptop-side visibility).** `open -a Terminal` on the *laptop* with a fresh window running `ssh oblinger@<host>.local "tmux attach -t <session>"`. Useful when the user works from the laptop most of the time; can be skipped when the primary interaction is walking up to the remote. Skipped by `--no-local-terminal`.
 
 **Step 10 — open Obsidian on the remote** showing the status doc. `ssh oblinger@<host>.local 'open -a Obsidian "~/ob/kmr/MY/Bridge agents/<host> agent.md"'`.
 
-**Step 11 — arrange windows on the laptop.** `osascript` to position: Terminal middle column (~33% width × ~60-70% height, centered), local Obsidian right column (~33% width × full height, anchored right). `--no-layout` skips.
+**Step 11 — verification is baked into Step 9.** The screenshot from the embedded delayed screencapture is the deploy-successful gate. Re-invoke Step 9 (which is idempotent — the .command file is rewritten each time) to re-verify at any point during the mission.
 
-**Step 12 — stand down banner.** Print: `WORKING — agent on <host> owns task; coordinator polling on demand.`
+Common failure modes the screen-grab catches:
+
+- No active user session on the remote (user is logged out / on the login screen) — screenshot shows the loginwindow or an empty desktop.
+- The remote is in a locked state (`screencapture -x` produces a black frame).
+- Terminal.app failed to launch (screenshot shows the desktop but no Terminal window).
+- Terminal opened on a different Space than the visible one (screenshot shows a desktop other than the one with Terminal on it).
+
+Each of these needs a different remediation (log the user in, unlock, retry the launch, switch Space) — surface the specific case, not a generic "deploy failed."
+
+**Step 12 — arrange windows on the laptop.** `osascript` to position: local Terminal (if opened via 9b) middle column (~33% width × ~60-70% height, centered), local Obsidian right column (~33% width × full height, anchored right). `--no-layout` skips.
+
+**Step 13 — stand down banner.** Print: `WORKING — agent on <host> owns task; tmux visible on <host>'s display; coordinator polling on demand.`
 
 ### Brief format — YAML frontmatter + redundant body-top table
 

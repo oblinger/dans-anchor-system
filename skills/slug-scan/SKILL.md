@@ -67,5 +67,5 @@ Older anchors may use `desc::` inline. `python bin/scan_tid.py sync` does a bidi
 
 ## Related
 
-- [[Wiring Slug Index]] — full computation, design rationale, where each input comes from.
+- [[WIRE Slug Index]] — full computation, design rationale, where each input comes from.
 - [[SLUG]] — the target file.

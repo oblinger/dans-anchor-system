@@ -1,7 +1,7 @@
 ---
 description: ~~
 ---
-| -[[compile]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[CAB Legacy]] → [compile](hook://p/compile)<br>:  |
+| -[[compile]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[CAB Legacy]] → [compile](hook://p/compile)<br>:  |
 | --- | --- |
 | [targets/audit-docs](hook://targets/audit-docs) |  |
 | [targets/code-rewire](hook://targets/code-rewire) |  |
