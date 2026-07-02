@@ -5,7 +5,7 @@ description: "cross-cutting concepts the agent reads"
 # DSC - Disciplines
 Cross-cutting concepts the agent reads — non-invocable, they inform behavior.
 
-| -[[DSC]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DSC](hook://p/DSC)<br>: cross-cutting concepts the agent reads |
+| -[[DSC]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[disciplines]] → [DSC](hook://p/DSC)<br>: cross-cutting concepts the agent reads |
 | --- | --- |
 | Related | [[SKL\|Skills]],  [[FCT\|Facets]],  [[LBR\|Library]], [[DAS\|ob-skills]] (root) |
 |  |  |
