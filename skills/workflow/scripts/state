@@ -218,6 +218,8 @@ def cmd_task_create(slug, anchor_path, args):
         slug, args.horizon or "Now", row_id_arg, args.status,
         args.title, args.body or "",
         title_provided=True, body_provided=bool(args.body),
+        verify_text=getattr(args, "verify", None),
+        next_text=getattr(args, "next", None),
     )
 
 
@@ -238,6 +240,8 @@ def cmd_task_update(slug, anchor_path, args):
         slug, horizon, args.row_id, status,
         title, body,
         title_provided=title_provided, body_provided=body_provided,
+        verify_text=getattr(args, "verify", None),
+        next_text=getattr(args, "next", None),
     )
 
 
@@ -250,7 +254,8 @@ def cmd_task_delete(slug, anchor_path, args):
 
 
 def _delegate_row_edit(slug, horizon, row_id_arg, status, title, body,
-                       title_provided, body_provided):
+                       title_provided, body_provided,
+                       verify_text=None, next_text=None):
     """Delegate to backlog-edit's perform_edit machinery, mirroring its main()."""
     if status != "delete" and status != "same":
         # Validate horizon
@@ -285,6 +290,7 @@ def _delegate_row_edit(slug, horizon, row_id_arg, status, title, body,
     result = be.perform_edit(
         dst_file, dst_horizon, row_id_arg, status,
         title, body, title_provided, body_provided,
+        verify_text=verify_text, next_text=next_text,
     )
     be.append_messages(slug, result["summary"], backlog_path)
     be.write_state(slug, result)
@@ -1042,13 +1048,25 @@ def build_parser():
     tc.add_argument("--body", default="", help="row body (wiki-link / description)")
     tc.add_argument("--kind", default="F", choices=["F", "B"],
                     help="row kind: F (feature) or B (backlog item)")
+    tc.add_argument("--verify", default=None,
+                    help="`- **Verify:**` yes/no question (required when status "
+                         "is Watching/Verify)")
+    tc.add_argument("--next", default=None,
+                    help="`- **Next:**` no-user action (required when status "
+                         "is Ready/Active)")
 
     tu = task_subs.add_parser("update", help="modify an existing row")
-    tu.add_argument("row_id", help="F<NNN> or B<id>")
+    tu.add_argument("row_id", help="F<NNN>, B<id>, or <ANCHOR>-F<NNN>")
     tu.add_argument("--status", default=None)
     tu.add_argument("--horizon", default=None)
     tu.add_argument("--title", default=None)
     tu.add_argument("--body", default=None)
+    tu.add_argument("--verify", default=None,
+                    help="`- **Verify:**` yes/no question (required when setting "
+                         "a Watching/Verify status without an existing one)")
+    tu.add_argument("--next", default=None,
+                    help="`- **Next:**` no-user action (required when setting a "
+                         "Ready/Active status without an existing one)")
 
     td = task_subs.add_parser("delete", help="remove a row entirely (rare)")
     td.add_argument("row_id", help="F<NNN> or B<id>")
