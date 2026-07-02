@@ -46,7 +46,7 @@ Two provenances, both recorded in `case.yaml`:
 - **harvested** — a real vault rule plus a real (minimized) violating or compliant file; name the source rule, e.g. `harvested (R-messages-01)`.
 - **synthetic** — an edge case authored for coverage: one per `when::` family, `where::` selector form, `if::` guard shape, and execution mode as those land.
 
-Every case gets a compliant twin where practical (`query-001` fails, `query-002` passes) so both directions of drift are pinned. Coverage target at the corpus-migration milestone ([[Warden Roadmap]] M4): at least one golden per rule family and per language construct.
+Every case gets a compliant twin where practical (`query-001` fails, `query-002` passes) so both directions of drift are pinned. Coverage target at the corpus-migration milestone ([[Warden Roadmap]] M4): at least one golden per rule family and per language construct — the golden-layer row of the full per-layer coverage bar in [[F214 — Rule-system testing regime|F214]] § Coverage goals.
 
 ## Versioning against the unfrozen language
 
