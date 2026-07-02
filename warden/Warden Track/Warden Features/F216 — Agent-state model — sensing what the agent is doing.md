@@ -23,14 +23,14 @@ Rules can sense the **agent itself** via the `agent` object in the interpretatio
 
 ### The states — a closed set of five
 
-`agent.state` is one of **five strings** — the four live states plus the honest error value — with a sixth, `paused`, *(proposed 2026-07-01)* splitting "stopped with open work" out of `landed`. The set is **closed**: a rule can exhaustively match on it, and a read **never raises** — when no signal rung can answer confidently, the value is `unknown`.
+`agent.state` is one of **five strings** — the four live states plus the honest error value — with a sixth, `paused`, *(accepted 2026-07-02)* splitting "stopped with open work" out of `landed`. The set is **closed**: a rule can exhaustively match on it, and a read **never raises** — when no signal rung can answer confidently, the value is `unknown`.
 
 | State | Meaning | Entered on | Left on |
 |---|---|---|---|
 | `working` | the agent holds control — a turn is in flight (model thinking, tool calls, a skill mid-run) | `prompt:submit`, or any tool/skill moment after the last turn end | a turn boundary, or liveness failure |
 | `asking` | control is with the user **and the turn just ended addressing a question to them** — a harness dialog is up, or the closing text asks | `prompt:stop` with the pending-question predicate **true** | the user replies (`prompt:submit` → `working`) |
-| `landed` | control is with the user, nothing pending — the turn ended clean | `prompt:stop` with the predicate **false** *(and, proposed, no open tasks — see `paused`)* | next `prompt:submit`, or quiet ≥ `T_idle` → `idle` |
-| *(proposed)* `paused` | control is with the user, no question pending, **but open work remains** — the harness task list still holds open items (the "stopped but not finished" the user named) | `prompt:stop`, predicate false, open tasks > 0 | next `prompt:submit`; tasks all closing re-reads as `landed` |
+| `landed` | control is with the user, nothing pending — the turn ended clean | `prompt:stop` with the predicate **false** *(and no open tasks — see `paused`)* | next `prompt:submit`, or quiet ≥ `T_idle` → `idle` |
+| `paused` | control is with the user, no question pending, **but open work remains** — the harness task list still holds open items (the "stopped but not finished" the user named) | `prompt:stop`, predicate false, open tasks > 0 | next `prompt:submit`; tasks all closing re-reads as `landed` |
 | `idle` | no live activity — a long-quiet clean end, or the session is over | `landed` + quiet ≥ `T_idle`; `session:stop`; process gone | next `prompt:submit` / `session:start` |
 | `unknown` | the bound session can't be classified at the available signal rung | fallback rung R4, or a liveness ambiguity (§ Debounce) | a better signal arriving |
 
@@ -38,7 +38,7 @@ Rules can sense the **agent itself** via the `agent` object in the interpretatio
 
 - **Entering `working` is instant** — one `prompt:submit` or one tool moment flips it; there is no debounce on the way in.
 - **Leaving `working` requires a boundary, never silence.** A long `Bash` call or a long model think emits no moments for minutes; mid-turn quiet is still `working`. Only `prompt:stop`, `session:stop`, or a liveness failure ends it.
-- **`asking` is sticky.** A pending question does not decay on a timer — an unanswered question at hour three is exactly as pending as at minute one. It clears when the user answers (`prompt:submit`); how *long* it has been pending is readable as `agent.state_seconds` *(proposed)*, so a rule conditions on elapsed time instead of the state decaying.
+- **`asking` is sticky.** A pending question does not decay on a timer — an unanswered question at hour three is exactly as pending as at minute one. It clears when the user answers (`prompt:submit`); how *long* it has been pending is readable as `agent.state_seconds`, so a rule conditions on elapsed time instead of the state decaying.
 - **`landed` decays to `idle`** after a quiet window `T_idle` (default **10 min**, an engine-config constant — not per-rule surface). `landed` is the *instantaneous* "just ended clean"; `idle` is the *durable* "nothing happening."
 - **Session end is `idle`.** `agent.*` describes a *running* agent (Q2 resolution, 2026-07-01); a rule that cares about a dead session's leftover queue reads `anchor.doc("{NAME} queries.md")` directly.
 - `agent.is_asking` is sugar for `agent.state == 'asking'`, unchanged from [[Warden Semantics]].
@@ -53,7 +53,7 @@ What the daemon can actually observe, per environment. Ordered by trust.
 | **Transcript JSONL** — `transcript_path` from the hook payload | the structured message stream: the last agent message, Skill/Task invocations, turn boundaries | high — Claude Code's own record | flush lag (sub-second to seconds) | any Claude Code session the daemon can map |
 | **tmux pane** — `capture-pane` + pane title | the *rendered* state: input prompt idle vs busy, the running command, the last output, a **permission dialog pending** (which reaches neither hooks nor transcript) | medium — text of a render, parsed heuristically | ~instant | the session runs in tmux and the pane id is registered |
 | **`{NAME} queries.md`** | the durable pending-question queue for the cwd anchor — **anchor state, not an `agent.state` signal** (user 2026-07-01); rules read it via `anchor.doc(…)` | high for *queue* state; says nothing about right-now | file-fresh | the anchor exists (vault-wide convention) |
-| **Harness task list** *(proposed)* | open/closed tasks per session — `TaskCreate`/`TaskUpdate` tool moments in the ledger (transcript records as fallback) | high — structured tool calls | none | hooks wired (transcript for out-of-band reads) |
+| **Harness task list** | open/closed tasks per session — `TaskCreate`/`TaskUpdate` tool moments in the ledger (transcript records as fallback) | high — structured tool calls | none | hooks wired (transcript for out-of-band reads) |
 | **Process table** | is the session's `claude` process alive | exact, but liveness only | ~instant | always |
 | **mtimes** — transcript file recency | coarse "something is happening" | low — activity, not meaning | write-flush | always |
 
@@ -69,7 +69,7 @@ Fully **mechanical — no LLM at any rung** (resolving prior open question 3): t
                 moment) after the last prompt:stop                → working
 3. turn end   — last boundary is prompt:stop
                 → pending-question predicate Q true               → asking
-                → Q false, open-work test W true (proposed)       → paused
+                → Q false, open-work test W true                  → paused
                 → Q false, W false                                → landed
 4. decay      — landed and no moment for ≥ T_idle                 → idle
 ```
@@ -81,7 +81,7 @@ Fully **mechanical — no LLM at any rung** (resolving prior open question 3): t
 
 *(Retired: the former queue signal — open `queries.md` items making the agent `asking`. Per the user 2026-07-01, the queries pile is the anchor's long-horizon state, not what the agent is doing right now; a rule about queue pressure reads `anchor.doc("{NAME} queries.md")`. A `skill:post:query` moment remains a useful corroborating hint but is not part of Q.)*
 
-**The open-work test W** *(proposed — feeds the `paused` state)* — at a turn end with Q false, are there open items on the harness **task list**? The ledger sees `TaskCreate`/`TaskUpdate` tool moments, so the daemon can track open-task count per session mechanically (transcript records as the R3 fallback). Open tasks > 0 → `paused` ("stopped, but still has work"); zero → `landed`.
+**The open-work test W** — feeds the `paused` state — — at a turn end with Q false, are there open items on the harness **task list**? The ledger sees `TaskCreate`/`TaskUpdate` tool moments, so the daemon can track open-task count per session mechanically (transcript records as the R3 fallback). Open tasks > 0 → `paused` ("stopped, but still has work"); zero → `landed`.
 
 **Debounce / hysteresis** — restated as the invariants an implementation must hold:
 
@@ -133,6 +133,6 @@ What a rule actually gets at fire time:
 
 ## Status
 
-**Designed 2026-07-01; reframed to the right-now model same day (user) — zero open questions.** Taxonomy (closed state set + transition semantics, with the *(proposed)* `paused` split), signal inventory, mechanical classifier (dialog-signal + text-heuristic pending-question predicate, debounce invariants, ranked `agent.skill`), four-rung fallback ladder, and the environment contract are concrete. Not built — the classifier implements inside M2's environment build ([[F212 — Python reference implementation|F212]]); the scripted state fixtures land with [[F214 — Rule-system testing regime|F214]]. One named external dependency: rank-1 `agent.skill` waits on F209's `skill:pre/post` emission point (degrades to transcript sniff meanwhile, does not block).
+**Designed 2026-07-01; reframed to the right-now model same day (user) — zero open questions.** Taxonomy (closed state set + transition semantics, with the `paused` split, accepted 2026-07-02), signal inventory, mechanical classifier (dialog-signal + text-heuristic pending-question predicate, debounce invariants, ranked `agent.skill`), four-rung fallback ladder, and the environment contract are concrete. Not built — the classifier implements inside M2's environment build ([[F212 — Python reference implementation|F212]]); the scripted state fixtures land with [[F214 — Rule-system testing regime|F214]]. One named external dependency: rank-1 `agent.skill` waits on F209's `skill:pre/post` emission point (degrades to transcript sniff meanwhile, does not block).
 
-**Standing requirement (user, 2026-07-01 consumer review):** many rules condition on agent state, so `agent.*` should grow toward a **pretty complete set of lazily-computed state properties** — lazy because each costs computation/resources; the classifier's `state`/`skill` are just the first two. The proposed starter surface (identity, activity, `response` alias, `context_used`) is drafted *(proposed)* in [[Warden Semantics]] § `agent`; members join by proposal, each justified by a real rule that reads it.
+**Standing requirement (user, 2026-07-01 consumer review):** many rules condition on agent state, so `agent.*` should grow toward a **pretty complete set of lazily-computed state properties** — lazy because each costs computation/resources; the classifier's `state`/`skill` are just the first two. The starter surface (identity, activity, `response` alias, `context_used`, `state_seconds`, `open_tasks`) is ratified (accepted 2026-07-02) in [[Warden Semantics]] § `agent`; members join by proposal, each justified by a real rule that reads it.

@@ -88,7 +88,7 @@ So gating by trait costs **one set lookup** over state the pass already computes
 
 **The genuinely new costs** Warden takes on are the **daemon lifecycle** (warm-start / fail-open / recompile) and the **agent-state classifier** ([[F216 — Agent-state model — sensing what the agent is doing|F216]]) — both bounded, neither fatal.
 
-## Leveled logging — the turn-up-able audit trail *(proposed, 2026-07-01)*
+## Leveled logging — the turn-up-able audit trail *(accepted 2026-07-02)*
 
 Per the user's consumer review, rule-firing observability is a **debug facility, not a durable replay log**: the engine carries a standard leveled logger — `error` / `warn` / `info` / `debug` / `trace` — set by engine config (`WARDEN_LOG=<level>`, default `warn`). At `trace`, every moment, every candidate rule, every guard evaluation, and every fire/pass/skip is logged with its reason — enough to answer *"why did / didn't this rule fire?"* by reading the log. Nothing logs everything all the time; you raise the level while debugging and drop it after. Implementation: the Python reference ([[F212 — Python reference implementation|F212]]) uses the stdlib `logging` module — **do not vendor ob-utils' logger into skills**; the Rust engine ([[F213 — Rust performance implementation + ms budget|F213]]) uses `oblog` natively (it is ob-utils' own Rust crate, already a dependency-class fit). The F216 ring buffer stays the bounded always-on record; the log is the verbose, opt-in lens over the same events.
 

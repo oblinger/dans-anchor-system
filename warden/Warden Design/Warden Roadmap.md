@@ -61,7 +61,7 @@ Actually **use** Warden: codify a large fraction of SKA facets / skills / discip
 
 ### M8 — Performance & efficiency (incl. Rust)  *(follow-on)*
 
-Everything efficiency-oriented, parked behind a system that already works and has earned its keep: the Rust hot-path implementation ([[F213 — Rust performance implementation + ms budget|F213]]), perf hardening + budget enforcement, the re-evaluation economy build ([[F215 — Re-evaluation economy — the significant-edit gate|F215]]), and semantic-update levels. The Rust impl is **behavior-identical** to the Python reference — the M3 differential harness is the oracle, zero verdict/steer divergence. Also parked here *(proposed 2026-07-01)*: **elapsed-time conditions in `when::`** (conjunctive when — the daemon schedules a timer at the threshold instead of rules polling `agent.state_seconds`; [[Warden Semantics]] § `when::`).
+Everything efficiency-oriented, parked behind a system that already works and has earned its keep: the Rust hot-path implementation ([[F213 — Rust performance implementation + ms budget|F213]]), perf hardening + budget enforcement, the re-evaluation economy build ([[F215 — Re-evaluation economy — the significant-edit gate|F215]]), and semantic-update levels. The Rust impl is **behavior-identical** to the Python reference — the M3 differential harness is the oracle, zero verdict/steer divergence. Also parked here *(accepted 2026-07-02)*: **elapsed-time conditions in `when::`** (conjunctive when — the daemon schedules a timer at the threshold instead of rules polling `agent.state_seconds`; [[Warden Semantics]] § `when::`).
 
 **Done-when:** fire-time p99 meets the per-moment budget; differential tests show zero divergence; the efficiency gates are enforced.
 
