@@ -29,7 +29,9 @@ The interception substrate is Claude Code hooks, used natively behind a thin por
 
 ## Status
 
-**Designed 2026-06-26** (this doc + [[Warden Architecture]] §7a). Not yet implemented — M1 of [[Warden Roadmap]].
+**Designed 2026-06-26** (this doc + [[Warden Architecture]] §7a).
+
+**Scan command built + tested 2026-07-02** — `warden/engine/warden_scan.py` implements the committed always-scan contract (§ Discovery resolved: scan command + always-freshen): stat-sweep + selective re-read, index schema `{path, mtime_ns, size, hash, ruleset_names[]}` plus a `seen` all-files stat map (so unchanged *non*-bearing files are skipped too), `--rescan` from-scratch build, `--root` as the engine config parameter. Verified against the live root — 112 ruleset files / 116 rulesets; from-scratch 232 ms, an unchanged freshen **reads 0 files in 15 ms**, a touched bearing file re-reads exactly one, and a ruleset added to a previously non-bearing file is caught on the next freshen (the self-freshening property). A standalone regression test (`warden/engine/test_warden_scan.py`, 5 behaviors) pins the read-0 property. The remaining M1 work — the compile→install→fire contract + the `R-query-14` pilot — follows the M0 language freeze ([[F209 — Unified trigger taxonomy + when language|F209]]/[[F210 — Conjunction binding + indexing|F210]]).
 
 ## Resolved
 
