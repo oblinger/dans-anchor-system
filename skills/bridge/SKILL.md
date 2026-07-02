@@ -128,12 +128,9 @@ From here every `ctrl box2 "cmd"` runs inside the remote pane with full FDA; `ct
 
 **Step 7 — VERIFY the bridge has the capabilities you expect — at setup AND cheaply at each (re)connect.** A bridge that *looks* up but silently lacks GUI context is the exact failure this section exists to prevent, so **test, don't assume**:
 ```
-ctrl box2 "ls /Volumes >/dev/null 2>&1 && echo FDA_OK || echo FDA_FAIL"          # file/FDA reach
-# screen-vision (only if GUI capability is needed):
-ssh <host> 'tmux new-window -t work -d -n cap "~/.claude/skills/screen/screen.py grab /tmp/v.png"'
-scp <host>:/tmp/v.png /tmp/v.png   # Read it: a real image = GUI context OK; "could not create image" = SSH-launched server → redo Step 5
+~/.claude/skills/bridge/screen-check.sh <host> [session]     # session default: work
 ```
-The half-second self-test (a test grab, or the task's own `verify.sh`) on every connect catches a degraded bridge *before* you build work on top of it.
+`screen-check.sh` runs an **FDA probe** (TCC-dir read) and a **test grab** (`screencapture`) *inside the canonical mux server* — bare-SSH probes prove nothing about the server's GUI context — and reports PASS/FAIL per capability with the exact remediation (redo Step 5 Terminal-launch, or grant the Step 5b TCC permissions). `bridge-test.sh` runs it automatically as `T-ctl-screen`, so any connect-time test pass covers this. The ~3-second self-test on every connect catches a degraded bridge *before* you build work on top of it.
 
 ### Control gotchas (2026-06-06, COPPER → 10T verification)
 

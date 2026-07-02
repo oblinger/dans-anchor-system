@@ -71,10 +71,19 @@ echo "[Integration — control]"
 if [ "$REMOTE_UP" = yes ]; then
   HN=$($SSH "$USER_R@$HOST" hostname 2>/dev/null)
   [ -n "$HN" ] && rec PASS T-ctl-ssh "key-auth → $HN" || rec FAIL T-ctl-ssh "no hostname returned"
+  # F224 — FDA + screen-vision self-test, run INSIDE the canonical mux server
+  SC=$("$HELP_DIR/screen-check.sh" "$HOST" 2>/dev/null)
+  if echo "$SC" | grep -q "screen-check: PASS"; then
+    rec PASS T-ctl-screen "mux server has FDA + screen-vision (screen-check)"
+  elif echo "$SC" | grep -q "FAIL  mux"; then
+    rec SKIP T-ctl-screen "no canonical mux session yet (Step 5 not done)"
+  else
+    rec FAIL T-ctl-screen "degraded GUI context — run screen-check.sh $HOST for remediation"
+  fi
 else
   rec SKIP T-ctl-ssh "remote $HOST unreachable"
+  rec SKIP T-ctl-screen "remote unreachable"
 fi
-rec SKIP T-ctl-fda "needs Terminal-launched tmux (manual)"
 
 # ---- Integration: sync ----
 echo "[Integration — sync]"
