@@ -25,6 +25,8 @@ The default explicit run **fixes** at Standard and prints a per-rule summary. Th
 
 Each keeps its current behavior; the roadmap ([[Audit Roadmap]]) migrates them onto the unified engine. `dispatch`, `q`, and `features` already fix by default; under V2 every action does, with `dry` as the universal opt-out.
 
+One further action sits apart from the rule-checking roster: **`sweep`** (§ Deletion mark + sweep) — the only operation that *deletes*, and only ever the content inside `Recommend deleting` callouts. It runs no rules, so it is not a conformance action; it is listed here so the grammar is complete.
+
 ## Explicit-pass output
 
 A per-rule roll-up, grouped by outcome:
