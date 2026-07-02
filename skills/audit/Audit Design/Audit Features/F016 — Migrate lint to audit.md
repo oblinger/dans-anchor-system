@@ -39,6 +39,11 @@ Migrate the `/lint` skill family into `/audit`, per the user's direction to unif
 
 **Done** — executed 2026-07-01. `/lint` deleted (skill folder, SKL Lint doc, SKA lint anchor all retired); unique content folded into [[audit-structure]] § Mechanical scanner + [[audit-docs]] § Module-doc warning reference + [[SKL Audit]] § cab-audit; `cab-lint.py` renamed to `skills/audit/scripts/cab-audit.py` with `~/bin/cab-audit` symlink; vault-wide reference sweep complete (historical records left verbatim).
 
+### Known residue (pre-existing bugs in cab-audit.py — fix lands with M-Migrate.2)
+
+- **Exceptions-path mismatch** — the script reads per-anchor exceptions from `.skl/lint/exceptions.md` while all docs (per F059) say `.anchor.d/lint/exceptions.md`. Behavior change deliberately deferred (matches § Out of scope item 3).
+- **Dead system-suppressions path** — `cab-audit.py:1233` loads suppressions from a path that no longer exists (the real file sits in `facets/CAB Legacy/LINT User Docs/LINT System Suppressions.md`), so system suppressions silently never load. Left as-is: the suppressions have been dormant since the legacy move, and silently re-enabling them would change scan output; M-Migrate.2 re-expresses the checks as engine rulesets and settles suppression handling properly.
+
 ## Resolved
 
 *Q1–Q3 resolved by the user 2026-07-01 (chat): all three land on option (a), matching the filed recommendations.*
