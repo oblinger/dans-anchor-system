@@ -69,14 +69,10 @@ The corpus fixtures are the common pool: unit tests inline what they can; the go
 
 [[Warden Corpus]] is live: format doc, the runner (`run-corpus.py` — engine adapter, canonicalization, bless flow, PASS/FAIL/STALE trichotomy), and four seed cases blessed against the shipped `audit-plan.py`: `msg-001-wrong-h1`, `query-001-no-frontmatter`, `query-002-clean` (the compliant twin), `anchor-001-bare` (the anchor-structure verdict surface). The seeds already pinned one live finding: `R-query-04/-08/-13` name checkers that don't exist in `audit-plan.py` (verdict `error: unknown checker`) — now recorded golden behavior, so both fixing those checkers and losing more of them will surface as diffs.
 
-## Open Questions
-
-### Q1 — CI home: where does the suite run beyond the dev Mac? ^F214-Q1
-
-- **(A)** `just` recipes on the dev machine only; defer CI until Warden extracts to its own repo ([[Warden Roadmap]] Q1) and gets Actions with pinned toolchains there.
-- **(B)** Stand up GitHub Actions in ob-skills now.
-- **Recommendation:** Lean (A) — the repo-home decision lands first, and CI built here would move with it.
-
 ## Status
 
 **Design landed 2026-07-01** (this doc; the F214 spec side of [[Warden Roadmap]] M3 — each layer has a concrete contract + fixture plan, and the differential contract is fixed for M6/M8). Golden layer is live with four seed cases against the shipped audit engine. Unit + e2e stand up with the M6 build; differential + performance gates with M8. Defined 2026-06-26.
+
+## Resolved
+
+- **Q1 — CI home** — **Resolution (user, 2026-07-01): (B) — stand up GitHub Actions in ob-skills now.** Rationale: good practice getting the rig built; migrating a working workflow to the extracted Warden repo later is trivial. Overrides the filed Lean (A). Realized as `.github/workflows/warden-tests.yml` — golden-corpus job on push/PR touching `warden/**` or the audit engine, plus manual dispatch; the runner's exit code is the gate. Future layers (unit at the build milestone, differential+perf at the Rust milestone) join the same workflow.

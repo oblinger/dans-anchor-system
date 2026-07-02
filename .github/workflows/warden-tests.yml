@@ -1,0 +1,36 @@
+# Warden rule-system test suite (F214).
+#
+# Runs the layers that exist today — the golden corpus — against the shipped
+# audit engine. Unit / differential / perf / e2e layers join as their
+# milestones land (F214 § Design). This workflow migrates wholesale when
+# Warden extracts to its own repo (F214 Q1 resolution, 2026-07-01).
+
+name: warden-tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "warden/**"
+      - "skills/audit/scripts/**"
+      - ".github/workflows/warden-tests.yml"
+  pull_request:
+    paths:
+      - "warden/**"
+      - "skills/audit/scripts/**"
+      - ".github/workflows/warden-tests.yml"
+  workflow_dispatch:
+
+jobs:
+  golden-corpus:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run golden corpus
+        run: python3 "warden/Warden Corpus/harness/run-corpus.py"
