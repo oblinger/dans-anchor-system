@@ -54,7 +54,7 @@ The Design folder is an anchor folder with the standard structure:
 ├── {NAME} PRD.md                 ← REQUIRED — product requirements (per CAB PRD). May be a folder.
 ├── {NAME} Architecture.md        ← REQUIRED — system architecture (per CAB Architecture). May be a folder.
 ├── {NAME} Testing.md             ← REQUIRED — strategy + proposed-tests overview (per CAB Testing)
-├── {NAME} Decisions.md           ← RECOMMENDED — load-bearing decisions citing rules (per CAB Decisions)
+├── {NAME} Decisions.md           ← RECOMMENDED — load-bearing recorded decisions (per FCT Decisions)
 ├── {NAME} Roadmap.md             ← RECOMMENDED — sequencing-design: milestones + ordering (per CAB Roadmap)
 ├── {NAME} Features/              ← RECOMMENDED — per-feature design docs F<NNN> — <title>.md (per CAB Features)
 │   ├── {NAME} Features.md        ← Features dispatch / index
@@ -97,7 +97,7 @@ Three buckets, split by **who reads them and why** — only the first lives in `
 
 | Child | Facet | When |
 |---|---|---|
-| `{NAME} Decisions.md` | [[FCT Decisions]] | The moment the first load-bearing decision needs auditable form (cites rules from rulesets). |
+| `{NAME} Decisions.md` | [[FCT Decisions]] | The moment the first cross-cutting load-bearing decision needs durable recorded form. |
 | `{NAME} Roadmap.md` | [[FCT Roadmap]] | Activated as soon as the project plans more than 1-2 milestones of work. |
 | `{NAME} Features/` | [[FCT Features]] | Activated as soon as the first F-numbered feature doc lands. Holds all per-feature design docs (`F<NNN> — <title>.md`) + a `{NAME} Features.md` dispatch index. |
 

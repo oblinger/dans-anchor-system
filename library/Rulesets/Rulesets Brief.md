@@ -4,7 +4,7 @@ Editing-and-maintenance brief for [[Rulesets]]. Read before adding a new ruleset
 
 ## What this catalog is
 
-Curated, versioned bundles of rules. Each set is a standalone markdown doc bundling related rules that apply to a specific style of anchor, a specific cross-cutting concern, or a CAB-aligned axis (facet / trait / skill). When an anchor adopts a set, the set's rules are referenced from `{NAME} Decisions.md` as adopted constraints; the decision body explains why.
+Curated, versioned bundles of rules. Each set is a standalone markdown doc bundling related rules that apply to a specific style of anchor, a specific cross-cutting concern, or a CAB-aligned axis (facet / trait / skill). An anchor's traits activate the sets that apply to it ([[Warden Semantics]] § Rulesets); Warden computes only the rules — decisions ([[FCT Decisions]]) are the documentation layer above them.
 
 ## Five kinds of sets
 
@@ -18,13 +18,13 @@ Curated, versioned bundles of rules. Each set is a standalone markdown doc bundl
 
 A **rule** is a standing constraint or guideline — portable, reusable, audit-checkable. Lives in a Ruleset; gets adopted across many anchors. "ASCII forbidden in architecture diagrams." "Must use Helvetica."
 
-A **decision** is a specific applied choice with rationale, recorded at the anchor level in `{NAME} Decisions.md`. "We chose SQLite for TaskStore because of operator-readability." A decision cites the rule(s) it applies; the rationale is what makes it a *decision* and not just a rule citation.
+A **decision** is a broader, higher-level applied choice with rationale, recorded at the anchor level (a `## Decisions` section in the doc it shapes, or `{NAME} Decisions.md`). "We chose SQLite for TaskStore because of operator-readability." The rationale is what makes it a *decision*; anything directly verifiable is written only as a rule, never duplicated as a decision.
 
-The relationship:
+The relationship (doctrine per [[FCT Decisions]], 2026-07-01):
 
 - **Rulesets** (this catalog) bundle rules. Each rule has an audit-tier annotation (`tracked` / `checked` / `sampled` / `stated`).
-- **Anchor Decisions** (`{NAME} Decisions.md`) record the anchor's specific applied choices.
-- **Audit** walks the decisions in an anchor's `{NAME} Decisions.md`, collects every referenced rule, and verifies each rule is satisfied. The rules are what get checked; the decisions are how the anchor declares which rules apply here and why.
+- **Anchor decisions** record the anchor's broader choices — documentation Warden pays no attention to. Rules that accompany decisions ride in a companion `# RULESET` directly after the Decisions section.
+- **Warden / audit** compute only the rules — bound by traits + `where::`, never verified against decision content. A rule implementing a decision links back with a loose `implements D<N>` note.
 
 (Renamed from "Decision Sets" 2026-06-08. The previous naming collapsed the rules-and-decisions distinction; the rename honors both terms.)
 
@@ -36,7 +36,7 @@ Every ruleset folder named `R-<name>/` contains a folder-file `R-<name>.md` that
 
 When an anchor adopts a ruleset:
 
-1. The set's rules are referenced from the anchor's `{NAME} Decisions.md` as a top-of-file `include::` line.
+1. The set is activated for the anchor via its traits (`.anchor`), or pulled onto the `include::` line of the anchor's own companion `# RULESET`.
 2. Each rule retains its source-set identity (`R-sugiyama-01` doesn't become `R-mine-23`).
 3. The anchor is free to diverge from the source set; divergence is visible in the local copy via D-records.
 4. Set updates get pulled when the user runs `/rule refresh <set>` — never silently.
@@ -56,5 +56,5 @@ See [[FCT Ruleset]] for the prescriptive RULESET format (H1 sentinel + `include:
 
 - [[Rulesets]] — the catalog itself.
 - [[FCT Ruleset]] — meta-spec for the RULESET format.
-- [[FCT Decisions]] — sibling facet for anchor-level applied choices that cite rules.
+- [[FCT Decisions]] — sibling facet for anchor-level recorded choices (rules link back via `implements D<N>`).
 - F132, F133 — features tracking the rule-system migration.

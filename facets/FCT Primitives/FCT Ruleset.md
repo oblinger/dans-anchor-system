@@ -20,7 +20,7 @@ A named, reusable bundle of audit-checkable rules — and the spec for how to wr
 | [[#Naming convention]] |  |
 | [[#Audit-tier annotation (after the rule title)]] |  |
 | [[#Include composition — semantics]] |  |
-| [[#How decisions cite rules]] |  |
+| [[#Relationship to decisions]] |  |
 | [[#Trait applicability]] |  |
 | [[#Audit]] |  |
 | [[#See also]] |  |
@@ -29,19 +29,19 @@ A named, reusable bundle of audit-checkable rules — and the spec for how to wr
 **TLDR**
 - **What it is** — a named bundle of portable, audit-checkable rules (`# RULESET R-<slug>`), or an anchor-local `{NAME} Rules.md`.
 - **Required form** — `RULESET` / `RULE` sentinels; `include::` + `description::` header; `### RULE R-<slug>-NN (tier)` entries with a `**Check pattern:**`.
-- **How it's used** — adopted by being cited from an anchor's `{NAME} Decisions.md`; checked by `/audit rules`.
+- **How it's used** — activated for an anchor via its traits, composed via `include::`; computed by Warden (`/audit rules` + live hooks).
 - **Detection** — file-existence + the `# RULESET R-` content sentinel (catches embedded rulesets too); cardinality **many**.
 
 ## Overview
 The Ruleset facet specifies the format for any file that **defines rules** — whether a catalog ruleset under `~/.claude/skills/SKL User Docs/SKL/SKL Library/Rulesets/` or an anchor-local `{NAME} Rules.md` under `{NAME} Design/`.
 
-A **rule** is a standing constraint or guideline — portable, reusable, audit-checkable. A **ruleset** is a named bundle of rules that travel together. Rules are pulled into an anchor by being cited from the anchor's `{NAME} Decisions.md` (anchor-specific applied choices with rationale).
+A **rule** is a standing constraint or guideline — portable, reusable, audit-checkable. A **ruleset** is a named bundle of rules that travel together. Rules bind to an anchor by **activation** — the anchor's traits pull in rulesets ([[Warden Semantics]] § Rulesets) — and to files via `where::`.
 
 See [[FCT Decisions]] for the companion facet (anchor-level decisions). See [[Rulesets]] for the catalog. The rules a ruleset file must itself satisfy are the embedded **`# RULESET R-ruleset`** below — this facet's required, self-applying ruleset.
 
 ## History note
 
-This spec was previously deprecated post-F113, when "Principles + Rules" were unified into "Decisions." The 2026-06-08 vocabulary refinement re-split: rules (portable constraints) live in Rulesets and use this facet; decisions (anchor-specific applied choices) live in `{NAME} Decisions.md` and use [[FCT Decisions]]. Decisions cite rules.
+This spec was previously deprecated post-F113, when "Principles + Rules" were unified into "Decisions." The 2026-06-08 vocabulary refinement re-split: rules (portable constraints) live in Rulesets and use this facet; decisions (anchor-specific applied choices) live in `{NAME} Decisions.md` and use [[FCT Decisions]]. The 2026-07-01 doctrine sets the current relationship — see § Relationship to decisions.
 
 ## When this facet applies
 
@@ -50,8 +50,8 @@ This spec was previously deprecated post-F113, when "Principles + Rules" were un
 - Any `{NAME} Rules.md` an anchor authors when it has rules too anchor-specific to belong in a shared ruleset.
 
 **Not required for:**
-- `{NAME} Decisions.md` (that's [[FCT Decisions]]).
-- Most anchors — most adopt rulesets via decisions and never write their own `{NAME} Rules.md`.
+- `{NAME} Decisions.md` (that's [[FCT Decisions]]) — though a companion `# RULESET` embedded there follows this facet like any other.
+- Most anchors — their rules arrive via trait activation and they never write their own `{NAME} Rules.md`.
 
 ## File shape — body-only, prescriptive structure (2026-06-08)
 
@@ -276,23 +276,13 @@ When an auditor flattens this ruleset:
 
 A script `flatten-ruleset.py` (under [[Rulesets]] tooling, to be written per F132) implements the recursive walk. `/audit rules` reads its flat output. The script is what makes audit walks easy — agents get a single fixed list to check against rather than chasing includes through multiple files.
 
-## How decisions cite rules
+## Relationship to decisions
 
-In `{NAME} Decisions.md`, each decision body ends with a `Cites:` line listing the rules it applies:
-
-```markdown
-### D1 — Architecture diagram authored in SVG with arrows + labels.
-
-We chose hand-written SVG over D2 or Excalidraw to keep full control of palette, font, and arrow style consistent with the project's existing diagram aesthetic. Every arrow carries an italic-blue verb label.
-
-**Cites:** ~~[[R-c4-01]]~~ (every arrow labeled), ~~[[R-wcag-contrast-01]]~~ (contrast ≥4.5:1), ~~[[R-wcag-contrast-02]]~~ (color is not the sole communicator).
-```
-
-Audit walks decisions, collects every `Cites:` reference, flattens through includes, and verifies each cited rule.
+Decisions ([[FCT Decisions]]) are the documentation layer above rules — broader recorded choices that guide agents and readers, but **Warden pays no attention to them**: it computes only rules. The coupling is loose and lives on the rule side — a rule that implements a decision notes it (`implements D<N>`), and anything directly checkable is written only as a rule (by convention in a companion `# RULESET` directly after a `## Decisions` section), never duplicated as a decision.
 
 ## Trait applicability
 
-Available to any anchor that needs to author or adopt rules. Most anchors won't author a `{NAME} Rules.md` — they adopt rulesets via decisions. The facet exists to spec the format for the rare case AND for the ruleset catalog.
+Available to any anchor that needs to author or adopt rules. Most anchors won't author a `{NAME} Rules.md` — their rules arrive via trait activation, and anchor-local rules ride as a companion `# RULESET` in the decisions file ([[FCT Decisions]] § Companion ruleset). The facet exists to spec the format for the rare case AND for the ruleset catalog.
 
 ## Audit
 
@@ -302,7 +292,6 @@ Available to any anchor that needs to author or adopt rules. Most anchors won't 
 - **include-cycle** — A includes B includes A (any cycle).
 - **missing-tier** — H3 rule header has no `(tier)` annotation.
 - **missing-check-pattern** — `(checked)`- or `(sampled)`-tier rule has no `**Check pattern:**` block.
-- **orphan-rule-citation** — `{NAME} Decisions.md` `Cites:` references a rule that doesn't exist in any adopted ruleset.
 
 ## See also
 
@@ -399,8 +388,8 @@ A `where::` value is `always`, a path glob (optionally `file:`-prefixed), `ancho
 
 - **This file is the prescriptive spec for the Ruleset facet** — the authoritative format definition for any ruleset file (`R-<slug>.md` in `Rulesets/`) and any anchor-local `{NAME} Rules.md`. Editors of either kind of file consult this page before authoring. (Renamed from `FCT Rules` 2026-06-13 — singular `Ruleset` for the kind, parallel to [[FCT Facet]]; [[Rulesets]] remains the plural catalog.)
 - **Not a catalog of rules** — never inline actual rules here. Individual rulesets live under `~/.claude/skills/SKL User Docs/SKL/SKL Library/Rulesets/`; the catalog is [[Rulesets]]. This page only specifies *how* such files are shaped.
-- **Not the decisions spec** — anchor-level applied choices belong in [[FCT Decisions]]. Keep the two facets cleanly separated; cross-reference but do not merge. Rules are portable constraints; decisions are anchor-specific applications that cite rules.
+- **Not the decisions spec** — anchor-level recorded choices belong in [[FCT Decisions]]. Keep the two facets cleanly separated; cross-reference but do not merge. Rules are portable, computable constraints; decisions are broader recorded choices Warden ignores — a rule links back with an `implements D<N>` note.
 - **Load-bearing sentinels** — the all-caps `RULESET` (in the H1) and `RULE` (in rule headings) are mechanical markers grep / lint / flatten scripts depend on. Never lowercase or rename them; never invent alternates. The `include::` / `description::` lines are Dataview inline fields — preserve the exact `::` double-colon syntax and positional ordering (H1, then `include::`, then `description::`, then body).
 - **Inclusion test for new content here:** does this clarify the *file format* (lines, sentinels, naming, audit ties, composition semantics)? If yes, add it. If it's *content of a specific ruleset* — put it in the ruleset. If it's *project-wide markdown* — link to [[R-markdown]]. If it's *brief-writing rules* — link to [[FCT Brief]].
 - **When the format evolves**, bump the dated parenthetical in the affected section header (e.g. `## File shape — body-only, prescriptive structure (2026-06-08)`), update the worked examples ([[R-diagram]], [[CAE Rules]]), and check the `/audit rules` checks list at the bottom for new lint cases.
-- **Don't restructure the H2 ordering** — the spec flows History note → When this facet applies → File shape → Where clause → Naming → Audit tiers → Include composition → How decisions cite rules → Trait applicability → Audit → See also. Auditors and downstream skills locate sections by this order.
+- **Don't restructure the H2 ordering** — the spec flows History note → When this facet applies → File shape → Where clause → Naming → Audit tiers → Include composition → Relationship to decisions → Trait applicability → Audit → See also. Auditors and downstream skills locate sections by this order.

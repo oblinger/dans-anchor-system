@@ -1,5 +1,5 @@
 ---
-description: "the rule language — the file format for a rule and a ruleset (sentinels, clauses, body, composition)"
+description: "the rule language — the file format for a rule and a ruleset (sentinels, clauses, composition)"
 ---
 # Warden Rule
 
@@ -37,7 +37,7 @@ A ruleset is a `# RULESET R-<slug>` block plus a prescriptive header. The all-ca
 | Header line | Required? | Purpose |
 |---|---|---|
 | `# RULESET R-<slug>` | yes | sentinel H1 + the set's identifier |
-| `include:: …` | yes (may be empty) | composition / adoption (§ Composition); the empty line is the slot |
+| `include:: …` | yes (may be empty) | composition (§ Composition); the empty line is the slot |
 | `where:: …` | optional | set-level default **place** every rule inherits ([[FCT Ruleset]] § Where clause) |
 | `when:: …` | optional | set-level default **moment** every rule inherits ([[Warden Events]]) |
 | `description:: …` | yes | one-line (8–15 word) tagline; no `::` in the value |
@@ -87,9 +87,9 @@ Three homes (detail: [[FCT Ruleset]], [[F133 — Rulesets folder convention + fa
 |---|---|
 | **Catalog** — standalone `R-<slug>.md` in `Rulesets/` | cross-cutting, reusable, owner / trait-scoped sets |
 | **Embedded** — `# RULESET` inside a facet / skill / discipline spec | rules that *are* the structural spec for an artifact kind |
-| **Anchor-local** — `{NAME} Rules.md` | rules truly specific to one anchor |
+| **Anchor-local** — a companion `# RULESET` in the decisions file, or `{NAME} Rules.md` | rules truly specific to one anchor |
 
-**Adoption is `include::` under a `# {NAME} Decisions` H1** (vs *composition* under a `# RULESET` H1 — same syntax, different host). An anchor's `{NAME} Decisions.md` lists adopted sets, maps each rule to its local implementation, and records D-records that cite rules via `**Cites:** [[R-…-NN]]`. And an anchor's **traits/facets are themselves adoptions** — a facet's embedded ruleset is active wherever that facet is present (activation semantics: [[Warden Semantics]] § Rulesets). Spec: [[FCT Decisions]].
+**Adoption is by the anchor's traits, not its decisions.** An anchor's active rules are a pure function of its `.anchor` traits — each trait pulls in its rulesets via `include::`, recursively (activation semantics: [[Warden Semantics]] § Rulesets). Decisions ([[FCT Decisions]]) sit above as documentation Warden ignores: an anchor's accompanying rules ride in a companion `# RULESET` directly after its `## Decisions` section (same or clearly related name), and a rule ties itself back to the decision it implements with a loose `implements D<N>` note.
 
 ## Naming
 
@@ -105,6 +105,6 @@ Three homes (detail: [[FCT Ruleset]], [[F133 — Rulesets folder convention + fa
 - [[Warden Semantics]] — how a rule *runs*: the condition, the actions, the interpretation environment, ruleset activation.
 - [[Warden Examples]] — every kind of rule as a complete, runnable example.
 - [[Warden Events]] — the `when::` moment catalog; [[FCT Ruleset]] — the `where::` grammar (today's authoritative home).
-- [[FCT Decisions]] — adoption + `Cites:`.
+- [[FCT Decisions]] — the decisions doctrine: documentation layer Warden ignores; companion ruleset; `implements D<N>` linkage.
 - [[Warden Architecture]] / [[Warden Runtime]] — how the format is resolved, compiled, and run.
 - [[R-diagram]], [[CAE Rules]] — worked instances.

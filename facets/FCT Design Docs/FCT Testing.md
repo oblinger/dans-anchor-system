@@ -168,7 +168,7 @@ include::
 where:: file:{ANCHOR}/**/* Testing.md
 description:: spec for the `{NAME} Testing.md` design facet — strategy + proposed-tests inventory
 
-Embedded ruleset for the Testing facet, co-located with the facet spec above per the [[F133 — Rulesets folder convention + facet embedding|F133]] embedding convention. Adopted via `R-facet` umbrella; an anchor that wants its `{NAME} Testing.md` audited pulls `R-facet` from its `{NAME} Decisions.md`.
+Embedded ruleset for the Testing facet, co-located with the facet spec above per the [[F133 — Rulesets folder convention + facet embedding|F133]] embedding convention. Pulled in via the `R-facet` umbrella; active for an anchor through its traits ([[Warden Semantics]] § Rulesets).
 
 ### RULE R-testing-01 — File name is `{NAME} Testing.md` (checked)
 check:: testing_filename_correct

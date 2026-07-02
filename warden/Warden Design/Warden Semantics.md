@@ -233,7 +233,7 @@ A **ruleset** is a named bundle of rules ([[Warden Rule]] § The ruleset).
 
 ```
 for the anchor in scope:
-  active = flatten(adopted rulesets)              # from {NAME} Decisions.md
+  active = flatten(trait-activated rulesets)      # from .anchor traits (§ Rulesets)
 on trigger:  a when:: moment fires,  OR  /audit visits the anchor
   candidates = active rules whose where::/when:: INDEXES match    # cheap, no code
   for each candidate, for each file T it matches:
@@ -262,6 +262,6 @@ So "significant change" is **not a separate clause** — it is a normal `if::` o
 
 - [[Warden Rule]] — the file format these semantics run over.
 - [[Warden Events]] — the `when::` index; [[FCT Ruleset]] — the `where::` index.
-- [[FCT Decisions]] — adoption / activation of rulesets by an anchor.
+- [[FCT Decisions]] — decisions: the documentation layer above rules; Warden never computes against it.
 - [[Warden Architecture]] — how the active set is compiled and dispatched (incl. the resident-Python implementation, §7a).
 - [[Warden Examples]] — every kind of test + action, as complete rules.

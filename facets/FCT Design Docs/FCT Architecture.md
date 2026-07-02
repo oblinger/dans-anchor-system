@@ -158,9 +158,9 @@ Available to any anchor with the `Code` trait. Optional for non-code anchors —
 ## See also
 
 - [[FCT Module Doc]] — companion spec for the public-API sub-document.
-- [[FCT Ruleset]] — ruleset format spec. Diagrams in architecture docs are audited against rulesets cited by the anchor's decisions.
+- [[FCT Ruleset]] — ruleset format spec. Diagrams in architecture docs are audited against the anchor's active rulesets.
 - [[R-diagram]] — the ruleset every architecture diagram is audited against (22 rules covering structural / aesthetic / semantic / accessibility / hygiene).
-- [[FCT Decisions]] — anchor-level applied choices that cite rules from rulesets.
+- [[FCT Decisions]] — anchor-level recorded choices; rules implement them (rule-side `implements D<N>` linkage).
 - [[FCT Design Dispatch]] — Architecture sits alongside PRD / Decisions / Interface in `{NAME} Design/`.
 - [[CAE Architecture]] — worked example.
 
@@ -169,7 +169,7 @@ include::
 where:: file:{ANCHOR}/**/* Architecture.md
 description:: spec for the `{NAME} Architecture.md` entry-point design facet — section spine, mandatory visual figure, subsystem dispatch + link convention, API content kept off the page
 
-Embedded ruleset for the Architecture facet, co-located with the facet spec above per the [[F133 — Rulesets folder convention + facet embedding|F133]] embedding convention. Adopted via the `R-facet` umbrella; an anchor that wants its `{NAME} Architecture.md` audited pulls `R-facet` from its `{NAME} Decisions.md`. The `where::` glob selects the entry-point doc only (`* Architecture.md`); subsystem docs (kebab `{NAME}-*.md`) follow [[FCT Module Doc]], not this ruleset.
+Embedded ruleset for the Architecture facet, co-located with the facet spec above per the [[F133 — Rulesets folder convention + facet embedding|F133]] embedding convention. Pulled in via the `R-facet` umbrella; active for an anchor through its traits ([[Warden Semantics]] § Rulesets). The `where::` glob selects the entry-point doc only (`* Architecture.md`); subsystem docs (kebab `{NAME}-*.md`) follow [[FCT Module Doc]], not this ruleset.
 
 ### RULE R-architecture-01 — Entry-point doc is `{NAME} Architecture.md` (checked)
 check:: architecture_filename_correct

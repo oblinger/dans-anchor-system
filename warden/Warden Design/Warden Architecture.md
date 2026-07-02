@@ -20,7 +20,7 @@ The rule system is how a portable, audit-checkable constraint is **defined** (th
 | Grouping | What it covers | Spec |
 |---|---|---|
 | **DEFINE** — a rule on disk | `RULE` / `RULESET` sentinels; the **condition** (`where` · `when` · `if`); the **actions** (`tell` · `edit` · `deny` · `run`); `description::`. | [[Warden Rule]] |
-| **COMPOSE & ADOPT** | `include::` depth-first flatten + umbrellas; three homes (catalog · embedded · anchor-local); adoption via anchor **traits** + `{NAME} Decisions`; `where::` keeps unmatched rules asleep. | [[Warden Rule]] · [[FCT Decisions]] |
+| **COMPOSE & ADOPT** | `include::` depth-first flatten + umbrellas; three homes (catalog · embedded · anchor-local); adoption via anchor **traits** (`.anchor`); `where::` keeps unmatched rules asleep. | [[Warden Rule]] · [[FCT Decisions]] |
 | **RUN** — the engine | resident **daemon** + tiny notifier; **dispatch** by `where`/`when` indexes; **interpret** `if` + body over `file`·`anchor`·`git`·`event`·`agent`; **consumers** (live hooks · `/audit`); the **oracle**. | [[Warden Semantics]] · [[Warden Runtime]] |
 
 ---
@@ -92,7 +92,7 @@ Adding a facet's rules to an audit is just adding its set to an umbrella's `incl
 
 ## 3 · Placement and association — where rules live
 
-Rules live with the spec that owns them. There are **three homes**, plus a fourth file (`{NAME} Decisions.md`) where an anchor *adopts* them. Folder convention + facet-embedding: [[F133 — Rulesets folder convention + facet embedding|F133]].
+Rules live with the spec that owns them. There are **three homes** — and an anchor's `{NAME} Decisions.md` may host the anchor-local one as a companion `# RULESET` directly after its decisions ([[FCT Decisions]]). Folder convention + facet-embedding: [[F133 — Rulesets folder convention + facet embedding|F133]].
 
 ```
 ob-skills/library/Rulesets/          ← (1) the shared catalog, organized per-domain
@@ -105,7 +105,7 @@ ob-skills/facets/.../FCT Testing.md   ← (2) embedded # RULESET R-testing insid
 ob-skills/skills/.../<skill> spec     ← (2) embedded set inside a skill/discipline spec
 
 {NAME}/{NAME} Design/{NAME} Rules.md  ← (3) anchor-local rules too specific to share (rare)
-{NAME}/{NAME} Design/{NAME} Decisions.md ← adoption surface (below)
+{NAME}/{NAME} Design/{NAME} Decisions.md ← decisions (documentation; may host a companion # RULESET)
 ```
 
 | Home | When used | Example |
@@ -116,14 +116,7 @@ ob-skills/skills/.../<skill> spec     ← (2) embedded set inside a skill/discip
 
 **Association with facets and skills** is the embedded home: each CAB facet, skill, and discipline spec carries its own `# RULESET R-<facet>` block, and the `R-anchor` / `R-doc` umbrellas aggregate them. That is how "the rules of the facets an anchor has" (the F001 phrase) is computed — facet presence is mostly folder/file presence, and each present facet contributes its embedded set.
 
-**Adoption vs composition — same syntax, different host H1.** `include::` means *compose* under a `# RULESET` H1 and *adopt* under a `# {NAME} Decisions` H1 (spec: [[FCT Decisions]]):
-
-| Host H1 | `include:: R-Y, R-Z` means |
-|---|---|
-| `# RULESET R-X` | **composition** — R-X absorbs R-Y and R-Z (§2). |
-| `# {NAME} Decisions` | **adoption** — the anchor commits to following R-Y and R-Z. |
-
-An adopting anchor's `{NAME} Decisions.md` then (a) lists its adopted sets on `include::`, (b) maps each adopted rule to its local implementation in an `## Adoption implementation map` table, and (c) records anchor-specific D-records that cite rules via a `**Cites:** [[R-…-NN]]` line. Audit walks the decisions, collects every `Cites:`, flattens through `include::`, and verifies each cited rule. Rules are portable constraints; decisions are the anchor-specific applications that cite them.
+**`include::` is composition — one semantics.** Under a `# RULESET` H1, `include:: R-Y, R-Z` means the set absorbs R-Y and R-Z (§2). Per-anchor **adoption is by traits**: the anchor's `.anchor` trait list activates rulesets, recursively ([[Warden Semantics]] § Rulesets). Decisions (`{NAME} Decisions.md`, spec: [[FCT Decisions]]) are **documentation Warden never computes against** — the broader recorded choices above the rules. Anything directly checkable is written only as a rule (by convention in the companion `# RULESET` directly after the `## Decisions` section), and a rule ties itself back to the decision it implements with a loose `implements D<N>` note.
 
 ---
 
@@ -223,7 +216,7 @@ The engine has **two faces over one corpus**: a **rule compiler/installer** that
 
 Conceptually a **compiler**, not an interpreter: it takes the rules active in an environment and *installs* them so they trigger, rather than re-resolving on every event.
 
-1. **Resolve the active set.** Active rulesets are known at the **anchor level** — an anchor adopts sets via `{NAME} Decisions.md` (§3). The installer resolves, per anchor, the flattened union of adopted + structurally-present sets.
+1. **Resolve the active set.** Active rulesets are known at the **anchor level** — an anchor's `.anchor` traits activate sets ([[Warden Semantics]] § Rulesets). The installer resolves, per anchor, the flattened union of trait-activated + structurally-present sets.
 2. **Index each rule.** It picks an **index key** per rule — usually the `when::` moment (so the runtime hook for that moment dispatches straight to it), sometimes the `where::` place (a `when:: always` rule that touches one rare file indexes cheaper by path). The author never chooses this; the firing semantics (the conjunction, §4) are identical either way.
 3. **Pre-compile to an *indexed* per-moment dispatch.** All rules sharing a moment compile into one pre-built function, reached by an **index lookup** (moment → function), so fire time is *one call* — never a linear scan of the rule list (a scan is the last-resort fallback only). The function checks the residual `where::` + `if::` conjuncts and runs each rule's body.
 
@@ -233,7 +226,7 @@ This is the path the **performance budget** rides on — it instruments nearly e
 
 *(Full detail — the daemon, the pluggable OS-selected notifiers, dual-mode file tracking, agent tracking, the oracle, and the cost picture — is [[Warden Runtime]].)* The hot path is a **stateful resident Python daemon** plus a **non-Python notifier**:
 
-- **The daemon** is a long-running Python process holding the compiled, **indexed** rule set and **cached / lazy `ctx` state** in memory. Because it stays warm, evaluating a moment is a single pre-compiled function call over already-loaded rules — **sub-millisecond, and constant in total rule count**. It never pays interpreter startup. Its **lifecycle is the real complexity this buys**: it warm-starts lazily on the first hook (the first call pays the load+compile), **fails open** if it is down or still warming — never blocking the agent — and **recompiles** the affected index when a rule or `Decisions.md` changes (itself just a `write:*` moment it subscribes to).
+- **The daemon** is a long-running Python process holding the compiled, **indexed** rule set and **cached / lazy `ctx` state** in memory. Because it stays warm, evaluating a moment is a single pre-compiled function call over already-loaded rules — **sub-millisecond, and constant in total rule count**. It never pays interpreter startup. Its **lifecycle is the real complexity this buys**: it warm-starts lazily on the first hook (the first call pays the load+compile), **fails open** if it is down or still warming — never blocking the agent — and **recompiles** the affected index when a rule or `.anchor` changes (itself just a `write:*` moment it subscribes to).
 - **The notifier** is what Claude Code's hook actually spawns: a tiny **non-Python** signaler whose only job is to tell the daemon a moment occurred (and, for a `tool:pre` veto, get the verdict back). It must avoid Python's ~30–80 ms startup. Two forms, both fast:
   - **Non-blocking** (a write, `tool:post`, a turn boundary): a one-line shell hook — `printf '%s' "$EVENT" >> warden.fifo` — `sh` boot + a FIFO write, **~1–3 ms** — and the daemon drains the FIFO **off the agent's critical path**.
   - **Blocking** (`tool:pre` veto): a request/response round-trip over a Unix socket (`nc -U`, or a tiny native binary), **~2–4 ms**, only on the rare veto moments.
@@ -274,7 +267,7 @@ The thorough backstop — `Resolve → Run → Judge → Fix`, mechanical-by-scr
 | `when::` moment taxonomy + conjunction model | [[Warden Events]] |
 | Prior art + integration/dependency policy | [[Warden Survey]], [[Warden Integration Strategy]] |
 | Rule + Ruleset format, `where::` | [[FCT Ruleset]] |
-| Adoption, Decisions, Cites | [[FCT Decisions]] |
+| Decisions doctrine (documentation layer, companion ruleset, `implements D<N>`) | [[FCT Decisions]] |
 | Catalog + folder convention + facet embedding | [[Rulesets]], [[F133 — Rulesets folder convention + facet embedding\|F133]] |
 | Rules-vs-decisions split, flatten tooling | [[F132 — Rules Migration\|F132]] |
 | `when::` clause + executable rules | [[F180 — When-trigger executable rules\|F180]] |

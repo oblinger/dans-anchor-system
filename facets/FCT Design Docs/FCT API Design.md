@@ -82,7 +82,7 @@ See [[CAE API Design]] — the CAE scheduler crate shows the canonical shape for
 - [[FCT UX Design]] — sibling facet covering the human surface.
 - [[FCT Module Doc]] — reference documentation for the implemented modules.
 - [[FCT Architecture]] — internal organization that backs the API surface.
-- [[FCT Decisions]] — bridge for D-API rows that cite rulesets.
+- [[FCT Decisions]] — the D-record form for API decisions (rules implement them; linkage on the rule side).
 - [[FCT Status]] — `{NAME} Status.md` carries the API-Design facet state.
 - [[DSC progressive-disclosure]] — preface zone discipline.
 - [[DSC markdown]] — markdown authoring discipline.

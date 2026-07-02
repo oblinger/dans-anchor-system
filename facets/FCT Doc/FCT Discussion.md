@@ -72,7 +72,7 @@ Discussion is **append-only**. Entries are never edited after the Decision is fi
 | Facet | Relationship |
 |---|---|
 | **[[FCT PRD]] / [[FCT Architecture]] / [[FCT UX Design]] / [[FCT API Design]] / etc.** | The *spec* surfaces (anchor-scoped). Discussion attaches to any of them as a doc-scoped peer. |
-| **[[FCT Decisions]]** | Anchor-level decisions log — *load-bearing* decisions that cite rules and span the anchor. Discussion is finer-grained, per-document, captures the reasoning *behind* a single doc's choices. The decisions log gets the headlines; the discussion gets the deliberation. |
+| **[[FCT Decisions]]** | Anchor-level decisions log — *load-bearing* decisions that span the anchor. Discussion is finer-grained, per-document, captures the reasoning *behind* a single doc's choices. The decisions log gets the headlines; the discussion gets the deliberation. |
 | **Open Questions (on feature docs)** | When an open question on a feature doc spawns extended analysis that doesn't fit in the question body, that analysis goes into the feature doc's `# Discussion` (inline) or `F<NNN> Discussions.md` (extracted). Resolving the question links to the discussion entry. |
 | **[[FCT Log]]** | Sibling [[DSC dated-entry-stream]] facet — Log uses the same three placement methods, different entry skeleton, different attachment scope (anchor-level today, potentially doc-level later). |
 

@@ -46,7 +46,7 @@ One declarative rule language and one runtime:
 ## User Stories
 
 - **As an agent**, I want to be steered at the moment a constraint applies (e.g. corrected before asking the user a question Commit-mode already answers), so I don't bother the user — *via implicit firing + steer messages.*
-- **As the user**, I want to declare a new standing constraint once and trust it is enforced for every agent, so guardrails don't depend on prose nobody re-reads — *via authoring a rule + adopting it in `{NAME} Decisions.md`.*
+- **As the user**, I want to declare a new standing constraint once and trust it is enforced for every agent, so guardrails don't depend on prose nobody re-reads — *via authoring a rule + activating it through the anchor's traits.*
 - **As the user**, I want to audit an anchor's conformance on demand and get an actionable report, so I can catch drift — *via `/audit anchor`.*
 - **As a facet/skill author**, I want to ship my spec with its rules embedded and have them enforced wherever my facet is present, so the spec and its enforcement never diverge — *via an embedded `# RULESET`.*
 
@@ -54,7 +54,7 @@ One declarative rule language and one runtime:
 
 1. **Define** rules and rulesets in the prescriptive format ([[Warden Rule]]) — sentinels, the condition (`where` / `when` / `if`), and a prose-or-Python body.
 2. **Compose** rulesets via `include::` (acyclic, depth-first flatten, no-renumber) and aggregate them into umbrellas.
-3. **Place & adopt** — catalog / facet-embedded / anchor-local homes; per-anchor adoption via `{NAME} Decisions.md`. The active rule set for an anchor is resolvable.
+3. **Place & adopt** — catalog / facet-embedded / anchor-local homes; per-anchor adoption via the anchor's traits (`.anchor`). The active rule set for an anchor is resolvable.
 4. **Bind** each rule to its moment(s) (`when::`, the unified taxonomy), place (`where::`), and test (`if::`) — the conjunction.
 5. **Compile & install** the active rules onto runtime moments — index (by-when or by-where), pre-compile to one fast module per moment, run implicitly via the hook subsystem.
 6. **Audit** explicitly — `Resolve → Run → Judge → Fix`, mechanical-by-script / judgment-by-agent, cached.
