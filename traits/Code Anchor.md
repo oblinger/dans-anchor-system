@@ -157,10 +157,9 @@ Worked anchor-page example carrying this trait: [[HBR]] (a synthetic Code projec
 
 # BRIEF
 
-- **This file IS the Code trait specification** — the authoritative delta-from-[[CAB Base]] for anchors that own a git repository; the `code` trait in `cab-traits:` resolves here for structure, audit, and setup rules.
-- **NOT a place for general anchor rules** — anything that applies to every anchor regardless of trait belongs in [[CAB Base]]; trait-specific rules for other traits (Skill, Paper, Topic, Simple) belong in their own `traits/<Trait>.md` file, not here.
-- **Inclusion test** — a rule belongs here only if it is true for *every* Code anchor and *false or absent* for non-Code anchors (e.g. the `code:` key in `.anchor`, the README.md in repo root, the inline-vs-linked repo modes). Generic markdown/dispatch-table rules go to [[markdown]] or [[CAB Base]] respectively.
-- **Two repo modes are load-bearing** — Inline (`code: .`, repo IS anchor folder) and Linked (`code:` points outside vault, typically to `~/ob/proj/`). Don't conflate; both must remain documented as first-class because real projects use both (e.g. `ob-utils` is Linked, most private projects are Inline).
-- **Audit section mirrors `/audit structure` script behavior** — Required files / Required dispatch rows / Code-specific checks correspond to actual checks; changing wording here without updating the audit script (or vice versa) silently desyncs the spec from enforcement.
-- **Dispatch row format rules are prescriptive, not descriptive** — the bare-wikilink-only rule and the explicit Forbidden forms list exist because past anchors drifted into struck-through markdown-link forms; keep the Forbidden list intact when editing.
-- **Don't inline content owned by sibling specs** — Interface lives in [[CAB Interface]], dispatch-row mechanics in the [[progressive-disclosure]] discipline, brief/TLDR rules in [[FCT Brief]]; reference, don't duplicate.
+*(Maintainer note — cautions for whoever edits this spec. The normative spec is the body above; this file is the authoritative delta-from-[[CAB Base]] for anchors that own a git repository — the `code` trait in `cab-traits:` resolves here.)*
+
+- **Inclusion test** — a rule belongs here only if it is true for *every* Code anchor and *false or absent* for non-Code anchors (the `code:` key, README.md in repo root, the inline-vs-linked modes). General anchor rules go to [[CAB Base]]; other traits (Skill / Paper / Topic / Simple) to their own `traits/<Trait>.md`; generic markdown/dispatch mechanics to [[markdown]] / [[progressive-disclosure]].
+- **Don't regress the two repo modes** — Inline and Linked must both stay documented as first-class; real projects use both (`ob-utils` is Linked, most private projects are Inline).
+- **Audit section mirrors `/audit structure`** — Required files / dispatch rows / code-specific checks correspond to actual script checks; edit wording here and the script together or the spec silently desyncs from enforcement. Keep the Forbidden dispatch-row forms list intact.
+- **Don't inline sibling-owned content** — Interface → [[CAB Interface]], brief/TLDR rules → [[FCT Brief]]; reference, don't duplicate.

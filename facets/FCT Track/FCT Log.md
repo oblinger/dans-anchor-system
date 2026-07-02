@@ -239,10 +239,9 @@ A sub-anchor with its own Log uses the sub-anchor's name (e.g., `MED Heart Log/`
 
 # BRIEF
 
-- **This is the canonical Log facet spec.** Authority for how `{NAME} Log/` folders and `{NAME} Log.md` files are shaped across every anchor in the vault — edits here change the rules for all anchors that carry a Log.
-- **Two artifacts in one file** — the facet prose (top half) and `RULESET R-log` (bottom half, embedded per F133). Keep both halves aligned: when prose changes a shape rule, the corresponding `R-log-NN` rule must also update, and vice versa.
-- **What does NOT belong here:** per-anchor log content (lives in `{NAME} Log/`), Brief-style restatements of these rules on per-anchor dispatch pages (forbidden by R-log-07), or convention/spec material that belongs in sibling facets like [[CAB Backlog]] or [[FCT Roadmap]].
-- **Inclusion test for new rules:** a rule belongs in `R-log` only if it is structural and applies to *every* anchor's Log — filename pattern, dispatch ordering, location, dispatch-page presence. Anchor-local conventions (entry style, custom H2s) stay out.
-- **Naming / linking conventions** — refer to anchors as `{NAME}` placeholder in prose and rule text; link worked examples via `[[Disk Log]]` / `[[SV Log]]` style wiki-links; rules are numbered `R-log-NN` with zero-padding only if the set exceeds 9 (currently single-digit).
-- **Load-bearing constraints** — R-log-06 (append-only dispatch) and R-log-07 (no per-anchor Brief restating Log rules) are the two rules most commonly violated by well-meaning edits; don't relax them without an explicit feature ticket. The `description::` Dataview field on line 2 is required for facet indexing — don't move or delete it.
-- **Don't pile worked examples inline** — link to `[[Disk Log]]`, `[[SV Log]]`, etc. from the *See also* section rather than copying entry shapes into this file.
+*(Maintainer note — cautions for whoever edits this facet spec. The normative spec is the body above; the co-located ruleset is `RULESET R-log`; worked examples are [[Disk Log]] / [[SV Log]].)*
+
+- **Two artifacts, keep aligned** — the facet prose (top) and `RULESET R-log` (bottom, embedded per F133) must stay in sync: a prose shape change requires the matching `R-log-NN` change, and vice versa.
+- **Inclusion test for new rules** — a rule belongs in `R-log` only if it is structural and applies to *every* anchor's Log (filename pattern, dispatch ordering, location, dispatch-page presence); anchor-local conventions (entry style, custom H2s) stay out, and per-anchor Brief restatements of these rules are forbidden by R-log-07.
+- **Load-bearing rules** — R-log-06 (append-only dispatch) and R-log-07 (no per-anchor Brief restating Log rules) are the two most commonly violated by well-meaning edits; don't relax without an explicit feature ticket. The `description::` field near the top is required for facet indexing — don't move or delete it.
+- **Conventions** — rules are numbered `R-log-NN` (zero-pad only past 9); link worked examples from *See also* rather than copying entry shapes inline.

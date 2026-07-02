@@ -117,10 +117,8 @@ Anchors that carry the Code trait MUST include a `{NAME} Interface.md` row in th
 
 # BRIEF
 
-- **This file is the facet spec for `{NAME} Design.md`** — it defines the shape, location, and contents of the Design dispatch page that every anchor's `{NAME} Design/` folder carries. Edits here cascade to every anchor that conforms to the facet.
-- **Not for per-anchor instances** — concrete `CAE Design.md`, `SKA Design.md`, etc. live in their own anchors. Do not pile anchor-specific content here; only the Reference Example block is allowed as an inline illustration.
-- **Inclusion test for the dispatch table** — a document belongs in the Design dispatch table iff it lives inside `{NAME} Design/` AND describes the system's *design* (UX shape / interface contract / decisions / data model / principles / PRD / features / roadmap / design-trade-off discussion). Implementation details, end-user guides, and planning metadata route to Dev Docs / User Docs / Track dispatches respectively per the § Audience section.
-- **Architecture IS a Design child** — the system-architecture story is `{NAME} Design/{NAME} Architecture` (governed by [[FCT Architecture]]), listed on the Design dispatch like the other design docs. (F094's root placement reversed 2026-06-27.) Interface lives in Design (system contract, not end-user task); UX Design lives in Design too.
--[[...]]-` strikethrough form; the top-right uses the `><br>:` description prefix per [[FCT Anchor Page]].
-- **Load-bearing — folder name is "Design", not "Architecture"** — Design and Architecture are peer root-level folders; keeping the names distinct stops "Architecture" being overloaded. Renaming would collide the two; do not rename without coordinating a vault-wide migration.
-- **Cited by** [[CAB Base]], [[FCT Anchor Page]], the Architecture / UX Design / Interface / PRD facets, and the `/design` and `/architect` skills. Changes to facet shape ripple through those; check cross-references before structural edits.
+*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body above.)*
+
+- **Inclusion test for the dispatch table** — a document belongs iff it lives inside `{NAME} Design/` AND describes the system's *design* (UX shape / interface contract / decisions / data model / principles / PRD / features / roadmap / design-trade-off discussion); implementation details → Dev Docs, end-user guides → User Docs, planning metadata → Track (per § Audience).
+- **Don't rename the folder** — "Design" and "Architecture" are peer root-level folders kept distinct so "Architecture" stays precise; renaming would collide them, so don't rename without coordinating a vault-wide migration.
+- **Cross-ref integrity** — cited by [[CAB Base]], [[FCT Anchor Page]], the Architecture / UX Design / Interface / PRD facets, and the `/design` and `/architect` skills; check these before structural edits.

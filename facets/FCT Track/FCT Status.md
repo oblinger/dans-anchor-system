@@ -237,10 +237,11 @@ The state script's `set` operation does not allow downgrading a cell (e.g., `MVP
 
 # BRIEF
 
-- **This file is the Status-facet spec, not a Status file.** It defines the format of `{NAME} Status.md`; do not paste sample status entries here as if it were a status surface. Examples belong in fenced code blocks illustrating the format.
-- **NOT for workflow-state vocabulary.** The `[Ready]/[Active]/[Verify]/...` graph lives in [[workflow]]; the Status-cell ladder (`none < MVP-agent < MVP-user < Full-agent < Full-user`) is orthogonal. Don't merge, alias, or cross-reference the two vocabularies as if they were interchangeable — keep the § Distinction table the canonical place that contrast lives.
-- **Inclusion test for new rules / sections:** the rule must constrain the *file format, location, or promotion semantics* of `{NAME} Status.md` itself. Picker behavior, `/mint` gate logic, and per-facet authoring belong in [[design]] or the relevant `CAB <Facet>.md`, not here.
-- **Cell ladder is load-bearing — five values, this exact order.** `none < MVP-agent < MVP-user < Full-agent < Full-user`. Do not add tiers, rename them, or change their ordering without coordinated updates to the state script, `/design`'s picker, and every adopting anchor's Status file. Same for the five facet names (`prd`, `ux`, `architecture`, `testing`, `roadmap`) in declared order.
-- **Embedded `# RULESET R-status` is part of this file per F133.** Don't split it into a sibling Rules file; the facet spec + its ruleset live co-located. When editing rules, keep `(checked)` / `(sampled)` / `(stated)` markers honest — they tell the audit script which rules it can mechanize.
-- **Body-only discipline is itself a rule (R-status-03).** Do not add YAML frontmatter to this spec or to sample files shown here; the first content line is always the `# {NAME} Status` H1.
-- **When the format changes,** update both the § File shape example AND the corresponding `RULE R-status-NN` simultaneously — they are two views of the same constraint and must not drift.
+*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body + `R-status` ruleset above.)*
+
+- **This is the Status-facet spec, not a Status file** — don't paste live status entries here as if it were a status surface; sample entries stay in fenced code blocks illustrating the format.
+- **Keep the two vocabularies separate** — workflow state (`[Ready]/[Active]/…`, in [[workflow]]) and the Status-cell ladder are orthogonal; § Distinction is the canonical place that contrast lives — don't merge, alias, or cross-reference them elsewhere.
+- **Inclusion test for new rules / sections** — the rule must constrain the *file format, location, or promotion semantics* of `{NAME} Status.md` itself; picker behavior, `/mint`-gate logic, and per-facet authoring belong in [[design]] or the relevant `CAB <Facet>.md`, not here.
+- **Cell ladder + facet names are load-bearing** — changing the five ladder values or their order, or the five facet names or their declared order, requires coordinated updates to the `state` script, `/design`'s picker, and every adopting anchor's Status file.
+- **Embedded `# RULESET R-status` stays co-located (F133)** — don't split it into a sibling Rules file; keep the `(checked)` / `(sampled)` / `(stated)` markers honest — they tell the audit script which rules it can mechanize.
+- **Keep the two views in sync** — when the format changes, update the § File shape example AND the corresponding `RULE R-status-NN` in the same pass; they must not drift.

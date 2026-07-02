@@ -118,10 +118,7 @@ The primary user-facing guide is `{NAME} Guide.md`, not `{NAME} User Guide.md`. 
 
 # BRIEF
 
-- **This is the facet spec for the User Docs dispatch page** — `{NAME} User Docs.md` inside the root-level `{NAME} User Docs/` folder. Edits here change how every anchor's User Docs dispatch is structured; cross-check the Reference Example and Format Specification stay in sync.
-- **In-scope content is consumer/end-user task documentation only** — Guide, Installation, CLI, FAQ, Cards. System-spec docs (Interface, UX Design, Data Model, Principles) belong in [[FCT Design Dispatch|Design]] and the Architecture story in `{NAME} Design/`, even when public-facing — don't drift them back here.
-- **Inclusion test** — ask "does this doc describe a *user task*, or does it describe the *system's shape/contract*?" Task-shaped → User Docs. Shape-shaped → Design (or the Architecture folder). Machine-checkable per-module reference → [[FCT Dev Dispatch|Dev Docs]].
-- **Filename convention is load-bearing** — `{NAME} Guide.md` (not `{NAME} User Guide.md`); the folder context already supplies "user-facing." H1 inside the file may still spell out "User Guide" if it reads better. Don't bulk-rename legacy `{NAME} User Guide.md` or `{NAME} Rollup.md` — migration is forward-only when the anchor is next touched.
--[[{NAME} User Docs]]-`, top-right `><br>: end-user / consumer documentation` (legacy `+>` shorthand still accepted). A `---` separator row enables auto-listing of remaining children — preserve it when present.
-- **Don't pile facet-shape rules from sibling dispatches here** — Design / Dev Docs / Track facet specifics live in their own CAB facet files. This file owns only the User Docs dispatch rules; cross-link, don't inline.
-- **Working example is canonical** — `HBR User Docs/HBR User Docs.md`. If the example and the spec disagree, fix one or the other; don't leave them drifted.
+*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body + RULESET R-fct-user-dispatch above.)*
+
+- **Keep the Reference Example, Format Specification, and the working example (`HBR User Docs/HBR User Docs.md`) in sync** — edits here change every anchor's User Docs dispatch; if the example and the spec disagree, fix one, don't leave them drifted.
+- **Don't inline sibling-dispatch rules here** — Design / Dev Docs / Track facet specifics live in their own CAB facet files; this file owns only the User Docs dispatch rules. Cross-link, don't duplicate.

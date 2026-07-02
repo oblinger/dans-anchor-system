@@ -111,9 +111,9 @@ When `{slug} WP/` exists, the anchor dispatch table carries a `| Work | [[{slug}
 
 # BRIEF
 
-- **This file is the facet spec** for the Work Products zone of an anchor — it defines the location, structure, naming, dispatch-page shape, and the anchor-page **Work** row that wires WP into the anchor. Edit here to change the *rule*; do NOT inline any specific anchor's work-product content.
-- **Inclusion test:** something belongs in WP only if it is a **polished, dated output** of human+agent collaboration (paper, report, analysis, presentation). Agent-generated reports go to `{slug} Outputs/` in Plan; feature design specs go to `{slug} Features/`; informal notes go to the anchor page or a log file — see the *Distinction from Other Dated Content* table; do not blur those lines.
-- **Naming is load-bearing:** folder and main file share the exact name `{date} {name}` with date in `YYYY-MM-DD`; no slug prefix on files inside WP; always a folder even for single-file work products. Renaming the convention breaks `/cab wp`, rewire/rescan auto-listing, and the dispatch page's reverse-chronological ordering.
-- **The `---` separator at the bottom of the dispatch table is structural**, not decorative — it is the marker that rewire/rescan uses to auto-list any remaining work-product folders. Do not remove it.
-- **NOT for**: project-wide markdown / linking rules ([[R-markdown]] and CLAUDE.md), Brief-discipline rules ([[FCT Brief]]), or anchor-local maintenance content (lives in `{NAME} Rules.md` / `{NAME} Decisions.md`).
-- **When the spec changes** (e.g. WP location moves, naming changes, the dispatch-page shape is revised), update the example block, the *Anchor Page Row* snippet, and the *Distinction from Other Dated Content* table together so they stay consistent — readers cite all three.
+*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body above.)*
+
+- **This is the facet spec, not an instance** — edit here to change the *rule*; never inline a specific anchor's work-product content.
+- **Inclusion test + what doesn't belong** — WP holds only **polished, dated** human+agent outputs; agent-generated reports go to `{slug} Outputs/`, feature specs to `{slug} Features/`, informal notes to the anchor page / log (see the *Distinction from Other Dated Content* table). NOT for project-wide markdown / linking rules ([[R-markdown]], CLAUDE.md), Brief-discipline rules ([[FCT Brief]]), or anchor-local maintenance content (`{NAME} Rules.md` / `{NAME} Decisions.md`).
+- **Tooling consumers** — the `{date} {name}` naming convention and the bottom `| --- | |` auto-list marker are read by `/cab wp` and rewire/rescan; don't rename the convention or remove the marker without updating them.
+- **Cross-ref integrity** — when the spec changes (location, naming, dispatch-page shape), update the example block, the *Anchor Page Row* snippet, and the *Distinction from Other Dated Content* table together — readers cite all three.

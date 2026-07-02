@@ -243,10 +243,9 @@ The `{NAME} Design/` folder exists **iff** the anchor has real design content �
 
 # BRIEF
 
-- **This file is the CAB Design facet spec** — it defines the `{NAME} Design/` folder convention (folder-presence gate, required vs. optional children, scaffolding, lifecycle gate behavior) and embeds the `R-design` ruleset. It is the authority cited by `/design` and its sub-skills.
-- **NOT for per-child facet content** — PRD / Architecture / Testing / UX Design / API Design / Decisions / Roadmap / Features each have their own `CAB <X>.md` spec. Link to those; do not inline their rules or sections here.
-- **Inclusion test for the body** — content belongs here if it answers "what is the Design folder, what must it contain, when does /design scaffold it, and how does the folder-presence gate work?" Anything narrower (a child facet's internal shape) belongs in that child's spec.
-- **`R-design` ruleset is co-located** — the `# RULESET R-design` H1 at the bottom is the ruleset embedded per F133. Keep it after the prose spec, use `include::` / `description::` Dataview fields, and number rules `R-design-NN` sequentially. Don't split it into a sibling file.
-- **Code-trait deprecation is load-bearing** — R-design-05 and the § Trait system table mark `Code` as a deprecated `/design` gate. If you re-add it as a gate anywhere, you re-introduce the conflation this facet was created to fix (F140 sweep tracks the retirement).
-- **Dispatch graph claim** — § Scaffolding promises pre-wired files so wiki-links resolve from day one. If you change the required-children list, update the scaffolder runbook in `/design` and the R-design-02 check pattern in lockstep.
-- **See Also is a navigation contract** — each child facet wiki-link in § See also is the resolution target a `/design` sub-skill uses to find its spec. Don't rename or remove a row without updating the corresponding sub-skill.
+*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body above; the `R-design` ruleset is embedded below.)*
+
+- **Scope / inclusion test** — content belongs here only if it answers "what is the Design folder, what must it contain, when does `/design` scaffold it, how does the folder-presence gate work?" Per-child facet content (PRD / Architecture / Testing / UX / API / Decisions / Roadmap / Features) lives in each child's own `CAB <X>.md` spec — link, never inline.
+- **Code-trait deprecation is load-bearing** — R-design-05 and § Trait system mark `Code` as a deprecated `/design` gate; re-adding it as a gate anywhere re-introduces the conflation this facet was created to fix (F140 tracks the retirement).
+- **Change the required-children list in lockstep** — § Scaffolding promises pre-wired files so wiki-links resolve from day one; if the required-children list changes, update the `/design` scaffolder runbook and the R-design-02 check pattern together.
+- **See Also is a navigation contract** — each child-facet wiki-link in § See also is the resolution target a `/design` sub-skill uses to find its spec; don't rename or remove a row without updating the corresponding sub-skill.

@@ -95,10 +95,9 @@ Drive is a behavioral mode, not a structural one. Compositional expectations:
 
 # BRIEF
 
-- **This file is the Trait spec for `Drive`** — authoritative declaration of the default cadence posture, detection rules, load-bearing rules, composition constraints, and the `compact` trigger prose that POST-COMPACT inlining sources. Edits change agent behavior across every anchor that doesn't declare `Lean`.
-- **NOT the place for the user-facing operating-mode narrative** — that lives at [[SKL Mode Drive]]. Don't duplicate prose between the two; the Trait spec links out and summarizes, while SKL Mode Drive carries the full user-facing explanation. Likewise, don't inline content that belongs in [[TRT]] (trait-system rules) or `role-pilot.md` POST-COMPACT RELOAD (the inlined runtime copy).
-- **Inclusion test for a rule added to § The load-bearing rules** — it must be a recurring "do I ask or assume?" trade-off decision the agent faces, and it must match what `role-pilot.md` POST-COMPACT RELOAD § Operating Mode — Drive enforces. If the rule lives only here and not in the POST-COMPACT inlining, it isn't load-bearing yet.
-- **The `compact` trigger block is the source-of-truth for POST-COMPACT inlining** — when this block changes, `role-pilot.md` § Operating Mode — Drive must be re-synced. Treat the two as a single specification with two surfaces; don't let them drift.
-- **Cadence-axis exclusion is structural, not stylistic** — `Drive` and [[Lean]] are mutually exclusive (at most one cadence Trait per anchor). Any edit that softens this contradicts F077 and [[CAB Aspects]]; route such proposals through a feature, not a quiet edit here.
-- **Use wiki-links for every named referent** ([[Lean]], [[SKL Mode Drive]], [[CAB Aspects]], F068, F077, F091) — don't inline definitions that already exist elsewhere. Names are load-bearing; renames must propagate.
-- **History entries are append-only and dated** — record material changes (rule additions, threshold shifts, renames) with their F-number; don't rewrite past entries.
+*(Maintainer note — cautions for whoever edits this Trait spec. The normative spec is the body above; the full user-facing narrative is [[SKL Mode Drive]].)*
+
+- **This file summarizes and links out; it does not duplicate.** The user-facing operating-mode narrative lives at [[SKL Mode Drive]]; trait-system rules in [[TRT]]; the inlined runtime copy in `role-pilot.md` POST-COMPACT RELOAD. Don't inline content that belongs to those surfaces.
+- **Inclusion test for a rule added to § The load-bearing rules** — it must be a recurring "do I ask or assume?" trade-off decision, and it must match what `role-pilot.md` POST-COMPACT RELOAD § Operating Mode — Drive enforces. A rule living only here and not in the POST-COMPACT inlining isn't load-bearing yet.
+- **The `compact` trigger block and `role-pilot.md` § Operating Mode — Drive are two surfaces of one spec** — when this block changes, re-sync the role file; don't let them drift.
+- **Don't soften the Drive ⊕ Lean exclusion** — any edit weakening the at-most-one-cadence-Trait rule contradicts F077 and [[CAB Aspects]]; route such proposals through a feature, not a quiet edit here.

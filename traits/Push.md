@@ -77,10 +77,4 @@ Push is a behavioral mode — no on-disk format requirements. Compositional expe
 
 - **2026-06-17** — Created per user direction: a third Git-aspect mode between `Commit` (commits, never pushes) and `PR` (review gate). Push = Commit + auto-push, never asks. Hook Anchor set to Push.
 
-# BRIEF
-
-- **This file IS the Push Trait spec.** It defines the behavioral Git-aspect mode named `Push`: commit at logical boundaries AND push, both without asking; never amend. Edit here when Push semantics change.
-- **Push = Commit + auto-push.** The one behavioral delta from [[Commit]] is rule 2 (push without asking) vs Commit's "never auto-push." Keep the two specs' shared rules (1, 3, 4) in lockstep; only the push rule differs.
-- **Three Git-aspect modes now exist** — [[Commit]] (commit only), Push (commit + push), [[PR]] (review gate) — plus [[NoGit]] (no repo). All four mutually exclusive; co-require `Code` (except NoGit). Don't soften the mutual-exclusivity; `/audit aspects` checks it. Bare-noun naming (F077-Q7): `Push`, not `PushMode` / `GitPush`.
-- **Trigger block is load-bearing** — keep `### compact` prose in lockstep with `role-pilot.md` POST-COMPACT § Git Mode if/when Push is inlined there (Commit/PR are; Push should join).
-- **History H2 is append-only.**
+*(Maintainer note — Push = Commit + auto-push; the only behavioral delta from [[Commit]] is rule 2 (push without asking), so keep the shared rules 1/3/4 in lockstep with [[Commit]]. Don't soften the Git-aspect mutual-exclusivity (`/audit aspects` enforces it). Bare-noun naming (F077-Q7): `Push`, not `PushMode` / `GitPush`. Keep the `### compact` trigger prose in lockstep with `role-pilot.md` POST-COMPACT § Git Mode if/when Push gets inlined there. History H2 is append-only.)*

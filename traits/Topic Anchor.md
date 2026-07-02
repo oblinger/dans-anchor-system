@@ -60,9 +60,8 @@ Anchor-page kinds catalog: [[FCT Anchor Page]]. Synthetic example: [[Knots]]; re
 
 # BRIEF
 
-- **This file is the spec for the Topic Anchor trait** — it defines what a Topic Anchor IS (no-code, evergreen, vault-resident, routing-hub-shaped) and how it deltas from [[CAB Base]]. Edits here change the trait contract for every anchor that carries it.
-- **NOT a catalog of topic anchors** — do not list individual Topic Anchor instances (SYS, MY, etc.) here beyond the one Example block. The Example is illustrative, not exhaustive; new instances go in the vault, not in this spec.
-- **Inclusion test for content on this page**: does the rule apply to *every* Topic Anchor (or to the trait-application decision)? If yes, it belongs here. If it applies to only one anchor, it belongs in that anchor's `{NAME} Rules.md` / `{NAME} Decisions.md`. If it applies to all anchors regardless of trait, it belongs in [[CAB Base]].
-- **Deltas-only discipline** — only document differences from [[CAB Base]]. Do NOT restate Base rules. If a section would just duplicate Base, omit it.
-- **Load-bearing constraints**: the "No repository" delta (no `.git/`, no `code:` key, no CLAUDE.md) and the "lives within the Obsidian vault" constraint are what distinguish Topic from Code/Project traits — breaking either silently reclassifies the anchor. The Audit § Conditional structure rules guard against accidental Code-trait drift.
-- **Linking convention**: this trait is referenced by name ("Topic Anchor") from `.anchor` config and from [[CAB Base]] / [[TRT]] dispatch tables; rename only via a coordinated rewire across CAB.
+*(Maintainer note — cautions for whoever edits this trait spec.)*
+
+- **Inclusion test** — content belongs here only if it applies to *every* Topic Anchor (or to the trait-application decision). A one-anchor rule → that anchor's `{NAME} Rules.md` / `{NAME} Decisions.md`; an all-anchor rule → [[CAB Base]]. Document deltas from Base only — don't restate Base. Not a catalog: don't list individual Topic Anchor instances (SYS, MY, etc.) beyond the one illustrative Example block.
+- **Don't regress the load-bearing deltas** — "No repository" (no `.git/`, no `code:` key, no CLAUDE.md) and "lives within the Obsidian vault" are what distinguish Topic from Code; breaking either silently reclassifies the anchor. The Audit § Conditional structure rules guard against accidental Code-trait drift.
+- **Linking convention** — this trait is referenced by name ("Topic Anchor") from `.anchor` config and from [[CAB Base]] / [[TRT]] dispatch tables; rename only via a coordinated rewire across CAB.

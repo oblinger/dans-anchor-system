@@ -84,10 +84,9 @@ Commit is a behavioral mode, not a structural one — it imposes no on-disk form
 
 # BRIEF
 
-- **This file IS the Commit Trait spec.** It defines the behavioral Git-aspect mode named `Commit`: what it means, how it's detected from `.anchor` `traits:`, the four load-bearing rules, composition constraints, and the POST-COMPACT trigger prose pilots reload. Edit here when the Commit semantics change.
-- **This file is NOT for project-wide commit policy, CAB-Aspects framework rules, or user-facing how-to.** Project-wide rules live in `CLAUDE.md`; the aspects/composability framework lives in [[CAB Aspects]]; the user-facing mode spec lives in [[SKL Mode Git Commit]]. Don't inline that content here — link to it.
-- **Inclusion test — belongs on this page only if it's Commit-specific.** A rule that applies to PR mode AND Commit mode belongs in [[CAB Aspects]] or the parent mode framework, not duplicated here. The four load-bearing rules (§ The four load-bearing rules) are the canonical Commit-specific surface; the `### compact` trigger block is their POST-COMPACT mirror.
-- **Trigger block is load-bearing — keep `### compact` prose in lockstep with `role-pilot.md` POST-COMPACT § Git Mode — Commit.** Pilots reload from `role-pilot.md`; this file is the authoritative source. If you edit one, edit both (or the agent will silently drift from the spec).
-- **Naming and composition constraints are load-bearing.** `Commit` is a Git-aspect trait — mutually exclusive with `PR` and `NoGit`, co-requires `Code`. Don't soften those rules; `/audit aspects` will check them. The bare-noun naming convention (per F077-Q7) means `Commit` not `CommitMode` or `GitCommit`.
-- **History H2 is append-only.** Add new dated bullets at the bottom; don't rewrite prior entries when semantics shift — file a new History line documenting the shift.
-- **Don't restate brief content in the body.** Body discipline per [[FCT Brief]]: less is more. Detail that only the editing agent needs (e.g. "keep `### compact` in sync with role-pilot.md") lives here in BRIEF, not duplicated upward.
+*(Maintainer note — cautions for whoever edits this spec. The normative spec is the body above; this file is the authoritative definition of the `Commit` Git-aspect trait.)*
+
+- **Inclusion test — Commit-specific only.** A rule that applies to PR mode too belongs in [[CAB Aspects]] or the parent mode framework, not here. The four load-bearing rules (§ The four load-bearing rules) are the canonical Commit-specific surface; the `### compact` block is their POST-COMPACT mirror. Project-wide commit policy lives in `CLAUDE.md`; the user-facing spec in [[SKL Mode Git Commit]] — link, don't inline.
+- **Trigger block is load-bearing** — keep the `### compact` prose in lockstep with `role-pilot.md` POST-COMPACT § Git Mode — Commit (this file is the source); edit one, edit both or pilots drift from the spec.
+- **Don't soften naming/composition constraints** — `Commit` is mutually exclusive with `PR` and `NoGit`, co-requires `Code`, and uses the bare-noun name (per F077-Q7: `Commit`, not `CommitMode`); `/audit aspects` will check these.
+- **History H2 is append-only** — add new dated bullets at the bottom; never rewrite prior entries when semantics shift.

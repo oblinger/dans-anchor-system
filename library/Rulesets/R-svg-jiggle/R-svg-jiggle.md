@@ -10,6 +10,8 @@ description:: Geometry-aware layout-repair ("jiggle") for hand-authored SVG diag
 
 **Representation boundary.** This ruleset owns the **SVG** track, where the agent controls every coordinate so resolutions rewrite geometry directly. The sibling **D2 Jiggle** (deferred) expresses the same abstract moves as ELK directives. Cross-translation lives in the shared abstract-move vocabulary, not in either ruleset — so this is **not** a CAB-conformance facet and is deliberately absent from [[R-facet]].
 
+**Run:** `svg-jiggle.py <in.svg> [-o <out>] [--max-iter 20] [--report] [--issues]` — `--issues` prints the located issue list; `--report` shows the resolutions applied.
+
 ## Governing rule
 
 ### RULE R-svg-jiggle-01 — Severity order governs resolution selection (governing)
@@ -62,15 +64,3 @@ Scale a specific short edge's marker down so the head is ≤ 20 % of its segment
 fix:: try_widen
 Uniformly scale inter-box **gaps** (and the canvas) on the cramped axis so a crowded band gains arrow length; boxes keep relative order, only gaps grow. The most invasive resolution — **gated**: applied only when `shrink-arrowhead` alone cannot clear the crowded-band, and when it can be done without distorting the layout. When unsafe, the crowded-band is left as an **honest residual** in the issue list rather than forced.
 **Why:** widen is the only fix for a whole-band crowd, but it is structural; honesty about an un-widened residual beats a distorted diagram.
-
-# BRIEF
-
-**R-svg-jiggle** repairs hand-authored SVG diagrams by the **issue-list model**: detect a named, located issue list (`--issues`), then resolve each with the cheapest resolution that closes it without opening a new one, until the list is empty or only honest residuals remain. Detection + geometry live in `skills/viz/svg-jiggle.py`; the rules here are the policy. It mirrors the F161/F166 engine — issue = `check::`, resolution = `fix::` candidate.
-
-- **R-svg-jiggle-01** — severity tiers (hard = label∩box/box∩box ≫ soft = wrong-line/overweighted-head/crowded ≫ free) are the cost function governing every selection; node labels (≥70% inside a box) and outside-all-boxes labels are exempt.
-- **Issue catalog (02–05)** — label-over-box (hard), label-over-wrong-line, overweighted-head (head >20% of segment), crowded-band (arrows <~24px). Each names its candidate resolutions.
-- **Resolution catalog (06–10)** — slide (free, first), flip (free), nudge-box (cascading, edge-reconnecting), shrink-arrowhead (local), widen (global, gated; honest residual when unsafe).
-
-Cheapest-first; hard issues must reach 0; soft issues are cleared when a cheap resolution exists, else listed as residual (never faked). SVG track only — D2 Jiggle is the deferred sibling sharing the abstract-move vocabulary, not these rules. Not a CAB-conformance facet; not under [[R-facet]].
-
-Run: `svg-jiggle.py <in.svg> [-o <out>] [--max-iter 20] [--report] [--issues]`.

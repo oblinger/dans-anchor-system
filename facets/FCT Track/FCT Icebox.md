@@ -105,10 +105,10 @@ Movement into or out of the Icebox is triggered by whether the user *intends to 
 
 # BRIEF
 
-- **This is the facet spec for `{NAME} Icebox.md`**, not a real icebox — edits here change the rule, not any anchor's parked items. Per-anchor icebox content lives in each anchor's own `{NAME} Icebox.md`.
-- **NOT for**: backlog-grade work (active deferred items belong in [[CAB Backlog]]), trash (genuinely dead ideas should be deleted, not iceboxed), or roadmap items (planned execution belongs in [[FCT Roadmap]]). The defining attribute is *durable parking without current intent*.
-- **Inclusion test for a facet rule on this page**: does it describe how an *icebox file* is structured, located, or maintained? Cross-facet planning rules (Backlog vs Roadmap vs Icebox cut lines) belong in the § Relationship section; broader planning discipline belongs in the parent [[FCT Facets]] catalog or [[CAB Backlog]].
-- **Reference Example zone is illustrative, not normative** — the H1 collision (`# CAE Icebox` inside this file) is intentional sample content. Don't "fix" it by demoting to H2; the format specification *below* the example is the authoritative shape.
-- **Load-bearing constraint — optionality**: the spec must keep emphasizing that most anchors do NOT have an Icebox. Don't soften this into "every anchor should have one" — that would create empty-file clutter across the vault.
-- **Lifecycle rules govern movement, not deletion** — items move Backlog ↔ Icebox by *intent to consider*, not age. Preserve that wording; an age-based deletion rule would defeat the whole "durable parking" purpose.
-- **When updating planning vocabulary** (Backlog / Roadmap / Icebox / GTD Someday-Maybe), keep terminology aligned across [[CAB Backlog]], [[FCT Roadmap]], and the § Relationship section here. Drift between these three specs is the most common breakage.
+*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body above; cross-facet planning distinctions live in § Relationship to Other Planning Docs.)*
+
+- **Inclusion test** — a rule belongs here only if it describes how an *icebox file* is structured, located, or maintained; cross-facet planning cut-lines (Backlog vs Roadmap vs Icebox) belong in § Relationship, and broader planning discipline in [[FCT Facets]] or [[CAB Backlog]].
+- **Optionality is load-bearing** — keep emphasizing that most anchors do NOT have an Icebox; don't soften to "every anchor should have one" (that creates empty-file clutter vault-wide).
+- **Movement is by intent, not age** — preserve the Backlog ↔ Icebox "intent to consider, not age" wording (R-fct-icebox-04); an age-based deletion rule would defeat the durable-parking purpose.
+- **Reference Example is illustrative, not normative** — the `# CAE Icebox` H1 collision is intentional sample content; don't "fix" it by demoting to H2. The Format Specification below the example is authoritative.
+- **Keep planning vocabulary aligned** — Backlog / Roadmap / Icebox / GTD Someday-Maybe terminology must stay in sync across [[CAB Backlog]], [[FCT Roadmap]], and § Relationship here; drift between these is the most common breakage.

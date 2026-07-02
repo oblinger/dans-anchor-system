@@ -204,6 +204,6 @@ def trigger(ctx):
 
 # BRIEF
 
-- **This file governs the `{NAME} queries.md` *file*** — sections + order + per-item validity. The *procedure* that builds it ( walking open questions, determination routing, run-verifications-ahead, console echo, trim-on-answer ) lives in the **[[SKL Query]]** skill, which cites `R-query` for the output shape. Two views of one system: facet = the artifact's rules; skill = how to produce it.
-- **The load-bearing invariants:** verifications are agent-run / user-judged (never "user runs X" — R-query-04/05/06); no orphan items (R-query-07); questions are answerable + linked (R-query-08/09/10). These are what make a queries file trustworthy to answer.
-- **Auditable:** `R-query` is in the `R-doc` umbrella, so `/audit doc {NAME} queries.md` and the on-write hook validate it. If the spec changes, fix it here — the skill follows.
+*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body + `R-query` ruleset above; the procedure that builds the file lives in [[SKL Query]].)*
+
+- **`R-query` is in the `R-doc` umbrella** — so `/audit doc {NAME} queries.md` and the F167 on-write hook validate it. If the spec changes, fix it here; [[SKL Query]] cites these rules and follows.
