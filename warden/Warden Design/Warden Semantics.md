@@ -50,7 +50,7 @@ Read a row as a path — `tool` ⊃ `tool:post` ⊃ `tool:post:Bash` — and a s
 
 **Change detection.** Inside an audit pass the **content-hash gates** which files re-run: unchanged files reuse their cached verdict, changed (and never-seen) files re-evaluate. A never-seen anchor has no prior hashes, so all its files run once. An **agent write** fires only live rules, not passive ones (this keeps writes cheap). An **external** edit (Obsidian, `git pull`) fires no hook and is caught at the next audit. **Warden runs no file-change tracker of its own** — an *agent* write is a `write:*` moment for free (the tool hook), and *external* changes ride **git / the audit content-hash**, which already exist. A dedicated filesystem watcher would duplicate those and is heavy, so it stays deferred — and if live external-change reaction is ever needed, the move is to *subscribe* to an existing watcher, not build one. (A machine should carry **one** shared file-change source, not three — Warden never adds a watcher alongside HookAnchor / DMUX; event-storm processing is per-watcher, so redundant trackers waste CPU in bursts.)
 
-**Elapsed-time conditions in `when::` — conjunctive when *(proposed, post-v1; user 2026-07-01)*.** Some rules are *about* elapsed time — "the agent has been `asking` for 10 minutes." Testing `agent.state_seconds` in `if::` only helps if some *other* moment happens to fire the rule; nothing wakes it when the threshold itself passes, and polling would be busy-waiting. The proposal: `when::` grows **conjunction** — `when:: prompt:stop and agent.state_seconds > 600` — where the moment names the *entry event* and the time term names a *threshold the daemon schedules*: on the moment, the daemon computes when the term would become true and sets **one timer** for that instant (canceled if the state exits first). Warden is thereby *efficient about gating on elapsed time* — a timer per armed rule instance, zero polling. The deeper observation recorded with it: a conjunctive `when::` blurs into `if::` — `when::` could in principle absorb the whole condition, with the compiler splitting each conjunct into *indexable dispatch key* vs *residual test* (exactly [[F210 — Conjunction binding + indexing|F210]]'s conjunction-splitting machinery). **Deliberately not v1**: v1 keeps `when::` = moments, `if::` = tests; this lands on the roadmap when a real rule needs waking on time.
+**Elapsed-time conditions in `when::` — conjunctive when *(accepted 2026-07-02; post-v1, lands at M8)*.** Some rules are *about* elapsed time — "the agent has been `asking` for 10 minutes." Testing `agent.state_seconds` in `if::` only helps if some *other* moment happens to fire the rule; nothing wakes it when the threshold itself passes, and polling would be busy-waiting. The proposal: `when::` grows **conjunction** — `when:: prompt:stop and agent.state_seconds > 600` — where the moment names the *entry event* and the time term names a *threshold the daemon schedules*: on the moment, the daemon computes when the term would become true and sets **one timer** for that instant (canceled if the state exits first). Warden is thereby *efficient about gating on elapsed time* — a timer per armed rule instance, zero polling. The deeper observation recorded with it: a conjunctive `when::` blurs into `if::` — `when::` could in principle absorb the whole condition, with the compiler splitting each conjunct into *indexable dispatch key* vs *residual test* (exactly [[F210 — Conjunction binding + indexing|F210]]'s conjunction-splitting machinery). **Deliberately not v1**: v1 keeps `when::` = moments, `if::` = tests; this lands on the roadmap when a real rule needs waking on time.
 
 ### `if::` — the test
 
@@ -106,8 +106,8 @@ The **interpretation environment** is the Python scope a rule is *interpreted* i
 | **`file`** | the document as the root **`Section`** — `.path`, `.name`, `.frontmatter`, `.diff` (root only); `.title`, `.level`, `.text`, `.body`, `.lines`, `.links`, `.sections`, `.section("X")`, `.tables` (recursive tree; lazy) |
 | **`anchor`** | `.name`, `.slug`, `.root`, `.traits`, `.get(name)`, `.files(glob)`, `.doc(path)` (cross-file reach — audit-passive) |
 | **`git`** | `.branch`, `.mode`, `.is_dirty`, `.ahead`, `.changed` |
-| **`event`** | `.kind`, `.diff`, `.command`, `.tool` · *(proposed)* `.target` — the tool call's file target as a lazy stat view |
-| **`agent`** | `.state` (`working`/`landed`/`asking`/`idle`), `.skill`, `.is_asking` · *(proposed)* expanded property set — § `agent` |
+| **`event`** | `.kind`, `.diff`, `.command`, `.tool` · `.target` — the tool call's file target as a lazy stat view |
+| **`agent`** | `.state` (`working`/`landed`/`asking`/`idle`), `.skill`, `.is_asking` · expanded property set — § `agent` |
 | **`turn`** | the conversation turn, lazy — `.agent_said`, `.user_said`, `.text`, `.messages`, `.tools`, `.commands`, `.asks_question` ([[F217 — Conversation-content gating — rules on what was said|F217]]; user-endorsed 2026-07-01) |
 | *verbs* | `tell(msg)`, `deny(reason)`, the `file` edits, `ask_oracle(prompt)→str`, `sh(argv)` — § Verbs |
 | *ambient* | `today`, `now` (+ plain Python: builtins, `re`, `json`, `datetime`) |
@@ -134,7 +134,7 @@ A document is a **tree of sections**, and `file` is its **level-0 root** — its
 | `file.lines`, `file.links` | the section's lines; its wiki / markdown links | — |
 | `file.sections`, `file.section("X")` | child sections (**recursive** — each a `Section`); named lookup, first match | mutate the returned `Section` |
 | `file.tables` | the section's tables, lazy — each a `Table` | mutate its cells / rows |
-| *(proposed)* `file.size`, `file.mtime`, `file.exists` | stat-class members *(root only)* — a pure `stat()`, no content read; what a maintain rule's staleness test (`source.mtime > derived.mtime` via `anchor.doc`) and a size guard need | — |
+| `file.size`, `file.mtime`, `file.exists` | stat-class members *(root only)* — a pure `stat()`, no content read; what a maintain rule's staleness test (`source.mtime > derived.mtime` via `anchor.doc`) and a size guard need | — |
 
 **`Section`** is the recursive node (`file` is the root): `.title` / `.level` / `.text` / `.body` / `.lines` / `.links` / `.sections` / `.section(name)` / `.tables`. The root also carries `.path` / `.name` / `.frontmatter` / `.diff`; inner sections return `None` for those.
 
@@ -179,7 +179,7 @@ The moment (from `when::`; **live runs only** — absent under `/audit`):
 | `event.diff` | what changed (write moments) |
 | `event.command` | the pending / just-run command (Bash moments) |
 | `event.tool` | the tool name + input (tool moments) |
-| *(proposed)* `event.target` | the tool call's **file target** as a lazy stat view — `.path`, `.size`, `.mtime`, `.exists`. A pure `stat()`, never a content read, so it's `tool:pre`-safe: `if:: event.target.size > 2_000_000` writes the enormous-read warning as a one-line rule (per the 2026-07-01 consumer review: the metadata should be *available*, not baked into a shipped consumer). `None` when the tool has no file target. |
+| `event.target` | the tool call's **file target** as a lazy stat view — `.path`, `.size`, `.mtime`, `.exists`. A pure `stat()`, never a content read, so it's `tool:pre`-safe: `if:: event.target.size > 2_000_000` writes the enormous-read warning as a one-line rule (per the consumer review: the metadata should be *available*, not baked into a shipped consumer). `None` when the tool has no file target. |
 
 ### `agent`
 
@@ -191,9 +191,9 @@ The running agent's state — sense it at a return / lifecycle moment (`when:: p
 | `agent.skill` | the skill running now — `land`, `query`, `crank`, … (or `None`) |
 | `agent.is_asking` | a user question is pending (sugar for `state == 'asking'`) |
 
-**Expanded property set *(proposed, 2026-07-01)*.** Per the user's consumer review — *many rules condition on the state of the agent, so `agent` should carry a pretty complete set of state properties, all lazy* (they cost computation, occasionally resources; most rules read none, and each is computed on first read and cached per pass, the standard environment contract). The proposed starter surface, every member reading from what the session registry + moment ledger + transcript tail already hold:
+**Expanded property set *(accepted 2026-07-02)*.** Per the user's consumer review — *many rules condition on the state of the agent, so `agent` should carry a pretty complete set of state properties, all lazy* (they cost computation, occasionally resources; most rules read none, and each is computed on first read and cached per pass, the standard environment contract). The proposed starter surface, every member reading from what the session registry + moment ledger + transcript tail already hold:
 
-| Member *(all proposed)* | What it is |
+| Member | What it is |
 |---|---|
 | `agent.response` | the agent's visible words this turn — **alias of `turn.agent_said`** (the user's sketched name for the common case: `re.search(r'…', agent.response)` as an `if::` gate) |
 | `agent.session_id`, `agent.cwd`, `agent.worktree` | identity — the session UUID; working directory; worktree name (`SKA-7`-style, `None` outside one). Worktree-per-agent makes `.worktree` the agent's *name* (the F148 resolution) |
@@ -202,7 +202,7 @@ The running agent's state — sense it at a return / lifecycle moment (`when:: p
 | `agent.last_tool`, `agent.tools_this_turn` | the most recent tool invocation; this turn's `(name, key input)` pairs (sugar over `turn.tools`) |
 | `agent.context_used` | fraction of the context window consumed (`None` where the harness doesn't expose it) — what a "wrap up before compaction"-class rule conditions on |
 | `agent.state_seconds` | seconds the agent has been in its current state — `if:: agent.state == 'asking' and agent.state_seconds > 600` ("asked ten minutes ago and still waiting"). *Naming open — user dislikes "state seconds"; candidates: `state_seconds`, `state_age`, `since`.* Read-time it's a cheap ledger subtraction; **rules that want to be *woken* by elapsed time (rather than test it when some other moment fires) are the § `when::` elapsed-time proposal** |
-| `agent.open_tasks` | open items on the harness task list — count (or list) of tasks not yet completed; the signal behind the *(proposed)* `paused` state ([[F216 — Agent-state model — sensing what the agent is doing|F216]]) |
+| `agent.open_tasks` | open items on the harness task list — count (or list) of tasks not yet completed; the signal behind the `paused` state ([[F216 — Agent-state model — sensing what the agent is doing|F216]]) |
 
 Growth rule: the *namespace and laziness contract* are the frozen thing; individual members join by proposal (a one-row addition), each justified by a real rule that reads it. Members degrade to their error values (`''`/`None`/`[]`) when a rung can't supply them — same contract as `turn.*`.
 
