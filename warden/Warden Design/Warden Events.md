@@ -85,7 +85,7 @@ A content-typed *view* of `tool:post:Write` / `…:Read`: refine by the file's *
 
 ## VCS moments
 
-Fire on version-control actions (often a refinement of `tool:*:Bash:git-*`, surfaced first-class because so many rules care).
+Fire on version-control actions. **First-class moment family** *(F209 Q2, resolved 2026-07-02)* — its own taxonomy branch, even though the moments are lazily derived under the hood from `tool:*:Bash:git-*` / git hooks: first-class *surface* (rules write `when:: git:commit`), derived *implementation*. Surfaced first-class because so many rules care and it survives non-Bash git surfaces (jj, GUI).
 
 | Moment | Refines by | Children / leaves | Runtime |
 |---|---|---|---|
@@ -113,7 +113,7 @@ Reserved, not v1: the conjunctive-`when::` machinery (splitting a conjunction in
 
 No "friendly alias" layer — the canonical moment path is the only first-class form. Two narrow conveniences only:
 
-- **Phase default.** A bare `skill:<name>` or `tool:<name>` (no `pre`/`post`) defaults to **`post`** — `skill:audit-q` ≡ `skill:post:audit-q`. This is a default, not a second name.
+- **Phase default** *(F209 Q1, resolved 2026-07-02).* A bare `tool:<name>` defaults to **`post`** — `tool:Bash` ≡ `tool:post:Bash`; the veto-capable `pre` is always named explicitly. A bare `skill:<name>` defaults to **`pre`** in v1 (F209 Q3 — `post` is deferred), so `skill:audit-q` ≡ `skill:pre:audit-q`. Defaults, not second names.
 - **Legacy shims (deprecated).** The already-shipped tokens `compact` → `session:compact` and `markdown-write` → `write:markdown` (from [[F091 — Trigger discipline|F091]] / [[F180 — When-trigger executable rules|F180]]) are accepted for back-compat, and rewritten to canonical form. New rules use the canonical path.
 
 ## Matching semantics
