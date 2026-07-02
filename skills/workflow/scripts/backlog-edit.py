@@ -622,26 +622,36 @@ def warn_verify_watching_horizon(status, horizon_name):
 # --------------------------------------------------------------------------
 # Row parsing
 
-ROW_ID_RE = re.compile(r"^(F|B)(new|\d+|-[A-Za-z0-9][\w\-]*)$")
+# Optional `<ANCHOR>-` prefix (e.g. `DMUX-F034`) for cross-anchor rows migrated
+# into another anchor's backlog that keep their origin id so wiki-links resolve.
+# 2+ uppercase letters + dash, so it never collides with the single-letter F/B.
+ROW_ID_RE = re.compile(r"^(?:([A-Z]{2,})-)?(F|B)(new|\d+|-[A-Za-z0-9][\w\-]*)$")
 
 
 def parse_row_id(arg):
-    """Return ('F'|'B', literal-rest-or-None).
+    """Return ('F'|'B'|'<PREFIX>-F'|..., literal-rest-or-None).
 
     'Fnew' / 'Bnew'  → (kind, None)            — mint a new number
     'F015'           → ('F', '015')
     'B7'             → ('B', '7')
     'B-mode-walkup'  → ('B', '-mode-walkup')   — kebab B-row id
+    'DMUX-F034'      → ('DMUX-F', '034')        — cross-anchor migrated row;
+                       the prefix is folded into `kind` so f"{kind}{rest}"
+                       reconstructs the full id.
     """
     m = ROW_ID_RE.match(arg)
     if not m:
         raise BacklogEditError(
             f"invalid row-id '{arg}' "
-            "(expected F<NNN>, B<n>, B-<slug>, Fnew, or Bnew)"
+            "(expected F<NNN>, B<n>, B-<slug>, <ANCHOR>-F<NNN>, Fnew, or Bnew)"
         )
-    kind, rest = m.group(1), m.group(2)
+    prefix, kind, rest = m.group(1), m.group(2), m.group(3)
     if rest == "new":
+        if prefix:
+            raise BacklogEditError(f"cannot mint a prefixed row-id '{arg}'")
         return (kind, None)
+    if prefix:
+        return (f"{prefix}-{kind}", rest)
     return (kind, rest)
 
 
@@ -658,14 +668,14 @@ def format_row_id(kind, rest_or_num):
 # Backlog scanning
 
 ROW_HEADER_RE = re.compile(
-    r"^(\s*)-\s+\*\*(F\d+|B[\w\-]+|B\d+)\b"
+    r"^(\s*)-\s+\*\*((?:[A-Z]{2,}-)?F\d+|B[\w\-]+|B\d+)\b"
 )
 H2_RE = re.compile(r"^##\s+(.+?)\s*$")
 
 # Used to parse the existing row line back into title + body so the script
 # can preserve them across status-only edits.
 ROW_FULL_RE = re.compile(
-    r"^-\s+\*\*(?P<rid>F\d+|B[\w\-]+|B\d+)"
+    r"^-\s+\*\*(?P<rid>(?:[A-Z]{2,}-)?F\d+|B[\w\-]+|B\d+)"
     r"(?:\s+—\s+(?P<title>.+?))?\*\*"
     r"\s+\[(?P<status>[^\]]+)\]"
     r"(?:\s+—\s+(?P<body>.+?))?"
@@ -754,6 +764,65 @@ def render_row(row_id, status, title, body):
 
 
 # --------------------------------------------------------------------------
+# Verify:/Next: companion sub-bullets (per the 2026-07-02 F171 incident): a
+# [Verify*]/[Watching*] bracket is only half-set until its `- **Verify:**`
+# yes/no question exists; [Ready]/[Active]/[Agreed] needs a `- **Next:**`
+# no-user action. Setting the bracket and writing its question is ONE atomic
+# act — the render marks a missing one `⚠` and audit-q C41 flags it.
+
+SUBBULLET_RE_TMPL = r"^\s+-\s+\*\*{label}(?:\s*\([^)]*\))?:\*\*\s*(.+?)\s*$"
+
+
+def _status_needs_verify(status):
+    s = (status or "").strip()
+    return s.startswith("Watching") or (
+        s.startswith("Verify") and not s.startswith("Verify-by")
+    )
+
+
+def _status_needs_next(status):
+    return (status or "").strip() in ("Ready", "Active", "Agreed")
+
+
+def _extract_subbullet_text(span_lines, label):
+    """Text of the first `- **<label>:**` sub-bullet in span_lines, or None."""
+    rx = re.compile(SUBBULLET_RE_TMPL.format(label=label))
+    for line in span_lines:
+        m = rx.match(line)
+        if m:
+            return m.group(1).strip()
+    return None
+
+
+def _ensure_subbullet(lines, row_id, label, text):
+    """Mutate `lines` in place: under row_id's line, drop any existing
+    `- **<label>:**` sub-bullet and insert `  - **<label>:** <text>` directly
+    after the row line (so it survives horizon-moves, which drop the span)."""
+    rx = re.compile(SUBBULLET_RE_TMPL.format(label=label))
+    row_i = None
+    for i, line in enumerate(lines):
+        rm = ROW_HEADER_RE.match(line)
+        if rm and len(rm.group(1)) == 0 and rm.group(2) == row_id:
+            row_i = i
+            break
+    if row_i is None:
+        return
+    end = len(lines)
+    for j in range(row_i + 1, len(lines)):
+        if H2_RE.match(lines[j].rstrip()):
+            end = j
+            break
+        rm = ROW_HEADER_RE.match(lines[j])
+        if rm and len(rm.group(1)) == 0:
+            end = j
+            break
+    keep = [lines[row_i]]
+    keep.extend(l for l in lines[row_i + 1:end] if not rx.match(l))
+    keep.insert(1, f"  - **{label}:** {text}\n")
+    lines[row_i:end] = keep
+
+
+# --------------------------------------------------------------------------
 # Mutation
 
 def locate_h2_insertion_point(lines, h2_index, h2_name):
@@ -799,6 +868,8 @@ def perform_edit(
     body,
     title_provided,
     body_provided,
+    verify_text=None,
+    next_text=None,
 ):
     """Apply the edit, return a one-line summary for the Messages entry."""
     raw = backlog_path.read_text()
@@ -819,6 +890,16 @@ def perform_edit(
     else:
         row_id = f"{kind}{rest}"
         existing = row_index.get(row_id)
+
+    # F171 companion-sub-bullet discipline: capture any existing Verify:/Next:
+    # sub-bullet text so it survives a horizon-move (which drops the row span),
+    # and so a same-status re-touch isn't forced to re-supply it.
+    existing_verify = existing_next = None
+    if existing is not None:
+        _es, _ee = existing[0], existing[1]
+        _span = lines[_es:_ee]
+        existing_verify = _extract_subbullet_text(_span, "Verify")
+        existing_next = _extract_subbullet_text(_span, "Next")
 
     # Validate horizon.
     if horizon == "same":
@@ -892,6 +973,33 @@ def perform_edit(
     # Grandfathers re-touch of same-status rows.
     verify_status_block(status, body, existing_status_for_check)
 
+    # F171 companion-sub-bullet enforcement + resolution. A [Verify*]/[Watching*]
+    # row must carry a `- **Verify:**` yes/no question; a [Ready]/[Active]/
+    # [Agreed] row a `- **Next:**` no-user action. The provided flag wins; else
+    # preserve the existing sub-bullet; else — for a status that needs one —
+    # REFUSE (the render would show `⚠`, and audit-q C41 would flag it).
+    eff_verify = verify_text if verify_text is not None else existing_verify
+    eff_next = next_text if next_text is not None else existing_next
+    if status not in ("same", "delete"):
+        if _status_needs_verify(status) and not (eff_verify and eff_verify.strip()):
+            raise BacklogEditError(
+                f"[{status}] refused: {row_id} needs a concrete yes/no question. "
+                f"Pass --verify \"<question>\" (e.g. \"Since <date>, has <bad thing> "
+                f"recurred? no = held\"). Setting a Watching/Verify bracket without "
+                f"its `- **Verify:**` sub-bullet renders `⚠ no concrete question` "
+                f"and is flagged by audit-q C41. If there is genuinely no user "
+                f"check, promote to [Done] or rebracket to [Blocked]/[Waiting]."
+            )
+        if _status_needs_next(status) and not (eff_next and eff_next.strip()):
+            raise BacklogEditError(
+                f"[{status}] refused: {row_id} needs a no-user next action. "
+                f"Pass --next \"<action>\". Setting a Ready/Active bracket without "
+                f"its `- **Next:**` sub-bullet renders `⚠ none declared — not really "
+                f"Ready` and is flagged by audit-q C41. If the next step needs the "
+                f"user, rebracket ([Verify] for a user check, [Blocked]/[Questions] "
+                f"for a decision)."
+            )
+
     # Build the new line.
     new_line = render_row(row_id, status, title, body)
 
@@ -922,6 +1030,14 @@ def perform_edit(
             insert_at += 1
         lines.insert(insert_at, new_line)
         verb = "added"
+
+    # F171 — (re)attach the companion sub-bullet under the just-placed row, so it
+    # survives horizon-moves (which delete the old span) and same-status re-touch.
+    if status not in ("same", "delete"):
+        if _status_needs_verify(status) and eff_verify:
+            _ensure_subbullet(lines, row_id, "Verify", eff_verify.strip())
+        elif _status_needs_next(status) and eff_next:
+            _ensure_subbullet(lines, row_id, "Next", eff_next.strip())
 
     backlog_path.write_text("".join(lines))
 
