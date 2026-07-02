@@ -64,4 +64,8 @@ Splitting the doc would **hollow out the exact page ~14 files point at** and for
 **Owned by [[SKA Backlog#^F191|F191]] (not F218):** the physical relocation `facets/CAB Legacy/` → `library/`, the de-CAB **rename**, and the vault-wide `[[CAB Aspects]]` inbound-link sweep (~68 refs) — these are one atomic branding pass, wrong to do piecemeal for a single doc. No open user question remains.
 
 
-Until the user decides, treat the contents here as **frozen**. The `CAB/CAB Track/` backlog has already been migrated: its one substantive item (legacy anchor-root page migration) became SKA **F217**; the `B-QFix` audit residuals were reconciled into SKA's own `B-QFix` (CAE/CSE-targeted residuals dropped as their targets were relocated).
+The placement review is **complete** (see § Status below); the folder stays frozen as F191's execution surface. The `CAB/CAB Track/` backlog has already been migrated: its one substantive item (legacy anchor-root page migration) became SKA **F217**; the `B-QFix` audit residuals were reconciled into SKA's own `B-QFix` (CAE/CSE-targeted residuals dropped as their targets were relocated).
+
+## Status
+
+**Done** — F218 scope complete: every CAB doc in the Migration Map has a resolved placement (supersede / keep / routed) and each supersede row's content is folded into its FCT/DSC home (see the ✅ rows). The `examples/Audited` gallery-duplicate dedup shipped separately (14 archived, facet-cited kept). The remaining work — stub-redirects, de-CAB renames, the vault-wide `[[CAB …]]` inbound-link sweep, and physical removal of this holding folder — is **mechanical and owned by [[SKA Backlog#^F191|F191]]** (deferred until [[SKA Backlog#^F157|F157]] Gen-3 rollout completes); the net-new homes are [[SKA Backlog#^F220|F220]] / [[SKA Backlog#^F222|F222]] / SKA Roadmap M1. This worksheet stays live as F191's execution surface. No per-doc placement decision remains outstanding.
