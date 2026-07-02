@@ -6,12 +6,11 @@ description: "F219 — Activation self-audit rules — base-trait + ruleset-reac
 
 ## Summary
 
-Activation is a pure function of an anchor's `.anchor` **traits** ([[Warden Semantics]] § Activation): each trait pulls in its omnibus rulesets, and a trait activates all of its rules. That model has two failure modes — both **closable by Warden auditing its own wiring**, which is the elegant part: the rule engine guards the rule engine.
+Activation is a pure function of an anchor's `.anchor` **traits** ([[Warden Semantics]] § Activation): each trait pulls in its omnibus rulesets, and a trait activates all of its rules. The **base trait is implicit** (auto-applied to every anchor, never declared — user 2026-07-02), which **closes the "trait-less anchor obeys nothing" failure by construction**: an anchor with no declared trait still obeys the base trait's always-on rules. That leaves **one** failure mode to audit — the elegant part is that the rule engine guards its own wiring:
 
-1. **A trait-less anchor obeys nothing.** If an anchor carries no trait, its active-set is empty and it silently follows no rules.
-2. **An orphaned ruleset never fires.** If a ruleset is added but never pulled in by any trait, it is dead — present, authored, and inert.
+- **An orphaned ruleset never fires.** If a ruleset is added but never pulled in by any trait (nor the base trait), it is dead — present, authored, and inert.
 
-F219 is the **two self-audit rules** that catch these.
+F219 is the **reachability self-audit rule** that catches it. *(A base-trait-present check is no longer needed: with the base trait applied by construction there is nothing to forget. `R-warden-base-trait` returns only if a later engine ever makes the base trait declarable.)*
 
 ## Success Criteria
 
@@ -19,18 +18,17 @@ F219 is the **two self-audit rules** that catch these.
 **Blocks next:** none (an integrity backstop).
 
 **What done looks like.**
-- **`R-warden-base-trait`** — every anchor carries the **base trait** (so its active-set is never empty; the universal rules always apply). A bare anchor flags.
-- **`R-warden-trait-reachable`** — every ruleset in the catalog is **reachable from at least one trait** (pulled in, directly or through `include::`). A ruleset reachable from no trait flags as dead wiring.
+- **`R-warden-trait-reachable`** — every ruleset in the catalog is **reachable from at least one trait** (pulled in, directly or through `include::`; the implicit base trait counts). A ruleset reachable from no trait flags as dead wiring.
+- *(Retired: `R-warden-base-trait`. The base trait is applied by construction — [[Warden Semantics]] § Activation — so "anchor lacks the base trait" cannot occur. Reinstated only if the base trait ever becomes declarable.)*
 
-**How it will be verified.** A fixture: an anchor with no trait → `R-warden-base-trait` fires; a ruleset wired into no trait → `R-warden-trait-reachable` fires; a correctly-wired anchor + catalog → both silent.
+**How it will be verified.** A fixture: a ruleset wired into no trait → `R-warden-trait-reachable` fires; a correctly-wired catalog → silent. An anchor with no *declared* trait still obeys the base trait (no finding — correct behavior, not a gap).
 
 ## Design
 
-Both are mechanical (Python `if::`, no LLM):
-- **base-trait** — `where:: anchor`; `if::` reads the `.anchor` traits and tests for the base trait.
-- **reachability** — `where:: anchor` (or a catalog-level pass); `if::` walks every trait's `include::` closure, unions the reachable ruleset ids, and reports any catalog ruleset not in the union.
+Mechanical (Python `if::`, no LLM):
+- **reachability** — `where:: anchor` (or a catalog-level pass); `if::` walks every trait's `include::` closure **plus the implicit base trait's**, unions the reachable ruleset ids, and reports any catalog ruleset not in the union.
 
-Authoring the rule bodies is independent of the activation engine; *running* them meaningfully needs the trait→ruleset wiring (M1) in place, so this lands after it.
+Authoring the rule body is independent of the activation engine; *running* it meaningfully needs the trait→ruleset wiring (M1) in place, so this lands after it.
 
 ## Status
 
