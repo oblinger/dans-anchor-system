@@ -31,36 +31,33 @@ The interception substrate is Claude Code hooks, used natively behind a thin por
 
 **Designed 2026-06-26** (this doc + [[Warden Architecture]] §7a).
 
-**Scan command built + tested 2026-07-02** — `warden/engine/warden_scan.py` implements the committed always-scan contract (§ Discovery resolved: scan command + always-freshen): stat-sweep + selective re-read, index schema `{path, mtime_ns, size, hash, ruleset_names[]}` plus a `seen` all-files stat map (so unchanged *non*-bearing files are skipped too), `--rescan` from-scratch build, `--root` as the engine config parameter. Verified against the live root — 112 ruleset files / 116 rulesets; from-scratch 232 ms, an unchanged freshen **reads 0 files in 15 ms**, a touched bearing file re-reads exactly one, and a ruleset added to a previously non-bearing file is caught on the next freshen (the self-freshening property). A standalone regression test (`warden/engine/test_warden_scan.py`, 5 behaviors) pins the read-0 property. The M0 language freeze is now complete ([[F209 — Unified trigger taxonomy + when language|F209]]/[[F210 — Conjunction binding + indexing|F210]], 2026-07-02), which unblocks the rest: the compile→install→fire contract + the `R-query-14` pilot. That build is now gated on the **three M2 engine-design questions** below (compiler cadence, module format, rule-Python on the hot path) — each carries a lean.
+**Scan command built + tested 2026-07-02** — `warden/engine/warden_scan.py` implements the committed always-scan contract (§ Discovery resolved: scan command + always-freshen): stat-sweep + selective re-read, index schema `{path, mtime_ns, size, hash, ruleset_names[]}` plus a `seen` all-files stat map (so unchanged *non*-bearing files are skipped too), `--rescan` from-scratch build, `--root` as the engine config parameter. Verified against the live root — 112 ruleset files / 116 rulesets; from-scratch 232 ms, an unchanged freshen **reads 0 files in 15 ms**, a touched bearing file re-reads exactly one, and a ruleset added to a previously non-bearing file is caught on the next freshen (the self-freshening property). A standalone regression test (`warden/engine/test_warden_scan.py`, 5 behaviors) pins the read-0 property. The M0 language freeze is complete ([[F209 — Unified trigger taxonomy + when language|F209]]/[[F210 — Conjunction binding + indexing|F210]], 2026-07-02), and the **three M2 engine-design questions are now resolved** (2026-07-02, user): lazy/incremental compile, dual output (shared IR + emitted Python modules; Rust delegates the Python bits), and Python-allowed-everywhere under an operation-cost budget. **F211 is fully designed** — the compile→install→fire contract + the `R-query-14` pilot are buildable.
 
-## Open Questions
+## Resolved
 
-Unblocked by the M0 language freeze (2026-07-02) — the **M2 engine-design gate** for the compile→install→fire build. The scan command above is already done and is independent of these.
+The M2 engine-design gate — all three resolved by the user 2026-07-02 (Q1 accepted the lean; Q2 accepted the lean and **refined it with a dual output**; Q3 **opened up** rather than confined).
 
-### Q1 — When does the compiler run? ^F211-Q1
+### Q1 — When does the compiler run? — RESOLVED: (B) lazy / incremental ^F211-Q1
 
-When do active-set resolution + compilation happen?
+Compile an anchor's modules on first entry, matching the daemon's lazy warm-start ([[Warden Runtime]]); never compile anchors a session never visits. (Ties [[Warden PRD]] Q1.)
 
-- **(A)** Once at session start — install every anchor's modules up front.
-- **(B)** Lazily / incrementally — compile an anchor's modules on first entry, matching the daemon's lazy warm-start.
-- **Recommendation:** Lean (B) — [[Warden Runtime]]'s daemon already warm-starts lazily on the first hook; per-anchor-on-first-touch amortizes the cost and never compiles anchors the session never visits. (Ties [[Warden PRD]] Q1.)
+### Q2 — Compiled module format? — RESOLVED: (B) shared IR + emitted Python modules (dual output) ^F211-Q2
 
-### Q2 — Compiled module format? ^F211-Q2
+The compiler emits **two coordinated artifacts**:
 
-What does the compiler emit per moment — the artifact *both* engines run?
+1. A **shared IR / data-table** for the declarative parts — moment dispatch, `where::` selectors, fixed-vocabulary `if::` guards. Both engines interpret the *same* table (the Python reference and the Rust hot-path engine), so they stay behavior-identical under the differential harness.
+2. **Emitted Python modules** holding the functions for the **inherently-Python** parts — arbitrary `if::` expressions and rule bodies outside the fixed vocabulary. These run in the warm Python daemon.
 
-- **(A)** Emitted Python source — quickest to write, but Rust can't run it, breaking the shared-behavior port.
-- **(B)** A declarative data table / IR the runtime interprets — the Python reference and the Rust engine interpret the *same* table, so they stay behavior-identical and the differential harness stays honest.
-- **(C)** Generated native code per engine — fastest, most complex, hardest to keep identical.
-- **Recommendation:** Lean (B) shared IR/table — keeps Python and Rust differential-identical with the least effort; per-engine codegen (C) is an M8 perf option if interpreting the table proves too slow. **This is the sticky one** — it shapes the whole compiler output.
+**Rust never embeds a CPython interpreter.** It interprets the IR natively (the fast majority) and, for a rule's Python bits, **delegates to the Python daemon**. IR for what Rust can do in-process; Python modules for what only Python can do; one shared table keeps the two engines identical on the declarative surface. (User's refinement of lean B — per-engine native codegen (C) stays an M8 perf option if table-interpret is too slow.)
 
-### Q3 — Rule-authored Python on the hot path? ^F211-Q3
+### Q3 — Rule-authored Python on the hot path? — RESOLVED: Python allowed everywhere; the limit is an operation-cost budget, not a language/moment ban ^F211-Q3
 
-Can a compiled module run a rule's Python `if::` / body cheaply at fire time, or are code-carrying rules confined to post-hoc (non-veto) moments?
+Rule Python is allowed at **every** moment, including `tool:pre`. The Warden daemon is a **warm, always-running Python process** ([[Warden Runtime]]), so a rule's Python `if::` is not an interpreter launch but an **in-process function call** — microseconds of dispatch plus whatever the body does. A quick predicate (comparison, regex, dict lookup over already-cached `ctx`) is **well under the ~2 ms `tool:pre` budget**.
 
-- **(A)** Run rule Python inline on the hot path — most expressive, but a slow/blocking body threatens the `tool:pre` ms budget.
-- **(B)** Confine code-carrying rules to `post` / async — the veto-capable `tool:pre` path stays declarative + bounded; Python bodies run where latency is affordable.
-- **Recommendation:** Lean (B) — protect the veto path's ms budget by keeping it declarative; rule Python runs on post/async moments. (Ties [[Warden PRD]] Q2.)
+- **The real constraint is operation cost, not language.** What blows the veto-path budget is slow *work* — a file read, a subprocess, a `git` call, an oracle — in any language. The guard is a **per-moment time/operation budget** plus an authoring lint that flags known-slow operations on `tool:pre`; heavy judgments (the oracle) are already delegated off the hot path ([[Warden Runtime]] § LLM judgments). Quick Python stays quick.
+- **Rust-path caveat (M8).** In the Rust deployment, Rust runs declarative (IR) veto rules **in-process** (fast); a **Python-carrying** veto rule makes Rust hop to the Python daemon (a bounded IPC round-trip). This affects only the rare Python-carrying veto rule — most `tool:pre` rules are path/pattern checks = pure IR — so Rust's speedup fully applies to the declarative majority. (Ties [[Warden PRD]] Q2.)
+
+Supersedes the original lean (B) "confine code-carrying rules to `post`": confinement isn't needed once the constraint is framed as cost, not language.
 
 # Discussion
 
