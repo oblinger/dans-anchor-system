@@ -54,13 +54,23 @@ class CodeError(Exception):
 @dataclass
 class Checkout:
     repo: str
-    frm: str            # 'from' subtree, '.' = whole repo
+    frm: object         # 'from': str subtree/glob, list of them, or '.' = whole repo
     at_raw: str         # as written in .anchor
     at: Path            # resolved absolute path
     is_anchor_root: bool  # at == the anchor dir itself
 
+    def frm_items(self):
+        """The declared subtrees as a list; None when '.' (whole repo)."""
+        if self.frm == ".":
+            return None
+        return self.frm if isinstance(self.frm, list) else [self.frm]
+
+    def frm_disp(self):
+        items = self.frm_items()
+        return ", ".join(items) if items else "."
+
     def label(self):
-        return f"{self.repo} [from {self.frm} → at {self.at_raw}]"
+        return f"{self.repo} [from {self.frm_disp()} → at {self.at_raw}]"
 
 
 @dataclass
@@ -122,7 +132,12 @@ def load_anchor(anchor_path: Path):
         repo = entry.get("repo")
         if not repo:
             raise CodeError(f"{anchor_file}: remotes[{i}] missing required `repo`")
-        frm = (entry.get("from") or ".").strip()
+        frm_raw = entry.get("from") or "."
+        if isinstance(frm_raw, list):
+            items = [str(x).strip() for x in frm_raw if str(x).strip()]
+            frm = items if items else "."
+        else:
+            frm = str(frm_raw).strip() or "."
         at_raw = (entry.get("at") or ".").strip()
         at, is_root = resolve_at(at_raw, anchor_dir)
         checkouts.append(Checkout(repo, frm, at_raw, at, is_root))
@@ -176,12 +191,13 @@ def expected_patterns(co: Checkout, group: RepoGroup):
     """
     siblings = [c for c in group.checkouts if c is not co]
     if co.frm == ".":
-        claimed = sorted({_norm_subtree(c.frm) for c in siblings if c.frm != "."})
+        claimed = sorted({_norm_subtree(f) for c in siblings
+                          for f in (c.frm_items() or [])})
         if not claimed:
             return None  # plain whole-repo checkout — no sparse needed
         return ["/*"] + [f"!{c}" for c in claimed]
     # subtree checkout: root files + the declared subtree(s)
-    return ["/*", "!/*/", _norm_subtree(co.frm)]
+    return ["/*", "!/*/"] + [_norm_subtree(f) for f in co.frm_items()]
 
 
 # ── git helpers ───────────────────────────────────────────────────────────────
@@ -302,7 +318,7 @@ def _set_sparse(path: Path, patterns):
 def _setup_main(group: RepoGroup, r: Runner):
     co = group.main
     pats = expected_patterns(co, group)
-    cone = co.frm if co.frm != "." else "(whole)"
+    cone = co.frm_disp() if co.frm != "." else "(whole)"
 
     # already a valid clone?
     if is_git_worktree(co.at) and worktree_toplevel(co.at) == co.at:
@@ -362,7 +378,7 @@ def default_branch_after_fetch(path: Path):
 def _setup_worktree(group: RepoGroup, co: Checkout, r: Runner):
     clone = group.main.at
     pats = expected_patterns(co, group)
-    cone = co.frm if co.frm != "." else "(whole)"
+    cone = co.frm_disp() if co.frm != "." else "(whole)"
 
     # already a registered worktree?
     if co.at.exists() and is_git_worktree(co.at) and co.at in registered_worktrees(clone):
@@ -481,7 +497,7 @@ def _inspect(groups, code_field):
                 "co": co, "is_main": co is g.main,
                 "clone_ok": clone_ok, "wt_present": wt_present,
                 "shared": shared, "sparse_ok": sparse_ok,
-                "cone": co.frm,
+                "cone": co.frm_disp(),
             }
             rows.append(row)
             if not wt_present:
@@ -494,7 +510,7 @@ def _inspect(groups, code_field):
                 if sparse_ok is False:
                     problems.append(
                         f"{co.label()}: sparse cone at {co.at} does not match declared "
-                        f"from={co.frm} (expected {pats}, got {actual_patterns(co.at)})")
+                        f"from={co.frm_disp()} (expected {pats}, got {actual_patterns(co.at)})")
             if not clone_ok and co is g.main:
                 problems.append(f"{g.repo}: clone at {clone} missing or wrong origin")
 
@@ -573,10 +589,13 @@ def cmd_audit(anchor_path):
 
     # complementary-cone check: checkouts sharing a repo must not overlap
     for g in groups:
-        subtrees = [c for c in g.checkouts if c.frm != "."]
-        for i in range(len(subtrees)):
-            for j in range(i + 1, len(subtrees)):
-                a, b = subtrees[i].frm.strip("/"), subtrees[j].frm.strip("/")
+        pairs = [(c, f.strip("/")) for c in g.checkouts
+                 for f in (c.frm_items() or [])]
+        for i in range(len(pairs)):
+            for j in range(i + 1, len(pairs)):
+                (ca, a), (cb, b) = pairs[i], pairs[j]
+                if ca is cb:
+                    continue
                 if a == b or a.startswith(b + "/") or b.startswith(a + "/"):
                     problems.append(
                         f"{g.repo}: checkouts {a!r} and {b!r} overlap — sparse cones "
