@@ -1,5 +1,5 @@
 ---
-description: "CAE Testing — strategy + proposed-tests overview"
+description: "testing strategy + proposed-tests overview (worked example of ~~"
 status:: drafting
 ---
 # CAE Testing

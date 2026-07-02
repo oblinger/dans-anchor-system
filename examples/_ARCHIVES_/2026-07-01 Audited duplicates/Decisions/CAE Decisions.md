@@ -1,5 +1,5 @@
 ---
-description: "load-bearing decisions citing rules"
+description: "load-bearing rules & invariants"
 ---
 
 # CAE Decisions
