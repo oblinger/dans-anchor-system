@@ -6,14 +6,16 @@ description: "F216 — Agent-state model — sensing what the agent is doing"
 
 ## Summary
 
-Rules can sense the **agent itself** via the `agent` object in the interpretation environment ([[Warden Semantics]] § The interpretation environment) — `agent.state` (`working` / `landed` / `asking` / `idle`), `agent.skill`, `agent.is_asking`. This lets a rule fire at a turn boundary (`when:: prompt:stop`) and react to *how the turn ended* — e.g. "you're ending the turn with an open question; record it in `queries.md`." F216 designs **how that state is actually determined**, which is non-trivial: it requires reasoning about the agent's recent activity, not reading a single flag.
+Rules can sense the **agent itself** via the `agent` object in the interpretation environment ([[Warden Semantics]] § The interpretation environment) — `agent.state` (`working` / `landed` / `asking` / `idle`), `agent.skill`, `agent.is_asking`. This lets a rule fire at a turn boundary (`when:: prompt:stop`) and react to *how the turn ended*. F216 designs **how that state is actually determined**, which is non-trivial: it requires reasoning about the agent's recent activity, not reading a single flag.
+
+**The governing frame (user, 2026-07-01): the state model answers "what is the agent doing *right now*."** Is it thinking? Waiting for the user to type? And if waiting — did it just ask a question, either through the harness's multi-choice dialog (AskUserQuestion) or in plain text (detectable by cheap heuristics — a question mark, an options pattern — no LLM call)? Did it land clean, or stop with work still open (the harness task list tells)? It is explicitly **not** about the queue of questions an agent has raised over time — `{NAME} queries.md` is *anchor* state, reachable via `anchor.doc(…)`, never an `agent.state` signal.
 
 ## Success Criteria
 
 **Tier:** 1 (design) — powers `agent.*` in the environment; rules that read it can't ship until this does.
 **Blocks next:** [[F217 — Conversation-content gating — rules on what was said|F217]] (which extends observation from *state* to *transcript content*).
 
-**What done looks like.** Given a live agent session, the daemon can answer `agent.state` accurately for the common cases: actively working (a task/skill in flight), landed (a clean turn end), asking (a pending user question, e.g. `/query` ran or `{NAME} queries.md` has open items), idle. `agent.skill` reports the running skill. The classifier is lazy + cached per pass (one read, shared across rules).
+**What done looks like.** Given a live agent session, the daemon can answer `agent.state` accurately for the common cases: actively working (a task/skill in flight), landed (a clean turn end), asking (the turn ended addressing a question — dialog up or closing text asks), idle. `agent.skill` reports the running skill. The classifier is lazy + cached per pass (one read, shared across rules).
 
 **How it will be verified.** Scripted scenarios that drive an agent into each state (mid-task, post-`/land`, post-`/query`, idle), asserting `agent.state` matches; a fixture rule (`R-ex-10`) fires its `tell` only in the `asking` state.
 
@@ -21,13 +23,14 @@ Rules can sense the **agent itself** via the `agent` object in the interpretatio
 
 ### The states — a closed set of five
 
-`agent.state` is one of **five strings** — the four live states plus the honest error value. The set is **closed**: a rule can exhaustively match on it, and a read **never raises** — when no signal rung can answer confidently, the value is `unknown`.
+`agent.state` is one of **five strings** — the four live states plus the honest error value — with a sixth, `paused`, *(proposed 2026-07-01)* splitting "stopped with open work" out of `landed`. The set is **closed**: a rule can exhaustively match on it, and a read **never raises** — when no signal rung can answer confidently, the value is `unknown`.
 
 | State | Meaning | Entered on | Left on |
 |---|---|---|---|
 | `working` | the agent holds control — a turn is in flight (model thinking, tool calls, a skill mid-run) | `prompt:submit`, or any tool/skill moment after the last turn end | a turn boundary, or liveness failure |
-| `asking` | control is with the user **and** a question this session raised is pending on them | `prompt:stop` with the pending-question predicate **true** | the user replies (`prompt:submit` → `working`), or the pending items resolve |
-| `landed` | control is with the user, nothing pending — the turn ended clean | `prompt:stop` with the predicate **false** | next `prompt:submit`, or quiet ≥ `T_idle` → `idle` |
+| `asking` | control is with the user **and the turn just ended addressing a question to them** — a harness dialog is up, or the closing text asks | `prompt:stop` with the pending-question predicate **true** | the user replies (`prompt:submit` → `working`) |
+| `landed` | control is with the user, nothing pending — the turn ended clean | `prompt:stop` with the predicate **false** *(and, proposed, no open tasks — see `paused`)* | next `prompt:submit`, or quiet ≥ `T_idle` → `idle` |
+| *(proposed)* `paused` | control is with the user, no question pending, **but open work remains** — the harness task list still holds open items (the "stopped but not finished" the user named) | `prompt:stop`, predicate false, open tasks > 0 | next `prompt:submit`; tasks all closing re-reads as `landed` |
 | `idle` | no live activity — a long-quiet clean end, or the session is over | `landed` + quiet ≥ `T_idle`; `session:stop`; process gone | next `prompt:submit` / `session:start` |
 | `unknown` | the bound session can't be classified at the available signal rung | fallback rung R4, or a liveness ambiguity (§ Debounce) | a better signal arriving |
 
@@ -35,9 +38,9 @@ Rules can sense the **agent itself** via the `agent` object in the interpretatio
 
 - **Entering `working` is instant** — one `prompt:submit` or one tool moment flips it; there is no debounce on the way in.
 - **Leaving `working` requires a boundary, never silence.** A long `Bash` call or a long model think emits no moments for minutes; mid-turn quiet is still `working`. Only `prompt:stop`, `session:stop`, or a liveness failure ends it.
-- **`asking` is sticky.** A pending question does not decay on a timer — an unanswered question at hour three is exactly as pending as at minute one. It clears when the user answers or the pending items resolve (the predicate re-evaluates lazily at the next read).
+- **`asking` is sticky.** A pending question does not decay on a timer — an unanswered question at hour three is exactly as pending as at minute one. It clears when the user answers (`prompt:submit`); how *long* it has been pending is readable as `agent.state_seconds` *(proposed)*, so a rule conditions on elapsed time instead of the state decaying.
 - **`landed` decays to `idle`** after a quiet window `T_idle` (default **10 min**, an engine-config constant — not per-rule surface). `landed` is the *instantaneous* "just ended clean"; `idle` is the *durable* "nothing happening."
-- **Session end is `idle`.** `agent.*` describes a *running* agent; a rule that cares about a dead session's leftover queue reads `anchor.doc("{NAME} queries.md")` directly (open fork: § Open Questions Q2).
+- **Session end is `idle`.** `agent.*` describes a *running* agent (Q2 resolution, 2026-07-01); a rule that cares about a dead session's leftover queue reads `anchor.doc("{NAME} queries.md")` directly.
 - `agent.is_asking` is sugar for `agent.state == 'asking'`, unchanged from [[Warden Semantics]].
 
 ### The signal inventory
@@ -49,7 +52,8 @@ What the daemon can actually observe, per environment. Ordered by trust.
 | **Moment ledger** — the daemon's own event stream | every hook moment ([[Warden Events]]): `prompt:submit/stop`, `tool:pre/post`, `skill:pre/post`, `session:*`, each timestamped per session | exact — structured events from the source | none — current up to the triggering event | hooks wired for the session (always true at live rule-fire time) |
 | **Transcript JSONL** — `transcript_path` from the hook payload | the structured message stream: the last agent message, Skill/Task invocations, turn boundaries | high — Claude Code's own record | flush lag (sub-second to seconds) | any Claude Code session the daemon can map |
 | **tmux pane** — `capture-pane` + pane title | the *rendered* state: input prompt idle vs busy, the running command, the last output, a **permission dialog pending** (which reaches neither hooks nor transcript) | medium — text of a render, parsed heuristically | ~instant | the session runs in tmux and the pane id is registered |
-| **`{NAME} queries.md`** | the durable pending-question queue for the cwd anchor — mechanically parseable sections | high for *queue* state; blind to chat-only questions | file-fresh | the anchor exists (vault-wide convention) |
+| **`{NAME} queries.md`** | the durable pending-question queue for the cwd anchor — **anchor state, not an `agent.state` signal** (user 2026-07-01); rules read it via `anchor.doc(…)` | high for *queue* state; says nothing about right-now | file-fresh | the anchor exists (vault-wide convention) |
+| **Harness task list** *(proposed)* | open/closed tasks per session — `TaskCreate`/`TaskUpdate` tool moments in the ledger (transcript records as fallback) | high — structured tool calls | none | hooks wired (transcript for out-of-band reads) |
 | **Process table** | is the session's `claude` process alive | exact, but liveness only | ~instant | always |
 | **mtimes** — transcript file recency | coarse "something is happening" | low — activity, not meaning | write-flush | always |
 
@@ -65,15 +69,19 @@ Fully **mechanical — no LLM at any rung** (resolving prior open question 3): t
                 moment) after the last prompt:stop                → working
 3. turn end   — last boundary is prompt:stop
                 → pending-question predicate Q true               → asking
-                → Q false                                         → landed
+                → Q false, open-work test W true (proposed)       → paused
+                → Q false, W false                                → landed
 4. decay      — landed and no moment for ≥ T_idle                 → idle
 ```
 
-**The pending-question predicate Q** — true if any of three tests holds, checked cheapest-first:
+**The pending-question predicate Q** — reworked 2026-07-01 to the user's right-now frame: the question is *"did this turn end addressing a question to the user?"* — answered from the turn itself, never from the queue. True if either test holds, checked cheapest-first:
 
-- **T1 — skill signal.** An asking-class skill (`query`; registry-extensible) ran this turn: a `skill:post:query` moment in the ledger. Exact when skill moments are emitted (dependency below).
-- **T2 — queue signal.** `{NAME} queries.md` of the cwd anchor carries open items **that this session touched** — the ledger saw a `write:markdown` to that file this session, and its question sections are non-empty now. *Session-scoping is a deliberate narrowing of the Summary's "carries open items":* vault practice parks long-lived queries in every active anchor, so an unscoped Q2 would pin nearly every agent permanently to `asking` and make `landed` unreachable. (Open fork: § Open Questions Q1.)
-- **T3 — chat-question heuristic.** The turn's final agent message addresses a question to the user: last non-code paragraph ends in `?`, or carries an options pattern (`(A)`/`(B)`, `Q<n>:`). Read from the transcript's last assistant record. Explicitly a **mechanical heuristic** — occasional misses on rhetorical questions are accepted; a rule needing judgment-grade detection layers F217 on top.
+- **T1 — dialog signal.** The turn ended in the harness's **multi-choice question dialog** — an `AskUserQuestion` tool moment in the ledger with no answering moment after it (the dialog is a tool call, so the ledger sees it exactly). This is the strongest signal: the widget is literally up, waiting.
+- **T2 — chat-question heuristic.** The turn's final agent message addresses a question to the user: last non-code paragraph ends in `?`, or carries an options pattern (`(A)`/`(B)`, `Q<n>:`). Read from the transcript's last assistant record. Explicitly a **mechanical heuristic** — no LLM call, per the user: *"I think we can just have some heuristics that look for a question mark."* Occasional misses on rhetorical questions are accepted; a rule needing judgment-grade detection layers F217 on top.
+
+*(Retired: the former queue signal — open `queries.md` items making the agent `asking`. Per the user 2026-07-01, the queries pile is the anchor's long-horizon state, not what the agent is doing right now; a rule about queue pressure reads `anchor.doc("{NAME} queries.md")`. A `skill:post:query` moment remains a useful corroborating hint but is not part of Q.)*
+
+**The open-work test W** *(proposed — feeds the `paused` state)* — at a turn end with Q false, are there open items on the harness **task list**? The ledger sees `TaskCreate`/`TaskUpdate` tool moments, so the daemon can track open-task count per session mechanically (transcript records as the R3 fallback). Open tasks > 0 → `paused` ("stopped, but still has work"); zero → `landed`.
 
 **Debounce / hysteresis** — restated as the invariants an implementation must hold:
 
@@ -120,25 +128,11 @@ What a rule actually gets at fire time:
 - **tmux dependency (prior Q1)** — the pane is rung R2 of a four-rung ladder, not the primary source; the daemon's own moment ledger + the transcript outrank it, and R4 names the honest floor. § The fallback ladder.
 - **`agent.skill` emission (prior Q2)** — ranked derivation: skill moments when the skill-runner emits them (named F209 dependency), transcript sniff until then, pane sniff last. § The classifier.
 - **Classifier cost (prior Q3)** — fully mechanical, no LLM at any rung; one lazy classification per pass. Judgment-grade content reading is F217's job.
-
-## Open Questions
-
-### Q1 — Q2-signal scope: which `queries.md` items make the agent `asking`? ^F216-Q1
-
-The classifier's queue-signal test (pending-question predicate, § The classifier).
-
-- **(A)** Session-scoped — only open items this session touched count; parked long-lived queries don't pin the state.
-- **(B)** Anchor-scoped — any open item in the anchor's `queries.md` ⇒ `asking`, as the Summary's original wording reads.
-- **Recommendation:** Lean (A) — under (B), `landed` is unreachable on any anchor with a standing queue (most active anchors); the state stops discriminating.
-
-### Q2 — Does `asking` survive session end? ^F216-Q2
-
-- **(A)** Ends with the session — a dead session is `idle`; the leftover queue stays visible to rules via `anchor.doc("{NAME} queries.md")`.
-- **(B)** Persists — unanswered session-raised queries keep `agent.state == 'asking'` after the process exits, so a turn-boundary rule elsewhere can still see it.
-- **Recommendation:** Lean (A) — `agent` describes a running agent; cross-session queue pressure is anchor state, already reachable through `anchor.*`.
+- **Q1 — which `queries.md` items make the agent `asking`?** — **Resolution (user, 2026-07-01): neither option — the premise was wrong.** `agent.state` answers *what the agent is doing right now*; the queries pile is the anchor's long-horizon state, not a state signal at all. The queue signal is retired from the pending-question predicate — `asking` is sensed from the turn itself (T1 dialog moment, T2 text heuristic); queue pressure is read via `anchor.doc("{NAME} queries.md")`. ^F216-Q1
+- **Q2 — does `asking` survive session end?** — **Resolution (2026-07-01): (A)**, following directly from the right-now doctrine — a dead session is `idle`; the leftover queue stays visible through `anchor.*`. ^F216-Q2
 
 ## Status
 
-**Designed 2026-07-01** — taxonomy (closed five-state set + transition semantics), signal inventory, mechanical classifier (pending-question predicate, debounce invariants, ranked `agent.skill`), four-rung fallback ladder, and the environment contract are concrete. Two forks filed (§ Open Questions). Not built — the classifier implements inside M2's environment build ([[F212 — Python reference implementation|F212]]); the scripted state fixtures land with [[F214 — Rule-system testing regime|F214]]. One named external dependency: rank-1 `agent.skill` waits on F209's `skill:pre/post` emission point (degrades to transcript sniff meanwhile, does not block).
+**Designed 2026-07-01; reframed to the right-now model same day (user) — zero open questions.** Taxonomy (closed state set + transition semantics, with the *(proposed)* `paused` split), signal inventory, mechanical classifier (dialog-signal + text-heuristic pending-question predicate, debounce invariants, ranked `agent.skill`), four-rung fallback ladder, and the environment contract are concrete. Not built — the classifier implements inside M2's environment build ([[F212 — Python reference implementation|F212]]); the scripted state fixtures land with [[F214 — Rule-system testing regime|F214]]. One named external dependency: rank-1 `agent.skill` waits on F209's `skill:pre/post` emission point (degrades to transcript sniff meanwhile, does not block).
 
 **Standing requirement (user, 2026-07-01 consumer review):** many rules condition on agent state, so `agent.*` should grow toward a **pretty complete set of lazily-computed state properties** — lazy because each costs computation/resources; the classifier's `state`/`skill` are just the first two. The proposed starter surface (identity, activity, `response` alias, `context_used`) is drafted *(proposed)* in [[Warden Semantics]] § `agent`; members join by proposal, each justified by a real rule that reads it.
