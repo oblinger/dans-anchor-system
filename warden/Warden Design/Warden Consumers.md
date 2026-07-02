@@ -1,10 +1,10 @@
 ---
 description: "Proposed inventory of the consumers the Warden hook substrate must serve — each defined, with the substrate demands it implies and a confidence grade. Parley input for F131 Q4."
 ---
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[Warden]] → [[Warden Design]] → [Warden Consumers](hook://p/Warden%20Consumers)
+/comp:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[Warden]] → [[Warden Design]] → [Warden Consumers](hook://p/Warden%20Consumers)
 
 # Warden Consumers
-The inventory of things that consume agent moments through the Warden substrate — what each is, which moments it binds, and what it demands of the engine. Drafted 2026-07-01 as the starting material for the [[F131 — Hooks — fast inner-loop check substrate (path-rule alerts first)|F131]] Q4 parley; grades are the drafting agent's confidence, for the user to confirm or overrule.
+The inventory of things that consume agent moments through the Warden substrate — what each is, which moments it binds, and what it demands of the engine. Drafted 2026-07-01 as the starting material for the [[F131 — Hooks — fast inner-loop check substrate (path-rule alerts first)|F131]] Q4 parley; **confirmed by the user the same day** (F131 Q4 resolution): the confident set is the starting set — the substrate is designed against it — extended by the rules-corpus scan in § The rules corpus below.
 
 **Why this doc exists.** The substrate (binary structure, config format, action vocabulary, matching) must be designed against the full range of consumers, not just the first one — otherwise path-rule-specific assumptions get baked in. Every consumer below reduces to the same skeleton: *bind moments (F209 taxonomy) → match/guard (F210 conjunction; F131 unification bindings) → act (steer / deny / fix / record)*. What varies is which moments, how expensive the guard is, and which action.
 
@@ -31,6 +31,15 @@ The inventory of things that consume agent moments through the Warden substrate 
 - **anchor-invariant validation** — slug uniqueness, `.anchor` structure, dispatch coverage. Belongs to periodic `/audit structure` sweeps; firing it per-moment buys little and costs much (vault-wide checks don't scope to a single write).
 - **spec-conformance checks (Q-format / ask-format)** — not a separate consumer; these are just rulesets the **doc-audit on write** consumer evaluates. Listing them separately double-counts.
 - **session-state dashboard** — a UI that *reads* what agent-state sensing maintains; it consumes the ledger's output, not moments, so it sits above the substrate, not on it.
+
+## The rules corpus — the workload behind doc-audit (Q4 extension, scanned 2026-07-01)
+
+Per the user's Q4 ruling, the consumer inventory is extended by what the vault actually carries in Decisions and Rulesets:
+
+- **115 `# RULESET` blocks ≈ 482 rules** — 254 `checked` / 109 `stated` / 82 `sampled` / 3 `tracked` — in ob-skills facets (~49 files), `library/Rulesets/` (~44), disciplines, and examples; every block scoped by `where::` (always / file / anchor / sentinel kinds, `{ANCHOR}`/`{NAME}` pattern variables).
+- **22 live `## Decisions` surfaces** vault-wide — documentation only per the [[FCT Decisions]] doctrine (Warden never computes against decisions); they place no demand on the engine beyond confirming rulesets as the sole computable surface.
+
+Consequences for the substrate: applicable-ruleset resolution must be an **indexed table probe** (compile the corpus, keyed by source mtimes — the `/distill` direction), not a per-moment scan; the **kind split is structural** — checked rules are engine-evaluable, stated/sampled can only be *steered* into agent context as reminders, tracked feed the ledger; and covering the confident seven + most of this corpus is the ratified "really good starting set." Full design: [[F131 — Hooks — fast inner-loop check substrate (path-rule alerts first)|F131]] § Substrate scope.
 
 ## What the inventory implies for the substrate (pre-parley read)
 
