@@ -9,11 +9,11 @@ _None._
 
 ## Ready
 
-- **Conversation-content gating (F217)** [Ready] — rules that gate on *what the agent said and didn't say* in a turn (e.g. "whenever the agent asks the user X, surface guidance about its reasoning"); adds a bounded, lazy `turn` view, gated mechanically or by `ask_oracle`. Depends on [[F216 — Agent-state model — sensing what the agent is doing|F216]] (now designed). → [[F217 — Conversation-content gating — rules on what was said]]
-  - **Next:** Design the bounded lazy `turn` view + the mechanical/ask_oracle gating, building on [[F216 — Agent-state model — sensing what the agent is doing|F216]]'s classifier + environment contract.
 
 ## Now
 
+- **Conversation-content gating (F217)** [3 Questions] — designed 2026-07-01: `turn` view (7 members, transcript+ledger sourced, lazy + capped), mechanical predicate tier, `ask_oracle` binary-verdict idiom with prefilter discipline + two-wall loop prevention, 3 example rules. Forks open: live-path judgment, prior-turn window, predicate surface. Implementation rides M2; the shared asks-question predicate is specified in [[F216 — Agent-state model — sensing what the agent is doing|F216]].
+  - **Next:** User answers Q1–Q3 (live-path, prior-turn window, predicate surface); on acceptance, propagate the `turn` row into the `Warden Semantics.md` environment table (noted in the doc's Status).
 - **Rule-system testing regime (F214)** [1 Questions] — designed; design landed 2026-07-01: five layers with concrete contracts; golden corpus live at [[Warden Corpus]] (runner + 4 seed goldens against the shipped audit engine, FAIL/STALE re-bless flow verified). Unit + e2e ride the build milestone; differential + perf gates ride the Rust milestone. → [[F214 — Rule-system testing regime]]
 - **Agent-state model (F216)** [2 Questions] — designed; design complete 2026-07-01: closed five-state taxonomy, signal inventory, mechanical classifier (pending-question predicate + debounce invariants), four-rung fallback ladder (moment ledger → tmux pane → transcript → residual), environment contract. Two forks open (Q2 scope; `asking` past session end); implementation rides M2. → [[F216 — Agent-state model — sensing what the agent is doing]]
 - **F209 — Unified trigger taxonomy + `when::` language (M0 freeze)** [3 Questions] — → [[F209 — Unified trigger taxonomy + when language]] · finalize the trigger taxonomy: phase default for bare moments, `git:*` first-class vs derived, `skill:pre/post` emission point. Then map every existing trigger surface (`compact`, `markdown-write`, `skill:*`) onto a canonical moment path with no orphans.

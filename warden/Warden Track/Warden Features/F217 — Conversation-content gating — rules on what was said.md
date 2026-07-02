@@ -6,7 +6,7 @@ description: "F217 — Conversation-content gating — rules on what the agent s
 
 ## Summary
 
-Beyond the agent's generic *state* ([[F216 — Agent-state model]]), some rules want to gate on **what the agent actually said — or didn't say — in the conversation**. For example: "whenever the agent asks the user *this kind* of question, surface guidance about how it's reasoning," or "if the agent claimed a task was done but never ran the test, flag it." F217 extends the observable surface from *state* to the **conversation transcript**, so an `if::` (or an `ask_oracle` over a turn) can condition on the content of a turn.
+Beyond the agent's generic *state* ([[F216 — Agent-state model — sensing what the agent is doing|F216 — Agent-state model]]), some rules want to gate on **what the agent actually said — or didn't say — in the conversation**. For example: "whenever the agent asks the user *this kind* of question, surface guidance about how it's reasoning," or "if the agent claimed a task was done but never ran the test, flag it." F217 extends the observable surface from *state* to the **conversation transcript**, so an `if::` (or an `ask_oracle` over a turn) can condition on the content of a turn.
 
 ## Success Criteria
 
