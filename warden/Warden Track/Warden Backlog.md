@@ -10,7 +10,7 @@ _None._
 ## Ready
 
 - **Rule-system testing regime (F214)** [Ready] — stand up the five-layer suite (unit · differential Python↔Rust · golden corpus · performance · e2e) incrementally alongside M1–M3. Continuous gate, not a phase. → [[F214 — Rule-system testing regime]]
-- **Agent-state model (F216)** [Ready] — design how Warden senses `agent.state` (`working` / `landed` / `asking` / `idle`) and `agent.skill` — the signal→state classifier, with the agent's tmux pane as the clean path and a fallback ladder where it's absent. Non-trivial reasoning; powers `agent.*` in the interpretation environment. → [[F216 — Agent-state model — sensing what the agent is doing]]
+- **Agent-state model (F216)** [Designed] — design complete 2026-07-01: closed five-state taxonomy, signal inventory, mechanical classifier (pending-question predicate + debounce invariants), four-rung fallback ladder (moment ledger → tmux pane → transcript → residual), environment contract. Two forks open (Q2 scope; `asking` past session end); implementation rides M2. → [[F216 — Agent-state model — sensing what the agent is doing]]
 - **Conversation-content gating (F217)** [Ready] — rules that gate on *what the agent said and didn't say* in a turn (e.g. "whenever the agent asks the user X, surface guidance about its reasoning"); adds a bounded, lazy `turn` view, gated mechanically or by `ask_oracle`. Depends on F216. → [[F217 — Conversation-content gating — rules on what was said]]
 
 ## Now
