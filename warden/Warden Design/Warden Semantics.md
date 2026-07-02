@@ -104,8 +104,9 @@ The **interpretation environment** is the Python scope a rule is *interpreted* i
 | **`file`** | the document as the root **`Section`** — `.path`, `.name`, `.frontmatter`, `.diff` (root only); `.title`, `.level`, `.text`, `.body`, `.lines`, `.links`, `.sections`, `.section("X")`, `.tables` (recursive tree; lazy) |
 | **`anchor`** | `.name`, `.slug`, `.root`, `.traits`, `.get(name)`, `.files(glob)`, `.doc(path)` (cross-file reach — audit-passive) |
 | **`git`** | `.branch`, `.mode`, `.is_dirty`, `.ahead`, `.changed` |
-| **`event`** | `.kind`, `.diff`, `.command`, `.tool` |
-| **`agent`** | `.state` (`working`/`landed`/`asking`/`idle`), `.skill`, `.is_asking` |
+| **`event`** | `.kind`, `.diff`, `.command`, `.tool` · *(proposed)* `.target` — the tool call's file target as a lazy stat view |
+| **`agent`** | `.state` (`working`/`landed`/`asking`/`idle`), `.skill`, `.is_asking` · *(proposed)* expanded property set — § `agent` |
+| **`turn`** | the conversation turn, lazy — `.agent_said`, `.user_said`, `.text`, `.messages`, `.tools`, `.commands`, `.asks_question` ([[F217 — Conversation-content gating — rules on what was said|F217]]; user-endorsed 2026-07-01) |
 | *verbs* | `tell(msg)`, `deny(reason)`, the `file` edits, `ask_oracle(prompt)→str`, `sh(argv)` — § Verbs |
 | *ambient* | `today`, `now` (+ plain Python: builtins, `re`, `json`, `datetime`) |
 | *variables* | `{ANCHOR}`, `{NAME}`, `{SLUG}` — `where::` substitutions (§ Ambient and variables) |
@@ -131,6 +132,7 @@ A document is a **tree of sections**, and `file` is its **level-0 root** — its
 | `file.lines`, `file.links` | the section's lines; its wiki / markdown links | — |
 | `file.sections`, `file.section("X")` | child sections (**recursive** — each a `Section`); named lookup, first match | mutate the returned `Section` |
 | `file.tables` | the section's tables, lazy — each a `Table` | mutate its cells / rows |
+| *(proposed)* `file.size`, `file.mtime`, `file.exists` | stat-class members *(root only)* — a pure `stat()`, no content read; what a maintain rule's staleness test (`source.mtime > derived.mtime` via `anchor.doc`) and a size guard need | — |
 
 **`Section`** is the recursive node (`file` is the root): `.title` / `.level` / `.text` / `.body` / `.lines` / `.links` / `.sections` / `.section(name)` / `.tables`. The root also carries `.path` / `.name` / `.frontmatter` / `.diff`; inner sections return `None` for those.
 
@@ -175,6 +177,7 @@ The moment (from `when::`; **live runs only** — absent under `/audit`):
 | `event.diff` | what changed (write moments) |
 | `event.command` | the pending / just-run command (Bash moments) |
 | `event.tool` | the tool name + input (tool moments) |
+| *(proposed)* `event.target` | the tool call's **file target** as a lazy stat view — `.path`, `.size`, `.mtime`, `.exists`. A pure `stat()`, never a content read, so it's `tool:pre`-safe: `if:: event.target.size > 2_000_000` writes the enormous-read warning as a one-line rule (per the 2026-07-01 consumer review: the metadata should be *available*, not baked into a shipped consumer). `None` when the tool has no file target. |
 
 ### `agent`
 
@@ -185,6 +188,19 @@ The running agent's state — sense it at a return / lifecycle moment (`when:: p
 | `agent.state` | `working` (mid-task), `landed` (finished clean), `asking` (waiting on a user answer), `idle` |
 | `agent.skill` | the skill running now — `land`, `query`, `crank`, … (or `None`) |
 | `agent.is_asking` | a user question is pending (sugar for `state == 'asking'`) |
+
+**Expanded property set *(proposed, 2026-07-01)*.** Per the user's consumer review — *many rules condition on the state of the agent, so `agent` should carry a pretty complete set of state properties, all lazy* (they cost computation, occasionally resources; most rules read none, and each is computed on first read and cached per pass, the standard environment contract). The proposed starter surface, every member reading from what the session registry + moment ledger + transcript tail already hold:
+
+| Member *(all proposed)* | What it is |
+|---|---|
+| `agent.response` | the agent's visible words this turn — **alias of `turn.agent_said`** (the user's sketched name for the common case: `re.search(r'…', agent.response)` as an `if::` gate) |
+| `agent.session_id`, `agent.cwd`, `agent.worktree` | identity — the session UUID; working directory; worktree name (`SKA-7`-style, `None` outside one). Worktree-per-agent makes `.worktree` the agent's *name* (the F148 resolution) |
+| `agent.model` | the model id the session runs on |
+| `agent.turns`, `agent.started` | activity — turns this session; session start time |
+| `agent.last_tool`, `agent.tools_this_turn` | the most recent tool invocation; this turn's `(name, key input)` pairs (sugar over `turn.tools`) |
+| `agent.context_used` | fraction of the context window consumed (`None` where the harness doesn't expose it) — what a "wrap up before compaction"-class rule conditions on |
+
+Growth rule: the *namespace and laziness contract* are the frozen thing; individual members join by proposal (a one-row addition), each justified by a real rule that reads it. Members degrade to their error values (`''`/`None`/`[]`) when a rung can't supply them — same contract as `turn.*`.
 
 **Trigger vs. sense — for both agent-state and file-change.** The agent's turn boundary is a *moment* (`prompt:submit` / `prompt:stop`, [[Warden Events]]); its *state* is **sensed** here in `if::`. A **file change** has the same shape: an agent write is the `write:*` *moment* (trigger), `event.diff` is what changed (sense), and repo-wide change is sensed via `git.is_dirty` / `git.changed`. Warden *senses* change from git / the audit content-hash; it doesn't watch the filesystem (§ `when::` Change detection).
 
