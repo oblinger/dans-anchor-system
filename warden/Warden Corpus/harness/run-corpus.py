@@ -76,6 +76,8 @@ def write_case_yaml(path: Path, meta: dict) -> None:
 
 def _audit_plan_module():
     spec = importlib.util.spec_from_file_location("audit_plan", AUDIT_PLAN)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"cannot load engine module from {AUDIT_PLAN}")
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
