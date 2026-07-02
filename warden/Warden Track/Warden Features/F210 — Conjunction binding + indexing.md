@@ -28,24 +28,14 @@ Defines what a rule *means* and how it gets dispatched. A rule is the **conjunct
 
 - **`tool:pre` veto — YES, rules may deny.** Per [[Warden Survey]], native `PreToolUse` returns `permissionDecision: "deny"` with a reason fed back to the agent, and `PostToolUse` returns `{decision: "block", reason}`. A `tool:pre` rule may veto an action (gated by the `aow-safety` floor) — not steer-only. Implementation must use **JSON `deny`/`block` output, not exit-code-2** (survey: Claude Code bug #24327). Policy + decision D5: [[Warden Integration Strategy]].
 
-## Open Questions
+### Q1 — Declarative guard vocabulary — RESOLVED (user accepted the Lean, 2026-07-02): (A) fixed set ^F210-Q1
 
-### Q1 — Declarative guard vocabulary: fixed set or extensible registry? ^F210-Q1
+The `if::` guard vocabulary is a **closed, fixed set** — `git-aspect`, `mode`, `trait`, `facet` — every engine knows every key, and adding one is a deliberate language change. A closed set is what the freeze *means*; the extensible registry (B) is reopened only when a real key proves missing. Arbitrary Python remains the escape hatch for the rare one-off guard.
 
-The `if::` guard compiles context predicates to table lookups over a vocabulary.
+### Q2 — `where::` precedence vs. index choice — RESOLVED (user accepted the Lean, 2026-07-02): (A) resolved-first ^F210-Q2
 
-- **(A)** Fixed set (`git-aspect`, `mode`, `trait`, `facet`) — closed, every engine knows every key; extending it is a language change.
-- **(B)** Extensible registry — new context keys register with a resolver; flexible, but engines can diverge and rules can name keys an engine lacks.
-- **Recommendation:** Lean (A) for the freeze — a closed set is what "freeze" means; reopen with a registry only when a real key is missing.
-
-### Q2 — Does `where::` precedence interact with index choice? ^F210-Q2
-
-`where::` resolves rule > set > always. Does that precedence resolution happen before the compiler picks index keys, or must the index be precedence-aware?
-
-- **(A)** Resolved first — precedence collapses to one effective `where::` per rule before indexing; the compiler indexes the collapsed form.
-- **(B)** Precedence-aware indexing — the index carries the layered predicates; more complex, only needed if collapsed forms explode.
-- **Recommendation:** Lean (A) resolved-first — simpler compiler contract; nothing observed so far needs (B).
+`where::` precedence (rule > set > always) **collapses to one effective `where::` per rule before the compiler picks index keys**; the compiler indexes the collapsed form. Simpler compiler contract; precedence-aware indexing (B) is deferred until a collapsed-form explosion actually demands it.
 
 ## Status
 
-**Drafted 2026-06-26** in [[Warden Architecture]] §4–5. Remaining: pin the `if::` grammar and the veto semantics, then freeze.
+**Drafted 2026-06-26** in [[Warden Architecture]] §4–5. **All questions resolved 2026-07-02** (user accepted the Leans): Q1 `if::` vocabulary = fixed set, Q2 `where::` precedence = resolved-first. **F210 is designed and frozen.** With [[F209 — Unified trigger taxonomy + when language|F209]] also resolved, the **M0 language freeze is complete** — the `when::`/`where::`/`if::` surface is locked.

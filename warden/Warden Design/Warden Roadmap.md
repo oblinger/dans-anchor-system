@@ -17,6 +17,8 @@ Reached at the end of **M7**: Warden is installed and firing; a large fraction o
 
 ### M1 — Language completion & freeze
 
+**Language questions resolved 2026-07-02** — [[F209 — Unified trigger taxonomy + when language|F209]] (taxonomy: phase defaults, `git:*` first-class, `skill:pre` now / `skill:post` V2/V3) and [[F210 — Conjunction binding + indexing|F210]] (`if::` vocabulary = fixed set, `where::` precedence = resolved-first) are all closed. The `when::`/`where::`/`if::` surface is locked. The diverse-family stress test below is the remaining freeze-insurance pass; a structural gap it surfaces reopens a specific point via the autopilot tripwire rather than the whole freeze.
+
 Close the language. Review every gap the example work surfaced (G1 mechanical-edit verb, G2 ruleset helper namespace, G3 finding confidence — [[Warden Examples Extended]]), decide each **cosmetic** (a predicate / object member / verb — patch) or **structural** (changes the model — escalate), patch [[Warden Semantics]] / [[Warden Rule]] / [[Warden Architecture]], then **freeze**.
 
 - **Diverse-family stress test (the freeze insurance).** Before freezing, hand-pick ~15–25 **deliberately difficult** rules from the corpus — one per family (dispatch, anchor-structure, naming, content-lint, LLM-judgment, `deny`, `edit`, agent-state, code, diagram, …) — and write each in Warden. The hard ones drive the language; this is what keeps the freeze from being a blind bet ahead of the full M4 proof.
