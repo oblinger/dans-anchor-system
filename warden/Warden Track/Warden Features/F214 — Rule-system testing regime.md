@@ -6,28 +6,38 @@ description: "F214 — Rule-system testing regime"
 
 ## Summary
 
-Because the rule system instruments **almost every action**, both correctness and performance regressions are high-stakes — a wrong steer or a slow `tool:pre` is felt on every call. F214 is the heavy, careful test discipline that runs **continuously alongside every milestone**, not after. Five layers, with the **Python↔Rust differential harness** as the primary oracle so neither implementation drifts silently, and the **golden corpus** ([[Warden Corpus]]) as the shared behavioral record every layer draws on. Follows the dev discipline: when a bug appears, write the failing test first, then fix; tests live in the repo/vault, never `/tmp`.
+Because the rule system instruments **almost every action**, both correctness and performance regressions are high-stakes — a wrong steer or a slow `tool:pre` is felt on every call. F214 is the heavy, careful test discipline that runs **continuously alongside every milestone**, not after. Five layers, with the **Python↔Rust differential harness** as the primary oracle so neither implementation drifts silently, and the **golden corpus** ([[Warden Corpus]]) as the shared behavioral record every layer draws on. Each layer carries a **stated coverage goal** (§ Coverage goals) so "enough testing" is a fixed target we can check the built suite against, not a per-commit judgment call. Follows the dev discipline: when a bug appears, write the failing test first, then fix; tests live in the repo/vault, never `/tmp`.
 
 ## Success Criteria
 
 **Tier:** 1 (gates every other milestone)
 **Blocks next:** standing — every milestone's "done-when" includes "existing F214 layers green."
 
-**What done looks like.** Five test layers exist and run as gates; a rule/impl change cannot land if any live layer fails; performance regressions and Python↔Rust divergences both fail the build.
+**What done looks like.** Five test layers exist and run as gates; a rule/impl change cannot land if any live layer fails; performance regressions and Python↔Rust divergences both fail the build; and each layer meets its stated coverage goal (§ Coverage goals — every primitive tested, ≥1 golden per rule family, one live flow per firing surface, 100% differential, every budgeted moment measured).
 
 **How it will be verified.** Deliberately break (a) a checker primitive, (b) one impl's verdict, (c) the budget — and confirm the unit, differential, and performance layers respectively fail. A clean tree is green. *(The golden layer's version of this check already ran 2026-07-01: tampering a corpus fixture flips the runner to FAIL; restoring it returns PASS.)*
 
 ## Design — five layers
 
-Layers accrete along the [[Warden Roadmap]] and never retire — each milestone's done-when includes "existing layers green."
+Layers accrete along the [[Warden Roadmap]] and never retire — each milestone's done-when includes "existing layers green." (*When* each layer comes online is a roadmap concern — stated in each layer's section below and in [[Warden Roadmap]] — not a design property, so it is not a column here.)
 
-| Layer | Proves | Starts existing | Gate cadence |
+| Layer | Proves | Coverage goal | Gate cadence |
 |---|---|---|---|
-| **Golden corpus** | a fixed cases × expected-verdicts set; catches semantic drift in any engine | **live today** (seeded against the shipped audit engine) | every commit |
-| **Unit** | each checker primitive, taxonomy prefix-match, selector parse, guard eval | M6 build (written alongside the engine code) | every commit |
-| **End-to-end / live** | author → adopt → fires at its moment through the real hook surface | per milestone from M6 (a slice exists today: `test-audit-on-write.sh`) | per milestone |
-| **Differential (Python ↔ Rust)** | both impls agree on every `(rule, target, moment)` verdict/steer | M8 (contract fixed now, at design time) | every impl commit |
-| **Performance** | per-moment p99 vs. budget | M8 enforced; M6 records an informational Python baseline | every impl commit |
+| **Golden corpus** | a fixed cases × expected-verdicts set; catches semantic drift in any engine | ≥1 case per **rule family** and per **language construct** (each `when::`/`where::`/`if::` form + execution mode), every family with a compliant twin | every commit |
+| **Unit** | each checker primitive, taxonomy prefix-match, selector parse, guard eval | **every checker primitive + every compiler/eval method** has a direct test; ≥90% line/branch coverage of the engine core | every commit |
+| **End-to-end / live** | author → adopt → fires at its moment through the real hook surface | ≥1 full author→adopt→fire flow **per firing surface** (`tool:pre` veto, `tool:post` steer, `write`, `session`, `prompt:stop`); every hook-output shape (`deny`/`block`/steer) exercised | per milestone |
+| **Differential (Python ↔ Rust)** | both impls agree on every `(rule, target, moment)` verdict/steer | **100% of corpus cases** (+ recorded moment streams) byte-equal across both engines — zero exceptions | every impl commit |
+| **Performance** | per-moment p99 vs. budget | **every budgeted moment class** (`tool:pre`, `tool:post`, `session`) has a measured p99 each run | every impl commit |
+
+### Coverage goals — the completeness bar we test against
+
+*(added 2026-07-02, user request)* Naming a coverage goal per layer gives a **fixed target to hold the built suite against**: read the goal, look at what exists, decide whether the testing we anticipated is actually there. Goals are concrete where a number earns its keep, qualitative where a number would be false precision.
+
+- **Golden corpus — breadth of behavior** — ≥1 blessed case for **every rule family** and **every language construct** (each `when::` moment family, each `where::` selector form, each `if::` guard shape, each execution mode), plus a **compliant twin** per family so both directions of drift are pinned. Complete when a new rule family shipping *without* a golden is the exception that stands out. (Same target as the golden § minting rule; enforced at the M4 corpus migration.)
+- **Unit — every primitive, every branch** — every checker primitive and every compiler/evaluator method carries **≥1 direct test** (method-level coverage is the floor, not the aspiration), and the engine-core modules hold **≥90% line/branch coverage**. Complete when no checker primitive ships untested and coverage never regresses below the floor.
+- **End-to-end / live — every firing surface, every output shape** — at least **one full author→adopt→fire flow per firing surface** (`tool:pre` veto, `tool:post` steer, `write:<kind>`, `session`, `prompt:stop`) and **every distinct hook-output shape** (`deny`, `block`, plain steer) driven through the real hook JSON at least once. Complete when every surface a rule can bind to has a green live flow; the flow count grows with the taxonomy, not a fixed number.
+- **Differential — total, no sampling** — **100% of corpus cases** (and, once they exist, recorded real-session moment streams) run through **both** engines with byte-equal canonical verdicts. Coverage is inherited from the golden corpus; the differential goal is simply that *no case is skipped* and zero divergence is tolerated.
+- **Performance — every budgeted moment** — **every moment class carrying a PRD budget** (`tool:pre`, `tool:post`, `session`) has a measured p99 on each perf run; a budgeted class with no measurement is a coverage gap. Sample depth + host are fixed by the Performance § enforcement rules.
 
 ### Golden corpus — the heart
 
