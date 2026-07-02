@@ -33,6 +33,8 @@ The interception substrate is Claude Code hooks, used natively behind a thin por
 
 **Scan command built + tested 2026-07-02** — `warden/engine/warden_scan.py` implements the committed always-scan contract (§ Discovery resolved: scan command + always-freshen): stat-sweep + selective re-read, index schema `{path, mtime_ns, size, hash, ruleset_names[]}` plus a `seen` all-files stat map (so unchanged *non*-bearing files are skipped too), `--rescan` from-scratch build, `--root` as the engine config parameter. Verified against the live root — 112 ruleset files / 116 rulesets; from-scratch 232 ms, an unchanged freshen **reads 0 files in 15 ms**, a touched bearing file re-reads exactly one, and a ruleset added to a previously non-bearing file is caught on the next freshen (the self-freshening property). A standalone regression test (`warden/engine/test_warden_scan.py`, 5 behaviors) pins the read-0 property. The M0 language freeze is complete ([[F209 — Unified trigger taxonomy + when language|F209]]/[[F210 — Conjunction binding + indexing|F210]], 2026-07-02), and the **three M2 engine-design questions are now resolved** (2026-07-02, user): lazy/incremental compile, dual output (shared IR + emitted Python modules; Rust delegates the Python bits), and Python-allowed-everywhere under an operation-cost budget. **F211 is fully designed** — the compile→install→fire contract + the `R-query-14` pilot are buildable.
 
+**IR schema specced 2026-07-02** (§ IR schema) — the compiler's concrete output form: the shared `rules-ir.json` table (moment dispatch index + per-trait active-sets + rule rows with declarative fixed-vocab guards/actions and `guard_py`/`body_py` escapes) plus the emitted `rules_<anchor>.py` module, worked end-to-end through `R-query-14`. This resolves [[F212 — Python reference implementation|F212]]'s open module-representation question. The remaining build is the **compiler code**: the front-half rule parser + `include::`/active-set resolver (reusing `audit-plan.py`), the clause-splitter (index key vs. residual), and the IR/module emitter — then install + fire.
+
 ## Resolved
 
 The M2 engine-design gate — all three resolved by the user 2026-07-02 (Q1 accepted the lean; Q2 accepted the lean and **refined it with a dual output**; Q3 **opened up** rather than confined).
@@ -58,6 +60,64 @@ Rule Python is allowed at **every** moment, including `tool:pre`. The Warden dae
 - **Rust-path caveat (M8).** In the Rust deployment, Rust runs declarative (IR) veto rules **in-process** (fast); a **Python-carrying** veto rule makes Rust hop to the Python daemon (a bounded IPC round-trip). This affects only the rare Python-carrying veto rule — most `tool:pre` rules are path/pattern checks = pure IR — so Rust's speedup fully applies to the declarative majority. (Ties [[Warden PRD]] Q2.)
 
 Supersedes the original lean (B) "confine code-carrying rules to `post`": confinement isn't needed once the constraint is framed as cost, not language.
+
+## IR schema — the compiler's output *(M2, 2026-07-02)*
+
+Concretizes Q2's dual output — the buildable form the compiler emits and both engines interpret. Per anchor, into `.warden/`:
+
+1. **`rules-ir.json`** — the shared **IR table**, interpreted *identically* by the Python reference ([[F212 — Python reference implementation|F212]]) and the Rust engine ([[F213 — Rust performance implementation + ms budget|F213]]).
+2. **`rules_<anchor>.py`** — the emitted **Python module**: one function per inherently-Python clause (arbitrary `if::` guards, computed bodies). A fully-declarative rule contributes none.
+
+### The IR table
+
+Top-level: `{schema, root, active_set_hash, moments, traits, rules}`.
+
+- `schema` — IR format version (int); an engine refuses an IR version it can't interpret.
+- `moments` — the dispatch index: `{ "<moment-path>": [rule_id, …] }`, one bucket per canonical `when::` path ([[Warden Events]]). Fire = a dict lookup on the moment path and its prefixes → candidate ids. The compiled form of when-major indexing.
+- `traits` — `{ "<trait>": [rule_id, …] }`, the precompiled per-trait active-sets ([[Warden Runtime]] § Activation). An anchor's active-set is the union over its `.anchor` traits **plus the implicit base trait**.
+- `rules` — `{ rule_id: <row> }` (below).
+
+### A rule row
+
+Carries the dispatch-independent residual + the action:
+
+| Field | Meaning |
+|---|---|
+| `id` | rule id (`R-query-14`) — stable, source-set numbered |
+| `source` | root-relative doc path + heading anchor (provenance; re-compile) |
+| `tier` | rule tier (advice / floor / …) |
+| `phase` | `pre` \| `post` — veto-capable `pre` named explicitly, else `post` (F209 Q1) |
+| `moment` | the canonical `when::` path(s) — also keyed in `moments` |
+| `where` | residual `where::` glob (`{ANCHOR}`/`{NAME}`/`{SLUG}` tokens **unexpanded**), or `null` for `always` |
+| `guards` | the **declarative** `if::` — fixed-vocab checks, ANDed (below); `[]` if none |
+| `guard_py` | emitted-module function name for an **arbitrary** `if::`, or `null` |
+| `action` | the **declarative** action (below), or `null` when the body is Python |
+| `body_py` | emitted-module function name for a computed body, or `null` |
+
+`guards` + `action` are the declarative surface Rust runs **in-process**; `guard_py` / `body_py` are the escape to the warm Python daemon. A row has at most one of {`action`, `body_py`} and at most one of {non-empty `guards`, `guard_py`} — the fixed vocabulary is what keeps the common case fully in-process.
+
+### Declarative guards — the closed vocabulary (F210 Q1)
+
+Each guard is `{key, op, value}` over the frozen set: `key ∈ {git-aspect, mode, trait, facet}`, `op ∈ {eq, in, has}`, `value` a literal or literal list. `if:: git-aspect == Commit` → `{key:"git-aspect", op:"eq", value:"Commit"}`. Anything outside the vocabulary (`if:: not file.title`) is **not** a guard row — it compiles to a `guard_py` function.
+
+### Declarative actions
+
+`action` is one of `{kind:"tell", text}` (a fixed steer/finding), `{kind:"deny", reason}` (a `tool:pre` veto), or `{kind:"edit", method, args}` (a floored write). A body that *computes* its output — R-query-14 branches its steer on `git-aspect` — is not declarative; it compiles to `body_py`.
+
+### The emitted Python module
+
+`rules_<anchor>.py` is ordinary, importable, **unit-testable** Python (the M3 regime tests it directly). One function per `guard_py` / `body_py`, named `guard_<id>` / `body_<id>`, each taking the interpretation-environment `ctx` and returning a boolean (guard) or emitting via the verbs (body). The warm daemon imports the module once; a fire is an in-process call (sub-ms — [[Warden Runtime]] § Indexed evaluation). Rust delegates these calls to the daemon over its socket and runs the declarative rows itself.
+
+### Worked example — R-query-14 (the pilot)
+
+The push/commit-question interceptor ([[FCT Query]] `R-query-14`) is a **Python-body** rule: it fires at the `audit-q` skill moment, scans the freshly-built `{NAME} queries.md`, and branches its steer on the anchor's Git aspect. So its IR row is dispatch + activation + a `body_py` ref:
+
+- `id:"R-query-14"`, `phase:"post"`, `moment:"skill:post:audit-q"`, `where:null`, `guards:[]`, `guard_py:null`, `action:null`, `body_py:"body_R_query_14"`.
+- keyed under `moments["skill:post:audit-q"]` and `traits["query"]` (activated by the query facet trait).
+
+The emitted `body_R_query_14(ctx)` is R-query-14's existing `trigger(ctx)` logic essentially verbatim — scan `ctx.queries_text`, branch on `ctx.git_aspect`, `tell` the mode-appropriate steer. **The port is exactly this: the IR row supplies dispatch + activation; the emitted function is the rule's own Python, unchanged** — exercising both halves of the dual output and validating the whole loop against today's `audit-q.py` autofire (the F212 success criterion).
+
+> **Pilot moment note.** R-query-14 inspects audit-q's *output* (the queries file it just wrote) — a `skill:post`-shaped moment, and v1 emits only `skill:pre` (F209 Q3). Not blocked: `audit-q` **cooperatively invokes the engine at the end of its own run today** (the autofire this pilot replaces), so the post moment is the skill's *explicit* call into the compiler, not an inferred boundary. The pilot fires at that cooperative call; general (non-cooperative) `skill:post` stays deferred to V2/V3.
 
 # Discussion
 
