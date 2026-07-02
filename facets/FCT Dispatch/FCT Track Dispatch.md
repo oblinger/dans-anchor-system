@@ -108,10 +108,9 @@ The dispatch table includes a row linking `{NAME} Backlog.md`; this is the only 
 
 # BRIEF
 
-- **This is the spec for the Track-folder dispatch page**, not a Track dispatch instance — describes the required H1, dispatch-table shape, body rows, and auto-management separator for `{NAME} Track.md` in any Track-trait anchor.
-- **Inclusion test for the Contents table**: a file belongs in the Track folder only if it is *tracking metadata* — workflow state (Backlog, Status), ephemeral surfaces (Inbox, Icebox, ask, Messages, Questions), or planning discussion. Design artifacts (PRD, UX, Architecture, Features, Roadmap, Testing, Decisions) go to `{NAME} Design/` and MUST NOT be re-listed here.
-- **Keep the "what does NOT live in Track" note synchronized** with the F094 + 2026-06-10 restructure boundaries — any future relocation between Track and Design must update both this note and `CAB Design` so the two specs stay in lockstep.
-- **The Reference Example block is illustrative, not normative** — when CAE / SKA / CAB ship their migrated Track pages per F094 Phase 1, refresh this example but do not turn it into a directive (the Format Specification section is the authority).
-- **Wiki-links use the bare anchor `{NAME}` placeholder** in spec text and the live slug in the Reference Example. Don't mix the two within one row.
+*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body + RULESET R-track-dispatch above.)*
+
+- **Keep the “what does NOT live in Track” note synced with CAB Design** — any future relocation between Track and Design (per F094 + the 2026-06-10 restructure) must update both this spec and `CAB Design`, so the two stay in lockstep.
+- **The Reference Example is illustrative, not normative** — refresh it as CAE / SKA / CAB land their migrated Track pages (F094 Phase 1), but the Format Specification section is the authority; don't promote the example into a directive.
+- **Spec text uses the bare `{NAME}` placeholder; the Reference Example uses live slugs** — don't mix the two notations within one row.
 - **Don't pile per-anchor Track guidance here** — anchor-specific tracking conventions live in that anchor's `{NAME} Decisions.md` or local rules, not in this facet spec.
--[[{NAME} Track]]-` and the `---` auto-management separator row are what wire the dispatch table to CAB Anchor Page mechanics — do not reformat or remove either when editing example rows.

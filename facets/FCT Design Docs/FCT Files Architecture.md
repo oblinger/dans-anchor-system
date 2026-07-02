@@ -34,7 +34,7 @@ The tree/layout is **the** content; keep prose tight and let the structure table
 **One per system.** A given repo/anchor has at most one Files Architecture doc. Sub-trees don't each get their own; they're rows in the single doc's structure table.
 
 **Relationship to the other facets:**
-- [[FCT All Files]] — the *realized* source tree (an instance), with files linked to module docs. Files Architecture is the *design* it conforms to.
+- [[FCT All Files]] — the *realized* source tree (an instance), with files linked to module docs. Files Architecture is the *design* it conforms to; when the two disagree, the architecture doc is the intended state and the tree is brought into line (or the architecture is revised deliberately).
 - [[FCT Architecture]] — the *system-architecture* design (subsystems, data flow, how parts interact). Files Architecture is its file-layout sibling; the two cross-reference but don't overlap.
 - [[FCT Module Doc]] — the per-module docs the realized tree links into.
 
@@ -85,10 +85,7 @@ description:: the file-tree / content-structure design doc kind
 
 # BRIEF
 
-- **This is the facet spec for the Files Architecture doc kind** — the top-down design of a system's file/module/content layout. Instances (e.g. [[SKA File Tree Architecture]]) cite this page as authority; this page never holds a specific system's tree.
-- **Required parts are the target structure + its rationale** — everything else (naming, supersession, status/open-questions) is materialize-when-needed. The doc is a *design*, so the reasoning is as load-bearing as the layout.
-- **Sibling of [[FCT Architecture]], not a replacement** — Architecture = how subsystems interact; Files Architecture = where things live and why. Keep the boundary; cross-link, don't duplicate.
-- **It designs what [[FCT All Files]] realizes** — All Files is the concrete source tree (an instance with live module-doc links); Files Architecture is the spec that tree is built to. When they disagree, the architecture doc is the intended state and the tree is brought into line (or the architecture is revised deliberately).
-- **By-name indexes are an optional pattern with a three-part contract** — when a tree splits artifacts across concept-name-keyed indexes (verbs / nouns / …), it must state one-list placement (each concept in exactly one index), that satellites are unlisted, and absence-semantics. `R-files-architecture-08`. Worked instance: [[SKA File Tree Architecture]] § *One concept, one list*.
-- **Required, per [[FCT Facet]]: this RULESET and this BRIEF.** Both present.
+*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body above; the `R-files-architecture` ruleset is embedded below.)*
+
+- **This page never holds a specific system's tree** — instances (e.g. [[SKA File Tree Architecture]]) cite it as authority and carry their own trees; keep this spec system-agnostic.
 - **No `module-doc` discipline yet** — the cross-cutting module-doc linking convention currently lives inside [[FCT All Files]] and [[FCT Module Doc]]; a `module-doc` discipline may be extracted later if it grows enough independent reference sites (per [[F165 — Files Architecture + Code facets (All Files, Module Doc)]] Q2).

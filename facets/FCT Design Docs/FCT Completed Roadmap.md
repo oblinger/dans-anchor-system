@@ -140,11 +140,9 @@ Once a milestone migrates to Completed Roadmap, it stays. Reactivation of work i
 
 # BRIEF
 
-- **This file is the facet spec for `{NAME} Completed Roadmap.md`** — it defines what the completed-roadmap doc must look like in any anchor that uses CAB Roadmap. Edits here change the contract for every consumer.
-- **TODO: link a worked example.** No real `{NAME} Completed Roadmap.md` instance exists yet (the facet landed with F144; no milestone has migrated). When the first one ships, add it to `## See also` and reference it from the § Structure section in place of the prose outline.
-- **Spec content + embedded RULESET only.** Keep the spec body (location, structure, migration semantics, trait applicability) and the embedded `R-completed-roadmap` RULESET aligned — when the spec changes a structural rule, mirror it in the matching R-rule and bump the check pattern.
-- **Do NOT put per-anchor completed-roadmap content here.** Actual migrated milestones live in `{ANCHOR}/{NAME} Design/{NAME} Completed Roadmap.md`; this file holds rules and example shapes only.
-- **The inclusion test for a new rule:** it constrains the *structure* of the completed-roadmap doc (location, order, preservation, naming) — not the forward-looking Roadmap (that's [[FCT Roadmap]]) and not feature-doc shape (that's [[FCT Features]]).
-- **Provenance lives in [[F144]].** When questions arise about "why this name?" or "why newest-on-top?", point to the F144 discussion rather than re-litigating in this spec.
-- **Cross-reference integrity is load-bearing:** the See also links to [[FCT Roadmap]], [[FCT Features]], [[FCT Design]], and F144/F145 wire this facet into the larger CAB graph — don't drop them when refactoring.
-- **Sibling-doc invariant:** Completed Roadmap is always a sibling of Roadmap under `{NAME} Design/` — never relocate, never nest. R-completed-roadmap-01 enforces this.
+*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body + embedded `R-completed-roadmap` RULESET above; design rationale is [[F144 — Completed Roadmap + named milestones]].)*
+
+- **TODO: link a worked example** — no real `{NAME} Completed Roadmap.md` instance exists yet (the facet landed with F144; no milestone has migrated). When the first ships, add it to `## See also` and reference it from § Structure in place of the prose outline.
+- **Keep spec ↔ embedded RULESET aligned** — when the spec body changes a structural rule (location, order, preservation, naming), mirror it in the matching `R-completed-roadmap` rule and bump the check pattern; never put per-anchor migrated-milestone content here (it lives in `{ANCHOR}/{NAME} Design/{NAME} Completed Roadmap.md`).
+- **Inclusion test for a new rule** — it constrains the *structure* of the completed-roadmap doc (location, order, preservation, naming), not the forward-looking Roadmap ([[FCT Roadmap]]) or feature-doc shape ([[FCT Features]]).
+- **Cross-reference integrity is load-bearing** — the `## See also` links to [[FCT Roadmap]], [[FCT Features]], [[FCT Design]], and F144/F145 wire this facet into the CAB graph; don't drop them when refactoring.

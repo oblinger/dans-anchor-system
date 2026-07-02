@@ -116,9 +116,8 @@ Dev Docs is audit-tied (Files + per-module docs); the synthesis docs live elsewh
 
 # BRIEF
 
-- **This file is the CAB facet spec for the Dev Docs dispatch page** — it defines the shape and contents of `{NAME} Dev Docs.md`. Edit here when the Dev-dispatch contract changes (new required rows, structural conventions, location moves).
-- **NOT a place for per-anchor Dev Docs dispatches** — concrete instances (e.g. `HBR Dev Docs.md`) live in their anchor's root-level `{NAME} Dev Docs/` folder. Only the canonical Reference Example block stays here, as a worked illustration.
-- **Inclusion test for new content:** does it apply to *every* `{NAME} Dev Docs.md` in *every* code anchor? If yes, edit here. If it's anchor-local, edit the anchor's Dev Docs dispatch. If it's a synthesis-zone rule, edit the relevant facet ([[FCT Interface]] / [[FCT Architecture]]) instead.
-- **Load-bearing constraint — audit-tied vs synthesis:** Dev Docs is audit-tied (Files + per-module docs); the synthesis docs live elsewhere (Interface in `{NAME} Design/`, the Architecture story in `{NAME} Design/` (the `{NAME} Architecture` doc)). Do not reintroduce Interface or Architecture rows into the Dev Docs spec — they were intentionally moved. The §"What does NOT belong in Dev Docs" section is the canonical guard.
-- **Cross-references to keep current:** [[FCT All Files]], [[FCT Module Doc]], [[FCT Interface]], [[FCT Architecture]], [[FCT User Dispatch]]. If any of these slugs rename or move, update the wiki-links in the body — the dispatch contract refers to them by basename.
-- **Cite, don't inline:** markdown rendering rules live in [[R-markdown]]; dispatch-table formatting rules live in [[FCT Anchor Page]]. Reference those rather than duplicating their content here.
+*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body above.)*
+
+- **Inclusion test** — content belongs here iff it applies to *every* `{NAME} Dev Docs.md` in *every* code anchor; anchor-local content goes in the anchor's Dev Docs dispatch, and synthesis-zone rules go in [[FCT Interface]] / [[FCT Architecture]] instead.
+- **Don't regress audit-tied vs synthesis** — Dev Docs is audit-tied (Files + per-module docs); do not reintroduce Interface or Architecture rows (they were intentionally moved to `{NAME} Design/`). The § "What does NOT belong in Dev Docs" section + R-dev-dispatch-05 are the canonical guard.
+- **Cross-ref integrity** — keep [[FCT All Files]], [[FCT Module Doc]], [[FCT Interface]], [[FCT Architecture]], [[FCT User Dispatch]] wiki-links current; the dispatch contract refers to them by basename.

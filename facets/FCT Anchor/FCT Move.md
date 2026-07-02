@@ -61,9 +61,9 @@ An anchor has at most one current location; each move event is a discrete, non-c
 
 # BRIEF
 
-- **This file is the CAB Move facet spec** — it defines the *concept* of moving an anchor (what steps a move entails, what systems must be updated) and routes to the skills that perform the work. It is authoritative for the move-workflow shape.
-- **NOT a runbook and NOT an implementation** — step-by-step procedural detail for executing a move belongs in the `/cab move` SKILL.md runbook, not here. Keep this file conceptual; keep behavior in the skill.
-- **Inclusion test** — only content that describes *what a move IS* (the conceptual steps, the systems involved, the boundary against migrate/fix-session) belongs here. Per-skill mechanics, edge cases, and command syntax go in the respective skill files.
-- **Boundary discipline** — Move vs. Migrate vs. Fix Session is the load-bearing distinction; preserve the Related Skills table and the When to Use Each guidance so users land on the right verb. If a new related skill enters this space, add a row rather than blurring the existing definitions.
-- **Step list is the contract** — the numbered "What a Move Involves" list is referenced by `/cab move` and downstream skills. Renumbering or removing a step silently breaks references; add new steps at the end or with an explicit sub-number, never reorder.
-- **Linking convention** — skills are referenced as `/cab move`, `/cab migrate`, `/fix session` (slash-command form in backticks), not as wiki-links to SKILL.md files. Keep this consistent — readers scan for the slash form.
+*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative contract is the body above; step-by-step move mechanics live in the `/cab move` SKILL.md runbook, never here.)*
+
+- **Inclusion test** — only content describing *what a move IS* (the conceptual steps, the systems involved, the boundary against migrate / fix-session) belongs here; per-skill mechanics, edge cases, and command syntax go in the respective skill files.
+- **Step list is the contract** — the numbered § What a Move Involves list is referenced by `/cab move` and downstream skills; add new steps at the end or with an explicit sub-number, never renumber or reorder.
+- **Boundary discipline** — Move vs. Migrate vs. Fix Session is the load-bearing distinction; preserve the Related Skills table and the When to Use Each guidance so users land on the right verb, and add a row for any new related skill rather than blurring the existing definitions.
+- **Linking convention** — reference skills in slash-command form in backticks (`/cab move`, `/cab migrate`, `/fix session`), not as wiki-links to SKILL.md files.

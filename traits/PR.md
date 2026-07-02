@@ -91,10 +91,10 @@ PR is a behavioral mode, not a structural one. Compositional expectations:
 
 # BRIEF
 
-- **This file is the canonical Trait spec for PR — the Git-aspect mode "every commit through a PR."** Edits here change the semantics for every anchor that declares `PR` in its `.anchor` `traits:` list.
-- **NOT for per-anchor PR policy or per-skill PR mechanics.** Per-anchor declarations live in each anchor's `.anchor` file; the underlying PR-creation/branch-waiting mechanics live in [[SKA pr-flow]]; the user-facing mode prose lives in [[SKL Mode Git PR]]. This file is the *Trait-level* contract that ties those together.
-- **Inclusion test for content here:** does it describe what declaring `PR` as a Trait *means* for any anchor — detection, the four load-bearing rules, composability with other Traits, wiring steps, audits? If yes, it belongs. Mechanism-specific detail (how `/pr-flow` branches, how the gh CLI is invoked) does NOT belong — link to the skill instead.
-- **Load-bearing: the four rules + the compact-trigger block must stay aligned.** § The four load-bearing rules and § Triggers > compact both enumerate the same four rules; when one is edited the other must be updated in lockstep — the compact block is what gets inlined into POST-COMPACT RELOAD per [[F091 — Trigger discipline]].
-- **Load-bearing: mutual exclusivity with `Commit` and `NoGit`.** The three Git-aspect Traits are exactly-one-per-anchor; any edit that softens this (e.g. "PR can coexist with Commit for certain branches") breaks the resolution mechanism in [[CAB Aspects]]. Don't weaken without a coordinated CAB Aspects update.
-- **Cross-references to keep in sync when editing:** [[CAB Aspects]] composability matrix, [[Commit]] and [[NoGit]] sibling specs, [[SKL Mode Git PR]] user-facing spec, [[SKA pr-flow]] mechanism, F077 design body.
-- **Naming/formatting conventions:** Trait name is the bare noun `PR` (no hyphen, no "PR-mode" suffix) per F077 Q7; the four rules are presented as a numbered list in § The four load-bearing rules and as a bulleted list in § Triggers > compact — preserve both shapes.
+*(Maintainer note — cautions for whoever edits this Git-aspect Trait spec. Edits here change the semantics for every anchor that declares `PR`; the normative spec is the body above, and the composability matrix lives in [[CAB Aspects]].)*
+
+- **Scope / inclusion test** — content belongs only if it describes what declaring `PR` as a Trait *means* (detection, the four rules, composability, wiring, audits). Per-anchor declarations live in each `.anchor`; PR-creation/branch-wait mechanics live in [[SKA pr-flow]]; user-facing mode prose in [[SKL Mode Git PR]]. This file is the Trait-level contract, not the mechanism.
+- **Keep the four rules aligned** — § The four load-bearing rules (numbered) and § Triggers > compact (bulleted) enumerate the same four rules; edit them in lockstep. The compact block is inlined into POST-COMPACT reload per [[F091 — Trigger discipline]] — preserve both shapes.
+- **Don't weaken mutual exclusivity** — the three Git-aspect Traits are exactly-one-per-anchor; softening (e.g. "PR can coexist with Commit for certain branches") breaks the resolution mechanism. Coordinate any change with [[CAB Aspects]].
+- **Cross-refs to sync when editing:** [[CAB Aspects]], [[Commit]] and [[NoGit]] siblings, [[SKL Mode Git PR]], [[SKA pr-flow]], F077 design body.
+- **Naming:** bare noun `PR` (no hyphen, no "PR-mode" suffix) per F077 Q7.

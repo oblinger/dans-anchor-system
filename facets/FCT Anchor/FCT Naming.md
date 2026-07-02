@@ -42,6 +42,8 @@ These patterns appear inside anchor sub-folders (`{NAME} Track/{NAME} Features/`
 
 Each exception pattern is **declared by the facet that owns it**. Facets that define alternative patterns also state their uniqueness contract (e.g., F-numbers are monotonic-forever per anchor; `US-<SLUG>-<N>` encodes the slug directly). When a new facet introduces an alternative pattern, this list grows.
 
+**Inclusion test** — a pattern enters this table only when it (1) is declared by another facet spec, (2) carries a stated uniqueness contract that makes a slug prefix redundant, and (3) lives inside an anchor sub-folder that already encodes anchor scope. If any leg fails, the file carries the `{NAME}` prefix instead.
+
 ## Exception C — slug-prefix sufficient by chance
 
 Names so domain-specific they're unlikely to collide with anything in another anchor — e.g., a file named after a unique external entity (`Sourcetrail 2024 article.md`, `WCAG-2.1 contrast spec.md`). Allowed but use sparingly; the prefix-default catches more cases than the by-chance argument.
@@ -71,6 +73,8 @@ The anchor marker file (the `{NAME}.md` inside `{NAME}/` per [[FCT Folder]]) is 
 **Cardinality: one per anchor.** Each anchor has exactly one naming convention — the `{NAME} <X>.md` default — not a per-file or per-folder choice. The exception classes are part of that single convention, not alternatives to it.
 
 Vault-wide. Every anchor in the vault is subject to this naming convention; the exceptions are explicit.
+
+This facet holds the **vault-wide default + exception allowlist only** — trait-specific naming conventions belong in the owning trait's spec (`CAB <Trait>.md`), and anchor-local naming exceptions belong in that anchor's `{NAME} Rules.md` or `{NAME} Decisions.md`, not here.
 
 ## Cross-references — facets that declare exception patterns
 
@@ -156,10 +160,7 @@ Files whose name is fixed by an external tool / runtime / repo discovery contrac
 
 # BRIEF
 
-- **This file is the Naming facet spec** — the authoritative source for the `{NAME} <X>.md` default and the exception allowlist. Audit tooling (`/audit naming`) and cross-cutting facet specs cite this file; treat it as load-bearing.
-- **NOT a place to invent new exceptions.** A new exempt pattern enters § Exception B only after the facet that owns it (Features, Stories, Log, etc.) declares the pattern in its own spec with a uniqueness contract. Add the row here only after that prior step, and link back to the owning facet.
-- **Inclusion test for § Exception B**: the pattern must (1) be declared by another facet spec, (2) have a stated uniqueness contract that makes a slug prefix redundant, and (3) live inside an anchor sub-folder that already encodes anchor scope. If any leg fails, the file should carry the `{NAME}` prefix instead.
-- **Keep the prose spec and R-naming ruleset aligned.** The H2 sections above and the `# RULESET R-naming` block below are two views of the same rules — edit both together. The exception table in § Exception B mirrors the allowlist in R-naming-03; don't let them drift.
-- **Link format for cross-referenced facets** is `[[CAB <Facet>]]` (e.g., `[[FCT Features]]`, `[[FCT Log]]`) — not bare names, not relative paths. The § Cross-references section is the canonical list; update it when adding/removing exception rows.
-- **Do NOT inline trait-wide rules or anchor-local rules here.** Trait-specific naming conventions belong in `CAB <Trait>.md`; anchor-local naming exceptions belong in `{NAME} Rules.md` or `{NAME} Decisions.md`. This facet is the vault-wide default + exception allowlist only.
-- **The `description::` Dataview field and the one-paragraph TLDR under the H1 are load-bearing** — facet-listing pages and audit scripts read them. Don't replace either with a callout or restructure them into a different shape.
+*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body above plus the `# RULESET R-naming` block below.)*
+
+- **Don't invent new exceptions here.** A pattern enters § Exception B only after the facet that owns it declares it in its own spec with a stated uniqueness contract (per the § Exception B inclusion test); then add the row here and link back to the owning facet.
+- **Keep the two views aligned** — § Exception B's table and R-naming-03's allowlist are the same list; edit them together, and update § Cross-references when adding or removing an exception row.

@@ -136,6 +136,7 @@ Discussion does NOT attach to: anchor pages (`{NAME}.md`), dispatch pages (`{NAM
 
 # BRIEF
 
-- **This is the Discussion facet spec** — the doc-scoped dated-entry-stream for design trade-off threads. It was re-scoped from anchor-scoped to doc-scoped on 2026-06-11; legacy `{NAME} Discussion.md` files are deprecated (migration tracked in [[SKA Backlog]] § F149). Do not revert to anchor-scoped wiring.
-- **Cardinality: many** — one Discussion per attachable doc (PRDs, Architecture, feature docs, spec sub-pages). Each Discussion belongs to the doc it's about — inlined under `# Discussion` H1 (method 1, default) or extracted to `{Parent} Discussions.md` (method 2). Method 3 is out of scope; if an inline Discussion grows that large, split the parent doc instead.
-- **Placement rules and naming delegate to [[DSC dated-entry-stream]]** — this spec owns only Discussion-specific rules (entry skeleton, methods 1+2 declaration, attachment-scope guard, append-only posture). When editing placement or naming logic, update `R-dated-entry-stream`, not this file.
+*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body and ruleset above.)*
+
+- **Don't revert to anchor-scoped wiring** — Discussion was re-scoped anchor→doc on 2026-06-11; legacy `{NAME} Discussion.md` is deprecated (migration tracked in [[SKA Backlog]] § F149).
+- **Placement / naming logic lives in [[DSC dated-entry-stream]]** (`R-dated-entry-stream`) — edit those rules there, not here; this spec owns only Discussion-specific rules.

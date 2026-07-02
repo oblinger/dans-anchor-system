@@ -104,9 +104,7 @@ The `permalink:` value in `website/index.md` frontmatter and the URL in the anch
 
 # BRIEF
 
-- **This is the facet spec for the published Project Page artifact** — a Jekyll/cayman splash page living in `{NAME}/website/` and deployed to `oblinger.github.io/gitproj/{SLUG}/`. Edits here change the rule, not any one anchor's page.
-- **F060 explicitly does NOT apply** to this facet — the Project Page is a static-website artifact (Jekyll front matter shapes it), not an in-anchor doc with a CAB dispatch-table placeholder. Don't add an H1+placeholder to the structure described above.
-- **Inclusion test for new content here**: does it describe the *shape, location, front matter, or publish path* of a project page across all anchors? If yes, add. If it's anchor-specific or deploy-tooling-specific, route to [[code-publish]] (workflow) or that anchor's own `website/` folder.
-- **No inline reference example** — the page describes the project-page shape in prose/outline (§ Location, § Jekyll Front Matter); a facet spec must not embed a sample instance. TODO: link a worked example (a real anchor's `website/` folder) once one exists.
-- **Cross-references to keep aligned**: [[code-publish]] (the workflow that builds + deploys), [[FCT Documentation Site]] (sibling facet for full doc sites), and the anchor's dispatch-table `Related` row format shown in § Dispatch Table Entry. If any of those names change, update here.
-- **Permalink and dispatch-table-row formats are load-bearing**: `permalink: /gitproj/{SLUG}/` and the `Related` row `[Project Page](https://oblinger.github.io/gitproj/{SLUG}/)` must stay in sync — both are consumed by the projects hub at `/gitproj/`.
+*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body above plus the `# RULESET R-project-page` block; the deploy workflow is [[code-publish]].)*
+
+- **Inclusion test** — content belongs here only if it describes the *shape, location, front matter, or publish path* of a project page across all anchors. Anchor-specific or deploy-tooling detail routes to [[code-publish]] or that anchor's own `website/` folder.
+- **Cross-references to keep aligned** — [[code-publish]] (builds + deploys), [[FCT Documentation Site]] (sibling facet), and the § Dispatch Table Entry `Related`-row format. Update here if any of those names change.

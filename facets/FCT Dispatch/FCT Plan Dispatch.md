@@ -49,9 +49,6 @@ The basename `FCT Plan Dispatch` is the link target old citations resolve to; re
 
 # BRIEF
 
-- **This file is a redirect stub, not a live spec.** Its sole job is to catch incoming `[[FCT Plan Dispatch]]` wiki-links during the F094 migration window and point readers at the successor specs.
-- **The live successors are [[FCT Track Dispatch]] (planning surface) and [[FCT Design Dispatch]] (design surface).** Any new dispatch-facet content belongs in one of those — never extend this file with new prose.
-- **Do NOT add normative rules, tables, or examples here.** If a question arises about the Plan/Track/Design split, update the successor spec; this stub only redirects.
-- **Removal criterion:** when the vault has zero remaining `[[FCT Plan Dispatch]]` references (audit via grep), this file may be deleted. Until then it must remain to preserve link integrity.
-- **Do not rename or move this file.** Its basename is the link target old citations resolve to; renaming breaks the redirect contract.
-- **The frontmatter `description::` is intentionally terse** ("superseded by …"); it surfaces in Dataview / search so users see the redirect before opening — keep that phrasing aligned with the H1 callout.
+*(Maintainer note — this is an F094 redirect stub; its redirect / no-new-content / removal / no-rename contract lives in the ruleset above.)*
+
+- **The frontmatter `description::` is intentionally terse** ("superseded by …") so it surfaces in Dataview / search and readers see the redirect before opening — keep that phrasing aligned with the H1 callout.

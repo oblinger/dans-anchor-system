@@ -40,7 +40,7 @@ A **Brief** is a **document facet** — agent-facing per-file editing-and-mainte
 > [!info] Phase 1 — inline `# BRIEF` H1 (2026-06-10)
 > Until the read-hook is built that auto-surfaces a sidecar brief to the agent, briefs live **inline** as a `# BRIEF` (ALL CAPS) H1 section at the **bottom** of the source file. The agent reads the file → sees the section → uses it. No tooling required.
 >
-> When the read-hook ships, briefs migrate mechanically to **Phase 2 — sidecar files** (`<Source Name> Brief.md` in the same folder, surfaced via the `Related` row in the source's dispatch table or a `(See ...)` line beneath the H1). The Phase 2 form is described in the rest of this spec for forward reference.
+> When the read-hook ships, briefs migrate mechanically to **Phase 2 — sidecar files** (`<Source Name> Brief.md` in the same folder, surfaced via the `Related` row in the source's dispatch table or a `(See ...)` line beneath the H1). The migration is purely mechanical — split the source on `# BRIEF`, write the brief content to the sidecar, add the `Related` row or `(See …)` line — and is scriptable vault-wide in one pass. The Phase 2 form is described in the rest of this spec for forward reference.
 >
 > A vault-wide registry of files carrying inline briefs lives at [[Briefs]].
 
@@ -68,6 +68,12 @@ Every source file the user owns has three concentric reader zones, each with a d
 
 ## What belongs in a Brief
 
+**Distillation policy (F223, ratified).** A Brief holds **only genuine file-specific maintainer notes** — non-obvious guidance for whoever edits the source: inclusion tests, don't-regress cautions, tooling-consumed identifiers, cross-reference-integrity obligations. Because specs and their Briefs are read by outside readers (the DAS repo is published), a Brief opens with a **slim, clearly-labeled lead-in** — an italic `*(Maintainer note — …)*` line naming what the note covers and pointing at where the normative content lives — as piloted on [[FCT Template]]. Three consequences:
+
+- **Normative spec never lives only in a Brief.** Rules, models, and constraints a reader must follow belong in the source's body or its RULESET; the Brief may at most point at them.
+- **Generic doc-advice is a one-link cite.** Guidance true of all documents (progressive disclosure, no-fence, lead-with-example) belongs to its governing discipline ([[DSC markdown]], [[DSC progressive-disclosure]]) and is cited, never restated.
+- **Most files need no Brief at all.** After distilling out spec, generic advice, and body-redundant content, if nothing genuinely file-specific remains, carry no `# BRIEF` section — never pad one into existence.
+
 Per-file operational content **for the agent**. Concretely:
 
 - "What this page is for / NOT for" — phrased as an *editing rule* (e.g. "don't pile cross-anchor content here") rather than as content (e.g. "this page lists X, Y, Z").
@@ -79,6 +85,8 @@ Per-file operational content **for the agent**. Concretely:
 
 ## What does NOT belong in a Brief
 
+- **Normative spec content** (rules, models, constraints a reader must follow) → the source's body or its RULESET. Spec may never live *only* in a Brief.
+- **Generic doc-advice** (true of all docs — progressive disclosure, no-fence, lead-with-example) → the governing discipline ([[DSC markdown]], [[DSC progressive-disclosure]]), cited with one link, never restated.
 - **Project-wide rules** → `CLAUDE.md`.
 - **Markdown-rendering rules** → [[R-markdown]].
 - **Facet-shape conventions** (every Backlog has horizons, every Rules file is a RULESET) → `CAB <Facet>.md`.
@@ -91,6 +99,8 @@ The brief is for rules truly specific to one source file.
 ## When to write a Brief
 
 The trigger: the source file would otherwise carry a `## Design` (or equivalent) H2 that takes up most of the file with prose explaining how to maintain the table or list above. That prose is what extracts into a Brief.
+
+**And when not to:** most files need no Brief. Write one only when genuine file-specific maintainer notes exist after the distillation policy is applied (§ What belongs in a Brief); an empty or padded Brief is worse than none.
 
 ## File location and naming
 
@@ -129,7 +139,7 @@ For multiple related links: `(See [[<X> Brief]], [[Y]], [[Z]])` — all wiki-lin
 
 ## File structure
 
-The brief file is just normal markdown. No frontmatter required. The body is structured prose with whatever H2/H3 sub-sections fit the source's needs. Common shape:
+The brief file is just normal markdown. No frontmatter required. Both forms (inline `# BRIEF` and sidecar) open with the italic `*(Maintainer note — …)*` lead-in, followed by a tight bullet list; H2/H3 sub-sections appear only when the source genuinely needs them. Common sidecar shape:
 
 ```markdown
 # <Source Name> Brief
@@ -160,6 +170,8 @@ The H1 of the brief matches the file basename. No further structural constraints
 - Distinct from `<App> User Guide.md` — different audience (end-users vs. editors), different content (how-to-use-the-app vs. how-to-edit-the-source).
 - **Briefs are agent-facing only.** User-facing orientation belongs in the one-sentence TLDR under the source's H1, with optional `## Overview` as the second tier. See § Audience — three reader zones.
 - **Body discipline: less is more.** The body should give a user basic orientation, not mirror every detail the Brief carries. Detail that only the agent (or a click-through curious user) needs lives in the Brief; the body stays lean.
+- **Opens with the labeled lead-in.** Every Brief begins with an italic `*(Maintainer note — …)*` line framing the content for outside readers (§ What belongs in a Brief).
+- **Distill by relocation, never deletion.** When trimming a Brief, non-obvious content moves — into the source's body/ruleset, or to the governing discipline — it is never silently dropped.
 
 ## Worked example
 
@@ -173,6 +185,7 @@ The H1 of the brief matches the file basename. No further structural constraints
 - [[SV Roots Brief]] — worked example of the Phase 2 sidecar form.
 - F133 — tracking feature for the rule-system migration that surfaced the Brief discipline.
 - F134 — Rule triggering (the read-hook mechanism that surfaces a brief when its source is read or written).
+- F223 — the distillation sweep that ratified the maintainer-note policy (§ What belongs in a Brief) for the published DAS repo.
 
 # RULESET R-brief
 include::
@@ -213,11 +226,24 @@ A brief is a sidecar to exactly one source; a brief has no brief of its own.
 
 **Check pattern:** no `* Brief Brief.md` file, and no `# BRIEF` heading inside a `* Brief.md`.
 
+### RULE R-brief-07 — Opens with a labeled maintainer-note lead-in (checked)
+
+A Brief begins with an italic `*(Maintainer note — …)*` lead-in naming what the note covers and pointing at where the normative content lives, so an outside reader immediately sees the section is maintainer guidance, not spec.
+
+**Check pattern:** the first non-blank line after the `# BRIEF` heading (or after the sidecar's H1) matches `*(Maintainer note — …)*`.
+
+### RULE R-brief-08 — Only genuine maintainer notes; no spec, no generic advice (stated)
+
+A Brief holds only non-obvious, file-specific maintainer guidance. Normative spec content lives in the source's body or RULESET — never only in the Brief; generic doc-advice is a one-link cite to its governing discipline, never a restatement; content already obvious from the body is dropped. If nothing genuine remains after distilling, the file carries **no** Brief at all.
+
+### RULE R-brief-09 — Distill by relocation, never deletion (stated)
+
+When trimming or distilling a Brief, any non-obvious content is relocated (into the source's body/ruleset, or to the governing discipline) — never silently deleted. Before dropping a bullet, confirm its content already exists in the body/ruleset or is genuinely obvious-from-context.
+
 # BRIEF
 
-- **This is the spec, not a brief about anything else.** Discussion of *what a brief is* lives here.
-- **Two surface forms** of the discipline coexist: Phase 1 inline `# BRIEF` H1 at the bottom of the source file (today), and Phase 2 sidecar `<Name> Brief.md` (after the read-hook ships). Don't break either; keep both forms aligned in spec.
-- **Migration from Phase 1 to Phase 2 is mechanical**: split the source on `# BRIEF`, write the brief content to `<Name> Brief.md`, drop a `Related` row or `(See ...)` line in the source. A script does the whole vault in one pass.
-- **What does NOT go in any brief** is the most important constraint to surface — don't restate it just here; keep the canonical list in the *What does NOT belong* section above.
-- **When the spec changes** (e.g. Phase 2 ships, the `# BRIEF` H1 convention evolves), update both the spec body AND the worked examples ([[SV Roots Brief]] for Phase 2; the [[Briefs]] registry for Phase 1).
-- **Don't add per-source-file brief content here.** This file is the rule, not an instance of the rule.
+*(Maintainer note — cautions for whoever edits this facet spec. The normative spec — including the distillation policy and the R-brief ruleset — is the body above.)*
+
+- **This file is the rule, not an instance of the rule** — don't add per-source-file brief content here; discussion of *what a Brief is* belongs in the body.
+- **Keep the two surface forms aligned** — Phase 1 inline `# BRIEF` and Phase 2 sidecar are one discipline; a spec change (e.g. Phase 2 shipping, the H1 convention evolving) must update both descriptions AND the worked examples ([[SV Roots Brief]] for Phase 2; the [[Briefs]] registry for Phase 1).
+- **The "What does NOT belong" list is canonical in the body** — other specs and rules cite it; don't restate or fork it here or elsewhere.

@@ -88,9 +88,10 @@ Lean is a behavioral mode, not a structural one. Compositional expectations:
 
 # BRIEF
 
-- **This file is the Trait spec for `Lean`** — the declarative authority for how the cadence posture is detected (`.anchor` `traits:` list), what rules it activates, and what its `compact` trigger surfaces at POST-COMPACT reload. Edit here when the Trait's detection, rules, or trigger payload changes.
-- **NOT for the methodology itself** — the operational "how to fortify" content lives in `~/.claude/skills/fortify/SKILL.md`. Keep this file declarative (what the Trait IS, how it's wired); push procedural how-to to the skill. The § The load-bearing rules section is a *summary* with a pointer, not a re-spec.
-- **The Drive ⊕ Lean mutual exclusion is load-bearing** — both the § How it's detected and § Constraints sections state it. Don't soften the rule or allow "both at once" semantics; the cadence-Trait cardinality (at most one) is what `/audit aspects` will enforce.
-- **The `compact` trigger payload is what the agent actually reads at reload** — bullets under `### compact` are agent-facing operating-mode instructions, not user-facing explanation. Keep them imperative, tight, and aligned with `role-pilot.md` POST-COMPACT § Operating Mode — Lean. When the methodology evolves in `/fortify`, mirror the change here.
-- **Cross-references that must stay aligned:** [[Drive]] (sibling cadence Trait — exclusion must be symmetric), [[CAB Aspects]] (Trait detection rule), [[SKL Mode]] (mode framework parent), F077 (naming + first-class promotion), F091 (trigger discipline). Breaking any of these silently desyncs the cadence-Trait subsystem.
-- **Do not pile non-cadence-Trait content here** — anchor-local rules, identity-Trait content, or `/fortify` runbook details belong elsewhere (anchor `Decisions.md`, the relevant identity-Trait file, or the fortify skill respectively).
+*(Maintainer note — cautions for whoever edits this Trait spec. The normative spec is the body above; the fortify methodology lives in `~/.claude/skills/fortify/SKILL.md`.)*
+
+- **Keep this file declarative; push procedural how-to to the skill.** The operational "how to fortify" content lives in `~/.claude/skills/fortify/SKILL.md`; § The load-bearing rules here is a *summary* with a pointer, not a re-spec.
+- **Don't soften the Drive ⊕ Lean exclusion** — the cadence-Trait cardinality (at most one) is what `/audit aspects` will enforce; don't allow "both at once" semantics.
+- **The `compact` payload and `role-pilot.md` POST-COMPACT § Operating Mode — Lean are two surfaces of one spec** — keep the `### compact` bullets imperative and aligned with the role file; when the `/fortify` methodology evolves, mirror the change here.
+- **Cross-references that must stay aligned:** [[Drive]] (sibling cadence Trait — exclusion must be symmetric), [[CAB Aspects]] (Trait detection rule), [[SKL Mode]] (mode framework parent), F077 (naming + first-class promotion), F091 (trigger discipline). Breaking any silently desyncs the cadence-Trait subsystem.
+- **Don't pile non-cadence-Trait content here** — anchor-local rules, identity-Trait content, and `/fortify` runbook details belong in anchor `Decisions.md`, the relevant identity-Trait file, or the fortify skill respectively.

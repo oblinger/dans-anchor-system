@@ -5,7 +5,7 @@ description: "the anchor traits — declarable specializations of an anchor"
 # TRT - Traits
 The declarable properties an anchor carries in its `.anchor` `traits:` key — each specializes the [[Common Anchor Blueprint]].
 
-| -[[TRT]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [TRT](hook://p/TRT)<br>: the anchor traits — declarable specializations of an anchor |
+| -[[TRT]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[traits]] → [TRT](hook://p/TRT)<br>: the anchor traits — declarable specializations of an anchor |
 | --- | --- |
 | Related | [[SKL\|Skills]],  [[FCT\|Facets]],  [[DSC\|Disciplines]],  [[LBR\|Library]],  [[DAS\|ob-skills]],   |
 
@@ -33,11 +33,12 @@ The five above are **identity traits** — single-valued ("at most one of {Simpl
 - **[[Drive]]** — agent-driven, optimistic, minimum-interruption posture. **System default.** Excludes `Lean`. Spec: [[SKL Mode Drive]]; F091 `compact` trigger inlines the load-bearing rules at POST-COMPACT.
 - **[[Lean]]** — cautious, distrust-the-foundation, fortify-before-adding posture. Used when work has stopped converging. Per-turn invocation via `/fortify`; declarative per-anchor activation via `Lean` in `traits:`. Excludes `Drive`.
 
+## Traits vs. facets
+
+A *trait* is a declarable property of the **anchor** (in `.anchor`'s `traits:`); a *facet* is a per-doc shape applied to a **file** inside the anchor (e.g. Backlog, Rules, Decisions, API Doc). Traits often *require* certain facets — e.g. Track requires the Backlog facet. The trait declares *what the anchor is*; the facet declares *what one file inside it looks like*.
+
 # BRIEF
 
-- **What a trait is.** A named, declarable property of an anchor — listed in the anchor's `.anchor` `traits:` key. Each trait specializes the [[Common Anchor Blueprint]] in a defined way (extra files, extra rules, extra agent behavior). Traits are *what the agent reads to know how to treat this anchor*.
-- **Four categories.** *Identity* (single-valued — pick one of Simple/Topic/Code/Paper; Skill composes), *Capability* (many — e.g. Track), *Git-aspect* (exactly one — Commit/PR/NoGit), *Cadence* (exactly one — Drive/Lean). Composability and exclusion rules are authoritative in [[CAB Aspects]].
-- **How to add a new trait.** (1) Decide the category and the composability rule (excludes/requires/defaults). (2) Create `[[<Trait>]].md` with the trait's spec — what it adds to an anchor, when it applies, examples. (3) Add a bullet to the appropriate section of this catalog. (4) Update [[CAB Aspects]]'s composability matrix. (5) If the trait carries operational mode behavior, author a `SKL Mode <Trait>.md`. (6) If the trait warrants validation rules, add an `R-trait-<name>` ruleset (see below).
-- **Traits vs. facets.** A *trait* is a declarable property of the **anchor** (in `.anchor`'s `traits:`); a *facet* is a per-doc shape applied to a **file** inside the anchor (e.g. Backlog, Rules, Decisions, API Doc). Traits often *require* certain facets — e.g. Track requires the Backlog facet. The trait declares *what the anchor is*; the facet declares *what one file inside it looks like*.
-- **Ruleset cross-link.** Trait-wide rules (what every Skill anchor must have, what every Track anchor must carry) live in `R-<trait>` rulesets per the prescriptive rules format ([[FCT Ruleset]]); link from the trait's spec file. The catalog row stays terse — a one-line composability note plus a wiki-link to the spec.
-- **Don't pile per-trait content here.** This is a routing catalog. Each trait's full spec lives in its own `[[<Trait>]].md`; SKL mode behavior lives in `SKL Mode <Trait>.md`; rules live in `R-<trait>`. The row is a dashboard summary + pointer.
+*(Maintainer note — this is a routing catalog, not per-trait spec: each trait's full spec lives in its own [[<Trait>]].md, operational mode behavior in `SKL Mode <Trait>.md`, trait-wide validation rules in an `R-<trait>` ruleset ([[FCT Ruleset]]), and composability/exclusion rules in [[CAB Aspects]]. Keep catalog rows terse — a one-line composability note plus a wiki-link to the spec.)*
+
+- **Adding a new trait** — (1) decide category + composability rule (excludes/requires/defaults); (2) create `[[<Trait>]].md` with the spec (what it adds, when it applies, examples); (3) add a bullet to the right section of this catalog; (4) update [[CAB Aspects]]'s composability matrix; (5) author `SKL Mode <Trait>.md` if it carries operational mode behavior; (6) add an `R-trait-<name>` ruleset if it warrants validation.

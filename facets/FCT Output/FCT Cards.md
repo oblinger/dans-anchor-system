@@ -23,7 +23,7 @@ Facet spec for the optional `{NAME} Cards.md` page — a three-tier mix of cheat
 
 **Cardinality:** one per anchor — each anchor has at most one Cards file (`{NAME} Cards.md`).
 
-The `{NAME} Cards.md` document contains cheat sheets and spaced repetition flashcards for a given topic. It lives in the anchor folder or a subfolder dedicated to cards.
+The `{NAME} Cards.md` document contains cheat sheets and spaced repetition flashcards for a given topic. Its canonical path is `{NAME} Docs/{NAME} User/{NAME} Cards.md` — it lives in the anchor folder or a subfolder dedicated to cards.
 
 **Working example:** [[CAE Cards]] — a real cards file (cheat sheets + summary + detail cards).
 
@@ -165,9 +165,4 @@ The file is organized cheat sheets first (`## **HEADING**` + reference code bloc
 
 # BRIEF
 
-- **This file is the facet spec for `{NAME} Cards.md`**, not a cards file itself. Edits here change the *rule* every cards page across the vault must satisfy; never paste real flashcard content into this spec.
-- **Not for**: project-wide markdown rules (those live in [[R-markdown]] / CLAUDE.md), generic spaced-repetition theory, or plugin documentation. Keep the scope to the shape of `{NAME} Cards.md` and the three-tier cheat-sheet / summary-card / detail-card model.
-- **Inclusion test**: a rule belongs here only if a cards-page author would break their page by violating it (SR tag on line 1, `-?-` separator, 69-char line width, `.` for in-card blank lines, F060 dispatch-table placeholder under the H1). Cross-cutting CAB rules go in their own facet spec.
-- **Load-bearing constraints**: the SR tag list at the bottom of `## File Layout and Formatting Rules` is consumed by the spaced-repetition plugin — add new tags here when they enter use, never silently. The 69-character width and the `.`-for-blank-line trick are plugin-imposed; do not soften them to "recommended."
-- **Naming + linking**: the canonical path is `{NAME} Docs/{NAME} User/{NAME} Cards.md`; cite the worked instance as [[CAE Cards]] — do NOT inline a reference copy of it (a cards page is its own renderable doc; embedding one blurs spec-vs-instance). Use fenced code (not tables) for the format snippets in § Formats / § File Layout so the `-?-` separator and SR formatting render literally.
-- **Body discipline**: less is more — the three-tier structure (cheat sheet / summary / detail) is the load-bearing content. Resist adding tooling notes, plugin-config detail, or per-topic guidance; those belong in the cards file itself or a sibling skill, not in this spec.
+*(Maintainer note — this file is the facet spec for `{NAME} Cards.md`, not a cards file itself: edits here change the rule every cards page must satisfy, so never paste real flashcard content in, and cite the worked instance as [[CAE Cards]] rather than inlining a copy. Inclusion test: a rule belongs here only if a cards-page author would break their page by violating it; cross-cutting CAB rules go in their own facet spec. The SR tag list in § File Layout and Formatting Rules is consumed by the spaced-repetition plugin — add new tags there when they enter use, never silently.)*

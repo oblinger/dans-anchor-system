@@ -83,13 +83,7 @@ The stat command:
 
 # BRIEF
 
-- **This file is the CAB facet spec for the Outputs zone** — it defines location, naming, structure, and dispatch-page shape for `{slug} Outputs/`. Authority over the Outputs convention lives here; other docs cite it, do not redefine it.
-- **NOT a catalog of outputs** — never list specific output files (audits, analyses) here. Those live in per-anchor `{slug} Outputs.md` dispatch pages. This spec is rule-shaped, not instance-shaped.
-- **Inclusion test for additions:** a rule, naming convention, or structural constraint that applies to ALL Outputs folders across ALL anchors belongs here. Per-anchor or per-output specifics do not.
-- **Load-bearing — do not edit naming or path without sweeping callers**: the `stat` command, `/cab wp`'s distinction logic, and per-anchor dispatch pages all encode `{slug} Docs/{slug} Plan/{slug} Outputs/` and `{date} {name}.md` (no slug prefix on individual files, date provides uniqueness). Renaming the zone or changing the date format breaks `stat add` and orphans every existing dispatch entry.
-- **Hold the line on the Outputs-vs-WP distinction** — the comparison table is load-bearing; edits that blur the boundary (e.g. allowing manual creation under Outputs, or human-collaborative work) cascade into ambiguous tooling behavior. Re-read § Distinction from WP before relaxing any row.
-- **Dispatch-page format is prescriptive** — H1 + F060 dispatch-table placeholder + reverse-chronological topic table. Individual output files carry the standard top-of-doc (H1 + dispatch-table placeholder). Don't drift to a different shape without coordinating with the `stat` script.
-- **Sibling facets** ([[FCT WP]], [[CAB Backlog]], [[CAB Stat]]) cite this spec — when changing terminology or structure, search for back-cites and update them in the same pass.
+*(Maintainer note — additions belong here only if they apply to ALL Outputs folders across ALL anchors; per-anchor or per-output specifics do not. The path `{slug} Docs/{slug} Plan/{slug} Outputs/` and the `{date} {name}.md` naming (no slug prefix, date provides uniqueness) are encoded in the `stat` command and `/cab wp`'s distinction logic — renaming the zone or changing the date format breaks `stat add` and orphans every existing dispatch entry, so sweep callers before touching them. Hold the Outputs-vs-WP boundary (§ Distinction from WP) — blurring it cascades into ambiguous tooling behavior. Sibling facets [[FCT WP]], [[CAB Backlog]], [[CAB Stat]] back-cite this spec, so update them in the same pass on any terminology or structure change.)*
 
 # RULESET R-fct-outputs
 include::

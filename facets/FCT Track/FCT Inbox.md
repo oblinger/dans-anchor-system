@@ -93,10 +93,9 @@ After processing, entries remain in the file with their status tag intact as a p
 
 # BRIEF
 
-- **This file is the facet spec for `{NAME} Inbox.md`** — it defines the shape, location, lifecycle, and status-tag vocabulary every anchor's Inbox file must follow. It is NOT itself an inbox.
-- **Authority scope** — covers only the Inbox facet. Drop-zone semantics for other surfaces (Backlog, PRD, Roadmap, Discussion) belong in their own CAB facet specs; do not generalize Inbox rules here to cover them.
-- **Inclusion test for new content** — a rule belongs here only if it constrains how an Inbox file is authored, located, formatted, or processed. Cross-facet workflow (how Inbox entries promote to PRD/Roadmap/Backlog) lives in the destination facet specs, not here.
-- **The Reference Example zone is illustrative, not authoritative** — when the canonical format changes (location pattern, status tags, top-of-doc rules), update the Format Specification section first; revise the Reference Example only to keep it in sync. Do not let the example drift into spec.
-- **Status-tag vocabulary is load-bearing** — `DONE` and `MOVED → {destination}` are the only sanctioned tags. Adding tags requires updating this spec; downstream tooling and agent skills key off these strings.
-- **Don't inline anchor-specific examples** — the working example link (`CAE Inbox`) is the canonical live instance; per-anchor variations belong in that anchor's docs, not here.
-- **Top-of-doc rules come from rewire** — the YAML frontmatter + H1 + dispatch-table placeholder shape is owned by `[[skills/rewire/SKILL]]` § Default doc top-of-file; do not duplicate that spec here, just cite it.
+*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body above.)*
+
+- **Inclusion test** — a rule belongs here only if it constrains how an Inbox file is authored, located, formatted, or processed; cross-facet workflow (how entries promote to PRD/Roadmap/Backlog) and other surfaces' drop-zone semantics live in the destination facet specs, not here.
+- **Status-tag vocabulary is tooling-consumed** — `DONE` and `MOVED → {destination}` (R-fct-inbox-03) are the only sanctioned tags; downstream tooling and agent skills key off these exact strings, so adding a tag requires updating the ruleset first.
+- **Reference Example is illustrative, not authoritative** — on a format change update the Format Specification first, then sync the example; don't let the example drift into spec, and keep per-anchor variations in the working example ([[CAE Inbox]]), not inlined here.
+- **Top-of-doc shape is owned by rewire** — cite `[[skills/rewire/SKILL]]` § Default doc top-of-file; don't re-specify the frontmatter / H1 / dispatch-placeholder here.

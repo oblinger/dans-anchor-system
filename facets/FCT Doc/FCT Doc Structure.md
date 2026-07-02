@@ -115,8 +115,11 @@ A **table-of-contents table** (content-outline table — left column links the d
 **Why:** the TOC earns its space only when the document is too long to scan; on a short document it is friction. Tying presence to length keeps every document's top as light as it can be while still navigable.
 
 # BRIEF
-- **This is the main / umbrella facet for a document** — it defines the whole top-to-bottom skeleton; the other doc facets (Brief, Discussion, Ruleset) describe regions inside it. It is listed **first** in the [[FCT Doc]] group for that reason.
-- **This is the spec for the skeleton**, not an instance — never paste a real document here.
-- **Open to confirm:** whether the under-H1 *summary line* (§2) and the below-table *TLDR* (§5) are one element (collapsing for small docs) or two distinct ones. Modeled here as two, collapsing when there's no table.
-- **RULESET:** the ordering rule (`R-doc-structure-01`) plus the two document-table rules — `R-doc-structure-02` (dispatch table iff anchor) and `R-doc-structure-03` (TOC table iff long). The two table rules are independent: a doc can have a dispatch table (anchor) and a TOC table (long) at once, or neither (short non-anchor). Specialized content tables (e.g. a stories index) are exempt from both. Rule numbers are monotonic-forever — never recycle.
-- **Don't duplicate [[FCT Anchor Page]] or [[FCT Brief]]** — this facet is the *general* layering; those refine or own specific layers. Stay document-scoped (anchor-folder / multi-file structure is [[FCT Folder]] / [[FCT Anchor Tree]]).
+
+*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body and ruleset above.)*
+
+- **Spec, not an instance** — never paste a real document here.
+- **Listed first in the [[FCT Doc]] group** — it's the umbrella facet defining the whole skeleton; keep it first.
+- **Don't duplicate [[FCT Anchor Page]] or [[FCT Brief]]** — this facet is the *general* layering; those refine / own specific layers. Stay document-scoped (folder / multi-file structure is [[FCT Folder]] / [[FCT Anchor Tree]]).
+- **Rule numbers are monotonic-forever** — never recycle `R-doc-structure-NN`.
+- **Open to confirm** — whether the under-H1 *summary line* (§2) and the below-table *TLDR* (§5) are one element or two (modeled as two, collapsing when there's no table).

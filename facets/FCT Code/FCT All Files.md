@@ -155,10 +155,8 @@ All tree lines that carry a description start their description text at the same
 
 # BRIEF
 
-- **This is the facet spec for `{NAME} Files.md`** — it defines the format every anchor's Files page must follow; instances (CAE Files, etc.) cite this page as authority.
-- **Scope is the format rule itself**, not any particular anchor's tree — never paste a specific anchor's file tree here; the working example lives at the linked `CAE Files.md` path and is the canonical copy-from source.
-- **The no-code-fence rule is load-bearing** — the `cssclasses: monospace` frontmatter renders the page in fixed-width; wrapping the tree in triple-backticks kills wiki-links and is `/audit structure`'s most-flagged mistake. Keep the § Critical section prominent.
-- **Filename-as-link is the linking pattern** — `[[Doc Page|filename.ext]]`; the `→ [[doc]]` arrow form is reserved for non-source files referencing an external spec, never source-file doc links.
-- **Row 1 is the repo root linking to `{NAME} Interface`** — no "repo root" descriptor text; `/audit docs` flags it as `files-row1-redundant`.
-- **Alignment is by rendered display width**, not raw markdown width — wiki-links collapse on render; pad source spaces so rendered descriptions hit the same column.
-- **Audit-rule names belong here** (`files-row1-redundant`, `files-misaligned`) — they are the contract between this spec and `/audit docs`; renaming them silently breaks the audit.
+*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body above (§ Structure / § Critical / § Linking / § Row 1 / § Alignment) and RULESET R-all-files.)*
+
+- **Audit identifiers are the contract with `/audit docs`** — `files-row1-redundant` (§ Row 1) and `files-misaligned` (§ Alignment / R-all-files-04) are read by the audit; renaming either here silently breaks it. `/audit structure` separately keys off the no-code-fence rule.
+- **Keep the § Critical (no-code-fence) section prominent** — fencing the tree kills every wiki-link and is `/audit structure`'s most-flagged mistake; it earns top placement.
+- **Never paste a specific anchor's tree here** — the scope is the format rule; the canonical copy-from source is the working example at `CAE Files.md`.

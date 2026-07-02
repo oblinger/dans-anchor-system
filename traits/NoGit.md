@@ -76,10 +76,10 @@ NoGit imposes no on-disk structural requirements. Compositional expectations:
 
 # BRIEF
 
-- **This is the spec for one Git-aspect Trait.** Edits here change the rule for every NoGit-declared anchor across the vault — treat as load-bearing.
-- **Not a catalog of NoGit anchors.** Do not list individual anchors that carry the trait; the `.anchor` `traits:` field is the source of truth, not a roster maintained here.
-- **Scope guard — Git-aspect only.** Only mutual-exclusivity, detection, and behavioral rules about the *agent's git actions* belong here. Identity-trait content (Code, Topic, Simple) belongs in those Trait files; composability matrix belongs in [[CAB Aspects]]; do not duplicate either upward into this file.
-- **Mutual-exclusivity is load-bearing.** `NoGit ⊕ Code`, `NoGit ⊕ Commit`, `NoGit ⊕ PR` — these exclusions are cited by `/audit aspects` and by sibling Trait files. If the rule changes, update [[CAB Aspects]] and the sibling files ([[Commit]], [[PR]], [[Code]]) in lockstep.
-- **POST-COMPACT `compact` trigger is consumed by the role loader.** The `### compact` subsection under `## Triggers` is read verbatim at reload — keep it self-contained (no required wiki-link chase) and aligned with the body rule. If the rule changes, change both.
-- **Don't inline session-level direction.** "Stop committing for now" is a runtime instruction, not a trait — note the distinction (already covered in § Expected Usage) but do not expand this file into session-control guidance.
-- **History entries are dated bullets, terse.** Append only when the trait's spec materially changes; don't pile general CAB history here.
+*(Maintainer note — cautions for whoever edits this Git-aspect Trait spec. Edits here change the rule for every NoGit-declared anchor; the normative spec is the body above, and the composability matrix lives in [[CAB Aspects]].)*
+
+- **Not a catalog** — don't list anchors carrying the trait; the `.anchor` `traits:` field is the source of truth, not a roster maintained here.
+- **Scope guard** — only detection, mutual-exclusivity, and agent-git-action rules belong here; identity-trait content (Code, Topic, Simple) stays in those Trait files and the composability matrix in [[CAB Aspects]] — don't duplicate either upward.
+- **Keep siblings in lockstep** — the `NoGit ⊕ Code / Commit / PR` exclusions are cited by `/audit aspects` and the sibling specs; any rule change updates [[CAB Aspects]] and the siblings ([[Commit]], [[PR]], [[Code]]) together.
+- **Compact block is tooling-consumed** — the `### compact` subsection is read verbatim at POST-COMPACT reload; keep it self-contained (no required wiki-link chase) and aligned with the body rule.
+- **History is terse dated bullets** — append only when the trait's spec materially changes.
