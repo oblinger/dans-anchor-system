@@ -21,7 +21,7 @@ _None._
 ## Next
 
 - **M1 — Rule compiler / installer** [Ready] — design + skeleton: active-set resolution (per anchor), index selection, per-moment pre-compilation, the install + fire contract. Pilot by porting `R-query-14` to fire via the compiler. → [[F211 — Rule compiler and installer]]
-  - **Next:** Fully designed 2026-07-02 — scan command done; M2 questions resolved (lazy compile; dual output = shared IR + emitted Python modules, Rust delegates Python bits; Python allowed everywhere under an operation-cost budget). Buildable now: active-set resolution → IR/Python-module emit → install → fire, piloted by porting `R-query-14`.
+  - **Next:** Fully designed 2026-07-02 — scan command done; M2 questions resolved; **IR schema specced** (§ IR schema — `rules-ir.json` dispatch/active-set table + emitted `rules_<anchor>.py`, worked through `R-query-14`). Remaining = compiler code: front-half rule parser + `include::`/active-set resolver (reuse `audit-plan.py`), clause-splitter (index vs. residual), IR/module emitter, then install + fire. Next crank slice.
 
 ## Later
 

@@ -30,5 +30,5 @@ The **reference implementation** of the whole compile→install→fire loop in P
 
 ## Resolved
 
-1. Module representation that is *also* faithfully portable to Rust (data-table interchange vs. Python-only source emission).
+1. ~~Module representation that is *also* faithfully portable to Rust~~ — **RESOLVED** by the [[F211 — Rule compiler and installer|F211]] § IR schema (2026-07-02): shared `rules-ir.json` data-table (declarative surface, both engines interpret it) + emitted `rules_<anchor>.py` module (arbitrary Python clauses). Not Python-only source emission — the table is the portable interchange.
 2. How the in-process dispatcher maps to the real harness hook events (PreToolUse/PostToolUse/SessionStart) for the e2e tests.
