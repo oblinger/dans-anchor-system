@@ -32,6 +32,9 @@ Checks applied to Q.md, each anchor's backlog, and each feature/Questions doc:
   C23: `[Designing]` brackets must resolve to `[N Questions]` (if
        linked doc has pending Qs) or `[Ready]` (if none) — `[Designing]`
        alone is a turn-ownership deadlock                              (auto-fix).
+  C41: [Verify*]/[Watching*] rows declare a `- **Verify:**` yes/no question;
+       [Ready]/[Active] rows declare a `- **Next:**` no-user action. Missing →
+       queries render `⚠`; report-only (agent writes it or rebrackets).
   C24: `[Questions]` / `[N Questions]` bracket count must match the
        linked feature doc's actual pending-Q count. Bare `[Questions]`
        on a row whose linked doc has 7 Qs is stale (should be
@@ -1890,6 +1893,105 @@ def check_c16_blocked_in_later(entries: list[BacklogEntry]) -> list[Finding]:
             ),
             mechanically_fixable=True,
         ))
+    return findings
+
+
+# ============================================================
+# Check C41 — soak/verify rows must declare their concrete user question, and
+# Ready/Active rows their no-user next-action. Mirrors the forcing-function in
+# triage-section.py: a [Verify*]/[Watching*] row with no `- **Verify:**`
+# sub-bullet renders `⚠ no concrete question`; a [Ready]/[Active] row with no
+# `- **Next:**` sub-bullet renders `⚠ none declared — not really Ready`. Before
+# C41, such a half-authored row passed audit-q CLEAN while visibly broken in the
+# queries render (the 2026-07-02 F171 incident: bracket set, question never
+# written, "triage clean" falsely reported). Report-only — the agent must WRITE
+# the question / next-action (or promote to [Done] / rebracket); there is no
+# mechanical fix, and `⚠` is never a valid resting state.
+# ============================================================
+
+# Sub-bullet forms, mirroring triage-section.py `_subbullet_res` (bold or plain,
+# optional `(...)` qualifier, non-empty content required):
+def _labeled_subbullet_res(label: str) -> tuple:
+    return (
+        re.compile(rf"^\s+-\s+\*\*{label}(?:\s*\([^)]*\))?:\*\*\s*\S"),
+        re.compile(rf"^\s+-\s+{label}(?:\s*\([^)]*\))?:\s*\S"),
+    )
+
+
+def _rows_with_subbullet(backlog_file: Path, label: str) -> set:
+    """Identifiers of rows carrying a non-empty `**<label>:**` sub-bullet.
+    Tracks the current row via ROW_OPENER_RE and resets on any heading —
+    exactly as triage-section.py `_extract_labeled_subbullets` does — so C41
+    flags precisely the rows the render would mark `⚠`."""
+    bold_re, plain_re = _labeled_subbullet_res(label)
+    have: set = set()
+    try:
+        lines = backlog_file.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError):
+        return have
+    current = None
+    for line in lines:
+        if HEADING_RE.match(line):
+            current = None
+            continue
+        opener = ROW_OPENER_RE.match(line)
+        if opener:
+            current = opener.group(1)
+            continue
+        if current is None:
+            continue
+        if bold_re.match(line) or plain_re.match(line):
+            have.add(current)
+    return have
+
+
+def check_c41_soak_question_declared(
+    entries: list[BacklogEntry], backlog_file: Path,
+) -> list[Finding]:
+    """C41: every [Verify*]/[Watching*] row declares a `- **Verify:**` yes/no
+    question; every [Ready]/[Active]/[Agreed] row declares a `- **Next:**`
+    no-user action. A row missing its companion sub-bullet renders `⚠` on the
+    queries page — a half-authored state, never a valid resting place."""
+    findings: list[Finding] = []
+    have_verify = _rows_with_subbullet(backlog_file, "Verify")
+    have_next = _rows_with_subbullet(backlog_file, "Next")
+    for e in entries:
+        s = e.status.strip()
+        needs_verify = (
+            s.startswith("Watching")
+            or (s.startswith("Verify") and not s.startswith("Verify-by"))
+        )
+        needs_next = s in ("Ready", "Active", "Agreed")
+        if needs_verify and e.identifier not in have_verify:
+            findings.append(Finding(
+                severity="warning",
+                surface_file=e.source_file,
+                surface_line=e.source_line,
+                code="C41",
+                message=(
+                    f"row '{e.identifier}' [{s}] has no `- **Verify:**` sub-bullet "
+                    f"— queries page renders '⚠ no concrete question'. Resolve one "
+                    f"of: (a) write the passive / next-use yes/no question; "
+                    f"(b) promote to [Done] if the soak already passed; "
+                    f"(c) rebracket to [Blocked]/[Waiting] naming the event."
+                ),
+                mechanically_fixable=False,
+            ))
+        elif needs_next and e.identifier not in have_next:
+            findings.append(Finding(
+                severity="warning",
+                surface_file=e.source_file,
+                surface_line=e.source_line,
+                code="C41",
+                message=(
+                    f"row '{e.identifier}' [{s}] has no `- **Next:**` sub-bullet "
+                    f"— queries page renders '⚠ none declared — not really Ready'. "
+                    f"Declare the one no-user next action, or rebracket "
+                    f"([Verify] if the next step is a user check, "
+                    f"[Blocked]/[Questions] if it needs the user)."
+                ),
+                mechanically_fixable=False,
+            ))
     return findings
 
 
@@ -3814,6 +3916,7 @@ def main() -> int:
         findings.extend(check_c14_active_h2_purity(entries))
         findings.extend(check_c15_watching_waiting_in_later(entries))
         findings.extend(check_c16_blocked_in_later(entries))
+        findings.extend(check_c41_soak_question_declared(entries, backlog_file))
         findings.extend(check_c18_verify_by_expired(entries, today))
         findings.extend(check_c23_designing_resolves(entries))
         findings.extend(check_c24_questions_count_match(entries))
