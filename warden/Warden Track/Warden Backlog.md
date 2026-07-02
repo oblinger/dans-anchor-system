@@ -20,8 +20,8 @@ _None._
 
 ## Next
 
-- **M1 — Rule compiler / installer** [Ready] — design + skeleton: active-set resolution (per anchor), index selection, per-moment pre-compilation, the install + fire contract. Pilot by porting `R-query-14` to fire via the compiler. → [[F211 — Rule compiler and installer]]
-  - **Next:** **Scan command built + tested 2026-07-02** (`warden/engine/warden_scan.py` — always-scan stat-sweep + selective re-read; from-scratch 232 ms, unchanged freshen reads 0, 5-behavior regression test green). Remaining M1 — the compile→install→fire contract + `R-query-14` pilot — follows the M0 freeze ([[F209 — Unified trigger taxonomy + when language|F209]]/[[F210 — Conjunction binding + indexing|F210]] answers).
+- **M1 — Rule compiler / installer** [3 Questions] — design + skeleton: active-set resolution (per anchor), index selection, per-moment pre-compilation, the install + fire contract. Pilot by porting `R-query-14` to fire via the compiler. → [[F211 — Rule compiler and installer]]
+  - **Next:** Scan command built + tested 2026-07-02 (`warden/engine/warden_scan.py`, done). The M0 freeze now unblocks the compile→install→fire build — gated on **three M2 engine-design questions** (compiler cadence, module format, rule-Python on the hot path), each carrying a lean. User accepts the leans → build proceeds.
 
 ## Later
 
