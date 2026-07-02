@@ -802,7 +802,7 @@ def chk_regex_absent(target, anchor_root, args):
 # against the file stem (basename without .md).
 _NAME_ALLOWLIST = (
     r"^F\d+ [—-] ",              # F<NNN> — title  (Features)
-    r"^US-[A-Za-z]+-\d+ [—-] ",  # US-<RID>-<N> — title  (Stories)
+    r"^US-[A-Za-z]+-\d+ [—-] ",  # US-<SLUG>-<N> — title  (Stories)
     r"^\d{4}-\d{2}-\d{2}\b",     # YYYY-MM-DD topic  (Log)
     r"^\d{4}-\d{2}\b",           # YYYY-MM topic
     r"^\d{4}\b",                 # YYYY topic

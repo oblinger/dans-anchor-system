@@ -233,7 +233,7 @@ The anchor's main page (`{NAME}.md`) carries a dispatch row pointing at `[[{NAME
 
 A sub-anchor with its own Log uses the sub-anchor's name (e.g., `MED Heart Log/`, `MED Heart Log.md`), not the parent's. Logs do not cross anchor boundaries.
 
-**Check pattern:** for each `* Log.md` found, walk up to the nearest `.anchor` file; assert the log's `{NAME}` prefix matches that anchor's name (or its slug/RID).
+**Check pattern:** for each `* Log.md` found, walk up to the nearest `.anchor` file; assert the log's `{NAME}` prefix matches that anchor's name (or its slug).
 
 **Why:** Logs are anchor-scoped. A sub-anchor entry inside a parent's log loses its scoping and is harder to find later.
 

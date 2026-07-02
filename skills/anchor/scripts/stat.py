@@ -110,7 +110,7 @@ def find_project_outputs_dir(project_path):
         with open(cfg_path) as f:
             cfg = yaml.safe_load(f) or {}
         # B17 — slug-first fallback (cab-scan.py:94 precedent).
-        rid = cfg.get("slug", cfg.get("rid", rid))
+        rid = cfg.get("slug", rid)
     return os.path.join(expanded, f"{rid} Docs", f"{rid} Plan", f"{rid} Outputs")
 
 
@@ -256,7 +256,7 @@ def rebuild_master():
         nav_lines = extract_nav(nav)
         all_nav.extend(nav_lines)
 
-        rid = proj.get("rid", os.path.basename(proj["path"]))
+        rid = proj.get("slug", os.path.basename(proj["path"]))
         for r in rows:
             s_num, _, _, _ = parse_row(r)
             all_rows.append((s_num or "", r, rid))
@@ -483,9 +483,9 @@ def cmd_activate(project_path):
         with open(cfg_path) as f:
             cfg = yaml.safe_load(f) or {}
         # B17 — slug-first fallback (cab-scan.py:94 precedent).
-        rid = cfg.get("slug", cfg.get("rid", rid))
+        rid = cfg.get("slug", rid)
 
-    active.append({"path": project_path, "rid": rid})
+    active.append({"path": project_path, "slug": rid})
     state["active"] = active
     save_state(state)
     rebuild_master()
@@ -538,7 +538,7 @@ def cmd_projects(show_all=False, show_inactive=False):
                     with open(anchor_cfg) as f:
                         pcfg = yaml.safe_load(f) or {}
                     # B17 — slug-first fallback (cab-scan.py:94 precedent).
-                    rid = pcfg.get("slug", pcfg.get("rid", os.path.basename(dirpath)))
+                    rid = pcfg.get("slug", os.path.basename(dirpath))
                     print(f"  {rid:8s} {dirpath}{marker}")
 
 
@@ -570,8 +570,8 @@ def ensure_active(project_path):
         with open(cfg_path) as f:
             cfg = yaml.safe_load(f) or {}
         # B17 — slug-first fallback (cab-scan.py:94 precedent).
-        rid = cfg.get("slug", cfg.get("rid", rid))
-    active.append({"path": project_path, "rid": rid})
+        rid = cfg.get("slug", rid)
+    active.append({"path": project_path, "slug": rid})
     state["active"] = active
     save_state(state)
 

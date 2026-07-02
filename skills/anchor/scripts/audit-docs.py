@@ -298,7 +298,7 @@ def audit(anchor_path: str, verbose: bool = False) -> list[Finding]:
     # often carry only `slug:` in their `.anchor` config; falling back to
     # basename(anchor_root) here produces folder-basename like "Hook Anchor"
     # instead of the actual slug "HA" and breaks every downstream path lookup.
-    rid = cfg.get("slug", cfg.get("rid", os.path.basename(anchor_root)))
+    rid = cfg.get("slug", os.path.basename(anchor_root))
     traits = cfg.get("traits", ["code"])
     if isinstance(traits, str):
         traits = [traits]

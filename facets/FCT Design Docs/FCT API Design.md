@@ -55,7 +55,7 @@ Per [[DSC progressive-disclosure]]:
 | H2 | What it carries |
 |---|---|
 | `## Consumer` | One paragraph: who calls programmatically, what language/runtime/transport, what their integration shape is (synchronous call? streamed events? batch job?). Sets the frame. |
-| `## Surface` | The spine table. Every public callable / endpoint / sub-skill entry listed once with: name, signature (or schema sketch), one-line purpose, source story (`US-<RID>-<N>`) or feature doc link. |
+| `## Surface` | The spine table. Every public callable / endpoint / sub-skill entry listed once with: name, signature (or schema sketch), one-line purpose, source story (`US-<SLUG>-<N>`) or feature doc link. |
 | `## Contract semantics` | Per-entry-point or per-surface-section: idempotency, side-effects, ordering / concurrency guarantees, transactional posture, async-ness, deadlines / timeouts, retries. The behavioral contract beyond the type signature. |
 | `## Error model` | The standardized error envelope used across the surface: typed error variants (Rust `Result<T, E>`, TypeScript discriminated union, Python exception class hierarchy), HTTP status taxonomy, error-code namespace. Declare ONE form per anchor; consumers see one shape. |
 | `## Stability + compatibility` | Stability posture (stable / evolving / experimental / private) + semver commitment (or equivalent — `0.x` rules, hand-rolled versioning) + deprecation policy (how long before a deprecated surface is removed; the smoke-signal callers should watch). |
@@ -111,7 +111,7 @@ The first body H2 is `## Consumer` and names who calls programmatically, in what
 
 ### RULE R-api-03 — Surface table is the spine (checked)
 
-A `## Surface` H2 carries a canonical table listing every public callable / endpoint / sub-skill entry once: name, signature or schema sketch, one-line purpose, source story (`US-<RID>-<N>`) or feature doc link. No entry lives only in prose; every one is in the table.
+A `## Surface` H2 carries a canonical table listing every public callable / endpoint / sub-skill entry once: name, signature or schema sketch, one-line purpose, source story (`US-<SLUG>-<N>`) or feature doc link. No entry lives only in prose; every one is in the table.
 
 **Check pattern:** parse the doc; gather all callable-like identifiers from H3s + prose; assert each appears in the spine table.
 

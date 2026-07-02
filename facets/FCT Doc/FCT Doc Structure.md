@@ -99,7 +99,7 @@ The breadcrumb-masthead **dispatch table** appears on a document **if and only i
 
 **Check pattern:** detect a dispatch masthead by `^\| -\[\[.+\]\]- \|` as the first table row. Assert it is present when the file is an anchor file and absent otherwise. Anchor-ness: the file is named `{folder} .md` matching its enclosing folder, or a sibling `.anchor` marker designates it.
 
-**Why:** the dispatch table is the *anchor* navigation surface — breadcrumb up the tree plus the anchor's member links. On a non-anchor it is noise that falsely implies the document roots a subtree, and it pushes the real content below the fold. This is the rule that makes a story file with a masthead (e.g. a `US-<RID>-<N>` file) fail.
+**Why:** the dispatch table is the *anchor* navigation surface — breadcrumb up the tree plus the anchor's member links. On a non-anchor it is noise that falsely implies the document roots a subtree, and it pushes the real content below the fold. This is the rule that makes a story file with a masthead (e.g. a `US-<SLUG>-<N>` file) fail.
 
 ### RULE R-doc-structure-03 — TOC table iff the document is long (checked)
 check:: toc_table_iff_long

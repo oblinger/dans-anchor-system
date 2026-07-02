@@ -91,7 +91,7 @@ def read_slug(dirpath):
         try:
             with open(anchor_file) as f:
                 cfg = yaml.safe_load(f) or {}
-            return cfg.get("slug", cfg.get("rid", ""))
+            return cfg.get("slug", "")
         except Exception:
             return ""
     # Legacy format
@@ -99,7 +99,7 @@ def read_slug(dirpath):
     try:
         with open(cfg_path) as f:
             cfg = yaml.safe_load(f) or {}
-        return cfg.get("slug", cfg.get("rid", cfg.get("tid", "")))
+        return cfg.get("slug", "")
     except Exception:
         return ""
 

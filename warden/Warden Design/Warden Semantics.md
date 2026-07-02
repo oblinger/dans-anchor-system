@@ -144,7 +144,7 @@ A document is a **tree of sections**, and `file` is its **level-0 root** — its
 
 | Member | What it is |
 |---|---|
-| `anchor.name`, `anchor.slug` | RID, kebab slug |
+| `anchor.name`, `anchor.slug` | anchor slug, kebab form |
 | `anchor.root`, `anchor.traits` | root path, its traits |
 | `anchor.get(name)` | any other anchor field, by name |
 | `anchor.files(glob)` | the anchor's files matching an anchor-relative glob, each loaded as a root `Section` — lazy (`len(anchor.files("**/{NAME} Backlog.md")) == 1`) |

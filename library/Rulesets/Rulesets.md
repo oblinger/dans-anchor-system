@@ -4,7 +4,7 @@ description: "Curated, versioned bundles of rules."
 
 # Rulesets
 
-| -[[Rulesets]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [Rulesets](hook://p/Rulesets)<br>: Curated, versioned bundles of rules. |
+| -[[Rulesets]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[library]] → [Rulesets](hook://p/Rulesets)<br>: Curated, versioned bundles of rules. |
 | --- | --- |
 | Related | [[Rulesets Brief\|Brief]],  [[FCT Ruleset]],  [[FCT Decisions]],   |
 | **CAB-aligned umbrellas** | The three primary structural axes — rulesets tied to CAB Facets, Traits, Skills. Adopting an umbrella pulls every per-X ruleset under it. |

@@ -33,14 +33,14 @@ Some facets define alternative naming patterns that are unique enough on their o
 | Pattern | Facet | Example |
 |---|---|---|
 | `F<NNN> — <title>.md` | [[FCT Features]] | `F138 — Plan→Design skill rename.md` |
-| `US-<RID>-<N> — <title>.md` | [[FCT Stories]] | `US-MUX-3 — Browse catalog and place composition.md` |
+| `US-<SLUG>-<N> — <title>.md` | [[FCT Stories]] | `US-MUX-3 — Browse catalog and place composition.md` |
 | `YYYY-MM-DD <topic>.md` | [[FCT Log]] | `2026-06-10 Master consolidation + storage strategy.md` |
 | `YYYY-MM <topic>.<ext>` | [[FCT Log]] | `2025-10 BOD Slides.pptx` (year-month precision) |
 | `YYYY <topic>.<ext>` | [[FCT Log]] | `2023 Prior Inventions.md` (year-only precision) |
 
 These patterns appear inside anchor sub-folders (`{NAME} Track/{NAME} Features/`, `{NAME} Design/{NAME} PRD/`, `{NAME}/{NAME} Log/`) where the parent folder already encodes the anchor scope. The filename itself doesn't need to.
 
-Each exception pattern is **declared by the facet that owns it**. Facets that define alternative patterns also state their uniqueness contract (e.g., F-numbers are monotonic-forever per anchor; `US-<RID>-<N>` encodes the RID directly). When a new facet introduces an alternative pattern, this list grows.
+Each exception pattern is **declared by the facet that owns it**. Facets that define alternative patterns also state their uniqueness contract (e.g., F-numbers are monotonic-forever per anchor; `US-<SLUG>-<N>` encodes the slug directly). When a new facet introduces an alternative pattern, this list grows.
 
 ## Exception C — slug-prefix sufficient by chance
 
@@ -77,7 +77,7 @@ Vault-wide. Every anchor in the vault is subject to this naming convention; the 
 These facets each declare an alternative naming pattern, and their pattern is listed in § Exception B above. When their spec evolves, this facet's exception table updates too.
 
 - [[FCT Features]] — `F<NNN> — <title>.md`
-- [[FCT Stories]] — `US-<RID>-<N> — <title>.md`
+- [[FCT Stories]] — `US-<SLUG>-<N> — <title>.md`
 - [[FCT Log]] — `YYYY-MM-DD <topic>.<ext>` (and year-month / year-only fallbacks)
 
 ## Audit
@@ -119,7 +119,7 @@ Files at the vault root or in vault-meta folders (Atlas, MY, etc.) that are genu
 Files matching a facet-sanctioned alternative pattern are exempt from the slug-prefix default. The canonical allowlist:
 
 - `F<NNN> — <title>.md` (per [[FCT Features]])
-- `US-<RID>-<N> — <title>.md` (per [[FCT Stories]])
+- `US-<SLUG>-<N> — <title>.md` (per [[FCT Stories]])
 - `YYYY-MM-DD <topic>.<ext>` (per [[FCT Log]])
 - `YYYY-MM <topic>.<ext>` (per [[FCT Log]] — year-month precision)
 - `YYYY <topic>.<ext>` (per [[FCT Log]] — year-only precision)
@@ -128,7 +128,7 @@ Files matching a facet-sanctioned alternative pattern are exempt from the slug-p
 
 **Check pattern:** R-naming-01's check accepts files matching any of the regex shapes above as a pass.
 
-**Why:** these patterns are unique enough on their own (F-numbers monotonic-forever, `US-<RID>-<N>` encodes RID directly, ISO dates plus topic). Adding a slug prefix would be redundant. The parent folder (`{NAME} Track/{NAME} Features/`, `{NAME} Design/{NAME} PRD/`, `{NAME}/{NAME} Log/`) already encodes anchor scope.
+**Why:** these patterns are unique enough on their own (F-numbers monotonic-forever, `US-<SLUG>-<N>` encodes the slug directly, ISO dates plus topic). Adding a slug prefix would be redundant. The parent folder (`{NAME} Track/{NAME} Features/`, `{NAME} Design/{NAME} PRD/`, `{NAME}/{NAME} Log/`) already encodes anchor scope.
 
 ### RULE R-naming-04 — Slug-prefix-sufficient-by-chance allowed sparingly (stated)
 

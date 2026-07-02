@@ -44,7 +44,7 @@ Read the PRD, then evaluate against three dimensions:
 | R-prd-02 | Body-only, no YAML frontmatter (first non-blank line is `# `) |
 | R-prd-03 | `description::` is the second non-blank line, no `::` tokens in value |
 | R-prd-04 | Required sections present in declared order |
-| R-prd-05 | User stories use `US-<RID>-<N>` numbering |
+| R-prd-05 | User stories use `US-<SLUG>-<N>` numbering |
 | R-prd-06 | No legacy `{NAME} Open Questions.md` file alongside |
 | R-prd-07 | Design Workflow references modern phase names (Architecture, Testing, Decisions) |
 | R-prd-08 | No per-doc `status::` field (centralized in `{NAME} Status.md`) |
@@ -56,7 +56,7 @@ Read the PRD, then evaluate against three dimensions:
 - Design Workflow — present? row count?
 - Goals — present? bullet count?
 - Non-Goals — present? bullet count?
-- User Stories — present? story count? matches `US-<RID>-<N>`?
+- User Stories — present? story count? matches `US-<SLUG>-<N>`?
 
 **Depth heuristics** — flag thin sections:
 
@@ -89,7 +89,7 @@ Section spine:
   • Design Workflow — present, N rows                {✓|thin|missing}
   • Goals           — present, N bullets             {✓|thin|missing}
   • Non-Goals       — present, N bullets             {✓|thin|missing}
-  • User Stories    — N stories (US-{RID}-1..N)      {✓|thin|missing}
+  • User Stories    — N stories (US-{SLUG}-1..N)      {✓|thin|missing}
 
 Status (per {NAME} Status.md): prd:: <current cell>
 
@@ -163,10 +163,10 @@ description:: <one-line tagline — product type + intent + key trait>
 
 ## User Stories
 
-### US-{RID}-1: <Title from context>
+### US-{SLUG}-1: <Title from context>
 As a <role>, I want <goal> so that <reason>.
 
-### US-{RID}-2: ...
+### US-{SLUG}-2: ...
 
 ## See also
 
@@ -191,7 +191,7 @@ Spine populated:
   • Design Workflow — 5 rows
   • Goals — N bullets
   • Non-Goals — N bullets
-  • User Stories — N stories (US-{RID}-1..N)
+  • User Stories — N stories (US-{SLUG}-1..N)
 
 Genuine guesses I made (worth your eye):
   • <thing 1 — what was inferred and why>
@@ -255,7 +255,7 @@ Audit rules to honor: [[FCT PRD#RULESET R-prd|R-prd]] (9 rules).
 
 ## Anti-patterns
 
-- **Don't bypass survey-and-report on an existing PRD.** Assess first, share findings in chat, then drive edits with consent. Mechanical normalization (fixing a stale link target, renaming `US-1` → `US-<RID>-1`, rewriting frontmatter to body-only) is fine to apply silently as part of driving — those are facet-rule applications. Editorial changes to user-authored content (rewriting an Overview paragraph, adding or dropping a Goal, restructuring User Stories) need to be surfaced before they land.
+- **Don't bypass survey-and-report on an existing PRD.** Assess first, share findings in chat, then drive edits with consent. Mechanical normalization (fixing a stale link target, renaming `US-1` → `US-<SLUG>-1`, rewriting frontmatter to body-only) is fine to apply silently as part of driving — those are facet-rule applications. Editorial changes to user-authored content (rewriting an Overview paragraph, adding or dropping a Goal, restructuring User Stories) need to be surfaced before they land.
 - **Don't gate by separate ceremony.** Promotion to `MVP-agent` is a `state status set` call, not a Verify row or a banner. The user-grade `MVP-user` comes from natural-language confirmation.
 - **Don't ask "should we have a PRD?"** — `/design prd` was invoked. Author it (bootstrap) or assess it (existing).
 

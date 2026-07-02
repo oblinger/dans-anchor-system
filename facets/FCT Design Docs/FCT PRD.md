@@ -54,7 +54,7 @@ User stories live inline under `## User Stories` as bullets. Right for most PRDs
 {NAME} Design/{NAME} PRD/
 ├── {NAME} PRD.md           ← this file, anchor file (matches folder name)
 ├── {NAME} Stories.md       ← stories dispatch index
-├── US-<RID>-1 — <Title>.md ← individual story files
+├── US-<SLUG>-1 — <Title>.md ← individual story files
 └── ...
 ```
 
@@ -69,7 +69,7 @@ Per [[FCT Stories]]. The PRD's `## User Stories` section then links to `[[{NAME}
 | 3 | `## Design Workflow` | Table listing the design phases downstream of this PRD with wiki-links: PRD → Architecture → Testing → Decisions → Track (Roadmap + Features). The sequence may be revisited iteratively as questions surface. |
 | 4 | `## Goals` | Concrete, verifiable outcomes — what the product will accomplish. Bulleted; outcome-shaped (not feature-shaped). |
 | 5 | `## Non-Goals` | What the product explicitly will NOT do. Each non-goal is one of: (a) deferred to a future version, (b) out of scope by design, (c) constraint from the environment. Keeps scope conversation honest. |
-| 6 | `## User Stories` | Either inline bullets (`US-<RID>-<N>` per [[FCT Stories]]) or a wiki-link to `[[{NAME} Stories]]` if folder form. Each story is "As a `<role>`, I want `<capability>` so that `<reason>`." |
+| 6 | `## User Stories` | Either inline bullets (`US-<SLUG>-<N>` per [[FCT Stories]]) or a wiki-link to `[[{NAME} Stories]]` if folder form. Each story is "As a `<role>`, I want `<capability>` so that `<reason>`." |
 | 7 | `## Open Questions` (optional) | Pending decisions surfaced via [[DSC ask-format]]. Lives below the H1 only while pending Qs exist; deletes entirely once all resolve. |
 | 8 | `## Resolved` (optional) | Bottom-of-doc archive of resolved questions and decisions, H3 per resolution. Populated as questions resolve; never deleted. |
 | 9 | `## See also` (optional) | Links to peer Design facets (Architecture, Testing, Decisions). |
@@ -90,15 +90,15 @@ Per [[DSC progressive-disclosure]] § Per-facet preface requirements:
 
 ## User stories — naming and lifecycle
 
-- **Identifier:** `US-<RID>-<N>` per [[FCT Stories]] § Naming convention. Monotonic-forever within the anchor; never recycled.
-- **Inline shape:** H3 heading `### US-<RID>-<N>: <Title>` followed by the canonical "As a `<role>`, I want `<goal>` so that `<reason>`" sentence on the next line.
+- **Identifier:** `US-<SLUG>-<N>` per [[FCT Stories]] § Naming convention. Monotonic-forever within the anchor; never recycled.
+- **Inline shape:** H3 heading `### US-<SLUG>-<N>: <Title>` followed by the canonical "As a `<role>`, I want `<goal>` so that `<reason>`" sentence on the next line.
 - **When stories grow:** migrate to [[FCT Stories]] folder form. The PRD's `## User Stories` section then reads "See [[{NAME} Stories]] for the story index" + (optionally) a wiki-list of the top-level stories.
 
 ### Dispatch-row pointer to stories — required in both forms
 
 The PRD's top-of-doc dispatch table carries a row pointing at stories. The link target depends on the form, but the **display alias is always `{NAME} Stories`** (the proper anchor-prefixed name, matching the convention used by sibling rows like `[[{NAME} Architecture]]`, `[[{NAME} Testing]]`):
 
-- **Single-file PRD (inline stories):** `[[{NAME} PRD#User Stories\|{NAME} Stories]]` — section-deep wiki-link into this same doc's `## User Stories` H2, displayed as `{NAME} Stories`. The description names the story count: *"three user stories (inline-bullet form per [[FCT Stories]]; US-{RID}-1..N)"*.
+- **Single-file PRD (inline stories):** `[[{NAME} PRD#User Stories\|{NAME} Stories]]` — section-deep wiki-link into this same doc's `## User Stories` H2, displayed as `{NAME} Stories`. The description names the story count: *"three user stories (inline-bullet form per [[FCT Stories]]; US-{SLUG}-1..N)"*.
 - **Folder-form PRD (extracted stories):** `[[{NAME} Stories]]` — wiki-link to the sibling dispatch index; display defaults to the page name (`{NAME} Stories`). The description names the count: *"N user stories — index at [[{NAME} Stories]]"*.
 
 The row is required in both forms so a reader landing on the PRD has a one-click jump to "what does this product DO for users" without scrolling. The proper-name display keeps the row consistent with its peers in the dispatch table. Worked example: [[CAE PRD]] § dispatch table.
@@ -124,7 +124,7 @@ Design-phase completeness for the PRD is tracked in `{NAME} Track/{NAME} Status.
 Surveying live PRDs across the vault, these are the recurring drifts from the canonical shape — each maps to a rule below and is a migration target, not an accepted variant:
 
 - **Legacy header form** — `desc::`/`description::` inline + `:>>` breadcrumb instead of YAML frontmatter (`R-prd-02`/`R-prd-03`), or no metadata line at all (e.g. `[[HA Track]] > [[HA PRD]]` breadcrumb-only).
-- **`US-<N>` without RID** — inline stories numbered `US-1`, `US-2` rather than `US-<RID>-<N>` (`R-prd-05`); collides across anchors.
+- **`US-<N>` without the slug** — inline stories numbered `US-1`, `US-2` rather than `US-<SLUG>-<N>` (`R-prd-05`); collides across anchors.
 - **`## Design Constraints` (DC-N)** — architectural/technical constraints living in the PRD instead of [[FCT Decisions]] / [[FCT Ruleset]] (`R-prd-09`).
 - **Missing `## Design Workflow`** — older PRDs jump from Overview straight to Goals (`R-prd-04`).
 - **No `## User Stories` at all** — stub or library PRDs (e.g. consumer-table-only) that never grew a story section (`R-prd-04`/`R-prd-05`); the Goals serve as a stand-in until stories are authored.
@@ -135,7 +135,7 @@ Any anchor that has a `{NAME} Design/` folder per [[FCT Design]]. Initially supp
 
 ## Audit
 
-`/audit prd` (future) would flag the rules captured in `R-prd` below — body-only shape, required-section presence, `US-<RID>-<N>` story numbering, no legacy Open Questions file, etc.
+`/audit prd` (future) would flag the rules captured in `R-prd` below — body-only shape, required-section presence, `US-<SLUG>-<N>` story numbering, no legacy Open Questions file, etc.
 
 ## See also
 
@@ -192,14 +192,14 @@ The PRD contains H2s `## Overview`, `## Design Workflow`, `## Goals`, `## Non-Go
 
 **Why:** downstream design phases read the PRD assuming this section spine. Missing sections force the reader to hunt for what they expect to find in a known location.
 
-### RULE R-prd-05 — User stories use `US-<RID>-<N>` numbering (checked)
+### RULE R-prd-05 — User stories use `US-<SLUG>-<N>` numbering (checked)
 check:: user_stories_use_rid_numbering
 
-Every user-story H3 (inline form) matches `^### US-{RID}-\d+: .+` where `{RID}` is the anchor's RID. Folder-form PRDs link to `[[{NAME} Stories]]` instead of inline H3s and this rule defers to [[FCT Stories#RULESET R-stories|R-stories]].
+Every user-story H3 (inline form) matches `^### US-{SLUG}-\d+: .+` where `{SLUG}` is the anchor's slug. Folder-form PRDs link to `[[{NAME} Stories]]` instead of inline H3s and this rule defers to [[FCT Stories#RULESET R-stories|R-stories]].
 
 **Check pattern:** for inline-form PRDs, enumerate H3s under `## User Stories`; assert each matches the pattern.
 
-**Why:** `US-<RID>-<N>` is the load-bearing identifier referenced by feature docs (`Realizes: US-<RID>-<N>`), e2e tests (`Exercises: US-<RID>-<N>`), and Stories sub-facet files. Old `US-<N>` form (no RID) collides across anchors and breaks cross-anchor references.
+**Why:** `US-<SLUG>-<N>` is the load-bearing identifier referenced by feature docs (`Realizes: US-<SLUG>-<N>`), e2e tests (`Exercises: US-<SLUG>-<N>`), and Stories sub-facet files. Old `US-<N>` form (no slug) collides across anchors and breaks cross-anchor references.
 
 ### RULE R-prd-06 — No legacy `{NAME} Open Questions.md` file (checked)
 check:: no_legacy_open_questions_file

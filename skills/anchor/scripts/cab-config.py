@@ -187,12 +187,7 @@ def cmd_set(key, value):
 def cmd_get(key):
     """Get a config key's value."""
     cfg, root = load_config()
-    # Support both slug and legacy rid
     value = cfg.get(key)
-    if value is None and key == "slug":
-        value = cfg.get("rid")
-    if value is None and key == "rid":
-        value = cfg.get("slug")
     if value is None:
         print(f"Key '{key}' not set", file=sys.stderr)
         sys.exit(1)

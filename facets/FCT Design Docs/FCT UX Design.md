@@ -44,7 +44,7 @@ Per [[DSC progressive-disclosure]]:
 | H2 | What it carries |
 |---|---|
 | `## Audience` | One paragraph: who the human consumer is, what context they're in (terminal? Obsidian? browser?), what they know going in, what their goal is. Sets the frame for every following decision. |
-| `## Entry-points` | The spine table. Every command / screen / affordance listed once with: name, one-line purpose, source story (`US-<RID>-<N>`). For CLIs: command name + one-line synopsis. For GUIs: screen name + one-line purpose. |
+| `## Entry-points` | The spine table. Every command / screen / affordance listed once with: name, one-line purpose, source story (`US-<SLUG>-<N>`). For CLIs: command name + one-line synopsis. For GUIs: screen name + one-line purpose. |
 | `## Output shapes` | Both forms named explicitly: human-readable default (what the user sees with their eyes) AND structured opt-in (`--json`, machine-readable export, copyable payload). Realistic example for each. |
 | `## Error voice` | The named error situations + the exact (or templated) message + exit code (CLI) or alert pattern (GUI). Tone is declared at the top (terse / friendly / verbose). |
 | `## Discovery` | How the human finds the entry-points: `--help` text, dispatch table in `{NAME}.md`, hotkey hints, banner copy. Names the signal the user follows on first encounter. |
@@ -89,7 +89,7 @@ The first body H2 is `## Audience` and names who the human consumer is, the cont
 
 ### RULE R-ux-03 — Entry-points table is the spine (checked)
 
-A `## Entry-points` H2 carries a single canonical table listing every human-invocable surface entry-point: name, one-line purpose, source story (`US-<RID>-<N>`) or link to its feature doc. No entry-point lives only in prose; every one is in the table.
+A `## Entry-points` H2 carries a single canonical table listing every human-invocable surface entry-point: name, one-line purpose, source story (`US-<SLUG>-<N>`) or link to its feature doc. No entry-point lives only in prose; every one is in the table.
 
 **Check pattern:** parse the doc; gather all command-like or screen-like identifiers from H3s + prose; assert each appears in the spine table.
 
