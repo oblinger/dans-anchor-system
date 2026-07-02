@@ -83,6 +83,8 @@ The corpus fixtures are the common pool: unit tests inline what they can; the go
 
 **Design landed 2026-07-01** (this doc; the F214 spec side of [[Warden Roadmap]] M3 — each layer has a concrete contract + fixture plan, and the differential contract is fixed for M6/M8). Golden layer is live with four seed cases against the shipped audit engine. Unit + e2e stand up with the M6 build; differential + performance gates with M8. Defined 2026-06-26.
 
+**First unit test landed 2026-07-02** ahead of M6: the [[F211 — Rule compiler and installer|F211]] scan command ships with `warden/engine/test_warden_scan.py` (5-behavior standalone regression test) — the unit layer's first case, pinning the discovery sweep's read-0-on-unchanged property. Engine modules test alongside the build as they land, not in one M6 batch.
+
 ## Resolved
 
 - **Q1 — CI home** — **Resolution (user, 2026-07-01): (B) — stand up GitHub Actions in ob-skills now.** Rationale: good practice getting the rig built; migrating a working workflow to the extracted Warden repo later is trivial. Overrides the filed Lean (A). Realized as `.github/workflows/warden-tests.yml` — golden-corpus job on push/PR touching `warden/**` or the audit engine, plus manual dispatch; the runner's exit code is the gate. Future layers (unit at the build milestone, differential+perf at the Rust milestone) join the same workflow.
