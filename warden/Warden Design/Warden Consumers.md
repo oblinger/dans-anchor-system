@@ -1,7 +1,7 @@
 ---
 description: "Proposed inventory of the consumers the Warden hook substrate must serve — each defined, with the substrate demands it implies and a confidence grade. Parley input for F131 Q4."
 ---
-/comp:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[Warden]] → [[Warden Design]] → [Warden Consumers](hook://p/Warden%20Consumers)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[Warden]] → [[Warden Design]] → [Warden Consumers](hook://p/Warden%20Consumers)
 
 # Warden Consumers
 The inventory of things that consume agent moments through the Warden substrate — what each is, which moments it binds, and what it demands of the engine. Drafted 2026-07-01 as the starting material for the [[F131 — Hooks — fast inner-loop check substrate (path-rule alerts first)|F131]] Q4 parley; **confirmed by the user the same day** (F131 Q4 resolution): the confident set is the starting set — the substrate is designed against it — extended by the rules-corpus scan in § The rules corpus below.
