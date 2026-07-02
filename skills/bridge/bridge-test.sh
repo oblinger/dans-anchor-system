@@ -107,6 +107,32 @@ else
 fi
 rec SKIP T-syn-reverse "needs bidirectional throwaway folder (manual)"
 rec SKIP T-syn-teardown "destructive on throwaway folder (manual)"
+# F175 — rsync mode: live push/pull round-trip on a throwaway folder (hermetic config)
+if [ "$REMOTE_UP" = yes ]; then
+  RT=/tmp/mb-rsync-test.$$
+  export BRIDGE_HOSTS_PATH="/tmp/mb-test-hosts.$$.yaml"
+  mkdir -p "$RT" && echo "v1" > "$RT/foo.md"
+  if "$HELP_DIR/rsync-helper.py" init "$HOST" "$RT" >/dev/null 2>&1 \
+     && "$HELP_DIR/rsync-helper.py" push "$HOST" "$RT" >/dev/null 2>&1 \
+     && $SSH "$USER_R@$HOST" "grep -q v1 '$RT/foo.md' && echo v2 > '$RT/bar.md'" 2>/dev/null \
+     && "$HELP_DIR/rsync-helper.py" pull "$HOST" "$RT" >/dev/null 2>&1 \
+     && grep -q v2 "$RT/bar.md" 2>/dev/null; then
+    rec PASS T-syn-rsync "push→remote-edit→pull round-trip OK"
+  else
+    rec FAIL T-syn-rsync "rsync round-trip broke (run helpers by hand to localize)"
+  fi
+  "$HELP_DIR/rsync-helper.py" teardown "$HOST" >/dev/null 2>&1
+  $SSH "$USER_R@$HOST" "rm -rf '$RT'" 2>/dev/null; rm -rf "$RT" "$BRIDGE_HOSTS_PATH"
+  unset BRIDGE_HOSTS_PATH
+else
+  rec SKIP T-syn-rsync "remote unreachable"
+fi
+# F175 — NFS probe: public-IP refusal is unit-testable with no remote
+if "$HELP_DIR/nfs-helper.py" probe example.invalid --ip 8.8.8.8 2>/dev/null | grep -q '"class": "public"'; then
+  rec PASS T-nfs-probe "public IP correctly refused"
+else
+  rec FAIL T-nfs-probe "public-IP refusal logic broken"
+fi
 # fastlink (informational)
 if ifconfig bridge0 2>/dev/null | grep -q "status: active"; then
   KEY=$(grep -E '<apikey>[^<]+</apikey>' "$HOME/Library/Application Support/Syncthing/config.xml" 2>/dev/null | head -1 | sed -E 's|.*<apikey>([^<]+)</apikey>.*|\1|')

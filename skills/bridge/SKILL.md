@@ -1,6 +1,6 @@
 ---
 name: bridge
-description: Connect this Mac to another machine. Umbrella over three kinds of bridging. **Control** (`bridge <host>` / `bridge mux`) — SSH + tmux + TCC inheritance so the agent drives the remote as a local box with the user's Full Disk Access (use when SSH-only can't reach /Volumes/*, ~/Desktop, ~/Documents). **Sync** (`bridge sync`) — file sync (Syncthing today; NFS / rsync planned) so folders appear at identical paths on both machines. **Claude** (`bridge claude`) — a composite goal: provision the remote to run a Claude instance as an environment-twin (skills + CLAUDE.md + vault content; transcripts deliberately excluded). Slash-only. Per-user environment recipe lives in ~/.config/bridge/config.yaml.
+description: Connect this Mac to another machine. Umbrella over three kinds of bridging. **Control** (`bridge <host>` / `bridge mux`) — SSH + tmux + TCC inheritance so the agent drives the remote as a local box with the user's Full Disk Access (use when SSH-only can't reach /Volumes/*, ~/Desktop, ~/Documents). **Sync** (`bridge sync`) — file sync (Syncthing live-bidirectional, NFS-via-symlink live mount, rsync explicit push/pull) so folders appear at identical paths on both machines. **Claude** (`bridge claude`) — a composite goal: provision the remote to run a Claude instance as an environment-twin (skills + CLAUDE.md + vault content; transcripts deliberately excluded). Slash-only. Per-user environment recipe lives in ~/.config/bridge/config.yaml.
 ---
 
 # Bridge
@@ -163,6 +163,8 @@ bridge sync-status <host>            # mode, folders, freshness, errors
 bridge sync-teardown <host>          # stop syncing this host (files preserved)
 ```
 
+**Three sync modes, one per host** (switching = teardown + re-init): **syncthing** (live bidirectional convergence — the default; recipe below), **nfs** (live mount, zero lag — § NFS-via-symlink mode), **rsync** (explicit push/pull batch, the hard-gate mode — § rsync mode). All three record state in `~/.config/bridge/hosts.yaml` and share the same-absolute-path contract.
+
 ### Resolution flow for `bridge sync`
 
 1. **Read config.yaml `defaults`** — for each field not on CLI, use the default; for each missing field, prompt once and write back atomically.
@@ -265,6 +267,38 @@ Teardown also offers to remove the recorded `move_aside` directory on the remote
 ### Per-session auto-resume
 
 When `bridge <host>` runs and hosts.yaml has a sync entry: probe both daemons; restart a down one (`brew services restart syncthing` or re-`nohup`); if the remote is unreachable, warn but continue with the control session (data plane is best-effort).
+
+### rsync mode (F175 Phase 3 — explicit push/pull, the hard gate)
+
+**Use when** explicit batch transfers fit better than live sync — experiment dispatch, no-overhead-when-idle, or a deliberate gate between "what's on this Mac" and "what's on the remote." No daemon; nothing moves until you say so. Helper: `~/.claude/skills/bridge/rsync-helper.py`.
+
+```
+rsync-helper.py init <host> <folder> [--remote-path P]   # record mode+mapping (refuses if host has another mode)
+rsync-helper.py push <host> [<folder>] [--mirror] [--dry-run]   # local → remote
+rsync-helper.py pull <host> [<folder>] [--mirror] [--dry-run]   # remote → local
+rsync-helper.py status <host>                            # mode + folders + last push/pull stamps
+rsync-helper.py remove <host> <folder> | teardown <host> # config-only unwire; files never deleted
+```
+
+- **Never deletes unless `--mirror`** (adds `--delete`). Default push/pull is additive-overwrite (`rsync -a`), excludes `.DS_Store`/`.Trashes`/`__pycache__` plus any `--exclude`.
+- Bare `push <host>` / `pull <host>` moves **all** configured folders for that host.
+- Verified live 2026-07-01 against haorui (push → edit-on-remote → pull round-trip); `bridge-test.sh` runs it as `T-syn-rsync`.
+
+### NFS-via-symlink mode (F175 Phase 2 — live mount, zero lag)
+
+**Use when** the remote needs an instant view of this Mac's edits and both machines are on a **private network** (Tailscale / RFC1918 / .local). The remote mounts the export under `/Volumes/mb-<host>-<slug>/` and a symlink at the canonical path covers it. Helper: `~/.claude/skills/bridge/nfs-helper.py` — it **never runs sudo**; the live steps need sudo on BOTH sides, so the agent drives the emitted plan through an interactive box session where the user types passwords.
+
+```
+nfs-helper.py probe <host>                       # network class; EXIT 1 + refusal if public (NFS is unencrypted)
+nfs-helper.py plan <host> <folder>               # emit the exact /etc/exports + nfsd + mount + move-aside + symlink sequence
+nfs-helper.py record <host> <folder> --mount-point M   # write hosts.yaml after the plan is applied
+nfs-helper.py status <host>                      # live mount probe over ssh
+nfs-helper.py teardown-plan <host>               # emit the unwind sequence (files never deleted)
+```
+
+- **Public-IP remotes are refused** — probe first; the plan command refuses too.
+- **Move-aside, never replace**: pre-existing remote content goes to `<path>.old.<date>/` before the symlink lands (the recovery copy).
+- **Per-session auto-resume**: with nfs mode configured, `bridge <host>` should `status`-probe the mount and re-run the mount step if stale; if this Mac is unreachable within ~3s, warn and continue control-only — don't hang.
 
 ### Sync gotchas
 
