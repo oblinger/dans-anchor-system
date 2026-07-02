@@ -1,247 +1,157 @@
 ---
-description: CLI command reference — every command, flag, and exit code
+description: CLI command surface — a compressed, `--help`-style command reference, progressively disclosed; a design-pipeline doc downstream of UX Design
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT CLI](hook://p/FCT%20CLI)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT CLI](hook://p/FCT%20CLI)
 
 # FCT CLI
-Facet spec for `{NAME} CLI.md` — the exhaustive command/flag/exit-code reference page for an anchor that ships a CLI.
+Facet spec for `{NAME} CLI.md` — the compressed, `--help`-style command surface for an anchor that ships a CLI, authored in the design pipeline (downstream of UX Design) and disclosed progressively.
 
-**Related:** [[FCT UX Design]],  [[CAB User Guide]],  [[FCT All Files]],  [[FCT Anchor Page]]
+**Related:** [[FCT UX Design]],  [[FCT API Design]],  [[FCT Design]],  [[CAB User Guide]]
 **Examples:** [[CAE CLI\|minimal]],  [[HBR CLI\|fuller]]
 
 | Table of Contents |  |
 |---|---|
-| [[#submit]] |  |
-| [[#status]] |  |
-| [[#Location]] |  |
-| [[#Required Sections]] |  |
 | [[#The Help Block — READ THIS]] |  |
-| [[#<cmd-1>]] |  |
+| [[#Progressive disclosure — the drill-down]] |  |
+| [[#Location — a migrating reference]] |  |
 | [[#Optional Sections]] |  |
-| [[#Per-Command Structure]] |  |
 | [[#Linking]] |  |
 | [[#When to Create]] |  |
-| [[#Lifecycle]] |  |
 | **[[#BRIEF]]** |  |
 
-**TLDR** — `{NAME} CLI.md` is the exhaustive man-page-style command reference for an anchor's CLI: mandatory fenced help block first (directly under H1), then per-command H2 sections with Usage / Flags / Exit codes / Example, then a global exit-code table. **Cardinality: one per anchor** (only when the anchor ships a CLI). Detection: file-existence at `{NAME} Docs/{NAME} User/{NAME} CLI.md`.
+**TLDR** — `{NAME} CLI.md` presents an anchor's command-line surface the way a well-written UNIX tool's `--help` does: a fenced **help block first** (every command, one line, aligned trailing `# comment`), then — **only** for the commands that need more than their one-liner — light per-command drill-down. **Progressive disclosure is the whole ethic:** the help block IS the doc; detail is added a command at a time, never an exhaustive man-page up front. **Cardinality: one per anchor**, only when it ships a CLI. **Home:** authored at `{NAME} Design/{NAME} CLI.md` (a design-pipeline doc, downstream of UX Design); as a *migrating reference* it graduates to `{NAME} User Docs/` once the CLI stabilizes.
 
-`{NAME} CLI.md` is the **complete command reference** for an application that ships a command-line interface. Every command the app exposes, every flag on each command, every exit code — one page, reference-style. Think "man page" as a markdown doc.
+`{NAME} CLI.md` is the **command surface** of an application that ships a command-line interface — presented compactly, the way you'd read `tool --help` piped through a pager. It is **not** an exhaustive man page: you do not write a Flags table and an Exit-codes table for every command up front. You write the help block that shows the whole surface at a glance, then disclose the detail of a command *only when that command's one-line entry can't carry it*.
 
-**Only create this file when the anchor actually has a CLI.** It is optional. Applications without a command-line interface (GUI-only, library-only, daemon-only) should not have one.
+**Only create this file when the anchor actually has a CLI.** It is optional. GUI-only, library-only, or daemon-only anchors have no CLI doc — a library's surface is [[FCT API Design]], a GUI's is [[FCT UX Design]].
 
-**Working example:** `~/.claude/skills/CAE/CAE Docs/CAE User/CAE CLI.md` — CLI reference.
+## Relationship to the other design docs
 
-**Relationship to other docs:**
-- [[CAB User Guide]] / `{NAME} User Guide.md` — **tutorial**. Teaches the CLI by example, narrative-style. Mentions only the commands a new user needs.
-- [[FCT CLI]] / `{NAME} CLI.md` — **reference**. Every command, every flag, exhaustive. Readers arrive here knowing what they want to look up.
-- [[FCT UX Design]] — specifies the CLI shape during design. When an anchor's UX Design calls for a CLI, `/feature`-style work should produce this CLI doc as the user-facing output.
-
-When both exist, User Guide links to CLI for "full reference" and CLI can link back to User Guide for "getting started."
+- [[FCT UX Design]] — the CLI doc is **downstream of UX Design**: UX Design decides *that* there is a CLI and its command shape (verbs, grouping, the interaction model); `{NAME} CLI.md` is the concrete `--help` realization of that decision.
+- [[FCT API Design]] — sibling programmatic surface. An anchor with both a CLI and a library form carries both (e.g. [[CAE]]).
+- [[CAB User Guide]] / `{NAME} User Guide.md` — the **tutorial** (narrative, teaches the few commands a newcomer needs). The CLI doc is the **reference** (the whole surface, look-up-oriented). Guide links to CLI for "full surface"; CLI links back to Guide for "getting started."
 
 # Reference Example
----
+
+The whole doc, in the compressed form (a `{NAME} CLI.md` for a task-scheduler `tool`):
 
 ````markdown
 ---
-description: CLI command reference for {app-name}
+description: "command surface — every command, compressed --help form"
 ---
+
+:>> [[{NAME}]] → [[{NAME} Design]]
 
 # {NAME} CLI
 
-| -[[{NAME} CLI]]- |  |
-| --- | --- |
-| --- | |
-
 ```
-{app-name} --help                                                 # Show this help text
-{app-name} --version                                              # Print version
-{app-name} submit --deadline <time> [--retry N] — <cmd>          # Enqueue a task at the deadline
-{app-name} status [--json] [--filter <state>]                     # Show task states and queue depth
-{app-name} cancel <task-id>                                       # Cancel a pending task
-{app-name} drain [--timeout <sec>]                                # Wait for all pending tasks
+{tool} --help                                       # Show this help text
+{tool} --version                                    # Print version
+{tool} submit --deadline <t> [--retry N] -- <cmd>   # Enqueue a task at the deadline
+{tool} status [--json] [--filter <state>]           # Show task states and queue depth
+{tool} cancel <task-id>                             # Cancel a pending task
+{tool} drain [--timeout <sec>]                      # Wait for all pending tasks to finish
 ```
 
-For a tutorial introduction, see [[{NAME} User Guide]]. Per-command detail below: [[#submit]], [[#status]], [[#cancel]], [[#drain]].
+For a tutorial introduction, see [[{NAME} User Guide]]. Commands that need more than their one-line entry are detailed below; the rest are self-explanatory from the block.
 
-## submit
+## Notes
 
-Enqueue a task for execution at or after a deadline.
+- **submit** — `--deadline` (ISO-8601) is required; `--retry N` defaults to 3; `--priority 0–9` defaults to 5. The command to enqueue follows a literal `--`. Exits non-zero (2) if the scheduler is unreachable.
+- **status** — `--filter` takes one of `pending | running | done | failed`; `--json` emits machine-readable output for scripts.
+````
 
-**Usage:**
-```
-{app-name} submit --deadline <ISO-8601> [--retry <N>] [--priority <0-9>] — <command> [args...]
-```
-
-**Flags:**
-
-| Flag           | Type        | Default | Description                                    |
-|----------------|-------------|---------|------------------------------------------------|
-| `--deadline`   | ISO-8601    | —       | Earliest time the task should run. Required.  |
-| `--retry`      | int         | 3       | Max retries before the task is marked failed. |
-| `--priority`   | 0–9         | 5       | Higher = runs sooner among same-deadline set. |
-
-**Exit codes:**
-
-| Code | Meaning                                      |
-|------|----------------------------------------------|
-| 0    | Task enqueued; task ID printed on stdout.   |
-| 1    | Usage error (missing required flag, etc.).  |
-| 2    | Scheduler unreachable or shutdown.          |
-
-**Example:**
-```bash
-{app-name} submit --deadline 2026-04-21T15:00:00 --retry 5 — ./build.sh
-# → t-4f2
-```
-
-## status
-
-Print current scheduler state and task list.
-
-... (same shape for each command)
-
-## Exit Codes (global)
-
-| Code | Meaning                                                   |
-|------|-----------------------------------------------------------|
-| 0    | Success.                                                  |
-| 1    | Usage error — bad flags, missing args, invalid values.    |
-| 2    | Runtime error — scheduler down, DB locked, permission.    |
-| 64   | Configuration error — invalid config file.                |
-
-```
-
----
+*(Six commands; only the two with non-obvious flags get a note. `cancel`, `drain`, `--version`, `--help` carry no section — their one-line entry says everything. That restraint IS the progressive-disclosure ethic.)*
 
 # Format Specification
 
-## Location
-
-`{NAME} CLI.md` lives in `{NAME} Docs/{NAME} User/{NAME} CLI.md`. It is a user-facing document — users reach for it when they need to look up syntax.
-
-## Required Sections
-
-| Section | Purpose |
-|---------|---------|
-| **Help block** (FIRST, directly under H1) | Fenced code block with every command on one line + trailing `# comment`. See below — this rule is non-negotiable. |
-| **Per-command H2** | One section per command with Usage / Flags / Exit codes / Example |
-| **Exit codes (global)** | Table of app-level exit codes (in addition to per-command) |
-
 ## The Help Block — READ THIS
 
-**Non-negotiable: under the `# {NAME} CLI` H1 (with the standard dispatch-table placeholder per F060), the very next content is the fenced help code block.** No intro paragraph, no Synopsis section, no description between the dispatch table and the help fence.
+**Non-negotiable: directly under the `# {NAME} CLI` H1, the very next content is the fenced help code block.** No intro paragraph, no Synopsis, nothing between the H1 and the fence. (The `:>>` breadcrumb sits above the H1 as on any non-anchor doc; nothing else does.)
 
-Inside the fence: every command the CLI exposes, one per line, with a `#` comment at the end of the line describing its purpose. The block looks exactly like the `--help` output of a well-written UNIX tool. It is the reader's single-page reference.
-
-**Template:**
-
-````
-# {NAME} CLI
-
-| -[[{NAME} CLI]]- |  |
-| --- | --- |
-| --- | |
-
-```
-{app-name} --help                                  # Show this help text
-{app-name} --version                               # Print version
-{app-name} <cmd-1> <sig>                           # <purpose>
-{app-name} <cmd-2> <sig>                           # <purpose>
-...
-```
-
-<optional one-line pointer to User Guide and per-command anchors>
-
-## <cmd-1>
-...
-````
+Inside the fence: every command the CLI exposes, **one per line**, each with a trailing `# comment` giving its one-line purpose, comments **column-aligned**. It reads exactly like the `--help` output of a well-written UNIX tool — it is the reader's single-screen map of the whole surface.
 
 **Rules for the block:**
 
-- **Fenced code block (```...```), NOT 4-space indent.** The fence must be the first non-frontmatter content under the H1.
-- **Complete.** Every command the binary exposes appears here. Include `--help` and `--version` as their own lines.
-- **One line per command.** Multi-line invocations are disallowed in the block; split rare corner cases to the per-command H2 section below.
-- **Trailing `# comment` on every line.** The comment is the one-line purpose. Align the comments to a consistent column across rows (same alignment discipline as [[FCT All Files]]).
-- **Flags in summary form.** `[--json]`, `[--filter <state>]` — just enough to know what the command takes. Full flag reference lives in the per-command H2 sections below.
-- **No wiki-links inside the block.** Code blocks don't render them; navigation links go in the line immediately after the block.
-- **Matches `{app-name} --help` output as closely as reasonable.** If the binary supports `--help`, the block is a rendered version of that output.
+- **Fenced code block, not 4-space indent.** The fence is the first content under the H1.
+- **Complete.** Every command the binary exposes appears here, including `--help` and `--version`. The block *is* the command inventory.
+- **One line per command.** No multi-line invocations inside the block; a rare corner case goes to its drill-down note.
+- **Summary flag form.** `[--json]`, `[--filter <state>]`, `<task-id>` — just enough to know what the command takes. `<required>` in angle brackets, `[--optional]` in square brackets.
+- **Aligned trailing `# comment` on every line** — the one-line purpose (same alignment discipline as [[FCT All Files]]).
+- **No wiki-links inside the block** — code fences don't render them; navigation links go on the line immediately after the block.
+- **Mirror `{tool} --help`.** If the binary supports `--help`, this block is a faithful rendering of that output.
 
-**Nothing else is allowed before the block.** No preamble paragraph, no "For a tutorial introduction, see ...", no Synopsis section — all of that goes *after* the block.
+## Progressive disclosure — the drill-down
+
+After the help block, disclose per-command detail **only for the commands that need more than their one-line entry**. This is the core difference from an exhaustive man page: most commands are fully specified by their help-block line and get **no section at all**.
+
+Two forms, lightest first:
+
+- **A `## Notes` bullet** (default) — one bullet per command that needs it: the non-obvious flags (name, default, required-ness), the payload convention, and any surprising exit behaviour, in a sentence or two. Enough for the large majority of commands.
+- **A full `## <command>` H2** (only when a command is genuinely complex) — one-line description, a `**Usage:**` block, and — *if they carry real information* — a flags table and/or a worked `**Example:**`. Reserve this for commands with many flags or subtle semantics.
+
+**Do not** write a Flags table + Exit-codes table + Example for a command whose help-block line already says everything. Exhaustiveness is the anti-pattern this facet exists to prevent — the shipped `--help` is the contract; the doc mirrors it and annotates only the sharp edges.
+
+## Location — a migrating reference
+
+The CLI doc is a **migrating reference** (per [[FCT Design]] § Reference is a migrating role):
+
+- **Authored** at `{NAME} Design/{NAME} CLI.md` — a design-pipeline doc, downstream of UX Design, written while the command surface is still being decided.
+- **Graduates** to `{NAME} User Docs/{NAME} CLI.md` once the CLI stabilizes and end users consult it as a look-up reference.
+
+Either home is valid; which one it sits in reflects how settled the CLI is. Both are `{NAME} CLI.md` — the basename never changes, so links survive the move.
 
 ## Optional Sections
 
+Include only when they carry real information (never as boilerplate):
+
 | Section | When to include |
 |---------|-----------------|
-| **Environment variables** | If the CLI respects any (e.g., `TSK_CONFIG`, `NO_COLOR`) |
-| **Config file** | If the CLI reads a config file — document the format |
-| **Output modes** | If the CLI has `--json` / `--quiet` / `--verbose` patterns |
-| **Signal handling** | If long-running commands respond to SIGINT / SIGTERM differently |
-
-## Per-Command Structure
-
-Each H2 section for a command has the same shape so readers can skim without re-learning the layout:
-
-1. One-line description
-2. **Usage** — code block with the canonical invocation pattern
-3. **Flags** — 4-column table: `Flag | Type | Default | Description`
-4. **Exit codes** — 2-column table (if any are command-specific; otherwise fall back to global)
-5. **Example** — at least one realistic copy-pasteable bash example with expected output
-
-Keep examples short. For long walkthroughs, link to [[{NAME} User Guide]].
+| **Environment variables** | The CLI respects any (`{TOOL}_CONFIG`, `NO_COLOR`, …) |
+| **Config file** | The CLI reads a config file — show the format |
+| **Exit codes (global)** | Exit codes are non-obvious and shared across commands |
+| **Output modes** | The CLI has `--json` / `--quiet` / `--verbose` conventions |
 
 ## Linking
 
-The CLI doc must be linked from:
+The CLI doc is linked from:
 
-1. **`{NAME} User.md` dispatch page** — as a row: `| [[{NAME} CLI\|CLI]] | command reference |`
-2. **`{NAME}.md` anchor page** — as an inline highlight on the User row: `| User | [[{NAME} User Guide\|User Guide]], [[{NAME} CLI\|CLI]] |`
+1. Its home dispatch page — `{NAME} Design.md` (while authored) or `{NAME} User Docs.md` (once graduated) — as a row: `| [[{NAME} CLI\|CLI]] | command surface |`.
+2. **`{NAME}.md` anchor page** — on the relevant row: `… [[{NAME} CLI\|CLI]] …`.
 
-`/audit docs` should flag missing CLI doc on anchors whose UX Design spec calls for one.
+`/audit docs` flags a missing CLI doc on anchors whose UX Design spec calls for a CLI.
 
 ## When to Create
 
-Create `{NAME} CLI.md` when:
-
-- The anchor ships an executable binary (Rust `[[bin]]`, Python entry point, shell script, etc.), AND
-- That binary has more than one command OR more than a few flags worth documenting, AND
-- External users (not just the maintainer) need to look up syntax
-
-Applications with only a one-shot entry point (e.g., `tool --input FILE --output FILE`) can document the usage inside `{NAME} User Guide.md` without a separate CLI doc.
-
-## Lifecycle
-
-- **Create** when the CLI surface becomes non-trivial — typically right after the first user-facing release
-- **Update** with every new command, flag, or exit code — the CLI doc is generated or hand-written, but either way it must reflect what the binary actually does
-- `/audit docs` can cross-check the CLI doc against `--help` output if the CLI supports a machine-readable help mode
+Create `{NAME} CLI.md` when the anchor ships an executable (Rust `[[bin]]`, Python entry point, shell script) whose command surface is worth showing at a glance — more than a single one-shot invocation. A one-shot `tool --input FILE --output FILE` can be documented inline in `{NAME} User Guide.md` without a separate CLI doc.
 
 # RULESET R-cli
 include::
-where:: file:{ANCHOR}/**/{NAME} CLI.md
-description:: the `{NAME} CLI.md` command-reference format
+where:: `file:{ANCHOR}/**/{NAME} CLI.md`
+description:: the `{NAME} CLI.md` compressed command-surface format
 
-What `/audit docs` checks on a CLI reference doc. Optional — only an anchor that ships a CLI carries one. Format of this set: [[FCT Ruleset]].
+What `/audit docs` checks on a CLI doc. Optional — only an anchor that ships a CLI carries one. Format of this set: [[FCT Ruleset]].
 
-### RULE R-cli-01 — Lives at `{NAME} Docs/{NAME} User/{NAME} CLI.md` (checked)
+### RULE R-cli-01 — Lives at `{NAME} Design/` (authored) or `{NAME} User Docs/` (graduated) (checked)
 
-The CLI reference is a user-facing doc at the fixed path under `{NAME} User/`.
+The CLI doc is a migrating reference: its basename is `{slug} CLI.md` and its parent chain includes either `{slug} Design` or `{slug} User Docs`.
 
-**Check pattern:** the file's basename is `{slug} CLI.md` and its parent chain includes `{slug} User`.
+**Check pattern:** basename is `{slug} CLI.md` and an ancestor folder is `{slug} Design` or `{slug} User Docs`.
 
-**Why:** readers reach for it as a reference; it lives beside the tutorial [[CAB User Guide]].
+**Why:** authored in the design pipeline downstream of UX Design; graduates to User Docs once stable (§ Location).
 
 ### RULE R-cli-02 — Help block is the first content under the H1 (checked)
 
-Directly under the `# {NAME} CLI` H1 + dispatch-table placeholder, the very next content is the fenced help code block — no intro paragraph, no Synopsis section, nothing between the dispatch table and the fence.
+Directly under the `# {NAME} CLI` H1, the very next content is the fenced help code block — no intro paragraph, no Synopsis, nothing between the H1 and the fence.
 
-**Check pattern:** the first non-frontmatter, non-table block after the H1 is a fenced code block (` ``` `), not prose.
+**Check pattern:** the first block after the H1 (the `:>>` breadcrumb sits above the H1) is a fenced code block, not prose.
 
-**Why:** the help block is the reader's single-page reference; preamble buries it (the non-negotiable rule, § The Help Block).
+**Why:** the help block is the reader's single-screen map of the surface; preamble buries it (§ The Help Block).
 
-### RULE R-cli-03 — Help block is complete, one line per command, trailing `# comment` (checked)
+### RULE R-cli-03 — Help block is complete, one line per command, aligned trailing `# comment` (checked)
 
-Inside the fence: every command the binary exposes (including `--help` and `--version`), one per line, each with an aligned trailing `# comment` stating its one-line purpose. Multi-line invocations are disallowed in the block.
+Inside the fence: every command the binary exposes (including `--help` and `--version`), one per line, each with a column-aligned trailing `# comment` stating its one-line purpose. No multi-line invocations in the block.
 
 **Check pattern:** every non-blank line in the help fence is a single command with a `#` comment; comments are column-aligned.
 
@@ -251,22 +161,22 @@ The help fence carries no `[[…]]` links — code fences don't render them; nav
 
 **Check pattern:** no `[[…]]` token appears between the help fence's open and close.
 
-### RULE R-cli-05 — Per-command H2 has Usage / Flags / Exit codes / Example (sampled)
+### RULE R-cli-05 — Per-command drill-down is optional and progressive, never exhaustive (stated)
 
-Each command gets an H2 with the same shape: one-line description, a `**Usage:**` code block, a 4-column `**Flags:**` table (`Flag | Type | Default | Description`), command-specific `**Exit codes:**` (or fall back to global), and at least one realistic `**Example:**`.
+Detail below the help block is disclosed **only** for commands whose one-line entry can't carry it — as a `## Notes` bullet (default) or, for a genuinely complex command, a `## <command>` H2. A command fully specified by its help-block line gets **no section**. Do not emit a Flags table + Exit-codes table + Example for every command; the shipped `--help` is the contract and the doc annotates only the sharp edges.
 
-**Check pattern:** sample a per-command H2; confirm the Usage / Flags / Example sub-sections are present in that order.
+**Why:** progressive disclosure is the facet's reason to exist — an exhaustive man-page is the anti-pattern it replaces.
 
-### RULE R-cli-06 — A global exit-code table is present (stated)
+### RULE R-cli-06 — Optional sections carry real information, never boilerplate (stated)
 
-The doc carries an app-level `## Exit Codes (global)` table in addition to any per-command exit codes.
+Environment-variable, config-file, global-exit-code, and output-mode sections appear only when the CLI actually has them. Absent behaviour is never documented as "none."
 
 # BRIEF
 
-- **This file is the facet spec for `{NAME} CLI.md`** — it defines the structure (mandatory help block first, per-command H2s, exit-code tables) every anchor's CLI reference must conform to. Edits here change the contract for all CLI docs across the vault.
-- **NOT a CLI doc itself.** Do not document a real binary's commands here; concrete examples live in linked working examples (e.g. `CAE CLI.md`). Keep instance content out of the spec.
-- **Inclusion test for new rules:** a rule belongs here only if it applies to *every* `{NAME} CLI.md` regardless of anchor. Anchor-specific quirks belong in that anchor's CLI doc or its `{NAME} Rules.md`, not here.
-- **Load-bearing constraint — the help-block-first rule is non-negotiable.** The fenced help block sits directly under the H1 + dispatch table with no preamble. Do not weaken this rule or add intro-paragraph exceptions; the §The Help Block section is the canonical source.
-- **Cross-cite rather than inline.** Tutorial/narrative content belongs in [[CAB User Guide]]; CLI-shape design belongs in [[FCT UX Design]]; markdown rendering rules belong in [[R-markdown]]. If a rule starts to drift toward one of those, move or link rather than duplicate.
--[[{NAME} CLI]]- | |`) in sync — readers copy from the Reference Example, validators read the Format Specification.
-- **Linking discipline (§Linking) is load-bearing for `/audit docs`.** Do not change the required link locations (`{NAME} User.md` row + `{NAME}.md` User cell) without updating the audit script in lockstep.
+*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body + ruleset R-cli above; § The Help Block and § Progressive disclosure are the canonical sources.)*
+
+- **Keep instance content out** — this is the spec, not a CLI doc; a real binary's commands belong in the linked working examples ([[CAE CLI]], [[HBR CLI]]).
+- **Progressive disclosure is the load-bearing idea** — the reshape (2026-07-02) that made per-command detail *optional* is the whole point; do not let R-cli-05 drift back toward mandatory exhaustive tables.
+- **Don't weaken help-block-first** — R-cli-02 admits no intro-paragraph exceptions.
+- **Migrating home, not a fixed one** — the doc lives in `{NAME} Design/` while authored and `{NAME} User Docs/` once graduated (§ Location); R-cli-01's `where::` matches both. Don't re-pin it to a single folder.
+- **Cross-cite rather than inline** — tutorial/narrative content belongs in [[CAB User Guide]], CLI-*shape* design in [[FCT UX Design]], markdown rendering rules in [[R-markdown]]; if a rule drifts toward one of those, move or link rather than duplicate.
