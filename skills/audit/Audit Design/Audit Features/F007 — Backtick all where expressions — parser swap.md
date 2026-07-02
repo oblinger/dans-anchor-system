@@ -48,4 +48,4 @@ The selector engine is now load-bearing across `/audit`. A blind find-replace co
 
 ## Status
 
-**Ready** — parked on Next. Spec complete; no open questions. Execute the coordinated sequence when picked up.
+**Blocked** — spec complete, but the sweep is HELD until the Warden M0 language freeze lands ([[F210 — Conjunction binding + indexing|F210]] pins the `where::`/`if::` grammar this sweep would rewrite — running first risks a second vault-wide pass). Execute the coordinated sequence when M0 freezes.

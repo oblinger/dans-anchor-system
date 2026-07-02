@@ -123,6 +123,10 @@ What a rule actually gets at fire time:
 - **Per-pass cache.** One classification per pass; all rules in the pass see the same answer. A later moment in the same turn opens a new pass and re-classifies.
 - **Cost.** Mechanical at every rung; `agent.state` never spends LLM tokens (resolving prior open question 3 in the contract itself).
 
+### The environment contract (addendum) — attach-guard at launch (from F148 retirement, 2026-07-02)
+
+SKA F148 (agent instance tracking) was retired as superseded: worktree-per-agent + this feature's session registry + `/cleanup` cover it. The one residual it hands to F216/MUX policy: **a launcher must not `--continue`/`--resume` into a cwd that already has a live session** (the JSONL-interleave footgun's last surviving form — a second tab opened into an *occupied* worktree). The session registry answers "is there a live session here?" in one lookup; the guard is a launch-time check against it, not new machinery.
+
 ## Resolved
 
 - **tmux dependency (prior Q1)** — the pane is rung R2 of a four-rung ladder, not the primary source; the daemon's own moment ledger + the transcript outrank it, and R4 names the honest floor. § The fallback ladder.
