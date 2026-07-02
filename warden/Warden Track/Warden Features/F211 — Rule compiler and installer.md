@@ -53,3 +53,20 @@ The interception substrate is Claude Code hooks, used natively behind a thin por
 4. **Rejected:** frontmatter markers (duplicate declaration + YAML parse per file; the `# RULESET` heading already *is* the declaration, and it's line-greppable); a mandatory rules root (fights colocation — though `library/Rulesets/` stays valid as one home for standalone stubs); convention filenames (rulesets deliberately live inside docs whose names serve the doc, not the rule).
 
 **Net:** the user's "manual scan + captured index + watch" instinct is right, with two upgrades — the watcher is the moment ledger (already built, no fs-watcher), and reachability-from-declarations makes the index self-auditing rather than trust-me. Feeds § Design's active-set resolution; ratify alongside M0.
+
+## 2026-07-01 — Discovery resolved: scan command + always-freshen compiler (user direction, benchmarked)
+
+**User direction:** the index is compiler output; discovery is a **scan command** given a configured **root** (the vault root — an engine configuration parameter, resolving the compiler's catch-22 of not knowing where rulesets live). No filesystem watcher. The scan reads every markdown file under the root, finds `# RULESET` blocks, and writes an index of ruleset-bearing files **with mtimes**; the compiler **freshens** against that index, so a ruleset added to an already-indexed file is picked up automatically. Open empiric: could the compiler just scan the vault every time?
+
+**Benchmark (live vault, warm cache, 6,743 md files / 58 MB, 112 ruleset-bearing):**
+
+| Pass | Wall time |
+| --- | --- |
+| enumerate + stat every md (freshen sweep) | ~220 ms |
+| full content read + sentinel regex (single-thread Python) | 0.7–1.3 s |
+| `rg '^#+ RULESET R-'` (parallel) | ~116 ms |
+| baseline: audit-plan single-doc compile, `--no-cache` | ~250 ms |
+
+**Resolution — always-scan, implemented as stat-sweep + selective re-read.** Every compile: enumerate + stat all md under the root (~220 ms), content-read **only** files that are new or whose mtime/size changed since the index, then re-flatten. This makes the mtime index self-freshening at enumeration time — new ruleset FILES and new rulesets in old files are both caught on every compile, eliminating the stale-index failure class entirely; the standalone scan command remains as the from-scratch builder (first run / `--rescan`, 0.7–1.3 s single-threaded, ~116 ms if shelled to rg). Cost at installer cadence: ~220 ms per compile against a ~250 ms compile baseline — acceptable absolute cost, and the naive always-full-read (1.3 s) would also be tolerable but is unnecessary. *(Supersedes the moment-ledger-invalidation idea from the prior entry — the stat-sweep is simpler, self-contained, and covers out-of-band edits that the ledger cannot see.)*
+
+**Carry-outs for § Design:** (1) `root` becomes an engine config parameter — today's engine hardcodes the ob-skills repo root; generalize to the vault root (all 112 current ruleset files happen to live in ob-skills, but the anchor-embedded future won't). (2) Index schema: `{path, mtime_ns, size, ruleset_names[]}` + the flattened-rules content hash F214's corpus already pins.
