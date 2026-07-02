@@ -20,8 +20,8 @@ _None._
 
 ## Next
 
-- **M1 — Rule compiler / installer** [3 Questions] — design + skeleton: active-set resolution (per anchor), index selection, per-moment pre-compilation, the install + fire contract. Pilot by porting `R-query-14` to fire via the compiler. → [[F211 — Rule compiler and installer]]
-  - **Next:** Scan command built + tested 2026-07-02 (`warden/engine/warden_scan.py`, done). The M0 freeze now unblocks the compile→install→fire build — gated on **three M2 engine-design questions** (compiler cadence, module format, rule-Python on the hot path), each carrying a lean. User accepts the leans → build proceeds.
+- **M1 — Rule compiler / installer** [Ready] — design + skeleton: active-set resolution (per anchor), index selection, per-moment pre-compilation, the install + fire contract. Pilot by porting `R-query-14` to fire via the compiler. → [[F211 — Rule compiler and installer]]
+  - **Next:** Fully designed 2026-07-02 — scan command done; M2 questions resolved (lazy compile; dual output = shared IR + emitted Python modules, Rust delegates Python bits; Python allowed everywhere under an operation-cost budget). Buildable now: active-set resolution → IR/Python-module emit → install → fire, piloted by porting `R-query-14`.
 
 ## Later
 
