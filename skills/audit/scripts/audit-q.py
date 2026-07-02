@@ -3383,7 +3383,10 @@ def find_anchor_backlogs(vault_root: Path) -> dict[str, Path]:
         # the only backlog we should be looking at."
         if "Skill Agent" in path.parts:
             sa_idx = path.parts.index("Skill Agent")
-            if len(path.parts) - sa_idx > 4:
+            # Exception: Warden is a real sub-project with a live queue
+            # (F218 2026-06-29 kept `Warden Track` as an active M-roadmap;
+            # its questions must surface in Q.md, not roll up invisibly).
+            if len(path.parts) - sa_idx > 4 and "warden" not in path.parts:
                 continue
         name = path.stem.replace(" Backlog", "")
         out[name] = path
