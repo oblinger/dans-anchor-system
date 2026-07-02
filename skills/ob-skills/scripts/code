@@ -168,6 +168,11 @@ def expected_patterns(co: Checkout, group: RepoGroup):
 
     Returns None when no sparse cone is needed (whole repo, no siblings claiming
     a subtree), else a list of gitignore-style include/negate lines.
+
+    Root-level FILES of the repo materialize in every checkout (mirroring git
+    cone-mode semantics) — that's what lets the anchor page / CLAUDE.md live at
+    the vault anchor root while tracked in the one repo. Root-level DIRECTORIES
+    belong to exactly one checkout.
     """
     siblings = [c for c in group.checkouts if c is not co]
     if co.frm == ".":
@@ -175,7 +180,8 @@ def expected_patterns(co: Checkout, group: RepoGroup):
         if not claimed:
             return None  # plain whole-repo checkout — no sparse needed
         return ["/*"] + [f"!{c}" for c in claimed]
-    return [_norm_subtree(co.frm)]
+    # subtree checkout: root files + the declared subtree(s)
+    return ["/*", "!/*/", _norm_subtree(co.frm)]
 
 
 # ── git helpers ───────────────────────────────────────────────────────────────
