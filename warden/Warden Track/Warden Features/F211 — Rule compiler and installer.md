@@ -36,3 +36,20 @@ The interception substrate is Claude Code hooks, used natively behind a thin por
 1. **When does the compiler run** — once at session start (install all), or incrementally per anchor entered? (Active-set resolution cost trade-off; also [[Warden PRD]] Q1.)
 2. **Module format** — emitted Python source vs. a data table the runtime interprets vs. (for Rust) generated/compiled code.
 3. **Rule-authored Python in the hot path** — can a compiled module run a rule's Python `if::` / body cheaply, or are code-carrying rules confined to post-hoc moments? (Also [[Warden PRD]] Q2.)
+
+# Discussion
+
+## 2026-07-01 — Rule discovery: how the engine finds where rules live
+
+**Question (user):** structurally, where do rules live and how are they found? Options weighed: convention-named files per ruleset (still a scan); a rules root (fights colocation; still scans every md under it); a frontmatter marker (YAML parse per file — expensive); a manual scan step that captures an index of ruleset-bearing files + mtimes and watches them (self-contained, but new rulesets need a rescan).
+
+**Prior art:** ESLint/Prettier — convention-named configs + declared plugins, discovery follows declarations, never scans; systemd/udev/polkit — fixed `rules.d` roots where *presence = enrollment*; Semgrep — explicit `--config` paths/registry; Cursor — a `.cursor/rules/` root; cargo/LSP — a build-time index kept fresh by events. Two families: follow-the-declarations vs. index-plus-events. Nobody serious scans at fire time.
+
+**Recommendation (agent):** separate the three concerns, then combine both families:
+
+1. **Authoring stays colocated** — rules keep living as `# RULESET` tails of the spec docs they enforce. Discovery must not dictate location; colocation is a design principle worth protecting.
+2. **Declarations are the primary path** — the `include::` DAG (umbrellas → stubs → embedded blocks) plus the trait→ruleset activation map. Resolving declarations touches only the files they name — no filesystem scan on the common path. A ruleset not reachable from any umbrella or trait is *by definition* inert, and that's [[F219 — Activation self-audit rules — base-trait + ruleset-reachability|F219]]'s reachability finding — the "scan missed my new ruleset" failure converts into an audit finding instead of silent non-firing.
+3. **The index is compile-time output, maintained by events** — the installer (this feature) materializes the resolved DAG into the rules cache keyed by content hash (audit-plan's cache today; keep). Freshness is event-driven, not fs-watched: Warden's own moment ledger sees every `write:markdown`, so the installer invalidates any written file that contains — or previously contained — the `# RULESET` sentinel. Nearly all edits arrive through agents, so the ledger covers them; a full sentinel rescan (ripgrep `^#+ RULESET`, sub-second on the whole vault) heals out-of-band edits at session start / daily — the same posture as `ha --rescan`.
+4. **Rejected:** frontmatter markers (duplicate declaration + YAML parse per file; the `# RULESET` heading already *is* the declaration, and it's line-greppable); a mandatory rules root (fights colocation — though `library/Rulesets/` stays valid as one home for standalone stubs); convention filenames (rulesets deliberately live inside docs whose names serve the doc, not the rule).
+
+**Net:** the user's "manual scan + captured index + watch" instinct is right, with two upgrades — the watcher is the moment ledger (already built, no fs-watcher), and reachability-from-declarations makes the index self-auditing rather than trust-me. Feeds § Design's active-set resolution; ratify alongside M0.
