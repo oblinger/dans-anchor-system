@@ -1,0 +1,27 @@
+[
+ {
+  "rule": "R-query-02",
+  "target": "FX2 queries.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-query-04",
+  "target": "FX2 queries.md",
+  "status": "error"
+ },
+ {
+  "rule": "R-query-05",
+  "target": "FX2 queries.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-query-08",
+  "target": "FX2 queries.md",
+  "status": "error"
+ },
+ {
+  "rule": "R-query-13",
+  "target": "FX2 queries.md",
+  "status": "error"
+ }
+]

@@ -1,0 +1,57 @@
+[
+ {
+  "rule": "R-anchor-page-01",
+  "target": "{ANCHOR}",
+  "status": "fail"
+ },
+ {
+  "rule": "R-anchor-page-02",
+  "target": "{ANCHOR}",
+  "status": "fail"
+ },
+ {
+  "rule": "R-anchor-page-03",
+  "target": "{ANCHOR}",
+  "status": "error"
+ },
+ {
+  "rule": "R-anchor-page-05",
+  "target": "{ANCHOR}",
+  "status": "error"
+ },
+ {
+  "rule": "R-anchor-page-07",
+  "target": "{ANCHOR}",
+  "status": "error"
+ },
+ {
+  "rule": "R-anchor-page-11",
+  "target": "{ANCHOR}",
+  "status": "error"
+ },
+ {
+  "rule": "R-anchor-page-13",
+  "target": "{ANCHOR}",
+  "status": "error"
+ },
+ {
+  "rule": "R-design-02",
+  "target": "{ANCHOR}",
+  "status": "pass"
+ },
+ {
+  "rule": "R-design-04",
+  "target": "{ANCHOR}",
+  "status": "pass"
+ },
+ {
+  "rule": "R-file-association-07",
+  "target": "{ANCHOR}",
+  "status": "pass"
+ },
+ {
+  "rule": "R-naming-01",
+  "target": "FX1 Notes.md",
+  "status": "pass"
+ }
+]

@@ -1,0 +1,8 @@
+id: query-002-clean
+family: query
+mode: doc
+target: FX2 queries.md
+provenance: synthetic
+engine: audit-plan
+blessed_against: 1069e4422bae-9a83495a526b
+note: the compliant twin of query-001 — guards against a rule silently ceasing to match/pass

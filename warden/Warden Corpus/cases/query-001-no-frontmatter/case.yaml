@@ -1,0 +1,8 @@
+id: query-001-no-frontmatter
+family: query
+mode: doc
+target: FX1 queries.md
+provenance: harvested (R-query-02)
+engine: audit-plan
+blessed_against: 1069e4422bae-9a83495a526b
+note: a queries surface with no YAML frontmatter; also pins the current unknown-checker errors on R-query-04/-08/-13

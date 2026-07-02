@@ -1,0 +1,8 @@
+id: msg-001-wrong-h1
+family: messages
+mode: doc
+target: FX1 Messages.md
+provenance: harvested (R-messages-01)
+engine: audit-plan
+blessed_against: 1069e4422bae-9a83495a526b
+note: an anchor Messages file whose H1 is prose instead of the required "{NAME} Messages"

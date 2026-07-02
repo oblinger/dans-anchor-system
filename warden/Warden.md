@@ -7,6 +7,7 @@ description: Warden — the rule engine that powers /rule, /audit, and the rules
 | --- | --- |
 | [[Warden Design\|Design]] | [[Warden PRD\|PRD]],  [[Warden Architecture\|Architecture]],  [[Warden Rule\|Rule]],  [[Warden Semantics\|Semantics]],  [[Warden Events\|Events]],  [[Warden Runtime\|Runtime]],  [[Warden Roadmap\|Roadmap]],   |
 | [[Warden User Docs\|User Docs]] | [[Warden Examples\|Examples]],  [[Warden Examples Extended\|Examples Extended]],   |
+| [[Warden Corpus\|Corpus]] | the golden test corpus — rule × fixture × expected-verdict cases, the drift oracle for every Warden engine |
 | [[Warden Track\|Track]] | [[Warden Backlog\|Backlog]],  [[Warden Features\|Features]],   |
 
 ## Overview

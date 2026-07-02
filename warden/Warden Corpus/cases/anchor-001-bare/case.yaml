@@ -1,0 +1,8 @@
+id: anchor-001-bare
+family: anchor-structure
+mode: anchor
+target: .
+provenance: synthetic
+engine: audit-plan
+blessed_against: 1069e4422bae-9a83495a526b
+note: a minimal anchor with a traitless .anchor and no entry page — pins the whole anchor-structure verdict surface, pass/fail/error alike
