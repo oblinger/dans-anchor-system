@@ -4,3 +4,4 @@ traits:
 - Track
 - Commit
 - warden-dev
+- audit-on-write
