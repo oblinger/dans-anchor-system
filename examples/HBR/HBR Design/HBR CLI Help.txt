@@ -1,0 +1,9 @@
+harbor --help                                            # Show this help text
+harbor --version                                         # Print version, commit SHA, ffmpeg version
+harbor ingest <path> [--watch] [--dry-run]               # Scan a folder, dedup, write catalog rows
+harbor scan [<root>] [--full] [--prune]                  # Re-scan watched roots for new/changed files
+harbor watch [--root <name>] [--interval <sec>]          # Run the scheduled re-scan loop in foreground
+harbor serve [--listen <addr>] [--no-transcode]          # Start the web + stream server (Serve pipeline)
+harbor status [--json] [--watch]                         # Catalog counts, pipeline health, active streams
+harbor transcode <title-id> --profile <name> [--probe]   # Force a transcode (or probe codec support)
+harbor backup [--out <path>] [--restore <path>]          # Checkpoint or restore the SQLite catalog

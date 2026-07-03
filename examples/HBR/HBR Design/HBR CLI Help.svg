@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1002" height="249" viewBox="0 0 1002 249" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15">
+<rect width="1002" height="249" rx="10" fill="#0d1117"/>
+<text x="24" y="35" xml:space="preserve" textLength="702.0" lengthAdjust="spacingAndGlyphs">
+<tspan fill="#79c0ff">harbor</tspan><tspan fill="#c9d1d9"> --help                                            </tspan><tspan fill="#8b949e"># Show this help text</tspan>
+</text>
+<text x="24" y="58.2" xml:space="preserve" textLength="900.0" lengthAdjust="spacingAndGlyphs">
+<tspan fill="#79c0ff">harbor</tspan><tspan fill="#c9d1d9"> --version                                         </tspan><tspan fill="#8b949e"># Print version, commit SHA, ffmpeg version</tspan>
+</text>
+<text x="24" y="81.5" xml:space="preserve" textLength="891.0" lengthAdjust="spacingAndGlyphs">
+<tspan fill="#79c0ff">harbor</tspan><tspan fill="#c9d1d9"> ingest &lt;path&gt; [--watch] [--dry-run]               </tspan><tspan fill="#8b949e"># Scan a folder, dedup, write catalog rows</tspan>
+</text>
+<text x="24" y="104.8" xml:space="preserve" textLength="918.0" lengthAdjust="spacingAndGlyphs">
+<tspan fill="#79c0ff">harbor</tspan><tspan fill="#c9d1d9"> scan [&lt;root&gt;] [--full] [--prune]                  </tspan><tspan fill="#8b949e"># Re-scan watched roots for new/changed files</tspan>
+</text>
+<text x="24" y="128.0" xml:space="preserve" textLength="927.0" lengthAdjust="spacingAndGlyphs">
+<tspan fill="#79c0ff">harbor</tspan><tspan fill="#c9d1d9"> watch [--root &lt;name&gt;] [--interval &lt;sec&gt;]          </tspan><tspan fill="#8b949e"># Run the scheduled re-scan loop in foreground</tspan>
+</text>
+<text x="24" y="151.2" xml:space="preserve" textLength="945.0" lengthAdjust="spacingAndGlyphs">
+<tspan fill="#79c0ff">harbor</tspan><tspan fill="#c9d1d9"> serve [--listen &lt;addr&gt;] [--no-transcode]          </tspan><tspan fill="#8b949e"># Start the web + stream server (Serve pipeline)</tspan>
+</text>
+<text x="24" y="174.5" xml:space="preserve" textLength="954.0" lengthAdjust="spacingAndGlyphs">
+<tspan fill="#79c0ff">harbor</tspan><tspan fill="#c9d1d9"> status [--json] [--watch]                         </tspan><tspan fill="#8b949e"># Catalog counts, pipeline health, active streams</tspan>
+</text>
+<text x="24" y="197.8" xml:space="preserve" textLength="909.0" lengthAdjust="spacingAndGlyphs">
+<tspan fill="#79c0ff">harbor</tspan><tspan fill="#c9d1d9"> transcode &lt;title-id&gt; --profile &lt;name&gt; [--probe]   </tspan><tspan fill="#8b949e"># Force a transcode (or probe codec support)</tspan>
+</text>
+<text x="24" y="221.0" xml:space="preserve" textLength="891.0" lengthAdjust="spacingAndGlyphs">
+<tspan fill="#79c0ff">harbor</tspan><tspan fill="#c9d1d9"> backup [--out &lt;path&gt;] [--restore &lt;path&gt;]          </tspan><tspan fill="#8b949e"># Checkpoint or restore the SQLite catalog</tspan>
+</text>
+</svg>
