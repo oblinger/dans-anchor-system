@@ -95,6 +95,30 @@ def test_emitted_body_fires_like_autofire(mod):
     print("PASS  emitted_body_fires_like_autofire")
 
 
+def test_corpus_compile():
+    """Whole-vault corpus compile: every ruleset the scan index lists compiles
+    into one combined IR + a module that imports cleanly (the corpus-scale
+    collision-hardening check)."""
+    import importlib.util
+    import warden_scan  # noqa
+    files, seen, _ = warden_scan.build_index(str(REPO), {}, {}, rescan=True)
+    index = {"root": str(REPO), "files": files, "seen": seen}
+    ir, module_src, stats = wc.compile_corpus(REPO, index, "all")
+    assert stats["rules"] > 100, stats               # the vault has hundreds of rules
+    assert "R-query-14" in ir["rules"], "pilot rule missing from corpus IR"
+    assert ir["rules"]["R-query-14"]["moment"] == "skill:post:audit-q"
+    assert "R-query-14" in ir["moments"]["skill:post:audit-q"]
+    # the emitted corpus module must import — proves no cross-ruleset name collision
+    with tempfile.TemporaryDirectory() as td:
+        mp = Path(td) / "rules_all.py"
+        mp.write_text(module_src, encoding="utf-8")
+        spec = importlib.util.spec_from_file_location("rules_all", mp)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        assert callable(getattr(mod, "body_R_query_14")), "pilot body not in corpus module"
+    print(f"PASS  corpus_compile ({stats['rules']} rules, {stats['moments']} moment(s))")
+
+
 def test_stats(stats):
     assert stats["when_rules"] == 1, stats
     assert stats["py_rules"] == 1, stats
@@ -109,6 +133,7 @@ def main():
         test_tier_doc_rules_emitted(ir)
         test_emitted_body_fires_like_autofire(mod)
         test_stats(stats)
+    test_corpus_compile()
     print("\nall warden_compile tests passed")
     return 0
 
