@@ -25,9 +25,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import warden_compile as wc   # noqa: E402
-import warden_fire as wf      # noqa: E402
-import warden_scan as ws      # noqa: E402
+import warden_compile as wc     # noqa: E402
+import warden_docfire as wdf     # noqa: E402
+import warden_fire as wf        # noqa: E402
+import warden_scan as ws        # noqa: E402
 
 
 class WardenEngine:
@@ -77,6 +78,17 @@ class WardenEngine:
         """Fire a stream of moments against one anchor → {moment: [steers]}
         (the simulated moment stream the F212 loop is specified over)."""
         return {m: self.fire(anchor_root, m) for m in moments}
+
+    # ── doc-audit fire (the where-major tier doc-rules) ──────────────────────
+
+    def fire_audit(self, target, mode: str) -> list[dict]:
+        """Fire the tier **doc-rules** for `mode` (`doc`/`anchor`) against
+        `target`, returning `{rule, target, status, detail}` verdicts. This is
+        the authoring-time `/audit` pass of the same rule corpus — IR-driven and
+        verdict-identical to `audit-plan --run` (the golden corpus proves it), so
+        the reference engine owns both fire paths: the live moment stream and the
+        doc-audit surface."""
+        return wdf.fire_audit(Path(target).expanduser().resolve(), mode)
 
     @property
     def ir(self) -> dict:
