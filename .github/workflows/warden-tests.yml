@@ -34,7 +34,7 @@ jobs:
 
       - name: Engine unit tests
         run: |
-          for t in scan compile fire engine docfire; do
+          for t in scan compile fire engine docfire hook; do
             echo "== test_warden_$t =="
             python3 "warden/engine/test_warden_$t.py"
           done
