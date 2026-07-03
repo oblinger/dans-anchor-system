@@ -1,0 +1,9 @@
+id: moment-001-selftest-write
+family: moment
+mode: moment
+target: .
+provenance: synthetic
+engine: warden-moment
+blessed_against: 3648c720f2077256
+note: fires the R-warden-selftest write:markdown rule in an anchor that adopts the warden-selftest trait — the live moment-fire analogue of a doc verdict, locking the exact steer text a moment produces
+moment: write:markdown

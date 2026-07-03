@@ -23,10 +23,15 @@ Per-case outcome (the PASS/FAIL/STALE trichotomy):
 
 Exit 0 iff no FAIL and no STALE-DIFF.
 
-Engines are adapters. Today the only engine is `audit-plan` (the shipped
-mechanical audit engine, skills/audit/scripts/audit-plan.py). The Python
-reference (F212) and Rust (F213) implementations plug in as further adapters
-with the same contract: (sandboxed fixture, target, mode) → verdict JSON.
+Engines are adapters. Doc/anchor cases run through `audit-plan` (the shipped
+mechanical audit engine) or the `warden` reference doc-fire engine (F212) — the
+same `(rule, target, status)` verdict contract; `--engine <name>` overrides the
+per-case default so `--engine warden` genuinely runs the reference engine (not
+just a signature re-pin). Moment cases (`family: moment`) run through the
+`warden-moment` engine: fire a live moment against the fixture anchor and lock
+the emitted **steers** — the moment-fire analogue of a doc verdict. Each case
+pins to the signature of the surface its engine actually reads (doc-rule content
+hash vs. moment dispatch+body hash).
 
 Fixtures run from a temp-dir sandbox, never in place: `fixture/` is copied out
 and `_anchor.yaml` (if present) materializes as `.anchor` in the copy — so the
@@ -67,7 +72,7 @@ def read_case_yaml(path: Path) -> dict:
 
 
 def write_case_yaml(path: Path, meta: dict) -> None:
-    order = ["id", "family", "mode", "target", "provenance", "engine",
+    order = ["id", "family", "mode", "target", "moment", "provenance", "engine",
              "blessed_against", "note"]
     keys = [k for k in order if k in meta] + [k for k in meta if k not in order]
     path.write_text("".join(f"{k}: {meta[k]}\n" for k in keys), encoding="utf-8")
@@ -91,6 +96,39 @@ def _warden_docfire_module():
     return warden_docfire
 
 
+_MOMENT_ENGINE = None
+
+
+def _moment_engine():
+    """The warm `WardenEngine` used for `warden-moment` cases — built once and
+    reused (its compile is memoized), so N moment cases pay one corpus compile."""
+    global _MOMENT_ENGINE
+    if _MOMENT_ENGINE is None:
+        if str(WARDEN_ENGINE_DIR) not in sys.path:
+            sys.path.insert(0, str(WARDEN_ENGINE_DIR))
+        import warden_engine  # noqa: E402
+        _MOMENT_ENGINE = warden_engine.WardenEngine(REPO_ROOT)
+    return _MOMENT_ENGINE
+
+
+def run_moment(anchor_root: Path, moment: str) -> list[str]:
+    """Fire a live moment against the sandbox anchor and return its steers. The
+    selftest bodies append to `$WARDEN_HOME/selftest.log`; point WARDEN_HOME at a
+    throwaway dir so a corpus run never writes the real `~/.warden/selftest.log`."""
+    import os
+    home = tempfile.mkdtemp(prefix="warden-moment-home-")
+    prev = os.environ.get("WARDEN_HOME")
+    os.environ["WARDEN_HOME"] = home
+    try:
+        return _moment_engine().fire(anchor_root, moment)
+    finally:
+        if prev is None:
+            os.environ.pop("WARDEN_HOME", None)
+        else:
+            os.environ["WARDEN_HOME"] = prev
+        shutil.rmtree(home, ignore_errors=True)
+
+
 def rule_corpus_signature(engine: str) -> str:
     """The live rule corpus' CONTENT signature — pins what a bless was against.
     Hashes the flattened rules' verdict-bearing fields (id/tier/where/check/fix)
@@ -105,7 +143,20 @@ def rule_corpus_signature(engine: str) -> str:
                         for u in ("R-doc", "R-anchor"))
     if engine == "warden":
         return _warden_docfire_module().corpus_signature()
+    if engine == "warden-moment":
+        return _moment_engine().moment_signature()
     raise SystemExit(f"run-corpus: unknown engine {engine!r}")
+
+
+_SIG_CACHE: dict[str, str] = {}
+
+
+def signature_for(engine: str) -> str:
+    """Memoized live signature per engine — a mixed run (doc + moment cases) pins
+    each case against the signature of the surface its engine actually reads."""
+    if engine not in _SIG_CACHE:
+        _SIG_CACHE[engine] = rule_corpus_signature(engine)
+    return _SIG_CACHE[engine]
 
 
 def run_engine(engine: str, target: Path, mode: str) -> list[dict]:
@@ -136,6 +187,13 @@ def canonical(verdicts: list[dict]) -> list[dict]:
     return sorted(rows, key=lambda r: (r["rule"], r["target"], r["status"]))
 
 
+def canonical_moment(steers: list[str]) -> list[dict]:
+    """The golden equality view for a moment case: the emitted steers, sorted.
+    Locks the exact steer text a moment produces for the fixture anchor — the
+    moment-fire analogue of the doc `(rule, target, status)` verdict."""
+    return [{"steer": s} for s in sorted(steers)]
+
+
 # ── the per-case run ─────────────────────────────────────────────────────────
 
 def materialize(fixture: Path) -> Path:
@@ -148,15 +206,28 @@ def materialize(fixture: Path) -> Path:
     return dst
 
 
-def run_case(case_dir: Path, live_sig: str, bless: bool) -> dict:
+def engine_for(meta: dict, override: str | None) -> str:
+    """Pick the engine to run a case through. Moment cases are engine-fixed
+    (`warden-moment`); doc/anchor cases honour the `--engine` override (so
+    `--engine warden` really runs the reference engine, not just re-pins the
+    signature), else the case's declared engine, else audit-plan."""
+    if meta.get("family") == "moment":
+        return "warden-moment"
+    return override or meta.get("engine", "audit-plan")
+
+
+def run_case(case_dir: Path, bless: bool, override: str | None = None) -> dict:
     meta = read_case_yaml(case_dir / "case.yaml")
-    engine = meta.get("engine", "audit-plan")
-    mode = meta["mode"]
+    engine = engine_for(meta, override)
+    live_sig = signature_for(engine)
     fixture = case_dir / "fixture"
     sandbox = materialize(fixture)
     try:
         target = sandbox if meta["target"] == "." else sandbox / meta["target"]
-        got = canonical(run_engine(engine, target, mode))
+        if engine == "warden-moment":
+            got = canonical_moment(run_moment(sandbox, meta["moment"]))
+        else:
+            got = canonical(run_engine(engine, target, meta["mode"]))
     finally:
         shutil.rmtree(sandbox.parent, ignore_errors=True)
 
@@ -186,7 +257,9 @@ def run_case(case_dir: Path, live_sig: str, bless: bool) -> dict:
 def main(argv):
     ap = argparse.ArgumentParser(prog="run-corpus")
     ap.add_argument("--case", action="append", help="case id(s) to run (default: all)")
-    ap.add_argument("--engine", default="audit-plan")
+    ap.add_argument("--engine", default=None,
+                    help="run doc/anchor cases through this engine "
+                         "(audit-plan | warden); default: the case's own engine")
     ap.add_argument("--bless", action="store_true",
                     help="re-record expected.json + re-pin blessed_against")
     ap.add_argument("--json", action="store_true")
@@ -201,12 +274,12 @@ def main(argv):
         if not case_dirs:
             raise SystemExit(f"run-corpus: no case matches {args.case}")
 
-    live_sig = rule_corpus_signature(args.engine)
-    results = [run_case(d, live_sig, args.bless) for d in case_dirs]
+    results = [run_case(d, args.bless, args.engine) for d in case_dirs]
     bad = [r for r in results if r["outcome"] in ("FAIL", "STALE-DIFF", "UNBLESSED")]
+    sigs = "  ·  ".join(f"{e} {s}" for e, s in sorted(_SIG_CACHE.items()))
 
     if args.json:
-        print(json.dumps({"rule_corpus_sig": live_sig, "results": results,
+        print(json.dumps({"rule_corpus_sigs": _SIG_CACHE, "results": results,
                           "ok": not bad}, indent=1))
     else:
         for r in results:
@@ -216,8 +289,7 @@ def main(argv):
             print(line)
             for d in r.get("diff", []):
                 print(f"    {d}")
-        print(f"\n{len(results) - len(bad)}/{len(results)} ok"
-              f"  ·  rule corpus {live_sig}")
+        print(f"\n{len(results) - len(bad)}/{len(results)} ok  ·  {sigs}")
     return 1 if bad else 0
 
 
