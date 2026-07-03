@@ -44,3 +44,27 @@ jobs:
 
       - name: Golden corpus (warden reference engine — differential)
         run: python3 "warden/Warden Corpus/harness/run-corpus.py" --engine warden
+
+  rust-engine:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Build + unit-test the Rust engine (F213)
+        run: |
+          cargo test --release --manifest-path warden/rs/Cargo.toml
+
+      - name: Compile the corpus (live IR for the differential)
+        run: python3 warden/engine/warden compile
+
+      - name: Rust ↔ Python differential (F213 / F214 differential gate)
+        env:
+          WARDEN_RS_BIN: warden/rs/target/release/warden-rs
+        run: python3 warden/engine/test_warden_rust.py
