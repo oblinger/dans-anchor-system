@@ -1,0 +1,207 @@
+#!/usr/bin/env python3
+"""`warden` — the Warden control CLI (F220).
+
+    warden status              show enabled/disabled, compiled state, install state
+    warden on | off            toggle the global kill switch (~/.warden/DISABLED)
+    warden compile             scan + compile the rule corpus → ~/.warden/
+    warden install             compile, then register the hook in settings.json
+    warden uninstall           remove Warden's hook entries from settings.json
+    warden fire  ANCHOR MOMENT manually fire one moment against an anchor (debug)
+
+The kill switch is a sentinel FILE so a disable is global across every
+environment and every concurrent session with no settings edit and no restart —
+`warden off` and the very next hook invocation anywhere is a no-op.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import sys
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+REPO = HERE.parents[1]                       # …/ob-skills (the rule-corpus root)
+sys.path.insert(0, str(HERE))
+
+import warden_compile as wc      # noqa: E402
+import warden_fire as wf         # noqa: E402
+import warden_hook as wh         # noqa: E402
+import warden_scan as ws         # noqa: E402
+
+HOOK_CMD = f"python3 {HERE / 'warden_hook.py'}"
+
+# The pilot hook surface (steer-only — no tool:pre veto). Each entry:
+#   (event, matcher-or-None). Widen as the pilot proves out.
+PILOT_HOOKS = [
+    ("SessionStart", None),
+    ("UserPromptSubmit", None),
+    ("PostToolUse", "Write|Edit"),
+    ("PreToolUse", "Skill"),
+]
+
+
+def warden_home() -> Path:
+    home = wh.warden_home()
+    home.mkdir(parents=True, exist_ok=True)
+    return home
+
+
+# ── kill switch ──────────────────────────────────────────────────────────────
+
+def cmd_on(_args) -> int:
+    sentinel = warden_home() / "DISABLED"
+    sentinel.unlink(missing_ok=True)
+    print("warden: ENABLED (kill switch cleared)")
+    return 0
+
+
+def cmd_off(_args) -> int:
+    (warden_home() / "DISABLED").write_text("disabled by `warden off`\n", encoding="utf-8")
+    print("warden: DISABLED (global kill switch set — every session no-ops)")
+    return 0
+
+
+# ── compile ──────────────────────────────────────────────────────────────────
+
+def _compile_corpus(root: Path, out: Path) -> dict:
+    """Fresh scan + compile of `root` → out/rules-ir.json + out/rules_all.py."""
+    files, seen, _ = ws.build_index(str(root), {}, {}, rescan=True)
+    source_hash = ws.index_hash(files)
+    index = {"root": str(root), "files": files, "seen": seen}
+    ir, module_src, stats = wc.compile_corpus(root, index, "all", source_hash)
+    wc._write_artifacts(out, "all", ir, module_src)
+    return stats
+
+
+def cmd_compile(_args) -> int:
+    out = warden_home()
+    stats = _compile_corpus(REPO, out)
+    print(f"warden: compiled {stats['rules']} rules from {stats['rulesets']} rulesets "
+          f"/ {stats['files']} files — {stats['moments']} moment(s), "
+          f"{stats['doc_rules']} doc-rule(s), {stats['py_rules']} python → {out}")
+    return 0
+
+
+# ── settings.json install / uninstall ────────────────────────────────────────
+
+def _settings_path(args) -> Path:
+    if getattr(args, "settings", None):
+        return Path(args.settings).expanduser()
+    return Path.home() / ".claude" / "settings.json"
+
+
+def _load_settings(path: Path) -> dict:
+    if path.is_file():
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except ValueError:
+            raise SystemExit(f"warden: {path} is not valid JSON — refusing to touch it")
+    return {}
+
+
+def _is_warden_entry(entry: dict) -> bool:
+    return any("warden_hook.py" in h.get("command", "")
+               for h in entry.get("hooks", []))
+
+
+def cmd_install(args) -> int:
+    # compile first — a live hook with no artifacts is a silent no-op.
+    _compile_corpus(REPO, warden_home())
+    path = _settings_path(args)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    settings = _load_settings(path)
+    hooks = settings.setdefault("hooks", {})
+    added = 0
+    for event, matcher in PILOT_HOOKS:
+        arr = hooks.setdefault(event, [])
+        # drop any prior Warden entry for this event (idempotent re-install)
+        arr[:] = [e for e in arr if not _is_warden_entry(e)]
+        entry: dict = {"hooks": [{"type": "command", "command": HOOK_CMD}]}
+        if matcher:
+            entry = {"matcher": matcher, "hooks": entry["hooks"]}
+        arr.append(entry)
+        added += 1
+    path.write_text(json.dumps(settings, indent=2) + "\n", encoding="utf-8")
+    print(f"warden: installed {added} hook(s) → {path}")
+    print(f"        (kill switch: `warden off` · uninstall: `warden uninstall`)")
+    return 0
+
+
+def cmd_uninstall(args) -> int:
+    path = _settings_path(args)
+    if not path.is_file():
+        print(f"warden: no settings at {path} — nothing to remove")
+        return 0
+    settings = _load_settings(path)
+    hooks = settings.get("hooks", {})
+    removed = 0
+    for event in list(hooks):
+        before = len(hooks[event])
+        hooks[event][:] = [e for e in hooks[event] if not _is_warden_entry(e)]
+        removed += before - len(hooks[event])
+        if not hooks[event]:
+            del hooks[event]
+    if not hooks:
+        settings.pop("hooks", None)
+    path.write_text(json.dumps(settings, indent=2) + "\n", encoding="utf-8")
+    print(f"warden: removed {removed} hook entry(ies) from {path}")
+    return 0
+
+
+# ── status ───────────────────────────────────────────────────────────────────
+
+def cmd_status(args) -> int:
+    home = warden_home()
+    on = not wh.disabled()
+    compiled = (home / "rules-ir.json").is_file()
+    path = _settings_path(args)
+    installed = 0
+    if path.is_file():
+        try:
+            hooks = json.loads(path.read_text(encoding="utf-8")).get("hooks", {})
+            installed = sum(1 for arr in hooks.values() for e in arr if _is_warden_entry(e))
+        except ValueError:
+            installed = -1
+    print(f"warden home : {home}")
+    print(f"state       : {'ENABLED' if on else 'DISABLED (kill switch set)'}")
+    print(f"compiled    : {'yes' if compiled else 'no — run `warden compile`'}")
+    print(f"installed   : {installed} hook(s) in {path}")
+    return 0
+
+
+# ── manual fire (debug) ──────────────────────────────────────────────────────
+
+def cmd_fire(args) -> int:
+    root = Path(args.anchor_root).expanduser().resolve()
+    home = warden_home()
+    if not (home / "rules-ir.json").is_file():
+        raise SystemExit("warden: not compiled — run `warden compile` first")
+    ir, module = wf.load_compiled(home, "all")
+    ctx = wf.build_ctx(root, args.moment)
+    traits = wf.read_anchor_traits(root)
+    for s in wf.fire(ir, module, args.moment, ctx, traits):
+        print(s)
+    return 0
+
+
+def main(argv=None) -> int:
+    ap = argparse.ArgumentParser(prog="warden", description="Warden control CLI (F220).")
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    sub.add_parser("on", help="clear the kill switch").set_defaults(fn=cmd_on)
+    sub.add_parser("off", help="set the global kill switch").set_defaults(fn=cmd_off)
+    sub.add_parser("compile", help="scan + compile the corpus → ~/.warden/").set_defaults(fn=cmd_compile)
+    for name, fn in (("install", cmd_install), ("uninstall", cmd_uninstall), ("status", cmd_status)):
+        p = sub.add_parser(name)
+        p.add_argument("--settings", help="settings.json path (default: ~/.claude/settings.json)")
+        p.set_defaults(fn=fn)
+    pf = sub.add_parser("fire", help="manually fire one moment against an anchor")
+    pf.add_argument("anchor_root")
+    pf.add_argument("moment")
+    pf.set_defaults(fn=cmd_fire)
+    args = ap.parse_args(argv)
+    return args.fn(args)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

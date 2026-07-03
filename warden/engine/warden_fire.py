@@ -98,6 +98,7 @@ def build_ctx(anchor_root: Path, moment: str, **overrides) -> types.SimpleNamesp
     name = anchor_name(anchor_root)
     fields: dict = {
         "anchor": name,
+        "moment": moment,
         "traits": traits,
         "git_aspect": git_aspect_of(traits),
         "queries_text": "",

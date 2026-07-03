@@ -48,6 +48,12 @@ _RULE_RE = re.compile(r"^(#+)\s+RULE\s+(R-[\w-]+-\d+)\s+[—-]\s+(.*?)\s*\((.*?)
 _FIELD_RE = re.compile(r"^([a-z][a-z_-]*)::\s*(.*)$")
 _TIERS = {"checked", "sampled", "stated", "tracked"}
 _PHASES = {"pre", "post"}
+# Only these moment classes carry a pre/post phase segment (F209 / [[Warden
+# Events]]): tool (pre/post) and skill (pre/post — v1 pre only). session, write,
+# read, git, prompt, timer refine by their own parameter, NOT a phase — their
+# second segment is the refinement (start/compact/stop, markdown, commit, …), so
+# no phase is inserted or they'd compile to a moment the dispatcher never fires.
+_PHASED_CLASSES = {"tool", "skill"}
 
 # Declarative `if::` vocabulary (F210 Q1) — anything outside compiles to guard_py.
 _GUARD_KEYS = {"git-aspect", "mode", "trait", "facet"}
@@ -184,14 +190,23 @@ def parse_ruleset(text: str, name: str, source: str) -> dict | None:
 # ── clause-split (per rule → IR row) ────────────────────────────────────────
 
 def canonical_moment(when_val: str) -> tuple[str, str]:
-    """Normalise a `when::` value to a phase-explicit moment path + its phase.
-    Honours an explicit phase segment; else applies the F209 default
-    (`tool`→post, everything else→pre)."""
+    """Normalise a `when::` value to its canonical moment path + phase.
+
+    Only the **phased classes** (`tool`, `skill`) take a pre/post segment: an
+    explicit phase is honoured; a bare `tool:<name>` defaults to `post` and a
+    bare `skill:<name>` to `pre` (F209). The unphased classes (`session`,
+    `write`/`read`, `git`, `prompt`, `timer`) refine by their own parameter and
+    are returned **unchanged** — inserting a phase would compile them to a moment
+    the live dispatcher never fires. Their phase field is `post` (observational).
+    """
     parts = when_val.split(":")
+    cls = parts[0]
+    if cls not in _PHASED_CLASSES:
+        return when_val, "post"
     if len(parts) >= 2 and parts[1] in _PHASES:
         return when_val, parts[1]
-    phase = "post" if parts[0] == "tool" else "pre"
-    return ":".join([parts[0], phase] + parts[1:]), phase
+    phase = "post" if cls == "tool" else "pre"   # tool→post, skill→pre (F209)
+    return ":".join([cls, phase] + parts[1:]), phase
 
 
 def parse_if(expr: str) -> dict | None:
