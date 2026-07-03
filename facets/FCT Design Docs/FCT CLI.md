@@ -2,23 +2,25 @@
 description: CLI command surface — a compressed, `--help`-style command reference, progressively disclosed; a design-pipeline doc downstream of UX Design
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT CLI](hook://p/FCT%20CLI)
+| **FCT CLI**<br>Anchor Page | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT CLI](hook://p/FCT%20CLI)<br>: compressed `--help` command-surface facet |
+| --- | --- |
+| Related | [[FCT UX Design\|UX Design]],  [[FCT API Design\|API Design]],  [[FCT Design\|Design]],  [[CAB User Guide\|User Guide]] |
+| Examples | [[CAE CLI\|minimal]],  [[HBR CLI\|fuller]] |
 
 # FCT CLI
 Facet spec for `{NAME} CLI.md` — the compressed, `--help`-style command surface for an anchor that ships a CLI, authored in the design pipeline (downstream of UX Design) and disclosed progressively.
 
-**Related:** [[FCT UX Design]],  [[FCT API Design]],  [[FCT Design]],  [[CAB User Guide]]
-**Examples:** [[CAE CLI\|minimal]],  [[HBR CLI\|fuller]]
+**Table of Contents**
 
-| Table of Contents |  |
-|---|---|
-| [[#The Help Block — READ THIS]] |  |
-| [[#Progressive disclosure — the drill-down]] |  |
-| [[#Location — a migrating reference]] |  |
-| [[#Optional Sections]] |  |
-| [[#Linking]] |  |
-| [[#When to Create]] |  |
-| **[[#BRIEF]]** |  |
+| Section |  |
+| --- | --- |
+| [[#The Help Block — READ THIS\|Help block — READ THIS]] | the fenced `--help` block — the doc's central figure |
+| [[#Progressive disclosure — the drill-down\|Progressive disclosure]] | optional per-command drill-down |
+| [[#Location — a migrating reference\|Location]] | Design/ (authored) → User Docs/ (graduated) |
+| [[#Optional Sections\|Optional Sections]] | env vars / config / exit codes / output modes |
+| [[#Linking\|Linking]] | where the CLI doc is linked from |
+| [[#When to Create\|When to Create]] | create iff the anchor ships a CLI |
+| [[#BRIEF\|BRIEF]] | maintainer notes |
 
 **TLDR** — `{NAME} CLI.md` presents an anchor's command-line surface the way a well-written UNIX tool's `--help` does: a one-line summary under the H1, then the fenced **help block as the doc's central figure** (every command, one line, aligned trailing `# comment`), then — **only** for the commands that need more than their one-liner — light per-command drill-down. **Progressive disclosure is the whole ethic:** the help block IS the doc; detail is added a command at a time, never an exhaustive man-page up front. **Cardinality: one per anchor**, only when it ships a CLI. **Home:** authored at `{NAME} Design/{NAME} CLI.md` (a design-pipeline doc, downstream of UX Design); as a *migrating reference* it graduates to `{NAME} User Docs/` once the CLI stabilizes.
 
