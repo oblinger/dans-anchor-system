@@ -1,24 +1,15 @@
 ---
-description: "command surface — the harbor CLI, compressed --help form"
+description: "command-line specification — the harbor CLI: a compressed --help figure over the full command reference"
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[HBR]] → [[HBR Design]] → [HBR CLI](hook://p/HBR%20CLI)
 
 # HBR CLI
+The command-line specification of `harbor` — one binary driving every Harbor pipeline (Ingest, Scan, Serve, Operate); each command reads `harbor.toml`.
 
-```
-harbor --help                                            # Show this help text
-harbor --version                                         # Print version, commit SHA, ffmpeg version
-harbor ingest <path> [--watch] [--dry-run]               # Scan a folder, dedup, write catalog rows
-harbor scan [<root>] [--full] [--prune]                  # Re-scan watched roots for new/changed files
-harbor watch [--root <name>] [--interval <sec>]          # Run the scheduled re-scan loop in foreground
-harbor serve [--listen <addr>] [--no-transcode]          # Start the web + stream server (Serve pipeline)
-harbor status [--json] [--watch]                         # Catalog counts, pipeline health, active streams
-harbor transcode <title-id> --profile <name> [--probe]   # Force a transcode (or probe codec support)
-harbor backup [--out <path>] [--restore <path>]          # Checkpoint or restore the SQLite catalog
-```
+![[HBR CLI Help.svg|1002]]
 
-`harbor` is the single binary running every Harbor pipeline. For a tutorial, see [[HBR Guide]]; for the command *shape*, [[HBR UX Design]]. Every command reads [[#harbor.toml]] for the catalog path, watched roots, and listen address unless a flag overrides it. Only `transcode` (below) needs more than its one-line entry; the rest are covered by these notes.
+For a tutorial, see [[HBR Guide]]; for the command *shape*, [[HBR UX Design]]. Every command reads [[#harbor.toml]] for the catalog path, watched roots, and listen address unless a flag overrides it. Only `transcode` (below) needs its own section; the rest are covered by the notes.
 
 ## Notes
 
@@ -91,3 +82,7 @@ path = "/media/movies"
 name = "music"
 path = "/media/music"
 ```
+
+✂ ──── example notes ──── ✂
+
+*This is a worked `{NAME} CLI.md` example — the `harbor` CLI of the [[HBR]] project world. The help figure is `HBR CLI Help.svg`, rendered from `HBR CLI Help.txt` by `cli-help-svg.py`; edit the `.txt` and regenerate. It demonstrates the facet's load-bearing patterns: a one-line summary under the H1, the compressed SVG help figure, a flag-heavy command (`transcode`) shown compactly in the figure with a full `## transcode` section below, and one-line `## Notes` for the commands that don't need their own section.*

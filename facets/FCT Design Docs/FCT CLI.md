@@ -7,7 +7,7 @@ Facet spec for `{NAME} CLI.md` — the **command-line specification** for an anc
 | **FCT CLI**                                                          | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT CLI](hook://p/FCT%20CLI)<br>: command-line specification facet |
 | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Related                                                              | [[FCT UX Design\|UX Design]],  [[FCT API Design\|API Design]],  [[FCT Design\|Design]],  [[CAB User Guide\|User Guide]]                           |
-| Examples                                                             | [[CAE CLI\|minimal]],  [[HBR CLI\|fuller]]                                                                                                        |
+| Examples                                                             | [[HBR CLI\|worked example]]                                                                                                        |
 |                                                                      |                                                                                                                                                   |
 | **Table of Contents**                                                |                                                                                                                                                   |
 | [[#The Help Block — READ THIS\|Help block — READ THIS]]              | the fenced `--help` block — the doc's central figure                                                                                              |
@@ -183,7 +183,7 @@ A `{NAME} CLI.md` documents the command *interface*, not build progress. No `## 
 
 *(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body + ruleset R-cli above; § The Help Block and § Progressive disclosure are the canonical sources.)*
 
-- **Keep instance content out** — this is the spec, not a CLI doc; a real binary's commands belong in the linked working examples ([[CAE CLI]], [[HBR CLI]]).
+- **Keep instance content out** — this is the spec, not a CLI doc; a real binary's commands belong in the linked working example ([[HBR CLI]]).
 - **It's the command-line *specification* — only the top figure is compressed** — the doc gives the full command reference below the SVG help figure (R-cli-05). Don't reframe the whole doc as "compressed/minimal" (regressed and corrected 2026-07-02).
 - **The help block is an SVG, not a code fence** — rendered from `{NAME} CLI Help.txt` by `cli-help-svg.py` (R-cli-04) so aligned comments can't re-wrap. Edit the `.txt`, regenerate the `.svg`, embed near natural width (~1100px).
 - **Help block is the figure, right after the one-line summary** — R-cli-02: breadcrumb → H1 → summary → block; no `## Synopsis` wrapper, no second intro paragraph. The block reads like real `--help` (R-cli-07): no feature numbers, no status markers, no stretched multi-line entries.
