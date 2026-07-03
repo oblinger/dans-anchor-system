@@ -20,6 +20,16 @@ _None._
 
 ## Next
 
+_**Live push — user directive 2026-07-02** ([[Warden Roadmap]] § Live push): go live now + test live all the way + Rust forward. Priority order below._
+
+- **F220 — Live hook install + kill switch** [Active] — wire the compiled engine into the real `settings.json` hook surface, steer-only on a pilot (`audit-q` + selftest), with an instant global kill switch (`warden off`). Safety-first: kill switch before go-live. → [[F220 — Live hook install + kill switch]]
+  - **Next:** building foundation-first — kill switch (`~/.warden/DISABLED` sentinel + `warden on|off|status`) + the `warden_hook.py` dispatcher (event→moment map, lazy fire, fail-safe no-op) + the `warden` CLI (install/uninstall/fire).
+- **F221 — Live-integration test class** [Ready] — the e2e/live layer F214 named but didn't build: `R-warden-selftest` ruleset + `warden-selftest` trait, and a harness that **drives a real agent through a moment and proves the hook fired via the log**. Each case run twice (on/off) to prove the kill switch. Rides F220. → [[F221 — Live-integration test class]]
+  - **Next:** author the selftest ruleset + trait; build the drive-agent-and-check-log harness once F220's dispatcher is live.
+- **F213 — Rust performance implementation** [Ready] — *pulled forward from M8 per the live push.* Fire-time hot path, behavior-identical to the Python reference (the differential oracle), under the per-moment ms budget. → [[F213 — Rust performance implementation + ms budget]]
+  - **Next:** scaffold the Rust crate consuming the shared IR table; differential-test against `warden_engine` on the golden corpus.
+- **Moment-corpus golden case** [Ready] — extend the golden corpus from doc-audit to the **moment fire path** (bless R-query-14's steer output as a moment-stream case), then test it live on the system. Rides F220/F221.
+
 - **M1 — Rule compiler / installer** [Ready] — design + skeleton: active-set resolution (per anchor), index selection, per-moment pre-compilation, the install + fire contract. Pilot by porting `R-query-14` to fire via the compiler. → [[F211 — Rule compiler and installer]]
   - **Next:** **Engine complete 2026-07-02 — every Success Criterion met at the engine level.** `warden_compile.py` (single + `--root` corpus compile of all 449 vault rules; when-rules→`moments`, tier doc-rules→`doc_rules` with `check`/`judge`/`track` actions; per-function constant encapsulation; recompile cache on the scan-index hash), `warden_fire.py` (moment dispatcher — indexed dispatch + active-set gating), and `warden_engine.py` (the lazy scan→compile→fire reference loop = F212's oracle). `R-query-14` fires end-to-end; 4 engine test suites green (`test_warden_{scan,compile,fire,engine}.py`). **Only remaining piece = live-hook install (M4):** wiring the compiled moment-modules into the real Claude Code hook surface — high-blast-radius, its own session. Vault-wide active-set adoption also awaits the trait→ruleset bindings per **F218** (propose→review), but the engine resolves active-set from whatever `.anchor` traits are declared.
 

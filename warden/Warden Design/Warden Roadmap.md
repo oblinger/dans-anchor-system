@@ -9,6 +9,19 @@ The sequenced plan to a **strong landing spot**: Warden running, and complete en
 > [!info] The shape of this plan
 > Every cheap, decision-dense activity — language, engine design, test design, corpus proof, replan — is **batched ahead of the single expensive thing (the build)**. We spend the big execution budget once, against a spec validated four ways. Milestones are sequential; "Done-when" gates the next. Test design lands at M3 but tests **run continuously** from M6 on.
 
+## Live push — user directive 2026-07-02 (re-sequences the milestones)
+
+The engine is built and differential-tested ahead of schedule ([[F211 — Rule compiler and installer|F211]] compile+fire+cache, [[F212 — Python reference implementation|F212]] reference loop + doc-fire, verdict-identical to `audit-plan`, CI-gated). The user directed us to **go live now and drive all the way to a system in real use**, compressing M6/M7 and pulling M8's Rust forward. The new sequence, in priority order:
+
+1. **Kill switch first** *(safety prerequisite)* — an instant, global, no-edit disable so a broken rule pulls out of every environment in one move. → [[F220 — Live hook install + kill switch|F220]].
+2. **Live hook install (pilot surface)** — wire the compiled engine into the real `settings.json` hook surface; go live steer-only on a small pilot (`audit-q` + the selftest ruleset). → [[F220 — Live hook install + kill switch|F220]].
+3. **Live-integration test class** *(the emphasis — "the live integrations are what break")* — a `warden-selftest` ruleset + a "funky trait," and a harness that **drives a real agent through a moment and proves the hook fired by reading the log**. Every live category tested end to end, each run twice (on/off) to prove the kill switch. → [[F221 — Live-integration test class|F221]].
+4. **Rust engine, pulled forward** — get [[F213 — Rust performance implementation + ms budget|F213]] running against the Python reference oracle (was M8 follow-on).
+5. **Moment-corpus golden case** — extend the golden corpus to the moment fire path (not just doc-audit), tested live on the system.
+6. **Keep going to real use** — widen the live surface, dogfood SKA rulesets (M7), **fix breakage live** behind the always-available kill switch.
+
+This is a conscious re-ordering: the design milestones (M1–M3) are substantially met, so we build + go-live + test-live in a tight loop rather than finishing all paper design first. The classic sequence below remains the reference for anything this push doesn't cover.
+
 ## The strong landing spot (definition of done)
 
 Reached at the end of **M7**: Warden is installed and firing; a large fraction of SKA facets/skills/disciplines/operations are authored as Warden rules that fire at their moments; the test regime is green. **M8 (efficiency, incl. Rust) is a follow-on** — it makes the landed system fast, it is not part of being landed.
