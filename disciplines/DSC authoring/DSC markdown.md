@@ -16,6 +16,15 @@ Two flavors of rule live here, and both apply every time:
 The boundary against [[DSC progressive-disclosure]]: this discipline cares about the markdown *text*. Progressive-disclosure cares about the *doc structure* (preface zone, dispatch table patterns, figure placement, TLDR shape). If the question is "how do I write this line of markdown right," it's here; if "where in the doc does this section go," that's progressive-disclosure.
 
 
+## Progressive disclosure — the opening every non-trivial page uses
+
+The one structural rule an author reaches for constantly: **any non-trivial page** (one with substructure — at least one page beneath it — or more than ~2 pages of its own content) opens in a fixed order —
+
+**[breadcrumb] → H1 → one-line summary → [figure] → [table] → [Overview] → body**
+
+— the breadcrumb appears only on a non-anchor page with no dispatch table (an anchor's breadcrumb lives in its dispatch masthead), and there is **no blank line** between breadcrumb, H1, and summary. This is *doc structure*, so its normative home is the sibling disciplines, not here: see [[FCT Doc Structure]] (the document skeleton + `R-doc-structure` ruleset) and [[DSC progressive-disclosure]] (the layered-presentation discipline). The pointer is kept here because the opening format is the first thing an author needs when writing any page.
+
+
 ## Mechanical rules — rendering correctness
 
 ### Wiki-links inside tables: escape pipes

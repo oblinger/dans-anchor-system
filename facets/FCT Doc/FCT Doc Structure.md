@@ -19,7 +19,11 @@ The standard top-to-bottom structure every document follows — progressive disc
 
 ## The standard structure (top to bottom)
 
-The fixed order. The top layers are always present; lower layers appear only when the document is big enough to warrant them.
+The fixed order **every non-trivial page opens with** — any page that either has substructure (at least one document/page beneath it) or carries more than ~2 pages of its own content. The top layers are always present; lower layers appear only when the document is big enough to warrant them.
+
+### 0. Breadcrumb — *optional; only on a non-anchor doc with no dispatch table*
+- A non-anchor page that has **no dispatch table** opens with a `:>>` breadcrumb line **above** the H1, with **no blank line** between the breadcrumb and the H1.
+- An **anchor page carries its breadcrumb inside the dispatch table's first cell instead** (per [[FCT Dispatch Table]]) — never both a `:>>` line and a dispatch masthead.
 
 ### 1. H1 — names the document *(required)*
 - **Anchor document** (a `{slug}.md` anchor page): `# {slug} - {Name}` — the slug, then the readable name.
@@ -76,9 +80,10 @@ Embedded ruleset for the Doc Structure facet. One compact ordering rule; per-ele
 
 A document's top is laid out in this fixed order — each element optional unless noted, none out of sequence:
 
-**H1 → summary line → [central figure] → [top table] → [TLDR] → [Overview] → body (→ bottom `# BRIEF`)**
+**[breadcrumb] → H1 → summary line → [central figure] → [top table] → [TLDR] → [Overview] → body (→ bottom `# BRIEF`)**
 
 Embedded constraints:
+- **Breadcrumb (non-anchor docs only):** a non-anchor page with no dispatch table opens with a `:>>` breadcrumb line directly above the H1 (no blank line between). An anchor page's breadcrumb lives in its dispatch-table masthead instead — never both.
 - **H1 (required):** `# {slug} - {Name}` for an anchor page, `# {Name}` otherwise; optionally suffixed ` — {phrase}`.
 - **Summary line:** one sentence on the line **immediately after the H1, with no blank line between** — UNLESS the H1 already carries the ` — {phrase}` (one or the other carries the "what this is", not both).
 - **Central figure:** optional; if present, sits before the table.

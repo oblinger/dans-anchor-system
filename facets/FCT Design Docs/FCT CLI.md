@@ -20,7 +20,7 @@ Facet spec for `{NAME} CLI.md` — the compressed, `--help`-style command surfac
 | [[#When to Create]] |  |
 | **[[#BRIEF]]** |  |
 
-**TLDR** — `{NAME} CLI.md` presents an anchor's command-line surface the way a well-written UNIX tool's `--help` does: a fenced **help block first** (every command, one line, aligned trailing `# comment`), then — **only** for the commands that need more than their one-liner — light per-command drill-down. **Progressive disclosure is the whole ethic:** the help block IS the doc; detail is added a command at a time, never an exhaustive man-page up front. **Cardinality: one per anchor**, only when it ships a CLI. **Home:** authored at `{NAME} Design/{NAME} CLI.md` (a design-pipeline doc, downstream of UX Design); as a *migrating reference* it graduates to `{NAME} User Docs/` once the CLI stabilizes.
+**TLDR** — `{NAME} CLI.md` presents an anchor's command-line surface the way a well-written UNIX tool's `--help` does: a one-line summary under the H1, then the fenced **help block as the doc's central figure** (every command, one line, aligned trailing `# comment`), then — **only** for the commands that need more than their one-liner — light per-command drill-down. **Progressive disclosure is the whole ethic:** the help block IS the doc; detail is added a command at a time, never an exhaustive man-page up front. **Cardinality: one per anchor**, only when it ships a CLI. **Home:** authored at `{NAME} Design/{NAME} CLI.md` (a design-pipeline doc, downstream of UX Design); as a *migrating reference* it graduates to `{NAME} User Docs/` once the CLI stabilizes.
 
 `{NAME} CLI.md` is the **command surface** of an application that ships a command-line interface — presented compactly, the way you'd read `tool --help` piped through a pager. It is **not** an exhaustive man page: you do not write a Flags table and an Exit-codes table for every command up front. You write the help block that shows the whole surface at a glance, then disclose the detail of a command *only when that command's one-line entry can't carry it*.
 
@@ -44,6 +44,7 @@ description: "command surface — every command, compressed --help form"
 :>> [[{NAME}]] → [[{NAME} Design]]
 
 # {NAME} CLI
+Command surface of `{tool}` — every command in one screen; the fenced help block below is this doc's central figure.
 
 ```
 {tool} --help                                       # Show this help text
@@ -68,7 +69,7 @@ For a tutorial introduction, see [[{NAME} User Guide]]. Commands that need more 
 
 ## The Help Block — READ THIS
 
-**Non-negotiable: directly under the `# {NAME} CLI` H1, the very next content is the fenced help code block.** No intro paragraph, no Synopsis, nothing between the H1 and the fence. (The `:>>` breadcrumb sits above the H1 as on any non-anchor doc; nothing else does.)
+**The help block is this doc's central figure.** Per the universal opening format ([[FCT Doc Structure]] / [[DSC progressive-disclosure]]): `:>>` breadcrumb → `# {NAME} CLI` H1 → **one-line summary** → **help block**. The block sits directly after the summary line — no `## Synopsis` wrapper, no second intro paragraph between the summary and the fence. (An optional one-line install/usage note may follow the block.)
 
 Inside the fence: every command the CLI exposes, **one per line**, each with a trailing `# comment` giving its one-line purpose, comments **column-aligned**. It reads exactly like the `--help` output of a well-written UNIX tool — it is the reader's single-screen map of the whole surface.
 
@@ -141,13 +142,13 @@ The CLI doc is a migrating reference: its basename is `{slug} CLI.md` and its pa
 
 **Why:** authored in the design pipeline downstream of UX Design; graduates to User Docs once stable (§ Location).
 
-### RULE R-cli-02 — Help block is the first content under the H1 (checked)
+### RULE R-cli-02 — Help block is the doc's central figure, right after the one-line summary (checked)
 
-Directly under the `# {NAME} CLI` H1, the very next content is the fenced help code block — no intro paragraph, no Synopsis, nothing between the H1 and the fence.
+The doc follows the universal opening format ([[FCT Doc Structure]] / [[DSC progressive-disclosure]]): `:>>` breadcrumb → `# {NAME} CLI` H1 → **one-line summary** (on the line directly under the H1, no blank line) → the fenced **help block as the doc's central figure**. Nothing else sits between the summary and the fence — no `## Synopsis` wrapper, no second intro paragraph. (An optional one-line install/usage note may follow the block.)
 
-**Check pattern:** the first block after the H1 (the `:>>` breadcrumb sits above the H1) is a fenced code block, not prose.
+**Check pattern:** the H1 is followed by a single summary line, then a fenced code block as the first figure/table-level element — the help block is not buried under `##` prose sections.
 
-**Why:** the help block is the reader's single-screen map of the surface; preamble buries it (§ The Help Block).
+**Why:** the help block is the CLI's "overview picture" — the reader's single-screen map of the whole surface — and in the progressive-disclosure opening the figure sits right after the summary; extra preamble buries it (§ The Help Block).
 
 ### RULE R-cli-03 — Help block is complete, one line per command, aligned trailing `# comment` (checked)
 
@@ -171,12 +172,20 @@ Detail below the help block is disclosed **only** for commands whose one-line en
 
 Environment-variable, config-file, global-exit-code, and output-mode sections appear only when the CLI actually has them. Absent behaviour is never documented as "none."
 
+### RULE R-cli-07 — Help block reads like real `--help`: public surface only, no internal references (checked)
+
+Inside the fence: the **public command surface as a user sees it**. No internal tracking references (feature / ticket numbers like `F023`), no design-status annotations (`(shipped)` / `(wire-up)` / `(new)`), no wiki-link or design-doc cross-refs. Grouping is optional and light — for a small surface a flat command list ("boom, boom, boom") is preferred over category headers; never annotate a group header with a tracking number. A complex command gets a **compact one-line entry** in the block plus a drill-down below (§ Progressive disclosure — the drill-down) — never a multi-line, flag-stretched entry inside the block.
+
+**Check pattern:** no `F\d+`, no `(shipped|wire-up|new)` marker, and no `[[…]]` token appears between the help fence's open and close; each command occupies exactly one line.
+
+**Why:** the block mirrors `tool --help` — a user-facing contract. Feature numbers, build-status markers, and multi-line flag dumps are design-doc bookkeeping that make it stop reading like a help screen (the exact drift this facet exists to prevent).
+
 # BRIEF
 
 *(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body + ruleset R-cli above; § The Help Block and § Progressive disclosure are the canonical sources.)*
 
 - **Keep instance content out** — this is the spec, not a CLI doc; a real binary's commands belong in the linked working examples ([[CAE CLI]], [[HBR CLI]]).
 - **Progressive disclosure is the load-bearing idea** — the reshape (2026-07-02) that made per-command detail *optional* is the whole point; do not let R-cli-05 drift back toward mandatory exhaustive tables.
-- **Don't weaken help-block-first** — R-cli-02 admits no intro-paragraph exceptions.
+- **Help block is the figure, right after the one-line summary** — R-cli-02: breadcrumb → H1 → summary → block; no `## Synopsis` wrapper, no second intro paragraph. The block reads like real `--help` (R-cli-07): no feature numbers, no status markers, no stretched multi-line entries.
 - **Migrating home, not a fixed one** — the doc lives in `{NAME} Design/` while authored and `{NAME} User Docs/` once graduated (§ Location); R-cli-01's `where::` matches both. Don't re-pin it to a single folder.
 - **Cross-cite rather than inline** — tutorial/narrative content belongs in [[CAB User Guide]], CLI-*shape* design in [[FCT UX Design]], markdown rendering rules in [[R-markdown]]; if a rule drifts toward one of those, move or link rather than duplicate.
