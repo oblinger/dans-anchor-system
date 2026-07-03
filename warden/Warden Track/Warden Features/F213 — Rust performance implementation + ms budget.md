@@ -26,7 +26,13 @@ The **performance implementation** in Rust, owning the fire-time critical path: 
 
 ## Status
 
-**Planned** — M3 of [[Warden Roadmap]]. Depends on F212 (the oracle).
+**Selection engine built + differential-green 2026-07-02.** The Rust crate is live at `warden/rs/` (`cargo build`, bin `warden-rs`, lib `warden`), owning the ms-budget-critical **selection path**: it deserializes the compiler's `rules-ir.json`, then for a `(moment, anchor-traits, ctx)` computes the fire plan **byte-for-byte identically to the Python reference** — indexed moment dispatch, active-set gating (`is_active`), the declarative residual (`eval_guard`: git-aspect/mode/trait/facet × eq/in/has, including `in`-scalar and `has`-substring), and the `tell`/`deny` action steers. A rule carrying its own Python (`body_py`/`guard_py`) is taken as far as selection allows and recorded as an owed resident-interpreter round-trip (`python-body`/`python-guard`) — never executed in Rust, per the "one logic language" rule.
+
+**Parity is a standing differential gate.** `warden/engine/test_warden_rust.py` runs the **same IR** through the Rust binary and the *real* `warden_fire` reference primitives and diffs the plan — across the live corpus (every registered moment × 6 anchor trait sets) and synthetic fixtures exercising every guard op and dispatch arm; all 7 cases green. The Rust side also carries 5 native `cargo test` unit tests (offline coverage, no Python). CI gains a `rust-engine` job: `cargo test` → `warden compile` (live IR) → the differential.
+
+**Budget met at the cold bound.** Cold `warden-rs` — fork+exec **plus** a full 200 KB IR parse **plus** fire, every call — is **2.65 ms** (50-call mean), ~7.5× faster than the Python reference's 20 ms cold. The resident design below (IR preloaded, phase 2) reduces the per-moment cost to the `fire_plan` call alone (microseconds), clearing both the ~2 ms `tool:pre` and ~10 ms `tool:post` budgets with margin.
+
+**Remaining (phase 2 — the resident-Python IPC).** Body/guard execution for `body_py`/`guard_py` rules still runs through the Python reference; the Rust selection engine hands off the owed round-trips. The warm resident-interpreter process + IPC shape (Resolved Q1/Q2 below) is the next build — the hot path's *selection* is now Rust; its *Python-body execution* is the phase-2 hand-off. Until then the live dispatcher (F220) keeps using the Python fire path; the Rust engine is verified-equivalent and benched, ready to take the selection half of the hot path.
 
 ## Resolved
 

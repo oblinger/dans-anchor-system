@@ -1,0 +1,22 @@
+[package]
+name = "warden"
+version = "0.1.0"
+edition = "2021"
+description = "Warden performance engine — the fire-time hot path (F213). Behaviour-identical to the Python reference (warden_fire.py), differential-tested."
+license = "MIT"
+
+[[bin]]
+name = "warden-rs"
+path = "src/main.rs"
+
+[lib]
+name = "warden"
+path = "src/lib.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[profile.release]
+opt-level = 3
+lto = true
