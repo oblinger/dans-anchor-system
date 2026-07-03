@@ -258,6 +258,8 @@ def _delegate_row_edit(slug, horizon, row_id_arg, status, title, body,
                        verify_text=None, next_text=None):
     """Delegate to backlog-edit's perform_edit machinery, mirroring its main()."""
     if status != "delete" and status != "same":
+        # Validate status bracket against the closed canonical set.
+        be.validate_status(status)
         # Validate horizon
         if horizon != "same":
             horizon_check = horizon.lstrip("# ").strip()
