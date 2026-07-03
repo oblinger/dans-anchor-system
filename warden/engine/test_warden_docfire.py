@@ -65,6 +65,8 @@ def test_docfire_matches_audit_plan_on_every_case():
     for case_dir in case_dirs:
         meta = _read_case_yaml(case_dir / "case.yaml")
         mode = meta["mode"]
+        if mode not in ("doc", "anchor"):
+            continue  # moment cases are the live-fire path, not the doc-audit surface
         sandbox = _materialize(case_dir / "fixture")
         try:
             target = sandbox if meta["target"] == "." else sandbox / meta["target"]
@@ -86,7 +88,7 @@ def test_signature_matches_audit_plan():
          "--engine", "audit-plan", "--json"],
         capture_output=True, text=True)
     assert out.returncode == 0, out.stderr
-    audit_sig = json.loads(out.stdout)["rule_corpus_sig"]
+    audit_sig = json.loads(out.stdout)["rule_corpus_sigs"]["audit-plan"]
     assert wd.corpus_signature() == audit_sig, (wd.corpus_signature(), audit_sig)
     print(f"PASS  signature ≡ audit-plan  ({audit_sig})")
 

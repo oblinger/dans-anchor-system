@@ -39,6 +39,7 @@ class WardenEngine:
         self.anchor_module = anchor_module
         self._ir: dict | None = None
         self._module = None
+        self._module_src: str | None = None
         self._source_hash: str | None = None
 
     # ── lazy compile (warm-start) ────────────────────────────────────────────
@@ -57,6 +58,7 @@ class WardenEngine:
         ir, module_src, _ = wc.compile_corpus(self.root, index, self.anchor_module, source_hash)
         self._ir = ir
         self._source_hash = source_hash
+        self._module_src = module_src
         # materialise the emitted module in-process
         ns: dict = {}
         exec(compile(module_src, f"<rules_{self.anchor_module}>", "exec"), ns)
@@ -89,6 +91,23 @@ class WardenEngine:
         the reference engine owns both fire paths: the live moment stream and the
         doc-audit surface."""
         return wdf.fire_audit(Path(target).expanduser().resolve(), mode)
+
+    # ── moment-fire signature (the golden-corpus moment-case pin) ─────────────
+
+    def moment_signature(self) -> str:
+        """Content signature of the moment-fire surface — the analogue of the
+        doc-fire `corpus_signature` for the live moment stream. It hashes the
+        moment dispatch table plus the emitted rule-body source, so it moves iff
+        a moment rule's dispatch *or* its body could change a steer, and stays
+        stable under unrelated corpus churn. Pins a moment-golden bless (the
+        `warden-moment` engine's `blessed_against`)."""
+        import hashlib
+        import json
+        self.ensure_compiled()
+        assert self._ir is not None
+        payload = (json.dumps(self._ir["moments"], sort_keys=True)
+                   + "\x00" + (self._module_src or ""))
+        return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
 
     @property
     def ir(self) -> dict:
