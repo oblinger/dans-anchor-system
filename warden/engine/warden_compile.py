@@ -355,7 +355,8 @@ def compile_ruleset(rs: dict, anchor: str) -> tuple[dict, str, dict]:
 
 # ── whole-corpus compile (consumes the warden_scan index) ────────────────────
 
-def compile_corpus(root: Path, index: dict, anchor: str = "all") -> tuple[dict, str, dict]:
+def compile_corpus(root: Path, index: dict, anchor: str = "all",
+                   source_hash: str = "") -> tuple[dict, str, dict]:
     """Compile every ruleset the scan index lists under `root` into one combined
     IR + module. Rule ids are globally unique (`R-<slug>-NN`), so `rules`,
     `moments`, `doc_rules`, and per-trait `traits` merge by simple union. The
@@ -397,6 +398,7 @@ def compile_corpus(root: Path, index: dict, anchor: str = "all") -> tuple[dict, 
     ir = {
         "schema": IR_SCHEMA,
         "root": str(root),
+        "source_hash": source_hash,        # the scan-index content hash — the recompile cache key
         "active_set_hash": active_hash,
         "moments": moments,
         "doc_rules": doc_rules,
@@ -412,6 +414,16 @@ def compile_corpus(root: Path, index: dict, anchor: str = "all") -> tuple[dict, 
 
 
 # ── CLI ──────────────────────────────────────────────────────────────────────
+
+def cached_source_hash(out: Path) -> str | None:
+    """The `source_hash` recorded in a prior compile's IR, or None. The recompile
+    cache key: equal to the current scan-index hash ⇒ the artifacts are current."""
+    fp = out / "rules-ir.json"
+    try:
+        return json.loads(fp.read_text(encoding="utf-8")).get("source_hash")
+    except (OSError, ValueError):
+        return None
+
 
 def _write_artifacts(out: Path, anchor: str, ir: dict, module_src: str) -> tuple[Path, Path]:
     out.mkdir(parents=True, exist_ok=True)
@@ -434,6 +446,7 @@ def main(argv=None):
     ap.add_argument("--name", default=None, help="single-ruleset mode: ruleset id, e.g. R-query")
     ap.add_argument("--anchor", default=None, help="module/anchor name (default: ruleset trait, or 'all')")
     ap.add_argument("--out", default=None, help="output dir (default: <root|file-dir>/.warden)")
+    ap.add_argument("--force", action="store_true", help="corpus mode: recompile even on a cache hit")
     ap.add_argument("--stats", action="store_true", help="print compile stats to stderr")
     args = ap.parse_args(argv)
 
@@ -446,9 +459,21 @@ def main(argv=None):
         prior_bearing, prior_seen = warden_scan.load_index(str(index_path))
         files, seen, _ = warden_scan.build_index(str(root), prior_bearing, prior_seen, rescan=False)
         index = {"root": str(root), "files": files, "seen": seen}
+        source_hash = warden_scan.index_hash(files)
         anchor = args.anchor or "all"
-        ir, module_src, stats = compile_corpus(root, index, anchor)
         out = Path(args.out).expanduser() if args.out else (root / ".warden")
+
+        # Recompile cache: the compiled artifacts are a pure function of the
+        # ruleset content, so an unchanged scan-index hash ⇒ they are current.
+        if not args.force and cached_source_hash(out) == source_hash:
+            if args.stats:
+                print(f"warden-compile [corpus] cache hit ({source_hash}) — skipped recompile",
+                      file=sys.stderr)
+            print(out / "rules-ir.json")
+            print(out / f"rules_{anchor}.py")
+            return 0
+
+        ir, module_src, stats = compile_corpus(root, index, anchor, source_hash)
         ir_path, mod_path = _write_artifacts(out, anchor, ir, module_src)
         if args.stats:
             print(f"warden-compile [corpus] {stats['rules']} rules from {stats['rulesets']} "

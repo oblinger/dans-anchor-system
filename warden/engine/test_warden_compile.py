@@ -119,6 +119,28 @@ def test_corpus_compile():
     print(f"PASS  corpus_compile ({stats['rules']} rules, {stats['moments']} moment(s))")
 
 
+def test_recompile_cache():
+    """The compiled IR records the scan-index hash as its cache key;
+    `cached_source_hash` round-trips it, and the key changes when a ruleset
+    changes — so an unchanged corpus is a cache hit (recompile skipped)."""
+    import warden_scan  # noqa
+    files, seen, _ = warden_scan.build_index(str(REPO), {}, {}, rescan=True)
+    h1 = warden_scan.index_hash(files)
+    index = {"root": str(REPO), "files": files, "seen": seen}
+    ir, module_src, _ = wc.compile_corpus(REPO, index, "all", h1)
+    assert ir["source_hash"] == h1, "IR did not record the cache key"
+
+    with tempfile.TemporaryDirectory() as td:
+        out = Path(td)
+        wc._write_artifacts(out, "all", ir, module_src)
+        assert wc.cached_source_hash(out) == h1, "cache key not round-tripped"
+        # a hash over a mutated ruleset set differs → cache would miss
+        mutated = [dict(f) for f in files]
+        mutated[0] = dict(mutated[0], hash="deadbeef")
+        assert warden_scan.index_hash(mutated) != h1, "cache key insensitive to change"
+    print("PASS  recompile_cache")
+
+
 def test_stats(stats):
     assert stats["when_rules"] == 1, stats
     assert stats["py_rules"] == 1, stats
@@ -134,6 +156,7 @@ def main():
         test_emitted_body_fires_like_autofire(mod)
         test_stats(stats)
     test_corpus_compile()
+    test_recompile_cache()
     print("\nall warden_compile tests passed")
     return 0
 
