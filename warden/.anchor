@@ -3,3 +3,4 @@ description: the rule engine — declarative rules fired at agent moments, valid
 traits:
 - Track
 - Commit
+- warden-dev
