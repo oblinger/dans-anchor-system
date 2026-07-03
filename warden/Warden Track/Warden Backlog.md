@@ -21,7 +21,7 @@ _None._
 ## Next
 
 - **M1 — Rule compiler / installer** [Ready] — design + skeleton: active-set resolution (per anchor), index selection, per-moment pre-compilation, the install + fire contract. Pilot by porting `R-query-14` to fire via the compiler. → [[F211 — Rule compiler and installer]]
-  - **Next:** Fully designed 2026-07-02 — scan command done; M2 questions resolved; **IR schema specced** (§ IR schema — `rules-ir.json` dispatch/active-set table + emitted `rules_<anchor>.py`, worked through `R-query-14`). Remaining = compiler code: front-half rule parser + `include::`/active-set resolver (reuse `audit-plan.py`), clause-splitter (index vs. residual), IR/module emitter, then install + fire. Next crank slice.
+  - **Next:** Compiler parse→split→emit half **built + pilot compiles 2026-07-02** — `warden/engine/warden_compile.py` compiles `R-query` to **exactly** the § IR schema worked example (`R-query-14` → `moments["skill:post:audit-q"]` / `traits["query"]`, `body_R_query_14` reproducing the autofire steer; 13 tier doc-rules honestly `deferred`); pinned by `test_warden_compile.py` (green). Remaining = **install + fire** (register moment modules with the hook surface + `ctx` dispatcher, fire at the `audit-q` cooperative post-call), the multi-file `include::` DAG flatten + live-anchor active-set (reuse `audit-plan.flatten_umbrella`), and tier doc-rule emission. Next crank slice: the fire path (closes the Success Criteria).
 
 ## Later
 
