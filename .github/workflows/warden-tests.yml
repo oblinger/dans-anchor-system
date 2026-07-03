@@ -1,8 +1,8 @@
 # Warden rule-system test suite (F214).
 #
-# Runs the layers that exist today — the golden corpus — against the shipped
-# audit engine. Unit / differential / perf / e2e layers join as their
-# milestones land (F214 § Design). This workflow migrates wholesale when
+# Runs the layers that exist today — the engine unit tests, the golden corpus,
+# and the Python↔engine differential — as gates. Perf / e2e layers join as
+# their milestones land (F214 § Design). This workflow migrates wholesale when
 # Warden extracts to its own repo (F214 Q1 resolution, 2026-07-01).
 
 name: warden-tests
@@ -32,5 +32,15 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Run golden corpus
+      - name: Engine unit tests
+        run: |
+          for t in scan compile fire engine docfire; do
+            echo "== test_warden_$t =="
+            python3 "warden/engine/test_warden_$t.py"
+          done
+
+      - name: Golden corpus (audit-plan engine)
         run: python3 "warden/Warden Corpus/harness/run-corpus.py"
+
+      - name: Golden corpus (warden reference engine — differential)
+        run: python3 "warden/Warden Corpus/harness/run-corpus.py" --engine warden
