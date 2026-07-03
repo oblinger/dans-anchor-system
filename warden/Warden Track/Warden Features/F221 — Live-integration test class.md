@@ -33,7 +33,14 @@ User directive 2026-07-02: *"we want to make sure that we have very, very, very 
 
 ## Status
 
-**Designed 2026-07-02** — rides [[F220 — Live hook install + kill switch|F220]] (needs the live dispatcher + selftest trait wired). Extends [[F214 — Rule-system testing regime|F214]]'s end-to-end layer from "named" to "built."
+**Built + PASSING 2026-07-02.** `warden/Warden Corpus/harness/live-e2e.py` drives a **real headless `claude -p` agent** in a scratch anchor (with the `warden-selftest` funky trait) and asserts the live firings via `~/.warden/selftest.log`. Both cases pass end to end:
+
+- **enabled** → all four piloted moments fire live: `session:start`, `prompt:submit`, `tool:post:Write`, `write:markdown` (each a marker line in the log, correct anchor);
+- **`warden off`** → **no** markers — the kill switch is proven to work *live*, not just in a unit test.
+
+The `R-warden-selftest` ruleset + `warden-selftest` trait are authored ([[Warden Corpus]] `selftest/`). This layer immediately did its job: its first run caught a live-only bug (the unquoted hook-command path splitting on the space in "Skill Agent", which *blocked* the agent instead of failing safe) that no in-process test could see — the exact "live integrations are what break" failure the user predicted. The harness needs `claude` + auth so it is a **local/manual gate**, not the fast CI loop (OQ1 resolved: in-process `test_warden_hook.py` is the CI form; `live-e2e.py` is the local live gate).
+
+Extends [[F214 — Rule-system testing regime|F214]]'s end-to-end layer from "named" to "built + green."
 
 ## Open questions
 

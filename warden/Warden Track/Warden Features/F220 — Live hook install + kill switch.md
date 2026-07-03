@@ -31,7 +31,11 @@ User directive 2026-07-02: *"go ahead and make some portion of it live and start
 
 ## Status
 
-**In progress 2026-07-02** — building foundation-first (kill switch + dispatcher) ahead of the pilot go-live. Depends on the shipped engine (F211/F212, complete).
+**Built + LIVE-PROVEN 2026-07-02.** The full dispatcher (`warden/engine/warden_hook.py`), kill switch, and `warden` CLI ship and are proven firing in a **real Claude Code session**: a headless `claude -p` agent driven in a scratch anchor (with the `warden-selftest` trait) fired all four piloted moments — `session:start`, `prompt:submit`, `tool:post:Write`, `write:markdown` — each landing a marker in `~/.warden/selftest.log` ([[F221 — Live-integration test class|F221]]'s harness). The kill switch (`~/.warden/DISABLED` sentinel + `WARDEN_DISABLED` env, checked first) and the merge-safe idempotent `settings.json` install/uninstall are verified. `test_warden_hook.py` covers the event→moment map, kill switch, dispatch→fire→log, and trait gating.
+
+The **live test earned its keep on the first run**: the hook command path contains a space (`Skill Agent`) and was unquoted, so the shell split it and the hook *blocked* the agent instead of failing safe (a broken command never launches the Python fail-safe). Fixed by `shlex.quote`-ing the path — exactly the live-integration failure class F221 exists to catch, caught before any real go-live. A compiler bug was also surfaced and fixed en route: `canonical_moment` was inserting a `pre`/`post` phase for every class, compiling `write:markdown`/`session:start`/`prompt:submit` to moments the dispatcher never fires; now only `tool`/`skill` are phased (F209).
+
+Remaining: the actual go-live into the user's global `~/.claude/settings.json` (the pilot has run only against a project-scoped scratch settings file so far) and widening the registered surface past the steer-only pilot.
 
 ## Resolved
 

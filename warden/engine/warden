@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shlex
 import sys
 from pathlib import Path
 
@@ -29,7 +30,10 @@ import warden_fire as wf         # noqa: E402
 import warden_hook as wh         # noqa: E402
 import warden_scan as ws         # noqa: E402
 
-HOOK_CMD = f"python3 {HERE / 'warden_hook.py'}"
+# shlex.quote the path — the repo path contains a space ("Skill Agent"), and an
+# unquoted hook command splits on it (the live test caught this: a broken command
+# never launches Python, so it BLOCKS instead of failing safe). Quote it.
+HOOK_CMD = "python3 " + shlex.quote(str(HERE / "warden_hook.py"))
 
 # The pilot hook surface (steer-only — no tool:pre veto). Each entry:
 #   (event, matcher-or-None). Widen as the pilot proves out.
