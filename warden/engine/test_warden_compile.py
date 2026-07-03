@@ -46,11 +46,29 @@ def test_ir_row_matches_worked_example(ir):
     assert row["body_py"] == "body_R_query_14", row["body_py"]
     # dispatch + activation indices
     assert ir["moments"]["skill:post:audit-q"] == ["R-query-14"]
-    assert ir["traits"]["query"] == ["R-query-14"]
-    # the tier doc-rules are honestly deferred, not silently dropped
-    assert "R-query-13" in ir["deferred"]
-    assert "R-query-14" not in ir["deferred"]
+    assert ir["traits"]["query"] == ["R-query-14"] or "R-query-14" in ir["traits"]["query"]
+    # the tier doc-rules are where-major (no runtime moment), fired on /audit doc
+    assert "R-query-14" not in ir["doc_rules"]
+    assert "R-query-13" in ir["doc_rules"]
     print("PASS  ir_row_matches_worked_example")
+
+
+def test_tier_doc_rules_emitted(ir):
+    """All 14 R-query rules compile; tier rows carry the right declarative action."""
+    assert len(ir["rules"]) == 14, len(ir["rules"])
+    assert len(ir["doc_rules"]) == 13, ir["doc_rules"]
+    # a `check::`-ref rule → a check action delegating to the named primitive
+    r02 = ir["rules"]["R-query-02"]
+    assert r02["moment"] is None and r02["phase"] == "post"
+    assert r02["action"] == {"kind": "check", "ref": "frontmatter_has", "args": ["description"]}, r02["action"]
+    # a check with a regex arg keeps the whole tail as args
+    r05 = ir["rules"]["R-query-05"]
+    assert r05["action"]["kind"] == "check" and r05["action"]["ref"] == "regex_absent", r05["action"]
+    # a `stated` rule with no checker → agent-judged
+    assert ir["rules"]["R-query-06"]["action"] == {"kind": "judge"}, ir["rules"]["R-query-06"]
+    # every doc-rule inherits the ruleset where-selector
+    assert ir["rules"]["R-query-01"]["where"] == "file:{ANCHOR}/**/* queries.md", ir["rules"]["R-query-01"]["where"]
+    print("PASS  tier_doc_rules_emitted")
 
 
 def test_emitted_body_fires_like_autofire(mod):
@@ -80,7 +98,7 @@ def test_emitted_body_fires_like_autofire(mod):
 def test_stats(stats):
     assert stats["when_rules"] == 1, stats
     assert stats["py_rules"] == 1, stats
-    assert stats["deferred"] == 13, stats
+    assert stats["doc_rules"] == 13, stats
     print("PASS  stats")
 
 
@@ -88,6 +106,7 @@ def main():
     with tempfile.TemporaryDirectory() as td:
         ir, _module_src, stats, mod = _compile_pilot(Path(td))
         test_ir_row_matches_worked_example(ir)
+        test_tier_doc_rules_emitted(ir)
         test_emitted_body_fires_like_autofire(mod)
         test_stats(stats)
     print("\nall warden_compile tests passed")

@@ -80,6 +80,7 @@ Top-level: `{schema, root, active_set_hash, moments, traits, rules}`.
 
 - `schema` — IR format version (int); an engine refuses an IR version it can't interpret.
 - `moments` — the dispatch index: `{ "<moment-path>": [rule_id, …] }`, one bucket per canonical `when::` path ([[Warden Events]]). Fire = a dict lookup on the moment path and its prefixes → candidate ids. The compiled form of when-major indexing.
+- `doc_rules` — the where-major bucket: `[rule_id, …]` for the tier doc-rules (`moment:null`), fired on the `/audit doc` pass by matching each rule's `where` glob against the target set.
 - `traits` — `{ "<trait>": [rule_id, …] }`, the precompiled per-trait active-sets ([[Warden Runtime]] § Activation). An anchor's active-set is the union over its `.anchor` traits **plus the implicit base trait**.
 - `rules` — `{ rule_id: <row> }` (below).
 
@@ -109,6 +110,8 @@ Each guard is `{key, op, value}` over the frozen set: `key ∈ {git-aspect, mode
 ### Declarative actions
 
 `action` is one of `{kind:"tell", text}` (a fixed steer/finding), `{kind:"deny", reason}` (a `tool:pre` veto), or `{kind:"edit", method, args}` (a floored write). A body that *computes* its output — R-query-14 branches its steer on `git-aspect` — is not declarative; it compiles to `body_py`.
+
+The **tier doc-rules** (`checked`/`sampled`/`stated`/`tracked`, fired on the `/audit doc` pass, not a runtime moment) add three action kinds that delegate to the existing audit checker registry rather than re-implementing it: `{kind:"check", ref, args}` (a rule with a `check:: <primitive> [args]` — the Warden engine calls the named `audit-plan.py` checker, staying adapter-isolated from the impl), `{kind:"judge"}` (a `stated` rule, or a `checked`/`sampled` rule with no `check::` ref — surfaced to the agent for judgment), and `{kind:"track"}` (a `tracked` rule — recorded, not audited). These rows carry `moment:null` and are collected in the IR's **`doc_rules`** list (the where-major bucket), keyed for lookup by their `where` glob at audit-doc time; when-rules key into `moments`.
 
 ### The emitted Python module
 

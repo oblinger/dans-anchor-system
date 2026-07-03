@@ -150,7 +150,7 @@ def parse_ruleset(text: str, name: str, source: str) -> dict | None:
         paren = rm.group(4).strip()
         rule = {
             "id": rm.group(2), "title": rm.group(3).strip(), "paren": paren,
-            "when": None, "where": None, "ifs": [], "tier": None,
+            "when": None, "where": None, "ifs": [], "tier": None, "check": None,
             "py_src": _extract_py(body), "py_kind": None,
         }
         # Paren is a tier or an executable `when::`.
@@ -170,6 +170,8 @@ def parse_ruleset(text: str, name: str, source: str) -> dict | None:
                 rule["where"] = val
             elif key == "if":
                 rule["ifs"].append(val)
+            elif key == "check":
+                rule["check"] = val
         if rule["py_src"]:
             for name_ in _ENTRY_DEFS:
                 if re.search(rf"\bdef\s+{name_}\s*\(", rule["py_src"]):
@@ -227,9 +229,20 @@ def compile_rule(rule: dict, ruleset: dict) -> dict:
         # doc-selector governs the tier doc-rules, not the moment rules.
         row["where"] = rule["where"]
     else:
-        # doc-audit tier rule: where-major, post-phase.
+        # doc-audit tier rule: where-major (no runtime moment), post-phase. Its
+        # action delegates to a checker primitive (`check::`), is agent-judged
+        # (`stated` / a `checked` rule with no ref), or is merely recorded
+        # (`tracked`). The checker registry is audit-plan's — the Warden engine
+        # references it by name, staying adapter-isolated from the checker impl.
         row["phase"] = "post"
         row["where"] = rule["where"] or ruleset["where"]
+        if rule["check"]:
+            parts = rule["check"].split()
+            row["action"] = {"kind": "check", "ref": parts[0], "args": parts[1:]}
+        elif rule["tier"] == "tracked":
+            row["action"] = {"kind": "track"}
+        else:
+            row["action"] = {"kind": "judge"}
 
     # if:: → declarative guards + a residual guard_py.
     residual_if = []
@@ -284,20 +297,21 @@ def emit_module(anchor: str, py_rules: list[tuple[dict, dict]]) -> str:
 def compile_ruleset(rs: dict, anchor: str) -> tuple[dict, str, dict]:
     """Compile a parsed ruleset → (ir, module_src, stats).
 
-    Slice scope: when-rules are emitted fully; tier doc-rules are recorded in
-    `ir['deferred']` (honest — their declarative actions ride the next slice)."""
+    Every rule is emitted: when-rules index into `moments` (fired at a runtime
+    moment); tier doc-rules index into `doc_rules` (where-major, fired on the
+    `/audit doc` pass by matching their `where` glob)."""
     trait = rs["name"][2:] if rs["name"].startswith("R-") else rs["name"]
     rules_ir: dict = {}
     moments: dict = {}
-    deferred: list[str] = []
+    doc_rules: list[str] = []
     py_rules: list[tuple[dict, dict]] = []
     for rule in rs["rules"]:
-        if not rule["when"]:
-            deferred.append(rule["id"])            # tier doc-rule — next slice
-            continue
         row = compile_rule(rule, rs)
         rules_ir[rule["id"]] = row
-        moments.setdefault(row["moment"], []).append(rule["id"])
+        if row["moment"]:
+            moments.setdefault(row["moment"], []).append(rule["id"])
+        else:
+            doc_rules.append(rule["id"])
         if rule["py_kind"]:
             py_rules.append((rule, row))
     trait_set = {trait: list(rules_ir.keys())}
@@ -308,12 +322,13 @@ def compile_ruleset(rs: dict, anchor: str) -> tuple[dict, str, dict]:
         "root": None,
         "active_set_hash": active_hash,
         "moments": moments,
+        "doc_rules": doc_rules,
         "traits": trait_set,
         "rules": rules_ir,
-        "deferred": deferred,
     }
     module_src = emit_module(anchor, py_rules)
-    stats = {"when_rules": len(rules_ir), "deferred": len(deferred),
+    when_rules = sum(1 for r in rules_ir.values() if r["moment"])
+    stats = {"when_rules": when_rules, "doc_rules": len(doc_rules),
              "py_rules": len(py_rules)}
     return ir, module_src, stats
 
