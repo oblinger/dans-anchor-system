@@ -126,11 +126,56 @@ def test_trait_gating():
     print("PASS  trait_gating")
 
 
+def test_audit_on_write():
+    """F222: an anchor with the `audit-on-write` trait doc-audits a written
+    markdown file and steers on failures; without the trait it stays silent."""
+    home = _compiled_home()
+    old = os.environ.get("WARDEN_HOME")
+    os.environ["WARDEN_HOME"] = str(home)
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            # trait ON: a Messages file with a prose H1 fails R-messages-01 ("no H1")
+            anchor = _anchor(Path(td), "audit-on-write")
+            bad = anchor / "FX Messages.md"
+            bad.write_text("just prose, not an H1\n\nbody\n", encoding="utf-8")
+            event = {"hook_event_name": "PostToolUse", "tool_name": "Write",
+                     "tool_input": {"file_path": str(bad)}, "cwd": str(anchor)}
+            steers = wh.dispatch(event)
+            aow = [s for s in steers if s.startswith("[warden audit-on-write]")]
+            assert len(aow) == 1, steers
+            assert "R-messages-01" in aow[0], aow
+            assert "FX Messages.md" in aow[0], aow
+
+            # a clean file → no audit-on-write steer
+            good = anchor / "FX Messages.md"
+            good.write_text("# FX Messages\n\nbody\n", encoding="utf-8")
+            clean = wh.dispatch({**event, "tool_input": {"file_path": str(good)}})
+            assert not [s for s in clean if s.startswith("[warden audit-on-write]")], clean
+    finally:
+        os.environ["WARDEN_HOME"] = old if old else str(home)
+
+    # trait OFF: same violating write, no audit-on-write steer
+    os.environ["WARDEN_HOME"] = str(home)
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            anchor = _anchor(Path(td), "Commit")  # no audit-on-write trait
+            bad = anchor / "FX Messages.md"
+            bad.write_text("just prose, not an H1\n\nbody\n", encoding="utf-8")
+            event = {"hook_event_name": "PostToolUse", "tool_name": "Write",
+                     "tool_input": {"file_path": str(bad)}, "cwd": str(anchor)}
+            steers = wh.dispatch(event)
+            assert not [s for s in steers if s.startswith("[warden audit-on-write]")], steers
+    finally:
+        os.environ["WARDEN_HOME"] = old if old else str(home)
+    print("PASS  audit_on_write")
+
+
 def main():
     test_event_to_moments()
     test_kill_switch()
     test_dispatch_fires_and_logs()
     test_trait_gating()
+    test_audit_on_write()
     print("\nall warden_hook tests passed")
     return 0
 

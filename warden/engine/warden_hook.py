@@ -144,7 +144,39 @@ def dispatch(data: dict) -> list[str]:
         if fired:
             _log(f"FIRED {moment} @ {anchor_root.name} traits={traits} → {len(fired)} steer(s)")
             steers.extend(fired)
+
+    # Doc-fire on write (F222): an anchor that opts in via the `audit-on-write`
+    # trait runs its doc-audit rules on the freshly-written markdown file and
+    # steers on failures — the /audit doc pass, triggered live by the edit.
+    if "audit-on-write" in traits and any(m.startswith("write:markdown") for m in moments):
+        fp = (data.get("tool_input") or {}).get("file_path") or ""
+        aow = audit_on_write(Path(fp)) if fp else []
+        if aow:
+            _log(f"AUDIT-ON-WRITE {Path(fp).name} @ {anchor_root.name} → {len(aow)} issue steer(s)")
+            steers.extend(aow)
     return steers
+
+
+def audit_on_write(file_path: Path) -> list[str]:
+    """Run the doc-audit rules on a written markdown file; return a steer naming
+    each failing rule (empty when the file is clean, or on any error — fail-safe).
+    Reuses `warden_docfire.fire_audit` (verdict-identical to `audit-plan`)."""
+    try:
+        import warden_docfire as wdf
+        if not file_path.is_file():
+            return []
+        # Steer only on `fail` (a real content violation) — never on `error`
+        # (an unimplemented/broken checker is a rule-infra gap, not the writer's
+        # problem; surfacing it here is noise) nor `pass`.
+        fails = [v for v in wdf.fire_audit(file_path.resolve(), "doc")
+                 if v.get("status") == "fail"]
+    except Exception as e:  # noqa: BLE001 — a doc-fire bug must never break the write
+        _log(f"AUDIT-ON-WRITE ERROR {type(e).__name__}: {e}")
+        return []
+    if not fails:
+        return []
+    lines = "\n".join(f"  · {v['rule']}: {v.get('detail') or v.get('status')}" for v in fails)
+    return [f"[warden audit-on-write] {file_path.name} has {len(fails)} issue(s) to fix:\n{lines}"]
 
 
 def emit(event: str, steers: list[str]) -> None:
