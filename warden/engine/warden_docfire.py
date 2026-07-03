@@ -1,0 +1,155 @@
+#!/usr/bin/env python3
+"""Warden doc-rule fire path — the audit-surface executor (F212 / M4 seam).
+
+The moment dispatcher (`warden_fire`) runs *when-rules* at a live moment. Tier
+**doc-rules** — the where-major `checked`/`sampled`/`stated`/`tracked` rules the
+compiler records under `doc_rules` — fire on the authoring-time `/audit doc` (and
+`/audit anchor`) pass instead: match each rule's `where` glob against the target
+scope, run its `check::` action, emit a verdict per target.
+
+This module is the reference executor for that path, and it is the concrete M4
+seam: instead of re-deriving the resolve/match/check machinery, it **reuses
+`audit-plan.py`'s** flatten + selector + checker primitives (the shipped Python
+Resolve→Run→Judge engine, F001) — but it drives them from the **Warden IR**. Each
+rule is round-tripped through `warden_compile.compile_rule` into a doc-rule row,
+and execution reads that row's declarative `action`. So this proves the compiled
+IR is a faithful executable representation of the doc-rules: firing from the IR
+reproduces `audit-plan --run` verdict-for-verdict (the golden corpus, run through
+the `warden` engine adapter, matches the `expected.json` blessed against
+audit-plan). The checker *implementations* stay audit-plan's — Warden references
+them by name through `run_checker`, staying adapter-isolated from the impl.
+"""
+from __future__ import annotations
+
+import importlib.util
+import sys
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+
+import warden_compile as wc  # noqa: E402
+
+# audit-plan lives in the sibling skills tree; load it by path (it is not a
+# package). …/ob-skills/skills/audit/scripts/audit-plan.py — `warden/engine/`
+# is two parents below the repo root.
+_REPO_ROOT = HERE.parents[1]
+_AUDIT_PLAN = _REPO_ROOT / "skills" / "audit" / "scripts" / "audit-plan.py"
+
+
+def _load_audit_plan():
+    spec = importlib.util.spec_from_file_location("audit_plan", _AUDIT_PLAN)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"cannot load audit-plan from {_AUDIT_PLAN}")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+ap = _load_audit_plan()
+
+
+# ── compile: audit-plan rulesets → Warden doc-rule IR rows ───────────────────
+
+def _adapt_rule(r: dict) -> dict:
+    """Shape an audit-plan rule dict into the shape `warden_compile.compile_rule`
+    parses (a doc-rule has no `when::`/`if::`/python body — tier + `where` +
+    optional `check::`)."""
+    return {
+        "id": r["id"], "when": None, "where": r.get("where"), "ifs": [],
+        "tier": r.get("tier"), "check": r.get("check"), "py_kind": None,
+    }
+
+
+def compile_audit_ir(umbrella: str) -> list[tuple[dict, dict]]:
+    """Flatten an audit umbrella (`R-doc` / `R-anchor`) and compile every rule to
+    its Warden IR doc-rule row. Returns [(row, ruleset)] in flatten order — the
+    ruleset is retained for its `source` (drop-own-source) + `where` precedence
+    (already folded into the row by `compile_rule`)."""
+    rulesets = ap.flatten_umbrella(umbrella, [])
+    rows: list[tuple[dict, dict]] = []
+    for rs in rulesets:
+        for r in rs["rules"]:
+            row = wc.compile_rule(_adapt_rule(r), rs)
+            rows.append((row, rs))
+    return rows
+
+
+# ── fire: execute the check-action rows over a target scope ──────────────────
+
+def _check_str(action: dict) -> str:
+    """Reconstruct the `run_checker` argument from an IR check action."""
+    return action["ref"] + (" " + " ".join(action["args"]) if action["args"] else "")
+
+
+def fire_audit(target: Path, mode: str) -> list[dict]:
+    """Fire the doc-rules for `mode` against `target`, returning verdicts as
+    `{rule, target, status, detail}` — the same shape (and, for check-bearing
+    rules, the same values) `audit-plan --run --json` emits under `results`.
+
+    Mirrors `audit-plan.plan_one` + `execute_plan`: pick the umbrella by mode,
+    enumerate scope, match each rule's selector, drop the ruleset's own source
+    file, and run the checker per target. Only rows whose `action` is a `check`
+    produce a verdict — `judge`/`track` rows are the agent-judgment residue
+    (`audit-plan --judge`), never mechanical verdicts."""
+    umbrella = "R-doc" if mode == "doc" else "R-anchor"
+    rows = compile_audit_ir(umbrella)
+    exclude = ap.sub_anchor_roots(target) if mode == "anchor" else None
+    anchor_root, scope_files = ap.enumerate_scope(target, mode, exclude)
+
+    results: list[dict] = []
+    for row, rs in rows:
+        action = row.get("action")
+        if not action or action.get("kind") != "check":
+            continue
+        where = row["where"] or "always"
+        kind, arg = ap.parse_selector(where)
+        if mode == "doc" and kind == "anchor":
+            continue  # anchor-structure rules are N/A at the doc level
+        tgts = ap.match_targets(kind, arg, scope_files, anchor_root)
+        if tgts and rs.get("source"):
+            src_abs = (ap.REPO_ROOT / rs["source"]).resolve()
+            tgts = [t for t in tgts if t.resolve() != src_abs]
+        if not tgts:
+            continue
+        check = _check_str(action)
+        for t in tgts:
+            disp = str(t.relative_to(anchor_root)) if t != anchor_root else "{ANCHOR}"
+            status, detail = ap.run_checker(check, t, anchor_root)
+            results.append({"rule": row["id"], "target": disp,
+                            "status": status, "detail": detail})
+    return results
+
+
+def corpus_signature() -> str:
+    """The live rule-corpus signature — reuses audit-plan's (the doc-fire path
+    reads the very same rulesets), so a `warden`-engine bless pins to the same
+    content hash the `audit-plan` engine does."""
+    return "-".join(ap._plan_rules_hash(ap.flatten_umbrella(u, []))
+                    for u in ("R-doc", "R-anchor"))
+
+
+def main(argv=None):
+    import argparse
+    p = argparse.ArgumentParser(
+        prog="warden-docfire",
+        description="Fire Warden doc-rules against an anchor/doc; emit verdicts.")
+    p.add_argument("target")
+    p.add_argument("--mode", choices=("doc", "anchor"), default=None)
+    p.add_argument("--json", action="store_true")
+    args = p.parse_args(argv)
+    tgt = Path(args.target).expanduser().resolve()
+    mode = args.mode or ("doc" if tgt.is_file() else "anchor")
+    results = fire_audit(tgt, mode)
+    if args.json:
+        import json
+        print(json.dumps({"results": results}, indent=2))
+    else:
+        for v in results:
+            mark = {"pass": "✓", "fail": "✗", "error": "!"}.get(v["status"], "?")
+            print(f"{mark} {v['rule']:20s} {v['target']:24s} {v['detail']}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

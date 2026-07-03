@@ -54,9 +54,24 @@ def test_engine_gating_and_stream():
     print("PASS  engine_gating_and_stream")
 
 
+def test_engine_fire_audit_surface():
+    # the reference engine also owns the doc-audit fire path (the tier doc-rules);
+    # firing a queries doc with no frontmatter yields the R-query-02 fail verdict.
+    with tempfile.TemporaryDirectory() as td:
+        doc = Path(td) / "FX queries.md"
+        doc.write_text("# FX queries\n\nno frontmatter here\n", encoding="utf-8")
+        engine = we.WardenEngine(REPO)
+        verdicts = engine.fire_audit(doc, "doc")
+        rules = {v["rule"]: v["status"] for v in verdicts}
+        assert "R-query-02" in rules, rules
+        assert rules["R-query-02"] == "fail", rules
+    print("PASS  engine_fire_audit_surface")
+
+
 def main():
     test_engine_fires_r_query_14()
     test_engine_gating_and_stream()
+    test_engine_fire_audit_surface()
     print("\nall warden_engine tests passed")
     return 0
 

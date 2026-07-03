@@ -49,6 +49,7 @@ CORPUS_DIR = HARNESS_DIR.parent
 CASES_DIR = CORPUS_DIR / "cases"
 REPO_ROOT = CORPUS_DIR.parents[1]          # …/ob-skills
 AUDIT_PLAN = REPO_ROOT / "skills" / "audit" / "scripts" / "audit-plan.py"
+WARDEN_ENGINE_DIR = CORPUS_DIR.parent / "engine"   # …/warden/engine
 
 
 # ── case.yaml (flat key: value — no YAML dependency) ────────────────────────
@@ -83,16 +84,27 @@ def _audit_plan_module():
     return mod
 
 
+def _warden_docfire_module():
+    if str(WARDEN_ENGINE_DIR) not in sys.path:
+        sys.path.insert(0, str(WARDEN_ENGINE_DIR))
+    import warden_docfire  # noqa: E402
+    return warden_docfire
+
+
 def rule_corpus_signature(engine: str) -> str:
     """The live rule corpus' CONTENT signature — pins what a bless was against.
     Hashes the flattened rules' verdict-bearing fields (id/tier/where/check/fix)
     across both umbrellas, so it moves only when a rule change could move a
-    verdict — message-wording and unrelated-file churn leave it stable."""
+    verdict — message-wording and unrelated-file churn leave it stable. The
+    `warden` reference engine reads the very same rulesets, so it pins to the
+    same signature (a `warden` bless and an `audit-plan` bless are comparable)."""
     if engine == "audit-plan":
         mod = _audit_plan_module()
         warnings: list[str] = []
         return "-".join(mod._plan_rules_hash(mod.flatten_umbrella(u, warnings))
                         for u in ("R-doc", "R-anchor"))
+    if engine == "warden":
+        return _warden_docfire_module().corpus_signature()
     raise SystemExit(f"run-corpus: unknown engine {engine!r}")
 
 
@@ -107,6 +119,10 @@ def run_engine(engine: str, target: Path, mode: str) -> list[dict]:
         if out.returncode != 0:
             raise RuntimeError(f"audit-plan failed: {out.stderr.strip()}")
         return json.loads(out.stdout)["results"]
+    if engine == "warden":
+        # The Warden reference engine (F212): fire the compiled doc-rule IR
+        # through the shared checker registry — in-process, no subprocess.
+        return _warden_docfire_module().fire_audit(target, mode)
     raise SystemExit(f"run-corpus: unknown engine {engine!r}")
 
 
