@@ -26,7 +26,7 @@ The **reference implementation** of the whole compile→install→fire loop in P
 
 ## Status
 
-**Planned** — M2 of [[Warden Roadmap]]. Depends on F211. Reuses `audit-plan.py` (F001, shipped).
+**Reference loop built 2026-07-02** — `warden/engine/warden_engine.py` (`WardenEngine`) ties the three stages into the single lazy compile→install→fire loop: lazy warm-start (compile the corpus on first fire, memoise for the session — M1 Q1); `fire(anchor_root, moment)` assembles the moment `ctx`, resolves the anchor's active-set from its `.anchor` traits, and dispatches; `run_moments` fires a simulated moment stream. It is a thin composition of the shipped stages (`warden_scan` + `warden_compile` + `warden_fire`) — **one** implementation of each, no parallel engine — so it *is* the behavioral oracle [[F213 — Rust performance implementation + ms budget|F213]] differential-tests against. The real `R-query-14` fires end-to-end through it (`test_warden_engine.py`, green). Remaining M2 work: the stable verdict/steer **snapshot API** the differential harness records, and mapping the in-process dispatcher to real hook events (Resolved #2) for the e2e layer. Reuses `audit-plan.py` (F001, shipped) for the checker registry the `check::` doc-rule actions reference.
 
 ## Resolved
 
