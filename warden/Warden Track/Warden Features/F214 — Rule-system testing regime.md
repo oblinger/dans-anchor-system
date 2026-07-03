@@ -83,7 +83,9 @@ The corpus fixtures are the common pool: unit tests inline what they can; the go
 
 **Design landed 2026-07-01** (this doc; the F214 spec side of [[Warden Roadmap]] M3 — each layer has a concrete contract + fixture plan, and the differential contract is fixed for M6/M8). Golden layer is live with four seed cases against the shipped audit engine. Unit + e2e stand up with the M6 build; differential + performance gates with M8. Defined 2026-06-26.
 
-**First unit test landed 2026-07-02** ahead of M6: the [[F211 — Rule compiler and installer|F211]] scan command ships with `warden/engine/test_warden_scan.py` (5-behavior standalone regression test) — the unit layer's first case, pinning the discovery sweep's read-0-on-unchanged property. Engine modules test alongside the build as they land, not in one M6 batch.
+**First unit test landed 2026-07-02** ahead of M6: the [[F211 — Rule compiler and installer|F211]] scan command ships with `warden/engine/test_warden_scan.py` (5-behavior standalone regression test) — the unit layer's first case, pinning the discovery sweep's read-0-on-unchanged property. Engine modules test alongside the build as they land, not in one M6 batch (now: `test_warden_{scan,compile,fire,engine,docfire}.py`).
+
+**Differential layer has a real second engine 2026-07-02** ahead of M8: [[F212 — Python reference implementation|F212]]'s doc-audit fire path (`warden_docfire.py`) plugs into `run-corpus.py` as a `warden` engine adapter, and `test_warden_docfire.py` runs **100% of corpus cases through both `warden` and `audit-plan`, asserting byte-equal canonical verdicts** (plus rule-corpus signature parity) — the § Differential contract, exercised now against the Python reference instead of waiting for the Rust engine. The full golden corpus passes through the `warden` engine against the audit-plan-blessed `expected.json` (4/4). This is the differential harness the F213 Rust engine will slot into as the third adapter with zero contract change.
 
 ## Resolved
 
