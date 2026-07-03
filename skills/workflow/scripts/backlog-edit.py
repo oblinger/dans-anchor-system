@@ -67,6 +67,29 @@ ICEBOX_HORIZON = "Icebox"
 ICEBOX_DEFAULT_H2 = "Iced"
 SKIP_PATH_FRAGMENTS = ("/.history/", "/worktrees/", "/Yore/", "/.trash/")
 
+# Closed set of canonical backlog-row status brackets (per [[SKA workflow]]).
+# Write-time enforcement lives in validate_status() below. Non-canonical brackets
+# ([Designed], [Foo], …) get rejected at state task create/update rather than
+# silently written, then rendering as ⚠ with no Ready/Questions banner mapping.
+VALID_STATUS_BASE = frozenset({
+    "Ready", "Active", "Designing", "Questions",
+    "Verify", "Blocked", "Waiting", "Watching",
+    "Done",
+    # Feature-doc lifecycle aliases (canonical-alias, accepted)
+    "Implementing",  # = Active
+    "Agreed",        # = Ready
+})
+# Compound status forms — order matters only for readability.
+VALID_STATUS_PATTERNS = (
+    re.compile(r"^\d+\s+Questions?$", re.IGNORECASE),                        # "3 Questions"
+    re.compile(r"^\d+\s+Ready$", re.IGNORECASE),                             # "5 Ready" (milestone)
+    re.compile(r"^Waiting\s+\d+[dhmy]$", re.IGNORECASE),                     # "Waiting 7d"
+    re.compile(r"^Watching\s+\d+[dhmy]$", re.IGNORECASE),                    # "Watching 14d"
+    re.compile(r"^Verify(-by\s+\d{4}-\d{2}-\d{2})?$", re.IGNORECASE),        # "Verify-by 2026-06-02"
+    re.compile(r"^Done(\s+\d{4}-\d{2}-\d{2})?$", re.IGNORECASE),             # "Done 2026-06-04"
+    re.compile(r"^Blocked(\s+F\d+)?$", re.IGNORECASE),                       # "Blocked F210"
+)
+
 # A Questions-bracket promise: the linked target must contain ≥1 of these.
 Q_MARKER_RE = re.compile(r"\bQ\d+\s+—")
 # Extract the basename from the first wiki-link in a body string.
@@ -76,6 +99,30 @@ QUESTIONS_STATUS_RE = re.compile(r"^(\d+\s+)?Questions?$", re.IGNORECASE)
 # Statuses to nudge toward Later/Icebox.
 VERIFY_WATCHING_FAMILY = ("Verify", "Watching")
 NUDGE_BUCKETS = {"Now", "Next", "Active", "Ready"}
+
+
+def validate_status(status):
+    """Reject non-canonical brackets at write time.
+
+    Accepts 'same' / 'delete' (control tokens used by state's row-edit
+    delegation). Otherwise the status must match either VALID_STATUS_BASE
+    (case-sensitive) or one of VALID_STATUS_PATTERNS (case-insensitive for
+    the keyword, exact for the numeric suffix).
+    """
+    if status in ("same", "delete"):
+        return
+    stripped = status.strip().strip("[]").strip()
+    if stripped in VALID_STATUS_BASE:
+        return
+    for pat in VALID_STATUS_PATTERNS:
+        if pat.match(stripped):
+            return
+    raise BacklogEditError(
+        f"invalid status {status!r}; expected one of "
+        f"{sorted(VALID_STATUS_BASE)} or a compound form "
+        f"(N Questions, N Ready, Waiting Nd, Watching Nd, "
+        f"Verify-by YYYY-MM-DD, Done YYYY-MM-DD, Blocked FNNN)"
+    )
 
 
 # --------------------------------------------------------------------------
