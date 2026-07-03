@@ -1,21 +1,14 @@
 ---
-description: "command surface — every command, compressed --help form"
+description: "command reference — every command, flag, exit code"
 ---
 
 :>> [[CAE]] → [[CAE Design]]
 
 # CAE CLI
 
-```
-example-project --help                                                       # Show this help text
-example-project --version                                                    # Print version
-example-project submit --deadline <t> [--retry N] [--priority 0-9] -- <cmd>  # Enqueue a task at the deadline
-example-project status [--json] [--filter <state>]                           # Show task states and queue depth
-example-project cancel <task-id>                                             # Cancel a pending task by ID
-example-project drain [--timeout <sec>]                                      # Wait for all pending tasks to finish
-example-project pause                                                        # Stop dispatching new tasks (maintenance)
-example-project resume                                                       # Resume dispatching
-```
+![[CAE CLI Help.svg|1119]]
+
+*(Help figure — source `CAE CLI Help.txt`, rendered by `cli-help-svg.py`. Edit the `.txt` and regenerate; the SVG fixes the geometry so the aligned `# comments` never re-wrap.)*
 
 For a tutorial introduction, see [[CAE User Guide]]. Only the commands whose flags aren't obvious from the block are detailed below.
 

@@ -1,0 +1,8 @@
+example-project --help                                                       # Show this help text
+example-project --version                                                    # Print version
+example-project submit --deadline <t> [--retry N] [--priority 0-9] -- <cmd>  # Enqueue a task at the deadline
+example-project status [--json] [--filter <state>]                           # Show task states and queue depth
+example-project cancel <task-id>                                             # Cancel a pending task by ID
+example-project drain [--timeout <sec>]                                      # Wait for all pending tasks to finish
+example-project pause                                                        # Stop dispatching new tasks (maintenance)
+example-project resume                                                       # Resume dispatching
