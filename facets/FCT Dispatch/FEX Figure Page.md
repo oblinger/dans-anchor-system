@@ -1,16 +1,16 @@
 ---
-description: "Worked example — an anchor page WITH a figure: the canonical progressive-disclosure ordering (H1 → one-liner → figure → dispatch table)."
+description: "the figure-bearing anchor-page layout"
 ---
 
-# CAE Figure Page
+# FEX Figure Page
 A worked example: an anchor page that carries a figure.
 
 ![[F143-1-top-level.svg]]
 
-| -[[CAE Figure Page]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[CAE]] → [CAE Figure Page](hook://p/CAE%20Figure%20Page)<br>: the figure-bearing anchor-page layout |
+| -[[FEX Figure Page]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[FCT Dispatch]] → [FEX Figure Page](hook://p/FEX%20Figure%20Page)<br>: the figure-bearing anchor-page layout |
 | --- | --- |
-| Anchor | [[CAE]],   |
-| Related | [[CAE Dispatch Examples]],  [[DSC Dispatch Table]],   |
+| Gallery | [[FEX Dispatch Examples]],   |
+| Related | [[FEX Dispatch Examples]],  [[DSC Dispatch Table]],   |
 
 ## Why this order
 

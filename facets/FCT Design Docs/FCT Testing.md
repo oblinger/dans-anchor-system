@@ -99,7 +99,7 @@ A reviewer reads `## Tests` to answer "what kinds, how much now, how much intend
 
 | Test                                | Exercises                                   | Spec                          |
 | ----------------------------------- | ------------------------------------------- | ----------------------------- |
-| `test_scheduler_priority_ordering`  | Scheduler picks highest-priority Ready task | [[CAE-Scheduler#Tests]]       |
+| `test_scheduler_priority_ordering`  | Scheduler picks highest-priority Ready task | [[FEX Scheduler#Tests]]       |
 | `test_retry_backoff_exponential`    | Retry delays double up to cap               | [[CAE-Retry#Tests]]           |
 
 ### Integration

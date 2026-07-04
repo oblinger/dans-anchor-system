@@ -21,7 +21,7 @@ The top-of-file table convention that gives most anchor pages and many facet pag
 | [[#Related]] |  |
 | **[[#BRIEF]]** |  |
 **Design:** [[CAB Dispatch Table Design\|Design]]
-**Examples:** [[CAE\|minimal]],  [[HBR\|fuller]],  [[CAE Dispatch Examples\|full gallery]]
+**Examples:** [[CAE\|minimal]],  [[HBR\|fuller]],  [[FEX Dispatch Examples\|full gallery]]
 
 **TLDR** — **Cardinality: many** — one dispatch table per page; most anchor and facet pages carry one. The masthead is the breadcrumb plus, in fixed order, the optional **Related → type → Design → Track → User Docs → Dev Docs** rows (a switchboard, not a directory) — each row a link down to a sub-area plus its key parts; anything enumerable beyond those drops to the Member zone below. `/audit dispatch` builds and repairs it.
 
@@ -56,11 +56,11 @@ Every row after the breadcrumb has the **same shape**: its **left cell is a link
 
 ## Anatomy of a dispatch row
 
-A dispatch row is `| left-cell | right-cell |`. The **breadcrumb identity row** is special: its left cell is the page's own name as a struck self-link, its right cell is the parent-chain path ending in the page's `hook://` link, followed by a `<br>` and a one-line description. Every **other** row has the same shape — the left cell names a sub-area (a link *down* to it), the right cell enumerates that sub-area's key parts, comma-separated. Aliased wiki-links inside cells escape the pipe as `[[Target\|Display]]` (R-03). The table's final row is the catch-all marker (R-07). The live rendered form is on [[CAE]] (masthead) and [[CAE Dispatch Examples]] (full gallery).
+A dispatch row is `| left-cell | right-cell |`. The **breadcrumb identity row** is special: its left cell is the page's own name as a struck self-link, its right cell is the parent-chain path ending in the page's `hook://` link, followed by a `<br>` and a one-line description. Every **other** row has the same shape — the left cell names a sub-area (a link *down* to it), the right cell enumerates that sub-area's key parts, comma-separated. Aliased wiki-links inside cells escape the pipe as `[[Target\|Display]]` (R-03). The table's final row is the catch-all marker (R-07). The live rendered form is on [[CAE]] (masthead) and [[FEX Dispatch Examples]] (full gallery).
 
 ## Structure — Masthead + Member zone
 
-A dispatch table has up to **two zones** (worked examples: [[CAE Dispatch Examples]]):
+A dispatch table has up to **two zones** (worked examples: [[FEX Dispatch Examples]]):
 
 ### Masthead — the fixed top block (always present)
 

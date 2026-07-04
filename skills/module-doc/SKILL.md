@@ -222,7 +222,7 @@ python3 ~/.claude/skills/viz/excalidraw_to_svg.py "CAE Scheduler.excalidraw"
 # → CAE Scheduler.svg + CAE Scheduler.png
 ```
 
-Embed in the markdown with a page-fill width hint: `![[CAE Scheduler.svg|2400]]` (Obsidian caps to the pane; never a bare embed — it renders tiny).
+Embed in the markdown with a page-fill width hint: `![[FEX Scheduler.svg|2400]]` (Obsidian caps to the pane; never a bare embed — it renders tiny).
 
 **Step 6 — Audit:**
 ```bash
@@ -247,7 +247,7 @@ The remaining C30 (SVG older than excalidraw) means a manual re-convert: `python
 **Step 9 — Link in dispatch tables.** Add a row to `CAE Docs/CAE Dev/CAE Dev.md`:
 ```markdown
 
-| [[CAE-Scheduler]] | Priority queue engine + worker pool for deferred task execution |
+| [[FEX Scheduler]] | Priority queue engine + worker pool for deferred task execution |
 
 ```
 Add the file to `CAE Docs/CAE Dev/CAE Files.md` tree at the appropriate node.

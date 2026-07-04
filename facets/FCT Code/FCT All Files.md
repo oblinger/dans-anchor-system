@@ -98,7 +98,7 @@ Every source file and directory that has a module doc is linked by making the fi
 
 | What | Format | Renders as |
 |------|--------|------------|
-| Source file | `[[CAE Scheduler\|scheduler.rs]]` | `scheduler.rs` (links to CAE Scheduler doc) |
+| Source file | `[[FEX Scheduler\|scheduler.rs]]` | `scheduler.rs` (links to CAE Scheduler doc) |
 | Directory | `[[CAE engine\|engine/]]` | `engine/` (links to module aggregator doc) |
 | Standard file | `[[CAB Claude\|CLAUDE.md]]` | `CLAUDE.md` (links to CAB spec) |
 
@@ -121,7 +121,7 @@ The Interface (see [[FCT Interface]]) is the **required top-level human-authored
 ## Alignment
 
 - **Every description starts at the same display-width column.** Pick a target (42 works well in practice; whatever fits the deepest `{tree-prefix}{filename}` position plus some breathing room) and make every line with a description hit that column exactly.
-- Alignment is based on **rendered display width**, not raw markdown width. Wiki-links collapse: `[[CAE-Scheduler|scheduler.rs]]` is 30 chars in source but renders as `scheduler.rs` (12). Pad spaces in the source so that *rendered* descriptions align.
+- Alignment is based on **rendered display width**, not raw markdown width. Wiki-links collapse: `[[FEX Scheduler|scheduler.rs]]` is 30 chars in source but renders as `scheduler.rs` (12). Pad spaces in the source so that *rendered* descriptions align.
 - `/audit docs` flags inconsistent alignment (range > 2 chars across rows) as **files-misaligned**. Fix with a Python reformat pass — see audit-docs § 1.7 for the snippet.
 - Tree lines *without* descriptions (single-word directories like `├── .git/`) don't participate in alignment — they're fine as-is.
 
