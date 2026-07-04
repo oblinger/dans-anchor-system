@@ -2,9 +2,9 @@
 description: "raw input to process"
 ---
 
-:>> [[CAE]] → [[CAE Track]]
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FEX Inbox](hook://p/FEX%20Inbox)
 
-# CAE Inbox
+# FEX Inbox
 
 Drop zone for raw input. The user pastes thoughts, change requests, or design notes here; an agent reads them and integrates into the appropriate planning docs (PRD, System Design, Backlog, Rules). Entries are reverse-chronological.
 
@@ -20,4 +20,4 @@ Considering whether the scheduler should expose a `pause()` method for maintenan
 
 _Example entry only._
 
-User asked about structured logging. Added to [[CAE Backlog]] rather than Roadmap — not critical for v1.
+User asked about structured logging. Added to [[HBR Backlog]] rather than Roadmap — not critical for v1.
