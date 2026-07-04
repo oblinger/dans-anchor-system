@@ -1,12 +1,12 @@
 ---
 description: "priority queue engine + worker dispatch. Source: `src/execution/scheduler.rs`."
 ---
-:>> [[CAE]] → [[CAE Architecture]] → [CAE Scheduler](hook://p/CAE%20Scheduler)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Code]] → [FEX Scheduler](hook://p/FEX%20Scheduler)
 
-# CAE-Scheduler
-Orchestrates timed task execution with priority queuing and retry semantics. The Scheduler is the central dispatch engine for deferred work. It accepts tasks with deadlines, assigns them to worker threads from a managed pool, and handles retry logic when tasks fail. All scheduling decisions flow through a single priority queue to prevent starvation (see [[CAE Decisions#D07 — One Queue, One Clock (checked)\|D07]]).
+# FEX Scheduler
+Orchestrates timed task execution with priority queuing and retry semantics. The Scheduler is the central dispatch engine for deferred work. It accepts tasks with deadlines, assigns them to worker threads from a managed pool, and handles retry logic when tasks fail. All scheduling decisions flow through a single priority queue to prevent starvation (the project's *one queue, one clock* rule).
 
-![[CAE Scheduler.svg|1200]]
+![[FEX Scheduler.svg|1200]]
 
 *Priority and starvation* is the topic that governs the queue's ordering rule (deadline + aging promotion).
 
@@ -42,7 +42,7 @@ Aging-promotion rule layered on top of strict deadline ordering. Without it, low
 - **Aging promotion** — Tasks waiting longer than `2 × pool_size` scheduling cycles get promoted ahead of their deadline cohort.
 - **Cohort jumping** — Promoted tasks jump to the front of their original cohort, NOT to absolute front of queue.
 - **No preemption** — Promotion never interrupts running work; promoted tasks wait for the next available worker slot.
-- **Rule reference** — [[CAE Decisions#D07 — One Queue, One Clock (checked)\|D07]] is the discipline that requires all scheduling decisions flow through this single queue.
+- **Rule reference** — the project's *one queue, one clock* decision (D07) requires all scheduling decisions flow through this single queue.
 
 
 ## TaskHandle Class
@@ -94,7 +94,7 @@ Failed tasks re-enter the queue with an exponential backoff applied to their dea
 let new_deadline = original_deadline + base_delay * 2u32.pow(attempt);
 ```
 
-After `retry_limit` attempts, the task is moved to the dead-letter list and the caller's `TaskHandle` resolves with a `Failed` result. See [[CAE Decisions#D10 — Retries Are Declared, Not Implicit (checked)\|D10]] — all retry logic lives here, not in callers.
+After `retry_limit` attempts, the task is moved to the dead-letter list and the caller's `TaskHandle` resolves with a `Failed` result. Per the *retries are declared, not implicit* decision (D10), all retry logic lives here, not in callers.
 
 ### Thread pool sizing
 The pool is fixed at construction. Workers pull from the queue in a blocking loop. When `drain()` is called, no new submissions are accepted and the method blocks until the queue empties or the timeout expires.
@@ -154,8 +154,8 @@ Compact reference for the `execution` module's public surface. Class detail in t
 
 ## See Also
 
-- [[CAE Architecture]] — system-level architecture (Scheduler's place in the broader picture)
-- [[CAE API]] — public API surface (schemas, file formats, error types)
+- **Architecture** — the Scheduler's place in the broader system picture.
+- **API** — the public API surface (schemas, file formats, error types).
 - `src/execution/worker.rs` — worker thread lifecycle
 - `src/retry.rs` — backoff logic called by the scheduler
 - `src/clock.rs` — injectable time source for testing

@@ -8,7 +8,7 @@ description: "per-module source code documentation — one doc per source module
 Facet spec for per-module documentation — the auto-generatable, source-code-grounded reference doc that mirrors one source module under `{NAME} Dev/`.
 
 **Related:** [[FCT Interface]],  [[FCT Architecture]],  [[FCT Dev]],  [[FCT Code]]
-**Examples:** [[CAE-Scheduler\|fuller (two-zone, SVG figure)]],  [[HBR Scanner\|minimal (leaf module)]]
+**Examples:** [[FEX Scheduler\|fuller (two-zone, SVG figure)]],  [[HBR Scanner\|minimal (leaf module)]]
 
 | Table of Contents |  |
 |---|---|
@@ -137,7 +137,7 @@ When an agent is authoring or revising a figure, it MUST read `[[viz-excalidraw]
 Reference (canonical example from `CAE Scheduler.md`):
 
 ```markdown
-![[CAE Scheduler.svg]]
+![[FEX Scheduler.svg]]
 
 *Priority and starvation* is the topic that governs the queue's ordering rule (deadline + aging promotion).
 ```
@@ -544,7 +544,7 @@ Before writing a module doc, add its row to `{NAME} Dev.md` (Dev dispatch) and t
 
 # BRIEF
 
-*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body above (§ Format Specification) and RULESET R-module-doc; the canonical worked example is `[[CAE Scheduler]]`, read it before authoring or revising.)*
+*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body above (§ Format Specification) and RULESET R-module-doc; the canonical worked example is `[[FEX Scheduler]]`, read it before authoring or revising.)*
 
 - **Inclusion test** — a rule belongs here only when it constrains how a *single* module doc is shaped (sections, tables, casing, block-ID format, figure workflow, frontmatter contract). Cross-module rules go in the trait or anchor-level spec; rendering rules belong in `[[R-markdown]]`; the layer-wide contract that groups modules is `[[FCT Interface]]`; architecture-level discussion is `[[FCT Architecture]]` (the per-module `Arch` row points to it).
 - **Downstream consumers read this file as authority** — the `[[module-doc]]` skill, `[[audit-docs]]`, and `[[skills/architect/SKILL\|/architect]]`. Update a rule here once and they pick it up; don't restate format rules in the skills. Don't regress the load-bearing conventions — the two-zone SECTIONS / per-class-table / Class Method Details structure, the bold-identifier-outside-code-span link form (backticks inside a wiki-link alias do NOT render), the `^ClassName-methodname` block-ID format, the `module_docs_audited:` frontmatter contract on `{NAME} Dev.md` (F074), and SVG-only figures via `[[viz-excalidraw]]` — each has a downstream reader (architect, audit-docs, Obsidian rendering) that breaks if it changes.

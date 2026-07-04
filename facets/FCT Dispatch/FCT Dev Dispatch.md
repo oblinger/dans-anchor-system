@@ -33,7 +33,7 @@ The `{NAME} Dev Docs.md` dispatch page inside the root-level `{NAME} Dev Docs/` 
 | --- | --- |
 | [[CAE Files\|Files]] | repository file tree (audit-generated) |
 | **engine/** |  |
-| [[CAE Scheduler\|Scheduler]] | priority queue and worker pool |
+| [[FEX Scheduler\|Scheduler]] | priority queue and worker pool |
 | [[CAE RetryManager\|RetryManager]] | backoff and retry logic |
 | **api/** |  |
 | [[CAE Router\|Router]] | CLI command routing |

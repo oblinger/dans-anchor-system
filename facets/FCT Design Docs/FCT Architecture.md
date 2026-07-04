@@ -91,7 +91,7 @@ Section 4's subsystems list takes this shape:
 
 | SUBSYSTEMS         | Description                                                   |
 | ------------------ | ------------------------------------------------------------- |
-| [[CAE-Scheduler]]  | priority queue + worker dispatch. Source: `src/execution/`.   |
+| [[FEX Scheduler]]  | priority queue + worker dispatch. Source: `src/execution/`.   |
 | [CAE-Store]        | SQLite-backed task persistence (no doc yet)                   |
 | [CAE-Retry]        | exponential backoff + dead-letter handling (no doc yet)       |
 | [CAE-Clock]        | injectable Clock; production WallClock impl (no doc yet)      |
