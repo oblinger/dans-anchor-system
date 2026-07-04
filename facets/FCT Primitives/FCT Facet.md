@@ -42,6 +42,14 @@ A facet **defines a kind**. The concrete `<NAME> Backlog.md` inside a real proje
 
 Facets are one of the two kinds of [[CAB Aspects|Aspect]] — the narrow, file-based kind; the broad declared-paradigm kind is the [[TRT|Trait]] (full distinction: [[CAB Aspects]] § Trait vs Facet). The shared model lives in [[CAB Aspects]]; this page is the facet-authoring view of it.
 
+# Examples of a facet — project instances vs standalone `FEX` artifacts
+A facet's worked examples come in two kinds, and the **prefix tells them apart**:
+
+- **Project instances** — a real `{NAME} <Facet>.md` living inside a project example world ([[HBR]], [[FEX Repo]]) or an actual anchor. It keeps the project's slug (`HBR CLI`, `SKA Backlog`) and is linked from the `Examples` row (R-facet-spec-25).
+- **Standalone teaching artifacts** — an example that belongs to *no* single project world (a dispatch-table gallery, a page-layout exemplar). It carries the **`FEX`** prefix — `FEX` marks "example" exactly as `FCT` marks "spec", so a reader tells them apart at a glance — and lives as a plain file **in the facet's group folder** (`facets/FCT <Group>/FEX <Name>.md`), beside the `FCT` specs. **No per-facet anchor is created** (that's the "bunch of anchors" trap); a set of related ones may be gathered by a `FEX <Group>` gallery/dispatch page in the same folder. Group-level placement is what lets a **cross-facet** example (one that teaches several facets at once) have a natural home.
+
+Worked instances of the standalone kind: [[FEX Dispatch Examples]] (+ [[FEX Grouped Dispatch]] / [[FEX List Dispatch]] / [[FEX Figure Page]]) in `facets/FCT Dispatch/`; [[FEX Scheduler]] in `facets/FCT Code/`.
+
 # RULESET R-facet-spec
 include::
 where:: file: facets/**/FCT *.md, !facets/FCT.md, !**/FCT Facets.md, !**/FCT Primitives.md, !**/FCT Anchor.md, !**/FCT Code.md, !**/FCT Design Docs.md, !**/FCT Dispatch.md, !**/FCT Doc.md, !**/FCT Output.md, !**/FCT Track.md
@@ -199,6 +207,11 @@ The dispatch masthead includes an **`Examples`** row linking worked instances th
 ### RULE R-facet-spec-26 — A body reference example is live markdown, never fenced (stated)
 Usually a facet spec carries **no** reference example in its body — the worked instances are linked in the Examples row (R-25). If a spec does inline a small reference example *of markdown*, it is written as **live markdown** (so its wiki-links, headings, and tables render), never wrapped in a triple-backtick code fence — a fence makes markdown inert (per [[DSC markdown]] R-markdown-11). Code fences stay correct for literal **non-markdown** content (shell, JSON, a `key: value` data file, a file tree).
 **Why:** a fenced markdown "example" renders as dead text — links go inert, structure doesn't show — defeating its purpose. Prefer a linked instance; inline only when a tiny illustration genuinely helps, and keep it live.
+
+### RULE R-facet-spec-27 — Standalone facet examples carry the `FEX` prefix, in the facet-group folder (checked)
+A worked example that is **not** a natural instance in a project world (a dispatch-table gallery, a layout exemplar) is a standalone teaching artifact. It is named **`FEX <Name>.md`** (`FEX` = example, parallel to `FCT` = spec) and lives as a plain file **in the facet's group folder** — `facets/FCT <Group>/FEX <Name>.md`, beside the `FCT` specs. It does **not** get its own anchor folder; a set of related ones may be gathered by a `FEX <Group>` gallery page in that folder. Examples that are natural project instances (`HBR CLI`, `SKA Backlog`) keep the project slug and live in that project world — this rule governs only the standalone kind.
+**Check pattern:** a facet-teaching example under `facets/**/` is named `FEX <Name>.md`, sits inside a `FCT <Group>` folder, and has no sibling `.anchor` promoting it to its own anchor.
+**Why:** the prefix makes example-vs-spec legible at a glance, and co-locating in the existing group anchor gives cross-facet examples a home without spawning a per-facet anchor for each.
 
 # BRIEF
 
