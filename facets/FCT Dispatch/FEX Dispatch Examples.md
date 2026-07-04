@@ -24,7 +24,7 @@ A gallery of the dispatch-table alternatives from [[DSC Dispatch Table]] § Stru
 ## 1 — Masthead-only ([[HBR]])
 
 `[[HBR]]` is a [[Code Anchor]]. Its dispatch table is **all Masthead, no Member zone** — because HBR isn't a [[Collection]]; it's one project with structural parts, not a set of like members. Read it and notice:
-- the **breadcrumb identity row** (the title cell naming the page, plus the kmr → … → CAE path) — the up-edge;
+- the **breadcrumb identity row** (the title cell naming the page, plus the kmr → … → HBR path) — the up-edge;
 - **structural rows** keyed by the anchor's parts: [[HBR Design|Design]], [[HBR Architecture|Architecture]], [[HBR User Docs|User Docs]], [[HBR Dev Docs|Dev Docs]] — each a down-link to a sub-folder dispatch page;
 - a `Related` row and an `External` row (curated links).
 
