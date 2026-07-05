@@ -275,3 +275,27 @@ When a doc carries an organizing figure (system diagram, architecture sketch, fl
 - **Prose between H1 and first body H2.** The preface zone is dispatch / TLDR / figure (in that order). Nothing else fits there. No "this document covers …" lead-in paragraph; the TLDR is that lead-in if needed.
 - **Body content masquerading as preface.** The dispatch table is navigational; the TLDR is summarizing; the figure is organizing. None of them contain new information that isn't elsewhere in the doc.
 - **Meta-prose at the top.** "`This document is the normative standard for...`" / "`This page specifies...`" / "`The following describes...`". Deferral disguised as introduction. Goes to a tail `## Scope` or `## About` section, or gets deleted. See § Content first. Meta last, or never.
+
+# RULESET R-progressive
+where:: always
+description:: layout conventions of progressive disclosure — checked on every markdown doc
+
+The mechanical, whole-document layout checks of this discipline: the **conditional dispatch-table** placement and the **section-spacing** conventions. Applies to every markdown document (`always`); each rule decides internally whether and how it constrains a given doc. These are the deliberately *conditional, multi-check* rules — one rule that both determines what kind of doc it is looking at and makes several assertions accordingly — the case that stress-tests a declarative rule engine (per the [[Warden Roadmap]] item 8). Format of this set: [[FCT Ruleset]].
+
+### RULE R-progressive-01 — never both a dispatch-masthead and a `:>>` breadcrumb (checked)
+check:: dispatch_table_by_context
+
+A doc uses **one** navigation form, never two: a **dispatch-masthead** marks the page that *is* a container (the anchor page); a **`:>>` breadcrumb** is the navigation on every other doc. A doc must **never carry both**.
+
+**Check pattern:** the masthead considered is the doc's OWN self-referential masthead — a table row whose first cell is `-[[<this doc's name>]]-` (optionally aliased), per [[FCT Dispatch Table]]; an example masthead shown in the body (linking to a *different* page) and any masthead inside a code fence are ignored. Detect a `:>>` breadcrumb top-row (outside fences). If the doc has **both** its own masthead **and** a `:>>` breadcrumb → fail.
+
+**Why:** the two forms are redundant — an anchor page's masthead already carries the breadcrumb in its first row, so a second `:>>` line is duplicate navigation; and a leaf doc that grew a self-masthead has stopped being a leaf. Either way the tree-of-containers navigation is muddied (per [[feedback_breadcrumb_vs_dispatch_table]]). Whether a masthead is *required* on a given anchor page depends on the anchor kind — that direction is [[FCT Anchor Page]]'s (`R-anchor-page`) kind-aware job, deliberately not asserted here (a per-file checker cannot classify anchor-page-ness reliably across the vault).
+
+### RULE R-progressive-02 — progressive-disclosure section spacing (checked)
+check:: progressive_disclosure_layout
+
+The blank-line conventions that keep a doc's outline scannable: every `## H2` is preceded by a blank line, and the file carries no trailing blank lines. One rule, two assertions.
+
+**Check pattern:** scanning outside fenced code blocks — (1) each `## H2` has a blank line immediately before it (no H2 glued to the prose above); (2) the last line is non-blank. Two conventions deliberately **excluded** as too noisy on ordinary docs: the anchor-page-only "no blank after the H1" glue rule (that is `R-anchor-page-07`'s job — an ordinary doc may have a blank after its H1) and the "no doubled blank line" rule (widely tolerated in practice).
+
+**Why:** consistent section breaks let a navigator's eye find the structure at a glance — the second layer of progressive disclosure. An H2 glued to the prose above it hides where one section ends and the next begins.

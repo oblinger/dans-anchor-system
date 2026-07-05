@@ -1,11 +1,11 @@
 ---
-description: "Canonical facet exemplar — the structure every FCT facet page follows, worked with the Design facet. Roll this out to all facets."
+description: "canonical facet exemplar"
 ---
 
 # Design
 The marker that an anchor follows the designed-lifecycle convention — if `{NAME} Design/` exists, the anchor is in design-mode.
 
-| -[[CAE Facet]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[CAE]] → [CAE Facet](hook://p/CAE%20Facet)<br>: canonical facet exemplar |
+| -[[FEX Facet]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[FCT Primitives]] → [FEX Facet](hook://p/FEX%20Facet)<br>: canonical facet exemplar |
 | --- | --- |
 | Related | [[FCT]],  [[FCT Design]] (the live facet),  [[FCT Anchor Page]],  [[progressive-disclosure]] |
 

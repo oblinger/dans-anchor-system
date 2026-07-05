@@ -1,5 +1,5 @@
 # CAE Stories
-description:: three user stories — index for US-CAE-1..3 (folder-form per
+description:: three user stories — index for US-CAE-1..3 (folder-form per ~~
 
 | Story | Description |
 | --- | --- |

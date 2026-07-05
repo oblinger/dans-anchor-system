@@ -48,7 +48,7 @@ A roadmap is structurally one of two shapes. Both are legal; the project picks b
 
 Each milestone is a group of feature docs (from [[FCT Features]]) that ship together. The milestone heading carries a checkbox (`## [ ] M-<Name> — <Title>`); its body opens with a one-line milestone summary, then lists the constituent features as `- [ ] [[F<NNN> — …]]` wiki-link bullets, then a bolded `**Acceptance:**` line naming the end-to-end behavior and the e2e test (in `{NAME} Testing`) that covers the milestone.
 
-Use when: the project organizes via feature docs and delegates implementation per-feature (the canonical `/feature` workflow). Milestone progress = feature-doc progress. See [[CAE Roadmap]] for a worked Shape A instance.
+Use when: the project organizes via feature docs and delegates implementation per-feature (the canonical `/feature` workflow). Milestone progress = feature-doc progress. See [[FEX Roadmap]] for a worked Shape A instance.
 
 ### Shape B — Milestone-as-task-checklist
 
@@ -313,7 +313,7 @@ Any anchor with a `{NAME} Design/` folder per [[FCT Design]] that's planning mor
 - [[DSC ask-format]] — open-questions discipline
 - [[design-roadmap]] — authoring sub-skill for `/design roadmap`
 - [[ABIO Roadmap]] — worked example of Shape B (task-checklist; multi-level numbering; deferral cross-refs)
-- [[CAE Roadmap]] — worked example (currently Shape A skeleton; expansion landing alongside CAE refresh)
+- [[FEX Roadmap]] — worked example (currently Shape A skeleton; expansion landing alongside CAE refresh)
 
 # RULESET R-roadmap
 include::

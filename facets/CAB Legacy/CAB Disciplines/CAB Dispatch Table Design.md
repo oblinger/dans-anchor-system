@@ -9,7 +9,7 @@ description: "Design rationale + standing decisions for the Dispatch Table disci
 **Anchor:** [[FCT Dispatch Table]] (the spec this explains)
 **Related:** [[Collection]],  [[DSC progressive-disclosure]],  [[audit-dispatch\|/audit dispatch]]
 
-The **design-flow** companion to [[FCT Dispatch Table]]: it holds the *why* — the standing decisions, what was considered and rejected — so future work doesn't relitigate them. The spec is the *what*; this is the *why*. It's also the first worked instance of the **minimal-facet capsule** ([[CAE Minimal Facet]]).
+The **design-flow** companion to [[FCT Dispatch Table]]: it holds the *why* — the standing decisions, what was considered and rejected — so future work doesn't relitigate them. The spec is the *what*; this is the *why*. It's also the first worked instance of the **minimal-facet capsule** ([[FEX Minimal Facet]]).
 
 ## Standing decisions
 

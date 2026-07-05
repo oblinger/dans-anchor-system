@@ -1,7 +1,7 @@
-# CAE API Design
+# FEX API Design
 description:: programmatic surface of the `cae` Rust crate — types, signatures, error envelope, stability + compatibility commitments. Sibling to
 
-| -[[CAE API Design]]- | : Programmatic Rust-crate surface — types, signatures, error envelope, stability + compatibility.<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[CAE]] → [[CAE Design]] → [CAE API Design](hook://p/CAE%20API%20Design) |
+| -[[FEX API Design]]- | : Programmatic Rust-crate surface — types, signatures, error envelope, stability + compatibility.<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[FCT Design Docs]] → [FEX API Design](hook://p/FEX%20API%20Design) |
 | --- | --- |
 | [[CAE PRD]] | parent PRD — user stories drive this design |
 | [[CAE UX Design]] | sibling — human CLI surface |
@@ -136,5 +136,5 @@ Error mapping to CLI exit codes (for `cae` CLI binary that wraps the API): `Stor
 - [[CAE PRD]] — user stories that drive this design.
 - [[CAE UX Design]] — sibling facet covering the human CLI surface.
 - [[CAE API Doc]] — per-module reference (auto-generated; *what exists*).
-- [[CAE Architecture]] — internal organization that backs this surface.
+- [[FEX Architecture]] — internal organization that backs this surface.
 - [[CAB API Design]] — facet spec; embedded [[#RULESET R-api|R-api]] ruleset.

@@ -2,13 +2,13 @@
 description: CAE public API surface — public modules, schemas, file formats, error types. The contract a caller imports against. Sub-document of CAE Architecture per CAB Architecture facet (worked example of {NAME} API.md placement).
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[CAE]] → [[CAE Architecture]] → [CAE API](hook://p/CAE%20API)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FEX API](hook://p/FEX%20API)
 
-# CAE API
+# FEX API
 
 Public API surface of the `cae_example` crate. Entry point: `src/lib.rs`. Re-exports the public modules so consumers can write `use cae_example::execution::TaskScheduler` without chasing the source tree.
 
-This doc is the **caller's contract** — what the crate exposes, in what shapes, and how the wire formats look. For the internal *structure* (how the codebase is organized — which subsystem talks to which), see [[CAE Architecture]].
+This doc is the **caller's contract** — what the crate exposes, in what shapes, and how the wire formats look. For the internal *structure* (how the codebase is organized — which subsystem talks to which), see [[FEX Architecture]].
 
 ## Public modules
 
@@ -23,7 +23,7 @@ This doc is the **caller's contract** — what the crate exposes, in what shapes
 Per-module class/function tables live in the relevant subsystem doc:
 
 - `execution` API → [[CAE-Scheduler]]
-- `retry` / `store` / `clock` / `models` → subsystem docs not yet authored; see [[CAE Architecture#Subsystems|CAE Architecture § Subsystems]] for the placeholder inventory.
+- `retry` / `store` / `clock` / `models` → subsystem docs not yet authored; see [[FEX Architecture#Subsystems|CAE Architecture § Subsystems]] for the placeholder inventory.
 
 ## Schemas
 
@@ -55,7 +55,7 @@ The wire/persistence schemas the codebase produces and consumes — part of the 
 | `Failed`       | `error: string`, `attempts: int`               | All retries exhausted           |
 | `Cancelled`    | (none)                                         | `cancel(handle)` was called     |
 
-Schemas evolve under [[CAE Decisions#D02 — Fail Loudly (sampled)|D02]] — backward-incompatible field changes bump a `schema_version` discriminator (currently `v1`); never silently absorbed.
+Schemas evolve under [[FEX Decisions#D02 — Fail Loudly (sampled)|D02]] — backward-incompatible field changes bump a `schema_version` discriminator (currently `v1`); never silently absorbed.
 
 ## File formats
 
@@ -69,7 +69,7 @@ Files the codebase reads or writes that are part of the contract with operators 
 | `attempts`   | `task_id` (FK), `started_at`, `error`, `attempt_no`           | Per-attempt audit log            |
 | `migrations` | `version`, `applied_at`                                       | Schema-version tracking          |
 
-The DB file is consumer-readable; ops can `sqlite3 tasks.db "SELECT * FROM tasks WHERE state='Failed'"` to triage in production. This is intentional — see [[CAE Architecture#Design decisions|CAE Architecture § Design decisions]] D2.
+The DB file is consumer-readable; ops can `sqlite3 tasks.db "SELECT * FROM tasks WHERE state='Failed'"` to triage in production. This is intentional — see [[FEX Architecture#Design decisions|CAE Architecture § Design decisions]] D2.
 
 **`cae.toml` — operator configuration.**
 
@@ -92,10 +92,10 @@ Every public function returns `Result<T, CaeError>`. The error enum is part of t
 | `CaeError::Storage(io)`         | Underlying SQLite I/O failure (DB locked, disk full)   |
 | `CaeError::Schema(version)`     | DB on-disk schema mismatch with built binary           |
 
-Per [[CAE Decisions#D02 — Fail Loudly (sampled)|D02]] all of these propagate to the caller — they never silently substitute a default.
+Per [[FEX Decisions#D02 — Fail Loudly (sampled)|D02]] all of these propagate to the caller — they never silently substitute a default.
 
 ## See also
 
-- [[CAE Architecture]] — internal structure (subsystems, threads, decisions)
+- [[FEX Architecture]] — internal structure (subsystems, threads, decisions)
 - [[CAE-Scheduler]] — Scheduler subsystem (full class/function reference for `execution`)
 - [[CAE CLI]] — command-line surface (separate doc in `CAE Design/`)

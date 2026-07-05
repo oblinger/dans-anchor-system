@@ -235,7 +235,7 @@ Canonical shape (the default — bullet list):
 - **Concept one** — One-sentence explanation.
 - **Concept two** — One-sentence explanation.
 - **Concept three** — One-sentence explanation.
-- **Rule reference** — [[CAE Decisions#D07 — One Queue, One Clock (checked)\|D07]] is the canonical rule that anchors this topic.
+- **Rule reference** — [[FEX Decisions#D07 — One Queue, One Clock (checked)\|D07]] is the canonical rule that anchors this topic.
 ```
 
 Rules:

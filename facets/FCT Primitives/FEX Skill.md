@@ -1,15 +1,15 @@
 ---
 name: snap
-description: "Canonical skill exemplar (SKILL.md). Capture a screenshot, file it with a generated title, and drop a transcribed note beside it. Use when the user says '/snap', 'grab a screenshot', 'snap this'. Roll this structure out to all skills."
+description: "canonical skill exemplar"
 user_invocable: true
 ---
 
 # Snap — capture + file a screenshot
 Grab a screenshot, name it from its content, file it under `~/ob/kmr/Log/SNAP/`.
 
-| -[[CAE Skill]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[CAE]] → [CAE Skill](hook://p/CAE%20Skill)<br>: canonical skill exemplar |
+| -[[FEX Skill]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[FCT Primitives]] → [FEX Skill](hook://p/FEX%20Skill)<br>: canonical skill exemplar |
 | --- | --- |
-| Related | [[CAE Facet]],  [[FCT Skill]] (the skill facet),  [[CAE Dispatch Examples]] |
+| Related | [[FEX Facet]],  [[FCT Skill]] (the skill facet),  ~~[[CAE Dispatch Examples]]~~ |
 
 > **Canonical skill exemplar.** This *is* the `SKILL.md` template every skill follows. Note: (1) **frontmatter** carries the `name` (= folder = slash command) and the front-loaded `description` (the always-loaded surface — first sentence is what it does, then *when* to invoke); (2) **H1** = `<command> — <plain gloss>`; (3) a **one-liner**; (4) a small **masthead** (just `Related`); (5) the **body** is the runbook. Worked content: a hypothetical `snap` skill.
 

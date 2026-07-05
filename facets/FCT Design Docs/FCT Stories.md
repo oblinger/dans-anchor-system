@@ -5,7 +5,7 @@ description: "facet spec for user stories as first-class siblings of a PRD — i
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Stories](hook://p/FCT%20Stories)
 
 # FCT Stories
-**Audited examples:** [[CAE Stories]], [[US-CAE-1 — Schedule a Task]], [[US-CAE-3 — Retry Failed Tasks]], [[Forum Stories]], [[HBR PRD User Stories]]
+**Audited examples:** [[FEX Stories]], [[US-CAE-1 — Schedule a Task]], [[US-CAE-3 — Retry Failed Tasks]], [[Forum Stories]], [[HBR PRD User Stories]]
 
 | Table of Contents |  |
 |---|---|
@@ -78,7 +78,7 @@ Body-only — no YAML frontmatter. The Stories index is **not an anchor** (the P
 - **Stories index table** — a header row (`Story | Description`), then one row per story: column 1 is the `[[US-{SLUG}-N — <Title>]]` wiki-link, column 2 is the one-line summary. Optionally interleave bold role/pipeline group rows (e.g. `**Ingest**`). No breadcrumb row.
 - **`## See also`** — links to `[[{NAME} PRD]]` (parent) and `[[FCT Stories]]` (this facet spec).
 
-See the audited live instance [[CAE Stories]] for the rendered form, and [[Forum Stories]] for the role-grouped variant.
+See the audited live instance [[FEX Stories]] for the rendered form, and [[Forum Stories]] for the role-grouped variant.
 
 The table is the file's load-bearing content — a reader scanning Stories.md sees every story name and its one-line gist in one screen. The story files themselves carry the full content.
 

@@ -3,7 +3,7 @@
 ### Q1 {{add example here; if no questions this section is removed}}
 
 
-# CAE Roadmap
+# FEX Roadmap
 description:: sequencing-design — milestones + ordering (moved from Track 2026-06-10)
 
 
@@ -11,7 +11,7 @@ description:: sequencing-design — milestones + ordering (moved from Track 2026
 
 **Status:** In progress — M-Store.1 + M-Store.2 merged; M-Store.3 active; M-Store.4 deferred to M-Polish window.
 
-**Reference:** [[CAE Architecture]] § TaskStore + § RetryManager subsystems
+**Reference:** [[FEX Architecture]] § TaskStore + § RetryManager subsystems
 
 **Tests:** unit tests for SQLite layer + WAL append; integration test for recovery loader (pending M-Store.3)
 

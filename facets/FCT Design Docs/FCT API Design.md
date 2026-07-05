@@ -65,7 +65,7 @@ Other H2s (e.g., `## Concurrency`, `## Authentication`, `## Telemetry`, `## Migr
 
 ## Reference example
 
-See [[CAE API Design]] — the CAE scheduler crate shows the canonical shape for a library-form API surface (Rust). For a sub-skill-form API surface example see [[ATL]] `/atlas add` / `/atlas update` (under the atlas anchor — pending).
+See [[FEX API Design]] — the CAE scheduler crate shows the canonical shape for a library-form API surface (Rust). For a sub-skill-form API surface example see [[ATL]] `/atlas add` / `/atlas update` (under the atlas anchor — pending).
 
 ## Relationship to other facets
 

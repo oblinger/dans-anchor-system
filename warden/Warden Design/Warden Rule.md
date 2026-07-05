@@ -5,7 +5,7 @@ description: "the rule language — the file format for a rule and a ruleset (se
 
 The **file format** of the Warden rule language: what a **rule** is and what a **ruleset** is, as written on disk. A rule is the atomic constraint; a ruleset is a named bundle of rules that travel together. This page defines the format — the sentinels, fields, and composition. How a rule *runs* — the condition, the actions, the interpretation environment — is [[Warden Semantics]]; worked runnable rules are [[Warden Examples]]; the `when::` moment vocabulary is [[Warden Events]] and `where::` is [[FCT Ruleset]] § Where clause.
 
-Worked instances: [[R-diagram]] (a large umbrella), [[CAE Rules]] (an anchor-local set), and the self-applying `R-ruleset` block in [[FCT Ruleset]].
+Worked instances: [[R-diagram]] (a large umbrella), [[FEX Rules]] (an anchor-local set), and the self-applying `R-ruleset` block in [[FCT Ruleset]].
 
 ## The rule
 
@@ -107,4 +107,4 @@ Three homes (detail: [[FCT Ruleset]], [[F133 — Rulesets folder convention + fa
 - [[Warden Events]] — the `when::` moment catalog; [[FCT Ruleset]] — the `where::` grammar (today's authoritative home).
 - [[FCT Decisions]] — the decisions doctrine: documentation layer Warden ignores; companion ruleset; `implements D<N>` linkage.
 - [[Warden Architecture]] / [[Warden Runtime]] — how the format is resolved, compiled, and run.
-- [[R-diagram]], [[CAE Rules]] — worked instances.
+- [[R-diagram]], [[FEX Rules]] — worked instances.

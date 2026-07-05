@@ -4,21 +4,21 @@ cssclasses:
 description: repository file tree (audit-generated)
 ---
 
-:>> [[CAE]] → [[CAE Dev Docs]]
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Code]]
 
-# CAE Files
+# FEX Files
 
 File tree for the example-project repository with descriptions.
 
 
-example-project/                          [[CAE Architecture#Public API rollup|CAE Architecture § Public API rollup]]
+example-project/                          [[FEX Architecture#Public API rollup|CAE Architecture § Public API rollup]]
 ├── Cargo.toml                            Workspace config + dependencies
 ├── Cargo.lock                            Dependency lockfile
 ├── justfile                              Build, test, check recipes        → [[CAB Repository Structure]]
 ├── [[CAB Claude\|CLAUDE.md]]                             Claude Code configuration
 │
 ├── src/                                  Library crate
-│   ├── [[CAE Architecture#Public API rollup|lib.rs]]                            Crate root, module exports (rollup)
+│   ├── [[FEX Architecture#Public API rollup|lib.rs]]                            Crate root, module exports (rollup)
 │   ├── cli.rs                            CLI argument parsing (clap)
 │   ├── execution/
 │   │   ├── mod.rs                        Subsystem entry point

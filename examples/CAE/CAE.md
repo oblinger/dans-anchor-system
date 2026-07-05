@@ -16,9 +16,9 @@ CAE is a self-contained reference anchor that demonstrates the canonical CAB str
 
 **Examples** — CAE doubles as the dispatch-form gallery (member zone):
 
-| [[CAE Facet\|Facet]] | [[CAE Skill\|Skill]] | [[CAE Project Root\|Project Root]] | [[CAE Grouped Dispatch\|Grouped Dispatch]] | [[CAE List Dispatch\|List Dispatch]] |
+| ~~[[CAE Facet\|Facet]]~~ | ~~[[CAE Skill\|Skill]]~~ | ~~[[CAE Project Root\|Project Root]]~~ | [[CAE Grouped Dispatch\|Grouped Dispatch]] | [[CAE List Dispatch\|List Dispatch]] |
 | --- | --- | --- | --- | --- |
-| [[CAE Figure Page\|Figure Page]] | [[CAE Dispatch Examples\|Dispatch Examples]] | [[CAE Minimal Facet\|Minimal Facet]] | [[CAE Minimal Skill\|Minimal Skill]] |   |
+| [[CAE Figure Page\|Figure Page]] | ~~[[CAE Dispatch Examples\|Dispatch Examples]]~~ | ~~[[CAE Minimal Facet\|Minimal Facet]]~~ | ~~[[CAE Minimal Skill\|Minimal Skill]]~~ |   |
 
 
 
@@ -34,11 +34,11 @@ CAE shows a **Code-trait** anchor. For a worked example of a **Skill-trait** anc
 
 ## Design Principles
 
-Canonical statements live in [[CAE Decisions\|CAE Decisions § Principles]]. This page names them for quick scanning.
+Canonical statements live in ~~[[CAE Decisions\|CAE Decisions § Principles]]~~. This page names them for quick scanning.
 
-- **[[CAE Decisions#D01 — One Queue, One Clock (sampled)\|D01]]** — one queue, one clock
-- **[[CAE Decisions#D09 — Fail Loudly, No Silent Fallbacks (checked)\|D09]]** — fail loudly, no silent fallbacks
-- **[[CAE Decisions#D03 — Deterministic Tests (sampled)\|D03]]** — deterministic tests
+- **~~[[CAE Decisions#D01 — One Queue, One Clock (sampled)\|D01]]~~** — one queue, one clock
+- **~~[[CAE Decisions#D09 — Fail Loudly, No Silent Fallbacks (checked)\|D09]]~~** — fail loudly, no silent fallbacks
+- **~~[[CAE Decisions#D03 — Deterministic Tests (sampled)\|D03]]~~** — deterministic tests
 
 Writing the principle once (in Rules) and referencing it by ID everywhere else keeps the single source of truth and eliminates drift.
 
@@ -46,6 +46,6 @@ Writing the principle once (in Rules) and referencing it by ID everywhere else k
 
 *(Maintainer note — exemplar-specific cautions for whoever edits this anchor. CAE follows the CAB facet specs; the normative shapes live there, not here.)*
 
-- **Don't expand the scheduler domain here** — the fictional CLI-scheduler content exists only to give the dispatch rows realistic referents; domain content belongs in the linked sub-docs ([[CAE PRD]], [[CAE Architecture]], etc.).
+- **Don't expand the scheduler domain here** — the fictional CLI-scheduler content exists only to give the dispatch rows realistic referents; domain content belongs in the linked sub-docs ([[CAE PRD]], ~~[[CAE Architecture]]~~, etc.).
 - **Inclusion test for a dispatch row** — the row must point at a file/folder that itself exemplifies a canonical CAB facet or zone (Design, Architecture, User Docs, Dev Docs, Track); no rows for one-off content that wouldn't appear in a real anchor.
 - **Mirror, don't invent** — when CAB facet specs change, reflect the new shape here; never pioneer new structural conventions in CAE — it follows CAB, never leads it. Keep structure aligned with the Skill-trait counterpart [[CSE]] where applicable.

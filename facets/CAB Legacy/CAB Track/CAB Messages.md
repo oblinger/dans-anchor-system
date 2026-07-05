@@ -50,3 +50,4 @@ Agent inbox for the CAB anchor — a transient log of system events (hook edits,
 [2026-06-27 11:10:52] [INFO] backlog at SYS/Bespoke/Skill Agent/CAB/CAB Track/CAB Backlog.md was edited
 [2026-06-27 11:14:59] [INFO] backlog at SYS/Bespoke/Skill Agent/CAB/CAB Track/CAB Backlog.md was edited
 [2026-06-27 16:09:21] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/facets/CAB Legacy/CAB Track/CAB Backlog.md was edited
+[2026-07-05 15:51:52] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/facets/CAB Legacy/CAB Track/CAB Backlog.md was edited

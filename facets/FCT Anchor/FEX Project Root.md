@@ -8,14 +8,14 @@ A CLI that turns messy meeting transcripts into clean, attributed minutes.
 
 ![[F143-1-top-level.svg]]
 
-| -[[CAE Project Root]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[CAE]] → [CAE Project Root](hook://p/CAE%20Project%20Root)<br>: canonical project-root exemplar |
+| -[[FEX Project Root]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[FCT Anchor]] → [FEX Project Root](hook://p/FEX%20Project%20Root)<br>: canonical project-root exemplar |
 | --- | --- |
-| Related | [[CAE Facet]],  [[FCT Project Page]] (the facet),  [[vox]] (sibling transcript tool),  [Repo](https://github.com/example/clarifier),  [Docs site](https://example.github.io/clarifier/) |
+| Related | [[FEX Facet]],  [[FCT Project Page]] (the facet),  [[vox]] (sibling transcript tool),  [Repo](https://github.com/example/clarifier),  [Docs site](https://example.github.io/clarifier/) |
 | [[Clarifier Design\|Design]]+ | [[Clarifier PRD\|PRD]],  [[Clarifier UX Design\|UX Design]],  [[Clarifier CLI\|CLI]],  [[Clarifier API Design\|API]],  [[Clarifier Architecture\|Architecture]],  [[Clarifier Decisions\|Decisions]],  [[Clarifier Testing\|Testing]],  [[Clarifier Roadmap\|Roadmap]],  [[Clarifier Features\|Features]],   |
 | [[Clarifier Track\|Track]]+ | [[Clarifier Backlog\|Backlog]],   |
 | [[Clarifier User Docs\|User Docs]]+ | [[Clarifier Guide\|Guide]],   |
 | [[Clarifier Dev Docs\|Dev Docs]]+ | [[Clarifier Files\|Files]],   |
-| ... |  |
+| ... | [[FCT Anchor Page]],  [[FCT Anchor Tree]],  [[FCT Claude]],  [[FCT Code Repository]],  [[FCT Dot Anchor]],  [[FCT Folder]],  [[FCT Interface]],  [[FCT Move]],  [[FCT Naming]],   |
 
 > **Canonical project root.** The `{NAME}.md` entry page for a designed **project** anchor (`traits: [Code]`). It's **masthead-only** — a project is *not* a [[Collection]] of like members; it has **structural parts**, so its dispatch rows are the anchor's standard sub-folders, each a `+` container link *down* to that sub-folder's own dispatch page (the [[progressive-disclosure]] tree of containers):
 > - **Masthead order ([[SKA Decisions|D07]]):** `Related` is the **1st** row (omit if empty — never blank). If the anchor has the design facet, `Design` is the **2nd** row (mandatory), in the fixed order **PRD → UX Design → CLI → API → Architecture → Decisions → Testing → Roadmap → Features** (PRD · the three user-surface docs · Architecture+Decisions · Testing · Roadmap · Features).
