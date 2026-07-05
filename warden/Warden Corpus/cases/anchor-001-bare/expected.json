@@ -53,5 +53,15 @@
   "rule": "R-naming-01",
   "target": "FX1 Notes.md",
   "status": "pass"
+ },
+ {
+  "rule": "R-progressive-01",
+  "target": "FX1 Notes.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-progressive-02",
+  "target": "FX1 Notes.md",
+  "status": "pass"
  }
 ]

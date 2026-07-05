@@ -1,5 +1,15 @@
 [
  {
+  "rule": "R-progressive-01",
+  "target": "FX2 queries.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-progressive-02",
+  "target": "FX2 queries.md",
+  "status": "pass"
+ },
+ {
   "rule": "R-query-02",
   "target": "FX2 queries.md",
   "status": "pass"

@@ -1620,6 +1620,101 @@ def chk_no_dispatch_table(target, anchor_root, args):
     return "pass", "no dispatch table"
 
 
+# -- R-progressive (conditional, multi-check document-layout rules) ------------
+
+def _strip_fenced(text: str) -> str:
+    """Blank out lines inside ``` code fences — so a masthead/breadcrumb shown as
+    a fenced *example* (in DSC/FCT docs, the `md` skill, etc.) is not mistaken for
+    a live one. Fence markers and their contents become empty lines."""
+    out, in_fence = [], False
+    for ln in text.splitlines():
+        if ln.lstrip().startswith("```"):
+            in_fence = not in_fence
+            out.append("")
+            continue
+        out.append("" if in_fence else ln)
+    return "\n".join(out)
+
+
+def _has_self_masthead(text: str, stem: str) -> bool:
+    """True if the doc carries its OWN dispatch-masthead — a table row (outside a
+    code fence) whose first cell is the self-referential breadcrumb cell
+    `-[[<stem>]]-` (optionally aliased `-[[<stem>|alias]]-`), per
+    [[FCT Dispatch Table]]. An example masthead shown in the body that links to a
+    DIFFERENT page (`-[[Some Other Page]]-`) is not the doc's own masthead, so it
+    does not count — this is what keeps facet/discipline docs that *illustrate*
+    mastheads from false-positiving."""
+    pat = r"^\|\s*-\[\[\s*" + re.escape(stem) + r"\s*(\|[^\]]*)?\]\]-\s*\|"
+    return bool(re.search(pat, _strip_fenced(text), re.MULTILINE))
+
+
+def _has_breadcrumb_line(text: str) -> bool:
+    """A `:>>` breadcrumb top-row is present (the non-anchor navigation form),
+    outside any code fence."""
+    return bool(re.search(r"^\s*:>>", _strip_fenced(text), re.MULTILINE))
+
+
+def chk_dispatch_table_by_context(target, anchor_root, args):
+    """A doc must never carry BOTH its own dispatch-masthead table AND a `:>>`
+    breadcrumb — the two are *alternative* navigation forms, never combined: a
+    self-masthead marks the page that IS a container (the anchor page); a `:>>`
+    breadcrumb is the navigation on every other doc (per
+    [[feedback_breadcrumb_vs_dispatch_table]]). The masthead considered is the
+    doc's OWN self-referential `-[[<this doc>]]-` first cell — an example masthead
+    in the body (linking to another page) is not the doc's masthead and is ignored.
+
+    (The *presence* direction — which anchor pages are required to carry a masthead
+    — depends on the anchor kind and is `R-anchor-page`'s kind-aware job, not
+    asserted here: a per-file checker cannot reliably classify anchor-page-ness
+    across the vault without false-positiving the many anchor pages whose folders
+    carry no `.anchor` file.)"""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    text = _read(f)
+    if _has_self_masthead(text, f.stem) and _has_breadcrumb_line(text):
+        return "fail", (f"{f.name} has BOTH its own dispatch-masthead table and a `:>>` "
+                        "breadcrumb — a doc uses one navigation form (masthead = the container's "
+                        "own page; `:>>` = every other doc), never both")
+    return "pass", "single navigation form"
+
+
+def chk_progressive_disclosure_layout(target, anchor_root, args):
+    """Multi-check section spacing in one rule — the section-break conventions that
+    let a navigator scan a doc's outline ([[DSC progressive-disclosure]]):
+
+      (1) every `## H2` is preceded by a blank line (no H2 glued to the prose above);
+      (2) the file has no trailing blank line(s) at end-of-file.
+    Deliberately excludes the anchor-page-only "no blank after the H1" glue rule
+    (that is `R-anchor-page-07`'s job) and the "no doubled blank line" rule (widely
+    tolerated in practice), which would both be noisy on ordinary docs. Blank-line
+    checks skip fenced code blocks."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    lines = _read(f).splitlines()
+    in_fence = False
+    fenced = [False] * len(lines)
+    for i, ln in enumerate(lines):
+        if ln.lstrip().startswith("```"):
+            in_fence = not in_fence
+            fenced[i] = True
+            continue
+        fenced[i] = in_fence
+    fails = []
+    # (1) every H2 preceded by a blank line
+    for i, ln in enumerate(lines):
+        if re.match(r"^## \S", ln) and not fenced[i] and i > 0 and lines[i - 1].strip() != "":
+            fails.append(f"no blank line before H2 '{ln[3:33].strip()}' (line {i + 1})")
+            break
+    # (2) no trailing blank lines
+    if lines and lines[-1].strip() == "":
+        fails.append("trailing blank line(s) at end of file")
+    if fails:
+        return "fail", "; ".join(fails)
+    return "pass", "section spacing ok"
+
+
 # -- R-roadmap -----------------------------------------------------------------
 
 def chk_file_exists(target, anchor_root, args):
@@ -2399,6 +2494,9 @@ CHECKERS = {
     "dispatch_table_stories_row": chk_dispatch_table_stories_row,
     # R-doc-structure / R-stories
     "no_dispatch_table": chk_no_dispatch_table,
+    # R-progressive (conditional + multi-check layout)
+    "dispatch_table_by_context": chk_dispatch_table_by_context,
+    "progressive_disclosure_layout": chk_progressive_disclosure_layout,
     # R-roadmap
     "file_exists": chk_file_exists,
     "milestone_checkbox": chk_milestone_checkbox,
