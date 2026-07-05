@@ -8,7 +8,7 @@ description: track docs dispatch page — work tracking + planning for a Track-t
 Spec for the `{NAME} Track.md` dispatch page that lists all work-tracking and planning documents inside a Track-trait anchor's `{NAME} Track/` folder.
 
 **Related:** [[FCT Dispatch]],  [[FCT Backlog]],  [[FCT Design Dispatch]],  [[CAB Track]]
-**Examples:** [[CAE Track\|fuller example]],  [[HBR Track\|minimal example]]
+**Examples:** [[HBR Track\|fuller example]],  [[HBR Track\|minimal example]]
 
 **Cardinality:** one per anchor (each Track-trait anchor has exactly one `{NAME} Track.md` dispatch page).
 
@@ -27,16 +27,16 @@ Below is a condensed reference example.
 
 # CAE Track
 
-| -[[CAE Track]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Track Dispatch](hook://p/FCT%20Track%20Dispatch)<br>: tracking metadata + backlog |
+| -[[HBR Track]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Track Dispatch](hook://p/FCT%20Track%20Dispatch)<br>: tracking metadata + backlog |
 | --- | --- |
-| [[CAE Backlog\|Backlog]] | workflow-state core (required for Track) |
+| [[HBR Backlog\|Backlog]] | workflow-state core (required for Track) |
 | [[CAE Status\|Status]] | per-facet design-phase completeness (consumed by `/design` picker) |
 | [[CAE Discussion\|Discussion]] | tracking-level discussion (planning trade-offs only — design discussions go in [[CAE Design Discussion]]) |
-| [[CAE Icebox\|Icebox]] | cold-storage / someday-maybe (optional) |
-| [[CAE Inbox\|Inbox]] | raw input to process (optional) |
+| [[FEX Icebox\|Icebox]] | cold-storage / someday-maybe (optional) |
+| [[FEX Inbox\|Inbox]] | raw input to process (optional) |
 | [[CAE ask\|ask]] | agent-regenerated ask snapshot; also holds anchor-level questions (optional) |
 
-*Roadmap + Features moved to [[CAE Design]] 2026-06-10 per the design-includes-features restructure — feature docs are design artifacts, the roadmap is sequencing-design. See [[FCT Design]] for the new home.*
+*Roadmap + Features moved to [[HBR Design]] 2026-06-10 per the design-includes-features restructure — feature docs are design artifacts, the roadmap is sequencing-design. See [[FCT Design]] for the new home.*
 
 ---
 

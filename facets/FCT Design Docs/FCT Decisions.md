@@ -37,7 +37,7 @@ description: decisions are documentation — recorded under a `## Decisions` sec
 The facet for recorded decisions — the documentation layer that sits above Warden's rules.
 
 **Related:** [[FCT Ruleset]],  [[FCT Architecture]],  [[FCT Design Docs]],  [[Rulesets]]
-**Examples:** [[Mini Architecture#Decisions\|distributed — decision in the doc it shapes]],  [[Mini Decisions\|optional central — cross-cutting value only]],  [[CAE Decisions\|legacy central master (pre-doctrine include:: + implementation map)]],  [[HBR Decisions\|legacy central (durable rulings)]]
+**Examples:** [[Mini Architecture#Decisions\|distributed — decision in the doc it shapes]],  [[Mini Decisions\|optional central — cross-cutting value only]],  [[FEX Decisions\|legacy central master (pre-doctrine include:: + implementation map)]],  [[HBR Decisions\|legacy central (durable rulings)]]
 
 **TLDR** — A Decisions surface is simply an **H2 header `## Decisions`** followed by the list of decisions made — `### D<N> — Title (status)` records with rationale — placed in the design doc the decisions shape. Decisions constrain and guide the way rules do, **but Warden pays no attention to them**: they are documentation, never computed against. Anything directly verifiable is written **only as a rule**, in the companion `# RULESET` that by convention sits **directly after the Decisions section** under the same (or a clearly related) name; a rule ties itself back to the decision it implements with a loose `implements D<N>` note.
 

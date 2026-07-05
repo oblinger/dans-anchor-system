@@ -8,7 +8,7 @@ description: "the Ruleset facet — what a ruleset is and the format every rules
 A named, reusable bundle of audit-checkable rules — and the spec for how to write one.
 
 **Related:** [[FCT Facet]],  [[FCT Skill]],  [[FCT Decisions]] (companion),  [[Rulesets]] (the catalog),  [[FCT Primitives]]
-**Examples:** [[R-fex-manifest\|small, standalone]],  [[R-diagram\|large, standalone]],  [[CAE Rules\|anchor-local Rules.md]]
+**Examples:** [[R-fex-manifest\|small, standalone]],  [[R-diagram\|large, standalone]],  [[FEX Rules\|anchor-local Rules.md]]
 
 | Table of Contents |  |
 |---|---|

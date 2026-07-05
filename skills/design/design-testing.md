@@ -2,7 +2,7 @@
 
 Phase 5 of the canonical `/design` sequence (PRD → UX → API → Architecture → **Testing** → Roadmap). Authors `{NAME} Design/{NAME} Testing.md` per the [[FCT Testing]] facet — the project's **testing strategy + proposed-tests overview**. The doc has two parts that ship together: § Strategy (kinds, completeness targets, responsibilities, tier mapping) followed by § Proposed Tests (one row per proposed test, grouped by kind, linking to low-level specs in module docs).
 
-**Renamed from `plan-testing` 2026-06-10 per [[F136 — Plan→Design skill rename]]. Authored shape updated 2026-06-10 to match [[FCT Testing]]** — the legacy `{NAME} Testing Strategy.md` 5-H2 strategy-only scaffold is superseded by the new `{NAME} Testing.md` two-part shape. Worked example: [[CAE Testing]].
+**Renamed from `plan-testing` 2026-06-10 per [[F136 — Plan→Design skill rename]]. Authored shape updated 2026-06-10 to match [[FCT Testing]]** — the legacy `{NAME} Testing Strategy.md` 5-H2 strategy-only scaffold is superseded by the new `{NAME} Testing.md` two-part shape. Worked example: [[HBR Testing]].
 
 **Critical scope distinction:** this sub-skill authors the *strategy + proposed-tests overview*, NOT test code. Test code authoring happens during Drive (`/code test` or per-feature in `/mint`); low-level test specs (preconditions, fixtures, assertions) live in module docs. This sub-skill produces the design-altitude doc that drives all three downstream surfaces.
 
@@ -24,7 +24,7 @@ Module-level test details belong in module docs under `{NAME} Dev Docs/` or `{NA
 
 **Read [[FCT Testing]] before authoring.** The facet spec is the canonical recipe — required sections, dataview fields, the three-altitude split, the Spec-column convention. This sub-skill owns the *process*; the facet owns the *shape*. If anything below conflicts with the facet, the facet wins.
 
-Worked example to crib from: [[CAE Testing]].
+Worked example to crib from: [[HBR Testing]].
 Audit rules to honor: [[FCT Testing#RULESET R-testing|R-testing]] (12 rules).
 
 ## Runbook
@@ -97,7 +97,7 @@ The agent does NOT proactively invoke roadmapping; the user invokes `/design` ag
 
 - Facet spec: [[FCT Testing]]
 - Kind catalogue (Tests-table link target): [[Common Testing Types]]
-- Worked example: [[CAE Testing]]
+- Worked example: [[HBR Testing]]
 - Embedded ruleset: [[FCT Testing#RULESET R-testing|R-testing]] (12 rules)
 - Parent orchestrator: [[design]]
 - Sibling sub-skills: [[design-prd]], [[design-ux]], [[design-architect]], [[design-roadmap]]

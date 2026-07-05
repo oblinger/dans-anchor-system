@@ -8,14 +8,14 @@ description: "facet spec for `{NAME} UX Design.md` — the human user-facing sur
 Facet spec for `{NAME} UX Design.md` — the *human* user-facing surface: CLI commands, screens, organization, naming, output shapes, error voice.
 
 **Related:** [[FCT API Design]],  [[FCT CLI]],  [[FCT Decisions]],  [[FCT Architecture]]
-**Examples:** [[CAE UX Design\|minimal (CLI surface)]],  [[HBR UX Design\|fuller (multi-surface)]]
+**Examples:** [[HBR UX Design\|minimal (CLI surface)]],  [[HBR UX Design\|fuller (multi-surface)]]
 
 **TLDR**
 - **One per anchor** — a single `{NAME} UX Design.md` captures all human-facing surface intent for the anchor.
 - Covers CLI command sets, screen flows, slash-command surfaces, output shapes, and error voice.
 - Sibling to [[FCT API Design]] (programmatic surface); the cut is *who the consumer is* (human vs code).
 - Preface zone of each instance requires TLDR + representative figure before body H2s.
-- See [[CAE UX Design]] for the canonical worked example.
+- See [[HBR UX Design]] for the canonical worked example.
 
 UX Design specifies the **human user surface** of the anchor — how a person discovers, invokes, reads, and recovers from errors. It is sibling to [[FCT API Design]] (the *programmatic* user surface). The cut between them is **who the consumer is**, not where the surface lives: UX = human reading or invoking; API Design = code calling.
 
@@ -54,7 +54,7 @@ Other H2s (e.g., `## Affordances`, `## Accessibility`, `## Telemetry`) join when
 
 ## Reference example
 
-See [[CAE UX Design]] — the CAE scheduler shows the canonical shape for a CLI-shaped human surface. For a slash-command surface example see the future SKL UX Design (in progress).
+See [[HBR UX Design]] — the CAE scheduler shows the canonical shape for a CLI-shaped human surface. For a slash-command surface example see the future SKL UX Design (in progress).
 
 ## See also
 
@@ -145,7 +145,7 @@ When UX Design starts listing every flag, or describing function signatures, or 
 
 *(Maintainer note — cautions for whoever edits this facet spec. The normative spec is the body above; the embedded [[#RULESET R-ux|R-ux]] ruleset is its auditable form.)*
 
-- **Inclusion test** — a change belongs here only if it is a structural rule, required section, or load-bearing definition that applies to *every* `{NAME} UX Design.md` across anchors. Concrete commands, screens, error messages, and worked examples belong in each anchor's own doc or in [[CAE UX Design]] (canonical exemplar) — never inline them here.
+- **Inclusion test** — a change belongs here only if it is a structural rule, required section, or load-bearing definition that applies to *every* `{NAME} UX Design.md` across anchors. Concrete commands, screens, error messages, and worked examples belong in each anchor's own doc or in [[HBR UX Design]] (canonical exemplar) — never inline them here.
 - **Preserve the facet-cut boundaries** — UX Design owns human-facing intent; [[FCT API Design]] owns the programmatic surface, [[FCT CLI]] the exhaustive flag reference, [[FCT Architecture]] internal organization. R-ux-08 is the load-bearing guard; don't let this spec absorb sibling content.
 - **Ruleset is co-located** — the `# RULESET R-ux` H1 is part of this file per [[F133 — Rulesets folder convention + facet embedding|F133]]; revise rules in place, never split into a sibling file or duplicate in [[FCT Ruleset]]. And this is the rulebook, not an instance — R-ux-01 mandates TLDR + figure for each instance; don't import a figure or transcript into this spec.
-- **Cross-references that must stay live** — [[FCT API Design]], [[FCT CLI]], [[FCT Decisions]], [[FCT Architecture]], [[DSC progressive-disclosure]], [[CAE UX Design]]; renaming or moving any requires updating the wiki-links here.
+- **Cross-references that must stay live** — [[FCT API Design]], [[FCT CLI]], [[FCT Decisions]], [[FCT Architecture]], [[DSC progressive-disclosure]], [[HBR UX Design]]; renaming or moving any requires updating the wiki-links here.

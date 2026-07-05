@@ -8,7 +8,7 @@ description: "the anchor folder facet — the named directory + marker file that
 Facet spec for the anchor folder itself — the named directory containing a marker file that identifies it as an anchor.
 
 **Related:** [[FCT Anchor Page]],  [[FCT Marker]],  [[CAB Aspects]],  [[FCT Facet]]
-**Examples:** [[CAE\|marker-is-anchor-page example]],  [[HBR\|richer anchor with sub-anchors]]
+**Examples:** [[HBR\|marker-is-anchor-page example]],  [[HBR\|richer anchor with sub-anchors]]
 
 **Location:** `{NAME}/   (the anchor folder itself)`
 

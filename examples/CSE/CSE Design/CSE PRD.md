@@ -11,7 +11,7 @@ description: "product requirements"
 
 - Show the file shapes of an anchor in CAB skill-trait form.
 - Demonstrate where `SKILL.md` lives, where action files live, and where Plan / Features documents live.
-- Pair with [[CAE]] to give skill-anchor authors a canonical reference.
+- Pair with [[HBR]] to give skill-anchor authors a canonical reference.
 
 ## Non-goals
 

@@ -1,5 +1,5 @@
 ---
-description: "product requirements — why Harbor exists and what v1 must deliver"
+description: "parent PRD — user stories drive this design"
 ---
 # HBR PRD
 Why Harbor exists and what its first version must deliver.

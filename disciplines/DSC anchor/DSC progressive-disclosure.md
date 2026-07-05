@@ -240,7 +240,7 @@ A TLDR is a **description list of short single-line bullets**, each with a 2-3-w
 
 **Cover the whole doc, not one aspect.** A good TLDR spans the major sections of the body, one bullet per section's gist. A TLDR that recites only one part of the doc fails the grazer; the reader has to read the body to discover the doc's other sections.
 
-**When required:** TLDR is required on **Feature documents** (per [[FCT Features]]) and **Testing documents** (per [[FCT Testing]]). Always optional on other types; if included, must follow the format above. PRDs are explicitly excluded. **Worked examples:** [[MUX Testing]] (8 bullets, covers posture + tiers + scope + cadence + tier mapping) and [[CAE Testing]] (similar shape at smaller scale).
+**When required:** TLDR is required on **Feature documents** (per [[FCT Features]]) and **Testing documents** (per [[FCT Testing]]). Always optional on other types; if included, must follow the format above. PRDs are explicitly excluded. **Worked examples:** [[MUX Testing]] (8 bullets, covers posture + tiers + scope + cadence + tier mapping) and [[HBR Testing]] (similar shape at smaller scale).
 
 
 ## Figure placement

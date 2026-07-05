@@ -3,8 +3,8 @@ description:: programmatic surface of the `cae` Rust crate — types, signatures
 
 | -[[FEX API Design]]- | : Programmatic Rust-crate surface — types, signatures, error envelope, stability + compatibility.<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[FCT Design Docs]] → [FEX API Design](hook://p/FEX%20API%20Design) |
 | --- | --- |
-| [[CAE PRD]] | parent PRD — user stories drive this design |
-| [[CAE UX Design]] | sibling — human CLI surface |
+| [[HBR PRD]] | parent PRD — user stories drive this design |
+| [[HBR UX Design]] | sibling — human CLI surface |
 | [[CAE API Doc]] | downstream — per-module reference |
 | [[CAB API Design]] | facet spec this doc follows |
 
@@ -34,7 +34,7 @@ println!("scheduled {id}");
 
 A **Rust binary or library** that needs to submit and query deferred shell tasks without shelling out to the `cae` CLI. Two canonical shapes: (a) a long-running daemon (e.g. a deployment controller) that schedules cleanup tasks, (b) a CLI wrapper that wants programmatic access without the parse-output-of-`cae --json` indirection. Both call from sync code by default; an `async` feature flag enables a tokio-compatible variant.
 
-Consumers do NOT include other languages — the C ABI is out of scope; for cross-language consumption the JSON form from [[CAE UX Design]] § Output shapes is the supported surface.
+Consumers do NOT include other languages — the C ABI is out of scope; for cross-language consumption the JSON form from [[HBR UX Design]] § Output shapes is the supported surface.
 
 ## Surface
 
@@ -133,8 +133,8 @@ Error mapping to CLI exit codes (for `cae` CLI binary that wraps the API): `Stor
 
 ## See also
 
-- [[CAE PRD]] — user stories that drive this design.
-- [[CAE UX Design]] — sibling facet covering the human CLI surface.
+- [[HBR PRD]] — user stories that drive this design.
+- [[HBR UX Design]] — sibling facet covering the human CLI surface.
 - [[CAE API Doc]] — per-module reference (auto-generated; *what exists*).
 - [[FEX Architecture]] — internal organization that backs this surface.
 - [[CAB API Design]] — facet spec; embedded [[#RULESET R-api|R-api]] ruleset.

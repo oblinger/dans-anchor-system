@@ -24,5 +24,5 @@ Pulled automatically via the [[R-facet]] umbrella; an anchor adopting `include::
 - [[FCT UX Design]] — facet spec; contains the embedded RULESET body.
 - [[R-api]] — paired peer ruleset for programmatic surface.
 - [[R-facet]] — umbrella catalog.
-- [[CAE UX Design]] — worked example.
+- [[HBR UX Design]] — worked example.
 - [[Rulesets]] — top-level catalog.

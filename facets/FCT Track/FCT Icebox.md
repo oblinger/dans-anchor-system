@@ -8,7 +8,7 @@ description: optional file for distant-future / someday-maybe items
 Optional cold-storage counterpart to the Backlog — holds distant-future / someday-maybe items the user wants to remember but is not actively considering.
 
 **Related:** [[FCT Backlog]],  [[FCT Roadmap]],  [[CAB Backlog]],  [[FCT Track]]
-**Examples:** [[CAE Icebox\|example]]
+**Examples:** [[FEX Icebox\|example]]
 
 **Cardinality: one per anchor** — at most one `{NAME} Icebox.md` exists per anchor (and it is optional; most anchors do not have one).
 
@@ -29,7 +29,7 @@ Below is a condensed reference example. See the working example linked above for
 
 # CAE Icebox
 
-| -[[CAE Icebox]]- |  |
+| -[[FEX Icebox]]- |  |
 | --- | --- |
 | --- | |
 

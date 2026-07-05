@@ -20,7 +20,7 @@ include:: [[R-testing]]
 ## See also
 
 - [[FCT Testing]] — facet spec; contains the embedded RULESET body.
-- [[CAE Testing]] — worked example that conforms to R-testing.
+- [[HBR Testing]] — worked example that conforms to R-testing.
 - [[R-facet]] — parent umbrella; pulls R-testing alongside future per-facet sets.
 - [[Rulesets]] — top-level catalog.
 - [[F133 — Rulesets folder convention + facet embedding]] — the convention this file follows.

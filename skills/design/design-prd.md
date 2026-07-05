@@ -250,7 +250,7 @@ Legacy `{anchor}/{NAME} Docs/{NAME} Plan/{NAME} PRD.md` is deprecated per F094. 
 
 **Read [[FCT PRD]] before authoring.** The facet spec is the canonical recipe — required sections, dataview fields, preface zone (TLDR explicitly NOT required for PRDs), section spine. This sub-skill owns the *process*; the facet owns the *shape*. If anything in this skill conflicts with the facet, the facet wins.
 
-Worked example to crib from: [[CAE PRD]].
+Worked example to crib from: [[HBR PRD]].
 Audit rules to honor: [[FCT PRD#RULESET R-prd|R-prd]] (9 rules).
 
 ## Anti-patterns
@@ -264,7 +264,7 @@ Audit rules to honor: [[FCT PRD#RULESET R-prd|R-prd]] (9 rules).
 ## Related
 
 - Facet spec: [[FCT PRD]] (with embedded [[FCT PRD#RULESET R-prd|R-prd]])
-- Worked example: [[CAE PRD]]
+- Worked example: [[HBR PRD]]
 - Stories sub-facet: [[FCT Stories]] (activates if stories grow)
 - Parent orchestrator: [[design]]
 - Sibling sub-skills: [[design-ux]], [[design-architect]], [[design-testing]], [[design-roadmap]]

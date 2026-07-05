@@ -21,13 +21,13 @@ The top-of-file table convention that gives most anchor pages and many facet pag
 | [[#Related]] |  |
 | **[[#BRIEF]]** |  |
 **Design:** [[CAB Dispatch Table Design\|Design]]
-**Examples:** [[CAE\|minimal]],  [[HBR\|fuller]],  [[FEX Dispatch Examples\|full gallery]]
+**Examples:** [[HBR\|minimal]],  [[HBR\|fuller]],  [[FEX Dispatch Examples\|full gallery]]
 
 **TLDR** — **Cardinality: many** — one dispatch table per page; most anchor and facet pages carry one. The masthead is the breadcrumb plus, in fixed order, the optional **Related → type → Design → Track → User Docs → Dev Docs** rows (a switchboard, not a directory) — each row a link down to a sub-area plus its key parts; anything enumerable beyond those drops to the Member zone below. `/audit dispatch` builds and repairs it.
 
 **Examples** — below the masthead (this page's member zone is its four live exemplars; each row is itself a tiny member list, dogfooding the form):
 
-| [[CAE]] | masthead-only — breadcrumb + structural rows, no member zone |
+| [[HBR]] | masthead-only — breadcrumb + structural rows, no member zone |
 | --- | --- |
 | [[SKL]] | member groups (`+`) — > 15 members, expandable group rows |
 | [[SKA Access]] | flat member list — ≤ 15 members, hand-ordered |
@@ -39,7 +39,7 @@ A markdown table placed immediately under the H1 of a page. The first row carrie
 
 **Page-top discipline (every page).** `# <H1>` on the first line, the **one-line summary directly underneath — no blank line between** — then one blank line, then this dispatch table. (An overview figure, if any, sits between the summary and the table.)
 
-**Masthead rows — the model** (worked exemplars: [[CAE]] (project), [[SKA crank]] / [[SKA workflow]] (leaf); vault-wide rollout tracked in [[F189]]). After the breadcrumb identity row, the optional rows appear in a **fixed order**, each present **only if it applies**:
+**Masthead rows — the model** (worked exemplars: [[HBR]] (project), [[SKA crank]] / [[SKA workflow]] (leaf); vault-wide rollout tracked in [[F189]]). After the breadcrumb identity row, the optional rows appear in a **fixed order**, each present **only if it applies**:
 
 1. **Related** — related anchors / siblings **and external resources** (code repo, project page, docs site) that are **not** already in the breadcrumb. First, because it answers "what else is near this?" before the reader descends into the anchor's own contents. *(This replaces the former `External` row — repo / site links live in Related now.)*
 2. **Type row** *(typed leaf anchors only — skill / discipline / facet)* — label is the type word (`Skill`, `Discipline`, `Facet`); cell carries the runtime / external links (the `SKILL` object + `[[SKL <Name>\|User Docs]]`).
@@ -56,7 +56,7 @@ Every row after the breadcrumb has the **same shape**: its **left cell is a link
 
 ## Anatomy of a dispatch row
 
-A dispatch row is `| left-cell | right-cell |`. The **breadcrumb identity row** is special: its left cell is the page's own name as a struck self-link, its right cell is the parent-chain path ending in the page's `hook://` link, followed by a `<br>` and a one-line description. Every **other** row has the same shape — the left cell names a sub-area (a link *down* to it), the right cell enumerates that sub-area's key parts, comma-separated. Aliased wiki-links inside cells escape the pipe as `[[Target\|Display]]` (R-03). The table's final row is the catch-all marker (R-07). The live rendered form is on [[CAE]] (masthead) and [[FEX Dispatch Examples]] (full gallery).
+A dispatch row is `| left-cell | right-cell |`. The **breadcrumb identity row** is special: its left cell is the page's own name as a struck self-link, its right cell is the parent-chain path ending in the page's `hook://` link, followed by a `<br>` and a one-line description. Every **other** row has the same shape — the left cell names a sub-area (a link *down* to it), the right cell enumerates that sub-area's key parts, comma-separated. Aliased wiki-links inside cells escape the pipe as `[[Target\|Display]]` (R-03). The table's final row is the catch-all marker (R-07). The live rendered form is on [[HBR]] (masthead) and [[FEX Dispatch Examples]] (full gallery).
 
 ## Structure — Masthead + Member zone
 

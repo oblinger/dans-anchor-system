@@ -8,7 +8,7 @@ description: the repo's complete source file tree, every file linked to its modu
 The All Files facet — a fixed-width file-tree page linking every source file to its module doc.
 
 **Related:** [[FCT Interface]],  [[FCT Module]],  [[FCT Architecture]],  [[FCT Dev]]
-**Examples:** [[CAE Files\|minimal]],  [[HBR Files\|fuller]]
+**Examples:** [[FEX Files\|minimal]],  [[HBR Files\|fuller]]
 
 | Table of Contents |  |
 |---|---|

@@ -8,7 +8,7 @@ description: "design facet — the {NAME} Design/ folder marks an anchor as foll
 The Design folder facet — marks an anchor as following the designed-lifecycle convention; folder presence is the gate.
 
 **Related:** [[FCT PRD]],  [[FCT Architecture]],  [[FCT Testing]],  [[FCT Design Dispatch\|Dispatch]]
-**Examples:** [[CAE Design\|minimal]],  [[HBR Design\|fuller]]
+**Examples:** [[HBR Design\|minimal]],  [[HBR Design\|fuller]]
 
 **Linkage** — this facet's existence ⟺ the anchor has been architected by the [[architect]] skill; the two share one design folder, [[Architect Design]] (hosted on the behavioral core), reachable from either page per [[SKA Decisions]] D10.
 
@@ -30,7 +30,7 @@ The Design folder facet — marks an anchor as following the designed-lifecycle 
 
 The Design facet is the **structural marker** that an anchor follows the designed-lifecycle convention. **If `{NAME} Design/` exists, the anchor is in design-mode** — `/design` operates on it, the PRD → UX Design → API Design → Architecture → Testing → Decisions → Roadmap pipeline applies, and the design sub-facets become the canonical homes for what the anchor *is* and *how it works*.
 
-The six-phase pipeline pairs UX Design (the *human* user surface) and API Design (the *programmatic* user surface) as peer facets — cut by **who the consumer is**, not by where the surface lives. Either may be N/A for a given anchor; both are common for anchors with both a CLI and a library form (e.g. [[CAE]]).
+The six-phase pipeline pairs UX Design (the *human* user surface) and API Design (the *programmatic* user surface) as peer facets — cut by **who the consumer is**, not by where the surface lives. Either may be N/A for a given anchor; both are common for anchors with both a CLI and a library form (e.g. [[HBR]]).
 
 This facet replaces the historical `Code` trait check that gated `/design` to "Code-trait anchors only." That check conflated two orthogonal questions:
 
@@ -165,7 +165,7 @@ Any anchor that commits to the designed-lifecycle convention.
 - [[FCT Decisions]] — recommended child facet
 - [[FCT Status]] — `{NAME} Status.md` tracks design-phase completeness
 - [[design]] — orchestrator skill; gate moved from Code-trait check to Design-folder check 2026-06-10
-- [[CAE Design]] — worked example
+- [[HBR Design]] — worked example
 - F140 (vault sweep — retire `Code` trait from anchors with Design folder)
 
 # RULESET R-design

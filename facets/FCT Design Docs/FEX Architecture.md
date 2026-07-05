@@ -12,7 +12,7 @@ CLI submits tasks to the **Scheduler**, which dispatches to the **Worker Pool**,
 
 | -[[FEX Architecture]]- |  |
 | --- | --- |
-| [[CAE-Scheduler]] | priority queue engine + worker dispatch. Source: `src/execution/scheduler.rs`. |
+| [[FEX Scheduler]] | priority queue engine + worker dispatch. Source: `src/execution/scheduler.rs`. |
 | [CAE-Store] | SQLite-backed task persistence; load/save/mark-done. (subsystem doc not yet authored) |
 | [CAE-Retry] | exponential backoff + dead-letter handling; centralized retry policy. (no doc yet) |
 | [CAE-Clock] | injectable `Clock` trait; production `WallClock` + test `TestClock`. (no doc yet) |
@@ -50,7 +50,7 @@ The five public modules fall into two coherent areas:
 - **Scheduling core** — `execution` + `models`. The submit-run-drain pipeline; callers import here.
 - **Infrastructure (internal)** — `retry` + `store` + `clock`. Plumbing; callers rarely touch directly.
 
-Per-module class/function tables live in [[CAE-Scheduler]] (`execution` module) and [[FEX API]] (others, as subsystem docs are authored).
+Per-module class/function tables live in [[FEX Scheduler]] (`execution` module) and [[FEX API]] (others, as subsystem docs are authored).
 
 ## Process model
 
@@ -88,9 +88,9 @@ Each principle's `Encoded by:` line in [[FEX Decisions]] lists the R-rules that 
 ## See also
 
 - [[FEX API]] — public API surface
-- [[CAE-Scheduler]] — Scheduler subsystem (full class/function reference for `execution`)
+- [[FEX Scheduler]] — Scheduler subsystem (full class/function reference for `execution`)
 - [[FEX Decisions]] — anchor-level applied choices (D11 cites R-diagram rules for the diagrams above)
 - [[FEX Rules]] — adopted rulesets (currently R-diagram)
 - [[R-diagram]] — the ruleset the diagrams above are audited against (structural / aesthetic / semantic / accessibility / hygiene)
-- [[CAE PRD]] — product requirements
-- [[CAE CLI]] — command-line surface (in `CAE Design/`)
+- [[HBR PRD]] — product requirements
+- [[HBR CLI]] — command-line surface (in `CAE Design/`)

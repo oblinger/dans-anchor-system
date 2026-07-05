@@ -10,7 +10,7 @@ description: anchor master tree — every possible doc/folder in an anchor, link
 The annotated master file tree showing every possible file and folder that may appear inside a CAB anchor, with each named element wiki-linked to its governing facet spec.
 
 **Related:** [[FCT Anchor Page]],  [[FCT Anchor]],  [[FCT Facet]]
-**Examples:** [[CAE\|minimal Code anchor]],  [[HBR\|fuller anchor with components]]
+**Examples:** [[HBR\|minimal Code anchor]],  [[HBR\|fuller anchor with components]]
 
 **Cardinality: one per anchor** — each anchor has exactly one canonical file tree (this spec is the reference; an anchor's actual tree is its on-disk directory).
 
