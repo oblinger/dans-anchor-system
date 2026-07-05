@@ -3,7 +3,7 @@ description: Common Skill Example — reference anchor — a fully-wired example
 ---
 # CSE — Common Skill Example
 
-A self-contained reference anchor demonstrating the canonical CAB skill-trait anchor structure — sibling to [[CAE]] for the Code trait.
+A self-contained reference anchor demonstrating the canonical CAB skill-trait anchor structure — sibling to [[HBR]] for the Code trait.
 
 | -[[CSE]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [CSE](hook://p/CSE)<br>: Common Skill Example — reference anchor — a fully-wired example of a CAB skill anchor |
 | --- | --- |
@@ -15,7 +15,7 @@ A self-contained reference anchor demonstrating the canonical CAB skill-trait an
 
 ## Overview
 
-CSE is the **Common Skill Example** — a self-contained reference anchor demonstrating the canonical CAB skill-anchor structure. Companion to [[CAE]] (the general anchor example).
+CSE is the **Common Skill Example** — a self-contained reference anchor demonstrating the canonical CAB skill-anchor structure. Companion to [[HBR]] (the general anchor example).
 
 Where CAE shows a Code-trait anchor — module docs, code repo, dev dispatch — CSE shows a Skill-trait anchor: `SKILL.md` at the root *is* the code, user docs live in the parallel SKL tree, and the Plan folder holds design docs and feature specs for changes to the skill.
 
@@ -73,6 +73,6 @@ CSE describes a fictional skill `/cse` with one example action `/cse demo`. The 
 *(Maintainer note — exemplar-specific cautions for whoever edits this anchor. CSE follows the CAB Skill-trait specs; the normative shapes live there, not here.)*
 
 - **Not a working skill** — the `/cse` skill and its `demo` action are illustrative placeholders; don't wire CSE into real workflows or treat it as a dependency.
-- **Inclusion test for changes** — add or change content here only when it makes the example more faithful to the canonical Skill-trait shape per current CAB specs. Code-trait examples belong in [[CAE]]; a change that would teach a new general rule (or cross-trait / generic CAB content) belongs in the relevant [[CAB]] facet, then gets reflected here.
+- **Inclusion test for changes** — add or change content here only when it makes the example more faithful to the canonical Skill-trait shape per current CAB specs. Code-trait examples belong in [[HBR]]; a change that would teach a new general rule (or cross-trait / generic CAB content) belongs in the relevant [[CAB]] facet, then gets reflected here.
 - **Keep aligned with live CAB specs** — when Skill-trait conventions change (dispatch row shape, folder layout, SKL location), update CSE in the same pass; a stale exemplar misleads readers more than a missing one.
 - **The dispatch first row is cited as the reference** — other docs point at the `Skill` row (§ How a skill anchor differs) as the canonical first-row shape for skill anchors; don't split it into separate Dev/User rows or rename it.

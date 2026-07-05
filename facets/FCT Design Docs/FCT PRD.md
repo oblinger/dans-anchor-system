@@ -5,7 +5,7 @@ description: "facet spec for {NAME} PRD.md — the anchor's product requirements
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT PRD](hook://p/FCT%20PRD)
 
 # FCT PRD
-**Audited examples:** [[HBR PRD]], [[Mini PRD]], [[CAE PRD]], [[DMUX PRD]], [[OBU PRD]]
+**Audited examples:** [[HBR PRD]], [[Mini PRD]], [[HBR PRD]], [[DMUX PRD]], [[OBU PRD]]
 
 | Table of Contents |  |
 |---|---|
@@ -26,7 +26,7 @@ description: "facet spec for {NAME} PRD.md — the anchor's product requirements
 Facet spec for `{NAME} PRD.md` — the first doc in an anchor's Design folder, defining what the product does (goals, non-goals, user stories) for every downstream design phase to consume.
 
 **Related:** [[FCT Architecture]],  [[FCT Testing]],  [[FCT Decisions]],  [[FCT Stories]]
-**Examples:** [[HBR PRD\|single-file form]],  [[CAE PRD\|folder form (stories extracted)]]
+**Examples:** [[HBR PRD\|single-file form]],  [[HBR PRD\|folder form (stories extracted)]]
 
 The PRD (`{NAME} PRD.md`) is the **what** of the product — what it does, who it serves, what's in and out of scope, and the user stories that downstream work realizes. It is the first document written during `/design`, and every downstream phase (UX, Architecture, Testing, Roadmap, Features) reads it as authoritative input.
 
@@ -78,7 +78,7 @@ The spine is `Overview → Design Workflow → Goals → Non-Goals → User Stor
 
 Real instances vary in section *naming* around this spine (e.g. `## Purpose` for Overview, `## Primary Goals`/`## Core Capabilities` for Goals) and some predate the `## Design Workflow` row entirely. The conformant target is the canonical names and order above; older PRDs migrate toward it during normal anchor work rather than being rewritten wholesale.
 
-**Working example:** [[CAE PRD]] — single-file form; three inline stories.
+**Working example:** [[HBR PRD]] — single-file form; three inline stories.
 
 ## Preface zone requirements
 
@@ -101,7 +101,7 @@ The PRD's top-of-doc dispatch table carries a row pointing at stories. The link 
 - **Single-file PRD (inline stories):** `[[{NAME} PRD#User Stories\|{NAME} Stories]]` — section-deep wiki-link into this same doc's `## User Stories` H2, displayed as `{NAME} Stories`. The description names the story count: *"three user stories (inline-bullet form per [[FCT Stories]]; US-{SLUG}-1..N)"*.
 - **Folder-form PRD (extracted stories):** `[[{NAME} Stories]]` — wiki-link to the sibling dispatch index; display defaults to the page name (`{NAME} Stories`). The description names the count: *"N user stories — index at [[{NAME} Stories]]"*.
 
-The row is required in both forms so a reader landing on the PRD has a one-click jump to "what does this product DO for users" without scrolling. The proper-name display keeps the row consistent with its peers in the dispatch table. Worked example: [[CAE PRD]] § dispatch table.
+The row is required in both forms so a reader landing on the PRD has a one-click jump to "what does this product DO for users" without scrolling. The proper-name display keeps the row consistent with its peers in the dispatch table. Worked example: [[HBR PRD]] § dispatch table.
 
 ## Open questions — handled by `/ask`
 
@@ -147,7 +147,7 @@ Any anchor that has a `{NAME} Design/` folder per [[FCT Design]]. Initially supp
 - [[DSC ask-format]] — open-questions formatting discipline
 - [[DSC progressive-disclosure]] — preface-zone requirements
 - [[design-prd]] — authoring sub-skill for `/design prd`
-- [[CAE PRD]] — worked example (single-file form, three inline stories)
+- [[HBR PRD]] — worked example (single-file form, three inline stories)
 
 # RULESET R-prd
 include::
@@ -246,7 +246,7 @@ The PRD's top-of-doc dispatch table contains a row whose wiki-link target points
 
 *(Maintainer note — what belongs in this spec and what doesn't.)*
 
-- **Inclusion test + boundary:** content belongs only if it specifies the SHAPE of `{NAME} PRD.md` (location, required sections it must carry, fields it must declare, how stories are surfaced from sibling docs, how its lifecycle interacts with `/ask` and `{NAME} Status.md`). Technical decisions, principles, and implementation route to [[FCT Decisions]] / [[FCT Ruleset]] / [[FCT Architecture]] — the body already says PRDs are not that. This is not a PRD instance or a product-management essay: worked examples are cited by wiki-link ([[CAE PRD]]); one-off rationale lives in a rule's **Why** block, not in narrative.
+- **Inclusion test + boundary:** content belongs only if it specifies the SHAPE of `{NAME} PRD.md` (location, required sections it must carry, fields it must declare, how stories are surfaced from sibling docs, how its lifecycle interacts with `/ask` and `{NAME} Status.md`). Technical decisions, principles, and implementation route to [[FCT Decisions]] / [[FCT Ruleset]] / [[FCT Architecture]] — the body already says PRDs are not that. This is not a PRD instance or a product-management essay: worked examples are cited by wiki-link ([[HBR PRD]]); one-off rationale lives in a rule's **Why** block, not in narrative.
 - **Two co-located zones — keep aligned:** the facet-spec prose and the embedded `# RULESET R-prd` must agree; when a section-order rule, naming convention, or location prescription changes above, update the matching `### RULE R-prd-NN` (and its **Check pattern** / **Why**) in the same edit. Rule numbering is monotonic-forever — `R-prd-NN` IDs are never recycled; renumbering silently re-points every existing `R-prd-NN` cross-reference (including rule-side `implements D<N>` back-links and docs citing a rule by id).
 - **The `## Standard section order` table is the spine** — its row order is what `R-prd-04` enforces; don't reorder rows for stylistic reasons (downstream readers and the audit script both depend on the declared sequence).
-- **Cross-refs to keep live on edit:** [[FCT Stories]], [[FCT Decisions]], [[FCT Architecture]], [[FCT Testing]], [[FCT Status]], [[DSC ask-format]], [[DSC progressive-disclosure]], [[CAE PRD]] — if any is renamed, propagate here the same commit.
+- **Cross-refs to keep live on edit:** [[FCT Stories]], [[FCT Decisions]], [[FCT Architecture]], [[FCT Testing]], [[FCT Status]], [[DSC ask-format]], [[DSC progressive-disclosure]], [[HBR PRD]] — if any is renamed, propagate here the same commit.

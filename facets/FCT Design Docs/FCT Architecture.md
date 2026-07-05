@@ -23,7 +23,7 @@ description: per-anchor architecture overview — anchor-folder form with subsys
 Facet spec defining the per-anchor system-architecture overview — its anchor-folder shape, standard section order, mandatory visual figure, subsystem dispatch table, and split between conceptual map (entry-point doc) and contract surface (API sub-doc).
 
 **Related:** [[FCT Module Doc]],  [[FCT Decisions]],  [[FCT Design Dispatch]],  [[R-diagram]]
-**Examples:** [[CAE Architecture\|minimal (Excalidraw, partial subsystem docs)]],  [[HBR Architecture\|fuller (D2/SVG, all subsystems linked)]]
+**Examples:** [[FEX Architecture\|minimal (Excalidraw, partial subsystem docs)]],  [[HBR Architecture\|fuller (D2/SVG, all subsystems linked)]]
 
 **TLDR** — One `{NAME} Architecture/` folder per anchor (cardinality: **one**). Entry-point doc has four required sections in order: Overview → Architecture diagram → Subsystems → supporting context. Diagram must be a real visual artifact (SVG/Excalidraw/D2); ASCII art is forbidden. Subsystem docs use kebab naming `{NAME}-{Subsystem}.md`; `[[double-bracket]]` = real doc, `[single-bracket]` = placeholder. Public API detail lives in a sibling `{NAME} API.md`, not the entry-point page.
 

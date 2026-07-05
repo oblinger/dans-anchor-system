@@ -8,7 +8,7 @@ description: "the Doc Structure facet — the canonical top-to-bottom layering e
 The standard top-to-bottom structure every document follows — progressive disclosure specialized for a single document: each layer reveals more depth for a more-committed reader. This is the **main facet for any document**; the other doc facets (Brief, Discussion, Ruleset) describe regions *within* this structure.
 
 **Related:** [[DSC progressive-disclosure]] (the discipline this specializes),  [[FCT Brief]],  [[FCT Anchor Page]]
-**Examples:** [[CAE Minimal Facet\|minimal — short doc, no table]],  [[HBR Architecture\|fuller — non-anchor doc with structured body]]
+**Examples:** [[FEX Minimal Facet\|minimal — short doc, no table]],  [[HBR Architecture\|fuller — non-anchor doc with structured body]]
 **Document examples:** [[FEX Manifest]] (facet spec),  [[FEX Retention]] (discipline),  [[FCT Brief]] (facet spec)
 **Anchor examples:** [[HBR]] (project),  [[FEX Snapshot]] (skill),  [[FEX Repo]] (repo)
 

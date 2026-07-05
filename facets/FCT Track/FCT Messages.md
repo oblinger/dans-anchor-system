@@ -8,7 +8,7 @@ description: Messages facet — the agent's per-anchor inbox of background-proce
 Spec for the **Messages facet** — the per-anchor file `{NAME} Messages.md` that holds background-process notes for the agent to read on every pause, separate from the user's raw-input `{NAME} Inbox.md`.
 
 **Related:** [[FCT Inbox]],  [[FCT Backlog]],  [[FCT Track]],  [[CAB Base]]
-**Examples:** [[CAE Messages\|minimal]],  [[HBR Messages\|with real system messages]]
+**Examples:** [[HBR Messages\|minimal]],  [[HBR Messages\|with real system messages]]
 
 **Cardinality: one per anchor** — each anchor has exactly one `{NAME} Messages.md` file at its root.
 

@@ -8,7 +8,7 @@ description: "facet spec for {NAME} API Design.md — the programmatic (code-to-
 Facet spec defining the shape, required sections, and ruleset for an anchor's `{NAME} API Design.md` — the programmatic (code-to-code or sub-skill) user surface.
 
 **Related:** [[FCT UX Design]],  [[FCT Architecture]],  [[FCT Module Doc]],  [[FCT Decisions]]
-**Examples:** [[CAE API Design\|minimal (library crate)]],  [[HBR API Design\|fuller (service + sub-skill)]]
+**Examples:** [[FEX API Design\|minimal (library crate)]],  [[HBR API Design\|fuller (service + sub-skill)]]
 
 | Table of Contents |  |
 |---|---|

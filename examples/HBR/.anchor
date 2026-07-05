@@ -1,4 +1,4 @@
 slug: HBR
 title: Harbor
 traits: [Code]
-description: "**Harbor** — a fictional media-server project (its own slug): project root + grouped dispatch ("
+description: "**Common Anchor Example** — the fully-wired worked-example anchor (PRD / UX / API / Architecture / Decisions / Testing / Roadmap / Features), cited by the FCT facet specs as the **minimal** reference instance. Relocated here from `CAB/` 2026-06-27."

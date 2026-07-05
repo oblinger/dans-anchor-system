@@ -29,4 +29,4 @@ RULE (design-gate): the **presence of `{NAME} Design/`** is the gate — `/desig
 
 ## Example
 
-Live instance: [[FCT Design]] (the facet spec itself) and any anchor with a `{NAME} Design/` folder (e.g. [[CAE]]).
+Live instance: [[FCT Design]] (the facet spec itself) and any anchor with a `{NAME} Design/` folder (e.g. [[HBR]]).

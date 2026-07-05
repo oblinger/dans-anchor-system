@@ -8,7 +8,7 @@ description: "completed-roadmap facet — migrated milestones in newest-on-top o
 The migration target for completed milestones — preserves shipped milestone structure in newest-to-oldest order alongside the forward-looking Roadmap.
 
 **Related:** [[FCT Roadmap]],  [[FCT Design]],  [[FCT Features]],  [[FCT Design Docs]]
-**Examples:** [[CAE Completed Roadmap\|example]]
+**Examples:** [[FEX Completed Roadmap\|example]]
 
 **TLDR** — One doc per anchor (when any milestone has migrated). Lives at `{NAME} Design/{NAME} Completed Roadmap.md`. Newest migrated milestone at top; standalone-completed-features groupings interleave between milestones. Cardinality: **one per anchor**.
 

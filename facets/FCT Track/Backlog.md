@@ -19,7 +19,7 @@ Below is a condensed reference example. See the working example linked above for
 
 # CAE Backlog
 
-| -[[CAE Backlog]]- | |
+| -[[HBR Backlog]]- | |
 | --- | --- |
 | --- | |
 
@@ -32,7 +32,7 @@ Below is a condensed reference example. See the working example linked above for
 
 ## Now
 - **F002 — Task groups** [Designing] — Allow grouping related tasks that run as a batch
-- **F007 — Webhook notifications** [Verify] — Webhook fires on task completion. Verify: trigger a test job and check that the configured webhook URL receives a POST with the documented JSON payload (see [[CAE PRD]] § Webhooks).
+- **F007 — Webhook notifications** [Verify] — Webhook fires on task completion. Verify: trigger a test job and check that the configured webhook URL receives a POST with the documented JSON payload (see [[HBR PRD]] § Webhooks).
 
 ## Next
 - **F004 — Priority levels** [ ] — Add high/medium/low priority beyond just deadline ordering

@@ -8,7 +8,7 @@ description: "the Skill primitive — SKILL.md entry-point structure and convent
 An omnibus Claude Code skill that groups related actions, reference data, and scripts under a single `/name` command. Invoked via `/name action` (e.g., `/cab setup`, `/md toc`).
 
 **Related:** [[FCT Facet]],  [[FCT Ruleset]],  [[FCT Primitives]],  [[CAB Aspects]]
-**Examples:** [[CAE Skill\|canonical exemplar]],  [[CAE Minimal Skill\|minimal capsule]]
+**Examples:** [[FEX Skill\|canonical exemplar]],  [[FEX Minimal Skill\|minimal capsule]]
 
 | Table of Contents |  |
 |---|---|

@@ -27,7 +27,7 @@ Facet spec for `{NAME} CLI.md` — the **command-line specification** for an anc
 ## Relationship to the other design docs
 
 - [[FCT UX Design]] — the CLI doc is **downstream of UX Design**: UX Design decides *that* there is a CLI and its command shape (verbs, grouping, the interaction model); `{NAME} CLI.md` is the concrete `--help` realization of that decision.
-- [[FCT API Design]] — sibling programmatic surface. An anchor with both a CLI and a library form carries both (e.g. [[CAE]]).
+- [[FCT API Design]] — sibling programmatic surface. An anchor with both a CLI and a library form carries both (e.g. [[HBR]]).
 - [[CAB User Guide]] / `{NAME} User Guide.md` — the **tutorial** (narrative, teaches the few commands a newcomer needs). The CLI doc is the **reference** (the whole surface, look-up-oriented). Guide links to CLI for "full surface"; CLI links back to Guide for "getting started."
 
 # Reference Example

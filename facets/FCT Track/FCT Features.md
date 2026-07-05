@@ -8,7 +8,7 @@ description: "specification for F-numbered per-feature design docs and their ind
 Specification for the **Features** facet — F-numbered per-feature design docs that live under `{NAME} Design/{NAME} Features/`, with their index page and pre-document Open-Questions zone.
 
 **Related:** [[FCT Roadmap]],  [[CAB Backlog]],  [[FCT Status]],  [[FCT Facet]]
-**Examples:** [[CAE Features\|minimal]],  [[HBR Features\|fuller]]
+**Examples:** [[HBR Features\|minimal]],  [[HBR Features\|fuller]]
 
 | Table of Contents |  |
 |---|---|

@@ -5,7 +5,7 @@ description: testing facet — the project's testing strategy (kinds, amounts, r
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Testing](hook://p/FCT%20Testing)
 
 # FCT Testing
-**Audited examples:** [[HBR Testing]], [[Mini Testing]], [[CAE Testing]], [[MUX Testing]], [[SKA Bridge Testing]]
+**Audited examples:** [[HBR Testing]], [[Mini Testing]], [[HBR Testing]], [[MUX Testing]], [[SKA Bridge Testing]]
 
 | Table of Contents |  |
 |---|---|
@@ -24,7 +24,7 @@ description: testing facet — the project's testing strategy (kinds, amounts, r
 Spec for the `{NAME} Testing.md` design facet — a two-part doc combining the project's testing strategy with a proposed-tests inventory, peer to Architecture and UX Design under Design.
 
 **Related:** [[FCT Architecture]],  [[FCT UX Design]],  [[FCT PRD]],  [[FCT Design Docs]]
-**Examples:** [[Mini Testing\|minimal worked example]],  [[HBR Testing\|maximal worked example]],  [[CAE Testing\|fuller worked example]]
+**Examples:** [[Mini Testing\|minimal worked example]],  [[HBR Testing\|maximal worked example]],  [[HBR Testing\|fuller worked example]]
 
 **Location:** `{NAME} Design/{NAME} Testing.md` (or `{NAME} Testing/` if it grows to anchor-folder form, parallel to Architecture).
 
@@ -32,7 +32,7 @@ Spec for the `{NAME} Testing.md` design facet — a two-part doc combining the p
 
 **Two forms in the wild.** Real instances span a range:
 
-- **Single-file, lean** — the common case (e.g. [[Mini Testing]], [[CAE Testing]]): one `{NAME} Testing.md` with the standard sections below.
+- **Single-file, lean** — the common case (e.g. [[Mini Testing]], [[HBR Testing]]): one `{NAME} Testing.md` with the standard sections below.
 - **Single-file, grown** — a large project keeps the single file but adds project-specific strategy sections between Strategy and Proposed Tests (e.g. [[MUX Testing]] adds `## Relevance Gating` and a `## Subjective implementation notes` block, and carries an extra **Scope** / **Recipe** column on its tables). These additions are allowed — the load-bearing invariant is the `Overview → Strategy → Proposed Tests` spine, not the absence of extra sections or columns.
 
 **Anti-pattern — inlined specs.** Some legacy instances (e.g. `SKA Bridge Testing.md`) skip the `## Proposed Tests` inventory and instead inline each test's Precondition / Steps / Pass directly under per-test H3s. That is the **altitude inversion** R-testing-07 exists to prevent: the facet doc becomes the test file and the three-altitude split collapses. The fix is to lift those low-level specs into module docs and replace the H3 blocks with one inventory row each, the spec body moving behind the Spec-column link.
@@ -160,7 +160,7 @@ Available to any anchor that ships testable behavior — primarily `Code` trait 
 - [[FCT PRD]] — user stories drive e2e test inventory in § Proposed Tests.
 - [[DSC verification]] — four-tier verification discipline that § Tier Mapping cites.
 - [[Common Testing Types]] — the standard test-kind catalogue (one H2 per kind) that the required `## Tests` table's Kind cells link to for vanilla kinds.
-- [[CAE Testing]] — worked example for CAE Example CLI.
+- [[HBR Testing]] — worked example for CAE Example CLI.
 - [[skills/design/design-testing|design-testing]] — authoring sub-skill for `/design testing`.
 
 # RULESET R-testing
@@ -256,7 +256,7 @@ The doc carries a `**TLDR**` block in the preface zone (after the dispatch table
 
 **Check pattern:** the file contains a line `^\*\*TLDR\*\*$` (or `^# TLDR$` style heading) preceding the first `## ` body heading; the immediately-following bullets follow the formatting spec.
 
-**Why:** Testing docs reduce cleanly to a short posture statement that lets a reader graze in 5 seconds — "this project's testing is X-shaped, with bar Y." Requiring the TLDR makes the grazer-altitude unmissable and prevents the Overview paragraph from carrying the whole burden of high-altitude reading. Worked example: [[CAE Testing]] § preface zone.
+**Why:** Testing docs reduce cleanly to a short posture statement that lets a reader graze in 5 seconds — "this project's testing is X-shaped, with bar Y." Requiring the TLDR makes the grazer-altitude unmissable and prevents the Overview paragraph from carrying the whole burden of high-altitude reading. Worked example: [[HBR Testing]] § preface zone.
 
 ### RULE R-testing-11 — `## Overview` H2 present, single-paragraph posture (checked)
 check:: overview_section_present
@@ -282,7 +282,7 @@ Directly after the preface (TLDR), before `## Overview`, the doc has a `## Tests
 
 *(Maintainer note — cautions for whoever edits this facet spec. The normative spec is the body above; the embedded `R-testing` ruleset is its auditable form.)*
 
-- **Inclusion test** — a change belongs here only if it applies to every `{NAME} Testing.md` across anchors. Per-project content and worked examples ([[CAE Testing]], [[Mini Testing]], [[MUX Testing]]) live in their own anchors, linked from § See also; never inline them here.
+- **Inclusion test** — a change belongs here only if it applies to every `{NAME} Testing.md` across anchors. Per-project content and worked examples ([[HBR Testing]], [[Mini Testing]], [[MUX Testing]]) live in their own anchors, linked from § See also; never inline them here.
 - **Keep spec ↔ ruleset in sync** — when the section order, table contract, or `status::` value set changes above, audit each `RULE R-testing-NN` block for matching wording, check-pattern accuracy, and any rule that should be added; the numbered rules are the auditable form of this prose.
 - **Sync downstream in lockstep** — the [[skills/design/design-testing|design-testing]] sub-skill is the canonical authoring path (update its runbook when the facet shape evolves — the 2026-06-10 F136 rewrite is the precedent), and the `## Tests` coverage table's Kind cells track [[Common Testing Types]] (keep in sync when either changes).
-- **Cross-references that must stay live** — [[FCT Architecture]], [[DSC verification]], [[DSC progressive-disclosure]], [[Common Testing Types]], [[CAE Testing]], [[F133 — Rulesets folder convention + facet embedding|F133]]; renaming or moving any requires updating the wiki-links here.
+- **Cross-references that must stay live** — [[FCT Architecture]], [[DSC verification]], [[DSC progressive-disclosure]], [[Common Testing Types]], [[HBR Testing]], [[F133 — Rulesets folder convention + facet embedding|F133]]; renaming or moving any requires updating the wiki-links here.

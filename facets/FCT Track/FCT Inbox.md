@@ -8,7 +8,7 @@ description: raw incoming content to process
 Facet spec for the `{NAME} Inbox.md` drop-zone file — the chronological log of raw input pasted in for later processing into the anchor's planning docs.
 
 **Related:** [[FCT Discussion]],  [[FCT Backlog]],  [[FCT PRD]],  [[FCT Roadmap]]
-**Examples:** [[CAE Inbox\|example]]
+**Examples:** [[FEX Inbox\|example]]
 
 **TLDR** — A single `{NAME} Inbox.md` file (one per anchor) is the paste-first drop zone for raw input; processed entries stay with a `DONE` or `MOVED →` status tag as a permanent log.
 
@@ -25,7 +25,7 @@ Below is a condensed reference example. See the working example linked above for
 
 # CAE Inbox
 
-| -[[CAE Inbox]]- |  |
+| -[[FEX Inbox]]- |  |
 | --- | --- |
 | --- | |
 
@@ -41,7 +41,7 @@ Original input:
 Discussed promotion logic for starved low-priority tasks. Design notes moved to [[CAE Discussion#2026-02-25]]. Implementation planned for M3.
 
 ## 2026-02-20 — Initial feature brainstorm    `DONE`
-Raw feature list from kickoff meeting. Items distributed to [[CAE PRD]] and [[CAE Backlog]].
+Raw feature list from kickoff meeting. Items distributed to [[HBR PRD]] and [[HBR Backlog]].
 
 ---
 
@@ -97,5 +97,5 @@ After processing, entries remain in the file with their status tag intact as a p
 
 - **Inclusion test** — a rule belongs here only if it constrains how an Inbox file is authored, located, formatted, or processed; cross-facet workflow (how entries promote to PRD/Roadmap/Backlog) and other surfaces' drop-zone semantics live in the destination facet specs, not here.
 - **Status-tag vocabulary is tooling-consumed** — `DONE` and `MOVED → {destination}` (R-fct-inbox-03) are the only sanctioned tags; downstream tooling and agent skills key off these exact strings, so adding a tag requires updating the ruleset first.
-- **Reference Example is illustrative, not authoritative** — on a format change update the Format Specification first, then sync the example; don't let the example drift into spec, and keep per-anchor variations in the working example ([[CAE Inbox]]), not inlined here.
+- **Reference Example is illustrative, not authoritative** — on a format change update the Format Specification first, then sync the example; don't let the example drift into spec, and keep per-anchor variations in the working example ([[FEX Inbox]]), not inlined here.
 - **Top-of-doc shape is owned by rewire** — cite `[[skills/rewire/SKILL]]` § Default doc top-of-file; don't re-specify the frontmatter / H1 / dispatch-placeholder here.

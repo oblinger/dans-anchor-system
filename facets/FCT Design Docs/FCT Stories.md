@@ -24,7 +24,7 @@ description: "facet spec for user stories as first-class siblings of a PRD — i
 Facet spec for the user-stories surface of a PRD — defines the inline-bullet form for small PRDs and the extracted-folder form (`{NAME} PRD/` with per-story files indexed by `{NAME} Stories.md`) for PRDs whose stories outgrow a single sentence.
 
 **Related:** [[FCT PRD]],  [[FCT Testing]],  [[FCT Features]],  [[FCT Design]]
-**Examples:** [[HBR PRD\|inline-stories (single-file form)]],  [[CAE Stories\|folder-form dispatch index (extracted stories)]]
+**Examples:** [[HBR PRD\|inline-stories (single-file form)]],  [[FEX Stories\|folder-form dispatch index (extracted stories)]]
 
 **TLDR** — Stories are part of the PRD. Small PRDs keep stories inline as bullets under `## User Stories`; large PRDs extract them to `{NAME} PRD/` folder form with a `{NAME} Stories.md` dispatch index and per-story `US-<SLUG>-<N> — <Title>.md` files. The two forms are mutually exclusive. **Cardinality: many** — a PRD in folder form can have any number of story files. The embedded `R-stories` ruleset enforces folder shape, naming, dispatch table structure, and bidirectional linking.
 
@@ -138,7 +138,7 @@ A progression of increasing weight — adopt the lightest form that fits:
 - [[FCT Testing]] — sibling Design facet; e2e tests reference user stories by `US-<SLUG>-<N>`
 - [[FCT Features]] — feature docs carry a `Realizes:` line linking back to the stories they implement
 - [[design-prd]] — authoring sub-skill; capturing user stories is an explicit step in PRD design
-- [[CAE PRD]] — worked example (currently single-file form; will migrate to folder form when CAE stories grow)
+- [[HBR PRD]] — worked example (currently single-file form; will migrate to folder form when CAE stories grow)
 
 # RULESET R-stories
 include::
@@ -248,6 +248,6 @@ Neither a `US-<SLUG>-<N> — <Title>.md` story file nor the `{NAME} Stories.md` 
 
 *(Maintainer note — cautions for whoever edits this facet spec. The normative spec and its Why fields are the body + `RULESET R-stories` above.)*
 
-- **Spec, not a catalog** — keep the body abstract and shape-focused; worked stories belong in per-anchor PRDs ([[CAE PRD]]), never inlined here. Inclusion test: content belongs here only if it governs the *structure* of stories or the `{NAME} Stories.md` index across all anchors — trait-specific variations (Paper / Topic / Simple) live with those traits, PRD-wide rules in [[FCT PRD]], and cross-facet integrity (story ↔ feature ↔ test) is *referenced* here but defined in the respective specs.
+- **Spec, not a catalog** — keep the body abstract and shape-focused; worked stories belong in per-anchor PRDs ([[HBR PRD]]), never inlined here. Inclusion test: content belongs here only if it governs the *structure* of stories or the `{NAME} Stories.md` index across all anchors — trait-specific variations (Paper / Topic / Simple) live with those traits, PRD-wide rules in [[FCT PRD]], and cross-facet integrity (story ↔ feature ↔ test) is *referenced* here but defined in the respective specs.
 - **`RULESET R-stories` numbers are externally referenced** — rule numbers (R-stories-01..12) must stay monotonic and stable; never renumber, never recycle a retired number. Its `where::` deliberately selects only the Stories-facet files (`{NAME} Stories.md` + `US-*.md`), NOT the PRD (which [[FCT PRD]] governs).
 - **Cross-ref coordination:** the inline/folder mutual-exclusivity is load-bearing for `/design prd` detection logic — don't introduce a hybrid form without updating [[FCT PRD]] and [[design-prd]] in the same edit; likewise, any change to the `US-<SLUG>-<N>` identifier shape (the handle for features `Realizes:` / tests `Exercises:`) must update [[FCT Features]] and [[FCT Testing]] in the same edit.

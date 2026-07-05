@@ -22,7 +22,7 @@ This doc is the **caller's contract** — what the crate exposes, in what shapes
 
 Per-module class/function tables live in the relevant subsystem doc:
 
-- `execution` API → [[CAE-Scheduler]]
+- `execution` API → [[FEX Scheduler]]
 - `retry` / `store` / `clock` / `models` → subsystem docs not yet authored; see [[FEX Architecture#Subsystems|CAE Architecture § Subsystems]] for the placeholder inventory.
 
 ## Schemas
@@ -97,5 +97,5 @@ Per [[FEX Decisions#D02 — Fail Loudly (sampled)|D02]] all of these propagate t
 ## See also
 
 - [[FEX Architecture]] — internal structure (subsystems, threads, decisions)
-- [[CAE-Scheduler]] — Scheduler subsystem (full class/function reference for `execution`)
-- [[CAE CLI]] — command-line surface (separate doc in `CAE Design/`)
+- [[FEX Scheduler]] — Scheduler subsystem (full class/function reference for `execution`)
+- [[HBR CLI]] — command-line surface (separate doc in `CAE Design/`)

@@ -8,7 +8,7 @@ description: "facet spec for the project sequencing-design doc — milestones, s
 The Roadmap facet — the project's sequencing-design doc, organized as named milestones with sub-numbering.
 
 **Related:** [[FCT Features]],  [[FCT Completed Roadmap]],  [[FCT Status]],  [[FCT Design]]
-**Examples:** [[CAE Roadmap\|Shape A named-milestone]],  [[HBR Roadmap\|Shape B legacy-numbered]]
+**Examples:** [[FEX Roadmap\|Shape A named-milestone]],  [[HBR Roadmap\|Shape B legacy-numbered]]
 
 | Table of Contents |  |
 |---|---|

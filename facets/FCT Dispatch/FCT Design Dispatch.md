@@ -8,7 +8,7 @@ description: "design docs dispatch page — Architecture, UX Design, Interface, 
 Facet spec for `{NAME} Design.md` — the dispatch page listing all high-level system-spec documents for an anchor.
 
 **Related:** [[FCT Architecture]],  [[FCT UX Design]],  [[FCT Interface]],  [[FCT PRD]]
-**Examples:** [[HBR Design\|minimal]],  [[CAE Design\|fuller]]
+**Examples:** [[HBR Design\|minimal]],  [[HBR Design\|fuller]]
 
 **TLDR** — `{NAME} Design.md` is the one-per-anchor dispatch page listing the high-level system-spec documents (UX Design, Interface, Decisions, Data Model, Principles, PRD, Features, Roadmap, Design Discussion) for an anchor. It lives at the root-level `{NAME} Design/{NAME} Design.md`. The system-architecture story **is** a Design child — `{NAME} Architecture` (a single `.md`, or a `{NAME} Architecture/` folder-doc once it grows subsystems) inside `{NAME} Design/`. (F094's root placement reversed 2026-06-27.) Interface is required for Code anchors.
 
@@ -29,14 +29,14 @@ Below is a condensed reference example.
 
 # CAE Design
 
-| -[[CAE Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Design Dispatch](hook://p/FCT%20Design%20Dispatch)<br>: design — system spec, UX, interface, data, principles |
+| -[[HBR Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Design Dispatch](hook://p/FCT%20Design%20Dispatch)<br>: design — system spec, UX, interface, data, principles |
 | --- | --- |
-| [[CAE Architecture\|Architecture]] | system-architecture story — a Design child (`{NAME} Architecture`) |
-| [[CAE UX Design\|UX Design]] | user-interaction shape — screens, commands, output formats |
+| [[FEX Architecture\|Architecture]] | system-architecture story — a Design child (`{NAME} Architecture`) |
+| [[HBR UX Design\|UX Design]] | user-interaction shape — screens, commands, output formats |
 | [[CAE Interface\|Interface]] | top-level layer contract — public API for callers (required for Code anchors) |
 | [[CAE Data Model\|Data Model]] | data shapes & schemas |
-| [[CAE Decisions\|Principles]] | load-bearing rules & invariants |
-| [[CAE PRD\|PRD]] | product requirements |
+| [[FEX Decisions\|Principles]] | load-bearing rules & invariants |
+| [[HBR PRD\|PRD]] | product requirements |
 | [[CAE Design Discussion\|Design Discussion]] | design trade-off conversations |
 
 ---

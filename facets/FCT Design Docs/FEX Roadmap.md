@@ -52,9 +52,9 @@ WAL truncation + periodic SQLite checkpoint. Pulled to M-Polish window because b
 
 **Status:** Not started — committed for next milestone after M-Store ships.
 
-**Reference:** [[CAE UX Design]] (command surface, output shapes, error voice); [[CAE CLI]] (exhaustive reference)
+**Reference:** [[HBR UX Design]] (command surface, output shapes, error voice); [[HBR CLI]] (exhaustive reference)
 
-**Tests:** e2e tests per user story in [[CAE Testing]] (US-CAE-1, US-CAE-2, US-CAE-3)
+**Tests:** e2e tests per user story in [[HBR Testing]] (US-CAE-1, US-CAE-2, US-CAE-3)
 
 ### [ ] M-CLI.1 — `schedule` command  [F057]
 

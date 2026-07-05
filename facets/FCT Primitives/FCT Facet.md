@@ -200,7 +200,7 @@ A facet that sits among peers (the Design or Track groups) links them in a `## S
 **Check pattern:** a `## See also` lists peer facets + the authoring skill (e.g. `/design testing` for [[FCT Testing]]).
 **Why:** facets are read as a set; ### RULE R-facet-spec-25 — Masthead carries an Examples row spanning the facet's instantiation kinds (checked)
 check:: facet_examples_row
-The dispatch masthead includes an **`Examples`** row linking worked instances that **span the range** of how this facet is instantiated — at minimum a *minimal* and a *maximal* instantiation, plus any other meaningful breakdown (by trait, by cardinality form, by sub-kind). Each entry is a wiki-link (never an embedded instance — R-facet-spec-20), aliased to name which kind it exemplifies, e.g. `[[CAE Backlog\|minimal]]`, `[[SKA Backlog\|maximal]]`.
+The dispatch masthead includes an **`Examples`** row linking worked instances that **span the range** of how this facet is instantiated — at minimum a *minimal* and a *maximal* instantiation, plus any other meaningful breakdown (by trait, by cardinality form, by sub-kind). Each entry is a wiki-link (never an embedded instance — R-facet-spec-20), aliased to name which kind it exemplifies, e.g. `[[HBR Backlog\|minimal]]`, `[[SKA Backlog\|maximal]]`.
 **Check pattern:** the masthead has an `Examples` row carrying at least one wiki-link.
 **Why:** a reader learns a facet fastest from real instances at the edges of its range — one example shows the shape, the spread shows the variation the format must absorb. (Worked-example facets that *are* the instance, e.g. those under `examples/`, are exempt; this governs the `facets/` catalog.)
 
