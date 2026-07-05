@@ -4,6 +4,7 @@ description: "prior-art survey of existing rule/hook systems + recommended adapt
 # Warden Survey
 
 → **[[#Recommended Adaptation for the Anchor System|Recommended adaptation for the anchor system]]**
+
 ## Overview
 
 Survey of existing systems that do — or come close to — the target pattern: an agent is about to write a file → a rule matches on the file **path** → the rule checks the **content** against a regular expression / format spec → on mismatch a corrective **message** is sent back to the agent so it self-fixes → optionally the write is **blocked**. Scored on four legs throughout: **(a)** path/glob match · **(b)** regex/content validation · **(c)** corrective message fed back to the agent · **(d)** block.

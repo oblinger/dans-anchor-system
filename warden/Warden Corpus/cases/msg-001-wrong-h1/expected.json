@@ -3,5 +3,15 @@
   "rule": "R-messages-01",
   "target": "FX1 Messages.md",
   "status": "fail"
+ },
+ {
+  "rule": "R-progressive-01",
+  "target": "FX1 Messages.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-progressive-02",
+  "target": "FX1 Messages.md",
+  "status": "pass"
  }
 ]

@@ -4,5 +4,5 @@ mode: doc
 target: FX1 queries.md
 provenance: harvested (R-query-02)
 engine: audit-plan
-blessed_against: 3869affea28e-38ee8b9640d0
+blessed_against: 5d4dfa5cc93d-321bcc7034de
 note: a queries surface with no YAML frontmatter; also pins the current unknown-checker errors on R-query-04/-08/-13
