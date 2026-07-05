@@ -1,4 +1,4 @@
-# CAE Stories
+# FEX Stories
 description:: three user stories — index for US-CAE-1..3 (folder-form per
 
 | Story | Description |

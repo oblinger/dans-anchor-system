@@ -8,7 +8,7 @@ description: "Diagram authoring + validation rules: ASCII-forbidden, hand-writte
 
 ## Rulesets in this folder
 
-- **[[R-diagram]]** — Umbrella set: 22 rules across structural (DRC-blockers) / aesthetic (Sugiyama-style) / semantic (C4) / accessibility-typography (WCAG/Bringhurst) / hygiene zones, composed from the sub-sets via `include::`. Adopted by [[CAE Rules]] as the worked example.
+- **[[R-diagram]]** — Umbrella set: 22 rules across structural (DRC-blockers) / aesthetic (Sugiyama-style) / semantic (C4) / accessibility-typography (WCAG/Bringhurst) / hygiene zones, composed from the sub-sets via `include::`. Adopted by [[FEX Rules]] as the worked example.
 - **[[R-c4]]** — Semantic-convention sub-set (4 rules): every arrow labeled, title or legend present, meaningful box names, one meaning per visual variable. Diagram-specific, so it stays in the Diagram domain.
 
 ## Source material

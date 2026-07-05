@@ -1,4 +1,4 @@
-# CAE Completed Roadmap
+# FEX Completed Roadmap
 description:: companion to CAE Roadmap; preserved migrated milestones with their structure; newest-on-top.
 
 
@@ -12,7 +12,7 @@ description:: companion to CAE Roadmap; preserved migrated milestones with their
 
 **Status:** Complete — priority queue + worker pool + retry + drain all shipped. 4 of 4 sub-items.
 
-**Reference:** [[CAE Architecture]] § Scheduler + § Worker Pool
+**Reference:** [[FEX Architecture]] § Scheduler + § Worker Pool
 
 **Tests:** 18 unit tests added (priority ordering, deadline respect, age-promotion); 1 integration test (`test_schedule_dispatch_complete_flow`)
 

@@ -242,7 +242,7 @@ Embed in the markdown with a page-fill width hint: `![[FEX Scheduler.svg|2400]]`
 ```
 The remaining C30 (SVG older than excalidraw) means a manual re-convert: `python3 ~/.claude/skills/viz/excalidraw_to_svg.py "CAE Scheduler.excalidraw"`. Re-run audit: zero findings.
 
-**Step 8 — Subjective re-read.** Walk the 14-item checklist above against `CAE Scheduler.md`. The figure passes (clean layout, all sections represented), prose orients cold, method descriptions are non-trivial, the topic carries weight (anchors `[[CAE Decisions#D07 — One Queue, One Clock (checked)]]`).
+**Step 8 — Subjective re-read.** Walk the 14-item checklist above against `CAE Scheduler.md`. The figure passes (clean layout, all sections represented), prose orients cold, method descriptions are non-trivial, the topic carries weight (anchors `[[FEX Decisions#D07 — One Queue, One Clock (checked)]]`).
 
 **Step 9 — Link in dispatch tables.** Add a row to `CAE Docs/CAE Dev/CAE Dev.md`:
 ```markdown

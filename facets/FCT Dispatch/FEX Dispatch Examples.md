@@ -13,12 +13,12 @@ A gallery of the dispatch-table alternatives from [[DSC Dispatch Table]] § Stru
 
 ## The four kinds
 
-| #   | Kind                       | What it shows                                                                                                                         | Live example   |
-| --- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | -------------- |
-| 1   | **Masthead-only**          | breadcrumb + anchor-kind **structural rows** (Design / Architecture / User Docs / Dev Docs), no member zone — a non-collection anchor | [[HBR]]        |
-| 2   | **Member groups** (`+`)    | members under labeled, **expandable** group rows (`Anchor+`, `Doc+`, `Search+`) — the > 15 grouped layout                             | [[SKL]]        |
-| 3   | **Flat member list**       | one row per member, hand-ordered — the ≤ 15 flat layout, manual                                                                       | [[SKA Access]] |
-| 4   | **Hybrid** (manual + auto) | curated category rows the author pinned, plus a **`...`** compact-auto staging row at the bottom                                      | [[SYS]]        |
+| #   | Kind                       | What it shows                                                                                                                         | Live example        |
+| --- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
+| 1   | **Masthead-only**          | breadcrumb + anchor-kind **structural rows** (Design / Architecture / User Docs / Dev Docs), no member zone — a non-collection anchor | [[HBR]]             |
+| 2   | **Member groups** (`+`)    | members under labeled, **expandable** group rows (`Anchor+`, `Doc+`, `Search+`) — the > 15 grouped layout                             | [[SKL]]             |
+| 3   | **Flat member list**       | one row per member, hand-ordered — the ≤ 15 flat layout, manual                                                                       | [[SKA Access]]      |
+| 4   | **Hybrid** (manual + auto) | curated category rows the author pinned, plus a **`...`** compact-auto staging row at the bottom                                      | [[SYS]]             |
 | 5   | **With a figure**          | the page ordering when an anchor page carries a figure: **H1 → one-liner → figure (no title) → dispatch table**                       | [[FEX Figure Page]] |
 
 ## 1 — Masthead-only ([[HBR]])

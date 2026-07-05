@@ -1,13 +1,13 @@
 ---
-description: "The minimal-facet capsule — the leanest complete file set for a CAB facet, with a live worked instance. Lazy, no empty stubs."
+description: "the leanest complete file set for a facet, with a live instance"
 ---
 
-# CAE Minimal Facet
+# FEX Minimal Facet
 
-| -[[CAE Minimal Facet]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[CAE]] → [CAE Minimal Facet](hook://p/CAE%20Minimal%20Facet)<br>: the leanest complete file set for a facet, with a live instance |
+| -[[FEX Minimal Facet]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[FCT Primitives]] → [FEX Minimal Facet](hook://p/FEX%20Minimal%20Facet)<br>: the leanest complete file set for a facet, with a live instance |
 | --- | --- |
 | Anchor | [[CAE]] (reference anchor) |
-| Related | [[CAE Minimal Skill]],  [[DSC Dispatch Table]] (the live instance),  [[CAB Facets]] |
+| Related | [[FEX Minimal Skill]],  [[DSC Dispatch Table]] (the live instance),  [[CAB Facets]] |
 
 The **minimal-facet capsule**: the smallest file set that fully captures a facet *and its design thinking*, with **nothing empty**. Every file below exists only when it carries real content — the structure is uniform (you always know where a piece *would* go), but a piece that has nothing to say is simply absent, not a stub. This is the antidote to the legacy dozen-doc scaffold (see [[CAB Dispatch Table Design]] § Standing decisions).
 

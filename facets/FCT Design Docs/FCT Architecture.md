@@ -5,7 +5,7 @@ description: per-anchor architecture overview — anchor-folder form with subsys
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Architecture](hook://p/FCT%20Architecture)
 
 # FCT Architecture
-**Audited examples:** [[HBR Architecture]], [[CAE Architecture]], [[OBU Architecture]], [[MUX Architecture]], [[HA Architecture]]
+**Audited examples:** [[HBR Architecture]], [[FEX Architecture]], [[OBU Architecture]], [[MUX Architecture]], [[HA Architecture]]
 
 | Table of Contents |  |
 |---|---|
@@ -55,7 +55,7 @@ The Architecture facet is the **system-level overview** — how the codebase is 
 
 **Bidirectional cross-linking**: every module doc carries an `Arch` row in its top-of-doc dispatch table (see [[FCT Module Doc]]) pointing at the most-specific architecture destination. `/architect` maintains both directions.
 
-**Working example:** [[CAE Architecture]] (`~/ob/kmr/SYS/Bespoke/Skill Agent/CAE/CAE Architecture/`).
+**Working example:** [[FEX Architecture]] (`~/ob/kmr/SYS/Bespoke/Skill Agent/CAE/CAE Architecture/`).
 
 ## Standard section order (entry-point doc)
 
@@ -162,7 +162,7 @@ Available to any anchor with the `Code` trait. Optional for non-code anchors —
 - [[R-diagram]] — the ruleset every architecture diagram is audited against (22 rules covering structural / aesthetic / semantic / accessibility / hygiene).
 - [[FCT Decisions]] — anchor-level recorded choices; rules implement them (rule-side `implements D<N>` linkage).
 - [[FCT Design Dispatch]] — Architecture sits alongside PRD / Decisions / Interface in `{NAME} Design/`.
-- [[CAE Architecture]] — worked example.
+- [[FEX Architecture]] — worked example.
 
 # RULESET R-architecture
 include::
@@ -284,7 +284,7 @@ Anchor-wide principles/rulings are linked to `{NAME} Decisions` (e.g. `[[… |D<
 *(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body above; the embedded `# RULESET R-architecture` is its machine-readable form; the canonical worked instances are the audited examples listed at the top of the file.)*
 
 - **Tooling derives structure from here** — `/architect` and `/audit architecture` key on this spec, and every per-anchor `{NAME} Architecture/` doc follows it; edits change behavior across every `Code`-trait anchor.
-- **Inclusion test:** a rule belongs here only if it applies to *every* Code-trait anchor's Architecture facet — anchor-local quirks → `{NAME} Decisions.md`, ruleset-wide diagram constraints → [[R-diagram]], markdown-rendering rules → [[R-markdown]]. Don't inline tutorial / worked-example / API-doc content — link [[CAE Architecture]] / [[FCT Module Doc]] instead.
+- **Inclusion test:** a rule belongs here only if it applies to *every* Code-trait anchor's Architecture facet — anchor-local quirks → `{NAME} Decisions.md`, ruleset-wide diagram constraints → [[R-diagram]], markdown-rendering rules → [[R-markdown]]. Don't inline tutorial / worked-example / API-doc content — link [[FEX Architecture]] / [[FCT Module Doc]] instead.
 - **Don't weaken the load-bearing invariants without a corresponding CAB Log entry:** first-four-section order (R-architecture-07), kebab subsystem naming (R-architecture-08), `[[double-bracket]]` = real / `[single-bracket]` = placeholder (R-architecture-09, drives the `missing-subsystem-doc` check), ASCII-forbidden (R-architecture-05).
 - **The `## Audit` table is the contract with `/audit architecture`** — a finding ID added or renamed here must change the audit script in lockstep; never introduce one without the other.
 - **Keep the ruleset and the prose in AGREEMENT** — the twelve `R-architecture-01..12` rules mirror the `## Audit` findings and the spine / link-convention / kebab-naming invariants; rule IDs are monotonic-forever (never renumber), and a spec change that alters a section or convention must update the matching rule, and vice versa.

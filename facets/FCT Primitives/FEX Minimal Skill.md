@@ -1,15 +1,15 @@
 ---
-description: "The minimal-skill capsule — the leanest complete file set for a skill, keeping design thinking out of the published repo. Lazy, no empty stubs."
+description: "the leanest complete file set for a skill, with a live instance"
 ---
 
-# CAE Minimal Skill
+# FEX Minimal Skill
 
-| -[[CAE Minimal Skill]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[CAE]] → [CAE Minimal Skill](hook://p/CAE%20Minimal%20Skill)<br>: the leanest complete file set for a skill, with a live instance |
+| -[[FEX Minimal Skill]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[FCT Primitives]] → [FEX Minimal Skill](hook://p/FEX%20Minimal%20Skill)<br>: the leanest complete file set for a skill, with a live instance |
 | --- | --- |
 | Anchor | [[CAE]] (reference anchor) |
-| Related | [[CAE Minimal Facet]],  [[SKL]],  [[granularity]],   |
+| Related | [[FEX Minimal Facet]],  [[SKL]],  [[granularity]],   |
 
-The **minimal-skill capsule**: the smallest file set that fully captures a skill *and its design thinking*, with **nothing empty**. Same lazy discipline as [[CAE Minimal Facet]] — uniform structure, files exist only when they carry content. The one structural difference from a facet: a skill's **spec is its runbook, and the runbook lives in the published repo** ([[SKL]] / `ob-skills` on GitHub), so the design thinking is kept *out* of the published repo and lives in the parallel SKA design tree.
+The **minimal-skill capsule**: the smallest file set that fully captures a skill *and its design thinking*, with **nothing empty**. Same lazy discipline as [[FEX Minimal Facet]] — uniform structure, files exist only when they carry content. The one structural difference from a facet: a skill's **spec is its runbook, and the runbook lives in the published repo** ([[SKL]] / `ob-skills` on GitHub), so the design thinking is kept *out* of the published repo and lives in the parallel SKA design tree.
 
 ## The capsule
 
@@ -29,4 +29,4 @@ The published `SKILL.md` is consumed by anyone who installs the skill — it mus
 
 ## Live instance
 
-A simple single-runbook skill such as [[snip]] is the shape: its spec is `skills/snip/SKILL.md` (published); its design home is `SKA snip` in the SKA tree, where a `SKA snip Design.md` is added the first time a real decision needs recording. Most skills are at the "spec only" stage today — the Design doc is the lazy piece the per-skill migration fills in *as decisions happen*, not up front. The facet side is already fully worked: see [[CAE Minimal Facet]] → [[DSC Dispatch Table]].
+A simple single-runbook skill such as [[snip]] is the shape: its spec is `skills/snip/SKILL.md` (published); its design home is `SKA snip` in the SKA tree, where a `SKA snip Design.md` is added the first time a real decision needs recording. Most skills are at the "spec only" stage today — the Design doc is the lazy piece the per-skill migration fills in *as decisions happen*, not up front. The facet side is already fully worked: see [[FEX Minimal Facet]] → [[DSC Dispatch Table]].

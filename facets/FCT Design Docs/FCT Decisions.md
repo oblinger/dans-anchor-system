@@ -5,7 +5,7 @@ description: decisions are documentation — recorded under a `## Decisions` sec
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Decisions](hook://p/FCT%20Decisions)
 
 # FCT Decisions
-**Audited examples:** [[HBR Decisions]], [[Mini Decisions]], [[CAE Decisions]], [[UCM Decisions]], [[DKT Decisions]]
+**Audited examples:** [[HBR Decisions]], [[Mini Decisions]], [[FEX Decisions]], [[UCM Decisions]], [[DKT Decisions]]
 
 | Table of Contents |  |
 |---|---|
@@ -111,7 +111,7 @@ Each D-record has:
 - **`### D<N>` records** directly under the lead-in.
 - **Optional companion `# RULESET R-<name>`** directly after the records.
 
-Worked instances: [[Mini Decisions]] (lean central — cross-cutting records only); [[HBR Decisions]] (durable rulings); [[Mini Architecture#Decisions]] (the distributed form). [[CAE Decisions]] is the **legacy master form** — its top-of-file adoption `include::`, `## Adoption implementation map`, and `**Cites:**` lines predate the 2026-07-01 doctrine (§ History) and are not authored in new files.
+Worked instances: [[Mini Decisions]] (lean central — cross-cutting records only); [[HBR Decisions]] (durable rulings); [[Mini Architecture#Decisions]] (the distributed form). [[FEX Decisions]] is the **legacy master form** — its top-of-file adoption `include::`, `## Adoption implementation map`, and `**Cites:**` lines predate the 2026-07-01 doctrine (§ History) and are not authored in new files.
 
 ## When `{NAME} Rules.md` is still useful
 
@@ -138,7 +138,7 @@ When `{NAME} Rules.md` is just a stub pointer to the decisions file, that's fine
 ## History
 
 - **F113** — the Principles facet was unified into Decisions; value statements became ordinary D-records.
-- **2026-06-08** — the decisions/rules vocabulary re-split (rules portable, decisions applied). The central file gained the "master form": adoption `include::`, an `## Adoption implementation map`, and decision-side `**Cites:**` lines. [[CAE Decisions]] is the surviving worked example of that form.
+- **2026-06-08** — the decisions/rules vocabulary re-split (rules portable, decisions applied). The central file gained the "master form": adoption `include::`, an `## Adoption implementation map`, and decision-side `**Cites:**` lines. [[FEX Decisions]] is the surviving worked example of that form.
 - **2026-07-01 — the doctrine (F221, user-ratified).** Decisions are documentation; Warden computes only rulesets. The master form's machinery is retired: ruleset activation is by anchor traits ([[Warden Semantics]] § Rulesets), the implementation map's job moved into the rules themselves, and linkage moved to the rule side (`implements D<N>`). Accompanying rules ride in a companion `# RULESET` directly after the Decisions section.
 
 ## See also

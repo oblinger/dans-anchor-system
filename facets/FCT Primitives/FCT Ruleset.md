@@ -298,7 +298,7 @@ Available to any anchor that needs to author or adopt rules. Most anchors won't 
 - [[FCT Decisions]] — companion facet (anchor-level applied choices).
 - [[Rulesets]] — the catalog of cross-cutting, owner-scoped, and trait-scoped rulesets.
 - [[R-diagram]] — worked example (22 diagram-validation rules in 5 zones, from the 2026-06-08 survey).
-- [[CAE Rules]] — worked example of `{NAME} Rules.md` (anchor-local; adopts `R-diagram`).
+- [[FEX Rules]] — worked example of `{NAME} Rules.md` (anchor-local; adopts `R-diagram`).
 
 # RULESET R-ruleset
 include::
@@ -386,9 +386,9 @@ A `where::` value is `always`, a path glob (optionally `file:`-prefixed), `ancho
 
 # BRIEF
 
-*(Maintainer note — cautions for whoever edits this facet spec. The normative format is the body plus the self-applying `# RULESET R-ruleset` above; worked examples are [[R-diagram]] / [[CAE Rules]].)*
+*(Maintainer note — cautions for whoever edits this facet spec. The normative format is the body plus the self-applying `# RULESET R-ruleset` above; worked examples are [[R-diagram]] / [[FEX Rules]].)*
 
 - **Spec, not a catalog** — never inline actual rules here; individual rulesets live under `SKL Library/Rulesets/` and the catalog is [[Rulesets]]. This page specifies only *how* ruleset files are shaped. (Renamed from `FCT Rules` 2026-06-13 — singular `Ruleset` for the kind, parallel to [[FCT Facet]]; [[Rulesets]] stays the plural catalog.)
 - **Inclusion test for new content:** does it clarify the *file format* (lines, sentinels, naming, audit ties, composition semantics)? If yes, add it. Content of a *specific* ruleset → put it in that ruleset. Project-wide markdown → link [[R-markdown]]. Brief-writing rules → link [[FCT Brief]].
-- **When the format evolves:** bump the dated parenthetical in the affected section header (e.g. `## File shape … (2026-06-08)`), update the worked examples ([[R-diagram]], [[CAE Rules]]), and check the § Audit lint list for new cases.
+- **When the format evolves:** bump the dated parenthetical in the affected section header (e.g. `## File shape … (2026-06-08)`), update the worked examples ([[R-diagram]], [[FEX Rules]]), and check the § Audit lint list for new cases.
 - **Don't restructure the H2 ordering** (History note → When this facet applies → File shape → Where clause → Naming → Audit tiers → Include composition → Relationship to decisions → Trait applicability → Audit → See also) — auditors and downstream skills locate sections by this order.

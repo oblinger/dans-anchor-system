@@ -1,5 +1,5 @@
 # CAE UX Design
-description:: user-facing CLI surface — commands, output shape, error voice
+description:: sibling — human CLI surface
 
 | -[[CAE UX Design]]- | : Human CLI interface intent — commands, output shape, error voice, discovery.<br>→ [[KM]] → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[CAE]] → [[CAE Design]] → [CAE UX Design](hook://p/CAE%20UX%20Design) |
 | --- | --- |

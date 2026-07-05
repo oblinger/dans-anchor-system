@@ -4,7 +4,7 @@ description: CAE Track — work tracking + planning for the CAB Example anchor. 
 
 # CAE Track
 
-| -[[CAE Track]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[CAE]] → [CAE Track](hook://p/CAE%20Track)<br>: work tracking + planning |
+| -[[CAE Track]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[CAE]] → [CAE Track](hook://p/CAE%20Track)<br>: work tracking + planning |
 | --- | --- |
 | [[CAE Backlog\|Backlog]] | workflow-state backlog — the irreducible Track core |
 | [[CAE Status\|Status]] | per-facet design-phase completeness (consumed by `/design` picker) |
@@ -12,8 +12,6 @@ description: CAE Track — work tracking + planning for the CAB Example anchor. 
 | [[CAE Inbox\|Inbox]] | raw input to process |
 | --- | |
 | [[CAE Messages]] | agent inbox — system messages for this anchor; cleared on every pause |
-| [[CAE queries]] | CAE queries — mechanically rendered from the backlog by triage (Verifications / Ready+Next / Questions). Do not hand-edit; edit the backlog rows. |
-| [CAE Track markdown](hook://CAE%20Track%20markdown) |  |
 
 **Restructure 2026-06-10:** Roadmap + Features moved to [[CAE Design]] — feature docs are design artifacts; the roadmap is sequencing-design. Track now holds backlog + status + ephemeral tracking surfaces only. See [[CAB Track Dispatch]] for the updated canonical shape.
 

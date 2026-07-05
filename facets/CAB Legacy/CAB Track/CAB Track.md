@@ -6,12 +6,14 @@ description: CAB Track — work tracking for the CAB spec project (Backlog, Feat
 
 Umbrella folder for the CAB spec project's own work-tracking surfaces — Backlog, Features, Discussion, and the agent-inbox sidecars that govern day-to-day CAB development.
 
-| -[[CAB Track]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[CAB Legacy]] → [CAB Track](hook://p/CAB%20Track)<br>: CAB project-work tracking |
+| -[[CAB Track]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[CAB Legacy]] → [CAB Track](hook://p/CAB%20Track)<br>: CAB project-work tracking |
 | --- | --- |
 | [[CAB Backlog\|Backlog]] | workflow-state backlog |
-| ~~[[CAB Features\|Features]]~~ | dated feature specs (F-numbered) |
+| [[CAB Features\|Features]] | dated feature specs (F-numbered) |
 | [[FCT Discussion\|Discussion]] | planning trade-offs |
 | --- | |
+| [[CAB Messages]] | agent inbox — system messages for this anchor; cleared on every pause. See |
+| [[CAB queries]] | CAB queries — mechanically rendered from the backlog by triage (Verifications / Ready+Next / Questions). Do not hand-edit; edit the backlog rows. |
 
 Renamed from `CAB Plan/` per [[F094 — Anchor docs folder restructure — Track _ User _ Architecture _ Dev|F094]] Q5=A — 2026-06-01.
 
@@ -24,3 +26,7 @@ Renamed from `CAB Plan/` per [[F094 — Anchor docs folder restructure — Track
 - **Out-of-scope: CAB *spec* content.** Traits/, Facets/, Rules/, Aspects.md, Base.md, Conventions/ are externally-consumed reference material that lives at the CAB root per F094 Q6=C — do NOT add rows for them here, and do NOT migrate them under Track.
 - **Inclusion test for a new row:** the artifact must be (a) about how CAB-the-project gets built or coordinated, and (b) live inside `CAB Track/`. If both are true, add it; otherwise it belongs at the CAB root or in another anchor.
 -[[CAB Track]]-	: CAB project-work tracking
+[[CAB Backlog]] — workflow-state backlog
+[[CAB Messages]] — agent inbox — system messages for this anchor; cleared on every pause. See [[CAB Messages]].
+[[CAB queries]] — CAB queries — mechanically rendered from the backlog by triage (Verifications / Ready+Next / Questions). Do not hand-edit; edit the backlog rows.
+[CAB Track markdown](hook://CAB%20Track%20markdown)

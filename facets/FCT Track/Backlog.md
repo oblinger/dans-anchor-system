@@ -41,7 +41,7 @@ Below is a condensed reference example. See the working example linked above for
 - **F011 — Async task DAGs** [ ] — Long-shot: support directed-acyclic dependencies between tasks
 
 ## Done
-- **F005 — Retry config** — Per-task retry limits (done in PR #4, see [[CAE Roadmap#M2]])
+- **F005 — Retry config** — Per-task retry limits (done in PR #4, see [[FEX Roadmap#M2]])
 - **F006 — JSON output** — Machine-readable task status output (done in PR #2)
 
 ## Legwork

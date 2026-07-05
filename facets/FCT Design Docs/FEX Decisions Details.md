@@ -2,9 +2,9 @@
 description: CAE Decisions Details — companion to `CAE Decisions.md`. Why / rationale / examples / tests / source-provenance per D-number. Optional: only present when there's detail worth recording.
 ---
 
-# CAE Decisions Details
+# FEX Decisions Details
 
-> Companion to [[CAE Decisions]]. Each H2 below mirrors a D-entry in the canonical list and carries its rationale + supplementary detail. Decisions.md is the operational reference; this file is the contextual depth.
+> Companion to [[FEX Decisions]]. Each H2 below mirrors a D-entry in the canonical list and carries its rationale + supplementary detail. Decisions.md is the operational reference; this file is the contextual depth.
 
 ## D01
 

@@ -27,7 +27,7 @@ The rule system is how a portable, audit-checkable constraint is **defined** (th
 
 ## 1 · Definition — the Rule and the Ruleset
 
-Two primitives, both spec'd prescriptively in [[FCT Ruleset]]. Worked instances: [[R-diagram]] (large umbrella), [[CAE Rules]] (anchor-local), and the self-applying `# RULESET R-ruleset` embedded in [[FCT Ruleset]] itself.
+Two primitives, both spec'd prescriptively in [[FCT Ruleset]]. Worked instances: [[R-diagram]] (large umbrella), [[FEX Rules]] (anchor-local), and the self-applying `# RULESET R-ruleset` embedded in [[FCT Ruleset]] itself.
 
 ### The Rule — the atomic unit
 
@@ -112,7 +112,7 @@ ob-skills/skills/.../<skill> spec     ← (2) embedded set inside a skill/discip
 |---|---|---|
 | **Catalog** — standalone `R-<slug>.md` | cross-cutting, reusable, owner- or trait-scoped rulesets | [[R-diagram]] |
 | **Embedded** — `# RULESET` inside a facet / skill / discipline spec | rules that *are* the structural spec for an artifact kind | `R-ruleset` in [[FCT Ruleset]]; `R-testing` in `FCT Testing` |
-| **Anchor-local** — `{NAME} Rules.md` | rules truly specific to one anchor | [[CAE Rules]] |
+| **Anchor-local** — `{NAME} Rules.md` | rules truly specific to one anchor | [[FEX Rules]] |
 
 **Association with facets and skills** is the embedded home: each CAB facet, skill, and discipline spec carries its own `# RULESET R-<facet>` block, and the `R-anchor` / `R-doc` umbrellas aggregate them. That is how "the rules of the facets an anchor has" (the F001 phrase) is computed — facet presence is mostly folder/file presence, and each present facet contributes its embedded set.
 
