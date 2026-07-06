@@ -22,6 +22,8 @@ use serde::Deserialize;
 use serde_json::Value;
 use std::collections::HashMap;
 
+pub mod hook;
+
 /// The compiled corpus, deserialized from `rules-ir.json`.
 #[derive(Debug, Deserialize)]
 pub struct Ir {
