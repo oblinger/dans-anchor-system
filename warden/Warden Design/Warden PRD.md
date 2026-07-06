@@ -36,6 +36,7 @@ One declarative rule language and one runtime:
 - One **unified moment taxonomy** ([[Warden Events]]) subsumes every existing trigger surface (`compact`, `markdown-write`, `skill:*`) and is open-ended.
 - The implicit (compiler) and explicit (audit) paths produce **identical verdicts** over the same corpus.
 - A **Python reference** implementation and a **Rust performance** implementation are behavior-identical, with Rust owning the hot path.
+- **Explainability** *(commissioned 2026-07-06, [[F231 — Warden observability — the why-did-that-happen log|F231]])*: the user and the agent can **look back and understand why something happened the way it did** — which rules were considered and fired at a moment, what each said or denied, what actions were taken, and what was suppressed or throttled. When Warden misbehaves, the log answers "did the LLM ignore the steer, or did we never send the right one?"
 
 ## Non-Goals
 
