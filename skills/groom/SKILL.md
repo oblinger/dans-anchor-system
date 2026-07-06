@@ -29,7 +29,7 @@ Convergent — not strictly idempotent. Safe to call anytime. May leave partial 
 
 ## Groom's three activities
 
-Groom does three things, in order. Everything in the runbook serves one of them.
+Groom does three things, in order. Everything in the runbook serves one of them. **Design home:** [[Query PRD]] — the shared resolution-layer PRD specifies both groom and query; the frontier, the F/T/M identity model, and the question bar all live there.
 
 ### 1. Every work activity has a unique identifier
 

@@ -6,6 +6,8 @@ description: "product requirements"
 
 :>> [[SKA]] → [[SKA query]] → Query Design
 
+**Scope — this is the shared design doc for the whole resolution layer: both `/groom` (frontier planning + backlog states) and `/query` (determination + consolidation).** They are deliberately kept in one PRD, not two: they are one system, and the frontier, the F/T/M work-item-identity model, the question bar, and the never-ask discipline are all *shared* — a single home keeps them from drifting. The two *skills* stay separate runbooks (`groom SKILL.md` / `query SKILL.md`, so groom can be called alone); this one PRD governs both. (Named "Query PRD" for link stability; read it as the resolution-layer PRD.)
+
 ## Overview
 
 `/query` exists for one reason: **so the agent does not interrupt the user with questions.** Every question put to the user is a cost — it fragments their attention, arrives out of context, and scrolls away. The agent's prime directive is to **resolve, decide, and verify on its own**; and for the small irreducible residue that *genuinely* needs the user, to **consolidate it into one place, fully prepared**, so the user answers everything in a single pass — *bam, bam, bam, down the list* — instead of being dribbled questions one at a time across a conversation.
