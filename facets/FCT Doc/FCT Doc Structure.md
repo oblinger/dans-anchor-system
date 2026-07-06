@@ -3,7 +3,6 @@ description: "the Doc Structure facet — the canonical top-to-bottom layering e
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Doc]] → [FCT Doc Structure](hook://p/FCT%20Doc%20Structure)
-
 # FCT Doc Structure
 The standard top-to-bottom structure every document follows — progressive disclosure specialized for a single document: each layer reveals more depth for a more-committed reader. This is the **main facet for any document**; the other doc facets (Brief, Discussion, Ruleset) describe regions *within* this structure.
 
@@ -71,12 +70,14 @@ The actual content the document holds. At the very bottom, the agent-facing `# B
 
 # RULESET R-doc-structure
 include::
-where:: every authored document — any `.md` the system owns, identified by a leading `# ` H1
-description:: the canonical document layering — progressive disclosure for a document
+where:: always
+description:: the canonical document layering — progressive disclosure for a document. Scope: every authored document — any `.md` the system owns, identified by a leading `# ` H1 (the checkers skip H1-less files as out of scope).
 
 Embedded ruleset for the Doc Structure facet. One compact ordering rule; per-element rules can be split out later if finer-grained auditing is wanted.
 
 ### RULE R-doc-structure-01 — Canonical top-to-bottom order (checked)
+check:: doc_top_order
+fix:: breadcrumb_position
 
 A document's top is laid out in this fixed order — each element optional unless noted, none out of sequence:
 

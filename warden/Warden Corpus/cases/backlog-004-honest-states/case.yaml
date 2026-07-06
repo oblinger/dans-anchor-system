@@ -4,5 +4,5 @@ mode: doc
 target: FX7 Backlog.md
 provenance: synthetic
 engine: audit-plan
-blessed_against: ef9bbcffb178-e01686fca471
+blessed_against: 8bb5e5d2d944-6dd02310f945
 note: every groomed state honest — chained [Blocked F015] exempt, [Blocked]/[Waiting]/[Watching] name their obstacle (R-backlog-06), timed forms carry absolute dates (R-backlog-07), [Questions] rows reach a numbered Q inline or via doc link (R-backlog-05); all three new rules pass

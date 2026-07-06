@@ -865,20 +865,35 @@ def chk_name_slug_prefixed(target, anchor_root, args):
 
 
 def chk_h1_after_frontmatter(target, anchor_root, args):
-    """The H1 is the first non-blank line after the YAML frontmatter. Frontmatter
-    (the `--- … ---` description block) is canonical, not forbidden — this replaces
-    the old body-only / inline-`description::` rules."""
+    """The H1 opens the body after the YAML frontmatter, allowing only the two
+    sanctioned pre-H1 elements: a `:>>` breadcrumb line (canonical DIRECTLY above
+    the H1 per R-doc-structure-01 — its exact position is `doc_top_order`'s job,
+    not re-judged here) and a parked `## Open Questions` block (placed between
+    frontmatter and H1 per /query parented mode). Anything else before the H1
+    fails. (2026-07-06: previously this checker failed the breadcrumb-above-H1
+    form its own rule's prose mandates — the contradiction that pushed at least
+    one PRD's breadcrumb below its H1.)"""
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
     text = _read(f)
     m = re.match(r"^---\n.*?\n---\n", text, re.DOTALL)
     body = text[m.end():] if m else text
+    in_questions = False
     for ln in body.splitlines():
-        if ln.strip():
-            if re.match(r"^# \S", ln):
-                return "pass", ""
-            return "fail", f"first line after frontmatter is not an H1: {ln!r}"
+        if not ln.strip():
+            continue
+        if re.match(r"^# \S", ln):
+            return "pass", ""
+        if ln.lstrip().startswith(":>>"):
+            in_questions = False
+            continue
+        if re.match(r"^## Open Questions\b", ln):
+            in_questions = True
+            continue
+        if in_questions:
+            continue
+        return "fail", f"first line after frontmatter is not an H1: {ln!r}"
     return "fail", "no body after frontmatter"
 
 
@@ -1690,6 +1705,143 @@ def chk_dispatch_table_by_context(target, anchor_root, args):
                         "breadcrumb — a doc uses one navigation form (masthead = the container's "
                         "own page; `:>>` = every other doc), never both")
     return "pass", "single navigation form"
+
+
+def _breadcrumb_h1_positions(lines):
+    """(breadcrumb_idx, h1_idx) of the first `:>>` line and first H1, fences
+    skipped; either may be None."""
+    bidx = hidx = None
+    in_fence = False
+    for i, ln in enumerate(lines):
+        if ln.lstrip().startswith("```"):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+        if bidx is None and ln.lstrip().startswith(":>>"):
+            bidx = i
+        if hidx is None and re.match(r"^# \S", ln):
+            hidx = i
+        if bidx is not None and hidx is not None:
+            break
+    return bidx, hidx
+
+
+def chk_doc_top_order(target, anchor_root, args):
+    """R-doc-structure-01 (top-matter subset): the doc has an H1, and a `:>>`
+    breadcrumb — when present — sits DIRECTLY above it, zero blank lines between
+    (per the 2026-06-27 breadcrumb-vs-dispatch ruling; live instance of the miss:
+    the SKL Query PRD's breadcrumb below its H1, 2026-07-06). The rule's fuller
+    ordering constraints (summary line, figure/table placement) are not yet
+    mechanically judged — a vault sample showed them too noisy to enforce
+    blindly; tighten by data, not ambition."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    lines = _read(f).splitlines()
+    bidx, hidx = _breadcrumb_h1_positions(lines)
+    if hidx is None:
+        # the ruleset's scope is authored docs "identified by a leading # H1";
+        # `where:: always` can't express that, so the H1-less file is out of
+        # scope here (H1 presence is its own rule where one applies)
+        return "pass", "no H1 — out of scope"
+    if bidx is None:
+        return "pass", "no breadcrumb"
+    if bidx > hidx:
+        return "fail", f"`:>>` breadcrumb (line {bidx + 1}) sits BELOW the H1 (line {hidx + 1}) — it goes directly above, zero blank lines"
+    if hidx - bidx != 1:
+        return "fail", f"{hidx - bidx - 1} line(s) between the `:>>` breadcrumb (line {bidx + 1}) and the H1 (line {hidx + 1}) — zero blank lines allowed"
+    return "pass", "breadcrumb directly above H1"
+
+
+def _anchorness(f: Path) -> tuple[bool, str]:
+    """(is_anchor_page, evidence) — the file is its folder's namesake page, or a
+    sibling `.anchor` declares its stem as the slug."""
+    if f.stem == f.parent.name:
+        return True, "folder namesake"
+    dot = f.parent / ".anchor"
+    if dot.is_file():
+        try:
+            m = re.search(r"^slug:\s*(\S+)", dot.read_text(encoding="utf-8"), re.MULTILINE)
+            if m and m.group(1) == f.stem:
+                return True, ".anchor slug"
+        except OSError:
+            pass
+    return False, ""
+
+
+def chk_dispatch_table_iff_anchor(target, anchor_root, args):
+    """R-doc-structure-02, the mechanically-judgeable subset: (a) a doc never
+    carries BOTH its own masthead and a `:>>` breadcrumb line; (b) a provable
+    anchor page (folder namesake or `.anchor`-declared slug) never carries a
+    bare `:>>` line (its breadcrumb is the masthead's first cell); (c) a
+    `.anchor`-declared anchor page carries a masthead. The converse direction —
+    "non-anchor must not carry a masthead" — is NOT judged here: a 2026-07-06
+    vault sweep false-positived 99 real anchor pages whose folder name differs
+    from their stem (SKL.md in skill-docs/, FCT.md in facets/, per-dossier
+    sub-anchor pages); only scoped rules like R-stories-12 assert that
+    direction, where the file kind is provable. Template files are skipped."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    if any("Template" in part for part in f.parts):
+        return "pass", "template — skipped"
+    text = _read(f)
+    is_anchor, evidence = _anchorness(f)
+    has_masthead = _has_self_masthead(text, f.stem)
+    has_crumb = _has_breadcrumb_line(text)
+    if has_masthead and has_crumb:
+        return "fail", f"{f.name} has BOTH its own dispatch-masthead and a `:>>` breadcrumb — one navigation form, never both"
+    if is_anchor and has_crumb:
+        return "fail", f"anchor page ({evidence}) has a bare `:>>` breadcrumb line — an anchor's breadcrumb is the masthead's first cell, never a `:>>` line"
+    if is_anchor and evidence == ".anchor slug" and not has_masthead:
+        return "fail", f"anchor page ({evidence}) carries no dispatch-masthead table"
+    return "pass", "anchor page with masthead" if has_masthead else "single navigation form"
+
+
+def chk_dispatch_area_row(target, anchor_root, args):
+    """R-dispatch-table-09/-10 (arg: the area — Design / Track / …): on a doc
+    with its own masthead, the <Area> row's LEFT cell is a link down to the
+    `{stem} <Area>` sub-anchor — never a bare text label (the SKL Query miss:
+    `| Design | [[Query PRD|PRD]] |`). And when a `{stem} <Area>/` folder exists
+    (directly or one level down, e.g. `{stem} Docs/{stem} <Area>/`), the masthead
+    must carry that row."""
+    if not args:
+        return "error", "dispatch_area_row needs an area arg (Design/Track/…)"
+    area = args[0]
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    text = _read(f)
+    if not _has_self_masthead(text, f.stem):
+        return "pass", "no self-masthead"
+    stripped = _strip_fenced(text)
+    sub = f"{f.stem} {area}"
+    # bare text label in the left cell → always wrong (row leads with the link)
+    if re.search(r"^\|\s*" + re.escape(area) + r"\s*\|", stripped, re.MULTILINE):
+        return "fail", f"masthead row '{area}' is a bare text label — the left cell is the sub-anchor link `[[{sub}\\|{area}]]`"
+    has_row = bool(re.search(r"^\|\s*\[\[" + re.escape(sub) + r"\s*(\\\||\|)?[^\]]*\]\]", stripped, re.MULTILINE))
+    folder = (f.parent / sub).is_dir() or any(p.is_dir() for p in f.parent.glob(f"*/{sub}"))
+    if folder and not has_row:
+        return "fail", f"{sub}/ exists but the masthead has no `[[{sub}\\|{area}]]` row"
+    return "pass", "row links the sub-anchor" if has_row else f"no {area} facet"
+
+
+def chk_toc_table_iff_long(target, anchor_root, args):
+    """R-doc-structure-03, the long side only: a doc of 300+ body lines must
+    carry a TOC table (≥2 rows whose first cell is an in-document `[[#…]]`
+    link). The MUST-NOT direction (short doc with a TOC) is not mechanically
+    judged — a 2026-07-06 sweep flagged 18 canonical exemplars whose small
+    section-index tables are the rule's own "specialized table" exemption,
+    which a regex can't tell from a TOC."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    lines = _strip_fenced(_read(f)).splitlines()
+    toc_rows = sum(1 for ln in lines if re.match(r"^\|\s*\[\[#", ln))
+    if len(lines) >= 300 and toc_rows < 2:
+        return "fail", f"{len(lines)} lines with no TOC table — a long doc carries a content-outline table (`[[#…]]` links)"
+    return "pass", ""
 
 
 def chk_progressive_disclosure_layout(target, anchor_root, args):
@@ -2627,6 +2779,11 @@ CHECKERS = {
     "no_blank_after_h1": chk_no_blank_after_h1,
     "breadcrumb_row": chk_breadcrumb_row,
     "design_row_iff_folder": chk_design_row_iff_folder,
+    # R-doc-structure / R-dispatch-table (T008 wire-up, 2026-07-06)
+    "doc_top_order": chk_doc_top_order,
+    "dispatch_table_iff_anchor": chk_dispatch_table_iff_anchor,
+    "dispatch_area_row": chk_dispatch_area_row,
+    "toc_table_iff_long": chk_toc_table_iff_long,
     "regex_present": chk_regex_present,
     "regex_absent": chk_regex_absent,
     # F161 batch-2 — shared header / field
@@ -2908,11 +3065,40 @@ def fix_md_table_pipe_escape(target, anchor_root, args):
     return False, ""
 
 
+def fix_breadcrumb_position(target, anchor_root, args):
+    """Reposition a misplaced `:>>` breadcrumb directly above the H1, zero blank
+    lines between (paired to `doc_top_order`). Two shapes are repaired: the
+    breadcrumb below the H1 (moved up), and blank lines between breadcrumb and
+    H1 (removed). Non-blank content between them is NOT reordered — that needs
+    a judgment call, so the finding falls through to a steer."""
+    if not target.is_file():
+        return False, "not a file"
+    lines = _read(target).split("\n")
+    bidx, hidx = _breadcrumb_h1_positions(lines)
+    if bidx is None or hidx is None:
+        return False, ""
+    if bidx > hidx:
+        crumb = lines.pop(bidx)
+        # popping below the H1 may leave a doubled blank where the crumb sat
+        if bidx < len(lines) and lines[bidx].strip() == "" and lines[bidx - 1].strip() == "":
+            lines.pop(bidx)
+        lines.insert(hidx, crumb)
+        target.write_text("\n".join(lines), encoding="utf-8")
+        return True, "moved `:>>` breadcrumb above the H1"
+    between = lines[bidx + 1:hidx]
+    if between and all(ln.strip() == "" for ln in between):
+        del lines[bidx + 1:hidx]
+        target.write_text("\n".join(lines), encoding="utf-8")
+        return True, "removed blank line(s) between breadcrumb and H1"
+    return False, ""
+
+
 FIXERS = {
     "md_table_blank_lines": fix_table_blank_lines,
     "md_table_pipe_escape": fix_md_table_pipe_escape,
     "md_em_dash": fix_md_em_dash,
     "md_trailing_ws": fix_md_trailing_ws,
+    "breadcrumb_position": fix_breadcrumb_position,
 }
 
 

@@ -3,7 +3,6 @@ description: "the top-of-page navigation table — its own spec, dogfooded"
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Dispatch Table](hook://p/FCT%20Dispatch%20Table)
-
 # FCT Dispatch Table
 The top-of-file table convention that gives most anchor pages and many facet pages their navigation surface.
 
@@ -173,11 +172,13 @@ Every anchor whose `.anchor` declares a `code:` key (equivalently, carries the `
 **Why:** the code is the point of a code anchor; a uniform, path-free `[code]` link makes it reachable from every such masthead and stays correct even if the repo moves (resolution is via the `.anchor` `code:` key, not a hardcoded path).
 
 ### RULE R-dispatch-table-09 — Design row links the sub-anchor and enumerates the design parts (checked)
+check:: dispatch_area_row Design
 When the anchor has a Design sub-area, the masthead carries a **Design** row whose **left cell is `[[{X} Design\|Design]]`** (a link down to the design sub-anchor) and whose **right cell lists the design's key parts** that exist — PRD, Architecture, Decisions, UX Design, Roadmap, Stories. It is **never a bare self-link** (`| Design | [[{X} Design]] |` with nothing else is wrong).
 **Check pattern:** a row whose left cell links to `{X} Design` and whose right cell holds ≥1 design-part link, whenever a `{X} Design` folder exists.
 **Why:** the design row is the entry into the design flow; surfacing its parts gives one-click reach to the architecture and the rest without opening the sub-page first.
 
 ### RULE R-dispatch-table-10 — Track row links the sub-anchor and enumerates the tracking items (checked)
+check:: dispatch_area_row Track
 When the anchor **owns its tracking**, the masthead carries a **Track** row: **left cell `[[{X} Track\|Track]]`**, **right cell the key tracking items** that exist — Backlog, Features, Roadmap, Now. Absent when tracking is unified at a parent (per [[SKA Decisions]] D10).
 **Check pattern:** a row whose left cell links to `{X} Track` and whose right cell holds ≥1 tracking-item link, whenever the anchor owns a `{X} Track` folder.
 **Why:** the track row is the direct line to the backlog and in-flight work; surfacing the items makes the anchor's status reachable in one click.
