@@ -17,9 +17,11 @@ is invoked once per event with the event JSON on **stdin**. It:
      and swallowed to a no-op (logged to `~/.warden/hook.log`) — a Warden bug
      must never break the user's actual tool call (fail-safe, never fail-closed).
 
-This is the productionisation layer above `warden_fire` — steer-only in the
-pilot (no `tool:pre` veto). Blocking (`deny`/`block` via JSON per Integration
-Strategy D5) is deferred past the pilot.
+This is the productionisation layer above `warden_fire`. Steers land as
+`additionalContext`; a `DENY: `-sentinel steer at a PreToolUse event lands as a
+real `permissionDecision: deny` (F131 — the veto path, un-deferring Integration
+Strategy D5). Outside PreToolUse the sentinel degrades to a plain steer —
+deny is `tool:pre`-only per [[Warden Semantics]] § deny, fail-open elsewhere.
 """
 from __future__ import annotations
 
@@ -163,7 +165,13 @@ def dispatch(data: dict) -> list[str]:
     ir, module = wf.load_compiled(wdir, "all")
     traits = wf.read_anchor_traits(anchor_root)
 
-    event_fp = (data.get("tool_input") or {}).get("file_path") or None
+    tool_input = data.get("tool_input") or {}
+    event_fp = tool_input.get("file_path") or None
+    # F131: the pending tool call as an injected object — veto-path rules test
+    # `event.tool` / `event.target` / `event.input` before the call lands.
+    import types
+    event_view = types.SimpleNamespace(
+        tool=data.get("tool_name") or "", target=event_fp, input=tool_input)
     steers: list[str] = []
     for moment in moments:
         # F216: bind the agent-state view to the session that produced this
@@ -171,7 +179,7 @@ def dispatch(data: dict) -> list[str]:
         # F215: the event's file path lets fire() bind ctx.file per rule.
         import warden_agent as wa
         ctx = wf.build_ctx(anchor_root, moment, agent=wa.make_agent(data, moment),
-                           file_path=event_fp)
+                           file_path=event_fp, event=event_view)
         t0 = time.perf_counter()
         fired = wf.fire(ir, module, moment, ctx, traits)
         warn = over_budget(moment, (time.perf_counter() - t0) * 1000.0)
@@ -215,15 +223,33 @@ def audit_on_write(file_path: Path) -> list[str]:
     return [f"[warden audit-on-write] {file_path.name} has {len(fails)} issue(s) to fix:\n{lines}"]
 
 
+DENY_SENTINEL = "DENY: "
+
+
 def emit(event: str, steers: list[str]) -> None:
-    """Write hook output that injects the steers as agent-visible context."""
+    """Write hook output that injects the steers as agent-visible context.
+
+    F131 veto path: at a PreToolUse event, `DENY: `-sentinel steers become a
+    real `permissionDecision: deny` whose reason is the deny text(s) — the tool
+    call is refused and the agent sees the redirect. At any other event the
+    sentinel is stripped and the steer lands as plain context (deny is
+    `tool:pre`-only; fail-open, never fail-closed)."""
     if not steers:
         return
-    text = "\n\n".join(s for s in steers if s)
-    if not text:
+    denies = [s[len(DENY_SENTINEL):] for s in steers if s.startswith(DENY_SENTINEL)]
+    tells = [s for s in steers if s and not s.startswith(DENY_SENTINEL)]
+    hso: dict = {"hookEventName": event}
+    if denies and event == "PreToolUse":
+        hso["permissionDecision"] = "deny"
+        hso["permissionDecisionReason"] = "\n\n".join(denies)
+    else:
+        tells = tells + denies  # non-pre deny degrades to a plain steer
+    text = "\n\n".join(tells)
+    if text:
+        hso["additionalContext"] = text
+    if len(hso) == 1:
         return
-    out = {"hookSpecificOutput": {"hookEventName": event, "additionalContext": text}}
-    print(json.dumps(out))
+    print(json.dumps({"hookSpecificOutput": hso}))
 
 
 def main(argv=None) -> int:

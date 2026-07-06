@@ -170,12 +170,102 @@ def test_audit_on_write():
     print("PASS  audit_on_write")
 
 
+def test_pathguard_veto():
+    """F131: the veto path — R-pathguard denies the agent's Edit/Write on
+    script-owned surfaces (backlog, queries, feature-doc Q regions, Atlas) in
+    an anchor declaring `pathguard`, and stays inert without the trait."""
+    home = _compiled_home()
+    old = os.environ.get("WARDEN_HOME")
+    os.environ["WARDEN_HOME"] = str(home)
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            anchor = _anchor(Path(td), "pathguard")
+
+            def pre(tool, **ti):
+                return wh.dispatch({"hook_event_name": "PreToolUse", "tool_name": tool,
+                                    "tool_input": ti, "cwd": str(anchor)})
+
+            # 01 — backlog Edit denied with the state-task redirect
+            denies = [s for s in pre("Edit", file_path=str(anchor / "FX Backlog.md"),
+                                     old_string="a", new_string="b")
+                      if s.startswith(wh.DENY_SENTINEL)]
+            assert len(denies) == 1 and "state task" in denies[0], denies
+            # 01 — queries page Edit denied with the renderer redirect
+            denies = [s for s in pre("Edit", file_path=str(anchor / "FX queries.md"),
+                                     old_string="a", new_string="b")
+                      if s.startswith(wh.DENY_SENTINEL)]
+            assert len(denies) == 1 and "triage-section.py" in denies[0], denies
+            # 02 — feature-doc edit INSIDE ## Open Questions denied...
+            fdoc = anchor / "F001 — Fixture feature.md"
+            fdoc.write_text("# F001 — Fixture feature\n\nbody\n\n## Open Questions\n\n"
+                            "- **Q1 — pick one?** ^F001-Q1\n\n## Design\n\nprose\n",
+                            encoding="utf-8")
+            denies = [s for s in pre("Edit", file_path=str(fdoc),
+                                     old_string="- **Q1 — pick one?** ^F001-Q1",
+                                     new_string="- answered")
+                      if s.startswith(wh.DENY_SENTINEL)]
+            assert len(denies) == 1 and "state q" in denies[0], denies
+            # ...but an edit elsewhere in the same doc passes
+            clean = pre("Edit", file_path=str(fdoc), old_string="prose", new_string="better prose")
+            assert not [s for s in clean if s.startswith(wh.DENY_SENTINEL)], clean
+            # 03 — wholesale Write of the backlog denied too (the bypass)
+            denies = [s for s in pre("Write", file_path=str(anchor / "FX Backlog.md"),
+                                     content="# rewritten")
+                      if s.startswith(wh.DENY_SENTINEL)]
+            assert len(denies) == 1 and "script-owned" in denies[0], denies
+            # 04 — Atlas
+            atlas = anchor / "Atlas" / "Atlas.md"
+            denies = [s for s in pre("Edit", file_path=str(atlas), old_string="x", new_string="y")
+                      if s.startswith(wh.DENY_SENTINEL)]
+            assert len(denies) == 1 and "/atlas" in denies[0], denies
+
+        # trait OFF → the same event fires nothing
+        with tempfile.TemporaryDirectory() as td:
+            anchor = _anchor(Path(td), "Commit")
+            steers = wh.dispatch({"hook_event_name": "PreToolUse", "tool_name": "Edit",
+                                  "tool_input": {"file_path": str(anchor / "FX Backlog.md"),
+                                                 "old_string": "a", "new_string": "b"},
+                                  "cwd": str(anchor)})
+            assert not [s for s in steers if s.startswith(wh.DENY_SENTINEL)], steers
+    finally:
+        os.environ["WARDEN_HOME"] = old if old else str(home)
+    print("PASS  pathguard_veto (F131)")
+
+
+def test_emit_deny_shape():
+    """F131: emit() converts DENY steers to a PreToolUse permissionDecision;
+    at any other event the sentinel degrades to plain context (fail-open)."""
+    import contextlib
+    import io
+
+    def capture(event, steers):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            wh.emit(event, steers)
+        out = buf.getvalue().strip()
+        return json.loads(out)["hookSpecificOutput"] if out else None
+
+    hso = capture("PreToolUse", ["DENY: use state q", "also beware"])
+    assert hso["permissionDecision"] == "deny", hso
+    assert hso["permissionDecisionReason"] == "use state q", hso
+    assert hso["additionalContext"] == "also beware", hso
+    # non-pre: deny degrades to a plain steer, no permission fields
+    hso = capture("PostToolUse", ["DENY: too late to block"])
+    assert "permissionDecision" not in hso, hso
+    assert hso["additionalContext"] == "too late to block", hso
+    # steer-less call emits nothing
+    assert capture("PreToolUse", []) is None
+    print("PASS  emit_deny_shape (F131)")
+
+
 def main():
     test_event_to_moments()
     test_kill_switch()
     test_dispatch_fires_and_logs()
     test_trait_gating()
     test_audit_on_write()
+    test_pathguard_veto()
+    test_emit_deny_shape()
     print("\nall warden_hook tests passed")
     return 0
 

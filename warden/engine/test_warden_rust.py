@@ -65,6 +65,8 @@ def fire_plan_py(ir: dict, moment: str, ctx, anchor_traits) -> list[dict]:
             act = row["action"]
             if act.get("kind") in ("tell", "deny"):
                 steer = act.get("text") or act.get("reason") or ""
+                if act["kind"] == "deny":
+                    steer = f"DENY: {steer}"  # F131 — mirror of warden_fire.fire
                 plan.append({"rule_id": rid, "kind": "declarative", "steer": steer})
             else:
                 plan.append({"rule_id": rid, "kind": "action-other", "steer": None})
