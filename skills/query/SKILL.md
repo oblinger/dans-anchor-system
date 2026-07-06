@@ -29,6 +29,22 @@ user_invocable: true
 >
 > **3. 🚨 HARD REQUIREMENT — EVERY ARTIFACT YOU NAME, YOU LINK. NO EXCEPTIONS.** If a surfaced question or verification tells the user to *open / look at / skim / check* a doc, file, template, folder, gallery, report, or section, that artifact **MUST appear as a live `[[wiki-link]]`** (or a clickable URL) — right there in the item. **It is illegal to name a thing the user should look at and not link it.** Bare text (`FCT PRD`, `traits/Drive`), a code-span filename (`` `_Disk {{LABEL}} Template.md` ``), a bare path, or "see the X" all **fail** — the user cannot click a name. Author the source so the reference is `[[FCT PRD]]`, `[[Drive|traits/Drive]]`, `[[_Disk {{LABEL}} Template]]`. This generalizes rule-2: an unlinked artifact reference is *never* self-documenting, because "answerable without hunting" requires the link to be *in the item*. Enforced mechanically — audit-q **C42** (`R-query-15`) flags any answerable item that names a resolvable doc in bare text or a code-span filename. The failure this exists to kill: surfacing "open FCT PRD, FCT Decisions" and making the user go find them.
 
+## The question bar — every surfaced question carries FIVE things
+
+A question that reaches the user must let them answer it **in one shot**. Every Verification / Immediate Question / Questions entry carries all five — miss one and it is a defect the audit flags:
+
+1. **Its work-item identifier** — the `[[F<n>]]` (feature) / `[[T<n>]]` (task) / `[[M<n>]]` (milestone) handle the question belongs to, as a wiki-link, so the user knows *which task* is asking. (Enforced: `R-query-13` / audit-q **C37**.)
+2. **A specific question** — the concrete fork being decided or assessed, not a vague gesture. If it's about the *behavior/performance* of something, name the exact thing being assessed.
+3. **Labeled options** — `**(A)** / **(B)** / **(C)**`, each on its own line. (Enforced: **C19**.)
+4. **A recommendation** — `Lean (A)` / `Strong (B)` / `None`, always present. (Enforced: **C9**.)
+5. **Direct wiki-links to every artifact** the user must look at to answer — the link is *in* the question (North Star 3). (Enforced: **C42** / `R-query-15`.)
+
+**Anti-pattern (real — Warden, 2026-07-05).** A `## Questions` entry reading:
+
+> Design-rules — **mined + drafted 2026-07-05, awaiting review** Q3 (which families upgrade?) is the one pending question…
+
+fails all five: **no** work-item handle (what task is "Design-rules"?), **no** link to where `Q3` actually lives, **no** specific ask, **no** labeled options, **no** recommendation, **no** artifact links. A failure all the way around — exactly what this bar exists to prevent. The fix lives at the source (the backlog row / feature-doc `## Open Questions`), never in the rendered `queries.md`.
+
 ## The document — `{NAME} queries.md` in `{NAME} Track/`
 
 The file's validity rules — sections + order, what each item must look like, the no-user-imperative and no-orphan invariants — live in the **[[FCT Query]] facet** (`R-query`), so the file is auditable (`/audit doc`, the on-write hook) and there's one source of truth. **Write to conform to `R-query`; don't restate it here.** Quick orientation only — five sections, fixed order, omit-if-empty:

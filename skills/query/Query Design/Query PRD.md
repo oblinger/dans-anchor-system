@@ -25,15 +25,51 @@ description: "product requirements"
 - **G5 — One-shot answerable (R3/R4).** The user can answer the entire pile in one pass without opening any other document to understand a question.
 - **G6 — Maximize the unblocked runway (anticipatory surfacing).** Don't only surface the questions you have *now* — **look ahead**: for each **frontier** item (§ The groom frontier), proactively reason about the decisions execution *will* hit and surface those *early*, in the same pile, before they block anything. The optimization target is **work-done-per-answered-pile** — the stretch of autonomous work one answering pass buys before the next forced question. Front-load every foreseeable question per item so that answering its pile runs the item (and ideally the next ones) to completion uninterrupted.
 
-## The groom frontier
+## Groom's three activities
 
-**The frontier is the set of tasks that could be next for execution** (defined 2026-07-05, [[F228 — Groom frontier — groom plans the frontier to Ready; query asks about it|F228]]): rows in the backlog's **`## Now` or `## Next` horizons** (plus `## Active` / `## Ready`, which are already past it), and items **soon on the relevant roadmaps** — the next unmet milestone of `{NAME} Roadmap.md` when the anchor has one. `## Later` and the icebox are *not* frontier; they are touched only on explicit invocation (`/groom later`, `/groom icebox`).
+`/groom` is the resolution layer's planner. It does three things, in order, and the rest of this PRD elaborates them:
+
+1. **Work-item identity** — guarantee every tracked activity has a unique handle on the backlog/roadmap (below).
+2. **Identify the executable frontier** — the tasks that could be next for execution (§ The groom frontier).
+3. **Groom the frontier** — plan each frontier item to one of three known exit states: executable (with next steps), questioned (enumerated), or blocked (named) (§ Grooming the frontier).
+
+## Work-item identity — every activity has a handle (activity 1)
+
+**No tracked work is anonymous.** Before anything else, groom ensures every piece of work resolves to a unique identifier that lives on the backlog or roadmap:
+
+- **`F<n>` — a feature.** Backed by a feature doc under `{NAME} Design/{NAME} Features/`; the backlog row links to it.
+- **`T<n>` — a task.** A unit of work with **no** feature doc — the backlog row *is* the spec. A task usually *operates on other documents*; its body carries wiki-links to the design-doc sections / files / artifacts it acts on. `T<n>` is unique on the backlog and is the referent for every mention of the work (questions, `Q.md`, cross-links).
+- **`M<n>` — a milestone.** A roadmap entry in `{NAME} Roadmap.md` (hierarchical).
+
+The identity is *achieved by linking*: a row links to its feature doc (`F<n>`), is itself the task record (`T<n>`), or names a roadmap milestone (`M<n>`). A feature doc unlinked from the backlog/roadmap has no place in the system — groom gives it one rather than leaving an orphan. This is why every question can (and must) name its work-item handle: the handle exists first. (Numbering policy + the `T<n>` category live in the [[Backlog|FCT Backlog]] facet; the `state` mint is the source of new handles.)
+
+## The groom frontier (activity 2)
+
+**The frontier is the set of tasks that could be next for execution** (defined 2026-07-05, [[F228 — Groom frontier — groom plans the frontier to Ready; query asks about it|F228]]): rows in the backlog's **`## Now` or `## Next` horizons** (plus `## Active` / `## Ready`, which are already past it), **feature docs linked from a Now/Next row**, and items **soon on the relevant roadmaps** — the next unmet milestone of `{NAME} Roadmap.md` when the anchor has one, *a milestone that could plausibly be executed soon if fully specified*. `## Later` and the icebox are *not* frontier; they are touched only on explicit invocation (`/groom later`, `/groom icebox`).
 
 The frontier is the shared scope of the resolution layer:
 
 - **`/groom` plans the frontier to Ready.** Its purpose is to get every frontier task **fully ready to be executed** — investigate, draft the approach, declare the `- **Next:**` step, promote to `[Ready]` when the Definition of Ready holds; when it doesn't, file the blocking questions (or the honest `[Blocked]`/`[Waiting]`/`[Watching]` state) so the obstacle is named. A frontier row left unplanned and unbracketed is groom's unfinished work.
 - **`/query` asks about the frontier.** The determination ladder and the G6 look-ahead walk frontier tasks — the pile the user answers is exactly what unblocks the next stretch of execution. (Non-frontier `[Questions]`/`[Verify]` brackets still render per triage rules; they just don't drive anticipatory question-mining.)
 - **The audit checks it.** The frontier invariants are encoded as the `R-backlog` ruleset in the [[Backlog|FCT Backlog]] facet (frontier rows planned + bracket-resolved; Verify rows carry a concrete question), fired by the rule engine at doc-audit.
+
+## Grooming the frontier (activity 3)
+
+Grooming a frontier item means **planning it out until you know, as concretely as possible, how you would execute it** — then recording that knowledge as one of three explicit exit states. Groom never leaves a frontier item in an unknown state:
+
+- **Executable** → the row declares a concrete `- **Next:**` step the agent takes with zero user involvement; promoted to `[Ready]`.
+- **Has questions** → the questions are **enumerated** and encoded through `/query` into the queries surface; the row is `[Questions]`.
+- **Blocked** → the row names **specifically what it is blocked on** (`[Blocked …]` / `[Waiting …]` / `[Watching …]`, body stating the exact obstacle/event). A vague blocker is not groomed.
+
+**The question bar — every parked question satisfies all five (else it is a defect the audit flags).** This is what makes the pile one-shot answerable (G2/G5). Each question carries:
+
+1. **its work-item identifier** — the `[[F<n>]]` / `[[T<n>]]` / `[[M<n>]]` handle it belongs to (`R-query-13` / C37);
+2. **a specific question** — the concrete decision/assessment, naming the exact thing being judged;
+3. **labeled options** `**(A)** / **(B)** / **(C)**`, each on its own line (C19);
+4. **a recommendation** — `Lean`/`Strong`/`None`, always present (C9);
+5. **direct wiki-links to every artifact** the user must look at to answer (C42 / `R-query-15`).
+
+The recurring failure this bar kills (real, Warden 2026-07-05): a `## Questions` entry — *"Design-rules — … Q3 (which families upgrade?) …"* — with no work-item handle, no link to where `Q3` lives, no specific ask, no options, no recommendation, no artifact links. A failure all the way around.
 
 ## Non-Goals
 

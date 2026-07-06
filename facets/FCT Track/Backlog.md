@@ -81,6 +81,8 @@ The F-number lets the user refer unambiguously to a single item ("do F005", "F01
 
 **M-numbers are a separate namespace for roadmap milestones** (`{NAME} Roadmap.md`). M-numbers are hierarchical (M1, M1.2, M1.2.3) and are unique only within the roadmap; they don't collide with F-numbers.
 
+**T-numbers are the handle for non-feature tasks.** A `T<n>` is a backlog work-item with **no feature doc** — the row body itself is the spec, and it typically carries wiki-links to the design-doc sections / files / artifacts it operates on. The distinction from `F<n>` is the doc: **`F<n>` = a feature with a doc under `{NAME} Design/{NAME} Features/`; `T<n>` = a task the backlog row fully captures.** `T` is a separate prefix-namespace (disambiguated like `M<n>`), monotonic and never-recycled within the backlog; both `F` and `T` rows can carry any workflow-state bracket and both are addressed by their handle from questions / `Q.md` / cross-links. **Go-forward, not retroactive:** anchors that numbered every row `F<n>` (the legacy `B→F` fold) are grandfathered — existing rows keep their `F<n>`; new task-rows adopt `T<n>` as the `state` mint gains the category. Rationale + the three-handle model (`F` / `T` / `M`): [[Query PRD]] § Work-item identity.
+
 This is a change from the legacy B-number policy, which used gap-fill (lowest unused integer). With F-numbers:
 
 - A reference like "F011" means the same thing forever, across all reorganizations.
