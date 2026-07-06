@@ -289,7 +289,8 @@ def cmd_log(args) -> int:
                  " (no fires.jsonl yet — records appear as moments fire)"))
         return 0
     for r in recs[-args.n:]:
-        t = datetime.datetime.fromtimestamp(r.get("ts", 0)).strftime("%m-%d %H:%M:%S")
+        dt = datetime.datetime.fromtimestamp(r.get("ts", 0))
+        t = dt.strftime("%Y-%m-%d %H:%M:%S.") + f"{dt.microsecond // 1000:03d}"
         fname = Path(r["file"]).name if r.get("file") else ""
         head = (f"{t}  {r.get('moment', '?')} @ {r.get('anchor', '?')}"
                 f" [{r.get('engine', '?')}] {r.get('ms', 0)} ms")

@@ -149,14 +149,28 @@ def _append(name: str, line: str) -> None:
         pass
 
 
+def _stamp() -> str:
+    """Human-readable local timestamp, ms precision (per user direction
+    2026-07-06 — epoch floats told the reader nothing)."""
+    import datetime
+    now = datetime.datetime.now()
+    return now.strftime("%Y-%m-%d %H:%M:%S.") + f"{now.microsecond // 1000:03d}"
+
+
 def _log(msg: str) -> None:
-    _append("hook.log", f"{time.time():.3f}\t{msg}\n")
+    _append("hook.log", f"{_stamp()}  {msg}\n")
 
 
 def _log_perf(msg: str) -> None:
     """Advisory perf lines (OVER-BUDGET) go to their own file — at one line per
     breaching call they drown hook.log's operational signal otherwise."""
-    _append("perf.log", f"{time.time():.3f}\t{msg}\n")
+    _append("perf.log", f"{_stamp()}  {msg}\n")
+
+
+def _indent_steers(steers: list[str]) -> str:
+    """The steer text itself, indented under the log line — the part the reader
+    actually wants ('1 issue steer(s)' alone says nothing)."""
+    return "".join("\n        " + ln for s in steers for ln in s.splitlines())
 
 
 # ── fire record (F231 — the why-did-that-happen log) ────────────────────────
@@ -255,7 +269,8 @@ def dispatch(data: dict) -> list[str]:
                 "ms": round(elapsed_ms, 1),
             })
         if fired:
-            _log(f"FIRED {moment} @ {anchor_root.name} traits={traits} → {len(fired)} steer(s)")
+            _log(f"FIRED {moment} @ {anchor_root.name} traits={traits} → {len(fired)} steer(s)"
+                 + _indent_steers(fired))
             steers.extend(fired)
 
     # Doc-fire on write (F222 / F229 A′): governed by the FILE's anchor — the
@@ -266,7 +281,8 @@ def dispatch(data: dict) -> list[str]:
         if "audit-on-write" in wf.effective_traits(ir, anchor_file):
             aow = audit_on_write(Path(event_fp)) if event_fp else []
             if aow:
-                _log(f"AUDIT-ON-WRITE {Path(event_fp).name} @ {anchor_file.name} → {len(aow)} issue steer(s)")
+                _log(f"AUDIT-ON-WRITE {Path(event_fp).name} @ {anchor_file.name} → {len(aow)} issue steer(s)"
+                     + _indent_steers(aow))
                 _fire_record({
                     "ts": round(time.time(), 3), "engine": "py", "moment": "doc-fire",
                     "anchor": anchor_file.name, "traits": [],
