@@ -2,17 +2,6 @@
 description: "F218 — Design-rules catalog: the user's recurring architectural / design rules, authored as Warden rulesets and adopted per-application by trait. Migrated from SKA F108 2026-07-02 — the catalog is *content* riding the Warden ruleset system, not a parallel store."
 ---
 
-## Open Questions
-
-### Q3 — Catalog review: which proposed families upgrade to live rulesets? ^F218-Q3
-
-The propose-tier deliverable is drafted: [[Design-Rules Catalog Proposal]] — **nine families**, each with ≥3-project recurrence evidence (mined in parallel from HA, SVP, MUX, A2X, SKD, SVAR) and draft rules in the live ruleset format: `R-single-source-of-truth`, `R-one-path`, `R-interfaces-folder`, `R-factory-pegboard`, `R-ownership` (→ `R-arch`), `R-design-gate`, `R-stable-ids`, `R-exception-discipline`, `R-wrapper-cli` (→ `R-process`). Upgrading a family shelves it in `library/Rulesets/` — no app adopts it until its `.anchor` takes the trait. The proposal's § Housekeeping recommendation (retire the legacy `~/.claude/skills/rule/rulesets/oblinger-rules.md` to a redirect at [[R-ob]], moving HA's sync pointer) rides the same review.
-
-- **(A)** Upgrade all nine — they land in `R-arch`/`R-process` as awaited children; adoption stays per-app.
-- **(B)** Upgrade a subset — name the keepers; the rest stay parked in the proposal.
-- **(C)** Revise first — mark up the proposal doc (or say what to change) and the agent redrafts.
-- **Recommendation:** Lean (A) — an upgraded-but-unadopted family costs one catalog file; every family carries ≥3-project evidence, and three were already named as awaited children in the [[R-arch]] placeholder.
-
 # [[Warden]] · F218 — Design-rules catalog — ship with skills, adopt per-application
 
 ## Summary
@@ -75,11 +64,25 @@ The catalog rides the Warden ruleset system; it builds **no** parallel store:
 
 ## Status
 
-**Mined + drafted 2026-07-05 — awaiting the Q3 review.** Six corpora mined in parallel (HA, SVP, MUX, A2X, SKD, SVAR — the F218 doc-tree paths had drifted; actual trees located and swept whole). The mining also surfaced that the catalog seed already exists live: `library/Rulesets/` carries the [[R-ob]] umbrella (state-mgt / observability / cmd-proc, 18 rules) plus [[R-arch]] / [[R-process]] placeholders that name several awaited children — so the deliverable extends the existing catalog rather than founding one. Output: [[Design-Rules Catalog Proposal]] — **nine PROPOSED rulesets** (each ≥3-project recurrence, drafted in the live `# RULESET` format under a `PROPOSED` prefix the warden scan's sentinel does not match, so nothing compiles until upgraded), a parked-borderline list (write-if-changed, idempotent convergence, test-energy budgeting, …), and a housekeeping recommendation (legacy `oblinger-rules.md` → redirect at R-ob). All three F108 commissioning seeds landed (`R-interfaces-folder`, `R-factory-pegboard`, `R-design-gate` with SVP M15 as the canonical instance). Per Q2 the user now reviews and upgrades (Q3 above); adoption after upgrade stays per-`.anchor` trait, verified per Success Criteria once a first app adopts.
+**Done 2026-07-05 — Q3 answered (A), all nine families upgraded + housekeeping executed.** The nine PROPOSED blocks moved out of [[Design-Rules Catalog Proposal]] into the live catalog as standalone rulesets with their recurrence evidence: `library/Rulesets/R-arch/` gained [[R-single-source-of-truth]], [[R-one-path]], [[R-interfaces-folder]], [[R-factory-pegboard]], [[R-ownership]] (15 rules) and `library/Rulesets/R-process/` gained [[R-design-gate]], [[R-stable-ids]], [[R-exception-discipline]], [[R-wrapper-cli]] (14 rules); both umbrellas now `include::` their children and the [[Rulesets]] catalog rows are updated. Corpus: 465 → **499 rules / 131 rulesets**, all gates green, live smoke clean. **Success Criteria verified**: `R-interfaces-folder-01` is active for a trait-declaring anchor, inactive without the trait, and unadopted families don't leak into an adopter. **Engine gap found + fixed by that SC check**: `include::` composition was parsed but never flattened into the trait index — *every* umbrella trait (diagram, ob, doc, arch, …) keyed zero rules, so "adopt the umbrella" had always been a documented no-op; `compile_corpus` now flattens includes transitively (acyclic, cycle-guarded; `test_include_flatten` pins it), and `R-warden-dev-02` was sharpened from per-trait to per-rule reachability so undeclared umbrella paths to separately-reachable rules aren't flagged as dead wiring. **Housekeeping executed**: legacy `skills/rule/rulesets/oblinger-rules.md` → redirect at [[R-ob]] (its distinct residue — Python check patterns, one Rust fallback shape, the per-project audit convention — absorbed into [[R-ob-observability]]-01 first); HA's `HA Rules.md` § Inherited Rules sync pointer moved to R-ob; `skills/rule/sets/README.md` updated. Adoption stays per-application; no app anchor adopted yet — first adoption verifies live per Success Criteria.
+
+**Earlier: mined + drafted 2026-07-05 — awaiting the Q3 review.** Six corpora mined in parallel (HA, SVP, MUX, A2X, SKD, SVAR — the F218 doc-tree paths had drifted; actual trees located and swept whole). The mining also surfaced that the catalog seed already exists live: `library/Rulesets/` carries the [[R-ob]] umbrella (state-mgt / observability / cmd-proc, 18 rules) plus [[R-arch]] / [[R-process]] placeholders that name several awaited children — so the deliverable extends the existing catalog rather than founding one. Output: [[Design-Rules Catalog Proposal]] — **nine PROPOSED rulesets** (each ≥3-project recurrence, drafted in the live `# RULESET` format under a `PROPOSED` prefix the warden scan's sentinel does not match, so nothing compiles until upgraded), a parked-borderline list (write-if-changed, idempotent convergence, test-energy budgeting, …), and a housekeeping recommendation (legacy `oblinger-rules.md` → redirect at R-ob). All three F108 commissioning seeds landed (`R-interfaces-folder`, `R-factory-pegboard`, `R-design-gate` with SVP M15 as the canonical instance). Per Q2 the user now reviews and upgrades (Q3 above); adoption after upgrade stays per-`.anchor` trait, verified per Success Criteria once a first app adopts.
 
 **Earlier:** migrated from SKA [[F108 — Design-rules catalog — ship with skills, adopt per-application|F108]] 2026-07-02 (user: "pull that feature across into your warden set of features, so you own it"). Q1 + Q2 resolved (below); parked behind M1 until the engine existed (gate cleared 2026-07-02).
 
 ## Resolved
+
+### Q3 — Catalog review: which proposed families upgrade to live rulesets? — RESOLVED (user, 2026-07-05): (A) upgrade all nine ^F218-Q3
+
+**Choice: (A)** — all nine families upgraded into `R-arch` / `R-process` as children; adoption stays per-app; the § Housekeeping recommendation executed in the same pass. Landing details in § Status.
+
+> Original Q context:
+> The propose-tier deliverable is drafted: [[Design-Rules Catalog Proposal]] — **nine families**, each with ≥3-project recurrence evidence (mined in parallel from HA, SVP, MUX, A2X, SKD, SVAR) and draft rules in the live ruleset format: `R-single-source-of-truth`, `R-one-path`, `R-interfaces-folder`, `R-factory-pegboard`, `R-ownership` (→ `R-arch`), `R-design-gate`, `R-stable-ids`, `R-exception-discipline`, `R-wrapper-cli` (→ `R-process`). Upgrading a family shelves it in `library/Rulesets/` — no app adopts it until its `.anchor` takes the trait. The proposal's § Housekeeping recommendation (retire the legacy `~/.claude/skills/rule/rulesets/oblinger-rules.md` to a redirect at [[R-ob]], moving HA's sync pointer) rides the same review.
+>
+> - **(A)** Upgrade all nine — they land in `R-arch`/`R-process` as awaited children; adoption stays per-app.
+> - **(B)** Upgrade a subset — name the keepers; the rest stay parked in the proposal.
+> - **(C)** Revise first — mark up the proposal doc (or say what to change) and the agent redrafts.
+> - **Recommendation:** Lean (A) — an upgraded-but-unadopted family costs one catalog file; every family carries ≥3-project evidence, and three were already named as awaited children in the [[R-arch]] placeholder.
 
 ### Q1 — Where do the rules live structurally? — RESOLVED (user, 2026-07-02): rides the Warden ruleset system — no separate catalog store ^F218-Q1
 

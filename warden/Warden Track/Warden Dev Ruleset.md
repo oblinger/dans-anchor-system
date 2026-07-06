@@ -31,7 +31,7 @@ def body(ctx):
 ### RULE R-warden-dev-02 — trait-reachability self-audit (when:: session:start)
 when:: session:start
 
-The [[F219 — Activation self-audit rules — base-trait + ruleset-reachability|F219]] integrity backstop — the rule engine guarding its own wiring. `warden compile` stamps the vault's declared anchor traits into the IR (`declared_traits`); this rule checks every trait that keys a *moment* rule against that snapshot (doc-rules fire by `where::` glob on the audit path and need no trait). A moment-rule trait no `.anchor` declares is **dead wiring** — authored, compiled, and unable to ever fire — exactly how `query` was found undeclared on 2026-07-05. `warden-selftest` is exempt: it is the hermetic test-fixture trait, declared only by test-scratch anchors outside the vault.
+The [[F219 — Activation self-audit rules — base-trait + ruleset-reachability|F219]] integrity backstop — the rule engine guarding its own wiring. `warden compile` stamps the vault's declared anchor traits into the IR (`declared_traits`); this rule checks every *moment* rule for reachability against that snapshot (doc-rules fire by `where::` glob on the audit path and need no trait). A moment rule **no declared trait keys** is **dead wiring** — authored, compiled, and unable to ever fire — exactly how `query` was found undeclared on 2026-07-05. Reachability is per **rule**, not per trait: since include-flattening (F218 follow-through, 2026-07-05) an undeclared *umbrella* trait may key a rule that is separately reachable through a declared leaf trait — an alternative path, not dead wiring. `warden-selftest` is exempt: it is the hermetic test-fixture trait, declared only by test-scratch anchors outside the vault.
 
 ```python
 def body(ctx):
@@ -47,17 +47,22 @@ def body(ctx):
     if not declared:
         return []          # pre-F219 IR — no wiring snapshot to audit against
     exempt = {"warden-selftest"}   # hermetic test-fixture trait
+    traits = ir.get("traits", {})
+    reachable = set()
+    for t, ids in traits.items():
+        if t in declared or t in exempt:
+            reachable.update(ids)
     moment_rules = {rid for ids in ir.get("moments", {}).values() for rid in ids}
-    dead = sorted(
-        t for t, ids in ir.get("traits", {}).items()
-        if t not in declared and t not in exempt
-        and any(r in moment_rules for r in ids))
+    dead = sorted(moment_rules - reachable)
     if not dead:
         return []
+    keyed_by = sorted({t for t, ids in traits.items()
+                       for r in dead if r in ids})
     return [
-        "[warden trait-reachability] dead wiring — moment rules keyed by trait(s) "
+        "[warden trait-reachability] dead wiring — moment rule(s) "
         + ", ".join(dead)
-        + " which no .anchor in the vault declares, so they can never fire live. "
-          "Adopt the trait on an anchor that wants those rules, or retire the ruleset."
+        + " (keyed only by undeclared trait(s) " + ", ".join(keyed_by)
+        + ") can never fire live: no .anchor in the vault declares a keying trait. "
+          "Adopt a trait on an anchor that wants those rules, or retire the ruleset."
     ]
 ```

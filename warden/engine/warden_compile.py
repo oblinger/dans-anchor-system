@@ -462,6 +462,17 @@ def vault_root(scan_root: Path) -> Path:
     return scan_root
 
 
+def _include_target(target: str) -> str:
+    """An `include::` wiki-link target → the included ruleset's name.
+    `FCT Brief#RULESET R-brief` → `R-brief`; `R-arch` → `R-arch` (file basename
+    equals the ruleset name per the R-<slug> naming convention)."""
+    if "#" in target:
+        m = re.search(r"RULESET\s+(R-[\w-]+)", target.rsplit("#", 1)[1])
+        if m:
+            return m.group(1)
+    return target.strip()
+
+
 def declared_anchor_traits(vault: Path) -> list[str]:
     """Every trait some `.anchor` under the vault declares, plus the implicit
     `_base` — the ground truth the F219 reachability self-audit checks the
@@ -492,6 +503,8 @@ def compile_corpus(root: Path, index: dict, anchor: str = "all",
     doc_rules: list[str] = []
     traits: dict = {}
     py_rules: list[tuple[dict, dict]] = []
+    rs_includes: dict = {}   # ruleset name → include:: target ruleset names
+    rs_rule_ids: dict = {}   # ruleset name → its own rule ids
     files = errors = 0
     for entry in index.get("files", []):
         path = root / entry["path"]
@@ -506,6 +519,8 @@ def compile_corpus(root: Path, index: dict, anchor: str = "all",
             if rs is None:
                 continue
             trait = name[2:] if name.startswith("R-") else name
+            rs_includes[name] = [_include_target(t) for t in rs["includes"]]
+            rs_rule_ids[name] = [r["id"] for r in rs["rules"]]
             for rule in rs["rules"]:
                 if rule["id"] in merged_rules:
                     continue  # first occurrence wins (stable)
@@ -518,6 +533,30 @@ def compile_corpus(root: Path, index: dict, anchor: str = "all",
                 traits.setdefault(trait, []).append(rule["id"])
                 if rule["py_kind"] or row["guard_py"]:
                     py_rules.append((rule, row))
+    # include:: composition (FCT Ruleset — acyclic depth-first flatten): an
+    # umbrella's trait keys its own rules PLUS every included ruleset's rules,
+    # transitively. Without this, "adopt the umbrella to pull all its rulesets"
+    # was a documented no-op — every umbrella trait keyed zero rules (found by
+    # the F218 SC check, 2026-07-05).
+    def _closure(name: str, seen: set) -> list[str]:
+        if name in seen:
+            return []  # cycle / repeat guard
+        seen.add(name)
+        out = list(rs_rule_ids.get(name, []))
+        for child in rs_includes.get(name, []):
+            out.extend(_closure(child, seen))
+        return out
+    for name in rs_includes:
+        if not rs_includes[name]:
+            continue
+        trait = name[2:] if name.startswith("R-") else name
+        flat, have = [], set()
+        for rid in _closure(name, set()):
+            if rid not in have and rid in merged_rules:
+                have.add(rid)
+                flat.append(rid)
+        if flat:
+            traits[trait] = flat
     active_hash = hashlib.sha256("|".join(sorted(merged_rules)).encode()).hexdigest()[:16]
     ir = {
         "schema": IR_SCHEMA,

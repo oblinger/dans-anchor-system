@@ -213,6 +213,28 @@ def test_backticked_where():
     print("PASS  backticked_where (F172)")
 
 
+def test_include_flatten():
+    """F218 follow-through: `include::` composition flattens into the trait
+    index — an umbrella's trait keys its own rules plus every included
+    ruleset's rules, transitively, with no cross-umbrella leak. (Before this,
+    every umbrella trait keyed zero rules — a documented no-op.)"""
+    import warden_scan  # noqa
+    files, seen, _ = warden_scan.build_index(str(REPO), {}, {}, rescan=True)
+    ir, _, _ = wc.compile_corpus(
+        REPO, {"root": str(REPO), "files": files, "seen": seen}, "all")
+    t = ir["traits"]
+    assert "R-single-source-of-truth-01" in t["arch"], t.get("arch")
+    assert "R-ownership-03" in t["arch"]
+    assert len(t["arch"]) == 15, len(t["arch"])
+    assert "R-design-gate-01" in t["process"] and len(t["process"]) == 14
+    assert "R-design-gate-01" not in t["arch"], "cross-umbrella leak"
+    assert "R-diagram-geometry-01" in t["diagram"], "pre-existing umbrella not flattened"
+    # include-target parsing: embedded form + bare form
+    assert wc._include_target("FCT Brief#RULESET R-brief") == "R-brief"
+    assert wc._include_target("R-arch") == "R-arch"
+    print("PASS  include_flatten (F218)")
+
+
 def test_recompile_cache():
     """The compiled IR records the scan-index hash as its cache key;
     `cached_source_hash` round-trips it, and the key changes when a ruleset
@@ -251,6 +273,7 @@ def main():
         test_stats(stats)
     test_corpus_compile()
     test_backticked_where()
+    test_include_flatten()
     test_recompile_cache()
     print("\nall warden_compile tests passed")
     return 0
