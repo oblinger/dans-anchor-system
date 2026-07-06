@@ -53,29 +53,67 @@ pub fn disabled() -> bool {
     warden_home().join("DISABLED").exists()
 }
 
-fn log(msg: &str) {
+fn now_ts() -> f64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_secs_f64())
+        .unwrap_or(0.0)
+}
+
+fn append_line(name: &str, line: &str) {
     let home = warden_home();
     let _ = std::fs::create_dir_all(&home);
     if let Ok(mut f) = std::fs::OpenOptions::new()
         .create(true)
         .append(true)
-        .open(home.join("hook.log"))
+        .open(home.join(name))
     {
-        let now = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .map(|d| d.as_secs_f64())
-            .unwrap_or(0.0);
-        let _ = writeln!(f, "{now:.3}\t{msg}");
+        let _ = writeln!(f, "{line}");
     }
+}
+
+fn log(msg: &str) {
+    append_line("hook.log", &format!("{:.3}\t{msg}", now_ts()));
+}
+
+/// Advisory perf lines (OVER-BUDGET) go to their own file — at one line per
+/// breaching call they drown hook.log's operational signal otherwise (mirror
+/// of `warden_hook._log_perf`).
+fn log_perf(msg: &str) {
+    append_line("perf.log", &format!("{:.3}\t{msg}", now_ts()));
+}
+
+// ── fire record (F231 — mirror of warden_hook._fire_record) ─────────────────
+
+const FIRES_ROTATE_BYTES: u64 = 5 * 1024 * 1024;
+
+/// Append one JSONL record to `~/.warden/fires.jsonl` — the explainability
+/// log: which rules were considered at a moment, which fired, and the steer
+/// text VERBATIM as the agent received it. `warden log` is the viewer.
+fn fire_record(rec: &Value) {
+    let home = warden_home();
+    let _ = std::fs::create_dir_all(&home);
+    let path = home.join("fires.jsonl");
+    if let Ok(meta) = std::fs::metadata(&path) {
+        if meta.len() > FIRES_ROTATE_BYTES {
+            let _ = std::fs::rename(&path, home.join("fires.jsonl.1"));
+        }
+    }
+    append_line("fires.jsonl", &rec.to_string());
 }
 
 // ── per-moment ms budget (M5 — advisory policy; mirror of warden_hook) ──────
 // Over-budget fires are LOGGED, never dropped/demoted (PRD Q3, resolved
 // advisory-first 2026-07-05).
 
-pub fn budget_ms(moment: &str) -> f64 {
+/// A moment that owes a Python body/guard round-trip is budgeted at the
+/// post-hoc 10 ms rate even at tool:pre — the F213 phase-2 design accepts
+/// ~4 ms of resident-daemon IPC whenever rule-authored Python must run, so
+/// holding such fires to the 2 ms pure-selection budget just logs the same
+/// known design cost on every call (mirror of `warden_hook.budget_ms`).
+pub fn budget_ms(moment: &str, owed_python: bool) -> f64 {
     if moment.starts_with("tool:pre") {
-        2.0
+        if owed_python { 10.0 } else { 2.0 }
     } else if moment.starts_with("tool:post")
         || moment.starts_with("write:")
         || moment.starts_with("read:")
@@ -86,8 +124,8 @@ pub fn budget_ms(moment: &str) -> f64 {
     }
 }
 
-pub fn over_budget(moment: &str, elapsed_ms: f64) -> Option<String> {
-    let b = budget_ms(moment);
+pub fn over_budget(moment: &str, elapsed_ms: f64, owed_python: bool) -> Option<String> {
+    let b = budget_ms(moment, owed_python);
     if elapsed_ms <= b {
         None
     } else {
@@ -417,20 +455,36 @@ pub fn dispatch(data: &Value) -> Vec<String> {
         }
         // re-interleave into bucket order, matching the Python fire() exactly
         let before = steers.len();
+        let mut fires: Vec<Value> = Vec::new();
         for fired in &plan {
+            let mut produced: Vec<String> = Vec::new();
             match &fired.dispatch {
-                Dispatch::Declarative(s) => steers.push(s.clone()),
+                Dispatch::Declarative(s) => produced.push(s.clone()),
                 Dispatch::ActionOther => {}
                 Dispatch::PythonBody(_) | Dispatch::PythonGuard(_) => {
                     if let Some(rs) = by_rule.get(&fired.rule_id).and_then(Value::as_array) {
-                        steers.extend(rs.iter().filter_map(Value::as_str).map(String::from));
+                        produced.extend(rs.iter().filter_map(Value::as_str).map(String::from));
                     }
                 }
             }
+            for s in &produced {
+                fires.push(json!({"rule": fired.rule_id, "steer": s}));
+            }
+            steers.extend(produced);
         }
-        if let Some(warn) = over_budget(moment, fire_t0.elapsed().as_secs_f64() * 1000.0) {
-            log(&warn);
+        let elapsed_ms = fire_t0.elapsed().as_secs_f64() * 1000.0;
+        if let Some(warn) = over_budget(moment, elapsed_ms, !owed.is_empty()) {
+            log_perf(&warn);
         }
+        // F231: the explainability record — considered set + verbatim steers.
+        fire_record(&json!({
+            "ts": (now_ts() * 1000.0).round() / 1000.0, "engine": "rs",
+            "moment": moment, "anchor": &anchor_name, "traits": &traits,
+            "tool": str_field(data, "tool_name"), "file": event_fp,
+            "considered": plan.iter().map(|f| f.rule_id.clone()).collect::<Vec<_>>(),
+            "fires": fires,
+            "ms": (elapsed_ms * 10.0).round() / 10.0,
+        }));
         if steers.len() > before {
             log(&format!(
                 "FIRED {moment} @ {anchor_name} traits={traits:?} → {} steer(s)",
@@ -458,6 +512,18 @@ pub fn dispatch(data: &Value) -> Vec<String> {
                                 afile.file_name().map(|n| n.to_string_lossy()).unwrap_or_default(),
                                 aow.len()
                             ));
+                            // F231: doc-fire steers land in the fire record too.
+                            fire_record(&json!({
+                                "ts": (now_ts() * 1000.0).round() / 1000.0, "engine": "rs",
+                                "moment": "doc-fire",
+                                "anchor": afile.file_name().map(|n| n.to_string_lossy()).unwrap_or_default(),
+                                "traits": [], "tool": str_field(data, "tool_name"),
+                                "file": event_fp, "considered": ["audit-on-write"],
+                                "fires": aow.iter().filter_map(Value::as_str)
+                                    .map(|s| json!({"rule": "audit-on-write", "steer": s}))
+                                    .collect::<Vec<_>>(),
+                                "ms": 0.0,
+                            }));
                         }
                         steers.extend(aow.iter().filter_map(Value::as_str).map(String::from));
                     }
@@ -597,12 +663,15 @@ mod tests {
 
     #[test]
     fn budget_advisory_mirrors_python() {
-        assert_eq!(budget_ms("tool:pre:Bash"), 2.0);
-        assert_eq!(budget_ms("tool:post:Write"), 10.0);
-        assert_eq!(budget_ms("write:markdown"), 10.0);
-        assert_eq!(budget_ms("session:start"), 100.0);
-        assert!(over_budget("write:markdown", 9.9).is_none());
-        let warn = over_budget("write:markdown", 25.0).unwrap();
+        assert_eq!(budget_ms("tool:pre:Bash", false), 2.0);
+        // owed Python round-trip → the post-hoc rate, even at tool:pre
+        assert_eq!(budget_ms("tool:pre:Bash", true), 10.0);
+        assert_eq!(budget_ms("tool:post:Write", false), 10.0);
+        assert_eq!(budget_ms("write:markdown", false), 10.0);
+        assert_eq!(budget_ms("session:start", false), 100.0);
+        assert!(over_budget("write:markdown", 9.9, false).is_none());
+        assert!(over_budget("tool:pre:Bash", 4.0, true).is_none(), "IPC floor inside owed budget");
+        let warn = over_budget("write:markdown", 25.0, false).unwrap();
         assert!(warn.contains("OVER-BUDGET write:markdown") && warn.contains("budget 10 ms"), "{warn}");
     }
 }

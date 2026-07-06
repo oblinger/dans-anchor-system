@@ -8,6 +8,9 @@
                                (--rust registers the warden-rs binary — F213 phase 2)
     warden uninstall           remove Warden's hook entries from settings.json
     warden fire  ANCHOR MOMENT manually fire one moment against an anchor (debug)
+    warden log [-n N] [--moment M] [--anchor A] [--rule R] [--fired] [--full]
+                               the fire log (F231): rules considered/fired per
+                               moment + the steer text verbatim
     warden daemon start|stop|status   the resident interpreter (F213 phase 2)
 
 The kill switch is a sentinel FILE so a disable is global across every
@@ -245,6 +248,67 @@ def cmd_daemon(args) -> int:
     return 2
 
 
+# ── fire log viewer (F231 — the why-did-that-happen log) ────────────────────
+
+def _iter_fire_records(home: Path):
+    """Yield fire records oldest-first across the rotation pair."""
+    for name in ("fires.jsonl.1", "fires.jsonl"):
+        p = home / name
+        if not p.is_file():
+            continue
+        for line in p.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                yield json.loads(line)
+            except ValueError:
+                continue
+
+
+def cmd_log(args) -> int:
+    """Show recent fire records: which rules were considered/fired at each
+    moment and the steer text verbatim. The answer to "did the LLM ignore the
+    steer, or did we never send the right one?" starts here."""
+    import datetime
+    home = warden_home()
+    recs = list(_iter_fire_records(home))
+    if args.moment:
+        recs = [r for r in recs if args.moment in r.get("moment", "")]
+    if args.anchor:
+        recs = [r for r in recs if r.get("anchor") == args.anchor]
+    if args.rule:
+        recs = [r for r in recs
+                if any(args.rule in f.get("rule", "") for f in r.get("fires", []))
+                or any(args.rule in c for c in r.get("considered", []))]
+    if args.fired:
+        recs = [r for r in recs if r.get("fires")]
+    if not recs:
+        print("warden log: no matching fire records"
+              + ("" if (home / "fires.jsonl").is_file() else
+                 " (no fires.jsonl yet — records appear as moments fire)"))
+        return 0
+    for r in recs[-args.n:]:
+        t = datetime.datetime.fromtimestamp(r.get("ts", 0)).strftime("%m-%d %H:%M:%S")
+        fname = Path(r["file"]).name if r.get("file") else ""
+        head = (f"{t}  {r.get('moment', '?')} @ {r.get('anchor', '?')}"
+                f" [{r.get('engine', '?')}] {r.get('ms', 0)} ms")
+        if fname:
+            head += f"  {fname}"
+        fired_ids = {f.get("rule") for f in r.get("fires", [])}
+        silent = [c for c in r.get("considered", []) if c not in fired_ids]
+        if silent:
+            head += f"  (considered, silent: {', '.join(silent)})"
+        print(head)
+        for f in r.get("fires", []):
+            text = f.get("steer", "")
+            if not args.full and len(text) > 200:
+                text = text[:200] + " …"
+            pad = "\n      ".join(text.splitlines())
+            print(f"  → {f.get('rule', '?')}: {pad}")
+    return 0
+
+
 # ── manual fire (debug) ──────────────────────────────────────────────────────
 
 def cmd_fire(args) -> int:
@@ -280,6 +344,14 @@ def main(argv=None) -> int:
     pf.add_argument("anchor_root")
     pf.add_argument("moment")
     pf.set_defaults(fn=cmd_fire)
+    pl = sub.add_parser("log", help="show recent fire records (rules considered/fired + steer text)")
+    pl.add_argument("-n", type=int, default=20, help="records to show (default 20)")
+    pl.add_argument("--moment", help="filter: moment substring (e.g. tool:pre)")
+    pl.add_argument("--anchor", help="filter: anchor name")
+    pl.add_argument("--rule", help="filter: rule id substring")
+    pl.add_argument("--fired", action="store_true", help="only records that emitted a steer")
+    pl.add_argument("--full", action="store_true", help="never truncate steer text")
+    pl.set_defaults(fn=cmd_log)
     args = ap.parse_args(argv)
     return args.fn(args)
 

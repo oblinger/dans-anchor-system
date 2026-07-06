@@ -177,7 +177,18 @@ def is_active(ir: dict, rule_id: str, anchor_traits) -> bool:
 def fire(ir: dict, module, moment: str, ctx, anchor_traits) -> list[str]:
     """Run the rules keyed at `moment` and active for the anchor; return steers.
     Rules on any other moment are not in the bucket and never execute."""
-    steers: list[str] = []
+    return [s for _, produced in fire_records(ir, module, moment, ctx, anchor_traits)
+            for s in produced]
+
+
+def fire_records(ir: dict, module, moment: str, ctx, anchor_traits) -> list[tuple[str, list[str]]]:
+    """`fire()` with per-rule attribution (F231): one `(rule_id, steers)` pair
+    per rule CONSIDERED at the moment — in the bucket and active for the anchor.
+    A considered rule whose guard gated it out (or whose body returned nothing)
+    appears with `[]`, so the fire log can distinguish "no rule was live here"
+    from "the rule was live and stayed silent". Steer text is verbatim what the
+    agent receives (denies keep their sentinel)."""
+    records: list[tuple[str, list[str]]] = []
     for rule_id in ir.get("moments", {}).get(moment, []):
         row = ir["rules"][rule_id]
         if not is_active(ir, rule_id, anchor_traits):
@@ -186,6 +197,7 @@ def fire(ir: dict, module, moment: str, ctx, anchor_traits) -> list[str]:
         # at R4 the turn view is unresolvable and the rule is skipped wholesale.
         if row.get("turn_bearing") and not getattr(
                 getattr(ctx, "agent", None), "is_bound", False):
+            records.append((rule_id, []))
             continue
         # F215: bind `ctx.file` per (rule, event-file) — its `.diff` is the
         # change since THIS rule last evaluated the file, so the binding
@@ -198,9 +210,11 @@ def fire(ir: dict, module, moment: str, ctx, anchor_traits) -> list[str]:
                 fv = wr.FileView(rule_id, fp)
             ctx.file = fv
         if not all(eval_guard(g, ctx) for g in row.get("guards", [])):
+            records.append((rule_id, []))
             continue
         gp = row.get("guard_py")
         if gp and module is not None and not getattr(module, gp)(ctx):
+            records.append((rule_id, []))
             continue
         produced: list[str] = []
         if row.get("body_py") and module is not None:
@@ -215,13 +229,13 @@ def fire(ir: dict, module, moment: str, ctx, anchor_traits) -> list[str]:
                 # string channel end-to-end; the hook layer converts it to a
                 # real PreToolUse permissionDecision (fail-open elsewhere).
                 produced = [f"DENY: {text}" if act["kind"] == "deny" else text]
-        steers.extend(produced)
+        records.append((rule_id, produced))
         # F215: the rule fully evaluated this revision — advance its
         # last-evaluated record (a gate-suppressed pass never reaches here,
         # so sub-threshold edits accumulate in the diff until they cross).
         if fv is not None:
             fv.mark_evaluated(verdict=produced)
-    return steers
+    return records
 
 
 # ── CLI ──────────────────────────────────────────────────────────────────────

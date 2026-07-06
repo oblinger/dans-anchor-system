@@ -6,16 +6,11 @@ The concept dossier for **`/query`** — everything published about the asking s
 
 | -[[SKL Query]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[skill-docs]] → [[SKL Drive]] → [SKL Query](hook://p/SKL%20Query)<br>: the /query concept dossier |
 | --- | --- |
-| Related | [[ASG Query\|User Guide]],  [[skills/query/SKILL.md\|SKILL]] (runtime) |
-| Design | [[Query PRD\|PRD]] (shared resolution-layer PRD) |
-| Facet | [[FCT Query]] (the `"{SLUG} queries.md"` file format) |
+| Related | [[ASG Query\|Query User Guide]],  [[skills/query/SKILL.md\|SKILL]] (runtime) |
+| Design | [[Query PRD\|PRD]] (the determination ladder + question bar — *when* to ask, what survives to the user) |
+| Facet | [[FCT Query]] (the `{SLUG} queries.md` file format **+ the `R-query` ruleset** — the rules a query must satisfy) |
+| Discipline | [[DSC ask-format]] (*what a question looks like* — the five-piece layout + the every-artifact-is-a-live-link rule) |
 
-## What this is
+## Overview
 
 `/query` is the universal asking subroutine — it routes a decision the agent can't make alone into a question you can answer from what's written, and eliminates every question it can before that. It is the **query half of the resolution layer** (with [[SKL Groom]] as the backlog half).
-
-- **Use it** → [[ASG Query]] (the user guide).
-- **Understand / adapt it** → [[Query PRD]] (design + goals + the determination ladder), [[FCT Query]] (the file-format rules the queries doc must satisfy).
-- **Run it** → the runtime spec at [[skills/query/SKILL.md\|SKILL.md]] (loaded by Claude; the agent-facing runbook).
-
-Tracking (feature docs, backlog) lives dev-side under the SKA agent, not in this published dossier.
