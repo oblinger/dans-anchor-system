@@ -11,7 +11,7 @@ The the output / published-doc facets.
 
 # RULESET R-output-group
 include::
-where:: anchor
+where:: `anchor`
 description:: the FCT Output family index — the output / published-doc facet group page
 
 What `/audit` checks on this facet-group index page. It is a grouped-Container anchor page (chassis governed by `R-anchor-page`); the rules here are the **group-membership** invariants for the output facet family. Format of this set: [[FCT Ruleset]].

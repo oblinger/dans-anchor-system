@@ -116,6 +116,16 @@ def _strip_link_target(raw: str) -> str:
     return inner.split("|", 1)[0].strip()
 
 
+def _strip_ticks(val: str) -> str:
+    """Strip a single surrounding backtick pair from a field value (F172 —
+    `` where:: `file:{ANCHOR}/**/*.md` `` is the canonical authored form).
+    Values whose interior contains further backticks (prose with inline code
+    spans) pass through untouched, as does the bare legacy form."""
+    if len(val) >= 2 and val[0] == "`" and val[-1] == "`" and "`" not in val[1:-1]:
+        return val[1:-1].strip()
+    return val
+
+
 def extract_ruleset_block(text: str, name: str | None = None) -> tuple[list[str], int] | None:
     """Return (block_lines, heading_level) for `# RULESET <name>` (or first RULESET
     block when name is None). Block spans until the next heading of level <= its own."""
@@ -165,7 +175,7 @@ def parse_ruleset_block(block: list[str], source: Path) -> dict:
         if key == "include":
             rs["includes"] = [_strip_link_target(m.group(0)) for m in _WIKILINK_RE.finditer(val)]
         elif key == "where":
-            rs["where"] = val or None
+            rs["where"] = _strip_ticks(val) or None
         elif key == "description":
             rs["description"] = val or None
         i += 1
@@ -191,7 +201,10 @@ def parse_ruleset_block(block: list[str], source: Path) -> dict:
         s = ln.strip()
         wm = _FIELD_RE.match(s)
         if wm and wm.group(1) in ("where", "check", "fix"):
-            cur[wm.group(1)] = wm.group(2).strip() or None
+            fv = wm.group(2).strip()
+            if wm.group(1) == "where":
+                fv = _strip_ticks(fv)
+            cur[wm.group(1)] = fv or None
         elif s.startswith("**Check pattern:**"):
             cur["check_pattern"] = s.split("**Check pattern:**", 1)[1].strip()
         elif s.startswith("**Why:**"):

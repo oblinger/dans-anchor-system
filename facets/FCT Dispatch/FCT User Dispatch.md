@@ -93,7 +93,7 @@ Anchors that still have `{NAME} Rollup.md` (the predecessor to Interface — see
 
 # RULESET R-fct-user-dispatch
 include::
-where:: file: **/{NAME} User Docs/{NAME} User Docs.md
+where:: `file: **/{NAME} User Docs/{NAME} User Docs.md`
 description:: Rules every `{NAME} User Docs.md` dispatch page must satisfy — the file must exist in the right location, open with the right dispatch-table header, and contain only user-task-shaped documentation (not system-spec docs).
 
 ### RULE R-fct-user-dispatch-01 — file lives at the correct path (checked)

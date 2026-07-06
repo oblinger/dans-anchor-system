@@ -108,7 +108,7 @@ Steps are iterative — resolving open questions may require revisiting the PRD 
 
 # RULESET R-anchor-tree
 include::
-where:: file: **/FCT Anchor Tree.md
+where:: `file: **/FCT Anchor Tree.md`
 description:: Rules governing the FCT Anchor Tree facet spec — the annotated master file tree of a CAB anchor. Covers content integrity, naming conventions, tree rendering, and cross-reference sync.
 
 ### RULE R-anchor-tree-01 — Every named element is wiki-linked to its facet spec (checked)

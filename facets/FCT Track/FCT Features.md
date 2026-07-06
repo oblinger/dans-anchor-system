@@ -131,7 +131,7 @@ When the Roadmap section drives the feature's tracking, the feature doc's `## St
 
 # RULESET R-fct-features
 include::
-where:: file: **/Features/F*.md, **/{NAME} Features.md
+where:: `file: **/Features/F*.md, **/{NAME} Features.md`
 description:: The rules every Features-facet instance must satisfy — covering the folder layout, filename pattern, the two-zone feature-doc structure, and the index page shape. Embedded per F133. Tier legend: **checked** (mechanically verifiable), **sampled** (spot-checked), **stated** (author-honored principle).
 
 ### RULE R-fct-features-01 — F-numbered filename pattern (checked)

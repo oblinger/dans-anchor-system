@@ -68,6 +68,17 @@ def _san(rule_id: str) -> str:
     return rule_id.replace("-", "_")
 
 
+def strip_ticks(val: str) -> str:
+    """Strip a single surrounding backtick pair from a field value (F172 —
+    `` where:: `file:{ANCHOR}/**/*.md` `` is the canonical authored form; the
+    selector grammar inside is unchanged). Only a whole-expression wrap is
+    stripped: values whose interior contains further backticks (prose with
+    inline code spans) pass through untouched, as does the bare legacy form."""
+    if len(val) >= 2 and val[0] == "`" and val[-1] == "`" and "`" not in val[1:-1]:
+        return val[1:-1].strip()
+    return val
+
+
 def extract_ruleset_block(lines: list[str], name: str) -> tuple[int, int, int] | None:
     """Return (start, end, level) line-span of `# RULESET <name>`; the block runs
     until the next heading of level <= its own."""
@@ -131,7 +142,7 @@ def parse_ruleset(text: str, name: str, source: str) -> dict | None:
         if key == "include":
             rs["includes"] = re.findall(r"\[\[([^\]|]+)", val)
         elif key == "where":
-            rs["where"] = val or None
+            rs["where"] = strip_ticks(val) or None
         elif key == "description":
             rs["description"] = val or None
         i += 1
@@ -173,7 +184,7 @@ def parse_ruleset(text: str, name: str, source: str) -> dict | None:
             if key == "when":
                 rule["when"] = val
             elif key == "where":
-                rule["where"] = val
+                rule["where"] = strip_ticks(val)
             elif key == "if":
                 rule["ifs"].append(val)
             elif key == "check":

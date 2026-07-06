@@ -189,7 +189,7 @@ The H1 of the brief matches the file basename. No further structural constraints
 
 # RULESET R-brief
 include::
-where:: sentinel: ^#+ BRIEF\b
+where:: `sentinel: ^#+ BRIEF\b`
 description:: agent-facing per-file editing-and-maintenance content paired with a source file
 
 Embedded ruleset for the Brief facet, co-located per [[F133 — Rulesets folder convention + facet embedding|F133]]. `where::` is the inline-`# BRIEF` sentinel; the sidecar rule (R-brief-02) targets `* Brief.md`.

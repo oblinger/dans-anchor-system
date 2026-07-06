@@ -154,7 +154,7 @@ Format rules:
 
 # RULESET R-dispatch-table
 include::
-where:: file: {ANCHOR}/**/*.md
+where:: `file: {ANCHOR}/**/*.md`
 description:: The shape every dispatch table must take — masthead-placement law, member-zone mechanics, and pipe-escaped cell links.
 
 ### RULE R-dispatch-table-01 — Masthead rows appear in a fixed order (checked)

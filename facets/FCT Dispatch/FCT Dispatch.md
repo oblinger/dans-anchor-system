@@ -11,7 +11,7 @@ The the per-section sub-folder dispatch-page facets.
 
 # RULESET R-dispatch-group
 include::
-where:: anchor
+where:: `anchor`
 description:: the FCT Dispatch family index — the per-section sub-folder dispatch-page facet group
 
 What `/audit` checks on this facet-group index page. It is a grouped-Container anchor page (chassis governed by `R-anchor-page`); the rules here are the **group-membership** invariants for the sub-dispatch facet family. Format of this set: [[FCT Ruleset]].

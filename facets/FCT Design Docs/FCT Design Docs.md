@@ -11,7 +11,7 @@ The the design-pipeline doc facets (the `{NAME} Design/` contents).
 
 # RULESET R-design-docs-group
 include::
-where:: anchor
+where:: `anchor`
 description:: the FCT Design Docs family index — the design-pipeline doc facet group page
 
 What `/audit` checks on this facet-group index page. It is a grouped-Container anchor page (chassis governed by `R-anchor-page`); the rules here are the **group-membership** invariants for the design-pipeline facet family. Format of this set: [[FCT Ruleset]].

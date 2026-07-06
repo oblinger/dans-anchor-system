@@ -158,6 +158,8 @@ Every rule applies to some set of targets. The `where::` selector names that set
 
 A set whose rules are *not* universal should declare an explicit `where::` rather than silently relying on `always` (per `R-ruleset-10`).
 
+**Authored form — backtick-wrap the whole expression (F172).** A selector is full of markdown-active characters (`*`, `{}`, `!`, `:`), so the canonical authored line wraps the entire value — prefix included — in a single pair of backticks: `` where:: `file:{ANCHOR}/**/* PRD.md` ``. It renders as inline code and never corrupts the page. Parsers (`warden compile`, `audit-plan`) strip exactly one surrounding pair before reading the selector; the bare legacy form is accepted unchanged. The tables below document the selector **values** — each is authored inside the backtick wrap.
+
 **Scope kinds.** The value after `where::` is one of:
 
 | Form | Binds the rule to |
@@ -229,7 +231,7 @@ A set declares a default `where::`; a single rule overrides it. Literal ruleset 
 ```
 # RULESET R-sample
 include::
-where:: {ANCHOR}/**/{NAME} Backlog.md
+where:: `{ANCHOR}/**/{NAME} Backlog.md`
 description:: Structure every {NAME} Backlog.md obeys.
 
 ### RULE R-sample-01 — Rows carry a status bracket (checked)
@@ -237,7 +239,7 @@ description:: Structure every {NAME} Backlog.md obeys.
 **Check pattern:** ...
 
 ### RULE R-sample-07 — Anchor has exactly one backlog (checked)
-where:: anchor
+where:: `anchor`
 (overrides the set default — a once-per-anchor structural check, not a per-file one)
 **Check pattern:** ...
 ```
@@ -302,7 +304,7 @@ Available to any anchor that needs to author or adopt rules. Most anchors won't 
 
 # RULESET R-ruleset
 include::
-where:: sentinel: ^#+ RULESET R-
+where:: `sentinel: ^#+ RULESET R-`
 description:: Format every ruleset definition obeys — sentinels, header fields, per-rule structure, numbering, includes.
 
 The rules a `# RULESET` definition must satisfy — checked on **every ruleset, wherever it lives**: standalone `R-*.md` files **and** inline `# RULESET` blocks embedded in facet, skill, and discipline specs (e.g. `R-anchor-page` in [[FCT Anchor Page]], `R-markdown` in [[DSC markdown]]). The `where::` is a **content sentinel** — any file with a `# RULESET R-` heading (fence-aware: fenced *example* RULESETs are skipped) — so embedded sets are caught without enumerating their host files. Self-applying: this set obeys its own rules.
@@ -378,9 +380,9 @@ A standalone `R-<slug>.md` has no YAML frontmatter (an embedded `# RULESET` live
 
 ### RULE R-ruleset-12 — `where::` uses predefined `{ALL-CAPS}` tokens + standard globs (stated)
 
-A `where::` value is `always`, a path glob (optionally `file:`-prefixed), `anchor`, or `sentinel: <regex>`. Inside a glob, a `{...}` group is a predefined token only when its content is a reserved ALL-CAPS identifier (`{ANCHOR}`, `{NAME}`); lower / mixed-case brace groups are glob alternation.
+A `where::` value is `always`, a path glob (optionally `file:`-prefixed), `anchor`, or `sentinel: <regex>`. Inside a glob, a `{...}` group is a predefined token only when its content is a reserved ALL-CAPS identifier (`{ANCHOR}`, `{NAME}`); lower / mixed-case brace groups are glob alternation. The authored line backtick-wraps the whole expression — `` where:: `file:{ANCHOR}/**/*.md` `` — so the glob characters (`*`, `{}`, `!`) render as inline code instead of corrupting the markdown (F172); parsers strip the single surrounding pair, and the bare legacy form is still accepted.
 
-**Check pattern:** for each `where::`, assert the scope kind is one of the four forms; assert every `{...}` group is either a recognized predefined token or a valid alternation (lower / mixed case).
+**Check pattern:** for each `where::`, assert the scope kind is one of the four forms (after stripping the surrounding backtick pair); assert every `{...}` group is either a recognized predefined token or a valid alternation (lower / mixed case).
 
 **Why:** keeps `{ANCHOR}` (substitution) unambiguous from `{a,b}` (alternation) and catches typo'd selectors that would silently match nothing. See § Where clause — the rule selector.
 

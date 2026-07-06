@@ -24,7 +24,7 @@ Redirect stub for the legacy `{NAME} Plan/` dispatch facet, superseded by [[FCT 
 
 # RULESET R-fct-plan-dispatch
 include::
-where:: file: facets/FCT Dispatch/FCT Plan Dispatch.md
+where:: `file: facets/FCT Dispatch/FCT Plan Dispatch.md`
 description:: Rules for the redirect stub — this file's sole job is catching incoming `[[FCT Plan Dispatch]]` links during the F094 migration window and pointing to the successors.
 
 ### RULE R-fct-plan-dispatch-01 — No normative content added to this stub (checked)

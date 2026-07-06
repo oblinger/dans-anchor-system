@@ -501,7 +501,7 @@ The `Arch` row points to the **most-specific** architecture destination — the 
 
 # RULESET R-module-doc
 include::
-where:: file:{ANCHOR}/**/{NAME} Dev/**/{NAME} *.md
+where:: `file:{ANCHOR}/**/{NAME} Dev/**/{NAME} *.md`
 description:: per-module source documentation — one doc per source module under `{NAME} Dev/`
 
 What `/audit module-doc` checks on a module doc. Cardinality: many — one per source module, mirroring the repo tree. Format of this set: [[FCT Ruleset]].

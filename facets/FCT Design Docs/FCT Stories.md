@@ -142,7 +142,7 @@ A progression of increasing weight — adopt the lightest form that fits:
 
 # RULESET R-stories
 include::
-where:: file:{ANCHOR}/**/{NAME} Stories.md, {ANCHOR}/**/US-*.md
+where:: `file:{ANCHOR}/**/{NAME} Stories.md, {ANCHOR}/**/US-*.md`
 description:: Structural rules for the {NAME} Stories facet — folder shape, story file naming, dispatch table, bidirectional linking.
 
 Embedded ruleset for the Stories facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella. All rules below authored in the new `<H> RULE R-<slug>-NN` sentinel form per CAB Rules.
