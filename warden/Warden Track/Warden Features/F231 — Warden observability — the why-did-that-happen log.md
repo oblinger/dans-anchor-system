@@ -30,6 +30,15 @@ The log must let both the user and a post-hoc agent tell these apart in one look
 - **Capture cost discipline** — the hot path is ~3 ms; logging must stay append-only and defer any formatting; consider sampling for no-fire moments (the considered-set can be huge) vs. full fidelity for fires/denies/suppressions.
 - **Retention** — size-capped rotation in `~/.warden/`; the log is diagnostic, not archival.
 
+## What shipped (2026-07-06)
+
+- **The fire record — `~/.warden/fires.jsonl`.** Both dispatchers append one JSONL record per moment with a non-empty considered set: `ts · engine (py/rs) · moment · anchor · traits · tool · file · considered (rule ids) · fires ([{rule, steer}] — the text VERBATIM as the agent received it, denies sentinel-prefixed) · ms`. The audit-on-write doc-fire logs a `doc-fire` record with its full steer text. Rotation: single `.1` generation past ~5 MB. Causes 1–3 are now distinguishable in one look (empty `fires` on a considered rule = it was live and stayed silent; a `fires` entry = exactly what was said; agent ignored it = the record shows the steer landed).
+- **`warden log`** — the query surface: `-n N · --moment M · --anchor A · --rule R · --fired · --full`; prints per record the moment/anchor/engine/ms line, the considered-but-silent rules, and each fired rule's steer text.
+- **Perf split** — `OVER-BUDGET` advisories moved to `~/.warden/perf.log` (they were 806 of 861 hook.log lines, drowning the operational signal), and a moment owing a Python IPC round-trip is budgeted at the post-hoc 10 ms rate (the F213 design accepts ~4 ms IPC; holding it to the 2 ms pure-selection budget logged the same known cost on every Bash call).
+- **Engine parity** — implemented in `warden_hook.py` (via the new `warden_fire.fire_records`) and `rs/src/hook.rs` alike; both differential gates green.
+
+Deferred (not needed for the goal yet): per-rule suppression outcomes (`throttled`/`deduped` — cause 4 is partially visible via daemon-miss lines in hook.log), session/turn correlation keys, `warden log why <file>` sugar.
+
 ## Status
 
-**Ready** — commissioned with an explicit user goal; the design forks above are agent-decidable engineering choices (log shape, CLI verbs, rotation), to be settled against the PRD goal during the build and reviewed on the live artifact.
+**Done** (2026-07-06) — core shipped + live-verified: an ssh-deny fired through the installed Rust dispatcher landed in `fires.jsonl` with its verbatim deny text, and `warden log --fired` rendered it alongside real doc-fire records from other concurrent sessions.
