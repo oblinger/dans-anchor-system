@@ -10,12 +10,12 @@ The human-authored layer-contract for the Warden engine (per R-interfaces-folder
 
 - **Claude Code's hook runner** — the primary caller: every installed `settings.json` entry invokes `warden-rs hook` with the event JSON on stdin ([[Warden Architecture]] §6).
 - **The `/audit` skill family** — the explicit on-demand path over the same corpus (`audit-plan.py`; the doc-fire delegates back to it).
-- **The user and agents via the `warden` CLI** — `on · off · compile · install · uninstall · status · daemon · fire`.
+- **The user and agents via the `warden` CLI** — `on · off · compile · install · uninstall · status · daemon · fire · log`.
 - **`audit-q.py`** — autofires `skill:audit-q`-keyed rules on every run (the F211 pilot surface).
 
 ## Public surface
 
-- **The `warden` CLI verbs** — the sanctioned command surface for everything operational (R-wrapper-cli): kill switch, corpus compile, hook install/uninstall, daemon lifecycle, manual moment fire.
+- **The `warden` CLI verbs** — the sanctioned command surface for everything operational (R-wrapper-cli): kill switch, corpus compile, hook install/uninstall, daemon lifecycle, manual moment fire, and the fire log (`warden log`, F231 — which rules were considered/fired at each moment and the steer text verbatim).
 - **The hook stdin/stdout contract** — event JSON in; either nothing, `systemMessage` steers, or a `hookSpecificOutput.permissionDecision: deny` (PreToolUse only) out. Malformed input, missing IR, or a down daemon produce silence, never a block.
 - **The rule-authoring language** — `RULE`/`RULESET` sentinels, `when::`/`where::`/`if::`, prose/Python bodies ([[Warden Rule]], [[Warden Semantics]]): the stable authoring contract the corpus is written against.
 - **`.anchor` trait adoption** — `traits:` lists activate rulesets per anchor; [[anchor-base]] is implicit everywhere.
