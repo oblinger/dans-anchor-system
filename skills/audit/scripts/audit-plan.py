@@ -2539,6 +2539,83 @@ def chk_backlog_verify_concrete(target, anchor_root, args):
     return ("pass", "") if not failures else ("fail", "; ".join(failures[:3]))
 
 
+_TIMED_BRACKET_RE = re.compile(r"^(Waiting|Watching)\s+\d+[dh]$")
+_BLOCKED_FEATURE_RE = re.compile(r"^Blocked\s+F\d+$")
+_DATE_RE = re.compile(r"\b\d{4}-\d{2}-\d{2}\b")
+_QNUM_SUB_RE = re.compile(r"^\s+-\s+\*\*Q\d+\b")
+_DOC_LINK_RE = re.compile(r"→\s*\[\[")
+
+
+def _row_body(row_line):
+    """Prose after the row's status bracket, i.e. the description that follows
+    the bold title + `[Bracket]`. Anchored on the bracket match so an em-dash
+    *inside* the title (`F026 — Post-freeze flag-diff`) is not mistaken for the
+    title→body separator."""
+    m = _ROW_BRACKET_RE.match(row_line)
+    rest = row_line[m.end():] if m else row_line
+    parts = re.split(r"—", rest, maxsplit=1)
+    return (parts[1] if len(parts) > 1 else rest).strip()
+
+
+def chk_backlog_questions_have_numbered_q(target, anchor_root, args):
+    """R-backlog-05: every [Questions] row keeps its bracket promise — clicking
+    it lands on numbered Q<n>. Satisfied by an inline `- **Q<n>` sub-bullet OR a
+    `→ [[Doc]]` link delegating the Qs to a feature doc's ## Open Questions."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file to inspect"
+    failures = []
+    for i, h2, row, subs in _backlog_rows(_read(f)):
+        b = _row_bracket(row)
+        if b and re.fullmatch(r"(?:\d+\s+)?Questions", b):
+            has_inline_q = any(_QNUM_SUB_RE.match(s) for s in subs)
+            has_doc_link = bool(_DOC_LINK_RE.search(row)) or any(_DOC_LINK_RE.search(s) for s in subs)
+            if not (has_inline_q or has_doc_link):
+                failures.append(f"line {i}: [{b}] row has no numbered Q<n> and no → [[Doc]] link")
+    return ("pass", "") if not failures else ("fail", "; ".join(failures[:3]))
+
+
+def chk_backlog_blocker_named(target, anchor_root, args):
+    """R-backlog-06: every [Blocked]/[Waiting*]/[Watching*] row names its
+    obstacle — a specific body sentence (or sub-bullet), never a bare bracket
+    (the lazy-Blocked/Waiting/Watching failure mode). [Blocked F<NNN>] is exempt:
+    the chained link IS the description."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file to inspect"
+    failures = []
+    for i, h2, row, subs in _backlog_rows(_read(f)):
+        b = _row_bracket(row)
+        if not b:
+            continue
+        head = b.split()[0]
+        if head not in ("Blocked", "Waiting", "Watching"):
+            continue
+        if _BLOCKED_FEATURE_RE.match(b):          # chained form — the F<NNN> link is the description
+            continue
+        has_sub = any(s.strip().startswith("-") for s in subs)
+        if len(_row_body(row)) < 15 and not has_sub:
+            failures.append(f"line {i}: [{b}] row names no obstacle (lazy-{head})")
+    return ("pass", "") if not failures else ("fail", "; ".join(failures[:3]))
+
+
+def chk_backlog_timed_has_expiry_date(target, anchor_root, args):
+    """R-backlog-07: every timed [Waiting Nd/Nh] / [Watching Nd/Nh] row carries
+    an absolute YYYY-MM-DD date in the body — relative durations age and "1d" is
+    meaningless without knowing when it was written."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file to inspect"
+    failures = []
+    for i, h2, row, subs in _backlog_rows(_read(f)):
+        b = _row_bracket(row)
+        if b and _TIMED_BRACKET_RE.match(b):
+            blob = row + "\n" + "\n".join(subs)
+            if not _DATE_RE.search(blob):
+                failures.append(f"line {i}: [{b}] row has no absolute YYYY-MM-DD expiry date")
+    return ("pass", "") if not failures else ("fail", "; ".join(failures[:3]))
+
+
 CHECKERS = {
     "anchor_has": chk_anchor_has,
     "entry_page_matches_slug": chk_entry_page_matches_slug,
@@ -2639,10 +2716,13 @@ CHECKERS = {
     "md_table_pipe_escape": chk_md_table_pipe_escape,
     "md_em_dash": chk_md_em_dash,
     "md_trailing_ws": chk_md_trailing_ws,
-    # R-backlog (F228 frontier invariants)
+    # R-backlog (F228 frontier invariants + per-state body contracts)
     "backlog_frontier_planned": chk_backlog_frontier_planned,
     "backlog_frontier_bracketed": chk_backlog_frontier_bracketed,
     "backlog_verify_concrete": chk_backlog_verify_concrete,
+    "backlog_questions_have_numbered_q": chk_backlog_questions_have_numbered_q,
+    "backlog_blocker_named": chk_backlog_blocker_named,
+    "backlog_timed_has_expiry_date": chk_backlog_timed_has_expiry_date,
     # R-diagram-geometry / R-svg-hygiene / R-c4
     "svg_geometry_overlap": chk_svg_geometry_overlap,
     "svg_label_collision": chk_svg_label_collision,

@@ -56,13 +56,17 @@ A feature doc not listed anywhere is not on the frontier — and per activity 1 
 
 ### 3. Groom the frontier — plan each item to a known state
 
-For every frontier item, plan it out so you know, as concretely as possible, **how you would execute it**. Grooming drives each item to exactly one of three explicit exit states:
+For every frontier item, plan it out so you know, as concretely as possible, **how you would execute it**, then drive it into exactly one of the **five groomed states**. A state is only honest if its body carries the required contract — and every contract is a **checked `R-backlog` rule** ([[Backlog|FCT Backlog]] § The groomed states), so an audit catches a bracket whose body doesn't back it up:
 
-- **Executable** → declare the concrete **`- **Next:**`** step(s) the agent will take with zero user involvement; promote to `[Ready]`.
-- **Has questions** → **enumerate** them and encode each via `/query` into the queries surface (following the question bar below); bracket the row `[Questions]`.
-- **Blocked** → name **specifically what it is blocked on** — `[Blocked …]` / `[Waiting …]` / `[Watching …]` with the body stating the exact obstacle or awaited event. A vague blocker is not a groomed state.
+| # | Groomed state | Bracket(s) | Body contract groom must write | Checked by |
+|---|---|---|---|---|
+| 1 | **Executable** | `[Ready]` / `[Active]` | a `- **Next:**` step the agent takes with zero user involvement | R-backlog-02 |
+| 2 | **Questions** | `[Questions]` | ≥1 numbered `Q<n>` reachable from the row (inline `- **Q<n>` sub-bullets or a `→ [[Feature Doc]]` link), each satisfying the question bar below | R-backlog-05 + R-query-08/13/15 |
+| 3 | **Blocked / Waiting** | `[Blocked …]` / `[Waiting …]` | names the *specific* obstacle or awaited event (`[Blocked F<NNN>]` exempt — the link is the description); timed forms also carry an absolute `YYYY-MM-DD` | R-backlog-06 (+ R-backlog-07 timed) |
+| 4 | **Verify** | `[Verify]` / `[Verify-by …]` | a `- **Verify:**` concrete yes/no the user answers from where they sit | R-backlog-04 |
+| 5 | **Watching** | `[Watching …]` | a `- **Verify:**` non-recurrence question **and** the absolute `YYYY-MM-DD` soak-expiry date | R-backlog-04 + R-backlog-07 |
 
-After grooming, **nothing on the frontier is in an unknown state**: each item is executable (with next steps), questioned (with enumerated questions), or blocked (with a named blocker).
+After grooming, **nothing on the frontier is in an unknown state**: each item is executable (with a `Next:` step), questioned (with reachable numbered Qs), blocked/waiting (with a named obstacle), verifying (with a concrete question), or watching (with a dated soak). A frontier row must not rest in transient `[Designing]` after a groom — plan it forward to one of the five. The unifying cross-cutting rule behind states 2–5: **anything the body tells the user to look at is a live `[[wiki-link]]`**.
 
 > **The question bar — every question groom parks MUST satisfy all five (enforced by `/query`).** A parked question is worthless unless the user can answer it in one shot. Each carries:
 > 1. **its work-item identifier** — the `[[F<n>]]` / `[[T<n>]]` / `[[M<n>]]` it belongs to, so the user knows *what task* is asking;
