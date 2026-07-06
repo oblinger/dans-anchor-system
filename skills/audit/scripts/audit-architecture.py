@@ -163,9 +163,11 @@ def walk_reachable_arch_docs(
 # ============================================================
 
 MERMAID_FENCE_OPEN_RE = re.compile(r"^\s*```\s*mermaid\s*$", re.IGNORECASE)
-# Wiki-link image embed: `![[name.svg]]`, `![[name.png]]`, etc.
+# Wiki-link image embed: `![[name.svg]]` — with or without a `|width`/`|alias`
+# suffix (`![[name.svg|3000]]` is the viz-skill-mandated form; the suffix-less
+# pattern false-flagged every width-hinted embed).
 IMAGE_WIKI_EMBED_RE = re.compile(
-    r"!\[\[[^\]]+\.(?:svg|png|jpe?g|gif|webp|excalidraw|drawio)\]\]",
+    r"!\[\[[^\]|]+\.(?:svg|png|jpe?g|gif|webp|excalidraw|drawio)(?:\|[^\]]*)?\]\]",
     re.IGNORECASE,
 )
 # Markdown image link: `![alt text](path.svg)`. URL-encoded paths and external
@@ -186,7 +188,10 @@ H1_RE = re.compile(r"^# .+$")
 FRONTMATTER_DELIM = "---"
 
 DIAGRAM_WINDOW = 30   # lines after H1 where diagram must appear (A1)
-TABLE_WINDOW = 5      # lines after diagram-end where table must start (A2)
+# Lines after diagram-end where the table must start (A2). 8, not 5: the
+# canonical SVG-in-MD shape ([[SKA viz]]) puts a `↗ Open | ✎ Edit` link row
+# and an `### Index` heading between the embed and its mirroring table.
+TABLE_WINDOW = 8
 
 
 @dataclass
@@ -259,8 +264,11 @@ def find_table_after(lines: list[str], after_line: int) -> Optional[TableHit]:
                     j += 1
                 if j > i + 2:  # at least one data row
                     return TableHit(start_line=i + 1, end_line=j)
-        # Non-blank, non-table line in the window — table-not-found.
-        break
+        # Non-table line inside the window: the canonical SVG-in-MD shape
+        # ([[SKA viz]]) puts a `↗ Open | ✎ Edit` link row and an `### Index`
+        # heading between the embed and its table — skip and keep scanning
+        # (the 8-line window is the promptness bound, not a hard break).
+        i += 1
     return None
 
 
