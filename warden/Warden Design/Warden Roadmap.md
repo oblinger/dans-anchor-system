@@ -129,4 +129,4 @@ All of M1–M5 is design / validation; M6 is the single expensive build; M7 is a
 
 1. ~~**Repo home for the implementations.**~~ **Resolved by the build (2026-07-02):** the Python reference lives at `warden/engine/`, the Rust crate at `warden/rs/` — both inside the Warden anchor, wired into CI.
 2. ~~**Migration ordering (M6 surface fold).**~~ **Resolved by the build (2026-07-02):** `audit-q` was the pilot — `R-query-14` fires live through the compiled engine.
-3. **Budget-enforcement policy (M8).** Advisory logging vs. hard demote-to-audit for over-budget rules (also [[Warden PRD]] Q3).
+3. ~~**Budget-enforcement policy (M8).**~~ **Resolved advisory-first (2026-07-05):** over-budget fires are logged, never dropped; demote-to-audit is a future escalation contingent on advisory evidence. → [[Warden PRD]] Q3.

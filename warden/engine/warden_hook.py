@@ -107,6 +107,27 @@ def find_anchor(start: Path) -> Path | None:
     return None
 
 
+# ── per-moment ms budget (M5 — advisory policy, PRD Q3 resolved 2026-07-05) ──
+# Over-budget fires are LOGGED, never dropped/demoted: demote-to-audit stays a
+# future escalation to take only if advisory data shows a persistent offender.
+
+def budget_ms(moment: str) -> float:
+    """The PRD § Performance per-moment budget (p99, fire-time)."""
+    if moment.startswith("tool:pre"):
+        return 2.0
+    if moment.startswith(("tool:post", "write:", "read:")):
+        return 10.0
+    return 100.0  # session:* / prompt:* / git:* / timer: — rare, cost amortized
+
+
+def over_budget(moment: str, elapsed_ms: float) -> str | None:
+    """The advisory log line for an over-budget fire, or None when inside it."""
+    b = budget_ms(moment)
+    if elapsed_ms <= b:
+        return None
+    return f"OVER-BUDGET {moment} fired in {elapsed_ms:.1f} ms (budget {b:g} ms)"
+
+
 # ── operational log ──────────────────────────────────────────────────────────
 
 def _log(msg: str) -> None:
@@ -151,7 +172,11 @@ def dispatch(data: dict) -> list[str]:
         import warden_agent as wa
         ctx = wf.build_ctx(anchor_root, moment, agent=wa.make_agent(data, moment),
                            file_path=event_fp)
+        t0 = time.perf_counter()
         fired = wf.fire(ir, module, moment, ctx, traits)
+        warn = over_budget(moment, (time.perf_counter() - t0) * 1000.0)
+        if warn:
+            _log(warn)
         if fired:
             _log(f"FIRED {moment} @ {anchor_root.name} traits={traits} → {len(fired)} steer(s)")
             steers.extend(fired)
