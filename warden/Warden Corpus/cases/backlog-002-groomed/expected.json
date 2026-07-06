@@ -30,6 +30,31 @@
   "status": "pass"
  },
  {
+  "rule": "R-dispatch-table-09",
+  "target": "FX5 Backlog.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-dispatch-table-10",
+  "target": "FX5 Backlog.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-doc-structure-01",
+  "target": "FX5 Backlog.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-doc-structure-02",
+  "target": "FX5 Backlog.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-doc-structure-03",
+  "target": "FX5 Backlog.md",
+  "status": "pass"
+ },
+ {
   "rule": "R-progressive-01",
   "target": "FX5 Backlog.md",
   "status": "pass"
