@@ -342,8 +342,15 @@ def audit(anchor_path: str, verbose: bool = False) -> list[Finding]:
     sources = scan_source_tree(code_path, excludes)
     source_dirs = scan_source_dirs(code_path, sources)
 
-    # Find doc paths
-    docs_folder = os.path.join(anchor_root, f"{rid} Docs")
+    # Find doc paths.
+    # The Gen-3 migration dissolved the `{NAME} Docs/` container: Dev / Plan /
+    # Design / User now sit directly at the anchor root. Prefer the legacy
+    # `{NAME} Docs/{NAME} Dev/` layout when that container still exists; otherwise
+    # fall back to `{NAME} Dev/` at the anchor root. Everything below (dev_folder,
+    # the Files.md search, the Plan path) derives from docs_folder, so this one
+    # branch handles both layouts.
+    legacy_docs_folder = os.path.join(anchor_root, f"{rid} Docs")
+    docs_folder = legacy_docs_folder if os.path.isdir(legacy_docs_folder) else anchor_root
     dev_folder = os.path.join(docs_folder, f"{rid} Dev")
     files_md = None
     # Search for Files.md in Dev or Plan
