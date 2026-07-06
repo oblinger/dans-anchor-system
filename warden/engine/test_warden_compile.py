@@ -57,9 +57,10 @@ def test_ir_row_matches_worked_example(ir):
 
 
 def test_tier_doc_rules_emitted(ir):
-    """All 14 R-query rules compile; tier rows carry the right declarative action."""
-    assert len(ir["rules"]) == 14, len(ir["rules"])
-    assert len(ir["doc_rules"]) == 13, ir["doc_rules"]
+    """All 15 R-query rules compile; tier rows carry the right declarative action.
+    (15th = R-query-15 artifact-link rule, landed 2026-07-05 in 5e026d0.)"""
+    assert len(ir["rules"]) == 15, len(ir["rules"])
+    assert len(ir["doc_rules"]) == 14, ir["doc_rules"]
     # a `check::`-ref rule → a check action delegating to the named primitive
     r02 = ir["rules"]["R-query-02"]
     assert r02["moment"] is None and r02["phase"] == "post"
@@ -195,7 +196,7 @@ def test_recompile_cache():
 def test_stats(stats):
     assert stats["when_rules"] == 1, stats
     assert stats["py_rules"] == 1, stats
-    assert stats["doc_rules"] == 13, stats
+    assert stats["doc_rules"] == 14, stats
     print("PASS  stats")
 
 

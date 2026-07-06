@@ -227,16 +227,16 @@ Each row is a complete `where::` value:
 A set declares a default `where::`; a single rule overrides it. Literal ruleset syntax:
 
 ```
-# RULESET R-backlog
+# RULESET R-sample
 include::
 where:: {ANCHOR}/**/{NAME} Backlog.md
 description:: Structure every {NAME} Backlog.md obeys.
 
-### RULE R-backlog-01 — Rows carry a status bracket (checked)
+### RULE R-sample-01 — Rows carry a status bracket (checked)
 (no own where:: — inherits the set's: runs on the backlog file)
 **Check pattern:** ...
 
-### RULE R-backlog-07 — Anchor has exactly one backlog (checked)
+### RULE R-sample-07 — Anchor has exactly one backlog (checked)
 where:: anchor
 (overrides the set default — a once-per-anchor structural check, not a per-file one)
 **Check pattern:** ...

@@ -1,5 +1,5 @@
 # RULESET R-facet
-include:: [[R-testing]], [[R-status]], [[R-log]], [[R-stories]], [[R-prd]], [[R-design]], [[R-naming]], [[R-roadmap]], [[R-completed-roadmap]], [[R-ux]], [[R-api]], [[R-discussion]], [[R-cli]], [[R-code-repository]], [[R-anchor-group]], [[R-code-surface]], [[R-module-doc]], [[R-design-docs-group]], [[R-dev-dispatch]], [[R-dispatch-group]], [[R-doc-facet]], [[R-cards]], [[R-documentation-site]], [[R-output-group]], [[R-wp]], [[R-skill-md]], [[R-track-group]], [[R-ruleset]]
+include:: [[R-testing]], [[R-status]], [[R-log]], [[R-stories]], [[R-prd]], [[R-design]], [[R-naming]], [[R-roadmap]], [[R-completed-roadmap]], [[R-ux]], [[R-api]], [[R-discussion]], [[R-cli]], [[R-code-repository]], [[R-anchor-group]], [[R-code-surface]], [[R-module-doc]], [[R-design-docs-group]], [[R-dev-dispatch]], [[R-dispatch-group]], [[R-doc-facet]], [[R-cards]], [[R-documentation-site]], [[R-output-group]], [[R-wp]], [[R-skill-md]], [[R-track-group]], [[R-ruleset]], [[R-backlog]]
 description:: Umbrella ruleset aggregating the per-facet rulesets embedded in CAB facet spec files.
 
 Per the 2026-06-09 design decision, each CAB facet spec file (`CAB <facet>.md`) contains a `# RULESET R-<facet>` second-H1 block with the facet's structural rules — co-located with the prose that explains the facet. This file is the catalog-side umbrella that walks all those embedded rulesets via `include::` so adopters get a single name to pull. An anchor that adopts R-facet commits to following every materialized CAB facet's structural rules.
@@ -16,7 +16,9 @@ Per the 2026-06-09 design decision, each CAB facet spec file (`CAB <facet>.md`) 
 
 - **R-ruleset** ([[FCT Ruleset]]) — the self-applying format ruleset (the meta-spec for `# RULESET` blocks and `{NAME} Rules.md` files); embedded in [[FCT Ruleset]] and added to the umbrella in the F137/F133 pass. (This is the set the older notes called "`R-rules`" — its actual slug is `R-ruleset`, since it governs *ruleset* files.)
 
-Pending — each lands as its CAB facet's RULESET block is drafted: R-architecture, R-decisions, R-features, R-backlog, … (rollout continues per facet; tracked separately).
+- **R-backlog** ([[Backlog|FCT Backlog]]) — the F228 frontier invariants, landed 2026-07-05. 4 rules: the groom-frontier definition (Now + Next + next roadmap milestone), frontier `[Ready]`/`[Active]` rows declare a `Next:` step, `## Now`/`## Next` rows are bracket-resolved, `[Verify*]`/`[Watching*]` rows carry a concrete `Verify:` question. Also in the [[R-doc]] umbrella (fires on `* Backlog.md` by `where::`).
+
+Pending — each lands as its CAB facet's RULESET block is drafted: R-architecture, R-decisions, R-features, … (rollout continues per facet; tracked separately).
 
 ## Adoption
 

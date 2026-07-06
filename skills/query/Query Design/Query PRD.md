@@ -23,7 +23,17 @@ description: "product requirements"
 - **G3 — The doc is the store; chat never leads it (R1).** Every question is written into `{NAME} queries.md` the moment it is raised (simultaneously, not deferred to the next triage). Chat may *spotlight* a question but never carries one the doc lacks — chat is a view, the doc is the source of truth, and the doc is never stale relative to chat. A chat question with no doc entry is the violation: it scrolls away and the user (running many agents) loses it.
 - **G4 — Triage is the bulletproof orchestrator (R5).** `"` / `/triage` runs the resolution layer (groom + query) then the render layer then glances — fully autonomously — and ends with a **status report, never a question (R6).**
 - **G5 — One-shot answerable (R3/R4).** The user can answer the entire pile in one pass without opening any other document to understand a question.
-- **G6 — Maximize the unblocked runway (anticipatory surfacing).** Don't only surface the questions you have *now* — **look ahead**: for each backlog item, proactively reason about the decisions execution *will* hit and surface those *early*, in the same pile, before they block anything. The optimization target is **work-done-per-answered-pile** — the stretch of autonomous work one answering pass buys before the next forced question. Front-load every foreseeable question per item so that answering its pile runs the item (and ideally the next ones) to completion uninterrupted.
+- **G6 — Maximize the unblocked runway (anticipatory surfacing).** Don't only surface the questions you have *now* — **look ahead**: for each **frontier** item (§ The groom frontier), proactively reason about the decisions execution *will* hit and surface those *early*, in the same pile, before they block anything. The optimization target is **work-done-per-answered-pile** — the stretch of autonomous work one answering pass buys before the next forced question. Front-load every foreseeable question per item so that answering its pile runs the item (and ideally the next ones) to completion uninterrupted.
+
+## The groom frontier
+
+**The frontier is the set of tasks that could be next for execution** (defined 2026-07-05, [[F228 — Groom frontier — groom plans the frontier to Ready; query asks about it|F228]]): rows in the backlog's **`## Now` or `## Next` horizons** (plus `## Active` / `## Ready`, which are already past it), and items **soon on the relevant roadmaps** — the next unmet milestone of `{NAME} Roadmap.md` when the anchor has one. `## Later` and the icebox are *not* frontier; they are touched only on explicit invocation (`/groom later`, `/groom icebox`).
+
+The frontier is the shared scope of the resolution layer:
+
+- **`/groom` plans the frontier to Ready.** Its purpose is to get every frontier task **fully ready to be executed** — investigate, draft the approach, declare the `- **Next:**` step, promote to `[Ready]` when the Definition of Ready holds; when it doesn't, file the blocking questions (or the honest `[Blocked]`/`[Waiting]`/`[Watching]` state) so the obstacle is named. A frontier row left unplanned and unbracketed is groom's unfinished work.
+- **`/query` asks about the frontier.** The determination ladder and the G6 look-ahead walk frontier tasks — the pile the user answers is exactly what unblocks the next stretch of execution. (Non-frontier `[Questions]`/`[Verify]` brackets still render per triage rules; they just don't drive anticipatory question-mining.)
+- **The audit checks it.** The frontier invariants are encoded as the `R-backlog` ruleset in the [[Backlog|FCT Backlog]] facet (frontier rows planned + bracket-resolved; Verify rows carry a concrete question), fired by the rule engine at doc-audit.
 
 ## Non-Goals
 
@@ -48,7 +58,7 @@ description: "product requirements"
 
 | Layer | What it does | Skills |
 |---|---|---|
-| **Resolution** | rebracket stale states, promote ready items, auto-resolve reversible guesses, run every agent-runnable check, decide low-stakes calls, **park the irreducible residue into the queries surface** | `/groom` (backlog states) + `/query` (determination ladder) |
+| **Resolution** | plan the frontier to Ready — rebracket stale states, investigate + declare each frontier task's next step, promote what meets the Definition of Ready, auto-resolve reversible guesses, run every agent-runnable check, decide low-stakes calls, **park the irreducible residue into the queries surface** | `/groom` (frontier planning + backlog states) + `/query` (determination ladder over the frontier) |
 | **Render** | mechanically paint `Q.md` + `{NAME} queries.md` from current state, then glance | `triage-section.py` |
 
 - **`"` / `/triage` (top-level)** = resolution layer **+** render + glance. The bulletproof button: grooms, queries, piles, presents — and **never asks**.

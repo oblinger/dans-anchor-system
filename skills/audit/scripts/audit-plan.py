@@ -2439,6 +2439,93 @@ def chk_facet_examples_row(target, anchor_root, args):
     return "fail", "no Examples row in masthead"
 
 
+# --- R-backlog (F228 frontier invariants) -----------------------------------
+
+_FRONTIER_H2S = ("Active", "Ready", "Now", "Next")
+_ROW_BRACKET_RE = re.compile(
+    r"^-\s+\*\*(?:\[([^\[\]]+)\]\*\*|[^*]*\*\*\s*\[([^\[\]]+)\])")
+
+
+def _backlog_rows(text):
+    """(line_no, h2, row_line, subs) per top-level `- **…**` row; subs = the
+    row's indented lines. A new H2 or a col-0 non-list line closes the row;
+    blank lines are neutral (sub-bullets may follow a spacer)."""
+    rows = []
+    h2 = None
+    cur = None
+    for i, ln in enumerate(text.splitlines(), 1):
+        m = re.match(r"^##\s+(.+?)\s*$", ln)
+        if m:
+            h2, cur = m.group(1), None
+            continue
+        if re.match(r"^-\s+\*\*", ln):
+            cur = [i, h2, ln, []]
+            rows.append(cur)
+        elif cur is not None and re.match(r"^\s+\S", ln):
+            cur[3].append(ln)
+        elif ln.strip():
+            cur = None
+    return [tuple(r) for r in rows]
+
+
+def _row_bracket(row_line):
+    """The row's status bracket: either leading bold (`- **[Ready]** …`) or
+    immediately after the bold title (`- **Title** [Ready] — …`). Brackets
+    appearing later in the body are prose mentions, not status."""
+    m = _ROW_BRACKET_RE.match(row_line)
+    if not m:
+        return None
+    return (m.group(1) or m.group(2) or "").strip()
+
+
+def chk_backlog_frontier_planned(target, anchor_root, args):
+    """R-backlog-02: [Ready]/[Active] rows under frontier H2s carry a
+    `- **Next:**` sub-bullet declaring the next autonomous step."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file to inspect"
+    failures = []
+    for i, h2, row, subs in _backlog_rows(_read(f)):
+        if h2 not in _FRONTIER_H2S:
+            continue
+        b = _row_bracket(row)
+        if b and re.fullmatch(r"(?:\d+\s+)?(Ready|Active)", b):
+            if not any(re.match(r"^\s+-\s+\*\*Next:\*\*", s) for s in subs):
+                failures.append(f"line {i}: [{b}] row declares no `- **Next:**` step")
+    return ("pass", "") if not failures else ("fail", "; ".join(failures[:3]))
+
+
+def chk_backlog_frontier_bracketed(target, anchor_root, args):
+    """R-backlog-03: rows under ## Now / ## Next carry a status bracket
+    (bare `[ ]` / bracketless = ungroomed frontier)."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file to inspect"
+    failures = []
+    for i, h2, row, subs in _backlog_rows(_read(f)):
+        if h2 not in ("Now", "Next"):
+            continue
+        b = _row_bracket(row)
+        if not b:
+            failures.append(f"line {i}: ungroomed frontier row (no status bracket)")
+    return ("pass", "") if not failures else ("fail", "; ".join(failures[:3]))
+
+
+def chk_backlog_verify_concrete(target, anchor_root, args):
+    """R-backlog-04: every [Verify*]/[Watching*] row carries a `- **Verify:**`
+    sub-bullet with the concrete yes/no the user answers."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file to inspect"
+    failures = []
+    for i, h2, row, subs in _backlog_rows(_read(f)):
+        b = _row_bracket(row)
+        if b and (b.startswith("Verify") or b.startswith("Watching")):
+            if not any(re.match(r"^\s+-\s+\*\*Verify:\*\*", s) for s in subs):
+                failures.append(f"line {i}: [{b}] row has no `- **Verify:**` question")
+    return ("pass", "") if not failures else ("fail", "; ".join(failures[:3]))
+
+
 CHECKERS = {
     "anchor_has": chk_anchor_has,
     "entry_page_matches_slug": chk_entry_page_matches_slug,
@@ -2539,6 +2626,10 @@ CHECKERS = {
     "md_table_pipe_escape": chk_md_table_pipe_escape,
     "md_em_dash": chk_md_em_dash,
     "md_trailing_ws": chk_md_trailing_ws,
+    # R-backlog (F228 frontier invariants)
+    "backlog_frontier_planned": chk_backlog_frontier_planned,
+    "backlog_frontier_bracketed": chk_backlog_frontier_bracketed,
+    "backlog_verify_concrete": chk_backlog_verify_concrete,
     # R-diagram-geometry / R-svg-hygiene / R-c4
     "svg_geometry_overlap": chk_svg_geometry_overlap,
     "svg_label_collision": chk_svg_label_collision,
