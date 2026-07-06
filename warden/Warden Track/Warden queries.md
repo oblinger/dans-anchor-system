@@ -2,7 +2,7 @@
 description: Warden queries — mechanically rendered from the backlog by triage (Verifications / Ready+Next / Questions). Do not hand-edit; edit the backlog rows.
 ---
 
-# [A]  [[Warden|Warden]]  -  Ready 6    Questions 0   |   Now 0    Next 0    Later 2    Verify 0    Icebox 0    {1}
+# [A]  [[Warden|Warden]]  -  Ready 7    Questions 0   |   Now 0    Next 0    Later 2    Verify 0    Icebox 0    {1}
 
 ## Ready
 - [[Warden Backlog#^B-QFix|B-QFix]] — **Next:** ⚠ none declared — not really Ready; add a no-user next-action or rebracket
@@ -11,3 +11,4 @@ description: Warden queries — mechanically rendered from the backlog by triage
 - [[Warden Backlog#^T006|T006]] — **Next:** Map R-backlog-01..07 onto the four backlog corpus cases (ungroomed/groomed/lazy-states/honest-states); add fixtures for any contract not pinned both ways; write check:: for any checked-tier rule that...
 - [[Warden Backlog#^T007|T007]] — **Next:** Diagnose why trait `markdown` keys zero rules in the IR (embedded-ruleset flatten/naming artifact); add markdown-discipline corpus cases pinning R-markdown-01..10 + R-progressive fail+pass; restore...
 - [[F231 — Warden observability — the why-did-that-happen log]] — **Next:** Design the structured fire-record (JSONL: session, moment, anchor+traits, per-rule outcome incl. throttled/deduped/guard-false, emitted text verbatim) + the `warden log` query verbs, then wire both...
+- [[Warden Backlog#^T008|T008]] — **Next:** Author RULESET R-anchor-base (first base-keyed ruleset, per [[anchor-base]]): (1) dispatch-vs-breadcrumb dichotomy — anchor page carries the dispatch table, every other md under an anchor carries a...
