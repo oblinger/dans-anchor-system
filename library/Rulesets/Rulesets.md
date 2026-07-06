@@ -26,6 +26,7 @@ description: "Curated, versioned bundles of rules."
 | [[R-anchor]] | Everything checked when auditing a whole anchor — the entry page + naming + planning facets, plus the doc-level rulesets (via R-doc) for every document the anchor contains. |
 | [[R-brief]] | Rules for the Brief doc facet — agent-facing per-file maintenance content (inline `# BRIEF` or `<Name> Brief.md` sidecar). Canonical body embedded in |
 | [[R-messages]] | Rules for the {NAME} Messages facet — the agent's per-anchor background-process inbox, distinct from the user's Inbox. Canonical body embedded in |
+| [[R-pathguard]] | Veto-path protection for state-managed file regions (F131) — deny the agent's Edit/Write on surfaces owned by a script (`state task`, `state q`, `/atlas`, the triage renderer) and redirect to the owning tool. Fires at `tool:pre:*` through the live dispatcher; adopt via the `pathguard` trait. |
 | [[R-progressive]] | Conditional, multi-check document-layout rules of progressive disclosure — dispatch-table placement + section spacing; checked on every markdown document. |
 | [[R-svg-jiggle]] | Geometry-aware layout-repair ("jiggle") for hand-authored SVG diagrams — clear label-over-box overlaps with the cheapest topological move (slide / flip), governed by a three-tier severity order. |
 | [[Rulesets/README]] |  |

@@ -19,6 +19,13 @@ Each entry below links to a **user guide** for one skill or facet — what it do
 | --- | --- |
 | `/query` — ask the user a question | [[ASG Query]] |
 | `/groom` — get the next work ready | [[ASG Groom]] |
+| `/crank` — drive Ready work to completion | [[ASG Crank]] |
+| `/triage` — status of the anchor + what's waiting on you | [[ASG Triage]] |
+| `/feature` — open a feature doc | [[ASG Feature]] |
+| `/finalize` — verify → commit → merge → close | [[ASG Finalize]] |
+| `/land` — finish in-flight work, then stop | [[ASG Land]] |
+| `/mint` — implement one Ready item | [[ASG Mint]] |
+| `/fortify` — cautious crank when iteration stalls | [[ASG Fortify]] |
 
 *(Matrix fills in as each skill's dossier is published — see [[SKA]] F251.)*
 

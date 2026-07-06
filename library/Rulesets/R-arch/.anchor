@@ -1,1 +1,1 @@
-description: "Architecture rules — code organization, module structure, dependency direction. Placeholder; future: `R-factory-pegboard`, `R-interfaces-folder`, `R-single-source-of-truth`."
+description: "Architecture rules — **umbrella over 5 mined design-rule families, 15 rules total** (F218, upgraded 2026-07-05):"

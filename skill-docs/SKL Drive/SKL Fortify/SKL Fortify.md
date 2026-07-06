@@ -1,14 +1,18 @@
 ---
-description: "Cautious, skeptical counterpart to `crank`."
+description: "the /fortify skill — concept dossier: user guide, design, runtime"
 ---
-# /fortify
-Cautious, skeptical counterpart to `crank`. When normal iteration has stopped converging — the same bug keeps coming back, fixes don't stick, tests pass but the system still misbehaves — `fortify` distrusts the foundation (logs, code structure, tests, the agent's own conclusions), strengthens it, and only then resumes work.
+# SKL Fortify
+The concept dossier for **`/fortify`** — everything published about the skill: the user guide, its design, and the runtime spec.
 
-| -[[SKL Fortify]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Drive]] → [SKL Fortify](hook://p/SKL%20Fortify)<br>: the `/fortify` skill |
+| -[[SKL Fortify]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[skill-docs]] → [[SKL Drive]] → [SKL Fortify](hook://p/SKL%20Fortify)<br>: the /fortify concept dossier |
 | --- | --- |
-| Related | [[skills/fortify/SKILL.md\|SKILL]],   |
-| [[SKL Fortify Design\|Design]] |  |
+| Related | [[ASG Fortify\|User Guide]],  [[skills/fortify/SKILL.md\|SKILL]] (runtime) |
+| Design | [[Fortify PRD\|PRD]],   |
 
-**When to use:** "fortify", `"` (single double-quote as the whole message), or "fortify <task>" when the user wants the methodology applied to a named task / backlog item / bug.
+## What this is
 
-See `~/.claude/skills/fortify/SKILL.md` for the full runbook.
+- **Use it** → [[ASG Fortify]] (the user guide).
+- **Understand / adapt it** → the design docs in this dossier (start with ~~[[Fortify PRD]]~~).
+- **Run it** → the runtime spec at [[skills/fortify/SKILL.md\|SKILL.md]].
+
+Tracking (feature docs, backlog) lives dev-side under the SKA agent, not in this published dossier.
