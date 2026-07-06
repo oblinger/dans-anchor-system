@@ -21,34 +21,32 @@ Sharper than "questions resolved." If the task still hides any "wait, what about
 
 ## How it works
 
-For each Unset / Upcoming backlog item, the agent investigates quietly: reads related docs, infers from context, drafts a spec, runs lightweight planning. Then decides:
+`/groom` works the **frontier** — the tasks that could be next for execution (everything under `## Now` / `## Next`, plus the next unmet roadmap milestone). For each frontier item the agent investigates quietly — reads related docs, infers from context, drafts a spec, runs lightweight planning — then drives it into one of **five groomed states**, each with a body contract a rule checks:
 
-- **Bullet is Ready as-is** → moves it to `## Ready`.
-- **Has questions** → creates a dated feature doc in `Features/`, captures the questions there, replaces the backlog bullet with a `→ [[Feature Doc]]` link. Item is now *blocked-on-questions*.
+- **Executable** (`[Ready]`) → declares the concrete next step it'll take with zero involvement from you.
+- **Questions** (`[Questions]`) → the open questions, each answerable in one shot, land in the anchor's `{NAME} queries.md`.
+- **Blocked / Waiting** (`[Blocked]` / `[Waiting]`) → names exactly what it's blocked on or awaiting.
+- **Verify** (`[Verify]`) → a concrete yes/no for you to confirm.
+- **Watching** (`[Watching]`) → a shipped fix soaking, with the date the soak ends.
 
-The agent **never interrupts you mid-run**. Every question gets a home — feature doc by default, or one final inline question at the very end of the run (after the roster, pinned to the bottom of the screen so it survives scrolling).
+## It never asks you a question
 
+`/groom` **raises zero questions in chat** — not even a trivial one. Every decision it can make itself, it makes; every genuine question for you gets written into `{NAME} queries.md` (the one place you answer things), never dropped into chat where it scrolls away. When you run `/groom` directly it ends by showing you `/triage` — the status of the anchor and what's waiting on you — and asks nothing.
 
-## End of run
-
-1. Summary table — what was promoted, what was parked, what was skipped.
-2. **Open the first blocked-on-questions feature doc** so you have one concrete next action: answer those questions.
-3. Run `/roster` to show the post-`/groom` state of the backlog.
-4. *If* there's a single trivial deferred question, ask it now (last line of output).
-
-After you answer the questions in the surfaced doc, re-run `/groom` to advance the next round.
+After you answer the questions in the queries doc, re-run `/groom` to advance the next round.
 
 
 ## Scope arguments
 
 | Invocation | Scope |
 | --- | --- |
-| `/groom` | All Unset / Upcoming items across the whole backlog. Default. |
-| `/groom upcoming` | Only `## Upcoming`. |
+| `/groom` | The frontier — `## Now` / `## Next` + the next roadmap milestone. Default. |
+| `/groom all` | Every pre-Ready item across the whole backlog, `## Later` included. |
+| `/groom now` / `/groom next` / `/groom later` | Only that horizon. |
 | `/groom legwork` | Only `## Legwork`. |
 | `/groom roadmap` | Roadmap's next milestone instead of the backlog. |
 | `/groom roadmap <milestone>` | Named roadmap milestone. |
-| `/groom <Q-number>` | Single backlog item. |
+| `/groom F<n>` | Single item, by F-number. |
 | `/groom <item name>` | Single item by name match. |
 
 
@@ -59,4 +57,4 @@ Safe to run repeatedly. Items already Ready, Active, blocked-on-questions, Verif
 
 ## Design principle
 
-`/groom` follows the **Minimize User Back-and-Forth** principle from ~~[[CAB Backlog]]~~: every batch operation against the backlog processes the entire batch autonomously before involving the user, then surfaces the first blocked doc as the user's single next action. Each round-trip costs scrollback context and stalls the batch — design for *one* round-trip per pass, not N.
+`/groom` processes the entire batch autonomously before involving you: every question it can't resolve is parked in `{NAME} queries.md`, never raised mid-run. Each round-trip costs scrollback context and stalls the batch — the whole design targets *one* pile to answer, not a trickle of interruptions. The full rationale lives in the design: **[[SKL Groom Design]]** → **[[Query PRD]]**.
