@@ -39,3 +39,5 @@ The `if::` guard vocabulary is a **closed, fixed set** — `git-aspect`, `mode`,
 ## Status
 
 **Drafted 2026-06-26** in [[Warden Architecture]] §4–5. **All questions resolved 2026-07-02** (user accepted the Leans): Q1 `if::` vocabulary = fixed set, Q2 `where::` precedence = resolved-first. **F210 is designed and frozen.** With [[F209 — Unified trigger taxonomy + when language|F209]] also resolved, the **M0 language freeze is complete** — the `when::`/`where::`/`if::` surface is locked.
+
+**Wiring confirmed 2026-07-05 — done.** The frozen surface is fully realized in both engines and gated: the compiler parses the fixed `if::` vocabulary to declarative `{key, op, value}` guards (`parse_if`, Python escape hatch → `guard_py`); moment indexing is the IR's `moments` dispatch buckets (a rule keyed elsewhere never executes — pinned by `test_warden_fire`/`cargo test`); guard evaluation runs identically in the Python reference (`warden_fire.eval_guard`) and the Rust engine (`eval_guard`, every op × key differential-tested in `test_warden_rust.py` + the live-dispatcher differential). Nothing left to build.

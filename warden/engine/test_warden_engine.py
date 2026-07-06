@@ -30,7 +30,7 @@ def test_engine_fires_r_query_14():
     with tempfile.TemporaryDirectory() as td:
         anchor = _fixture_anchor(Path(td), "query, Commit", "Should I commit and push this now?")
         engine = we.WardenEngine(REPO)
-        steers = engine.fire(anchor, "skill:post:audit-q")
+        steers = engine.fire(anchor, "skill:pre:audit-q")
         assert steers and "Do NOT ask" in steers[0], steers
         assert "commit now" in steers[0], steers[0]
         # the corpus compiled once and is memoised (same object on re-access)
@@ -44,12 +44,12 @@ def test_engine_gating_and_stream():
         # an anchor that did NOT adopt the query trait fires nothing
         anchor = _fixture_anchor(Path(td), "Commit", "Should I commit and push this now?")
         engine = we.WardenEngine(REPO)
-        assert engine.fire(anchor, "skill:post:audit-q") == [], "fired without the query trait"
+        assert engine.fire(anchor, "skill:pre:audit-q") == [], "fired without the query trait"
 
         # a moment with no rules yields no steers; run_moments returns per-moment
         adopted = _fixture_anchor(Path(td) / "b", "query, Commit", "Should I push?")
-        stream = engine.run_moments(adopted, ["skill:post:audit-q", "tool:post:Write"])
-        assert stream["skill:post:audit-q"], stream
+        stream = engine.run_moments(adopted, ["skill:pre:audit-q", "tool:post:Write"])
+        assert stream["skill:pre:audit-q"], stream
         assert stream["tool:post:Write"] == [], stream
     print("PASS  engine_gating_and_stream")
 
