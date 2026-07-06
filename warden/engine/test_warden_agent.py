@@ -229,6 +229,190 @@ def test_tail_robustness(tmp: Path):
     print("PASS  tail_robustness")
 
 
+def test_turn_view(tmp: Path):
+    """F217: the six agent.turn members + the agent.response alias, from a
+    scripted turn; unbound view reads error values; TURN_CAP truncation."""
+    a = _agent(tmp, [
+        _user("old turn", 300), _assistant(290, "old reply"),
+        _user("Fix the flaky test?", 60),
+        _assistant(50, "Looking.", [{"name": "Bash", "input": {"command": "pytest -k flaky"}}]),
+        _tool_result(49),
+        _assistant(5, "All tests pass — done.")], trigger="prompt:stop", sid="turn-1")
+    t = a.turn
+    assert t.user_said == "Fix the flaky test?", t.user_said
+    assert "Looking." in t.agent_said and "All tests pass" in t.agent_said
+    assert "old reply" not in t.agent_said, "prior turn leaked into agent_said"
+    assert a.response == t.agent_said, "agent.response is the agent_said alias"
+    assert ("Bash", "pytest -k flaky") in t.tools, t.tools
+    assert t.commands == ["pytest -k flaky"], t.commands
+    assert "USER: Fix the flaky test?" in t.text and "TOOL Bash:" in t.text
+    assert len(t.messages) == 4, len(t.messages)
+    # unbound → error values, reads never raise
+    u = wa.unbound()
+    assert u.turn.user_said == "" and u.turn.tools == [] and u.response == ""
+    # TURN_CAP: head + tail survive an oversized member
+    big = "CLAIM-AT-HEAD " + "x" * (wa.TURN_CAP * 2) + " QUESTION-AT-TAIL?"
+    a2 = _agent(tmp, [_user("go", 60), _assistant(5, big)], trigger="prompt:stop", sid="turn-2")
+    said = a2.turn.agent_said
+    assert len(said) <= wa.TURN_CAP + 40, len(said)
+    assert said.startswith("CLAIM-AT-HEAD") and said.rstrip().endswith("QUESTION-AT-TAIL?")
+    print("PASS  turn_view")
+
+
+def test_content_rules(tmp: Path):
+    """F217 Success-Criteria fixtures: the question-kind rule (R-ex-11) and the
+    done-claim-without-test rule (R-ex-12) fire on their turns and stay silent
+    on a normal turn; a turn-bearing rule is skipped for an unbound agent."""
+    import re as _re
+    ir = {"rules": {
+            "R-ex-11": {"moment": "prompt:stop", "phase": "stop", "where": None,
+                        "guards": [], "guard_py": None, "action": None,
+                        "body_py": "body_R_ex_11", "turn_bearing": True},
+            "R-ex-12": {"moment": "prompt:stop", "phase": "stop", "where": None,
+                        "guards": [], "guard_py": None, "action": None,
+                        "body_py": "body_R_ex_12", "turn_bearing": True}},
+          "moments": {"prompt:stop": ["R-ex-11", "R-ex-12"]},
+          "traits": {"_base": ["R-ex-11", "R-ex-12"]}, "doc_rules": []}
+    module = types.SimpleNamespace(
+        body_R_ex_11=lambda ctx: (
+            ["Low-stakes ordering choices are yours — pick an order and proceed."]
+            if ctx.agent.is_asking and _re.search(r"(?i)\b(should i|which order|do you want me to)\b",
+                                                  ctx.agent.response) else []),
+        body_R_ex_12=lambda ctx: (
+            ["You claimed completion but ran no test command — run the suite first."]
+            if _re.search(r"(?i)\b(all tests pass|task (is )?done|completed?)\b", ctx.agent.response)
+            and not any(c.startswith(("pytest", "just test", "cargo test"))
+                        for c in ctx.agent.turn.commands) else []))
+    root = tmp / "anchor17"
+    root.mkdir(exist_ok=True)
+    (root / ".anchor").write_text("slug: FX\n", encoding="utf-8")
+
+    def fire_with(agent):
+        return wf.fire(ir, module, "prompt:stop",
+                       wf.build_ctx(root, "prompt:stop", agent=agent), ["_base"])
+
+    # R-ex-11 fires: turn ends asking a low-stakes ordering question
+    ask = _agent(tmp, [_user("go", 60),
+                       _assistant(5, "Should I do the rename first or the tests first?")],
+                 trigger="prompt:stop", sid="c-ask")
+    out = fire_with(ask)
+    assert any("yours" in s for s in out), out
+    # R-ex-12 fires: done-claim, no test command in the turn's ledger
+    claim = _agent(tmp, [_user("go", 60), _assistant(5, "Task done, everything works.")],
+                   trigger="prompt:stop", sid="c-claim")
+    out = fire_with(claim)
+    assert any("no test command" in s for s in out), out
+    # silent: done-claim WITH a test run, and no question
+    clean = _agent(tmp, [_user("go", 60),
+                         _assistant(30, "Running.", [{"name": "Bash",
+                                                      "input": {"command": "pytest -q"}}]),
+                         _tool_result(29),
+                         _assistant(5, "All tests pass — landed.")],
+                   trigger="prompt:stop", sid="c-clean")
+    assert fire_with(clean) == [], fire_with(clean)
+    # unbound agent → turn-bearing rules skipped wholesale (R4)
+    assert fire_with(wa.unbound()) == []
+    print("PASS  content_rules")
+
+
+def test_turn_bearing_mark_and_key(tmp: Path):
+    """The compiler marks turn-bearing rules; turn_key identifies the turn and
+    survives a Stop-steer continuation (same key — no new prompt)."""
+    import warden_compile as wc
+    rs = {"source": "T.md", "name": "R-t", "where": None}
+    base = {"tier": "checked", "when": "prompt:stop", "where": None, "check": None,
+            "py_kind": "trigger"}
+    row = wc.compile_rule({**base, "id": "R-t-01", "ifs": [],
+                           "py_src": "def trigger(ctx):\n    return [] if not ctx.agent.turn.commands else ['x']"}, rs)
+    assert row.get("turn_bearing") is True, row
+    row = wc.compile_rule({**base, "id": "R-t-02", "ifs": ["agent.response != ''"],
+                           "py_src": "def trigger(ctx):\n    return []"}, rs)
+    assert row.get("turn_bearing") is True, row
+    row = wc.compile_rule({**base, "id": "R-t-03", "ifs": [],
+                           "py_src": "def trigger(ctx):\n    return []"}, rs)
+    assert row.get("turn_bearing") is None, row
+    # turn identity
+    turn = [_user("go", 60), _assistant(5, "done")]
+    k1 = wa.turn_key(turn)
+    assert k1, "turn key missing"
+    continuation = turn + [_assistant(2, "continuing after a steer")]
+    assert wa.turn_key(continuation) == k1, "steer continuation changed the turn key"
+    new_turn = continuation + [_user("next", 1), _assistant(0, "ok")]
+    assert wa.turn_key(new_turn) != k1, "new prompt did not reset the turn key"
+    print("PASS  turn_bearing_mark_and_key")
+
+
+def test_daemon_turn_dedup(tmp: Path):
+    """F217 loop fixture (wall 2): a turn-bearing rule fires once per
+    (rule, session, turn) — the Stop-steer continuation (same turn, no new
+    prompt) is suppressed; a genuinely new turn fires again."""
+    import re as _re
+    import warden_daemon as wd
+    wd.TURN_FIRED.clear()
+    wa.REGISTRY.clear()
+    ir = {"rules": {"R-ex-11": {"moment": "prompt:stop", "phase": "stop",
+                                "where": None, "guards": [], "guard_py": None,
+                                "action": None, "body_py": "body_R_ex_11",
+                                "turn_bearing": True}},
+          "moments": {"prompt:stop": ["R-ex-11"]},
+          "traits": {"_base": ["R-ex-11"]}, "doc_rules": []}
+    module = types.SimpleNamespace(
+        body_R_ex_11=lambda ctx: (["decide the order yourself"]
+                                  if _re.search(r"(?i)\bshould i\b", ctx.agent.response) else []))
+    corpus = types.SimpleNamespace(ir=ir, module=module)
+    root = tmp / "anchor-dedup"
+    root.mkdir(exist_ok=True)
+    (root / ".anchor").write_text("slug: FX\n", encoding="utf-8")
+    turn = [_user("go", 60), _assistant(5, "Should I rename first or test first?")]
+    tp = _write_transcript(tmp, turn, "dedup.jsonl")
+    req = {"moment": "prompt:stop", "anchor_root": str(root), "rule_ids": ["R-ex-11"],
+           "session": {"session_id": "d-1", "transcript_path": str(tp)}}
+    r1 = wd._fire_rules(corpus, req)
+    assert r1["steers_by_rule"]["R-ex-11"], r1
+    # the steer re-invokes the agent; the continuation ends on the SAME turn
+    _write_transcript(tmp, turn + [_assistant(2, "Okay — should I rename first?")],
+                      "dedup.jsonl")
+    r2 = wd._fire_rules(corpus, req)
+    assert r2["steers_by_rule"]["R-ex-11"] == [], "rule re-fired on its own steer continuation"
+    # a genuinely new turn resets the key
+    _write_transcript(tmp, turn + [_user("continue", 1),
+                                   _assistant(0, "Should I batch these commits?")],
+                      "dedup.jsonl")
+    r3 = wd._fire_rules(corpus, req)
+    assert r3["steers_by_rule"]["R-ex-11"], "new turn did not reset the dedup key"
+    wd.TURN_FIRED.clear()
+    wa.REGISTRY.clear()
+    print("PASS  daemon_turn_dedup")
+
+
+def test_oracle_seam_and_wall(tmp: Path):
+    """ask_oracle: cached by prompt hash, fail-silent on a missing command,
+    spawns with WARDEN_ORACLE=1; and wall 1 — the hook no-ops for a session
+    carrying the oracle marker."""
+    home = tmp / "whome"
+    os.environ["WARDEN_HOME"] = str(home)
+    try:
+        # the prompt lands as $0 of the -c script — output is exactly "yes"
+        os.environ["WARDEN_ORACLE_CMD"] = '/bin/sh -c "echo yes"'
+        assert wa.ask_oracle("is this a question? reply yes or no") == "yes"
+        # cached: even with a broken command the cached verdict answers
+        os.environ["WARDEN_ORACLE_CMD"] = "/nonexistent-oracle"
+        assert wa.ask_oracle("is this a question? reply yes or no") == "yes"
+        # uncached + broken command → fail-silent empty
+        assert wa.ask_oracle("a different prompt") == ""
+    finally:
+        os.environ.pop("WARDEN_ORACLE_CMD", None)
+        os.environ.pop("WARDEN_HOME", None)
+    import warden_hook as wh
+    os.environ["WARDEN_ORACLE"] = "1"
+    try:
+        assert wh.disabled() is True, "oracle session not moment-silent"
+    finally:
+        os.environ.pop("WARDEN_ORACLE", None)
+    assert wh.disabled() is False or (Path.home() / ".warden" / "DISABLED").exists()
+    print("PASS  oracle_seam_and_wall")
+
+
 def main() -> int:
     with tempfile.TemporaryDirectory() as td:
         tmp = Path(td)
@@ -237,6 +421,11 @@ def main() -> int:
         test_ledger_and_registry(tmp)
         test_fixture_rule_fires_only_when_asking(tmp)
         test_tail_robustness(tmp)
+        test_turn_view(tmp)
+        test_content_rules(tmp)
+        test_turn_bearing_mark_and_key(tmp)
+        test_daemon_turn_dedup(tmp)
+        test_oracle_seam_and_wall(tmp)
     print("\nall warden_agent tests passed")
     return 0
 

@@ -98,6 +98,12 @@ class Corpus:
 
 # ── request handlers ─────────────────────────────────────────────────────────
 
+# F217 wall 2: (rule_id, session_id, turn_key) triples already fired — bounded
+# ring; membership checks are O(n) over ≤512 entries, well inside the budget.
+from collections import deque  # noqa: E402
+
+TURN_FIRED: deque = deque(maxlen=512)
+
 def _fire_rules(corpus: Corpus, req: dict) -> dict:
     """Run the requested rules through the reference fire path, one rule per
     single-rule bucket so steers stay per-rule (the caller re-interleaves)."""
@@ -110,16 +116,31 @@ def _fire_rules(corpus: Corpus, req: dict) -> dict:
     # classifier reads — so a sparse ledger degrades recency, not correctness.
     session = wa.session_of(req.get("session"))
     wa.observe(session, moment)
-    ctx = wf.build_ctx(anchor_root, moment, agent=wa.AgentView(session, moment))
+    agent = wa.AgentView(session, moment)
+    ctx = wf.build_ctx(anchor_root, moment, agent=agent)
     traits = wf.read_anchor_traits(anchor_root)
+    # F217 loop prevention (wall 2): a turn-bearing rule fires once per
+    # (rule, session, turn) — a Stop-steer continuation extends the SAME turn
+    # (no new prompt:submit), so the extended turn cannot re-trigger the rule
+    # that steered it. A genuinely new turn resets the key.
+    tkey = wa.turn_key(agent._records()) if session else None
     by_rule: dict[str, list[str]] = {}
     for rid in rule_ids:
-        if rid not in corpus.ir.get("rules", {}):
+        row = corpus.ir.get("rules", {}).get(rid)
+        if row is None:
             by_rule[rid] = []
             continue
+        dedup = None
+        if row.get("turn_bearing") and session and tkey:
+            dedup = (rid, session.get("session_id", ""), tkey)
+            if dedup in TURN_FIRED:
+                by_rule[rid] = []
+                continue
         one = dict(corpus.ir)
         one["moments"] = {moment: [rid]}
         by_rule[rid] = wf.fire(one, corpus.module, moment, ctx, traits)
+        if by_rule[rid] and dedup:
+            TURN_FIRED.append(dedup)
     return {"ok": True, "steers_by_rule": by_rule}
 
 

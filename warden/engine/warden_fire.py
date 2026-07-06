@@ -109,6 +109,8 @@ def build_ctx(anchor_root: Path, moment: str, **overrides) -> types.SimpleNamesp
         # every read returns the error values); live callers override with a
         # session-bound AgentView (warden_agent.make_agent).
         "agent": wa.unbound(),
+        # F217: the judgment verb — blocking, cached, fail-silent.
+        "ask_oracle": wa.ask_oracle,
     }
     # audit-q cooperative post-moment: the freshly-built queries file is the input.
     if moment.endswith(":audit-q"):
@@ -160,6 +162,11 @@ def fire(ir: dict, module, moment: str, ctx, anchor_traits) -> list[str]:
     for rule_id in ir.get("moments", {}).get(moment, []):
         row = ir["rules"][rule_id]
         if not is_active(ir, rule_id, anchor_traits):
+            continue
+        # F217: a turn-bearing rule needs a bound session (rungs R1–R3);
+        # at R4 the turn view is unresolvable and the rule is skipped wholesale.
+        if row.get("turn_bearing") and not getattr(
+                getattr(ctx, "agent", None), "is_bound", False):
             continue
         if not all(eval_guard(g, ctx) for g in row.get("guards", [])):
             continue
