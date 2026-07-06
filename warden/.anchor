@@ -5,5 +5,7 @@ traits:
 - Commit
 - warden-dev
 - query
+- backlog
+- doc
 - arch
 - process
