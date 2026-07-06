@@ -21,9 +21,9 @@ Once tasks are deferred, the developer needs to know what's actually happening �
 
 ## Related
 
-- [[CAE Architecture]] — TaskStore + Scheduler subsystems supply the data
-- [[CAE Testing]] — e2e test `e2e_monitor_task_status` exercises this story
-- [[CAE CLI]] — full `status` command reference (flags, exit codes, output format)
+- [[FEX Architecture]] — TaskStore + Scheduler subsystems supply the data
+- [[HBR Testing]] — e2e test `e2e_monitor_task_status` exercises this story
+- [[HBR CLI]] — full `status` command reference (flags, exit codes, output format)
 - [[FCT Stories]] — facet spec governing this file's shape
-- [[CAE PRD]] — parent PRD
-- [[CAE Stories]] — sibling stories index
+- [[HBR PRD]] — parent PRD
+- [[FEX Stories]] — sibling stories index

@@ -131,7 +131,7 @@ Empty when no field applies; trim freely. The `From` / `To` / `Affects` block is
 
 **Affects:** CAE only. Worked example confirms the rule above is applicable; serves as the visual reference for the rewire pass.
 
-**Rationale:** User direction — see [[CAE-Scheduler]] discussion context. Establishes CAE as the worked-example anchor for the new shape.
+**Rationale:** User direction — see [[FEX Scheduler]] discussion context. Establishes CAE as the worked-example anchor for the new shape.
 
 ## 2026-06-08 — Eliminate `{NAME} Docs/` wrapper; promote children to root (one rename)
 

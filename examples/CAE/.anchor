@@ -1,8 +1,0 @@
-slug: CAE
-title: Common Anchor Example
-description: "**Common Anchor Example** — the fully-wired worked-example anchor (PRD / UX / API / Architecture / Decisions / Testing / Roadmap / Features), cited by the FCT facet specs as the **minimal** reference instance. Relocated here from `CAB/` 2026-06-27."
-traits:
-- code
-rules: CAE Docs/CAE Track/CAE Rules.md
-backlog: CAE Docs/CAE Track/CAE Backlog.md
-inbox: CAE Docs/CAE Track/CAE Inbox.md
