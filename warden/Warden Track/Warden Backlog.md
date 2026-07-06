@@ -11,7 +11,7 @@ _None._
 
 ## Now
 
-- **Retire bespoke vault-wide hooks — M4 completion (F229)** [Questions] — → [[F229 — Retire bespoke vault-wide hooks — M4 completion|F229]] Q1 (how does `audit-on-write` coverage go vault-wide?) is the one pending question — an adoption decision reserved to the user per the nothing-is-auto-adopted doctrine. With M4a landed, `audit-on-write.sh` is the sole surviving bespoke hook (the audit-q-autofire and compact/markdown-write drivers are already gone from settings.json), live vault-wide and double-firing with Warden's trait-gated doc-fire in adopting anchors; the answer decides the coverage of the swap, then the retirement is mechanical.
+- **F229 — Retire bespoke vault-wide hooks — M4 completion** [Questions] — → [[F229 — Retire bespoke vault-wide hooks — M4 completion|F229]] Q1 (how does `audit-on-write` coverage go vault-wide?) is the one pending question — an adoption decision reserved to the user per the nothing-is-auto-adopted doctrine. With M4a landed, `audit-on-write.sh` is the sole surviving bespoke hook (the audit-q-autofire and compact/markdown-write drivers are already gone from settings.json), live vault-wide and double-firing with Warden's trait-gated doc-fire in adopting anchors; the answer decides the coverage of the swap, then the retirement is mechanical.
 
 ## Next
 

@@ -297,7 +297,13 @@ def _read_q_marker_count(target_path: Path) -> int:
             in_h3_resolved = False
             continue
         if line.startswith("### "):
-            in_h3_resolved = line[4:].strip().lower().startswith("resolved")
+            tail = line[4:].strip()
+            in_h3_resolved = tail.lower().startswith("resolved")
+            # The H3 Q shape `state q` writes (`### Q1 — …`) counts as pending
+            # unless it sits under a Resolved H2 (2026-07-06 — H3-form docs
+            # rendered no (NQ) count at all).
+            if not in_h2_resolved and not in_h3_resolved and re.match(r"Q\d+\s+—", tail):
+                count += 1
             continue
         if in_h2_resolved or in_h3_resolved:
             continue
