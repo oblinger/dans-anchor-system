@@ -1,2 +1,2 @@
 description: planning surface for the Warden engine
-traits: [pathguard]
+traits: [pathguard, query, backlog, doc]
