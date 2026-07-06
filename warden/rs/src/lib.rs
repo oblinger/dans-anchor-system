@@ -201,12 +201,16 @@ pub fn fire_plan(ir: &Ir, moment: &str, ctx: &Ctx, anchor_traits: &[String]) -> 
         } else if let Some(act) = &row.action {
             let kind = act.kind.as_deref().unwrap_or("");
             if kind == "tell" || kind == "deny" {
-                let steer = act
+                let text = act
                     .text
                     .clone()
                     .filter(|s| !s.is_empty())
                     .or_else(|| act.reason.clone())
                     .unwrap_or_default();
+                // F131: a declarative deny travels sentinel-prefixed (mirror
+                // of warden_fire.fire) — the hook layer converts it to a
+                // permissionDecision at PreToolUse.
+                let steer = if kind == "deny" { format!("DENY: {text}") } else { text };
                 plan.push(Fired {
                     rule_id: rule_id.clone(),
                     dispatch: Dispatch::Declarative(steer),
@@ -312,7 +316,9 @@ mod tests {
         // S4 python-guard, S5 python-body — fire order preserved.
         assert_eq!(ids(&plan), ["S1", "S2", "S3", "S4", "S5"]);
         assert_eq!(plan[0].dispatch, Dispatch::Declarative("beware".into()));
-        assert_eq!(plan[1].dispatch, Dispatch::Declarative("no push".into()));
+        // F131: a declarative deny carries the sentinel the hook layer
+        // converts to a permissionDecision at PreToolUse.
+        assert_eq!(plan[1].dispatch, Dispatch::Declarative("DENY: no push".into()));
         assert_eq!(plan[2].dispatch, Dispatch::ActionOther);
         assert_eq!(plan[3].dispatch, Dispatch::PythonGuard("guard_S4".into()));
         assert_eq!(plan[4].dispatch, Dispatch::PythonBody("body_S5".into()));

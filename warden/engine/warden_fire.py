@@ -115,6 +115,9 @@ def build_ctx(anchor_root: Path, moment: str, **overrides) -> types.SimpleNamesp
         # `ctx.file` per file-bearing rule from this path.
         "file_path": None,
         "file": None,
+        # F131: the tool event under way (tool:pre/post moments) — a view of
+        # {tool, target, input} so veto-path rules can test the pending call.
+        "event": None,
     }
     # audit-q cooperative post-moment: the freshly-built queries file is the input.
     if moment.endswith(":audit-q"):
@@ -195,7 +198,11 @@ def fire(ir: dict, module, moment: str, ctx, anchor_traits) -> list[str]:
         elif row.get("action"):
             act = row["action"]
             if act.get("kind") in ("tell", "deny"):
-                produced = [act.get("text") or act.get("reason") or ""]
+                text = act.get("text") or act.get("reason") or ""
+                # F131: a deny travels as a sentinel-prefixed steer — same
+                # string channel end-to-end; the hook layer converts it to a
+                # real PreToolUse permissionDecision (fail-open elsewhere).
+                produced = [f"DENY: {text}" if act["kind"] == "deny" else text]
         steers.extend(produced)
         # F215: the rule fully evaluated this revision — advance its
         # last-evaluated record (a gate-suppressed pass never reaches here,

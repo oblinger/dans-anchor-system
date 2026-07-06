@@ -372,6 +372,10 @@ pub fn dispatch(data: &Value) -> Vec<String> {
                 "anchor_root": anchor_root.to_string_lossy(),
                 "rule_ids": owed,
                 "file_path": event_fp,
+                // F131: the pending tool call — veto-path rules test
+                // event.tool / event.target / event.input in their bodies.
+                "tool_name": str_field(data, "tool_name"),
+                "tool_input": event_ti,
                 // F216: the session mapping — the daemon records the moment in
                 // its ledger and binds the agent-state view for rule bodies.
                 "session": {
@@ -436,20 +440,45 @@ pub fn dispatch(data: &Value) -> Vec<String> {
     steers
 }
 
+/// The F131 deny sentinel — a steer carrying this prefix is a veto, converted
+/// to a real `permissionDecision: deny` at a PreToolUse event (mirror of
+/// `warden_hook.DENY_SENTINEL`).
+pub const DENY_SENTINEL: &str = "DENY: ";
+
 /// Hook output that injects the steers as agent-visible context (mirror of
-/// `warden_hook.emit`).
+/// `warden_hook.emit`). At PreToolUse, `DENY: `-sentinel steers become a
+/// `permissionDecision: deny` with the deny text(s) as the reason; at any
+/// other event the sentinel degrades to a plain steer (deny is `tool:pre`-only
+/// — fail-open, never fail-closed).
 pub fn emit(event: &str, steers: &[String]) {
     if steers.is_empty() {
         return;
     }
-    let text = steers.iter().filter(|s| !s.is_empty()).cloned().collect::<Vec<_>>().join("\n\n");
-    if text.is_empty() {
+    let denies: Vec<String> = steers
+        .iter()
+        .filter_map(|s| s.strip_prefix(DENY_SENTINEL).map(String::from))
+        .collect();
+    let mut tells: Vec<String> = steers
+        .iter()
+        .filter(|s| !s.is_empty() && !s.starts_with(DENY_SENTINEL))
+        .cloned()
+        .collect();
+    let mut hso = serde_json::Map::new();
+    hso.insert("hookEventName".into(), json!(event));
+    if !denies.is_empty() && event == "PreToolUse" {
+        hso.insert("permissionDecision".into(), json!("deny"));
+        hso.insert("permissionDecisionReason".into(), json!(denies.join("\n\n")));
+    } else {
+        tells.extend(denies); // non-pre deny degrades to a plain steer
+    }
+    let text = tells.join("\n\n");
+    if !text.is_empty() {
+        hso.insert("additionalContext".into(), json!(text));
+    }
+    if hso.len() == 1 {
         return;
     }
-    let out = json!({
-        "hookSpecificOutput": {"hookEventName": event, "additionalContext": text}
-    });
-    println!("{out}");
+    println!("{}", json!({ "hookSpecificOutput": hso }));
 }
 
 /// The `warden-rs hook` entry point. Always returns 0 (fail-safe).
