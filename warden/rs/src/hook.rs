@@ -72,15 +72,31 @@ fn append_line(name: &str, line: &str) {
     }
 }
 
+/// Human-readable local timestamp, ms precision (mirror of `warden_hook._stamp`
+/// — per user direction 2026-07-06, epoch floats told the reader nothing).
+fn stamp() -> String {
+    chrono::Local::now().format("%Y-%m-%d %H:%M:%S%.3f").to_string()
+}
+
 fn log(msg: &str) {
-    append_line("hook.log", &format!("{:.3}\t{msg}", now_ts()));
+    append_line("hook.log", &format!("{}  {msg}", stamp()));
 }
 
 /// Advisory perf lines (OVER-BUDGET) go to their own file — at one line per
 /// breaching call they drown hook.log's operational signal otherwise (mirror
 /// of `warden_hook._log_perf`).
 fn log_perf(msg: &str) {
-    append_line("perf.log", &format!("{:.3}\t{msg}", now_ts()));
+    append_line("perf.log", &format!("{}  {msg}", stamp()));
+}
+
+/// The steer text itself, indented under the log line (mirror of
+/// `warden_hook._indent_steers` — "1 issue steer(s)" alone says nothing).
+fn indent_steers(steers: &[String]) -> String {
+    steers
+        .iter()
+        .flat_map(|s| s.lines())
+        .map(|ln| format!("\n        {ln}"))
+        .collect()
 }
 
 // ── fire record (F231 — mirror of warden_hook._fire_record) ─────────────────
@@ -487,8 +503,9 @@ pub fn dispatch(data: &Value) -> Vec<String> {
         }));
         if steers.len() > before {
             log(&format!(
-                "FIRED {moment} @ {anchor_name} traits={traits:?} → {} steer(s)",
-                steers.len() - before
+                "FIRED {moment} @ {anchor_name} traits={traits:?} → {} steer(s){}",
+                steers.len() - before,
+                indent_steers(&steers[before..])
             ));
         }
     }
@@ -506,11 +523,14 @@ pub fn dispatch(data: &Value) -> Vec<String> {
                 if resp.get("ok").and_then(Value::as_bool) == Some(true) {
                     if let Some(aow) = resp.get("steers").and_then(Value::as_array) {
                         if !aow.is_empty() {
+                            let aow_texts: Vec<String> =
+                                aow.iter().filter_map(Value::as_str).map(String::from).collect();
                             log(&format!(
-                                "AUDIT-ON-WRITE {} @ {} → {} issue steer(s)",
+                                "AUDIT-ON-WRITE {} @ {} → {} issue steer(s){}",
                                 Path::new(event_fp).file_name().map(|n| n.to_string_lossy()).unwrap_or_default(),
                                 afile.file_name().map(|n| n.to_string_lossy()).unwrap_or_default(),
-                                aow.len()
+                                aow.len(),
+                                indent_steers(&aow_texts)
                             ));
                             // F231: doc-fire steers land in the fire record too.
                             fire_record(&json!({
