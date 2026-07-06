@@ -194,7 +194,7 @@ The hook subsystem is the runtime that *delivers events* to the rule corpus — 
 | `PreToolUse` `Bash` | `bash-guard.sh` *(bespoke)* | Pattern safety gate predating Warden; complements, never duplicated into, rule bodies. |
 | `PostToolUse` `Read` / `SessionStart` / `Stop` / `PostToolUse` `WebFetch` | `maintain-hook.sh` / `load-role-hook.sh` / `messages-stop-hook.sh` / `webfetch-authwall-hook.sh` *(bespoke)* | Non-rule surfaces (background maintenance, role reload, Messages surfacing, authwall routing) — candidates for future rule migration. |
 
-The bespoke `audit-on-write.sh` surface was **retired 2026-07-06** ([[F229 — Retire bespoke vault-wide hooks — M4 completion|F229]]): audit-on-write now rides Warden's own `write:markdown` doc-fire, base-implied on every anchor via [[Anchor Base]].
+The bespoke `audit-on-write.sh` surface was **retired 2026-07-06** ([[F229 — Retire bespoke vault-wide hooks — M4 completion|F229]]): audit-on-write now rides Warden's own `write:markdown` doc-fire, base-implied on every anchor via [[anchor-base]].
 
 **Anchor governance per moment (F229 A′).** A moment whose event carries an anchored file (`write:`/`read:`, file-bearing tool moments like `tool:pre:Edit`, the doc-fire) is governed by the **file's anchor** — the file's anchor owns the file, wherever the session sits. Everything else (Bash, session, prompt moments) is governed by the session's **cwd anchor**. Traits do not cascade into nested anchors; the nearest `.anchor` wins.
 
@@ -283,10 +283,10 @@ What actually shipped, one row per source module, every module owned by exactly 
 Load-bearing policy with real failure modes (the 2026-07-06 veto-surface audit found all three of its layers misconfigured at once), promoted from adoption footnotes to a subsystem-rank section by the same audit.
 
 - **Adoption is by traits.** An anchor's `.anchor` `traits:` list activates rulesets (trait key = ruleset name minus `R-`); umbrella traits pull their whole `include::` closure (§2). Nothing is auto-adopted.
-- **[[Anchor Base]] is implicit everywhere.** Every anchor carries `anchor-base` plus its compiled members (`ir.base_traits` — today `audit-on-write`, `ob-remote-ops`) by construction; the vault-root anchor (`~/ob/kmr/.anchor`) catches otherwise-unowned paths, so "un-anchored vault file" is not an escape.
+- **[[anchor-base]] is implicit everywhere.** Every anchor carries `anchor-base` plus its compiled members (`ir.base_traits` — today `audit-on-write`, `ob-remote-ops`) by construction; the vault-root anchor (`~/ob/kmr/.anchor`) catches otherwise-unowned paths, so "un-anchored vault file" is not an escape.
 - **Governance is per moment (F229 A′).** Any moment whose event carries an anchored file — `write:`/`read:`, file-bearing tool moments like `tool:pre:Edit`, the doc-fire — is governed by the **file's anchor** (the file's anchor owns the file, wherever the session sits); Bash/session/prompt moments are governed by the session's **cwd anchor**.
 - **Nearest `.anchor` wins — no cascade.** A nested sub-anchor *shadows* its parent's adoption entirely. Consequence: guard rules must be adopted where the guarded files actually live (a Track sub-anchor, not just the project root) — see [[Warden Interface]] § Non-guarantees.
-- **The kill switch outranks everything.** `warden off` silences every layer above instantly; there is no per-anchor or per-trait opt-out yet (future `-trait` negation, per [[Anchor Base]]).
+- **The kill switch outranks everything.** `warden off` silences every layer above instantly; there is no per-anchor or per-trait opt-out yet (future `-trait` negation, per [[anchor-base]]).
 
 ## Invariants
 

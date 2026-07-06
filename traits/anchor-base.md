@@ -1,10 +1,10 @@
 ---
-description: Anchor Base Trait — the implicit trait EVERY anchor carries by construction (engine key `anchor-base`). Never declared in `.anchor`; its members are the exhaustive always-on set the system applies everywhere.
+description: anchor-base — the implicit trait EVERY anchor carries by construction (engine key `anchor-base`). Never declared in `.anchor`; its members are the exhaustive always-on set the system applies everywhere.
 ---
 
-# Anchor Base
+# anchor-base
 
-The Anchor Base trait (engine key **`anchor-base`**) is what every anchor is, before it declares anything: the implicit, applied-by-construction trait that carries the system's always-on behavior. This page exists so the user can see in one place exactly what the system does everywhere — a first-class documented object like every other trait (per F229 A′, 2026-07-06; the concept dates to the 2026-07-02 activation decision, formerly the internal literal `_base`).
+The **`anchor-base`** trait (the implicit base every anchor carries) is what every anchor is, before it declares anything: the implicit, applied-by-construction trait that carries the system's always-on behavior. This page exists so the user can see in one place exactly what the system does everywhere — a first-class documented object like every other trait (per F229 A′, 2026-07-06; the concept dates to the 2026-07-02 activation decision, formerly the internal literal `_base`).
 
 ## What it is
 
