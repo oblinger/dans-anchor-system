@@ -1,0 +1,27 @@
+[
+ {
+  "rule": "R-backlog-02",
+  "target": "FX5 Backlog.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-backlog-03",
+  "target": "FX5 Backlog.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-backlog-04",
+  "target": "FX5 Backlog.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-progressive-01",
+  "target": "FX5 Backlog.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-progressive-02",
+  "target": "FX5 Backlog.md",
+  "status": "pass"
+ }
+]

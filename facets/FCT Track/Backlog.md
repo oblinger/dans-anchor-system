@@ -221,9 +221,11 @@ For rows without a feature doc, see § B-row inline Qs below.
 
 Workflow operations that touch the backlog — `/groom`, `/triage`, `/roster`, audits, and similar batch operations — **must process the entire batch autonomously before involving the user**. Never interrupt mid-run to ask a question; route every question that emerges to its feature doc's `## Open Questions` block, then surface the first blocked doc at the end of the run as the user's single next action.
 
-Each round-trip with the user costs scrollback context and stalls the batch — design every workflow to require *one* round-trip per pass, not N. Inline questions are an anti-pattern in batch operations.
+Each round-trip with the user costs scrollback context and stalls the batch — design every workflow to require *one* round-trip per pass, not N. Inline questions are an anti-pattern in batch operations — every question, however trivial, is parked in the queries surface (per [[Query PRD]] R1; the former one-trivial-inline-question concession was retired 2026-07-05).
 
-(One concession: a single, genuinely trivial question may be deferred to the very end of a `/groom` run and asked after the roster prints, where it stays pinned to the bottom of the screen. Never more than one such inline question per run.)
+## The groom frontier
+
+**The frontier is the set of tasks that could be next for execution** (defined 2026-07-05, F228; canonical statement in [[Query PRD]] § The groom frontier): rows under `## Active` / `## Ready` / `## Now` / `## Next`, plus items soon on the relevant roadmaps — the next unmet milestone of `{NAME} Roadmap.md` when one exists. `## Later` and the icebox are not frontier. `/groom`'s purpose is to get every frontier task **fully ready to be executed** — planned (a declared `- **Next:**` step), promoted when the Definition of Ready holds, or honestly bracketed behind its named blocker/questions. `/query` mines its anticipatory questions from the frontier. The `R-backlog` ruleset below encodes the resulting file-invariants.
 
 ## Location
 
@@ -237,3 +239,35 @@ Each round-trip with the user costs scrollback context and stalls the batch — 
 - **[[FCT Icebox|Icebox]]** — optional cold-storage list for items not under active consideration
 
 Items graduate from Backlog to Todo or Roadmap when they become priorities, or move to Icebox when they cool off.
+
+# RULESET R-backlog
+include::
+where:: file:{ANCHOR}/**/* Backlog.md
+description:: the `{NAME} Backlog.md` format — frontier invariants (F228) + bracket promises
+
+What `/audit doc` checks on a backlog file. The skills that maintain it are `/groom` (frontier planning) and the `state` tool (mutations); these are the file-invariants the groomed state must satisfy. Format of this set: [[FCT Ruleset]].
+
+### RULE R-backlog-01 — The frontier is Now + Next + the next roadmap milestone (stated)
+
+The **groom frontier** — the tasks that could be next for execution — is the rows under `## Active` / `## Ready` / `## Now` / `## Next`, plus the next unmet milestone of `{NAME} Roadmap.md` when the anchor has one. `## Later` and the icebox are not frontier. The rules below hold over the frontier: after a groom, every frontier row is either executable (`[Ready]`/`[Active]` with a declared plan) or honestly parked (`[Questions]`/`[Blocked]`/`[Waiting]`/`[Watching]`/`[Verify]` with the obstacle named).
+
+### RULE R-backlog-02 — Frontier `[Ready]`/`[Active]` rows declare a `Next:` step (checked)
+check:: backlog_frontier_planned
+
+Every `[Ready]` or `[Active]` row under a frontier H2 carries a `- **Next:**` sub-bullet declaring the next concrete step the agent will take with zero user involvement. A `[Ready]` row that cannot state a no-user next step is not really Ready — the bracket is lying (this is the triage render's `⚠ none declared` forcing-function, promoted to a rule).
+
+**Check pattern:** for each top-level row under `## Active` / `## Ready` / `## Now` / `## Next` whose bracket is `[Ready]` or `[Active]`, the row's indented sub-bullets include one starting `- **Next:**`.
+
+### RULE R-backlog-03 — Frontier rows are bracket-resolved (checked)
+check:: backlog_frontier_bracketed
+
+A top-level row under `## Now` / `## Next` with no status bracket (or the bare placeholder `[ ]`) is **ungroomed frontier** — the task might be next, but nobody has planned it, questioned it, or named its blocker. Groom owes it a pass. (`## Later` rows may sit unbracketed; they are not frontier.)
+
+**Check pattern:** every top-level `- **…**` row under `## Now` / `## Next` carries a `[...]` bracket other than `[ ]`.
+
+### RULE R-backlog-04 — `[Verify*]` / `[Watching*]` rows carry a concrete question (checked)
+check:: backlog_verify_concrete
+
+Every `[Verify]` / `[Verify-by …]` / `[Watching …]` row carries a `- **Verify:**` sub-bullet stating the concrete yes/no the user can answer from where they sit (do X, observe Y — did Y happen?). The mechanical queries render quotes it verbatim; a Verify row without one renders as an unanswerable ⚠.
+
+**Check pattern:** for each row whose bracket starts `Verify` or `Watching`, the row's indented sub-bullets include one starting `- **Verify:**`.

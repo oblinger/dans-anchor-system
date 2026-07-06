@@ -33,5 +33,10 @@
   "rule": "R-query-13",
   "target": "FX1 queries.md",
   "status": "error"
+ },
+ {
+  "rule": "R-query-15",
+  "target": "FX1 queries.md",
+  "status": "error"
  }
 ]

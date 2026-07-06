@@ -1,29 +1,31 @@
 ---
 name: groom
 description: >
-  Convergent maintenance operator over the anchor's backlog (and optionally
-  roadmap or a named section). Each invocation moves the artifact toward a
-  defined groomed state — promotes items to Ready where possible, parks
-  questions in feature docs, repairs link integrity, enforces invariants.
-  Safe to call anytime. Asks the user NOTHING — every residual question is
-  parked in the queries doc, never raised in chat (per Query PRD R1). Use when the user says
+  Frontier-planning operator over the anchor's backlog (and optionally
+  roadmap or a named section). Purpose: get every task that could be next
+  for execution — the groom frontier (Now + Next horizons + the next unmet
+  roadmap milestone) — fully ready to be executed: plan it, declare its
+  next step, promote to Ready, or park its blocking questions. Also repairs
+  link integrity and enforces backlog invariants. Safe to call anytime.
+  Asks the user NOTHING — every residual question is parked in the queries
+  doc, never raised in chat (per Query PRD R1). Use when the user says
   "groom", "groom the backlog", "/groom", "/groom roadmap", "/groom
   milestone {N}", "tidy the backlog".
 tools: Read, Write, Edit, Bash, Glob, Grep
 user_invocable: true
 ---
 
-# Groom — Convergent Backlog Maintenance
+# Groom — Frontier Planning + Backlog Maintenance
 
-Convergent maintenance operator that walks an anchor's backlog (or roadmap) and drives it toward the groomed state — promoting Ready-eligible items, parking open questions in feature docs, repairing invariants — safe to call anytime.
+**The purpose of groom is to get all tasks that could be next for execution fully ready to be executed.** Those tasks are the **groom frontier** (per [[Query PRD]] § The groom frontier, F228): rows in the **`## Now` / `## Next` horizons** plus items **soon on the relevant roadmaps** (the next unmet milestone of `{NAME} Roadmap.md`, when one exists). Grooming is *planning*, not just rebracketing: each frontier task leaves groom either genuinely executable — `[Ready]` with a declared `- **Next:**` step — or honestly parked behind its named `[Questions]` / `[Blocked]` / `[Waiting]` / `[Watching]` state. `/query` then asks the user about the frontier's residue; `/crank` executes what groom readied.
 
-Walk the current anchor's backlog and move it toward the **groomed state** — a state that satisfies the invariants documented in [[CAB Backlog]] (numbering, status well-formed, link integrity, section coverage, ordering, Definition of Ready). Items that can be promoted to Ready are promoted; items with open questions get parked in feature docs; broken links get repaired or flagged.
+Alongside the planning, groom drives the backlog toward the **groomed state** — the invariants documented in [[CAB Backlog]] and the `R-backlog` ruleset (numbering, status well-formed, link integrity, section coverage, ordering, Definition of Ready, frontier rows planned + bracket-resolved).
 
-Convergent — not strictly idempotent. Safe to call anytime. May leave partial state when user input is needed; a follow-up call after the user resolves questions will continue from there.
+Convergent — not strictly idempotent. Safe to call anytime. May leave partial state when user input is needed; a follow-up call after the user resolves questions will continue from there. `## Later` and the icebox are *not* frontier — they are groomed only on explicit invocation.
 
 > ## ⚠️ Groom asks the user NOTHING — not even one trivial question
 >
-> Per [[Query PRD]] R1/R2, groom is the backlog half of the **resolution layer**: it resolves, rebrackets, promotes, and **parks every residual question into the queries surface** — and it raises **zero** questions in chat. **The "inline-deferred slot" (one trivial inline question at end-of-run) described below is RETIRED.** There is no exception, no "one short yes/no." Even a one-word question goes into the queries doc as a numbered entry; the determination ladder ([[SKA query]] / [[Query PRD]]) decides whether it even survives to the user or the agent just resolves it. A groom (or a triage that grooms) that ends with a question in chat is the cardinal violation. Where this runbook still says "inline-deferred slot" / "one final trivial inline question," read it as **"file it in the queries doc."**
+> Per [[Query PRD]] R1/R2, groom is the backlog half of the **resolution layer**: it plans, resolves, rebrackets, promotes, and **parks every residual question into the queries surface** — and it raises **zero** questions in chat. There is no exception, no "one short yes/no." Even a one-word question goes into the queries doc as a numbered entry; the determination ladder ([[SKA query]] / [[Query PRD]]) decides whether it even survives to the user or the agent just resolves it. A groom (or a triage that grooms) that ends with a question in chat is the cardinal violation.
 
 DMUX trigger: **`groom`** (prefix-trigger; whatever you dictate after becomes the argument). Slash invocation: `/groom`, `/groom roadmap`, `/groom milestone {N}`, `/groom F{n}` (single-item).
 
@@ -65,7 +67,7 @@ Every backlog item has one of these statuses, derived from where the bullet sits
 
 | Status | How to recognize | What `/groom` does |
 | --- | --- | --- |
-| **Ready** | Bullet is under `## Ready` H2 | Skip — already ready. |
+| **Ready** | Bullet is under `## Ready` H2 | Check the plan: a `[Ready]` row without a `- **Next:**` sub-bullet is not really ready — write the next autonomous step (or rebracket honestly). Otherwise skip. |
 | **Active** | Bullet is under `## Active` H2 | Skip — actively being worked. |
 | **Blocked on questions** | Bracket `[Questions]` and bullet text contains a `→ [[Feature Doc]]` or `→ [[Open Questions]]` link | Skip — only the user can resolve those. |
 | **Blocked (other)** | Bracket `[Blocked]` (generic, body explains) or `[Blocked F<NNN>]` (chained on another feature) | Skip — the blocker is external. When the chained `F<NNN>` reaches `[Done]`, /groom may rebracket on a future sweep. |
@@ -79,7 +81,8 @@ The `→ [[X]]` link convention is documented in [[CAB Backlog]].
 
 | Invocation | Scope |
 | --- | --- |
-| `/groom` | All Unset / Upcoming items across the whole backlog. Default. |
+| `/groom` | **The frontier** — items under `## Ready` / `## Now` / `## Next` (+ the next unmet roadmap milestone, when the anchor has a roadmap). Default. |
+| `/groom all` | Every Unset / Upcoming item across the whole backlog, `## Later` included. |
 | `/groom now` | Only items under `## Now`. |
 | `/groom next` | Only items under `## Next`. |
 | `/groom later` | Only items under `## Later`. |
@@ -103,9 +106,9 @@ The `→ [[X]]` link convention is documented in [[CAB Backlog]].
 
 ### 2. Enumerate candidates
 
-Walk every bullet in scope. For each bullet, derive its status (per § Item Status). Filter to status **Unset / Upcoming**.
+Walk every bullet in scope — **default scope is the frontier** (`## Ready` / `## Now` / `## Next`, plus the next unmet roadmap milestone when a `{NAME} Roadmap.md` exists). For each bullet, derive its status (per § Item Status). Candidates for planning are status **Unset / Upcoming** plus any `[Ready]` row missing its `- **Next:**` sub-bullet.
 
-If scope was provided as an argument, narrow to bullets in that section only.
+If scope was provided as an argument (`all`, `now`, `later`, …), narrow or widen accordingly.
 
 ### 2a. Bracket reassessment — rewrite stale/non-standard brackets (per F061)
 
@@ -138,13 +141,15 @@ Cases to detect and rewrite:
 
 This reassessment is **the** primary value `/groom` adds beyond promotion: without it, `[Blocked]` / `[Waiting]` / `[Watching]` becomes a write-only graveyard and stale `[Ready]` rows mislead `/crank`.
 
-### 3. For each candidate, in source order
+### 3. For each candidate, in source order — PLAN it to Ready
 
 **Investigate quietly.** Read related docs, infer answers from context, draft a spec, run lightweight planning. You may quietly invoke any of: research, plan, architect, spec, replan, `/query` (in parking mode). Do not prompt the user for anything during investigation.
 
+**Plan.** The exit bar for a frontier candidate is *fully ready to be executed*: the row states what will be done, and a `- **Next:**` sub-bullet declares the first concrete step the agent will take with zero user involvement. Planning is groom's core work — a promotion without a plan just moves the un-readiness downstream to `/crank`.
+
 **Decide:**
 
-- **Bullet is Ready as-is** — the description (plus any inference from related docs) tells you how to do the task without further user involvement. Promote via `state task update`:
+- **Bullet is Ready (or plannable to Ready)** — the description plus your investigation tells you how to do the task without further user involvement. Write the `- **Next:**` sub-bullet (the plan's first step; add 1–3 more plan sub-bullets when the approach needs stating), then promote via `state task update`:
 
   ```bash
   ~/.claude/skills/workflow/scripts/state --anchor {NAME} task update <row-id> --status Ready --horizon Ready
@@ -152,22 +157,15 @@ This reassessment is **the** primary value `/groom` adds beyond promotion: witho
 
   F-number, title, and body are preserved. Done with this item.
 
-- **Has questions** — anything you'd need the user to clarify. Two sub-paths:
+- **Has questions** — anything you'd need the user to clarify. Create a feature doc at `{NAME} Docs/{NAME} Plan/{NAME} Features/F{n} — {Item Name}.md` (using the backlog row's F-number; per [[CAB Backlog]] § Numbering policy) with the standard `## Open Questions` block (per `/feature` § 1 and [[SKA queries]] § When a file is involved). Capture the questions there — **every** question goes to the doc; there is no inline-question slot (retired per [[Query PRD]] R1). **This is parking mode** (per [[SKA queries]] § Active vs Parking) — do NOT glance the new feature doc. The user invoked `/groom` as a *batch* operation specifically to defer per-item engagement; glancing each created doc would interrupt the very deferral they asked for. Update the backlog row via `state task update` to set the wiki-link body and switch the bracket to `Questions`:
 
-  1. **Inline-deferred slot is empty AND this is exactly ONE genuinely trivial question** (one short sentence, one yes/no, one short answer): hold it in the inline-deferred slot. Mark the item for revisit when the user answers — for now, leave the bullet where it is.
-  2. **Otherwise** — create a feature doc at `{NAME} Docs/{NAME} Plan/{NAME} Features/F{n} — {Item Name}.md` (using the backlog row's F-number; per [[CAB Backlog]] § Numbering policy) with the standard `## Open Questions` block below the H1 (per `/feature` § 1 and [[SKA queries]] § When a file is involved). Capture the questions there. **This is parking mode** (per [[SKA queries]] § Active vs Parking) — do NOT glance the new feature doc. The user invoked `/groom` as a *batch* operation specifically to defer per-item engagement; glancing each created doc would interrupt the very deferral they asked for. Update the backlog row via `state task update` to set the wiki-link body and switch the bracket to `Questions`:
+  ```bash
+  ~/.claude/skills/workflow/scripts/state --anchor {NAME} task update <row-id> --status Questions --body "→ [[F<n> — {Item Name}]]"
+  ```
 
-     ```bash
-     ~/.claude/skills/workflow/scripts/state --anchor {NAME} task update <row-id> --status Questions --body "→ [[F<n> — {Item Name}]]"
-     ```
+  The item is now blocked-on-questions; it surfaces through the queries doc at end-of-run via § 5.
 
-     The item is now blocked-on-questions; the doc surfaces only at end-of-run via § 5 (the *first* one, not all).
-
-**Inline-deferred slot rules.**
-- At most ONE item across the whole run may use the inline slot.
-- The question must be genuinely short — one sentence, fits on one line.
-- If a second item would qualify, it goes to a feature doc instead.
-- The slot is *only* surfaced at the very end of the run, after the roster (see § 7).
+- **Blocked on something other than the user** — bracket it honestly (`[Blocked …]` / `[Waiting …]` / `[Watching …]`) with the body naming the specific blocker/event per § 2a. A named obstacle is a groomed state; an unbracketed frontier row is not.
 
 ### 4. Build the report
 
@@ -178,9 +176,9 @@ Print a summary table:
 
 | Outcome | Count | Items |
 | --- | --- | --- |
-| Promoted to Ready | N | F3, F7, … |
-| Promoted to feature doc | N | F5 → [[F005 — X]], F12 → [[F012 — Y]] |
-| Deferred inline | 0 or 1 | F9 |
+| Planned to Ready | N | F3, F7, … |
+| Parked on questions | N | F5 → [[F005 — X]], F12 → [[F012 — Y]] |
+| Bracketed (Blocked/Waiting/Watching) | N | F9 |
 | Skipped | N | {reasons summarized} |
 
 ```
@@ -217,7 +215,6 @@ After the loop, **before exiting**, read `{NAME} Backlog.md` for the `B-QFix` ro
 
 **If top-level invocation:**
 - Invoke `/triage` (which regenerates the anchor's Q.md section per `[[SKA triage]]` § 6 and glances `~/ob/kmr/Q.md` per `[[SKA triage]]` § 7). This is the user's "what just happened?" view. (Step 5's Q.md regen is redundant when `/triage` follows immediately — `/triage` rewrites the same section. Either run idempotently produces the same result; keep both because sub-skill invocations don't fire step 6.)
-- If the inline-deferred slot is filled (per § Step 3 inline-deferred slot rules), print the question on the line **after** /triage's output, pinning it to the bottom of the screen.
 
 The earlier per-step UX (open the first blocked-on-questions doc, separate `/roster` invocation) is subsumed by `/triage` — Q.md shows the inbox of items waiting on user input, including the newly-parked feature docs.
 
