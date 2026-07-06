@@ -331,6 +331,13 @@ pub fn dispatch(data: &Value) -> Vec<String> {
                 "moment": moment,
                 "anchor_root": anchor_root.to_string_lossy(),
                 "rule_ids": owed,
+                // F216: the session mapping — the daemon records the moment in
+                // its ledger and binds the agent-state view for rule bodies.
+                "session": {
+                    "session_id": str_field(data, "session_id"),
+                    "transcript_path": str_field(data, "transcript_path"),
+                    "cwd": cwd.to_string_lossy(),
+                },
             })) {
                 if resp.get("ok").and_then(Value::as_bool) == Some(true) {
                     by_rule = resp.get("steers_by_rule").cloned().unwrap_or(json!({}));

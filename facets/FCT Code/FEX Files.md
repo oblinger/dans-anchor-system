@@ -15,7 +15,7 @@ example-project/                          [[FEX Architecture#Public API rollup|C
 ├── Cargo.toml                            Workspace config + dependencies
 ├── Cargo.lock                            Dependency lockfile
 ├── justfile                              Build, test, check recipes        → [[CAB Repository Structure]]
-├── [[CAB Claude\|CLAUDE.md]]                             Claude Code configuration
+├── [[FCT Claude\|CLAUDE.md]]                             Claude Code configuration
 │
 ├── src/                                  Library crate
 │   ├── [[FEX Architecture#Public API rollup|lib.rs]]                            Crate root, module exports (rollup)

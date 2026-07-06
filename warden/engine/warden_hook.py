@@ -139,7 +139,10 @@ def dispatch(data: dict) -> list[str]:
 
     steers: list[str] = []
     for moment in moments:
-        ctx = wf.build_ctx(anchor_root, moment)
+        # F216: bind the agent-state view to the session that produced this
+        # event (lazy — costs nothing unless a rule reads agent.*).
+        import warden_agent as wa
+        ctx = wf.build_ctx(anchor_root, moment, agent=wa.make_agent(data, moment))
         fired = wf.fire(ir, module, moment, ctx, traits)
         if fired:
             _log(f"FIRED {moment} @ {anchor_root.name} traits={traits} → {len(fired)} steer(s)")

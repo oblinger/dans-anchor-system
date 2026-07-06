@@ -96,6 +96,7 @@ def build_ctx(anchor_root: Path, moment: str, **overrides) -> types.SimpleNamesp
     overrides win (tests inject, or a caller supplies moment-specific context)."""
     traits = read_anchor_traits(anchor_root)
     name = anchor_name(anchor_root)
+    import warden_agent as wa
     fields: dict = {
         "anchor": name,
         "moment": moment,
@@ -104,6 +105,10 @@ def build_ctx(anchor_root: Path, moment: str, **overrides) -> types.SimpleNamesp
         "queries_text": "",
         "mode": None,
         "facets": [],
+        # F216: the agent-state view. Unbound by default (headless/audit path —
+        # every read returns the error values); live callers override with a
+        # session-bound AgentView (warden_agent.make_agent).
+        "agent": wa.unbound(),
     }
     # audit-q cooperative post-moment: the freshly-built queries file is the input.
     if moment.endswith(":audit-q"):
