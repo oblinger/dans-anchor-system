@@ -223,6 +223,33 @@ def _roadmap_entry_to_name_path(entry):
     return e
 
 
+def _validate_roadmap_entry(slug, anchor_path, name_path):
+    """Confirm `M-<name_path>` exists as an entry in `{slug} Roadmap.md` — a
+    milestone heading (`## [ ] M-<Name>.<path> — …`) or an inline checklist
+    item — before minting an R task against it. Raises with guidance on miss so
+    an `R` handle can never point at a non-existent roadmap entry.
+    """
+    rp = _roadmap_path(slug, anchor_path)
+    if not rp.exists():
+        raise be.BacklogEditError(
+            f"no '{slug} Roadmap.md' to reference — an R roadmap-task needs an "
+            f"existing roadmap entry. File this as a backlog task instead (--kind T)."
+        )
+    milestone = "M-" + name_path
+    tok = re.compile(rf"(?<![\w.\-]){re.escape(milestone)}(?![\w.\-])")
+    for line in rp.read_text(encoding="utf-8").splitlines():
+        hm = _MILESTONE_HEADING_RE.match(line)
+        if hm and hm.group("ident") == milestone:
+            return
+        bm = _INLINE_CHECKBOX_RE.match(line)
+        if bm and tok.search(bm.group("rest")):
+            return
+    raise be.BacklogEditError(
+        f"roadmap entry '{milestone}' not found in '{rp.name}' — check the "
+        f"name-path (a leaf or non-leaf entry), or add the entry to the roadmap first."
+    )
+
+
 def cmd_task_create(slug, anchor_path, args):
     """Mint a new row in the anchor's backlog.
 
@@ -239,7 +266,9 @@ def cmd_task_create(slug, anchor_path, args):
                 "task create --kind R requires --entry "
                 "(the roadmap entry, e.g. --entry M-Scaffolding.5.2)"
             )
-        row_id_arg = "R-" + _roadmap_entry_to_name_path(entry)
+        name_path = _roadmap_entry_to_name_path(entry)
+        _validate_roadmap_entry(slug, anchor_path, name_path)
+        row_id_arg = "R-" + name_path
     else:
         row_id_arg = f"{kind}new"
     return _delegate_row_edit(
