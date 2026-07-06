@@ -22,7 +22,7 @@ example-project/                          [[FEX Architecture#Public API rollup|C
 │   ├── cli.rs                            CLI argument parsing (clap)
 │   ├── execution/
 │   │   ├── mod.rs                        Subsystem entry point
-│   │   ├── [[CAE Scheduler\|scheduler.rs]]                  Priority queue engine
+│   │   ├── [[FEX Scheduler\|scheduler.rs]]                  Priority queue engine
 │   │   └── worker.rs                     Thread pool lifecycle
 │   ├── retry.rs                          Exponential backoff logic
 │   ├── store.rs                          SQLite TaskStore
