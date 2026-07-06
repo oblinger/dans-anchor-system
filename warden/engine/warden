@@ -41,13 +41,16 @@ RUST_BIN = HERE.parent / "rs" / "target" / "release" / "warden-rs"
 RUST_HOOK_CMD = shlex.quote(str(RUST_BIN)) + " hook"
 DAEMON_CMD = ("python3 " + shlex.quote(str(HERE / "warden_daemon.py")) + " --serve")
 
-# The pilot hook surface (steer-only — no tool:pre veto). Each entry:
-#   (event, matcher-or-None). Widen as the pilot proves out.
+# The installed hook surface. Each entry: (event, matcher-or-None).
+# PreToolUse Bash|Edit|Write is the F131 veto surface — without it the
+# `deny` rules (R-pathguard, R-ob-remote-ops) compile but never fire in a
+# real session (gap found by the 2026-07-06 arch/process adoption audit).
 PILOT_HOOKS = [
     ("SessionStart", None),
     ("UserPromptSubmit", None),
     ("PostToolUse", "Write|Edit"),
     ("PreToolUse", "Skill"),
+    ("PreToolUse", "Bash|Edit|Write"),
 ]
 
 
@@ -137,14 +140,17 @@ def cmd_install(args) -> int:
     settings = _load_settings(path)
     hooks = settings.setdefault("hooks", {})
     added = 0
-    for event, matcher in PILOT_HOOKS:
+    # drop any prior Warden entries first (idempotent re-install) — stripping
+    # inside the add loop would delete a just-added sibling when one event
+    # carries two Warden matchers (PreToolUse: Skill + the veto surface).
+    for event, _ in PILOT_HOOKS:
         arr = hooks.setdefault(event, [])
-        # drop any prior Warden entry for this event (idempotent re-install)
         arr[:] = [e for e in arr if not _is_warden_entry(e)]
+    for event, matcher in PILOT_HOOKS:
         entry: dict = {"hooks": [{"type": "command", "command": hook_cmd}]}
         if matcher:
             entry = {"matcher": matcher, "hooks": entry["hooks"]}
-        arr.append(entry)
+        hooks[event].append(entry)
         added += 1
     path.write_text(json.dumps(settings, indent=2) + "\n", encoding="utf-8")
     engine = "rust (warden-rs hook + resident daemon)" if hook_cmd is RUST_HOOK_CMD else "python (warden_hook.py)"

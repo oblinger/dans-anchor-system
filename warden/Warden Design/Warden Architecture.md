@@ -182,29 +182,23 @@ First live rule: `R-query-14` (push/commit interception in `FCT Query`) fires on
 
 ## 6 · The hook subsystem
 
-The hook subsystem is the runtime that *delivers events* to the rule corpus — the always-on guardrail half of "two consumers, one corpus." It is configured declaratively in `~/.claude/settings.json`; no install step. Component overview: [[Audit Architecture]] § Distillation → hook.
+The hook subsystem is the runtime that *delivers events* to the rule corpus — the always-on guardrail half of "two consumers, one corpus." `warden install --rust` writes the entries into `~/.claude/settings.json` (idempotent; `warden uninstall` reverses; `warden off` is the instant global kill). Every Warden entry invokes the same binary — `warden-rs hook` — which maps the event to its moment(s) and dispatches (§7a).
 
-```json
-"hooks": {
-  "PreToolUse":  [{ "matcher": "Bash",              "hooks": ["bash-guard.sh"] }],
-  "PostToolUse": [{ "matcher": "Read",              "hooks": ["maintain-hook.sh"] },
-                  { "matcher": "Write|Edit|MultiEdit","hooks": ["audit-on-write.sh"] }],
-  "SessionStart":[{ "matcher": "compact|startup",   "hooks": ["load-role-hook.sh"] }],
-  "Stop":        [{                                 "hooks": ["messages-stop-hook.sh"] }]
-}
-```
-
-| Hook event | Script | Role in the rule system |
+| Hook event · matcher | Handler | Moments delivered |
 |---|---|---|
-| `PreToolUse` (Bash) | `bash-guard.sh` | Safety gate — blocks dangerous commands before they run. |
-| `PostToolUse` (Write/Edit) | `audit-on-write.sh` | The `markdown-write` surface: runs `audit-plan --mode doc --on-write` over the written `.md`, applies only mechanical fixes, surfaces the rest. Throttled; pinned to the **Online** automation level. |
-| `PostToolUse` (Read) | `maintain-hook.sh` | 30-second-throttled background maintenance kick; non-blocking. |
-| `SessionStart` (compact/startup) | `load-role-hook.sh` | The `compact` surface: reloads the role's POST-COMPACT block into context. |
-| `Stop` | `messages-stop-hook.sh` | Surfaces anchor Messages on pause. |
+| `SessionStart` (all) | `warden-rs hook` | `session:start` / `session:compact` |
+| `UserPromptSubmit` | `warden-rs hook` | `prompt:submit` |
+| `PostToolUse` `Write\|Edit` | `warden-rs hook` | `tool:post:Write` / `tool:post:Edit`, `write:markdown` (+ the audit-on-write doc-fire) |
+| `PreToolUse` `Skill` | `warden-rs hook` | `skill:pre:<name>` |
+| `PreToolUse` `Bash\|Edit\|Write` | `warden-rs hook` | `tool:pre:<Tool>` — **the F131 veto surface**: a `deny` action here becomes `permissionDecision: deny` (fail-open everywhere else). Added 2026-07-06 — the arch/process adoption audit found the deny rules compiled but unreachable in real sessions. |
+| `PreToolUse` `Bash` | `bash-guard.sh` *(bespoke)* | Pattern safety gate predating Warden; complements, never duplicated into, rule bodies. |
+| `PostToolUse` `Read` / `SessionStart` / `Stop` / `PostToolUse` `WebFetch` | `maintain-hook.sh` / `load-role-hook.sh` / `messages-stop-hook.sh` / `webfetch-authwall-hook.sh` *(bespoke)* | Non-rule surfaces (background maintenance, role reload, Messages surfacing, authwall routing) — candidates for future rule migration. |
 
-**Distillation → fast module.** The on-demand engine and the on-write hook run the *same* rule corpus through two triggers. To keep the write-time path fast, `/distill` merges the applicable rule bodies into one compiled module under `~/.config/ob-skills/hooks/`, and `audit-on-write.sh` runs that module on every write rather than re-resolving the whole DAG.
+The bespoke `audit-on-write.sh` surface was **retired 2026-07-06** ([[F229 — Retire bespoke vault-wide hooks — M4 completion|F229]]): audit-on-write now rides Warden's own `write:markdown` doc-fire, base-implied on every anchor via [[Anchor Base]].
 
-**Safety floor.** `aow-safety.py` gates every auto-fix: a repair that would drop a letter or digit is reverted to a flag — the mechanical floor under the never-delete invariant ([[F005 — Doc audit-on-write — vault-wide rollout + safety guard|F005]]). The on-write hook only ever applies corrupting-character-safe fixers; structural fixers are withheld from the always-on path.
+**Anchor governance per moment (F229 A′).** A moment whose event carries an anchored file (`write:`/`read:`, file-bearing tool moments like `tool:pre:Edit`, the doc-fire) is governed by the **file's anchor** — the file's anchor owns the file, wherever the session sits. Everything else (Bash, session, prompt moments) is governed by the session's **cwd anchor**. Traits do not cascade into nested anchors; the nearest `.anchor` wins.
+
+**Safety floor.** The doc-fire delegates fixer execution to `audit-plan.execute_on_write` — same fixer registry, same never-delete floor (a repair that would drop a letter or digit is reverted to a flag), same fix→re-check→message fallthrough ([[F005 — Doc audit-on-write — vault-wide rollout + safety guard|F005]] lineage, M4a parity).
 
 ---
 
@@ -231,7 +225,7 @@ This is the path the **performance budget** rides on — it instruments nearly e
   - **Non-blocking** (a write, `tool:post`, a turn boundary): a one-line shell hook — `printf '%s' "$EVENT" >> warden.fifo` — `sh` boot + a FIFO write, **~1–3 ms** — and the daemon drains the FIFO **off the agent's critical path**.
   - **Blocking** (`tool:pre` veto): a request/response round-trip over a Unix socket (`nc -U`, or a tiny native binary), **~2–4 ms**, only on the rare veto moments.
 - **Lazy `ctx`.** Most objects (`git`, `agent`, a file's parsed sections) aren't touched by most rules, so the daemon computes each **on first access and caches it per pass** — one `git` call, one content-hash, one `agent.state` read, shared across every rule that pass, regardless of rule count.
-- **The pure-Python reference** ([[F212 — Python reference implementation|F212]]) runs the same logic cold and in-process — correct, not fast; the behavioral oracle the daemon is tested against. A **native (Rust) notifier/dispatcher** ([[F213 — Rust performance implementation + ms budget|F213]]) is an *optional later optimization*, **not required**: the warm daemon already meets the budget; Rust only shaves the notifier's last millisecond.
+- **The pure-Python reference** ([[F212 — Python reference implementation|F212]]) runs the same logic cold and in-process — correct, not fast; the behavioral oracle the live dispatcher is differential-tested against on every commit. **The live dispatcher is the Rust binary** ([[F213 — Rust performance implementation + ms budget|F213]], both phases shipped 2026-07-05): `warden-rs hook` owns selection natively and crosses Python bodies to the resident daemon over the socket, re-interleaved into exact reference fire order — benched ~3.0 ms no-fire / ~3.7 ms Python-body-firing vs the Python hook's ~24 ms.
 - **The oracle is a cheaper model, via Claude Code's *own* access — no API key.** An `if::` judgment / `ask_oracle` uses **Sonnet** (≈5× cheaper than the main agent; ~1¢/check) through whichever Claude-Code path the moment already has: a **sub-agent** of the `/audit` turn (the Task tool) on the audit path, the **running agent** (delegation) on the live path, or `claude -p` **headless** for an agent-less call. All ride the subscription — this is the same internal "one agent judges another" orchestration the product already does. The **external Sonnet API is opt-in** (for users who want to dodge subscription usage caps), not required — no key dance for the default path.
 
 ### 7b · The on-demand audit pipeline (explicit path)
@@ -250,6 +244,26 @@ The thorough backstop — `Resolve → Run → Judge → Fix`, mechanical-by-scr
 **Surfaces.** `/audit anchor` resolves `R-anchor`; `/audit doc` resolves `R-doc`. The `/rule` skill family — `check` / `triage` / `fix` / `sync` / `consider` / `discover` / `curate` — manages the project-local rules-file lifecycle (exception tables, grades, cross-project discovery) and feeds the same corpus.
 
 ---
+
+## 8 · Built modules — the subsystem → module map
+
+What actually shipped, one row per source module, every module owned by exactly one subsystem (R-ownership-03; added by the 2026-07-06 adoption audit — this section is the map the audit found missing). Code lives at `warden/engine/` (Python) and `warden/rs/` (Rust crate `warden-rs`).
+
+| Subsystem | Module | Role |
+|---|---|---|
+| Scan | `engine/warden_scan.py` | vault walk → ruleset file index + content hash (the recompile-cache key) |
+| Compile | `engine/warden_compile.py` | rules → IR (`~/.warden/rules-ir.json`) + emitted `rules_all.py`; `include::` flatten; `ANCHOR_BASE_TRAITS`; `declared_traits` snapshot |
+| Fire | `engine/warden_fire.py` | moment dispatcher — indexed dispatch, active-set gating, `effective_traits`, lazy `ctx` build, `DENY:` sentinel |
+| Reference loop | `engine/warden_engine.py` | lazy scan→compile→fire in one process — the behavioral oracle |
+| Doc-fire | `engine/warden_docfire.py` | the audit-on-write path — matches doc rules to the written file, delegates check+fix to `audit-plan.execute_on_write` |
+| Live hook (reference) | `engine/warden_hook.py` | Python dispatcher: event→moments, per-moment anchor governance, `emit()` deny/steer split — the differential target |
+| Resident interpreter | `engine/warden_daemon.py` | warm preloaded IR + rule bodies on a Unix socket; auto-reload, idle-exit, session registry + moment ledger |
+| Agent state | `engine/warden_agent.py` | the mechanical agent-state classifier behind lazy `ctx.agent` |
+| Re-eval economy | `engine/warden_reval.py` | per-(rule, file) last-evaluated store + `FileView`/`DiffView` — the significant-edit gate (F215) |
+| CLI | `engine/warden` | `on · off · compile · install · uninstall · status · daemon · fire` |
+| Rust selection | `rs/src/lib.rs` | IR consumer — fire-plan computation byte-identical to the reference |
+| Rust live dispatcher | `rs/src/hook.rs` | the installed hook: kill switch, moments, anchor/traits, daemon IPC for Python bodies, deny-aware `emit` |
+| Test regime | `engine/test_warden_*.py`, `rs` `cargo test`, `Warden Corpus/` | the five layers of §The testing regime |
 
 ## Invariants
 

@@ -245,6 +245,17 @@ def test_pathguard_veto():
             denies = [s for s in pre("Edit", file_path=str(atlas), old_string="x", new_string="y")
                       if s.startswith(wh.DENY_SENTINEL)]
             assert len(denies) == 1 and "/atlas" in denies[0], denies
+            # file-anchor governance (2026-07-06): the SAME guarded Edit from a
+            # session cwd'd OUTSIDE the anchor is still denied — the file's
+            # anchor owns the file; cwd must not side-step tool:pre guards.
+            with tempfile.TemporaryDirectory() as elsewhere:
+                denies = [s for s in wh.dispatch(
+                    {"hook_event_name": "PreToolUse", "tool_name": "Edit",
+                     "tool_input": {"file_path": str(anchor / "FX Backlog.md"),
+                                    "old_string": "a", "new_string": "b"},
+                     "cwd": elsewhere})
+                    if s.startswith(wh.DENY_SENTINEL)]
+                assert len(denies) == 1 and "state task" in denies[0], denies
 
         # trait OFF → the same event fires nothing
         with tempfile.TemporaryDirectory() as td:

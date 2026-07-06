@@ -148,12 +148,16 @@ def dispatch(data: dict) -> list[str]:
     """Fire the moment(s) this event maps to; return steers. Assumes the kill
     switch has already been checked.
 
-    Anchor resolution (F229 A′): most moments are governed by the **session's
-    cwd anchor**; `write:`/`read:` moments (and the audit-on-write doc-fire)
-    are governed by the **written file's anchor** — the file's anchor owns the
-    file, wherever the session sits (parity with the retired file-scoped F177
-    hook). Falls back to the cwd anchor for moment rules when the file is
-    un-anchored; the doc-fire is strictly file-anchored (no anchor, no audit)."""
+    Anchor resolution (F229 A′): any moment whose event carries an anchored
+    file — `write:`/`read:`, file-bearing tool moments like `tool:pre:Edit`,
+    and the audit-on-write doc-fire — is governed by the **file's anchor**:
+    the file's anchor owns the file, wherever the session sits. Everything
+    else (Bash, session, prompt moments) is governed by the session's cwd
+    anchor, which is also the fallback when the file is un-anchored; the
+    doc-fire is strictly file-anchored (no anchor, no audit). File-governance
+    for tool moments closed the 2026-07-06 adoption-audit gap: a cwd outside
+    the guarded anchor let `tool:pre:Edit` deny rules (R-pathguard) be
+    side-stepped entirely."""
     import warden_fire as wf
 
     moments = event_to_moments(data)
@@ -181,10 +185,7 @@ def dispatch(data: dict) -> list[str]:
         tool=data.get("tool_name") or "", target=event_fp, input=tool_input)
     steers: list[str] = []
     for moment in moments:
-        if moment.startswith(("write:", "read:")):
-            anchor_root = anchor_file or anchor_cwd
-        else:
-            anchor_root = anchor_cwd
+        anchor_root = anchor_file or anchor_cwd
         if anchor_root is None:
             continue
         traits = wf.effective_traits(ir, anchor_root)

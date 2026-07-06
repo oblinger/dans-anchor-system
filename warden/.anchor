@@ -4,5 +4,6 @@ traits:
 - Track
 - Commit
 - warden-dev
-- audit-on-write
 - query
+- arch
+- process
