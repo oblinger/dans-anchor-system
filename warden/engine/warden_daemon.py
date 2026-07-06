@@ -13,7 +13,10 @@ Protocol: one JSON request per connection on the Unix socket
 
   {"op": "ping"}                                   → {"ok": true, "pid": N}
   {"op": "fire_rules", "moment": m,
-   "anchor_root": path, "rule_ids": [...]}         → {"ok": true, "steers_by_rule": {id: [..]}}
+   "anchor_root": path, "rule_ids": [...],
+   "session": {session_id, transcript_path, cwd}}  → {"ok": true, "steers_by_rule": {id: [..]}}
+                                                      (session optional — feeds the F216
+                                                       registry/ledger + binds ctx.agent)
   {"op": "audit", "file_path": p}                  → {"ok": true, "steers": [...]}
   {"op": "reload"}                                 → {"ok": true}
   {"op": "shutdown"}                               → {"ok": true}
@@ -47,6 +50,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
+import warden_agent as wa  # noqa: E402
 import warden_fire as wf  # noqa: E402
 import warden_hook as wh  # noqa: E402
 
@@ -100,7 +104,13 @@ def _fire_rules(corpus: Corpus, req: dict) -> dict:
     moment = req["moment"]
     anchor_root = Path(req["anchor_root"])
     rule_ids = req.get("rule_ids", [])
-    ctx = wf.build_ctx(anchor_root, moment)
+    # F216: record the moment in the session registry/ledger and bind the
+    # agent-state view. The ledger holds the moments this daemon sees (owed
+    # round-trips); full history comes from the transcript tail, which the
+    # classifier reads — so a sparse ledger degrades recency, not correctness.
+    session = wa.session_of(req.get("session"))
+    wa.observe(session, moment)
+    ctx = wf.build_ctx(anchor_root, moment, agent=wa.AgentView(session, moment))
     traits = wf.read_anchor_traits(anchor_root)
     by_rule: dict[str, list[str]] = {}
     for rid in rule_ids:

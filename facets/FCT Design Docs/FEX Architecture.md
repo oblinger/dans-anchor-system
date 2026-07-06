@@ -1,5 +1,5 @@
 ---
-description: CAE system architecture — entry-point doc for the {NAME} Architecture/ folder anchor. Worked example of the CAB Architecture facet (section spine, visual-only diagrams, subsystem dispatch with link convention, API content lives elsewhere).
+description: CAE system architecture — entry-point doc for the {NAME} Architecture/ folder anchor. Worked example of the FCT Architecture facet (section spine, visual-only diagrams, subsystem dispatch with link convention, API content lives elsewhere).
 ---
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[FCT Design Docs]] → [FEX Architecture](hook://p/FEX%20Architecture)
 
@@ -38,8 +38,8 @@ CLI submits tasks to the **Scheduler**, which dispatches to the **Worker Pool**,
 | [[FEX Stories]] | three user stories — index for US-CAE-1..3 (folder-form per |
 
 
-> [!note] CAB Architecture convention
-> Real subsystem docs use `[[double-bracket]]` wiki-links; placeholders for subsystems whose docs aren't authored use `[single-bracket]` plain text — visible inventory without polluting Obsidian's link graph. See [[CAB Architecture]] § Subsystem dispatch table.
+> [!note] FCT Architecture convention
+> Real subsystem docs use `[[double-bracket]]` wiki-links; placeholders for subsystems whose docs aren't authored use `[single-bracket]` plain text — visible inventory without polluting Obsidian's link graph. See [[FCT Architecture]] § Subsystem dispatch table.
 
 For the public API surface (schemas, file formats, error types), see [[FEX API]].
 

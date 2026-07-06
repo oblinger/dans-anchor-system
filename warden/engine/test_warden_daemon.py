@@ -95,6 +95,15 @@ def test_fire_rules_parity():
         resp2 = _request(home, {"op": "fire_rules", "moment": moment,
                                 "anchor_root": str(anchor), "rule_ids": ["nope"]})
         assert resp2["ok"] and resp2["steers_by_rule"]["nope"] == [], resp2
+        # F216: a session-carrying request is accepted (registry/ledger fed,
+        # ctx.agent bound) and fires identically
+        resp3 = _request(home, {"op": "fire_rules", "moment": moment,
+                                "anchor_root": str(anchor), "rule_ids": rids,
+                                "session": {"session_id": "sess-t",
+                                            "transcript_path": str(Path(td) / "none.jsonl"),
+                                            "cwd": str(anchor)}})
+        assert resp3["ok"], resp3
+        assert resp3["steers_by_rule"] == resp["steers_by_rule"], resp3
     print("PASS  fire_rules_parity")
 
 

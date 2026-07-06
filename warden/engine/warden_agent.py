@@ -150,7 +150,7 @@ def _tool_uses(rec: dict) -> list[dict]:
 
 # ── the pending-question predicate Q (F216 § The classifier) ─────────────────
 
-_OPTIONS_RE = re.compile(r"(?m)^\s*(?:[-*]\s*)?\*{0,2}\(?[A-D]\)|(?m)\bQ\d+\s*:")
+_OPTIONS_RE = re.compile(r"(?m)^\s*(?:[-*]\s*)?\*{0,2}\(?[A-D]\)|\bQ\d+\s*:")
 
 
 def question_pending(records: list[dict]) -> bool:
@@ -212,7 +212,7 @@ def current_skill(records: list[dict], ledger=None) -> str | None:
     tool_use or the invoking prompt's <command-name> tag. Else None."""
     if ledger:
         skill = None
-        for moment, _ts in ledger:
+        for moment, _ in ledger:
             if moment == "prompt:submit":
                 skill = None
             elif moment.startswith("skill:pre:"):
@@ -282,8 +282,6 @@ def classify(session: dict | None, trigger_moment: str | None = None,
     def done(state: str) -> dict:
         values["state"] = state
         values["is_asking"] = state == "asking"
-        if state != "asking":
-            values["skill"] = skill if state == "working" else skill
         return values
 
     def turn_end() -> dict:
@@ -300,15 +298,13 @@ def classify(session: dict | None, trigger_moment: str | None = None,
             return done("unknown")
         return done("working")
 
-    # 1. liveness — session over
-    if trigger_moment == "session:stop" or any(m == "session:stop" for m, _ in ledger):
-        # Claude Code's Stop fires per turn (mapped to session:stop AND
-        # prompt:stop); a *ledger* session:stop followed by later moments is a
-        # past turn end, not a dead session — only trust it as terminal when
-        # it is the newest signal.
-        if not ledger or ledger[-1][0] in ("session:stop", "prompt:stop"):
-            if trigger_moment in (None, "session:stop", "prompt:stop"):
-                return turn_end() if records else done("idle")
+    # 1. liveness — a session whose newest signal is a stop, read out-of-band
+    # with no transcript to consult, is over → idle. (Claude Code's Stop fires
+    # per *turn*, so when a transcript exists the turn-end branch reads the
+    # real ending instead.)
+    if not records and ledger and trigger_moment is None \
+            and ledger[-1][0] in ("session:stop", "prompt:stop"):
+        return done("idle")
 
     # 2/3. R1 — the triggering moment IS the boundary
     if trigger_moment:
@@ -379,10 +375,10 @@ def unbound() -> AgentView:
     return AgentView(None)
 
 
-def session_of(payload: dict) -> dict | None:
+def session_of(payload: dict | None) -> dict | None:
     """Extract the session mapping from a hook event payload (or a daemon
     request's `session` field — same shape)."""
-    if not isinstance(payload, dict):
+    if not payload or not isinstance(payload, dict):
         return None
     sid = payload.get("session_id") or ""
     tp = payload.get("transcript_path") or ""
@@ -392,7 +388,7 @@ def session_of(payload: dict) -> dict | None:
             "cwd": payload.get("cwd") or "", "pane_id": payload.get("pane_id") or ""}
 
 
-def make_agent(payload: dict, trigger_moment: str | None = None,
+def make_agent(payload: dict | None, trigger_moment: str | None = None,
                now: float | None = None) -> AgentView:
     """Bind an AgentView from a hook payload; unmappable payload → unbound."""
     return AgentView(session_of(payload), trigger_moment, now)

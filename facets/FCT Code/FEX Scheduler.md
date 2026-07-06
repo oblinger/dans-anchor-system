@@ -150,7 +150,7 @@ Compact reference for the `execution` module's public surface. Class detail in t
 | `TaskScheduler::drain`            | `(timeout) -> List<TaskResult>`                    | Wait for completion           |
 | `TaskScheduler::status`           | `() -> SchedulerStatus`                            | Current state snapshot        |
 
-(Moved from `CAE Architecture.md` 2026-06-08 per CAB Architecture facet rule: per-module class/function tables live in the subsystem doc, not the architecture entry-point.)
+(Moved from `CAE Architecture.md` 2026-06-08 per FCT Architecture facet rule: per-module class/function tables live in the subsystem doc, not the architecture entry-point.)
 
 ## See Also
 

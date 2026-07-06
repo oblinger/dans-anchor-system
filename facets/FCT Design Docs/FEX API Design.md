@@ -6,7 +6,7 @@ description:: programmatic surface of the `cae` Rust crate — types, signatures
 | [[HBR PRD]] | parent PRD — user stories drive this design |
 | [[HBR UX Design]] | sibling — human CLI surface |
 | [[CAE API Doc]] | downstream — per-module reference |
-| [[CAB API Design]] | facet spec this doc follows |
+| [[FCT API Design]] | facet spec this doc follows |
 
 **TL;DR.**
 - Consumer: Rust code embedding `cae` as a library — typically a daemon or CLI wrapper scheduling tasks programmatically.
@@ -137,4 +137,4 @@ Error mapping to CLI exit codes (for `cae` CLI binary that wraps the API): `Stor
 - [[HBR UX Design]] — sibling facet covering the human CLI surface.
 - [[CAE API Doc]] — per-module reference (auto-generated; *what exists*).
 - [[FEX Architecture]] — internal organization that backs this surface.
-- [[CAB API Design]] — facet spec; embedded [[#RULESET R-api|R-api]] ruleset.
+- [[FCT API Design]] — facet spec; embedded [[#RULESET R-api|R-api]] ruleset.
