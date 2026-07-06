@@ -259,6 +259,42 @@ def test_pathguard_veto():
     print("PASS  pathguard_veto (F131)")
 
 
+def test_bridge_guard():
+    """F183: one-shot SSH remote-control is denied at tool:pre:Bash with the
+    bridge redirect (rides anchor-base — fires in ANY anchor); the no-match
+    table passes untouched: bare attach, scp/rsync, in-bridge tmux, and
+    ssh-as-argument."""
+    home = _compiled_home()
+    old = os.environ.get("WARDEN_HOME")
+    os.environ["WARDEN_HOME"] = str(home)
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            anchor = _anchor(Path(td), "Commit")  # no special trait — base-implied
+
+            def bash(cmd):
+                return wh.dispatch({"hook_event_name": "PreToolUse", "tool_name": "Bash",
+                                    "tool_input": {"command": cmd}, "cwd": str(anchor)})
+
+            def denied(cmd):
+                return [s for s in bash(cmd) if s.startswith(wh.DENY_SENTINEL)]
+
+            # match — command-executing SSH, flags tolerated, chained too
+            assert denied("ssh haorui.local 'make test'"), "plain one-shot not denied"
+            assert denied("ssh -p 2222 -i ~/.ssh/k haorui.local ls /tmp"), "flagged form not denied"
+            assert denied("cd /x && ssh haorui.local 'nohup ./run &'"), "chained form not denied"
+            assert "bridge" in denied("ssh haorui.local w")[0], "redirect must name the bridge skill"
+            # no match — the legitimate forms
+            assert not denied("ssh haorui.local"), "bare interactive attach wrongly denied"
+            assert not denied("scp build.tgz haorui.local:/tmp/"), "scp wrongly denied"
+            assert not denied("rsync -e ssh -av x/ haorui.local:x/"), "rsync -e ssh wrongly denied"
+            assert not denied("ssh haorui.local tmux send-keys -t bridge 'ls' Enter"), \
+                "in-bridge tmux control wrongly denied"
+            assert not denied("which ssh"), "ssh-as-argument wrongly denied"
+    finally:
+        os.environ["WARDEN_HOME"] = old if old else str(home)
+    print("PASS  bridge_guard (F183)")
+
+
 def test_emit_deny_shape():
     """F131: emit() converts DENY steers to a PreToolUse permissionDecision;
     at any other event the sentinel degrades to plain context (fail-open)."""
@@ -292,6 +328,7 @@ def main():
     test_trait_gating()
     test_audit_on_write()
     test_pathguard_veto()
+    test_bridge_guard()
     test_emit_deny_shape()
     print("\nall warden_hook tests passed")
     return 0

@@ -15,6 +15,7 @@ Its **members** — additional traits every anchor carries through it — are co
 ## Current members
 
 - **`audit-on-write`** — every anchored markdown file is doc-audited on write through the Warden dispatcher: mechanical fails with a `fix::` are repaired in place (never-delete floor), the rest are steered. Adopted into the base 2026-07-06 (F229 Q1 = A′), replacing the retired vault-wide `audit-on-write.sh` hook with coverage preserved.
+- **`ob-remote-ops`** — remote-ops hygiene ([[R-ob-remote-ops]]): one-shot SSH remote-control (`ssh <host> '<cmd>'`) is denied at `tool:pre:Bash` with a redirect to the `bridge` skill's persistent-tmux control plane; bare attaches, `scp`/`rsync`, and in-bridge `tmux` commands pass. Adopted into the base 2026-07-06 (F183 — the commissioning specified a globally-firing deny, previously the would-be `bash-guard.sh` branch).
 
 Rules keyed directly by `anchor-base` (a `RULESET R-anchor-base`) would also fire everywhere; none exist yet.
 
