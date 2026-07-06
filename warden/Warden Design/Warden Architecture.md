@@ -37,7 +37,7 @@ A rule is a markdown **heading** whose first token is the all-caps `RULE` sentin
 |---|---|---|
 | Heading | `<H> RULE R-<slug>-NN — name` | the `RULE` sentinel + the permanent id; H3 customary inside a `# RULESET`. |
 | `description::` | a queryable one-liner | the rule's **meaning** — never sent on fire. |
-| condition | `where::` · `when::` · `if::` | which files (§4; grammar: [[FCT Ruleset]] § Where clause) · at what moment (§5; taxonomy: [[Warden Events]]) · and only if — the computed test (§5; vocabulary: [[Warden Semantics]] § The condition). |
+| condition | `where::` · `when::` · `if::` | the conjunction — which files · at what moment · and only if. Full section: [[#4 · The condition — the conjunction when ∧ where ∧ if\|§4 The condition]]; specs: [[FCT Ruleset]] § Where clause · [[Warden Events]] · [[Warden Semantics]] § The condition. |
 | body | bare prose, or backticked Python | the **action** — prose *is* the `tell`; Python runs `tell` / `edit` / `deny` / `run` ([[Warden Semantics]]). |
 | `**Why:**` · `**Exceptions:**` | optional | rationale · exceptions. (Re-eval economy rides an `if::` over `file.diff`.) |
 
@@ -120,7 +120,7 @@ ob-skills/skills/.../<skill> spec     ← (2) embedded set inside a skill/discip
 
 ---
 
-## 4 · Binding — the conjunction `when ∧ where ∧ if`
+## 4 · The condition — the conjunction when ∧ where ∧ if
 
 A rule is a standing constraint that means the **conjunction** of its clauses; it fires only when all hold. The author writes the truth condition; the engine (§7) decides how to make it fire cheaply.
 
