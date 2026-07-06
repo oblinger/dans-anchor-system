@@ -27,3 +27,37 @@ def body(ctx):
         "(3) `warden off` disables Warden globally if anything here misfires."
     )
 ```
+
+### RULE R-warden-dev-02 — trait-reachability self-audit (when:: session:start)
+when:: session:start
+
+The [[F219 — Activation self-audit rules — base-trait + ruleset-reachability|F219]] integrity backstop — the rule engine guarding its own wiring. `warden compile` stamps the vault's declared anchor traits into the IR (`declared_traits`); this rule checks every trait that keys a *moment* rule against that snapshot (doc-rules fire by `where::` glob on the audit path and need no trait). A moment-rule trait no `.anchor` declares is **dead wiring** — authored, compiled, and unable to ever fire — exactly how `query` was found undeclared on 2026-07-05. `warden-selftest` is exempt: it is the hermetic test-fixture trait, declared only by test-scratch anchors outside the vault.
+
+```python
+def body(ctx):
+    import json
+    import os
+    from pathlib import Path
+    home = Path(os.environ.get("WARDEN_HOME", str(Path.home() / ".warden")))
+    try:
+        ir = json.loads((home / "rules-ir.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    declared = set(ir.get("declared_traits") or [])
+    if not declared:
+        return []          # pre-F219 IR — no wiring snapshot to audit against
+    exempt = {"warden-selftest"}   # hermetic test-fixture trait
+    moment_rules = {rid for ids in ir.get("moments", {}).values() for rid in ids}
+    dead = sorted(
+        t for t, ids in ir.get("traits", {}).items()
+        if t not in declared and t not in exempt
+        and any(r in moment_rules for r in ids))
+    if not dead:
+        return []
+    return [
+        "[warden trait-reachability] dead wiring — moment rules keyed by trait(s) "
+        + ", ".join(dead)
+        + " which no .anchor in the vault declares, so they can never fire live. "
+          "Adopt the trait on an anchor that wants those rules, or retire the ruleset."
+    ]
+```
