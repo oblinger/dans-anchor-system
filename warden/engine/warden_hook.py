@@ -113,18 +113,25 @@ def find_anchor(start: Path) -> Path | None:
 # Over-budget fires are LOGGED, never dropped/demoted: demote-to-audit stays a
 # future escalation to take only if advisory data shows a persistent offender.
 
-def budget_ms(moment: str) -> float:
-    """The PRD § Performance per-moment budget (p99, fire-time)."""
+def budget_ms(moment: str, owed_python: bool = False) -> float:
+    """The PRD § Performance per-moment budget (p99, fire-time).
+
+    A moment that owes a Python body/guard round-trip is budgeted at the
+    post-hoc 10 ms rate even at tool:pre — the F213 phase-2 design accepts
+    ~4 ms of resident-daemon IPC whenever rule-authored Python must run, so
+    holding such fires to the 2 ms pure-selection budget just logs the same
+    known design cost on every call (the 2026-07-06 hook.log flood: 806 of
+    861 lines were tool:pre:Bash breaching 2 ms by the IPC floor)."""
     if moment.startswith("tool:pre"):
-        return 2.0
+        return 10.0 if owed_python else 2.0
     if moment.startswith(("tool:post", "write:", "read:")):
         return 10.0
     return 100.0  # session:* / prompt:* / git:* / timer: — rare, cost amortized
 
 
-def over_budget(moment: str, elapsed_ms: float) -> str | None:
+def over_budget(moment: str, elapsed_ms: float, owed_python: bool = False) -> str | None:
     """The advisory log line for an over-budget fire, or None when inside it."""
-    b = budget_ms(moment)
+    b = budget_ms(moment, owed_python)
     if elapsed_ms <= b:
         return None
     return f"OVER-BUDGET {moment} fired in {elapsed_ms:.1f} ms (budget {b:g} ms)"
@@ -132,12 +139,44 @@ def over_budget(moment: str, elapsed_ms: float) -> str | None:
 
 # ── operational log ──────────────────────────────────────────────────────────
 
-def _log(msg: str) -> None:
+def _append(name: str, line: str) -> None:
     try:
         home = warden_home()
         home.mkdir(parents=True, exist_ok=True)
-        with (home / "hook.log").open("a", encoding="utf-8") as fh:
-            fh.write(f"{time.time():.3f}\t{msg}\n")
+        with (home / name).open("a", encoding="utf-8") as fh:
+            fh.write(line)
+    except OSError:
+        pass
+
+
+def _log(msg: str) -> None:
+    _append("hook.log", f"{time.time():.3f}\t{msg}\n")
+
+
+def _log_perf(msg: str) -> None:
+    """Advisory perf lines (OVER-BUDGET) go to their own file — at one line per
+    breaching call they drown hook.log's operational signal otherwise."""
+    _append("perf.log", f"{time.time():.3f}\t{msg}\n")
+
+
+# ── fire record (F231 — the why-did-that-happen log) ────────────────────────
+
+FIRES_ROTATE_BYTES = 5 * 1024 * 1024
+
+
+def _fire_record(rec: dict) -> None:
+    """Append one JSONL record to ~/.warden/fires.jsonl — the explainability
+    log: which rules were considered at a moment, which fired, and the steer
+    text VERBATIM as the agent received it. `warden log` is the viewer.
+    Rotates once past ~5 MB (single .1 generation)."""
+    try:
+        home = warden_home()
+        home.mkdir(parents=True, exist_ok=True)
+        path = home / "fires.jsonl"
+        if path.is_file() and path.stat().st_size > FIRES_ROTATE_BYTES:
+            path.replace(home / "fires.jsonl.1")
+        with path.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
     except OSError:
         pass
 
@@ -197,10 +236,24 @@ def dispatch(data: dict) -> list[str]:
                            file_path=event_fp, event=event_view, traits=traits,
                            git_aspect=wf.git_aspect_of(traits))
         t0 = time.perf_counter()
-        fired = wf.fire(ir, module, moment, ctx, traits)
-        warn = over_budget(moment, (time.perf_counter() - t0) * 1000.0)
+        records = wf.fire_records(ir, module, moment, ctx, traits)
+        elapsed_ms = (time.perf_counter() - t0) * 1000.0
+        owed = any(ir["rules"][rid].get("body_py") or ir["rules"][rid].get("guard_py")
+                   for rid, _ in records)
+        warn = over_budget(moment, elapsed_ms, owed)
         if warn:
-            _log(warn)
+            _log_perf(warn)
+        fired = [s for _, produced in records for s in produced]
+        if records:
+            _fire_record({
+                "ts": round(time.time(), 3), "engine": "py", "moment": moment,
+                "anchor": anchor_root.name, "traits": traits,
+                "tool": data.get("tool_name") or "", "file": event_fp or "",
+                "considered": [rid for rid, _ in records],
+                "fires": [{"rule": rid, "steer": s}
+                          for rid, produced in records for s in produced],
+                "ms": round(elapsed_ms, 1),
+            })
         if fired:
             _log(f"FIRED {moment} @ {anchor_root.name} traits={traits} → {len(fired)} steer(s)")
             steers.extend(fired)
@@ -214,6 +267,14 @@ def dispatch(data: dict) -> list[str]:
             aow = audit_on_write(Path(event_fp)) if event_fp else []
             if aow:
                 _log(f"AUDIT-ON-WRITE {Path(event_fp).name} @ {anchor_file.name} → {len(aow)} issue steer(s)")
+                _fire_record({
+                    "ts": round(time.time(), 3), "engine": "py", "moment": "doc-fire",
+                    "anchor": anchor_file.name, "traits": [],
+                    "tool": data.get("tool_name") or "", "file": event_fp or "",
+                    "considered": ["audit-on-write"],
+                    "fires": [{"rule": "audit-on-write", "steer": s} for s in aow],
+                    "ms": 0.0,
+                })
                 steers.extend(aow)
     return steers
 
