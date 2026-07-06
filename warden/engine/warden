@@ -5,8 +5,10 @@
     warden on | off            toggle the global kill switch (~/.warden/DISABLED)
     warden compile             scan + compile the rule corpus → ~/.warden/
     warden install             compile, then register the hook in settings.json
+                               (--rust registers the warden-rs binary — F213 phase 2)
     warden uninstall           remove Warden's hook entries from settings.json
     warden fire  ANCHOR MOMENT manually fire one moment against an anchor (debug)
+    warden daemon start|stop|status   the resident interpreter (F213 phase 2)
 
 The kill switch is a sentinel FILE so a disable is global across every
 environment and every concurrent session with no settings edit and no restart —
@@ -34,6 +36,10 @@ import warden_scan as ws         # noqa: E402
 # unquoted hook command splits on it (the live test caught this: a broken command
 # never launches Python, so it BLOCKS instead of failing safe). Quote it.
 HOOK_CMD = "python3 " + shlex.quote(str(HERE / "warden_hook.py"))
+# F213 phase 2: the Rust dispatcher + the resident-interpreter spawn command.
+RUST_BIN = HERE.parent / "rs" / "target" / "release" / "warden-rs"
+RUST_HOOK_CMD = shlex.quote(str(RUST_BIN)) + " hook"
+DAEMON_CMD = ("python3 " + shlex.quote(str(HERE / "warden_daemon.py")) + " --serve")
 
 # The pilot hook surface (steer-only — no tool:pre veto). Each entry:
 #   (event, matcher-or-None). Widen as the pilot proves out.
@@ -78,9 +84,16 @@ def _compile_corpus(root: Path, out: Path) -> dict:
     return stats
 
 
+def _write_daemon_cmd(out: Path) -> None:
+    """The spawn command `warden-rs hook` uses to launch the resident
+    interpreter on demand (F213 phase 2)."""
+    (out / "daemon.cmd").write_text(DAEMON_CMD + "\n", encoding="utf-8")
+
+
 def cmd_compile(_args) -> int:
     out = warden_home()
     stats = _compile_corpus(REPO, out)
+    _write_daemon_cmd(out)
     print(f"warden: compiled {stats['rules']} rules from {stats['rulesets']} rulesets "
           f"/ {stats['files']} files — {stats['moments']} moment(s), "
           f"{stats['doc_rules']} doc-rule(s), {stats['py_rules']} python → {out}")
@@ -105,13 +118,20 @@ def _load_settings(path: Path) -> dict:
 
 
 def _is_warden_entry(entry: dict) -> bool:
-    return any("warden_hook.py" in h.get("command", "")
+    return any("warden_hook.py" in h.get("command", "") or "warden-rs" in h.get("command", "")
                for h in entry.get("hooks", []))
 
 
 def cmd_install(args) -> int:
     # compile first — a live hook with no artifacts is a silent no-op.
     _compile_corpus(REPO, warden_home())
+    _write_daemon_cmd(warden_home())
+    hook_cmd = HOOK_CMD
+    if getattr(args, "rust", False):
+        if not RUST_BIN.is_file():
+            raise SystemExit(f"warden: no Rust binary at {RUST_BIN} — "
+                             f"run `cargo build --release` in warden/rs first")
+        hook_cmd = RUST_HOOK_CMD
     path = _settings_path(args)
     path.parent.mkdir(parents=True, exist_ok=True)
     settings = _load_settings(path)
@@ -121,13 +141,14 @@ def cmd_install(args) -> int:
         arr = hooks.setdefault(event, [])
         # drop any prior Warden entry for this event (idempotent re-install)
         arr[:] = [e for e in arr if not _is_warden_entry(e)]
-        entry: dict = {"hooks": [{"type": "command", "command": HOOK_CMD}]}
+        entry: dict = {"hooks": [{"type": "command", "command": hook_cmd}]}
         if matcher:
             entry = {"matcher": matcher, "hooks": entry["hooks"]}
         arr.append(entry)
         added += 1
     path.write_text(json.dumps(settings, indent=2) + "\n", encoding="utf-8")
-    print(f"warden: installed {added} hook(s) → {path}")
+    engine = "rust (warden-rs hook + resident daemon)" if hook_cmd is RUST_HOOK_CMD else "python (warden_hook.py)"
+    print(f"warden: installed {added} hook(s) [{engine}] → {path}")
     print(f"        (kill switch: `warden off` · uninstall: `warden uninstall`)")
     return 0
 
@@ -174,6 +195,50 @@ def cmd_status(args) -> int:
     return 0
 
 
+# ── resident daemon (F213 phase 2) ───────────────────────────────────────────
+
+def cmd_daemon(args) -> int:
+    import subprocess
+    import warden_daemon as wd
+    if args.action == "status":
+        try:
+            resp = wd.request({"op": "ping"}, timeout=2.0)
+            print(f"warden daemon: RUNNING (pid {resp.get('pid')})")
+        except OSError:
+            print("warden daemon: not running")
+        return 0
+    if args.action == "stop":
+        try:
+            wd.request({"op": "shutdown"}, timeout=2.0)
+            print("warden daemon: stopped")
+        except OSError:
+            print("warden daemon: not running")
+        return 0
+    if args.action == "start":
+        try:
+            resp = wd.request({"op": "ping"}, timeout=2.0)
+            print(f"warden daemon: already running (pid {resp.get('pid')})")
+            return 0
+        except OSError:
+            pass
+        _write_daemon_cmd(warden_home())
+        subprocess.Popen(["/bin/sh", "-c", DAEMON_CMD],
+                         stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                         stderr=subprocess.DEVNULL, start_new_session=True)
+        import time
+        for _ in range(40):
+            time.sleep(0.1)
+            try:
+                resp = wd.request({"op": "ping"}, timeout=2.0)
+                print(f"warden daemon: started (pid {resp.get('pid')})")
+                return 0
+            except OSError:
+                continue
+        print("warden daemon: spawn requested but not accepting — see ~/.warden/hook.log")
+        return 1
+    return 2
+
+
 # ── manual fire (debug) ──────────────────────────────────────────────────────
 
 def cmd_fire(args) -> int:
@@ -198,7 +263,13 @@ def main(argv=None) -> int:
     for name, fn in (("install", cmd_install), ("uninstall", cmd_uninstall), ("status", cmd_status)):
         p = sub.add_parser(name)
         p.add_argument("--settings", help="settings.json path (default: ~/.claude/settings.json)")
+        if name == "install":
+            p.add_argument("--rust", action="store_true",
+                           help="register the Rust dispatcher (warden-rs hook) instead of the Python hook")
         p.set_defaults(fn=fn)
+    pd = sub.add_parser("daemon", help="resident interpreter control (F213 phase 2)")
+    pd.add_argument("action", choices=["start", "stop", "status"])
+    pd.set_defaults(fn=cmd_daemon)
     pf = sub.add_parser("fire", help="manually fire one moment against an anchor")
     pf.add_argument("anchor_root")
     pf.add_argument("moment")

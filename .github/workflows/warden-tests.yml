@@ -34,7 +34,7 @@ jobs:
 
       - name: Engine unit tests
         run: |
-          for t in scan compile fire engine docfire hook; do
+          for t in scan compile fire engine docfire hook daemon; do
             echo "== test_warden_$t =="
             python3 "warden/engine/test_warden_$t.py"
           done
@@ -68,3 +68,9 @@ jobs:
         env:
           WARDEN_RS_BIN: warden/rs/target/release/warden-rs
         run: python3 warden/engine/test_warden_rust.py
+
+      - name: Rust hook ↔ Python hook differential (F213 phase 2 — live dispatcher)
+        run: python3 warden/engine/test_warden_hook_rust.py
+
+      - name: Perf gate (F214 perf layer — fails on hot-path regression)
+        run: python3 warden/engine/test_warden_perf.py

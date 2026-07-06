@@ -10,9 +10,14 @@
 //! `--traits` supplies both the anchor active-set and `ctx.traits` (they are the
 //! same list in `warden_engine.fire`). Ctx defaults match `build_ctx`:
 //! git_aspect "" , mode null, facets [].
+//!
+//! F213 phase 2 adds the live-dispatcher entry point (event JSON on stdin,
+//! Python bodies via the resident daemon, always exits 0):
+//!
+//!   warden-rs hook
 
 use std::process::exit;
-use warden::{fire_plan, plan_to_json, Ctx, Ir};
+use warden::{fire_plan, hook, plan_to_json, Ctx, Ir};
 
 fn arg_val(args: &[String], flag: &str) -> Option<String> {
     args.iter().position(|a| a == flag).and_then(|i| args.get(i + 1).cloned())
@@ -25,8 +30,11 @@ fn csv(s: Option<String>) -> Vec<String> {
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
+    if args.get(1).map(|s| s.as_str()) == Some("hook") {
+        exit(hook::run_hook());
+    }
     if args.get(1).map(|s| s.as_str()) != Some("fire") {
-        eprintln!("usage: warden-rs fire --ir <path> --moment <m> [--traits ..] [--git-aspect ..] [--mode ..] [--facets ..]");
+        eprintln!("usage: warden-rs fire --ir <path> --moment <m> [--traits ..] [--git-aspect ..] [--mode ..] [--facets ..]\n       warden-rs hook   (hook event JSON on stdin)");
         exit(2);
     }
     let ir_path = match arg_val(&args, "--ir") {
