@@ -9,6 +9,9 @@ _None._
 
 ## Ready
 
+- **B-QFix — QFix** [Ready] — audit q findings routed by --fix; each sub-bullet is a residual on Warden's tree needing the 100%-fix discipline (per the audit skill's Governing principle). ^B-QFix
+  - **C22** SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md:24 — link `[[F231 — Warden observability — the why-did-that-happen log]]` does not resolve (basename 'F231 — Warden observability — the why-did-that-happen log' not in vault)
+
 - **T004 — Activate query + backlog + markdown-discipline rules on Warden's own surfaces** [Ready] — User directive 2026-07-06: the query/groom/markdown rules must be ACTIVE on Warden's own backlog surfaces. Today Warden's effective set has `query` but not `backlog` or `doc`; [[Warden Backlog]] / [[Warden queries]] are governed by the Warden Track sub-anchor (nearest-wins), so adoption must land there too. Rules: [[FCT Query|R-query]], [[Backlog|R-backlog]], [[DSC markdown|R-markdown]]. ^T004
   - **Next:** Adopt `backlog` + `doc` traits on warden/.anchor AND Warden Track/.anchor (file-anchor governance — the backlog/queries files live under the Track sub-anchor), recompile, bounce the daemon, then live-verify a Warden Backlog write steers an R-backlog finding through the installed dispatcher.
 
@@ -20,6 +23,9 @@ _None._
 
 - **T007 — Rule coverage — markdown discipline (R-markdown + R-progressive): trait wiring, corpus cases, fix:: restoration** [Ready] — User directive 2026-07-06: strong coverage for the markdown discipline. Trait `markdown` keys ZERO rules in the live IR (suspected embedded-ruleset flatten/naming artifact in [[DSC markdown]]); no markdown-discipline corpus cases exist; zero live rules carry `fix::` (F004-era annotations lost — noted at M4a), so on-write repair is capability-only. [[R-progressive]] (2 rules) rides along. ^T007
   - **Next:** Diagnose why trait `markdown` keys zero rules in the IR (embedded-ruleset flatten/naming artifact); add markdown-discipline corpus cases pinning R-markdown-01..10 + R-progressive fail+pass; restore the lost F004-era fix:: annotations so the M4a fixer path actually repairs on write.
+
+- **F231 — Warden observability — the why-did-that-happen log** [Ready] — → [[F231 — Warden observability — the why-did-that-happen log]] ^F231
+  - **Next:** Design the structured fire-record (JSONL: session, moment, anchor+traits, per-rule outcome incl. throttled/deduped/guard-false, emitted text verbatim) + the `warden log` query verbs, then wire both dispatchers to write it.
 
 ## Now
 
