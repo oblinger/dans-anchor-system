@@ -168,7 +168,7 @@ def parse_ruleset(text: str, name: str, source: str) -> dict | None:
         rule = {
             "id": rm.group(2), "title": rm.group(3).strip(), "paren": paren,
             "when": None, "where": None, "ifs": [], "tier": None, "check": None,
-            "py_src": _extract_py(body), "py_kind": None,
+            "fix": None, "py_src": _extract_py(body), "py_kind": None,
         }
         # Paren is a tier or an executable `when::`.
         if paren in _TIERS:
@@ -189,6 +189,8 @@ def parse_ruleset(text: str, name: str, source: str) -> dict | None:
                 rule["ifs"].append(val)
             elif key == "check":
                 rule["check"] = val
+            elif key == "fix":
+                rule["fix"] = val
         if rule["py_src"]:
             for name_ in _ENTRY_DEFS:
                 if re.search(rf"\bdef\s+{name_}\s*\(", rule["py_src"]):
@@ -271,6 +273,10 @@ def compile_rule(rule: dict, ruleset: dict) -> dict:
         if rule["check"]:
             parts = rule["check"].split()
             row["action"] = {"kind": "check", "ref": parts[0], "args": parts[1:]}
+            # F004/M4a: the mechanical fixer reference (on-write auto-fix);
+            # execution stays audit-plan's (`run_fixer`), referenced by name.
+            if rule.get("fix"):
+                row["fix"] = rule["fix"]
         elif rule["tier"] == "tracked":
             row["action"] = {"kind": "track"}
         else:

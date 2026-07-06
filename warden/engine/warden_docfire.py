@@ -57,7 +57,8 @@ def _adapt_rule(r: dict) -> dict:
     optional `check::`)."""
     return {
         "id": r["id"], "when": None, "where": r.get("where"), "ifs": [],
-        "tier": r.get("tier"), "check": r.get("check"), "py_kind": None,
+        "tier": r.get("tier"), "check": r.get("check"), "fix": r.get("fix"),
+        "py_kind": None,
     }
 
 
@@ -119,6 +120,47 @@ def fire_audit(target: Path, mode: str) -> list[dict]:
             results.append({"rule": row["id"], "target": disp,
                             "status": status, "detail": detail})
     return results
+
+
+def fire_on_write(target: Path, rows: list[tuple[dict, dict]] | None = None) -> dict:
+    """The on-write fire path (M4a — fixer parity with `audit-on-write.sh`).
+
+    Warden owns resolve/match (the compiled doc-rule rows, their `where`
+    selectors); check + fix execution is delegated to **`audit-plan`'s own
+    `execute_on_write`** — the same fixer registry, the same never-delete
+    alnum-subsequence floor, the same fix→re-check→message fallthrough — so
+    behavior parity with the bespoke F177 hook holds by construction. Returns
+    audit-plan's report shape: {fixed: [...], messages: [...]}.
+
+    `rows` overrides the umbrella compile for tests (inject fixture rules)."""
+    if rows is None:
+        rows = compile_audit_ir("R-doc")
+    anchor_root, scope_files = ap.enumerate_scope(target, "doc", None)
+
+    plan_rules = []
+    for row, rs in rows:
+        action = row.get("action")
+        if not action or action.get("kind") != "check":
+            continue
+        where = row["where"] or "always"
+        kind, arg = ap.parse_selector(where)
+        if kind == "anchor":
+            continue
+        tgts = ap.match_targets(kind, arg, scope_files, anchor_root)
+        if tgts and rs.get("source"):
+            src_abs = (ap.REPO_ROOT / rs["source"]).resolve()
+            tgts = [t for t in tgts if t.resolve() != src_abs]
+        if not tgts:
+            continue
+        src = next((r for r in rs["rules"] if r["id"] == row["id"]), {})
+        plan_rules.append({
+            "id": row["id"], "check": _check_str(action), "fix": row.get("fix"),
+            "why": src.get("why"), "check_pattern": src.get("check_pattern"),
+            "targets": [str(t.relative_to(anchor_root)) for t in tgts],
+            "_target_paths": [str(t) for t in tgts],
+        })
+    plan = {"anchor_root": str(anchor_root), "groupings": [{"rules": plan_rules}]}
+    return ap.execute_on_write(plan, None)
 
 
 def corpus_signature() -> str:

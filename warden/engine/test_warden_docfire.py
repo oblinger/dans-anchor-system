@@ -93,9 +93,63 @@ def test_signature_matches_audit_plan():
     print(f"PASS  signature ≡ audit-plan  ({audit_sig})")
 
 
+ONWRITE_FIXTURE = """\
+# RULESET R-onwrite-fx
+
+where:: `file:{ANCHOR}/**/*.md`
+description:: M4a on-write fixture — one fixable rule, one message-only rule
+
+### RULE R-onwrite-fx-01 — no trailing whitespace (checked)
+
+check:: md_trailing_ws
+fix:: md_trailing_ws
+
+### RULE R-onwrite-fx-02 — frontmatter has description (checked)
+
+check:: frontmatter_has description
+
+**Why:** every doc self-describes.
+"""
+
+
+def test_fire_on_write_fixer_parity():
+    """M4a: the on-write path repairs a fixable fail in place (audit-plan's
+    fixer + never-delete floor, by delegation) and messages the unfixable one
+    — the behavior contract of the bespoke `audit-on-write.sh` (F177)."""
+    import warden_compile as wc
+    rs = wc.parse_ruleset(ONWRITE_FIXTURE, "R-onwrite-fx", "fixture")
+    assert rs is not None
+    # shape [(row, rs)] like compile_audit_ir; rs needs source + rules w/ why
+    ap_rs = {"source": "does/not/exist.md",
+             "where": rs["where"],
+             "rules": [{"id": "R-onwrite-fx-02", "why": "every doc self-describes."}]}
+    rows = [(wc.compile_rule(r, rs), ap_rs) for r in rs["rules"]]
+    assert rows[0][0].get("fix") == "md_trailing_ws", rows[0][0]
+
+    with tempfile.TemporaryDirectory() as td:
+        anchor = Path(td) / "FX"
+        anchor.mkdir()
+        (anchor / ".anchor").write_text("slug: FX\n", encoding="utf-8")
+        doc = anchor / "note.md"
+        doc.write_text("# Note   \n\nbody line  \n", encoding="utf-8")  # trailing ws, no frontmatter
+        report = wd.fire_on_write(doc, rows=rows)
+        # fixable fail → repaired in place + reported fixed
+        assert [f["rule"] for f in report["fixed"]] == ["R-onwrite-fx-01"], report
+        assert doc.read_text(encoding="utf-8") == "# Note\n\nbody line\n", doc.read_text()
+        # unfixable fail → message with the why carried through
+        msgs = {m["rule"]: m for m in report["messages"]}
+        assert "R-onwrite-fx-02" in msgs, report
+        assert msgs["R-onwrite-fx-02"]["why"] == "every doc self-describes."
+        # steady state: re-fire → 01 clean, only the message remains
+        report2 = wd.fire_on_write(doc, rows=rows)
+        assert report2["fixed"] == [] and len(report2["messages"]) == 1, report2
+    print("PASS  fire_on_write fixer parity (M4a)")
+
+
 def main():
     test_docfire_matches_audit_plan_on_every_case()
     test_signature_matches_audit_plan()
+    test_fire_on_write_fixer_parity()
     print("\nall warden_docfire tests passed")
     return 0
 
