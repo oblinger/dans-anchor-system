@@ -35,6 +35,11 @@ Checks applied to Q.md, each anchor's backlog, and each feature/Questions doc:
   C41: [Verify*]/[Watching*] rows declare a `- **Verify:**` yes/no question;
        [Ready]/[Active] rows declare a `- **Next:**` no-user action. Missing →
        queries render `⚠`; report-only (agent writes it or rebrackets).
+  C42: an answerable queries item (Verification / Immediate Question /
+       Question) that NAMES a doc/file/template the user must open MUST make
+       it a live `[[wiki-link]]` — bare text (a resolvable slug-prefixed doc
+       name) or a code-span filename is a violation: the user cannot follow a
+       name. Fix at the SOURCE (backlog `- **Verify:**` / question body). (report).
   C24: `[Questions]` / `[N Questions]` bracket count must match the
        linked feature doc's actual pending-Q count. Bare `[Questions]`
        on a row whose linked doc has 7 Qs is stale (should be
@@ -2677,9 +2682,20 @@ _Q_VHANDLE_RE = re.compile(r"^\s*-\s+\*\*V\d+\b")
 _Q_QHANDLE_RE = re.compile(r"^\s*-\s+\*\*Q\d+\b")
 _Q_YESNO_RE = re.compile(r"\*\*[^*]*yes\s*/\s*no[^*]*\*\*", re.IGNORECASE)
 _Q_OPTION_RE = re.compile(r"\*\*\([A-Za-z]\)\*\*")
+# C42 — every artifact a surfaced item names must be a live wiki-link.
+_Q_MDLINK_RE = re.compile(r"\[[^\]]*\]\([^)]*\)")        # [text](url) md-links
+_Q_BACKTICK_RE = re.compile(r"`([^`\n]+)`")              # `code span`
+# A slug-prefixed doc name: a Capitalized token + ≥1 more Capitalized token,
+# e.g. "FCT PRD", "FCT Decisions", "SKA Backlog", "US CAE". Matches whole phrase
+# (no capturing group → findall returns the full match).
+_Q_SLUGDOC_RE = re.compile(r"\b[A-Z][A-Za-z0-9]*(?:\s+[A-Z][A-Za-z0-9]+)+\b")
+_Q_ARTIFACT_EXT_RE = re.compile(
+    r"\.(md|py|svg|png|d2|sh|yaml|yml|json|txt|rs|ts|js)$", re.IGNORECASE)
 
 
-def check_c37_queries_item_format(anchor_backlogs: dict[str, Path]) -> list[Finding]:
+def check_c37_queries_item_format(
+        anchor_backlogs: dict[str, Path],
+        vault_index: dict[str, list[Path]]) -> list[Finding]:
     """Format rules for the answer-requiring sections of `{NAME} queries.md`:
 
       C37 — bare F-number must be a wiki-link (any bullet, any section).
@@ -2690,6 +2706,11 @@ def check_c37_queries_item_format(anchor_backlogs: dict[str, Path]) -> list[Find
       C41 — `## Immediate Questions` bullets contain the word `Recommendation`
             (may be 'None' — the rule forces the agent to *consider* whether it
             has a recommendation, not to manufacture one).
+      C42 — an answerable item (Verifications / Immediate Questions / Questions)
+            that NAMES a doc/file/template the user must open must make it a live
+            `[[wiki-link]]` — a bare resolvable slug-prefixed doc name (e.g.
+            `FCT PRD`) or a code-span filename (e.g. `` `_Disk {{LABEL}}
+            Template.md` ``) is a violation: the user cannot follow a name.
     """
     findings: list[Finding] = []
     for name, backlog_file in anchor_backlogs.items():
@@ -2733,6 +2754,7 @@ def check_c37_queries_item_format(anchor_backlogs: dict[str, Path]) -> list[Find
                     break
             is_verif = (section == "Verifications")
             is_imm = (section == "Immediate Questions")
+            is_ques = (section == "Questions")
 
             # C37 — bare F-number anywhere in the item (wiki-links AND
             # code-spans blanked first). Without the _strip_code_spans compose,
@@ -2774,6 +2796,44 @@ def check_c37_queries_item_format(anchor_backlogs: dict[str, Path]) -> list[Find
                                  "options `**(A)** / **(B)** / …` (Immediate "
                                  "Questions). The Recommendation line + option "
                                  "format are enforced by C9 / C19."),
+                        mechanically_fixable=False))
+
+            # C42 — every artifact the item names must be a live wiki-link.
+            # An answerable item that tells the user to open a doc/file/template
+            # must LINK it; a bare name or a code-span filename leaves the user
+            # hunting. Fixed at the SOURCE (the backlog `- **Verify:**` /
+            # question body), so mechanically_fixable=False.
+            if is_verif or is_imm or is_ques:
+                offenders: list[str] = []
+                # (a) code-span filenames that C36 skips (templated / multi-word):
+                #     `_Disk {{LABEL}} Template.md`, `FCT PRD.md`.
+                for span in _Q_BACKTICK_RE.findall(item):
+                    s = span.strip()
+                    if _Q_ARTIFACT_EXT_RE.search(s) and (
+                            "{" in s or "}" in s or " " in s):
+                        offenders.append(f"`{s}`")
+                # (b) bare slug-prefixed doc names that resolve in the vault —
+                #     wiki-links / md-links / code spans blanked first so only
+                #     genuinely-BARE references remain.
+                plain = _Q_BACKTICK_RE.sub(
+                    "", _Q_MDLINK_RE.sub("", _Q_WIKILINK_RE.sub("", item)))
+                for phrase in _Q_SLUGDOC_RE.findall(plain):
+                    if _is_placeholder_basename(phrase):
+                        continue
+                    if phrase in vault_index:
+                        offenders.append(phrase)
+                for off in dict.fromkeys(offenders):  # dedupe, preserve order
+                    bare = off.strip("`")
+                    # strip a trailing .md so the suggested link is the stem
+                    link = _Q_ARTIFACT_EXT_RE.sub("", bare)
+                    findings.append(Finding(
+                        severity="error", surface_file=qf, surface_line=ln, code="C42",
+                        message=(
+                            f"names an artifact in bare text — {off} — but every "
+                            f"doc/file a question or verification tells the user to "
+                            f"open MUST be a live wiki-link `[[{link}]]`. Fix at the "
+                            f"source (the backlog row's `- **Verify:**` line or the "
+                            f"question body), never in the rendered queries.md."),
                         mechanically_fixable=False))
     return findings
 
@@ -3963,7 +4023,7 @@ def main() -> int:
     # `{NAME} queries.md` (per F176). Runs once after the per-anchor loop (not
     # per anchor), since each queries file is keyed by its sibling backlog's name.
     findings.extend(check_c35_ask_md_drift(anchor_backlogs, vault_index))
-    findings.extend(check_c37_queries_item_format(anchor_backlogs))
+    findings.extend(check_c37_queries_item_format(anchor_backlogs, vault_index))
     # F126 — C36 backtick-filepath check. Runs on Q.md (when in scope),
     # every per-anchor `{NAME} queries.md`, AND every anchor backlog —
     # backlog rows are the source content that triage-section.py copies
