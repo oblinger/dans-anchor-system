@@ -383,6 +383,38 @@ def compile_ruleset(rs: dict, anchor: str) -> tuple[dict, str, dict]:
 
 # ── whole-corpus compile (consumes the warden_scan index) ────────────────────
 
+def vault_root(scan_root: Path) -> Path:
+    """The tree whose `.anchor` files count as trait declarations (F219).
+    `WARDEN_VAULT` env wins; else the nearest ancestor named `kmr` (the
+    knowledge-repo convention — the rule corpus lives inside the vault);
+    else the scan root itself (self-contained repo)."""
+    import os
+    env = os.environ.get("WARDEN_VAULT", "").strip()
+    if env:
+        return Path(env).expanduser()
+    for p in [scan_root, *scan_root.parents]:
+        if p.name == "kmr":
+            return p
+    return scan_root
+
+
+def declared_anchor_traits(vault: Path) -> list[str]:
+    """Every trait some `.anchor` under the vault declares, plus the implicit
+    `_base` — the ground truth the F219 reachability self-audit checks the
+    compiled trait index against. One walk per compile (~0.5 s vault-wide)."""
+    import warden_fire as wf
+    declared = {"_base"}
+    try:
+        for dot in vault.rglob(".anchor"):
+            try:
+                declared.update(wf.read_anchor_traits(dot.parent))
+            except OSError:
+                continue
+    except OSError:
+        pass
+    return sorted(declared)
+
+
 def compile_corpus(root: Path, index: dict, anchor: str = "all",
                    source_hash: str = "") -> tuple[dict, str, dict]:
     """Compile every ruleset the scan index lists under `root` into one combined
@@ -432,6 +464,9 @@ def compile_corpus(root: Path, index: dict, anchor: str = "all",
         "doc_rules": doc_rules,
         "traits": traits,
         "rules": merged_rules,
+        # F219: the wiring snapshot the trait-reachability self-audit reads —
+        # traits actually declared by `.anchor` files under the vault.
+        "declared_traits": declared_anchor_traits(vault_root(root)),
     }
     module_src = emit_module(anchor, py_rules)
     stats = {"files": files, "read_errors": errors, "rulesets": sum(
