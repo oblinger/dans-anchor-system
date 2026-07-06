@@ -3,7 +3,6 @@ description: "facet spec for user stories as first-class siblings of a PRD — i
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Stories](hook://p/FCT%20Stories)
-
 # FCT Stories
 **Audited examples:** [[FEX Stories]], [[US-CAE-1 — Schedule a Task]], [[US-CAE-3 — Retry Failed Tasks]], [[Forum Stories]], [[HBR PRD User Stories]]
 

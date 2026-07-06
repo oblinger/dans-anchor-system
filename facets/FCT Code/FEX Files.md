@@ -5,7 +5,6 @@ description: repository file tree (audit-generated)
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Code]]
-
 # FEX Files
 
 File tree for the example-project repository with descriptions.

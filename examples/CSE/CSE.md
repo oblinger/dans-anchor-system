@@ -8,8 +8,8 @@ A self-contained reference anchor demonstrating the canonical CAB skill-trait an
 | -[[CSE]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [CSE](hook://p/CSE)<br>: Common Skill Example — reference anchor — a fully-wired example of a CAB skill anchor |
 | --- | --- |
 | Skill | [[CSE/SKILL\|SKILL.md]],  [[SKL CSE\|User Docs]],   |
-| [[CSE Plan\|Plan]] | [[CSE PRD\|PRD]],  [[CSE Backlog\|Backlog]],  [[CSE Features\|Features]],  [[CSE Triage\|Triage]],   |
-| Research | — |
+| [[CSE Design\|Design]] | [[CSE PRD\|PRD]],   |
+| [[CSE Track\|Track]] | [[CSE Backlog\|Backlog]],  [[CSE Features\|Features]],  [[CSE queries\|queries]],   |
 
 
 

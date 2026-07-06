@@ -2,7 +2,6 @@
 description: "/query — the clean skill for asking you questions, formatted so you can always answer from what's written."
 ---
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[ASG]] → [ASG Query](hook://p/ASG%20Query)
-
 # /query — user guide
 
 **Full internals & design:** [[SKL Query]]   ·   **Runtime spec:** [[skills/query/SKILL.md\|SKILL.md]]

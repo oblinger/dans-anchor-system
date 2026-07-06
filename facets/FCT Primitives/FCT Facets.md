@@ -3,7 +3,6 @@ description: Index of every Facet — the narrow, usually-file-based Aspects an 
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Primitives]] → [FCT Facets](hook://p/FCT%20Facets)
-
 # FCT Facets
 Facets are one of the two sibling sub-categories of [[CAB Aspects|Aspect]] (the other is [[TRT|Trait]]). Each Facet is a narrow, specific aspect of an anchor — almost always tied to one or more files. Each spec doc under this folder is authoritative for its Facet's detection mechanism, cardinality, format constraints, behavior, Constraints, and Expected Usage (per [[CAB Aspects]] § Facet + § Spec-doc structure).
 

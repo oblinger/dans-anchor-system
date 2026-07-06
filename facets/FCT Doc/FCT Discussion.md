@@ -3,7 +3,6 @@ description: "per-document discussion log — dated trade-off threads attached t
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Doc]] → [FCT Discussion](hook://p/FCT%20Discussion)
-
 # FCT Discussion
 Per-document discussion log — dated trade-off threads attached to the doc they're about.
 

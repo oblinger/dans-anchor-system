@@ -6,7 +6,7 @@ description: Architect — SKA skill anchor; design tree + dispatch for `/archit
 | -[[Architect]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [Architect](hook://p/Architect)<br>: SKA skill anchor for `/architect` |
 | --- | --- |
 | Skill | [[architect/SKILL\|SKILL.md]],  [[SKL Architect\|User Docs]],   |
-| Design | [[Architect Design\|Design]] — [[Architect PRD\|PRD]] |
+| [[Architect Design\|Design]] | [[Architect PRD\|PRD]],   |
 
 `/architect` — see [[architect/SKILL|SKILL.md]] for the agent runbook and [[SKL Architect]] for user-facing docs.
 

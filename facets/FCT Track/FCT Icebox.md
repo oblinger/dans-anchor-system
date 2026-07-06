@@ -3,7 +3,6 @@ description: optional file for distant-future / someday-maybe items
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Icebox](hook://p/FCT%20Icebox)
-
 # FCT Icebox
 Optional cold-storage counterpart to the Backlog — holds distant-future / someday-maybe items the user wants to remember but is not actively considering.
 

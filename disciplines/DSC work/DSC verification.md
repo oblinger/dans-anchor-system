@@ -5,7 +5,6 @@ user_invocable: false
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DSC verification](hook://p/DSC%20verification)
-
 # Verification Discipline
 The four-tier preference ordering (agent-immediate → user-explicit) for how a feature gets verified, declared up front in each feature doc and consulted at verification time so user attention is spent only when no lower tier works.
 

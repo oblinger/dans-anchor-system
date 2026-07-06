@@ -3,7 +3,6 @@ description: The Brief doc facet — agent-facing per-file editing-and-maintenan
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Doc]] → [FCT Brief](hook://p/FCT%20Brief)
-
 # FCT Brief
 A **Brief** is a **document facet** — agent-facing per-file editing-and-maintenance content paired with a source file (inline `# BRIEF` section in Phase 1; `<Name> Brief.md` sidecar in Phase 2).
 

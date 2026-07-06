@@ -3,7 +3,6 @@ description: "command-line specification — the harbor CLI: a compressed --help
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[HBR]] → [[HBR Design]] → [HBR CLI](hook://p/HBR%20CLI)
-
 # HBR CLI
 The command-line specification of `harbor` — one binary driving every Harbor pipeline (Ingest, Scan, Serve, Operate); each command reads `harbor.toml`.
 

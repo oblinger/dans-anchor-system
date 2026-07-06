@@ -4,10 +4,9 @@ description: Lint an anchor — static analysis against CAB type rules.
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[CAB]] → [LINT](hook://p/LINT)
+# LINT — CAB Lint
 
 **[[LINT Docs\|Docs]]:** ~~, [[LINT Plan\|Plan]]
-
-# LINT — CAB Lint
 
 Specification page for the LINT tool — static analysis that audits an anchor against the CAB type rules (structure, naming, dispatch tables, module-doc coverage).
 

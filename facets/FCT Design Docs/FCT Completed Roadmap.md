@@ -3,7 +3,6 @@ description: "completed-roadmap facet — migrated milestones in newest-on-top o
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Completed Roadmap](hook://p/FCT%20Completed%20Roadmap)
-
 # FCT Completed Roadmap
 The migration target for completed milestones — preserves shipped milestone structure in newest-to-oldest order alongside the forward-looking Roadmap.
 

@@ -3,7 +3,6 @@ description: Moving an anchor to a new location — concept and related skills
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Move](hook://p/FCT%20Move)
-
 # FCT Move
 A move relocates an anchor's folder and updates every system that references it by path.
 

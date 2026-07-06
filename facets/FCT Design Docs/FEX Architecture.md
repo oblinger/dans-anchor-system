@@ -1,8 +1,6 @@
 ---
-description: CAE system architecture — entry-point doc for the {NAME} Architecture/ folder anchor. Worked example of the FCT Architecture facet (section spine, visual-only diagrams, subsystem dispatch with link convention, API content lives elsewhere).
+description: "CAE system architecture — worked example of the FCT Architecture facet"
 ---
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[FCT Design Docs]] → [FEX Architecture](hook://p/FEX%20Architecture)
-
 # FEX Architecture
 CAE is a single-process CLI scheduler. A submitted task carries a deadline, a retry policy, and an opaque command payload; the scheduler enqueues it in a SQLite-backed priority store, dispatches to a fixed worker pool when ready, and routes failures through a centralized retry manager. No daemon, no IPC — every coordination decision flows through the SQLite store.
 
@@ -10,7 +8,7 @@ CAE is a single-process CLI scheduler. A submitted task carries a deadline, a re
 
 CLI submits tasks to the **Scheduler**, which dispatches to the **Worker Pool**, persists state in **TaskStore**, and consults **RetryManager** on failure. The injectable **Clock** (not shown — passed by reference at construction) is the time source every component reads from.
 
-| -[[FEX Architecture]]- |  |
+| -[[FEX Architecture]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[FCT Design Docs]] → [FEX Architecture](hook://p/FEX%20Architecture)<br>: CAE system architecture — worked example of the FCT Architecture facet |
 | --- | --- |
 | [[FEX Scheduler]] | priority queue engine + worker dispatch. Source: `src/execution/scheduler.rs`. |
 | [CAE-Store] | SQLite-backed task persistence; load/save/mark-done. (subsystem doc not yet authored) |
@@ -19,7 +17,6 @@ CLI submits tasks to the **Scheduler**, which dispatches to the **Worker Pool**,
 | --- | |
 | [[Common Testing Types]] | standard test-kind catalogue — generic strategy per kind, linked from each project's Testing tests-table |
 | [[FCT API Design]] | facet spec for {NAME} API Design.md — the programmatic (code-to-code or sub-skill) user surface |
-| [[FCT Architecture]] | per-anchor architecture overview — anchor-folder form with subsystems; standard section order; mandatory visual diagram (Excalidraw, never ASCII); subsystem dispatch table with link convention; API detail lives in sub-docs, not the main page. |
 | [[FCT CLI]] | The command-line specification facet — the full command surface for an anchor that ships a CLI, opened by a compressed `--help` figure (an SVG); a design-pipeline doc downstream of UX Design |
 | [[FCT Completed Roadmap]] | completed-roadmap facet — migrated milestones in newest-on-top order, sibling of the forward-looking Roadmap |
 | [[FCT Decisions]] | decisions are documentation — recorded under a `## Decisions` section in the design doc they shape; Warden never computes against them. Anything directly checkable is a rule, living in the companion `# RULESET` directly after the Decisions section; rules link back with an implements-D<N> note. |
@@ -36,6 +33,9 @@ CLI submits tasks to the **Scheduler**, which dispatches to the **Worker Pool**,
 | [[FEX Decisions Details]] |  |
 | [[FEX Roadmap]] | sequencing-design — milestones + ordering (moved from Track 2026-06-10) |
 | [[FEX Stories]] | three user stories — index for US-CAE-1..3 (folder-form per |
+| [[FCT Design Docs/US-CAE-1 — Schedule a Task]] | Schedule a deferred shell task with absolute or relative time |
+| [[US-CAE-2 — Monitor Task Status]] | Show task state grouped by pending / running / done / failed |
+| [[FCT Design Docs/US-CAE-3 — Retry Failed Tasks]] | Auto-retry failed tasks with exponential backoff to a cap |
 
 
 > [!note] FCT Architecture convention

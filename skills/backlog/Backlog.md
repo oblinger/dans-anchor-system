@@ -6,7 +6,7 @@ description: Backlog — SKA skill anchor; design tree + dispatch for the backlo
 | -[[Backlog]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [Backlog](hook://p/Backlog)<br>: SKA skill anchor for the backlog-horizons skill |
 | --- | --- |
 | Skill | [[backlog/SKILL\|SKILL.md]],  [[SKL Backlog\|User Docs]],   |
-| Design | [[Backlog Design\|Design]] — [[Backlog PRD\|PRD]],  [[Backlog Features\|Features]] |
+| [[Backlog Design\|Design]] | [[Backlog PRD\|PRD]],  [[Backlog Features\|Features]],   |
 
 ## Overview
 

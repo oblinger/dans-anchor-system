@@ -12,7 +12,7 @@ The code facets — a repo's actual source files and the per-module docs they li
 These two facets are a pair: **All Files** is the repo's complete source tree with every file wiki-linked to its module doc; **Module Doc** is the per-module documentation those links resolve to. Together they are the *code* surface of an anchor — distinct from the *anchor structure* facets ([[FCT Anchor]]) and from the *design* of that structure ([[FCT Files Architecture]]).
 
 # RULESET R-code-surface
-include:: [[R-module-doc]]
+include:: ~~[[R-module-doc]]~~
 where:: `anchor`
 description:: the code surface of an anchor — All Files tree + per-module docs, kept in correspondence
 

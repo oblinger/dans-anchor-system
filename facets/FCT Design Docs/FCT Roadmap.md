@@ -3,7 +3,6 @@ description: "facet spec for the project sequencing-design doc — milestones, s
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Roadmap](hook://p/FCT%20Roadmap)
-
 # FCT Roadmap
 The Roadmap facet — the project's sequencing-design doc, organized as named milestones with sub-numbering.
 

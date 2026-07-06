@@ -3,7 +3,6 @@ description: "facet spec for the versions/ release-artifact store — the immuta
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Output]] → [FCT Versions](hook://p/FCT%20Versions)
-
 # FCT Versions
 Facet spec for the `versions/` folder — the immutable, flat store of published release artifacts (`<version> <app>.dmg`) a code project promotes builds into at `publish` time.
 

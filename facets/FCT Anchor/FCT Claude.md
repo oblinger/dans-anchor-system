@@ -3,7 +3,6 @@ description: CLAUDE.md agent configuration
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Claude](hook://p/FCT%20Claude)
-
 # FCT Claude
 Facet spec for the optional `CLAUDE.md` file at an anchor's root that configures Claude Code behavior when the agent is rooted in that anchor.
 
