@@ -672,17 +672,22 @@ def warn_verify_watching_horizon(status, horizon_name):
 # Optional `<ANCHOR>-` prefix (e.g. `DMUX-F034`) for cross-anchor rows migrated
 # into another anchor's backlog that keep their origin id so wiki-links resolve.
 # 2+ uppercase letters + dash, so it never collides with the single-letter F/B.
-ROW_ID_RE = re.compile(r"^(?:([A-Z]{2,})-)?(F|B)(new|\d+|-[A-Za-z0-9][\w\-]*)$")
+# Row-id kinds: F (feature) / T (backlog task) / B (legacy backlog item) — all
+# minted as monotonic numbers; R (roadmap task) — a name-path handle
+# `R-<Name>.<path>` (dots allowed), never a minted counter.
+ROW_ID_RE = re.compile(r"^(?:([A-Z]{2,})-)?(F|B|T|R)(new|\d+|-[A-Za-z0-9][\w\-.]*)$")
 
 
 def parse_row_id(arg):
-    """Return ('F'|'B'|'<PREFIX>-F'|..., literal-rest-or-None).
+    """Return ('F'|'B'|'T'|'<PREFIX>-F'|..., literal-rest-or-None).
 
-    'Fnew' / 'Bnew'  → (kind, None)            — mint a new number
-    'F015'           → ('F', '015')
-    'B7'             → ('B', '7')
-    'B-mode-walkup'  → ('B', '-mode-walkup')   — kebab B-row id
-    'DMUX-F034'      → ('DMUX-F', '034')        — cross-anchor migrated row;
+    'Fnew' / 'Tnew' / 'Bnew'  → (kind, None)     — mint a new number
+    'F015'                    → ('F', '015')
+    'T007'                    → ('T', '007')
+    'B7'                      → ('B', '7')
+    'B-mode-walkup'           → ('B', '-mode-walkup')     — kebab B-row id
+    'R-Scaffolding.5.2'       → ('R', '-Scaffolding.5.2')  — roadmap-task name-path
+    'DMUX-F034'               → ('DMUX-F', '034')          — cross-anchor migrated row;
                        the prefix is folded into `kind` so f"{kind}{rest}"
                        reconstructs the full id.
     """
@@ -690,7 +695,8 @@ def parse_row_id(arg):
     if not m:
         raise BacklogEditError(
             f"invalid row-id '{arg}' "
-            "(expected F<NNN>, B<n>, B-<slug>, <ANCHOR>-F<NNN>, Fnew, or Bnew)"
+            "(expected F<NNN>, T<NNN>, B<n>, B-<slug>, R-<Name>.<path>, "
+            "<ANCHOR>-F<NNN>, Fnew, Tnew, or Bnew)"
         )
     prefix, kind, rest = m.group(1), m.group(2), m.group(3)
     if rest == "new":
@@ -703,26 +709,27 @@ def parse_row_id(arg):
 
 
 def format_row_id(kind, rest_or_num):
-    """For mint: pad F to 3 digits; B stays as-is."""
-    if kind == "F":
+    """For mint: pad F/T to 3 digits; others (B) stay as-is. R is never minted
+    here — its handle is a name-path formed by the caller."""
+    if kind in ("F", "T"):
         if isinstance(rest_or_num, int):
-            return f"F{rest_or_num:03d}"
-        return f"F{rest_or_num}"
-    return f"B{rest_or_num}"
+            return f"{kind}{rest_or_num:03d}"
+        return f"{kind}{rest_or_num}"
+    return f"{kind}{rest_or_num}"
 
 
 # --------------------------------------------------------------------------
 # Backlog scanning
 
 ROW_HEADER_RE = re.compile(
-    r"^(\s*)-\s+\*\*((?:[A-Z]{2,}-)?F\d+|B[\w\-]+|B\d+)\b"
+    r"^(\s*)-\s+\*\*((?:[A-Z]{2,}-)?F\d+|T\d+|R-[A-Za-z0-9][\w\-.]*|B[\w\-]+|B\d+)\b"
 )
 H2_RE = re.compile(r"^##\s+(.+?)\s*$")
 
 # Used to parse the existing row line back into title + body so the script
 # can preserve them across status-only edits.
 ROW_FULL_RE = re.compile(
-    r"^-\s+\*\*(?P<rid>(?:[A-Z]{2,}-)?F\d+|B[\w\-]+|B\d+)"
+    r"^-\s+\*\*(?P<rid>(?:[A-Z]{2,}-)?F\d+|T\d+|R-[A-Za-z0-9][\w\-.]*|B[\w\-]+|B\d+)"
     r"(?:\s+—\s+(?P<title>.+?))?\*\*"
     r"\s+\[(?P<status>[^\]]+)\]"
     r"(?:\s+—\s+(?P<body>.+?))?"
@@ -807,7 +814,11 @@ def render_row(row_id, status, title, body):
     title_block = f"**{row_id} — {title}**" if title else f"**{row_id}**"
     bracket = f"[{status}]"
     suffix = f" — {body}" if body else ""
-    return f"- {title_block} {bracket}{suffix} ^{row_id}\n"
+    # Obsidian block-ids (`^id`) allow only [\w-]; R roadmap-task handles carry
+    # dots (`R-Scaffolding.5.2`), so sanitize dots→dashes for the anchor while the
+    # visible handle keeps its dotted form. No-op for F/T/B ids.
+    anchor = re.sub(r"[^\w\-]", "-", row_id)
+    return f"- {title_block} {bracket}{suffix} ^{anchor}\n"
 
 
 # --------------------------------------------------------------------------

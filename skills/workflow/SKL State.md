@@ -13,7 +13,7 @@ description: "CLI reference for the `state` script — canonical state editor fo
 ## SYNOPSIS
 
 ```
-state task create  [-a ANCHOR] --status S --title T [--horizon H] [--body B]
+state task create  [-a ANCHOR] --status S --title T [--horizon H] [--body B] [--kind F|T|B|R] [--entry E]
 state task update  [-a ANCHOR] ROW-ID [--status S] [--horizon H] [--title T] [--body B]
 state task delete  [-a ANCHOR] ROW-ID
 
@@ -36,12 +36,20 @@ Errors if all three modes fail (flag absent AND no `.anchor` ancestor of cwd).
 ## TASK SUBCOMMANDS
 
 ```
-state task create   create a new row (mints Fnew or Bnew F-number).
+state task create   create a new row (mints the handle per --kind).
                     --status S    required.  bracket text (Designing, Ready, …).
                     --title  T    required.  row title.
                     --horizon H   optional.  Now|Next|Later|Active|Ready|Verify|Done. defaults to Now.
                     --body   B    optional.  row body (wiki-links, dates, descriptions).
-                    --kind   K    optional.  F (default) or B for backlog item.
+                    --kind   K    optional.  F (default) / T / B / R:
+                                    F — feature (has a feature doc); monotonic F<NNN>.
+                                    T — backlog task (row IS the spec, no doc); monotonic T<NNN>,
+                                        a SEPARATE namespace from F (T and F counters are independent).
+                                    B — legacy backlog item.
+                                    R — roadmap task; handle is the referenced entry's name-path
+                                        (R-<Name>.<path>), NOT a counter. Requires --entry.
+                    --entry  E    required for --kind R.  the roadmap entry (e.g. M-Scaffolding.5.2
+                                    or a leaf/non-leaf name-path); handle becomes R-<name-path>.
                                   NOTE: does NOT create the feature doc file. /feature does that.
                                   Orphan rows (no doc) surface as audit-q findings — by design.
 
