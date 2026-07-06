@@ -2172,10 +2172,17 @@ def check_c24_questions_count_match(entries: list[BacklogEntry]) -> list[Finding
         if not m:
             continue
         claimed = int(m.group(1)) if m.group(1) else 1
-        # Resolve linked feature doc (same approach as C23)
+        # Resolve the Q-bearing target. The row's OWN doc is the arrow-form
+        # `→ [[…]]` reference only — an in-prose link is a mention, not the
+        # doc. Rows without an arrow link (T-/B-rows) carry their Qs as
+        # inline sub-bullets, counted from the backlog file itself.
+        # (2026-07-06: first-link resolution made C24's auto-fix follow a
+        # T-row's prose mention to an unrelated doc, count 0, and rebracket
+        # a genuinely-questioned row to [Ready].)
         target_file: Optional[Path] = None
         container_id = e.identifier
-        if e.link is not None and e.link.target_file_path is not None:
+        has_arrow = re.search(r"→\s+\[\[", e.raw_body) is not None
+        if has_arrow and e.link is not None and e.link.target_file_path is not None:
             target_file = e.link.target_file_path
             stem_m = F_NUMBER_PREFIX_RE.match(target_file.stem)
             if stem_m:
@@ -2497,16 +2504,18 @@ def check_c33_designing_needs_link(entries: list[BacklogEntry]) -> list[Finding]
 def check_c34_inline_q_in_row_body(backlog_files: list[Path]) -> list[Finding]:
     """C34: inline `Q<n>` bullets inside backlog row bodies are forbidden.
 
-    Qs belong in feature docs (`{NAME} Features/F<n> — Title.md` §
-    `## Open Questions`) or authored directly in the anchor queries file
-    (`{NAME} queries.md` § `## Questions`), per
-    [[ask-format]]. Embedding Qs in a backlog row body bypasses /query's
-    surfacing (Q.md banner, /triage) and produces a row that contains
-    decision content the rest of the workflow can't see.
+    For **F-rows** Qs belong in the feature doc (`{NAME} Features/F<n> —
+    Title.md` § `## Open Questions`) — the doc is the Q home and the row links
+    it. **T-/B-rows have no feature doc**, so per R-backlog-05 / [[Backlog|FCT
+    Backlog]] § The groomed states the row ITSELF is the Q-bearing target:
+    well-formed `- **Q<n> —` sub-bullets on a T-/B-row are the sanctioned
+    inline form, not a finding (aligned 2026-07-06 — C34 previously
+    contradicted the spec and forced Questions-state T-rows into fake docs).
     """
     findings: list[Finding] = []
     # Match `- **Q<n> —` or `  - **Q<n> —` (indented or not — any bullet form).
     inline_q_re = re.compile(r"^\s*- \*\*Q\d+\s+[—-]")
+    row_open_re = re.compile(r"^- \*\*([A-Za-z]+)[-]?\d*")
     for backlog_file in backlog_files:
         try:
             text = backlog_file.read_text(encoding="utf-8")
@@ -2514,6 +2523,7 @@ def check_c34_inline_q_in_row_body(backlog_files: list[Path]) -> list[Finding]:
             continue
         lines = text.splitlines()
         current_h2 = ""
+        row_kind = ""
         in_fence = False
         for i, line in enumerate(lines, start=1):
             if re.match(r"^\s*```", line):
@@ -2524,9 +2534,16 @@ def check_c34_inline_q_in_row_body(backlog_files: list[Path]) -> list[Finding]:
             m = HEADING_RE.match(line)
             if m and m.group(1) == "##":
                 current_h2 = m.group(2).strip()
+                row_kind = ""
                 continue
+            rm = row_open_re.match(line)
+            if rm:
+                row_kind = rm.group(1)
             # Skip Done/Icebox/Verify (Verify rows reference Qs legitimately).
             if current_h2 in ("Done", "Icebox", "Verify", ""):
+                continue
+            # T-/B-row inline Qs are the sanctioned no-doc form (see docstring).
+            if row_kind in ("T", "B"):
                 continue
             if inline_q_re.match(line):
                 findings.append(Finding(
@@ -3192,9 +3209,13 @@ def apply_c24_fix(backlog_file: Path,
         return False, []
     changed = False
     for e, old_status in questions_rows:
+        # Arrow-form only (mirrors check_c24, 2026-07-06): an in-prose link is
+        # a mention, not the row's doc; T-/B-rows count their inline Qs from
+        # the backlog itself.
         target_file: Optional[Path] = None
         container_id = e.identifier
-        if e.link is not None and e.link.target_file_path is not None:
+        has_arrow = re.search(r"→\s+\[\[", e.raw_body) is not None
+        if has_arrow and e.link is not None and e.link.target_file_path is not None:
             target_file = e.link.target_file_path
             stem_m = F_NUMBER_PREFIX_RE.match(target_file.stem)
             if stem_m:
