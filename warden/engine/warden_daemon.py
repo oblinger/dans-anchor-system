@@ -117,7 +117,10 @@ def _fire_rules(corpus: Corpus, req: dict) -> dict:
     session = wa.session_of(req.get("session"))
     wa.observe(session, moment)
     agent = wa.AgentView(session, moment)
-    ctx = wf.build_ctx(anchor_root, moment, agent=agent)
+    # F215: the event's file path (write:/read: moments) — fire() binds
+    # ctx.file per file-bearing rule from it.
+    ctx = wf.build_ctx(anchor_root, moment, agent=agent,
+                       file_path=req.get("file_path") or None)
     traits = wf.read_anchor_traits(anchor_root)
     # F217 loop prevention (wall 2): a turn-bearing rule fires once per
     # (rule, session, turn) — a Stop-steer continuation extends the SAME turn

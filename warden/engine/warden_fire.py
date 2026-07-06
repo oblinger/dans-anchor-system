@@ -111,6 +111,10 @@ def build_ctx(anchor_root: Path, moment: str, **overrides) -> types.SimpleNamesp
         "agent": wa.unbound(),
         # F217: the judgment verb — blocking, cached, fail-silent.
         "ask_oracle": wa.ask_oracle,
+        # F215: the event's file (write:/read: moments) — fire() binds
+        # `ctx.file` per file-bearing rule from this path.
+        "file_path": None,
+        "file": None,
     }
     # audit-q cooperative post-moment: the freshly-built queries file is the input.
     if moment.endswith(":audit-q"):
@@ -168,19 +172,36 @@ def fire(ir: dict, module, moment: str, ctx, anchor_traits) -> list[str]:
         if row.get("turn_bearing") and not getattr(
                 getattr(ctx, "agent", None), "is_bound", False):
             continue
+        # F215: bind `ctx.file` per (rule, event-file) — its `.diff` is the
+        # change since THIS rule last evaluated the file, so the binding
+        # cannot be shared across rules the way the rest of ctx is.
+        fv = None
+        if row.get("file_bearing"):
+            fp = getattr(ctx, "file_path", None)
+            if fp:
+                import warden_reval as wr
+                fv = wr.FileView(rule_id, fp)
+            ctx.file = fv
         if not all(eval_guard(g, ctx) for g in row.get("guards", [])):
             continue
         gp = row.get("guard_py")
         if gp and module is not None and not getattr(module, gp)(ctx):
             continue
+        produced: list[str] = []
         if row.get("body_py") and module is not None:
             out = getattr(module, row["body_py"])(ctx)
             if out:
-                steers.extend(out if isinstance(out, list) else [out])
+                produced = out if isinstance(out, list) else [out]
         elif row.get("action"):
             act = row["action"]
             if act.get("kind") in ("tell", "deny"):
-                steers.append(act.get("text") or act.get("reason") or "")
+                produced = [act.get("text") or act.get("reason") or ""]
+        steers.extend(produced)
+        # F215: the rule fully evaluated this revision — advance its
+        # last-evaluated record (a gate-suppressed pass never reaches here,
+        # so sub-threshold edits accumulate in the diff until they cross).
+        if fv is not None:
+            fv.mark_evaluated(verdict=produced)
     return steers
 
 

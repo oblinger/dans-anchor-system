@@ -142,12 +142,15 @@ def dispatch(data: dict) -> list[str]:
     ir, module = wf.load_compiled(wdir, "all")
     traits = wf.read_anchor_traits(anchor_root)
 
+    event_fp = (data.get("tool_input") or {}).get("file_path") or None
     steers: list[str] = []
     for moment in moments:
         # F216: bind the agent-state view to the session that produced this
         # event (lazy — costs nothing unless a rule reads agent.*).
+        # F215: the event's file path lets fire() bind ctx.file per rule.
         import warden_agent as wa
-        ctx = wf.build_ctx(anchor_root, moment, agent=wa.make_agent(data, moment))
+        ctx = wf.build_ctx(anchor_root, moment, agent=wa.make_agent(data, moment),
+                           file_path=event_fp)
         fired = wf.fire(ir, module, moment, ctx, traits)
         if fired:
             _log(f"FIRED {moment} @ {anchor_root.name} traits={traits} → {len(fired)} steer(s)")

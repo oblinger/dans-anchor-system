@@ -270,12 +270,12 @@ The LLM-judged **body is the costly thing** — it goes to the main (expensive) 
 if:: file.diff.lines > 5      # only (re)judge when the change is non-trivial
 ```
 
-So "significant change" is **not a separate clause** — it is a normal `if::` over `file.diff`, in the same language as every other condition, and far cheaper than the body it guards (the script-assisted pattern, applied to the re-run decision). The engine reuses the cached verdict between significant changes, so a throttled rule's prior finding still stands; it re-judges only when the rule fires. (The precise verdict-persistence rule under audit is an open question — below. [[F215 — Re-evaluation economy — the significant-edit gate|F215]].)
+So "significant change" is **not a separate clause** — it is a normal `if::` over `file.diff`, in the same language as every other condition, and far cheaper than the body it guards (the script-assisted pattern, applied to the re-run decision). The engine reuses the cached verdict between significant changes, so a throttled rule's prior finding still stands; it re-judges only when the rule fires. (Built 2026-07-05 — [[F215 — Re-evaluation economy — the significant-edit gate|F215]]: the engine keeps a per-`(rule, file)` last-evaluated record, and only a full evaluation advances it.)
 
 ## Open Questions
 
 1. **The `edit` family.** What is the full set of `file` edit methods (beyond `set_frontmatter` / `replace_section`), and how does the never-delete floor apply to each?
-2. **Verdict persistence when throttled (F215).** When a `file.diff` gate suppresses an expensive *audit* rule (the change is sub-threshold), its prior **finding must persist** — the engine reuses the cached verdict rather than reading the silence as a pass (a still-present issue can't be cleared by a one-line edit elsewhere). What is the exact cache key + reuse rule? (Live steers have no such issue — emitting nothing on a small edit is correct.)
+2. ~~**Verdict persistence when throttled (F215).**~~ **Resolved with the F215 build (2026-07-05):** the engine keeps, per `(rule, file)`, the content hash + text of the **last-evaluated revision** and the verdict that evaluation produced; a gate-suppressed pass serves that stored verdict (silence is never read as a pass), and only a full evaluation advances the record — so sub-threshold edits accumulate in `file.diff` until they cross the threshold together. → [[F215 — Re-evaluation economy — the significant-edit gate|F215]] § Resolved.
 3. **`git` in a nested repo.** When an anchor nests its own code repo (the vault repo *and* a project repo under one anchor), `git` follows the rule's subject — but does that need an explicit **`anchor.repo` / `code.repo`** split when both exist?
 
 ## See also

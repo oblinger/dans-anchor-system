@@ -127,6 +127,6 @@ All of M1–M5 is design / validation; M6 is the single expensive build; M7 is a
 
 ## Open questions
 
-1. **Repo home for the implementations.** Python ref (+ later Rust) — new code anchor under SKA, or alongside the audit scripts? (Affects `.anchor` + build wiring.) Resolve in M2.
-2. **Migration ordering (M6 surface fold).** Which existing surface ports first — `audit-q` (smallest, already `when::`) is the natural pilot.
+1. ~~**Repo home for the implementations.**~~ **Resolved by the build (2026-07-02):** the Python reference lives at `warden/engine/`, the Rust crate at `warden/rs/` — both inside the Warden anchor, wired into CI.
+2. ~~**Migration ordering (M6 surface fold).**~~ **Resolved by the build (2026-07-02):** `audit-q` was the pilot — `R-query-14` fires live through the compiled engine.
 3. **Budget-enforcement policy (M8).** Advisory logging vs. hard demote-to-audit for over-budget rules (also [[Warden PRD]] Q3).

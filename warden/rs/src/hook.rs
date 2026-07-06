@@ -318,6 +318,11 @@ pub fn dispatch(data: &Value) -> Vec<String> {
         .file_name()
         .map(|n| n.to_string_lossy().into_owned())
         .unwrap_or_default();
+    // F215: the event's file path — the daemon binds ctx.file per
+    // file-bearing rule from it (write:/read: moments).
+    let empty_ti = json!({});
+    let event_ti = data.get("tool_input").filter(|v| !v.is_null()).unwrap_or(&empty_ti);
+    let event_fp = str_field(event_ti, "file_path");
     let mut steers: Vec<String> = Vec::new();
     for moment in &moments {
         let plan = fire_plan(&ir, moment, &ctx, &traits);
@@ -337,6 +342,7 @@ pub fn dispatch(data: &Value) -> Vec<String> {
                 "moment": moment,
                 "anchor_root": anchor_root.to_string_lossy(),
                 "rule_ids": owed,
+                "file_path": event_fp,
                 // F216: the session mapping — the daemon records the moment in
                 // its ledger and binds the agent-state view for rule bodies.
                 "session": {
