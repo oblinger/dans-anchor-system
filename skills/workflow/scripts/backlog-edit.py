@@ -263,6 +263,11 @@ def verify_questions_constraint(status, body):
             f"[{status}] requires a body with a wiki-link to a target containing "
             f"Q<n> markers; body is empty. Add the link first, then re-run."
         )
+    # B/T-row inline Qs (R-backlog-05): a row may carry its own numbered Qs as
+    # `- **Q<n> — …**` sub-bullets instead of linking a feature doc — the row
+    # itself is then the Q-bearing target and the promise is honored in place.
+    if re.search(r"\*\*Q\d+\s+—", body):
+        return
     # Prefer the canonical "→ [[F<n> ...]]" feature-doc reference at the end of
     # the body. Fall back to the last wiki-link, then the first. Picking the FIRST
     # wiki-link grabbed in-prose references like [[Topic]] and let the check
@@ -486,10 +491,17 @@ def verify_status_block(status, body, existing_status):
             f"note: [{status}] with empty body — skipping `## Status` block check (F102).\n"
         )
         return
-    m = WIKI_LINK_RE.search(body)
+    # The row's OWN doc is the arrow-form `→ [[F<n> — …]]` reference (last one
+    # wins), never an in-prose mention of some other doc — the same
+    # arrow-preferred rule verify_questions_constraint adopted after the
+    # B-roots-reconcile failure (2026-06-02); F102 had kept first-link and so
+    # wrongly bound a T-row's status to a doc it merely referenced (2026-07-06).
+    arrow_links = list(re.finditer(r"→\s+(\[\[[^\]]+\]\])", body))
+    m = WIKI_LINK_RE.search(arrow_links[-1].group(1)) if arrow_links else None
     if not m:
         sys.stderr.write(
-            f"note: [{status}] body has no wiki-link — skipping `## Status` block check (F102).\n"
+            f"note: [{status}] body has no `→ [[…]]` doc reference — "
+            f"skipping `## Status` block check (F102).\n"
         )
         return
     basename = m.group(1).strip()
@@ -1017,8 +1029,18 @@ def perform_edit(
     # Constraint check — the Questions promise. Refuse the write if the
     # status asserts [Questions] but the body's wiki-link target has no
     # Q<n> markers. Runs AFTER the preserve-on-omit resolution so the
-    # final body is what we verify.
-    verify_questions_constraint(status, body)
+    # final body is what we verify. The check-body includes the existing
+    # row's sub-bullets: a T-/B-row's inline `- **Q<n> —` sub-bullets are a
+    # sanctioned Q home (R-backlog-05), and parse_existing_row only sees the
+    # opening line — without this, a bracket-only update on such a row
+    # wrongly failed its own promise.
+    body_for_check = body
+    if existing is not None:
+        j = existing[0] + 1
+        while j < len(lines) and re.match(r"^\s+- ", lines[j]):
+            body_for_check += "\n" + lines[j]
+            j += 1
+    verify_questions_constraint(status, body_for_check)
 
     # F096 — refuse [Verify*] when body describes pending implementation
     # work (Phase 2, remaining, follow-up, etc.). Addresses the F094 lie
@@ -1067,7 +1089,12 @@ def perform_edit(
             # In-place replacement: swap the first line, keep any sub-bullets.
             lines[start] = new_line
         else:
-            # Remove old span, then insert new in destination H2.
+            # Remove old span, then insert new in destination H2. Carry the
+            # row's sub-bullet block through the move — re-inserting only the
+            # opening line silently dropped inline Qs / plan sub-bullets
+            # (found 2026-07-06: a horizon move erased a T-row's Q1, and the
+            # follow-on audit-fix then rebracketed the now-Qless row).
+            sub_block = [sl for sl in lines[start + 1:end] if sl.strip() != ""]
             del lines[start:end]
             # Re-scan; line numbers shifted.
             lines, h2_index, row_index = scan_backlog("".join(lines))
@@ -1078,6 +1105,8 @@ def perform_edit(
                 lines.insert(insert_at, "\n")
                 insert_at += 1
             lines.insert(insert_at, new_line)
+            for k, sl in enumerate(sub_block, start=1):
+                lines.insert(insert_at + k, sl)
         verb = "updated"
     else:
         # Brand new row.
