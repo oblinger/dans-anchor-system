@@ -18,7 +18,7 @@ The human-authored layer-contract for the Warden engine (per R-interfaces-folder
 - **The `warden` CLI verbs** — the sanctioned command surface for everything operational (R-wrapper-cli): kill switch, corpus compile, hook install/uninstall, daemon lifecycle, manual moment fire.
 - **The hook stdin/stdout contract** — event JSON in; either nothing, `systemMessage` steers, or a `hookSpecificOutput.permissionDecision: deny` (PreToolUse only) out. Malformed input, missing IR, or a down daemon produce silence, never a block.
 - **The rule-authoring language** — `RULE`/`RULESET` sentinels, `when::`/`where::`/`if::`, prose/Python bodies ([[Warden Rule]], [[Warden Semantics]]): the stable authoring contract the corpus is written against.
-- **`.anchor` trait adoption** — `traits:` lists activate rulesets per anchor; [[Anchor Base]] is implicit everywhere.
+- **`.anchor` trait adoption** — `traits:` lists activate rulesets per anchor; [[anchor-base]] is implicit everywhere.
 
 ## Guarantees
 
