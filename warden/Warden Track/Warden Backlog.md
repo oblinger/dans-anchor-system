@@ -9,6 +9,9 @@ _None._
 
 ## Ready
 
+- **Design-rules catalog (F218)** [Ready] — migrated from SKA F108 2026-07-02 (user: pull it into Warden). The user's recurring architectural rules (single `Interfaces/` folder, factory construction, peg-board registry, design-sign-off gate) authored as Warden rulesets, mined from existing PRDs/Principles/Architecture docs (propose→review), adopted per-application by `.anchor` trait. Q1 (rides the ruleset system — no separate store) + Q2 (agent proposes, user upgrades) resolved. *Content* over the engine; M1 gate cleared 2026-07-02 — groomed out of Later 2026-07-05. Best taken by a fresh session (corpus-scale doc mining). → [[F218 — Design-rules catalog — ship with skills, adopt per-application]]
+  - **Next:** mine the existing PRD/Principles/Architecture docs for the recurring design rules and draft the proposal rulesets (propose-tier per Q2 — the user upgrades); no user input needed until the review of the drafted catalog.
+
 ## Now
 
 ## Next
@@ -17,8 +20,6 @@ _**Live push — user directive 2026-07-02** ([[Warden Roadmap]] § Live push): 
 
 ## Later
 
-- **Design-rules catalog (F218)** [Ready] — migrated from SKA F108 2026-07-02 (user: pull it into Warden). The user's recurring architectural rules (single `Interfaces/` folder, factory construction, peg-board registry, design-sign-off gate) authored as Warden rulesets, mined from existing PRDs/Principles/Architecture docs (propose→review), adopted per-application by `.anchor` trait. Q1 (rides the ruleset system — no separate store) + Q2 (agent proposes, user upgrades) resolved. *Content* over the engine; M1 gate cleared 2026-07-02 — groomed out of Later 2026-07-05. Best taken by a fresh session (corpus-scale doc mining). → [[F218 — Design-rules catalog — ship with skills, adopt per-application]]
-  - **Next:** mine the existing PRD/Principles/Architecture docs for the recurring design rules and draft the proposal rulesets (propose-tier per Q2 — the user upgrades); no user input needed until the review of the drafted catalog.
 - **M4 — Migrate existing surfaces** — fold `audit-q` autofire, F091 `compact` / `markdown-write`, and the `audit-on-write` distill module onto the unified compiler; remove bespoke per-rule hook code. **Seam proven 2026-07-02:** `warden_docfire.py` already fires the tier doc-rules verdict-identically to `audit-plan --run` by reusing its checker registry through `run_checker` (the golden corpus passes through the `warden` engine) — so the doc-audit surface migrates without any parallel checker code. Remaining M4 = the *live-hook install* (wiring compiled moment-modules into the real Claude Code hook surface) + retiring the bespoke per-rule hook drivers.
 - **M5 — Perf hardening** — profile the hot path, set + enforce the budget policy (advisory vs. demote-to-audit), verify cache invalidation under a stress workload.
 
