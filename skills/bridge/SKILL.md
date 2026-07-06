@@ -7,6 +7,8 @@ description: Connect this Mac to another machine. Umbrella over three kinds of b
 
 **Bridge** is the umbrella for "connect this machine to another machine." Renamed from `mux-bridge` (F150) once it grew past the original SSH+tmux control plane.
 
+**Anti-pattern — one-shot SSH remote-control.** `ssh <host> '<cmd>'` to drive remote work is the wrong tool (no state, no TCC inheritance, no observability, nohup hacks for anything long) — this skill's persistent tmux is the sanctioned control plane. A live Warden rule ([[R-ob-remote-ops]]-01, F183) denies one-shot SSH at `tool:pre:Bash` and redirects here; bare attaches, `scp`/`rsync`, and in-bridge `tmux` commands pass.
+
 ## Heartbeat discipline — MANDATORY whenever a bridge is active
 
 **Rule (user, 2026-06-12): while ANY bridge is active — a control session, a sync, a remote agent, or a background workflow driving the remote — you MUST keep a running heartbeat that verifies *actual progress*, not just "still waiting."**

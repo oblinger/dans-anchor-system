@@ -20,7 +20,7 @@ description: "Curated, versioned bundles of rules."
 | [[R-process]] | Process rules — **umbrella over 4 mined design-rule families, 14 rules total** (F218, upgraded 2026-07-05): [[R-design-gate]] (4 — SVP M15 canonical), [[R-stable-ids]] (4), [[R-exception-discipline]] (3), [[R-wrapper-cli]] (3). Future: `R-feature-lifecycle`, `R-verification-tiers`. |
 | [[R-test]] | Testing posture. Placeholder; future: `R-integration-not-mock`, `R-deterministic`, `R-property-based`. |
 | **Owner-scoped** | Apply to every anchor a given owner owns, regardless of trait. |
-| [[R-ob]] | Dan's personal Ob-flavored rulesets. Children: [[R-ob-state-mgt]] (3 rules), [[R-ob-observability]] (2 rules), [[R-ob-cmd-proc]] (13 rules). |
+| [[R-ob]] | Dan's personal Ob-flavored rulesets. Children: [[R-ob-state-mgt]] (3 rules), [[R-ob-observability]] (2 rules), [[R-ob-cmd-proc]] (13 rules), [[R-ob-remote-ops]] (1 rule — the F183 bridge-guard, rides `anchor-base`). |
 | --- | |
 | [[Diagram]] | Diagram authoring + validation — **umbrella over 7 methodology sub-sets, 22 rules total**: |
 | [[R-anchor]] | Everything checked when auditing a whole anchor — the entry page + naming + planning facets, plus the doc-level rulesets (via R-doc) for every document the anchor contains. |

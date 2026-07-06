@@ -91,7 +91,9 @@ These were named during the read-hook conversation (2026-06-09) and likely gener
 
 ## Status
 
-**Designing** — initial ideas captured; user will return to flesh out the model.
+**Done** — 2026-07-06, superseded by the Warden moment system. "When and how the agent attends to rules" is now the shipped engine: the unified `when::` taxonomy (F209) binds every rule to its moment; the live dual dispatchers (Rust hot path + warm Python daemon) fire them on every tool use, write, session boundary, and prompt; actions steer (`tell`) or veto (`deny`, F131); conversation content itself gates rules (F217 `agent.turn` + `ask_oracle`); and the base trait ([[Anchor Base]]) makes the always-on set fire everywhere by construction. The ideas captured here fed that design; nothing remains to build separately.
+
+**Earlier: Designing** — initial ideas captured; user will return to flesh out the model.
 
 **next action:** user reviews the Design section above, marks which trigger axes look right and which are wrong, and either fills the Open Questions block or escalates to `## Resolved` with concrete decisions. Then design pass 2 lands a draft trigger-expression grammar.
 
