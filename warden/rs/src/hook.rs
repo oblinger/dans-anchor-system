@@ -69,6 +69,34 @@ fn log(msg: &str) {
     }
 }
 
+// ── per-moment ms budget (M5 — advisory policy; mirror of warden_hook) ──────
+// Over-budget fires are LOGGED, never dropped/demoted (PRD Q3, resolved
+// advisory-first 2026-07-05).
+
+pub fn budget_ms(moment: &str) -> f64 {
+    if moment.starts_with("tool:pre") {
+        2.0
+    } else if moment.starts_with("tool:post")
+        || moment.starts_with("write:")
+        || moment.starts_with("read:")
+    {
+        10.0
+    } else {
+        100.0 // session:* / prompt:* / git:* / timer: — rare, cost amortized
+    }
+}
+
+pub fn over_budget(moment: &str, elapsed_ms: f64) -> Option<String> {
+    let b = budget_ms(moment);
+    if elapsed_ms <= b {
+        None
+    } else {
+        Some(format!(
+            "OVER-BUDGET {moment} fired in {elapsed_ms:.1} ms (budget {b} ms)"
+        ))
+    }
+}
+
 // ── event → moment mapping (mirror of warden_hook.event_to_moments) ─────────
 
 pub fn content_kind(file_path: &str) -> Option<&'static str> {
@@ -325,6 +353,7 @@ pub fn dispatch(data: &Value) -> Vec<String> {
     let event_fp = str_field(event_ti, "file_path");
     let mut steers: Vec<String> = Vec::new();
     for moment in &moments {
+        let fire_t0 = std::time::Instant::now();
         let plan = fire_plan(&ir, moment, &ctx, &traits);
         if plan.is_empty() {
             continue;
@@ -368,6 +397,9 @@ pub fn dispatch(data: &Value) -> Vec<String> {
                     }
                 }
             }
+        }
+        if let Some(warn) = over_budget(moment, fire_t0.elapsed().as_secs_f64() * 1000.0) {
+            log(&warn);
         }
         if steers.len() > before {
             log(&format!(
@@ -504,5 +536,16 @@ mod tests {
         assert_eq!(content_kind("a/b.rs"), Some("rust"));
         assert_eq!(content_kind("a/b.txt"), None);
         assert_eq!(content_kind("noext"), None);
+    }
+
+    #[test]
+    fn budget_advisory_mirrors_python() {
+        assert_eq!(budget_ms("tool:pre:Bash"), 2.0);
+        assert_eq!(budget_ms("tool:post:Write"), 10.0);
+        assert_eq!(budget_ms("write:markdown"), 10.0);
+        assert_eq!(budget_ms("session:start"), 100.0);
+        assert!(over_budget("write:markdown", 9.9).is_none());
+        let warn = over_budget("write:markdown", 25.0).unwrap();
+        assert!(warn.contains("OVER-BUDGET write:markdown") && warn.contains("budget 10 ms"), "{warn}");
     }
 }

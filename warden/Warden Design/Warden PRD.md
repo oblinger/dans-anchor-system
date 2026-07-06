@@ -102,6 +102,6 @@ The rule system is a part of **[[SKA]]**, tied to the **ruleset** primitive ([[F
 
 ## Open questions
 
-1. **Where does the compiler live and when does it run?** At session start (install once), or incrementally as anchors are entered? (Ties to active-set resolution cost.)
-2. **Rust ↔ Python boundary for rule-authored Python.** A rule's own `trigger(ctx)`/`guard(ctx)` is Python; can the Rust hot path call into it cheaply, or are code-carrying rules confined to post-hoc (non-critical) moments?
-3. **Budget enforcement.** Is the per-moment budget advisory (logged) or enforced (a rule exceeding it is dropped from the hot path and demoted to the audit path)?
+1. ~~**Where does the compiler live and when does it run?**~~ **Resolved by the build (2026-07-02):** `warden compile` runs explicitly (CLI / on rule change) and caches on the scan-index hash; the hooks load the pre-compiled artifacts from `~/.warden/` — no per-hook or per-session compile.
+2. ~~**Rust ↔ Python boundary for rule-authored Python.**~~ **Resolved by F213 phase 2 (2026-07-05):** Rust owns selection; rule-authored Python crosses as an IPC round-trip to the warm resident daemon (~3.7 ms with a Python body firing) — cheap enough that code-carrying rules are not confined to post-hoc moments.
+3. ~~**Budget enforcement.**~~ **Resolved advisory-first (M5, 2026-07-05):** an over-budget fire is LOGGED to `hook.log` (`OVER-BUDGET <moment> fired in X ms`), never dropped — both dispatchers time each moment against the § Performance budgets. Demote-to-audit stays a future escalation to take only if advisory data shows a persistent offender.
