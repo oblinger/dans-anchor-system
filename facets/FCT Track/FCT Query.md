@@ -166,6 +166,35 @@ def bare_fnumbers(full_bullet: str) -> list[str]:
     return sorted(set(FNUM.findall(WIKILINK.sub("", full_bullet))))
 ```
 
+### RULE R-query-15 — Every artifact a surfaced item names is a live wiki-link (checked)
+check:: queries_named_artifact_is_link
+
+**🚨 HARD REQUIREMENT.** The generalization of `R-query-13` (F-numbers) to **every** artifact. Any doc / file / template / report / folder / section that an answerable item (`## Verifications`, `## Immediate Questions`, `## Questions`) tells the user to *open / look at / skim / check* **MUST appear as a live `[[wiki-link]]`** (or clickable URL) inside that item. It is **illegal to name a thing the user should look at and not link it** — the user cannot click a bare name. Forbidden forms: a bare resolvable doc name (`FCT PRD`), a bare path (`traits/Drive`), a code-span filename (`` `_Disk {{LABEL}} Template.md` ``), or "see the X". Enforced by audit-q **C42**. Fix at the **source** (the backlog `- **Verify:**` line / the question body), then re-render — never edit the rendered `queries.md`.
+
+**Check pattern:** in each Verifications / Immediate Questions / Questions item, blank `[[…]]` wiki-links + `[text](url)` md-links + backtick spans, then flag **(a)** any remaining slug-prefixed multi-word phrase (`FCT PRD`, `SKA Backlog`) that resolves to a vault basename, and **(b)** any code-span filename ending in a doc extension that C36 skips (templated / multi-word, e.g. `` `_Disk {{LABEL}} Template.md` ``).
+
+```python
+import re
+WIKILINK  = re.compile(r"\[\[[^\]]*\]\]")
+MDLINK    = re.compile(r"\[[^\]]*\]\([^)]*\)")
+BACKTICK  = re.compile(r"`([^`\n]+)`")
+SLUGDOC   = re.compile(r"\b[A-Z][A-Za-z0-9]*(?:\s+[A-Z][A-Za-z0-9]+)+\b")
+ARTIFACT  = re.compile(r"\.(md|py|svg|png|d2|sh|yaml|yml|json|txt|rs|ts|js)$", re.I)
+
+def bare_artifacts(item: str, vault_index: dict) -> list[str]:
+    """Named artifacts in an answerable item that are NOT wiki-links."""
+    out = []
+    for span in BACKTICK.findall(item):                 # (b) code-span filenames
+        s = span.strip()
+        if ARTIFACT.search(s) and ("{" in s or "}" in s or " " in s):
+            out.append(f"`{s}`")
+    plain = BACKTICK.sub("", MDLINK.sub("", WIKILINK.sub("", item)))
+    for phrase in SLUGDOC.findall(plain):               # (a) bare resolvable doc name
+        if phrase in vault_index:
+            out.append(phrase)
+    return list(dict.fromkeys(out))
+```
+
 ### RULE R-query-14 — Never surface a commit/push question; steer the agent to its Git-aspect policy (when:: skill:post:audit-q)
 when:: skill:post:audit-q
 
