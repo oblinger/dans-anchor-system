@@ -8,7 +8,7 @@ The concept dossier for **`/query`** — everything published about the asking s
 | --- | --- |
 | Related | [[ASG Query\|User Guide]],  [[skills/query/SKILL.md\|SKILL]] (runtime) |
 | Design | [[Query PRD\|PRD]] (shared resolution-layer PRD) |
-| Facet | [[FCT Query]] (the `{NAME} queries.md` file format) |
+| Facet | [[FCT Query]] (the `"{SLUG} queries.md"` file format) |
 
 ## What this is
 

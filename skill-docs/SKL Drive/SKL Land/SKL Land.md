@@ -7,7 +7,7 @@ The concept dossier for **`/land`** — everything published about the skill: th
 | -[[SKL Land]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[skill-docs]] → [[SKL Drive]] → [SKL Land](hook://p/SKL%20Land)<br>: the /land concept dossier |
 | --- | --- |
 | Related | [[ASG Land\|User Guide]],  [[skills/land/SKILL.md\|SKILL]] (runtime) |
-| Design | [[Land PRD\|PRD]],   |
+| [[SKL Land Design\|Design]] | [[Land PRD\|PRD]],   |
 
 ## What this is
 

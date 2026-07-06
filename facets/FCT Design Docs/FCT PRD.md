@@ -64,7 +64,7 @@ Per [[FCT Stories]]. The PRD's `## User Stories` section then links to `[[{NAME}
 
 | # | Section | Purpose |
 |---|---|---|
-| 1 | Top of doc | Body-only — no YAML frontmatter. `# {NAME} PRD` H1 + `description::` inline + dispatch table per [[DSC progressive-disclosure]]. |
+| 1 | Top of doc | YAML frontmatter (`description:`) → `:>>` breadcrumb glued directly above the H1 → `# {NAME} PRD` → one-sentence summary. Single-file PRD carries the breadcrumb (no dispatch table); folder-form PRD is an anchor and carries a dispatch table instead (per R-prd-03 / [[FCT Doc Structure|R-doc-structure]]). |
 | 2 | `## Overview` | One to two paragraphs — what the product *is*, who it's for, why it needs to exist. Reader leaves knowing the shape of the thing. |
 | 3 | `## Design Workflow` | Table listing the design phases downstream of this PRD with wiki-links: PRD → Architecture → Testing → Decisions → Track (Roadmap + Features). The sequence may be revisited iteratively as questions surface. |
 | 4 | `## Goals` | Concrete, verifiable outcomes — what the product will accomplish. Bulleted; outcome-shaped (not feature-shaped). |
@@ -123,7 +123,7 @@ Design-phase completeness for the PRD is tracked in `{NAME} Track/{NAME} Status.
 
 Surveying live PRDs across the vault, these are the recurring drifts from the canonical shape — each maps to a rule below and is a migration target, not an accepted variant:
 
-- **Legacy header form** — `desc::`/`description::` inline + `:>>` breadcrumb instead of YAML frontmatter (`R-prd-02`/`R-prd-03`), or no metadata line at all (e.g. `[[HA Track]] > [[HA PRD]]` breadcrumb-only).
+- **Legacy header form** — `desc::`/`description::` inline instead of YAML frontmatter (`R-prd-02`), or no metadata line at all (e.g. `[[HA Track]] > [[HA PRD]]` breadcrumb-only). *(The `:>>` breadcrumb itself is now required directly above the H1 per `R-prd-03`; the deviation is the missing YAML frontmatter, not the breadcrumb.)*
 - **`US-<N>` without the slug** — inline stories numbered `US-1`, `US-2` rather than `US-<SLUG>-<N>` (`R-prd-05`); collides across anchors.
 - **`## Design Constraints` (DC-N)** — architectural/technical constraints living in the PRD instead of [[FCT Decisions]] / [[FCT Ruleset]] (`R-prd-09`).
 - **Missing `## Design Workflow`** — older PRDs jump from Overview straight to Goals (`R-prd-04`).
@@ -174,14 +174,19 @@ check:: frontmatter_has description
 
 **Why:** YAML frontmatter is the canonical metadata form across the vault (anchor pages, design docs); the inline `desc::`/`description::` form is deprecated.
 
-### RULE R-prd-03 — H1 is the first line after the frontmatter (checked)
+### RULE R-prd-03 — Top-matter follows R-doc-structure (breadcrumb-above-H1 for the single-file PRD) (checked)
 check:: h1_after_frontmatter
 
-The first non-blank line after the frontmatter is the H1 `# {NAME} PRD`, then the one-sentence summary.
+The PRD's top-matter follows [[FCT Doc Structure|R-doc-structure]]-01/-02, which turns on whether the PRD is an anchor:
 
-**Check pattern:** skip the leading `--- … ---` block; the next non-blank line starts with `# `.
+- **Single-file PRD (the default — a non-anchor member file inside `{NAME} Design/`)** carries a `:>>` breadcrumb line **directly above** the H1, with **no blank line** between the breadcrumb and `# {NAME} PRD` (per R-doc-structure-01). It carries **no** dispatch table (R-doc-structure-02 — a masthead is only for anchors). The breadcrumb's parent is the `{NAME} Design` anchor: `:>> … → [[{NAME}]] → [[{NAME} Design]]`.
+- **Folder-form PRD (`{NAME} Design/{NAME} PRD/{NAME} PRD.md`)** is the anchor file of its own folder, so it carries a **dispatch table** (breadcrumb in the first cell), not a `:>>` line.
 
-**Why:** the title leads the rendered body; frontmatter carries only metadata, not content.
+Frontmatter (`--- … ---`, metadata only) precedes either form.
+
+**Check pattern:** skip the leading `--- … ---` block; for a single-file PRD the next non-blank line is a `:>>` breadcrumb and the line **immediately** below it is the `# {NAME} PRD` H1 (no blank between); for a folder-form PRD the next table is a dispatch masthead. Delegates the breadcrumb-vs-dispatch choice to R-doc-structure.
+
+**Why:** a PRD is a member document inside its anchor, and every non-anchor member document carries its parent up-edge as a `:>>` breadcrumb glued to the H1 (R-doc-structure-01) — the earlier "H1-first, no breadcrumb" form dropped the up-edge. Anchor-ness (single-file vs folder-form), not the doc kind, decides breadcrumb-vs-dispatch, so this rule defers to R-doc-structure rather than restating it.
 
 ### RULE R-prd-04 — Required sections present in order (checked)
 check:: required_sections_in_order

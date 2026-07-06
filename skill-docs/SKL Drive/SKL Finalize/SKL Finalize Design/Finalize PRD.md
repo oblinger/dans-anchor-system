@@ -1,6 +1,8 @@
 ---
 description: "product requirements"
 ---
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[skill-docs]] → [[SKL Drive]] → [[SKL Finalize]] → [[SKL Finalize Design]]
 # Finalize PRD
 
 _Placeholder. Authored on demand when design discussions warrant it._
