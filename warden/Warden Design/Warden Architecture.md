@@ -37,7 +37,7 @@ A rule is a markdown **heading** whose first token is the all-caps `RULE` sentin
 |---|---|---|
 | Heading | `<H> RULE R-<slug>-NN — name` | the `RULE` sentinel + the permanent id; H3 customary inside a `# RULESET`. |
 | `description::` | a queryable one-liner | the rule's **meaning** — never sent on fire. |
-| condition | `where::` · `when::` · `if::` | which files · which moment · the Python test (§4–5). |
+| condition | `where::` · `when::` · `if::` | which files (§4; grammar: [[FCT Ruleset]] § Where clause) · at what moment (§5; taxonomy: [[Warden Events]]) · and only if — the computed test (§5; vocabulary: [[Warden Semantics]] § The condition). |
 | body | bare prose, or backticked Python | the **action** — prose *is* the `tell`; Python runs `tell` / `edit` / `deny` / `run` ([[Warden Semantics]]). |
 | `**Why:**` · `**Exceptions:**` | optional | rationale · exceptions. (Re-eval economy rides an `if::` over `file.diff`.) |
 
