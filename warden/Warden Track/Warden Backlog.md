@@ -11,12 +11,7 @@ _None._
 
 ## Now
 
-- **M4 — retire the bespoke vault-wide hooks** [Questions] — the last M4 piece after M4a. Inventory 2026-07-05: of the three bespoke surfaces M4 named, **two are already gone** (no audit-q-autofire or F091 compact/markdown-write drivers remain in settings.json — Warden absorbed those surfaces); the one survivor is `audit-on-write.sh`, live **vault-wide** (`__VAULT__` in `~/.config/ob-skills/audit-on-write-roots`), which currently **double-fires** with Warden's trait-gated doc-fire in adopting anchors (e.g. Warden). Retiring it narrows coverage from vault-wide to adopting-anchors-only unless the trait goes wide — an adoption decision reserved to the user (F218 Q2 doctrine: nothing is auto-adopted).
-  - **Q1 — After M4a lands, how does `audit-on-write` coverage go vault-wide so the bespoke hook can retire?** ^M4-Q1
-    - **(A)** Fold `audit-on-write` into the implicit `_base` trait — every anchor gets doc-fire-on-write, exactly matching today's `__VAULT__` coverage; the bespoke hook retires with zero coverage change.
-    - **(B)** Per-anchor sweep — add the trait to the anchors that want it; the rest lose on-write auditing (accepting narrower coverage).
-    - **(C)** Keep the bespoke hook for now — live with the double-fire in adopting anchors; revisit after more Warden soak.
-    - **Recommendation:** Lean (A) — it is a coverage-preserving swap (same files audited, one engine instead of two), the Rust path is ~7× faster than the bash+python spin-up it replaces, and `warden off` remains the instant global kill.
+- **Retire bespoke vault-wide hooks — M4 completion (F229)** [Questions] — → [[F229 — Retire bespoke vault-wide hooks — M4 completion|F229]] Q1 (how does `audit-on-write` coverage go vault-wide?) is the one pending question — an adoption decision reserved to the user per the nothing-is-auto-adopted doctrine. With M4a landed, `audit-on-write.sh` is the sole surviving bespoke hook (the audit-q-autofire and compact/markdown-write drivers are already gone from settings.json), live vault-wide and double-firing with Warden's trait-gated doc-fire in adopting anchors; the answer decides the coverage of the swap, then the retirement is mechanical.
 
 ## Next
 
