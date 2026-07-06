@@ -20,7 +20,7 @@ The rule system is how a portable, audit-checkable constraint is **defined** (th
 | Grouping | What it covers | Spec |
 |---|---|---|
 | **DEFINE** — a rule on disk | `RULE` / `RULESET` sentinels; the **condition** (`where` · `when` · `if`); the **actions** (`tell` · `edit` · `deny` · `run`); `description::`. | [[Warden Rule]] |
-| **COMPOSE & ADOPT** | `include::` depth-first flatten + umbrellas; three homes (catalog · embedded · anchor-local); adoption via anchor **[[traits]]** (`.anchor`); `where::` keeps unmatched rules asleep. | [[Warden Rule]] · [[FCT Decisions]] |
+| **COMPOSE & ADOPT** | `include::` depth-first flatten + umbrellas; three homes (catalog · embedded · anchor-local); adoption via anchor **traits** (`.anchor`); `where::` keeps unmatched rules asleep. | [[Warden Rule]] · [[FCT Decisions]] |
 | **RUN** — the engine | resident **daemon** + tiny notifier; **dispatch** by `where`/`when` indexes; **interpret** `if` + body over `file`·`anchor`·`git`·`event`·`agent`; **consumers** (live hooks · `/audit`); the **oracle**. | [[Warden Semantics]] · [[Warden Runtime]] |
 
 ---
@@ -243,19 +243,6 @@ The thorough backstop — `Resolve → Run → Judge → Fix`, mechanical-by-scr
 
 **Surfaces.** `/audit anchor` resolves `R-anchor`; `/audit doc` resolves `R-doc`. The `/rule` skill family — `check` / `triage` / `fix` / `sync` / `consider` / `discover` / `curate` — manages the project-local rules-file lifecycle (exception tables, grades, cross-project discovery) and feeds the same corpus.
 
-### 7c · The interpretation environment — the lazy `ctx` services
-
-Both fire paths (7a live, 7b audit) evaluate rule bodies against this environment. Bodies and `if::` guards run over a **lazy `ctx`**: every object is computed on first access and cached per pass, and **reads never raise** (a missing transcript, a git-less dir, an unreadable file degrade to empty values, never a blocked hook). Three shipped services extend the base `file`·`anchor`·`git`·`event` views:
-
-| Service | Module | What it provides |
-|---|---|---|
-| **Agent state** ([[F216 — Agent-state model — sensing what the agent is doing\|F216]]) | `warden_agent.py` | `ctx.agent` — the mechanical classifier (liveness → in-flight → turn-end → decay ladder): `state`, `skill`, `is_asking`, `state_seconds`, `open_tasks`. Session registry + bounded moment ledger live in the daemon; history rebuilds from the transcript tail. |
-| **Turn content + oracle** ([[F217 — Conversation-content gating — rules on what was said\|F217]]) | daemon + `warden_fire` | `agent.turn` / `agent.response` lazy views (capped head+tail) and `ask_oracle` (blocking, prompt-hash cached, fail-silent). Two loop-prevention walls: oracle sessions are moment-silent, and the daemon dedups once per `(rule, session, turn)`. |
-| **Re-eval economy** ([[F215 — Re-evaluation economy — the significant-edit gate\|F215]]) | `warden_reval.py` | per-`(rule, file)` last-evaluated store (atomic writes) + `FileView`/`DiffView`, so `file.diff`-guarded rules re-judge only on significant change; sub-threshold edits accumulate until they jointly cross the gate. |
-
-The compiler marks rules `file_bearing` / `turn_bearing` so both fire paths can wholesale-skip the services a moment's rules never read.
-
-
 ---
 
 ## 8 · Built modules — the subsystem → module map
@@ -277,16 +264,6 @@ What actually shipped, one row per source module, every module owned by exactly 
 | Rust selection | `rs/src/lib.rs` | IR consumer — fire-plan computation byte-identical to the reference |
 | Rust live dispatcher | `rs/src/hook.rs` | the installed hook: kill switch, moments, anchor/traits, daemon IPC for Python bodies, deny-aware `emit` |
 | Test regime | `engine/test_warden_*.py`, `rs` `cargo test`, `Warden Corpus/` | the five layers of §The testing regime |
-
-## 9 · Activation and governance — which rules are in force where
-
-Load-bearing policy with real failure modes (the 2026-07-06 veto-surface audit found all three of its layers misconfigured at once), promoted from adoption footnotes to a subsystem-rank section by the same audit.
-
-- **Adoption is by traits.** An anchor's `.anchor` `traits:` list activates rulesets (trait key = ruleset name minus `R-`); umbrella traits pull their whole `include::` closure (§2). Nothing is auto-adopted.
-- **[[Anchor Base]] is implicit everywhere.** Every anchor carries `anchor-base` plus its compiled members (`ir.base_traits` — today `audit-on-write`, `ob-remote-ops`) by construction; the vault-root anchor (`~/ob/kmr/.anchor`) catches otherwise-unowned paths, so "un-anchored vault file" is not an escape.
-- **Governance is per moment (F229 A′).** Any moment whose event carries an anchored file — `write:`/`read:`, file-bearing tool moments like `tool:pre:Edit`, the doc-fire — is governed by the **file's anchor** (the file's anchor owns the file, wherever the session sits); Bash/session/prompt moments are governed by the session's **cwd anchor**.
-- **Nearest `.anchor` wins — no cascade.** A nested sub-anchor *shadows* its parent's adoption entirely. Consequence: guard rules must be adopted where the guarded files actually live (a Track sub-anchor, not just the project root) — see [[Warden Interface]] § Non-guarantees.
-- **The kill switch outranks everything.** `warden off` silences every layer above instantly; there is no per-anchor or per-trait opt-out yet (future `-trait` negation, per [[Anchor Base]]).
 
 ## Invariants
 
@@ -313,11 +290,3 @@ Load-bearing policy with real failure modes (the 2026-07-06 veto-surface audit f
 | Execution engine (Resolve→Run→Judge→Fix, caches) | [[F001 — Rule-driven audit engine — resolve, run, judge\|F001]], [[Audit Architecture]] |
 | On-write hook + safety guard | [[F005 — Doc audit-on-write — vault-wide rollout + safety guard\|F005]] |
 | Standard rulesets (historical first design) | [[F017 — Standard Rule Sets\|F017]] |
-
-## Changes since [[2026-07-06 Warden Architecture]]
-
-*(Snapshot taken at the start of the 2026-07-06 `/architect update` run; greenfield input: [[2026-07-06 Warden Architecture (greenfield)]].)*
-
-- **Added § 7c — The interpretation environment**: the lazy `ctx` services (agent-state F216, turn content + oracle F217, re-eval economy F215) were shipped subsystem-weight code the doc treated as scattered footnotes; now one table with the reads-never-raise discipline and the `file_bearing`/`turn_bearing` skip marks.
-- **Added § 9 — Activation and governance**: traits, anchor-base, per-moment file-vs-cwd governance, nearest-wins shadowing, and the kill switch, promoted to subsystem rank (the greenfield draft's strongest delta — this policy layer had three simultaneous misconfigurations at the 2026-07-06 audit).
-- **Proposed but not adopted**: the greenfield draft's seven-subsystem restructure of the whole doc (Corpus & Language / Compiler / Live Dispatch / Resident Interpreter / Interpretation Environment / Doc-Fire Bridge / Activation & Governance). The live doc's define→compose→run pedagogy kept; the draft remains in `Versions/` as the alternative decomposition.
