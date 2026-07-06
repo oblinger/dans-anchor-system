@@ -204,6 +204,12 @@ def canonical_moment(when_val: str) -> tuple[str, str]:
     if cls not in _PHASED_CLASSES:
         return when_val, "post"
     if len(parts) >= 2 and parts[1] in _PHASES:
+        # v1 ships `skill:pre` only — an authored `skill:post` is accepted and
+        # treated as `skill:pre` (F209 Q3; the post ladder is V2/V3). Keying it
+        # verbatim would orphan the rule: the live dispatcher never fires a
+        # skill:post moment, so it could never run.
+        if cls == "skill" and parts[1] == "post":
+            return ":".join([cls, "pre"] + parts[2:]), "pre"
         return when_val, parts[1]
     phase = "post" if cls == "tool" else "pre"   # tool→post, skill→pre (F209)
     return ":".join([cls, phase] + parts[1:]), phase

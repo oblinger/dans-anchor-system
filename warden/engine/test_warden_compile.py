@@ -37,15 +37,18 @@ def _compile_pilot(tmp: Path):
 def test_ir_row_matches_worked_example(ir):
     """The R-query-14 IR row is exactly the F211 § IR schema worked example."""
     row = ir["rules"]["R-query-14"]
-    assert row["moment"] == "skill:post:audit-q", row["moment"]
-    assert row["phase"] == "post", row["phase"]
+    # authored `when:: skill:post:audit-q` normalizes to skill:pre — v1 ships
+    # skill:pre only, an authored post is treated as pre (F209 Q3); keying it
+    # verbatim would orphan the rule (the dispatcher never fires skill:post).
+    assert row["moment"] == "skill:pre:audit-q", row["moment"]
+    assert row["phase"] == "pre", row["phase"]
     assert row["where"] is None, row["where"]
     assert row["guards"] == [], row["guards"]
     assert row["guard_py"] is None
     assert row["action"] is None
     assert row["body_py"] == "body_R_query_14", row["body_py"]
     # dispatch + activation indices
-    assert ir["moments"]["skill:post:audit-q"] == ["R-query-14"]
+    assert ir["moments"]["skill:pre:audit-q"] == ["R-query-14"]
     assert ir["traits"]["query"] == ["R-query-14"] or "R-query-14" in ir["traits"]["query"]
     # the tier doc-rules are where-major (no runtime moment), fired on /audit doc
     assert "R-query-14" not in ir["doc_rules"]
@@ -106,8 +109,17 @@ def test_corpus_compile():
     ir, module_src, stats = wc.compile_corpus(REPO, index, "all")
     assert stats["rules"] > 100, stats               # the vault has hundreds of rules
     assert "R-query-14" in ir["rules"], "pilot rule missing from corpus IR"
-    assert ir["rules"]["R-query-14"]["moment"] == "skill:post:audit-q"
-    assert "R-query-14" in ir["moments"]["skill:post:audit-q"]
+    assert ir["rules"]["R-query-14"]["moment"] == "skill:pre:audit-q"
+    assert "R-query-14" in ir["moments"]["skill:pre:audit-q"]
+    # no orphaned moments (F209): every moment key the corpus compiles to must
+    # be reachable from some hook event the live dispatcher emits
+    # (warden_hook.event_to_moments) — an unreachable key is a rule that can
+    # never fire. This is what caught skill:post:audit-q pre-normalization.
+    reachable = ("tool:pre", "tool:post", "skill:pre", "session:start",
+                 "session:stop", "session:compact", "prompt:submit",
+                 "prompt:stop", "write:", "read:", "git:", "timer:")
+    orphans = [m for m in ir["moments"] if not m.startswith(reachable)]
+    assert not orphans, f"moment keys unreachable from the live dispatcher: {orphans}"
     # the emitted corpus module must import — proves no cross-ruleset name collision
     with tempfile.TemporaryDirectory() as td:
         mp = Path(td) / "rules_all.py"
