@@ -1,0 +1,15 @@
+---
+description: "`/triage` (or the punctuation trigger `\"` — a single double-quote as the entire message) regenerates the current anchor's per-anchor section inside `~/ob/kmr/Q.md`, the vault-level Agent Status das…"
+---
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[ASG]] → [ASG Triage](hook://p/ASG%20Triage)
+
+# /triage — user guide
+
+**Full internals & design:** [[SKL Triage]]   ·   **Runtime spec:** [[skills/triage/SKILL.md\|SKILL.md]]
+
+`/triage` (or the punctuation trigger `"` — a single double-quote as the entire message) regenerates the current anchor's per-anchor section inside `~/ob/kmr/Q.md`, the vault-level Agent Status dashboard. The section is the **status of the anchor**: it walks the backlog, counts `[Questions]`, `[Verify]`, `[Active]`, and `[Ready]` items, picks an anchor TAG (`[U]` / `[A]` / `[U+A]` / `[G]` / `[-]` / `[]`), and writes one bullet per qualifying item under workflow-state H2s (Active / Ready / Now / Next, plus user-actionable Later items). The just-touched anchor bubbles to the top of Q.md, then the file opens at you so you see where everything stands in one glance.
+
+Before it renders, `/triage` runs a fast (~1s) **self-grooming sweep** so you never see stale state: completed `[Done]` rows left sitting in a live section get filed to `## Done`, and `[Verify-by <date>]` items past their deadline are auto-closed. It's conditional — a clean backlog is a no-op — and it only touches the mechanical, date/placement-decidable cases. The judgment-heavy grooming (promoting items to Ready, parking open questions, reassessing `[Blocked]`/`[Watching]`/hedged `[Ready]` rows) still lives in `/groom`, which you run explicitly.
+
+
+User responds in shorthand: **"F005 Q4: yes"** resolves question 4 in F5's feature doc; **"verified F23"** moves an item from `[Verify]` to `## Done` and updates the feature-doc Status. Sticky context works too — once you say "I'm in F11 now," plain `Q7: yes` is interpreted as F11 Q7 until you switch. `/triage` is slash-only (the spoken word is too common to be a safe trigger); the dedicated keystroke is the bare `"`. Compound usage "triage and groom" runs `/groom` first to park new items, then `/triage` to surface the updated inbox.

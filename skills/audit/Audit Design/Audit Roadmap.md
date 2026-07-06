@@ -1,5 +1,5 @@
 ---
-description: "milestones — the V2 audit build sequence, engine → fix/levels → on-write → sub-audit migration"
+description: "milestones"
 ---
 
 # Audit Roadmap

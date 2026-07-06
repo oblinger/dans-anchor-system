@@ -1,6 +1,6 @@
 # RULESET R-ob-remote-ops
 include::
-description:: Ob's remote-ops hygiene — interaction with remote machines goes through the sanctioned control planes (the `bridge` skill's persistent tmux, `exp` for GPU workers), never one-shot SSH remote-control. First member: the F183 bridge-guard. Rides `anchor-base`, so it fires everywhere.
+description:: Ob's remote-ops hygiene — remote machines are driven through the sanctioned control planes (`bridge` persistent tmux, `exp`), never one-shot SSH remote-control. First member: the F183 bridge-guard (`tool:pre:Bash` deny, rides `anchor-base`).
 
 > [!info] Provenance
 > Commissioned as [[F183 — Bridge-guard rule — catch one-shot SSH remote-control, redirect to bridge skill|F183]] (2026-06-20, user: the guard "must be driven by rules", deny action, fires on the action itself) and held until the runtime command-guard surface existed; built 2026-07-06 on the F131 veto path (`tool:pre:Bash` + `ctx.event` + `deny`). Future members of the same class: no personal password manager / Keychain on a remote without need.

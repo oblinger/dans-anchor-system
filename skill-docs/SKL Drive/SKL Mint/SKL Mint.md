@@ -1,10 +1,18 @@
 ---
-description: "`/mint` — take what's ready and make it real."
+description: "the /mint skill — concept dossier: user guide, design, runtime"
 ---
-# /Mint
-Takes a ready task (feature or backlog) and makes it real: read the feature/spec, do the work, verify the result. The agent runs autonomously until the work is done or blocked.
+# SKL Mint
+The concept dossier for **`/mint`** — everything published about the skill: the user guide, its design, and the runtime spec.
 
-| -[[SKL Mint]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Drive]] → [SKL Mint](hook://p/SKL%20Mint)<br>: the `/mint` skill |
+| -[[SKL Mint]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[skill-docs]] → [[SKL Drive]] → [SKL Mint](hook://p/SKL%20Mint)<br>: the /mint concept dossier |
 | --- | --- |
-| Related | [[skills/mint/SKILL.md\|SKILL]],   |
-| [[SKL Mint Design\|Design]] |  |
+| Related | [[ASG Mint\|User Guide]],  [[skills/mint/SKILL.md\|SKILL]] (runtime) |
+| Design | [[Mint PRD\|PRD]],   |
+
+## What this is
+
+- **Use it** → [[ASG Mint]] (the user guide).
+- **Understand / adapt it** → the design docs in this dossier (start with [[Mint PRD]]).
+- **Run it** → the runtime spec at [[skills/mint/SKILL.md\|SKILL.md]].
+
+Tracking (feature docs, backlog) lives dev-side under the SKA agent, not in this published dossier.
