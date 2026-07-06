@@ -1,6 +1,8 @@
 ---
 description: "product requirements for /groom — the backlog half of the resolution layer"
 ---
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[skill-docs]] → [[SKL Drive]] → [[SKL Groom]] → [[SKL Groom Design]]
 # Groom PRD
 
 **Shared design:** `/groom` and `/query` are one **resolution layer** — the frontier, the `F`/`T`/`M`/`R` work-item-identity model, the five groomed states, and the question bar are specified once in **[[Query PRD]]** (read it as the resolution-layer PRD). This doc covers groom-specific requirements; runtime spec is [[skills/groom/SKILL.md\|SKILL.md]]; user guide is [[ASG Groom]].

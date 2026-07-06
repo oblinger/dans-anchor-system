@@ -7,7 +7,7 @@ The concept dossier for **`/fortify`** — everything published about the skill:
 | -[[SKL Fortify]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[skill-docs]] → [[SKL Drive]] → [SKL Fortify](hook://p/SKL%20Fortify)<br>: the /fortify concept dossier |
 | --- | --- |
 | Related | [[ASG Fortify\|User Guide]],  [[skills/fortify/SKILL.md\|SKILL]] (runtime) |
-| Design | [[Fortify PRD\|PRD]],   |
+| [[SKL Fortify Design\|Design]] | [[Fortify PRD\|PRD]],   |
 
 ## What this is
 

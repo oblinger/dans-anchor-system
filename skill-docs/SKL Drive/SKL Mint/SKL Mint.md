@@ -7,7 +7,7 @@ The concept dossier for **`/mint`** — everything published about the skill: th
 | -[[SKL Mint]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[skill-docs]] → [[SKL Drive]] → [SKL Mint](hook://p/SKL%20Mint)<br>: the /mint concept dossier |
 | --- | --- |
 | Related | [[ASG Mint\|User Guide]],  [[skills/mint/SKILL.md\|SKILL]] (runtime) |
-| Design | [[Mint PRD\|PRD]],   |
+| [[SKL Mint Design\|Design]] | [[Mint PRD\|PRD]],   |
 
 ## What this is
 

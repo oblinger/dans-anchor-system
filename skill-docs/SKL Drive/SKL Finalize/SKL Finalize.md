@@ -7,7 +7,7 @@ The concept dossier for **`/finalize`** — everything published about the skill
 | -[[SKL Finalize]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[skill-docs]] → [[SKL Drive]] → [SKL Finalize](hook://p/SKL%20Finalize)<br>: the /finalize concept dossier |
 | --- | --- |
 | Related | [[ASG Finalize\|User Guide]],  [[skills/finalize/SKILL.md\|SKILL]] (runtime) |
-| Design | [[Finalize PRD\|PRD]],   |
+| [[SKL Finalize Design\|Design]] | [[Finalize PRD\|PRD]],   |
 
 ## What this is
 

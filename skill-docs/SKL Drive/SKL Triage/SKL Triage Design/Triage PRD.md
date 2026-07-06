@@ -1,6 +1,8 @@
 ---
 description: "product requirements"
 ---
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[skill-docs]] → [[SKL Drive]] → [[SKL Triage]] → [[SKL Triage Design]]
 # Triage PRD
 
 The current skill spec lives at [[triage/SKILL\|SKILL.md]]. User docs live at [[Q#SKL Triage|SKL Triage]].

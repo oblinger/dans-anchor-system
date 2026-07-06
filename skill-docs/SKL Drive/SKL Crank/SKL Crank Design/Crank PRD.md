@@ -1,6 +1,8 @@
 ---
 description: "product requirements"
 ---
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[skill-docs]] → [[SKL Drive]] → [[SKL Crank]] → [[SKL Crank Design]]
 # Crank PRD
 
 The current skill spec lives at [[crank/SKILL\|SKILL.md]]. User docs live at [[SKL Crank]].
