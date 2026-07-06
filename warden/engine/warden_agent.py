@@ -243,10 +243,11 @@ def current_skill(records: list[dict], ledger=None) -> str | None:
 # ── the classifier — signals → state (F216 evaluation order) ─────────────────
 
 def classify(session: dict | None, trigger_moment: str | None = None,
-             now: float | None = None) -> dict:
+             now: float | None = None, records: list[dict] | None = None) -> dict:
     """One mechanical classification: the F216 ladder (liveness → in flight →
     turn end → decay). Returns the full value dict; never raises upward —
-    callers wrap, and R4 (no per-session mapping) returns the error values."""
+    callers wrap, and R4 (no per-session mapping) returns the error values.
+    `records` lets the caller share its transcript-tail read (one per pass)."""
     now = now if now is not None else time.time()
     if not session:
         return dict(_ERROR_VALUES)
@@ -254,7 +255,8 @@ def classify(session: dict | None, trigger_moment: str | None = None,
     rec = REGISTRY.get(sid) if sid else None
     ledger = list(rec.ledger) if rec else []
     tp = session.get("transcript_path") or (rec.transcript_path if rec else None)
-    records = transcript_tail(tp) if tp else []
+    if records is None:
+        records = transcript_tail(tp) if tp else []
     if not records and not ledger and not trigger_moment:
         return dict(_ERROR_VALUES)   # R4 — the honest floor
 
@@ -327,6 +329,159 @@ def classify(session: dict | None, trigger_moment: str | None = None,
     return dict(_ERROR_VALUES)
 
 
+# ── agent.turn — the conversation-content view (F217) ───────────────────────
+
+TURN_CAP = 16 * 1024   # per text member; head+tail-preserving truncation
+
+
+def _cap(text: str) -> str:
+    if len(text) <= TURN_CAP:
+        return text
+    half = (TURN_CAP - 20) // 2
+    return text[:half] + "\n…[elided]…\n" + text[-half:]
+
+
+def turn_slice(records: list[dict]) -> list[dict]:
+    """The current turn's records: from the last real user prompt onward
+    (a Stop-steer continuation extends the same turn — no new prompt)."""
+    start = 0
+    for i, rec in enumerate(records):
+        if _is_real_user_prompt(rec):
+            start = i
+    return records[start:]
+
+
+def turn_key(records: list[dict]) -> str | None:
+    """The turn's identity: the opening user-prompt record's uuid (falling
+    back to its timestamp). None when no turn is identifiable."""
+    sl = turn_slice(records)
+    if not sl or not _is_real_user_prompt(sl[0]):
+        return None
+    return sl[0].get("uuid") or sl[0].get("timestamp") or None
+
+
+_TOOL_KEY_INPUT = ("command", "file_path", "skill", "prompt", "pattern")
+
+
+def _tool_key_input(inp: dict) -> str:
+    for k in _TOOL_KEY_INPUT:
+        v = inp.get(k)
+        if isinstance(v, str) and v:
+            return v
+    return ""
+
+
+class TurnView:
+    """`agent.turn` — the six content members (F217 § The `agent.turn` view).
+    `agent`'s members are interpreted state; these are raw content. Lazy —
+    built on the first member read, cached for the pass. Reads never raise;
+    at R4 (unbound) every member is its error value ('' / [])."""
+
+    def __init__(self, records: list[dict] | None):
+        self._records = records
+        self._built: dict | None = None
+
+    def _b(self) -> dict:
+        if self._built is None:
+            try:
+                self._built = self._build()
+            except Exception:  # noqa: BLE001 — reads never raise (contract)
+                self._built = {"user_said": "", "agent_said": "", "text": "",
+                               "messages": [], "tools": [], "commands": []}
+        return self._built
+
+    def _build(self) -> dict:
+        sl = turn_slice(self._records or [])
+        user_said = ""
+        agent_parts: list[str] = []
+        flat: list[str] = []
+        tools: list[tuple[str, str]] = []
+        for rec in sl:
+            if _is_real_user_prompt(rec):
+                user_said = _last_text(rec)
+                flat.append(f"USER: {user_said}")
+            elif rec.get("type") == "assistant":
+                t = _last_text(rec)
+                if t:
+                    agent_parts.append(t)
+                    flat.append(f"AGENT: {t}")
+                for tu in _tool_uses(rec):
+                    key = _tool_key_input(tu.get("input") or {})
+                    tools.append((tu.get("name") or "", key))
+                    flat.append(f"TOOL {tu.get('name')}: {key[:120]}")
+        return {
+            "user_said": _cap(user_said),
+            "agent_said": _cap("\n\n".join(agent_parts)),
+            "text": _cap("\n".join(flat)),
+            "messages": sl,
+            "tools": tools,
+            "commands": [k for n, k in tools if n == "Bash" and k],
+        }
+
+    @property
+    def user_said(self) -> str:
+        return self._b()["user_said"]
+
+    @property
+    def agent_said(self) -> str:
+        return self._b()["agent_said"]
+
+    @property
+    def text(self) -> str:
+        return self._b()["text"]
+
+    @property
+    def messages(self) -> list:
+        return self._b()["messages"]
+
+    @property
+    def tools(self) -> list:
+        return self._b()["tools"]
+
+    @property
+    def commands(self) -> list:
+        return self._b()["commands"]
+
+
+# ── ask_oracle — the judgment verb (F217 § Judgment gating) ──────────────────
+
+def ask_oracle(prompt: str, timeout: float = 60.0) -> str:
+    """One blocking oracle judgment → its reply text. Audit-path machinery:
+    fail-silent ('' on any failure — a rule gating on a `yes` sentinel then
+    stays quiet), cached by prompt hash in `$WARDEN_HOME/oracle-cache.json`,
+    and the spawned session carries `WARDEN_ORACLE=1` so its own moments are
+    invisible to Warden (loop-prevention wall 1). The command is `claude -p`
+    (override: `WARDEN_ORACLE_CMD`, the test seam)."""
+    import hashlib
+    import os as _os
+    import shlex
+    import subprocess
+    try:
+        key = hashlib.sha256(prompt.encode("utf-8")).hexdigest()
+        home = Path(_os.environ.get("WARDEN_HOME", str(Path.home() / ".warden")))
+        cache_p = home / "oracle-cache.json"
+        cache: dict = {}
+        if cache_p.is_file():
+            try:
+                cache = json.loads(cache_p.read_text(encoding="utf-8"))
+            except ValueError:
+                cache = {}
+        if key in cache:
+            return cache[key]
+        cmd = shlex.split(_os.environ.get("WARDEN_ORACLE_CMD") or "claude -p")
+        out = subprocess.run(cmd + [prompt], capture_output=True, text=True,
+                             timeout=timeout,
+                             env={**_os.environ, "WARDEN_ORACLE": "1"})
+        reply = out.stdout.strip() if out.returncode == 0 else ""
+        if reply:
+            home.mkdir(parents=True, exist_ok=True)
+            cache[key] = reply
+            cache_p.write_text(json.dumps(cache), encoding="utf-8")
+        return reply
+    except Exception:  # noqa: BLE001 — fail-silent (conservative: rule stays quiet)
+        return ""
+
+
 # ── AgentView — the lazy `agent` object rules read ───────────────────────────
 
 class AgentView:
@@ -340,14 +495,46 @@ class AgentView:
         self._trigger = trigger_moment
         self._now = now
         self._values: dict | None = None
+        self._tail: list[dict] | None = None
+        self._turn: TurnView | None = None
+
+    @property
+    def is_bound(self) -> bool:
+        """True when a per-session mapping exists (rungs R1–R3); False is R4 —
+        turn-bearing rules are skipped wholesale for an unbound agent."""
+        return bool(self._session)
+
+    def _records(self) -> list[dict]:
+        """The one transcript-tail read of the pass, shared by the classifier
+        and the turn view."""
+        if self._tail is None:
+            tp = (self._session or {}).get("transcript_path")
+            try:
+                self._tail = transcript_tail(tp) if tp else []
+            except Exception:  # noqa: BLE001
+                self._tail = []
+        return self._tail
 
     def _classified(self) -> dict:
         if self._values is None:
             try:
-                self._values = classify(self._session, self._trigger, self._now)
+                self._values = classify(self._session, self._trigger, self._now,
+                                        records=self._records() if self._session else None)
             except Exception:  # noqa: BLE001 — reads never raise (contract)
                 self._values = dict(_ERROR_VALUES)
         return self._values
+
+    @property
+    def turn(self) -> TurnView:
+        """`agent.turn` — the conversation-content view (F217), lazy + cached."""
+        if self._turn is None:
+            self._turn = TurnView(self._records() if self.is_bound else None)
+        return self._turn
+
+    @property
+    def response(self) -> str:
+        """The everyday alias of `agent.turn.agent_said` (F217)."""
+        return self.turn.agent_said
 
     @property
     def state(self) -> str:

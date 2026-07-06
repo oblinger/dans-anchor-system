@@ -279,6 +279,13 @@ def compile_rule(rule: dict, ruleset: dict) -> dict:
     # body: a python trigger/body computes its output → body_py.
     if rule["py_kind"] in ("trigger", "body"):
         row["body_py"] = f"body_{_san(rid)}"
+
+    # F217: a statically-visible `agent.turn` / `agent.response` reference
+    # marks the rule turn-bearing — it is skipped wholesale for an unbound
+    # (R4) agent and deduped once-per-(rule, turn) by the daemon.
+    content = " ".join(rule["ifs"]) + " " + (rule.get("py_src") or "")
+    if "agent.turn" in content or "agent.response" in content:
+        row["turn_bearing"] = True
     return row
 
 

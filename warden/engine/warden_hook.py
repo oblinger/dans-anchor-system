@@ -45,6 +45,11 @@ def disabled() -> bool:
     off switch so a broken rule pulls out of every environment in one move."""
     if os.environ.get("WARDEN_DISABLED", "").strip().lower() in ("1", "true", "yes", "on"):
         return True
+    # F217 loop prevention (wall 1): an oracle session is moment-silent — its
+    # own tool uses and turn boundaries must never reach the ledger or fire
+    # rules. The judge is not an observed agent.
+    if os.environ.get("WARDEN_ORACLE", "").strip():
+        return True
     return (warden_home() / "DISABLED").exists()
 
 

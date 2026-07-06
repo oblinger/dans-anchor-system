@@ -44,6 +44,12 @@ pub fn disabled() -> bool {
             return true;
         }
     }
+    // F217 loop prevention (wall 1): an oracle session is moment-silent.
+    if let Ok(v) = std::env::var("WARDEN_ORACLE") {
+        if !v.trim().is_empty() {
+            return true;
+        }
+    }
     warden_home().join("DISABLED").exists()
 }
 
