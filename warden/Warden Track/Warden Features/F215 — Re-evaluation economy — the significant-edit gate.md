@@ -38,13 +38,19 @@ The cheap `if::` runs before any LLM tokens are spent — the [[Warden Examples|
 
 Warden tracks, per `(rule, file)`, the **revision last evaluated** (content hash + size), against which `file.diff` is computed. When the `if::` gate is **false** (sub-threshold), the body is not run — and the engine **reuses the cached verdict** rather than reading the silence as a pass. That last point is the crux for the *audit* path: a still-present finding must not be cleared by a one-line edit elsewhere in the file. (Live steers have no such issue — emitting nothing on a small edit is exactly right.)
 
-## Open Questions
+## Resolved
 
-1. **Verdict persistence when throttled.** The exact cache key + reuse rule so a sub-threshold edit reuses an expensive *audit* rule's prior finding (it does not read as a pass). This is the one piece `file.diff` + `if::` doesn't express on its own — it's engine caching policy. (Also [[Warden Semantics]] § Open Questions.)
-2. **Threshold defaults + units.** Lines vs. % vs. token-distance for v1; any sensible default, or always author-specified?
-3. **First-fire vs. adopt-time.** Is the "first evaluation" at first matching edit, or eagerly when the rule is installed for an anchor?
-4. **Interaction with the plan/verdict caches.** Confirm threshold-based reuse composes cleanly with [[F001 — Rule-driven audit engine — resolve, run, judge|F001]]'s verdict cache rather than forking it.
+All four were engine-policy calls (reversible, agent-domain) — resolved agent-side 2026-07-05 at build time:
+
+1. **Verdict persistence when throttled — RESOLVED: per-(rule, file) reval record.** ^F215-Q1
+   The store keeps, per `(rule_id, file_path)`: the content hash + text of the **last-evaluated revision** and the **verdict that evaluation produced**. When the gate suppresses re-judgment, the engine serves that stored verdict (the finding persists — silence is never read as a pass); a full evaluation overwrites the record wholesale (new hash, new text, new verdict). The stored hash identifies exactly which revision the verdict speaks for.
+2. **Threshold defaults + units — RESOLVED: no engine default; `.lines` is the v1 unit.** ^F215-Q2
+   The gate is ordinary authored `if::` — an engine-imposed default threshold would be a hidden heuristic (the no-heuristics rule). Ratios/percent compose in plain Python (`file.diff.lines / max(len(file.lines), 1)`); token-distance is deferred with the semantic-levels stage.
+3. **First-fire vs. adopt-time — RESOLVED: lazy, at first matching fire.** ^F215-Q3
+   On first pass `file.diff` is the whole file, so any positive threshold passes and the rule evaluates fully — no adopt-time eager sweep (which would force target enumeration at install for no benefit).
+4. **Interaction with the plan/verdict caches — RESOLVED: no fork.** ^F215-Q4
+   [[F001 — Rule-driven audit engine — resolve, run, judge|F001]]'s audit verdict cache covers the mechanical doc-fire path, which stays cheap and un-gated. The reval store gates only python/oracle bodies on the **moment** path. `ask_oracle`'s prompt-hash cache remains the inner layer — a re-judgment whose prompt is unchanged still hits it.
 
 ## Status
 
-**Designed 2026-06-27; reframed 2026-06-29** to `file.diff` + `if::` (no separate `rerun::` clause). Demonstrated in [[Warden Examples]] (`R-ex-04`). Not built — sequenced on [[Warden Roadmap]] after the compiler (M1) and the agent-judgment path (M2/M3); the semantic-update-level stage is a later milestone.
+**Built 2026-07-05.** `warden_reval.py` (RevalStore + `FileView`/`DiffView`), compiler residual-`if::` guard emission + `file_bearing` mark, per-rule `ctx.file` binding in `warden_fire.fire` with mark-evaluated after body execution, `file_path` plumbed through the Python hook, the daemon `fire_rules` request, and the Rust dispatcher. `test_warden_reval.py` pins the Success Criteria fixture (first fire evaluates fully; a typo-scale edit spends no body execution and serves the cached verdict; a section-scale edit re-judges). Earlier: designed 2026-06-27; reframed 2026-06-29 to `file.diff` + `if::` (no separate `rerun::` clause); demonstrated in [[Warden Examples]] (`R-ex-04`). The semantic-update-level stage (`file.diff.level`) remains a later milestone.
