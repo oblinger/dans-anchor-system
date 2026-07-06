@@ -129,7 +129,7 @@ def _fire_rules(corpus: Corpus, req: dict) -> dict:
     ctx = wf.build_ctx(anchor_root, moment, agent=agent,
                        file_path=req.get("file_path") or None,
                        event=event_view)
-    traits = wf.read_anchor_traits(anchor_root)
+    traits = wf.effective_traits(corpus.ir, anchor_root)
     # F217 loop prevention (wall 2): a turn-bearing rule fires once per
     # (rule, session, turn) — a Stop-steer continuation extends the SAME turn
     # (no new prompt:submit), so the extended turn cannot re-trigger the rule

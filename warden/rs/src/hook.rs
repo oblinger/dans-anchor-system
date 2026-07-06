@@ -178,7 +178,7 @@ pub fn find_anchor(start: &Path) -> Option<PathBuf> {
     None
 }
 
-/// The `.anchor` `traits:` list (YAML flow or block) + the implicit `_base`
+/// The `.anchor` `traits:` list (YAML flow or block) + the implicit `anchor-base`
 /// trait (mirror of `warden_fire.read_anchor_traits`).
 pub fn read_anchor_traits(anchor_root: &Path) -> Vec<String> {
     let mut traits: Vec<String> = Vec::new();
@@ -207,7 +207,7 @@ pub fn read_anchor_traits(anchor_root: &Path) -> Vec<String> {
             break;
         }
     }
-    traits.push("_base".into());
+    traits.push("anchor-base".into());
     traits
 }
 
@@ -332,27 +332,55 @@ pub fn dispatch(data: &Value) -> Vec<String> {
             PathBuf::from(c)
         }
     };
-    let Some(anchor_root) = find_anchor(&cwd) else { return vec![] };
-    let Some(ir) = load_ir() else { return vec![] };
-    let traits = read_anchor_traits(&anchor_root);
-    let ctx = Ctx {
-        git_aspect: Value::String(git_aspect_of(&traits)),
-        mode: Value::Null,
-        traits: traits.clone(),
-        facets: vec![],
-    };
-
-    let anchor_name = anchor_root
-        .file_name()
-        .map(|n| n.to_string_lossy().into_owned())
-        .unwrap_or_default();
+    let anchor_cwd = find_anchor(&cwd);
     // F215: the event's file path — the daemon binds ctx.file per
     // file-bearing rule from it (write:/read: moments).
     let empty_ti = json!({});
     let event_ti = data.get("tool_input").filter(|v| !v.is_null()).unwrap_or(&empty_ti);
     let event_fp = str_field(event_ti, "file_path");
+    // F229 A′: write:/read: moments (and the doc-fire) are governed by the
+    // FILE's anchor — the file's anchor owns the file, wherever the session
+    // sits (parity with the retired file-scoped F177 hook).
+    let anchor_file = if event_fp.is_empty() {
+        None
+    } else {
+        Path::new(event_fp).parent().and_then(find_anchor)
+    };
+    if anchor_cwd.is_none() && anchor_file.is_none() {
+        return vec![];
+    }
+    let Some(ir) = load_ir() else { return vec![] };
+    // Effective traits = declared + `anchor-base` + the base trait's members
+    // (mirror of `warden_fire.effective_traits`).
+    let effective = |root: &Path| -> Vec<String> {
+        let mut ts = read_anchor_traits(root);
+        for t in &ir.base_traits {
+            if !ts.iter().any(|x| x == t) {
+                ts.push(t.clone());
+            }
+        }
+        ts
+    };
+
     let mut steers: Vec<String> = Vec::new();
     for moment in &moments {
+        let anchor_root = if moment.starts_with("write:") || moment.starts_with("read:") {
+            anchor_file.as_ref().or(anchor_cwd.as_ref())
+        } else {
+            anchor_cwd.as_ref()
+        };
+        let Some(anchor_root) = anchor_root else { continue };
+        let anchor_name = anchor_root
+            .file_name()
+            .map(|n| n.to_string_lossy().into_owned())
+            .unwrap_or_default();
+        let traits = effective(anchor_root);
+        let ctx = Ctx {
+            git_aspect: Value::String(git_aspect_of(&traits)),
+            mode: Value::Null,
+            traits: traits.clone(),
+            facets: vec![],
+        };
         let fire_t0 = std::time::Instant::now();
         let plan = fire_plan(&ir, moment, &ctx, &traits);
         if plan.is_empty() {
@@ -413,21 +441,23 @@ pub fn dispatch(data: &Value) -> Vec<String> {
         }
     }
 
-    // F222 audit-on-write — the doc-fire runs warm in the daemon
-    if traits.iter().any(|t| t == "audit-on-write")
-        && moments.iter().any(|m| m.starts_with("write:markdown"))
-    {
-        let empty = json!({});
-        let tool_input = data.get("tool_input").filter(|v| !v.is_null()).unwrap_or(&empty);
-        let fp = str_field(tool_input, "file_path");
-        if !fp.is_empty() {
-            if let Some(resp) = daemon_request(&json!({"op": "audit", "file_path": fp})) {
+    // F222 / F229 A′ audit-on-write — the doc-fire runs warm in the daemon,
+    // governed by the FILE's anchor (`audit-on-write` rides `anchor-base` via
+    // ir.base_traits, so every anchored markdown file is audited on write; an
+    // un-anchored file is not).
+    if let Some(afile) = anchor_file.as_ref() {
+        if moments.iter().any(|m| m.starts_with("write:markdown"))
+            && effective(afile).iter().any(|t| t == "audit-on-write")
+            && !event_fp.is_empty()
+        {
+            if let Some(resp) = daemon_request(&json!({"op": "audit", "file_path": event_fp})) {
                 if resp.get("ok").and_then(Value::as_bool) == Some(true) {
                     if let Some(aow) = resp.get("steers").and_then(Value::as_array) {
                         if !aow.is_empty() {
                             log(&format!(
-                                "AUDIT-ON-WRITE {} @ {anchor_name} → {} issue steer(s)",
-                                Path::new(fp).file_name().map(|n| n.to_string_lossy()).unwrap_or_default(),
+                                "AUDIT-ON-WRITE {} @ {} → {} issue steer(s)",
+                                Path::new(event_fp).file_name().map(|n| n.to_string_lossy()).unwrap_or_default(),
+                                afile.file_name().map(|n| n.to_string_lossy()).unwrap_or_default(),
                                 aow.len()
                             ));
                         }
@@ -544,17 +574,17 @@ mod tests {
         let _ = std::fs::remove_dir_all(&td);
         std::fs::create_dir_all(&td).unwrap();
         std::fs::write(td.join(".anchor"), "slug: FX\ntraits: [warden-selftest, Commit]\n").unwrap();
-        assert_eq!(read_anchor_traits(&td), vec!["warden-selftest", "Commit", "_base"]);
+        assert_eq!(read_anchor_traits(&td), vec!["warden-selftest", "Commit", "anchor-base"]);
         std::fs::write(td.join(".anchor"), "slug: FX\ntraits:\n  - a\n  - b\nother: x\n").unwrap();
-        assert_eq!(read_anchor_traits(&td), vec!["a", "b", "_base"]);
+        assert_eq!(read_anchor_traits(&td), vec!["a", "b", "anchor-base"]);
         std::fs::write(td.join(".anchor"), "slug: FX\n").unwrap();
-        assert_eq!(read_anchor_traits(&td), vec!["_base"]);
+        assert_eq!(read_anchor_traits(&td), vec!["anchor-base"]);
         let _ = std::fs::remove_dir_all(&td);
     }
 
     #[test]
     fn git_aspect_from_traits() {
-        assert_eq!(git_aspect_of(&["Commit".into(), "_base".into()]), "commit");
+        assert_eq!(git_aspect_of(&["Commit".into(), "anchor-base".into()]), "commit");
         assert_eq!(git_aspect_of(&["x".into()]), "");
     }
 

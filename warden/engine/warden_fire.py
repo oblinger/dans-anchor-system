@@ -71,7 +71,19 @@ def read_anchor_traits(anchor_root: Path) -> list[str]:
             if block:
                 traits = [ln.split("-", 1)[1].strip()
                           for ln in block.group(1).splitlines() if ln.strip().startswith("-")]
-    return traits + ["_base"]
+    return traits + ["anchor-base"]
+
+
+def effective_traits(ir: dict, anchor_root: Path) -> list[str]:
+    """The anchor's declared traits + `anchor-base` + the base trait's members
+    (`ir["base_traits"]`, stamped by the compiler per F229 A′ — e.g.
+    `audit-on-write` rides every anchor). This is the trait set live dispatch
+    gates on; `read_anchor_traits` alone is the raw declaration read."""
+    traits = read_anchor_traits(anchor_root)
+    for t in ir.get("base_traits", []):
+        if t not in traits:
+            traits.append(t)
+    return traits
 
 
 def anchor_name(anchor_root: Path) -> str:

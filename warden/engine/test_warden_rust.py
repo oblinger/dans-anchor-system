@@ -135,7 +135,7 @@ class RustDifferential(unittest.TestCase):
             json.dump(ir, f)
             path = f.name
         try:
-            anchor_traits = list(traits) + ["_base"]
+            anchor_traits = list(traits) + ["anchor-base"]
             ctx = _mk_ctx(anchor_traits, **ctx_kw)
             want = fire_plan_py(ir, moment, ctx, anchor_traits)
             got = run_rust(path, moment, traits, **ctx_kw)

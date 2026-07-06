@@ -132,7 +132,9 @@ ROW_OPENER_RE = re.compile(
     r"^- \*\*"
     r"(?:\[\[)?"                     # optional `[[` (wiki-link form)
     r"(?:\[[A-Z]+\]\s+)?"            # optional `[TYPE] ` prefix (e.g., `[BUG] `)
-    r"([A-Za-z][A-Za-z0-9_\-]*)\b"   # group(1) = identifier
+    # group(1) = identifier: F091 / T007 / B-QFix / DMUX-F034, plus dotted
+    # roadmap-task handles like R-Scaffolding.5.2 (name-path + numeric sub-levels).
+    r"([A-Za-z][A-Za-z0-9_\-]*(?:\.[A-Za-z0-9_\-]+)*)\b"
 )
 # Status bracket: `[Ready]`, `[3 Questions]`, `[Blocked F123]`, etc.
 BRACKET_RE = re.compile(r"\[([A-Za-z][A-Za-z0-9 \-]*?)\]")
