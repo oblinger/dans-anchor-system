@@ -68,12 +68,14 @@ def test_strip_unclosed_span_leaves_from_open_onward():
 
 
 def test_strip_mismatched_lengths_dont_pair():
-    """Opening 1-run doesn't close on a 2-run."""
+    """Opening 1-run doesn't close on a 2-run — CommonMark strict:
+    a code span must close on a backtick run of the same length.
+    A 1-backtick opener with no matching 1-backtick closer leaves everything
+    from the opener onward intact (unclosed span = literal backticks)."""
     line = "a `code`` still open"
     out = audit_q._strip_code_spans(line)
-    # The 1-backtick opens; the next 1-backtick (first of the ``) closes.
-    # Interior "code" gets blanked; the trailing backtick + " still open" remain.
-    assert "code" not in out
+    assert "a " in out
+    assert "code" in out  # unclosed — no confident span to blank
     assert "still open" in out
 
 
@@ -86,16 +88,19 @@ def test_strip_no_backticks_is_identity():
 # Bug 2 — C37 ignores bare F-numbers inside code spans
 # ---------------------------------------------------------------------------
 
-def _make_queries_md(tmp_path, body: str) -> pathlib.Path:
-    """Build a minimal `<anchor>/<anchor> Track/<anchor> queries.md` file for
-    the queries.md scope. audit-q is picky about the surrounding structure."""
-    anchor_dir = tmp_path / "TEST"
-    track = anchor_dir / "TEST Track"
+def _make_anchor_with_queries(tmp_path, name: str, queries_body: str
+                              ) -> dict[str, pathlib.Path]:
+    """Build a minimal anchor tree with a backlog.md + queries.md pair.
+    Returns a dict suitable for `check_c37_queries_item_format({name: backlog})`."""
+    anchor_dir = tmp_path / name
+    track = anchor_dir / f"{name} Track"
     track.mkdir(parents=True)
     (anchor_dir / ".anchor").write_text("")
-    qfile = track / "TEST queries.md"
-    qfile.write_text(body)
-    return qfile
+    bfile = track / f"{name} Backlog.md"
+    bfile.write_text(f"# {name} Backlog\n\n## Ready\n")
+    qfile = track / f"{name} queries.md"
+    qfile.write_text(queries_body)
+    return {name: bfile}
 
 
 def test_c37_ignores_bare_fnum_in_backtick_span(tmp_path):
@@ -112,8 +117,8 @@ def test_c37_ignores_bare_fnum_in_backtick_span(tmp_path):
         ## Verifications
         - **V1** [[F007 — Some Doc]] — the file `~/F006-status.md` is emitting. · **yes / no**
     """)
-    qfile = _make_queries_md(tmp_path, body)
-    findings = audit_q.check_q_answer_sections([qfile])
+    anchor_backlogs = _make_anchor_with_queries(tmp_path, "TEST", body)
+    findings = audit_q.check_c37_queries_item_format(anchor_backlogs)
     c37 = [f for f in findings if f.code == "C37"]
     assert c37 == [], f"C37 wrongly fired on backticked F-number: {c37}"
 
@@ -131,8 +136,8 @@ def test_c37_still_fires_on_actually_bare_fnum(tmp_path):
         ## Verifications
         - **V1** [[F007 — Some Doc]] — see F006 (bare, no link). · **yes / no**
     """)
-    qfile = _make_queries_md(tmp_path, body)
-    findings = audit_q.check_q_answer_sections([qfile])
+    anchor_backlogs = _make_anchor_with_queries(tmp_path, "TEST", body)
+    findings = audit_q.check_c37_queries_item_format(anchor_backlogs)
     c37 = [f for f in findings if f.code == "C37"]
     assert len(c37) == 1, f"expected 1 C37 for bare F006, got: {c37}"
     assert "F006" in c37[0].message
@@ -168,7 +173,7 @@ def test_c41_exempts_b_qfix_ready_without_next(tmp_path):
           - **C22** somewhere.md:1 — some finding text
     """)
     bfile = _make_backlog(tmp_path, body)
-    entries = audit_q.parse_backlog(bfile)
+    entries = audit_q.backlog_entries(bfile, {})
     findings = audit_q.check_c41_soak_question_declared(entries, bfile)
     c41 = [f for f in findings if f.code == "C41"]
     assert c41 == [], f"C41 wrongly fired on exempt B-QFix: {c41}"
@@ -188,7 +193,7 @@ def test_c41_still_fires_on_ordinary_ready_without_next(tmp_path):
         - **F001 — Some real feature** [Ready] — → [[F001 — Doc]] ^F001
     """)
     bfile = _make_backlog(tmp_path, body)
-    entries = audit_q.parse_backlog(bfile)
+    entries = audit_q.backlog_entries(bfile, {})
     findings = audit_q.check_c41_soak_question_declared(entries, bfile)
     c41 = [f for f in findings if f.code == "C41"]
     assert len(c41) == 1, f"expected 1 C41 for F001 missing Next:, got: {c41}"
