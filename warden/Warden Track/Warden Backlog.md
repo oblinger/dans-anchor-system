@@ -9,6 +9,18 @@ _None._
 
 ## Ready
 
+- **T004 — Activate query + backlog + markdown-discipline rules on Warden's own surfaces** [Ready] — User directive 2026-07-06: the query/groom/markdown rules must be ACTIVE on Warden's own backlog surfaces. Today Warden's effective set has `query` but not `backlog` or `doc`; [[Warden Backlog]] / [[Warden queries]] are governed by the Warden Track sub-anchor (nearest-wins), so adoption must land there too. Rules: [[FCT Query|R-query]], [[Backlog|R-backlog]], [[DSC markdown|R-markdown]]. ^T004
+  - **Next:** Adopt `backlog` + `doc` traits on warden/.anchor AND Warden Track/.anchor (file-anchor governance — the backlog/queries files live under the Track sub-anchor), recompile, bounce the daemon, then live-verify a Warden Backlog write steers an R-backlog finding through the installed dispatcher.
+
+- **T005 — Rule coverage — R-query (15 rules): executable checks + corpus pins** [Ready] — User directive 2026-07-06 (the query/groom rules pass, now handed over): strong coverage for [[FCT Query|R-query]]. All 8 checked-tier rules compile with no executable check (message-only doc-fire); much of the real checking lives as audit-q.py C-codes that Warden should own or mirror. Corpus today: query-001-no-frontmatter, query-002-clean only. ^T005
+  - **Next:** Inventory each checked-tier R-query rule against audit-q.py's C-codes and the query-001/002 corpus cases; write the missing check:: patterns and a fail+pass fixture per rule; sweep FCT Query.md's 2 bare where:: lines (the deferred F172 remainder).
+
+- **T006 — Rule coverage — R-backlog (groom contracts, 7 rules): every contract pinned fail+pass** [Ready] — User directive 2026-07-06: strong coverage for the groom contracts — [[Backlog|R-backlog]] 01..07 (Next-step, bracket honesty, Verify question, reachable Qs, named blockers, absolute dates). Corpus has backlog-001..004; verify each contract is pinned fail AND pass, not just the F228 trio. ^T006
+  - **Next:** Map R-backlog-01..07 onto the four backlog corpus cases (ungroomed/groomed/lazy-states/honest-states); add fixtures for any contract not pinned both ways; write check:: for any checked-tier rule that is message-only.
+
+- **T007 — Rule coverage — markdown discipline (R-markdown + R-progressive): trait wiring, corpus cases, fix:: restoration** [Ready] — User directive 2026-07-06: strong coverage for the markdown discipline. Trait `markdown` keys ZERO rules in the live IR (suspected embedded-ruleset flatten/naming artifact in [[DSC markdown]]); no markdown-discipline corpus cases exist; zero live rules carry `fix::` (F004-era annotations lost — noted at M4a), so on-write repair is capability-only. [[R-progressive]] (2 rules) rides along. ^T007
+  - **Next:** Diagnose why trait `markdown` keys zero rules in the IR (embedded-ruleset flatten/naming artifact); add markdown-discipline corpus cases pinning R-markdown-01..10 + R-progressive fail+pass; restore the lost F004-era fix:: annotations so the M4a fixer path actually repairs on write.
+
 ## Now
 
 ## Next
