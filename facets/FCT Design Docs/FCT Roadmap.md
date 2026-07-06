@@ -85,6 +85,25 @@ Long-running roadmaps accumulate dozens of milestones and inserting a new mid-se
 
 Sub-items within a milestone are easy to renumber on insertion because they're scoped — grep `M-Auth.` finds all of them and you mechanically renumber. Top-level milestones in a long roadmap aren't — they touch every cross-reference everywhere, plus features whose titles encode the old position (see § Feature naming below).
 
+### Names are identity; order is document position (never a stored number)
+
+A milestone's **identity is its name** (`M-Scaffolding`) — never an ordinal. Its **order is its position in this file**: milestones are listed top-to-bottom in execution order, so the sequence is inherent in the document. There is deliberately **no stored top-level milestone number**. If a display ordinal is wanted, it is **computed from position** ("3 · Scaffolding") by the reader or tooling — never written into the heading and never referenced by anything.
+
+This is what makes insertion cheap: dropping a new milestone between two others shifts everyone's *position* automatically, with **nothing to renumber** and **no reference to update** — because every reference (sub-entries, backlog `R` tasks, done-logs, cross-links) is keyed on the **name**, not a number. Only **renaming** a milestone touches references, and renames are rare. A reorder/reflow script, if ever built, is pure convenience for moving H1 blocks around — never required for correctness, because identity is name-based.
+
+**Names must be unique within a roadmap** — the scheme rests on the name being an unambiguous key (enforced by R-roadmap-12).
+
+*(Provenance: designed 2026-07-05. The alternative — a stored ordinal on each milestone — was rejected: it forces a full-roadmap renumber on every insert and leaves external references stale. Making the ordinal a computed *position* rather than stored data eliminates both problems: nothing to renumber, nothing to drift.)*
+
+### Referencing a roadmap entry as backlog work (`R` tasks)
+
+When a roadmap entry is pulled onto a backlog as work-to-do, its backlog handle is **`R` + the entry's name-path — word-only, no number**:
+
+- `R-Scaffolding.5.2` — a **leaf** sub-entry ("do this item", the usual case).
+- `R-Scaffolding` — a **non-leaf** entry: a commitment to do the *whole subtree* under it.
+
+The reference is **flat** (it names one entry) and **name-keyed**, so an `R` task parked on a backlog survives any reordering of the roadmap — only a rename would touch it. `R` is the roadmap counterpart of the backlog `T` task; both are executable work-items (see [[Backlog|FCT Backlog]] § Numbering for the full `F`/`T`/`M`/`R` model).
+
 ### Legacy numeric form (for migration only)
 
 Some existing roadmaps use `M1`, `M2`, `M1.8a` per the pre-2026-06-10 convention (e.g., ABIO). The legacy grammar:
@@ -410,6 +429,14 @@ The roadmap holds forward-looking work. Whole milestones — when `[x]` complete
 
 **Why (provenance):** long roadmaps mostly composed of completed work become hard to navigate. "Where are we now?" should be answerable by glancing at the top of the roadmap. ABIO Roadmap demonstrates the pain at scale. F145 will ship automation; until then, migration is manual.
 
+### RULE R-roadmap-12 — Milestone names are unique within the roadmap (checked)
+
+Every top-level milestone name (`M-<Name>`) appears at most once within a single `{NAME} Roadmap.md`. The name is the milestone's stable identity — the key every sub-entry, backlog `R` task, and cross-reference resolves on — so a duplicate name is an ambiguous reference.
+
+**Check pattern:** collect all top-level `M-<Name>` headings; assert no `<Name>` appears twice.
+
+**Why:** identity is the name, not a stored ordinal (§ Names are identity; order is document position). A duplicate name means two milestones claim the same key, and every `R-<Name>` / `M-<Name>.<path>` reference becomes ambiguous. This uniqueness is the invariant the entire no-renumber / no-drift scheme depends on.
+
 ### RULE R-roadmap-08 — Section separator `### .` is used between milestones (stated)
 
 After the last body item of each milestone, before the next `## ` H2, a `### .` (H3 with literal dot) serves as a visual closer.
@@ -424,6 +451,6 @@ After the last body item of each milestone, before the next `## ` H2, a `### .` 
 
 - **Inclusion test + boundary:** a rule belongs only if it constrains the shape / numbering / status / deferral convention of *every* `{NAME} Roadmap.md`. Roadmap *content* lives in per-anchor files; *how* features ship is [[FCT Features]]; the design-phase tier is [[FCT Status]]'s `roadmap::`.
 - **Don't collapse the two shapes** (A milestone-as-feature-group / B milestone-as-task-checklist) "for simplicity" — both are load-bearing; mixing is forbidden, transitioning allowed.
-- **`R-roadmap` is co-located** (per [[F133]]); don't split it out. Rule numbering is monotonic-forever — **R-roadmap-09/-10/-11 are out-of-sequence by intent** (authoring order, not narrative).
+- **`R-roadmap` is co-located** (per [[F133]]); don't split it out. Rule numbering is monotonic-forever — **R-roadmap-09/-10/-11/-12 are out-of-sequence by intent** (authoring order, not narrative). R-roadmap-12 (unique milestone name) is the invariant the name-is-identity / computed-position scheme depends on — added 2026-07-05.
 - **Don't delete the legacy numeric section** — named-milestone `M-<Name>` is the convention ([[F144]]); legacy `M1`/`M2` is migration-only and stays documented.
 - **Cross-refs to keep live on edit:** [[FCT Completed Roadmap]], [[FCT Features]], [[FCT Status]], [[design-roadmap]], [[DSC ask-format]].
