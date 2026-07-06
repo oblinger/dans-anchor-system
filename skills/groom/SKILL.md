@@ -27,6 +27,49 @@ Convergent — not strictly idempotent. Safe to call anytime. May leave partial 
 >
 > Per [[Query PRD]] R1/R2, groom is the backlog half of the **resolution layer**: it plans, resolves, rebrackets, promotes, and **parks every residual question into the queries surface** — and it raises **zero** questions in chat. There is no exception, no "one short yes/no." Even a one-word question goes into the queries doc as a numbered entry; the determination ladder ([[SKA query]] / [[Query PRD]]) decides whether it even survives to the user or the agent just resolves it. A groom (or a triage that grooms) that ends with a question in chat is the cardinal violation.
 
+## Groom's three activities
+
+Groom does three things, in order. Everything in the runbook serves one of them.
+
+### 1. Every work activity has a unique identifier
+
+The first thing groom guarantees is that **no work is anonymous** — every piece of tracked work carries a unique handle that lives on the backlog or roadmap:
+
+- **`F<n>` — a feature.** Backed by a feature doc under `{NAME} Design/{NAME} Features/`; the backlog row links to it (`→ [[F<n> — Title]]`).
+- **`T<n>` — a task.** A unit of work with **no** feature doc — the backlog row itself is the spec. A task typically *operates on other documents*: its body carries wiki-links to the design-doc sections, files, or artifacts it acts on. The `T<n>` handle is unique on the backlog and is what every reference to the work (questions, `Q.md`, cross-links) points at.
+- **`M<n>` — a milestone.** A roadmap entry in `{NAME} Roadmap.md` (hierarchical: `M1`, `M1.2`, `M1.2.3`).
+
+You *achieve* the identity by linking: a row links to its feature doc (`F<n>`), or is itself the task record (`T<n>`), or names a roadmap milestone (`M<n>`). **A feature doc that isn't linked from the backlog/roadmap has no place in the system** — groom gives it one (mint/point a row) rather than leaving it an orphan. (Numbering policy: [[Backlog|FCT Backlog]] § Numbering.)
+
+### 2. Identify the executable frontier
+
+The **frontier** is everything that could be executed *soon*:
+
+- roadmap milestones that could **plausibly be executed soon if fully specified**;
+- backlog rows under **`## Now`** or **`## Next`**;
+- feature docs linked from a Now/Next row.
+
+A feature doc not listed anywhere is not on the frontier — and per activity 1 it needs a place, so give it one. (`## Later` and the icebox are **not** frontier; they are touched only on explicit `/groom later` / `/groom icebox`.)
+
+### 3. Groom the frontier — plan each item to a known state
+
+For every frontier item, plan it out so you know, as concretely as possible, **how you would execute it**. Grooming drives each item to exactly one of three explicit exit states:
+
+- **Executable** → declare the concrete **`- **Next:**`** step(s) the agent will take with zero user involvement; promote to `[Ready]`.
+- **Has questions** → **enumerate** them and encode each via `/query` into the queries surface (following the question bar below); bracket the row `[Questions]`.
+- **Blocked** → name **specifically what it is blocked on** — `[Blocked …]` / `[Waiting …]` / `[Watching …]` with the body stating the exact obstacle or awaited event. A vague blocker is not a groomed state.
+
+After grooming, **nothing on the frontier is in an unknown state**: each item is executable (with next steps), questioned (with enumerated questions), or blocked (with a named blocker).
+
+> **The question bar — every question groom parks MUST satisfy all five (enforced by `/query`).** A parked question is worthless unless the user can answer it in one shot. Each carries:
+> 1. **its work-item identifier** — the `[[F<n>]]` / `[[T<n>]]` / `[[M<n>]]` it belongs to, so the user knows *what task* is asking;
+> 2. **a specific question** — the concrete fork being decided/assessed (not "which families?" but the exact choice);
+> 3. **labeled options** — `**(A)** / **(B)** / **(C)**`, each on its own line;
+> 4. **a recommendation** — `Lean (A)` or `None`, always present;
+> 5. **direct wiki-links to every artifact** the user must look at to answer — if the question is about a doc/file/output, the link is *in* the question; if it's about the behavior/performance of something, it names and links the specific thing being assessed.
+>
+> A `[Questions]` row missing these — no identifier, no links, no specific ask, no options, no recommendation — is a failure all the way around (see the anti-pattern in [[SKA query]] / [[Query PRD]]).
+
 DMUX trigger: **`groom`** (prefix-trigger; whatever you dictate after becomes the argument). Slash invocation: `/groom`, `/groom roadmap`, `/groom milestone {N}`, `/groom F{n}` (single-item).
 
 
