@@ -202,25 +202,36 @@ def dispatch(data: dict) -> list[str]:
 
 
 def audit_on_write(file_path: Path) -> list[str]:
-    """Run the doc-audit rules on a written markdown file; return a steer naming
-    each failing rule (empty when the file is clean, or on any error — fail-safe).
-    Reuses `warden_docfire.fire_audit` (verdict-identical to `audit-plan`)."""
+    """Run the doc-audit rules on a written markdown file: mechanical fails
+    WITH a `fix::` are repaired in place (audit-plan's fixer registry +
+    never-delete floor — M4a fixer parity with the bespoke F177 hook);
+    fails without one are steered. Empty when clean or on any error
+    (fail-safe). Reuses `warden_docfire.fire_on_write`."""
     try:
         import warden_docfire as wdf
         if not file_path.is_file():
             return []
-        # Steer only on `fail` (a real content violation) — never on `error`
-        # (an unimplemented/broken checker is a rule-infra gap, not the writer's
-        # problem; surfacing it here is noise) nor `pass`.
-        fails = [v for v in wdf.fire_audit(file_path.resolve(), "doc")
-                 if v.get("status") == "fail"]
+        # `error` verdicts never surface (an unimplemented/broken checker is a
+        # rule-infra gap, not the writer's problem) — execute_on_write only
+        # reports genuine `fail`s.
+        report = wdf.fire_on_write(file_path.resolve())
     except Exception as e:  # noqa: BLE001 — a doc-fire bug must never break the write
         _log(f"AUDIT-ON-WRITE ERROR {type(e).__name__}: {e}")
         return []
-    if not fails:
+    fixed, messages = report.get("fixed", []), report.get("messages", [])
+    if not fixed and not messages:
         return []
-    lines = "\n".join(f"  · {v['rule']}: {v.get('detail') or v.get('status')}" for v in fails)
-    return [f"[warden audit-on-write] {file_path.name} has {len(fails)} issue(s) to fix:\n{lines}"]
+    lines = [f"  ✓ fixed {f['rule']} — {f.get('detail') or ''}".rstrip() for f in fixed]
+    for m in messages:
+        line = f"  · {m['rule']}: {m.get('detail') or 'fail'}"
+        if m.get("why"):
+            line += f"  [why: {m['why']}]"
+        lines.append(line)
+    head = f"[warden audit-on-write] {file_path.name}: " \
+           f"{len(fixed)} auto-fixed, {len(messages)} issue(s) to fix by hand:" \
+        if fixed else \
+        f"[warden audit-on-write] {file_path.name} has {len(messages)} issue(s) to fix:"
+    return [head + "\n" + "\n".join(lines)]
 
 
 DENY_SENTINEL = "DENY: "
