@@ -39,11 +39,14 @@ description: "product requirements"
 
 **No tracked work is anonymous.** Before anything else, groom ensures every piece of work resolves to a unique identifier that lives on the backlog or roadmap:
 
-- **`F<n>` — a feature.** Backed by a feature doc under `{NAME} Design/{NAME} Features/`; the backlog row links to it.
-- **`T<n>` — a task.** A unit of work with **no** feature doc — the backlog row *is* the spec. A task usually *operates on other documents*; its body carries wiki-links to the design-doc sections / files / artifacts it acts on. `T<n>` is unique on the backlog and is the referent for every mention of the work (questions, `Q.md`, cross-links).
-- **`M<n>` — a milestone.** A roadmap entry in `{NAME} Roadmap.md` (hierarchical).
+- **`F<n>` — a feature.** Backed by a feature doc under `{NAME} Design/{NAME} Features/`; the backlog row links to it. `F` numbers are monotonic, never reused.
+- **`T<n>` — a task.** A unit of work with **no** feature doc — the backlog row *is* the spec. A task usually *operates on other documents*; its body carries wiki-links to the design-doc sections / files / artifacts it acts on. `T<n>` is unique on the backlog, monotonic and never reused, and is the referent for every mention of the work (questions, `Q.md`, cross-links).
+- **`M-<Name>…` — a roadmap entry.** A *nested* item in `{NAME} Roadmap.md` (per [[FCT Roadmap]]); its handle is `M-<Name>.<path>`, where the name-path already encodes its position in the tree. Entries nest; the roadmap is a hierarchy.
+- **`R…` — a roadmap task.** A backlog commitment to **execute a roadmap entry**. On the backlog the reference is **flat**: it points at one entry — a **leaf** entry (the usual case: "do this item") or a **non-leaf** entry ("do the whole subtree"). Its handle is `R` + the entry's identifier (e.g. `R-CLI.3.5`).
 
-The identity is *achieved by linking*: a row links to its feature doc (`F<n>`), is itself the task record (`T<n>`), or names a roadmap milestone (`M<n>`). A feature doc unlinked from the backlog/roadmap has no place in the system — groom gives it one rather than leaving an orphan. This is why every question can (and must) name its work-item handle: the handle exists first. (Numbering policy + the `T<n>` category live in the [[Backlog|FCT Backlog]] facet; the `state` mint is the source of new handles.)
+**Names are the stable key; positions are a drifting display hint.** A roadmap entry is resolved on its **name-path**, never on any ordering number — inserting or reordering entries changes their position but never their name, so backlog references, cross-links, and done-logs stay valid across every reshuffle. Only **renaming** an entry forces a reference sweep (far rarer than reorder/insert). The same principle protects `R` roadmap-tasks parked on a backlog while the roadmap evolves.
+
+The identity is *achieved by linking*: a row links to its feature doc (`F<n>`), is itself the task record (`T<n>`), or references a roadmap entry (`R…`, leaf or non-leaf). A feature doc unlinked from the backlog/roadmap has no place in the system — groom gives it one rather than leaving an orphan. This is why every question can (and must) name its work-item handle: the handle exists first. (Numbering policy for `F`/`T`/`M`/`R` lives in the [[Backlog|FCT Backlog]] facet + [[FCT Roadmap]]; the `state` mint is the source of new handles.)
 
 ## The groom frontier (activity 2)
 

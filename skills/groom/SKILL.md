@@ -35,11 +35,14 @@ Groom does three things, in order. Everything in the runbook serves one of them.
 
 The first thing groom guarantees is that **no work is anonymous** — every piece of tracked work carries a unique handle that lives on the backlog or roadmap:
 
-- **`F<n>` — a feature.** Backed by a feature doc under `{NAME} Design/{NAME} Features/`; the backlog row links to it (`→ [[F<n> — Title]]`).
-- **`T<n>` — a task.** A unit of work with **no** feature doc — the backlog row itself is the spec. A task typically *operates on other documents*: its body carries wiki-links to the design-doc sections, files, or artifacts it acts on. The `T<n>` handle is unique on the backlog and is what every reference to the work (questions, `Q.md`, cross-links) points at.
-- **`M<n>` — a milestone.** A roadmap entry in `{NAME} Roadmap.md` (hierarchical: `M1`, `M1.2`, `M1.2.3`).
+- **`F<n>` — a feature.** Backed by a feature doc under `{NAME} Design/{NAME} Features/`; the backlog row links to it (`→ [[F<n> — Title]]`). Monotonic, never reused.
+- **`T<n>` — a task.** A unit of work with **no** feature doc — the backlog row itself is the spec. A task typically *operates on other documents*: its body carries wiki-links to the design-doc sections, files, or artifacts it acts on. The `T<n>` handle is unique on the backlog (monotonic, never reused) and is what every reference to the work (questions, `Q.md`, cross-links) points at.
+- **`M-<Name>…` — a roadmap entry.** A *nested* item in `{NAME} Roadmap.md` (per [[FCT Roadmap]]); handle `M-<Name>.<path>`, the name-path encoding its position in the tree. Entries nest — the roadmap is a hierarchy.
+- **`R…` — a roadmap task.** A backlog commitment to **execute a roadmap entry**. Flat on the backlog: it references one entry — a **leaf** (usual: "do this item") or a **non-leaf** ("do the whole subtree"). Handle `R` + the entry's id (e.g. `R-CLI.3.5`).
 
-You *achieve* the identity by linking: a row links to its feature doc (`F<n>`), or is itself the task record (`T<n>`), or names a roadmap milestone (`M<n>`). **A feature doc that isn't linked from the backlog/roadmap has no place in the system** — groom gives it one (mint/point a row) rather than leaving it an orphan. (Numbering policy: [[Backlog|FCT Backlog]] § Numbering.)
+**Names are the stable key; positions drift.** Resolve a roadmap entry/task on its **name-path**, never on an ordering number — reorder/insert drifts positions but never names, so parked references and done-logs survive. Only a **rename** forces a sweep.
+
+You *achieve* the identity by linking: a row links to its feature doc (`F<n>`), is itself the task record (`T<n>`), or references a roadmap entry (`R…`, leaf or non-leaf). **A feature doc that isn't linked from the backlog/roadmap has no place in the system** — groom gives it one (mint/point a row) rather than leaving it an orphan. (Numbering policy: [[Backlog|FCT Backlog]] § Numbering + [[FCT Roadmap]].)
 
 ### 2. Identify the executable frontier
 
