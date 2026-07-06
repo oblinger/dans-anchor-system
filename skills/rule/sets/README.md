@@ -64,7 +64,7 @@ Conventions:
 
 ## State of the library (as of F082 v1)
 
-The library is **bootstrapping**. F082 v1 ships `/rule discover` + `/rule curate` to produce the initial sets; the user runs them to populate the trait folders. Pre-existing rulesets at `~/.claude/skills/rule/rulesets/` (oblinger-rules.md, xdg-config.md) are NOT migrated by F082 v1 — they continue to coexist; future cleanup may consolidate.
+The library is **bootstrapping**. F082 v1 ships `/rule discover` + `/rule curate` to produce the initial sets; the user runs them to populate the trait folders. Pre-existing rulesets at `~/.claude/skills/rule/rulesets/`: `oblinger-rules.md` was retired to a redirect at [[R-ob]] (2026-07-05, F218 § Housekeeping); `xdg-config.md` continues to coexist pending its own consolidation.
 
 ## Related
 

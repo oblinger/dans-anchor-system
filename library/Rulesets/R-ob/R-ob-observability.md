@@ -15,13 +15,18 @@ When a fallible operation fails, the failure is (a) propagated to the caller as 
 - `let _ = fallible_call()` (where the function isn't documented as best-effort + self-logging)
 - `if let Ok(v) = ... { ... }` with no `else` branch
 - `match ... { Ok(v) => ..., Err(_) => <default> }`
+- `unwrap_or_default()` on `Option<T>` deep in a parse path where `None` means "config file malformed" — the caller can't distinguish "field absent" from "file broken"
 
-**Check pattern (TS/JS):** `catch (_) { return default }`, `.catch(() => default)`, `try { ... } catch { /* nothing */ }`.
+**Check pattern (TS/JS):** `catch (_) { return default }`, `.catch(() => default)`, `try { ... } catch { /* nothing */ }`, optional-chaining `?.` that swallows `undefined` when the property is expected.
+
+**Check pattern (Python):** `except: pass`, `except Exception: pass`, `.get(key, default)` when the key is supposed to be present, `try`/`except` blocks that don't log.
 
 **Grading per finding:**
 - **High** — silent fallback masks a bug the user would want to see (config parse error, IPC failure, missing-required-file). Fix: log warning + propagate or use documented default.
 - **Medium** — fallback hides a less-impactful failure but loses information. Fix: add log line; default value can stay.
 - **Low** — defensible exception (best-effort function that logs internally; optional field with documented None semantic; test fixture).
+
+**Per-project audit:** scan the source tree, classify each finding, and append/update the adopter's exceptions table (`{NAME} Rules/R05 Exceptions.md` convention, e.g. `MUX-R04 Exceptions.md`) with grade + one-line justification. On re-audit, fail if any High/Medium finding has appeared since the last pass without a matching exception entry.
 
 ### RULE R-ob-observability-02 — 100% OS-bridge logging coverage (checked)
 
