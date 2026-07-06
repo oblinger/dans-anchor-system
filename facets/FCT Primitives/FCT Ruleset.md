@@ -3,7 +3,6 @@ description: "the Ruleset facet — what a ruleset is and the format every rules
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Primitives]] → [FCT Ruleset](hook://p/FCT%20Ruleset)
-
 # FCT Ruleset
 A named, reusable bundle of audit-checkable rules — and the spec for how to write one.
 

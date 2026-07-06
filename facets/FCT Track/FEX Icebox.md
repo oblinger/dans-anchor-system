@@ -3,7 +3,6 @@ description: "cold-storage / someday-maybe"
 ---
 
 :>> [[HBR]] → [[HBR Track]]
-
 # CAE Icebox
 
 Items parked for distant-future consideration. Not on the active [[HBR Backlog]] — the Icebox is for things we want to remember but are not currently weighing.

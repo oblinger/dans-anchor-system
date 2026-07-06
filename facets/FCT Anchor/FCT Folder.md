@@ -3,7 +3,6 @@ description: "the anchor folder facet — the named directory + marker file that
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Folder](hook://p/FCT%20Folder)
-
 # FCT Folder
 Facet spec for the anchor folder itself — the named directory containing a marker file that identifies it as an anchor.
 

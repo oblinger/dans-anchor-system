@@ -30,7 +30,7 @@ The Dispatch Table facet is the worked example. Click through to see the capsule
 | Piece | Where |
 |---|---|
 | Spec | [[DSC Dispatch Table]] — masthead (Anchor / Design / Related) + a member zone (its four live examples) |
-| Design | [[CAB Dispatch Table Design]] — five standing decisions + the F155 / F156 index |
+| [[CAB Dispatch Table Design\|Design]] | five standing decisions + the F155 / F156 index |
 | Features | [[F155 — Dispatch-table structure spec + CAE worked examples\|F155]], [[F156 — Dispatch-table rollout pilot + Dispatch Table anchor promotion\|F156]] (linked from the Design doc) |
 
 That's the whole facet: **two files** + links to shared features. No stubs.

@@ -3,7 +3,6 @@ description: "Anchor Page facet — the format of an anchor's {slug}.md entry po
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Anchor Page](hook://p/FCT%20Anchor%20Page)
-
 # FCT Anchor Page
 The entry page every anchor opens with — its `{slug}.md`.
 

@@ -2,7 +2,6 @@
 description: "`/land` — bounded crank."
 ---
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[ASG]] → [ASG Land](hook://p/ASG%20Land)
-
 # /land — user guide
 
 **Full internals & design:** [[SKL Land]]   ·   **Runtime spec:** [[skills/land/SKILL.md\|SKILL.md]]

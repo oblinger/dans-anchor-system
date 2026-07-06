@@ -2,7 +2,6 @@
 description: "Cautious, skeptical counterpart to `crank`."
 ---
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[ASG]] → [ASG Fortify](hook://p/ASG%20Fortify)
-
 # /fortify — user guide
 
 **Full internals & design:** [[SKL Fortify]]   ·   **Runtime spec:** [[skills/fortify/SKILL.md\|SKILL.md]]

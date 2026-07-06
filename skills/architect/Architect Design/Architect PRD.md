@@ -2,9 +2,8 @@
 description: "product requirements — what `/architect` produces and for whom"
 ---
 
-# Architect PRD
-
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[Architect Design]] → PRD
+# Architect PRD
 
 ## Overview
 

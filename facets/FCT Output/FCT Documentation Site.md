@@ -3,7 +3,6 @@ description: "published web presence for an anchor — Jekyll project page or Mk
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Output]] → [FCT Documentation Site](hook://p/FCT%20Documentation%20Site)
-
 # FCT Documentation Site
 Published web presence for an anchor. Two levels: a simple project page (Jekyll) or a full documentation site (MkDocs).
 

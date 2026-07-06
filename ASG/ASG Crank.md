@@ -2,7 +2,6 @@
 description: "The \"go\" button."
 ---
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[ASG]] → [ASG Crank](hook://p/ASG%20Crank)
-
 # /crank — user guide
 
 **Full internals & design:** [[SKL Crank]]   ·   **Runtime spec:** [[skills/crank/SKILL.md\|SKILL.md]]

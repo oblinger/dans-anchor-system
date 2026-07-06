@@ -3,7 +3,6 @@ description: "Design rationale + standing decisions for the Dispatch Table disci
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[CAB]] → [[CAB Disciplines]] → [CAB Dispatch Table Design](hook://p/CAB%20Dispatch%20Table%20Design)
-
 # CAB Dispatch Table Design
 
 **Anchor:** [[FCT Dispatch Table]] (the spec this explains)

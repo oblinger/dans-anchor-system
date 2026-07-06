@@ -3,7 +3,6 @@ description: "published project overview page for an anchor"
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Project Page](hook://p/FCT%20Project%20Page)
-
 # FCT Project Page
 A lightweight public-facing splash page for an anchor, published to the personal website (oblinger.github.io). Built via the `/code publish` skill.
 

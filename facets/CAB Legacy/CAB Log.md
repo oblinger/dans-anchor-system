@@ -3,7 +3,6 @@ description: Change log — date-stamped record of CAB structure changes; double
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[CAB]] → [CAB Log](hook://p/CAB%20Log)
-
 # CAB Log
 
 Chronological record of changes to the Common Anchor Blueprint. Reverse-chronological (newest entries at the top). Each entry is dated, names the change, and carries enough detail to act on it.

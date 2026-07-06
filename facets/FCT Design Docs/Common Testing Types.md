@@ -3,7 +3,6 @@ description: "standard test-kind catalogue — generic strategy per kind, linked
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [Common Testing Types](hook://p/Common%20Testing%20Types)
-
 # Common Testing Types
 
 **Up:** [[FCT Testing]]

@@ -3,7 +3,6 @@ description: the repo's complete source file tree, every file linked to its modu
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Code]] → [FCT All Files](hook://p/FCT%20All%20Files)
-
 # FCT All Files
 The All Files facet — a fixed-width file-tree page linking every source file to its module doc.
 

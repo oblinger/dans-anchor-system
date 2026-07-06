@@ -3,7 +3,6 @@ description: dated agent-generated outputs — audit reports, analysis
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Output]] → [FCT Outputs](hook://p/FCT%20Outputs)
-
 # FCT Outputs
 Dated agent-generated outputs (audit reports, code analysis, automated assessments) parked under `{slug} Outputs/` and auto-managed by the `stat` command.
 

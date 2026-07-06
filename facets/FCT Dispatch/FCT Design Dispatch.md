@@ -3,7 +3,6 @@ description: "design docs dispatch page — Architecture, UX Design, Interface, 
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Design Dispatch](hook://p/FCT%20Design%20Dispatch)
-
 # FCT Design Dispatch
 Facet spec for `{NAME} Design.md` — the dispatch page listing all high-level system-spec documents for an anchor.
 

@@ -3,7 +3,6 @@ description: "facet spec for {NAME} PRD.md — the anchor's product requirements
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT PRD](hook://p/FCT%20PRD)
-
 # FCT PRD
 **Audited examples:** [[HBR PRD]], [[Mini PRD]], [[HBR PRD]], [[DMUX PRD]], [[OBU PRD]]
 

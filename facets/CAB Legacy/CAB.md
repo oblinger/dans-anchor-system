@@ -4,7 +4,6 @@ description: Common Anchor Blueprint — the spec model for what an anchor is, w
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [CAB](hook://p/CAB)
-
 # CAB — Common Anchor Blueprint
 
 Every anchor is described by **Aspects** (see [[CAB Aspects]] for the unified model): **Traits** (broad paradigms declared in the anchor's `traits:` list — `Code`, `Skill`, `Publishable`, ...) and **Facets** (narrow, usually-file-based aspects defined per-spec under `CAB/CAB Facets/` — `Backlog`, `Architecture`, `Interface`, ...). Every Trait and Facet spec includes a Constraints section (legal usage; mutual exclusion) and an Expected Usage section (positive guidelines). CAB governs anchor **structure/composition** (what an anchor *contains*); it is complementary to — not overlapping with — [[Anchorage]] / [[ANC Standard]], which governs anchor **identity** (slug, metadata declaration, resolution, the DAG). Structure here, identity there.

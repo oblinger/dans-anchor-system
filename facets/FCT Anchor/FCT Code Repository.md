@@ -3,7 +3,6 @@ description: "facet spec for the code repository association declared in an anch
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Code Repository](hook://p/FCT%20Code%20Repository)
-
 # FCT Code Repository
 Facet spec for how an anchor declares and resolves its associated code repository — linked (separate path) or inline — via the `code:` key in `.anchor`.
 

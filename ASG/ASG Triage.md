@@ -2,7 +2,6 @@
 description: "`/triage` (or the punctuation trigger `\"` — a single double-quote as the entire message) regenerates the current anchor's per-anchor section inside `~/ob/kmr/Q.md`, the vault-level Agent Status das…"
 ---
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[ASG]] → [ASG Triage](hook://p/ASG%20Triage)
-
 # /triage — user guide
 
 **Full internals & design:** [[SKL Triage]]   ·   **Runtime spec:** [[skills/triage/SKILL.md\|SKILL.md]]

@@ -3,7 +3,6 @@ description: "status facet — one {NAME} Status.md per anchor tracking design-p
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Status](hook://p/FCT%20Status)
-
 # FCT Status
 One file per anchor that tracks design-phase completeness, one dataview line per design facet, using a monotonic tier ladder read/written by the state script.
 

@@ -3,7 +3,6 @@ description: "per-module source code documentation — one doc per source module
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Code]] → [FCT Module Doc](hook://p/FCT%20Module%20Doc)
-
 # FCT Module Doc
 Facet spec for per-module documentation — the auto-generatable, source-code-grounded reference doc that mirrors one source module under `{NAME} Dev/`.
 

@@ -3,7 +3,6 @@ description: CAE public API surface — public modules, schemas, file formats, e
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FEX API](hook://p/FEX%20API)
-
 # FEX API
 
 Public API surface of the `cae_example` crate. Entry point: `src/lib.rs`. Re-exports the public modules so consumers can write `use cae_example::execution::TaskScheduler` without chasing the source tree.

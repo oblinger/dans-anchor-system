@@ -3,7 +3,6 @@ description: "the current technical-architecture document for a software project
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT System Design](hook://p/FCT%20System%20Design)
-
 # FCT System Design
 Facet spec for `{NAME} System Design.md` — the current technical-architecture document (components, data model, decisions) for a software project anchor.
 

@@ -3,7 +3,6 @@ description: "Linked Mode discipline — anchor folder is metadata-only, code li
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DSC Linked Mode](hook://p/DSC%20Linked%20Mode)
-
 # DSC Linked Mode
 The pattern for an anchor whose code repository lives outside the vault — anchor folder holds specs and dispatch pages; code lives at a separate path declared via the `code:` key in `.anchor`.
 

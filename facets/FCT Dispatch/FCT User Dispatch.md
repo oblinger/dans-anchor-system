@@ -3,7 +3,6 @@ description: user-facing docs dispatch page — curated, synthesis-level human-a
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT User Dispatch](hook://p/FCT%20User%20Dispatch)
-
 # FCT User Dispatch
 Facet spec for the `{NAME} User Docs.md` dispatch page that catalogs an anchor's end-user / consumer-facing documentation (Guide, Installation, CLI, FAQ, Cards).
 

@@ -3,7 +3,6 @@ description: Query facet — the format of an anchor's `{NAME} queries.md`, the 
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Query](hook://p/FCT%20Query)
-
 # FCT Query
 The asking surface: one `{NAME} queries.md` per anchor, in `{NAME} Track/`, that `/query` builds and trims.
 

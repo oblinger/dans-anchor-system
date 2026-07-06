@@ -3,7 +3,6 @@ description: superseded by CAB Track Dispatch per F094 — see redirect below
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Plan Dispatch](hook://p/FCT%20Plan%20Dispatch)
-
 # FCT Plan Dispatch
 Redirect stub for the legacy `{NAME} Plan/` dispatch facet, superseded by [[FCT Track Dispatch]] and [[FCT Design Dispatch]] per F094.
 

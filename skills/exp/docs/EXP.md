@@ -2,8 +2,6 @@
 description: "2026 Vast ML Testing — ML experiment suites (distillation, interpretability, LLM probing) run on vast.ai GPUs"
 ---
 :>> [[ _ ]] > [[kmr]] > [[SYS]] > [[Bespoke]] > [EXP](hook://p/EXP)
-
-
 # EXP System
 
 ## Documentation

@@ -3,7 +3,6 @@ description: "design facet — the {NAME} Design/ folder marks an anchor as foll
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Design](hook://p/FCT%20Design)
-
 # FCT Design
 The Design folder facet — marks an anchor as following the designed-lifecycle convention; folder presence is the gate.
 

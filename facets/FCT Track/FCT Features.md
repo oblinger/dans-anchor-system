@@ -3,7 +3,6 @@ description: "specification for F-numbered per-feature design docs and their ind
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Features](hook://p/FCT%20Features)
-
 # FCT Features
 Specification for the **Features** facet — F-numbered per-feature design docs that live under `{NAME} Design/{NAME} Features/`, with their index page and pre-document Open-Questions zone.
 

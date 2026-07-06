@@ -2,7 +2,6 @@
 description: "priority queue engine + worker dispatch. Source: `src/execution/scheduler.rs`."
 ---
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Code]] → [FEX Scheduler](hook://p/FEX%20Scheduler)
-
 # FEX Scheduler
 Orchestrates timed task execution with priority queuing and retry semantics. The Scheduler is the central dispatch engine for deferred work. It accepts tasks with deadlines, assigns them to worker threads from a managed pool, and handles retry logic when tasks fail. All scheduling decisions flow through a single priority queue to prevent starvation (the project's *one queue, one clock* rule).
 

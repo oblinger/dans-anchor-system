@@ -3,7 +3,6 @@ description: decisions are documentation — recorded under a `## Decisions` sec
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Decisions](hook://p/FCT%20Decisions)
-
 # FCT Decisions
 **Audited examples:** [[HBR Decisions]], [[Mini Decisions]], [[FEX Decisions]], [[UCM Decisions]], [[DKT Decisions]]
 

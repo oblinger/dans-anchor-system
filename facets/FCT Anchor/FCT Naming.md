@@ -3,7 +3,6 @@ description: "file-naming facet — every file inside an anchor uses `{NAME} <X>
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Naming](hook://p/FCT%20Naming)
-
 # FCT Naming
 File-naming facet — every file inside an anchor uses `{NAME} <X>.md` form by default; exceptions for vault-global files and facet-sanctioned unique patterns.
 

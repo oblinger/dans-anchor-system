@@ -3,7 +3,6 @@ description: "audit-tied developer docs dispatch page — file tree and per-modu
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Dev Dispatch](hook://p/FCT%20Dev%20Dispatch)
-
 # FCT Dev Dispatch
 Facet spec for `{NAME} Dev Docs.md` — the audit-tied dispatch page that lists the Files tree and per-module docs under the root-level `{NAME} Dev Docs/` folder.
 

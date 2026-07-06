@@ -3,7 +3,6 @@ description: testing facet — the project's testing strategy (kinds, amounts, r
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Testing](hook://p/FCT%20Testing)
-
 # FCT Testing
 **Audited examples:** [[HBR Testing]], [[Mini Testing]], [[HBR Testing]], [[MUX Testing]], [[SKA Bridge Testing]]
 

@@ -3,7 +3,6 @@ description: per-anchor architecture overview — anchor-folder form with subsys
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Architecture](hook://p/FCT%20Architecture)
-
 # FCT Architecture
 **Audited examples:** [[HBR Architecture]], [[FEX Architecture]], [[OBU Architecture]], [[MUX Architecture]], [[HA Architecture]]
 
