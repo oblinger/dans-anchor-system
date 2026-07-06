@@ -10,8 +10,6 @@ A rule's `where::` value is a selector expression — `file:{ANCHOR}/**/* PRD.md
 
 This is a **coordinated move**, not a find-replace: the scripts that *parse* `where::` (the F161 engine's selector parser in `audit-plan.py`, plus any other consumer) must strip the surrounding backticks before parsing. Do the code first, prove it with a test suite that captures current behavior, then swap every rule-set file, then verify the engine resolves **identically** to before.
 
-Parked on **Next** — not being taken on now.
-
 ## Success Criteria
 
 **Tier:** 1 (agent-immediate)
@@ -48,6 +46,14 @@ The selector engine is now load-bearing across `/audit`. A blind find-replace co
 
 ## Status
 
-**Ready** (2026-07-05) — the hold released: the Warden M0 language freeze completed 2026-07-05 (F209 + F210 Done), so the grammar this sweep rewrites is pinned and the coordinated sequence can run.
+**Done** (2026-07-05) — the coordinated sequence ran exactly as § Design ordered it, same day the hold released:
+
+1. **Baseline first** — snapshotted `audit-plan --batch examples --json` + two representative anchor plans + the live `rules-ir.json` before touching anything.
+2. **Parser** — `strip_ticks` in `warden_compile.py` (ruleset-header + rule-level `where::`) and `_strip_ticks` in `audit-plan.py` (both parse sites): a **single surrounding pair** is stripped only when the interior carries no further backtick, so prose values with inline code spans (`R-doc-structure`) pass through untouched and the bare legacy form stays accepted. `warden_docfire` + the Rust engine consume the parsed IR, so two parsers cover every consumer.
+3. **Tests** — `test_warden_compile.test_backticked_where` pins strip semantics + a mixed fixture (backticked / bare / prose rule-level values).
+4. **Sweep** — 60 `where::` lines across 57 ruleset files wrapped (machine selectors only: `always` / `anchor` / `file:` / `sentinel:` / bare globs; prose selectors skipped). **`FCT Query.md` (R-query) deliberately excluded** — another agent owns the query/groom surfaces right now; its 2 bare lines sweep later (parser tolerates both).
+5. **Verified identical** — IR diff vs baseline: the 60 swept lines produced **zero** field diffs (byte-identical parse), moment dispatch + doc_rules identical; all three audit-plan snapshots byte-identical (modulo a cache-warm counter); 10 unit suites + 10 cargo tests + both Rust differentials + golden corpus 7/7 (both engines, unchanged signatures) + perf gate green; live corpus recompiled (465 rules) and smoke through the installed Rust dispatcher clean.
+
+**Bug fixed en route:** 8 rules (`R-cli-01..08`) had been authored backticked *before* any parser stripped ticks — the leading backtick made `parse_selector` read them as junk bare globs, so the whole R-cli family was **silently dead**. Post-swap they parse to real `file:` selectors and match their CLI docs again (proven against `HBR CLI.md`). `R-ruleset-12` + [[FCT Ruleset]] § Where clause now document the backtick-wrapped authored form as canonical.
 
 **Earlier: Blocked** — spec complete, but the sweep was HELD until the Warden M0 language freeze lands ([[F210 — Conjunction binding + indexing|F210]] pins the `where::`/`if::` grammar this sweep would rewrite — running first risks a second vault-wide pass). Execute the coordinated sequence when M0 freezes.

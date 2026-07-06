@@ -170,7 +170,7 @@ Any anchor that commits to the designed-lifecycle convention.
 
 # RULESET R-design
 include::
-where:: anchor
+where:: `anchor`
 description:: design facet — the `{NAME} Design/` folder marks an anchor as following the designed-lifecycle convention; folder presence IS the signal (no trait field required)
 
 Embedded ruleset for the Design facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella.

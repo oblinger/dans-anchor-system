@@ -171,6 +171,48 @@ def _check_trait_reachability_rule(mod, tmp: Path):
     print("PASS  trait_reachability_rule (F219)")
 
 
+BACKTICK_FIXTURE = """\
+# RULESET R-tick-fx
+
+where:: `file:{ANCHOR}/**/*.md`
+description:: F172 backtick-form fixture
+
+### RULE R-tick-fx-01 — backticked rule-level where (checked)
+
+where:: `file:{ANCHOR}/**/* PRD.md`
+check:: frontmatter_has description
+
+### RULE R-tick-fx-02 — bare legacy where (checked)
+
+where:: file:{ANCHOR}/**/* Backlog.md
+check:: frontmatter_has description
+
+### RULE R-tick-fx-03 — prose where with inline code spans (stated)
+
+where:: every authored doc — any `.md` we own, with a `# ` H1
+"""
+
+
+def test_backticked_where():
+    """F172: `` where:: `<expr>` `` (whole-expression backtick wrap) parses to
+    the same selector as the bare form; prose values with INTERIOR code spans
+    are never mis-stripped."""
+    assert wc.strip_ticks("`file:{ANCHOR}/**/*.md`") == "file:{ANCHOR}/**/*.md"
+    assert wc.strip_ticks("file:{ANCHOR}/**/*.md") == "file:{ANCHOR}/**/*.md"
+    assert wc.strip_ticks("`always`") == "always"
+    prose = "any `.md` we own, with a `# ` H1"
+    assert wc.strip_ticks(prose) == prose, "interior code spans mis-stripped"
+    rs = wc.parse_ruleset(BACKTICK_FIXTURE, "R-tick-fx", "fixture")
+    assert rs is not None
+    assert rs["where"] == "file:{ANCHOR}/**/*.md", rs["where"]
+    by_id = {r["id"]: r for r in rs["rules"]}
+    assert by_id["R-tick-fx-01"]["where"] == "file:{ANCHOR}/**/* PRD.md"
+    assert by_id["R-tick-fx-02"]["where"] == "file:{ANCHOR}/**/* Backlog.md"
+    assert by_id["R-tick-fx-03"]["where"].startswith("every authored doc"), \
+        by_id["R-tick-fx-03"]["where"]
+    print("PASS  backticked_where (F172)")
+
+
 def test_recompile_cache():
     """The compiled IR records the scan-index hash as its cache key;
     `cached_source_hash` round-trips it, and the key changes when a ruleset
@@ -208,6 +250,7 @@ def main():
         test_emitted_body_fires_like_autofire(mod)
         test_stats(stats)
     test_corpus_compile()
+    test_backticked_where()
     test_recompile_cache()
     print("\nall warden_compile tests passed")
     return 0

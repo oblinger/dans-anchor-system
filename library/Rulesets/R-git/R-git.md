@@ -6,7 +6,7 @@ Umbrella over the git-discipline rulesets. Adopt `R-git` to pull every git rules
 
 # RULESET R-commit-discipline
 include::
-where:: anchor
+where:: `anchor`
 description:: commit cadence and message hygiene — when to commit, never amend, no boilerplate, co-author trailer
 
 Commit-discipline rules extracted from the global `/dev` instructions (2026, F133 sweep). They govern *when* an agent commits and what a commit message looks like — distinct from the PR / branch-protection rulesets the umbrella will also carry. An anchor's Git **aspect** (`Commit` / `PR` / `NoGit`) selects the cadence; these rules apply wherever commits happen. Format of this set: [[FCT Ruleset]].

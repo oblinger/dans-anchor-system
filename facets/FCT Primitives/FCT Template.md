@@ -49,7 +49,7 @@ Open question for the design review ([[F220 — Template facet-or-discipline —
 
 # RULESET R-template
 include::
-where:: file: **/_* Template.md, **/_* Template/**
+where:: `file: **/_* Template.md, **/_* Template/**`
 description:: the Template facet — a domain-specific, folder-local structure for the items in one folder/tree
 
 ### RULE R-template-01 — the exemplar IS a live instance, never a description (checked)

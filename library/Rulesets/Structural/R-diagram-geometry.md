@@ -1,6 +1,6 @@
 # RULESET R-diagram-geometry
 include::
-where:: {ANCHOR}/**/*.svg
+where:: `{ANCHOR}/**/*.svg`
 description:: Hard-fail geometric correctness for hand-authored diagrams — overlap, floating endpoints, tunneling, text overflow, label-association ambiguity, label-label collision.
 
 > [!info] Provenance

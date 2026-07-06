@@ -83,7 +83,7 @@ Track holds **tracking metadata**: backlog (work queue), status (design complete
 
 # RULESET R-track-dispatch
 include::
-where:: file: **/{NAME} Track.md
+where:: `file: **/{NAME} Track.md`
 description:: Rules every `{NAME} Track.md` dispatch page must satisfy — location, structure, top-left cell identity, and contents restricted to tracking metadata only.
 
 ### RULE R-track-dispatch-01 — File lives inside the Track folder (checked)

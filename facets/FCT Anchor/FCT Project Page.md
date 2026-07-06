@@ -75,7 +75,7 @@ An anchor can have both: a project page for the public landing, and a documentat
 
 # RULESET R-project-page
 include::
-where:: file: **/website/index.md
+where:: `file: **/website/index.md`
 description:: Rules every Project Page instance must satisfy — presence of a `website/` folder, the Jekyll cayman front matter, and the deploy script.
 
 ### RULE R-project-page-01 — `website/` folder present (checked)

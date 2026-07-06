@@ -207,7 +207,7 @@ docs/demos/
 
 # RULESET R-documentation-site
 include::
-where:: anchor
+where:: `anchor`
 description:: an anchor's published web presence — Jekyll project page or MkDocs full site
 
 What `/audit publish` checks on an anchor's documentation-site facet. Optional — cardinality one per anchor. Format of this set: [[FCT Ruleset]].

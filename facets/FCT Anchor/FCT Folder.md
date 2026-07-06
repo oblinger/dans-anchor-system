@@ -39,7 +39,7 @@ When the marker IS the anchor page (folder name = anchor name), the F060 top-of-
 
 # RULESET R-fct-folder
 include::
-where:: file: **/.anchor
+where:: `file: **/.anchor`
 description:: The rules every anchor folder must satisfy — a named directory containing a marker file whose name matches the folder exactly.
 
 ### RULE R-fct-folder-01 — Marker file exists and name matches folder (checked)

@@ -56,7 +56,7 @@ The `publish` / `build-dmg` recipes (shared `dist/release.just`) write and guard
 
 # RULESET R-versions
 include::
-where:: file: versions/*.dmg
+where:: `file: versions/*.dmg`
 description:: the versions/ release-artifact store — immutable, tag-gated published builds
 
 What `/audit` checks on a project's `versions/` store. Tiers: **checked** (mechanically verifiable), **sampled** (spot-checked), **stated** (a principle the author honors). The governing policy is [[OBU Decisions]] D02.

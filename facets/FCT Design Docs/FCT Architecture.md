@@ -166,7 +166,7 @@ Available to any anchor with the `Code` trait. Optional for non-code anchors —
 
 # RULESET R-architecture
 include::
-where:: file:{ANCHOR}/**/* Architecture.md
+where:: `file:{ANCHOR}/**/* Architecture.md`
 description:: spec for the `{NAME} Architecture.md` entry-point design facet — section spine, mandatory visual figure, subsystem dispatch + link convention, API content kept off the page
 
 Embedded ruleset for the Architecture facet, co-located with the facet spec above per the [[F133 — Rulesets folder convention + facet embedding|F133]] embedding convention. Pulled in via the `R-facet` umbrella; active for an anchor through its traits ([[Warden Semantics]] § Rulesets). The `where::` glob selects the entry-point doc only (`* Architecture.md`); subsystem docs (kebab `{NAME}-*.md`) follow [[FCT Module Doc]], not this ruleset.

@@ -87,7 +87,7 @@ The stat command:
 
 # RULESET R-fct-outputs
 include::
-where:: file: **/{slug} Docs/{slug} Plan/{slug} Outputs/{slug} Outputs.md
+where:: `file: **/{slug} Docs/{slug} Plan/{slug} Outputs/{slug} Outputs.md`
 description:: The rules every Outputs folder and its dispatch page must satisfy — location, naming, dispatch-page shape, and individual output-file format.
 
 ### RULE R-fct-outputs-01 — Outputs live inside the Plan subtree (checked)

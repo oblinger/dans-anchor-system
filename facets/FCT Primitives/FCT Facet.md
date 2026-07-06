@@ -52,7 +52,7 @@ Worked instances of the standalone kind: [[FEX Dispatch Examples]] (+ [[FEX Grou
 
 # RULESET R-facet-spec
 include::
-where:: file: facets/**/FCT *.md, !facets/FCT.md, !**/FCT Facets.md, !**/FCT Primitives.md, !**/FCT Anchor.md, !**/FCT Code.md, !**/FCT Design Docs.md, !**/FCT Dispatch.md, !**/FCT Doc.md, !**/FCT Output.md, !**/FCT Track.md
+where:: `file: facets/**/FCT *.md, !facets/FCT.md, !**/FCT Facets.md, !**/FCT Primitives.md, !**/FCT Anchor.md, !**/FCT Code.md, !**/FCT Design Docs.md, !**/FCT Dispatch.md, !**/FCT Doc.md, !**/FCT Output.md, !**/FCT Track.md`
 description:: The rules for authoring a facet — what every `FCT <Name>.md` (a facet definition) must contain and conform to. **Distinct from the umbrella [[R-facet]]**, which aggregates each materialized facet's *own* embedded rules (so an anchor's `{NAME} Backlog.md`, `{NAME} Testing.md`, … get audited); `R-facet-spec` instead governs the **facet-spec documents themselves**, in the `facets/` catalog.
 
 Embedded here per the [[F133 — Rulesets folder convention + facet embedding|F133]] convention. Tiers: **checked** (mechanically verifiable), **sampled** (spot-checked), **stated** (a principle the author honors). The authoritative model these rules enforce is [[CAB Aspects]] § Facet + § Spec-doc structure.

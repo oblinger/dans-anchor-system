@@ -45,7 +45,7 @@ cd "$(cab-config path code)"             # its code repo
 
 # RULESET R-dot-anchor
 include::
-where:: file: **/.anchor
+where:: `file: **/.anchor`
 description:: the `.anchor` file — anchor metadata declaration
 
 ### RULE R-dot-anchor-01 — `.anchor` is valid YAML carrying a slug (checked)

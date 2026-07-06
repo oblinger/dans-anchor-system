@@ -11,7 +11,7 @@ The anchor & structure facets.
 
 # RULESET R-anchor-group
 include::
-where:: anchor
+where:: `anchor`
 description:: the FCT Anchor family index — the anchor & structure facet group page
 
 What `/audit` checks on this facet-group index page. It is a grouped-Container anchor page (the page chassis is governed by `R-anchor-page`); the rules here are the **group-membership** invariants specific to a facet-family index. Format of this set: [[FCT Ruleset]].

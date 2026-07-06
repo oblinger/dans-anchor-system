@@ -92,7 +92,7 @@ System designers, architects, integrators-above-the-layer, and anyone evaluating
 
 # RULESET R-design-dispatch
 include::
-where:: file: **/{{NAME}} Design.md
+where:: `file: **/{{NAME}} Design.md`
 description:: Rules every `{NAME} Design.md` dispatch page must satisfy — location, H1 form, dispatch-table structure, and required-document coverage for Code anchors.
 
 ### RULE R-design-dispatch-01 — File lives inside `{NAME} Design/` (checked)

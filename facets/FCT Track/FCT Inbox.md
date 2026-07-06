@@ -68,7 +68,7 @@ Every Inbox file opens with the standard top-of-doc format: YAML frontmatter + `
 
 # RULESET R-fct-inbox
 include::
-where:: file: **/{NAME} Inbox.md
+where:: `file: **/{NAME} Inbox.md`
 description:: Rules every `{NAME} Inbox.md` instance must satisfy — location, heading format, and status-tag vocabulary.
 
 ### RULE R-fct-inbox-01 — File exists at the anchor root (checked)

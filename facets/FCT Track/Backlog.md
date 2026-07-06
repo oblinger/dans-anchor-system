@@ -244,7 +244,7 @@ Items graduate from Backlog to Todo or Roadmap when they become priorities, or m
 
 # RULESET R-backlog
 include::
-where:: file:{ANCHOR}/**/* Backlog.md
+where:: `file:{ANCHOR}/**/* Backlog.md`
 description:: the `{NAME} Backlog.md` format — frontier invariants (F228) + bracket promises
 
 What `/audit doc` checks on a backlog file. The skills that maintain it are `/groom` (frontier planning) and the `state` tool (mutations); these are the file-invariants the groomed state must satisfy. Format of this set: [[FCT Ruleset]].

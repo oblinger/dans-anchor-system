@@ -14,7 +14,7 @@ The the work-surface facets (centralized in SKA per D08, but specified here).
 
 # RULESET R-track-group
 include::
-where:: anchor
+where:: `anchor`
 description:: the FCT Track family index — the work-surface facet group page
 
 What `/audit` checks on this facet-group index page. It is a grouped-Container anchor page (chassis governed by `R-anchor-page`); the rules here are the **group-membership** invariants for the work-surface facet family. Format of this set: [[FCT Ruleset]].

@@ -76,7 +76,7 @@ When the WP folder is created, a **Work** row is added to the anchor dispatch ta
 
 # RULESET R-wp
 include::
-where:: file:{ANCHOR}/{NAME} WP/**/*
+where:: `file:{ANCHOR}/{NAME} WP/**/*`
 description:: the `{NAME} WP/` work-products zone — dated polished outputs
 
 What `/audit` checks on an anchor's Work Products zone. Cardinality: one zone per anchor, many entries within. Format of this set: [[FCT Ruleset]].

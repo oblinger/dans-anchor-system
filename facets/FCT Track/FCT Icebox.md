@@ -80,7 +80,7 @@ The cut between Backlog and Icebox is *intent to consider*, not age. A two-year-
 
 # RULESET R-fct-icebox
 include::
-where:: file: **/{NAME} Icebox.md
+where:: `file: **/{NAME} Icebox.md`
 description:: Rules every `{NAME} Icebox.md` instance must satisfy — location, cardinality, and entry format.
 
 ### RULE R-fct-icebox-01 — Location is inside the Plan folder (checked)

@@ -139,7 +139,7 @@ A numbered table recording architectural decisions with rationale. Each decision
 
 # RULESET R-fct-system-design
 include::
-where:: file: **/{NAME} Docs/{NAME} Plan/{NAME} System Design.md
+where:: `file: **/{NAME} Docs/{NAME} Plan/{NAME} System Design.md`
 description:: Rules every `{NAME} System Design.md` instance must satisfy — location, top-of-doc shape, required sections, and currency discipline.
 
 ### RULE R-fct-system-design-01 — Location is `{NAME} Docs/{NAME} Plan/` (checked)

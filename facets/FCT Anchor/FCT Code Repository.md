@@ -186,7 +186,7 @@ refuse to overwrite if target files have been modified.
 
 # RULESET R-code-repository
 include::
-where:: file:{ANCHOR}/.anchor
+where:: `file:{ANCHOR}/.anchor`
 description:: how an anchor declares & resolves its associated code repository
 
 What `/audit` checks on a `code`-trait anchor's repository association. Format of this set: [[FCT Ruleset]].

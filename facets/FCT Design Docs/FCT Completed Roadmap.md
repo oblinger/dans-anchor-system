@@ -86,7 +86,7 @@ Per [[DSC progressive-disclosure]]:
 
 # RULESET R-completed-roadmap
 include::
-where:: file:{ANCHOR}/**/* Completed Roadmap.md
+where:: `file:{ANCHOR}/**/* Completed Roadmap.md`
 description:: completed-roadmap facet — migrated milestones in newest-on-top order, sibling of the forward-looking Roadmap
 
 Embedded ruleset for the Completed Roadmap facet, co-located with the spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella.

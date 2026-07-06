@@ -130,7 +130,7 @@ Update the Files page when the repository structure changes significantly — ne
 
 # RULESET R-all-files
 include::
-where:: file: **/Docs/**/*Files.md, **/*Dev/**/*Files.md
+where:: `file: **/Docs/**/*Files.md, **/*Dev/**/*Files.md`
 description:: Rules every `{NAME} Files.md` instance must satisfy — frontmatter, no-code-fence, tree structure, and link format.
 
 ### RULE R-all-files-01 — cssclasses monospace in frontmatter (checked)

@@ -207,7 +207,7 @@ A skill anchor — like **every** SKA sub-project anchor — **owns its own desi
 
 # RULESET R-skill-md
 include::
-where:: file:{ANCHOR}/SKILL.md
+where:: `file:{ANCHOR}/SKILL.md`
 description:: the `SKILL.md` entry-point structure for a Claude Code skill
 
 What `/audit` checks on a skill's `SKILL.md` entry point. Cardinality: one per skill anchor. Format of this set: [[FCT Ruleset]].

@@ -13,7 +13,7 @@ These two facets are a pair: **All Files** is the repo's complete source tree wi
 
 # RULESET R-code-surface
 include:: [[R-module-doc]]
-where:: anchor
+where:: `anchor`
 description:: the code surface of an anchor — All Files tree + per-module docs, kept in correspondence
 
 What `/audit` checks across the code surface of a `code`-trait anchor. The per-doc shape rules live in the included `R-module-doc`; the rules below are the **pairing** invariants between the source tree and its docs. Format of this set: [[FCT Ruleset]].
