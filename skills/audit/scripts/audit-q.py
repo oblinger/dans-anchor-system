@@ -488,19 +488,43 @@ def _is_url_markdown_link(path: str) -> bool:
 
 
 def _strip_code_spans(line: str) -> str:
-    """Remove inline-code spans (` ` `) from a line so wiki-links inside them
-    don't get parsed. Replaces each code span with same-length whitespace to
-    preserve column offsets."""
-    out_chars = list(line)
-    in_code = False
+    """Remove inline-code spans from a line, honoring CommonMark N-backtick
+    spans. A run of N backticks opens a span; it closes only on a matching run
+    of exactly N backticks. Contents between (including any shorter backtick
+    runs) are blanked to whitespace to preserve column offsets. Fixes SKA F227
+    bug where a naive single-backtick toggle mis-parsed ``double-backtick``
+    spans and left their interior exposed to link-resolution."""
+    out = list(line)
     i = 0
-    while i < len(out_chars):
-        if out_chars[i] == "`":
-            in_code = not in_code
-        elif in_code:
-            out_chars[i] = " "
-        i += 1
-    return "".join(out_chars)
+    n = len(out)
+    while i < n:
+        if out[i] == "`":
+            j = i
+            while j < n and out[j] == "`":
+                j += 1
+            open_len = j - i
+            k = j
+            closed = False
+            while k < n:
+                if out[k] == "`":
+                    m = k
+                    while m < n and out[m] == "`":
+                        m += 1
+                    close_len = m - k
+                    if close_len == open_len:
+                        for p in range(j, k):
+                            out[p] = " "
+                        i = m
+                        closed = True
+                        break
+                    k = m
+                else:
+                    k += 1
+            if not closed:
+                i = n
+        else:
+            i += 1
+    return "".join(out)
 
 
 def links_in_file(file_path: Path,
@@ -1956,6 +1980,12 @@ def check_c41_soak_question_declared(
     have_verify = _rows_with_subbullet(backlog_file, "Verify")
     have_next = _rows_with_subbullet(backlog_file, "Next")
     for e in entries:
+        # B-QFix is a machinery row authored by --fix itself; its sub-bullets
+        # ARE the residual findings and its next-action is per-C-code (walk the
+        # sub-bullets, apply audit-q § 5). write_qfix_row would clobber any
+        # user-added `- **Next:**` anyway. Exempt from C41 (SKA F227, 2026-07-05).
+        if e.identifier == "B-QFix":
+            continue
         s = e.status.strip()
         needs_verify = (
             s.startswith("Watching")
@@ -2704,8 +2734,13 @@ def check_c37_queries_item_format(anchor_backlogs: dict[str, Path]) -> list[Find
             is_verif = (section == "Verifications")
             is_imm = (section == "Immediate Questions")
 
-            # C37 — bare F-number anywhere in the item (links blanked first).
-            bare = sorted(set(_Q_FNUM_RE.findall(_Q_WIKILINK_RE.sub("", item))))
+            # C37 — bare F-number anywhere in the item (wiki-links AND
+            # code-spans blanked first). Without the _strip_code_spans compose,
+            # bare F-numbers inside filenames like `~/F006-status.md` false-fire
+            # (SKA F227 fix, 2026-07-05).
+            bare = sorted(set(_Q_FNUM_RE.findall(
+                _strip_code_spans(_Q_WIKILINK_RE.sub("", item))
+            )))
             for fn in bare:
                 findings.append(Finding(
                     severity="error", surface_file=qf, surface_line=ln, code="C37",
