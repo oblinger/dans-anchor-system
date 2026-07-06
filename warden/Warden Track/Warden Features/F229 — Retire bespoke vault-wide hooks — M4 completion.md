@@ -2,17 +2,6 @@
 description: "F229 — the last M4 piece: retire audit-on-write.sh (the sole surviving bespoke vault-wide hook) once the audit-on-write trait's coverage decision is made."
 ---
 
-## Open Questions
-
-### Q1 — How does `audit-on-write` coverage go vault-wide so the bespoke hook can retire? ^F229-Q1
-
-With M4a landed (fixer parity — Warden's doc-fire behaviorally subsumes the bespoke F177 hook by construction), the only thing keeping `audit-on-write.sh` alive is **coverage**: it fires vault-wide (`__VAULT__` in `~/.config/ob-skills/audit-on-write-roots`), while Warden's replacement is trait-gated — and it currently **double-fires** with Warden's doc-fire in adopting anchors (e.g. Warden). Retiring it without an adoption move narrows coverage to adopting-anchors-only; adoption is the user's call (F218 Q2 doctrine: nothing is auto-adopted).
-
-- **(A)** Fold `audit-on-write` into the implicit `_base` trait — every anchor gets doc-fire-on-write, exactly matching today's `__VAULT__` coverage; the bespoke hook retires with zero coverage change.
-- **(B)** Per-anchor sweep — add the trait to the anchors that want it; the rest lose on-write auditing (accepting narrower coverage).
-- **(C)** Keep the bespoke hook for now — live with the double-fire in adopting anchors; revisit after more Warden soak.
-- **Recommendation:** Lean (A) — a coverage-preserving swap (same files audited, one engine instead of two), the Rust path is ~7× faster than the bash+python spin-up it replaces, and `warden off` remains the instant global kill.
-
 # [[Warden]] · F229 — Retire bespoke vault-wide hooks — M4 completion
 
 ## Summary
@@ -30,6 +19,17 @@ M4a (Done 2026-07-05) gave Warden's `audit-on-write` trait path full behavioral 
 
 **How it will be verified.** A markdown write with a known mechanical fail in (a) an adopting anchor and (b) a previously-`__VAULT__`-covered non-adopting anchor: steers appear per the Q1 coverage choice, exactly once each; `warden off` → zero. The F177 fixtures (`test-audit-on-write.sh`) re-pointed or retired with the hook.
 
+
+## Resolved
+
+### Q1 — How does `audit-on-write` coverage go vault-wide so the bespoke hook can retire? — RESOLVED (user, 2026-07-06): (A′) anchor-base membership + first-class root anchor + file-path governance ^F229-Q1
+
+**Choice: (A′)** — option (A) refined in discussion: (1) the implicit base trait went **first-class** — renamed `anchor-base`, documented at [[Anchor Base]], its members compiled policy (`ANCHOR_BASE_TRAITS` → `ir.base_traits`, expanded by both dispatchers; `warden compile` warns if a `.anchor` declares it); **`audit-on-write` is its first member**, so every anchor audits markdown on write. (2) The **vault-root `.anchor` went first-class** (description + traits, `root: false` DAG key preserved) — every un-anchored vault path resolves to it, making base coverage vault-complete by construction. (3) **`write:`/`read:` moments + the doc-fire are governed by the FILE's anchor** (fall back to cwd for moment rules; doc-fire is strictly file-anchored) — parity with the retired file-scoped hook, and the right semantic: the file's anchor owns the file. (4) `audit-on-write.sh` retired. Future work parked by the user: anchors over the coding tree (`~/ob/proj`) — scan-range, churn, and explicitly-registered out-of-scan anchors — deliberately deferred.
+
 ## Status
+
+**Done 2026-07-06 — A′ built, verified live, bespoke hook retired.** All four pieces landed: `anchor-base` rename (engine + Rust + tests + [[Warden Semantics]] § Activation) with the [[Anchor Base]] trait spec; `base_traits` stamped into the IR and expanded via `effective_traits` in both dispatchers; vault-root `.anchor` first-classed; file-anchor governance for write/read moments + doc-fire (`test_audit_on_write` pins base-implied, file-anchored, cwd-elsewhere, and un-anchored-file cases). **Retired**: the `audit-on-write.sh` settings.json entry (backup kept), the script + `test-audit-on-write.sh`, and the `__VAULT__` roots file. **Live-verified through the installed Rust dispatcher**: a failing write in a non-declaring anchor steers once (base-implied); a failing write on an un-anchored vault path steers once, governed by the root anchor (`@ kmr`), from a session cwd'd outside the vault; `warden off` → silence. All 10 unit suites + 10 cargo + both differentials + corpus 7/7 + perf gate green; live corpus recompiled (`base_traits: [audit-on-write]`), daemon bounced. **Roadmap M4 is complete — every bespoke hook surface has folded onto the unified engine.**
+
+**Earlier status:**
 
 **Questions** (2026-07-05) — split out of the M4 backlog row when M4a landed; Q1 (the coverage/adoption decision) is the only gate, reserved to the user per the F218 Q2 adoption doctrine.

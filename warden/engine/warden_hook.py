@@ -145,16 +145,26 @@ def _log(msg: str) -> None:
 # ── dispatch ─────────────────────────────────────────────────────────────────
 
 def dispatch(data: dict) -> list[str]:
-    """Fire the moment(s) this event maps to against the cwd anchor; return
-    steers. Assumes the kill switch has already been checked."""
+    """Fire the moment(s) this event maps to; return steers. Assumes the kill
+    switch has already been checked.
+
+    Anchor resolution (F229 A′): most moments are governed by the **session's
+    cwd anchor**; `write:`/`read:` moments (and the audit-on-write doc-fire)
+    are governed by the **written file's anchor** — the file's anchor owns the
+    file, wherever the session sits (parity with the retired file-scoped F177
+    hook). Falls back to the cwd anchor for moment rules when the file is
+    un-anchored; the doc-fire is strictly file-anchored (no anchor, no audit)."""
     import warden_fire as wf
 
     moments = event_to_moments(data)
     if not moments:
         return []
     cwd = Path(data.get("cwd") or os.getcwd())
-    anchor_root = find_anchor(cwd)
-    if anchor_root is None:
+    anchor_cwd = find_anchor(cwd)
+    tool_input = data.get("tool_input") or {}
+    event_fp = tool_input.get("file_path") or None
+    anchor_file = find_anchor(Path(event_fp).parent) if event_fp else None
+    if anchor_cwd is None and anchor_file is None:
         return []
 
     wdir = warden_home()
@@ -163,10 +173,7 @@ def dispatch(data: dict) -> list[str]:
         _log(f"no compiled IR at {ir_path} — run `warden compile` (event={data.get('hook_event_name')})")
         return []
     ir, module = wf.load_compiled(wdir, "all")
-    traits = wf.read_anchor_traits(anchor_root)
 
-    tool_input = data.get("tool_input") or {}
-    event_fp = tool_input.get("file_path") or None
     # F131: the pending tool call as an injected object — veto-path rules test
     # `event.tool` / `event.target` / `event.input` before the call lands.
     import types
@@ -174,12 +181,20 @@ def dispatch(data: dict) -> list[str]:
         tool=data.get("tool_name") or "", target=event_fp, input=tool_input)
     steers: list[str] = []
     for moment in moments:
+        if moment.startswith(("write:", "read:")):
+            anchor_root = anchor_file or anchor_cwd
+        else:
+            anchor_root = anchor_cwd
+        if anchor_root is None:
+            continue
+        traits = wf.effective_traits(ir, anchor_root)
         # F216: bind the agent-state view to the session that produced this
         # event (lazy — costs nothing unless a rule reads agent.*).
         # F215: the event's file path lets fire() bind ctx.file per rule.
         import warden_agent as wa
         ctx = wf.build_ctx(anchor_root, moment, agent=wa.make_agent(data, moment),
-                           file_path=event_fp, event=event_view)
+                           file_path=event_fp, event=event_view, traits=traits,
+                           git_aspect=wf.git_aspect_of(traits))
         t0 = time.perf_counter()
         fired = wf.fire(ir, module, moment, ctx, traits)
         warn = over_budget(moment, (time.perf_counter() - t0) * 1000.0)
@@ -189,15 +204,16 @@ def dispatch(data: dict) -> list[str]:
             _log(f"FIRED {moment} @ {anchor_root.name} traits={traits} → {len(fired)} steer(s)")
             steers.extend(fired)
 
-    # Doc-fire on write (F222): an anchor that opts in via the `audit-on-write`
-    # trait runs its doc-audit rules on the freshly-written markdown file and
-    # steers on failures — the /audit doc pass, triggered live by the edit.
-    if "audit-on-write" in traits and any(m.startswith("write:markdown") for m in moments):
-        fp = (data.get("tool_input") or {}).get("file_path") or ""
-        aow = audit_on_write(Path(fp)) if fp else []
-        if aow:
-            _log(f"AUDIT-ON-WRITE {Path(fp).name} @ {anchor_root.name} → {len(aow)} issue steer(s)")
-            steers.extend(aow)
+    # Doc-fire on write (F222 / F229 A′): governed by the FILE's anchor — the
+    # `audit-on-write` trait now rides `anchor-base` (ir.base_traits), so every
+    # anchored markdown file is audited on write; an un-anchored file is not
+    # (no anchor, no audit).
+    if anchor_file is not None and any(m.startswith("write:markdown") for m in moments):
+        if "audit-on-write" in wf.effective_traits(ir, anchor_file):
+            aow = audit_on_write(Path(event_fp)) if event_fp else []
+            if aow:
+                _log(f"AUDIT-ON-WRITE {Path(event_fp).name} @ {anchor_file.name} → {len(aow)} issue steer(s)")
+                steers.extend(aow)
     return steers
 
 

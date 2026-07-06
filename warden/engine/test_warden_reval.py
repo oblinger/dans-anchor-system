@@ -78,7 +78,7 @@ def test_gate_lifecycle(ir, mod, tmp: Path):
     doc = tmp / "target.md"
     log = tmp / "runs.log"
     os.environ["REVAL_FX_LOG"] = str(log)
-    traits = ["reval-fx", "_base"]
+    traits = ["reval-fx", "anchor-base"]
 
     def fire():
         ctx = wf.build_ctx(tmp, "write:markdown", file_path=str(doc))

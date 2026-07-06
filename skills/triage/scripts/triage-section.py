@@ -66,19 +66,30 @@ Q_MD = VAULT_ROOT / "Q.md"
 # ============================================================
 
 # Bullet row opener: `- **F091 — Title**` or `- **B-name — Title**`.
+# Identifier grammar: F091 / T007 / B-QFix / DMUX-F034, plus dotted roadmap-task
+# handles like R-Scaffolding.5.2 (name-path with numeric sub-levels).
+_ID = r"[A-Za-z][A-Za-z0-9_\-]*(?:\.[A-Za-z0-9_\-]+)*"
+
 ROW_OPENER_BULLET_RE = re.compile(
     r"^- \*\*"
     r"(?:\[\[)?"
     r"(?:\[[A-Z]+\]\s+)?"
-    r"([A-Za-z][A-Za-z0-9_\-]*)\b"
+    r"(" + _ID + r")\b"
 )
 
 # H3 row opener (HA-style): `### F068 — Title [Bracket]` or `### BUG — Title [Bracket]`.
 ROW_OPENER_H3_RE = re.compile(
     r"^### "
     r"(?:\[[A-Z]+\]\s+)?"
-    r"([A-Za-z][A-Za-z0-9_\-]*)\b"
+    r"(" + _ID + r")\b"
 )
+
+
+def _anchor_of(identifier: str) -> str:
+    """Obsidian block-anchor for a row identifier — dots→dashes, matching
+    backlog-edit `render_row` (`^id` anchors allow only [\\w-]). No-op for the
+    dot-free F/T/B ids; only dotted R handles (R-Scaffolding.5.2) change."""
+    return re.sub(r"[^\w\-]", "-", identifier)
 
 H2_HEADING_RE = re.compile(r"^##\s+(.+?)\s*$")
 
@@ -756,8 +767,9 @@ def _bullet_link(row: Row, name: str, vault_index: dict,
             heading = m.group(1).strip()
             if heading in h3_headings:
                 return f"[[{name} Backlog#{heading}|{row.identifier}]]"
-        if row.identifier in block_ids:
-            return f"[[{name} Backlog#^{row.identifier}|{row.identifier}]]"
+        anchor = _anchor_of(row.identifier)
+        if anchor in block_ids:
+            return f"[[{name} Backlog#^{anchor}|{row.identifier}]]"
         return row.identifier  # plain text fallback
     # Step 2 (F-row): try title-as-basename if it resolves.
     if row.identifier.startswith("F") and row.identifier[1:].isdigit():
@@ -767,9 +779,10 @@ def _bullet_link(row: Row, name: str, vault_index: dict,
             if title in vault_index:
                 return f"[[{title}]]"
         # F-row title doesn't have a feature doc; fall through to block-id.
-    # Step 3: backlog block-id if `^id` exists.
-    if row.identifier in block_ids:
-        return f"[[{name} Backlog#^{row.identifier}|{row.identifier}]]"
+    # Step 3: backlog block-id if `^id` exists (dots→dashes for dotted R handles).
+    anchor = _anchor_of(row.identifier)
+    if anchor in block_ids:
+        return f"[[{name} Backlog#^{anchor}|{row.identifier}]]"
     # Step 5: plain text — better than a dead link.
     return row.identifier
 

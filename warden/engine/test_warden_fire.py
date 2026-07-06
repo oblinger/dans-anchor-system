@@ -90,7 +90,7 @@ def test_indexed_dispatch_and_gating(tmp: Path):
     # sanity: two rules, on two different moments
     assert set(ir["moments"]) == {"skill:pre:audit-q", "tool:post:Write"}, ir["moments"]
 
-    adopted = ["fix", "_base"]
+    adopted = ["fix", "anchor-base"]
     ctx = wf.build_ctx(tmp, "skill:pre:audit-q")  # tmp has no .anchor → bare ctx
 
     # firing audit-q runs ONLY R-fix-01
@@ -101,7 +101,7 @@ def test_indexed_dispatch_and_gating(tmp: Path):
     assert b == ["B-fired"], b
 
     # active-set gating: an anchor that has NOT adopted the `fix` trait fires nothing
-    none = wf.fire(ir, module, "skill:pre:audit-q", ctx, ["other", "_base"])
+    none = wf.fire(ir, module, "skill:pre:audit-q", ctx, ["other", "anchor-base"])
     assert none == [], none
     print("PASS  indexed_dispatch_and_gating")
 

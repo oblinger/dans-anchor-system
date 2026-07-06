@@ -479,16 +479,33 @@ def _include_target(target: str) -> str:
     return target.strip()
 
 
+# The anchor-base trait's members (F229 A′) — traits every anchor carries by
+# construction, over and above `anchor-base` itself. Documented for the user in
+# `traits/Anchor Base.md` (keep the two in sync); stamped into the IR as
+# `base_traits` so both dispatchers expand an anchor's effective traits from
+# one compiled source.
+ANCHOR_BASE_TRAITS = ("audit-on-write",)
+
+
 def declared_anchor_traits(vault: Path) -> list[str]:
     """Every trait some `.anchor` under the vault declares, plus the implicit
-    `_base` — the ground truth the F219 reachability self-audit checks the
-    compiled trait index against. One walk per compile (~0.5 s vault-wide)."""
+    `anchor-base` — the ground truth the F219 reachability self-audit checks the
+    compiled trait index against. One walk per compile (~0.5 s vault-wide).
+    Warns on stderr when a `.anchor` explicitly declares `anchor-base` — it is
+    applied by construction and must never be written into a traits list."""
     import warden_fire as wf
-    declared = {"_base"}
+    declared = {"anchor-base", *ANCHOR_BASE_TRAITS}
     try:
         for dot in vault.rglob(".anchor"):
             try:
-                declared.update(wf.read_anchor_traits(dot.parent))
+                traits = wf.read_anchor_traits(dot.parent)
+                # read_anchor_traits appends the implicit trait itself; a
+                # DOUBLE occurrence means the file declares it explicitly.
+                if traits.count("anchor-base") > 1:
+                    print(f"warden: WARNING — {dot} declares `anchor-base`; "
+                          "it is implicit (applied by construction) — remove it",
+                          file=sys.stderr)
+                declared.update(traits)
             except OSError:
                 continue
     except OSError:
@@ -576,6 +593,10 @@ def compile_corpus(root: Path, index: dict, anchor: str = "all",
         # F219: the wiring snapshot the trait-reachability self-audit reads —
         # traits actually declared by `.anchor` files under the vault.
         "declared_traits": declared_anchor_traits(vault_root(root)),
+        # F229 A′: the anchor-base trait's members — both dispatchers extend an
+        # anchor's effective traits with these, so base membership is compiled
+        # policy, not per-hook hardcoding.
+        "base_traits": list(ANCHOR_BASE_TRAITS),
     }
     module_src = emit_module(anchor, py_rules)
     stats = {"files": files, "read_errors": errors, "rulesets": sum(

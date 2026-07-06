@@ -36,6 +36,11 @@ pub struct Ir {
     /// trait name → rule ids it keys (the active-set index).
     #[serde(default)]
     pub traits: HashMap<String, Vec<String>>,
+    /// The anchor-base trait's members (F229 A′) — traits every anchor carries
+    /// by construction; the hook extends an anchor's effective traits with
+    /// these (mirror of `warden_fire.effective_traits`).
+    #[serde(default)]
+    pub base_traits: Vec<String>,
     #[serde(default)]
     pub schema: u32,
 }
@@ -293,25 +298,25 @@ mod tests {
     #[test]
     fn inactive_trait_fires_nothing() {
         let ir = syn_ir();
-        let plan = fire_plan(&ir, "tool:pre:Bash", &ctx("commit", None, &["other", "_base"], &[]),
-                             &["other".into(), "_base".into()]);
+        let plan = fire_plan(&ir, "tool:pre:Bash", &ctx("commit", None, &["other", "anchor-base"], &[]),
+                             &["other".into(), "anchor-base".into()]);
         assert!(plan.is_empty());
     }
 
     #[test]
     fn indexed_dispatch_ignores_other_moments() {
         let ir = syn_ir();
-        let at = vec!["syn".to_string(), "_base".to_string()];
-        let plan = fire_plan(&ir, "session:start", &ctx("", None, &["syn", "_base"], &[]), &at);
+        let at = vec!["syn".to_string(), "anchor-base".to_string()];
+        let plan = fire_plan(&ir, "session:start", &ctx("", None, &["syn", "anchor-base"], &[]), &at);
         assert!(plan.is_empty(), "no rules keyed at session:start");
     }
 
     #[test]
     fn guards_and_dispatch_arms() {
         let ir = syn_ir();
-        let at = vec!["syn".to_string(), "push".to_string(), "_base".to_string()];
+        let at = vec!["syn".to_string(), "push".to_string(), "anchor-base".to_string()];
         let plan = fire_plan(&ir, "tool:pre:Bash",
-                             &ctx("commit", None, &["syn", "push", "_base"], &[]), &at);
+                             &ctx("commit", None, &["syn", "push", "anchor-base"], &[]), &at);
         // S1 tell (git eq commit), S2 deny (trait has push), S3 action-other (judge),
         // S4 python-guard, S5 python-body — fire order preserved.
         assert_eq!(ids(&plan), ["S1", "S2", "S3", "S4", "S5"]);
@@ -327,9 +332,9 @@ mod tests {
     #[test]
     fn guard_gating_drops_unmatched() {
         let ir = syn_ir();
-        let at = vec!["syn".to_string(), "_base".to_string()];
+        let at = vec!["syn".to_string(), "anchor-base".to_string()];
         // no commit aspect, no push trait → S1 and S2 gated out; S3/S4/S5 survive.
-        let plan = fire_plan(&ir, "tool:pre:Bash", &ctx("", None, &["syn", "_base"], &[]), &at);
+        let plan = fire_plan(&ir, "tool:pre:Bash", &ctx("", None, &["syn", "anchor-base"], &[]), &at);
         assert_eq!(ids(&plan), ["S3", "S4", "S5"]);
     }
 

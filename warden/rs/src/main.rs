@@ -54,8 +54,8 @@ fn main() {
     let traits = csv(arg_val(&args, "--traits"));
     // The implicit base trait every anchor carries (warden_fire.read_anchor_traits).
     let mut anchor_traits = traits.clone();
-    if !anchor_traits.iter().any(|t| t == "_base") {
-        anchor_traits.push("_base".to_string());
+    if !anchor_traits.iter().any(|t| t == "anchor-base") {
+        anchor_traits.push("anchor-base".to_string());
     }
 
     let ir_text = match std::fs::read_to_string(&ir_path) {

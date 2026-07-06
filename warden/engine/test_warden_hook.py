@@ -127,14 +127,17 @@ def test_trait_gating():
 
 
 def test_audit_on_write():
-    """F222: an anchor with the `audit-on-write` trait doc-audits a written
-    markdown file and steers on failures; without the trait it stays silent."""
+    """F222 + F229 A′: the doc-fire audits a written markdown file governed by
+    the FILE's anchor — `audit-on-write` rides `anchor-base` (ir.base_traits),
+    so EVERY anchored file is audited regardless of declared traits; an
+    un-anchored file is not (no anchor, no audit). The file's anchor governs
+    even when the session's cwd sits elsewhere."""
     home = _compiled_home()
     old = os.environ.get("WARDEN_HOME")
     os.environ["WARDEN_HOME"] = str(home)
     try:
         with tempfile.TemporaryDirectory() as td:
-            # trait ON: a Messages file with a prose H1 fails R-messages-01 ("no H1")
+            # a Messages file with a prose H1 fails R-messages-01 ("no H1")
             anchor = _anchor(Path(td), "audit-on-write")
             bad = anchor / "FX Messages.md"
             bad.write_text("just prose, not an H1\n\nbody\n", encoding="utf-8")
@@ -151,23 +154,47 @@ def test_audit_on_write():
             good.write_text("# FX Messages\n\nbody\n", encoding="utf-8")
             clean = wh.dispatch({**event, "tool_input": {"file_path": str(good)}})
             assert not [s for s in clean if s.startswith("[warden audit-on-write]")], clean
-    finally:
-        os.environ["WARDEN_HOME"] = old if old else str(home)
 
-    # trait OFF: same violating write, no audit-on-write steer
-    os.environ["WARDEN_HOME"] = str(home)
-    try:
+        # base-implied (F229 A′): an anchor WITHOUT the declared trait still
+        # audits — audit-on-write rides anchor-base for every anchor.
         with tempfile.TemporaryDirectory() as td:
-            anchor = _anchor(Path(td), "Commit")  # no audit-on-write trait
+            anchor = _anchor(Path(td), "Commit")  # no audit-on-write declared
             bad = anchor / "FX Messages.md"
             bad.write_text("just prose, not an H1\n\nbody\n", encoding="utf-8")
             event = {"hook_event_name": "PostToolUse", "tool_name": "Write",
                      "tool_input": {"file_path": str(bad)}, "cwd": str(anchor)}
             steers = wh.dispatch(event)
+            aow = [s for s in steers if s.startswith("[warden audit-on-write]")]
+            assert len(aow) == 1, steers
+
+        # file-anchor governance: cwd un-anchored, file inside an anchor →
+        # still audited (the file's anchor owns the file).
+        with tempfile.TemporaryDirectory() as td:
+            anchor = _anchor(Path(td), "Commit")
+            bad = anchor / "FX Messages.md"
+            bad.write_text("just prose, not an H1\n\nbody\n", encoding="utf-8")
+            outside = Path(td) / "elsewhere"
+            outside.mkdir()
+            event = {"hook_event_name": "PostToolUse", "tool_name": "Write",
+                     "tool_input": {"file_path": str(bad)}, "cwd": str(outside)}
+            steers = wh.dispatch(event)
+            aow = [s for s in steers if s.startswith("[warden audit-on-write]")]
+            assert len(aow) == 1, steers
+
+        # un-anchored file: no anchor anywhere up its tree → no audit.
+        with tempfile.TemporaryDirectory() as td:
+            anchor = _anchor(Path(td), "Commit")
+            loose_dir = Path(td) / "loose"       # sibling of FX/, outside it
+            loose_dir.mkdir()
+            loose = loose_dir / "note.md"
+            loose.write_text("just prose, not an H1\n\nbody\n", encoding="utf-8")
+            event = {"hook_event_name": "PostToolUse", "tool_name": "Write",
+                     "tool_input": {"file_path": str(loose)}, "cwd": str(anchor)}
+            steers = wh.dispatch(event)
             assert not [s for s in steers if s.startswith("[warden audit-on-write]")], steers
     finally:
         os.environ["WARDEN_HOME"] = old if old else str(home)
-    print("PASS  audit_on_write")
+    print("PASS  audit_on_write (F229 A′ — base-implied, file-anchored)")
 
 
 def test_pathguard_veto():

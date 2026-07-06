@@ -122,7 +122,7 @@ def test_corpus_compile():
     orphans = [m for m in ir["moments"] if not m.startswith(reachable)]
     assert not orphans, f"moment keys unreachable from the live dispatcher: {orphans}"
     # F219: the wiring snapshot is stamped — declared anchor traits + implicit base
-    assert "_base" in ir.get("declared_traits", []), ir.get("declared_traits")
+    assert "anchor-base" in ir.get("declared_traits", []), ir.get("declared_traits")
     # the emitted corpus module must import — proves no cross-ruleset name collision
     with tempfile.TemporaryDirectory() as td:
         mp = Path(td) / "rules_all.py"
@@ -152,19 +152,19 @@ def _check_trait_reachability_rule(mod, tmp: Path):
                 "traits": {"x": ["R-x-01"], "docsonly": ["R-d-01"]}}
         # dead wiring: trait `x` keys a moment rule, no anchor declares it
         (home / "rules-ir.json").write_text(
-            json.dumps({**base, "declared_traits": ["_base"]}), encoding="utf-8")
+            json.dumps({**base, "declared_traits": ["anchor-base"]}), encoding="utf-8")
         out = body(types.SimpleNamespace())
         assert out and "dead wiring" in out[0] and "x" in out[0], out
         assert "docsonly" not in out[0], "doc-only trait wrongly flagged"
         # correctly wired → silent
         (home / "rules-ir.json").write_text(
-            json.dumps({**base, "declared_traits": ["_base", "x"]}), encoding="utf-8")
+            json.dumps({**base, "declared_traits": ["anchor-base", "x"]}), encoding="utf-8")
         assert body(types.SimpleNamespace()) == [], "fired on a wired catalog"
         # the hermetic test-fixture trait is exempt
         (home / "rules-ir.json").write_text(
             json.dumps({"moments": {"m": ["R-warden-selftest-01"]},
                         "rules": {}, "traits": {"warden-selftest": ["R-warden-selftest-01"]},
-                        "declared_traits": ["_base"]}), encoding="utf-8")
+                        "declared_traits": ["anchor-base"]}), encoding="utf-8")
         assert body(types.SimpleNamespace()) == [], "selftest trait not exempt"
     finally:
         os.environ.pop("WARDEN_HOME", None)

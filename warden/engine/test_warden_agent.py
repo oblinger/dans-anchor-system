@@ -189,7 +189,7 @@ def test_fixture_rule_fires_only_when_asking(tmp: Path):
                                 "where": None, "guards": [], "guard_py": None,
                                 "action": None, "body_py": "body_R_ex_10"}},
           "moments": {"prompt:stop": ["R-ex-10"]},
-          "traits": {"_base": ["R-ex-10"]}, "doc_rules": []}
+          "traits": {"anchor-base": ["R-ex-10"]}, "doc_rules": []}
     module = types.SimpleNamespace(
         body_R_ex_10=lambda ctx: (["[warden] a question is pending — surface it in the queue"]
                                   if ctx.agent.state == "asking" else []))
@@ -201,10 +201,10 @@ def test_fixture_rule_fires_only_when_asking(tmp: Path):
     root.mkdir(exist_ok=True)
     (root / ".anchor").write_text("slug: FX\n", encoding="utf-8")
     out = wf.fire(ir, module, "prompt:stop",
-                  wf.build_ctx(root, "prompt:stop", agent=asking), ["_base"])
+                  wf.build_ctx(root, "prompt:stop", agent=asking), ["anchor-base"])
     assert out and "question is pending" in out[0], out
     out = wf.fire(ir, module, "prompt:stop",
-                  wf.build_ctx(root, "prompt:stop", agent=landed), ["_base"])
+                  wf.build_ctx(root, "prompt:stop", agent=landed), ["anchor-base"])
     assert out == [], out
     # and build_ctx's default agent is the unbound error-value view
     ctx = wf.build_ctx(root, "prompt:stop")
@@ -272,7 +272,7 @@ def test_content_rules(tmp: Path):
                         "guards": [], "guard_py": None, "action": None,
                         "body_py": "body_R_ex_12", "turn_bearing": True}},
           "moments": {"prompt:stop": ["R-ex-11", "R-ex-12"]},
-          "traits": {"_base": ["R-ex-11", "R-ex-12"]}, "doc_rules": []}
+          "traits": {"anchor-base": ["R-ex-11", "R-ex-12"]}, "doc_rules": []}
     module = types.SimpleNamespace(
         body_R_ex_11=lambda ctx: (
             ["Low-stakes ordering choices are yours — pick an order and proceed."]
@@ -289,7 +289,7 @@ def test_content_rules(tmp: Path):
 
     def fire_with(agent):
         return wf.fire(ir, module, "prompt:stop",
-                       wf.build_ctx(root, "prompt:stop", agent=agent), ["_base"])
+                       wf.build_ctx(root, "prompt:stop", agent=agent), ["anchor-base"])
 
     # R-ex-11 fires: turn ends asking a low-stakes ordering question
     ask = _agent(tmp, [_user("go", 60),
@@ -355,7 +355,7 @@ def test_daemon_turn_dedup(tmp: Path):
                                 "action": None, "body_py": "body_R_ex_11",
                                 "turn_bearing": True}},
           "moments": {"prompt:stop": ["R-ex-11"]},
-          "traits": {"_base": ["R-ex-11"]}, "doc_rules": []}
+          "traits": {"anchor-base": ["R-ex-11"]}, "doc_rules": []}
     module = types.SimpleNamespace(
         body_R_ex_11=lambda ctx: (["decide the order yourself"]
                                   if _re.search(r"(?i)\bshould i\b", ctx.agent.response) else []))
