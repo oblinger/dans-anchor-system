@@ -338,9 +338,11 @@ pub fn dispatch(data: &Value) -> Vec<String> {
     let empty_ti = json!({});
     let event_ti = data.get("tool_input").filter(|v| !v.is_null()).unwrap_or(&empty_ti);
     let event_fp = str_field(event_ti, "file_path");
-    // F229 A′: write:/read: moments (and the doc-fire) are governed by the
-    // FILE's anchor — the file's anchor owns the file, wherever the session
-    // sits (parity with the retired file-scoped F177 hook).
+    // F229 A′: any moment whose event carries an anchored file — write:/read:,
+    // file-bearing tool moments like tool:pre:Edit, and the doc-fire — is
+    // governed by the FILE's anchor: the file's anchor owns the file, wherever
+    // the session sits. (Extended to tool moments 2026-07-06 — the adoption
+    // audit showed a cwd outside the guarded anchor side-stepped R-pathguard.)
     let anchor_file = if event_fp.is_empty() {
         None
     } else {
@@ -364,11 +366,7 @@ pub fn dispatch(data: &Value) -> Vec<String> {
 
     let mut steers: Vec<String> = Vec::new();
     for moment in &moments {
-        let anchor_root = if moment.starts_with("write:") || moment.starts_with("read:") {
-            anchor_file.as_ref().or(anchor_cwd.as_ref())
-        } else {
-            anchor_cwd.as_ref()
-        };
+        let anchor_root = anchor_file.as_ref().or(anchor_cwd.as_ref());
         let Some(anchor_root) = anchor_root else { continue };
         let anchor_name = anchor_root
             .file_name()

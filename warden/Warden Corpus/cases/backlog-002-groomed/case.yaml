@@ -4,5 +4,5 @@ mode: doc
 target: FX5 Backlog.md
 provenance: synthetic
 engine: audit-plan
-blessed_against: 6b1a4deb1549-3676c5aa447d
+blessed_against: ef9bbcffb178-e01686fca471
 note: the compliant twin of backlog-001 — every frontier row planned + bracketed, the Verify row carries its concrete question; guards against R-backlog silently ceasing to match/pass
