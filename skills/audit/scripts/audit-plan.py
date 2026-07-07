@@ -2424,6 +2424,63 @@ def chk_md_trailing_ws(target, anchor_root, args):
     return "pass", ""
 
 
+def _mask_code(text: str) -> str:
+    """Blank ``` / ~~~ fences and inline code spans (length-preserving) so
+    code examples never trip prose-level markdown checks."""
+    blank = lambda m: re.sub(r"[^\n]", " ", m.group(0))
+    masked = re.sub(r"```[\s\S]*?(?:```|\Z)", blank, text)
+    masked = re.sub(r"~~~[\s\S]*?(?:~~~|\Z)", blank, masked)
+    return re.sub(r"(`+)[^\n]*?\1", blank, masked)
+
+
+def chk_md_inline_field_value(target, anchor_root, args):
+    """R-markdown-06: a `key:: value` inline field carries no second `::` in
+    its value — Dataview misparses (value truncates / next field eaten).
+    Fenced and inline-code occurrences are examples, not fields."""
+    if not target.is_file():
+        return "pass", "not a file"
+    hits = [f"line {ln}" for ln, raw in enumerate(_mask_code(_read(target)).splitlines(), 1)
+            if re.match(r"[a-z][a-z0-9_-]*::[^\n]*::", raw)][:5]
+    if hits:
+        return "fail", "second `::` inside an inline-field value — " + ", ".join(hits)
+    return "pass", ""
+
+
+# Real HTML elements Obsidian renders — these are intentional markup, never a
+# stray tag. Everything else `<word>`-shaped outside code is eaten silently.
+_HTML_ALLOW = {
+    "a", "abbr", "b", "big", "blockquote", "br", "caption", "center", "cite",
+    "code", "dd", "details", "div", "dl", "dt", "em", "figcaption", "figure",
+    "font", "h1", "h2", "h3", "h4", "h5", "h6", "hr", "i", "iframe", "img",
+    "ins", "kbd", "li", "mark", "ol", "p", "pre", "s", "small", "span",
+    "strike", "strong", "sub", "summary", "sup", "table", "tbody", "td",
+    "th", "thead", "tr", "u", "ul", "video", "audio", "source", "picture",
+}
+# Entrenched vault placeholder letters (`F<n>`, `Q<m>`, `T<n>` …) — broken in
+# strict HTML terms but a standing notation; flagging them would storm.
+_PLACEHOLDER_OK = re.compile(r"^[a-z]$")
+
+
+def chk_md_stray_angle_tag(target, anchor_root, args):
+    """R-markdown-13: a bare `<Identifier>` glued to a tag-name character is
+    parsed as an unknown HTML element and silently disappears (often eating
+    text). Known HTML tags render; code spans are literal; single-letter
+    placeholders (`F<n>`) are entrenched notation and pass."""
+    if not target.is_file() or target.suffix.lower() in (".html", ".htm"):
+        return "pass", "not applicable"
+    hits = []
+    for ln, raw in enumerate(_mask_code(_read(target)).splitlines(), 1):
+        for m in re.finditer(r"</?([A-Za-z][A-Za-z0-9_-]*)>", raw):
+            name = m.group(1)
+            if name.lower() in _HTML_ALLOW or _PLACEHOLDER_OK.match(name):
+                continue
+            hits.append(f"line {ln} <{name}>")
+            break
+    if hits:
+        return "fail", "stray `<tag>`-like angle brackets — " + ", ".join(hits[:5])
+    return "pass", ""
+
+
 # -- SVG geometry / hygiene / c4 (R-diagram-geometry, R-svg-hygiene, R-c4) -----
 
 def _svg_root(target):
@@ -2936,6 +2993,9 @@ CHECKERS = {
     "md_table_pipe_escape": chk_md_table_pipe_escape,
     "md_em_dash": chk_md_em_dash,
     "md_trailing_ws": chk_md_trailing_ws,
+    # R-markdown re-wiring (T007, 2026-07-06)
+    "md_inline_field_value": chk_md_inline_field_value,
+    "md_stray_angle_tag": chk_md_stray_angle_tag,
     # R-backlog (F228 frontier invariants + per-state body contracts)
     "backlog_frontier_planned": chk_backlog_frontier_planned,
     "backlog_frontier_bracketed": chk_backlog_frontier_bracketed,

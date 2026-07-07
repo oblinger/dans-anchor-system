@@ -46,4 +46,4 @@ Each finding: **status** (CONFIRMED = repro executed or code-read proven; LATENT
 
 ## Status
 
-**Ready** — findings verified and clustered; fixes tracked as T010 (fence + collisions), T011 (compile robustness + moment vocabulary), T012 (daemon hardening + doc-fire cache), T013 (concurrency/veto posture — Q1 pending), T014 (store growth, Later), T015 (parity alignment). C5 fixed and B2 documented in-pass.
+**Done** (2026-07-06) — findings verified and clustered, and the four Ready fix clusters executed same-day: T010 (fence + collisions; R-wp restored), T011 (compile robustness + moment vocabulary + D2 drift warning), T012 (daemon hardening — doc-fire 353 ms → 6 ms), T015 (parity alignment, 6 new differential cases). C5 fixed and B2 documented in-pass. Remaining on their own rows: T013 (concurrency/veto posture — Q1 pending), T014 (store growth, Later); C4 stays a documented latent.
