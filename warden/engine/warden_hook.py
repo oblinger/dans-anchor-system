@@ -279,7 +279,14 @@ def dispatch(data: dict) -> list[str]:
     # (no anchor, no audit).
     if anchor_file is not None and any(m.startswith("write:markdown") for m in moments):
         if "audit-on-write" in wf.effective_traits(ir, anchor_file):
+            aow_started = time.perf_counter()
             aow = audit_on_write(Path(event_fp)) if event_fp else []
+            aow_ms = (time.perf_counter() - aow_started) * 1000.0
+            # F232 B3: the doc-fire is timed into the budget advisory like any
+            # moment fire (it owes Python by construction — the audit import).
+            warn = over_budget("write:markdown", aow_ms, owed_python=True)
+            if warn:
+                _log_perf("doc-fire " + warn)
             if aow:
                 _log(f"AUDIT-ON-WRITE {Path(event_fp).name} @ {anchor_file.name} → {len(aow)} issue steer(s)"
                      + _indent_steers(aow))
@@ -289,7 +296,7 @@ def dispatch(data: dict) -> list[str]:
                     "tool": data.get("tool_name") or "", "file": event_fp or "",
                     "considered": ["audit-on-write"],
                     "fires": [{"rule": "audit-on-write", "steer": s} for s in aow],
-                    "ms": 0.0,
+                    "ms": round(aow_ms, 1),
                 })
                 steers.extend(aow)
     return steers

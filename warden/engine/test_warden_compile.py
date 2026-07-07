@@ -455,6 +455,10 @@ def test_recompile_cache():
         out = Path(td)
         wc._write_artifacts(out, "all", ir, module_src)
         assert wc.cached_source_hash(out) == h1, "cache key not round-tripped"
+        # F232 B5: atomic writes leave no temp files; module lands before IR.
+        assert not list(out.glob("*.tmp")), "temp artifact left behind"
+        assert (out / "rules_all.py").stat().st_mtime_ns \
+            <= (out / "rules-ir.json").stat().st_mtime_ns, "IR written before module"
         # a hash over a mutated ruleset set differs → cache would miss
         mutated = [dict(f) for f in files]
         mutated[0] = dict(mutated[0], hash="deadbeef")

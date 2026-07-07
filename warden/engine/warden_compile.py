@@ -791,11 +791,18 @@ def cached_source_hash(out: Path) -> str | None:
 
 
 def _write_artifacts(out: Path, anchor: str, ir: dict, module_src: str) -> tuple[Path, Path]:
+    import os
     out.mkdir(parents=True, exist_ok=True)
     ir_path = out / "rules-ir.json"
     mod_path = out / f"rules_{anchor}.py"
-    ir_path.write_text(json.dumps(ir, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    mod_path.write_text(module_src, encoding="utf-8")
+    # Atomic per-file (tmp + os.replace), MODULE first, IR last (F232 B5): a
+    # reader that keys freshness on the IR then never loads a new IR against
+    # an old module, and a crash mid-write never leaves a truncated artifact.
+    for path, data in ((mod_path, module_src),
+                       (ir_path, json.dumps(ir, indent=2, sort_keys=True) + "\n")):
+        tmp = path.with_name(path.name + ".tmp")
+        tmp.write_text(data, encoding="utf-8")
+        os.replace(tmp, path)
     return ir_path, mod_path
 
 

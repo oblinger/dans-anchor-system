@@ -62,17 +62,41 @@ def _adapt_rule(r: dict) -> dict:
     }
 
 
+# F232 B3: the umbrella flatten re-reads ~50 ruleset files (~90 ms warm per
+# markdown write when this module stays resident in the daemon). Cache the
+# compiled rows keyed on the source files' mtimes — a rule edit invalidates
+# via its file's mtime; a new ruleset joins the umbrella only through an
+# include:: edit in an already-tracked file, so the stamp always notices.
+_AUDIT_IR_CACHE: dict = {}
+
+
+def _sources_stamp(sources: tuple) -> tuple:
+    out = []
+    for s in sources:
+        try:
+            out.append((ap.REPO_ROOT / s).stat().st_mtime_ns)
+        except OSError:
+            out.append(0)
+    return tuple(out)
+
+
 def compile_audit_ir(umbrella: str) -> list[tuple[dict, dict]]:
     """Flatten an audit umbrella (`R-doc` / `R-anchor`) and compile every rule to
     its Warden IR doc-rule row. Returns [(row, ruleset)] in flatten order — the
     ruleset is retained for its `source` (drop-own-source) + `where` precedence
-    (already folded into the row by `compile_rule`)."""
+    (already folded into the row by `compile_rule`). Mtime-cached (F232 B3)."""
+    ent = _AUDIT_IR_CACHE.get(umbrella)
+    if ent is not None and _sources_stamp(ent["sources"]) == ent["stamp"]:
+        return ent["rows"]
     rulesets = ap.flatten_umbrella(umbrella, [])
     rows: list[tuple[dict, dict]] = []
     for rs in rulesets:
         for r in rs["rules"]:
             row = wc.compile_rule(_adapt_rule(r), rs)
             rows.append((row, rs))
+    sources = tuple(sorted({rs["source"] for _, rs in rows if rs.get("source")}))
+    _AUDIT_IR_CACHE[umbrella] = {
+        "sources": sources, "stamp": _sources_stamp(sources), "rows": rows}
     return rows
 
 

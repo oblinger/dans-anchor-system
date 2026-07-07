@@ -51,6 +51,7 @@ import hashlib
 import json
 import re
 import sys
+from functools import lru_cache
 from pathlib import Path
 
 HOME = Path.home()
@@ -434,11 +435,56 @@ def _split_terms(glob: str) -> list[str]:
     return [t.strip() for t in terms if t.strip()]
 
 
+@lru_cache(maxsize=4096)
+def _glob_rx(pat: str):
+    """Compile one (brace-expanded) relative glob to a regex with pathlib.glob
+    semantics: `**/` spans zero-or-more directories, `*`/`?` stay within one
+    segment. Matching scope files against this — instead of walking the anchor
+    tree per rule via `Path.glob` — keeps the on-write doc-fire O(scope)
+    rather than O(anchor tree) (F232 B3: 54 file-selector rules × a full tree
+    walk was ~390 ms per markdown write)."""
+    out = []
+    i = 0
+    while i < len(pat):
+        if pat.startswith("**/", i):
+            out.append("(?:.*/)?")
+            i += 3
+        elif pat.startswith("**", i):
+            out.append(".*")
+            i += 2
+        elif pat[i] == "*":
+            out.append("[^/]*")
+            i += 1
+        elif pat[i] == "?":
+            out.append("[^/]")
+            i += 1
+        else:
+            out.append(re.escape(pat[i]))
+            i += 1
+    return re.compile("^" + "".join(out) + "$")
+
+
 def _match_file_glob(arg: str, scope_files: list[Path], anchor_root: Path) -> list[Path]:
     """Resolve a `file:` where-glob to scope files, honoring the full spec
     ([[FCT Ruleset]] § Where clause): {ANCHOR}/{NAME} tokens, brace-alternation,
-    comma-union, and gitignore-style !-negation."""
+    comma-union, and gitignore-style !-negation. Matches patterns against the
+    scope files' anchor-relative paths — no filesystem walk (F232 B3)."""
     name = _anchor_name(anchor_root)
+    root = anchor_root.resolve()
+    rel_of: dict = {}
+    for p in scope_files:
+        if p == anchor_root or p.resolve() == root:
+            rel_of[p] = ""          # the anchor itself (anchor-mode synthetic)
+            continue
+        try:                        # literal path first (symlink-tolerant)
+            rel_of[p] = p.relative_to(anchor_root).as_posix()
+            continue
+        except ValueError:
+            pass
+        try:
+            rel_of[p] = p.resolve().relative_to(root).as_posix()
+        except ValueError:
+            rel_of[p] = None        # outside the anchor — matches nothing
     include: set[Path] = set()
     exclude: set[Path] = set()
     for term in _split_terms(arg):
@@ -447,17 +493,14 @@ def _match_file_glob(arg: str, scope_files: list[Path], anchor_root: Path) -> li
             term = term[1:].strip()
         rel = _glob_to_relpattern(term).replace("{NAME}", name)
         if not rel:
-            paths = {anchor_root.resolve()}
+            paths = {p for p, r in rel_of.items() if r == ""}
         else:
-            paths = set()
-            for pat in _expand_braces(rel):
-                try:
-                    paths |= {p.resolve() for p in anchor_root.glob(pat)}
-                except (ValueError, IndexError):
-                    pass
+            rxs = [_glob_rx(pat) for pat in _expand_braces(rel)]
+            paths = {p for p, r in rel_of.items()
+                     if r and any(rx.match(r) for rx in rxs)}
         (exclude if neg else include).update(paths)
     hits = include - exclude
-    return [p for p in scope_files if p.resolve() in hits]
+    return [p for p in scope_files if p in hits]
 
 
 def match_targets(kind: str, arg: str, scope_files: list[Path], anchor_root: Path) -> list[Path]:

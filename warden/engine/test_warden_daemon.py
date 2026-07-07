@@ -131,6 +131,35 @@ def test_unknown_op_and_reload():
     print("PASS  unknown_op_and_reload")
 
 
+def test_systemexit_survival():
+    """F232 B4: SystemExit from a handler degrades to a failed request — the
+    daemon keeps serving (in-process check of `_safe_handle`, then a live
+    probe that the running daemon still answers)."""
+    home = _compiled_home()
+    os.environ["WARDEN_HOME"] = str(home)
+    import warden_daemon as wd
+    orig = wd.handle
+    try:
+        def _boom(_corpus, _req):
+            raise SystemExit(3)
+        wd.handle = _boom
+        resp = wd._safe_handle(None, {"op": "x"})
+        assert resp["ok"] is False and "SystemExit" in resp["error"], resp
+        # KeyboardInterrupt (operator Ctrl-C) still terminates.
+        def _intr(_corpus, _req):
+            raise KeyboardInterrupt
+        wd.handle = _intr
+        try:
+            wd._safe_handle(None, {"op": "x"})
+            raise AssertionError("KeyboardInterrupt was swallowed")
+        except KeyboardInterrupt:
+            pass
+    finally:
+        wd.handle = orig
+    assert _request(home, {"op": "ping"})["ok"], "live daemon stopped answering"
+    print("PASS  systemexit_survival (F232 B4)")
+
+
 def test_shutdown():
     home = _compiled_home()
     resp = _request(home, {"op": "shutdown"})
@@ -148,6 +177,7 @@ def main():
         test_fire_rules_parity()
         test_audit_parity()
         test_unknown_op_and_reload()
+        test_systemexit_survival()
         test_shutdown()
     finally:
         if _PROC and _PROC.poll() is None:
