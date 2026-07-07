@@ -173,6 +173,21 @@ def handle(corpus: Corpus, req: dict) -> dict:
     return {"ok": False, "error": f"unknown op {op!r}"}
 
 
+def _safe_handle(corpus: Corpus, req: dict) -> dict:
+    """One request, fail-safe. Catches BaseException, not Exception (F232 B4):
+    a rule body calling sys.exit() raises SystemExit, which must degrade to a
+    failed request — never kill the shared daemon. KeyboardInterrupt (the
+    operator's own Ctrl-C) still terminates."""
+    try:
+        return handle(corpus, req)
+    except KeyboardInterrupt:
+        raise
+    except BaseException as e:  # noqa: BLE001 — keep serving, fail-safe
+        resp = {"ok": False, "error": f"{type(e).__name__}: {e}"}
+        wh._log(f"DAEMON ERROR op={req.get('op')}: {resp['error']}")
+        return resp
+
+
 # ── server loop ──────────────────────────────────────────────────────────────
 
 def _recv_line(conn: socket.socket, limit: int = 4 * 1024 * 1024) -> bytes:
@@ -190,19 +205,41 @@ def serve(idle_exit: float) -> int:
     home.mkdir(parents=True, exist_ok=True)
     sock_p = socket_path()
     # A stale socket file from a dead daemon blocks bind; probe before unlinking
-    # so we never steal a live daemon's socket.
+    # so we never steal a live daemon's socket. Retry with backoff (F232 B6):
+    # a BUSY daemon (serial loop mid-request with a full backlog) can miss one
+    # 0.2 s probe — one failed connect is not proof of death.
     if sock_p.exists():
-        try:
-            probe = socket.socket(socket.AF_UNIX)
-            probe.settimeout(0.2)
-            probe.connect(str(sock_p))
-            probe.close()
+        alive = False
+        for delay in (0.0, 0.5, 1.5):
+            if delay:
+                time.sleep(delay)
+            try:
+                probe = socket.socket(socket.AF_UNIX)
+                probe.settimeout(1.0)
+                probe.connect(str(sock_p))
+                probe.close()
+                alive = True
+                break
+            except OSError:
+                continue
+        if alive:
             return 0  # a live daemon already owns the socket — nothing to do
-        except OSError:
-            sock_p.unlink(missing_ok=True)
+        sock_p.unlink(missing_ok=True)
 
     srv = socket.socket(socket.AF_UNIX)
-    srv.bind(str(sock_p))
+    try:
+        srv.bind(str(sock_p))
+    except OSError:
+        # Cold-start race (F232 B6): another daemon bound between our probe
+        # and this bind. If it answers, yield cleanly; else surface the error.
+        try:
+            probe = socket.socket(socket.AF_UNIX)
+            probe.settimeout(1.0)
+            probe.connect(str(sock_p))
+            probe.close()
+            return 0
+        except OSError:
+            raise
     srv.listen(8)
     srv.settimeout(min(idle_exit, 60.0) if idle_exit > 0 else 60.0)
     pid_path().write_text(str(os.getpid()), encoding="utf-8")
@@ -227,11 +264,7 @@ def serve(idle_exit: float) -> int:
                     req = json.loads(line) if line.strip() else {}
                 except ValueError:
                     req = {}
-                try:
-                    resp = handle(corpus, req)
-                except Exception as e:  # noqa: BLE001 — keep serving, fail-safe
-                    resp = {"ok": False, "error": f"{type(e).__name__}: {e}"}
-                    wh._log(f"DAEMON ERROR op={req.get('op')}: {resp['error']}")
+                resp = _safe_handle(corpus, req)
                 conn.sendall(json.dumps(resp).encode("utf-8") + b"\n")
                 if resp.get("_shutdown"):
                     return 0

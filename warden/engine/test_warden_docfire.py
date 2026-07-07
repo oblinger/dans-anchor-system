@@ -146,10 +146,33 @@ def test_fire_on_write_fixer_parity():
     print("PASS  fire_on_write fixer parity (M4a)")
 
 
+def test_audit_ir_cache():
+    """F232 B3: the umbrella flatten is mtime-cached — repeat calls return the
+    cached rows without re-reading ~50 ruleset files; touching any source
+    invalidates."""
+    import os
+    import time as _t
+    wd._AUDIT_IR_CACHE.clear()
+    t0 = _t.perf_counter()
+    rows1 = wd.compile_audit_ir("R-doc")
+    cold_ms = (_t.perf_counter() - t0) * 1000
+    t0 = _t.perf_counter()
+    rows2 = wd.compile_audit_ir("R-doc")
+    warm_ms = (_t.perf_counter() - t0) * 1000
+    assert rows2 is rows1, "cache miss on unchanged sources"
+    assert warm_ms < cold_ms / 5 or warm_ms < 5.0, (cold_ms, warm_ms)
+    src = wd._AUDIT_IR_CACHE["R-doc"]["sources"][0]
+    os.utime(wd.ap.REPO_ROOT / src)
+    rows3 = wd.compile_audit_ir("R-doc")
+    assert rows3 is not rows1, "touching a source did not invalidate"
+    print(f"PASS  audit_ir_cache (F232 B3 — cold {cold_ms:.0f} ms, warm {warm_ms:.2f} ms)")
+
+
 def main():
     test_docfire_matches_audit_plan_on_every_case()
     test_signature_matches_audit_plan()
     test_fire_on_write_fixer_parity()
+    test_audit_ir_cache()
     print("\nall warden_docfire tests passed")
     return 0
 
