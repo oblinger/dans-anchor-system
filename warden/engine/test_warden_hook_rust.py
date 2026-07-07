@@ -137,6 +137,52 @@ def main():
             _diff_case("non-anchor cwd",
                        {"hook_event_name": "SessionStart", "cwd": "/"}, env,
                        expect_output=False)
+            # 8. C1: a SYMLINKED event path resolves to the same governing
+            # anchor on both engines (Rust used to walk the literal path —
+            # the link's parent has no .anchor, so it went silent).
+            link = Path(td) / "link"
+            os.symlink(selftest, link)
+            _diff_case("symlinked file path governs by target anchor (F232 C1)",
+                       {"hook_event_name": "PostToolUse", "tool_name": "Write",
+                        "tool_input": {"file_path": str(link / "note.md")},
+                        "cwd": "/"}, env, expect_output=True)
+            # 9. C2: duplicate `traits:` keys — the Python reference's flow
+            # search runs first, so the flow line wins even BELOW a block one
+            # (Rust used to lock onto the first line whatever its shape).
+            dup = Path(td) / "dup"
+            dup.mkdir()
+            (dup / ".anchor").write_text(
+                "slug: DUP\ntraits:\n- warden-selftest\ntraits: [Commit]\n",
+                encoding="utf-8")
+            _diff_case("duplicate traits keys — flow wins (F232 C2)",
+                       {"hook_event_name": "PostToolUse", "tool_name": "Write",
+                        "tool_input": {"file_path": str(dup / "note.md")},
+                        "cwd": str(dup)}, env)
+            # 10. C2: a blank line INSIDE a block list — Python's regex
+            # tolerates it (items after the blank still count); Rust used to
+            # stop at the blank and drop the rest.
+            blk = Path(td) / "blk"
+            blk.mkdir()
+            (blk / ".anchor").write_text(
+                "slug: BLK\ntraits:\n- Commit\n\n- warden-selftest\n",
+                encoding="utf-8")
+            _diff_case("blank line inside block trait list (F232 C2)",
+                       {"hook_event_name": "PostToolUse", "tool_name": "Write",
+                        "tool_input": {"file_path": str(blk / "note.md")},
+                        "cwd": str(blk)}, env, expect_output=True)
+            # 11. C3: malformed payload FIELDS degrade per-field on both
+            # engines — a non-string file_path / non-dict tool_input must not
+            # zero out the dispatch (nor crash it).
+            _diff_case("non-string file_path (F232 C3)",
+                       {"hook_event_name": "PostToolUse", "tool_name": "Write",
+                        "tool_input": {"file_path": {"evil": 1}},
+                        "cwd": str(selftest)}, env)
+            _diff_case("non-dict tool_input (F232 C3)",
+                       {"hook_event_name": "PostToolUse", "tool_name": "Write",
+                        "tool_input": "garbage", "cwd": str(selftest)}, env)
+            _diff_case("non-string cwd (F232 C3)",
+                       {"hook_event_name": "PreToolUse", "tool_name": "Bash",
+                        "tool_input": {"command": "echo hi"}, "cwd": 42}, env)
     finally:
         if _PROC and _PROC.poll() is None:
             _PROC.kill()
