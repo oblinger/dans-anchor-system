@@ -51,6 +51,7 @@ Work Products — polished, dated outputs of human+agent collaboration. Papers, 
 | [[2026-04-15 Security Audit]] |  |
 | [[2026-03-28 Architecture Review]] |  |
 | --- | |
+```
 
 The `---` separator at the bottom enables rewire/rescan to auto-list any remaining work-product folders.
 
