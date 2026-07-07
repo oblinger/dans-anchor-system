@@ -62,6 +62,12 @@ _GUARD_OPS = [(" has ", "has"), (" in ", "in"), ("==", "eq")]
 # Recognised entry-function names in a rule's python body (F180).
 _ENTRY_DEFS = ("trigger", "guard", "body")
 
+# The moment-class vocabulary ([[Warden Events]] / F209) — a `when::` whose
+# class is outside this set compiles to a key no dispatcher ever fires (F232
+# A3), so the compiler warns instead of silently burying the rule.
+_MOMENT_CLASSES = {"session", "tool", "skill", "write", "read", "git",
+                   "prompt", "timer"}
+
 
 def _san(rule_id: str) -> str:
     """`R-query-14` → `R_query_14` for use in a Python identifier."""
@@ -123,19 +129,43 @@ def extract_ruleset_block(lines: list[str], name: str) -> tuple[int, int, int] |
     return start, end, level
 
 
-def _extract_py(body_lines: list[str]) -> str | None:
-    """Return the source of the first fenced ```python block in `body_lines`."""
-    out, inside = [], False
+def _extract_py(body_lines: list[str], rid: str = "") -> str | None:
+    """Return the source of the rule's fenced ```python block.
+
+    F232 A5 hardening: an unclosed fence warns (the partial block is still
+    used — better a syntax error at emit than a silently dead rule); multiple
+    fences warn and the first ENTRY-DEF-BEARING block wins (an illustrative
+    fence before the real implementation used to silently displace it)."""
+    blocks: list[str] = []
+    cur: list[str] = []
+    inside = False
     for ln in body_lines:
         fence = ln.strip()
         if not inside and fence.startswith("```") and "python" in fence:
-            inside = True
+            inside, cur = True, []
             continue
         if inside and fence.startswith("```"):
-            return "\n".join(out)
+            inside = False
+            blocks.append("\n".join(cur))
+            continue
         if inside:
-            out.append(ln)
-    return None
+            cur.append(ln)
+    if inside:
+        print(f"warden: WARNING — {rid or 'rule'}: unclosed ```python fence",
+              file=sys.stderr)
+        blocks.append("\n".join(cur))
+    if not blocks:
+        return None
+    if len(blocks) > 1:
+        entry_re = re.compile(rf"\bdef\s+(?:{'|'.join(_ENTRY_DEFS)})\s*\(")
+        bearing = [b for b in blocks if entry_re.search(b)]
+        pick = bearing[0] if bearing else blocks[0]
+        print(f"warden: WARNING — {rid or 'rule'}: {len(blocks)} ```python "
+              f"fences in one rule body; using the first "
+              f"{'entry-def-bearing ' if bearing else ''}block",
+              file=sys.stderr)
+        return pick
+    return blocks[0]
 
 
 def parse_ruleset(text: str, name: str, source: str) -> dict | None:
@@ -167,7 +197,12 @@ def parse_ruleset(text: str, name: str, source: str) -> dict | None:
             break
         key, val = fm.group(1), fm.group(2).strip()
         if key == "include":
-            rs["includes"] = re.findall(r"\[\[([^\]|]+)", val)
+            targets = re.findall(r"\[\[([^\]|]+)", val)
+            if not targets and val:
+                # bare-name form (`include:: R-sugiyama, R-c4`) — documented
+                # in FCT Ruleset but previously dropped silently (F232 A6).
+                targets = [t.strip() for t in val.split(",") if t.strip()]
+            rs["includes"] = targets
         elif key == "where":
             rs["where"] = strip_ticks(val) or None
         elif key == "description":
@@ -198,7 +233,8 @@ def parse_ruleset(text: str, name: str, source: str) -> dict | None:
         rule = {
             "id": rm.group(2), "title": rm.group(3).strip(), "paren": paren,
             "when": None, "where": None, "ifs": [], "tier": None, "check": None,
-            "fix": None, "py_src": _extract_py(body), "py_kind": None,
+            "fix": None, "py_src": _extract_py(body, rm.group(2)),
+            "py_kind": None, "py_kinds": [],
         }
         # Paren is a tier or an executable `when::`.
         if paren in _TIERS:
@@ -225,10 +261,12 @@ def parse_ruleset(text: str, name: str, source: str) -> dict | None:
             elif key == "fix":
                 rule["fix"] = val
         if rule["py_src"]:
-            for name_ in _ENTRY_DEFS:
-                if re.search(rf"\bdef\s+{name_}\s*\(", rule["py_src"]):
-                    rule["py_kind"] = name_
-                    break
+            # ALL entry defs present, not just the first (F232 A4 — a rule
+            # authoring both `def guard` and `def body` used to wire only the
+            # guard, silently dropping the body).
+            rule["py_kinds"] = [n for n in _ENTRY_DEFS
+                                if re.search(rf"\bdef\s+{n}\s*\(", rule["py_src"])]
+            rule["py_kind"] = rule["py_kinds"][0] if rule["py_kinds"] else None
         rs["rules"].append(rule)
     return rs
 
@@ -245,6 +283,9 @@ def canonical_moment(when_val: str) -> tuple[str, str]:
     are returned **unchanged** — inserting a phase would compile them to a moment
     the live dispatcher never fires. Their phase field is `post` (observational).
     """
+    # Strip a trailing `# comment` (F232 A3 — `when:: tool:pre  # note` used
+    # to compile the comment into the moment key, silently killing the rule).
+    when_val = when_val.split("#", 1)[0].strip()
     parts = when_val.split(":")
     cls = parts[0]
     if cls not in _PHASED_CLASSES:
@@ -279,6 +320,15 @@ def parse_if(expr: str) -> dict | None:
     return None
 
 
+def _kinds(rule: dict) -> list[str]:
+    """The rule's entry-def kinds, tolerating synthetic rule dicts that carry
+    only the legacy single `py_kind`."""
+    kinds = rule.get("py_kinds")
+    if kinds is None:
+        kinds = [rule["py_kind"]] if rule.get("py_kind") else []
+    return kinds
+
+
 def compile_rule(rule: dict, ruleset: dict) -> dict:
     """One parsed rule → its IR row (F211 § A rule row)."""
     rid = rule["id"]
@@ -289,9 +339,20 @@ def compile_rule(rule: dict, ruleset: dict) -> dict:
         "phase": None, "moment": None, "where": None,
         "guards": [], "guard_py": None, "action": None, "body_py": None,
     }
+    if rule["when"] is not None and not rule["when"].strip():
+        # F232 A8: an empty `when::` used to silently reclassify the rule as
+        # a doc-rule — almost certainly not what the author meant.
+        print(f"warden: WARNING — {rid}: empty when:: — rule compiles as a "
+              "doc-rule, not a moment rule", file=sys.stderr)
     if rule["when"]:
         moment, phase = canonical_moment(rule["when"])
         row["moment"], row["phase"] = moment, phase
+        cls = moment.split(":", 1)[0]
+        if cls not in _MOMENT_CLASSES:
+            # F232 A3: a typo'd class compiles to a key no dispatcher fires.
+            print(f"warden: WARNING — {rid}: unknown moment class '{cls}' in "
+                  f"when:: '{rule['when']}' — rule can never fire",
+                  file=sys.stderr)
         # A when-rule's place-residual is its OWN `where::` (rare); the ruleset's
         # doc-selector governs the tier doc-rules, not the moment rules.
         row["where"] = rule["where"]
@@ -325,11 +386,14 @@ def compile_rule(rule: dict, ruleset: dict) -> dict:
             row["guards"].append(g)
         else:
             residual_if.append(expr)
-    if residual_if or rule["py_kind"] == "guard":
+    kinds = _kinds(rule)
+    if residual_if or "guard" in kinds:
         row["guard_py"] = f"guard_{_san(rid)}"
 
-    # body: a python trigger/body computes its output → body_py.
-    if rule["py_kind"] in ("trigger", "body"):
+    # body: a python trigger/body computes its output → body_py. Checked
+    # against ALL entry defs (F232 A4) — a rule with both `def guard` and
+    # `def body` wires both slots.
+    if "trigger" in kinds or "body" in kinds:
         row["body_py"] = f"body_{_san(rid)}"
 
     # F217: a statically-visible `agent.turn` / `agent.response` reference
@@ -360,7 +424,7 @@ def synth_guard_src(rule: dict) -> str:
     residual = [e for e in rule["ifs"] if parse_if(e) is None]
     conj = " and ".join(f"({e})" for e in residual) or "True"
     call = f" and guard_{_san(rule['id'])}__authored(ctx)" \
-        if rule["py_kind"] == "guard" else ""
+        if "guard" in _kinds(rule) else ""
     return (
         "def guard(ctx):\n"
         "    file = getattr(ctx, 'file', None)\n"
@@ -374,55 +438,83 @@ def synth_guard_src(rule: dict) -> str:
 
 # ── emit ────────────────────────────────────────────────────────────────────
 
-_ENTRY_DEF_RE = re.compile(rf"^(\s*)def\s+(?:{'|'.join(_ENTRY_DEFS)})\s*\(")
+_ENTRY_DEF_RE = re.compile(rf"^(\s*)def\s+({'|'.join(_ENTRY_DEFS)})\s*\(")
 
 
-def _encapsulate(src: str, fn: str, imports: list[str]) -> str:
+def _split_src(src: str) -> tuple[list[str], list[str], dict, list[str]]:
+    """Split a rule's python block into (imports, preamble, entry-def blocks,
+    entry order). An entry-def block runs from its `def trigger/guard/body(`
+    line to the next entry-def line (or EOF); imports and preamble are the
+    lines before the first entry def."""
+    imports: list[str] = []
+    pre: list[str] = []
+    entries: dict = {}
+    order: list[str] = []
+    cur = None
+    for ln in src.splitlines():
+        m = _ENTRY_DEF_RE.match(ln)
+        if m:
+            cur = m.group(2)
+            entries[cur] = [ln]
+            order.append(cur)
+            continue
+        if cur is None:
+            if re.match(r"^\s*(import |from )\S", ln):
+                imports.append(ln)
+            else:
+                pre.append(ln)
+        else:
+            entries[cur].append(ln)
+    return imports, pre, entries, order
+
+
+def _encapsulate(src: str, fn: str, imports: list[str], entry: str | None = None) -> str:
     """Turn one rule's python block into a single self-contained function `fn`.
 
     Imports are hoisted (de-duplicated into `imports`); any module-level
     preamble (helper constants/regexes the entry function references) is moved
     *inside* the function as locals — so two rulesets that both define a
-    `PUSHCOMMIT` at corpus scale never collide. The entry def
-    (`trigger`/`guard`/`body`) is renamed to `fn`."""
-    pre: list[str] = []
-    func: list[str] = []
-    seen_def = False
-    for ln in src.splitlines():
-        if not seen_def and re.match(r"^\s*(import |from )\S", ln):
-            if ln not in imports:
-                imports.append(ln)
-            continue
-        m = _ENTRY_DEF_RE.match(ln)
-        if m and not seen_def:
-            seen_def = True
-            func.append(_ENTRY_DEF_RE.sub(rf"{m.group(1)}def {fn}(", ln, count=1))
-            continue
-        (func if seen_def else pre).append(ln)
-    out = [func[0]]                       # the `def fn(ctx):` line
+    `PUSHCOMMIT` at corpus scale never collide. `entry` names WHICH entry def
+    (`trigger`/`guard`/`body`) becomes `fn` — sibling entry defs in the same
+    block are dropped from this emission (each gets its own pass; F232 A4 —
+    previously only the first def was renamed and the second leaked verbatim
+    to module scope, shadowing across rules)."""
+    imps, pre, entries, order = _split_src(src)
+    for ln in imps:
+        if ln not in imports:
+            imports.append(ln)
+    name = entry if entry is not None else (order[0] if order else None)
+    if name is None or name not in entries:
+        # no entry def — emit the raw block (legacy tolerance; nothing to rename)
+        return src.strip("\n")
+    block = entries[name]
+    head = _ENTRY_DEF_RE.sub(rf"\1def {fn}(", block[0], count=1)
+    out = [head]                          # the `def fn(ctx):` line
     for p in pre:                         # module-level preamble → function locals
         out.append("    " + p if p.strip() else "")
-    out.extend(func[1:])                  # original (already-indented) body
+    out.extend(block[1:])                 # original (already-indented) body
     return "\n".join(out).strip("\n")
 
 
-def rule_emissions(rule: dict, row: dict) -> list[tuple[str, str]]:
-    """The (source, function-name) pairs one rule contributes to the emitted
-    module: its authored body/trigger, its authored guard, and/or the guard
-    synthesised from residual `if::` expressions (F215)."""
-    out: list[tuple[str, str]] = []
+def rule_emissions(rule: dict, row: dict) -> list[tuple[str, str, str | None]]:
+    """The (source, function-name, entry-def) triples one rule contributes to
+    the emitted module: its authored body/trigger, its authored guard, and/or
+    the guard synthesised from residual `if::` expressions (F215)."""
+    kinds = _kinds(rule)
+    out: list[tuple[str, str, str | None]] = []
     if row["body_py"]:
-        out.append((rule["py_src"], row["body_py"]))
+        entry = "trigger" if "trigger" in kinds else "body"
+        out.append((rule["py_src"], row["body_py"], entry))
     if row["guard_py"]:
         has_residual = any(parse_if(e) is None for e in rule["ifs"])
-        if rule["py_kind"] == "guard":
+        if "guard" in kinds:
             if has_residual:
-                out.append((rule["py_src"], row["guard_py"] + "__authored"))
-                out.append((synth_guard_src(rule), row["guard_py"]))
+                out.append((rule["py_src"], row["guard_py"] + "__authored", "guard"))
+                out.append((synth_guard_src(rule), row["guard_py"], None))
             else:
-                out.append((rule["py_src"], row["guard_py"]))
+                out.append((rule["py_src"], row["guard_py"], "guard"))
         else:
-            out.append((synth_guard_src(rule), row["guard_py"]))
+            out.append((synth_guard_src(rule), row["guard_py"], None))
     return out
 
 
@@ -432,8 +524,8 @@ def emit_module(anchor: str, py_rules: list[tuple[dict, dict]]) -> str:
     imports: list[str] = []
     bodies: list[str] = []
     for rule, row in py_rules:
-        for src, fn in rule_emissions(rule, row):
-            bodies.append(_encapsulate(src, fn, imports))
+        for src, fn, entry in rule_emissions(rule, row):
+            bodies.append(_encapsulate(src, fn, imports, entry))
     parts = [
         "# GENERATED by warden_compile.py — do not edit.",
         "# Source rulesets are authoritative; regenerate on rule change.",
@@ -644,6 +736,14 @@ def compile_corpus(root: Path, index: dict, anchor: str = "all",
     for name in rs_includes:
         if not rs_includes[name]:
             continue
+        for child in rs_includes[name]:
+            if child != name and child not in rs_rule_ids:
+                # F232 A7: an include target that resolves to no scanned
+                # ruleset (typo, heading-fragment miss) contributes zero rules
+                # — say so instead of silently thinning the umbrella.
+                print(f"warden: WARNING — ruleset {name} includes unknown "
+                      f"ruleset '{child}' — contributes nothing",
+                      file=sys.stderr)
         trait = name[2:] if name.startswith("R-") else name
         flat, have = [], set()
         for rid in _closure(name, set()):
@@ -724,7 +824,13 @@ def main(argv=None):
         prior_bearing, prior_seen = warden_scan.load_index(str(index_path))
         files, seen, _ = warden_scan.build_index(str(root), prior_bearing, prior_seen, rescan=False)
         index = {"root": str(root), "files": files, "seen": seen}
-        source_hash = warden_scan.index_hash(files)
+        # Cache key = ruleset content ⊕ compiler source ⊕ declared anchor
+        # traits (F232 A9 — the md-only key went stale on compiler-code edits
+        # and `.anchor` trait changes, both of which move the IR).
+        salt = hashlib.sha256()
+        salt.update(Path(__file__).read_bytes())
+        salt.update("|".join(declared_anchor_traits(vault_root(root))).encode())
+        source_hash = f"{warden_scan.index_hash(files)}:{salt.hexdigest()[:12]}"
         anchor = args.anchor or "all"
         out = Path(args.out).expanduser() if args.out else (root / ".warden")
 

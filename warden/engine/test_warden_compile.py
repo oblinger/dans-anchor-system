@@ -121,12 +121,14 @@ def test_corpus_compile():
                  "prompt:stop", "write:", "read:", "git:", "timer:")
     orphans = [m for m in ir["moments"] if not m.startswith(reachable)]
     assert not orphans, f"moment keys unreachable from the live dispatcher: {orphans}"
-    # F232 A1: fenced example rulesets (R-sample/R-wp in FCT Ruleset / FCT WP)
-    # must NOT compile into the corpus — they are shown grammar, not live rules.
-    phantoms = [r for r in ir["rules"] if r.startswith(("R-sample-", "R-wp-"))]
+    # F232 A1: the fenced example ruleset (R-sample in FCT Ruleset) must NOT
+    # compile into the corpus — it is shown grammar, not live rules. (R-wp,
+    # first suspected a phantom, turned out to be a REAL ruleset swallowed by
+    # an unclosed fence in FCT WP.md — fence repaired, so it must be present.)
+    phantoms = [r for r in ir["rules"] if r.startswith("R-sample-")]
     assert not phantoms, f"fenced example rules leaked into the IR: {phantoms}"
-    for t in ("sample", "wp"):
-        assert t not in ir["traits"], f"phantom trait '{t}' keyed in the IR"
+    assert "sample" not in ir["traits"], "phantom trait 'sample' keyed in the IR"
+    assert "R-wp-01" in ir["rules"], "real R-wp lost — FCT WP.md fence broken again?"
     # F219: the wiring snapshot is stamped — declared anchor traits + implicit base
     assert "anchor-base" in ir.get("declared_traits", []), ir.get("declared_traits")
     # the emitted corpus module must import — proves no cross-ruleset name collision
@@ -324,6 +326,120 @@ def test_duplicate_rule_id_first_wins():
     print("PASS  duplicate_rule_id_first_wins (F232 A2)")
 
 
+def test_compile_robustness_batch():
+    """F232 A3–A8 + D2: moment validation, empty-when warning, dual entry
+    defs wired, fence discipline, bare include::, unknown-include warning,
+    installed-surface deliverability helpers."""
+    import contextlib
+    import importlib.machinery
+    import importlib.util
+    import io
+    import types
+
+    # A3 — trailing comment stripped from the moment key; typo'd class warns.
+    assert wc.canonical_moment("tool:pre:Bash  # a note")[0] == "tool:pre:Bash"
+    doc = (
+        "# RULESET R-rb\n\n"
+        "### RULE R-rb-01 — typo class (when:: toool:pre:Bash)\n\nx.\n\n"
+        "### RULE R-rb-02 — empty when (when::)\n\nx.\n"
+    )
+    rs = wc.parse_ruleset(doc, "R-rb", "rb.md")
+    err = io.StringIO()
+    with contextlib.redirect_stderr(err):
+        wc.compile_ruleset(rs, "rb")
+    assert "unknown moment class 'toool'" in err.getvalue(), err.getvalue()
+    # A8 — empty when:: warns instead of silently reclassifying.
+    assert "R-rb-02: empty when::" in err.getvalue(), err.getvalue()
+
+    # A4 — dual `def guard` + `def body`: BOTH wired, both emitted, preamble
+    # shared into each, no def leaking to module scope unrenamed.
+    dual = (
+        "# RULESET R-du\n\n"
+        "### RULE R-du-01 — dual defs (when:: tool:pre:Bash)\n\n"
+        "```python\n"
+        "N = 3\n"
+        "def guard(ctx):\n"
+        "    return N > 2\n"
+        "def body(ctx):\n"
+        "    return ['x' * N]\n"
+        "```\n"
+    )
+    rs = wc.parse_ruleset(dual, "R-du", "du.md")
+    rule = rs["rules"][0]
+    assert rule["py_kinds"] == ["guard", "body"], rule["py_kinds"]
+    ir, src, _stats = wc.compile_ruleset(rs, "du")
+    row = ir["rules"]["R-du-01"]
+    assert row["guard_py"] == "guard_R_du_01" and row["body_py"] == "body_R_du_01", row
+    ns_mod = types.ModuleType("rules_du")
+    exec(compile(src, "rules_du.py", "exec"), ns_mod.__dict__)
+    assert ns_mod.guard_R_du_01(None) is True
+    assert ns_mod.body_R_du_01(None) == ["xxx"]
+    assert not hasattr(ns_mod, "guard") and not hasattr(ns_mod, "body"), \
+        "an entry def leaked unrenamed to module scope"
+
+    # A5 — multiple ```python fences: the entry-def-bearing block wins, warned.
+    multi = (
+        "# RULESET R-mf\n\n"
+        "### RULE R-mf-01 — illustration first (when:: tool:pre:Bash)\n\n"
+        "```python\n"
+        "print('just an illustration')\n"
+        "```\n\n"
+        "```python\n"
+        "def body(ctx):\n"
+        "    return ['real']\n"
+        "```\n"
+    )
+    err = io.StringIO()
+    with contextlib.redirect_stderr(err):
+        rs = wc.parse_ruleset(multi, "R-mf", "mf.md")
+    assert "2 ```python fences" in err.getvalue(), err.getvalue()
+    assert "def body" in rs["rules"][0]["py_src"], "real block was displaced"
+
+    # A6 — bare-name include:: is honoured.
+    bare = "# RULESET R-um\n\ninclude:: R-a, R-b\n"
+    rs = wc.parse_ruleset(bare, "R-um", "um.md")
+    assert rs["includes"] == ["R-a", "R-b"], rs["includes"]
+
+    # A7 — an include target resolving to no scanned ruleset warns.
+    import warden_scan  # noqa
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        (root / "u.md").write_text(
+            "# RULESET R-umb\n\ninclude:: [[R-nonexistent]]\n\n"
+            "### RULE R-umb-01 — own rule (checked)\n", encoding="utf-8")
+        files, seen, _ = warden_scan.build_index(str(root), {}, {}, rescan=True)
+        index = {"root": str(root), "files": files, "seen": seen}
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            wc.compile_corpus(root, index, "all")
+        assert "unknown ruleset 'R-nonexistent'" in err.getvalue(), err.getvalue()
+
+    # D2 — installed-surface deliverability helpers (CLI module).
+    loader = importlib.machinery.SourceFileLoader(
+        "warden_cli", str(HERE / "warden"))
+    spec = importlib.util.spec_from_loader("warden_cli", loader)
+    cli = importlib.util.module_from_spec(spec)
+    loader.exec_module(cli)
+    settings = {"hooks": {
+        "SessionStart": [{"hooks": [{"command": "warden-rs hook"}]}],
+        "UserPromptSubmit": [{"hooks": [{"command": "warden-rs hook"}]}],
+        "PreToolUse": [
+            {"matcher": "Skill", "hooks": [{"command": "warden-rs hook"}]},
+            {"matcher": "Bash|Edit|Write", "hooks": [{"command": "warden-rs hook"}]}],
+        "PostToolUse": [
+            {"matcher": "Write|Edit", "hooks": [{"command": "warden-rs hook"}]}],
+        "Stop": [{"hooks": [{"command": "other-tool"}]}],   # NOT a warden entry
+    }}
+    ev = cli._installed_warden_events(settings)
+    assert "Stop" not in ev, ev
+    for m, want in [("tool:pre:Bash", True), ("skill:pre:audit-q", True),
+                    ("write:markdown", True), ("session:start", True),
+                    ("prompt:submit", True), ("tool:pre:WebFetch", False),
+                    ("session:stop", False), ("git:commit", False)]:
+        assert cli._moment_deliverable(m, ev) is want, (m, want)
+    print("PASS  compile_robustness_batch (F232 A3–A8, D2)")
+
+
 def test_recompile_cache():
     """The compiled IR records the scan-index hash as its cache key;
     `cached_source_hash` round-trips it, and the key changes when a ruleset
@@ -365,6 +481,7 @@ def main():
     test_include_flatten()
     test_fenced_sentinels_ignored()
     test_duplicate_rule_id_first_wins()
+    test_compile_robustness_batch()
     test_recompile_cache()
     print("\nall warden_compile tests passed")
     return 0

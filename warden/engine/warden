@@ -96,6 +96,71 @@ def _write_daemon_cmd(out: Path) -> None:
     (out / "daemon.cmd").write_text(DAEMON_CMD + "\n", encoding="utf-8")
 
 
+def _installed_warden_events(settings: dict) -> dict:
+    """{hook event: set of matcher tools} for entries invoking Warden; a
+    matcher-less entry contributes `'*'` (all tools)."""
+    out: dict = {}
+    for ev, entries in (settings.get("hooks") or {}).items():
+        for e in entries:
+            if not any("warden" in h.get("command", "")
+                       for h in e.get("hooks", [])):
+                continue
+            m = e.get("matcher")
+            tools = out.setdefault(ev, set())
+            if not m or m == "*":
+                tools.add("*")
+            else:
+                tools.update(t for t in m.split("|") if t)
+    return out
+
+
+def _moment_deliverable(moment: str, ev: dict) -> bool:
+    """Can the installed hook surface deliver this compiled moment? Mirrors
+    warden_hook.event_to_moments (the F232 D2 drift check)."""
+    def has(event, tool):
+        ts = ev.get(event, set())
+        return "*" in ts or tool in ts
+    if moment.startswith("skill:pre"):
+        return has("PreToolUse", "Skill")
+    if moment.startswith(("tool:pre", "tool:post")):
+        event = "PreToolUse" if moment.startswith("tool:pre") else "PostToolUse"
+        parts = moment.split(":")
+        return has(event, parts[2]) if len(parts) >= 3 else bool(ev.get(event))
+    if moment.startswith(("write:", "read:")):
+        return has("PostToolUse", "Write") or has("PostToolUse", "Edit")
+    if moment == "session:start":
+        return "SessionStart" in ev
+    if moment in ("session:stop", "prompt:stop"):
+        return "Stop" in ev
+    if moment == "session:compact":
+        return "PreCompact" in ev
+    if moment == "prompt:submit":
+        return "UserPromptSubmit" in ev
+    return False   # git:/timer: — no live hook surface in v1
+
+
+def _warn_undeliverable(out: Path) -> None:
+    """F232 D2: warn when a compiled `when::` moment has no installed hook to
+    deliver it — the class of gap that hid the F131 veto surface for a day."""
+    try:
+        ir = json.loads((out / "rules-ir.json").read_text(encoding="utf-8"))
+        settings = json.loads(
+            (Path.home() / ".claude" / "settings.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return
+    ev = _installed_warden_events(settings)
+    if not ev:
+        print("warden: WARNING — no Warden hooks installed; compiled moments "
+              "will not fire until `warden install`", file=sys.stderr)
+        return
+    for m in sorted(ir.get("moments", {})):
+        if not _moment_deliverable(m, ev):
+            n = len(ir["moments"][m])
+            print(f"warden: WARNING — moment '{m}' ({n} rule(s)) has no "
+                  "installed hook to deliver it — re-run `warden install`",
+                  file=sys.stderr)
+
+
 def cmd_compile(_args) -> int:
     out = warden_home()
     stats = _compile_corpus(REPO, out)
@@ -103,6 +168,7 @@ def cmd_compile(_args) -> int:
     print(f"warden: compiled {stats['rules']} rules from {stats['rulesets']} rulesets "
           f"/ {stats['files']} files — {stats['moments']} moment(s), "
           f"{stats['doc_rules']} doc-rule(s), {stats['py_rules']} python → {out}")
+    _warn_undeliverable(out)
     return 0
 
 
