@@ -82,3 +82,5 @@ description: agent inbox — system messages for this anchor; cleared on every p
 [2026-07-06 19:15:41] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
 [2026-07-06 19:15:43] [INFO] Warden: updated T006 in Done [Done] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
 [2026-07-06 19:15:43] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 19:17:39] [INFO] Warden: updated T005 in Ready [Ready] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 19:17:39] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
