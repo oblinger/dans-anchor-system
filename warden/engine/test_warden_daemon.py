@@ -169,6 +169,59 @@ def test_shutdown():
     print("PASS  shutdown")
 
 
+def test_concurrent_slow_request():
+    """T013 (F232 B1): the daemon is thread-per-connection — one slow request
+    (a 60 s oracle body, a long audit) must not block another session's hooks.
+    In-process serve on the now-free home; a patched slow op holds one
+    connection while a ping answers underneath it."""
+    import threading
+    home = _compiled_home()
+    os.environ["WARDEN_HOME"] = str(home)
+    import warden_daemon as wd
+    orig = wd.handle
+
+    def _slow_or_orig(corpus, req):
+        if req.get("op") == "slow":
+            time.sleep(2.0)
+            return {"ok": True, "slow": True}
+        return orig(corpus, req)
+
+    wd.handle = _slow_or_orig
+    srv = threading.Thread(target=wd.serve, args=(30.0,), daemon=True)
+    srv.start()
+    try:
+        for _ in range(50):
+            time.sleep(0.1)
+            if (home / "daemon.sock").exists():
+                break
+        else:
+            raise AssertionError("in-process daemon did not come up")
+        results: dict = {}
+
+        def _slow_call():
+            results["slow"] = wd.request({"op": "slow"}, timeout=15.0)
+
+        st = threading.Thread(target=_slow_call)
+        st.start()
+        time.sleep(0.3)  # the slow request is now in flight
+        t0 = time.monotonic()
+        ping = wd.request({"op": "ping"}, timeout=5.0)
+        dt = time.monotonic() - t0
+        assert ping["ok"], ping
+        assert dt < 1.0, f"ping took {dt:.2f}s behind a slow request — daemon still serial"
+        st.join(timeout=10)
+        assert results.get("slow", {}).get("ok"), results
+    finally:
+        wd.handle = orig
+        try:
+            wd.request({"op": "shutdown"}, timeout=5.0)
+        except OSError:
+            pass
+        srv.join(timeout=10)
+    assert not srv.is_alive(), "in-process daemon did not stop on shutdown"
+    print("PASS  concurrent_slow_request (T013 / F232 B1)")
+
+
 def main():
     home = _compiled_home()
     _start_daemon(home)
@@ -179,6 +232,7 @@ def main():
         test_unknown_op_and_reload()
         test_systemexit_survival()
         test_shutdown()
+        test_concurrent_slow_request()
     finally:
         if _PROC and _PROC.poll() is None:
             _PROC.kill()
