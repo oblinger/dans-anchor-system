@@ -14,14 +14,26 @@ def body(ctx):
     cmd = inp.get("command") or ""
     if "ssh" not in cmd:
         return []
-    import re
+    # Tokenize shell-aware (shlex): a quoted string is ONE token, so prose
+    # mentioning `; ssh …` inside an argument never reads as a command-position
+    # ssh (live false-positive 2026-07-06 — a --body text containing
+    # "IR; ssh one-shot" was denied). Unparseable quoting falls back to a
+    # whitespace split (deny-side conservative).
+    import shlex
+    try:
+        words = shlex.split(cmd)
+    except ValueError:
+        words = cmd.split()
     # ssh flags that take a separate value (must not be mistaken for the host)
     argful = {"-p", "-i", "-l", "-o", "-F", "-J", "-L", "-R", "-D", "-W",
               "-E", "-b", "-c", "-e", "-m", "-B", "-I", "-P", "-S", "-w"}
-    # ssh as a command word: start of line or after a separator — never scp/
-    # rsync (different words), never `which ssh` / quoted mentions.
-    for m in re.finditer(r"(?:^|[;&|(]\s*)ssh\s+(.*)", cmd):
-        toks = m.group(1).split()
+    # ssh as a command word: first token, or right after a separator — never
+    # scp/rsync (different words), never `which ssh` / quoted mentions.
+    starts = [k for k, w in enumerate(words)
+              if (w == "ssh" and (k == 0 or words[k - 1][-1:] in (";", "&", "|", "(")))
+              or w.endswith(("(ssh", "`ssh"))]  # $(ssh …) / `ssh …` substitution
+    for k in starts:
+        toks = words[k + 1:]
         host, remote = None, []
         i = 0
         while i < len(toks):

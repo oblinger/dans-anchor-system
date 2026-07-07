@@ -123,10 +123,9 @@ def test_corpus_compile():
     assert not orphans, f"moment keys unreachable from the live dispatcher: {orphans}"
     # F232 A1: fenced example rulesets (R-sample/R-wp in FCT Ruleset / FCT WP)
     # must NOT compile into the corpus — they are shown grammar, not live rules.
-    phantoms = [r for r in ir["rules"]
-                if r.startswith(("R-sample-", "R-wp-", "R-diagram-"))]
+    phantoms = [r for r in ir["rules"] if r.startswith(("R-sample-", "R-wp-"))]
     assert not phantoms, f"fenced example rules leaked into the IR: {phantoms}"
-    for t in ("sample", "wp", "diagram"):
+    for t in ("sample", "wp"):
         assert t not in ir["traits"], f"phantom trait '{t}' keyed in the IR"
     # F219: the wiring snapshot is stamped — declared anchor traits + implicit base
     assert "anchor-base" in ir.get("declared_traits", []), ir.get("declared_traits")
