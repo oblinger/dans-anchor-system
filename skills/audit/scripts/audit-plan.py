@@ -1550,6 +1550,25 @@ def chk_required_sections_in_order(target, anchor_root, args):
     return "pass", ""
 
 
+def chk_queries_sections_subsequence(target, anchor_root, args):
+    """R-query-03: the queries H2s are a subsequence of the allowed five, in
+    order, with no foreign H2 and no repeats. Empty sections are omitted, so a
+    subset is fine — only membership, order, and uniqueness are enforced."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    allowed = args if args else ["Agent Resolutions", "Verifications",
+                                 "Immediate Questions", "Questions", "Ready"]
+    h2s = _h2_headings(_read(f))
+    foreign = [h for h in h2s if h not in allowed]
+    if foreign:
+        return "fail", "foreign H2 section(s): " + ", ".join(foreign)
+    idx = [allowed.index(h) for h in h2s]
+    if any(idx[i] >= idx[i + 1] for i in range(len(idx) - 1)):
+        return "fail", f"sections out of order or repeated: {h2s}"
+    return "pass", ""
+
+
 def chk_user_stories_use_rid_numbering(target, anchor_root, args):
     """## User Stories H3s use US-{SLUG}-N: (inline form; folder form deferred)."""
     f = _as_file(target, anchor_root)
@@ -2822,6 +2841,7 @@ CHECKERS = {
     "file_path_matches_prd_locations": chk_file_path_matches_prd_locations,
     "h1_no_frontmatter": chk_h1_no_frontmatter,
     "required_sections_in_order": chk_required_sections_in_order,
+    "queries_sections_subsequence": chk_queries_sections_subsequence,
     "user_stories_use_rid_numbering": chk_user_stories_use_rid_numbering,
     "no_legacy_open_questions_file": chk_no_legacy_open_questions_file,
     "design_workflow_modern_names": chk_design_workflow_modern_names,

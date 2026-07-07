@@ -79,12 +79,33 @@ def strip_ticks(val: str) -> str:
     return val
 
 
+def fence_mask(lines: list[str]) -> list[bool]:
+    """Per-line ``` fence membership (marker lines count as inside). Structural
+    matches — RULESET/RULE headings, `field::` lines, block-terminating headings
+    — must skip fenced lines (F232 A1): a fenced sentinel is a shown example,
+    not a live declaration. `_extract_py` still reads its ```python fences from
+    the raw body; the mask suppresses only structural interpretation."""
+    mask = []
+    in_fence = False
+    for ln in lines:
+        if ln.lstrip().startswith("```"):
+            mask.append(True)
+            in_fence = not in_fence
+        else:
+            mask.append(in_fence)
+    return mask
+
+
 def extract_ruleset_block(lines: list[str], name: str) -> tuple[int, int, int] | None:
     """Return (start, end, level) line-span of `# RULESET <name>`; the block runs
-    until the next heading of level <= its own."""
+    until the next heading of level <= its own. Fenced headings are ignored on
+    both the open and the close scan."""
+    mask = fence_mask(lines)
     start = -1
     level = 0
     for i, ln in enumerate(lines):
+        if mask[i]:
+            continue
         m = _RULESET_RE.match(ln)
         if m and m.group(2) == name:
             start, level = i, len(m.group(1))
@@ -93,6 +114,8 @@ def extract_ruleset_block(lines: list[str], name: str) -> tuple[int, int, int] |
         return None
     end = len(lines)
     for j in range(start + 1, len(lines)):
+        if mask[j]:
+            continue
         hm = re.match(r"^(#+)\s+\S", lines[j])
         if hm and len(hm.group(1)) <= level:
             end = j
@@ -125,6 +148,10 @@ def parse_ruleset(text: str, name: str, source: str) -> dict | None:
         return None
     start, end, _ = span
     block = lines[start:end]
+    # Fence membership within the block (starts at the unfenced RULESET
+    # heading, so fence state opens False). Fenced lines never declare rules,
+    # never terminate a rule body, and never carry live `field::` lines.
+    bmask = fence_mask(block)
 
     rs = {"name": name, "where": None, "description": None,
           "includes": [], "rules": [], "source": source}
@@ -148,7 +175,7 @@ def parse_ruleset(text: str, name: str, source: str) -> dict | None:
         i += 1
 
     # Rules: each `### RULE …` heading + its body up to the next RULE / higher heading.
-    rule_idxs = [j for j, ln in enumerate(block) if _RULE_RE.match(ln)]
+    rule_idxs = [j for j, ln in enumerate(block) if not bmask[j] and _RULE_RE.match(ln)]
     for j in rule_idxs:
         rm = _RULE_RE.match(block[j])
         assert rm is not None  # j came from a matching line
@@ -156,6 +183,8 @@ def parse_ruleset(text: str, name: str, source: str) -> dict | None:
         # body spans to the next RULE heading, or a heading of level <= this rule's.
         stop = len(block)
         for jj in range(j + 1, len(block)):
+            if bmask[jj]:
+                continue
             if _RULE_RE.match(block[jj]):
                 stop = jj
                 break
@@ -164,6 +193,7 @@ def parse_ruleset(text: str, name: str, source: str) -> dict | None:
                 stop = jj
                 break
         body = block[j + 1:stop]
+        body_mask = bmask[j + 1:stop]
         paren = rm.group(4).strip()
         rule = {
             "id": rm.group(2), "title": rm.group(3).strip(), "paren": paren,
@@ -175,8 +205,11 @@ def parse_ruleset(text: str, name: str, source: str) -> dict | None:
             rule["tier"] = paren
         elif paren.startswith("when::"):
             rule["when"] = paren[len("when::"):].strip()
-        # Body field lines refine when/where/if.
-        for ln in body:
+        # Body field lines refine when/where/if. Fenced lines are examples —
+        # a `when::` shown inside a fence must not re-key the rule.
+        for ln, fenced in zip(body, body_mask):
+            if fenced:
+                continue
             fm = _FIELD_RE.match(ln.strip())
             if not fm:
                 continue
@@ -424,6 +457,14 @@ def compile_ruleset(rs: dict, anchor: str) -> tuple[dict, str, dict]:
     doc_rules: list[str] = []
     py_rules: list[tuple[dict, dict]] = []
     for rule in rs["rules"]:
+        # Duplicate-id policy: first definition wins, loudly — same policy as
+        # compile_corpus (F232 A2; single-ruleset mode used to silently
+        # last-win while corpus mode silently first-won).
+        if rule["id"] in rules_ir:
+            print(f"warden: WARNING — duplicate rule id {rule['id']} in "
+                  f"RULESET {rs['name']} ({rs['source']}); first definition wins",
+                  file=sys.stderr)
+            continue
         row = compile_rule(rule, rs)
         rules_ir[rule["id"]] = row
         if row["moment"]:
@@ -541,12 +582,32 @@ def compile_corpus(root: Path, index: dict, anchor: str = "all",
             rs = parse_ruleset(text, name, entry["path"])
             if rs is None:
                 continue
+            if name in rs_rule_ids:
+                # Whole-ruleset redefinition across files: first wins, loudly
+                # (previously the includes/rule-id maps silently last-won while
+                # the rules themselves first-won — F232 A2).
+                print(f"warden: WARNING — duplicate ruleset {name} in "
+                      f"{entry['path']}; first definition wins", file=sys.stderr)
+                continue
             trait = name[2:] if name.startswith("R-") else name
             rs_includes[name] = [_include_target(t) for t in rs["includes"]]
             rs_rule_ids[name] = [r["id"] for r in rs["rules"]]
             for rule in rs["rules"]:
                 if rule["id"] in merged_rules:
-                    continue  # first occurrence wins (stable)
+                    # First occurrence wins (stable) — but never silently
+                    # (F232 A2): a redefinition means two authored rules share
+                    # an id, and which one governs depended on scan order.
+                    prev = merged_rules[rule["id"]]["source"]
+                    cur = f"{entry['path']}#RULESET {name}"
+                    if cur != prev:
+                        print(f"warden: WARNING — duplicate rule id {rule['id']} "
+                              f"in {cur}; first definition ({prev}) wins",
+                              file=sys.stderr)
+                    else:
+                        print(f"warden: WARNING — duplicate rule id {rule['id']} "
+                              f"within {cur}; first definition wins",
+                              file=sys.stderr)
+                    continue
                 row = compile_rule(rule, rs)
                 merged_rules[rule["id"]] = row
                 if row["moment"]:

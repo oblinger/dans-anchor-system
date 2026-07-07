@@ -20,7 +20,7 @@ _None._
 - **F232 — Latent-bug audit 2026-07-06 — findings register** [Ready] — → [[F232 — Latent-bug audit 2026-07-06 — findings register]] — 20 verified findings across corpus integrity (fence-blind scan, live phantom rulesets), daemon runtime (serial blocking, best-effort deny, 90ms/write doc-fire), and dispatcher parity (anchor-resolution divergence). Fix clusters: T010–T015. ^F232
   - **Next:** Execute T010 (fence-aware scan + collision diagnostics) first — it disarms the live corpus-contamination mechanism.
 
-- **T010 — Fence-aware scan + rule-id collision diagnostics (F232 A1/A2)** [Ready] ^T010
+- **T010 — Fence-aware scan + rule-id collision diagnostics (F232 A1/A2)** [Active] ^T010
   - **Next:** Add fence-state tracking to warden_scan's sentinel regex walk AND warden_compile's extract_ruleset_block/parse_ruleset line scans (mirror audit-plan's _strip_fenced); emit a collision warning when a rule id is redefined (align corpus first-wins and single-ruleset last-wins to one policy); recompile — phantom R-sample/R-wp rulesets and their traits disappear from the IR; add a fenced-example corpus case pinning it.
 
 - **T011 — Compile robustness batch (F232 A3–A9, D2)** [Ready] ^T011

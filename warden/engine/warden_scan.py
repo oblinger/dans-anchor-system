@@ -36,7 +36,7 @@ import sys
 import time
 
 
-RULESET_RE = re.compile(r"^#+\s+RULESET\s+(\S+)", re.MULTILINE)
+RULESET_RE = re.compile(r"^#+\s+RULESET\s+(\S+)")
 
 # Directories never worth walking for authored rulesets. `.claude/worktrees`
 # is skipped so sibling worktree checkouts are not double-counted (a known
@@ -61,11 +61,21 @@ def iter_markdown(root):
 
 def extract_ruleset_names(text):
     """Return the ruleset ids declared by `# RULESET <name>` headings, in
-    document order, deduplicated."""
+    document order, deduplicated. Fence-aware (F232 A1): a heading inside a
+    ``` code fence is a *shown example* (FCT/DSC docs teach the sentinel
+    grammar by quoting it), never a live declaration — the fence-blind scan
+    was how phantom rulesets (R-sample, R-wp) reached the production IR."""
     seen = []
-    for name in RULESET_RE.findall(text):
-        if name not in seen:
-            seen.append(name)
+    in_fence = False
+    for ln in text.splitlines():
+        if ln.lstrip().startswith("```"):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+        m = RULESET_RE.match(ln)
+        if m and m.group(1) not in seen:
+            seen.append(m.group(1))
     return seen
 
 

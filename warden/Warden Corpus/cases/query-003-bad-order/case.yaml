@@ -1,0 +1,8 @@
+id: query-003-bad-order
+family: query
+mode: doc
+target: FX3 queries.md
+provenance: synthetic
+engine: audit-plan
+blessed_against: 84d58c98ad90-1c18f0cfe38f
+note: R-query-03 fail twin — two allowed sections in the wrong order (Verifications before Agent Resolutions); pins the section-subsequence check's fail path

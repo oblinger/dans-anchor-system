@@ -79,7 +79,20 @@ def main():
         remaining = sorted(n for e in obj["files"] for n in e["ruleset_names"])
         assert remaining == ["R-a", "R-c"], remaining
 
-    print("test_warden_scan: all 5 behaviors pass")
+        # 6. Fence-awareness (F232 A1): a `# RULESET` heading inside a ```
+        # code fence is a shown example, not a live declaration — the file is
+        # not bearing; a live heading after a closed fence still is.
+        write(root, "fenced.md",
+              "# Doc\n\n```\n# RULESET R-fenced\n```\n\nprose\n")
+        obj, st = scan(root, index)
+        assert st["bearing"] == 2, f"fenced ruleset was indexed: {st}"
+        write(root, "fenced.md",
+              "# Doc\n\n```\n# RULESET R-fenced\n```\n\n# RULESET R-real\n")
+        obj, st = scan(root, index)
+        names = sorted(n for e in obj["files"] for n in e["ruleset_names"])
+        assert names == ["R-a", "R-c", "R-real"], names
+
+    print("test_warden_scan: all 6 behaviors pass")
     return 0
 
 

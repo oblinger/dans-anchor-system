@@ -121,6 +121,13 @@ def test_corpus_compile():
                  "prompt:stop", "write:", "read:", "git:", "timer:")
     orphans = [m for m in ir["moments"] if not m.startswith(reachable)]
     assert not orphans, f"moment keys unreachable from the live dispatcher: {orphans}"
+    # F232 A1: fenced example rulesets (R-sample/R-wp in FCT Ruleset / FCT WP)
+    # must NOT compile into the corpus — they are shown grammar, not live rules.
+    phantoms = [r for r in ir["rules"]
+                if r.startswith(("R-sample-", "R-wp-", "R-diagram-"))]
+    assert not phantoms, f"fenced example rules leaked into the IR: {phantoms}"
+    for t in ("sample", "wp", "diagram"):
+        assert t not in ir["traits"], f"phantom trait '{t}' keyed in the IR"
     # F219: the wiring snapshot is stamped — declared anchor traits + implicit base
     assert "anchor-base" in ir.get("declared_traits", []), ir.get("declared_traits")
     # the emitted corpus module must import — proves no cross-ruleset name collision
@@ -235,6 +242,89 @@ def test_include_flatten():
     print("PASS  include_flatten (F218)")
 
 
+FENCED_DOC = '''# Spec
+
+The grammar, shown as an example (must never compile):
+
+```
+# RULESET R-phantom
+### RULE R-phantom-01 — never live (checked)
+```
+
+# RULESET R-live
+
+where:: `*.md`
+
+### RULE R-live-01 — real rule (checked)
+
+An example shown inside the rule body:
+
+```
+### RULE R-live-99 — fenced example (checked)
+when:: tool:pre:Bash
+```
+
+Body prose after the example.
+'''
+
+
+def test_fenced_sentinels_ignored():
+    """F232 A1: RULESET/RULE sentinels and `field::` lines inside ``` fences are
+    shown examples — the scan must not index them, the parser must not compile
+    them, and a fenced `when::` must not re-key the enclosing live rule."""
+    import warden_scan  # noqa
+    assert warden_scan.extract_ruleset_names(FENCED_DOC) == ["R-live"]
+    assert wc.parse_ruleset(FENCED_DOC, "R-phantom", "t.md") is None
+    rs = wc.parse_ruleset(FENCED_DOC, "R-live", "t.md")
+    assert rs is not None
+    ids = [r["id"] for r in rs["rules"]]
+    assert ids == ["R-live-01"], ids
+    r = rs["rules"][0]
+    assert r["when"] is None, f"fenced when:: re-keyed the live rule: {r['when']}"
+    assert r["tier"] == "checked", r["tier"]
+    print("PASS  fenced_sentinels_ignored (F232 A1)")
+
+
+def test_duplicate_rule_id_first_wins():
+    """F232 A2: a redefined rule id keeps the FIRST definition in both compile
+    paths (single-ruleset mode used to silently last-win) and warns on stderr."""
+    import contextlib
+    import io
+    dup = (
+        "# RULESET R-dup\n\n"
+        "### RULE R-dup-01 — the first (checked)\n\nfirst body.\n\n"
+        "### RULE R-dup-01 — the second (stated)\n\nsecond body.\n"
+    )
+    rs = wc.parse_ruleset(dup, "R-dup", "dup.md")
+    assert rs is not None and len(rs["rules"]) == 2
+    err = io.StringIO()
+    with contextlib.redirect_stderr(err):
+        ir, _src, _stats = wc.compile_ruleset(rs, "dup")
+    assert list(ir["rules"]) == ["R-dup-01"]
+    assert ir["rules"]["R-dup-01"]["tier"] == "checked", "first definition must win"
+    assert "duplicate rule id R-dup-01" in err.getvalue(), err.getvalue()
+
+    # corpus mode: same id in two files — first (scan-order) wins, with a
+    # warning naming both sources; a duplicate ruleset name also warns.
+    import warden_scan  # noqa
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        (root / "a.md").write_text(
+            "# RULESET R-one\n\n### RULE R-one-01 — from a (checked)\n",
+            encoding="utf-8")
+        (root / "b.md").write_text(
+            "# RULESET R-two\n\n### RULE R-one-01 — from b (stated)\n",
+            encoding="utf-8")
+        files, seen, _ = warden_scan.build_index(str(root), {}, {}, rescan=True)
+        index = {"root": str(root), "files": files, "seen": seen}
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            ir, _src, _stats = wc.compile_corpus(root, index, "all")
+        assert ir["rules"]["R-one-01"]["tier"] == "checked", "first file must win"
+        assert "duplicate rule id R-one-01" in err.getvalue(), err.getvalue()
+    print("PASS  duplicate_rule_id_first_wins (F232 A2)")
+
+
 def test_recompile_cache():
     """The compiled IR records the scan-index hash as its cache key;
     `cached_source_hash` round-trips it, and the key changes when a ruleset
@@ -274,6 +364,8 @@ def main():
     test_corpus_compile()
     test_backticked_where()
     test_include_flatten()
+    test_fenced_sentinels_ignored()
+    test_duplicate_rule_id_first_wins()
     test_recompile_cache()
     print("\nall warden_compile tests passed")
     return 0
