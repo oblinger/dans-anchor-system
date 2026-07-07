@@ -54,6 +54,7 @@ check:: frontmatter_has description
 **Check pattern:** YAML frontmatter present with a non-empty `description:`; the first body line is `# {NAME} Queries`.
 
 ### RULE R-query-03 — Five sections, fixed order, no others (checked)
+check:: queries_sections_subsequence
 
 Sections, when present, appear in this order and no foreign H2s interleave: `## Agent Resolutions` → `## Verifications` → `## Immediate Questions` → `## Questions` → `## Ready`. Empty sections are omitted.
 
