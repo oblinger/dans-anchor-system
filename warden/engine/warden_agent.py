@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import json
 import re
+import threading
 import time
 from collections import deque
 from datetime import datetime
@@ -62,6 +63,9 @@ class SessionRecord:
 
 
 REGISTRY: dict[str, SessionRecord] = {}
+# T013: the daemon serves connections on threads — the evict-then-insert
+# below must not interleave across handler threads.
+_REGISTRY_LOCK = threading.Lock()
 
 
 def observe(session: dict | None, moment: str | None, ts: float | None = None) -> SessionRecord | None:
@@ -72,11 +76,12 @@ def observe(session: dict | None, moment: str | None, ts: float | None = None) -
     sid = session.get("session_id") or ""
     if not sid:
         return None
-    rec = REGISTRY.get(sid)
-    if rec is None:
-        while len(REGISTRY) >= _REGISTRY_CAP:
-            REGISTRY.pop(next(iter(REGISTRY)))
-        rec = REGISTRY[sid] = SessionRecord(sid)
+    with _REGISTRY_LOCK:
+        rec = REGISTRY.get(sid)
+        if rec is None:
+            while len(REGISTRY) >= _REGISTRY_CAP:
+                REGISTRY.pop(next(iter(REGISTRY)))
+            rec = REGISTRY[sid] = SessionRecord(sid)
     for key in ("transcript_path", "cwd", "pane_id"):
         val = session.get(key)
         if val:

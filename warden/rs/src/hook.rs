@@ -378,24 +378,70 @@ fn spawn_daemon() -> bool {
     }
 }
 
+/// The daemon-client timeout for a moment (T013): a pending tool call must
+/// not sit behind a slow daemon — `tool:pre:*` gets ~2 s (the busy-window a
+/// veto rule may hold up the tool, down from 20 s); everything else is
+/// post-hoc advice and can afford the patient 20 s.
+pub fn daemon_timeout(moment: &str) -> Duration {
+    if moment.starts_with("tool:pre") {
+        Duration::from_secs(2)
+    } else {
+        Duration::from_secs(20)
+    }
+}
+
+/// `daemon_request` with the timeout picked from the moment class.
+pub fn daemon_request_at(moment: &str, req: &Value) -> Option<Value> {
+    daemon_request(req, daemon_timeout(moment))
+}
+
 /// One request to the resident daemon, spawning it on demand. Returns None on
 /// unreachable/error (fail-safe: the caller skips the owed steers this call).
-pub fn daemon_request(req: &Value) -> Option<Value> {
-    let timeout = Duration::from_secs(20);
-    if let Ok(resp) = daemon_request_once(req, timeout) {
-        return Some(resp);
+///
+/// Alive-but-slow is terminal (T013): a read timeout means the daemon has the
+/// connection but hasn't answered inside `timeout` — give up NOW (the owed
+/// steers are skipped this call), never fall into the spawn path where the
+/// retry loop would multiply the wait. Only connect-level failures (dead /
+/// missing socket) go to spawn + warm-up, bounded by the same `timeout`.
+pub fn daemon_request(req: &Value, timeout: Duration) -> Option<Value> {
+    match daemon_request_once(req, timeout) {
+        Ok(resp) => return Some(resp),
+        Err(e)
+            if matches!(
+                e.kind(),
+                std::io::ErrorKind::TimedOut | std::io::ErrorKind::WouldBlock
+            ) =>
+        {
+            log(&format!(
+                "daemon SLOW — no response in {:.1}s; owed steers skipped this call",
+                timeout.as_secs_f64()
+            ));
+            return None;
+        }
+        Err(_) => {} // unreachable → spawn path
     }
     if !spawn_daemon() {
         return None;
     }
-    // warm-up: imports + IR preload take a few hundred ms on first spawn
-    for _ in 0..20 {
+    // warm-up: imports + IR preload take a few hundred ms on first spawn;
+    // the whole spawn-and-retry phase is bounded by the caller's timeout.
+    let deadline = std::time::Instant::now() + timeout;
+    while std::time::Instant::now() < deadline {
         std::thread::sleep(Duration::from_millis(100));
-        if let Ok(resp) = daemon_request_once(req, timeout) {
-            return Some(resp);
+        match daemon_request_once(req, timeout) {
+            Ok(resp) => return Some(resp),
+            Err(e)
+                if matches!(
+                    e.kind(),
+                    std::io::ErrorKind::TimedOut | std::io::ErrorKind::WouldBlock
+                ) =>
+            {
+                break; // accepting but slow — same terminal give-up as above
+            }
+            Err(_) => continue,
         }
     }
-    log("daemon MISS — spawned but not accepting; owed steers skipped this call");
+    log("daemon MISS — spawned but not answering in time; owed steers skipped this call");
     None
 }
 
@@ -508,7 +554,7 @@ pub fn dispatch(data: &Value) -> Vec<String> {
             .collect();
         let mut by_rule: Value = json!({});
         if !owed.is_empty() {
-            if let Some(resp) = daemon_request(&json!({
+            if let Some(resp) = daemon_request_at(moment, &json!({
                 "op": "fire_rules",
                 "moment": moment,
                 "anchor_root": anchor_root.to_string_lossy(),
@@ -590,7 +636,10 @@ pub fn dispatch(data: &Value) -> Vec<String> {
             && effective(afile).iter().any(|t| t == "audit-on-write")
             && !event_fp.is_empty()
         {
-            if let Some(resp) = daemon_request(&json!({"op": "audit", "file_path": event_fp})) {
+            if let Some(resp) =
+                daemon_request(&json!({"op": "audit", "file_path": event_fp}),
+                               daemon_timeout("write:markdown"))
+            {
                 if resp.get("ok").and_then(Value::as_bool) == Some(true) {
                     if let Some(aow) = resp.get("steers").and_then(Value::as_array) {
                         if !aow.is_empty() {
@@ -750,6 +799,47 @@ mod tests {
         assert_eq!(content_kind("a/b.rs"), Some("rust"));
         assert_eq!(content_kind("a/b.txt"), None);
         assert_eq!(content_kind("noext"), None);
+    }
+
+    #[test]
+    fn daemon_timeout_by_moment() {
+        // T013: a pending tool call gets the short leash; post-hoc moments
+        // keep the patient one.
+        assert_eq!(daemon_timeout("tool:pre:Edit"), Duration::from_secs(2));
+        assert_eq!(daemon_timeout("tool:pre:Bash"), Duration::from_secs(2));
+        assert_eq!(daemon_timeout("write:markdown"), Duration::from_secs(20));
+        assert_eq!(daemon_timeout("session:start"), Duration::from_secs(20));
+    }
+
+    #[test]
+    fn slow_daemon_gives_up_inside_timeout() {
+        // T013: an alive-but-slow daemon (accepts, never answers) must cost
+        // at most ~the moment timeout — never fall into the 20-retry spawn
+        // loop. A listener that accepts and sleeps stands in for a busy daemon.
+        use std::os::unix::net::UnixListener;
+        let td = std::env::temp_dir().join(format!("warden-rs-slow-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&td);
+        std::fs::create_dir_all(&td).unwrap();
+        std::env::set_var("WARDEN_HOME", &td); // no daemon.cmd → spawn is a no-op
+        let listener = UnixListener::bind(td.join("daemon.sock")).unwrap();
+        let handle = std::thread::spawn(move || {
+            if let Ok((mut conn, _)) = listener.accept() {
+                let mut buf = [0u8; 65536];
+                let _ = conn.read(&mut buf); // swallow the request, never reply
+                std::thread::sleep(Duration::from_secs(3));
+            }
+        });
+        let t0 = std::time::Instant::now();
+        let resp = daemon_request(&json!({"op": "ping"}), Duration::from_millis(300));
+        let elapsed = t0.elapsed();
+        assert!(resp.is_none(), "no answer expected from the mute daemon");
+        assert!(
+            elapsed < Duration::from_secs(2),
+            "gave up in {elapsed:?} — must not stack retries against a slow daemon"
+        );
+        std::env::remove_var("WARDEN_HOME");
+        let _ = handle.join();
+        let _ = std::fs::remove_dir_all(&td);
     }
 
     #[test]

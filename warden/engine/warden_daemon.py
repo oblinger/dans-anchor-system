@@ -36,6 +36,15 @@ artifacts auto-reload when `rules-ir.json` / `rules_all.py` change on disk
 The daemon exits after `--idle-exit` seconds without a request (default 30
 min) — the Rust hook respawns it on demand, so a stale process never lingers
 and engine-code changes are picked up within one idle window.
+
+Concurrency (F232 B1, T013): the server is THREAD-PER-CONNECTION — one slow
+request (an `audit` op, a rule body calling `ask_oracle` with its 60 s
+subprocess ceiling) must never block every other session's hooks behind a
+serial accept-handle loop. The slow paths are I/O- and subprocess-bound, so
+Python threads give real concurrency here. Shared state is lock-guarded:
+`TURN_FIRED` (the F217 dedup ring), the F216 session registry (its own lock
+in warden_agent), and the Corpus reload. Idle-exit counts only quiet time
+with zero requests in flight.
 """
 from __future__ import annotations
 
@@ -44,6 +53,7 @@ import json
 import os
 import socket
 import sys
+import threading
 import time
 from pathlib import Path
 
@@ -71,13 +81,17 @@ def pid_path() -> Path:
 
 class Corpus:
     """The compiled IR + rules module, held warm; reloads when the artifacts
-    change on disk (cheap mtime stat per request)."""
+    change on disk (cheap mtime stat per request). Reload is lock-guarded
+    (T013 — concurrent handler threads must not reload twice or read a
+    half-swapped pair); readers take `self.ir`/`self.module` references,
+    which swap atomically under the GIL."""
 
     def __init__(self, home: Path):
         self.home = home
         self.ir: dict = {}
         self.module = None
         self._stamp: tuple = ()
+        self._lock = threading.Lock()
         self.reload()
 
     def _artifact_stamp(self) -> tuple:
@@ -88,8 +102,9 @@ class Corpus:
         return tuple(stamp)
 
     def reload(self) -> None:
-        self.ir, self.module = wf.load_compiled(self.home, "all")
-        self._stamp = self._artifact_stamp()
+        with self._lock:
+            self.ir, self.module = wf.load_compiled(self.home, "all")
+            self._stamp = self._artifact_stamp()
 
     def fresh(self) -> None:
         if self._artifact_stamp() != self._stamp:
@@ -100,9 +115,11 @@ class Corpus:
 
 # F217 wall 2: (rule_id, session_id, turn_key) triples already fired — bounded
 # ring; membership checks are O(n) over ≤512 entries, well inside the budget.
+# Lock-guarded (T013): handler threads race the check-then-append otherwise.
 from collections import deque  # noqa: E402
 
 TURN_FIRED: deque = deque(maxlen=512)
+_TURN_LOCK = threading.Lock()
 
 def _fire_rules(corpus: Corpus, req: dict) -> dict:
     """Run the requested rules through the reference fire path, one rule per
@@ -144,14 +161,17 @@ def _fire_rules(corpus: Corpus, req: dict) -> dict:
         dedup = None
         if row.get("turn_bearing") and session and tkey:
             dedup = (rid, session.get("session_id", ""), tkey)
-            if dedup in TURN_FIRED:
-                by_rule[rid] = []
-                continue
+            with _TURN_LOCK:
+                if dedup in TURN_FIRED:
+                    by_rule[rid] = []
+                    continue
         one = dict(corpus.ir)
         one["moments"] = {moment: [rid]}
         by_rule[rid] = wf.fire(one, corpus.module, moment, ctx, traits)
         if by_rule[rid] and dedup:
-            TURN_FIRED.append(dedup)
+            with _TURN_LOCK:
+                if dedup not in TURN_FIRED:
+                    TURN_FIRED.append(dedup)
     return {"ok": True, "steers_by_rule": by_rule}
 
 
@@ -200,6 +220,32 @@ def _recv_line(conn: socket.socket, limit: int = 4 * 1024 * 1024) -> bytes:
     return buf.split(b"\n", 1)[0]
 
 
+def _serve_conn(corpus: Corpus, conn: socket.socket,
+                stop_evt: threading.Event, in_flight) -> None:
+    """One connection, on its own thread (T013): read one request, answer it,
+    close. A shutdown request answers first, then signals the accept loop."""
+    try:
+        conn.settimeout(30.0)
+        line = _recv_line(conn)
+        try:
+            req = json.loads(line) if line.strip() else {}
+        except ValueError:
+            req = {}
+        resp = _safe_handle(corpus, req)
+        conn.sendall(json.dumps(resp).encode("utf-8") + b"\n")
+        if resp.get("_shutdown"):
+            stop_evt.set()
+    except OSError:
+        pass
+    finally:
+        try:
+            conn.close()
+        except OSError:
+            pass
+        with in_flight["lock"]:
+            in_flight["n"] -= 1
+
+
 def serve(idle_exit: float) -> int:
     home = warden_home()
     home.mkdir(parents=True, exist_ok=True)
@@ -241,40 +287,39 @@ def serve(idle_exit: float) -> int:
         except OSError:
             raise
     srv.listen(8)
-    srv.settimeout(min(idle_exit, 60.0) if idle_exit > 0 else 60.0)
+    # Short accept timeout: the loop wakes ~1×/s to notice a shutdown request
+    # (handled on a worker thread now) and to apply the idle-exit policy.
+    srv.settimeout(1.0)
     pid_path().write_text(str(os.getpid()), encoding="utf-8")
     corpus = Corpus(home)
     wh._log(f"DAEMON up pid={os.getpid()} ({len(corpus.ir.get('rules', {}))} rules preloaded)")
 
+    # T013 thread-per-connection: workers are daemon threads (a hung rule body
+    # can't pin the process past shutdown); idle-exit counts only quiet time
+    # with nothing in flight.
+    stop_evt = threading.Event()
+    in_flight = {"n": 0, "lock": threading.Lock()}
     last = time.monotonic()
     try:
-        while True:
+        while not stop_evt.is_set():
             try:
                 conn, _ = srv.accept()
             except socket.timeout:
-                if idle_exit > 0 and time.monotonic() - last > idle_exit:
+                with in_flight["lock"]:
+                    busy = in_flight["n"] > 0
+                if busy:
+                    last = time.monotonic()
+                elif idle_exit > 0 and time.monotonic() - last > idle_exit:
                     wh._log("DAEMON idle-exit")
                     return 0
                 continue
             last = time.monotonic()
-            try:
-                conn.settimeout(30.0)
-                line = _recv_line(conn)
-                try:
-                    req = json.loads(line) if line.strip() else {}
-                except ValueError:
-                    req = {}
-                resp = _safe_handle(corpus, req)
-                conn.sendall(json.dumps(resp).encode("utf-8") + b"\n")
-                if resp.get("_shutdown"):
-                    return 0
-            except OSError:
-                pass
-            finally:
-                try:
-                    conn.close()
-                except OSError:
-                    pass
+            with in_flight["lock"]:
+                in_flight["n"] += 1
+            threading.Thread(
+                target=_serve_conn, args=(corpus, conn, stop_evt, in_flight),
+                daemon=True).start()
+        return 0
     finally:
         sock_p.unlink(missing_ok=True)
         pid_path().unlink(missing_ok=True)
