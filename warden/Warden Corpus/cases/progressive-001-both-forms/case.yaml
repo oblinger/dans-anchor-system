@@ -1,0 +1,8 @@
+id: progressive-001-both-forms
+family: progressive
+mode: doc
+target: FX7 Guide.md
+provenance: authored (T007 — first FAIL pin for R-progressive; 11 pass pins existed, no fail)
+engine: audit-plan
+blessed_against: 5c1e5f472879-6b54a797d08b
+note: a doc carrying BOTH its own dispatch-masthead and a :>> breadcrumb (R-progressive-01 fail), with an H2 glued to prose (R-progressive-02 fail)

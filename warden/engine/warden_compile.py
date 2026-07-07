@@ -255,7 +255,10 @@ def parse_ruleset(text: str, name: str, source: str) -> dict | None:
             elif key == "where":
                 rule["where"] = strip_ticks(val)
             elif key == "if":
-                rule["ifs"].append(val)
+                # strip_ticks like where:: (T007) — a backtick-wrapped guard
+                # used to compile the ticks into the emitted function, a
+                # SyntaxError that broke the whole rules_all.py module.
+                rule["ifs"].append(strip_ticks(val))
             elif key == "check":
                 rule["check"] = val
             elif key == "fix":

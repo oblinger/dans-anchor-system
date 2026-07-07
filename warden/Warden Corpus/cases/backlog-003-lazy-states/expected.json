@@ -55,6 +55,36 @@
   "status": "pass"
  },
  {
+  "rule": "R-markdown-01",
+  "target": "FX6 Backlog.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-markdown-02",
+  "target": "FX6 Backlog.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-markdown-05",
+  "target": "FX6 Backlog.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-markdown-06",
+  "target": "FX6 Backlog.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-markdown-13",
+  "target": "FX6 Backlog.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-markdown-14",
+  "target": "FX6 Backlog.md",
+  "status": "pass"
+ },
+ {
   "rule": "R-progressive-01",
   "target": "FX6 Backlog.md",
   "status": "pass"

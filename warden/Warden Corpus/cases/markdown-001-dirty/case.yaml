@@ -1,0 +1,8 @@
+id: markdown-001-dirty
+family: markdown
+mode: doc
+target: FX9 Notes.md
+provenance: authored (T007 — R-markdown re-wiring; pins the 6 executable checks failing)
+engine: audit-plan
+blessed_against: 5c1e5f472879-6b54a797d08b
+note: one doc violating R-markdown-01/-02/-05/-06/-13/-14 (unescaped table pipe, table touching prose, spaced --, second :: in a field value, stray <Tag>, trailing whitespace)
