@@ -569,6 +569,7 @@ def compile_corpus(root: Path, index: dict, anchor: str = "all",
     py_rules: list[tuple[dict, dict]] = []
     rs_includes: dict = {}   # ruleset name → include:: target ruleset names
     rs_rule_ids: dict = {}   # ruleset name → its own rule ids
+    rs_has_rules: dict = {}  # ruleset name → carries rules (vs a catalog stub)
     files = errors = 0
     for entry in index.get("files", []):
         path = root / entry["path"]
@@ -582,13 +583,23 @@ def compile_corpus(root: Path, index: dict, anchor: str = "all",
             rs = parse_ruleset(text, name, entry["path"])
             if rs is None:
                 continue
-            if name in rs_rule_ids:
-                # Whole-ruleset redefinition across files: first wins, loudly
-                # (previously the includes/rule-id maps silently last-won while
-                # the rules themselves first-won — F232 A2).
-                print(f"warden: WARNING — duplicate ruleset {name} in "
-                      f"{entry['path']}; first definition wins", file=sys.stderr)
-                continue
+            if name in rs_has_rules:
+                # Whole-ruleset redefinition across files (F232 A2). The F133
+                # catalog convention legitimately re-declares a ruleset as a
+                # RULE-LESS stub (`# RULESET` heading + `include::` pointer at
+                # the facet-embedded canonical body) — a stub is a pointer,
+                # skipped silently; and a rule-bearing definition beats a stub
+                # regardless of scan order. Two RULE-BEARING definitions are a
+                # real authoring collision: first wins, loudly.
+                if not rs["rules"]:
+                    continue
+                if rs_has_rules[name]:
+                    print(f"warden: WARNING — duplicate ruleset {name} in "
+                          f"{entry['path']}; first definition wins",
+                          file=sys.stderr)
+                    continue
+                # prior definition was a stub — this one carries the body.
+            rs_has_rules[name] = bool(rs["rules"])
             trait = name[2:] if name.startswith("R-") else name
             rs_includes[name] = [_include_target(t) for t in rs["includes"]]
             rs_rule_ids[name] = [r["id"] for r in rs["rules"]]
