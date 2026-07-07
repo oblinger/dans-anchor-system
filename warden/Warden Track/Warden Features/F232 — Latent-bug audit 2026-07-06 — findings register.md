@@ -1,8 +1,8 @@
 ---
-description: "F233 — spec-vs-code latent-bug audit of the Warden engine (2026-07-06): verified findings register + fix clusters"
+description: "F232 — spec-vs-code latent-bug audit of the Warden engine (2026-07-06): verified findings register + fix clusters"
 ---
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[Warden]] → [[Warden Backlog]] → [F233](hook://p/F233%20—%20Latent-bug%20audit%202026-07-06%20—%20findings%20register)
-# F233 — Latent-bug audit 2026-07-06 — findings register
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[Warden]] → [[Warden Backlog]] → [F232](hook://p/F232%20—%20Latent-bug%20audit%202026-07-06%20—%20findings%20register)
+# F232 — Latent-bug audit 2026-07-06 — findings register
 
 Adversarial spec-vs-code audit of the Warden engine (user-commissioned, Fable recipe: read spec + code, hypothesize divergence, construct concrete breaking inputs, delegate sub-exploration to lighter models, **verify everything they report**). Three scoped sub-explorations (dispatcher parity, scan/compile, daemon/runtime) ran on lighter models; every finding below was verified by direct code read or an executed repro before inclusion. Specs audited against: [[Warden Architecture]], [[Warden Interface]], [[Warden Semantics]], [[FCT Ruleset]], [[Warden PRD]].
 
