@@ -62,7 +62,12 @@ def read_anchor_traits(anchor_root: Path) -> list[str]:
     traits: list[str] = []
     dot = anchor_root / ".anchor"
     if dot.is_file():
-        text = dot.read_text(encoding="utf-8")
+        try:
+            # errors="replace": a non-UTF-8 `.anchor` degrades to whatever
+            # parses, never aborts the dispatch (F232 C3).
+            text = dot.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            return ["anchor-base"]
         m = re.search(r"^traits:\s*\[(.*?)\]", text, re.MULTILINE)
         if m:
             traits = [t.strip().strip("'\"") for t in m.group(1).split(",") if t.strip()]
@@ -190,7 +195,11 @@ def fire_records(ir: dict, module, moment: str, ctx, anchor_traits) -> list[tupl
     agent receives (denies keep their sentinel)."""
     records: list[tuple[str, list[str]]] = []
     for rule_id in ir.get("moments", {}).get(moment, []):
-        row = ir["rules"][rule_id]
+        # A bucket entry with no rule row (hand-edited/corrupt IR) is skipped —
+        # never aborts the moment's other rules (F232 C3).
+        row = ir.get("rules", {}).get(rule_id)
+        if row is None:
+            continue
         if not is_active(ir, rule_id, anchor_traits):
             continue
         # F217: a turn-bearing rule needs a bound session (rungs R1–R3);

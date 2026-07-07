@@ -221,8 +221,33 @@ pub fn event_to_moments(data: &Value) -> Vec<String> {
 
 // ── anchor resolution + trait sensing (mirror of warden_fire) ────────────────
 
+/// Python `Path.resolve(strict=False)`: absolutize + follow symlinks, and for
+/// a nonexistent leaf canonicalize the nearest existing ancestor and re-append
+/// the remainder. `find_anchor` must walk the RESOLVED path (F232 C1) — a
+/// relative or symlinked event path (e.g. `~/.claude/skills` → ob-skills) must
+/// resolve to the same governing anchor as the Python reference.
+fn resolve_lenient(p: &Path) -> PathBuf {
+    fn go(p: &Path) -> PathBuf {
+        if let Ok(c) = std::fs::canonicalize(p) {
+            return c;
+        }
+        match (p.parent(), p.file_name()) {
+            (Some(parent), Some(name)) if !parent.as_os_str().is_empty() => {
+                go(parent).join(name)
+            }
+            _ => p.to_path_buf(),
+        }
+    }
+    let abs = if p.is_absolute() {
+        p.to_path_buf()
+    } else {
+        std::env::current_dir().unwrap_or_default().join(p)
+    };
+    go(&abs)
+}
+
 pub fn find_anchor(start: &Path) -> Option<PathBuf> {
-    let mut cur = Some(start.to_path_buf());
+    let mut cur = Some(resolve_lenient(start));
     while let Some(d) = cur {
         if d.join(".anchor").is_file() {
             return Some(d);
@@ -236,29 +261,50 @@ pub fn find_anchor(start: &Path) -> Option<PathBuf> {
 /// trait (mirror of `warden_fire.read_anchor_traits`).
 pub fn read_anchor_traits(anchor_root: &Path) -> Vec<String> {
     let mut traits: Vec<String> = Vec::new();
-    if let Ok(text) = std::fs::read_to_string(anchor_root.join(".anchor")) {
+    // from_utf8_lossy mirrors Python's errors="replace": a stray non-UTF-8
+    // byte degrades to whatever parses instead of dropping every trait.
+    if let Ok(bytes) = std::fs::read(anchor_root.join(".anchor")) {
+        let text = String::from_utf8_lossy(&bytes);
         let lines: Vec<&str> = text.lines().collect();
-        for (i, line) in lines.iter().enumerate() {
+        // Mirror the Python reference's TWO regex passes exactly (F232 C2):
+        // the whole-file FLOW search runs first — a flow-style `traits: […]`
+        // line wins wherever it appears, even below a block-style one; only
+        // when no flow line exists anywhere does the block search run.
+        let mut flow: Option<&str> = None;
+        for line in &lines {
             // the Python regexes anchor `traits:` at line start (no indent)
             let Some(rest) = line.strip_prefix("traits:") else { continue };
-            let rest = rest.trim();
-            if let Some(inner) = rest.strip_prefix('[').and_then(|r| r.split(']').next()) {
-                traits = inner
-                    .split(',')
-                    .map(|t| t.trim().trim_matches(|c| c == '\'' || c == '"').to_string())
-                    .filter(|t| !t.is_empty())
-                    .collect();
-            } else if rest.is_empty() {
+            let rest = rest.trim_start();
+            if rest.starts_with('[') && rest.contains(']') {
+                flow = rest.strip_prefix('[').and_then(|r| r.split(']').next());
+                break;
+            }
+        }
+        if let Some(inner) = flow {
+            traits = inner
+                .split(',')
+                .map(|t| t.trim().trim_matches(|c| c == '\'' || c == '"').to_string())
+                .filter(|t| !t.is_empty())
+                .collect();
+        } else {
+            for (i, line) in lines.iter().enumerate() {
+                let Some(rest) = line.strip_prefix("traits:") else { continue };
+                if !rest.trim().is_empty() {
+                    continue; // `traits: foo` — matches neither Python regex
+                }
                 for ln in &lines[i + 1..] {
                     let t = ln.trim();
+                    if t.is_empty() {
+                        continue; // blank inside the block list (Python `\s*`)
+                    }
                     if let Some(item) = t.strip_prefix('-') {
                         traits.push(item.trim().to_string());
                     } else {
                         break;
                     }
                 }
+                break;
             }
-            break;
         }
     }
     traits.push("anchor-base".into());

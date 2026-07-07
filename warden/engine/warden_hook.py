@@ -67,17 +67,28 @@ def content_kind(file_path: str) -> str | None:
     return _CONTENT_KIND.get(Path(file_path).suffix.lower())
 
 
+def _str(v) -> str:
+    """A payload field coerced to str — a malformed (non-string) field must
+    degrade to 'absent', never abort the whole dispatch (F232 C3; the Rust
+    engine already degrades per-field)."""
+    return v if isinstance(v, str) else ""
+
+
+def _dict(v) -> dict:
+    return v if isinstance(v, dict) else {}
+
+
 def event_to_moments(data: dict) -> list[str]:
     """Map a Claude Code hook event payload to the Warden moment(s) it fires.
     Mirrors the [[Warden Events]] catalog; unknown/unmapped events → []."""
-    event = data.get("hook_event_name", "")
-    tool = data.get("tool_name", "")
-    tool_input = data.get("tool_input") or {}
-    file_path = tool_input.get("file_path") or ""
+    event = _str(data.get("hook_event_name"))
+    tool = _str(data.get("tool_name"))
+    tool_input = _dict(data.get("tool_input"))
+    file_path = _str(tool_input.get("file_path"))
 
     if event == "PreToolUse":
         if tool == "Skill":
-            skill = (tool_input.get("skill") or tool_input.get("command") or "").strip()
+            skill = (_str(tool_input.get("skill")) or _str(tool_input.get("command"))).strip()
             return [f"skill:pre:{skill}"] if skill else ["skill:pre"]
         return [f"tool:pre:{tool}"] if tool else ["tool:pre"]
     if event == "PostToolUse":
@@ -216,10 +227,10 @@ def dispatch(data: dict) -> list[str]:
     moments = event_to_moments(data)
     if not moments:
         return []
-    cwd = Path(data.get("cwd") or os.getcwd())
+    cwd = Path(_str(data.get("cwd")) or os.getcwd())
     anchor_cwd = find_anchor(cwd)
-    tool_input = data.get("tool_input") or {}
-    event_fp = tool_input.get("file_path") or None
+    tool_input = _dict(data.get("tool_input"))
+    event_fp = _str(tool_input.get("file_path")) or None
     anchor_file = find_anchor(Path(event_fp).parent) if event_fp else None
     if anchor_cwd is None and anchor_file is None:
         return []
@@ -235,7 +246,7 @@ def dispatch(data: dict) -> list[str]:
     # `event.tool` / `event.target` / `event.input` before the call lands.
     import types
     event_view = types.SimpleNamespace(
-        tool=data.get("tool_name") or "", target=event_fp, input=tool_input)
+        tool=_str(data.get("tool_name")), target=event_fp, input=tool_input)
     steers: list[str] = []
     for moment in moments:
         anchor_root = anchor_file or anchor_cwd
