@@ -433,11 +433,27 @@ pub fn dispatch(data: &Value) -> Vec<String> {
             traits: traits.clone(),
             facets: vec![],
         };
-        let fire_t0 = std::time::Instant::now();
-        let plan = fire_plan(&ir, moment, &ctx, &traits);
-        if plan.is_empty() {
+        // F231: the considered set = active rules in the bucket, INCLUDING
+        // guard-gated ones — mirrors Python's fire_records exactly, so the
+        // fire record can distinguish "rule was live and stayed silent" from
+        // "no rule was in play" on both engines (fire_plan drops guard-gated
+        // rules, so it under-reports considered).
+        let considered: Vec<String> = ir
+            .moments
+            .get(moment.as_str())
+            .map(|bucket| {
+                bucket
+                    .iter()
+                    .filter(|rid| ir.rules.contains_key(*rid) && crate::is_active(&ir, rid, &traits))
+                    .cloned()
+                    .collect()
+            })
+            .unwrap_or_default();
+        if considered.is_empty() {
             continue;
         }
+        let fire_t0 = std::time::Instant::now();
+        let plan = fire_plan(&ir, moment, &ctx, &traits);
         // rules owing a Python round-trip → one daemon call per moment
         let owed: Vec<String> = plan
             .iter()
@@ -489,7 +505,16 @@ pub fn dispatch(data: &Value) -> Vec<String> {
             steers.extend(produced);
         }
         let elapsed_ms = fire_t0.elapsed().as_secs_f64() * 1000.0;
-        if let Some(warn) = over_budget(moment, elapsed_ms, !owed.is_empty()) {
+        // owed-budget from the considered set (mirror of warden_hook's records-
+        // based owed), not the guard-surviving plan — both engines pick the
+        // same budget for the same moment.
+        let owed_python = considered.iter().any(|rid| {
+            ir.rules
+                .get(rid)
+                .map(|r| r.body_py.is_some() || r.guard_py.is_some())
+                .unwrap_or(false)
+        });
+        if let Some(warn) = over_budget(moment, elapsed_ms, owed_python) {
             log_perf(&warn);
         }
         // F231: the explainability record — considered set + verbatim steers.
@@ -497,7 +522,7 @@ pub fn dispatch(data: &Value) -> Vec<String> {
             "ts": (now_ts() * 1000.0).round() / 1000.0, "engine": "rs",
             "moment": moment, "anchor": &anchor_name, "traits": &traits,
             "tool": str_field(data, "tool_name"), "file": event_fp,
-            "considered": plan.iter().map(|f| f.rule_id.clone()).collect::<Vec<_>>(),
+            "considered": considered,
             "fires": fires,
             "ms": (elapsed_ms * 10.0).round() / 10.0,
         }));

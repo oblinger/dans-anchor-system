@@ -33,6 +33,7 @@ The human-authored layer-contract for the Warden engine (per R-interfaces-folder
 - **Latency is a budget, not a promise** — per-moment budgets (tool:pre 2 ms / post+write 10 ms / else 100 ms) are advisory-enforced (logged, never dropped); a cold daemon start pays a one-time warmup.
 - **`skill:post` is approximated** — v1 treats it as `skill:pre` ([[Warden Roadmap]] § Beyond v1).
 - **Steers are advice** — a `tell` reaches the agent's context; nothing forces compliance. Only `deny` compels.
+- **A Python-bodied `deny` is best-effort** *(2026-07-06 latent-bug audit)* — every current veto rule (R-pathguard, R-ob-remote-ops) carries a Python body, so its evaluation rides the resident daemon; when the daemon is cold, busy, or down, the Rust dispatcher skips the owed round-trip after its timeout and the tool call **proceeds un-vetoed** (fail-open by design). A guarantee-grade block needs a declaratively-expressible deny or a hardened daemon path — tracked on the backlog.
 - **Sub-anchor coverage is not inherited** — traits do not cascade; a nested `.anchor` shadows its parent's adoption (nearest wins). Guard rules must be adopted where the guarded files actually live.
 
 ## What's hidden — do not depend on
