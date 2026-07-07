@@ -1,8 +1,8 @@
 id: query-003-bad-order
 family: query
 mode: doc
-target: FX3 queries.md
+target: FX3 Track/FX3 queries.md
 provenance: synthetic
 engine: audit-plan
-blessed_against: 5c1e5f472879-6b54a797d08b
+blessed_against: eec8231de2bb-d921a22fb8a9
 note: R-query-03 fail twin — two allowed sections in the wrong order (Verifications before Agent Resolutions); pins the section-subsequence check's fail path
