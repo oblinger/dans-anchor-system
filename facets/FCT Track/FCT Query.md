@@ -35,7 +35,7 @@ The asking surface: one `{NAME} queries.md` per anchor, in `{NAME} Track/`, that
 
 # RULESET R-query
 include::
-where:: file:{ANCHOR}/**/* queries.md
+where:: `file:{ANCHOR}/**/* queries.md`
 description:: the `{NAME} queries.md` format
 
 What `/audit doc` checks on a queries file. The skill that produces it is [[SKL Query]]; these are the file-invariants it must satisfy. Format of this set: [[FCT Ruleset]].
@@ -43,6 +43,7 @@ What `/audit doc` checks on a queries file. The skill that produces it is [[SKL 
 ## Structure
 
 ### RULE R-query-01 — Lives at `{NAME} Track/{NAME} queries.md` (checked)
+check:: queries_location
 
 One per anchor, slug-prefixed, in the tracking folder.
 
@@ -128,10 +129,11 @@ def check_immediate_question_handle(opener_line: str) -> list[str]:
 ```
 
 ### RULE R-query-09 — Catch-all Questions link in `F<n> Q<m>` form (checked)
+check:: queries_catchall_links
 
 `## Questions` items are wiki-links to the feature-doc question (`F<n> Q<m>`) or the feature, clickable to the concrete background — not free-text restatements.
 
-**Check pattern:** each Questions bullet contains a `[[…]]` wiki-link; the visible token is `F<n>` or `F<n> Q<m>`.
+**Check pattern:** each Questions bullet contains a `[[…]]` wiki-link; the visible token is a work-item handle — `F<n>` / `T<n>` / `M-…` / `R-…` (optionally `… Q<m>`).
 
 ### RULE R-query-10 — A feature with more than 3 open questions is linked, not enumerated (stated)
 

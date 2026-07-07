@@ -1593,6 +1593,57 @@ def chk_required_sections_in_order(target, anchor_root, args):
     return "pass", ""
 
 
+def chk_queries_location(target, anchor_root, args):
+    """R-query-01: `{X} queries.md` lives in `{X} Track/` (or a sub-folder
+    rooted there) — the prefix X is taken from the basename itself, so the
+    check is sub-anchor-safe (a Track folder carrying its own `.anchor` still
+    passes)."""
+    if not target.is_file():
+        return "pass", "not a file"
+    name = target.name
+    if not name.endswith(" queries.md"):
+        return "pass", "not a queries file"
+    x = name[: -len(" queries.md")]
+    want = f"{x} Track"
+    for parent in target.parents:
+        if parent.name == want:
+            return "pass", ""
+        if (parent / ".anchor").is_file() and parent.name != want:
+            break  # left the owning anchor without meeting the Track folder
+    return "fail", (f"`{name}` sits in `{target.parent.name}/` — it belongs at "
+                    f"`{want}/{name}`")
+
+
+def chk_queries_catchall_links(target, anchor_root, args):
+    """R-query-09: each top-level `## Questions` bullet carries a wiki-link
+    whose VISIBLE token is a work-item handle — `F<n>` / `T<n>` / `M-…` /
+    `R-…` (optionally `… Q<m>`) — clickable to the concrete background, never
+    a free-text restatement."""
+    if not target.is_file():
+        return "pass", "not a file"
+    handle = re.compile(r"^(?:[FT]\d+|[MR]-[\w.-]+)(\s+Q\d+)?\b")
+    in_q = False
+    bad = []
+    for ln, raw in enumerate(_read(target).splitlines(), 1):
+        if raw.startswith("## "):
+            in_q = raw.strip() == "## Questions"
+            continue
+        if not in_q or not raw.startswith("- "):
+            continue
+        ok = False
+        for m in re.finditer(r"\[\[([^\]|]+)(?:\|([^\]]+))?\]\]", raw):
+            visible = (m.group(2) or m.group(1)).strip()
+            if handle.match(visible):
+                ok = True
+                break
+        if not ok:
+            bad.append(f"line {ln}")
+    if bad:
+        return "fail", ("Questions bullet(s) without a handle-visible wiki-link "
+                        "(`F<n>`/`T<n>`/`M-…`) — " + ", ".join(bad[:5]))
+    return "pass", ""
+
+
 def chk_queries_sections_subsequence(target, anchor_root, args):
     """R-query-03: the queries H2s are a subsequence of the allowed five, in
     order, with no foreign H2 and no repeats. Empty sections are omitted, so a
@@ -2942,6 +2993,9 @@ CHECKERS = {
     "h1_no_frontmatter": chk_h1_no_frontmatter,
     "required_sections_in_order": chk_required_sections_in_order,
     "queries_sections_subsequence": chk_queries_sections_subsequence,
+    # R-query-01/-09 (T005, 2026-07-06)
+    "queries_location": chk_queries_location,
+    "queries_catchall_links": chk_queries_catchall_links,
     "user_stories_use_rid_numbering": chk_user_stories_use_rid_numbering,
     "no_legacy_open_questions_file": chk_no_legacy_open_questions_file,
     "design_workflow_modern_names": chk_design_workflow_modern_names,

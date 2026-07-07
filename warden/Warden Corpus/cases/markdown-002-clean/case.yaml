@@ -4,5 +4,5 @@ mode: doc
 target: FX8 Notes.md
 provenance: authored (T007 — R-markdown re-wiring; the same shapes written correctly all pass)
 engine: audit-plan
-blessed_against: 5c1e5f472879-6b54a797d08b
+blessed_against: eec8231de2bb-d921a22fb8a9
 note: the clean twin of markdown-001 — escaped pipe, blank-buffered table, real em-dash, single ::, backticked angle example, no trailing whitespace
