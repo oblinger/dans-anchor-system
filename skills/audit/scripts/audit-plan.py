@@ -1951,7 +1951,11 @@ def chk_toc_table_iff_long(target, anchor_root, args):
     if f is None:
         return "error", "no file"
     lines = _strip_fenced(_read(f)).splitlines()
-    toc_rows = sum(1 for ln in lines if re.match(r"^\|\s*\[\[#", ln))
+    # First cell may be bold — md-toc.py (the sanctioned TOC generator) emits
+    # `| **[[#Section]]** |`, which the bare `\[\[#` pattern missed, making
+    # every md-toc-generated TOC read as absent (false R-doc-structure-03 fail,
+    # 2026-07-08 MUX Backlog).
+    toc_rows = sum(1 for ln in lines if re.match(r"^\|\s*(?:\*\*)?\[\[#", ln))
     if len(lines) >= 300 and toc_rows < 2:
         return "fail", f"{len(lines)} lines with no TOC table — a long doc carries a content-outline table (`[[#…]]` links)"
     return "pass", ""
