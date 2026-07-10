@@ -1,7 +1,7 @@
 ---
 description: "{{one-sentence description of what this product is}}"
 ---
-:>> [[kmr]] → [[{slug}]] → {slug} PRD
+:>>
 # {slug} PRD
 {{One sentence: what this product is and the need it serves.}}
 
