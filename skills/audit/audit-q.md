@@ -52,14 +52,14 @@ Sub-action of `/audit`. Spec: `[[F009 — audit q — Q.md constraint validator]
          --title "QFix" --body "audit q findings genuinely requiring user-private input — see sub-bullets"
      ```
 
-     Renders as `- **B-QFix — QFix** [Ready] — audit q findings ... ^B-QFix`. The `^B-QFix` block-ID lets `/triage` and [[audit-q-fix]] target the row uniquely. Each finding goes as `  - **C<N>** {file}:{line} — {description + one line on why the agent can't supply the answer alone}`. Cross-anchor findings route by `surface_file` path to the matching anchor's `QFix` row.
+     Renders as `- **B-QFix — QFix** [Ready] — audit q findings ... ^B-QFix`. The `^B-QFix` block-ID lets `/ask` and [[audit-q-fix]] target the row uniquely. Each finding goes as `  - **C<N>** {file}:{line} — {description + one line on why the agent can't supply the answer alone}`. Cross-anchor findings route by `surface_file` path to the matching anchor's `QFix` row.
 
    **The cultural rule:** agents are lazy by default — given any escape hatch, they leave warnings open. The 100%-go-away rule closes the hatch: every warning is somebody's work, and the auditing agent is the somebody. `None` is acceptable but only after honest effort; the empty bullet is not. **If you find yourself reaching for QFix on C9 / C12 / C25 because "the user needs to decide" — stop. Try harder. Write `None — <specific reason>` rather than skip.**
 
 ## When to use
 
 - User says `/audit q`, `audit q`, "validate Q.md", "check Q", "audit the queue".
-- **Auto-wired post-condition** — invoked by `/triage`, `/groom`, `/mint`, `/finalize`, `/feature` after state-touching writes (per F076 Q6 + F075 Q2). The participating skill calls `/audit q` after its Q.md update post-condition runs.
+- **Auto-wired post-condition** — invoked by `/ask`, `/groom`, `/mint`, `/finalize`, `/feature` after state-touching writes (per F076 Q6 + F075 Q2). The participating skill calls `/audit q` after its Q.md update post-condition runs.
 
 ## Cross-references
 

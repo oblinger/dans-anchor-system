@@ -10,7 +10,7 @@ The major **skill clusters**, expressed as pictures rather than a flat list. A r
 
 - **Design loop** (left, vertical sequence): PRD → UX → API → Architecture → Testing → Roadmap. The canonical design phases as an ordered flow.
 - **Feature flow loop** (bottom, vertical sequence): Designing → Agreed → Implementing → Testing → Done. The workflow-state graph a feature walks.
-- **Drive cluster** (mid-right band): crank · land · fortify · triage · query — the outer-loop autonomous-progress operators.
+- **Drive cluster** (mid-right band): crank · land · fortify · query — the outer-loop autonomous-progress operators.
 - **Viz cluster** (top-mid band): excalidraw · matplot · diagram — visual-artifact verbs.
 - **Search cluster** (top-right band): find · profile · survey — locate / dossier / compare verbs.
 

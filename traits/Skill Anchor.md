@@ -91,7 +91,7 @@ Cross-skill features (touching 2+ skills) and meta-anchor features (about SKA it
 | `{Slug} Track/{Slug} PRD.md` | optional |
 | `tests/`, `scripts/`, `rules/`, `sets/` (runtime location) | per the corresponding `skill-*` facet — optional, create when there's content |
 
-Per F116, the eager-scaffold approach is dropped: anchors don't pre-create Backlog/Triage/PRD files. Create only when the skill has actual content for those facets. Simple skills stay slim.
+Per F116, the eager-scaffold approach is dropped: anchors don't pre-create Backlog/PRD files. Create only when the skill has actual content for those facets. Simple skills stay slim.
 
 
 ## Anchor Identity — slug collision warning
@@ -120,7 +120,7 @@ This is the case for `cab/`, `io/`, `dev/` (where applicable). For all other ski
 - Anchor root page missing the `Skill` first-row dispatch with both `SKILL.md` and `SKL <Slug>` links
 - User docs in `{Slug} User/` (or pre-F113 `{Slug} Docs/{Slug} User/`) instead of the canonical `SKL User Docs/SKL Skills/SKL <Slug>.md`
 - Feature docs in the SKA-level Features folder when they're skill-specific (should be migrated)
-- Eagerly-scaffolded empty Backlog/Triage/PRD files (deprecated by F116 — create on demand only)
+- Eagerly-scaffolded empty Backlog/PRD files (deprecated by F116 — create on demand only)
 
 
 ## Migration note (F116)

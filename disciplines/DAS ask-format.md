@@ -1,6 +1,6 @@
 ---
 name: ask-format
-description: Discipline. The format for any user-actionable surface that an agent writes — Questions (`Q<n>`), Verifies, à la carte items, resolution-acceptance phrases. Owns the navigation invariant (every Q / Verify is link-targetable). Cited by /ask, /triage, /feature, /groom, /crank, and /audit q.
+description: Discipline. The format for any user-actionable surface that an agent writes — Questions (`Q<n>`), Verifies, à la carte items, resolution-acceptance phrases. Owns the navigation invariant (every Q / Verify is link-targetable). Cited by /ask, queries-render.py, /feature, /groom, /crank, and /audit q.
 user_invocable: false
 ---
 
@@ -22,7 +22,7 @@ This is a discipline, not a user-invocable skill — other skills cite it via `[
 | Skill | What it uses |
 |---|---|
 | `/ask` | Question layout (both parented and bare modes), numbering, write-surfaces, acceptance/rollback phrases. |
-| `/triage` | Recognizes well-formed Q-rows and Verify-rows when rendering the body. Does not enforce — that's `/audit q`. |
+| `queries-render.py` | Recognizes well-formed Q-rows and Verify-rows when rendering the body. Does not enforce — that's `/audit q`. |
 | `/feature` | The `## Open Questions` block format below the H1. Phase 1/2/3 lifecycle. |
 | `/groom` | When parking questions into newly-created feature docs, uses this format. |
 | `/crank` | When `/crank` is about to surface a Question or Verify to the user, uses this format. Prevents the flatfooted ask. |
@@ -161,13 +161,13 @@ The agent picks the date based on **exercise frequency**, not a fixed default. S
 
 The window goes in the bracket; the **reason** for that window goes in the body. *"Verify-by 2026-06-09 — next /ask call hits the new format"* is auditable. *"Verify-by 2026-06-09"* alone is not.
 
-### Triage behavior
+### Render behavior
 
-Per `[[SKA triage]]` § Render: Later items with `[Questions]` or `[Verify]` brackets surface in the Later H2. **Extension for `[Verify-by <date>]`:**
+Per `queries-render.py` § Render: Later items with `[Questions]` or `[Verify]` brackets surface in the Later H2. **Extension for `[Verify-by <date>]`:**
 - If today < date → surface in Later H2 (user can see it if they look).
 - If today >= date → **hide**. The item is past its deferred-by-use deadline; auto-completion happens at next `/groom`.
 
-This keeps the banner counts honest (the Verify count doesn't include expired-but-not-yet-groomed items) and stops Triage from showing items that are about to disappear.
+This keeps the banner counts honest (the Verify count doesn't include expired-but-not-yet-groomed items) and stops the render from showing items that are about to disappear.
 
 ### Auto-expiration via /groom
 
@@ -278,7 +278,7 @@ The user can name a subset: *"accept the first 5 resolutions"* / *"the QFix reso
 | **C11** — Verify four-piece | Every `Verify` row that's not the trivial one-line form has all four sub-bullets: what-verified / what's-left / why-human / expected-output. | Report only. |
 | **C12** — Verify-by has rationale | Every `[Verify-by YYYY-MM-DD]` row body contains a *"Naturally exercised by: …"* line. | Report only. |
 
-`/audit q` is auto-wired as a post-condition into `/triage`, `/groom`, `/mint`, `/finalize`, `/feature` (per [[F076]] Q6). Adding the C6–C11 rules means every caller enforces the discipline automatically.
+`/audit q` is auto-wired as a post-condition into `/ask`, `/groom`, `/mint`, `/finalize`, `/feature` (per [[F076]] Q6). Adding the C6–C11 rules means every caller enforces the discipline automatically.
 
 
 ## Pre-ask self-check — six guidelines (per F105 + B-stop-asking-trivial-checks)
@@ -365,7 +365,7 @@ The principle generalizes to **any user-actionable item in a transient channel**
 ## Cross-references
 
 - `[[SKA ask]]` — the writer skill. Both parented and bare modes write per this discipline.
-- `[[SKA triage]]` — the reader skill. Renders items written per this discipline.
+- `queries-render.py` — the mechanical renderer (fired via `state`). Renders items written per this discipline.
 - `[[SKA feature]]` — creates `## Open Questions` blocks at feature-doc creation.
 - `[[SKA groom]]` — parks questions into feature docs per this discipline.
 - `[[SKA crank]]` — when surfacing user-actionable items, uses this discipline.

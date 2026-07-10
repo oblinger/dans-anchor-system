@@ -15,16 +15,16 @@ for each NON-main worktree flags:
   - prunable  — registered but its directory is gone
 
 Findings are written as a markdown block to ~/.config/worktree-check/findings.md
-(empty file when all clear). /triage splices that file in WITHOUT doing any git
-work itself — the scan lives entirely off triage's critical path (lazy-refresh):
-triage always reads the cached file, and only fires this script in the
-background when the cache is older than its throttle window.
+(empty file when all clear). The consuming status surface splices that file in
+WITHOUT doing any git work itself — the scan lives entirely off its critical
+path (lazy-refresh): it always reads the cached file, and only fires this
+script in the background when the cache is older than its throttle window.
 
 Usage:
   worktree-check                 scan now; write cache; print findings
   worktree-check --quiet         scan now; write cache; no stdout (background use)
   worktree-check --if-stale N    no-op (exit 0) if last run was < N hours ago,
-                                 else scan. Combine with --quiet for triage's
+                                 else scan. Combine with --quiet for a
                                  background refresh: `worktree-check --if-stale 72 --quiet &`
 """
 

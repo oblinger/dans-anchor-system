@@ -26,7 +26,7 @@ Use this skill when normal cranking has stopped working — the same bug keeps r
 - Word: **fortify** (in dictation, this auto-prefixes the buffer with `/fortify` — say "fortify <task description>" and on send the buffer becomes `/fortify <task description>`)
 - Slash: **`/fortify [task description]`** invoked directly
 
-(There is no single-keystroke punctuation shortcut for fortify. The double-quote `"` shortcut moved to `/triage` 2026-04-30 — triage is a far more frequent action, and the `?` glyph couldn't serve as triage's trigger because the UI already binds it.)
+(There is no single-keystroke punctuation shortcut for fortify. The double-quote `"` shortcut belongs to `/ask` — asking is a far more frequent action, and the `?` glyph couldn't serve as `/ask`'s trigger because the UI already binds it.)
 
 ### Two invocation forms
 

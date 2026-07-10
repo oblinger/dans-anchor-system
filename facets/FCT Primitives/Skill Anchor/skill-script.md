@@ -9,7 +9,7 @@ location: ~/.claude/skills/`<skill-folder>`/scripts/
 The skill-script facet specifies *how a Skill Anchor packages and invokes its scripts — a `scripts/` folder under the skill directory, Python (preferred) or Bash, each script self-documenting, CLI args via argparse, logging to stderr.* What distinguishes a conformant script surface from one-off shell snippets:
 
 - **Standard location** — `~/.claude/skills/<skill-folder>/scripts/<name>.py` (or `.sh`).
-- **Python preferred** — when complexity exceeds 50 lines, Bash gives way to Python. The `audit-q.py`, `backlog-edit.py`, `triage-section.py` precedents are the model.
+- **Python preferred** — when complexity exceeds 50 lines, Bash gives way to Python. The `audit-q.py`, `backlog-edit.py`, `queries-render.py` precedents are the model.
 - **Self-documenting** — shebang first line; module-level docstring explaining purpose and inputs; argparse for CLI args; `--help` works.
 - **stdout = result, stderr = log** — the script's verdict / output goes to stdout; progress, warnings, and informational messages go to stderr. Composable in pipelines.
 - **Non-zero exit on failure** — script exits 0 only when its core task succeeds.

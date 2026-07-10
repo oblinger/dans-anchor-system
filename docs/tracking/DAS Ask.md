@@ -1,5 +1,5 @@
 ---
-description: "The **`/ask` skill** is the universal asking subroutine."
+description: "the `/ask` skill"
 ---
 # /Ask
 The **`/ask` skill** is the universal asking subroutine.
@@ -18,13 +18,13 @@ The **`/ask` skill** is the universal asking subroutine. Whenever an agent in an
 
 **The vault-level Agent Status dashboard at `[[Q]]`** — `~/ob/kmr/Q.md` — lists every anchor with active questions or ready work. Bind a keyboard shortcut to it; one press surfaces everything across all your agents.
 
-The H1 banner counts anchors needing user input (Questions: N) and anchors with agent-actionable work (Ready: M). Below the banner, each anchor appears as a per-anchor section — H1 banner (with the slug as a wiki-link to the anchor's ask page via `[[Q#NAME Triage|NAME]]`), the workflow-state H2s, and one bullet per item. Most-recently-touched anchors at the top.
+The H1 banner counts anchors needing user input (Questions: N) and anchors with agent-actionable work (Ready: M). Below the banner, each anchor appears as a per-anchor section — H1 banner (with the slug as a wiki-link to the anchor's queries page via `[[NAME queries|NAME]]`), the workflow-state H2s, and one bullet per item. Most-recently-touched anchors at the top.
 
 ```
 # Agent Status   -   Questions: 2    Ready: 1
 
 
-# [U+A]  [[Q#CAE Triage|CAE]] Triage  -  Questions 2    Verify 1   |   Active 1    Ready 1   |   Now 2    Next 1    Later 1    Icebox 0
+# [U+A]  [[CAE queries|CAE]]  -  Ready 1    Questions 2   |   Now 2    Next 1    Later 1    Verify 1    Icebox 0
 ## Active
 - **[Active]** ~~[[F001 — Cron Syntax]]~~ — Cron expressions for recurring task schedules.
 ## Ready
@@ -38,7 +38,7 @@ The H1 banner counts anchors needing user input (Questions: N) and anchors with 
 
 When an anchor has zero items anywhere (TAG `[]`), it disappears from the page automatically. When a new question or Ready item lands, the anchor reappears (move-to-front).
 
-If `Q.md` grows too large overall, individual per-anchor sections collapse to **just the H1-equivalent line** (which contains the link to Triage). No partial paste — either the whole body, or just the link.
+If `Q.md` grows too large overall, individual per-anchor sections collapse to **just the H1-equivalent line** (which contains the link to the anchor's queries page). No partial paste — either the whole body, or just the link.
 
 **Inside each anchor**, questions live in two places:
 
@@ -48,7 +48,7 @@ If `Q.md` grows too large overall, individual per-anchor sections collapse to **
 
 ## How agents invoke it
 
-You don't usually invoke `/ask` directly. Parent skills do — `/feature`, `/code plan`, `/groom`, `/triage`, `/crank`, `/fortify` — whenever they need decisions from you.
+You don't usually invoke `/ask` directly. Parent skills do — `/feature`, `/code plan`, `/groom`, `/crank`, `/fortify` — whenever they need decisions from you.
 
 Direct invocation works too:
 
@@ -80,7 +80,7 @@ Every question carries an explicit recommendation strength so you can scan many 
 
 ## How you respond
 
-Same shorthand as `/triage`:
+The shorthand is uniform across surfaces:
 
 | You say | Agent does |
 |---|---|
@@ -117,5 +117,4 @@ Applies to **feature docs** (anchor-level Qs in `{NAME} ask.md` use the same Q f
 
 ## Cross-references
 
-- `[[Q#SKL Triage|SKL Triage]]` — sibling skill that surfaces what `/ask` writes.
 - `[[Q]]` — the vault-level Agent Status dashboard, maintained by `/ask`.

@@ -2,7 +2,7 @@
 name: audit
 description: >
   Anchor auditing — verify structure, rules, documentation, code quality, publish readiness, and
-  Q.md / triage consistency. Most sub-audits report findings and write a backlog entry
+  Q.md / queries.md consistency. Most sub-audits report findings and write a backlog entry
   (**audit never fixes** — fixing is downstream work, pulled from the backlog later). The `/audit q`
   subaction is the **exception per F076**: it fixes by default (script-vs-skill split — the underlying
   script is read-only + `--fix` flag; the skill always passes `--fix`). Use when the user says: "audit this",
@@ -23,7 +23,7 @@ Audits diagnose. Most never fix. Each sub-audit produces **≥1 backlog entry** 
 
 ## Governing principle — `/audit q`: the agent fixes 100%
 
-(Per user direction 2026-06-04, establishing the discipline for `/audit q` and the loop-until-clean post-condition in `/triage` + `/groom`. Replaces the prior "mechanical-only, never agent-guessed" rule and tightens the F076 three-tier flow.)
+(Per user direction 2026-06-04, establishing the discipline for `/audit q` and the loop-until-clean post-condition in `/ask` + `/groom`. Replaces the prior "mechanical-only, never agent-guessed" rule and tightens the F076 three-tier flow.)
 
 **The agent's job is to drive the audit residual to zero on every run.** Not "fix what's mechanical and catalog the rest" — *fix all of it*. Every check that audit-q surfaces has been deliberately chosen because it has an agent-side fix path; the agent's job is to take it. The cultural failure mode this rule defeats is *agent laziness disguised as discipline*: leaving warnings behind under the cover of "user input needed" when honest effort would have produced an answer. **If you find yourself reaching for QFix because "the user might prefer something different" — stop. Try harder. The user can correct a written `None — <reason>`; they can't correct silence.**
 

@@ -26,7 +26,7 @@ The anchor page row labels are wiki-links to the subfolder dispatch pages:
 
 ```markdown
 | [[HBR Track|Plan]]   | [[HBR PRD|PRD]], [[CAE System Design|System Design]], ... |
-| [[HBR Track|Execute]] | [[FEX Inbox|Inbox]], [[Q#CAE Triage|Triage]], ... |
+| [[HBR Track|Execute]] | [[FEX Inbox|Inbox]], [[CAE queries|Queries]], ... |
 | [[CAE User/CAE User|User]] | [[CAE User Guide|User Guide]], [[CAE Cards|Cards]] |
 | [[CAE Dev/CAE Dev|Dev]]   | [[FEX Files|Files]], [[CAE core|core]], ... |
 ```

@@ -8,7 +8,7 @@ user_invocable: false
 # Verification Discipline
 The four-tier preference ordering (agent-immediate → user-explicit) for how a feature gets verified, declared up front in each feature doc and consulted at verification time so user attention is spent only when no lower tier works.
 
-**Related:** [[CAB Disciplines]],  [[feature]],  [[query]],  [[triage]],  [[workflow]]
+**Related:** [[CAB Disciplines]],  [[feature]],  [[query]],  [[workflow]]
 
 | Table of Contents |  |
 |---|---|
@@ -20,7 +20,7 @@ The four-tier preference ordering (agent-immediate → user-explicit) for how a 
 | [[#The Success Criteria block in a feature doc]] |  |
 | [[#Success Criteria]] |  |
 | [[#How `/feature` consults this]] |  |
-| [[#How `/ask` and `/triage` consult this]] |  |
+| [[#How `/ask` consults this]] |  |
 | [[#How to surface a Verify to the user (the asking discipline)]] |  |
 | [[#Anti-patterns this discipline prevents]] |  |
 | [[#Cross-references]] |  |
@@ -34,7 +34,7 @@ Verification is *the four-tier preference ordering an agent uses to choose how a
 - **Blocking-action escape hatch** — if a concrete next action is strictly gated on verification (filled `Blocks next:` line), tier 1 or 2 is required.
 - **Declared up front** — the tier is named in the feature doc's `## Success Criteria` H2 at creation time, not chosen on the fly at verification time.
 
-This is a discipline, not a user-invocable skill — `/feature` cites it at creation time; `/triage`, `/crank`, and `/groom` cite it at verification time.
+This is a discipline, not a user-invocable skill — `/feature` cites it at creation time; `/ask`, `/crank`, and `/groom` cite it at verification time.
 
 ## Why this exists
 
@@ -153,9 +153,9 @@ If the agent is about to write tier 4 with no Blocks-next, the agent should paus
 
 The full discipline lives here; `/feature` carries a short summary inline so the agent does not need a separate file read at creation.
 
-## How `/ask` and `/triage` consult this
+## How `/ask` consults this
 
-When the agent is about to surface a Verify row to the user (in `{slug} ask.md` or in the triage banner), the agent reads the linked feature doc's `## Success Criteria` block. The tier is the agent's guidance:
+When the agent is about to surface a Verify row to the user (in `{slug} ask.md` or in the status banner), the agent reads the linked feature doc's `## Success Criteria` block. The tier is the agent's guidance:
 
 - **Tier 1 or 2:** the verification is the agent's job. The agent runs the check and updates the row, either to `[Done]` (verification passed) or to `[Active]` (verification failed, work to do). Should not surface to the user.
 - **Tier 3:** prefer passive observation. Add a brief note in the ask page reminding the user what to watch for; do not block on an explicit answer. The agent may ask once after enough time has passed (typically a week), and the question is yes-or-no based on observation, not a special test.
@@ -214,11 +214,11 @@ If the verification genuinely requires the user to perform an action (tier 4), t
 
 ### Default to silence on tier 1 / 2
 
-Tier 1 and tier 2 Verifies are agent-owned. They do not appear in the user-facing surfacing at all (per `/ask` and `/triage` consultation above). The user does not see a question and the agent runs the check at its appropriate moment. The "did the agent forget?" failure mode is caught by the next `/audit q` pass surfacing any tier-1-or-2 Verifies that have stayed in `## Verify` past a soak period (separate enforcement; not blocking on F101).
+Tier 1 and tier 2 Verifies are agent-owned. They do not appear in the user-facing surfacing at all (per `/ask` consultation above). The user does not see a question and the agent runs the check at its appropriate moment. The "did the agent forget?" failure mode is caught by the next `/audit q` pass surfacing any tier-1-or-2 Verifies that have stayed in `## Verify` past a soak period (separate enforcement; not blocking on F101).
 
 ### Frequency: ask once per row per cycle, not every cycle
 
-A tier 3 Verify periodically reaches the user once enough time has passed that the passive signal should have arrived. The agent asks once per row per cycle, not on every `/ask` or `/triage` invocation. After asking, the row stays in `## Verify` until the user answers (or until the next periodic window). Repeated asking in adjacent crank cycles is itself a failure mode.
+A tier 3 Verify periodically reaches the user once enough time has passed that the passive signal should have arrived. The agent asks once per row per cycle, not on every `/ask` invocation. After asking, the row stays in `## Verify` until the user answers (or until the next periodic window). Repeated asking in adjacent crank cycles is itself a failure mode.
 
 ## Anti-patterns this discipline prevents
 
@@ -230,7 +230,6 @@ A tier 3 Verify periodically reaches the user once enough time has passed that t
 ## Cross-references
 
 - `[[feature]]` — at creation, writes the `## Success Criteria` block with tier declared.
-- `[[query]]` — at verification time, consults tier before surfacing a Verify to the user.
-- `[[triage]]` — at verification time, consults tier when displaying Verify rows in the banner.
+- `[[query]]` — at verification time, consults tier before surfacing a Verify to the user or displaying Verify rows in the banner.
 - `[[F098]]` — the Completion block discipline (Done time enumeration); the Verification sub-section in Completion records what was actually checked, referring back to this discipline.
 - `[[workflow]]` — owns the state graph; Verify-state semantics inherit from this discipline's tier system.
