@@ -45,7 +45,7 @@ Think ESLint, not a bespoke checker: **rules** (each with a selector + a checker
 
 **Stage 1 — RESOLVE (pure compute, cached): "what rules apply where?"**
 For an anchor:
-1. **Detect facets** — from `.anchor` traits **and** structural presence (`{NAME} Design/` → design facet; `{NAME} Backlog.md` → backlog facet; the entry page → anchor-page facet; …). Facet presence is mostly *folder/file presence*.
+1. **Detect facets** — from `.anchor` traits **and** structural presence (`{slug} Design/` → design facet; `{slug} Backlog.md` → backlog facet; the entry page → anchor-page facet; …). Facet presence is mostly *folder/file presence*.
 2. **Flatten** the union of those facets' rulesets (resolve the `include::` DAG) → one flat rule list.
 3. **Bind** each rule to its concrete target(s) in *this* anchor via its selector (Q1). If the target is absent → the rule is **N/A** (skipped, never failed). This is exactly the "not looking at a backlog → don't check backlog rules" case, handled structurally by selector-misses.
 
@@ -63,7 +63,7 @@ Each rule carries a **`where::` clause** — the selector, as a **glob** — say
 
 - **`always`** — universal; every file (naming, markdown hygiene).
 - **`file: <glob>`** — per file matching the glob (most rules: `* Backlog.md`, the `{slug}.md` anchor page, …).
-- **`anchor`** — once per anchor, checking the *tree/structure* not one file's content (`.anchor` has a slug; `Design` row iff `{NAME} Design/` exists). Doc audits add a **region** scope (a heading-block within the file).
+- **`anchor`** — once per anchor, checking the *tree/structure* not one file's content (`.anchor` has a slug; `Design` row iff `{slug} Design/` exists). Doc audits add a **region** scope (a heading-block within the file).
 
 The script glob-matches to build the bipartite **(rule × file) match set**, then the **scheduler picks the iteration order by job:**
 
@@ -128,7 +128,7 @@ Net effect: mechanical rules never burn agent tokens; the agent only sees the ge
 
 **The F161 engine, both command surfaces, and all three caches are complete.**
 
-**`where::` matcher completed to the full [[FCT Ruleset]] § Where clause spec (2026-06-13, per F168).** The Stage-1 selector resolver previously honored only `{ANCHOR}/` + standard globs (`*`/`**`/`?`/`[...]`) for the `file:` kind; the F168 spec additions (`{NAME}` substitution, `{a,b}` brace-alternation, comma-separated union, gitignore-style `!`-negation) now resolve too (`_anchor_name` / `_expand_braces` / `_split_terms` / `_match_file_glob` in `audit-plan.py`). Verified on a scratch anchor: `{ANCHOR}/**/{NAME} Backlog.md` → the backlog; `*.{svg,png}` → both; `{NAME} {PRD,Roadmap}.md` → the PRD; `*, !*.png` → everything except the png. HBR `--report` regression-clean (the lone `R-design-04` fail is a real finding — HBR example lacks `HBR Track/HBR Status.md` — and is `anchor`-scoped, untouched by the matcher change). This closes the deployability gap for the where-clause system: every example in the spec now binds to real files.
+**`where::` matcher completed to the full [[FCT Ruleset]] § Where clause spec (2026-06-13, per F168).** The Stage-1 selector resolver previously honored only `{ANCHOR}/` + standard globs (`*`/`**`/`?`/`[...]`) for the `file:` kind; the F168 spec additions (`{slug}` substitution, `{a,b}` brace-alternation, comma-separated union, gitignore-style `!`-negation) now resolve too (`_anchor_name` / `_expand_braces` / `_split_terms` / `_match_file_glob` in `audit-plan.py`). Verified on a scratch anchor: `{ANCHOR}/**/{slug} Backlog.md` → the backlog; `*.{svg,png}` → both; `{slug} {PRD,Roadmap}.md` → the PRD; `*, !*.png` → everything except the png. HBR `--report` regression-clean (the lone `R-design-04` fail is a real finding — HBR example lacks `HBR Track/HBR Status.md` — and is `anchor`-scoped, untouched by the matcher change). This closes the deployability gap for the where-clause system: every example in the spec now binds to real files.
 
 **Slice 10 — resume `check::` annotation (in progress, 2026-06-13).** The facet restructuring landed (commit `5644d4a`, clean tree) — engine still resolves `R-anchor` to 9 leaves with 0 warnings against the new layout. Resumed annotating `checked` rules: added 3 primitives (`h1_matches_slug`, `breadcrumb_row`, `design_row_iff_folder`) and annotated `R-anchor-page` 05/11/13. HBR mechanical 4/4 → 7/7 pass; break-detection verified for each. The 6 complex `R-anchor-page` rules (09 page-order, 12 Related-laterality, 16 cell-pipe-escape, 20 member-zone-marker, 21 name-prefix, 15 no-track-row) are intentionally left to the judgment path — naive primitives would false-positive against the spec's exceptions.
 

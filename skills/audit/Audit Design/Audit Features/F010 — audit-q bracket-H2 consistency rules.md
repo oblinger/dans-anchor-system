@@ -46,7 +46,7 @@ The rule exists; what's missing is **unconditional mechanical enforcement**. /gr
 
 - **Don't auto-rebracket** — F089 only moves rows between H2s based on their existing brackets. Changing a bracket itself (e.g., `[Watching]` → `[Verify]` on soak expiry) requires body-reading and stays in /groom.
 - **Don't reorder within an H2** — moves are H2-to-H2 only; within-H2 source order is preserved (per F075 Q2 backlog-source-order-preserved invariant).
-- **Don't touch Icebox** — `{NAME} Icebox.md` is out of scope; users explicitly park items there and the placement rules don't apply.
+- **Don't touch Icebox** — `{slug} Icebox.md` is out of scope; users explicitly park items there and the placement rules don't apply.
 
 ## Status
 
