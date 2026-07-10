@@ -3,7 +3,7 @@ description: "canonical facet exemplar"
 ---
 
 # Design
-The marker that an anchor follows the designed-lifecycle convention — if `{NAME} Design/` exists, the anchor is in design-mode.
+The marker that an anchor follows the designed-lifecycle convention — if `{slug} Design/` exists, the anchor is in design-mode.
 
 | -[[FEX Facet]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[FCT Primitives]] → [FEX Facet](hook://p/FEX%20Facet)<br>: canonical facet exemplar |
 | --- | --- |
@@ -13,20 +13,20 @@ The marker that an anchor follows the designed-lifecycle convention — if `{NAM
 
 ## What it is
 
-The **structural marker** that an anchor follows the designed-lifecycle convention. **If `{NAME} Design/` exists, the anchor is in design-mode** — `/design` operates on it and the PRD → UX → API → Architecture → Testing → Decisions → Roadmap pipeline applies. Folder presence *is* the signal; no trait field required.
+The **structural marker** that an anchor follows the designed-lifecycle convention. **If `{slug} Design/` exists, the anchor is in design-mode** — `/design` operates on it and the PRD → UX → API → Architecture → Testing → Decisions → Roadmap pipeline applies. Folder presence *is* the signal; no trait field required.
 
 ## Location
 
-`{anchor}/{NAME} Design/` — an anchor-folder directly under the anchor root, alongside `{NAME} Track/`, `{NAME} User Docs/`, `{NAME} Dev Docs/`.
+`{anchor}/{slug} Design/` — an anchor-folder directly under the anchor root, alongside `{slug} Track/`, `{slug} User Docs/`, `{slug} Dev Docs/`.
 
 ## Structure
 
-The `{NAME} Design/` folder is itself a container (anchor page + dispatch table, per [[progressive-disclosure]]); its members are the design sub-facets — **required**: [[FCT PRD|PRD]], [[FCT Architecture|Architecture]], [[FCT Testing|Testing]]; **recommended**: [[FCT Decisions|Decisions]], [[FCT Roadmap|Roadmap]], [[FCT Features|Features]]; **optional**: [[FCT UX Design|UX]], [[FCT API Design|API]].
+The `{slug} Design/` folder is itself a container (anchor page + dispatch table, per [[progressive-disclosure]]); its members are the design sub-facets — **required**: [[FCT PRD|PRD]], [[FCT Architecture|Architecture]], [[FCT Testing|Testing]]; **recommended**: [[FCT Decisions|Decisions]], [[FCT Roadmap|Roadmap]], [[FCT Features|Features]]; **optional**: [[FCT UX Design|UX]], [[FCT API Design|API]].
 
 ## Rules
 
-RULE (design-gate): the **presence of `{NAME} Design/`** is the gate — `/design` operates iff the folder exists. (Replaces the retired `Code`-trait check, which conflated *what's built* with *is it designed*.)
+RULE (design-gate): the **presence of `{slug} Design/`** is the gate — `/design` operates iff the folder exists. (Replaces the retired `Code`-trait check, which conflated *what's built* with *is it designed*.)
 
 ## Example
 
-Live instance: [[FCT Design]] (the facet spec itself) and any anchor with a `{NAME} Design/` folder (e.g. [[HBR]]).
+Live instance: [[FCT Design]] (the facet spec itself) and any anchor with a `{slug} Design/` folder (e.g. [[HBR]]).

@@ -18,7 +18,7 @@ Curated, versioned bundles of rules. Each set is a standalone markdown doc bundl
 
 A **rule** is a standing constraint or guideline — portable, reusable, audit-checkable. Lives in a Ruleset; gets adopted across many anchors. "ASCII forbidden in architecture diagrams." "Must use Helvetica."
 
-A **decision** is a broader, higher-level applied choice with rationale, recorded at the anchor level (a `## Decisions` section in the doc it shapes, or `{NAME} Decisions.md`). "We chose SQLite for TaskStore because of operator-readability." The rationale is what makes it a *decision*; anything directly verifiable is written only as a rule, never duplicated as a decision.
+A **decision** is a broader, higher-level applied choice with rationale, recorded at the anchor level (a `## Decisions` section in the doc it shapes, or `{slug} Decisions.md`). "We chose SQLite for TaskStore because of operator-readability." The rationale is what makes it a *decision*; anything directly verifiable is written only as a rule, never duplicated as a decision.
 
 The relationship (doctrine per [[FCT Decisions]], 2026-07-01):
 

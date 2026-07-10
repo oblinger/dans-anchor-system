@@ -57,9 +57,9 @@ The stat command:
 `{slug} Outputs/{slug} Outputs.md` — H1 + F060 dispatch-table placeholder, then a reverse chronological topic table:
 
 ```markdown
-# {NAME} Outputs
+# {slug} Outputs
 
-| -[[{NAME} Outputs]]- |  |
+| -[[{slug} Outputs]]- |  |
 | --- | --- |
 | --- | |
 
@@ -100,7 +100,7 @@ Each output file uses `YYYY-MM-DD` as the date prefix and no slug prefix; the na
 **Why:** the date provides uniqueness within the folder; a slug prefix is redundant and would break the `stat` command's naming contract.
 
 ### RULE R-fct-outputs-03 — Dispatch page is H1 + placeholder + reverse-chrono table (sampled)
-`{slug} Outputs.md` contains: an H1 (`# {NAME} Outputs`), the standard F060 dispatch-table placeholder, then a reverse-chronological table with `Date | Output | Status` columns.
+`{slug} Outputs.md` contains: an H1 (`# {slug} Outputs`), the standard F060 dispatch-table placeholder, then a reverse-chronological table with `Date | Output | Status` columns.
 **Check pattern:** the dispatch page has an H1, the two-row placeholder table, and a `| Date |` table.
 **Why:** the shape is prescriptive so the `stat` command can reliably update the table and agents can parse it consistently.
 

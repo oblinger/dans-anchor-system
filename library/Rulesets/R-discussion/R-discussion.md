@@ -6,7 +6,7 @@ Catalog-side stub for the Discussion facet's ruleset. The canonical body lives e
 
 **To see the actual rules:** follow [[FCT Discussion#RULESET R-discussion|the embedded block]]. 9 rules covering:
 
-- **Scope (1)** — doc-scoped, never anchor-scoped; legacy `{NAME} Discussion.md` is deprecated.
+- **Scope (1)** — doc-scoped, never anchor-scoped; legacy `{slug} Discussion.md` is deprecated.
 - **Placement (3)** — inline `# Discussion` H1 at parent doc end; OR extracted to sibling `{Doc} Discussions.md` (plural); one form at a time per doc.
 - **Entries (2)** — reverse chronological (newest first); standard skeleton (Problem / Options Considered / Decision / optionally Why This Works).
 - **Posture (1)** — append-only; spec docs reflect current state, discussion is the log of how the spec got there.

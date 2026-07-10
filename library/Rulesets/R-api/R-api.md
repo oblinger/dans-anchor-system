@@ -1,6 +1,6 @@
 # RULESET R-api
 include:: [[FCT API Design#RULESET R-api|embedded body]]
-description:: Catalog stub — rules for `{NAME} API Design.md`, the *programmatic* user-facing surface intent. Canonical body lives embedded in [[FCT API Design]].
+description:: Catalog stub — rules for `{slug} API Design.md`, the *programmatic* user-facing surface intent. Canonical body lives embedded in [[FCT API Design]].
 
 Catalog-side stub for the API Design facet's ruleset. The canonical body lives embedded inside the [[FCT API Design]] facet file per the [[F133 — Rulesets folder convention + facet embedding|F133]] convention.
 

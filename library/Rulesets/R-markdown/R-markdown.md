@@ -15,7 +15,7 @@ Sits under [[R-doc]] (cross-cutting documentation conventions umbrella). [[R-md]
 
 ## Adoption
 
-Applies to every markdown doc in the vault — no explicit `include:: [[R-markdown]]` required in `{NAME} Decisions.md`. (Listed in the catalog for completeness; vault-wide rules don't need per-anchor opt-in.)
+Applies to every markdown doc in the vault — no explicit `include:: [[R-markdown]]` required in `{slug} Decisions.md`. (Listed in the catalog for completeness; vault-wide rules don't need per-anchor opt-in.)
 
 ## See also
 

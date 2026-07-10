@@ -1,10 +1,10 @@
 ---
-description: "facet spec for {NAME} API Design.md — the programmatic (code-to-code or sub-skill) user surface"
+description: "facet spec for {slug} API Design.md — the programmatic (code-to-code or sub-skill) user surface"
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT API Design](hook://p/FCT%20API%20Design)
 # FCT API Design
-Facet spec defining the shape, required sections, and ruleset for an anchor's `{NAME} API Design.md` — the programmatic (code-to-code or sub-skill) user surface.
+Facet spec defining the shape, required sections, and ruleset for an anchor's `{slug} API Design.md` — the programmatic (code-to-code or sub-skill) user surface.
 
 **Related:** [[FCT UX Design]],  [[FCT Architecture]],  [[FCT Module Doc]],  [[FCT Decisions]]
 **Examples:** [[FEX API Design\|minimal (library crate)]],  [[HBR API Design\|fuller (service + sub-skill)]]
@@ -38,7 +38,7 @@ When none of the above hold, omit the facet.
 
 ## Location
 
-`{NAME} Docs/{NAME} Design/{NAME} API Design.md` — single-file form. Upgrade to anchor-folder form `{NAME} API Design/` only when distinct sub-surfaces (e.g., library API + service API + sub-skill API in the same anchor) warrant separate files.
+`{slug} Docs/{slug} Design/{slug} API Design.md` — single-file form. Upgrade to anchor-folder form `{slug} API Design/` only when distinct sub-surfaces (e.g., library API + service API + sub-skill API in the same anchor) warrant separate files.
 
 Peer of [[FCT Architecture]] and [[FCT UX Design]] under [[FCT Design Dispatch|Design]].
 
@@ -82,13 +82,13 @@ See [[FEX API Design]] — the CAE scheduler crate shows the canonical shape for
 - [[FCT Module Doc]] — reference documentation for the implemented modules.
 - [[FCT Architecture]] — internal organization that backs the API surface.
 - [[FCT Decisions]] — the D-record form for API decisions (rules implement them; linkage on the rule side).
-- [[FCT Status]] — `{NAME} Status.md` carries the API-Design facet state.
+- [[FCT Status]] — `{slug} Status.md` carries the API-Design facet state.
 - [[DSC progressive-disclosure]] — preface zone discipline.
 - [[DSC markdown]] — markdown authoring discipline.
 
 # RULESET R-api
 include::
-description:: facet spec for the programmatic user surface doc
+description:: facet spec this doc follows
 
 Embedded ruleset for the API Design facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via [[R-facet]] umbrella.
 

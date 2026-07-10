@@ -26,7 +26,7 @@ When a fallible operation fails, the failure is (a) propagated to the caller as 
 - **Medium** — fallback hides a less-impactful failure but loses information. Fix: add log line; default value can stay.
 - **Low** — defensible exception (best-effort function that logs internally; optional field with documented None semantic; test fixture).
 
-**Per-project audit:** scan the source tree, classify each finding, and append/update the adopter's exceptions table (`{NAME} Rules/R05 Exceptions.md` convention, e.g. `MUX-R04 Exceptions.md`) with grade + one-line justification. On re-audit, fail if any High/Medium finding has appeared since the last pass without a matching exception entry.
+**Per-project audit:** scan the source tree, classify each finding, and append/update the adopter's exceptions table (`{slug} Rules/R05 Exceptions.md` convention, e.g. `MUX-R04 Exceptions.md`) with grade + one-line justification. On re-audit, fail if any High/Medium finding has appeared since the last pass without a matching exception entry.
 
 ### RULE R-ob-observability-02 — 100% OS-bridge logging coverage (checked)
 

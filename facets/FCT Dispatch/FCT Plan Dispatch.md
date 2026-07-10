@@ -4,14 +4,14 @@ description: superseded by CAB Track Dispatch per F094 — see redirect below
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT Plan Dispatch](hook://p/FCT%20Plan%20Dispatch)
 # FCT Plan Dispatch
-Redirect stub for the legacy `{NAME} Plan/` dispatch facet, superseded by [[FCT Track Dispatch]] and [[FCT Design Dispatch]] per F094.
+Redirect stub for the legacy `{slug} Plan/` dispatch facet, superseded by [[FCT Track Dispatch]] and [[FCT Design Dispatch]] per F094.
 
 **Related:** [[FCT Track Dispatch]],  [[FCT Design Dispatch]],  [[FCT Dispatch]]
 **Examples:** [[HBR Track\|minimal (renamed from CAE Plan per F094)]],  [[HBR Track\|fuller]]
 
 > **Superseded by [[FCT Track Dispatch]]** per [[F094 — Anchor docs folder restructure — Track _ User _ Architecture _ Dev|F094]] (2026-06-01).
 >
-> The `{NAME} Plan/` folder is renamed to `{NAME} Track/` matching the [[Track]] trait name. PRD / System Design / UX Design content moves into `{NAME} Design/` (see [[FCT Design Dispatch]]). The Plan slot is freed for a future top-level strategic-plan *document* inside the Track tree.
+> The `{slug} Plan/` folder is renamed to `{slug} Track/` matching the [[Track]] trait name. PRD / System Design / UX Design content moves into `{slug} Design/` (see [[FCT Design Dispatch]]). The Plan slot is freed for a future top-level strategic-plan *document* inside the Track tree.
 >
 > This file preserved as a redirect-stub during the F094 migration window. All references to `[[FCT Plan Dispatch]]` should migrate to `[[FCT Track Dispatch]]` (planning surface) or `[[FCT Design Dispatch]]` (design surface) depending on what the citation was actually pointing at.
 
@@ -19,7 +19,7 @@ Redirect stub for the legacy `{NAME} Plan/` dispatch facet, superseded by [[FCT 
 
 (Kept for the migration window — readers landing here from old wiki-links should follow [[FCT Track Dispatch]] for the new tracking surface or [[FCT Design Dispatch]] for the new design surface.)
 
-**Cardinality: one per anchor** — a single `{NAME} Plan/` folder (now `{NAME} Track/`) existed per anchor; this redirect stub mirrors that one-per-anchor contract.
+**Cardinality: one per anchor** — a single `{slug} Plan/` folder (now `{slug} Track/`) existed per anchor; this redirect stub mirrors that one-per-anchor contract.
 
 # RULESET R-fct-plan-dispatch
 include::

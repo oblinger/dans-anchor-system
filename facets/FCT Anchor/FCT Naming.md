@@ -1,21 +1,21 @@
 ---
-description: "file-naming facet — every file inside an anchor uses `{NAME} <X>.md` form by default; exceptions for vault-global files and facet-sanctioned unique patterns"
+description: "file-naming facet — every file inside an anchor uses `{slug} <X>.md` form by default; exceptions for vault-global files and facet-sanctioned unique patterns"
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Naming](hook://p/FCT%20Naming)
 # FCT Naming
-File-naming facet — every file inside an anchor uses `{NAME} <X>.md` form by default; exceptions for vault-global files and facet-sanctioned unique patterns.
+File-naming facet — every file inside an anchor uses `{slug} <X>.md` form by default; exceptions for vault-global files and facet-sanctioned unique patterns.
 
 **Related:** [[FCT Folder]],  [[FCT Anchor Page]],  [[FCT All Files]],  [[FCT Features]]
 **Examples:** [[HBR\|minimal anchor]],  [[HBR\|fuller anchor]]
 
-**TLDR** — Every `.md` file inside an anchor is named `{NAME} <X>.md` (the anchor slug as prefix). Three exception classes are allowed: vault-global files, facet-sanctioned alternative patterns (F-numbers, US-IDs, ISO dates), and genuinely unique domain-specific names. **Cardinality: one per anchor** — a single naming convention applies to each anchor, not a per-file choice.
+**TLDR** — Every `.md` file inside an anchor is named `{slug} <X>.md` (the anchor slug as prefix). Three exception classes are allowed: vault-global files, facet-sanctioned alternative patterns (F-numbers, US-IDs, ISO dates), and genuinely unique domain-specific names. **Cardinality: one per anchor** — a single naming convention applies to each anchor, not a per-file choice.
 
 The Naming facet specifies the **default file-naming convention** for files that live inside an anchor folder, plus the canonical list of exceptions where another pattern is allowed.
 
-**Default rule:** files inside `{anchor}/` (and inside its sub-folders like `{NAME} Design/`, `{NAME} Track/`) are named `{NAME} <X>.md` — the anchor slug prefix + space + content name. Examples: `CAE PRD.md`, `CAE Architecture.md`, `MUX Testing.md`, `Disk Log.md`.
+**Default rule:** files inside `{anchor}/` (and inside its sub-folders like `{slug} Design/`, `{slug} Track/`) are named `{slug} <X>.md` — the anchor slug prefix + space + content name. Examples: `CAE PRD.md`, `CAE Architecture.md`, `MUX Testing.md`, `Disk Log.md`.
 
-**Why slug prefix:** anchor folders frequently get unified into search results, dispatch tables, and wiki-link autocompletes that span the whole vault. A file named just `PRD.md` collides with every other anchor's PRD; `{NAME} PRD.md` is globally unambiguous. Wiki-links from anywhere in the vault resolve correctly without disambiguation gymnastics.
+**Why slug prefix:** anchor folders frequently get unified into search results, dispatch tables, and wiki-link autocompletes that span the whole vault. A file named just `PRD.md` collides with every other anchor's PRD; `{slug} PRD.md` is globally unambiguous. Wiki-links from anywhere in the vault resolve correctly without disambiguation gymnastics.
 
 The convention is **the floor, not the ceiling** — a few classes of files are exempt because they have stronger uniqueness guarantees built into their own naming.
 
@@ -37,11 +37,11 @@ Some facets define alternative naming patterns that are unique enough on their o
 | `YYYY-MM <topic>.<ext>` | [[FCT Log]] | `2025-10 BOD Slides.pptx` (year-month precision) |
 | `YYYY <topic>.<ext>` | [[FCT Log]] | `2023 Prior Inventions.md` (year-only precision) |
 
-These patterns appear inside anchor sub-folders (`{NAME} Track/{NAME} Features/`, `{NAME} Design/{NAME} PRD/`, `{NAME}/{NAME} Log/`) where the parent folder already encodes the anchor scope. The filename itself doesn't need to.
+These patterns appear inside anchor sub-folders (`{slug} Track/{slug} Features/`, `{slug} Design/{slug} PRD/`, `{slug}/{slug} Log/`) where the parent folder already encodes the anchor scope. The filename itself doesn't need to.
 
 Each exception pattern is **declared by the facet that owns it**. Facets that define alternative patterns also state their uniqueness contract (e.g., F-numbers are monotonic-forever per anchor; `US-<SLUG>-<N>` encodes the slug directly). When a new facet introduces an alternative pattern, this list grows.
 
-**Inclusion test** — a pattern enters this table only when it (1) is declared by another facet spec, (2) carries a stated uniqueness contract that makes a slug prefix redundant, and (3) lives inside an anchor sub-folder that already encodes anchor scope. If any leg fails, the file carries the `{NAME}` prefix instead.
+**Inclusion test** — a pattern enters this table only when it (1) is declared by another facet spec, (2) carries a stated uniqueness contract that makes a slug prefix redundant, and (3) lives inside an anchor sub-folder that already encodes anchor scope. If any leg fails, the file carries the `{slug}` prefix instead.
 
 ## Exception C — slug-prefix sufficient by chance
 
@@ -65,15 +65,15 @@ Distinct from Exception B (which is *facet*-sanctioned **markdown** patterns liv
 
 ## Folder-anchor files follow the same rule
 
-The anchor marker file (the `{NAME}.md` inside `{NAME}/` per [[FCT Folder]]) is itself an instance of the default rule: file name = folder name. Sub-anchor folders nested inside an anchor (like `{NAME} Design/`, `{NAME} Track/`) carry their own marker files (`{NAME} Design.md`, `{NAME} Track.md`) — same convention all the way down.
+The anchor marker file (the `{slug}.md` inside `{slug}/` per [[FCT Folder]]) is itself an instance of the default rule: file name = folder name. Sub-anchor folders nested inside an anchor (like `{slug} Design/`, `{slug} Track/`) carry their own marker files (`{slug} Design.md`, `{slug} Track.md`) — same convention all the way down.
 
 ## Cardinality and applicability
 
-**Cardinality: one per anchor.** Each anchor has exactly one naming convention — the `{NAME} <X>.md` default — not a per-file or per-folder choice. The exception classes are part of that single convention, not alternatives to it.
+**Cardinality: one per anchor.** Each anchor has exactly one naming convention — the `{slug} <X>.md` default — not a per-file or per-folder choice. The exception classes are part of that single convention, not alternatives to it.
 
 Vault-wide. Every anchor in the vault is subject to this naming convention; the exceptions are explicit.
 
-This facet holds the **vault-wide default + exception allowlist only** — trait-specific naming conventions belong in the owning trait's spec (`CAB <Trait>.md`), and anchor-local naming exceptions belong in that anchor's `{NAME} Rules.md` or `{NAME} Decisions.md`, not here.
+This facet holds the **vault-wide default + exception allowlist only** — trait-specific naming conventions belong in the owning trait's spec (`CAB <Trait>.md`), and anchor-local naming exceptions belong in that anchor's `{slug} Rules.md` or `{slug} Decisions.md`, not here.
 
 ## Cross-references — facets that declare exception patterns
 
@@ -90,22 +90,22 @@ These facets each declare an alternative naming pattern, and their pattern is li
 ## See also
 
 - [[FCT Folder]] — folder layout (the marker-file convention is the simplest instance of this naming rule)
-- [[FCT Anchor Page]] — content of the `{NAME}.md` marker file
+- [[FCT Anchor Page]] — content of the `{slug}.md` marker file
 - [[FCT All Files]] — source-tree docs
 - F141 (future R-anchor umbrella) — collects R-naming + R-folder + R-anchor-page + R-files when those rulesets exist
 
 # RULESET R-naming
 include::
-description:: file-naming facet — `{NAME} <X>.md` default + explicit exception allowlist
+description:: file-naming facet — `{slug} <X>.md` default + explicit exception allowlist
 
 Embedded ruleset for the Naming facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella. Vault-wide application — every anchor's files are subject to this set, no explicit `include::` needed.
 
-### RULE R-naming-01 — Default file name is `{NAME} <X>.md` inside an anchor (checked)
+### RULE R-naming-01 — Default file name is `{slug} <X>.md` inside an anchor (checked)
 check:: name_slug_prefixed
 
-A markdown file inside `{anchor}/` (or any sub-folder rooted at the anchor) is named `{NAME} <X>.md` where `{NAME}` is the anchor's slug. Sub-folder marker files match their folder name: `{NAME} Design/{NAME} Design.md`, `{NAME} Track/{NAME} Track.md`.
+A markdown file inside `{anchor}/` (or any sub-folder rooted at the anchor) is named `{slug} <X>.md` where `{slug}` is the anchor's slug. Sub-folder marker files match their folder name: `{slug} Design/{slug} Design.md`, `{slug} Track/{slug} Track.md`.
 
-**Check pattern:** for each `.md` file under an anchor, assert the filename starts with `{NAME} ` (with a trailing space) OR matches one of the sanctioned exception patterns from R-naming-03.
+**Check pattern:** for each `.md` file under an anchor, assert the filename starts with `{slug} ` (with a trailing space) OR matches one of the sanctioned exception patterns from R-naming-03.
 
 **Why:** wiki-links from anywhere in the vault resolve correctly; search and dispatch surfaces don't suffer cross-anchor collisions; the file is globally unambiguous.
 
@@ -131,7 +131,7 @@ Files matching a facet-sanctioned alternative pattern are exempt from the slug-p
 
 **Check pattern:** R-naming-01's check accepts files matching any of the regex shapes above as a pass.
 
-**Why:** these patterns are unique enough on their own (F-numbers monotonic-forever, `US-<SLUG>-<N>` encodes the slug directly, ISO dates plus topic). Adding a slug prefix would be redundant. The parent folder (`{NAME} Track/{NAME} Features/`, `{NAME} Design/{NAME} PRD/`, `{NAME}/{NAME} Log/`) already encodes anchor scope.
+**Why:** these patterns are unique enough on their own (F-numbers monotonic-forever, `US-<SLUG>-<N>` encodes the slug directly, ISO dates plus topic). Adding a slug prefix would be redundant. The parent folder (`{slug} Track/{slug} Features/`, `{slug} Design/{slug} PRD/`, `{slug}/{slug} Log/`) already encodes anchor scope.
 
 ### RULE R-naming-04 — Slug-prefix-sufficient-by-chance allowed sparingly (stated)
 
@@ -143,7 +143,7 @@ Files with names so domain-specific they're unlikely to collide vault-wide (e.g.
 
 ### RULE R-naming-05 — Folder-anchor files match their folder name (checked)
 
-A folder-anchor's marker file is named `{folder name}.md` — i.e., `{NAME} Design/` contains `{NAME} Design.md`; `{NAME} Track/{NAME} Features/` contains `{NAME} Features.md`. The marker file name equals the folder name verbatim. This is the simplest instance of R-naming-01.
+A folder-anchor's marker file is named `{folder name}.md` — i.e., `{slug} Design/` contains `{slug} Design.md`; `{slug} Track/{slug} Features/` contains `{slug} Features.md`. The marker file name equals the folder name verbatim. This is the simplest instance of R-naming-01.
 
 **Check pattern:** for each folder whose `.anchor` file is present, assert `<folder>/<folder basename>.md` exists.
 

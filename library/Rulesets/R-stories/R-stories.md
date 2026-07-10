@@ -1,6 +1,6 @@
 # RULESET R-stories
 include:: [[FCT Stories#RULESET R-stories\|embedded body]]
-description:: Rules for the {NAME} Stories facet — folder shape, story file names, dispatch table, bidirectional linking.
+description:: Rules for the {slug} Stories facet — folder shape, story file names, dispatch table, bidirectional linking.
 
 Catalog-side stub for the Stories facet ruleset. Canonical body lives embedded inside [[FCT Stories]] per the [[F133 — Rulesets folder convention + facet embedding|F133]] convention.
 

@@ -2,7 +2,7 @@
 
 This folder holds **canonical decision sets** (post-F113 successor to `~/.claude/skills/rule/sets/`). Each set is a standalone markdown doc bundling related decisions that apply to a specific style of anchor or a specific cross-cutting concern.
 
-Per [[F113 — Decisions facet — unify Principles + Rules; relocate Architecture]] Phase 3: decision sets supersede rulesets. When an anchor pulls a set in, the set's decisions get renumbered into the anchor's local D-NN namespace and appended as an H2 grouping in `{NAME} Decisions.md` (per F113 Q2 — copy-in semantics).
+Per [[F113 — Decisions facet — unify Principles + Rules; relocate Architecture]] Phase 3: decision sets supersede rulesets. When an anchor pulls a set in, the set's decisions get renumbered into the anchor's local D-NN namespace and appended as an H2 grouping in `{slug} Decisions.md` (per F113 Q2 — copy-in semantics).
 
 ## Layout
 
@@ -104,7 +104,7 @@ Brief paragraph: what this set is, when it applies.
 
 ## How sets are consumed
 
-- **`/decision consider`** (post-F113 successor to `/rule consider`) — reads sets, recommends which apply to a project, applies approved ones into the anchor's `{NAME} Decisions.md`.
+- **`/decision consider`** (post-F113 successor to `/rule consider`) — reads sets, recommends which apply to a project, applies approved ones into the anchor's `{slug} Decisions.md`.
 - **`/decision sync`** — three-way-merge distribution of canonical sets into anchor copies; respects user-local edits.
 - **`/decision suggest`** — given an anchor's traits, proposes which sets to adopt.
 

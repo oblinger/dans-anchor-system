@@ -1,5 +1,5 @@
 ---
-description: "status facet — one {NAME} Status.md per anchor tracking design-phase completeness via a tier ladder"
+description: "status facet — one {slug} Status.md per anchor tracking design-phase completeness via a tier ladder"
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Status](hook://p/FCT%20Status)
@@ -23,15 +23,15 @@ One file per anchor that tracks design-phase completeness, one dataview line per
 | [[#See also]] |  |
 | **[[#BRIEF]]** |  |
 
-**TLDR** — One `{NAME} Status.md` per anchor (cardinality: **one**), body-only (no YAML frontmatter), with a `description::` line followed by exactly five `<facet>::` dataview lines in declared order (`prd`, `ux`, `architecture`, `testing`, `roadmap`). Each cell is one of `none < MVP-agent < MVP-user < Full-agent < Full-user`. Reads/writes are mediated by the `state` script; the picker walks the ladder bottom-up; promotion is monotonic.
+**TLDR** — One `{slug} Status.md` per anchor (cardinality: **one**), body-only (no YAML frontmatter), with a `description::` line followed by exactly five `<facet>::` dataview lines in declared order (`prd`, `ux`, `architecture`, `testing`, `roadmap`). Each cell is one of `none < MVP-agent < MVP-user < Full-agent < Full-user`. Reads/writes are mediated by the `state` script; the picker walks the ladder bottom-up; promotion is monotonic.
 
-The Status facet specifies the format of `{NAME} Status.md` — the per-anchor file that tracks **design-phase completeness**. One row per design facet (`prd` / `ux` / `architecture` / `testing` / `roadmap`), each carrying a tier value, a grading-actor, a date, and a one-line rationale. The file is read by `/design`'s picker (bare `/design` dispatches to the lowest-tier facet) and by `/mint`'s pre-implementation gate.
+The Status facet specifies the format of `{slug} Status.md` — the per-anchor file that tracks **design-phase completeness**. One row per design facet (`prd` / `ux` / `architecture` / `testing` / `roadmap`), each carrying a tier value, a grading-actor, a date, and a one-line rationale. The file is read by `/design`'s picker (bare `/design` dispatches to the lowest-tier facet) and by `/mint`'s pre-implementation gate.
 
 Body-only — no YAML frontmatter. The first content line is the `# CAB Status` H1; the second is the `description::` dataview inline field above; everything else is plain markdown. (Same body-only discipline as [[FCT Ruleset]].)
 
 ## Location
 
-`{NAME} Track/{NAME} Status.md` — single file per anchor, in the Track folder alongside Backlog and Roadmap. Reachable from `{NAME} Track.md`'s dispatch table via a `[[{NAME} Status]]` row.
+`{slug} Track/{slug} Status.md` — single file per anchor, in the Track folder alongside Backlog and Roadmap. Reachable from `{slug} Track.md`'s dispatch table via a `[[{slug} Status]]` row.
 
 ## Distinction — workflow state vs Status cell
 
@@ -49,8 +49,8 @@ A facet can be `[Ready]` in workflow terms AND `MVP-agent` in Status terms simul
 ## File shape
 
 ```markdown
-# {NAME} Status
-description:: status facet — one `{NAME} Status.md` per anchor tracking design-phase completeness via a tier ladder
+# {slug} Status
+description:: status facet — one `{slug} Status.md` per anchor tracking design-phase completeness via a tier ladder
 
 prd::          MVP-user  (2026-06-08) — covers golden path; edge cases unspecified
 ux::           MVP-agent (2026-06-07) — three screens sketched; flow validated
@@ -61,7 +61,7 @@ roadmap::      none
 
 **Required lines, positional:**
 
-- **Line 1:** `# CAB Status` H1 — wait, in the concrete file: `# {NAME} Status` (the file's H1 matches the anchor).
+- **Line 1:** `# CAB Status` H1 — wait, in the concrete file: `# {slug} Status` (the file's H1 matches the anchor).
 - **Line 2:** `description::` dataview inline field — one-line tagline.
 - **Lines 4+:** one `<facet>::` dataview line per design facet, in declared order: `prd`, `ux`, `architecture`, `testing`, `roadmap`. The order is load-bearing — `/design`'s picker walks them in this order for tie-breaks.
 
@@ -92,31 +92,31 @@ Each facet line follows this shape:
 
 ## State script
 
-Reads and writes `{NAME} Status.md` are mediated by `~/.claude/skills/workflow/scripts/state`. The script lives in the [[workflow]] discipline's scripts folder (parallel to `backlog-edit.py` which mediates [[CAB Backlog]]'s file). Hand-editing the Status file is discouraged but not forbidden — the script just validates and rewrites on next access.
+Reads and writes `{slug} Status.md` are mediated by `~/.claude/skills/workflow/scripts/state`. The script lives in the [[workflow]] discipline's scripts folder (parallel to `backlog-edit.py` which mediates [[CAB Backlog]]'s file). Hand-editing the Status file is discouraged but not forbidden — the script just validates and rewrites on next access.
 
 Key invocations:
 
 ```bash
-state --anchor {NAME} status show              # Print all facets one per line
-state --anchor {NAME} status set <facet> <cell> --note "<reason>"  # Promote one facet
-state --anchor {NAME} status get <facet>       # Print one facet
+state --anchor {slug} status show              # Print all facets one per line
+state --anchor {slug} status set <facet> <cell> --note "<reason>"  # Promote one facet
+state --anchor {slug} status get <facet>       # Print one facet
 ```
 
-On first `set`, the script auto-creates `{NAME} Status.md` with all 5 facets at `none`.
+On first `set`, the script auto-creates `{slug} Status.md` with all 5 facets at `none`.
 
 ## Track dispatch wiring
 
-The Track folder's dispatch page (`{NAME} Track.md`) MUST include a row pointing at the Status file:
+The Track folder's dispatch page (`{slug} Track.md`) MUST include a row pointing at the Status file:
 
 ```markdown
-| [[{NAME} Status]] | design-phase completeness per facet; consumed by /design picker |
+| [[{slug} Status]] | design-phase completeness per facet; consumed by /design picker |
 ```
 
 That makes the Status reachable in one click from the anchor's main Track surface.
 
 ## Trait applicability
 
-Available to any anchor with a `{NAME} Design/` folder per [[FCT Design]]. v1 facet list (`prd`, `ux`, `architecture`, `testing`, `roadmap`) matches the canonical `/design` phase set; per-trait facet-list customization is Phase 2.
+Available to any anchor with a `{slug} Design/` folder per [[FCT Design]]. v1 facet list (`prd`, `ux`, `architecture`, `testing`, `roadmap`) matches the canonical `/design` phase set; per-trait facet-list customization is Phase 2.
 
 ## Audit
 
@@ -126,9 +126,9 @@ Available to any anchor with a `{NAME} Design/` folder per [[FCT Design]]. v1 fa
 - **non-monotonic** — a `set` operation tried to downgrade a cell (script-side; recorded for audit).
 - **missing-note-on-user** — `*-user` tier line has no `— <note>`.
 - **missing-date** — non-`none` cell has no `(YYYY-MM-DD)`.
-- **wrong-location** — file lives anywhere other than `{NAME} Track/`.
+- **wrong-location** — file lives anywhere other than `{slug} Track/`.
 - **frontmatter-present** — YAML frontmatter on the file (should be body-only).
-- **dispatch-unlinked** — `{NAME} Track.md` doesn't have a row linking to `[[{NAME} Status]]`.
+- **dispatch-unlinked** — `{slug} Track.md` doesn't have a row linking to `[[{slug} Status]]`.
 
 ## See also
 
@@ -141,32 +141,32 @@ Available to any anchor with a `{NAME} Design/` folder per [[FCT Design]]. v1 fa
 # RULESET R-status
 include::
 where:: `file:{ANCHOR}/**/* Status.md`
-description:: Structural rules for the {NAME} Status.md facet doc; enforces the per-facet dataview-line shape and cell ladder.
+description:: Structural rules for the {slug} Status.md facet doc; enforces the per-facet dataview-line shape and cell ladder.
 
 Embedded ruleset for the Status facet, co-located with the facet spec above per the [[F133 — Rulesets folder convention + facet embedding|F133]] embedding convention. Adopted via `R-facet` umbrella.
 
-### RULE R-status-01 — File name `{NAME} Status.md` (checked)
+### RULE R-status-01 — File name `{slug} Status.md` (checked)
 check:: status_filename_valid
 
-The status file is named `{NAME} Status.md` — anchor slug + space + `Status.md`. No qualifier suffix.
+The status file is named `{slug} Status.md` — anchor slug + space + `Status.md`. No qualifier suffix.
 
-**Check pattern:** `ls "{anchor}/{NAME} Track/{NAME} Status.md"` exists; no alternate `Status Tracking.md` / `Plan Status.md` etc. alongside.
+**Check pattern:** `ls "{anchor}/{slug} Track/{slug} Status.md"` exists; no alternate `Status Tracking.md` / `Plan Status.md` etc. alongside.
 
 **Why:** the picker, the state script, and the Track-dispatch wiring all assume this exact name. Aliases break all three.
 
-### RULE R-status-02 — Lives under `{NAME} Track/` (checked)
+### RULE R-status-02 — Lives under `{slug} Track/` (checked)
 check:: status_in_track_folder
 
 The Status file lives inside the Track folder, NOT the Design folder, NOT the anchor root.
 
-**Check pattern:** path matches `{anchor}/{NAME} Track/{NAME} Status.md`.
+**Check pattern:** path matches `{anchor}/{slug} Track/{slug} Status.md`.
 
 **Why:** Status is a Track-folder facet (sibling of Backlog/Roadmap) — it tracks design *progress*, not design *content*. Design-folder content is what gets graded; Status is the grade book.
 
 ### RULE R-status-03 — Body-only, no YAML frontmatter (checked)
 check:: regex_absent ^---$
 
-The first non-blank line of the file is `# {NAME} Status` (H1). No `---` YAML block precedes it.
+The first non-blank line of the file is `# {slug} Status` (H1). No `---` YAML block precedes it.
 
 **Check pattern:** first non-blank line starts with `# `; does not start with `---`.
 
@@ -220,9 +220,9 @@ For every cell ending in `-user`, the line includes an em-dash followed by a sho
 ### RULE R-status-09 — Track dispatch links to the Status file (checked)
 check:: status_track_dispatch_linked
 
-`{NAME} Track.md` contains a dispatch-table row whose link target is `[[{NAME} Status]]`.
+`{slug} Track.md` contains a dispatch-table row whose link target is `[[{slug} Status]]`.
 
-**Check pattern:** grep `{NAME} Track.md` for `\[\[{NAME} Status\]\]`.
+**Check pattern:** grep `{slug} Track.md` for `\[\[{slug} Status\]\]`.
 
 **Why:** the Status file should be one click away from the anchor's main Track surface. Otherwise users (and the agent) don't discover it.
 
@@ -240,7 +240,7 @@ The state script's `set` operation does not allow downgrading a cell (e.g., `MVP
 
 - **This is the Status-facet spec, not a Status file** — don't paste live status entries here as if it were a status surface; sample entries stay in fenced code blocks illustrating the format.
 - **Keep the two vocabularies separate** — workflow state (`[Ready]/[Active]/…`, in [[workflow]]) and the Status-cell ladder are orthogonal; § Distinction is the canonical place that contrast lives — don't merge, alias, or cross-reference them elsewhere.
-- **Inclusion test for new rules / sections** — the rule must constrain the *file format, location, or promotion semantics* of `{NAME} Status.md` itself; picker behavior, `/mint`-gate logic, and per-facet authoring belong in [[design]] or the relevant `CAB <Facet>.md`, not here.
+- **Inclusion test for new rules / sections** — the rule must constrain the *file format, location, or promotion semantics* of `{slug} Status.md` itself; picker behavior, `/mint`-gate logic, and per-facet authoring belong in [[design]] or the relevant `CAB <Facet>.md`, not here.
 - **Cell ladder + facet names are load-bearing** — changing the five ladder values or their order, or the five facet names or their declared order, requires coordinated updates to the `state` script, `/design`'s picker, and every adopting anchor's Status file.
 - **Embedded `# RULESET R-status` stays co-located (F133)** — don't split it into a sibling Rules file; keep the `(checked)` / `(sampled)` / `(stated)` markers honest — they tell the audit script which rules it can mechanize.
 - **Keep the two views in sync** — when the format changes, update the § File shape example AND the corresponding `RULE R-status-NN` in the same pass; they must not drift.

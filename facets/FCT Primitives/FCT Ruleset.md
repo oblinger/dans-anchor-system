@@ -1,5 +1,5 @@
 ---
-description: "the Ruleset facet — what a ruleset is and the format every ruleset file (a standalone `R-<slug>` or an anchor-local {NAME} Rules.md) must take"
+description: "the Ruleset facet — what a ruleset is and the format every ruleset file (a standalone `R-<slug>` or an anchor-local {slug} Rules.md) must take"
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Primitives]] → [FCT Ruleset](hook://p/FCT%20Ruleset)
@@ -26,13 +26,13 @@ A named, reusable bundle of audit-checkable rules — and the spec for how to wr
 | **[[#BRIEF]]** |  |
 
 **TLDR**
-- **What it is** — a named bundle of portable, audit-checkable rules (`# RULESET R-<slug>`), or an anchor-local `{NAME} Rules.md`.
+- **What it is** — a named bundle of portable, audit-checkable rules (`# RULESET R-<slug>`), or an anchor-local `{slug} Rules.md`.
 - **Required form** — `RULESET` / `RULE` sentinels; `include::` + `description::` header; `### RULE R-<slug>-NN (tier)` entries with a `**Check pattern:**`.
 - **How it's used** — activated for an anchor via its traits, composed via `include::`; computed by Warden (`/audit rules` + live hooks).
 - **Detection** — file-existence + the `# RULESET R-` content sentinel (catches embedded rulesets too); cardinality **many**.
 
 ## Overview
-The Ruleset facet specifies the format for any file that **defines rules** — whether a catalog ruleset under `~/.claude/skills/SKL User Docs/SKL/SKL Library/Rulesets/` or an anchor-local `{NAME} Rules.md` under `{NAME} Design/`.
+The Ruleset facet specifies the format for any file that **defines rules** — whether a catalog ruleset under `~/.claude/skills/SKL User Docs/SKL/SKL Library/Rulesets/` or an anchor-local `{slug} Rules.md` under `{slug} Design/`.
 
 A **rule** is a standing constraint or guideline — portable, reusable, audit-checkable. A **ruleset** is a named bundle of rules that travel together. Rules bind to an anchor by **activation** — the anchor's traits pull in rulesets ([[Warden Semantics]] § Rulesets) — and to files via `where::`.
 
@@ -40,17 +40,17 @@ See [[FCT Decisions]] for the companion facet (anchor-level decisions). See [[Ru
 
 ## History note
 
-This spec was previously deprecated post-F113, when "Principles + Rules" were unified into "Decisions." The 2026-06-08 vocabulary refinement re-split: rules (portable constraints) live in Rulesets and use this facet; decisions (anchor-specific applied choices) live in `{NAME} Decisions.md` and use [[FCT Decisions]]. The 2026-07-01 doctrine sets the current relationship — see § Relationship to decisions.
+This spec was previously deprecated post-F113, when "Principles + Rules" were unified into "Decisions." The 2026-06-08 vocabulary refinement re-split: rules (portable constraints) live in Rulesets and use this facet; decisions (anchor-specific applied choices) live in `{slug} Decisions.md` and use [[FCT Decisions]]. The 2026-07-01 doctrine sets the current relationship — see § Relationship to decisions.
 
 ## When this facet applies
 
 **Required reading for:**
 - Any file in `SKL Library/Rulesets/` — both individual rulesets and umbrella sets that include others.
-- Any `{NAME} Rules.md` an anchor authors when it has rules too anchor-specific to belong in a shared ruleset.
+- Any `{slug} Rules.md` an anchor authors when it has rules too anchor-specific to belong in a shared ruleset.
 
 **Not required for:**
-- `{NAME} Decisions.md` (that's [[FCT Decisions]]) — though a companion `# RULESET` embedded there follows this facet like any other.
-- Most anchors — their rules arrive via trait activation and they never write their own `{NAME} Rules.md`.
+- `{slug} Decisions.md` (that's [[FCT Decisions]]) — though a companion `# RULESET` embedded there follows this facet like any other.
+- Most anchors — their rules arrive via trait activation and they never write their own `{slug} Rules.md`.
 
 ## File shape — body-only, prescriptive structure (2026-06-08)
 
@@ -85,7 +85,7 @@ Declarative statement of what the rule requires or forbids.
     - **Bare names** — `include:: R-sugiyama, R-c4` — resolved by the flatten script via vault search.
     - **Wiki-links** — `include:: [[R-sugiyama]], [[R-c4]]` — clickable in Obsidian reading view; otherwise equivalent. The flatten script unwraps `~~[[...]]~~` before resolving. Wiki-link form is preferred for readability when authoring in Obsidian; bare form is fine for machine-generated files.
     - The two may be mixed within a single line (`include:: R-sugiyama, [[R-c4]]`). Strike-through markers (`~~[[R-foo]]~~`) are an Obsidian rendering artifact and not part of the format; flatten and audit ignore them and resolve the underlying name.
-- **`where::` line (optional — F161; sits between `include::` and `description::`): the set-level selector.** Names which files this set's rules apply to — the default for any rule without its own `where::`. A glob (with the anchor-root token `{ANCHOR}`), or `always` / `anchor` / `sentinel: <regex>`. **Full syntax — the predefined `{ANCHOR}` / `{NAME}` tokens, glob rules, precedence, and exhaustive examples — is in § Where clause — the rule selector below.** Consumed by the audit engine ([[F001 — Rule-driven audit engine — resolve, run, judge|F001]]) to bind rules to targets; dogfooded in `# RULESET R-ruleset` below.
+- **`where::` line (optional — F161; sits between `include::` and `description::`): the set-level selector.** Names which files this set's rules apply to — the default for any rule without its own `where::`. A glob (with the anchor-root token `{ANCHOR}`), or `always` / `anchor` / `sentinel: <regex>`. **Full syntax — the predefined `{ANCHOR}` / `{slug}` tokens, glob rules, precedence, and exhaustive examples — is in § Where clause — the rule selector below.** Consumed by the audit engine ([[F001 — Rule-driven audit engine — resolve, run, judge|F001]]) to bind rules to targets; dogfooded in `# RULESET R-ruleset` below.
 - **Line 3: `description::` line** — Dataview inline field. One-line tagline (8–15 words) of what this ruleset covers and when it applies. Required. Plain prose only: **no `::` tokens in the value** (the double-colon is reserved syntax for inline-field keys; mentioning `include::` or `description::` as a noun inside the value will collide with the Dataview parser). The single-line constraint forces tightness.
 - **Line 4+ (body paragraph immediately under `description::`):** plain prose paragraph(s) carrying provenance, use-case context, source attribution, history, factoring notes — anything longer than the tagline. Any length. This is the canonical home for the prose that doesn't fit in `description::`; it reads more naturally than `> [!info]` callouts for the standard "what this set is about" content. Callouts remain available for asides (see below).
 
@@ -123,7 +123,7 @@ Each individual rule is a markdown heading whose first content is the all-caps `
 **Examples — all valid:**
 
 ```markdown
-### RULE R-testing-01 — File name is `{NAME} Testing.md` (checked)
+### RULE R-testing-01 — File name is `{slug} Testing.md` (checked)
 #### RULE R-mux-design-04 — Workers run as separate processes (stated)
 ## RULE R-disk-naming-01 — Drive names are uppercase kebab
 ### RULE R-ad-hoc-01
@@ -135,7 +135,7 @@ Each individual rule is a markdown heading whose first content is the all-caps `
 grep -rnE '^#+\s+RULE\s+R-' --include='*.md' .
 ```
 
-**Rules can live anywhere a markdown heading can.** Inside `# RULESET R-<slug>` blocks (the canonical home); inside a project's `{NAME} Design/<doc>.md` (implicitly part of that project's design ruleset); inside a facet's CAB doc as an embedded RULESET; inside an architecture decision record; inside a discussion doc. The sentinel makes the rule machine-discoverable wherever it lives.
+**Rules can live anywhere a markdown heading can.** Inside `# RULESET R-<slug>` blocks (the canonical home); inside a project's `{slug} Design/<doc>.md` (implicitly part of that project's design ruleset); inside a facet's CAB doc as an embedded RULESET; inside an architecture decision record; inside a discussion doc. The sentinel makes the rule machine-discoverable wherever it lives.
 
 **Rule body** (any number of paragraphs immediately following the heading):
 
@@ -178,7 +178,7 @@ A set whose rules are *not* universal should declare an explicit `where::` rathe
 | Token | Substitutes |
 |---|---|
 | `{ANCHOR}` | the adopting anchor's root **directory** (a path) |
-| `{NAME}` | the adopting anchor's **name** string (e.g. `CAE`) — the same `{NAME}` used in filenames like `{NAME} Backlog.md` |
+| `{slug}` | the adopting anchor's **name** string (e.g. `CAE`) — the same `{slug}` used in filenames like `{slug} Backlog.md` |
 
 `{VAULT}` (the kmr root) and `{REPO}` (a code anchor's repository root) are **reserved** for future use. Any new predefined token must be ALL-CAPS, to stay clear of glob alternation (below).
 
@@ -194,7 +194,7 @@ A set whose rules are *not* universal should declare an explicit `where::` rathe
 | trailing `/` | directories only (e.g. `{ANCHOR}/Docs/*/`) |
 | leading `!` | **negation** — exclude matches (gitignore-style); a later pattern can re-include |
 
-**Disambiguation — `{ANCHOR}` token vs `{a,b}` alternation.** A brace group is a **predefined token** iff its entire content is a single reserved ALL-CAPS identifier (`{ANCHOR}`, `{NAME}`). Otherwise it is **glob alternation** (`{svg,png}`, `{PRD,Roadmap}` — "Roadmap" is mixed-case, so the group is alternation, not a token). This is the whole reason the predefined tokens are ALL-CAPS: it keeps `{ANCHOR}` (substitution) unambiguous from `{svg,png}` (alternation) in the same syntax.
+**Disambiguation — `{ANCHOR}` token vs `{a,b}` alternation.** A brace group is a **predefined token** iff its entire content is a single reserved ALL-CAPS identifier (`{ANCHOR}`, `{slug}`). Otherwise it is **glob alternation** (`{svg,png}`, `{PRD,Roadmap}` — "Roadmap" is mixed-case, so the group is alternation, not a token). This is the whole reason the predefined tokens are ALL-CAPS: it keeps `{ANCHOR}` (substitution) unambiguous from `{svg,png}` (alternation) in the same syntax.
 
 **Multiple globs and exclusions.** `where::` takes a comma-separated list; the rule applies to the **union** of the positive patterns minus the negated ones — `where:: {ANCHOR}/**/*.md, !{ANCHOR}/**/Closet/**`.
 
@@ -207,13 +207,13 @@ Each row is a complete `where::` value:
 | *(omitted)* | every file — falls through to `always` |
 | `always` | every file the audit visits |
 | `anchor` | once per anchor — a structural / tree check, not per-file |
-| `{ANCHOR}/{NAME}.md` | exactly the anchor page |
+| `{ANCHOR}/{slug}.md` | exactly the anchor page |
 | `{ANCHOR}/*.md` | markdown files in the anchor **root only** (non-recursive) |
 | `{ANCHOR}/**/*.md` | every markdown file anywhere under the anchor |
 | `{ANCHOR}/Docs/**` | everything (any type) under `Docs/`, recursively |
 | `{ANCHOR}/Docs/*/` | the immediate **sub-folders** of `Docs/` (trailing `/` = dirs) |
-| `{ANCHOR}/**/{NAME} Backlog.md` | the backlog file wherever it sits in the tree |
-| `{ANCHOR}/**/{NAME} {PRD,Roadmap}.md` | the PRD **and** the Roadmap — `{NAME}` token + `{PRD,Roadmap}` alternation in one glob |
+| `{ANCHOR}/**/{slug} Backlog.md` | the backlog file wherever it sits in the tree |
+| `{ANCHOR}/**/{slug} {PRD,Roadmap}.md` | the PRD **and** the Roadmap — `{slug}` token + `{PRD,Roadmap}` alternation in one glob |
 | `{ANCHOR}/**/F[0-9][0-9][0-9] — *.md` | feature docs (zero-padded `F<NNN>` prefix) |
 | `{ANCHOR}/**/*.{svg,png}` | all SVG and PNG files (brace alternation) |
 | `{ANCHOR}/src/**/*.rs` | Rust sources under the code repo's `src/` |
@@ -230,8 +230,8 @@ A set declares a default `where::`; a single rule overrides it. Literal ruleset 
 ```
 # RULESET R-sample
 include::
-where:: `{ANCHOR}/**/{NAME} Backlog.md`
-description:: Structure every {NAME} Backlog.md obeys.
+where:: `{ANCHOR}/**/{slug} Backlog.md`
+description:: Structure every {slug} Backlog.md obeys.
 
 ### RULE R-sample-01 — Rows carry a status bracket (checked)
 (no own where:: — inherits the set's: runs on the backlog file)
@@ -283,7 +283,7 @@ Decisions ([[FCT Decisions]]) are the documentation layer above rules — broade
 
 ## Trait applicability
 
-Available to any anchor that needs to author or adopt rules. Most anchors won't author a `{NAME} Rules.md` — their rules arrive via trait activation, and anchor-local rules ride as a companion `# RULESET` in the decisions file ([[FCT Decisions]] § Companion ruleset). The facet exists to spec the format for the rare case AND for the ruleset catalog.
+Available to any anchor that needs to author or adopt rules. Most anchors won't author a `{slug} Rules.md` — their rules arrive via trait activation, and anchor-local rules ride as a companion `# RULESET` in the decisions file ([[FCT Decisions]] § Companion ruleset). The facet exists to spec the format for the rare case AND for the ruleset catalog.
 
 ## Audit
 
@@ -299,7 +299,7 @@ Available to any anchor that needs to author or adopt rules. Most anchors won't 
 - [[FCT Decisions]] — companion facet (anchor-level applied choices).
 - [[Rulesets]] — the catalog of cross-cutting, owner-scoped, and trait-scoped rulesets.
 - [[R-diagram]] — worked example (22 diagram-validation rules in 5 zones, from the 2026-06-08 survey).
-- [[FEX Rules]] — worked example of `{NAME} Rules.md` (anchor-local; adopts `R-diagram`).
+- [[FEX Rules]] — worked example of `{slug} Rules.md` (anchor-local; adopts `R-diagram`).
 
 # RULESET R-ruleset
 include::
@@ -379,7 +379,7 @@ A standalone `R-<slug>.md` has no YAML frontmatter (an embedded `# RULESET` live
 
 ### RULE R-ruleset-12 — `where::` uses predefined `{ALL-CAPS}` tokens + standard globs (stated)
 
-A `where::` value is `always`, a path glob (optionally `file:`-prefixed), `anchor`, or `sentinel: <regex>`. Inside a glob, a `{...}` group is a predefined token only when its content is a reserved ALL-CAPS identifier (`{ANCHOR}`, `{NAME}`); lower / mixed-case brace groups are glob alternation. The authored line backtick-wraps the whole expression — `` where:: `file:{ANCHOR}/**/*.md` `` — so the glob characters (`*`, `{}`, `!`) render as inline code instead of corrupting the markdown (F172); parsers strip the single surrounding pair, and the bare legacy form is still accepted.
+A `where::` value is `always`, a path glob (optionally `file:`-prefixed), `anchor`, or `sentinel: <regex>`. Inside a glob, a `{...}` group is a predefined token only when its content is a reserved ALL-CAPS identifier (`{ANCHOR}`, `{slug}`); lower / mixed-case brace groups are glob alternation. The authored line backtick-wraps the whole expression — `` where:: `file:{ANCHOR}/**/*.md` `` — so the glob characters (`*`, `{}`, `!`) render as inline code instead of corrupting the markdown (F172); parsers strip the single surrounding pair, and the bare legacy form is still accepted.
 
 **Check pattern:** for each `where::`, assert the scope kind is one of the four forms (after stripping the surrounding backtick pair); assert every `{...}` group is either a recognized predefined token or a valid alternation (lower / mixed case).
 

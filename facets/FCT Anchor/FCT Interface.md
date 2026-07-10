@@ -4,7 +4,7 @@ description: top-level human-authored layer contract — complete vocabulary for
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Anchor]] → [FCT Interface](hook://p/FCT%20Interface)
 # FCT Interface
-The facet spec for `{NAME} Interface.md` — the top-level human-authored layer contract on a code anchor, defining the complete caller-facing vocabulary while hiding the implementation below.
+The facet spec for `{slug} Interface.md` — the top-level human-authored layer contract on a code anchor, defining the complete caller-facing vocabulary while hiding the implementation below.
 
 **Related:** [[FCT Architecture]],  [[FCT Module Doc]],  [[FCT User Dispatch]],  [[FCT All Files]]
 **Examples:** [[HA Interface\|minimal — CLI tool, one caller surface]],  [[MUX Interface\|fuller — app with multiple caller surfaces + sub-Interfaces]]
@@ -23,13 +23,13 @@ The facet spec for `{NAME} Interface.md` — the top-level human-authored layer 
 | [[#Cross-references]] |  |
 | **[[#BRIEF]]** |  |
 
-**TLDR** — `{NAME} Interface.md` is the **one** doc a caller reads to fully use a code anchor's layer — layer-complete, hiding, human-authored, and human-audited. Required on every `code`-trait anchor. **Cardinality: one per anchor** (plus optional named sub-Interfaces for internal layers). Audited by `/audit docs` under `§ 1.8`; scaffolded by `rewire`.
+**TLDR** — `{slug} Interface.md` is the **one** doc a caller reads to fully use a code anchor's layer — layer-complete, hiding, human-authored, and human-audited. Required on every `code`-trait anchor. **Cardinality: one per anchor** (plus optional named sub-Interfaces for internal layers). Audited by `/audit docs` under `§ 1.8`; scaffolded by `rewire`.
 
-**Location:** `{NAME} Docs/{NAME} Design/{NAME} Interface.md`
+**Location:** `{slug} Docs/{slug} Design/{slug} Interface.md`
 
-(Relocated from `{NAME} User/` per [[F094 — Anchor docs folder restructure — Track _ User _ Architecture _ Dev|F094]] Q3=A — 2026-06-01. Interface describes a *system contract callers consume*, not an end-user task; it belongs in [[FCT Design Dispatch|Design]] alongside Architecture + UX Design + Data Model + Principles, not in [[FCT User Dispatch|User]].)
+(Relocated from `{slug} User/` per [[F094 — Anchor docs folder restructure — Track _ User _ Architecture _ Dev|F094]] Q3=A — 2026-06-01. Interface describes a *system contract callers consume*, not an end-user task; it belongs in [[FCT Design Dispatch|Design]] alongside Architecture + UX Design + Data Model + Principles, not in [[FCT User Dispatch|User]].)
 
-`{NAME} Interface.md` is the **top-level human-authored layer contract** for a code anchor — the complete vocabulary a caller needs to use the layer, written explicitly enough that the caller does not have to descend into the layer below.
+`{slug} Interface.md` is the **top-level human-authored layer contract** for a code anchor — the complete vocabulary a caller needs to use the layer, written explicitly enough that the caller does not have to descend into the layer below.
 
 ## Defining Properties
 
@@ -56,7 +56,7 @@ Other traits (`simple`, `topic`, `paper`) typically don't have an Interface — 
 
 ## Sub-Interfaces — Nested Layers
 
-A code anchor often has internal layers worth documenting separately — an internal library, a subsystem with its own API, a protocol stack. Each such layer gets its own `{NAME} {LayerName} Interface.md` alongside the top-level one. Sub-Interfaces sit one level below the top-level Interface in the User dispatch (or in a layer-specific subfolder for deep nestings).
+A code anchor often has internal layers worth documenting separately — an internal library, a subsystem with its own API, a protocol stack. Each such layer gets its own `{slug} {LayerName} Interface.md` alongside the top-level one. Sub-Interfaces sit one level below the top-level Interface in the User dispatch (or in a layer-specific subfolder for deep nestings).
 
 Example shapes:
 
@@ -73,8 +73,8 @@ Each sub-Interface satisfies the four invariants *for its own layer*. The top-le
 
 Two structural links every Interface must satisfy — `/audit docs` enforces these:
 
-1. **`{NAME} Files.md` row 1** (the repo-root row) ends with `→ [[{NAME} Interface]]`. The wiki-link resolves by basename. This is the entry point for anyone reading the file tree: "start here for the layer contract."
-2. **`{NAME} User.md` dispatch page** lists `[[{NAME} Interface]]` as a top entry, alongside Guide / Architecture / Cards.
+1. **`{slug} Files.md` row 1** (the repo-root row) ends with `→ [[{slug} Interface]]`. The wiki-link resolves by basename. This is the entry point for anyone reading the file tree: "start here for the layer contract."
+2. **`{slug} User.md` dispatch page** lists `[[{slug} Interface]]` as a top entry, alongside Guide / Architecture / Cards.
 
 ## Document Structure
 
@@ -82,8 +82,8 @@ An Interface composes from canonical section types. Pick the ones that apply; no
 
 | Section | When to include | Purpose |
 |---------|-----------------|---------|
-| H1 `# {NAME} Interface` | always | Title |
-| -[[{NAME} Interface]]- |  |
+| H1 `# {slug} Interface` | always | Title |
+| -[[{slug} Interface]]- |  |
 | --- | --- |
 | --- | |
 
@@ -100,7 +100,7 @@ The `## What's Hidden` section is a self-documenting check: writing "callers do 
 
 ## Lifecycle
 
-- **Create** — `rewire` scaffolds the file when missing on a code anchor; the scaffold is empty (TODOs in each section). Rewire also files a backlog row `## Now [Designing] — F<n> Author top-level Interface for {NAME}` to surface the missing-content work.
+- **Create** — `rewire` scaffolds the file when missing on a code anchor; the scaffold is empty (TODOs in each section). Rewire also files a backlog row `## Now [Designing] — F<n> Author top-level Interface for {slug}` to surface the missing-content work.
 - **Author** — the user collaborates with the agent to fill in the scaffold. This is design-bearing work; goes through `[Designing]` → `[Ready]` only after user agreement on the layer contract.
 - **Validate** — promotion to `[Done]` requires user verification that the Interface accurately describes the layer. See [[SKA workflow]] § Interface-validation gate.
 - **Maintain** — Interface drifts when callers see surface changes. Significant API additions, removals, renames, or conceptual-model changes go through the validation gate again. Cosmetic edits don't.
@@ -108,7 +108,7 @@ The `## What's Hidden` section is a self-documenting check: writing "callers do 
 
 ## Relationship to the Root-Module Doc
 
-In languages with a single entry-point module (Rust `lib.rs`, Python `__init__.py`, TypeScript `index.ts`), the Interface often *replaces* the module doc for that root. The root module is usually pure re-exports, so its "module doc" would be a de facto Interface anyway. Renaming `{NAME} Lib.md` → `{NAME} Interface.md` makes the role explicit.
+In languages with a single entry-point module (Rust `lib.rs`, Python `__init__.py`, TypeScript `index.ts`), the Interface often *replaces* the module doc for that root. The root module is usually pure re-exports, so its "module doc" would be a de facto Interface anyway. Renaming `{slug} Lib.md` → `{slug} Interface.md` makes the role explicit.
 
 In codebases without a clear single root (multi-binary workspaces, monorepos), the Interface is a standalone synthesis over the whole codebase.
 
@@ -116,9 +116,9 @@ In codebases without a clear single root (multi-binary workspaces, monorepos), t
 
 `/audit docs` checks (see [[audit-docs]] § 1.8):
 
-- `missing-interface` — no `{NAME} Interface.md` exists on a code anchor.
-- `interface-not-linked-from-files` — `{NAME} Files.md` row 1 doesn't end with `→ [[{NAME} Interface]]`.
-- `interface-not-linked-from-dispatch` — `{NAME} User.md` doesn't list `[[{NAME} Interface]]`.
+- `missing-interface` — no `{slug} Interface.md` exists on a code anchor.
+- `interface-not-linked-from-files` — `{slug} Files.md` row 1 doesn't end with `→ [[{slug} Interface]]`.
+- `interface-not-linked-from-dispatch` — `{slug} User.md` doesn't list `[[{slug} Interface]]`.
 - `interface-incomplete-structure` — required sections (`## Public Modules` and at least one of: `## How They Group`, `## {module}`, `## Schemas`, `## CLI Surface`) are absent.
 - `interface-module-missing` — Interface omits a public module that exists in source.
 - `interface-too-large` — Interface exceeds ~500 lines (suggest splitting into sub-Interfaces).
@@ -134,8 +134,8 @@ In codebases without a clear single root (multi-binary workspaces, monorepos), t
 
 # RULESET R-fct-interface
 include::
-where:: `file: **/{NAME} Interface.md, **/{NAME} * Interface.md`
-description:: The rules every `{NAME} Interface.md` (and sub-Interface) must satisfy — layer-completeness, hiding discipline, required structural links, and lifecycle gates.
+where:: `file: **/{slug} Interface.md, **/{slug} * Interface.md`
+description:: The rules every `{slug} Interface.md` (and sub-Interface) must satisfy — layer-completeness, hiding discipline, required structural links, and lifecycle gates.
 
 ### RULE R-fct-interface-01 — Layer-completeness: required sections present (checked)
 Every top-level Interface doc contains at minimum a brief paragraph naming the layer + what callers gain, and at least one of: `## Public Modules`, `## Schemas`, `## CLI Surface`. Sub-Interfaces follow the same rule for their own layer.
@@ -143,13 +143,13 @@ Every top-level Interface doc contains at minimum a brief paragraph naming the l
 **Why:** an Interface that omits the caller vocabulary fails its core completeness invariant — a caller cannot use the layer from it.
 
 ### RULE R-fct-interface-02 — Required link from Files.md row 1 (checked)
-`{NAME} Files.md` row 1 (the repo-root row) ends with `→ [[{NAME} Interface]]`.
-**Check pattern:** `{NAME} Files.md` row 1 ends with the Interface wiki-link.
+`{slug} Files.md` row 1 (the repo-root row) ends with `→ [[{slug} Interface]]`.
+**Check pattern:** `{slug} Files.md` row 1 ends with the Interface wiki-link.
 **Why:** the Files entry point must direct readers to the layer contract first; a missing link makes the Interface invisible to file-tree navigation.
 
 ### RULE R-fct-interface-03 — Required link from User/Design dispatch (checked)
-`{NAME} User.md` (or `{NAME} Design.md` if the anchor uses the Design dispatch) lists `[[{NAME} Interface]]` as a top-level entry.
-**Check pattern:** the dispatch page includes a `[[{NAME} Interface]]` link.
+`{slug} User.md` (or `{slug} Design.md` if the anchor uses the Design dispatch) lists `[[{slug} Interface]]` as a top-level entry.
+**Check pattern:** the dispatch page includes a `[[{slug} Interface]]` link.
 **Why:** the dispatch page is the caller's entry; an Interface not listed there cannot be discovered without knowing to search for it.
 
 ### RULE R-fct-interface-04 — Human-review gate before Done (stated)
@@ -159,7 +159,7 @@ An Interface transitions to `[Done]` only after user verification that it accura
 
 # BRIEF
 
-*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative contract is the body above. Per-anchor Interface content lives in each anchor's own `{NAME} Interface.md`, never here; scaffold, validation, and audit mechanics live in [[SKA rewire]] / [[SKA workflow]] / [[audit-docs]] — link to those rather than restating them.)*
+*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative contract is the body above. Per-anchor Interface content lives in each anchor's own `{slug} Interface.md`, never here; scaffold, validation, and audit mechanics live in [[SKA rewire]] / [[SKA workflow]] / [[audit-docs]] — link to those rather than restating them.)*
 
 - **Inclusion test** — a change belongs here only if it alters the contract every Interface doc must satisfy (invariants, required sections, required links, lifecycle gates, audit checks).
 - **Audit category names are consumed by tooling** — the identifiers under § Audit Categories are cited by `/audit docs`; don't rename or drop them (or the two Required Links contracts) without updating callers.

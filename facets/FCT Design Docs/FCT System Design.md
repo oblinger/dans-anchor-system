@@ -4,7 +4,7 @@ description: "the current technical-architecture document for a software project
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT System Design](hook://p/FCT%20System%20Design)
 # FCT System Design
-Facet spec for `{NAME} System Design.md` — the current technical-architecture document (components, data model, decisions) for a software project anchor.
+Facet spec for `{slug} System Design.md` — the current technical-architecture document (components, data model, decisions) for a software project anchor.
 
 **Related:** [[FCT PRD]],  [[FCT Decisions]],  [[FCT Discussion]],  [[FCT UX Design]]
 **Examples:** [[SKA System Design\|real anchor example]]
@@ -21,11 +21,11 @@ Facet spec for `{NAME} System Design.md` — the current technical-architecture 
 | [[#Lifecycle]] |  |
 | **[[#BRIEF]]** |  |
 
-**TLDR** One per anchor. `{NAME} System Design.md` lives in `{NAME} Docs/{NAME} Plan/` and records the *current* technical architecture — components, data model, APIs, and architectural decisions. Not a history log; rationale and alternatives belong in [[FCT Discussion]].
+**TLDR** One per anchor. `{slug} System Design.md` lives in `{slug} Docs/{slug} Plan/` and records the *current* technical architecture — components, data model, APIs, and architectural decisions. Not a history log; rationale and alternatives belong in [[FCT Discussion]].
 
 **Cardinality: one per anchor** — a software project anchor has exactly one System Design document at any given time.
 
-The System Design document (`{NAME} System Design.md`) specifies the technical architecture, component boundaries, data models, and APIs for a software project. It contains the current design — not the history of how it was reached.
+The System Design document (`{slug} System Design.md`) specifies the technical architecture, component boundaries, data models, and APIs for a software project. It contains the current design — not the history of how it was reached.
 
 **Working example:** `~/.claude/skills/CAE/CAE Docs/CAE Plan/CAE System Design.md` — System Design.
 
@@ -106,11 +106,11 @@ class TaskResult:
 
 ## Location
 
-`{NAME} System Design.md` lives in `{NAME} Docs/{NAME} Plan/`.
+`{slug} System Design.md` lives in `{slug} Docs/{slug} Plan/`.
 
 ## Top of doc (canonical, per F060)
 
-Every System Design opens with the standard top-of-doc format: YAML frontmatter + `# {NAME} System Design` H1 + dispatch-table placeholder. The **TOC**, **Components**, **Data Model**, and **Decisions** tables are all topic tables (the doc's payload) — they stay as distinct tables BELOW the dispatch table per F060 § Q5.
+Every System Design opens with the standard top-of-doc format: YAML frontmatter + `# {slug} System Design` H1 + dispatch-table placeholder. The **TOC**, **Components**, **Data Model**, and **Decisions** tables are all topic tables (the doc's payload) — they stay as distinct tables BELOW the dispatch table per F060 § Q5.
 
 ## Document Structure
 
@@ -138,16 +138,16 @@ A numbered table recording architectural decisions with rationale. Each decision
 
 # RULESET R-fct-system-design
 include::
-where:: `file: **/{NAME} Docs/{NAME} Plan/{NAME} System Design.md`
-description:: Rules every `{NAME} System Design.md` instance must satisfy — location, top-of-doc shape, required sections, and currency discipline.
+where:: `file: **/{slug} Docs/{slug} Plan/{slug} System Design.md`
+description:: Rules every `{slug} System Design.md` instance must satisfy — location, top-of-doc shape, required sections, and currency discipline.
 
-### RULE R-fct-system-design-01 — Location is `{NAME} Docs/{NAME} Plan/` (checked)
-The System Design file lives at `{NAME} Docs/{NAME} Plan/{NAME} System Design.md` — not at the anchor root, not under `{NAME} Docs/` directly.
-**Check pattern:** file path matches `*/{NAME} Docs/{NAME} Plan/{NAME} System Design.md`.
+### RULE R-fct-system-design-01 — Location is `{slug} Docs/{slug} Plan/` (checked)
+The System Design file lives at `{slug} Docs/{slug} Plan/{slug} System Design.md` — not at the anchor root, not under `{slug} Docs/` directly.
+**Check pattern:** file path matches `*/{slug} Docs/{slug} Plan/{slug} System Design.md`.
 **Why:** consistent location allows skills and audits to find and link the doc without per-anchor config.
 
 ### RULE R-fct-system-design-02 — Top-of-doc shape: YAML + H1 + dispatch table (checked)
-The file opens with YAML frontmatter, then `# {NAME} System Design`, then a dispatch-table placeholder — in that order, before any topic tables (TOC, Components, Data Model, Decisions).
+The file opens with YAML frontmatter, then `# {slug} System Design`, then a dispatch-table placeholder — in that order, before any topic tables (TOC, Components, Data Model, Decisions).
 **Check pattern:** the first three structural blocks are frontmatter → H1 → a `| … | … |` table row.
 **Why:** F060 top-of-doc convention; topic tables below the dispatch table per F060 § Q5.
 
@@ -165,7 +165,7 @@ The document records the *current* architecture, not a changelog. Historical dec
 
 *(Maintainer note — cautions for whoever edits this facet spec. The normative shape is the body + `RULESET R-fct-system-design` above; the inline reference example is illustrative scaffolding only.)*
 
-- **Spec, not an instance** — don't pile real architecture, decisions, or component tables here; those live in per-anchor `{NAME} System Design.md` files (e.g. the CAE working example). Inclusion test: content belongs here only if it specifies *how System Design docs are shaped vault-wide* — section names, ordering, table formats, lifecycle, top-of-doc conventions. Anchor-local rules go in `{NAME} Rules.md` / `{NAME} Decisions.md`; rationale-and-alternatives narrative goes in [[FCT Discussion]] (cite, don't inline).
-- **The load-bearing constraints are read by auditors and tooling** — the `{NAME} Docs/{NAME} Plan/` location, the four canonical H2s (Architecture Overview / Components / Data Model / Decisions), the F060 top-of-doc rule, and the current-spec-only discipline — so don't reorder, rename, or merge them without a coordinated update to CAE and any tooling that scans for these sections.
+- **Spec, not an instance** — don't pile real architecture, decisions, or component tables here; those live in per-anchor `{slug} System Design.md` files (e.g. the CAE working example). Inclusion test: content belongs here only if it specifies *how System Design docs are shaped vault-wide* — section names, ordering, table formats, lifecycle, top-of-doc conventions. Anchor-local rules go in `{slug} Rules.md` / `{slug} Decisions.md`; rationale-and-alternatives narrative goes in [[FCT Discussion]] (cite, don't inline).
+- **The load-bearing constraints are read by auditors and tooling** — the `{slug} Docs/{slug} Plan/` location, the four canonical H2s (Architecture Overview / Components / Data Model / Decisions), the F060 top-of-doc rule, and the current-spec-only discipline — so don't reorder, rename, or merge them without a coordinated update to CAE and any tooling that scans for these sections.
 - **Sibling boundaries:** PRD → [[FCT PRD]]; cross-cutting decisions and rationale → [[FCT Decisions]] / [[FCT Discussion]]; user-facing UX → [[FCT UX Design]]. Link sideways, don't restate.
 - **Working example is the ground truth for shape disputes** — when the inline reference example and `~/.claude/skills/CAE/CAE Docs/CAE Plan/CAE System Design.md` drift, update both in the same edit; CAE is the live exemplar this spec points readers at.

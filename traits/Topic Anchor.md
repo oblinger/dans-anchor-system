@@ -20,8 +20,8 @@ System configuration, knowledge domains, reference areas — anything that is ev
 ```
 {CAB Folder}/
 ├── {CAB Folder}.md                  marker file
-├── {NAME}.md                        anchor page (routing hub)
-├── {NAME} Docs/                     planning docs (optional)
+├── {slug}.md                        anchor page (routing hub)
+├── {slug} Docs/                     planning docs (optional)
 ├── {Sub-Topic}/                     child anchors (optional)
 ├── {Sub-Topic}/
 └── ...
@@ -46,12 +46,12 @@ SYS/
 Type-specific structure checks for Topic Anchors.
 
 ### Required files
-- `{NAME} Docs/` folder with dispatch page
-- `{NAME} Docs/{NAME} Plan/` folder with planning docs
+- `{slug} Docs/` folder with dispatch page
+- `{slug} Docs/{slug} Plan/` folder with planning docs
 
 ### Conditional structure
-- Create `{NAME} Dev/` folder only when another trait requires it (e.g., Code trait)
-- Create `{NAME} User/` folder only when another trait requires it (e.g., Code trait)
+- Create `{slug} Dev/` folder only when another trait requires it (e.g., Code trait)
+- Create `{slug} User/` folder only when another trait requires it (e.g., Code trait)
 - Add a `code:` key to `.anchor` only when the anchor gains the `code` trait
 
 ## Anchor-page example
@@ -62,6 +62,6 @@ Anchor-page kinds catalog: [[FCT Anchor Page]]. Synthetic example: [[Knots]]; re
 
 *(Maintainer note — cautions for whoever edits this trait spec.)*
 
-- **Inclusion test** — content belongs here only if it applies to *every* Topic Anchor (or to the trait-application decision). A one-anchor rule → that anchor's `{NAME} Rules.md` / `{NAME} Decisions.md`; an all-anchor rule → [[CAB Base]]. Document deltas from Base only — don't restate Base. Not a catalog: don't list individual Topic Anchor instances (SYS, MY, etc.) beyond the one illustrative Example block.
+- **Inclusion test** — content belongs here only if it applies to *every* Topic Anchor (or to the trait-application decision). A one-anchor rule → that anchor's `{slug} Rules.md` / `{slug} Decisions.md`; an all-anchor rule → [[CAB Base]]. Document deltas from Base only — don't restate Base. Not a catalog: don't list individual Topic Anchor instances (SYS, MY, etc.) beyond the one illustrative Example block.
 - **Don't regress the load-bearing deltas** — "No repository" (no `.git/`, no `code:` key, no CLAUDE.md) and "lives within the Obsidian vault" are what distinguish Topic from Code; breaking either silently reclassifies the anchor. The Audit § Conditional structure rules guard against accidental Code-trait drift.
 - **Linking convention** — this trait is referenced by name ("Topic Anchor") from `.anchor` config and from [[CAB Base]] / [[TRT]] dispatch tables; rename only via a coordinated rewire across CAB.

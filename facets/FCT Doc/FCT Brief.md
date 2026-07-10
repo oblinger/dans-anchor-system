@@ -90,7 +90,7 @@ Per-file operational content **for the agent**. Concretely:
 - **Markdown-rendering rules** → [[R-markdown]].
 - **Facet-shape conventions** (every Backlog has horizons, every Rules file is a RULESET) → `CAB <Facet>.md`.
 - **Trait-wide rules** (every Skill anchor has X) → `CAB <Trait>.md`.
-- **Anchor-local rules** that apply to many files in the anchor → `{NAME} Rules.md` or `{NAME} Decisions.md`.
+- **Anchor-local rules** that apply to many files in the anchor → `{slug} Rules.md` or `{slug} Decisions.md`.
 - **End-user documentation** (how to use the application) → `<App> User Guide.md`. Briefs are for editors; user guides are for end-users.
 
 The brief is for rules truly specific to one source file.
@@ -217,7 +217,7 @@ A Brief carries *how to maintain this file* (editing rules, inclusion tests, tra
 
 ### RULE R-brief-05 — No duplication of higher-level rules (stated)
 
-A Brief carries only file-specific operational content — never project-wide (CLAUDE.md), markdown ([[R-markdown]]), facet/trait, or anchor-local (`{NAME} Rules.md`) rules.
+A Brief carries only file-specific operational content — never project-wide (CLAUDE.md), markdown ([[R-markdown]]), facet/trait, or anchor-local (`{slug} Rules.md`) rules.
 
 ### RULE R-brief-06 — Briefs don't nest (checked)
 

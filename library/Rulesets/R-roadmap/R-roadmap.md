@@ -1,6 +1,6 @@
 # RULESET R-roadmap
 include:: [[FCT Roadmap#RULESET R-roadmap\|embedded body]]
-description:: Rules for the {NAME} Roadmap.md facet — milestone numbering, checkbox states, Status-line presence, deferral cross-ref, shape consistency.
+description:: Rules for the {slug} Roadmap.md facet — milestone numbering, checkbox states, Status-line presence, deferral cross-ref, shape consistency.
 
 Catalog-side stub for the Roadmap facet ruleset. Canonical body lives embedded inside [[FCT Roadmap]] per [[F133 — Rulesets folder convention + facet embedding|F133]].
 

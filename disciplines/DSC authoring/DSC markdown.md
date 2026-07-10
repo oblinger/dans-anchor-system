@@ -168,7 +168,7 @@ include::
 where:: `**/*.md`
 description:: Mechanical + authoring rules for every markdown document; cited by every facet and skill that produces markdown.
 
-Embedded ruleset for the markdown discipline. Adoption is implicit — every markdown doc in the vault is subject to these rules, no explicit include:: needed in {NAME} Decisions.md. (The catalog still lists R-markdown as a child of the R-facet umbrella for completeness.) Checked rules with a `check::` reference execute mechanically through the audit-plan checker registry (and auto-heal via `fix::` on the on-write doc-fire); checked rules without one are agent-judged at /audit against their **Check pattern**.
+Embedded ruleset for the markdown discipline. Adoption is implicit — every markdown doc in the vault is subject to these rules, no explicit include:: needed in {slug} Decisions.md. (The catalog still lists R-markdown as a child of the R-facet umbrella for completeness.) Checked rules with a `check::` reference execute mechanically through the audit-plan checker registry (and auto-heal via `fix::` on the on-write doc-fire); checked rules without one are agent-judged at /audit against their **Check pattern**.
 
 ### RULE R-markdown-01 — Escape pipes inside wiki-links inside tables (checked)
 description:: A wiki-link in a table cell escapes its alias pipe — [[Target\|alias]] — so the cell doesn't terminate early.
@@ -231,7 +231,7 @@ The lists in this doc whose items are *named things* (each has a recognizable ha
 
 ### RULE R-markdown-10 — Per-anchor docs don't restate facet-level rules (stated)
 description:: A per-anchor doc does not restate rules that live in a facet spec; the facet is the single source of truth.
-where:: `{ANCHOR}/**/{NAME} *.md`
+where:: `{ANCHOR}/**/{slug} *.md`
 This per-anchor doc looks like it restates universal format rules that belong in a facet (a Log's format rules live in [[FCT Log]], a PRD's in [[FCT PRD]]) — restated rules drift when the facet evolves. Drop the restatement and rely on the facet's embedded ruleset.
 
 ### RULE R-markdown-11 — Never put markdown inside a fenced code block (checked)

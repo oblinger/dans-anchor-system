@@ -17,7 +17,7 @@ private, whether it lives inside the vault or outside.
 - **CLAUDE.md** — present at anchor root only. Never duplicated in the
   repo — a single source of truth prevents drift.
 - **README.md** — present in repo root
-- **Docs sync** — `{NAME} User Docs/` and `{NAME} Dev Docs/` can be sync-pushed to
+- **Docs sync** — `{slug} User Docs/` and `{slug} Dev Docs/` can be sync-pushed to
   the repo's `docs/`
 
 ## Repo Mode
@@ -36,12 +36,12 @@ projects where docs are public).
 ├── .git/
 ├── README.md
 ├── CLAUDE.md
-├── {NAME}.md                        anchor page
-├── {NAME} Architecture/             system-architecture story (root-level folder)
-├── {NAME} Design/                   PRD / UX / Decisions / Interface
-├── {NAME} Track/                    backlog / features / roadmap
-├── {NAME} User Docs/                end-user / consumer guides
-├── {NAME} Dev Docs/                 Files.md + per-module docs
+├── {slug}.md                        anchor page
+├── {slug} Architecture/             system-architecture story (root-level folder)
+├── {slug} Design/                   PRD / UX / Decisions / Interface
+├── {slug} Track/                    backlog / features / roadmap
+├── {slug} User Docs/                end-user / consumer guides
+├── {slug} Dev Docs/                 Files.md + per-module docs
 ├── justfile                         build recipes
 ├── src/                             source code
 └── docs/                            sync-pushed from User Docs/ + Dev Docs/ (optional)
@@ -59,12 +59,12 @@ files.
 {CAB Folder}/                        in vault (~/ob/kmr/)
 ├── .anchor                          has `code: ../../proj/{path}/{repo}` (or absolute)
 ├── {CAB Folder}.md                  marker file
-├── {NAME}.md                        anchor page
-├── {NAME} Architecture/             system-architecture story (root-level folder)
-├── {NAME} Design/                   PRD / UX / Decisions / Interface
-├── {NAME} Track/                    backlog / features / roadmap
-├── {NAME} User Docs/                end-user / consumer guides
-├── {NAME} Dev Docs/                 Files.md + per-module docs
+├── {slug}.md                        anchor page
+├── {slug} Architecture/             system-architecture story (root-level folder)
+├── {slug} Design/                   PRD / UX / Decisions / Interface
+├── {slug} Track/                    backlog / features / roadmap
+├── {slug} User Docs/                end-user / consumer guides
+├── {slug} Dev Docs/                 Files.md + per-module docs
 └── CLAUDE.md
 
 ~/ob/proj/{path}/{repo}/             outside vault, reached via `.anchor` code:
@@ -87,7 +87,7 @@ root) or an absolute path.
 ## Naming Conventions
 
 - **kebab-case** = repository / folder name
-- **{NAME}** = slug or anchor identifier used for all doc files
+- **{slug}** = slug or anchor identifier used for all doc files
 - Example: `dict-a-mux` (repo) → `DMUX` (slug) → `DMUX Docs/`, `DMUX.md`
 
 ## Setup Checklist (additions to base)
@@ -108,12 +108,12 @@ Type-specific structure checks for Code Anchors. These are run by
 ### Required files
 
 - `.anchor` with a `code:` key — the code repository must be declared
-- `{NAME} Architecture/` root-level folder with dispatch page (`{NAME} Architecture.md`) — system-architecture story, its own folder at the anchor root (per [[FCT Architecture]]; not nested under `{NAME} Design/`)
-- `{NAME} Dev Docs/` folder with dispatch page (`{NAME} Dev Docs.md`)
-- `{NAME} Design/` folder with dispatch page (`{NAME} Design.md`) — PRD / UX / Decisions / Interface
-- `{NAME} User Docs/` folder with dispatch page (`{NAME} User Docs.md`)
-- `{NAME} Dev Docs/{NAME} Files.md` — codebase file tree
-- `{NAME} Design/{NAME} Interface.md` — top-level layer contract (REQUIRED for Code, per [[CAB Interface]])
+- `{slug} Architecture/` root-level folder with dispatch page (`{slug} Architecture.md`) — system-architecture story, its own folder at the anchor root (per [[FCT Architecture]]; not nested under `{slug} Design/`)
+- `{slug} Dev Docs/` folder with dispatch page (`{slug} Dev Docs.md`)
+- `{slug} Design/` folder with dispatch page (`{slug} Design.md`) — PRD / UX / Decisions / Interface
+- `{slug} User Docs/` folder with dispatch page (`{slug} User Docs.md`)
+- `{slug} Dev Docs/{slug} Files.md` — codebase file tree
+- `{slug} Design/{slug} Interface.md` — top-level layer contract (REQUIRED for Code, per [[CAB Interface]])
 - `README.md` in the repo root
 
 ### Required dispatch rows

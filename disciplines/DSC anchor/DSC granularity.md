@@ -39,7 +39,7 @@ A **grouping** is org structure, not a runtime entry — it costs nothing in the
 | Grain | Form |
 | --- | --- |
 | **Subsection** | an H2 within an existing facet doc |
-| **Own facet** | a `{NAME} <Facet>.md` with a dispatch row |
+| **Own facet** | a `{slug} <Facet>.md` with a dispatch row |
 | **Folder-facet** | a facet that grew into a folder of docs |
 | **Grouping** | a category of facets (e.g. the design-pipeline facets) |
 

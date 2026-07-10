@@ -9,7 +9,7 @@ Grab a screenshot, name it from its content, file it under `~/ob/kmr/Log/SNAP/`.
 
 | -[[FEX Skill]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[FCT Primitives]] → [FEX Skill](hook://p/FEX%20Skill)<br>: canonical skill exemplar |
 | --- | --- |
-| Related | [[FEX Facet]],  [[FCT Skill]] (the skill facet),  ~~[[FEX Dispatch Examples]]~~ |
+| Related | [[FEX Facet]],  [[FCT Skill]] (the skill facet),  [[FEX Dispatch Examples]] |
 
 > **Canonical skill exemplar.** This *is* the `SKILL.md` template every skill follows. Note: (1) **frontmatter** carries the `name` (= folder = slash command) and the front-loaded `description` (the always-loaded surface — first sentence is what it does, then *when* to invoke); (2) **H1** = `<command> — <plain gloss>`; (3) a **one-liner**; (4) a small **masthead** (just `Related`); (5) the **body** is the runbook. Worked content: a hypothetical `snap` skill.
 

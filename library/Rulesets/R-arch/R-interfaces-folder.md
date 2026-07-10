@@ -14,4 +14,4 @@ For a sampled call site outside construction code, the referenced type is the in
 
 ### RULE R-interfaces-folder-03 — Every code anchor carries a human-authored layer-contract doc (stated)
 
-The anchor has a top-level `{NAME} Interface`-style doc naming the caller of record, the public surface, explicit Guarantees vs Non-Guarantees, and a What's-Hidden section listing internals callers must NOT depend on. (Complements the [[FCT API Design|R-api]] facet ruleset, which governs the doc's format; this rule requires its existence.)
+The anchor has a top-level `{slug} Interface`-style doc naming the caller of record, the public surface, explicit Guarantees vs Non-Guarantees, and a What's-Hidden section listing internals callers must NOT depend on. (Complements the [[FCT API Design|R-api]] facet ruleset, which governs the doc's format; this rule requires its existence.)

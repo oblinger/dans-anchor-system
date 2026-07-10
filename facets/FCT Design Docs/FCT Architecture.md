@@ -24,28 +24,28 @@ Facet spec defining the per-anchor system-architecture overview — its anchor-f
 **Related:** [[FCT Module Doc]],  [[FCT Decisions]],  [[FCT Design Dispatch]],  [[R-diagram]]
 **Examples:** [[FEX Architecture\|minimal (Excalidraw, partial subsystem docs)]],  [[HBR Architecture\|fuller (D2/SVG, all subsystems linked)]]
 
-**TLDR** — One `{NAME} Architecture/` folder per anchor (cardinality: **one**). Entry-point doc has four required sections in order: Overview → Architecture diagram → Subsystems → supporting context. Diagram must be a real visual artifact (SVG/Excalidraw/D2); ASCII art is forbidden. Subsystem docs use kebab naming `{NAME}-{Subsystem}.md`; `[[double-bracket]]` = real doc, `[single-bracket]` = placeholder. Public API detail lives in a sibling `{NAME} API.md`, not the entry-point page.
+**TLDR** — One `{slug} Architecture/` folder per anchor (cardinality: **one**). Entry-point doc has four required sections in order: Overview → Architecture diagram → Subsystems → supporting context. Diagram must be a real visual artifact (SVG/Excalidraw/D2); ASCII art is forbidden. Subsystem docs use kebab naming `{slug}-{Subsystem}.md`; `[[double-bracket]]` = real doc, `[single-bracket]` = placeholder. Public API detail lives in a sibling `{slug} API.md`, not the entry-point page.
 
-**Location:** `{NAME} Design/` — a single `{NAME} Architecture.md` by default, upgraded to a `{NAME} Architecture/` folder-doc (entry-point `{NAME} Architecture/{NAME} Architecture.md`, subsystem docs as siblings) once it grows subsystems. **Architecture is a child of Design** — the F094 / CAB-Log-2026-06-08 anchor-root placement was **reversed 2026-06-27** per user direction: architecture is a design artifact and lives with the rest of the design.
+**Location:** `{slug} Design/` — a single `{slug} Architecture.md` by default, upgraded to a `{slug} Architecture/` folder-doc (entry-point `{slug} Architecture/{slug} Architecture.md`, subsystem docs as siblings) once it grows subsystems. **Architecture is a child of Design** — the F094 / CAB-Log-2026-06-08 anchor-root placement was **reversed 2026-06-27** per user direction: architecture is a design artifact and lives with the rest of the design.
 
-The Architecture facet is the **system-level overview** — how the codebase is structured, how its components interact, the thread model, the data flow. It's a synthesis-level doc (`/architect`-maintained with conservative-edit posture); lives in `{NAME} Design/` alongside the PRD, UX/API Design, Decisions, and Roadmap (the `{NAME} Track/`, `{NAME} User Docs/`, `{NAME} Dev Docs/` trees are siblings of Design at the anchor root). Maintained by `[[skills/architect/SKILL|/architect]]`.
+The Architecture facet is the **system-level overview** — how the codebase is structured, how its components interact, the thread model, the data flow. It's a synthesis-level doc (`/architect`-maintained with conservative-edit posture); lives in `{slug} Design/` alongside the PRD, UX/API Design, Decisions, and Roadmap (the `{slug} Track/`, `{slug} User Docs/`, `{slug} Dev Docs/` trees are siblings of Design at the anchor root). Maintained by `[[skills/architect/SKILL|/architect]]`.
 
-**Scope clarification.** "Architecture" here means **the system-architecture story** specifically — components, modules, interfaces, data flow, thread model. It is NOT the umbrella for all design content; that's `{NAME} Design/`. UX Design is a peer of Architecture, not a child.
+**Scope clarification.** "Architecture" here means **the system-architecture story** specifically — components, modules, interfaces, data flow, thread model. It is NOT the umbrella for all design content; that's `{slug} Design/`. UX Design is a peer of Architecture, not a child.
 
-**Architecture vs Public API doc.** Architecture is internal structure ("how is this codebase organized?"). Public API documentation — the surface a caller imports against — lives in a **separate sub-document** inside the Architecture folder (e.g., `{NAME} API.md`), linked from the main Architecture doc. The main page shows the conceptual structure; the module doc shows the contract. See [[FCT Module Doc]] for the module doc rules.
+**Architecture vs Public API doc.** Architecture is internal structure ("how is this codebase organized?"). Public API documentation — the surface a caller imports against — lives in a **separate sub-document** inside the Architecture folder (e.g., `{slug} API.md`), linked from the main Architecture doc. The main page shows the conceptual structure; the module doc shows the contract. See [[FCT Module Doc]] for the module doc rules.
 
 ## Folder shape
 
 ```
-{NAME} Architecture/
+{slug} Architecture/
 ├── .anchor                                 ← folder-anchor marker
-├── {NAME} Architecture.md                  ← entry-point doc (this facet)
-├── {NAME} API.md                           ← (optional) public-API sub-doc
-├── {NAME}-<Subsystem-1>.md                 ← single-file subsystem (kebab form, e.g., CAE-Scheduler.md)
-├── {NAME}-<Subsystem-2>/                   ← multi-file subsystem (folder-doc form, kebab form)
-│   ├── {NAME}-<Subsystem-2>.md             ← subsystem dispatch + figure
-│   └── {NAME} <Subsystem-2> <Module-N>.md  ← per-module docs as needed
-└── {NAME}-<Subsystem-3>.excalidraw         ← diagram source files alongside (kebab form)
+├── {slug} Architecture.md                  ← entry-point doc (this facet)
+├── {slug} API.md                           ← (optional) public-API sub-doc
+├── {slug}-<Subsystem-1>.md                 ← single-file subsystem (kebab form, e.g., CAE-Scheduler.md)
+├── {slug}-<Subsystem-2>/                   ← multi-file subsystem (folder-doc form, kebab form)
+│   ├── {slug}-<Subsystem-2>.md             ← subsystem dispatch + figure
+│   └── {slug} <Subsystem-2> <Module-N>.md  ← per-module docs as needed
+└── {slug}-<Subsystem-3>.excalidraw         ← diagram source files alongside (kebab form)
 ```
 
 **Subsystem-as-folder upgrade** is reversible and case-by-case: single-file subsystems live as `.md` siblings; subsystems that decompose further upgrade to sub-folders.
@@ -62,14 +62,14 @@ The Architecture entry-point doc follows this order. Sections are required unles
 
 | # | Section | Purpose |
 |---|---|---|
-| 1 | Top of doc (per F060) | YAML frontmatter + `# {NAME} Architecture` H1 + breadcrumb + dispatch-table placeholder. |
+| 1 | Top of doc (per F060) | YAML frontmatter + `# {slug} Architecture` H1 + breadcrumb + dispatch-table placeholder. |
 | 2 | `## Overview` | One paragraph (rarely two) — what this system *is*, the highest-level structural framing. Reader leaves knowing what kind of thing they're looking at. |
 | 3 | `## Architecture diagram` | The system-level component figure. Visual artifact (Excalidraw + exported PNG/SVG embed), NEVER ASCII. Show boxes-and-arrows: who calls whom; who persists; where the I/O boundary is. **One paragraph max** under the diagram — the minimum text needed to read the figure. Long descriptions belong elsewhere. |
 | 4 | `## Subsystems` | Dispatch table listing every subsystem with one-line descriptions. See § Subsystem dispatch below. Real docs use `[[double-bracket]]` wiki-links; placeholder/future subsystems use `[single-bracket]` plain text (no link). |
 | 5 | `## Module grouping` (optional) | High-level prose grouping the modules into coherent areas ("Scheduling core" / "Infrastructure" / etc.). Module *summaries* OK; per-module class/function tables do NOT belong here. |
 | 6 | `## Process model` (optional) | Single-process, daemon, multi-process — the runtime topology. One paragraph. |
 | 7 | `## Thread layout` (when threads exist) | Visual diagram (Excalidraw) of the thread topology + brief description. |
-| 8 | `## Design decisions` (optional) | Numbered table (D1, D2, …) of tactical decisions specific to this architecture. Project-wide *principles* live in `{NAME} Decisions/` and are referenced here, not restated. |
+| 8 | `## Design decisions` (optional) | Numbered table (D1, D2, …) of tactical decisions specific to this architecture. Project-wide *principles* live in `{slug} Decisions/` and are referenced here, not restated. |
 | 9 | `## See also` (optional) | Links to peer design docs (PRD, Decisions, API). |
 
 **No fixed-order requirement past the first four** — the spine is `Overview → Architecture diagram → Subsystems → [supporting context]`. The first four sections in that exact order are the load-bearing invariant.
@@ -79,7 +79,7 @@ The Architecture entry-point doc follows this order. Sections are required unles
 - **ASCII diagram** — OBU shipped a fenced-code-block box-and-arrow drawing. Forbidden; replace with a real visual artifact (SVG/Excalidraw embed).
 - **Missing figure** — HA shipped a subsystems roll-up with no diagram at all. The `## Architecture diagram` section with an `![[…]]` embed is required, even for a placeholder-heavy architecture.
 - **Subsystems in the breadcrumb table** — MUX folded its subsystem inventory into the top-of-doc dispatch table rather than a dedicated `## Subsystems` H2 with the `SUBSYSTEMS | Description` table. The fix is a standalone `## Subsystems` section.
-- **Non-kebab subsystem names** — HA/OBU used space-form (`HA Anchor Arch`, `OBU Client`) or `… Arch` suffixes. Normalize to kebab `{NAME}-{Subsystem}` per § Subsystem dispatch.
+- **Non-kebab subsystem names** — HA/OBU used space-form (`HA Anchor Arch`, `OBU Client`) or `… Arch` suffixes. Normalize to kebab `{slug}-{Subsystem}` per § Subsystem dispatch.
 
 ## Subsystem dispatch table
 
@@ -97,18 +97,18 @@ Section 4's subsystems list takes this shape:
 
 ```
 
-**Subsystem doc naming — kebab form (2026-06-08).** Every subsystem doc filename inside `{NAME} Architecture/` uses the form `{NAME}-{Subsystem}.md` — the anchor slug joined to the subsystem name with a hyphen, no spaces around it. Examples: `CAE-Scheduler.md`, `MUX-Data.md`, `MUX-Native-Bridge.md`. Multi-word subsystem names use internal hyphens (`MUX-Native-Bridge.md`, not `MUX-Native Bridge.md`).
+**Subsystem doc naming — kebab form (2026-06-08).** Every subsystem doc filename inside `{slug} Architecture/` uses the form `{slug}-{Subsystem}.md` — the anchor slug joined to the subsystem name with a hyphen, no spaces around it. Examples: `CAE-Scheduler.md`, `MUX-Data.md`, `MUX-Native-Bridge.md`. Multi-word subsystem names use internal hyphens (`MUX-Native-Bridge.md`, not `MUX-Native Bridge.md`).
 
 Rationale:
 - **Basename uniqueness** — `MUX-Data` doesn't collide with any module doc named `MUX Data` elsewhere in the anchor (e.g., in `MUX Dev Docs/`).
 - **No markdown collision** — hyphens have no markdown formatting meaning, so wiki-link display (`[[MUX-Data]]`) and prose mentions render cleanly. (Underscores were ruled out because `_word_` is italic syntax.)
 - **Compact** — kebab form adds only one character vs the bare anchor-prefixed name; no qualifier words ("Arch", "Subsystem") cluttering the filename.
-- **Visual grouping** — all subsystem docs in a folder sort with the `{NAME}-*` prefix together.
+- **Visual grouping** — all subsystem docs in a folder sort with the `{slug}-*` prefix together.
 
 **Link convention:**
 
-- `[[{NAME}-Subsystem]]` — **double brackets**: a real wiki-link to an existing subsystem doc. Aliases (`[[MUX-Data|Data]]`) keep visible text clean in dispatch tables.
-- `[{NAME}-Subsystem]` — **single brackets**: placeholder for a subsystem whose doc is not yet authored. Plain text inside brackets; not a clickable link. Makes it visually obvious *where* a doc would live without polluting Obsidian's link graph with broken entries.
+- `[[{slug}-Subsystem]]` — **double brackets**: a real wiki-link to an existing subsystem doc. Aliases (`[[MUX-Data|Data]]`) keep visible text clean in dispatch tables.
+- `[{slug}-Subsystem]` — **single brackets**: placeholder for a subsystem whose doc is not yet authored. Plain text inside brackets; not a clickable link. Makes it visually obvious *where* a doc would live without polluting Obsidian's link graph with broken entries.
 
 This lets the example anchor (CAE) demonstrate a partially-authored architecture honestly — the subsystem inventory is complete, but only the docs that genuinely exist resolve as links.
 
@@ -125,15 +125,15 @@ Same rules for `## Thread layout` and any other in-architecture diagrams.
 
 ## What does NOT belong on the entry-point Architecture page
 
-The main `{NAME} Architecture.md` is a **conceptual map**. Detail belongs elsewhere:
+The main `{slug} Architecture.md` is a **conceptual map**. Detail belongs elsewhere:
 
 | Content kind | Belongs in |
 |---|---|
-| Public API surface (modules, classes, functions, signatures) | `{NAME} API.md` (sub-doc inside `{NAME} Architecture/`); follows [[FCT Module Doc]] rules |
-| Class/function/method tables for a specific subsystem | That subsystem's own doc (e.g., `{NAME} Scheduler.md`) |
-| Per-module schemas, error types, CLI surface | `{NAME} API.md` or the relevant subsystem doc |
-| Project-wide principles | `{NAME} Decisions/{NAME} Decisions.md` — reference by `[[…\|D<n>]]`, don't restate |
-| File-tree / source layout | `{NAME} Dev Docs/{NAME} Files.md` |
+| Public API surface (modules, classes, functions, signatures) | `{slug} API.md` (sub-doc inside `{slug} Architecture/`); follows [[FCT Module Doc]] rules |
+| Class/function/method tables for a specific subsystem | That subsystem's own doc (e.g., `{slug} Scheduler.md`) |
+| Per-module schemas, error types, CLI surface | `{slug} API.md` or the relevant subsystem doc |
+| Project-wide principles | `{slug} Decisions/{slug} Decisions.md` — reference by `[[…\|D<n>]]`, don't restate |
+| File-tree / source layout | `{slug} Dev Docs/{slug} Files.md` |
 
 If a class table starts showing up on the Architecture page, that's a smell that the doc is doing two jobs. Split it.
 
@@ -141,15 +141,15 @@ If a class table starts showing up on the Architecture page, that's a smell that
 
 Available to any anchor with the `Code` trait. Optional for non-code anchors — a `Topic` anchor's "architecture" might be its content taxonomy, but that's usually expressed in the anchor page or PRD instead.
 
-**Cardinality: one** — each anchor has exactly one `{NAME} Architecture/` folder and one `{NAME} Architecture.md` entry-point doc. Subsystem docs inside the folder are many, but the facet itself (the entry-point doc + folder) is singular per anchor.
+**Cardinality: one** — each anchor has exactly one `{slug} Architecture/` folder and one `{slug} Architecture.md` entry-point doc. Subsystem docs inside the folder are many, but the facet itself (the entry-point doc + folder) is singular per anchor.
 
 ## Audit
 
 `/audit architecture` flags:
-- **missing-architecture** — `Code`-trait anchor without `{NAME} Architecture/{NAME} Architecture.md`.
+- **missing-architecture** — `Code`-trait anchor without `{slug} Architecture/{slug} Architecture.md`.
 - **missing-figure** — Architecture doc with no `![[…]]` image embed in `## Architecture diagram`.
 - **ascii-diagram** — fenced-code-block ASCII art appearing in any architecture doc (per durable feedback).
-- **orphan-subsystem** — a subsystem doc inside `{NAME} Architecture/` not listed in the entry-point Subsystems table.
+- **orphan-subsystem** — a subsystem doc inside `{slug} Architecture/` not listed in the entry-point Subsystems table.
 - **missing-subsystem-doc** — a `[[double-bracket]]` subsystem link in the table whose target doc doesn't exist (single-bracket placeholders skip this check).
 - **api-content-on-arch-page** — class / function / method tables appearing in the entry-point Architecture doc (should be in API or subsystem doc).
 - **section-order** — required first four sections (Overview → Architecture diagram → Subsystems → first supporting H2) out of order.
@@ -160,31 +160,31 @@ Available to any anchor with the `Code` trait. Optional for non-code anchors —
 - [[FCT Ruleset]] — ruleset format spec. Diagrams in architecture docs are audited against the anchor's active rulesets.
 - [[R-diagram]] — the ruleset every architecture diagram is audited against (22 rules covering structural / aesthetic / semantic / accessibility / hygiene).
 - [[FCT Decisions]] — anchor-level recorded choices; rules implement them (rule-side `implements D<N>` linkage).
-- [[FCT Design Dispatch]] — Architecture sits alongside PRD / Decisions / Interface in `{NAME} Design/`.
+- [[FCT Design Dispatch]] — Architecture sits alongside PRD / Decisions / Interface in `{slug} Design/`.
 - [[FEX Architecture]] — worked example.
 
 # RULESET R-architecture
 include::
 where:: `file:{ANCHOR}/**/* Architecture.md`
-description:: spec for the `{NAME} Architecture.md` entry-point design facet — section spine, mandatory visual figure, subsystem dispatch + link convention, API content kept off the page
+description:: spec for the `{slug} Architecture.md` entry-point design facet — section spine, mandatory visual figure, subsystem dispatch + link convention, API content kept off the page
 
-Embedded ruleset for the Architecture facet, co-located with the facet spec above per the [[F133 — Rulesets folder convention + facet embedding|F133]] embedding convention. Pulled in via the `R-facet` umbrella; active for an anchor through its traits ([[Warden Semantics]] § Rulesets). The `where::` glob selects the entry-point doc only (`* Architecture.md`); subsystem docs (kebab `{NAME}-*.md`) follow [[FCT Module Doc]], not this ruleset.
+Embedded ruleset for the Architecture facet, co-located with the facet spec above per the [[F133 — Rulesets folder convention + facet embedding|F133]] embedding convention. Pulled in via the `R-facet` umbrella; active for an anchor through its traits ([[Warden Semantics]] § Rulesets). The `where::` glob selects the entry-point doc only (`* Architecture.md`); subsystem docs (kebab `{slug}-*.md`) follow [[FCT Module Doc]], not this ruleset.
 
-### RULE R-architecture-01 — Entry-point doc is `{NAME} Architecture.md` (checked)
+### RULE R-architecture-01 — Entry-point doc is `{slug} Architecture.md` (checked)
 check:: architecture_filename_correct
 
-The facet entry-point doc is named `{NAME} Architecture.md` and lives in `{NAME} Design/` — as a single file by default, or `{NAME} Design/{NAME} Architecture/{NAME} Architecture.md` in folder-doc form once it grows subsystems. (Anchor-root instances from the reversed F094 placement are tolerated but flagged for migration back into Design.)
+The facet entry-point doc is named `{slug} Architecture.md` and lives in `{slug} Design/` — as a single file by default, or `{slug} Design/{slug} Architecture/{slug} Architecture.md` in folder-doc form once it grows subsystems. (Anchor-root instances from the reversed F094 placement are tolerated but flagged for migration back into Design.)
 
-**Check pattern:** a file matching `{NAME} Architecture.md` exists; its enclosing folder is `{NAME} Architecture/`.
+**Check pattern:** a file matching `{slug} Architecture.md` exists; its enclosing folder is `{slug} Architecture/`.
 
-**Why:** the basename is what `/architect` and `/audit architecture` key on; subsystem docs use the kebab `{NAME}-*` form so they never collide with this name.
+**Why:** the basename is what `/architect` and `/audit architecture` key on; subsystem docs use the kebab `{slug}-*` form so they never collide with this name.
 
-### RULE R-architecture-02 — `# {NAME} Architecture` H1 present (checked)
+### RULE R-architecture-02 — `# {slug} Architecture` H1 present (checked)
 check:: architecture_h1_present
 
-The doc's first markdown heading is `# {NAME} Architecture` (single H1, matching the basename). No `[[wiki]] ·`-prefixed or otherwise decorated H1.
+The doc's first markdown heading is `# {slug} Architecture` (single H1, matching the basename). No `[[wiki]] ·`-prefixed or otherwise decorated H1.
 
-**Check pattern:** first `^# ` line equals `# {NAME} Architecture`.
+**Check pattern:** first `^# ` line equals `# {slug} Architecture`.
 
 **Why:** a clean H1 is the doc title every dispatch table and breadcrumb echoes; decorated H1s (`# [[HA]] · HA Architecture`) break title extraction.
 
@@ -233,14 +233,14 @@ The first four H2 (or H1-then-H2) sections appear in the order `Overview → Arc
 
 **Why:** the spine is the load-bearing invariant (`section-order` finding). A reader should always meet what-it-is, then the picture, then the parts, before any supporting context.
 
-### RULE R-architecture-08 — Subsystem docs use kebab `{NAME}-{Subsystem}` naming (checked)
+### RULE R-architecture-08 — Subsystem docs use kebab `{slug}-{Subsystem}` naming (checked)
 check:: subsystem_kebab_naming
 
-Every subsystem referenced in the Subsystems table uses kebab form `{NAME}-{Subsystem}` (anchor slug, hyphen, subsystem name; internal hyphens for multi-word). No space-form (`MUX Data`), no `… Arch` / `… Subsystem` suffix.
+Every subsystem referenced in the Subsystems table uses kebab form `{slug}-{Subsystem}` (anchor slug, hyphen, subsystem name; internal hyphens for multi-word). No space-form (`MUX Data`), no `… Arch` / `… Subsystem` suffix.
 
-**Check pattern:** each subsystem link/placeholder target matches `^{NAME}-[A-Za-z0-9-]+$`.
+**Check pattern:** each subsystem link/placeholder target matches `^{slug}-[A-Za-z0-9-]+$`.
 
-**Why:** kebab form gives basename uniqueness against module docs, no markdown collision, and visual grouping (`{NAME}-*` sorts together). HA/OBU used space-form + `Arch` suffixes that collide and clutter.
+**Why:** kebab form gives basename uniqueness against module docs, no markdown collision, and visual grouping (`{slug}-*` sorts together). HA/OBU used space-form + `Arch` suffixes that collide and clutter.
 
 ### RULE R-architecture-09 — Link convention: `[[double]]` = real doc, `[single]` = placeholder (sampled)
 check:: subsystem_link_convention
@@ -254,7 +254,7 @@ In the Subsystems table, `[[double-bracket]]` entries resolve to an existing sub
 ### RULE R-architecture-10 — No API / class-table content on the entry-point page (sampled)
 check:: no_api_content_on_arch_page
 
-The entry-point doc carries no per-module class / function / method / signature tables. That detail lives in `{NAME} API.md` or the relevant subsystem doc.
+The entry-point doc carries no per-module class / function / method / signature tables. That detail lives in `{slug} API.md` or the relevant subsystem doc.
 
 **Check pattern:** flag tables whose header rows name classes/methods/signatures, or fenced code blocks of API signatures, in the entry-point doc (`api-content-on-arch-page` finding).
 
@@ -272,9 +272,9 @@ The architecture figure shows directional/labeled connections between components
 ### RULE R-architecture-12 — Project-wide principles referenced, not restated (sampled)
 check:: principles_referenced_not_restated
 
-Anchor-wide principles/rulings are linked to `{NAME} Decisions` (e.g. `[[… |D<n>]]`), not copy-pasted into the Architecture doc. Tactical architecture-only decisions may live here in a numbered `## Design decisions` table.
+Anchor-wide principles/rulings are linked to `{slug} Decisions` (e.g. `[[… |D<n>]]`), not copy-pasted into the Architecture doc. Tactical architecture-only decisions may live here in a numbered `## Design decisions` table.
 
-**Check pattern:** sampled — flag long restated principle prose that duplicates `{NAME} Decisions` content verbatim.
+**Check pattern:** sampled — flag long restated principle prose that duplicates `{slug} Decisions` content verbatim.
 
 **Why:** restating principles forks the source of truth; the Architecture doc drifts from Decisions. Reference keeps one canonical home (HBR/CAE both reference; this is the good pattern).
 
@@ -282,8 +282,8 @@ Anchor-wide principles/rulings are linked to `{NAME} Decisions` (e.g. `[[… |D<
 
 *(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body above; the embedded `# RULESET R-architecture` is its machine-readable form; the canonical worked instances are the audited examples listed at the top of the file.)*
 
-- **Tooling derives structure from here** — `/architect` and `/audit architecture` key on this spec, and every per-anchor `{NAME} Architecture/` doc follows it; edits change behavior across every `Code`-trait anchor.
-- **Inclusion test:** a rule belongs here only if it applies to *every* Code-trait anchor's Architecture facet — anchor-local quirks → `{NAME} Decisions.md`, ruleset-wide diagram constraints → [[R-diagram]], markdown-rendering rules → [[R-markdown]]. Don't inline tutorial / worked-example / API-doc content — link [[FEX Architecture]] / [[FCT Module Doc]] instead.
+- **Tooling derives structure from here** — `/architect` and `/audit architecture` key on this spec, and every per-anchor `{slug} Architecture/` doc follows it; edits change behavior across every `Code`-trait anchor.
+- **Inclusion test:** a rule belongs here only if it applies to *every* Code-trait anchor's Architecture facet — anchor-local quirks → `{slug} Decisions.md`, ruleset-wide diagram constraints → [[R-diagram]], markdown-rendering rules → [[R-markdown]]. Don't inline tutorial / worked-example / API-doc content — link [[FEX Architecture]] / [[FCT Module Doc]] instead.
 - **Don't weaken the load-bearing invariants without a corresponding CAB Log entry:** first-four-section order (R-architecture-07), kebab subsystem naming (R-architecture-08), `[[double-bracket]]` = real / `[single-bracket]` = placeholder (R-architecture-09, drives the `missing-subsystem-doc` check), ASCII-forbidden (R-architecture-05).
 - **The `## Audit` table is the contract with `/audit architecture`** — a finding ID added or renamed here must change the audit script in lockstep; never introduce one without the other.
 - **Keep the ruleset and the prose in AGREEMENT** — the twelve `R-architecture-01..12` rules mirror the `## Audit` findings and the spine / link-convention / kebab-naming invariants; rule IDs are monotonic-forever (never renumber), and a spec change that alters a section or convention must update the matching rule, and vice versa.

@@ -2,7 +2,7 @@
 description: The command-line specification facet — the full command surface for an anchor that ships a CLI, opened by a compressed `--help` figure (an SVG); a design-pipeline doc downstream of UX Design
 ---
 # FCT CLI
-Facet spec for `{NAME} CLI.md` — the **command-line specification** for an anchor that ships a CLI: a compressed `--help` figure (an SVG) opens the doc, then the full command surface is specified below. Authored in the design pipeline, downstream of UX Design.
+Facet spec for `{slug} CLI.md` — the **command-line specification** for an anchor that ships a CLI: a compressed `--help` figure (an SVG) opens the doc, then the full command surface is specified below. Authored in the design pipeline, downstream of UX Design.
 
 | **FCT CLI**                                                          | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT CLI](hook://p/FCT%20CLI)<br>: command-line specification facet |
 | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -18,35 +18,35 @@ Facet spec for `{NAME} CLI.md` — the **command-line specification** for an anc
 | [[#When to Create\|When to Create]]                                  | create iff the anchor ships a CLI                                                                                                                 |
 | [[#BRIEF\|BRIEF]]                                                    | maintainer notes                                                                                                                                  |
 
-**TLDR** — `{NAME} CLI.md` is the **full command-line specification** of an anchor's CLI. It opens with a compressed `--help` **figure** — rendered as an **SVG** (from a `.txt` source via `cli-help-svg.py`, so aligned `# comments` never re-wrap) — that maps the whole surface at a glance; below it, each command is specified in full (flags, defaults, semantics, exit behaviour). The figure is compressed; the document is not. **Cardinality: one per anchor**, only when it ships a CLI. **Home:** authored at `{NAME} Design/{NAME} CLI.md`; as a *migrating reference* it graduates to `{NAME} User Docs/` once the CLI stabilizes.
+**TLDR** — `{slug} CLI.md` is the **full command-line specification** of an anchor's CLI. It opens with a compressed `--help` **figure** — rendered as an **SVG** (from a `.txt` source via `cli-help-svg.py`, so aligned `# comments` never re-wrap) — that maps the whole surface at a glance; below it, each command is specified in full (flags, defaults, semantics, exit behaviour). The figure is compressed; the document is not. **Cardinality: one per anchor**, only when it ships a CLI. **Home:** authored at `{slug} Design/{slug} CLI.md`; as a *migrating reference* it graduates to `{slug} User Docs/` once the CLI stabilizes.
 
-`{NAME} CLI.md` is the **full specification** of an application's command-line surface. The compressed `--help` figure at the top is the overview — the whole surface on one screen; the body below is the complete reference, documenting each command's flags, defaults, semantics, and exit behaviour. The figure is compressed; the document is not.
+`{slug} CLI.md` is the **full specification** of an application's command-line surface. The compressed `--help` figure at the top is the overview — the whole surface on one screen; the body below is the complete reference, documenting each command's flags, defaults, semantics, and exit behaviour. The figure is compressed; the document is not.
 
 **Only create this file when the anchor actually has a CLI.** It is optional. GUI-only, library-only, or daemon-only anchors have no CLI doc — a library's surface is [[FCT API Design]], a GUI's is [[FCT UX Design]].
 
 ## Relationship to the other design docs
 
-- [[FCT UX Design]] — the CLI doc is **downstream of UX Design**: UX Design decides *that* there is a CLI and its command shape (verbs, grouping, the interaction model); `{NAME} CLI.md` is the concrete `--help` realization of that decision.
+- [[FCT UX Design]] — the CLI doc is **downstream of UX Design**: UX Design decides *that* there is a CLI and its command shape (verbs, grouping, the interaction model); `{slug} CLI.md` is the concrete `--help` realization of that decision.
 - [[FCT API Design]] — sibling programmatic surface. An anchor with both a CLI and a library form carries both (e.g. [[HBR]]).
-- [[CAB User Guide]] / `{NAME} User Guide.md` — the **tutorial** (narrative, teaches the few commands a newcomer needs). The CLI doc is the **reference** (the whole surface, look-up-oriented). Guide links to CLI for "full surface"; CLI links back to Guide for "getting started."
+- [[CAB User Guide]] / `{slug} User Guide.md` — the **tutorial** (narrative, teaches the few commands a newcomer needs). The CLI doc is the **reference** (the whole surface, look-up-oriented). Guide links to CLI for "full surface"; CLI links back to Guide for "getting started."
 
 # Reference Example
 
-The whole doc — a compressed help figure (SVG) over the full command spec (a `{NAME} CLI.md` for a task-scheduler `tool`):
+The whole doc — a compressed help figure (SVG) over the full command spec (a `{slug} CLI.md` for a task-scheduler `tool`):
 
 ````markdown
 ---
 description: "command-line specification — a compressed --help figure over the full command reference"
 ---
 
-:>> [[{NAME}]] → [[{NAME} Design]]
+:>> [[{slug}]] → [[{slug} Design]]
 
-# {NAME} CLI
+# {slug} CLI
 The command-line specification of `{tool}` — a compressed `--help` figure (below), then the full command reference.
 
 ![[{tool} CLI Help.svg|1100]]
 
-For a tutorial introduction, see [[{NAME} User Guide]]. Every command is specified below; a simple one gets a one-line note, a complex one its own section.
+For a tutorial introduction, see [[{slug} User Guide]]. Every command is specified below; a simple one gets a one-line note, a complex one its own section.
 
 ## Notes
 
@@ -60,13 +60,13 @@ For a tutorial introduction, see [[{NAME} User Guide]]. Every command is specifi
 
 ## The Help Block — READ THIS
 
-**The help block is this doc's central figure.** Per the universal opening format ([[FCT Doc Structure]] / [[DSC progressive-disclosure]]): `:>>` breadcrumb → `# {NAME} CLI` H1 → **one-line summary** → **help block**. The block sits directly after the summary line — no `## Synopsis` wrapper, no second intro paragraph between the summary and the fence. (An optional one-line install/usage note may follow the block.)
+**The help block is this doc's central figure.** Per the universal opening format ([[FCT Doc Structure]] / [[DSC progressive-disclosure]]): `:>>` breadcrumb → `# {slug} CLI` H1 → **one-line summary** → **help block**. The block sits directly after the summary line — no `## Synopsis` wrapper, no second intro paragraph between the summary and the fence. (An optional one-line install/usage note may follow the block.)
 
 Inside the figure: every command the CLI exposes, **one per line**, each with a trailing `# comment` giving its one-line purpose, comments **column-aligned**. It reads exactly like the `--help` output of a well-written UNIX tool — the reader's single-screen map of the whole surface.
 
 **Rules for the help figure:**
 
-- **An SVG figure, not a code fence.** The help block is rendered to `{NAME} CLI Help.svg` from a plain-text `{NAME} CLI Help.txt` source by `cli-help-svg.py` (alongside this facet). A code fence re-wraps long lines at the render width and destroys the aligned `# comments`; the SVG fixes the geometry so it reads correctly at any width. Embed near its natural pixel width (`![[{NAME} CLI Help.svg|1100]]`) — sized so text stays readable, never a 3000px canvas shrunk to tiny type. The `.txt` is the source of truth; regenerate the `.svg` after editing it.
+- **An SVG figure, not a code fence.** The help block is rendered to `{slug} CLI Help.svg` from a plain-text `{slug} CLI Help.txt` source by `cli-help-svg.py` (alongside this facet). A code fence re-wraps long lines at the render width and destroys the aligned `# comments`; the SVG fixes the geometry so it reads correctly at any width. Embed near its natural pixel width (`![[{slug} CLI Help.svg|1100]]`) — sized so text stays readable, never a 3000px canvas shrunk to tiny type. The `.txt` is the source of truth; regenerate the `.svg` after editing it.
 - **Complete.** Every command the binary exposes appears, including `--help` and `--version`. The figure *is* the command inventory.
 - **One line per command.** No multi-line invocations; a rare corner case goes to its drill-down note below.
 - **Summary flag form.** `[--json]`, `[--filter <state>]`, `<task-id>` — just enough to know what the command takes. `<required>` in angle brackets, `[--optional]` in square brackets.
@@ -89,10 +89,10 @@ The only thing to avoid is **empty restatement** — a Flags table that merely r
 
 The CLI doc is a **migrating reference** (per [[FCT Design]] § Reference is a migrating role):
 
-- **Authored** at `{NAME} Design/{NAME} CLI.md` — a design-pipeline doc, downstream of UX Design, written while the command surface is still being decided.
-- **Graduates** to `{NAME} User Docs/{NAME} CLI.md` once the CLI stabilizes and end users consult it as a look-up reference.
+- **Authored** at `{slug} Design/{slug} CLI.md` — a design-pipeline doc, downstream of UX Design, written while the command surface is still being decided.
+- **Graduates** to `{slug} User Docs/{slug} CLI.md` once the CLI stabilizes and end users consult it as a look-up reference.
 
-Either home is valid; which one it sits in reflects how settled the CLI is. Both are `{NAME} CLI.md` — the basename never changes, so links survive the move.
+Either home is valid; which one it sits in reflects how settled the CLI is. Both are `{slug} CLI.md` — the basename never changes, so links survive the move.
 
 ## Optional Sections
 
@@ -109,23 +109,23 @@ Include only when they carry real information (never as boilerplate):
 
 The CLI doc is linked from:
 
-1. Its home dispatch page — `{NAME} Design.md` (while authored) or `{NAME} User Docs.md` (once graduated) — as a row: `| [[{NAME} CLI\|CLI]] | command surface |`.
-2. **`{NAME}.md` anchor page** — on the relevant row: `… [[{NAME} CLI\|CLI]] …`.
+1. Its home dispatch page — `{slug} Design.md` (while authored) or `{slug} User Docs.md` (once graduated) — as a row: `| [[{slug} CLI\|CLI]] | command surface |`.
+2. **`{slug}.md` anchor page** — on the relevant row: `… [[{slug} CLI\|CLI]] …`.
 
 `/audit docs` flags a missing CLI doc on anchors whose UX Design spec calls for a CLI.
 
 ## When to Create
 
-Create `{NAME} CLI.md` when the anchor ships an executable (Rust `[[bin]]`, Python entry point, shell script) whose command surface is worth showing at a glance — more than a single one-shot invocation. A one-shot `tool --input FILE --output FILE` can be documented inline in `{NAME} User Guide.md` without a separate CLI doc.
+Create `{slug} CLI.md` when the anchor ships an executable (Rust `[[bin]]`, Python entry point, shell script) whose command surface is worth showing at a glance — more than a single one-shot invocation. A one-shot `tool --input FILE --output FILE` can be documented inline in `{slug} User Guide.md` without a separate CLI doc.
 
 # RULESET R-cli
 include::
-where:: `file:{ANCHOR}/**/{NAME} CLI.md`
-description:: the `{NAME} CLI.md` command-line specification format (a compressed SVG help figure over the full command reference)
+where:: `file:{ANCHOR}/**/{slug} CLI.md`
+description:: the `{slug} CLI.md` command-line specification format (a compressed SVG help figure over the full command reference)
 
 What `/audit docs` checks on a CLI doc. Optional — only an anchor that ships a CLI carries one. Format of this set: [[FCT Ruleset]].
 
-### RULE R-cli-01 — Lives at `{NAME} Design/` (authored) or `{NAME} User Docs/` (graduated) (checked)
+### RULE R-cli-01 — Lives at `{slug} Design/` (authored) or `{slug} User Docs/` (graduated) (checked)
 
 The CLI doc is a migrating reference: its basename is `{slug} CLI.md` and its parent chain includes either `{slug} Design` or `{slug} User Docs`.
 
@@ -135,23 +135,23 @@ The CLI doc is a migrating reference: its basename is `{slug} CLI.md` and its pa
 
 ### RULE R-cli-02 — Help figure is the doc's central figure, right after the one-line summary (checked)
 
-The doc follows the universal opening format ([[FCT Doc Structure]] / [[DSC progressive-disclosure]]): breadcrumb → `# {NAME} CLI` H1 → **one-line summary** → the **help figure** (the SVG `--help` render) as the doc's central figure. Nothing else sits between the summary and the figure — no `## Synopsis` wrapper, no second intro paragraph. (An optional one-line install/usage note may follow it.)
+The doc follows the universal opening format ([[FCT Doc Structure]] / [[DSC progressive-disclosure]]): breadcrumb → `# {slug} CLI` H1 → **one-line summary** → the **help figure** (the SVG `--help` render) as the doc's central figure. Nothing else sits between the summary and the figure — no `## Synopsis` wrapper, no second intro paragraph. (An optional one-line install/usage note may follow it.)
 
-**Check pattern:** the H1 is followed by a single summary line, then the help-figure embed (`![[{NAME} CLI Help.svg…]]`) as the first figure-level element — not buried under `##` prose sections.
+**Check pattern:** the H1 is followed by a single summary line, then the help-figure embed (`![[{slug} CLI Help.svg…]]`) as the first figure-level element — not buried under `##` prose sections.
 
 **Why:** the help figure is the CLI's "overview picture" — the single-screen map of the whole surface — and in the progressive-disclosure opening the figure sits right after the summary; extra preamble buries it (§ The Help Block).
 
 ### RULE R-cli-03 — Help figure is complete, one line per command, aligned trailing `# comment` (checked)
 
-In the `{NAME} CLI Help.txt` source (rendered to the SVG figure): every command the binary exposes (including `--help` and `--version`), one per line, each with a column-aligned trailing `# comment` stating its one-line purpose. No multi-line invocations.
+In the `{slug} CLI Help.txt` source (rendered to the SVG figure): every command the binary exposes (including `--help` and `--version`), one per line, each with a column-aligned trailing `# comment` stating its one-line purpose. No multi-line invocations.
 
-**Check pattern:** every non-blank line in the `.txt` source is a single command with a `#` comment; comments are column-aligned; a `{NAME} CLI Help.svg` exists alongside.
+**Check pattern:** every non-blank line in the `.txt` source is a single command with a `#` comment; comments are column-aligned; a `{slug} CLI Help.svg` exists alongside.
 
 ### RULE R-cli-04 — Help figure is an SVG rendered from a `.txt` source (checked)
 
-The help block is an SVG image (`{NAME} CLI Help.svg`) rendered from `{NAME} CLI Help.txt` by `cli-help-svg.py` — not a markdown code fence, which re-wraps at the render width and destroys the aligned comments. Navigation links go on the line after the embed, never inside the figure.
+The help block is an SVG image (`{slug} CLI Help.svg`) rendered from `{slug} CLI Help.txt` by `cli-help-svg.py` — not a markdown code fence, which re-wraps at the render width and destroys the aligned comments. Navigation links go on the line after the embed, never inside the figure.
 
-**Check pattern:** the help block is an `![[{NAME} CLI Help.svg…]]` embed with a sibling `.txt` source; no fenced `--help` code block remains under the H1.
+**Check pattern:** the help block is an `![[{slug} CLI Help.svg…]]` embed with a sibling `.txt` source; no fenced `--help` code block remains under the H1.
 
 ### RULE R-cli-05 — The body is the full command specification; the figure is its compressed overview (stated)
 
@@ -173,7 +173,7 @@ Inside the fence: the **public command surface as a user sees it**. No internal 
 
 ### RULE R-cli-08 — The CLI doc carries no implementation-status section (checked)
 
-A `{NAME} CLI.md` documents the command *interface*, not build progress. No `## Status` / "partly shipped" / "what's done" section, and no per-command build-state markers ((shipped) / (wire-up) / (new)) in the body. Implementation status lives in the anchor's tracking artifacts — [[FCT Status]] (`{NAME} Status.md`), the Roadmap, the Backlog — never on the reference doc.
+A `{slug} CLI.md` documents the command *interface*, not build progress. No `## Status` / "partly shipped" / "what's done" section, and no per-command build-state markers ((shipped) / (wire-up) / (new)) in the body. Implementation status lives in the anchor's tracking artifacts — [[FCT Status]] (`{slug} Status.md`), the Roadmap, the Backlog — never on the reference doc.
 
 **Check pattern:** no `## Status` heading and no `(shipped|wire-up|new)`-style build-state markers in the doc body.
 
@@ -185,7 +185,7 @@ A `{NAME} CLI.md` documents the command *interface*, not build progress. No `## 
 
 - **Keep instance content out** — this is the spec, not a CLI doc; a real binary's commands belong in the linked working example ([[HBR CLI]]).
 - **It's the command-line *specification* — only the top figure is compressed** — the doc gives the full command reference below the SVG help figure (R-cli-05). Don't reframe the whole doc as "compressed/minimal" (regressed and corrected 2026-07-02).
-- **The help block is an SVG, not a code fence** — rendered from `{NAME} CLI Help.txt` by `cli-help-svg.py` (R-cli-04) so aligned comments can't re-wrap. Edit the `.txt`, regenerate the `.svg`, embed near natural width (~1100px).
+- **The help block is an SVG, not a code fence** — rendered from `{slug} CLI Help.txt` by `cli-help-svg.py` (R-cli-04) so aligned comments can't re-wrap. Edit the `.txt`, regenerate the `.svg`, embed near natural width (~1100px).
 - **Help block is the figure, right after the one-line summary** — R-cli-02: breadcrumb → H1 → summary → block; no `## Synopsis` wrapper, no second intro paragraph. The block reads like real `--help` (R-cli-07): no feature numbers, no status markers, no stretched multi-line entries.
-- **Migrating home, not a fixed one** — the doc lives in `{NAME} Design/` while authored and `{NAME} User Docs/` once graduated (§ Location); R-cli-01's `where::` matches both. Don't re-pin it to a single folder.
+- **Migrating home, not a fixed one** — the doc lives in `{slug} Design/` while authored and `{slug} User Docs/` once graduated (§ Location); R-cli-01's `where::` matches both. Don't re-pin it to a single folder.
 - **Cross-cite rather than inline** — tutorial/narrative content belongs in [[CAB User Guide]], CLI-*shape* design in [[FCT UX Design]], markdown rendering rules in [[R-markdown]]; if a rule drifts toward one of those, move or link rather than duplicate.

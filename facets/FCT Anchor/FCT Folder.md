@@ -9,7 +9,7 @@ Facet spec for the anchor folder itself — the named directory containing a mar
 **Related:** [[FCT Anchor Page]],  [[FCT Marker]],  [[CAB Aspects]],  [[FCT Facet]]
 **Examples:** [[HBR\|marker-is-anchor-page example]],  [[HBR\|richer anchor with sub-anchors]]
 
-**Location:** `{NAME}/   (the anchor folder itself)`
+**Location:** `{slug}/   (the anchor folder itself)`
 
 **Cardinality: one** — every anchor has exactly one root folder; this facet applies once per anchor.
 
@@ -43,7 +43,7 @@ description:: The rules every anchor folder must satisfy — a named directory c
 
 ### RULE R-fct-folder-01 — Marker file exists and name matches folder (checked)
 Every anchor folder contains a markdown file whose basename equals the folder's own name (e.g. `My Project/My Project.md`).
-**Check pattern:** `{NAME}/{NAME}.md` exists inside the anchor root.
+**Check pattern:** `{slug}/{slug}.md` exists inside the anchor root.
 **Why:** the marker file is how any tool or human identifies a directory as an anchor; without it the folder is just a folder.
 
 ### RULE R-fct-folder-02 — Redirect stub is one-line only (checked)

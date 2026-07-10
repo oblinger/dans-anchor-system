@@ -4,16 +4,16 @@ description: raw incoming content to process
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Inbox](hook://p/FCT%20Inbox)
 # FCT Inbox
-Facet spec for the `{NAME} Inbox.md` drop-zone file — the chronological log of raw input pasted in for later processing into the anchor's planning docs.
+Facet spec for the `{slug} Inbox.md` drop-zone file — the chronological log of raw input pasted in for later processing into the anchor's planning docs.
 
 **Related:** [[FCT Discussion]],  [[FCT Backlog]],  [[FCT PRD]],  [[FCT Roadmap]]
 **Examples:** [[FEX Inbox\|example]]
 
-**TLDR** — A single `{NAME} Inbox.md` file (one per anchor) is the paste-first drop zone for raw input; processed entries stay with a `DONE` or `MOVED →` status tag as a permanent log.
+**TLDR** — A single `{slug} Inbox.md` file (one per anchor) is the paste-first drop zone for raw input; processed entries stay with a `DONE` or `MOVED →` status tag as a permanent log.
 
 **Cardinality:** one per anchor.
 
-The inbox (`{NAME} Inbox.md`) is a drop zone for raw input — long descriptions, change requests, design thoughts, reference material — pasted in for processing and integration into the planning and execution docs.
+The inbox (`{slug} Inbox.md`) is a drop zone for raw input — long descriptions, change requests, design thoughts, reference material — pasted in for processing and integration into the planning and execution docs.
 
 **Working example:** `~/.claude/skills/CAE/CAE Docs/CAE Plan/CAE Inbox.md` — Inbox.
 
@@ -48,11 +48,11 @@ Raw feature list from kickoff meeting. Items distributed to [[HBR PRD]] and [[HB
 
 ## Location
 
-`{NAME} Inbox.md` lives at the anchor root, alongside the anchor page.
+`{slug} Inbox.md` lives at the anchor root, alongside the anchor page.
 
 ## Top of doc (canonical, per F060)
 
-Every Inbox file opens with the standard top-of-doc format: YAML frontmatter + `# {NAME} Inbox` H1 + dispatch-table placeholder. See `[[skills/rewire/SKILL]]` § Default doc top-of-file.
+Every Inbox file opens with the standard top-of-doc format: YAML frontmatter + `# {slug} Inbox` H1 + dispatch-table placeholder. See `[[skills/rewire/SKILL]]` § Default doc top-of-file.
 
 ## Format
 - Reverse chronological dated sections (H2)
@@ -67,12 +67,12 @@ Every Inbox file opens with the standard top-of-doc format: YAML frontmatter + `
 
 # RULESET R-fct-inbox
 include::
-where:: `file: **/{NAME} Inbox.md`
-description:: Rules every `{NAME} Inbox.md` instance must satisfy — location, heading format, and status-tag vocabulary.
+where:: `file: **/{slug} Inbox.md`
+description:: Rules every `{slug} Inbox.md` instance must satisfy — location, heading format, and status-tag vocabulary.
 
 ### RULE R-fct-inbox-01 — File exists at the anchor root (checked)
-The Inbox file lives at the anchor root: `{NAME} Inbox.md`, alongside the anchor page.
-**Check pattern:** file is present at `<anchor-root>/{NAME} Inbox.md`.
+The Inbox file lives at the anchor root: `{slug} Inbox.md`, alongside the anchor page.
+**Check pattern:** file is present at `<anchor-root>/{slug} Inbox.md`.
 **Why:** co-location with top-level anchor docs ensures consistent discoverability by agents and users. (Tier: checked)
 
 ### RULE R-fct-inbox-02 — Sections are reverse-chronological H2s with a status tag (checked)

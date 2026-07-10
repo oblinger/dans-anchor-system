@@ -28,8 +28,8 @@ A second motivation: readers come at a doc with different intent. A grazer wants
 
 ## The three levels of progressive disclosure
 
-1. **Project anchor page** (`{NAME}.md`) — top-level dispatch to everything important *inside* the anchor, plus relevant external links. The navigational backbone: from any doc in the anchor, the breadcrumb jumps back to `{NAME}.md` from which the reader reaches anywhere else in one or two more clicks.
-2. **Folder / subsystem anchor page** — same pattern at smaller scope: `{NAME} Track/{NAME} Track.md`, `{NAME} Design/{NAME} Architecture/{NAME} Architecture.md`, etc. Each is a local dispatch hub for its sub-tree.
+1. **Project anchor page** (`{slug}.md`) — top-level dispatch to everything important *inside* the anchor, plus relevant external links. The navigational backbone: from any doc in the anchor, the breadcrumb jumps back to `{slug}.md` from which the reader reaches anywhere else in one or two more clicks.
+2. **Folder / subsystem anchor page** — same pattern at smaller scope: `{slug} Track/{slug} Track.md`, `{slug} Design/{slug} Architecture/{slug} Architecture.md`, etc. Each is a local dispatch hub for its sub-tree.
 3. **Within-document** — a doc that's long enough or structured enough to need internal navigation carries an internal dispatch (Linear or Matrix per § Dispatch-table patterns) under its preface zone. Acts like an outline.
 
 The two-level ideal: **project anchor → subsystem anchor → leaf doc**. Two clicks from project root to any leaf.
@@ -211,7 +211,7 @@ This central table records which preface elements each CAB facet requires. The l
 
 **Reading the table:**
 
-- **Dispatch table:** required on every facet that is a folder (i.e., every folder anchor page). For flat-file facets (e.g., a single `.md` file like `{NAME} PRD.md`), the dispatch table is still required as the in-doc internal-navigation aid (Linear or Matrix pattern).
+- **Dispatch table:** required on every facet that is a folder (i.e., every folder anchor page). For flat-file facets (e.g., a single `.md` file like `{slug} PRD.md`), the dispatch table is still required as the in-doc internal-navigation aid (Linear or Matrix pattern).
 - **TLDR:** required on **Feature docs and Testing docs**. Feature docs reduce cleanly to 3-5 one-line bullets capturing the gist; Testing docs reduce cleanly to the testing posture + the bar per kind (e.g., "Heavy unit + integration, modest e2e; every public function unit-tested, every subsystem boundary integration-tested, one e2e per user story"). Other facets may add the requirement over time as the user identifies docs where a TLDR genuinely helps. PRDs are **explicitly excluded** (too heterogeneous to compress meaningfully; forcing one produces filler).
 - **Figure:** required on Architecture (both top-level and subsystem) and UX Design. SVG preferred.
 
@@ -263,7 +263,7 @@ When a doc carries an organizing figure (system diagram, architecture sketch, fl
 - **[[FCT UX Design]]** (post-F113: `CAB UX`) — figure required.
 - **[[FCT PRD]]** — TLDR explicitly NOT required (heterogeneous content).
 - **[[FCT Decisions]]** (post-F113) — TLDR not applicable; each decision is its own one-liner.
-- **Audit:** post-F113, this discipline lands in `{NAME} Decisions.md` as one or more `D<NN>` decisions at the per-anchor tier.
+- **Audit:** post-F113, this discipline lands in `{slug} Decisions.md` as one or more `D<NN>` decisions at the per-anchor tier.
 
 
 ## Anti-patterns

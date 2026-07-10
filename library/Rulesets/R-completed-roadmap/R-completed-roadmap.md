@@ -1,6 +1,6 @@
 # RULESET R-completed-roadmap
 include:: [[FCT Completed Roadmap#RULESET R-completed-roadmap\|embedded body]]
-description:: Rules for the {NAME} Completed Roadmap.md facet — migration target for whole milestones; preserves structure with rough chronology.
+description:: Rules for the {slug} Completed Roadmap.md facet — migration target for whole milestones; preserves structure with rough chronology.
 
 Catalog-side stub. Canonical body lives embedded inside [[FCT Completed Roadmap]] per [[F133 — Rulesets folder convention + facet embedding|F133]].
 

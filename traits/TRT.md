@@ -12,14 +12,14 @@ The declarable properties an anchor carries in its `.anchor` `traits:` key — e
 All anchor types follow the [[Common Anchor Blueprint]]. Each type adds specializations:
 
 - **[[Simple Anchor]]** — Just the folder and anchor page. No repo, no docs folder.
-- **[[Topic Anchor]]** — Evergreen knowledge area. No repo, but has standard `{NAME} Docs/` structure. Anchor page is a routing hub to child anchors.
+- **[[Topic Anchor]]** — Evergreen knowledge area. No repo, but has standard `{slug} Docs/` structure. Anchor page is a routing hub to child anchors.
 - **[[Code Anchor]]** — Has a code repository, declared by the `code:` key in `.anchor`. Inline mode (`code: .`, repo = anchor folder) or linked mode (`code: <path>`, repo typically at `~/ob/proj/`). Replaces the former Private Repo, Public Repo, and Split Anchor types.
 - **[[Paper Anchor]]** — Iterative document revision with version table and section-based editing.
 - **[[Skill Anchor]]** — Claude Code skill group in `~/.claude/skills/`. Entry point is `SKILL.md`, not a marker file.
 
 The five above are **identity traits** — single-valued ("at most one of {Simple, Topic, Code, Paper}"; Skill composes). **Capability traits** layer on top of an identity trait (cardinality many):
 
-- **[[Track]]** — the anchor is driven through a planning + backlog lifecycle (the "drive loop"). Co-requires the Backlog facet; composes with Topic / Code / Paper / Skill; excludes Simple. Its tree is the `{NAME} Plan/` folder (rename to `{NAME} Track/` deferred).
+- **[[Track]]** — the anchor is driven through a planning + backlog lifecycle (the "drive loop"). Co-requires the Backlog facet; composes with Topic / Code / Paper / Skill; excludes Simple. Its tree is the `{slug} Plan/` folder (rename to `{slug} Track/` deferred).
 - **[[Collection]]** (`collection`) — the anchor *enumerates a collection of members of a like kind* — an expected, usually-one member type (a **union** is fine; the trivial "they're all markdown pages" does **not** count). Declared by `collection` in `.anchor`'s `traits:`. **Semantic, not layout** — it asserts the members share a kind; the dispatch-table *shape* (compact `...` / auto-list `| --- | |` / grouped `+`) is **read off the table, never declared**, and auto-graduates by size. Composes freely with any identity — commonly [[Topic Anchor]] (a topic that is *also* a like-kind set, e.g. `RR Papers`) or [[Simple Anchor]]; no exclusions, per [[CAB Aspects]] § Governing principle. Datedness is orthogonal ([[file-association]]). Examples: [[Espresso]], [[HBR Log]], every `* Features` / `* Log` / `* Roadmap`. Contrast a heterogeneous routing-hub Topic (`RR`, `MY`, bare `Log`) which is *not* a collection. Per [[SKA Decisions]] D11 + [[F152 — Set Anchor trait — homogeneous-collection anchor kind; dispatch-organization via existing disciplines|F152]].
 
 **Git-aspect traits** (mutually exclusive — exactly one per anchor, per [[CAB Aspects]] composability matrix) shape how the agent handles git boundaries (per [[F077 — PR mode — mode-as-trait architecture with per-anchor opt-in|F077]] v2 architecture, Q12 resolved 2026-06-01):
