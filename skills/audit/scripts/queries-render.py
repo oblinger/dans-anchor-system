@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""triage-section.py — rewrite a single anchor's per-anchor section in Q.md.
+"""queries-render.py — rewrite a single anchor's per-anchor section in Q.md.
 
-Usage: triage-section.py <NAME>
+Usage: queries-render.py <NAME>
 
 Reads `<vault>/<...>/<NAME> Backlog.md`, derives the canonical Q.md section
 (banner + body H2s + bullets), and atomically replaces the existing section
@@ -542,7 +542,7 @@ def _bullet_bracket_display(bracket: str) -> str:
 def _count_qfix_subs(backlog_file: Path) -> int:
     """Count sub-bullets under the singleton `B-QFix` `[Ready]` row, if
     present. Each sub-bullet is one outstanding audit-q residual that the
-    owning anchor's next /triage or /audit q-fix needs to drive to zero per
+    owning anchor's next /ask or /audit q-fix needs to drive to zero per
     the 100%-fix discipline. The banner surfaces this count as `{N}` at the
     very end of the H1 (when N > 0) so the user can glance Q.md and see
     instantly which anchors still have warnings."""
@@ -885,12 +885,12 @@ def rewrite_qmd_section(name: str, section_lines: list[str]) -> str:
     """Update Q.md: remove existing section for `name` (if any) and insert the
     new section at the top of the body. Returns a one-line summary."""
     if not Q_MD.is_file():
-        sys.stderr.write(f"triage-section: error — Q.md not found at {Q_MD}\n")
+        sys.stderr.write(f"queries-render: error — Q.md not found at {Q_MD}\n")
         sys.exit(2)
     try:
         text = Q_MD.read_text(encoding="utf-8")
     except OSError as e:
-        sys.stderr.write(f"triage-section: error reading Q.md: {e}\n")
+        sys.stderr.write(f"queries-render: error reading Q.md: {e}\n")
         sys.exit(2)
     q_lines = text.splitlines()
     summary_parts: list[str] = []
@@ -928,14 +928,14 @@ def rewrite_qmd_section(name: str, section_lines: list[str]) -> str:
     try:
         Q_MD.write_text(new_text, encoding="utf-8")
     except OSError as e:
-        sys.stderr.write(f"triage-section: error writing Q.md: {e}\n")
+        sys.stderr.write(f"queries-render: error writing Q.md: {e}\n")
         sys.exit(2)
     return " + ".join(summary_parts)
 
 
 # ============================================================
 # Mechanical staleness sweep — the cheap, script-decidable subset of
-# /groom § 2a, run on the backlog BEFORE rendering so /triage never shows or
+# /groom § 2a, run on the backlog BEFORE rendering so the render never shows or
 # counts a stale row. ONLY date/placement-decidable cases (no agent judgment):
 #   1. A `[Done]`-bracketed row sitting in a non-Done H2 → relocated to the
 #      first `## Done` section (keeps the file honest; the render already hides
@@ -1080,12 +1080,12 @@ def main() -> int:
     backlogs = audit_q.find_anchor_backlogs(VAULT_ROOT)
     backlog_file = backlogs.get(name)
     if backlog_file is None:
-        sys.stderr.write(f"triage-section: error — no backlog found for anchor '{name}'\n")
+        sys.stderr.write(f"queries-render: error — no backlog found for anchor '{name}'\n")
         sys.stderr.write(f"  searched {VAULT_ROOT} for '* Backlog.md' under */Plan|*/Track\n")
         return 1
 
     # Mechanical staleness sweep — conditional by nature (only rewrites rows that
-    # are actually stale), run BEFORE the render so /triage never surfaces stale
+    # are actually stale), run BEFORE the render so the render never surfaces stale
     # state. Skipped with --print-only (don't mutate when just previewing).
     sweep_descs: list[str] = []
     if not args.no_sweep and not args.print_only:
@@ -1135,7 +1135,7 @@ def main() -> int:
     eligible = [r for r in rows if _row_should_render(r)]
     sweep_note = f"; swept {len(sweep_descs)} stale row(s)" if sweep_descs else ""
     q_note = "; rendered queries.md" if rendered_q else ""
-    print(f"triage-section: {name} — {summary}; rendered {len(eligible)} bullet(s){sweep_note}{q_note}")
+    print(f"queries-render: {name} — {summary}; rendered {len(eligible)} bullet(s){sweep_note}{q_note}")
     for d in sweep_descs:
         print(f"  sweep: {d}")
     return 0

@@ -76,7 +76,7 @@ Not all entries are required — only list documents that exist for this anchor.
 - `{slug} UX Design.md` (F094) — UX shape belongs in `{slug} Design/`.
 - `{slug} Roadmap.md` **(2026-06-10 restructure)** — sequencing-design belongs in `{slug} Design/`.
 - `{slug} Features/` **(2026-06-10 restructure)** — feature docs are design artifacts; belong in `{slug} Design/{slug} Features/`.
-- `{slug} Triage.md` (F075) — per-anchor triage lives in `~/ob/kmr/Q.md`.
+- `{slug} Triage.md` (F075) — per-anchor status lives in `~/ob/kmr/Q.md`, rendered from `{slug} queries.md`.
 
 Track holds **tracking metadata**: backlog (work queue), status (design completeness rollup), and ephemeral surfaces (icebox, inbox, ask, messages). The "what to build" surface — including feature docs and roadmap — lives in Design alongside PRD / UX / Architecture / Testing / Decisions.
 

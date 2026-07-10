@@ -1,5 +1,5 @@
 ---
-description: "system-architecture story — a Design child (`{slug} Architecture`)"
+description: "CAE system architecture — worked example of the FCT Architecture facet"
 ---
 # FEX Architecture
 CAE is a single-process CLI scheduler. A submitted task carries a deadline, a retry policy, and an opaque command payload; the scheduler enqueues it in a SQLite-backed priority store, dispatches to a fixed worker pool when ready, and routes failures through a centralized retry manager. No daemon, no IPC — every coordination decision flows through the SQLite store.
@@ -44,7 +44,7 @@ CLI submits tasks to the **Scheduler**, which dispatches to the **Worker Pool**,
 | [[FEX Minimal Facet]] | the leanest complete file set for a facet, with a live instance |
 | [[FEX Minimal Skill]] | the leanest complete file set for a skill, with a live instance |
 | [[FEX Project Root]] | canonical project-root exemplar |
-| [[FEX queries]] | CAE queries — mechanically rendered from the backlog by triage (Verifications / Ready+Next / Questions). Do not hand-edit; edit the backlog rows. |
+| [[FEX queries]] | CAE queries — mechanically rendered from the backlog by `queries-render.py` (Verifications / Ready+Next / Questions). Do not hand-edit; edit the backlog rows. |
 | [[FEX Repo]] | **FEX Repo** — a fake skills repository tying the loose examples together: a skill ( |
 | [[FEX Roadmap]] | sequencing-design — milestones + ordering (moved from Track 2026-06-10) |
 | [[FEX Skill]] | canonical skill exemplar |
@@ -70,8 +70,8 @@ CLI submits tasks to the **Scheduler**, which dispatches to the **Worker Pool**,
 | [[Snap]] |  |
 | [[Testing/MUX Testing]] | MUX Testing — strategy + proposed-tests overview |
 | [[Decisions/UCM Decisions]] | architectural and implementation decisions for UCM |
-| [[Stories/US-CAE-1 — Schedule a Task]] | Schedule a deferred shell task with absolute or relative time |
-| [[Stories/US-CAE-3 — Retry Failed Tasks]] | Auto-retry failed tasks with exponential backoff to a cap |
+| [[US-CAE-1 — Schedule a Task]] | Schedule a deferred shell task with absolute or relative time |
+| [[US-CAE-3 — Retry Failed Tasks]] | Auto-retry failed tasks with exponential backoff to a cap |
 | [[Viz Bench]] | figure-drafting techniques compared across a fixed reference set |
 
 

@@ -323,7 +323,7 @@ def find_plain_text_basenames(
     hits: list[tuple[str, bool]] = []
     seen: set[str] = set()
     # For each phrase, try the whole phrase as a basename. Also try ascending
-    # multi-word prefixes (e.g., "SKA Triage subsystem" → try "SKA Triage",
+    # multi-word prefixes (e.g., "SKA Ask subsystem" → try "SKA Ask",
     # then "SKA").  Prefer the longest match.
     for phrase in phrases:
         words = phrase.split()

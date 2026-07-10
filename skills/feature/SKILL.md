@@ -190,7 +190,7 @@ After § 1 creates the feature doc, run a follow-up call to add the wiki-link bo
 ~/.claude/skills/workflow/scripts/state --anchor {slug} task update F<NNN> --body "→ [[F<NNN> — {Feature Name}]]"
 ```
 
-Use `--horizon Later` for parking-mode stubs (`/feature` used to file something for later). Use `--status Questions` once the Open Questions block has been written and the row should surface to triage as user-actionable.
+Use `--horizon Later` for parking-mode stubs (`/feature` used to file something for later). Use `--status Questions` once the Open Questions block has been written and the row should surface (via the queries render) as user-actionable.
 
 **For a roadmap milestone**: the feature doc gets an M-number prefix (`Features/M{n} — {Name}.md` with H1 `# M{n} — {Name}`). `state` is backlog-only — roadmap milestones currently use a separate path (manual `Roadmap.md` edit). M-numbers are hierarchical (M1, M1.2, M1.2.3) — see `[[SKA workflow]]` § Active-work invariant for the namespace rules.
 

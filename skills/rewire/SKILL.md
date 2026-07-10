@@ -134,7 +134,7 @@ Canonical-location table (auto-move candidates) — **updated per [[F094 — Anc
 | Legacy basename / location | New canonical location |
 |---|---|
 | `{slug} Plan.md` | → `{slug} Track.md` (Track Dispatch) |
-| `{slug} Triage.md` | → retired per F075; Q.md is the triage surface |
+| `{slug} Triage.md` | → retired per F075; Q.md is the queue-file surface |
 | `{slug} System Design.md` | → folded into `{slug} Architecture/` (Design bucket) |
 | Old `{slug} User/{slug} Interface.md` | → `{slug} Design/{slug} Interface.md` |
 | Old `{slug} User/{slug} Architecture/` | → `{slug} Design/{slug} Architecture/` |
@@ -286,7 +286,6 @@ Recognition pattern: the **first cell containing `-[[NAME]]-`** is the dispatch-
 
 **Exceptions to the placeholder rule.** A small set of facet docs are explicit F060 exceptions because they have custom H1-only tops or a fixed required structure:
 
-- `{slug} Triage.md` — H1 banner already encodes breadcrumb + dispatch info per [[DAS Triage]] § H1 banner. Skip placeholder check.
 - `{slug} queries.md` — agent-owned page built on demand by `/ask`'s determination logic (frontmatter + H1 + sections, no dispatch table). Skip placeholder check.
 - **Feature docs** (`F<n> — {Title}.md` inside `{slug} Features/`) — H1 carries an inline breadcrumb (`# [[{slug}]] · F<n> — {Title}`) per [[DAS Features]] § Document zone. Placeholder is optional, not required; rewire neither inserts nor strips it.
 - **`SKILL.md`** (skill anchor entry point) — fixed frontmatter + body structure per [[DAS Skill]]. F060 applies to the sibling `{Slug}.md` anchor root page, not to SKILL.md itself.
@@ -401,7 +400,7 @@ The synthesis-vs-reference split: **Dev** holds audit-tied implementation refere
 
 # Skill Anchor
 
-A skill anchor IS a CAB anchor — `SKILL.md` is the agent-loaded code, the rest of the structure is the design history (PRD / Backlog / Triage / Features). The full Skill Anchor spec lives in [[Skill Anchor]] (cab-trait); the working example is [[CSE]]. **All checks under "All Types" still apply** — what's listed below is in addition.
+A skill anchor IS a CAB anchor — `SKILL.md` is the agent-loaded code, the rest of the structure is the design history (PRD / Backlog / Features). The full Skill Anchor spec lives in [[Skill Anchor]] (cab-trait); the working example is [[CSE]]. **All checks under "All Types" still apply** — what's listed below is in addition.
 
 ## SKILL.md (the agent-loaded code)
 
@@ -417,16 +416,15 @@ A skill anchor IS a CAB anchor — `SKILL.md` is the agent-loaded code, the rest
 
 - [ ] File exists at folder root, name = Title Case slug (e.g., `Groom.md`, `Backlog.md`)
 - [ ] Skill-specific first dispatch row: `Skill | [[{folder}/SKILL\|SKILL.md]], [[SKL {Slug}\|User Docs]]`
-- [ ] Second dispatch row: `[[{Slug} Plan\|Plan]]+ | [[{Slug} PRD\|PRD]], [[{Slug} Backlog\|Backlog]], [[{Slug} Triage\|Triage]], [[{Slug} Features\|Features]]`
+- [ ] Second dispatch row: `[[{Slug} Plan\|Plan]]+ | [[{Slug} PRD\|PRD]], [[{Slug} Backlog\|Backlog]], [[{Slug} Features\|Features]]`
 - [ ] No `Dev` row — skill anchors don't have one (SKILL.md *is* the code)
 - [ ] No `User` row — skill anchors don't have one (user docs live in the SKL tree)
 
 ## {Slug} Docs/{Slug} Plan/
 
-- [ ] `{Slug} Plan.md` dispatch exists, links to PRD / Backlog / Triage / Features
+- [ ] `{Slug} Plan.md` dispatch exists, links to PRD / Backlog / Features
 - [ ] `{Slug} PRD.md` exists (placeholder OK if no design discussion yet)
 - [ ] `{Slug} Backlog.md` exists with workflow-state H2s (Active / Ready / Now / Next / Later / Done)
-- [ ] `{Slug} Triage.md` exists with H1 banner format per [[DAS Triage]]
 - [ ] `{Slug} Features/` folder exists with `{Slug} Features.md` dispatch
 
 ## File naming inside the skill folder
@@ -448,7 +446,7 @@ A skill anchor IS a CAB anchor — `SKILL.md` is the agent-loaded code, the rest
 - [ ] Skill is referenced from the Skills table in `~/.claude/skills/SKA.md` (or `Bespoke/Skill Agent/SKA.md`)
 - [ ] Cell format: `**[[SKL {Slug}\|{folder}]]**` — link target is the SKL user-doc, display alias is the folder name (so the user sees `mode`, `groom`, etc., as it appears in `/<command>`)
 - [ ] Placed in the appropriate column based on the skill's purpose:
-  - **Workflow** — feature, groom, land, roster, triage, crank, audit (skills that move work through states)
+  - **Workflow** — feature, groom, land, roster, ask, crank, audit (skills that move work through states)
   - **Build / Code** — code, fortify, mint (skills that produce or harden code)
   - **Anchor / Structure** — CAB, create, migrate, rewire, rule (skills that shape anchors / structure / rules)
   - **Investigation / Coord** — parley, research, role (skills that explore or coordinate)

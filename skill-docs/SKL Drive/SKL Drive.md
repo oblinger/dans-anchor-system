@@ -1,5 +1,5 @@
 ---
-description: "crank, land, fortify, triage, ask, feature, groom, mint, finalize"
+description: "crank, land, fortify, ask, feature, groom, mint, finalize"
 ---
 
 # SKL Drive
@@ -15,6 +15,5 @@ User guides for the engine-room verbs that drive work forward through the lifecy
 | [[DAS Groom\|Groom]] | Walk the current anchor's backlog and move it toward the **groomed state** — promote every item it can to **Ready**, park items that need user input in dated feature docs, repair link integrity. |
 | [[DAS Land\|Land]] | `/land` — bounded crank. |
 | [[DAS Mint\|Mint]] | `/mint` -- Mint takes what's ready and makes it real. |
-| [[SKL Triage\|Triage]] | `/triage` (or the punctuation trigger `"` — a single double-quote as the entire message) regenerates the current anchor's per-anchor section inside `~/ob/kmr/Q.md`, the vault-level Agent Status das… |
 | --- | |
 | [[SKL Query]] | /ask — the clean skill for asking you questions, formatted so you can always answer from what's written. |

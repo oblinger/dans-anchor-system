@@ -17,7 +17,7 @@ The `/`-invocable verbs, grouped as under [[SKL]]. Linked to a **user guide** wh
 
 | Group | Skills |
 | --- | --- |
-| [[SKL Drive\|Drive]] | [[ASG Feature\|Feature]],  [[ASG Groom\|Groom]],  [[ASG Query\|Query]],  [[ASG Crank\|Crank]],  [[ASG Mint\|Mint]],  [[ASG Finalize\|Finalize]],  [[ASG Land\|Land]],  [[ASG Fortify\|Fortify]],  [[ASG Triage\|Triage]] |
+| [[SKL Drive\|Drive]] | [[ASG Feature\|Feature]],  [[ASG Groom\|Groom]],  [[ASG Query\|Query]],  [[ASG Crank\|Crank]],  [[ASG Mint\|Mint]],  [[ASG Finalize\|Finalize]],  [[ASG Land\|Land]],  [[ASG Fortify\|Fortify]] |
 | [[SKL Anchor\|Anchor]] | [[DAS Create\|Create]],  [[DAS Install\|Install]],  [[DAS Migrate\|Migrate]],  [[DAS Move\|Move]],  [[DAS Publish\|Publish]],  [[DAS Streams\|Streams]],  [[DAS WP\|WP]],  [[DAS Yore\|Yore]] |
 | [[SKL Hygiene\|Hygiene]] | [[DAS Audit\|Audit]],  [[DAS Dupes\|Dupes]],  [[DAS Maintain\|Maintain]],  [[DAS Rewire\|Rewire]],  [[DAS Slug Scan\|Slug Scan]],  [[DAS Tidy\|Tidy]] |
 | [[SKL Dev\|Dev]] | [[DAS Architect\|Architect]],  [[DAS Code\|Code]],  [[DAS Fix\|Fix]],  [[DAS Pilot Flow\|Pilot Flow]],  [[DAS PR Flow\|PR Flow]] |
@@ -33,7 +33,7 @@ The per-document shapes, grouped as under [[FCT]]. Each links to its facet spec.
 | --- | --- |
 | [[DAS Anchor\|Anchor]] | [[DAS Anchor Page\|Anchor Page]],  [[DAS Naming\|Naming]],  [[DAS Folder\|Folder]],  [[DAS CLI\|CLI]],  [[DAS Code Repository\|Code Repository]] |
 | [[DAS Design Docs\|Design Docs]] | [[DAS PRD\|PRD]],  [[DAS Architecture\|Architecture]],  [[DAS UX Design\|UX Design]],  [[DAS Testing\|Testing]],  [[DAS Decisions\|Decisions]],  [[DAS Roadmap\|Roadmap]],  [[DAS Stories\|Stories]] |
-| [[DAS Track\|Track]] | [[DAS Features\|Features]],  [[DAS Status\|Status]],  [[DAS Query\|Query]],  ~~[[DAS Triage\|Triage]]~~,  [[DAS Messages\|Messages]],  [[DAS Log\|Log]] |
+| [[DAS Track\|Track]] | [[DAS Features\|Features]],  [[DAS Status\|Status]],  [[DAS Query\|Query]],  [[DAS Messages\|Messages]],  [[DAS Log\|Log]] |
 | [[DAS Doc\|Doc]] | [[DAS Doc Structure\|Doc Structure]],  [[DAS Ruleset\|Ruleset]],  [[DAS Brief\|Brief]],  [[DAS Discussion\|Discussion]] |
 | [[DAS Dispatch\|Dispatch]] | [[DAS Dispatch Table\|Dispatch Table]] |
 | [[DAS Primitives\|Primitives]] | [[DAS Skill\|Skill]],  [[DAS Facet\|Facet]],  [[DAS Ruleset\|Ruleset]] |

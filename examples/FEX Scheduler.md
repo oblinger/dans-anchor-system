@@ -1,5 +1,5 @@
 ---
-description: "priority queue and worker pool"
+description: "priority queue engine + worker dispatch. Source: `src/execution/scheduler.rs`."
 ---
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [FEX Scheduler](hook://p/FEX%20Scheduler)
 # FEX Scheduler

@@ -1,6 +1,6 @@
 ---
 name: backlog
-description: Discipline for organizing a backlog along two independent axes — horizon (when the user wants work to happen) and workflow state (whether work has progressed). Adds three horizon H2s — Now / Next / Later — that replace the legacy `## Upcoming` section. Cited from CAB Backlog, /groom, /roster, /feature, /triage.
+description: Discipline for organizing a backlog along two independent axes — horizon (when the user wants work to happen) and workflow state (whether work has progressed). Adds three horizon H2s — Now / Next / Later — that replace the legacy `## Upcoming` section. Cited from CAB Backlog, /groom, /roster, /feature.
 user_invocable: false
 ---
 

@@ -101,7 +101,7 @@ F-numbers are per-anchor namespaces; the same `F<n> — Title` filename can appe
 
 - **Within-anchor wiki-links** to feature docs use the bare form: `[[F<n> — Title]]`. Path-proximity resolves correctly.
 - **Cross-anchor wiki-links** to feature docs must be **path-qualified**: `[[ANCHOR Slug/.../Features/F<n> — Title]]`, or use an explicit alias like `[[F<n> — Title|SKA F<n>]]` when the link target is unambiguous in the surrounding context.
-- `Q.md` and `{slug} Triage.md` only ever link to `[[ANCHOR]]` and `[[Q#ANCHOR Triage|ANCHOR Triage]]` — never directly to feature docs across anchors — so they are unaffected by this rule.
+- `Q.md` and `{slug} queries.md` only ever link to `[[ANCHOR]]` and `[[{slug} queries|{slug}]]` — never directly to feature docs across anchors — so they are unaffected by this rule.
 
 **Creation-time guard.** `/feature` step 1b (per `[[SKA feature]]` § 1b) greps the vault for an existing H1 with the same title before writing a new feature doc. If a same-title file already exists in another anchor, the agent surfaces it as a single inline question — rename, or proceed knowing both files exist and cross-anchor links to either must be qualified per the rule above. Within-anchor collisions block creation outright (titles must be unique within an anchor).
 
@@ -137,9 +137,9 @@ Each F-row may carry a workflow-state bracket per the `[[SKA workflow]]` discipl
 
 `[Waiting]` rows must say what we're waiting on in the body. Distinct from `[Blocked]`: Blocked has a fixable obstacle (an actor's action would unblock it); Waiting does not (just letting time pass or observing for an external event we *want* to occur — bug to reoccur, log file to fill, GPU run to finish). Timed forms (`[Waiting 1d]`, `[Waiting 4h]`) must additionally include the absolute calendar date/time the wait expires in the body, since "1d" by itself ages and becomes meaningless without knowing when it was written.
 
-`[Watching]` rows are the **polarity opposite of `[Waiting]`**: a fix has been shipped and we're soaking on it, observing for *non*-recurrence. Body must say what was changed and what non-recurrence would prove. Timed forms (`[Watching 7d]`, `[Watching 24h]`) — the common case — must include the absolute soak-expiry date in the body. At expiry with no recurrence, triage suggests `[Verify]` for user confirm-and-close; on recurrence during the soak, regress to `[Active]` or `[Designing]`. No `[Watching F<NNN>]` form — Watching is about a fix you shipped, not a chained dependency.
+`[Watching]` rows are the **polarity opposite of `[Waiting]`**: a fix has been shipped and we're soaking on it, observing for *non*-recurrence. Body must say what was changed and what non-recurrence would prove. Timed forms (`[Watching 7d]`, `[Watching 24h]`) — the common case — must include the absolute soak-expiry date in the body. At expiry with no recurrence, `/groom` suggests `[Verify]` for user confirm-and-close; on recurrence during the soak, regress to `[Active]` or `[Designing]`. No `[Watching F<NNN>]` form — Watching is about a fix you shipped, not a chained dependency.
 
-All three states — `[Blocked]`, `[Waiting]`, `[Watching]` — are reconsidered every `/triage` pass; see `[[SKA workflow]]` § Blocked, Waiting, and Watching semantics.
+All three states — `[Blocked]`, `[Waiting]`, `[Watching]` — are reconsidered every `/groom` pass; see `[[SKA workflow]]` § Blocked, Waiting, and Watching semantics.
 
 ## H2 sections
 
@@ -184,9 +184,9 @@ Every backlog item has one of these statuses, derived from where the bullet sits
 | **Ready** | Bullet is under `## Ready`. |
 | **Active** | Bullet is under `## Active`. |
 | **Questions** | Bullet text contains a `→ [[Feature Doc]]` link to a doc with pending questions; status bracket `[Questions]`. The item is parked there until the user answers. |
-| **Blocked** | Bullet has bracket `[Blocked]` (generic — body describes the blocker) or `[Blocked F<NNN>]` (chained — blocker is another feature's progression; click `F<NNN>` to learn its state). Skipped by `/groom`; reconsidered by `/triage`; counts only under its horizon H2 (no Q/V/A/R contribution). |
-| **Waiting** | Bullet has bracket `[Waiting]` / `[Waiting Nd]` / `[Waiting Nh]`. **Body must say what we're waiting on** — an event we *want* to occur; timed forms must also include the absolute expiration date in the body. No actor's action would unblock — distinct from Blocked. Skipped by `/groom`; reconsidered by `/triage`; counts only under its horizon H2 (no Q/V/A/R contribution). |
-| **Watching** | Bullet has bracket `[Watching]` / `[Watching Nd]` / `[Watching Nh]`. **Body must say what was changed and what non-recurrence would prove** — soak on a shipped fix; timed forms must also include the absolute soak-expiry date in the body. Resolves on *non*-recurrence (opposite polarity from Waiting). Skipped by `/groom`; reconsidered by `/triage`; counts only under its horizon H2 (no Q/V/A/R contribution). |
+| **Blocked** | Bullet has bracket `[Blocked]` (generic — body describes the blocker) or `[Blocked F<NNN>]` (chained — blocker is another feature's progression; click `F<NNN>` to learn its state). Skipped by `/groom`'s promotion pass; reconsidered by `/groom`'s bracket reassessment; counts only under its horizon H2 (no Q/V/A/R contribution). |
+| **Waiting** | Bullet has bracket `[Waiting]` / `[Waiting Nd]` / `[Waiting Nh]`. **Body must say what we're waiting on** — an event we *want* to occur; timed forms must also include the absolute expiration date in the body. No actor's action would unblock — distinct from Blocked. Skipped by `/groom`'s promotion pass; reconsidered by `/groom`'s bracket reassessment; counts only under its horizon H2 (no Q/V/A/R contribution). |
+| **Watching** | Bullet has bracket `[Watching]` / `[Watching Nd]` / `[Watching Nh]`. **Body must say what was changed and what non-recurrence would prove** — soak on a shipped fix; timed forms must also include the absolute soak-expiry date in the body. Resolves on *non*-recurrence (opposite polarity from Waiting). Skipped by `/groom`'s promotion pass; reconsidered by `/groom`'s bracket reassessment; counts only under its horizon H2 (no Q/V/A/R contribution). |
 | **Verify** | Bullet has bracket `[Verify]` (lives under its horizon H2; no dedicated `## Verify` H2). |
 | **Done** | Bullet is under `## Done`. |
 | **Unset / Upcoming** | Bullet is under a horizon H2 (`## Now`, `## Next`, `## Later`) — or the legacy `## Upcoming` — or `## Legwork`, with bracket `[ ]` / `[Designing]` / absent, AND has no link to active open questions. This is the "candidate for promotion" status. |
@@ -219,15 +219,15 @@ For rows without a feature doc, see § B-row inline Qs below.
 - Hoist the informal questions to numbered form (Q1, Q2, …) at the top of the row body — then the bracket is honest, or
 - Rebracket to a state the row actually satisfies (`[Designing]`, `[Blocked]`, `[ ]`).
 
-**Triage link form (per `[[FCT Triage]]` / `[[SKA triage]]` § Mandatory wiki-link):** `[[{slug} Backlog#B-name|B-name]]` — clicking lands at the row, where the numbered Qs are immediately visible.
+**Query link form (per `[[DAS Query]]` / `[[SKA ask]]` § Mandatory wiki-link):** `[[{slug} Backlog#B-name|B-name]]` — clicking lands at the row, where the numbered Qs are immediately visible.
 
 **Promotion to feature doc.** If the inline Q set grows too large to fit comfortably as row sub-bullets — rule of thumb: more than 3–4 Qs, or any Q whose body needs multiple lines of elaboration — promote the row to a feature doc via `/feature`. The feature doc's `## Open Questions` H2 below H1 is the canonical Q surface and assigns a stable F-number from the per-anchor F-counter. After promotion, the backlog row's description becomes a `→ [[F<n> — Title]]` pointer per the convention above.
 
-**Why this matters.** The bracket promise (`[Questions]` → click → land on numbered Qs) is what makes `/triage` and `Q.md` navigable. A bracket without numbered Qs at the link target leaves the user unable to answer with the shorthand `B-name Q3: yes` because there's no Q3 to address — a silent-failure that has historically slipped past skill-level discipline (see [[feedback_close_round_trip_loopholes]]). Numbered Qs at a knowable location make the rule mechanically checkable.
+**Why this matters.** The bracket promise (`[Questions]` → click → land on numbered Qs) is what makes `queries.md` and `Q.md` navigable. A bracket without numbered Qs at the link target leaves the user unable to answer with the shorthand `B-name Q3: yes` because there's no Q3 to address — a silent-failure that has historically slipped past skill-level discipline (see [[feedback_close_round_trip_loopholes]]). Numbered Qs at a knowable location make the rule mechanically checkable.
 
 ## Design Principle — Minimize User Back-and-Forth
 
-Workflow operations that touch the backlog — `/groom`, `/triage`, `/roster`, audits, and similar batch operations — **must process the entire batch autonomously before involving the user**. Never interrupt mid-run to ask a question; route every question that emerges to its feature doc's `## Open Questions` block, then surface the first blocked doc at the end of the run as the user's single next action.
+Workflow operations that touch the backlog — `/groom`, `/ask`, `/roster`, audits, and similar batch operations — **must process the entire batch autonomously before involving the user**. Never interrupt mid-run to ask a question; route every question that emerges to its feature doc's `## Open Questions` block, then surface the first blocked doc at the end of the run as the user's single next action.
 
 Each round-trip with the user costs scrollback context and stalls the batch — design every workflow to require *one* round-trip per pass, not N. Inline questions are an anti-pattern in batch operations — every question, however trivial, is parked in the queries surface (per [[Query PRD]] R1; the former one-trivial-inline-question concession was retired 2026-07-05).
 
@@ -276,7 +276,7 @@ The **groom frontier** — the tasks that could be next for execution — is the
 ### RULE R-backlog-02 — Frontier `[Ready]`/`[Active]` rows declare a `Next:` step (checked)
 check:: backlog_frontier_planned
 
-Every `[Ready]` or `[Active]` row under a frontier H2 carries a `- **Next:**` sub-bullet declaring the next concrete step the agent will take with zero user involvement. A `[Ready]` row that cannot state a no-user next step is not really Ready — the bracket is lying (this is the triage render's `⚠ none declared` forcing-function, promoted to a rule).
+Every `[Ready]` or `[Active]` row under a frontier H2 carries a `- **Next:**` sub-bullet declaring the next concrete step the agent will take with zero user involvement. A `[Ready]` row that cannot state a no-user next step is not really Ready — the bracket is lying (this is the render's `⚠ none declared` forcing-function, promoted to a rule).
 
 **Check pattern:** for each top-level row under `## Active` / `## Ready` / `## Now` / `## Next` whose bracket is `[Ready]` or `[Active]`, the row's indented sub-bullets include one starting `- **Next:**`.
 
@@ -311,6 +311,6 @@ The state-3 body contract, and the antidote to the lazy-Blocked / lazy-Waiting /
 ### RULE R-backlog-07 — Timed `[Waiting Nd/Nh]` / `[Watching Nd/Nh]` rows carry an absolute expiry date (checked)
 check:: backlog_timed_has_expiry_date
 
-The relative duration in a timed bracket (`1d`, `4h`, `7d`) **ages** — "1d" is meaningless without knowing when it was written. So the state-5 (and timed state-3) contract requires the body to give the absolute calendar date the wait/soak expires, in `YYYY-MM-DD` form. The terse `Nd`/`Nh` stays in the bracket for glanceability; the date lives in the body, and `/triage` reads it to decide when to prompt for rebracketing.
+The relative duration in a timed bracket (`1d`, `4h`, `7d`) **ages** — "1d" is meaningless without knowing when it was written. So the state-5 (and timed state-3) contract requires the body to give the absolute calendar date the wait/soak expires, in `YYYY-MM-DD` form. The terse `Nd`/`Nh` stays in the bracket for glanceability; the date lives in the body, and `/groom` reads it to decide when to prompt for rebracketing.
 
 **Check pattern:** for each row whose bracket matches `(Waiting|Watching) \d+[dh]`, the row line or a sub-bullet contains a `\d{4}-\d{2}-\d{2}` date.

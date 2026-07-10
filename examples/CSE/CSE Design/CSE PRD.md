@@ -1,5 +1,5 @@
 ---
-description: "product requirements"
+description: "product requirements — what the skill does and why"
 ---
 # CSE PRD
 

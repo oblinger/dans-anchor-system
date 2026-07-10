@@ -7,7 +7,7 @@ description: >
   routing so every anchor with outstanding warnings has an up-to-date `B-QFix`
   row on its backlog. Does NOT edit other anchors' feature docs (no
   cross-anchor agent-judgment edits); each owning Pilot drives their own row
-  to zero on the next `/crank` or `/triage`.
+  to zero on the next `/crank` or `/ask`.
 tools: Read, Write, Edit, Bash, Glob, Grep
 user_invocable: true
 ---
@@ -19,7 +19,7 @@ Sub-action of `/audit`. Two modes distinguished by argument:
 | Invocation | What it does |
 |---|---|
 | `/audit q-fix` (no args, inside an anchor) | Pick up THIS anchor's `B-QFix [Ready]` row and drive its sub-bullets to zero with agent judgment. The single-anchor mode. |
-| `/audit q-fix all` | Broadcast routing — run vault-wide `audit-q.py --fix` so every anchor with outstanding warnings gets a current `B-QFix [Ready]` row on its backlog. Does NOT do the cross-anchor sub-bullet-driving; that's each owning Pilot's job on their own `/crank` or `/triage`. The vault-wide setup mode. |
+| `/audit q-fix all` | Broadcast routing — run vault-wide `audit-q.py --fix` so every anchor with outstanding warnings gets a current `B-QFix [Ready]` row on its backlog. Does NOT do the cross-anchor sub-bullet-driving; that's each owning Pilot's job on their own `/crank` or `/ask`. The vault-wide setup mode. |
 
 Spec: `[[F009 — audit q — Q.md constraint validator]]` § 4.5.
 
@@ -73,7 +73,7 @@ The broadcast-routing mode. Does NOT drive any anchor's sub-bullets to zero — 
    ```
    The `{N}` trailing counts on Q.md banners also reflect this state.
 
-3. **Stop.** This skill does NOT drive sub-bullets to zero in this mode. The owning Pilot's next `/crank`, `/triage`, or local `/audit q-fix` handles that. The audit-fixes-everything-itself anti-pattern is the principle violation this mode is designed to avoid (per user direction 2026-06-04 — auditing agent does NOT do agent-judgment edits in other anchors' feature docs).
+3. **Stop.** This skill does NOT drive sub-bullets to zero in this mode. The owning Pilot's next `/crank`, `/ask`, or local `/audit q-fix` handles that. The audit-fixes-everything-itself anti-pattern is the principle violation this mode is designed to avoid (per user direction 2026-06-04 — auditing agent does NOT do agent-judgment edits in other anchors' feature docs).
 
 ## Cross-references
 

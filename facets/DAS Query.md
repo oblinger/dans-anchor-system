@@ -11,15 +11,32 @@ The asking surface: one `{slug} queries.md` per anchor, in `{slug} Track/`, that
 
 | Table of Contents |  |
 |---|---|
-| [[#What it is]] |  |
-| [[#Parts]] |  |
-| [[#Structure]] |  |
-| [[#Verifications — agent runs, user judges]] |  |
-| [[#No orphan items]] |  |
-| [[#Questions]] |  |
-| [[#Resolutions & Ready]] |  |
-| [[#Cross-cutting]] |  |
-| **[[#BRIEF]]** |  |
+| **[[#What it is]]** |  |
+| **[[#Parts]]** |  |
+| **[[#The banner]]** |  |
+| **[[#Copied into Q.md]]** |  |
+| **[[#Structure]]** |  |
+|    [[#RULE R-query-01 — Lives at `{slug} Track/{slug} queries.md` (checked)]] |  |
+|    [[#RULE R-query-02 — Opens with frontmatter `description:` then the status-banner H1 (checked)]] |  |
+|    [[#RULE R-query-03 — Five sections, fixed order, no others (checked)]] |  |
+|    [[#RULE R-query-16 — Banner H1 has the exact status-banner form + spacing (checked)]] |  |
+| **[[#Verifications — agent runs, user judges]]** |  |
+|    [[#RULE R-query-04 — Verifications begin with a bold `**V<n>` handle and carry an answer shape (checked)]] |  |
+|    [[#RULE R-query-05 — A verification never asks the user to run/execute anything (checked)]] |  |
+|    [[#RULE R-query-06 — No "verify `F<n>`" / whole-document eyeball (stated)]] |  |
+| **[[#No orphan items]]** |  |
+|    [[#RULE R-query-07 — Every item is answerable; no orphan actionable lines (stated)]] |  |
+| **[[#Questions]]** |  |
+|    [[#RULE R-query-08 — Immediate Questions begin with `**Q<n>` and use the standard expanded question format (checked)]] |  |
+|    [[#RULE R-query-09 — Catch-all Questions link in `F<n> Q<m>` form (checked)]] |  |
+|    [[#RULE R-query-10 — A feature with more than 3 open questions is linked, not enumerated (stated)]] |  |
+| **[[#Resolutions & Ready]]** |  |
+|    [[#RULE R-query-11 — Agent Resolutions are reversible-guess records, each linked (stated)]] |  |
+|    [[#RULE R-query-12 — Ready lists backlog `[Ready]` features and carries no questions (stated)]] |  |
+| **[[#Cross-cutting]]** |  |
+|    [[#RULE R-query-13 — A bullet that names an F-number links it (checked)]] |  |
+|    [[#RULE R-query-15 — Every artifact a surfaced item names is a live wiki-link (checked)]] |  |
+|    [[#RULE R-query-14 — Never surface a commit/push question; steer the agent to its Git-aspect policy (when:: skill:post:audit-q)]] |  |
 
 **TLDR** — One `{slug} queries.md` per anchor (cardinality: one), in `{slug} Track/`, owned by the `/ask` skill. Opens with the anchor's **status banner** (TAG + counts) as its H1, then the fixed five-section order (`## Agent Resolutions` → `## Verifications` → `## Immediate Questions` → `## Questions` → `## Ready`); empty sections omitted. Verifications are agent-run / user-judged — never "user runs X". Questions are self-contained or wiki-linked. The whole body is **copied verbatim into the anchor's `Q.md` section** (F231 — the query file is the queue-file content; there is no separate triage view). The file shrinks toward empty as answers are applied. Validated by `/audit doc` via `R-query`.
 

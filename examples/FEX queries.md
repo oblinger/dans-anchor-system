@@ -1,5 +1,5 @@
 ---
-description: CAE queries — mechanically rendered from the backlog by triage (Verifications / Ready+Next / Questions). Do not hand-edit; edit the backlog rows.
+description: "CAE queries — mechanically rendered from the backlog by `queries-render.py` (Verifications / Ready+Next / Questions). Do not hand-edit; edit the backlog rows."
 ---
 
 # [A]  [[HBR|CAE]]  -  Ready 3    Questions 0   |   Now 1    Next 1    Later 3    Verify 0    Icebox 5

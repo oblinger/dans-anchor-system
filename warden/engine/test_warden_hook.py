@@ -221,7 +221,7 @@ def test_pathguard_veto():
             denies = [s for s in pre("Edit", file_path=str(anchor / "FX queries.md"),
                                      old_string="a", new_string="b")
                       if s.startswith(wh.DENY_SENTINEL)]
-            assert len(denies) == 1 and "triage-section.py" in denies[0], denies
+            assert len(denies) == 1 and "queries-render.py" in denies[0], denies
             # 02 — feature-doc edit INSIDE ## Open Questions denied...
             fdoc = anchor / "F001 — Fixture feature.md"
             fdoc.write_text("# F001 — Fixture feature\n\nbody\n\n## Open Questions\n\n"

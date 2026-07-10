@@ -32,4 +32,4 @@ The current skill spec lives at [[fortify/SKILL\|SKILL.md]]. User docs live at [
 - **Fortify cheap→expensive:** re-read existing logs → add logging + re-run → write red tests for coverage gaps → tighten weak assertions → pin invariants in code → (with approval) propose simplification/hardening. Then drive red tests green.
 - **Principles:** wall-clock cost is irrelevant, *user-interruption* cost is the constraint; batch questions, never trickle; default to "more not less" on coverage/robustness; application-shape changes need approval; prior conclusions are evidence, not truth.
 - **Separate from `/spike`** — shared skeptical posture, different next step (spike collects evidence and stops; fortify acts on it).
-- **Trigger:** the word `fortify` (and `/fortify`), plus an optional argument form. *(The `"` shortcut once paired with fortify later moved to `/triage`; fortify now has no single-keystroke shortcut.)*
+- **Trigger:** the word `fortify` (and `/fortify`), plus an optional argument form. *(The `"` shortcut once paired with fortify later moved to `/ask`; fortify now has no single-keystroke shortcut.)*

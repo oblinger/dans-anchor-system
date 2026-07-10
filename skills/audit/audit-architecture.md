@@ -13,7 +13,7 @@ Sibling of `/audit q` / `/audit markdown` / `/audit docs`. Spec: `[[F015 — Aud
 
 ## When to invoke
 
-- **Auto** — `/architect` (and every sub-skill: `/architect new`, `/architect update`, `/architect changes`, `/architect drift`) invokes this skill as its last step. Mirrors how `/triage` / `/groom` / `/mint` auto-invoke `/audit q` per the F076 Q6 post-condition.
+- **Auto** — `/architect` (and every sub-skill: `/architect new`, `/architect update`, `/architect changes`, `/architect drift`) invokes this skill as its last step. Mirrors how `/ask` / `/groom` / `/mint` auto-invoke `/audit q` per the F076 Q6 post-condition.
 - **Manual** — user types `/audit architecture` to re-check after fixing one doc by hand, or to scan from a known state before a refactor.
 
 ## Trigger

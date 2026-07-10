@@ -11,7 +11,7 @@ The current skill spec lives at [[crank/SKILL\|SKILL.md]]. User docs live at [[D
 
 ## Overview
 
-`/crank` is the **outer-loop orchestrator** over `/mint`: one press = a full sweep of the Ready queue, not a single mint. It loops — pick a Ready item, `/mint` it, repeat — until no Ready items remain or a mint blocks/fails (F195). It composes the existing skills (`/mint`, `/groom`, `/triage`) into one user-press behavior.
+`/crank` is the **outer-loop orchestrator** over `/mint`: one press = a full sweep of the Ready queue, not a single mint. It loops — pick a Ready item, `/mint` it, repeat — until no Ready items remain or a mint blocks/fails (F195). It composes the existing skills (`/mint`, `/groom`, `/ask`) into one user-press behavior.
 
 ## Goals
 
@@ -28,13 +28,13 @@ The current skill spec lives at [[crank/SKILL\|SKILL.md]]. User docs live at [[D
 ## User Stories
 
 - As the user, I press `crank` repeatedly and the system keeps minting Ready work silently until it genuinely cannot continue.
-- As the user, when crank stops, I get a one-shot status + actionable inbox via `/groom` + `/triage`.
+- As the user, when crank stops, I get a one-shot status + actionable inbox via `/groom` + `/ask`.
 
 ## Post-sweep branch
 
 Branch on the binary "did anything get minted this turn?":
 - **Yes** → exit silently (the hot-loop path; the user keeps pressing to continue).
-- **No** → run `/groom` (extend the runway) then `/triage` (surface the inbox), and exit.
+- **No** → run `/groom` (extend the runway) then `/ask` (surface the inbox), and exit.
 
 The fallbacks fire *only* on the no-action branch — they're the "what to do when crank stops" surface, not always-at-end actions. (F195 also specified a *second-press* lowering of the autonomy threshold keyed off conversation history; this was later simplified away — every press now runs the same loop end-to-end, with no second-press semantics.)
 

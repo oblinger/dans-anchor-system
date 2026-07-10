@@ -1,6 +1,6 @@
 # RULESET R-pathguard
 include::
-description:: Veto-path protection for state-managed file regions (F131) — deny the agent's Edit/Write on surfaces owned by a script (`state task`, `state q`, `/atlas`, the triage renderer) and redirect to the owning tool. Fires at `tool:pre:*` through the live dispatcher; adopt via the `pathguard` trait.
+description:: Veto-path protection for state-managed file regions (F131) — deny the agent's Edit/Write on surfaces owned by a script (`state task`, `state q`, `/atlas`, the queries renderer) and redirect to the owning tool. Fires at `tool:pre:*` through the live dispatcher; adopt via the `pathguard` trait.
 
 > [!info] Provenance
 > The first consumer of the F131 veto path (per [[F131 — Hooks — fast inner-loop check substrate (path-rule alerts first)|F131]] — realized on the Warden substrate rather than a separate hook binary). User direct edits are unaffected: the rules fire only on the agent's tool calls. A denied call carries the redirect message, so the agent lands on the owning script instead.
@@ -19,7 +19,7 @@ def body(ctx):
         return ["DENY: " + name + " is owned by `state task` (create | update | delete) — "
                 "never Edit backlog rows directly (~/.claude/skills/workflow/scripts/state)."]
     if name.endswith(" queries.md"):
-        return ["DENY: " + name + " is mechanically rendered by triage-section.py — "
+        return ["DENY: " + name + " is mechanically rendered by queries-render.py — "
                 "edit the backlog rows / feature-doc Open Questions it renders from, not the page."]
     return []
 ```
@@ -80,7 +80,7 @@ def body(ctx):
     from pathlib import Path
     name = Path(target).name
     if name.endswith(" Backlog.md") or name.endswith(" queries.md"):
-        return ["DENY: " + name + " is script-owned (`state task` / triage-section.py) — "
+        return ["DENY: " + name + " is script-owned (`state task` / queries-render.py) — "
                 "a wholesale Write bypasses the same discipline Edit is denied for."]
     return []
 ```

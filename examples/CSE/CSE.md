@@ -36,7 +36,7 @@ CSE/                                        ← anchor root (slug: CSE, trait: s
         ├── CSE Plan.md                     plan dispatch
         ├── CSE PRD.md                      product requirements (the design of the skill)
         ├── CSE Backlog.md                  deferred work
-        ├── CSE Triage.md                   triage inbox (agent-owned)
+        ├── CSE queries.md                  queries inbox (agent-owned)
         └── CSE Features/
             └── F001 — Example Feature.md   feature design doc (changes to the skill)
 ```
@@ -66,7 +66,7 @@ F-numbers stay anchor-wide and zero-padded triple-digit (`F001`…`F999`, per th
 
 ## About the content
 
-CSE describes a fictional skill `/cse` with one example action `/cse demo`. The skill itself is illustrative; what matters is the shape of the files. PRD, Plan dispatch, Backlog, Triage, and the example feature doc all show what a real skill anchor looks like in working form.
+CSE describes a fictional skill `/cse` with one example action `/cse demo`. The skill itself is illustrative; what matters is the shape of the files. PRD, Plan dispatch, Backlog, Queries, and the example feature doc all show what a real skill anchor looks like in working form.
 
 # BRIEF
 

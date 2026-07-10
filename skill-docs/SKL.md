@@ -18,7 +18,7 @@ Skills — the `/`-invocable runbooks (the things you type `/` for).
 | [[SKL Anchor\|Anchor]]+ | [[DAS Anchor Toolkit\|Anchor Toolkit]],  [[DAS CAB\|CAB]],  [[DAS Create\|Create]],  [[DAS Install\|Install]],  [[DAS Migrate\|Migrate]],  [[DAS Move\|Move]],  [[DAS Publish\|Publish]],  [[DAS Streams\|Streams]],  [[DAS WP\|WP]],  [[DAS Yore\|Yore]],   |
 | [[SKL Hygiene\|Hygiene]]+ | [[DAS Audit\|Audit]],  [[DAS Dupes\|Dupes]],  [[DAS Maintain\|Maintain]],  [[DAS Rewire\|Rewire]],  [[DAS Slug Scan\|Slug Scan]],  [[DAS Tidy\|Tidy]],   |
 | [[SKL Track\|Track]]+ | [[SKL Plan\|Plan]],  [[SKL Workflow\|Workflow]],  [[SKL Backlog\|Backlog]],  [[SKL Messages\|Messages]],   |
-| [[SKL Drive\|Drive]]+ | [[DAS Feature\|Feature]],  [[DAS Crank\|Crank]],  [[SKL Triage\|Triage]],  [[DAS Ask\|Ask]],  [[DAS Groom\|Groom]],  [[DAS Mint\|Mint]],  [[DAS Finalize\|Finalize]],  [[DAS Land\|Land]],  [[DAS Fortify\|Fortify]],  [[DAS ask-inline\|ask-inline]],  [[SKL Query\|Query]],   |
+| [[SKL Drive\|Drive]]+ | [[DAS Feature\|Feature]],  [[DAS Crank\|Crank]],  [[DAS Ask\|Ask]],  [[DAS Groom\|Groom]],  [[DAS Mint\|Mint]],  [[DAS Finalize\|Finalize]],  [[DAS Land\|Land]],  [[DAS Fortify\|Fortify]],  [[DAS ask-inline\|ask-inline]],  [[SKL Query\|Query]],   |
 | [[SKL Dev\|Dev]]+ | [[DAS Architect\|Architect]],  [[DAS Code\|Code]],  [[DAS Fix\|Fix]],  [[DAS Pilot Flow\|Pilot Flow]],  [[DAS PR Flow\|PR Flow]],   |
 | [[SKL Doc\|Doc]]+ | [[DAS Edit\|Edit]],  [[DAS IO\|IO]],  [[DAS MD\|MD]],  [[DAS Viz\|Viz]],   |
 | [[SKL Search\|Search]]+ | [[DAS Book\|Book]],  [[DAS Corp\|Corp]],  [[DAS Profile\|Describe]],  [[DAS Find\|Find]],  [[DAS Meta Survey\|Meta Survey]],  [[DAS Person\|Person]],  [[DAS Product\|Product]],  [[DAS Purchase\|Purchase]],  [[DAS Research\|Research]],  [[DAS Research Skill\|Research Skill]],  [[DAS Search Overview\|Search Overview]],  [[DAS Skill\|Skill]],  [[DAS Software\|Software]],  [[DAS Survey\|Survey]],   |
@@ -27,7 +27,7 @@ Skills — the `/`-invocable runbooks (the things you type `/` for).
 | --- | |
 
 
-Mapped:  [[DAS Feature]], [[DAS Crank]], [[SKL Triage]], [[DAS Ask]], [[DAS Groom]], [[DAS Mint]], [[DAS Finalize]], [[DAS Land]], [[DAS Fortify]], [[SKL Query]], [[DAS Anchor Toolkit]], [[DAS Create]], [[DAS Install]], [[DAS Migrate]], [[DAS Move]], [[DAS Publish]], [[DAS Streams]], [[DAS WP]], [[DAS Yore]], [[DAS Audit]], [[DAS Tidy]], [[DAS Dupes]], [[DAS Maintain]], [[DAS Rewire]], [[DAS Slug Scan]], [[DAS Architect]], [[DAS Code]], [[DAS Fix]], [[DAS PR Flow]], [[DAS Pilot Flow]], [[DAS MD]], [[DAS Viz]], [[DAS Find]], [[DAS Profile]], [[DAS Purchase]], [[DAS Survey]], [[DAS Cook]], [[DAS Ctrl]], [[DAS Exp]], [[DAS Parley]], [[DAS Snip]]
+Mapped:  [[DAS Feature]], [[DAS Crank]], [[DAS Ask]], [[DAS Groom]], [[DAS Mint]], [[DAS Finalize]], [[DAS Land]], [[DAS Fortify]], [[SKL Query]], [[DAS Anchor Toolkit]], [[DAS Create]], [[DAS Install]], [[DAS Migrate]], [[DAS Move]], [[DAS Publish]], [[DAS Streams]], [[DAS WP]], [[DAS Yore]], [[DAS Audit]], [[DAS Tidy]], [[DAS Dupes]], [[DAS Maintain]], [[DAS Rewire]], [[DAS Slug Scan]], [[DAS Architect]], [[DAS Code]], [[DAS Fix]], [[DAS PR Flow]], [[DAS Pilot Flow]], [[DAS MD]], [[DAS Viz]], [[DAS Find]], [[DAS Profile]], [[DAS Purchase]], [[DAS Survey]], [[DAS Cook]], [[DAS Ctrl]], [[DAS Exp]], [[DAS Parley]], [[DAS Snip]]
 
 # OLDER
 

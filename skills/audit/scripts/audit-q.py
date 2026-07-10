@@ -1782,7 +1782,7 @@ def _park_bracket_target_h2(status: str) -> str:
 
     Per F100: Watching/Verify* go to `## Verify`; Waiting/Blocked stay in
     `## Later`. The split surfaces passive-observation rows separately from
-    awaiting-event rows in triage.
+    awaiting-event rows in the render.
     """
     s = status.strip()
     if s.startswith("Watching") or s.startswith("Verify"):
@@ -1930,7 +1930,7 @@ def check_c16_blocked_in_later(entries: list[BacklogEntry]) -> list[Finding]:
 # ============================================================
 # Check C41 — soak/verify rows must declare their concrete user question, and
 # Ready/Active rows their no-user next-action. Mirrors the forcing-function in
-# triage-section.py: a [Verify*]/[Watching*] row with no `- **Verify:**`
+# queries-render.py: a [Verify*]/[Watching*] row with no `- **Verify:**`
 # sub-bullet renders `⚠ no concrete question`; a [Ready]/[Active] row with no
 # `- **Next:**` sub-bullet renders `⚠ none declared — not really Ready`. Before
 # C41, such a half-authored row passed audit-q CLEAN while visibly broken in the
@@ -1940,7 +1940,7 @@ def check_c16_blocked_in_later(entries: list[BacklogEntry]) -> list[Finding]:
 # mechanical fix, and `⚠` is never a valid resting state.
 # ============================================================
 
-# Sub-bullet forms, mirroring triage-section.py `_subbullet_res` (bold or plain,
+# Sub-bullet forms, mirroring queries-render.py `_subbullet_res` (bold or plain,
 # optional `(...)` qualifier, non-empty content required):
 def _labeled_subbullet_res(label: str) -> tuple:
     return (
@@ -1952,7 +1952,7 @@ def _labeled_subbullet_res(label: str) -> tuple:
 def _rows_with_subbullet(backlog_file: Path, label: str) -> set:
     """Identifiers of rows carrying a non-empty `**<label>:**` sub-bullet.
     Tracks the current row via ROW_OPENER_RE and resets on any heading —
-    exactly as triage-section.py `_extract_labeled_subbullets` does — so C41
+    exactly as queries-render.py `_extract_labeled_subbullets` does — so C41
     flags precisely the rows the render would mark `⚠`."""
     bold_re, plain_re = _labeled_subbullet_res(label)
     have: set = set()
@@ -2417,7 +2417,7 @@ def check_c32_h3_rows_forbidden(backlog_files: list[Path]) -> list[Finding]:
     Backlog rows must be bullets per [[CAB Backlog]]. H3-style rows (e.g.
     `### BUG — Title [Designing]`) sail past most row-based checks because
     the canonical parser (ROW_OPENER_RE) is bullet-only. Forbid the form
-    entirely so triage and audit see the same shape.
+    entirely so the render and audit see the same shape.
     """
     findings: list[Finding] = []
     h3_re = re.compile(
@@ -3448,7 +3448,7 @@ def route_findings_to_qfix(
 
     Per audit § Governing principle (2026-06-04): every residual the script
     can't fix gets routed to an anchor-local backlog row where the owning
-    Pilot's next /triage or /groom drives it to zero under the 100%-fix rule.
+    Pilot's next /ask or /groom drives it to zero under the 100%-fix rule.
 
     When residual findings for an anchor drop to zero, the stale B-QFix row
     is deleted so the anchor's banner reflects the current state.
@@ -3581,7 +3581,7 @@ def find_anchor_backlogs(vault_root: Path) -> dict[str, Path]:
     """Find every {NAME} Backlog.md in the vault. Return name → path.
 
     Per F107: backlogs nested deeper than SKA's own backlog level inside
-    `Skill Agent/` are SKA sub-skill anchors (Triage, Mode, Crank, etc.) —
+    `Skill Agent/` are SKA sub-skill anchors (Ask, Mode, Crank, etc.) —
     SKA's internal organization, not standalone projects. They get filtered
     out of Q.md presence here. Their underlying files keep existing on disk.
     """
@@ -4049,7 +4049,7 @@ def main() -> int:
     findings.extend(check_c37_queries_item_format(anchor_backlogs, vault_index))
     # F126 — C36 backtick-filepath check. Runs on Q.md (when in scope),
     # every per-anchor `{NAME} queries.md`, AND every anchor backlog —
-    # backlog rows are the source content that triage-section.py copies
+    # backlog rows are the source content that queries-render.py copies
     # into Q.md, so fixing the surface alone gets overwritten by the
     # next D1 banner-rewrite. Source-fix is durable.
     c36_surfaces: list[Path] = []
@@ -4099,7 +4099,7 @@ def main() -> int:
     # QFix routing — file every non-mechanically-fixable residual on the
     # owning anchor's `B-QFix [Ready]` row. Per audit § Governing principle
     # (2026-06-04): every check has an agent-side fix path; routing puts the
-    # residual where the owning Pilot's next /triage or /groom will see it
+    # residual where the owning Pilot's next /ask or /groom will see it
     # and drive it to zero under the 100%-fix rule.
     qfix_routing_log: list[str] = []
     if args.fix:
