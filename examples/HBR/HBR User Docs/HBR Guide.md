@@ -1,5 +1,5 @@
 ---
-description: "getting started"
+description: "getting started and usage"
 ---
 # HBR Guide
 Get Harbor from install to streaming in four steps.

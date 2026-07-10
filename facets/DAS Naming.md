@@ -2,7 +2,7 @@
 description: "file-naming facet — every file inside an anchor uses `{slug} <X>.md` form by default; exceptions for vault-global files and facet-sanctioned unique patterns"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Anchor]] → [FCT Naming](hook://p/DAS%20Naming)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Naming](hook://p/DAS%20Naming)
 # FCT Naming
 File-naming facet — every file inside an anchor uses `{slug} <X>.md` form by default; exceptions for vault-global files and facet-sanctioned unique patterns.
 

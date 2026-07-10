@@ -4,7 +4,7 @@ description: "the Template facet — a domain-specific, folder-local structure f
 # FCT Template
 The Template facet — a **domain-specific, folder-local structure**: the shared shape of the items inside one folder or tree, defined right where they live.
 
-| -[[DAS Template]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[DAS Primitives]] → [FCT Template](hook://p/DAS%20Template)<br>: the Template facet — a domain-specific, folder-local structure for the items in one folder/tree |
+| -[[DAS Template]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Template](hook://p/DAS%20Template)<br>: the Template facet — a domain-specific, folder-local structure for the items in one folder/tree |
 | --- | --- |
 | Parts | [[DAS Template Files\|Files]],  [[DAS Template Folders\|Folders]],  [[DAS Template Variables\|Variables]],   |
 | Related | [[DAS Facet]] (the *global* counterpart),  [[DAS Ruleset]],  [[DAS Dispatch Table]] (the Template row),  [[rewire]] |

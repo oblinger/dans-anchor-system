@@ -2,7 +2,7 @@
 description: "facet spec for {slug} API Design.md — the programmatic (code-to-code or sub-skill) user surface"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Design Docs]] → [FCT API Design](hook://p/DAS%20API%20Design)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS API Design](hook://p/DAS%20API%20Design)
 # FCT API Design
 Facet spec defining the shape, required sections, and ruleset for an anchor's `{slug} API Design.md` — the programmatic (code-to-code or sub-skill) user surface.
 

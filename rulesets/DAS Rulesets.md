@@ -4,7 +4,7 @@ description: "Curated, versioned bundles of rules."
 
 # Rulesets
 
-| -[[DAS Rulesets]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[library]] → [Rulesets](hook://p/DAS%20Rulesets)<br>: Curated, versioned bundles of rules. |
+| -[[DAS Rulesets]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Rulesets](hook://p/DAS%20Rulesets)<br>: Curated, versioned bundles of rules. |
 | --- | --- |
 | Related | [[Rulesets Brief\|Brief]],  [[DAS Ruleset]],  [[DAS Decisions]],   |
 | **CAB-aligned umbrellas** | The three primary structural axes — rulesets tied to CAB Facets, Traits, Skills. Adopting an umbrella pulls every per-X ruleset under it. |
@@ -22,14 +22,6 @@ description: "Curated, versioned bundles of rules."
 | **Owner-scoped** | Apply to every anchor a given owner owns, regardless of trait. |
 | [[R-ob]] | Dan's personal Ob-flavored rulesets. Children: [[R-ob-state-mgt]] (3 rules), [[R-ob-observability]] (2 rules), [[R-ob-cmd-proc]] (13 rules), [[R-ob-remote-ops]] (1 rule — the F183 bridge-guard, rides `anchor-base`). |
 | --- | |
-| [[Diagram]] | Diagram authoring + validation — **umbrella over 7 methodology sub-sets, 22 rules total**: |
-| [[R-anchor]] | Everything checked when auditing a whole anchor — the entry page + naming + planning facets, plus the doc-level rulesets (via R-doc) for every document the anchor contains. |
-| [[R-brief]] | Rules for the Brief doc facet — agent-facing per-file maintenance content (inline `# BRIEF` or `<Name> Brief.md` sidecar). Canonical body embedded in |
-| [[R-messages]] | Rules for the {slug} Messages facet — the agent's per-anchor background-process inbox, distinct from the user's Inbox. Canonical body embedded in |
-| [[R-pathguard]] | Veto-path protection for state-managed file regions (F131) — deny the agent's Edit/Write on surfaces owned by a script (`state task`, `state q`, `/atlas`, the triage renderer) and redirect to the owning tool. Fires at `tool:pre:*` through the live dispatcher; adopt via the `pathguard` trait. |
-| [[R-progressive]] | Conditional, multi-check document-layout rules of progressive disclosure — dispatch-table placement + section spacing; checked on every markdown document. |
-| [[R-svg-jiggle]] | Geometry-aware layout-repair ("jiggle") for hand-authored SVG diagrams — clear label-over-box overlaps with the cheapest topological move (slide / flip), governed by a three-tier severity order. |
-| [[Rulesets/README]] |  |
 
 ## Status
 

@@ -2,7 +2,7 @@
 description: "facet spec for {slug} PRD.md — the anchor's product requirements document"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Design Docs]] → [FCT PRD](hook://p/DAS%20PRD)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS PRD](hook://p/DAS%20PRD)
 # FCT PRD
 **Audited examples:** [[HBR PRD]], [[Mini PRD]], [[HBR PRD]], [[DMUX PRD]], [[OBU PRD]]
 

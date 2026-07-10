@@ -1,10 +1,10 @@
 ---
-description: "`/dupes` sweeps the vault for duplicate `.md` filenames — files with the same basename in two or more places — and emits a confidence-ranked **edit list** (`E1`, `E2`, ...) of proposed fixes: delet…"
+description: "the SKL Dupes doc"
 ---
 # /Dupes
 `/dupes` sweeps the vault for duplicate `.md` filenames — files with the same basename in two or more places — and emits a confidence-ranked **edit list** (`E1`, `E2`, ...) of proposed fixes: delete this stale copy, merge these two, rename to disambiguate, or leave alone. It reads the actual content of each pair (not just paths) before recommending anything, so the suggestion comes with a one-line characterization like "byte-identical," "one is empty," "one looks like a later version," or "different content, same name (coincidental)."
 
-| -[[DAS Dupes]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Hygiene]] → [SKL Dupes](hook://p/DAS%20Dupes)<br>: the SKL Dupes doc |
+| -[[DAS Dupes]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Dupes](hook://p/DAS%20Dupes)<br>: the SKL Dupes doc |
 | --- | --- |
 | Related | [[skills/dupes/SKILL.md\|SKILL]],   |
 | [[DAS Dupes Design\|Design]] |  |

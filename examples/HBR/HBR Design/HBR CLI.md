@@ -1,5 +1,5 @@
 ---
-description: "command-line specification — the harbor CLI: a compressed --help figure over the full command reference"
+description: "CLI command reference (when applicable)"
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[HBR]] → [[HBR Design]] → [HBR CLI](hook://p/HBR%20CLI)
