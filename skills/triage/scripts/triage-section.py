@@ -655,29 +655,25 @@ def extract_verify_questions(backlog_file: Path) -> dict[str, str]:
     return _extract_labeled_subbullets(backlog_file, "Verify")
 
 
-def render_queries_doc(name: str, banner: Optional[str], rows: list[Row],
+def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
                        vault_index: dict, next_actions: dict[str, str],
-                       verify_questions: dict[str, str], backlog_file: Path) -> bool:
-    """Mechanically (re)write `{name} queries.md` from backlog state, as part of
-    every triage — the page the user clicks into from Q.md. Fully script-owned
-    (per user direction 2026-06-26: *"purely mechanical, done as part of the
-    process of doing a triage"*); no agent-authored prose is preserved. To change
-    what shows here, edit the backlog rows, not this file.
+                       verify_questions: dict[str, str],
+                       backlog_file: Path) -> Optional[list[str]]:
+    """Build the canonical queries body from backlog state — the SINGLE render that
+    is both written to `{name} queries.md` AND copied into the anchor's Q.md section
+    (F231 — the query file IS what goes into the queue file; one render, two
+    destinations). Pure (no file writes); `render_queries_doc` writes the file and
+    `main()` reuses the return for Q.md. Fully script-owned; edit the backlog rows.
 
-    Layout: banner H1 (anchor-linked) + three sections rendered from the same
-    rows `_row_should_render` admits —
+    Three sections rendered from the rows `_row_should_render` admits —
       ## Verifications  ← `[Verify*]` / `[Watching*]` rows (each `**V<n>**` + the
                           row's verify-plan body + `· **yes / no**`)
       ## Ready          ← `[Ready]`/`[Agreed]`/`[Active]` rows, each with its
                           declared `**Next:**` no-user action (⚠ if none)
       ## Questions      ← `[Questions]` rows, linking to the source's open Qs
-    Returns False (writes nothing) when the anchor is empty (banner is None)."""
+    Returns the body lines, or None when the anchor is empty (banner is None)."""
     if banner is None:
-        return False
-    queries_file = backlog_file.parent / f"{name} queries.md"
-    # The Q.md banner links the name to `{name} queries` (so the user clicks
-    # over); inside queries.md that would be a self-link — retarget to the anchor.
-    h1 = banner.replace(f"[[{name} queries|{name}]]", f"[[{name}|{name}]]")
+        return None
     block_ids = _extract_block_ids(backlog_file)
     h3_headings = _extract_h3_headings(backlog_file)
     eligible = [r for r in rows if _row_should_render(r)]
@@ -720,11 +716,30 @@ def render_queries_doc(name: str, banner: Optional[str], rows: list[Row],
             body.append(f"- {link}{cnt}" + (f" — {txt}" if txt else ""))
     if not body:
         body.append("_Nothing pending._")
+    return body
 
+
+def render_queries_doc(name: str, banner: Optional[str], rows: list[Row],
+                       vault_index: dict, next_actions: dict[str, str],
+                       verify_questions: dict[str, str], backlog_file: Path) -> bool:
+    """(Re)write `{name} queries.md`: frontmatter + banner H1 (anchor-linked) + the
+    canonical queries body (`build_queries_body`). The SAME body is copied into the
+    anchor's Q.md section by `main()` (F231). Fully script-owned (per user direction
+    2026-06-26: *"purely mechanical"*); edit the backlog rows, not this file.
+    Returns False (writes nothing) when the anchor is empty (banner is None)."""
+    body = build_queries_body(name, banner, rows, vault_index, next_actions,
+                              verify_questions, backlog_file)
+    if body is None or banner is None:
+        return False
+    queries_file = backlog_file.parent / f"{name} queries.md"
+    # The Q.md banner links the name to `{name} queries` (so the user clicks
+    # over); inside queries.md that would be a self-link — retarget to the anchor.
+    h1 = banner.replace(f"[[{name} queries|{name}]]", f"[[{name}|{name}]]")
     # Preserve existing frontmatter; else write a default.
     fm = ["---",
-          f"description: {name} queries — mechanically rendered from the backlog by "
-          "triage (Verifications / Ready+Next / Questions). Do not hand-edit; edit the backlog rows.",
+          f"description: {name} queries — mechanically rendered from the backlog "
+          "(Verifications / Ready+Next / Questions), and copied verbatim into Q.md. "
+          "Do not hand-edit; edit the backlog rows.",
           "---"]
     if queries_file.is_file():
         try:
@@ -1091,33 +1106,30 @@ def main() -> int:
     # Per-Verify/Watching concrete-question sub-bullets — the yes/no the user answers.
     verify_questions = extract_verify_questions(backlog_file)
 
-    # Body: the backlog-derived rows (## Active / ## Ready / ## Now / ## Next /
-    # ## Later / ## Verify), per triage SKILL.md § 4. The {NAME} queries.md drain
-    # page is the USER-question surface and is reachable via the H1 link (F176) —
-    # it is deliberately NOT pasted into the body. Pasting it (the prior F176
-    # over-reach) replaced the agent-actionable rows with the queries page, so
-    # the banner's Ready/Now counts pointed at an empty body ("Ready 4" with
-    # nothing shown). The banner reads the backlog; the body must too.
-    body = render_body(rows, name, backlog_file, vault_index, next_actions)
+    # F231 (2026-07-10): the `{name} queries.md` render is now the SINGLE canonical
+    # view of the anchor — the Q.md per-anchor section IS that same body, copied.
+    # The query file is what goes into the queue file (per user); there is no
+    # separate horizon render for Q.md. Build the queries body once (pure), copy it
+    # into the Q.md section under the queue-file banner (which links to queries.md),
+    # and write queries.md itself with its anchor-linked banner.
+    body = build_queries_body(name, banner, rows, vault_index, next_actions,
+                              verify_questions, backlog_file)
 
-    # Compose section
-    if banner is None and not body:
+    # Compose section = queue-file banner + the same queries body.
+    if banner is None:
         # Empty anchor — section is removed if present
         section_lines: list[str] = []
     else:
-        section_lines = []
-        if banner:
-            section_lines.append(banner)
-            section_lines.append("")
-        section_lines.extend(body)
+        section_lines = [banner, ""]
+        section_lines.extend(body or [])
 
     if args.print_only:
         print("\n".join(section_lines))
         return 0
 
     summary = rewrite_qmd_section(name, section_lines)
-    # Mechanically render {name} queries.md from the backlog (banner +
-    # Verifications/Ready+Next/Questions) — the click-into page, fully script-owned.
+    # Write {name} queries.md (same body, anchor-linked banner) — the click-into
+    # page, fully script-owned.
     rendered_q = render_queries_doc(name, banner, rows, vault_index, next_actions, verify_questions, backlog_file)
     # Counts for the summary line
     eligible = [r for r in rows if _row_should_render(r)]
