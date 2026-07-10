@@ -42,3 +42,5 @@ The Messages-vs-Inbox split (agent-read background notes vs. user-dropped raw in
 - **Cross-references to keep in sync** — [[CAB Base]] dispatch tables, [[DAS Anchor Tree]] tree, and any anchor template that scaffolds a `{slug} Messages.md`.
 - **Conventions** — refer to sibling facets by their CAB filename (`~~[[FCT Inbox]]~~`, `[[CAB Backlog]]`); refer to per-anchor instances with the `{slug}` placeholder, never a concrete anchor's name.
 [2026-07-10 12:31:25] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/facets/DAS Backlog.md was edited
+[2026-07-10 12:59:48] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/facets/DAS Backlog.md was edited
+[2026-07-10 13:14:07] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/facets/DAS Backlog.md was edited
