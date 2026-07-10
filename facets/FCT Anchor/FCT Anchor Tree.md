@@ -19,48 +19,48 @@ An anchor is a standardized folder structure that serves as the home for a proje
 
 > **Note:** This file serves as the reference example itself — the annotated file tree below IS the canonical illustration of a complete anchor structure.
 
-Placeholders: `{NAME}` stands for the anchor's name and `{CAB Folder}` for the anchor folder's name; each named element wiki-links its governing facet spec, aliased to the on-disk filename when the link target differs (e.g. `[[FCT Anchor Page|{NAME}.md]]`).
+Placeholders: `{slug}` stands for the anchor's name and `{CAB Folder}` for the anchor folder's name; each named element wiki-links its governing facet spec, aliased to the on-disk filename when the link target differs (e.g. `[[FCT Anchor Page|{slug}.md]]`).
 
 {[[FCT Folder|CAB Folder]]}/
 ├── {CAB Folder}.md                       [[FCT Folder|marker file]]   (if NAME ≠ folder)
-├── [[FCT Anchor Page|{NAME}.md]]                             Primary entry point
+├── [[FCT Anchor Page|{slug}.md]]                             Primary entry point
 │
-├── {NAME} [[FCT Design Dispatch|Design]]/               Design specs (PRD, UX, Interface, Architecture, Features, Roadmap)
-│   ├── {NAME} Design.md                  Dispatch page
-│   ├── {NAME} [[FCT Architecture|Architecture]].md       System-architecture story (single file → {NAME} Architecture/ folder-doc, + subsystem docs / optional {NAME} API.md, once it grows)
-│   ├── {NAME} [[FCT PRD|PRD]].md                 Product requirements
-│   ├── {NAME} [[FCT UX Design|UX Design]].md           UX spec (screens & external APIs)
-│   ├── {NAME} Interface.md               Top-level layer contract (required for Code anchors)
-│   ├── {NAME} Decisions.md               Load-bearing rulings & invariants
-│   ├── {NAME} [[FCT Features|Features]]/              Dated feature specs
-│   │   ├── {NAME} Features.md
+├── {slug} [[FCT Design Dispatch|Design]]/               Design specs (PRD, UX, Interface, Architecture, Features, Roadmap)
+│   ├── {slug} Design.md                  Dispatch page
+│   ├── {slug} [[FCT Architecture|Architecture]].md       System-architecture story (single file → {slug} Architecture/ folder-doc, + subsystem docs / optional {slug} API.md, once it grows)
+│   ├── {slug} [[FCT PRD|PRD]].md                 Product requirements
+│   ├── {slug} [[FCT UX Design|UX Design]].md           UX spec (screens & external APIs)
+│   ├── {slug} Interface.md               Top-level layer contract (required for Code anchors)
+│   ├── {slug} Decisions.md               Load-bearing rulings & invariants
+│   ├── {slug} [[FCT Features|Features]]/              Dated feature specs
+│   │   ├── {slug} Features.md
 │   │   ├── 2026-01-15 User Auth.md
 │   │   └── ...
-│   ├── {NAME} [[FCT Roadmap|Roadmap]].md             Milestones with checkbox tracking
-│   └── {NAME} [[FCT Discussion|Discussion]].md  Design conversations
+│   ├── {slug} [[FCT Roadmap|Roadmap]].md             Milestones with checkbox tracking
+│   └── {slug} [[FCT Discussion|Discussion]].md  Design conversations
 │
-├── {NAME} [[FCT Track Dispatch|Track]]/                 Work-tracking metadata
-│   ├── {NAME} Track.md                   Dispatch page
-│   ├── {NAME} [[CAB Backlog|Backlog]].md             Workflow-state core (required for Track)
-│   ├── {NAME} [[FCT Icebox|Icebox]].md              Cold-storage / someday-maybe (optional)
-│   └── {NAME} [[FCT Inbox|Inbox]].md               Raw content to process (optional)
+├── {slug} [[FCT Track Dispatch|Track]]/                 Work-tracking metadata
+│   ├── {slug} Track.md                   Dispatch page
+│   ├── {slug} [[CAB Backlog|Backlog]].md             Workflow-state core (required for Track)
+│   ├── {slug} [[FCT Icebox|Icebox]].md              Cold-storage / someday-maybe (optional)
+│   └── {slug} [[FCT Inbox|Inbox]].md               Raw content to process (optional)
 │
-├── {NAME} [[FCT User Dispatch|User Docs]]/              User-facing documentation
-│   ├── {NAME} User Docs.md               Dispatch page
-│   ├── {NAME} Guide.md                   Primary user guide
+├── {slug} [[FCT User Dispatch|User Docs]]/              User-facing documentation
+│   ├── {slug} User Docs.md               Dispatch page
+│   ├── {slug} Guide.md                   Primary user guide
 │   └── CONFIG_REFERENCE.md
 │
-├── {NAME} [[FCT Dev Dispatch|Dev Docs]]/                Developer & implementation docs
-│   ├── {NAME} Dev Docs.md                Dispatch page (links Files + all modules)
-│   ├── {NAME} [[FCT All Files|Files]].md               File map with → doc links
-│   ├── {NAME} engine/                    ← mirrors src/engine/
-│   │   ├── {NAME} engine.md              [[FCT Module Doc|Module doc]] for the folder
-│   │   └── {NAME} Scheduler.md           [[FCT Module Doc|Module doc]] for a class
-│   └── {NAME} api/                       ← mirrors src/api/
-│       ├── {NAME} api.md
-│       └── {NAME} Router.md
+├── {slug} [[FCT Dev Dispatch|Dev Docs]]/                Developer & implementation docs
+│   ├── {slug} Dev Docs.md                Dispatch page (links Files + all modules)
+│   ├── {slug} [[FCT All Files|Files]].md               File map with → doc links
+│   ├── {slug} engine/                    ← mirrors src/engine/
+│   │   ├── {slug} engine.md              [[FCT Module Doc|Module doc]] for the folder
+│   │   └── {slug} Scheduler.md           [[FCT Module Doc|Module doc]] for a class
+│   └── {slug} api/                       ← mirrors src/api/
+│       ├── {slug} api.md
+│       └── {slug} Router.md
 │
-├── {NAME} [[FCT Cards|Cards]]/                         Cheat sheets & flashcards (optional)
+├── {slug} [[FCT Cards|Cards]]/                         Cheat sheets & flashcards (optional)
 ├── [[FCT Claude|CLAUDE.md]]                             Claude Code config (optional)
 └── [[FCT Code Repository|Code]] -> {repo-path}                   Symlink to code repository (optional)
 
@@ -71,23 +71,23 @@ Placeholders: `{NAME}` stands for the anchor's name and `{CAB Folder}` for the a
 ├── README.md
 ├── justfile                     [[CAB Repository Structure|Standard task recipes]]
 ├── docs/                        [[FCT Documentation Site|sync-pushed]] from the anchor's docs folders
-│   ├── user/                    ← from {NAME} User Docs/
-│   └── dev/                     ← from {NAME} Dev Docs/
+│   ├── user/                    ← from {slug} User Docs/
+│   └── dev/                     ← from {slug} Dev Docs/
 └── src/						 See [[FCT Module Doc]] for format of linked module docs.
 
 ## Software Design Documents
 
-Software project anchors keep their design documents in `{NAME} Design/` — including the system-architecture story (`{NAME} Architecture`, a single `.md` → a `{NAME} Architecture/` folder-doc once it grows subsystems). These are specification-only — they contain the current design, not the history of how it was reached.
+Software project anchors keep their design documents in `{slug} Design/` — including the system-architecture story (`{slug} Architecture`, a single `.md` → a `{slug} Architecture/` folder-doc once it grows subsystems). These are specification-only — they contain the current design, not the history of how it was reached.
 
-{NAME} PRD.md — **Product Requirements** — Defines what the product does: goals, user stories, scope, constraints, success criteria. The PRD also contains a design workflow table (see below) that links to the other design documents and describes their sequence.
+{slug} PRD.md — **Product Requirements** — Defines what the product does: goals, user stories, scope, constraints, success criteria. The PRD also contains a design workflow table (see below) that links to the other design documents and describes their sequence.
 
-{NAME} UX Design.md — **UX Design** — Specifies screens, navigation flows, user interactions, and visual layout. Current spec only — no rationale or alternatives.
+{slug} UX Design.md — **UX Design** — Specifies screens, navigation flows, user interactions, and visual layout. Current spec only — no rationale or alternatives.
 
-{NAME} Architecture — **Architecture** — A child of `{NAME} Design/`: a single `{NAME} Architecture.md` that upgrades to a `{NAME} Architecture/` folder-doc (entry-point + subsystem docs + optional `{NAME} API.md`) once it grows. Specifies system architecture, component boundaries, data models, APIs, and technical decisions. See [[FCT Architecture]]. Current spec only — no rationale or alternatives.
+{slug} Architecture — **Architecture** — A child of `{slug} Design/`: a single `{slug} Architecture.md` that upgrades to a `{slug} Architecture/` folder-doc (entry-point + subsystem docs + optional `{slug} API.md`) once it grows. Specifies system architecture, component boundaries, data models, APIs, and technical decisions. See [[FCT Architecture]]. Current spec only — no rationale or alternatives.
 
-{NAME} Discussion.md — **Discussion** (optional) — Extended conversations about design choices, trade-offs, and redesign decisions. This is the place for "why" and "what we considered." Use dated sections. Unlike the other design docs, this file is a log, not a specification.
+{slug} Discussion.md — **Discussion** (optional) — Extended conversations about design choices, trade-offs, and redesign decisions. This is the place for "why" and "what we considered." Use dated sections. Unlike the other design docs, this file is a log, not a specification.
 
-Anchor-level questions are surfaced through `/query` into `{NAME} Track/{NAME} queries.md`; per-anchor status is surfaced into the vault-wide `~/ob/kmr/Q.md` (the standalone `{NAME} Triage.md` and `{NAME} Questions.md` Plan-era docs are retired).
+Anchor-level questions are surfaced through `/query` into `{slug} Track/{slug} queries.md`; per-anchor status is surfaced into the vault-wide `~/ob/kmr/Q.md` (the standalone `{slug} Triage.md` and `{slug} Questions.md` Plan-era docs are retired).
 
 ### Design Workflow
 
@@ -95,12 +95,12 @@ The PRD should include a workflow table like this to orient readers:
 
 | Step | Document | Purpose |
 |------|----------|---------|
-| 1 | {NAME} Design/{NAME} PRD.md | Clarify requirements and scope |
-| 2 | {NAME} Track/{NAME} queries.md | Items needing user input (via `/query`) |
-| 3 | {NAME} Design/{NAME} UX Design.md | Design user-facing experience |
-| 4 | {NAME} Design/{NAME} Architecture.md | Design technical architecture |
-| 5 | {NAME} Dev Docs/{NAME} Files.md + Dev Docs/ | File tree and module docs |
-| 6 | {NAME} Design/{NAME} Roadmap.md | Implementation milestones |
+| 1 | {slug} Design/{slug} PRD.md | Clarify requirements and scope |
+| 2 | {slug} Track/{slug} queries.md | Items needing user input (via `/query`) |
+| 3 | {slug} Design/{slug} UX Design.md | Design user-facing experience |
+| 4 | {slug} Design/{slug} Architecture.md | Design technical architecture |
+| 5 | {slug} Dev Docs/{slug} Files.md + Dev Docs/ | File tree and module docs |
+| 6 | {slug} Design/{slug} Roadmap.md | Implementation milestones |
 | 7 | Dispatch tree | Verify all docs reachable from the anchor page (see [[FCT Anchor Page]]) |
 
 Steps are iterative — resolving open questions may require revisiting the PRD or UX design.
@@ -111,8 +111,8 @@ where:: `file: **/FCT Anchor Tree.md`
 description:: Rules governing the FCT Anchor Tree facet spec — the annotated master file tree of a CAB anchor. Covers content integrity, naming conventions, tree rendering, and cross-reference sync.
 
 ### RULE R-anchor-tree-01 — Every named element is wiki-linked to its facet spec (checked)
-Every named file or folder placeholder in the tree (e.g. `{NAME} Backlog.md`, `CLAUDE.md`) carries a `[[FCT <Name>]]` wiki-link to the governing facet spec. Inline aliases to the on-disk filename are permitted (`[[FCT Anchor Page|{NAME}.md]]`).
-**Check pattern:** no unlinked placeholder name in the tree body (scan for `{NAME} <Word>.md` lines lacking `[[`).
+Every named file or folder placeholder in the tree (e.g. `{slug} Backlog.md`, `CLAUDE.md`) carries a `[[FCT <Name>]]` wiki-link to the governing facet spec. Inline aliases to the on-disk filename are permitted (`[[FCT Anchor Page|{slug}.md]]`).
+**Check pattern:** no unlinked placeholder name in the tree body (scan for `{slug} <Word>.md` lines lacking `[[`).
 **Tier:** checked
 
 ### RULE R-anchor-tree-02 — Box-drawing characters and monospace cssclass are preserved (checked)
@@ -135,5 +135,5 @@ This file is the single canonical anchor file tree; named elements are kept in s
 *(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body + ruleset R-anchor-tree above; each named element's full semantics live in its linked facet spec.)*
 
 - **One line of inline annotation max per element** — full semantics, rules, and shape live in the linked facet spec ([[CAB Backlog]], [[FCT Anchor Page]], etc.); don't grow this page into a multi-paragraph spec for any single facet.
-- **Inclusion test for adding a row** — the element is a recognized CAB anchor file/folder (named via the `{NAME}` / `{CAB Folder}` placeholders) that can legitimately appear in *some* anchor; one-off project-specific files do NOT belong here.
+- **Inclusion test for adding a row** — the element is a recognized CAB anchor file/folder (named via the `{slug}` / `{CAB Folder}` placeholders) that can legitimately appear in *some* anchor; one-off project-specific files do NOT belong here.
 - **§ Software Design Documents is descriptive, not prescriptive** — its per-document paragraphs only orient readers; the authoritative shape of each doc lives in its own facet spec. Don't drift those summaries away from the linked specs.

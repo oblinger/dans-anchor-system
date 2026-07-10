@@ -1,6 +1,6 @@
 # RULESET R-testing
 include:: [[FCT Testing#RULESET R-testing\|embedded body]]
-description:: Rules for the {NAME} Testing.md facet doc; canonical body lives embedded in CAB Testing.md.
+description:: Rules for the {slug} Testing.md facet doc; canonical body lives embedded in CAB Testing.md.
 
 Catalog-side stub for the Testing facet ruleset. Per the [[F133 — Rulesets folder convention + facet embedding|F133]] convention, the actual rules are co-located with their facet spec — defined as a `# RULESET R-testing` second-H1 block inside [[FCT Testing]] alongside the prose that motivates them. This file exists so the catalog-side wiring (`R-facet` include::, `Rulesets.md` dispatch row) has a clean `[[R-testing]]` wiki-link to point at, parallel to how [[R-facet]], [[R-trait]], [[R-skill]] are catalog-side umbrella stubs.
 
@@ -8,12 +8,12 @@ Catalog-side stub for the Testing facet ruleset. Per the [[F133 — Rulesets fol
 
 ## Adoption
 
-Adopted transitively via [[R-facet]] — `include:: [[R-facet]]` in an anchor's `{NAME} Decisions.md` pulls every materialized per-facet ruleset including this one.
+Adopted transitively via [[R-facet]] — `include:: [[R-facet]]` in an anchor's `{slug} Decisions.md` pulls every materialized per-facet ruleset including this one.
 
 Direct adoption (if an anchor wants only the Testing rules without the rest of R-facet):
 
 ```markdown
-# {NAME} Decisions
+# {slug} Decisions
 include:: [[R-testing]]
 ```
 

@@ -1,5 +1,5 @@
 ---
-description: "design facet — the {NAME} Design/ folder marks an anchor as following the designed-lifecycle convention; folder presence IS the signal (no trait field required)"
+description: "design facet — the {slug} Design/ folder marks an anchor as following the designed-lifecycle convention; folder presence IS the signal (no trait field required)"
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT Design](hook://p/FCT%20Design)
@@ -25,9 +25,9 @@ The Design folder facet — marks an anchor as following the designed-lifecycle 
 | [[#See also]] |  |
 | **[[#BRIEF]]** |  |
 
-**TLDR** — The Design facet is triggered by the **existence of a `{NAME} Design/` folder** (not by any `.anchor` trait field). When the folder exists, three children are required (PRD, Architecture, Testing), several others are recommended, and the `/design` skill operates on the anchor. Cardinality: **one per anchor** — an anchor has at most one Design folder. The embedded `R-design` ruleset encodes the auditable rules; `# BRIEF` is the agent-maintenance guide.
+**TLDR** — The Design facet is triggered by the **existence of a `{slug} Design/` folder** (not by any `.anchor` trait field). When the folder exists, three children are required (PRD, Architecture, Testing), several others are recommended, and the `/design` skill operates on the anchor. Cardinality: **one per anchor** — an anchor has at most one Design folder. The embedded `R-design` ruleset encodes the auditable rules; `# BRIEF` is the agent-maintenance guide.
 
-The Design facet is the **structural marker** that an anchor follows the designed-lifecycle convention. **If `{NAME} Design/` exists, the anchor is in design-mode** — `/design` operates on it, the PRD → UX Design → API Design → Architecture → Testing → Decisions → Roadmap pipeline applies, and the design sub-facets become the canonical homes for what the anchor *is* and *how it works*.
+The Design facet is the **structural marker** that an anchor follows the designed-lifecycle convention. **If `{slug} Design/` exists, the anchor is in design-mode** — `/design` operates on it, the PRD → UX Design → API Design → Architecture → Testing → Decisions → Roadmap pipeline applies, and the design sub-facets become the canonical homes for what the anchor *is* and *how it works*.
 
 The six-phase pipeline pairs UX Design (the *human* user surface) and API Design (the *programmatic* user surface) as peer facets — cut by **who the consumer is**, not by where the surface lives. Either may be N/A for a given anchor; both are common for anchors with both a CLI and a library form (e.g. [[HBR]]).
 
@@ -36,51 +36,51 @@ This facet replaces the historical `Code` trait check that gated `/design` to "C
 - **What's being built?** (artifact kind — code, paper, methodology, …) — that's the trait system's job.
 - **Is it designed?** (lifecycle posture — PRD-then-Architecture-then-Testing-then-Code, vs. just-write-it) — that's THIS facet's job.
 
-Most code projects are designed. Most papers are designed. But some quick scripts aren't, and the trait gate was lying. The folder-presence gate doesn't lie — if you mkdir `{NAME} Design/`, you're committing to the convention; if you don't, you're not.
+Most code projects are designed. Most papers are designed. But some quick scripts aren't, and the trait gate was lying. The folder-presence gate doesn't lie — if you mkdir `{slug} Design/`, you're committing to the convention; if you don't, you're not.
 
 ## Location
 
-`{anchor}/{NAME} Design/` — anchor-folder directly under the anchor root, alongside the separate sibling trees `{NAME} Track/` (execution state), `{NAME} User Docs/` (the consumer-facing manual), and `{NAME} Dev Docs/` (module docs). **Architecture is a child of Design**, not an anchor-root sibling — F094's root placement was reversed 2026-06-27 (architecture is a design artifact).
+`{anchor}/{slug} Design/` — anchor-folder directly under the anchor root, alongside the separate sibling trees `{slug} Track/` (execution state), `{slug} User Docs/` (the consumer-facing manual), and `{slug} Dev Docs/` (module docs). **Architecture is a child of Design**, not an anchor-root sibling — F094's root placement was reversed 2026-06-27 (architecture is a design artifact).
 
 ## Folder shape
 
 The Design folder is an anchor folder with the standard structure:
 
 ```
-{NAME} Design/
+{slug} Design/
 ├── .anchor                       ← folder-anchor marker (empty or YAML)
-├── {NAME} Design.md              ← dispatch page; anchor file (matches folder name)
-├── {NAME} PRD.md                 ← REQUIRED — product requirements (per CAB PRD). May be a folder.
-├── {NAME} Architecture.md        ← REQUIRED — system architecture (per CAB Architecture). May be a folder.
-├── {NAME} Testing.md             ← REQUIRED — strategy + proposed-tests overview (per CAB Testing)
-├── {NAME} Decisions.md           ← RECOMMENDED — load-bearing recorded decisions (per FCT Decisions)
-├── {NAME} Roadmap.md             ← RECOMMENDED — sequencing-design: milestones + ordering (per CAB Roadmap)
-├── {NAME} Features/              ← RECOMMENDED — per-feature design docs F<NNN> — <title>.md (per CAB Features)
-│   ├── {NAME} Features.md        ← Features dispatch / index
+├── {slug} Design.md              ← dispatch page; anchor file (matches folder name)
+├── {slug} PRD.md                 ← REQUIRED — product requirements (per CAB PRD). May be a folder.
+├── {slug} Architecture.md        ← REQUIRED — system architecture (per CAB Architecture). May be a folder.
+├── {slug} Testing.md             ← REQUIRED — strategy + proposed-tests overview (per CAB Testing)
+├── {slug} Decisions.md           ← RECOMMENDED — load-bearing recorded decisions (per FCT Decisions)
+├── {slug} Roadmap.md             ← RECOMMENDED — sequencing-design: milestones + ordering (per CAB Roadmap)
+├── {slug} Features/              ← RECOMMENDED — per-feature design docs F<NNN> — <title>.md (per CAB Features)
+│   ├── {slug} Features.md        ← Features dispatch / index
 │   └── F<NNN> — <Title>.md       ← one per feature
-├── {NAME} UX Design.md           ← OPTIONAL — when the anchor has a human user-facing surface (per CAB UX Design)
-├── {NAME} API Design.md          ← OPTIONAL — when the anchor has a programmatic user-facing surface (per CAB API Design)
-├── {NAME} Interface.md           ← OPTIONAL — when there's a layer-contract surface (per CAB Interface)
-└── {NAME} CLI.md                 ← OPTIONAL — when the anchor ships a CLI (per CAB CLI; downstream of UX Design)
+├── {slug} UX Design.md           ← OPTIONAL — when the anchor has a human user-facing surface (per CAB UX Design)
+├── {slug} API Design.md          ← OPTIONAL — when the anchor has a programmatic user-facing surface (per CAB API Design)
+├── {slug} Interface.md           ← OPTIONAL — when there's a layer-contract surface (per CAB Interface)
+└── {slug} CLI.md                 ← OPTIONAL — when the anchor ships a CLI (per CAB CLI; downstream of UX Design)
 ```
 
-**Roadmap + Features relocated to Design 2026-06-10** (previously lived in `{NAME} Track/`). Reasoning: feature docs are themselves design artifacts (each carries Summary + Success Criteria + Design + Open Questions); the roadmap is sequencing-design. The PRD / Architecture / Testing cross-reference features and stories; keeping everything in one Design folder removes the cross-folder reference burden. See [[FCT Features]] / [[FCT Roadmap]] for the per-facet specs.
+**Roadmap + Features relocated to Design 2026-06-10** (previously lived in `{slug} Track/`). Reasoning: feature docs are themselves design artifacts (each carries Summary + Success Criteria + Design + Open Questions); the roadmap is sequencing-design. The PRD / Architecture / Testing cross-reference features and stories; keeping everything in one Design folder removes the cross-folder reference burden. See [[FCT Features]] / [[FCT Roadmap]] for the per-facet specs.
 
-The dispatch page `{NAME} Design.md` is the dispatch table (per [[FCT Design Dispatch]] — different facet covering the dispatch-page format).
+The dispatch page `{slug} Design.md` is the dispatch table (per [[FCT Design Dispatch]] — different facet covering the dispatch-page format).
 
 ## Design vs. user docs vs. reference
 
-Three buckets, split by **who reads them and why** — only the first lives in `{NAME} Design/`:
+Three buckets, split by **who reads them and why** — only the first lives in `{slug} Design/`:
 
 | Bucket | The reader is… | Read to… | Home |
 |---|---|---|---|
-| **Design** (this folder) | a builder / maintainer | *understand why & how* it's built | `{NAME} Design/` — PRD, UX/API Design, Architecture, Decisions, Roadmap, Features |
-| **User docs** | a consumer | *learn how to do a task* (tutorials, how-tos) | a **separate** `{NAME} User Docs/` tree (or the published / SKL surface) — **never** in Design |
+| **Design** (this folder) | a builder / maintainer | *understand why & how* it's built | `{slug} Design/` — PRD, UX/API Design, Architecture, Decisions, Roadmap, Features |
+| **User docs** | a consumer | *learn how to do a task* (tutorials, how-tos) | a **separate** `{slug} User Docs/` tree (or the published / SKL surface) — **never** in Design |
 | **Reference** | someone working *against* it | *look up an exact detail* (the precise format / API spec) | a **role, not a third folder** (below) |
 
-**Reference is a migrating role.** A spec (a rule-language format, an API reference) is *authored during design* — so it sits in `{NAME} Design/` while it is still moving — and *consulted by users* — so it **graduates to `{NAME} User Docs/` (or the published reference) once stable**. There is no third folder; a reference doc simply changes homes as it matures. So the standing rule is **two physical trees** — `{NAME} Design/` (blueprint) and `{NAME} User Docs/` (manual) — with reference docs migrating from the first to the second.
+**Reference is a migrating role.** A spec (a rule-language format, an API reference) is *authored during design* — so it sits in `{slug} Design/` while it is still moving — and *consulted by users* — so it **graduates to `{slug} User Docs/` (or the published reference) once stable**. There is no third folder; a reference doc simply changes homes as it matures. So the standing rule is **two physical trees** — `{slug} Design/` (blueprint) and `{slug} User Docs/` (manual) — with reference docs migrating from the first to the second.
 
-**Architecture is a Design child**, not a user doc — it's the *why/how-structured* story, author-facing. It is a single `{NAME} Architecture.md` by default and upgrades to a `{NAME} Architecture/` folder-doc when it grows subsystems; the same-named index keeps that upgrade link-transparent (see [[FCT Architecture]] / the `/architect` skill).
+**Architecture is a Design child**, not a user doc — it's the *why/how-structured* story, author-facing. It is a single `{slug} Architecture.md` by default and upgrades to a `{slug} Architecture/` folder-doc when it grows subsystems; the same-named index keeps that upgrade link-transparent (see [[FCT Architecture]] / the `/architect` skill).
 
 ## Required vs optional children
 
@@ -88,36 +88,36 @@ Three buckets, split by **who reads them and why** — only the first lives in `
 
 | Child | Facet | Why required |
 |---|---|---|
-| `{NAME} PRD.md` | [[FCT PRD]] | What is being built. Every designed anchor needs a PRD; without one, "designed" has no anchor. |
-| `{NAME} Architecture.md` | [[FCT Architecture]] | How it's structured. Decoupling design from architecture is fine in spirit but in practice every designed project has a structural story; making it required keeps the spine honest. |
-| `{NAME} Testing.md` | [[FCT Testing]] | How we know it works. The verification contract; every designed project commits to one. |
+| `{slug} PRD.md` | [[FCT PRD]] | What is being built. Every designed anchor needs a PRD; without one, "designed" has no anchor. |
+| `{slug} Architecture.md` | [[FCT Architecture]] | How it's structured. Decoupling design from architecture is fine in spirit but in practice every designed project has a structural story; making it required keeps the spine honest. |
+| `{slug} Testing.md` | [[FCT Testing]] | How we know it works. The verification contract; every designed project commits to one. |
 
 **Recommended** (encouraged but not enforced):
 
 | Child | Facet | When |
 |---|---|---|
-| `{NAME} Decisions.md` | [[FCT Decisions]] | The moment the first cross-cutting load-bearing decision needs durable recorded form. |
-| `{NAME} Roadmap.md` | [[FCT Roadmap]] | Activated as soon as the project plans more than 1-2 milestones of work. |
-| `{NAME} Features/` | [[FCT Features]] | Activated as soon as the first F-numbered feature doc lands. Holds all per-feature design docs (`F<NNN> — <title>.md`) + a `{NAME} Features.md` dispatch index. |
+| `{slug} Decisions.md` | [[FCT Decisions]] | The moment the first cross-cutting load-bearing decision needs durable recorded form. |
+| `{slug} Roadmap.md` | [[FCT Roadmap]] | Activated as soon as the project plans more than 1-2 milestones of work. |
+| `{slug} Features/` | [[FCT Features]] | Activated as soon as the first F-numbered feature doc lands. Holds all per-feature design docs (`F<NNN> — <title>.md`) + a `{slug} Features.md` dispatch index. |
 
 **Optional** (situational):
 
 | Child | Facet | When |
 |---|---|---|
-| `{NAME} UX Design.md` | [[FCT UX Design]] | The anchor has a *human* user-facing surface (CLI commands, GUI screens, web pages, slash commands, doc entry points). |
-| `{NAME} API Design.md` | [[FCT API Design]] | The anchor has a *programmatic* user-facing surface (library, sub-skill called by other skills, service, importable contract). Sibling peer to UX Design. |
-| `{NAME} Interface.md` | [[FCT Interface]] | There's an *internal* layer/component contract distinct from the public API surface. |
-| `{NAME} CLI.md` | [[FCT CLI]] | The anchor ships a CLI binary; CLI doc is the exhaustive flag/exit-code reference (downstream of UX Design). |
+| `{slug} UX Design.md` | [[FCT UX Design]] | The anchor has a *human* user-facing surface (CLI commands, GUI screens, web pages, slash commands, doc entry points). |
+| `{slug} API Design.md` | [[FCT API Design]] | The anchor has a *programmatic* user-facing surface (library, sub-skill called by other skills, service, importable contract). Sibling peer to UX Design. |
+| `{slug} Interface.md` | [[FCT Interface]] | There's an *internal* layer/component contract distinct from the public API surface. |
+| `{slug} CLI.md` | [[FCT CLI]] | The anchor ships a CLI binary; CLI doc is the exhaustive flag/exit-code reference (downstream of UX Design). |
 
 ## Scaffolding — pre-wire the whole structure
 
 **When `/design` runs in an anchor without a Design folder**, the orchestrator offers to scaffold one. Scaffolding creates:
 
-- The `{NAME} Design/` folder + `.anchor` marker
-- The dispatch page `{NAME} Design.md` with the standard dispatch-table shape
+- The `{slug} Design/` folder + `.anchor` marker
+- The dispatch page `{slug} Design.md` with the standard dispatch-table shape
 - The three required children (PRD, Architecture, Testing) each with their required-section spine (H1 + description:: + dispatch + required H2 stubs), bodies empty
-- The recommended `{NAME} Decisions.md` with intro paragraph + placeholder
-- Updates `{NAME} Track/{NAME} Status.md` (creating it if absent) — all design facets initialized to `none`
+- The recommended `{slug} Decisions.md` with intro paragraph + placeholder
+- Updates `{slug} Track/{slug} Status.md` (creating it if absent) — all design facets initialized to `none`
 
 The user then iterates with `/design prd`, `/design architect`, etc. — each sub-skill enters assess mode against the placeholder and fills the body.
 
@@ -145,7 +145,7 @@ The `traits:` field in `.anchor` continues to classify **what kind of thing** an
 | `Publishable` | Anchor publishes externally (web, etc.) | `/publish` |
 | ~~`Code`~~ | (Deprecated as a `/design` gate. May still appear on legacy anchors.) | — |
 
-A Code-shaped project that's designed has the `{NAME} Design/` folder AND benefits from the `/code` skill cluster for implementation operations. That cluster (`/code mint`, `/code test`, `/code release`) is unaffected by this facet — it's about the WHAT-to-build operations downstream of design.
+A Code-shaped project that's designed has the `{slug} Design/` folder AND benefits from the `/code` skill cluster for implementation operations. That cluster (`/code mint`, `/code test`, `/code release`) is unaffected by this facet — it's about the WHAT-to-build operations downstream of design.
 
 ## Trait applicability
 
@@ -157,12 +157,12 @@ Any anchor that commits to the designed-lifecycle convention.
 
 ## See also
 
-- [[FCT Design Dispatch]] — distinct facet covering the `{NAME} Design.md` dispatch-page format
+- [[FCT Design Dispatch]] — distinct facet covering the `{slug} Design.md` dispatch-page format
 - [[FCT PRD]] — required child facet
 - [[FCT Architecture]] — required child facet
 - [[FCT Testing]] — required child facet
 - [[FCT Decisions]] — recommended child facet
-- [[FCT Status]] — `{NAME} Status.md` tracks design-phase completeness
+- [[FCT Status]] — `{slug} Status.md` tracks design-phase completeness
 - [[design]] — orchestrator skill; gate moved from Code-trait check to Design-folder check 2026-06-10
 - [[HBR Design]] — worked example
 - F140 (vault sweep — retire `Code` trait from anchors with Design folder)
@@ -170,41 +170,41 @@ Any anchor that commits to the designed-lifecycle convention.
 # RULESET R-design
 include::
 where:: `anchor`
-description:: design facet — the `{NAME} Design/` folder marks an anchor as following the designed-lifecycle convention; folder presence IS the signal (no trait field required)
+description:: design facet — the `{slug} Design/` folder marks an anchor as following the designed-lifecycle convention; folder presence IS the signal (no trait field required)
 
 Embedded ruleset for the Design facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella.
 
 ### RULE R-design-01 — Folder presence IS the gate (checked)
 
-If `{anchor}/{NAME} Design/` exists, the anchor is in design-mode. The `Code` trait field in `.anchor` is NOT consulted by `/design` or its sub-skills.
+If `{anchor}/{slug} Design/` exists, the anchor is in design-mode. The `Code` trait field in `.anchor` is NOT consulted by `/design` or its sub-skills.
 
-**Check pattern:** for each anchor referenced by `/design`, the resolution path uses `ls "{anchor}/{NAME} Design"` not `grep Code .anchor`.
+**Check pattern:** for each anchor referenced by `/design`, the resolution path uses `ls "{anchor}/{slug} Design"` not `grep Code .anchor`.
 
 **Why:** structure is honest; trait fields can drift. Folder existence is observable.
 
 ### RULE R-design-02 — Required children present when folder exists (checked)
 check:: design_folder_children PRD Architecture Testing
 
-When `{NAME} Design/` exists, the folder contains at minimum: `{NAME} Design.md`, `{NAME} PRD.md`, `{NAME} Architecture.md`, `{NAME} Testing.md`.
+When `{slug} Design/` exists, the folder contains at minimum: `{slug} Design.md`, `{slug} PRD.md`, `{slug} Architecture.md`, `{slug} Testing.md`.
 
-**Check pattern:** for each existing Design folder, assert the four files exist (or `{NAME} Architecture/` folder form, per CAB Architecture).
+**Check pattern:** for each existing Design folder, assert the four files exist (or `{slug} Architecture/` folder form, per CAB Architecture).
 
 **Why:** these three children carry the load-bearing design content. Missing any of them means the anchor advertises a design process it doesn't deliver.
 
 ### RULE R-design-03 — Dispatch page lists every present child (sampled)
 
-The `{NAME} Design.md` dispatch table contains a wiki-link row for every `.md` file (or folder-doc) present in `{NAME} Design/`, with a one-line description.
+The `{slug} Design.md` dispatch table contains a wiki-link row for every `.md` file (or folder-doc) present in `{slug} Design/`, with a one-line description.
 
-**Check pattern:** parse `{NAME} Design.md`'s dispatch table; enumerate files in `{NAME} Design/`; assert one-to-one cover modulo intentional exclusions (the dispatch file itself, the `.anchor` marker).
+**Check pattern:** parse `{slug} Design.md`'s dispatch table; enumerate files in `{slug} Design/`; assert one-to-one cover modulo intentional exclusions (the dispatch file itself, the `.anchor` marker).
 
 **Why:** the dispatch page is the navigation hub; missing rows hide content from the reader.
 
 ### RULE R-design-04 — Status file initialized when Design folder exists (sampled)
 check:: status_facets_initialized prd ux architecture testing roadmap
 
-When `{NAME} Design/` exists, `{NAME} Track/{NAME} Status.md` exists with the standard five design-facet lines (`prd::`, `ux::`, `architecture::`, `testing::`, `roadmap::`) per [[FCT Status]].
+When `{slug} Design/` exists, `{slug} Track/{slug} Status.md` exists with the standard five design-facet lines (`prd::`, `ux::`, `architecture::`, `testing::`, `roadmap::`) per [[FCT Status]].
 
-**Check pattern:** for each existing Design folder, assert `{NAME} Track/{NAME} Status.md` exists with the five facets declared (any cell value is valid; absence of the file is the failure).
+**Check pattern:** for each existing Design folder, assert `{slug} Track/{slug} Status.md` exists with the five facets declared (any cell value is valid; absence of the file is the failure).
 
 **Why:** `/design`'s picker reads Status.md; missing file means the picker can't auto-dispatch.
 
@@ -218,7 +218,7 @@ New anchors don't add `Code` to `.anchor` `traits:` to enable `/design`. Existin
 
 ### RULE R-design-06 — Optional children only when applicable (stated)
 
-`{NAME} UX Design.md` exists when the anchor has user-facing interface; `{NAME} API.md` when public surface is contract; `{NAME} CLI.md` when ship a CLI; `{NAME} Interface.md` when layer contract. Don't author empty optionals.
+`{slug} UX Design.md` exists when the anchor has user-facing interface; `{slug} API.md` when public surface is contract; `{slug} CLI.md` when ship a CLI; `{slug} Interface.md` when layer contract. Don't author empty optionals.
 
 **Check pattern:** for each optional child present, sample its body — bare H1 + description with no content is a creation-without-commitment failure mode.
 
@@ -234,9 +234,9 @@ When `/design` scaffolds a Design folder, the operation creates all required chi
 
 ### RULE R-design-08 — No empty/boilerplate Design folder; presence asserts a maintained design (checked)
 
-The `{NAME} Design/` folder exists **iff** the anchor has real design content — a PRD, design docs, or feature docs (feature docs are themselves design artifacts and migrate INTO the Design folder). A folder containing only template boilerplate (empty `prd`/`plan`/`principles`/`discussion` stubs) does **not** count as a design: during migration, **wipe the boilerplate and omit the Design folder entirely**. Add the folder later, when the first real design or feature doc lands — or via `/design` scaffolding (R-design-07), which is the user's explicit commitment-to-design and the one case where a freshly-spined folder is expected before content arrives.
+The `{slug} Design/` folder exists **iff** the anchor has real design content — a PRD, design docs, or feature docs (feature docs are themselves design artifacts and migrate INTO the Design folder). A folder containing only template boilerplate (empty `prd`/`plan`/`principles`/`discussion` stubs) does **not** count as a design: during migration, **wipe the boilerplate and omit the Design folder entirely**. Add the folder later, when the first real design or feature doc lands — or via `/design` scaffolding (R-design-07), which is the user's explicit commitment-to-design and the one case where a freshly-spined folder is expected before content arrives.
 
-**Check pattern:** for each `{NAME} Design/`, assert at least one child carries distinct authored content (not a bare H1 + description stub); a folder whose every child is boilerplate — and that was not just scaffolded by `/design` — is a violation: remove it.
+**Check pattern:** for each `{slug} Design/`, assert at least one child carries distinct authored content (not a bare H1 + description stub); a folder whose every child is boilerplate — and that was not just scaffolded by `/design` — is a violation: remove it.
 
 **Why:** folder presence is a trait (cf. R-design-01) — its existence tells the reader "this anchor has a maintained design." An empty placeholder folder lies about that state and clutters the tree; absence honestly signals "not yet designed."
 

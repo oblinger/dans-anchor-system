@@ -11,12 +11,12 @@ Per-document discussion log — dated trade-off threads attached to the doc they
 
 **TLDR** — A doc-scoped dated-entry-stream (cardinality: many) that attaches to spec docs — PRDs, Architecture, feature docs, etc. Each entry follows a Problem / Options Considered / Decision skeleton. Two placement methods: inline `# Discussion` H1 (default) or sibling `{Parent} Discussions.md` (when inline grows past ~2 screens). Append-only after Decision is filled. Does NOT attach to navigation/sequencing artifacts (anchor pages, dispatch pages, Backlog, Roadmap).
 
-Discussion is the first **document-scoped facet** in CAB. Unlike anchor-scoped facets (which carry one instance per anchor — `{NAME} Backlog.md`, `{NAME} PRD.md`), a document-scoped facet attaches to a specific *document* and may exist many times within one anchor (one Discussion per discussable doc). The provenance — *what is being discussed* — is preserved by anchoring the discussion to the document it's about.
+Discussion is the first **document-scoped facet** in CAB. Unlike anchor-scoped facets (which carry one instance per anchor — `{slug} Backlog.md`, `{slug} PRD.md`), a document-scoped facet attaches to a specific *document* and may exist many times within one anchor (one Discussion per discussable doc). The provenance — *what is being discussed* — is preserved by anchoring the discussion to the document it's about.
 
-The principle: **discussion belongs to the thing being discussed**. A discussion about a PRD belongs to that PRD. A discussion about a feature belongs to that feature doc. A discussion about an Architecture sub-page belongs to that sub-page. Pulling all discussion into one anchor-level file (the historical `{NAME} Discussion.md`) loses the link to provenance and forces the reader to grep for the relevant thread.
+The principle: **discussion belongs to the thing being discussed**. A discussion about a PRD belongs to that PRD. A discussion about a feature belongs to that feature doc. A discussion about an Architecture sub-page belongs to that sub-page. Pulling all discussion into one anchor-level file (the historical `{slug} Discussion.md`) loses the link to provenance and forces the reader to grep for the relevant thread.
 
 > [!info] Migrated from anchor-scoped
-> CAB Discussion was previously anchor-scoped (`{NAME} Docs/{NAME} Plan/{NAME} Discussion.md`, one per anchor). 2026-06-11: re-scoped to per-document. Existing `{NAME} Discussion.md` files in legacy anchors continue to work but are deprecated; new discussions follow the doc-scoped form. CAE's `CAE Discussion.md` is a legacy worked example pending migration.
+> CAB Discussion was previously anchor-scoped (`{slug} Docs/{slug} Plan/{slug} Discussion.md`, one per anchor). 2026-06-11: re-scoped to per-document. Existing `{slug} Discussion.md` files in legacy anchors continue to work but are deprecated; new discussions follow the doc-scoped form. CAE's `CAE Discussion.md` is a legacy worked example pending migration.
 
 ## Placement — Discussion is a dated-entry-stream
 
@@ -55,12 +55,12 @@ H3 headings (`### The Problem`, `### Decision`, etc.) are required — they make
 
 Any document in any anchor MAY have a Discussion attached. Common attachment points:
 
-- Design facets — `{NAME} PRD.md`, `{NAME} Architecture.md`, `{NAME} UX Design.md`, `{NAME} API Design.md`, `{NAME} Testing.md`, `{NAME} Roadmap.md`. (Most common — design choices breed discussion.)
-- Feature docs — `F<NNN> — Title.md` in `{NAME} Features/`. Per-feature design threads.
-- Architecture sub-pages — `{NAME} Architecture/{Subsystem}.md`. Per-subsystem discussion.
+- Design facets — `{slug} PRD.md`, `{slug} Architecture.md`, `{slug} UX Design.md`, `{slug} API Design.md`, `{slug} Testing.md`, `{slug} Roadmap.md`. (Most common — design choices breed discussion.)
+- Feature docs — `F<NNN> — Title.md` in `{slug} Features/`. Per-feature design threads.
+- Architecture sub-pages — `{slug} Architecture/{Subsystem}.md`. Per-subsystem discussion.
 - Long-lived spec docs — anything where decisions accumulate over time.
 
-Documents that typically do NOT carry discussion: the anchor page (`{NAME}.md`, navigation only), dispatch pages (`{NAME} Docs.md`, `{NAME} Design.md`), the Backlog (`{NAME} Backlog.md` — discussion belongs on the feature doc the row points at), the Roadmap (`{NAME} Roadmap.md` — discussion belongs on the milestone's feature doc, not on the sequencing artifact itself).
+Documents that typically do NOT carry discussion: the anchor page (`{slug}.md`, navigation only), dispatch pages (`{slug} Docs.md`, `{slug} Design.md`), the Backlog (`{slug} Backlog.md` — discussion belongs on the feature doc the row points at), the Roadmap (`{slug} Roadmap.md` — discussion belongs on the milestone's feature doc, not on the sequencing artifact itself).
 
 ## Audit posture
 
@@ -95,9 +95,9 @@ Embedded ruleset for the Discussion facet, co-located with the facet spec above 
 
 ### RULE R-discussion-01 — Doc-scoped, never anchor-scoped (stated)
 
-Discussion attaches to a specific document, not to the whole anchor. There is no `{NAME} Discussion.md` form in modern anchors — that filename is the legacy anchor-scoped form, deprecated 2026-06-11.
+Discussion attaches to a specific document, not to the whole anchor. There is no `{slug} Discussion.md` form in modern anchors — that filename is the legacy anchor-scoped form, deprecated 2026-06-11.
 
-**Check pattern:** for each `{NAME} Discussion.md` found at an anchor's Plan / Design folder root, flag as legacy; auto-fix is migrate to per-doc inline or extracted form (per [[SKA Backlog]] F149 sweep).
+**Check pattern:** for each `{slug} Discussion.md` found at an anchor's Plan / Design folder root, flag as legacy; auto-fix is migrate to per-doc inline or extracted form (per [[SKA Backlog]] F149 sweep).
 
 **Why:** lumping all discussion in one anchor-level file loses provenance — the reader can't tell which spec the discussion is about without re-reading every entry.
 
@@ -127,7 +127,7 @@ Once an entry's Decision section is filled, the entry is NOT edited. Subsequent 
 
 ### RULE R-discussion-05 — Where discussion does NOT attach (stated)
 
-Discussion does NOT attach to: anchor pages (`{NAME}.md`), dispatch pages (`{NAME} Docs.md`, `{NAME} Design.md`), the Backlog (`{NAME} Backlog.md`), the Roadmap (`{NAME} Roadmap.md`), `.anchor` files. Discussion belongs on the *spec* surface, not on navigation or sequencing artifacts.
+Discussion does NOT attach to: anchor pages (`{slug}.md`), dispatch pages (`{slug} Docs.md`, `{slug} Design.md`), the Backlog (`{slug} Backlog.md`), the Roadmap (`{slug} Roadmap.md`), `.anchor` files. Discussion belongs on the *spec* surface, not on navigation or sequencing artifacts.
 
 **Check pattern:** for each `# Discussion` H1 or `{X} Discussions.md` found, assert `{X}` is NOT one of the forbidden kinds.
 
@@ -137,5 +137,5 @@ Discussion does NOT attach to: anchor pages (`{NAME}.md`), dispatch pages (`{NAM
 
 *(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body and ruleset above.)*
 
-- **Don't revert to anchor-scoped wiring** — Discussion was re-scoped anchor→doc on 2026-06-11; legacy `{NAME} Discussion.md` is deprecated (migration tracked in [[SKA Backlog]] § F149).
+- **Don't revert to anchor-scoped wiring** — Discussion was re-scoped anchor→doc on 2026-06-11; legacy `{slug} Discussion.md` is deprecated (migration tracked in [[SKA Backlog]] § F149).
 - **Placement / naming logic lives in [[DSC dated-entry-stream]]** (`R-dated-entry-stream`) — edit those rules there, not here; this spec owns only Discussion-specific rules.

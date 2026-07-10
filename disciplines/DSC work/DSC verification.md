@@ -155,7 +155,7 @@ The full discipline lives here; `/feature` carries a short summary inline so the
 
 ## How `/ask` and `/triage` consult this
 
-When the agent is about to surface a Verify row to the user (in `{NAME} ask.md` or in the triage banner), the agent reads the linked feature doc's `## Success Criteria` block. The tier is the agent's guidance:
+When the agent is about to surface a Verify row to the user (in `{slug} ask.md` or in the triage banner), the agent reads the linked feature doc's `## Success Criteria` block. The tier is the agent's guidance:
 
 - **Tier 1 or 2:** the verification is the agent's job. The agent runs the check and updates the row, either to `[Done]` (verification passed) or to `[Active]` (verification failed, work to do). Should not surface to the user.
 - **Tier 3:** prefer passive observation. Add a brief note in the ask page reminding the user what to watch for; do not block on an explicit answer. The agent may ask once after enough time has passed (typically a week), and the question is yes-or-no based on observation, not a special test.

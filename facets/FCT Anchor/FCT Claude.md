@@ -61,7 +61,7 @@ Follow CAB markdown conventions. H1/H2 get 3 blank lines before, 1 after.
 
 ## Location
 
-`CLAUDE.md` sits at the anchor folder root (alongside `{NAME}.md`).
+`CLAUDE.md` sits at the anchor folder root (alongside `{slug}.md`).
 
 ## F060 — exempt
 

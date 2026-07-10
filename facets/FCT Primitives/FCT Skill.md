@@ -95,7 +95,7 @@ The root file `SKILL.md` is the only file loaded into context when the skill is 
 SKILL.md has these sections in order:
 
 1. **Frontmatter** — YAML with `name`, `description`, `tools`, `user_invocable: true`
-2. **Title** — `# {NAME} — {Full Name}`
+2. **Title** — `# {slug} — {Full Name}`
 3. **Brief** — One-line description of the skill's purpose
 4. **Dispatch table** — Wiki-link table mirroring the anchor's anchor page format. Groups reference data by section (e.g., Types, Parts, Rules). Every entry is a clickable wiki-link. Only present when the skill manages reference data.
 5. **Actions** — Table of `/name action` commands, each linking to a sub-file
@@ -202,7 +202,7 @@ Distinct from the `SKILL.md` runbook specified above: every skill also has a **d
 
 ## SKA anchors own Design, not Track — shared by skills, facets, disciplines
 
-A skill anchor — like **every** SKA sub-project anchor — **owns its own design but never its own tracking.** Activity-tracking for the whole skills ecosystem is centralized on the shared SKA surface ([[SKA Decisions|D08]]); a skill carries a `{NAME} Design/` folder (minimum: just an `.anchor`, growing as design docs are earned), **no `{NAME} Track/`**, and **no `{NAME} Status.md`** (design-phase completeness is tracked only for SKA-the-project, not per sub-project). **Facets ([[FCT Facet]]) and disciplines share this exact strategy** — the single normative rule lives on the anchor-page facet as `R-anchor-page-subproject` ([[FCT Anchor Page]]); this section is the skill-facet pointer to it. The design surface is flat (`{NAME} Design/` directly under the anchor, no `{NAME} Docs/` wrapper).
+A skill anchor — like **every** SKA sub-project anchor — **owns its own design but never its own tracking.** Activity-tracking for the whole skills ecosystem is centralized on the shared SKA surface ([[SKA Decisions|D08]]); a skill carries a `{slug} Design/` folder (minimum: just an `.anchor`, growing as design docs are earned), **no `{slug} Track/`**, and **no `{slug} Status.md`** (design-phase completeness is tracked only for SKA-the-project, not per sub-project). **Facets ([[FCT Facet]]) and disciplines share this exact strategy** — the single normative rule lives on the anchor-page facet as `R-anchor-page-subproject` ([[FCT Anchor Page]]); this section is the skill-facet pointer to it. The design surface is flat (`{slug} Design/` directly under the anchor, no `{slug} Docs/` wrapper).
 
 # RULESET R-skill-md
 include::
@@ -219,7 +219,7 @@ What `/audit` checks on a skill's `SKILL.md` entry point. Cardinality: one per s
 
 ### RULE R-skill-md-02 — Sections appear in the fixed order (checked)
 
-The body follows the fixed sequence: Title (`# {NAME} — {Full Name}`) → Brief → optional dispatch table → Actions → Reference → optional Topics → optional Scripts → Dispatch protocol.
+The body follows the fixed sequence: Title (`# {slug} — {Full Name}`) → Brief → optional dispatch table → Actions → Reference → optional Topics → optional Scripts → Dispatch protocol.
 
 **Check pattern:** the H1/H2 sequence is a subsequence of that fixed order; no foreign top-level section interleaves.
 

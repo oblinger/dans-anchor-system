@@ -9,7 +9,7 @@ Facet spec for the **Work Products** zone of an anchor — dated, polished outpu
 **Related:** [[FCT Log]],  [[FCT Feature]],  [[FCT Brief]],  [[FCT Dispatch]]
 **Examples:** [[AIS WP\|example dispatch page]]
 
-**Location:** `{NAME} Docs/Work Products/YYYY-MM-DD {Title}.md   (dated work product)`
+**Location:** `{slug} Docs/Work Products/YYYY-MM-DD {Title}.md   (dated work product)`
 
 Work Products — polished, dated outputs of human+agent collaboration. Papers, reports, analyses, presentations.
 
@@ -44,9 +44,9 @@ Work Products — polished, dated outputs of human+agent collaboration. Papers, 
 `{slug} WP/{slug} WP.md` follows the F060 top-of-doc format: H1 + dispatch-table placeholder, with the reverse chronological work-product listing folded into the dispatch table:
 
 ```markdown
-# {NAME} WP
+# {slug} WP
 
-| -[[{NAME} WP]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Output]] → [FCT WP](hook://p/FCT%20WP)<br>: work products |
+| -[[{slug} WP]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Output]] → [FCT WP](hook://p/FCT%20WP)<br>: work products |
 | --- | --- |
 | [[2026-04-15 Security Audit]] |  |
 | [[2026-03-28 Architecture Review]] |  |
@@ -76,8 +76,8 @@ When the WP folder is created, a **Work** row is added to the anchor dispatch ta
 
 # RULESET R-wp
 include::
-where:: `file:{ANCHOR}/{NAME} WP/**/*`
-description:: the `{NAME} WP/` work-products zone — dated polished outputs
+where:: `file:{ANCHOR}/{slug} WP/**/*`
+description:: the `{slug} WP/` work-products zone — dated polished outputs
 
 What `/audit` checks on an anchor's Work Products zone. Cardinality: one zone per anchor, many entries within. Format of this set: [[FCT Ruleset]].
 
@@ -114,6 +114,6 @@ When `{slug} WP/` exists, the anchor dispatch table carries a `| Work | [[{slug}
 *(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body above.)*
 
 - **This is the facet spec, not an instance** — edit here to change the *rule*; never inline a specific anchor's work-product content.
-- **Inclusion test + what doesn't belong** — WP holds only **polished, dated** human+agent outputs; agent-generated reports go to `{slug} Outputs/`, feature specs to `{slug} Features/`, informal notes to the anchor page / log (see the *Distinction from Other Dated Content* table). NOT for project-wide markdown / linking rules ([[R-markdown]], CLAUDE.md), Brief-discipline rules ([[FCT Brief]]), or anchor-local maintenance content (`{NAME} Rules.md` / `{NAME} Decisions.md`).
+- **Inclusion test + what doesn't belong** — WP holds only **polished, dated** human+agent outputs; agent-generated reports go to `{slug} Outputs/`, feature specs to `{slug} Features/`, informal notes to the anchor page / log (see the *Distinction from Other Dated Content* table). NOT for project-wide markdown / linking rules ([[R-markdown]], CLAUDE.md), Brief-discipline rules ([[FCT Brief]]), or anchor-local maintenance content (`{slug} Rules.md` / `{slug} Decisions.md`).
 - **Tooling consumers** — the `{date} {name}` naming convention and the bottom `| --- | |` auto-list marker are read by `/cab wp` and rewire/rescan; don't rename the convention or remove the marker without updating them.
 - **Cross-ref integrity** — when the spec changes (location, naming, dispatch-page shape), update the example block, the *Anchor Page Row* snippet, and the *Distinction from Other Dated Content* table together — readers cite all three.

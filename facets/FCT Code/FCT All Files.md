@@ -20,11 +20,11 @@ The All Files facet — a fixed-width file-tree page linking every source file t
 | [[#Maintenance]] |  |
 | **[[#BRIEF]]** |  |
 
-**TLDR** — A `{NAME} Files.md` page renders the full repo tree in monospace (via `cssclasses: monospace`) with each source file as a wiki-link to its module doc. Cardinality: one per anchor. The no-code-fence rule is load-bearing: wrapping the tree in triple-backticks kills wiki-links. Filenames ARE the links; the `→ [[doc]]` arrow form is reserved for non-source files.
+**TLDR** — A `{slug} Files.md` page renders the full repo tree in monospace (via `cssclasses: monospace`) with each source file as a wiki-link to its module doc. Cardinality: one per anchor. The no-code-fence rule is load-bearing: wrapping the tree in triple-backticks kills wiki-links. Filenames ARE the links; the `→ [[doc]]` arrow form is reserved for non-source files.
 
 **Cardinality: one per anchor** — each code anchor has exactly one Files page.
 
-**Location:** `{NAME} Docs/{NAME} Dev/{NAME} Files.md`
+**Location:** `{slug} Docs/{slug} Dev/{slug} Files.md`
 
 **Working example (copy this, not the snippet below):** `~/.claude/skills/CAE/CAE Docs/CAE Dev/CAE Files.md`
 
@@ -45,9 +45,9 @@ cssclasses:
 description: ...
 ---
 
-# {NAME} Files
+# {slug} Files
 
-| -[[{NAME} Files]]- |  |
+| -[[{slug} Files]]- |  |
 | --- | --- |
 | --- | |
 
@@ -58,8 +58,8 @@ File tree for the {repo-name} repository with descriptions.
 ├── [[FCT Claude|CLAUDE.md]]                          Claude Code configuration
 │
 ├── src/                               Library crate
-│   ├── [[{NAME} Lib|lib.rs]]                         Crate root
-│   └── [[{NAME} Scheduler|scheduler.rs]]              Priority queue engine
+│   ├── [[{slug} Lib|lib.rs]]                         Crate root
+│   └── [[{slug} Scheduler|scheduler.rs]]              Priority queue engine
 │
 └── tests/                             Integration tests
     └── scheduler.rs                   Scheduler integration tests
@@ -74,8 +74,8 @@ The ``` ``` fences above are showing you the *content* of the file. **Your file 
 ## Structure
 Every Files page has:
 1. Frontmatter: `cssclasses: monospace` — renders the entire page in fixed-width font
-2. H1 heading: `# {NAME} Files`
--[[{NAME} Files]]- \| \|` + standard separator)
+2. H1 heading: `# {slug} Files`
+-[[{slug} Files]]- \| \|` + standard separator)
 4. Description line: "File tree for the {repo-name} repository with descriptions."
 5. Two blank lines before the tree
 6. Tree starting with `{repo-name}/`
@@ -93,7 +93,7 @@ The dispatch table is a markdown table — it still renders correctly under `css
 
 Every source file and directory that has a module doc is linked by making the filename itself a wiki-link. The filename in the tree doubles as the navigation link — there is no separate arrow or reference. This is the primary linking pattern in the Files tree.
 
-**Format:** `[[{NAME} DocPage|filename.ext]]` — renders as `filename.ext` but links to the module doc.
+**Format:** `[[{slug} DocPage|filename.ext]]` — renders as `filename.ext` but links to the module doc.
 
 | What | Format | Renders as |
 |------|--------|------------|
@@ -107,10 +107,10 @@ Files without a module doc (tests, config files, etc.) use plain filenames — n
 
 ## Row 1 — Repo Root
 
-The first tree line is the repo root directory (`repo-name/`). Do **not** add descriptor text like "repo root" — the reader knows which line is row 1. Row 1's description slot goes directly to `[[{NAME} Interface]]`:
+The first tree line is the repo root directory (`repo-name/`). Do **not** add descriptor text like "repo root" — the reader knows which line is row 1. Row 1's description slot goes directly to `[[{slug} Interface]]`:
 
 ```
-repo-name/                                [[{NAME} Interface]]
+repo-name/                                [[{slug} Interface]]
 ```
 
 `/audit docs` flags `repo root` / `repo route` text on row 1 as **files-row1-redundant**.
@@ -130,7 +130,7 @@ Update the Files page when the repository structure changes significantly — ne
 # RULESET R-all-files
 include::
 where:: `file: **/Docs/**/*Files.md, **/*Dev/**/*Files.md`
-description:: Rules every `{NAME} Files.md` instance must satisfy — frontmatter, no-code-fence, tree structure, and link format.
+description:: Rules every `{slug} Files.md` instance must satisfy — frontmatter, no-code-fence, tree structure, and link format.
 
 ### RULE R-all-files-01 — cssclasses monospace in frontmatter (checked)
 The instance's YAML frontmatter contains `cssclasses: [monospace]` or a `cssclasses:` block with `monospace` as an entry.
@@ -143,7 +143,7 @@ The file tree (lines containing box-drawing characters `├──`, `└──`,
 **Why:** wiki-links inside a code fence become inert text; fencing the tree kills all module-doc navigation.
 
 ### RULE R-all-files-03 — Filename-as-link pattern for source files (sampled)
-Each source file that has a module doc uses `[[{NAME} DocPage\|filename.ext]]` so the filename renders but links to the doc. The `→ [[doc]]` arrow form is used only for non-source files referencing an external spec.
+Each source file that has a module doc uses `[[{slug} DocPage\|filename.ext]]` so the filename renders but links to the doc. The `→ [[doc]]` arrow form is used only for non-source files referencing an external spec.
 **Check pattern:** source-file links follow `[[Page\|filename.ext]]`; `→ [[...]]` does not appear on source-file lines.
 **Why:** the filename-as-link pattern keeps the tree readable while preserving navigation; mixing the arrow form on source files breaks the visual convention.
 

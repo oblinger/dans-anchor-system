@@ -1,6 +1,6 @@
 # RULESET R-log
 include:: [[FCT Log#RULESET R-log\|embedded body]]
-description:: Rules for the {NAME} Log facet — folder shape, entry filenames, dispatch table, content scope.
+description:: Rules for the {slug} Log facet — folder shape, entry filenames, dispatch table, content scope.
 
 Catalog-side stub for the Log facet ruleset. Canonical body lives embedded inside [[FCT Log]] per the [[F133 — Rulesets folder convention + facet embedding|F133]] convention.
 

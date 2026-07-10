@@ -4,16 +4,16 @@ description: user-facing docs dispatch page — curated, synthesis-level human-a
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Dispatch]] → [FCT User Dispatch](hook://p/FCT%20User%20Dispatch)
 # FCT User Dispatch
-Facet spec for the `{NAME} User Docs.md` dispatch page that catalogs an anchor's end-user / consumer-facing documentation (Guide, Installation, CLI, FAQ, Cards).
+Facet spec for the `{slug} User Docs.md` dispatch page that catalogs an anchor's end-user / consumer-facing documentation (Guide, Installation, CLI, FAQ, Cards).
 
 **Related:** [[FCT Design Dispatch]],  [[FCT Dev Dispatch]],  [[FCT Track Dispatch]],  [[FCT Dispatch]]
 **Examples:** [[HBR User Docs\|minimal (code anchor)]],  [[HBR User Docs\|fuller (server anchor)]]
 
-**TLDR** — `{NAME} User Docs.md` is the dispatch page for end-user / consumer-facing documentation (Guide, Installation, CLI, FAQ, Cards). It lives in the root-level `{NAME} User Docs/` folder. Cardinality: **one per anchor**. Scope boundary: user-task docs only; system-spec docs (Interface, Architecture) live elsewhere — Interface in [[FCT Design Dispatch|Design]], the Architecture story in `{NAME} Design/`.
+**TLDR** — `{slug} User Docs.md` is the dispatch page for end-user / consumer-facing documentation (Guide, Installation, CLI, FAQ, Cards). It lives in the root-level `{slug} User Docs/` folder. Cardinality: **one per anchor**. Scope boundary: user-task docs only; system-spec docs (Interface, Architecture) live elsewhere — Interface in [[FCT Design Dispatch|Design]], the Architecture story in `{slug} Design/`.
 
-The `{NAME} User Docs.md` dispatch page inside the root-level `{NAME} User Docs/` folder. Lists **end-user / consumer-facing documentation** for the anchor — Guide, Installation, CLI reference, FAQ, Cards.
+The `{slug} User Docs.md` dispatch page inside the root-level `{slug} User Docs/` folder. Lists **end-user / consumer-facing documentation** for the anchor — Guide, Installation, CLI reference, FAQ, Cards.
 
-Per [[F094 — Anchor docs folder restructure — Track _ User _ Architecture _ Dev|F094]] Q3=A (2026-06-01), the User Docs folder scope is **end-user / consumer documentation only**. System-spec docs (Interface, UX Design, Data Model, Principles) live in [[FCT Design Dispatch|Design]], and the system-architecture story lives in `{NAME} Design/` — even when their content is "public-facing," because they describe the system's contract, not an end-user task.
+Per [[F094 — Anchor docs folder restructure — Track _ User _ Architecture _ Dev|F094]] Q3=A (2026-06-01), the User Docs folder scope is **end-user / consumer documentation only**. System-spec docs (Interface, UX Design, Data Model, Principles) live in [[FCT Design Dispatch|Design]], and the system-architecture story lives in `{slug} Design/` — even when their content is "public-facing," because they describe the system's contract, not an end-user task.
 
 ## Audience — end users and consumers
 
@@ -24,11 +24,11 @@ The User folder is for **anyone reading the docs to *use* the system as a consum
 - **CLI users** read the CLI reference for exact syntax.
 - **Anyone** reads the FAQ for quick answers.
 
-System-level audiences (integrators-above-the-layer, architects, designers) read [[FCT Design Dispatch|Design]] (the Interface layer contract) and the `{NAME} Architecture` doc in `{NAME} Design/` (the system structure) instead.
+System-level audiences (integrators-above-the-layer, architects, designers) read [[FCT Design Dispatch|Design]] (the Interface layer contract) and the `{slug} Architecture` doc in `{slug} Design/` (the system structure) instead.
 
 The defining property is **what the content describes**: User docs describe *user tasks*; Design docs describe *system shape*. Compare with [[FCT Dev Dispatch]] which holds **audit-tied, machine-checkable reference** (Files tree, per-module docs).
 
-**Cardinality: one per anchor.** Every anchor has exactly one root-level `{NAME} User Docs/` folder with one `{NAME} User Docs.md` dispatch page.
+**Cardinality: one per anchor.** Every anchor has exactly one root-level `{slug} User Docs/` folder with one `{slug} User Docs.md` dispatch page.
 
 **Working example:** `HBR User Docs/HBR User Docs.md` — User Docs dispatch.
 
@@ -51,23 +51,23 @@ The defining property is **what the content describes**: User docs describe *use
 
 ## Location
 
-`{NAME} User Docs.md` lives inside the root-level `{NAME} User Docs/` folder.
+`{slug} User Docs.md` lives inside the root-level `{slug} User Docs/` folder.
 
 ## Structure (per F060)
 
 - **YAML frontmatter** — optional.
-- **H1** — `# {NAME} User Docs`. Blank line after.
--[[{NAME} User Docs]]-`, top-right is `><br>: user-facing documentation` (or `+>` legacy shorthand).
+- **H1** — `# {slug} User Docs`. Blank line after.
+-[[{slug} User Docs]]-`, top-right is `><br>: user-facing documentation` (or `+>` legacy shorthand).
 - **Body rows** — one row per user-facing document.
 - **Auto-management separator** — a `---` row enables auto-listing of remaining children.
 
-## Filename convention — `{NAME} Guide.md`, not `{NAME} User Guide.md`
+## Filename convention — `{slug} Guide.md`, not `{slug} User Guide.md`
 
-The folder context (`{NAME} User Docs/`) already supplies "user-facing" — putting "User" in the filename too is redundant. Use `{NAME} Guide.md` as the basename for the primary user-facing guide.
+The folder context (`{slug} User Docs/`) already supplies "user-facing" — putting "User" in the filename too is redundant. Use `{slug} Guide.md` as the basename for the primary user-facing guide.
 
-The H1 *inside* the file may still be `# {NAME} User Guide` if the verbose title reads better at the top of the document — the file basename is for the index/wiki-link surface; the H1 is for the reader. Either is fine.
+The H1 *inside* the file may still be `# {slug} User Guide` if the verbose title reads better at the top of the document — the file basename is for the index/wiki-link surface; the H1 is for the reader. Either is fine.
 
-For multi-guide anchors (rare), variants are `{NAME} {Topic} Guide.md` — e.g., `CAE Setup Guide.md`, `CAE Migration Guide.md`. The bare `{NAME} Guide.md` is the canonical top-level entry point.
+For multi-guide anchors (rare), variants are `{slug} {Topic} Guide.md` — e.g., `CAE Setup Guide.md`, `CAE Migration Guide.md`. The bare `{slug} Guide.md` is the canonical top-level entry point.
 
 ## Contents
 
@@ -75,44 +75,44 @@ Typical entries include:
 
 | Document | Description |
 |----------|-------------|
-| `{NAME} Guide.md` | Getting started, installation, usage (the primary user-facing guide) |
-| `{NAME} Installation.md` | Installation instructions (when applicable) |
-| `{NAME} CLI.md` | CLI command reference (when applicable) |
-| `{NAME} FAQ.md` | User-facing FAQs (when applicable) |
-| `{NAME} Cards.md` | Cheat sheets and flashcards |
-| `{NAME} {Topic} Guide.md` | Topic-specific guides for specialized workflows |
+| `{slug} Guide.md` | Getting started, installation, usage (the primary user-facing guide) |
+| `{slug} Installation.md` | Installation instructions (when applicable) |
+| `{slug} CLI.md` | CLI command reference (when applicable) |
+| `{slug} FAQ.md` | User-facing FAQs (when applicable) |
+| `{slug} Cards.md` | Cheat sheets and flashcards |
+| `{slug} {Topic} Guide.md` | Topic-specific guides for specialized workflows |
 
-All rows are optional except the primary Guide, and are listed only when those docs exist. The system-spec docs (Interface, Architecture) are **not** User Docs — Interface lives in `{NAME} Design/` (`/audit docs` flags its absence on a code anchor as `missing-interface`), and the Architecture story lives in `{NAME} Design/`.
+All rows are optional except the primary Guide, and are listed only when those docs exist. The system-spec docs (Interface, Architecture) are **not** User Docs — Interface lives in `{slug} Design/` (`/audit docs` flags its absence on a code anchor as `missing-interface`), and the Architecture story lives in `{slug} Design/`.
 
 ## Migration note
 
-Anchors that still have `{NAME} User Guide.md` continue to resolve correctly (wiki-links by basename). The rename to `{NAME} Guide.md` happens organically when an anchor is touched. Don't bulk-rename retroactively.
+Anchors that still have `{slug} User Guide.md` continue to resolve correctly (wiki-links by basename). The rename to `{slug} Guide.md` happens organically when an anchor is touched. Don't bulk-rename retroactively.
 
-Anchors that still have `{NAME} Rollup.md` (the predecessor to Interface — see F062) continue to resolve correctly for now, but should be renamed to `{NAME} Interface.md` when the anchor is next touched. The semantic shift (Rollup was a loose summarization pattern; Interface is a tightened layer contract with a user-validation gate) usually warrants a content review at rename time. Migration is forward-only; no bulk pass.
+Anchors that still have `{slug} Rollup.md` (the predecessor to Interface — see F062) continue to resolve correctly for now, but should be renamed to `{slug} Interface.md` when the anchor is next touched. The semantic shift (Rollup was a loose summarization pattern; Interface is a tightened layer contract with a user-validation gate) usually warrants a content review at rename time. Migration is forward-only; no bulk pass.
 
 # RULESET R-fct-user-dispatch
 include::
-where:: `file: **/{NAME} User Docs/{NAME} User Docs.md`
-description:: Rules every `{NAME} User Docs.md` dispatch page must satisfy — the file must exist in the right location, open with the right dispatch-table header, and contain only user-task-shaped documentation (not system-spec docs).
+where:: `file: **/{slug} User Docs/{slug} User Docs.md`
+description:: Rules every `{slug} User Docs.md` dispatch page must satisfy — the file must exist in the right location, open with the right dispatch-table header, and contain only user-task-shaped documentation (not system-spec docs).
 
 ### RULE R-fct-user-dispatch-01 — file lives at the correct path (checked)
-The dispatch page is at `{NAME} User Docs/{NAME} User Docs.md` — a root-level folder.
-**Check pattern:** path matches `{NAME} User Docs/{NAME} User Docs.md`.
+The dispatch page is at `{slug} User Docs/{slug} User Docs.md` — a root-level folder.
+**Check pattern:** path matches `{slug} User Docs/{slug} User Docs.md`.
 **Why:** the folder context supplies the "User Docs" qualifier; a misfiled page is invisible to dispatch resolution.
 
 ### RULE R-fct-user-dispatch-02 — dispatch table top-left cell is the self-link (checked)
--[[{NAME} User Docs]]-` in the left cell and a brief description beginning with `>` or `+>` in the right cell.
+-[[{slug} User Docs]]-` in the left cell and a brief description beginning with `>` or `+>` in the right cell.
 **Check pattern:** first table row matches `-\[\[.+ User Docs\]\]-` in cell 1 and starts with `>` or `+>` in cell 2.
 **Why:** the self-link is what makes the dispatch table navigable; wrong or absent cell breaks the anchor-page contract per F060.
 
 ### RULE R-fct-user-dispatch-03 — contains only user-task documentation (sampled)
 Every body row links a doc that describes a *user task* (Guide, Installation, CLI, FAQ, Cards) — not a system-spec doc (Interface, Architecture, UX Design, Data Model, Principles), which belong in [[FCT Design Dispatch|Design]] per F094.
-**Check pattern:** body rows do not link `{NAME} Interface.md`, `{NAME} Architecture.md`, `{NAME} Data Model.md`, `{NAME} Principles.md`, or `{NAME} UX Design.md`.
+**Check pattern:** body rows do not link `{slug} Interface.md`, `{slug} Architecture.md`, `{slug} Data Model.md`, `{slug} Principles.md`, or `{slug} UX Design.md`.
 **Why:** scope leakage lets Design docs accumulate here; the F094 boundary is load-bearing for `/audit docs`.
 
 ### RULE R-fct-user-dispatch-04 — primary guide uses bare filename (stated)
-The primary user-facing guide is `{NAME} Guide.md`, not `{NAME} User Guide.md`. The folder context already supplies "user-facing."
-**Check pattern:** no file named `{NAME} User Guide.md` is linked as the primary row (legacy files may exist pending forward-migration).
+The primary user-facing guide is `{slug} Guide.md`, not `{slug} User Guide.md`. The folder context already supplies "user-facing."
+**Check pattern:** no file named `{slug} User Guide.md` is linked as the primary row (legacy files may exist pending forward-migration).
 **Why:** the filename convention prevents "User User Guide" redundancy and is the canonical form going forward.
 
 # BRIEF

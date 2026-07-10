@@ -1,6 +1,6 @@
 # RULESET R-design
 include:: [[FCT Design#RULESET R-design\|embedded body]]
-description:: Rules for the {NAME} Design facet — folder presence as the gate; required children; dispatch wiring; Code-trait deprecation; scaffold-pre-wires-structure.
+description:: Rules for the {slug} Design facet — folder presence as the gate; required children; dispatch wiring; Code-trait deprecation; scaffold-pre-wires-structure.
 
 Catalog-side stub. Canonical body lives embedded inside [[FCT Design]] per [[F133 — Rulesets folder convention + facet embedding|F133]].
 

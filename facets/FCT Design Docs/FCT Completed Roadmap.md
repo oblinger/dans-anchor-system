@@ -9,7 +9,7 @@ The migration target for completed milestones — preserves shipped milestone st
 **Related:** [[FCT Roadmap]],  [[FCT Design]],  [[FCT Features]],  [[FCT Design Docs]]
 **Examples:** [[FEX Completed Roadmap\|example]]
 
-**TLDR** — One doc per anchor (when any milestone has migrated). Lives at `{NAME} Design/{NAME} Completed Roadmap.md`. Newest migrated milestone at top; standalone-completed-features groupings interleave between milestones. Cardinality: **one per anchor**.
+**TLDR** — One doc per anchor (when any milestone has migrated). Lives at `{slug} Design/{slug} Completed Roadmap.md`. Newest migrated milestone at top; standalone-completed-features groupings interleave between milestones. Cardinality: **one per anchor**.
 
 The Completed Roadmap is the **migration target** for whole milestones that reach completion. Roadmap stays forward-looking; this doc captures everything that's shipped — preserving the milestone structure that the project used to plan it.
 
@@ -17,7 +17,7 @@ The Completed Roadmap is the **migration target** for whole milestones that reac
 
 ## Location
 
-`{NAME} Design/{NAME} Completed Roadmap.md` — sibling of `{NAME} Roadmap.md`.
+`{slug} Design/{slug} Completed Roadmap.md` — sibling of `{slug} Roadmap.md`.
 
 ## Structure — newest at top
 
@@ -31,7 +31,7 @@ The Completed Roadmap reads top-to-bottom as **newest to oldest by migration dat
 
 The two section kinds alternate down the page, newest first:
 
-- **H1** — `# {NAME} Completed Roadmap`.
+- **H1** — `# {slug} Completed Roadmap`.
 - **Current standalone grouping** — `## Completed standalone features (since <date>)` at the very top, each line `- [x] [[F<NNN> — <Title>]] — (Done <date>)`.
 - **Most-recent migrated milestone** — `## [x] M-<Name> — <Title> (migrated <date>)`, followed by its preserved `**Status:**` line, reference block (`**Tests:**`, …), and its `- [x] [[F<NNN> — M-<Name>.<n>: …]]` sub-item bullets (with any `[~]` deferred sub-items retained).
 - **Interleaved standalone groupings** — `## Completed standalone features (between M-<X> and M-<Y>)` capturing features that completed in that window.
@@ -79,7 +79,7 @@ Per [[DSC progressive-disclosure]]:
 
 - [[FCT Roadmap]] — parent facet; the forward-looking roadmap is the migration source
 - [[FCT Features]] — feature docs; the M-position is encoded in their titles per R-roadmap-10
-- [[FCT Design]] — Completed Roadmap is an OPTIONAL child of {NAME} Design/; activated when the first milestone migrates
+- [[FCT Design]] — Completed Roadmap is an OPTIONAL child of {slug} Design/; activated when the first milestone migrates
 - [[F144 — Completed Roadmap + named milestones]] — the feature that landed this convention
 - F145 (future) — `state roadmap migrate` script automation
 
@@ -90,18 +90,18 @@ description:: completed-roadmap facet — migrated milestones in newest-on-top o
 
 Embedded ruleset for the Completed Roadmap facet, co-located with the spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella.
 
-### RULE R-completed-roadmap-01 — Location is `{NAME} Design/{NAME} Completed Roadmap.md` (checked)
+### RULE R-completed-roadmap-01 — Location is `{slug} Design/{slug} Completed Roadmap.md` (checked)
 
-The doc lives at `{NAME} Design/{NAME} Completed Roadmap.md` — sibling of `{NAME} Roadmap.md`.
+The doc lives at `{slug} Design/{slug} Completed Roadmap.md` — sibling of `{slug} Roadmap.md`.
 
-**Check pattern:** when one or more milestones have migrated, `ls "{anchor}/{NAME} Design/{NAME} Completed Roadmap.md"` exists. When zero migrations have occurred, the file may be absent — it's created on first migration.
+**Check pattern:** when one or more milestones have migrated, `ls "{anchor}/{slug} Design/{slug} Completed Roadmap.md"` exists. When zero migrations have occurred, the file may be absent — it's created on first migration.
 
 **Why:** companion location keeps the forward and the completed views adjacent.
 
 ### RULE R-completed-roadmap-02 — Body-only, no YAML frontmatter (checked)
 check:: h1_no_frontmatter
 
-First non-blank line is `# {NAME} Completed Roadmap` (H1). No `---` block precedes.
+First non-blank line is `# {slug} Completed Roadmap` (H1). No `---` block precedes.
 
 **Why:** matches the vault-wide body-only convention.
 
@@ -141,7 +141,7 @@ Once a milestone migrates to Completed Roadmap, it stays. Reactivation of work i
 
 *(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body + embedded `R-completed-roadmap` RULESET above; design rationale is [[F144 — Completed Roadmap + named milestones]].)*
 
-- **TODO: link a worked example** — no real `{NAME} Completed Roadmap.md` instance exists yet (the facet landed with F144; no milestone has migrated). When the first ships, add it to `## See also` and reference it from § Structure in place of the prose outline.
-- **Keep spec ↔ embedded RULESET aligned** — when the spec body changes a structural rule (location, order, preservation, naming), mirror it in the matching `R-completed-roadmap` rule and bump the check pattern; never put per-anchor migrated-milestone content here (it lives in `{ANCHOR}/{NAME} Design/{NAME} Completed Roadmap.md`).
+- **TODO: link a worked example** — no real `{slug} Completed Roadmap.md` instance exists yet (the facet landed with F144; no milestone has migrated). When the first ships, add it to `## See also` and reference it from § Structure in place of the prose outline.
+- **Keep spec ↔ embedded RULESET aligned** — when the spec body changes a structural rule (location, order, preservation, naming), mirror it in the matching `R-completed-roadmap` rule and bump the check pattern; never put per-anchor migrated-milestone content here (it lives in `{ANCHOR}/{slug} Design/{slug} Completed Roadmap.md`).
 - **Inclusion test for a new rule** — it constrains the *structure* of the completed-roadmap doc (location, order, preservation, naming), not the forward-looking Roadmap ([[FCT Roadmap]]) or feature-doc shape ([[FCT Features]]).
 - **Cross-reference integrity is load-bearing** — the `## See also` links to [[FCT Roadmap]], [[FCT Features]], [[FCT Design]], and F144/F145 wire this facet into the CAB graph; don't drop them when refactoring.

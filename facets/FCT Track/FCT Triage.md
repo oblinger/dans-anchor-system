@@ -28,7 +28,7 @@ Specification for the **Triage view** — the format and rules for rendering an 
 
 **TLDR** — The Triage facet defines the *rendered format* of an anchor's status section inside `~/ob/kmr/Q.md`: the H1 banner (TAG, counts, exact spacing), body H2s (`## Active` … `## Later`, skipping empty), bullet form (bolded bracket + mandatory wiki-link + em-dash description), and the selective-Later rule (only `[Questions]`/`[Verify]` items surface under `## Later`). **Cardinality: one per anchor** — each anchor owns exactly one section in `Q.md`, destructively rewritten on each `/triage` run. No per-anchor file; the view lives only in `Q.md`.
 
-**Presentation form — no per-anchor file location.** As of F075 (2026-05-19), per-anchor `{NAME} Triage.md` files are retired. The triage view is rendered into the anchor's per-anchor section of `~/ob/kmr/Q.md`, which is the single triage surface for the vault. This facet remains a real concept (the triage view of an anchor's state) and its format is specified here; it just no longer corresponds to a per-anchor file. **Anchor-page dispatch tables do NOT link to this facet** (there is no per-anchor file to link to). CAB-level references to `[[FCT Triage]]` (from `CAB Base.md`, this spec) remain — the facet definition is still a real artifact.
+**Presentation form — no per-anchor file location.** As of F075 (2026-05-19), per-anchor `{slug} Triage.md` files are retired. The triage view is rendered into the anchor's per-anchor section of `~/ob/kmr/Q.md`, which is the single triage surface for the vault. This facet remains a real concept (the triage view of an anchor's state) and its format is specified here; it just no longer corresponds to a per-anchor file. **Anchor-page dispatch tables do NOT link to this facet** (there is no per-anchor file to link to). CAB-level references to `[[FCT Triage]]` (from `CAB Base.md`, this spec) remain — the facet definition is still a real artifact.
 
 The Triage **view** is the **status of the anchor** — the single place the user looks to see "where everything stands and what wants my attention next." It lists items grouped by workflow-state H2: `## Active`, `## Ready`, `## Now`, `## Next`, and **selectively** `## Later`. Within each H2, items appear in **source order from the backlog** (per F028 Q2).
 
@@ -54,9 +54,9 @@ Each anchor's section in Q.md is **agent-owned and destructively rewritten** on 
 
 The section heading is a level-1 heading (the literal `# [` prefix is also the section-boundary marker the renderer scans for) of this exact form:
 
-`# [<TAG>]  [[{NAME} queries|{NAME}]]  -  Ready N    Questions N   |   Now N    Next N    Later N    Verify N    Icebox N`
+`# [<TAG>]  [[{slug} queries|{slug}]]  -  Ready N    Questions N   |   Now N    Next N    Later N    Verify N    Icebox N`
 
-**Link form** (per F176, supersedes F075 Q1's heading-anchor form): `[[{NAME} queries|{NAME}]]` — links to the anchor's `{NAME} queries.md` drain page (where the user actually answers questions), display text `{NAME}`. Fallback chain when that file doesn't exist yet: `{NAME} queries` → `{NAME} Triage` → `{NAME}` → plain text (avoids emitting a dead link).
+**Link form** (per F176, supersedes F075 Q1's heading-anchor form): `[[{slug} queries|{slug}]]` — links to the anchor's `{slug} queries.md` drain page (where the user actually answers questions), display text `{slug}`. Fallback chain when that file doesn't exist yet: `{slug} queries` → `{slug} Triage` → `{slug}` → plain text (avoids emitting a dead link).
 
 **Spacing — lock exact** (per F028 Q6):
 - Two spaces between `[<TAG>]` and the link.
@@ -73,7 +73,7 @@ The section heading is a level-1 heading (the literal `# [` prefix is also the s
 - `Ready` (headline) — count of `[Active]` + `[Ready]` + `[Agreed]` rows in the active horizons (`## Active` / `## Ready` / `## Now` / `## Next`).
 - `Questions` (headline) — pending `Q<n>` across feature docs with `[Questions]` rows in the active horizons, plus `[Verify]`-bracket rows in those horizons, summed.
 - `Now`, `Next`, `Later`, `Verify` (horizon) — bullets under each backlog H2, one count each, excluding `[Done]`-bracketed rows. (`Verify` here is the `## Verify` H2 count, distinct from the `[Verify]`-bracket rows folded into the headline `Questions`.)
-- `Icebox` — bullets in `{NAME} Icebox.md` if it exists; else 0.
+- `Icebox` — bullets in `{slug} Icebox.md` if it exists; else 0.
 
 ## Anchor TAG — cascading rule
 
@@ -90,7 +90,7 @@ Decide the H1 TAG by checking in order; the first match wins, except U and A com
 
 ## No anchor-level questions bullet
 
-Triage carries **no** questions bullet under the H1. Anchor-level (non-feature) questions are authored directly in `{NAME} queries.md` § `## Questions` (per `[[FCT Query]]`) — there is no separate questions facet, and triage does not surface or count them. The H1 already links to `[[{NAME} queries]]`, which is where those questions live.
+Triage carries **no** questions bullet under the H1. Anchor-level (non-feature) questions are authored directly in `{slug} queries.md` § `## Questions` (per `[[FCT Query]]`) — there is no separate questions facet, and triage does not surface or count them. The H1 already links to `[[{slug} queries]]`, which is where those questions live.
 
 ## Body H2s
 
@@ -110,7 +110,7 @@ If the anchor has zero items in Active/Ready/Now/Next, the body is just the H1 (
 Each bullet is one line, with **a wiki-link as the title — mandatory, no exceptions, every row class**. The three row-class forms (literal templates):
 
 - `- **[<status>]** [[F<n> — Title]] — description.` — feature row
-- `- **[<status>]** [[{NAME} Backlog#B<n>|B<n>]] — description.` — backlog-only B-row
+- `- **[<status>]** [[{slug} Backlog#B<n>|B<n>]] — description.` — backlog-only B-row
 - `- **[<status>]** [[YYYY-MM-DD Title]] — description.` — bug/ad-hoc with its own doc
 
 - **Bracket bolded** — `**[Active]**`, `**[Ready]**`, `**[Verify]**`, `**[Questions]**` (or `**[N Questions]**` / `**[N Ready]**` / `**[N Verify]**` when count > 1).
@@ -121,8 +121,8 @@ Each bullet is one line, with **a wiki-link as the title — mandatory, no excep
 **Mandatory wiki-link — every row.** The row title MUST be a wiki-link. **No row class has an inline-bold-only escape hatch.** The row IS the link, not just a description: the user navigates *through* triage to the source; a row without a link is a broken row. Three link forms by row class:
 
 - **Feature rows (`F<n>`)** → `[[F<n> — Title]]` to the feature doc. Even when the feature doc doesn't exist yet (broken link = useful signal).
-- **Backlog rows (`B<n>`, ad-hoc tasks named only in the backlog)** → `[[{NAME} Backlog#B<n>|B<n>]]`. Every B-identifier has a stable anchor in the backlog file, so this link form ALWAYS resolves.
-- **Bug rows with their own doc** → link to that doc. Fall back to `[[{NAME} Backlog#<id>|<id>]]` when no separate doc exists.
+- **Backlog rows (`B<n>`, ad-hoc tasks named only in the backlog)** → `[[{slug} Backlog#B<n>|B<n>]]`. Every B-identifier has a stable anchor in the backlog file, so this link form ALWAYS resolves.
+- **Bug rows with their own doc** → link to that doc. Fall back to `[[{slug} Backlog#<id>|<id>]]` when no separate doc exists.
 
 The renderer-side enforcement of this rule lives in `[[SKA triage]]` § Mandatory wiki-link.
 
@@ -145,7 +145,7 @@ Example: `- **[Verify]** [[F007 — Webhook Notifications]] — Webhook fires on
 
 ## Ordering within a body H2
 
-**Source order from the backlog** (per F028 Q2): items appear in the order they appear in `{NAME} Backlog.md` under the same H2. The backlog is the source of truth for ordering; the user reorders by editing the backlog (or asking the agent to). The H1 banner already counts items by status, so re-grouping by status inside H2s is redundant.
+**Source order from the backlog** (per F028 Q2): items appear in the order they appear in `{slug} Backlog.md` under the same H2. The backlog is the source of truth for ordering; the user reorders by editing the backlog (or asking the agent to). The H1 banner already counts items by status, so re-grouping by status inside H2s is redundant.
 
 ## No meta prose, no breadcrumb, no Notes
 
@@ -168,10 +168,10 @@ Each anchor's section inside Q.md is agent-owned. Every `/triage` run — or pos
 
 - **[[CAB Backlog]]** — source of truth for what's in flight, including item ordering. Triage filters/lists the backlog rows (excluding Later/Icebox) and applies the bracket-form rules. The backlog file is NOT reordered by triage; bubble-to-top happens only in Q.md (per F075 Q2).
 - **`## Open Questions` blocks inside feature docs** (per `[[FCT Query]]`) — source of truth for question text. Triage points at them via wiki-link to the feature doc; it doesn't duplicate the Q content.
-- **`{NAME} queries.md` § `## Questions`** (per `[[FCT Query]]`) — where anchor-level (non-feature) questions are authored directly. Triage neither counts nor surfaces them; they reach the user via the H1 link to the queries page.
+- **`{slug} queries.md` § `## Questions`** (per `[[FCT Query]]`) — where anchor-level (non-feature) questions are authored directly. Triage neither counts nor surfaces them; they reach the user via the H1 link to the queries page.
 - **`/roster`** — counts every item once per backlog H2; triage's H1 banner uses the same scheme so the two views agree.
 - **`~/ob/kmr/Q.md`** — the single triage surface (per F075). Each anchor's per-anchor section here IS the triage view; it lives nowhere else.
-- **Anchor pages (`{NAME}.md`)** — do **not** carry a dispatch-table row pointing at this facet, since no per-anchor file exists to link to. The anchor's Q.md section is reached via the global dashboard, not via per-anchor navigation.
+- **Anchor pages (`{slug}.md`)** — do **not** carry a dispatch-table row pointing at this facet, since no per-anchor file exists to link to. The anchor's Q.md section is reached via the global dashboard, not via per-anchor navigation.
 
 # RULESET R-fct-triage
 include::
@@ -179,12 +179,12 @@ where:: context: Q.md anchor-sections
 description:: Rules for the triage view rendered into each anchor's section of `~/ob/kmr/Q.md`. Governs the H1 banner format, body H2 inclusion, bullet form, and the selective-Later invariant. Cardinality: **one per anchor** — each anchor owns exactly one section in Q.md.
 
 ### RULE R-fct-triage-01 — H1 banner has exact spacing (checked)
-The H1 section heading follows the form `# [<TAG>]  [[Q#{NAME} Triage|{NAME} Triage]]   -   <count groups>` with: two spaces between TAG and the link; three spaces around the `-` separator; four spaces between counts within a group; `   |   ` (three-space-pipe-three-space) between the three count groups (User-actionable / Agent-actionable / Horizon).
+The H1 section heading follows the form `# [<TAG>]  [[Q#{slug} Triage|{slug} Triage]]   -   <count groups>` with: two spaces between TAG and the link; three spaces around the `-` separator; four spaces between counts within a group; `   |   ` (three-space-pipe-three-space) between the three count groups (User-actionable / Agent-actionable / Horizon).
 **Check pattern:** H1 matches the prescribed spacing pattern — deviations (single spaces, missing pipe groups) are a failure.
 **Why:** the renderer (`[[SKA triage]]`) references the exact spacing; relaxing it silently breaks the renderer.
 
 ### RULE R-fct-triage-02 — Every bullet title is a wiki-link (checked)
-Every body bullet's title MUST be a wiki-link — `[[F<n> — Title]]` for feature rows, `[[{NAME} Backlog#B<n>|B<n>]]` for backlog-only rows, or a bug-doc link — with no exceptions. A row without a wiki-link is a broken row.
+Every body bullet's title MUST be a wiki-link — `[[F<n> — Title]]` for feature rows, `[[{slug} Backlog#B<n>|B<n>]]` for backlog-only rows, or a bug-doc link — with no exceptions. A row without a wiki-link is a broken row.
 **Check pattern:** each `-` bullet starts with `**[<status>]** [[` — any bullet missing the `[[` link-open is a failure.
 **Why:** triage is navigation; a row without a link leaves the user with no path to the source.
 
@@ -202,6 +202,6 @@ Any body H2 (`## Active`, `## Ready`, `## Now`, `## Next`, `## Later`) with zero
 
 *(Maintainer note — cautions for whoever edits this facet spec. The normative spec + rules are the body above; `[[SKA triage]]` is the renderer that enforces them.)*
 
-- **Don't re-introduce per-anchor file conventions.** F075 (2026-05-19) retired `{NAME} Triage.md`; the view lives only in the anchor's section of `~/ob/kmr/Q.md`. Don't document a per-anchor file location or add an anchor-page dispatch row for this facet.
+- **Don't re-introduce per-anchor file conventions.** F075 (2026-05-19) retired `{slug} Triage.md`; the view lives only in the anchor's section of `~/ob/kmr/Q.md`. Don't document a per-anchor file location or add an anchor-page dispatch row for this facet.
 - **Inclusion test for new rules.** A rule belongs here only if it concerns *how the triage view is rendered* (banner spacing, bracket forms, ordering, qualification). Q.md *write mechanics* (script behavior, idempotence, file writes) belong in `[[SKA triage]]`; *item meaning* (workflow states, brackets like `[Verify]`) belongs in `[[CAB Backlog]]` or `[[workflow]]`.
 - **Cross-ref integrity with the renderer.** The exact H1 spacing (R-fct-triage-01), the mandatory-wiki-link rule (R-fct-triage-02), and the inline-code Format-Specification templates are all referenced by `[[SKA triage]]`; don't relax or restructure them without updating the renderer in lockstep. Keep the spec as inline-code templates plus the **Working example** link (SKA's Q.md section) — never embed a rendered sample instance.

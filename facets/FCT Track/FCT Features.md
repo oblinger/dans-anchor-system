@@ -4,7 +4,7 @@ description: "specification for F-numbered per-feature design docs and their ind
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Features](hook://p/FCT%20Features)
 # FCT Features
-Specification for the **Features** facet — F-numbered per-feature design docs that live under `{NAME} Design/{NAME} Features/`, with their index page and pre-document Open-Questions zone.
+Specification for the **Features** facet — F-numbered per-feature design docs that live under `{slug} Design/{slug} Features/`, with their index page and pre-document Open-Questions zone.
 
 **Related:** [[FCT Roadmap]],  [[CAB Backlog]],  [[FCT Status]],  [[FCT Facet]]
 **Examples:** [[HBR Features\|minimal]],  [[HBR Features\|fuller]]
@@ -17,11 +17,11 @@ Specification for the **Features** facet — F-numbered per-feature design docs 
 | [[#Roadmap]] |  |
 | **[[#BRIEF]]** |  |
 
-Specification for the **Features** facet — the F-numbered per-feature design docs that live under an anchor's `{NAME} Design/{NAME} Features/` folder, with their index page and pre-document Open-Questions zone.
+Specification for the **Features** facet — the F-numbered per-feature design docs that live under an anchor's `{slug} Design/{slug} Features/` folder, with their index page and pre-document Open-Questions zone.
 
-**Location:** `{NAME} Design/{NAME} Features/` (folder; one file per feature, `F<NNN> — <Title>.md`).
+**Location:** `{slug} Design/{slug} Features/` (folder; one file per feature, `F<NNN> — <Title>.md`).
 
-**Relocated to Design 2026-06-10** — previously lived at `{NAME} Track/{NAME} Features/` (per F094) and `{NAME} Docs/{NAME} Plan/{NAME} Features/` (pre-F094). Moved into Design alongside [[FCT Roadmap]] because feature docs are themselves design artifacts — each carries a Summary, Success Criteria, and Design section that the PRD / Architecture / Testing facets refer to. Track now holds only [[CAB Backlog]], [[FCT Status]], and tracking metadata. Lazy migration: existing anchors stay at the old location until next `/feature` or `/design` touch repositions them (F142).
+**Relocated to Design 2026-06-10** — previously lived at `{slug} Track/{slug} Features/` (per F094) and `{slug} Docs/{slug} Plan/{slug} Features/` (pre-F094). Moved into Design alongside [[FCT Roadmap]] because feature docs are themselves design artifacts — each carries a Summary, Success Criteria, and Design section that the PRD / Architecture / Testing facets refer to. Track now holds only [[CAB Backlog]], [[FCT Status]], and tracking metadata. Lazy migration: existing anchors stay at the old location until next `/feature` or `/design` touch repositions them (F142).
 
 Individual feature specifications, each in an F-numbered file inside the Features subfolder of the Design folder. **Cardinality: many** — each anchor holds any number of feature docs (one file per feature, F-numbered).
 
@@ -29,13 +29,13 @@ Individual feature specifications, each in an F-numbered file inside the Feature
 
 ## Features Folder Structure
 
-Features are documented in their own subfolder within `{NAME} Design/`. Filenames are `F<NNN> — <Title>.md` (zero-padded triple-digit F-number per anchor):
+Features are documented in their own subfolder within `{slug} Design/`. Filenames are `F<NNN> — <Title>.md` (zero-padded triple-digit F-number per anchor):
 
 ```
-{NAME} Design/
-└── {NAME} Features/
+{slug} Design/
+└── {slug} Features/
     ├── .anchor                          ← description-only metadata (one line, no frontmatter delimiters)
-    ├── {NAME} Features.md               ← feature index (reverse chronological)
+    ├── {slug} Features.md               ← feature index (reverse chronological)
     ├── F001 — Content-Hash Dedup.md     ← individual feature
     ├── F002 — On-the-Fly Transcode Session.md
     └── F003 — Scheduled Catalog Checkpoint.md
@@ -45,9 +45,9 @@ The `.anchor` is a single plain-text line — e.g. `description: F-numbered feat
 
 ## Features Index Page
 
-The `{NAME} Features.md` page lists all features in reverse chronological order (newest first), one bullet per feature. The index may open with the standard anchor dispatch-table header (breadcrumb row + Anchor / Related rows) for vault navigation; the header is optional but recommended once the anchor is wired.
+The `{slug} Features.md` page lists all features in reverse chronological order (newest first), one bullet per feature. The index may open with the standard anchor dispatch-table header (breadcrumb row + Anchor / Related rows) for vault navigation; the header is optional but recommended once the anchor is wired.
 
-**Row shape:** `[[F<NNN> — <Title>]]` wiki-link, then the lifecycle status in backtick-brackets, then an em-dash, a one-line description, and (for roadmap-commissioned features) a trailing `→ [[{NAME} Roadmap|M<n>]]` milestone link. Example from the worked HBR index:
+**Row shape:** `[[F<NNN> — <Title>]]` wiki-link, then the lifecycle status in backtick-brackets, then an em-dash, a one-line description, and (for roadmap-commissioned features) a trailing `→ [[{slug} Roadmap|M<n>]]` milestone link. Example from the worked HBR index:
 
 ```
 - [[F001 — Content-Hash Dedup]] `[Done]` — skip files already in the catalog by content hash during ingest (US-HBR-1). → [[HBR Roadmap|M1.2]]
@@ -79,9 +79,9 @@ When Open Questions is empty, leave the H2 with a one-liner placeholder (e.g. `_
 Start with only the mandatory sections; add optional sections as the feature grows in complexity.
 
 **Mandatory:**
-- **H1 `# [[{NAME}]] · F{n} — {Feature Name}`** — anchor-slug breadcrumb (wiki-link to anchor page) + F-number + title. The leading `[[{NAME}]]` lets the reader (a) jump back to the anchor page and (b) immediately see which anchor they're in — load-bearing when many anchors are active and feature docs look similar across them. Filename matches without the `[[]]` brackets: `F{n} — {Feature Name}.md`.
+- **H1 `# [[{slug}]] · F{n} — {Feature Name}`** — anchor-slug breadcrumb (wiki-link to anchor page) + F-number + title. The leading `[[{slug}]]` lets the reader (a) jump back to the anchor page and (b) immediately see which anchor they're in — load-bearing when many anchors are active and feature docs look similar across them. Filename matches without the `[[]]` brackets: `F{n} — {Feature Name}.md`.
 - **Title encodes M-position when feature is commissioned from a roadmap milestone** (per [[FCT Roadmap]] R-roadmap-10). Format: `F<NNN> — M-<Name>.<position>: <Title from Roadmap entry>`. Example: `F118 — M-CLI.3.5: Implement CLI Core Statements.md`. The roadmap entry gets a `[F118]` marker pointing at the feature doc. Bi-directional discoverability without rename-cost. See [[F144 — Completed Roadmap + named milestones]] for the provenance discussion. **Features commissioned NOT from a roadmap stay `F<NNN> — <Title>` form** — absence of M-prefix signals "filed independently."
-- **F060 placement.** The feature-doc H1 already carries its own breadcrumb (`[[{NAME}]] ·`), so the F060 dispatch-table placeholder is **optional** for feature docs. New feature docs may skip the placeholder; older ones that have it can keep it. Rewire does not insert one if absent.
+- **F060 placement.** The feature-doc H1 already carries its own breadcrumb (`[[{slug}]] ·`), so the F060 dispatch-table placeholder is **optional** for feature docs. New feature docs may skip the placeholder; older ones that have it can keep it. Rewire does not insert one if absent.
 - **Summary** — What the feature does and why it exists (1-2 paragraphs). On the worked examples this opens the document body directly after the H1.
 - **Status** — lifecycle state (Designing / Agreed / Implementing / Testing / Done). The state keyword may be elaborated with date / commit / blocking note, e.g. `Done — shipped in v1; covered by ingest integration tests.` or `Designing — awaiting Q2 (cache eviction) resolution.`
 
@@ -130,7 +130,7 @@ When the Roadmap section drives the feature's tracking, the feature doc's `## St
 
 # RULESET R-fct-features
 include::
-where:: `file: **/Features/F*.md, **/{NAME} Features.md`
+where:: `file: **/Features/F*.md, **/{slug} Features.md`
 description:: The rules every Features-facet instance must satisfy — covering the folder layout, filename pattern, the two-zone feature-doc structure, and the index page shape. Embedded per F133. Tier legend: **checked** (mechanically verifiable), **sampled** (spot-checked), **stated** (author-honored principle).
 
 ### RULE R-fct-features-01 — F-numbered filename pattern (checked)
@@ -139,17 +139,17 @@ Each individual feature doc filename matches `F<NNN> — <Title>.md` where `<NNN
 **Why:** the F-number is the stable cross-reference key; padded triple digits keep filename sort equal to numeric sort and distinguish per-anchor feature series from each other.
 
 ### RULE R-fct-features-02 — Two-zone layout: Open Questions above H1 (checked)
-Every feature doc opens with a `## Open Questions` H2 (and a `### Resolved` H3 beneath it) **before** the `# [[{NAME}]] · F{n} — {Feature Name}` H1. The pre-document zone is mandatory even when empty; a placeholder line such as `_None — design is clean._` must be present when there are no open questions.
+Every feature doc opens with a `## Open Questions` H2 (and a `### Resolved` H3 beneath it) **before** the `# [[{slug}]] · F{n} — {Feature Name}` H1. The pre-document zone is mandatory even when empty; a placeholder line such as `_None — design is clean._` must be present when there are no open questions.
 **Check pattern:** the first heading in the file is `## Open Questions` (not the `#` H1); a `### Resolved` H3 follows it; the `# ` H1 appears after both.
 **Why:** blocking decisions must be visible the moment the file opens — placing them above the H1 guarantees they are never buried below the feature spec body.
 
 ### RULE R-fct-features-03 — H1 carries anchor-slug breadcrumb (checked)
-The feature-doc H1 reads `# [[{NAME}]] · F{n} — {Feature Name}` — a wiki-link to the anchor page, a middle dot, and the feature title. The filename matches the title portion without brackets: `F{n} — {Feature Name}.md`.
+The feature-doc H1 reads `# [[{slug}]] · F{n} — {Feature Name}` — a wiki-link to the anchor page, a middle dot, and the feature title. The filename matches the title portion without brackets: `F{n} — {Feature Name}.md`.
 **Check pattern:** H1 matches `^# \[\[.+\]\] · F\d+ — .+$`.
-**Why:** the `[[{NAME}]]` breadcrumb lets the reader jump back to the anchor page and immediately see which anchor they're in — load-bearing when many anchors are active and feature docs look similar across them.
+**Why:** the `[[{slug}]]` breadcrumb lets the reader jump back to the anchor page and immediately see which anchor they're in — load-bearing when many anchors are active and feature docs look similar across them.
 
 ### RULE R-fct-features-04 — Index page lists features reverse-chronologically with status brackets (sampled)
-The `{NAME} Features.md` index page lists features newest-first. Each row is a wiki-link `[[F<NNN> — <Title>]]` followed by the lifecycle state in backtick-brackets (e.g. `` `[Done]` ``), an em-dash, and a one-line description. The lifecycle state in the index mirrors the `## Status` section of the feature doc.
+The `{slug} Features.md` index page lists features newest-first. Each row is a wiki-link `[[F<NNN> — <Title>]]` followed by the lifecycle state in backtick-brackets (e.g. `` `[Done]` ``), an em-dash, and a one-line description. The lifecycle state in the index mirrors the `## Status` section of the feature doc.
 **Check pattern:** index rows match `- \[\[F\d+ — .+\]\] \`\[.+\]\` — `.
 **Why:** the index is the navigation surface; backtick-brackets make lifecycle state scannable at a glance without opening each feature doc.
 
@@ -157,7 +157,7 @@ The `{NAME} Features.md` index page lists features newest-first. Each row is a w
 
 *(Maintainer note — facet-specific cautions for whoever edits this Features-facet spec. The normative shape is the body + RULESET R-fct-features above; skills `/feature`, `/design`, `/groom`, `/crank` cite it and audit/rewire check anchors against it.)*
 
-- **NOT a feature index, NOT a backlog, NOT a roadmap** — don't pile concrete `F<NNN>` entries, status lists, or per-anchor feature catalogs here. Those live in `{NAME} Features.md` index pages within each anchor, or in [[CAB Backlog]] / [[FCT Roadmap]] for their respective concerns.
-- **Inclusion test for edits** — a change belongs here only if it defines the *shape* of feature docs across all anchors: folder location, filename pattern, the two-zone layout (Open Questions above H1; spec body below), mandatory vs optional H2 sections, title-encoding conventions (M-position), or the Roadmap-within-feature sub-pattern. Anchor-local feature conventions go in `{NAME} Rules.md` or `{NAME} Decisions.md`, not here.
+- **NOT a feature index, NOT a backlog, NOT a roadmap** — don't pile concrete `F<NNN>` entries, status lists, or per-anchor feature catalogs here. Those live in `{slug} Features.md` index pages within each anchor, or in [[CAB Backlog]] / [[FCT Roadmap]] for their respective concerns.
+- **Inclusion test for edits** — a change belongs here only if it defines the *shape* of feature docs across all anchors: folder location, filename pattern, the two-zone layout (Open Questions above H1; spec body below), mandatory vs optional H2 sections, title-encoding conventions (M-position), or the Roadmap-within-feature sub-pattern. Anchor-local feature conventions go in `{slug} Rules.md` or `{slug} Decisions.md`, not here.
 - **No inline reference example — link the real ones.** The feature-doc shape is conveyed by the prose sections (Folder Structure / Index Page / Feature Document Format) plus the `**Worked examples:**` pointer to the `examples/HBR/HBR Design/HBR Features/` docs in this repo. Do NOT paste a sample feature doc back into this spec.
 - **Cross-references to maintain** — [[FCT Roadmap]] (M-position title encoding, sub-roadmap pattern), [[CAB Backlog]] (tracking surface), [[FCT Status]] (lifecycle states), `progressive-disclosure` (TLDR rule), and the relocation note (F094 → 2026-06-10 Design move; F142 lazy-migration). Changing any load-bearing convention ripples across every anchor — update the worked examples and downstream skill runbooks in the same pass.

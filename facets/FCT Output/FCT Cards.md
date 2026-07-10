@@ -4,7 +4,7 @@ description: "cheat sheets and spaced-repetition flashcards for an anchor topic"
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Output]] → [FCT Cards](hook://p/FCT%20Cards)
 # FCT Cards
-Facet spec for the optional `{NAME} Cards.md` page — a three-tier mix of cheat sheets and spaced-repetition flashcards that lets an anchor double as a study deck for its own topic.
+Facet spec for the optional `{slug} Cards.md` page — a three-tier mix of cheat sheets and spaced-repetition flashcards that lets an anchor double as a study deck for its own topic.
 
 **Related:** [[FCT Brief]],  [[FCT Anchor Page]],  [[CAB Aspects]],  [[FCT Output]]
 **Examples:** [[DOCPY Cheat Cards\|cheat-sheet-heavy example]],  [[TPM Core Cards\|summary+detail cards example]]
@@ -18,20 +18,20 @@ Facet spec for the optional `{NAME} Cards.md` page — a three-tier mix of cheat
 | [[#Maintenance]] |  |
 | **[[#BRIEF]]** |  |
 
-**TLDR** — A `{NAME} Cards.md` file (one per anchor, optional) holds three tiers of study material: bold-heading cheat sheets (reference, no SR), summary cards (the gist/rule), and detail cards (exceptions/gotchas). Requires an SR tag on line 1, `-?-` separators, 69-char line width, and `.` for in-card blank lines.
+**TLDR** — A `{slug} Cards.md` file (one per anchor, optional) holds three tiers of study material: bold-heading cheat sheets (reference, no SR), summary cards (the gist/rule), and detail cards (exceptions/gotchas). Requires an SR tag on line 1, `-?-` separators, 69-char line width, and `.` for in-card blank lines.
 
-**Cardinality:** one per anchor — each anchor has at most one Cards file (`{NAME} Cards.md`).
+**Cardinality:** one per anchor — each anchor has at most one Cards file (`{slug} Cards.md`).
 
-The `{NAME} Cards.md` document contains cheat sheets and spaced repetition flashcards for a given topic. Its canonical path is `{NAME} Docs/{NAME} User/{NAME} Cards.md` — it lives in the anchor folder or a subfolder dedicated to cards.
+The `{slug} Cards.md` document contains cheat sheets and spaced repetition flashcards for a given topic. Its canonical path is `{slug} Docs/{slug} User/{slug} Cards.md` — it lives in the anchor folder or a subfolder dedicated to cards.
 
 **Working example:** [[CAE Cards]] — a real cards file (cheat sheets + summary + detail cards).
 
 # Document Structure
 
-A cards page (`{NAME} Cards.md`) is one file. Its parts, top to bottom:
+A cards page (`{slug} Cards.md`) is one file. Its parts, top to bottom:
 
 - **SR tag** — a `#sr-tag` on the first line (required by the spaced-repetition plugin).
-- **H1** — `# {NAME} Cards`, followed by the standard F060 dispatch-table placeholder.
+- **H1** — `# {slug} Cards`, followed by the standard F060 dispatch-table placeholder.
 - **Cheat sheets** — `## **HEADING**` + grouped code-block reference content (not reviewed as cards).
 - **Summary cards** — SR cards (`title` / `-?-` / answer) teaching the unifying rule behind a cheat sheet.
 - **Detail cards** — SR cards for surprising exceptions / gotchas.
@@ -78,7 +78,7 @@ FORMAT:  f"..."  format  %
 
 > `#sr-tag` — a spaced repetition tag (first line; required by the SR plugin)
 >
--[[{NAME} Cards]]- \| \|` + standard separator)
+-[[{slug} Cards]]- \| \|` + standard separator)
 >
 > `## **CHEAT SHEET TOPIC A**`
 > code block with grouped reference content
@@ -127,8 +127,8 @@ Add cheat sheets as reference material is learned. Add summary and detail cards 
 
 # RULESET R-cards
 include::
-where:: `file:{ANCHOR}/**/{NAME} Cards.md`
-description:: the `{NAME} Cards.md` study-deck format
+where:: `file:{ANCHOR}/**/{slug} Cards.md`
+description:: the `{slug} Cards.md` study-deck format
 
 What `/audit` checks on a cards page. Optional — cardinality one per anchor. Format of this set: [[FCT Ruleset]].
 
@@ -140,9 +140,9 @@ The very first line is a spaced-repetition tag (e.g. `#flashcards`, `#py-cheat`)
 
 **Why:** the plugin scans for the tag on line 1; without it no card is scheduled.
 
-### RULE R-cards-02 — H1 `# {NAME} Cards` + F060 dispatch placeholder follow the tag (checked)
+### RULE R-cards-02 — H1 `# {slug} Cards` + F060 dispatch placeholder follow the tag (checked)
 
-After the SR tag, the page opens with `# {NAME} Cards` and the standard F060 dispatch-table placeholder.
+After the SR tag, the page opens with `# {slug} Cards` and the standard F060 dispatch-table placeholder.
 
 **Check pattern:** the first H1 is `# {slug} Cards`, immediately followed by the dispatch-table placeholder rows.
 
@@ -164,4 +164,4 @@ The file is organized cheat sheets first (`## **HEADING**` + reference code bloc
 
 # BRIEF
 
-*(Maintainer note — this file is the facet spec for `{NAME} Cards.md`, not a cards file itself: edits here change the rule every cards page must satisfy, so never paste real flashcard content in, and cite the worked instance as [[CAE Cards]] rather than inlining a copy. Inclusion test: a rule belongs here only if a cards-page author would break their page by violating it; cross-cutting CAB rules go in their own facet spec. The SR tag list in § File Layout and Formatting Rules is consumed by the spaced-repetition plugin — add new tags there when they enter use, never silently.)*
+*(Maintainer note — this file is the facet spec for `{slug} Cards.md`, not a cards file itself: edits here change the rule every cards page must satisfy, so never paste real flashcard content in, and cite the worked instance as [[CAE Cards]] rather than inlining a copy. Inclusion test: a rule belongs here only if a cards-page author would break their page by violating it; cross-cutting CAB rules go in their own facet spec. The SR tag list in § File Layout and Formatting Rules is consumed by the spaced-repetition plugin — add new tags there when they enter use, never silently.)*

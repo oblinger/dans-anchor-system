@@ -28,7 +28,7 @@ Facet spec defining the standardized format for an anchor's running narrative �
 | [[#See also]] |  |
 | **[[#BRIEF]]** |  |
 
-**TLDR** — The Log facet standardizes how any anchor records its running history. Instances live at `{NAME} Log/` (folder form, default) or `{NAME} Log.md` (single-file, minimal). **Cardinality: one per anchor** — each anchor has at most one Log. Folder form uses a `{NAME} Log.md` dispatch page (entries newest-first); single-file form inlines entries as H2s. Entry filenames are ISO-date-prefixed (`YYYY-MM-DD <topic>.<ext>`). Logs capture what *happened*; spec/convention content belongs in dedicated facets.
+**TLDR** — The Log facet standardizes how any anchor records its running history. Instances live at `{slug} Log/` (folder form, default) or `{slug} Log.md` (single-file, minimal). **Cardinality: one per anchor** — each anchor has at most one Log. Folder form uses a `{slug} Log.md` dispatch page (entries newest-first); single-file form inlines entries as H2s. Entry filenames are ISO-date-prefixed (`YYYY-MM-DD <topic>.<ext>`). Logs capture what *happened*; spec/convention content belongs in dedicated facets.
 
 description:: the Log facet — dated entries capturing what happened on what day
 
@@ -43,21 +43,21 @@ A Log captures **what happened on what day**: per-session plans + outcomes + dec
 ### Folder form (default for active logs)
 
 ```
-{NAME} Log/
+{slug} Log/
 ├── .anchor                                            ← folder-anchor marker (optional)
-├── {NAME} Log.md                                      ← dispatch page (this facet)
+├── {slug} Log.md                                      ← dispatch page (this facet)
 ├── YYYY-MM-DD <short topic>.md                        ← one entry per session
 ├── YYYY-MM-DD <other topic>.md
 ├── YYYY-MM <topic>.docx                               ← non-markdown artifacts OK
 └── YYYY-MM-DD <topic>.pdf
 ```
 
-The dispatch page `{NAME} Log.md` is a thin index — header dispatch table, then one row per entry, **newest first**. The actual narrative lives in the dated entry files.
+The dispatch page `{slug} Log.md` is a thin index — header dispatch table, then one row per entry, **newest first**. The actual narrative lives in the dated entry files.
 
 ### Single-file form (small / dormant logs)
 
 ```
-{NAME} Log.md                                          ← all entries inline
+{slug} Log.md                                          ← all entries inline
 ```
 
 Used when an anchor has very few log-worthy moments — entries become H2s inside one file. Migrate to folder form on the first multi-entry day.
@@ -66,17 +66,17 @@ Used when an anchor has very few log-worthy moments — entries become H2s insid
 
 ## Location
 
-`{NAME}/{NAME} Log/` or `{NAME}/{NAME} Log.md` — directly under the anchor root, alongside Backlog, Design, Track, etc. Logs in sub-folders (e.g., `Topic/MED/MED Log/`) belong to *that* sub-anchor; each anchor scope has its own Log.
+`{slug}/{slug} Log/` or `{slug}/{slug} Log.md` — directly under the anchor root, alongside Backlog, Design, Track, etc. Logs in sub-folders (e.g., `Topic/MED/MED Log/`) belong to *that* sub-anchor; each anchor scope has its own Log.
 
 ## Dispatch page shape (folder form)
 
-The `{NAME} Log.md` file itself is body-only — no YAML frontmatter. First lines:
+The `{slug} Log.md` file itself is body-only — no YAML frontmatter. First lines:
 
 ```markdown
-# {NAME} Log
-description:: dated entries — what happened on what day in the {NAME} anchor.
+# {slug} Log
+description:: dated entries — what happened on what day in the {Full Name} anchor.
 
-| -[[{NAME} Log]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Log](hook://p/FCT%20Log)<br>: <tagline> |
+| -[[{slug} Log]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Log](hook://p/FCT%20Log)<br>: <tagline> |
 | --- | --- |
 | [[YYYY-MM-DD <topic>]] | <one-line summary> |
 | [[YYYY-MM-DD <topic>]] | <one-line summary> |
@@ -88,9 +88,9 @@ One paragraph — what this log covers and what *doesn't* belong here.
 
 ## Sibling references
 
-- [[{NAME} Conventions]] — anchor-local conventions (if any)
-- [[{NAME} Backlog]] — open work items
-- [[{NAME} <other peer facets>]]
+- [[{slug} Conventions]] — anchor-local conventions (if any)
+- [[{slug} Backlog]] — open work items
+- [[{slug} <other peer facets>]]
 ```
 
 Dispatch rows are **newest-first**. Append-only — never delete a row even if the entry was wrong; mark the entry as superseded inside its own body if needed.
@@ -126,9 +126,9 @@ H2s above are **suggestions, not required**. The body is freeform; the only inva
 
 ## What does NOT belong in a Log
 
-- **Specs / conventions / standards** — those live in `{NAME} Conventions.md`, `{NAME} Spec.md`, or the relevant CAB facet doc. Logs link to them; they don't restate them.
+- **Specs / conventions / standards** — those live in `{slug} Conventions.md`, `{slug} Spec.md`, or the relevant CAB facet doc. Logs link to them; they don't restate them.
 - **Cross-session synthesis** — "here's what we learned over the last 3 months." Synthesis goes in dedicated synthesis docs, backlog notes, or roadmap commentary.
-- **Open work items / TODOs** — those go in `{NAME} Backlog.md`. A log entry may *mention* what's outstanding, but the canonical list lives in the backlog.
+- **Open work items / TODOs** — those go in `{slug} Backlog.md`. A log entry may *mention* what's outstanding, but the canonical list lives in the backlog.
 - **Long-running tracking** — anything you'd update over multiple days. Log entries are immutable-after-write narratives; living tracking belongs in a tracking doc.
 - **Briefs about how Logs work** — those rules live in this facet, not embedded as a Brief on every per-anchor Log.md.
 
@@ -144,32 +144,32 @@ Any anchor that benefits from a running narrative of dated work. Most active anc
 
 - [[CAB Backlog]] — sibling facet (open work, not narrative)
 - [[FCT Roadmap]] — sibling facet (forward plan, not past narrative)
-- [[FCT Anchor Page]] — the anchor's home; should link to `[[{NAME} Log]]`
+- [[FCT Anchor Page]] — the anchor's home; should link to `[[{slug} Log]]`
 - [[Disk Log]] — worked example (folder form, multiple entries)
 - [[SV Log]] — worked example (mixed-format entries: .md / .docx / .pptx)
 
 # RULESET R-log
 include::
 where:: `{ANCHOR}/**/* Log.md`
-description:: Structural rules for the {NAME} Log facet — folder shape, entry filename pattern, dispatch dispatch, content scope.
+description:: Structural rules for the {slug} Log facet — folder shape, entry filename pattern, dispatch dispatch, content scope.
 
 Embedded ruleset for the Log facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella.
 
-### RULE R-log-01 — Log path is `{NAME} Log/` or `{NAME} Log.md` (checked)
+### RULE R-log-01 — Log path is `{slug} Log/` or `{slug} Log.md` (checked)
 check:: log_path_exists
 
-The log lives at `{NAME}/{NAME} Log/` (folder form) or `{NAME}/{NAME} Log.md` (single-file form). Not under Track, not under Docs, not at the vault root.
+The log lives at `{slug}/{slug} Log/` (folder form) or `{slug}/{slug} Log.md` (single-file form). Not under Track, not under Docs, not at the vault root.
 
-**Check pattern:** `ls "{anchor}/{NAME} Log"` resolves to a directory or `.md` file; no other location qualifies.
+**Check pattern:** `ls "{anchor}/{slug} Log"` resolves to a directory or `.md` file; no other location qualifies.
 
 **Why:** Logs are anchor-scoped peers of Backlog and Roadmap; location predictability matters for the agent's discoverability and for users browsing anchor folders.
 
-### RULE R-log-02 — Folder-form has a `{NAME} Log.md` dispatch file (checked)
+### RULE R-log-02 — Folder-form has a `{slug} Log.md` dispatch file (checked)
 check:: log_dispatch_file_present
 
-When the log is folder-form, the folder contains a `{NAME} Log.md` whose H1 is `# {NAME} Log`.
+When the log is folder-form, the folder contains a `{slug} Log.md` whose H1 is `# {slug} Log`.
 
-**Check pattern:** if `{anchor}/{NAME} Log/` is a directory, then `{anchor}/{NAME} Log/{NAME} Log.md` exists and starts with `# {NAME} Log`.
+**Check pattern:** if `{anchor}/{slug} Log/` is a directory, then `{anchor}/{slug} Log/{slug} Log.md` exists and starts with `# {slug} Log`.
 
 **Why:** the dispatch file is the entry point — without it, the folder is a directory listing with no index.
 
@@ -196,7 +196,7 @@ Log entries describe what *happened* on the day. They do not contain spec defini
 ### RULE R-log-05 — Dispatch table is newest-first (sampled)
 check:: log_dispatch_newest_first
 
-The `{NAME} Log.md` dispatch table lists entries with the **newest entry at top**, working backwards in time.
+The `{slug} Log.md` dispatch table lists entries with the **newest entry at top**, working backwards in time.
 
 **Check pattern:** parse dispatch-row wiki-links to extract dates from `[[YYYY-MM-DD ...]]`; assert monotonically non-increasing.
 
@@ -213,18 +213,18 @@ Once a row is added to the dispatch table for an entry, it stays. Don't delete r
 ### RULE R-log-07 — No `Brief` carrying log-format rules (checked)
 check:: regex_absent ^#\s+BRIEF
 
-The `{NAME} Log.md` dispatch page does NOT contain a `# BRIEF` second-H1 (or `Brief` sidecar file) that restates how Logs work. The rules for how Logs work live in this facet (CAB Log), not on every per-anchor Log dispatch page.
+The `{slug} Log.md` dispatch page does NOT contain a `# BRIEF` second-H1 (or `Brief` sidecar file) that restates how Logs work. The rules for how Logs work live in this facet (CAB Log), not on every per-anchor Log dispatch page.
 
-**Check pattern:** grep `{NAME} Log.md` for `^# BRIEF` or `^# Brief`. If present and its body contains general log-format prescriptions (filename pattern, body convention, "don't duplicate spec content"), flag for migration to point at [[FCT Log]] instead.
+**Check pattern:** grep `{slug} Log.md` for `^# BRIEF` or `^# Brief`. If present and its body contains general log-format prescriptions (filename pattern, body convention, "don't duplicate spec content"), flag for migration to point at [[FCT Log]] instead.
 
 **Why:** the Brief discipline is for anchor-specific operational content, not for restating shared facet rules. Per-anchor restatement of facet rules drifts when the facet evolves.
 
-### RULE R-log-08 — Anchor page links to `[[{NAME} Log]]` (sampled)
+### RULE R-log-08 — Anchor page links to `[[{slug} Log]]` (sampled)
 check:: log_anchor_page_link
 
-The anchor's main page (`{NAME}.md`) carries a dispatch row pointing at `[[{NAME} Log]]`.
+The anchor's main page (`{slug}.md`) carries a dispatch row pointing at `[[{slug} Log]]`.
 
-**Check pattern:** grep `{anchor}/{NAME}.md` for `\[\[{NAME} Log\]\]`.
+**Check pattern:** grep `{anchor}/{slug}.md` for `\[\[{slug} Log\]\]`.
 
 **Why:** without it, the Log is one click further from anchor-page-as-router; readers miss it.
 
@@ -232,7 +232,7 @@ The anchor's main page (`{NAME}.md`) carries a dispatch row pointing at `[[{NAME
 
 A sub-anchor with its own Log uses the sub-anchor's name (e.g., `MED Heart Log/`, `MED Heart Log.md`), not the parent's. Logs do not cross anchor boundaries.
 
-**Check pattern:** for each `* Log.md` found, walk up to the nearest `.anchor` file; assert the log's `{NAME}` prefix matches that anchor's name (or its slug).
+**Check pattern:** for each `* Log.md` found, walk up to the nearest `.anchor` file; assert the log's `{slug}` prefix matches that anchor's name (or its slug).
 
 **Why:** Logs are anchor-scoped. A sub-anchor entry inside a parent's log loses its scoping and is harder to find later.
 

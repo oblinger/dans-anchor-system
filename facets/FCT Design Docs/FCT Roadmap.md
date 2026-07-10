@@ -31,13 +31,13 @@ The Roadmap facet — the project's sequencing-design doc, organized as named mi
 | [[#See also]] |  |
 | **[[#BRIEF]]** |  |
 
-The Roadmap facet specifies the `{NAME} Roadmap.md` file — the project's **sequencing-design**. It declares what ships in what order, organized as milestones (M1, M2, M3 …) with sub-numbering for finer detail. Open questions at the sequencing/dependency/gating level live as `## Open Questions` H2 on this file per [[DSC ask-format]].
+The Roadmap facet specifies the `{slug} Roadmap.md` file — the project's **sequencing-design**. It declares what ships in what order, organized as milestones (M1, M2, M3 …) with sub-numbering for finer detail. Open questions at the sequencing/dependency/gating level live as `## Open Questions` H2 on this file per [[DSC ask-format]].
 
-**Relocated to Design 2026-06-10** — previously lived at `{NAME} Track/{NAME} Roadmap.md` (per F094) and pre-F094 at `{NAME} Docs/{NAME} Plan/{NAME} Roadmap.md`. Moved into Design alongside [[FCT Features]] because milestones ARE design — the plan, not the execution. Existing anchors stay at the old location until next `/design roadmap` touch repositions them (F142).
+**Relocated to Design 2026-06-10** — previously lived at `{slug} Track/{slug} Roadmap.md` (per F094) and pre-F094 at `{slug} Docs/{slug} Plan/{slug} Roadmap.md`. Moved into Design alongside [[FCT Features]] because milestones ARE design — the plan, not the execution. Existing anchors stay at the old location until next `/design roadmap` touch repositions them (F142).
 
 ## Location
 
-`{NAME} Design/{NAME} Roadmap.md`.
+`{slug} Design/{slug} Roadmap.md`.
 
 ## Two roadmap shapes — pick one per project
 
@@ -45,7 +45,7 @@ A roadmap is structurally one of two shapes. Both are legal; the project picks b
 
 ### Shape A — Milestone-as-feature-group
 
-Each milestone is a group of feature docs (from [[FCT Features]]) that ship together. The milestone heading carries a checkbox (`## [ ] M-<Name> — <Title>`); its body opens with a one-line milestone summary, then lists the constituent features as `- [ ] [[F<NNN> — …]]` wiki-link bullets, then a bolded `**Acceptance:**` line naming the end-to-end behavior and the e2e test (in `{NAME} Testing`) that covers the milestone.
+Each milestone is a group of feature docs (from [[FCT Features]]) that ship together. The milestone heading carries a checkbox (`## [ ] M-<Name> — <Title>`); its body opens with a one-line milestone summary, then lists the constituent features as `- [ ] [[F<NNN> — …]]` wiki-link bullets, then a bolded `**Acceptance:**` line naming the end-to-end behavior and the e2e test (in `{slug} Testing`) that covers the milestone.
 
 Use when: the project organizes via feature docs and delegates implementation per-feature (the canonical `/feature` workflow). Milestone progress = feature-doc progress. See [[FEX Roadmap]] for a worked Shape A instance.
 
@@ -165,7 +165,7 @@ User initially proposed M-numbers replacing F-numbers when promoted. Rejected be
 
 ## Roadmap is future + present only; completed milestones migrate
 
-The roadmap is **forward-looking** — it shows what's planned and what's in progress. Completed milestones do NOT accumulate in the roadmap doc; they migrate to a companion **Completed Roadmap** doc at `{NAME} Design/{NAME} Completed Roadmap.md` (per [[FCT Completed Roadmap]]).
+The roadmap is **forward-looking** — it shows what's planned and what's in progress. Completed milestones do NOT accumulate in the roadmap doc; they migrate to a companion **Completed Roadmap** doc at `{slug} Design/{slug} Completed Roadmap.md` (per [[FCT Completed Roadmap]]).
 
 **Why future-only (provenance — discussed in [[F144 — Completed Roadmap + named milestones]]):**
 
@@ -297,14 +297,14 @@ Both directions linked so neither end is lost. A validation pass (per CAB Valida
 Roadmap-level open questions (sequencing, dependency, gating) — questions whose answer changes the milestone shape rather than a single feature doc — live as `## Open Questions` H2 directly below the file's H1, per [[DSC ask-format]]:
 
 ```markdown
-# {NAME} Roadmap
+# {slug} Roadmap
 
 ## Open Questions
 
 - **Q1 — Should M2 ship before or after the Q4 freeze?** Context: M2 includes risky data-layer migration; shipping it before freeze means longer bake time, but the M1 → M2 dependency means delay shifts M3 too. **Recommendation:** Lean ship-after — bake risk is real. Block ID: ^q1
 ```
 
-Questions tied to specific features live on the feature doc, not here. Use `/ask --doc {NAME} Roadmap.md "<question>"` to file roadmap-level Qs.
+Questions tied to specific features live on the feature doc, not here. Use `/ask --doc {slug} Roadmap.md "<question>"` to file roadmap-level Qs.
 
 ## Preface zone
 
@@ -316,7 +316,7 @@ Per [[DSC progressive-disclosure]]:
 
 ## Trait applicability
 
-Any anchor with a `{NAME} Design/` folder per [[FCT Design]] that's planning more than 1-2 milestones of work. Single-milestone projects don't need the roadmap.
+Any anchor with a `{slug} Design/` folder per [[FCT Design]] that's planning more than 1-2 milestones of work. Single-milestone projects don't need the roadmap.
 
 ## Audit
 
@@ -327,7 +327,7 @@ Any anchor with a `{NAME} Design/` folder per [[FCT Design]] that's planning mor
 - [[FCT Design]] — parent facet (Roadmap is a Recommended child of the Design folder)
 - [[FCT Features]] — feature docs that Shape A roadmaps group into milestones
 - [[FCT Stories]] — user stories that milestones implement (cited from milestone Acceptance lines)
-- [[FCT Status]] — `{NAME} Status.md` carries the design-phase tier for `roadmap::` (separate from per-milestone progress)
+- [[FCT Status]] — `{slug} Status.md` carries the design-phase tier for `roadmap::` (separate from per-milestone progress)
 - [[DSC ask-format]] — open-questions discipline
 - [[design-roadmap]] — authoring sub-skill for `/design roadmap`
 - [[ABIO Roadmap]] — worked example of Shape B (task-checklist; multi-level numbering; deferral cross-refs)
@@ -340,18 +340,18 @@ description:: facet spec for the project sequencing-design doc — milestones, s
 
 Embedded ruleset for the Roadmap facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella.
 
-### RULE R-roadmap-01 — Location is `{NAME} Design/{NAME} Roadmap.md` (checked)
+### RULE R-roadmap-01 — Location is `{slug} Design/{slug} Roadmap.md` (checked)
 
-The roadmap lives at `{NAME} Design/{NAME} Roadmap.md`. Not under Track (legacy), not at anchor root.
+The roadmap lives at `{slug} Design/{slug} Roadmap.md`. Not under Track (legacy), not at anchor root.
 
-**Check pattern:** `ls "{anchor}/{NAME} Design/{NAME} Roadmap.md"` exists; no `{NAME} Track/{NAME} Roadmap.md` lingers alongside.
+**Check pattern:** `ls "{anchor}/{slug} Design/{slug} Roadmap.md"` exists; no `{slug} Track/{slug} Roadmap.md` lingers alongside.
 
 **Why:** Roadmap is sequencing-design; lives with the design facets. The 2026-06-10 restructure moved it from Track.
 
 ### RULE R-roadmap-02 — Body-only, no YAML frontmatter (checked)
 check:: regex_present ^# [^-]
 
-The first non-blank line is `# {NAME} Roadmap` (H1). No `---` YAML block precedes.
+The first non-blank line is `# {slug} Roadmap` (H1). No `---` YAML block precedes.
 
 **Check pattern:** first non-blank line starts with `# `; does not start with `---`.
 
@@ -422,7 +422,7 @@ Example: `F118 — M-CLI.3.5: Implement CLI Core Statements.md`. The roadmap ent
 
 ### RULE R-roadmap-11 — Roadmap is future + present only; completed milestones migrate to Completed Roadmap (stated)
 
-The roadmap holds forward-looking work. Whole milestones — when `[x]` complete — migrate as units to `{NAME} Design/{NAME} Completed Roadmap.md` (per [[FCT Completed Roadmap]]).
+The roadmap holds forward-looking work. Whole milestones — when `[x]` complete — migrate as units to `{slug} Design/{slug} Completed Roadmap.md` (per [[FCT Completed Roadmap]]).
 
 **Check pattern:** roadmap should have at most one or two `[x]` top-level milestones at any time (they're awaiting migration). Stale `[x]` milestones accumulating in the roadmap = drift; flag for migration.
 
@@ -430,7 +430,7 @@ The roadmap holds forward-looking work. Whole milestones — when `[x]` complete
 
 ### RULE R-roadmap-12 — Milestone names are unique within the roadmap (checked)
 
-Every top-level milestone name (`M-<Name>`) appears at most once within a single `{NAME} Roadmap.md`. The name is the milestone's stable identity — the key every sub-entry, backlog `R` task, and cross-reference resolves on — so a duplicate name is an ambiguous reference.
+Every top-level milestone name (`M-<Name>`) appears at most once within a single `{slug} Roadmap.md`. The name is the milestone's stable identity — the key every sub-entry, backlog `R` task, and cross-reference resolves on — so a duplicate name is an ambiguous reference.
 
 **Check pattern:** collect all top-level `M-<Name>` headings; assert no `<Name>` appears twice.
 
@@ -448,7 +448,7 @@ After the last body item of each milestone, before the next `## ` H2, a `### .` 
 
 *(Maintainer note — what belongs in this spec and what doesn't.)*
 
-- **Inclusion test + boundary:** a rule belongs only if it constrains the shape / numbering / status / deferral convention of *every* `{NAME} Roadmap.md`. Roadmap *content* lives in per-anchor files; *how* features ship is [[FCT Features]]; the design-phase tier is [[FCT Status]]'s `roadmap::`.
+- **Inclusion test + boundary:** a rule belongs only if it constrains the shape / numbering / status / deferral convention of *every* `{slug} Roadmap.md`. Roadmap *content* lives in per-anchor files; *how* features ship is [[FCT Features]]; the design-phase tier is [[FCT Status]]'s `roadmap::`.
 - **Don't collapse the two shapes** (A milestone-as-feature-group / B milestone-as-task-checklist) "for simplicity" — both are load-bearing; mixing is forbidden, transitioning allowed.
 - **`R-roadmap` is co-located** (per [[F133]]); don't split it out. Rule numbering is monotonic-forever — **R-roadmap-09/-10/-11/-12 are out-of-sequence by intent** (authoring order, not narrative). R-roadmap-12 (unique milestone name) is the invariant the name-is-identity / computed-position scheme depends on — added 2026-07-05.
 - **Don't delete the legacy numeric section** — named-milestone `M-<Name>` is the convention ([[F144]]); legacy `M1`/`M2` is migration-only and stays documented.

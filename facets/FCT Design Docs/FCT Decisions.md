@@ -16,13 +16,13 @@ description: decisions are documentation — recorded under a `## Decisions` sec
 | **[[#Implementation linkage — on the rule's side]]** |  |
 | **[[#D-record structure]]** |  |
 | **[[#The optional central file]]** |  |
-| **[[#When `{NAME} Rules.md` is still useful]]** |  |
+| **[[#When `{slug} Rules.md` is still useful]]** |  |
 | **[[#Trait applicability]]** |  |
 | **[[#Audit]]** |  |
 | **[[#History]]** |  |
 | **[[#See also]]** |  |
-|   [[#RULE R-decisions-01 — Decisions live under a `## Decisions` section; the optional central file is `{NAME} Decisions.md` (checked)]] |  |
-|   [[#RULE R-decisions-02 — H1 is `{NAME} Decisions` (checked)]] |  |
+|   [[#RULE R-decisions-01 — Decisions live under a `## Decisions` section; the optional central file is `{slug} Decisions.md` (checked)]] |  |
+|   [[#RULE R-decisions-02 — H1 is `{slug} Decisions` (checked)]] |  |
 |   [[#RULE R-decisions-03 — retired 2026-07-01 (tracked)]] |  |
 |   [[#RULE R-decisions-04 — At least one D-record present, always at H3 (checked)]] |  |
 |   [[#RULE R-decisions-05 — D-record titles carry a status token (sampled)]] |  |
@@ -55,39 +55,39 @@ User-ratified 2026-07-01 (F221). Four load-bearing points:
 
 ## Form — the Decisions section
 
-A Decisions surface is simply an **H2 header `## Decisions`** followed by the list of the decisions made. Each decision on the list is a `### D<N> — <title> (<status>)` record (shape in § D-record structure). That is the whole form — no header fields, no computed lines; Warden reads nothing here. In the central `{NAME} Decisions.md` the `# {NAME} Decisions` H1 stands in for the `## Decisions` marker and the records sit directly under it.
+A Decisions surface is simply an **H2 header `## Decisions`** followed by the list of the decisions made. Each decision on the list is a `### D<N> — <title> (<status>)` record (shape in § D-record structure). That is the whole form — no header fields, no computed lines; Warden reads nothing here. In the central `{slug} Decisions.md` the `# {slug} Decisions` H1 stands in for the `## Decisions` marker and the records sit directly under it.
 
 ## Where decisions live — distributed by default
 
 A decision is *about* something — an architecture choice, an API shape, a tradeoff. **It is recorded where that something is designed**, not exiled to a central file. The unit is the **`## Decisions` section** — the recognizable label ("this section is decisions") — placed in whatever design doc the decision belongs to, holding one or more `### D<N>` records:
 
-- An **architecture** decision → a `## Decisions` section in `{NAME} Architecture.md`.
+- An **architecture** decision → a `## Decisions` section in `{slug} Architecture.md`.
 - A **PRD / product** decision → a `## Decisions` section in the PRD.
 - A decision local to one **feature** → that feature doc's `## Decisions` (the same record shape as its bottom `## Resolved`).
-- A **cross-cutting / value-statement** decision (Fail-loudly; one-clock) that belongs to no single doc → the **optional** `{NAME} Decisions.md`.
+- A **cross-cutting / value-statement** decision (Fail-loudly; one-clock) that belongs to no single doc → the **optional** `{slug} Decisions.md`.
 
 This mirrors rulesets, with the load-bearing difference: **rulesets are *computed* (Warden runs them; `where::` binds them); decisions are *records* — never computed, just labeled.** A "decision set" therefore needs no activation machinery — it needs a recognizable marker so it can be *found and gathered*. The `## Decisions` H2 (with its `### D<N>` headers) is that marker. You can put **just one** record under it, or many.
 
 **The "decision set" is a computed view, not a file.** Because every decision carries the `## Decisions` / `### D<N>` label, a sweep gathers them all into one view on demand — exactly how `Q.md` aggregates questions that physically live in feature docs. Source of truth is distributed (next to what it decides); the aggregate is derived (`/audit decisions` and any "walk all decisions" tool sweep the label, not a single file). Aggregation is the only tooling that touches decisions — Warden never verifies anything against their content.
 
-**`{NAME} Decisions.md` is OPTIONAL.** It is the home for cross-cutting / value-statement decisions (and, per the companion convention below, often hosts the anchor's own ruleset). It is **not** the forced container for every decision. When every decision has a natural home in a design doc, the anchor has **no** central Decisions file at all (file existence is a trait — omit it). The `### D<N>` record shape is identical wherever a `## Decisions` section lives.
+**`{slug} Decisions.md` is OPTIONAL.** It is the home for cross-cutting / value-statement decisions (and, per the companion convention below, often hosts the anchor's own ruleset). It is **not** the forced container for every decision. When every decision has a natural home in a design doc, the anchor has **no** central Decisions file at all (file existence is a trait — omit it). The `### D<N>` record shape is identical wherever a `## Decisions` section lives.
 
 ## Value statements (absorbed from the retired Principles facet)
 
-A decision is not only a concrete applied choice ("we use `Sys` as the singleton clock"). It can also be a **value statement** — the load-bearing *why* behind the codebase's recurring choices ("Fail Loudly — errors propagate, no silent fallbacks"; "One Queue, One Clock — all scheduling flows through a single priority queue and injected clock"). These were formerly their own `{NAME} Principles.md` facet (P-records); per [[F113 — Decisions facet — unify Principles + Rules; relocate Architecture|F113]] they are now ordinary **D-records** — typically the most foundational and rarely-changing ones (a value-statement change signals a project pivot). Other docs reference them by ID exactly as they reference any decision: System Design and Architecture cite them when explaining a choice (`shaped by ~~[[{NAME} Decisions#D01|D01]]~~`), and a rule names the decision it encodes on its own side (`implements D<N>` — § Implementation linkage). The separate Principles file is retired — value statements live here.
+A decision is not only a concrete applied choice ("we use `Sys` as the singleton clock"). It can also be a **value statement** — the load-bearing *why* behind the codebase's recurring choices ("Fail Loudly — errors propagate, no silent fallbacks"; "One Queue, One Clock — all scheduling flows through a single priority queue and injected clock"). These were formerly their own `{slug} Principles.md` facet (P-records); per [[F113 — Decisions facet — unify Principles + Rules; relocate Architecture|F113]] they are now ordinary **D-records** — typically the most foundational and rarely-changing ones (a value-statement change signals a project pivot). Other docs reference them by ID exactly as they reference any decision: System Design and Architecture cite them when explaining a choice (`shaped by ~~[[{slug} Decisions#D01|D01]]~~`), and a rule names the decision it encodes on its own side (`implements D<N>` — § Implementation linkage). The separate Principles file is retired — value statements live here.
 
 ## Companion ruleset — rules ride in the same file
 
-When rules accompany decisions, the corresponding **`# RULESET` goes in the same file, directly after the Decisions section**, and by convention carries **the same (or a clearly related) name** as the Decisions section — a `{NAME} Decisions.md` hosts `# RULESET R-<name>`; a topical `## Parser decisions` section pairs with `# RULESET R-<name>-parser`. Two consequences:
+When rules accompany decisions, the corresponding **`# RULESET` goes in the same file, directly after the Decisions section**, and by convention carries **the same (or a clearly related) name** as the Decisions section — a `{slug} Decisions.md` hosts `# RULESET R-<name>`; a topical `## Parser decisions` section pairs with `# RULESET R-<name>-parser`. Two consequences:
 
 - **One file, two layers.** The reader sees the *why* (the decisions) immediately above the *what is enforced* (the rules). Warden sees only the `# RULESET` block — the sentinel is what it parses; everything above it is invisible to the engine.
-- **DRY has a home.** A directly checkable constraint goes in the companion ruleset and only there; the decisions list above it stays at the higher altitude. This is also where truly anchor-local rules live — the companion set covers most of what a separate `{NAME} Rules.md` used to.
+- **DRY has a home.** A directly checkable constraint goes in the companion ruleset and only there; the decisions list above it stays at the higher altitude. This is also where truly anchor-local rules live — the companion set covers most of what a separate `{slug} Rules.md` used to.
 
 Mechanically this is the [[F133 — Rulesets folder convention + facet embedding|F133]] embedding convention put to per-anchor work — the same way a facet spec carries its own `# RULESET` block. This very file is the worked shape: the facet's prose above, `# RULESET R-decisions` below.
 
 ## Implementation linkage — on the rule's side
 
-One decision may be implemented by several rules. That linkage is indicated **on the rules' side**: a rule that exists to enforce a decision carries a short note tying it back — `implements D07` in its body or `**Why:**` line, with a wiki-link when the decision lives in another file (`implements ~~[[{NAME} Decisions#D07|D07]]~~`). This is **loose coupling, not a formal join**: Warden neither resolves nor verifies the note; it exists so a reader arriving at a rule can walk back to the choice that motivated it. The decision record itself stays plain prose — the linkage is recorded on the rule and read from the rule.
+One decision may be implemented by several rules. That linkage is indicated **on the rules' side**: a rule that exists to enforce a decision carries a short note tying it back — `implements D07` in its body or `**Why:**` line, with a wiki-link when the decision lives in another file (`implements ~~[[{slug} Decisions#D07|D07]]~~`). This is **loose coupling, not a formal join**: Warden neither resolves nor verifies the note; it exists so a reader arriving at a rule can walk back to the choice that motivated it. The decision record itself stays plain prose — the linkage is recorded on the rule and read from the rule.
 
 ## D-record structure
 
@@ -97,33 +97,33 @@ Each D-record has:
 - **Optional metadata block** — `**Subsystem:** ~~[[...]]~~`, `**Ratified:** date via ~~[[F-link]]~~`, etc.
 - **Body** — the decision in prose. Often includes `**Why.**`, `**Alternatives considered.**`, `**Consequences.**` sub-blocks.
 
-**D-record heading level — always `### D<N>` (H3).** Decision records are always H3, in every file, whether or not the file groups them. `## ` (H2) is reserved for *optional topical grouping* (e.g. `## Values`, `## Parser`) — each group then holds its `### D<N>` records — and for structural sections (`## See also`). A flat central file simply carries its `### D<N>` records directly under the lead-in (`# {NAME} Decisions` → `### D<N>`, intentionally skipping H2, which stays reserved for grouping). This keeps every decision at one uniform depth across all files while leaving the H2 level free for structure. The audit enforces H3 (R-decisions-04). Use the `D<N>` token; the `DEC-<N>` form ([[DKT Decisions]]) is a tolerated legacy token variant.
+**D-record heading level — always `### D<N>` (H3).** Decision records are always H3, in every file, whether or not the file groups them. `## ` (H2) is reserved for *optional topical grouping* (e.g. `## Values`, `## Parser`) — each group then holds its `### D<N>` records — and for structural sections (`## See also`). A flat central file simply carries its `### D<N>` records directly under the lead-in (`# {slug} Decisions` → `### D<N>`, intentionally skipping H2, which stays reserved for grouping). This keeps every decision at one uniform depth across all files while leaving the H2 level free for structure. The audit enforces H3 (R-decisions-04). Use the `D<N>` token; the `DEC-<N>` form ([[DKT Decisions]]) is a tolerated legacy token variant.
 
 **D-numbers are monotonic-forever, never recycled.** A retired or revised decision keeps its number; the replacement gets a fresh one (R-decisions-06).
 
 ## The optional central file
 
-`{NAME} Decisions.md` (at `{NAME} Design/{NAME} Architecture/` or `{NAME} Design/`) holds the decisions that belong to no single design doc — cross-cutting rulings and value statements — plus, by the companion convention, the anchor's own `# RULESET` when it has one. Its spine:
+`{slug} Decisions.md` (at `{slug} Design/{slug} Architecture/` or `{slug} Design/`) holds the decisions that belong to no single design doc — cross-cutting rulings and value statements — plus, by the companion convention, the anchor's own `# RULESET` when it has one. Its spine:
 
-- **`# {NAME} Decisions`** H1 (stands in for the `## Decisions` marker).
+- **`# {slug} Decisions`** H1 (stands in for the `## Decisions` marker).
 - **`description::`** — one-line summary of the anchor's decision posture, in YAML frontmatter or as an inline line.
 - **`### D<N>` records** directly under the lead-in.
 - **Optional companion `# RULESET R-<name>`** directly after the records.
 
 Worked instances: [[Mini Decisions]] (lean central — cross-cutting records only); [[HBR Decisions]] (durable rulings); [[Mini Architecture#Decisions]] (the distributed form). [[FEX Decisions]] is the **legacy master form** — its top-of-file adoption `include::`, `## Adoption implementation map`, and `**Cites:**` lines predate the 2026-07-01 doctrine (§ History) and are not authored in new files.
 
-## When `{NAME} Rules.md` is still useful
+## When `{slug} Rules.md` is still useful
 
-With the companion convention, anchor-local rules default to the `# RULESET` directly after the anchor's Decisions section. `{NAME} Rules.md` remains for the structural cases:
+With the companion convention, anchor-local rules default to the `# RULESET` directly after the anchor's Decisions section. `{slug} Rules.md` remains for the structural cases:
 
 - A **runtime-rewritten artifact** needs a physical home in the rules folder for tooling reasons (e.g., MUX's `MUX-R04 Exceptions.md` exception table for the OS-bridge-logging audit).
 - The anchor is **hosting a future-shared ruleset in place** until it stabilizes and moves to the catalog.
 
-When `{NAME} Rules.md` is just a stub pointer to the decisions file, that's fine — the file stays for the folder's sake (because something else in the folder, like the exception table, needs the structural home).
+When `{slug} Rules.md` is just a stub pointer to the decisions file, that's fine — the file stays for the folder's sake (because something else in the folder, like the exception table, needs the structural home).
 
 ## Trait applicability
 
-**Cardinality: distributed.** A `## Decisions` section may appear in **any** design doc under the anchor's Design surface (Architecture, PRD, System Design, Interface, a feature doc's design) — wherever a decision belongs. The central `{NAME} Decisions.md` is **optional and at most one** per anchor: present only when the anchor has cross-cutting / value-statement decisions (it then also hosts the companion ruleset, if the anchor has one). An anchor whose every decision has a natural home in a design doc has **no** central Decisions file. Available to every anchor; required of none.
+**Cardinality: distributed.** A `## Decisions` section may appear in **any** design doc under the anchor's Design surface (Architecture, PRD, System Design, Interface, a feature doc's design) — wherever a decision belongs. The central `{slug} Decisions.md` is **optional and at most one** per anchor: present only when the anchor has cross-cutting / value-statement decisions (it then also hosts the companion ruleset, if the anchor has one). An anchor whose every decision has a natural home in a design doc has **no** central Decisions file. Available to every anchor; required of none.
 
 ## Audit
 
@@ -147,32 +147,32 @@ When `{NAME} Rules.md` is just a stub pointer to the decisions file, that's fine
 - [[Rulesets]] — the catalog.
 - [[Mini Decisions]], [[Mini Architecture#Decisions]] — worked examples of the two current forms.
 - [[MUX Decisions]] — worked example of a large central file (31 D-records; its top-of-file `include::` predates the 2026-07-01 doctrine).
-- [[MUX Rules]] — worked example of a stub `{NAME} Rules.md`.
+- [[MUX Rules]] — worked example of a stub `{slug} Rules.md`.
 
 # RULESET R-decisions
 include::
 where:: `file:{ANCHOR}/** Design/**/*.md contains:(?m)^##\s+Decisions\s*$ ; file:{ANCHOR}/**/* Decisions.md`
-description:: spec for decisions — a `## Decisions` section (with `### D<N>` records) in any design doc, plus the optional central `{NAME} Decisions.md`
+description:: spec for decisions — a `## Decisions` section (with `### D<N>` records) in any design doc, plus the optional central `{slug} Decisions.md`
 
 Embedded ruleset for the Decisions facet, co-located with the facet spec above per the [[F133 — Rulesets folder convention + facet embedding|F133]] embedding convention (and itself the worked shape of the companion convention — prose above, ruleset directly below). Pulled in via the `R-facet` umbrella; active for an anchor through its traits ([[Warden Semantics]] § Rulesets). The rules cover the documentation shape only — Warden computes nothing against the decision content these files carry.
 
-### RULE R-decisions-01 — Decisions live under a `## Decisions` section; the optional central file is `{NAME} Decisions.md` (checked)
+### RULE R-decisions-01 — Decisions live under a `## Decisions` section; the optional central file is `{slug} Decisions.md` (checked)
 check:: regex_present (?m)^##\s+Decisions\s*$
 
-The canonical unit is a `## Decisions` H2 section holding `### D<N>` records, placed in the design doc the decision is *about*. The optional per-anchor central file is named `{NAME} Decisions.md` (the home for cross-cutting / value-statement decisions) — when present it opens with `# {NAME} Decisions` and its records sit directly under it (the file's H1 stands in for the `## Decisions` marker). The `where::` selector matches both: any Design-surface doc carrying a `## Decisions` section, and the central `* Decisions.md` file.
+The canonical unit is a `## Decisions` H2 section holding `### D<N>` records, placed in the design doc the decision is *about*. The optional per-anchor central file is named `{slug} Decisions.md` (the home for cross-cutting / value-statement decisions) — when present it opens with `# {slug} Decisions` and its records sit directly under it (the file's H1 stands in for the `## Decisions` marker). The `where::` selector matches both: any Design-surface doc carrying a `## Decisions` section, and the central `* Decisions.md` file.
 
-**Check pattern:** the selected doc contains a `## Decisions` H2 (or, for the central file, a `# {NAME} Decisions` H1) introducing `### D<N>` records.
+**Check pattern:** the selected doc contains a `## Decisions` H2 (or, for the central file, a `# {slug} Decisions` H1) introducing `### D<N>` records.
 
 **Why:** the `## Decisions` label is what makes decisions findable and aggregatable wherever they live. A decision recorded with no recognizable label is invisible to `/audit decisions` and to the computed decision-set view.
 
-### RULE R-decisions-02 — H1 is `{NAME} Decisions` (checked)
+### RULE R-decisions-02 — H1 is `{slug} Decisions` (checked)
 check:: h1_present
 
-The first heading is `# {NAME} Decisions` — the anchor slug plus the facet word, matching the file name.
+The first heading is `# {slug} Decisions` — the anchor slug plus the facet word, matching the file name.
 
-**Check pattern:** an H1 line is present; its text is `{NAME} Decisions`.
+**Check pattern:** an H1 line is present; its text is `{slug} Decisions`.
 
-**Why:** the H1 is the rendered title and the anchor of every `~~[[{NAME} Decisions]]~~` wiki-link. A missing or off-name H1 breaks navigation.
+**Why:** the H1 is the rendered title and the anchor of every `~~[[{slug} Decisions]]~~` wiki-link. A missing or off-name H1 breaks navigation.
 
 ### RULE R-decisions-03 — retired 2026-07-01 (tracked)
 
@@ -201,7 +201,7 @@ D-numbers increase and are never reused. A retired or revised decision keeps its
 
 **Check pattern:** parse all `D<N>` (and `DEC-<N>`) ids; assert no duplicate number within the file.
 
-**Why:** other docs cite decisions by id (`shaped by ~~[[{NAME} Decisions#D01|D01]]~~`), and rules tie back to them (`implements D<N>`). Recycling a number silently re-points every existing citation at a different decision — a correctness hazard with no error signal.
+**Why:** other docs cite decisions by id (`shaped by ~~[[{slug} Decisions#D01|D01]]~~`), and rules tie back to them (`implements D<N>`). Recycling a number silently re-points every existing citation at a different decision — a correctness hazard with no error signal.
 
 ### RULE R-decisions-07 — Each D-record states its rationale (sampled)
 

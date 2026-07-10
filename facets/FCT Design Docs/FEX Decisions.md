@@ -19,7 +19,7 @@ Time is injectable. I/O is mockable at the trait boundary. Nothing in a test sho
 
 ## Rules (migrated from CAE Rules.md, default tier: checked)
 
-### D04 — Every Markdown File Prefixed with `{NAME}` (checked)
+### D04 — Every Markdown File Prefixed with `{slug}` (checked)
 Every `.md` file and subfolder inside the anchor uses the `CAE` prefix. No unprefixed names like `PRD.md`, `Backlog.md`, `Plan/`.
 
 **Check pattern:**

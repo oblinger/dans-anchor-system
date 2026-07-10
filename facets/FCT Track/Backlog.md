@@ -3,10 +3,10 @@ description: "Active work tracking"
 ---
 # FCT Backlog
 
-**Location:** `{NAME} Docs/{NAME} Plan/{NAME} Backlog.md`
+**Location:** `{slug} Docs/{slug} Plan/{slug} Backlog.md`
 
 
-The backlog file (`{NAME} Backlog.md`) holds ideas, low-priority tasks, and deferred work that don't belong on the active Todo or Roadmap yet. Items graduate to the Roadmap or Todo when they become priorities.
+The backlog file (`{slug} Backlog.md`) holds ideas, low-priority tasks, and deferred work that don't belong on the active Todo or Roadmap yet. Items graduate to the Roadmap or Todo when they become priorities.
 
 For items the user wants to remember but is **not** actively considering — distant-future / someday-maybe entries — use the optional [[FCT Icebox]] instead. Backlog is the *active* deferred-work list; Icebox is the *frozen* one.
 
@@ -57,7 +57,7 @@ Below is a condensed reference example. See the working example linked above for
 
 ## Top of doc (canonical, per F060)
 
-Every Backlog opens with the standard top-of-doc format: YAML frontmatter + `# {NAME} Backlog` H1 + dispatch-table placeholder (`| -[[{NAME} Backlog]]- | |` + standard separator). See `[[skills/rewire/SKILL]]` § Default doc top-of-file.
+Every Backlog opens with the standard top-of-doc format: YAML frontmatter + `# {slug} Backlog` H1 + dispatch-table placeholder (`| -[[{slug} Backlog]]- | |` + standard separator). See `[[skills/rewire/SKILL]]` § Default doc top-of-file.
 
 ## Format
 
@@ -77,15 +77,15 @@ The F-number lets the user refer unambiguously to a single item ("do F005", "F01
 
 **Monotonic, never recycled**: F-numbers are **assigned in monotonically increasing order** and **never reused**. When a new item is added, it gets `F{highest-F-in-file + 1}` zero-padded. When an item reaches Done (or moves to Icebox, or is cancelled), its F-number is **not** released back into the pool. Stable forever.
 
-**F-number namespace is shared across backlog AND icebox** (per `[[SKA workflow]]` § Active-work invariant). When numbering a new feature, take the highest F-number across both `{NAME} Backlog.md` and `{NAME} Icebox.md` and increment. An item moving from backlog to icebox keeps its F-number; thawing back to backlog restores the same F-number. No collisions ever.
+**F-number namespace is shared across backlog AND icebox** (per `[[SKA workflow]]` § Active-work invariant). When numbering a new feature, take the highest F-number across both `{slug} Backlog.md` and `{slug} Icebox.md` and increment. An item moving from backlog to icebox keeps its F-number; thawing back to backlog restores the same F-number. No collisions ever.
 
-**`M-<Name>` handles are a separate namespace for roadmap entries** (`{NAME} Roadmap.md`, per [[FCT Roadmap]]). A roadmap entry is a *nested* item whose handle is `M-<Name>.<path>` — top-level entries are **named** (`M-Auth`, `M-CLI`), sub-levels numeric (`M-CLI.3.5`), and the name-path encodes the entry's position in the tree. Unique within the roadmap; doesn't collide with `F`/`T`.
+**`M-<Name>` handles are a separate namespace for roadmap entries** (`{slug} Roadmap.md`, per [[FCT Roadmap]]). A roadmap entry is a *nested* item whose handle is `M-<Name>.<path>` — top-level entries are **named** (`M-Auth`, `M-CLI`), sub-levels numeric (`M-CLI.3.5`), and the name-path encodes the entry's position in the tree. Unique within the roadmap; doesn't collide with `F`/`T`.
 
 **`R` handles are roadmap tasks — a backlog commitment to execute a roadmap entry.** When a roadmap entry is pulled onto the backlog as work-to-do, its backlog handle is `R` + the entry's identifier (e.g. `R-CLI.3.5`). The reference is **flat**: it names one entry — a **leaf** (the usual case, "do this item") or a **non-leaf** ("do the whole subtree"). `R` is the roadmap counterpart of `T`: both are executable tasks, `T` filed straight to the backlog, `R` sourced from the roadmap.
 
 **Names are identity; order is document position (no stored number).** Roadmap entries and the `R` tasks that reference them resolve on the entry's **name-path** — a milestone's order is just its position in the roadmap file, and any display ordinal is *computed* from that position, never stored in a handle. So `R` references carry no number to go stale: reordering/inserting roadmap entries shifts positions automatically while every `R` reference (and any done-log citing it) keeps resolving on the name. Only **renaming** an entry forces a sweep — far rarer than reorder/insert, which is exactly why the name carries identity. Full convention + the unique-name invariant: [[FCT Roadmap]] § Names are identity (R-roadmap-12).
 
-**T-numbers are the handle for non-feature tasks.** A `T<n>` is a backlog work-item with **no feature doc** — the row body itself is the spec, and it typically carries wiki-links to the design-doc sections / files / artifacts it operates on. The distinction from `F<n>` is the doc: **`F<n>` = a feature with a doc under `{NAME} Design/{NAME} Features/`; `T<n>` = a task the backlog row fully captures.** `T` is a separate prefix-namespace (disambiguated like `M<n>`), monotonic and never-recycled within the backlog; both `F` and `T` rows can carry any workflow-state bracket and both are addressed by their handle from questions / `Q.md` / cross-links. **Go-forward, not retroactive:** anchors that numbered every row `F<n>` (the legacy `B→F` fold) are grandfathered — existing rows keep their `F<n>`; new task-rows adopt `T<n>` as the `state` mint gains the category. Rationale + the four-handle model (`F` / `T` / `M` / `R`): [[Query PRD]] § Work-item identity.
+**T-numbers are the handle for non-feature tasks.** A `T<n>` is a backlog work-item with **no feature doc** — the row body itself is the spec, and it typically carries wiki-links to the design-doc sections / files / artifacts it operates on. The distinction from `F<n>` is the doc: **`F<n>` = a feature with a doc under `{slug} Design/{slug} Features/`; `T<n>` = a task the backlog row fully captures.** `T` is a separate prefix-namespace (disambiguated like `M<n>`), monotonic and never-recycled within the backlog; both `F` and `T` rows can carry any workflow-state bracket and both are addressed by their handle from questions / `Q.md` / cross-links. **Go-forward, not retroactive:** anchors that numbered every row `F<n>` (the legacy `B→F` fold) are grandfathered — existing rows keep their `F<n>`; new task-rows adopt `T<n>` as the `state` mint gains the category. Rationale + the four-handle model (`F` / `T` / `M` / `R`): [[Query PRD]] § Work-item identity.
 
 This is a change from the legacy B-number policy, which used gap-fill (lowest unused integer). With F-numbers:
 
@@ -101,7 +101,7 @@ F-numbers are per-anchor namespaces; the same `F<n> — Title` filename can appe
 
 - **Within-anchor wiki-links** to feature docs use the bare form: `[[F<n> — Title]]`. Path-proximity resolves correctly.
 - **Cross-anchor wiki-links** to feature docs must be **path-qualified**: `[[ANCHOR Slug/.../Features/F<n> — Title]]`, or use an explicit alias like `[[F<n> — Title|SKA F<n>]]` when the link target is unambiguous in the surrounding context.
-- `Q.md` and `{NAME} Triage.md` only ever link to `[[ANCHOR]]` and `[[Q#ANCHOR Triage|ANCHOR Triage]]` — never directly to feature docs across anchors — so they are unaffected by this rule.
+- `Q.md` and `{slug} Triage.md` only ever link to `[[ANCHOR]]` and `[[Q#ANCHOR Triage|ANCHOR Triage]]` — never directly to feature docs across anchors — so they are unaffected by this rule.
 
 **Creation-time guard.** `/feature` step 1b (per `[[SKA feature]]` § 1b) greps the vault for an existing H1 with the same title before writing a new feature doc. If a same-title file already exists in another anchor, the agent surfaces it as a single inline question — rename, or proceed knowing both files exist and cross-anchor links to either must be qualified per the rule above. Within-anchor collisions block creation outright (titles must be unique within an anchor).
 
@@ -219,7 +219,7 @@ For rows without a feature doc, see § B-row inline Qs below.
 - Hoist the informal questions to numbered form (Q1, Q2, …) at the top of the row body — then the bracket is honest, or
 - Rebracket to a state the row actually satisfies (`[Designing]`, `[Blocked]`, `[ ]`).
 
-**Triage link form (per `[[FCT Triage]]` / `[[SKA triage]]` § Mandatory wiki-link):** `[[{NAME} Backlog#B-name|B-name]]` — clicking lands at the row, where the numbered Qs are immediately visible.
+**Triage link form (per `[[FCT Triage]]` / `[[SKA triage]]` § Mandatory wiki-link):** `[[{slug} Backlog#B-name|B-name]]` — clicking lands at the row, where the numbered Qs are immediately visible.
 
 **Promotion to feature doc.** If the inline Q set grows too large to fit comfortably as row sub-bullets — rule of thumb: more than 3–4 Qs, or any Q whose body needs multiple lines of elaboration — promote the row to a feature doc via `/feature`. The feature doc's `## Open Questions` H2 below H1 is the canonical Q surface and assigns a stable F-number from the per-anchor F-counter. After promotion, the backlog row's description becomes a `→ [[F<n> — Title]]` pointer per the convention above.
 
@@ -233,11 +233,11 @@ Each round-trip with the user costs scrollback context and stalls the batch — 
 
 ## The groom frontier
 
-**The frontier is the set of tasks that could be next for execution** (defined 2026-07-05, F228; canonical statement in [[Query PRD]] § The groom frontier): rows under `## Active` / `## Ready` / `## Now` / `## Next`, plus items soon on the relevant roadmaps — the next unmet milestone of `{NAME} Roadmap.md` when one exists. `## Later` and the icebox are not frontier. `/groom`'s purpose is to get every frontier task **fully ready to be executed** — planned (a declared `- **Next:**` step), promoted when the Definition of Ready holds, or honestly bracketed behind its named blocker/questions. `/query` mines its anticipatory questions from the frontier. The `R-backlog` ruleset below encodes the resulting file-invariants.
+**The frontier is the set of tasks that could be next for execution** (defined 2026-07-05, F228; canonical statement in [[Query PRD]] § The groom frontier): rows under `## Active` / `## Ready` / `## Now` / `## Next`, plus items soon on the relevant roadmaps — the next unmet milestone of `{slug} Roadmap.md` when one exists. `## Later` and the icebox are not frontier. `/groom`'s purpose is to get every frontier task **fully ready to be executed** — planned (a declared `- **Next:**` step), promoted when the Definition of Ready holds, or honestly bracketed behind its named blocker/questions. `/query` mines its anticipatory questions from the frontier. The `R-backlog` ruleset below encodes the resulting file-invariants.
 
 ## Location
 
-`{NAME} Backlog.md` lives in `{NAME} Docs/{NAME} Plan/`.
+`{slug} Backlog.md` lives in `{slug} Docs/{slug} Plan/`.
 
 ## Relationship to Other Planning Docs
 
@@ -251,7 +251,7 @@ Items graduate from Backlog to Todo or Roadmap when they become priorities, or m
 # RULESET R-backlog
 include::
 where:: `file:{ANCHOR}/**/* Backlog.md`
-description:: the `{NAME} Backlog.md` format — frontier invariants (F228) + bracket promises
+description:: the `{slug} Backlog.md` format — frontier invariants (F228) + bracket promises
 
 What `/audit doc` checks on a backlog file. The skills that maintain it are `/groom` (frontier planning) and the `state` tool (mutations); these are the file-invariants the groomed state must satisfy. Format of this set: [[FCT Ruleset]].
 
@@ -271,7 +271,7 @@ Timed `[Waiting Nd/Nh]` forms share the state-3 obstacle contract *and* the stat
 
 ### RULE R-backlog-01 — The frontier is Now + Next + the next roadmap milestone (stated)
 
-The **groom frontier** — the tasks that could be next for execution — is the rows under `## Active` / `## Ready` / `## Now` / `## Next`, plus the next unmet milestone of `{NAME} Roadmap.md` when the anchor has one. `## Later` and the icebox are not frontier. The rules below hold over the frontier: after a groom, every frontier row is either executable (`[Ready]`/`[Active]` with a declared plan) or honestly parked (`[Questions]`/`[Blocked]`/`[Waiting]`/`[Watching]`/`[Verify]` with the obstacle named).
+The **groom frontier** — the tasks that could be next for execution — is the rows under `## Active` / `## Ready` / `## Now` / `## Next`, plus the next unmet milestone of `{slug} Roadmap.md` when the anchor has one. `## Later` and the icebox are not frontier. The rules below hold over the frontier: after a groom, every frontier row is either executable (`[Ready]`/`[Active]` with a declared plan) or honestly parked (`[Questions]`/`[Blocked]`/`[Waiting]`/`[Watching]`/`[Verify]` with the obstacle named).
 
 ### RULE R-backlog-02 — Frontier `[Ready]`/`[Active]` rows declare a `Next:` step (checked)
 check:: backlog_frontier_planned

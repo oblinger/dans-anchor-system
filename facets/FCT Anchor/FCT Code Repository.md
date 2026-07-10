@@ -142,14 +142,14 @@ Both modes declare the association with `code:` in `.anchor`.
 
 ## Doc Sync with sync-push
 
-When an anchor has `{NAME} User/` and/or `{NAME} Dev/` doc folders and a
+When an anchor has `{slug} User/` and/or `{slug} Dev/` doc folders and a
 code repository, the docs are pushed to the repo using `sync-push`. The
 repo receives them in lowercase folders:
 
 ```
 {repo}/docs/
-├── user/    ← sync-pushed from {NAME} Docs/{NAME} User/
-└── dev/     ← sync-pushed from {NAME} Docs/{NAME} Dev/
+├── user/    ← sync-pushed from {slug} Docs/{slug} User/
+└── dev/     ← sync-pushed from {slug} Docs/{slug} Dev/
 ```
 
 ### Setup
@@ -157,8 +157,8 @@ repo receives them in lowercase folders:
 Register sync-push targets for each doc folder that should be pushed:
 
 ```bash
-sync-push "{NAME} Docs/{NAME} User" --add code "{repo}/docs/user"
-sync-push "{NAME} Docs/{NAME} Dev"  --add code "{repo}/docs/dev"
+sync-push "{slug} Docs/{slug} User" --add code "{repo}/docs/user"
+sync-push "{slug} Docs/{slug} Dev"  --add code "{repo}/docs/dev"
 ```
 
 ### Git Pre-Commit Hook
@@ -169,8 +169,8 @@ before each commit. In `{repo}/.git/hooks/pre-commit`:
 ```bash
 #!/bin/bash
 # Sync docs from vault before committing
-sync-push "/path/to/{NAME} Docs/{NAME} User" 2>/dev/null
-sync-push "/path/to/{NAME} Docs/{NAME} Dev" 2>/dev/null
+sync-push "/path/to/{slug} Docs/{slug} User" 2>/dev/null
+sync-push "/path/to/{slug} Docs/{slug} Dev" 2>/dev/null
 ```
 
 This ensures the repo always has the latest docs from the vault without
@@ -178,7 +178,7 @@ manual sync steps.
 
 ## Edits Flow One Way
 
-Documentation is authored in the vault (`{NAME} User/`, `{NAME} Dev/`)
+Documentation is authored in the vault (`{slug} User/`, `{slug} Dev/`)
 and pushed to the repo. Do not edit the `docs/user/` or `docs/dev/`
 folders in the repo directly — `sync-push` will detect conflicts and
 refuse to overwrite if target files have been modified.
@@ -214,7 +214,7 @@ An absolute `code:` value is used as-is; a relative value resolves against the *
 
 ### RULE R-code-repository-04 — Doc sync flows one way, vault → repo (stated)
 
-`{NAME} User/` and `{NAME} Dev/` doc folders are sync-pushed into the repo's lowercase `docs/user/` and `docs/dev/`; the repo copies are never hand-edited — `sync-push` refuses to overwrite a modified target.
+`{slug} User/` and `{slug} Dev/` doc folders are sync-pushed into the repo's lowercase `docs/user/` and `docs/dev/`; the repo copies are never hand-edited — `sync-push` refuses to overwrite a modified target.
 
 **Why:** docs are authored in the vault; a reverse path would create two sources of truth.
 

@@ -3,10 +3,10 @@ description: documentation hub — links to Plan, Dev, User
 ---
 # FCT Docs
 
-**Location:** `{NAME} Docs/{NAME} Docs.md`
+**Location:** `{slug} Docs/{slug} Docs.md`
 
 
-The `{NAME} Docs/` folder organizes all planning, design, and published documentation for an anchor. It contains three subfolder areas: Plan (specs and tracking), User (end-user docs), and Dev (developer/module docs).
+The `{slug} Docs/` folder organizes all planning, design, and published documentation for an anchor. It contains three subfolder areas: Plan (specs and tracking), User (end-user docs), and Dev (developer/module docs).
 
 **Working example:** `~/.claude/skills/CAE/CAE Docs/CAE Docs.md` — top-level dispatch. Open it (and its sibling `CAE Plan/`, `CAE User/`, `CAE Dev/` dispatch pages) for the real file shape.
 
@@ -16,11 +16,11 @@ The `{NAME} Docs/` folder organizes all planning, design, and published document
 
 Every subfolder has a **dispatch page** with a dispatch table listing its contents. This creates a navigable tree:
 
-1. **Anchor page** (`{NAME}.md`) — dispatch table with Plan, User, Dev as row labels that link to their respective dispatch pages. Key items from each area appear inline in the row.
-2. **`{NAME} Plan.md`** — dispatch table listing all planning docs (PRD, System Design, Roadmap, etc.)
-3. **`{NAME} User.md`** — dispatch table listing all user-facing docs (User Guide, Config Reference, etc.)
-4. **`{NAME} Dev.md`** — dispatch table listing Files, Architecture, and all module docs
-5. **`{NAME} Docs.md`** — top-level dispatch linking to Plan, Dev, User
+1. **Anchor page** (`{slug}.md`) — dispatch table with Plan, User, Dev as row labels that link to their respective dispatch pages. Key items from each area appear inline in the row.
+2. **`{slug} Plan.md`** — dispatch table listing all planning docs (PRD, System Design, Roadmap, etc.)
+3. **`{slug} User.md`** — dispatch table listing all user-facing docs (User Guide, Config Reference, etc.)
+4. **`{slug} Dev.md`** — dispatch table listing Files, Architecture, and all module docs
+5. **`{slug} Docs.md`** — top-level dispatch linking to Plan, Dev, User
 
 The anchor page row labels are wiki-links to the subfolder dispatch pages:
 
@@ -33,31 +33,31 @@ The anchor page row labels are wiki-links to the subfolder dispatch pages:
 
 Clicking a row label navigates to the subfolder dispatch page, which has the complete list. The inline items are just highlights — the dispatch page is the authoritative index.
 
-**Verification:** Walk the link tree from `{NAME} Docs.md`. Every `.md` file in the Docs folder should be reachable. If a page is orphaned, add a link from its parent or create a missing dispatch page.
+**Verification:** Walk the link tree from `{slug} Docs.md`. Every `.md` file in the Docs folder should be reachable. If a page is orphaned, add a link from its parent or create a missing dispatch page.
 
 
-## Planning Docs — `{NAME} Docs/`
+## Planning Docs — `{slug} Docs/`
 
-Most anchors (beyond simple ones) have a `{NAME} Docs/` folder containing planning and tracking documents:
+Most anchors (beyond simple ones) have a `{slug} Docs/` folder containing planning and tracking documents:
 
 | File | Purpose |
 |------|---------|
-| `{NAME} Inbox.md` | Raw input drop zone — captures unprocessed input for integration |
-| `{NAME} PRD.md` | Product requirements / planning brief |
-| `{NAME} Roadmap.md` | High-level plan and milestones (see [[FCT Roadmap]]) |
-| `{NAME} Backlog.md` | Low-priority ideas and deferred work (see [[CAB Backlog]]) |
-| `{NAME} Icebox.md` | Cold-storage / someday-maybe items (see [[FCT Icebox]]) — optional |
-| `{NAME} Todo.md` | Active task tracking |
-| `{NAME} Features/` | Individual feature specs (see [[FCT Features]]) |
-| `{NAME} {Module}.md` | Source code module documentation (see [[FCT Module Doc]]) |
+| `{slug} Inbox.md` | Raw input drop zone — captures unprocessed input for integration |
+| `{slug} PRD.md` | Product requirements / planning brief |
+| `{slug} Roadmap.md` | High-level plan and milestones (see [[FCT Roadmap]]) |
+| `{slug} Backlog.md` | Low-priority ideas and deferred work (see [[CAB Backlog]]) |
+| `{slug} Icebox.md` | Cold-storage / someday-maybe items (see [[FCT Icebox]]) — optional |
+| `{slug} Todo.md` | Active task tracking |
+| `{slug} Features/` | Individual feature specs (see [[FCT Features]]) |
+| `{slug} {Module}.md` | Source code module documentation (see [[FCT Module Doc]]) |
 
 Not all files are required — create what's useful for the anchor. The Inbox is always created with new anchors.
 
-## Inbox — `{NAME} Inbox.md`
+## Inbox — `{slug} Inbox.md`
 
-Every anchor has an Inbox file inside `{NAME} Plan/`. This is a drop zone for raw input — long descriptions, change requests, design thoughts — that the user pastes in for an AI agent to read and integrate into the planning and documentation for this anchor.
+Every anchor has an Inbox file inside `{slug} Plan/`. This is a drop zone for raw input — long descriptions, change requests, design thoughts — that the user pastes in for an AI agent to read and integrate into the planning and documentation for this anchor.
 
-- **Location:** Inside `{NAME} Plan/`, alongside the PRD and other planning docs
+- **Location:** Inside `{slug} Plan/`, alongside the PRD and other planning docs
 - **Format:** Reverse chronological dated sections
 - **Lifecycle:** Content is pasted in, processed by the agent, then left as a record. Rarely revisited after processing.
 - **Purpose:** Staging area for unprocessed input + persistent log of what was communicated
@@ -68,10 +68,10 @@ Repo-based anchors have a `docs/` folder for user-facing documentation that will
 
 | File | Purpose |
 |------|---------|
-| `{NAME} User Guide.md` | End-user documentation |
-| `{NAME} Architecture.md` | Technical architecture overview |
+| `{slug} User Guide.md` | End-user documentation |
+| `{slug} Architecture.md` | Technical architecture overview |
 
-All published doc files use the `{NAME}` prefix to avoid namespace collisions in Obsidian.
+All published doc files use the `{slug}` prefix to avoid namespace collisions in Obsidian.
 
 ### Location by Anchor Type
 

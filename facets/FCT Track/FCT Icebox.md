@@ -9,15 +9,15 @@ Optional cold-storage counterpart to the Backlog — holds distant-future / some
 **Related:** [[FCT Backlog]],  [[FCT Roadmap]],  [[CAB Backlog]],  [[FCT Track]]
 **Examples:** [[FEX Icebox\|example]]
 
-**Cardinality: one per anchor** — at most one `{NAME} Icebox.md` exists per anchor (and it is optional; most anchors do not have one).
+**Cardinality: one per anchor** — at most one `{slug} Icebox.md` exists per anchor (and it is optional; most anchors do not have one).
 
-**Location:** `{NAME} Docs/{NAME} Plan/{NAME} Icebox.md` (optional)
+**Location:** `{slug} Docs/{slug} Plan/{slug} Icebox.md` (optional)
 
-The icebox file (`{NAME} Icebox.md`) holds items the user wants to remember but is **not** actively considering — distant-future ideas, parked features, "someday-maybe" entries. It is the cold-storage counterpart to the [[CAB Backlog]]: Backlog is the *active* deferred-work list, Icebox is the *frozen* one.
+The icebox file (`{slug} Icebox.md`) holds items the user wants to remember but is **not** actively considering — distant-future ideas, parked features, "someday-maybe" entries. It is the cold-storage counterpart to the [[CAB Backlog]]: Backlog is the *active* deferred-work list, Icebox is the *frozen* one.
 
 The term comes from Pivotal Tracker's three-bucket model (Current / Backlog / Icebox); the GTD equivalent is "Someday/Maybe."
 
-**Optional.** Most anchors do not have an Icebox. Create the file only when the user first wants to park something there. If items in `{NAME} Backlog.md` start to feel like clutter that's never going to be acted on, that's the cue to spin up an Icebox and move them across.
+**Optional.** Most anchors do not have an Icebox. Create the file only when the user first wants to park something there. If items in `{slug} Backlog.md` start to feel like clutter that's never going to be acted on, that's the cue to spin up an Icebox and move them across.
 
 **Working example:** `~/.claude/skills/CAE/CAE Docs/CAE Plan/CAE Icebox.md` — Icebox.
 
@@ -47,7 +47,7 @@ Below is a condensed reference example. See the working example linked above for
 
 ## Top of doc (canonical, per F060)
 
-When created, the Icebox file opens with the standard top-of-doc format: YAML frontmatter + `# {NAME} Icebox` H1 + dispatch-table placeholder. See `[[skills/rewire/SKILL]]` § Default doc top-of-file.
+When created, the Icebox file opens with the standard top-of-doc format: YAML frontmatter + `# {slug} Icebox` H1 + dispatch-table placeholder. See `[[skills/rewire/SKILL]]` § Default doc top-of-file.
 
 ## Format
 
@@ -61,7 +61,7 @@ Entries are grouped under H2 sections. Suggested sections (use whichever fit; ad
 
 ## Location
 
-`{NAME} Icebox.md` lives in `{NAME} Docs/{NAME} Plan/`. The file is optional — create it only when the user first wants to park an item.
+`{slug} Icebox.md` lives in `{slug} Docs/{slug} Plan/`. The file is optional — create it only when the user first wants to park an item.
 
 ## Lifecycle
 
@@ -79,17 +79,17 @@ The cut between Backlog and Icebox is *intent to consider*, not age. A two-year-
 
 # RULESET R-fct-icebox
 include::
-where:: `file: **/{NAME} Icebox.md`
-description:: Rules every `{NAME} Icebox.md` instance must satisfy — location, cardinality, and entry format.
+where:: `file: **/{slug} Icebox.md`
+description:: Rules every `{slug} Icebox.md` instance must satisfy — location, cardinality, and entry format.
 
 ### RULE R-fct-icebox-01 — Location is inside the Plan folder (checked)
-The file lives at `{NAME} Docs/{NAME} Plan/{NAME} Icebox.md` — not at the anchor root or alongside Backlog at a different path.
-**Check pattern:** path matches `*/{NAME} Docs/{NAME} Plan/{NAME} Icebox.md`.
+The file lives at `{slug} Docs/{slug} Plan/{slug} Icebox.md` — not at the anchor root or alongside Backlog at a different path.
+**Check pattern:** path matches `*/{slug} Docs/{slug} Plan/{slug} Icebox.md`.
 **Why:** the Plan folder groups all planning docs together; a misplaced Icebox is not found by skills expecting the canonical path.
 
 ### RULE R-fct-icebox-02 — At most one per anchor (checked)
-No more than one `{NAME} Icebox.md` exists per anchor root. The facet is **optional** — most anchors do not have one.
-**Check pattern:** count of `*Icebox.md` files under `{NAME} Docs/{NAME} Plan/` ≤ 1.
+No more than one `{slug} Icebox.md` exists per anchor root. The facet is **optional** — most anchors do not have one.
+**Check pattern:** count of `*Icebox.md` files under `{slug} Docs/{slug} Plan/` ≤ 1.
 **Why:** cardinality is one; two Icebox files under the same anchor produce split inventories that drift apart.
 
 ### RULE R-fct-icebox-03 — Entries are definition-list items under H2 sections (sampled)

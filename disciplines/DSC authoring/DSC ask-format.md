@@ -34,10 +34,10 @@ This is a discipline, not a user-invocable skill — other skills cite it via `[
 | Item shape | Surface |
 |---|---|
 | Doc-attached `Q<n>` | The doc's `## Open Questions` H2 below H1 |
-| Anchor-level `Q<n>` | `{NAME} ask.md`, `## Questions` H2 (authored directly) |
-| Inline-on-backlog-row `Q<n>` | Under the B-row in `{NAME} Backlog.md` |
+| Anchor-level `Q<n>` | `{slug} ask.md`, `## Questions` H2 (authored directly) |
+| Inline-on-backlog-row `Q<n>` | Under the B-row in `{slug} Backlog.md` |
 | `[Verify]` request | Standalone item in the backlog row's bracket, body describes the verify |
-| Drain snapshot | `{NAME} ask.md` (bare `/ask`'s output, three sections) |
+| Drain snapshot | `{slug} ask.md` (bare `/ask`'s output, three sections) |
 
 
 ## Five-piece question layout
@@ -206,8 +206,8 @@ When referring to a specific Q or Verify from elsewhere:
 | Container | Link form |
 |---|---|
 | Feature doc | `[[F<NNN> — Title#^F<NNN>-Q<n>\|F<NNN> Q<n>]]` |
-| Anchor-level | `[[{NAME} ask#^{NAME}-Q<n>\|{NAME} Q<n>]]` |
-| B-row inline | `[[{NAME} Backlog#^<row-id>-Q<n>\|<row-id> Q<n>]]` |
+| Anchor-level | `[[{slug} ask#^{slug}-Q<n>\|{slug} Q<n>]]` |
+| B-row inline | `[[{slug} Backlog#^<row-id>-Q<n>\|<row-id> Q<n>]]` |
 | Verify item | Same pattern with `-V<n>` instead of `-Q<n>` |
 
 **Never link to the container alone** when referring to a specific Q or Verify. `[[F23]]` lands on the doc; the user has to scan for Q3. The block-ID form lands the cursor on the item directly.
@@ -218,7 +218,7 @@ When referring to a specific Q or Verify from elsewhere:
 `Q<n>` and `V<n>` numbers are stable references — once assigned, never renumber, even when items resolve out of order. Skipped numbers are fine. Same lowest-unused-integer policy as backlog F-numbers (per [[CAB Backlog]] § Numbering policy), scoped per container:
 
 - Each feature doc has its own Q-namespace.
-- Each anchor's `{NAME} ask.md` § `## Questions` has its own Q-namespace.
+- Each anchor's `{slug} ask.md` § `## Questions` has its own Q-namespace.
 - Each B-row's inline Qs have their own namespace.
 - V-namespace is independent of Q-namespace (so `F23` can have both `Q3` and `V1`).
 
@@ -238,7 +238,7 @@ Auto-decisions made under [[F068 — Assume-and-announce discipline (Drive mode)
 
 ## Acceptance & rollback (per F086)
 
-In bare `/ask` mode, the agent's auto-resolutions accumulate in `{NAME} ask.md`'s `## Agent Resolutions` section across invocations until the user explicitly accepts.
+In bare `/ask` mode, the agent's auto-resolutions accumulate in `{slug} ask.md`'s `## Agent Resolutions` section across invocations until the user explicitly accepts.
 
 ### Acceptance — the user must explicitly say "resolution(s)"
 
@@ -287,7 +287,7 @@ Before adding any Q to the queue, the agent runs this self-check. If any rule ma
 
 ### Rule 1 — Aggregate within the anchor before surfacing
 
-Gather every pending Q across the anchor's surfaces — every feature doc's `## Open Questions` block + the anchor-level Qs authored in `{NAME} ask.md` § `## Questions` — into one batch. Don't surface one feature's Qs in isolation when other features have pending Qs the user could answer in the same turn. If three feature docs each have a few open Qs, surface all of them together; if one has 4 and another has 2, surface 6 not 4.
+Gather every pending Q across the anchor's surfaces — every feature doc's `## Open Questions` block + the anchor-level Qs authored in `{slug} ask.md` § `## Questions` — into one batch. Don't surface one feature's Qs in isolation when other features have pending Qs the user could answer in the same turn. If three feature docs each have a few open Qs, surface all of them together; if one has 4 and another has 2, surface 6 not 4.
 
 **Scope is per-anchor.** Q formulation belongs to the agent who owns the anchor's context; cross-anchor aggregation is rejected. Within-anchor across-feature aggregation is the rule. No quantitative threshold — "everything pending in this anchor" is the batch.
 

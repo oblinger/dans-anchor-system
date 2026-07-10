@@ -27,17 +27,17 @@ The `Facets` row links every track / work-surface facet (Backlog, Features, Inbo
 
 ### RULE R-track-group-02 — Specifies the work surfaces; SKA owns the instances (stated)
 
-This family *specifies* the work-surface facets, but the live tracking instances for the skills ecosystem are centralized on the shared SKA surface ([[SKA Decisions|D08]]) — SKA sub-projects carry no `{NAME} Track/` of their own.
+This family *specifies* the work-surface facets, but the live tracking instances for the skills ecosystem are centralized on the shared SKA surface ([[SKA Decisions|D08]]) — SKA sub-projects carry no `{slug} Track/` of their own.
 
 ### RULE R-track-group-03 — Track folder presence is a trait; omit when no active tracking (checked)
 
-A `{NAME} Track/` folder exists **iff** the anchor maintains active tracking — a live backlog, feature docs, messages, or status. Its presence is itself the signal that the anchor is tracked. An anchor with no tracking, or only template boilerplate (empty `backlog`/`plan`/`principles` stubs), carries **no** Track folder: during migration, **wipe the boilerplate and omit the folder**. (SKA sub-projects additionally centralize tracking on the SKA surface per R-track-group-02, so they carry no Track folder regardless.)
+A `{slug} Track/` folder exists **iff** the anchor maintains active tracking — a live backlog, feature docs, messages, or status. Its presence is itself the signal that the anchor is tracked. An anchor with no tracking, or only template boilerplate (empty `backlog`/`plan`/`principles` stubs), carries **no** Track folder: during migration, **wipe the boilerplate and omit the folder**. (SKA sub-projects additionally centralize tracking on the SKA surface per R-track-group-02, so they carry no Track folder regardless.)
 
-**Check pattern:** for each `{NAME} Track/`, assert at least one child carries distinct authored tracking content; a boilerplate-only Track folder is a violation — remove it.
+**Check pattern:** for each `{slug} Track/`, assert at least one child carries distinct authored tracking content; a boilerplate-only Track folder is a violation — remove it.
 
 **Why:** parallel to the Design facet (R-design-08) — folder existence is an honest trait. An empty Track folder claims a tracking process the anchor doesn't run.
 
 ### RULE R-track-group-04 — Inbox lives in the Track folder (checked)
-The anchor's `{NAME} Inbox.md` (the agent message inbox) lives **inside `{NAME} Track/`**, never at the anchor root — Inbox is a track / work-surface facet, alongside Backlog, Messages, and Icebox.
-**Check pattern:** no `{NAME} Inbox.md` sits at the anchor root; any Inbox that exists is under `{NAME} Track/`. An empty / boilerplate Inbox is wiped, not relocated (R-track-group-03).
+The anchor's `{slug} Inbox.md` (the agent message inbox) lives **inside `{slug} Track/`**, never at the anchor root — Inbox is a track / work-surface facet, alongside Backlog, Messages, and Icebox.
+**Check pattern:** no `{slug} Inbox.md` sits at the anchor root; any Inbox that exists is under `{slug} Track/`. An empty / boilerplate Inbox is wiped, not relocated (R-track-group-03).
 **Why:** the inbox is part of the tracking surface; stranding it at the root hides it from the Track dispatch and breaks the one-place-for-the-work-surface convention.

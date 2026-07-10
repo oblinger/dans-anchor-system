@@ -2,9 +2,9 @@
 
 A Skill Anchor is *a conventional CAB anchor whose code is its `SKILL.md` and whose user-facing content lives at well-defined locations outside the anchor's filesystem folder.* What distinguishes a Skill Anchor from a Code Anchor:
 
-- **`SKILL.md` is the code** — agent-loaded entry point at `~/.claude/skills/<folder>/SKILL.md`, kebab-case folder name (Claude Code requirement). No `{NAME} Dev/` directory; no source-repo.
-- **User docs live in SKL** — `~/.claude/skills/SKL User Docs/SKL Skills/SKL <Slug>.md` (NOT under the anchor's `{NAME} User/` folder).
-- **Multiple runtime surfaces** — the SKILL.md + scripts + tests + rules/decision sets all live under `~/.claude/skills/<folder>/`, while the anchor's docs (`{NAME} Track/`, `{NAME} Features/`, etc.) live at the SKA filesystem location. Both surfaces are formally part of the anchor; their split is captured by the `skill-*` facets (per [[F116 — Skills as conventional anchors — retire skill-trait, convert to CAB facets with skill- prefix]]).
+- **`SKILL.md` is the code** — agent-loaded entry point at `~/.claude/skills/<folder>/SKILL.md`, kebab-case folder name (Claude Code requirement). No `{slug} Dev/` directory; no source-repo.
+- **User docs live in SKL** — `~/.claude/skills/SKL User Docs/SKL Skills/SKL <Slug>.md` (NOT under the anchor's `{slug} User/` folder).
+- **Multiple runtime surfaces** — the SKILL.md + scripts + tests + rules/decision sets all live under `~/.claude/skills/<folder>/`, while the anchor's docs (`{slug} Track/`, `{slug} Features/`, etc.) live at the SKA filesystem location. Both surfaces are formally part of the anchor; their split is captured by the `skill-*` facets (per [[F116 — Skills as conventional anchors — retire skill-trait, convert to CAB facets with skill- prefix]]).
 - **Composes with `skill-*` facets (v1, per F116 Q2 = B)** — `skill-testing` (tests/), `skill-search-rules` (rules/), `skill-script` (scripts/), `skill-config` (per F080's `~/.config/ob-skills/<name>/`). Each facet applies when its location has content; an anchor doesn't need all of them. `skill-doc` and `skill-spec` are reserved facet names that will ship in a later iteration.
 
 Otherwise this anchor follows [[CAB Base]] with the standard CAB shape (anchor page, Track/Features/Backlog if there's content).
@@ -16,7 +16,7 @@ Otherwise this anchor follows [[CAB Base]] with the standard CAB shape (anchor p
 
 Claude Code skills with their own design history — PRD, feature docs, backlog. The skill's anchor accrues design narrative as it evolves.
 
-For trivial skills with no design history (one-shot recipes that won't see iteration), the slim form is acceptable: `SKILL.md` + action files at the runtime location, no `{NAME} Track/` tree. Promote to the full form on the first feature design.
+For trivial skills with no design history (one-shot recipes that won't see iteration), the slim form is acceptable: `SKILL.md` + action files at the runtime location, no `{slug} Track/` tree. Promote to the full form on the first feature design.
 
 
 ## Structure
@@ -31,7 +31,7 @@ For trivial skills with no design history (one-shot recipes that won't see itera
 ├── rules/                                   optional — skill-search-rules facet (for search-family skills)
 └── sets/                                    optional — canonical decision-set library (per F113 Phase 3)
 
-# Anchor filesystem location (where {NAME} Track/ etc. live)
+# Anchor filesystem location (where {slug} Track/ etc. live)
 SYS/Bespoke/Skill Agent/<Category>/<Slug>/   ← anchor root
 ├── .anchor                                  anchor config — declares `traits: [Skill Anchor]`
 ├── <Slug>.md                                anchor page with dispatch table

@@ -11,7 +11,7 @@ A lightweight public-facing splash page for an anchor, published to the personal
 
 A project page is a `website/` folder inside the anchor holding an `index.md` (Jekyll/cayman splash with front matter), optional extra pages/assets, and a `deploy.sh` that copies the folder to the website repo and pushes. The shape, location, front matter, and publish path are specified in the sections below.
 
-**Cardinality: one per anchor** — an anchor has at most one project page (one `website/` folder, one splash page deployed to `oblinger.github.io/gitproj/{SLUG}/`).
+**Cardinality: one per anchor** — an anchor has at most one project page (one `website/` folder, one splash page deployed to `oblinger.github.io/gitproj/{slug}/`).
 
 ## When to Use
 
@@ -25,10 +25,10 @@ The project page lives in a `website/` directory inside the anchor (vault side, 
 
 ```
 {CAB Folder}/
-├── {NAME}.md
+├── {slug}.md
 ├── CLAUDE.md
 ├── .anchor                       declares `code:` key pointing at the repo (absolute, or relative to this folder; `.` for inline)
-├── {NAME} Docs/
+├── {slug} Docs/
 └── website/                      project page source
     ├── index.md                  splash page with Jekyll front matter
     ├── [additional .md]          extra pages (if any)
@@ -49,20 +49,20 @@ Each `.md` file uses the cayman layout:
 layout: cayman
 title: {PROJECT NAME}
 description: {ONE-LINER}
-permalink: /gitproj/{SLUG}/
+permalink: /gitproj/{slug}/
 ---
 ```
 
 ## Publishing
 
-Published to `oblinger.github.io/gitproj/{SLUG}/` and linked from the projects hub at `/gitproj/`. See [[code-publish]] for the full workflow, questions checklist, and deploy steps.
+Published to `oblinger.github.io/gitproj/{slug}/` and linked from the projects hub at `/gitproj/`. See [[code-publish]] for the full workflow, questions checklist, and deploy steps.
 
 ## Dispatch Table Entry
 
 The repo + project-page URLs live in the **Related** row of the anchor's dispatch table (the first optional row; there is no separate `External` row — see [[FCT Dispatch Table]] R-08):
 
 ```markdown
-| Related | [Repo](https://github.com/oblinger/{repo}),  [Project Page](https://oblinger.github.io/gitproj/{SLUG}/) |
+| Related | [Repo](https://github.com/oblinger/{repo}),  [Project Page](https://oblinger.github.io/gitproj/{slug}/) |
 ```
 
 ## Relationship to Documentation Site
@@ -84,20 +84,20 @@ The anchor contains a `website/` subdirectory with at minimum an `index.md` and 
 **Why:** the `website/` folder is how the project page is detected; missing it means the facet is absent, not malformed.
 
 ### RULE R-project-page-02 — Jekyll cayman front matter (checked)
-`website/index.md` opens with YAML frontmatter including `layout: cayman`, a non-empty `title:`, a non-empty `description:`, and a `permalink: /gitproj/{SLUG}/`.
+`website/index.md` opens with YAML frontmatter including `layout: cayman`, a non-empty `title:`, a non-empty `description:`, and a `permalink: /gitproj/{slug}/`.
 **Check pattern:** frontmatter block contains `layout: cayman`, `title:`, `description:`, and `permalink:` matching `/gitproj/`.
 **Tier:** checked
 **Why:** the cayman layout and permalink are what Jekyll needs to render and route the page; missing fields produce a broken or invisible page.
 
 ### RULE R-project-page-03 — Dispatch-table Related row carries the published URLs (sampled)
-The anchor's dispatch table (root `{NAME}.md`) includes a `Related` row carrying both the GitHub repo link and the project page URL `https://oblinger.github.io/gitproj/{SLUG}/` (repo/site links live in Related, not a separate External row).
+The anchor's dispatch table (root `{slug}.md`) includes a `Related` row carrying both the GitHub repo link and the project page URL `https://oblinger.github.io/gitproj/{slug}/` (repo/site links live in Related, not a separate External row).
 **Check pattern:** the anchor page has a `| Related |` row containing `oblinger.github.io/gitproj/`.
 **Tier:** sampled
 **Why:** the Related row is how readers discover the published page; without it the deployment is silent to navigators.
 
 ### RULE R-project-page-04 — Permalink and dispatch-table URL stay in sync (stated)
-The `permalink:` value in `website/index.md` frontmatter and the URL in the anchor's `Related` dispatch row must use the same `{SLUG}` — they cannot drift.
-**Check pattern:** extract `{SLUG}` from frontmatter `permalink:`; verify the same path appears in the `Related` row.
+The `permalink:` value in `website/index.md` frontmatter and the URL in the anchor's `Related` dispatch row must use the same `{slug}` — they cannot drift.
+**Check pattern:** extract `{slug}` from frontmatter `permalink:`; verify the same path appears in the `Related` row.
 **Tier:** stated
 **Why:** mismatched slugs cause the dispatch row to link a 404; the projects hub `/gitproj/` lists all pages by permalink.
 

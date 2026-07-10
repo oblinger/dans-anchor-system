@@ -1,10 +1,10 @@
 ---
-description: Query facet — the format of an anchor's `{NAME} queries.md`, the file `/query` builds to ask the user questions. Rules about what a valid queries file looks like.
+description: Query facet — the format of an anchor's `{slug} queries.md`, the file `/query` builds to ask the user questions. Rules about what a valid queries file looks like.
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Query](hook://p/FCT%20Query)
 # FCT Query
-The asking surface: one `{NAME} queries.md` per anchor, in `{NAME} Track/`, that `/query` builds and trims.
+The asking surface: one `{slug} queries.md` per anchor, in `{slug} Track/`, that `/query` builds and trims.
 
 **Related:** [[SKL Query]] (the skill that builds it),  [[FCT Status]],  [[FCT Messages]]
 **Examples:** [[SKA queries\|real instance (SKA anchor)]]
@@ -21,38 +21,38 @@ The asking surface: one `{NAME} queries.md` per anchor, in `{NAME} Track/`, that
 | [[#Cross-cutting]] |  |
 | **[[#BRIEF]]** |  |
 
-**TLDR** — One `{NAME} queries.md` per anchor (cardinality: one), in `{NAME} Track/`, owned by the `/query` skill. Fixed five-section order (`## Agent Resolutions` → `## Verifications` → `## Immediate Questions` → `## Questions` → `## Ready`); empty sections omitted. Verifications are agent-run / user-judged — never "user runs X". Questions are self-contained or wiki-linked. The file shrinks toward empty as answers are applied. Validated by `/audit doc` via `R-query`.
+**TLDR** — One `{slug} queries.md` per anchor (cardinality: one), in `{slug} Track/`, owned by the `/query` skill. Fixed five-section order (`## Agent Resolutions` → `## Verifications` → `## Immediate Questions` → `## Questions` → `## Ready`); empty sections omitted. Verifications are agent-run / user-judged — never "user runs X". Questions are self-contained or wiki-linked. The file shrinks toward empty as answers are applied. Validated by `/audit doc` via `R-query`.
 
 ## What it is
 
-`{NAME} queries.md` is the single per-anchor surface where the user answers everything the agents need from them. The **`/query` skill** ([[SKL Query]]) *builds* it (the procedure — walking open questions, the determination routing, running verifications ahead of time, console echo); **this facet** governs what the resulting *file* must look like, so it can be audited (`/audit doc`, the F167 on-write hook). The skill cites these rules rather than restating them.
+`{slug} queries.md` is the single per-anchor surface where the user answers everything the agents need from them. The **`/query` skill** ([[SKL Query]]) *builds* it (the procedure — walking open questions, the determination routing, running verifications ahead of time, console echo); **this facet** governs what the resulting *file* must look like, so it can be audited (`/audit doc`, the F167 on-write hook). The skill cites these rules rather than restating them.
 
 ## Parts
 
-- **Frontmatter + H1** — `description:` then `# {NAME} Queries`.
+- **Frontmatter + H1** — `description:` then `# {slug} Queries`.
 - **Five sections, fixed order** (each omitted when empty): `## Agent Resolutions`, `## Verifications`, `## Immediate Questions`, `## Questions`, `## Ready`.
 - The file is **agent-owned and trimmed on answer** — answered items are removed, so it shrinks toward empty.
 
 # RULESET R-query
 include::
 where:: `file:{ANCHOR}/**/* queries.md`
-description:: the `{NAME} queries.md` format
+description:: the `{slug} queries.md` format
 
 What `/audit doc` checks on a queries file. The skill that produces it is [[SKL Query]]; these are the file-invariants it must satisfy. Format of this set: [[FCT Ruleset]].
 
 ## Structure
 
-### RULE R-query-01 — Lives at `{NAME} Track/{NAME} queries.md` (checked)
+### RULE R-query-01 — Lives at `{slug} Track/{slug} queries.md` (checked)
 check:: queries_location
 
 One per anchor, slug-prefixed, in the tracking folder.
 
 **Check pattern:** the file's basename is `{slug} queries.md` and its parent is `{slug} Track` (or a sub-folder rooted there).
 
-### RULE R-query-02 — Opens with frontmatter `description:` then H1 `# {NAME} Queries` (checked)
+### RULE R-query-02 — Opens with frontmatter `description:` then H1 `# {slug} Queries` (checked)
 check:: frontmatter_has description
 
-**Check pattern:** YAML frontmatter present with a non-empty `description:`; the first body line is `# {NAME} Queries`.
+**Check pattern:** YAML frontmatter present with a non-empty `description:`; the first body line is `# {slug} Queries`.
 
 ### RULE R-query-03 — Five sections, fixed order, no others (checked)
 check:: queries_sections_subsequence
@@ -109,7 +109,7 @@ Every line under Verifications / Immediate Questions / Questions is either a que
 ### RULE R-query-08 — Immediate Questions begin with `**Q<n>` and use the standard expanded question format (checked)
 check:: queries_immediate_question_handle
 
-Each `## Immediate Questions` item **begins** with a bold anchor-local `**Q<n>` handle (so the user answers by reference — `Q1: A`) and is otherwise the **same standard expanded format as a feature-doc `## Open Questions` item** ([[DSC ask-format]]): a one-line context lead naming the feature + what it's about, a `^{NAME}-Q<n>` block-ID, each option a **bold `**(A)**` sub-bullet on its own line** (never inline — readability over density, user direction 2026-06-16), and a `- **Recommendation:**` line (which may be `None` — the rule forces the agent to *consider* whether it has a recommendation, not to manufacture one).
+Each `## Immediate Questions` item **begins** with a bold anchor-local `**Q<n>` handle (so the user answers by reference — `Q1: A`) and is otherwise the **same standard expanded format as a feature-doc `## Open Questions` item** ([[DSC ask-format]]): a one-line context lead naming the feature + what it's about, a `^{slug}-Q<n>` block-ID, each option a **bold `**(A)**` sub-bullet on its own line** (never inline — readability over density, user direction 2026-06-16), and a `- **Recommendation:**` line (which may be `None` — the rule forces the agent to *consider* whether it has a recommendation, not to manufacture one).
 
 One format vault-wide: the option-own-line + recommendation-line + block-ID invariants are the **shared** ask-format checks (audit-q **C6/C8/C9/C19/C20**, the same ones feature-doc Qs get); the queries-specific additions are the **`Q<n>` handle** (C39) and that any feature named is a **wiki-link** (R-query-13/C37). The handle is always an anchor-local `Q<n>` — a feature's *native* `F<n> Q<m>` is referenced in the body, but the answer handle is the queries-local `Q<n>`. (Verifications, by contrast, are compact `**V<n>` yes/no — they have no options to expand; see R-query-04.)
 
@@ -154,7 +154,7 @@ When a feature has more than three open questions, `## Questions` carries a sing
 ### RULE R-query-13 — A bullet that names an F-number links it (checked)
 check:: queries_fnumber_is_link
 
-Any `F<n>` token appearing in *any* queries bullet must be inside a `[[…]]` wiki-link — to its feature doc `[[F<n> — Title|F<n>]]` when one exists, else to the backlog row `[[{NAME} Backlog#^F<n>|F<n>]]` (many items are bare backlog rows with no feature doc — e.g. an undesigned `[Ready]` sweep). A bare `F135` is forbidden: the user must always be one click from the item's home. Enforced by audit-q **C37**.
+Any `F<n>` token appearing in *any* queries bullet must be inside a `[[…]]` wiki-link — to its feature doc `[[F<n> — Title|F<n>]]` when one exists, else to the backlog row `[[{slug} Backlog#^F<n>|F<n>]]` (many items are bare backlog rows with no feature doc — e.g. an undesigned `[Ready]` sweep). A bare `F135` is forbidden: the user must always be one click from the item's home. Enforced by audit-q **C37**.
 
 **Check pattern:** blank every `[[…]]` span, then search the remainder of the bullet for `\bF\d+\b`; any match is a bare (unlinked) F-number.
 
@@ -200,7 +200,7 @@ def bare_artifacts(item: str, vault_index: dict) -> list[str]:
 ### RULE R-query-14 — Never surface a commit/push question; steer the agent to its Git-aspect policy (when:: skill:post:audit-q)
 when:: skill:post:audit-q
 
-An agent must **never** ask the user "should I commit / push this branch?" — the anchor's Git aspect already answers it (**Commit** mode: commit at logical boundaries without asking; **PR** mode: commit freely on the branch + open/update the PR; **NoGit**: nothing to commit). This is an **executable when-rule** (F180): when the `audit-q` skill runs, `trigger(ctx)` scans the freshly-built `{NAME} queries.md` for such a question and, instead of letting it reach the user, returns an **agent-directed steer** — telling the agent to follow its mode and decide for itself (and since it's *asking*, commit now). It never asks the user; it corrects the agent.
+An agent must **never** ask the user "should I commit / push this branch?" — the anchor's Git aspect already answers it (**Commit** mode: commit at logical boundaries without asking; **PR** mode: commit freely on the branch + open/update the PR; **NoGit**: nothing to commit). This is an **executable when-rule** (F180): when the `audit-q` skill runs, `trigger(ctx)` scans the freshly-built `{slug} queries.md` for such a question and, instead of letting it reach the user, returns an **agent-directed steer** — telling the agent to follow its mode and decide for itself (and since it's *asking*, commit now). It never asks the user; it corrects the agent.
 
 **Trigger:** if `ctx.queries_text` contains a "should I … commit/push?"-shaped question, return a mode-appropriate steer using `ctx.git_aspect` (`PR` / `Commit` / `NoGit`).
 
@@ -237,4 +237,4 @@ def trigger(ctx):
 
 *(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body + `R-query` ruleset above; the procedure that builds the file lives in [[SKL Query]].)*
 
-- **`R-query` is in the `R-doc` umbrella** — so `/audit doc {NAME} queries.md` and the F167 on-write hook validate it. If the spec changes, fix it here; [[SKL Query]] cites these rules and follows.
+- **`R-query` is in the `R-doc` umbrella** — so `/audit doc {slug} queries.md` and the F167 on-write hook validate it. If the spec changes, fix it here; [[SKL Query]] cites these rules and follows.

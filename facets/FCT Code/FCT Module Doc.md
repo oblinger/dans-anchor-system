@@ -4,7 +4,7 @@ description: "per-module source code documentation — one doc per source module
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Code]] → [FCT Module Doc](hook://p/FCT%20Module%20Doc)
 # FCT Module Doc
-Facet spec for per-module documentation — the auto-generatable, source-code-grounded reference doc that mirrors one source module under `{NAME} Dev/`.
+Facet spec for per-module documentation — the auto-generatable, source-code-grounded reference doc that mirrors one source module under `{slug} Dev/`.
 
 **Related:** [[FCT Interface]],  [[FCT Architecture]],  [[FCT Dev]],  [[FCT Code]]
 **Examples:** [[FEX Scheduler\|fuller (two-zone, SVG figure)]],  [[HBR Scanner\|minimal (leaf module)]]
@@ -26,15 +26,15 @@ Facet spec for per-module documentation — the auto-generatable, source-code-gr
 | [[#Proposed API convention]] |  |
 | [[#Linking rule — CRITICAL]] |  |
 | [[#Lifecycle]] |  |
-| [[#`{NAME} Dev.md` frontmatter — `module_docs_audited:` contract (per F074, 2026-05-19)]] |  |
+| [[#`{slug} Dev.md` frontmatter — `module_docs_audited:` contract (per F074, 2026-05-19)]] |  |
 | [[#Reserved `Arch` row (per F074, 2026-05-19)]] |  |
 | **[[#BRIEF]]** |  |
 
-**TLDR** — Each source module gets a `{NAME} {ModuleName}.md` doc under `{NAME} Dev/` mirroring the repo's folder structure. Docs have two zones: an Overview zone (SECTIONS table + per-class overview + figure) and a Class Method Details zone. SVG figures only (via `[[viz-excalidraw]]`); bold-identifier-outside-code-span for all table links; block-ID format `^ClassName-methodname`. **Cardinality: many** — one doc per source module.
+**TLDR** — Each source module gets a `{slug} {ModuleName}.md` doc under `{slug} Dev/` mirroring the repo's folder structure. Docs have two zones: an Overview zone (SECTIONS table + per-class overview + figure) and a Class Method Details zone. SVG figures only (via `[[viz-excalidraw]]`); bold-identifier-outside-code-span for all table links; block-ID format `^ClassName-methodname`. **Cardinality: many** — one doc per source module.
 
-**Location:** `{NAME} Docs/{NAME} Dev/{NAME} {ModuleName}.md` (one per module).
+**Location:** `{slug} Docs/{slug} Dev/{slug} {ModuleName}.md` (one per module).
 
-module docs describe the classes and interfaces in a software project's source code. Each source module (a file or logical grouping of files) gets its own markdown document. The docs mirror the source tree structure under `{NAME} Dev/`.
+module docs describe the classes and interfaces in a software project's source code. Each source module (a file or logical grouping of files) gets its own markdown document. The docs mirror the source tree structure under `{slug} Dev/`.
 
 **Related:** [[FCT Interface]] — the required top-level human-authored layer contract that groups modules into a vocabulary callers above the layer use. A module doc is auto-generated ground-truth reference for one module in isolation; the Interface is the human-validated contract for the whole layer. Every `code`-trait anchor has one Interface and one module doc per source module.
 
@@ -46,29 +46,29 @@ This spec was rewritten 2026-06-06 based on extended iteration on the CAE Schedu
 
 ## Location — mirroring the source tree
 
-module docs live under `{NAME} Dev/` in a subfolder structure that **mirrors the repository's source tree**. Every source directory that contains modules gets a parallel documentation directory.
+module docs live under `{slug} Dev/` in a subfolder structure that **mirrors the repository's source tree**. Every source directory that contains modules gets a parallel documentation directory.
 
 ```
 Repository (source)                    Documentation (vault)
 ─────────────────                      ────────────────────
-src/                                   {NAME} Docs/{NAME} Dev/
-├── execution/                         ├── {NAME} execution/
-│   ├── scheduler.py                   │   ├── {NAME} Scheduler.md
-│   └── worker.py                      │   └── {NAME} Worker.md
-├── agent/                             ├── {NAME} agent/
-│   ├── session.py                     │   ├── {NAME} Session.md
-│   └── trace.py                       │   └── {NAME} Trace.md
-└── infra/                             └── {NAME} infra/
-    └── entity.py                          └── {NAME} Entity.md
+src/                                   {slug} Docs/{slug} Dev/
+├── execution/                         ├── {slug} execution/
+│   ├── scheduler.py                   │   ├── {slug} Scheduler.md
+│   └── worker.py                      │   └── {slug} Worker.md
+├── agent/                             ├── {slug} agent/
+│   ├── session.py                     │   ├── {slug} Session.md
+│   └── trace.py                       │   └── {slug} Trace.md
+└── infra/                             └── {slug} infra/
+    └── entity.py                          └── {slug} Entity.md
 ```
 
 ### Mirroring rules
 
-- Every source directory gets a parallel `{NAME} {dir}/` folder in Dev.
-- Every source file with public API gets a `{NAME} {ClassName}.md` doc.
+- Every source directory gets a parallel `{slug} {dir}/` folder in Dev.
+- Every source file with public API gets a `{slug} {ClassName}.md` doc.
 - The doc file is named after the **primary class** in the source file, not the filename.
-- All files and folders carry the `{NAME}` prefix to avoid Obsidian namespace collisions.
-- Each doc subfolder can have a `{NAME} {dir}.md` dispatch page listing its module docs.
+- All files and folders carry the `{slug}` prefix to avoid Obsidian namespace collisions.
+- Each doc subfolder can have a `{slug} {dir}.md` dispatch page listing its module docs.
 
 ## Document structure
 
@@ -87,7 +87,7 @@ description: <one-line module summary>
 ---
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Code]] → [FCT Module Doc](hook://p/FCT%20Module%20Doc)
 
-# {NAME} {ModuleName}
+# {slug} {ModuleName}
 <file-level overview paragraph — no blank line after H1, description prose immediately follows>
 ```
 
@@ -95,7 +95,7 @@ Rules:
 
 - YAML frontmatter with `description:` field. Optional — present when the module doc carries machine-readable metadata.
 - Breadcrumb line in the `:>>` form pointing back through the anchor hierarchy.
-- H1 = `# {NAME} {ModuleName}` where `{NAME}` is the anchor prefix and `{ModuleName}` matches the file name.
+- H1 = `# {slug} {ModuleName}` where `{slug}` is the anchor prefix and `{ModuleName}` matches the file name.
 - **No blank line between the H1 and the file overview prose** — text starts on the next line. This is the compact-H2/H1 rule applied to the file H1.
 - One paragraph (2-4 sentences) immediately after the H1. Describes the module's purpose, role in the system, and any cross-references to rules / standards documents.
 
@@ -110,7 +110,7 @@ The figure's job is to show **how the sections fit together as a whole**:
 - Key data structures the document discusses (queues, caches, pools, registries) appear as their own nodes.
 - Topics that govern a structural relationship (e.g. a queue's ordering rule) are highlighted via styling or annotation so the reader sees which topic anchors which structural feature.
 
-**Format: SVG always. Mermaid is forbidden. ASCII art in code fences is forbidden.** Figures are SVG files co-located with the module doc (`{NAME} {ModuleName}.svg` next to `{NAME} {ModuleName}.md`), referenced via Obsidian wiki-embed syntax: `![[{NAME} {ModuleName}.svg]]`.
+**Format: SVG always. Mermaid is forbidden. ASCII art in code fences is forbidden.** Figures are SVG files co-located with the module doc (`{slug} {ModuleName}.svg` next to `{slug} {ModuleName}.md`), referenced via Obsidian wiki-embed syntax: `![[{slug} {ModuleName}.svg]]`.
 
 Why SVG only:
 
@@ -124,9 +124,9 @@ Why SVG only:
 
 The canonical authoring workflow is the `[[viz-excalidraw]]` sub-skill of `[[viz]]` (file at `~/.claude/skills/viz/viz-excalidraw.md`, with reference examples at `~/.claude/skills/viz/excalidraw-examples.md`):
 
-1. **Create / edit** a `.excalidraw` JSON file co-located with the module doc: `{NAME} {ModuleName}.excalidraw`.
+1. **Create / edit** a `.excalidraw` JSON file co-located with the module doc: `{slug} {ModuleName}.excalidraw`.
 2. **Convert to SVG** via the viz skill's converter: `python3 ~/.claude/skills/viz/excalidraw_to_svg.py "/path/to/file.excalidraw"`. Produces `.svg` and `.png` alongside the source file (~200 ms).
-3. **Embed in markdown**: `![[{NAME} {ModuleName}.svg]]` (wiki-embed, not markdown image syntax — Obsidian resolves the wiki-link by basename and renders the SVG inline).
+3. **Embed in markdown**: `![[{slug} {ModuleName}.svg]]` (wiki-embed, not markdown image syntax — Obsidian resolves the wiki-link by basename and renders the SVG inline).
 4. **Open in ExcalidrawZ** so the user can edit interactively: `open -a ExcalidrawZ "/path/to/file.excalidraw"`.
 
 **Every time the `.excalidraw` source changes, you MUST re-run the SVG conversion** (the embedded image won't update otherwise). Both files are committed to the vault — `.excalidraw` is the source-of-truth (editable), `.svg` is the derived artifact (rendered).
@@ -241,7 +241,7 @@ Rules:
 
 - **Topic block-IDs use PascalCase** with spaces removed: `^PriorityAndStarvation`, `^ThreadPoolSizing`. Stable identifier despite the multi-word topic name.
 - **Bullet items use bold concept-labels** followed by an em-dash and a one-sentence explanation: `- **Aging promotion** — Tasks waiting longer than 2× cycles get promoted.` The bold makes labels scannable; the prose carries the substance.
-- **Topics frequently reference rules** — when a topic anchors a design rule documented in `{NAME} Rules.md` or elsewhere, include a `**Rule reference**` bullet pointing at the canonical rule. This keeps the topic discoverable from the rule and vice versa.
+- **Topics frequently reference rules** — when a topic anchors a design rule documented in `{slug} Rules.md` or elsewhere, include a `**Rule reference**` bullet pointing at the canonical rule. This keeps the topic discoverable from the rule and vice versa.
 - **Topics live in the overview zone alongside classes** — they don't have a corresponding section in the Class Method Details zone (no methods to detail). If a topic is large enough to need expansion, add H3 subsections directly after its bullet list, before the next top-level H2.
 - **Sentence case for topic names**: "Priority and starvation", not "Priority And Starvation". Topics are concepts, not code identifiers.
 - **Use a table instead of a bullet list ONLY when the content genuinely has tabular shape** — e.g. a state-transition table, a decision matrix, side-by-side comparisons. Otherwise default to the bullet list.
@@ -307,7 +307,7 @@ After the last per-class overview section, the deep-dive content lives under a `
 
 Rules:
 
-- **Two H1s in the document** — `# {NAME} {ModuleName}` at the top, `# Class Method Details` introducing the details zone. Markdown allows this; Obsidian renders both.
+- **Two H1s in the document** — `# {slug} {ModuleName}` at the top, `# Class Method Details` introducing the details zone. Markdown allows this; Obsidian renders both.
 - **H1 `# Class Method Details`** acts as a disambiguation parent for the H2 class headings (which repeat names from the overview zone). Wiki-links from the overview-zone class tables target block-IDs in this zone, NOT raw heading text, so the H2-name collision between overview-zone H2 and details-zone H2 is harmless (block-IDs are unique).
 - **Per-class H2** — same name as the overview H2 (e.g. `## TaskScheduler`). The H2 itself doesn't need a block-ID — the per-method H3s underneath carry the block-IDs targeted by the overview-table method links.
 - **H3 per class-level concept first** (Priority and starvation, Retry semantics, Thread pool sizing, etc.) — these are the design / invariant / behavior discussions that don't belong to a single method.
@@ -350,7 +350,7 @@ File-level concern, not class-scoped. Uses normal H2 (single, not duplicated lik
 
 | Where                                    | Casing                                  | Example                                |
 | ---------------------------------------- | --------------------------------------- | -------------------------------------- |
-| File H1                                  | `{NAME} {ModuleName}`                   | `# CAE Scheduler`                      |
+| File H1                                  | `{slug} {ModuleName}`                   | `# CAE Scheduler`                      |
 | SECTIONS row, column 1                   | `[[link\|Name]] type`                   | `[[#^TaskScheduler\|TaskScheduler]] class` |
 | Overview-zone H2                         | `Name Type` (Type capitalized)          | `## TaskScheduler Class`               |
 | Class table first-column header          | `NAME TYPE` (ALL CAPS with spaces)      | `TASK SCHEDULER CLASS`                 |
@@ -396,7 +396,7 @@ The "2 blank lines before H2" rule is the visual separator that makes the zone-l
 
 ## Folder docs
 
-Every source folder that contains modules should have a **folder doc** — a module doc for the folder itself. Named `{NAME} {FolderName}.md` (e.g., `DMUX Speech.md`, `HA core.md`).
+Every source folder that contains modules should have a **folder doc** — a module doc for the folder itself. Named `{slug} {FolderName}.md` (e.g., `DMUX Speech.md`, `HA core.md`).
 
 ### Purpose
 
@@ -408,14 +408,14 @@ The folder doc describes the folder as a **coherent subsystem**: what it does, h
 ---
 description: <one-line subsystem summary>
 ---
-# {NAME} {FolderName}
+# {slug} {FolderName}
 <1-2 sentences: what this subsystem does and why it exists>
 
 | MODULES                     | Description       |
 | --------------------------- | ----------------- |
-| [[{NAME} ModuleA\|ModuleA]] | What ModuleA does |
-| [[{NAME} ModuleB\|ModuleB]] | What ModuleB does |
-| [[{NAME} ModuleC\|ModuleC]] | What ModuleC does |
+| [[{slug} ModuleA\|ModuleA]] | What ModuleA does |
+| [[{slug} ModuleB\|ModuleB]] | What ModuleB does |
+| [[{slug} ModuleC\|ModuleC]] | What ModuleC does |
 
 ## Overview
 <How the modules work together. Data flow, responsibilities, key interactions. This is the high-value content — the folder-level architecture you can't see by reading individual module docs.>
@@ -440,11 +440,11 @@ When the folder is just organizational (e.g., `utils/`), the folder doc is just 
 Folder docs live alongside the module docs they describe:
 
 ```
-{NAME} Dev/
-├── {NAME} core/
-│   ├── {NAME} core.md              ← folder doc
-│   ├── {NAME} Command.md           module doc
-│   └── {NAME} Config.md            module doc
+{slug} Dev/
+├── {slug} core/
+│   ├── {slug} core.md              ← folder doc
+│   ├── {slug} Command.md           module doc
+│   └── {slug} Config.md            module doc
 ```
 
 ## Proposed API convention
@@ -453,10 +453,10 @@ During planning, module docs describe the **proposed** design before code exists
 
 ## Linking rule — CRITICAL
 
-**Before writing a module doc, first add its entry to `{NAME} Dev.md` and `{NAME} Files.md`.** Do the linking first so you don't forget. An unlinked module doc is invisible — no one will find it.
+**Before writing a module doc, first add its entry to `{slug} Dev.md` and `{slug} Files.md`.** Do the linking first so you don't forget. An unlinked module doc is invisible — no one will find it.
 
-- Add a row to the **Dev dispatch table** (`{NAME} Dev.md`) with a wiki-link and one-line description.
-- Add the file to the **Files tree** (`{NAME} Files.md`) in the correct location.
+- Add a row to the **Dev dispatch table** (`{slug} Dev.md`) with a wiki-link and one-line description.
+- Add the file to the **Files tree** (`{slug} Files.md`) in the correct location.
 - When creating multiple module docs in a batch, link ALL of them before writing any content. Then verify the Dev dispatch table has an entry for every module doc in the Dev folder.
 
 ## Lifecycle
@@ -467,9 +467,9 @@ module docs are **living documents** — they must stay current with the code:
 - **Update** when the public interface or architecture changes.
 - **Outdated docs are worse than no docs** — if a module doc can't be kept current, delete it.
 
-## `{NAME} Dev.md` frontmatter — `module_docs_audited:` contract (per F074, 2026-05-19)
+## `{slug} Dev.md` frontmatter — `module_docs_audited:` contract (per F074, 2026-05-19)
 
-`{NAME} Dev.md` (the Dev folder's dispatch page) carries a YAML frontmatter field that records when module docs were last audited against source code:
+`{slug} Dev.md` (the Dev folder's dispatch page) carries a YAML frontmatter field that records when module docs were last audited against source code:
 
 ```yaml
 ---
@@ -490,24 +490,24 @@ Every module doc's dispatch table (when present) carries an **`Arch` row** maint
 
 ```
 
-| Arch | [[{NAME} <Subsystem> Arch]] |       ← architect-managed
+| Arch | [[{slug} <Subsystem> Arch]] |       ← architect-managed
 
 ```
 
-The `Arch` row points to the **most-specific** architecture destination — the per-module arch doc if one exists, otherwise the subsystem arch doc, otherwise the top-level `{NAME} Architecture.md` (single-subsystem case). Every module doc has exactly one such row. See `[[FCT Architecture]]` § Bidirectional cross-linking.
+The `Arch` row points to the **most-specific** architecture destination — the per-module arch doc if one exists, otherwise the subsystem arch doc, otherwise the top-level `{slug} Architecture.md` (single-subsystem case). Every module doc has exactly one such row. See `[[FCT Architecture]]` § Bidirectional cross-linking.
 
 (In the new format demonstrated by `CAE Scheduler.md`, the breadcrumb `:>>` line carries the cross-references explicitly and the dispatch-table `Arch` row is optional. Use whichever shape matches the rest of the anchor.)
 
 # RULESET R-module-doc
 include::
-where:: `file:{ANCHOR}/**/{NAME} Dev/**/{NAME} *.md`
-description:: per-module source documentation — one doc per source module under `{NAME} Dev/`
+where:: `file:{ANCHOR}/**/{slug} Dev/**/{slug} *.md`
+description:: per-module source documentation — one doc per source module under `{slug} Dev/`
 
 What `/audit module-doc` checks on a module doc. Cardinality: many — one per source module, mirroring the repo tree. Format of this set: [[FCT Ruleset]].
 
-### RULE R-module-doc-01 — Doc tree mirrors the source tree under `{NAME} Dev/` (checked)
+### RULE R-module-doc-01 — Doc tree mirrors the source tree under `{slug} Dev/` (checked)
 
-Every source directory gets a parallel `{NAME} {dir}/` folder under `{NAME} Dev/`; every source file with public API gets a `{NAME} {ClassName}.md` named after its **primary class**, not the filename. All files/folders carry the `{NAME}` prefix.
+Every source directory gets a parallel `{slug} {dir}/` folder under `{slug} Dev/`; every source file with public API gets a `{slug} {ClassName}.md` named after its **primary class**, not the filename. All files/folders carry the `{slug}` prefix.
 
 **Check pattern:** for each module doc, a corresponding source module exists at the mirrored path; the doc name matches the primary class.
 
@@ -515,7 +515,7 @@ Every source directory gets a parallel `{NAME} {dir}/` folder under `{NAME} Dev/
 
 A module doc has an Overview zone (frontmatter, H1+brief, SECTIONS table, per-class overview sections with class tables — no method-body prose) and a `# Class Method Details` zone (per-class deep-dive H2s with concept H3s and per-method H3s).
 
-**Check pattern:** the doc has exactly two H1s — `# {NAME} {ModuleName}` and `# Class Method Details`; no method-body prose appears in the overview zone.
+**Check pattern:** the doc has exactly two H1s — `# {slug} {ModuleName}` and `# Class Method Details`; no method-body prose appears in the overview zone.
 
 ### RULE R-module-doc-03 — SECTIONS table indexes each section with a typed block-ID link (checked)
 
@@ -533,18 +533,18 @@ Class-table method rows use `**[[#^Class-method\|method]]**\`(args) -> Return\``
 
 ### RULE R-module-doc-05 — Figures are SVG only, authored via `[[viz-excalidraw]]` (checked)
 
-The top-of-doc figure is an SVG co-located with the doc (`{NAME} {ModuleName}.svg`), embedded `![[{NAME} {ModuleName}.svg]]`, authored from a sibling `.excalidraw` source via the viz workflow. Mermaid and ASCII-art-in-fences are forbidden.
+The top-of-doc figure is an SVG co-located with the doc (`{slug} {ModuleName}.svg`), embedded `![[{slug} {ModuleName}.svg]]`, authored from a sibling `.excalidraw` source via the viz workflow. Mermaid and ASCII-art-in-fences are forbidden.
 
 **Check pattern:** any embedded figure is `.svg` (not mermaid, not an ASCII fence); an `.excalidraw` source sits beside it.
 
 ### RULE R-module-doc-06 — Module doc is linked into Dev + Files dispatch before authoring (stated)
 
-Before writing a module doc, add its row to `{NAME} Dev.md` (Dev dispatch) and to `{NAME} Files.md` (Files tree). An unlinked module doc is invisible.
+Before writing a module doc, add its row to `{slug} Dev.md` (Dev dispatch) and to `{slug} Files.md` (Files tree). An unlinked module doc is invisible.
 
 # BRIEF
 
 *(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body above (§ Format Specification) and RULESET R-module-doc; the canonical worked example is `[[FEX Scheduler]]`, read it before authoring or revising.)*
 
 - **Inclusion test** — a rule belongs here only when it constrains how a *single* module doc is shaped (sections, tables, casing, block-ID format, figure workflow, frontmatter contract). Cross-module rules go in the trait or anchor-level spec; rendering rules belong in `[[R-markdown]]`; the layer-wide contract that groups modules is `[[FCT Interface]]`; architecture-level discussion is `[[FCT Architecture]]` (the per-module `Arch` row points to it).
-- **Downstream consumers read this file as authority** — the `[[module-doc]]` skill, `[[audit-docs]]`, and `[[skills/architect/SKILL\|/architect]]`. Update a rule here once and they pick it up; don't restate format rules in the skills. Don't regress the load-bearing conventions — the two-zone SECTIONS / per-class-table / Class Method Details structure, the bold-identifier-outside-code-span link form (backticks inside a wiki-link alias do NOT render), the `^ClassName-methodname` block-ID format, the `module_docs_audited:` frontmatter contract on `{NAME} Dev.md` (F074), and SVG-only figures via `[[viz-excalidraw]]` — each has a downstream reader (architect, audit-docs, Obsidian rendering) that breaks if it changes.
+- **Downstream consumers read this file as authority** — the `[[module-doc]]` skill, `[[audit-docs]]`, and `[[skills/architect/SKILL\|/architect]]`. Update a rule here once and they pick it up; don't restate format rules in the skills. Don't regress the load-bearing conventions — the two-zone SECTIONS / per-class-table / Class Method Details structure, the bold-identifier-outside-code-span link form (backticks inside a wiki-link alias do NOT render), the `^ClassName-methodname` block-ID format, the `module_docs_audited:` frontmatter contract on `{slug} Dev.md` (F074), and SVG-only figures via `[[viz-excalidraw]]` — each has a downstream reader (architect, audit-docs, Obsidian rendering) that breaks if it changes.
 - **When format conventions evolve** (as in the 2026-06-06 rewrite), update the dated working-example pointer at the top AND keep the "Naming and casing summary" + "Spacing summary" tables in sync with the prose — those tables are what auditors check against.

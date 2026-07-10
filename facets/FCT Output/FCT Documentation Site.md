@@ -67,7 +67,7 @@ A lightweight splash page on the personal website (oblinger.github.io). Built vi
 
 - Lives in `website/` inside the anchor (vault side)
 - Uses Jekyll with `jekyll-theme-cayman`
-- Published to `oblinger.github.io/gitproj/{SLUG}/`
+- Published to `oblinger.github.io/gitproj/{slug}/`
 - Added to the projects hub at `/gitproj/`
 
 ```

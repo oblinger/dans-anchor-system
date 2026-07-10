@@ -1,5 +1,5 @@
 # FEX API Design
-description:: programmatic surface of the `cae` Rust crate — types, signatures, error envelope, stability + compatibility commitments. Sibling to
+description:: Programmatic Rust-crate surface — types, signatures, error envelope, stability + compatibility.
 
 | -[[FEX API Design]]- | : Programmatic Rust-crate surface — types, signatures, error envelope, stability + compatibility.<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[FCT Design Docs]] → [FEX API Design](hook://p/FEX%20API%20Design) |
 | --- | --- |

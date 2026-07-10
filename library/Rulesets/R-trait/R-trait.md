@@ -10,7 +10,7 @@ include:: [[R-paper]], [[R-simple]], [[R-skill-anchor]], [[R-topic]]
 ## Adoption
 
 ```markdown
-# {NAME} Decisions
+# {slug} Decisions
 include:: [[R-trait]]
 ```
 

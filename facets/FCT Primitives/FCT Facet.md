@@ -44,7 +44,7 @@ Facets are one of the two kinds of [[CAB Aspects|Aspect]] — the narrow, file-b
 # Examples of a facet — project instances vs standalone `FEX` artifacts
 A facet's worked examples come in two kinds, and the **prefix tells them apart**:
 
-- **Project instances** — a real `{NAME} <Facet>.md` living inside a project example world ([[HBR]], [[FEX Repo]]) or an actual anchor. It keeps the project's slug (`HBR CLI`, `SKA Backlog`) and is linked from the `Examples` row (R-facet-spec-25).
+- **Project instances** — a real `{slug} <Facet>.md` living inside a project example world ([[HBR]], [[FEX Repo]]) or an actual anchor. It keeps the project's slug (`HBR CLI`, `SKA Backlog`) and is linked from the `Examples` row (R-facet-spec-25).
 - **Standalone teaching artifacts** — an example that belongs to *no* single project world (a dispatch-table gallery, a page-layout exemplar). It carries the **`FEX`** prefix — `FEX` marks "example" exactly as `FCT` marks "spec", so a reader tells them apart at a glance — and lives as a plain file **in the facet's group folder** (`facets/FCT <Group>/FEX <Name>.md`), beside the `FCT` specs. **No per-facet anchor is created** (that's the "bunch of anchors" trap); a set of related ones may be gathered by a `FEX <Group>` gallery/dispatch page in the same folder. Group-level placement is what lets a **cross-facet** example (one that teaches several facets at once) have a natural home.
 
 Worked instances of the standalone kind: [[FEX Dispatch Examples]] (+ [[FEX Grouped Dispatch]] / [[FEX List Dispatch]] / [[FEX Figure Page]]) in `facets/FCT Dispatch/`; [[FEX Scheduler]] in `facets/FCT Code/`.
@@ -52,7 +52,7 @@ Worked instances of the standalone kind: [[FEX Dispatch Examples]] (+ [[FEX Grou
 # RULESET R-facet-spec
 include::
 where:: `file: facets/**/FCT *.md, !facets/FCT.md, !**/FCT Facets.md, !**/FCT Primitives.md, !**/FCT Anchor.md, !**/FCT Code.md, !**/FCT Design Docs.md, !**/FCT Dispatch.md, !**/FCT Doc.md, !**/FCT Output.md, !**/FCT Track.md`
-description:: The rules for authoring a facet — what every `FCT <Name>.md` (a facet definition) must contain and conform to. **Distinct from the umbrella [[R-facet]]**, which aggregates each materialized facet's *own* embedded rules (so an anchor's `{NAME} Backlog.md`, `{NAME} Testing.md`, … get audited); `R-facet-spec` instead governs the **facet-spec documents themselves**, in the `facets/` catalog.
+description:: The rules for authoring a facet — what every `FCT <Name>.md` (a facet definition) must contain and conform to. **Distinct from the umbrella [[R-facet]]**, which aggregates each materialized facet's *own* embedded rules (so an anchor's `{slug} Backlog.md`, `{slug} Testing.md`, … get audited); `R-facet-spec` instead governs the **facet-spec documents themselves**, in the `facets/` catalog.
 
 Embedded here per the [[F133 — Rulesets folder convention + facet embedding|F133]] convention. Tiers: **checked** (mechanically verifiable), **sampled** (spot-checked), **stated** (a principle the author honors). The authoritative model these rules enforce is [[CAB Aspects]] § Facet + § Spec-doc structure.
 

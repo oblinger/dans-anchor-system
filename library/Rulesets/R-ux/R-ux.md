@@ -1,6 +1,6 @@
 # RULESET R-ux
 include:: [[FCT UX Design#RULESET R-ux|embedded body]]
-description:: Catalog stub — rules for `{NAME} UX Design.md`, the *human* user-facing surface intent. Canonical body lives embedded in [[FCT UX Design]].
+description:: Catalog stub — rules for `{slug} UX Design.md`, the *human* user-facing surface intent. Canonical body lives embedded in [[FCT UX Design]].
 
 Catalog-side stub for the UX Design facet's ruleset. The canonical body lives embedded inside the [[FCT UX Design]] facet file per the [[F133 — Rulesets folder convention + facet embedding|F133]] convention.
 

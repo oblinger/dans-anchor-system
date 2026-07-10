@@ -14,7 +14,7 @@ Per the 2026-06-09 design decision, each CAB facet spec file (`CAB <facet>.md`) 
 
 - **F137 sweep (landed)** — 15 more facets gained embedded RULESET blocks in one pass: `R-cli` ([[FCT CLI]]), `R-code-repository` ([[FCT Code Repository]]), `R-module-doc` ([[FCT Module Doc]]), `R-code-surface` ([[FCT Code]] — the All-Files↔module-doc pairing ruleset; named `R-code-surface` because the slug `R-code` is already the language/platform code-rulesets umbrella; itself includes `R-module-doc`), `R-dev-dispatch` ([[FCT Dev Dispatch]]), `R-doc-facet` ([[FCT Doc]]), `R-cards` ([[FCT Cards]]), `R-documentation-site` ([[FCT Documentation Site]]), `R-wp` ([[FCT WP]]), `R-skill-md` ([[FCT Skill]] — the SKILL.md *file-format* ruleset; named `R-skill-md` because the umbrella slug `R-skill` is already the per-skill aggregator), plus the five facet-**group** index pages whose only honest rule is family-membership completeness: `R-anchor-group` ([[FCT Anchor]]), `R-design-docs-group` ([[FCT Design Docs]]), `R-dispatch-group` ([[FCT Dispatch]]), `R-output-group` ([[FCT Output]]), `R-track-group` ([[FCT Track]]).
 
-- **R-ruleset** ([[FCT Ruleset]]) — the self-applying format ruleset (the meta-spec for `# RULESET` blocks and `{NAME} Rules.md` files); embedded in [[FCT Ruleset]] and added to the umbrella in the F137/F133 pass. (This is the set the older notes called "`R-rules`" — its actual slug is `R-ruleset`, since it governs *ruleset* files.)
+- **R-ruleset** ([[FCT Ruleset]]) — the self-applying format ruleset (the meta-spec for `# RULESET` blocks and `{slug} Rules.md` files); embedded in [[FCT Ruleset]] and added to the umbrella in the F137/F133 pass. (This is the set the older notes called "`R-rules`" — its actual slug is `R-ruleset`, since it governs *ruleset* files.)
 
 - **R-backlog** ([[Backlog|FCT Backlog]]) — the F228 frontier invariants, landed 2026-07-05. 4 rules: the groom-frontier definition (Now + Next + next roadmap milestone), frontier `[Ready]`/`[Active]` rows declare a `Next:` step, `## Now`/`## Next` rows are bracket-resolved, `[Verify*]`/`[Watching*]` rows carry a concrete `Verify:` question. Also in the [[R-doc]] umbrella (fires on `* Backlog.md` by `where::`).
 
@@ -23,7 +23,7 @@ Pending — each lands as its CAB facet's RULESET block is drafted: R-architectu
 ## Adoption
 
 ```markdown
-# {NAME} Decisions
+# {slug} Decisions
 include:: [[R-facet]]
 ```
 
@@ -31,7 +31,7 @@ This single include pulls in every CAB facet's structural rules. Audit walks the
 
 - A new anchor that wants to be CAB-conformant: one-liner adoption.
 - An audit pass that checks every facet file's structure in one walk.
-- Cherry-pick override: include `R-facet` AND override individual facet rules in the anchor's `{NAME} Rules.md`.
+- Cherry-pick override: include `R-facet` AND override individual facet rules in the anchor's `{slug} Rules.md`.
 
 ## See also
 

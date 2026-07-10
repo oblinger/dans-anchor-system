@@ -47,7 +47,7 @@ The **top table** (the *document table*) is the document's progressive-disclosur
 - **Long document (more than ~3 pages) → MUST have a TOC table** — a content-outline table: left column links to the document's own sections (in-document `[[#Heading]]` links), right column says in one line what each section is. A table of contents *with descriptions*.
 - **Short document (≲ 3 pages) → MUST NOT have a TOC table** — it adds navigation overhead a reader who can scroll the whole document doesn't need.
 
-**(c) Specialized tables.** Some specialized documents legitimately carry *another kind of table* at the top — e.g. a stories **index** table (`{NAME} Stories.md`), a status board, a glossary. These are neither a dispatch table nor a TOC table; they are the document's content, and rules (a) / (b) do not forbid them.
+**(c) Specialized tables.** Some specialized documents legitimately carry *another kind of table* at the top — e.g. a stories **index** table (`{slug} Stories.md`), a status board, a glossary. These are neither a dispatch table nor a TOC table; they are the document's content, and rules (a) / (b) do not forbid them.
 
 *(The **TOC / content-outline table** likely deserves its own facet — e.g. `FCT Content Outline` — described inline here for now.)*
 

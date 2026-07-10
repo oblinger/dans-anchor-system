@@ -1,16 +1,16 @@
 ---
-description: "facet spec for `{NAME} UX Design.md` — the human user-facing surface (CLI commands, screens, organization, naming, output shapes, error voice)"
+description: "facet spec for `{slug} UX Design.md` — the human user-facing surface (CLI commands, screens, organization, naming, output shapes, error voice)"
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FCT UX Design](hook://p/FCT%20UX%20Design)
 # FCT UX Design
-Facet spec for `{NAME} UX Design.md` — the *human* user-facing surface: CLI commands, screens, organization, naming, output shapes, error voice.
+Facet spec for `{slug} UX Design.md` — the *human* user-facing surface: CLI commands, screens, organization, naming, output shapes, error voice.
 
 **Related:** [[FCT API Design]],  [[FCT CLI]],  [[FCT Decisions]],  [[FCT Architecture]]
 **Examples:** [[HBR UX Design\|minimal (CLI surface)]],  [[HBR UX Design\|fuller (multi-surface)]]
 
 **TLDR**
-- **One per anchor** — a single `{NAME} UX Design.md` captures all human-facing surface intent for the anchor.
+- **One per anchor** — a single `{slug} UX Design.md` captures all human-facing surface intent for the anchor.
 - Covers CLI command sets, screen flows, slash-command surfaces, output shapes, and error voice.
 - Sibling to [[FCT API Design]] (programmatic surface); the cut is *who the consumer is* (human vs code).
 - Preface zone of each instance requires TLDR + representative figure before body H2s.
@@ -18,7 +18,7 @@ Facet spec for `{NAME} UX Design.md` — the *human* user-facing surface: CLI co
 
 UX Design specifies the **human user surface** of the anchor — how a person discovers, invokes, reads, and recovers from errors. It is sibling to [[FCT API Design]] (the *programmatic* user surface). The cut between them is **who the consumer is**, not where the surface lives: UX = human reading or invoking; API Design = code calling.
 
-**Cardinality: one per anchor** — a single `{NAME} UX Design.md` file per anchor captures the full human-facing surface intent. If the anchor has no human consumer, mark this facet `none` in [[FCT Status]] and omit the file.
+**Cardinality: one per anchor** — a single `{slug} UX Design.md` file per anchor captures the full human-facing surface intent. If the anchor has no human consumer, mark this facet `none` in [[FCT Status]] and omit the file.
 
 > [!info] Scope guard
 > "UX" here is the broad sense — *user-facing surface* — not narrowly "visual interface." For a CLI scheduler the UX is the command set, output shapes, and error voice. For a GUI app it is screens + flows. For a skill repository (no pixels) it is the slash-command surface and organization. If the anchor has no human consumer, this facet is N/A; mark it `none` in [[FCT Status]] and omit the file.
@@ -27,7 +27,7 @@ The UX Design doc is the **current spec** — what the surface looks like today,
 
 ## Location
 
-`{NAME} Docs/{NAME} Design/{NAME} UX Design.md` — single-file form. Upgrade to anchor-folder form `{NAME} UX Design/` only when sub-surfaces grow beyond what one file holds cleanly (rare; almost always single-file).
+`{slug} Docs/{slug} Design/{slug} UX Design.md` — single-file form. Upgrade to anchor-folder form `{slug} UX Design/` only when sub-surfaces grow beyond what one file holds cleanly (rare; almost always single-file).
 
 Peer of [[FCT Architecture]] and [[FCT API Design]] under [[FCT Design Dispatch|Design]].
 
@@ -46,7 +46,7 @@ Per [[DSC progressive-disclosure]]:
 | `## Entry-points` | The spine table. Every command / screen / affordance listed once with: name, one-line purpose, source story (`US-<SLUG>-<N>`). For CLIs: command name + one-line synopsis. For GUIs: screen name + one-line purpose. |
 | `## Output shapes` | Both forms named explicitly: human-readable default (what the user sees with their eyes) AND structured opt-in (`--json`, machine-readable export, copyable payload). Realistic example for each. |
 | `## Error voice` | The named error situations + the exact (or templated) message + exit code (CLI) or alert pattern (GUI). Tone is declared at the top (terse / friendly / verbose). |
-| `## Discovery` | How the human finds the entry-points: `--help` text, dispatch table in `{NAME}.md`, hotkey hints, banner copy. Names the signal the user follows on first encounter. |
+| `## Discovery` | How the human finds the entry-points: `--help` text, dispatch table in `{slug}.md`, hotkey hints, banner copy. Names the signal the user follows on first encounter. |
 | `## Design decisions` | `D-UX<n>` rows: each load-bearing UX choice with rationale (why this and not the obvious alternative). Bridge to [[FCT Decisions]] for decisions that cite a ruleset. |
 
 Other H2s (e.g., `## Affordances`, `## Accessibility`, `## Telemetry`) join when applicable.
@@ -112,7 +112,7 @@ The `## Error voice` H2 opens with a one-line declaration of tone (terse / frien
 
 ### RULE R-ux-06 — Discovery mechanism named (stated)
 
-A `## Discovery` H2 (or equivalent) names how the human finds the entry-points on first encounter — `--help` text, dispatch table in `{NAME}.md`, hotkey, banner copy, web nav. Don't assume discovery is obvious.
+A `## Discovery` H2 (or equivalent) names how the human finds the entry-points on first encounter — `--help` text, dispatch table in `{slug}.md`, hotkey, banner copy, web nav. Don't assume discovery is obvious.
 
 **Check pattern:** assert `## Discovery` exists OR an inline `discovery::` line in the spine table; body names the surfacing channel.
 
@@ -144,7 +144,7 @@ When UX Design starts listing every flag, or describing function signatures, or 
 
 *(Maintainer note — cautions for whoever edits this facet spec. The normative spec is the body above; the embedded [[#RULESET R-ux|R-ux]] ruleset is its auditable form.)*
 
-- **Inclusion test** — a change belongs here only if it is a structural rule, required section, or load-bearing definition that applies to *every* `{NAME} UX Design.md` across anchors. Concrete commands, screens, error messages, and worked examples belong in each anchor's own doc or in [[HBR UX Design]] (canonical exemplar) — never inline them here.
+- **Inclusion test** — a change belongs here only if it is a structural rule, required section, or load-bearing definition that applies to *every* `{slug} UX Design.md` across anchors. Concrete commands, screens, error messages, and worked examples belong in each anchor's own doc or in [[HBR UX Design]] (canonical exemplar) — never inline them here.
 - **Preserve the facet-cut boundaries** — UX Design owns human-facing intent; [[FCT API Design]] owns the programmatic surface, [[FCT CLI]] the exhaustive flag reference, [[FCT Architecture]] internal organization. R-ux-08 is the load-bearing guard; don't let this spec absorb sibling content.
 - **Ruleset is co-located** — the `# RULESET R-ux` H1 is part of this file per [[F133 — Rulesets folder convention + facet embedding|F133]]; revise rules in place, never split into a sibling file or duplicate in [[FCT Ruleset]]. And this is the rulebook, not an instance — R-ux-01 mandates TLDR + figure for each instance; don't import a figure or transcript into this spec.
 - **Cross-references that must stay live** — [[FCT API Design]], [[FCT CLI]], [[FCT Decisions]], [[FCT Architecture]], [[DSC progressive-disclosure]], [[HBR UX Design]]; renaming or moving any requires updating the wiki-links here.

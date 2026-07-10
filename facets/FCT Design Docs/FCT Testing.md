@@ -20,25 +20,25 @@ description: testing facet — the project's testing strategy (kinds, amounts, r
 | [[#See also]] |  |
 | **[[#BRIEF]]** |  |
 
-Spec for the `{NAME} Testing.md` design facet — a two-part doc combining the project's testing strategy with a proposed-tests inventory, peer to Architecture and UX Design under Design.
+Spec for the `{slug} Testing.md` design facet — a two-part doc combining the project's testing strategy with a proposed-tests inventory, peer to Architecture and UX Design under Design.
 
 **Related:** [[FCT Architecture]],  [[FCT UX Design]],  [[FCT PRD]],  [[FCT Design Docs]]
 **Examples:** [[Mini Testing\|minimal worked example]],  [[HBR Testing\|maximal worked example]],  [[HBR Testing\|fuller worked example]]
 
-**Location:** `{NAME} Design/{NAME} Testing.md` (or `{NAME} Testing/` if it grows to anchor-folder form, parallel to Architecture).
+**Location:** `{slug} Design/{slug} Testing.md` (or `{slug} Testing/` if it grows to anchor-folder form, parallel to Architecture).
 
 **Cardinality:** one per anchor — a project has exactly one testing facet doc.
 
 **Two forms in the wild.** Real instances span a range:
 
-- **Single-file, lean** — the common case (e.g. [[Mini Testing]], [[HBR Testing]]): one `{NAME} Testing.md` with the standard sections below.
+- **Single-file, lean** — the common case (e.g. [[Mini Testing]], [[HBR Testing]]): one `{slug} Testing.md` with the standard sections below.
 - **Single-file, grown** — a large project keeps the single file but adds project-specific strategy sections between Strategy and Proposed Tests (e.g. [[MUX Testing]] adds `## Relevance Gating` and a `## Subjective implementation notes` block, and carries an extra **Scope** / **Recipe** column on its tables). These additions are allowed — the load-bearing invariant is the `Overview → Strategy → Proposed Tests` spine, not the absence of extra sections or columns.
 
 **Anti-pattern — inlined specs.** Some legacy instances (e.g. `SKA Bridge Testing.md`) skip the `## Proposed Tests` inventory and instead inline each test's Precondition / Steps / Pass directly under per-test H3s. That is the **altitude inversion** R-testing-07 exists to prevent: the facet doc becomes the test file and the three-altitude split collapses. The fix is to lift those low-level specs into module docs and replace the H3 blocks with one inventory row each, the spec body moving behind the Spec-column link.
 
 The Testing facet is the **system-level testing story** — how this project gets tested. It is a peer of [[FCT Architecture|Architecture]] and [[FCT UX Design|UX Design]] under [[FCT Design Dispatch|Design]]: where Architecture says *how the system is structured* and UX Design says *what users see*, Testing says *how we will know it works*.
 
-A `{NAME} Testing.md` has two parts that ship together:
+A `{slug} Testing.md` has two parts that ship together:
 
 1. **Strategy** — the approach. Kinds of testing this project will use, how much of each is designed for, where each lives, who authors what.
 2. **Proposed tests overview** — the test inventory at facet altitude. One row per proposed test, consistent with the strategy. The *spec* of each test (preconditions, fixtures, assertions, expected outputs) lives in the relevant module doc, not here.
@@ -47,9 +47,9 @@ A `{NAME} Testing.md` has two parts that ship together:
 
 | Altitude | Lives at | Carries |
 |---|---|---|
-| Strategy | `{NAME} Testing.md` § Strategy | Kinds of test, completeness targets, authoring responsibilities, tier mapping. |
-| Proposed tests (inventory) | `{NAME} Testing.md` § Proposed Tests | Test name, kind, what it exercises, link to its low-level spec. One row per test. |
-| Low-level spec | Module doc (`{NAME} Dev Docs/<Module>.md` or `Test/` block on a module page) | Preconditions, fixtures, assertions, expected outputs, actual test code reference. |
+| Strategy | `{slug} Testing.md` § Strategy | Kinds of test, completeness targets, authoring responsibilities, tier mapping. |
+| Proposed tests (inventory) | `{slug} Testing.md` § Proposed Tests | Test name, kind, what it exercises, link to its low-level spec. One row per test. |
+| Low-level spec | Module doc (`{slug} Dev Docs/<Module>.md` or `Test/` block on a module page) | Preconditions, fixtures, assertions, expected outputs, actual test code reference. |
 
 The facet doc reads top-down: a reviewer can answer "is this enough testing?" from § Strategy alone, then drill into § Proposed Tests to verify the strategy actually maps to concrete tests, then follow links into module docs for full detail.
 
@@ -57,7 +57,7 @@ The facet doc reads top-down: a reviewer can answer "is this enough testing?" fr
 
 | # | Section | Purpose |
 |---|---|---|
-| 1 | Top of doc | YAML frontmatter (with `status::` field) + `# {NAME} Testing` H1 + dispatch table + **TLDR** (required per [[DSC progressive-disclosure]] § Per-facet preface requirements). |
+| 1 | Top of doc | YAML frontmatter (with `status::` field) + `# {slug} Testing` H1 + dispatch table + **TLDR** (required per [[DSC progressive-disclosure]] § Per-facet preface requirements). |
 | 1b | `## Tests` | **REQUIRED coverage table** directly below the preface (after TLDR, before Overview). One row per test kind: **Kind** (a link — see § The tests-table) · **In system** (current test count) · **Expected** (target count and/or qualitative coverage). The grazer-altitude coverage map. |
 | 2 | `## Overview` | One paragraph — what this project's testing posture is in a sentence (e.g., "Heavy unit + integration; minimal e2e because the surface is library-shaped"). The reader leaves knowing the *shape* of the test investment. Often elaborates on what the TLDR has already gestured at. |
 | 3 | `## Strategy` | The first part of the facet. Subsections below. |
@@ -72,7 +72,7 @@ The spine is `Overview → Strategy → Proposed Tests`. § 2–4 are the load-b
 
 ## The tests-table (required)
 
-Directly below the preface (after the **TLDR**, before `## Overview`), every `{NAME} Testing.md` carries a **`## Tests`** table — the at-a-glance coverage map. **One row per test kind** the project uses, in the same kind set as `## Strategy § Test Kinds`. Columns:
+Directly below the preface (after the **TLDR**, before `## Overview`), every `{slug} Testing.md` carries a **`## Tests`** table — the at-a-glance coverage map. **One row per test kind** the project uses, in the same kind set as `## Strategy § Test Kinds`. Columns:
 
 | Column | Contents |
 |---|---|
@@ -83,7 +83,7 @@ Directly below the preface (after the **TLDR**, before `## Overview`), every `{N
 **The Kind cell is always a link**, and the target depends on whether the project's use of that kind is ordinary:
 
 - **Vanilla** — the project uses the kind the standard way → link to the matching H2 in [[Common Testing Types]] (e.g. `[[Common Testing Types#Property\|Property]]`).
-- **Special** — the project does something noteworthy with the kind → link to a section **within this same `{NAME} Testing.md`** explaining the twist (e.g. `[[#Wire-contract goldens\|Golden]]`). That in-doc section carries only what is *different* from the generic, and may itself cite the Common Testing Types H2.
+- **Special** — the project does something noteworthy with the kind → link to a section **within this same `{slug} Testing.md`** explaining the twist (e.g. `[[#Wire-contract goldens\|Golden]]`). That in-doc section carries only what is *different* from the generic, and may itself cite the Common Testing Types H2.
 
 A reviewer reads `## Tests` to answer "what kinds, how much now, how much intended?" in one glance, then drops into `## Strategy` for the why and `## Proposed Tests` for the individual rows. The kind set here must equal the kinds in `## Strategy § Test Kinds` (and thus the H3 groups in `## Proposed Tests`).
 
@@ -121,7 +121,7 @@ The frontmatter carries a `status::` dataview field tracking facet completeness:
 
 ```yaml
 ---
-description: {NAME} Testing — strategy + proposed-tests overview.
+description: {slug} Testing — strategy + proposed-tests overview.
 status:: drafting
 ---
 ```
@@ -130,7 +130,7 @@ Valid values: `drafting | in-review | accepted`. Acceptance is the Gate 2 signal
 
 ## Naming convention
 
-- **Facet file:** `{NAME} Testing.md` — just `Testing`, not `Testing Strategy`. The doc covers more than strategy (strategy + proposed tests); the shorter name reflects that.
+- **Facet file:** `{slug} Testing.md` — just `Testing`, not `Testing Strategy`. The doc covers more than strategy (strategy + proposed tests); the shorter name reflects that.
 - **Proposed-test names:** project's native test-runner convention. For Python pytest: `test_<thing>_<condition>`. For Rust: `<mod>::<test_fn>`. The Test column shows the runner-native name verbatim so it greps against the test file.
 
 ## Trait applicability
@@ -139,7 +139,7 @@ Available to any anchor that ships testable behavior — primarily `Code` trait 
 
 ## Relationship to existing infrastructure
 
-- **`/design testing` sub-skill** ([[skills/design/design-testing|design-testing.md]]) is the authoring skill for this facet. The sub-skill was rewritten 2026-06-10 (F136) to author the two-part `{NAME} Testing.md` shape per this facet; the legacy 5-H2 `{NAME} Testing Strategy.md` scaffold it previously produced is superseded. Migration of any existing `{NAME} Testing Strategy.md` files happens lazily — design-testing's runbook detects the legacy file and migrates on first invocation.
+- **`/design testing` sub-skill** ([[skills/design/design-testing|design-testing.md]]) is the authoring skill for this facet. The sub-skill was rewritten 2026-06-10 (F136) to author the two-part `{slug} Testing.md` shape per this facet; the legacy 5-H2 `{slug} Testing Strategy.md` scaffold it previously produced is superseded. Migration of any existing `{slug} Testing Strategy.md` files happens lazily — design-testing's runbook detects the legacy file and migrates on first invocation.
 - **`[[DSC verification]]`** is the four-tier discipline this facet's Tier Mapping cites. Testing kinds map to verification tiers — they are not the same vocabulary.
 - **`[[FCT Architecture]]`** is the peer facet whose subsystem boundaries drive integration-test coverage. Re-read Architecture before drafting § Proposed Tests § Integration.
 
@@ -165,16 +165,16 @@ Available to any anchor that ships testable behavior — primarily `Code` trait 
 # RULESET R-testing
 include::
 where:: `file:{ANCHOR}/**/* Testing.md`
-description:: spec for the `{NAME} Testing.md` design facet — strategy + proposed-tests inventory
+description:: spec for the `{slug} Testing.md` design facet — strategy + proposed-tests inventory
 
 Embedded ruleset for the Testing facet, co-located with the facet spec above per the [[F133 — Rulesets folder convention + facet embedding|F133]] embedding convention. Pulled in via the `R-facet` umbrella; active for an anchor through its traits ([[Warden Semantics]] § Rulesets).
 
-### RULE R-testing-01 — File name is `{NAME} Testing.md` (checked)
+### RULE R-testing-01 — File name is `{slug} Testing.md` (checked)
 check:: testing_filename_correct
 
-The facet doc is named `{NAME} Testing.md` — not `{NAME} Testing Strategy.md`, `{NAME} Tests.md`, or any other variant. The doc covers strategy AND proposed tests; the name reflects the scope.
+The facet doc is named `{slug} Testing.md` — not `{slug} Testing Strategy.md`, `{slug} Tests.md`, or any other variant. The doc covers strategy AND proposed tests; the name reflects the scope.
 
-**Check pattern:** `ls "{anchor}/{NAME} Design/{NAME} Testing.md"` exists. No file named `{NAME} Testing Strategy.md` exists alongside (would be the legacy design-testing scaffold; flag for migration).
+**Check pattern:** `ls "{anchor}/{slug} Design/{slug} Testing.md"` exists. No file named `{slug} Testing Strategy.md` exists alongside (would be the legacy design-testing scaffold; flag for migration).
 
 **Why:** the older `design-testing` scaffold authored `Testing Strategy.md`; this facet supersedes that shape. The shorter name is canonical going forward.
 
@@ -281,7 +281,7 @@ Directly after the preface (TLDR), before `## Overview`, the doc has a `## Tests
 
 *(Maintainer note — cautions for whoever edits this facet spec. The normative spec is the body above; the embedded `R-testing` ruleset is its auditable form.)*
 
-- **Inclusion test** — a change belongs here only if it applies to every `{NAME} Testing.md` across anchors. Per-project content and worked examples ([[HBR Testing]], [[Mini Testing]], [[MUX Testing]]) live in their own anchors, linked from § See also; never inline them here.
+- **Inclusion test** — a change belongs here only if it applies to every `{slug} Testing.md` across anchors. Per-project content and worked examples ([[HBR Testing]], [[Mini Testing]], [[MUX Testing]]) live in their own anchors, linked from § See also; never inline them here.
 - **Keep spec ↔ ruleset in sync** — when the section order, table contract, or `status::` value set changes above, audit each `RULE R-testing-NN` block for matching wording, check-pattern accuracy, and any rule that should be added; the numbered rules are the auditable form of this prose.
 - **Sync downstream in lockstep** — the [[skills/design/design-testing|design-testing]] sub-skill is the canonical authoring path (update its runbook when the facet shape evolves — the 2026-06-10 F136 rewrite is the precedent), and the `## Tests` coverage table's Kind cells track [[Common Testing Types]] (keep in sync when either changes).
 - **Cross-references that must stay live** — [[FCT Architecture]], [[DSC verification]], [[DSC progressive-disclosure]], [[Common Testing Types]], [[HBR Testing]], [[F133 — Rulesets folder convention + facet embedding|F133]]; renaming or moving any requires updating the wiki-links here.

@@ -13,7 +13,7 @@ include::
 ## Adoption
 
 ```markdown
-# {NAME} Decisions
+# {slug} Decisions
 include:: [[R-skill]]
 ```
 
