@@ -1,6 +1,6 @@
 # Roadmap — Audit Roadmap Structure (named milestones + future-only)
 
-Check a `{slug} Roadmap.md` against the named-milestone-era rules introduced by [[F144 — Completed Roadmap + named milestones]] and codified in [[FCT Roadmap]] / [[FCT Completed Roadmap]]. **Reports findings only.** No files are modified (milestone migration + checkbox flips live in `state roadmap`, not here).
+Check a `{slug} Roadmap.md` against the named-milestone-era rules introduced by [[F144 — Completed Roadmap + named milestones]] and codified in [[DAS Roadmap]] / [[DAS Completed Roadmap]]. **Reports findings only.** No files are modified (milestone migration + checkbox flips live in `state roadmap`, not here).
 
 ## Rules enforced
 
@@ -37,6 +37,6 @@ Print the findings table to the console. Each finding carries `[severity] CODE f
 
 ## See also
 
-- [[FCT Roadmap]] — the facet spec + embedded `R-roadmap` RULESET (R09/R10/R11)
-- [[FCT Completed Roadmap]] — the migration target + `R-completed-roadmap` RULESET
+- [[DAS Roadmap]] — the facet spec + embedded `R-roadmap` RULESET (R09/R10/R11)
+- [[DAS Completed Roadmap]] — the migration target + `R-completed-roadmap` RULESET
 - [[F145 — Roadmap automation scripts]] — the feature that landed this checker + `state roadmap`

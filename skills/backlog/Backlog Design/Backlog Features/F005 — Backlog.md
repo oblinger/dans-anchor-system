@@ -2,7 +2,7 @@
 description: "F005 — Backlog"
 ---
 
-# [[Backlog]] · F005 — Backlog
+# [[DAS Backlog]] · F005 — Backlog
 
 A discipline for how to organize a backlog so the user can push items off the front without sending them all the way to the Icebox. Adds three horizon sections (Now / Next / Later) inside the backlog, treats them as orthogonal to per-item status (Ready / Questions / Active / etc.), and is documented as a reusable discipline that multiple skills reference (`/groom`, `/roster`, `/feature`, …) — same shape as `ask-questions`.
 

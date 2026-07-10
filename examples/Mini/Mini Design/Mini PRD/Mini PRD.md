@@ -3,7 +3,7 @@ description:: Product requirements for Mini — the minimal example project.
 
 | -[[Mini PRD]]- | : Product requirements for Mini.<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[Mini]] → [Mini PRD](hook://p/Mini%20PRD) |
 | --- | --- |
-| [[Mini Stories]] | one user story — index for US-MINI-1 (folder-form per [[FCT Stories]]) |
+| [[Mini Stories]] | one user story — index for US-MINI-1 (folder-form per [[DAS Stories]]) |
 
 ## Overview
 
@@ -19,11 +19,11 @@ Mini is a one-command note-stamper: `mini stamp <file>` prepends the current dat
 
 ## User Stories
 
-See [[Mini Stories]] for the index. One story in folder form per [[FCT Stories]]:
+See [[Mini Stories]] for the index. One story in folder form per [[DAS Stories]]:
 
 - [[US-MINI-1 — Stamp a file|US-MINI-1: Stamp a file]]
 
 ## See also
 
-- [[FCT PRD]] — facet spec
-- [[FCT Stories]] — stories sub-facet (active here in folder form)
+- [[DAS PRD]] — facet spec
+- [[DAS Stories]] — stories sub-facet (active here in folder form)

@@ -4,7 +4,7 @@ description: "the leanest complete file set for a facet, with a live instance"
 
 # FEX Minimal Facet
 
-| -[[FEX Minimal Facet]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[FCT Primitives]] → [FEX Minimal Facet](hook://p/FEX%20Minimal%20Facet)<br>: the leanest complete file set for a facet, with a live instance |
+| -[[FEX Minimal Facet]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[DAS Primitives]] → [FEX Minimal Facet](hook://p/FEX%20Minimal%20Facet)<br>: the leanest complete file set for a facet, with a live instance |
 | --- | --- |
 | Anchor | [[HBR]] (reference anchor) |
 | Related | [[FEX Minimal Skill]],  [[DSC Dispatch Table]] (the live instance),  [[FCT Facets]] |
@@ -21,7 +21,7 @@ The **minimal-facet capsule**: the smallest file set that fully captures a facet
 
 **Not in the capsule:** no Backlog, no UX, no PRD/principles/architecture stubs. A facet is a spec, not a project. If a facet ever genuinely needs a backlog, it has outgrown "facet" and should be reconsidered.
 
-The Design doc is the *synthesis* (standing decisions, one place to look); the feature docs are the *detail* (chronological, per-decision). Same synthesis-vs-detail split as [[FCT Brief]] — linking, not duplication ([[atlas]] § routing-not-duplication is the same principle).
+The Design doc is the *synthesis* (standing decisions, one place to look); the feature docs are the *detail* (chronological, per-decision). Same synthesis-vs-detail split as [[DAS Brief]] — linking, not duplication ([[atlas]] § routing-not-duplication is the same principle).
 
 ## Live instance — [[DSC Dispatch Table]]
 

@@ -3,9 +3,9 @@ description: "the rule language — the file format for a rule and a ruleset (se
 ---
 # Warden Rule
 
-The **file format** of the Warden rule language: what a **rule** is and what a **ruleset** is, as written on disk. A rule is the atomic constraint; a ruleset is a named bundle of rules that travel together. This page defines the format — the sentinels, fields, and composition. How a rule *runs* — the condition, the actions, the interpretation environment — is [[Warden Semantics]]; worked runnable rules are [[Warden Examples]]; the `when::` moment vocabulary is [[Warden Events]] and `where::` is [[FCT Ruleset]] § Where clause.
+The **file format** of the Warden rule language: what a **rule** is and what a **ruleset** is, as written on disk. A rule is the atomic constraint; a ruleset is a named bundle of rules that travel together. This page defines the format — the sentinels, fields, and composition. How a rule *runs* — the condition, the actions, the interpretation environment — is [[Warden Semantics]]; worked runnable rules are [[Warden Examples]]; the `when::` moment vocabulary is [[Warden Events]] and `where::` is [[DAS Ruleset]] § Where clause.
 
-Worked instances: [[R-diagram]] (a large umbrella), [[FEX Rules]] (an anchor-local set), and the self-applying `R-ruleset` block in [[FCT Ruleset]].
+Worked instances: [[R-diagram]] (a large umbrella), [[FEX Rules]] (an anchor-local set), and the self-applying `R-ruleset` block in [[DAS Ruleset]].
 
 ## The rule
 
@@ -38,7 +38,7 @@ A ruleset is a `# RULESET R-<slug>` block plus a prescriptive header. The all-ca
 |---|---|---|
 | `# RULESET R-<slug>` | yes | sentinel H1 + the set's identifier |
 | `include:: …` | yes (may be empty) | composition (§ Composition); the empty line is the slot |
-| `where:: …` | optional | set-level default **place** every rule inherits ([[FCT Ruleset]] § Where clause) |
+| `where:: …` | optional | set-level default **place** every rule inherits ([[DAS Ruleset]] § Where clause) |
 | `when:: …` | optional | set-level default **moment** every rule inherits ([[Warden Events]]) |
 | `description:: …` | yes | one-line (8–15 word) tagline; no `::` in the value |
 | prose body | optional | provenance, attribution, factoring history; any length |
@@ -51,7 +51,7 @@ A rule fires only when the **conjunction** of its present clauses holds. Each is
 
 | Clause | Binds to | Spec |
 |---|---|---|
-| `where::` | the **file** it concerns — an anchor-relative glob | [[FCT Ruleset]] § Where clause |
+| `where::` | the **file** it concerns — an anchor-relative glob | [[DAS Ruleset]] § Where clause |
 | `when::` | the **moment** it fires at — omit → *passive* (audit-time) | [[Warden Events]] |
 | `if::` | the **test** — a **Python expression** over `file` / `anchor` / `git` / `event` (or prose, for an LLM judgment) | [[Warden Semantics]] § The condition |
 
@@ -81,7 +81,7 @@ A ruleset absorbs others by naming them on `include::` (bare names or `[[wiki-li
 
 ## Where rules live, and adoption
 
-Three homes (detail: [[FCT Ruleset]], [[F133 — Rulesets folder convention + facet embedding|F133]]):
+Three homes (detail: [[DAS Ruleset]], [[F133 — Rulesets folder convention + facet embedding|F133]]):
 
 | Home | When |
 |---|---|
@@ -89,7 +89,7 @@ Three homes (detail: [[FCT Ruleset]], [[F133 — Rulesets folder convention + fa
 | **Embedded** — `# RULESET` inside a facet / skill / discipline spec | rules that *are* the structural spec for an artifact kind |
 | **Anchor-local** — a companion `# RULESET` in the decisions file, or `{NAME} Rules.md` | rules truly specific to one anchor |
 
-**Adoption is by the anchor's traits, not its decisions.** An anchor's active rules are a pure function of its `.anchor` traits — each trait pulls in its rulesets via `include::`, recursively (activation semantics: [[Warden Semantics]] § Rulesets). Decisions ([[FCT Decisions]]) sit above as documentation Warden ignores: an anchor's accompanying rules ride in a companion `# RULESET` directly after its `## Decisions` section (same or clearly related name), and a rule ties itself back to the decision it implements with a loose `implements D<N>` note.
+**Adoption is by the anchor's traits, not its decisions.** An anchor's active rules are a pure function of its `.anchor` traits — each trait pulls in its rulesets via `include::`, recursively (activation semantics: [[Warden Semantics]] § Rulesets). Decisions ([[DAS Decisions]]) sit above as documentation Warden ignores: an anchor's accompanying rules ride in a companion `# RULESET` directly after its `## Decisions` section (same or clearly related name), and a rule ties itself back to the decision it implements with a loose `implements D<N>` note.
 
 ## Naming
 
@@ -98,13 +98,13 @@ Three homes (detail: [[FCT Ruleset]], [[F133 — Rulesets folder convention + fa
 
 ## Relationship to FCT Ruleset
 
-[[FCT Ruleset]] is the CAB **facet** — it integrates Warden rules into the anchor system (which anchors author/adopt rulesets, how `/audit` binds them) and currently still carries the prescriptive format text + the self-applying `R-ruleset` block. **`Warden Rule` is the canonical home of the rule *language*** going forward; the end-state is for `FCT Ruleset` to slim to the facet-integration role and reference this page for format. (Migration not yet done — flagged, not unilateral, since the facet is widely referenced.) The `where::` glob grammar still lives authoritatively in `FCT Ruleset § Where clause`; folding it into Warden is part of the same migration.
+[[DAS Ruleset]] is the CAB **facet** — it integrates Warden rules into the anchor system (which anchors author/adopt rulesets, how `/audit` binds them) and currently still carries the prescriptive format text + the self-applying `R-ruleset` block. **`Warden Rule` is the canonical home of the rule *language*** going forward; the end-state is for `FCT Ruleset` to slim to the facet-integration role and reference this page for format. (Migration not yet done — flagged, not unilateral, since the facet is widely referenced.) The `where::` glob grammar still lives authoritatively in `FCT Ruleset § Where clause`; folding it into Warden is part of the same migration.
 
 ## See also
 
 - [[Warden Semantics]] — how a rule *runs*: the condition, the actions, the interpretation environment, ruleset activation.
 - [[Warden Examples]] — every kind of rule as a complete, runnable example.
-- [[Warden Events]] — the `when::` moment catalog; [[FCT Ruleset]] — the `where::` grammar (today's authoritative home).
-- [[FCT Decisions]] — the decisions doctrine: documentation layer Warden ignores; companion ruleset; `implements D<N>` linkage.
+- [[Warden Events]] — the `when::` moment catalog; [[DAS Ruleset]] — the `where::` grammar (today's authoritative home).
+- [[DAS Decisions]] — the decisions doctrine: documentation layer Warden ignores; companion ruleset; `implements D<N>` linkage.
 - [[Warden Architecture]] / [[Warden Runtime]] — how the format is resolved, compiled, and run.
 - [[R-diagram]], [[FEX Rules]] — worked instances.

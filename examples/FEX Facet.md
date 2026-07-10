@@ -5,9 +5,9 @@ description: "canonical facet exemplar"
 # Design
 The marker that an anchor follows the designed-lifecycle convention — if `{slug} Design/` exists, the anchor is in design-mode.
 
-| -[[FEX Facet]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[FCT Primitives]] → [FEX Facet](hook://p/FEX%20Facet)<br>: canonical facet exemplar |
+| -[[FEX Facet]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[DAS Primitives]] → [FEX Facet](hook://p/FEX%20Facet)<br>: canonical facet exemplar |
 | --- | --- |
-| Related | [[FCT]],  [[FCT Design]] (the live facet),  [[FCT Anchor Page]],  [[progressive-disclosure]] |
+| Related | [[FCT]],  [[DAS Design]] (the live facet),  [[DAS Anchor Page]],  [[progressive-disclosure]] |
 
 > **Canonical facet exemplar.** This page *is* the template every `FCT <name>` facet follows. Structure, top to bottom: **H1** = the facet's readable name → **one line** saying what it is → **masthead** (just `Related` — nothing the breadcrumb already gives) → the **facet body** (the H2s below). Roll this shape out to all facets. The worked content here is the **Design** facet.
 
@@ -21,7 +21,7 @@ The **structural marker** that an anchor follows the designed-lifecycle conventi
 
 ## Structure
 
-The `{slug} Design/` folder is itself a container (anchor page + dispatch table, per [[progressive-disclosure]]); its members are the design sub-facets — **required**: [[FCT PRD|PRD]], [[FCT Architecture|Architecture]], [[FCT Testing|Testing]]; **recommended**: [[FCT Decisions|Decisions]], [[FCT Roadmap|Roadmap]], [[FCT Features|Features]]; **optional**: [[FCT UX Design|UX]], [[FCT API Design|API]].
+The `{slug} Design/` folder is itself a container (anchor page + dispatch table, per [[progressive-disclosure]]); its members are the design sub-facets — **required**: [[DAS PRD|PRD]], [[DAS Architecture|Architecture]], [[DAS Testing|Testing]]; **recommended**: [[DAS Decisions|Decisions]], [[DAS Roadmap|Roadmap]], [[DAS Features|Features]]; **optional**: [[DAS UX Design|UX]], [[DAS API Design|API]].
 
 ## Rules
 
@@ -29,4 +29,4 @@ RULE (design-gate): the **presence of `{slug} Design/`** is the gate — `/desig
 
 ## Example
 
-Live instance: [[FCT Design]] (the facet spec itself) and any anchor with a `{slug} Design/` folder (e.g. [[HBR]]).
+Live instance: [[DAS Design]] (the facet spec itself) and any anchor with a `{slug} Design/` folder (e.g. [[HBR]]).

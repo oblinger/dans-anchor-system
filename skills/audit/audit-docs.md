@@ -58,10 +58,10 @@ Status values:
 - [ ] Flag docs where methods or properties changed signature as **stale-methods**
 
 ## 1.6 Validate module doc format
-For each existing module doc, check every item in the [[FCT Module Doc]] format checklist:
+For each existing module doc, check every item in the [[DAS Module Doc]] format checklist:
 - [ ] Flag format violations as **format-error** with the specific rule broken
 
-(See [[FCT Module Doc]] for the canonical checklist — naming, headings, CLASSES table, per-class tables, METHOD DETAILS, casing, spacing, table formatting. The audit *flags* violations; it does not apply the format. Fixes happen later, when the corresponding backlog entry is pulled.)
+(See [[DAS Module Doc]] for the canonical checklist — naming, headings, CLASSES table, per-class tables, METHOD DETAILS, casing, spacing, table formatting. The audit *flags* violations; it does not apply the format. Fixes happen later, when the corresponding backlog entry is pulled.)
 
 ## 1.7 Check Files.md column alignment
 
@@ -111,7 +111,7 @@ for f in pathlib.Path('.').rglob('* Docs/* Dev/* Files.md'):
 
 ## 1.8 Check Interface (code-trait anchors only)
 
-The Interface (see [[FCT Interface]]) is the **required top-level human-authored layer contract** for the codebase. It must exist and be reachable from two places:
+The Interface (see [[DAS Interface]]) is the **required top-level human-authored layer contract** for the codebase. It must exist and be reachable from two places:
 
 - [ ] `{slug} Docs/{slug} User/{slug} Interface.md` exists. Flag absence as **missing-interface**.
 - [ ] `{slug} Files.md` row 1 (the repo-root directory row) contains `→ [[{slug} Interface]]`. Flag absence as **interface-not-linked-from-files**.
@@ -120,7 +120,7 @@ The Interface (see [[FCT Interface]]) is the **required top-level human-authored
 - [ ] Interface lists every top-level public module that exists in source. Flag missing modules as **interface-module-missing**.
 - [ ] Interface line count ≤ 500. Flag overflow as **interface-too-large** — suggest splitting into sub-Interfaces (`{slug} {LayerName} Interface.md`).
 
-**Legacy `{slug} Rollup.md`.** If `{slug} Rollup.md` is found (predecessor to Interface — see F062 / [[FCT Interface]]), flag as **legacy-rollup-needs-migration**. Do NOT auto-rename; the migration requires a content review per F062's forward-only policy.
+**Legacy `{slug} Rollup.md`.** If `{slug} Rollup.md` is found (predecessor to Interface — see F062 / [[DAS Interface]]), flag as **legacy-rollup-needs-migration**. Do NOT auto-rename; the migration requires a content review per F062's forward-only policy.
 
 For linked-mode code anchors where the repo is elsewhere, also check the **repo root** has a visible reference to the Interface so repo-only readers can find it.
 
@@ -195,9 +195,9 @@ The orchestrator (or single-skill caller) will roll this up into the final stat 
 
 - [ ] Audits never modify documentation files.
 - [ ] All findings flow into a backlog entry under `## Upcoming` (unless `dry`).
-- [ ] Use [[FCT Module Doc]] as the canonical reference when describing what's wrong with a doc — link to the spec, don't inline the format.
+- [ ] Use [[DAS Module Doc]] as the canonical reference when describing what's wrong with a doc — link to the spec, don't inline the format.
 - [ ] B-number assignment: lowest unused integer in the file (gap-fill).
-- [ ] `module_docs_audited:` frontmatter on `{slug} Dev.md` is owned by this skill — no other skill writes it (per F074, [[FCT Module Doc]] § `{slug} Dev.md` frontmatter).
+- [ ] `module_docs_audited:` frontmatter on `{slug} Dev.md` is owned by this skill — no other skill writes it (per F074, [[DAS Module Doc]] § `{slug} Dev.md` frontmatter).
 
 <!-- compiled:end -->
 
@@ -205,11 +205,11 @@ The orchestrator (or single-skill caller) will roll this up into the final stat 
 
 The mechanical scanner (`cab-audit.py`, level 5 — see [[audit-structure]] § Mechanical scanner) compares source code against module docs and emits per-item warnings. **This audit only reports them** (findings → backlog entry, per the phases above); the fix-vs-exception guidance below applies downstream, when the backlog entry is pulled.
 
-- **`class-undocumented`** — class in source, no module-doc entry. *Fix:* add it to the CLASSES table + a per-class table (per [[FCT Module Doc]]). *Exception:* private/internal class whose documentation adds noise (e.g., a small internally-used enum).
+- **`class-undocumented`** — class in source, no module-doc entry. *Fix:* add it to the CLASSES table + a per-class table (per [[DAS Module Doc]]). *Exception:* private/internal class whose documentation adds noise (e.g., a small internally-used enum).
 - **`method-undocumented`** — method in source, missing from the per-class table. *Fix:* add it to the Methods section. *Exception:* trivial accessor/getter/setter, or a private implementation detail.
 - **`enum-undocumented`** — enum in source, no module-doc entry. *Fix:* add to CLASSES table (`Enum —` prefix in description) + a two-column variant table. *Exception:* trivial internal state (e.g., `LoadingState { Loading, Loaded, Error }`).
 - **`field-undocumented`** — field in source, missing from the per-class table. *Fix:* add it to the properties section. *Exception:* rarely — fields are usually worth documenting.
 - **`class-stale-doc` / `method-stale-doc` / `field-stale-doc`** — in the doc but no longer in source. *Fix:* remove the stale entry. *Exception:* never — stale docs are always cleaned up.
-- **`no-module-docs` / `source-no-module-doc`** — source files with no module docs in the Dev folder. *Fix:* create module docs per [[FCT Module Doc]] (Linking Rule: add to Dev dispatch table and Files FIRST, then write the doc). Test files use the test module doc format (SCAFFOLDS + TEST AREAS tables — see [[code-test]]).
+- **`no-module-docs` / `source-no-module-doc`** — source files with no module docs in the Dev folder. *Fix:* create module docs per [[DAS Module Doc]] (Linking Rule: add to Dev dispatch table and Files FIRST, then write the doc). Test files use the test module doc format (SCAFFOLDS + TEST AREAS tables — see [[code-test]]).
 
 **When to except:** the item is private/internal and documenting it clutters the doc; a trivial accessor; a non-API file (build scripts, config, test helpers); or a whole category (use a glob). **When NOT to except:** public API (always document); non-obvious behavior (document even if private); stale docs (fix, don't except). Exceptions file mechanics: [[audit-structure]] § Exceptions file.

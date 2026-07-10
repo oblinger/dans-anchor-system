@@ -4,7 +4,7 @@ cssclasses:
 description: repository file tree (audit-generated)
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Code]]
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Code]]
 # FEX Files
 
 File tree for the example-project repository with descriptions.
@@ -14,7 +14,7 @@ example-project/                          [[FEX Architecture#Public API rollup|C
 ├── Cargo.toml                            Workspace config + dependencies
 ├── Cargo.lock                            Dependency lockfile
 ├── justfile                              Build, test, check recipes        → [[CAB Repository Structure]]
-├── [[FCT Claude\|CLAUDE.md]]                             Claude Code configuration
+├── [[DAS Claude\|CLAUDE.md]]                             Claude Code configuration
 │
 ├── src/                                  Library crate
 │   ├── [[FEX Architecture#Public API rollup|lib.rs]]                            Crate root, module exports (rollup)

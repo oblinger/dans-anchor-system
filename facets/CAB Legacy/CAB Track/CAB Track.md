@@ -10,7 +10,7 @@ Umbrella folder for the CAB spec project's own work-tracking surfaces — Backlo
 | --- | --- |
 | [[CAB Backlog\|Backlog]] | workflow-state backlog |
 | [[CAB Features\|Features]] | dated feature specs (F-numbered) |
-| [[FCT Discussion\|Discussion]] | planning trade-offs |
+| [[DAS Discussion\|Discussion]] | planning trade-offs |
 | --- | |
 | [[CAB Messages]] | agent inbox — system messages for this anchor; cleared on every pause. See |
 | [[CAB queries]] | CAB queries — mechanically rendered from the backlog by triage (Verifications / Ready+Next / Questions). Do not hand-edit; edit the backlog rows. |

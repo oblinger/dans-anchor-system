@@ -3,7 +3,7 @@ description: "the moment catalog a `when::` clause names — the tree, the gramm
 ---
 # Warden Events
 
-**Every moment Warden can fire on.** A `when::` clause names one of these. Read each row left to right — a **class** (with its `pre` / `post` phase, where it has one), then the **moment** that refines it. Deeper refinements — a specific Bash command, a skill's action — are in the per-class sections below; a path-valued tail (*which* file) lives in the cross-cutting [[FCT Ruleset\|where::]] clause. Tool and event tokens are Claude Code's own; the tree is ours.
+**Every moment Warden can fire on.** A `when::` clause names one of these. Read each row left to right — a **class** (with its `pre` / `post` phase, where it has one), then the **moment** that refines it. Deeper refinements — a specific Bash command, a skill's action — are in the per-class sections below; a path-valued tail (*which* file) lives in the cross-cutting [[DAS Ruleset\|where::]] clause. Tool and event tokens are Claude Code's own; the tree is ours.
 
 | Moment class | Refinements | Fires on (Claude Code) |
 | --- | --- | --- |
@@ -37,7 +37,7 @@ segment  := literal | glob             ; a level's parameter value (a glob match
 - **`:` refines by one parameter.** Each segment after the class is that level's single discriminator.
 - **`,` is OR.** `when:: session:compact, skill:post:audit-q` fires at either moment.
 - **A glob segment** matches sibling values at one level: `when:: tool:post:Bash:git-*`.
-- **Path-valued tails move to [[FCT Ruleset\|where::]].** When a level's refinement *is a file path*, it is not a `when::` segment — `when:: write:markdown` + `where:: {ANCHOR}/**/*.md` *is* "after writing a markdown file under the anchor." `when::` stays the event; `where::` the place.
+- **Path-valued tails move to [[DAS Ruleset\|where::]].** When a level's refinement *is a file path*, it is not a `when::` segment — `when:: write:markdown` + `where:: {ANCHOR}/**/*.md` *is* "after writing a markdown file under the anchor." `when::` stays the event; `where::` the place.
 - **Casing mirrors the source.** Our own vocabulary is lowercase — classes (`tool`, `skill`, `session`, `write`, `git`, `prompt`), phases (`pre`, `post`), and coined leaves (`markdown`, `commit`, `audit`). A token that names a **Claude Code entity** uses Claude Code's exact spelling: tool names stay Capitalized (`tool:pre:Bash`, `…:WebFetch`) so they match the real matcher, and the *Fires on* events are PascalCase (`PreToolUse`). Skill names are lowercase because the commands are. (So `tool:pre:Bash`, never `bash` — fidelity to the matcher beats uniformity.)
 
 ## Tool moments
@@ -50,7 +50,7 @@ Fire around any tool the agent invokes — the densest group, where "instrument 
 | `tool:pre` / `tool:post` | tool name | `…:Bash`, `…:Write`, `…:Edit`, `…:Read`, `…:Glob`, `…:Grep`, `…:Task`, `…:WebFetch`, `…:WebSearch`, `…:AskUserQuestion`, `…:TaskCreate`, `…:TaskUpdate` (+ MCP tools) | the hook `matcher` |
 | `tool:*:Bash` | command head *(optional)* | `…:Bash:git-commit`, `…:Bash:rm`, `…:Bash:npm` | argv parse |
 | `tool:*:Task` | subagent type *(optional)* | `…:Task:Explore`, `…:Task:general-purpose` | `subagent_type` input |
-| `tool:*:Write` / `…:Edit` / `…:Read` | *(path → [[FCT Ruleset\|where::]])* | — | `file_path` input |
+| `tool:*:Write` / `…:Edit` / `…:Read` | *(path → [[DAS Ruleset\|where::]])* | — | `file_path` input |
 | `tool:*:AskUserQuestion` *(accepted 2026-07-02)* | *(the dialog-ask signal)* | — | drives [[F216 — Agent-state model — sensing what the agent is doing\|F216]]'s **T1** pending-question predicate |
 | `tool:*:TaskCreate` / `…:TaskUpdate` *(accepted 2026-07-02)* | *(the task-list signal)* | — | feeds F216's `paused` / open-work state (`agent.open_tasks`) |
 
@@ -76,12 +76,12 @@ Fire on the agent-session lifecycle — **two levels, no deeper**. (Claude Code'
 
 ## Content moments
 
-A content-typed *view* of `tool:post:Write` / `…:Read`: refine by the file's **content kind**, then spatially by [[FCT Ruleset\|where::]]. These exist because most rules care about "a markdown file changed," not "the Write tool ran."
+A content-typed *view* of `tool:post:Write` / `…:Read`: refine by the file's **content kind**, then spatially by [[DAS Ruleset\|where::]]. These exist because most rules care about "a markdown file changed," not "the Write tool ran."
 
 | Moment | Refines by | Children / leaves | Runtime |
 |---|---|---|---|
 | `write` / `read` | content kind | `write:markdown`, `write:rust`, `write:json`, `write:svg`; `read:markdown`, … | PostToolUse(Write/Edit/Read) + extension/sniff |
-| `write:<kind>` / `read:<kind>` | *(path → [[FCT Ruleset\|where::]])* | — | `file_path` input |
+| `write:<kind>` / `read:<kind>` | *(path → [[DAS Ruleset\|where::]])* | — | `file_path` input |
 
 ## VCS moments
 
@@ -128,7 +128,7 @@ No "friendly alias" layer — the canonical moment path is the only first-class 
 
 1. **Refine an existing node.** Add the new moment as one more parameter level beneath the deepest existing node it specializes — a new Bash subcommand is `tool:*:Bash:<new>`, never a new class.
 2. **New event class** only for a genuinely new runtime hook surface — add a section with its Claude Code source.
-3. **State the [[FCT Ruleset\|where::]] cross-cut** — does its leaf refinement become spatial?
+3. **State the [[DAS Ruleset\|where::]] cross-cut** — does its leaf refinement become spatial?
 4. **No new aliases.** Add a legacy shim only to preserve an already-shipped token.
 
 ## Open questions

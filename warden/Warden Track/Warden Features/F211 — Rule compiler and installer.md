@@ -121,7 +121,7 @@ The **tier doc-rules** (`checked`/`sampled`/`stated`/`tracked`, fired on the `/a
 
 ### Worked example — R-query-14 (the pilot)
 
-The push/commit-question interceptor ([[FCT Query]] `R-query-14`) is a **Python-body** rule: it fires at the `audit-q` skill moment, scans the freshly-built `{NAME} queries.md`, and branches its steer on the anchor's Git aspect. So its IR row is dispatch + activation + a `body_py` ref:
+The push/commit-question interceptor ([[DAS Query]] `R-query-14`) is a **Python-body** rule: it fires at the `audit-q` skill moment, scans the freshly-built `{NAME} queries.md`, and branches its steer on the anchor's Git aspect. So its IR row is dispatch + activation + a `body_py` ref:
 
 - `id:"R-query-14"`, `phase:"post"`, `moment:"skill:post:audit-q"`, `where:null`, `guards:[]`, `guard_py:null`, `action:null`, `body_py:"body_R_query_14"`.
 - keyed under `moments["skill:post:audit-q"]` and `traits["query"]` (activated by the query facet trait).

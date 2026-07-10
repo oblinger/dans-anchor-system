@@ -22,7 +22,7 @@ The one structural rule an author reaches for constantly: **any non-trivial page
 
 **[breadcrumb] → H1 → one-line summary → [figure] → [table] → [Overview] → body**
 
-— the breadcrumb appears only on a non-anchor page with no dispatch table (an anchor's breadcrumb lives in its dispatch masthead), and there is **no blank line** between breadcrumb, H1, and summary. This is *doc structure*, so its normative home is the sibling disciplines, not here: see [[FCT Doc Structure]] (the document skeleton + `R-doc-structure` ruleset) and [[DAS progressive-disclosure]] (the layered-presentation discipline). The pointer is kept here because the opening format is the first thing an author needs when writing any page.
+— the breadcrumb appears only on a non-anchor page with no dispatch table (an anchor's breadcrumb lives in its dispatch masthead), and there is **no blank line** between breadcrumb, H1, and summary. This is *doc structure*, so its normative home is the sibling disciplines, not here: see [[DAS Doc Structure]] (the document skeleton + `R-doc-structure` ruleset) and [[DAS progressive-disclosure]] (the layered-presentation discipline). The pointer is kept here because the opening format is the first thing an author needs when writing any page.
 
 
 ## Mechanical rules — rendering correctness
@@ -133,7 +133,7 @@ When a markdown doc declares rules (anywhere — embedded in a facet, in a proje
 - A single rule is a markdown heading whose first content is `RULE R-<slug>-<NN>[ — <title>[ (<tier>)]]`. Any H-level works. Greppable: `^#+\s+RULE\s+R-`.
 - A bundle of rules opens with `# RULESET R-<slug>` as the H1 of the file (or a `# RULESET R-<slug>` second-H1 inside a facet that embeds the set).
 
-See [[FCT Ruleset]] for the full format.
+See [[DAS Ruleset]] for the full format.
 
 ### Don't restate facet-level rules in per-anchor doc bodies
 
@@ -159,7 +159,7 @@ If a rule is universal (applies to every Log, every PRD, every Testing doc), it 
 - [[md]] — the utility-verb skill (sibling, not parent / child); `/md toc`, `/md file-tree`, `/md dispatch-table`, `/md cards`, `/md track-changes`.
 - [[DAS progressive-disclosure]] — sibling discipline; doc-structure rules.
 - [[DAS ask-format]] — sibling discipline; user-actionable surface format.
-- [[FCT Ruleset]] — meta-spec for the RULE / RULESET sentinel format.
+- [[DAS Ruleset]] — meta-spec for the RULE / RULESET sentinel format.
 - [[Atlas]] / [[ATL Slugs]] — vault-wide router that wiki-link conventions ultimately serve.
 
 
@@ -232,7 +232,7 @@ The lists in this doc whose items are *named things* (each has a recognizable ha
 ### RULE R-markdown-10 — Per-anchor docs don't restate facet-level rules (stated)
 description:: A per-anchor doc does not restate rules that live in a facet spec; the facet is the single source of truth.
 where:: `{ANCHOR}/**/{slug} *.md`
-This per-anchor doc looks like it restates universal format rules that belong in a facet (a Log's format rules live in [[FCT Log]], a PRD's in [[FCT PRD]]) — restated rules drift when the facet evolves. Drop the restatement and rely on the facet's embedded ruleset.
+This per-anchor doc looks like it restates universal format rules that belong in a facet (a Log's format rules live in [[DAS Log]], a PRD's in [[DAS PRD]]) — restated rules drift when the facet evolves. Drop the restatement and rely on the facet's embedded ruleset.
 
 ### RULE R-markdown-11 — Never put markdown inside a fenced code block (checked)
 description:: A fence meant to show rendered markdown ([[links]], headings, tables) defeats itself; show live markdown or link a real instance.

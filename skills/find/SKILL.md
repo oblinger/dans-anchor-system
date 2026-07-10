@@ -60,6 +60,6 @@ Lands in `~/ob/kmr/Topic/Search/Find/` as a markdown file with the identifier, c
 ## Related
 
 - User reference: [[SKL [[Find|Find]]
-- Overview of how it all combines: [[SKL Search Overview]]
+- Overview of how it all combines: [[DAS Search Overview]]
 - Rules trait: [[skill-search-rules]]
 - User overrides: [[SRC rules]]

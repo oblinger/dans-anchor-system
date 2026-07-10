@@ -14,6 +14,6 @@ description: Warden — the rule engine that powers /rule, /audit, and the rules
 
 **Warden** is the rule engine for the anchor system. Author a declarative rule once — `where` (the files) ∧ `when` (the agent moment) ∧ `if` (a Python test) — and Warden fires it at the right moment (or audits it), validates the whole resulting file against its format spec, and feeds a corrective `tell` back to the agent (or blocks the action with `deny`). It is the under-served capability the prior-art survey identified: whole-resulting-file validation against a rich multi-rule format spec, with per-violation agent feedback, on top of the standard Claude Code hook plumbing.
 
-Warden is **consumed by** the `/rule` and `/audit` skills and underpins the [[FCT Ruleset]] facet — those reference Warden as their engine rather than re-implementing it.
+Warden is **consumed by** the `/rule` and `/audit` skills and underpins the [[DAS Ruleset]] facet — those reference Warden as their engine rather than re-implementing it.
 
 The full design is [[Warden Design]]; the build sequence is [[Warden Roadmap]]. Warden currently lives inside the [[DAS]] (`ob-skills`) repo; Phase 1 of the roadmap extracts it to its own repository, after which it is vendored back into DAS via `git subtree` (single source of truth upstream, one-clone-loadable downstream).

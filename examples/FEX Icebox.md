@@ -7,7 +7,7 @@ description: "cold-storage / someday-maybe"
 
 Items parked for distant-future consideration. Not on the active [[HBR Backlog]] — the Icebox is for things we want to remember but are not currently weighing.
 
-See [[FCT Icebox]] for the format.
+See [[DAS Icebox]] for the format.
 
 
 ## Frozen

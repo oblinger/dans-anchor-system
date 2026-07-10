@@ -33,4 +33,4 @@ description:: User stories for the Forum debate platform.
 ## See also
 
 - [[Forum PRD]] — parent PRD this stories surface belongs to
-- [[FCT Stories]] — facet spec that governs this file
+- [[DAS Stories]] — facet spec that governs this file

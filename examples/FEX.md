@@ -29,24 +29,24 @@ Two fictional worlds cover the anchor-page kinds and the facets. **Not 1:1** —
 | sub-anchor / sub-folder | [[HBR Ingest]] |
 | skill (`SKILL.md`) | [[FEX Snapshot\|Snapshot]] |
 | facet definition — the three kinds | [[FEX Manifest]] (single-file, one) / [[FEX Pin]] (single-file, many) / [[FEX Bundle]] (folder) |
-| [[FCT Template]] — the two kinds | [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template]] (file template) / [[_{{DISK_LABEL}} Template]] (folder template — unified vars + a manifest member), under `FEX Templates/` |
+| [[DAS Template]] — the two kinds | [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template]] (file template) / [[_{{DISK_LABEL}} Template]] (folder template — unified vars + a manifest member), under `FEX Templates/` |
 | discipline page | [[FEX Retention]] |
 | ruleset (`# RULESET`) | [[R-fex-manifest]] |
-| [[FCT Anchor Page]] | the anchor-page kinds above (skill / grouped / project / sub-folder) |
-| [[FCT Dispatch Table]] | [[HBR Components]] (grouped, links down) |
-| [[FCT Design Docs]] / [[FCT Design Dispatch]] | [[HBR Design]] (hub) + its members |
-| [[FCT PRD]] | [[HBR PRD]] · audited real-world range under `Audited/`: [[DMUX PRD]] (10 stories, combined-project) / [[OBU PRD]] (one-spec / many-languages library) |
-| [[FCT Stories]] — inline / index / per-page / role-grouped | [[HBR PRD]] (inline subsections) · [[FEX Stories]] (folder-form index) · [[US-CAE-1 — Schedule a Task]] (per-story page) · audited under `Audited/`: [[Forum Stories]] (role-grouped, 20 stories) / [[HBR PRD User Stories]] (inline-subsection extract) |
-| [[FCT Roadmap]] | [[HBR Roadmap]] |
-| [[FCT Architecture]] | [[HBR Architecture]] · audited real-world range under `Audited/`: [[HA Architecture]] (daemon-first, hand-SVG) / [[OBU Architecture]] (dependency-light lib crate) / [[MUX Architecture]] (11-subsystem GUI, commitments→decisions) |
-| [[FCT Decisions]] | [[HBR Decisions]] · audited fuller D-record forms under `Audited/`: [[DKT Decisions]] (Decision / Why / Consequences) / [[UCM Decisions]] (Ratified date + Related Documents) |
-| [[FCT Testing]] | [[HBR Testing]] · audited grown / two-machine forms under `Audited/`: [[MUX Testing]] (relevance-gated, subjective LLM-visual, Scope columns) / [[SKA Bridge Testing]] (two-machine, property/invariant tier) |
-| [[FCT UX Design]] | [[HBR UX Design]] |
-| [[FCT CLI]] | [[HBR CLI]] |
-| [[FCT API Design]] | [[HBR API Design]] |
-| [[FCT Features]] | [[HBR Features]] |
-| [[FCT Backlog]] / [[FCT Track Dispatch]] | [[HBR Backlog]] / [[HBR Track]] |
-| [[FCT All Files]] | [[HBR Files]] |
+| [[DAS Anchor Page]] | the anchor-page kinds above (skill / grouped / project / sub-folder) |
+| [[DAS Dispatch Table]] | [[HBR Components]] (grouped, links down) |
+| [[DAS Design Docs]] / [[DAS Design Dispatch]] | [[HBR Design]] (hub) + its members |
+| [[DAS PRD]] | [[HBR PRD]] · audited real-world range under `Audited/`: [[DMUX PRD]] (10 stories, combined-project) / [[OBU PRD]] (one-spec / many-languages library) |
+| [[DAS Stories]] — inline / index / per-page / role-grouped | [[HBR PRD]] (inline subsections) · [[FEX Stories]] (folder-form index) · [[DAS US-CAE-1 — Schedule a Task]] (per-story page) · audited under `Audited/`: [[Forum Stories]] (role-grouped, 20 stories) / [[HBR PRD User Stories]] (inline-subsection extract) |
+| [[DAS Roadmap]] | [[HBR Roadmap]] |
+| [[DAS Architecture]] | [[HBR Architecture]] · audited real-world range under `Audited/`: [[HA Architecture]] (daemon-first, hand-SVG) / [[OBU Architecture]] (dependency-light lib crate) / [[MUX Architecture]] (11-subsystem GUI, commitments→decisions) |
+| [[DAS Decisions]] | [[HBR Decisions]] · audited fuller D-record forms under `Audited/`: [[DKT Decisions]] (Decision / Why / Consequences) / [[UCM Decisions]] (Ratified date + Related Documents) |
+| [[DAS Testing]] | [[HBR Testing]] · audited grown / two-machine forms under `Audited/`: [[MUX Testing]] (relevance-gated, subjective LLM-visual, Scope columns) / [[SKA Bridge Testing]] (two-machine, property/invariant tier) |
+| [[DAS UX Design]] | [[HBR UX Design]] |
+| [[DAS CLI]] | [[HBR CLI]] |
+| [[DAS API Design]] | [[HBR API Design]] |
+| [[DAS Features]] | [[HBR Features]] |
+| [[FCT Backlog]] / [[DAS Track Dispatch]] | [[HBR Backlog]] / [[HBR Track]] |
+| [[DAS All Files]] | [[HBR Files]] |
 | user guide | [[HBR Guide]] |
 
 ## Superseded — pending retirement

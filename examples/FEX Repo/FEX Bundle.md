@@ -7,7 +7,7 @@ The Bundle facet — one snapshot, captured as a dated directory. A worked examp
 | -[[FEX Bundle]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[FEX Repo]] → [FEX Bundle](hook://p/FEX%20Bundle)<br>: the Bundle facet definition |
 | --- | --- |
 | Anchor | [[FEX Repo]] (parent) |
-| Related | [[FEX Snapshot]] (creates it),  [[FEX Manifest]] (it carries),  [[FEX Pin]] (protects it),  [[FCT Facet]] (the facet spec), |
+| Related | [[FEX Snapshot]] (creates it),  [[FEX Manifest]] (it carries),  [[FEX Pin]] (protects it),  [[DAS Facet]] (the facet spec), |
 
 ## What it is
 A single restorable snapshot of the repo, stored as its own directory.
@@ -51,5 +51,5 @@ This bundle directory does not contain exactly one `manifest.txt` — add or rem
 
 *(Maintainer note — this file is the worked **folder-detected, cardinality-many** facet example; the normative spec is the body above.)*
 
-- **Keep the "directory exists" detection statement explicit** — non-default detection must be stated per [[FCT Facet]] R-facet-spec-09.
+- **Keep the "directory exists" detection statement explicit** — non-default detection must be stated per [[DAS Facet]] R-facet-spec-09.
 - **Ruleset stays embedded** — the inline `# RULESET R-fex-bundle` is the embedded-form example (contrast the linked-sibling form in [[FEX Manifest]]); the manifest co-requirement stays enforced in it (R-fex-bundle-02), never demoted to prose only.

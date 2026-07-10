@@ -25,6 +25,6 @@ Developers run resource-heavy commands (backups, batch jobs, data migrations) th
 - [[CAE Architecture]] — Scheduler + TaskStore subsystems implement this
 - [[CAE Testing]] — e2e test `e2e_schedule_a_task` exercises this story
 - [[CAE CLI]] — full `schedule` command reference (flags, exit codes)
-- [[FCT Stories]] — facet spec governing this file's shape
+- [[DAS Stories]] — facet spec governing this file's shape
 - [[CAE PRD]] — parent PRD
 - [[CAE Stories]] — sibling stories index

@@ -9,7 +9,7 @@ Captures the repository's current state into a labeled, restorable **snapshot bu
 | -[[FEX Snapshot]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[FEX Repo]] → [FEX Snapshot](hook://p/FEX%20Snapshot)<br>: example skill — the `/snapshot` capture skill |
 | --- | --- |
 | Anchor | [[FEX Repo]] (parent) |
-| Related | [[FEX Snapshot/SKILL\|SKILL]] (the runbook),  [[FEX Manifest]] (what it writes),  [[FEX Retention]] (what sweeps its bundles),  [[FCT Skill]] (the skill spec), |
+| Related | [[FEX Snapshot/SKILL\|SKILL]] (the runbook),  [[FEX Manifest]] (what it writes),  [[FEX Retention]] (what sweeps its bundles),  [[DAS Skill]] (the skill spec), |
 
 ## What it does
 

@@ -99,7 +99,7 @@ These were named during the read-hook conversation (2026-06-09) and likely gener
 
 ## Related
 
-- [[FCT Ruleset]] — rule spec (check pattern lives here; trigger to be added).
+- [[DAS Ruleset]] — rule spec (check pattern lives here; trigger to be added).
 - [[F091 — Trigger discipline]] — Aspect-level trigger discipline (companion at coarser grain).
 - [[F133 — Rulesets folder convention + facet embedding]] — Rulesets folder convention + facet embedding (sibling structural-migration feature).
-- [[FCT Brief]] — uses the read-hook mechanism this feature generalizes.
+- [[DAS Brief]] — uses the read-hook mechanism this feature generalizes.

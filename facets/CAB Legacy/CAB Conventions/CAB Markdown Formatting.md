@@ -10,6 +10,6 @@ description: "SUPERSEDED — markdown-formatting rules now live in DSC markdown 
 > - **Vertical spacing, definition lists, em-dash, fenced-block rules, table rules** → **[[DAS markdown]]** (already there).
 > - **Fullwidth `＃` (U+FF03) Python-comment workaround** + **figure-space (U+2007) mechanics** (incl. "Edit tool can't match figure spaces — use Python") → **folded into [[DAS markdown]] § Mechanical rules** this pass.
 > - **File-tree forms** + **TOC forms** (and the `cab-toc.py` → `md-toc.py` script) → the **[[md]]** skill: [[md-file-tree]], [[md-toc]]. (The legacy `[[CAB File Tree Format]]` / `[[CAB TOC Format]]` sub-docs migrate alongside.)
-> - **Date format (`YYYY-MM-DD` ISO-8601) + reverse-chron dated sections** → conventions of **[[FCT Log]]** (dated filenames/sections) + the Inbox/Features facets; the file-naming date patterns are in **[[FCT Naming]] § Exception B**.
+> - **Date format (`YYYY-MM-DD` ISO-8601) + reverse-chron dated sections** → conventions of **[[DAS Log]]** (dated filenames/sections) + the Inbox/Features facets; the file-naming date patterns are in **[[DAS Naming]] § Exception B**.
 >
 > This stub is kept only so inbound `[[CAB Markdown Formatting]]` links resolve; **[[SKA Backlog#^F191|F191]]** will repoint them and remove the holding folder.

@@ -150,7 +150,7 @@ Anything not on this table → "possibly correctly placed" → rewire asks via `
 
 ### Exceptions
 
-Before proposing any move (aggressive or otherwise), rewire reads `{slug} Rules.md § Rewire Exceptions`. Format is a markdown table under a `## Rewire Exceptions` H2, with two columns: `Path | Reason`. Paths are anchor-relative. Matching rows are **skipped silently** — rewire neither moves nor asks. If `## Rewire Exceptions` H2 is absent from `{slug} Rules.md`, treat as empty list. See [[FCT Ruleset]] § Optional sections.
+Before proposing any move (aggressive or otherwise), rewire reads `{slug} Rules.md § Rewire Exceptions`. Format is a markdown table under a `## Rewire Exceptions` H2, with two columns: `Path | Reason`. Paths are anchor-relative. Matching rows are **skipped silently** — rewire neither moves nor asks. If `## Rewire Exceptions` H2 is absent from `{slug} Rules.md`, treat as empty list. See [[DAS Ruleset]] § Optional sections.
 
 ## Runbook (full rewire)
 
@@ -267,7 +267,7 @@ The dispatch-table **placeholder form** (what a generator emits before rewire fi
 | --- | |
 ```
 
-The right-cell of the header is left empty; rewire fills it with `><br>: <description-from-frontmatter>`. The third row is the auto-management separator (`---` left-cell, empty right-cell) — rewire fills it with auto-listed sibling/child rows per [[FCT Anchor Page]] § Separators and Auto-Management.
+The right-cell of the header is left empty; rewire fills it with `><br>: <description-from-frontmatter>`. The third row is the auto-management separator (`---` left-cell, empty right-cell) — rewire fills it with auto-listed sibling/child rows per [[DAS Anchor Page]] § Separators and Auto-Management.
 
 Recognition pattern: the **first cell containing `-[[NAME]]-`** is the dispatch-table marker — same recognition used elsewhere in rewire and by `ha --rescan`. No new syntax.
 
@@ -275,7 +275,7 @@ Recognition pattern: the **first cell containing `-[[NAME]]-`** is the dispatch-
 - [ ] If an H1 exists but no dispatch table follows: insert the canonical empty placeholder (three rows above) and re-process so the body of rewire's other checks fill it in.
 - [ ] If a legacy `:>>` breadcrumb, plain-prose `> [[parent]]` breadcrumb, or `n::` / `desc::` inline metadata line precedes the H1: **delete the legacy line** and insert the placeholder. If the legacy line carried a description, move it into YAML frontmatter as `description: …` before deleting.
 - [ ] The placeholder's empty right-cell of the header gets filled with `><br>: <description>` (description sourced from YAML frontmatter `description:` field).
-- [ ] The `---` auto-management separator row at the bottom of the placeholder triggers auto-listing of sibling/child docs in the user zone above it (per [[FCT Anchor Page]] § Separators).
+- [ ] The `---` auto-management separator row at the bottom of the placeholder triggers auto-listing of sibling/child docs in the user zone above it (per [[DAS Anchor Page]] § Separators).
 
 **Heuristic for pre-existing tables in a doc** (per F060 Q5):
 - A table whose rows are **wiki-links to sibling/child docs** is a **navigation table** — fold its rows into the dispatch table (above the `---` separator).
@@ -286,10 +286,10 @@ Recognition pattern: the **first cell containing `-[[NAME]]-`** is the dispatch-
 
 **Exceptions to the placeholder rule.** A small set of facet docs are explicit F060 exceptions because they have custom H1-only tops or a fixed required structure:
 
-- `{slug} Triage.md` — H1 banner already encodes breadcrumb + dispatch info per [[FCT Triage]] § H1 banner. Skip placeholder check.
+- `{slug} Triage.md` — H1 banner already encodes breadcrumb + dispatch info per [[DAS Triage]] § H1 banner. Skip placeholder check.
 - `{slug} queries.md` — agent-owned page built on demand by `/query`'s determination logic (frontmatter + H1 + sections, no dispatch table). Skip placeholder check.
-- **Feature docs** (`F<n> — {Title}.md` inside `{slug} Features/`) — H1 carries an inline breadcrumb (`# [[{slug}]] · F<n> — {Title}`) per [[FCT Features]] § Document zone. Placeholder is optional, not required; rewire neither inserts nor strips it.
-- **`SKILL.md`** (skill anchor entry point) — fixed frontmatter + body structure per [[FCT Skill]]. F060 applies to the sibling `{Slug}.md` anchor root page, not to SKILL.md itself.
+- **Feature docs** (`F<n> — {Title}.md` inside `{slug} Features/`) — H1 carries an inline breadcrumb (`# [[{slug}]] · F<n> — {Title}`) per [[DAS Features]] § Document zone. Placeholder is optional, not required; rewire neither inserts nor strips it.
+- **`SKILL.md`** (skill anchor entry point) — fixed frontmatter + body structure per [[DAS Skill]]. F060 applies to the sibling `{Slug}.md` anchor root page, not to SKILL.md itself.
 - **`CLAUDE.md`** — Claude Code configuration file. Not a CAB doc.
 - **`website/index.md`** and other Jekyll-published pages — not CAB facet docs; the front matter uses the cayman layout, not CAB frontmatter. F060 doesn't apply.
 - **`README.md`** at repo root — GitHub-rendered front page; uses repo conventions, not CAB frontmatter.
@@ -315,7 +315,7 @@ A folder template is a folder whose name begins with an underscore — `_{Name} 
 
 # Code Anchor
 
-The synthesis-vs-reference split: **Dev** holds audit-tied implementation reference (Files tree + per-module docs); **User** holds curated synthesis (Interface + Architecture + Guide + Cards + CLI). The Interface is the *required* top-level human-authored layer contract; see [[FCT Interface]].
+The synthesis-vs-reference split: **Dev** holds audit-tied implementation reference (Files tree + per-module docs); **User** holds curated synthesis (Interface + Architecture + Guide + Cards + CLI). The Interface is the *required* top-level human-authored layer contract; see [[DAS Interface]].
 
 ## {slug}.md (anchor page — code-specific)
 
@@ -350,8 +350,8 @@ The synthesis-vs-reference split: **Dev** holds audit-tied implementation refere
 ## {slug} Docs/{slug} User/ — curated synthesis layer
 
 - [ ] Folder exists with dispatch page `{slug} User.md`
-- [ ] **`{slug} Interface.md` exists here** — the required top-level human-authored layer contract; see [[FCT Interface]]
-- [ ] **If `{slug} Interface.md` is absent:** auto-create a scaffold (H1 + canonical dispatch placeholder + TODO sections per [[FCT Interface]] § Document Structure) AND file a `## Now [Designing]` backlog row via the workflow skill's `state task create` (per [[SKA workflow]] § Mutation API — never edit `{slug} Backlog.md` directly):
+- [ ] **`{slug} Interface.md` exists here** — the required top-level human-authored layer contract; see [[DAS Interface]]
+- [ ] **If `{slug} Interface.md` is absent:** auto-create a scaffold (H1 + canonical dispatch placeholder + TODO sections per [[DAS Interface]] § Document Structure) AND file a `## Now [Designing]` backlog row via the workflow skill's `state task create` (per [[SKA workflow]] § Mutation API — never edit `{slug} Backlog.md` directly):
 
   ```bash
   ~/.claude/skills/workflow/scripts/state --anchor {slug} task create --status Designing \
@@ -371,7 +371,7 @@ The synthesis-vs-reference split: **Dev** holds audit-tied implementation refere
 
   Per F060's forward-only policy, the rename happens when the user touches the anchor.
 - [ ] `{slug} Architecture.md` exists here (system-level overview, module diagram, data flow)
-- [ ] `{slug} Guide.md` exists here (the primary user guide; basename is `Guide` not `User Guide` per [[FCT User Dispatch]] § Filename convention)
+- [ ] `{slug} Guide.md` exists here (the primary user guide; basename is `Guide` not `User Guide` per [[DAS User Dispatch]] § Filename convention)
 - [ ] User dispatch page lists Interface (required for code) + Guide + Architecture, plus any Cards / CLI / topic-specific guides
 
 ## justfile (if present in repo)
@@ -426,7 +426,7 @@ A skill anchor IS a CAB anchor — `SKILL.md` is the agent-loaded code, the rest
 - [ ] `{Slug} Plan.md` dispatch exists, links to PRD / Backlog / Triage / Features
 - [ ] `{Slug} PRD.md` exists (placeholder OK if no design discussion yet)
 - [ ] `{Slug} Backlog.md` exists with workflow-state H2s (Active / Ready / Now / Next / Later / Done)
-- [ ] `{Slug} Triage.md` exists with H1 banner format per [[FCT Triage]]
+- [ ] `{Slug} Triage.md` exists with H1 banner format per [[DAS Triage]]
 - [ ] `{Slug} Features/` folder exists with `{Slug} Features.md` dispatch
 
 ## File naming inside the skill folder

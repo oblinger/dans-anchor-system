@@ -11,4 +11,4 @@ description:: Prepend today's date to a text file in one command
 ## Related
 - [[Mini PRD]] — parent PRD
 - [[Mini Stories]] — sibling stories index
-- [[FCT Stories]] — facet spec
+- [[DAS Stories]] — facet spec

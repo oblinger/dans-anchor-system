@@ -1,12 +1,12 @@
 # FEX API Design
 description:: Programmatic Rust-crate surface — types, signatures, error envelope, stability + compatibility.
 
-| -[[FEX API Design]]- | : Programmatic Rust-crate surface — types, signatures, error envelope, stability + compatibility.<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[FCT Design Docs]] → [FEX API Design](hook://p/FEX%20API%20Design) |
+| -[[FEX API Design]]- | : Programmatic Rust-crate surface — types, signatures, error envelope, stability + compatibility.<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[DAS Design Docs]] → [FEX API Design](hook://p/FEX%20API%20Design) |
 | --- | --- |
 | [[HBR PRD]] | parent PRD — user stories drive this design |
 | [[HBR UX Design]] | sibling — human CLI surface |
 | [[CAE API Doc]] | downstream — per-module reference |
-| [[FCT API Design]] | facet spec this doc follows |
+| [[DAS API Design]] | facet spec this doc follows |
 
 **TL;DR.**
 - Consumer: Rust code embedding `cae` as a library — typically a daemon or CLI wrapper scheduling tasks programmatically.
@@ -137,4 +137,4 @@ Error mapping to CLI exit codes (for `cae` CLI binary that wraps the API): `Stor
 - [[HBR UX Design]] — sibling facet covering the human CLI surface.
 - [[CAE API Doc]] — per-module reference (auto-generated; *what exists*).
 - [[FEX Architecture]] — internal organization that backs this surface.
-- [[FCT API Design]] — facet spec; embedded [[#RULESET R-api|R-api]] ruleset.
+- [[DAS API Design]] — facet spec; embedded [[#RULESET R-api|R-api]] ruleset.

@@ -1,0 +1,355 @@
+---
+description: "Anchor Page facet — the format of an anchor's {slug}.md entry point"
+---
+
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Anchor]] → [FCT Anchor Page](hook://p/DAS%20Anchor%20Page)
+# FCT Anchor Page
+The entry page every anchor opens with — its `{slug}.md`.
+
+**Related:** [[FCT]],  [[DAS Dispatch Table]],  [[DAS progressive-disclosure]],  [[FEX]]
+
+| Table of Contents |  |
+|---|---|
+| [[#Worked example sets — five real vault instances per kind]] |  |
+| [[#Anchor Page Template]] |  |
+| [[#Anchor Page Parts]] |  |
+| [[#Identity & frontmatter]] |  |
+| [[#Top of page (fixed order)]] |  |
+| [[#Dispatch table — masthead]] |  |
+| [[#Member zone — Collection anchors only]] |  |
+| [[#Naming & exceptions]] |  |
+| [[#Kind-specific rules]] |  |
+| **[[#BRIEF]]** |  |
+Design
+**Examples:** [[HBR\|Code project]],  [[DAS Anchor Page\|facet]],  [[DAS progressive-disclosure\|discipline]],  [[DAS Mint\|skill-doc]],  [[SKL\|Container · grouped]],  [[SKA Access\|Container · list]],  [[HBR Log\|Container · chronological]],  [[Life\|Topic]]
+Rulesets
+**OLD Examples:** [[FEX]] — [[Snapper Dapper\|skill]],  [[Espresso\|list]],  [[Harbor Components\|grouped]],  [[Glossary\|facet]],  [[Harbor\|project]],  [[Harbor Ingest\|sub-folder]]
+
+| Kind | FEX examples | Description and external examples |
+| --- | --- | --- |
+| Topic ([[Topic Anchor]]) | [[Knots]] | Domain-of-life hub folder that routes to the pages within it; masthead = breadcrumb + optional Related + a `...` auto-summary member zone. *Ext:* [[Life]], [[Food]], [[Legal]] |
+| Project | *(abstract)* | Active-work anchor that moves through states; splits by output kind into Code vs Paper. |
+| - Code project ([[Code Anchor]]) | [[HBR]] | Software project (`traits: [Code]`); switchboard masthead (Design iff a design folder, Track iff a track folder), full design+track scaffold once a `Status` doc exists. *Ext:* [[HA]], [[MUX]], [[DMUX]] |
+| - Paper project ([[Paper Anchor]]) | [[HWP]] | Long-form writeup (`traits: [Paper]`) through revision cycles; signature is a `## Version history` table with per-section `s1, s2, …` track-changes markup. *Ext:* [[ABP]], [[ASP]] |
+| - SKA sub-project | [[FEX Repo]] | A skill-ecosystem spec page that owns its own design but no tracking or status (SKA owns the tracking — [[SKA Decisions\|D08]]). Three flavors below. |
+| - - skill | [[FEX Snapshot]] | The documentation page for a skill (the skill-doc — **not** the `SKILL.md` runbook). *Ext:* [[DAS Mint]] |
+| - - facet | [[FEX Manifest]] | A reusable document-shape spec — the format a recurring kind of doc must follow. *Ext:* [[DAS Anchor Page]], [[DAS Naming]] |
+| - - discipline | [[FEX Retention]] | A cross-cutting principle or practice applied across many anchors. *Ext:* [[DAS progressive-disclosure]], [[DAS verification]] |
+| Container ([[Collection]]) | *(abstract)* | A [[Collection]] anchor whose body enumerates homogeneous members; required member zone in one of three structural shapes. |
+| - Grouped Container ([[Collection]]) | [[HBR Components]] | Each row is a group holding many members (often `+`-expandable); chosen once a flat list outgrows ~15. *Ext:* [[Log]], [[FCT]], [[SKL]] |
+| - List Container ([[Collection]]) | [[Espresso]] | One row per member (an auto-list separator emits one row per child); count-independent. *Ext:* [[SV]], [[RR]], [[Roots]], [[SKA Access]] |
+| - Chronological Container ([[Collection]]) | [[HBR Log]] | Reverse-dated entry stream; newest-first, ISO-prefixed member names. *Ext:* [[Journal]], [[HBR Log]] |
+
+## Worked example sets — five real vault instances per kind
+
+Real anchor pages found in the vault and brought to conformance, so the spec can be judged against actual instances (not the gallery). Five per kind:
+
+### Topic
+- [[Life]]
+- [[Courses]]
+- [[Food]]
+- [[Legal]]
+- [[SRC]]
+
+### Code project
+- [[HA]]
+- [[SKD]]
+- [[MUX]]
+- [[CMP]]
+- [[DMUX]]
+
+### Paper project
+- [[ABP]] *(Alien Biology Paper — the canonical paper project)*
+- [[ASP]] *(Alienbio Safety Paper — legacy-formatted, version table TBD)*
+
+*(Only ~1–2 genuine paper projects exist in the vault. The giveaway is a `## Version history` **version table** with `s1, s2, s3 …` per-section markup (per [[Paper Anchor]]) — NOT promotable from research reports or paper collections.)*
+
+### SKA sub-project
+- [[DAS Code Repository]]
+- [[DAS Naming]]
+- [[DAS verification]]
+- [[DAS Linked Mode]]
+- [[SKL Doc]]
+
+### Container
+- [[Log]] *(grouped — many entries per row)*
+- [[SV]] *(list — `---` auto-generates one row per entry)*
+- [[RR]] *(list — `---` auto, one row per entry)*
+- [[Roots]] *(list)*
+- [[Journal]] *(chronological)*
+
+**TLDR** — **Cardinality: one per anchor.** Every anchor has exactly one `{slug}.md` entry page. It opens with YAML `description:` frontmatter, then H1 → one-line summary → optional figure → dispatch table (breadcrumb + Related + kind-specific rows). The embedded `R-anchor-page` ruleset (23 shared rules + five kind deltas — Topic / Code / Paper / SKA sub-project / Container) is the auditable contract; `/audit anchor` and `/create anchor` cite it. Member groups appear only on Container anchors; a Topic carries a `...` auto-summary of its contents.
+
+## Anchor Page Template
+
+An anchor is **two files**: the `.anchor` spec (what makes the folder an anchor) and the `{slug}.md` entry page that renders inside it.
+
+**`.anchor`** — the anchor spec (YAML; consumed by HookAnchor):
+
+```yaml
+slug: {slug}
+title: {Full Name}
+traits: [Code]
+```
+
+**`{slug}.md`** — opens with YAML frontmatter…
+
+```yaml
+description: one-line description of the anchor
+traits: [Code]
+```
+
+…then the body, which renders **live** (markdown is never shown in back-ticks — it does not render there):
+
+# {slug} - {Full Name}
+{one-sentence summary — the essence: what the page is/does at its core, not incidental detail; NO blank line above this line}
+
+| -{slug}- | → [[kmr]] → … → [{Full Name}](hook://p/{slug})<br>: short description |
+| --- | --- |
+| Related | … |
+| {structural / member rows} | … |
+| ... |  |
+
+## Anchor Page Parts
+
+- **Frontmatter** — `description:` (one line) + `traits:` (the anchor kind). Inline `desc::` is deprecated; migrate to `description:` in YAML.
+- **H1** — `{slug} - {Full Name}`: the slug leads (the jump-key), the readable name follows. Bare-name anchors use just the name.
+- **Summary** — one sentence on the **very next line** (no blank after the H1); states the **essence** — what the page *is* or *does* at its core, not incidental detail (per R-anchor-page-06). More goes in an optional `## Overview` later, never above the dispatch table.
+- **Figure** — optional; embedded right after the summary with **no heading above it** — the big-picture visual before the navigation.
+- **Dispatch table** — the masthead (+ a member zone for a [[Collection]] anchor). The table's *form* is [[DAS Dispatch Table]]; its row *placement* is [[SKA Decisions|D07]].
+
+# RULESET R-anchor-page
+include::
+where:: `anchor`
+description:: the `{slug}.md` entry-page format
+
+What `/audit anchor` checks every `{slug}.md` against. All anchor-page kinds (skill / list / grouped / project root / sub-folder) share this set; worked instances of each kind live in [[FEX]]. Audit a page by reading these rules **or** by diffing it against the matching example. Format of this set: [[DAS Ruleset]].
+
+## Identity & frontmatter
+
+### RULE R-anchor-page-01 — `.anchor` declares slug + traits (checked)
+check:: anchor_has slug traits
+
+The anchor folder carries a non-empty `.anchor` file declaring `slug:`, `title:`, and `traits:`.
+
+**Check pattern:** the folder has a `.anchor`; parse it and confirm non-blank `slug:` and `traits:` keys.
+
+**Why:** an empty `.anchor` makes breadcrumb inference skip the anchor and jump to its grandparent (the DAS incident).
+
+### RULE R-anchor-page-02 — Page filename equals the slug (checked)
+check:: entry_page_matches_slug
+
+The entry page is named `{slug}.md` — the filename matches the `.anchor` slug (the H1's readable name may differ).
+
+**Check pattern:** `basename(page) == slug + ".md"`.
+
+### RULE R-anchor-page-03 — YAML `description:` present (checked)
+check:: frontmatter_has description
+
+The page opens with YAML frontmatter carrying a one-line `description:`.
+
+**Check pattern:** frontmatter parses; `description` key present and non-empty. Inline `desc::` is a violation (deprecated → migrate to YAML).
+
+### RULE R-anchor-page-04 — `traits:` declares the kind (stated)
+
+`traits:` names the anchor kind (`[Code]`, `[skill]`, `Collection`, …); the kind gates which rules below apply (design row, member zone, no-track-row).
+
+### RULE R-anchor-page-05 — H1 is `{slug} - {Full Name}` (checked)
+check:: h1_matches_slug
+
+The H1 leads with the slug, then ` - `, then the readable name. Bare-name anchors (no short slug) use just the name.
+
+**Check pattern:** first H1 matches `^{slug} - .+` (or equals the bare name for slugless anchors).
+
+**Why:** the H1 must both cement the jump-key and name the page ([[SKA Decisions|D06]]).
+
+## Top of page (fixed order)
+
+### RULE R-anchor-page-06 — First sentence states the essence (stated)
+
+A single sentence that states the **essence** — the core of what the page *is* or *does*, in one stroke. It answers "what is this, fundamentally?", not "what are its features, mechanisms, or edge cases". Lead with the essence; a little qualifying detail is fine, but a grab-bag of incidental facts is the failure. Everything that isn't the essence goes in an optional `## Overview` (or the body), never in this line and never above the dispatch table.
+
+**Why:** this is the one line every reader — and every dispatch table that links the page — sees first; if the essence is buried under incidental detail, the reader must dig for what the thing fundamentally is. E.g. a skill page leads with the essence — *`/feature` creates a new feature document specifying work to be done* — not with a lead-in about collision-handling or status mechanics.
+
+### RULE R-anchor-page-07 — No blank line after the H1 (checked)
+check:: no_blank_after_h1
+
+The summary sits on the line **immediately** after the H1 — no blank between them.
+
+**Check pattern:** the line following the H1 is non-blank prose, not an empty line.
+
+**Why:** the glue makes the summary read as part of the heading; blank lines precede only the figure and the table.
+
+### RULE R-anchor-page-08 — Figure optional, no heading above it (stated)
+
+A figure is optional; when present it follows the summary directly, with no heading line above it.
+
+### RULE R-anchor-page-09 — Page order is H1 → summary → (figure) → dispatch (checked)
+
+Those elements appear in that order with nothing else between them.
+
+**Check pattern:** token order from the H1 down is H1, summary line, optional `![[…]]` embed, then the dispatch table.
+
+**Why:** progressive disclosure — broadest view first, navigation last ([[DAS progressive-disclosure]]).
+
+## Dispatch table — masthead
+
+### RULE R-anchor-page-10 — Table follows the Dispatch Table spec (sampled)
+
+The dispatch table conforms to [[DAS Dispatch Table]] — a breadcrumb row then category rows.
+
+**Check pattern:** delegate to `/audit dispatch`.
+
+### RULE R-anchor-page-11 — First row is the breadcrumb cell (checked)
+check:: breadcrumb_row
+
+-[[This Page]]-`, then the parent-chain path ending in the page's `hook://` link + a one-line description.
+
+**Check pattern:** row 1 matches `\| -\[\[.+\]\]- \| → .+\(hook://.+\)`.
+
+**Why:** the breadcrumb carries the [[DAS anchor-dag]] up-edge.
+
+### RULE R-anchor-page-12 — `Related`: lateral links only, first, omit-if-empty (checked)
+
+`Related` is the first masthead row after the breadcrumb (when it has content), and is **omitted entirely when empty** — never left blank. It carries **only links that ordinary navigation cannot already reach**: NOT the anchor's own contents (reach those by going *in / down*), NOT its ancestors (reach those via the breadcrumb, going *up*), and NOT anything reachable from a parent anchor (you'd arrive there *through* the parent). `Related` is reserved for genuinely **lateral / cross-cutting** links none of those paths surface — e.g. a sibling project, a spec in another tree.
+
+**Check pattern:** if present, `Related` has content and precedes other category rows; **none of its links is a breadcrumb ancestor, a member listed below, or the parent anchor** (those are redundant — drop them). ([[SKA Decisions|D07]])
+
+### RULE R-anchor-page-13 — `Design` row present iff a design folder exists (checked)
+check:: design_row_iff_folder
+
+If `{slug} Design/` exists, a `Design` row is present as the second masthead row, members in the fixed order PRD → UX Design → CLI → API → Architecture → Decisions → Testing → Roadmap → Features. **Minimum form:** the row appears as soon as the `{slug} Design/` folder exists, carrying just the `[[{slug} Design]]` link with **zero member docs** (an empty design folder); members appear, in the fixed order, only as their files are created — the row lists only docs that exist, and grows over time.
+
+**Check pattern:** `{slug} Design/` exists ⇔ a `Design` row exists; verify member order. ([[SKA Decisions|D07]])
+
+### RULE R-anchor-page-14 — Masthead is minimal (stated)
+
+The masthead carries only the breadcrumb plus the fixed-order rows **Related → type → Design → Track → User Docs → Dev Docs** (each iff it applies) — no generic `Anchor` row, no `External` row (repo / site links live in Related), and no ad-hoc rows the breadcrumb already covers. Anything enumerable beyond a sub-area's key parts drops to the member zone. Full model: [[DAS Dispatch Table]] § Masthead rows.
+
+### RULE R-anchor-page-15 — No `Track` row on skill-ecosystem anchors (checked)
+
+A skill / facet / discipline / example anchor carries no `Track` row.
+
+**Check pattern:** if `traits` ∈ {skill, facet, discipline, example}, assert no `Track` row.
+
+**Why:** their tracking is centralized in SKA ([[SKA Decisions|D08]]).
+
+### RULE R-anchor-page-16 — Wiki-links in cells escape the pipe (checked)
+
+In-cell wiki-links use `[[target\|alias]]`.
+
+**Check pattern:** no `[[…|…]]` inside a table cell with an unescaped `|`.
+
+## Member zone — Collection anchors only
+
+### RULE R-anchor-page-17 — Only a Collection enumerates members (stated)
+
+Members are listed below the masthead only on a [[Collection]] anchor; every other kind is masthead-only.
+
+### RULE R-anchor-page-18 — List = one row per member; grouped = many per row (sampled)
+
+A **list** member zone puts **one member per row** (a `| --- | |` auto-list generates exactly that); a **grouped** zone puts **many members per row** under labeled `+` group rows. The split is **structural** (rows-per-member), not a count — though a flat list is usually grouped once it grows past ~15 ([[DAS granularity]]).
+
+**Check pattern:** rows-per-member — one-per-row (list) vs many-per-row / `+` groups (grouped). ([[DAS granularity]])
+
+### RULE R-anchor-page-19 — Group labels link down; `+` marks expandable (sampled)
+
+Each group-row label is a link *down* to that group's own container page; a trailing `+` marks the label as an expandable container, not a leaf.
+
+**Check pattern:** every group row's label cell is a wiki-link and carries `+`.
+
+### RULE R-anchor-page-20 — Member zone ends with an electric marker (checked)
+
+A Collection's member zone ends with `...` (compact auto), `| --- | |` (auto-list), or trailing `+` group rows.
+
+**Check pattern:** the last member-zone row matches one of those markers.
+
+**Why:** newly-added children need a defined place to land.
+
+## Naming & exceptions
+
+### RULE R-anchor-page-21 — Files and folders are `{slug}`-prefixed (checked)
+
+Every file and folder inside the anchor is prefixed `{slug}` (`{slug} PRD.md`, `{slug} Docs/`, nested too).
+
+**Check pattern:** list the anchor tree; assert each entry name starts with `{slug}`. (See [[DAS Naming]] / `R-naming`.)
+
+### RULE R-anchor-page-22 — Every anchor carries a dispatch table (checked)
+
+An anchor page is **never table-less** — it always carries a dispatch table whose first row is the breadcrumb (which carries the [[DAS anchor-dag]] up-edge, so every anchor needs it). A leaf / topic anchor with no hand-authored rows still carries **breadcrumb + a `...` auto-summary row**. Only **non-anchor** documents may omit the table.
+
+**Check pattern:** every `{slug}.md` has a dispatch table with a breadcrumb row 1 (per R-anchor-page-11). ([[DAS Doc Structure]] § Top table states the same rule at the document layer.)
+
+### RULE R-anchor-page-23 — Track row, and Status-triggered full scaffolding (checked)
+
+Parallel to the Design row (R-anchor-page-13): a **`Track` row** is present iff `{slug} Track/` exists — it links the track dispatch `[[{slug} Track\|Track]]`, members in the fixed order **Backlog → Status → Messages → Discussion → Inbox → Icebox → Log → ask**. (Roadmap + Features are *design* artifacts — they live in the Design row, not here, per the 2026-06-10 restructure.) **Minimum form (same as the Design row):** the row appears as soon as `{slug} Track/` exists, carrying just the `[[{slug} Track]]` link with zero members, and grows as track files are created. **SKA sub-projects (skills / facets / disciplines) have no `{slug} Track/` at all (R-anchor-page-15), so they never carry this row.**
+
+**The status document is the full-scaffolding signal.** When `{slug} Status.md` exists, the anchor is a **fully-scaffolded** project and MUST carry the **complete** design + track doc set:
+
+- **Every design document exists** (created even if empty), in `{slug} Design/`, listed in the `{slug} Design` dispatch, and surfaced as the **full Design row** in the PRD-first order of R-anchor-page-13: PRD → UX Design → CLI → API → Architecture → Decisions → Testing → Roadmap → Features.
+- **Every track document exists** (created even if empty), in `{slug} Track/`, listed in the `{slug} Track` dispatch, and surfaced as the **full Track row** in the order above.
+- **Each doc is linked in all three places** — its folder's dispatch page (the Design anchor / the Track anchor) **and** the matching masthead row. The two folders and the two masthead rows must agree.
+
+Absent a Status doc, the Design / Track rows may be **partial** — listing only the docs that actually exist. The Status doc is what flips a project from partial to full. **This holds for most Code projects.**
+
+**Check pattern:** `{slug} Status.md` exists ⇒ assert (a) every design doc + every track doc exists (empty allowed), (b) each is listed in its dispatch page, (c) the masthead Design + Track rows carry the full sets in the fixed orders. ([[SKA Decisions|D07]], [[DAS Design Dispatch]], [[DAS Track Dispatch]])
+
+## Kind-specific rules
+
+Each anchor-page **kind** layers a small delta over the shared chassis (R-anchor-page-01…23) plus the [[DAS Dispatch Table]] form. The kind is read from `traits:`; a page is audited as **chassis + its kind's delta**. There are five kinds, each one-to-one with its dispatch-table shape (HookAnchor computes the table from the `.anchor`, so there is exactly one page — and one table kind — per anchor). The deltas are thin; each may graduate to its own `include::` sub-ruleset file once it grows.
+
+### R-anchor-page-code — Code project (stated)
+
+A code/software project anchor (`traits: [Code]`).
+- **Masthead roster:** breadcrumb + **Related** + **Design** (iff `{slug} Design/` — R-anchor-page-13) + **Track** (iff `{slug} Track/` — R-anchor-page-23) + **User Docs** (iff `{slug} User Docs/`) + **Dev Docs** (iff `{slug} Dev Docs/`). Each doc-area row's left cell links the sub-anchor (`[[{slug} Design\|Design]]`, …); its right cell enumerates that area's key parts.
+- **Full scaffolding when a Status doc exists** — `{slug} Status.md` present ⇒ the complete design + track doc set exists (even empty) and is linked into both dispatch folders and the masthead Design + Track rows (R-anchor-page-23). True for most Code projects.
+- **Member zone:** none — a switchboard masthead only.
+- **Example:** [[HBR]].
+
+### R-anchor-page-paper — Paper project (stated)
+
+A long-form writeup anchor (`traits: [Paper]`) — a paper / whitepaper that goes through revision cycles. **Signature / giveaway:** a `## Version history` **version table** of dated drafts with `s1, s2, s3 …` per-section markup (track-changes HTML per section). Full trait spec: [[Paper Anchor]].
+- **Masthead roster:** breadcrumb + **Related** (incl. any published-landing link) + a **Drafts** row (dated versions, newest = Current) + **Research**; ends with `...`.
+- **Member zone:** the version table under `## Version history` (the dated-draft × section-markup grid).
+- **Example:** [[ABP]].
+
+### R-anchor-page-subproject — SKA sub-project: facet / discipline / skill-doc (checked)
+
+A single skill-ecosystem spec page — a **facet**, a **discipline**, or a **skill-doc** (the documentation page for a skill; *not* the skill folder's `SKILL.md` runbook, which is out of scope).
+
+**SKA sub-projects are the exception to the project pattern.** A skill / facet / discipline is part of the *single* SKA project, so **SKA owns its tracking** — each is too small to merit its own backlog. But the sub-projects are too numerous to fold into one unified SKA design, so each **merits its own design**: as much design system as it needs, from nothing (just the design anchor) up to a full PRD + UX + architecture. The exception in one line: **own design (however small), no tracking, no status.**
+- **Masthead roster:** breadcrumb + **Related** + the **type row** (`Skill` / `Discipline` / `Facet`, carrying the runtime / user-doc links) + **Design** (**always present** — the `{slug} Design/` folder is mandatory per § Minimum shape, so every SKA sub-project carries exactly one Design row). The Design row may be **empty** — carrying just the `[[{slug} Design]]` link to the design anchor page and no member docs — and grows in the D07 order as docs are added (R-anchor-page-13).
+- **Owns Design, not Track** — every SKA sub-project anchor (skill / facet / discipline / example) **owns its own design but never its own tracking**. Per [[SKA Decisions|D08]] all activity-tracking for the skills ecosystem lives on the **shared SKA surface** (`SKA Backlog` / `SKA Features` / `SKA Messages` / …); a per-anchor `{slug} Track/` is forbidden for these kinds.
+- **No `Track` row** — follows from the above (this is R-anchor-page-15 in kind terms).
+- **No `Status`** — a SKA sub-project carries **no `{slug} Status.md`**. Design-phase completeness is tracked only for SKA-the-project, never per sub-project — you can design a skill, but there is no completeness rollup for it.
+- **Minimum shape** — a dispatch table + a `{slug} Design/` folder that is **present from creation with its `.anchor` even when it holds no design docs yet** — the folder stands ready so design can land later without restructuring. It grows by adding `{slug} PRD.md` and other design docs as the anchor earns them — many skills / facets need little design. The Design row (R-anchor-page-13) is present whenever the folder is, carrying zero members until docs arrive.
+- **Flat layout** — `{slug} Design/` sits **directly under the anchor root**, with **no `{slug} Docs/` wrapper** (the wrapper is for large project anchors; SKA sub-projects stay flat).
+- **Member zone:** none.
+- **Content** differs by sub-kind (facet spec vs. discipline vs. skill-doc) but the page *structure* is shared — one ruleset, three example flavors.
+- **Examples:** facet → [[DAS Anchor Page]]; discipline → [[DAS progressive-disclosure]]; skill-doc → [[DAS Mint]] *(currently a thin doc with no masthead — the bring-up target, tracked separately; do not treat as compliant).*
+
+### R-anchor-page-container — Container: grouped / list / reverse-dated (sampled)
+
+A [[Collection]] anchor whose body enumerates **homogeneous members** (a features folder of feature docs, a log folder of log entries, the `SKL` catalog of skill-docs).
+- **Masthead roster:** breadcrumb + Related (minimal) — then the member zone.
+- **Member zone required** — the generic member rules R-anchor-page-17…20 apply. The layout split is **structural — rows-per-member — not a count** (one axis, three values):
+  - **list** — **one row per member** (each row is a single entry). A `| --- | |` separator auto-generates exactly this: HookAnchor emits one row per child. Count is irrelevant — a 30-entry auto-list is still a list. Examples: [[SV]], [[RR]], [[Roots]], [[SKA Access]].
+  - **grouped** — **each row is a group holding many members** (a category row, often `+`-expandable, carrying several links). Typically chosen once a flat list grows past ~15 ([[DAS granularity]], R-anchor-page-18), but the defining mark is **many-members-per-row**. Examples: [[Log]], [[FCT]], [[SKL]].
+  - **chronological (reverse-dated)** — a [[DAS dated-entry-stream]]; newest-first, ISO-prefixed member names. Example: [[HBR Log]].
+- Member zone ends with an electric marker (R-anchor-page-20) so new children have a place to land.
+
+### R-anchor-page-topic — Topic (stated)
+
+A topic / domain-of-life folder page — a hub that routes to the pages within the topic.
+- **Masthead roster:** breadcrumb + optional Related.
+- **`...` auto-summary required** — the member zone is a single compact `...` row (`| ... |  |`) that auto-enumerates the topic's contents (HookAnchor fills it). Every topic page carries it, so the whole topic is summarized and new children have a place to land. A topic is thus a compact auto-listing container.
+- **Table required** — like every anchor (R-anchor-page-22), a topic page always has a dispatch table; the minimum is breadcrumb + `...`. Never table-less.
+- **Example:** [[Life]].
+
+# BRIEF
+
+*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body above: the `.anchor` + page template, the parts, and the `R-anchor-page` ruleset.)*
+
+- **Consumers cite this file as the format authority** — `/create anchor`, `/rewire`, `/tidy`, `/audit anchor`, and the audit scripts.
+- **Link, don't duplicate** — dispatch-table *mechanics* stay in [[DAS Dispatch Table]], row *placement / order* in [[SKA Decisions|D07]], the naming prefix in [[DAS Naming]]; sub-folder dispatch pages have their own facets. Don't inline them here.
+- **Examples are never instantiated here** — they live in the `examples/` gallery ([[FEX]]); the masthead `Examples` row links to them by kind. If the spec changes, fix the examples — never retrofit the spec to a stale copy.

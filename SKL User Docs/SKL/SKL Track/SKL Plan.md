@@ -64,6 +64,6 @@ v1 supports `Code` trait anchors only. Per-trait artifact rosters for Paper / To
 
 - Center-of-Track sibling: [[SKL Workflow]] (canonical state graph)
 - Backlog discipline: [[SKL Backlog]]
-- Drive-cluster center: [[SKL Crank]]
-- Feature lifecycle (post-plan): [[SKL Feature]]
+- Drive-cluster center: [[DAS Crank]]
+- Feature lifecycle (post-plan): [[DAS Feature]]
 - Verification discipline: [[DAS verification]]

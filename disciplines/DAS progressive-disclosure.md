@@ -1,6 +1,6 @@
 ---
 name: progressive-disclosure
-description: Discipline. Layered information presentation across the vault — the **preface zone** every doc may carry (dispatch table → TLDR → figure), the **three levels** of progressive disclosure (project anchor / folder anchor / within-doc), and the **five named dispatch-table patterns** (Grouped / List / Compact at anchor-folder; Linear / Matrix within-doc). Cited by [[FCT Anchor Page]], [[FCT Features]], [[FCT Architecture]], [[FCT UX Design]], and the `md` skill.
+description: Discipline. Layered information presentation across the vault — the **preface zone** every doc may carry (dispatch table → TLDR → figure), the **three levels** of progressive disclosure (project anchor / folder anchor / within-doc), and the **five named dispatch-table patterns** (Grouped / List / Compact at anchor-folder; Linear / Matrix within-doc). Cited by [[DAS Anchor Page]], [[DAS Features]], [[DAS Architecture]], [[DAS UX Design]], and the `md` skill.
 user_invocable: false
 ---
 
@@ -19,7 +19,7 @@ This is a discipline, not a user-invocable skill — other CAB facets and skills
 
 ## Why this exists — the problem it solves
 
-Today the discipline is implicit in [[FCT Anchor Page]] and the `md` skill's dispatch-table sub-command. Many anchors invented their own variations. Without naming the patterns and codifying when each applies, every author makes the same micro-decisions from scratch, and the same drift accumulates anchor-by-anchor.
+Today the discipline is implicit in [[DAS Anchor Page]] and the `md` skill's dispatch-table sub-command. Many anchors invented their own variations. Without naming the patterns and codifying when each applies, every author makes the same micro-decisions from scratch, and the same drift accumulates anchor-by-anchor.
 
 This discipline names the patterns, gives them one home, and makes drift detectable by audit.
 
@@ -38,7 +38,7 @@ The two-level ideal: **project anchor → subsystem anchor → leaf doc**. Two c
 
 RULE (tree-of-containers): information is organized as a **tree of nested containers**, and **every container has an anchor page that carries a dispatch table**. Each step *down* the tree reveals **progressively greater detail** — a container's dispatch table lists its members; any member that is itself a container links *down* to **its own** anchor page + dispatch table, and so on to the leaves.
 
-This is the *general* principle; the three levels above (project / folder / within-doc) are merely its instances, and it **applies everywhere**. A **dispatch table is the specific instantiation** of this rule at one container. A **grouped dispatch table** is the case where the members are themselves containers: each **group row's label is a link** *down* to that group's own anchor page + dispatch table — so the grouped table is one node of the container tree, and each group row expands to a finer node. (Table mechanics live in [[FCT Dispatch Table]].)
+This is the *general* principle; the three levels above (project / folder / within-doc) are merely its instances, and it **applies everywhere**. A **dispatch table is the specific instantiation** of this rule at one container. A **grouped dispatch table** is the case where the members are themselves containers: each **group row's label is a link** *down* to that group's own anchor page + dispatch table — so the grouped table is one node of the container tree, and each group row expands to a finer node. (Table mechanics live in [[DAS Dispatch Table]].)
 
 
 ## The preface zone
@@ -197,16 +197,16 @@ This central table records which preface elements each CAB facet requires. The l
 | Facet | Dispatch table | TLDR | Figure |
 |---|---|---|---|
 | All facets that associate with a folder | **Required** | (per col 3) | (per col 4) |
-| [[FCT Anchor Page]] | Required | Optional | Optional |
-| [[FCT Features]] | Optional | **Required** | Optional |
-| [[FCT Architecture]] (top-level doc) | Required | Optional | **Required** |
-| [[FCT Architecture]] (subsystem doc) | Required | Optional | **Required** |
-| [[FCT UX Design]] (post-F113: `CAB UX`) | Required | Optional | **Required** |
-| [[FCT PRD]] | Required | **NOT required** (explicitly — too heterogeneous) | Optional |
-| [[FCT Decisions]] (post-F113) | Required | Optional | Optional |
-| [[FCT Interface]] | Required | Optional | Optional |
-| [[FCT Log]] (post-F113) | Optional | Optional | Optional |
-| [[FCT Testing]] | Required | **Required** | Optional |
+| [[DAS Anchor Page]] | Required | Optional | Optional |
+| [[DAS Features]] | Optional | **Required** | Optional |
+| [[DAS Architecture]] (top-level doc) | Required | Optional | **Required** |
+| [[DAS Architecture]] (subsystem doc) | Required | Optional | **Required** |
+| [[DAS UX Design]] (post-F113: `CAB UX`) | Required | Optional | **Required** |
+| [[DAS PRD]] | Required | **NOT required** (explicitly — too heterogeneous) | Optional |
+| [[DAS Decisions]] (post-F113) | Required | Optional | Optional |
+| [[DAS Interface]] | Required | Optional | Optional |
+| [[DAS Log]] (post-F113) | Optional | Optional | Optional |
+| [[DAS Testing]] | Required | **Required** | Optional |
 | Other facets associated with a folder | Required | Optional | Optional |
 
 **Reading the table:**
@@ -240,7 +240,7 @@ A TLDR is a **description list of short single-line bullets**, each with a 2-3-w
 
 **Cover the whole doc, not one aspect.** A good TLDR spans the major sections of the body, one bullet per section's gist. A TLDR that recites only one part of the doc fails the grazer; the reader has to read the body to discover the doc's other sections.
 
-**When required:** TLDR is required on **Feature documents** (per [[FCT Features]]) and **Testing documents** (per [[FCT Testing]]). Always optional on other types; if included, must follow the format above. PRDs are explicitly excluded. **Worked examples:** [[MUX Testing]] (8 bullets, covers posture + tiers + scope + cadence + tier mapping) and [[HBR Testing]] (similar shape at smaller scale).
+**When required:** TLDR is required on **Feature documents** (per [[DAS Features]]) and **Testing documents** (per [[DAS Testing]]). Always optional on other types; if included, must follow the format above. PRDs are explicitly excluded. **Worked examples:** [[MUX Testing]] (8 bullets, covers posture + tiers + scope + cadence + tier mapping) and [[HBR Testing]] (similar shape at smaller scale).
 
 
 ## Figure placement
@@ -256,13 +256,13 @@ When a doc carries an organizing figure (system diagram, architecture sketch, fl
 
 ## Relationship to existing facets and skills
 
-- **[[FCT Anchor Page]]** — cites this discipline. Anchor page dispatch tables follow Grouped / List / Compact pattern per the size rule; preface zone (dispatch + optional TLDR + optional figure) follows this discipline's ordering.
+- **[[DAS Anchor Page]]** — cites this discipline. Anchor page dispatch tables follow Grouped / List / Compact pattern per the size rule; preface zone (dispatch + optional TLDR + optional figure) follows this discipline's ordering.
 - **`md` skill** — its dispatch-table and TOC sub-commands reference the named patterns in their templates and emit conformant output.
-- **[[FCT Features]]** — TLDR required (initial scope). Feature docs reduce cleanly to 3-5 one-line bullets capturing the gist.
-- **[[FCT Architecture]]** — figure required. May include a TLDR voluntarily.
-- **[[FCT UX Design]]** (post-F113: `CAB UX`) — figure required.
-- **[[FCT PRD]]** — TLDR explicitly NOT required (heterogeneous content).
-- **[[FCT Decisions]]** (post-F113) — TLDR not applicable; each decision is its own one-liner.
+- **[[DAS Features]]** — TLDR required (initial scope). Feature docs reduce cleanly to 3-5 one-line bullets capturing the gist.
+- **[[DAS Architecture]]** — figure required. May include a TLDR voluntarily.
+- **[[DAS UX Design]]** (post-F113: `CAB UX`) — figure required.
+- **[[DAS PRD]]** — TLDR explicitly NOT required (heterogeneous content).
+- **[[DAS Decisions]]** (post-F113) — TLDR not applicable; each decision is its own one-liner.
 - **Audit:** post-F113, this discipline lands in `{slug} Decisions.md` as one or more `D<NN>` decisions at the per-anchor tier.
 
 
@@ -280,16 +280,16 @@ When a doc carries an organizing figure (system diagram, architecture sketch, fl
 where:: `always`
 description:: layout conventions of progressive disclosure — checked on every markdown doc
 
-The mechanical, whole-document layout checks of this discipline: the **conditional dispatch-table** placement and the **section-spacing** conventions. Applies to every markdown document (`always`); each rule decides internally whether and how it constrains a given doc. These are the deliberately *conditional, multi-check* rules — one rule that both determines what kind of doc it is looking at and makes several assertions accordingly — the case that stress-tests a declarative rule engine (per the [[Warden Roadmap]] item 8). Format of this set: [[FCT Ruleset]].
+The mechanical, whole-document layout checks of this discipline: the **conditional dispatch-table** placement and the **section-spacing** conventions. Applies to every markdown document (`always`); each rule decides internally whether and how it constrains a given doc. These are the deliberately *conditional, multi-check* rules — one rule that both determines what kind of doc it is looking at and makes several assertions accordingly — the case that stress-tests a declarative rule engine (per the [[Warden Roadmap]] item 8). Format of this set: [[DAS Ruleset]].
 
 ### RULE R-progressive-01 — never both a dispatch-masthead and a `:>>` breadcrumb (checked)
 check:: dispatch_table_by_context
 
 A doc uses **one** navigation form, never two: a **dispatch-masthead** marks the page that *is* a container (the anchor page); a **`:>>` breadcrumb** is the navigation on every other doc. A doc must **never carry both**.
 
-**Check pattern:** the masthead considered is the doc's OWN self-referential masthead — a table row whose first cell is `-[[<this doc's name>]]-` (optionally aliased), per [[FCT Dispatch Table]]; an example masthead shown in the body (linking to a *different* page) and any masthead inside a code fence are ignored. Detect a `:>>` breadcrumb top-row (outside fences). If the doc has **both** its own masthead **and** a `:>>` breadcrumb → fail.
+**Check pattern:** the masthead considered is the doc's OWN self-referential masthead — a table row whose first cell is `-[[<this doc's name>]]-` (optionally aliased), per [[DAS Dispatch Table]]; an example masthead shown in the body (linking to a *different* page) and any masthead inside a code fence are ignored. Detect a `:>>` breadcrumb top-row (outside fences). If the doc has **both** its own masthead **and** a `:>>` breadcrumb → fail.
 
-**Why:** the two forms are redundant — an anchor page's masthead already carries the breadcrumb in its first row, so a second `:>>` line is duplicate navigation; and a leaf doc that grew a self-masthead has stopped being a leaf. Either way the tree-of-containers navigation is muddied (per [[feedback_breadcrumb_vs_dispatch_table]]). Whether a masthead is *required* on a given anchor page depends on the anchor kind — that direction is [[FCT Anchor Page]]'s (`R-anchor-page`) kind-aware job, deliberately not asserted here (a per-file checker cannot classify anchor-page-ness reliably across the vault).
+**Why:** the two forms are redundant — an anchor page's masthead already carries the breadcrumb in its first row, so a second `:>>` line is duplicate navigation; and a leaf doc that grew a self-masthead has stopped being a leaf. Either way the tree-of-containers navigation is muddied (per [[feedback_breadcrumb_vs_dispatch_table]]). Whether a masthead is *required* on a given anchor page depends on the anchor kind — that direction is [[DAS Anchor Page]]'s (`R-anchor-page`) kind-aware job, deliberately not asserted here (a per-file checker cannot classify anchor-page-ness reliably across the vault).
 
 ### RULE R-progressive-02 — progressive-disclosure section spacing (checked)
 check:: progressive_disclosure_layout

@@ -6,7 +6,7 @@ Product requirements for the CAE Example CLI scheduler.
 
 | -[[CAE PRD]]- | : Product requirements for the CAE Example CLI scheduler.<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[CAE]] → [[CAE Design]] → [CAE PRD](hook://p/CAE%20PRD) |
 | --- | --- |
-| [[CAE Stories]] | three user stories — index for US-CAE-1..3 (folder-form per [[FCT Stories]]) |
+| [[CAE Stories]] | three user stories — index for US-CAE-1..3 (folder-form per [[DAS Stories]]) |
 | [[CAE UX Design]] | CLI command surface, output shapes, error voice |
 | [[CAE Architecture]] | system-architecture story (peer Design facet) |
 | [[CAE Testing]] | testing strategy + proposed-tests overview |
@@ -44,15 +44,15 @@ Steps are iterative — open questions arising in any step land inline as `## Op
 
 ## User Stories
 
-See [[CAE Stories]] for the index. Three stories in folder-form per [[FCT Stories]]:
+See [[CAE Stories]] for the index. Three stories in folder-form per [[DAS Stories]]:
 
-- [[US-CAE-1 — Schedule a Task|US-CAE-1: Schedule a Task]]
-- [[US-CAE-2 — Monitor Task Status|US-CAE-2: Monitor Task Status]]
-- [[US-CAE-3 — Retry Failed Tasks|US-CAE-3: Retry Failed Tasks]]
+- [[DAS US-CAE-1 — Schedule a Task|US-CAE-1: Schedule a Task]]
+- [[DAS US-CAE-2 — Monitor Task Status|US-CAE-2: Monitor Task Status]]
+- [[DAS US-CAE-3 — Retry Failed Tasks|US-CAE-3: Retry Failed Tasks]]
 
 ## See also
 
-- [[FCT PRD]] — facet spec
-- [[FCT Stories]] — stories sub-facet (active here in folder form)
+- [[DAS PRD]] — facet spec
+- [[DAS Stories]] — stories sub-facet (active here in folder form)
 - [[CAE UX Design]], [[CAE Architecture]], [[CAE Testing]], [[CAE Decisions]] — peer Design facets
 - [[CAE Track]] — features and roadmap implementing these stories
