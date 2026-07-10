@@ -1,7 +1,7 @@
 ---
 name: rust
 description: >
-  Discipline. The Rust flavor of [[DSC code-repo]] — Cargo workspace layout
+  Discipline. The Rust flavor of [[DAS code-repo]] — Cargo workspace layout
   (workspace root + member crates, resolver 2, path dependencies), the
   {suite}-utils shared-crate pattern for multi-repo project suites, and the
   Rust mapping of the standard justfile recipes (cargo build / test / clippy +
@@ -12,12 +12,12 @@ user_invocable: false
 
 # Rust Discipline
 
-The Rust-flavor conventions for code repositories — how a Rust repo lays out its Cargo workspace, how a project suite shares code through a util crate, and how the standard justfile recipe names ([[DSC code-repo]]) map onto Cargo commands.
+The Rust-flavor conventions for code repositories — how a Rust repo lays out its Cargo workspace, how a project suite shares code through a util crate, and how the standard justfile recipe names ([[DAS code-repo]]) map onto Cargo commands.
 
 - **Workspace at root** — a Rust repo is a Cargo workspace; member crates live in subdirectories, each with its own `Cargo.toml`.
 - **Shared util crate** — a multi-repo project suite factors common code into one `{suite}-utils` crate consumed via relative `path` dependencies.
 - **Standard recipes, Cargo-mapped** — the justfile mirrors the cross-language recipe names (`build`, `test`, `lint`, `check`, …); it never invents Rust-only names that diverge from the standard set.
-- **Rust and only Rust** — a rule belongs here only if it is Rust-specific AND applies across multiple Rust repos. Generic repo shape belongs in [[DSC code-repo]]; per-project Cargo settings and one-off recipes belong in the project's own docs.
+- **Rust and only Rust** — a rule belongs here only if it is Rust-specific AND applies across multiple Rust repos. Generic repo shape belongs in [[DAS code-repo]]; per-project Cargo settings and one-off recipes belong in the project's own docs.
 
 This is a discipline, not a user-invocable skill — Rust-shaped anchors and repo-scaffolding skills cite it via `[[DSC rust]]`.
 
@@ -65,7 +65,7 @@ Conventions:
 
 ## Justfile — Rust recipes
 
-Rust repos map the standard justfile recipes ([[DSC code-repo]]) to Cargo commands:
+Rust repos map the standard justfile recipes ([[DAS code-repo]]) to Cargo commands:
 
 ```just
 default:
@@ -100,8 +100,8 @@ run *ARGS:
     cargo run -- {{ARGS}}
 ```
 
-If a new standard recipe is needed, propose it in [[DSC code-repo]] first, then mirror it here.
+If a new standard recipe is needed, propose it in [[DAS code-repo]] first, then mirror it here.
 
 ## Related
 
-- [[DSC code-repo]] — the language-agnostic repository shape this discipline specializes.
+- [[DAS code-repo]] — the language-agnostic repository shape this discipline specializes.

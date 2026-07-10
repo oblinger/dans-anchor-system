@@ -1,11 +1,11 @@
 ---
 name: dated-entry-stream
 description: >
-  Discipline. The DATED specialization of [[DSC file-association]] — streams of
+  Discipline. The DATED specialization of [[DAS file-association]] — streams of
   **dated, typed, reverse-chronological entries** attached to a parent doc or
   anchor (Discussion, Log). Placement (the three methods), naming, one-way
   migration, linkage, and the one-form invariant are inherited from
-  [[DSC file-association]]; this discipline adds only the dated extras: newest-first
+  [[DAS file-association]]; this discipline adds only the dated extras: newest-first
   ordering, prepend semantics, ISO-date entry-file naming, and the
   parallel-entry-skeleton invariant. Cited by every facet whose content is a
   dated stream; the facet declares which methods it supports and which is default.
@@ -23,7 +23,7 @@ A *dated entry stream* is content of the form:
 - **Attached to a parent** — the stream lives "about" a specific document (or, for anchor-scoped facets, a specific anchor) — the thing being discussed, the thing being logged.
 - **Append-style** — new entries prepend; old entries are not edited after their decision/outcome is recorded.
 
-**Placement is inherited from [[DSC file-association]].** The three methods (inline H1 / sibling file / sibling folder), the cardinality→placement rule, the suffix-naming convention, one-way migration, the one-form-per-parent invariant, and parent linkage all live in the umbrella — this discipline does not re-spell them. It adds only the **dated extras** below. The *content shape* per entry (what an entry contains) lives in each citing facet's spec — Discussion specifies its own skeleton, Log a different one.
+**Placement is inherited from [[DAS file-association]].** The three methods (inline H1 / sibling file / sibling folder), the cardinality→placement rule, the suffix-naming convention, one-way migration, the one-form-per-parent invariant, and parent linkage all live in the umbrella — this discipline does not re-spell them. It adds only the **dated extras** below. The *content shape* per entry (what an entry contains) lives in each citing facet's spec — Discussion specifies its own skeleton, Log a different one.
 
 ## When this discipline applies
 
@@ -37,7 +37,7 @@ Each facet declares which scopes it supports.
 
 ## Placement (inherited)
 
-Uses [[DSC file-association]]'s three methods — inline H1 (1) / sibling file (2) / sibling folder (3) — chosen by the cardinality→placement rule, migrated one-way `1 → 2 → 3`, one-form-per-parent, linked from the parent's dispatch table. See the umbrella for all of that; it is **not** re-spelled here.
+Uses [[DAS file-association]]'s three methods — inline H1 (1) / sibling file (2) / sibling folder (3) — chosen by the cardinality→placement rule, migrated one-way `1 → 2 → 3`, one-form-per-parent, linked from the parent's dispatch table. See the umbrella for all of that; it is **not** re-spelled here.
 
 **Dated default:** a dated stream's inline form (method 1) is a `# {Facet}` H1 holding **dated H2 sub-entries** (newest first). When extracted, the plural suffix applies (`Discussions`, `Logs`).
 
@@ -62,22 +62,22 @@ Each facet citing this discipline declares:
 
 Example citation in a facet spec:
 
-> Discussion is a [[DSC dated-entry-stream]] attached to a parent doc. Methods supported: 1 (inline, default) and 2 (sibling file). Method 3 (sibling folder) is out of scope — Discussion entries are rarely large enough to deserve their own files.
+> Discussion is a [[DAS dated-entry-stream]] attached to a parent doc. Methods supported: 1 (inline, default) and 2 (sibling file). Method 3 (sibling folder) is out of scope — Discussion entries are rarely large enough to deserve their own files.
 
 The facet does NOT re-explain the three methods. The discipline is canonical for that.
 
 ## See also
 
-- [[DSC file-association]] — parent umbrella discipline.
+- [[DAS file-association]] — parent umbrella discipline.
 - [[FCT Discussion]] — first citing facet (doc-scoped, methods 1 + 2).
 - [[FCT Log]] — citing facet at the anchor scope (forthcoming refactor).
 - [[FCT Stories]] — sibling pattern (inline-bullet → folder-form) — same migration direction but not a dated stream; its inline form is bullets, not a dated H1 section. The pattern is related but Stories is not a dated-entry-stream.
-- [[DSC markdown]] — markdown authoring discipline (cited alongside this one for entry body conventions).
+- [[DAS markdown]] — markdown authoring discipline (cited alongside this one for entry body conventions).
 
 
 # RULESET R-dated-entry-stream
 
-include:: [[DSC file-association#RULESET R-file-association|R-file-association]]
+include:: [[DAS file-association#RULESET R-file-association|R-file-association]]
 where:: `sentinel: ^## \d{4}-\d{2}-\d{2} —`
 description:: Rules ADDED by the dated specialization on top of [[R-file-association]] — newest-first ordering + prepend immutability, the parallel-entry-skeleton invariant, and ISO-date entry-file naming.
 

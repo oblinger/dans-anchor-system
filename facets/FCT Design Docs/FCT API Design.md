@@ -44,7 +44,7 @@ Peer of [[FCT Architecture]] and [[FCT UX Design]] under [[FCT Design Dispatch|D
 
 ## Preface zone
 
-Per [[DSC progressive-disclosure]]:
+Per [[DAS progressive-disclosure]]:
 
 - **TLDR** required — 3–8 short bullets: consumer, surface kind (library / sub-skill / service), error model, stability posture, compatibility horizon.
 - **Figure** optional but recommended — schema diagram (struct/types relationship), sequence/interaction diagram (call → response shape), or a representative code snippet of one canonical call.
@@ -83,8 +83,8 @@ See [[FEX API Design]] — the CAE scheduler crate shows the canonical shape for
 - [[FCT Architecture]] — internal organization that backs the API surface.
 - [[FCT Decisions]] — the D-record form for API decisions (rules implement them; linkage on the rule side).
 - [[FCT Status]] — `{slug} Status.md` carries the API-Design facet state.
-- [[DSC progressive-disclosure]] — preface zone discipline.
-- [[DSC markdown]] — markdown authoring discipline.
+- [[DAS progressive-disclosure]] — preface zone discipline.
+- [[DAS markdown]] — markdown authoring discipline.
 
 # RULESET R-api
 include::

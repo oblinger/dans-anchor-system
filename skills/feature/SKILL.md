@@ -19,7 +19,7 @@ Manage a feature from initial idea through design, agreement, implementation, te
 
 **MANDATORY: Commit discipline.** Before starting a new feature or switching to any other activity, commit all uncommitted work from the current feature. The natural commit point is the transition — not when you think you're done, but when you're about to do something else.
 
-**Question format**: the `## Open Questions` H2 above the H1 follows the [[DSC ask-format]] discipline (five-piece layout, block-IDs, Phase 1/2/3 lifecycle).
+**Question format**: the `## Open Questions` H2 above the H1 follows the [[DAS ask-format]] discipline (five-piece layout, block-IDs, Phase 1/2/3 lifecycle).
 
 ## When to Use
 

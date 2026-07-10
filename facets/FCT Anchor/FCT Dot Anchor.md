@@ -5,7 +5,7 @@ description: the `.anchor` file — the YAML declaration at an anchor's root (sl
 # FCT Dot Anchor
 The `.anchor` file — the small YAML declaration at an anchor's root that carries the anchor's metadata. (The same keys may instead live in a page's YAML frontmatter; `.anchor` is the canonical, page-independent home — frontmatter is the inline alternative.)
 
-**Related:** [[FCT Folder]], [[FCT Naming]], [[TRT]], [[FCT Code Repository]], [[DSC anchor-dag]].
+**Related:** [[FCT Folder]], [[FCT Naming]], [[TRT]], [[FCT Code Repository]], [[DAS anchor-dag]].
 
 **TLDR** — `.anchor` is a YAML file at the anchor root. Its **presence makes the folder an anchor** ([[FCT Folder]]); its **fields** declare the anchor's metadata. `slug` is the only required field. This facet is the **field-set index** — each field's detailed rule lives in its owning facet (single source of truth). Managed with `cab-config`. **Cardinality: one per anchor.**
 
@@ -20,7 +20,7 @@ A YAML file named `.anchor` at the root of an anchor folder. Two jobs: (1) its m
 | `slug` | short canonical id (`DKT`, `MUX`) — **required** | [[FCT Naming]] |
 | `traits` | the anchor's traits (`code`, `skill`, `paper`, `topic`, …) | [[TRT]] |
 | `description` | one-line description (mirrors the anchor page's) | this facet |
-| `parents` | up-edges in the anchor DAG | [[DSC anchor-dag]] |
+| `parents` | up-edges in the anchor DAG | [[DAS anchor-dag]] |
 | `code` | path to the associated code repository | [[FCT Code Repository]] |
 | `now` / `backlog` / `inbox` / `rules` | paths to work-surface files | [[FCT Track]] |
 | *(file presence)* | the folder is an anchor | [[FCT Folder]] |
@@ -53,7 +53,7 @@ The `.anchor` file parses as YAML and declares a non-empty `slug`.
 **Why:** the slug is the anchor's canonical identifier; every other field is optional, but without a slug the anchor cannot be referenced.
 
 ### RULE R-dot-anchor-02 — Per-field rules live in their owning facet (stated)
-Beyond valid-YAML + slug, each field's rules are owned by its facet (§ Fields): `traits` → [[TRT]], `code` → [[FCT Code Repository]], `parents` → [[DSC anchor-dag]], `slug`/naming → [[FCT Naming]]. Do not restate those rules here — this facet is the field-set index, not a second source.
+Beyond valid-YAML + slug, each field's rules are owned by its facet (§ Fields): `traits` → [[TRT]], `code` → [[FCT Code Repository]], `parents` → [[DAS anchor-dag]], `slug`/naming → [[FCT Naming]]. Do not restate those rules here — this facet is the field-set index, not a second source.
 **Why:** single source of truth — duplicating a field's rule here would drift from its facet.
 
 # BRIEF

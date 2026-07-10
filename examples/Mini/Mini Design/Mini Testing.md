@@ -8,7 +8,7 @@ How Mini is verified: the kinds of test, how much of each, and the concrete inve
 | -[[Mini Testing]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[Mini]] → [Mini Testing](hook://p/Mini%20Testing)<br>: test strategy + proposed tests |
 | --- | --- |
 | Anchor | [[Mini Design]] (parent) |
-| Related | [[Mini PRD]],  [[DSC verification]],   |
+| Related | [[Mini PRD]],  [[DAS verification]],   |
 
 **TLDR**
 - **Library-shaped posture** — heavy unit on the one pure function; one e2e on the CLI surface.
@@ -42,7 +42,7 @@ The two kinds above are the full inventory. Mini deliberately does NOT use: inte
 
 ### Tier Mapping
 
-Per [[DSC verification]]:
+Per [[DAS verification]]:
 
 - **Tier 1 (agent-immediate)** — unit + e2e, both run in seconds. The default and only tier for Mini features.
 - **Tier 3 (user-passive)** — the author running `mini` in daily use surfaces anything the suite missed.
@@ -67,4 +67,4 @@ Bare-bracket entries (`[Mini Core § Tests]`) mark proposed-but-unwritten low-le
 ## See also
 
 - [[Mini PRD]] — the user story that drives the e2e inventory.
-- [[DSC verification]] — four-tier verification discipline mapped above.
+- [[DAS verification]] — four-tier verification discipline mapped above.

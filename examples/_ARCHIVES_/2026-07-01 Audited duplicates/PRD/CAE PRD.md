@@ -28,7 +28,7 @@ CAE Example is a CLI tool for scheduling and running deferred shell tasks with p
 | 5 | [[CAE Decisions]] | Encode load-bearing decisions citing R-rules |
 | 6 | [[CAE Track]] | Roadmap + features that implement the user stories |
 
-Steps are iterative — open questions arising in any step land inline as `## Open Questions` H2 (per [[DSC ask-format]]) and resolve back into the originating section.
+Steps are iterative — open questions arising in any step land inline as `## Open Questions` H2 (per [[DAS ask-format]]) and resolve back into the originating section.
 
 ## Goals
 

@@ -20,7 +20,7 @@ status:: accepted
 - **Scope column** — every test row tags itself with subsystems / file globs / behavior tags / feature numbers.
 - **Relevance gate** — LLM reads the diff + scopes per commit, runs only the plausibly-affected tests.
 - **Nightly sweep** — full suite runs once a day to catch long-tail drift the gate skipped.
-- **Tier mapping (per [[DSC verification]])** — Tier 1 = relevance-gated agent suites; Tier 2 = nightly sweep; Tier 3 = user dogfooding; Tier 4 = explicit steps in `## Success Criteria`.
+- **Tier mapping (per [[DAS verification]])** — Tier 1 = relevance-gated agent suites; Tier 2 = nightly sweep; Tier 3 = user dogfooding; Tier 4 = explicit steps in `## Success Criteria`.
 
 
 ## Overview
@@ -40,7 +40,7 @@ MuxUX is an 11-subsystem Tauri overlay sitting between macOS UI APIs (AppKit, AX
 
 The five kinds above are the full inventory. MUX deliberately does NOT use: property-based tests (no load-bearing universally-quantifiable invariants in v1 — the parts-catalog expander and the layout convergence loop are candidates if schedule allows), performance tests (submenu-latency is the only soft SLO; one targeted live recipe covers it, sufficient for v1), frontend unit tests (the TypeScript surface is thin glue between Tauri IPC and DOM; covered through live + subjective).
 
-**Subjective implementation notes.** Mechanism: a Rust + bash harness that drives the app into the target state (osascript clicks, hotkeys, IPC nudges), waits for the visual to settle (post-render quiesce, watermark-fade timer, layout-realize idempotence), screencaptures the relevant window region via `screencapture -R <rect>` (or full-window via `-l <window-id>`), and hands the resulting PNG + the spec text to an LLM via the Anthropic API. LLM is told the spec, shown the screenshot, and asked: *"Does this match? If no, name the specific mismatch."* The test asserts a pass verdict; failure prints the LLM's reasoning. Specs live in feature docs under a `## Looks like` H2 (or `## Success Criteria § Visual` per [[DSC verification]]) — bullet form, prose, no images of "expected output" (the LLM-vs-LLM comparison would degenerate). When a feature doc lacks a `## Looks like` section, the test is bracketed as roadmap rather than skipped.
+**Subjective implementation notes.** Mechanism: a Rust + bash harness that drives the app into the target state (osascript clicks, hotkeys, IPC nudges), waits for the visual to settle (post-render quiesce, watermark-fade timer, layout-realize idempotence), screencaptures the relevant window region via `screencapture -R <rect>` (or full-window via `-l <window-id>`), and hands the resulting PNG + the spec text to an LLM via the Anthropic API. LLM is told the spec, shown the screenshot, and asked: *"Does this match? If no, name the specific mismatch."* The test asserts a pass verdict; failure prints the LLM's reasoning. Specs live in feature docs under a `## Looks like` H2 (or `## Success Criteria § Visual` per [[DAS verification]]) — bullet form, prose, no images of "expected output" (the LLM-vs-LLM comparison would degenerate). When a feature doc lacks a `## Looks like` section, the test is bracketed as roadmap rather than skipped.
 
 ### Completeness Targets
 
@@ -70,12 +70,12 @@ The five kinds above are the full inventory. MUX deliberately does NOT use: prop
 
 ### Tier Mapping
 
-Per [[DSC verification]]:
+Per [[DAS verification]]:
 
 - **Tier 1 (agent-immediate)** — satisfied by unit + integration tests, all of which run in `cargo test` in under a minute. Also satisfied by relevance-gated live + subjective runs on the changed surface (LLM-judged scope match → run-now; pass → Tier 1 satisfied for that feature). Default tier for MUX features whose surface area is well-scoped.
 - **Tier 2 (agent-over-time)** — satisfied by the nightly sweep: every live + subjective + e2e test runs regardless of relevance, on a macOS host runner (planned; not yet provisioned). Drift in the long tail of "features I didn't touch this week" surfaces within a day. Until the nightly runner exists, Tier 2 falls back to the user running `just test-live` + the subjective harness before merging touch to the live surface.
 - **Tier 3 (user-passive)** — satisfied by the user dogfooding MuxUX in their daily workflow. The user is the only daily user; surface-area issues surface within hours of merge. CLAUDE.md's "Always commit after shipping; don't ask" + "Rebuild + redeploy without asking" disciplines make this loop tight.
-- **Tier 4 (user-explicit)** — fallback only. Used when a feature touches a flow that is not exercised in daily use (e.g., external-monitor disconnect, fresh-permission-grant first launch, two-app handoff under specific failure modes). Each Tier-4 verification spells out the explicit steps in the feature doc's `## Success Criteria` block per [[DSC verification]].
+- **Tier 4 (user-explicit)** — fallback only. Used when a feature touches a flow that is not exercised in daily use (e.g., external-monitor disconnect, fresh-permission-grant first launch, two-app handoff under specific failure modes). Each Tier-4 verification spells out the explicit steps in the feature doc's `## Success Criteria` block per [[DAS verification]].
 
 
 ## Relevance Gating
@@ -228,6 +228,6 @@ Bare-bracket entries (e.g. `[MUX Dev Docs/MUX-Dispatcher-Sensors]`, `[F107 Subme
 - [[MUX PRD]] — user stories that drive the e2e inventory
 - [[MUX Architecture]] — subsystem boundaries that drive the integration inventory
 - [[MUX Decisions]] — D-MA01..05 (TCC permissions), single-dispatcher commitment make deterministic testing possible
-- [[DSC verification]] — four-tier verification discipline mapped above
+- [[DAS verification]] — four-tier verification discipline mapped above
 - [[design]] — parent orchestrator skill
 - [[design-testing]] — authoring sub-skill for `/design testing`

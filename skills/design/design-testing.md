@@ -62,7 +62,7 @@ Open the file. For each section:
 - **`## Strategy § Test Kinds`** — confirm the category list. Add/remove based on project shape.
 - **`## Strategy § Completeness Targets`** — set the bar per kind. Enforce the kind-target one-to-one symmetry (every declared kind has a target).
 - **`## Strategy § Responsibilities`** — name who authors each kind.
-- **`## Strategy § Tier Mapping`** — connect to [[DSC verification]]'s four tiers; which kinds satisfy which tier.
+- **`## Strategy § Tier Mapping`** — connect to [[DAS verification]]'s four tiers; which kinds satisfy which tier.
 - **`## Proposed Tests`** — one H3 sub-section per kind matching § Test Kinds. Each H3 has a markdown table with Test / Exercises / Spec columns. Bare-bracket Specs are fine; they're roadmap.
 
 ### 5. Acceptance
@@ -101,6 +101,6 @@ The agent does NOT proactively invoke roadmapping; the user invokes `/design` ag
 - Embedded ruleset: [[FCT Testing#RULESET R-testing|R-testing]] (12 rules)
 - Parent orchestrator: [[design]]
 - Sibling sub-skills: [[design-prd]], [[design-ux]], [[design-architect]], [[design-roadmap]]
-- Verification discipline: [[DSC verification]]
+- Verification discipline: [[DAS verification]]
 - Drive-phase test execution: `code-test` (in [[code]] cluster)
 - F120 (parent feature) + F122 (this sub-skill's commission) + F136 (rename + shape update)

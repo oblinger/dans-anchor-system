@@ -8,7 +8,7 @@ How the Bridge skill is verified: the kinds of test, how much of each, and the c
 | -[[SKA Bridge Testing]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[SKA Bridge]] → [[SKA Bridge Design]] → [SKA Bridge Testing](hook://p/SKA%20Bridge%20Testing)<br>: test strategy + proposed tests |
 | --- | --- |
 | Anchor | [[SKA Bridge Design]] (parent) |
-| Related | [[SKA Bridge PRD]],  [[SKA Bridge UX Design]],  [[DSC verification]],   |
+| Related | [[SKA Bridge PRD]],  [[SKA Bridge UX Design]],  [[DAS verification]],   |
 
 **TLDR**
 - **Two-machine posture** — center of gravity is integration testing against a real remote; most logic is I/O orchestration.
@@ -49,7 +49,7 @@ The four kinds above are the full inventory. Bridge deliberately does NOT use: p
 
 ### Tier Mapping
 
-Per [[DSC verification]]:
+Per [[DAS verification]]:
 
 - **Tier 1 (agent-immediate)** — all unit + integration tests with a reachable remote, deterministic PASS/FAIL via `bridge-test.sh`.
 - **Tier 2 (agent-over-time)** — the e2e twin scenario when it needs a convergence soak.
@@ -101,4 +101,4 @@ Bare-bracket entries (`[SKA Bridge Integration § Control]`) mark proposed-but-u
 
 - [[SKA Bridge PRD]] — the requirements each test verifies.
 - [[SKA Bridge UX Design]] — the verbs under test.
-- [[DSC verification]] — four-tier verification discipline mapped above.
+- [[DAS verification]] — four-tier verification discipline mapped above.

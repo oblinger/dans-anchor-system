@@ -34,7 +34,7 @@ Delegate the table's shape to **[[audit-dispatch|/audit dispatch]]** (it already
 - [ ] **Masthead is minimal** — `Related` is the **1st** row (omitted entirely if empty — never blank); no ad-hoc rows the breadcrumb already covers (no `Repo` row). (D07)
 - [ ] **Design row** — if the anchor has the design facet (`{slug} Design/`), a `Design` row is **present** as the **2nd** row, in the fixed order PRD → UX → CLI → API → Architecture → Decisions → Testing → Roadmap → Features. (D07)
 - [ ] **No `Track` row** for a skill-ecosystem anchor (skill / facet / discipline / example) — tracking is centralized in SKA. (D08)
-- [ ] **Container ending** — a Collection/container's table ends with an electric-list marker (`...` / `---` / `+` group rows); each group-row label links *down* to its container page. (per [[FCT Dispatch Table]] + [[DSC progressive-disclosure]])
+- [ ] **Container ending** — a Collection/container's table ends with an electric-list marker (`...` / `---` / `+` group rows); each group-row label links *down* to its container page. (per [[FCT Dispatch Table]] + [[DAS progressive-disclosure]])
 
 ## Mechanism — the F161 audit engine
 
@@ -72,6 +72,6 @@ P=~/.claude/skills/audit/scripts/audit-plan.py
 
 ## Related
 
-- Rules read: [[FCT Anchor Page]], [[FCT Dispatch Table]], [[DSC progressive-disclosure]]; decisions [[SKA Decisions|D06 / D07 / D08]].
+- Rules read: [[FCT Anchor Page]], [[FCT Dispatch Table]], [[DAS progressive-disclosure]]; decisions [[SKA Decisions|D06 / D07 / D08]].
 - Builder it calls: [[audit-dispatch]].
-- Vault-wide connectivity walk: [[DSC anchor-dag]].
+- Vault-wide connectivity walk: [[DAS anchor-dag]].

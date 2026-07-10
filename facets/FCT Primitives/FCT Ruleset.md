@@ -306,7 +306,7 @@ include::
 where:: `sentinel: ^#+ RULESET R-`
 description:: Format every ruleset definition obeys — sentinels, header fields, per-rule structure, numbering, includes.
 
-The rules a `# RULESET` definition must satisfy — checked on **every ruleset, wherever it lives**: standalone `R-*.md` files **and** inline `# RULESET` blocks embedded in facet, skill, and discipline specs (e.g. `R-anchor-page` in [[FCT Anchor Page]], `R-markdown` in [[DSC markdown]]). The `where::` is a **content sentinel** — any file with a `# RULESET R-` heading (fence-aware: fenced *example* RULESETs are skipped) — so embedded sets are caught without enumerating their host files. Self-applying: this set obeys its own rules.
+The rules a `# RULESET` definition must satisfy — checked on **every ruleset, wherever it lives**: standalone `R-*.md` files **and** inline `# RULESET` blocks embedded in facet, skill, and discipline specs (e.g. `R-anchor-page` in [[FCT Anchor Page]], `R-markdown` in [[DAS markdown]]). The `where::` is a **content sentinel** — any file with a `# RULESET R-` heading (fence-aware: fenced *example* RULESETs are skipped) — so embedded sets are caught without enumerating their host files. Self-applying: this set obeys its own rules.
 
 ### RULE R-ruleset-01 — H1 carries the `RULESET` sentinel (checked)
 check:: regex_present ^#+ RULESET R-[a-z0-9-]+$

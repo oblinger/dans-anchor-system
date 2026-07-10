@@ -56,4 +56,4 @@ Specs that can only be judged, not asserted — "does this layout look right?", 
 ## See also
 
 - [[FCT Testing]] — the facet spec that requires the tests-table linking here.
-- [[DSC verification]] — the four-tier verification discipline test kinds map onto.
+- [[DAS verification]] — the four-tier verification discipline test kinds map onto.

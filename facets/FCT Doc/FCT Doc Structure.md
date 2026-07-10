@@ -6,13 +6,13 @@ description: "the Doc Structure facet — the canonical top-to-bottom layering e
 # FCT Doc Structure
 The standard top-to-bottom structure every document follows — progressive disclosure specialized for a single document: each layer reveals more depth for a more-committed reader. This is the **main facet for any document**; the other doc facets (Brief, Discussion, Ruleset) describe regions *within* this structure.
 
-**Related:** [[DSC progressive-disclosure]] (the discipline this specializes),  [[FCT Brief]],  [[FCT Anchor Page]]
+**Related:** [[DAS progressive-disclosure]] (the discipline this specializes),  [[FCT Brief]],  [[FCT Anchor Page]]
 **Examples:** [[FEX Minimal Facet\|minimal — short doc, no table]],  [[HBR Architecture\|fuller — non-anchor doc with structured body]]
 **Document examples:** [[FEX Manifest]] (facet spec),  [[FEX Retention]] (discipline),  [[FCT Brief]] (facet spec)
 **Anchor examples:** [[HBR]] (project),  [[FEX Snapshot]] (skill),  [[FEX Repo]] (repo)
 
 ## Overview
-[[DSC progressive-disclosure]] is the general discipline — reveal information in layers so a reader gets the gist first and drills in only as far as they need. **Doc Structure** is that discipline applied to a *single document*: a fixed top-to-bottom order of layers, each aimed at a more-committed reader than the last. Every document the system owns — anchor page, facet spec, feature doc, design doc, user guide — follows this skeleton; specific document kinds (e.g. [[FCT Anchor Page]]) refine it but never violate the layer order.
+[[DAS progressive-disclosure]] is the general discipline — reveal information in layers so a reader gets the gist first and drills in only as far as they need. **Doc Structure** is that discipline applied to a *single document*: a fixed top-to-bottom order of layers, each aimed at a more-committed reader than the last. Every document the system owns — anchor page, facet spec, feature doc, design doc, user guide — follows this skeleton; specific document kinds (e.g. [[FCT Anchor Page]]) refine it but never violate the layer order.
 
 **Cardinality: one per document.** Every authored `.md` file has exactly one Doc Structure — each document follows this top-to-bottom skeleton once. Across an anchor the facet applies to each individual document independently.
 
@@ -63,7 +63,7 @@ The actual content the document holds. At the very bottom, the agent-facing `# B
 **Why this order — progressive disclosure.** A glance-reader gets what they need from the H1 + summary; a navigator uses the table; a committed reader reads TLDR → Overview → Body; the maintaining agent reads the Brief. Each layer down serves a more-committed reader.
 
 ## Relationship to other facets
-- **[[DSC progressive-disclosure]]** — the general discipline; this facet is its document-scoped specialization.
+- **[[DAS progressive-disclosure]]** — the general discipline; this facet is its document-scoped specialization.
 - **[[FCT Anchor Page]]** — a specific document kind (the `{slug}.md` anchor page) that refines this skeleton with the dispatch-table form.
 - **[[FCT Brief]]** — owns the bottom (agent-facing) layer; its three-reader-zones model seeded this facet.
 - **[[FCT Ruleset]] / [[FCT Discussion]]** — other regions that live *within* the Body.
