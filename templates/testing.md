@@ -2,13 +2,11 @@
 description: "test strategy + proposed tests"
 status:: drafting
 ---
+:>>
 # {slug} Testing
 How {slug} is verified: the kinds of test, how much of each, and the concrete inventory consistent with that strategy.
 
-| -[[{slug} Testing]]- | → [[kmr]] → [[{slug}]] → [[{slug} Design]] → [{slug} Testing](hook://p/{slug}%20Testing)<br>: test strategy + proposed tests |
-| --- | --- |
-| Anchor | [[{slug} Design]] (parent) |
-| Related | [[{slug} Architecture]],  [[{slug} PRD]],  [[DSC verification]],   |
+**Related:** [[{slug} Architecture]],  [[{slug} PRD]],  [[DSC verification]]
 
 **TLDR**
 - **{{Posture descriptor}}** — {{one line: the shape of the test investment, e.g. "heavy unit + integration; minimal e2e"}}
