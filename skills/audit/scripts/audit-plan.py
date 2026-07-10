@@ -392,7 +392,7 @@ def _glob_to_relpattern(glob: str) -> str:
 
 
 def _anchor_name(anchor_root: Path) -> str:
-    """{NAME} token → the anchor's slug (from .anchor), else its folder name."""
+    """{NAME}/{slug} token → the anchor's slug (from .anchor), else its folder name."""
     dot = anchor_root / ".anchor"
     if dot.is_file():
         try:
@@ -466,7 +466,7 @@ def _glob_rx(pat: str):
 
 def _match_file_glob(arg: str, scope_files: list[Path], anchor_root: Path) -> list[Path]:
     """Resolve a `file:` where-glob to scope files, honoring the full spec
-    ([[FCT Ruleset]] § Where clause): {ANCHOR}/{NAME} tokens, brace-alternation,
+    ([[FCT Ruleset]] § Where clause): {ANCHOR}/{NAME}/{slug} tokens, brace-alternation,
     comma-union, and gitignore-style !-negation. Matches patterns against the
     scope files' anchor-relative paths — no filesystem walk (F232 B3)."""
     name = _anchor_name(anchor_root)
@@ -491,7 +491,7 @@ def _match_file_glob(arg: str, scope_files: list[Path], anchor_root: Path) -> li
         neg = term.startswith("!")
         if neg:
             term = term[1:].strip()
-        rel = _glob_to_relpattern(term).replace("{NAME}", name)
+        rel = _glob_to_relpattern(term).replace("{NAME}", name).replace("{slug}", name)
         if not rel:
             paths = {p for p, r in rel_of.items() if r == ""}
         else:
@@ -2004,7 +2004,7 @@ def chk_file_exists(target, anchor_root, args):
     if not args:
         return "error", "file_exists requires a path argument"
     slug = _anchor_slug(anchor_root)
-    pattern = args[0].replace("{NAME}", slug)
+    pattern = args[0].replace("{NAME}", slug).replace("{slug}", slug)
     if (anchor_root / pattern).is_file():
         return "pass", f"{pattern} exists"
     return "fail", f"{pattern} does not exist"
