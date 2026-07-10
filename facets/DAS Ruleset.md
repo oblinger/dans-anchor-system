@@ -2,7 +2,7 @@
 description: "the Ruleset facet — what a ruleset is and the format every ruleset file (a standalone `R-<slug>` or an anchor-local {slug} Rules.md) must take"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Primitives]] → [FCT Ruleset](hook://p/DAS%20Ruleset)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Ruleset](hook://p/DAS%20Ruleset)
 # FCT Ruleset
 A named, reusable bundle of audit-checkable rules — and the spec for how to write one.
 

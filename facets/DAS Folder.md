@@ -2,7 +2,7 @@
 description: "the anchor folder facet — the named directory + marker file that makes an anchor"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Anchor]] → [FCT Folder](hook://p/DAS%20Folder)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Folder](hook://p/DAS%20Folder)
 # FCT Folder
 Facet spec for the anchor folder itself — the named directory containing a marker file that identifies it as an anchor.
 

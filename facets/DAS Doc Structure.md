@@ -2,7 +2,7 @@
 description: "the Doc Structure facet — the canonical top-to-bottom layering every document follows (progressive disclosure specialized for a single document)"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Doc]] → [FCT Doc Structure](hook://p/DAS%20Doc%20Structure)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Doc Structure](hook://p/DAS%20Doc%20Structure)
 # FCT Doc Structure
 The standard top-to-bottom structure every document follows — progressive disclosure specialized for a single document: each layer reveals more depth for a more-committed reader. This is the **main facet for any document**; the other doc facets (Brief, Discussion, Ruleset) describe regions *within* this structure.
 

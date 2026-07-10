@@ -1,10 +1,10 @@
 ---
-description: "Create a new thing — anchor, feature, work product, spec, or rule."
+description: "the `/create` skill"
 ---
 # SKL Create
 Create a new thing — anchor, feature, work product, spec, or rule.
 
-| -[[DAS Create]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Anchor]] → [SKL Create](hook://p/DAS%20Create)<br>: the `/create` skill |
+| -[[DAS Create]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Create](hook://p/DAS%20Create)<br>: the `/create` skill |
 | --- | --- |
 | Related | [[skills/create/SKILL.md\|SKILL]],   |
 | [[DAS Create Design\|Design]] |  |

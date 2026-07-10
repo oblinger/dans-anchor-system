@@ -2,7 +2,7 @@
 description: "status facet — one {slug} Status.md per anchor tracking design-phase completeness via a tier ladder"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Track]] → [FCT Status](hook://p/DAS%20Status)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Status](hook://p/DAS%20Status)
 # FCT Status
 One file per anchor that tracks design-phase completeness, one dataview line per design facet, using a monotonic tier ladder read/written by the state script.
 

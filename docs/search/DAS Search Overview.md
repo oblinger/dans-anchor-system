@@ -1,10 +1,10 @@
 ---
-description: "How the search skill family combines knowledge and rules — the mental model behind find/profile/survey."
+description: "the SKL Search Overview doc"
 ---
 # SKL Search Overview
 The mental model behind the **search skill family** (`find`, `describe`, `survey`) — how the pieces fit together so you know how to ask, where to find rules, and where results land.
 
-| -[[DAS Search Overview]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Search]] → [SKL Search Overview](hook://p/DAS%20Search%20Overview)<br>: the SKL Search Overview doc |
+| -[[DAS Search Overview]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Search Overview](hook://p/DAS%20Search%20Overview)<br>: the SKL Search Overview doc |
 | --- | --- |
 
 ## The two axes

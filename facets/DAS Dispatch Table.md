@@ -2,7 +2,7 @@
 description: "the top-of-page navigation table — its own spec, dogfooded"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Dispatch]] → [FCT Dispatch Table](hook://p/DAS%20Dispatch%20Table)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Dispatch Table](hook://p/DAS%20Dispatch%20Table)
 # FCT Dispatch Table
 The top-of-file table convention that gives most anchor pages and many facet pages their navigation surface.
 

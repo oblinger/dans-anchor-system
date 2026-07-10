@@ -2,7 +2,7 @@
 description: "product requirements"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[skill-docs]] → [[SKL Drive]] → [[DAS Mint]] → [[DAS Mint Design]]
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Mint PRD](hook://p/DAS%20Mint%20PRD)
 # Mint PRD
 
 _Placeholder. Authored on demand when design discussions warrant it._

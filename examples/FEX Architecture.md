@@ -1,5 +1,5 @@
 ---
-description: "CAE system architecture — worked example of the FCT Architecture facet"
+description: "system-architecture story — a Design child (`{slug} Architecture`)"
 ---
 # FEX Architecture
 CAE is a single-process CLI scheduler. A submitted task carries a deadline, a retry policy, and an opaque command payload; the scheduler enqueues it in a SQLite-backed priority store, dispatches to a fixed worker pool when ready, and routes failures through a centralized retry manager. No daemon, no IPC — every coordination decision flows through the SQLite store.
@@ -8,34 +8,71 @@ CAE is a single-process CLI scheduler. A submitted task carries a deadline, a re
 
 CLI submits tasks to the **Scheduler**, which dispatches to the **Worker Pool**, persists state in **TaskStore**, and consults **RetryManager** on failure. The injectable **Clock** (not shown — passed by reference at construction) is the time source every component reads from.
 
-| -[[FEX Architecture]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[DAS Design Docs]] → [FEX Architecture](hook://p/FEX%20Architecture)<br>: CAE system architecture — worked example of the FCT Architecture facet |
+| -[[FEX Architecture]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [FEX Architecture](hook://p/FEX%20Architecture)<br>: CAE system architecture — worked example of the FCT Architecture facet |
 | --- | --- |
 | [[FEX Scheduler]] | priority queue engine + worker dispatch. Source: `src/execution/scheduler.rs`. |
 | [CAE-Store] | SQLite-backed task persistence; load/save/mark-done. (subsystem doc not yet authored) |
 | [CAE-Retry] | exponential backoff + dead-letter handling; centralized retry policy. (no doc yet) |
 | [CAE-Clock] | injectable `Clock` trait; production `WallClock` + test `TestClock`. (no doc yet) |
 | --- | |
-| [[DAS Common Testing Types]] | standard test-kind catalogue — generic strategy per kind, linked from each project's Testing tests-table |
-| [[DAS API Design]] | facet spec for {slug} API Design.md — the programmatic (code-to-code or sub-skill) user surface |
-| [[DAS CLI]] | The command-line specification facet — the full command surface for an anchor that ships a CLI, opened by a compressed `--help` figure (an SVG); a design-pipeline doc downstream of UX Design |
-| [[DAS Completed Roadmap]] | completed-roadmap facet — migrated milestones in newest-on-top order, sibling of the forward-looking Roadmap |
-| [[DAS Decisions]] | decisions are documentation — recorded under a `## Decisions` section in the design doc they shape; Warden never computes against them. Anything directly checkable is a rule, living in the companion `# RULESET` directly after the Decisions section; rules link back with an implements-D<N> note. |
-| [[DAS Design]] | design facet — the {slug} Design/ folder marks an anchor as following the designed-lifecycle convention; folder presence IS the signal (no trait field required) |
-| [[DAS Files Architecture]] | the top-down design of a system's module & content structure — the file-tree architecture doc kind |
-| [[DAS PRD]] | facet spec for {slug} PRD.md — the anchor's product requirements document |
-| [[DAS Roadmap]] | facet spec for the project sequencing-design doc — milestones, shapes, and numbering |
-| [[DAS Stories]] | facet spec for user stories as first-class siblings of a PRD — inline-bullet form for small PRDs, extracted-folder form for large ones |
-| [[DAS System Design]] | the current technical-architecture document for a software project anchor |
-| [[DAS Testing]] | testing facet — the project's testing strategy (kinds, amounts, responsibilities) followed by an overview of the actual tests proposed, consistent with that strategy. Low-level test specs live in module docs, not here. |
-| [[DAS UX Design]] | facet spec for `{slug} UX Design.md` — the human user-facing surface (CLI commands, screens, organization, naming, output shapes, error voice) |
+| [[_{{DISK_LABEL}} Template]] |  |
+| [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template]] |  |
+| [[Bridges]] | example list-dispatch collection (≤ 15 members) |
+| [[CAE Architecture]] | CAE system architecture — entry-point doc for the {NAME} Architecture/ folder anchor. Worked example of the CAB Architecture facet (section spine, visual-only diagrams, subsystem dispatch with link convention, API content lives elsewhere). |
+| [[CAE Decisions]] | load-bearing rules & invariants |
+| [[CAE PRD]] | product requirements for the CAE Example CLI scheduler |
+| [[CAE Stories]] | three user stories — index for US-CAE-1..3 (folder-form per ~~ |
+| [[CAE Testing]] | testing strategy + proposed-tests overview (worked example of |
+| [[Clarifier]] | example project anchor — a designed software project |
+| [[CSE]] | Common Skill Example — reference anchor — a fully-wired example of a CAB skill anchor |
+| [[Devtools]] | example grouped-dispatch collection (> 15 members) |
+| [[Decisions/DKT Decisions]] | Durable architectural decisions + rationale — standard/API split, Rust+Python common docs, anchor-crate separation |
+| [[PRD/DMUX PRD]] | product requirements — focus-free voice dictation hub for macOS |
+| [[Espresso]] | Espresso — example topic collection (≤ 15 members) — notes on pulling espresso |
+| [[FEX]] | the example gallery — fictional worlds + a per-kind map |
 | [[FEX API Design]] | programmatic surface of the `cae` Rust crate — types, signatures, error envelope, stability + compatibility commitments. Sibling to |
 | [[FEX Completed Roadmap]] | companion to CAE Roadmap; preserved migrated milestones with their structure; newest-on-top. |
 | [[FEX Decisions Details]] |  |
+| [[FEX Dispatch Examples]] | live worked examples of each dispatch-table structure |
+| [[FEX Facet]] | canonical facet exemplar |
+| [[FEX Figure Page]] | the figure-bearing anchor-page layout |
+| [[FEX Files]] | repository file tree (audit-generated) |
+| [[FEX Grouped Dispatch]] | canonical grouped-dispatch exemplar |
+| [[FEX Icebox]] | cold-storage / someday-maybe |
+| [[FEX Inbox]] | raw input to process |
+| [[FEX List Dispatch]] | canonical list-dispatch exemplar |
+| [[FEX Minimal Facet]] | the leanest complete file set for a facet, with a live instance |
+| [[FEX Minimal Skill]] | the leanest complete file set for a skill, with a live instance |
+| [[FEX Project Root]] | canonical project-root exemplar |
+| [[FEX queries]] | CAE queries — mechanically rendered from the backlog by triage (Verifications / Ready+Next / Questions). Do not hand-edit; edit the backlog rows. |
+| [[FEX Repo]] | **FEX Repo** — a fake skills repository tying the loose examples together: a skill ( |
 | [[FEX Roadmap]] | sequencing-design — milestones + ordering (moved from Track 2026-06-10) |
+| [[FEX Skill]] | canonical skill exemplar |
 | [[FEX Stories]] | three user stories — index for US-CAE-1..3 (folder-form per |
-| [[FCT Design Docs/DAS US-CAE-1 — Schedule a Task]] | Schedule a deferred shell task with absolute or relative time |
-| [[DAS US-CAE-2 — Monitor Task Status]] | Show task state grouped by pending / running / done / failed |
-| [[DAS US-CAE-3 — Retry Failed Tasks]] | Auto-retry failed tasks with exponential backoff to a cap |
+| [[Forum Stories]] | User stories for the Forum debate platform. |
+| [[Architecture/HA Architecture]] | HookAnchor system architecture — top-level decomposition into subsystems. |
+| [[HBR]] | **Common Anchor Example** — the fully-wired worked-example anchor (PRD / UX / API / Architecture / Decisions / Testing / Roadmap / Features), cited by the FCT facet specs as the **minimal** reference instance. Relocated here from `CAB/` 2026-06-27. |
+| [[Architecture/HBR Architecture]] | system architecture |
+| [[Decisions/HBR Decisions]] | durable rulings |
+| [[HBR PRD User Stories]] | audited excerpt — the inline `## User Stories` section of HBR PRD (inline-subsection form, US-HBR-1..5) |
+| [[Testing/HBR Testing]] | test strategy + proposed-tests overview |
+| [[HWP]] | a short whitepaper on the Harbor media server — the worked Paper anchor example |
+| [[Knots]] | **Knots** — a tiny **Topic** anchor: a no-code evergreen knowledge hub routing to sub-topics ( |
+| [[Mini]] | tiny example project — the MINIMAL design-docs world for F178 |
+| [[Decisions/Mini Decisions]] | durable rulings for Mini |
+| [[Testing/Mini Testing]] | test strategy + proposed tests |
+| [[Architecture/MUX Architecture]] | top-level architecture facet — subsystem decomposition with bidirectional module links |
+| [[Architecture/OBU Architecture]] | system architecture |
+| [[PRD/OBU PRD]] | product requirements — ob-utils shared utilities library, one spec across languages |
+| [[PRD/Mini PRD]] | product requirements — what Mini does and the one story it must deliver |
+| [[SKA Bridge Testing]] | SKA Bridge Testing — strategy + proposed-tests overview |
+| [[SKL CSE]] |  |
+| [[Snap]] |  |
+| [[Testing/MUX Testing]] | MUX Testing — strategy + proposed-tests overview |
+| [[Decisions/UCM Decisions]] | architectural and implementation decisions for UCM |
+| [[Stories/US-CAE-1 — Schedule a Task]] | Schedule a deferred shell task with absolute or relative time |
+| [[Stories/US-CAE-3 — Retry Failed Tasks]] | Auto-retry failed tasks with exponential backoff to a cap |
+| [[Viz Bench]] | figure-drafting techniques compared across a fixed reference set |
 
 
 > [!note] FCT Architecture convention

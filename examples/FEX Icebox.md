@@ -1,8 +1,8 @@
 ---
-description: "cold-storage / someday-maybe"
+description: "cold-storage / someday-maybe (optional)"
 ---
 
-:>> [[HBR]] → [[HBR Track]]
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [FEX Icebox](hook://p/FEX%20Icebox)
 # CAE Icebox
 
 Items parked for distant-future consideration. Not on the active [[HBR Backlog]] — the Icebox is for things we want to remember but are not currently weighing.

@@ -1,5 +1,5 @@
 ---
-description: "work queue"
+description: "workflow-state core (required for Track)"
 ---
 # HBR Backlog
 Harbor's work queue — horizon H2s, one row per item, status in brackets.

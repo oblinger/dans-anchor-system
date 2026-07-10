@@ -1,10 +1,10 @@
 ---
-description: "`/slug-scan` discovers anchors that have a slug (a short ID like `ODC`, `HA`, `SKA`) and syncs them into the slug index table at `~/ob/kmr/SYS/SYS Topic/slug/SLUG.md`."
+description: "the SKL Slug Scan doc"
 ---
 # /slug-scan
 `/slug-scan` discovers anchors that have a slug (a short ID like `ODC`, `HA`, `SKA`) and syncs them into the slug index table at `~/ob/kmr/SYS/SYS Topic/slug/SLUG.md`. Use it when you say "slug scan" or "sync slugs" — typically after creating a new slugged anchor and you want it indexed.
 
-| -[[DAS Slug Scan]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[skill-docs]] → [[SKL Hygiene]] → [SKL Slug Scan](hook://p/DAS%20Slug%20Scan)<br>: the SKL Slug Scan doc |
+| -[[DAS Slug Scan]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Slug Scan](hook://p/DAS%20Slug%20Scan)<br>: the SKL Slug Scan doc |
 | --- | --- |
 | Related | [[skills/slug-scan/SKILL.md\|SKILL]],   |
 | [[DAS Slug Scan Design\|Design]] |  |

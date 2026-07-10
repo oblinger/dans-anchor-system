@@ -2,12 +2,12 @@
 description: "standard test-kind catalogue — generic strategy per kind, linked from each project's Testing tests-table"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Design Docs]] → [Common Testing Types](hook://p/DAS%20Common%20Testing%20Types)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Common Testing Types](hook://p/DAS%20Common%20Testing%20Types)
 # Common Testing Types
 
 **Up:** [[DAS Testing]]
 
-This is the **shared reference** for the standard kinds of test. Each project's `{slug} Testing.md` carries a required **tests-table** (see [[DAS Testing]]) whose left column names the kinds it uses; each kind cell **links here** (e.g. `[[Common Testing Types#Property]]`) when the project's use of that kind is *vanilla*. When a project does something *special* with a kind, the cell instead links to a section **within that project's** `{slug} Testing.md` explaining the twist. One H2 per kind below; add a kind here only when it recurs across projects.
+This is the **shared reference** for the standard kinds of test. Each project's `{slug} Testing.md` carries a required **tests-table** (see [[DAS Testing]]) whose left column names the kinds it uses; each kind cell **links here** (e.g. `~~[[Common Testing Types#Property]]~~`) when the project's use of that kind is *vanilla*. When a project does something *special* with a kind, the cell instead links to a section **within that project's** `{slug} Testing.md` explaining the twist. One H2 per kind below; add a kind here only when it recurs across projects.
 
 ## Unit
 

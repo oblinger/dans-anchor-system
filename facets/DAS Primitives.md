@@ -4,7 +4,7 @@ description: "primitives — the kinds of authored object the system is built fr
 # Primitives
 The primitives — the reflexive facets that define the kinds of authored object the ob-skills system is built from.
 
-| -[[DAS Primitives]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [FCT Primitives](hook://p/DAS%20Primitives)<br>: primitives — the kinds of authored object the system is built from |
+| -[[DAS Primitives]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Primitives](hook://p/DAS%20Primitives)<br>: primitives — the kinds of authored object the system is built from |
 | --- | --- |
 | Facets | [[DAS Skill\|Skill]],  [[DAS Facet\|Facet]],  [[CAB Disciplines\|Discipline]],  [[DAS Ruleset\|Ruleset]],  [[TRT\|Trait]],  [[DAS Template\|Template]],   |
 

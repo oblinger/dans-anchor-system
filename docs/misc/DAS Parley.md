@@ -1,10 +1,10 @@
 ---
-description: "Structured discussion — talk through a topic with the user, capture decisions, and surface next steps."
+description: "the SKL Parley doc"
 ---
 # /parley
 Structured discussion — talk through a topic with the user, capture decisions, and surface next steps. The agent listens and reflects rather than executing changes; the output is a record of what was discussed.
 
-| -[[DAS Parley]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Utility]] → [SKL Parley](hook://p/DAS%20Parley)<br>: the SKL Parley doc |
+| -[[DAS Parley]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Parley](hook://p/DAS%20Parley)<br>: the SKL Parley doc |
 | --- | --- |
 | Related | [[skills/parley/SKILL.md\|SKILL]],   |
 | [[DAS Parley Design\|Design]] |  |

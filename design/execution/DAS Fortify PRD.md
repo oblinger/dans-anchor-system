@@ -2,7 +2,7 @@
 description: "product requirements"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[skill-docs]] → [[SKL Drive]] → [[DAS Fortify]] → [[DAS Fortify Design]]
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Fortify PRD](hook://p/DAS%20Fortify%20PRD)
 # Fortify PRD
 
 The current skill spec lives at [[fortify/SKILL\|SKILL.md]]. User docs live at [[DAS Fortify]].
