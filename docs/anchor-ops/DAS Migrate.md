@@ -1,10 +1,10 @@
 ---
-description: "Migrate an anchor — change its slug, traits, location, or structure."
+description: "the `/migrate` skill"
 ---
 # SKL Migrate
 Migrate an anchor — change its slug, traits, location, or structure.
 
-| -[[DAS Migrate]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Anchor]] → [SKL Migrate](hook://p/DAS%20Migrate)<br>: the `/migrate` skill |
+| -[[DAS Migrate]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Migrate](hook://p/DAS%20Migrate)<br>: the `/migrate` skill |
 | --- | --- |
 | Related | [[skills/migrate/SKILL.md\|SKILL]],   |
 | [[DAS Migrate Design\|Design]] |  |
