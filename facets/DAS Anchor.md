@@ -5,7 +5,7 @@ description: "anchor & structure facets — what makes a folder an anchor and ho
 # Anchor & structure
 The anchor & structure facets.
 
-| -[[DAS Anchor]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [FCT Anchor](hook://p/DAS%20Anchor)<br>: anchor & structure facets — what makes a folder an anchor and how its files are named |
+| -[[DAS Anchor]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Anchor](hook://p/DAS%20Anchor)<br>: anchor & structure facets — what makes a folder an anchor and how its files are named |
 | --- | --- |
 | Facets | [[DAS Anchor Page\|Anchor Page]],  [[DAS Project Page\|Project Page]],  [[DAS Folder\|Folder]],  [[DAS Dot Anchor\|Dot Anchor]],  [[DAS Anchor Tree\|Anchor Tree]],  [[DAS Naming\|Naming]],  [[DAS Claude\|Claude]],  [[DAS Move\|Move]],  [[DAS Interface\|Interface]],  [[DAS Code Repository\|Code Repository]],   |
 
@@ -20,7 +20,7 @@ What `/audit` checks on this facet-group index page. It is a grouped-Container a
 
 The single `Facets` row links every facet file in the `FCT Anchor/` family, and every member facet links back up to this group page in its breadcrumb.
 
-**Check pattern:** the set of `Facets`-row links equals the set of facet files under `FCT Anchor/` (no missing, no extra); each member's breadcrumb passes through `[[FCT Anchor]]`.
+**Check pattern:** the set of `Facets`-row links equals the set of facet files under `FCT Anchor/` (no missing, no extra); each member's breadcrumb passes through `~~[[FCT Anchor]]~~`.
 
 **Why:** the index is how the family is discovered — a missing entry is an orphan facet; a stale entry is a dead link.
 

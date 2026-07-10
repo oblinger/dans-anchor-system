@@ -5,14 +5,14 @@ description: "canonical grouped-dispatch exemplar"
 # Devtools
 The team's development tooling — a collection big enough to group.
 
-| -[[FEX Grouped Dispatch]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[DAS Dispatch]] → [FEX Grouped Dispatch](hook://p/FEX%20Grouped%20Dispatch)<br>: canonical grouped-dispatch exemplar |
+| -[[FEX Grouped Dispatch]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [FEX Grouped Dispatch](hook://p/FEX%20Grouped%20Dispatch)<br>: canonical grouped-dispatch exemplar |
 | --- | --- |
 | Related | [[FEX Dispatch Examples]],  [[DSC Dispatch Table]],  [[progressive-disclosure]],   |
 | [[Devtools Build\|Build]]+ | [[Devtools Compile\|Compile]],  [[Devtools Bundle\|Bundle]],  [[Devtools Watch\|Watch]],  [[Devtools Cache\|Cache]],   |
 | [[Devtools Test\|Test]]+ | [[Devtools Unit\|Unit]],  [[Devtools E2E\|E2E]],  [[Devtools Coverage\|Coverage]],  [[Devtools Fuzz\|Fuzz]],   |
 | [[Devtools Ship\|Ship]]+ | [[Devtools Release\|Release]],  [[Devtools Sign\|Sign]],  [[Devtools Publish\|Publish]],  [[Devtools Rollback\|Rollback]],   |
 | [[Devtools Observe\|Observe]]+ | [[Devtools Logs\|Logs]],  [[Devtools Metrics\|Metrics]],  [[Devtools Trace\|Trace]],  [[Devtools Alert\|Alert]],   |
-| ... | [[DAS Design Dispatch]],  [[DAS Dev Dispatch]],  [[DAS Dispatch Table]],  [[DAS Plan Dispatch]],  [[DAS Track Dispatch]],  [[DAS User Dispatch]],  [[FEX Figure Page]],  [[FEX List Dispatch]],   |
+| ... | [[_{{DISK_LABEL}} Template]],  [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template]],  [[Bridges]],  [[CAE Architecture]],  [[CAE Decisions]],  [[CAE PRD]],  [[CAE Stories]],  [[CAE Testing]],  [[Clarifier]],  [[CSE]],  [[Devtools]],  [[Decisions/DKT Decisions]],  [[PRD/DMUX PRD]],  [[Espresso]],  [[FEX]],  [[FEX API]],  [[FEX API Design]],  [[FEX Architecture]],  [[FEX Completed Roadmap]],  [[FEX Decisions]],  [[FEX Decisions Details]],  [[FEX Facet]],  [[FEX Figure Page]],  [[FEX Files]],  [[FEX Icebox]],  [[FEX Inbox]],  [[FEX List Dispatch]],  [[FEX Minimal Facet]],  [[FEX Minimal Skill]],  [[FEX Project Root]],  [[FEX queries]],  [[FEX Repo]],  [[FEX Roadmap]],  [[FEX Rules]],  [[FEX Scheduler]],  [[FEX Skill]],  [[FEX Stories]],  [[Forum Stories]],  [[Architecture/HA Architecture]],  [[HBR]],  [[Architecture/HBR Architecture]],  [[Decisions/HBR Decisions]],  [[PRD/HBR PRD]],  [[HBR PRD User Stories]],  [[Testing/HBR Testing]],  [[HWP]],  [[Knots]],  [[Mini]],  [[Decisions/Mini Decisions]],  [[Testing/Mini Testing]],  [[Architecture/MUX Architecture]],  [[Architecture/OBU Architecture]],  [[PRD/OBU PRD]],  [[PRD/Mini PRD]],  [[SKA Bridge Testing]],  [[SKL CSE]],  [[Snap]],  [[Testing/MUX Testing]],  [[Decisions/UCM Decisions]],  [[Stories/US-CAE-1 — Schedule a Task]],  [[Stories/US-CAE-3 — Retry Failed Tasks]],  [[Viz Bench]],   |
 
 > **Canonical grouped dispatch.** A [[Collection]] with **> 15 members** → **member groups** (the [[granularity]] graduation from flat). Read the structure:
 > - **Each group-row label is a link** (`[[Devtools Build|Build]]`) *down* to that group's own container page — which has **its own** dispatch table of the group's members. That's the [[progressive-disclosure]] **tree of containers**: this page is one node; each `+` row expands to a finer node.

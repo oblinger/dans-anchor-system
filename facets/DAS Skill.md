@@ -2,7 +2,7 @@
 description: "the Skill primitive — SKILL.md entry-point structure and conventions"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Primitives]] → [FCT Skill](hook://p/DAS%20Skill)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Skill](hook://p/DAS%20Skill)
 # FCT Skill
 An omnibus Claude Code skill that groups related actions, reference data, and scripts under a single `/name` command. Invoked via `/name action` (e.g., `/cab setup`, `/md toc`).
 

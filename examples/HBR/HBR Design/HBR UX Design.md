@@ -1,5 +1,5 @@
 ---
-description: "sibling — human CLI surface"
+description: "user-interaction shape — screens, commands, output formats"
 ---
 # HBR UX Design
 What a household viewer sees: browse the catalog, then play a title — on whatever device is in hand.

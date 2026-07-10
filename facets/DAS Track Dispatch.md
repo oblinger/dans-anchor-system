@@ -65,7 +65,7 @@ The Track dispatch page lists all children of the Track folder:
 | `{slug} Icebox.md` | [[DAS Icebox]] (optional) |
 | `{slug} Inbox.md` | [[DAS Inbox]] (optional) |
 | `{slug} ask.md` | agent-regenerated ask snapshot; also holds anchor-level questions (optional) |
-| `{slug} Messages.md` | [[FCT Messages]] — agent's inbox for background-process notifications (optional; written by watchers / audit-q) |
+| `{slug} Messages.md` | [[DAS Messages]] — agent's inbox for background-process notifications (optional; written by watchers / audit-q) |
 
 Not all entries are required — only list documents that exist for this anchor.
 

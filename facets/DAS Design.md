@@ -2,7 +2,7 @@
 description: "design facet — the {slug} Design/ folder marks an anchor as following the designed-lifecycle convention; folder presence IS the signal (no trait field required)"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Design Docs]] → [FCT Design](hook://p/DAS%20Design)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Design](hook://p/DAS%20Design)
 # FCT Design
 The Design folder facet — marks an anchor as following the designed-lifecycle convention; folder presence is the gate.
 

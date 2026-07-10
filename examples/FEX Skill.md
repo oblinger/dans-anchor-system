@@ -7,7 +7,7 @@ user_invocable: true
 # Snap — capture + file a screenshot
 Grab a screenshot, name it from its content, file it under `~/ob/kmr/Log/SNAP/`.
 
-| -[[FEX Skill]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[DAS Primitives]] → [FEX Skill](hook://p/FEX%20Skill)<br>: canonical skill exemplar |
+| -[[FEX Skill]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [FEX Skill](hook://p/FEX%20Skill)<br>: canonical skill exemplar |
 | --- | --- |
 | Related | [[FEX Facet]],  [[DAS Skill]] (the skill facet),  [[FEX Dispatch Examples]] |
 

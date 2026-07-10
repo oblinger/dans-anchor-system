@@ -5,7 +5,7 @@ description: "canonical facet exemplar"
 # Design
 The marker that an anchor follows the designed-lifecycle convention — if `{slug} Design/` exists, the anchor is in design-mode.
 
-| -[[FEX Facet]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[DAS Primitives]] → [FEX Facet](hook://p/FEX%20Facet)<br>: canonical facet exemplar |
+| -[[FEX Facet]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [FEX Facet](hook://p/FEX%20Facet)<br>: canonical facet exemplar |
 | --- | --- |
 | Related | [[FCT]],  [[DAS Design]] (the live facet),  [[DAS Anchor Page]],  [[progressive-disclosure]] |
 

@@ -1,10 +1,10 @@
 ---
-description: "`/wp <name>` creates a new dated **work product** folder inside the current anchor's `{slug} WP/` folder."
+description: "the `/wp` skill"
 ---
 # /WP
 `/wp <name>` creates a new dated **work product** folder inside the current anchor's `{slug} WP/` folder. Work products are the polished outputs of human+agent collaboration — papers, reports, analyses, presentations, spreadsheets — distinct from agent-generated Outputs and informal Log notes. Use it when you say "new work product," "new wp," or "create a wp."
 
-| -[[DAS WP]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Anchor]] → [SKL WP](hook://p/DAS%20WP)<br>: the `/wp` skill |
+| -[[DAS WP]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS WP](hook://p/DAS%20WP)<br>: the `/wp` skill |
 | --- | --- |
 | Related | [[skills/wp/SKILL.md\|SKILL]],   |
 | [[DAS WP Design\|Design]] |  |

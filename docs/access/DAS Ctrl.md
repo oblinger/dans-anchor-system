@@ -1,10 +1,10 @@
 ---
-description: How to control the local environment — browser, shell sessions, and system interaction
+description: "the SKL Ctrl doc"
 ---
 # SKL Ctrl Guide
 The Ctrl skill manages interaction with the local macOS environment. It handles three main areas: browser automation (opening URLs, searching the web), persistent shell sessions (running commands that survive across conversations), and reading output from those sessions.
 
-| -[[DAS Ctrl]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Utility]] → [SKL Ctrl](hook://p/DAS%20Ctrl)<br>: the SKL Ctrl doc |
+| -[[DAS Ctrl]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Ctrl](hook://p/DAS%20Ctrl)<br>: the SKL Ctrl doc |
 | --- | --- |
 | Related | [[skills/ctrl/SKILL.md\|SKILL]],   |
 | [[DAS Ctrl Design\|Design]] |  |

@@ -2,7 +2,7 @@
 description: "product requirements"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[skill-docs]] → [[SKL Drive]] → [[DAS Finalize]] → [[DAS Finalize Design]]
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Finalize PRD](hook://p/DAS%20Finalize%20PRD)
 # Finalize PRD
 
 _Placeholder. Authored on demand when design discussions warrant it._

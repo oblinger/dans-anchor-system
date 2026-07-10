@@ -4,7 +4,7 @@ description: "the leanest complete file set for a facet, with a live instance"
 
 # FEX Minimal Facet
 
-| -[[FEX Minimal Facet]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[DAS Primitives]] → [FEX Minimal Facet](hook://p/FEX%20Minimal%20Facet)<br>: the leanest complete file set for a facet, with a live instance |
+| -[[FEX Minimal Facet]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [FEX Minimal Facet](hook://p/FEX%20Minimal%20Facet)<br>: the leanest complete file set for a facet, with a live instance |
 | --- | --- |
 | Anchor | [[HBR]] (reference anchor) |
 | Related | [[FEX Minimal Skill]],  [[DSC Dispatch Table]] (the live instance),  [[FCT Facets]] |

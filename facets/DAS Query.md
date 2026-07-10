@@ -2,11 +2,11 @@
 description: Query facet — the format of an anchor's `{slug} queries.md`, the file `/query` builds to ask the user questions. Rules about what a valid queries file looks like.
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Track]] → [FCT Query](hook://p/DAS%20Query)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Query](hook://p/DAS%20Query)
 # FCT Query
 The asking surface: one `{slug} queries.md` per anchor, in `{slug} Track/`, that `/query` builds and trims.
 
-**Related:** [[SKL Query]] (the skill that builds it),  [[DAS Status]],  [[FCT Messages]]
+**Related:** [[SKL Query]] (the skill that builds it),  [[DAS Status]],  [[DAS Messages]]
 **Examples:** [[SKA queries\|real instance (SKA anchor)]]
 
 | Table of Contents |  |

@@ -5,10 +5,10 @@ description: "the work-surface facets (centralized in SKA per D08, but specified
 # Track & execute
 The the work-surface facets (centralized in SKA per D08, but specified here).
 
-| -[[DAS Track]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [FCT Track](hook://p/DAS%20Track)<br>: the work-surface facets (centralized in SKA per D08, but specified here) |
+| -[[DAS Track]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Track](hook://p/DAS%20Track)<br>: the work-surface facets (centralized in SKA per D08, but specified here) |
 | --- | --- |
 | [[Workflow Design\|Design]] |  |
-| Facets | [[DAS Backlog]],  [[DAS Features\|Features]],  [[DAS Inbox\|Inbox]],  [[DAS Icebox\|Icebox]],  [[FCT Messages\|Messages]],  [[DAS Log\|Log]],  [[DAS Triage\|Triage]],  [[DAS Status\|Status]],   |
+| Facets | [[DAS Backlog]],  [[DAS Features\|Features]],  [[DAS Inbox\|Inbox]],  [[DAS Icebox\|Icebox]],  [[DAS Messages\|Messages]],  [[DAS Log\|Log]],  [[DAS Triage\|Triage]],  [[DAS Status\|Status]],   |
 
 **Linkage** — this facet's existence ⟺ the anchor runs the ~~[[workflow]]~~ discipline; the two share one design folder, [[Workflow Design]] (hosted on the behavioral core), reachable from either page per [[SKA Decisions]] D10.
 
@@ -23,7 +23,7 @@ What `/audit` checks on this facet-group index page. It is a grouped-Container a
 
 The `Facets` row links every track / work-surface facet (Backlog, Features, Inbox, Icebox, Messages, Log, Triage, Status), and each member's breadcrumb routes through this page.
 
-**Check pattern:** the `Facets`-row link set equals the work-surface facet files under `FCT Track/`; each member breadcrumb passes through `[[FCT Track]]`.
+**Check pattern:** the `Facets`-row link set equals the work-surface facet files under `FCT Track/`; each member breadcrumb passes through `~~[[FCT Track]]~~`.
 
 ### RULE R-track-group-02 — Specifies the work surfaces; SKA owns the instances (stated)
 

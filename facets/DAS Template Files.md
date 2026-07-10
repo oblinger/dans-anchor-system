@@ -4,7 +4,7 @@ description: "file templates — one document's canonical shape"
 # FCT Template Files
 A **file template** — a `_{Name} Template.md` whose body IS a live specimen of one document, defining the canonical shape of each like item in its folder.
 
-| -[[DAS Template Files]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[DAS Primitives]] → [FCT Template Files](hook://p/DAS%20Template%20Files)<br>: file templates — one document's canonical shape |
+| -[[DAS Template Files]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Template Files](hook://p/DAS%20Template%20Files)<br>: file templates — one document's canonical shape |
 | --- | --- |
 | Related | [[DAS Template]] (umbrella),  [[DAS Template Folders]],  [[DAS Template Variables]] |
 | Examples | [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template\|computer record]],   |

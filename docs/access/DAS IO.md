@@ -1,8 +1,8 @@
 ---
-description: How to read from and write to external services — Google Workspace, email, Notion. Dispatch over the io subskills.
+description: "read/write external services — Google Workspace, email, Notion."
 ---
 
-| -[[DAS IO]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[skill-docs]] → [[SKL Doc]] → [SKL IO](hook://p/DAS%20IO)<br>: read/write external services — Google Workspace, email, Notion. |
+| -[[DAS IO]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS IO](hook://p/DAS%20IO)<br>: read/write external services — Google Workspace, email, Notion. |
 | --- | --- |
 | Skill anchor | [[SKA io]],   |
 | Runtime | [[io/SKILL\|io SKILL.md]],   |
@@ -65,4 +65,3 @@ io-excel from-md <file> --md <doc.md> [--table N | --list]  # build a grid from 
 ```
 
 `--where` ops: `contains` / `startswith` / `=` / `!=`. `--cols` takes header names or column letters. `-v` shows the live handshake; `--no-live` skips it.
-

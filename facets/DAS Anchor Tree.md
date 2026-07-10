@@ -4,7 +4,7 @@ cssclasses:
 description: anchor master tree — every possible doc/folder in an anchor, linked to its facet spec
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Anchor]] → [FCT Anchor Tree](hook://p/DAS%20Anchor%20Tree)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Anchor Tree](hook://p/DAS%20Anchor%20Tree)
 # FCT Anchor Tree
 The annotated master file tree showing every possible file and folder that may appear inside a CAB anchor, with each named element wiki-linked to its governing facet spec.
 
@@ -19,7 +19,7 @@ An anchor is a standardized folder structure that serves as the home for a proje
 
 > **Note:** This file serves as the reference example itself — the annotated file tree below IS the canonical illustration of a complete anchor structure.
 
-Placeholders: `{slug}` stands for the anchor's name and `{CAB Folder}` for the anchor folder's name; each named element wiki-links its governing facet spec, aliased to the on-disk filename when the link target differs (e.g. `[[FCT Anchor Page|{slug}.md]]`).
+Placeholders: `{slug}` stands for the anchor's name and `{CAB Folder}` for the anchor folder's name; each named element wiki-links its governing facet spec, aliased to the on-disk filename when the link target differs (e.g. `~~[[FCT Anchor Page|{slug}.md]]~~`).
 
 {[[DAS Folder|CAB Folder]]}/
 ├── {CAB Folder}.md                       [[DAS Folder|marker file]]   (if NAME ≠ folder)
@@ -111,7 +111,7 @@ where:: `file: **/FCT Anchor Tree.md`
 description:: Rules governing the FCT Anchor Tree facet spec — the annotated master file tree of a CAB anchor. Covers content integrity, naming conventions, tree rendering, and cross-reference sync.
 
 ### RULE R-anchor-tree-01 — Every named element is wiki-linked to its facet spec (checked)
-Every named file or folder placeholder in the tree (e.g. `{slug} Backlog.md`, `CLAUDE.md`) carries a `[[FCT <Name>]]` wiki-link to the governing facet spec. Inline aliases to the on-disk filename are permitted (`[[FCT Anchor Page|{slug}.md]]`).
+Every named file or folder placeholder in the tree (e.g. `{slug} Backlog.md`, `CLAUDE.md`) carries a `[[FCT <Name>]]` wiki-link to the governing facet spec. Inline aliases to the on-disk filename are permitted (`~~[[FCT Anchor Page|{slug}.md]]~~`).
 **Check pattern:** no unlinked placeholder name in the tree body (scan for `{slug} <Word>.md` lines lacking `[[`).
 **Tier:** checked
 

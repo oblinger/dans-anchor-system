@@ -2,7 +2,7 @@
 description: "live worked examples of each dispatch-table structure"
 ---
 
-| -[[FEX Dispatch Examples]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[DAS Dispatch]] → [FEX Dispatch Examples](hook://p/FEX%20Dispatch%20Examples)<br>: live worked examples of each dispatch-table structure |
+| -[[FEX Dispatch Examples]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [FEX Dispatch Examples](hook://p/FEX%20Dispatch%20Examples)<br>: live worked examples of each dispatch-table structure |
 | --- | --- |
 | Spec | [[DSC Dispatch Table]] § Structure |
 | Builder | [[audit-dispatch\|/audit dispatch]],   |
