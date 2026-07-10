@@ -9,7 +9,7 @@ description: >
   orchestrator at the center of the Design cluster. Use when the user says: "let's design this",
   "design", "/design", "what's the design state of this anchor", "/design prd", "/design architect",
   "/design testing", "/design roadmap", or asks where in the design sequence the project is.
-  Gate is folder-presence per [[FCT Design]] — `{NAME} Design/` exists → operate; absent → offer to scaffold. Code-trait check retired 2026-06-10. Initially supports anchors with code-shaped artifacts; broader applicability (Paper / Topic / Simple) covered as those traits land.
+  Gate is folder-presence per [[FCT Design]] — `{slug} Design/` exists → operate; absent → offer to scaffold. Code-trait check retired 2026-06-10. Initially supports anchors with code-shaped artifacts; broader applicability (Paper / Topic / Simple) covered as those traits land.
 tools: Read, Write, Edit, Bash, Glob, Grep, Agent
 user_invocable: true
 ---
@@ -26,13 +26,13 @@ The skill walks these phases in this exact order. Each phase has a primary artif
 
 | # | Phase | Sub-skill | Primary artifact | Gate after |
 |---|---|---|---|---|
-| 1 | PRD | `/design prd` | `{NAME} Design/{NAME} PRD.md` | — |
-| 2 | UX *(if applicable)* | `/design ux` | `{NAME} Design/{NAME} UX.md` | — |
-| 3 | API *(if applicable)* | `/design api` | `{NAME} Design/{NAME} API.md` | — |
-| 4 | Architecture | `/design architect` | `{NAME} Design/{NAME} Architecture.md` | **Gate 1** — `status:: accepted` on Architecture |
-| 5 | Testing | `/design testing` | `{NAME} Design/{NAME} Testing.md` | **Gate 2** — `status:: accepted` on BOTH Architecture AND Testing |
-| 6 | Roadmap | `/design roadmap` | `{NAME} Design/{NAME} Roadmap.md` (moved from Track 2026-06-10) | — |
-| 7 | Features | `/design features` | `{NAME} Design/{NAME} Features/` (folder; one `F<NNN> — <Title>.md` per feature, moved from Track 2026-06-10) | — |
+| 1 | PRD | `/design prd` | `{slug} Design/{slug} PRD.md` | — |
+| 2 | UX *(if applicable)* | `/design ux` | `{slug} Design/{slug} UX.md` | — |
+| 3 | API *(if applicable)* | `/design api` | `{slug} Design/{slug} API.md` | — |
+| 4 | Architecture | `/design architect` | `{slug} Design/{slug} Architecture.md` | **Gate 1** — `status:: accepted` on Architecture |
+| 5 | Testing | `/design testing` | `{slug} Design/{slug} Testing.md` | **Gate 2** — `status:: accepted` on BOTH Architecture AND Testing |
+| 6 | Roadmap | `/design roadmap` | `{slug} Design/{slug} Roadmap.md` (moved from Track 2026-06-10) | — |
+| 7 | Features | `/design features` | `{slug} Design/{slug} Features/` (folder; one `F<NNN> — <Title>.md` per feature, moved from Track 2026-06-10) | — |
 | 8 | Design complete | — | — | Transition to Drive (`/crank`) |
 
 **Gate semantics:** Gate 1 protects entry to Testing authoring. Gate 2 protects entry to Roadmapping. A gate is "passed" when the relevant artifact's top-of-file `status::` dataview field reads `accepted`. The user sets the field by saying "the architecture is accepted" / "the testing is accepted" (the agent watches for that phrase and updates the field) or by editing directly. Gates are sticky: once `accepted`, no re-prompt.
@@ -41,7 +41,7 @@ The phrasing "satisfied with this as a starting architecture / testing disciplin
 
 ## State model
 
-**Storage (F130, preferred):** centralized `{NAME} Status.md` facet in the Track folder, carrying one `::` dataview line per design facet:
+**Storage (F130, preferred):** centralized `{slug} Status.md` facet in the Track folder, carrying one `::` dataview line per design facet:
 
 ```
 prd:: MVP-agent (2026-06-08) — covers golden path; edge cases unspecified
@@ -53,22 +53,22 @@ roadmap:: none
 
 Cell vocabulary, ordered low → high: `none < MVP-agent < MVP-user < Full-agent < Full-user`. All writes go through `state status set` (no hand-editing the file); reads via `state status show`.
 
-**Storage (legacy):** per-artifact `status::` dataview field at the top of each design doc. Valid values for Architecture and Testing: `drafting | in-review | accepted`. Retained as fallback when `{NAME} Status.md` is absent.
+**Storage (legacy):** per-artifact `status::` dataview field at the top of each design doc. Valid values for Architecture and Testing: `drafting | in-review | accepted`. Retained as fallback when `{slug} Status.md` is absent.
 
 **Resolution on bare `/design`:**
 
-1. **Check `{NAME} Status.md`.** If present, it's authoritative. Run:
+1. **Check `{slug} Status.md`.** If present, it's authoritative. Run:
    ```bash
-   ~/.claude/skills/workflow/scripts/state --anchor {NAME} status show
+   ~/.claude/skills/workflow/scripts/state --anchor {slug} status show
    ```
    Walk the output in declared order (`prd`, `ux`, `architecture`, `testing`, `roadmap`). Pick the **first** facet whose cell is lowest on the ladder above; dispatch to the corresponding sub-skill (`design-prd`, `design-ux`, etc.). Sub-skills self-promote to `*-agent` at completion via `state status set <facet> <new-cell> --note "<one-line>"`; user-stamped `*-user` comes from explicit review ("PRD looks good for MVP" → agent runs `state status set prd MVP-user --note "<...>"`).
-2. **Fallback when `{NAME} Status.md` absent.** Apply the legacy per-artifact inference below.
+2. **Fallback when `{slug} Status.md` absent.** Apply the legacy per-artifact inference below.
 3. **`/design <facet>` bypasses the picker entirely** — works on already-approved facets too (that's just more design on something).
 
 **Legacy inference (fallback when no Status.md):**
 - PRD exists with at least one user story → past PRD-drafting.
-- PRD declares UI requirement AND `{NAME} UX.md` has concrete UI shape → past UX.
-- PRD declares API surface AND `{NAME} API.md` has concrete API shape → past API.
+- PRD declares UI requirement AND `{slug} UX.md` has concrete UI shape → past UX.
+- PRD declares API surface AND `{slug} API.md` has concrete API shape → past API.
 - Architecture exists with at least one named subsystem → architecting in progress.
 - Architecture has `status:: accepted` → Gate 1 passed; proceed to Testing.
 - Testing exists with proposed strategy → testing in progress.
@@ -79,8 +79,8 @@ If a declared `Status.md` cell disagrees with inferred state on the artifact bod
 
 ## Runbook — bare `/design`
 
-1. **Detect anchor + Design facet.** Walk up to nearest `.anchor` file. Check whether `{anchor}/{NAME} Design/` exists. **If absent**, offer to scaffold per [[FCT Design]] § Scaffolding (creates folder + .anchor + Design.md dispatch + PRD/Architecture/Testing/Decisions with required-section spines + initializes Status.md). On user confirmation, scaffold and proceed; on decline, stop with one-line explanation. **If present**, proceed to § 2. The Code trait field in `.anchor` is NOT consulted (deprecated as the gate 2026-06-10; F140 sweeps it from anchors that now have Design folders).
-2. **Read design status.** Run `state --anchor {NAME} status show` to get the per-facet cell map. If `{NAME} Status.md` is absent the script auto-creates it with all facets at `none`.
+1. **Detect anchor + Design facet.** Walk up to nearest `.anchor` file. Check whether `{anchor}/{slug} Design/` exists. **If absent**, offer to scaffold per [[FCT Design]] § Scaffolding (creates folder + .anchor + Design.md dispatch + PRD/Architecture/Testing/Decisions with required-section spines + initializes Status.md). On user confirmation, scaffold and proceed; on decline, stop with one-line explanation. **If present**, proceed to § 2. The Code trait field in `.anchor` is NOT consulted (deprecated as the gate 2026-06-10; F140 sweeps it from anchors that now have Design folders).
+2. **Read design status.** Run `state --anchor {slug} status show` to get the per-facet cell map. If `{slug} Status.md` is absent the script auto-creates it with all facets at `none`.
 3. **Build gap table.** Render the status one line per facet:
    ```
    prd:            MVP-user (2026-06-08) — user-confirmed for v1
@@ -93,7 +93,7 @@ If a declared `Status.md` cell disagrees with inferred state on the artifact bod
 5. **Auto-dispatch.** Invoke the matching sub-skill: `/design architect` for the example above. The user may redirect mid-dispatch by saying "actually let's do UX first" or by typing `/design ux` directly.
 6. **Self-promote at completion.** When the sub-skill judges its work sufficient, it ends with:
    ```bash
-   state --anchor {NAME} status set <facet> MVP-agent --note "<one-line rationale>"
+   state --anchor {slug} status set <facet> MVP-agent --note "<one-line rationale>"
    ```
    User stamps `*-user` via natural-language ("PRD looks good for MVP" → agent runs `state status set prd MVP-user --note "<...>"`).
 
@@ -109,15 +109,15 @@ Direct invocation of a sub-skill, bypassing the bare-state-scan.
 | `/design architect` | `design-architect.md` |
 | `/design testing` | `design-testing.md` |
 | `/design roadmap` | `design-roadmap.md` |
-| `/design gate architecture` | shortcut for *"set `status:: accepted` on `{NAME} Architecture.md`"* |
-| `/design gate testing` | shortcut for *"set `status:: accepted` on `{NAME} Testing.md`"* |
+| `/design gate architecture` | shortcut for *"set `status:: accepted` on `{slug} Architecture.md`"* |
+| `/design gate testing` | shortcut for *"set `status:: accepted` on `{slug} Testing.md`"* |
 
 ## Runbook — natural-language gate phrases
 
 The skill watches for these phrases in user messages while a design artifact is being authored:
 
-- *"the architecture is accepted"* / *"I accept the architecture"* / *"architecture looks good"* → set `status:: accepted` on `{NAME} Architecture.md`.
-- *"the testing is accepted"* / *"testing looks good"* / *"the testing strategy is accepted"* → set `status:: accepted` on `{NAME} Testing.md`.
+- *"the architecture is accepted"* / *"I accept the architecture"* / *"architecture looks good"* → set `status:: accepted` on `{slug} Architecture.md`.
+- *"the testing is accepted"* / *"testing looks good"* / *"the testing strategy is accepted"* → set `status:: accepted` on `{slug} Testing.md`.
 
 After updating, glance the affected file so the user can verify the field landed.
 
@@ -125,11 +125,11 @@ After updating, glance the affected file so the user can verify the field landed
 
 | Sub-skill | File | Authors |
 |---|---|---|
-| design-prd | [[design-prd]] | `{NAME} Design/{NAME} PRD.md` (per CAB PRD facet) |
-| design-ux | [[design-ux]] | `{NAME} Design/{NAME} UX.md` (per CAB UX Design facet) |
-| design-architect | [[design-architect]] | `{NAME} Design/{NAME} Architecture.md` + subsystems (per CAB Architecture facet) |
-| design-testing | [[design-testing]] | `{NAME} Design/{NAME} Testing.md` (per CAB Testing facet) |
-| design-roadmap | [[design-roadmap]] | `{NAME} Design/{NAME} Roadmap.md` + per-milestone `{NAME} Design/{NAME} Features/M*.md` (moved from Track per F142; legacy `{NAME} Track/` still read during rollout) |
+| design-prd | [[design-prd]] | `{slug} Design/{slug} PRD.md` (per CAB PRD facet) |
+| design-ux | [[design-ux]] | `{slug} Design/{slug} UX.md` (per CAB UX Design facet) |
+| design-architect | [[design-architect]] | `{slug} Design/{slug} Architecture.md` + subsystems (per CAB Architecture facet) |
+| design-testing | [[design-testing]] | `{slug} Design/{slug} Testing.md` (per CAB Testing facet) |
+| design-roadmap | [[design-roadmap]] | `{slug} Design/{slug} Roadmap.md` + per-milestone `{slug} Design/{slug} Features/M*.md` (moved from Track per F142; legacy `{slug} Track/` still read during rollout) |
 
 ## Anti-patterns
 

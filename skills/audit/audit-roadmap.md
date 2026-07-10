@@ -1,6 +1,6 @@
 # Roadmap — Audit Roadmap Structure (named milestones + future-only)
 
-Check a `{NAME} Roadmap.md` against the named-milestone-era rules introduced by [[F144 — Completed Roadmap + named milestones]] and codified in [[FCT Roadmap]] / [[FCT Completed Roadmap]]. **Reports findings only.** No files are modified (milestone migration + checkbox flips live in `state roadmap`, not here).
+Check a `{slug} Roadmap.md` against the named-milestone-era rules introduced by [[F144 — Completed Roadmap + named milestones]] and codified in [[FCT Roadmap]] / [[FCT Completed Roadmap]]. **Reports findings only.** No files are modified (milestone migration + checkbox flips live in `state roadmap`, not here).
 
 ## Rules enforced
 

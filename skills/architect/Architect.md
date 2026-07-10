@@ -12,4 +12,4 @@ description: Architect — SKA skill anchor; design tree + dispatch for `/archit
 
 - **Agent runbook** → [[architect/SKILL|SKILL.md]]
 - **User-facing docs** → [[SKL Architect]]
-- **Design** → [[Architect Design]] (this skill owns its design; tracking + status are centralized in SKA per [[SKA Decisions|D08]]). Per [[SKA Decisions|D10]] the Architect skill is the behavioral core of the **[[FCT Design]]** facet — an anchor's `{NAME} Design/` folder existing ⟺ the anchor has been architected, its design walked by `/architect` for completeness.
+- **Design** → [[Architect Design]] (this skill owns its design; tracking + status are centralized in SKA per [[SKA Decisions|D08]]). Per [[SKA Decisions|D10]] the Architect skill is the behavioral core of the **[[FCT Design]]** facet — an anchor's `{slug} Design/` folder existing ⟺ the anchor has been architected, its design walked by `/architect` for completeness.

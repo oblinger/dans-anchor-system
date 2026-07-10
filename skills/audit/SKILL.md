@@ -19,7 +19,7 @@ user_invocable: true
 
 Skill spec for `/audit` — the anchor-auditing orchestrator and its sub-audit actions (structure, rules, docs, publish, code, q, q-fix, features, markdown, architecture, integrity, module-doc).
 
-Audits diagnose. Most never fix. Each sub-audit produces **≥1 backlog entry** under `## Next` (default horizon — deprioritized by default; per F061 Q4) in `{NAME} Backlog.md`, **pre-split by state-cluster** of the remaining findings (one `[Ready]` row for mechanical findings, one or more `[Questions]` rows for findings needing user input). The fix work happens later, when someone pulls that backlog item — sub-bullets within a row are the natural splits if the work needs to be broken up further.
+Audits diagnose. Most never fix. Each sub-audit produces **≥1 backlog entry** under `## Next` (default horizon — deprioritized by default; per F061 Q4) in `{slug} Backlog.md`, **pre-split by state-cluster** of the remaining findings (one `[Ready]` row for mechanical findings, one or more `[Questions]` rows for findings needing user input). The fix work happens later, when someone pulls that backlog item — sub-bullets within a row are the natural splits if the work needs to be broken up further.
 
 ## Governing principle — `/audit q`: the agent fixes 100%
 
@@ -71,7 +71,7 @@ The user walks these callouts later and deletes (or keeps) each. This keeps the 
 3. After all workers return, print a per-sub-audit summary line, then post one stat update:
 
 ```bash
-skl-stat add "Review" "[[{NAME}]]" "Audit: <total> findings across <K> sub-audits"
+skl-stat add "Review" "[[{slug}]]" "Audit: <total> findings across <K> sub-audits"
 ```
 
 Use `Done` + `Audit: clean` if every sub-audit returned zero findings.
@@ -99,12 +99,12 @@ Each sub-audit produces **≥1 backlog row**, pre-split by **state-cluster** of 
 
 **Default horizon: `## Next`, NOT `## Now`.** Audit findings are surfaced but **deprioritized by default** — they don't compete with whatever's currently flowing through `## Now`. The user can promote to `## Now` explicitly when the audit work moves up in priority. Use `## Now` only when the audit was explicitly invoked because the user wants the findings to land in the active horizon.
 
-**Mutation discipline — every audit row goes through `state task create`.** Direct `Edit`/`Write` against `{NAME} Backlog.md` is forbidden (per [[SKA workflow]] § Mutation API). The workflow skill's `state` mints the F-number atomically (no agent-side scan), inserts the row in the right H2, preserves source order, and auto-refreshes `~/ob/kmr/Q.md` — so § Q.md update post-condition below is satisfied as a side effect.
+**Mutation discipline — every audit row goes through `state task create`.** Direct `Edit`/`Write` against `{slug} Backlog.md` is forbidden (per [[SKA workflow]] § Mutation API). The workflow skill's `state` mints the F-number atomically (no agent-side scan), inserts the row in the right H2, preserves source order, and auto-refreshes `~/ob/kmr/Q.md` — so § Q.md update post-condition below is satisfied as a side effect.
 
 For each row (one per state-cluster), invoke:
 
 ```bash
-~/.claude/skills/workflow/scripts/state --anchor {NAME} task create --horizon Next --status Ready \
+~/.claude/skills/workflow/scripts/state --anchor {slug} task create --horizon Next --status Ready \
     --title "<Kind> audit (<state-cluster>): <N> findings (<YYYY-MM-DD>)" \
     --body "work surfaced by /audit <kind>. Sub-bullets are candidate splits if this needs to be broken up."
 ```
@@ -114,7 +114,7 @@ Parse the assigned `F<NNN>` from stdout (`<slug>: added F<NNN> in Next [Ready]` 
 For `[Questions]` rows, swap `--status Ready` → `--status Questions` and put the feature-doc wiki-link in the body:
 
 ```bash
-~/.claude/skills/workflow/scripts/state --anchor {NAME} task create --horizon Next --status Questions \
+~/.claude/skills/workflow/scripts/state --anchor {slug} task create --horizon Next --status Questions \
     --title "<Kind> audit (Questions: <cluster name>): <N> findings (<YYYY-MM-DD>)" \
     --body "→ [[F<NNN> — <Title>]]"
 ```
@@ -136,7 +136,7 @@ The script produces row shape:
 
 ## Q.md update post-condition — automatic via `state`
 
-Each `state` invocation auto-regenerates the anchor's per-anchor section in `~/ob/kmr/Q.md` (by shelling out to `audit-q.py --scope backlog --anchor {NAME} --fix`). **The backlog file is NOT reordered** — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior; the user reading Q.md sees the just-audited anchor at the top with its new finding rows.
+Each `state` invocation auto-regenerates the anchor's per-anchor section in `~/ob/kmr/Q.md` (by shelling out to `audit-q.py --scope backlog --anchor {slug} --fix`). **The backlog file is NOT reordered** — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior; the user reading Q.md sees the just-audited anchor at the top with its new finding rows.
 
 For sub-audit runs that write multiple rows in sequence, the Q.md regen fires once per row — fine for low row counts (~1-3) but redundant for large finding sweeps. When the orchestrator (bare `/audit`) collects results from many worker sub-audits writing dozens of rows, the per-call regen is unhelpful write amplification; in that case workers should be invoked with their findings collected in memory and a single final `state` call per row writes the lot, with the final Q.md state being correct on the last write.
 

@@ -4,7 +4,7 @@ Convert an anchor from one type to another, preserving all content and updating 
 
 ## Step 1: Verify Source Anchor
 
-- Identify current type and location via `ha -p "{NAME}"`
+- Identify current type and location via `ha -p "{slug}"`
 - List all content: anchor page, planning docs, user docs, code repos
 - Note all HookAnchor commands for this anchor
 
@@ -19,7 +19,7 @@ From the CAB folder (`ha -p CAB`), read:
 
 - Create the new folder in the appropriate location for the target type
 - Copy marker file and anchor page
-- Copy `{NAME} Docs/` preserving all subfolders
+- Copy `{slug} Docs/` preserving all subfolders
 
 ## Step 4: Type-Specific Migration
 
@@ -31,8 +31,8 @@ Read the full migration runbook at `CAB Skills/CAB Migrate.md` (in the CAB folde
 ## Step 5: Update HookAnchor
 
 ```bash
-ha -d n:={NAME} a:=folder r:="{new path}"
-ha -d n:="{NAME} Code" a:=open r:="{repo path}"  # if Split Anchor
+ha -d n:={slug} a:=folder r:="{new path}"
+ha -d n:="{slug} Code" a:=open r:="{repo path}"  # if Split Anchor
 ```
 
 ## Step 6: Migrate Claude Code Session
@@ -91,4 +91,4 @@ Old paths in Claude session logs (`.jsonl` files) are harmless conversation hist
 
 - Remove anchor files from old location (keep code repos until verified)
 - Update slug index if needed
-- Verify: `ha -p {NAME}` resolves, tests pass, Claude session works
+- Verify: `ha -p {slug}` resolves, tests pass, Claude session works

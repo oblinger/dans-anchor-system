@@ -169,9 +169,9 @@ Interfaces (per [[FCT Interface]]) are the human-authored layer contracts that c
 
 **The gate fires when:**
 
-- **Creating a new `{NAME} Interface.md`** — the file goes to `[Designing]` immediately. The agent drafts the layer contract (or works from a `rewire`-generated scaffold); promotion to `[Ready]` requires user approval of the contract; promotion to `[Done]` requires user verification that the final Interface accurately describes the layer.
+- **Creating a new `{slug} Interface.md`** — the file goes to `[Designing]` immediately. The agent drafts the layer contract (or works from a `rewire`-generated scaffold); promotion to `[Ready]` requires user approval of the contract; promotion to `[Done]` requires user verification that the final Interface accurately describes the layer.
 - **Significantly modifying an existing Interface** — same gate. "Significant" means: adding, removing, or renaming public API entries; changing the conceptual model the doc presents; reshaping `## Public Modules` / `## How They Group`; changing the `## What's Hidden` boundary.
-- **Migrating from legacy `{NAME} Rollup.md` to `{NAME} Interface.md`** — counts as significant (the semantics tightened — see F062). Same gate.
+- **Migrating from legacy `{slug} Rollup.md` to `{slug} Interface.md`** — counts as significant (the semantics tightened — see F062). Same gate.
 
 **The gate does NOT fire for:**
 
@@ -183,7 +183,7 @@ Interfaces (per [[FCT Interface]]) are the human-authored layer contracts that c
 
 **Why the gate matters.** Without it, Interface docs drift into agent-generated noise that doesn't match the user's mental model of the layer. The layer-completeness and hiding invariants ([[FCT Interface]] § Defining Properties) require a human reviewer — they can't be auto-checked. The gate is a checkpoint, not a brake: the agent does the writing work; the user reads and approves.
 
-**Sub-Interfaces.** Same gate applies — creating a new `{NAME} {LayerName} Interface.md` (sub-Interface) or significantly modifying one goes through user validation. Nested layers don't bypass the rule.
+**Sub-Interfaces.** Same gate applies — creating a new `{slug} {LayerName} Interface.md` (sub-Interface) or significantly modifying one goes through user validation. Nested layers don't bypass the rule.
 
 **Rewire's role.** When `rewire` finds a missing Interface, it scaffolds the file (empty TODO sections) AND files a `## Now [Designing]` backlog row pointing the user to author the contract collaboratively. The scaffold itself is not a contract; it's a placeholder until the gate completes.
 
@@ -303,15 +303,15 @@ state [-a/--anchor ANCHOR] task <create|update|delete> ROW-ID [flags]
 state [-a/--anchor ANCHOR] q    <add|answer|remove|rewrite> ROW-ID [flags]
 ```
 
-`--anchor` accepts a path (folder containing `.anchor`) or a slug (`SKA`, `MUX`, …). If absent, the script walks `cwd` UP looking for `.anchor`. In skill templates we usually pass `--anchor {NAME}` explicitly.
+`--anchor` accepts a path (folder containing `.anchor`) or a slug (`SKA`, `MUX`, …). If absent, the script walks `cwd` UP looking for `.anchor`. In skill templates we usually pass `--anchor {slug}` explicitly.
 
 ### `state task` — backlog rows
 
 | Verb | Form |
 |---|---|
-| `task create` | `state --anchor {NAME} task create --status STATUS --title "TITLE" [--horizon HORIZON] [--body BODY] [--kind F\|B]` — mints next F<NNN> (or B<n> with `--kind B`); default horizon is `Now`. |
-| `task update` | `state --anchor {NAME} task update F<NNN> [--status STATUS] [--horizon HORIZON] [--title "TITLE"] [--body BODY]` — modifies an existing row; omitted flags preserve current values. |
-| `task delete` | `state --anchor {NAME} task delete F<NNN>` — removes the row entirely (rare). |
+| `task create` | `state --anchor {slug} task create --status STATUS --title "TITLE" [--horizon HORIZON] [--body BODY] [--kind F\|B]` — mints next F<NNN> (or B<n> with `--kind B`); default horizon is `Now`. |
+| `task update` | `state --anchor {slug} task update F<NNN> [--status STATUS] [--horizon HORIZON] [--title "TITLE"] [--body BODY]` — modifies an existing row; omitted flags preserve current values. |
+| `task delete` | `state --anchor {slug} task delete F<NNN>` — removes the row entirely (rare). |
 
 Row shape produced:
 
@@ -332,10 +332,10 @@ state --anchor SKA task update F095 --body "Shipped 2026-06-15"                 
 
 | Verb | Form |
 |---|---|
-| `q add` | `state --anchor {NAME} q add F<NNN> [--slug NAME] [-m BODY \| --from-file PATH \| < stdin]` — mints next Q-number; body delivered via stdin, `-m`, or `--from-file`. |
-| `q answer` | `state --anchor {NAME} q answer F<NNN> (-n N \| --slug NAME) --choice "(A)" [body source]` — migrates Q to bottom `## Resolved` H3. |
-| `q remove` | `state --anchor {NAME} q remove F<NNN> (-n N \| --slug NAME) --reason "..."` — migrates Q to `### Removed` H3 with audit trail. |
-| `q rewrite` | `state --anchor {NAME} q rewrite F<NNN> (-n N \| --slug NAME) [--slug NEW] [body source]` — overwrites body; with `-n N --slug NEW` also attaches/renames slug. No `--force` gate. |
+| `q add` | `state --anchor {slug} q add F<NNN> [--slug NAME] [-m BODY \| --from-file PATH \| < stdin]` — mints next Q-number; body delivered via stdin, `-m`, or `--from-file`. |
+| `q answer` | `state --anchor {slug} q answer F<NNN> (-n N \| --slug NAME) --choice "(A)" [body source]` — migrates Q to bottom `## Resolved` H3. |
+| `q remove` | `state --anchor {slug} q remove F<NNN> (-n N \| --slug NAME) --reason "..."` — migrates Q to `### Removed` H3 with audit trail. |
+| `q rewrite` | `state --anchor {slug} q rewrite F<NNN> (-n N \| --slug NAME) [--slug NEW] [body source]` — overwrites body; with `-n N --slug NEW` also attaches/renames slug. No `--force` gate. |
 
 The script enforces ask-format spec (block-IDs, Q-numbering, Phase 1/2/3 lifecycle) at write time. Q-numbers are canonical (referenced by block-IDs and audit-q messages); `--slug` is optional metadata for cross-doc reference.
 
@@ -344,7 +344,7 @@ The script enforces ask-format spec (block-IDs, Q-numbering, Phase 1/2/3 lifecyc
 1. Mutates the target row in `{slug} Backlog.md` (`task` mode) or the feature doc's `## Open Questions` block (`q` mode).
 2. Invokes `~/.claude/skills/audit/scripts/audit-q.py --scope backlog --anchor <slug> --fix` to refresh `~/ob/kmr/Q.md` (banner counts, status drift).
 3. Appends one `[INFO]` entry to the per-anchor `{slug} Messages.md` and one to the global sentinel `~/.claude/state/agent-messages` (surfaced to the next agent on Stop hook).
-4. For `q` mode: also runs a lenient `audit-q --scope q --dry` as a post-condition. (The `{NAME} queries.md` page is built on demand by `/query`'s determination logic — there is no separate render step.)
+4. For `q` mode: also runs a lenient `audit-q --scope q --dry` as a post-condition. (The `{slug} queries.md` page is built on demand by `/query`'s determination logic — there is no separate render step.)
 
 **Output:** stdout = `<slug>: <verb> <row-id> in <horizon> [<status>]` (one line). For `task create` (mint operations), the assigned row-id is in the output — parse it when the caller needs to reference the new row (e.g., `/feature` naming a new feature doc file).
 
@@ -371,7 +371,7 @@ The script is invoked via `Bash`:
 
 Each surface that uses workflow state cites this discipline and maps the canonical states onto its own structure.
 
-### Backlog (`{NAME} Backlog.md`)
+### Backlog (`{slug} Backlog.md`)
 
 Per `[[CAB Backlog]]` and `[[SKA backlog]]`:
 
@@ -382,7 +382,7 @@ Per `[[CAB Backlog]]` and `[[SKA backlog]]`:
 - **`[Verify]` is bracket-only — there is no `## Verify` H2.** Verify items stay in their horizon (typically `## Now`) with the `[Verify]` bracket. Rationale: verify is short-lived (waiting on user yes/no) and conceptually keeps the item in its horizon. The bracket alone carries the state, and the backlog-row description text becomes the verify-plan instructions for the user (consumed by `/triage`).
 - The `## Legwork` H2 is a **category tag**, not a workflow state. Items in Legwork still have a state (Ready / Active / etc.), shown in their bracket.
 
-### Roadmap (`{NAME} Roadmap.md`)
+### Roadmap (`{slug} Roadmap.md`)
 
 Milestones use the same canonical states at coarser granularity. A milestone is in the **most-advanced state shared by all its acceptance criteria**:
 
@@ -417,7 +417,7 @@ These are PRD-doc-internal; they don't appear in backlog or roster.
 
 ## Active-work invariant
 
-> **Every feature doc representing active work is reachable in ≤2 clicks from EITHER `{NAME} Backlog.md` OR `{NAME} Roadmap.md`. Iced feature docs are reachable from `{NAME} Icebox.md`. Anything in `{NAME} Features/` not reachable from one of those three is an *orphan* and a violation.**
+> **Every feature doc representing active work is reachable in ≤2 clicks from EITHER `{slug} Backlog.md` OR `{slug} Roadmap.md`. Iced feature docs are reachable from `{slug} Icebox.md`. Anything in `{slug} Features/` not reachable from one of those three is an *orphan* and a violation.**
 
 This is the structural sharpening of the per-surface mappings above: those say *what state items are in*; this says *where the items must live to be tracked*.
 
@@ -425,9 +425,9 @@ This is the structural sharpening of the per-surface mappings above: those say *
 
 | Surface | File | Namespace | Role |
 |---|---|---|---|
-| **Backlog** | `{NAME} Backlog.md` | F-numbers (`F1`, `F2`, ...) — monotonic-forever, never recycled per `[[CAB Backlog]]` § Numbering policy | Active to-do list |
-| **Roadmap** | `{NAME} Roadmap.md` | M-numbers (`M1`, `M1.2`, `M1.2.3` — hierarchical) | Milestone-level active work |
-| **Icebox** | `{NAME} Icebox.md` | Shares F-number namespace with backlog | Parked / frozen — explicitly inactive but tracked |
+| **Backlog** | `{slug} Backlog.md` | F-numbers (`F1`, `F2`, ...) — monotonic-forever, never recycled per `[[CAB Backlog]]` § Numbering policy | Active to-do list |
+| **Roadmap** | `{slug} Roadmap.md` | M-numbers (`M1`, `M1.2`, `M1.2.3` — hierarchical) | Milestone-level active work |
+| **Icebox** | `{slug} Icebox.md` | Shares F-number namespace with backlog | Parked / frozen — explicitly inactive but tracked |
 
 **F and M are distinct namespaces.** A backlog row never collides with a roadmap milestone — `F5` and `M5` can coexist. F-numbers are unique across backlog AND icebox: an item moving between them keeps its F-number; thawing an iced item brings the same F-number back. M-numbers belong only to the roadmap.
 
@@ -446,26 +446,26 @@ The feature doc is **work-TBD + meta-discussion**:
 - Open questions during design (per `[[SKA queries]]`).
 
 The user-facing and system-facing **spec content** (API surfaces, command syntax, screens, architecture, data models) lives in:
-- **User docs** (`{NAME} User/`) — what the user sees / types / configures.
-- **System Design** / **PRD** (`{NAME} Plan/`) — what the system does / how it's built.
-- **Module docs** (`{NAME} Dev/`) — per-component developer documentation.
+- **User docs** (`{slug} User/`) — what the user sees / types / configures.
+- **System Design** / **PRD** (`{slug} Plan/`) — what the system does / how it's built.
+- **Module docs** (`{slug} Dev/`) — per-component developer documentation.
 
-Why split? **No duplication** — if the API spec lives in both the feature doc and `{NAME} User/CLI.md`, the two will drift; one source of truth. **The feature doc is ephemeral, the spec is durable** — once a milestone ships, the feature doc's "why" still has historical value, but its "what" should be the system docs (which keep getting updated). Keeping the "what" out of the feature doc forces the agent to write the spec into the durable doc the first time, instead of writing it twice (or worse, leaving the durable doc stale).
+Why split? **No duplication** — if the API spec lives in both the feature doc and `{slug} User/CLI.md`, the two will drift; one source of truth. **The feature doc is ephemeral, the spec is durable** — once a milestone ships, the feature doc's "why" still has historical value, but its "what" should be the system docs (which keep getting updated). Keeping the "what" out of the feature doc forces the agent to write the spec into the durable doc the first time, instead of writing it twice (or worse, leaving the durable doc stale).
 
 ### Icebox interaction
 
-The icebox is a **sanctioned exception** to the "active" part of the invariant. Items in `{NAME} Icebox.md` are not active by definition.
+The icebox is a **sanctioned exception** to the "active" part of the invariant. Items in `{slug} Icebox.md` are not active by definition.
 
 1. **F-number namespace is shared across backlog AND icebox** — no F-number collisions; an item moving between the two keeps its F-number.
 2. **`/groom` and `/triage` ignore the icebox by default.** Default scope = backlog only. Iced items don't appear in the body of either skill's output.
 3. **Counts surface the icebox total.** Both `/roster` and `/triage` show `(Icebox: N)` in the count line — visibility without competing for attention.
 4. **Explicit invocation can target the icebox.** `/groom icebox`, `/triage icebox`, `/groom F<n>` (where F<n> is iced) all work.
-5. **Iced feature docs are NOT orphans.** A doc linked from `{NAME} Icebox.md` satisfies the invariant.
+5. **Iced feature docs are NOT orphans.** A doc linked from `{slug} Icebox.md` satisfies the invariant.
 
 ### Enforcement
 
 - **At creation time** — `feature/SKILL.md` step 1.5 mandates minting a backlog (or roadmap) row when a feature doc is created. The mint happens via `state task create` (see § Mutation API above); no `--orphan` flag, no convention-only escape hatch, no direct backlog edit.
-- **Continuous** — `/audit structure` includes an orphan-check sub-audit: walks `{NAME} Features/` and flags any feature doc not linked from backlog/roadmap/icebox.
+- **Continuous** — `/audit structure` includes an orphan-check sub-audit: walks `{slug} Features/` and flags any feature doc not linked from backlog/roadmap/icebox.
 - **One-time sweep at landing** — when this invariant first lands per anchor, run `/audit structure --orphan-sweep` to backfill rows for any pre-existing orphans.
 
 ## Horizons vs workflow states

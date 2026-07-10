@@ -35,14 +35,14 @@ This is the reference example. Every anchor page dispatch table must follow this
 <!-- compiled:start source=CAB/cab-facets/CAB-slug-Page-reference -->
 
 ```
-| -{NAME}-                             | ><br>:                                                                                                                                    |
+| -{slug}-                             | ><br>:                                                                                                                                    |
 | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | External                             | [Repo](https://github.com/oblinger/repo), [Project Page](https://oblinger.github.io/gitproj/repo/)                                      |
-| [[{NAME} User/{NAME} User\|User]]+  | [[{NAME} User Guide\|User Guide]], [[{NAME} Cards\|Cards]]                                                                               |
-| [[{NAME} Plan\|Plan]]+              | [[{NAME} PRD\|PRD]], [[{NAME} System Design\|System Design]], [[{NAME} UX Design\|UX]], [[{NAME} Features\|Features]], [[{NAME} Discussion\|Discussion]] |
-| [[{NAME} Plan\|Execute]]            | [[{NAME} Inbox\|Inbox]], [[{NAME} Open Questions\|Open Q]], [[{NAME} Backlog\|Backlog]], [[{NAME} Roadmap\|Roadmap]]                     |
-| [[{NAME} Dev/{NAME} Dev\|Dev]]+     | [[{NAME} Files\|Files]], [[{NAME} Architecture\|Architecture]]                                                                           |
-| Research                             | [[{NAME} Research\|Research]], [[{NAME} References\|References]]                                                                         |
+| [[{slug} User/{slug} User\|User]]+  | [[{slug} User Guide\|User Guide]], [[{slug} Cards\|Cards]]                                                                               |
+| [[{slug} Plan\|Plan]]+              | [[{slug} PRD\|PRD]], [[{slug} System Design\|System Design]], [[{slug} UX Design\|UX]], [[{slug} Features\|Features]], [[{slug} Discussion\|Discussion]] |
+| [[{slug} Plan\|Execute]]            | [[{slug} Inbox\|Inbox]], [[{slug} Open Questions\|Open Q]], [[{slug} Backlog\|Backlog]], [[{slug} Roadmap\|Roadmap]]                     |
+| [[{slug} Dev/{slug} Dev\|Dev]]+     | [[{slug} Files\|Files]], [[{slug} Architecture\|Architecture]]                                                                           |
+| Research                             | [[{slug} Research\|Research]], [[{slug} References\|References]]                                                                         |
 | ...                                  |                                                                                                                                           |
 ```
 
@@ -50,12 +50,12 @@ This is the reference example. Every anchor page dispatch table must follow this
 
 **Row label format:**
 - External, Research — plain text
-- User — `[[{NAME} User/{NAME} User\|User]]+`
-- Plan — `[[{NAME} Plan\|Plan]]+`
-- Execute — `[[{NAME} Plan\|Execute]]` (links to Plan folder, no `+`)
-- Dev — `[[{NAME} Dev/{NAME} Dev\|Dev]]+`
+- User — `[[{slug} User/{slug} User\|User]]+`
+- Plan — `[[{slug} Plan\|Plan]]+`
+- Execute — `[[{slug} Plan\|Execute]]` (links to Plan folder, no `+`)
+- Dev — `[[{slug} Dev/{slug} Dev\|Dev]]+`
 
-**Entry format:** Each entry is `[[{NAME} FacetName\|Short Name]]` — full wiki-link with escaped pipe and short display alias.
+**Entry format:** Each entry is `[[{slug} FacetName\|Short Name]]` — full wiki-link with escaped pipe and short display alias.
 
 <!-- compiled:end -->
 
@@ -63,9 +63,9 @@ This is the reference example. Every anchor page dispatch table must follow this
 
 1. **Look up the facet** — read the matching file in `~/.claude/skills/CAB/cab-facets/` to find which row it belongs in and what its entry should look like
 
-2. **Fix the anchor page dispatch table** — open `{NAME}.md`. Match the table against the canonical format above. Ensure the correct row exists in the correct position with the facet entry in it. If the row is missing, add it in the right position — not at the end.
+2. **Fix the anchor page dispatch table** — open `{slug}.md`. Match the table against the canonical format above. Ensure the correct row exists in the correct position with the facet entry in it. If the row is missing, add it in the right position — not at the end.
 
-3. **Fix intermediate dispatch tables** — if the facet lives in a subfolder (e.g., `{NAME} Plan/`), ensure the subfolder and its dispatch page exist, and that dispatch page has a row with the facet linked in it.
+3. **Fix intermediate dispatch tables** — if the facet lives in a subfolder (e.g., `{slug} Plan/`), ensure the subfolder and its dispatch page exist, and that dispatch page has a row with the facet linked in it.
 
 4. **Create the facet file** — if it doesn't exist, create it following the facet spec. Unlike full rewire, focused rewire DOES create the target file.
 
@@ -89,7 +89,7 @@ Before any add-action, rewire runs the matching guard. If the guard trips, **rew
 |---|---|---|
 | Adding a row to a dispatch table | Scan the table for any row whose link target resolves to the same file as the new row's target | Two rows pointing at the same file |
 | Adding a dispatch table to a file | Scan the file for any existing dispatch-table-like structure (`-[[NAME]]-`, `\| NAME \|`, `\| -NAME- \|`) | Two dispatch tables in the same file (the DMUX bug — F059 root cause) |
-| Creating a file | `find` for any file in the anchor with the same basename | Two `{NAME} Backlog.md` files in different folders |
+| Creating a file | `find` for any file in the anchor with the same basename | Two `{slug} Backlog.md` files in different folders |
 
 The principle: rewire's "add what's missing" pattern must recognize **non-canonical equivalents** before adding. The legacy-vs-canonical equivalence check is the heart of the guard.
 
@@ -104,43 +104,43 @@ Canonical-location table (auto-move candidates) — **updated per [[F094 — Anc
 
 | Basename pattern | Canonical location |
 |---|---|
-| `{NAME} Docs.md` | `{NAME} Docs/` |
-| `{NAME} Track.md` | `{NAME} Docs/{NAME} Track/` |
-| `{NAME} Backlog.md` | `{NAME} Docs/{NAME} Track/` |
-| `{NAME} Roadmap.md` | `{NAME} Docs/{NAME} Track/` |
-| `{NAME} Icebox.md` | `{NAME} Docs/{NAME} Track/` |
-| `{NAME} Inbox.md` | `{NAME} Docs/{NAME} Track/` |
-| `{NAME} queries.md` | `{NAME} Docs/{NAME} Track/` |
-| `{NAME} Rules.md` | `{NAME} Docs/{NAME} Track/` |
-| `{NAME} Features.md` | `{NAME} Docs/{NAME} Track/{NAME} Features/` |
-| `{NAME} User.md` | `{NAME} Docs/{NAME} User/` |
-| `{NAME} Guide.md` | `{NAME} Docs/{NAME} User/` |
-| `{NAME} Installation.md` | `{NAME} Docs/{NAME} User/` |
-| `{NAME} CLI.md` | `{NAME} Docs/{NAME} User/` |
-| `{NAME} FAQ.md` | `{NAME} Docs/{NAME} User/` |
-| `{NAME} Design.md` | `{NAME} Docs/{NAME} Design/` |
-| `{NAME} Architecture.md` | `{NAME} Docs/{NAME} Design/{NAME} Architecture/` |
-| `{NAME} Interface.md` | `{NAME} Docs/{NAME} Design/` |
-| `{NAME} UX Design.md` | `{NAME} Docs/{NAME} Design/` |
-| `{NAME} Data Model.md` | `{NAME} Docs/{NAME} Design/` |
-| `{NAME} Principles.md` | `{NAME} Docs/{NAME} Design/` |
-| `{NAME} PRD.md` | `{NAME} Docs/{NAME} Design/` |
-| `{NAME} Design Discussion.md` | `{NAME} Docs/{NAME} Design/` |
-| `{NAME} Dev.md` | `{NAME} Docs/{NAME} Dev/` |
-| `{NAME} Files.md` | `{NAME} Docs/{NAME} Dev/` |
+| `{slug} Docs.md` | `{slug} Docs/` |
+| `{slug} Track.md` | `{slug} Docs/{slug} Track/` |
+| `{slug} Backlog.md` | `{slug} Docs/{slug} Track/` |
+| `{slug} Roadmap.md` | `{slug} Docs/{slug} Track/` |
+| `{slug} Icebox.md` | `{slug} Docs/{slug} Track/` |
+| `{slug} Inbox.md` | `{slug} Docs/{slug} Track/` |
+| `{slug} queries.md` | `{slug} Docs/{slug} Track/` |
+| `{slug} Rules.md` | `{slug} Docs/{slug} Track/` |
+| `{slug} Features.md` | `{slug} Docs/{slug} Track/{slug} Features/` |
+| `{slug} User.md` | `{slug} Docs/{slug} User/` |
+| `{slug} Guide.md` | `{slug} Docs/{slug} User/` |
+| `{slug} Installation.md` | `{slug} Docs/{slug} User/` |
+| `{slug} CLI.md` | `{slug} Docs/{slug} User/` |
+| `{slug} FAQ.md` | `{slug} Docs/{slug} User/` |
+| `{slug} Design.md` | `{slug} Docs/{slug} Design/` |
+| `{slug} Architecture.md` | `{slug} Docs/{slug} Design/{slug} Architecture/` |
+| `{slug} Interface.md` | `{slug} Docs/{slug} Design/` |
+| `{slug} UX Design.md` | `{slug} Docs/{slug} Design/` |
+| `{slug} Data Model.md` | `{slug} Docs/{slug} Design/` |
+| `{slug} Principles.md` | `{slug} Docs/{slug} Design/` |
+| `{slug} PRD.md` | `{slug} Docs/{slug} Design/` |
+| `{slug} Design Discussion.md` | `{slug} Docs/{slug} Design/` |
+| `{slug} Dev.md` | `{slug} Docs/{slug} Dev/` |
+| `{slug} Files.md` | `{slug} Docs/{slug} Dev/` |
 
 **Retired (legacy locations during F094 migration window):**
 
 | Legacy basename / location | New canonical location |
 |---|---|
-| `{NAME} Plan.md` | → `{NAME} Track.md` (Track Dispatch) |
-| `{NAME} Triage.md` | → retired per F075; Q.md is the triage surface |
-| `{NAME} System Design.md` | → folded into `{NAME} Architecture/` (Design bucket) |
-| Old `{NAME} User/{NAME} Interface.md` | → `{NAME} Design/{NAME} Interface.md` |
-| Old `{NAME} User/{NAME} Architecture/` | → `{NAME} Design/{NAME} Architecture/` |
-| Old `{NAME} Plan/{NAME} UX Design.md` | → `{NAME} Design/{NAME} UX Design.md` |
+| `{slug} Plan.md` | → `{slug} Track.md` (Track Dispatch) |
+| `{slug} Triage.md` | → retired per F075; Q.md is the triage surface |
+| `{slug} System Design.md` | → folded into `{slug} Architecture/` (Design bucket) |
+| Old `{slug} User/{slug} Interface.md` | → `{slug} Design/{slug} Interface.md` |
+| Old `{slug} User/{slug} Architecture/` | → `{slug} Design/{slug} Architecture/` |
+| Old `{slug} Plan/{slug} UX Design.md` | → `{slug} Design/{slug} UX Design.md` |
 
-During F094 Phase 1, rewire **recognizes both the old and new locations** for files that haven't been migrated yet (`{NAME} Plan/` still exists for some anchors, `{NAME} Track/` exists for others). When both exist on an anchor, the new location is canonical; rewire flags the old one for migration.
+During F094 Phase 1, rewire **recognizes both the old and new locations** for files that haven't been migrated yet (`{slug} Plan/` still exists for some anchors, `{slug} Track/` exists for others). When both exist on an anchor, the new location is canonical; rewire flags the old one for migration.
 
 Anything not on this table → "possibly correctly placed" → rewire asks via `/query` before moving.
 
@@ -150,7 +150,7 @@ Anything not on this table → "possibly correctly placed" → rewire asks via `
 
 ### Exceptions
 
-Before proposing any move (aggressive or otherwise), rewire reads `{NAME} Rules.md § Rewire Exceptions`. Format is a markdown table under a `## Rewire Exceptions` H2, with two columns: `Path | Reason`. Paths are anchor-relative. Matching rows are **skipped silently** — rewire neither moves nor asks. If `## Rewire Exceptions` H2 is absent from `{NAME} Rules.md`, treat as empty list. See [[FCT Ruleset]] § Optional sections.
+Before proposing any move (aggressive or otherwise), rewire reads `{slug} Rules.md § Rewire Exceptions`. Format is a markdown table under a `## Rewire Exceptions` H2, with two columns: `Path | Reason`. Paths are anchor-relative. Matching rows are **skipped silently** — rewire neither moves nor asks. If `## Rewire Exceptions` H2 is absent from `{slug} Rules.md`, treat as empty list. See [[FCT Ruleset]] § Optional sections.
 
 ## Runbook (full rewire)
 
@@ -173,50 +173,50 @@ Before proposing any move (aggressive or otherwise), rewire reads `{NAME} Rules.
 ## {FolderName}.md (marker file)
 
 - [ ] File exists with name matching the folder name exactly
-- [ ] If slug differs from folder name, contains `(See Anchor [[{NAME}]])`
+- [ ] If slug differs from folder name, contains `(See Anchor [[{slug}]])`
 - [ ] If folder name IS the anchor name, this file serves as the anchor page
 
-## {NAME}.md (anchor page)
+## {slug}.md (anchor page)
 
-- [ ] Has H1 heading: `# {slug} — {FolderName}` when slug differs from folder name, or `# {NAME}` when they match
+- [ ] Has H1 heading: `# {slug} — {FolderName}` when slug differs from folder name, or `# {slug}` when they match
 - [ ] Has YAML frontmatter with `cab-traits:` field (list)
 - [ ] Has YAML frontmatter with `description:` field
-- [ ] Has dispatch table with `-[[{NAME}]]-` in first cell of header row
+- [ ] Has dispatch table with `-[[{slug}]]-` in first cell of header row
 - [ ] Dispatch table header second cell has `>` (breadcrumb) and/or `:` (description), separated by `<br>` (e.g., `><br>: short description`)
 - [ ] Blank line exists before the dispatch table
 - [ ] All wiki-link aliases inside tables use escaped pipe: `[[target\|alias]]`
 - [ ] Standard rows appear in this order: External, User, Plan, Execute, Dev, Research. Add missing ones; do not delete or reorder anything else.
 - [ ] Custom rows the user added are preserved as-is, wherever they sit.
-- [ ] User row label links to `[[{NAME} User/{NAME} User\|User]]` with `+` suffix if folder exists
-- [ ] Plan row label links to `[[{NAME} Plan\|Plan]]` with `+` suffix if folder exists
-- [ ] Execute row label links to `[[{NAME} Plan\|Execute]]`
-- [ ] Dev row label links to `[[{NAME} Dev/{NAME} Dev\|Dev]]` with `+` suffix if folder exists
+- [ ] User row label links to `[[{slug} User/{slug} User\|User]]` with `+` suffix if folder exists
+- [ ] Plan row label links to `[[{slug} Plan\|Plan]]` with `+` suffix if folder exists
+- [ ] Execute row label links to `[[{slug} Plan\|Execute]]`
+- [ ] Dev row label links to `[[{slug} Dev/{slug} Dev\|Dev]]` with `+` suffix if folder exists
 - [ ] External and Research row labels are plain text (not wiki-links)
 - [ ] Table ends with a separator row to enable auto-management of remaining children: `---` (alpha), `^^^` (reverse alpha), `...` (compact), or `+++` (alpha with grandchildren)
 - [ ] Every file listed in inline row links actually exists
 
-## {NAME} Docs/{NAME} Docs.md
+## {slug} Docs/{slug} Docs.md
 
-- [ ] File exists if `{NAME} Docs/` folder exists
+- [ ] File exists if `{slug} Docs/` folder exists
 - [ ] Has dispatch table linking to Plan, Dev, User subfolders
 - [ ] Links to every subfolder dispatch page that exists
 
-## {NAME} Docs/{NAME} Plan/{NAME} Plan.md
+## {slug} Docs/{slug} Plan/{slug} Plan.md
 
-- [ ] File exists if `{NAME} Plan/` folder exists
-- [ ] Has dispatch table with `-[[{NAME} Plan]]-` in first cell
+- [ ] File exists if `{slug} Plan/` folder exists
+- [ ] Has dispatch table with `-[[{slug} Plan]]-` in first cell
 - [ ] Dispatch table header second cell has `><br>:` markers (breadcrumb + description)
 - [ ] Table ends with a separator row (`---` or `^^^`) for auto-management
 - [ ] Links to every `.md` file in the Plan folder (PRD, System Design, UX Design, Discussion, Roadmap, Backlog, Inbox, Open Questions, Research, Features)
-- [ ] `{NAME} Features/` folder exists under Plan with `{NAME} Features.md` index inside it
+- [ ] `{slug} Features/` folder exists under Plan with `{slug} Features.md` index inside it
 - [ ] Features index links to all dated feature files (reverse chronological)
 - [ ] Only links files that actually exist — no dead links
 - [ ] No orphan files in Plan folder missing from dispatch table
 
-## {NAME} Docs/{NAME} Dev/{NAME} Dev.md
+## {slug} Docs/{slug} Dev/{slug} Dev.md
 
-- [ ] File exists if `{NAME} Dev/` folder exists
-- [ ] Has dispatch table with `-[[{NAME} Dev]]-` in first cell
+- [ ] File exists if `{slug} Dev/` folder exists
+- [ ] Has dispatch table with `-[[{slug} Dev]]-` in first cell
 - [ ] Dispatch table header second cell has `><br>:` markers (breadcrumb + description)
 - [ ] Table ends with a separator row for auto-management
 - [ ] Files row appears first in body rows
@@ -225,10 +225,10 @@ Before proposing any move (aggressive or otherwise), rewire reads `{NAME} Rules.
 - [ ] Links to every module doc `.md` file in the Dev folder
 - [ ] No orphan files in Dev folder missing from dispatch table
 
-## {NAME} Docs/{NAME} User/{NAME} User.md
+## {slug} Docs/{slug} User/{slug} User.md
 
-- [ ] File exists if `{NAME} User/` folder exists
-- [ ] Has dispatch table with `-[[{NAME} User]]-` in first cell
+- [ ] File exists if `{slug} User/` folder exists
+- [ ] Has dispatch table with `-[[{slug} User]]-` in first cell
 - [ ] Dispatch table header second cell has `><br>:` markers (breadcrumb + description)
 - [ ] Table ends with a separator row for auto-management
 - [ ] Links to every `.md` file in the User folder
@@ -248,7 +248,7 @@ Before proposing any move (aggressive or otherwise), rewire reads `{NAME} Rules.
 
 - [ ] Every subfolder containing files has a dispatch page
 - [ ] Every dispatch page links to ALL its children — no orphan files
-- [ ] Walking from `{NAME} Docs.md` reaches every `.md` file in the Docs tree
+- [ ] Walking from `{slug} Docs.md` reaches every `.md` file in the Docs tree
 
 ## Default doc top-of-file (per F060)
 
@@ -286,9 +286,9 @@ Recognition pattern: the **first cell containing `-[[NAME]]-`** is the dispatch-
 
 **Exceptions to the placeholder rule.** A small set of facet docs are explicit F060 exceptions because they have custom H1-only tops or a fixed required structure:
 
-- `{NAME} Triage.md` — H1 banner already encodes breadcrumb + dispatch info per [[FCT Triage]] § H1 banner. Skip placeholder check.
-- `{NAME} queries.md` — agent-owned page built on demand by `/query`'s determination logic (frontmatter + H1 + sections, no dispatch table). Skip placeholder check.
-- **Feature docs** (`F<n> — {Title}.md` inside `{NAME} Features/`) — H1 carries an inline breadcrumb (`# [[{NAME}]] · F<n> — {Title}`) per [[FCT Features]] § Document zone. Placeholder is optional, not required; rewire neither inserts nor strips it.
+- `{slug} Triage.md` — H1 banner already encodes breadcrumb + dispatch info per [[FCT Triage]] § H1 banner. Skip placeholder check.
+- `{slug} queries.md` — agent-owned page built on demand by `/query`'s determination logic (frontmatter + H1 + sections, no dispatch table). Skip placeholder check.
+- **Feature docs** (`F<n> — {Title}.md` inside `{slug} Features/`) — H1 carries an inline breadcrumb (`# [[{slug}]] · F<n> — {Title}`) per [[FCT Features]] § Document zone. Placeholder is optional, not required; rewire neither inserts nor strips it.
 - **`SKILL.md`** (skill anchor entry point) — fixed frontmatter + body structure per [[FCT Skill]]. F060 applies to the sibling `{Slug}.md` anchor root page, not to SKILL.md itself.
 - **`CLAUDE.md`** — Claude Code configuration file. Not a CAB doc.
 - **`website/index.md`** and other Jekyll-published pages — not CAB facet docs; the front matter uses the cayman layout, not CAB frontmatter. F060 doesn't apply.
@@ -317,13 +317,13 @@ A folder template is a folder whose name begins with an underscore — `_{Name} 
 
 The synthesis-vs-reference split: **Dev** holds audit-tied implementation reference (Files tree + per-module docs); **User** holds curated synthesis (Interface + Architecture + Guide + Cards + CLI). The Interface is the *required* top-level human-authored layer contract; see [[FCT Interface]].
 
-## {NAME}.md (anchor page — code-specific)
+## {slug}.md (anchor page — code-specific)
 
 - [ ] Has External row with repo URL
 - [ ] Has Dev row linking to Dev dispatch page with `+` suffix
 - [ ] Has User row with `+` suffix if User folder exists
-- [ ] **Dev row contents** — primarily `[[{NAME} Files]]` plus any per-module docs; does NOT include Interface or Architecture
-- [ ] **User row contents** — `[[{NAME} Interface]]` (required for code), `[[{NAME} Guide]]`, `[[{NAME} Architecture]]`, plus any other curated synthesis docs (Cards, CLI)
+- [ ] **Dev row contents** — primarily `[[{slug} Files]]` plus any per-module docs; does NOT include Interface or Architecture
+- [ ] **User row contents** — `[[{slug} Interface]]` (required for code), `[[{slug} Guide]]`, `[[{slug} Architecture]]`, plus any other curated synthesis docs (Cards, CLI)
 
 ## Code / .git/
 
@@ -337,41 +337,41 @@ The synthesis-vs-reference split: **Dev** holds audit-tied implementation refere
 
 - [ ] Exists at anchor root only — NOT inside the repo
 
-## {NAME} Docs/{NAME} Dev/ — audit-tied implementation reference
+## {slug} Docs/{slug} Dev/ — audit-tied implementation reference
 
-- [ ] Folder exists with dispatch page `{NAME} Dev.md`
-- [ ] `{NAME} Files.md` exists inside Dev folder (audit-generated tree)
+- [ ] Folder exists with dispatch page `{slug} Dev.md`
+- [ ] `{slug} Files.md` exists inside Dev folder (audit-generated tree)
 - [ ] Files.md lists source files with wiki-links to module docs where they exist
-- [ ] Files.md row 1 (repo root) ends with `→ [[{NAME} Interface]]` — wiki-link by basename resolves to the Interface file in `{NAME} User/`
+- [ ] Files.md row 1 (repo root) ends with `→ [[{slug} Interface]]` — wiki-link by basename resolves to the Interface file in `{slug} User/`
 - [ ] Dev dispatch page links to all per-module docs in the Dev folder
-- [ ] **Interface is NOT in Dev** — flag as `dev-synthesis-misplaced` if `{NAME} Interface.md` (or legacy `{NAME} Rollup.md`) is found here; migrate to `{NAME} User/`
-- [ ] **Architecture is NOT in Dev** — same; migrate to `{NAME} User/`
+- [ ] **Interface is NOT in Dev** — flag as `dev-synthesis-misplaced` if `{slug} Interface.md` (or legacy `{slug} Rollup.md`) is found here; migrate to `{slug} User/`
+- [ ] **Architecture is NOT in Dev** — same; migrate to `{slug} User/`
 
-## {NAME} Docs/{NAME} User/ — curated synthesis layer
+## {slug} Docs/{slug} User/ — curated synthesis layer
 
-- [ ] Folder exists with dispatch page `{NAME} User.md`
-- [ ] **`{NAME} Interface.md` exists here** — the required top-level human-authored layer contract; see [[FCT Interface]]
-- [ ] **If `{NAME} Interface.md` is absent:** auto-create a scaffold (H1 + canonical dispatch placeholder + TODO sections per [[FCT Interface]] § Document Structure) AND file a `## Now [Designing]` backlog row via the workflow skill's `state task create` (per [[SKA workflow]] § Mutation API — never edit `{NAME} Backlog.md` directly):
+- [ ] Folder exists with dispatch page `{slug} User.md`
+- [ ] **`{slug} Interface.md` exists here** — the required top-level human-authored layer contract; see [[FCT Interface]]
+- [ ] **If `{slug} Interface.md` is absent:** auto-create a scaffold (H1 + canonical dispatch placeholder + TODO sections per [[FCT Interface]] § Document Structure) AND file a `## Now [Designing]` backlog row via the workflow skill's `state task create` (per [[SKA workflow]] § Mutation API — never edit `{slug} Backlog.md` directly):
 
   ```bash
-  ~/.claude/skills/workflow/scripts/state --anchor {NAME} task create --status Designing \
-      --title "Author top-level Interface for {NAME}" \
-      --body "Rewire scaffolded {NAME} Interface.md on {YYYY-MM-DD}. Needs user collaboration to author the layer contract — see [[FCT Interface]]. → [[{NAME} Interface]]."
+  ~/.claude/skills/workflow/scripts/state --anchor {slug} task create --status Designing \
+      --title "Author top-level Interface for {slug}" \
+      --body "Rewire scaffolded {slug} Interface.md on {YYYY-MM-DD}. Needs user collaboration to author the layer contract — see [[FCT Interface]]. → [[{slug} Interface]]."
   ```
 
   The agent does NOT attempt to fill in the contract content — that's the user-collaboration step per [[SKA workflow]] § Interface-validation gate.
 
-- [ ] **Legacy migration:** if `{NAME} Rollup.md` exists (predecessor to Interface), do NOT auto-rename. Surface a `## Now [Designing]` backlog row via `state task create`:
+- [ ] **Legacy migration:** if `{slug} Rollup.md` exists (predecessor to Interface), do NOT auto-rename. Surface a `## Now [Designing]` backlog row via `state task create`:
 
   ```bash
-  ~/.claude/skills/workflow/scripts/state --anchor {NAME} task create --status Designing \
-      --title "Migrate {NAME} Rollup → {NAME} Interface" \
-      --body "content review needed (see F062). → [[{NAME} Rollup]]."
+  ~/.claude/skills/workflow/scripts/state --anchor {slug} task create --status Designing \
+      --title "Migrate {slug} Rollup → {slug} Interface" \
+      --body "content review needed (see F062). → [[{slug} Rollup]]."
   ```
 
   Per F060's forward-only policy, the rename happens when the user touches the anchor.
-- [ ] `{NAME} Architecture.md` exists here (system-level overview, module diagram, data flow)
-- [ ] `{NAME} Guide.md` exists here (the primary user guide; basename is `Guide` not `User Guide` per [[FCT User Dispatch]] § Filename convention)
+- [ ] `{slug} Architecture.md` exists here (system-level overview, module diagram, data flow)
+- [ ] `{slug} Guide.md` exists here (the primary user guide; basename is `Guide` not `User Guide` per [[FCT User Dispatch]] § Filename convention)
 - [ ] User dispatch page lists Interface (required for code) + Guide + Architecture, plus any Cards / CLI / topic-specific guides
 
 ## justfile (if present in repo)
@@ -382,19 +382,19 @@ The synthesis-vs-reference split: **Dev** holds audit-tied implementation refere
 
 # Topic Anchor
 
-## {NAME}.md (anchor page — topic-specific)
+## {slug}.md (anchor page — topic-specific)
 
 - [ ] Functions as a routing hub — links to sub-topics or content pages
 
-## {NAME} Docs/
+## {slug} Docs/
 
 - [ ] Folder exists with dispatch page
-- [ ] `{NAME} Plan/` subfolder exists with planning docs
+- [ ] `{slug} Plan/` subfolder exists with planning docs
 
 ## Conditional structure (create only when another trait requires)
 
-- [ ] `{NAME} Dev/` folder — create only when Code trait is present
-- [ ] `{NAME} User/` folder — create only when Code trait is present
+- [ ] `{slug} Dev/` folder — create only when Code trait is present
+- [ ] `{slug} User/` folder — create only when Code trait is present
 - [ ] `.anchor` `code:` key — add only when the `code` trait is present
 
 ---
@@ -468,8 +468,8 @@ A skill anchor IS a CAB anchor — `SKILL.md` is the agent-loaded code, the rest
 - [ ] Wiki-links in tables: always escape pipe as `\|` — `[[target\|alias]]` not `[[target|alias]]`
 - [ ] Blank line before every markdown table or it will not render
 - [ ] Frontmatter must have both `cab-traits:` (list) and `description:`
-- [ ] H1 heading: `# {slug} — {FolderName}` when slug differs from folder name, or `# {NAME}` when they match
-- [ ] Dispatch table header: `-[[{NAME}]]-` in first cell, `><br>:` markers in second cell
+- [ ] H1 heading: `# {slug} — {FolderName}` when slug differs from folder name, or `# {slug}` when they match
+- [ ] Dispatch table header: `-[[{slug}]]-` in first cell, `><br>:` markers in second cell
 - [ ] Dispatch table separator row: `---`, `^^^`, `...`, or `+++` in left cell enables auto-management below
 - [ ] **Every `.md` file inside an anchor** (not just the anchor root) has the canonical top: H1 + dispatch-table placeholder with `-[[{basename}]]-` first cell. No legacy `:>>` / `> [[parent]]` breadcrumbs, no `n::` / `desc::` inline metadata. See § Default doc top-of-file above for the placeholder form and migration rules.
 - [ ] Per-row `+` suffix on wiki-link rows (e.g., `[[Name]]+`) to show grandchildren for that row
@@ -478,7 +478,7 @@ A skill anchor IS a CAB anchor — `SKILL.md` is the agent-loaded code, the rest
 - [ ] `.anchor` file must exist (can be empty — properties derive from folder name)
 - [ ] Dispatch pages link to ALL their children — no orphan files
 - [ ] Every subfolder that has files needs a dispatch page
-- [ ] Every markdown file and folder inside an anchor is prefixed with `{NAME}`
+- [ ] Every markdown file and folder inside an anchor is prefixed with `{slug}`
 - [ ] Rewire adds missing canonical rows and missing items in those rows. That's all. No deletions, ever — not rows, not items, not user content.
 - [ ] Rewire does not create missing files — only links existing ones
 - [ ] Rewire does not modify file content — only dispatch tables and Files tree

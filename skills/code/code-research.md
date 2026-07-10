@@ -24,10 +24,10 @@ For each question, do a quick search. Many questions can be answered in a few mi
 - Check GitHub for similar projects
 - Look at documentation for candidate tools
 
-Capture findings in `{NAME} Research.md` in the Plan folder. Use a simple format:
+Capture findings in `{slug} Research.md` in the Plan folder. Use a simple format:
 
 ```markdown
-# {NAME} Research
+# {slug} Research
 
 ## {Question 1}
 {What we found. Links. Key takeaways.}
@@ -57,7 +57,7 @@ Research findings should flow into:
 
 | Content | Where |
 |---------|-------|
-| Quick lookups, notes, links | `{NAME} Research.md` (project) |
+| Quick lookups, notes, links | `{slug} Research.md` (project) |
 | Formal survey with results table | RRR folder, linked from Research doc |
 | Decision rationale | Discussion doc |
 
@@ -65,4 +65,4 @@ The Research doc is the project's working notes. RRR is the permanent archive fo
 
 ## Output
 
-`{NAME} Research.md` in the Plan folder with sections for each question investigated. May contain links to RRR survey reports.
+`{slug} Research.md` in the Plan folder with sections for each question investigated. May contain links to RRR survey reports.

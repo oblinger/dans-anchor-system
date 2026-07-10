@@ -26,7 +26,7 @@ Multiple passes are normal. Each pass tightens the design.
 
 ## Document Step
 
-After the roadmap, create the documentation dispatch tree — placeholder pages that link the anchor's top-level folder down through every documentation page. Starting from `{NAME}.md`, a reader should reach any markdown file by following links.
+After the roadmap, create the documentation dispatch tree — placeholder pages that link the anchor's top-level folder down through every documentation page. Starting from `{slug}.md`, a reader should reach any markdown file by following links.
 
 ## Completion
 

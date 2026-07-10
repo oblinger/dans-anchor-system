@@ -26,7 +26,7 @@ Project-specific rows go after the standard rows. Flag any standard row that is 
 These files are expected for ALL anchor types:
 
 - Marker file: `{FolderName}.md`
-- Anchor page: `{NAME}.md` with `cab-traits:` and `description:` in frontmatter, dispatch table
+- Anchor page: `{slug}.md` with `cab-traits:` and `description:` in frontmatter, dispatch table
 - CLAUDE.md with role header
 - `.anchor` file (can be empty — properties derive from folder name)
 
@@ -72,7 +72,7 @@ Each dispatch page must link to all its children. Only check dispatch pages that
 
 ### 7. Check Files.md Format
 
-`{NAME} Docs/{NAME} Dev/{NAME} Files.md` (if present) must follow [[FCT All Files]]. Common mistakes that need to be caught:
+`{slug} Docs/{slug} Dev/{slug} Files.md` (if present) must follow [[FCT All Files]]. Common mistakes that need to be caught:
 
 | Violation | How to detect | Why wrong |
 |-----------|---------------|-----------|
@@ -106,9 +106,9 @@ for f in pathlib.Path(".").rglob("* Docs/* Dev/* Files.md"):
 
 ### 7a. Check Active-work invariant — orphan feature docs
 
-Per `[[SKA workflow]]` § Active-work invariant: every feature doc in `{NAME} Features/` must be reachable from one of `{NAME} Backlog.md`, `{NAME} Roadmap.md`, or `{NAME} Icebox.md`.
+Per `[[SKA workflow]]` § Active-work invariant: every feature doc in `{slug} Features/` must be reachable from one of `{slug} Backlog.md`, `{slug} Roadmap.md`, or `{slug} Icebox.md`.
 
-For each `*.md` file in `{NAME} Features/`:
+For each `*.md` file in `{slug} Features/`:
 
 1. Compute the wiki-link basename (e.g., `F5 — Backlog` for `F5 — Backlog.md`).
 2. Search the three index files for `[[<basename>]]` (allowing alias and `#anchor` suffixes).
@@ -125,8 +125,8 @@ Combine all findings from sections 2–7 into a single table:
 
 | # | Item | Action | Command |
 |---|------|--------|---------|
-| 1 | {NAME} Research.md | Create missing file | `/cab create` or create manually |
-| 2 | {NAME} Plan.md:12 → [[{NAME} Roadmap]] | Fix broken link | Remove link or create target file |
+| 1 | {slug} Research.md | Create missing file | `/cab create` or create manually |
+| 2 | {slug} Plan.md:12 → [[{slug} Roadmap]] | Fix broken link | Remove link or create target file |
 | 3 | Dispatch: Research before Dev | Reorder rows | `/code rewire` |
 | 4 | old-notes.md | Orphan — not linked from any dispatch | Link or remove |
 | 5 | .skl/config.yaml | Missing config | `cab-config init` |
@@ -135,7 +135,7 @@ Print this table to the console. **If `dry` substring is in the args**, stop her
 
 ### 9. Write the Backlog Entry
 
-Locate the backlog file: `{NAME} Docs/{NAME} Plan/{NAME} Backlog.md`. Read it, find the lowest unused B-number (per [[CAB Backlog]] § Format), and append a new bullet under `## Upcoming`:
+Locate the backlog file: `{slug} Docs/{slug} Plan/{slug} Backlog.md`. Read it, find the lowest unused B-number (per [[CAB Backlog]] § Format), and append a new bullet under `## Upcoming`:
 
 ```
 - **B<n> — Structure audit: <N> findings (<YYYY-MM-DD>)** [Ready] — work surfaced by `/audit structure`. Sub-bullets are candidate splits if this needs to be broken up.
@@ -180,7 +180,7 @@ Requires `tree-sitter-analyzer` (`pip install tree-sitter-analyzer`) for source 
 | 5 | **Default** | Module doc comparison — classes, methods, fields match source code |
 | 6 | Links | All markdown files reachable from dispatch tree |
 | 7 | Cross-ref | Wiki-links resolve, no broken internal links |
-| 8 | Naming | `{NAME}` prefix on all files/folders |
+| 8 | Naming | `{slug}` prefix on all files/folders |
 | 9 | Pedantic | Spacing rules, TOC format, column alignment |
 
 ### Detect-only rules (per F059)

@@ -1,6 +1,6 @@
 # Module Docs
 
-Build the file tree and module docs together. Create `{NAME} Files.md` and per-module documentation under `{NAME} Dev/`.
+Build the file tree and module docs together. Create `{slug} Files.md` and per-module documentation under `{slug} Dev/`.
 
 **MANDATORY: Before writing any module doc, read the [[FCT Module Doc]] reference example in full.** The reference example IS the spec — match it exactly. Do not improvise the format from memory.
 
@@ -16,22 +16,22 @@ Read `~/.claude/skills/CAB/cab-facets/CAB Module Doc.md` from top to bottom. The
 
 ### 2. Build the Files Document
 
-Create `{NAME} Files.md` following the CAB Files spec. List every file with one-line descriptions.
+Create `{slug} Files.md` following the CAB Files spec. List every file with one-line descriptions.
 
 **Important:** The Files page is a monospace page (`cssclasses: monospace`), NOT a code block. Read the CAB Files spec before creating or updating.
 
 ### 3. Link FIRST, Write SECOND
 
 Before writing ANY module doc content:
-- Add its entry to `{NAME} Dev.md` dispatch table
-- Add it to `{NAME} Files.md` in the correct location
+- Add its entry to `{slug} Dev.md` dispatch table
+- Add it to `{slug} Files.md` in the correct location
 - Do this for ALL module docs before writing any content
 
 An unlinked module doc is invisible — no one will find it.
 
 ### 4. Create Module Docs
 
-For each module, create a doc in `{NAME} Dev/` mirroring the source tree structure.
+For each module, create a doc in `{slug} Dev/` mirroring the source tree structure.
 
 **Table formatting:** Tables MUST have a blank line before them or they won't render. When placing wiki-links with aliases inside tables, escape the pipe: `[[target\|alias]]` not `[[target|alias]]`. An unescaped `|` breaks the table column.
 

@@ -2,7 +2,7 @@
 
 Always work on the highest-priority item that has actionable work, then re-evaluate.
 1. **Unblock Workers** — Review PRs, merge, dispatch new workers on fully-specced items
-2. **Legwork** — Autonomous tasks: integrate user feedback, update roadmap, doc fixes, test coverage, backlog items from `{NAME} Backlog.md`
+2. **Legwork** — Autonomous tasks: integrate user feedback, update roadmap, doc fixes, test coverage, backlog items from `{slug} Backlog.md`
 3. **Spec Work** — Write implementation specs for upcoming roadmap items whose dependencies are met, keeping the worker pipeline full
 4. **Rescan** — Check design consistency: docs vs code, intended design vs actual behavior, stale content, open questions to surface to user
 

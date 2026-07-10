@@ -17,7 +17,7 @@ user_invocable: true
 
 # Groom — Frontier Planning + Backlog Maintenance
 
-**The purpose of groom is to get all tasks that could be next for execution fully ready to be executed.** Those tasks are the **groom frontier** (per [[Query PRD]] § The groom frontier, F228): rows in the **`## Now` / `## Next` horizons** plus items **soon on the relevant roadmaps** (the next unmet milestone of `{NAME} Roadmap.md`, when one exists). Grooming is *planning*, not just rebracketing: each frontier task leaves groom either genuinely executable — `[Ready]` with a declared `- **Next:**` step — or honestly parked behind its named `[Questions]` / `[Blocked]` / `[Waiting]` / `[Watching]` state. `/query` then asks the user about the frontier's residue; `/crank` executes what groom readied.
+**The purpose of groom is to get all tasks that could be next for execution fully ready to be executed.** Those tasks are the **groom frontier** (per [[Query PRD]] § The groom frontier, F228): rows in the **`## Now` / `## Next` horizons** plus items **soon on the relevant roadmaps** (the next unmet milestone of `{slug} Roadmap.md`, when one exists). Grooming is *planning*, not just rebracketing: each frontier task leaves groom either genuinely executable — `[Ready]` with a declared `- **Next:**` step — or honestly parked behind its named `[Questions]` / `[Blocked]` / `[Waiting]` / `[Watching]` state. `/query` then asks the user about the frontier's residue; `/crank` executes what groom readied.
 
 Alongside the planning, groom drives the backlog toward the **groomed state** — the invariants documented in [[CAB Backlog]] and the `R-backlog` ruleset (numbering, status well-formed, link integrity, section coverage, ordering, Definition of Ready, frontier rows planned + bracket-resolved).
 
@@ -35,9 +35,9 @@ Groom does three things, in order. Everything in the runbook serves one of them.
 
 The first thing groom guarantees is that **no work is anonymous** — every piece of tracked work carries a unique handle that lives on the backlog or roadmap:
 
-- **`F<n>` — a feature.** Backed by a feature doc under `{NAME} Design/{NAME} Features/`; the backlog row links to it (`→ [[F<n> — Title]]`). Monotonic, never reused.
+- **`F<n>` — a feature.** Backed by a feature doc under `{slug} Design/{slug} Features/`; the backlog row links to it (`→ [[F<n> — Title]]`). Monotonic, never reused.
 - **`T<n>` — a task.** A unit of work with **no** feature doc — the backlog row itself is the spec. A task typically *operates on other documents*: its body carries wiki-links to the design-doc sections, files, or artifacts it acts on. The `T<n>` handle is unique on the backlog (monotonic, never reused) and is what every reference to the work (questions, `Q.md`, cross-links) points at.
-- **`M-<Name>…` — a roadmap entry.** A *nested* item in `{NAME} Roadmap.md` (per [[FCT Roadmap]]); handle `M-<Name>.<path>`, the name-path encoding its position in the tree. Entries nest — the roadmap is a hierarchy.
+- **`M-<Name>…` — a roadmap entry.** A *nested* item in `{slug} Roadmap.md` (per [[FCT Roadmap]]); handle `M-<Name>.<path>`, the name-path encoding its position in the tree. Entries nest — the roadmap is a hierarchy.
 - **`R…` — a roadmap task.** A backlog commitment to **execute a roadmap entry**. Flat on the backlog: it references one entry — a **leaf** (usual: "do this item") or a **non-leaf** ("do the whole subtree"). Handle `R` + the entry's id (e.g. `R-CLI.3.5`).
 
 **Names are identity; order is document position (no stored number).** Resolve a roadmap entry/task on its **name-path**, never on an ordinal — a milestone's order is just its position in the roadmap file (any shown number is *computed*, never stored or referenced), so reorder/insert changes positions with nothing to renumber and no reference to update. That's why `R` handles are word-only (`R-CLI.3.5`). Only a **rename** forces a sweep. (Full convention: [[FCT Roadmap]].)
@@ -138,7 +138,7 @@ The `→ [[X]]` link convention is documented in [[CAB Backlog]].
 | `/groom later` | Only items under `## Later`. |
 | `/groom upcoming` | Only items under legacy `## Upcoming` (alias for `/groom now` on migrated anchors). |
 | `/groom legwork` | Only items under `## Legwork`. |
-| `/groom icebox` | Walk `{NAME} Icebox.md` instead of the backlog. Useful for thawing iced items back into the backlog or reviewing what's parked. Default scope (bare `/groom`) excludes the icebox per `[[SKA workflow]]` § Active-work invariant. |
+| `/groom icebox` | Walk `{slug} Icebox.md` instead of the backlog. Useful for thawing iced items back into the backlog or reviewing what's parked. Default scope (bare `/groom`) excludes the icebox per `[[SKA workflow]]` § Active-work invariant. |
 | `/groom roadmap` | Operate on the roadmap's next milestone instead of the backlog. |
 | `/groom roadmap {milestone}` | Operate on a named roadmap milestone. |
 | `/groom {F-number}` | Single item, by F-number. |
@@ -150,13 +150,13 @@ The `→ [[X]]` link convention is documented in [[CAB Backlog]].
 ### 1. Locate the source
 
 - Walk up from `cwd` to find `.anchor`. If none, say so and stop.
-- For backlog modes: read `{NAME} Docs/{NAME} Plan/{NAME} Backlog.md`.
-- For roadmap mode: read `{NAME} Docs/{NAME} Plan/{NAME} Roadmap.md`.
+- For backlog modes: read `{slug} Docs/{slug} Plan/{slug} Backlog.md`.
+- For roadmap mode: read `{slug} Docs/{slug} Plan/{slug} Roadmap.md`.
 - If the source file is missing, report and stop.
 
 ### 2. Enumerate candidates
 
-Walk every bullet in scope — **default scope is the frontier** (`## Ready` / `## Now` / `## Next`, plus the next unmet roadmap milestone when a `{NAME} Roadmap.md` exists). For each bullet, derive its status (per § Item Status). Candidates for planning are status **Unset / Upcoming** plus any `[Ready]` row missing its `- **Next:**` sub-bullet.
+Walk every bullet in scope — **default scope is the frontier** (`## Ready` / `## Now` / `## Next`, plus the next unmet roadmap milestone when a `{slug} Roadmap.md` exists). For each bullet, derive its status (per § Item Status). Candidates for planning are status **Unset / Upcoming** plus any `[Ready]` row missing its `- **Next:**` sub-bullet.
 
 If scope was provided as an argument (`all`, `now`, `later`, …), narrow or widen accordingly.
 
@@ -164,11 +164,11 @@ If scope was provided as an argument (`all`, `now`, `later`, …), narrow or wid
 
 Before promotion work, walk every bullet in scope and **reassess any non-standard or stale bracket**, rewriting to the correct standard bracket per `[[SKA workflow]]`. This is the structural home for the rebracketing discipline; `/triage` enforces honesty at render-time, `/groom` is where the actual rewrites land. The bracket-reassessment runs lazily — `/crank`'s cascade (per `[[SKA crank]]` § 2a) only invokes `/groom` when the Ready queue runs dry, so most cycles don't pay the cost.
 
-**Mutation discipline — all rewrites go through `state task update`.** Do not edit `{NAME} Backlog.md` directly. Each "rewrite to `[X]`" below maps to:
+**Mutation discipline — all rewrites go through `state task update`.** Do not edit `{slug} Backlog.md` directly. Each "rewrite to `[X]`" below maps to:
 
 ```bash
-~/.claude/skills/workflow/scripts/state --anchor {NAME} task update <row-id> --status <X>                       # bracket-only; preserves title+body
-~/.claude/skills/workflow/scripts/state --anchor {NAME} task update <row-id> --status Done --horizon Done       # rewrite + move (e.g., stale [Done] in horizon H2)
+~/.claude/skills/workflow/scripts/state --anchor {slug} task update <row-id> --status <X>                       # bracket-only; preserves title+body
+~/.claude/skills/workflow/scripts/state --anchor {slug} task update <row-id> --status Done --horizon Done       # rewrite + move (e.g., stale [Done] in horizon H2)
 ```
 
 Omitting `--horizon` keeps the row in its current H2; passing `--horizon Active|Done|Ready|...` moves it. Title and body are preserved when omitted (the script reads the existing row). The script auto-refreshes `~/ob/kmr/Q.md`, so § 5's post-condition is satisfied for free.
@@ -202,15 +202,15 @@ This reassessment is **the** primary value `/groom` adds beyond promotion: witho
 - **Bullet is Ready (or plannable to Ready)** — the description plus your investigation tells you how to do the task without further user involvement. Write the `- **Next:**` sub-bullet (the plan's first step; add 1–3 more plan sub-bullets when the approach needs stating), then promote via `state task update`:
 
   ```bash
-  ~/.claude/skills/workflow/scripts/state --anchor {NAME} task update <row-id> --status Ready --horizon Ready
+  ~/.claude/skills/workflow/scripts/state --anchor {slug} task update <row-id> --status Ready --horizon Ready
   ```
 
   F-number, title, and body are preserved. Done with this item.
 
-- **Has questions** — anything you'd need the user to clarify. Create a feature doc at `{NAME} Docs/{NAME} Plan/{NAME} Features/F{n} — {Item Name}.md` (using the backlog row's F-number; per [[CAB Backlog]] § Numbering policy) with the standard `## Open Questions` block (per `/feature` § 1 and [[SKA queries]] § When a file is involved). Capture the questions there — **every** question goes to the doc; there is no inline-question slot (retired per [[Query PRD]] R1). **This is parking mode** (per [[SKA queries]] § Active vs Parking) — do NOT glance the new feature doc. The user invoked `/groom` as a *batch* operation specifically to defer per-item engagement; glancing each created doc would interrupt the very deferral they asked for. Update the backlog row via `state task update` to set the wiki-link body and switch the bracket to `Questions`:
+- **Has questions** — anything you'd need the user to clarify. Create a feature doc at `{slug} Docs/{slug} Plan/{slug} Features/F{n} — {Item Name}.md` (using the backlog row's F-number; per [[CAB Backlog]] § Numbering policy) with the standard `## Open Questions` block (per `/feature` § 1 and [[SKA queries]] § When a file is involved). Capture the questions there — **every** question goes to the doc; there is no inline-question slot (retired per [[Query PRD]] R1). **This is parking mode** (per [[SKA queries]] § Active vs Parking) — do NOT glance the new feature doc. The user invoked `/groom` as a *batch* operation specifically to defer per-item engagement; glancing each created doc would interrupt the very deferral they asked for. Update the backlog row via `state task update` to set the wiki-link body and switch the bracket to `Questions`:
 
   ```bash
-  ~/.claude/skills/workflow/scripts/state --anchor {NAME} task update <row-id> --status Questions --body "→ [[F<n> — {Item Name}]]"
+  ~/.claude/skills/workflow/scripts/state --anchor {slug} task update <row-id> --status Questions --body "→ [[F<n> — {Item Name}]]"
   ```
 
   The item is now blocked-on-questions; it surfaces through the queries doc at end-of-run via § 5.
@@ -235,9 +235,9 @@ Print a summary table:
 
 ### 5. Q.md update post-condition — automatic via `state`
 
-Every `state` invocation in § 2a / § 3 automatically regenerates the anchor's per-anchor section in `~/ob/kmr/Q.md` (by shelling out to `audit-q.py --scope backlog --anchor {NAME} --fix`). The backlog file is NOT reordered — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior.
+Every `state` invocation in § 2a / § 3 automatically regenerates the anchor's per-anchor section in `~/ob/kmr/Q.md` (by shelling out to `audit-q.py --scope backlog --anchor {slug} --fix`). The backlog file is NOT reordered — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior.
 
-The audit's fix-by-default behavior catches any drift introduced — broken links, stale brackets, banner mismatches, stale `[Done]` rows — and either repairs them mechanically OR (per the audit-q.md step 5 invariant, 2026-06-04) **files every non-mechanical residual as a sub-bullet on the singleton `B-QFix` row** in `{NAME} Backlog.md`. There is no "rare" gate on QFix — every residual that `--fix` didn't repair lands on the catalog.
+The audit's fix-by-default behavior catches any drift introduced — broken links, stale brackets, banner mismatches, stale `[Done]` rows — and either repairs them mechanically OR (per the audit-q.md step 5 invariant, 2026-06-04) **files every non-mechanical residual as a sub-bullet on the singleton `B-QFix` row** in `{slug} Backlog.md`. There is no "rare" gate on QFix — every residual that `--fix` didn't repair lands on the catalog.
 
 **Loop until clean** (same discipline as `/triage` § 6, landed 2026-06-04):
 
@@ -251,7 +251,7 @@ loop (max 3 iterations):
   # else: loop again to catch second-order drift
 ```
 
-After the loop, **before exiting**, read `{NAME} Backlog.md` for the `B-QFix` row. If present, append its sub-bullet list to chat output verbatim as *"audit-q residual — N findings outstanding (see B-QFix)."* **No silent exit when residual > 0.**
+After the loop, **before exiting**, read `{slug} Backlog.md` for the `B-QFix` row. If present, append its sub-bullet list to chat output verbatim as *"audit-q residual — N findings outstanding (see B-QFix)."* **No silent exit when residual > 0.**
 
 ### Three guards on the loop (per the 2026-06-04 design discussions — original "mechanical-only" rule replaced by the 100%-fix principle)
 

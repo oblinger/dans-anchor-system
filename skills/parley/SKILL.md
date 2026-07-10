@@ -20,18 +20,18 @@ A parley may evolve into a `/feature` — if so, move or copy the document to th
 
 ### 1. Find or create the Parley folder
 
-Parley documents live in `{NAME} Docs/{NAME} Plan/{NAME} Parley/`.
+Parley documents live in `{slug} Docs/{slug} Plan/{slug} Parley/`.
 
 **First time for this anchor:** Create the folder and its dispatch page:
-- Create `{NAME} Parley/` inside `{NAME} Plan/`
-- Create `{NAME} Parley.md` dispatch page inside it with a standard dispatch table
+- Create `{slug} Parley/` inside `{slug} Plan/`
+- Create `{slug} Parley.md` dispatch page inside it with a standard dispatch table
 - Wire the Parley folder into the Plan dispatch page (add a row linking to it)
 
 **If the folder already exists:** Just create the new document inside it.
 
 ### 2. Create the parley document
 
-Create a dated file: `{NAME} Parley/YYYY-MM-DD <Topic>.md`
+Create a dated file: `{slug} Parley/YYYY-MM-DD <Topic>.md`
 
 **Initial structure:**
 
@@ -64,7 +64,7 @@ status: open
 
 ### 3. Wire it in
 
-- Add the new document to the `{NAME} Parley.md` dispatch table
+- Add the new document to the `{slug} Parley.md` dispatch table
 - The dispatch page lists all parley documents, newest first
 
 ### 4. Discuss
@@ -100,7 +100,7 @@ When all three are true, change the frontmatter to `status: closed` and update s
 ## Converting to a Feature
 
 If a parley evolves into a feature:
-1. Move the file to `{NAME} Features/` and rename to `YYYY-MM-DD <Feature Name>.md`
+1. Move the file to `{slug} Features/` and rename to `YYYY-MM-DD <Feature Name>.md`
 2. Add the standard feature sections (Proposed Design, Status)
 3. Continue with `/feature` lifecycle
 4. Update the Parley dispatch page to note the move: `→ moved to [[YYYY-MM-DD Feature Name]]`

@@ -42,10 +42,10 @@ Full design rationale: `~/ob/kmr/SYS/Bespoke/Skill Agent/DEV/DEV Docs/DEV Plan/D
 
 ### Step 0: Test Design Document (always first)
 
-Create or open `{NAME} Docs/{NAME} Dev/{NAME} Test Design.md`:
+Create or open `{slug} Docs/{slug} Dev/{slug} Test Design.md`:
 
 ```markdown
-# {NAME} Test Design
+# {slug} Test Design
 
 ## Open Questions
 

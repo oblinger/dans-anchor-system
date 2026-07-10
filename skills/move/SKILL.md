@@ -15,8 +15,8 @@ Move an anchor folder and update all systems that index by path.
 
 ```bash
 # Zip the source as a safety net, then move
-zip -r "/old/path/{NAME}.zip" "/old/path/{NAME}"
-mv "/old/path/{NAME}" "/new/path/{NAME}"
+zip -r "/old/path/{slug}.zip" "/old/path/{slug}"
+mv "/old/path/{slug}" "/new/path/{slug}"
 ```
 
 The zip stays at the old location as a recoverable snapshot. Delete it once the move is verified (Step 7).
@@ -37,8 +37,8 @@ mv -- -old-path-encoded -new-path-encoded
 ## Step 3: Reindex HookAnchor
 
 ```bash
-ha -d n:={NAME} a:=folder r:="{new full path}"
-ha -p {NAME}  # verify
+ha -d n:={slug} a:=folder r:="{new full path}"
+ha -p {slug}  # verify
 ```
 
 ## Step 4: Scan for Hardcoded Paths
@@ -64,8 +64,8 @@ If the anchor has a slug, verify the slug index entry points to the new location
 ## Step 7: Verify
 
 ```bash
-ha -p {NAME}
-cd /new/path/{NAME} && claude --continue
+ha -p {slug}
+cd /new/path/{slug} && claude --continue
 ```
 
 Check git remotes still work. Obsidian wiki-links are relative and should still resolve.
@@ -74,5 +74,5 @@ Check git remotes still work. Obsidian wiki-links are relative and should still 
 
 Once everything is verified, delete the backup zip from the old location:
 ```bash
-rm "/old/path/{NAME}.zip"
+rm "/old/path/{slug}.zip"
 ```

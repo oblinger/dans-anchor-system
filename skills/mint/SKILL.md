@@ -27,7 +27,7 @@ Before reading the spec for implementation, wire the F-doc into the planning hie
 4. **Find the `## Feature Docs` H2 section** in that PRD and the 3-column table within it (`| F-doc | Status | Summary |`).
 5. **Append a row** with:
    - F-doc link: `[[F{N} — {Title}]]`
-   - Current status bracket from the F-doc's backlog row in `{NAME} Backlog.md` (e.g., `[Agreed]`)
+   - Current status bracket from the F-doc's backlog row in `{slug} Backlog.md` (e.g., `[Agreed]`)
    - One-line summary from the F-doc's frontmatter `description:` field
 6. **Idempotence:** if a row for this F-doc already exists in the table, *update* its Status column if the bracket has changed; don't duplicate the row.
 7. **Verify:** `/audit features` (see [[audit-features]]) confirms the wiring landed across all named buckets.
@@ -71,7 +71,7 @@ Before reading the feature spec, check the planning-status gate. **Applies only 
 
 Run:
 ```bash
-~/.claude/skills/workflow/scripts/state --anchor {NAME} status show
+~/.claude/skills/workflow/scripts/state --anchor {slug} status show
 ```
 
 Read the cells for `prd`, `architecture`, `testing`. If **any** of them is `none`, the gate is not satisfied. Surface a three-way prompt:
@@ -92,7 +92,7 @@ Wait for the user's choice (`A` / `B` / `C`).
 - **(B)** Proceed to step 1 with no state change. Next `/mint` invocation will warn again.
 - **(C)** For each blocked facet, run:
   ```bash
-  ~/.claude/skills/workflow/scripts/state --anchor {NAME} status set <facet> MVP-user --note "provisional — proceeding without full planning; revisit"
+  ~/.claude/skills/workflow/scripts/state --anchor {slug} status set <facet> MVP-user --note "provisional — proceeding without full planning; revisit"
   ```
   Then proceed to step 1. Future mints won't warn for these facets until the user explicitly re-grades them.
 
@@ -158,16 +158,16 @@ State transitions on the backlog row are mandatory and go through the workflow s
 
 ```bash
 # At mint start (Ready → Active):
-~/.claude/skills/workflow/scripts/state --anchor {NAME} task update <row-id> --status Active --horizon Active
+~/.claude/skills/workflow/scripts/state --anchor {slug} task update <row-id> --status Active --horizon Active
 
 # At mint completion, if verification is needed (Active → Verify):
-~/.claude/skills/workflow/scripts/state --anchor {NAME} task update <row-id> --status Verify
+~/.claude/skills/workflow/scripts/state --anchor {slug} task update <row-id> --status Verify
 
 # Or if no verification is needed (Active → Done):
-~/.claude/skills/workflow/scripts/state --anchor {NAME} task update <row-id> --status Done --horizon Done
+~/.claude/skills/workflow/scripts/state --anchor {slug} task update <row-id> --status Done --horizon Done
 ```
 
-`state task update` preserves the row's title and body (omit those flags) and auto-refreshes the anchor's per-anchor section in `~/ob/kmr/Q.md` (by shelling out to `audit-q.py --scope backlog --anchor {NAME} --fix`). **The backlog file is NOT reordered** — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior.
+`state task update` preserves the row's title and body (omit those flags) and auto-refreshes the anchor's per-anchor section in `~/ob/kmr/Q.md` (by shelling out to `audit-q.py --scope backlog --anchor {slug} --fix`). **The backlog file is NOT reordered** — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior.
 
 The audit's fix-by-default behavior catches any drift introduced — broken links, stale brackets, banner mismatches, stale `[Done]` rows — and either repairs them mechanically OR (rare) files a `QFix [Ready]` backlog entry. **Surfacing any QFix entry is part of this skill's "done" criteria** — read the script's output for QFix lines and surface them to the user.
 
