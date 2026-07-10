@@ -4145,7 +4145,7 @@ def main() -> int:
         # actually update the Q.md banner.
         d1_changes = apply_d1_banner_write(Q_MD, derived_banners)
         if d1_changes:
-            print(f"\naudit-q: D1 — {d1_changes} per-anchor section(s) regenerated in Q.md (via triage-section.py)")
+            print(f"\naudit-q: D1 — {d1_changes} per-anchor section(s) regenerated in Q.md (via queries-render.py)")
     # Hard-continuation directive — print whenever ANY anchor has Ready > 0.
     # Per user direction 2026-05-26 — the agent reads audit-q's output at the
     # moment they're tempted to stop; embedding the rule into that output is
@@ -4202,19 +4202,20 @@ def _print_hard_continuation_directive(derived_banners: dict[str, str]) -> None:
 
 def apply_d1_banner_write(qmd_file: Path, derived_banners: dict[str, str]) -> int:
     """Regenerate the per-anchor section in Q.md for each anchor with a derived
-    banner — delegates the actual write to `triage-section.py {NAME}` (per F104).
+    banner — delegates the actual write to `queries-render.py {NAME}` (per F104;
+    engine re-homed from the retired triage skill by F231).
 
-    Each subprocess call rewrites the entire per-anchor section (banner + body
-    H2s + bullets) and bubbles it to the top of Q.md. Returns the count of
-    sections rewritten.
+    Each subprocess call rewrites the entire per-anchor section (which is the
+    anchor's `{slug} queries.md` body, copied) and bubbles it to the top of Q.md.
+    Returns the count of sections rewritten.
 
-    Falls back to in-process banner-only rewrite if triage-section.py is
+    Falls back to in-process banner-only rewrite if queries-render.py is
     unreachable — preserves the original D1 behavior so audit-q can still fix
-    banner-only drift even if the new script went missing."""
+    banner-only drift even if the script went missing."""
     import subprocess
-    triage_script = (Path.home() / ".claude" / "skills" / "triage"
-                     / "scripts" / "triage-section.py")
-    if not triage_script.is_file():
+    render_script = (Path.home() / ".claude" / "skills" / "audit"
+                     / "scripts" / "queries-render.py")
+    if not render_script.is_file():
         # Fallback — original banner-only rewrite (preserves pre-F104 behavior)
         try:
             lines = qmd_file.read_text(encoding="utf-8").splitlines()
@@ -4236,7 +4237,7 @@ def apply_d1_banner_write(qmd_file: Path, derived_banners: dict[str, str]) -> in
     rewrites = 0
     for name in derived_banners.keys():
         result = subprocess.run(
-            ["python3", str(triage_script), name],
+            ["python3", str(render_script), name],
             capture_output=True, text=True, check=False,
         )
         if result.returncode == 0:

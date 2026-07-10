@@ -85,7 +85,7 @@ After glancing the doc, `/ask` may print a few **immediate** items — resolutio
 
 ## Runbook
 
-> **⚠ The `{slug} queries.md` DOCUMENT is now mechanically rendered — do NOT hand-author it** (per user direction 2026-06-26: *"purely mechanical, done as part of triage"*). `triage-section.py` rewrites the whole page from backlog state on every `/triage` (banner H1 + `## Verifications` from `[Verify*]`/`[Watching*]` rows + `## Ready` from `[Ready]`/`[Active]` rows with their `Next:` + `## Questions` from `[Questions]` rows). Anything you write into that file by hand is overwritten on the next triage. `/ask`'s job is **determination, not authoring**: route each open question to its *source* (resolve it in the feature doc's `## Open Questions`, file/edit a backlog row, run a self-answerable check) — the mechanical render then surfaces it. To change what the queries page shows, **edit the backlog rows / feature-doc Open Questions**, not `queries.md`. (The legacy four-section hand-authoring + `_computed_` H1 below is superseded; kept for the determination-logic reference.)
+> **⚠ The `{slug} queries.md` DOCUMENT is now mechanically rendered — do NOT hand-author it** (per user direction 2026-06-26: *"purely mechanical"*). `queries-render.py` rebuilds the whole page from backlog state on every `state` mutation (via `audit-q --fix`): banner H1 + `## Verifications` from `[Verify*]`/`[Watching*]` rows + `## Ready` from `[Ready]`/`[Active]` rows with their `Next:` + `## Questions` from `[Questions]` rows — and copies that body into the anchor's `Q.md` section (F231). Anything you write into that file by hand is overwritten on the next render. `/ask`'s job is **determination, not authoring**: route each open question to its *source* (resolve it in the feature doc's `## Open Questions`, file/edit a backlog row, run a self-answerable check) — the mechanical render then surfaces it. To change what the queries page shows, **edit the backlog rows / feature-doc Open Questions**, not `queries.md`. (The legacy four-section hand-authoring + `_computed_` H1 below is superseded; kept for the determination-logic reference.)
 
 1. **Locate the anchor** (walk up to `.anchor`). The queries page lives at `{slug} Track/{slug} queries.md` and is produced by the mechanical render (above) — you do not create or format it here.
 2. **Collect** open questions: each feature doc's `## Open Questions` (≤3 enumerate / >3 link) + backlog questions.
@@ -97,11 +97,11 @@ After glancing the doc, `/ask` may print a few **immediate** items — resolutio
    python3 ~/.claude/skills/audit/scripts/audit-q.py --scope backlog --anchor {slug} --dry
    ```
    **Fix every finding at its source, then re-run until the `{slug} queries.md` line count is 0.** A C35 ("lists `F<n>` under ## Questions but its linked doc has no pending Qs") means you violated the pending-only gate — remove that entry. Do **not** proceed to the Q.md refresh or the glance with a dirty audit; surfacing a broken queries file is the exact failure this step exists to prevent.
-6. **Refresh the Q.md dashboard** — after writing `{slug} queries.md`, paste it into the vault Q.md so the anchor's per-anchor section shows the freshly-computed queries body (not stale state):
+6. **Regenerate the queries file + Q.md** — after routing questions to their sources (backlog rows / feature-doc Open Questions), render:
    ```bash
-   python3 ~/.claude/skills/triage/scripts/triage-section.py {slug}
+   python3 ~/.claude/skills/audit/scripts/queries-render.py {slug}
    ```
-   `triage-section.py` reads `{slug} queries.md`, strips its frontmatter + H1, and renders the Q.md section as `<count banner → links to queries.md>` + `_queries computed <timestamp>_` + the queries body. (This is the F176 model — Q.md per-anchor body **is** the queries paste, replacing the legacy backlog-row/ask dump. Anchors with no `queries.md` fall back to the backlog-derived body.)
+   `queries-render.py` rebuilds `{slug} queries.md` from backlog state (banner H1 + `## Verifications` / `## Ready`+Next / `## Questions`) **and copies that same body into the anchor's `Q.md` section** under the queue-file banner (F231 — the query file IS the queue-file content; one render, two destinations, no separate triage view). Every `state` mutation already triggers this via `audit-q --fix`, so an explicit call is only needed when you edited sources without going through `state`.
 7. **Glance** `{slug} queries.md` (`open "<path>"`).
 8. **Echo** (optional) a few immediate items to the console in inline-ask format — all also in the doc.
 9. **On answer** (`Q1: yes`, `F115 Q3: A`, "verified the panel reopen", prose): record the resolution at the question's home and **trim** the answered item from `{slug} queries.md`. Re-running `/ask` rebuilds from current state, so the doc shrinks monotonically. Sticky context: once the user names a feature, bare `Q<n>` targets it.
@@ -120,4 +120,4 @@ The secondary invocation, called from another skill's runbook (`/feature`, `/cod
 
 ## Boundaries
 
-`/ask` only asks, records, and trims. The cross-anchor dashboard (`[[Q]]`), `[Verify]`-row surfacing, and banner/TAG rendering belong to `/triage`. Never write an unanswerable item: if it can't be made a concrete decision/verification, the agent decides it (reversible → guess + record) or does the work that resolves it.
+`/ask` only asks, records, and trims. The mechanical render — banner/TAG, `[Verify]`-row surfacing, and copying the queries body into the cross-anchor dashboard (`[[Q]]`) — belongs to `queries-render.py` (driven by `state`/`audit-q --fix`), not to `/ask`. Never write an unanswerable item: if it can't be made a concrete decision/verification, the agent decides it (reversible → guess + record) or does the work that resolves it.
