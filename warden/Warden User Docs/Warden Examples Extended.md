@@ -8,7 +8,7 @@ The [[Warden Examples|base ten]] cover every *shape* of a working rule. This fil
 Rules on this file are **numbered from 100**, one per genuinely-new case. The title says what is unique about it. A `> [!warning] Gap:` callout names the language insufficiency it exposes — these are the open agenda for extending Warden, collected in one place so we can work them deliberately rather than patch them ad hoc. An example earns a number only when it shows something the existing entries don't.
 
 > [!info] Provenance
-> Entries E100–E102 came out of the first gold-standard rewrite — the 14-rule `R-markdown` ruleset ([[DSC markdown]]), chosen because it spans the full mechanical→judgment spectrum and is the direct test of the "native `if::` is a Vale superset" claim. Rule examples are shown as literal Warden source (fenced — the rule audit skips fenced example rulesets). They'll graduate to rendered SVG code-cards (matching [[Warden Examples]]) when the pass industrializes.
+> Entries E100–E102 came out of the first gold-standard rewrite — the 14-rule `R-markdown` ruleset ([[DAS markdown]]), chosen because it spans the full mechanical→judgment spectrum and is the direct test of the "native `if::` is a Vale superset" claim. Rule examples are shown as literal Warden source (fenced — the rule audit skips fenced example rulesets). They'll graduate to rendered SVG code-cards (matching [[Warden Examples]]) when the pass industrializes.
 
 ## E100 · A mechanical, lossless auto-fix — not a tell
 
@@ -117,4 +117,4 @@ This looked like the family most likely to force a new primitive, and it forces 
 
 - [[Warden Examples]] — the base ten (every working shape; start there).
 - [[Warden Semantics]] — how the engine runs a rule; the object surface and the actions.
-- [[DSC markdown]] — the `R-markdown` ruleset these three came out of (the first gold-standard rewrite).
+- [[DAS markdown]] — the `R-markdown` ruleset these three came out of (the first gold-standard rewrite).

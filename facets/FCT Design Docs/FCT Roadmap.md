@@ -31,7 +31,7 @@ The Roadmap facet — the project's sequencing-design doc, organized as named mi
 | [[#See also]] |  |
 | **[[#BRIEF]]** |  |
 
-The Roadmap facet specifies the `{slug} Roadmap.md` file — the project's **sequencing-design**. It declares what ships in what order, organized as milestones (M1, M2, M3 …) with sub-numbering for finer detail. Open questions at the sequencing/dependency/gating level live as `## Open Questions` H2 on this file per [[DSC ask-format]].
+The Roadmap facet specifies the `{slug} Roadmap.md` file — the project's **sequencing-design**. It declares what ships in what order, organized as milestones (M1, M2, M3 …) with sub-numbering for finer detail. Open questions at the sequencing/dependency/gating level live as `## Open Questions` H2 on this file per [[DAS ask-format]].
 
 **Relocated to Design 2026-06-10** — previously lived at `{slug} Track/{slug} Roadmap.md` (per F094) and pre-F094 at `{slug} Docs/{slug} Plan/{slug} Roadmap.md`. Moved into Design alongside [[FCT Features]] because milestones ARE design — the plan, not the execution. Existing anchors stay at the old location until next `/design roadmap` touch repositions them (F142).
 
@@ -294,7 +294,7 @@ Both directions linked so neither end is lost. A validation pass (per CAB Valida
 
 ## Open Questions on the roadmap
 
-Roadmap-level open questions (sequencing, dependency, gating) — questions whose answer changes the milestone shape rather than a single feature doc — live as `## Open Questions` H2 directly below the file's H1, per [[DSC ask-format]]:
+Roadmap-level open questions (sequencing, dependency, gating) — questions whose answer changes the milestone shape rather than a single feature doc — live as `## Open Questions` H2 directly below the file's H1, per [[DAS ask-format]]:
 
 ```markdown
 # {slug} Roadmap
@@ -308,7 +308,7 @@ Questions tied to specific features live on the feature doc, not here. Use `/ask
 
 ## Preface zone
 
-Per [[DSC progressive-disclosure]]:
+Per [[DAS progressive-disclosure]]:
 
 - **Dispatch table** — Required.
 - **TLDR** — Optional. Roadmaps often benefit from a 3-5 bullet TLDR naming the milestone count + current state ("M1 done, M2 in progress, M3+ planned").
@@ -328,7 +328,7 @@ Any anchor with a `{slug} Design/` folder per [[FCT Design]] that's planning mor
 - [[FCT Features]] — feature docs that Shape A roadmaps group into milestones
 - [[FCT Stories]] — user stories that milestones implement (cited from milestone Acceptance lines)
 - [[FCT Status]] — `{slug} Status.md` carries the design-phase tier for `roadmap::` (separate from per-milestone progress)
-- [[DSC ask-format]] — open-questions discipline
+- [[DAS ask-format]] — open-questions discipline
 - [[design-roadmap]] — authoring sub-skill for `/design roadmap`
 - [[ABIO Roadmap]] — worked example of Shape B (task-checklist; multi-level numbering; deferral cross-refs)
 - [[FEX Roadmap]] — worked example (currently Shape A skeleton; expansion landing alongside CAE refresh)
@@ -452,4 +452,4 @@ After the last body item of each milestone, before the next `## ` H2, a `### .` 
 - **Don't collapse the two shapes** (A milestone-as-feature-group / B milestone-as-task-checklist) "for simplicity" — both are load-bearing; mixing is forbidden, transitioning allowed.
 - **`R-roadmap` is co-located** (per [[F133]]); don't split it out. Rule numbering is monotonic-forever — **R-roadmap-09/-10/-11/-12 are out-of-sequence by intent** (authoring order, not narrative). R-roadmap-12 (unique milestone name) is the invariant the name-is-identity / computed-position scheme depends on — added 2026-07-05.
 - **Don't delete the legacy numeric section** — named-milestone `M-<Name>` is the convention ([[F144]]); legacy `M1`/`M2` is migration-only and stays documented.
-- **Cross-refs to keep live on edit:** [[FCT Completed Roadmap]], [[FCT Features]], [[FCT Status]], [[design-roadmap]], [[DSC ask-format]].
+- **Cross-refs to keep live on edit:** [[FCT Completed Roadmap]], [[FCT Features]], [[FCT Status]], [[design-roadmap]], [[DAS ask-format]].

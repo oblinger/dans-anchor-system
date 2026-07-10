@@ -12,7 +12,7 @@ The audit system is two things: the **rule sets** it runs over, and the **compon
 |---|---|
 | **Rule sets — the base** | The `# RULESET` corpus `/audit` runs over; each rule binds to its targets via `where::`. Three families: |
 | · Facets | per-artifact specs, each embedding its ruleset — [[FCT Anchor Page\|R-anchor-page]], [[FCT PRD\|R-prd]], [[FCT Stories\|R-stories]], [[FCT Architecture\|R-architecture]], [[FCT Design\|R-design]], [[FCT Testing\|R-testing]], [[FCT Dispatch Table\|R-dispatch-table]], [[FCT Decisions\|R-decisions]] … |
-| · Disciplines | vault-wide text practices — [[DSC markdown\|R-markdown]], [[DSC dated-entry-stream\|R-dated-entry-stream]], [[DSC file-association\|R-file-association]] |
+| · Disciplines | vault-wide text practices — [[DAS markdown\|R-markdown]], [[DAS dated-entry-stream\|R-dated-entry-stream]], [[DAS file-association\|R-file-association]] |
 | · Skills | skill-anchor specs — [[FCT Skill\|skill-spec]], skill-doc, skill-script, skill-config |
 | **Components — skills + scripts** | The `/audit` orchestrator + the scripts that run over the rule sets: |
 | · Audit skills | `/audit` + its actions (structure · doc · q · architecture · dispatch · …) |

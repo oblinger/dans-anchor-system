@@ -57,14 +57,14 @@ The facet doc reads top-down: a reviewer can answer "is this enough testing?" fr
 
 | # | Section | Purpose |
 |---|---|---|
-| 1 | Top of doc | YAML frontmatter (with `status::` field) + `# {slug} Testing` H1 + dispatch table + **TLDR** (required per [[DSC progressive-disclosure]] § Per-facet preface requirements). |
+| 1 | Top of doc | YAML frontmatter (with `status::` field) + `# {slug} Testing` H1 + dispatch table + **TLDR** (required per [[DAS progressive-disclosure]] § Per-facet preface requirements). |
 | 1b | `## Tests` | **REQUIRED coverage table** directly below the preface (after TLDR, before Overview). One row per test kind: **Kind** (a link — see § The tests-table) · **In system** (current test count) · **Expected** (target count and/or qualitative coverage). The grazer-altitude coverage map. |
 | 2 | `## Overview` | One paragraph — what this project's testing posture is in a sentence (e.g., "Heavy unit + integration; minimal e2e because the surface is library-shaped"). The reader leaves knowing the *shape* of the test investment. Often elaborates on what the TLDR has already gestured at. |
 | 3 | `## Strategy` | The first part of the facet. Subsections below. |
 | 3a | `### Test Kinds` | List of categories used (unit / integration / e2e / property-based / smoke / regression / performance / …). One sentence each: definition + scope. |
 | 3b | `### Completeness Targets` | Per kind: the bar. "Every public function in `src/`", "every subsystem boundary", "one per user story", or "no target — sampled". Be specific; targets are auditable. |
 | 3c | `### Responsibilities` | Who authors what. Agent on `/mint`? Author-curated? CI? Hand off across kinds is explicit. |
-| 3d | `### Tier Mapping` | Connection to [[DSC verification]]'s four tiers. Which kinds satisfy which tier. Establishes what level of confidence a passing suite produces. |
+| 3d | `### Tier Mapping` | Connection to [[DAS verification]]'s four tiers. Which kinds satisfy which tier. Establishes what level of confidence a passing suite produces. |
 | 4 | `## Proposed Tests` | The second part. Inventory table — one row per proposed test, grouped by kind. See § Proposed-tests table below. |
 | 5 | `## See also` (optional) | Links to peer design docs (PRD, Architecture, UX), to `[[DSC verification]]`, to `/mint` and `/code test` for execution context. |
 
@@ -157,7 +157,7 @@ Available to any anchor that ships testable behavior — primarily `Code` trait 
 - [[FCT Architecture]] — peer facet under Design.
 - [[FCT UX Design]] — peer facet under Design.
 - [[FCT PRD]] — user stories drive e2e test inventory in § Proposed Tests.
-- [[DSC verification]] — four-tier verification discipline that § Tier Mapping cites.
+- [[DAS verification]] — four-tier verification discipline that § Tier Mapping cites.
 - [[Common Testing Types]] — the standard test-kind catalogue (one H2 per kind) that the required `## Tests` table's Kind cells link to for vanilla kinds.
 - [[HBR Testing]] — worked example for CAE Example CLI.
 - [[skills/design/design-testing|design-testing]] — authoring sub-skill for `/design testing`.
@@ -185,7 +185,7 @@ The doc has a `## Strategy` H2 containing four H3 subsections in this order: `##
 
 **Check pattern:** grep for the four H3 headers under `## Strategy`. All four required; ordering required.
 
-**Why:** the four subsections are the load-bearing strategy components. A doc missing Tier Mapping (the most-often-skipped one) loses the connection to [[DSC verification]] and silently weakens what a passing suite proves.
+**Why:** the four subsections are the load-bearing strategy components. A doc missing Tier Mapping (the most-often-skipped one) loses the connection to [[DAS verification]] and silently weakens what a passing suite proves.
 
 ### RULE R-testing-03 — `## Proposed Tests` H2 present, grouped by kind (checked)
 check:: proposed_tests_structure
@@ -247,11 +247,11 @@ The `## Strategy § Tier Mapping` sub-section references `[[DSC verification]]` 
 
 **Check pattern:** grep for `[[DSC verification]]` link in the Tier Mapping body; count tier-1/-2/-3/-4 mentions.
 
-**Why:** the vocabulary connection matters. A Tier Mapping that doesn't cite [[DSC verification]] is freelancing terms that won't match what the verification discipline expects.
+**Why:** the vocabulary connection matters. A Tier Mapping that doesn't cite [[DAS verification]] is freelancing terms that won't match what the verification discipline expects.
 
 ### RULE R-testing-10 — TLDR present in preface zone (checked)
 
-The doc carries a `**TLDR**` block in the preface zone (after the dispatch table, before the first body H2), formatted per [[DSC progressive-disclosure]] § TLDR formatting: 3-5 one-line bullets, each with a 2-3-word bolded descriptor. Topical content typically covers the posture (e.g., "heavy unit + integration") and the per-kind bar.
+The doc carries a `**TLDR**` block in the preface zone (after the dispatch table, before the first body H2), formatted per [[DAS progressive-disclosure]] § TLDR formatting: 3-5 one-line bullets, each with a 2-3-word bolded descriptor. Topical content typically covers the posture (e.g., "heavy unit + integration") and the per-kind bar.
 
 **Check pattern:** the file contains a line `^\*\*TLDR\*\*$` (or `^# TLDR$` style heading) preceding the first `## ` body heading; the immediately-following bullets follow the formatting spec.
 
@@ -284,4 +284,4 @@ Directly after the preface (TLDR), before `## Overview`, the doc has a `## Tests
 - **Inclusion test** — a change belongs here only if it applies to every `{slug} Testing.md` across anchors. Per-project content and worked examples ([[HBR Testing]], [[Mini Testing]], [[MUX Testing]]) live in their own anchors, linked from § See also; never inline them here.
 - **Keep spec ↔ ruleset in sync** — when the section order, table contract, or `status::` value set changes above, audit each `RULE R-testing-NN` block for matching wording, check-pattern accuracy, and any rule that should be added; the numbered rules are the auditable form of this prose.
 - **Sync downstream in lockstep** — the [[skills/design/design-testing|design-testing]] sub-skill is the canonical authoring path (update its runbook when the facet shape evolves — the 2026-06-10 F136 rewrite is the precedent), and the `## Tests` coverage table's Kind cells track [[Common Testing Types]] (keep in sync when either changes).
-- **Cross-references that must stay live** — [[FCT Architecture]], [[DSC verification]], [[DSC progressive-disclosure]], [[Common Testing Types]], [[HBR Testing]], [[F133 — Rulesets folder convention + facet embedding|F133]]; renaming or moving any requires updating the wiki-links here.
+- **Cross-references that must stay live** — [[FCT Architecture]], [[DAS verification]], [[DAS progressive-disclosure]], [[Common Testing Types]], [[HBR Testing]], [[F133 — Rulesets folder convention + facet embedding|F133]]; renaming or moving any requires updating the wiki-links here.

@@ -6,7 +6,7 @@ description: The Brief doc facet — agent-facing per-file editing-and-maintenan
 # FCT Brief
 A **Brief** is a **document facet** — agent-facing per-file editing-and-maintenance content paired with a source file (inline `# BRIEF` section in Phase 1; `<Name> Brief.md` sidecar in Phase 2).
 
-**Related:** [[FCT Discussion]],  [[DSC progressive-disclosure]],  [[DSC file-association]],  [[Briefs]]
+**Related:** [[FCT Discussion]],  [[DAS progressive-disclosure]],  [[DAS file-association]],  [[Briefs]]
 **Examples:** [[SV Roots\|inline # BRIEF (Phase 1)]],  [[SV Roots Brief\|sidecar Brief.md (Phase 2)]]
 
 | Table of Contents |  |
@@ -29,9 +29,9 @@ A **Brief** is a **document facet** — agent-facing per-file editing-and-mainte
 
 > [!note] Classification — doc facet, peer to [[FCT Discussion]]
 > Brief is a **doc facet** (a content container attached to a document), not a discipline. It lives in `CAB Facets/Doc Facet/` alongside [[FCT Discussion]]. As a doc facet it *cites* three disciplines:
-> - **[[DSC file-association]]** — *how it attaches*. Brief is a **non-dated, typically-single** typed association: method 1 (inline `# BRIEF`, default), method 2 (sidecar `{Parent} Brief.md`), escalating to method 3 (a `{Parent} Briefs/` folder) only if a parent accumulates many. This is the exact parallel to Discussion, which attaches via file-association's **dated** specialization [[DSC dated-entry-stream]]; Brief cites the umbrella directly because it adds no dated rules (per [[DSC granularity]]).
-> - **[[DSC progressive-disclosure]]** — *reader-zone layering*. The TLDR → Overview → Body → Brief zones below are progressive disclosure by audience/depth.
-> - **[[DSC markdown]]** — how the prose is written.
+> - **[[DAS file-association]]** — *how it attaches*. Brief is a **non-dated, typically-single** typed association: method 1 (inline `# BRIEF`, default), method 2 (sidecar `{Parent} Brief.md`), escalating to method 3 (a `{Parent} Briefs/` folder) only if a parent accumulates many. This is the exact parallel to Discussion, which attaches via file-association's **dated** specialization [[DAS dated-entry-stream]]; Brief cites the umbrella directly because it adds no dated rules (per [[DAS granularity]]).
+> - **[[DAS progressive-disclosure]]** — *reader-zone layering*. The TLDR → Overview → Body → Brief zones below are progressive disclosure by audience/depth.
+> - **[[DAS markdown]]** — how the prose is written.
 
 > [!important] Audience: agent, not user
 > A Brief is something an agent reads **before editing** the source file. Users glancing at the file should NOT need to read the Brief to understand what the file is — that's what the one-sentence TLDR (and optional Overview) at the top of the source are for. See § Audience — three reader zones.
@@ -70,7 +70,7 @@ Every source file the user owns has three concentric reader zones, each with a d
 **Distillation policy (F223, ratified).** A Brief holds **only genuine file-specific maintainer notes** — non-obvious guidance for whoever edits the source: inclusion tests, don't-regress cautions, tooling-consumed identifiers, cross-reference-integrity obligations. Because specs and their Briefs are read by outside readers (the DAS repo is published), a Brief opens with a **slim, clearly-labeled lead-in** — an italic `*(Maintainer note — …)*` line naming what the note covers and pointing at where the normative content lives — as piloted on [[FCT Template]]. Three consequences:
 
 - **Normative spec never lives only in a Brief.** Rules, models, and constraints a reader must follow belong in the source's body or its RULESET; the Brief may at most point at them.
-- **Generic doc-advice is a one-link cite.** Guidance true of all documents (progressive disclosure, no-fence, lead-with-example) belongs to its governing discipline ([[DSC markdown]], [[DSC progressive-disclosure]]) and is cited, never restated.
+- **Generic doc-advice is a one-link cite.** Guidance true of all documents (progressive disclosure, no-fence, lead-with-example) belongs to its governing discipline ([[DAS markdown]], [[DAS progressive-disclosure]]) and is cited, never restated.
 - **Most files need no Brief at all.** After distilling out spec, generic advice, and body-redundant content, if nothing genuinely file-specific remains, carry no `# BRIEF` section — never pad one into existence.
 
 Per-file operational content **for the agent**. Concretely:
@@ -85,7 +85,7 @@ Per-file operational content **for the agent**. Concretely:
 ## What does NOT belong in a Brief
 
 - **Normative spec content** (rules, models, constraints a reader must follow) → the source's body or its RULESET. Spec may never live *only* in a Brief.
-- **Generic doc-advice** (true of all docs — progressive disclosure, no-fence, lead-with-example) → the governing discipline ([[DSC markdown]], [[DSC progressive-disclosure]]), cited with one link, never restated.
+- **Generic doc-advice** (true of all docs — progressive disclosure, no-fence, lead-with-example) → the governing discipline ([[DAS markdown]], [[DAS progressive-disclosure]]), cited with one link, never restated.
 - **Project-wide rules** → `CLAUDE.md`.
 - **Markdown-rendering rules** → [[R-markdown]].
 - **Facet-shape conventions** (every Backlog has horizons, every Rules file is a RULESET) → `CAB <Facet>.md`.
@@ -179,7 +179,7 @@ The H1 of the brief matches the file basename. No further structural constraints
 ## Related
 
 - [[Doc Facet]] / [[FCT Facets]] — parent catalog (Brief is a doc facet, peer to [[FCT Discussion]]).
-- [[DSC progressive-disclosure]] — the discipline Brief cites for its TLDR → Overview → Body → Brief reader-zone layering.
+- [[DAS progressive-disclosure]] — the discipline Brief cites for its TLDR → Overview → Body → Brief reader-zone layering.
 - [[Briefs]] — vault-wide registry of files carrying inline `# BRIEF` H1 sections (Phase 1 form).
 - [[SV Roots Brief]] — worked example of the Phase 2 sidecar form.
 - F133 — tracking feature for the rule-system migration that surfaced the Brief discipline.

@@ -44,7 +44,7 @@ The cross-cutting principles the agent reads, from [[DSC]].
 
 | Disciplines |  |
 | --- | --- |
-| [[DSC anchor-dag\|anchor-dag]],  [[DSC ask-format\|ask-format]],  [[DSC file-association\|file-association]],  [[DSC granularity\|granularity]],  [[DSC markdown\|markdown]],  [[DSC mode\|mode]],  [[DSC progressive-disclosure\|progressive-disclosure]],  [[DSC role\|role]],  [[DSC verification\|verification]] |  |
+| [[DAS anchor-dag\|anchor-dag]],  [[DAS ask-format\|ask-format]],  [[DAS file-association\|file-association]],  [[DAS granularity\|granularity]],  [[DAS markdown\|markdown]],  [[DAS mode\|mode]],  [[DAS progressive-disclosure\|progressive-disclosure]],  [[DAS role\|role]],  [[DAS verification\|verification]] |  |
 
 ## Traits
 

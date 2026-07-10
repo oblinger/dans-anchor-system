@@ -6,7 +6,7 @@ description: "F223 — Markdown-discipline / progressive-disclosure layout rules
 
 ## Summary
 
-Roadmap item 8 ([[Warden Roadmap]] § Live push) — the deliberate **stress test** the user chose: the document-layout rule family (markdown discipline, progressive disclosure, document organization) where a rule is *conditional and multi-check* — one rule that first determines what it is looking at, then makes several assertions. The genuine test of whether a declarative rule engine can *shape* how documents are laid out, not just lint isolated lines. Ships as `RULESET R-progressive` (embedded in [[DSC progressive-disclosure]] per the F133 convention, catalog stub at `library/Rulesets/R-progressive/`), wired into the [[R-doc]] umbrella so it fires live on every markdown write via the audit-on-write path ([[F222 — Doc-fire on write|F222]] + the F177 global hook).
+Roadmap item 8 ([[Warden Roadmap]] § Live push) — the deliberate **stress test** the user chose: the document-layout rule family (markdown discipline, progressive disclosure, document organization) where a rule is *conditional and multi-check* — one rule that first determines what it is looking at, then makes several assertions. The genuine test of whether a declarative rule engine can *shape* how documents are laid out, not just lint isolated lines. Ships as `RULESET R-progressive` (embedded in [[DAS progressive-disclosure]] per the F133 convention, catalog stub at `library/Rulesets/R-progressive/`), wired into the [[R-doc]] umbrella so it fires live on every markdown write via the audit-on-write path ([[F222 — Doc-fire on write|F222]] + the F177 global hook).
 
 User directive 2026-07-05: *"BUILD it, and we will see how it does. I will check it in usage."*
 

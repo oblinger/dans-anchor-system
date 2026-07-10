@@ -6,7 +6,7 @@ status:: drafting
 # {slug} Testing
 How {slug} is verified: the kinds of test, how much of each, and the concrete inventory consistent with that strategy.
 
-**Related:** [[{slug} Architecture]],  [[{slug} PRD]],  [[DSC verification]]
+**Related:** [[{slug} Architecture]],  [[{slug} PRD]],  [[DAS verification]]
 
 **TLDR**
 - **{{Posture descriptor}}** — {{one line: the shape of the test investment, e.g. "heavy unit + integration; minimal e2e"}}
@@ -45,7 +45,7 @@ How {slug} is verified: the kinds of test, how much of each, and the concrete in
 
 ### Tier Mapping
 
-Per [[DSC verification]]:
+Per [[DAS verification]]:
 
 - **Tier {{N}} ({{tier name}})** — {{kinds mapped to this tier}} — {{what confidence this buys}}
 - ...
@@ -65,4 +65,4 @@ Per [[DSC verification]]:
 
 - [[{slug} Architecture]] — peer facet; subsystem boundaries drive the integration-test inventory.
 - [[{slug} PRD]] — user stories drive the e2e inventory.
-- [[DSC verification]] — four-tier verification discipline mapped in § Tier Mapping.
+- [[DAS verification]] — four-tier verification discipline mapped in § Tier Mapping.

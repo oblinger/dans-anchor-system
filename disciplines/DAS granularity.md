@@ -68,4 +68,4 @@ A **grouping** is org structure, not a runtime entry — it costs nothing in the
 
 - [[Access PRD]] — applies this discipline to the accessor family (surface-organized; email as subcommand; bridge as earned top-level).
 - The *cull rule* originates in the Utility bucket PRD (promote out when ≥2 share a shape); this discipline generalizes it across all grains.
-- [[DSC progressive-disclosure]] — sibling discipline: that one layers *information within a doc*; this one layers *capability across the catalog*. Same "as much as needed at this depth, no more" spirit, different axis.
+- [[DAS progressive-disclosure]] — sibling discipline: that one layers *information within a doc*; this one layers *capability across the catalog*. Same "as much as needed at this depth, no more" spirit, different axis.

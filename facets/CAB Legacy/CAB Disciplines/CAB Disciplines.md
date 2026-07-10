@@ -11,7 +11,7 @@ Catalog of CAB Disciplines — cross-anchor patterns for how we work, sibling to
 | Related | [[CAB Disciplines Brief\|Brief]],  ~~[[CAB Facets]]~~,  [[CAB Aspects]],  [[SKL Discipline]],   |
 | Global disciplines | ~~[[DSC Dispatch Table\|Dispatch Table]]~~,   |
 | Corpus-level invariants | ~~[[anchor-dag]]~~ (the vault is one navigable DAG — verified by a whole-graph walk), |
-| Anchor-level disciplines | [[DSC Linked Mode\|Linked Mode]],   |
+| Anchor-level disciplines | [[DAS Linked Mode\|Linked Mode]],   |
 | Skill-level disciplines | [[SKL Discipline\|SKL Discipline catalog]] — [[SKL Mode\|Mode]] (Drive / Discuss / Active / Parking), [[SKL Drive\|Drive]], ask-format, verification, … |
 | --- | |
 | [[CAB Dispatch Table Design]] | Design rationale + standing decisions for the Dispatch Table discipline — the why behind the spec, so it isn't relitigated. |

@@ -69,7 +69,7 @@ Per [[FCT Stories]]. The PRD's `## User Stories` section then links to `[[{slug}
 | 4 | `## Goals` | Concrete, verifiable outcomes — what the product will accomplish. Bulleted; outcome-shaped (not feature-shaped). |
 | 5 | `## Non-Goals` | What the product explicitly will NOT do. Each non-goal is one of: (a) deferred to a future version, (b) out of scope by design, (c) constraint from the environment. Keeps scope conversation honest. |
 | 6 | `## User Stories` | Either inline bullets (`US-<SLUG>-<N>` per [[FCT Stories]]) or a wiki-link to `[[{slug} Stories]]` if folder form. Each story is "As a `<role>`, I want `<capability>` so that `<reason>`." |
-| 7 | `## Open Questions` (optional) | Pending decisions surfaced via [[DSC ask-format]]. Lives below the H1 only while pending Qs exist; deletes entirely once all resolve. |
+| 7 | `## Open Questions` (optional) | Pending decisions surfaced via [[DAS ask-format]]. Lives below the H1 only while pending Qs exist; deletes entirely once all resolve. |
 | 8 | `## Resolved` (optional) | Bottom-of-doc archive of resolved questions and decisions, H3 per resolution. Populated as questions resolve; never deleted. |
 | 9 | `## See also` (optional) | Links to peer Design facets (Architecture, Testing, Decisions). |
 
@@ -81,7 +81,7 @@ Real instances vary in section *naming* around this spine (e.g. `## Purpose` for
 
 ## Preface zone requirements
 
-Per [[DSC progressive-disclosure]] § Per-facet preface requirements:
+Per [[DAS progressive-disclosure]] § Per-facet preface requirements:
 
 - **Dispatch table** — **Required**.
 - **TLDR** — **Explicitly NOT required**. PRDs are too heterogeneous to compress meaningfully into 3-8 bullets without filler; forcing one degrades the doc. The `## Overview` section serves the grazer-altitude need.
@@ -106,7 +106,7 @@ The row is required in both forms so a reader landing on the PRD has a one-click
 
 PRD discussions surface questions throughout. The PRD does NOT carry a separate `{slug} Open Questions.md` file (legacy pattern, deprecated). Instead:
 
-- **Active questions** live as `## Open Questions` H2 directly below the H1, per [[DSC ask-format]].
+- **Active questions** live as `## Open Questions` H2 directly below the H1, per [[DAS ask-format]].
 - **Resolved questions** move to `## Resolved` at the bottom of the doc when answered. Never deleted.
 - **The `/ask --doc` workflow** is the way to add or resolve questions on a PRD; it handles the formatting, the lifecycle transitions, and the Q.md update.
 
@@ -143,8 +143,8 @@ Any anchor that has a `{slug} Design/` folder per [[FCT Design]]. Initially supp
 - [[FCT Testing]] — peer Design facet (testing strategy + proposed-tests overview)
 - [[FCT Decisions]] — peer Design facet (load-bearing decisions citing rules)
 - [[FCT Status]] — `{slug} Status.md` carries the PRD's design-phase tier
-- [[DSC ask-format]] — open-questions formatting discipline
-- [[DSC progressive-disclosure]] — preface-zone requirements
+- [[DAS ask-format]] — open-questions formatting discipline
+- [[DAS progressive-disclosure]] — preface-zone requirements
 - [[design-prd]] — authoring sub-skill for `/design prd`
 - [[HBR PRD]] — worked example (single-file form, three inline stories)
 
@@ -208,7 +208,7 @@ Every user-story H3 (inline form) matches `^### US-{slug}-\d+: .+` where `{slug}
 ### RULE R-prd-06 — No legacy `{slug} Open Questions.md` file (checked)
 check:: no_legacy_open_questions_file
 
-No file named `{slug} Open Questions.md` exists alongside the PRD. Open questions live as `## Open Questions` H2 directly inside the PRD per [[DSC ask-format]].
+No file named `{slug} Open Questions.md` exists alongside the PRD. Open questions live as `## Open Questions` H2 directly inside the PRD per [[DAS ask-format]].
 
 **Check pattern:** `ls "{slug} Design/{slug} Open Questions.md"` returns no-such-file.
 
@@ -253,4 +253,4 @@ The PRD's top-of-doc dispatch table contains a row whose wiki-link target points
 - **Inclusion test + boundary:** content belongs only if it specifies the SHAPE of `{slug} PRD.md` (location, required sections it must carry, fields it must declare, how stories are surfaced from sibling docs, how its lifecycle interacts with `/ask` and `{slug} Status.md`). Technical decisions, principles, and implementation route to [[FCT Decisions]] / [[FCT Ruleset]] / [[FCT Architecture]] — the body already says PRDs are not that. This is not a PRD instance or a product-management essay: worked examples are cited by wiki-link ([[HBR PRD]]); one-off rationale lives in a rule's **Why** block, not in narrative.
 - **Two co-located zones — keep aligned:** the facet-spec prose and the embedded `# RULESET R-prd` must agree; when a section-order rule, naming convention, or location prescription changes above, update the matching `### RULE R-prd-NN` (and its **Check pattern** / **Why**) in the same edit. Rule numbering is monotonic-forever — `R-prd-NN` IDs are never recycled; renumbering silently re-points every existing `R-prd-NN` cross-reference (including rule-side `implements D<N>` back-links and docs citing a rule by id).
 - **The `## Standard section order` table is the spine** — its row order is what `R-prd-04` enforces; don't reorder rows for stylistic reasons (downstream readers and the audit script both depend on the declared sequence).
-- **Cross-refs to keep live on edit:** [[FCT Stories]], [[FCT Decisions]], [[FCT Architecture]], [[FCT Testing]], [[FCT Status]], [[DSC ask-format]], [[DSC progressive-disclosure]], [[HBR PRD]] — if any is renamed, propagate here the same commit.
+- **Cross-refs to keep live on edit:** [[FCT Stories]], [[FCT Decisions]], [[FCT Architecture]], [[FCT Testing]], [[FCT Status]], [[DAS ask-format]], [[DAS progressive-disclosure]], [[HBR PRD]] — if any is renamed, propagate here the same commit.

@@ -6,7 +6,7 @@ description: "the top-of-page navigation table — its own spec, dogfooded"
 # FCT Dispatch Table
 The top-of-file table convention that gives most anchor pages and many facet pages their navigation surface.
 
-**Related:** [[Collection]],  [[DSC progressive-disclosure]],  [[audit-dispatch\|/audit dispatch]]
+**Related:** [[Collection]],  [[DAS progressive-disclosure]],  [[audit-dispatch\|/audit dispatch]]
 
 | Table of Contents |  |
 |---|---|
@@ -90,10 +90,10 @@ This is the single law for masthead content: a standard row exists **exactly whe
 
 Below the Masthead, a [[Collection]] anchor enumerates its **members**. Two **orthogonal** axes:
 
-**Axis 1 — layout (the [[DSC progressive-disclosure]] pattern):**
+**Axis 1 — layout (the [[DAS progressive-disclosure]] pattern):**
 - **Member list** — flat; one row (or compact line) per member. Use ≤ ~15 members.
-- **Member groups** — members under labeled group rows; a group row may carry a **`+`** to mark it expandable (it has children of its own). Use > 15 members (the progressive-disclosure size rule; the graduation is [[DSC granularity]]).
-  - RULE (grouped-rows-link-down): **each group row's label is a link** *down* to that group's own anchor page + dispatch table — the group is a **container**, per [[DSC progressive-disclosure]] § The tree of containers. A grouped table is therefore one node of the container tree; clicking a group label descends to a finer node (its members). The `+` is the visible mark that the label is an expandable container, not a leaf.
+- **Member groups** — members under labeled group rows; a group row may carry a **`+`** to mark it expandable (it has children of its own). Use > 15 members (the progressive-disclosure size rule; the graduation is [[DAS granularity]]).
+  - RULE (grouped-rows-link-down): **each group row's label is a link** *down* to that group's own anchor page + dispatch table — the group is a **container**, per [[DAS progressive-disclosure]] § The tree of containers. A grouped table is therefore one node of the container tree; clicking a group label descends to a finer node (its members). The `+` is the visible mark that the label is an expandable container, not a leaf.
   - RULE (container-ends-electric): a **container's** dispatch table **ends with an electric-list marker** — `...` (compact auto), `| --- | |` (auto-list), or trailing `+`-group rows — so newly-added children have a defined place to land. *(Tied to the container trait.)*
 
 **Axis 2 — automation (who orders the rows):**
@@ -111,17 +111,17 @@ The two axes combine freely: a member list or member groups can each be manual, 
 | `...` | **compact** auto-enumeration in one cell (few members, no per-member description) |
 | `+` (suffix on a row label — e.g. a group row written `Group+`) | the row is an **expandable group** (member groups layout) |
 
-Dated members (a [[DSC dated-entry-stream]] Collection like a Log) list newest-first with ISO-prefixed names.
+Dated members (a [[DAS dated-entry-stream]] Collection like a Log) list newest-first with ISO-prefixed names.
 
 **The member zone *is* the [[Collection]] anchor's face** — and `/audit dispatch` ([[audit-dispatch]]) builds/repairs exactly this structure.
 
 ## Classification — a facet (the table form)
 
-A dispatch table is the **form** of an anchor's top-of-page switchboard — a concrete, auditable artifact (`/audit dispatch`, the masthead-placement law, the member-zone mechanics) embedded across many surfaces. It is a **facet**, not a discipline: unlike the principles it *obeys* ([[DSC progressive-disclosure]], [[DSC granularity]]), it is a thing you **build and audit**, not a way of thinking. *(Reclassified discipline → facet; the prior "the form is a discipline" framing is retired.)*
+A dispatch table is the **form** of an anchor's top-of-page switchboard — a concrete, auditable artifact (`/audit dispatch`, the masthead-placement law, the member-zone mechanics) embedded across many surfaces. It is a **facet**, not a discipline: unlike the principles it *obeys* ([[DAS progressive-disclosure]], [[DAS granularity]]), it is a thing you **build and audit**, not a way of thinking. *(Reclassified discipline → facet; the prior "the form is a discipline" framing is retired.)*
 
 - **Form vs role.** This facet owns the table *form* (breadcrumb cell, category rows, masthead-placement law, member-zone axes). The *role* of "dispatching for this particular anchor kind" is layered on by [[FCT Anchor Page]] and its per-kind rulesets — the anchor page **delegates** its table to this facet. ~95% of dispatch tables are exactly that: an anchor page dispatching to its anchor's contents.
 - **Shared across surfaces → factored out, not merged.** The form recurs on the per-sub-folder dispatch pages ([[FCT Design Dispatch]], [[FCT User Dispatch]], …) as well as the anchor masthead. Keeping it as its own facet lets every surface cite **one** spec — which is exactly why it is *not* folded into [[FCT Anchor Page]] (that would orphan the sub-folder dispatch facets).
-- **Boundary with [[DSC progressive-disclosure]].** This facet owns the table *form* (cell shape, row anatomy, pipe-escape, the `(See …)` variant). `progressive-disclosure` owns *which pattern* — Compact / List / Grouped — and the `>15 → Grouped` size rule. **Form here; pattern there.**
+- **Boundary with [[DAS progressive-disclosure]].** This facet owns the table *form* (cell shape, row anatomy, pipe-escape, the `(See …)` variant). `progressive-disclosure` owns *which pattern* — Compact / List / Grouped — and the `>15 → Grouped` size rule. **Form here; pattern there.**
 - **Two different "anchor" facets — don't conflate.** [[FCT Anchor Page]] (the `{slug}.md` *entry page* that hosts the dispatch table) is separate from the **anchor spec** itself (the `.anchor` file's slug / traits / DAG edges). The dispatch table lives on the anchor *page*, never in the anchor *spec*.
 
 ## Current state

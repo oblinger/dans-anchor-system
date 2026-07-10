@@ -9,7 +9,7 @@ Cross-cutting concepts the agent reads — non-invocable, they inform behavior.
 | --- | --- |
 | Related | [[SKL\|Skills]],  [[FCT\|Facets]],  [[LBR\|Library]], [[DAS\|ob-skills]] (root) |
 |  |  |
-| Disciplines | [[DSC anchor-dag\|anchor-dag]],  [[DSC ask-format\|ask-format]],  [[DSC code-repo\|code-repo]],  [[DSC dated-entry-stream\|dated-entry-stream]],  [[DSC file-association\|file-association]],  [[DSC granularity\|granularity]],  [[DSC markdown\|markdown]],  [[DSC mode\|mode]],  [[DSC progressive-disclosure\|progressive-disclosure]],  [[DSC role\|role]],  [[DSC rust\|rust]],  [[DSC technical-answer\|technical-answer]],  [[DSC verification\|verification]],  [[DSC Linked Mode\|Linked Mode]],   |
+| Disciplines | [[DAS anchor-dag\|anchor-dag]],  [[DAS ask-format\|ask-format]],  [[DAS code-repo\|code-repo]],  [[DAS dated-entry-stream\|dated-entry-stream]],  [[DAS file-association\|file-association]],  [[DAS granularity\|granularity]],  [[DAS markdown\|markdown]],  [[DAS mode\|mode]],  [[DAS progressive-disclosure\|progressive-disclosure]],  [[DAS role\|role]],  [[DAS rust\|rust]],  [[DAS technical-answer\|technical-answer]],  [[DAS verification\|verification]],  [[DAS Linked Mode\|Linked Mode]],   |
 |  |  |
 | ... |  |
 

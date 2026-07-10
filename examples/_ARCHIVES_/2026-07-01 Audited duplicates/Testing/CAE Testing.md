@@ -8,7 +8,7 @@ How the CAE Example CLI is verified: the kinds of test, how much of each, and th
 | -[[CAE Testing]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[CAE]] → [[CAE Design]] → [CAE Testing](hook://p/CAE%20Testing)<br>: test strategy + proposed tests |
 | --- | --- |
 | Anchor | [[CAE Design]] (parent) |
-| Related | [[CAE PRD]],  [[CAE Architecture]],  [[CAE Decisions]],  [[DSC verification]],   |
+| Related | [[CAE PRD]],  [[CAE Architecture]],  [[CAE Decisions]],  [[DAS verification]],   |
 
 **TLDR**
 - **Heavy unit + integration** — modest e2e, property-based for two load-bearing invariants. No smoke, perf, or fuzz in v1.
@@ -55,7 +55,7 @@ The four kinds above are the full inventory. CAE deliberately does NOT use: smok
 
 ### Tier Mapping
 
-Per [[DSC verification]]:
+Per [[DAS verification]]:
 
 - **Tier 1 (agent-immediate)** — satisfied by unit + integration + property-based tests, all of which run in CI in under a minute. The default tier for CAE features.
 - **Tier 2 (agent-over-time)** — satisfied by the e2e suite running on every push and the property-based suite running with a high case count nightly. Drift in CI surfaces within a day.
@@ -110,4 +110,4 @@ Bare-bracket entries (`[CAE-Retry § Tests]`) mark proposed-but-unwritten low-le
 - [[CAE Architecture]] — subsystem boundaries that drive the integration inventory.
 - [[CAE Decisions]] — D01 / D03 / D5 are the architectural choices that make CAE deterministically testable.
 - [[CAE-Scheduler]] — the only subsystem doc currently authored; carries its own `## Tests` block.
-- [[DSC verification]] — four-tier verification discipline mapped above.
+- [[DAS verification]] — four-tier verification discipline mapped above.

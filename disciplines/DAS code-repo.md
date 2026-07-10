@@ -5,7 +5,7 @@ description: >
   top-level files (README.md, CLAUDE.md, justfile, build config), the gitignored
   site/ folder for generated docs, and the standard justfile recipe set
   (setup / build / test / lint / check / docs / …) that each language maps onto
-  its own toolchain. Language-flavor disciplines (e.g. [[DSC rust]]) mirror the
+  its own toolchain. Language-flavor disciplines (e.g. [[DAS rust]]) mirror the
   recipe names; per-project deviations live in that project's own docs, not here.
 user_invocable: false
 ---
@@ -19,7 +19,7 @@ The standard **repository shape** — the files, folders, and task-runner recipe
 - **Generated output is gitignored** — the `site/` docs-build folder is never committed; it is regenerated and deployed (e.g. to GitHub Pages).
 - **Cross-project only** — an entry belongs in this discipline only if it is expected in *most* code repositories (or is a named optional with clear semantics). Project-specific recipes, layouts, and build steps live in that project's own `CLAUDE.md` / `justfile` / README.
 
-This is a discipline, not a user-invocable skill — language-flavor disciplines ([[DSC rust]]) and repo-scaffolding skills cite it via `[[DSC code-repo]]`.
+This is a discipline, not a user-invocable skill — language-flavor disciplines ([[DAS rust]]) and repo-scaffolding skills cite it via `[[DSC code-repo]]`.
 
 ## Key repository files
 
@@ -61,4 +61,4 @@ Add as needed for applications:
 
 ## Related
 
-- [[DSC rust]] — the Rust flavor: Cargo workspace layout, shared util crates, and the Rust mapping of these recipes.
+- [[DAS rust]] — the Rust flavor: Cargo workspace layout, shared util crates, and the Rust mapping of these recipes.

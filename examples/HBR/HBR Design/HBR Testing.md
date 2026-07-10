@@ -8,7 +8,7 @@ How Harbor is verified: the kinds of test, how much of each, and the concrete in
 | -[[HBR Testing]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[HBR]] → [[HBR Design]] → [HBR Testing](hook://p/HBR%20Testing)<br>: test strategy + proposed tests |
 | --- | --- |
 | Anchor | [[HBR Design]] (parent) |
-| Related | [[HBR Architecture]],  [[HBR PRD]],  [[DSC verification]],   |
+| Related | [[HBR Architecture]],  [[HBR PRD]],  [[DAS verification]],   |
 
 **TLDR**
 - **Library-shaped posture** — heavy unit + integration on catalog logic; live + e2e kept lean because the surface is one CLI plus one LAN page.
@@ -49,7 +49,7 @@ The four kinds above are the full inventory. Harbor deliberately does NOT use: p
 
 ### Tier Mapping
 
-Per [[DSC verification]]:
+Per [[DAS verification]]:
 
 - **Tier 1 (agent-immediate)** — unit + integration tests, all in `cargo test` in seconds. Default tier for Ingest and any pure-catalog feature.
 - **Tier 2 (agent-over-time)** — the nightly live sweep: real transcode, real serve, real restore-from-backup run regardless of relevance, catching long-tail drift. The Operate backup / restore check lives here.
@@ -101,4 +101,4 @@ Per [[DSC verification]]:
 
 - [[HBR Architecture]] — the three pipelines + catalog seam that drive the integration inventory.
 - [[HBR PRD]] — user stories that drive the e2e inventory.
-- [[DSC verification]] — four-tier verification discipline mapped above.
+- [[DAS verification]] — four-tier verification discipline mapped above.

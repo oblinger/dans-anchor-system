@@ -1,19 +1,19 @@
 ---
 name: markdown
-description: Discipline. The "every time you write markdown" rules — both mechanical (rendering correctness — table escapes, fence rules, spacing) and authoring (always-apply quality — wiki-links not bare backticks, definition lists, RULE/RULESET sentinels). Cited by every CAB facet, every design sub-skill, every authoring skill. Sibling discipline to [[DSC progressive-disclosure]] (which owns *what goes where in a doc*); markdown owns *how the markdown text itself is written*. Skill counterpart is [[md]] which owns user-invokable utility verbs (/md toc, /md file-tree, etc.).
+description: Discipline. The "every time you write markdown" rules — both mechanical (rendering correctness — table escapes, fence rules, spacing) and authoring (always-apply quality — wiki-links not bare backticks, definition lists, RULE/RULESET sentinels). Cited by every CAB facet, every design sub-skill, every authoring skill. Sibling discipline to [[DAS progressive-disclosure]] (which owns *what goes where in a doc*); markdown owns *how the markdown text itself is written*. Skill counterpart is [[md]] which owns user-invokable utility verbs (/md toc, /md file-tree, etc.).
 user_invocable: false
 ---
 
 # Markdown Discipline
 
-The discipline for **how markdown TEXT is written** — applied to every markdown document in the vault, every time. Sibling to [[DSC progressive-disclosure]] (*what goes where in a doc*) and to the [[md]] skill (*utility verbs that produce or maintain markdown artifacts*).
+The discipline for **how markdown TEXT is written** — applied to every markdown document in the vault, every time. Sibling to [[DAS progressive-disclosure]] (*what goes where in a doc*) and to the [[md]] skill (*utility verbs that produce or maintain markdown artifacts*).
 
 Two flavors of rule live here, and both apply every time:
 
 - **Mechanical rules** — rendering correctness. Skip these → the doc renders wrong. Examples: escape pipes inside wiki-links inside tables; blank line before / after a table; no wiki-links inside fenced code blocks (they don't render).
 - **Authoring rules** — always-apply quality. Skip these → the doc renders but is wrong. Examples: references to other docs MUST be wiki-links not bare backticks; definition-list format when content is naming-natured; the `RULE` / `RULESET` sentinel pattern for rule blocks.
 
-The boundary against [[DSC progressive-disclosure]]: this discipline cares about the markdown *text*. Progressive-disclosure cares about the *doc structure* (preface zone, dispatch table patterns, figure placement, TLDR shape). If the question is "how do I write this line of markdown right," it's here; if "where in the doc does this section go," that's progressive-disclosure.
+The boundary against [[DAS progressive-disclosure]]: this discipline cares about the markdown *text*. Progressive-disclosure cares about the *doc structure* (preface zone, dispatch table patterns, figure placement, TLDR shape). If the question is "how do I write this line of markdown right," it's here; if "where in the doc does this section go," that's progressive-disclosure.
 
 
 ## Progressive disclosure — the opening every non-trivial page uses
@@ -22,7 +22,7 @@ The one structural rule an author reaches for constantly: **any non-trivial page
 
 **[breadcrumb] → H1 → one-line summary → [figure] → [table] → [Overview] → body**
 
-— the breadcrumb appears only on a non-anchor page with no dispatch table (an anchor's breadcrumb lives in its dispatch masthead), and there is **no blank line** between breadcrumb, H1, and summary. This is *doc structure*, so its normative home is the sibling disciplines, not here: see [[FCT Doc Structure]] (the document skeleton + `R-doc-structure` ruleset) and [[DSC progressive-disclosure]] (the layered-presentation discipline). The pointer is kept here because the opening format is the first thing an author needs when writing any page.
+— the breadcrumb appears only on a non-anchor page with no dispatch table (an anchor's breadcrumb lives in its dispatch masthead), and there is **no blank line** between breadcrumb, H1, and summary. This is *doc structure*, so its normative home is the sibling disciplines, not here: see [[FCT Doc Structure]] (the document skeleton + `R-doc-structure` ruleset) and [[DAS progressive-disclosure]] (the layered-presentation discipline). The pointer is kept here because the opening format is the first thing an author needs when writing any page.
 
 
 ## Mechanical rules — rendering correctness
@@ -142,8 +142,8 @@ If a rule is universal (applies to every Log, every PRD, every Testing doc), it 
 
 ## What's NOT in this discipline (boundaries)
 
-- **Layered information presentation** — preface zone, dispatch table patterns (Linear / Matrix / Grouped / List / Compact), TLDR format, figure placement, three levels of progressive disclosure. → [[DSC progressive-disclosure]].
-- **User-actionable surface format** — Q-numbering, recommendation strength, à la carte items, resolution-acceptance phrases. → [[DSC ask-format]].
+- **Layered information presentation** — preface zone, dispatch table patterns (Linear / Matrix / Grouped / List / Compact), TLDR format, figure placement, three levels of progressive disclosure. → [[DAS progressive-disclosure]].
+- **User-actionable surface format** — Q-numbering, recommendation strength, à la carte items, resolution-acceptance phrases. → [[DAS ask-format]].
 - **Workflow state vocabulary** — `[Ready]` / `[Active]` / `[Verify]` / `[Done]` etc. → [[workflow]].
 - **Anchor-specific operational notes** — per-doc operational content that's not facet-rule-restatement. → the Brief discipline (per-doc `Brief.md` sidecars and embedded `# BRIEF` second-H1s).
 - **Utility verbs** for generating or rewriting markdown — `/md toc` regen, `/md file-tree` format, `/md dispatch-table` build, `/md cards`, `/md track-changes`. → [[md]] skill.
@@ -157,8 +157,8 @@ If a rule is universal (applies to every Log, every PRD, every Testing doc), it 
 ## See also
 
 - [[md]] — the utility-verb skill (sibling, not parent / child); `/md toc`, `/md file-tree`, `/md dispatch-table`, `/md cards`, `/md track-changes`.
-- [[DSC progressive-disclosure]] — sibling discipline; doc-structure rules.
-- [[DSC ask-format]] — sibling discipline; user-actionable surface format.
+- [[DAS progressive-disclosure]] — sibling discipline; doc-structure rules.
+- [[DAS ask-format]] — sibling discipline; user-actionable surface format.
 - [[FCT Ruleset]] — meta-spec for the RULE / RULESET sentinel format.
 - [[Atlas]] / [[ATL Slugs]] — vault-wide router that wiki-link conventions ultimately serve.
 

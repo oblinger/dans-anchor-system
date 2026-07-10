@@ -60,7 +60,7 @@ For a tutorial introduction, see [[{slug} User Guide]]. Every command is specifi
 
 ## The Help Block — READ THIS
 
-**The help block is this doc's central figure.** Per the universal opening format ([[FCT Doc Structure]] / [[DSC progressive-disclosure]]): `:>>` breadcrumb → `# {slug} CLI` H1 → **one-line summary** → **help block**. The block sits directly after the summary line — no `## Synopsis` wrapper, no second intro paragraph between the summary and the fence. (An optional one-line install/usage note may follow the block.)
+**The help block is this doc's central figure.** Per the universal opening format ([[FCT Doc Structure]] / [[DAS progressive-disclosure]]): `:>>` breadcrumb → `# {slug} CLI` H1 → **one-line summary** → **help block**. The block sits directly after the summary line — no `## Synopsis` wrapper, no second intro paragraph between the summary and the fence. (An optional one-line install/usage note may follow the block.)
 
 Inside the figure: every command the CLI exposes, **one per line**, each with a trailing `# comment` giving its one-line purpose, comments **column-aligned**. It reads exactly like the `--help` output of a well-written UNIX tool — the reader's single-screen map of the whole surface.
 
@@ -135,7 +135,7 @@ The CLI doc is a migrating reference: its basename is `{slug} CLI.md` and its pa
 
 ### RULE R-cli-02 — Help figure is the doc's central figure, right after the one-line summary (checked)
 
-The doc follows the universal opening format ([[FCT Doc Structure]] / [[DSC progressive-disclosure]]): breadcrumb → `# {slug} CLI` H1 → **one-line summary** → the **help figure** (the SVG `--help` render) as the doc's central figure. Nothing else sits between the summary and the figure — no `## Synopsis` wrapper, no second intro paragraph. (An optional one-line install/usage note may follow it.)
+The doc follows the universal opening format ([[FCT Doc Structure]] / [[DAS progressive-disclosure]]): breadcrumb → `# {slug} CLI` H1 → **one-line summary** → the **help figure** (the SVG `--help` render) as the doc's central figure. Nothing else sits between the summary and the figure — no `## Synopsis` wrapper, no second intro paragraph. (An optional one-line install/usage note may follow it.)
 
 **Check pattern:** the H1 is followed by a single summary line, then the help-figure embed (`![[{slug} CLI Help.svg…]]`) as the first figure-level element — not buried under `##` prose sections.
 

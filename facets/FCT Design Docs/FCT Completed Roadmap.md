@@ -69,7 +69,7 @@ Any anchor that uses CAB Roadmap. Activated as soon as the first milestone migra
 
 ## Preface zone
 
-Per [[DSC progressive-disclosure]]:
+Per [[DAS progressive-disclosure]]:
 
 - **Dispatch table** — Required.
 - **TLDR** — Optional. May summarize: "N milestones migrated, latest M-X on YYYY-MM-DD."

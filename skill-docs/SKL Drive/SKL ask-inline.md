@@ -44,4 +44,4 @@ But default to a single question. Two is already a lot; more is a wall.
 
 The user spent a long time unable to get agents to ask answerable questions. The failure mode is always the same: the question is real but **unfindable or unanswerable** because it's buried or vague. The fix is mechanical — one bold, tagged, blank-line-delimited, one-line question with the context inside it. Confirmed by the user: *"that was an amazingly good question. It's in bold, it's separated away. It's very clear. I can answer it."*
 
-Related: [[DSC ask-format]] (the full asking discipline — recommendation strengths, block-IDs, Phase 1/2/3 lifecycle), [[SKL Ask]] (the `/ask` skill).
+Related: [[DAS ask-format]] (the full asking discipline — recommendation strengths, block-IDs, Phase 1/2/3 lifecycle), [[SKL Ask]] (the `/ask` skill).

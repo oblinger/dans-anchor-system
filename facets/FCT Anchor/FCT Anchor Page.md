@@ -6,7 +6,7 @@ description: "Anchor Page facet — the format of an anchor's {slug}.md entry po
 # FCT Anchor Page
 The entry page every anchor opens with — its `{slug}.md`.
 
-**Related:** [[FCT]],  [[FCT Dispatch Table]],  [[DSC progressive-disclosure]],  [[FEX]]
+**Related:** [[FCT]],  [[FCT Dispatch Table]],  [[DAS progressive-disclosure]],  [[FEX]]
 
 | Table of Contents |  |
 |---|---|
@@ -21,7 +21,7 @@ The entry page every anchor opens with — its `{slug}.md`.
 | [[#Kind-specific rules]] |  |
 | **[[#BRIEF]]** |  |
 Design
-**Examples:** [[HBR\|Code project]],  [[FCT Anchor Page\|facet]],  [[DSC progressive-disclosure\|discipline]],  [[SKL Mint\|skill-doc]],  [[SKL\|Container · grouped]],  [[SKA Access\|Container · list]],  [[HBR Log\|Container · chronological]],  [[Life\|Topic]]
+**Examples:** [[HBR\|Code project]],  [[FCT Anchor Page\|facet]],  [[DAS progressive-disclosure\|discipline]],  [[SKL Mint\|skill-doc]],  [[SKL\|Container · grouped]],  [[SKA Access\|Container · list]],  [[HBR Log\|Container · chronological]],  [[Life\|Topic]]
 Rulesets
 **OLD Examples:** [[FEX]] — [[Snapper Dapper\|skill]],  [[Espresso\|list]],  [[Harbor Components\|grouped]],  [[Glossary\|facet]],  [[Harbor\|project]],  [[Harbor Ingest\|sub-folder]]
 
@@ -34,7 +34,7 @@ Rulesets
 | - SKA sub-project | [[FEX Repo]] | A skill-ecosystem spec page that owns its own design but no tracking or status (SKA owns the tracking — [[SKA Decisions\|D08]]). Three flavors below. |
 | - - skill | [[FEX Snapshot]] | The documentation page for a skill (the skill-doc — **not** the `SKILL.md` runbook). *Ext:* [[SKL Mint]] |
 | - - facet | [[FEX Manifest]] | A reusable document-shape spec — the format a recurring kind of doc must follow. *Ext:* [[FCT Anchor Page]], [[FCT Naming]] |
-| - - discipline | [[FEX Retention]] | A cross-cutting principle or practice applied across many anchors. *Ext:* [[DSC progressive-disclosure]], [[DSC verification]] |
+| - - discipline | [[FEX Retention]] | A cross-cutting principle or practice applied across many anchors. *Ext:* [[DAS progressive-disclosure]], [[DAS verification]] |
 | Container ([[Collection]]) | *(abstract)* | A [[Collection]] anchor whose body enumerates homogeneous members; required member zone in one of three structural shapes. |
 | - Grouped Container ([[Collection]]) | [[HBR Components]] | Each row is a group holding many members (often `+`-expandable); chosen once a flat list outgrows ~15. *Ext:* [[Log]], [[FCT]], [[SKL]] |
 | - List Container ([[Collection]]) | [[Espresso]] | One row per member (an auto-list separator emits one row per child); count-independent. *Ext:* [[SV]], [[RR]], [[Roots]], [[SKA Access]] |
@@ -67,8 +67,8 @@ Real anchor pages found in the vault and brought to conformance, so the spec can
 ### SKA sub-project
 - [[FCT Code Repository]]
 - [[FCT Naming]]
-- [[DSC verification]]
-- [[DSC Linked Mode]]
+- [[DAS verification]]
+- [[DAS Linked Mode]]
 - [[SKL Doc]]
 
 ### Container
@@ -190,7 +190,7 @@ Those elements appear in that order with nothing else between them.
 
 **Check pattern:** token order from the H1 down is H1, summary line, optional `![[…]]` embed, then the dispatch table.
 
-**Why:** progressive disclosure — broadest view first, navigation last ([[DSC progressive-disclosure]]).
+**Why:** progressive disclosure — broadest view first, navigation last ([[DAS progressive-disclosure]]).
 
 ## Dispatch table — masthead
 
@@ -207,7 +207,7 @@ check:: breadcrumb_row
 
 **Check pattern:** row 1 matches `\| -\[\[.+\]\]- \| → .+\(hook://.+\)`.
 
-**Why:** the breadcrumb carries the [[DSC anchor-dag]] up-edge.
+**Why:** the breadcrumb carries the [[DAS anchor-dag]] up-edge.
 
 ### RULE R-anchor-page-12 — `Related`: lateral links only, first, omit-if-empty (checked)
 
@@ -248,9 +248,9 @@ Members are listed below the masthead only on a [[Collection]] anchor; every oth
 
 ### RULE R-anchor-page-18 — List = one row per member; grouped = many per row (sampled)
 
-A **list** member zone puts **one member per row** (a `| --- | |` auto-list generates exactly that); a **grouped** zone puts **many members per row** under labeled `+` group rows. The split is **structural** (rows-per-member), not a count — though a flat list is usually grouped once it grows past ~15 ([[DSC granularity]]).
+A **list** member zone puts **one member per row** (a `| --- | |` auto-list generates exactly that); a **grouped** zone puts **many members per row** under labeled `+` group rows. The split is **structural** (rows-per-member), not a count — though a flat list is usually grouped once it grows past ~15 ([[DAS granularity]]).
 
-**Check pattern:** rows-per-member — one-per-row (list) vs many-per-row / `+` groups (grouped). ([[DSC granularity]])
+**Check pattern:** rows-per-member — one-per-row (list) vs many-per-row / `+` groups (grouped). ([[DAS granularity]])
 
 ### RULE R-anchor-page-19 — Group labels link down; `+` marks expandable (sampled)
 
@@ -276,7 +276,7 @@ Every file and folder inside the anchor is prefixed `{slug}` (`{slug} PRD.md`, `
 
 ### RULE R-anchor-page-22 — Every anchor carries a dispatch table (checked)
 
-An anchor page is **never table-less** — it always carries a dispatch table whose first row is the breadcrumb (which carries the [[DSC anchor-dag]] up-edge, so every anchor needs it). A leaf / topic anchor with no hand-authored rows still carries **breadcrumb + a `...` auto-summary row**. Only **non-anchor** documents may omit the table.
+An anchor page is **never table-less** — it always carries a dispatch table whose first row is the breadcrumb (which carries the [[DAS anchor-dag]] up-edge, so every anchor needs it). A leaf / topic anchor with no hand-authored rows still carries **breadcrumb + a `...` auto-summary row**. Only **non-anchor** documents may omit the table.
 
 **Check pattern:** every `{slug}.md` has a dispatch table with a breadcrumb row 1 (per R-anchor-page-11). ([[FCT Doc Structure]] § Top table states the same rule at the document layer.)
 
@@ -326,7 +326,7 @@ A single skill-ecosystem spec page — a **facet**, a **discipline**, or a **ski
 - **Flat layout** — `{slug} Design/` sits **directly under the anchor root**, with **no `{slug} Docs/` wrapper** (the wrapper is for large project anchors; SKA sub-projects stay flat).
 - **Member zone:** none.
 - **Content** differs by sub-kind (facet spec vs. discipline vs. skill-doc) but the page *structure* is shared — one ruleset, three example flavors.
-- **Examples:** facet → [[FCT Anchor Page]]; discipline → [[DSC progressive-disclosure]]; skill-doc → [[SKL Mint]] *(currently a thin doc with no masthead — the bring-up target, tracked separately; do not treat as compliant).*
+- **Examples:** facet → [[FCT Anchor Page]]; discipline → [[DAS progressive-disclosure]]; skill-doc → [[SKL Mint]] *(currently a thin doc with no masthead — the bring-up target, tracked separately; do not treat as compliant).*
 
 ### R-anchor-page-container — Container: grouped / list / reverse-dated (sampled)
 
@@ -334,8 +334,8 @@ A [[Collection]] anchor whose body enumerates **homogeneous members** (a feature
 - **Masthead roster:** breadcrumb + Related (minimal) — then the member zone.
 - **Member zone required** — the generic member rules R-anchor-page-17…20 apply. The layout split is **structural — rows-per-member — not a count** (one axis, three values):
   - **list** — **one row per member** (each row is a single entry). A `| --- | |` separator auto-generates exactly this: HookAnchor emits one row per child. Count is irrelevant — a 30-entry auto-list is still a list. Examples: [[SV]], [[RR]], [[Roots]], [[SKA Access]].
-  - **grouped** — **each row is a group holding many members** (a category row, often `+`-expandable, carrying several links). Typically chosen once a flat list grows past ~15 ([[DSC granularity]], R-anchor-page-18), but the defining mark is **many-members-per-row**. Examples: [[Log]], [[FCT]], [[SKL]].
-  - **chronological (reverse-dated)** — a [[DSC dated-entry-stream]]; newest-first, ISO-prefixed member names. Example: [[HBR Log]].
+  - **grouped** — **each row is a group holding many members** (a category row, often `+`-expandable, carrying several links). Typically chosen once a flat list grows past ~15 ([[DAS granularity]], R-anchor-page-18), but the defining mark is **many-members-per-row**. Examples: [[Log]], [[FCT]], [[SKL]].
+  - **chronological (reverse-dated)** — a [[DAS dated-entry-stream]]; newest-first, ISO-prefixed member names. Example: [[HBR Log]].
 - Member zone ends with an electric marker (R-anchor-page-20) so new children have a place to land.
 
 ### R-anchor-page-topic — Topic (stated)

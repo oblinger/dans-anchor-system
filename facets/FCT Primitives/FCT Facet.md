@@ -21,7 +21,7 @@ A narrow, usually file-based aspect of an anchor — and the spec for how to wri
 | **[[#BRIEF]]** |  |
 
 # Facet Document Structure
-A facet spec is one file (`facets/FCT <Name>.md`), authoritative for that facet. Its parts, top to bottom — densest first, per [[DSC progressive-disclosure]]:
+A facet spec is one file (`facets/FCT <Name>.md`), authoritative for that facet. Its parts, top to bottom — densest first, per [[DAS progressive-disclosure]]:
 
 - **H1** — `# FCT <Name>`: the slug-name and the full name.
 - **One-line summary** — a single sentence on the line directly under the H1 (no blank line between).
@@ -96,7 +96,7 @@ The dispatch table's `Related` row carries only lateral / cross-cutting links �
 
 ### RULE R-facet-spec-07 — Substantial specs carry a TLDR (sampled)
 check:: facet_tldr_if_substantial
-A facet spec with a non-trivial body opens its preface zone (after the dispatch table, before the first body H2) with a `**TLDR**` block per [[DSC progressive-disclosure]].
+A facet spec with a non-trivial body opens its preface zone (after the dispatch table, before the first body H2) with a `**TLDR**` block per [[DAS progressive-disclosure]].
 **Check pattern:** a `**TLDR**` line precedes the first body `## `; small specs (a few sentences) are exempt.
 **Why:** lets a reader graze the facet's shape in five seconds without reading the whole spec.
 
@@ -204,7 +204,7 @@ The dispatch masthead includes an **`Examples`** row linking worked instances th
 **Why:** a reader learns a facet fastest from real instances at the edges of its range — one example shows the shape, the spread shows the variation the format must absorb. (Worked-example facets that *are* the instance, e.g. those under `examples/`, are exempt; this governs the `facets/` catalog.)
 
 ### RULE R-facet-spec-26 — A body reference example is live markdown, never fenced (stated)
-Usually a facet spec carries **no** reference example in its body — the worked instances are linked in the Examples row (R-25). If a spec does inline a small reference example *of markdown*, it is written as **live markdown** (so its wiki-links, headings, and tables render), never wrapped in a triple-backtick code fence — a fence makes markdown inert (per [[DSC markdown]] R-markdown-11). Code fences stay correct for literal **non-markdown** content (shell, JSON, a `key: value` data file, a file tree).
+Usually a facet spec carries **no** reference example in its body — the worked instances are linked in the Examples row (R-25). If a spec does inline a small reference example *of markdown*, it is written as **live markdown** (so its wiki-links, headings, and tables render), never wrapped in a triple-backtick code fence — a fence makes markdown inert (per [[DAS markdown]] R-markdown-11). Code fences stay correct for literal **non-markdown** content (shell, JSON, a `key: value` data file, a file tree).
 **Why:** a fenced markdown "example" renders as dead text — links go inert, structure doesn't show — defeating its purpose. Prefer a linked instance; inline only when a tiny illustration genuinely helps, and keep it live.
 
 ### RULE R-facet-spec-27 — Standalone facet examples carry the `FEX` prefix, in the facet-group folder (checked)
