@@ -23,6 +23,12 @@ A template is a **live document skeleton**, generated from its facet's `## File 
 - **Cut-line: none (chosen) vs a lightweight one.** Chosen: none — pure clonable skeleton, instruction in the facet. Alternative: a trailing notes block for per-field no-data guidance inline.
 - **Placeholder convention** — `{slug}` + `{{…}}` (chosen) is consistent with the facet specs + FCT Template; confirm it's what the OpenSpec loader expects, or whether it wants `{{PLACEHOLDER}}`-only.
 - **Naming** — kebab (`prd.md`, `module-doc.md`) vs the facet's exact lowercase (`prd.md` either way; multiword like `completed roadmap` → `completed-roadmap.md`).
+- **⚠️ Breadcrumb depth/presence (surfaced by the fan-out — the biggest gap).** The `:>>` parent chain is *anchor-specific* and a generic template can't know it. The seeds diverge: `prd`/`decisions` carry a 2-hop `:>> [[kmr]] → [[{slug}]] → {slug} <Facet>`; `roadmap` omits it (R-roadmap-02 pins line 1 to the H1); `testing` used a 3-hop. **Decide one rule:** (a) no breadcrumb in templates (add on clone), (b) a fixed minimal `[[kmr]] → [[{slug}]] → {slug} <Facet>` stub everywhere the facet allows a breadcrumb, or (c) per-facet per its own rule. Recommend (b) except where a facet's own rule forbids it (roadmap).
+- **`description` form — frontmatter vs inline (surfaced by the fan-out).** `status` uses inline `description::`; `prd`/`decisions`/`testing` use YAML `description:`. Several facets permit either. **Ratify one convention per file-tier** (e.g. Track docs body-only+inline; Design docs frontmatter) rather than per-facet drift.
+- **Repeating table rows (surfaced by the fan-out).** The `...` repeat-marker was seeded only on list items + H3 headings; `testing` extended it to tables as a trailing `| ... | | |` row. Confirm that as the canonical table-repeat form.
+
+**Facet-spec bugs found while authoring (fix in the facet, not the template):**
+- **`FCT Roadmap` check-pattern regexes are stale** — `R-roadmap-03/09` still key on the legacy numeric `M1.2` heading form (`^## M\d+\.\d+`), not the current named `M-Name` convention (2026-07-05); the abstract Axis-1 text (H1 milestone / H2 point / H3 sub-point) also disagrees with the worked `FEX Roadmap` (H2 milestone / H3 sub-item). The `roadmap` template follows FEX. Worth reconciling the facet.
 
 ## Kind index
 
