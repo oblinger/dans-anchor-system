@@ -2,7 +2,7 @@
 description: "the Facet primitive — what a facet is and how to write its spec"
 ---
 
-:>> [[KM]] → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Primitives]] → [FCT Facet](hook://p/DAS%20Facet)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Facet](hook://p/DAS%20Facet)
 # FCT Facet
 A narrow, usually file-based aspect of an anchor — and the spec for how to write one.
 
