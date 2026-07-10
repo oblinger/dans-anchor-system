@@ -48,7 +48,7 @@ Sub-action of `/audit`. Spec: `[[F009 — audit q — Q.md constraint validator]
    - **Genuinely-stuck-on-user cases — RARE.** Reserve `QFix` for cases where the agent has tried and the answer truly requires user-specific knowledge (e.g., user-private preferences, external facts the agent can't reach). These should be rare; most C-codes have an honest agent action. File via `state task update` (B-QFix is a named singleton — update creates it if absent, mirroring `backlog-edit.py`'s semantics for named row-ids):
 
      ```bash
-     ~/.claude/skills/workflow/scripts/state --anchor {NAME} task update B-QFix --horizon Ready --status Ready \
+     ~/.claude/skills/workflow/scripts/state --anchor {slug} task update B-QFix --horizon Ready --status Ready \
          --title "QFix" --body "audit q findings genuinely requiring user-private input — see sub-bullets"
      ```
 

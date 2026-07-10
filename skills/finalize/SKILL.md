@@ -68,16 +68,16 @@ If the work-unit has a dated feature doc:
 ### 4. Update Status / Stat Records
 
 - If `skl-stat` is in use, post a Done update with the work-unit's S-number and a brief activity note.
-- If the work corresponds to a backlog item (`F<n>` or `B<n>` in `{NAME} Backlog.md`), move it to `## Done` via the workflow skill's `state task update` — never edit the backlog file directly. F/B-number, title, and body are preserved:
+- If the work corresponds to a backlog item (`F<n>` or `B<n>` in `{slug} Backlog.md`), move it to `## Done` via the workflow skill's `state task update` — never edit the backlog file directly. F/B-number, title, and body are preserved:
 
   ```bash
-  ~/.claude/skills/workflow/scripts/state --anchor {NAME} task update <row-id> --status Done --horizon Done
+  ~/.claude/skills/workflow/scripts/state --anchor {slug} task update <row-id> --status Done --horizon Done
   ```
 
   Add the PR / commit / feature-doc cross-reference by passing it via `--body` in a follow-up call:
 
   ```bash
-  ~/.claude/skills/workflow/scripts/state --anchor {NAME} task update <row-id> --body "Shipped 2026-MM-DD — see [[F<n> — Title]] / PR #N / commit <sha>"
+  ~/.claude/skills/workflow/scripts/state --anchor {slug} task update <row-id> --body "Shipped 2026-MM-DD — see [[F<n> — Title]] / PR #N / commit <sha>"
   ```
 
   (Omitting `--title` / `--status` preserves the existing values via the script's preserve-on-omit semantics — only the body changes.)
@@ -86,9 +86,9 @@ If the work-unit has a dated feature doc:
 ### 5. Update Docs to Match Reality
 
 - If the implementation changed any **public API**: update the corresponding module doc (per `[[FCT Module Doc]]`).
-- If new files were added: update `{NAME} Files.md` and the `{NAME} Dev` dispatch table.
-- If architecture changed: update `{NAME} System Design.md` or `{NAME} Architecture.md`.
-- If user-facing behavior changed: update `{NAME} User Guide.md`.
+- If new files were added: update `{slug} Files.md` and the `{slug} Dev` dispatch table.
+- If architecture changed: update `{slug} System Design.md` or `{slug} Architecture.md`.
+- If user-facing behavior changed: update `{slug} User Guide.md`.
 
 ### 6. Clean Up
 
@@ -99,7 +99,7 @@ If the work-unit has a dated feature doc:
 
 ### 7. Q.md update post-condition — automatic via `state`
 
-Step 4's `state task update` Done call auto-refreshes the anchor's per-anchor section in `~/ob/kmr/Q.md` (by shelling out to `audit-q.py --scope backlog --anchor {NAME} --fix`). **The backlog file is NOT reordered** — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior; the user reading Q.md sees the just-finalized anchor at the top.
+Step 4's `state task update` Done call auto-refreshes the anchor's per-anchor section in `~/ob/kmr/Q.md` (by shelling out to `audit-q.py --scope backlog --anchor {slug} --fix`). **The backlog file is NOT reordered** — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior; the user reading Q.md sees the just-finalized anchor at the top.
 
 The audit's fix-by-default behavior catches any drift introduced — broken links, stale brackets, banner mismatches, stale `[Done]` rows — and either repairs them mechanically OR (rare) files a `QFix [Ready]` backlog entry. **Surfacing any QFix entry is part of this skill's "done" criteria** — read the script's output for QFix lines and surface them to the user.
 

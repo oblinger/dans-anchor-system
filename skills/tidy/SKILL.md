@@ -14,21 +14,21 @@ Scan an anchor folder and fix structural issues against the CAB spec.
 ## Step 1: Find the Anchor
 
 ```bash
-ha -p "{NAME}"
+ha -p "{slug}"
 ```
 
 Read the anchor page and identify the anchor type. Then read the type spec from `CAB Types/` in the CAB folder (`ha -p CAB`).
 
 ## Step 2: Read Reference Specs
 
-Read `CAB Base.md` for the base file tree and `CAB Parts/CAB All Files.md` for the full reference. Also read `CAB Rules/CAB Naming Conventions.md` for the {NAME} prefix rule.
+Read `CAB Base.md` for the base file tree and `CAB Parts/CAB All Files.md` for the full reference. Also read `CAB Rules/CAB Naming Conventions.md` for the {slug} prefix rule.
 
 ## Step 3: Tidy Checklist
 
 Execute each item:
 
 ### 3.1 Naming Compliance
-- Every markdown file and folder prefixed with `{NAME}`
+- Every markdown file and folder prefixed with `{slug}`
 - Exceptions: CLAUDE.md, README.md, code files
 
 ### 3.2 Anchor Page Links

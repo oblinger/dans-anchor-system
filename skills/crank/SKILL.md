@@ -131,7 +131,7 @@ The Q-escape is the ONLY allowed escape — which means the agent is incentivize
 - **The Q must list concrete labeled `(A)` / `(B)` / `(C)` options** per ask-format C19. A prose-only Q with no decision shape is formally invalid (audit-q will flag it).
 - **The Q must be about the work, not about continuation.** *"Should I keep going?"* or *"Is the user happy with this approach?"* are invalid. *"Should this run in-process or as a separate daemon?"* or *"Frontmatter schema: `traits:` as YAML list or comma-string?"* are potentially valid (subject to the two-gate test above).
 - **The Q must have a Recommendation field with `None`.** If the agent has any Lean or Strong, gate 1 fails — the Q is fake.
-- **The user reviews accumulated Qs on the next `/query`.** Fake Qs surface in `{NAME} queries.md` for rollback. After a few rollbacks the agent recalibrates.
+- **The user reviews accumulated Qs on the next `/query`.** Fake Qs surface in `{slug} queries.md` for rollback. After a few rollbacks the agent recalibrates.
 
 ### Mandatory exit message — agent must make the argument explicit
 
@@ -170,14 +170,14 @@ If ANY gate's blank can't be filled with a specific, concrete sentence, the rule
 - **Context ≥ 60% used** (< 40% remaining) → soft-pressure rules below resume; fatigue stops are honest.
 - **Ready == 0** → no work to do; standard exit conditions per § Post-loop exit.
 - **`/land` invoked** → explicit bounded-stop signal from the user; hard rule overridden.
-- **Hard blocker discovered mid-mint** — current item turned out to be `[Blocked]` or `[Questions]` on closer inspection: rebracket via `state --anchor {NAME} task update <row-id> --status <NewStatus>` (workflow skill) and **continue to the next Ready item.** This is not a stop; it's rebracket-and-continue. The Q-escape above is the structural form of this.
+- **Hard blocker discovered mid-mint** — current item turned out to be `[Blocked]` or `[Questions]` on closer inspection: rebracket via `state --anchor {slug} task update <row-id> --status <NewStatus>` (workflow skill) and **continue to the next Ready item.** This is not a stop; it's rebracket-and-continue. The Q-escape above is the structural form of this.
 
 ### Stop discipline cascade (per F125 2026-06-07, tightened by F162 2026-06-13)
 
 **Before exiting, every stop reason except context-< 40% MUST route through this cascade:**
 
 1. **Run `/groom`** — re-promote any stale brackets, surface freshly-Ready work. If `/groom` produces Ready items, **continue cranking** — do NOT stop. The groom output is the new queue.
-2. **If `/groom` is dry (no new Ready), invoke `/query`** — do not exit silently and do not exit with a reference list of Q-numbers. `/query` builds `{NAME} queries.md` by determination logic and glances it, surfacing per the **two-surface rule** (per [[F162 — Two-surface ask rule + crank-must-ask cascade|F162]]): exactly one pending question → ask it **inline in chat with full details**; two or more → they live in a surface (all-in-one-feature → that feature doc's `## Open Questions`, glanced; spanning features → `{NAME} queries.md`, glanced) with a spotlight in chat. A question never lives only in chat.
+2. **If `/groom` is dry (no new Ready), invoke `/query`** — do not exit silently and do not exit with a reference list of Q-numbers. `/query` builds `{slug} queries.md` by determination logic and glances it, surfacing per the **two-surface rule** (per [[F162 — Two-surface ask rule + crank-must-ask cascade|F162]]): exactly one pending question → ask it **inline in chat with full details**; two or more → they live in a surface (all-in-one-feature → that feature doc's `## Open Questions`, glanced; spanning features → `{slug} queries.md`, glanced) with a spotlight in chat. A question never lives only in chat.
 3. **Context < 40% is the only exception.** When stopping for token-budget reasons, print *"stopping — context window below 40%"* and exit immediately. The cascade is suspended because the surfacing itself would consume the remaining budget; the user can re-invoke `/crank` after compaction.
 
 **Reference-only Q-lists in the chat exit message are forbidden.** *"Pending input: F113 Q12, F117 (4 Qs), F118 (3 Qs)"* is NOT a valid stop surface — the user cannot understand what "Q12" is from "Q12" alone. The Q-escape's three-gate argument (Gate 1 / Gate 2 / Gate 3) is independent and still required as the JUSTIFICATION for stopping; the cascade governs what HAPPENS after that justification — which surface the user sees.
@@ -211,7 +211,7 @@ A stop is valid **only** if it matches one of:
 - **Cascade triggered, still dry** — `mint_count < 1` even after `/groom` re-promoted; `/triage` surfaces the inbox.
 - **Token budget near limit** — < 30% of context window remaining. Finish the current item, then stop. This is the mechanical safety net — a hard upper bound regardless of how aggressive the rest of the policy makes things.
 - **`/land` invoked** — explicit bounded-stop signal from the user.
-- **Hard blocker discovered mid-mint** — current item turned out to be `[Blocked]` or `[Questions]` when opened; rebracket via `state --anchor {NAME} task update <row-id> --status <NewStatus>` (workflow skill) and **continue to the next Ready item** (this is NOT a stop, it's a rebracket-and-continue).
+- **Hard blocker discovered mid-mint** — current item turned out to be `[Blocked]` or `[Questions]` when opened; rebracket via `state --anchor {slug} task update <row-id> --status <NewStatus>` (workflow skill) and **continue to the next Ready item** (this is NOT a stop, it's a rebracket-and-continue).
 - **All remaining items disqualify themselves on the Ready check** — the agent walked the bracket-filtered queue, every item was actually non-Ready in disguise, and `/groom` did not promote new ones.
 
 ### Cost-of-stopping framing
@@ -313,7 +313,7 @@ After the crank loop exits (quality stop / queue exhaustion / fatigue gate / all
 
 > *"Pausing for the cascade agent — no clean mintables without risking conflict on the rules doc / backlog / triage that they're editing. Status: B1 proposal drafted with 4 ABC questions to surface."*
 
-Both buy a guaranteed extra round-trip for zero added value. The first because /triage hasn't actually run yet. The second because the 4 questions are drafted but not surfaced — and the "conflict with the other agent on triage.md" argument **doesn't apply to `/query`**, which writes to a different file (`{NAME} queries.md` / the feature docs). When `/triage` would race, `/query` is the non-conflicting surfacing path. Conflict-avoidance is a reason to pick a different surfacing channel, not a reason to skip surfacing.
+Both buy a guaranteed extra round-trip for zero added value. The first because /triage hasn't actually run yet. The second because the 4 questions are drafted but not surfaced — and the "conflict with the other agent on triage.md" argument **doesn't apply to `/query`**, which writes to a different file (`{slug} queries.md` / the feature docs). When `/triage` would race, `/query` is the non-conflicting surfacing path. Conflict-avoidance is a reason to pick a different surfacing channel, not a reason to skip surfacing.
 
 **The "drafted with N questions to surface" sentence is itself the violation.** If the questions are drafted and the agent KNOWS to surface them, the surfacing must already have happened before that sentence gets written.
 
@@ -338,7 +338,7 @@ After the loop + branch resolves, print one line to chat for the mint summary. O
 ### 1. Locate the source
 
 - Walk up from `cwd` to find `.anchor`. If none, say "No anchor found from `{cwd}` upward." and stop.
-- The Ready queue lives in `{NAME} Docs/{NAME} Plan/{NAME} Backlog.md` § Ready (workflow-state H2) and items with `[Ready]` bracket in horizon H2s (per `[[SKA backlog]]`). `/mint` knows how to find Ready items; crank just delegates.
+- The Ready queue lives in `{slug} Docs/{slug} Plan/{slug} Backlog.md` § Ready (workflow-state H2) and items with `[Ready]` bracket in horizon H2s (per `[[SKA backlog]]`). `/mint` knows how to find Ready items; crank just delegates.
 
 ### 2. Plan the sweep
 
@@ -386,7 +386,7 @@ while True:
         # a rebracket-and-continue event, not a stop.)
         #
         # Bash:  ~/.claude/skills/workflow/scripts/state \
-        #        --anchor {NAME} task update <row-id> --status <NewStatus>
+        #        --anchor {slug} task update <row-id> --status <NewStatus>
         continue
 ```
 
@@ -423,7 +423,7 @@ Use one of the two formats from § Output format above.
 - **Doesn't stop after a single successful mint just to "report progress."** Keep going until the queue is empty or the next item would drop quality. Stopping early is the failure mode.
 - **Doesn't name blockers and exit without running /triage.** If zero items were minted this turn, the spec is `/groom` → `/triage` → no-action summary, **all in this same turn**. Naming the blockers in chat without surfacing /triage's full state is a spec violation (and was second-press behavior, which has been removed).
 - **Doesn't announce that /triage will run "next" and stop.** That sentence — "Crank will run /triage next" or "Sub-skill invocation — stopping here" — is one canonical failure mode for this skill. If you are about to write it, invoke /triage *right now* in this same response and then write the no-action summary describing what already ran. There is no "two-press triage" — every press runs the loop end to end, including the /triage call on the no-mint branch.
-- **Doesn't pause-with-status when there's pending user-facing state to surface.** *"Pausing for the cascade agent — no clean mintables without risking conflict on the rules doc / backlog / triage they're editing. Status: B1 proposal drafted with 4 ABC questions to surface."* is the same anti-pattern in different costume — status announcement as a substitute for action. If 4 questions are drafted, they must be surfaced via `/query` (which writes to `{NAME} queries.md` / the feature docs, not triage.md, so it doesn't race the other agent) **before** the pause message gets written. Pausing is fine; pausing while leaving known pending state unsurfaced is not.
+- **Doesn't pause-with-status when there's pending user-facing state to surface.** *"Pausing for the cascade agent — no clean mintables without risking conflict on the rules doc / backlog / triage they're editing. Status: B1 proposal drafted with 4 ABC questions to surface."* is the same anti-pattern in different costume — status announcement as a substitute for action. If 4 questions are drafted, they must be surfaced via `/query` (which writes to `{slug} queries.md` / the feature docs, not triage.md, so it doesn't race the other agent) **before** the pause message gets written. Pausing is fine; pausing while leaving known pending state unsurfaced is not.
 
 
 ## Idempotence

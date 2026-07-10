@@ -7,9 +7,9 @@ description: "product requirements — what `/architect` produces and for whom"
 
 ## Overview
 
-`/architect` creates and maintains the **top-level architecture document** for an anchor — the single page that decomposes a system into subsystems and shows how they fit together. Architecture lives in `{NAME} Design/`: a single `{NAME} Architecture.md` by default, upgraded to a `{NAME} Architecture/` folder-doc once it grows subsystems. The skill reads **module docs as ground truth**, rolls them up into a decomposition (subsystems → components → boundaries), and keeps a **bidirectional `module ↔ arch` link** (an `Arch` row in each module doc's dispatch table) so the architecture and the modules never drift apart.
+`/architect` creates and maintains the **top-level architecture document** for an anchor — the single page that decomposes a system into subsystems and shows how they fit together. Architecture lives in `{slug} Design/`: a single `{slug} Architecture.md` by default, upgraded to a `{slug} Architecture/` folder-doc once it grows subsystems. The skill reads **module docs as ground truth**, rolls them up into a decomposition (subsystems → components → boundaries), and keeps a **bidirectional `module ↔ arch` link** (an `Arch` row in each module doc's dispatch table) so the architecture and the modules never drift apart.
 
-Per [[SKA Decisions|D10]], `/architect` is the **behavioral core of the [[FCT Design]] facet**: an anchor's `{NAME} Design/` folder existing ⟺ the anchor has been *architected* — its design is the artifact `/architect` walks for completeness. (The asymmetry with Track/Workflow — Design→*skill*, Track→*discipline* — reflects periodic architecting vs. continuous tracking.)
+Per [[SKA Decisions|D10]], `/architect` is the **behavioral core of the [[FCT Design]] facet**: an anchor's `{slug} Design/` folder existing ⟺ the anchor has been *architected* — its design is the artifact `/architect` walks for completeness. (The asymmetry with Track/Workflow — Design→*skill*, Track→*discipline* — reflects periodic architecting vs. continuous tracking.)
 
 ## Goals
 

@@ -46,7 +46,7 @@ Before any authoring step, validate the environment is set up:
 3. **audit script available** — `~/.claude/skills/audit/scripts/audit-module-doc.py` exists. Required for the iterate loop.
 4. **Source exists and is readable** — the target source file/folder exists; not a broken symlink.
 5. **Public API present** — does the source actually expose a public surface? If everything is `_private` / file-internal, surface to user and ask whether to proceed (likely answer is no — see "When NOT to invoke" above).
-6. **Target location resolvable** — the chosen `{NAME} {ModuleName}.md` path doesn't collide with an existing doc in another anchor. If it does, ask the user before overwriting.
+6. **Target location resolvable** — the chosen `{slug} {ModuleName}.md` path doesn't collide with an existing doc in another anchor. If it does, ask the user before overwriting.
 
 
 ## Invocation
@@ -57,7 +57,7 @@ Before any authoring step, validate the environment is set up:
 /module-doc                            ← (bare) ask the user for the target
 ```
 
-**Smart-detect:** if the target is a `.md` file matching `{NAME} {ModuleName}.md` shape, treat as revision; otherwise treat as new authoring.
+**Smart-detect:** if the target is a `.md` file matching `{slug} {ModuleName}.md` shape, treat as revision; otherwise treat as new authoring.
 
 
 ## Runbook — new authoring
@@ -71,8 +71,8 @@ ha -p "FCT Module Doc"
 ```
 
 ### 2. Resolve where the module doc lives
-- **Per-module module docs** (the common case): `{NAME} Docs/{NAME} Dev/{NAME} <sub-folder>/{NAME} {ModuleName}.md`, mirroring the source repository tree under `{NAME} Dev/`.
-- **Subsystem / API-surface docs**: `{NAME} Docs/{NAME} Design/{NAME} API/{NAME} <Subsystem> API.md`.
+- **Per-module module docs** (the common case): `{slug} Docs/{slug} Dev/{slug} <sub-folder>/{slug} {ModuleName}.md`, mirroring the source repository tree under `{slug} Dev/`.
+- **Subsystem / API-surface docs**: `{slug} Docs/{slug} Design/{slug} API/{slug} <Subsystem> API.md`.
 - **If the location is ambiguous**, ask the user — this is creation-time, one-question, active mode.
 
 ### 3. Read the source
@@ -89,8 +89,8 @@ Author the markdown structure per [[FCT Module Doc]]. Key elements (full rules i
 
 - **Frontmatter** — YAML with `description:` field.
 - **Breadcrumb** — `:>> [[anchor]] → [[Docs]] → [[Dev]] → [[Architecture]]` line.
-- **H1 + file overview prose** — `# {NAME} {ModuleName}` immediately followed (no blank line) by a 2-4 sentence overview.
-- **Figure embed slot** — `![[{NAME} {ModuleName}.svg|2400]]` (the actual SVG is authored in step 5).
+- **H1 + file overview prose** — `# {slug} {ModuleName}` immediately followed (no blank line) by a 2-4 sentence overview.
+- **Figure embed slot** — `![[{slug} {ModuleName}.svg|2400]]` (the actual SVG is authored in step 5).
 - **SECTIONS table** — `| SECTIONS | Role |` header; each row is `[[#^anchor|Name]] type` linking to the section's block-ID, with a role description in column 2. Type word lowercase after the link (`class`, `enum`, `topic`, `struct`, `protocol`).
 - **Per-section H2s** — `## Name Type` for code-typed sections (Type capitalized, only when there IS a code type: `## TaskScheduler Class`, `## TaskState Enum`); `## Name` bare for topics / conceptual sections (no qualifier: `## Priority and starvation`). H2 immediately followed (no blank) by description prose ending with the block-ID inline (no space): `...flows through it.^TaskScheduler`.
 - **Class tables** — header first column carries the class name in `ALL CAPS WITH SPACES TYPE` form (`TASK SCHEDULER CLASS`); second column header is `Description`. Field rows use bold-identifier-only form `**\`name\`**\`: Type\``. `**Methods**` divider row between fields and methods. Method rows use `**[[#^anchor|name]]**\`(args) -> Return\`` — backticks NOT inside the wiki-link alias.
@@ -104,14 +104,14 @@ Author the markdown structure per [[FCT Module Doc]]. Key elements (full rules i
 **Read `[[viz-excalidraw]]`** before creating any figure — every Excalidraw element needs a specific property set or ExcalidrawZ silently fails. The reference examples at `~/.claude/skills/viz/excalidraw-examples.md` are mandatory reading.
 
 Workflow:
-1. Create `{NAME} {ModuleName}.excalidraw` alongside the `.md`. The JSON describes the figure: a node per section, edges showing data flow, a legend (typically at the bottom).
+1. Create `{slug} {ModuleName}.excalidraw` alongside the `.md`. The JSON describes the figure: a node per section, edges showing data flow, a legend (typically at the bottom).
 2. Convert: `python3 ~/.claude/skills/viz/excalidraw_to_svg.py "/path/to/file.excalidraw"` — generates `.svg` and `.png`.
-3. Embed: `![[{NAME} {ModuleName}.svg|2400]]` (Obsidian wiki-embed syntax, NOT markdown image syntax).
+3. Embed: `![[{slug} {ModuleName}.svg|2400]]` (Obsidian wiki-embed syntax, NOT markdown image syntax).
 4. Open in ExcalidrawZ for user-editing: `open -a ExcalidrawZ "/path/to/file.excalidraw"`.
 
 Apply the layout guidelines from `[[FCT Module Doc]]` § Layout guidelines: minimize crossings (one acceptable load-bearing crossing is OK), push secondary nodes off primary flow paths, keep text out of lines, short labels (`submit` not `submit(task, deadline)`), legend out of the way (default bottom), solid arrows for primary flow / dotted for derivation.
 
-**Figure size: HARD RULE — fills the reading pane (default, absolute).** Author the `.excalidraw` content area ~1400-1600 px wide. In the markdown embed, ALWAYS carry a large width hint so the figure fills the pane — `![[{NAME} {ModuleName}.svg|2400]]` (Obsidian caps the hint to the pane; a bare embed renders as a tiny thumbnail). A smaller width is only for an explicitly-inline figure.
+**Figure size: HARD RULE — fills the reading pane (default, absolute).** Author the `.excalidraw` content area ~1400-1600 px wide. In the markdown embed, ALWAYS carry a large width hint so the figure fills the pane — `![[{slug} {ModuleName}.svg|2400]]` (Obsidian caps the hint to the pane; a bare embed renders as a tiny thumbnail). A smaller width is only for an explicitly-inline figure.
 
 ### 6. Run `/audit module-doc`
 ```bash
@@ -157,8 +157,8 @@ If any subjective check fails, fix the doc, then re-run `/audit module-doc` to c
 
 ### 9. Link in dispatch tables
 Per the facet's CRITICAL linking rule:
-1. Add a row to the `{NAME} Dev.md` dispatch table linking the new doc with a one-line description.
-2. Add the file to the `{NAME} Files.md` tree in the correct location.
+1. Add a row to the `{slug} Dev.md` dispatch table linking the new doc with a one-line description.
+2. Add the file to the `{slug} Files.md` tree in the correct location.
 
 Don't skip this — an unlinked module doc is invisible.
 
@@ -168,20 +168,20 @@ Single commit containing:
 - The `.md` module doc.
 - The `.excalidraw` source.
 - The generated `.svg` and `.png`.
-- The `{NAME} Dev.md` and `{NAME} Files.md` updates.
+- The `{slug} Dev.md` and `{slug} Files.md` updates.
 
 Commit message: `<NAME> {ModuleName}: module doc shipped (per F119)`.
 
 **After commit, glance the file** so the user sees the result:
 
 ```bash
-open "<path to {NAME} {ModuleName}.md>"
+open "<path to {slug} {ModuleName}.md>"
 ```
 
 Also glance the figure source if the user might want to refine it:
 
 ```bash
-open -a ExcalidrawZ "<path to {NAME} {ModuleName}.excalidraw>"
+open -a ExcalidrawZ "<path to {slug} {ModuleName}.excalidraw>"
 ```
 
 

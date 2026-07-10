@@ -11,9 +11,9 @@ After completing PRD, UX, and System conversation. Run as the final gate before 
 ### 1. Document Existence Check
 
 Verify these files exist and are non-empty:
-- `{NAME} PRD.md`
-- `{NAME} UX Design.md`
-- `{NAME} Open Questions.md`
+- `{slug} PRD.md`
+- `{slug} UX Design.md`
+- `{slug} Open Questions.md`
 
 ### 2. Trace User Stories
 
@@ -33,7 +33,7 @@ Look for promises in one document that conflict with constraints or decisions in
 
 ### 5. Open Questions Status
 
-Review `{NAME} Open Questions.md`:
+Review `{slug} Open Questions.md`:
 - Are all Urgent questions resolved?
 - Are Soon questions acceptable to defer?
 - Is anything blocking the architecture phase?

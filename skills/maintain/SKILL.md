@@ -20,7 +20,7 @@ Maintain standing synchronization orders for an anchor. When source files change
 
 When maintenance is needed:
 
-1. Read `{NAME} Maintenance.md` from the Plan folder
+1. Read `{slug} Maintenance.md` from the Plan folder
 2. For each row flagged as out of date, perform the action described
 3. After completing each action, the system updates the state file
 
@@ -31,7 +31,7 @@ python3 ~/.claude/skills/cab/maintain-check.py <anchor-path>
 
 ## Adding a Maintenance Entry
 
-When the user asks to maintain something (e.g., "keep the Actions table synced to DEV.md"), add a row to `{NAME} Maintenance.md`:
+When the user asks to maintain something (e.g., "keep the Actions table synced to DEV.md"), add a row to `{slug} Maintenance.md`:
 
 | Column | What to write |
 |--------|---------------|

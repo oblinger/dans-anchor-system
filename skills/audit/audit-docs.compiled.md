@@ -28,9 +28,9 @@ Status values:
 - [ ] Flag any Dev dispatch entry pointing to a nonexistent module doc as **stale-dev-entry**
 
 ## 1.4 Compare source tree to module docs
-- [ ] List all `{NAME} *.md` files under `{NAME} Dev/`
+- [ ] List all `{slug} *.md` files under `{slug} Dev/`
 - [ ] For each source file with public API, check a corresponding module doc exists
-- [ ] For each source directory with modules, check a folder doc exists (`{NAME} {FolderName}.md`)
+- [ ] For each source directory with modules, check a folder doc exists (`{slug} {FolderName}.md`)
 - [ ] Flag missing module docs as **missing-module-doc**
 - [ ] Flag missing folder docs as **missing-folder-doc**
 - [ ] Flag module docs whose source file no longer exists as **orphan-module-doc**
@@ -49,7 +49,7 @@ For each existing module doc, check every item in the [[FCT Module Doc]] format 
 
 ## 1.7 Check Files.md column alignment
 
-`{NAME} Files.md` renders in monospace via `cssclasses: monospace`. The description column must start at the same display-width column on every line that has a description.
+`{slug} Files.md` renders in monospace via `cssclasses: monospace`. The description column must start at the same display-width column on every line that has a description.
 
 Two specific checks:
 
@@ -62,13 +62,13 @@ Flag misaligned files as **files-misaligned** and redundant text as **files-row1
 
 The Interface (see [[FCT Interface]]) is the **required top-level human-authored layer contract** for the codebase. It must exist and be reachable from two places:
 
-- [ ] `{NAME} Docs/{NAME} User/{NAME} Interface.md` exists. Flag absence as **missing-interface**.
-- [ ] `{NAME} Files.md` row 1 contains `→ [[{NAME} Interface]]`. Flag absence as **interface-not-linked-from-files**.
-- [ ] `{NAME} User.md` dispatch table contains a row linking to `[[{NAME} Interface]]`. Flag absence as **interface-not-linked-from-dispatch**.
+- [ ] `{slug} Docs/{slug} User/{slug} Interface.md` exists. Flag absence as **missing-interface**.
+- [ ] `{slug} Files.md` row 1 contains `→ [[{slug} Interface]]`. Flag absence as **interface-not-linked-from-files**.
+- [ ] `{slug} User.md` dispatch table contains a row linking to `[[{slug} Interface]]`. Flag absence as **interface-not-linked-from-dispatch**.
 - [ ] Interface file contains `## Public Modules` and at least one structural section. Flag missing sections as **interface-incomplete-structure**.
 - [ ] Interface lists every top-level public module that exists in source. Flag missing modules as **interface-module-missing**.
 - [ ] Interface line count ≤ 500. Flag overflow as **interface-too-large**.
-- [ ] Legacy `{NAME} Rollup.md` (predecessor to Interface — F062): flag as **legacy-rollup-needs-migration**. Do not auto-rename.
+- [ ] Legacy `{slug} Rollup.md` (predecessor to Interface — F062): flag as **legacy-rollup-needs-migration**. Do not auto-rename.
 
 
 # Phase 2: Report
@@ -86,7 +86,7 @@ The Interface (see [[FCT Interface]]) is the **required top-level human-authored
 
 If `dry` substring is in the args: print "dry-run — no backlog entry written" and stop.
 
-Otherwise, locate `{NAME} Docs/{NAME} Plan/{NAME} Backlog.md`. Read it, find the lowest unused B-number (per [[CAB Backlog]] § Format), and append a new bullet under `## Upcoming`:
+Otherwise, locate `{slug} Docs/{slug} Plan/{slug} Backlog.md`. Read it, find the lowest unused B-number (per [[CAB Backlog]] § Format), and append a new bullet under `## Upcoming`:
 
 ```
 - **B<n> — Docs audit: <N> findings (<YYYY-MM-DD>)** [Ready] — work surfaced by `/audit docs`. Sub-bullets are candidate splits if this needs to be broken up.

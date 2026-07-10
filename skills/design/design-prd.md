@@ -1,6 +1,6 @@
-# Design PRD — Author or assess `{NAME} PRD.md`
+# Design PRD — Author or assess `{slug} PRD.md`
 
-Phase 1 of the canonical `/design` sequence (PRD → UX → API → Architecture → Testing → Roadmap). Authors `{NAME} Design/{NAME} PRD.md` per the [[FCT PRD]] facet.
+Phase 1 of the canonical `/design` sequence (PRD → UX → API → Architecture → Testing → Roadmap). Authors `{slug} Design/{slug} PRD.md` per the [[FCT PRD]] facet.
 
 **Two modes** — the same skill drives both:
 
@@ -12,18 +12,18 @@ The mode is detected, not invoked — `/design prd` does the right thing based o
 ## When to Use
 
 - User invoked `/design prd` directly.
-- Bare `/design` auto-dispatched here (canonical phase 1 — `{NAME} Status.md` shows `prd:: none` or `prd:: MVP-agent` and the user is iterating).
+- Bare `/design` auto-dispatched here (canonical phase 1 — `{slug} Status.md` shows `prd:: none` or `prd:: MVP-agent` and the user is iterating).
 - User said "let's design the PRD" / "let's flesh out what this product is" / "is the PRD done?"
 
 ## Runbook
 
 ### 1. Locate the PRD
 
-1. Walk up from `cwd` to nearest `.anchor`. Check whether `{anchor}/{NAME} Design/` exists (the gate per [[FCT Design]]). If absent, `/design` (the orchestrator) will have already offered to scaffold — this sub-skill assumes the folder exists when invoked.
+1. Walk up from `cwd` to nearest `.anchor`. Check whether `{anchor}/{slug} Design/` exists (the gate per [[FCT Design]]). If absent, `/design` (the orchestrator) will have already offered to scaffold — this sub-skill assumes the folder exists when invoked.
 2. Look for the PRD at, in priority order:
-   - `{anchor}/{NAME} Design/{NAME} PRD/{NAME} PRD.md` (folder form per [[FCT Stories]])
-   - `{anchor}/{NAME} Design/{NAME} PRD.md` (single-file form)
-   - Legacy: `{anchor}/{NAME} Docs/{NAME} Plan/{NAME} PRD.md` — flag for migration but read as input
+   - `{anchor}/{slug} Design/{slug} PRD/{slug} PRD.md` (folder form per [[FCT Stories]])
+   - `{anchor}/{slug} Design/{slug} PRD.md` (single-file form)
+   - Legacy: `{anchor}/{slug} Docs/{slug} Plan/{slug} PRD.md` — flag for migration but read as input
 3. Branch:
    - **Found** → § 2 (Assess mode)
    - **Not found** → § 3 (Bootstrap mode)
@@ -40,14 +40,14 @@ Read the PRD, then evaluate against three dimensions:
 
 | Rule | What it checks |
 |---|---|
-| R-prd-01 | Location is `{NAME} Design/{NAME} PRD.md` or folder form |
+| R-prd-01 | Location is `{slug} Design/{slug} PRD.md` or folder form |
 | R-prd-02 | Body-only, no YAML frontmatter (first non-blank line is `# `) |
 | R-prd-03 | `description::` is the second non-blank line, no `::` tokens in value |
 | R-prd-04 | Required sections present in declared order |
 | R-prd-05 | User stories use `US-<SLUG>-<N>` numbering |
-| R-prd-06 | No legacy `{NAME} Open Questions.md` file alongside |
+| R-prd-06 | No legacy `{slug} Open Questions.md` file alongside |
 | R-prd-07 | Design Workflow references modern phase names (Architecture, Testing, Decisions) |
-| R-prd-08 | No per-doc `status::` field (centralized in `{NAME} Status.md`) |
+| R-prd-08 | No per-doc `status::` field (centralized in `{slug} Status.md`) |
 | R-prd-09 | No legacy `## Design Constraints` (DC-N) section |
 
 **Section spine** — for each required section, note presence + a rough size signal:
@@ -70,7 +70,7 @@ Read the PRD, then evaluate against three dimensions:
 Open the PRD so the user can read along while the survey lands in chat:
 
 ```bash
-open "{anchor}/{NAME} Design/{NAME} PRD.md"
+open "{anchor}/{slug} Design/{slug} PRD.md"
 ```
 
 (Or the folder-form path if applicable.)
@@ -80,7 +80,7 @@ open "{anchor}/{NAME} Design/{NAME} PRD.md"
 The canonical report shape:
 
 ```
-/design prd — {NAME} PRD survey
+/design prd — {slug} PRD survey
 
 Rules (R-prd): N/9 pass.{ violations list, or "all pass."}
 
@@ -89,9 +89,9 @@ Section spine:
   • Design Workflow — present, N rows                {✓|thin|missing}
   • Goals           — present, N bullets             {✓|thin|missing}
   • Non-Goals       — present, N bullets             {✓|thin|missing}
-  • User Stories    — N stories (US-{SLUG}-1..N)      {✓|thin|missing}
+  • User Stories    — N stories (US-{slug}-1..N)      {✓|thin|missing}
 
-Status (per {NAME} Status.md): prd:: <current cell>
+Status (per {slug} Status.md): prd:: <current cell>
 
 Suggested next moves:
   (A) <specific small thing — e.g. "draft 3 Non-Goal bullets from the existing CLI-only / no-distributed framing">
@@ -118,24 +118,24 @@ Used when § 1 found no PRD at any of the candidate paths.
 Read in this order; stop when you have enough to draft:
 
 1. `{anchor}/.anchor` — `traits:`, `description:` if present
-2. `{anchor}/{NAME}.md` — the anchor page (often has framing prose)
+2. `{anchor}/{slug}.md` — the anchor page (often has framing prose)
 3. `{anchor}/CLAUDE.md` — project mission, scope hints
 4. `{anchor}/README.md` if present
-5. `{anchor}/{NAME} Design/{NAME} Architecture.md` if it pre-dates the PRD (rare; usually PRD comes first, but it happens)
+5. `{anchor}/{slug} Design/{slug} Architecture.md` if it pre-dates the PRD (rare; usually PRD comes first, but it happens)
 
 #### 3b. Draft the initial PRD
 
-Create `{anchor}/{NAME} Design/{NAME} PRD.md` (single-file form by default) with the standard section spine per [[FCT PRD]] § Standard section order:
+Create `{anchor}/{slug} Design/{slug} PRD.md` (single-file form by default) with the standard section spine per [[FCT PRD]] § Standard section order:
 
 ```markdown
-# {NAME} PRD
+# {slug} PRD
 description:: <one-line tagline — product type + intent + key trait>
 
-| -[[{NAME} PRD]]- | : <description><br>→ <breadcrumb> |
+| -[[{slug} PRD]]- | : <description><br>→ <breadcrumb> |
 | --- | --- |
-| [[{NAME} Architecture]] | system-architecture story (peer Design facet) |
-| [[{NAME} Testing]] | testing strategy + proposed-tests overview |
-| [[{NAME} Decisions]] | load-bearing decisions citing rules |
+| [[{slug} Architecture]] | system-architecture story (peer Design facet) |
+| [[{slug} Testing]] | testing strategy + proposed-tests overview |
+| [[{slug} Decisions]] | load-bearing decisions citing rules |
 | [[FCT PRD]] | facet spec this doc follows |
 | --- | |
 
@@ -147,11 +147,11 @@ description:: <one-line tagline — product type + intent + key trait>
 
 | Step | Document | Purpose |
 |---|---|---|
-| 1 | [[{NAME} PRD]] | Clarify requirements and scope |
-| 2 | [[{NAME} Architecture]] | Design the technical architecture |
-| 3 | [[{NAME} Testing]] | Strategy + proposed-tests overview |
-| 4 | [[{NAME} Decisions]] | Encode load-bearing decisions citing R-rules |
-| 5 | [[{NAME} Track]] | Roadmap + features implementing the stories below |
+| 1 | [[{slug} PRD]] | Clarify requirements and scope |
+| 2 | [[{slug} Architecture]] | Design the technical architecture |
+| 3 | [[{slug} Testing]] | Strategy + proposed-tests overview |
+| 4 | [[{slug} Decisions]] | Encode load-bearing decisions citing R-rules |
+| 5 | [[{slug} Track]] | Roadmap + features implementing the stories below |
 
 ## Goals
 
@@ -163,16 +163,16 @@ description:: <one-line tagline — product type + intent + key trait>
 
 ## User Stories
 
-### US-{SLUG}-1: <Title from context>
+### US-{slug}-1: <Title from context>
 As a <role>, I want <goal> so that <reason>.
 
-### US-{SLUG}-2: ...
+### US-{slug}-2: ...
 
 ## See also
 
 - [[FCT PRD]] — facet spec
 - [[FCT Stories]] — stories sub-facet (activates if stories grow)
-- [[{NAME} Architecture]], [[{NAME} Testing]], [[{NAME} Decisions]] — peer Design facets
+- [[{slug} Architecture]], [[{slug} Testing]], [[{slug} Decisions]] — peer Design facets
 ```
 
 Body-only — **no YAML frontmatter**. Use `description::` inline (per R-prd-02 and R-prd-03).
@@ -182,16 +182,16 @@ Body-only — **no YAML frontmatter**. Use `description::` inline (per R-prd-02 
 Open the new PRD and tell the user it's a first draft to react to:
 
 ```
-/design prd — {NAME} PRD bootstrap
+/design prd — {slug} PRD bootstrap
 
-Drafted from: {anchor}/.anchor, {NAME}.md, CLAUDE.md.
+Drafted from: {anchor}/.anchor, {slug}.md, CLAUDE.md.
 
 Spine populated:
   • Overview — 1 paragraph
   • Design Workflow — 5 rows
   • Goals — N bullets
   • Non-Goals — N bullets
-  • User Stories — N stories (US-{SLUG}-1..N)
+  • User Stories — N stories (US-{slug}-1..N)
 
 Genuine guesses I made (worth your eye):
   • <thing 1 — what was inferred and why>
@@ -223,7 +223,7 @@ Use these as internal questions when surveying or refining a section. They becom
 When iteration surfaces a decision, route it through [[query]]:
 
 ```bash
-/query --doc "{anchor}/{NAME} Design/{NAME} PRD.md" "<question>"
+/query --doc "{anchor}/{slug} Design/{slug} PRD.md" "<question>"
 ```
 
 The decide-vs-ask judgment **belongs to the /query discipline**, not this skill. The short version of what /query enforces: if the choice is **reversible AND the user will see the wrong call and easily redirect**, the agent should decide and log under `## Resolved` as an agent-made-this-call entry — not as a question. Only when the decision is irreversible, invisible, or genuinely undecidable from context does it become a `## Open Questions` Q.
@@ -232,19 +232,19 @@ See [[query]] and [[DSC ask-format]] for the full lifecycle (Q-numbering, recomm
 
 ### 6. Promote status
 
-Status lives in `{NAME} Track/{NAME} Status.md` per [[FCT Status]]. When the PRD survives the rule check AND the section spine is substantive:
+Status lives in `{slug} Track/{slug} Status.md` per [[FCT Status]]. When the PRD survives the rule check AND the section spine is substantive:
 
 ```bash
-~/.claude/skills/workflow/scripts/state --anchor {NAME} status set prd MVP-agent --note "<one-line — what's covered>"
+~/.claude/skills/workflow/scripts/state --anchor {slug} status set prd MVP-agent --note "<one-line — what's covered>"
 ```
 
 User stamps `MVP-user` via natural-language confirmation ("PRD looks good"); this lets the `/design` picker advance to the next phase.
 
 ## File location
 
-`{anchor}/{NAME} Design/{NAME} PRD.md` (single-file form, default) or `{anchor}/{NAME} Design/{NAME} PRD/{NAME} PRD.md` (folder form, when stories migrate to [[FCT Stories]]).
+`{anchor}/{slug} Design/{slug} PRD.md` (single-file form, default) or `{anchor}/{slug} Design/{slug} PRD/{slug} PRD.md` (folder form, when stories migrate to [[FCT Stories]]).
 
-Legacy `{anchor}/{NAME} Docs/{NAME} Plan/{NAME} PRD.md` is deprecated per F094. If found at the legacy path, flag for migration but read as input during assessment.
+Legacy `{anchor}/{slug} Docs/{slug} Plan/{slug} PRD.md` is deprecated per F094. If found at the legacy path, flag for migration but read as input during assessment.
 
 ## File shape
 

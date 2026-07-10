@@ -61,9 +61,9 @@ If a feature is `[Questions]` or `[Blocked]` mid-flight, that's tracked via the 
 
 **Pick the highest applicable tier.** If you find yourself writing tier 4 with no Blocks-next, pause and reconsider: could a passive signal work? Could the user notice this in normal use? Often the answer is yes and the right tier is 3.
 
-Per `[[CAB Backlog]]` § Numbering policy, F-numbers are monotonic-forever, never recycled, **zero-padded to three digits** as `F001` … `F999`. The F-number is **minted by the workflow skill's `state task create`** in § 1.5 below — run § 1.5 first (after the collision check in § 1b), parse the assigned `F<NNN>` from its stdout, then create the feature doc in the anchor's Features folder. Per **F142** the canonical location is the **Design** folder (Features is a design artifact, D07): `{NAME} Design/{NAME} Features/F{NNN} — {Feature Name}.md`.
+Per `[[CAB Backlog]]` § Numbering policy, F-numbers are monotonic-forever, never recycled, **zero-padded to three digits** as `F001` … `F999`. The F-number is **minted by the workflow skill's `state task create`** in § 1.5 below — run § 1.5 first (after the collision check in § 1b), parse the assigned `F<NNN>` from its stdout, then create the feature doc in the anchor's Features folder. Per **F142** the canonical location is the **Design** folder (Features is a design artifact, D07): `{slug} Design/{slug} Features/F{NNN} — {Feature Name}.md`.
 
-If `{NAME} Design/{NAME} Features/` doesn't exist, create it. (Legacy anchors still hold features at `{NAME} Track/{NAME} Features/`; the workflow scripts read both during the F142 rollout — but **new** docs go in the Design location.) Filenames carry the F-number prefix from the mint (zero-padded). **Do not read the backlog file directly to compute the next F-number** — `state task create` is the canonical mint.
+If `{slug} Design/{slug} Features/` doesn't exist, create it. (Legacy anchors still hold features at `{slug} Track/{slug} Features/`; the workflow scripts read both during the F142 rollout — but **new** docs go in the Design location.) Filenames carry the F-number prefix from the mint (zero-padded). **Do not read the backlog file directly to compute the next F-number** — `state task create` is the canonical mint.
 
 #### 1b. Collision check — vault grep for duplicate H1 (per F27)
 
@@ -112,7 +112,7 @@ description: {one-line description}
 
 (**No boilerplate prose** under `## Open Questions` or `### Resolved` headings. No "Blocking decisions / cannot move from Designing → Agreed" intro. Just the heading then the bullets. Per durable feedback memory. **Placement:** while pending Qs exist this block sits ABOVE the H1 — questions precede the document; they aren't part of it until answered. On resolution the doc enters Phase 2: this block is deleted and its decisions migrate to the bottom `## Resolved` H2.)
 
-# [[{NAME}]] · F{n} — {Feature Name}
+# [[{slug}]] · F{n} — {Feature Name}
 
 ## Summary
 
@@ -158,7 +158,7 @@ Designing — awaiting design discussion.
 - **Auto-decisions skip Phase 1 entirely.** Agent decisions made under the [[F068 — Assume-and-announce discipline (Drive mode)|F068]] visibility + low-recoverability rule go *directly* into the bottom `## Resolved` H2 as H3 entries, without staging at top. They co-exist there with user-answered Qs.
 
 **Structural rules:**
-- **H1 carries the anchor-slug breadcrumb + F-number.** Format: `# [[{NAME}]] · F{n} — {Feature Name}`. The leading `[[{NAME}]]` is a wiki-link to the anchor page (jumps back to the anchor's home from any feature doc) and tells the reader at a glance which anchor they're in — load-bearing when many anchors are active and feature docs look similar across them.
+- **H1 carries the anchor-slug breadcrumb + F-number.** Format: `# [[{slug}]] · F{n} — {Feature Name}`. The leading `[[{slug}]]` is a wiki-link to the anchor page (jumps back to the anchor's home from any feature doc) and tells the reader at a glance which anchor they're in — load-bearing when many anchors are active and feature docs look similar across them.
 - **`## Open Questions` lives above H1 (between frontmatter and H1) only while pending user Qs exist** — deleted otherwise; questions precede the document and migrate to the bottom `## Resolved` H2 once answered.
 - **`## Resolved` at the bottom holds all resolved decisions as H3 entries** — both agent-decided and user-answered. The H3 outline IS the decision list; click any H3 to read its full record. H3 title format: `### Q{N} — {Title}` for user-answered (Q-numbered); `### {Title}` for agent-decided (no Q-number — they were never asked). Each H3 body has: `**Choice:** X.` + brief reasoning + alternatives considered + why rejected.
 - The `/query` skill (`[[SKA queries]]`) is the universal asking subroutine — feature docs, PRDs, plan docs, anything with questions follows the same shape. Invoke `/query --doc <path>` to add questions to a feature doc; the runbook handles formatting, glance, and global-page maintenance.
@@ -174,20 +174,20 @@ Always ASK when: invisible OR high recoverability cost OR irreversible (push / e
 
 ### 1.5. Mint the backlog (or roadmap) row — MANDATORY (per [[SKA workflow]] § Active-work invariant)
 
-Per the active-work invariant: **every feature doc must be reachable from `{NAME} Backlog.md` or `{NAME} Roadmap.md`** at creation time. No exceptions, no `--orphan` flag.
+Per the active-work invariant: **every feature doc must be reachable from `{slug} Backlog.md` or `{slug} Roadmap.md`** at creation time. No exceptions, no `--orphan` flag.
 
 **For a backlog feature** (the common case): mint the row via the workflow skill's `state task create`. This both reserves the F-number (returned in stdout) and creates the row atomically — no direct backlog edits. Run this **before** creating the feature doc file in § 1 (the F-number names the file).
 
 ```bash
-~/.claude/skills/workflow/scripts/state --anchor {NAME} task create --status Designing --title "{Feature Name}"
+~/.claude/skills/workflow/scripts/state --anchor {slug} task create --status Designing --title "{Feature Name}"
 ```
 
-Output: `{NAME}: added F<NNN> in Now [Designing]` — parse `F<NNN>` from the second word after `added`. Use that F-number for the feature doc filename (§ 1).
+Output: `{slug}: added F<NNN> in Now [Designing]` — parse `F<NNN>` from the second word after `added`. Use that F-number for the feature doc filename (§ 1).
 
 After § 1 creates the feature doc, run a follow-up call to add the wiki-link body so the row links back to the new doc:
 
 ```bash
-~/.claude/skills/workflow/scripts/state --anchor {NAME} task update F<NNN> --body "→ [[F<NNN> — {Feature Name}]]"
+~/.claude/skills/workflow/scripts/state --anchor {slug} task update F<NNN> --body "→ [[F<NNN> — {Feature Name}]]"
 ```
 
 Use `--horizon Later` for parking-mode stubs (`/feature` used to file something for later). Use `--status Questions` once the Open Questions block has been written and the row should surface to triage as user-actionable.
@@ -216,11 +216,11 @@ open "<path to feature doc>"
 
 **Rule:** every Phase transition in `/feature` (Phase 1 → Phase 2 when all Qs resolve; Phase 2 → Phase 3 when a new Q arises; Status changes Designing → Agreed → Implementing → Done) is a state-touching action that must update the backlog row + refresh `~/ob/kmr/Q.md`.
 
-**The mechanism:** call `state task update` with the new status for **every** transition — it auto-refreshes Q.md as a side effect (invokes `audit-q.py --scope backlog --anchor {NAME} --fix`).
+**The mechanism:** call `state task update` with the new status for **every** transition — it auto-refreshes Q.md as a side effect (invokes `audit-q.py --scope backlog --anchor {slug} --fix`).
 
 ```bash
-~/.claude/skills/workflow/scripts/state --anchor {NAME} task update F<NNN> --status Agreed
-~/.claude/skills/workflow/scripts/state --anchor {NAME} task update F<NNN> --status Active
+~/.claude/skills/workflow/scripts/state --anchor {slug} task update F<NNN> --status Agreed
+~/.claude/skills/workflow/scripts/state --anchor {slug} task update F<NNN> --status Active
 # ... and so on for Verify, Done.
 ```
 
@@ -244,16 +244,16 @@ Work with the user to flesh out the design. **Per F128/F129 (2026-06-07), Q-stat
 
 ```bash
 # Resolve a Q (script auto-migrates to bottom ## Resolved with audit trail):
-state --anchor {NAME} q answer F<n> -n <Q-num> --choice "(A)" < resolution-body.md
+state --anchor {slug} q answer F<n> -n <Q-num> --choice "(A)" < resolution-body.md
 
 # Add a new Q mid-discussion:
-state --anchor {NAME} q add F<n> < q-body.md
+state --anchor {slug} q add F<n> < q-body.md
 
 # Remove a Q that's no longer relevant (preserves audit trail in ### Removed):
-state --anchor {NAME} q remove F<n> -n <Q-num> --reason "..."
+state --anchor {slug} q remove F<n> -n <Q-num> --reason "..."
 
 # Rewrite a Q's body (no --force gate in F129; verb name IS the explicit intent):
-state --anchor {NAME} q rewrite F<n> -n <Q-num> < new-body.md
+state --anchor {slug} q rewrite F<n> -n <Q-num> < new-body.md
 ```
 
 After EVERY Q-state change, update the Design (or relevant) section with what the resolution means in the spec. The resolved question and the updated design ship together. **Resolution body should include "Incorporated into Design § `<section>`"** as the closing line so the audit trail in `## Resolved` cross-references where the answer shaped the design.
@@ -334,7 +334,7 @@ Implement <Feature Name> (S03200917)
 ## Feature Doc Conventions
 
 - **F-numbered filename** — `F{n} — {Feature Name}.md` in the Features folder. F-number from the anchor's monotonic-forever counter (per `[[CAB Backlog]]` § Numbering policy).
-- **H1 carries the anchor-slug breadcrumb + F-number** — `# [[{NAME}]] · F{n} — {Feature Name}`.
+- **H1 carries the anchor-slug breadcrumb + F-number** — `# [[{slug}]] · F{n} — {Feature Name}`.
 - **Open Questions BELOW the H1** while pending Qs exist; deleted entirely when zero pending. Resolved Qs migrate to a `## Resolved` H2 at the bottom of the doc.
 - **`open` the doc after every Open Questions edit (in active mode)** — mandatory, per step 1a.
 - **Status near the bottom** — single line indicating lifecycle stage. (`## Resolved`, when present, sits below Status as the historical archive.)

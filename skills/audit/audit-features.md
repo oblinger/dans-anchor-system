@@ -16,7 +16,7 @@ Per [[F083 — Cross-Linking]] — the invariant is: every F-doc's content has b
 
 Walk up from `cwd` to find `.anchor`. If none, say so and stop. Then check:
 
-- **Features folder exists?** Locate `{anchor}/Docs/Plan/{NAME} Features/` (or `{anchor}/{NAME} Docs/{NAME} Plan/{NAME} Features/`). Missing → report `features: no Features folder — skip` and stop.
+- **Features folder exists?** Locate `{anchor}/Docs/Plan/{slug} Features/` (or `{anchor}/{slug} Docs/{slug} Plan/{slug} Features/`). Missing → report `features: no Features folder — skip` and stop.
 - **Federated bucket PRDs exist?** Look for any `{anchor}/Docs/Plan/<Bucket>/<Bucket> PRD.md` files. If NONE exist → report `features: anchor not on federated PRD structure — skip` and stop. This anchor hasn't adopted [[F083 — Cross-Linking]]; the audit doesn't apply.
 
 Both gates must pass before proceeding.
@@ -88,7 +88,7 @@ Two cases trigger a backlog entry:
 1. **Chunking overflow** — integration-eligible findings exceeded N; remainder needs to be cranked through later.
 2. **Non-eligible findings** — broken frontmatter that requires user fix before audit can re-run cleanly.
 
-Locate `{NAME} Docs/{NAME} Plan/{NAME} Backlog.md`. Find the lowest unused B-number per [[CAB Backlog]] § Format. Append under `## Now` (or `## Ready` if all entries are immediately actionable):
+Locate `{slug} Docs/{slug} Plan/{slug} Backlog.md`. Find the lowest unused B-number per [[CAB Backlog]] § Format. Append under `## Now` (or `## Ready` if all entries are immediately actionable):
 
 ```
 - **B<n> — Features audit: <K> integrations pending + <M> needs-fix (<YYYY-MM-DD>)** [Ready] — work surfaced by `/audit features` exceeded chunking cap (N=3). Sub-bullets list remaining work.
@@ -105,7 +105,7 @@ If there are zero remaining findings (everything was integrated inline AND no br
 ## Stat post
 
 ```bash
-skl-stat add "Review" "[[{NAME}]]" "Audit: features — <N> findings"
+skl-stat add "Review" "[[{slug}]]" "Audit: features — <N> findings"
 ```
 
 Use `Done` + `Audit: features — clean` if zero findings.

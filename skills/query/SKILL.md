@@ -5,7 +5,7 @@ description: >
   ELIMINATE every question the agent can (auto-resolve reversible/soon-visible
   guesses, run checks itself, decide low-stakes/visible calls, infer from the
   codebase), then CONSOLIDATE the irreducible residue into one self-documenting,
-  counted, one-shot-answerable pile in the anchor's `{NAME} queries.md` (sections
+  counted, one-shot-answerable pile in the anchor's `{slug} queries.md` (sections
   Agent Resolutions / Verifications / Immediate Questions / Questions). The doc is
   the always-current STORE of open questions — write every question there the
   moment it is raised; chat is at most a VIEW, never carrying a question the doc
@@ -18,12 +18,12 @@ user_invocable: true
 
 # /query — ask the user questions
 
-`/query` builds and maintains the anchor's **`{NAME} queries.md`** — the single surface where the user answers everything the agents need from them. Its discipline: most "questions" should never reach the user; only genuine user decisions and genuine user-only verifications survive, each made answerable from what's written. **Authoritative purpose + the never-ask invariant: [[Query PRD]]** (the agent's prime directive is to NOT ask — eliminate every question it can, consolidate the irreducible residue into one self-documenting, one-shot-answerable pile; asking in chat, especially after a triage, is the cardinal violation). Full spec: [[F169 — Query skill — queries document + determination logic|F169]]. Replaces `/ask` (which rotted by accreting dashboard + render-pipeline + triage coupling — keep `/query` narrow).
+`/query` builds and maintains the anchor's **`{slug} queries.md`** — the single surface where the user answers everything the agents need from them. Its discipline: most "questions" should never reach the user; only genuine user decisions and genuine user-only verifications survive, each made answerable from what's written. **Authoritative purpose + the never-ask invariant: [[Query PRD]]** (the agent's prime directive is to NOT ask — eliminate every question it can, consolidate the irreducible residue into one self-documenting, one-shot-answerable pile; asking in chat, especially after a triage, is the cardinal violation). Full spec: [[F169 — Query skill — queries document + determination logic|F169]]. Replaces `/ask` (which rotted by accreting dashboard + render-pipeline + triage coupling — keep `/query` narrow).
 
 > ## ⚠️ TWO NORTH STARS — NON-NEGOTIABLE
 >
 > **1. The queries doc is the always-current STORE of open questions — chat is at most a VIEW of it.**
-> `{NAME} queries.md` holds the anchor's open questions *at all times*. **The moment you have a question for the user, write it into the doc — at that same moment** (run the determination logic, write the survivors), and *then* you may optionally echo a spotlight to chat. Chat may point *into* the doc, but it **never carries a question the doc doesn't**, and **the doc is never behind chat**. A chat question with no corresponding doc entry means the question was *not actually asked* — redo it through the doc. Why this is non-negotiable: the user runs **many agents at once** and **chat scrolls away**; `queries.md` is the one place they can always return to for the latest open questions. (The doc may legitimately lag only during live back-and-forth before the next triage; every triage — and every question raised — re-syncs it. This is the recurring failure the user has called out: agents ask in chat and never touch the doc. Treat a bare chat-ask as a bug in your own behavior.)
+> `{slug} queries.md` holds the anchor's open questions *at all times*. **The moment you have a question for the user, write it into the doc — at that same moment** (run the determination logic, write the survivors), and *then* you may optionally echo a spotlight to chat. Chat may point *into* the doc, but it **never carries a question the doc doesn't**, and **the doc is never behind chat**. A chat question with no corresponding doc entry means the question was *not actually asked* — redo it through the doc. Why this is non-negotiable: the user runs **many agents at once** and **chat scrolls away**; `queries.md` is the one place they can always return to for the latest open questions. (The doc may legitimately lag only during live back-and-forth before the next triage; every triage — and every question raised — re-syncs it. This is the recurring failure the user has called out: agents ask in chat and never touch the doc. Treat a bare chat-ask as a bug in your own behavior.)
 >
 > **2. Every surfaced question is SELF-DOCUMENTING.** Reading the entry *alone*, the user must (a) know exactly **what is being asked**, and (b) have **everything needed to answer it** — either stated in the entry or reachable through a link *in* the entry. If answering requires the user to go hunt for context that isn't linked, the entry fails. And every entry that routes a feature's open questions **states its pending-Q count in bold parens** — `[[F181 — …|F181]] **(5Q)**` — so the user sees at a glance how many answers that feature needs from them.
 >
@@ -45,7 +45,7 @@ A question that reaches the user must let them answer it **in one shot**. Every 
 
 fails all five: **no** work-item handle (what task is "Design-rules"?), **no** link to where `Q3` actually lives, **no** specific ask, **no** labeled options, **no** recommendation, **no** artifact links. A failure all the way around — exactly what this bar exists to prevent. The fix lives at the source (the backlog row / feature-doc `## Open Questions`), never in the rendered `queries.md`.
 
-## The document — `{NAME} queries.md` in `{NAME} Track/`
+## The document — `{slug} queries.md` in `{slug} Track/`
 
 The file's validity rules — sections + order, what each item must look like, the no-user-imperative and no-orphan invariants — live in the **[[FCT Query]] facet** (`R-query`), so the file is auditable (`/audit doc`, the on-write hook) and there's one source of truth. **Write to conform to `R-query`; don't restate it here.** Quick orientation only — five sections, fixed order, omit-if-empty:
 
@@ -85,26 +85,26 @@ After glancing the doc, `/query` may print a few **immediate** items — resolut
 
 ## Runbook
 
-> **⚠ The `{NAME} queries.md` DOCUMENT is now mechanically rendered — do NOT hand-author it** (per user direction 2026-06-26: *"purely mechanical, done as part of triage"*). `triage-section.py` rewrites the whole page from backlog state on every `/triage` (banner H1 + `## Verifications` from `[Verify*]`/`[Watching*]` rows + `## Ready` from `[Ready]`/`[Active]` rows with their `Next:` + `## Questions` from `[Questions]` rows). Anything you write into that file by hand is overwritten on the next triage. `/query`'s job is **determination, not authoring**: route each open question to its *source* (resolve it in the feature doc's `## Open Questions`, file/edit a backlog row, run a self-answerable check) — the mechanical render then surfaces it. To change what the queries page shows, **edit the backlog rows / feature-doc Open Questions**, not `queries.md`. (The legacy four-section hand-authoring + `_computed_` H1 below is superseded; kept for the determination-logic reference.)
+> **⚠ The `{slug} queries.md` DOCUMENT is now mechanically rendered — do NOT hand-author it** (per user direction 2026-06-26: *"purely mechanical, done as part of triage"*). `triage-section.py` rewrites the whole page from backlog state on every `/triage` (banner H1 + `## Verifications` from `[Verify*]`/`[Watching*]` rows + `## Ready` from `[Ready]`/`[Active]` rows with their `Next:` + `## Questions` from `[Questions]` rows). Anything you write into that file by hand is overwritten on the next triage. `/query`'s job is **determination, not authoring**: route each open question to its *source* (resolve it in the feature doc's `## Open Questions`, file/edit a backlog row, run a self-answerable check) — the mechanical render then surfaces it. To change what the queries page shows, **edit the backlog rows / feature-doc Open Questions**, not `queries.md`. (The legacy four-section hand-authoring + `_computed_` H1 below is superseded; kept for the determination-logic reference.)
 
-1. **Locate the anchor** (walk up to `.anchor`). The queries page lives at `{NAME} Track/{NAME} queries.md` and is produced by the mechanical render (above) — you do not create or format it here.
+1. **Locate the anchor** (walk up to `.anchor`). The queries page lives at `{slug} Track/{slug} queries.md` and is produced by the mechanical render (above) — you do not create or format it here.
 2. **Collect** open questions: each feature doc's `## Open Questions` (≤3 enumerate / >3 link) + backlog questions.
 3. **Route** each via the determination logic. For auto-resolves, make the guess and (where it shapes a doc) apply it. For do-it-yourself checks, run them now / backlog them.
-4. **Write** the four sections in order, each item in its section's format (per `R-query`). Verifications are compact: `**V<n>` + a bold yes/no. Immediate Questions use the standard expanded format: `**Q<n>` opener + options as own-line `**(A)**` sub-bullets + a `- **Recommendation:**` line. Catch-all questions are `F<n> Q<m>` links. Any `F<n>` a bullet names is a wiki-link (feature doc, else `[[{NAME} Backlog#^F<n>|F<n>]]`).
+4. **Write** the four sections in order, each item in its section's format (per `R-query`). Verifications are compact: `**V<n>` + a bold yes/no. Immediate Questions use the standard expanded format: `**Q<n>` opener + options as own-line `**(A)**` sub-bullets + a `- **Recommendation:**` line. Catch-all questions are `F<n> Q<m>` links. Any `F<n>` a bullet names is a wiki-link (feature doc, else `[[{slug} Backlog#^F<n>|F<n>]]`).
 4a. **Acceptability pass — final self-check (§ Acceptability pass).** Before the format audit, walk every item you are about to surface and apply the two acceptability terms: (1) **no time/tokens-only trade-off** — if cost is the only thing separating the options, there is nothing to ask; spend the time/tokens and decide it yourself. (2) **answer reachable from the question** — the information to answer must be in the question text or behind a link *in* the question (a "is the gallery good enough?" verification must carry a live `[[Gallery]]` / artifact link). Send term-1 failures back to determination-logic §1/§2 (resolve yourself); fix term-2 failures in place by adding the missing link.
 5. **Audit the file before surfacing it — MANDATORY** (the F125 lesson: the C35 check only protects you if `/query` actually *runs* it). The on-write hook covers markdown/format on the Write, but the cross-doc consistency checks (C35 stale-pending, C6/C9 Q-format, C36 link-not-backtick) live in `audit-q.py` and are **not** triggered by writing the file — run them explicitly:
    ```bash
-   python3 ~/.claude/skills/audit/scripts/audit-q.py --scope backlog --anchor {NAME} --dry
+   python3 ~/.claude/skills/audit/scripts/audit-q.py --scope backlog --anchor {slug} --dry
    ```
-   **Fix every finding at its source, then re-run until the `{NAME} queries.md` line count is 0.** A C35 ("lists `F<n>` under ## Questions but its linked doc has no pending Qs") means you violated the pending-only gate — remove that entry. Do **not** proceed to the Q.md refresh or the glance with a dirty audit; surfacing a broken queries file is the exact failure this step exists to prevent.
-6. **Refresh the Q.md dashboard** — after writing `{NAME} queries.md`, paste it into the vault Q.md so the anchor's per-anchor section shows the freshly-computed queries body (not stale state):
+   **Fix every finding at its source, then re-run until the `{slug} queries.md` line count is 0.** A C35 ("lists `F<n>` under ## Questions but its linked doc has no pending Qs") means you violated the pending-only gate — remove that entry. Do **not** proceed to the Q.md refresh or the glance with a dirty audit; surfacing a broken queries file is the exact failure this step exists to prevent.
+6. **Refresh the Q.md dashboard** — after writing `{slug} queries.md`, paste it into the vault Q.md so the anchor's per-anchor section shows the freshly-computed queries body (not stale state):
    ```bash
-   python3 ~/.claude/skills/triage/scripts/triage-section.py {NAME}
+   python3 ~/.claude/skills/triage/scripts/triage-section.py {slug}
    ```
-   `triage-section.py` reads `{NAME} queries.md`, strips its frontmatter + H1, and renders the Q.md section as `<count banner → links to queries.md>` + `_queries computed <timestamp>_` + the queries body. (This is the F176 model — Q.md per-anchor body **is** the queries paste, replacing the legacy backlog-row/ask dump. Anchors with no `queries.md` fall back to the backlog-derived body.)
-7. **Glance** `{NAME} queries.md` (`open "<path>"`).
+   `triage-section.py` reads `{slug} queries.md`, strips its frontmatter + H1, and renders the Q.md section as `<count banner → links to queries.md>` + `_queries computed <timestamp>_` + the queries body. (This is the F176 model — Q.md per-anchor body **is** the queries paste, replacing the legacy backlog-row/ask dump. Anchors with no `queries.md` fall back to the backlog-derived body.)
+7. **Glance** `{slug} queries.md` (`open "<path>"`).
 8. **Echo** (optional) a few immediate items to the console in inline-ask format — all also in the doc.
-9. **On answer** (`Q1: yes`, `F115 Q3: A`, "verified the panel reopen", prose): record the resolution at the question's home and **trim** the answered item from `{NAME} queries.md`. Re-running `/query` rebuilds from current state, so the doc shrinks monotonically. Sticky context: once the user names a feature, bare `Q<n>` targets it.
+9. **On answer** (`Q1: yes`, `F115 Q3: A`, "verified the panel reopen", prose): record the resolution at the question's home and **trim** the answered item from `{slug} queries.md`. Re-running `/query` rebuilds from current state, so the doc shrinks monotonically. Sticky context: once the user names a feature, bare `Q<n>` targets it.
 
 ## Parented mode — `/query --doc <path> <q1> [<q2> …]`
 
@@ -112,7 +112,7 @@ The secondary invocation, called from another skill's runbook (`/feature`, `/cod
 
 - **Mechanism:** resolve `<path>` to its feature/PRD doc, then delegate to `state q add` (which enforces the ask-format spec — block-IDs, `Q<n>` numbering, recommendation strength, Phase 1/2/3 lifecycle):
   ```bash
-  ~/.claude/skills/workflow/scripts/state --anchor {NAME} q add F<n> < q-body.md
+  ~/.claude/skills/workflow/scripts/state --anchor {slug} q add F<n> < q-body.md
   ```
 - **Multiple questions** are batched — numbered in one pass, never trickled.
 - **Glance** the doc only in active mode (the user is engaging now); skip the glance in parking mode (batch filing for later). Mirrors `/feature` § 1a.

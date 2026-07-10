@@ -12,17 +12,17 @@ Questions are not centralized in one file — they appear in context:
 
 | Location | What lives there |
 |----------|-----------------|
-| `{NAME} Open Questions.md` | General project questions — architecture, scope, approach |
-| `{NAME} Backlog.md` — Open Questions section | Questions about specific backlog items |
-| `{NAME} Backlog.md` — Verify section | Items the agent completed that need user confirmation |
-| `{NAME} Features/{feature}.md` — Open Questions section | Questions about a specific feature |
-| `{NAME} Discussion.md` | Extended reasoning — questions that triggered design discussions |
+| `{slug} Open Questions.md` | General project questions — architecture, scope, approach |
+| `{slug} Backlog.md` — Open Questions section | Questions about specific backlog items |
+| `{slug} Backlog.md` — Verify section | Items the agent completed that need user confirmation |
+| `{slug} Features/{feature}.md` — Open Questions section | Questions about a specific feature |
+| `{slug} Discussion.md` | Extended reasoning — questions that triggered design discussions |
 
 ## Processing Order
 
 When `/code ask-questions` is invoked:
 
-1. **`{NAME} Open Questions.md`** — process these first. These are the most important project-level questions.
+1. **`{slug} Open Questions.md`** — process these first. These are the most important project-level questions.
 2. **Backlog Open Questions** — if the main OQ doc is empty, move to questions embedded in backlog items.
 3. **Backlog Verify items** — items the agent says are done but the user hasn't confirmed. Glance each one so the user can see it in context and confirm or reject.
 4. **Feature doc questions** — open questions within individual feature specs.
@@ -33,10 +33,10 @@ For each question, **glance the document** where the question lives so the user 
 
 As the agent works through any phase, it captures questions where they belong:
 
-- **Project-level question** (scope, architecture, approach) → `{NAME} Open Questions.md`
-- **Question about a backlog item** → Open Questions section within that item in `{NAME} Backlog.md`
+- **Project-level question** (scope, architecture, approach) → `{slug} Open Questions.md`
+- **Question about a backlog item** → Open Questions section within that item in `{slug} Backlog.md`
 - **Question about a feature** → Open Questions section within that feature doc
-- **"Is this fixed?"** → Verify section in `{NAME} Backlog.md`
+- **"Is this fixed?"** → Verify section in `{slug} Backlog.md`
 
 Tag each by urgency:
 - **Urgent** — ready to decide now, many downstream decisions depend on the answer
@@ -79,4 +79,4 @@ After resolving a question, trace its impact:
 
 ## Recording Discussions
 
-When a question involves notable back-and-forth, create a dated section in `{NAME} Discussion.md`. Design docs stay specification-only; the discussion log captures the "why."
+When a question involves notable back-and-forth, create a dated section in `{slug} Discussion.md`. Design docs stay specification-only; the discussion log captures the "why."

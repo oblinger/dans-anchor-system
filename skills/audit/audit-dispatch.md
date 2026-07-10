@@ -37,7 +37,7 @@ The script exits non-zero only when the safety net fired (a curated link would h
 
 ### 2. Compute the Masthead
 The fixed top block — always present:
-1. **Breadcrumb row** — `| -[[{NAME}]]- | → [[kmr]] → … → [{NAME}](hook://…) |`. Fix the parent chain to match the anchor's actual location (the up-edge of [[SYS Anchor DAG]]).
+1. **Breadcrumb row** — `| -[[{slug}]]- | → [[kmr]] → … → [{Full Name}](hook://…) |`. Fix the parent chain to match the anchor's actual location (the up-edge of [[SYS Anchor DAG]]).
 2. **Structural rows** — the anchor-kind standard rows. For a `Code` anchor: `Design` / `User` / `Dev` rows linking to its sub-folder dispatch pages (per [[FCT Anchor Page]]). For a `Topic` anchor: its sub-topic routing rows. Include only rows whose target sub-folders exist.
 3. **Curated one-off links** — preserve any hand-added links already in the table that don't match a structural or member row (the user pinned them on purpose). Never drop curated links.
 

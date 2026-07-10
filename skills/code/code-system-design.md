@@ -1,6 +1,6 @@
 # System Design
 
-Design the technical architecture. Create `{NAME} System Design.md` following the CAB System Design spec.
+Design the technical architecture. Create `{slug} System Design.md` following the CAB System Design spec.
 
 ## When to Use
 
@@ -14,7 +14,7 @@ Read the PRD (goals, constraints), UX Design (interaction model, commands), and 
 
 ### 2. Write the System Design
 
-Create or update `{NAME} System Design.md` with:
+Create or update `{slug} System Design.md` with:
 
 - **Component boundaries and data flow** — what the major pieces are and how data moves between them
 - **Module decomposition with responsibilities** — which component owns which concern
@@ -26,7 +26,7 @@ Create or update `{NAME} System Design.md` with:
 
 ### 3. Specification Only
 
-The System Design doc is specification only — current design, not history. Rationale for contested decisions belongs in `{NAME} Discussion.md`.
+The System Design doc is specification only — current design, not history. Rationale for contested decisions belongs in `{slug} Discussion.md`.
 
 ### 4. Consistency Check
 

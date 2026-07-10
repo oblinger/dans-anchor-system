@@ -24,7 +24,7 @@ A dense table of outgoing links organized by category, used as a central navigat
 
 A **dispatch page** is a markdown page whose primary content is a dispatch table. Common uses:
 - **Anchor pages** — the folder file for a complex anchor is often a dispatch page with 50–100+ links
-- **Docs folder files** — `{NAME} Docs.md` dispatches to all planning and reference documents
+- **Docs folder files** — `{slug} Docs.md` dispatches to all planning and reference documents
 - **Skill pages** — `SKILL.md` dispatches to action files and reference sub-folders
 
 The goal is a single memorable location where a user can find any link in the system. One page, many destinations.

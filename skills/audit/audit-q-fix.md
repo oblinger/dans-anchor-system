@@ -30,7 +30,7 @@ Spec: `[[F009 — audit q — Q.md constraint validator]]` § 4.5.
 
 ## Runbook — single anchor (`/audit q-fix`)
 
-1. **Locate the QFix entry.** Walk up from `cwd` to find `.anchor`. Read `{NAME} Backlog.md`. Search for a row with identifier `B-QFix` (singleton; should be at top of `## Ready`).
+1. **Locate the QFix entry.** Walk up from `cwd` to find `.anchor`. Read `{slug} Backlog.md`. Search for a row with identifier `B-QFix` (singleton; should be at top of `## Ready`).
    - If absent → exit. Print: `/audit q-fix — no B-QFix entry; nothing to do`.
 
 2. **For each sub-bullet (finding) in the B-QFix entry**, apply a fix using agent judgment per the 100%-fix discipline (see `[[audit-q]]` § 5 for the per-C-code action map):

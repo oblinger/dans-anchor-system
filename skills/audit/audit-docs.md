@@ -44,9 +44,9 @@ Status values:
 - [ ] Flag any Dev dispatch entry pointing to a nonexistent module doc as **stale-dev-entry**
 
 ## 1.4 Compare source tree to module docs
-- [ ] List all `{NAME} *.md` files under `{NAME} Dev/`
+- [ ] List all `{slug} *.md` files under `{slug} Dev/`
 - [ ] For each source file with public API, check a corresponding module doc exists
-- [ ] For each source directory with modules, check a folder doc exists (`{NAME} {FolderName}.md`)
+- [ ] For each source directory with modules, check a folder doc exists (`{slug} {FolderName}.md`)
 - [ ] Flag missing module docs as **missing-module-doc**
 - [ ] Flag missing folder docs as **missing-folder-doc**
 - [ ] Flag module docs whose source file no longer exists as **orphan-module-doc**
@@ -65,13 +65,13 @@ For each existing module doc, check every item in the [[FCT Module Doc]] format 
 
 ## 1.7 Check Files.md column alignment
 
-`{NAME} Files.md` renders in monospace via `cssclasses: monospace`. The description column must start at the same display-width column on every line that has a description. Misalignment is a visual bug — the page is supposed to look like a tidy column layout.
+`{slug} Files.md` renders in monospace via `cssclasses: monospace`. The description column must start at the same display-width column on every line that has a description. Misalignment is a visual bug — the page is supposed to look like a tidy column layout.
 
 Two specific checks:
 
 1. **Description column alignment** — every line with a description starts its description at the same display-width column. Wiki-link expansion must be accounted for: `[[OBU Scheduler|scheduler.rs]]` has raw width ~30 but renders as `scheduler.rs` (12). The pad count is based on *rendered* width, not raw markdown width.
 
-2. **Row 1 convention** — the first tree line (the repo-root directory) does **not** include the literal text "repo root" or similar descriptor. It goes directly to its description, which is conventionally the wiki-link to the Interface (`[[{NAME} Interface]]`).
+2. **Row 1 convention** — the first tree line (the repo-root directory) does **not** include the literal text "repo root" or similar descriptor. It goes directly to its description, which is conventionally the wiki-link to the Interface (`[[{slug} Interface]]`).
 
 Flag misaligned files as **files-misaligned** (with the list of bad rows) and redundant text as **files-row1-redundant**.
 
@@ -113,14 +113,14 @@ for f in pathlib.Path('.').rglob('* Docs/* Dev/* Files.md'):
 
 The Interface (see [[FCT Interface]]) is the **required top-level human-authored layer contract** for the codebase. It must exist and be reachable from two places:
 
-- [ ] `{NAME} Docs/{NAME} User/{NAME} Interface.md` exists. Flag absence as **missing-interface**.
-- [ ] `{NAME} Files.md` row 1 (the repo-root directory row) contains `→ [[{NAME} Interface]]`. Flag absence as **interface-not-linked-from-files**.
-- [ ] `{NAME} User.md` dispatch page contains a row linking to `[[{NAME} Interface]]`. Flag absence as **interface-not-linked-from-dispatch**.
+- [ ] `{slug} Docs/{slug} User/{slug} Interface.md` exists. Flag absence as **missing-interface**.
+- [ ] `{slug} Files.md` row 1 (the repo-root directory row) contains `→ [[{slug} Interface]]`. Flag absence as **interface-not-linked-from-files**.
+- [ ] `{slug} User.md` dispatch page contains a row linking to `[[{slug} Interface]]`. Flag absence as **interface-not-linked-from-dispatch**.
 - [ ] Interface file contains `## Public Modules` and at least one of (`## How They Group`, per-`## {module}` sections, `## Schemas`, `## CLI Surface`). Flag missing sections as **interface-incomplete-structure**.
 - [ ] Interface lists every top-level public module that exists in source. Flag missing modules as **interface-module-missing**.
-- [ ] Interface line count ≤ 500. Flag overflow as **interface-too-large** — suggest splitting into sub-Interfaces (`{NAME} {LayerName} Interface.md`).
+- [ ] Interface line count ≤ 500. Flag overflow as **interface-too-large** — suggest splitting into sub-Interfaces (`{slug} {LayerName} Interface.md`).
 
-**Legacy `{NAME} Rollup.md`.** If `{NAME} Rollup.md` is found (predecessor to Interface — see F062 / [[FCT Interface]]), flag as **legacy-rollup-needs-migration**. Do NOT auto-rename; the migration requires a content review per F062's forward-only policy.
+**Legacy `{slug} Rollup.md`.** If `{slug} Rollup.md` is found (predecessor to Interface — see F062 / [[FCT Interface]]), flag as **legacy-rollup-needs-migration**. Do NOT auto-rename; the migration requires a content review per F062's forward-only policy.
 
 For linked-mode code anchors where the repo is elsewhere, also check the **repo root** has a visible reference to the Interface so repo-only readers can find it.
 
@@ -142,7 +142,7 @@ For linked-mode code anchors where the repo is elsewhere, also check the **repo 
 
 If `dry` substring is in the args: print "dry-run — no backlog entry written" and stop.
 
-Otherwise, locate `{NAME} Docs/{NAME} Plan/{NAME} Backlog.md`. Read it, find the lowest unused B-number (per [[CAB Backlog]] § Format), and append a new bullet under `## Upcoming`:
+Otherwise, locate `{slug} Docs/{slug} Plan/{slug} Backlog.md`. Read it, find the lowest unused B-number (per [[CAB Backlog]] § Format), and append a new bullet under `## Upcoming`:
 
 ```
 - **B<n> — Docs audit: <N> findings (<YYYY-MM-DD>)** [Ready] — work surfaced by `/audit docs`. Sub-bullets are candidate splits if this needs to be broken up.
@@ -163,9 +163,9 @@ Within each category, sort by file path. Keep each sub-bullet to one line.
 
 If sub-bullet count would exceed ~50, split into multiple backlog entries by category (one entry per category cluster) — too many sub-bullets in one entry defeats the "this is a unit of work" purpose. The orchestrator will allocate consecutive B-numbers in this case.
 
-# Phase 4: Stamp `module_docs_audited:` in `{NAME} Dev.md` frontmatter (per F074)
+# Phase 4: Stamp `module_docs_audited:` in `{slug} Dev.md` frontmatter (per F074)
 
-After Phase 3 (backlog entry written or skipped via `dry`), **stamp the audit date** into the `{NAME} Dev.md` dispatch page's YAML frontmatter:
+After Phase 3 (backlog entry written or skipped via `dry`), **stamp the audit date** into the `{slug} Dev.md` dispatch page's YAML frontmatter:
 
 ```yaml
 ---
@@ -176,11 +176,11 @@ module_docs_audited: <today's date in YYYY-MM-DD>
 
 **Rules:**
 - Update the field if present; insert it if absent (read existing frontmatter, add `module_docs_audited:` line, write back).
-- If `{NAME} Dev.md` lacks any YAML frontmatter, create it with just `description:` and `module_docs_audited:`.
+- If `{slug} Dev.md` lacks any YAML frontmatter, create it with just `description:` and `module_docs_audited:`.
 - This stamp is written **even when findings are non-empty** — it records "we audited on this date," not "everything was clean." Stale findings linger as backlog rows; the audit-date stamp is an independent fact.
 - **Skip in `dry` mode** — dry runs don't write to the backlog and don't stamp.
 
-**Why.** `[[skills/architect/SKILL|/architect]]` reads `module_docs_audited:` as a staleness precondition (per F074) — it runs `git log <audited-date>..HEAD -- <source-tree>` to count commits in source since the audit, and warns if module docs are likely stale. This stamp is the source of truth. No other skill writes this field. See `[[FCT Module Doc]]` § `{NAME} Dev.md` frontmatter.
+**Why.** `[[skills/architect/SKILL|/architect]]` reads `module_docs_audited:` as a staleness precondition (per F074) — it runs `git log <audited-date>..HEAD -- <source-tree>` to count commits in source since the audit, and warns if module docs are likely stale. This stamp is the source of truth. No other skill writes this field. See `[[FCT Module Doc]]` § `{slug} Dev.md` frontmatter.
 
 # Phase 5: Report
 
@@ -197,7 +197,7 @@ The orchestrator (or single-skill caller) will roll this up into the final stat 
 - [ ] All findings flow into a backlog entry under `## Upcoming` (unless `dry`).
 - [ ] Use [[FCT Module Doc]] as the canonical reference when describing what's wrong with a doc — link to the spec, don't inline the format.
 - [ ] B-number assignment: lowest unused integer in the file (gap-fill).
-- [ ] `module_docs_audited:` frontmatter on `{NAME} Dev.md` is owned by this skill — no other skill writes it (per F074, [[FCT Module Doc]] § `{NAME} Dev.md` frontmatter).
+- [ ] `module_docs_audited:` frontmatter on `{slug} Dev.md` is owned by this skill — no other skill writes it (per F074, [[FCT Module Doc]] § `{slug} Dev.md` frontmatter).
 
 <!-- compiled:end -->
 

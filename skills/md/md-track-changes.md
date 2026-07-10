@@ -55,7 +55,7 @@ The user provides markdown text and asks for changes (tighten, restructure, simp
 3. A **revised text** — new markdown with all changes applied, preceded by a link to the HTML:
 
 ```markdown
-**Track changes**: [[{NAME} track-changes.html|view changes]]
+**Track changes**: [[{slug} track-changes.html|view changes]]
 
 (revised text follows...)
 ```

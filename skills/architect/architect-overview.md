@@ -1,6 +1,6 @@
 # architect-overview — Portable bare-project architecture overview
 
-The portable, bare-project sub-action of `/architect` (per [[F184 — Skill portability — architect bare-project mode + environment gating|F184]]). Produces an **`Architecture Overview.md` + an embedded hand-drawn SVG** for *any* codebase — including one with **no CAB scaffolding** (no `.anchor`, no `{NAME} Dev/` module docs, no `{NAME} Docs/…` layout) and **no kmr vault**. This is the entry point a colleague uses after cloning `ob-skills` onto a fresh machine.
+The portable, bare-project sub-action of `/architect` (per [[F184 — Skill portability — architect bare-project mode + environment gating|F184]]). Produces an **`Architecture Overview.md` + an embedded hand-drawn SVG** for *any* codebase — including one with **no CAB scaffolding** (no `.anchor`, no `{slug} Dev/` module docs, no `{slug} Docs/…` layout) and **no kmr vault**. This is the entry point a colleague uses after cloning `ob-skills` onto a fresh machine.
 
 It is deliberately lighter than the full `/architect` runbook: it reads the repo *itself* as ground truth (there are no module docs to roll up), writes one self-contained folder, and touches nothing vault-coupled.
 

@@ -40,7 +40,7 @@ Before building, gather answers to these questions. The user may provide some up
 
 ### Navigation
 - **PROJECTS HUB** — Add a link from the projects page (`/gitproj/`)? (Default: yes)
-- **CUSTOM PERMALINK** — Use a custom URL path? (Default: `/gitproj/{SLUG}/`)
+- **CUSTOM PERMALINK** — Use a custom URL path? (Default: `/gitproj/{slug}/`)
 
 ### Legal
 - **LICENSE** — What license to publish under? Options:
@@ -77,7 +77,7 @@ website/
 layout: cayman
 title: {PROJECT NAME}
 description: {ONE-LINER}
-permalink: /gitproj/{SLUG}/
+permalink: /gitproj/{slug}/
 ---
 ```
 
@@ -86,10 +86,10 @@ Show the user the generated splash page content. Iterate until approved.
 
 ### 4. Deploy
 Run the deploy script or equivalent:
-1. Copy `website/` contents to `oblinger.github.io/gitproj/{SLUG}/`
+1. Copy `website/` contents to `oblinger.github.io/gitproj/{slug}/`
 2. If PROJECTS HUB = yes, add a link to `projects.markdown`
 3. `cd` to website repo, `git add`, `git commit`, `git push`
-4. Report the live URL: `https://oblinger.github.io/gitproj/{SLUG}/`
+4. Report the live URL: `https://oblinger.github.io/gitproj/{slug}/`
 
 ### 5. Integrate (optional)
 If AUTO-DEPLOY = yes, add a `docs-deploy` recipe to the project's justfile:
@@ -99,9 +99,9 @@ website_repo := "/Users/oblinger/ob/proj/oblinger.github.io"
 # Deploy project page to personal website
 publish:
     @echo "Deploying to website repo..."
-    cp -r website/* {{website_repo}}/gitproj/{SLUG}/
-    cd {{website_repo}} && git add gitproj/{SLUG} && git commit -m "Update {PROJECT NAME} page" && git push
-    @echo "✓ Deployed to https://oblinger.github.io/gitproj/{SLUG}/"
+    cp -r website/* {{website_repo}}/gitproj/{slug}/
+    cd {{website_repo}} && git add gitproj/{slug} && git commit -m "Update {PROJECT NAME} page" && git push
+    @echo "✓ Deployed to https://oblinger.github.io/gitproj/{slug}/"
 ```
 
 
