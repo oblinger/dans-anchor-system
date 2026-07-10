@@ -1,10 +1,10 @@
 ---
-description: How to format markdown — file trees, TOC tables, dispatch tables, cards, definition lists
+description: "the SKL MD doc"
 ---
 # SKL MD Guide
 The MD skill defines standard markdown formatting conventions used across all documents in the system. It covers structural patterns (file trees, tables of contents, dispatch tables) and inline conventions (definition lists, heading spacing, date formats).
 
-| -[[DAS MD]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[skill-docs]] → [[SKL Doc]] → [SKL MD](hook://p/DAS%20MD)<br>: the SKL MD doc |
+| -[[DAS MD]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS MD](hook://p/DAS%20MD)<br>: the SKL MD doc |
 | --- | --- |
 | Related | [[skills/md/SKILL.md\|SKILL]],   |
 | [[DAS MD Design\|Design]] |  |

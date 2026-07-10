@@ -4,7 +4,7 @@ description: "folder templates — a folder's canonical multi-doc structure"
 # FCT Template Folders
 A **folder template** — a `_{Name} Template/` folder whose marker + skeleton define the canonical structure of a folder that carries more than one document per item.
 
-| -[[DAS Template Folders]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[DAS Primitives]] → [FCT Template Folders](hook://p/DAS%20Template%20Folders)<br>: folder templates — a folder's canonical multi-doc structure |
+| -[[DAS Template Folders]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Template Folders](hook://p/DAS%20Template%20Folders)<br>: folder templates — a folder's canonical multi-doc structure |
 | --- | --- |
 | Related | [[DAS Template]] (umbrella),  [[DAS Template Files]],  [[DAS Template Variables]],  [[DAS Dispatch Table]] (the Template row) |
 | Examples | [[_{{DISK_LABEL}} Template\|disk folder]],   |

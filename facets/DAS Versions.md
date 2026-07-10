@@ -2,7 +2,7 @@
 description: "facet spec for the versions/ release-artifact store — the immutable, tag-gated folder a project's published builds land in"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Output]] → [FCT Versions](hook://p/DAS%20Versions)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Versions](hook://p/DAS%20Versions)
 # FCT Versions
 Facet spec for the `versions/` folder — the immutable, flat store of published release artifacts (`<version> <app>.dmg`) a code project promotes builds into at `publish` time.
 

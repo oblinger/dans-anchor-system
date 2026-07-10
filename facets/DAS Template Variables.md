@@ -4,7 +4,7 @@ description: "the `{{PLACEHOLDER}}` system shared by file and folder templates"
 # FCT Template Variables
 The `{{PLACEHOLDER}}` system shared by file and folder templates — how each variable is defined, what to do when there is no data, and the structural-vs-cumulative distinction.
 
-| -[[DAS Template Variables]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[DAS Primitives]] → [FCT Template Variables](hook://p/DAS%20Template%20Variables)<br>: the `{{PLACEHOLDER}}` system shared by file and folder templates |
+| -[[DAS Template Variables]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Template Variables](hook://p/DAS%20Template%20Variables)<br>: the `{{PLACEHOLDER}}` system shared by file and folder templates |
 | --- | --- |
 | Related | [[DAS Template]] (umbrella),  [[DAS Template Files]],  [[DAS Template Folders]] |
 | Examples | [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template\|file]],  [[_{{DISK_LABEL}} Template\|folder]] (both show the two placeholder forms) |

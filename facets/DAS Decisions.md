@@ -2,7 +2,7 @@
 description: decisions are documentation — recorded under a `## Decisions` section in the design doc they shape; Warden never computes against them. Anything directly checkable is a rule, living in the companion `# RULESET` directly after the Decisions section; rules link back with an implements-D<N> note.
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Design Docs]] → [FCT Decisions](hook://p/DAS%20Decisions)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Decisions](hook://p/DAS%20Decisions)
 # FCT Decisions
 **Audited examples:** [[HBR Decisions]], [[Mini Decisions]], [[FEX Decisions]], [[UCM Decisions]], [[DKT Decisions]]
 

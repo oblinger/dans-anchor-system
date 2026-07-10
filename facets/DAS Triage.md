@@ -2,7 +2,7 @@
 description: "triage — presentation form for an anchor's status inside the global Q.md dashboard"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Track]] → [FCT Triage](hook://p/DAS%20Triage)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Triage](hook://p/DAS%20Triage)
 # FCT Triage
 Specification for the **Triage view** — the format and rules for rendering an anchor's status (banner, H2s, brackets) into its section of the global `~/ob/kmr/Q.md` dashboard.
 
@@ -28,7 +28,7 @@ Specification for the **Triage view** — the format and rules for rendering an 
 
 **TLDR** — The Triage facet defines the *rendered format* of an anchor's status section inside `~/ob/kmr/Q.md`: the H1 banner (TAG, counts, exact spacing), body H2s (`## Active` … `## Later`, skipping empty), bullet form (bolded bracket + mandatory wiki-link + em-dash description), and the selective-Later rule (only `[Questions]`/`[Verify]` items surface under `## Later`). **Cardinality: one per anchor** — each anchor owns exactly one section in `Q.md`, destructively rewritten on each `/triage` run. No per-anchor file; the view lives only in `Q.md`.
 
-**Presentation form — no per-anchor file location.** As of F075 (2026-05-19), per-anchor `{slug} Triage.md` files are retired. The triage view is rendered into the anchor's per-anchor section of `~/ob/kmr/Q.md`, which is the single triage surface for the vault. This facet remains a real concept (the triage view of an anchor's state) and its format is specified here; it just no longer corresponds to a per-anchor file. **Anchor-page dispatch tables do NOT link to this facet** (there is no per-anchor file to link to). CAB-level references to `[[FCT Triage]]` (from `CAB Base.md`, this spec) remain — the facet definition is still a real artifact.
+**Presentation form — no per-anchor file location.** As of F075 (2026-05-19), per-anchor `{slug} Triage.md` files are retired. The triage view is rendered into the anchor's per-anchor section of `~/ob/kmr/Q.md`, which is the single triage surface for the vault. This facet remains a real concept (the triage view of an anchor's state) and its format is specified here; it just no longer corresponds to a per-anchor file. **Anchor-page dispatch tables do NOT link to this facet** (there is no per-anchor file to link to). CAB-level references to `~~[[FCT Triage]]~~` (from `CAB Base.md`, this spec) remain — the facet definition is still a real artifact.
 
 The Triage **view** is the **status of the anchor** — the single place the user looks to see "where everything stands and what wants my attention next." It lists items grouped by workflow-state H2: `## Active`, `## Ready`, `## Now`, `## Next`, and **selectively** `## Later`. Within each H2, items appear in **source order from the backlog** (per F028 Q2).
 
@@ -44,7 +44,7 @@ Each anchor's section in Q.md is **agent-owned and destructively rewritten** on 
 
 ## Location
 
-**None — per-anchor.** The triage view is rendered into the anchor's section inside `~/ob/kmr/Q.md` (per F075). There is no per-anchor file. CAB-level dispatch tables continue to reference `[[FCT Triage]]` (this spec file); anchor-page dispatch tables do not.
+**None — per-anchor.** The triage view is rendered into the anchor's section inside `~/ob/kmr/Q.md` (per F075). There is no per-anchor file. CAB-level dispatch tables continue to reference `~~[[FCT Triage]]~~` (this spec file); anchor-page dispatch tables do not.
 
 ## No blank lines
 
@@ -90,7 +90,7 @@ Decide the H1 TAG by checking in order; the first match wins, except U and A com
 
 ## No anchor-level questions bullet
 
-Triage carries **no** questions bullet under the H1. Anchor-level (non-feature) questions are authored directly in `{slug} queries.md` § `## Questions` (per `[[FCT Query]]`) — there is no separate questions facet, and triage does not surface or count them. The H1 already links to `[[{slug} queries]]`, which is where those questions live.
+Triage carries **no** questions bullet under the H1. Anchor-level (non-feature) questions are authored directly in `{slug} queries.md` § `## Questions` (per `~~[[FCT Query]]~~`) — there is no separate questions facet, and triage does not surface or count them. The H1 already links to `[[{slug} queries]]`, which is where those questions live.
 
 ## Body H2s
 
@@ -167,8 +167,8 @@ Each anchor's section inside Q.md is agent-owned. Every `/triage` run — or pos
 ## Relationship to other planning docs
 
 - **[[CAB Backlog]]** — source of truth for what's in flight, including item ordering. Triage filters/lists the backlog rows (excluding Later/Icebox) and applies the bracket-form rules. The backlog file is NOT reordered by triage; bubble-to-top happens only in Q.md (per F075 Q2).
-- **`## Open Questions` blocks inside feature docs** (per `[[FCT Query]]`) — source of truth for question text. Triage points at them via wiki-link to the feature doc; it doesn't duplicate the Q content.
-- **`{slug} queries.md` § `## Questions`** (per `[[FCT Query]]`) — where anchor-level (non-feature) questions are authored directly. Triage neither counts nor surfaces them; they reach the user via the H1 link to the queries page.
+- **`## Open Questions` blocks inside feature docs** (per `~~[[FCT Query]]~~`) — source of truth for question text. Triage points at them via wiki-link to the feature doc; it doesn't duplicate the Q content.
+- **`{slug} queries.md` § `## Questions`** (per `~~[[FCT Query]]~~`) — where anchor-level (non-feature) questions are authored directly. Triage neither counts nor surfaces them; they reach the user via the H1 link to the queries page.
 - **`/roster`** — counts every item once per backlog H2; triage's H1 banner uses the same scheme so the two views agree.
 - **`~/ob/kmr/Q.md`** — the single triage surface (per F075). Each anchor's per-anchor section here IS the triage view; it lives nowhere else.
 - **Anchor pages (`{slug}.md`)** — do **not** carry a dispatch-table row pointing at this facet, since no per-anchor file exists to link to. The anchor's Q.md section is reached via the global dashboard, not via per-anchor navigation.

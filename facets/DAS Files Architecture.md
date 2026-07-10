@@ -2,7 +2,7 @@
 description: "the top-down design of a system's module & content structure — the file-tree architecture doc kind"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Design Docs]] → [FCT Files Architecture](hook://p/DAS%20Files%20Architecture)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Files Architecture](hook://p/DAS%20Files%20Architecture)
 # FCT Files Architecture
 The facet spec for a **Files Architecture** document — the top-down design of how a system's files, modules, and content are laid out: every folder, what lives in it, and why the tree is shaped that way.
 

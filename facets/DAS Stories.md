@@ -2,7 +2,7 @@
 description: "facet spec for user stories as first-class siblings of a PRD — inline-bullet form for small PRDs, extracted-folder form for large ones"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Design Docs]] → [FCT Stories](hook://p/DAS%20Stories)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Stories](hook://p/DAS%20Stories)
 # FCT Stories
 **Audited examples:** [[FEX Stories]], [[DAS US-CAE-1 — Schedule a Task]], [[DAS US-CAE-3 — Retry Failed Tasks]], [[Forum Stories]], [[HBR PRD User Stories]]
 
@@ -75,7 +75,7 @@ Body-only — no YAML frontmatter. The Stories index is **not an anchor** (the P
 - **H1** — `# {slug} Stories`.
 - **Summary line** — one-line gist of the stories surface, directly under the H1.
 - **Stories index table** — a header row (`Story | Description`), then one row per story: column 1 is the `[[US-{slug}-N — <Title>]]` wiki-link, column 2 is the one-line summary. Optionally interleave bold role/pipeline group rows (e.g. `**Ingest**`). No breadcrumb row.
-- **`## See also`** — links to `[[{slug} PRD]]` (parent) and `[[FCT Stories]]` (this facet spec).
+- **`## See also`** — links to `[[{slug} PRD]]` (parent) and `~~[[FCT Stories]]~~` (this facet spec).
 
 See the audited live instance [[FEX Stories]] for the rendered form, and [[Forum Stories]] for the role-grouped variant.
 
@@ -89,7 +89,7 @@ Each `US-<SLUG>-N — <Title>.md` file is body-only. Standard structure, top to 
 
 - **H1** — `# US-<SLUG>-<N> — <Title>` (matches the filename exactly — R-stories-07).
 - **`description::` line** — one-line summary identical to the row in `{slug} Stories.md`.
-- **NO dispatch table.** A story file is **not an anchor** — per [[DAS Doc Structure]] `R-doc-structure-02` it MUST NOT carry a breadcrumb-masthead dispatch table. Back-links to `[[{slug} PRD]]` (parent), `[[{slug} Stories]]` (sibling index), and `[[FCT Stories]]` (facet spec) live in the `## Related` section at the bottom, not in a top table.
+- **NO dispatch table.** A story file is **not an anchor** — per [[DAS Doc Structure]] `R-doc-structure-02` it MUST NOT carry a breadcrumb-masthead dispatch table. Back-links to `[[{slug} PRD]]` (parent), `[[{slug} Stories]]` (sibling index), and `~~[[FCT Stories]]~~` (facet spec) live in the `## Related` section at the bottom, not in a top table.
 - **`## As a <role>, I want <goal> so that <reason>`** — the canonical user-story sentence (required — R-stories-11). One line. Everything below is recommended but optional.
 - **`## Why`** — 2-4 paragraphs: what the user is trying to accomplish, why it matters, what's broken without this.
 - **`## Acceptance criteria`** — specific observable outcomes.
@@ -218,11 +218,11 @@ The `{slug} Stories.md` index page contains a wiki-link to `[[{slug} PRD]]` in i
 
 **Why:** as with story → PRD links — the index is reachable from the PRD, but readers landing on Stories.md from elsewhere need the upward pointer.
 
-### RULE R-stories-10 — Story / index links the facet spec as `[[FCT Stories]]` (stated)
+### RULE R-stories-10 — Story / index links the facet spec as `~~[[FCT Stories]]~~` (stated)
 
-Where a story file or the `{slug} Stories.md` dispatch references the governing facet spec, it links `[[FCT Stories]]` — the current facet name. The legacy `[[CAB Stories]]` form is stale and must be rewritten on touch.
+Where a story file or the `{slug} Stories.md` dispatch references the governing facet spec, it links `~~[[FCT Stories]]~~` — the current facet name. The legacy `[[CAB Stories]]` form is stale and must be rewritten on touch.
 
-**Check pattern:** grep story files + `{slug} Stories.md` for `\[\[CAB Stories\]\]`; any hit is a violation (should be `[[FCT Stories]]`).
+**Check pattern:** grep story files + `{slug} Stories.md` for `\[\[CAB Stories\]\]`; any hit is a violation (should be `~~[[FCT Stories]]~~`).
 
 **Why:** the facet was renamed CAB → FCT; dangling `[[CAB Stories]]` links resolve to nothing and break the audit walk from instance back to spec.
 

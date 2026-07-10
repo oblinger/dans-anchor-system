@@ -55,7 +55,7 @@ File tree for the {repo-name} repository with descriptions.
 
 {repo-name}/
 ├── Cargo.toml                         Workspace config + dependencies
-├── [[FCT Claude|CLAUDE.md]]                          Claude Code configuration
+├── [[DAS Claude|CLAUDE.md]]                          Claude Code configuration
 │
 ├── src/                               Library crate
 │   ├── [[{slug} Lib|lib.rs]]                         Crate root
