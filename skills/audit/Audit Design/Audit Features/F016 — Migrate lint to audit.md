@@ -25,7 +25,7 @@ Migrate the `/lint` skill family into `/audit`, per the user's direction to unif
 - All `skills/**/SKILL.md` and companion `.md` files
 - CAB facet specs (`CAB/CAB Facets/*.md`)
 - `skills/skills.md` / CAB Skills index
-- Anchor pages (`{NAME}.md`) that mention lint in dispatch tables or prose
+- Anchor pages (`{slug}.md`) that mention lint in dispatch tables or prose
 - Per-anchor docs that reference `/lint` invocation in workflows
 - Trigger words file in `~/.claude/CLAUDE.md` if lint has a trigger
 

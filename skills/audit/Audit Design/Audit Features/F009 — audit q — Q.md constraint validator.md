@@ -75,16 +75,16 @@ def links_in_file(file_path: Path, vault_index: dict[str, list[Path]]) -> list[L
 
 ### 2.5. `BacklogReader` — derived backlog-entry list (per Q3 resolution)
 
-Companion primitive: given a `{NAME} Backlog.md`, return a structured list of backlog entries. Used to **derive** the per-anchor Q.md banner (instead of validating it against an agent-written banner). Also reusable by `/roster`, future audits, and any skill that needs structured backlog data.
+Companion primitive: given a `{slug} Backlog.md`, return a structured list of backlog entries. Used to **derive** the per-anchor Q.md banner (instead of validating it against an agent-written banner). Also reusable by `/roster`, future audits, and any skill that needs structured backlog data.
 
 ```python
 @dataclass
 class BacklogEntry:
-    source_file: Path           # the {NAME} Backlog.md path
+    source_file: Path           # the {slug} Backlog.md path
     source_line: int            # 1-indexed line where the entry begins
     identifier: str             # 'F063', 'B-md-durability', etc. — first bold-token in the bullet
     horizon: str                # 'Active' | 'Ready' | 'Now' | 'Next' | 'Later' | 'Done' | 'Icebox' | 'Legwork'
-                                #   from the enclosing H2 (or 'Icebox' when sourced from {NAME} Icebox.md)
+                                #   from the enclosing H2 (or 'Icebox' when sourced from {slug} Icebox.md)
     status: str                 # bracket text: 'Ready', 'Questions', 'Designing', 'Blocked', 'Waiting',
                                 #   'Watching', 'Verify', 'Active', 'Done', '' (empty bracket / unset)
     link: LinkEntry | None      # first link in the row body if present (typically the row's primary target)
@@ -96,7 +96,7 @@ def backlog_entries(backlog_file: Path, vault_index: dict[str, list[Path]]) -> l
 ```
 
 **Banner derivation:** the per-anchor Q.md banner is computed by:
-- Walk the BacklogEntry list (plus `{NAME} Questions.md` for à la carte Qs, plus `{NAME} Icebox.md` for icebox count).
+- Walk the BacklogEntry list (plus `{slug} Questions.md` for à la carte Qs, plus `{slug} Icebox.md` for icebox count).
 - Count by status bracket for Q/V/A/R; count by horizon for Now/Next/Later/Icebox.
 - For `Questions`: sum the **count of `Q<n>` markers at each entry's link target** (using `links_in_file` on each target). Only used for the banner; not validated for exact match elsewhere.
 - Compute the anchor TAG cascade.
@@ -120,7 +120,7 @@ This subsumes the "every triage entry must link to something that exists" rule t
 
 #### C2. Question presence — `[Questions]` brackets point at Q-marker-bearing targets
 
-For each BacklogEntry with status `Questions` (or `N Questions`): follow the link, scan the target for **at least one** `^Q\d+\s+—` marker (in a feature doc's `## Open Questions` H2; in a backlog row's body sub-bullets; in a `{NAME} Questions.md` H2). **Existence only — not exact count.** Per user guidance: *"I'm not as worried that the number of questions is accurate."* Failures:
+For each BacklogEntry with status `Questions` (or `N Questions`): follow the link, scan the target for **at least one** `^Q\d+\s+—` marker (in a feature doc's `## Open Questions` H2; in a backlog row's body sub-bullets; in a `{slug} Questions.md` H2). **Existence only — not exact count.** Per user guidance: *"I'm not as worried that the number of questions is accurate."* Failures:
 
 - `SKA Backlog.md:31 — B-md-durability has [Questions] but the row body contains no Q<n> markers`
 - `Q.md:14 — F004 bracket says [Questions], target file has no Q<n> markers in any heading`
@@ -133,20 +133,20 @@ If BacklogReader sees a row with bracket `[Done]` (or `[Done YYYY-MM-DD]`) under
 
 #### D1. Banner — DERIVED, not validated
 
-The per-anchor section's H1 banner counts and TAG are **computed every run** from BacklogReader output (`{NAME} Backlog.md`) plus `{NAME} Questions.md` (à la carte Q count) plus `{NAME} Icebox.md` (icebox count). The derived banner overwrites the existing banner — there's no "compare and complain" step, because there's nothing to drift from when the banner is rewritten on every audit pass.
+The per-anchor section's H1 banner counts and TAG are **computed every run** from BacklogReader output (`{slug} Backlog.md`) plus `{slug} Questions.md` (à la carte Q count) plus `{slug} Icebox.md` (icebox count). The derived banner overwrites the existing banner — there's no "compare and complain" step, because there's nothing to drift from when the banner is rewritten on every audit pass.
 
 This replaces the previous validate-banner-against-body check entirely. Banner is a function of the backlog; the validator computes that function.
 
 ### 4. `--fix` scope — Q.md AND backlog-row repairs (per Q4 resolution)
 
-`--fix` extends the bare (read-only) script run with mechanical repairs in **two surfaces**: Q.md AND the touched anchors' `{NAME} Backlog.md` files. Per Q4: *"when you do the fix, it's gonna fix the backlog row as well."*
+`--fix` extends the bare (read-only) script run with mechanical repairs in **two surfaces**: Q.md AND the touched anchors' `{slug} Backlog.md` files. Per Q4: *"when you do the fix, it's gonna fix the backlog row as well."*
 
 | Failure | Mechanical fix? | Write surface | What `--fix` does |
 |---|---|---|---|
 | Per-anchor Q.md banner counts / TAG drift | **Yes** | Q.md | Derive from BacklogReader output; rewrite the H1 line on every run per D1. (Strictly, D1 runs even in bare mode — the banner is computed; `--fix` is what makes the rewrite land.) |
-| Stale `[Done]` row in a horizon H2 (per C4) | **Yes** | `{NAME} Backlog.md` | Move the row to the top of `## Done`, preserving body. Removes from its previous horizon (`## Now` / `## Next` / `## Later` / `## Active` / `## Ready` / `## Legwork`). |
-| Backlog row `[Ready]` with disqualifying hedging in body | **Yes** | `{NAME} Backlog.md` | Rebracket to `[Questions]` per the `[[SKA triage]]` rebracketing discipline; preserve row content otherwise. |
-| Backlog row `[N Questions]` count mismatch with target's Q-marker count | **Yes** | `{NAME} Backlog.md` | Recount Q-markers at the link target; rewrite the bracket to match. |
+| Stale `[Done]` row in a horizon H2 (per C4) | **Yes** | `{slug} Backlog.md` | Move the row to the top of `## Done`, preserving body. Removes from its previous horizon (`## Now` / `## Next` / `## Later` / `## Active` / `## Ready` / `## Legwork`). |
+| Backlog row `[Ready]` with disqualifying hedging in body | **Yes** | `{slug} Backlog.md` | Rebracket to `[Questions]` per the `[[SKA triage]]` rebracketing discipline; preserve row content otherwise. |
+| Backlog row `[N Questions]` count mismatch with target's Q-marker count | **Yes** | `{slug} Backlog.md` | Recount Q-markers at the link target; rewrite the bracket to match. |
 | Backlog row carries `[Questions]` but link target has zero Q-markers | **No** | — | Either bracket or target is wrong; needs adjudication. Reported to stdout. |
 | Stale wiki-link form (e.g., `[[NAME Triage]]` post-F075 retirement) | **No** | — | Needs human judgment about the replacement form. Reported to stdout. |
 | Missing block-id at target (`[[SKA Backlog#^F063]]` but no `^F063` marker exists in target) | **No** | — | Adding `^block-id` to the target requires understanding the row layout; out of scope for mechanical fix. Reported to stdout. |
@@ -193,7 +193,7 @@ When the QFix backlog entry IS written, `/audit q-fix` (next section) is the way
 
 Stable identifier: **`QFix`** (not F-numbered — regenerated each audit pass; F-numbers would burn fast). Singleton — at most one per anchor at a time.
 
-Position: **top of `## Ready`** in `{NAME} Backlog.md`. Bracket: `[Ready]`. The entry is ready-to-mint work — pulling it off the top is the user's path to "make the audit pass clean."
+Position: **top of `## Ready`** in `{slug} Backlog.md`. Bracket: `[Ready]`. The entry is ready-to-mint work — pulling it off the top is the user's path to "make the audit pass clean."
 
 ```text
 ## Ready
@@ -212,7 +212,7 @@ Position: **top of `## Ready`** in `{NAME} Backlog.md`. Bracket: `[Ready]`. The 
 
 New skill: `skills/audit/audit-q-fix.md`. Runbook:
 
-1. **Read the QFix entry** from the cwd anchor's `{NAME} Backlog.md`. If absent → exit ("no QFix entry; nothing to do").
+1. **Read the QFix entry** from the cwd anchor's `{slug} Backlog.md`. If absent → exit ("no QFix entry; nothing to do").
 2. **For each sub-bullet (finding)**, apply a fix using agent judgment for the specific finding type:
    - Stale wiki-link → if a near-match candidate exists in the vault, rewrite the link.
    - Bracket↔target mismatch → read the row's body; either hoist informal Qs to numbered form, or rebracket the row to a state it actually satisfies.
@@ -262,7 +262,7 @@ Bounded by IO. If sub-second budget is exceeded on the user's vault, profile and
 
 ### 8. Out of scope (v1)
 
-- Validating per-anchor `{NAME} Questions.md` files. Different surface; if Qs there have similar staleness, file a separate F-row.
+- Validating per-anchor `{slug} Questions.md` files. Different surface; if Qs there have similar staleness, file a separate F-row.
 - Validating module-doc `Arch` rows (per F074). The `LinksManager` class would help, but the constraint checks are different; separate audit subaction.
 - Auto-detecting the F075-style "renamed file" case (e.g., `[[F067 — Drive mode: skip ...]]` → suggest `[[F067 — Drive mode — skip ...]]` because the new file exists and the basename is close). Useful eventually, but the heuristics are tricky; defer until renames stop happening (or until we get burned again).
 - Multi-run optimization (incremental check; only re-validate changed sections). Premature; sub-second runtime makes this irrelevant.
