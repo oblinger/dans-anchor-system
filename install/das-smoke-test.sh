@@ -12,7 +12,7 @@ TARGET="$HOME/.claude/skills"
 mkdir -p "$CLONE/install" "$HOME"
 cp "$DAS_SRC" "$CLONE/install/das"
 chmod +x "$CLONE/install/das"
-for s in crank groom triage audit; do          # crank/groom/triage=Drive, audit=Hygiene
+for s in crank groom mint audit; do          # crank/groom/mint=Drive, audit=Hygiene
     mkdir -p "$CLONE/skills/$s"
     echo "# $s v1" > "$CLONE/skills/$s/SKILL.md"
 done
@@ -22,7 +22,7 @@ fail() { echo "FAIL: $1"; exit 1; }
 
 # 1. enable a group → all member symlinks exist
 "$DAS" enable Drive > /dev/null
-for s in crank groom triage; do
+for s in crank groom mint; do
     [ -L "$TARGET/$s" ] || fail "enable Drive: $s not symlinked"
 done
 [ ! -e "$TARGET/audit" ] || fail "enable Drive: audit leaked in"
@@ -30,7 +30,7 @@ done
 # 2. disable one → gone; others remain
 "$DAS" disable groom > /dev/null
 [ ! -e "$TARGET/groom" ] || fail "disable groom: still present"
-[ -L "$TARGET/crank" ] && [ -L "$TARGET/triage" ] || fail "disable groom: siblings lost"
+[ -L "$TARGET/crank" ] && [ -L "$TARGET/mint" ] || fail "disable groom: siblings lost"
 
 # 3. real dir at a skill path → enable preserves it (SKIP), never overwrites
 mkdir -p "$TARGET/audit"
@@ -51,7 +51,7 @@ grep -q "crank v1" "$TARGET/crank/SKILL.md" || fail "pin bump touched the fork"
 "$DAS" diff crank | grep -q "v2" || fail "diff crank: delta not reported"
 
 # 6. diff on a symlinked skill → no divergence, exit 0
-"$DAS" diff triage | grep -q "track-live" || fail "diff symlinked: wrong report"
+"$DAS" diff mint | grep -q "track-live" || fail "diff symlinked: wrong report"
 
 # 7. status runs and shows states
 "$DAS" status | grep -q "restart agents" || fail "status: missing session-scope note"

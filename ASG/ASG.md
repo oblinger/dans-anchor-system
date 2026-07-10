@@ -33,7 +33,7 @@ The per-document shapes, grouped as under [[FCT]]. Each links to its facet spec.
 | --- | --- |
 | [[DAS Anchor\|Anchor]] | [[DAS Anchor Page\|Anchor Page]],  [[DAS Naming\|Naming]],  [[DAS Folder\|Folder]],  [[DAS CLI\|CLI]],  [[DAS Code Repository\|Code Repository]] |
 | [[DAS Design Docs\|Design Docs]] | [[DAS PRD\|PRD]],  [[DAS Architecture\|Architecture]],  [[DAS UX Design\|UX Design]],  [[DAS Testing\|Testing]],  [[DAS Decisions\|Decisions]],  [[DAS Roadmap\|Roadmap]],  [[DAS Stories\|Stories]] |
-| [[DAS Track\|Track]] | [[DAS Features\|Features]],  [[DAS Status\|Status]],  [[DAS Query\|Query]],  [[DAS Triage\|Triage]],  [[DAS Messages\|Messages]],  [[DAS Log\|Log]] |
+| [[DAS Track\|Track]] | [[DAS Features\|Features]],  [[DAS Status\|Status]],  [[DAS Query\|Query]],  ~~[[DAS Triage\|Triage]]~~,  [[DAS Messages\|Messages]],  [[DAS Log\|Log]] |
 | [[DAS Doc\|Doc]] | [[DAS Doc Structure\|Doc Structure]],  [[DAS Ruleset\|Ruleset]],  [[DAS Brief\|Brief]],  [[DAS Discussion\|Discussion]] |
 | [[DAS Dispatch\|Dispatch]] | [[DAS Dispatch Table\|Dispatch Table]] |
 | [[DAS Primitives\|Primitives]] | [[DAS Skill\|Skill]],  [[DAS Facet\|Facet]],  [[DAS Ruleset\|Ruleset]] |

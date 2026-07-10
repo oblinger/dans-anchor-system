@@ -21,17 +21,33 @@ The asking surface: one `{slug} queries.md` per anchor, in `{slug} Track/`, that
 | [[#Cross-cutting]] |  |
 | **[[#BRIEF]]** |  |
 
-**TLDR** — One `{slug} queries.md` per anchor (cardinality: one), in `{slug} Track/`, owned by the `/ask` skill. Fixed five-section order (`## Agent Resolutions` → `## Verifications` → `## Immediate Questions` → `## Questions` → `## Ready`); empty sections omitted. Verifications are agent-run / user-judged — never "user runs X". Questions are self-contained or wiki-linked. The file shrinks toward empty as answers are applied. Validated by `/audit doc` via `R-query`.
+**TLDR** — One `{slug} queries.md` per anchor (cardinality: one), in `{slug} Track/`, owned by the `/ask` skill. Opens with the anchor's **status banner** (TAG + counts) as its H1, then the fixed five-section order (`## Agent Resolutions` → `## Verifications` → `## Immediate Questions` → `## Questions` → `## Ready`); empty sections omitted. Verifications are agent-run / user-judged — never "user runs X". Questions are self-contained or wiki-linked. The whole body is **copied verbatim into the anchor's `Q.md` section** (F231 — the query file is the queue-file content; there is no separate triage view). The file shrinks toward empty as answers are applied. Validated by `/audit doc` via `R-query`.
 
 ## What it is
 
-`{slug} queries.md` is the single per-anchor surface where the user answers everything the agents need from them. The **`/ask` skill** ([[SKL Query]]) *builds* it (the procedure — walking open questions, the determination routing, running verifications ahead of time, console echo); **this facet** governs what the resulting *file* must look like, so it can be audited (`/audit doc`, the F167 on-write hook). The skill cites these rules rather than restating them.
+`{slug} queries.md` is the single per-anchor surface where the user answers everything the agents need from them — **and it is simultaneously the anchor's status view**: its banner + body are copied into the anchor's section of the global `~/ob/kmr/Q.md` dashboard (F231, retiring the separate triage view). The **`/ask` skill** ([[SKL Query]]) *drives* it (determination routing — walking open questions, running verifications ahead of time), but the file itself is **mechanically rendered** by `queries-render.py` (`audit/scripts/`), fired on every `state` mutation via `audit-q --fix`; the same render copies the body into `Q.md`. **This facet** governs what the resulting *file* must look like, so it can be audited (`/audit doc`, the F167 on-write hook). The skill + renderer cite these rules rather than restating them.
 
 ## Parts
 
-- **Frontmatter + H1** — `description:` then `# {slug} Queries`.
+- **Frontmatter + banner H1** — `description:` then the **status banner** as the H1 (see § The banner). Inside `queries.md` the banner self-links `[[{slug}|{slug}]]`; the copy in `Q.md` links `[[{slug} queries|{slug}]]` (the click-into page).
 - **Five sections, fixed order** (each omitted when empty): `## Agent Resolutions`, `## Verifications`, `## Immediate Questions`, `## Questions`, `## Ready`.
 - The file is **agent-owned and trimmed on answer** — answered items are removed, so it shrinks toward empty.
+- **Copied into `Q.md`** — the banner (retargeted) + the whole body become the anchor's per-anchor section in the global dashboard, bubbled to the top and destructively rewritten on each render (see § Copied into Q.md).
+
+## The banner
+
+The H1 is the anchor's **status banner**, the exact form (spacing locked — the renderer and `R-query-16` depend on it):
+
+`# [<TAG>]  [[{slug}|{slug}]]  -  Ready N    Questions N   |   Now N    Next N    Later N    Verify N    Icebox N`
+
+- **TAG cascade** (first match wins, U and A combine): `[U]` any `[Questions]`/`[Verify]` items · `[A]` any `[Active]`/`[Ready]` items · `[U+A]` both · `[G]` items only in `## Now`/`## Next` · `[-]` items only in `## Later` · `[]` nothing anywhere.
+- **Two headline numbers** — `Ready` = `[Active]`+`[Ready]`(+`[Agreed]`) in active horizons; `Questions` = pending `Q<n>` across `[Questions]`-row feature docs plus `[Verify]`-bracket rows.
+- **Horizon group** — `Now`/`Next`/`Later`/`Verify`/`Icebox` raw per-H2 bullet counts (placement, not state).
+- **Spacing** — two spaces after `[<TAG>]`; three spaces around the `-`; four spaces between counts in a group; `   |   ` (three-space-pipe-three-space) between the headline pair and the horizon group. A trailing `{N}` appears only when the anchor's `B-QFix` carries N > 0 residuals.
+
+## Copied into Q.md
+
+The banner + body are copied into the anchor's section of `~/ob/kmr/Q.md` (the global queue-file dashboard) — the single cross-anchor surface. The copy is **agent-owned and destructively rewritten** on each render: the renderer removes the existing section and re-inserts the fresh one at the top of `Q.md` (bubble-to-top). The only difference from the on-disk `queries.md` is the banner link target (`[[{slug} queries|{slug}]]` in `Q.md`, so the user clicks over to the drain page). There is no separate per-anchor triage file and no separately-formatted triage render — the query file *is* the queue-file content.
 
 # RULESET R-query
 include::
@@ -49,10 +65,10 @@ One per anchor, slug-prefixed, in the tracking folder.
 
 **Check pattern:** the file's basename is `{slug} queries.md` and its parent is `{slug} Track` (or a sub-folder rooted there).
 
-### RULE R-query-02 — Opens with frontmatter `description:` then H1 `# {slug} Queries` (checked)
+### RULE R-query-02 — Opens with frontmatter `description:` then the status-banner H1 (checked)
 check:: frontmatter_has description
 
-**Check pattern:** YAML frontmatter present with a non-empty `description:`; the first body line is `# {slug} Queries`.
+**Check pattern:** YAML frontmatter present with a non-empty `description:`; the first body line is the status banner `# [<TAG>]  [[{slug}|{slug}]]  -  Ready N …` (per § The banner), not a plain `# {slug} Queries` title.
 
 ### RULE R-query-03 — Five sections, fixed order, no others (checked)
 check:: queries_sections_subsequence
@@ -60,6 +76,15 @@ check:: queries_sections_subsequence
 Sections, when present, appear in this order and no foreign H2s interleave: `## Agent Resolutions` → `## Verifications` → `## Immediate Questions` → `## Questions` → `## Ready`. Empty sections are omitted.
 
 **Check pattern:** the H2 sequence is a subsequence of `[Agent Resolutions, Verifications, Immediate Questions, Questions, Ready]`; no H2 outside that set.
+
+### RULE R-query-16 — Banner H1 has the exact status-banner form + spacing (checked)
+check:: queries_banner_form
+
+The H1 is the status banner (§ The banner): `# [<TAG>]  [[{slug}|{slug}]]  -  Ready N    Questions N   |   Now N    Next N    Later N    Verify N    Icebox N`, with the locked spacing (two spaces after `[<TAG>]`; three around `-`; four between counts; `   |   ` between the headline pair and the horizon group). The renderer (`queries-render.py`) and the `Q.md` copy both depend on this exact form.
+
+**Check pattern:** the H1 matches the banner grammar with the prescribed spacing; single-spaced or pipe-missing forms fail.
+
+**Why:** the same line is copied into `Q.md`, where the section-boundary scan keys off the `# [` prefix; relaxing the form silently breaks the dashboard render.
 
 ## Verifications — agent runs, user judges
 
