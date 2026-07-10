@@ -31,8 +31,8 @@ SKILLS_SRC = CLONE / "skills"
 # layout's one grouping, reused for activation). Skills present in skills/
 # but absent here render under "Other".
 GROUPS = {
-    "Drive": ["crank", "feature", "finalize", "fortify", "groom", "land",
-              "mint", "query", "triage"],
+    "Drive": ["ask", "crank", "feature", "finalize", "fortify", "groom",
+              "land", "mint"],
     "Anchor": ["create", "install", "migrate", "move", "publish", "streams",
                "wp", "yore"],
     "Dev": ["code", "fix", "pilot-flow", "pr-flow"],
