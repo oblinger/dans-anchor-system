@@ -1,5 +1,5 @@
 ---
-description: "the SKL Pilot Flow doc"
+description: "`/pilot-flow` is the top-down design-then-implementation workflow."
 ---
 # /pilot-flow
 `/pilot-flow` is the top-down design-then-implementation workflow. You start from a PRD, work through Open Questions, UX, system design, file layout, and module descriptions, then a roadmap — and then implementation dispatches in priority order. Reach for it when you say "pilot flow" or "top-down development" — the alternative is `/pr-flow`, which is bottom-up iterative PRs with user review per increment.

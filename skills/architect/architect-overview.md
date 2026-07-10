@@ -86,7 +86,7 @@ This path runs anywhere, so it **omits** the CAB-only and vault-only steps of th
 - No staleness precondition (no `module_docs_audited:` field to read).
 - No reading module docs / no dispatch-table `Arch`-row reconciliation.
 - **No Q.md post-condition** and **no `/audit architecture` post-condition** (§8 / §8a) — both are skip-if-absent per F184 and never fire off-vault.
-- If a design decision genuinely needs the user and `/query` isn't installed, ask inline in chat.
+- If a design decision genuinely needs the user and `/ask` isn't installed, ask inline in chat.
 
 ### 7. Glance + report
 

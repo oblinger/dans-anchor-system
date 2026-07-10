@@ -129,7 +129,7 @@ Each F-row may carry a workflow-state bracket per the `[[SKA workflow]]` discipl
 
 **`[Partial — …]` is NOT a valid bracket form.** Only the standard brackets enumerated above are permitted. A row carrying `[Partial — N of M done]` (or any `[Partial …]` variant) is malformed and must be rewritten to one of the standard brackets per the state of the *remaining* sub-bullets. `/groom` rewrites these on encounter (per `[[SKA groom]]` § Bracket reassessment).
 
-**Aggregate-row treatment.** When an item has heterogeneous sub-bullets (e.g., an `/audit` finding row with some mechanical-ready and some user-gated sub-bullets), the spec is **pre-split on creation**: produce ≥1 backlog row per state-cluster — one `[Ready]` row containing mechanical sub-bullets, one or more `[Questions]` rows for sub-bullets needing user input (each linking to a feature doc where the Qs are parked per `[[SKA query]]`). Done sub-bullets are excluded entirely. See `[[SKA audit]]` § Backlog entry format for the canonical producer.
+**Aggregate-row treatment.** When an item has heterogeneous sub-bullets (e.g., an `/audit` finding row with some mechanical-ready and some user-gated sub-bullets), the spec is **pre-split on creation**: produce ≥1 backlog row per state-cluster — one `[Ready]` row containing mechanical sub-bullets, one or more `[Questions]` rows for sub-bullets needing user input (each linking to a feature doc where the Qs are parked per `[[SKA ask]]`). Done sub-bullets are excluded entirely. See `[[SKA audit]]` § Backlog entry format for the canonical producer.
 
 `[Blocked F<NNN>]` is the **chained** form of `[Blocked]` — used when the blocker is another feature's progression. The chained F-number is the description; the user clicks `F<NNN>` to learn the actual current state of the blocker. Generic `[Blocked]` (without an F-number) is for non-feature blockers — diagnostic capture, external review, a missing API — and the row body must describe what's blocking.
 
@@ -233,7 +233,7 @@ Each round-trip with the user costs scrollback context and stalls the batch — 
 
 ## The groom frontier
 
-**The frontier is the set of tasks that could be next for execution** (defined 2026-07-05, F228; canonical statement in [[Query PRD]] § The groom frontier): rows under `## Active` / `## Ready` / `## Now` / `## Next`, plus items soon on the relevant roadmaps — the next unmet milestone of `{slug} Roadmap.md` when one exists. `## Later` and the icebox are not frontier. `/groom`'s purpose is to get every frontier task **fully ready to be executed** — planned (a declared `- **Next:**` step), promoted when the Definition of Ready holds, or honestly bracketed behind its named blocker/questions. `/query` mines its anticipatory questions from the frontier. The `R-backlog` ruleset below encodes the resulting file-invariants.
+**The frontier is the set of tasks that could be next for execution** (defined 2026-07-05, F228; canonical statement in [[Query PRD]] § The groom frontier): rows under `## Active` / `## Ready` / `## Now` / `## Next`, plus items soon on the relevant roadmaps — the next unmet milestone of `{slug} Roadmap.md` when one exists. `## Later` and the icebox are not frontier. `/groom`'s purpose is to get every frontier task **fully ready to be executed** — planned (a declared `- **Next:**` step), promoted when the Definition of Ready holds, or honestly bracketed behind its named blocker/questions. `/ask` mines its anticipatory questions from the frontier. The `R-backlog` ruleset below encodes the resulting file-invariants.
 
 ## Location
 
@@ -251,7 +251,7 @@ Items graduate from Backlog to Todo or Roadmap when they become priorities, or m
 # RULESET R-backlog
 include::
 where:: `file:{ANCHOR}/**/* Backlog.md`
-description:: the `{slug} Backlog.md` format — frontier invariants (F228) + bracket promises
+description:: SKA skill anchor for the backlog-horizons skill
 
 What `/audit doc` checks on a backlog file. The skills that maintain it are `/groom` (frontier planning) and the `state` tool (mutations); these are the file-invariants the groomed state must satisfy. Format of this set: [[DAS Ruleset]].
 

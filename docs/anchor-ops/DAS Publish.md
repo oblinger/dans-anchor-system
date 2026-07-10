@@ -1,5 +1,5 @@
 ---
-description: "the `/publish` skill"
+description: "`/publish` deploys an anchor's public page to the web."
 ---
 # /Publish
 `/publish` deploys an anchor's public page to the web. It reads the publish config from the anchor's `.anchor` file to decide which method to use — **gitproj** (the default; publishes to `https://oblinger.github.io/gitproj/{name}/` as a subdirectory of your main gitproj repo, no separate repo needed) or **github-pages** (dedicated repo at `oblinger/{name}`, optionally with a custom domain). Use it when you say "publish this," "deploy the page," or "push to web."

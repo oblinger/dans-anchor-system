@@ -1,5 +1,5 @@
 ---
-description: "the /feature concept dossier"
+description: "Manage a feature from idea through design, agreement, implementation, testing, and completion."
 ---
 # SKL Feature
 The concept dossier for **`/feature`** — everything published about the skill: the user guide, its design, and the runtime spec.

@@ -36,7 +36,7 @@ A move relocates an anchor's folder and updates every system that references it 
 
 # RULESET R-fct-move
 include::
-description:: The rules every Move operation must satisfy — physical relocation, system reindex, and session migration in a single orchestrated pass.
+description:: `/move` relocates an anchor folder to a new path and updates every path-dependent system that indexes it — HookAnchor, Claude Code session history, hardcoded paths inside the anchor's own configs, …
 
 ### RULE R-fct-move-01 — Move is executed atomically via `/cab move` (checked)
 A move is never performed piecemeal by hand; it is always orchestrated through the `/cab move` skill, which sequences all six steps in order.

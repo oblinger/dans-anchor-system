@@ -1,5 +1,5 @@
 ---
-description: "the `/anchor` skill"
+description: "The `anchor` skill is the low-level toolkit for working with **anchors** — the standardized named folders that this whole system is built around."
 ---
 # SKL Anchor Toolkit
 The `anchor` skill is the low-level toolkit for working with **anchors** — the standardized named folders that this whole system is built around. It bundles scripts and actions for auditing an anchor's docs against its source code, managing its `.anchor` config file, scanning the vault to discover every anchor, and tracking activity status across projects.

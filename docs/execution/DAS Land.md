@@ -1,5 +1,5 @@
 ---
-description: "the /land concept dossier"
+description: "`/land` — bounded crank."
 ---
 # SKL Land
 The concept dossier for **`/land`** — everything published about the skill: the user guide, its design, and the runtime spec.

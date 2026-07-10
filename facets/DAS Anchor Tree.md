@@ -87,7 +87,7 @@ Software project anchors keep their design documents in `{slug} Design/` — inc
 
 {slug} Discussion.md — **Discussion** (optional) — Extended conversations about design choices, trade-offs, and redesign decisions. This is the place for "why" and "what we considered." Use dated sections. Unlike the other design docs, this file is a log, not a specification.
 
-Anchor-level questions are surfaced through `/query` into `{slug} Track/{slug} queries.md`; per-anchor status is surfaced into the vault-wide `~/ob/kmr/Q.md` (the standalone `{slug} Triage.md` and `{slug} Questions.md` Plan-era docs are retired).
+Anchor-level questions are surfaced through `/ask` into `{slug} Track/{slug} queries.md`; per-anchor status is surfaced into the vault-wide `~/ob/kmr/Q.md` (the standalone `{slug} Triage.md` and `{slug} Questions.md` Plan-era docs are retired).
 
 ### Design Workflow
 
@@ -96,7 +96,7 @@ The PRD should include a workflow table like this to orient readers:
 | Step | Document | Purpose |
 |------|----------|---------|
 | 1 | {slug} Design/{slug} PRD.md | Clarify requirements and scope |
-| 2 | {slug} Track/{slug} queries.md | Items needing user input (via `/query`) |
+| 2 | {slug} Track/{slug} queries.md | Items needing user input (via `/ask`) |
 | 3 | {slug} Design/{slug} UX Design.md | Design user-facing experience |
 | 4 | {slug} Design/{slug} Architecture.md | Design technical architecture |
 | 5 | {slug} Dev Docs/{slug} Files.md + Dev Docs/ | File tree and module docs |

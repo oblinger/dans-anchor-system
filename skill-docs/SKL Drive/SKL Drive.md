@@ -17,5 +17,4 @@ User guides for the engine-room verbs that drive work forward through the lifecy
 | [[DAS Mint\|Mint]] | `/mint` -- Mint takes what's ready and makes it real. |
 | [[SKL Triage\|Triage]] | `/triage` (or the punctuation trigger `"` — a single double-quote as the entire message) regenerates the current anchor's per-anchor section inside `~/ob/kmr/Q.md`, the vault-level Agent Status das… |
 | --- | |
-| [[DAS ask-inline]] | How to ask the user a question inline — ONE crisp, bold, `[question]`-tagged line they can answer immediately, with the context inside it. The style that finally worked after the user struggled for a long time to get agents to ask answerable questions. |
-| [[SKL Query]] | /query — the clean skill for asking you questions, formatted so you can always answer from what's written. |
+| [[SKL Query]] | /ask — the clean skill for asking you questions, formatted so you can always answer from what's written. |

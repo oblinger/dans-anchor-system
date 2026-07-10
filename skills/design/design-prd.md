@@ -105,7 +105,7 @@ End the report by asking the user how to proceed: drive end-to-end, pick one mov
 
 Based on the user's response:
 
-- **"go" / "drive" / `'` / `/crank`** — execute all the suggested moves end-to-end. For each move, edit the PRD, glance (only when user-facing review needed), surface genuine questions via `/query --doc` per § 5.
+- **"go" / "drive" / `'` / `/crank`** — execute all the suggested moves end-to-end. For each move, edit the PRD, glance (only when user-facing review needed), surface genuine questions via `/ask --doc` per § 5.
 - **Pick one** ("do A") — execute that one move, re-survey, re-report.
 - **Discuss** — answer the user's questions; iterate the report; no edits until directed.
 
@@ -209,7 +209,7 @@ Same as § 2d above.
 
 ### 4. Fleshing-out checklist (used during iteration)
 
-Use these as internal questions when surveying or refining a section. They become user-facing `/query` questions only when genuinely undecidable from context.
+Use these as internal questions when surveying or refining a section. They become user-facing `/ask` questions only when genuinely undecidable from context.
 
 - Can the Overview explain what this is and why in two sentences? If not, frame is unclear.
 - What's the smallest version that would be useful? That's the v1 scope.
@@ -223,10 +223,10 @@ Use these as internal questions when surveying or refining a section. They becom
 When iteration surfaces a decision, route it through [[query]]:
 
 ```bash
-/query --doc "{anchor}/{slug} Design/{slug} PRD.md" "<question>"
+/ask --doc "{anchor}/{slug} Design/{slug} PRD.md" "<question>"
 ```
 
-The decide-vs-ask judgment **belongs to the /query discipline**, not this skill. The short version of what /query enforces: if the choice is **reversible AND the user will see the wrong call and easily redirect**, the agent should decide and log under `## Resolved` as an agent-made-this-call entry — not as a question. Only when the decision is irreversible, invisible, or genuinely undecidable from context does it become a `## Open Questions` Q.
+The decide-vs-ask judgment **belongs to the /ask discipline**, not this skill. The short version of what /ask enforces: if the choice is **reversible AND the user will see the wrong call and easily redirect**, the agent should decide and log under `## Resolved` as an agent-made-this-call entry — not as a question. Only when the decision is irreversible, invisible, or genuinely undecidable from context does it become a `## Open Questions` Q.
 
 See [[query]] and [[DAS ask-format]] for the full lifecycle (Q-numbering, recommendation strength, Resolved migration, Q.md dashboard sync).
 
@@ -270,5 +270,5 @@ Audit rules to honor: [[DAS PRD#RULESET R-prd|R-prd]] (9 rules).
 - Sibling sub-skills: [[design-ux]], [[design-architect]], [[design-testing]], [[design-roadmap]]
 - Status tracking: [[DAS Status]]
 - Open-question discipline: [[DAS ask-format]]
-- Question authoring skill: `/query --doc`
+- Question authoring skill: `/ask --doc`
 - F130 (state script + central Status), F094 (Design folder restructure)

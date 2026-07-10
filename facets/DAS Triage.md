@@ -159,7 +159,7 @@ Each anchor's section inside Q.md is agent-owned. Every `/triage` run — or pos
 
 ## Lifecycle
 
-- **Created on first `/triage` (or à la carte `/query`) run** — the anchor's section is inserted at the top of Q.md if absent.
+- **Created on first `/triage` (or à la carte `/ask`) run** — the anchor's section is inserted at the top of Q.md if absent.
 - **Rewritten + bubbled-to-top** on every subsequent participating-skill run.
 - **Removed from Q.md entirely** when the anchor has TAG `[]` (zero items anywhere).
 - **Glanced at end of an active-mode run** — but the glance target is `~/ob/kmr/Q.md`, not any per-anchor file. See `[[SKA triage]]` § 7.

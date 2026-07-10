@@ -1,5 +1,5 @@
 ---
-description: "the SKL Edit doc"
+description: "How to create and export visual content — Excalidraw diagrams, SVG, PNG, Google Slides"
 ---
 # SKL Edit Guide
 The Edit skill handles visual content creation, primarily through Excalidraw diagrams. The agent can create `.excalidraw` files programmatically by writing the JSON format directly, then export them to SVG or PNG for use in documents and presentations.

@@ -1,5 +1,5 @@
 ---
-description: "the /fortify concept dossier"
+description: "Cautious, skeptical counterpart to `crank`."
 ---
 # SKL Fortify
 The concept dossier for **`/fortify`** — everything published about the skill: the user guide, its design, and the runtime spec.

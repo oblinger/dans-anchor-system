@@ -1,5 +1,5 @@
 ---
-description: "the SKL CAB doc"
+description: "How to create and manage anchor folder structures using the Common Anchor Blueprint"
 ---
 # SKL CAB Guide
 The Common Anchor Blueprint (CAB) defines a standard folder structure for organizing projects and content areas. Every anchor has a type that determines which files and folders it contains. The five types are Simple, Topic, Code, Paper, and Skill — each building on a common base with type-specific additions.

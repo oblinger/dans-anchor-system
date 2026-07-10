@@ -17,7 +17,7 @@ user_invocable: true
 
 # Groom — Frontier Planning + Backlog Maintenance
 
-**The purpose of groom is to get all tasks that could be next for execution fully ready to be executed.** Those tasks are the **groom frontier** (per [[Query PRD]] § The groom frontier, F228): rows in the **`## Now` / `## Next` horizons** plus items **soon on the relevant roadmaps** (the next unmet milestone of `{slug} Roadmap.md`, when one exists). Grooming is *planning*, not just rebracketing: each frontier task leaves groom either genuinely executable — `[Ready]` with a declared `- **Next:**` step — or honestly parked behind its named `[Questions]` / `[Blocked]` / `[Waiting]` / `[Watching]` state. `/query` then asks the user about the frontier's residue; `/crank` executes what groom readied.
+**The purpose of groom is to get all tasks that could be next for execution fully ready to be executed.** Those tasks are the **groom frontier** (per [[Query PRD]] § The groom frontier, F228): rows in the **`## Now` / `## Next` horizons** plus items **soon on the relevant roadmaps** (the next unmet milestone of `{slug} Roadmap.md`, when one exists). Grooming is *planning*, not just rebracketing: each frontier task leaves groom either genuinely executable — `[Ready]` with a declared `- **Next:**` step — or honestly parked behind its named `[Questions]` / `[Blocked]` / `[Waiting]` / `[Watching]` state. `/ask` then asks the user about the frontier's residue; `/crank` executes what groom readied.
 
 Alongside the planning, groom drives the backlog toward the **groomed state** — the invariants documented in [[CAB Backlog]] and the `R-backlog` ruleset (numbering, status well-formed, link integrity, section coverage, ordering, Definition of Ready, frontier rows planned + bracket-resolved).
 
@@ -25,7 +25,7 @@ Convergent — not strictly idempotent. Safe to call anytime. May leave partial 
 
 > ## ⚠️ Groom asks the user NOTHING — not even one trivial question
 >
-> Per [[Query PRD]] R1/R2, groom is the backlog half of the **resolution layer**: it plans, resolves, rebrackets, promotes, and **parks every residual question into the queries surface** — and it raises **zero** questions in chat. There is no exception, no "one short yes/no." Even a one-word question goes into the queries doc as a numbered entry; the determination ladder ([[SKA query]] / [[Query PRD]]) decides whether it even survives to the user or the agent just resolves it. A groom (or a triage that grooms) that ends with a question in chat is the cardinal violation.
+> Per [[Query PRD]] R1/R2, groom is the backlog half of the **resolution layer**: it plans, resolves, rebrackets, promotes, and **parks every residual question into the queries surface** — and it raises **zero** questions in chat. There is no exception, no "one short yes/no." Even a one-word question goes into the queries doc as a numbered entry; the determination ladder ([[SKA ask]] / [[Query PRD]]) decides whether it even survives to the user or the agent just resolves it. A groom (or a triage that grooms) that ends with a question in chat is the cardinal violation.
 
 ## Groom's three activities
 
@@ -68,14 +68,14 @@ For every frontier item, plan it out so you know, as concretely as possible, **h
 
 After grooming, **nothing on the frontier is in an unknown state**: each item is executable (with a `Next:` step), questioned (with reachable numbered Qs), blocked/waiting (with a named obstacle), verifying (with a concrete question), or watching (with a dated soak). A frontier row must not rest in transient `[Designing]` after a groom — plan it forward to one of the five. The unifying cross-cutting rule behind states 2–5: **anything the body tells the user to look at is a live `[[wiki-link]]`**.
 
-> **The question bar — every question groom parks MUST satisfy all five (enforced by `/query`).** A parked question is worthless unless the user can answer it in one shot. Each carries:
+> **The question bar — every question groom parks MUST satisfy all five (enforced by `/ask`).** A parked question is worthless unless the user can answer it in one shot. Each carries:
 > 1. **its work-item identifier** — the `[[F<n>]]` / `[[T<n>]]` / `[[M<n>]]` it belongs to, so the user knows *what task* is asking;
 > 2. **a specific question** — the concrete fork being decided/assessed (not "which families?" but the exact choice);
 > 3. **labeled options** — `**(A)** / **(B)** / **(C)**`, each on its own line;
 > 4. **a recommendation** — `Lean (A)` or `None`, always present;
 > 5. **direct wiki-links to every artifact** the user must look at to answer — if the question is about a doc/file/output, the link is *in* the question; if it's about the behavior/performance of something, it names and links the specific thing being assessed.
 >
-> A `[Questions]` row missing these — no identifier, no links, no specific ask, no options, no recommendation — is a failure all the way around (see the anti-pattern in [[SKA query]] / [[Query PRD]]).
+> A `[Questions]` row missing these — no identifier, no links, no specific ask, no options, no recommendation — is a failure all the way around (see the anti-pattern in [[SKA ask]] / [[Query PRD]]).
 
 DMUX trigger: **`groom`** (prefix-trigger; whatever you dictate after becomes the argument). Slash invocation: `/groom`, `/groom roadmap`, `/groom milestone {N}`, `/groom F{n}` (single-item).
 
@@ -193,7 +193,7 @@ This reassessment is **the** primary value `/groom` adds beyond promotion: witho
 
 ### 3. For each candidate, in source order — PLAN it to Ready
 
-**Investigate quietly.** Read related docs, infer answers from context, draft a spec, run lightweight planning. You may quietly invoke any of: research, plan, architect, spec, replan, `/query` (in parking mode). Do not prompt the user for anything during investigation.
+**Investigate quietly.** Read related docs, infer answers from context, draft a spec, run lightweight planning. You may quietly invoke any of: research, plan, architect, spec, replan, `/ask` (in parking mode). Do not prompt the user for anything during investigation.
 
 **Plan.** The exit bar for a frontier candidate is *fully ready to be executed*: the row states what will be done, and a `- **Next:**` sub-bullet declares the first concrete step the agent will take with zero user involvement. Planning is groom's core work — a promotion without a plan just moves the un-readiness downstream to `/crank`.
 

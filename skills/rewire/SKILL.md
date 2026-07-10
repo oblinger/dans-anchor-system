@@ -83,7 +83,7 @@ That's the entire scope. Beyond the canonical row set, rewire does nothing — a
 
 ## Three duplicate guards (per F059)
 
-Before any add-action, rewire runs the matching guard. If the guard trips, **rewire does not add** — it surfaces the finding for user adjudication via `/query`.
+Before any add-action, rewire runs the matching guard. If the guard trips, **rewire does not add** — it surfaces the finding for user adjudication via `/ask`.
 
 | Add action | Guard | Failure mode if skipped |
 |---|---|---|
@@ -98,7 +98,7 @@ The principle: rewire's "add what's missing" pattern must recognize **non-canoni
 Rewire splits "misplaced file" into two categories:
 
 - **Obviously misplaced** — the file's basename matches a CAB facet whose canonical location is unambiguously defined by spec. Rewire moves these silently in default mode.
-- **Possibly correctly placed** — anything else (basename matches no canonical facet, OR the file is in a plausible-looking location). Default mode **asks** the user before moving (via `/query`).
+- **Possibly correctly placed** — anything else (basename matches no canonical facet, OR the file is in a plausible-looking location). Default mode **asks** the user before moving (via `/ask`).
 
 Canonical-location table (auto-move candidates) — **updated per [[F094 — Anchor docs folder restructure — Track _ User _ Architecture _ Dev|F094]] 2026-06-01** for the four-bucket Track / User / Design / Dev layout:
 
@@ -142,7 +142,7 @@ Canonical-location table (auto-move candidates) — **updated per [[F094 — Anc
 
 During F094 Phase 1, rewire **recognizes both the old and new locations** for files that haven't been migrated yet (`{slug} Plan/` still exists for some anchors, `{slug} Track/` exists for others). When both exist on an anchor, the new location is canonical; rewire flags the old one for migration.
 
-Anything not on this table → "possibly correctly placed" → rewire asks via `/query` before moving.
+Anything not on this table → "possibly correctly placed" → rewire asks via `/ask` before moving.
 
 ### Aggressive mode (`--aggressive` flag)
 
@@ -287,7 +287,7 @@ Recognition pattern: the **first cell containing `-[[NAME]]-`** is the dispatch-
 **Exceptions to the placeholder rule.** A small set of facet docs are explicit F060 exceptions because they have custom H1-only tops or a fixed required structure:
 
 - `{slug} Triage.md` — H1 banner already encodes breadcrumb + dispatch info per [[DAS Triage]] § H1 banner. Skip placeholder check.
-- `{slug} queries.md` — agent-owned page built on demand by `/query`'s determination logic (frontmatter + H1 + sections, no dispatch table). Skip placeholder check.
+- `{slug} queries.md` — agent-owned page built on demand by `/ask`'s determination logic (frontmatter + H1 + sections, no dispatch table). Skip placeholder check.
 - **Feature docs** (`F<n> — {Title}.md` inside `{slug} Features/`) — H1 carries an inline breadcrumb (`# [[{slug}]] · F<n> — {Title}`) per [[DAS Features]] § Document zone. Placeholder is optional, not required; rewire neither inserts nor strips it.
 - **`SKILL.md`** (skill anchor entry point) — fixed frontmatter + body structure per [[DAS Skill]]. F060 applies to the sibling `{Slug}.md` anchor root page, not to SKILL.md itself.
 - **`CLAUDE.md`** — Claude Code configuration file. Not a CAB doc.

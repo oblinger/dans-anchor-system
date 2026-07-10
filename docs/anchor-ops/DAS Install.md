@@ -1,5 +1,5 @@
 ---
-description: "the `/install` skill"
+description: "`/install` is the one-time setup skill for getting CAB command-line tools (`cab-scan`, `cab-config`, `skl-stat`, `cab-maintain`, `cab-audit`) onto a fresh machine."
 ---
 # /Install
 `/install` is the one-time setup skill for getting CAB command-line tools (`cab-scan`, `cab-config`, `skl-stat`, `cab-maintain`, `cab-audit`) onto a fresh machine. The skill asks the user where they keep user-installed tools (a directory on `$PATH`), then wires the scripts from `~/.claude/skills/` to that location, and verifies each one runs.

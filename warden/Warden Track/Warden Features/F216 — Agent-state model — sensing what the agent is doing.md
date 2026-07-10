@@ -17,7 +17,7 @@ Rules can sense the **agent itself** via the `agent` object in the interpretatio
 
 **What done looks like.** Given a live agent session, the daemon can answer `agent.state` accurately for the common cases: actively working (a task/skill in flight), landed (a clean turn end), asking (the turn ended addressing a question — dialog up or closing text asks), idle. `agent.skill` reports the running skill. The classifier is lazy + cached per pass (one read, shared across rules).
 
-**How it will be verified.** Scripted scenarios that drive an agent into each state (mid-task, post-`/land`, post-`/query`, idle), asserting `agent.state` matches; a fixture rule (`R-ex-10`) fires its `tell` only in the `asking` state.
+**How it will be verified.** Scripted scenarios that drive an agent into each state (mid-task, post-`/land`, post-`/ask`, idle), asserting `agent.state` matches; a fixture rule (`R-ex-10`) fires its `tell` only in the `asking` state.
 
 ## Design
 

@@ -28,14 +28,14 @@ Regenerate the anchor's per-anchor section in `~/ob/kmr/Q.md` (the **single tria
 >
 > When the user invokes `"` / `/triage` **directly** (not as another skill's sub-step), it is not merely a render. It runs the **full autonomous chain, in one shot, asking the user nothing**:
 > 1. **Groom (resolution).** Walk the backlog; rebracket every stale/dishonest state; promote what's genuinely Ready; for `[Ready]` rows with no declared next-action, *either* add the no-user next-action *or* rebracket honestly (`[Designing]` / `[Questions]` / `[Blocked]`). Per `[[SKA groom]]` § 2a. Never ask — decide and rewrite.
-> 2. **Query (resolution).** Run the `/query` determination ladder over **every** open question across all features + the backlog: **ELIMINATE** everything the agent can (auto-resolve reversible/soon-visible guesses + record them; run every agent-runnable check and answer it; decide the low-stakes/visible/reversible calls; infer from the codebase), and **CONSOLIDATE** the irreducible residue into `{slug} queries.md` — each entry self-documenting, counted (`**(5Q)**`), ordered for one-shot answering. Per `[[SKA query]]` / [[Query PRD]].
+> 2. **Query (resolution).** Run the `/ask` determination ladder over **every** open question across all features + the backlog: **ELIMINATE** everything the agent can (auto-resolve reversible/soon-visible guesses + record them; run every agent-runnable check and answer it; decide the low-stakes/visible/reversible calls; infer from the codebase), and **CONSOLIDATE** the irreducible residue into `{slug} queries.md` — each entry self-documenting, counted (`**(5Q)**`), ordered for one-shot answering. Per `[[SKA ask]]` / [[Query PRD]].
 > 3. **Render + glance.** `triage-section.py` paints `Q.md` + `queries.md`; glance `Q.md`.
 >
 > **THE INVARIANT (Query PRD R6): the post-triage chat is a STATUS REPORT, never a question.** It reports *what was groomed, what was resolved, and how many residual questions await in the doc* — and contains **no question directed at the user** (no "Want me to…?", "Should I…?", "which do you prefer?", no trailing offer). **Asking the user a question after a triage is the cardinal violation** — it fragments the one-shot pile triage just built and it scrolls away. Everything the agent wants from the user lives in the queries doc; the chat asks nothing. *If you catch yourself about to end a triage with a question, that question is a queries-doc entry you failed to file — file it, then report the count.*
 >
 > **Sub-step invocations** (when `/groom` or `/crank` call triage to render) skip the orchestration and just render — the parent already drove resolution.
 
-Punctuation trigger: **`"`** (a single double-quote as the entire message), parallel to `crank`/`'` and `/land`/`.`. Slash invocation: `/triage`, `/triage roadmap`, `/triage milestone {N}`. **Slash-only — the spoken word "triage" is NOT a DMUX prefix-trigger** (removed 2026-05-04; too easy to fire by accident in normal speech, same reasoning as /crank and /query; `"` is the dedicated single-keystroke shortcut).
+Punctuation trigger: **`"`** (a single double-quote as the entire message), parallel to `crank`/`'` and `/land`/`.`. Slash invocation: `/triage`, `/triage roadmap`, `/triage milestone {N}`. **Slash-only — the spoken word "triage" is NOT a DMUX prefix-trigger** (removed 2026-05-04; too easy to fire by accident in normal speech, same reasoning as /crank and /ask; `"` is the dedicated single-keystroke shortcut).
 
 
 **Question / Verify format**: this skill renders items written per the [[DAS ask-format]] discipline. `/triage` does not enforce format compliance — that's `/audit q`, auto-wired as a post-condition per F076 Q6.
@@ -221,7 +221,7 @@ Three count groups: user-actionable (`Questions`, `Verify`) | agent-actionable (
 
 ## Anchor-level questions — authored in `{slug} queries.md`
 
-Anchor-level (cross-cutting, agent-raised, non-feature) questions are authored **directly in the anchor's queries file** `{slug} queries.md` § `## Questions` (per `[[SKA queries]]`) — there is no separate questions facet. Triage does **not** render them and carries no questions bullet line: they surface through `/query` (built on demand → glance) and are reachable from the Q.md H1, which links to `[[{slug} queries]]`. The banner's `Questions N` count comes from backlog `[Questions]` / `[Verify]` rows only.
+Anchor-level (cross-cutting, agent-raised, non-feature) questions are authored **directly in the anchor's queries file** `{slug} queries.md` § `## Questions` (per `[[SKA queries]]`) — there is no separate questions facet. Triage does **not** render them and carries no questions bullet line: they surface through `/ask` (built on demand → glance) and are reachable from the Q.md H1, which links to `[[{slug} queries]]`. The banner's `Questions N` count comes from backlog `[Questions]` / `[Verify]` rows only.
 
 
 ## Runbook
@@ -394,7 +394,7 @@ The just-updated per-anchor section sits at the top of Q.md (per § 6's move-to-
 
 ### 7. Print the anchor's banner as the LAST line of chat output — visually emphasized
 
-The final lines of chat output after a `/triage` run MUST be the anchor's just-rendered banner, **wrapped in equal-sign rules above and below and rendered bold**. This is the user's "boom — this is the status" signal; the visual delimiter makes the banner unmistakable even when chat is dense. (The queries page is rendered mechanically during § 5, so the banner is always the final chat line — there is no post-banner `/query` step. § 8 documents the mechanical render; it adds no closing action.)
+The final lines of chat output after a `/triage` run MUST be the anchor's just-rendered banner, **wrapped in equal-sign rules above and below and rendered bold**. This is the user's "boom — this is the status" signal; the visual delimiter makes the banner unmistakable even when chat is dense. (The queries page is rendered mechanically during § 5, so the banner is always the final chat line — there is no post-banner `/ask` step. § 8 documents the mechanical render; it adds no closing action.)
 
 **Format — three lines, exactly:**
 
@@ -442,9 +442,9 @@ Note: {K} stale [Done] rows still in horizon H2s — run /groom to move to ## Do
 
 The directive appears **only when N > 0**; omitted when Ready 0 (no agent action available, banner stands alone). The placement matters: outside the `===` block frames the line as a comment to the agent (the way a code reviewer leaves a note for the implementer), not as part of the user-facing status. Direct second-person address (`you MUST continue`) makes the recipient unambiguous.
 
-### 8. The queries doc is rendered MECHANICALLY by the script — no `/query` invocation needed
+### 8. The queries doc is rendered MECHANICALLY by the script — no `/ask` invocation needed
 
-Per user direction 2026-06-26 — *"it should be purely mechanical … just done as part of the process of doing a triage"* — `{slug} queries.md` is **not** hand-authored by the `/query` skill anymore. **`triage-section.py` renders it directly from the backlog as part of § 5**, every run, for the anchor being triaged. There is **no separate `/query` step** in the triage runbook and **nothing for the agent to author** — the page is a pure rendered view, like the Q.md section.
+Per user direction 2026-06-26 — *"it should be purely mechanical … just done as part of the process of doing a triage"* — `{slug} queries.md` is **not** hand-authored by the `/ask` skill anymore. **`triage-section.py` renders it directly from the backlog as part of § 5**, every run, for the anchor being triaged. There is **no separate `/ask` step** in the triage runbook and **nothing for the agent to author** — the page is a pure rendered view, like the Q.md section.
 
 What the script writes into `{slug} queries.md` (only when the anchor is non-empty, TAG ≠ `[]`):
 - **H1** — the live banner (§ 7), anchor-linked (`[[{slug}|{slug}]]`), identical to chat/Q.md.
@@ -454,7 +454,7 @@ What the script writes into `{slug} queries.md` (only when the anchor is non-emp
 
 **To change what shows on the queries page, edit the backlog rows** (the verify-plan lives in the `[Verify]` row's body; the next-action in the `[Ready]`/`[Active]` row's `Next:` sub-bullet). The page itself is overwritten on every triage — never hand-edit it.
 
-**`/query` is now narrowed to question *determination*** — when there are open `## Open Questions` to route (auto-resolve a reversible guess, run a self-answerable check, escalate a real decision), invoke `/query` to apply that logic *to the feature docs / backlog rows*. The queries *page* is then produced by the mechanical render, not by `/query`. (This is what fixes the 2026-06-26 failure where a verify-only anchor left its verifications stranded: the render is unconditional, so nothing depends on the agent remembering to author the page.)
+**`/ask` is now narrowed to question *determination*** — when there are open `## Open Questions` to route (auto-resolve a reversible guess, run a self-answerable check, escalate a real decision), invoke `/ask` to apply that logic *to the feature docs / backlog rows*. The queries *page* is then produced by the mechanical render, not by `/ask`. (This is what fixes the 2026-06-26 failure where a verify-only anchor left its verifications stranded: the render is unconditional, so nothing depends on the agent remembering to author the page.)
 
 
 ## Sticky-context protocol

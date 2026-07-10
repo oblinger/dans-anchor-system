@@ -1,5 +1,5 @@
 ---
-description: "the SKL Ctrl doc"
+description: "How to control the local environment — browser, shell sessions, and system interaction"
 ---
 # SKL Ctrl Guide
 The Ctrl skill manages interaction with the local macOS environment. It handles three main areas: browser automation (opening URLs, searching the web), persistent shell sessions (running commands that survive across conversations), and reading output from those sessions.
