@@ -1,10 +1,10 @@
 ---
-description: Query facet — the format of an anchor's `{slug} queries.md`, the file `/query` builds to ask the user questions. Rules about what a valid queries file looks like.
+description: Query facet — the format of an anchor's `{slug} queries.md`, the file `/ask` builds to ask the user questions. Rules about what a valid queries file looks like.
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Query](hook://p/DAS%20Query)
 # FCT Query
-The asking surface: one `{slug} queries.md` per anchor, in `{slug} Track/`, that `/query` builds and trims.
+The asking surface: one `{slug} queries.md` per anchor, in `{slug} Track/`, that `/ask` builds and trims.
 
 **Related:** [[SKL Query]] (the skill that builds it),  [[DAS Status]],  [[DAS Messages]]
 **Examples:** [[SKA queries\|real instance (SKA anchor)]]
@@ -21,11 +21,11 @@ The asking surface: one `{slug} queries.md` per anchor, in `{slug} Track/`, that
 | [[#Cross-cutting]] |  |
 | **[[#BRIEF]]** |  |
 
-**TLDR** — One `{slug} queries.md` per anchor (cardinality: one), in `{slug} Track/`, owned by the `/query` skill. Fixed five-section order (`## Agent Resolutions` → `## Verifications` → `## Immediate Questions` → `## Questions` → `## Ready`); empty sections omitted. Verifications are agent-run / user-judged — never "user runs X". Questions are self-contained or wiki-linked. The file shrinks toward empty as answers are applied. Validated by `/audit doc` via `R-query`.
+**TLDR** — One `{slug} queries.md` per anchor (cardinality: one), in `{slug} Track/`, owned by the `/ask` skill. Fixed five-section order (`## Agent Resolutions` → `## Verifications` → `## Immediate Questions` → `## Questions` → `## Ready`); empty sections omitted. Verifications are agent-run / user-judged — never "user runs X". Questions are self-contained or wiki-linked. The file shrinks toward empty as answers are applied. Validated by `/audit doc` via `R-query`.
 
 ## What it is
 
-`{slug} queries.md` is the single per-anchor surface where the user answers everything the agents need from them. The **`/query` skill** ([[SKL Query]]) *builds* it (the procedure — walking open questions, the determination routing, running verifications ahead of time, console echo); **this facet** governs what the resulting *file* must look like, so it can be audited (`/audit doc`, the F167 on-write hook). The skill cites these rules rather than restating them.
+`{slug} queries.md` is the single per-anchor surface where the user answers everything the agents need from them. The **`/ask` skill** ([[SKL Query]]) *builds* it (the procedure — walking open questions, the determination routing, running verifications ahead of time, console echo); **this facet** governs what the resulting *file* must look like, so it can be audited (`/audit doc`, the F167 on-write hook). The skill cites these rules rather than restating them.
 
 ## Parts
 

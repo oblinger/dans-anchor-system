@@ -1,5 +1,5 @@
 ---
-description: "the SKL Rewire doc"
+description: "Idempotent structural repair for any anchor."
 ---
 # /rewire
 Idempotent structural repair for any anchor. Ensures all files are linked from the right dispatch tables, the skeleton matches the anchor's traits, and orphan files are surfaced. Safe to run repeatedly — running it on a clean anchor produces no changes.

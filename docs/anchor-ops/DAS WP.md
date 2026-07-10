@@ -1,5 +1,5 @@
 ---
-description: "the `/wp` skill"
+description: "`/wp <name>` creates a new dated **work product** folder inside the current anchor's `{slug} WP/` folder."
 ---
 # /WP
 `/wp <name>` creates a new dated **work product** folder inside the current anchor's `{slug} WP/` folder. Work products are the polished outputs of human+agent collaboration — papers, reports, analyses, presentations, spreadsheets — distinct from agent-generated Outputs and informal Log notes. Use it when you say "new work product," "new wp," or "create a wp."

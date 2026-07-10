@@ -1,5 +1,5 @@
 ---
-description: "the /crank concept dossier"
+description: "The \"go\" button."
 ---
 # SKL Crank
 The concept dossier for **`/crank`** — everything published about the skill: the user guide, its design, and the runtime spec.

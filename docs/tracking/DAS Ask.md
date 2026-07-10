@@ -1,5 +1,5 @@
 ---
-description: "the `/ask` skill"
+description: "The **`/ask` skill** is the universal asking subroutine."
 ---
 # /Ask
 The **`/ask` skill** is the universal asking subroutine.

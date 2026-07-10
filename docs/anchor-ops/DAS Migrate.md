@@ -1,5 +1,5 @@
 ---
-description: "the `/migrate` skill"
+description: "Migrate an anchor — change its slug, traits, location, or structure."
 ---
 # SKL Migrate
 Migrate an anchor — change its slug, traits, location, or structure.

@@ -1,20 +1,20 @@
 ---
-description: "/query — the clean skill for asking you questions, formatted so you can always answer from what's written."
+description: "/ask — the clean skill for asking you questions, formatted so you can always answer from what's written."
 ---
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[ASG]] → [ASG Query](hook://p/ASG%20Query)
-# /query — user guide
+# /ask — user guide
 
-**Full internals & design:** [[SKL Query]]   ·   **Runtime spec:** [[skills/query/SKILL.md\|SKILL.md]]
+**Full internals & design:** [[SKL Query]]   ·   **Runtime spec:** [[skills/ask/SKILL.md\|SKILL.md]]
 
-`/query` is how an agent asks you a question — and the one promise it makes is that **every question is answerable from what's written**, without opening anything else.
+`/ask` is how an agent asks you a question — and the one promise it makes is that **every question is answerable from what's written**, without opening anything else.
 
 ## What it's for
 
-Whenever an agent hits a decision it can't make alone, it routes through `/query`. The skill turns that decision into a clear question in front of you, with options and a recommendation, and captures your answer. It replaces the old `/ask` — same purpose, far less machinery.
+Whenever an agent hits a decision it can't make alone, it routes through `/ask`. The skill turns that decision into a clear question in front of you, with options and a recommendation, and captures your answer. It replaces the old `/ask` — same purpose, far less machinery.
 
 ## The promise — answerable questions only
 
-The one rule: **you can answer every `/query` question from what's written.** A question names a concrete decision (or a concrete thing to check) and carries the options.
+The one rule: **you can answer every `/ask` question from what's written.** A question names a concrete decision (or a concrete thing to check) and carries the options.
 
 - ✅ *"Frontmatter on design docs — YAML or body-only? (A) YAML (B) body-only. Rec: Strong (A)."*
 - ❌ *"Is F115 verified?"* / *"Did this work?"* — you can't act on these from the text. If the agent needs you to test something, it spells out exactly what to run and what to look for.

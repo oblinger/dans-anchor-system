@@ -4,19 +4,19 @@ description: "product requirements"
 
 # Query PRD
 
-:>> [[SKA]] → [[SKA query]] → Query Design
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[skill-docs]] → [[SKL Drive]] → [[SKL Query]] → [Query PRD](hook://p/Query%20PRD)
 
-**Scope — this is the shared design doc for the whole resolution layer: both `/groom` (frontier planning + backlog states) and `/query` (determination + consolidation).** They are deliberately kept in one PRD, not two: they are one system, and the frontier, the F/T/M work-item-identity model, the question bar, and the never-ask discipline are all *shared* — a single home keeps them from drifting. The two *skills* stay separate runbooks (`groom SKILL.md` / `query SKILL.md`, so groom can be called alone); this one PRD governs both. (Named "Query PRD" for link stability; read it as the resolution-layer PRD.)
+**Scope — this is the shared design doc for the whole resolution layer: both `/groom` (frontier planning + backlog states) and `/ask` (determination + consolidation).** They are deliberately kept in one PRD, not two: they are one system, and the frontier, the F/T/M work-item-identity model, the question bar, and the never-ask discipline are all *shared* — a single home keeps them from drifting. The two *skills* stay separate runbooks (`groom SKILL.md` / `query SKILL.md`, so groom can be called alone); this one PRD governs both. (Named "Query PRD" for link stability; read it as the resolution-layer PRD.)
 
 ## Overview
 
-`/query` exists for one reason: **so the agent does not interrupt the user with questions.** Every question put to the user is a cost — it fragments their attention, arrives out of context, and scrolls away. The agent's prime directive is to **resolve, decide, and verify on its own**; and for the small irreducible residue that *genuinely* needs the user, to **consolidate it into one place, fully prepared**, so the user answers everything in a single pass — *bam, bam, bam, down the list* — instead of being dribbled questions one at a time across a conversation.
+`/ask` exists for one reason: **so the agent does not interrupt the user with questions.** Every question put to the user is a cost — it fragments their attention, arrives out of context, and scrolls away. The agent's prime directive is to **resolve, decide, and verify on its own**; and for the small irreducible residue that *genuinely* needs the user, to **consolidate it into one place, fully prepared**, so the user answers everything in a single pass — *bam, bam, bam, down the list* — instead of being dribbled questions one at a time across a conversation.
 
 **`{NAME} queries.md` is the always-current store of open questions; chat is at most a view of it.** The doc holds the anchor's open questions *at all times*, and the moment any question is raised — at a triage, or any other time — it is written there **simultaneously**. A question may be *spotlighted* in chat, but **only if it is also in the doc at that same moment**: chat never carries a question the doc doesn't, and the doc is never behind chat. The cardinal violation is a chat question with **no corresponding queries-doc entry** — because chat **scrolls away** (the user runs many agents at once) and the question is then lost, whereas `queries.md` is the one place the user can always return to for the latest open questions. *After a triage especially*, don't fragment the freshly-built pile with loose chat questions — the pile *in the doc* is the surface; any chat line is a pointer into it. (The doc legitimately lags only during live back-and-forth before the next triage; the target is always-current.)
 
 **And the goal is not merely *fewer* interruptions — it is the longest possible *unblocked runway* between them.** Query does not only surface the questions that exist *right now*; it **looks ahead**. For each backlog item it proactively reasons about the decisions execution *will* hit — the forks, the missing specs, the taste calls that surface only once you start building — and surfaces those **early**, in the same pile, *before* they block anything. The metric query optimizes is **work-done-per-answered-pile**: how far the agent can execute after the user answers one round of questions before it is forced to stop and ask again. Front-loading every foreseeable question for an item means that once its pile is answered, the agent runs that item to completion — and ideally the *next* items too — without another interruption. This is the backlog-wide generalization of "Ready means ready: ask **all** implementation questions upfront."
 
-`/query` is the **resolution + consolidation** half of the triage machine; `triage-section.py` is the mechanical **render** half. Together with `/groom` they form one autonomous loop that grooms, resolves, piles, and presents — and never asks.
+`/ask` is the **resolution + consolidation** half of the triage machine; `triage-section.py` is the mechanical **render** half. Together with `/groom` they form one autonomous loop that grooms, resolves, piles, and presents — and never asks.
 
 ## Goals
 
@@ -55,7 +55,7 @@ The identity is *achieved by linking*: a row links to its feature doc (`F<n>`), 
 The frontier is the shared scope of the resolution layer:
 
 - **`/groom` plans the frontier to Ready.** Its purpose is to get every frontier task **fully ready to be executed** — investigate, draft the approach, declare the `- **Next:**` step, promote to `[Ready]` when the Definition of Ready holds; when it doesn't, file the blocking questions (or the honest `[Blocked]`/`[Waiting]`/`[Watching]` state) so the obstacle is named. A frontier row left unplanned and unbracketed is groom's unfinished work.
-- **`/query` asks about the frontier.** The determination ladder and the G6 look-ahead walk frontier tasks — the pile the user answers is exactly what unblocks the next stretch of execution. (Non-frontier `[Questions]`/`[Verify]` brackets still render per triage rules; they just don't drive anticipatory question-mining.)
+- **`/ask` asks about the frontier.** The determination ladder and the G6 look-ahead walk frontier tasks — the pile the user answers is exactly what unblocks the next stretch of execution. (Non-frontier `[Questions]`/`[Verify]` brackets still render per triage rules; they just don't drive anticipatory question-mining.)
 - **The audit checks it.** The frontier invariants are encoded as the `R-backlog` ruleset in the [[DAS Backlog|FCT Backlog]] facet (frontier rows planned + bracket-resolved; Verify rows carry a concrete question), fired by the rule engine at doc-audit.
 
 ## Grooming the frontier (activity 3)
@@ -68,7 +68,7 @@ Grooming a frontier item means **planning it out until you know, as concretely a
 - **Verify** (`[Verify]`) → the row declares a `- **Verify:**` concrete yes/no the user answers from where they sit (R-backlog-04).
 - **Watching** (`[Watching …]`) → a `- **Verify:**` non-recurrence question plus the absolute soak-expiry date (R-backlog-04 / R-backlog-07).
 
-A frontier row must not rest in transient `[Designing]` after a groom, and a vague blocker/verify is not a groomed state. `/query` surfaces the residue of states 2 (Questions) and 4/5 (Verify/Watching) — the question bar is the Questions-state contract.
+A frontier row must not rest in transient `[Designing]` after a groom, and a vague blocker/verify is not a groomed state. `/ask` surfaces the residue of states 2 (Questions) and 4/5 (Verify/Watching) — the question bar is the Questions-state contract.
 
 **The question bar — every parked question satisfies all five (else it is a defect the audit flags).** This is what makes the pile one-shot answerable (G2/G5). Each question carries:
 
@@ -82,8 +82,8 @@ The recurring failure this bar kills (real, Warden 2026-07-05): a `## Questions`
 
 ## Non-Goals
 
-- **Not a dashboard / status renderer.** Painting `Q.md` and the queries-doc body is `triage-section.py`'s mechanical job. `/query`'s job is *determination* — deciding what dies and what survives — not formatting.
-- **Chat is not the store.** Chat is a *view*, never the source of truth — `/query` never raises a question in chat without writing it to the doc at the same moment, so the doc is never behind chat. (A chat *spotlight* that points into the doc is fine; a chat question the doc lacks is the violation. A creation-time inline yes/no the user is actively engaged in *that instant* — e.g. `/feature`'s title-collision prompt — is owned by the invoking skill, not query, and is still mirrored to the doc if it defers.)
+- **Not a dashboard / status renderer.** Painting `Q.md` and the queries-doc body is `triage-section.py`'s mechanical job. `/ask`'s job is *determination* — deciding what dies and what survives — not formatting.
+- **Chat is not the store.** Chat is a *view*, never the source of truth — `/ask` never raises a question in chat without writing it to the doc at the same moment, so the doc is never behind chat. (A chat *spotlight* that points into the doc is fine; a chat question the doc lacks is the violation. A creation-time inline yes/no the user is actively engaged in *that instant* — e.g. `/feature`'s title-collision prompt — is owned by the invoking skill, not query, and is still mirrored to the doc if it defers.)
 - **Not an agent action-log.** `## Agent Resolutions` records reversible *guesses*, not a diary of edits the agent made (per the durable feedback rule).
 - **Not a place to defer work the agent could do.** If an item is actionable-but-not-a-user-question, the agent lands it or files it as a `[Ready]` feature — it never becomes an orphan "question."
 
@@ -103,7 +103,7 @@ The recurring failure this bar kills (real, Warden 2026-07-05): a `## Questions`
 
 | Layer | What it does | Skills |
 |---|---|---|
-| **Resolution** | plan the frontier to Ready — rebracket stale states, investigate + declare each frontier task's next step, promote what meets the Definition of Ready, auto-resolve reversible guesses, run every agent-runnable check, decide low-stakes calls, **park the irreducible residue into the queries surface** | `/groom` (frontier planning + backlog states) + `/query` (determination ladder over the frontier) |
+| **Resolution** | plan the frontier to Ready — rebracket stale states, investigate + declare each frontier task's next step, promote what meets the Definition of Ready, auto-resolve reversible guesses, run every agent-runnable check, decide low-stakes calls, **park the irreducible residue into the queries surface** | `/groom` (frontier planning + backlog states) + `/ask` (determination ladder over the frontier) |
 | **Render** | mechanically paint `Q.md` + `{NAME} queries.md` from current state, then glance | `triage-section.py` |
 
 - **`"` / `/triage` (top-level)** = resolution layer **+** render + glance. The bulletproof button: grooms, queries, piles, presents — and **never asks**.

@@ -180,13 +180,13 @@ Diff the proposed structure against what's already documented. Categorize each d
 
 For every module doc: ensure exactly one `Arch` row exists in the top-of-doc dispatch table, pointing at the most-specific architecture destination (per § Bidirectional cross-linking). Fix or propose-to-fix any mismatch. Reverse direction is enforced by the modules-table content.
 
-### 6. Surface proposals via `/query`
+### 6. Surface proposals via `/ask`
 
 Each significant delta becomes a Q on the architecture doc. Trivial deltas can be made silently in Drive mode under the assume-and-announce gates:
 - **Trivial — silent**: adding a new module to an existing modules-table; correcting an `Arch` row; updating a one-line module description in the modules table.
-- **Substantive — `/query`**: creating a new subsystem; promoting a subsystem from file to folder; removing a phantom subsystem; reassigning a module to a different subsystem.
+- **Substantive — `/ask`**: creating a new subsystem; promoting a subsystem from file to folder; removing a phantom subsystem; reassigning a module to a different subsystem.
 
-`/query` parks Qs in the architecture doc's `## Open Questions` H2 per `[[SKA queries]]`. **If `/query` isn't installed** (a minimal clone), degrade to asking the proposal inline in chat instead — never skip the user's decision just because the parking surface is absent.
+`/ask` parks Qs in the architecture doc's `## Open Questions` H2 per `[[SKA queries]]`. **If `/ask` isn't installed** (a minimal clone), degrade to asking the proposal inline in chat instead — never skip the user's decision just because the parking surface is absent.
 
 ### 7. Source dip on demand
 
@@ -221,7 +221,7 @@ The skill presumes the user is the original author of the design. Every `/archit
 
 - **(a) Structural-only** (creating an empty subsystem doc, regenerating a dispatch table, fixing a broken link) — silent in Drive mode.
 - **(b) Tightens an existing description** (one-line update flagged in the commit message) — silent in Drive mode.
-- **(c) Adds substantive new prose** (new subsystem rationale, narrative section) — requires user agreement via `/query`.
+- **(c) Adds substantive new prose** (new subsystem rationale, narrative section) — requires user agreement via `/ask`.
 
 **Never wipe user-authored content.** If `/architect` would replace a paragraph the user wrote, it surfaces the change as a Q and waits.
 

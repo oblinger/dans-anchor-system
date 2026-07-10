@@ -1,5 +1,5 @@
 ---
-description: "the `/create` skill"
+description: "Create a new thing — anchor, feature, work product, spec, or rule."
 ---
 # SKL Create
 Create a new thing — anchor, feature, work product, spec, or rule.

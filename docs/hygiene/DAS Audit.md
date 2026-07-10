@@ -1,5 +1,5 @@
 ---
-description: "the `/audit` skill"
+description: "How auditing works — design rationale, tool chain, and examples"
 ---
 # SKL Audit Guide
 ## Philosophy

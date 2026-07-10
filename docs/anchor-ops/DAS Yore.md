@@ -1,5 +1,5 @@
 ---
-description: "the `/yore` skill"
+description: "`/yore` archives a folder or file to **Yore**, the standard archival location."
 ---
 # /Yore
 `/yore` archives a folder or file to **Yore**, the standard archival location. It zips the target (excluding `.git/`, build artifacts, and `DerivedData/`), names the archive `{CREATION_DATE} {Original Name}.zip` (date prefix uses the *creation* date of the folder, not today's), drops it in the appropriate parent `Yore/` subfolder (creating one if missing), removes the original, and cleans up references — HookAnchor commands, broken symlinks in user-installed tool locations, and dispatch table entries. Use it when you say "yore it," "archive this," or "archive to yore."

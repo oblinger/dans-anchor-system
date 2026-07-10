@@ -1,5 +1,5 @@
 ---
-description: "the SKL Fix doc"
+description: "Fix common environment problems — permissions, auth, session config, workarounds."
 ---
 # /fix
 Fix common environment problems — permissions, auth, session config, workarounds. Use this when something is mis-configured or broken in the local environment and the agent should diagnose + repair before continuing other work.

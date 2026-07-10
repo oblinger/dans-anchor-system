@@ -1,5 +1,5 @@
 ---
-description: "the /groom concept dossier"
+description: "Walk the current anchor's backlog and move it toward the **groomed state** — promote every item it can to **Ready**, park items that need user input in dated feature docs, repair link integrity."
 ---
 # SKL Groom
 The concept dossier for **`/groom`** — everything published about the frontier-planning skill: the user guide, its PRD, the shared resolution-layer design, and the runtime spec.
