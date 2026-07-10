@@ -4,7 +4,7 @@ description: "Cautious, skeptical counterpart to `crank`."
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[ASG]] → [ASG Fortify](hook://p/ASG%20Fortify)
 # /fortify — user guide
 
-**Full internals & design:** [[SKL Fortify]]   ·   **Runtime spec:** [[skills/fortify/SKILL.md\|SKILL.md]]
+**Full internals & design:** [[DAS Fortify]]   ·   **Runtime spec:** [[skills/fortify/SKILL.md\|SKILL.md]]
 
 Cautious, skeptical counterpart to `crank`. When normal iteration has stopped converging — the same bug keeps coming back, fixes don't stick, tests pass but the system still misbehaves — `fortify` distrusts the foundation (logs, code structure, tests, the agent's own conclusions), strengthens it, and only then resumes work.
 

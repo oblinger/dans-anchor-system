@@ -69,8 +69,8 @@ Lands in `~/ob/kmr/Topic/Search/Profile/` as a markdown file. The [[Profile]] an
 
 ## Related
 
-- User reference: [[SKL Profile]]
-- Overview of composition: [[SKL Search Overview]]
+- User reference: [[DAS Profile]]
+- Overview of composition: [[DAS Search Overview]]
 - Rules trait: [[skill-search-rules]]
 - User overrides: [[SRC rules]]
 - Legacy: this skill subsumes the per-entity actions of the legacy [[research/SKILL|/research]] family (`/research dig`, `/research person`, `/research book`).

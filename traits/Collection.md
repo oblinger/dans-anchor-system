@@ -50,7 +50,7 @@ Type-specific structure checks for Collection anchors.
 
 ## Anchor-page examples
 
-This trait underlies the three Container shapes in the [[FCT Anchor Page]] kinds catalog, each with its own worked example: [[HBR Components]] (grouped), [[Espresso]] (list), [[HBR Log]] (chronological).
+This trait underlies the three Container shapes in the [[DAS Anchor Page]] kinds catalog, each with its own worked example: [[HBR Components]] (grouped), [[Espresso]] (list), [[HBR Log]] (chronological).
 
 ## Related
 

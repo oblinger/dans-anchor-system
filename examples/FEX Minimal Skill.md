@@ -4,7 +4,7 @@ description: "the leanest complete file set for a skill, with a live instance"
 
 # FEX Minimal Skill
 
-| -[[FEX Minimal Skill]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[FCT Primitives]] → [FEX Minimal Skill](hook://p/FEX%20Minimal%20Skill)<br>: the leanest complete file set for a skill, with a live instance |
+| -[[FEX Minimal Skill]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[DAS Primitives]] → [FEX Minimal Skill](hook://p/FEX%20Minimal%20Skill)<br>: the leanest complete file set for a skill, with a live instance |
 | --- | --- |
 | Anchor | [[HBR]] (reference anchor) |
 | Related | [[FEX Minimal Facet]],  [[SKL]],  [[granularity]],   |

@@ -2,7 +2,7 @@
 
 Build the file tree and module docs together. Create `{slug} Files.md` and per-module documentation under `{slug} Dev/`.
 
-**MANDATORY: Before writing any module doc, read the [[FCT Module Doc]] reference example in full.** The reference example IS the spec — match it exactly. Do not improvise the format from memory.
+**MANDATORY: Before writing any module doc, read the [[DAS Module Doc]] reference example in full.** The reference example IS the spec — match it exactly. Do not improvise the format from memory.
 
 ## When to Use
 

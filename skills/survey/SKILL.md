@@ -86,8 +86,8 @@ Lands in `~/ob/kmr/Topic/Search/Survey/` as a markdown file. The [[Survey]] anch
 
 ## Related
 
-- User reference: [[SKL Survey]]
-- Overview of composition: [[SKL Search Overview]]
+- User reference: [[DAS Survey]]
+- Overview of composition: [[DAS Search Overview]]
 - Rules trait: [[skill-search-rules]]
 - User overrides: [[SRC rules]]
 - Legacy: this skill subsumes `/research survey`, `/research skill` (as a specialized variant in `rules/survey.md`), and the broad-research phase of `/product hunt` (in `rules/survey-product.md`).

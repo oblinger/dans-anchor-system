@@ -88,7 +88,7 @@ The `/compile` action can later materialize verbatim pair files from default + u
 
 ## Reference
 
-User-facing summary of how this all combines: [[SKL Search Overview]].
+User-facing summary of how this all combines: [[DAS Search Overview]].
 
 
 ## Migration note (F116)

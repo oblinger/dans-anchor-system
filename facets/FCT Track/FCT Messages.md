@@ -2,11 +2,11 @@
 description: Messages facet — the agent's per-anchor inbox of background-process messages that the agent reads on every pause. Distinct from `{slug} Inbox.md` which is the user's drop-zone for raw input.
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Messages](hook://p/FCT%20Messages)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Track]] → [FCT Messages](hook://p/FCT%20Messages)
 # FCT Messages
 Spec for the **Messages facet** — the per-anchor file `{slug} Messages.md` that holds background-process notes for the agent to read on every pause, separate from the user's raw-input `{slug} Inbox.md`.
 
-**Related:** [[FCT Inbox]],  [[FCT Backlog]],  [[FCT Track]],  [[CAB Base]]
+**Related:** [[DAS Inbox]],  [[FCT Backlog]],  [[DAS Track]],  [[CAB Base]]
 **Examples:** [[HBR Messages\|minimal]],  [[HBR Messages\|with real system messages]]
 
 **Cardinality: one per anchor** — each anchor has exactly one `{slug} Messages.md` file at its root.
@@ -39,5 +39,5 @@ The Messages-vs-Inbox split (agent-read background notes vs. user-dropped raw in
 
 - **Inclusion test** — content belongs here only when it defines how Messages files are structured, written, read, or pruned across anchors; per-anchor message content or single-anchor examples belong elsewhere. Routing for displaced content: project-wide rules → CLAUDE.md; markdown-rendering → [[R-markdown]]; Inbox-facet rules → `CAB Inbox.md`.
 - **Load-bearing distinction to preserve** — the frontmatter `description` and R-messages-03 both fix the Messages-vs-Inbox split (agent-read background notes vs. user-dropped raw input); any edit that loosens or removes that distinction breaks the facet's reason for existing.
-- **Cross-references to keep in sync** — [[CAB Base]] dispatch tables, [[FCT Anchor Tree]] tree, and any anchor template that scaffolds a `{slug} Messages.md`.
+- **Cross-references to keep in sync** — [[CAB Base]] dispatch tables, [[DAS Anchor Tree]] tree, and any anchor template that scaffolds a `{slug} Messages.md`.
 - **Conventions** — refer to sibling facets by their CAB filename (`[[FCT Inbox]]`, `[[CAB Backlog]]`); refer to per-anchor instances with the `{slug}` placeholder, never a concrete anchor's name.

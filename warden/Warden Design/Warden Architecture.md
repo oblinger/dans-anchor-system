@@ -7,7 +7,7 @@ description: "the unified map: rules, rulesets, `include::` composition, dispatc
 The rule system is how a portable, audit-checkable constraint is **defined** (the `RULE` / `RULESET` primitives), **composed** (`include::` containment), **placed** in the vault and **adopted** by an anchor, **bound** to the contexts (`where::`) and events (`when::`) that should trigger it, and finally **run** by two consumers — the on-demand audit/rule engine and the always-on hook subsystem — over one shared corpus. This page is the structural overview that ties those subsystems together; each subsystem's prescriptive spec lives in the facet or feature doc cited in its section.
 
 > [!info] Scope
-> This is the architecture *of the rule language and its runtime*. The prescriptive file-format spec is [[FCT Ruleset]]; the per-audit execution pipeline is [[Audit Architecture]] and [[F001 — Rule-driven audit engine — resolve, run, judge|F001]]. This page is the connective tissue: it names the subsystems, shows how they fit, and points at the source of truth for each.
+> This is the architecture *of the rule language and its runtime*. The prescriptive file-format spec is [[DAS Ruleset]]; the per-audit execution pipeline is [[Audit Architecture]] and [[F001 — Rule-driven audit engine — resolve, run, judge|F001]]. This page is the connective tissue: it names the subsystems, shows how they fit, and points at the source of truth for each.
 
 ## Rule system — define · compose · run
 
@@ -20,14 +20,14 @@ The rule system is how a portable, audit-checkable constraint is **defined** (th
 | Grouping | What it covers | Spec |
 |---|---|---|
 | **DEFINE** — a rule on disk | `RULE` / `RULESET` sentinels; the **condition** (`where` · `when` · `if`); the **actions** (`tell` · `edit` · `deny` · `run`); `description::`. | [[Warden Rule]] |
-| **COMPOSE & ADOPT** | `include::` depth-first flatten + umbrellas; three homes (catalog · embedded · anchor-local); adoption via anchor **[[traits]]** (`.anchor`); `where::` keeps unmatched rules asleep. | [[Warden Rule]] · [[FCT Decisions]] |
+| **COMPOSE & ADOPT** | `include::` depth-first flatten + umbrellas; three homes (catalog · embedded · anchor-local); adoption via anchor **[[traits]]** (`.anchor`); `where::` keeps unmatched rules asleep. | [[Warden Rule]] · [[DAS Decisions]] |
 | **RUN** — the engine | resident **daemon** + tiny notifier; **dispatch** by `where`/`when` indexes; **interpret** `if` + body over `file`·`anchor`·`git`·`event`·`agent`; **consumers** (live hooks · `/audit`); the **oracle**. | [[Warden Semantics]] · [[Warden Runtime]] |
 
 ---
 
 ## 1 · Definition — the Rule and the Ruleset
 
-Two primitives, both spec'd prescriptively in [[FCT Ruleset]]. Worked instances: [[R-diagram]] (large umbrella), [[FEX Rules]] (anchor-local), and the self-applying `# RULESET R-ruleset` embedded in [[FCT Ruleset]] itself.
+Two primitives, both spec'd prescriptively in [[DAS Ruleset]]. Worked instances: [[R-diagram]] (large umbrella), [[FEX Rules]] (anchor-local), and the self-applying `# RULESET R-ruleset` embedded in [[DAS Ruleset]] itself.
 
 ### The Rule — the atomic unit
 
@@ -37,7 +37,7 @@ A rule is a markdown **heading** whose first token is the all-caps `RULE` sentin
 |---|---|---|
 | Heading | `<H> RULE R-<slug>-NN — name` | the `RULE` sentinel + the permanent id; H3 customary inside a `# RULESET`. |
 | `description::` | a queryable one-liner | the rule's **meaning** — never sent on fire. |
-| condition | `where::` · `when::` · `if::` | the conjunction — which files · at what moment · and only if. Full section: [[#4 · The condition — the conjunction when ∧ where ∧ if\|§4 The condition]]; specs: [[FCT Ruleset]] § Where clause · [[Warden Events]] · [[Warden Semantics]] § The condition. |
+| condition | `where::` · `when::` · `if::` | the conjunction — which files · at what moment · and only if. Full section: [[#4 · The condition — the conjunction when ∧ where ∧ if\|§4 The condition]]; specs: [[DAS Ruleset]] § Where clause · [[Warden Events]] · [[Warden Semantics]] § The condition. |
 | body | bare prose, or backticked Python | the **action** — prose *is* the `tell`; Python runs `tell` / `edit` / `deny` / `run` ([[Warden Semantics]]). |
 | `**Why:**` · `**Exceptions:**` | optional | rationale · exceptions. (Re-eval economy rides an `if::` over `file.diff`.) |
 
@@ -64,7 +64,7 @@ A ruleset is a `# RULESET R-<slug>` block plus a prescriptive header. The all-ca
 
 ## 2 · Containment and inheritance — `include::`
 
-A ruleset absorbs other rulesets by naming them on its `include::` line (bare names or `[[wiki-links]]`, mixed freely). This is the system's single inheritance mechanism. Spec: [[FCT Ruleset]] § Include composition; migration history: [[F132 — Rules Migration|F132]].
+A ruleset absorbs other rulesets by naming them on its `include::` line (bare names or `[[wiki-links]]`, mixed freely). This is the system's single inheritance mechanism. Spec: [[DAS Ruleset]] § Include composition; migration history: [[F132 — Rules Migration|F132]].
 
 **Flatten semantics** (what `flatten-ruleset.py` / `audit-plan.py` do):
 
@@ -92,7 +92,7 @@ Adding a facet's rules to an audit is just adding its set to an umbrella's `incl
 
 ## 3 · Placement and association — where rules live
 
-Rules live with the spec that owns them. There are **three homes** — and an anchor's `{NAME} Decisions.md` may host the anchor-local one as a companion `# RULESET` directly after its decisions ([[FCT Decisions]]). Folder convention + facet-embedding: [[F133 — Rulesets folder convention + facet embedding|F133]].
+Rules live with the spec that owns them. There are **three homes** — and an anchor's `{NAME} Decisions.md` may host the anchor-local one as a companion `# RULESET` directly after its decisions ([[DAS Decisions]]). Folder convention + facet-embedding: [[F133 — Rulesets folder convention + facet embedding|F133]].
 
 ```
 ob-skills/library/Rulesets/          ← (1) the shared catalog, organized per-domain
@@ -111,12 +111,12 @@ ob-skills/skills/.../<skill> spec     ← (2) embedded set inside a skill/discip
 | Home | When used | Example |
 |---|---|---|
 | **Catalog** — standalone `R-<slug>.md` | cross-cutting, reusable, owner- or trait-scoped rulesets | [[R-diagram]] |
-| **Embedded** — `# RULESET` inside a facet / skill / discipline spec | rules that *are* the structural spec for an artifact kind | `R-ruleset` in [[FCT Ruleset]]; `R-testing` in `FCT Testing` |
+| **Embedded** — `# RULESET` inside a facet / skill / discipline spec | rules that *are* the structural spec for an artifact kind | `R-ruleset` in [[DAS Ruleset]]; `R-testing` in `FCT Testing` |
 | **Anchor-local** — `{NAME} Rules.md` | rules truly specific to one anchor | [[FEX Rules]] |
 
 **Association with facets and skills** is the embedded home: each CAB facet, skill, and discipline spec carries its own `# RULESET R-<facet>` block, and the `R-anchor` / `R-doc` umbrellas aggregate them. That is how "the rules of the facets an anchor has" (the F001 phrase) is computed — facet presence is mostly folder/file presence, and each present facet contributes its embedded set.
 
-**`include::` is composition — one semantics.** Under a `# RULESET` H1, `include:: R-Y, R-Z` means the set absorbs R-Y and R-Z (§2). Per-anchor **adoption is by traits**: the anchor's `.anchor` trait list activates rulesets, recursively ([[Warden Semantics]] § Rulesets). Decisions (`{NAME} Decisions.md`, spec: [[FCT Decisions]]) are **documentation Warden never computes against** — the broader recorded choices above the rules. Anything directly checkable is written only as a rule (by convention in the companion `# RULESET` directly after the `## Decisions` section), and a rule ties itself back to the decision it implements with a loose `implements D<N>` note.
+**`include::` is composition — one semantics.** Under a `# RULESET` H1, `include:: R-Y, R-Z` means the set absorbs R-Y and R-Z (§2). Per-anchor **adoption is by traits**: the anchor's `.anchor` trait list activates rulesets, recursively ([[Warden Semantics]] § Rulesets). Decisions (`{NAME} Decisions.md`, spec: [[DAS Decisions]]) are **documentation Warden never computes against** — the broader recorded choices above the rules. Anything directly checkable is written only as a rule (by convention in the companion `# RULESET` directly after the `## Decisions` section), and a rule ties itself back to the decision it implements with a loose `implements D<N>` note.
 
 ---
 
@@ -127,14 +127,14 @@ A rule is a standing constraint that means the **conjunction** of its clauses; i
 | Clause | Dimension | Answers | Spec |
 |---|---|---|---|
 | `when::` | **moment** (temporal) | *at what moment?* | §5 + [[Warden Events]] |
-| `where::` | **place** (spatial, cross-cutting) | *concerning which file / directory / target?* | this section + [[FCT Ruleset]] § Where clause |
+| `where::` | **place** (spatial, cross-cutting) | *concerning which file / directory / target?* | this section + [[DAS Ruleset]] § Where clause |
 | `if::` | **test** (computed) | *and only if …?* — a **Python expression** (or prose, for an LLM judgment) | [[Warden Semantics]] § The condition |
 
 `where::` is a deliberately **separate cross-cutting axis** rather than more depth in `when::`: the same place-predicate (`{ANCHOR}/**/*.md`) recurs under many moments (write it, read it, audit it), so it factors out. A passive file-check rule (today's default) is just one with no `when::` — it is evaluated whenever the audit visits, with `where::` doing all the binding.
 
 ### `where::` — the place selector
 
-`where::` answers *which targets?* — the spatial cross-cut. Full grammar + exhaustive examples: [[FCT Ruleset]] § Where clause.
+`where::` answers *which targets?* — the spatial cross-cut. Full grammar + exhaustive examples: [[DAS Ruleset]] § Where clause.
 
 **Four scope kinds:**
 
@@ -303,9 +303,9 @@ Load-bearing policy with real failure modes (the 2026-07-06 veto-surface audit f
 |---|---|
 | `when::` moment taxonomy + conjunction model | [[Warden Events]] |
 | Prior art + integration/dependency policy | [[Warden Survey]], [[Warden Integration Strategy]] |
-| Rule + Ruleset format, `where::` | [[FCT Ruleset]] |
-| Decisions doctrine (documentation layer, companion ruleset, `implements D<N>`) | [[FCT Decisions]] |
-| Catalog + folder convention + facet embedding | [[Rulesets]], [[F133 — Rulesets folder convention + facet embedding\|F133]] |
+| Rule + Ruleset format, `where::` | [[DAS Ruleset]] |
+| Decisions doctrine (documentation layer, companion ruleset, `implements D<N>`) | [[DAS Decisions]] |
+| Catalog + folder convention + facet embedding | [[DAS Rulesets]], [[F133 — Rulesets folder convention + facet embedding\|F133]] |
 | Rules-vs-decisions split, flatten tooling | [[F132 — Rules Migration\|F132]] |
 | `when::` clause + executable rules | [[F180 — When-trigger executable rules\|F180]] |
 | Trigger discipline (`compact` / `markdown-write`) | [[F091 — Trigger discipline\|F091]] |

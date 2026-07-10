@@ -57,7 +57,7 @@ The old model marked exactly this with the `(sampled)` tier — "imprecise; samp
 
 ## E103 · A structured-document rule — the dispatch masthead
 
-The dispatch facets (~50 rules across [[FCT Dispatch Table]] and [[FCT Anchor Page]]) all operate on one artifact: the masthead table. `R-dispatch-table-01` wants its rows in a fixed order:
+The dispatch facets (~50 rules across [[DAS Dispatch Table]] and [[DAS Anchor Page]]) all operate on one artifact: the masthead table. `R-dispatch-table-01` wants its rows in a fixed order:
 
 ```
 ### RULE R-dispatch-table-01 — Masthead rows appear in a fixed order

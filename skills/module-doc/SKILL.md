@@ -1,7 +1,7 @@
 ---
 name: module-doc
 description: >
-  Author or revise an module documentation file conforming to [[FCT Module Doc]]
+  Author or revise an module documentation file conforming to [[DAS Module Doc]]
   facet. Reads source code, generates the doc skeleton (SECTIONS table,
   per-class tables with bold-identifier rows, Class Method Details zone with
   block-ID-targeted method H3s), authors the figure via the viz/excalidraw
@@ -16,7 +16,7 @@ user_invocable: true
 
 # /module-doc — Author and Maintain Module Documentation
 
-`/module-doc` authors or revises an module documentation file conforming to the [[FCT Module Doc]] facet. The facet is the rule source; this skill is the procedure. A companion `audit-module-doc.py` script (invoked as `/audit module-doc <file>`) performs mechanical conformance checks; the agent fixes warnings to zero, then does a subjective re-read for the rules mechanical checks can't cover (figure readability, prose clarity, layout judgment).
+`/module-doc` authors or revises an module documentation file conforming to the [[DAS Module Doc]] facet. The facet is the rule source; this skill is the procedure. A companion `audit-module-doc.py` script (invoked as `/audit module-doc <file>`) performs mechanical conformance checks; the agent fixes warnings to zero, then does a subjective re-read for the rules mechanical checks can't cover (figure readability, prose clarity, layout judgment).
 
 Feature spec: `[[F119 — api-doc skill + audit-api-doc.py — author audit iterate for CAB API Doc facet]]`. Companion spec: `[[FCT Module Doc]]` (the facet — read it before authoring).
 
@@ -85,7 +85,7 @@ Read the source file(s) directly. For a folder, walk every source file with a pu
 Per F068 — don't ask the user about API content; the source IS authoritative.
 
 ### 4. Generate the doc skeleton
-Author the markdown structure per [[FCT Module Doc]]. Key elements (full rules in the facet):
+Author the markdown structure per [[DAS Module Doc]]. Key elements (full rules in the facet):
 
 - **Frontmatter** — YAML with `description:` field.
 - **Breadcrumb** — `:>> [[anchor]] → [[Docs]] → [[Dev]] → [[Architecture]]` line.

@@ -39,6 +39,6 @@ A *trait* is a declarable property of the **anchor** (in `.anchor`'s `traits:`);
 
 # BRIEF
 
-*(Maintainer note — this is a routing catalog, not per-trait spec: each trait's full spec lives in its own [[<Trait>]].md, operational mode behavior in `SKL Mode <Trait>.md`, trait-wide validation rules in an `R-<trait>` ruleset ([[FCT Ruleset]]), and composability/exclusion rules in [[CAB Aspects]]. Keep catalog rows terse — a one-line composability note plus a wiki-link to the spec.)*
+*(Maintainer note — this is a routing catalog, not per-trait spec: each trait's full spec lives in its own [[<Trait>]].md, operational mode behavior in `SKL Mode <Trait>.md`, trait-wide validation rules in an `R-<trait>` ruleset ([[DAS Ruleset]]), and composability/exclusion rules in [[CAB Aspects]]. Keep catalog rows terse — a one-line composability note plus a wiki-link to the spec.)*
 
 - **Adding a new trait** — (1) decide category + composability rule (excludes/requires/defaults); (2) create `[[<Trait>]].md` with the spec (what it adds, when it applies, examples); (3) add a bullet to the right section of this catalog; (4) update [[CAB Aspects]]'s composability matrix; (5) author `SKL Mode <Trait>.md` if it carries operational mode behavior; (6) add an `R-trait-<name>` ruleset if it warrants validation.

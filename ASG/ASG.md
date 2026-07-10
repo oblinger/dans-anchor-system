@@ -18,12 +18,12 @@ The `/`-invocable verbs, grouped as under [[SKL]]. Linked to a **user guide** wh
 | Group | Skills |
 | --- | --- |
 | [[SKL Drive\|Drive]] | [[ASG Feature\|Feature]],  [[ASG Groom\|Groom]],  [[ASG Query\|Query]],  [[ASG Crank\|Crank]],  [[ASG Mint\|Mint]],  [[ASG Finalize\|Finalize]],  [[ASG Land\|Land]],  [[ASG Fortify\|Fortify]],  [[ASG Triage\|Triage]] |
-| [[SKL Anchor\|Anchor]] | [[SKL Create\|Create]],  [[SKL Install\|Install]],  [[SKL Migrate\|Migrate]],  [[SKL Move\|Move]],  [[SKL Publish\|Publish]],  [[SKL Streams\|Streams]],  [[SKL WP\|WP]],  [[SKL Yore\|Yore]] |
-| [[SKL Hygiene\|Hygiene]] | [[SKL Audit\|Audit]],  [[SKL Dupes\|Dupes]],  [[SKL Maintain\|Maintain]],  [[SKL Rewire\|Rewire]],  [[SKL Slug Scan\|Slug Scan]],  [[SKL Tidy\|Tidy]] |
-| [[SKL Dev\|Dev]] | [[SKL Architect\|Architect]],  [[SKL Code\|Code]],  [[SKL Fix\|Fix]],  [[SKL Pilot Flow\|Pilot Flow]],  [[SKL PR Flow\|PR Flow]] |
-| [[SKL Doc\|Doc]] | [[SKL MD\|MD]],  [[SKL Viz\|Viz]] |
-| [[SKL Search\|Search]] | [[SKL Find\|Find]],  [[SKL Profile\|Profile]],  [[SKL Purchase\|Purchase]],  [[SKL Survey\|Survey]] |
-| [[SKL Utility\|Utility]] | [[SKL Cook\|Cook]],  [[SKL Ctrl\|Ctrl]],  [[SKL Exp\|Exp]],  [[SKL Parley\|Parley]],  [[SKL Snip\|Snip]] |
+| [[SKL Anchor\|Anchor]] | [[DAS Create\|Create]],  [[DAS Install\|Install]],  [[DAS Migrate\|Migrate]],  [[DAS Move\|Move]],  [[DAS Publish\|Publish]],  [[DAS Streams\|Streams]],  [[DAS WP\|WP]],  [[DAS Yore\|Yore]] |
+| [[SKL Hygiene\|Hygiene]] | [[DAS Audit\|Audit]],  [[DAS Dupes\|Dupes]],  [[DAS Maintain\|Maintain]],  [[DAS Rewire\|Rewire]],  [[DAS Slug Scan\|Slug Scan]],  [[DAS Tidy\|Tidy]] |
+| [[SKL Dev\|Dev]] | [[DAS Architect\|Architect]],  [[DAS Code\|Code]],  [[DAS Fix\|Fix]],  [[DAS Pilot Flow\|Pilot Flow]],  [[DAS PR Flow\|PR Flow]] |
+| [[SKL Doc\|Doc]] | [[DAS MD\|MD]],  [[DAS Viz\|Viz]] |
+| [[SKL Search\|Search]] | [[DAS Find\|Find]],  [[DAS Profile\|Profile]],  [[DAS Purchase\|Purchase]],  [[DAS Survey\|Survey]] |
+| [[SKL Utility\|Utility]] | [[DAS Cook\|Cook]],  [[DAS Ctrl\|Ctrl]],  [[DAS Exp\|Exp]],  [[DAS Parley\|Parley]],  [[DAS Snip\|Snip]] |
 
 ## Facets
 
@@ -31,12 +31,12 @@ The per-document shapes, grouped as under [[FCT]]. Each links to its facet spec.
 
 | Group | Facets |
 | --- | --- |
-| [[FCT Anchor\|Anchor]] | [[FCT Anchor Page\|Anchor Page]],  [[FCT Naming\|Naming]],  [[FCT Folder\|Folder]],  [[FCT CLI\|CLI]],  [[FCT Code Repository\|Code Repository]] |
-| [[FCT Design Docs\|Design Docs]] | [[FCT PRD\|PRD]],  [[FCT Architecture\|Architecture]],  [[FCT UX Design\|UX Design]],  [[FCT Testing\|Testing]],  [[FCT Decisions\|Decisions]],  [[FCT Roadmap\|Roadmap]],  [[FCT Stories\|Stories]] |
-| [[FCT Track\|Track]] | [[FCT Features\|Features]],  [[FCT Status\|Status]],  [[FCT Query\|Query]],  [[FCT Triage\|Triage]],  [[FCT Messages\|Messages]],  [[FCT Log\|Log]] |
-| [[FCT Doc\|Doc]] | [[FCT Doc Structure\|Doc Structure]],  [[FCT Ruleset\|Ruleset]],  [[FCT Brief\|Brief]],  [[FCT Discussion\|Discussion]] |
-| [[FCT Dispatch\|Dispatch]] | [[FCT Dispatch Table\|Dispatch Table]] |
-| [[FCT Primitives\|Primitives]] | [[FCT Skill\|Skill]],  [[FCT Facet\|Facet]],  [[FCT Ruleset\|Ruleset]] |
+| [[DAS Anchor\|Anchor]] | [[DAS Anchor Page\|Anchor Page]],  [[DAS Naming\|Naming]],  [[DAS Folder\|Folder]],  [[DAS CLI\|CLI]],  [[DAS Code Repository\|Code Repository]] |
+| [[DAS Design Docs\|Design Docs]] | [[DAS PRD\|PRD]],  [[DAS Architecture\|Architecture]],  [[DAS UX Design\|UX Design]],  [[DAS Testing\|Testing]],  [[DAS Decisions\|Decisions]],  [[DAS Roadmap\|Roadmap]],  [[DAS Stories\|Stories]] |
+| [[DAS Track\|Track]] | [[DAS Features\|Features]],  [[DAS Status\|Status]],  [[DAS Query\|Query]],  [[DAS Triage\|Triage]],  [[FCT Messages\|Messages]],  [[DAS Log\|Log]] |
+| [[DAS Doc\|Doc]] | [[DAS Doc Structure\|Doc Structure]],  [[DAS Ruleset\|Ruleset]],  [[DAS Brief\|Brief]],  [[DAS Discussion\|Discussion]] |
+| [[DAS Dispatch\|Dispatch]] | [[DAS Dispatch Table\|Dispatch Table]] |
+| [[DAS Primitives\|Primitives]] | [[DAS Skill\|Skill]],  [[DAS Facet\|Facet]],  [[DAS Ruleset\|Ruleset]] |
 
 ## Disciplines
 

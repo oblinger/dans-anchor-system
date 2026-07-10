@@ -5,7 +5,7 @@ severity: warning
 
 # Diagram embeds must carry a page-fill width hint
 
-A diagram embedded with no width hint — bare `![[figure.svg]]` — renders in Obsidian as a tiny fit-to-column thumbnail, not the page-wide figure that is the default requirement for architecture and module diagrams (see [[FCT Architecture]] § Architecture diagram requirements and [[DAS markdown]]). The fix is a large width hint the reading pane caps to itself, e.g. `![[figure.svg|2400]]`.
+A diagram embedded with no width hint — bare `![[figure.svg]]` — renders in Obsidian as a tiny fit-to-column thumbnail, not the page-wide figure that is the default requirement for architecture and module diagrams (see [[DAS Architecture]] § Architecture diagram requirements and [[DAS markdown]]). The fix is a large width hint the reading pane caps to itself, e.g. `![[figure.svg|2400]]`.
 
 This rule flags **bare** image embeds (`.svg` / `.png` / `.excalidraw`) that carry no `|<width>`. An embed that *does* carry a width — page-fill (`|2400`) or a deliberately small inline width (`|400`) — is the author's explicit choice and passes: the rule enforces "make a sizing decision," not a specific number. Embeds inside fenced code blocks (skill templates / examples) are skipped.
 

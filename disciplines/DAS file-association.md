@@ -88,8 +88,8 @@ The facet doesn't re-explain the methods — it names which it supports and whic
 ## See also
 
 - [[DAS dated-entry-stream]] — the dated specialization.
-- [[FCT Brief]] / [[FCT Discussion]] — doc facets citing this discipline (Brief directly; Discussion via the dated specialization).
-- [[FCT Log]] — facet using the dated-entry-stream shape at the anchor scope.
+- [[DAS Brief]] / [[DAS Discussion]] — doc facets citing this discipline (Brief directly; Discussion via the dated specialization).
+- [[DAS Log]] — facet using the dated-entry-stream shape at the anchor scope.
 - [[DAS progressive-disclosure]] — sibling discipline; what-the-reader-sees-when.
 - [[DAS granularity]] — why static-single associations cite the umbrella rather than spawning a specialization.
 - [[DAS markdown]] — sibling discipline; how the markdown text itself is written.

@@ -2,7 +2,7 @@
 
 Takes one anchor (or folder) and brings its **dispatch table** to good form — the **Masthead** (breadcrumb + anchor-kind structural rows + curated one-off links) followed by the optional **Member zone** (member list / member groups, manual / auto / hybrid). **Fixes by default** — like `/audit q`, it applies the repair rather than just reporting it, because dispatch-table shape is mechanical to get right. Low-confidence choices (grouping categories, structural-vs-member ambiguity) surface to the user; everything mechanical is applied.
 
-Enforces the structure spec'd in [[FCT Dispatch Table]] (see [[F155 — Dispatch-table structure spec + CAE worked examples|F155]] for the Masthead + Member-zone model). The per-anchor counterpart of the vault-wide walk defined in [[DAS anchor-dag]]: SYS owns whole-vault connectivity; `/audit dispatch` owns one table's shape.
+Enforces the structure spec'd in [[DAS Dispatch Table]] (see [[F155 — Dispatch-table structure spec + CAE worked examples|F155]] for the Masthead + Member-zone model). The per-anchor counterpart of the vault-wide walk defined in [[DAS anchor-dag]]: SYS owns whole-vault connectivity; `/audit dispatch` owns one table's shape.
 
 ## When to use
 
@@ -38,7 +38,7 @@ The script exits non-zero only when the safety net fired (a curated link would h
 ### 2. Compute the Masthead
 The fixed top block — always present:
 1. **Breadcrumb row** — `| -[[{slug}]]- | → [[kmr]] → … → [{Full Name}](hook://…) |`. Fix the parent chain to match the anchor's actual location (the up-edge of [[SYS Anchor DAG]]).
-2. **Structural rows** — the anchor-kind standard rows. For a `Code` anchor: `Design` / `User` / `Dev` rows linking to its sub-folder dispatch pages (per [[FCT Anchor Page]]). For a `Topic` anchor: its sub-topic routing rows. Include only rows whose target sub-folders exist.
+2. **Structural rows** — the anchor-kind standard rows. For a `Code` anchor: `Design` / `User` / `Dev` rows linking to its sub-folder dispatch pages (per [[DAS Anchor Page]]). For a `Topic` anchor: its sub-topic routing rows. Include only rows whose target sub-folders exist.
 3. **Curated one-off links** — preserve any hand-added links already in the table that don't match a structural or member row (the user pinned them on purpose). Never drop curated links.
 
 ### 3. Compute the Member zone (only if the anchor is a Collection)
@@ -66,8 +66,8 @@ Mirrors [[DAS anchor-dag]]'s two-table report at single-anchor scope: **mechanic
 
 ## Related
 
-- [[FCT Dispatch Table]] — the Masthead + Member-zone structure this enforces.
-- [[FCT Anchor Page]] — breadcrumb + structural-row conventions.
+- [[DAS Dispatch Table]] — the Masthead + Member-zone structure this enforces.
+- [[DAS Anchor Page]] — breadcrumb + structural-row conventions.
 - [[DAS progressive-disclosure]] — member list vs member groups (List / Grouped, > 15 rule).
 - [[Collection]] — the trait that means "this anchor has a Member zone."
 - [[DAS granularity]] — compact → grouped graduation.

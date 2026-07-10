@@ -4,7 +4,7 @@ description: "product requirements — the rule system, its goals, and the perfo
 
 # Warden PRD
 
-The **rule system** is the vault's mechanism for stating a standing constraint once — declaratively — and having it enforced everywhere it applies, at the right moment, for every agent, automatically. A rule names *what must be true* (`when ∧ where ∧ if`); the system makes it fire. This PRD covers the whole system — the language, the corpus, the compiler/installer, and the two run paths — not just the `/rule` skill (which is one surface onto it). Architecture: [[Warden Architecture]]. Format spec: [[FCT Ruleset]]. Moment taxonomy: [[Warden Events]].
+The **rule system** is the vault's mechanism for stating a standing constraint once — declaratively — and having it enforced everywhere it applies, at the right moment, for every agent, automatically. A rule names *what must be true* (`when ∧ where ∧ if`); the system makes it fire. This PRD covers the whole system — the language, the corpus, the compiler/installer, and the two run paths — not just the `/rule` skill (which is one surface onto it). Architecture: [[Warden Architecture]]. Format spec: [[DAS Ruleset]]. Moment taxonomy: [[Warden Events]].
 
 ## Problem
 
@@ -99,7 +99,7 @@ Same corpus, same `when/where/if` vocabulary; the explicit path is the safety ne
 
 ## Place in the system
 
-The rule system is a part of **[[SKA]]**, tied to the **ruleset** primitive ([[FCT Ruleset]]) as its definitional core, and cross-linked into **[[Audit Architecture|audit]]** (the explicit consumer) and the **hook subsystem** (the implicit consumer) — and open to other future consumers (any skill that wants to fire rules at a moment). [[Warden Architecture]] is the unified map; this PRD is the why + the requirements; the [[Warden Roadmap]] sequences the build.
+The rule system is a part of **[[SKA]]**, tied to the **ruleset** primitive ([[DAS Ruleset]]) as its definitional core, and cross-linked into **[[Audit Architecture|audit]]** (the explicit consumer) and the **hook subsystem** (the implicit consumer) — and open to other future consumers (any skill that wants to fire rules at a moment). [[Warden Architecture]] is the unified map; this PRD is the why + the requirements; the [[Warden Roadmap]] sequences the build.
 
 ## Open questions
 

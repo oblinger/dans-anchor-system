@@ -7,7 +7,7 @@ The design of Harbor: what it's for, how it's shaped, and the rulings behind it.
 | -[[HBR Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[HBR]] → [HBR Design](hook://p/HBR%20Design)<br>: Harbor Design — the design docs |
 | --- | --- |
 | Anchor | [[HBR]] (parent) |
-| Related | [[HBR Components]],  [[FCT Design Docs]],  [[HBR Architecture]] (root-level sibling folder), |
+| Related | [[HBR Components]],  [[DAS Design Docs]],  [[HBR Architecture]] (root-level sibling folder), |
 | Members | [[HBR PRD\|PRD]],  [[HBR UX Design\|UX Design]],  [[HBR CLI\|CLI]],  [[HBR API Design\|API]],  [[HBR Decisions\|Decisions]],  [[HBR Testing\|Testing]],  [[HBR Roadmap\|Roadmap]],  [[HBR Features\|Features]],   |
 | [[HBR PRD]] |  |
 | [[HBR UX Design]] |  |

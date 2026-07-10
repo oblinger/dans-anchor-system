@@ -43,6 +43,6 @@ Examples of patterns that don't: a single project-wide rule (belongs in CLAUDE.m
 ## Related
 
 - [[CAB Disciplines]] — the catalog itself.
-- [[FCT Brief]] — the Brief discipline (this file is its worked example).
+- [[DAS Brief]] — the Brief discipline (this file is its worked example).
 - [[CAB Facets]] — sibling catalog (file-based aspects of an individual anchor).
 - [[SKL Discipline]] — sibling catalog at skill level.

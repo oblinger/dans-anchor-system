@@ -18,7 +18,7 @@ How {slug} is verified: the kinds of test, how much of each, and the concrete in
 
 | Kind | In system | Expected |
 | --- | --- | --- |
-| [[Common Testing Types#{{Kind}}\|{{Kind}}]] | {{N}} | {{target count and/or qualitative bar}} |
+| [[DAS Common Testing Types#{{Kind}}\|{{Kind}}]] | {{N}} | {{target count and/or qualitative bar}} |
 | ... | | |
 
 ## Overview

@@ -5,7 +5,7 @@ description: Default rules for finding a product (SKU-level identification, reta
 
 Default rules for `find` on noun-type **product** — pinning a specific SKU, comparing retailers, identifying the canonical purchase URL. Ships with the skill; user overrides in `[[SRC rules/find-product|SRC rules/]]`.
 
-Subsumes the legacy `/product find` action from [[SKL Purchase]].
+Subsumes the legacy `/product find` action from [[DAS Purchase]].
 
 ## Default sources for identification
 
@@ -44,7 +44,7 @@ If the user asks "what's the best X for purpose Y" — that's not a `find`, it's
 
 ## Hand-off to purchase
 
-This skill **identifies** the SKU and the cheapest URL — it doesn't execute purchase. For purchasing, see the legacy [[SKL Purchase]] skill (`/product buy`).
+This skill **identifies** the SKU and the cheapest URL — it doesn't execute purchase. For purchasing, see the legacy [[DAS Purchase]] skill (`/product buy`).
 
 ## User rules
 

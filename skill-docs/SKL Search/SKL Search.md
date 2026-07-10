@@ -8,11 +8,11 @@ User guides for search-shaped skills — query the open web, find skills others 
 
 | -[[SKL Search]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [SKL Search](hook://p/SKL%20Search)<br>: User guides for search-shaped skills — query the open web, find skills others have built, surface product information. |
 | --- | --- |
-| [[SKL Search Overview\|Overview]] | How the search skill family combines knowledge and rules — the mental model behind find/profile/survey. |
-| Actions | [[SKL Find]],  [[SKL Profile]],  [[SKL Survey]],   |
-| Meta-survey | [[SKL Meta Survey]] — high-rigor three-stage form (sources × dimensions × items, cell-certainty notation) |
-| Types · People | [[SKL Person]],  [[SKL Corp]],   |
-| Types · Things | [[SKL Product]],  [[SKL Book]],   |
-| Types · Digital content | [[SKL Software]],  [[SKL Skill]],   |
+| [[DAS Search Overview\|Overview]] | How the search skill family combines knowledge and rules — the mental model behind find/profile/survey. |
+| Actions | [[DAS Find]],  [[DAS Profile]],  [[DAS Survey]],   |
+| Meta-survey | [[DAS Meta Survey]] — high-rigor three-stage form (sources × dimensions × items, cell-certainty notation) |
+| Types · People | [[DAS Person]],  [[DAS Corp]],   |
+| Types · Things | [[DAS Product]],  [[DAS Book]],   |
+| Types · Digital content | [[DAS Software]],  [[DAS Skill]],   |
 | Outputs | [[Survey]],  [[Profile]],  [[Find]],   |
-| Legacy | [[SKL Purchase\|Purchase]] (purchasing — `/product hunt/find/buy/reorder`),  [[SKL Research\|Research]] (`/research` family),  [[SKL Research Skill\|Research Skill]] (skill comparison — folded into [[SKL Skill]]), |
+| Legacy | [[DAS Purchase\|Purchase]] (purchasing — `/product hunt/find/buy/reorder`),  [[DAS Research\|Research]] (`/research` family),  [[DAS Research Skill\|Research Skill]] (skill comparison — folded into [[DAS Skill]]), |

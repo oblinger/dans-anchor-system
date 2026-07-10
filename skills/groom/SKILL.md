@@ -37,12 +37,12 @@ The first thing groom guarantees is that **no work is anonymous** — every piec
 
 - **`F<n>` — a feature.** Backed by a feature doc under `{slug} Design/{slug} Features/`; the backlog row links to it (`→ [[F<n> — Title]]`). Monotonic, never reused.
 - **`T<n>` — a task.** A unit of work with **no** feature doc — the backlog row itself is the spec. A task typically *operates on other documents*: its body carries wiki-links to the design-doc sections, files, or artifacts it acts on. The `T<n>` handle is unique on the backlog (monotonic, never reused) and is what every reference to the work (questions, `Q.md`, cross-links) points at.
-- **`M-<Name>…` — a roadmap entry.** A *nested* item in `{slug} Roadmap.md` (per [[FCT Roadmap]]); handle `M-<Name>.<path>`, the name-path encoding its position in the tree. Entries nest — the roadmap is a hierarchy.
+- **`M-<Name>…` — a roadmap entry.** A *nested* item in `{slug} Roadmap.md` (per [[DAS Roadmap]]); handle `M-<Name>.<path>`, the name-path encoding its position in the tree. Entries nest — the roadmap is a hierarchy.
 - **`R…` — a roadmap task.** A backlog commitment to **execute a roadmap entry**. Flat on the backlog: it references one entry — a **leaf** (usual: "do this item") or a **non-leaf** ("do the whole subtree"). Handle `R` + the entry's id (e.g. `R-CLI.3.5`).
 
-**Names are identity; order is document position (no stored number).** Resolve a roadmap entry/task on its **name-path**, never on an ordinal — a milestone's order is just its position in the roadmap file (any shown number is *computed*, never stored or referenced), so reorder/insert changes positions with nothing to renumber and no reference to update. That's why `R` handles are word-only (`R-CLI.3.5`). Only a **rename** forces a sweep. (Full convention: [[FCT Roadmap]].)
+**Names are identity; order is document position (no stored number).** Resolve a roadmap entry/task on its **name-path**, never on an ordinal — a milestone's order is just its position in the roadmap file (any shown number is *computed*, never stored or referenced), so reorder/insert changes positions with nothing to renumber and no reference to update. That's why `R` handles are word-only (`R-CLI.3.5`). Only a **rename** forces a sweep. (Full convention: [[DAS Roadmap]].)
 
-You *achieve* the identity by linking: a row links to its feature doc (`F<n>`), is itself the task record (`T<n>`), or references a roadmap entry (`R…`, leaf or non-leaf). **A feature doc that isn't linked from the backlog/roadmap has no place in the system** — groom gives it one (mint/point a row) rather than leaving it an orphan. (Numbering policy: [[Backlog|FCT Backlog]] § Numbering + [[FCT Roadmap]].)
+You *achieve* the identity by linking: a row links to its feature doc (`F<n>`), is itself the task record (`T<n>`), or references a roadmap entry (`R…`, leaf or non-leaf). **A feature doc that isn't linked from the backlog/roadmap has no place in the system** — groom gives it one (mint/point a row) rather than leaving it an orphan. (Numbering policy: [[DAS Backlog|FCT Backlog]] § Numbering + [[DAS Roadmap]].)
 
 ### 2. Identify the executable frontier
 
@@ -56,7 +56,7 @@ A feature doc not listed anywhere is not on the frontier — and per activity 1 
 
 ### 3. Groom the frontier — plan each item to a known state
 
-For every frontier item, plan it out so you know, as concretely as possible, **how you would execute it**, then drive it into exactly one of the **five groomed states**. A state is only honest if its body carries the required contract — and every contract is a **checked `R-backlog` rule** ([[Backlog|FCT Backlog]] § The groomed states), so an audit catches a bracket whose body doesn't back it up:
+For every frontier item, plan it out so you know, as concretely as possible, **how you would execute it**, then drive it into exactly one of the **five groomed states**. A state is only honest if its body carries the required contract — and every contract is a **checked `R-backlog` rule** ([[DAS Backlog|FCT Backlog]] § The groomed states), so an audit catches a bracket whose body doesn't back it up:
 
 | # | Groomed state | Bracket(s) | Body contract groom must write | Checked by |
 |---|---|---|---|---|

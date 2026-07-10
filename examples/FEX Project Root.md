@@ -8,19 +8,19 @@ A CLI that turns messy meeting transcripts into clean, attributed minutes.
 
 ![[F143-1-top-level.svg]]
 
-| -[[FEX Project Root]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[FCT Anchor]] → [FEX Project Root](hook://p/FEX%20Project%20Root)<br>: canonical project-root exemplar |
+| -[[FEX Project Root]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [[DAS Anchor]] → [FEX Project Root](hook://p/FEX%20Project%20Root)<br>: canonical project-root exemplar |
 | --- | --- |
-| Related | [[FEX Facet]],  [[FCT Project Page]] (the facet),  [[vox]] (sibling transcript tool),  [Repo](https://github.com/example/clarifier),  [Docs site](https://example.github.io/clarifier/) |
+| Related | [[FEX Facet]],  [[DAS Project Page]] (the facet),  [[vox]] (sibling transcript tool),  [Repo](https://github.com/example/clarifier),  [Docs site](https://example.github.io/clarifier/) |
 | [[Clarifier Design\|Design]]+ | [[Clarifier PRD\|PRD]],  [[Clarifier UX Design\|UX Design]],  [[Clarifier CLI\|CLI]],  [[Clarifier API Design\|API]],  [[Clarifier Architecture\|Architecture]],  [[Clarifier Decisions\|Decisions]],  [[Clarifier Testing\|Testing]],  [[Clarifier Roadmap\|Roadmap]],  [[Clarifier Features\|Features]],   |
 | [[Clarifier Track\|Track]]+ | [[Clarifier Backlog\|Backlog]],   |
 | [[Clarifier User Docs\|User Docs]]+ | [[Clarifier Guide\|Guide]],   |
 | [[Clarifier Dev Docs\|Dev Docs]]+ | [[Clarifier Files\|Files]],   |
-| ... | [[FCT Anchor Page]],  [[FCT Anchor Tree]],  [[FCT Claude]],  [[FCT Code Repository]],  [[FCT Dot Anchor]],  [[FCT Folder]],  [[FCT Interface]],  [[FCT Move]],  [[FCT Naming]],   |
+| ... | [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS Claude]],  [[DAS Code Repository]],  [[DAS Dot Anchor]],  [[DAS Folder]],  [[DAS Interface]],  [[DAS Move]],  [[DAS Naming]],   |
 
 > **Canonical project root.** The `{slug}.md` entry page for a designed **project** anchor (`traits: [Code]`). It's **masthead-only** — a project is *not* a [[Collection]] of like members; it has **structural parts**, so its dispatch rows are the anchor's standard sub-folders, each a `+` container link *down* to that sub-folder's own dispatch page (the [[progressive-disclosure]] tree of containers):
 > - **Masthead order ([[SKA Decisions|D07]]):** `Related` is the **1st** row (omit if empty — never blank). If the anchor has the design facet, `Design` is the **2nd** row (mandatory), in the fixed order **PRD → UX Design → CLI → API → Architecture → Decisions → Testing → Roadmap → Features** (PRD · the three user-surface docs · Architecture+Decisions · Testing · Roadmap · Features).
-> - **`Design+`** → the design pipeline ([[FCT Design]]) · **`Track+`** → the work surface · **`User Docs+`** / **`Dev Docs+`** → the two doc audiences.
+> - **`Design+`** → the design pipeline ([[DAS Design]]) · **`Track+`** → the work surface · **`User Docs+`** / **`Dev Docs+`** → the two doc audiences.
 > - **`Features` lives under `Design`**, not `Track` — per-feature docs are *design* artifacts (`{slug} Design/{slug} Features/`); `Track` holds only the live work surface (Roadmap, Backlog).
 > - **Track is a *project* row.** A **published section anchor** ([[FCT]], [[SKL]], [[DSC]], [[LBR]]) has **no `Track` row** — it carries no work of its own; its tracking is centralized in the dev-side **[[SKA]]** tree (per D01). Only standalone project anchors track their own work here.
-> - **`Related`** (the 1st row) carries related anchors **and** external resources (repo / site links) — added *only because the information exists* (the [[FCT Dispatch Table]] unified placement rule). There is **no separate `External` row**.
+> - **`Related`** (the 1st row) carries related anchors **and** external resources (repo / site links) — added *only because the information exists* (the [[DAS Dispatch Table]] unified placement rule). There is **no separate `External` row**.
 > - Ordering follows [[FEX Figure Page]]: H1 → one-liner → figure → dispatch table. No member zone, so no trailing electric-list marker (that's a [[Collection]] rule, not a project-root one).

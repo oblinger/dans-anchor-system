@@ -7,7 +7,7 @@ The Manifest facet — the fixed key/value record written into every snapshot bu
 | -[[FEX Manifest]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[FEX Repo]] → [FEX Manifest](hook://p/FEX%20Manifest)<br>: the Manifest facet definition |
 | --- | --- |
 | Anchor | [[FEX Repo]] (parent) |
-| Related | [[FEX Snapshot]] (writes it),  [[R-fex-manifest]] (its rules),  [[FEX Bundle]] (carries it),  [[FCT Facet]] (the facet spec), |
+| Related | [[FEX Snapshot]] (writes it),  [[R-fex-manifest]] (its rules),  [[FEX Bundle]] (carries it),  [[DAS Facet]] (the facet spec), |
 
 ## What it is
 The single record a snapshot bundle carries so a later restore knows exactly what state it captured.
@@ -41,6 +41,6 @@ Written by [[FEX Snapshot|Snapshot]] at capture; read by restore and by the [[FE
 
 *(Maintainer note — this file is the worked **single-file, cardinality-one** facet example; the normative spec is the body above.)*
 
-- **Rules stay in the linked sibling** [[R-fex-manifest]] — it doubles as [[FCT Ruleset]]'s standalone-ruleset example (the linked form, contrast the embedded rulesets in [[FEX Pin]] / [[FEX Bundle]]); don't inline it here.
+- **Rules stay in the linked sibling** [[R-fex-manifest]] — it doubles as [[DAS Ruleset]]'s standalone-ruleset example (the linked form, contrast the embedded rulesets in [[FEX Pin]] / [[FEX Bundle]]); don't inline it here.
 - **Keep detection and cardinality explicit** in § How it's detected — they drive how the audit binds.
 - **Facet definition only** — write/read behavior belongs to [[FEX Snapshot]]; don't grow this into a how-to.

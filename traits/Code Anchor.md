@@ -108,7 +108,7 @@ Type-specific structure checks for Code Anchors. These are run by
 ### Required files
 
 - `.anchor` with a `code:` key — the code repository must be declared
-- `{slug} Architecture/` root-level folder with dispatch page (`{slug} Architecture.md`) — system-architecture story, its own folder at the anchor root (per [[FCT Architecture]]; not nested under `{slug} Design/`)
+- `{slug} Architecture/` root-level folder with dispatch page (`{slug} Architecture.md`) — system-architecture story, its own folder at the anchor root (per [[DAS Architecture]]; not nested under `{slug} Design/`)
 - `{slug} Dev Docs/` folder with dispatch page (`{slug} Dev Docs.md`)
 - `{slug} Design/` folder with dispatch page (`{slug} Design.md`) — PRD / UX / Decisions / Interface
 - `{slug} User Docs/` folder with dispatch page (`{slug} User Docs.md`)
@@ -153,7 +153,7 @@ Dispatch-table rows on a code-trait anchor page use **bare wikilinks only** — 
 
 ## Anchor-page example
 
-Worked anchor-page example carrying this trait: [[HBR]] (a synthetic Code project). The full catalog of anchor-page kinds and their examples is in [[FCT Anchor Page]].
+Worked anchor-page example carrying this trait: [[HBR]] (a synthetic Code project). The full catalog of anchor-page kinds and their examples is in [[DAS Anchor Page]].
 
 # BRIEF
 
@@ -162,4 +162,4 @@ Worked anchor-page example carrying this trait: [[HBR]] (a synthetic Code projec
 - **Inclusion test** — a rule belongs here only if it is true for *every* Code anchor and *false or absent* for non-Code anchors (the `code:` key, README.md in repo root, the inline-vs-linked modes). General anchor rules go to [[CAB Base]]; other traits (Skill / Paper / Topic / Simple) to their own `traits/<Trait>.md`; generic markdown/dispatch mechanics to [[markdown]] / [[progressive-disclosure]].
 - **Don't regress the two repo modes** — Inline and Linked must both stay documented as first-class; real projects use both (`ob-utils` is Linked, most private projects are Inline).
 - **Audit section mirrors `/audit structure`** — Required files / dispatch rows / code-specific checks correspond to actual script checks; edit wording here and the script together or the spec silently desyncs from enforcement. Keep the Forbidden dispatch-row forms list intact.
-- **Don't inline sibling-owned content** — Interface → [[CAB Interface]], brief/TLDR rules → [[FCT Brief]]; reference, don't duplicate.
+- **Don't inline sibling-owned content** — Interface → [[CAB Interface]], brief/TLDR rules → [[DAS Brief]]; reference, don't duplicate.

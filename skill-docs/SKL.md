@@ -15,26 +15,26 @@ Skills — the `/`-invocable runbooks (the things you type `/` for).
 | Siblings | [[FCT\|Facets]],  [[DSC\|Disciplines]],  [[LBR\|Library]],   |
 |  |  |
 |  | **SKILL GROUPS** |
-| [[SKL Anchor\|Anchor]]+ | [[SKL Anchor Toolkit\|Anchor Toolkit]],  [[SKL CAB\|CAB]],  [[SKL Create\|Create]],  [[SKL Install\|Install]],  [[SKL Migrate\|Migrate]],  [[SKL Move\|Move]],  [[SKL Publish\|Publish]],  [[SKL Streams\|Streams]],  [[SKL WP\|WP]],  [[SKL Yore\|Yore]],   |
-| [[SKL Hygiene\|Hygiene]]+ | [[SKL Audit\|Audit]],  [[SKL Dupes\|Dupes]],  [[SKL Maintain\|Maintain]],  [[SKL Rewire\|Rewire]],  [[SKL Slug Scan\|Slug Scan]],  [[SKL Tidy\|Tidy]],   |
+| [[SKL Anchor\|Anchor]]+ | [[DAS Anchor Toolkit\|Anchor Toolkit]],  [[DAS CAB\|CAB]],  [[DAS Create\|Create]],  [[DAS Install\|Install]],  [[DAS Migrate\|Migrate]],  [[DAS Move\|Move]],  [[DAS Publish\|Publish]],  [[DAS Streams\|Streams]],  [[DAS WP\|WP]],  [[DAS Yore\|Yore]],   |
+| [[SKL Hygiene\|Hygiene]]+ | [[DAS Audit\|Audit]],  [[DAS Dupes\|Dupes]],  [[DAS Maintain\|Maintain]],  [[DAS Rewire\|Rewire]],  [[DAS Slug Scan\|Slug Scan]],  [[DAS Tidy\|Tidy]],   |
 | [[SKL Track\|Track]]+ | [[SKL Plan\|Plan]],  [[SKL Workflow\|Workflow]],  [[SKL Backlog\|Backlog]],  [[SKL Messages\|Messages]],   |
-| [[SKL Drive\|Drive]]+ | [[SKL Feature\|Feature]],  [[SKL Crank\|Crank]],  [[SKL Triage\|Triage]],  [[SKL Ask\|Ask]],  [[SKL Groom\|Groom]],  [[SKL Mint\|Mint]],  [[SKL Finalize\|Finalize]],  [[SKL Land\|Land]],  [[SKL Fortify\|Fortify]],  [[SKL ask-inline\|ask-inline]],  [[SKL Query\|Query]],   |
-| [[SKL Dev\|Dev]]+ | [[SKL Architect\|Architect]],  [[SKL Code\|Code]],  [[SKL Fix\|Fix]],  [[SKL Pilot Flow\|Pilot Flow]],  [[SKL PR Flow\|PR Flow]],   |
-| [[SKL Doc\|Doc]]+ | [[SKL Edit\|Edit]],  [[SKL IO\|IO]],  [[SKL MD\|MD]],  [[SKL Viz\|Viz]],   |
-| [[SKL Search\|Search]]+ | [[SKL Book\|Book]],  [[SKL Corp\|Corp]],  [[SKL Profile\|Describe]],  [[SKL Find\|Find]],  [[SKL Meta Survey\|Meta Survey]],  [[SKL Person\|Person]],  [[SKL Product\|Product]],  [[SKL Purchase\|Purchase]],  [[SKL Research\|Research]],  [[SKL Research Skill\|Research Skill]],  [[SKL Search Overview\|Search Overview]],  [[SKL Skill\|Skill]],  [[SKL Software\|Software]],  [[SKL Survey\|Survey]],   |
-| [[SKL Utility\|Utility]]+ | [[SKL Cook\|Cook]],  [[SKL Ctrl\|Ctrl]],  [[SKL Exp\|Exp]],  [[SKL Parley\|Parley]],  [[SKL Snip\|Snip]],   |
+| [[SKL Drive\|Drive]]+ | [[DAS Feature\|Feature]],  [[DAS Crank\|Crank]],  [[SKL Triage\|Triage]],  [[DAS Ask\|Ask]],  [[DAS Groom\|Groom]],  [[DAS Mint\|Mint]],  [[DAS Finalize\|Finalize]],  [[DAS Land\|Land]],  [[DAS Fortify\|Fortify]],  [[DAS ask-inline\|ask-inline]],  [[SKL Query\|Query]],   |
+| [[SKL Dev\|Dev]]+ | [[DAS Architect\|Architect]],  [[DAS Code\|Code]],  [[DAS Fix\|Fix]],  [[DAS Pilot Flow\|Pilot Flow]],  [[DAS PR Flow\|PR Flow]],   |
+| [[SKL Doc\|Doc]]+ | [[DAS Edit\|Edit]],  [[DAS IO\|IO]],  [[DAS MD\|MD]],  [[DAS Viz\|Viz]],   |
+| [[SKL Search\|Search]]+ | [[DAS Book\|Book]],  [[DAS Corp\|Corp]],  [[DAS Profile\|Describe]],  [[DAS Find\|Find]],  [[DAS Meta Survey\|Meta Survey]],  [[DAS Person\|Person]],  [[DAS Product\|Product]],  [[DAS Purchase\|Purchase]],  [[DAS Research\|Research]],  [[DAS Research Skill\|Research Skill]],  [[DAS Search Overview\|Search Overview]],  [[DAS Skill\|Skill]],  [[DAS Software\|Software]],  [[DAS Survey\|Survey]],   |
+| [[SKL Utility\|Utility]]+ | [[DAS Cook\|Cook]],  [[DAS Ctrl\|Ctrl]],  [[DAS Exp\|Exp]],  [[DAS Parley\|Parley]],  [[DAS Snip\|Snip]],   |
 | [[SKL Discipline\|Discipline]]+ | [[SKL Mode\|Mode]],  [[SKL Role\|Role]],   |
 | --- | |
 
 
-Mapped:  [[SKL Feature]], [[SKL Crank]], [[SKL Triage]], [[SKL Ask]], [[SKL Groom]], [[SKL Mint]], [[SKL Finalize]], [[SKL Land]], [[SKL Fortify]], [[SKL Query]], [[SKL Anchor Toolkit]], [[SKL Create]], [[SKL Install]], [[SKL Migrate]], [[SKL Move]], [[SKL Publish]], [[SKL Streams]], [[SKL WP]], [[SKL Yore]], [[SKL Audit]], [[SKL Tidy]], [[SKL Dupes]], [[SKL Maintain]], [[SKL Rewire]], [[SKL Slug Scan]], [[SKL Architect]], [[SKL Code]], [[SKL Fix]], [[SKL PR Flow]], [[SKL Pilot Flow]], [[SKL MD]], [[SKL Viz]], [[SKL Find]], [[SKL Profile]], [[SKL Purchase]], [[SKL Survey]], [[SKL Cook]], [[SKL Ctrl]], [[SKL Exp]], [[SKL Parley]], [[SKL Snip]]
+Mapped:  [[DAS Feature]], [[DAS Crank]], [[SKL Triage]], [[DAS Ask]], [[DAS Groom]], [[DAS Mint]], [[DAS Finalize]], [[DAS Land]], [[DAS Fortify]], [[SKL Query]], [[DAS Anchor Toolkit]], [[DAS Create]], [[DAS Install]], [[DAS Migrate]], [[DAS Move]], [[DAS Publish]], [[DAS Streams]], [[DAS WP]], [[DAS Yore]], [[DAS Audit]], [[DAS Tidy]], [[DAS Dupes]], [[DAS Maintain]], [[DAS Rewire]], [[DAS Slug Scan]], [[DAS Architect]], [[DAS Code]], [[DAS Fix]], [[DAS PR Flow]], [[DAS Pilot Flow]], [[DAS MD]], [[DAS Viz]], [[DAS Find]], [[DAS Profile]], [[DAS Purchase]], [[DAS Survey]], [[DAS Cook]], [[DAS Ctrl]], [[DAS Exp]], [[DAS Parley]], [[DAS Snip]]
 
 # OLDER
 
 | LIFECYCLE    | Actions                                                                                                               |
 | ------------ | --------------------------------------------------------------------------------------------------------------------- |
-|              | Create → Plan → ↻( [[SKL Feature\|Feature]] ([[SKL Groom\|Groom]]) → [[SKL Mint\|Mint]]  ([[SKL Finalize\|Finalize]]) |
-| **Setup**    | Distill, [[cab/cab-install\|Install]], [[cab/cab-slug-scan\|Rid-scan]], [[cab/cab-scan\|Scan]]  \|  [[SKL Migrate\|Migrate]], [[code/code-rewire\|Rewire]], [[cab/cab-tidy\|Tidy]], [[CAB Move\|Move]] |
+|              | Create → Plan → ↻( [[DAS Feature\|Feature]] ([[DAS Groom\|Groom]]) → [[DAS Mint\|Mint]]  ([[DAS Finalize\|Finalize]]) |
+| **Setup**    | Distill, [[cab/cab-install\|Install]], [[cab/cab-slug-scan\|Rid-scan]], [[cab/cab-scan\|Scan]]  \|  [[DAS Migrate\|Migrate]], [[code/code-rewire\|Rewire]], [[cab/cab-tidy\|Tidy]], [[CAB Move\|Move]] |
 | **Create**   | [[cab/cab-create\|Anchor]], [[feature/SKILL\|Feature]], [[cab/cab-wp\|Wp]]                                        |
 | **Audit**    | [[audit/audit-structure\|Structure]], [[audit/audit-docs\|Docs]], [[audit/audit-rules\|Rules]], [[audit/audit-code\|Code]], [[audit/audit-publish\|Pre-publish]] |
 | **Maintain** | [[cab/cab-maintain\|Maintain]]                                                                                        |
@@ -52,11 +52,11 @@ Mapped:  [[SKL Feature]], [[SKL Crank]], [[SKL Triage]], [[SKL Ask]], [[SKL Groo
 
 | CODE             | Actions                                                                                                                 |
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------- |
-|                  | Anchor → Plan →  ↻( [[SKL Feature\|Feature]] ([[SKL Groom\|Groom]]) → [[SKL Mint\|Mint]]  ([[SKL Finalize\|Finalize]])) |
+|                  | Anchor → Plan →  ↻( [[DAS Feature\|Feature]] ([[DAS Groom\|Groom]]) → [[DAS Mint\|Mint]]  ([[DAS Finalize\|Finalize]])) |
 | **Create**       | [[feature/SKILL\|Feature]], Spec                                                                                    |
 | **Plan**         | [[design/SKILL\|Plan]], [[plan/design-prd\|Prd]], [[plan/design-ux\|Ux]], [[code/code-research\|Research]], (plus Architect) |
 | →→ **Architect** | [[plan/design-architect\|Architect]], [[code/code-system-design\|System-design]], [[code/code-modules\|Modules]], [[plan/design-roadmap\|Roadmap]] |
-| **Groom**        | [[SKL Groom\|Groom]], [[code/code-replan\|Replan]], [[code/code-ask-questions\|Ask-questions]]                           |
+| **Groom**        | [[DAS Groom\|Groom]], [[code/code-replan\|Replan]], [[code/code-ask-questions\|Ask-questions]]                           |
 | **Mint**         | [[code/code-mint\|Mint]], [[code/code-code\|Code]], [[code/code-bugfix\|Bugfix]], [[code/code-spike\|Spike]], [[code/code-forge\|Forge]], (plus Test) |
 | →→ **Test**      | [[code/code-test\|Test]], [[code/code-verify\|Verify]], [[code/code-review\|Review]]                                    |
 | **Publish**      | [[code/code-release\|Release]], [[cab/cab-publish\|Publish]], [[code/code-ship\|Ship]]                                  |

@@ -13,7 +13,7 @@ user_invocable: true
 
 Produce visual artifacts. Use with a sub-action specifying the tool, since the choice of tool meaningfully affects the output.
 
-User-facing docs (capability matrix, trade-off rationale): [[SKL Viz]].
+User-facing docs (capability matrix, trade-off rationale): [[DAS Viz]].
 Trade-off discussions (round-trip experiments, design questions): [[SKA viz discussion]].
 
 
@@ -61,7 +61,7 @@ Trade-off discussions (round-trip experiments, design questions): [[SKA viz disc
 
 ## Tool selection — pick the tool, then go
 
-The user usually says the tool. When they don't, walk this list top-down — **the first match wins**. Don't weigh trade-offs in chat; the matrix lives in [[SKL Viz]].
+The user usually says the tool. When they don't, walk this list top-down — **the first match wins**. Don't weigh trade-offs in chat; the matrix lives in [[DAS Viz]].
 
 **Constraint-driven rules (check these first — they often dominate):**
 
@@ -82,7 +82,7 @@ The user usually says the tool. When they don't, walk this list top-down — **t
 
 **When the user already named a tool, use that tool.** Don't ask "want PNG or PDF?" — answer with what they asked, note the format in the response, move on. When ambiguous on tool AND no constraint helps, ask which tool — these aren't interchangeable.
 
-(Rationale + the full trade-off matrix: [[SKL Viz]]. Open trade-off discussions: [[SKA viz discussion]].)
+(Rationale + the full trade-off matrix: [[DAS Viz]]. Open trade-off discussions: [[SKA viz discussion]].)
 
 
 

@@ -25,6 +25,6 @@ Network blips, locked databases, momentary disk-full conditions — most task fa
 - [[CAE Architecture]] — RetryManager subsystem implements this
 - [[CAE Testing]] — e2e test `e2e_failed_task_retries_then_visible` exercises this story; property-based test `prop_retry_delays_monotonic_to_cap` checks the backoff invariant
 - [[CAE Decisions]] — D5 "Retry logic in its own module" centralizes the policy
-- [[FCT Stories]] — facet spec governing this file's shape
+- [[DAS Stories]] — facet spec governing this file's shape
 - [[CAE PRD]] — parent PRD
 - [[CAE Stories]] — sibling stories index

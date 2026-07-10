@@ -9,7 +9,7 @@ Grab a screenshot, name it from its content, file it under `~/ob/kmr/Log/SNAP/`.
 
 | -[[Snapper Dapper]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [Snap](hook://p/Snap)<br>: example skill anchor — a `SKILL.md` |
 | --- | --- |
-| Related | [[Clarifier]] (example project),  [[FCT Skill]] (the skill facet),  [[FEX]] |
+| Related | [[Clarifier]] (example project),  [[DAS Skill]] (the skill facet),  [[FEX]] |
 
 ## When to Use
 
@@ -46,4 +46,4 @@ Write a `<same-stem>.md` sidecar with a one-line caption + any OCR'd text, and `
 ## Related
 
 - Sibling capture skills: [[snip]] (text), [[vox]] (audio).
-- The skill facet it conforms to: [[FCT Skill]].
+- The skill facet it conforms to: [[DAS Skill]].

@@ -24,7 +24,7 @@ Every source module in exactly one subsystem:
 
 | Subsystem | Modules |
 |---|---|
-| Corpus & Language | (no code — the vault's markdown + [[FCT Ruleset]] spec) |
+| Corpus & Language | (no code — the vault's markdown + [[DAS Ruleset]] spec) |
 | Compiler | `warden_scan.py`, `warden_compile.py` |
 | Live Dispatch | `rs/src/hook.rs` (installed), `warden_hook.py` (reference), `rs/src/lib.rs` (selection) |
 | Resident Interpreter | `warden_daemon.py` |

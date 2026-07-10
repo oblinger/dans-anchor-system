@@ -13,7 +13,7 @@ The **Anchor System** is an information-organization system — a disciplined wa
 | --- | --- |
 | External | [Repo](https://github.com/oblinger/ob-skills/) |
 | Guide | [[ASG\|User Guide]] — how to *use* the skills & facets (no design internals) |
-| Sections | [[SKL\|Skills]],  [[FCT\|Facets]],  [[DSC\|Disciplines]],  [[TRT\|Traits]],  [[Rulesets\|Rulesets]],  [[LBR\|Library]],  [[FEX\|Facet Examples]],   |
+| Sections | [[SKL\|Skills]],  [[FCT\|Facets]],  [[DSC\|Disciplines]],  [[TRT\|Traits]],  [[DAS Rulesets\|Rulesets]],  [[LBR\|Library]],  [[FEX\|Facet Examples]],   |
 
 ## Overview
 

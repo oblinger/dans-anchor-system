@@ -39,4 +39,4 @@ As the **owner**, I want Harbor to come back cleanly after a power loss, so that
 ## See also
 
 - [[HBR PRD]] — parent PRD this stories section lives inside
-- [[FCT Stories]] — facet spec that governs this form
+- [[DAS Stories]] — facet spec that governs this form

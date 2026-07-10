@@ -8,4 +8,4 @@ description:: one user story — index for US-MINI-1 (folder-form per
 ## See also
 
 - [[Mini PRD]] — parent PRD this stories surface belongs to
-- [[FCT Stories]] — facet spec that governs this file
+- [[DAS Stories]] — facet spec that governs this file

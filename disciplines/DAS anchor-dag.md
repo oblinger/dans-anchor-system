@@ -28,9 +28,9 @@ Treat every `.anchor` folder as a **node**. Three kinds of **edge** connect them
 
 | Edge | Direction | Mechanism | Owns |
 |---|---|---|---|
-| **Parent link** | up | the breadcrumb row (`→ … → [This]`) | [[FCT Anchor Page]] |
-| **Child links** | down | the dispatch table / Member zone | [[FCT Anchor Page]] + [[FCT Dispatch Table]] |
-| **Adjacency links** | sideways | the `Related` row | [[FCT Dispatch Table]] |
+| **Parent link** | up | the breadcrumb row (`→ … → [This]`) | [[DAS Anchor Page]] |
+| **Child links** | down | the dispatch table / Member zone | [[DAS Anchor Page]] + [[DAS Dispatch Table]] |
+| **Adjacency links** | sideways | the `Related` row | [[DAS Dispatch Table]] |
 
 The corpus is **navigability-complete** when:
 
@@ -75,7 +75,7 @@ This discipline is the reusable check. A specific vault declares its own **appli
 
 ## Related
 
-- [[FCT Dispatch Table]] — the down + sideways edges (the table form).
-- [[FCT Anchor Page]] — the breadcrumb (up edge) + dispatch hosting.
+- [[DAS Dispatch Table]] — the down + sideways edges (the table form).
+- [[DAS Anchor Page]] — the breadcrumb (up edge) + dispatch hosting.
 - [[audit-dispatch|/audit dispatch]] — the per-anchor table-repair worker the walk calls.
 - [[DAS progressive-disclosure]] / [[DAS file-association]] / [[DAS granularity]] / [[DAS markdown]] — the per-artifact authoring disciplines (this is their corpus-level sibling).

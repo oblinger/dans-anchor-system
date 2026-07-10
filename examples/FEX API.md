@@ -2,7 +2,7 @@
 description: CAE public API surface — public modules, schemas, file formats, error types. The contract a caller imports against. Sub-document of CAE Architecture per FCT Architecture facet (worked example of {slug} API.md placement).
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Design Docs]] → [FEX API](hook://p/FEX%20API)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Design Docs]] → [FEX API](hook://p/FEX%20API)
 # FEX API
 
 Public API surface of the `cae_example` crate. Entry point: `src/lib.rs`. Re-exports the public modules so consumers can write `use cae_example::execution::TaskScheduler` without chasing the source tree.
