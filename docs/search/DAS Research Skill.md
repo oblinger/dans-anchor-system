@@ -1,10 +1,10 @@
 ---
-description: "the SKL Research Skill doc"
+description: "Compare agent skills that do similar work — find how others built a given skill concept and produce a choice-point comparison with a recommendation"
 ---
 # DAS Research Skill
 Specialized survey for **comparing agent skills** that do similar work. You give it a concept ("architect", "feature designer", "PRD writer"), it finds skills others have built that address it, and produces a comparison report with **choice-point analysis** and a recommendation.
 
-| -[[DAS Research Skill]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Research Skill](hook://p/DAS%20Research%20Skill)<br>: the SKL Research Skill doc|
+| -[[DAS Research Skill]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Research Skill](hook://p/DAS%20Research%20Skill)<br>: Compare agent skills that do similar work — find how others built a given skill concept and produce a choice-point comparison with a recommendation|
 | --- | --- |
 
 # Details
