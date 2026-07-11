@@ -294,7 +294,7 @@ Both directions linked so neither end is lost. A validation pass (per CAB Valida
 
 ## Open Questions on the roadmap
 
-Roadmap-level open questions (sequencing, dependency, gating) — questions whose answer changes the milestone shape rather than a single feature doc — live as `## Open Questions` H2 directly below the file's H1, per [[DAS ask-format]]:
+Roadmap-level open questions (sequencing, dependency, gating) — questions whose answer changes the milestone shape rather than a single feature doc — live as `## Open Questions` H2 directly above the file's H1, per [[DAS ask-format]]:
 
 ```markdown
 # {slug} Roadmap

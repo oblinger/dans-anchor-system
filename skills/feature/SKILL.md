@@ -335,7 +335,7 @@ Implement <Feature Name> (S03200917)
 
 - **F-numbered filename** — `F{n} — {Feature Name}.md` in the Features folder. F-number from the anchor's monotonic-forever counter (per `[[DAS Backlog]]` § Numbering policy).
 - **H1 carries the anchor-slug breadcrumb + F-number** — `# [[{slug}]] · F{n} — {Feature Name}`.
-- **Open Questions BELOW the H1** while pending Qs exist; deleted entirely when zero pending. Resolved Qs migrate to a `## Resolved` H2 at the bottom of the doc.
+- **Open Questions ABOVE the H1** (first body element, immediately after frontmatter) while pending Qs exist; deleted entirely when zero pending. Resolved Qs migrate to a `## Resolved` H2 at the bottom of the doc.
 - **`open` the doc after every Open Questions edit (in active mode)** — mandatory, per step 1a.
 - **Status near the bottom** — single line indicating lifecycle stage. (`## Resolved`, when present, sits below Status as the historical archive.)
 - **No implementation details in the feature doc** — the feature doc is the *what* and *why*.
