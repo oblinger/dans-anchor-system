@@ -1007,7 +1007,7 @@ def perform_edit(
     # Preserve title / body from the existing row when caller omitted them
     # OR passed an empty string. Lets callers update bracket-only without
     # re-supplying the full content, and lets the body-only-update pattern
-    # `backlog-edit.py {NAME} same <row> <status> "" "<new body>"` work
+    # `backlog-edit.py {slug} same <row> <status> "" "<new body>"` work
     # without blowing away the title.
     existing_status_for_check = ""
     if existing is not None:
@@ -1571,7 +1571,7 @@ def _format_q_bullet(q_num, container_id, body):
 
 def _post_conditions(slug, feature_path):
     """Run the post-edit invariant check: audit-q lenient over the q scope.
-    Per F176 the `{NAME} queries.md` page is built on demand by /query's
+    Per F176 the `{slug} queries.md` page is built on demand by /query's
     determination logic — there is no render step.
     Returns list of warning lines (printed by caller).
     """
@@ -1598,7 +1598,7 @@ def _post_conditions(slug, feature_path):
 def main_q(argv):
     """Dispatcher for `-Q` (Q-management) invocations.
 
-    CLI: backlog-edit.py {SLUG} {ROW-ID} -Q {add|resolve|remove|rewrite}
+    CLI: backlog-edit.py {slug} {ROW-ID} -Q {add|resolve|remove|rewrite}
          [Q-number] [--choice (X)] [--reason "..."] [--force]
          [--from-file path] [-m "..."]
     """

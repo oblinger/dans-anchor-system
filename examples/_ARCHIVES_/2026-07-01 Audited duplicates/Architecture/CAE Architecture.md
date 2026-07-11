@@ -1,5 +1,5 @@
 ---
-description: CAE system architecture — entry-point doc for the {NAME} Architecture/ folder anchor. Worked example of the CAB Architecture facet (section spine, visual-only diagrams, subsystem dispatch with link convention, API content lives elsewhere).
+description: CAE system architecture — entry-point doc for the {slug} Architecture/ folder anchor. Worked example of the CAB Architecture facet (section spine, visual-only diagrams, subsystem dispatch with link convention, API content lives elsewhere).
 ---
 # CAE Architecture
 CAE system architecture — a single-process CLI task scheduler over a SQLite-backed store.

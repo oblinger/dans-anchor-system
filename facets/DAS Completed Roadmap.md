@@ -85,7 +85,7 @@ Per [[DAS progressive-disclosure]]:
 
 # RULESET R-completed-roadmap
 include::
-where:: `file:{ANCHOR}/**/* Completed Roadmap.md`
+where:: `file:{anchor}/**/* Completed Roadmap.md`
 description:: completed-roadmap facet — migrated milestones in newest-on-top order, sibling of the forward-looking Roadmap
 
 Embedded ruleset for the Completed Roadmap facet, co-located with the spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella.
@@ -142,6 +142,6 @@ Once a milestone migrates to Completed Roadmap, it stays. Reactivation of work i
 *(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body + embedded `R-completed-roadmap` RULESET above; design rationale is [[F144 — Completed Roadmap + named milestones]].)*
 
 - **TODO: link a worked example** — no real `{slug} Completed Roadmap.md` instance exists yet (the facet landed with F144; no milestone has migrated). When the first ships, add it to `## See also` and reference it from § Structure in place of the prose outline.
-- **Keep spec ↔ embedded RULESET aligned** — when the spec body changes a structural rule (location, order, preservation, naming), mirror it in the matching `R-completed-roadmap` rule and bump the check pattern; never put per-anchor migrated-milestone content here (it lives in `{ANCHOR}/{slug} Design/{slug} Completed Roadmap.md`).
+- **Keep spec ↔ embedded RULESET aligned** — when the spec body changes a structural rule (location, order, preservation, naming), mirror it in the matching `R-completed-roadmap` rule and bump the check pattern; never put per-anchor migrated-milestone content here (it lives in `{anchor}/{slug} Design/{slug} Completed Roadmap.md`).
 - **Inclusion test for a new rule** — it constrains the *structure* of the completed-roadmap doc (location, order, preservation, naming), not the forward-looking Roadmap ([[DAS Roadmap]]) or feature-doc shape ([[DAS Features]]).
 - **Cross-reference integrity is load-bearing** — the `## See also` links to [[DAS Roadmap]], [[DAS Features]], [[DAS Design Folder]], and F144/F145 wire this facet into the CAB graph; don't drop them when refactoring.

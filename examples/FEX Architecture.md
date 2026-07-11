@@ -18,7 +18,7 @@ CLI submits tasks to the **Scheduler**, which dispatches to the **Worker Pool**,
 | [[_{{DISK_LABEL}} Template]] |  |
 | [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template]] |  |
 | [[Bridges]] | example list-dispatch collection (≤ 15 members) |
-| [[CAE Architecture]] | CAE system architecture — entry-point doc for the {NAME} Architecture/ folder anchor. Worked example of the CAB Architecture facet (section spine, visual-only diagrams, subsystem dispatch with link convention, API content lives elsewhere). |
+| [[CAE Architecture]] | CAE system architecture — entry-point doc for the {slug} Architecture/ folder anchor. Worked example of the CAB Architecture facet (section spine, visual-only diagrams, subsystem dispatch with link convention, API content lives elsewhere). |
 | [[CAE Decisions]] | load-bearing rules & invariants |
 | [[CAE PRD]] | product requirements for the CAE Example CLI scheduler |
 | [[CAE Stories]] | three user stories — index for US-CAE-1..3 (folder-form per ~~ |

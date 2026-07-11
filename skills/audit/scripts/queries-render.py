@@ -109,9 +109,9 @@ TRAILING_BLOCK_ID_RE = re.compile(r"\s+\^[A-Za-z][A-Za-z0-9_\-]*\s*$")
 # Q.md banner line for an anchor
 QMD_BANNER_RE_TEMPLATE = (
     # H1 banner detection. Matches the section's H1 regardless of which target
-    # the fallback chain landed on — `[[{NAME} queries|{NAME}]]`, `[[{NAME} Triage|{NAME}]]`,
-    # `[[{NAME}|{NAME}]]`, or plain `{NAME}` (no link). The display label is
-    # always `{NAME}`; that's what we match on. Critical for the dedupe step:
+    # the fallback chain landed on — `[[{slug} queries|{slug}]]`, `[[{slug} Triage|{slug}]]`,
+    # `[[{slug}|{slug}]]`, or plain `{slug}` (no link). The display label is
+    # always `{slug}`; that's what we match on. Critical for the dedupe step:
     # without this, a fresh regen at the top wouldn't recognize an older OLD
     # header with a different link target, leaving the OLD section orphaned.
     r"^# \[[^\]]*\]\s+(?:\[\[[^|\]]+\|" r"{name}" r"\]\]|" r"{name}" r")(?:\s|$)"
@@ -403,7 +403,7 @@ def derive_banner(name: str, rows: list[Row], backlog_file: Path,
     for r in rows:
         if r.horizon in horizon_counts and not r.bracket.startswith("Done"):
             horizon_counts[r.horizon] += 1
-    # Icebox count from {NAME} Icebox.md
+    # Icebox count from {slug} Icebox.md
     icebox_file = backlog_file.parent / f"{name} Icebox.md"
     if icebox_file.is_file():
         try:
@@ -442,10 +442,10 @@ def derive_banner(name: str, rows: list[Row], backlog_file: Path,
         tag = ""
     if not tag:
         return None
-    # Per F176: H1 link target is `{NAME} queries.md` (the /query drain page where
+    # Per F176: H1 link target is `{slug} queries.md` (the /query drain page where
     # the user actually answers questions). Fallback chain when files don't
     # exist yet (avoids emitting a C1-failing wiki-link in Q.md):
-    #   `{NAME} queries` → `{NAME} Triage` → `{NAME}` (anchor page) → plain text
+    #   `{slug} queries` → `{slug} Triage` → `{slug}` (anchor page) → plain text
     candidates = [f"{name} queries", f"{name} Triage", name]
     h1_target = next((c for c in candidates if c in vault_index), None)
     if h1_target:

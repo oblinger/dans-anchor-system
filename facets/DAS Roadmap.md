@@ -335,7 +335,7 @@ Any anchor with a `{slug} Design/` folder per [[DAS Design Folder]] that's plann
 
 # RULESET R-roadmap
 include::
-where:: `file:{ANCHOR}/**/* Roadmap.md`
+where:: `file:{anchor}/**/* Roadmap.md`
 description:: facet spec for the project sequencing-design doc — milestones, shapes, and numbering
 
 Embedded ruleset for the Roadmap facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella.

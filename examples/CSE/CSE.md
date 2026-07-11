@@ -47,8 +47,8 @@ CSE/                                        ← anchor root (slug: CSE, trait: s
 
 A skill anchor follows the same CAB structure as any other anchor — same `Docs/Plan/Features/` hierarchy, same dispatch tables, same feature-doc convention. Two structural deltas:
 
-- **No code repo, no Dev dispatch.** `SKILL.md` *is* the code. The skill's action files (`cse-demo.md` etc.) live alongside it at the anchor root in kebab-case. There is no separate `Code/` directory and no `{NAME} Docs/{NAME} Dev/` doc folder.
-- **No User dispatch — user docs live in SKL.** User-facing documentation for the skill lives in the **SKL user-docs tree** at `skills/SKL User Docs/SKL Skills/SKL <Name>.md`, not under `{NAME} Docs/{NAME} User/`. This keeps every skill's user docs together in one place at the skills repo root, regardless of which anchor they describe.
+- **No code repo, no Dev dispatch.** `SKILL.md` *is* the code. The skill's action files (`cse-demo.md` etc.) live alongside it at the anchor root in kebab-case. There is no separate `Code/` directory and no `{slug} Docs/{slug} Dev/` doc folder.
+- **No User dispatch — user docs live in SKL.** User-facing documentation for the skill lives in the **SKL user-docs tree** at `skills/SKL User Docs/SKL Skills/SKL <Name>.md`, not under `{slug} Docs/{slug} User/`. This keeps every skill's user docs together in one place at the skills repo root, regardless of which anchor they describe.
 
 The dispatch table's first row reflects both deltas: a `Skill` row carries the two surfaces — the skill spec (`SKILL.md`) and the user-facing doc (`SKL CSE`) — instead of separate Dev / User rows. This is the canonical first-row shape for a skill anchor.
 
@@ -56,7 +56,7 @@ The dispatch table's first row reflects both deltas: a `Skill` row carries the t
 
 ## Feature docs live with the skill
 
-Design discussions and feature specs for changes to a skill live in *that skill's* `{NAME} Features/` folder, not in a global features pile. As a skill evolves over time, its full design history accrues to it — opening the skill folder shows everything ever proposed or shipped for that skill.
+Design discussions and feature specs for changes to a skill live in *that skill's* `{slug} Features/` folder, not in a global features pile. As a skill evolves over time, its full design history accrues to it — opening the skill folder shows everything ever proposed or shipped for that skill.
 
 Cross-skill features (touching 2+ skills) and meta-anchor features (about SKA itself) still belong in the SKA-level Features folder. Skill-specific features belong with the skill.
 

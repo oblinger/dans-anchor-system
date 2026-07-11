@@ -76,7 +76,7 @@ If an audit finds either in Dev Docs, that's a **dev-synthesis-misplaced** findi
 
 # RULESET R-dev-dispatch
 include::
-where:: `file:{ANCHOR}/**/{slug} Dev Docs.md`
+where:: `file:{anchor}/**/{slug} Dev Docs.md`
 description:: the `{slug} Dev Docs.md` developer-docs dispatch page
 
 What `/audit docs` checks on the Dev dispatch page. Cardinality: one per code anchor. Format of this set: [[DAS Ruleset]].

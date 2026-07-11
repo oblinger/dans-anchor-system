@@ -2,14 +2,14 @@
 """gen3-migrate — convert an anchor's docs from the Gen-2 container shape to Gen-3.
 
 Gen-2 (old):                          Gen-3 (new, the OBU/CAE reference shape):
-  {NAME}/                               {NAME}/
-    {NAME} Docs/                          {NAME} Design/        <- promoted to root
-      {NAME} Design/                      {NAME} Track/         <- promoted to root
-        {NAME} Architecture/              {NAME} Architecture/  <- promoted out of Design
-      {NAME} Track/                       {NAME} User Docs/     <- renamed from {NAME} User
-      {NAME} User/                        {NAME} Dev Docs/      <- renamed from {NAME} Dev
-      {NAME} Dev/                       (no {NAME} Docs/ container)
-      {NAME} Docs.md                    (container page + its .anchor removed)
+  {slug}/                               {slug}/
+    {slug} Docs/                          {slug} Design/        <- promoted to root
+      {slug} Design/                      {slug} Track/         <- promoted to root
+        {slug} Architecture/              {slug} Architecture/  <- promoted out of Design
+      {slug} Track/                       {slug} User Docs/     <- renamed from {slug} User
+      {slug} User/                        {slug} Dev Docs/      <- renamed from {slug} Dev
+      {slug} Dev/                       (no {slug} Docs/ container)
+      {slug} Docs.md                    (container page + its .anchor removed)
 
 Dry by default: prints the per-anchor plan (every move / rename / page edit / link
 rewrite it WOULD do). Pass --apply to execute. --anchor <NAME> scopes to one anchor.
@@ -37,7 +37,7 @@ VAULT = Path(os.path.expanduser("~/ob/kmr"))
 EXCLUDE_PARTS = ("/Yore/", "/.git/", "/.claude/worktrees/", "/ob-utils/")
 
 # Files whose path references are append-only history — never rewritten.
-# Matched as suffixes so `{NAME} Messages.md` (e.g. 'Create Messages.md') is caught.
+# Matched as suffixes so `{slug} Messages.md` (e.g. 'Create Messages.md') is caught.
 HISTORY_SUFFIXES = ("Messages.md", ".log")
 
 FIGURE_SPACE = " "  # U+2007, used in anchor TOC indentation — never rewrite those rows.
@@ -56,11 +56,11 @@ def is_excluded(p: Path) -> bool:
 # --------------------------------------------------------------------------- #
 
 def find_containers(scope_name=None):
-    """Find every Gen-2 `{NAME} Docs/` container anchor under the vault.
+    """Find every Gen-2 `{slug} Docs/` container anchor under the vault.
 
-    A real Gen-2 container is a dir named `{NAME} Docs` that contains at least one
-    of `{NAME} Design/` or `{NAME} Track/`. That requirement filters out:
-      - already-Gen-3 folders (`{NAME} User Docs`, `{NAME} Dev Docs`, `{NAME} Design Docs`)
+    A real Gen-2 container is a dir named `{slug} Docs` that contains at least one
+    of `{slug} Design/` or `{slug} Track/`. That requirement filters out:
+      - already-Gen-3 folders (`{slug} User Docs`, `{slug} Dev Docs`, `{slug} Design Docs`)
       - non-anchor folders that merely end in " Docs" (Death Docs, Chat Docs, ...)
     """
     out = []
@@ -165,9 +165,9 @@ def edit_page_text(text: str, name: str, old_leaf: str, new_leaf: str,
     """Return (new_text, [change descriptions]).
 
     old_leaf/new_leaf are the page's own name (e.g. 'CSE User' -> 'CSE User Docs').
-    Always drops the dissolved `[[{NAME} Docs]]` breadcrumb hop. When the page was
+    Always drops the dissolved `[[{slug} Docs]]` breadcrumb hop. When the page was
     nested under Design (Architecture promotion) drop_design_hop also removes the
-    `[[{NAME} Design]]` hop.
+    `[[{slug} Design]]` hop.
     """
     changes = []
     renamed = old_leaf != new_leaf
@@ -192,7 +192,7 @@ def edit_page_text(text: str, name: str, old_leaf: str, new_leaf: str,
             text = new
             changes.append(f"hook slug {slug(old_leaf)} -> {slug(new_leaf)}")
 
-    # Drop the dissolved container breadcrumb hop  ` → [[{NAME} Docs]]`
+    # Drop the dissolved container breadcrumb hop  ` → [[{slug} Docs]]`
     new, n = re.subn(rf"\s*→\s*\[\[{re.escape(name)} Docs\]\]", "", text)
     if n:
         text = new
@@ -271,7 +271,7 @@ def build_link_rules(name):
 
 def sweep_links(name, apply, log):
     """Returns dict of counts. Skips history files, figure-space TOC rows, fenced blocks.
-    Reports (does not auto-rewrite) bare `[[{NAME} Docs]]` container links outside
+    Reports (does not auto-rewrite) bare `[[{slug} Docs]]` container links outside
     breadcrumb hops — those need human judgement."""
     rules = build_link_rules(name)
     container_link_re = re.compile(rf"\[\[{re.escape(name)} Docs(?=[\]|#\\])")

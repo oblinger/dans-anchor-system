@@ -37,4 +37,4 @@ Every fix passes `aow-safety.py` before it lands ([[F005 — Doc audit-on-write 
 
 ## Format-driven, audit-independent
 
-The engine reads `check::` / `fix::` / `where::` from the specs themselves, so the pipeline never hardcodes a rule — as the facets and disciplines evolve, audit follows with no script edit. The selector grammar (`always` / `file:<glob>` / `anchor` / `sentinel:<regex>`, `{ANCHOR}` / `{slug}` tokens, backtick-wrapped per [[F007 — Backtick all where expressions — parser swap\|F007]]) is the single binding language shared by the on-demand resolve and the distilled on-write hook.
+The engine reads `check::` / `fix::` / `where::` from the specs themselves, so the pipeline never hardcodes a rule — as the facets and disciplines evolve, audit follows with no script edit. The selector grammar (`always` / `file:<glob>` / `anchor` / `sentinel:<regex>`, `{anchor}` / `{slug}` tokens, backtick-wrapped per [[F007 — Backtick all where expressions — parser swap\|F007]]) is the single binding language shared by the on-demand resolve and the distilled on-write hook.

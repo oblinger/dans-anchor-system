@@ -68,7 +68,7 @@ The banner + body are copied into the anchor's section of `~/ob/kmr/Q.md` (the g
 
 # RULESET R-query
 include::
-where:: `file:{ANCHOR}/**/* queries.md`
+where:: `file:{anchor}/**/* queries.md`
 description:: the `{slug} queries.md` format
 
 What `/audit doc` checks on a queries file. The skill that produces it is [[DAS Ask]]; these are the file-invariants it must satisfy. Format of this set: [[DAS Ruleset]].

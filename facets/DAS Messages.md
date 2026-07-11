@@ -13,7 +13,7 @@ Spec for the **Messages facet** — the per-anchor file `{slug} Messages.md` tha
 
 # RULESET R-messages
 include::
-where:: `{ANCHOR}/* Messages.md`
+where:: `{anchor}/* Messages.md`
 description:: the Messages facet — agent's per-anchor background-process inbox, distinct from the user's Inbox
 
 Embedded ruleset for the Messages facet, co-located per [[F133 — Rulesets folder convention + facet embedding|F133]].

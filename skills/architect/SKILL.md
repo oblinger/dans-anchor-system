@@ -196,7 +196,7 @@ If the user asks a question about a specific module (or `/architect` detects an 
 
 **Skip-if-absent (portability, per F184).** This post-condition is vault-coupled. Perform it **only when `~/ob/kmr/Q.md` exists**. On a machine without the kmr vault (a colleague's clone), skip it silently with a one-line note — the architecture is still written and committed; only the dashboard refresh is skipped. The `/architect overview` (bare-project) path always skips it.
 
-When `~/ob/kmr/Q.md` is present: after the architecture pass commits, regenerate the anchor's per-anchor section in `~/ob/kmr/Q.md` via `queries-render.py {NAME}` — walk the backlog, compute the section, remove any existing section for this anchor, insert at the top of Q.md's body (bubble-to-top). The backlog file is NOT reordered.
+When `~/ob/kmr/Q.md` is present: after the architecture pass commits, regenerate the anchor's per-anchor section in `~/ob/kmr/Q.md` via `queries-render.py {slug}` — walk the backlog, compute the section, remove any existing section for this anchor, insert at the top of Q.md's body (bubble-to-top). The backlog file is NOT reordered.
 
 ### 8a. `/audit architecture` post-condition (per F092)
 

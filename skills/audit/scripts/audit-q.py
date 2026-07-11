@@ -445,7 +445,7 @@ def _is_placeholder_basename(basename: str) -> bool:
     # Angle-bracket placeholders: <expected_anchor>, <Name>, etc.
     if "<" in basename or ">" in basename:
         return True
-    # Curly-brace placeholders: {x}, {NAME}, {}, etc.
+    # Curly-brace placeholders: {x}, {slug}, {}, etc.
     if "{" in basename or "}" in basename:
         return True
     # Ellipsis placeholders: `...`, `name...`, etc.
@@ -653,7 +653,7 @@ def _detect_status(line: str) -> str:
 
 def backlog_entries(backlog_file: Path,
                     vault_index: dict[str, list[Path]]) -> list[BacklogEntry]:
-    """Parse {NAME} Backlog.md; return list of BacklogEntry in source order."""
+    """Parse {slug} Backlog.md; return list of BacklogEntry in source order."""
     if not backlog_file.is_file():
         return []
     try:
@@ -996,8 +996,8 @@ def find_ask_format_files(
                         seen_paths.add(link.target_file_path)
                         out.append((m.group(1), link.target_file_path))
                     continue
-            # Always include `{NAME} queries.md` if it exists — anchor-level Qs are
-            # authored directly there (there is no `{NAME} Questions.md`).
+            # Always include `{slug} queries.md` if it exists — anchor-level Qs are
+            # authored directly there (there is no `{slug} Questions.md`).
             # extract_q_entries picks up only the authored `**Q<n>` bullets in
             # `## Questions`; rendered pointer lines and resolutions are ignored.
             queries_file = backlog_file.parent / f"{name} queries.md"
@@ -2504,7 +2504,7 @@ def check_c33_designing_needs_link(entries: list[BacklogEntry]) -> list[Finding]
 def check_c34_inline_q_in_row_body(backlog_files: list[Path]) -> list[Finding]:
     """C34: inline `Q<n>` bullets inside backlog row bodies are forbidden.
 
-    For **F-rows** Qs belong in the feature doc (`{NAME} Features/F<n> —
+    For **F-rows** Qs belong in the feature doc (`{slug} Features/F<n> —
     Title.md` § `## Open Questions`) — the doc is the Q home and the row links
     it. **T-/B-rows have no feature doc**, so per R-backlog-05 / [[Backlog|FCT
     Backlog]] § The groomed states the row ITSELF is the Q-bearing target:
@@ -2554,7 +2554,7 @@ def check_c34_inline_q_in_row_body(backlog_files: list[Path]) -> list[Finding]:
                     message=(
                         f"inline `Q<n>` bullet in backlog row body (`## {current_h2}`) "
                         f"— Qs belong in a feature doc's `## Open Questions` H2 or in "
-                        f"`{{NAME}} queries.md` § `## Questions` per [[ask-format]]. Move the Q to "
+                        f"`{{slug}} queries.md` § `## Questions` per [[ask-format]]. Move the Q to "
                         f"the appropriate surface and replace this row's body with "
                         f"a `→ [[F<n> — Title]]` link."
                     ),
@@ -2568,7 +2568,7 @@ def check_c35_ask_md_drift(
     vault_index: dict[str, list[Path]],
 ) -> list[Finding]:
     """C35 (F124; queries-surface per F176): each Q<n> reference in
-    `{NAME} queries.md` § Questions must correspond to a pending Q in the
+    `{slug} queries.md` § Questions must correspond to a pending Q in the
     linked feature doc.
 
     Surfacing case (F077 Q7, 2026-06-06): the carried-forward 'F077 ... (Q1, Q7)'
@@ -2576,7 +2576,7 @@ def check_c35_ask_md_drift(
     `/query` rebuilds from current state, but a stale view can persist between
     runs — this check mechanizes the drift catch.
 
-    Walks each anchor backlog's sibling `{NAME} queries.md` file, parses the
+    Walks each anchor backlog's sibling `{slug} queries.md` file, parses the
     `## Questions` H2 region, extracts wiki-linked feature docs + the
     Q-numbers each bullet claims pending, then cross-checks against the
     linked doc's actual pending-Q set via `extract_q_entries` (which is
@@ -2688,7 +2688,7 @@ def check_c35_ask_md_drift(
 
 
 ################################################################
-# C37–C41 — {NAME} queries.md answer-section format
+# C37–C41 — {slug} queries.md answer-section format
 # (user direction 2026-06-16): the items a user answers must be
 # referenceable + well-formed so an answer like "Q2: A" / "V1: yes"
 # is unambiguous, and every decision forces the agent to state a
@@ -2715,7 +2715,7 @@ _Q_ARTIFACT_EXT_RE = re.compile(
 def check_c37_queries_item_format(
         anchor_backlogs: dict[str, Path],
         vault_index: dict[str, list[Path]]) -> list[Finding]:
-    """Format rules for the answer-requiring sections of `{NAME} queries.md`:
+    """Format rules for the answer-requiring sections of `{slug} queries.md`:
 
       C37 — bare F-number must be a wiki-link (any bullet, any section).
       C38 — `## Verifications` bullets begin with a bold `**V<n>` handle.
@@ -2788,7 +2788,7 @@ def check_c37_queries_item_format(
                     message=(
                         f"bare F-number `{fn}` must be a wiki-link — to its feature "
                         f"doc `[[{fn} — Title|{fn}]]` if one exists, else to the "
-                        f"backlog row `[[{{NAME}} Backlog#^{fn}|{fn}]]` (many items "
+                        f"backlog row `[[{{slug}} Backlog#^{fn}|{fn}]]` (many items "
                         f"are bare backlog rows with no feature doc)."),
                     mechanically_fixable=False))
 
@@ -3004,7 +3004,7 @@ def check_c36_backtick_filepath(
     or markdown-links so they're clickable.
 
     Surfacing case (F126, 2026-06-07): the user observed that bare backtick
-    file-path tokens in `Q.md` / `{NAME} queries.md` aren't navigable from
+    file-path tokens in `Q.md` / `{slug} queries.md` aren't navigable from
     Obsidian — they look like links but aren't, forcing the user to manually
     copy the path. C36 forbids them and `--fix` mechanically replaces them.
     """
@@ -3578,7 +3578,7 @@ def apply_placement_fixes(
 
 
 def find_anchor_backlogs(vault_root: Path) -> dict[str, Path]:
-    """Find every {NAME} Backlog.md in the vault. Return name → path.
+    """Find every {slug} Backlog.md in the vault. Return name → path.
 
     Per F107: backlogs nested deeper than SKA's own backlog level inside
     `Skill Agent/` are SKA sub-skill anchors (Ask, Mode, Crank, etc.) —
@@ -3662,7 +3662,7 @@ def derive_anchor_banner(name: str, backlog_file: Path,
     for e in entries:  # all entries including potentially-stale-Done
         if e.horizon in horizon_counts and not e.status.startswith("Done"):
             horizon_counts[e.horizon] += 1
-    # Icebox count: from {NAME} Icebox.md if it exists
+    # Icebox count: from {slug} Icebox.md if it exists
     icebox_file = backlog_file.parent / f"{name} Icebox.md"
     if icebox_file.is_file():
         try:
@@ -3992,7 +3992,7 @@ def main() -> int:
     all_q_entries: list[QEntry] = []
     for container_id, file_path in ask_format_files:
         all_q_entries.extend(extract_q_entries(file_path, container_id))
-    # `{NAME} queries.md` Immediate Questions use the SAME standard expanded
+    # `{slug} queries.md` Immediate Questions use the SAME standard expanded
     # format as feature-doc `## Open Questions` (option per own-line `**(A)**`
     # sub-bullet + a `- **Recommendation:**` line) — one format vault-wide
     # (user direction 2026-06-16). So the shared checks apply to queries.md too:
@@ -4043,12 +4043,12 @@ def main() -> int:
         findings.extend(check_c33_designing_needs_link(entries))
         findings.extend(check_c34_inline_q_in_row_body([backlog_file]))
     # F124 — C35 queries.md drift check walks every anchor backlog's sibling
-    # `{NAME} queries.md` (per F176). Runs once after the per-anchor loop (not
+    # `{slug} queries.md` (per F176). Runs once after the per-anchor loop (not
     # per anchor), since each queries file is keyed by its sibling backlog's name.
     findings.extend(check_c35_ask_md_drift(anchor_backlogs, vault_index))
     findings.extend(check_c37_queries_item_format(anchor_backlogs, vault_index))
     # F126 — C36 backtick-filepath check. Runs on Q.md (when in scope),
-    # every per-anchor `{NAME} queries.md`, AND every anchor backlog —
+    # every per-anchor `{slug} queries.md`, AND every anchor backlog —
     # backlog rows are the source content that queries-render.py copies
     # into Q.md, so fixing the surface alone gets overwritten by the
     # next D1 banner-rewrite. Source-fix is durable.
@@ -4202,7 +4202,7 @@ def _print_hard_continuation_directive(derived_banners: dict[str, str]) -> None:
 
 def apply_d1_banner_write(qmd_file: Path, derived_banners: dict[str, str]) -> int:
     """Regenerate the per-anchor section in Q.md for each anchor with a derived
-    banner — delegates the actual write to `queries-render.py {NAME}` (per F104;
+    banner — delegates the actual write to `queries-render.py {slug}` (per F104;
     engine re-homed from the retired triage skill by F231).
 
     Each subprocess call rewrites the entire per-anchor section (which is the

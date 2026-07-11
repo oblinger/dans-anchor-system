@@ -85,7 +85,7 @@ Declarative statement of what the rule requires or forbids.
     - **Bare names** — `include:: R-sugiyama, R-c4` — resolved by the flatten script via vault search.
     - **Wiki-links** — `include:: [[R-sugiyama]], [[R-c4]]` — clickable in Obsidian reading view; otherwise equivalent. The flatten script unwraps `~~[[...]]~~` before resolving. Wiki-link form is preferred for readability when authoring in Obsidian; bare form is fine for machine-generated files.
     - The two may be mixed within a single line (`include:: R-sugiyama, [[R-c4]]`). Strike-through markers (`~~[[R-foo]]~~`) are an Obsidian rendering artifact and not part of the format; flatten and audit ignore them and resolve the underlying name.
-- **`where::` line (optional — F161; sits between `include::` and `description::`): the set-level selector.** Names which files this set's rules apply to — the default for any rule without its own `where::`. A glob (with the anchor-root token `{ANCHOR}`), or `always` / `anchor` / `sentinel: <regex>`. **Full syntax — the predefined `{ANCHOR}` / `{slug}` tokens, glob rules, precedence, and exhaustive examples — is in § Where clause — the rule selector below.** Consumed by the audit engine ([[F001 — Rule-driven audit engine — resolve, run, judge|F001]]) to bind rules to targets; dogfooded in `# RULESET R-ruleset` below.
+- **`where::` line (optional — F161; sits between `include::` and `description::`): the set-level selector.** Names which files this set's rules apply to — the default for any rule without its own `where::`. A glob (with the anchor-root token `{anchor}`), or `always` / `anchor` / `sentinel: <regex>`. **Full syntax — the predefined `{anchor}` / `{slug}` tokens, glob rules, precedence, and exhaustive examples — is in § Where clause — the rule selector below.** Consumed by the audit engine ([[F001 — Rule-driven audit engine — resolve, run, judge|F001]]) to bind rules to targets; dogfooded in `# RULESET R-ruleset` below.
 - **Line 3: `description::` line** — Dataview inline field. One-line tagline (8–15 words) of what this ruleset covers and when it applies. Required. Plain prose only: **no `::` tokens in the value** (the double-colon is reserved syntax for inline-field keys; mentioning `include::` or `description::` as a noun inside the value will collide with the Dataview parser). The single-line constraint forces tightness.
 - **Line 4+ (body paragraph immediately under `description::`):** plain prose paragraph(s) carrying provenance, use-case context, source attribution, history, factoring notes — anything longer than the tagline. Any length. This is the canonical home for the prose that doesn't fit in `description::`; it reads more naturally than `> [!info]` callouts for the standard "what this set is about" content. Callouts remain available for asides (see below).
 
@@ -157,30 +157,30 @@ Every rule applies to some set of targets. The `where::` selector names that set
 
 A set whose rules are *not* universal should declare an explicit `where::` rather than silently relying on `always` (per `R-ruleset-10`).
 
-**Authored form — backtick-wrap the whole expression (F172).** A selector is full of markdown-active characters (`*`, `{}`, `!`, `:`), so the canonical authored line wraps the entire value — prefix included — in a single pair of backticks: `` where:: `file:{ANCHOR}/**/* PRD.md` ``. It renders as inline code and never corrupts the page. Parsers (`warden compile`, `audit-plan`) strip exactly one surrounding pair before reading the selector; the bare legacy form is accepted unchanged. The tables below document the selector **values** — each is authored inside the backtick wrap.
+**Authored form — backtick-wrap the whole expression (F172).** A selector is full of markdown-active characters (`*`, `{}`, `!`, `:`), so the canonical authored line wraps the entire value — prefix included — in a single pair of backticks: `` where:: `file:{anchor}/**/* PRD.md` ``. It renders as inline code and never corrupts the page. Parsers (`warden compile`, `audit-plan`) strip exactly one surrounding pair before reading the selector; the bare legacy form is accepted unchanged. The tables below document the selector **values** — each is authored inside the backtick wrap.
 
 **Scope kinds.** The value after `where::` is one of:
 
 | Form | Binds the rule to |
 |---|---|
 | `always` | every file the audit visits. The default when no `where::` is in force. |
-| `<glob>` or `file: <glob>` | every file whose path matches the glob. `file:` is the default reading of a bare glob, so `where:: {ANCHOR}/**/*.md` ≡ `where:: file: {ANCHOR}/**/*.md`. |
+| `<glob>` or `file: <glob>` | every file whose path matches the glob. `file:` is the default reading of a bare glob, so `where:: {anchor}/**/*.md` ≡ `where:: file: {anchor}/**/*.md`. |
 | `anchor` | the anchor as a whole — a once-per-anchor structural / tree check (e.g. "the anchor has exactly one Backlog"), not a per-file check. |
 | `sentinel: <regex>` | any file containing a line matching the regex, **regardless of path**. A path-independent content match — how `R-ruleset` (below) catches every ruleset, including ones embedded in facet / skill / discipline specs. |
 
-**Path globs are anchor-relative; `{ANCHOR}` names the root.** A path glob is matched against each candidate file's path, resolved **relative to the adopting anchor's root**. The predefined token `{ANCHOR}` names that root explicitly:
+**Path globs are anchor-relative; `{anchor}` names the root.** A path glob is matched against each candidate file's path, resolved **relative to the adopting anchor's root**. The predefined token `{anchor}` names that root explicitly:
 
-- `{ANCHOR}/Docs/**/*.md` — every markdown file under the anchor's `Docs/`.
-- A **bare** glob (no leading token, no leading `/`) is equivalent — also anchor-relative — but the explicit `{ANCHOR}/` form is **recommended** in shared rulesets so the base is unmistakable.
+- `{anchor}/Docs/**/*.md` — every markdown file under the anchor's `Docs/`.
+- A **bare** glob (no leading token, no leading `/`) is equivalent — also anchor-relative — but the explicit `{anchor}/` form is **recommended** in shared rulesets so the base is unmistakable.
 
-**Predefined tokens are `{ALL-CAPS}` in curly braces.** The all-caps-in-braces namespace is reserved for substitutions the audit engine fills in per adopting anchor:
+**Predefined tokens are reserved lowercase names in curly braces.** A small, fixed set of lowercase names is reserved for substitutions the audit engine fills in per adopting anchor:
 
 | Token | Substitutes |
 |---|---|
-| `{ANCHOR}` | the adopting anchor's root **directory** (a path) |
+| `{anchor}` | the adopting anchor's root **directory** (a path) |
 | `{slug}` | the adopting anchor's **name** string (e.g. `CAE`) — the same `{slug}` used in filenames like `{slug} Backlog.md` |
 
-`{VAULT}` (the kmr root) and `{REPO}` (a code anchor's repository root) are **reserved** for future use. Any new predefined token must be ALL-CAPS, to stay clear of glob alternation (below).
+`{vault}` (the kmr root) and `{repo}` (a code anchor's repository root) are **reserved** for future use. The four reserved names are `{anchor}`, `{slug}`, `{vault}`, `{repo}` — all lowercase; ALL-CAPS is reserved strictly for `{{FILL_IN}}` user-supplied fields (double-brace), never for these engine tokens. Any new predefined token joins this reserved lowercase set.
 
 **Glob syntax** (gitignore / picomatch flavor):
 
@@ -191,12 +191,12 @@ A set whose rules are *not* universal should declare an explicit `where::` rathe
 | `?` | exactly one character (not `/`) |
 | `[abc]`, `[a-z]` | one character from the set / range |
 | `{a,b,c}` | **alternation** — any one of the comma-separated alternatives (lower / mixed case — *not* a predefined token) |
-| trailing `/` | directories only (e.g. `{ANCHOR}/Docs/*/`) |
+| trailing `/` | directories only (e.g. `{anchor}/Docs/*/`) |
 | leading `!` | **negation** — exclude matches (gitignore-style); a later pattern can re-include |
 
-**Disambiguation — `{ANCHOR}` token vs `{a,b}` alternation.** A brace group is a **predefined token** iff its entire content is a single reserved ALL-CAPS identifier (`{ANCHOR}`, `{slug}`). Otherwise it is **glob alternation** (`{svg,png}`, `{PRD,Roadmap}` — "Roadmap" is mixed-case, so the group is alternation, not a token). This is the whole reason the predefined tokens are ALL-CAPS: it keeps `{ANCHOR}` (substitution) unambiguous from `{svg,png}` (alternation) in the same syntax.
+**Disambiguation — `{anchor}` token vs `{a,b}` alternation.** A brace group is a **predefined token** iff its entire content (no comma) is exactly one of the four reserved names `{anchor}`, `{slug}`, `{vault}`, `{repo}`. Otherwise it is **glob alternation** — any brace group containing a comma (`{svg,png}`, `{PRD,Roadmap}`) or a single non-reserved word is matched literally / as alternation, never substituted. Membership in the reserved set — not letter case — is what keeps `{slug}` (substitution) unambiguous from `{svg,png}` (alternation) in the same syntax.
 
-**Multiple globs and exclusions.** `where::` takes a comma-separated list; the rule applies to the **union** of the positive patterns minus the negated ones — `where:: {ANCHOR}/**/*.md, !{ANCHOR}/**/Closet/**`.
+**Multiple globs and exclusions.** `where::` takes a comma-separated list; the rule applies to the **union** of the positive patterns minus the negated ones — `where:: {anchor}/**/*.md, !{anchor}/**/Closet/**`.
 
 ### Exhaustive examples
 
@@ -207,21 +207,21 @@ Each row is a complete `where::` value:
 | *(omitted)* | every file — falls through to `always` |
 | `always` | every file the audit visits |
 | `anchor` | once per anchor — a structural / tree check, not per-file |
-| `{ANCHOR}/{slug}.md` | exactly the anchor page |
-| `{ANCHOR}/*.md` | markdown files in the anchor **root only** (non-recursive) |
-| `{ANCHOR}/**/*.md` | every markdown file anywhere under the anchor |
-| `{ANCHOR}/Docs/**` | everything (any type) under `Docs/`, recursively |
-| `{ANCHOR}/Docs/*/` | the immediate **sub-folders** of `Docs/` (trailing `/` = dirs) |
-| `{ANCHOR}/**/{slug} Backlog.md` | the backlog file wherever it sits in the tree |
-| `{ANCHOR}/**/{slug} {PRD,Roadmap}.md` | the PRD **and** the Roadmap — `{slug}` token + `{PRD,Roadmap}` alternation in one glob |
-| `{ANCHOR}/**/F[0-9][0-9][0-9] — *.md` | feature docs (zero-padded `F<NNN>` prefix) |
-| `{ANCHOR}/**/*.{svg,png}` | all SVG and PNG files (brace alternation) |
-| `{ANCHOR}/src/**/*.rs` | Rust sources under the code repo's `src/` |
-| `{ANCHOR}/**/*.md, !{ANCHOR}/**/Yore/**` | all markdown **except** anything archived under a `Yore/` folder |
-| `**/*.md` | anchor-relative bare glob — identical to `{ANCHOR}/**/*.md` (explicit form preferred) |
-| `file: {ANCHOR}/**/*.md` | the explicit `file:` form — identical to the bare-glob row above |
+| `{anchor}/{slug}.md` | exactly the anchor page |
+| `{anchor}/*.md` | markdown files in the anchor **root only** (non-recursive) |
+| `{anchor}/**/*.md` | every markdown file anywhere under the anchor |
+| `{anchor}/Docs/**` | everything (any type) under `Docs/`, recursively |
+| `{anchor}/Docs/*/` | the immediate **sub-folders** of `Docs/` (trailing `/` = dirs) |
+| `{anchor}/**/{slug} Backlog.md` | the backlog file wherever it sits in the tree |
+| `{anchor}/**/{slug} {PRD,Roadmap}.md` | the PRD **and** the Roadmap — `{slug}` token + `{PRD,Roadmap}` alternation in one glob |
+| `{anchor}/**/F[0-9][0-9][0-9] — *.md` | feature docs (zero-padded `F<NNN>` prefix) |
+| `{anchor}/**/*.{svg,png}` | all SVG and PNG files (brace alternation) |
+| `{anchor}/src/**/*.rs` | Rust sources under the code repo's `src/` |
+| `{anchor}/**/*.md, !{anchor}/**/Yore/**` | all markdown **except** anything archived under a `Yore/` folder |
+| `**/*.md` | anchor-relative bare glob — identical to `{anchor}/**/*.md` (explicit form preferred) |
+| `file: {anchor}/**/*.md` | the explicit `file:` form — identical to the bare-glob row above |
 | `sentinel: ^#+ RULESET R-` | any file containing a `# RULESET R-` line, **anywhere** — path-independent (catches embedded rulesets) |
-| `{VAULT}/**/*.md` | *(reserved)* vault-wide, once `{VAULT}` is defined |
+| `{vault}/**/*.md` | *(reserved)* vault-wide, once `{vault}` is defined |
 
 ### Set default + rule override — worked shape
 
@@ -230,7 +230,7 @@ A set declares a default `where::`; a single rule overrides it. Literal ruleset 
 ```
 # RULESET R-sample
 include::
-where:: `{ANCHOR}/**/{slug} Backlog.md`
+where:: `{anchor}/**/{slug} Backlog.md`
 description:: Structure every {slug} Backlog.md obeys.
 
 ### RULE R-sample-01 — Rows carry a status bracket (checked)
@@ -377,13 +377,13 @@ A standalone `R-<slug>.md` has no YAML frontmatter (an embedded `# RULESET` live
 
 **Check pattern:** if the file's first non-blank line is `# RULESET`, assert no `---` frontmatter precedes it.
 
-### RULE R-ruleset-12 — `where::` uses predefined `{ALL-CAPS}` tokens + standard globs (stated)
+### RULE R-ruleset-12 — `where::` uses predefined lowercase tokens + standard globs (stated)
 
-A `where::` value is `always`, a path glob (optionally `file:`-prefixed), `anchor`, or `sentinel: <regex>`. Inside a glob, a `{...}` group is a predefined token only when its content is a reserved ALL-CAPS identifier (`{ANCHOR}`, `{slug}`); lower / mixed-case brace groups are glob alternation. The authored line backtick-wraps the whole expression — `` where:: `file:{ANCHOR}/**/*.md` `` — so the glob characters (`*`, `{}`, `!`) render as inline code instead of corrupting the markdown (F172); parsers strip the single surrounding pair, and the bare legacy form is still accepted.
+A `where::` value is `always`, a path glob (optionally `file:`-prefixed), `anchor`, or `sentinel: <regex>`. Inside a glob, a `{...}` group is a predefined token only when its content (no comma) is one of the reserved names `{anchor}`, `{slug}`, `{vault}`, `{repo}`; any comma-bearing or non-reserved brace group is glob alternation. The authored line backtick-wraps the whole expression — `` where:: `file:{anchor}/**/*.md` `` — so the glob characters (`*`, `{}`, `!`) render as inline code instead of corrupting the markdown (F172); parsers strip the single surrounding pair, and the bare legacy form is still accepted.
 
-**Check pattern:** for each `where::`, assert the scope kind is one of the four forms (after stripping the surrounding backtick pair); assert every `{...}` group is either a recognized predefined token or a valid alternation (lower / mixed case).
+**Check pattern:** for each `where::`, assert the scope kind is one of the four forms (after stripping the surrounding backtick pair); assert every `{...}` group is either a recognized predefined token (content is one of the reserved names) or a valid alternation (comma-bearing or non-reserved).
 
-**Why:** keeps `{ANCHOR}` (substitution) unambiguous from `{a,b}` (alternation) and catches typo'd selectors that would silently match nothing. See § Where clause — the rule selector.
+**Why:** keeps `{anchor}` (substitution) unambiguous from `{a,b}` (alternation) and catches typo'd selectors that would silently match nothing. See § Where clause — the rule selector.
 
 # BRIEF
 

@@ -140,7 +140,7 @@ Available to any anchor with a `{slug} Design/` folder per [[DAS Design Folder]]
 
 # RULESET R-status
 include::
-where:: `file:{ANCHOR}/**/* Status.md`
+where:: `file:{anchor}/**/* Status.md`
 description:: Structural rules for the {slug} Status.md facet doc; enforces the per-facet dataview-line shape and cell ladder.
 
 Embedded ruleset for the Status facet, co-located with the facet spec above per the [[F133 — Rulesets folder convention + facet embedding|F133]] embedding convention. Adopted via `R-facet` umbrella.

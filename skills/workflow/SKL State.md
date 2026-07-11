@@ -113,7 +113,7 @@ Pick ONE. Priority order if multiple given:
 
 ## POST-CONDITIONS (Q-mode)
 
-Every `state q` invocation runs the following post-condition. (The `{ANCHOR} queries.md` page is built on demand by `/ask`'s determination logic — there is no separate render step.)
+Every `state q` invocation runs the following post-condition. (The `{anchor} queries.md` page is built on demand by `/ask`'s determination logic — there is no separate render step.)
 
 ```
 1. audit-q.py --scope q --dry — lenient warn. errors print to stderr; don't unwind the Q-edit.

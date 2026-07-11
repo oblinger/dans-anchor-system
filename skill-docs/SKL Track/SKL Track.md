@@ -4,7 +4,7 @@ description: "workflow, backlog, verification, audit-q — the disciplines and t
 
 # SKL Track
 
-The disciplines + tool that govern *what's being tracked* inside an anchor's `{NAME} Track/` folder — the canonical state graph, the horizon structure, the verify-tier system, and the validator that enforces them. Distinct from [[SKL Drive]] (which *moves* work through tracking) and from [[SKL Anchor]] (which builds the anchor itself).
+The disciplines + tool that govern *what's being tracked* inside an anchor's `{slug} Track/` folder — the canonical state graph, the horizon structure, the verify-tier system, and the validator that enforces them. Distinct from [[SKL Drive]] (which *moves* work through tracking) and from [[SKL Anchor]] (which builds the anchor itself).
 
 | -[[SKL Track]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[skill-docs]] → [SKL Track](hook://p/SKL%20Track)<br>: The disciplines + tool that govern what's tracked. |
 | --- | --- |
