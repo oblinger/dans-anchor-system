@@ -3337,6 +3337,18 @@ def file_qfix_row(
             f"  - **{f.code}** {rel}:{f.surface_line} — {safe_msg}"
         )
 
+    # A [Ready] row — even a machinery one — must declare a no-user next action
+    # (user direction 2026-07-11: "B-QFix with no declared next action is
+    # wrong"). Lead the sub-bullets with a standing Next so the router-owned
+    # B-QFix row always carries one; it survives every --fix re-render because
+    # the sub-bullets are rewritten from this list each run.
+    next_sub = (
+        "  - **Next:** Fix the next residual below at its source (repoint a "
+        "renamed link, de-link a retired one, correct the flagged doc), then "
+        "re-run `/audit q` to clear it — per the 100%-fix discipline."
+    )
+    new_subs = [next_sub] + new_subs
+
     qfix_row_text = (
         f"- **B-QFix — QFix** [Ready] — audit q findings routed by --fix; "
         f"each sub-bullet is a residual on {anchor_name}'s tree needing the "
@@ -3368,7 +3380,7 @@ def file_qfix_row(
             break
         lines[qfix_idx] = qfix_row_text
         lines[qfix_idx + 1: end] = new_subs
-        result = f"updated B-QFix with {len(new_subs)} sub-bullet(s)"
+        result = f"updated B-QFix with {len(findings)} residual(s)"
     else:
         # Create row at the top of `## Ready`. Create the H2 if absent.
         ready_idx: Optional[int] = None
@@ -3392,7 +3404,7 @@ def file_qfix_row(
         block = [qfix_row_text] + new_subs + [""]
         for j, ln in enumerate(block):
             lines.insert(insert_at + j, ln)
-        result = f"created B-QFix with {len(new_subs)} sub-bullet(s)"
+        result = f"created B-QFix with {len(findings)} residual(s)"
 
     backlog_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return True, result
