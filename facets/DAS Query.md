@@ -6,7 +6,7 @@ description: Query facet — the format of an anchor's `{slug} queries.md`, the 
 # FCT Query
 The asking surface: one `{slug} queries.md` per anchor, in `{slug} Track/`, that `/ask` builds and trims.
 
-**Related:** [[SKL Query]] (the skill that builds it),  [[DAS Status]],  [[DAS Messages]]
+**Related:** [[DAS Ask]] (the skill that builds it),  [[DAS Status]],  [[DAS Messages]]
 **Examples:** [[SKA queries\|real instance (SKA anchor)]]
 
 | Table of Contents |  |
@@ -42,7 +42,7 @@ The asking surface: one `{slug} queries.md` per anchor, in `{slug} Track/`, that
 
 ## What it is
 
-`{slug} queries.md` is the single per-anchor surface where the user answers everything the agents need from them — **and it is simultaneously the anchor's status view**: its banner + body are copied into the anchor's section of the global `~/ob/kmr/Q.md` dashboard (F231, retiring the separate triage view). The **`/ask` skill** ([[SKL Query]]) *drives* it (determination routing — walking open questions, running verifications ahead of time), but the file itself is **mechanically rendered** by `queries-render.py` (`audit/scripts/`), fired on every `state` mutation via `audit-q --fix`; the same render copies the body into `Q.md`. **This facet** governs what the resulting *file* must look like, so it can be audited (`/audit doc`, the F167 on-write hook). The skill + renderer cite these rules rather than restating them.
+`{slug} queries.md` is the single per-anchor surface where the user answers everything the agents need from them — **and it is simultaneously the anchor's status view**: its banner + body are copied into the anchor's section of the global `~/ob/kmr/Q.md` dashboard (F231, retiring the separate triage view). The **`/ask` skill** ([[DAS Ask]]) *drives* it (determination routing — walking open questions, running verifications ahead of time), but the file itself is **mechanically rendered** by `queries-render.py` (`audit/scripts/`), fired on every `state` mutation via `audit-q --fix`; the same render copies the body into `Q.md`. **This facet** governs what the resulting *file* must look like, so it can be audited (`/audit doc`, the F167 on-write hook). The skill + renderer cite these rules rather than restating them.
 
 ## Parts
 
@@ -71,7 +71,7 @@ include::
 where:: `file:{ANCHOR}/**/* queries.md`
 description:: the `{slug} queries.md` format
 
-What `/audit doc` checks on a queries file. The skill that produces it is [[SKL Query]]; these are the file-invariants it must satisfy. Format of this set: [[DAS Ruleset]].
+What `/audit doc` checks on a queries file. The skill that produces it is [[DAS Ask]]; these are the file-invariants it must satisfy. Format of this set: [[DAS Ruleset]].
 
 ## Structure
 
@@ -277,6 +277,6 @@ def trigger(ctx):
 
 # BRIEF
 
-*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body + `R-query` ruleset above; the procedure that builds the file lives in [[SKL Query]].)*
+*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body + `R-query` ruleset above; the procedure that builds the file lives in [[DAS Ask]].)*
 
-- **`R-query` is in the `R-doc` umbrella** — so `/audit doc {slug} queries.md` and the F167 on-write hook validate it. If the spec changes, fix it here; [[SKL Query]] cites these rules and follows.
+- **`R-query` is in the `R-doc` umbrella** — so `/audit doc {slug} queries.md` and the F167 on-write hook validate it. If the spec changes, fix it here; [[DAS Ask]] cites these rules and follows.

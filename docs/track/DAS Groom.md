@@ -1,5 +1,5 @@
 ---
-description: "Walk the current anchor's backlog and move it toward the **groomed state** — promote every item it can to **Ready**, park items that need user input in dated feature docs, repair link integrity."
+description: "the /groom concept dossier"
 ---
 # SKL Groom
 The concept dossier for **`/groom`** — everything published about the frontier-planning skill: the user guide, its PRD, the shared resolution-layer design, and the runtime spec.
@@ -12,4 +12,4 @@ The concept dossier for **`/groom`** — everything published about the frontier
 
 ## Overview
 
-`/groom` gets every task that could be next for execution fully ready — planning each frontier item into one of the five groomed states. It is the **backlog half of the resolution layer** (with [[SKL Query]] as the asking half); the two share one design, [[Query PRD]].
+`/groom` gets every task that could be next for execution fully ready — planning each frontier item into one of the five groomed states. It is the **backlog half of the resolution layer** (with [[DAS Ask]] as the asking half); the two share one design, [[Query PRD]].
