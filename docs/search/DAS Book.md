@@ -1,7 +1,7 @@
 ---
 description: "skim → click into the rule that applies"
 ---
-# SKL Book
+# DAS Book
 | -[[DAS Book]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Book](hook://p/DAS%20Book)<br>: skim → click into the rule that applies|
 | --- | --- |
 | Book rules (any verb) | [[SRC rules/book\|book.md]],   |

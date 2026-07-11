@@ -1,7 +1,7 @@
 ---
 description: "skim → click into the rule that applies"
 ---
-# SKL Skill
+# DAS Skill
 | -[[DAS Skill]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Search]] → [SKL Skill](hook://p/DAS%20Skill)<br>: skim → click into the rule that applies|
 | --- | --- |
 | Skill rules (any verb) | [[SRC rules/skill\|skill.md]],   |

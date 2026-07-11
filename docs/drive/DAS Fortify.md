@@ -1,7 +1,7 @@
 ---
 description: "Cautious, skeptical counterpart to `crank`."
 ---
-# SKL Fortify
+# DAS Fortify
 The concept dossier for **`/fortify`** — everything published about the skill: the user guide, its design, and the runtime spec.
 
 | -[[DAS Fortify]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Fortify](hook://p/DAS%20Fortify)<br>: Cautious, skeptical counterpart to `crank`.|

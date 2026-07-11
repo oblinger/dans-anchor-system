@@ -1,7 +1,7 @@
 ---
 description: "How auditing works — design rationale, tool chain, and examples"
 ---
-# SKL Audit Guide
+# DAS Audit
 ## Philosophy
 
 | -[[DAS Audit]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Audit](hook://p/DAS%20Audit)<br>: How auditing works — design rationale, tool chain, and examples|

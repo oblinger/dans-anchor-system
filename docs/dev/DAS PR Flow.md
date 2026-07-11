@@ -1,7 +1,7 @@
 ---
 description: "`/pr-flow` is the iterative PR-based development workflow — each PR is a small feature unit that you review before it merges."
 ---
-# /pr-flow
+# DAS PR Flow
 `/pr-flow` is the iterative PR-based development workflow — each PR is a small feature unit that you review before it merges. Claude works on a `feature/{name}-work` branch, batches commits until roughly 300 lines (configurable: "PR flow 500"), opens a PR from `-work` into `-base`, surfs the Files tab in your browser, and **stops** to wait for your review. You give feedback or say "done" / "PR flow"; the cycle iterates until the feature is complete, then a final PR from `-base` to `main` lands the whole thing.
 
 | -[[DAS PR Flow]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS PR Flow](hook://p/DAS%20PR%20Flow)<br>: `/pr-flow` is the iterative PR-based development workflow — each PR is a small feature unit that you review before it merges.|

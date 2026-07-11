@@ -1,7 +1,7 @@
 ---
 description: "`/move` relocates an anchor folder to a new path and updates every path-dependent system that indexes it — HookAnchor, Claude Code session history, hardcoded paths inside the anchor's own configs, …"
 ---
-# /Move
+# DAS Move
 `/move` relocates an anchor folder to a new path and updates every path-dependent system that indexes it — HookAnchor, Claude Code session history, hardcoded paths inside the anchor's own configs, the slug index, and any published docs. Use it when you say "move this anchor" or "relocate the project." It uses `mv` rather than `cp` (never `cp` — duplicate files break Obsidian wiki-link resolution silently) and stages a safety-net zip of the source at the old location until you've verified the move worked end-to-end.
 
 | -[[DAS Move]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Anchor]] → [SKL Move](hook://p/DAS%20Move)<br>: `/move` relocates an anchor folder to a new path and updates every path-dependent system that indexes it — HookAnchor, Claude Code session history, hardcoded paths inside the anchor's own configs, …|

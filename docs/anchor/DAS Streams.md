@@ -1,7 +1,7 @@
 ---
 description: "`/streams` is intended to manage **content stream definitions** — the repeated-content-grouping abstraction for stream-type anchors (where you have an ongoing flow of similar items rather than a on…"
 ---
-# /Streams
+# DAS Streams
 `/streams` is intended to manage **content stream definitions** — the repeated-content-grouping abstraction for stream-type anchors (where you have an ongoing flow of similar items rather than a one-shot deliverable).
 
 | -[[DAS Streams]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Streams](hook://p/DAS%20Streams)<br>: `/streams` is intended to manage **content stream definitions** — the repeated-content-grouping abstraction for stream-type anchors (where you have an ongoing flow of similar items rather than a on…|

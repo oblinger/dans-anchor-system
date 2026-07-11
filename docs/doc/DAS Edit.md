@@ -1,7 +1,7 @@
 ---
 description: "How to create and export visual content — Excalidraw diagrams, SVG, PNG, Google Slides"
 ---
-# SKL Edit Guide
+# DAS Edit
 The Edit skill handles visual content creation, primarily through Excalidraw diagrams. The agent can create `.excalidraw` files programmatically by writing the JSON format directly, then export them to SVG or PNG for use in documents and presentations.
 
 | -[[DAS Edit]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Edit](hook://p/DAS%20Edit)<br>: How to create and export visual content — Excalidraw diagrams, SVG, PNG, Google Slides|

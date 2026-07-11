@@ -1,7 +1,7 @@
 ---
 description: "high-rigor three-stage form of /survey for high-stakes comparisons"
 ---
-# SKL Meta Survey
+# DAS Meta Survey
 | -[[DAS Meta Survey]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Meta Survey](hook://p/DAS%20Meta%20Survey)<br>: high-rigor three-stage form of /survey for high-stakes comparisons|
 | --- | --- |
 | Runbook | [[survey/meta-survey\|meta-survey.md]],   |

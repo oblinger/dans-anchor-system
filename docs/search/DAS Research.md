@@ -1,7 +1,7 @@
 ---
 description: "the SKL Research doc"
 ---
-# /Research
+# DAS Research
 Structured research workflows. You give it a target (entity / topic / person / book / skill concept), it gathers sources, synthesizes findings, and produces a report in the RRR (Research Reports) anchor at `~/ob/kmr/RR/RR Research Reports/`.
 
 | -[[DAS Research]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Research](hook://p/DAS%20Research)<br>: the SKL Research doc|

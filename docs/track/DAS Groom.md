@@ -1,7 +1,7 @@
 ---
 description: "the /groom concept dossier"
 ---
-# SKL Groom
+# DAS Groom
 The concept dossier for **`/groom`** — everything published about the frontier-planning skill: the user guide, its PRD, the shared resolution-layer design, and the runtime spec.
 
 | -[[DAS Groom]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Groom](hook://p/DAS%20Groom)<br>: the /groom concept dossier|

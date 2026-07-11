@@ -1,7 +1,7 @@
 ---
 description: "skim → click into the rule that applies"
 ---
-# SKL Survey
+# DAS Survey
 | -[[DAS Survey]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Survey](hook://p/DAS%20Survey)<br>: skim → click into the rule that applies|
 | --- | --- |
 | Related | [[skills/survey/SKILL.md\|SKILL]],   |

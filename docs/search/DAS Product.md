@@ -1,7 +1,7 @@
 ---
 description: "skim → click into the rule that applies"
 ---
-# SKL Product
+# DAS Product
 | -[[DAS Product]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Product](hook://p/DAS%20Product)<br>: skim → click into the rule that applies|
 | --- | --- |
 | Product rules (any verb) | [[SRC rules/product\|product.md]],   |

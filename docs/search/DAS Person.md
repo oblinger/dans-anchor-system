@@ -1,7 +1,7 @@
 ---
 description: "skim → click into the rule that applies"
 ---
-# SKL Person
+# DAS Person
 | -[[DAS Person]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Person](hook://p/DAS%20Person)<br>: skim → click into the rule that applies|
 | --- | --- |
 | Person rules (any verb) | [[SRC rules/person\|person.md]],   |
