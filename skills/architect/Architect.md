@@ -3,7 +3,7 @@ description: Architect — SKA skill anchor; design tree + dispatch for `/archit
 ---
 # Architect
 
-| -[[Architect]]- | → [[kmr]] → [[SYS]] → [[symlinks]] → [Architect](hook://p/Architect)<br>: SKA skill anchor for `/architect` |
+| -[[Architect]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [Architect](hook://p/Architect)<br>: SKA skill anchor for `/architect` |
 | --- | --- |
 | Skill | [[architect/SKILL\|SKILL.md]],  [[DAS Architect\|User Docs]],   |
 | [[Architect Design\|Design]] | [[Architect PRD\|PRD]],   |
@@ -12,4 +12,4 @@ description: Architect — SKA skill anchor; design tree + dispatch for `/archit
 
 - **Agent runbook** → [[architect/SKILL|SKILL.md]]
 - **User-facing docs** → [[DAS Architect]]
-- **Design** → [[Architect Design]] (this skill owns its design; tracking + status are centralized in SKA per [[SKA Decisions|D08]]). Per [[SKA Decisions|D10]] the Architect skill is the behavioral core of the **[[DAS Design]]** facet — an anchor's `{slug} Design/` folder existing ⟺ the anchor has been architected, its design walked by `/architect` for completeness.
+- **Design** → [[Architect Design]] (this skill owns its design; tracking + status are centralized in SKA per [[SKA Decisions|D08]]). Per [[SKA Decisions|D10]] the Architect skill is the behavioral core of the **[[DAS Design Folder]]** facet — an anchor's `{slug} Design/` folder existing ⟺ the anchor has been architected, its design walked by `/architect` for completeness.

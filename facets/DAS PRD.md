@@ -130,7 +130,7 @@ Surveying live PRDs across the vault, these are the recurring drifts from the ca
 
 ## Trait applicability
 
-Any anchor that has a `{slug} Design/` folder per [[DAS Design]]. Initially supports anchors with code-shaped artifacts; broader applicability (Paper / Topic / Simple traits) covered as those traits land.
+Any anchor that has a `{slug} Design/` folder per [[DAS Design Folder]]. Initially supports anchors with code-shaped artifacts; broader applicability (Paper / Topic / Simple traits) covered as those traits land.
 
 ## Audit
 

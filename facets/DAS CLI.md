@@ -6,7 +6,7 @@ Facet spec for `{slug} CLI.md` — the **command-line specification** for an anc
 
 | **FCT CLI**                                                          | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Design Docs]] → [FCT CLI](hook://p/DAS%20CLI)<br>: command-line specification facet |
 | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Related                                                              | [[DAS UX Design\|UX Design]],  [[DAS API Design\|API Design]],  [[DAS Design\|Design]],  [[CAB User Guide\|User Guide]]                           |
+| Related                                                              | [[DAS UX Design\|UX Design]],  [[DAS API Design\|API Design]],  [[DAS Design Folder\|Design]],  [[CAB User Guide\|User Guide]]                           |
 | Examples                                                             | [[HBR CLI\|worked example]]                                                                                                        |
 |                                                                      |                                                                                                                                                   |
 | **Table of Contents**                                                |                                                                                                                                                   |
@@ -87,7 +87,7 @@ The only thing to avoid is **empty restatement** — a Flags table that merely r
 
 ## Location — a migrating reference
 
-The CLI doc is a **migrating reference** (per [[DAS Design]] § Reference is a migrating role):
+The CLI doc is a **migrating reference** (per [[DAS Design Folder]] § Reference is a migrating role):
 
 - **Authored** at `{slug} Design/{slug} CLI.md` — a design-pipeline doc, downstream of UX Design, written while the command surface is still being decided.
 - **Graduates** to `{slug} User Docs/{slug} CLI.md` once the CLI stabilizes and end users consult it as a look-up reference.

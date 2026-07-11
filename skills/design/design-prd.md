@@ -19,7 +19,7 @@ The mode is detected, not invoked — `/design prd` does the right thing based o
 
 ### 1. Locate the PRD
 
-1. Walk up from `cwd` to nearest `.anchor`. Check whether `{anchor}/{slug} Design/` exists (the gate per [[DAS Design]]). If absent, `/design` (the orchestrator) will have already offered to scaffold — this sub-skill assumes the folder exists when invoked.
+1. Walk up from `cwd` to nearest `.anchor`. Check whether `{anchor}/{slug} Design/` exists (the gate per [[DAS Design Folder]]). If absent, `/design` (the orchestrator) will have already offered to scaffold — this sub-skill assumes the folder exists when invoked.
 2. Look for the PRD at, in priority order:
    - `{anchor}/{slug} Design/{slug} PRD/{slug} PRD.md` (folder form per [[DAS Stories]])
    - `{anchor}/{slug} Design/{slug} PRD.md` (single-file form)

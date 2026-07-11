@@ -116,7 +116,7 @@ That makes the Status reachable in one click from the anchor's main Track surfac
 
 ## Trait applicability
 
-Available to any anchor with a `{slug} Design/` folder per [[DAS Design]]. v1 facet list (`prd`, `ux`, `architecture`, `testing`, `roadmap`) matches the canonical `/design` phase set; per-trait facet-list customization is Phase 2.
+Available to any anchor with a `{slug} Design/` folder per [[DAS Design Folder]]. v1 facet list (`prd`, `ux`, `architecture`, `testing`, `roadmap`) matches the canonical `/design` phase set; per-trait facet-list customization is Phase 2.
 
 ## Audit
 

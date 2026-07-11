@@ -11,7 +11,7 @@ The audit system is two things: the **rule sets** it runs over, and the **compon
 | In the figure | Mirrors |
 |---|---|
 | **Rule sets — the base** | The `# RULESET` corpus `/audit` runs over; each rule binds to its targets via `where::`. Three families: |
-| · Facets | per-artifact specs, each embedding its ruleset — [[DAS Anchor Page\|R-anchor-page]], [[DAS PRD\|R-prd]], [[DAS Stories\|R-stories]], [[DAS Architecture\|R-architecture]], [[DAS Design\|R-design]], [[DAS Testing\|R-testing]], [[DAS Dispatch Table\|R-dispatch-table]], [[DAS Decisions\|R-decisions]] … |
+| · Facets | per-artifact specs, each embedding its ruleset — [[DAS Anchor Page\|R-anchor-page]], [[DAS PRD\|R-prd]], [[DAS Stories\|R-stories]], [[DAS Architecture\|R-architecture]], [[DAS Design Folder\|R-design]], [[DAS Testing\|R-testing]], [[DAS Dispatch Table\|R-dispatch-table]], [[DAS Decisions\|R-decisions]] … |
 | · Disciplines | vault-wide text practices — [[DAS markdown\|R-markdown]], [[DAS dated-entry-stream\|R-dated-entry-stream]], [[DAS file-association\|R-file-association]] |
 | · Skills | skill-anchor specs — [[DAS Skill\|skill-spec]], skill-doc, skill-script, skill-config |
 | **Components — skills + scripts** | The `/audit` orchestrator + the scripts that run over the rule sets: |

@@ -31,7 +31,7 @@ Audit rules to honor: [[DAS Testing#RULESET R-testing|R-testing]] (12 rules).
 
 ### 1. Detect anchor + existing file
 
-- Walk up from `cwd` to nearest `.anchor`. Assume `{slug} Design/` exists (the gate per [[DAS Design]]; `/design` orchestrator handles scaffolding before dispatch to this sub-skill).
+- Walk up from `cwd` to nearest `.anchor`. Assume `{slug} Design/` exists (the gate per [[DAS Design Folder]]; `/design` orchestrator handles scaffolding before dispatch to this sub-skill).
 - Check whether `{slug} Design/{slug} Testing.md` exists.
 - **Legacy detection:** if `{slug} Design/{slug} Testing Strategy.md` exists instead (legacy plan-testing scaffold), surface it: *"Found legacy `{slug} Testing Strategy.md` — migrating to `{slug} Testing.md` per [[DAS Testing]]."* Read it as input for § 3.
 

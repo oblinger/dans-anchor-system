@@ -1,5 +1,5 @@
 # RULESET R-skill
-description:: Umbrella ruleset aggregating the per-skill rulesets — rules associated with individual skills the agent performs (mint, ask, atlas, redline, feature, groom, etc.). Parallel to [[R-facet]] (per-facet) and [[R-trait]] (per-trait).
+description:: Per-skill rulesets — to embed in `~/.claude/skills/<skill>/SKILL.md` specs. First candidates: R-ask, R-feature, R-atlas.
 include::
 
 > [!info] How this set is wired

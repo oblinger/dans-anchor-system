@@ -6,7 +6,7 @@ description: "facet spec for the project sequencing-design doc — milestones, s
 # FCT Roadmap
 The Roadmap facet — the project's sequencing-design doc, organized as named milestones with sub-numbering.
 
-**Related:** [[DAS Features]],  [[DAS Completed Roadmap]],  [[DAS Status]],  [[DAS Design]]
+**Related:** [[DAS Features]],  [[DAS Completed Roadmap]],  [[DAS Status]],  [[DAS Design Folder]]
 **Examples:** [[FEX Roadmap\|Shape A named-milestone]],  [[HBR Roadmap\|Shape B legacy-numbered]]
 
 | Table of Contents |  |
@@ -316,7 +316,7 @@ Per [[DAS progressive-disclosure]]:
 
 ## Trait applicability
 
-Any anchor with a `{slug} Design/` folder per [[DAS Design]] that's planning more than 1-2 milestones of work. Single-milestone projects don't need the roadmap.
+Any anchor with a `{slug} Design/` folder per [[DAS Design Folder]] that's planning more than 1-2 milestones of work. Single-milestone projects don't need the roadmap.
 
 ## Audit
 
@@ -324,7 +324,7 @@ Any anchor with a `{slug} Design/` folder per [[DAS Design]] that's planning mor
 
 ## See also
 
-- [[DAS Design]] — parent facet (Roadmap is a Recommended child of the Design folder)
+- [[DAS Design Folder]] — parent facet (Roadmap is a Recommended child of the Design folder)
 - [[DAS Features]] — feature docs that Shape A roadmaps group into milestones
 - [[DAS Stories]] — user stories that milestones implement (cited from milestone Acceptance lines)
 - [[DAS Status]] — `{slug} Status.md` carries the design-phase tier for `roadmap::` (separate from per-milestone progress)

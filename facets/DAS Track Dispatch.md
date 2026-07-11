@@ -35,7 +35,7 @@ Below is a condensed reference example.
 | [[FEX Inbox\|Inbox]] | raw input to process (optional) |
 | [[CAE ask\|ask]] | agent-regenerated ask snapshot; also holds anchor-level questions (optional) |
 
-*Roadmap + Features moved to [[HBR Design]] 2026-06-10 per the design-includes-features restructure — feature docs are design artifacts, the roadmap is sequencing-design. See [[DAS Design]] for the new home.*
+*Roadmap + Features moved to [[HBR Design]] 2026-06-10 per the design-includes-features restructure — feature docs are design artifacts, the roadmap is sequencing-design. See [[DAS Design Folder]] for the new home.*
 
 ---
 
