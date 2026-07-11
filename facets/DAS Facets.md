@@ -6,7 +6,7 @@ description: "the per-doc structural specs"
 
 | -[[DAS Facets]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Facets](hook://p/DAS%20Facets)<br>: the per-doc structural specs |
 | --- | --- |
-| Related | [[DAS Skills\|Skills]],  [[DAS Disciplines\|Disciplines]],  [[DAS Traits\|Traits]],  [[DAS Examples\|Examples]],  [[DAS Rulesets\|Rulesets]],  [[DAS\|ob-skills]],   |
+| Related | [[DAS Skills\|Skills]],  [[DAS Disciplines\|Disciplines]],  [[DAS Traits\|Traits]],  [[DAS Examples\|Examples]],  [[DAS Rulesets\|Rulesets]],  [[DAS\|dans-anchor-system]],   |
 |  |  |
 | **FACETS** |  |
 | [[DAS Anchor\|Anchor]]+ | [[DAS Anchor Page\|Anchor Page]],  [[DAS Project Page\|Project Page]],  [[DAS Folder\|Folder]],  [[DAS Anchor Tree\|Anchor Tree]],  [[DAS Naming\|Naming]],  [[DAS Claude\|Claude]],  [[DAS Move\|Move]],  [[DAS Interface\|Interface]],  [[DAS CLI\|CLI]],  [[DAS Code Repository\|Code Repository]],  [[DAS Dot Anchor\|Dot Anchor]],  [[FEX Project Root]],   |

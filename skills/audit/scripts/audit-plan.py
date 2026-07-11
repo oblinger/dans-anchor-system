@@ -59,7 +59,7 @@ HOME = Path.home()
 # ── repo discovery ──────────────────────────────────────────────────────────
 
 def find_repo_root(start: Path) -> Path:
-    """Walk up from the script to the ob-skills repo root (has facets/ + skills/)."""
+    """Walk up from the script to the dans-anchor-system repo root (has facets/ + skills/)."""
     for p in [start, *start.parents]:
         if (p / "facets").is_dir() and (p / "skills").is_dir():
             return p
@@ -562,7 +562,7 @@ def enumerate_scope(target: Path, mode: str,
 # ── flattened-rules cache ───────────────────────────────────────────────────
 
 def cache_dir(opt: str | None) -> Path:
-    d = Path(opt).expanduser() if opt else (HOME / ".cache" / "ob-skills-audit")
+    d = Path(opt).expanduser() if opt else (HOME / ".cache" / "dans-anchor-system-audit")
     (d / "flat").mkdir(parents=True, exist_ok=True)
     return d
 

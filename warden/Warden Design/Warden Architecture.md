@@ -95,14 +95,14 @@ Adding a facet's rules to an audit is just adding its set to an umbrella's `incl
 Rules live with the spec that owns them. There are **three homes** — and an anchor's `{NAME} Decisions.md` may host the anchor-local one as a companion `# RULESET` directly after its decisions ([[DAS Decisions]]). Folder convention + facet-embedding: [[F133 — Rulesets folder convention + facet embedding|F133]].
 
 ```
-ob-skills/library/Rulesets/          ← (1) the shared catalog, organized per-domain
+dans-anchor-system/library/Rulesets/          ← (1) the shared catalog, organized per-domain
 ├── Rulesets.md                          catalog index (see Rulesets in §Sources)
 ├── Diagram/R-diagram.md                 standalone R-<slug>.md (folder-file convention)
 ├── R-anchor/R-anchor.md                 umbrella
 └── R-ob/R-ob-state-mgt.md               owner-scoped set
 
-ob-skills/facets/.../FCT Testing.md   ← (2) embedded # RULESET R-testing inside a facet spec
-ob-skills/skills/.../<skill> spec     ← (2) embedded set inside a skill/discipline spec
+dans-anchor-system/facets/.../FCT Testing.md   ← (2) embedded # RULESET R-testing inside a facet spec
+dans-anchor-system/skills/.../<skill> spec     ← (2) embedded set inside a skill/discipline spec
 
 {NAME}/{NAME} Design/{NAME} Rules.md  ← (3) anchor-local rules too specific to share (rare)
 {NAME}/{NAME} Design/{NAME} Decisions.md ← decisions (documentation; may host a companion # RULESET)

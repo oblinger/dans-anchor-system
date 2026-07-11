@@ -50,7 +50,7 @@ version: 1
 defaults: { remote: haorui.local, sync_mode: syncthing }
 claude_environment:
   sync: []                                    # ADDITIONAL paths only — the vault comes from
-                                              # ob-skills global.yaml vault_root (F159)
+                                              # dans-anchor-system global.yaml vault_root (F159)
   memory: shared                              # bidirectional memory share (F159); "off" disables
   claude_home:                                # ~/.claude provisioning (rsync include − exclude)
     include: [ skills, CLAUDE.md, settings.json, commands, agents, keybindings.json,
@@ -59,11 +59,11 @@ claude_environment:
     #   session on the twin logs hook errors (found live 2026-06-12)
     exclude: [ projects, todos, worktrees, shell-snapshots, statsig, .DS_Store ]
   config_home:                                # ~/.config provisioning, one-way (F159)
-    include: [ ob-skills ]
+    include: [ dans-anchor-system ]
     exclude: [ cache, __pycache__, .DS_Store ]
 ```
 
-**The vault path is NOT duplicated in bridge config** — `claude-provision.py` reads `vault_root` from `~/.config/ob-skills/global.yaml`, the same parameter every cross-cutting skill script scopes by. Missing `vault_root` fails loudly (F159).
+**The vault path is NOT duplicated in bridge config** — `claude-provision.py` reads `vault_root` from `~/.config/anchor-system/global.yaml`, the same parameter every cross-cutting skill script scopes by. Missing `vault_root` fails loudly (F159).
 
 The helpers live at `~/.claude/skills/bridge/`: `syncthing-helper.py` (sync mechanism) and `claude-provision.py` (claude goal).
 
@@ -317,7 +317,7 @@ nfs-helper.py teardown-plan <host>               # emit the unwind sequence (fil
 
 **Goal:** make `<host>` able to run a Claude instance as a **twin** of this machine. It *composes* the mechanisms — `bridge sync` carries the content; an rsync provisions `~/.claude`.
 
-A "Claude environment" = **synced content** (vault, code — rooted at ob-skills `vault_root`) + **`~/.claude` minus transcripts** (skills, CLAUDE.md, settings, commands) + **shared memory** (F159) + **ob-skills config** (F159). The abstract shape is here; the concrete paths are in `config.yaml` `claude_environment`.
+A "Claude environment" = **synced content** (vault, code — rooted at dans-anchor-system `vault_root`) + **`~/.claude` minus transcripts** (skills, CLAUDE.md, settings, commands) + **shared memory** (F159) + **anchor-system config** (F159). The abstract shape is here; the concrete paths are in `config.yaml` `claude_environment`.
 
 ### Environment parity ≠ session portability
 
@@ -350,7 +350,7 @@ python3 ~/.claude/skills/bridge/claude-provision.py verify --host <host> [--brid
 
 - `plan` reports vault_root, sync coverage (vault_root + `sync` extras), memory-share state, and both rsync manifests (it does **not** auto-init sync — that has its own move-aside gate; if a path is uncovered it tells you to run `bridge sync <host>`).
 - `apply` rsyncs each `claude_home.include` from `~/.claude/` and each `config_home.include` from `~/.config/`, applying the excludes, over `--bridge-ip` when given; then sets up the memory share if `memory: shared` and not yet recorded (idempotent via hosts.yaml). `--delete` makes the remote a true mirror.
-- `verify` confirms skills + CLAUDE.md present, **no `.jsonl` in the shared memory index**, memory share recorded, ob-skills config present → `twin_ready`.
+- `verify` confirms skills + CLAUDE.md present, **no `.jsonl` in the shared memory index**, memory share recorded, anchor-system config present → `twin_ready`.
 
 Then `bridge <host>` (control) into the twin and run `claude` there — same skills, same CLAUDE.md, same vault, fresh sessions.
 
@@ -520,6 +520,6 @@ Every heartbeat verifies *ground-truth* progress (results file row count advanci
 
 **Active** (F150, 2026-06-11). Control plane captured 2026-06-06 (COPPER → 10T). Sync (Syncthing) + Claude bridge built and **verified live against haorui.local** 2026-06-11: 14.4 GB vault seeded via tar over a Thunderbolt bridge, `.claude/` excluded both sides, `bridge claude` provisioned 65 skills + CLAUDE.md with `projects/` excluded (`twin_ready: true`). Renamed from `mux-bridge`; helpers at `~/.claude/skills/bridge/`; config at `~/.config/bridge/`. NFS (Phase 2) and rsync (Phase 3) still deferred per F122.
 
-**F159 (2026-06-12)** — Claude bridge grew three layers, all verified live against haorui.local: vault path derived from ob-skills `vault_root` (removed from bridge config); bidirectional **memory sharing** via the `claude-memory` ignore-filtered share (two-way probe converged ~15s each direction; shared index verified `.jsonl`-free while haorui's own transcripts stayed local); one-way **ob-skills config** provisioning. Full F151 harness: 10 pass, 0 fail. Known gap (out of scope): `~/bin` shell tools (`ctrl`, `ha`, `exp`) referenced by the synced CLAUDE.md are machine installs and don't travel.
+**F159 (2026-06-12)** — Claude bridge grew three layers, all verified live against haorui.local: vault path derived from dans-anchor-system `vault_root` (removed from bridge config); bidirectional **memory sharing** via the `claude-memory` ignore-filtered share (two-way probe converged ~15s each direction; shared index verified `.jsonl`-free while haorui's own transcripts stayed local); one-way **anchor-system config** provisioning. Full F151 harness: 10 pass, 0 fail. Known gap (out of scope): `~/bin` shell tools (`ctrl`, `ha`, `exp`) referenced by the synced CLAUDE.md are machine installs and don't travel.
 
 **F007 (2026-06-23)** — Agent bridge added. The `bridge agent <host>` subcommand composes `bridge claude` (env-twin) with a deploy step: env-check → vault push-pull → ensure `MY/Bridge agents/` git+stignored → ship brief → tmux launch with cwd identity → /login pause-and-instruct if needed → model pick → bootstrap prompt → local Terminal + Obsidian opens → window arrangement → coordinator stands down. Status doc convention: one canonical doc per host at `~/ob/kmr/MY/Bridge agents/<host> agent.md`, gitignored, transported by SSH-pull on demand (never Syncthing, never git). Heartbeat is a hard convention while work is active. Templates at `~/.claude/skills/bridge/templates/`. Hand-run dress rehearsal: M1+M2 BEAST verification on haorui (the recipe was extracted from that experience).

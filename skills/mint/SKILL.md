@@ -179,7 +179,7 @@ The audit's fix-by-default behavior catches any drift introduced — broken link
 mkdir -p ~/.cache && date +%s > ~/.cache/crank-last-mint.txt
 ```
 
-This is a one-line write at the *end* of every successful mint — after commit, after Q.md regen, after audit-q post-condition. Skip the write on failed mints (the agent stopped without producing a commit / Done bracket); the timer file should reflect *successful mints only*, not turn count. Migrates to F080's `~/.config/ob-skills/crank/last-mint` namespace when F080 ships.
+This is a one-line write at the *end* of every successful mint — after commit, after Q.md regen, after audit-q post-condition. Skip the write on failed mints (the agent stopped without producing a commit / Done bracket); the timer file should reflect *successful mints only*, not turn count. Migrates to F080's `~/.config/anchor-system/crank/last-mint` namespace when F080 ships.
 
 ### 9. On Completion
 

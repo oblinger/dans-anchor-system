@@ -35,7 +35,7 @@ except ImportError:
 CONFIG_DIR = Path.home() / ".config" / "bridge"
 CONFIG_PATH = CONFIG_DIR / "config.yaml"
 HOSTS_PATH = CONFIG_DIR / "hosts.yaml"
-OB_SKILLS_GLOBAL = Path.home() / ".config" / "ob-skills" / "global.yaml"
+ANCHOR_SYSTEM_GLOBAL = Path.home() / ".config" / "anchor-system" / "global.yaml"
 CLAUDE_HOME = Path.home() / ".claude"
 XDG_CONFIG = Path.home() / ".config"
 PROJECTS_DIR = CLAUDE_HOME / "projects"
@@ -51,12 +51,12 @@ MEMORY_STIGNORE = "!/*/memory\n!/*/memory/**\n*\n"
 
 
 def get_vault_root():
-    """vault_root from ob-skills global.yaml — the single source of truth
+    """vault_root from dans-anchor-system global.yaml — the single source of truth
     for 'where the vault is' (F159). Missing => loud failure, no fallback."""
-    g = read_yaml(OB_SKILLS_GLOBAL)
+    g = read_yaml(ANCHOR_SYSTEM_GLOBAL)
     vr = g.get("vault_root")
     if not vr:
-        sys.exit(f"ERROR: vault_root not set in {OB_SKILLS_GLOBAL} — "
+        sys.exit(f"ERROR: vault_root not set in {ANCHOR_SYSTEM_GLOBAL} — "
                  "claude bridge derives the vault sync path from it (F159).")
     return str(Path(vr).expanduser())
 
@@ -219,7 +219,7 @@ def cmd_apply(args):
 
     results = rsync_items(CLAUDE_HOME, includes, excludes, dest)
 
-    # ob-skills config provisioning (F159) — one-way, authored on the dev machine.
+    # anchor-system config provisioning (F159) — one-way, authored on the dev machine.
     cf = env.get("config_home", {})
     cf_results = []
     if cf.get("include"):
@@ -294,11 +294,11 @@ def cmd_verify(args):
                             "ls ~/.claude/projects 2>/dev/null | head -1"],
                            capture_output=True, text=True)
         checks["transcripts_excluded"] = (r.stdout.strip() == "")
-    # ob-skills config landed? (F159)
+    # anchor-system config landed? (F159)
     r = subprocess.run(["ssh", *SSH_OPTS, f"{USER}@{target_host}",
-                        "ls ~/.config/ob-skills/global.yaml 2>/dev/null && echo OK"],
+                        "ls ~/.config/anchor-system/global.yaml 2>/dev/null && echo OK"],
                        capture_output=True, text=True)
-    checks["ob_skills_present"] = "OK" in r.stdout
+    checks["anchor_system_present"] = "OK" in r.stdout
     print(json.dumps({"host": args.host, "checks": checks,
                       "twin_ready": checks["skills_present"] and checks["transcripts_excluded"]},
                      indent=2))

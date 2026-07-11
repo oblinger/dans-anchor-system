@@ -40,7 +40,7 @@ The inventory of things that consume agent moments through the Warden substrate 
 
 Per the user's Q4 ruling, the consumer inventory is extended by what the vault actually carries in Decisions and Rulesets:
 
-- **115 `# RULESET` blocks ≈ 482 rules** — 254 `checked` / 109 `stated` / 82 `sampled` / 3 `tracked` — in ob-skills facets (~49 files), `library/Rulesets/` (~44), disciplines, and examples; every block scoped by `where::` (always / file / anchor / sentinel kinds, `{ANCHOR}`/`{NAME}` pattern variables).
+- **115 `# RULESET` blocks ≈ 482 rules** — 254 `checked` / 109 `stated` / 82 `sampled` / 3 `tracked` — in dans-anchor-system facets (~49 files), `library/Rulesets/` (~44), disciplines, and examples; every block scoped by `where::` (always / file / anchor / sentinel kinds, `{ANCHOR}`/`{NAME}` pattern variables).
 - **22 live `## Decisions` surfaces** vault-wide — documentation only per the [[DAS Decisions]] doctrine (Warden never computes against decisions); they place no demand on the engine beyond confirming rulesets as the sole computable surface.
 
 Consequences for the substrate: applicable-ruleset resolution must be an **indexed table probe** (compile the corpus, keyed by source mtimes — the `/distill` direction), not a per-moment scan; the **kind split is structural** — checked rules are engine-evaluable, stated/sampled can only be *steered* into agent context as reminders, tracked feed the ledger; and covering the confident seven + most of this corpus is the ratified "really good starting set." Full design: [[F131 — Hooks — fast inner-loop check substrate (path-rule alerts first)|F131]] § Substrate scope.

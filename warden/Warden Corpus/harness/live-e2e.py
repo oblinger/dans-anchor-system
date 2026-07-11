@@ -34,7 +34,7 @@ import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-REPO = HERE.parents[2]                        # …/ob-skills
+REPO = HERE.parents[2]                        # …/dans-anchor-system
 WARDEN = REPO / "warden" / "engine" / "warden"
 
 EXPECTED = {"session:start", "prompt:submit", "tool:post:Write", "write:markdown"}

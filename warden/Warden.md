@@ -16,4 +16,4 @@ description: Warden — the rule engine that powers /rule, /audit, and the rules
 
 Warden is **consumed by** the `/rule` and `/audit` skills and underpins the [[DAS Ruleset]] facet — those reference Warden as their engine rather than re-implementing it.
 
-The full design is [[Warden Design]]; the build sequence is [[Warden Roadmap]]. Warden currently lives inside the [[DAS]] (`ob-skills`) repo; Phase 1 of the roadmap extracts it to its own repository, after which it is vendored back into DAS via `git subtree` (single source of truth upstream, one-clone-loadable downstream).
+The full design is [[Warden Design]]; the build sequence is [[Warden Roadmap]]. Warden currently lives inside the [[DAS]] (`dans-anchor-system`) repo; Phase 1 of the roadmap extracts it to its own repository, after which it is vendored back into DAS via `git subtree` (single source of truth upstream, one-clone-loadable downstream).

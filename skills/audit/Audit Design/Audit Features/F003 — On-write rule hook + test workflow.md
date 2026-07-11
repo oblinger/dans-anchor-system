@@ -38,7 +38,7 @@ Rules already carry a **`where::`** clause from F161 (scope kinds `always` / `fi
 
 ### Distill → one hardcoded Python script per hook
 
-The `/distill` skill compiles the applicable rule corpus into a **single self-contained Python script per hook kind**, written to the config folder (`~/.config/ob-skills/hooks/on-write-rules.py`). Everything is **baked in** — no runtime discovery/parse:
+The `/distill` skill compiles the applicable rule corpus into a **single self-contained Python script per hook kind**, written to the config folder (`~/.config/anchor-system/hooks/on-write-rules.py`). Everything is **baked in** — no runtime discovery/parse:
 
 - Module-level **lists/dicts** bound at distill time: `(where-glob → mechanical rule body)` and `(where-glob → [judgment rule titles])`.
 - The script takes the written file's **path + content** (two strings), matches the path against the baked `where::` globs, runs the matching mechanical bodies, and **prints**: violation lines (mechanical) + a compact reminder block (judgment titles).
@@ -69,7 +69,7 @@ Part of this feature: ensure the **rule-set facet** (FCT Ruleset) documents the 
 
 - **M1 — Verify the hook fires.** A trivial `PostToolUse` hook on `Write`/`Edit` proves the trigger fires reliably and can inject feedback the agent sees. De-risk the mechanism before building on it.
 - **M2 — `where::` relevance.** Confirm `where::` on rules (from F161); ensure FCT Ruleset documents it; build the `path → matching-rules` resolver the distiller will bake in.
-- **M3 — Distill → hardcoded per-hook script.** `/distill` compiles the doc/anchor rule corpus (mechanical bodies + `where::` globs + judgment titles) into `~/.config/ob-skills/hooks/on-write-rules.py` with the lists bound at module level.
+- **M3 — Distill → hardcoded per-hook script.** `/distill` compiles the doc/anchor rule corpus (mechanical bodies + `where::` globs + judgment titles) into `~/.config/anchor-system/hooks/on-write-rules.py` with the lists bound at module level.
 - **M4 — On-write surfacing.** Wire the hook to run the distilled script; mechanical violations asserted, judgment reminders surfaced (relevance-gated + throttled). End-to-end on a real write.
 - **M5 — Test workflow.** The extensive checklist (below) runnable as a single workflow; green = the capability works across uses.
 
@@ -110,7 +110,7 @@ The workflow tallies pass/fail across the checklist; **green = the system is ver
 **Choice:** Reuse F161's existing `where::` clause for relevance; do not introduce a parallel `scope::`. One selector vocabulary across `/audit` and the write-hook. Alternative ("scope") rejected — it would fork the vocabulary for no gain.
 
 ### Distill output = one hardcoded Python script per hook, in the config folder
-**Choice:** `/distill` bakes the corpus into a single self-contained `~/.config/ob-skills/hooks/on-write-rules.py` with rule bodies + `where::` globs + judgment titles bound as module-level lists. Matches the user's "everything baked in, the hook loads the script, local variables bound with lists" model. Alternative (load + parse rule sets at hook time) rejected — too slow for an every-write trigger.
+**Choice:** `/distill` bakes the corpus into a single self-contained `~/.config/anchor-system/hooks/on-write-rules.py` with rule bodies + `where::` globs + judgment titles bound as module-level lists. Matches the user's "everything baked in, the hook loads the script, local variables bound with lists" model. Alternative (load + parse rule sets at hook time) rejected — too slow for an every-write trigger.
 
 ### Hook = PostToolUse on Write/Edit/NotebookEdit; advisory, not blocking
 **Choice:** Surface as immediate feedback *after* the write (agent self-corrects), not a `PreToolUse` hard block. `PostToolUse` is the natural fit for "you just wrote X; it violates Y." A blocking `PreToolUse` mode is parked as a future option alongside F166's leveled-fixing. Alternative (block the write) rejected for v1 — too disruptive; the file-already-written + feedback loop is cheaper and matches "flag an error."

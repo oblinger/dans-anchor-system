@@ -2,7 +2,7 @@
 
 Phase 1 of [[F082 — Common ruleset across projects]]. Sweeps every anchor under `vault_root`, parses every rule from per-anchor `rules/` folders and `*Rules.md` files, attributes each rule to the **nearest enclosing anchor** (avoiding double-counting in nested anchors), groups rules by **trait** (per F090's unified trait taxonomy), and clusters similar rules within each trait by Jaccard similarity.
 
-Emits a normalized markdown report at `~/.config/ob-skills/rule/discovery-report.md` that the user (or `/rule curate`) reads to decide which rules belong in which canonical ruleset.
+Emits a normalized markdown report at `~/.config/anchor-system/rule/discovery-report.md` that the user (or `/rule curate`) reads to decide which rules belong in which canonical ruleset.
 
 ## When to Use
 
@@ -20,9 +20,9 @@ python3 ~/.claude/skills/rule/scripts/rule-discover.py [--vault PATH] [--thresho
 ```
 
 Defaults:
-- `--vault` → reads `vault_root` from `ob-skills config`, falling back to `~/ob/kmr`.
+- `--vault` → reads `vault_root` from `anchor-system config`, falling back to `~/ob/kmr`.
 - `--threshold` → `0.5` (Jaccard similarity for cluster membership).
-- Report path → `~/.config/ob-skills/rule/discovery-report.md`.
+- Report path → `~/.config/anchor-system/rule/discovery-report.md`.
 
 The script walks the vault, identifies anchors (`.anchor` markers), prunes sub-anchor subtrees (each rule belongs to its **innermost** enclosing anchor), and writes the report.
 
@@ -107,7 +107,7 @@ Tune via `--threshold`: lower → bigger, looser clusters; higher → tighter, m
 
 ## Output home
 
-`~/.config/ob-skills/rule/discovery-report.md` — under the user-data namespace (per [[SKA System Design]] § Per-user parameters). The report is regenerated on every run (destructive).
+`~/.config/anchor-system/rule/discovery-report.md` — under the user-data namespace (per [[SKA System Design]] § Per-user parameters). The report is regenerated on every run (destructive).
 
 The eventual **curated rulesets** (output of `/rule curate`) live in `~/.claude/skills/rule/sets/<trait>/<set-name>.md` — that's the **skill-asset** namespace (canonical content, version-controlled with the skills repo). Discovery output is data; rulesets are spec.
 

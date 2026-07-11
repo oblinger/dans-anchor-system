@@ -78,9 +78,9 @@ Build a candidate list from two sources, then process each. Sources are tagged s
    If `$clip_path` is non-empty AND the file exists AND its extension matches the audio glob list (`mp3`, `m4a`, `wav`, `caf`, `aac`, `aiff`, `aif`, `mp4`, `m4b` — case-insensitive), include it as a **`no-delete`** candidate. Otherwise skip. (Multi-file clipboard selection is not handled in v1 — only the simple single-file case.)
 2. **Intake-folder candidates**. Read the cross-skill intake-folder list (per F111):
    ```bash
-   ~/.claude/skills/ob-skills/scripts/ob-skills config intake_folders --default "$HOME/Desktop $HOME/Downloads"
+   ~/.claude/skills/anchor-system/scripts/anchor-system config intake_folders --default "$HOME/Desktop $HOME/Downloads"
    ```
-   The helper prints one folder per line (paths already tilde-expanded). Default if the key is absent: `~/Desktop` and `~/Downloads`. The user can extend the list in `~/.config/ob-skills/global.yaml § intake_folders:`. In each folder (non-recursive), list audio files matching the audio glob. These are **`delete-after`** candidates.
+   The helper prints one folder per line (paths already tilde-expanded). Default if the key is absent: `~/Desktop` and `~/Downloads`. The user can extend the list in `~/.config/anchor-system/global.yaml § intake_folders:`. In each folder (non-recursive), list audio files matching the audio glob. These are **`delete-after`** candidates.
 3. If both sources are empty, say so and stop.
 4. For each candidate, invoke `vox-process` by its delete-mode:
    - **`delete-after`** (intake-folder source): `~/.claude/skills/vox/scripts/vox-process --input "<path>"` — files the audio + removes the source

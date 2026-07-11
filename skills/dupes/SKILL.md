@@ -37,12 +37,12 @@ Returns every `.md` basename appearing in ≥2 locations across the vault, case-
 
 ### 2. Read the allowlist + decisions
 
-Look up both paths via the `ob-skills` omnibus helper (per [[F072 — Skills config file (~_.claude_skills.md)]]):
+Look up both paths via the `dans-anchor-system` omnibus helper (per [[F072 — Skills config file (~_.claude_skills.md)]]):
 
 ```bash
-OBSKILLS=~/.claude/skills/ob-skills/scripts/ob-skills
-ALLOWLIST="$("$OBSKILLS" config skill_data.per_skill.dupes.allowlist --default ~/ob/kmr/SYS/ob-skills/dupes/expected.md)"
-DECISIONS="$("$OBSKILLS" config skill_data.per_skill.dupes.decisions --default ~/ob/kmr/SYS/ob-skills/dupes/decisions.md)"
+ANCHOR_SYSTEM=~/.claude/skills/anchor-system/scripts/anchor-system
+ALLOWLIST="$("$ANCHOR_SYSTEM" config skill_data.per_skill.dupes.allowlist --default ~/ob/kmr/SYS/anchor-system/dupes/expected.md)"
+DECISIONS="$("$ANCHOR_SYSTEM" config skill_data.per_skill.dupes.decisions --default ~/ob/kmr/SYS/anchor-system/dupes/decisions.md)"
 ```
 
 Then read both files:
@@ -50,7 +50,7 @@ Then read both files:
 - **`$ALLOWLIST`** — bulleted filename patterns (basename-level allowlist; case-insensitive; `*` glob supported).
 - **`$DECISIONS`** — per-group reviewed decisions (specific path sets, not basenames). Each H2 section is one decision; the `paths::` block under each H2 lists the exact sorted-absolute-path tuple that was reviewed-OK. Per [[F073 — Dupes per-group decisions (reviewed-and-OK without allowlisting the basename)]].
 
-The helper falls back to the `--default` value if `~/.claude/ob-skills.md` doesn't exist or the key isn't set. Skills never fail for missing config.
+The helper falls back to the `--default` value if `~/.claude/anchor-system.md` doesn't exist or the key isn't set. Skills never fail for missing config.
 
 For each collision group, do a **three-way classification check** in this order:
 
@@ -170,7 +170,7 @@ Each edit uses a **nested structure**: bullet for the group + sub-bullets for **
 - `SKILL.md` ×46
 - `README.md` ×12
 
-### Reviewed-group decisions (per-group, K groups) — see ~/ob/kmr/SYS/ob-skills/dupes/decisions.md
+### Reviewed-group decisions (per-group, K groups) — see ~/ob/kmr/SYS/anchor-system/dupes/decisions.md
 - `code-review.md` ×2 (decided 2026-05-15)
 - `RASA.md` ×2 (decided 2026-05-15)
 - …

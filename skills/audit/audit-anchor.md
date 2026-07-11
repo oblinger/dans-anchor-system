@@ -19,7 +19,7 @@ Takes one anchor (or folder) and checks it against the **anchor ruleset** — th
 
 ### A — `.anchor` is set *(the anchor convention)*
 - [ ] A `.anchor` file **exists** in the folder.
-- [ ] It declares a **`slug:`** — UNLESS the anchor is in the one deliberate bare-name zone (the `ob-skills` pillars). An **empty `.anchor`** is a finding: breadcrumb inference skips the anchor and jumps to its grandparent (see the `DAS` incident).
+- [ ] It declares a **`slug:`** — UNLESS the anchor is in the one deliberate bare-name zone (the `dans-anchor-system` pillars). An **empty `.anchor`** is a finding: breadcrumb inference skips the anchor and jumps to its grandparent (see the `DAS` incident).
 - [ ] It declares **`traits:`** identifying the kind (e.g. `[skill]`, `[Code]`, `Collection`).
 
 ### B — anchor page conforms *([[DAS Anchor Page]] § Ruleset, + D06)*

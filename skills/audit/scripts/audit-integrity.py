@@ -2,7 +2,7 @@
 """audit-integrity — detect backlog edits that bypassed backlog-edit.py.
 
 Compares each anchor's backlog file mtime against the last-script-run
-timestamp recorded in ~/.config/ob-skills/backlog-edit/state.json by
+timestamp recorded in ~/.config/anchor-system/backlog-edit/state.json by
 backlog-edit.py.
 
   - bypass — backlog mtime > state last_run + tolerance (an agent or the
@@ -35,7 +35,7 @@ from pathlib import Path
 
 HOME = Path.home()
 VAULT_ROOT = HOME / "ob" / "kmr"
-STATE_FILE = HOME / ".config" / "ob-skills" / "backlog-edit" / "state.json"
+STATE_FILE = HOME / ".config" / "anchor-system" / "backlog-edit" / "state.json"
 SKIP_PATH_FRAGMENTS = ("/.history/", "/worktrees/", "/Yore/", "/.trash/")
 
 

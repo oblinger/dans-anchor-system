@@ -43,7 +43,7 @@ Verify with the math after rendering: `text_px_at_display = font_size × (displa
 /viz d2 "<prose>"
 ```
 
-Files land in the vault's scratch folder under `viz/` (per the ob-skills convention). An auto-generated wrapper markdown serves as the iteration surface.
+Files land in the vault's scratch folder under `viz/` (per the dans-anchor-system convention). An auto-generated wrapper markdown serves as the iteration surface.
 
 ```
 {scratch_root}/viz/<derived-name>.d2
@@ -54,7 +54,7 @@ Files land in the vault's scratch folder under `viz/` (per the ob-skills convent
 Resolve `scratch_root` via:
 
 ```bash
-SCRATCH_ROOT=$(~/.claude/skills/ob-skills/scripts/ob-skills config scratch_root --default "$HOME/ob/kmr/scratch")
+SCRATCH_ROOT=$(~/.claude/skills/anchor-system/scripts/anchor-system config scratch_root --default "$HOME/ob/kmr/scratch")
 mkdir -p "$SCRATCH_ROOT/viz"
 ```
 
@@ -194,5 +194,5 @@ After each successful round-trip, surface:
 
 - Spec: [[F121 — viz d2 — D2 diagrams via ELK]]
 - Methodology: see § "What actually makes a system diagram readable" in [[2026-06-06 system diagram tools]]
-- ob-skills convention for `scratch_root`: [[ob-skills/SKILL]]
+- dans-anchor-system convention for `scratch_root`: [[dans-anchor-system/SKILL]]
 - Trigger word for hand-tune side door: `sublime` (per [[~/.claude/CLAUDE]] trigger table)

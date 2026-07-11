@@ -3,7 +3,7 @@
 
 Loads "rules-as-markdown" from two locations:
   1. Bundled (read-only):    skills/audit/rules-markdown/*.md
-  2. User-space (overrides): ~/.config/ob-skills/audit-markdown/rules/*.md
+  2. User-space (overrides): ~/.config/anchor-system/audit-markdown/rules/*.md
 
 Each rule file is a markdown doc with YAML frontmatter + a single fenced
 ```python ... ``` block defining a `check(file_path: Path) -> list[dict]`
@@ -38,7 +38,7 @@ import sys
 
 def _resolve_vault_root() -> Path:
     """Read vault_root from F080 config; fall back to ~/ob/kmr."""
-    config_path = Path.home() / ".config" / "ob-skills" / "global.yaml"
+    config_path = Path.home() / ".config" / "anchor-system" / "global.yaml"
     if config_path.is_file():
         try:
             import yaml
@@ -57,7 +57,7 @@ VAULT_ROOT = _resolve_vault_root()
 # Rule directories (bundled + user-space).
 SCRIPT_DIR = Path(__file__).resolve().parent
 BUNDLED_RULES_DIR = SCRIPT_DIR.parent / "rules-markdown"
-USER_RULES_DIR = Path.home() / ".config" / "ob-skills" / "audit-markdown" / "rules"
+USER_RULES_DIR = Path.home() / ".config" / "anchor-system" / "audit-markdown" / "rules"
 
 # Exclude paths from --all scan.
 EXCLUDED_PATH_FRAGMENTS = (

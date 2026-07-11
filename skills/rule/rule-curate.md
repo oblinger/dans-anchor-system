@@ -11,7 +11,7 @@ After running `/rule discover` and reading the report. The user wants to consoli
 ### 1. Load the discovery report
 
 ```
-~/.config/ob-skills/rule/discovery-report.md
+~/.config/anchor-system/rule/discovery-report.md
 ```
 
 If missing, fall back to a freshly-run discovery (invoke `/rule discover`). If present, check the date in the H1 — if stale (> 1 day) or the user wants a fresh sweep, re-run discovery first.
@@ -97,7 +97,7 @@ Different code anchors adopt different combinations. Per [[F082]] Q5/Q6: this is
 
 ### Versioning
 
-Rulesets are version-controlled with the skills repo (`ob-skills`). When the user revises a set, the commit message captures the intent. The eventual `/rule sync` (F082 v2) will respect set versions via the three-way merge.
+Rulesets are version-controlled with the skills repo (`dans-anchor-system`). When the user revises a set, the commit message captures the intent. The eventual `/rule sync` (F082 v2) will respect set versions via the three-way merge.
 
 ### Online-literature rules
 
