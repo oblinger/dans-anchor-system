@@ -3,128 +3,130 @@ description: agent inbox — system messages for this anchor; cleared on every p
 ---
 
 # Warden Messages
-[2026-07-06 10:39:13] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 10:39:28] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 12:48:32] [INFO] Warden: added T001 in Ready [Ready] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 12:48:32] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 12:48:45] [INFO] Warden: deleted T001 (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 12:48:45] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 12:48:49] [INFO] Warden: added T001 in Ready [Ready] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 12:48:49] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 12:49:00] [INFO] Warden: updated T001 in Ready [Ready] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 12:49:00] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 12:49:04] [INFO] Warden: added T002 in Later [Blocked] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 12:49:04] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 12:49:15] [INFO] Warden: updated T002 in Later [Blocked] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 12:49:15] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 12:49:51] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 13:00:46] [INFO] Warden: added T003 in Done [Done] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 13:00:46] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 13:01:02] [INFO] Warden: updated T003 in Done [Done] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 13:01:02] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 13:01:18] [INFO] Warden: updated T001 in Done [Done] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 13:01:18] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 13:01:31] [INFO] Warden: updated T001 in Done [Done] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 13:01:31] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 13:18:37] [INFO] Warden: added T004 in Ready [Ready] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 13:18:37] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 13:18:40] [INFO] Warden: added T005 in Ready [Ready] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 13:18:40] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 13:18:44] [INFO] Warden: added T006 in Ready [Ready] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 13:18:44] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 13:18:48] [INFO] Warden: added T007 in Ready [Ready] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 13:18:48] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 13:19:07] [INFO] Warden: updated T004 in Ready [Ready] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 13:19:07] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 13:19:10] [INFO] Warden: updated T005 in Ready [Ready] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 13:19:10] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 13:19:14] [INFO] Warden: updated T006 in Ready [Ready] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 13:19:14] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 13:19:17] [INFO] Warden: updated T007 in Ready [Ready] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 13:19:18] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 13:46:37] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 13:54:05] [INFO] Warden: added F231 in Ready [Ready] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 13:54:05] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 13:54:31] [INFO] Warden: updated F231 in Ready [Ready] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 13:54:31] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 15:28:01] [INFO] Warden: added T008 in Ready [Ready] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 15:28:02] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 16:15:38] [INFO] Warden: updated F231 in Done [Done] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 16:15:38] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 16:15:40] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 16:15:44] [INFO] Warden: updated T008 in Done [Done] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 16:15:44] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 16:16:14] [INFO] Warden: added T009 in Next [Questions] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 16:16:14] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 16:16:16] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 16:16:48] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 16:41:40] [INFO] Warden: updated T004 in Done [Done] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 16:41:40] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 16:41:43] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 16:51:33] [INFO] Warden: updated T007 in Ready [Ready] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 16:51:33] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 19:14:21] [INFO] Warden: added F232 in Now [Ready] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 19:14:21] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 19:14:54] [INFO] Warden: updated F232 in Now [Ready] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 19:14:54] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 19:14:59] [INFO] Warden: added T010 in Now [Ready] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 19:14:59] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 19:15:03] [INFO] Warden: added T011 in Now [Ready] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 19:15:04] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 19:15:08] [INFO] Warden: added T012 in Now [Ready] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 19:15:08] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 19:15:33] [INFO] Warden: added T013 in Next [Questions] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 19:15:33] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 19:15:35] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 19:15:37] [INFO] Warden: added T014 in Later [Ready] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 19:15:37] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 19:15:41] [INFO] Warden: added T015 in Now [Ready] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 19:15:41] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 19:15:43] [INFO] Warden: updated T006 in Done [Done] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 19:15:43] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 19:17:39] [INFO] Warden: updated T005 in Ready [Ready] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 19:17:39] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 19:20:32] [INFO] Warden: updated T010 in Now [Active] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 19:20:33] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 19:27:53] [INFO] Warden: updated T005 in Ready [Ready] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 19:27:53] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 19:34:09] [INFO] Warden: updated T010 in Done [Done] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 19:34:09] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 19:34:29] [INFO] Warden: updated T011 in Now [Active] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 19:34:29] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 19:44:25] [INFO] Warden: updated T011 in Done [Done] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 19:44:25] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 19:44:38] [INFO] Warden: updated T012 in Now [Active] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 19:44:38] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 19:55:54] [INFO] Warden: updated T012 in Done [Done] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 19:55:54] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 19:56:10] [INFO] Warden: updated T015 in Now [Active] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 19:56:10] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 20:02:42] [INFO] Warden: updated T015 in Done [Done] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 20:02:42] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 20:03:20] [INFO] Warden: updated T007 in Ready [Active] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 20:03:21] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 20:04:10] [INFO] Warden: updated F232 in Done [Done] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 20:04:10] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 20:04:13] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 20:13:51] [INFO] Warden: updated T007 in Done [Done] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 20:13:51] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 20:14:21] [INFO] Warden: updated T005 in Ready [Active] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 20:14:21] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 20:14:23] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 20:18:22] [INFO] Warden: updated T005 in Done [Done] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 20:18:22] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 20:18:24] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 21:32:09] [INFO] Warden: updated T013 in Done [Done] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 21:32:09] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 21:32:23] [INFO] Warden: added T016 in Later [Blocked] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 21:32:23] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-06 21:33:00] [INFO] Warden: updated T016 in Later [Blocked] (at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md)
-[2026-07-06 21:33:00] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-10 11:56:52] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-10 11:56:55] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-10 12:05:50] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-10 12:06:21] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-10 12:06:25] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-10 12:06:29] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
-[2026-07-10 12:08:56] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 10:39:13] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 10:39:28] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 12:48:32] [INFO] Warden: added T001 in Ready [Ready] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 12:48:32] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 12:48:45] [INFO] Warden: deleted T001 (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 12:48:45] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 12:48:49] [INFO] Warden: added T001 in Ready [Ready] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 12:48:49] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 12:49:00] [INFO] Warden: updated T001 in Ready [Ready] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 12:49:00] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 12:49:04] [INFO] Warden: added T002 in Later [Blocked] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 12:49:04] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 12:49:15] [INFO] Warden: updated T002 in Later [Blocked] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 12:49:15] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 12:49:51] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 13:00:46] [INFO] Warden: added T003 in Done [Done] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 13:00:46] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 13:01:02] [INFO] Warden: updated T003 in Done [Done] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 13:01:02] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 13:01:18] [INFO] Warden: updated T001 in Done [Done] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 13:01:18] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 13:01:31] [INFO] Warden: updated T001 in Done [Done] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 13:01:31] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 13:18:37] [INFO] Warden: added T004 in Ready [Ready] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 13:18:37] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 13:18:40] [INFO] Warden: added T005 in Ready [Ready] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 13:18:40] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 13:18:44] [INFO] Warden: added T006 in Ready [Ready] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 13:18:44] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 13:18:48] [INFO] Warden: added T007 in Ready [Ready] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 13:18:48] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 13:19:07] [INFO] Warden: updated T004 in Ready [Ready] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 13:19:07] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 13:19:10] [INFO] Warden: updated T005 in Ready [Ready] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 13:19:10] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 13:19:14] [INFO] Warden: updated T006 in Ready [Ready] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 13:19:14] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 13:19:17] [INFO] Warden: updated T007 in Ready [Ready] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 13:19:18] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 13:46:37] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 13:54:05] [INFO] Warden: added F231 in Ready [Ready] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 13:54:05] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 13:54:31] [INFO] Warden: updated F231 in Ready [Ready] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 13:54:31] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 15:28:01] [INFO] Warden: added T008 in Ready [Ready] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 15:28:02] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 16:15:38] [INFO] Warden: updated F231 in Done [Done] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 16:15:38] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 16:15:40] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 16:15:44] [INFO] Warden: updated T008 in Done [Done] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 16:15:44] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 16:16:14] [INFO] Warden: added T009 in Next [Questions] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 16:16:14] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 16:16:16] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 16:16:48] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 16:41:40] [INFO] Warden: updated T004 in Done [Done] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 16:41:40] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 16:41:43] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 16:51:33] [INFO] Warden: updated T007 in Ready [Ready] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 16:51:33] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 19:14:21] [INFO] Warden: added F232 in Now [Ready] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 19:14:21] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 19:14:54] [INFO] Warden: updated F232 in Now [Ready] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 19:14:54] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 19:14:59] [INFO] Warden: added T010 in Now [Ready] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 19:14:59] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 19:15:03] [INFO] Warden: added T011 in Now [Ready] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 19:15:04] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 19:15:08] [INFO] Warden: added T012 in Now [Ready] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 19:15:08] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 19:15:33] [INFO] Warden: added T013 in Next [Questions] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 19:15:33] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 19:15:35] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 19:15:37] [INFO] Warden: added T014 in Later [Ready] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 19:15:37] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 19:15:41] [INFO] Warden: added T015 in Now [Ready] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 19:15:41] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 19:15:43] [INFO] Warden: updated T006 in Done [Done] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 19:15:43] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 19:17:39] [INFO] Warden: updated T005 in Ready [Ready] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 19:17:39] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 19:20:32] [INFO] Warden: updated T010 in Now [Active] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 19:20:33] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 19:27:53] [INFO] Warden: updated T005 in Ready [Ready] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 19:27:53] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 19:34:09] [INFO] Warden: updated T010 in Done [Done] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 19:34:09] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 19:34:29] [INFO] Warden: updated T011 in Now [Active] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 19:34:29] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 19:44:25] [INFO] Warden: updated T011 in Done [Done] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 19:44:25] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 19:44:38] [INFO] Warden: updated T012 in Now [Active] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 19:44:38] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 19:55:54] [INFO] Warden: updated T012 in Done [Done] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 19:55:54] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 19:56:10] [INFO] Warden: updated T015 in Now [Active] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 19:56:10] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 20:02:42] [INFO] Warden: updated T015 in Done [Done] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 20:02:42] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 20:03:20] [INFO] Warden: updated T007 in Ready [Active] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 20:03:21] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 20:04:10] [INFO] Warden: updated F232 in Done [Done] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 20:04:10] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 20:04:13] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 20:13:51] [INFO] Warden: updated T007 in Done [Done] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 20:13:51] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 20:14:21] [INFO] Warden: updated T005 in Ready [Active] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 20:14:21] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 20:14:23] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 20:18:22] [INFO] Warden: updated T005 in Done [Done] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 20:18:22] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 20:18:24] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 21:32:09] [INFO] Warden: updated T013 in Done [Done] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 21:32:09] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 21:32:23] [INFO] Warden: added T016 in Later [Blocked] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 21:32:23] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-06 21:33:00] [INFO] Warden: updated T016 in Later [Blocked] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-07-06 21:33:00] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-10 11:56:52] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-10 11:56:55] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-10 12:05:50] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-10 12:06:21] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-10 12:06:25] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-10 12:06:29] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-10 12:08:56] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-11 06:58:18] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-07-11 06:58:29] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited

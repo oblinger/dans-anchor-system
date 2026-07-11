@@ -8,7 +8,7 @@ The **design internals** — the `{skill} Design` / `{skill} PRD` pages that spe
 
 | -[[DAS Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Design](hook://p/DAS%20Design)<br>: the design pipeline — per-skill design docs + PRDs, grouped by group |
 | --- | --- |
-| Related | [[DAS Docs\|Docs]],  [[DAS Skills\|Skills]],  [[DAS Design Folder\|Design (facet)]],  [[DAS\|ob-skills]],   |
+| Related | [[DAS Docs\|Docs]],  [[DAS Skills\|Skills]],  [[DAS Design Folder\|Design (facet)]],  [[DAS\|dans-anchor-system]],   |
 |  | **GROUPS** |
 | [[SKL Anchor\|Anchor]]+ | [[DAS Anchor Toolkit Design\|Anchor Toolkit]],  [[DAS Create Design\|Create]],  [[DAS Install Design\|Install]],  [[DAS Migrate Design\|Migrate]],  [[DAS Move Design\|Move]],  [[DAS Publish Design\|Publish]],  [[DAS Streams Design\|Streams]],  [[DAS WP Design\|WP]],  [[DAS Yore Design\|Yore]],   |
 | [[SKL Track\|Track]]+ | [[DAS Ask Design\|Ask]],  [[DAS Groom Design\|Groom]],  [[DAS Groom PRD\|Groom PRD]],  [[DAS Backlog]],  [[DAS Messages]],  [[DAS Plan]],  [[DAS workflow]],   |

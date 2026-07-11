@@ -7,12 +7,12 @@ facts skills consume (GSA path, default exp remote, Mail-rule names, …), one
 block (optionally fenced ```yaml) followed by prose. Non-secret facts only.
 
 Path resolution (first hit wins):
-    1. env  OB_SKILLS_USER_ENV_DOC
+    1. env  ANCHOR_SYSTEM_USER_ENV_DOC
     2. global.yaml  user_env_doc
     3. computed default  {vault_root}/MY/User Environment.md
-       (vault_root: env OB_SKILLS_VAULT_ROOT → global.yaml vault_root → ~/ob/kmr)
+       (vault_root: env ANCHOR_SYSTEM_VAULT_ROOT → global.yaml vault_root → ~/ob/kmr)
 
-Usage (called by the `ob-skills env` subcommand):
+Usage (called by the `anchor-system env` subcommand):
     user_env.py                       → print the resolved doc path
     user_env.py <section>             → print that section's H2 body
     user_env.py <section> <key>       → print one scalar (exit 1 if absent)
@@ -27,7 +27,7 @@ import re
 import sys
 
 GLOBAL_YAML = os.path.expanduser(
-    os.environ.get("OB_SKILLS_ROOT", "~/.config/ob-skills") + "/global.yaml"
+    os.environ.get("ANCHOR_SYSTEM_ROOT", "~/.config/anchor-system") + "/global.yaml"
 )
 H2_RE = re.compile(r"^##\s+(.*?)\s*$")
 FENCE_RE = re.compile(r"^\s*```")
@@ -50,14 +50,14 @@ def _yaml_global(key: str) -> str | None:
 
 
 def resolve_doc() -> str:
-    env = os.environ.get("OB_SKILLS_USER_ENV_DOC")
+    env = os.environ.get("ANCHOR_SYSTEM_USER_ENV_DOC")
     if env:
         return _expand(env)
     cfg = _yaml_global("user_env_doc")
     if cfg:
         return _expand(cfg)
     vault = (
-        os.environ.get("OB_SKILLS_VAULT_ROOT")
+        os.environ.get("ANCHOR_SYSTEM_VAULT_ROOT")
         or _yaml_global("vault_root")
         or "~/ob/kmr"
     )
@@ -95,12 +95,12 @@ def _key_in_body(body: list[str], key: str) -> str | None:
 def get(section: str, key: str | None = None, default=None):
     """Importable accessor — read a User Environment value from Python.
 
-    The Python counterpart to the `ob-skills env` CLI, so a script can read a
+    The Python counterpart to the `anchor-system env` CLI, so a script can read a
     user-env value without shelling out:
 
         import sys, os
         sys.path.insert(0, os.path.expanduser(
-            "~/.claude/skills/ob-skills/scripts"))
+            "~/.claude/skills/anchor-system/scripts"))
         import user_env
         engine = user_env.get("viz", "create_engine", default="builtin")
 
@@ -132,11 +132,11 @@ def cmd_get(doc: str, section: str | None, key: str | None) -> int:
     try:
         lines = open(doc, encoding="utf-8").read().splitlines()
     except OSError:
-        sys.stderr.write(f"ob-skills env: doc not found: {doc}\n")
+        sys.stderr.write(f"anchor-system env: doc not found: {doc}\n")
         return 2
     b = _section_bounds(lines, section)
     if b is None:
-        sys.stderr.write(f"ob-skills env: no '## {section}' section in {doc}\n")
+        sys.stderr.write(f"anchor-system env: no '## {section}' section in {doc}\n")
         return 1
     body = lines[b[0]:b[1]]
     if key is None:
@@ -145,7 +145,7 @@ def cmd_get(doc: str, section: str | None, key: str | None) -> int:
     val = _key_in_body(body, key)
     if val is None:
         sys.stderr.write(
-            f"ob-skills env: key '{key}' not found in section '{section}'\n"
+            f"anchor-system env: key '{key}' not found in section '{section}'\n"
         )
         return 1
     print(val)
@@ -209,7 +209,7 @@ def main(argv: list[str]) -> int:
         rest = argv[1:]
         if len(rest) < 3:
             sys.stderr.write(
-                "usage: ob-skills env --set <section> <key> <value>\n"
+                "usage: anchor-system env --set <section> <key> <value>\n"
             )
             return 2
         section, key = rest[0], rest[1]

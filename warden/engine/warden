@@ -27,7 +27,7 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-REPO = HERE.parents[1]                       # …/ob-skills (the rule-corpus root)
+REPO = HERE.parents[1]                       # …/dans-anchor-system (the rule-corpus root)
 sys.path.insert(0, str(HERE))
 
 import warden_compile as wc      # noqa: E402

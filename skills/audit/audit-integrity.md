@@ -1,12 +1,12 @@
 # /audit integrity
 
-Detect backlog edits that bypassed the workflow mutation API (`state` / legacy `backlog-edit.py` — both share the same state-file). Cross-references each anchor's `<NAME> Backlog.md` mtime against the last-script-run timestamp in `~/.config/ob-skills/backlog-edit/state.json`. Any backlog whose mtime is newer than the script's last recorded run for that anchor is a **bypass** — either an agent edited the file directly (a discipline failure) or the user edited it (in Obsidian, etc.).
+Detect backlog edits that bypassed the workflow mutation API (`state` / legacy `backlog-edit.py` — both share the same state-file). Cross-references each anchor's `<NAME> Backlog.md` mtime against the last-script-run timestamp in `~/.config/anchor-system/backlog-edit/state.json`. Any backlog whose mtime is newer than the script's last recorded run for that anchor is a **bypass** — either an agent edited the file directly (a discipline failure) or the user edited it (in Obsidian, etc.).
 
 The audit does **not** distinguish agent-bypass from user-direct-edit. Both look identical at the filesystem level. The report flags both; the user filters mentally by familiarity with their own activity.
 
 ## Mechanism
 
-Both `state` and the legacy `backlog-edit.py` write one entry per anchor to `~/.config/ob-skills/backlog-edit/state.json` on every invocation:
+Both `state` and the legacy `backlog-edit.py` write one entry per anchor to `~/.config/anchor-system/backlog-edit/state.json` on every invocation:
 
 ```json
 {
@@ -69,7 +69,7 @@ The user's own edits show up as bypasses. This is a fundamental limit of the mec
 
 ## Composition
 
-Calls into the shared `~/.config/ob-skills/backlog-edit/state.json` state file (written by both `state` and the legacy `backlog-edit.py`). Per the script-vs-skill split, this skill is **report-only** — it does not modify any backlog. The state file is read-only from this skill's perspective.
+Calls into the shared `~/.config/anchor-system/backlog-edit/state.json` state file (written by both `state` and the legacy `backlog-edit.py`). Per the script-vs-skill split, this skill is **report-only** — it does not modify any backlog. The state file is read-only from this skill's perspective.
 
 ## Cross-references
 

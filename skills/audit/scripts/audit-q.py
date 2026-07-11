@@ -84,15 +84,15 @@ import sys
 # default to vault-wide scope — Obsidian operates on the vault, audits follow
 # the same scope; single-anchor scoping defeats the purpose of cross-cutting
 # drift detection. Per F080, the value comes from
-# ~/.config/ob-skills/global.yaml; fallback to ~/ob/kmr if config missing.
+# ~/.config/anchor-system/global.yaml; fallback to ~/ob/kmr if config missing.
 # Do NOT add a --project flag that narrows scope by default; if a narrowing
 # flag is wanted, make it explicit opt-in.
 
 
 def _resolve_vault_root() -> Path:
-    """Read vault_root from F080 config (~/.config/ob-skills/global.yaml),
+    """Read vault_root from F080 config (~/.config/anchor-system/global.yaml),
     falling back to ~/ob/kmr if the config file or key is missing."""
-    config_path = Path.home() / ".config" / "ob-skills" / "global.yaml"
+    config_path = Path.home() / ".config" / "anchor-system" / "global.yaml"
     if config_path.is_file():
         try:
             import yaml
@@ -3707,9 +3707,9 @@ def derive_anchor_banner(name: str, backlog_file: Path,
 
 
 def _rulesets_roots() -> list[Path]:
-    """Roots under the ob-skills repo that hold rulesets (standalone catalog +
+    """Roots under the dans-anchor-system repo that hold rulesets (standalone catalog +
     facet/discipline-embedded RULESET blocks)."""
-    base = Path(__file__).resolve().parents[3]  # …/ob-skills
+    base = Path(__file__).resolve().parents[3]  # …/dans-anchor-system
     return [base / "library" / "Rulesets", base / "facets", base / "disciplines"]
 
 

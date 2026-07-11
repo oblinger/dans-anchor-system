@@ -224,7 +224,7 @@ pub fn event_to_moments(data: &Value) -> Vec<String> {
 /// Python `Path.resolve(strict=False)`: absolutize + follow symlinks, and for
 /// a nonexistent leaf canonicalize the nearest existing ancestor and re-append
 /// the remainder. `find_anchor` must walk the RESOLVED path (F232 C1) — a
-/// relative or symlinked event path (e.g. `~/.claude/skills` → ob-skills) must
+/// relative or symlinked event path (e.g. `~/.claude/skills` → dans-anchor-system) must
 /// resolve to the same governing anchor as the Python reference.
 fn resolve_lenient(p: &Path) -> PathBuf {
     fn go(p: &Path) -> PathBuf {

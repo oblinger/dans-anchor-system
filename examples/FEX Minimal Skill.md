@@ -9,7 +9,7 @@ description: "the leanest complete file set for a skill, with a live instance"
 | Anchor | [[HBR]] (reference anchor) |
 | Related | [[FEX Minimal Facet]],  [[DAS Skills]],  [[granularity]],   |
 
-The **minimal-skill capsule**: the smallest file set that fully captures a skill *and its design thinking*, with **nothing empty**. Same lazy discipline as [[FEX Minimal Facet]] — uniform structure, files exist only when they carry content. The one structural difference from a facet: a skill's **spec is its runbook, and the runbook lives in the published repo** ([[DAS Skills]] / `ob-skills` on GitHub), so the design thinking is kept *out* of the published repo and lives in the parallel SKA design tree.
+The **minimal-skill capsule**: the smallest file set that fully captures a skill *and its design thinking*, with **nothing empty**. Same lazy discipline as [[FEX Minimal Facet]] — uniform structure, files exist only when they carry content. The one structural difference from a facet: a skill's **spec is its runbook, and the runbook lives in the published repo** ([[DAS Skills]] / `dans-anchor-system` on GitHub), so the design thinking is kept *out* of the published repo and lives in the parallel SKA design tree.
 
 ## The capsule
 

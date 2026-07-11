@@ -11,7 +11,7 @@ description: "Skills — the `/`-invocable runbooks"
 
 | -[[DAS Skills]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Skills](hook://p/DAS%20Skills)<br>: Skills — the `/`-invocable runbooks |
 | --- | --- |
-| Related | [[DAS Facets\|Facets]],  [[DAS Disciplines\|Disciplines]],  [[DAS Traits\|Traits]],  [[DAS Examples\|Examples]],  [[DAS Rulesets\|Rulesets]],  [[DAS\|ob-skills]],   |
+| Related | [[DAS Facets\|Facets]],  [[DAS Disciplines\|Disciplines]],  [[DAS Traits\|Traits]],  [[DAS Examples\|Examples]],  [[DAS Rulesets\|Rulesets]],  [[DAS\|dans-anchor-system]],   |
 |  |  |
 |  | **SKILL GROUPS** |
 | [[SKL Anchor\|Anchor]]+ | [[DAS Anchor Toolkit\|Anchor Toolkit]],  [[DAS Create\|Create]],  [[DAS Install\|Install]],  [[DAS Migrate\|Migrate]],  [[DAS Move\|Move]],  [[DAS Publish\|Publish]],  [[DAS Streams\|Streams]],  [[DAS WP\|WP]],  [[DAS Yore\|Yore]],   |

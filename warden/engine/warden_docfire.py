@@ -31,7 +31,7 @@ sys.path.insert(0, str(HERE))
 import warden_compile as wc  # noqa: E402
 
 # audit-plan lives in the sibling skills tree; load it by path (it is not a
-# package). …/ob-skills/skills/audit/scripts/audit-plan.py — `warden/engine/`
+# package). …/dans-anchor-system/skills/audit/scripts/audit-plan.py — `warden/engine/`
 # is two parents below the repo root.
 _REPO_ROOT = HERE.parents[1]
 _AUDIT_PLAN = _REPO_ROOT / "skills" / "audit" / "scripts" / "audit-plan.py"

@@ -1,19 +1,19 @@
 ---
-name: ob-skills
-description: Internal helper — reads + writes the unified `~/.config/ob-skills/` namespace (per F080) for skill configuration, runtime state, and accumulated data. Not user-invocable; consumed by other skills via the `ob-skills config` / `ob-skills path` CLI.
+name: anchor-system
+description: Internal helper — reads + writes the unified `~/.config/anchor-system/` namespace (per F080) for skill configuration, runtime state, and accumulated data. Not user-invocable; consumed by other skills via the `anchor-system config` / `anchor-system path` CLI.
 user_invocable: false
 ---
 
-# ob-skills
+# anchor-system
 
-The `ob-skills` folder hosts the **unified skill namespace** that every skill in this suite reads + writes against. Not a user-facing skill — its job is to be the canonical entry point to `~/.config/ob-skills/`.
+The `anchor-system` folder hosts the **unified skill namespace** that every skill in this suite reads + writes against. Not a user-facing skill — its job is to be the canonical entry point to `~/.config/anchor-system/`.
 
 Per [[F080 — Skill config — unified namespace YAML]] (supersedes F072).
 
 ## The namespace
 
 ```
-~/.config/ob-skills/
+~/.config/anchor-system/
 ├── global.yaml                  # cross-skill preferences (vault_root, etc.)
 ├── <skill>/
 │   ├── config.yaml              # skill's overrides for its hardcoded defaults
@@ -39,17 +39,17 @@ Seeded on first run. Skills add new keys as they need them.
 |---|---|---|
 | `vault_root` | `~/ob/kmr` | Obsidian vault root. Audit / hygiene / link-uniqueness scripts walk this. Per [[SKA System Design]] § Per-user parameters. |
 | `kmr_root` | `~/ob/kmr` | Synonym in practice; kept distinct in schema in case they diverge. |
-| `skill_data_root` | `~/ob/kmr/SYS/ob-skills` | Default vault-side root for skill-owned persistent data (per F071). |
+| `skill_data_root` | `~/ob/kmr/SYS/anchor-system` | Default vault-side root for skill-owned persistent data (per F071). |
 | `default_agent_mode` | `Drive` | Default operating mode for new anchors. Per-anchor `.anchor` files override via `agent_modes:`. |
-| `scratch_root` | (no hardcoded default — must be set in `global.yaml`; this user has it at `~/ob/kmr/_/URL/SCR/Scratch`) | Inside-vault anchor for skill working files the user may want to browse in Obsidian (viz/diagram drafts, intermediate exports, preview artifacts). Distinct from `cache/` (under `~/.config/ob-skills/<skill>/cache/` — hidden, backup-skippable). Skills typically scope further into a sub-folder named after themselves (e.g. `{scratch_root}/viz/`). |
+| `scratch_root` | (no hardcoded default — must be set in `global.yaml`; this user has it at `~/ob/kmr/_/URL/SCR/Scratch`) | Inside-vault anchor for skill working files the user may want to browse in Obsidian (viz/diagram drafts, intermediate exports, preview artifacts). Distinct from `cache/` (under `~/.config/anchor-system/<skill>/cache/` — hidden, backup-skippable). Skills typically scope further into a sub-folder named after themselves (e.g. `{scratch_root}/viz/`). |
 
 ## Read tier (high to low)
 
 ```
-1. env var (OB_SKILLS_<KEY> or OB_SKILLS_<SKILL>_<KEY>)
-2. ~/.config/ob-skills/<skill>/config.yaml (per-skill)
-3. ~/.config/ob-skills/global.yaml          (cross-skill)
-4. ~/.claude/ob-skills.md                   (legacy F072 — being retired)
+1. env var (ANCHOR_SYSTEM_<KEY> or ANCHOR_SYSTEM_<SKILL>_<KEY>)
+2. ~/.config/anchor-system/<skill>/config.yaml (per-skill)
+3. ~/.config/anchor-system/global.yaml          (cross-skill)
+4. ~/.claude/anchor-system.md                   (legacy F072 — being retired)
 5. --default <value>                        (caller's safe fallback)
 ```
 
@@ -59,13 +59,13 @@ Higher tiers override lower. Skills NEVER fail for missing config — `--default
 
 ```bash
 # Read a global parameter
-VAULT="$(~/.claude/skills/ob-skills/scripts/ob-skills config vault_root --default ~/ob/kmr)"
+VAULT="$(~/.claude/skills/anchor-system/scripts/anchor-system config vault_root --default ~/ob/kmr)"
 
 # Read a per-skill parameter
-ALLOWLIST="$(~/.claude/skills/ob-skills/scripts/ob-skills config dupes allowlist --default "$DEFAULT_PATH")"
+ALLOWLIST="$(~/.claude/skills/anchor-system/scripts/anchor-system config dupes allowlist --default "$DEFAULT_PATH")"
 
 # Get + ensure a per-skill namespace path (creates dir if absent)
-SKILL_DIR="$(~/.claude/skills/ob-skills/scripts/ob-skills path fleet)"
+SKILL_DIR="$(~/.claude/skills/anchor-system/scripts/anchor-system path fleet)"
 echo "remotes:" >> "$SKILL_DIR/remotes.yaml"
 ```
 
@@ -73,27 +73,27 @@ From Python, skip the bash wrapper and read YAML directly — it's two lines:
 
 ```python
 import yaml
-data = yaml.safe_load(open(Path.home() / ".config/ob-skills/global.yaml")) or {}
+data = yaml.safe_load(open(Path.home() / ".config/anchor-system/global.yaml")) or {}
 vault_root = data.get("vault_root", "~/ob/kmr")
 ```
 
 ## CLI surface
 
-- **`ob-skills config <key> [--default <v>]`** — global read. Dotted keys traverse nested YAML maps. Falls back to F072 legacy file for backward compat with un-migrated keys.
-- **`ob-skills config <skill> <key> [--default <v>]`** — per-skill read.
-- **`ob-skills path <skill>`** — print + ensure the per-skill namespace path. Use to anchor write paths.
-- **`ob-skills help`** — usage.
+- **`anchor-system config <key> [--default <v>]`** — global read. Dotted keys traverse nested YAML maps. Falls back to F072 legacy file for backward compat with un-migrated keys.
+- **`anchor-system config <skill> <key> [--default <v>]`** — per-skill read.
+- **`anchor-system path <skill>`** — print + ensure the per-skill namespace path. Use to anchor write paths.
+- **`anchor-system help`** — usage.
 
 ## Migration from F072
 
-F072's `~/.claude/ob-skills.md` (custom `key :: value` markdown) is **read as a fallback** during migration, so existing consumer skills don't break. New writes always go to the YAML namespace.
+F072's `~/.claude/anchor-system.md` (custom `key :: value` markdown) is **read as a fallback** during migration, so existing consumer skills don't break. New writes always go to the YAML namespace.
 
 To migrate a specific key:
-1. Move the value from `~/.claude/ob-skills.md` into the right YAML file:
-   - `skill_data.root` → `~/.config/ob-skills/global.yaml` `skill_data_root:`
-   - `skill_data.per_skill.<skill>.<key>` → `~/.config/ob-skills/<skill>/config.yaml` `<key>:`
+1. Move the value from `~/.claude/anchor-system.md` into the right YAML file:
+   - `skill_data.root` → `~/.config/anchor-system/global.yaml` `skill_data_root:`
+   - `skill_data.per_skill.<skill>.<key>` → `~/.config/anchor-system/<skill>/config.yaml` `<key>:`
 2. Delete the F072 line.
-3. Verify with `ob-skills config <key> --default MISSING` — should print the new value, not MISSING.
+3. Verify with `anchor-system config <key> --default MISSING` — should print the new value, not MISSING.
 
 When all keys are migrated and the F072 file is empty, delete it. The bash script will silently skip the missing file.
 

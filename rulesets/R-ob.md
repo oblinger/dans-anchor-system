@@ -19,4 +19,4 @@ include:: [[R-ob-cmd-proc]], [[R-ob-observability]], [[R-ob-state-mgt]], [[R-ob-
 
 # Notes
 
-A small canonical set of rules Dan applies to *every* project he owns. Not trait-scoped (a personal-Code-anchor and a personal-Skill-anchor both pull this in); not domain-scoped (applies to docs, code, configs alike). Naming "ob" mirrors the `ob-` prefix used elsewhere in Dan's tooling (`ob-skills`, `ob-utils`, vault root `~/ob/`). Rename if a better umbrella name surfaces later.
+A small canonical set of rules Dan applies to *every* project he owns. Not trait-scoped (a personal-Code-anchor and a personal-Skill-anchor both pull this in); not domain-scoped (applies to docs, code, configs alike). Naming "ob" mirrors the `ob-` prefix used elsewhere in Dan's tooling (`dans-anchor-system`, `ob-utils`, vault root `~/ob/`). Rename if a better umbrella name surfaces later.

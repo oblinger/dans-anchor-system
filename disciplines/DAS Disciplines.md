@@ -6,7 +6,7 @@ description: "cross-cutting concepts the agent reads"
 
 | -[[DAS Disciplines]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[disciplines]] → [DAS Disciplines](hook://p/DAS%20Disciplines)<br>: cross-cutting concepts the agent reads |
 | --- | --- |
-| Related | [[DAS Skills\|Skills]],  [[DAS Facets\|Facets]],  [[DAS Traits\|Traits]],  [[DAS Examples\|Examples]],  [[DAS Rulesets\|Rulesets]],  [[DAS\|ob-skills]],   |
+| Related | [[DAS Skills\|Skills]],  [[DAS Facets\|Facets]],  [[DAS Traits\|Traits]],  [[DAS Examples\|Examples]],  [[DAS Rulesets\|Rulesets]],  [[DAS\|dans-anchor-system]],   |
 |  |  |
 | Disciplines | [[DAS anchor-dag\|anchor-dag]],  [[DAS ask-format\|ask-format]],  [[DAS code-repo\|code-repo]],  [[DAS dated-entry-stream\|dated-entry-stream]],  [[DAS file-association\|file-association]],  [[DAS granularity\|granularity]],  [[DAS markdown\|markdown]],  [[DAS mode\|mode]],  [[DAS progressive-disclosure\|progressive-disclosure]],  [[DAS role\|role]],  [[DAS rust\|rust]],  [[DAS technical-answer\|technical-answer]],  [[DAS verification\|verification]],  [[DAS workflow\|workflow]],  [[DAS Linked Mode\|Linked Mode]],   |
 | --- | |

@@ -39,8 +39,8 @@ Read the trait spec file from `~/.claude/skills/CAB/cab-traits/` for each of thi
 If the anchor's `.anchor` declares a `remotes:` list (a Sparse-Linked anchor per [[Anchor Remotes]] — the "docs in the vault, code at `~/ob/proj`, synced via git" pattern), verify the declaration against what is actually on disk. This is a read-only check delegated to the `code` tool (the `remotes:` realization logic has no place in this runbook's ad-hoc checks — it lives with the tool that builds the layout):
 
 ```bash
-# Path: ob-skills/skills/ob-skills/scripts/code  (the `das` host). Read-only.
-ob-skills/skills/ob-skills/scripts/code audit <anchor-path>
+# Path: dans-anchor-system/skills/anchor-system/scripts/code  (the `das` host). Read-only.
+dans-anchor-system/skills/anchor-system/scripts/code audit <anchor-path>
 ```
 
 `code audit` verifies, for the anchor:

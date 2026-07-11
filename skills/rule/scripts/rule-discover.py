@@ -6,10 +6,10 @@ Phase 1 of F082 (Common ruleset across projects).
 Usage:
     rule-discover [--vault PATH] [--report PATH] [--threshold FLOAT]
 
-  --vault PATH       Root to scan. Defaults to ob-skills config vault_root,
+  --vault PATH       Root to scan. Defaults to anchor-system config vault_root,
                      then ~/ob/kmr (see SKA System Design § Per-user parameters).
   --report PATH      Where to write the markdown report.
-                     Defaults to ~/.config/ob-skills/rule/discovery-report.md.
+                     Defaults to ~/.config/anchor-system/rule/discovery-report.md.
   --threshold FLOAT  Jaccard similarity for clustering (0-1). Default 0.5.
 
 The report's structure:
@@ -54,11 +54,11 @@ from pathlib import Path
 # --- config -----------------------------------------------------------------
 
 def vault_root_default() -> Path:
-    """Resolve vault_root via ob-skills config, falling back to ~/ob/kmr."""
+    """Resolve vault_root via anchor-system config, falling back to ~/ob/kmr."""
     try:
         import subprocess
         r = subprocess.run(
-            ["ob-skills", "config", "vault_root", "--default", str(Path.home() / "ob" / "kmr")],
+            ["anchor-system", "config", "vault_root", "--default", str(Path.home() / "ob" / "kmr")],
             capture_output=True, text=True, timeout=2,
         )
         if r.returncode == 0 and r.stdout.strip():
@@ -69,7 +69,7 @@ def vault_root_default() -> Path:
 
 
 def report_path_default() -> Path:
-    return Path.home() / ".config" / "ob-skills" / "rule" / "discovery-report.md"
+    return Path.home() / ".config" / "anchor-system" / "rule" / "discovery-report.md"
 
 
 # --- anchor + trait detection ----------------------------------------------

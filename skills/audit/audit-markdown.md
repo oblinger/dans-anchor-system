@@ -1,6 +1,6 @@
 ---
 name: audit-markdown
-description: Markdown hygiene rule runner. Checks touched (or all) markdown files against a rules library — bundled rules read-only, user-added rules in ~/.config/ob-skills/audit-markdown/rules/. Per F081 v1 minimal — no MCP, no Stop-hook auto-register yet, manually invokable.
+description: Markdown hygiene rule runner. Checks touched (or all) markdown files against a rules library — bundled rules read-only, user-added rules in ~/.config/anchor-system/audit-markdown/rules/. Per F081 v1 minimal — no MCP, no Stop-hook auto-register yet, manually invokable.
 ---
 
 # /audit markdown
@@ -37,7 +37,7 @@ Exit code: `0` if no findings, `1` if any errors (severity = `error`), `2` on us
 Two locations, in load order (later overrides earlier on name collision):
 
 1. **Bundled rules** — `skills/audit/rules-markdown/*.md` (read-only, ships with the skill).
-2. **User-space rules** — `~/.config/ob-skills/audit-markdown/rules/*.md` (per F080 namespace; user-added).
+2. **User-space rules** — `~/.config/anchor-system/audit-markdown/rules/*.md` (per F080 namespace; user-added).
 
 Each rule is one `.md` file with this shape:
 
@@ -88,8 +88,8 @@ If a rule file lacks the python block or `check` function, the loader prints a w
 
 ```bash
 # Create your rule
-mkdir -p ~/.config/ob-skills/audit-markdown/rules
-cat > ~/.config/ob-skills/audit-markdown/rules/no-wiki-bare.md <<'EOF'
+mkdir -p ~/.config/anchor-system/audit-markdown/rules
+cat > ~/.config/anchor-system/audit-markdown/rules/no-wiki-bare.md <<'EOF'
 ---
 name: no-wiki-bare
 severity: warning

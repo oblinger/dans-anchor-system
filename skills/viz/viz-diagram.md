@@ -26,7 +26,7 @@ library/Rulesets/Visualization/R-tufte-data-ink.md
 library/Rulesets/SVG/R-svg-hygiene.md
 ```
 
-These paths are **relative to the ob-skills repo root**. The rulesets ship in the repo alongside the skills, so they travel with any clone — never hardcode an absolute vault path (it breaks on every other machine). Resolve them from this skill's own directory: `skills/viz/` → `../../library/Rulesets/…` (the `..` segments resolve through the `~/.claude/skills` install symlink to the real repo root).
+These paths are **relative to the dans-anchor-system repo root**. The rulesets ship in the repo alongside the skills, so they travel with any clone — never hardcode an absolute vault path (it breaks on every other machine). Resolve them from this skill's own directory: `skills/viz/` → `../../library/Rulesets/…` (the `..` segments resolve through the `~/.claude/skills` install symlink to the real repo root).
 
 Read the umbrella first to confirm the current sub-set list; the umbrella is canonical (don't trust this list if it's drifted). The other reads can run in parallel.
 
@@ -53,7 +53,7 @@ Default when no SVG path is in the argument.
 
 ## Refinement pass (engine from user environment)
 
-After authoring (or any hand-edit that may have nudged a label onto a box), apply the user's chosen **refinement engine** — `ob-skills env viz refine_engine` (default `svg-jiggle`; see SKILL.md § Engine selection). `none` → skip the pass; a skill name (e.g. `drawio`) → hand the SVG to that skill's refinement instead. For the default `svg-jiggle`, run the geometry-aware repair pass to mechanically clear **label-over-box** overlaps before the glance:
+After authoring (or any hand-edit that may have nudged a label onto a box), apply the user's chosen **refinement engine** — `anchor-system env viz refine_engine` (default `svg-jiggle`; see SKILL.md § Engine selection). `none` → skip the pass; a skill name (e.g. `drawio`) → hand the SVG to that skill's refinement instead. For the default `svg-jiggle`, run the geometry-aware repair pass to mechanically clear **label-over-box** overlaps before the glance:
 
 ```bash
 python3 skills/viz/svg-jiggle.py "<path>.svg" -o "<path>.jiggled.svg" --report

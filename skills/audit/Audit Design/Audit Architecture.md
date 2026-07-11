@@ -37,7 +37,7 @@ The skills and scripts of the system — boxes, not a flow:
 |---|---|
 | **Audit skills** | The `/audit` orchestrator + its actions (`structure · doc · q · architecture · markdown · dispatch · …`). The user-facing surface and the per-surface runbooks. |
 | **Rule-set scripts** | `audit-plan.py` — resolves rule sets, walks `include::` containment, runs mechanical checks, judges, and fixes. Plus the per-surface checkers (`audit-q.py`, `audit-architecture.py`, `audit-markdown.py`). |
-| **Distillation → hook** | `/distill` merges the applicable rule bodies into one fast module; the **on-write hook code** (`~/.config/ob-skills/hooks/`) runs that module on every write. |
+| **Distillation → hook** | `/distill` merges the applicable rule bodies into one fast module; the **on-write hook code** (`~/.config/anchor-system/hooks/`) runs that module on every write. |
 | **Safety guard** | `aow-safety.py` gates every fix — a repair that would drop a letter or digit is reverted to a flag (the mechanical floor under the never-delete invariant, [[F005 — Doc audit-on-write — vault-wide rollout + safety guard\|F005]]). |
 
 ## Two consumers, one corpus

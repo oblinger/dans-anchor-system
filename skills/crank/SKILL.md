@@ -257,7 +257,7 @@ If `FATIGUE_GATE_ACTIVE` and the proposed stop reason is fatigue-flavored, take 
 
 **First-ever crank (no timer file):** treat as `elapsed = 0`; suppress all fatigue-flavored stops on first invocation. Forgiving for the long-tail "started fresh" case.
 
-**Storage location:** `~/.cache/crank-last-mint.txt` v1; migrates to F080's `~/.config/ob-skills/crank/last-mint` namespace when F080 ships.
+**Storage location:** `~/.cache/crank-last-mint.txt` v1; migrates to F080's `~/.config/anchor-system/crank/last-mint` namespace when F080 ships.
 
 
 ## Mechanism — outer loop over `/mint`, with parallelism

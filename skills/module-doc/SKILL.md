@@ -41,7 +41,7 @@ Feature spec: `[[F119 — api-doc skill + audit-api-doc.py — author audit iter
 
 Before any authoring step, validate the environment is set up:
 
-1. **Facet readable** — `[[FCT Module Doc]]` exists at `~/ob/kmr/SYS/Bespoke/Skill Agent/ob-skills/facets/FCT Code/FCT Module Doc.md`. Use `ha -p "FCT Module Doc"` to confirm. If missing, STOP — surface to user.
+1. **Facet readable** — `[[FCT Module Doc]]` exists at `~/ob/kmr/SYS/Bespoke/Skill Agent/dans-anchor-system/facets/FCT Code/FCT Module Doc.md`. Use `ha -p "FCT Module Doc"` to confirm. If missing, STOP — surface to user.
 2. **viz/excalidraw available** — `~/.claude/skills/viz/excalidraw_to_svg.py` exists. Required for figure authoring. If missing, surface to user before proceeding.
 3. **audit script available** — `~/.claude/skills/audit/scripts/audit-module-doc.py` exists. Required for the iterate loop.
 4. **Source exists and is readable** — the target source file/folder exists; not a broken symlink.

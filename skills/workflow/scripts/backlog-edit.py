@@ -60,7 +60,7 @@ from pathlib import Path
 HOME = Path.home()
 VAULT_ROOT = HOME / "ob" / "kmr"
 SENTINEL = HOME / ".claude" / "state" / "agent-messages"
-STATE_FILE = HOME / ".config" / "ob-skills" / "backlog-edit" / "state.json"
+STATE_FILE = HOME / ".config" / "anchor-system" / "backlog-edit" / "state.json"
 
 VALID_HORIZONS = {"Now", "Next", "Later", "Active", "Ready", "Done", "Verify", "Icebox"}
 ICEBOX_HORIZON = "Icebox"
@@ -1173,7 +1173,7 @@ def append_messages(slug, summary, backlog_path):
 def write_state(slug, result):
     """Persist the last-invocation timestamp + details for /audit integrity.
 
-    State lives at ~/.config/ob-skills/backlog-edit/state.json. Each anchor
+    State lives at ~/.config/anchor-system/backlog-edit/state.json. Each anchor
     has one entry, overwritten on every invocation — only the most recent
     write per anchor is tracked. `/audit integrity` compares the backlog
     file's mtime against this timestamp to detect script-bypassing direct

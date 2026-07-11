@@ -17,5 +17,5 @@ The design of Harbor: what it's for, how it's shaped, and the rulings behind it.
 | [[HBR Features]] |  |
 | --- | |
 | [[HBR CLI Help.txt]] |  |
+| [[HBR Design/HBR Decisions]] | durable rulings |
 | [[HBR Design/HBR Features]] | feature index |
-| [[HBR Design/HBR PRD]] | product requirements — why Harbor exists and what v1 must deliver |

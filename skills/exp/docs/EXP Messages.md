@@ -4,4 +4,4 @@ description: agent inbox — system messages for this anchor; cleared on every p
 
 # EXP Messages
 
-[2026-06-13 14:43:23] [INFO] backlog at SYS/Bespoke/Skill Agent/ob-skills/skills/exp/docs/EXP Backlog.md was edited
+[2026-06-13 14:43:23] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/skills/exp/docs/EXP Backlog.md was edited

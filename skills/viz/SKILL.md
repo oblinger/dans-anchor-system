@@ -194,15 +194,15 @@ If `Detected font:` shows `DejaVu Sans` instead of `Inter`, fonts didn't install
 
 Who **creates** a diagram and who **refines** (cleans up) it are user-configurable via the [[User Environment]] doc (per F182, `## viz` section), so the user picks the engines without editing this skill. Read them at the start of any create flow — both fall back to defaults when unset, so the skill works with no user-env configured.
 
-- **Creation engine** — `ob-skills env viz create_engine` (default `builtin`):
+- **Creation engine** — `anchor-system env viz create_engine` (default `builtin`):
   - `builtin` / unset → use this skill's own per-action engine (the Actions table — svg / d2 / dot / mermaid / …). The normal path.
   - any other value naming an installed skill (e.g. `drawio`) → **hand creation off to that skill**: invoke `/<engine>` with the user's description and let it produce the artifact, skipping the built-in author step.
-- **Refinement engine** — `ob-skills env viz refine_engine` (default `svg-jiggle`), applied **after an SVG exists**:
+- **Refinement engine** — `anchor-system env viz refine_engine` (default `svg-jiggle`), applied **after an SVG exists**:
   - `svg-jiggle` → run the built-in deterministic geometric repair: `python3 skills/viz/svg-jiggle.py "<path>.svg" -o "<path>.jiggled.svg" --report` (clears label-over-box / overweighted-head / … per [[R-svg-jiggle]]).
   - any other value naming a skill (e.g. `drawio`) → hand the artifact to that skill's refinement / vision self-check.
   - `none` → skip refinement.
 
-Read with the CLI (`ob-skills env viz <key>`) or, from Python, the importable `user_env.get("viz", "<key>", default=…)` in `skills/ob-skills/scripts/user_env.py`.
+Read with the CLI (`anchor-system env viz <key>`) or, from Python, the importable `user_env.get("viz", "<key>", default=…)` in `skills/anchor-system/scripts/user_env.py`.
 
 ## Dispatch
 

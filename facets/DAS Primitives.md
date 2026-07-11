@@ -2,7 +2,7 @@
 description: "primitives — the kinds of authored object the system is built from"
 ---
 # Primitives
-The primitives — the reflexive facets that define the kinds of authored object the ob-skills system is built from.
+The primitives — the reflexive facets that define the kinds of authored object the dans-anchor-system system is built from.
 
 | -[[DAS Primitives]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Primitives](hook://p/DAS%20Primitives)<br>: primitives — the kinds of authored object the system is built from |
 | --- | --- |
