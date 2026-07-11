@@ -6,7 +6,7 @@ description: User guides for code-development skills — planning, architecture,
 
 User guides for code-development skills — planning, architecture, implementation, testing, release, plus the flow primitives that connect agents and PRs.
 
-Note: [[DAS Feature]] (the feature-lifecycle skill) lives in [[SKL Drive]] now — it commissions features of any kind, not just code-shaped ones.
+Note: ~~[[DAS Feature]]~~ (the feature-lifecycle skill) lives in [[SKL Drive]] now — it commissions features of any kind, not just code-shaped ones.
 
 | -[[SKL Dev]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[skill-docs]] → [SKL Dev](hook://p/SKL%20Dev)<br>: User guides for code-development skills — planning, architecture, implementation, testing, release, plus the flow primitives that connect agents and PRs. |
 | --- | --- |
