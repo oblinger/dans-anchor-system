@@ -11,7 +11,7 @@ The **reading surface** — one user-facing page per skill (how to *use* it, no 
 | Related | [[DAS Skills\|Skills]],  [[DAS Design\|Design]],  [[DAS Facets\|Facets]],  [[DAS\|ob-skills]],   |
 |  | **GROUPS** |
 | [[SKL Anchor\|Anchor]]+ | [[DAS Anchor Toolkit\|Anchor Toolkit]],  [[DAS CAB\|CAB]],  [[DAS Create\|Create]],  [[DAS Install\|Install]],  [[DAS Migrate\|Migrate]],  [[DAS Move\|Move]],  [[DAS Publish\|Publish]],  [[DAS Streams\|Streams]],  [[DAS WP\|WP]],  [[DAS Yore\|Yore]],   |
-| [[SKL Track\|Track]]+ | [[DAS Ask\|Ask]],  [[DAS Groom\|Groom]],  [[DAS ask-inline\|ask-inline]],  [[SKL Backlog]],  [[SKL Messages]],  [[SKL Plan]],  [[SKL Workflow]],   |
+| [[SKL Track\|Track]]+ | [[DAS Ask\|Ask]],  [[DAS Groom\|Groom]],  [[DAS ask-inline\|ask-inline]],  [[DAS Backlog]],  [[DAS Messages]],  [[DAS Plan]],  [[DAS workflow]],   |
 | [[SKL Drive\|Drive]]+ | [[DAS Feature\|Feature]],  [[DAS Crank\|Crank]],  [[DAS Mint\|Mint]],  [[DAS Finalize\|Finalize]],  [[DAS Land\|Land]],  [[DAS Fortify\|Fortify]],   |
 | [[SKL Dev\|Dev]]+ | [[DAS Architect\|Architect]],  [[DAS Code\|Code]],  [[DAS Fix\|Fix]],  [[DAS Pilot Flow\|Pilot Flow]],  [[DAS PR Flow\|PR Flow]],   |
 | [[SKL Doc\|Doc]]+ | [[DAS Edit\|Edit]],  [[DAS MD\|MD]],  [[DAS Viz\|Viz]],  [[DAS IO\|IO]],   |

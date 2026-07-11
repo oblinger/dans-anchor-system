@@ -71,7 +71,7 @@ Lean is a behavioral mode, not a structural one. Compositional expectations:
   - **Wall-clock cost is irrelevant; user-interruption cost is the constraint.** Take longer; ask less. **Batch open questions via [[query]] — never trickle.**
   - **Bug fixes, hardening, test expansion, log expansion, invariant pinning — autonomous.** Application-shape changes (visible behavior, public API, architectural reshape) require approval.
   - **Resume Drive when foundation is firm.** Re-derive the working hypothesis from new evidence — do not re-use the old one. When the test suite covers the gaps and the model converges, switch back.
-  - Full user-facing spec: `~/.claude/skills/fortify/SKILL.md`. Mode framework: [[SKL Mode]].
+  - Full user-facing spec: `~/.claude/skills/fortify/SKILL.md`. Mode framework: [[DAS mode]].
 
 ## Skills and audits that attach
 
@@ -82,7 +82,7 @@ Lean is a behavioral mode, not a structural one. Compositional expectations:
 
 ## History
 
-- **2026-05-XX** — "Cautious" posture introduced as the trade-off-posture sibling to Drive in [[SKL Mode]]. Initially had no SKL doc of its own — invoked solely via `/fortify`.
+- **2026-05-XX** — "Cautious" posture introduced as the trade-off-posture sibling to Drive in [[DAS mode]]. Initially had no SKL doc of its own — invoked solely via `/fortify`.
 - **2026-06-01** — Renamed to bare-noun `Lean` per [[F077 — PR mode — mode-as-trait architecture with per-anchor opt-in|F077]] Q7. Promoted to first-class CAB Trait per F077 Q11.
 - **2026-06-04** — Trait spec created (this file) with F091 `compact` trigger declaration. Codifies the existing `/fortify` methodology as a declarable per-anchor Trait.
 
@@ -93,5 +93,5 @@ Lean is a behavioral mode, not a structural one. Compositional expectations:
 - **Keep this file declarative; push procedural how-to to the skill.** The operational "how to fortify" content lives in `~/.claude/skills/fortify/SKILL.md`; § The load-bearing rules here is a *summary* with a pointer, not a re-spec.
 - **Don't soften the Drive ⊕ Lean exclusion** — the cadence-Trait cardinality (at most one) is what `/audit aspects` will enforce; don't allow "both at once" semantics.
 - **The `compact` payload and `role-pilot.md` POST-COMPACT § Operating Mode — Lean are two surfaces of one spec** — keep the `### compact` bullets imperative and aligned with the role file; when the `/fortify` methodology evolves, mirror the change here.
-- **Cross-references that must stay aligned:** [[Drive]] (sibling cadence Trait — exclusion must be symmetric), [[CAB Aspects]] (Trait detection rule), [[SKL Mode]] (mode framework parent), F077 (naming + first-class promotion), F091 (trigger discipline). Breaking any silently desyncs the cadence-Trait subsystem.
+- **Cross-references that must stay aligned:** [[Drive]] (sibling cadence Trait — exclusion must be symmetric), [[CAB Aspects]] (Trait detection rule), [[DAS mode]] (mode framework parent), F077 (naming + first-class promotion), F091 (trigger discipline). Breaking any silently desyncs the cadence-Trait subsystem.
 - **Don't pile non-cadence-Trait content here** — anchor-local rules, identity-Trait content, and `/fortify` runbook details belong in anchor `Decisions.md`, the relevant identity-Trait file, or the fortify skill respectively.

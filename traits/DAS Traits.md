@@ -24,13 +24,13 @@ The five above are **identity traits** — single-valued ("at most one of {Simpl
 
 **Git-aspect traits** (mutually exclusive — exactly one per anchor, per [[CAB Aspects]] composability matrix) shape how the agent handles git boundaries (per [[F077 — PR mode — mode-as-trait architecture with per-anchor opt-in|F077]] v2 architecture, Q12 resolved 2026-06-01):
 
-- **[[Commit]]** — agent commits at logical boundaries without asking; new-commit-on-top, never amends; never auto-pushes. **Default for Code anchors.** Requires `Code`; excludes `PR` and `NoGit`. Spec: [[SKL Mode Git Commit]].
-- **[[PR]]** — every state-touching commit gated through a pull request on its own branch with user review before further work continues. For high-blast-radius repositories. Requires `Code` and a PR-capable host; excludes `Commit` and `NoGit`. Spec: [[SKL Mode Git PR]].
+- **[[Commit]]** — agent commits at logical boundaries without asking; new-commit-on-top, never amends; never auto-pushes. **Default for Code anchors.** Requires `Code`; excludes `PR` and `NoGit`. Spec: [[DAS mode]].
+- **[[PR]]** — every state-touching commit gated through a pull request on its own branch with user review before further work continues. For high-blast-radius repositories. Requires `Code` and a PR-capable host; excludes `Commit` and `NoGit`. Spec: [[DAS mode]].
 - **[[NoGit]]** — anchor has no per-anchor git repository; the agent performs no git operations on it. **Default for non-Code anchors.** Excludes `Code`, `Skill`, `Commit`, `PR`.
 
 **Cadence traits** (mutually exclusive — exactly one per anchor at a time) shape the agent's recurring trade-off posture:
 
-- **[[Drive]]** — agent-driven, optimistic, minimum-interruption posture. **System default.** Excludes `Lean`. Spec: [[SKL Mode Drive]]; F091 `compact` trigger inlines the load-bearing rules at POST-COMPACT.
+- **[[Drive]]** — agent-driven, optimistic, minimum-interruption posture. **System default.** Excludes `Lean`. Spec: [[DAS mode]]; F091 `compact` trigger inlines the load-bearing rules at POST-COMPACT.
 - **[[Lean]]** — cautious, distrust-the-foundation, fortify-before-adding posture. Used when work has stopped converging. Per-turn invocation via `/fortify`; declarative per-anchor activation via `Lean` in `traits:`. Excludes `Drive`.
 
 ## Traits vs. facets

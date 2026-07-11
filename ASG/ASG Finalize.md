@@ -49,7 +49,7 @@ Steps that don't apply (no feature doc, no module docs, no roadmap milestone) ar
 
 ## Workflow position
 
-The finalize discipline transitions a unit of work from `[Verify]` → `[Done]` (per the [[SKL Workflow|workflow discipline]]). It is the gate between "implementation looks done" and "this is actually closed and recorded."
+The finalize discipline transitions a unit of work from `[Verify]` → `[Done]` (per the [[DAS workflow|workflow discipline]]). It is the gate between "implementation looks done" and "this is actually closed and recorded."
 
 ## What it does NOT do
 

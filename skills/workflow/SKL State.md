@@ -184,4 +184,4 @@ echo '**Q5 — rewritten** — fresh body.' | state q rewrite F091 -n 5
 - [[DAS ask-format]] — Q-format spec the script enforces.
 - [[F127 — Always-render ask report — ask invariant render + audit + glance before dialogue|F127]] — the render-audit-glance invariant `state q` post-conditions implement.
 - [[F128 — Status script as source-of-truth for Q-management — extend backlog-edit.py|F128]] — the predecessor shipped 2026-06-07 (Q-management arrived under the old CLI shape).
-- [[SKL Workflow]] — user-voice discipline page.
+- [[DAS workflow]] — user-voice discipline page.

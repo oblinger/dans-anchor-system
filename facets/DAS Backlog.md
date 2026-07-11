@@ -167,6 +167,18 @@ Items typically flow `Now [ ] → Now [Ready] → ## Active → Now [Verify] →
 
 **Legacy `## Upcoming`.** Anchors that pre-date the horizons discipline may still have `## Upcoming` as the catch-all pre-ready section. Treat it as a transitional alias for `## Now` until the anchor is migrated. New backlogs use `## Now / ## Next / ## Later` from the start.
 
+**Why horizons exist.** Without them the backlog is binary — items are either "in" (visible, competing for attention) or in the Icebox (effectively invisible). Deferring an item then has no good home: the Icebox makes it disappear, `## Now` keeps it competing with imminent work. The three ordered tiers capture the gradient between *imminent* and *indefinite* without leaving the backlog.
+
+**Now vs Active — a common confusion.** `## Now` is a *scheduling intent* ("we want to pull this in soon"); `## Active` is a *state* ("we have started"). They are not interchangeable — an item sits in `## Now` until work begins, then moves to `## Active`.
+
+**Two axes, not one.** Horizon (*when*) and workflow state (*how far*) are independent — every combination is legal:
+
+- `## Later` + `[Ready]` — design is clean; just no plan for when.
+- `## Now` + `[Designing]` — we want this soon, but it still has open questions.
+- `## Now` + `[Active]` — unusual; once active the item moves to the `## Active` H2.
+
+**The boredom test.** Before demoting an item Now → Next or Next → Later, ask: *"Am I avoiding this because there's a real reason it should wait, or because I'm bored of it?"* If it's the latter, leave it in Now and either schedule it for real or genuinely demote it to the Icebox. A horizon move should reflect a real shift in commitment, not procrastination dressed up as planning — the agent applies this test before suggesting a horizon demotion.
+
 For items that are explicitly parked / out-of-scope-for-now / someday-maybe, use the optional [[DAS Icebox]] file rather than a Deferred section here.
 
 ## Definition of Ready
@@ -251,7 +263,7 @@ Items graduate from Backlog to Todo or Roadmap when they become priorities, or m
 # RULESET R-backlog
 include::
 where:: `file:{anchor}/**/* Backlog.md`
-description:: SKA skill anchor for the backlog-horizons skill
+description:: Organizes a backlog along two independent axes — *when* the user wants work to happen (horizon) and *how far* the work has progressed (workflow state).
 
 What `/audit doc` checks on a backlog file. The skills that maintain it are `/groom` (frontier planning) and the `state` tool (mutations); these are the file-invariants the groomed state must satisfy. Format of this set: [[DAS Ruleset]].
 

@@ -66,7 +66,7 @@ Push is a behavioral mode — no on-disk format requirements. Compositional expe
   - **Terse subject-only when small; body when substantial. No boilerplate.**
   - **Push remote must exist** — if there's no configured upstream, surface that (a real blocker), don't ask whether to push.
   - **Inside `/pr-flow`** → defer to PR-mode rules until `/pr-flow` exits.
-  - Mode framework: [[SKL Mode]].
+  - Mode framework: [[DAS mode]].
 
 ## Skills and audits that attach
 

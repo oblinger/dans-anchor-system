@@ -22,7 +22,7 @@ Drive is **orthogonal to identity traits**. `Code + Track + Drive + Commit` is t
 
 ## The load-bearing rules
 
-(Authoritative agent-facing form lives in `role-pilot.md` POST-COMPACT RELOAD § Operating Mode — Drive. Full user-facing spec: [[SKL Mode Drive]]. The rules in summary:)
+(Authoritative agent-facing form lives in `role-pilot.md` POST-COMPACT RELOAD § Operating Mode — Drive. Full user-facing spec: [[DAS mode]]. The rules in summary:)
 
 1. **Tokens are not the constraint.** The agent's compute is cheap; the user's attention is not. Prefer more thorough work even when it costs more tokens — as long as the alternative is interrupting the user.
 2. **Optimistic by default.** When two paths exist and neither is clearly worse, the agent picks the more complete one and proceeds. It does NOT ask "should we do A or B?" unless the wrong choice has real consequences.
@@ -78,13 +78,13 @@ Drive is a behavioral mode, not a structural one. Compositional expectations:
   - **DO ask** when there's a genuine safety / performance / deployment-risk / design-direction trade-off OR genuinely ambiguous user intent. Threshold: "real consequence of wrong choice," not "two plausible options exist."
   - **DON'T ask — assume-and-announce — when the choice is VISIBLE and has LOW RECOVERABILITY COST** (per F068 amendment 2026-05-22). Emit `**Assuming: <decision>.**` (bold, own line) in the moment AND, for `/feature` work, add an H3 entry under `## Resolved`. Still ASK when: invisible OR high recoverability cost OR irreversible OR interface-decision-sticky. New-feature-without-approval always asks.
   - **Per-turn override:** "just do the simple thing" / "quick fix" / "minimal" → lean posture for that turn. "Be thorough about X" → reaffirms Drive.
-  - Full user-facing spec: [[SKL Mode Drive]]. Mode framework: [[SKL Mode]].
+  - Full user-facing spec: [[DAS mode]]. Mode framework: [[DAS mode]].
 
 ## Skills and audits that attach
 
 - **Affects every state-touching skill that has a "do I ask or assume?" decision point** — `/feature`, `/mint`, `/groom`, `/audit`, `/ask`, etc. Each follows the assume-and-announce rule + the DO-ask thresholds above.
 - **Audit:** `/audit aspects` (proposed, F090 Phase 6) will check the Drive ⊕ Lean exclusion (only one cadence Trait).
-- **Discipline:** [[SKL Mode Drive]] (user-facing spec); compact-trigger prose above is the source-of-truth for POST-COMPACT inlining.
+- **Discipline:** [[DAS mode]] (user-facing spec); compact-trigger prose above is the source-of-truth for POST-COMPACT inlining.
 
 ## History
 
@@ -95,9 +95,9 @@ Drive is a behavioral mode, not a structural one. Compositional expectations:
 
 # BRIEF
 
-*(Maintainer note — cautions for whoever edits this Trait spec. The normative spec is the body above; the full user-facing narrative is [[SKL Mode Drive]].)*
+*(Maintainer note — cautions for whoever edits this Trait spec. The normative spec is the body above; the full user-facing narrative is [[DAS mode]].)*
 
-- **This file summarizes and links out; it does not duplicate.** The user-facing operating-mode narrative lives at [[SKL Mode Drive]]; trait-system rules in [[DAS Traits]]; the inlined runtime copy in `role-pilot.md` POST-COMPACT RELOAD. Don't inline content that belongs to those surfaces.
+- **This file summarizes and links out; it does not duplicate.** The user-facing operating-mode narrative lives at [[DAS mode]]; trait-system rules in [[DAS Traits]]; the inlined runtime copy in `role-pilot.md` POST-COMPACT RELOAD. Don't inline content that belongs to those surfaces.
 - **Inclusion test for a rule added to § The load-bearing rules** — it must be a recurring "do I ask or assume?" trade-off decision, and it must match what `role-pilot.md` POST-COMPACT RELOAD § Operating Mode — Drive enforces. A rule living only here and not in the POST-COMPACT inlining isn't load-bearing yet.
 - **The `compact` trigger block and `role-pilot.md` § Operating Mode — Drive are two surfaces of one spec** — when this block changes, re-sync the role file; don't let them drift.
 - **Don't soften the Drive ⊕ Lean exclusion** — any edit weakening the at-most-one-cadence-Trait rule contradicts F077 and [[CAB Aspects]]; route such proposals through a feature, not a quiet edit here.
