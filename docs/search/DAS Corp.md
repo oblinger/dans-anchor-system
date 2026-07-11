@@ -2,7 +2,7 @@
 description: "skim → click into the rule that applies"
 ---
 # SKL Corp
-| -[[DAS Corp]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Corp](hook://p/DAS%20Corp)<br>: skim → click into the rule that applies |
+| -[[DAS Corp]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Corp](hook://p/DAS%20Corp)<br>: skim → click into the rule that applies|
 | --- | --- |
 | Corp rules (any verb) | [[SRC rules/corp\|corp.md]],   |
 | Verbs | [[SRC rules/find-corp\|find-corp]],  [[SRC rules/profile-corp\|describe-corp]],  [[SRC rules/survey-corp\|survey-corp]],   |

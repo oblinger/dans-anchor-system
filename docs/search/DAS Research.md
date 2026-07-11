@@ -4,7 +4,7 @@ description: "the SKL Research doc"
 # /Research
 Structured research workflows. You give it a target (entity / topic / person / book / skill concept), it gathers sources, synthesizes findings, and produces a report in the RRR (Research Reports) anchor at `~/ob/kmr/RR/RR Research Reports/`.
 
-| -[[DAS Research]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Research](hook://p/DAS%20Research)<br>: the SKL Research doc |
+| -[[DAS Research]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Research](hook://p/DAS%20Research)<br>: the SKL Research doc|
 | --- | --- |
 
 Every research action shares the same output skeleton: a dated report folder with a results table at the top, written analysis below, and full URLs in a Sources section so links work outside Obsidian.

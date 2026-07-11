@@ -4,7 +4,7 @@ description: "How to use the development workflow — from planning through impl
 # SKL Code
 The Dev skill is a 9-stage development lifecycle covering everything from initial planning to release and orchestration. Each stage has numbered actions (10s for Plan, 20s for Architect, 30s for Implement, etc.) that can be invoked individually or run as part of a larger orchestration flow.
 
-| -[[DAS Code]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Code](hook://p/DAS%20Code)<br>: the SKL Code doc |
+| -[[DAS Code]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Code](hook://p/DAS%20Code)<br>: How to use the development workflow — from planning through implementation and release.|
 | --- | --- |
 | Related | [[skills/code/SKILL.md\|SKILL]],   |
 | [[DAS Code Design\|Design]] |  |
