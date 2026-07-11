@@ -1,9 +1,14 @@
 ---
-description: "The **workflow discipline** owns the canonical state graph for any unit of work — what state it's in, what each state means, and what advances it."
+name: workflow
+description: "The canonical state graph for any unit of work — what state it's in, what each state means, and what advances it."
+user_invocable: false
 ---
-# Workflow Discipline
 
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[disciplines]] → [DAS workflow](hook://p/DAS%20workflow)
+# Workflow Discipline
 The **workflow discipline** owns the canonical state graph for any unit of work — what state it's in, what each state means, and what advances it. It is the single source of truth for the Definition of Ready and the state vocabulary used across the backlog, feature lifecycle, roadmap, and PRD.
+
+**Related:** [[DAS Disciplines]],  [[DAS verification]],  [[DAS Backlog]]
 
 This is a discipline (`user_invocable: false`) — you don't invoke it directly. Other skills (`/feature`, `/groom`, `/mint`, `/finalize`, `/code release`) cite it when they advance an item between states.
 

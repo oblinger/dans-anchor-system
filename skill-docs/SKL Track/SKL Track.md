@@ -8,10 +8,8 @@ The disciplines + tool that govern *what's being tracked* inside an anchor's `{s
 
 | -[[SKL Track]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[skill-docs]] → [SKL Track](hook://p/SKL%20Track)<br>: The disciplines + tool that govern what's tracked. |
 | --- | --- |
-| [[SKL Workflow\|Workflow]] | The canonical state graph for any unit of work — what state it's in, what each state means, and what advances it. |
-| [[SKL Backlog\|Backlog]] | Organizes a backlog along two independent axes — *when* the user wants work to happen (horizon) and *how far* the work has progressed (workflow state). |
+| [[DAS workflow\|Workflow]] | The canonical state graph for any unit of work — what state it's in, what each state means, and what advances it. |
+| [[DAS Backlog\|Backlog]] | Organizes a backlog along two independent axes — *when* the user wants work to happen (horizon) and *how far* the work has progressed (workflow state). |
 | Verification | Tier system for `[Verify]` items — agent-immediate / agent-over-time / user-passive / user-explicit. Doc pending. |
 | Audit-q | Mechanical validator for backlog + Q.md integrity (link existence, bracket validity, H2 purity, etc.). Reads CAB Backlog spec; ships in `audit/scripts/audit-q.py`. Doc pending. |
 | --- | |
-| [[SKL Messages]] | agent inbox — system messages for this anchor; cleared on every pause. See |
-| [[SKL Plan]] | Plan — federated orchestrator for a project anchor's planning artifacts. The Track-cluster sibling of /crank. |

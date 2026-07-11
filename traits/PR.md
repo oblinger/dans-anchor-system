@@ -22,7 +22,7 @@ PR is **orthogonal to identity traits**. `Code + Track + PR` is the canonical "p
 
 ## The four load-bearing rules
 
-(Authoritative agent-facing form will land in `role-pilot.md` POST-COMPACT RELOAD when [[F077 — PR mode — mode-as-trait architecture with per-anchor opt-in|F077]] v1 mints. Full user-facing spec at [[SKL Mode Git PR]]. The rules in summary:)
+(Authoritative agent-facing form will land in `role-pilot.md` POST-COMPACT RELOAD when [[F077 — PR mode — mode-as-trait architecture with per-anchor opt-in|F077]] v1 mints. Full user-facing spec at [[DAS mode]]. The rules in summary:)
 
 1. **PR per unit of work — never commit directly to protected branches.** Each `/mint`-ed feature, each landed `/feature`, each bug-fix gets its own branch + PR. The agent does NOT push to `main` / `master` / `develop` / any protected branch.
 2. **Hard gate at the PR — pause for user review before next unit.** After opening a PR, the agent stops and surfaces it. The next unit of work does not start until the PR is reviewed (merged or rejected).
@@ -70,14 +70,14 @@ PR is a behavioral mode, not a structural one. Compositional expectations:
   - **Always new commit on top within a PR — never amend.** Corrections are *additional* commits within the PR branch. The user may squash on merge.
   - **Auto-push within feature branches is OK; never to protected branches.** PR mode reverses the Commit-mode "never auto-push" rule for *feature branches* (push is required to open the PR), but maintains it absolutely for protected branches.
   - **Mechanism:** reuse the [[SKA pr-flow|/pr-flow]] methodology — same branching, same PR creation, same wait-for-review semantics. PR mode just declares that this is the default for *every* state-touching commit, not opt-in per skill invocation.
-  - Full user-facing spec: [[SKL Mode Git PR]]. Mode framework: [[SKL Mode]].
+  - Full user-facing spec: [[DAS mode]]. Mode framework: [[DAS mode]].
 
 ## Skills and audits that attach
 
 - **Affects every skill that produces a commit on a PR-declared anchor.** Each gets its work into a feature branch + PR; surfaces the PR for review; pauses.
 - **Reuses `/pr-flow`** as the underlying mechanism for PR creation + review-wait.
 - **Audit:** `/audit aspects` (proposed, F090 Phase 6) will check the `PR` ⇒ `Code` co-requirement, the Git-aspect mutual exclusivity, and the PR-capable-host requirement.
-- **Discipline:** [[SKL Mode Git PR]] (user-facing spec); compact-trigger prose above is the source-of-truth for POST-COMPACT inlining.
+- **Discipline:** [[DAS mode]] (user-facing spec); compact-trigger prose above is the source-of-truth for POST-COMPACT inlining.
 
 ## Status
 
@@ -93,8 +93,8 @@ PR is a behavioral mode, not a structural one. Compositional expectations:
 
 *(Maintainer note — cautions for whoever edits this Git-aspect Trait spec. Edits here change the semantics for every anchor that declares `PR`; the normative spec is the body above, and the composability matrix lives in [[CAB Aspects]].)*
 
-- **Scope / inclusion test** — content belongs only if it describes what declaring `PR` as a Trait *means* (detection, the four rules, composability, wiring, audits). Per-anchor declarations live in each `.anchor`; PR-creation/branch-wait mechanics live in [[SKA pr-flow]]; user-facing mode prose in [[SKL Mode Git PR]]. This file is the Trait-level contract, not the mechanism.
+- **Scope / inclusion test** — content belongs only if it describes what declaring `PR` as a Trait *means* (detection, the four rules, composability, wiring, audits). Per-anchor declarations live in each `.anchor`; PR-creation/branch-wait mechanics live in [[SKA pr-flow]]; user-facing mode prose in [[DAS mode]]. This file is the Trait-level contract, not the mechanism.
 - **Keep the four rules aligned** — § The four load-bearing rules (numbered) and § Triggers > compact (bulleted) enumerate the same four rules; edit them in lockstep. The compact block is inlined into POST-COMPACT reload per [[F091 — Trigger discipline]] — preserve both shapes.
 - **Don't weaken mutual exclusivity** — the three Git-aspect Traits are exactly-one-per-anchor; softening (e.g. "PR can coexist with Commit for certain branches") breaks the resolution mechanism. Coordinate any change with [[CAB Aspects]].
-- **Cross-refs to sync when editing:** [[CAB Aspects]], [[Commit]] and [[NoGit]] siblings, [[SKL Mode Git PR]], [[SKA pr-flow]], F077 design body.
+- **Cross-refs to sync when editing:** [[CAB Aspects]], [[Commit]] and [[NoGit]] siblings, [[DAS mode]], [[SKA pr-flow]], F077 design body.
 - **Naming:** bare noun `PR` (no hyphen, no "PR-mode" suffix) per F077 Q7.
