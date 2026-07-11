@@ -2,6 +2,8 @@
 
 Editing-and-maintenance brief for [[DAS Disciplines]]. Read before adding a new discipline, restructuring the catalog, or auditing what belongs here.
 
+*Conceptual source: [[PKM]] (under [[THREADS]]) — disciplines codify the anchoring / hook-naming / local-global patterns.*
+
 ## What a discipline is
 
 A **discipline** is a constrained way of working — a pattern we follow because we agreed it's how we organize things. The word is shared with skill-level disciplines ([[DAS Disciplines]]) because the meaning is the same; only the scope differs:
