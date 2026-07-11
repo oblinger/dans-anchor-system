@@ -6,7 +6,7 @@ description: dated agent-generated outputs — audit reports, analysis
 # FCT Outputs
 Dated agent-generated outputs (audit reports, code analysis, automated assessments) parked under `{slug} Outputs/` and auto-managed by the `stat` command.
 
-**Related:** [[DAS WP]],  [[CAB Stat]],  [[CAB Backlog]],  [[DAS Facet]]
+**Related:** [[DAS WP]],  [[DAS Status]],  [[DAS Backlog]],  [[DAS Facet]]
 **Examples:** [[MUX Outputs\|example dispatch page]]
 
 **TLDR** — A folder of dated `{date} {name}.md` files auto-created by `stat add`; cardinality **many** (any number of output files per anchor). The dispatch page (`{slug} Outputs.md`) is **one per anchor**; individual output files are **many**. Never list specific files here — instances live in per-anchor dispatch pages.
@@ -82,7 +82,7 @@ The stat command:
 
 # BRIEF
 
-*(Maintainer note — additions belong here only if they apply to ALL Outputs folders across ALL anchors; per-anchor or per-output specifics do not. The path `{slug} Docs/{slug} Plan/{slug} Outputs/` and the `{date} {name}.md` naming (no slug prefix, date provides uniqueness) are encoded in the `stat` command and `/cab wp`'s distinction logic — renaming the zone or changing the date format breaks `stat add` and orphans every existing dispatch entry, so sweep callers before touching them. Hold the Outputs-vs-WP boundary (§ Distinction from WP) — blurring it cascades into ambiguous tooling behavior. Sibling facets [[DAS WP]], [[CAB Backlog]], [[CAB Stat]] back-cite this spec, so update them in the same pass on any terminology or structure change.)*
+*(Maintainer note — additions belong here only if they apply to ALL Outputs folders across ALL anchors; per-anchor or per-output specifics do not. The path `{slug} Docs/{slug} Plan/{slug} Outputs/` and the `{date} {name}.md` naming (no slug prefix, date provides uniqueness) are encoded in the `stat` command and `/cab wp`'s distinction logic — renaming the zone or changing the date format breaks `stat add` and orphans every existing dispatch entry, so sweep callers before touching them. Hold the Outputs-vs-WP boundary (§ Distinction from WP) — blurring it cascades into ambiguous tooling behavior. Sibling facets [[DAS WP]], [[DAS Backlog]], [[DAS Status]] back-cite this spec, so update them in the same pass on any terminology or structure change.)*
 
 # RULESET R-fct-outputs
 include::

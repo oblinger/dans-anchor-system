@@ -224,7 +224,7 @@ Bare-bracket entries (e.g. `[MUX Dev Docs/MUX-Dispatcher-Sensors]`, `[F107 Subme
 
 ## See also
 
-- [[CAB Testing]] — facet spec this doc follows
+- [[DAS Testing]] — facet spec this doc follows
 - [[MUX PRD]] — user stories that drive the e2e inventory
 - [[MUX Architecture]] — subsystem boundaries that drive the integration inventory
 - [[MUX Decisions]] — D-MA01..05 (TCC permissions), single-dispatcher commitment make deterministic testing possible

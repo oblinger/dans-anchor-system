@@ -10,7 +10,7 @@ Read the anchor page (has `cab-traits:` in frontmatter or `-[[NAME]]-` dispatch 
 
 ### 2. Check Standard Dispatch Rows
 
-Read the [[CAB slug Page]] reference example. The dispatch table must have the standard rows in this exact order (skipping rows that don't apply to this anchor's traits):
+Read the [[DAS Anchor Page]] reference example. The dispatch table must have the standard rows in this exact order (skipping rows that don't apply to this anchor's traits):
 
 1. External
 2. User
@@ -135,7 +135,7 @@ Print this table to the console. **If `dry` substring is in the args**, stop her
 
 ### 9. Write the Backlog Entry
 
-Locate the backlog file: `{slug} Docs/{slug} Plan/{slug} Backlog.md`. Read it, find the lowest unused B-number (per [[CAB Backlog]] § Format), and append a new bullet under `## Upcoming`:
+Locate the backlog file: `{slug} Docs/{slug} Plan/{slug} Backlog.md`. Read it, find the lowest unused B-number (per [[DAS Backlog]] § Format), and append a new bullet under `## Upcoming`:
 
 ```
 - **B<n> — Structure audit: <N> findings (<YYYY-MM-DD>)** [Ready] — work surfaced by `/audit structure`. Sub-bullets are candidate splits if this needs to be broken up.

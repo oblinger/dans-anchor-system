@@ -6,7 +6,7 @@ description: "cheat sheets and spaced-repetition flashcards for an anchor topic"
 # FCT Cards
 Facet spec for the optional `{slug} Cards.md` page — a three-tier mix of cheat sheets and spaced-repetition flashcards that lets an anchor double as a study deck for its own topic.
 
-**Related:** [[DAS Brief]],  [[DAS Anchor Page]],  [[CAB Aspects]],  [[DAS Output]]
+**Related:** [[DAS Brief]],  [[DAS Anchor Page]],  [[DAS Aspects]],  [[DAS Output]]
 **Examples:** [[DOCPY Cheat Cards\|cheat-sheet-heavy example]],  [[TPM Core Cards\|summary+detail cards example]]
 
 | Table of Contents |  |

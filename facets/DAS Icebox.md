@@ -6,14 +6,14 @@ description: optional file for distant-future / someday-maybe items
 # FCT Icebox
 Optional cold-storage counterpart to the Backlog — holds distant-future / someday-maybe items the user wants to remember but is not actively considering.
 
-**Related:** [[FCT Backlog]],  [[DAS Roadmap]],  [[CAB Backlog]],  [[DAS Track]]
+**Related:** [[FCT Backlog]],  [[DAS Roadmap]],  [[DAS Backlog]],  [[DAS Track]]
 **Examples:** [[FEX Icebox\|example]]
 
 **Cardinality: one per anchor** — at most one `{slug} Icebox.md` exists per anchor (and it is optional; most anchors do not have one).
 
 **Location:** `{slug} Docs/{slug} Plan/{slug} Icebox.md` (optional)
 
-The icebox file (`{slug} Icebox.md`) holds items the user wants to remember but is **not** actively considering — distant-future ideas, parked features, "someday-maybe" entries. It is the cold-storage counterpart to the [[CAB Backlog]]: Backlog is the *active* deferred-work list, Icebox is the *frozen* one.
+The icebox file (`{slug} Icebox.md`) holds items the user wants to remember but is **not** actively considering — distant-future ideas, parked features, "someday-maybe" entries. It is the cold-storage counterpart to the [[DAS Backlog]]: Backlog is the *active* deferred-work list, Icebox is the *frozen* one.
 
 The term comes from Pivotal Tracker's three-bucket model (Current / Backlog / Icebox); the GTD equivalent is "Someday/Maybe."
 
@@ -106,8 +106,8 @@ Movement into or out of the Icebox is triggered by whether the user *intends to 
 
 *(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body above; cross-facet planning distinctions live in § Relationship to Other Planning Docs.)*
 
-- **Inclusion test** — a rule belongs here only if it describes how an *icebox file* is structured, located, or maintained; cross-facet planning cut-lines (Backlog vs Roadmap vs Icebox) belong in § Relationship, and broader planning discipline in [[FCT Facets]] or [[CAB Backlog]].
+- **Inclusion test** — a rule belongs here only if it describes how an *icebox file* is structured, located, or maintained; cross-facet planning cut-lines (Backlog vs Roadmap vs Icebox) belong in § Relationship, and broader planning discipline in [[FCT Facets]] or [[DAS Backlog]].
 - **Optionality is load-bearing** — keep emphasizing that most anchors do NOT have an Icebox; don't soften to "every anchor should have one" (that creates empty-file clutter vault-wide).
 - **Movement is by intent, not age** — preserve the Backlog ↔ Icebox "intent to consider, not age" wording (R-fct-icebox-04); an age-based deletion rule would defeat the durable-parking purpose.
 - **Reference Example is illustrative, not normative** — the `# CAE Icebox` H1 collision is intentional sample content; don't "fix" it by demoting to H2. The Format Specification below the example is authoritative.
-- **Keep planning vocabulary aligned** — Backlog / Roadmap / Icebox / GTD Someday-Maybe terminology must stay in sync across [[CAB Backlog]], [[DAS Roadmap]], and § Relationship here; drift between these is the most common breakage.
+- **Keep planning vocabulary aligned** — Backlog / Roadmap / Icebox / GTD Someday-Maybe terminology must stay in sync across [[DAS Backlog]], [[DAS Roadmap]], and § Relationship here; drift between these is the most common breakage.

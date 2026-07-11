@@ -21,5 +21,5 @@ This single include pulls in every CAB trait's structural rules. The anchor's de
 - [[R-facet]] — sibling umbrella for per-facet rulesets.
 - [[R-skill]] — sibling umbrella for per-skill rulesets.
 - [[DAS Traits]] — the trait taxonomy (Code, Topic, Skill, Paper, Simple, Track, …).
-- [[CAB Aspects]] — Trait/Facet umbrella model.
+- [[DAS Aspects]] — Trait/Facet umbrella model.
 - [[DAS Rulesets]] — parent catalog.

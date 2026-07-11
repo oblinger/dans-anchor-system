@@ -16,7 +16,7 @@ Commit is **orthogonal to identity traits**. `Code + Track + Commit` is the comm
 
 ## How it's detected
 
-- **Trait:** `Commit` appears in the anchor's `.anchor` `traits:` list (one-line lookup; no file inference per [[CAB Aspects]]).
+- **Trait:** `Commit` appears in the anchor's `.anchor` `traits:` list (one-line lookup; no file inference per [[DAS Aspects]]).
 - **Default fallback:** when no Git-aspect trait is declared and the anchor has the `Code` identity trait (i.e., there IS a repo), the agent defaults to Commit mode. Explicit declaration (`Commit` in `traits:`) is the canonical form; declaration is recommended once an anchor's mode is settled.
 - An anchor with `NoGit` declared (no repo) doesn't take a Git-aspect mode — neither Commit nor PR applies.
 
@@ -47,7 +47,7 @@ Commit is a behavioral mode, not a structural one — it imposes no on-disk form
 ## Constraints
 
 - **Cardinality: at most one Git-aspect trait** per anchor. `Commit` + `PR` together is illegal; `Commit` + `NoGit` together is illegal.
-- **Composition.** Legal with `Code`, `Skill`, `Track`, `Paper`, `Drive`, `Lean`. **Excludes `NoGit`** and **`PR`** (the three Git-aspect traits are mutually exclusive). See composability matrix in [[CAB Aspects]].
+- **Composition.** Legal with `Code`, `Skill`, `Track`, `Paper`, `Drive`, `Lean`. **Excludes `NoGit`** and **`PR`** (the three Git-aspect traits are mutually exclusive). See composability matrix in [[DAS Aspects]].
 - **Co-requires Code.** Declaring `Commit` on an anchor without `Code` (no repo) is illegal — there's nothing to commit to.
 
 ## Expected Usage
@@ -86,7 +86,7 @@ Commit is a behavioral mode, not a structural one — it imposes no on-disk form
 
 *(Maintainer note — cautions for whoever edits this spec. The normative spec is the body above; this file is the authoritative definition of the `Commit` Git-aspect trait.)*
 
-- **Inclusion test — Commit-specific only.** A rule that applies to PR mode too belongs in [[CAB Aspects]] or the parent mode framework, not here. The four load-bearing rules (§ The four load-bearing rules) are the canonical Commit-specific surface; the `### compact` block is their POST-COMPACT mirror. Project-wide commit policy lives in `CLAUDE.md`; the user-facing spec in [[DAS mode]] — link, don't inline.
+- **Inclusion test — Commit-specific only.** A rule that applies to PR mode too belongs in [[DAS Aspects]] or the parent mode framework, not here. The four load-bearing rules (§ The four load-bearing rules) are the canonical Commit-specific surface; the `### compact` block is their POST-COMPACT mirror. Project-wide commit policy lives in `CLAUDE.md`; the user-facing spec in [[DAS mode]] — link, don't inline.
 - **Trigger block is load-bearing** — keep the `### compact` prose in lockstep with `role-pilot.md` POST-COMPACT § Git Mode — Commit (this file is the source); edit one, edit both or pilots drift from the spec.
 - **Don't soften naming/composition constraints** — `Commit` is mutually exclusive with `PR` and `NoGit`, co-requires `Code`, and uses the bare-noun name (per F077-Q7: `Commit`, not `CommitMode`); `/audit aspects` will check these.
 - **History H2 is append-only** — add new dated bullets at the bottom; never rewrite prior entries when semantics shift.

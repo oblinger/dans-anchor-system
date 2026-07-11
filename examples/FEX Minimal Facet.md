@@ -9,7 +9,7 @@ description: "the leanest complete file set for a facet, with a live instance"
 | Anchor | [[HBR]] (reference anchor) |
 | Related | [[FEX Minimal Skill]],  [[DSC Dispatch Table]] (the live instance),  [[FCT Facets]] |
 
-The **minimal-facet capsule**: the smallest file set that fully captures a facet *and its design thinking*, with **nothing empty**. Every file below exists only when it carries real content — the structure is uniform (you always know where a piece *would* go), but a piece that has nothing to say is simply absent, not a stub. This is the antidote to the legacy dozen-doc scaffold (see [[CAB Dispatch Table Design]] § Standing decisions).
+The **minimal-facet capsule**: the smallest file set that fully captures a facet *and its design thinking*, with **nothing empty**. Every file below exists only when it carries real content — the structure is uniform (you always know where a piece *would* go), but a piece that has nothing to say is simply absent, not a stub. This is the antidote to the legacy dozen-doc scaffold (see [[DAS Dispatch Table Design]] § Standing decisions).
 
 ## The capsule
 
@@ -30,7 +30,7 @@ The Dispatch Table facet is the worked example. Click through to see the capsule
 | Piece | Where |
 |---|---|
 | Spec | [[DSC Dispatch Table]] — masthead (Anchor / Design / Related) + a member zone (its four live examples) |
-| [[CAB Dispatch Table Design\|Design]] | five standing decisions + the F155 / F156 index |
+| [[DAS Dispatch Table Design\|Design]] | five standing decisions + the F155 / F156 index |
 | Features | [[F155 — Dispatch-table structure spec + CAE worked examples\|F155]], [[F156 — Dispatch-table rollout pilot + Dispatch Table anchor promotion\|F156]] (linked from the Design doc) |
 
 That's the whole facet: **two files** + links to shared features. No stubs.

@@ -54,4 +54,4 @@ A skill **carries this facet** when it has a `tests/` folder with the `unit/` / 
 
 ## Migration note (F116)
 
-Migrated from `SKA skill-trait testing.md` per F116. Substantive content preserved; framing rewritten from "parallel-to-CAB trait" to "CAB facet of the Skill trait." Wiki-link sweep: `[[SKA skill-trait testing]]` → `[[CAB skill-testing]]`.
+Migrated from `SKA skill-trait testing.md` per F116. Substantive content preserved; framing rewritten from "parallel-to-CAB trait" to "CAB facet of the Skill trait." Wiki-link sweep: `[[SKA skill-trait testing]]` → `[[skill-testing]]`.

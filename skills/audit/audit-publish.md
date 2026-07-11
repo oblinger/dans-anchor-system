@@ -66,7 +66,7 @@ Print the table. **If `dry` substring is in args**, stop here — print "dry-run
 
 ### 6. Write the backlog entry
 
-Locate `{slug} Docs/{slug} Plan/{slug} Backlog.md`. Read it, find the lowest unused B-number (per [[CAB Backlog]] § Format), and append a new bullet under `## Upcoming`:
+Locate `{slug} Docs/{slug} Plan/{slug} Backlog.md`. Read it, find the lowest unused B-number (per [[DAS Backlog]] § Format), and append a new bullet under `## Upcoming`:
 
 ```
 - **B<n> — Publish audit: <N> findings (<YYYY-MM-DD>)** [Ready] — work surfaced by `/audit publish`. **Credentials must be cleared before publishing.** Sub-bullets are candidate splits if this needs to be broken up.

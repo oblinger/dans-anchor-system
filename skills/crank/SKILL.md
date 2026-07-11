@@ -453,5 +453,5 @@ The correct response on a repeated no-action crank: re-run the same `/groom` (+ 
 - **`/groom`** — fallback when no minting happened; extends the runway by promoting backlog items.
 - **`/ask`** — fallback when no minting happened and Questions > 0; drains the inbox and surfaces status to the user.
 - **`/fortify`** — skeptical counterpart to `crank`; invoke when normal cranking has stopped converging (same bug recurs, fixes don't stick).
-- **`[[CAB Backlog]]`** — Ready definition; F-numbering; `[Ready]` bracket conventions.
+- **`[[DAS Backlog]]`** — Ready definition; F-numbering; `[Ready]` bracket conventions.
 - **`[[SKA workflow]]`** — state graph; `[Ready]` → `[Active]` → `[Verify]` → `[Done]` transitions that `/mint` drives per item.

@@ -41,7 +41,7 @@ Placeholders: `{slug}` stands for the anchor's name and `{CAB Folder}` for the a
 │
 ├── {slug} [[DAS Track Dispatch|Track]]/                 Work-tracking metadata
 │   ├── {slug} Track.md                   Dispatch page
-│   ├── {slug} [[CAB Backlog|Backlog]].md             Workflow-state core (required for Track)
+│   ├── {slug} [[DAS Backlog|Backlog]].md             Workflow-state core (required for Track)
 │   ├── {slug} [[DAS Icebox|Icebox]].md              Cold-storage / someday-maybe (optional)
 │   └── {slug} [[DAS Inbox|Inbox]].md               Raw content to process (optional)
 │
@@ -69,7 +69,7 @@ Placeholders: `{slug}` stands for the anchor's name and `{CAB Folder}` for the a
 {repo}/                          [[DAS Code Repository]]
 ├── .git/
 ├── README.md
-├── justfile                     [[CAB Repository Structure|Standard task recipes]]
+├── justfile                     [[DAS Code Repository|Standard task recipes]]
 ├── docs/                        [[DAS Documentation Site|sync-pushed]] from the anchor's docs folders
 │   ├── user/                    ← from {slug} User Docs/
 │   └── dev/                     ← from {slug} Dev Docs/
@@ -134,6 +134,6 @@ This file is the single canonical anchor file tree; named elements are kept in s
 
 *(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body + ruleset R-anchor-tree above; each named element's full semantics live in its linked facet spec.)*
 
-- **One line of inline annotation max per element** — full semantics, rules, and shape live in the linked facet spec ([[CAB Backlog]], [[DAS Anchor Page]], etc.); don't grow this page into a multi-paragraph spec for any single facet.
+- **One line of inline annotation max per element** — full semantics, rules, and shape live in the linked facet spec ([[DAS Backlog]], [[DAS Anchor Page]], etc.); don't grow this page into a multi-paragraph spec for any single facet.
 - **Inclusion test for adding a row** — the element is a recognized CAB anchor file/folder (named via the `{slug}` / `{CAB Folder}` placeholders) that can legitimately appear in *some* anchor; one-off project-specific files do NOT belong here.
 - **§ Software Design Documents is descriptive, not prescriptive** — its per-document paragraphs only orient readers; the authoritative shape of each doc lives in its own facet spec. Don't drift those summaries away from the linked specs.

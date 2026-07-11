@@ -93,4 +93,4 @@ User-facing summary of how this all combines: [[DAS Search Overview]].
 
 ## Migration note (F116)
 
-Migrated from `SKA skill-trait search-rules.md` per F116. Substantive content preserved; framing rewritten from "parallel-to-CAB trait" to "CAB facet of the Skill trait." Wiki-link sweep: `[[SKA skill-trait search-rules]]` → `[[CAB skill-search-rules]]`.
+Migrated from `SKA skill-trait search-rules.md` per F116. Substantive content preserved; framing rewritten from "parallel-to-CAB trait" to "CAB facet of the Skill trait." Wiki-link sweep: `[[SKA skill-trait search-rules]]` → `[[skill-search-rules]]`.

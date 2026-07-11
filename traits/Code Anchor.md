@@ -1,8 +1,8 @@
 # Code Anchor
 
-The Code trait spec — defines how an anchor that owns a git repository differs from [[CAB Base]], including the inline-vs-linked repo modes, required `code:` key in `.anchor`, and code-specific structure and audit checks.
+The Code trait spec — defines how an anchor that owns a git repository differs from [[DAS Anchor Tree]], including the inline-vs-linked repo modes, required `code:` key in `.anchor`, and code-specific structure and audit checks.
 
-Follows [[CAB Base]] with these deltas:
+Follows [[DAS Anchor Tree]] with these deltas:
 
 ## When to Use
 
@@ -113,7 +113,7 @@ Type-specific structure checks for Code Anchors. These are run by
 - `{slug} Design/` folder with dispatch page (`{slug} Design.md`) — PRD / UX / Decisions / Interface
 - `{slug} User Docs/` folder with dispatch page (`{slug} User Docs.md`)
 - `{slug} Dev Docs/{slug} Files.md` — codebase file tree
-- `{slug} Design/{slug} Interface.md` — top-level layer contract (REQUIRED for Code, per [[CAB Interface]])
+- `{slug} Design/{slug} Interface.md` — top-level layer contract (REQUIRED for Code, per [[DAS Interface]])
 - `README.md` in the repo root
 
 ### Required dispatch rows
@@ -157,9 +157,9 @@ Worked anchor-page example carrying this trait: [[HBR]] (a synthetic Code projec
 
 # BRIEF
 
-*(Maintainer note — cautions for whoever edits this spec. The normative spec is the body above; this file is the authoritative delta-from-[[CAB Base]] for anchors that own a git repository — the `code` trait in `cab-traits:` resolves here.)*
+*(Maintainer note — cautions for whoever edits this spec. The normative spec is the body above; this file is the authoritative delta-from-[[DAS Anchor Tree]] for anchors that own a git repository — the `code` trait in `cab-traits:` resolves here.)*
 
-- **Inclusion test** — a rule belongs here only if it is true for *every* Code anchor and *false or absent* for non-Code anchors (the `code:` key, README.md in repo root, the inline-vs-linked modes). General anchor rules go to [[CAB Base]]; other traits (Skill / Paper / Topic / Simple) to their own `traits/<Trait>.md`; generic markdown/dispatch mechanics to [[markdown]] / [[progressive-disclosure]].
+- **Inclusion test** — a rule belongs here only if it is true for *every* Code anchor and *false or absent* for non-Code anchors (the `code:` key, README.md in repo root, the inline-vs-linked modes). General anchor rules go to [[DAS Anchor Tree]]; other traits (Skill / Paper / Topic / Simple) to their own `traits/<Trait>.md`; generic markdown/dispatch mechanics to [[markdown]] / [[progressive-disclosure]].
 - **Don't regress the two repo modes** — Inline and Linked must both stay documented as first-class; real projects use both (`ob-utils` is Linked, most private projects are Inline).
 - **Audit section mirrors `/audit structure`** — Required files / dispatch rows / code-specific checks correspond to actual script checks; edit wording here and the script together or the spec silently desyncs from enforcement. Keep the Forbidden dispatch-row forms list intact.
-- **Don't inline sibling-owned content** — Interface → [[CAB Interface]], brief/TLDR rules → [[DAS Brief]]; reference, don't duplicate.
+- **Don't inline sibling-owned content** — Interface → [[DAS Interface]], brief/TLDR rules → [[DAS Brief]]; reference, don't duplicate.

@@ -2,7 +2,7 @@
 
 The **Collection** trait — an anchor whose page **enumerates a collection of members of a like kind**: an anchor that exists *to be* the set of its children, where the children are an expected, **usually one** kind of thing (projects, dated entries, entities, drives). Declared by `collection` (lowercase) in the anchor's `.anchor` `traits:` key. It is a **semantic** claim about the members, not a layout claim — the dispatch-table *shape* (compact `...` / auto-list `| --- | |` / grouped `+`) is read off the table itself, never declared.
 
-Follows [[CAB Base]] with these deltas. Sibling identity traits: [[Topic Anchor]], [[Code Anchor]], [[Paper Anchor]], [[Simple Anchor]], [[Skill Anchor]].
+Follows [[DAS Anchor Tree]] with these deltas. Sibling identity traits: [[Topic Anchor]], [[Code Anchor]], [[Paper Anchor]], [[Simple Anchor]], [[Skill Anchor]].
 
 ## When to Use
 
@@ -18,7 +18,7 @@ Contrast with [[Topic Anchor]]: a Topic is a **heterogeneous routing hub** *abou
 
 ## Composability
 
-**Capability trait** (a structural shape layered on an identity), cardinality **at most one**. **Composes freely** — with [[Topic Anchor]] (a routing hub whose children happen to be homogeneous), [[Simple Anchor]] (a bare folder whose page is a member list), [[Skill Anchor]] (a skill group enumerating its skills, e.g. [[DAS Skills]]), or any other identity. **No exclusions** — per [[CAB Aspects]] § Governing principle (compose by default; exclude only on logical incompatibility), nothing about *enumerating members* contradicts any identity, so Collection mixes with all of them. Most Collections are also Topic or Simple, but that's a tendency, not a constraint.
+**Capability trait** (a structural shape layered on an identity), cardinality **at most one**. **Composes freely** — with [[Topic Anchor]] (a routing hub whose children happen to be homogeneous), [[Simple Anchor]] (a bare folder whose page is a member list), [[Skill Anchor]] (a skill group enumerating its skills, e.g. [[DAS Skills]]), or any other identity. **No exclusions** — per [[DAS Aspects]] § Governing principle (compose by default; exclude only on logical incompatibility), nothing about *enumerating members* contradicts any identity, so Collection mixes with all of them. Most Collections are also Topic or Simple, but that's a tendency, not a constraint.
 
 ## Details — on "homogeneous"
 

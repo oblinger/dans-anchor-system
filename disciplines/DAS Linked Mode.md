@@ -6,7 +6,7 @@ description: "Linked Mode discipline — anchor folder is metadata-only, code li
 # DSC Linked Mode
 The pattern for an anchor whose code repository lives outside the vault — anchor folder holds specs and dispatch pages; code lives at a separate path declared via the `code:` key in `.anchor`.
 
-**Related:** [[CAB Disciplines]],  [[CAB Aspects]],  [[DAS Code Repository]]
+**Related:** [[DAS Disciplines]],  [[DAS Aspects]],  [[DAS Code Repository]]
 
 The pattern for an anchor whose code repository lives **outside** the vault. The anchor folder contains specs, dispatch pages, and planning content; the actual code lives at a separate filesystem path declared in `.anchor` via the `code:` key.
 
@@ -44,8 +44,8 @@ Skeleton spec — the pattern is in use (see worked examples below) but the full
 
 ## Related
 
-- [[CAB Disciplines]] — parent catalog.
-- [[CAB Aspects]] — Trait/Facet umbrella (Linked Mode may surface as a Trait declared in `.anchor`).
+- [[DAS Disciplines]] — parent catalog.
+- [[DAS Aspects]] — Trait/Facet umbrella (Linked Mode may surface as a Trait declared in `.anchor`).
 
 # BRIEF
 

@@ -8,7 +8,7 @@ user_invocable: false
 # Verification Discipline
 The four-tier preference ordering (agent-immediate → user-explicit) for how a feature gets verified, declared up front in each feature doc and consulted at verification time so user attention is spent only when no lower tier works.
 
-**Related:** [[CAB Disciplines]],  [[feature]],  [[query]],  [[workflow]]
+**Related:** [[DAS Disciplines]],  [[feature]],  [[query]],  [[workflow]]
 
 | Table of Contents |  |
 |---|---|

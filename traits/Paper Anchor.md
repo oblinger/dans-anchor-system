@@ -2,7 +2,7 @@
 
 Trait spec defining how an anchor that holds a long-form document (paper, whitepaper) is shaped — version table, sectioned editing, track-changes HTML, and Paper Flow review/merge.
 
-Follows [[CAB Base]] with these deltas:
+Follows [[DAS Anchor Tree]] with these deltas:
 
 ## When to Use
 

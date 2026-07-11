@@ -6,7 +6,7 @@ description: track docs dispatch page — work tracking + planning for a Track-t
 # FCT Track Dispatch
 Spec for the `{slug} Track.md` dispatch page that lists all work-tracking and planning documents inside a Track-trait anchor's `{slug} Track/` folder.
 
-**Related:** [[DAS Dispatch]],  [[FCT Backlog]],  [[DAS Design Dispatch]],  [[CAB Track]]
+**Related:** [[DAS Dispatch]],  [[FCT Backlog]],  [[DAS Design Dispatch]],  [[DAS Track]]
 **Examples:** [[HBR Track\|fuller example]],  [[HBR Track\|minimal example]]
 
 **Cardinality:** one per anchor (each Track-trait anchor has exactly one `{slug} Track.md` dispatch page).
@@ -59,7 +59,7 @@ The Track dispatch page lists all children of the Track folder:
 
 | Document | Part |
 |----------|------|
-| `{slug} Backlog.md` | [[CAB Backlog]] — REQUIRED for Track trait |
+| `{slug} Backlog.md` | [[DAS Backlog]] — REQUIRED for Track trait |
 | `{slug} Status.md` | [[DAS Status]] — per-facet design-phase completeness |
 | `{slug} Discussion.md` | tracking-level discussion |
 | `{slug} Icebox.md` | [[DAS Icebox]] (optional) |
@@ -103,7 +103,7 @@ Body rows list only tracking-metadata documents: Backlog (required), Status, Dis
 ### RULE R-track-dispatch-04 — Backlog row is required when Track trait is present (checked)
 The dispatch table includes a row linking `{slug} Backlog.md`; this is the only mandatory child of the Track folder.
 **Check pattern:** a row linking `[[{slug} Backlog]]` (or its pipe-aliased form) exists.
-**Why:** the [[CAB Backlog]] is required for the Track trait; a Track dispatch page without a Backlog row signals the backlog is missing, not optional.
+**Why:** the [[DAS Backlog]] is required for the Track trait; a Track dispatch page without a Backlog row signals the backlog is missing, not optional.
 
 # BRIEF
 
