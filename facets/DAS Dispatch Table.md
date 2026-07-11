@@ -19,7 +19,7 @@ The top-of-file table convention that gives most anchor pages and many facet pag
 | [[#Worked examples]] |  |
 | [[#Related]] |  |
 | **[[#BRIEF]]** |  |
-**Design:** [[CAB Dispatch Table Design\|Design]]
+**Design:** [[DAS Dispatch Table Design\|Design]]
 **Examples:** [[HBR\|minimal]],  [[HBR\|fuller]],  [[FEX Dispatch Examples\|full gallery]]
 
 **TLDR** — **Cardinality: many** — one dispatch table per page; most anchor and facet pages carry one. The masthead is the breadcrumb plus, in fixed order, the optional **Related → type → Design → Track → User Docs → Dev Docs** rows (a switchboard, not a directory) — each row a link down to a sub-area plus its key parts; anything enumerable beyond those drops to the Member zone below. `/audit dispatch` builds and repairs it.

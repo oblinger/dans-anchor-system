@@ -6,7 +6,7 @@ description: "the Facet primitive — what a facet is and how to write its spec"
 # FCT Facet
 A narrow, usually file-based aspect of an anchor — and the spec for how to write one.
 
-**Related:** [[DAS Skill]],  [[DAS Ruleset]],  [[FCT Facets]] (the index),  [[CAB Aspects]]
+**Related:** [[DAS Skill]],  [[DAS Ruleset]],  [[FCT Facets]] (the index),  [[DAS Aspects]]
 **Examples:** [[FEX Manifest\|one per anchor example]],  [[FEX Pin\|many per anchor example]],  [[FEX Bundle\|many folders per anchor example]]
 
 | Table of Contents |  |
@@ -39,7 +39,7 @@ A **facet** is a narrow, usually file-based aspect of an anchor — one specific
 
 A facet **defines a kind**. The concrete `<NAME> Backlog.md` inside a real project is an *instance* of the Backlog facet, not a facet itself — keep the two apart.
 
-Facets are one of the two kinds of [[CAB Aspects|Aspect]] — the narrow, file-based kind; the broad declared-paradigm kind is the [[DAS Traits|Trait]] (full distinction: [[CAB Aspects]] § Trait vs Facet). The shared model lives in [[CAB Aspects]]; this page is the facet-authoring view of it.
+Facets are one of the two kinds of [[DAS Aspects|Aspect]] — the narrow, file-based kind; the broad declared-paradigm kind is the [[DAS Traits|Trait]] (full distinction: [[DAS Aspects]] § Trait vs Facet). The shared model lives in [[DAS Aspects]]; this page is the facet-authoring view of it.
 
 # Examples of a facet — project instances vs standalone `FEX` artifacts
 A facet's worked examples come in two kinds, and the **prefix tells them apart**:
@@ -54,7 +54,7 @@ include::
 where:: `file: facets/**/FCT *.md, !facets/FCT.md, !**/FCT Facets.md, !**/FCT Primitives.md, !**/FCT Anchor.md, !**/FCT Code.md, !**/FCT Design Docs.md, !**/FCT Dispatch.md, !**/FCT Doc.md, !**/FCT Output.md, !**/FCT Track.md`
 description:: The rules for authoring a facet — what every `FCT <Name>.md` (a facet definition) must contain and conform to. **Distinct from the umbrella [[R-facet]]**, which aggregates each materialized facet's *own* embedded rules (so an anchor's `{slug} Backlog.md`, `{slug} Testing.md`, … get audited); `R-facet-spec` instead governs the **facet-spec documents themselves**, in the `facets/` catalog.
 
-Embedded here per the [[F133 — Rulesets folder convention + facet embedding|F133]] convention. Tiers: **checked** (mechanically verifiable), **sampled** (spot-checked), **stated** (a principle the author honors). The authoritative model these rules enforce is [[CAB Aspects]] § Facet + § Spec-doc structure.
+Embedded here per the [[F133 — Rulesets folder convention + facet embedding|F133]] convention. Tiers: **checked** (mechanically verifiable), **sampled** (spot-checked), **stated** (a principle the author honors). The authoritative model these rules enforce is [[DAS Aspects]] § Facet + § Spec-doc structure.
 
 ## Location & registration
 
@@ -112,7 +112,7 @@ The spec conveys, in a sentence, the narrow aspect this facet names — via the 
 ### RULE R-facet-spec-09 — Makes detection knowable (sampled)
 The spec (typically its ruleset) makes clear how presence is decided. Default is **file-existence**; any other mechanism (folder-existence, capability check, …) is stated **explicitly**.
 **Check pattern:** detection is findable; non-default detection is named, not assumed.
-**Why:** detection is owned by the spec, not hard-coded globally — a folder or file-less facet is mis-detected if a reader assumes "look for the file" (per [[CAB Aspects]] § Facet).
+**Why:** detection is owned by the spec, not hard-coded globally — a folder or file-less facet is mis-detected if a reader assumes "look for the file" (per [[DAS Aspects]] § Facet).
 
 ### RULE R-facet-spec-10 — Makes cardinality knowable (sampled)
 check:: facet_cardinality_declared
@@ -140,7 +140,7 @@ The spec names which skills write/read the facet and which audits check it (in p
 
 ### RULE R-facet-spec-15 — Triggers section only when triggers are declared (checked)
 check:: triggers_section_iff_declared
-A `## Triggers` section appears **only** when the facet declares behavioral triggers, with an H3 per trigger type (`### compact`, `### markdown-write`) carrying the agent-read prose (per [[CAB Aspects]] § Triggers, F091).
+A `## Triggers` section appears **only** when the facet declares behavioral triggers, with an H3 per trigger type (`### compact`, `### markdown-write`) carrying the agent-read prose (per [[DAS Aspects]] § Triggers, F091).
 **Check pattern:** if `## Triggers` is present, it has ≥ 1 typed H3; if the facet declares no triggers, the section is absent (not empty).
 **Why:** triggers are anchor-resident and lazily resolved from the body H3s; an empty or malformed Triggers section misfires the resolution.
 
@@ -160,7 +160,7 @@ Each rule (and any constraint) is phrased so an audit could validate it — a fo
 ### RULE R-facet-spec-17 — Compose by default; exclude only on logical incompatibility (stated)
 A mutual-exclusion rule is declared only when two things make contradictory claims about the same underlying thing — never for tidiness.
 **Check pattern:** each exclusion names the *logical* conflict it resolves.
-**Why:** over-restriction blocks valid, useful compositions (per [[CAB Aspects]] § Constraints governing principle).
+**Why:** over-restriction blocks valid, useful compositions (per [[DAS Aspects]] § Constraints governing principle).
 
 ## Facet vs Trait — don't conflate
 
@@ -177,7 +177,7 @@ The spec defines the facet *kind*; it does not paste a project's concrete instan
 ## Authority & maintenance
 
 ### RULE R-facet-spec-21 — The umbrella model lives in CAB Aspects (stated)
-The spec does not duplicate the Aspect / Trait / Facet vocabulary, the six-section rationale, or the composability matrix — it links [[CAB Aspects]].
+The spec does not duplicate the Aspect / Trait / Facet vocabulary, the six-section rationale, or the composability matrix — it links [[DAS Aspects]].
 **Check pattern:** shared-model content is referenced, not restated.
 **Why:** one source of truth for the umbrella model; copies drift from it.
 

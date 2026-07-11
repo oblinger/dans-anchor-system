@@ -1290,7 +1290,7 @@ def resolve_files_for_edit(slug, backlog_path, horizon, row_id_arg, status):
 def mint_cross_file_id(backlog_path, icebox_path, kind):
     """Compute the next F/B number across BOTH backlog and icebox.
 
-    Per [[CAB Backlog]] § Icebox interaction: 'F-number namespace is shared
+    Per [[DAS Backlog]] § Icebox interaction: 'F-number namespace is shared
     across backlog AND icebox — no F-number collisions; an item moving
     between the two keeps its F-number.' Same for B-numbers.
     """

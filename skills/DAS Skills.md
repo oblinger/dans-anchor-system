@@ -14,7 +14,7 @@ description: "Skills — the `/`-invocable runbooks"
 | Related | [[DAS Facets\|Facets]],  [[DAS Disciplines\|Disciplines]],  [[DAS Traits\|Traits]],  [[DAS Examples\|Examples]],  [[DAS Rulesets\|Rulesets]],  [[DAS\|ob-skills]],   |
 |  |  |
 |  | **SKILL GROUPS** |
-| [[SKL Anchor\|Anchor]]+ | [[DAS Anchor Toolkit\|Anchor Toolkit]],  [[DAS CAB\|CAB]],  [[DAS Create\|Create]],  [[DAS Install\|Install]],  [[DAS Migrate\|Migrate]],  [[DAS Move\|Move]],  [[DAS Publish\|Publish]],  [[DAS Streams\|Streams]],  [[DAS WP\|WP]],  [[DAS Yore\|Yore]],   |
+| [[SKL Anchor\|Anchor]]+ | [[DAS Anchor Toolkit\|Anchor Toolkit]],  [[DAS Create\|Create]],  [[DAS Install\|Install]],  [[DAS Migrate\|Migrate]],  [[DAS Move\|Move]],  [[DAS Publish\|Publish]],  [[DAS Streams\|Streams]],  [[DAS WP\|WP]],  [[DAS Yore\|Yore]],   |
 | [[SKL Track\|Track]]+ | [[DAS Backlog\|Backlog]],  [[DAS Plan\|Plan]],  [[DAS workflow\|Workflow]],  [[DAS Messages\|Messages]],  [[DAS Ask\|Ask]],  [[DAS Groom\|Groom]],   |
 | [[SKL Drive\|Drive]]+ | [[DAS Feature\|Feature]],  [[DAS Crank\|Crank]],  [[DAS Mint\|Mint]],  [[DAS Finalize\|Finalize]],  [[DAS Land\|Land]],  [[DAS Fortify\|Fortify]],   |
 | [[SKL Dev\|Dev]]+ | [[DAS Architect\|Architect]],  [[DAS Code\|Code]],  [[DAS Fix\|Fix]],  [[DAS Pilot Flow\|Pilot Flow]],  [[DAS PR Flow\|PR Flow]],   |

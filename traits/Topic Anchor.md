@@ -2,7 +2,7 @@
 
 The Topic Anchor trait — a no-code, evergreen anchor that lives inside the Obsidian vault and serves as a routing hub for sub-topics or content pages.
 
-Follows [[CAB Base]] with these deltas:
+Follows [[DAS Anchor Tree]] with these deltas:
 
 ## When to Use
 
@@ -62,6 +62,6 @@ Anchor-page kinds catalog: [[DAS Anchor Page]]. Synthetic example: [[Knots]]; re
 
 *(Maintainer note — cautions for whoever edits this trait spec.)*
 
-- **Inclusion test** — content belongs here only if it applies to *every* Topic Anchor (or to the trait-application decision). A one-anchor rule → that anchor's `{slug} Rules.md` / `{slug} Decisions.md`; an all-anchor rule → [[CAB Base]]. Document deltas from Base only — don't restate Base. Not a catalog: don't list individual Topic Anchor instances (SYS, MY, etc.) beyond the one illustrative Example block.
+- **Inclusion test** — content belongs here only if it applies to *every* Topic Anchor (or to the trait-application decision). A one-anchor rule → that anchor's `{slug} Rules.md` / `{slug} Decisions.md`; an all-anchor rule → [[DAS Anchor Tree]]. Document deltas from Base only — don't restate Base. Not a catalog: don't list individual Topic Anchor instances (SYS, MY, etc.) beyond the one illustrative Example block.
 - **Don't regress the load-bearing deltas** — "No repository" (no `.git/`, no `code:` key, no CLAUDE.md) and "lives within the Obsidian vault" are what distinguish Topic from Code; breaking either silently reclassifies the anchor. The Audit § Conditional structure rules guard against accidental Code-trait drift.
-- **Linking convention** — this trait is referenced by name ("Topic Anchor") from `.anchor` config and from [[CAB Base]] / [[DAS Traits]] dispatch tables; rename only via a coordinated rewire across CAB.
+- **Linking convention** — this trait is referenced by name ("Topic Anchor") from `.anchor` config and from [[DAS Anchor Tree]] / [[DAS Traits]] dispatch tables; rename only via a coordinated rewire across CAB.

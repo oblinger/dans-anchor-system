@@ -120,4 +120,4 @@ Anchors that carry the Code trait MUST include a `{slug} Interface.md` row in th
 
 - **Inclusion test for the dispatch table** — a document belongs iff it lives inside `{slug} Design/` AND describes the system's *design* (UX shape / interface contract / decisions / data model / principles / PRD / features / roadmap / design-trade-off discussion); implementation details → Dev Docs, end-user guides → User Docs, planning metadata → Track (per § Audience).
 - **Don't rename the folder** — "Design" and "Architecture" are peer root-level folders kept distinct so "Architecture" stays precise; renaming would collide them, so don't rename without coordinating a vault-wide migration.
-- **Cross-ref integrity** — cited by [[CAB Base]], [[DAS Anchor Page]], the Architecture / UX Design / Interface / PRD facets, and the `/design` and `/architect` skills; check these before structural edits.
+- **Cross-ref integrity** — cited by [[DAS Anchor Tree]], [[DAS Anchor Page]], the Architecture / UX Design / Interface / PRD facets, and the `/design` and `/architect` skills; check these before structural edits.

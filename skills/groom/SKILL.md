@@ -19,7 +19,7 @@ user_invocable: true
 
 **The purpose of groom is to get all tasks that could be next for execution fully ready to be executed.** Those tasks are the **groom frontier** (per [[Query PRD]] § The groom frontier, F228): rows in the **`## Now` / `## Next` horizons** plus items **soon on the relevant roadmaps** (the next unmet milestone of `{slug} Roadmap.md`, when one exists). Grooming is *planning*, not just rebracketing: each frontier task leaves groom either genuinely executable — `[Ready]` with a declared `- **Next:**` step — or honestly parked behind its named `[Questions]` / `[Blocked]` / `[Waiting]` / `[Watching]` state. `/ask` then asks the user about the frontier's residue; `/crank` executes what groom readied.
 
-Alongside the planning, groom drives the backlog toward the **groomed state** — the invariants documented in [[CAB Backlog]] and the `R-backlog` ruleset (numbering, status well-formed, link integrity, section coverage, ordering, Definition of Ready, frontier rows planned + bracket-resolved).
+Alongside the planning, groom drives the backlog toward the **groomed state** — the invariants documented in [[DAS Backlog]] and the `R-backlog` ruleset (numbering, status well-formed, link integrity, section coverage, ordering, Definition of Ready, frontier rows planned + bracket-resolved).
 
 Convergent — not strictly idempotent. Safe to call anytime. May leave partial state when user input is needed; a follow-up call after the user resolves questions will continue from there. `## Later` and the icebox are *not* frontier — they are groomed only on explicit invocation.
 
@@ -108,7 +108,7 @@ The agent determines top-level vs sub-skill from conversation context: if the us
 
 Sharper than "design questions resolved." If the task still hides any "wait, what about X?" that the user would have to answer, it's **not** Ready — it's blocked on questions, and `/groom` should park those questions in a feature doc rather than promote the bullet.
 
-(Authoritative wording lives in [[CAB Backlog]] § Definition of Ready.)
+(Authoritative wording lives in [[DAS Backlog]] § Definition of Ready.)
 
 
 ## Item Status — How to Read It
@@ -124,7 +124,7 @@ Every backlog item has one of these statuses, derived from where the bullet sits
 | **Unset / Upcoming** | Bullet is under a horizon H2 (`## Now`, `## Next`, `## Later` per [[SKA backlog]]) — or the legacy `## Upcoming` — or `## Legwork`, with bracket `[ ]` / `[Designing]` / absent, AND has no link to active open questions | **Process** — try to ready it. |
 | **Verify**, **Done** | Bullet under those H2s | Skip — out of scope. |
 
-The `→ [[X]]` link convention is documented in [[CAB Backlog]].
+The `→ [[X]]` link convention is documented in [[DAS Backlog]].
 
 
 ## Invocation
@@ -175,10 +175,10 @@ Omitting `--horizon` keeps the row in its current H2; passing `--horizon Active|
 
 Cases to detect and rewrite:
 
-- **`[Partial — N of M done]`** (or any `[Partial …]` variant) — NOT a valid bracket per `[[CAB Backlog]]` § Status brackets. Reassess by reading the row body + sub-bullets + linked feature doc:
+- **`[Partial — N of M done]`** (or any `[Partial …]` variant) — NOT a valid bracket per `[[DAS Backlog]]` § Status brackets. Reassess by reading the row body + sub-bullets + linked feature doc:
   - All remaining sub-bullets are mechanical and unblocked → rewrite to `[Ready]`. Move partial-progress count to the row body if useful.
   - All remaining sub-bullets need user input → rewrite to `[Questions]`, add a `→ [[F<n> — Title]]` link to the feature doc (creating one with the Qs parked if needed, per § 3 below).
-  - Mixed heterogeneous sub-bullets → **pre-split the row** per `[[CAB Backlog]]` aggregate-row treatment: one `[Ready]` row for the mechanical sub-bullets, one or more `[Questions]` rows for the user-gated ones. Drop any Done sub-bullets entirely.
+  - Mixed heterogeneous sub-bullets → **pre-split the row** per `[[DAS Backlog]]` aggregate-row treatment: one `[Ready]` row for the mechanical sub-bullets, one or more `[Questions]` rows for the user-gated ones. Drop any Done sub-bullets entirely.
 - **`[Designing]` with no open Qs** in the linked feature doc — rewrite to `[Ready]` if Definition of Ready is met, else `[Questions]` if the design surfaced new Qs.
 - **`[Done]`-bracketed row in a horizon H2** — move the row to `## Done`. (Stale; the render skips it, `/groom` migrates it.)
 - **`[Blocked]` whose blocker has resolved** — rewrite to `[Ready]` (or `[Designing]` if more design work is needed). Read the body to identify the blocker; check whether the named actor's action has landed or the chained F<NNN> has reached `[Done]`.
@@ -207,7 +207,7 @@ This reassessment is **the** primary value `/groom` adds beyond promotion: witho
 
   F-number, title, and body are preserved. Done with this item.
 
-- **Has questions** — anything you'd need the user to clarify. Create a feature doc at `{slug} Docs/{slug} Plan/{slug} Features/F{n} — {Item Name}.md` (using the backlog row's F-number; per [[CAB Backlog]] § Numbering policy) with the standard `## Open Questions` block (per `/feature` § 1 and [[SKA queries]] § When a file is involved). Capture the questions there — **every** question goes to the doc; there is no inline-question slot (retired per [[Query PRD]] R1). **This is parking mode** (per [[SKA queries]] § Active vs Parking) — do NOT glance the new feature doc. The user invoked `/groom` as a *batch* operation specifically to defer per-item engagement; glancing each created doc would interrupt the very deferral they asked for. Update the backlog row via `state task update` to set the wiki-link body and switch the bracket to `Questions`:
+- **Has questions** — anything you'd need the user to clarify. Create a feature doc at `{slug} Docs/{slug} Plan/{slug} Features/F{n} — {Item Name}.md` (using the backlog row's F-number; per [[DAS Backlog]] § Numbering policy) with the standard `## Open Questions` block (per `/feature` § 1 and [[SKA queries]] § When a file is involved). Capture the questions there — **every** question goes to the doc; there is no inline-question slot (retired per [[Query PRD]] R1). **This is parking mode** (per [[SKA queries]] § Active vs Parking) — do NOT glance the new feature doc. The user invoked `/groom` as a *batch* operation specifically to defer per-item engagement; glancing each created doc would interrupt the very deferral they asked for. Update the backlog row via `state task update` to set the wiki-link body and switch the bracket to `Questions`:
 
   ```bash
   ~/.claude/skills/workflow/scripts/state --anchor {slug} task update <row-id> --status Questions --body "→ [[F<n> — {Item Name}]]"
@@ -275,7 +275,7 @@ The earlier per-step UX (open the first blocked-on-questions doc, separate `/ros
 
 > **Process the entire batch autonomously before involving the user.** Never interrupt mid-run to ask. Route every emerging question to its feature doc's `## Open Questions` block, then surface the first blocked doc at the end as the user's single next action. Each round-trip with the user costs scrollback context and stalls the batch — design every workflow to require *one* round-trip per pass, not N.
 
-(Authoritative statement lives in [[CAB Backlog]] § Design Principle — Minimize User Back-and-Forth.)
+(Authoritative statement lives in [[DAS Backlog]] § Design Principle — Minimize User Back-and-Forth.)
 
 
 ## Idempotence

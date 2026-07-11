@@ -142,7 +142,7 @@ Any anchor that benefits from a running narrative of dated work. Most active anc
 
 ## See also
 
-- [[CAB Backlog]] — sibling facet (open work, not narrative)
+- [[DAS Backlog]] — sibling facet (open work, not narrative)
 - [[DAS Roadmap]] — sibling facet (forward plan, not past narrative)
 - [[DAS Anchor Page]] — the anchor's home; should link to `[[{slug} Log]]`
 - [[Disk Log]] — worked example (folder form, multiple entries)

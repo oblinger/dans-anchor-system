@@ -373,7 +373,7 @@ Each surface that uses workflow state cites this discipline and maps the canonic
 
 ### Backlog (`{slug} Backlog.md`)
 
-Per `[[CAB Backlog]]` and `[[SKA backlog]]`:
+Per `[[DAS Backlog]]` and `[[SKA backlog]]`:
 
 - Workflow state is shown via the `[Status]` square-bracket prefix in each bullet, OR implied by the bullet's H2 placement.
 - H2 sections combine **horizon** (`## Now`, `## Next`, `## Later`) and **workflow state** (`## Active`, `## Ready`, `## Done`).
@@ -425,7 +425,7 @@ This is the structural sharpening of the per-surface mappings above: those say *
 
 | Surface | File | Namespace | Role |
 |---|---|---|---|
-| **Backlog** | `{slug} Backlog.md` | F-numbers (`F1`, `F2`, ...) — monotonic-forever, never recycled per `[[CAB Backlog]]` § Numbering policy | Active to-do list |
+| **Backlog** | `{slug} Backlog.md` | F-numbers (`F1`, `F2`, ...) — monotonic-forever, never recycled per `[[DAS Backlog]]` § Numbering policy | Active to-do list |
 | **Roadmap** | `{slug} Roadmap.md` | M-numbers (`M1`, `M1.2`, `M1.2.3` — hierarchical) | Milestone-level active work |
 | **Icebox** | `{slug} Icebox.md` | Shares F-number namespace with backlog | Parked / frozen — explicitly inactive but tracked |
 

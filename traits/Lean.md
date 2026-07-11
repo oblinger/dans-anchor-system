@@ -16,7 +16,7 @@ Lean is **orthogonal to identity traits**. `Code + Track + Lean + PR` is the can
 
 ## How it's detected
 
-- **Trait:** `Lean` appears in the anchor's `.anchor` `traits:` list (one-line lookup; no file inference per [[CAB Aspects]]).
+- **Trait:** `Lean` appears in the anchor's `.anchor` `traits:` list (one-line lookup; no file inference per [[DAS Aspects]]).
 - An anchor without `Lean` in its `traits:` list runs in [[Drive]] (the cadence default).
 - `Lean` and `Drive` are mutually exclusive — declaring both is illegal.
 
@@ -93,5 +93,5 @@ Lean is a behavioral mode, not a structural one. Compositional expectations:
 - **Keep this file declarative; push procedural how-to to the skill.** The operational "how to fortify" content lives in `~/.claude/skills/fortify/SKILL.md`; § The load-bearing rules here is a *summary* with a pointer, not a re-spec.
 - **Don't soften the Drive ⊕ Lean exclusion** — the cadence-Trait cardinality (at most one) is what `/audit aspects` will enforce; don't allow "both at once" semantics.
 - **The `compact` payload and `role-pilot.md` POST-COMPACT § Operating Mode — Lean are two surfaces of one spec** — keep the `### compact` bullets imperative and aligned with the role file; when the `/fortify` methodology evolves, mirror the change here.
-- **Cross-references that must stay aligned:** [[Drive]] (sibling cadence Trait — exclusion must be symmetric), [[CAB Aspects]] (Trait detection rule), [[DAS mode]] (mode framework parent), F077 (naming + first-class promotion), F091 (trigger discipline). Breaking any silently desyncs the cadence-Trait subsystem.
+- **Cross-references that must stay aligned:** [[Drive]] (sibling cadence Trait — exclusion must be symmetric), [[DAS Aspects]] (Trait detection rule), [[DAS mode]] (mode framework parent), F077 (naming + first-class promotion), F091 (trigger discipline). Breaking any silently desyncs the cadence-Trait subsystem.
 - **Don't pile non-cadence-Trait content here** — anchor-local rules, identity-Trait content, and `/fortify` runbook details belong in anchor `Decisions.md`, the relevant identity-Trait file, or the fortify skill respectively.

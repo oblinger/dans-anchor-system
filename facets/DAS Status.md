@@ -92,7 +92,7 @@ Each facet line follows this shape:
 
 ## State script
 
-Reads and writes `{slug} Status.md` are mediated by `~/.claude/skills/workflow/scripts/state`. The script lives in the [[workflow]] discipline's scripts folder (parallel to `backlog-edit.py` which mediates [[CAB Backlog]]'s file). Hand-editing the Status file is discouraged but not forbidden — the script just validates and rewrites on next access.
+Reads and writes `{slug} Status.md` are mediated by `~/.claude/skills/workflow/scripts/state`. The script lives in the [[workflow]] discipline's scripts folder (parallel to `backlog-edit.py` which mediates [[DAS Backlog]]'s file). Hand-editing the Status file is discouraged but not forbidden — the script just validates and rewrites on next access.
 
 Key invocations:
 
@@ -133,7 +133,7 @@ Available to any anchor with a `{slug} Design/` folder per [[DAS Design Folder]]
 ## See also
 
 - [[workflow]] — the state-graph discipline; orthogonal vocabulary, not interchangeable.
-- [[CAB Backlog]] — sibling Track-folder facet; same pattern (file format + script-mediated writes).
+- [[DAS Backlog]] — sibling Track-folder facet; same pattern (file format + script-mediated writes).
 - [[DAS Testing]] — peer Design facet whose `status:: accepted` is consumed by `/design`'s gate.
 - [[design]] — picker consumer; reads Status to pick next facet.
 - [[F130 — Planning Status facet — per-facet tier+approver; plan picker; pre-impl gate]] — the feature that introduced this facet.
@@ -170,7 +170,7 @@ The first non-blank line of the file is `# {slug} Status` (H1). No `---` YAML bl
 
 **Check pattern:** first non-blank line starts with `# `; does not start with `---`.
 
-**Why:** body-only matches the broader vault discipline ([[DAS Ruleset]], [[CAB Backlog]] are also body-only). Frontmatter is invisible in normal Obsidian read view and easy to drift.
+**Why:** body-only matches the broader vault discipline ([[DAS Ruleset]], [[DAS Backlog]] are also body-only). Frontmatter is invisible in normal Obsidian read view and easy to drift.
 
 ### RULE R-status-04 — `description::` is line 2 (checked)
 check:: description_field_line

@@ -282,7 +282,7 @@ Recognition pattern: the **first cell containing `-[[NAME]]-`** is the dispatch-
 - A table whose rows are the **doc's payload** (e.g. CLASSES, SCAFFOLDS, METADATA, TOC, command reference) is a **topic table** — leave it as a distinct table after the dispatch table.
 - The dispatch table always sits at the top, directly under the H1.
 
-**Migration policy — forward-only.** Existing files with legacy breadcrumbs migrate organically when modified (i.e. rewire only inserts the placeholder during a focused or full rewire pass that touches the file). No bulk sweep — the mass anchor-root migration remains [[CAB Backlog]] F001 in `## Later`.
+**Migration policy — forward-only.** Existing files with legacy breadcrumbs migrate organically when modified (i.e. rewire only inserts the placeholder during a focused or full rewire pass that touches the file). No bulk sweep — the mass anchor-root migration remains [[DAS Backlog]] F001 in `## Later`.
 
 **Exceptions to the placeholder rule.** A small set of facet docs are explicit F060 exceptions because they have custom H1-only tops or a fixed required structure:
 
@@ -297,7 +297,7 @@ Add exceptions sparingly; the default is **every doc** gets the placeholder.
 
 ## Folder templates
 
-A folder template is a folder whose name begins with an underscore — `_{Name} Template/` — that captures the canonical shape for a sibling kind. See [[CAB Template]] for the discipline.
+A folder template is a folder whose name begins with an underscore — `_{Name} Template/` — that captures the canonical shape for a sibling kind. See [[DAS Template]] for the discipline.
 
 - [ ] **Detect folder templates** — for every folder, check if it contains any child folder matching the glob `_* Template/`. If yes, the parent folder has a folder template.
 - [ ] **Detect markdown-file templates** — for every folder, also check for any child file matching `_* Template.md`. If yes, the parent folder has a file-level template.
@@ -307,7 +307,7 @@ A folder template is a folder whose name begins with an underscore — `_{Name} 
   ```
   The wiki-link resolves by basename (folder templates link to the inside marker file `_{Name} Template.md`; file templates link to the template file directly).
 - [ ] **Generic templates (those living in `CAB/CAB Facets/`) do NOT get a dispatch row** in every consumer's dispatch. They are looked up by facet name; cluttering every dispatch with template links to vault-wide templates is the failure mode this rule prevents.
-- [ ] **Audit category** — when a `_* Template/` folder or `_* Template.md` file exists in a parent but the parent's dispatch lacks the template row, flag as `missing-folder-template-row` (per [[CAB Template]] § Audit categories).
+- [ ] **Audit category** — when a `_* Template/` folder or `_* Template.md` file exists in a parent but the parent's dispatch lacks the template row, flag as `missing-folder-template-row` (per [[DAS Template]] § Audit categories).
 - [ ] **Orphan check** — when a template folder/file exists nowhere in any dispatch (not even its parent's), flag as `orphan-template`.
 
 ---

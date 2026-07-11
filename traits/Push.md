@@ -16,7 +16,7 @@ Push is **orthogonal to identity traits**. `Code + Track + Push` is "code projec
 
 ## How it's detected
 
-- **Trait:** `Push` appears in the anchor's `.anchor` `traits:` list (one-line lookup; no file inference per [[CAB Aspects]]).
+- **Trait:** `Push` appears in the anchor's `.anchor` `traits:` list (one-line lookup; no file inference per [[DAS Aspects]]).
 - **Inherits down the tree:** a sub-anchor that declares no Git aspect inherits the nearest ancestor's — so declaring `Push` on the root anchor governs every sub-anchor beneath it.
 - An anchor with `NoGit` declared (no repo) doesn't take a Git-aspect mode.
 
@@ -45,7 +45,7 @@ Push is a behavioral mode — no on-disk format requirements. Compositional expe
 ## Constraints
 
 - **Cardinality: at most one Git-aspect trait** per anchor. `Push` + any of `Commit` / `PR` / `NoGit` is illegal.
-- **Composition.** Legal with `Code`, `Skill`, `Track`, `Paper`, `Drive`, `Lean`. **Excludes `Commit`, `PR`, `NoGit`** (the four Git-aspect traits are mutually exclusive). See composability matrix in [[CAB Aspects]].
+- **Composition.** Legal with `Code`, `Skill`, `Track`, `Paper`, `Drive`, `Lean`. **Excludes `Commit`, `PR`, `NoGit`** (the four Git-aspect traits are mutually exclusive). See composability matrix in [[DAS Aspects]].
 - **Co-requires Code** + a push remote.
 
 ## Expected Usage

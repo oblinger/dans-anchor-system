@@ -129,7 +129,7 @@ The script produces row shape:
 
 **Default horizon: `Next`, NOT `Now`** (per the deprioritization rule above). Override to `Now` only when the audit was explicitly invoked because the user wants the findings to land in the active horizon.
 
-**No aggregate `[Partial — …]` row.** That bracket form is banned by `[[CAB Backlog]]` § Status brackets. Pre-splitting by state-cluster on creation IS the spec; never collapse mixed-state findings into a single row.
+**No aggregate `[Partial — …]` row.** That bracket form is banned by `[[DAS Backlog]]` § Status brackets. Pre-splitting by state-cluster on creation IS the spec; never collapse mixed-state findings into a single row.
 
 **One row-set per sub-audit run.** Each invocation of `/audit <kind>` writes its state-clustered row(s) — no merging with prior audit entries (those are stable references). If a prior entry from the same sub-audit is still un-cleared, the user can decide whether to consolidate manually.
 

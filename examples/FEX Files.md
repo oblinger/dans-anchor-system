@@ -13,7 +13,7 @@ File tree for the example-project repository with descriptions.
 example-project/                          [[FEX Architecture#Public API rollup|CAE Architecture § Public API rollup]]
 ├── Cargo.toml                            Workspace config + dependencies
 ├── Cargo.lock                            Dependency lockfile
-├── justfile                              Build, test, check recipes        → [[CAB Repository Structure]]
+├── justfile                              Build, test, check recipes        → [[DAS Code Repository]]
 ├── [[DAS Claude\|CLAUDE.md]]                             Claude Code configuration
 │
 ├── src/                                  Library crate

@@ -79,7 +79,7 @@ Single labels (no compound "Ready/Now"), single count per item. Resist any tempt
 
 ## /groom integration
 
-`/groom` walks the backlog looking for items with status `Unset / Upcoming` (per `[[CAB Backlog]]` § Item Status). Under this discipline:
+`/groom` walks the backlog looking for items with status `Unset / Upcoming` (per `[[DAS Backlog]]` § Item Status). Under this discipline:
 
 - Items in horizon H2s with bracket `[ ]`, `[Designing]`, or absent are candidates for `/groom` to investigate.
 - Items in horizon H2s with bracket `[Ready]` are already ready — `/groom` skips them (they're awaiting pull, not promotion).
@@ -88,7 +88,7 @@ Single labels (no compound "Ready/Now"), single count per item. Resist any tempt
   - (b) Update the bracket to `[Ready]` and leave the bullet in its horizon H2 (preserves the user's *when* intent).
   - **Default**: (a). Move to `## Ready`. The user can demote back to a horizon H2 if they explicitly want the item readied-but-deferred.
 
-When `/groom` parks an item with questions, it uses the `→ [[Feature Doc]]` link convention from `[[CAB Backlog]]` and updates the bracket to `[Questions]`. The bullet stays in its horizon H2.
+When `/groom` parks an item with questions, it uses the `→ [[Feature Doc]]` link convention from `[[DAS Backlog]]` and updates the bracket to `[Questions]`. The bullet stays in its horizon H2.
 
 
 ## The boredom test — practical guardrail for horizon moves

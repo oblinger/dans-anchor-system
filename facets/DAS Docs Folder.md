@@ -45,7 +45,7 @@ Most anchors (beyond simple ones) have a `{slug} Docs/` folder containing planni
 | `{slug} Inbox.md` | Raw input drop zone — captures unprocessed input for integration |
 | `{slug} PRD.md` | Product requirements / planning brief |
 | `{slug} Roadmap.md` | High-level plan and milestones (see [[DAS Roadmap]]) |
-| `{slug} Backlog.md` | Low-priority ideas and deferred work (see [[CAB Backlog]]) |
+| `{slug} Backlog.md` | Low-priority ideas and deferred work (see [[DAS Backlog]]) |
 | `{slug} Icebox.md` | Cold-storage / someday-maybe items (see [[DAS Icebox]]) — optional |
 | `{slug} Todo.md` | Active task tracking |
 | `{slug} Features/` | Individual feature specs (see [[DAS Features]]) |

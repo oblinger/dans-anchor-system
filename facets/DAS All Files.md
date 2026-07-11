@@ -99,11 +99,11 @@ Every source file and directory that has a module doc is linked by making the fi
 |------|--------|------------|
 | Source file | `[[FEX Scheduler\|scheduler.rs]]` | `scheduler.rs` (links to CAE Scheduler doc) |
 | Directory | `[[CAE engine\|engine/]]` | `engine/` (links to module aggregator doc) |
-| Standard file | `[[CAB Claude\|CLAUDE.md]]` | `CLAUDE.md` (links to CAB spec) |
+| Standard file | `[[DAS Claude\|CLAUDE.md]]` | `CLAUDE.md` (links to CAB spec) |
 
 Files without a module doc (tests, config files, etc.) use plain filenames — no link.
 
-**Do NOT use `→ [[doc]]` arrows for source file doc links.** The `→` arrow pattern is only for non-source files that reference an external spec (e.g., `justfile → [[CAB Repository Structure]]`). Source files use the filename-as-link pattern instead.
+**Do NOT use `→ [[doc]]` arrows for source file doc links.** The `→` arrow pattern is only for non-source files that reference an external spec (e.g., `justfile → [[DAS Code Repository]]`). Source files use the filename-as-link pattern instead.
 
 ## Row 1 — Repo Root
 

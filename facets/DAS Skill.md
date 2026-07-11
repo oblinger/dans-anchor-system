@@ -6,7 +6,7 @@ description: "the Skill primitive — SKILL.md entry-point structure and convent
 # FCT Skill
 An omnibus Claude Code skill that groups related actions, reference data, and scripts under a single `/name` command. Invoked via `/name action` (e.g., `/cab setup`, `/md toc`).
 
-**Related:** [[DAS Facet]],  [[DAS Ruleset]],  [[DAS Primitives]],  [[CAB Aspects]]
+**Related:** [[DAS Facet]],  [[DAS Ruleset]],  [[DAS Primitives]],  [[DAS Aspects]]
 **Examples:** [[FEX Skill\|canonical exemplar]],  [[FEX Minimal Skill\|minimal capsule]]
 
 | Table of Contents |  |
@@ -141,7 +141,7 @@ Disciplines live in `~/.claude/skills/{name}/` with the same folder structure as
 ### Examples
 
 - `finalize` — verify → commit → push → merge → docs → cleanup ceremony. Cited by `/land`, `/crank`, `/code release`.
-- `workflow` — canonical state graph for a unit of work, Definition of Ready, per-surface mappings. Cited by `[[CAB Backlog]]`, `feature/SKILL.md`, `/groom`, `/mint`, `/finalize`.
+- `workflow` — canonical state graph for a unit of work, Definition of Ready, per-surface mappings. Cited by `[[DAS Backlog]]`, `feature/SKILL.md`, `/groom`, `/mint`, `/finalize`.
 
 (Note: `ask-questions` was a discipline in earlier versions; it was promoted to the user-invocable `/ask` skill 2026-04-30 — see F10. Skills that previously cited `[[ask-questions]]` now invoke `/ask`.)
 

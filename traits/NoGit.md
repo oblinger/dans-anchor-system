@@ -16,7 +16,7 @@ The kmr vault is a special case (it's a backup repo at the vault root, but indiv
 
 ## How it's detected
 
-- **Trait:** `NoGit` appears in the anchor's `.anchor` `traits:` list (one-line lookup; no file inference per [[CAB Aspects]]).
+- **Trait:** `NoGit` appears in the anchor's `.anchor` `traits:` list (one-line lookup; no file inference per [[DAS Aspects]]).
 - **Default fallback:** when no Git-aspect trait is declared AND the anchor does **not** have the `Code` identity trait (no repo), the agent defaults to NoGit mode. Explicit declaration is recommended once an anchor's mode is settled.
 - An anchor with `Code` (has a repo) cannot take NoGit — `Code + NoGit` is a contradiction.
 
@@ -44,7 +44,7 @@ NoGit imposes no on-disk structural requirements. Compositional expectations:
 ## Constraints
 
 - **Cardinality: at most one Git-aspect trait** per anchor. `NoGit` + `Commit` is illegal; `NoGit` + `PR` is illegal.
-- **Composition.** Legal with `Simple`, `Topic`, `Paper`, `Track`, `Drive`, `Lean`. **Excludes `Code`** (you can't have a repo and declare NoGit). **Excludes `Skill`** (Skills are runtime code anchors and inherit git from the wider skills repo). See composability matrix in [[CAB Aspects]].
+- **Composition.** Legal with `Simple`, `Topic`, `Paper`, `Track`, `Drive`, `Lean`. **Excludes `Code`** (you can't have a repo and declare NoGit). **Excludes `Skill`** (Skills are runtime code anchors and inherit git from the wider skills repo). See composability matrix in [[DAS Aspects]].
 - **Excludes Code.** Declaring `NoGit` on a `Code` anchor is illegal — they directly contradict.
 
 ## Expected Usage
@@ -76,10 +76,10 @@ NoGit imposes no on-disk structural requirements. Compositional expectations:
 
 # BRIEF
 
-*(Maintainer note — cautions for whoever edits this Git-aspect Trait spec. Edits here change the rule for every NoGit-declared anchor; the normative spec is the body above, and the composability matrix lives in [[CAB Aspects]].)*
+*(Maintainer note — cautions for whoever edits this Git-aspect Trait spec. Edits here change the rule for every NoGit-declared anchor; the normative spec is the body above, and the composability matrix lives in [[DAS Aspects]].)*
 
 - **Not a catalog** — don't list anchors carrying the trait; the `.anchor` `traits:` field is the source of truth, not a roster maintained here.
-- **Scope guard** — only detection, mutual-exclusivity, and agent-git-action rules belong here; identity-trait content (Code, Topic, Simple) stays in those Trait files and the composability matrix in [[CAB Aspects]] — don't duplicate either upward.
-- **Keep siblings in lockstep** — the `NoGit ⊕ Code / Commit / PR` exclusions are cited by `/audit aspects` and the sibling specs; any rule change updates [[CAB Aspects]] and the siblings ([[Commit]], [[PR]], [[Code]]) together.
+- **Scope guard** — only detection, mutual-exclusivity, and agent-git-action rules belong here; identity-trait content (Code, Topic, Simple) stays in those Trait files and the composability matrix in [[DAS Aspects]] — don't duplicate either upward.
+- **Keep siblings in lockstep** — the `NoGit ⊕ Code / Commit / PR` exclusions are cited by `/audit aspects` and the sibling specs; any rule change updates [[DAS Aspects]] and the siblings ([[Commit]], [[PR]], [[Code]]) together.
 - **Compact block is tooling-consumed** — the `### compact` subsection is read verbatim at POST-COMPACT reload; keep it self-contained (no required wiki-link chase) and aligned with the body rule.
 - **History is terse dated bullets** — append only when the trait's spec materially changes.

@@ -61,13 +61,13 @@ If a feature is `[Questions]` or `[Blocked]` mid-flight, that's tracked via the 
 
 **Pick the highest applicable tier.** If you find yourself writing tier 4 with no Blocks-next, pause and reconsider: could a passive signal work? Could the user notice this in normal use? Often the answer is yes and the right tier is 3.
 
-Per `[[CAB Backlog]]` § Numbering policy, F-numbers are monotonic-forever, never recycled, **zero-padded to three digits** as `F001` … `F999`. The F-number is **minted by the workflow skill's `state task create`** in § 1.5 below — run § 1.5 first (after the collision check in § 1b), parse the assigned `F<NNN>` from its stdout, then create the feature doc in the anchor's Features folder. Per **F142** the canonical location is the **Design** folder (Features is a design artifact, D07): `{slug} Design/{slug} Features/F{NNN} — {Feature Name}.md`.
+Per `[[DAS Backlog]]` § Numbering policy, F-numbers are monotonic-forever, never recycled, **zero-padded to three digits** as `F001` … `F999`. The F-number is **minted by the workflow skill's `state task create`** in § 1.5 below — run § 1.5 first (after the collision check in § 1b), parse the assigned `F<NNN>` from its stdout, then create the feature doc in the anchor's Features folder. Per **F142** the canonical location is the **Design** folder (Features is a design artifact, D07): `{slug} Design/{slug} Features/F{NNN} — {Feature Name}.md`.
 
 If `{slug} Design/{slug} Features/` doesn't exist, create it. (Legacy anchors still hold features at `{slug} Track/{slug} Features/`; the workflow scripts read both during the F142 rollout — but **new** docs go in the Design location.) Filenames carry the F-number prefix from the mint (zero-padded). **Do not read the backlog file directly to compute the next F-number** — `state task create` is the canonical mint.
 
 #### 1b. Collision check — vault grep for duplicate H1 (per F27)
 
-**Before writing the file**, scan the vault for an existing feature doc with the same H1. F-numbers are per-anchor namespaces that reset at F1 in each anchor (per `[[CAB Backlog]]` § Numbering policy), so the same `F<n> — <Title>` filename can appear in multiple anchors. Obsidian wiki-link resolution by path-proximity makes this safe within an anchor but ambiguous across anchors — F27 catches the collision at creation time.
+**Before writing the file**, scan the vault for an existing feature doc with the same H1. F-numbers are per-anchor namespaces that reset at F1 in each anchor (per `[[DAS Backlog]]` § Numbering policy), so the same `F<n> — <Title>` filename can appear in multiple anchors. Obsidian wiki-link resolution by path-proximity makes this safe within an anchor but ambiguous across anchors — F27 catches the collision at creation time.
 
 **Procedure:**
 
@@ -85,7 +85,7 @@ If `{slug} Design/{slug} Features/` doesn't exist, create it. (Legacy anchors st
      - <path/to/other/file>
      [...]
      Options:
-       (A) proceed with the same title — cross-anchor wiki-links to either file must be qualified per [[CAB Backlog]] § Wiki-link conventions for feature docs.
+       (A) proceed with the same title — cross-anchor wiki-links to either file must be qualified per [[DAS Backlog]] § Wiki-link conventions for feature docs.
        (B) rename — suggest a slightly disambiguating title and re-run.
      Recommendation: lean (A) if cross-anchor links to this feature are not anticipated; lean (B) if you expect cross-anchor references.
      ```
@@ -333,7 +333,7 @@ Implement <Feature Name> (S03200917)
 
 ## Feature Doc Conventions
 
-- **F-numbered filename** — `F{n} — {Feature Name}.md` in the Features folder. F-number from the anchor's monotonic-forever counter (per `[[CAB Backlog]]` § Numbering policy).
+- **F-numbered filename** — `F{n} — {Feature Name}.md` in the Features folder. F-number from the anchor's monotonic-forever counter (per `[[DAS Backlog]]` § Numbering policy).
 - **H1 carries the anchor-slug breadcrumb + F-number** — `# [[{slug}]] · F{n} — {Feature Name}`.
 - **Open Questions BELOW the H1** while pending Qs exist; deleted entirely when zero pending. Resolved Qs migrate to a `## Resolved` H2 at the bottom of the doc.
 - **`open` the doc after every Open Questions edit (in active mode)** — mandatory, per step 1a.

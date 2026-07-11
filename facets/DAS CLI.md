@@ -6,7 +6,7 @@ Facet spec for `{slug} CLI.md` — the **command-line specification** for an anc
 
 | **FCT CLI**                                                          | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Design Docs]] → [FCT CLI](hook://p/DAS%20CLI)<br>: command-line specification facet |
 | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Related                                                              | [[DAS UX Design\|UX Design]],  [[DAS API Design\|API Design]],  [[DAS Design Folder\|Design]],  [[CAB User Guide\|User Guide]]                           |
+| Related                                                              | [[DAS UX Design\|UX Design]],  [[DAS API Design\|API Design]],  [[DAS Design Folder\|Design]],  [[DAS TSK User Guide\|User Guide]]                           |
 | Examples                                                             | [[HBR CLI\|worked example]]                                                                                                        |
 |                                                                      |                                                                                                                                                   |
 | **Table of Contents**                                                |                                                                                                                                                   |
@@ -28,7 +28,7 @@ Facet spec for `{slug} CLI.md` — the **command-line specification** for an anc
 
 - [[DAS UX Design]] — the CLI doc is **downstream of UX Design**: UX Design decides *that* there is a CLI and its command shape (verbs, grouping, the interaction model); `{slug} CLI.md` is the concrete `--help` realization of that decision.
 - [[DAS API Design]] — sibling programmatic surface. An anchor with both a CLI and a library form carries both (e.g. [[HBR]]).
-- [[CAB User Guide]] / `{slug} User Guide.md` — the **tutorial** (narrative, teaches the few commands a newcomer needs). The CLI doc is the **reference** (the whole surface, look-up-oriented). Guide links to CLI for "full surface"; CLI links back to Guide for "getting started."
+- [[DAS TSK User Guide]] / `{slug} User Guide.md` — the **tutorial** (narrative, teaches the few commands a newcomer needs). The CLI doc is the **reference** (the whole surface, look-up-oriented). Guide links to CLI for "full surface"; CLI links back to Guide for "getting started."
 
 # Reference Example
 
@@ -188,4 +188,4 @@ A `{slug} CLI.md` documents the command *interface*, not build progress. No `## 
 - **The help block is an SVG, not a code fence** — rendered from `{slug} CLI Help.txt` by `cli-help-svg.py` (R-cli-04) so aligned comments can't re-wrap. Edit the `.txt`, regenerate the `.svg`, embed near natural width (~1100px).
 - **Help block is the figure, right after the one-line summary** — R-cli-02: breadcrumb → H1 → summary → block; no `## Synopsis` wrapper, no second intro paragraph. The block reads like real `--help` (R-cli-07): no feature numbers, no status markers, no stretched multi-line entries.
 - **Migrating home, not a fixed one** — the doc lives in `{slug} Design/` while authored and `{slug} User Docs/` once graduated (§ Location); R-cli-01's `where::` matches both. Don't re-pin it to a single folder.
-- **Cross-cite rather than inline** — tutorial/narrative content belongs in [[CAB User Guide]], CLI-*shape* design in [[DAS UX Design]], markdown rendering rules in [[R-markdown]]; if a rule drifts toward one of those, move or link rather than duplicate.
+- **Cross-cite rather than inline** — tutorial/narrative content belongs in [[DAS TSK User Guide]], CLI-*shape* design in [[DAS UX Design]], markdown rendering rules in [[R-markdown]]; if a rule drifts toward one of those, move or link rather than duplicate.

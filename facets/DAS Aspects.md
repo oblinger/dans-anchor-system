@@ -2,7 +2,7 @@
 description: "Aspects, Traits, and Facets — the unified anchor-property model"
 ---
 
-# CAB Aspects
+# DAS Aspects
 
 The unified anchor-property model: an Aspect is any named property an anchor carries, split into broad **Traits** (declared paradigms) and narrow **Facets** (file-based features), each carrying Constraints and Expected Usage.
 

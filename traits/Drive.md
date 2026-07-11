@@ -16,7 +16,7 @@ Drive is **orthogonal to identity traits**. `Code + Track + Drive + Commit` is t
 
 ## How it's detected
 
-- **Trait:** `Drive` appears in the anchor's `.anchor` `traits:` list (one-line lookup; no file inference per [[CAB Aspects]]).
+- **Trait:** `Drive` appears in the anchor's `.anchor` `traits:` list (one-line lookup; no file inference per [[DAS Aspects]]).
 - **Default fallback:** when no cadence Trait is declared (neither `Drive` nor `Lean` in `.anchor` `traits:`), the agent defaults to Drive. Per F077 § 6: cadence-default applies regardless of identity-trait composition.
 - An anchor with `Lean` declared runs in the Lean posture; Drive does not apply.
 
@@ -100,4 +100,4 @@ Drive is a behavioral mode, not a structural one. Compositional expectations:
 - **This file summarizes and links out; it does not duplicate.** The user-facing operating-mode narrative lives at [[DAS mode]]; trait-system rules in [[DAS Traits]]; the inlined runtime copy in `role-pilot.md` POST-COMPACT RELOAD. Don't inline content that belongs to those surfaces.
 - **Inclusion test for a rule added to § The load-bearing rules** — it must be a recurring "do I ask or assume?" trade-off decision, and it must match what `role-pilot.md` POST-COMPACT RELOAD § Operating Mode — Drive enforces. A rule living only here and not in the POST-COMPACT inlining isn't load-bearing yet.
 - **The `compact` trigger block and `role-pilot.md` § Operating Mode — Drive are two surfaces of one spec** — when this block changes, re-sync the role file; don't let them drift.
-- **Don't soften the Drive ⊕ Lean exclusion** — any edit weakening the at-most-one-cadence-Trait rule contradicts F077 and [[CAB Aspects]]; route such proposals through a feature, not a quiet edit here.
+- **Don't soften the Drive ⊕ Lean exclusion** — any edit weakening the at-most-one-cadence-Trait rule contradicts F077 and [[DAS Aspects]]; route such proposals through a feature, not a quiet edit here.

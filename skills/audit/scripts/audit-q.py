@@ -2414,7 +2414,7 @@ _LIVE_HORIZONS = ("Now", "Next", "Later", "Ready", "Active")
 def check_c32_h3_rows_forbidden(backlog_files: list[Path]) -> list[Finding]:
     """C32: H3-form rows in backlog horizon H2s are invalid.
 
-    Backlog rows must be bullets per [[CAB Backlog]]. H3-style rows (e.g.
+    Backlog rows must be bullets per [[DAS Backlog]]. H3-style rows (e.g.
     `### BUG — Title [Designing]`) sail past most row-based checks because
     the canonical parser (ROW_OPENER_RE) is bullet-only. Forbid the form
     entirely so the render and audit see the same shape.
@@ -2455,7 +2455,7 @@ def check_c32_h3_rows_forbidden(backlog_files: list[Path]) -> list[Finding]:
                     code="C32",
                     message=(
                         f"H3-form row '{identifier}' in `## {current_h2}` H2 — "
-                        f"backlog rows must be bullets per [[CAB Backlog]]; "
+                        f"backlog rows must be bullets per [[DAS Backlog]]; "
                         f"rewrite as `- **{identifier} — Title** [Status] — body... "
                         f"→ [[F<n> — Title]]`. H3 form escapes the canonical row "
                         f"parser, so most state-purity checks silently skip it."
@@ -2621,7 +2621,7 @@ def check_c35_ask_md_drift(
             if target_file is None or not target_file.is_file():
                 continue  # link resolution belongs to C1/C22
             # Only feature docs participate (skip non-F<n> targets like
-            # `[[CAB ...]]` references inside descriptive text).
+            # `[[DAS ...]]` references inside descriptive text).
             stem_m = F_NUMBER_PREFIX_RE.match(target_file.stem)
             if not stem_m:
                 continue

@@ -220,11 +220,11 @@ The `{slug} Stories.md` index page contains a wiki-link to `[[{slug} PRD]]` in i
 
 ### RULE R-stories-10 — Story / index links the facet spec as `~~[[FCT Stories]]~~` (stated)
 
-Where a story file or the `{slug} Stories.md` dispatch references the governing facet spec, it links `~~[[FCT Stories]]~~` — the current facet name. The legacy `[[CAB Stories]]` form is stale and must be rewritten on touch.
+Where a story file or the `{slug} Stories.md` dispatch references the governing facet spec, it links `~~[[FCT Stories]]~~` — the current facet name. The legacy `[[DAS Stories]]` form is stale and must be rewritten on touch.
 
 **Check pattern:** grep story files + `{slug} Stories.md` for `\[\[CAB Stories\]\]`; any hit is a violation (should be `~~[[FCT Stories]]~~`).
 
-**Why:** the facet was renamed CAB → FCT; dangling `[[CAB Stories]]` links resolve to nothing and break the audit walk from instance back to spec.
+**Why:** the facet was renamed CAB → FCT; dangling `[[DAS Stories]]` links resolve to nothing and break the audit walk from instance back to spec.
 
 ### RULE R-stories-11 — Folder-form story files carry the canonical `As a …` sentence (sampled)
 

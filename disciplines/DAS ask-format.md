@@ -215,7 +215,7 @@ When referring to a specific Q or Verify from elsewhere:
 
 ## Numbering policy
 
-`Q<n>` and `V<n>` numbers are stable references — once assigned, never renumber, even when items resolve out of order. Skipped numbers are fine. Same lowest-unused-integer policy as backlog F-numbers (per [[CAB Backlog]] § Numbering policy), scoped per container:
+`Q<n>` and `V<n>` numbers are stable references — once assigned, never renumber, even when items resolve out of order. Skipped numbers are fine. Same lowest-unused-integer policy as backlog F-numbers (per [[DAS Backlog]] § Numbering policy), scoped per container:
 
 - Each feature doc has its own Q-namespace.
 - Each anchor's `{slug} ask.md` § `## Questions` has its own Q-namespace.
@@ -370,6 +370,6 @@ The principle generalizes to **any user-actionable item in a transient channel**
 - `[[SKA groom]]` — parks questions into feature docs per this discipline.
 - `[[SKA crank]]` — when surfacing user-actionable items, uses this discipline.
 - `[[audit q]]` — enforces this discipline mechanically.
-- `[[CAB Backlog]]` § Numbering policy — same lowest-unused-integer rule.
+- `[[DAS Backlog]]` § Numbering policy — same lowest-unused-integer rule.
 - `[[F068 — Assume-and-announce discipline (Drive mode)|F068]]` — assume-and-announce; defines when an auto-decision (skipping Phase 1) is valid.
 - `[[F086]]` — accumulate-resolutions semantics; defines acceptance/rollback phrases.

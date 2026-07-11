@@ -88,7 +88,7 @@ Two cases trigger a backlog entry:
 1. **Chunking overflow** — integration-eligible findings exceeded N; remainder needs to be cranked through later.
 2. **Non-eligible findings** — broken frontmatter that requires user fix before audit can re-run cleanly.
 
-Locate `{slug} Docs/{slug} Plan/{slug} Backlog.md`. Find the lowest unused B-number per [[CAB Backlog]] § Format. Append under `## Now` (or `## Ready` if all entries are immediately actionable):
+Locate `{slug} Docs/{slug} Plan/{slug} Backlog.md`. Find the lowest unused B-number per [[DAS Backlog]] § Format. Append under `## Now` (or `## Ready` if all entries are immediately actionable):
 
 ```
 - **B<n> — Features audit: <K> integrations pending + <M> needs-fix (<YYYY-MM-DD>)** [Ready] — work surfaced by `/audit features` exceeded chunking cap (N=3). Sub-bullets list remaining work.

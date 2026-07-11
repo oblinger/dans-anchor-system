@@ -19,7 +19,7 @@ Systematic code quality audit using Semgrep for mechanical pattern detection and
 
 Print this table to the console. **If `dry` substring is in args**, stop here — print "dry-run — no backlog entry written."
 
-6. Write the backlog entry. Locate `{slug} Docs/{slug} Plan/{slug} Backlog.md`. Read it, find the lowest unused B-number (per [[CAB Backlog]] § Format), and append a new bullet under `## Upcoming`:
+6. Write the backlog entry. Locate `{slug} Docs/{slug} Plan/{slug} Backlog.md`. Read it, find the lowest unused B-number (per [[DAS Backlog]] § Format), and append a new bullet under `## Upcoming`:
 
 ```
 - **B<n> — Code audit: <N> findings (<YYYY-MM-DD>)** [Ready] — work surfaced by `/audit code`. Sub-bullets are candidate splits if this needs to be broken up.

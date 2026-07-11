@@ -32,7 +32,7 @@ The one structural rule an author reaches for constantly: **any non-trivial page
 A wiki-link with an alias inside a table cell needs the pipe escaped: `[[Target\|alias]]`. Unescaped pipes inside table cells terminate the cell early and break the table's column count.
 
 ```markdown
-| ✓ Correct | [[CAB PRD\|PRD]] |
+| ✓ Correct | [[DAS PRD\|PRD]] |
 | ✗ Broken  | [[FCT PRD|PRD]] |
 ```
 

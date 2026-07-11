@@ -6,7 +6,7 @@ description: "specification for F-numbered per-feature design docs and their ind
 # FCT Features
 Specification for the **Features** facet — F-numbered per-feature design docs that live under `{slug} Design/{slug} Features/`, with their index page and pre-document Open-Questions zone.
 
-**Related:** [[DAS Roadmap]],  [[CAB Backlog]],  [[DAS Status]],  [[DAS Facet]]
+**Related:** [[DAS Roadmap]],  [[DAS Backlog]],  [[DAS Status]],  [[DAS Facet]]
 **Examples:** [[HBR Features\|minimal]],  [[HBR Features\|fuller]]
 
 | Table of Contents |  |
@@ -21,7 +21,7 @@ Specification for the **Features** facet — the F-numbered per-feature design d
 
 **Location:** `{slug} Design/{slug} Features/` (folder; one file per feature, `F<NNN> — <Title>.md`).
 
-**Relocated to Design 2026-06-10** — previously lived at `{slug} Track/{slug} Features/` (per F094) and `{slug} Docs/{slug} Plan/{slug} Features/` (pre-F094). Moved into Design alongside [[DAS Roadmap]] because feature docs are themselves design artifacts — each carries a Summary, Success Criteria, and Design section that the PRD / Architecture / Testing facets refer to. Track now holds only [[CAB Backlog]], [[DAS Status]], and tracking metadata. Lazy migration: existing anchors stay at the old location until next `/feature` or `/design` touch repositions them (F142).
+**Relocated to Design 2026-06-10** — previously lived at `{slug} Track/{slug} Features/` (per F094) and `{slug} Docs/{slug} Plan/{slug} Features/` (pre-F094). Moved into Design alongside [[DAS Roadmap]] because feature docs are themselves design artifacts — each carries a Summary, Success Criteria, and Design section that the PRD / Architecture / Testing facets refer to. Track now holds only [[DAS Backlog]], [[DAS Status]], and tracking metadata. Lazy migration: existing anchors stay at the old location until next `/feature` or `/design` touch repositions them (F142).
 
 Individual feature specifications, each in an F-numbered file inside the Features subfolder of the Design folder. **Cardinality: many** — each anchor holds any number of feature docs (one file per feature, F-numbered).
 
@@ -157,7 +157,7 @@ The `{slug} Features.md` index page lists features newest-first. Each row is a w
 
 *(Maintainer note — facet-specific cautions for whoever edits this Features-facet spec. The normative shape is the body + RULESET R-fct-features above; skills `/feature`, `/design`, `/groom`, `/crank` cite it and audit/rewire check anchors against it.)*
 
-- **NOT a feature index, NOT a backlog, NOT a roadmap** — don't pile concrete `F<NNN>` entries, status lists, or per-anchor feature catalogs here. Those live in `{slug} Features.md` index pages within each anchor, or in [[CAB Backlog]] / [[DAS Roadmap]] for their respective concerns.
+- **NOT a feature index, NOT a backlog, NOT a roadmap** — don't pile concrete `F<NNN>` entries, status lists, or per-anchor feature catalogs here. Those live in `{slug} Features.md` index pages within each anchor, or in [[DAS Backlog]] / [[DAS Roadmap]] for their respective concerns.
 - **Inclusion test for edits** — a change belongs here only if it defines the *shape* of feature docs across all anchors: folder location, filename pattern, the two-zone layout (Open Questions above H1; spec body below), mandatory vs optional H2 sections, title-encoding conventions (M-position), or the Roadmap-within-feature sub-pattern. Anchor-local feature conventions go in `{slug} Rules.md` or `{slug} Decisions.md`, not here.
 - **No inline reference example — link the real ones.** The feature-doc shape is conveyed by the prose sections (Folder Structure / Index Page / Feature Document Format) plus the `**Worked examples:**` pointer to the `examples/HBR/HBR Design/HBR Features/` docs in this repo. Do NOT paste a sample feature doc back into this spec.
-- **Cross-references to maintain** — [[DAS Roadmap]] (M-position title encoding, sub-roadmap pattern), [[CAB Backlog]] (tracking surface), [[DAS Status]] (lifecycle states), `progressive-disclosure` (TLDR rule), and the relocation note (F094 → 2026-06-10 Design move; F142 lazy-migration). Changing any load-bearing convention ripples across every anchor — update the worked examples and downstream skill runbooks in the same pass.
+- **Cross-references to maintain** — [[DAS Roadmap]] (M-position title encoding, sub-roadmap pattern), [[DAS Backlog]] (tracking surface), [[DAS Status]] (lifecycle states), `progressive-disclosure` (TLDR rule), and the relocation note (F094 → 2026-06-10 Design move; F142 lazy-migration). Changing any load-bearing convention ripples across every anchor — update the worked examples and downstream skill runbooks in the same pass.
