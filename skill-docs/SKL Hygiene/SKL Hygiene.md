@@ -14,5 +14,5 @@ User guides for hygiene skills — keep anchors clean, conformant, and well-link
 | [[DAS Rewire\|Rewire]] | Idempotent structural repair for any anchor. |
 | [[SKL Rule\|Rule]] | How to manage project rules — creating rules, checking violations, grading exceptions, driving fixes |
 | [[DAS Slug Scan\|Slug Scan]] | `/slug-scan` discovers anchors that have a slug (a short ID like `ODC`, `HA`, `SKA`) and syncs them into the slug index table at `~/ob/kmr/SYS/SYS Topic/slug/SLUG.md`. |
-| [[DAS Tidy\|Tidy]] | `/tidy` validates an anchor's folder structure against its CAB type spec and fixes the structural issues it finds — naming compliance (every file and folder prefixed with `{NAME}`), broken links fr… |
+| [[DAS Tidy\|Tidy]] | `/tidy` validates an anchor's folder structure against its CAB type spec and fixes the structural issues it finds — naming compliance (every file and folder prefixed with `{slug}`), broken links fr… |
 | --- | |

@@ -120,7 +120,7 @@ Create `{slug} CLI.md` when the anchor ships an executable (Rust `[[bin]]`, Pyth
 
 # RULESET R-cli
 include::
-where:: `file:{ANCHOR}/**/{slug} CLI.md`
+where:: `file:{anchor}/**/{slug} CLI.md`
 description:: the `{slug} CLI.md` command-line specification format (a compressed SVG help figure over the full command reference)
 
 What `/audit docs` checks on a CLI doc. Optional — only an anchor that ships a CLI carries one. Format of this set: [[DAS Ruleset]].

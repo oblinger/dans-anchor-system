@@ -49,7 +49,7 @@ Every state change is driven by a named skill. There are no silent transitions.
 
 ## Where workflow shows up
 
-- **Backlog** (`{NAME} Backlog.md`) — items live under H2 sections; status shown via bracket prefix or H2 placement (in horizon sections, brackets show pre-Ready states; in workflow-state H2s like `## Active`, the H2 implies the state).
+- **Backlog** (`{slug} Backlog.md`) — items live under H2 sections; status shown via bracket prefix or H2 placement (in horizon sections, brackets show pre-Ready states; in workflow-state H2s like `## Active`, the H2 implies the state).
 - **Feature docs** — the Status field at the bottom uses these state names. Historical labels (Proposed, Agreed, Done) map to the canonical states.
 - **Roadmap milestones** — coarser granularity; a milestone's state is the most-advanced state shared by all its acceptance criteria.
 - **PRDs** — light usage; PRD-internal states (Draft, Approved) only.

@@ -7,9 +7,9 @@ Usage:
 Reads:
     - Source tree from the `code:` key in the anchor's `.anchor` file
       (absolute path, or relative to anchor root — `.` for inline repos)
-    - {NAME} Files.md
-    - {NAME} Dev.md (Dev dispatch)
-    - Module docs in {NAME} Dev/
+    - {slug} Files.md
+    - {slug} Dev.md (Dev dispatch)
+    - Module docs in {slug} Dev/
     - Exceptions from .anchor.d/audit-docs.yaml
 
 Outputs a diff table showing:
@@ -343,10 +343,10 @@ def audit(anchor_path: str, verbose: bool = False) -> list[Finding]:
     source_dirs = scan_source_dirs(code_path, sources)
 
     # Find doc paths.
-    # The Gen-3 migration dissolved the `{NAME} Docs/` container: Dev / Plan /
+    # The Gen-3 migration dissolved the `{slug} Docs/` container: Dev / Plan /
     # Design / User now sit directly at the anchor root. Prefer the legacy
-    # `{NAME} Docs/{NAME} Dev/` layout when that container still exists; otherwise
-    # fall back to `{NAME} Dev/` at the anchor root. Everything below (dev_folder,
+    # `{slug} Docs/{slug} Dev/` layout when that container still exists; otherwise
+    # fall back to `{slug} Dev/` at the anchor root. Everything below (dev_folder,
     # the Files.md search, the Plan path) derives from docs_folder, so this one
     # branch handles both layouts.
     legacy_docs_folder = os.path.join(anchor_root, f"{rid} Docs")

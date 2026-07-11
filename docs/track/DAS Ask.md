@@ -9,7 +9,7 @@ The **`/ask` skill** is the universal asking subroutine.
 | Related | [[skills/ask/SKILL.md\|SKILL]],  [[DAS ask-inline]],   |
 | [[DAS Ask Design\|Design]] |  |
 
-The **`/ask` skill** is the universal asking subroutine. Whenever an agent in any anchor has a question for you, it routes through `/ask` — which formats the question, picks the right surface (a feature doc, or directly in the anchor's `{NAME} ask.md` § `## Questions`), maintains the vault-level Agent Status dashboard at `[[Q]]`, and (if you're engaging with the work right now) opens the file at you.
+The **`/ask` skill** is the universal asking subroutine. Whenever an agent in any anchor has a question for you, it routes through `/ask` — which formats the question, picks the right surface (a feature doc, or directly in the anchor's `{slug} ask.md` § `## Questions`), maintains the vault-level Agent Status dashboard at `[[Q]]`, and (if you're engaging with the work right now) opens the file at you.
 
 `/ask` replaces the old `ask-questions` discipline. The behavior is the same; the difference is structural — instead of "every skill should remember to follow this discipline" (which broke), parent skills *invoke* `/ask` as a subroutine, and the runbook (including the glance step) executes uniformly.
 
@@ -43,7 +43,7 @@ If `Q.md` grows too large overall, individual per-anchor sections collapse to **
 **Inside each anchor**, questions live in two places:
 
 - **Document-attached** — questions about a specific feature/PRD/design doc live in that doc's `## Open Questions` H2 (directly below the H1).
-- **Anchor-level** — cross-cutting questions (planning, agent-raised, no specific doc) are authored directly in `{NAME} ask.md` § `## Questions`, numbered `Q1`, `Q2`, ... There is no separate questions file.
+- **Anchor-level** — cross-cutting questions (planning, agent-raised, no specific doc) are authored directly in `{slug} ask.md` § `## Questions`, numbered `Q1`, `Q2`, ... There is no separate questions file.
 
 
 ## How agents invoke it
@@ -57,7 +57,7 @@ Direct invocation works too:
 ```
 
 - `--doc <path>` — document-attached mode; questions go in that doc's `## Open Questions` block.
-- No flag — anchor-level mode; questions are authored directly in the anchor's `{NAME} ask.md` § `## Questions`.
+- No flag — anchor-level mode; questions are authored directly in the anchor's `{slug} ask.md` § `## Questions`.
 
 
 ## Question format
@@ -86,7 +86,7 @@ The shorthand is uniform across surfaces:
 |---|---|
 | `F005 Q4: yes` | Resolves Q4 in F5's feature doc with answer "yes". Moves the question to `### Resolved`. |
 | `Q4: yes` (after sticky context "I'm in F5 now") | Same as above. |
-| `{NAME} Q3: option A, because...` | Resolves the anchor-level Q3 authored in the anchor's `{NAME} ask.md` § `## Questions`. |
+| `{slug} Q3: option A, because...` | Resolves the anchor-level Q3 authored in the anchor's `{slug} ask.md` § `## Questions`. |
 
 
 ## Active vs Parking mode
@@ -100,7 +100,7 @@ Default when ambiguous is parking, since the cost of an unwanted glance (interru
 
 ## Phase lifecycle of `## Open Questions` blocks
 
-Applies to **feature docs** (anchor-level Qs in `{NAME} ask.md` use the same Q format but are a live drain — answered Qs move to `## Agent Resolutions` and the bullet is removed, with no phased `### Resolved` archive):
+Applies to **feature docs** (anchor-level Qs in `{slug} ask.md` use the same Q format but are a live drain — answered Qs move to `## Agent Resolutions` and the bullet is removed, with no phased `### Resolved` archive):
 
 1. **Pending exists** — `## Open Questions` H2 sits below the H1; resolved questions accumulate in a `### Resolved` H3 holding pen.
 2. **All resolved** — the `## Open Questions` H2 is deleted; resolved questions migrate down to a `## Resolved` H2 at the **bottom** (permanent archive).

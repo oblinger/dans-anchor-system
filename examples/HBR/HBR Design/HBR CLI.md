@@ -84,4 +84,4 @@ path = "/media/music"
 
 ✂ ──── example notes ──── ✂
 
-*This is a worked `{NAME} CLI.md` example — the `harbor` CLI of the [[HBR]] project world. The help figure is `HBR CLI Help.svg`, rendered from `HBR CLI Help.txt` by `cli-help-svg.py`; edit the `.txt` and regenerate. It demonstrates the facet's load-bearing patterns: a one-line summary under the H1, the compressed SVG help figure, a flag-heavy command (`transcode`) shown compactly in the figure with a full `## transcode` section below, and one-line `## Notes` for the commands that don't need their own section.*
+*This is a worked `{slug} CLI.md` example — the `harbor` CLI of the [[HBR]] project world. The help figure is `HBR CLI Help.svg`, rendered from `HBR CLI Help.txt` by `cli-help-svg.py`; edit the `.txt` and regenerate. It demonstrates the facet's load-bearing patterns: a one-line summary under the H1, the compressed SVG help figure, a flag-heavy command (`transcode`) shown compactly in the figure with a full `## transcode` section below, and one-line `## Notes` for the commands that don't need their own section.*

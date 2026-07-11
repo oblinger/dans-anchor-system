@@ -118,15 +118,15 @@ def find_roadmaps(vault_root: Path) -> list[Path]:
 
 
 def _feature_dirs_for(roadmap_path: Path) -> list[Path]:
-    """Candidate `{NAME} Features/` dirs for a roadmap at `{NAME} Design/`.
+    """Candidate `{slug} Features/` dirs for a roadmap at `{slug} Design/`.
 
-    Roadmap lives at `{NAME} Design/{NAME} Roadmap.md`; feature docs live in
-    `{NAME} Design/{NAME} Features/` (new canonical) or legacy siblings. We
+    Roadmap lives at `{slug} Design/{slug} Roadmap.md`; feature docs live in
+    `{slug} Design/{slug} Features/` (new canonical) or legacy siblings. We
     derive the slug from the roadmap stem (`SKA Roadmap` → `SKA`).
     """
     stem = roadmap_path.stem  # e.g. "SKA Roadmap"
     slug = stem[: -len(" Roadmap")] if stem.endswith(" Roadmap") else stem
-    design_dir = roadmap_path.parent             # {NAME} Design/
+    design_dir = roadmap_path.parent             # {slug} Design/
     anchor_root = design_dir.parent
     return [
         design_dir / f"{slug} Features",

@@ -185,8 +185,8 @@ def check_top_of_doc(lines: list[str], text: str) -> list[Finding]:
     if not h1s:
         findings.append(Finding(
             "C2", 0,
-            "no H1 found; expected `# {NAME} {ModuleName}`",
-            suggest="Add `# {NAME} {ModuleName}` as the first non-frontmatter, non-breadcrumb heading.",
+            "no H1 found; expected `# {slug} {ModuleName}`",
+            suggest="Add `# {slug} {ModuleName}` as the first non-frontmatter, non-breadcrumb heading.",
         ))
     elif len(h1s) > 2:
         findings.append(Finding(

@@ -119,7 +119,7 @@ def _strip_link_target(raw: str) -> str:
 
 def _strip_ticks(val: str) -> str:
     """Strip a single surrounding backtick pair from a field value (F172 —
-    `` where:: `file:{ANCHOR}/**/*.md` `` is the canonical authored form).
+    `` where:: `file:{anchor}/**/*.md` `` is the canonical authored form).
     Values whose interior contains further backticks (prose with inline code
     spans) pass through untouched, as does the bare legacy form."""
     if len(val) >= 2 and val[0] == "`" and val[-1] == "`" and "`" not in val[1:-1]:
@@ -384,15 +384,15 @@ def parse_selector(where: str) -> tuple[str, str]:
 
 def _glob_to_relpattern(glob: str) -> str:
     g = glob.strip()
-    if g.startswith("{ANCHOR}/"):
-        g = g[len("{ANCHOR}/"):]
-    elif g == "{ANCHOR}":
+    if g.startswith("{anchor}/"):
+        g = g[len("{anchor}/"):]
+    elif g == "{anchor}":
         g = ""
     return g
 
 
 def _anchor_name(anchor_root: Path) -> str:
-    """{NAME}/{slug} token → the anchor's slug (from .anchor), else its folder name."""
+    """{slug} token → the anchor's slug (from .anchor), else its folder name."""
     dot = anchor_root / ".anchor"
     if dot.is_file():
         try:
@@ -466,7 +466,7 @@ def _glob_rx(pat: str):
 
 def _match_file_glob(arg: str, scope_files: list[Path], anchor_root: Path) -> list[Path]:
     """Resolve a `file:` where-glob to scope files, honoring the full spec
-    ([[FCT Ruleset]] § Where clause): {ANCHOR}/{NAME}/{slug} tokens, brace-alternation,
+    ([[FCT Ruleset]] § Where clause): {anchor}/{slug} tokens, brace-alternation,
     comma-union, and gitignore-style !-negation. Matches patterns against the
     scope files' anchor-relative paths — no filesystem walk (F232 B3)."""
     name = _anchor_name(anchor_root)
@@ -491,7 +491,7 @@ def _match_file_glob(arg: str, scope_files: list[Path], anchor_root: Path) -> li
         neg = term.startswith("!")
         if neg:
             term = term[1:].strip()
-        rel = _glob_to_relpattern(term).replace("{NAME}", name).replace("{slug}", name)
+        rel = _glob_to_relpattern(term).replace("{slug}", name)
         if not rel:
             paths = {p for p, r in rel_of.items() if r == ""}
         else:
@@ -675,7 +675,7 @@ def plan_one(target: Path, mode: str, cdir: Path | None, warnings: list[str],
                 "selector": effective_where(r, rs), "check": r.get("check"),
                 "fix": r.get("fix"),
                 "check_pattern": r.get("check_pattern"), "why": r.get("why"),
-                "targets": [str(p.relative_to(anchor_root)) if p != anchor_root else "{ANCHOR}"
+                "targets": [str(p.relative_to(anchor_root)) if p != anchor_root else "{anchor}"
                             for p in tgts],
                 "_target_paths": [str(p) for p in tgts],
             })
@@ -1193,7 +1193,7 @@ def chk_ruleset_no_frontmatter(target, anchor_root, args):
 # -- R-status ------------------------------------------------------------------
 
 def chk_status_filename_valid(target, anchor_root, args):
-    """Filename is exactly '{SLUG} Status.md'."""
+    """Filename is exactly '{slug} Status.md'."""
     slug = _anchor_slug(anchor_root)
     expected = f"{slug} Status.md"
     if target.name == expected:
@@ -1202,7 +1202,7 @@ def chk_status_filename_valid(target, anchor_root, args):
 
 
 def chk_status_in_track_folder(target, anchor_root, args):
-    """File lives in {SLUG} Track/."""
+    """File lives in {slug} Track/."""
     slug = _anchor_slug(anchor_root)
     expected_parent = anchor_root / f"{slug} Track"
     if target.parent == expected_parent:
@@ -1281,7 +1281,7 @@ def chk_status_user_cells_noted(target, anchor_root, args):
 
 
 def chk_status_track_dispatch_linked(target, anchor_root, args):
-    """{SLUG} Track.md contains a [[{SLUG} Status]] link."""
+    """{slug} Track.md contains a [[{slug} Status]] link."""
     slug = _anchor_slug(anchor_root)
     track = anchor_root / f"{slug} Track.md"
     if not track.is_file():
@@ -1295,7 +1295,7 @@ def chk_status_track_dispatch_linked(target, anchor_root, args):
 # -- R-testing -----------------------------------------------------------------
 
 def chk_testing_filename_correct(target, anchor_root, args):
-    """File named {SLUG} Testing.md; no legacy {SLUG} Testing Strategy.md alongside."""
+    """File named {slug} Testing.md; no legacy {slug} Testing Strategy.md alongside."""
     if not target.is_file():
         return "error", "target is not a file"
     slug = _anchor_slug(anchor_root)
@@ -1543,7 +1543,7 @@ def chk_all_files_folders_prefixed_with_name(target, anchor_root, args):
 # -- R-prd ---------------------------------------------------------------------
 
 def chk_file_path_matches_prd_locations(target, anchor_root, args):
-    """PRD at {NAME} Design/{NAME} PRD.md or {NAME} Design/{NAME} PRD/{NAME} PRD.md."""
+    """PRD at {slug} Design/{slug} PRD.md or {slug} Design/{slug} PRD/{slug} PRD.md."""
     if not target.is_file():
         return "pass", "not a file"
     proj = target.stem[:-len(" PRD")] if target.stem.endswith(" PRD") else target.stem
@@ -1664,7 +1664,7 @@ def chk_queries_sections_subsequence(target, anchor_root, args):
 
 
 def chk_user_stories_use_rid_numbering(target, anchor_root, args):
-    """## User Stories H3s use US-{SLUG}-N: (inline form; folder form deferred)."""
+    """## User Stories H3s use US-{slug}-N: (inline form; folder form deferred)."""
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
@@ -1691,7 +1691,7 @@ def chk_user_stories_use_rid_numbering(target, anchor_root, args):
 
 
 def chk_no_legacy_open_questions_file(target, anchor_root, args):
-    """No legacy {NAME} Open Questions.md in {NAME} Design/."""
+    """No legacy {slug} Open Questions.md in {slug} Design/."""
     name = anchor_root.name
     legacy = anchor_root / f"{name} Design" / f"{name} Open Questions.md"
     if legacy.is_file():
@@ -1718,7 +1718,7 @@ def chk_design_workflow_modern_names(target, anchor_root, args):
 
 
 def chk_dispatch_table_stories_row(target, anchor_root, args):
-    """Dispatch table has a Stories row displaying '{NAME} Stories'."""
+    """Dispatch table has a Stories row displaying '{slug} Stories'."""
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
@@ -2000,11 +2000,11 @@ def chk_progressive_disclosure_layout(target, anchor_root, args):
 # -- R-roadmap -----------------------------------------------------------------
 
 def chk_file_exists(target, anchor_root, args):
-    """A file (arg[0], with {NAME} substituted) exists under anchor_root."""
+    """A file (arg[0], with {slug} substituted) exists under anchor_root."""
     if not args:
         return "error", "file_exists requires a path argument"
     slug = _anchor_slug(anchor_root)
-    pattern = args[0].replace("{NAME}", slug).replace("{slug}", slug)
+    pattern = args[0].replace("{slug}", slug)
     if (anchor_root / pattern).is_file():
         return "pass", f"{pattern} exists"
     return "fail", f"{pattern} does not exist"
@@ -2078,7 +2078,7 @@ def chk_milestone_section_separator(target, anchor_root, args):
 # -- R-log ---------------------------------------------------------------------
 
 def chk_log_path_exists(target, anchor_root, args):
-    """{SLUG} Log/ folder or {SLUG} Log.md exists under the anchor."""
+    """{slug} Log/ folder or {slug} Log.md exists under the anchor."""
     slug = _anchor_slug(anchor_root)
     if (anchor_root / f"{slug} Log").is_dir() or (anchor_root / f"{slug} Log.md").is_file():
         return "pass", f"found {slug} Log"
@@ -2086,7 +2086,7 @@ def chk_log_path_exists(target, anchor_root, args):
 
 
 def chk_log_dispatch_file_present(target, anchor_root, args):
-    """If {SLUG} Log/ exists it contains {SLUG} Log.md with H1 '{SLUG} Log'."""
+    """If {slug} Log/ exists it contains {slug} Log.md with H1 '{slug} Log'."""
     slug = _anchor_slug(anchor_root)
     dir_form = anchor_root / f"{slug} Log"
     if not dir_form.is_dir():
@@ -2100,7 +2100,7 @@ def chk_log_dispatch_file_present(target, anchor_root, args):
 
 
 def chk_log_entry_filenames(target, anchor_root, args):
-    """Entry files in {SLUG} Log/ match YYYY-MM-DD / YYYY-MM / YYYY date prefixes."""
+    """Entry files in {slug} Log/ match YYYY-MM-DD / YYYY-MM / YYYY date prefixes."""
     slug = _anchor_slug(anchor_root)
     dir_form = anchor_root / f"{slug} Log"
     if not dir_form.is_dir():
@@ -2146,7 +2146,7 @@ def chk_log_dispatch_newest_first(target, anchor_root, args):
 
 
 def chk_log_anchor_page_link(target, anchor_root, args):
-    """Anchor entry page carries a [[{SLUG} Log]] dispatch row."""
+    """Anchor entry page carries a [[{slug} Log]] dispatch row."""
     slug = _anchor_slug(anchor_root)
     ep = _entry_page(anchor_root)
     if ep is None:
@@ -2210,7 +2210,7 @@ def chk_brief_not_nested(target, anchor_root, args):
 # -- R-design ------------------------------------------------------------------
 
 def chk_design_folder_children(target, anchor_root, args):
-    """{NAME} Design/ contains required children (args are stem names, e.g. PRD)."""
+    """{slug} Design/ contains required children (args are stem names, e.g. PRD)."""
     if target.is_file():
         return "pass", "not a folder"
     design = anchor_root / f"{anchor_root.name} Design"
@@ -2225,7 +2225,7 @@ def chk_design_folder_children(target, anchor_root, args):
 
 
 def chk_status_facets_initialized(target, anchor_root, args):
-    """When {NAME} Design/ exists, {NAME} Track/{NAME} Status.md has the facet lines (args)."""
+    """When {slug} Design/ exists, {slug} Track/{slug} Status.md has the facet lines (args)."""
     name = anchor_root.name
     if not (anchor_root / f"{name} Design").is_dir():
         return "pass", "no Design folder (N/A)"

@@ -608,7 +608,7 @@ def _post_conditions_and_print(slug, feature_path, summary):
 
 
 # ============================================================
-# Status subcommands (F130) — manage {NAME} Status.md per-facet planning state
+# Status subcommands (F130) — manage {slug} Status.md per-facet planning state
 # ============================================================
 
 
@@ -625,12 +625,12 @@ _STATUS_LINE_RE = re.compile(r"^([a-z][a-z0-9_]*):\:\s*(.*)$")
 
 
 def _status_path(slug, anchor_path):
-    """{NAME} Status.md lives in the Track folder next to Backlog/Icebox/etc."""
+    """{slug} Status.md lives in the Track folder next to Backlog/Icebox/etc."""
     return anchor_path / f"{slug} Docs" / f"{slug} Track" / f"{slug} Status.md"
 
 
 def _ensure_status_file(slug, anchor_path):
-    """Create {NAME} Status.md with all default facets at `none` if absent.
+    """Create {slug} Status.md with all default facets at `none` if absent.
 
     Fails if the Track folder doesn't exist (caller's anchor is malformed).
     """
@@ -759,7 +759,7 @@ def cmd_status_show(slug, anchor_path, args):
 # Roadmap subcommands (F145) — status get/set + whole-milestone migrate
 # ============================================================
 #
-# The roadmap lives at `{NAME} Design/{NAME} Roadmap.md`; the Completed Roadmap
+# The roadmap lives at `{slug} Design/{slug} Roadmap.md`; the Completed Roadmap
 # is its sibling. Milestone headings carry a checkbox in the title:
 #   ## [ ] M-Store — Persistence Layer
 #   ### [x] M-Store.1 — SQLite schema  [F050]
@@ -785,7 +785,7 @@ _BOX_TO_STATE = {"x": "checked", " ": "unchecked", "~": "deferred"}
 
 
 def _roadmap_path(slug, anchor_path, completed=False):
-    """`{NAME} Design/{NAME} [Completed ]Roadmap.md` — the canonical location.
+    """`{slug} Design/{slug} [Completed ]Roadmap.md` — the canonical location.
 
     Falls back to a vault-walk via find_backlog's anchor when the Design folder
     isn't directly under anchor_path (sub-anchors, linked-mode, etc.).
@@ -1172,9 +1172,9 @@ def build_parser():
     qrw.add_argument("-m", dest="inline", default=None)
     qrw.add_argument("--from-file", dest="from_file", default=None)
 
-    # status domain (F130) — manage {NAME} Status.md per-facet planning state
+    # status domain (F130) — manage {slug} Status.md per-facet planning state
     st = subs.add_parser("status",
-                         help="manage {NAME} Status.md per-facet planning status (F130)")
+                         help="manage {slug} Status.md per-facet planning status (F130)")
     st_subs = st.add_subparsers(dest="verb", required=True)
 
     sts = st_subs.add_parser("set", help="set a facet's status cell")
@@ -1191,7 +1191,7 @@ def build_parser():
 
     # roadmap domain (F145) — milestone status get/set + whole-milestone migrate
     rm = subs.add_parser("roadmap",
-                         help="manage {NAME} Roadmap.md milestone state + migration (F145)")
+                         help="manage {slug} Roadmap.md milestone state + migration (F145)")
     rm_subs = rm.add_subparsers(dest="verb", required=True)
 
     rmst = rm_subs.add_parser("status", help="get/set a roadmap entry's checkbox state")

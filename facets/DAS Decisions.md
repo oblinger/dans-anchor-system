@@ -151,7 +151,7 @@ When `{slug} Rules.md` is just a stub pointer to the decisions file, that's fine
 
 # RULESET R-decisions
 include::
-where:: `file:{ANCHOR}/** Design/**/*.md contains:(?m)^##\s+Decisions\s*$ ; file:{ANCHOR}/**/* Decisions.md`
+where:: `file:{anchor}/** Design/**/*.md contains:(?m)^##\s+Decisions\s*$ ; file:{anchor}/**/* Decisions.md`
 description:: spec for decisions — a `## Decisions` section (with `### D<N>` records) in any design doc, plus the optional central `{slug} Decisions.md`
 
 Embedded ruleset for the Decisions facet, co-located with the facet spec above per the [[F133 — Rulesets folder convention + facet embedding|F133]] embedding convention (and itself the worked shape of the companion convention — prose above, ruleset directly below). Pulled in via the `R-facet` umbrella; active for an anchor through its traits ([[Warden Semantics]] § Rulesets). The rules cover the documentation shape only — Warden computes nothing against the decision content these files carry.

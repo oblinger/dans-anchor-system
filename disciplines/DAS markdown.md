@@ -231,7 +231,7 @@ The lists in this doc whose items are *named things* (each has a recognizable ha
 
 ### RULE R-markdown-10 — Per-anchor docs don't restate facet-level rules (stated)
 description:: A per-anchor doc does not restate rules that live in a facet spec; the facet is the single source of truth.
-where:: `{ANCHOR}/**/{slug} *.md`
+where:: `{anchor}/**/{slug} *.md`
 This per-anchor doc looks like it restates universal format rules that belong in a facet (a Log's format rules live in [[DAS Log]], a PRD's in [[DAS PRD]]) — restated rules drift when the facet evolves. Drop the restatement and rely on the facet's embedded ruleset.
 
 ### RULE R-markdown-11 — Never put markdown inside a fenced code block (checked)

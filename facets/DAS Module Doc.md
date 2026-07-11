@@ -500,7 +500,7 @@ The `Arch` row points to the **most-specific** architecture destination — the 
 
 # RULESET R-module-doc
 include::
-where:: `file:{ANCHOR}/**/{slug} Dev/**/{slug} *.md`
+where:: `file:{anchor}/**/{slug} Dev/**/{slug} *.md`
 description:: per-module source documentation — one doc per source module under `{slug} Dev/`
 
 What `/audit module-doc` checks on a module doc. Cardinality: many — one per source module, mirroring the repo tree. Format of this set: [[DAS Ruleset]].

@@ -127,7 +127,7 @@ Add cheat sheets as reference material is learned. Add summary and detail cards 
 
 # RULESET R-cards
 include::
-where:: `file:{ANCHOR}/**/{slug} Cards.md`
+where:: `file:{anchor}/**/{slug} Cards.md`
 description:: the `{slug} Cards.md` study-deck format
 
 What `/audit` checks on a cards page. Optional — cardinality one per anchor. Format of this set: [[DAS Ruleset]].

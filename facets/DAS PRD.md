@@ -150,7 +150,7 @@ Any anchor that has a `{slug} Design/` folder per [[DAS Design Folder]]. Initial
 
 # RULESET R-prd
 include::
-where:: `file:{ANCHOR}/**/* PRD.md`
+where:: `file:{anchor}/**/* PRD.md`
 description:: facet spec this doc follows
 
 Embedded ruleset for the PRD facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella.
