@@ -14,4 +14,3 @@ User guides for the engine-room verbs that drive work forward through the lifecy
 | [[DAS Land\|Land]] | `/land` — bounded crank. |
 | [[DAS Fortify\|Fortify]] | Cautious, skeptical counterpart to `crank`. |
 | --- | |
-| ~~[[Query PRD]]~~ | product requirements |
