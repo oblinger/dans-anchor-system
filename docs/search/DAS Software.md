@@ -2,7 +2,7 @@
 description: "skim → click into the rule that applies"
 ---
 # DAS Software
-| -[[DAS Software]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Software](hook://p/DAS%20Software)<br>: skim → click into the rule that applies|
+| -[[DAS Software]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Software](hook://p/DAS%20Software)<br>: skim → click into the rule that applies |
 | --- | --- |
 | Software rules (any verb) | [[SRC rules/software\|software.md]],   |
 | Verbs | [[SRC rules/find-software\|find-software]],  [[SRC rules/profile-software\|describe-software]],  [[SRC rules/survey-software\|survey-software]],   |
