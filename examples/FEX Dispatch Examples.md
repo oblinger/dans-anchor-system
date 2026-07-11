@@ -16,7 +16,7 @@ A gallery of the dispatch-table alternatives from [[DSC Dispatch Table]] § Stru
 | #   | Kind                       | What it shows                                                                                                                         | Live example        |
 | --- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
 | 1   | **Masthead-only**          | breadcrumb + anchor-kind **structural rows** (Design / Architecture / User Docs / Dev Docs), no member zone — a non-collection anchor | [[HBR]]             |
-| 2   | **Member groups** (`+`)    | members under labeled, **expandable** group rows (`Anchor+`, `Doc+`, `Search+`) — the > 15 grouped layout                             | [[SKL]]             |
+| 2   | **Member groups** (`+`)    | members under labeled, **expandable** group rows (`Anchor+`, `Doc+`, `Search+`) — the > 15 grouped layout                             | [[DAS Skills]]             |
 | 3   | **Flat member list**       | one row per member, hand-ordered — the ≤ 15 flat layout, manual                                                                       | [[SKA Access]]      |
 | 4   | **Hybrid** (manual + auto) | curated category rows the author pinned, plus a **`...`** compact-auto staging row at the bottom                                      | [[SYS]]             |
 | 5   | **With a figure**          | the page ordering when an anchor page carries a figure: **H1 → one-liner → figure (no title) → dispatch table**                       | [[FEX Figure Page]] |
@@ -30,7 +30,7 @@ A gallery of the dispatch-table alternatives from [[DSC Dispatch Table]] § Stru
 
 This is what *most* project anchors look like: Masthead only.
 
-## 2 — Member groups with `+` ([[SKL]])
+## 2 — Member groups with `+` ([[DAS Skills]])
 
 `[[SKL]]` is the user-facing skill library — a [[Collection]] with **many** members (every published skill), so it uses **member groups**: rows like [[SKL Anchor|Anchor]], [[SKL Hygiene|Hygiene]], [[SKL Doc|Doc]], [[SKL Search|Search]] — each with a trailing `+`. The **`+`** marks each group row as *expandable* — it's itself a dispatch page of its members. This is the > 15 grouped layout (the [[progressive-disclosure]] size rule; the graduation from flat→grouped is [[granularity]]).
 
@@ -51,7 +51,7 @@ This is what *most* project anchors look like: Masthead only.
 | Example | Layout axis | Automation axis |
 |---|---|---|
 | [[HBR]] | (masthead-only — no member zone) | — |
-| [[SKL]] | **member groups** (`+`) | manual |
+| [[DAS Skills]] | **member groups** (`+`) | manual |
 | [[SKA Access]] | **member list** (flat) | manual |
 | [[SYS]] | member list (category rows) | **hybrid** (manual + `...` auto) |
 

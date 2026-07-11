@@ -82,4 +82,4 @@ The `docs/` folder lives in different places depending on anchor type:
 
 Simple anchors and paper anchors typically don't have published docs.
 
-See [[TRT]] for details on each anchor type.
+See [[DAS Traits]] for details on each anchor type.

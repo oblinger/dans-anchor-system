@@ -22,7 +22,7 @@ This is the load-bearing distinction:
 | Generality | a standardized part *any* anchor of that type carries (Backlog, PRD, Architecture) | a *domain-specific* shape that exists in one place (a `Computers/` folder, a `Disks/` tree) |
 | Why it exists | so all anchors of a type are predictable to agent + human | so the items in one folder are predictable, **when the shape is too specific to be a facet** |
 
-The test: *"does this shape recur across many anchors of a type?"* If yes → it's a **[[DAS Facet|facet]]** (or a [[TRT|trait]] if it's a paradigm, not a file). If it lives in **one** folder/tree and no other project would carry it — a list of *your computers*, a tree of *your disks*, the config files of *one idiosyncratic engine you built* — it is **not** a facet; it's a **template**. Templates are how a domain-specific set gets a dependable, declared shape without inflating the global standard.
+The test: *"does this shape recur across many anchors of a type?"* If yes → it's a **[[DAS Facet|facet]]** (or a [[DAS Traits|trait]] if it's a paradigm, not a file). If it lives in **one** folder/tree and no other project would carry it — a list of *your computers*, a tree of *your disks*, the config files of *one idiosyncratic engine you built* — it is **not** a facet; it's a **template**. Templates are how a domain-specific set gets a dependable, declared shape without inflating the global standard.
 
 A template can also serve as the **starting instance** when you create a new item (clone → rename → fill/drop placeholders), but that genesis use is secondary to its primary role: *standardizing the shape of what's already in the folder*.
 

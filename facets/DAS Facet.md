@@ -39,7 +39,7 @@ A **facet** is a narrow, usually file-based aspect of an anchor — one specific
 
 A facet **defines a kind**. The concrete `<NAME> Backlog.md` inside a real project is an *instance* of the Backlog facet, not a facet itself — keep the two apart.
 
-Facets are one of the two kinds of [[CAB Aspects|Aspect]] — the narrow, file-based kind; the broad declared-paradigm kind is the [[TRT|Trait]] (full distinction: [[CAB Aspects]] § Trait vs Facet). The shared model lives in [[CAB Aspects]]; this page is the facet-authoring view of it.
+Facets are one of the two kinds of [[CAB Aspects|Aspect]] — the narrow, file-based kind; the broad declared-paradigm kind is the [[DAS Traits|Trait]] (full distinction: [[CAB Aspects]] § Trait vs Facet). The shared model lives in [[CAB Aspects]]; this page is the facet-authoring view of it.
 
 # Examples of a facet — project instances vs standalone `FEX` artifacts
 A facet's worked examples come in two kinds, and the **prefix tells them apart**:
@@ -165,7 +165,7 @@ A mutual-exclusion rule is declared only when two things make contradictory clai
 ## Facet vs Trait — don't conflate
 
 ### RULE R-facet-spec-19 — A facet is a narrow file/folder aspect, not a paradigm (stated)
-If the thing is a specific file or folder, it's a Facet (here). If it names what the anchor *is* — a declared paradigm in `traits:` — it's a [[TRT|Trait]], authored under `traits/`.
+If the thing is a specific file or folder, it's a Facet (here). If it names what the anchor *is* — a declared paradigm in `traits:` — it's a [[DAS Traits|Trait]], authored under `traits/`.
 **Check pattern:** the spec describes a file/folder-shaped aspect, not "this anchor is a Code/Skill/… project".
 **Why:** the two have different detection (file vs `traits:` lookup) and different homes; a misfiled Trait-as-Facet is detected wrong and audited wrong.
 

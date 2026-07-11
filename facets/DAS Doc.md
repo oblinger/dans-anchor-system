@@ -10,7 +10,7 @@ The doc facets — bounded content **regions authored inside a document** (vs. t
 | Facets | [[DAS Doc Structure\|Doc Structure]],  [[DAS Ruleset\|Ruleset]],  [[DAS Brief\|Brief]],  [[DAS Discussion\|Discussion]],   |
 
 ## Overview
-A document facet is a **derived/authored region**, not a file in the anchor tree: a `# RULESET` block ([[DAS Ruleset|Ruleset]]), a `# BRIEF` ([[DAS Brief|Brief]]), a `## Discussion` ([[DAS Discussion|Discussion]]), a `## Glossary`. They can appear *inside* any document; contrast the anchor & structure facets, which are whole files/folders. Worked instance of the ruleset facet: [[FEX]] → the `R-anchor-page` ruleset embedded in [[DAS Anchor Page]], and the catalog [[DAS Rulesets]].
+A document facet is a **derived/authored region**, not a file in the anchor tree: a `# RULESET` block ([[DAS Ruleset|Ruleset]]), a `# BRIEF` ([[DAS Brief|Brief]]), a `## Discussion` ([[DAS Discussion|Discussion]]), a `## Glossary`. They can appear *inside* any document; contrast the anchor & structure facets, which are whole files/folders. Worked instance of the ruleset facet: [[DAS Examples]] → the `R-anchor-page` ruleset embedded in [[DAS Anchor Page]], and the catalog [[DAS Rulesets]].
 
 # RULESET R-doc-facet
 include::

@@ -25,11 +25,11 @@ CLI submits tasks to the **Scheduler**, which dispatches to the **Worker Pool**,
 | [[CAE Testing]] | testing strategy + proposed-tests overview (worked example of |
 | [[Clarifier]] | example project anchor — a designed software project |
 | [[CSE]] | Common Skill Example — reference anchor — a fully-wired example of a CAB skill anchor |
+| [[DAS Examples]] | the example gallery — fictional worlds + a per-kind map |
 | [[Devtools]] | example grouped-dispatch collection (> 15 members) |
 | [[Decisions/DKT Decisions]] | Durable architectural decisions + rationale — standard/API split, Rust+Python common docs, anchor-crate separation |
 | [[PRD/DMUX PRD]] | product requirements — focus-free voice dictation hub for macOS |
 | [[Espresso]] | Espresso — example topic collection (≤ 15 members) — notes on pulling espresso |
-| [[FEX]] | the example gallery — fictional worlds + a per-kind map |
 | [[FEX API Design]] | programmatic surface of the `cae` Rust crate — types, signatures, error envelope, stability + compatibility commitments. Sibling to |
 | [[FEX Completed Roadmap]] | companion to CAE Roadmap; preserved migrated milestones with their structure; newest-on-top. |
 | [[FEX Decisions Details]] |  |

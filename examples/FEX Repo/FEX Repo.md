@@ -7,6 +7,6 @@ A fictional miniature skills repository — one worked example of each primitive
 
 | -[[FEX Repo]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [FEX Repo](hook://p/FEX%20Repo)<br>: a fake skills repository — the primitives in miniature |
 | --- | --- |
-| Related | [[FEX]] (the gallery),  [[HBR]] (the project example), |
+| Related | [[DAS Examples]] (the gallery),  [[HBR]] (the project example), |
 | Members | [[FEX Snapshot\|Snapshot]] (skill),  [[FEX Manifest\|Manifest]] / [[FEX Pin\|Pin]] / [[FEX Bundle\|Bundle]] (facets),  [[FEX Retention\|Retention]] (discipline),  [[R-fex-manifest\|R-fex-manifest]] (ruleset), |
 | ... |  |

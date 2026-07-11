@@ -6,7 +6,7 @@ description: "Anchor Page facet — the format of an anchor's {slug}.md entry po
 # FCT Anchor Page
 The entry page every anchor opens with — its `{slug}.md`.
 
-**Related:** [[FCT]],  [[DAS Dispatch Table]],  [[DAS progressive-disclosure]],  [[FEX]]
+**Related:** [[DAS Facets]],  [[DAS Dispatch Table]],  [[DAS progressive-disclosure]],  [[DAS Examples]]
 
 | Table of Contents |  |
 |---|---|
@@ -21,9 +21,9 @@ The entry page every anchor opens with — its `{slug}.md`.
 | [[#Kind-specific rules]] |  |
 | **[[#BRIEF]]** |  |
 Design
-**Examples:** [[HBR\|Code project]],  [[DAS Anchor Page\|facet]],  [[DAS progressive-disclosure\|discipline]],  [[DAS Mint\|skill-doc]],  [[SKL\|Container · grouped]],  [[SKA Access\|Container · list]],  [[HBR Log\|Container · chronological]],  [[Life\|Topic]]
+**Examples:** [[HBR\|Code project]],  [[DAS Anchor Page\|facet]],  [[DAS progressive-disclosure\|discipline]],  [[DAS Mint\|skill-doc]],  [[DAS Skills\|Container · grouped]],  [[SKA Access\|Container · list]],  [[HBR Log\|Container · chronological]],  [[Life\|Topic]]
 Rulesets
-**OLD Examples:** [[FEX]] — [[Snapper Dapper\|skill]],  [[Espresso\|list]],  [[Harbor Components\|grouped]],  [[Glossary\|facet]],  [[Harbor\|project]],  [[Harbor Ingest\|sub-folder]]
+**OLD Examples:** [[DAS Examples]] — [[Snapper Dapper\|skill]],  [[Espresso\|list]],  [[Harbor Components\|grouped]],  [[Glossary\|facet]],  [[Harbor\|project]],  [[Harbor Ingest\|sub-folder]]
 
 | Kind | FEX examples | Description and external examples |
 | --- | --- | --- |
@@ -36,7 +36,7 @@ Rulesets
 | - - facet | [[FEX Manifest]] | A reusable document-shape spec — the format a recurring kind of doc must follow. *Ext:* [[DAS Anchor Page]], [[DAS Naming]] |
 | - - discipline | [[FEX Retention]] | A cross-cutting principle or practice applied across many anchors. *Ext:* [[DAS progressive-disclosure]], [[DAS verification]] |
 | Container ([[Collection]]) | *(abstract)* | A [[Collection]] anchor whose body enumerates homogeneous members; required member zone in one of three structural shapes. |
-| - Grouped Container ([[Collection]]) | [[HBR Components]] | Each row is a group holding many members (often `+`-expandable); chosen once a flat list outgrows ~15. *Ext:* [[Log]], [[FCT]], [[SKL]] |
+| - Grouped Container ([[Collection]]) | [[HBR Components]] | Each row is a group holding many members (often `+`-expandable); chosen once a flat list outgrows ~15. *Ext:* [[Log]], [[DAS Facets]], [[DAS Skills]] |
 | - List Container ([[Collection]]) | [[Espresso]] | One row per member (an auto-list separator emits one row per child); count-independent. *Ext:* [[SV]], [[RR]], [[Roots]], [[SKA Access]] |
 | - Chronological Container ([[Collection]]) | [[HBR Log]] | Reverse-dated entry stream; newest-first, ISO-prefixed member names. *Ext:* [[Journal]], [[HBR Log]] |
 
@@ -123,7 +123,7 @@ include::
 where:: `anchor`
 description:: the `{slug}.md` entry-page format
 
-What `/audit anchor` checks every `{slug}.md` against. All anchor-page kinds (skill / list / grouped / project root / sub-folder) share this set; worked instances of each kind live in [[FEX]]. Audit a page by reading these rules **or** by diffing it against the matching example. Format of this set: [[DAS Ruleset]].
+What `/audit anchor` checks every `{slug}.md` against. All anchor-page kinds (skill / list / grouped / project root / sub-folder) share this set; worked instances of each kind live in [[DAS Examples]]. Audit a page by reading these rules **or** by diffing it against the matching example. Format of this set: [[DAS Ruleset]].
 
 ## Identity & frontmatter
 
@@ -334,7 +334,7 @@ A [[Collection]] anchor whose body enumerates **homogeneous members** (a feature
 - **Masthead roster:** breadcrumb + Related (minimal) — then the member zone.
 - **Member zone required** — the generic member rules R-anchor-page-17…20 apply. The layout split is **structural — rows-per-member — not a count** (one axis, three values):
   - **list** — **one row per member** (each row is a single entry). A `| --- | |` separator auto-generates exactly this: HookAnchor emits one row per child. Count is irrelevant — a 30-entry auto-list is still a list. Examples: [[SV]], [[RR]], [[Roots]], [[SKA Access]].
-  - **grouped** — **each row is a group holding many members** (a category row, often `+`-expandable, carrying several links). Typically chosen once a flat list grows past ~15 ([[DAS granularity]], R-anchor-page-18), but the defining mark is **many-members-per-row**. Examples: [[Log]], [[FCT]], [[SKL]].
+  - **grouped** — **each row is a group holding many members** (a category row, often `+`-expandable, carrying several links). Typically chosen once a flat list grows past ~15 ([[DAS granularity]], R-anchor-page-18), but the defining mark is **many-members-per-row**. Examples: [[Log]], [[DAS Facets]], [[DAS Skills]].
   - **chronological (reverse-dated)** — a [[DAS dated-entry-stream]]; newest-first, ISO-prefixed member names. Example: [[HBR Log]].
 - Member zone ends with an electric marker (R-anchor-page-20) so new children have a place to land.
 
@@ -352,4 +352,4 @@ A topic / domain-of-life folder page — a hub that routes to the pages within t
 
 - **Consumers cite this file as the format authority** — `/create anchor`, `/rewire`, `/tidy`, `/audit anchor`, and the audit scripts.
 - **Link, don't duplicate** — dispatch-table *mechanics* stay in [[DAS Dispatch Table]], row *placement / order* in [[SKA Decisions|D07]], the naming prefix in [[DAS Naming]]; sub-folder dispatch pages have their own facets. Don't inline them here.
-- **Examples are never instantiated here** — they live in the `examples/` gallery ([[FEX]]); the masthead `Examples` row links to them by kind. If the spec changes, fix the examples — never retrofit the spec to a stale copy.
+- **Examples are never instantiated here** — they live in the `examples/` gallery ([[DAS Examples]]); the masthead `Examples` row links to them by kind. If the spec changes, fix the examples — never retrofit the spec to a stale copy.

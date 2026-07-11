@@ -8,7 +8,7 @@ description: Common Anchor Blueprint — the spec model for what an anchor is, w
 
 Every anchor is described by **Aspects** (see [[CAB Aspects]] for the unified model): **Traits** (broad paradigms declared in the anchor's `traits:` list — `Code`, `Skill`, `Publishable`, ...) and **Facets** (narrow, usually-file-based aspects defined per-spec under `CAB/CAB Facets/` — `Backlog`, `Architecture`, `Interface`, ...). Every Trait and Facet spec includes a Constraints section (legal usage; mutual exclusion) and an Expected Usage section (positive guidelines). CAB governs anchor **structure/composition** (what an anchor *contains*); it is complementary to — not overlapping with — [[Anchorage]] / [[ANC Standard]], which governs anchor **identity** (slug, metadata declaration, resolution, the DAG). Structure here, identity there.
 
-**Related:** [[SKA]],  [[SKL]],  [[SKL Skills]]
+**Related:** [[SKA]],  [[DAS Skills]],  [[SKL Skills]]
 **External:** [[cab/SKILL\|/cab skill]],  [[CAB Base\|Base]]
 **[LINT/LINT](hook://LINT/LINT):** [[LINT Docs]]
 **Plan:** [[DAS Discussion\|Discussion]]
@@ -32,9 +32,9 @@ Every anchor is described by **Aspects** (see [[CAB Aspects]] for the unified mo
 # BRIEF
 
 - **What this file is.** The top-level page for the Common Anchor Blueprint — the spec model for *what an anchor is*. Defines Aspects (Traits + Facets) and points at every sub-catalog. It is the entry point to the CAB system, not a catalog itself.
-- **Three sub-anchor groupings.** CAB decomposes into [[TRT]] (broad paradigms declared in `traits:` — `Code`, `Skill`, `Publishable`, ...), [[CAB Facets]] (narrow per-file aspects — `Backlog`, `Architecture`, `Interface`, ...), and [[CAB Disciplines]] (cross-cutting practices like `Brief`, `Dispatch Table`, `Mode`, `Linked Mode`). Each grouping is its own catalog with its own brief.
+- **Three sub-anchor groupings.** CAB decomposes into [[DAS Traits]] (broad paradigms declared in `traits:` — `Code`, `Skill`, `Publishable`, ...), [[CAB Facets]] (narrow per-file aspects — `Backlog`, `Architecture`, `Interface`, ...), and [[CAB Disciplines]] (cross-cutting practices like `Brief`, `Dispatch Table`, `Mode`, `Linked Mode`). Each grouping is its own catalog with its own brief.
 - **To add a new Facet or Discipline.** Don't edit this page first — go to [[CAB Facets]] / [[CAB Disciplines]] and follow that catalog's `# BRIEF`. The new spec file gets a row in the catalog; this page's dispatch table picks it up via the `Facets+` / `Disciplines+` aggregated rows.
-- **To add a new Trait.** Same pattern — author the new trait spec under `traits/` per [[TRT]]'s brief; the `Traits` row on this page surfaces it.
+- **To add a new Trait.** Same pattern — author the new trait spec under `traits/` per [[DAS Traits]]'s brief; the `Traits` row on this page surfaces it.
 - **What does NOT belong here.** Skills are not CAB. Skills live in `~/.claude/skills/` (mirrored via `symlinks/_.claude/skills/`); CAB *references* skills (e.g. [[cab/SKILL]]) but does not own them. Anchor-local rules belong in `{NAME} Rules.md` / `{NAME} Decisions.md`, not in CAB.
 - **Cross-reference integrity.** When CAB structure changes (new Trait/Facet/Discipline, renamed grouping), update [[CAB Base]]'s dispatch tables and [[CAB All Files]]'s file tree in the same pass — they index the same spec set.
 - **Don't pile content into this file.** Each Aspect's full detail lives in its own spec file under `CAB Facets/` / `CAB Disciplines/` / `traits/`. The dispatch table row is the dashboard summary; the spec file is the substance.

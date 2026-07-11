@@ -28,7 +28,7 @@ The top-of-file table convention that gives most anchor pages and many facet pag
 
 | [[HBR]] | masthead-only — breadcrumb + structural rows, no member zone |
 | --- | --- |
-| [[SKL]] | member groups (`+`) — > 15 members, expandable group rows |
+| [[DAS Skills]] | member groups (`+`) — > 15 members, expandable group rows |
 | [[SKA Access]] | flat member list — ≤ 15 members, hand-ordered |
 | [[SYS]] | hybrid — manual category rows + `...` auto-staging |
 
