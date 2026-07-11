@@ -1,5 +1,5 @@
 ---
-description: "The canonical state graph for any unit of work — what state it's in, what each state means, and what advances it."
+description: "The **workflow discipline** owns the canonical state graph for any unit of work — what state it's in, what each state means, and what advances it."
 ---
 # Workflow Discipline
 
