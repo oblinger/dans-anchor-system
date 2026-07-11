@@ -233,7 +233,7 @@ For rows without a feature doc, see § B-row inline Qs below.
 
 **Query link form (per `[[DAS Query]]` / `[[SKA ask]]` § Mandatory wiki-link):** `[[{slug} Backlog#B-name|B-name]]` — clicking lands at the row, where the numbered Qs are immediately visible.
 
-**Promotion to feature doc.** If the inline Q set grows too large to fit comfortably as row sub-bullets — rule of thumb: more than 3–4 Qs, or any Q whose body needs multiple lines of elaboration — promote the row to a feature doc via `/feature`. The feature doc's `## Open Questions` H2 below H1 is the canonical Q surface and assigns a stable F-number from the per-anchor F-counter. After promotion, the backlog row's description becomes a `→ [[F<n> — Title]]` pointer per the convention above.
+**Promotion to feature doc.** If the inline Q set grows too large to fit comfortably as row sub-bullets — rule of thumb: more than 3–4 Qs, or any Q whose body needs multiple lines of elaboration — promote the row to a feature doc via `/feature`. The feature doc's `## Open Questions` H2 above H1 is the canonical Q surface and assigns a stable F-number from the per-anchor F-counter. After promotion, the backlog row's description becomes a `→ [[F<n> — Title]]` pointer per the convention above.
 
 **Why this matters.** The bracket promise (`[Questions]` → click → land on numbered Qs) is what makes `queries.md` and `Q.md` navigable. A bracket without numbered Qs at the link target leaves the user unable to answer with the shorthand `B-name Q3: yes` because there's no Q3 to address — a silent-failure that has historically slipped past skill-level discipline (see [[feedback_close_round_trip_loopholes]]). Numbered Qs at a knowable location make the rule mechanically checkable.
 
@@ -263,7 +263,7 @@ Items graduate from Backlog to Todo or Roadmap when they become priorities, or m
 # RULESET R-backlog
 include::
 where:: `file:{anchor}/**/* Backlog.md`
-description:: Organizes a backlog along two independent axes — *when* the user wants work to happen (horizon) and *how far* the work has progressed (workflow state).
+description:: SKA skill anchor for the backlog-horizons skill
 
 What `/audit doc` checks on a backlog file. The skills that maintain it are `/groom` (frontier planning) and the `state` tool (mutations); these are the file-invariants the groomed state must satisfy. Format of this set: [[DAS Ruleset]].
 

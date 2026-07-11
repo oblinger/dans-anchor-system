@@ -69,7 +69,7 @@ Per [[DAS Stories]]. The PRD's `## User Stories` section then links to `[[{slug}
 | 4 | `## Goals` | Concrete, verifiable outcomes — what the product will accomplish. Bulleted; outcome-shaped (not feature-shaped). |
 | 5 | `## Non-Goals` | What the product explicitly will NOT do. Each non-goal is one of: (a) deferred to a future version, (b) out of scope by design, (c) constraint from the environment. Keeps scope conversation honest. |
 | 6 | `## User Stories` | Either inline bullets (`US-<SLUG>-<N>` per [[DAS Stories]]) or a wiki-link to `[[{slug} Stories]]` if folder form. Each story is "As a `<role>`, I want `<capability>` so that `<reason>`." |
-| 7 | `## Open Questions` (optional) | Pending decisions surfaced via [[DAS ask-format]]. Lives below the H1 only while pending Qs exist; deletes entirely once all resolve. |
+| 7 | `## Open Questions` (optional) | Pending decisions surfaced via [[DAS ask-format]]. Lives above the H1 (first body element, after frontmatter) only while pending Qs exist; deletes entirely once all resolve. |
 | 8 | `## Resolved` (optional) | Bottom-of-doc archive of resolved questions and decisions, H3 per resolution. Populated as questions resolve; never deleted. |
 | 9 | `## See also` (optional) | Links to peer Design facets (Architecture, Testing, Decisions). |
 
@@ -106,7 +106,7 @@ The row is required in both forms so a reader landing on the PRD has a one-click
 
 PRD discussions surface questions throughout. The PRD does NOT carry a separate `{slug} Open Questions.md` file (legacy pattern, deprecated). Instead:
 
-- **Active questions** live as `## Open Questions` H2 directly below the H1, per [[DAS ask-format]].
+- **Active questions** live as `## Open Questions` H2 directly above the H1, per [[DAS ask-format]].
 - **Resolved questions** move to `## Resolved` at the bottom of the doc when answered. Never deleted.
 - **The `/ask --doc` workflow** is the way to add or resolve questions on a PRD; it handles the formatting, the lifecycle transitions, and the Q.md update.
 
