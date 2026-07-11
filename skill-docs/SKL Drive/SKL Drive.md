@@ -7,13 +7,11 @@ User guides for the engine-room verbs that drive work forward through the lifecy
 
 | -[[SKL Drive]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[skill-docs]] → [SKL Drive](hook://p/SKL%20Drive)<br>: User guides for the engine-room verbs that drive work forward through the lifecycle — from inbox to backlog, backlog to active, active to verified. |
 | --- | --- |
-| [[DAS Ask\|Ask]] | The **`/ask` skill** is the universal asking subroutine. |
 | [[DAS Crank\|Crank]] | The "go" button. |
 | [[DAS Feature\|Feature]] | Manage a feature from idea through design, agreement, implementation, testing, and completion. |
+| [[DAS Mint\|Mint]] | `/mint` — Mint takes what's ready and makes it real. |
 | [[DAS Finalize\|Finalize]] | The **finalize discipline** is the closing ceremony for a unit of work — the sequence of small steps that catch the things commonly forgotten when something "is done." Verify tests pass, commit, pu… |
-| [[DAS Fortify\|Fortify]] | Cautious, skeptical counterpart to `crank`. |
-| [[DAS Groom\|Groom]] | Walk the current anchor's backlog and move it toward the **groomed state** — promote every item it can to **Ready**, park items that need user input in dated feature docs, repair link integrity. |
 | [[DAS Land\|Land]] | `/land` — bounded crank. |
-| [[DAS Mint\|Mint]] | `/mint` -- Mint takes what's ready and makes it real. |
+| [[DAS Fortify\|Fortify]] | Cautious, skeptical counterpart to `crank`. |
 | --- | |
-| [[SKL Query]] | /ask — the clean skill for asking you questions, formatted so you can always answer from what's written. |
+| ~~[[Query PRD]]~~ | product requirements |

@@ -4,7 +4,7 @@ description: "/ask — the clean skill for asking you questions, formatted so yo
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[ASG]] → [ASG Query](hook://p/ASG%20Query)
 # /ask — user guide
 
-**Full internals & design:** [[SKL Query]]   ·   **Runtime spec:** [[skills/ask/SKILL.md\|SKILL.md]]
+**Full internals & design:** [[DAS Ask]]   ·   **Runtime spec:** [[skills/ask/SKILL.md\|SKILL.md]]
 
 `/ask` is how an agent asks you a question — and the one promise it makes is that **every question is answerable from what's written**, without opening anything else.
 
