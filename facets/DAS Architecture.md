@@ -6,6 +6,8 @@ description: per-anchor architecture overview — anchor-folder form with subsys
 # FCT Architecture
 **Audited examples:** [[HBR Architecture]], [[FEX Architecture]], [[OBU Architecture]], [[MUX Architecture]], [[HA Architecture]]
 
+*Conceptual source: [[PKM]] (under [[THREADS]]) — the through-line the anchor system operationalizes.*
+
 | Table of Contents |  |
 |---|---|
 | [[#Folder shape]] |  |
