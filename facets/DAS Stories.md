@@ -22,7 +22,7 @@ description: "facet spec for user stories as first-class siblings of a PRD — i
 
 Facet spec for the user-stories surface of a PRD — defines the inline-bullet form for small PRDs and the extracted-folder form (`{slug} PRD/` with per-story files indexed by `{slug} Stories.md`) for PRDs whose stories outgrow a single sentence.
 
-**Related:** [[DAS PRD]],  [[DAS Testing]],  [[DAS Features]],  [[DAS Design]]
+**Related:** [[DAS PRD]],  [[DAS Testing]],  [[DAS Features]],  [[DAS Design Folder]]
 **Examples:** [[HBR PRD\|inline-stories (single-file form)]],  [[FEX Stories\|folder-form dispatch index (extracted stories)]]
 
 **TLDR** — Stories are part of the PRD. Small PRDs keep stories inline as bullets under `## User Stories`; large PRDs extract them to `{slug} PRD/` folder form with a `{slug} Stories.md` dispatch index and per-story `US-<SLUG>-<N> — <Title>.md` files. The two forms are mutually exclusive. **Cardinality: many** — a PRD in folder form can have any number of story files. The embedded `R-stories` ruleset enforces folder shape, naming, dispatch table structure, and bidirectional linking.
@@ -116,7 +116,7 @@ This bidirectional linking is what makes `/audit stories` (future) useful: walki
 
 ## Trait applicability
 
-Any anchor with a PRD. Activated via [[DAS Design]] facet (the `{slug} Design/` folder). Trait-specific story-form variations (Paper / Topic / Simple) land alongside those traits.
+Any anchor with a PRD. Activated via [[DAS Design Folder]] facet (the `{slug} Design/` folder). Trait-specific story-form variations (Paper / Topic / Simple) land alongside those traits.
 
 ## When to use which form
 

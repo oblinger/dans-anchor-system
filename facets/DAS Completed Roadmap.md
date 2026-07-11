@@ -6,7 +6,7 @@ description: "completed-roadmap facet — migrated milestones in newest-on-top o
 # FCT Completed Roadmap
 The migration target for completed milestones — preserves shipped milestone structure in newest-to-oldest order alongside the forward-looking Roadmap.
 
-**Related:** [[DAS Roadmap]],  [[DAS Design]],  [[DAS Features]],  [[DAS Design Docs]]
+**Related:** [[DAS Roadmap]],  [[DAS Design Folder]],  [[DAS Features]],  [[DAS Design Docs]]
 **Examples:** [[FEX Completed Roadmap\|example]]
 
 **TLDR** — One doc per anchor (when any milestone has migrated). Lives at `{slug} Design/{slug} Completed Roadmap.md`. Newest migrated milestone at top; standalone-completed-features groupings interleave between milestones. Cardinality: **one per anchor**.
@@ -79,7 +79,7 @@ Per [[DAS progressive-disclosure]]:
 
 - [[DAS Roadmap]] — parent facet; the forward-looking roadmap is the migration source
 - [[DAS Features]] — feature docs; the M-position is encoded in their titles per R-roadmap-10
-- [[DAS Design]] — Completed Roadmap is an OPTIONAL child of {slug} Design/; activated when the first milestone migrates
+- [[DAS Design Folder]] — Completed Roadmap is an OPTIONAL child of {slug} Design/; activated when the first milestone migrates
 - [[F144 — Completed Roadmap + named milestones]] — the feature that landed this convention
 - F145 (future) — `state roadmap migrate` script automation
 
@@ -144,4 +144,4 @@ Once a milestone migrates to Completed Roadmap, it stays. Reactivation of work i
 - **TODO: link a worked example** — no real `{slug} Completed Roadmap.md` instance exists yet (the facet landed with F144; no milestone has migrated). When the first ships, add it to `## See also` and reference it from § Structure in place of the prose outline.
 - **Keep spec ↔ embedded RULESET aligned** — when the spec body changes a structural rule (location, order, preservation, naming), mirror it in the matching `R-completed-roadmap` rule and bump the check pattern; never put per-anchor migrated-milestone content here (it lives in `{ANCHOR}/{slug} Design/{slug} Completed Roadmap.md`).
 - **Inclusion test for a new rule** — it constrains the *structure* of the completed-roadmap doc (location, order, preservation, naming), not the forward-looking Roadmap ([[DAS Roadmap]]) or feature-doc shape ([[DAS Features]]).
-- **Cross-reference integrity is load-bearing** — the `## See also` links to [[DAS Roadmap]], [[DAS Features]], [[DAS Design]], and F144/F145 wire this facet into the CAB graph; don't drop them when refactoring.
+- **Cross-reference integrity is load-bearing** — the `## See also` links to [[DAS Roadmap]], [[DAS Features]], [[DAS Design Folder]], and F144/F145 wire this facet into the CAB graph; don't drop them when refactoring.

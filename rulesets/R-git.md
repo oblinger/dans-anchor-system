@@ -1,6 +1,6 @@
 # RULESET R-git
 include:: [[R-commit-discipline]]
-description:: Git-discipline rulesets — commit cadence, PR workflow, branch protection. Adopt the umbrella to pull all git rulesets.
+description:: Git discipline. Placeholder; future: `R-commit-discipline`, `R-pr-workflow`, `R-no-force-main`.
 
 Umbrella over the git-discipline rulesets. Adopt `R-git` to pull every git ruleset at once. Currently materialized: `R-commit-discipline` (commit cadence + message hygiene). Future candidates: `R-pr-workflow`, `R-no-force-main`.
 
