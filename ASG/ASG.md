@@ -7,13 +7,13 @@ The **user manual** for Dan's Anchor System — how to *use* each skill, facet, 
 | -[[ASG]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [ASG](hook://p/ASG)<br>: the Anchor System user guide |
 | --- | --- |
 | Design tree | [[DAS]] (everything: PRDs, design, runtime) |
-| Sections | [[SKL\|Skills]],  [[FCT\|Facets]],  [[DSC\|Disciplines]],  [[TRT\|Traits]] (the design-tree indexes) |
+| Sections | [[DAS Skills\|Skills]],  [[DAS Facets\|Facets]],  [[DAS Disciplines\|Disciplines]],  [[DAS Traits\|Traits]] (the design-tree indexes) |
 
 The tables below mirror the design-tree groupings. A **skill** links to its user guide (an `ASG` page) where one is published, otherwise to its concept dossier (its `SKL` page) — guides roll out per [[SKA]] F251. Facets, disciplines, and traits link to their reference spec — for those there is no separate guide; the spec *is* the documentation.
 
 ## Skills
 
-The `/`-invocable verbs, grouped as under [[SKL]]. Linked to a **user guide** where published (currently the Drive cluster), else to the concept dossier.
+The `/`-invocable verbs, grouped as under [[DAS Skills]]. Linked to a **user guide** where published (currently the Drive cluster), else to the concept dossier.
 
 | Group | Skills |
 | --- | --- |
@@ -27,7 +27,7 @@ The `/`-invocable verbs, grouped as under [[SKL]]. Linked to a **user guide** wh
 
 ## Facets
 
-The per-document shapes, grouped as under [[FCT]]. Each links to its facet spec.
+The per-document shapes, grouped as under [[DAS Facets]]. Each links to its facet spec.
 
 | Group | Facets |
 | --- | --- |
@@ -40,7 +40,7 @@ The per-document shapes, grouped as under [[FCT]]. Each links to its facet spec.
 
 ## Disciplines
 
-The cross-cutting principles the agent reads, from [[DSC]].
+The cross-cutting principles the agent reads, from [[DAS Disciplines]].
 
 | Disciplines |  |
 | --- | --- |
@@ -48,7 +48,7 @@ The cross-cutting principles the agent reads, from [[DSC]].
 
 ## Traits
 
-The declarable anchor properties, grouped as under [[TRT]].
+The declarable anchor properties, grouped as under [[DAS Traits]].
 
 | Group | Traits |
 | --- | --- |

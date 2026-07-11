@@ -23,7 +23,7 @@ Takes one anchor (or folder) and checks it against the **anchor ruleset** — th
 - [ ] It declares **`traits:`** identifying the kind (e.g. `[skill]`, `[Code]`, `Collection`).
 
 ### B — anchor page conforms *([[DAS Anchor Page]] § Ruleset, + D06)*
-*Reference: read the [[DAS Anchor Page]] ruleset **`R-anchor-page`**, or diff the anchor against the matching kind in [[FEX]] — [[HBR]] (project), [[HBR Components]] (grouped), [[HBR Ingest]] (sub-folder), [[FEX Snapshot]] (skill).*
+*Reference: read the [[DAS Anchor Page]] ruleset **`R-anchor-page`**, or diff the anchor against the matching kind in [[DAS Examples]] — [[HBR]] (project), [[HBR Components]] (grouped), [[HBR Ingest]] (sub-folder), [[FEX Snapshot]] (skill).*
 - [ ] The anchor page **`{slug}.md`** exists (filename = slug; H1's readable name may differ).
 - [ ] **H1 = `{slug} - {Full Name}`** (per [[SKA Decisions|D06]]) — slug leads, then the readable name. (Bare-name anchors: H1 is just the name.)
 - [ ] **No blank line after the H1** — the one-sentence summary sits on the very next line. Then a blank, then the optional figure, then the dispatch table. (Top-of-page order: H1 → summary → figure? → dispatch.)

@@ -6,7 +6,7 @@ description: "facet spec for the code repository association declared in an anch
 # FCT Code Repository
 Facet spec for how an anchor declares and resolves its associated code repository — linked (separate path) or inline — via the `code:` key in `.anchor`.
 
-**Related:** [[DAS Anchor Page]],  [[TRT]],  [[DAS Facet]],  [[FCT Manifest]]
+**Related:** [[DAS Anchor Page]],  [[DAS Traits]],  [[DAS Facet]],  [[FCT Manifest]]
 **Examples:** [[OBU\|linked-absolute]],  [[HA\|linked-relative]]
 
 | Table of Contents |  |

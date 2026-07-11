@@ -1,5 +1,5 @@
 ---
-description: "cold-storage / someday-maybe (optional)"
+description: "cold-storage / someday-maybe"
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [FEX Icebox](hook://p/FEX%20Icebox)

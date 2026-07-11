@@ -46,4 +46,4 @@ Type-specific structure checks for Simple Anchors.
 - **Inclusion test for a delta** — a bullet belongs under *Deltas from Base* only if it changes a Base requirement *for the Simple case specifically* (suppression of `{slug} Docs/`, repo, `CLAUDE.md`, Inbox); trait-general rules go in [[CAB Base]], cross-trait composition rules in the other trait's spec.
 - **Conditional-creation phrasing is load-bearing** — preserve "Create X only when another trait requires it" verbatim so composition with `code`, `paper`, etc. stays mechanical; don't soften to "usually skipped" or "optional."
 - **Structure block is normative** — the fenced tree under *Structure (reduced from base)* is the minimal layout an auditor accepts; adding lines expands the contract, remove only when Base changes correspondingly.
-- **Cross-refs to sweep on rename** — [[CAB Base]] (parent), [[TRT]] (dispatch), `/audit structure`, `/create anchor`, `/migrate`; don't rename this trait or its deltas in isolation.
+- **Cross-refs to sweep on rename** — [[CAB Base]] (parent), [[DAS Traits]] (dispatch), `/audit structure`, `/create anchor`, `/migrate`; don't rename this trait or its deltas in isolation.

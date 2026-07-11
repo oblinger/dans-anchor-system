@@ -97,7 +97,7 @@ Drive is a behavioral mode, not a structural one. Compositional expectations:
 
 *(Maintainer note — cautions for whoever edits this Trait spec. The normative spec is the body above; the full user-facing narrative is [[SKL Mode Drive]].)*
 
-- **This file summarizes and links out; it does not duplicate.** The user-facing operating-mode narrative lives at [[SKL Mode Drive]]; trait-system rules in [[TRT]]; the inlined runtime copy in `role-pilot.md` POST-COMPACT RELOAD. Don't inline content that belongs to those surfaces.
+- **This file summarizes and links out; it does not duplicate.** The user-facing operating-mode narrative lives at [[SKL Mode Drive]]; trait-system rules in [[DAS Traits]]; the inlined runtime copy in `role-pilot.md` POST-COMPACT RELOAD. Don't inline content that belongs to those surfaces.
 - **Inclusion test for a rule added to § The load-bearing rules** — it must be a recurring "do I ask or assume?" trade-off decision, and it must match what `role-pilot.md` POST-COMPACT RELOAD § Operating Mode — Drive enforces. A rule living only here and not in the POST-COMPACT inlining isn't load-bearing yet.
 - **The `compact` trigger block and `role-pilot.md` § Operating Mode — Drive are two surfaces of one spec** — when this block changes, re-sync the role file; don't let them drift.
 - **Don't soften the Drive ⊕ Lean exclusion** — any edit weakening the at-most-one-cadence-Trait rule contradicts F077 and [[CAB Aspects]]; route such proposals through a feature, not a quiet edit here.

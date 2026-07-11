@@ -1,5 +1,5 @@
 ---
-description: "raw input to process (optional)"
+description: "raw input to process"
 ---
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [FEX Inbox](hook://p/FEX%20Inbox)
