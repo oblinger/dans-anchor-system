@@ -8,7 +8,7 @@ description: "How to read from and write to external services — Google Workspa
 | Runtime | [[io/SKILL\|io SKILL.md]],   |
 | Group | [[SKA Access]] (accessor — external cloud services) |
 
-# SKL IO Guide
+# DAS IO
 
 The **io** skill is the gateway between this Mac and external services — cloud (Google Workspace, email, Notion) and local desktop apps (Microsoft Excel). Each surface is a subcommand (`/io <surface>`).
 

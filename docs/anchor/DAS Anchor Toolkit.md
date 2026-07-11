@@ -1,7 +1,7 @@
 ---
 description: "The `anchor` skill is the low-level toolkit for working with **anchors** — the standardized named folders that this whole system is built around."
 ---
-# SKL Anchor Toolkit
+# DAS Anchor Toolkit
 The `anchor` skill is the low-level toolkit for working with **anchors** — the standardized named folders that this whole system is built around. It bundles scripts and actions for auditing an anchor's docs against its source code, managing its `.anchor` config file, scanning the vault to discover every anchor, and tracking activity status across projects.
 
 | -[[DAS Anchor Toolkit]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Anchor Toolkit](hook://p/DAS%20Anchor%20Toolkit)<br>: The `anchor` skill is the low-level toolkit for working with **anchors** — the standardized named folders that this whole system is built around.|

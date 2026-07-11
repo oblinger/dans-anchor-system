@@ -1,7 +1,7 @@
 ---
 description: "Migrate an anchor — change its slug, traits, location, or structure."
 ---
-# SKL Migrate
+# DAS Migrate
 Migrate an anchor — change its slug, traits, location, or structure.
 
 | -[[DAS Migrate]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Migrate](hook://p/DAS%20Migrate)<br>: Migrate an anchor — change its slug, traits, location, or structure.|

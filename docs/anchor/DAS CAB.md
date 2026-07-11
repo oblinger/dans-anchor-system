@@ -1,7 +1,7 @@
 ---
 description: "How to create and manage anchor folder structures using the Common Anchor Blueprint"
 ---
-# SKL CAB Guide
+# DAS CAB
 The Common Anchor Blueprint (CAB) defines a standard folder structure for organizing projects and content areas. Every anchor has a type that determines which files and folders it contains. The five types are Simple, Topic, Code, Paper, and Skill — each building on a common base with type-specific additions.
 
 | -[[DAS CAB]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS CAB](hook://p/DAS%20CAB)<br>: How to create and manage anchor folder structures using the Common Anchor Blueprint|

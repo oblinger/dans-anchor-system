@@ -1,7 +1,7 @@
 ---
 description: "the `/ask` skill"
 ---
-# /Ask
+# DAS Ask
 The **`/ask` skill** is the universal asking subroutine.
 
 | -[[DAS Ask]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Ask](hook://p/DAS%20Ask)<br>: the `/ask` skill|

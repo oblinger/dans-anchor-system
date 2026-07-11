@@ -1,7 +1,7 @@
 ---
 description: "Create a new thing — anchor, feature, work product, spec, or rule."
 ---
-# SKL Create
+# DAS Create
 Create a new thing — anchor, feature, work product, spec, or rule.
 
 | -[[DAS Create]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Create](hook://p/DAS%20Create)<br>: Create a new thing — anchor, feature, work product, spec, or rule.|

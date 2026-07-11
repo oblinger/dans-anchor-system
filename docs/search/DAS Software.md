@@ -1,7 +1,7 @@
 ---
 description: "skim → click into the rule that applies"
 ---
-# SKL Software
+# DAS Software
 | -[[DAS Software]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Software](hook://p/DAS%20Software)<br>: skim → click into the rule that applies|
 | --- | --- |
 | Software rules (any verb) | [[SRC rules/software\|software.md]],   |

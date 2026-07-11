@@ -1,7 +1,7 @@
 ---
 description: "`/land` — bounded crank."
 ---
-# SKL Land
+# DAS Land
 The concept dossier for **`/land`** — everything published about the skill: the user guide, its design, and the runtime spec.
 
 | -[[DAS Land]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Land](hook://p/DAS%20Land)<br>: `/land` — bounded crank.|
