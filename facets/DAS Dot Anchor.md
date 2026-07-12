@@ -22,6 +22,7 @@ A YAML file named `.anchor` at the root of an anchor folder. Two jobs: (1) its m
 | `description` | one-line description (mirrors the anchor page's) | this facet |
 | `parents` | up-edges in the anchor DAG | [[DAS anchor-dag]] |
 | `code` | path to the associated code repository | [[DAS Code Repository]] |
+| `mirror` | doc-mirror routes (`here:`/`there:`/`direction:`) — local two-folder sync, independent of `code` | [[DAS Code Repository]] |
 | `now` / `backlog` / `inbox` / `rules` | paths to work-surface files | [[DAS Track]] |
 | *(file presence)* | the folder is an anchor | [[DAS Folder]] |
 
