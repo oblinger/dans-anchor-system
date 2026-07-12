@@ -627,7 +627,7 @@ import json
 import shutil
 import stat
 
-SYNC_IGNORED = {".git", ".DS_Store"}
+SYNC_IGNORED = {".git", ".DS_Store", ".anchor", ".obsidian"}
 DIRECTIONS = {"two-way", "push", "pull"}
 
 
@@ -880,6 +880,8 @@ def sync_route(anchor_dir: Path, route: MirrorRoute, dry: bool,
                 if not dry:
                     _delete_there(tp)
                 counters["deleted_there"] += 1
+            elif taken_there(rel):
+                backward()
             elif M is None:                               # new there file
                 if route.direction == "push":
                     flags.append(f"drift: {rel} added there but route is push-only")
