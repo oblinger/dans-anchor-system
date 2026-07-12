@@ -169,6 +169,35 @@ def test_shutdown():
     print("PASS  shutdown")
 
 
+def test_corpus_load_failure_no_stray_socket():
+    """Audit 2026-07-12 W3: a `Corpus()` load failure (a corrupted compiled rules module)
+    must not strand `daemon.sock` / `daemon.pid` — before the fix, every LATER
+    daemon spawn against that home crashed the same way against the same
+    stale socket, stalling ~2s per hook call forever."""
+    home = Path(tempfile.mkdtemp(prefix="warden-daemon-badcorpus-")) / "home"
+    home.mkdir(parents=True)
+    (home / "rules-ir.json").write_text("{}", encoding="utf-8")
+    (home / "rules_all.py").write_text("def broken(:\n", encoding="utf-8")  # SyntaxError
+    proc = subprocess.Popen(
+        [sys.executable, str(HERE / "warden_daemon.py"), "--serve", "--idle-exit", "5"],
+        env=_env(home), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    try:
+        rc = proc.wait(timeout=15)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        proc.wait(timeout=5)
+        raise AssertionError("daemon did not exit after a corpus load failure")
+    out = proc.stdout.read() if proc.stdout else ""
+    assert rc != 0, f"daemon exited 0 despite a corpus load failure; output:\n{out}"
+    log_path = home / "hook.log"  # wh._log's operational log, not stdout
+    log = log_path.read_text(encoding="utf-8") if log_path.is_file() else ""
+    assert "DAEMON ERROR corpus load failed" in log, \
+        f"corpus load failure was not logged; hook.log:\n{log}\nstdout/stderr:\n{out}"
+    assert not (home / "daemon.sock").exists(), "stray daemon.sock left behind"
+    assert not (home / "daemon.pid").exists(), "stray daemon.pid left behind"
+    print("PASS  corpus_load_failure_no_stray_socket (Audit 2026-07-12 W3)")
+
+
 def test_concurrent_slow_request():
     """T013 (F232 B1): the daemon is thread-per-connection — one slow request
     (a 60 s oracle body, a long audit) must not block another session's hooks.
@@ -233,6 +262,7 @@ def main():
         test_systemexit_survival()
         test_shutdown()
         test_concurrent_slow_request()
+        test_corpus_load_failure_no_stray_socket()
     finally:
         if _PROC and _PROC.poll() is None:
             _PROC.kill()

@@ -43,8 +43,15 @@ IR_SCHEMA = 1
 # ── ruleset / rule grammar ──────────────────────────────────────────────────
 
 _RULESET_RE = re.compile(r"^(#+)\s+RULESET\s+(R-[\w-]+)\s*$")
-# A RULE heading's trailing paren is EITHER a tier OR an executable `when::`.
-_RULE_RE = re.compile(r"^(#+)\s+RULE\s+(R-[\w-]+-\d+)\s+[—-]\s+(.*?)\s*\((.*?)\)\s*$")
+# A RULE heading's trailing paren is EITHER a tier OR an executable `when::` —
+# and is OPTIONAL: the documented field-style form (F211/F232) carries neither
+# in the heading, taking its `when::`/`if::` from the body field lines instead
+# (`rm.group(4)` is None for a paren-less heading; see `paren` below).
+_RULE_RE = re.compile(r"^(#+)\s+RULE\s+(R-[\w-]+-\d+)\s+[—-]\s+(.*?)(?:\s*\((.*?)\))?\s*$")
+# A loose superset of `_RULE_RE` used only to detect a malformed RULE heading
+# that fails the strict grammar (Warden Audit 2026-07-12 W1) — so it warns
+# instead of silently vanishing from `rule_idxs`.
+_RULE_LOOSE_RE = re.compile(r"^#+\s+RULE\s+R-")
 _FIELD_RE = re.compile(r"^([a-z][a-z_-]*)::\s*(.*)$")
 _TIERS = {"checked", "sampled", "stated", "tracked"}
 _PHASES = {"pre", "post"}
@@ -210,7 +217,17 @@ def parse_ruleset(text: str, name: str, source: str) -> dict | None:
         i += 1
 
     # Rules: each `### RULE …` heading + its body up to the next RULE / higher heading.
-    rule_idxs = [j for j, ln in enumerate(block) if not bmask[j] and _RULE_RE.match(ln)]
+    rule_idxs = []
+    for j, ln in enumerate(block):
+        if bmask[j]:
+            continue
+        if _RULE_RE.match(ln):
+            rule_idxs.append(j)
+        elif _RULE_LOOSE_RE.match(ln):
+            # Audit W1: a heading that starts a RULE but fails the strict
+            # grammar used to vanish from `rule_idxs` with no trace.
+            print(f"warden: WARNING — {source}: malformed RULE heading "
+                  f"(fails to parse, dropped): {ln.strip()!r}", file=sys.stderr)
     for j in rule_idxs:
         rm = _RULE_RE.match(block[j])
         assert rm is not None  # j came from a matching line
@@ -229,7 +246,10 @@ def parse_ruleset(text: str, name: str, source: str) -> dict | None:
                 break
         body = block[j + 1:stop]
         body_mask = bmask[j + 1:stop]
-        paren = rm.group(4).strip()
+        # A paren-less heading (field-style rule, F211/F232) leaves group(4)
+        # None — its when/tier come from the body `when::`/`if::` field lines
+        # parsed below, not the heading.
+        paren = (rm.group(4) or "").strip()
         rule = {
             "id": rm.group(2), "title": rm.group(3).strip(), "paren": paren,
             "when": None, "where": None, "ifs": [], "tier": None, "check": None,
