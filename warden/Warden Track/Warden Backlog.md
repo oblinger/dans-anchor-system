@@ -11,12 +11,12 @@ _None._
 
 - **B-QFix — QFix** [Ready] — audit q findings routed by --fix; each sub-bullet is a residual on Warden's tree needing the 100%-fix discipline (per the audit skill's Governing principle). ^B-QFix
   - **Next:** Fix the next residual below at its source (repoint a renamed link, de-link a retired one, correct the flagged doc), then re-run `/audit q` to clear it — per the 100%-fix discipline.
-  - **C22** SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md:65 — link `[warden](~/bin/warden)` does not resolve (basename 'warden' not in vault)
+  - **C22** SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md:69 — link `[warden](~/bin/warden)` does not resolve (basename 'warden' not in vault)
 
 ## Now
 
-- **T017 — Fix Warden audit 2026-07-12 findings** [Ready] — Fable latent-bug audit found 7 bugs (5 CONFIRMED): field-style RULE headings silently dropped from IR (11 live rules inert incl. R-fct-claude-01..04), repo-move silently disables veto+doc-fire surface, corpus-load crash leaves stale socket loop, 4MB truncation veto bypass, dead if:: guard scope. Report: [[Warden Audit 2026-07-12]] ^T017
-  - **Next:** Fix W1 (relax _RULE_RE paren requirement + compile warning) and W3 (wrap Corpus load in the cleanup try/finally) first; then W2 self-check, W4, W5
+- **T017 — Fix Warden audit 2026-07-12 findings** [Ready] — Fable latent-bug audit found 7 bugs (5 CONFIRMED). W1 (paren-less RULE headings dropped) and W3 (corpus-load crash strands socket/pid) FIXED 2026-07-12, tests added, recompiled + daemon restarted — 527 rules live (11 recovered). Remaining: W2 stale-path self-check, W4 4MB truncation veto bypass, W5 if:: guard scope, W6/W7 thread races. Report: [[Warden Audit 2026-07-12]] ^T017
+  - **Next:** Fix W2 (path self-check at hook entry / SessionStart), then W4 (length-prefixed framing or bigger cap + logged parse failure), then W5 (bind full ctx surface into synth guards)
 
 ## Next
 
