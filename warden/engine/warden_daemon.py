@@ -290,9 +290,6 @@ def serve(idle_exit: float) -> int:
     # Short accept timeout: the loop wakes ~1×/s to notice a shutdown request
     # (handled on a worker thread now) and to apply the idle-exit policy.
     srv.settimeout(1.0)
-    pid_path().write_text(str(os.getpid()), encoding="utf-8")
-    corpus = Corpus(home)
-    wh._log(f"DAEMON up pid={os.getpid()} ({len(corpus.ir.get('rules', {}))} rules preloaded)")
 
     # T013 thread-per-connection: workers are daemon threads (a hung rule body
     # can't pin the process past shutdown); idle-exit counts only quiet time
@@ -300,7 +297,23 @@ def serve(idle_exit: float) -> int:
     stop_evt = threading.Event()
     in_flight = {"n": 0, "lock": threading.Lock()}
     last = time.monotonic()
+    # Audit 2026-07-12 W3: the socket is bound (and about to be pid-stamped) before this
+    # point — everything that can fail from here on (the pid-file write, the
+    # corpus load, the accept loop) must run INSIDE this try so the `finally`
+    # always unlinks `daemon.sock` / `daemon.pid`. A Corpus() failure (e.g. a
+    # SyntaxError in the emitted rules module) used to escape BEFORE the try,
+    # stranding a bound socket + pid file that every later hook would spawn a
+    # daemon against — and crash against — again, stalling every hook call.
     try:
+        pid_path().write_text(str(os.getpid()), encoding="utf-8")
+        try:
+            corpus = Corpus(home)
+        except Exception as e:
+            wh._log(f"DAEMON ERROR corpus load failed pid={os.getpid()}: "
+                     f"{type(e).__name__}: {e}")
+            raise
+        wh._log(f"DAEMON up pid={os.getpid()} ({len(corpus.ir.get('rules', {}))} rules preloaded)")
+
         while not stop_evt.is_set():
             try:
                 conn, _ = srv.accept()

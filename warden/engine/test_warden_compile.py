@@ -18,7 +18,7 @@ sys.path.insert(0, str(HERE))
 
 import warden_compile as wc  # noqa: E402
 
-FCT_QUERY = REPO / "facets" / "FCT Track" / "FCT Query.md"
+FCT_QUERY = REPO / "facets" / "DAS Query.md"
 
 
 def _compile_pilot(tmp: Path):
@@ -57,10 +57,10 @@ def test_ir_row_matches_worked_example(ir):
 
 
 def test_tier_doc_rules_emitted(ir):
-    """All 15 R-query rules compile; tier rows carry the right declarative action.
-    (15th = R-query-15 artifact-link rule, landed 2026-07-05 in 5e026d0.)"""
-    assert len(ir["rules"]) == 15, len(ir["rules"])
-    assert len(ir["doc_rules"]) == 14, ir["doc_rules"]
+    """All 16 R-query rules compile; tier rows carry the right declarative action.
+    (16th = R-query-16 banner-form rule, landed after R-query-15.)"""
+    assert len(ir["rules"]) == 16, len(ir["rules"])
+    assert len(ir["doc_rules"]) == 15, ir["doc_rules"]
     # a `check::`-ref rule → a check action delegating to the named primitive
     r02 = ir["rules"]["R-query-02"]
     assert r02["moment"] is None and r02["phase"] == "post"
@@ -71,7 +71,7 @@ def test_tier_doc_rules_emitted(ir):
     # a `stated` rule with no checker → agent-judged
     assert ir["rules"]["R-query-06"]["action"] == {"kind": "judge"}, ir["rules"]["R-query-06"]
     # every doc-rule inherits the ruleset where-selector
-    assert ir["rules"]["R-query-01"]["where"] == "file:{ANCHOR}/**/* queries.md", ir["rules"]["R-query-01"]["where"]
+    assert ir["rules"]["R-query-01"]["where"] == "file:{anchor}/**/* queries.md", ir["rules"]["R-query-01"]["where"]
     print("PASS  tier_doc_rules_emitted")
 
 
@@ -219,6 +219,64 @@ def test_backticked_where():
     assert by_id["R-tick-fx-03"]["where"].startswith("every authored doc"), \
         by_id["R-tick-fx-03"]["where"]
     print("PASS  backticked_where (F172)")
+
+
+FIELD_STYLE_FIXTURE = """\
+# RULESET R-field-fx
+where:: `**/CLAUDE.md`
+description:: Audit 2026-07-12 W1 fixture — a paren-less RULE heading in the documented field style.
+
+### RULE R-field-fx-01 — File sits at the anchor root
+description:: A CLAUDE.md file must live at the anchor folder root.
+when:: write:markdown
+if:: `file.path != anchor.root.rstrip('/') + '/CLAUDE.md'`
+This CLAUDE.md is not at the anchor root.
+"""
+
+
+def test_paren_less_rule_heading():
+    """Audit 2026-07-12 W1: a `### RULE R-... — <title>` heading with NO trailing `(...)`
+    (the documented field-style form used by e.g. R-fct-claude-01) used to be
+    silently dropped from `rule_idxs` — it now parses, and its `when::`/`if::`
+    body fields wire a real when-rule with an intact moment + guard."""
+    rs = wc.parse_ruleset(FIELD_STYLE_FIXTURE, "R-field-fx", "fixture")
+    assert rs is not None
+    ids = [r["id"] for r in rs["rules"]]
+    assert ids == ["R-field-fx-01"], ids
+    rule = rs["rules"][0]
+    assert rule["paren"] == "", rule["paren"]
+    assert rule["tier"] is None, rule["tier"]
+    assert rule["when"] == "write:markdown", rule["when"]
+    assert rule["ifs"] == ["file.path != anchor.root.rstrip('/') + '/CLAUDE.md'"], rule["ifs"]
+    ir, _src, _stats = wc.compile_ruleset(rs, "field-fx")
+    row = ir["rules"]["R-field-fx-01"]
+    assert row["moment"] == "write:markdown", row["moment"]
+    assert row["phase"] == "post", row["phase"]
+    assert row["guard_py"] == "guard_R_field_fx_01", row["guard_py"]
+    assert ir["moments"]["write:markdown"] == ["R-field-fx-01"]
+    assert "R-field-fx-01" not in ir["doc_rules"]
+    print("PASS  paren_less_rule_heading (Audit 2026-07-12 W1)")
+
+
+def test_malformed_rule_heading_warns():
+    """Audit 2026-07-12 W1: a heading that starts a RULE but fails the strict grammar
+    (no `— name` separator) warns on stderr instead of silently vanishing
+    from the compiled ruleset."""
+    import contextlib
+    import io
+    bad = (
+        "# RULESET R-bad\n\n"
+        "### RULE R-bad-01 no dash separator at all\n\nx.\n\n"
+        "### RULE R-bad-02 — a real one\n\nwhen:: write:markdown\n"
+    )
+    err = io.StringIO()
+    with contextlib.redirect_stderr(err):
+        rs = wc.parse_ruleset(bad, "R-bad", "bad.md")
+    assert rs is not None
+    ids = [r["id"] for r in rs["rules"]]
+    assert ids == ["R-bad-02"], ids
+    assert "malformed RULE heading" in err.getvalue(), err.getvalue()
+    print("PASS  malformed_rule_heading_warns (Audit 2026-07-12 W1)")
 
 
 def test_include_flatten():
@@ -469,7 +527,7 @@ def test_recompile_cache():
 def test_stats(stats):
     assert stats["when_rules"] == 1, stats
     assert stats["py_rules"] == 1, stats
-    assert stats["doc_rules"] == 14, stats
+    assert stats["doc_rules"] == 15, stats
     print("PASS  stats")
 
 
@@ -482,6 +540,8 @@ def main():
         test_stats(stats)
     test_corpus_compile()
     test_backticked_where()
+    test_paren_less_rule_heading()
+    test_malformed_rule_heading_warns()
     test_include_flatten()
     test_fenced_sentinels_ignored()
     test_duplicate_rule_id_first_wins()
