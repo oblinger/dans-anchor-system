@@ -25,6 +25,7 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import re
+import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -655,6 +656,55 @@ def extract_verify_questions(backlog_file: Path) -> dict[str, str]:
     return _extract_labeled_subbullets(backlog_file, "Verify")
 
 
+# ============================================================
+# Worktree findings splice — successor to /triage's retired § 5.5
+# (worktree-check + lazy refresh, F231). worktree-check (workflow/scripts/)
+# scans `claude --worktree` checkouts for un-landed work and caches its
+# findings (already carrying their own `## Worktrees needing attention` H2)
+# at ~/.config/worktree-check/findings.md. This render owns the splice now
+# that /triage is gone. Un-landed worktrees are cross-anchor infrastructure
+# health, not any one anchor's backlog content, so the block is surfaced on
+# exactly ONE canonical anchor — SKA, which owns worktree-check — instead of
+# every anchor queries-render.py happens to be called for (avoids the same
+# block being duplicated across N sections of Q.md).
+# ============================================================
+
+WORKTREE_FINDINGS = Path.home() / ".config" / "worktree-check" / "findings.md"
+WORKTREE_CANONICAL_ANCHOR = "SKA"
+WORKTREE_CHECK_SCRIPT = (
+    Path.home() / ".claude" / "skills" / "workflow" / "scripts" / "worktree-check"
+)
+
+
+def _worktree_findings_lines(name: str) -> list[str]:
+    """Findings block to prepend to `name`'s queries body — [] unless `name`
+    is the canonical anchor AND the cache is non-empty (mirrors /triage's old
+    'if non-empty, splice verbatim; else surface nothing')."""
+    if name != WORKTREE_CANONICAL_ANCHOR:
+        return []
+    try:
+        text = WORKTREE_FINDINGS.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return []
+    if not text.strip():
+        return []
+    return text.rstrip("\n").splitlines()
+
+
+def _fire_worktree_rescan() -> None:
+    """Lazy background refresh, mirroring /triage's old
+    `worktree-check --if-stale 72 --quiet &`. Never blocks the render — the
+    current render always uses whatever the cache already holds; errors are
+    swallowed (best-effort, off the critical path)."""
+    try:
+        subprocess.Popen(
+            [sys.executable, str(WORKTREE_CHECK_SCRIPT), "--if-stale", "72", "--quiet"],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        )
+    except OSError:
+        pass
+
+
 def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
                        vault_index: dict, next_actions: dict[str, str],
                        verify_questions: dict[str, str],
@@ -686,6 +736,7 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
     qs = [r for r in eligible if "Questions" in r.bracket]
 
     body: list[str] = []
+    body.extend(_worktree_findings_lines(name))
     if verifs:
         body.append("## Verifications")
         for i, r in enumerate(verifs, 1):
@@ -1131,6 +1182,10 @@ def main() -> int:
     # Write {name} queries.md (same body, anchor-linked banner) — the click-into
     # page, fully script-owned.
     rendered_q = render_queries_doc(name, banner, rows, vault_index, next_actions, verify_questions, backlog_file)
+    # Lazy worktree-check refresh — only on the canonical anchor's render, never
+    # blocking (mirrors the retired /triage's background rescan trigger).
+    if name == WORKTREE_CANONICAL_ANCHOR:
+        _fire_worktree_rescan()
     # Counts for the summary line
     eligible = [r for r in rows if _row_should_render(r)]
     sweep_note = f"; swept {len(sweep_descs)} stale row(s)" if sweep_descs else ""
