@@ -1,24 +1,33 @@
 #!/usr/bin/env python3
-"""code — sparse-link tool that realizes the `remotes:` anchor declaration.
+"""code — anchor↔repo tool: the `mirror:` doc-mirror engine (+ shelved sparse-link verbs).
 
-Wires up the "docs in the vault, code at ~/ob/proj, synced via git" pattern
-described by [[Anchor Remotes]] (DKT Standard). An anchor's `.anchor` file
-carries a `remotes:` list; each entry is one **checkout** — one slice
-(`from:`) of one repo (`repo:`) at one place on disk (`at:`). Checkouts that
-share a `repo` are realized as **git worktrees of a single clone** (one
-`.git`, shared objects), each sparse-set to its declared `from` cone.
+Primary verb — the Two-Way Doc Mirror (DAS Code Repository § Doc Mirror):
 
-Subcommands (all take an anchor path; link/reattach are DRY unless --apply):
+  code sync <anchor> [--dry] [--take-here P ...] [--take-there P ...]
+
+An anchor's `.anchor` carries a `mirror:` list; each route keeps two local
+folders in sync — `here:` (relative to the anchor root) and `there:` (an
+absolute path, typically inside a repo working tree), with `direction:`
+two-way (default) | push | pull. Three-way sync per file (here / there /
+last-synced hash manifest, stored in the enclosing repo's .git/anchor-sync/):
+forward transfers freely; backward transfers ONLY changes that are committed
+in the enclosing git repo — uncommitted there-side edits are quarantined and
+flagged, never transported. Both-sides-changed is a conflict, resolved
+explicitly with --take-here/--take-there. There-side files are stamped
+read-only (the there side is not an authoring surface). A first run with no
+manifest self-baselines: equal files seed the manifest, one-side-only files
+copy, differing files surface as conflicts.
+
+Legacy verbs (sparse-link realization of `remotes:` — SHELVED per the F188
+redesign 2026-07-12; kept for fixture history, do not use on live anchors):
 
   code link    <anchor>  [--apply]   set up every declared checkout (idempotent)
   code reattach <anchor> [--apply]   rebuild any missing/detached checkout
   code status  <anchor>              report declared-vs-on-disk for each checkout
-  code audit   <anchor>              read-only verification (exit!=0 on drift);
-                                     consumed by /audit structure
+  code audit   <anchor>              read-only verification (exit!=0 on drift)
 
-`.anchor` is parsed as plain YAML (no `---` fences). `from`/`at` both default
-to `.`. The tool never touches working trees without --apply and never runs
-git commit/add.
+`.anchor` is parsed as plain YAML (no `---` fences). The tool never runs git
+commit/add.
 """
 import argparse
 import os
@@ -612,6 +621,317 @@ def cmd_audit(anchor_path):
     return 0
 
 
+# ── mirror sync (`mirror:` — DAS Code Repository § Doc Mirror) ───────────────
+import hashlib
+import json
+import shutil
+import stat
+
+SYNC_IGNORED = {".git", ".DS_Store"}
+DIRECTIONS = {"two-way", "push", "pull"}
+
+
+@dataclass
+class MirrorRoute:
+    here_raw: str
+    there_raw: str
+    direction: str
+    here: Path            # resolved absolute (anchor_dir / here_raw)
+    there: Path           # resolved absolute
+
+
+def load_mirror(anchor_path: Path):
+    """Return (anchor_dir, anchor_file, list[MirrorRoute])."""
+    anchor_file = find_anchor_file(Path(anchor_path))
+    anchor_dir = anchor_file.parent
+    try:
+        data = yaml.safe_load(anchor_file.read_text()) or {}
+    except yaml.YAMLError as e:
+        raise CodeError(f"could not parse {anchor_file} as YAML: {e}")
+    if not isinstance(data, dict):
+        raise CodeError(f"{anchor_file}: top-level YAML is not a mapping")
+    mirror = data.get("mirror")
+    if not mirror:
+        raise CodeError(f"{anchor_file}: no `mirror:` list — nothing to sync")
+    if not isinstance(mirror, list):
+        raise CodeError(f"{anchor_file}: `mirror:` must be a list")
+    routes = []
+    for i, e in enumerate(mirror):
+        if not isinstance(e, dict):
+            raise CodeError(f"{anchor_file}: mirror[{i}] is not a mapping")
+        here_raw = e.get("here")
+        there_raw = e.get("there")
+        if not here_raw or not there_raw:
+            raise CodeError(f"{anchor_file}: mirror[{i}] needs both `here:` and `there:`")
+        if Path(here_raw).is_absolute():
+            raise CodeError(f"{anchor_file}: mirror[{i}] `here:` must be relative "
+                            f"to the anchor root, got {here_raw!r}")
+        there = Path(os.path.expanduser(str(there_raw)))
+        if not there.is_absolute():
+            raise CodeError(f"{anchor_file}: mirror[{i}] `there:` must be an absolute "
+                            f"(or ~) path, got {there_raw!r} — never resolved "
+                            f"against `code:` (R-code-repository-04)")
+        direction = str(e.get("direction", "two-way")).strip()
+        if direction not in DIRECTIONS:
+            raise CodeError(f"{anchor_file}: mirror[{i}] direction {direction!r} "
+                            f"not in {sorted(DIRECTIONS)}")
+        here = (anchor_dir / here_raw).resolve()
+        routes.append(MirrorRoute(str(here_raw), str(there_raw), direction,
+                                  here, there.resolve()))
+    return anchor_dir, anchor_file, routes
+
+
+def _file_hash(p: Path) -> str:
+    h = hashlib.sha256()
+    with open(p, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 16), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def _walk_files(root: Path) -> dict:
+    """relpath(str, posix) → absolute Path, for regular files under root."""
+    out = {}
+    if not root.exists():
+        return out
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [d for d in dirnames if d not in SYNC_IGNORED]
+        for fn in filenames:
+            if fn in SYNC_IGNORED:
+                continue
+            p = Path(dirpath) / fn
+            if p.is_symlink():
+                continue
+            out[p.relative_to(root).as_posix()] = p
+    return out
+
+
+def _git_ctx(there: Path):
+    """(toplevel, gitdir, dirty_relpaths) for the repo enclosing `there`, or None."""
+    probe = there if there.exists() else there.parent
+    if not probe.exists():
+        return None
+    res = git(["-C", str(probe), "rev-parse", "--show-toplevel"], check=False)
+    if res.returncode != 0:
+        return None
+    top = Path(res.stdout.strip()).resolve()
+    res = git(["-C", str(top), "rev-parse", "--git-dir"], check=False)
+    gd = Path(res.stdout.strip())
+    gitdir = gd if gd.is_absolute() else (top / gd).resolve()
+    res = git(["-C", str(top), "status", "--porcelain", "--untracked-files=all",
+               "--", str(there)], check=False)
+    dirty = set()
+    for line in (res.stdout or "").splitlines():
+        if len(line) > 3:
+            path = line[3:].strip().strip('"')
+            if " -> " in path:  # renames: take the destination
+                path = path.split(" -> ", 1)[1].strip().strip('"')
+            dirty.add(path)
+    return top, gitdir, dirty
+
+
+def _manifest_path(anchor_dir: Path, route: MirrorRoute, gitdir) -> Path:
+    key = hashlib.sha1(
+        f"{anchor_dir}|{route.here_raw}|{route.there}".encode()).hexdigest()[:16]
+    if gitdir is not None:
+        return gitdir / "anchor-sync" / f"{key}.json"
+    return (Path("~/.config/anchor-system/sync-manifests").expanduser()
+            / f"{key}.json")
+
+
+def _load_manifest(path: Path) -> dict:
+    if path.is_file():
+        try:
+            data = json.loads(path.read_text())
+            return data.get("files", {})
+        except (json.JSONDecodeError, OSError):
+            raise CodeError(f"corrupt sync manifest {path} — inspect or remove it")
+    return {}
+
+
+def _save_manifest(path: Path, anchor_dir, route, files: dict):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({
+        "version": 1,
+        "anchor": str(anchor_dir),
+        "here": route.here_raw,
+        "there": str(route.there),
+        "files": dict(sorted(files.items())),
+    }, indent=1) + "\n")
+
+
+def _copy_to_there(src: Path, dst: Path):
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    if dst.exists():
+        dst.chmod(dst.stat().st_mode | stat.S_IWUSR)
+        dst.unlink()
+    shutil.copy2(src, dst)
+    dst.chmod(0o444)  # the there side is not an authoring surface
+
+
+def _copy_to_here(src: Path, dst: Path):
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(src, dst)
+    dst.chmod(0o644)
+
+
+def _delete_there(p: Path):
+    if p.exists():
+        p.chmod(p.stat().st_mode | stat.S_IWUSR)
+        p.unlink()
+
+
+def sync_route(anchor_dir: Path, route: MirrorRoute, dry: bool,
+               take_here: set, take_there: set):
+    """Sync one route. Returns (counters dict, flags list[str])."""
+    if not route.here.exists():
+        raise CodeError(f"here route missing on disk: {route.here}")
+    ctx = _git_ctx(route.there)
+    top, gitdir, dirty = ctx if ctx else (None, None, set())
+
+    mpath = _manifest_path(anchor_dir, route, gitdir)
+    manifest = _load_manifest(mpath)
+    here_files = _walk_files(route.here)
+    there_files = _walk_files(route.there)
+
+    def committed(rel: str) -> bool:
+        """True iff the there-side file's state arrived via git history."""
+        if top is None:
+            return False  # no enclosing repo — nothing is 'committed'
+        trel = (route.there / rel).resolve().relative_to(top).as_posix()
+        return trel not in dirty
+
+    counters = {"forward": 0, "backward": 0, "deleted_there": 0,
+                "deleted_here": 0, "seeded": 0, "in_sync": 0}
+    flags = []
+    new_manifest = {}
+
+    def taken_here(rel):  return "all" in take_here or rel in take_here
+    def taken_there(rel): return "all" in take_there or rel in take_there
+
+    for rel in sorted(set(here_files) | set(there_files) | set(manifest)):
+        H = _file_hash(here_files[rel]) if rel in here_files else None
+        T = _file_hash(there_files[rel]) if rel in there_files else None
+        M = manifest.get(rel)
+        hp, tp = route.here / rel, route.there / rel
+
+        def forward():
+            if not dry:
+                _copy_to_there(hp, tp)
+            counters["forward"] += 1
+            new_manifest[rel] = H
+
+        def backward():
+            if not dry:
+                _copy_to_here(tp, hp)
+            counters["backward"] += 1
+            new_manifest[rel] = T
+
+        if H is not None and H == T:
+            counters["seeded" if M is None else "in_sync"] += 1
+            new_manifest[rel] = H
+        elif H is not None and T is not None:            # both exist, differ
+            if taken_here(rel):
+                forward()
+            elif taken_there(rel):
+                backward()
+            elif M == T:                                  # here changed
+                if route.direction == "pull":
+                    flags.append(f"drift: {rel} changed here but route is pull-only")
+                    new_manifest[rel] = M
+                else:
+                    forward()
+            elif M == H:                                  # there changed
+                if route.direction == "push":
+                    flags.append(f"drift: {rel} changed there but route is push-only")
+                    new_manifest[rel] = M
+                elif committed(rel):
+                    backward()
+                else:
+                    flags.append(f"QUARANTINE: {rel} edited there UNCOMMITTED — "
+                                 f"never transported; fix at {tp} (or --take-there)")
+                    new_manifest[rel] = M
+            else:                                         # both changed
+                flags.append(f"CONFLICT: {rel} changed on both sides — resolve, "
+                             f"then --take-here or --take-there")
+                if M is not None:
+                    new_manifest[rel] = M
+        elif H is not None:                               # missing there
+            if taken_there(rel):
+                if not dry:
+                    hp.unlink()
+                counters["deleted_here"] += 1
+            elif M is None or M != H:
+                if M is None:                             # new here file
+                    if route.direction == "pull":
+                        flags.append(f"drift: {rel} added here but route is pull-only")
+                    else:
+                        forward()
+                else:                                     # here changed + there deleted
+                    flags.append(f"CONFLICT: {rel} changed here but deleted there")
+                    new_manifest[rel] = M
+            else:                                         # there-side deletion
+                flags.append(f"deletion: {rel} deleted there — backward deletions "
+                             f"are never auto-applied; --take-there {rel} to accept, "
+                             f"--take-here {rel} to restore")
+                new_manifest[rel] = M
+        elif T is not None:                               # missing here
+            if taken_here(rel):
+                if not dry:
+                    _delete_there(tp)
+                counters["deleted_there"] += 1
+            elif M is None:                               # new there file
+                if route.direction == "push":
+                    flags.append(f"drift: {rel} added there but route is push-only")
+                elif committed(rel):
+                    backward()
+                else:
+                    flags.append(f"QUARANTINE: {rel} added there UNCOMMITTED — "
+                                 f"never transported (or --take-there)")
+            elif M == T:                                  # here deleted it
+                if route.direction == "pull":
+                    flags.append(f"drift: {rel} deleted here but route is pull-only")
+                    new_manifest[rel] = M
+                else:
+                    if not dry:
+                        _delete_there(tp)
+                    counters["deleted_there"] += 1
+            else:                                         # here deleted + there changed
+                flags.append(f"CONFLICT: {rel} deleted here but changed there")
+                new_manifest[rel] = M
+        # else: manifest-only entry (deleted both sides) — drops out
+
+    if not dry:
+        _save_manifest(mpath, anchor_dir, route, new_manifest)
+        if route.direction in ("two-way", "push"):
+            for rel, p in _walk_files(route.there).items():
+                p.chmod(0o444)
+    return counters, flags
+
+
+def cmd_sync(anchor_path, dry, take_here, take_there):
+    anchor_dir, anchor_file, routes = load_mirror(anchor_path)
+    mode = "dry-run" if dry else "sync"
+    print(bold(f"code sync ({mode}): {anchor_file}"))
+    any_flags = False
+    for route in routes:
+        print(bold(f"\n{route.here_raw}  ↔  {route.there}   [{route.direction}]"))
+        counters, flags = sync_route(anchor_dir, route,
+                                     dry, set(take_here), set(take_there))
+        parts = [f"{v} {k.replace('_', ' ')}" for k, v in counters.items() if v]
+        print("  " + (dim("nothing to do") if not parts else ok(", ".join(parts))))
+        for f in flags:
+            any_flags = True
+            print("  " + (err(f) if f.startswith(("QUARANTINE", "CONFLICT"))
+                          else warn(f)))
+    print()
+    if any_flags:
+        print(err("flags present — nothing flagged was transported"))
+        return 1
+    print(ok("mirror clean" + (" (dry-run — no changes made)" if dry else "")))
+    return 0
+
+
 # ── CLI ───────────────────────────────────────────────────────────────────────
 def main(argv=None):
     parser = argparse.ArgumentParser(
@@ -620,20 +940,34 @@ def main(argv=None):
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     for name, helptext in [
-        ("link", "set up every declared checkout (DRY unless --apply)"),
-        ("reattach", "rebuild missing/detached checkouts (DRY unless --apply)"),
-        ("status", "report declared-vs-on-disk for each checkout"),
-        ("audit", "read-only verification; exit!=0 on drift"),
+        ("sync", "run the mirror: doc-mirror engine (three-way, git-aware)"),
+        ("link", "SHELVED sparse-link: set up declared checkouts (DRY unless --apply)"),
+        ("reattach", "SHELVED sparse-link: rebuild missing checkouts (DRY unless --apply)"),
+        ("status", "report declared-vs-on-disk for each remotes: checkout"),
+        ("audit", "read-only remotes: verification; exit!=0 on drift"),
     ]:
         p = sub.add_parser(name, help=helptext)
         p.add_argument("anchor", help="path to the anchor dir or its .anchor file")
         if name in ("link", "reattach"):
             p.add_argument("--apply", action="store_true",
                            help="execute the plan (default: dry-run)")
+        if name == "sync":
+            p.add_argument("--dry", action="store_true",
+                           help="report what would happen; change nothing")
+            p.add_argument("--take-here", action="append", default=[],
+                           metavar="RELPATH",
+                           help="resolve a flagged path by forcing here→there "
+                                "('all' allowed)")
+            p.add_argument("--take-there", action="append", default=[],
+                           metavar="RELPATH",
+                           help="resolve a flagged path by forcing there→here "
+                                "('all' allowed)")
 
     args = parser.parse_args(argv)
     anchor = Path(args.anchor)
     try:
+        if args.cmd == "sync":
+            return cmd_sync(anchor, args.dry, args.take_here, args.take_there)
         if args.cmd == "link":
             return cmd_link(anchor, args.apply)
         if args.cmd == "reattach":
