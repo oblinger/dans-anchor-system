@@ -1,20 +1,53 @@
 # RULESET R-completed-roadmap
-include:: [[DAS Completed Roadmap#RULESET R-completed-roadmap\|embedded body]]
-description:: Rules for the {slug} Completed Roadmap.md facet — migration target for whole milestones; preserves structure with rough chronology.
+include::
+where:: `file:{anchor}/**/* Completed Roadmap.md`
+description:: completed-roadmap facet — migrated milestones in newest-on-top order, sibling of the forward-looking Roadmap
 
-Catalog-side stub. Canonical body lives embedded inside [[DAS Completed Roadmap]] per [[F133 — Rulesets folder convention + facet embedding|F133]].
+Ruleset for this facet — spec: [[DAS Completed Roadmap]] (extracted from the spec 2026-07-12). Adopted via `R-facet` umbrella.
 
-**To see the actual rules:** follow [[DAS Completed Roadmap#RULESET R-completed-roadmap|the embedded block]]. 6 rules covering: companion location, body-only shape, newest-on-top ordering, standalone-grouping interleaving, structure preservation on migration, milestones-never-come-back invariant.
+### RULE R-completed-roadmap-01 — Location is `{slug} Design/{slug} Completed Roadmap.md` (checked)
 
-## Adoption
+The doc lives at `{slug} Design/{slug} Completed Roadmap.md` — sibling of `{slug} Roadmap.md`.
 
-Adopted transitively via [[R-facet]].
+**Check pattern:** when one or more milestones have migrated, `ls "{anchor}/{slug} Design/{slug} Completed Roadmap.md"` exists. When zero migrations have occurred, the file may be absent — it's created on first migration.
 
-## See also
+**Why:** companion location keeps the forward and the completed views adjacent.
 
-- [[DAS Completed Roadmap]] — facet spec; contains the embedded RULESET body.
-- [[DAS Roadmap]] — companion facet (the migration source).
-- [[R-facet]] — parent umbrella.
-- [[R-roadmap]] — sibling ruleset for the forward-looking Roadmap.
-- [[DAS Rulesets]] — top-level catalog.
-- [[F144 — Completed Roadmap + named milestones]] — feature that landed this convention.
+### RULE R-completed-roadmap-02 — Body-only, no YAML frontmatter (checked)
+check:: h1_no_frontmatter
+
+First non-blank line is `# {slug} Completed Roadmap` (H1). No `---` block precedes.
+
+**Why:** matches the vault-wide body-only convention.
+
+### RULE R-completed-roadmap-03 — Top-to-bottom order is newest-to-oldest (sampled)
+
+Migrated milestone H2 sections appear in reverse-chronological order by migration date. The migration date is in the heading: `## [x] M-<Name> — <Title> (migrated YYYY-MM-DD)`.
+
+**Check pattern:** parse migrated milestone H2s; extract dates; assert monotonically non-increasing top-to-bottom.
+
+**Why:** the reader's primary query is "what shipped most recently?" Reverse-chrono gives that answer first.
+
+### RULE R-completed-roadmap-04 — Standalone groupings interleave with migrated milestones (sampled)
+
+Standalone-completed-features groupings (H2s named `## Completed standalone features (since <date>)`) appear between migrated milestone sections, capturing features that completed in that window. At most one "current" standalone grouping exists at the top.
+
+**Check pattern:** parse H2 headings; classify each as `migrated milestone` or `standalone grouping`; assert structure alternates plausibly (standalone groupings between or above milestones, never below all milestones).
+
+**Why:** standalone-feature completions get a coherent home that's still rough-chronological without forcing them into fake milestones.
+
+### RULE R-completed-roadmap-05 — Migrated milestones preserve their full structure (stated)
+
+A migrated milestone retains its Status line, reference block, and all sub-items (in their final `[x]` / `[~]` / abandoned state) exactly as they were in the Roadmap at migration time.
+
+**Check pattern:** sample migrated milestones; assert presence of Status line and sub-items.
+
+**Why:** migration is structural, not summarizing. Preserves the project's reasoning about what shipped together.
+
+### RULE R-completed-roadmap-06 — Migrated milestones never come back (stated)
+
+Once a milestone migrates to Completed Roadmap, it stays. Reactivation of work in the same domain creates a new milestone (e.g., `M-Auth-V2`), not a revival of the old one.
+
+**Check pattern:** git history — assert no roadmap entry uses an M-name that already appears in Completed Roadmap.
+
+**Why:** keeps the historical record honest. Reopened work is genuinely a new milestone with new scope.

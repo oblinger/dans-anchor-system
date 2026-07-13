@@ -1,7 +1,21 @@
 # RULESET R-messages
-include:: [[DAS Messages#RULESET R-messages|embedded body]]
-description:: Rules for the {slug} Messages facet — the agent's per-anchor background-process inbox, distinct from the user's Inbox. Canonical body embedded in [[DAS Messages]].
+include::
+where:: `{anchor}/* Messages.md`
+description:: the Messages facet — agent's per-anchor background-process inbox, distinct from the user's Inbox
 
-Catalog-side stub for the Messages facet ruleset. The canonical body lives embedded inside [[DAS Messages]] per the [[F133 — Rulesets folder convention + facet embedding|F133]] convention.
+Ruleset for this facet — spec: [[DAS Messages]] (extracted from the spec 2026-07-12).
 
-**To see the actual rules:** follow [[DAS Messages#RULESET R-messages|the embedded block]]. 3 rules covering: file location `{slug} Messages.md`, agent-facing background-notes scope, distinct-from-Inbox guard.
+### RULE R-messages-01 — File is `{slug} Messages.md` at the anchor root (checked)
+check:: h1_is_anchor_messages
+
+The messages file is `{slug}/{slug} Messages.md` — not under Track or Docs, and not the Inbox.
+
+**Check pattern:** `{anchor}/{slug} Messages.md` exists and its H1 is `# {slug} Messages`.
+
+### RULE R-messages-02 — Agent-facing background notes only (stated)
+
+Messages holds background-process / out-of-band notes the agent reads on every pause — not user-dropped raw input (that is `{slug} Inbox.md`).
+
+### RULE R-messages-03 — Distinct from Inbox (stated)
+
+The Messages-vs-Inbox split (agent-read background notes vs. user-dropped raw input) is load-bearing; never blur the two on an instance or in this spec.
