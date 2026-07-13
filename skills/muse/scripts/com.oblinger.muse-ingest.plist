@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.oblinger.muse-ingest</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/oblinger/.claude/skills/muse/scripts/muse</string>
+        <string>ingest</string>
+        <string>--sweep</string>
+    </array>
+
+    <key>WatchPaths</key>
+    <array>
+        <string>/Users/oblinger/Library/Mobile Documents/iCloud~com~openplanetsoftware~Just-Press-Record/Documents</string>
+    </array>
+
+    <key>RunAtLoad</key>
+    <false/>
+
+    <key>ThrottleInterval</key>
+    <integer>10</integer>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/Users/oblinger/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+        <key>HOME</key>
+        <string>/Users/oblinger</string>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>/Users/oblinger/.claude/skills/muse/muse-ingest.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/oblinger/.claude/skills/muse/muse-ingest.log</string>
+</dict>
+</plist>
