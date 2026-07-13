@@ -2469,6 +2469,21 @@ def chk_md_em_dash(target, anchor_root, args):
     return "pass", ""
 
 
+def chk_md_svg_embed_width(target, anchor_root, args):
+    """Every ![[x.svg]] embed carries a |width hint (page-wide default |3000).
+    Bare embeds render fit-to-column thumbnails. Skips code fences / inline code."""
+    if not target.is_file():
+        return "pass", "not a file"
+    bare = []
+    def _collect(seg):
+        bare.extend(re.findall(r"!\[\[[^\]|]+?\.svg\]\]", seg))
+        return seg
+    _repl_outside_code(_read(target), _collect)
+    if bare:
+        return "fail", "bare SVG embed(s) missing |width hint: " + ", ".join(bare[:5])
+    return "pass", ""
+
+
 def chk_md_trailing_ws(target, anchor_root, args):
     """Trailing whitespace on a line (never content — pure normalization)."""
     if not target.is_file():
@@ -3051,6 +3066,7 @@ CHECKERS = {
     "md_table_pipe_escape": chk_md_table_pipe_escape,
     "md_em_dash": chk_md_em_dash,
     "md_trailing_ws": chk_md_trailing_ws,
+    "md_svg_embed_width": chk_md_svg_embed_width,
     # R-markdown re-wiring (T007, 2026-07-06)
     "md_inline_field_value": chk_md_inline_field_value,
     "md_stray_angle_tag": chk_md_stray_angle_tag,
@@ -3274,12 +3290,26 @@ def fix_breadcrumb_position(target, anchor_root, args):
     return False, ""
 
 
+def fix_md_svg_embed_width(target, anchor_root, args):
+    """Append the page-wide default `|3000` hint to bare `![[x.svg]]` embeds.
+    Paired to the `md_svg_embed_width` check; skips code fences / inline code."""
+    if not target.is_file():
+        return False, "not a file"
+    text = _read(target)
+    new = _repl_outside_code(
+        text, lambda s: re.sub(r"!\[\[([^\]|]+?\.svg)\]\]", r"![[\1|3000]]", s))
+    if new != text:
+        target.write_text(new, encoding="utf-8")
+    return (new != text), ("added |3000 width hint to bare SVG embed(s)" if new != text else "")
+
+
 FIXERS = {
     "md_table_blank_lines": fix_table_blank_lines,
     "md_table_pipe_escape": fix_md_table_pipe_escape,
     "md_em_dash": fix_md_em_dash,
     "md_trailing_ws": fix_md_trailing_ws,
     "breadcrumb_position": fix_breadcrumb_position,
+    "md_svg_embed_width": fix_md_svg_embed_width,
 }
 
 

@@ -42,7 +42,6 @@ This bundle directory's name is not a valid dated label — rename it to `YYYY-M
 
 ### RULE R-fex-bundle-02 — contains exactly one manifest
 description:: A bundle directory must contain exactly one manifest.txt, co-required with the Manifest facet.
-if:: `fex_bundle.manifest_count(file) != 1`
 This bundle directory does not contain exactly one `manifest.txt` — add or remove copies until exactly one is present so restore can identify what it is restoring.
 
 **Why:** restore reads the manifest to know what it is restoring; zero or duplicate manifests make the bundle unrestorable or ambiguous.
