@@ -24,9 +24,10 @@
 
 set -euo pipefail
 
-MUSE_QUICK_DIR="${MUSE_QUICK_DIR:-$HOME/ob/kmr/LST/Quick}"
+MUSE_ITEMS_DIR="${MUSE_ITEMS_DIR:-$HOME/ob/kmr/Log/MUSE}"
+MUSE_QUICK_FILE="${MUSE_QUICK_FILE:-$HOME/ob/kmr/LST/Quick/Quick.md}"
 MUSE_JPR_DIR="${MUSE_JPR_DIR:-$HOME/Library/Mobile Documents/iCloud~com~openplanetsoftware~Just-Press-Record/Documents}"
-MUSE_INLINE_MAX_CHARS="${MUSE_INLINE_MAX_CHARS:-200}"
+MUSE_INLINE_MAX_CHARS="${MUSE_INLINE_MAX_CHARS:-80}"
 MUSE_NOTIFICATION_SOUND="${MUSE_NOTIFICATION_SOUND:-Tink}"
 
 TRANSCRIBE_BIN="${TRANSCRIBE_BIN:-$HOME/bin/_transcribe}"
@@ -71,21 +72,18 @@ audio_captured() {
     stat -f '%Sm' -t '%Y-%m-%d %H:%M:%S' "$audio"
 }
 
-# Given "YYYY-MM-DD HH:MM:SS" return "MMDD".
-mmdd_from_captured() {
+# Given "YYYY-MM-DD HH:MM:SS" return "YYYY-MM-DD".
+ymd_from_captured() {
     local captured="$1"
-    local ymd="${captured%% *}"
-    local mm="${ymd:5:2}"
-    local dd="${ymd:8:2}"
-    printf '%s%s' "$mm" "$dd"
+    printf '%s' "${captured%% *}"
 }
 
-# Compute next daily letter given MMDD and the Quick dir.
+# Compute next daily letter given YYYY-MM-DD and the items dir.
 next_letter() {
-    local mmdd="$1"
-    local qdir="$2"
+    local ymd="$1"
+    local items_dir="$2"
     local count letter
-    count=$(find "$qdir" -maxdepth 1 -type f -name "MUSE $mmdd *.md" 2>/dev/null | wc -l | tr -d ' ')
+    count=$(find "$items_dir" -maxdepth 1 -type f -name "MUSE $ymd *.md" 2>/dev/null | wc -l | tr -d ' ')
     if (( count < 26 )); then
         letter="$(printf '\\%03o' $((65 + count)))"
         printf '%b' "$letter"
@@ -133,8 +131,9 @@ ingest_one() {
 
     [[ -f "$audio" ]] || die "audio file not found: $audio"
 
-    mkdir -p "$MUSE_QUICK_DIR"
-    local hashfile="$MUSE_QUICK_DIR/.muse.hashes"
+    mkdir -p "$MUSE_ITEMS_DIR"
+    mkdir -p "$(dirname "$MUSE_QUICK_FILE")"
+    local hashfile="$MUSE_ITEMS_DIR/.muse.hashes"
 
     # 1. quarantine
     xattr -d com.apple.quarantine "$audio" 2>/dev/null || true
@@ -163,15 +162,15 @@ ingest_one() {
     title="$(sanitize_title "$raw_title")"
     [[ -n "$title" ]] || title="Untitled"
 
-    # 6. sequence letter
-    local captured mmdd letter
+    # 6. sequence letter — date is YYYY-MM-DD, letter disambiguates same-day items
+    local captured ymd letter
     captured="$(audio_captured "$audio")"
-    mmdd="$(mmdd_from_captured "$captured")"
-    letter="$(next_letter "$mmdd" "$MUSE_QUICK_DIR")"
+    ymd="$(ymd_from_captured "$captured")"
+    letter="$(next_letter "$ymd" "$MUSE_ITEMS_DIR")"
 
-    # 7. item file
-    local item_base="MUSE $mmdd $letter $title"
-    local item_path="$MUSE_QUICK_DIR/$item_base.md"
+    # 7. item file — always written; permanent archive under MUSE_ITEMS_DIR
+    local item_base="MUSE $ymd $letter $title"
+    local item_path="$MUSE_ITEMS_DIR/$item_base.md"
     log "writing item: $item_base.md"
 
     {
@@ -181,28 +180,29 @@ ingest_one() {
         printf 'audio_sha256: %s\n' "$sha"
         printf 'state: unreviewed\n'
         printf -- '---\n'
-        printf '# MUSE %s %s — %s\n\n' "$mmdd" "$letter" "$title"
+        printf '# MUSE %s %s — %s\n\n' "$ymd" "$letter" "$title"
         printf '%s\n' "$text"
     } > "$item_path"
 
-    # 8. Quick.md bullet
+    # 8. Quick.md bullet — short: raw text inline; long: markdown link with
+    #    title as text, item file basename as href (Obsidian resolves by
+    #    basename, no path needed).
     local text_len=${#text}
     local bullet
     if (( text_len <= MUSE_INLINE_MAX_CHARS )); then
-        # inline the full transcript after em-dash
         local inline
         inline="$(printf '%s' "$text" | tr '\n' ' ')"
-        bullet="- [[$item_base|MUSE $mmdd $letter]] — $inline"
+        bullet="- $inline"
     else
-        bullet="- [[$item_base|MUSE $mmdd $letter]] — $title"
+        bullet="- [$title]($item_base.md)"
     fi
-    prepend_line "$MUSE_QUICK_DIR/Quick.md" "$bullet"
+    prepend_line "$MUSE_QUICK_FILE" "$bullet"
 
     # 9. record hash
     printf '%s %s\n' "$sha" "$audio" >> "$hashfile"
 
     # 10. notify
-    notify "MUSE $mmdd $letter: $title"
+    notify "MUSE $ymd $letter: $title"
     log "OK $item_base"
 }
 
@@ -210,8 +210,9 @@ ingest_one() {
 ingest_sweep() {
     [[ -d "$MUSE_JPR_DIR" ]] || die "JPR dir not found: $MUSE_JPR_DIR"
 
-    mkdir -p "$MUSE_QUICK_DIR"
-    local hashfile="$MUSE_QUICK_DIR/.muse.hashes"
+    mkdir -p "$MUSE_ITEMS_DIR"
+    mkdir -p "$(dirname "$MUSE_QUICK_FILE")"
+    local hashfile="$MUSE_ITEMS_DIR/.muse.hashes"
     touch "$hashfile"
 
     local candidate sha count=0
