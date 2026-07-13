@@ -13,9 +13,11 @@ The **Anchor System** is an information-organization system — a disciplined wa
 | --- | --- |
 | External | [Repo](https://github.com/oblinger/dans-anchor-system/) |
 | Guide | [[ASG\|User Guide]] — how to *use* the skills & facets (no design internals) |
+| Subsystems | [[DAS Tracking Design\|Tracking]],  Drive,  Anchor,  Hygiene,  Dev,  Doc,  Search,  Utility,   |
 | Sections | [[DAS Skills\|Skills]],  [[DAS Facets\|Facets]],  [[DAS Disciplines\|Disciplines]],  [[DAS Traits\|Traits]],  [[DAS Rulesets\|Rulesets]],  [[LBR\|Library]],  [[DAS Examples\|Facet Examples]],   |
 | Surfaces | [[DAS Docs\|Docs]] — user reading surface,  [[DAS Design\|Design]] — design pipeline |
-| Subsystems | [[DAS Tracking Design\|Tracking]] — surfaces + verbs + rules for shared work state (paradigm subsystem design; other groups to follow) |
+
+
 
 ## Overview
 
