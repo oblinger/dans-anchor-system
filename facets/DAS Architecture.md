@@ -8,18 +8,19 @@ description: per-anchor architecture overview — anchor-folder form with subsys
 
 *Conceptual source: [[PKM]] (under [[THREADS]]) — the through-line the anchor system operationalizes.*
 
-| Table of Contents |  |
-|---|---|
-| [[#Folder shape]] |  |
-| [[#Standard section order (entry-point doc)]] |  |
-| [[#Subsystem dispatch table]] |  |
-| [[#Subsystems]] |  |
-| [[#Architecture diagram requirements]] |  |
-| [[#What does NOT belong on the entry-point Architecture page]] |  |
-| [[#Trait applicability]] |  |
-| [[#Audit]] |  |
-| [[#See also]] |  |
-| **[[#BRIEF]]** |  |
+| Table of Contents                                              |     |
+| -------------------------------------------------------------- | --- |
+| [[#Folder shape]]                                              |     |
+| [[#Standard section order (entry-point doc)]]                  |     |
+| [[#Subsystem dispatch table]]                                  |     |
+| [[#Subsystems]]                                                |     |
+| [[#Architecture diagram requirements]]                         |     |
+| [[#What does NOT belong on the entry-point Architecture page]] |     |
+| [[#Trait applicability]]                                       |     |
+| [[#Audit]]                                                     |     |
+| [[#See also]]                                                  |     |
+| **[[#BRIEF]]**                                                 |     |
+|                                                                |     |
 
 Facet spec defining the per-anchor system-architecture overview — its anchor-folder shape, standard section order, mandatory visual figure, subsystem dispatch table, and split between conceptual map (entry-point doc) and contract surface (API sub-doc).
 
@@ -141,14 +142,14 @@ If a class table starts showing up on the Architecture page, that's a smell that
 
 ## Trait applicability
 
-Available to any anchor with the `Code` trait. Optional for non-code anchors — a `Topic` anchor's "architecture" might be its content taxonomy, but that's usually expressed in the anchor page or PRD instead.
+Available to any anchor with the `code` trait. Optional for non-code anchors — a `topic` anchor's "architecture" might be its content taxonomy, but that's usually expressed in the anchor page or PRD instead.
 
 **Cardinality: one** — each anchor has exactly one `{slug} Architecture/` folder and one `{slug} Architecture.md` entry-point doc. Subsystem docs inside the folder are many, but the facet itself (the entry-point doc + folder) is singular per anchor.
 
 ## Audit
 
 `/audit architecture` flags:
-- **missing-architecture** — `Code`-trait anchor without `{slug} Architecture/{slug} Architecture.md`.
+- **missing-architecture** — `code`-trait anchor without `{slug} Architecture/{slug} Architecture.md`.
 - **missing-figure** — Architecture doc with no `![[…]]` image embed in `## Architecture diagram`.
 - **ascii-diagram** — fenced-code-block ASCII art appearing in any architecture doc (per durable feedback).
 - **orphan-subsystem** — a subsystem doc inside `{slug} Architecture/` not listed in the entry-point Subsystems table.
@@ -284,7 +285,7 @@ Anchor-wide principles/rulings are linked to `{slug} Decisions` (e.g. `[[… |D<
 
 *(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body above; the embedded `# RULESET R-architecture` is its machine-readable form; the canonical worked instances are the audited examples listed at the top of the file.)*
 
-- **Tooling derives structure from here** — `/architect` and `/audit architecture` key on this spec, and every per-anchor `{slug} Architecture/` doc follows it; edits change behavior across every `Code`-trait anchor.
+- **Tooling derives structure from here** — `/architect` and `/audit architecture` key on this spec, and every per-anchor `{slug} Architecture/` doc follows it; edits change behavior across every `code`-trait anchor.
 - **Inclusion test:** a rule belongs here only if it applies to *every* Code-trait anchor's Architecture facet — anchor-local quirks → `{slug} Decisions.md`, ruleset-wide diagram constraints → [[R-diagram]], markdown-rendering rules → [[R-markdown]]. Don't inline tutorial / worked-example / API-doc content — link [[FEX Architecture]] / [[DAS Module Doc]] instead.
 - **Don't weaken the load-bearing invariants without a corresponding CAB Log entry:** first-four-section order (R-architecture-07), kebab subsystem naming (R-architecture-08), `[[double-bracket]]` = real / `[single-bracket]` = placeholder (R-architecture-09, drives the `missing-subsystem-doc` check), ASCII-forbidden (R-architecture-05).
 - **The `## Audit` table is the contract with `/audit architecture`** — a finding ID added or renamed here must change the audit script in lockstep; never introduce one without the other.

@@ -16,9 +16,9 @@ The kmr vault is a special case (it's a backup repo at the vault root, but indiv
 
 ## How it's detected
 
-- **Trait:** `NoGit` appears in the anchor's `.anchor` `traits:` list (one-line lookup; no file inference per [[DAS Aspects]]).
-- **Default fallback:** when no Git-aspect trait is declared AND the anchor does **not** have the `Code` identity trait (no repo), the agent defaults to NoGit mode. Explicit declaration is recommended once an anchor's mode is settled.
-- An anchor with `Code` (has a repo) cannot take NoGit — `Code + NoGit` is a contradiction.
+- **Trait:** `nogit` appears in the anchor's `.anchor` `traits:` list (one-line lookup; no file inference per [[DAS Aspects]]).
+- **Default fallback:** when no Git-aspect trait is declared AND the anchor does **not** have the `code` identity trait (no repo), the agent defaults to NoGit mode. Explicit declaration is recommended once an anchor's mode is settled.
+- An anchor with `code` (has a repo) cannot take NoGit — `Code + NoGit` is a contradiction.
 
 ## The rule
 
@@ -30,7 +30,7 @@ NoGit is the simplest of the Git-aspect traits — one rule:
 
 ## Wiring an anchor for NoGit
 
-1. **Declare the trait.** Add `NoGit` to the `.anchor` `traits:` list, e.g. `traits: [Topic, NoGit]` or `traits: [Simple, NoGit]`.
+1. **Declare the trait.** Add `nogit` to the `.anchor` `traits:` list, e.g. `traits: [topic, nogit]` or `traits: [simple, nogit]`.
 2. **Don't `git init` here.** A NoGit-declared anchor that has a `.git/` directory is a contradiction; if one exists from prior work, decide whether to keep it (in which case re-declare as `Code + Commit` or `Code + PR`) or remove it.
 3. **No structural changes required.** NoGit is a behavioral trait — it constrains the agent's actions, not the folder's contents.
 
@@ -43,14 +43,14 @@ NoGit imposes no on-disk structural requirements. Compositional expectations:
 
 ## Constraints
 
-- **Cardinality: at most one Git-aspect trait** per anchor. `NoGit` + `Commit` is illegal; `NoGit` + `PR` is illegal.
-- **Composition.** Legal with `Simple`, `Topic`, `Paper`, `Track`, `Drive`, `Lean`. **Excludes `Code`** (you can't have a repo and declare NoGit). **Excludes `Skill`** (Skills are runtime code anchors and inherit git from the wider skills repo). See composability matrix in [[DAS Aspects]].
-- **Excludes Code.** Declaring `NoGit` on a `Code` anchor is illegal — they directly contradict.
+- **Cardinality: at most one Git-aspect trait** per anchor. `nogit` + `commit` is illegal; `nogit` + `pr` is illegal.
+- **Composition.** Legal with `simple`, `topic`, `paper`, `track`, `drive`, `lean`. **Excludes `code`** (you can't have a repo and declare NoGit). **Excludes `skill`** (Skills are runtime code anchors and inherit git from the wider skills repo). See composability matrix in [[DAS Aspects]].
+- **Excludes Code.** Declaring `nogit` on a `code` anchor is illegal — they directly contradict.
 
 ## Expected Usage
 
 - **Most common pairings:** `Topic + NoGit` (a knowledge area without its own repo), `Simple + NoGit` (a minimal folder marker without git), `Paper + NoGit` (a writing project whose versioning is handled by the document not by git).
-- **Special case — kmr vault.** Anchors inside `~/ob/kmr/` are governed by the kmr vault's own git discipline (terse commits, no elaborate messages, per memory). NoGit on an inner anchor doesn't override the vault's outer git; it just declares that the anchor isn't managing its own per-anchor repo. Most kmr-internal anchors are effectively `NoGit` even without explicit declaration.
+- **Special case — kmr vault.** Anchors inside `~/ob/kmr/` are governed by the kmr vault's own git discipline (terse commits, no elaborate messages, per memory). NoGit on an inner anchor doesn't override the vault's outer git; it just declares that the anchor isn't managing its own per-anchor repo. Most kmr-internal anchors are effectively `nogit` even without explicit declaration.
 - **Don't use to silence agents.** If the user wants to *suppress* committing temporarily, that's a session-level direction ("don't commit while we iterate") — not a permanent NoGit trait. NoGit means "this anchor doesn't have its own repo," not "stop committing for now."
 
 ## Triggers
@@ -71,8 +71,8 @@ NoGit imposes no on-disk structural requirements. Compositional expectations:
 
 ## History
 
-- **2026-05-25** — `NoGit` cadence option introduced as part of [[F077 — PR mode — mode-as-trait architecture with per-anchor opt-in|F077]] v2 redesign (bare-noun naming).
-- **2026-06-01** — Promoted to first-class CAB Trait (this file) alongside `Commit` and `PR`.
+- **2026-05-25** — `nogit` cadence option introduced as part of [[F077 — PR mode — mode-as-trait architecture with per-anchor opt-in|F077]] v2 redesign (bare-noun naming).
+- **2026-06-01** — Promoted to first-class CAB Trait (this file) alongside `commit` and `pr`.
 
 # BRIEF
 

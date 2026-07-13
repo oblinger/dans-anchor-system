@@ -4,7 +4,7 @@ description: "product requirements for the CAE Example CLI scheduler"
 # CAE PRD
 Product requirements for the CAE Example CLI scheduler.
 
-| -[[CAE PRD]]- | : Product requirements for the CAE Example CLI scheduler.<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[CAE]] → [[CAE Design]] → [CAE PRD](hook://p/CAE%20PRD) |
+| -[[CAE PRD]]- | : Product requirements for the CAE Example CLI scheduler.<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [CAE PRD](hook://p/CAE%20PRD) |
 | --- | --- |
 | [[CAE Stories]] | three user stories — index for US-CAE-1..3 (folder-form per [[DAS Stories]]) |
 | [[CAE UX Design]] | CLI command surface, output shapes, error voice |

@@ -8,7 +8,7 @@ The Push trait declares that the agent commits freely at logical boundaries **an
 
 ## What it is
 
-**Push declares that the agent commits at logical boundaries AND pushes those commits — without asking permission either time.** It sits one step up from `Commit`: where Commit deliberately never pushes (push crosses an irreversibility threshold there), Push treats publishing the branch as routine — the agent decides when it's logical to commit, commits, and pushes, and **never asks** about either.
+**Push declares that the agent commits at logical boundaries AND pushes those commits — without asking permission either time.** It sits one step up from `commit`: where Commit deliberately never pushes (push crosses an irreversibility threshold there), Push treats publishing the branch as routine — the agent decides when it's logical to commit, commits, and pushes, and **never asks** about either.
 
 Use Push for anchors where the work should stay continuously published — a branch others (or other machines / agents) pull from, a remote-backed personal repo you want mirrored, an anchor whose value is partly *that it's pushed* (so a second machine or a CI watcher sees it). The cost-of-merge-mistake is still low enough that you don't want a PR gate — you just want the commits to land upstream automatically.
 
@@ -16,9 +16,9 @@ Push is **orthogonal to identity traits**. `Code + Track + Push` is "code projec
 
 ## How it's detected
 
-- **Trait:** `Push` appears in the anchor's `.anchor` `traits:` list (one-line lookup; no file inference per [[DAS Aspects]]).
-- **Inherits down the tree:** a sub-anchor that declares no Git aspect inherits the nearest ancestor's — so declaring `Push` on the root anchor governs every sub-anchor beneath it.
-- An anchor with `NoGit` declared (no repo) doesn't take a Git-aspect mode.
+- **Trait:** `push` appears in the anchor's `.anchor` `traits:` list (one-line lookup; no file inference per [[DAS Aspects]]).
+- **Inherits down the tree:** a sub-anchor that declares no Git aspect inherits the nearest ancestor's — so declaring `push` on the root anchor governs every sub-anchor beneath it.
+- An anchor with `nogit` declared (no repo) doesn't take a Git-aspect mode.
 
 ## The four load-bearing rules
 
@@ -29,23 +29,23 @@ Push is **orthogonal to identity traits**. `Code + Track + Push` is "code projec
 
 ## Wiring an anchor for Push
 
-1. **Declare the trait.** Add `Push` to the `.anchor` `traits:` list, e.g. `traits: [Code, Track, Push]`.
-2. **Ensure a push remote exists.** Push co-requires a configured upstream — declaring `Push` on a repo with no remote is a misconfiguration (the agent should surface that the remote is missing, not ask whether to push).
+1. **Declare the trait.** Add `push` to the `.anchor` `traits:` list, e.g. `traits: [code, track, push]`.
+2. **Ensure a push remote exists.** Push co-requires a configured upstream — declaring `push` on a repo with no remote is a misconfiguration (the agent should surface that the remote is missing, not ask whether to push).
 3. **No structural changes required.** Push is a behavioral trait — it shapes how the agent acts, not what the anchor contains.
 
-Minimum viable Push anchor = `Push` declared in `.anchor` `traits:`, plus a configured git remote.
+Minimum viable Push anchor = `push` declared in `.anchor` `traits:`, plus a configured git remote.
 
 ## Format
 
 Push is a behavioral mode — no on-disk format requirements. Compositional expectations:
 
-- **Co-requires a code repository** (the `Code` identity trait or a top-level `code:` key) **with a push remote**.
+- **Co-requires a code repository** (the `code` identity trait or a top-level `code:` key) **with a push remote**.
 - **Mutually exclusive with Commit, PR, and NoGit** — exactly one Git-aspect mode at a time.
 
 ## Constraints
 
-- **Cardinality: at most one Git-aspect trait** per anchor. `Push` + any of `Commit` / `PR` / `NoGit` is illegal.
-- **Composition.** Legal with `Code`, `Skill`, `Track`, `Paper`, `Drive`, `Lean`. **Excludes `Commit`, `PR`, `NoGit`** (the four Git-aspect traits are mutually exclusive). See composability matrix in [[DAS Aspects]].
+- **Cardinality: at most one Git-aspect trait** per anchor. `push` + any of `commit` / `pr` / `nogit` is illegal.
+- **Composition.** Legal with `code`, `skill`, `track`, `paper`, `drive`, `lean`. **Excludes `commit`, `pr`, `nogit`** (the four Git-aspect traits are mutually exclusive). See composability matrix in [[DAS Aspects]].
 - **Co-requires Code** + a push remote.
 
 ## Expected Usage
@@ -71,10 +71,10 @@ Push is a behavioral mode — no on-disk format requirements. Compositional expe
 ## Skills and audits that attach
 
 - **Affects every skill that ends with a commit boundary** (`/feature`, `/mint`, `/groom`, `/land`, `/finalize`, `/atlas`, …) — each closes its work with a commit **and a push**, no "want me to push?" question.
-- **Audit:** `/audit aspects` checks the `Push` ⇒ `Code` co-requirement, the configured-remote co-requirement, and Git-aspect mutual exclusivity. The `R-query` push/commit interception rule (audit-q `--when skill:audit-q`, [[F180 — When-trigger executable rules|F180]]) steers any agent that surfaces a push question on a Push anchor: *commit and push now, don't ask*.
+- **Audit:** `/audit aspects` checks the `push` ⇒ `code` co-requirement, the configured-remote co-requirement, and Git-aspect mutual exclusivity. The `R-query` push/commit interception rule (audit-q `--when skill:audit-q`, [[F180 — When-trigger executable rules|F180]]) steers any agent that surfaces a push question on a Push anchor: *commit and push now, don't ask*.
 
 ## History
 
-- **2026-06-17** — Created per user direction: a third Git-aspect mode between `Commit` (commits, never pushes) and `PR` (review gate). Push = Commit + auto-push, never asks. Hook Anchor set to Push.
+- **2026-06-17** — Created per user direction: a third Git-aspect mode between `commit` (commits, never pushes) and `pr` (review gate). Push = Commit + auto-push, never asks. Hook Anchor set to Push.
 
-*(Maintainer note — Push = Commit + auto-push; the only behavioral delta from [[Commit]] is rule 2 (push without asking), so keep the shared rules 1/3/4 in lockstep with [[Commit]]. Don't soften the Git-aspect mutual-exclusivity (`/audit aspects` enforces it). Bare-noun naming (F077-Q7): `Push`, not `PushMode` / `GitPush`. Keep the `### compact` trigger prose in lockstep with `role-pilot.md` POST-COMPACT § Git Mode if/when Push gets inlined there. History H2 is append-only.)*
+*(Maintainer note — Push = Commit + auto-push; the only behavioral delta from [[Commit]] is rule 2 (push without asking), so keep the shared rules 1/3/4 in lockstep with [[Commit]]. Don't soften the Git-aspect mutual-exclusivity (`/audit aspects` enforces it). Bare-noun naming (F077-Q7): `push`, not `PushMode` / `GitPush`. Keep the `### compact` trigger prose in lockstep with `role-pilot.md` POST-COMPACT § Git Mode if/when Push gets inlined there. History H2 is append-only.)*

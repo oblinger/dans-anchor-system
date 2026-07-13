@@ -10,15 +10,15 @@ The cadence Trait declaring an anchor runs in cautious, distrust-the-foundation 
 
 **Lean declares the agent operates with a cautious, foundation-distrusting posture.** Use it when the work has stopped converging — same bug recurs, fixes don't stick, tests pass but the system misbehaves, or the agent's mental model and reality have clearly diverged. The stance is *"the obvious read of the situation is probably wrong; fortify what's already here before adding more."*
 
-Lean is the sibling cadence trait to [[Drive]] — the two are mutually exclusive cadence postures. Lean is the per-anchor declarative form of the `/fortify` methodology (`~/.claude/skills/fortify/SKILL.md`). The `/fortify` slash command invokes the same posture for a single turn or block of work; declaring `Lean` as an anchor Trait makes that posture the default for the anchor.
+Lean is the sibling cadence trait to [[Drive]] — the two are mutually exclusive cadence postures. Lean is the per-anchor declarative form of the `/fortify` methodology (`~/.claude/skills/fortify/SKILL.md`). The `/fortify` slash command invokes the same posture for a single turn or block of work; declaring `lean` as an anchor Trait makes that posture the default for the anchor.
 
 Lean is **orthogonal to identity traits**. `Code + Track + Lean + PR` is the canonical "production code project being fortified" combination — the project has high enough blast radius (PR) and a current foundation-trust problem (Lean).
 
 ## How it's detected
 
-- **Trait:** `Lean` appears in the anchor's `.anchor` `traits:` list (one-line lookup; no file inference per [[DAS Aspects]]).
-- An anchor without `Lean` in its `traits:` list runs in [[Drive]] (the cadence default).
-- `Lean` and `Drive` are mutually exclusive — declaring both is illegal.
+- **Trait:** `lean` appears in the anchor's `.anchor` `traits:` list (one-line lookup; no file inference per [[DAS Aspects]]).
+- An anchor without `lean` in its `traits:` list runs in [[Drive]] (the cadence default).
+- `lean` and `drive` are mutually exclusive — declaring both is illegal.
 
 ## The load-bearing rules
 
@@ -34,9 +34,9 @@ Lean is **orthogonal to identity traits**. `Code + Track + Lean + PR` is the can
 
 ## Wiring an anchor for Lean
 
-1. **Declare the trait.** Add `Lean` to `.anchor` `traits:` list — e.g., `traits: [Code, Track, Lean, PR]`. (Replace any prior `Drive` declaration — they're mutually exclusive.)
+1. **Declare the trait.** Add `lean` to `.anchor` `traits:` list — e.g., `traits: [code, track, lean, pr]`. (Replace any prior `drive` declaration — they're mutually exclusive.)
 2. **No structural changes required.** Lean is a *behavioral* trait — shapes how the agent makes recurring trade-off decisions, not what the anchor folder contains.
-3. **Switch back to Drive when the foundation is firm.** Lean is a transient posture for distrust-the-foundation work, not a permanent state. Once tests cover the gaps, invariants are pinned, and the working hypothesis re-derives cleanly, edit `.anchor` to put `Drive` back (or simply remove `Lean` — Drive is the default).
+3. **Switch back to Drive when the foundation is firm.** Lean is a transient posture for distrust-the-foundation work, not a permanent state. Once tests cover the gaps, invariants are pinned, and the working hypothesis re-derives cleanly, edit `.anchor` to put `drive` back (or simply remove `lean` — Drive is the default).
 
 ## Format
 
@@ -47,14 +47,14 @@ Lean is a behavioral mode, not a structural one. Compositional expectations:
 
 ## Constraints
 
-- **Cardinality: at most one cadence Trait** per anchor. `Lean` + `Drive` together is illegal.
-- **Composition.** Legal with all identity traits and all Git-aspect traits. **Excludes `Drive`** — the two are mutually exclusive cadence postures.
+- **Cardinality: at most one cadence Trait** per anchor. `lean` + `drive` together is illegal.
+- **Composition.** Legal with all identity traits and all Git-aspect traits. **Excludes `drive`** — the two are mutually exclusive cadence postures.
 
 ## Expected Usage
 
-- **Transient by intent.** Lean is the posture for work that's not converging. Most anchors live in [[Drive]]; an anchor declares `Lean` when it enters a fortification phase (a recurring bug, a flaky test suite, a divergent mental-model period). Once the foundation is firm, the anchor returns to Drive.
-- **Per-turn invocation via `/fortify`** — even when an anchor declares `Drive`, the user can invoke `/fortify` to flip to Lean posture for a single turn / block of work without changing the declared Trait. See `~/.claude/skills/fortify/SKILL.md`.
-- **NOT for "be careful"** in the general sense. Lean is "distrust-the-foundation" specifically. Anchors that just want careful work declare neither `Drive` nor `Lean` (Drive default with the user's `/fortify` as needed). Declaring `Lean` permanently is unusual.
+- **Transient by intent.** Lean is the posture for work that's not converging. Most anchors live in [[Drive]]; an anchor declares `lean` when it enters a fortification phase (a recurring bug, a flaky test suite, a divergent mental-model period). Once the foundation is firm, the anchor returns to Drive.
+- **Per-turn invocation via `/fortify`** — even when an anchor declares `drive`, the user can invoke `/fortify` to flip to Lean posture for a single turn / block of work without changing the declared Trait. See `~/.claude/skills/fortify/SKILL.md`.
+- **NOT for "be careful"** in the general sense. Lean is "distrust-the-foundation" specifically. Anchors that just want careful work declare neither `drive` nor `lean` (Drive default with the user's `/fortify` as needed). Declaring `lean` permanently is unusual.
 - **Naming history.** "Lean" is the bare-noun form per [[F077 — PR mode — mode-as-trait architecture with per-anchor opt-in|F077]] Q7. Older docs may use "Cautious" as descriptive English for the same posture; the Trait name is canonical.
 
 ## Triggers
@@ -83,7 +83,7 @@ Lean is a behavioral mode, not a structural one. Compositional expectations:
 ## History
 
 - **2026-05-XX** — "Cautious" posture introduced as the trade-off-posture sibling to Drive in [[DAS mode]]. Initially had no SKL doc of its own — invoked solely via `/fortify`.
-- **2026-06-01** — Renamed to bare-noun `Lean` per [[F077 — PR mode — mode-as-trait architecture with per-anchor opt-in|F077]] Q7. Promoted to first-class CAB Trait per F077 Q11.
+- **2026-06-01** — Renamed to bare-noun `lean` per [[F077 — PR mode — mode-as-trait architecture with per-anchor opt-in|F077]] Q7. Promoted to first-class CAB Trait per F077 Q11.
 - **2026-06-04** — Trait spec created (this file) with F091 `compact` trigger declaration. Codifies the existing `/fortify` methodology as a declarable per-anchor Trait.
 
 # BRIEF

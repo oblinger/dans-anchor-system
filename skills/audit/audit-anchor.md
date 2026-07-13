@@ -20,7 +20,7 @@ Takes one anchor (or folder) and checks it against the **anchor ruleset** — th
 ### A — `.anchor` is set *(the anchor convention)*
 - [ ] A `.anchor` file **exists** in the folder.
 - [ ] It declares a **`slug:`** — UNLESS the anchor is in the one deliberate bare-name zone (the `dans-anchor-system` pillars). An **empty `.anchor`** is a finding: breadcrumb inference skips the anchor and jumps to its grandparent (see the `DAS` incident).
-- [ ] It declares **`traits:`** identifying the kind (e.g. `[skill]`, `[Code]`, `Collection`).
+- [ ] It declares **`traits:`** identifying the kind (e.g. `[skill]`, `[Code]`, `collection`).
 
 ### B — anchor page conforms *([[DAS Anchor Page]] § Ruleset, + D06)*
 *Reference: read the [[DAS Anchor Page]] ruleset **`R-anchor-page`**, or diff the anchor against the matching kind in [[DAS Examples]] — [[HBR]] (project), [[HBR Components]] (grouped), [[HBR Ingest]] (sub-folder), [[FEX Snapshot]] (skill).*
@@ -33,7 +33,7 @@ Takes one anchor (or folder) and checks it against the **anchor ruleset** — th
 Delegate the table's shape to **[[audit-dispatch|/audit dispatch]]** (it already encodes the masthead + member-zone rules). The anchor-level checks layered on top:
 - [ ] **Masthead is minimal** — `Related` is the **1st** row (omitted entirely if empty — never blank); no ad-hoc rows the breadcrumb already covers (no `Repo` row). (D07)
 - [ ] **Design row** — if the anchor has the design facet (`{slug} Design/`), a `Design` row is **present** as the **2nd** row, in the fixed order PRD → UX → CLI → API → Architecture → Decisions → Testing → Roadmap → Features. (D07)
-- [ ] **No `Track` row** for a skill-ecosystem anchor (skill / facet / discipline / example) — tracking is centralized in SKA. (D08)
+- [ ] **No `track` row** for a skill-ecosystem anchor (skill / facet / discipline / example) — tracking is centralized in SKA. (D08)
 - [ ] **Container ending** — a Collection/container's table ends with an electric-list marker (`...` / `---` / `+` group rows); each group-row label links *down* to its container page. (per [[DAS Dispatch Table]] + [[DAS progressive-disclosure]])
 
 ## Mechanism — the F161 audit engine

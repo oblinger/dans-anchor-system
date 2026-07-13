@@ -825,6 +825,29 @@ def compile_corpus(root: Path, index: dict, anchor: str = "all",
                 flat.append(rid)
         if flat:
             traits[trait] = flat
+    declared = declared_anchor_traits(vault_root(root))
+    # T002: trait matching is exact-string, case-sensitive, and the identifier
+    # convention is lowercase kebab. Two near-miss shapes are silent foot-guns:
+    # (1) a declared trait matching a corpus key only case-insensitively
+    #     (`Code` declared, corpus keys `code` → activates NO rules);
+    # (2) case-variant declarations across .anchor files (`Track` here, `track`
+    #     there → the two anchors activate different rule sets).
+    corpus_by_lower = {k.lower(): k for k in traits}
+    declared_by_lower: dict[str, list[str]] = {}
+    for d in declared:
+        declared_by_lower.setdefault(d.lower(), []).append(d)
+        near = corpus_by_lower.get(d.lower())
+        if near is not None and near != d:
+            print(f"warden: WARNING — some .anchor declares trait `{d}` but the "
+                  f"corpus keys `{near}`; matching is case-sensitive, so `{d}` "
+                  f"activates NO rules — rename the declaration to `{near}`",
+                  file=sys.stderr)
+    for low, variants in declared_by_lower.items():
+        if len(variants) > 1:
+            print(f"warden: WARNING — trait `{low}` is declared with mixed "
+                  f"casings across .anchor files ({', '.join(sorted(variants))}); "
+                  f"matching is case-sensitive — normalize all to `{low}`",
+                  file=sys.stderr)
     active_hash = hashlib.sha256("|".join(sorted(merged_rules)).encode()).hexdigest()[:16]
     ir = {
         "schema": IR_SCHEMA,
@@ -837,7 +860,7 @@ def compile_corpus(root: Path, index: dict, anchor: str = "all",
         "rules": merged_rules,
         # F219: the wiring snapshot the trait-reachability self-audit reads —
         # traits actually declared by `.anchor` files under the vault.
-        "declared_traits": declared_anchor_traits(vault_root(root)),
+        "declared_traits": declared,
         # F229 A′: the anchor-base trait's members — both dispatchers extend an
         # anchor's effective traits with these, so base membership is compiled
         # policy, not per-hook hardcoding.

@@ -5,7 +5,7 @@ status:: drafting
 # CAE Testing
 How the CAE Example CLI is verified: the kinds of test, how much of each, and the concrete inventory consistent with that strategy.
 
-| -[[CAE Testing]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[CAE]] → [[CAE Design]] → [CAE Testing](hook://p/CAE%20Testing)<br>: test strategy + proposed tests |
+| -[[CAE Testing]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [CAE Testing](hook://p/CAE%20Testing)<br>: test strategy + proposed tests |
 | --- | --- |
 | Anchor | [[CAE Design]] (parent) |
 | Related | [[CAE PRD]],  [[CAE Architecture]],  [[CAE Decisions]],  [[DAS verification]],   |

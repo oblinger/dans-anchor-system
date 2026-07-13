@@ -41,7 +41,7 @@ A markdown table placed immediately under the H1 of a page. The first row carrie
 **Masthead rows — the model** (worked exemplars: [[HBR]] (project), [[SKA crank]] / [[SKA workflow]] (leaf); vault-wide rollout tracked in [[F189]]). After the breadcrumb identity row, the optional rows appear in a **fixed order**, each present **only if it applies**:
 
 1. **Related** — related anchors / siblings **and external resources** (code repo, project page, docs site) that are **not** already in the breadcrumb. First, because it answers "what else is near this?" before the reader descends into the anchor's own contents. *(This replaces the former `External` row — repo / site links live in Related now.)*
-2. **Type row** *(typed leaf anchors only — skill / discipline / facet)* — label is the type word (`Skill`, `Discipline`, `Facet`); cell carries the runtime / external links (the `SKILL` object + `[[SKL <Name>\|User Docs]]`).
+2. **Type row** *(typed leaf anchors only — skill / discipline / facet)* — label is the type word (`skill`, `Discipline`, `Facet`); cell carries the runtime / external links (the `SKILL` object + `[[SKL <Name>\|User Docs]]`).
 3. **Design** — left cell `[[<X> Design\|Design]]`, right cell the design parts that exist: PRD, Architecture, Decisions, UX Design, Roadmap, Stories.
 4. **Track** — left cell `[[<X> Track\|Track]]`, right cell the tracking items that exist: Backlog, Features, Roadmap, Now. *(Absent when tracking is unified at a parent — D10.)*
 5. **User Docs** — left cell `[[<X> User Docs\|User Docs]]` (or `[[<X> User\|User Docs]]`), right cell the user docs (Guide, …). Always labeled **User Docs**, never *User*.
@@ -51,7 +51,7 @@ Every row after the breadcrumb has the **same shape**: its **left cell is a link
 
 **Ending — the `...` catch-all.** The masthead's **last row is `| ... |  |`** (R-07): after the standard rows — and after any anchor-specific extra rows that don't fit the standard set — this catch-all auto-surfaces any file in the anchor's folder not already captured above, so a stray or newly-dropped doc never silently disappears. (The optional anchor-specific rows sit *between* the standard rows and this final `...`.)
 
-**Tracking can be unified at a parent** ([[SKA Decisions]] D10). A `Track` group-row appears **only on an anchor that owns its own tracking**; sub-anchors whose tracking is unified at a parent (skills / facets / disciplines → the SKA-level backlog) carry **no Track row** — just the type-specific row + a `Design` row. **Coupled facet+discipline share one design folder, dual-linked:** a Track facet + its Workflow discipline (and a Design facet + its Architect skill) each carry a `Design` row pointing at the **same** single design folder (hosted on the behavioral core — `workflow` / `architect`); the folder is reached from either page, never duplicated.
+**Tracking can be unified at a parent** ([[SKA Decisions]] D10). A `track` group-row appears **only on an anchor that owns its own tracking**; sub-anchors whose tracking is unified at a parent (skills / facets / disciplines → the SKA-level backlog) carry **no Track row** — just the type-specific row + a `Design` row. **Coupled facet+discipline share one design folder, dual-linked:** a Track facet + its Workflow discipline (and a Design facet + its Architect skill) each carry a `Design` row pointing at the **same** single design folder (hosted on the behavioral core — `workflow` / `architect`); the folder is reached from either page, never duplicated.
 
 ## Anatomy of a dispatch row
 
@@ -167,7 +167,7 @@ The first optional row is **Related**. It carries links to genuinely-related anc
 **Why:** "what else is near this?" is answered once, up top, before the reader descends into the anchor's own contents; one row for all not-in-breadcrumb links keeps the switchboard small.
 
 ### RULE R-dispatch-table-13 — Code anchors carry a `[code]` link in Related (checked)
-Every anchor whose `.anchor` declares a `code:` key (equivalently, carries the `Code` trait) includes, in its **Related** row, a markdown link **`[code](hook://f/{slug}?facet=code)`** where `{slug}` is the anchor's slug. The `f/` (finder) hook verb opens the anchor's code folder; one-click reach from the masthead to the code, with no hardcoded path. The link text is exactly `code`.
+Every anchor whose `.anchor` declares a `code:` key (equivalently, carries the `code` trait) includes, in its **Related** row, a markdown link **`[code](hook://f/{slug}?facet=code)`** where `{slug}` is the anchor's slug. The `f/` (finder) hook verb opens the anchor's code folder; one-click reach from the masthead to the code, with no hardcoded path. The link text is exactly `code`.
 **Check pattern:** for every dispatch-table page whose anchor has a `code:` key, the Related row contains a `[code](hook://f/<slug>?facet=code)` link.
 **Why:** the code is the point of a code anchor; a uniform, path-free `[code]` link makes it reachable from every such masthead and stays correct even if the repo moves (resolution is via the `.anchor` `code:` key, not a hardcoded path).
 

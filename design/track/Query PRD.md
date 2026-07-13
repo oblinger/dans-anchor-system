@@ -75,7 +75,7 @@ A frontier row must not rest in transient `[Designing]` after a groom, and a vag
 1. **its work-item identifier** — the `[[F<n>]]` / `[[T<n>]]` / `[[M<n>]]` handle it belongs to (`R-query-13` / C37);
 2. **a specific question** — the concrete decision/assessment, naming the exact thing being judged;
 3. **labeled options** `**(A)** / **(B)** / **(C)**`, each on its own line (C19);
-4. **a recommendation** — `Lean`/`Strong`/`None`, always present (C9);
+4. **a recommendation** — `lean`/`Strong`/`None`, always present (C9);
 5. **direct wiki-links to every artifact** the user must look at to answer (C42 / `R-query-15`).
 
 The recurring failure this bar kills (real, Warden 2026-07-05): a `## Questions` entry — *"Design-rules — … Q3 (which families upgrade?) …"* — with no work-item handle, no link to where `Q3` lives, no specific ask, no options, no recommendation, no artifact links. A failure all the way around.

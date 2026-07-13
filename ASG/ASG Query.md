@@ -23,7 +23,7 @@ If the agent can figure something out (especially when it's cheap to reverse), i
 
 ## What you'll see
 
-Each question comes in five pieces — a short title, one or two lines of context, labeled options `(A)/(B)/(C)`, and a **Recommendation** (`Strong` / `Lean` / `None — why`). Load-bearing (sticky / hard-to-reverse) choices are flagged so you know which deserve a careful look.
+Each question comes in five pieces — a short title, one or two lines of context, labeled options `(A)/(B)/(C)`, and a **Recommendation** (`Strong` / `lean` / `None — why`). Load-bearing (sticky / hard-to-reverse) choices are flagged so you know which deserve a careful look.
 
 Where they land:
 

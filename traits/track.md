@@ -10,7 +10,7 @@ Capability trait declaring that an anchor is actively driven through a planning 
 
 **Track declares that an anchor is actively driven through a planning + backlog lifecycle — the "drive loop."** Adding the Track trait turns on everything loosely associated with the anchor's planning tree: a backlog with workflow states, feature docs, optional roadmap / PRD / system-design / questions, and the drive-loop skills that operate over them (`/groom`, `/crank`, `/mint`, `/land`, `/fortify`, `/feature`, `/ask`, `/audit q`).
 
-Track is **orthogonal to what the anchor *is***. `Code` says "this is a code project"; `Track` says "this project is run through a backlog and planning system." A code project, a writing project, a skill, or a knowledge hub can all be Tracked — or not. The two compose: `traits: [Code, Track]` is the common case; `traits: [Track]` alone is a non-code project that still has a backlog (e.g. a wiring / ops effort).
+Track is **orthogonal to what the anchor *is***. `code` says "this is a code project"; `track` says "this project is run through a backlog and planning system." A code project, a writing project, a skill, or a knowledge hub can all be Tracked — or not. The two compose: `traits: [code, track]` is the common case; `traits: [track]` alone is a non-code project that still has a backlog (e.g. a wiring / ops effort).
 
 > **Naming note (updated 2026-06-01).** Per the *trait-name = folder-name* principle, the Track tree lives at `{slug} Docs/{slug} Track/`. The rename `{slug} Track/` → `{slug} Track/` ships as part of [[F094 — Anchor docs folder restructure — Track _ User _ Architecture _ Dev|F094]] (Q5=A — F094 absorbs the deferred rename). The word `Plan` is freed for a future top-level strategic-plan *document* inside the tree.
 >
@@ -18,7 +18,7 @@ Track is **orthogonal to what the anchor *is***. `Code` says "this is a code pro
 
 ## How it's detected
 
-- **Trait:** `Track` appears in the anchor's `.anchor` `traits:` list. One-line lookup; no file inference (per [[DAS Aspects]]).
+- **Trait:** `track` appears in the anchor's `.anchor` `traits:` list. One-line lookup; no file inference (per [[DAS Aspects]]).
 - Corroborating (not the detection rule): a Track anchor has a `{slug} Track/` folder containing at minimum `{slug} Backlog.md`. Detection is still the declared `traits:` field — the folder is the manifestation, not the test.
 
 ## The Track tree
@@ -46,7 +46,7 @@ The **backlog horizons** (`## Now` / `## Next` / `## Later`) and **workflow stat
 
 ## Wiring an anchor for Track
 
-1. **Declare the trait.** Add `Track` to the `.anchor` `traits:` list, e.g. `traits: [Code, Track]` or `traits: [Track]`.
+1. **Declare the trait.** Add `track` to the `.anchor` `traits:` list, e.g. `traits: [code, track]` or `traits: [track]`.
 2. **Create the tree root.** `{slug} Docs/{slug} Track/` with the dispatch page `{slug} Plan.md` per [[DAS Plan Dispatch]] (H1 `# {slug} Plan`, dispatch table, one row per planning doc that exists).
 3. **Create the required core.** `{slug} Backlog.md` with the horizon H2s (`## Now` / `## Next` / `## Later`, plus `## Active` / `## Ready` as used) per [[DAS Backlog]] + [[DAS Backlog]]. An empty-but-well-formed backlog is valid.
 4. **Add optional parts as needed** — Features/, Roadmap, PRD, System Design, etc. — each per its facet spec. Don't pre-create empties; add a part when its first real content arrives.
@@ -66,18 +66,18 @@ Structural expectations on a Track anchor as a whole:
 
 ## Constraints
 
-- **Co-requirement.** The `Track` trait **requires the `Backlog` facet** — declaring `Track` mandates a `{slug} Backlog.md`. (A Track anchor with no backlog is a violation; audits flag it.)
-- **Cardinality: many / composable.** `Track` is a capability layered on top of the anchor's identity trait — it is *not* one of the single-valued `{Simple, Topic, Code, Paper}` set.
-- **Composition.** Legal with `{Topic, Code, Paper, Skill}`. **Excludes `Simple`** (a Simple anchor is "just a folder + marker, nothing else" — adding a drive loop makes it not Simple). See the composability matrix in [[DAS Aspects]].
+- **Co-requirement.** The `track` trait **requires the `Backlog` facet** — declaring `track` mandates a `{slug} Backlog.md`. (A Track anchor with no backlog is a violation; audits flag it.)
+- **Cardinality: many / composable.** `track` is a capability layered on top of the anchor's identity trait — it is *not* one of the single-valued `{Simple, Topic, Code, Paper}` set.
+- **Composition.** Legal with `{Topic, Code, Paper, Skill}`. **Excludes `simple`** (a Simple anchor is "just a folder + marker, nothing else" — adding a drive loop makes it not Simple). See the composability matrix in [[DAS Aspects]].
 - **Exactly one Backlog** (inherited from the Backlog facet's own cardinality constraint).
 
 ## Expected Usage
 
-- **Most common pairing: `Code + Track`** — a code project run through a backlog. Also common: `Skill + Track` (e.g. [[SKA]] itself), and `Track` alone for a non-code ops/wiring effort.
-- **`Track` is the prerequisite for the drive-loop skills.** If an anchor isn't getting `/crank` / `/groom` attention, it's usually because it lacks `Track` (or its backlog is empty).
+- **Most common pairing: `Code + Track`** — a code project run through a backlog. Also common: `Skill + Track` (e.g. [[SKA]] itself), and `track` alone for a non-code ops/wiring effort.
+- **`track` is the prerequisite for the drive-loop skills.** If an anchor isn't getting `/crank` / `/groom` attention, it's usually because it lacks `track` (or its backlog is empty).
 - **Typical scale:** 5–50 active backlog rows; more than that usually wants `## Later` / `## Icebox` to absorb the tail.
 - **Don't pre-create empty optional parts** — a Roadmap/PRD/Icebox should appear when there's real content, not as scaffolding.
-- **Cadence is separate.** *Whether* an anchor is Tracked (this trait) is independent of *how aggressively* it's driven (the Drive vs Lean cadence axis, [[F077]]). Don't conflate `Track` (has a drive loop) with `Drive` (the aggressive cadence mode).
+- **Cadence is separate.** *Whether* an anchor is Tracked (this trait) is independent of *how aggressively* it's driven (the Drive vs Lean cadence axis, [[F077]]). Don't conflate `track` (has a drive loop) with `drive` (the aggressive cadence mode).
 
 ## Skills and audits that attach
 

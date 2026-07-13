@@ -42,13 +42,13 @@ Available modes (the flat list):
 | Mode | What it shapes | Doc |
 |---|---|---|
 | **Drive** | Trade-off posture — agent-driven, optimistic, minimum-interruption | § Drive (below) |
-| **Lean** | Counterpart to Drive — invoked via `/fortify` for distrust-the-foundation work (older docs call this "Cautious"; `Lean` is the canonical trait name) | [[SKA fortify]] |
+| **Lean** | Counterpart to Drive — invoked via `/fortify` for distrust-the-foundation work (older docs call this "Cautious"; `lean` is the canonical trait name) | [[SKA fortify]] |
 | **Commit** | Git boundaries — commit on logical breaks (never ask), terse messages, never auto-push, new-commit-on-top (never amend) | § Git Commit (below) |
 | **PR** | Git boundaries — every state-touching commit gated through PR review on its own branch | § Git PR (below); [[F077 — PR mode — mode-as-trait architecture with per-anchor opt-in\|F077]] design |
 
 **Compatibility:** Drive and Lean are mutually exclusive (you're in one or the other). Commit and PR are mutually exclusive (a pilot has exactly one Git-aspect mode active at a time). Drive composes with either Git mode; Lean composes with either Git mode. The default for new anchors is **Drive + Commit**.
 
-**Naming history:** the Commit mode was originally called "Git Standard" (per F085). Renamed to bare-noun `Commit` per F077 Q7's resolved naming convention (`Drive`/`Lean`/`PR`/`Commit`/`NoGit`). Legacy references to "Git Standard" mean Commit mode.
+**Naming history:** the Commit mode was originally called "Git Standard" (per F085). Renamed to bare-noun `commit` per F077 Q7's resolved naming convention (`drive`/`lean`/`pr`/`commit`/`nogit`). Legacy references to "Git Standard" mean Commit mode.
 
 ## Current mode — Drive
 
@@ -111,7 +111,7 @@ PR mode shapes git boundaries differently: instead of committing freely against 
 3. **Always new commit on top within a PR — never amend.** Same rule as Commit mode: corrections are additional commits within the PR branch, not amends. The user may squash on merge if they want a single commit per PR.
 4. **Auto-push within feature branches is OK; never to protected branches.** PR mode reverses the Commit-mode "never auto-push" rule for *feature branches* (push is required to open the PR), but maintains it absolutely for protected branches.
 
-**When to use PR mode:** repositories where the cost-of-merge-mistake is high (production code with users, shared libraries, deployed infrastructure). Anchors declare it by listing `PR` (instead of `Commit`) in their `traits:`.
+**When to use PR mode:** repositories where the cost-of-merge-mistake is high (production code with users, shared libraries, deployed infrastructure). Anchors declare it by listing `pr` (instead of `commit`) in their `traits:`.
 
 **Agent-facing summary** (clipped for POST-COMPACT RELOAD):
 
@@ -147,7 +147,7 @@ PR mode shapes git boundaries differently: instead of committing freely against 
 
 - **2026-05-04** — Mode framework established. **Drive** defined as the first mode and rolled out as the system default; per-anchor switching deferred until ≥2 modes exist. (Original capture: the `SKL Mode` / `SKL Mode Drive` reading docs, since folded into this discipline doc.)
 - **2026-05-24** — **Git Standard** mode added per [[F085]]. Three load-bearing rules (commit on logical boundary, terse messages, never auto-push). Composed with Drive as the canonical pair.
-- **2026-06-01** — **Renamed Git Standard → Commit** per [[F077 — PR mode — mode-as-trait architecture with per-anchor opt-in|F077]] Q7 (bare-noun naming convention `Drive`/`Lean`/`PR`/`Commit`/`NoGit`). Added explicit "never ask permission to commit" rule and "always new commit on top — never amend" rule. Commit-mode bullets inlined into `role-pilot.md` POST-COMPACT RELOAD — closes the gap where F085's rules existed in `mode/SKILL.md` but didn't prime the Pilot at session start (the cause of the observed "agent keeps asking to commit" symptom).
+- **2026-06-01** — **Renamed Git Standard → Commit** per [[F077 — PR mode — mode-as-trait architecture with per-anchor opt-in|F077]] Q7 (bare-noun naming convention `drive`/`lean`/`pr`/`commit`/`nogit`). Added explicit "never ask permission to commit" rule and "always new commit on top — never amend" rule. Commit-mode bullets inlined into `role-pilot.md` POST-COMPACT RELOAD — closes the gap where F085's rules existed in `mode/SKILL.md` but didn't prime the Pilot at session start (the cause of the observed "agent keeps asking to commit" symptom).
 
 ## Considering these — Drive-mode tightening log
 

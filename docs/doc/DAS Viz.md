@@ -4,7 +4,7 @@ description: "`/viz` produces visual artifacts — diagrams, charts, mockups, sl
 # DAS Viz
 `/viz` produces visual artifacts — diagrams, charts, mockups, slides, formatted docs. You always pair it with a sub-action that picks the rendering tool, since each tool has a distinct aesthetic: `/viz excalidraw` for hand-drawn architecture sketches, `/viz matplot` for Tufte-grade data charts (timeline, multi-line, quadrant, scatter, waterfall, hex shot, etc.), `/viz mermaid` for flow / sequence / gantt / state diagrams from text, `/viz dot` for Graphviz dependency graphs and org charts, `/viz pptx` for custom slide-shaped layouts, and `/viz docx` / `/viz pdf` for converting markdown to polished documents.
 
-| -[[DAS Viz]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Viz](hook://p/DAS%20Viz)<br>: `/viz` produces visual artifacts — diagrams, charts, mockups, slides, formatted docs.|
+| -[[DAS Viz]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Viz](hook://p/DAS%20Viz)<br>: `/viz` produces visual artifacts — diagrams, charts, mockups, slides, formatted docs. |
 | --- | --- |
 | Related | [[skills/viz/SKILL.md\|SKILL]],   |
 | [[DAS Viz Design\|Design]] |  |

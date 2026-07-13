@@ -16,9 +16,9 @@ Drive is **orthogonal to identity traits**. `Code + Track + Drive + Commit` is t
 
 ## How it's detected
 
-- **Trait:** `Drive` appears in the anchor's `.anchor` `traits:` list (one-line lookup; no file inference per [[DAS Aspects]]).
-- **Default fallback:** when no cadence Trait is declared (neither `Drive` nor `Lean` in `.anchor` `traits:`), the agent defaults to Drive. Per F077 § 6: cadence-default applies regardless of identity-trait composition.
-- An anchor with `Lean` declared runs in the Lean posture; Drive does not apply.
+- **Trait:** `drive` appears in the anchor's `.anchor` `traits:` list (one-line lookup; no file inference per [[DAS Aspects]]).
+- **Default fallback:** when no cadence Trait is declared (neither `drive` nor `lean` in `.anchor` `traits:`), the agent defaults to Drive. Per F077 § 6: cadence-default applies regardless of identity-trait composition.
+- An anchor with `lean` declared runs in the Lean posture; Drive does not apply.
 
 ## The load-bearing rules
 
@@ -38,8 +38,8 @@ Drive is **orthogonal to identity traits**. `Code + Track + Drive + Commit` is t
 
 ## Wiring an anchor for Drive
 
-1. **Implicit (default).** Anchors without `Lean` declared in `.anchor` `traits:` automatically run in Drive. No declaration needed.
-2. **Explicit declaration** (optional). Add `Drive` to `traits:` — useful when an anchor was previously in Lean and is moving back to Drive, or to re-affirm cadence in a complex composition.
+1. **Implicit (default).** Anchors without `lean` declared in `.anchor` `traits:` automatically run in Drive. No declaration needed.
+2. **Explicit declaration** (optional). Add `drive` to `traits:` — useful when an anchor was previously in Lean and is moving back to Drive, or to re-affirm cadence in a complex composition.
 3. **No structural changes required.** Drive is a *behavioral* trait — shapes how the agent makes recurring trade-off decisions, not what the anchor folder contains.
 
 ## Format
@@ -51,8 +51,8 @@ Drive is a behavioral mode, not a structural one. Compositional expectations:
 
 ## Constraints
 
-- **Cardinality: at most one cadence Trait** per anchor. `Drive` + `Lean` together is illegal.
-- **Composition.** Legal with all identity traits and all Git-aspect traits. **Excludes `Lean`** — the two are mutually exclusive cadence postures.
+- **Cardinality: at most one cadence Trait** per anchor. `drive` + `lean` together is illegal.
+- **Composition.** Legal with all identity traits and all Git-aspect traits. **Excludes `lean`** — the two are mutually exclusive cadence postures.
 
 ## Expected Usage
 

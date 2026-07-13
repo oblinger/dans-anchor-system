@@ -40,7 +40,7 @@ This is what *most* project anchors look like: Masthead only.
 
 ## 4 — Hybrid: manual rows + `...` auto-staging ([[SYS]])
 
-`[[SYS]]` is the curation anchor — a big, evolving [[Collection]] of everything. Its table is **hybrid**: hand-curated **category rows** the author ordered by meaning (`Top`, `Direct`, `Topic`, `Bespoke`, `Content`, …) — the *manual* part — followed by a `| ... |` **compact-auto staging row** at the bottom where newly-added, not-yet-categorized children land automatically. New items appear in `...`; when they earn a category, the author moves them up into a manual row. That's the manual-pins-above / auto-fill-below hybrid.
+`[[SYS]]` is the curation anchor — a big, evolving [[Collection]] of everything. Its table is **hybrid**: hand-curated **category rows** the author ordered by meaning (`Top`, `Direct`, `topic`, `Bespoke`, `Content`, …) — the *manual* part — followed by a `| ... |` **compact-auto staging row** at the bottom where newly-added, not-yet-categorized children land automatically. New items appear in `...`; when they earn a category, the author moves them up into a manual row. That's the manual-pins-above / auto-fill-below hybrid.
 
 ## 5 — With a figure ([[FEX Figure Page]])
 

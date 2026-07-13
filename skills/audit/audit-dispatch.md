@@ -31,18 +31,18 @@ The script exits non-zero only when the safety net fired (a curated link would h
 
 ### 1. Read the anchor
 - Resolve the anchor folder (walk up to `.anchor` if not given).
-- Read the `.anchor` (slug, **traits** — esp. `Collection`, the identity trait, `Code`/`Topic`/etc.).
+- Read the `.anchor` (slug, **traits** — esp. `collection`, the identity trait, `code`/`topic`/etc.).
 - Enumerate **on-disk children**: sub-anchors (folders with `.anchor`), key docs, sub-folders with their own dispatch pages.
 - Read the **current dispatch table** (if any) on the anchor page.
 
 ### 2. Compute the Masthead
 The fixed top block — always present:
 1. **Breadcrumb row** — `| -[[{slug}]]- | → [[kmr]] → … → [{Full Name}](hook://…) |`. Fix the parent chain to match the anchor's actual location (the up-edge of [[SYS Anchor DAG]]).
-2. **Structural rows** — the anchor-kind standard rows. For a `Code` anchor: `Design` / `User` / `Dev` rows linking to its sub-folder dispatch pages (per [[DAS Anchor Page]]). For a `Topic` anchor: its sub-topic routing rows. Include only rows whose target sub-folders exist.
+2. **Structural rows** — the anchor-kind standard rows. For a `code` anchor: `Design` / `User` / `Dev` rows linking to its sub-folder dispatch pages (per [[DAS Anchor Page]]). For a `topic` anchor: its sub-topic routing rows. Include only rows whose target sub-folders exist.
 3. **Curated one-off links** — preserve any hand-added links already in the table that don't match a structural or member row (the user pinned them on purpose). Never drop curated links.
 
 ### 3. Compute the Member zone (only if the anchor is a Collection)
-If the anchor has the `Collection` trait (or is clearly an enumeration of homogeneous children), render its **members** below the Masthead:
+If the anchor has the `collection` trait (or is clearly an enumeration of homogeneous children), render its **members** below the Masthead:
 - **member list vs member groups** — flat list if ≤ 15 members; **grouped** if > 15 (per [[DAS progressive-disclosure]]'s size rule + [[DAS granularity]]). For groups, derive categories from the members (sub-folder, name-prefix, date-bucket) — *this categorization is the low-confidence part; surface it.*
 - **manual / auto / hybrid** — if members are uniform and order doesn't matter, emit an **auto** form (`---` separator → children auto-list, or `...` compact). If the user has pinned/ordered rows, keep them **manual** above a `---` auto-fill line (**hybrid**). Mark expandable groups with `+`.
 - **dated members** — if members are dated ([[DAS dated-entry-stream]]), list newest-first with the ISO-prefixed names.

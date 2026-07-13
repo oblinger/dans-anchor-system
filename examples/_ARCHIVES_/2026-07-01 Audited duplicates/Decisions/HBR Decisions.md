@@ -6,7 +6,7 @@ include::
 
 The durable rulings that shape Harbor; each is referenced by `// D0n` comments in the code.
 
-| -[[HBR Decisions]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[HBR]] → [[HBR Design]] → [HBR Decisions](hook://p/HBR%20Decisions)<br>: durable rulings |
+| -[[HBR Decisions]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [HBR Decisions](hook://p/HBR%20Decisions)<br>: durable rulings |
 | --- | --- |
 | Anchor | [[HBR Design]] (parent) |
 | Related | [[HBR Architecture]],   |
@@ -15,7 +15,7 @@ The durable rulings that shape Harbor; each is referenced by `// D0n` comments i
 
 **Choice.** The catalog is a single SQLite file.
 
-**Why.** A self-hosted household server should need no separate database process; one file also makes [[HBR Backup\|backup]] a file copy.
+**Why.** A self-hosted household server should need no separate database process; one file also makes ~~[[HBR Backup\|backup]]~~ a file copy.
 
 ### D02 — Direct play first, transcode only on failure (checked)
 

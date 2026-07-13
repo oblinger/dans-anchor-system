@@ -4,7 +4,7 @@ description: "LAN HTTP API surface"
 # HBR API Design
 The HTTP API the [[HBR UX Design|viewer app]] calls: browse the catalog, stream bytes, transcode on demand.
 
-| -[[HBR API Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[HBR]] → [[HBR Design]] → [HBR API Design](hook://p/HBR%20API%20Design)<br>: LAN HTTP API surface |
+| -[[HBR API Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[HBR]] → [[HBR Design]] → [HBR API Design](hook://p/HBR%20API%20Design)<br>: LAN HTTP API surface |
 | --- | --- |
 | Anchor | [[HBR Design]] (parent) |
 | Related | [[HBR PRD]],  [[HBR UX Design]],  [[HBR Architecture]],  [[HBR CLI]],   |

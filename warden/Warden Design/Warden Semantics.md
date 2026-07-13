@@ -162,7 +162,7 @@ The repository of the rule's **subject**, auto-resolved to the nearest enclosing
 | Member | What it is |
 |---|---|
 | `git.branch` | current branch (`main`, …) |
-| `git.mode` | the anchor's git workflow mode — `Commit` (commit freely), review/PR, … (from Decisions) |
+| `git.mode` | the anchor's git workflow mode — `commit` (commit freely), review/PR, … (from Decisions) |
 | `git.is_dirty`, `git.ahead` | uncommitted changes?, commits ahead of upstream |
 | `git.changed` | paths changed since the last commit (a list) |
 

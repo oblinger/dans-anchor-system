@@ -31,7 +31,7 @@ The Design facet is the **structural marker** that an anchor follows the designe
 
 The six-phase pipeline pairs UX Design (the *human* user surface) and API Design (the *programmatic* user surface) as peer facets — cut by **who the consumer is**, not by where the surface lives. Either may be N/A for a given anchor; both are common for anchors with both a CLI and a library form (e.g. [[HBR]]).
 
-This facet replaces the historical `Code` trait check that gated `/design` to "Code-trait anchors only." That check conflated two orthogonal questions:
+This facet replaces the historical `code` trait check that gated `/design` to "Code-trait anchors only." That check conflated two orthogonal questions:
 
 - **What's being built?** (artifact kind — code, paper, methodology, …) — that's the trait system's job.
 - **Is it designed?** (lifecycle posture — PRD-then-Architecture-then-Testing-then-Code, vs. just-write-it) — that's THIS facet's job.
@@ -130,7 +130,7 @@ The user then iterates with `/design prd`, `/design architect`, etc. — each su
 - **Design folder exists** → operate normally (assess or bootstrap per the sub-skill's runbook).
 - **Design folder absent** → offer to scaffold. If the user confirms, scaffold per § Scaffolding above and proceed. If declined, stop with a one-line explanation.
 
-The `Code` trait is **deprecated as a `/design` gate** — kept for backward compatibility (existing anchors with `Code` in their `traits:` still work; no anchor is broken), but new anchors don't need it. Phase 2 vault sweep retires the trait from anchors where the Design folder is the better signal.
+The `code` trait is **deprecated as a `/design` gate** — kept for backward compatibility (existing anchors with `code` in their `traits:` still work; no anchor is broken), but new anchors don't need it. Phase 2 vault sweep retires the trait from anchors where the Design folder is the better signal.
 
 ## Trait system — what's still in scope
 
@@ -138,12 +138,12 @@ The `traits:` field in `.anchor` continues to classify **what kind of thing** an
 
 | Trait | Meaning | Used by |
 |---|---|---|
-| `Skill` | Anchor is a Claude Code skill | Skill-related conventions |
-| `Paper` | Anchor produces written work (paper, article, report) | Paper-trait conventions |
-| `Topic` | Anchor is a topic surface (reference collection, not produced output) | Topic-trait conventions |
-| `Simple` | Anchor is small and doesn't carry the full structure | Simple-trait conventions |
+| `skill` | Anchor is a Claude Code skill | Skill-related conventions |
+| `paper` | Anchor produces written work (paper, article, report) | Paper-trait conventions |
+| `topic` | Anchor is a topic surface (reference collection, not produced output) | Topic-trait conventions |
+| `simple` | Anchor is small and doesn't carry the full structure | Simple-trait conventions |
 | `Publishable` | Anchor publishes externally (web, etc.) | `/publish` |
-| ~~`Code`~~ | (Deprecated as a `/design` gate. May still appear on legacy anchors.) | — |
+| ~~`code`~~ | (Deprecated as a `/design` gate. May still appear on legacy anchors.) | — |
 
 A Code-shaped project that's designed has the `{slug} Design/` folder AND benefits from the `/code` skill cluster for implementation operations. That cluster (`/code mint`, `/code test`, `/code release`) is unaffected by this facet — it's about the WHAT-to-build operations downstream of design.
 
@@ -165,7 +165,7 @@ Any anchor that commits to the designed-lifecycle convention.
 - [[DAS Status]] — `{slug} Status.md` tracks design-phase completeness
 - [[design]] — orchestrator skill; gate moved from Code-trait check to Design-folder check 2026-06-10
 - [[HBR Design]] — worked example
-- F140 (vault sweep — retire `Code` trait from anchors with Design folder)
+- F140 (vault sweep — retire `code` trait from anchors with Design folder)
 
 # RULESET R-design
 include::
@@ -176,7 +176,7 @@ Embedded ruleset for the Design facet, co-located with the facet spec above per 
 
 ### RULE R-design-01 — Folder presence IS the gate (checked)
 
-If `{anchor}/{slug} Design/` exists, the anchor is in design-mode. The `Code` trait field in `.anchor` is NOT consulted by `/design` or its sub-skills.
+If `{anchor}/{slug} Design/` exists, the anchor is in design-mode. The `code` trait field in `.anchor` is NOT consulted by `/design` or its sub-skills.
 
 **Check pattern:** for each anchor referenced by `/design`, the resolution path uses `ls "{anchor}/{slug} Design"` not `grep Code .anchor`.
 
@@ -208,9 +208,9 @@ When `{slug} Design/` exists, `{slug} Track/{slug} Status.md` exists with the st
 
 **Why:** `/design`'s picker reads Status.md; missing file means the picker can't auto-dispatch.
 
-### RULE R-design-05 — `Code` trait is deprecated as a `/design` gate (stated)
+### RULE R-design-05 — `code` trait is deprecated as a `/design` gate (stated)
 
-New anchors don't add `Code` to `.anchor` `traits:` to enable `/design`. Existing anchors with `Code` aren't broken; F140 sweep retires the trait from anchors that have a Design folder.
+New anchors don't add `code` to `.anchor` `traits:` to enable `/design`. Existing anchors with `code` aren't broken; F140 sweep retires the trait from anchors that have a Design folder.
 
 **Check pattern:** stated for now; F140 sweep mechanically retires the trait field.
 
@@ -245,6 +245,6 @@ The `{slug} Design/` folder exists **iff** the anchor has real design content �
 *(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body above; the `R-design` ruleset is embedded below.)*
 
 - **Scope / inclusion test** — content belongs here only if it answers "what is the Design folder, what must it contain, when does `/design` scaffold it, how does the folder-presence gate work?" Per-child facet content (PRD / Architecture / Testing / UX / API / Decisions / Roadmap / Features) lives in each child's own `CAB <X>.md` spec — link, never inline.
-- **Code-trait deprecation is load-bearing** — R-design-05 and § Trait system mark `Code` as a deprecated `/design` gate; re-adding it as a gate anywhere re-introduces the conflation this facet was created to fix (F140 tracks the retirement).
+- **Code-trait deprecation is load-bearing** — R-design-05 and § Trait system mark `code` as a deprecated `/design` gate; re-adding it as a gate anywhere re-introduces the conflation this facet was created to fix (F140 tracks the retirement).
 - **Change the required-children list in lockstep** — § Scaffolding promises pre-wired files so wiki-links resolve from day one; if the required-children list changes, update the `/design` scaffolder runbook and the R-design-02 check pattern together.
 - **See Also is a navigation contract** — each child-facet wiki-link in § See also is the resolution target a `/design` sub-skill uses to find its spec; don't rename or remove a row without updating the corresponding sub-skill.

@@ -189,7 +189,7 @@ The hook subsystem is the runtime that *delivers events* to the rule corpus — 
 | `SessionStart` (all) | `warden-rs hook` | `session:start` / `session:compact` |
 | `UserPromptSubmit` | `warden-rs hook` | `prompt:submit` |
 | `PostToolUse` `Write\|Edit` | `warden-rs hook` | `tool:post:Write` / `tool:post:Edit`, `write:markdown` (+ the audit-on-write doc-fire) |
-| `PreToolUse` `Skill` | `warden-rs hook` | `skill:pre:<name>` |
+| `PreToolUse` `skill` | `warden-rs hook` | `skill:pre:<name>` |
 | `PreToolUse` `Bash\|Edit\|Write` | `warden-rs hook` | `tool:pre:<Tool>` — **the F131 veto surface**: a `deny` action here becomes `permissionDecision: deny` (fail-open everywhere else). Added 2026-07-06 — the arch/process adoption audit found the deny rules compiled but unreachable in real sessions. |
 | `PreToolUse` `Bash` | `bash-guard.sh` *(bespoke)* | Pattern safety gate predating Warden; complements, never duplicated into, rule bodies. |
 | `PostToolUse` `Read` / `SessionStart` / `Stop` / `PostToolUse` `WebFetch` | `maintain-hook.sh` / `load-role-hook.sh` / `messages-stop-hook.sh` / `webfetch-authwall-hook.sh` *(bespoke)* | Non-rule surfaces (background maintenance, role reload, Messages surfacing, authwall routing) — candidates for future rule migration. |

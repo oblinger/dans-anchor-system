@@ -1,7 +1,7 @@
 ---
 description: "F017 — Standard Rulesets (legacy — predates the Warden rebrand)"
 ---
-:>> [[SKA]] → [[SKA Track]] → [[SKA Features]] → [Standard Rule Sets](hook://p/2026-03-21%20Standard%20Rule%20Sets)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[Warden]] → [[Warden Track]] → [[Warden Features]] → [F017 — Standard Rulesets](hook://p/F017%20—%20Standard%20Rulesets)
 # [[Warden]] · F017 — Standard Rule Sets
 
 Reusable libraries of rules that can be selectively applied to projects. Rule sets are maintained centrally and included by reference — changes to a standard rule set propagate to all projects that use it.

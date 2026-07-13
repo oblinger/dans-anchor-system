@@ -16,9 +16,9 @@ PR is **orthogonal to identity traits**. `Code + Track + PR` is the canonical "p
 
 ## How it's detected
 
-- **Trait:** `PR` appears in the anchor's `.anchor` `traits:` list (one-line lookup; no file inference per [[DAS Aspects]]).
-- An anchor with `NoGit` declared takes no Git-aspect mode.
-- Default when no Git-aspect trait is declared (and the anchor has `Code`): falls back to [[Commit]] mode — explicit `PR` declaration is **required** to enter PR mode; it is not the default.
+- **Trait:** `pr` appears in the anchor's `.anchor` `traits:` list (one-line lookup; no file inference per [[DAS Aspects]]).
+- An anchor with `nogit` declared takes no Git-aspect mode.
+- Default when no Git-aspect trait is declared (and the anchor has `code`): falls back to [[Commit]] mode — explicit `pr` declaration is **required** to enter PR mode; it is not the default.
 
 ## The four load-bearing rules
 
@@ -31,7 +31,7 @@ PR is **orthogonal to identity traits**. `Code + Track + PR` is the canonical "p
 
 ## Wiring an anchor for PR
 
-1. **Declare the trait.** Add `PR` to the `.anchor` `traits:` list, e.g. `traits: [Code, Track, PR]`. (Replace any prior `Commit` declaration — they're mutually exclusive.)
+1. **Declare the trait.** Add `pr` to the `.anchor` `traits:` list, e.g. `traits: [code, track, pr]`. (Replace any prior `commit` declaration — they're mutually exclusive.)
 2. **Configure protected branches.** GitHub branch protection rules (or equivalent) should enforce no-direct-push to the protected branches; the agent's rules complement the platform's enforcement.
 3. **No structural changes required.** PR is a *behavioral* trait — it shapes how the agent acts at commit boundaries, not what the anchor folder contains.
 4. **The PR rules now apply.** When F077 v1 mints, the resolution mechanism (anchor walk-up + Trait check) will route the Pilot into PR-mode behavior automatically for PR-declared anchors.
@@ -40,15 +40,15 @@ PR is **orthogonal to identity traits**. `Code + Track + PR` is the canonical "p
 
 PR is a behavioral mode, not a structural one. Compositional expectations:
 
-- **Co-requires a code repository.** PR only applies to anchors that have one — i.e., anchors with the `Code` identity trait or a top-level `code:` key in `.anchor`.
+- **Co-requires a code repository.** PR only applies to anchors that have one — i.e., anchors with the `code` identity trait or a top-level `code:` key in `.anchor`.
 - **Co-requires a repository host with PR-capable workflow** — GitHub, Bitbucket, GitLab. Local-only or self-hosted git without PR tooling cannot satisfy PR mode.
 - **Mutually exclusive with Commit and NoGit** — exactly one Git-aspect mode at a time.
 
 ## Constraints
 
-- **Cardinality: at most one Git-aspect trait** per anchor. `PR` + `Commit` together is illegal; `PR` + `NoGit` together is illegal.
-- **Composition.** Legal with `Code`, `Skill`, `Track`, `Paper`, `Drive`, `Lean`. **Excludes `Commit`** and **`NoGit`** (the three Git-aspect traits are mutually exclusive). See composability matrix in [[DAS Aspects]].
-- **Co-requires Code.** Declaring `PR` on an anchor without `Code` (no repo) is illegal.
+- **Cardinality: at most one Git-aspect trait** per anchor. `pr` + `commit` together is illegal; `pr` + `nogit` together is illegal.
+- **Composition.** Legal with `code`, `skill`, `track`, `paper`, `drive`, `lean`. **Excludes `commit`** and **`nogit`** (the three Git-aspect traits are mutually exclusive). See composability matrix in [[DAS Aspects]].
+- **Co-requires Code.** Declaring `pr` on an anchor without `code` (no repo) is illegal.
 - **Co-requires PR-capable host.** Anchors using vanilla `git init` without a PR-tooled remote can't satisfy PR mode; audits should flag the mismatch.
 
 ## Expected Usage
@@ -76,7 +76,7 @@ PR is a behavioral mode, not a structural one. Compositional expectations:
 
 - **Affects every skill that produces a commit on a PR-declared anchor.** Each gets its work into a feature branch + PR; surfaces the PR for review; pauses.
 - **Reuses `/pr-flow`** as the underlying mechanism for PR creation + review-wait.
-- **Audit:** `/audit aspects` (proposed, F090 Phase 6) will check the `PR` ⇒ `Code` co-requirement, the Git-aspect mutual exclusivity, and the PR-capable-host requirement.
+- **Audit:** `/audit aspects` (proposed, F090 Phase 6) will check the `pr` ⇒ `code` co-requirement, the Git-aspect mutual exclusivity, and the PR-capable-host requirement.
 - **Discipline:** [[DAS mode]] (user-facing spec); compact-trigger prose above is the source-of-truth for POST-COMPACT inlining.
 
 ## Status
@@ -86,15 +86,15 @@ PR is a behavioral mode, not a structural one. Compositional expectations:
 ## History
 
 - **2026-05-XX** — Original PR-mode concept (then "PR" hyphenated as `pr` cadence trait) introduced as part of [[F077 — PR mode — mode-as-trait architecture with per-anchor opt-in|F077]] design.
-- **2026-05-25** — v2 redesign: flows ARE Traits (not separate `agent_modes:` field); bare-noun naming (`PR` / `Commit` / `NoGit`) per F077 Q7.
+- **2026-05-25** — v2 redesign: flows ARE Traits (not separate `agent_modes:` field); bare-noun naming (`pr` / `commit` / `nogit`) per F077 Q7.
 - **2026-06-01** — F077 Q12 resolved A (agreed); Trait spec promoted to first-class CAB Trait (this file).
 
 # BRIEF
 
-*(Maintainer note — cautions for whoever edits this Git-aspect Trait spec. Edits here change the semantics for every anchor that declares `PR`; the normative spec is the body above, and the composability matrix lives in [[DAS Aspects]].)*
+*(Maintainer note — cautions for whoever edits this Git-aspect Trait spec. Edits here change the semantics for every anchor that declares `pr`; the normative spec is the body above, and the composability matrix lives in [[DAS Aspects]].)*
 
-- **Scope / inclusion test** — content belongs only if it describes what declaring `PR` as a Trait *means* (detection, the four rules, composability, wiring, audits). Per-anchor declarations live in each `.anchor`; PR-creation/branch-wait mechanics live in [[SKA pr-flow]]; user-facing mode prose in [[DAS mode]]. This file is the Trait-level contract, not the mechanism.
+- **Scope / inclusion test** — content belongs only if it describes what declaring `pr` as a Trait *means* (detection, the four rules, composability, wiring, audits). Per-anchor declarations live in each `.anchor`; PR-creation/branch-wait mechanics live in [[SKA pr-flow]]; user-facing mode prose in [[DAS mode]]. This file is the Trait-level contract, not the mechanism.
 - **Keep the four rules aligned** — § The four load-bearing rules (numbered) and § Triggers > compact (bulleted) enumerate the same four rules; edit them in lockstep. The compact block is inlined into POST-COMPACT reload per [[F091 — Trigger discipline]] — preserve both shapes.
 - **Don't weaken mutual exclusivity** — the three Git-aspect Traits are exactly-one-per-anchor; softening (e.g. "PR can coexist with Commit for certain branches") breaks the resolution mechanism. Coordinate any change with [[DAS Aspects]].
 - **Cross-refs to sync when editing:** [[DAS Aspects]], [[Commit]] and [[NoGit]] siblings, [[DAS mode]], [[SKA pr-flow]], F077 design body.
-- **Naming:** bare noun `PR` (no hyphen, no "PR-mode" suffix) per F077 Q7.
+- **Naming:** bare noun `pr` (no hyphen, no "PR-mode" suffix) per F077 Q7.

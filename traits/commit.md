@@ -16,9 +16,9 @@ Commit is **orthogonal to identity traits**. `Code + Track + Commit` is the comm
 
 ## How it's detected
 
-- **Trait:** `Commit` appears in the anchor's `.anchor` `traits:` list (one-line lookup; no file inference per [[DAS Aspects]]).
-- **Default fallback:** when no Git-aspect trait is declared and the anchor has the `Code` identity trait (i.e., there IS a repo), the agent defaults to Commit mode. Explicit declaration (`Commit` in `traits:`) is the canonical form; declaration is recommended once an anchor's mode is settled.
-- An anchor with `NoGit` declared (no repo) doesn't take a Git-aspect mode — neither Commit nor PR applies.
+- **Trait:** `commit` appears in the anchor's `.anchor` `traits:` list (one-line lookup; no file inference per [[DAS Aspects]]).
+- **Default fallback:** when no Git-aspect trait is declared and the anchor has the `code` identity trait (i.e., there IS a repo), the agent defaults to Commit mode. Explicit declaration (`commit` in `traits:`) is the canonical form; declaration is recommended once an anchor's mode is settled.
+- An anchor with `nogit` declared (no repo) doesn't take a Git-aspect mode — neither Commit nor PR applies.
 
 ## The four load-bearing rules
 
@@ -31,29 +31,29 @@ Commit is **orthogonal to identity traits**. `Code + Track + Commit` is the comm
 
 ## Wiring an anchor for Commit
 
-1. **Declare the trait.** Add `Commit` to the `.anchor` `traits:` list, e.g. `traits: [Code, Track, Commit]` or `traits: [Skill, Track, Commit]`.
+1. **Declare the trait.** Add `commit` to the `.anchor` `traits:` list, e.g. `traits: [code, track, commit]` or `traits: [skill, track, commit]`.
 2. **No structural changes required.** Commit is a *behavioral* trait — it shapes how the agent acts inside skills, not what the anchor folder contains. No new files, no new folders.
 3. **The Commit rules now apply.** Pilots loading `role-pilot.md` see the inlined POST-COMPACT bullets; that's the activation surface for v1. (v2 will resolve mode via per-anchor `.anchor` walk-up; until then, the inlined defaults govern.)
 
-Minimum viable Commit anchor = `Commit` declared in `.anchor` `traits:`. Anchors without the declaration fall back to Commit mode by default (when they have a code repo), but explicit declaration is recommended.
+Minimum viable Commit anchor = `commit` declared in `.anchor` `traits:`. Anchors without the declaration fall back to Commit mode by default (when they have a code repo), but explicit declaration is recommended.
 
 ## Format
 
 Commit is a behavioral mode, not a structural one — it imposes no on-disk format requirements. Compositional expectations:
 
-- **Co-requires a code repository.** Commit only applies to anchors that have one — i.e., anchors with the `Code` identity trait or a top-level `code:` key in `.anchor`. A `Topic + Commit` anchor without code makes no sense.
+- **Co-requires a code repository.** Commit only applies to anchors that have one — i.e., anchors with the `code` identity trait or a top-level `code:` key in `.anchor`. A `Topic + Commit` anchor without code makes no sense.
 - **Mutually exclusive with PR and NoGit** — exactly one Git-aspect mode at a time.
 
 ## Constraints
 
-- **Cardinality: at most one Git-aspect trait** per anchor. `Commit` + `PR` together is illegal; `Commit` + `NoGit` together is illegal.
-- **Composition.** Legal with `Code`, `Skill`, `Track`, `Paper`, `Drive`, `Lean`. **Excludes `NoGit`** and **`PR`** (the three Git-aspect traits are mutually exclusive). See composability matrix in [[DAS Aspects]].
-- **Co-requires Code.** Declaring `Commit` on an anchor without `Code` (no repo) is illegal — there's nothing to commit to.
+- **Cardinality: at most one Git-aspect trait** per anchor. `commit` + `pr` together is illegal; `commit` + `nogit` together is illegal.
+- **Composition.** Legal with `code`, `skill`, `track`, `paper`, `drive`, `lean`. **Excludes `nogit`** and **`pr`** (the three Git-aspect traits are mutually exclusive). See composability matrix in [[DAS Aspects]].
+- **Co-requires Code.** Declaring `commit` on an anchor without `code` (no repo) is illegal — there's nothing to commit to.
 
 ## Expected Usage
 
 - **Most common pairing: `Code + Track + Commit`** — a code project run through a backlog with the relaxed git posture. Also common: `Skill + Track + Commit` (e.g. [[SKA]] itself), and `Code + Commit` for a code project without active backlog tracking.
-- **Default for SKA.** The SKA anchor uses `Commit` (declarative) per its own dogfooding of the discipline. Most personal-curation anchors do the same.
+- **Default for SKA.** The SKA anchor uses `commit` (declarative) per its own dogfooding of the discipline. Most personal-curation anchors do the same.
 - **Switch to PR mode when:** the cost-of-merge-mistake is high — production code with users, shared libraries with many consumers, deployed infrastructure. See [[PR]].
 - **Why no auto-push:** push is visible to others and hard to recall; per F068, irreversible actions always ask. Commit can be rewritten locally before any push, so it stays autonomous.
 
@@ -74,19 +74,19 @@ Commit is a behavioral mode, not a structural one — it imposes no on-disk form
 ## Skills and audits that attach
 
 - **Affects every skill that ends with a commit boundary:** `/feature`, `/mint`, `/groom`, `/land`, `/finalize`, `/atlas`, etc. Each closes its work with a commit (subject to the rules above) — no "want me to commit?" question.
-- **Audit:** `/audit aspects` (proposed, F090 Phase 6) will check the `Commit` ⇒ `Code` co-requirement and the Git-aspect mutual exclusivity.
+- **Audit:** `/audit aspects` (proposed, F090 Phase 6) will check the `commit` ⇒ `code` co-requirement and the Git-aspect mutual exclusivity.
 - **Discipline:** [[DAS mode]] (user-facing spec); compact-trigger prose above is the source-of-truth for POST-COMPACT inlining.
 
 ## History
 
 - **2026-05-24** — Original form shipped as "Git Standard" mode per [[F085]].
-- **2026-06-01** — Renamed to `Commit` per [[F077 — PR mode — mode-as-trait architecture with per-anchor opt-in|F077]] Q7 (bare-noun naming convention). Promoted from "rule in mode/SKILL.md" to a first-class Trait spec.
+- **2026-06-01** — Renamed to `commit` per [[F077 — PR mode — mode-as-trait architecture with per-anchor opt-in|F077]] Q7 (bare-noun naming convention). Promoted from "rule in mode/SKILL.md" to a first-class Trait spec.
 
 # BRIEF
 
-*(Maintainer note — cautions for whoever edits this spec. The normative spec is the body above; this file is the authoritative definition of the `Commit` Git-aspect trait.)*
+*(Maintainer note — cautions for whoever edits this spec. The normative spec is the body above; this file is the authoritative definition of the `commit` Git-aspect trait.)*
 
 - **Inclusion test — Commit-specific only.** A rule that applies to PR mode too belongs in [[DAS Aspects]] or the parent mode framework, not here. The four load-bearing rules (§ The four load-bearing rules) are the canonical Commit-specific surface; the `### compact` block is their POST-COMPACT mirror. Project-wide commit policy lives in `CLAUDE.md`; the user-facing spec in [[DAS mode]] — link, don't inline.
 - **Trigger block is load-bearing** — keep the `### compact` prose in lockstep with `role-pilot.md` POST-COMPACT § Git Mode — Commit (this file is the source); edit one, edit both or pilots drift from the spec.
-- **Don't soften naming/composition constraints** — `Commit` is mutually exclusive with `PR` and `NoGit`, co-requires `Code`, and uses the bare-noun name (per F077-Q7: `Commit`, not `CommitMode`); `/audit aspects` will check these.
+- **Don't soften naming/composition constraints** — `commit` is mutually exclusive with `pr` and `nogit`, co-requires `code`, and uses the bare-noun name (per F077-Q7: `commit`, not `CommitMode`); `/audit aspects` will check these.
 - **History H2 is append-only** — add new dated bullets at the bottom; never rewrite prior entries when semantics shift.

@@ -28,7 +28,7 @@ Each node is a UML class box with a name compartment, an attributes compartment,
   - operations: `addTrack(t: Track): void`, `reorder(): void`
 - `PlaylistItem` — one slot in a playlist [class]
   - attributes: `position: Int`, `addedAt: Date`
-- `Track` — a catalog song [class]
+- `track` — a catalog song [class]
   - attributes: `title: String`, `durationSec: Int`, `isrc: String`
   - operations: `play(): Stream`
 - `Album` — a release grouping tracks [class]
@@ -51,15 +51,15 @@ Edge styles: generalization (hollow-triangle, solid); composition (filled-diamon
 - `User` → `Account` : "has — owns 1 account [1]" [solid]
 - `User` → `Playlist` : "creates — owns playlists [0..*]" [solid]
 - `Playlist` → `PlaylistItem` : "composition — contains items [1..*]" [solid]
-- `PlaylistItem` → `Track` : "references — points to track [1]" [solid]
-- `Album` → `Track` : "composition — contains tracks [1..*]" [solid]
+- `PlaylistItem` → `track` : "references — points to track [1]" [solid]
+- `Album` → `track` : "composition — contains tracks [1..*]" [solid]
 - `Artist` → `Album` : "produces — releases albums [0..*]" [solid]
-- `Track` → `Artist` : "performedBy — credited artists [1..*]" [solid]
-- `Track` → `Genre` : "taggedWith — genres [0..*]" [solid]
+- `track` → `Artist` : "performedBy — credited artists [1..*]" [solid]
+- `track` → `Genre` : "taggedWith — genres [0..*]" [solid]
 - `User` → `PlaybackSession` : "starts — active sessions [0..*]" [solid]
-- `PlaybackSession` → `Track` : "nowPlaying — current track [1]" [solid]
+- `PlaybackSession` → `track` : "nowPlaying — current track [1]" [solid]
 - `PlaybackSession` → `AudioStream` : "composition — owns stream [1]" [solid]
-- `PremiumAccount` → `Track` : "downloads (dependency) — offline copy" [dashed]
+- `PremiumAccount` → `track` : "downloads (dependency) — offline copy" [dashed]
 
 ## Groups / lanes / cardinality
 - No swimlanes or containers — a flat class model.
