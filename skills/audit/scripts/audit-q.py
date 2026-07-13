@@ -2503,6 +2503,46 @@ def check_c33_designing_needs_link(entries: list[BacklogEntry]) -> list[Finding]
     return findings
 
 
+def check_c43_row_links_existing_doc(entries: list[BacklogEntry]) -> list[Finding]:
+    """C43: an F-row whose feature doc EXISTS must carry a `→ [[F<n> — …]]` link.
+
+    Per F235 (user, 2026-07-13, F157 review): a backlog row referencing a feature
+    the user can't click through to is a navigation dead-end — "I can't go see
+    what that feature's about." The doc is searched under the backlog's Docs tree
+    (covers both `{slug} Docs/{slug} Track/{slug} Features/` and legacy
+    `{slug} Track/{slug} Features/` layouts). T-rows and doc-less F-rows are
+    exempt (the row IS the spec); Done/Icebox horizons are skipped.
+    """
+    findings: list[Finding] = []
+    doc_cache: dict[tuple[Path, str], bool] = {}
+    for e in entries:
+        if not re.fullmatch(r"F\d+", e.identifier or ""):
+            continue
+        if e.horizon in ("Done", "Icebox") or e.status == "Done":
+            continue
+        if e.link is not None or f"[[{e.identifier} — " in e.raw_body:
+            continue
+        root = e.source_file.parents[1] if len(e.source_file.parents) > 1 else e.source_file.parent
+        key = (root, e.identifier)
+        if key not in doc_cache:
+            doc_cache[key] = any(root.rglob(f"{e.identifier} — *.md"))
+        if not doc_cache[key]:
+            continue
+        findings.append(Finding(
+            severity="error",
+            surface_file=e.source_file,
+            surface_line=e.source_line,
+            code="C43",
+            message=(
+                f"row '{e.identifier}' has a feature doc but no `→ [[{e.identifier} — …]]` "
+                f"link in the row — the user cannot click through to see what the feature "
+                f"is (F235). Add the wiki-link to the row body."
+            ),
+            mechanically_fixable=False,
+        ))
+    return findings
+
+
 def check_c34_inline_q_in_row_body(backlog_files: list[Path]) -> list[Finding]:
     """C34: inline `Q<n>` bullets inside backlog row bodies are forbidden.
 
@@ -4055,6 +4095,7 @@ def main() -> int:
         findings.extend(check_c25_designing_justification([backlog_file], vault_index))
         findings.extend(check_c32_h3_rows_forbidden([backlog_file]))
         findings.extend(check_c33_designing_needs_link(entries))
+        findings.extend(check_c43_row_links_existing_doc(entries))
         findings.extend(check_c34_inline_q_in_row_body([backlog_file]))
     # F124 — C35 queries.md drift check walks every anchor backlog's sibling
     # `{slug} queries.md` (per F176). Runs once after the per-anchor loop (not
