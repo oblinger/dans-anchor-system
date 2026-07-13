@@ -138,11 +138,23 @@ ingest_one() {
     # 1. quarantine
     xattr -d com.apple.quarantine "$audio" 2>/dev/null || true
 
-    # 2. dedup
+    # 2. dedup — PATH-based (primary) + SHA-based (secondary).
+    #
+    # iCloud FileProvider re-materializes .m4a files with different container
+    # metadata but identical audio, so the SHA changes without any actual
+    # re-recording (verified 2026-07-12: 07-09/17-01-56.m4a came back with a
+    # new SHA but a byte-identical whisper transcript). Path-check catches the
+    # common case (each JPR HH-MM-SS.m4a filename is globally unique — same
+    # path always means same recording). SHA-check remains as a fallback for
+    # the edge case of the same audio arriving under a different path.
     local sha
     sha="$(sha256_of "$audio")"
+    if [[ -f "$hashfile" ]] && grep -Fq -- " $audio" "$hashfile" 2>/dev/null; then
+        log "SKIP already ingested (path): $audio"
+        return 0
+    fi
     if [[ -f "$hashfile" ]] && grep -q "^$sha " "$hashfile" 2>/dev/null; then
-        log "SKIP already ingested: $audio (sha $sha)"
+        log "SKIP already ingested (sha): $audio"
         return 0
     fi
 
@@ -218,10 +230,11 @@ ingest_sweep() {
     local hashfile="$MUSE_ITEMS_DIR/.muse.hashes"
     touch "$hashfile"
 
-    local candidate sha count=0
+    local candidate count=0
     while IFS= read -r -d '' candidate; do
-        sha="$(sha256_of "$candidate")"
-        if grep -q "^$sha " "$hashfile"; then
+        # Fast pre-check by path so sweep skips known files without hashing.
+        # ingest_one still SHA-checks as a fallback.
+        if grep -Fq -- " $candidate" "$hashfile"; then
             continue
         fi
         ingest_one "$candidate" && count=$((count + 1)) || warn "ingest failed: $candidate"
