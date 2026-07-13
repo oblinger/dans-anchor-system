@@ -1,0 +1,252 @@
+#!/usr/bin/env bash
+# muse — voice-memo pipeline entry point.
+#
+# Usage:
+#   muse ingest <audio-path>   # process one .m4a end-to-end
+#   muse ingest --sweep        # scan MUSE_JPR_DIR for unprocessed .m4a
+#   muse -h | --help           # show this header
+#
+# Pipeline (per file):
+#   1. Strip quarantine xattr
+#   2. Compute audio SHA-256; skip if already in .muse.hashes
+#   3. Whisper transcript via ~/bin/_transcribe
+#   4. Title derivation via ~/bin/_askAI (tool-less; safe against injection)
+#   5. Sanitize title → [A-Za-z0-9 _-]
+#   6. Compute daily sequence letter (MMDD A/B/C ... by same-day count)
+#   7. Write LST/Quick/MUSE MMDD X <title>.md with frontmatter + transcript
+#   8. Prepend bullet to LST/Quick/Quick.md
+#   9. Record hash in .muse.hashes
+#  10. macOS notification
+#
+# Environment overrides (see SKILL.md § Config):
+#   MUSE_QUICK_DIR MUSE_JPR_DIR MUSE_INLINE_MAX_CHARS MUSE_NOTIFICATION_SOUND
+#   WHISPER_BIN WHISPER_MODEL FFMPEG_BIN ANTHROPIC_KEY_FILE ASKAI_MODEL
+
+set -euo pipefail
+
+MUSE_QUICK_DIR="${MUSE_QUICK_DIR:-$HOME/ob/kmr/LST/Quick}"
+MUSE_JPR_DIR="${MUSE_JPR_DIR:-$HOME/Library/Mobile Documents/iCloud~com~openplanetsoftware~Just-Press-Record/Documents}"
+MUSE_INLINE_MAX_CHARS="${MUSE_INLINE_MAX_CHARS:-200}"
+MUSE_NOTIFICATION_SOUND="${MUSE_NOTIFICATION_SOUND:-Tink}"
+
+TRANSCRIBE_BIN="${TRANSCRIBE_BIN:-$HOME/bin/_transcribe}"
+ASKAI_BIN="${ASKAI_BIN:-$HOME/bin/_askAI}"
+
+TITLE_SYSTEM='Give a 3-6 word title for this voice memo. Plain words, no punctuation, no quotes. Only respond with the title itself.'
+
+log()  { printf 'muse: %s\n' "$*"        >&2; }
+die()  { printf 'muse: %s\n' "$*"        >&2; exit 1; }
+warn() { printf 'muse: warning: %s\n' "$*" >&2; }
+
+require_deps() {
+    [[ -x "$TRANSCRIBE_BIN" ]] || die "missing $TRANSCRIBE_BIN — build the _transcribe primitive"
+    [[ -x "$ASKAI_BIN"      ]] || die "missing $ASKAI_BIN — build the _askAI primitive"
+    command -v shasum   >/dev/null || die "shasum not found"
+    command -v osascript >/dev/null || die "osascript not found (macOS only)"
+}
+
+sanitize_title() {
+    local raw="$1"
+    printf '%s' "$raw" \
+        | tr -d '\r\n' \
+        | tr -c 'A-Za-z0-9 _\-' ' ' \
+        | tr -s ' ' \
+        | sed -E 's/^ +| +$//g'
+}
+
+# From a JPR audio path like .../Documents/YYYY-MM-DD/HH-MM-SS.m4a extract
+# the recording date/time. Falls back to file mtime if the path doesn't match.
+audio_captured() {
+    local audio="$1"
+    local dir base ymd hms
+    dir="$(dirname "$audio")"
+    base="$(basename "$audio")"
+    ymd="$(basename "$dir")"
+    if [[ "$ymd" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ && "$base" =~ ^([0-9]{2})-([0-9]{2})-([0-9]{2})\.[Mm]4[Aa]$ ]]; then
+        hms="${BASH_REMATCH[1]}:${BASH_REMATCH[2]}:${BASH_REMATCH[3]}"
+        printf '%s %s' "$ymd" "$hms"
+        return
+    fi
+    # fallback: file mtime
+    stat -f '%Sm' -t '%Y-%m-%d %H:%M:%S' "$audio"
+}
+
+# Given "YYYY-MM-DD HH:MM:SS" return "MMDD".
+mmdd_from_captured() {
+    local captured="$1"
+    local ymd="${captured%% *}"
+    local mm="${ymd:5:2}"
+    local dd="${ymd:8:2}"
+    printf '%s%s' "$mm" "$dd"
+}
+
+# Compute next daily letter given MMDD and the Quick dir.
+next_letter() {
+    local mmdd="$1"
+    local qdir="$2"
+    local count letter
+    count=$(find "$qdir" -maxdepth 1 -type f -name "MUSE $mmdd *.md" 2>/dev/null | wc -l | tr -d ' ')
+    if (( count < 26 )); then
+        letter="$(printf '\\%03o' $((65 + count)))"
+        printf '%b' "$letter"
+    else
+        # AA, AB, ... for the unlikely case of >26 items in a day
+        local n=$((count - 26))
+        local first=$((n / 26))
+        local second=$((n % 26))
+        local f s
+        f="$(printf '\\%03o' $((65 + first)))"
+        s="$(printf '\\%03o' $((65 + second)))"
+        printf '%b%b' "$f" "$s"
+    fi
+}
+
+sha256_of() {
+    shasum -a 256 "$1" | awk '{print $1}'
+}
+
+# Prepend a bullet to the top of a target file (creates the file with a bare
+# header if it doesn't exist).
+prepend_line() {
+    local target="$1"
+    local line="$2"
+    local tmp
+    tmp="$(mktemp)"
+    if [[ -f "$target" ]]; then
+        printf '%s\n' "$line" > "$tmp"
+        cat "$target" >> "$tmp"
+    else
+        printf '%s\n' "$line" > "$tmp"
+    fi
+    mv "$tmp" "$target"
+}
+
+notify() {
+    local msg="$1"
+    osascript -e "display notification \"$msg\" with title \"MUSE\" sound name \"$MUSE_NOTIFICATION_SOUND\"" 2>/dev/null || true
+}
+
+# Ingest a single audio file. Prints nothing to stdout on success; logs to
+# stderr; sends a notification.
+ingest_one() {
+    local audio="$1"
+
+    [[ -f "$audio" ]] || die "audio file not found: $audio"
+
+    mkdir -p "$MUSE_QUICK_DIR"
+    local hashfile="$MUSE_QUICK_DIR/.muse.hashes"
+
+    # 1. quarantine
+    xattr -d com.apple.quarantine "$audio" 2>/dev/null || true
+
+    # 2. dedup
+    local sha
+    sha="$(sha256_of "$audio")"
+    if [[ -f "$hashfile" ]] && grep -q "^$sha " "$hashfile" 2>/dev/null; then
+        log "SKIP already ingested: $audio (sha $sha)"
+        return 0
+    fi
+
+    # 3. transcribe
+    log "transcribing: $audio"
+    local text
+    text="$("$TRANSCRIBE_BIN" "$audio")" || die "transcribe failed: $audio"
+    text="$(printf '%s' "$text" | sed -E 's/^[[:space:]]+|[[:space:]]+$//g')"
+    [[ -n "$text" ]] || die "empty transcript from: $audio"
+
+    # 4. title
+    local raw_title
+    raw_title="$("$ASKAI_BIN" "$TITLE_SYSTEM" "$text")" || die "title derivation failed"
+
+    # 5. sanitize
+    local title
+    title="$(sanitize_title "$raw_title")"
+    [[ -n "$title" ]] || title="Untitled"
+
+    # 6. sequence letter
+    local captured mmdd letter
+    captured="$(audio_captured "$audio")"
+    mmdd="$(mmdd_from_captured "$captured")"
+    letter="$(next_letter "$mmdd" "$MUSE_QUICK_DIR")"
+
+    # 7. item file
+    local item_base="MUSE $mmdd $letter $title"
+    local item_path="$MUSE_QUICK_DIR/$item_base.md"
+    log "writing item: $item_base.md"
+
+    {
+        printf -- '---\n'
+        printf 'source_audio: %s\n' "$audio"
+        printf 'captured: %s\n' "$captured"
+        printf 'audio_sha256: %s\n' "$sha"
+        printf 'state: unreviewed\n'
+        printf -- '---\n'
+        printf '# MUSE %s %s — %s\n\n' "$mmdd" "$letter" "$title"
+        printf '%s\n' "$text"
+    } > "$item_path"
+
+    # 8. Quick.md bullet
+    local text_len=${#text}
+    local bullet
+    if (( text_len <= MUSE_INLINE_MAX_CHARS )); then
+        # inline the full transcript after em-dash
+        local inline
+        inline="$(printf '%s' "$text" | tr '\n' ' ')"
+        bullet="- [[$item_base|MUSE $mmdd $letter]] — $inline"
+    else
+        bullet="- [[$item_base|MUSE $mmdd $letter]] — $title"
+    fi
+    prepend_line "$MUSE_QUICK_DIR/Quick.md" "$bullet"
+
+    # 9. record hash
+    printf '%s %s\n' "$sha" "$audio" >> "$hashfile"
+
+    # 10. notify
+    notify "MUSE $mmdd $letter: $title"
+    log "OK $item_base"
+}
+
+# Scan MUSE_JPR_DIR for .m4a files not yet in .muse.hashes and ingest each.
+ingest_sweep() {
+    [[ -d "$MUSE_JPR_DIR" ]] || die "JPR dir not found: $MUSE_JPR_DIR"
+
+    mkdir -p "$MUSE_QUICK_DIR"
+    local hashfile="$MUSE_QUICK_DIR/.muse.hashes"
+    touch "$hashfile"
+
+    local candidate sha count=0
+    while IFS= read -r -d '' candidate; do
+        sha="$(sha256_of "$candidate")"
+        if grep -q "^$sha " "$hashfile"; then
+            continue
+        fi
+        ingest_one "$candidate" && count=$((count + 1)) || warn "ingest failed: $candidate"
+    done < <(find "$MUSE_JPR_DIR" -type f -iname '*.m4a' -print0 2>/dev/null)
+
+    log "sweep processed $count new file(s)"
+}
+
+do_ingest() {
+    require_deps
+    if [[ "${1:-}" == "--sweep" ]]; then
+        ingest_sweep
+    elif [[ -n "${1:-}" ]]; then
+        ingest_one "$1"
+    else
+        die "usage: muse ingest <audio-path> | --sweep"
+    fi
+}
+
+case "${1:-}" in
+    ingest)
+        shift
+        do_ingest "$@"
+        ;;
+    -h|--help|help|"")
+        sed -n '2,22p' "$0" | sed 's/^# \{0,1\}//'
+        exit 0
+        ;;
+    *)
+        die "unknown verb: $1 (try: muse ingest ... | muse --help)"
+        ;;
+esac
