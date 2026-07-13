@@ -12,10 +12,16 @@
         <string>--sweep</string>
     </array>
 
+    <!-- WatchPaths often misses iCloud FileProvider drops (the OS materializes
+         downloaded files without firing FSEvents). StartInterval is the
+         backstop — worst-case 5-minute lag from watch dictation to Quick.md. -->
     <key>WatchPaths</key>
     <array>
         <string>/Users/oblinger/Library/Mobile Documents/iCloud~com~openplanetsoftware~Just-Press-Record/Documents</string>
     </array>
+
+    <key>StartInterval</key>
+    <integer>300</integer>
 
     <key>RunAtLoad</key>
     <false/>
