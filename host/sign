@@ -1,0 +1,48 @@
+#!/bin/bash
+# host/sign — sign DAS Trust.app with the local user's Developer ID Application
+# certificate.
+#
+# WHEN TO RUN
+# -----------
+# 1. Once per machine after cloning DAS, before granting FDA.
+# 2. After any edit to DAS Trust.app/Contents/{Info.plist,MacOS/*} — TCC
+#    verifies the signature at runtime, so unsigned changes will break the
+#    FDA grant. (Re-signing with the same Developer ID preserves the grant
+#    because TCC binds to Team ID, not the specific hash.)
+#
+# WHY NOT ADHOC (`codesign -s -`)
+# -------------------------------
+# See ~/.claude/projects/-Users-oblinger-ob-kmr-SYS/memory/gotcha-adhoc-code-signing.md.
+# Short version: TCC on Sequoia+ silently rejects adhoc-signed FDA grants at
+# runtime even though the settings UI accepts them.
+#
+# USAGE
+# -----
+#   ./sign                # auto-picks the first Developer ID Application in Keychain
+#   ./sign "<identity>"   # explicit identity (name-fragment or hex fingerprint)
+
+set -euo pipefail
+
+HERE="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+BUNDLE="$HERE/DAS Trust.app"
+
+[[ -d "$BUNDLE" ]] || { printf 'sign: bundle not found: %s\n' "$BUNDLE" >&2; exit 1; }
+
+if [[ $# -ge 1 ]]; then
+    IDENTITY="$1"
+else
+    IDENTITY="$(security find-identity -v -p codesigning 2>/dev/null \
+        | awk -F\" '/Developer ID Application/ { print $2; exit }')"
+    if [[ -z "$IDENTITY" ]]; then
+        printf 'sign: no Developer ID Application identity found in Keychain.\n' >&2
+        printf 'sign: enroll a free Apple Developer account and generate a\n' >&2
+        printf 'sign: Developer ID certificate, then retry.\n' >&2
+        exit 2
+    fi
+fi
+
+printf 'sign: identity = %s\n' "$IDENTITY"
+codesign --force --deep --sign "$IDENTITY" "$BUNDLE"
+
+printf '\nsign: verification\n'
+codesign -dvv "$BUNDLE" 2>&1 | grep -E 'Identifier|Authority|TeamIdentifier|Signature|Format'

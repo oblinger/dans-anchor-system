@@ -5,9 +5,17 @@
     <key>Label</key>
     <string>com.oblinger.muse-ingest</string>
 
+    <!-- Direct-exec of the DAS Trust.app bundle's executable. macOS TCC walks
+         the parent chain to find Contents/Info.plist and applies the bundle
+         identity (com.oblinger.das.trust, Developer-ID-signed, Team ID
+         7M5VK5V43M) as the process's TCC identity. The user's FDA grant on
+         DAS Trust.app is bound to that Team ID + designated requirement, so
+         it persists across re-signs of the same bundle. See
+         .../dans-anchor-system/host/README.md. -->
     <key>ProgramArguments</key>
     <array>
-        <string>/Users/oblinger/.claude/skills/muse/scripts/muse</string>
+        <string>/Users/oblinger/ob/kmr/SYS/Bespoke/Skill Agent/dans-anchor-system/host/DAS Trust.app/Contents/MacOS/DAS-Trust</string>
+        <string>muse</string>
         <string>ingest</string>
         <string>--sweep</string>
     </array>

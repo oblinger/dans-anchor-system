@@ -1,0 +1,60 @@
+#!/bin/bash
+# DAS-Trust — the executable inside DAS Trust.app.
+#
+# WHY THIS EXISTS
+# ---------------
+# macOS TCC (Transparency, Consent, and Control) blocks access to protected
+# paths (iCloud folders, ~/Library/Mobile Documents, Photos library, etc)
+# when a process is invoked from an unprivileged parent context such as
+# launchd. Interactive tooling (Claude Code, Terminal, Obsidian, KM) already
+# inherits FDA from whichever app the user granted it to; the gap is
+# background/scheduled invocations.
+#
+# Rather than granting FDA per script (fatigue, sprawl) or to /bin/bash
+# (over-broad), DAS ships this .app bundle. The user grants Full Disk Access
+# to `DAS Trust.app` ONCE. Any DAS operation that needs TCC-scoped file
+# access is invoked via this executable — macOS TCC evaluates the bundle
+# identity (com.oblinger.das.trust) and applies the grant.
+#
+# The dispatch table (case block) below is the audit surface. To authorize
+# a new background pipeline: add a verb + exec its target. Nothing else.
+#
+# USAGE
+# -----
+#   .../DAS Trust.app/Contents/MacOS/DAS-Trust <verb> [args...]
+#
+# INVOCATION CONTEXTS
+# -------------------
+# Direct execution from launchd's plist ProgramArguments — macOS's TCC
+# evaluates the enclosing .app's bundle-id by walking parent directories
+# to find Contents/Info.plist. Interactive callers (which already have FDA)
+# invoke the target skill scripts directly and skip this entirely.
+
+set -euo pipefail
+
+# When invoked via `open -W -g -a` from launchd, stdio is detached — output
+# would vanish. Redirect to the same log file each verb's launchd plist would
+# otherwise use. Callers with real stdio (interactive tests) can override by
+# setting DAS_TRUST_LOG=/dev/stderr or similar.
+DAS_TRUST_LOG="${DAS_TRUST_LOG:-$HOME/Library/Logs/muse-ingest.log}"
+if [[ ! -t 1 ]]; then
+    exec >>"$DAS_TRUST_LOG" 2>&1
+fi
+
+# Walk up from Contents/MacOS/DAS-Trust to the DAS repo root (4 levels).
+DAS_ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." && pwd)"
+
+case "${1:-}" in
+    muse)
+        shift
+        exec "$DAS_ROOT/skills/muse/scripts/muse" "$@"
+        ;;
+    "")
+        printf 'DAS-Trust: no verb given\n' >&2
+        exit 2
+        ;;
+    *)
+        printf 'DAS-Trust: unknown verb %q\n' "$1" >&2
+        exit 2
+        ;;
+esac

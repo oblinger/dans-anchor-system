@@ -58,7 +58,7 @@ The skill's job below is the *procedure* that produces a conforming file.
 
 ## Determination logic — route every open question
 
-**First, look ahead (Query PRD G6 — maximize the unblocked runway).** Before routing the questions that already exist, walk each **frontier** item — the tasks that could be next for execution: `## Ready` / `## Now` / `## Next` rows plus the next unmet roadmap milestone (per [[Query PRD]] § The groom frontier, F228; `## Later` and the icebox don't drive anticipation) — and **anticipate** the questions its execution *will* hit — the forks, missing specs, and taste calls that would otherwise surface mid-build and stop the agent cold. Add those to the item's `## Open Questions` *now* (via `state q add` or the feature doc) so this pass surfaces them alongside everything else. The aim: once the user answers the item's pile, the agent runs it (and ideally the next items) to completion without another interruption. Then route every question — pre-existing **and** anticipated — through the ladder below; most still die in the ladder (auto-resolved / agent-run), and only the irreducible residue reaches the user.
+**First, look ahead (Query PRD G6 — maximize the unblocked runway).** Before routing the questions that already exist, walk each **frontier** item — the tasks that could be next for execution: `## Ready` / `## Now` / `## Next` rows plus the next unmet roadmap milestone (per [[Query PRD]] § The groom frontier, F228; `## Later` and the icebox don't drive anticipation) — and **anticipate** the questions its execution *will* hit — the forks, missing specs, and taste calls that would otherwise surface mid-build and stop the agent cold. Add those to the item's `## Open Questions` *now* (via `state "<feature doc>" Q+ define` or the feature doc) so this pass surfaces them alongside everything else. The aim: once the user answers the item's pile, the agent runs it (and ideally the next items) to completion without another interruption. Then route every question — pre-existing **and** anticipated — through the ladder below; most still die in the ladder (auto-resolved / agent-run), and only the irreducible residue reaches the user.
 
 Walk each feature's `## Open Questions` plus any backlog questions. A feature's questions may be enumerated individually or carried as one `## Questions` link to the feature with its bold `**(nQ)**` count — agent's judgment (enumerate when few, link when many) — but **the choice of form never affects whether a question is in the queue file: every pending question is reachable from it, always, regardless of count.** For each question, pick the FIRST that applies (preference order):
 
@@ -111,9 +111,9 @@ After glancing the doc, `/ask` may print a few **immediate** items — resolutio
 
 The secondary invocation, called from another skill's runbook (`/feature`, `/code plan`, `/groom`, `/design`) when it has decisions to park in a *specific* document. It authors numbered, ask-format questions directly into `<path>`'s `## Open Questions` block (created **above the H1** — between frontmatter and H1 — if absent, per the placement rule) and does **not** build the anchor's `queries.md` — the Qs surface there on the next bare `/ask` pass via the determination logic.
 
-- **Mechanism:** resolve `<path>` to its feature/PRD doc, then delegate to `state q add` (which enforces the ask-format spec — block-IDs, `Q<n>` numbering, recommendation strength, Phase 1/2/3 lifecycle):
+- **Mechanism:** resolve `<path>` to its feature/PRD doc, then delegate to the state CLI's `Q+ define` (which enforces the ask-format spec — block-IDs, `Q<n>` numbering, recommendation strength, Phase 1/2/3 lifecycle):
   ```bash
-  ~/.claude/skills/workflow/scripts/state --anchor {slug} q add F<n> < q-body.md
+  ~/.claude/skills/workflow/scripts/state --anchor {slug} "F<n> — <Title>" Q+ define < q-body.md
   ```
 - **Multiple questions** are batched — numbered in one pass, never trickled.
 - **Glance** the doc only in active mode (the user is engaging now); skip the glance in parking mode (batch filing for later). Mirrors `/feature` § 1a.
