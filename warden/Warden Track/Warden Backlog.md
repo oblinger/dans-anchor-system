@@ -11,12 +11,15 @@ _None._
 
 - **B-QFix — QFix** [Ready] — audit q findings routed by --fix; each sub-bullet is a residual on Warden's tree needing the 100%-fix discipline (per the audit skill's Governing principle). ^B-QFix
   - **Next:** Fix the next residual below at its source (repoint a renamed link, de-link a retired one, correct the flagged doc), then re-run `/audit q` to clear it — per the 100%-fix discipline.
-  - **C22** SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md:69 — link `[warden](~/bin/warden)` does not resolve (basename 'warden' not in vault)
+  - **C22** SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md:72 — link `[warden](~/bin/warden)` does not resolve (basename 'warden' not in vault)
 
 ## Now
 
 - **T017 — Fix Warden audit 2026-07-12 findings** [Ready] — Fable latent-bug audit found 7 bugs (5 CONFIRMED). W1 (paren-less RULE headings dropped) and W3 (corpus-load crash strands socket/pid) FIXED 2026-07-12, tests added, recompiled + daemon restarted — 527 rules live (11 recovered). W2/W4/W5/W6/W7 FIXED 2026-07-12 (second pass) — see [[Warden Audit 2026-07-12]] § Fix status; regression tests added across daemon/hook/compile/reval/agent suites + cargo. Report: [[Warden Audit 2026-07-12]] ^T017
   - **Next:** `warden compile` + daemon restart to pick up the engine fixes (warden-rs already rebuilt); then two surfaced follow-ons: fix R-fex-bundle-02's unbound `fex_bundle` if:: (real W5-class bug, warned at every compile), and re-bless the doc-fire golden corpus after ruling on the missing `queries_banner_form` checker (R-query-16 errors; test_warden_docfire signature test red since F229 MS-1 — pre-dates these fixes)
+
+- **F233 — Dispatch-normalization on-write fixer deletes body member rows + strips ~~staging~~ marks (F189 pilot fallout)** [Ready] ^F233
+  - **Next:** Reproduce with the F189 Topic-pilot case, then fix the dispatch normalization fixer to (1) preserve ~~strikethrough~~ staging marks on ANY body write and (2) never delete body dispatch member rows when a masthead Subtopics row lists the same anchors; pin fail+pass in the golden corpus
 
 ## Next
 
