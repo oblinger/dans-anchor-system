@@ -17,6 +17,7 @@ user_invocable: true
 ---
 
 # Rule — Project Rule Management
+requires:: vault, skill:code
 
 Define semantic rules, validate code against them, manage exceptions, and drive fixes.
 
@@ -63,6 +64,7 @@ Explanatory text about why this rule exists.
 | EX | Grade | Location | Description |  ← exception table (no heading above it)
 |-----|-------|----------|-------------|
 | ... | ...   | ...      | ...         |
+
 ```
 
 **Critical formatting rules:**

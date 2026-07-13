@@ -6,6 +6,7 @@ user_invocable: true
 ---
 
 # Yore — Archive folders or files to Yore
+requires:: vault, external:ha
 
 Archive anchors, folders, or files that are no longer needed. Yore is the standard archival location.
 

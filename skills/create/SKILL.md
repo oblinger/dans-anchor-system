@@ -10,6 +10,7 @@ user_invocable: true
 ---
 
 # Create
+requires:: skill:code, skill:feature, skill:rule
 
 Dispatch skill that routes `/create <thing>` invocations to the underlying creation skill for anchors, features, work products, specs, or rules.
 

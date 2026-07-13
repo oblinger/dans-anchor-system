@@ -15,6 +15,7 @@ user_invocable: true
 ---
 
 # get-user-auth — get a password / interactive auth from the user, the right way
+requires:: vault, external:tmux
 
 When you need a credential or interactive authorization that **only the user can
 provide** — a keychain/login password, `sudo`, a code-signing key authorization,

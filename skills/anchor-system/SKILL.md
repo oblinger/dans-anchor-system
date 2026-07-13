@@ -5,6 +5,7 @@ user_invocable: false
 ---
 
 # anchor-system
+requires:: vault
 
 The `anchor-system` folder hosts the **unified skill namespace** that every skill in this suite reads + writes against. Not a user-facing skill — its job is to be the canonical entry point to `~/.config/anchor-system/`.
 

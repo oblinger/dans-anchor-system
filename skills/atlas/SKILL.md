@@ -5,6 +5,7 @@ user_invocable: true
 ---
 
 # /atlas
+requires:: vault
 
 Maintain the vault-wide glossary and router at `~/ob/kmr/SYS/Atlas/Atlas.md`. Atlas is the agent's primary discovery surface for named things in the user's knowledge repo — anchors, concepts, standards, tools, project codenames. Every entry **routes to the canonical source** rather than duplicating its content.
 

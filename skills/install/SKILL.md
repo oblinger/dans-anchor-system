@@ -6,6 +6,7 @@ user_invocable: true
 ---
 
 # Install — Set up CAB tools
+requires:: none
 
 One-time per-machine setup that wires the CAB command-line scripts onto the user's `$PATH` so they can be invoked from any shell.
 

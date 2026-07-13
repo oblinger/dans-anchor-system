@@ -4,6 +4,7 @@ description: Connect this Mac to another machine. Umbrella over three kinds of b
 ---
 
 # Bridge
+requires:: vault, external:homebrew, external:syncthing, external:tmux
 
 **Bridge** is the umbrella for "connect this machine to another machine." Renamed from `mux-bridge` (F150) once it grew past the original SSH+tmux control plane.
 

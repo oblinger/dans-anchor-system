@@ -6,6 +6,7 @@ user_invocable: true
 ---
 
 # Maintain — Keep derived files in sync within an anchor
+requires:: vault, skill:code
 
 Maintain standing synchronization orders for an anchor. When source files change, derived files are updated to match.
 
@@ -56,6 +57,7 @@ When the user asks to maintain something (e.g., "keep the Actions table synced t
 ### Example entries
 
 ```markdown
+
 | Trigger | Action | Description |
 |---------|--------|-------------|
 | `./skills/dev/SKILL.md` | copy | Copy the Actions table to bottom of DEV.md, replacing any existing copy |
@@ -63,6 +65,7 @@ When the user asks to maintain something (e.g., "keep the Actions table synced t
 | `:pr` | check | Verify dispatch tables wired, lint level 3 passes |
 | `:commit` | check | Verify no blanket lint exceptions added |
 | `:daily` | sync | Push planning docs to Google Drive |
+
 ```
 
 ### Action types

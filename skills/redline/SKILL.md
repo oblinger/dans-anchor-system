@@ -5,6 +5,7 @@ user_invocable: true
 ---
 
 # Redline — Versioned Text Polish with Track-Changes
+requires:: vault
 
 Collaborative polish of text with visible, addressable pending changes and a navigable acceptance history. Two modes:
 

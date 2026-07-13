@@ -6,6 +6,7 @@ user_invocable: true
 ---
 
 # Move — Move an anchor and update path-dependent systems
+requires:: vault, external:claude-mv, external:ha, external:mkdocs
 
 Move an anchor folder and update all systems that index by path.
 

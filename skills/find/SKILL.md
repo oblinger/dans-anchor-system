@@ -5,6 +5,7 @@ user_invocable: true
 ---
 
 # /find
+requires:: vault
 
 Locate **one specific match** for the criteria the user provides. Return an identifier + sources + confidence. Disambiguate before answering.
 

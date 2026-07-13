@@ -9,6 +9,7 @@ user_invocable: false
 ---
 
 # Finalize Discipline
+requires:: vault, anchor-cli, facet:backlog
 
 Reusable close-out discipline that verifies, commits, updates status/docs, and cleans up — invoked by consumer skills like `/land` and `/crank` when a unit of work needs to be wrapped up.
 

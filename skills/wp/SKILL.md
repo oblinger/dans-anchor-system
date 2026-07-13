@@ -6,6 +6,7 @@ user_invocable: true
 ---
 
 # WP — Create a dated work product folder
+requires:: vault, skill:io, facet:wp
 
 Create a new dated work product folder inside `{slug} WP/`. Work products are polished outputs of human+agent collaboration — papers, reports, analyses, presentations, spreadsheets.
 
@@ -48,11 +49,14 @@ description: work products
 
 | -[[{slug} WP]]- >: | +> |
 | --- |
+
 ```
 
 - Add a **Work** row to the anchor page dispatch table (after standard rows):
   ```
+
   | Work | [[{slug} WP\|WP]] |
+
   ```
 
 ### 4. Create the work product folder
@@ -80,6 +84,7 @@ type: {type}
 | -[[{date} {name}]]- | +> |
 | --- | --- |
 | [[{date} {name}/{document-name}\|{document-name}]] | {type} |
+
 ```
 
 The dispatch table uses a **relative path** wiki-link to the deliverable file: `[[{date} {name}/{document-name}\|{document-name}]]`. This ensures the link resolves correctly even if the document name isn't globally unique.
@@ -103,7 +108,9 @@ For markdown/paper/report, create the file directly. For slides/spreadsheet, add
 Add a row to `{slug} WP/{slug} WP.md` (newest first):
 
 ```
+
 | [[{date} {name}]] |
+
 ```
 
 ### 8. Glance the anchor file — MANDATORY

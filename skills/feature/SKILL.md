@@ -10,6 +10,7 @@ user_invocable: true
 ---
 
 # Feature — Feature Lifecycle
+requires:: vault, anchor-cli, skill:ask, skill:mint, facet:backlog, facet:query
 
 The runbook for the `/feature` skill — drives a feature from idea through Designing → Agreed → Implementing → Testing → Done with a single F-numbered doc, an explicit user-agreement gate, and mandatory backlog/Q.md sync at every transition.
 
