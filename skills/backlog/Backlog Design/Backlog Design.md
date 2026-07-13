@@ -3,7 +3,7 @@ description: system design — PRD, architecture, interface, principles
 ---
 # Backlog Design
 
-| -[[Backlog Design]]- | : system design — PRD, architecture, interface, principles |
+| -[[Backlog Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[backlog/Backlog]] → [Backlog Design](hook://p/Backlog%20Design)<br>: system design — PRD, architecture, interface, principles |
 | --- | --- |
 | [[Backlog PRD]] | product requirements |
 | [[Backlog System Design]] | system architecture |
