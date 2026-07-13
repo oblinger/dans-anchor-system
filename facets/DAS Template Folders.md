@@ -30,7 +30,7 @@ A folder template is a `_{Name} Template/` **folder**, not a single file. Its pa
 
 - **Use when an item needs >1 document.** One disk = a folder (record + manifest); one computer = a single file ([[DAS Template Files|file template]]). That is the file-vs-folder decision.
 - **Cloned as a unit.** Copy the whole `_{Name} Template/` folder → `{Item}/`, rename the marker to `{Item}.md`, fill/drop placeholders, add skeleton docs as they're produced.
-- **Earns a dispatch row.** Because a folder template sits *inside* the folder being templated, the folder's [[DAS Dispatch Table|dispatch]] carries a **`Template`** row at the top of the auto-managed zone (left cell `Template`, right cell `[[_{Name} Template]]`). [[rewire]] recognizes `_*/` folders and inserts the row when missing (audit category `missing-folder-template-row`). This is the one obligation file templates do *not* have.
+- **Earns a dispatch row.** Because a folder template sits *inside* the folder being templated, the folder's [[DAS Dispatch Table|dispatch]] carries a **`Template`** row at the top of the auto-managed zone (left cell `Template`, right cell `~~[[_{Name} Template]]~~`). [[rewire]] recognizes `_*/` folders and inserts the row when missing (audit category `missing-folder-template-row`). This is the one obligation file templates do *not* have.
 
 ## Rules
 

@@ -10,7 +10,7 @@ The unified anchor-property model: an Aspect is any named property an anchor car
 
 An **Aspect** is any named property an anchor carries. Aspects come in two sub-categories, distinguished by *what they describe*:
 
-- **Trait** — a **broad paradigm / intended usage** of the anchor, independent of any specific file or folder. Declared explicitly in the anchor's `traits:` list. Examples: `Code` (this is a code project), `Publishable` (this anchor is intended for the public website), `Skill` (this anchor is a Claude skill).
+- **Trait** — a **broad paradigm / intended usage** of the anchor, independent of any specific file or folder. Declared explicitly in the anchor's `traits:` list. Examples: `code` (this is a code project), `Publishable` (this anchor is intended for the public website), `skill` (this anchor is a Claude skill).
 - **Facet** — a **narrow, specific aspect** of the anchor, almost always tied to one or more files. Defined by its spec under `facets/FCT <Name>.md`; detection is whatever the spec says (usually file-existence). Examples: `Backlog` (a `<NAME> Backlog.md` file), `Architecture`, `Website Subfolder` (the specific folder to deploy).
 
 Use **"Aspect"** only when discussing the umbrella; default to **"Trait"** or **"Facet"** when the specific sub-category is known. (User framing 2026-05-25: *"a facet is really just an aspect of an anchor."*)
@@ -29,11 +29,11 @@ Both Traits and Facets carry **Constraints** (rules about legal usage — includ
 
 A **Trait** declares a *paradigm* the author intends for the anchor — a way of using it, independent of any specific files or formats. "This is a code project." "This anchor publishes to the web." "This is a Claude skill." Traits live in the anchor's `.anchor` `traits:` list because the author's intent is what defines them; the system doesn't infer paradigms from files.
 
-- **Where declared.** `traits: [Code, Publishable]` in the anchor's `.anchor` frontmatter. The anchor page's dispatch table may render the Traits row for human readability, but the `.anchor` field is canonical.
+- **Where declared.** `traits: [code, Publishable]` in the anchor's `.anchor` frontmatter. The anchor page's dispatch table may render the Traits row for human readability, but the `.anchor` field is canonical.
 - **Detection.** Read `traits:`. Done — no file walks, no inference.
 - **Cardinality.** Inherently many — one anchor can carry multiple Traits (e.g., `Code + Skill`), subject to per-Trait Constraints (see below).
 - **Spec doc.** `dans-anchor-system/traits/<Trait Name>.md` (e.g. [[Code]], [[Skill]], [[Track]]), with required sections covering: (a) what paradigm this Trait names, (b) what shape the anchor takes when it carries this Trait, (c) **Constraints**, (d) **Expected Usage**, (e) which skills/audits attach.
-- **Examples (current set, F090-pending expansion):** identity traits `Code`, `Topic`, `Skill`, `Paper`, `Simple`; capability trait `Track` (drive-loop / backlog lifecycle — see [[Track]]). New Traits anticipated: `Publishable`.
+- **Examples (current set, F090-pending expansion):** identity traits `code`, `topic`, `skill`, `paper`, `simple`; capability trait `track` (drive-loop / backlog lifecycle — see [[Track]]). New Traits anticipated: `Publishable`.
 
 **Why Traits are declared (not detected).** A Trait is *what the author intends the anchor to be*, not what the files happen to look like. Implicit detection would let the system disagree with the author's intent; the explicit `traits:` field eliminates that. Two anchors with identical file shapes can carry different Traits because the author meant different things.
 
@@ -61,14 +61,14 @@ A **Facet** describes a *specific structural feature* of the anchor — almost a
 A **Constraint** is a rule about *legal usage* — what's forbidden, what's required, what's mutually exclusive. Both Trait specs and Facet specs include a Constraints section.
 
 > [!important] Governing principle — compose by default; exclude only on *logical* incompatibility
-> Traits are **freely mixable by default.** A mutual-exclusion constraint is declared **only when two traits are logically incompatible** — i.e. they make contradictory claims about the *same underlying thing*. The clean examples: the git-aspect traits `Commit` / `Push` / `PR` / `NoGit` are all answers to one question (how this anchor's git boundary is handled), so at most one can hold; the cadence traits `Drive` / `Lean` likewise. The identity traits (`Code` / `Topic` / `Paper` / `Simple`) exclude because they make contradictory structural claims (repo vs no-repo, docs vs no-docs). **Absent such a logical conflict, a trait composes with everything** — do not add exclusions for tidiness or "it'd be weird." Weird-but-coherent combinations are allowed; only contradictions are forbidden. (Per user direction 2026-06-11; e.g. [[Collection]] composes with any identity trait because nothing about enumerating members contradicts being Code / Topic / Skill.)
+> Traits are **freely mixable by default.** A mutual-exclusion constraint is declared **only when two traits are logically incompatible** — i.e. they make contradictory claims about the *same underlying thing*. The clean examples: the git-aspect traits `commit` / `push` / `pr` / `nogit` are all answers to one question (how this anchor's git boundary is handled), so at most one can hold; the cadence traits `drive` / `lean` likewise. The identity traits (`code` / `topic` / `paper` / `simple`) exclude because they make contradictory structural claims (repo vs no-repo, docs vs no-docs). **Absent such a logical conflict, a trait composes with everything** — do not add exclusions for tidiness or "it'd be weird." Weird-but-coherent combinations are allowed; only contradictions are forbidden. (Per user direction 2026-06-11; e.g. [[Collection]] composes with any identity trait because nothing about enumerating members contradicts being Code / Topic / Skill.)
 
 Common Constraint shapes:
 
-- **Mutual exclusion: at most one.** *"At most one of {`Code`, `Topic`, `Paper`, `Simple`} per anchor."* — the anchor's "what is this thing" Trait is single-valued.
+- **Mutual exclusion: at most one.** *"At most one of {`code`, `topic`, `paper`, `simple`} per anchor."* — the anchor's "what is this thing" Trait is single-valued.
 - **Mutual exclusion: exactly one.** *"Exactly one Backlog per anchor."* — cardinality `one` enforced.
 - **Co-requirement.** *"The `Publishable` Trait requires the `Website Subfolder` Facet."* — declaring one mandates the other.
-- **Exclusion.** *"The `Simple` Trait excludes all other Traits."* — simple anchors don't compose.
+- **Exclusion.** *"The `simple` Trait excludes all other Traits."* — simple anchors don't compose.
 - **Format invariant.** *"The Backlog Facet requires source-order preservation."* — operational rule on the Facet's content.
 
 Constraints are *enforceable* — audits read them and validate. (`/audit aspects` is the proposed home; tracks under F090's Phase 6.)
@@ -79,7 +79,7 @@ An **Expected Usage** guideline is *what's recommended* — typical patterns, co
 
 Common Expected-Usage shapes:
 
-- **Common combinations.** *"`Code` is commonly combined with `Skill` for runtime skill anchors."*
+- **Common combinations.** *"`code` is commonly combined with `skill` for runtime skill anchors."*
 - **Typical scale.** *"Most anchors with the `Backlog` Facet have between 5 and 50 active rows."*
 - **Naming conventions.** *"Feature docs typically use `F<NNN> — <Title>.md`; deviations have surfaced in audits."*
 - **Skill pairings.** *"The `Architecture` Facet is typically populated by `/architect`; manual edits are valid but discouraged."*
@@ -98,7 +98,7 @@ Both are Aspects, but they describe different things:
 | **Spec lives** | `dans-anchor-system/traits/<Name>.md` | `dans-anchor-system/facets/FCT <Name>.md` |
 | **How presence is determined** | Read the `traits:` list (one rule) | Whatever the Facet's spec says (usually file-existence) |
 | **Author intent vs system inference** | Author-declared intent | System-detected feature |
-| **Typical examples** | `Code`, `Skill`, `Publishable`, `Paper` | `Backlog`, `Architecture`, `Interface`, `Website Subfolder` |
+| **Typical examples** | `code`, `skill`, `Publishable`, `paper` | `Backlog`, `Architecture`, `Interface`, `Website Subfolder` |
 | **Constraints + Expected Usage sections** | Required | Required |
 
 **The clarifying example pair (user 2026-05-25):**
@@ -182,12 +182,12 @@ The matrix below names the legal compositions of declared Traits. Per-spec Const
 - **Code + Paper** is legal — a research artifact can include code.
 - **Topic excludes Code, Skill** — Topics are evergreen knowledge, not repo-backed projects.
 - **Skill excludes Topic, Paper** — Skills are runtime, not knowledge content.
-- **Track** is a *capability* trait (not an identity), so it layers onto any identity trait **except Simple** — `Code + Track` (tracked code project), `Skill + Track` (e.g. [[SKA]]), `Paper + Track`, `Topic + Track`, or `Track` alone (a non-code ops/wiring effort with a backlog). It co-requires the Backlog facet. See [[Track]].
+- **Track** is a *capability* trait (not an identity), so it layers onto any identity trait **except Simple** — `Code + Track` (tracked code project), `Skill + Track` (e.g. [[SKA]]), `Paper + Track`, `Topic + Track`, or `track` alone (a non-code ops/wiring effort with a backlog). It co-requires the Backlog facet. See [[Track]].
 - **Git-aspect traits (Commit / Push / PR / NoGit) are mutually exclusive** — exactly one per anchor (per F077 v2 design). The four together exhaust the Git-aspect dimension, escalating: **Commit** (commits, never pushes, never asks) → **Push** (commits AND pushes, never asks) → **PR** (commits on branch + review-gated PRs) → and **NoGit** (no repo at all). See [[Commit]] / [[Push]] / [[PR]] / [[NoGit]].
 - **Commit, Push, and PR require Code** — they shape how a repo is managed; an anchor without a repo can't take any of them. `Commit + Code` (default for SKA, kmr-internal code), `Push + Code` (continuously-published branch, e.g. [[HA]]), `PR + Code` (production code with PR-gated git).
 - **NoGit excludes Code (and Skill)** — declaring "no repo" on an anchor that HAS a repo is a contradiction. `NoGit + Topic` (knowledge area without per-anchor git), `NoGit + Simple` (minimal folder marker), `NoGit + Paper` (writing project versioned by the document not git).
 - **All three Git-aspect traits compose with Track** — whether an anchor is `Tracked` (has a backlog + drive loop) is orthogonal to its git posture.
-- **Cadence traits (Drive / Lean) are mutually exclusive** — exactly one per anchor at a time. **Drive is the default** — anchors that don't declare either run in Drive. `Lean` is the cautious / fortify-the-foundation posture; per-turn invocation uses `/fortify`, declarative per-anchor activation uses `Lean` in `traits:`.
+- **Cadence traits (Drive / Lean) are mutually exclusive** — exactly one per anchor at a time. **Drive is the default** — anchors that don't declare either run in Drive. `lean` is the cautious / fortify-the-foundation posture; per-turn invocation uses `/fortify`, declarative per-anchor activation uses `lean` in `traits:`.
 - **Cadence traits compose with everything else** — they're orthogonal to identity, capability, and Git-aspect. `Drive + Code + Track + Commit` (the canonical "code project with backlog and standard everything"); `Lean + Code + Track + PR` ("production code being fortified").
 
 New Traits introduced later (e.g., `Publishable`) extend the matrix with new rows + columns. The Trait spec doc declares its compatibilities; this matrix is the rendered view. Audits read either source.

@@ -1,10 +1,10 @@
 ---
-description: "getting started and usage"
+description: "getting started"
 ---
 # HBR Guide
 Get Harbor from install to streaming in four steps.
 
-| -[[HBR Guide]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[HBR]] → [[HBR User Docs]] → [HBR Guide](hook://p/HBR%20Guide)<br>: getting started |
+| -[[HBR Guide]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[HBR]] → [[HBR User Docs]] → [HBR Guide](hook://p/HBR%20Guide)<br>: getting started |
 | --- | --- |
 | Anchor | [[HBR User Docs]] (parent) |
 | Related | [[HBR CLI]],   |

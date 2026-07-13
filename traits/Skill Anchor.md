@@ -62,14 +62,14 @@ The two locations are formally part of the same anchor. The `skill-*` facets doc
 
 ## Anchor Page Dispatch Table
 
-The anchor root page (`{Slug}.md`) follows [[DAS Anchor Page]] with one Skill-Anchor-specific row shape: the **first row** is `Skill` and carries two surfaces — the skill spec (`[[<folder>/SKILL|SKILL.md]]`) and the user-facing doc (`[[SKL <Slug>|User Docs]]`); the second row is the optional `Track` row carrying `[[<Slug> Backlog|Backlog]]` and `[[<Slug> Features|Features]]`. As a rendered two-row example:
+The anchor root page (`{Slug}.md`) follows [[DAS Anchor Page]] with one Skill-Anchor-specific row shape: the **first row** is `skill` and carries two surfaces — the skill spec (`[[<folder>/SKILL|SKILL.md]]`) and the user-facing doc (`[[SKL <Slug>|User Docs]]`); the second row is the optional `track` row carrying `[[<Slug> Backlog|Backlog]]` and `[[<Slug> Features|Features]]`. As a rendered two-row example:
 
 | Row | Surfaces |
 | --- | --- |
 | Skill | `[[<folder>/SKILL\|SKILL.md]]`, `[[SKL <Slug>\|User Docs]]` |
 | `[[<Slug> Track\|Track]]`+ | `[[<Slug> Backlog\|Backlog]]`, `[[<Slug> Features\|Features]]` |
 
-The `Skill` row replaces the `Dev` and `User` rows that a Code Anchor would have. It carries the two things a reader of the anchor most needs to find: the skill spec (agent-loaded) and the user-facing doc.
+The `skill` row replaces the `Dev` and `User` rows that a Code Anchor would have. It carries the two things a reader of the anchor most needs to find: the skill spec (agent-loaded) and the user-facing doc.
 
 
 ## Feature Docs
@@ -112,12 +112,12 @@ This is the case for `cab/`, `io/`, `dev/` (where applicable). For all other ski
 - `SKILL.md` with valid YAML frontmatter (name, description, user_invocable)
 - Action files referenced from the SKILL.md dispatch table
 - `.anchor` declares `traits: [Skill Anchor]`
-- Anchor root page (`{Slug}.md`) with the `Skill` dispatch row
+- Anchor root page (`{Slug}.md`) with the `skill` dispatch row
 
 ### Common findings
 
 - `traits:` missing the `Skill Anchor` declaration
-- Anchor root page missing the `Skill` first-row dispatch with both `SKILL.md` and `SKL <Slug>` links
+- Anchor root page missing the `skill` first-row dispatch with both `SKILL.md` and `SKL <Slug>` links
 - User docs in `{Slug} User/` (or pre-F113 `{Slug} Docs/{Slug} User/`) instead of the canonical `SKL User Docs/SKL Skills/SKL <Slug>.md`
 - Feature docs in the SKA-level Features folder when they're skill-specific (should be migrated)
 - Eagerly-scaffolded empty Backlog/PRD files (deprecated by F116 — create on demand only)

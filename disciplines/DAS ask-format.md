@@ -352,7 +352,7 @@ When any rule auto-resolves a Q, the decision is recorded in the relevant doc's 
 
 The five-piece layout above governs **written surfaces** (the ask file, feature docs). When an agent surfaces a pending question into a **transient channel** — a chat message, a console status line, a one-shot prompt — the rules tighten further:
 
-- **Full question text inline.** Restate the actual question. Don't write *"your read on F77 Q7?"* — write *"F77 Q7 — naming convention for flow-Traits: bare nouns (`Drive`/`PR`/`Commit`) vs `-Mode` suffix vs `-Flow` suffix vs mixed-by-category."*
+- **Full question text inline.** Restate the actual question. Don't write *"your read on F77 Q7?"* — write *"F77 Q7 — naming convention for flow-Traits: bare nouns (`drive`/`pr`/`commit`) vs `-Mode` suffix vs `-Flow` suffix vs mixed-by-category."*
 - **Full option content inline.** Don't write *"A vs B."* Write each option's actual text — *"(A) bare nouns / (B) -Mode suffix / (C) -Flow suffix / (D) mixed."*
 - **`F<n>-Q<n>` reference required.** Always cite the canonical-record location so the user can locate the durable version, but the chat itself stays self-contained.
 - **Recommendation strength inline.** *"Lean (A) — matches F090 unsuffixed names."* Not just *"recommend A."*

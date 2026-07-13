@@ -4,7 +4,7 @@ description: "`/maintain` is the discipline that keeps **derived files in sync w
 # DAS Maintain
 `/maintain` is the discipline that keeps **derived files in sync with their sources** inside an anchor. You declare standing maintenance orders in `{slug} Maintenance.md` — for example, "whenever `dev/SKILL.md` changes, copy the Actions table to the bottom of `DEV.md`" — and the system watches the source files for mtime changes. When something falls out of date, the maintain hook surfaces a "⚠ Maintenance needed" message and the skill runs the recorded actions to bring derived files back into sync.
 
-| -[[DAS Maintain]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Maintain](hook://p/DAS%20Maintain)<br>: `/maintain` is the discipline that keeps **derived files in sync with their sources** inside an anchor.|
+| -[[DAS Maintain]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Maintain](hook://p/DAS%20Maintain)<br>: `/maintain` is the discipline that keeps **derived files in sync with their sources** inside an anchor. |
 | --- | --- |
 | Related | [[skills/maintain/SKILL.md\|SKILL]],   |
 | [[DAS Maintain Design\|Design]] |  |

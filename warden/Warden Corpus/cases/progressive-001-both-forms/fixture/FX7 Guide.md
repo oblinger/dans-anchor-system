@@ -1,5 +1,5 @@
 ---
-description: ">> [[kmr]] → [[FX7]]"
+description: ">> [[kmr]] → ~~[[FX7]]~~"
 ---
 # FX7 Guide
 

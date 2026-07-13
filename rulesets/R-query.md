@@ -201,7 +201,7 @@ when:: skill:post:audit-q
 
 An agent must **never** ask the user "should I commit / push this branch?" — the anchor's Git aspect already answers it (**Commit** mode: commit at logical boundaries without asking; **PR** mode: commit freely on the branch + open/update the PR; **NoGit**: nothing to commit). This is an **executable when-rule** (F180): when the `audit-q` skill runs, `trigger(ctx)` scans the freshly-built `{slug} queries.md` for such a question and, instead of letting it reach the user, returns an **agent-directed steer** — telling the agent to follow its mode and decide for itself (and since it's *asking*, commit now). It never asks the user; it corrects the agent.
 
-**Trigger:** if `ctx.queries_text` contains a "should I … commit/push?"-shaped question, return a mode-appropriate steer using `ctx.git_aspect` (`PR` / `Commit` / `NoGit`).
+**Trigger:** if `ctx.queries_text` contains a "should I … commit/push?"-shaped question, return a mode-appropriate steer using `ctx.git_aspect` (`pr` / `commit` / `nogit`).
 
 ```python
 import re

@@ -4,7 +4,7 @@ description: "`/pilot-flow` is the top-down design-then-implementation workflow.
 # DAS Pilot Flow
 `/pilot-flow` is the top-down design-then-implementation workflow. You start from a PRD, work through Open Questions, UX, system design, file layout, and module descriptions, then a roadmap — and then implementation dispatches in priority order. Reach for it when you say "pilot flow" or "top-down development" — the alternative is `/pr-flow`, which is bottom-up iterative PRs with user review per increment.
 
-| -[[DAS Pilot Flow]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Pilot Flow](hook://p/DAS%20Pilot%20Flow)<br>: `/pilot-flow` is the top-down design-then-implementation workflow.|
+| -[[DAS Pilot Flow]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Pilot Flow](hook://p/DAS%20Pilot%20Flow)<br>: `/pilot-flow` is the top-down design-then-implementation workflow. |
 | --- | --- |
 | Related | [[skills/pilot-flow/SKILL.md\|SKILL]],   |
 | [[DAS Pilot Flow Design\|Design]] |  |

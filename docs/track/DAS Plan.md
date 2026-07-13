@@ -60,7 +60,7 @@ The skill also watches for natural-language acceptance phrases in conversation:
 
 ## Scope (v1)
 
-v1 supports `Code` trait anchors only. Per-trait artifact rosters for Paper / Topic / Simple anchors is Phase 2 — generalization decided at that time based on observed authoring patterns.
+v1 supports `code` trait anchors only. Per-trait artifact rosters for Paper / Topic / Simple anchors is Phase 2 — generalization decided at that time based on observed authoring patterns.
 
 ## Related
 

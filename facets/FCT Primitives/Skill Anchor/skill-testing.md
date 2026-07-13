@@ -13,7 +13,7 @@ The skill-testing facet specifies *how a skill verifies its own behavior — a `
 - **Non-destructive** — live tests touch only resources they create (their own tabs, temp files, scratch tmux session) and clean them up. Snapshot relevant state before/after; verify net-zero.
 - **No build system** — skills are scripts and markdown; tests run directly (`tests/live/<name>.sh`), not through `just` / `cargo` / `pytest`.
 
-This is a CAB facet of the Skill trait — it applies to anchors that carry `traits: [Skill]`, and the content (the `tests/` folder) lives at the runtime location `~/.claude/skills/<skill-name>/tests/`, not under the anchor's filesystem folder.
+This is a CAB facet of the Skill trait — it applies to anchors that carry `traits: [skill]`, and the content (the `tests/` folder) lives at the runtime location `~/.claude/skills/<skill-name>/tests/`, not under the anchor's filesystem folder.
 
 
 ## Layout

@@ -1,10 +1,10 @@
 ---
-description: "user-interaction shape — screens, commands, output formats"
+description: "viewer-facing UX"
 ---
 # HBR UX Design
 What a household viewer sees: browse the catalog, then play a title — on whatever device is in hand.
 
-| -[[HBR UX Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[HBR]] → [[HBR Design]] → [HBR UX Design](hook://p/HBR%20UX%20Design)<br>: viewer-facing UX |
+| -[[HBR UX Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[HBR]] → [[HBR Design]] → [HBR UX Design](hook://p/HBR%20UX%20Design)<br>: viewer-facing UX |
 | --- | --- |
 | Anchor | [[HBR Design]] (parent) |
 | Related | [[HBR API Design]],  [[HBR CLI]],  [[HBR Architecture]],  [[HBR PRD]],   |

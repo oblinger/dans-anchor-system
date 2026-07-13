@@ -25,7 +25,7 @@ The `{slug} Design/` folder is itself a container (anchor page + dispatch table,
 
 ## Rules
 
-RULE (design-gate): the **presence of `{slug} Design/`** is the gate — `/design` operates iff the folder exists. (Replaces the retired `Code`-trait check, which conflated *what's built* with *is it designed*.)
+RULE (design-gate): the **presence of `{slug} Design/`** is the gate — `/design` operates iff the folder exists. (Replaces the retired `code`-trait check, which conflated *what's built* with *is it designed*.)
 
 ## Example
 

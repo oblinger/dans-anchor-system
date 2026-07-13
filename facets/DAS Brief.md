@@ -117,7 +117,7 @@ Two cases — pick by whether the source has a dispatch table.
 Add a `Related` row to the dispatch table (or use an existing one) listing the brief first:
 
 ```markdown
-| Related | [[<Source Name> Brief\|Brief]],  …other related links… |
+| Related | ~~[[<Source Name> Brief\|Brief]]~~,  …other related links… |
 ```
 
 The Brief always goes first in the Related cell. Other related items follow, comma-separated.
@@ -129,12 +129,12 @@ Add a single `(See …)` line immediately under the H1, before any other content
 ```markdown
 # My Page
 
-(See [[My Page Brief]])
+(See ~~[[My Page Brief]]~~)
 
 […rest of content…]
 ```
 
-For multiple related links: `(See [[<X> Brief]], [[Y]], [[Z]])` — all wiki-links comma-separated, all inside one set of parens. No colon after "See".
+For multiple related links: `(See ~~[[<X> Brief]]~~, ~~[[Y]]~~, ~~[[Z]]~~)` — all wiki-links comma-separated, all inside one set of parens. No colon after "See".
 
 ## File structure
 
@@ -143,7 +143,7 @@ The brief file is just normal markdown. No frontmatter required. Both forms (inl
 ```markdown
 # <Source Name> Brief
 
-Editing-and-maintenance brief for [[<Source Name>]]. Read before adding rows, restructuring, or auditing.
+Editing-and-maintenance brief for ~~[[<Source Name>]]~~. Read before adding rows, restructuring, or auditing.
 
 ## What this page is for
 …
@@ -178,7 +178,7 @@ The H1 of the brief matches the file basename. No further structural constraints
 
 ## Related
 
-- [[Doc Facet]] / [[FCT Facets]] — parent catalog (Brief is a doc facet, peer to [[DAS Discussion]]).
+- ~~[[Doc Facet]]~~ / [[FCT Facets]] — parent catalog (Brief is a doc facet, peer to [[DAS Discussion]]).
 - [[DAS progressive-disclosure]] — the discipline Brief cites for its TLDR → Overview → Body → Brief reader-zone layering.
 - [[Briefs]] — vault-wide registry of files carrying inline `# BRIEF` H1 sections (Phase 1 form).
 - [[SV Roots Brief]] — worked example of the Phase 2 sidecar form.
@@ -209,7 +209,7 @@ The Phase-2 form is a sidecar `<Source Name> Brief.md` whose H1 is `# <Source Na
 
 The source points at its brief: a `Related` row listing the Brief **first**, or a `(See …)` line under the H1 when the source has no dispatch table.
 
-**Check pattern:** the source's `Related` cell leads with `[[<Source> Brief\|Brief]]`, or a `(See [[… Brief]])` line follows the H1.
+**Check pattern:** the source's `Related` cell leads with `~~[[<Source> Brief\|Brief]]~~`, or a `(See ~~[[… Brief]]~~)` line follows the H1.
 
 ### RULE R-brief-04 — Agent-facing only (stated)
 

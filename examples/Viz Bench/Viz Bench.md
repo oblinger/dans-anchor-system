@@ -5,7 +5,7 @@ description: "Viz Bench — a fixed set of reference figures drafted by differen
 # Viz Bench
 A benchmark for **figure-drafting techniques**: one fixed set of reference figures, each drafted by several techniques from a recorded starting point — so you can click any cell and see *what went in* (the spec, JSON, or natural text) and *what came out* (the rendered figure) for each approach, and pick the one that works best.
 
-| -[[Viz Bench]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [Viz Bench](hook://p/Viz%20Bench)<br>: figure-drafting techniques compared across a fixed reference set |
+| -[[Viz Bench]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [Viz Bench](hook://p/Viz%20Bench)<br>: figure-drafting techniques compared across a fixed reference set |
 | --- | --- |
 | Related | [[viz]] (the skill under test),  [[R-diagram]] / [[R-svg-jiggle]] (the Scribe rules),  [[drawio-skill]] (the Draw.io engine) |
 | Members | [[Gallery — Draw.io\|Draw.io Gallery]],  [[Gallery\|Scribe + D2 Gallery]],   |

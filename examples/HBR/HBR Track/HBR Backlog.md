@@ -1,10 +1,10 @@
 ---
-description: "workflow-state core (required for Track)"
+description: "work queue"
 ---
 # HBR Backlog
 Harbor's work queue — horizon H2s, one row per item, status in brackets.
 
-| -[[HBR Backlog]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[HBR]] → [[HBR Track]] → [HBR Backlog](hook://p/HBR%20Backlog)<br>: work queue |
+| -[[HBR Backlog]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[HBR]] → [[HBR Track]] → [HBR Backlog](hook://p/HBR%20Backlog)<br>: work queue |
 | --- | --- |
 | Anchor | [[HBR Track]] (parent) |
 | Related | [[HBR Features]],  [[HBR Roadmap]],   |

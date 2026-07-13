@@ -116,7 +116,7 @@ The single allowed way to stop while the hard rule is active is to **file a numb
 
 **The Q is legitimate only when BOTH gates pass:**
 
-1. **Significant chance the agent will guess incorrectly** — there's real uncertainty about the right answer. Per F068 + ask-format § Recommendation strength: a `Lean` or `Strong` recommendation means the agent CAN decide. Only `Recommendation: None` (genuine uncertainty — user-preference-dependent, missing context the agent doesn't have, or a real fork the agent has no basis to choose between) qualifies.
+1. **Significant chance the agent will guess incorrectly** — there's real uncertainty about the right answer. Per F068 + ask-format § Recommendation strength: a `lean` or `Strong` recommendation means the agent CAN decide. Only `Recommendation: None` (genuine uncertainty — user-preference-dependent, missing context the agent doesn't have, or a real fork the agent has no basis to choose between) qualifies.
 2. **Significant downside risk if the guess is wrong** — material consequence to the wrong call. Cheap-to-reverse mistakes (rename a variable, adjust a config default, edit a comment, pick one of two equally-defensible names) do NOT qualify — those are Drive's auto-decide territory per F068 (visible + low-recoverability). Costly mistakes do qualify: irreversible deploys, broken public API, lost data, contradictory architecture commitments that paint into a corner, interface-decision-sticky choices (durable file naming, frontmatter schemas, default keybindings).
 
 **Both gates must pass.** Either alone is insufficient:

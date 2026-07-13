@@ -5,7 +5,7 @@ status:: drafting
 # Mini Testing
 How Mini is verified: the kinds of test, how much of each, and the concrete inventory consistent with that strategy.
 
-| -[[Mini Testing]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[Mini]] → [Mini Testing](hook://p/Mini%20Testing)<br>: test strategy + proposed tests |
+| -[[Mini Testing]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[Mini]] → [Mini Testing](hook://p/Mini%20Testing)<br>: test strategy + proposed tests |
 | --- | --- |
 | Anchor | [[Mini Design]] (parent) |
 | Related | [[Mini PRD]],  [[DAS verification]],   |

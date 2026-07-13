@@ -1,5 +1,5 @@
 ---
-description: "a sub-topic page within the Knots Topic example"
+description: "knots that join two ropes end-to-end"
 ---
 
 # Knots Bends - Bends

@@ -1,7 +1,7 @@
 ---
 description: "2026 Vast ML Testing — ML experiment suites (distillation, interpretability, LLM probing) run on vast.ai GPUs"
 ---
-:>> [[ _ ]] > [[kmr]] > [[SYS]] > [[Bespoke]] > [EXP](hook://p/EXP)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [EXP](hook://p/EXP)
 # EXP System
 
 ## Documentation
@@ -45,3 +45,197 @@ exp build                          # ZIP experiments for deliverable bundle
 
 ## .
 . __ .
+[[Architect]] - 
+[[ASG]] - 
+[[templates/backlog]] - 
+[[completed-roadmap]] - 
+[[DAS Anchor Toolkit]] - 
+[[DAS Anchor Toolkit Design]] - 
+[[DAS Architect]] - 
+[[DAS Architect Design]] - 
+[[DAS Ask]] - 
+[[DAS Ask Design]] - 
+[[DAS ask-inline]] - 
+[[DAS Audit]] - 
+[[DAS Audit Design]] - 
+[[DAS Book]] - 
+[[dev/DAS Code]] - 
+[[DAS Code Design]] - 
+[[DAS Cook]] - 
+[[DAS Cook Design]] - 
+[[DAS Corp]] - 
+[[DAS Crank]] - 
+[[DAS Crank Design]] - 
+[[DAS Crank PRD]] - 
+[[DAS Create]] - 
+[[DAS Create Design]] - 
+[[DAS Ctrl]] - 
+[[DAS Ctrl Design]] - 
+[[DAS Design]] - 
+[[DAS Docs]] - 
+[[DAS Dupes]] - 
+[[DAS Dupes Design]] - 
+[[DAS Edit]] - 
+[[DAS Exp]] - 
+[[DAS Exp Design]] - 
+[[DAS Feature]] - 
+[[DAS Feature Design]] - 
+[[DAS Feature PRD]] - 
+[[DAS Finalize]] - 
+[[DAS Finalize Design]] - 
+[[DAS Finalize PRD]] - 
+[[DAS Find]] - 
+[[DAS Find Design]] - 
+[[DAS Fix]] - 
+[[DAS Fix Design]] - 
+[[DAS Fortify]] - 
+[[DAS Fortify Design]] - 
+[[DAS Fortify PRD]] - 
+[[DAS Groom]] - 
+[[DAS Groom Design]] - 
+[[DAS Groom PRD]] - 
+[[DAS Install]] - 
+[[DAS Install Design]] - 
+[[DAS IO]] - 
+[[DAS Land]] - 
+[[DAS Land Design]] - 
+[[DAS Land PRD]] - 
+[[DAS Maintain]] - 
+[[DAS Maintain Design]] - 
+[[DAS MD]] - 
+[[DAS MD Design]] - 
+[[DAS Meta Survey]] - 
+[[DAS Migrate]] - 
+[[DAS Migrate Design]] - 
+[[DAS Mint]] - 
+[[DAS Mint Design]] - 
+[[DAS Mint PRD]] - 
+[[DAS Move Design]] - 
+[[anchor/DAS Move]] - 
+[[DAS Parley]] - 
+[[DAS Parley Design]] - 
+[[DAS Person]] - 
+[[DAS Pilot Flow]] - 
+[[DAS Pilot Flow Design]] - 
+[[DAS Plan]] - 
+[[DAS PR Flow]] - 
+[[DAS PR Flow Design]] - 
+[[DAS Product]] - 
+[[DAS Profile]] - 
+[[DAS Profile Design]] - 
+[[DAS Publish]] - 
+[[DAS Publish Design]] - 
+[[DAS Purchase]] - 
+[[DAS Purchase Design]] - 
+[[DAS Research]] - 
+[[DAS Research Skill]] - 
+[[DAS Rewire]] - 
+[[DAS Rewire Design]] - 
+[[DAS Rulesets]] - 
+[[DAS Search Overview]] - 
+[[search/DAS Skill]] - 
+[[DAS Slug Scan]] - 
+[[DAS Slug Scan Design]] - 
+[[DAS Snip]] - 
+[[DAS Snip Design]] - 
+[[DAS Software]] - 
+[[DAS Streams]] - 
+[[DAS Streams Design]] - 
+[[DAS Survey]] - 
+[[DAS Survey Design]] - 
+[[DAS Templates]] - 
+[[DAS Tidy]] - 
+[[DAS Tidy Design]] - 
+[[DAS Tracking Design]] - 
+[[DAS Viz]] - 
+[[DAS Viz Design]] - 
+[[anchor/DAS WP]] - 
+[[DAS WP Design]] - 
+[[DAS Yore]] - 
+[[DAS Yore Design]] - 
+[[templates/decisions]] - 
+[[Diagram]] - 
+[[disciplines]] - 
+[[examples]] - 
+[[docs/EXP]] - 
+[[facets]] - 
+[[library]] - 
+[[messages]] - 
+[[templates/prd]] - 
+[[query]] - 
+[[Query PRD]] - 
+[[R-anchor]] - 
+[[R-api]] - 
+[[R-arch]] - 
+[[R-backlog]] - 
+[[R-brief]] - 
+[[R-bringhurst-typography]] - 
+[[R-c4]] - 
+[[R-code]] - 
+[[R-completed-roadmap]] - 
+[[R-dated-entry-stream]] - 
+[[R-design]] - 
+[[R-design-gate]] - 
+[[R-diagram]] - 
+[[R-diagram-geometry]] - 
+[[R-discussion]] - 
+[[R-doc]] - 
+[[R-exception-discipline]] - 
+[[R-facet]] - 
+[[R-factory-pegboard]] - 
+[[R-file-association]] - 
+[[R-git]] - 
+[[R-interfaces-folder]] - 
+[[R-layering]] - 
+[[R-log]] - 
+[[R-mac]] - 
+[[R-markdown]] - 
+[[R-md]] - 
+[[R-messages]] - 
+[[R-naming]] - 
+[[R-ob]] - 
+[[R-ob-cmd-proc]] - 
+[[R-ob-observability]] - 
+[[R-ob-remote-ops]] - 
+[[R-ob-state-mgt]] - 
+[[R-one-path]] - 
+[[R-openspec]] - 
+[[R-ownership]] - 
+[[R-paper]] - 
+[[R-pathguard]] - 
+[[R-prd]] - 
+[[R-process]] - 
+[[R-progressive]] - 
+[[R-query]] - 
+[[R-roadmap]] - 
+[[R-simple]] - 
+[[R-single-source-of-truth]] - 
+[[R-skill]] - 
+[[R-skill-anchor]] - 
+[[R-stable-ids]] - 
+[[R-status]] - 
+[[R-stories]] - 
+[[R-sugiyama]] - 
+[[R-svg-hygiene]] - 
+[[R-svg-jiggle]] - 
+[[R-test]] - 
+[[R-testing]] - 
+[[R-topic]] - 
+[[R-track-group]] - 
+[[R-trait]] - 
+[[R-tufte-data-ink]] - 
+[[R-ux]] - 
+[[R-wcag-contrast]] - 
+[[R-wrapper-cli]] - 
+[[rulesets/README]] - 
+[[Rulesets Brief]] - 
+[[skill-docs]] - 
+[[status]] - 
+[[templates/log]] - 
+[[templates/roadmap]] - 
+[[templates/testing]] - 
+[[traits]] - 
+[[Warden]] - 
+[[{slug} Log]] - 
+[[{slug} Track]] - 
+[[{{YYYY-MM-DD}} — {{short topic}}]] -

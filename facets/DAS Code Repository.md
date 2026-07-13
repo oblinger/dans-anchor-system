@@ -31,7 +31,7 @@ value is the path to the repository — absolute, or relative to the anchor
 root.
 
 The presence of the `code:` key *is* the declaration that code belongs to
-this anchor; no `Code` symlink is used.
+this anchor; no `code` symlink is used.
 
 ```yaml
 # .anchor at the anchor root
@@ -134,7 +134,7 @@ Scripts and skills read `.anchor` and resolve the `code:` value as follows:
 
 There is no implicit fallback. If an anchor has the `code` trait but no
 `code:` key, scripts must error. No probing for `.git/` at the anchor
-root, no legacy `Code` symlink lookup.
+root, no legacy `code` symlink lookup.
 
 ## Inline vs linked
 
@@ -215,12 +215,12 @@ An anchor with the `code` trait carries a `code:` key in its `.anchor`; its pres
 
 **Check pattern:** if `traits` contains `code`, assert a non-empty `code:` key in `.anchor`.
 
-**Why:** the `code:` key is the single source of truth — there is no `Code` symlink and no path-convention fallback.
+**Why:** the `code:` key is the single source of truth — there is no `code` symlink and no path-convention fallback.
 
 ### RULE R-code-repository-02 — No implicit fallback when `code:` is absent (checked)
 check:: no_git_probe_fallback
 
-A `code`-trait anchor with no `code:` key is an error — scripts must fail, never probe for `.git/` at the anchor root or look up a legacy `Code` symlink.
+A `code`-trait anchor with no `code:` key is an error — scripts must fail, never probe for `.git/` at the anchor root or look up a legacy `code` symlink.
 
 **Check pattern:** resolver errors (does not silently locate a repo) when the trait is present but `code:` is missing.
 

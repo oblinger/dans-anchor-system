@@ -91,8 +91,8 @@ CLAUDE.md prose, inline conventions in SKILL.md, and unstructured rule-flavored 
 
 Per [[F082]] Q3 + [[F090 — Retire CAB Types, unify under Traits, Facets-as-Traits-by-file-existence|F090]]: traits are the categorization axis. Each anchor's traits are read from `.anchor`:
 
-1. **Preferred (post-F090):** `traits: [Code, Skill]` (list).
-2. **Legacy fallback (pre-F090):** `cab-type: code` → trait `Code` (capitalized).
+1. **Preferred (post-F090):** `traits: [code, skill]` (list).
+2. **Legacy fallback (pre-F090):** `cab-type: code` → trait `code` (capitalized).
 3. **Neither:** the anchor's rules land in the "Unknown-trait rules" section.
 
 Rules from a multi-trait anchor (Code + Skill) contribute to **both** trait groups.

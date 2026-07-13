@@ -135,7 +135,7 @@ Valid values: `drafting | in-review | accepted`. Acceptance is the Gate 2 signal
 
 ## Trait applicability
 
-Available to any anchor that ships testable behavior — primarily `Code` trait but `Skill` and `Publishable` anchors with verifiable outputs may use it too. Most anchors with no shipping code (e.g., pure `Topic` anchors) won't carry this facet.
+Available to any anchor that ships testable behavior — primarily `code` trait but `skill` and `Publishable` anchors with verifiable outputs may use it too. Most anchors with no shipping code (e.g., pure `topic` anchors) won't carry this facet.
 
 ## Relationship to existing infrastructure
 

@@ -54,17 +54,18 @@ CLI submits tasks to the **Scheduler**, which dispatches to the **Worker Pool**,
 | [[HBR]] | **Common Anchor Example** — the fully-wired worked-example anchor (PRD / UX / API / Architecture / Decisions / Testing / Roadmap / Features), cited by the FCT facet specs as the **minimal** reference instance. Relocated here from `CAB/` 2026-06-27. |
 | [[Architecture/HBR Architecture]] | system architecture |
 | [[Decisions/HBR Decisions]] | durable rulings |
+| [[PRD/HBR PRD]] | product requirements |
 | [[HBR PRD User Stories]] | audited excerpt — the inline `## User Stories` section of HBR PRD (inline-subsection form, US-HBR-1..5) |
 | [[Testing/HBR Testing]] | test strategy + proposed-tests overview |
 | [[HWP]] | a short whitepaper on the Harbor media server — the worked Paper anchor example |
 | [[Knots]] | **Knots** — a tiny **Topic** anchor: a no-code evergreen knowledge hub routing to sub-topics ( |
 | [[Mini]] | tiny example project — the MINIMAL design-docs world for F178 |
 | [[Decisions/Mini Decisions]] | durable rulings for Mini |
+| [[PRD/Mini PRD]] | product requirements — what Mini does and the one story it must deliver |
 | [[Testing/Mini Testing]] | test strategy + proposed tests |
 | [[Architecture/MUX Architecture]] | top-level architecture facet — subsystem decomposition with bidirectional module links |
 | [[Architecture/OBU Architecture]] | system architecture |
 | [[PRD/OBU PRD]] | product requirements — ob-utils shared utilities library, one spec across languages |
-| [[PRD/Mini PRD]] | product requirements — what Mini does and the one story it must deliver |
 | [[SKA Bridge Testing]] | SKA Bridge Testing — strategy + proposed-tests overview |
 | [[SKL CSE]] |  |
 | [[Snap]] |  |

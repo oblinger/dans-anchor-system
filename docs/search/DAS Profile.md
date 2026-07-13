@@ -13,6 +13,6 @@ description: "skim → click into the rule that applies"
 
 Invoke: *"describe Acme Corp"* / *"profile John Smith"* / *"dig into the Pixel 9."*
 
-Outputs: [[Profile]] (`~/ob/kmr/Topic/Search/Profile/`).
+Outputs: ~~[[Profile]]~~ (`~/ob/kmr/Topic/Search/Profile/`).
 
 Skill: [[profile/SKILL|describe/SKILL.md]] · Rules trait: [[skill-search-rules]] · Composition: [[DAS Search Overview]].
