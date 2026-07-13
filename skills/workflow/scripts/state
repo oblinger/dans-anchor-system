@@ -1098,6 +1098,23 @@ def _v2_row_define(slug, backlog_path, label, args, minted=False):
     row_body = (m.group("body") or "").strip()
     sub_lines = [l for l in body_lines[1:] if l.strip()]
 
+    # A `- **Next:**` / `- **Verify:**` sub-bullet in the define body IS the
+    # status promise — thread it through the guard (which otherwise refuses
+    # Ready/Active/Verify rows as promise-less) and let perform_edit place it,
+    # rather than raw-attaching it after the guard already rejected the row.
+    next_text = verify_text = None
+    kept_subs = []
+    for l in sub_lines:
+        nm = re.match(r"^\s*-\s+\*\*Next:\*\*\s*(.+)$", l)
+        vm = re.match(r"^\s*-\s+\*\*Verify:\*\*\s*(.+)$", l)
+        if nm and next_text is None:
+            next_text = nm.group(1).strip()
+        elif vm and verify_text is None:
+            verify_text = vm.group(1).strip()
+        else:
+            kept_subs.append(l)
+    sub_lines = kept_subs
+
     icebox_path = be.find_icebox(slug)
     exists = be.row_in_file(backlog_path, label) or bool(
         icebox_path and be.row_in_file(icebox_path, label)
@@ -1112,6 +1129,7 @@ def _v2_row_define(slug, backlog_path, label, args, minted=False):
     result_code = _delegate_row_edit(
         slug, horizon, label, status, title, row_body,
         title_provided=True, body_provided=True,
+        verify_text=verify_text, next_text=next_text,
     )
     if sub_lines:
         icebox_path = be.find_icebox(slug)  # may have just been created
