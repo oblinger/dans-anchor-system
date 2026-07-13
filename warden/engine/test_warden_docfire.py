@@ -96,7 +96,7 @@ def test_signature_matches_audit_plan():
 ONWRITE_FIXTURE = """\
 # RULESET R-onwrite-fx
 
-where:: `file:{ANCHOR}/**/*.md`
+where:: `file:{anchor}/**/*.md`
 description:: M4a on-write fixture — one fixable rule, one message-only rule
 
 ### RULE R-onwrite-fx-01 — no trailing whitespace (checked)

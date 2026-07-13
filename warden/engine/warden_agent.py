@@ -450,6 +450,12 @@ class TurnView:
 
 # ── ask_oracle — the judgment verb (F217 § Judgment gating) ──────────────────
 
+# Audit 2026-07-12 W6: cache writes are merge-under-lock + tmp/os.replace —
+# concurrent handler threads used to last-writer-win (lost entries) and a torn
+# write_text could reset the whole cache on the next load.
+_ORACLE_LOCK = threading.Lock()
+
+
 def ask_oracle(prompt: str, timeout: float = 60.0) -> str:
     """One blocking oracle judgment → its reply text. Audit-path machinery:
     fail-silent ('' on any failure — a rule gating on a `yes` sentinel then
@@ -480,8 +486,20 @@ def ask_oracle(prompt: str, timeout: float = 60.0) -> str:
         reply = out.stdout.strip() if out.returncode == 0 else ""
         if reply:
             home.mkdir(parents=True, exist_ok=True)
-            cache[key] = reply
-            cache_p.write_text(json.dumps(cache), encoding="utf-8")
+            # Audit 2026-07-12 W6: re-read + merge under the lock (a sibling
+            # thread may have cached its own reply since our read above), then
+            # replace atomically. The subprocess call stays outside the lock.
+            with _ORACLE_LOCK:
+                fresh: dict = {}
+                if cache_p.is_file():
+                    try:
+                        fresh = json.loads(cache_p.read_text(encoding="utf-8"))
+                    except ValueError:
+                        fresh = {}
+                fresh[key] = reply
+                tmp = cache_p.with_suffix(".json.tmp")
+                tmp.write_text(json.dumps(fresh), encoding="utf-8")
+                _os.replace(tmp, cache_p)
         return reply
     except Exception:  # noqa: BLE001 — fail-silent (conservative: rule stays quiet)
         return ""

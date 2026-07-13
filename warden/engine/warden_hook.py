@@ -109,6 +109,33 @@ def event_to_moments(data: dict) -> list[str]:
     return []
 
 
+# ── stale-path self-check (Audit 2026-07-12 W2) ─────────────────────────────
+
+def _stale_paths(ir: dict) -> list[str]:
+    """Dead absolute paths in the compiled state — the IR `root` and the
+    `daemon.cmd` script are snapshots taken at `warden compile` time; after a
+    repo move/rename they dangle and the whole veto + doc-fire surface
+    silently no-ops (Audit 2026-07-12 W2 — the exact ob-skills→dans-anchor-system
+    incident). One line per dead path; empty = healthy. Detection only —
+    callers warn loudly but stay fail-open."""
+    out: list[str] = []
+    root = ir.get("root") or ""
+    if root and not Path(root).is_dir():
+        out.append(f"compiled IR root missing: {root}")
+    cmd_p = warden_home() / "daemon.cmd"
+    if cmd_p.is_file():
+        try:
+            import shlex
+            toks = shlex.split(cmd_p.read_text(encoding="utf-8").strip())
+        except (OSError, ValueError):
+            toks = []
+        # daemon.cmd is `python3 <script> --serve` — the script is token 2.
+        for t in toks[1:2]:
+            if t and not Path(t).is_file():
+                out.append(f"daemon.cmd target missing: {t}")
+    return out
+
+
 # ── anchor resolution ────────────────────────────────────────────────────────
 
 def find_anchor(start: Path) -> Path | None:
@@ -242,12 +269,25 @@ def dispatch(data: dict) -> list[str]:
         return []
     ir, module = wf.load_compiled(wdir, "all")
 
+    # Audit 2026-07-12 W2: loudly surface compiled-state paths that no longer
+    # resolve (repo moved/renamed) — fail-open, so dispatch continues on
+    # whatever still works, but the staleness is never symptom-free again.
+    stale = _stale_paths(ir)
+    if stale:
+        detail = "; ".join(stale)
+        _log(f"STALE — {detail} (repo moved? run `warden install`)")
+        print(f"warden: STALE — {detail} (repo moved? run `warden install`)",
+              file=sys.stderr)
+
     # F131: the pending tool call as an injected object — veto-path rules test
     # `event.tool` / `event.target` / `event.input` before the call lands.
     import types
     event_view = types.SimpleNamespace(
         tool=_str(data.get("tool_name")), target=event_fp, input=tool_input)
     steers: list[str] = []
+    if stale and "session:start" in moments:
+        steers.append(f"[warden] STALE compiled state — {detail}; "
+                      "run `warden install` (rules are NOT enforcing until then)")
     for moment in moments:
         anchor_root = anchor_file or anchor_cwd
         if anchor_root is None:

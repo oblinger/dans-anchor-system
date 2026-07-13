@@ -6,6 +6,6 @@ description: Warden queries — mechanically rendered from the backlog by triage
 
 ## Ready
 - [[Warden Backlog#^B-QFix|B-QFix]] — **Next:** Fix the next residual below at its source (repoint a renamed link, de-link a retired one, correct the flagged doc), then re-run `/audit q` to clear it — per the 100%-fix discipline.
-- [[Warden Backlog#^T017|T017]] — **Next:** Fix W2 (path self-check at hook entry / SessionStart), then W4 (length-prefixed framing or bigger cap + logged parse failure), then W5 (bind full ctx surface into synth guards)
+- [[Warden Backlog#^T017|T017]] — **Next:** `warden compile` + daemon restart to pick up the engine fixes (warden-rs already rebuilt); then two surfaced follow-ons: fix R-fex-bundle-02's unbound `fex_bundle` if:: (real W5-class bug, warned at...
 ## Questions
 - [[Warden Backlog#^T009|T009]] **(2Q)** — Follow-on from T008: adding [[R-naming]] to the R-doc umbrella (= naming checked on every anchored md write) was attempted and reverted — a sweep measured 376...

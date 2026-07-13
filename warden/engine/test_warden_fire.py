@@ -22,7 +22,7 @@ sys.path.insert(0, str(HERE))
 import warden_compile as wc   # noqa: E402
 import warden_fire as wf      # noqa: E402
 
-FCT_QUERY = REPO / "facets" / "FCT Track" / "FCT Query.md"
+FCT_QUERY = REPO / "facets" / "DAS Query.md"   # F229 rename (was facets/FCT Track/FCT Query.md)
 
 # A synthesized ruleset with two when-rules on DIFFERENT moments; each body
 # records a distinct marker so we can prove only one executes per moment.

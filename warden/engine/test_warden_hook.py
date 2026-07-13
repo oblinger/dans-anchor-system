@@ -332,6 +332,53 @@ def test_emit_deny_shape():
     print("PASS  emit_deny_shape (F131)")
 
 
+def test_stale_paths_surfaced():
+    """Audit 2026-07-12 W2: compiled state whose absolute-path snapshots dangle
+    (repo moved/renamed) is detected, logged, and steered at session:start —
+    while dispatch stays fail-open (no exception, no block)."""
+    # healthy compiled home → no stale findings
+    home = _compiled_home()
+    healthy = json.loads((home / "rules-ir.json").read_text(encoding="utf-8"))
+    old = os.environ.get("WARDEN_HOME")
+    os.environ["WARDEN_HOME"] = str(home)
+    try:
+        assert wh._stale_paths(healthy) == [], wh._stale_paths(healthy)
+    finally:
+        os.environ["WARDEN_HOME"] = old if old else str(home)
+    # a moved-repo home: dead IR root + dead daemon.cmd target
+    with tempfile.TemporaryDirectory() as td:
+        stale_home = Path(td) / "home"
+        stale_home.mkdir()
+        (stale_home / "rules-ir.json").write_text(json.dumps(
+            {"root": "/nonexistent/w2-moved", "rules": {}, "moments": {},
+             "traits": {}}), encoding="utf-8")
+        (stale_home / "daemon.cmd").write_text(
+            "python3 '/nonexistent/w2 moved/warden_daemon.py' --serve\n",
+            encoding="utf-8")
+        os.environ["WARDEN_HOME"] = str(stale_home)
+        try:
+            anchor = _anchor(Path(td), "Commit")
+            found = wh._stale_paths(json.loads(
+                (stale_home / "rules-ir.json").read_text(encoding="utf-8")))
+            assert len(found) == 2, found
+            assert "compiled IR root missing: /nonexistent/w2-moved" in found[0], found
+            assert "/nonexistent/w2 moved/warden_daemon.py" in found[1], found
+            # session:start → a loud agent-visible steer, still fail-open
+            steers = wh.dispatch({"hook_event_name": "SessionStart",
+                                  "cwd": str(anchor)})
+            assert len(steers) == 1 and steers[0].startswith(
+                "[warden] STALE compiled state"), steers
+            assert "run `warden install`" in steers[0], steers
+            # other moments: logged but not steered (no per-call spam)
+            assert wh.dispatch({"hook_event_name": "PostToolUse",
+                                "tool_name": "Bash", "cwd": str(anchor)}) == []
+            log = (stale_home / "hook.log").read_text(encoding="utf-8")
+            assert "STALE" in log and "w2-moved" in log, log
+        finally:
+            os.environ["WARDEN_HOME"] = old if old else str(home)
+    print("PASS  stale_paths_surfaced (Audit 2026-07-12 W2)")
+
+
 def main():
     test_event_to_moments()
     test_kill_switch()
@@ -341,6 +388,7 @@ def main():
     test_pathguard_veto()
     test_bridge_guard()
     test_emit_deny_shape()
+    test_stale_paths_surfaced()
     print("\nall warden_hook tests passed")
     return 0
 

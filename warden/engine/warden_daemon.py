@@ -82,17 +82,30 @@ def pid_path() -> Path:
 class Corpus:
     """The compiled IR + rules module, held warm; reloads when the artifacts
     change on disk (cheap mtime stat per request). Reload is lock-guarded
-    (T013 — concurrent handler threads must not reload twice or read a
-    half-swapped pair); readers take `self.ir`/`self.module` references,
-    which swap atomically under the GIL."""
+    (T013 — concurrent handler threads must not reload twice); readers grab
+    the `(ir, module)` pair via `snapshot()` — ONE reference read (Audit
+    2026-07-12 W7: `self.ir, self.module = …` was two attribute stores, so a
+    reader could pair a new IR with an old module across a concurrent reload)."""
 
     def __init__(self, home: Path):
         self.home = home
-        self.ir: dict = {}
-        self.module = None
+        self._pair: tuple = ({}, None)
         self._stamp: tuple = ()
         self._lock = threading.Lock()
         self.reload()
+
+    @property
+    def ir(self) -> dict:
+        return self._pair[0]
+
+    @property
+    def module(self):
+        return self._pair[1]
+
+    def snapshot(self) -> tuple:
+        """The (ir, module) pair as one atomic reference grab (Audit
+        2026-07-12 W7) — always internally consistent, even mid-reload."""
+        return self._pair
 
     def _artifact_stamp(self) -> tuple:
         stamp = []
@@ -103,7 +116,7 @@ class Corpus:
 
     def reload(self) -> None:
         with self._lock:
-            self.ir, self.module = wf.load_compiled(self.home, "all")
+            self._pair = tuple(wf.load_compiled(self.home, "all"))
             self._stamp = self._artifact_stamp()
 
     def fresh(self) -> None:
@@ -127,6 +140,9 @@ def _fire_rules(corpus: Corpus, req: dict) -> dict:
     moment = req["moment"]
     anchor_root = Path(req["anchor_root"])
     rule_ids = req.get("rule_ids", [])
+    # Audit 2026-07-12 W7: one snapshot for the whole request — reading
+    # corpus.ir / corpus.module separately could straddle a concurrent reload.
+    ir, module = corpus.snapshot()
     # F216: record the moment in the session registry/ledger and bind the
     # agent-state view. The ledger holds the moments this daemon sees (owed
     # round-trips); full history comes from the transcript tail, which the
@@ -146,7 +162,7 @@ def _fire_rules(corpus: Corpus, req: dict) -> dict:
     ctx = wf.build_ctx(anchor_root, moment, agent=agent,
                        file_path=req.get("file_path") or None,
                        event=event_view)
-    traits = wf.effective_traits(corpus.ir, anchor_root)
+    traits = wf.effective_traits(ir, anchor_root)
     # F217 loop prevention (wall 2): a turn-bearing rule fires once per
     # (rule, session, turn) — a Stop-steer continuation extends the SAME turn
     # (no new prompt:submit), so the extended turn cannot re-trigger the rule
@@ -154,7 +170,7 @@ def _fire_rules(corpus: Corpus, req: dict) -> dict:
     tkey = wa.turn_key(agent._records()) if session else None
     by_rule: dict[str, list[str]] = {}
     for rid in rule_ids:
-        row = corpus.ir.get("rules", {}).get(rid)
+        row = ir.get("rules", {}).get(rid)
         if row is None:
             by_rule[rid] = []
             continue
@@ -165,9 +181,9 @@ def _fire_rules(corpus: Corpus, req: dict) -> dict:
                 if dedup in TURN_FIRED:
                     by_rule[rid] = []
                     continue
-        one = dict(corpus.ir)
+        one = dict(ir)
         one["moments"] = {moment: [rid]}
-        by_rule[rid] = wf.fire(one, corpus.module, moment, ctx, traits)
+        by_rule[rid] = wf.fire(one, module, moment, ctx, traits)
         if by_rule[rid] and dedup:
             with _TURN_LOCK:
                 if dedup not in TURN_FIRED:
@@ -210,13 +226,26 @@ def _safe_handle(corpus: Corpus, req: dict) -> dict:
 
 # ── server loop ──────────────────────────────────────────────────────────────
 
-def _recv_line(conn: socket.socket, limit: int = 4 * 1024 * 1024) -> bytes:
+class RequestTooLarge(OSError):
+    """A request line past the read cap with no newline — truncated mid-JSON
+    (Audit 2026-07-12 W4). Distinct so the server can answer with an explicit
+    error instead of parsing the truncation to `{}` (which used to silently
+    skip an owed tool:pre veto)."""
+
+
+def _recv_line(conn: socket.socket, limit: int = 64 * 1024 * 1024) -> bytes:
     buf = b""
     while b"\n" not in buf and len(buf) < limit:
         chunk = conn.recv(65536)
         if not chunk:
             break
         buf += chunk
+    # Audit 2026-07-12 W4: hitting the cap without a newline means the payload
+    # was cut mid-string — never hand truncated bytes to json.loads. (The cap
+    # itself was raised 4 MB → 64 MB: a large Write/Edit tool_input must reach
+    # the veto rules whole.)
+    if b"\n" not in buf and len(buf) >= limit:
+        raise RequestTooLarge(f"request exceeds {limit} bytes with no newline")
     return buf.split(b"\n", 1)[0]
 
 
@@ -226,7 +255,15 @@ def _serve_conn(corpus: Corpus, conn: socket.socket,
     close. A shutdown request answers first, then signals the accept loop."""
     try:
         conn.settimeout(30.0)
-        line = _recv_line(conn)
+        try:
+            line = _recv_line(conn)
+        except RequestTooLarge as e:
+            # Audit 2026-07-12 W4: answer loudly (the Rust client logs a non-ok
+            # response); fail-open — the caller skips the owed steers.
+            wh._log(f"DAEMON ERROR request truncated: {e}")
+            conn.sendall(json.dumps(
+                {"ok": False, "error": f"request truncated: {e}"}).encode("utf-8") + b"\n")
+            return
         try:
             req = json.loads(line) if line.strip() else {}
         except ValueError:
@@ -312,6 +349,16 @@ def serve(idle_exit: float) -> int:
             wh._log(f"DAEMON ERROR corpus load failed pid={os.getpid()}: "
                      f"{type(e).__name__}: {e}")
             raise
+        # Audit 2026-07-12 W2: a repo move/rename leaves the compiled state
+        # pointing at dead paths and the whole surface silently no-ops. Stay
+        # up (fail-open — the ~/.warden artifacts still serve) but say so
+        # loudly on every start.
+        root = corpus.ir.get("root") or ""
+        if root and not Path(root).is_dir():
+            msg = (f"STALE — compiled IR root missing: {root} "
+                   "(repo moved? run `warden install`)")
+            wh._log(f"DAEMON {msg}")
+            print(f"warden: {msg}", file=sys.stderr)
         wh._log(f"DAEMON up pid={os.getpid()} ({len(corpus.ir.get('rules', {}))} rules preloaded)")
 
         while not stop_evt.is_set():

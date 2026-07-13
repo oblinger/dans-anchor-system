@@ -31,6 +31,7 @@ import difflib
 import hashlib
 import json
 import os
+import threading
 from pathlib import Path
 
 
@@ -50,12 +51,16 @@ class RevalStore:
     record = {"hash": …, "text": …, "verdict": …}. Written atomically
     (tmp + rename); reloaded when the file changes on disk (the daemon holds
     one warm instance, but a `warden compile`-style external reset must win).
+    Lock-guarded (Audit 2026-07-12 W6): the daemon is thread-per-connection,
+    and two handler threads racing the load-mutate-replace in
+    `mark_evaluated` used to last-writer-win, dropping the other's record.
     """
 
     def __init__(self, home: Path | None = None):
         self.path = (home or warden_home()) / "reval.json"
         self._data: dict[str, dict] = {}
         self._mtime: int = -1
+        self._lock = threading.RLock()
         self._load()
 
     @staticmethod
@@ -78,8 +83,9 @@ class RevalStore:
 
     def record(self, rule_id: str, file_path: Path | str) -> dict | None:
         """The last-evaluated record for (rule, file), or None on first pass."""
-        self._load()
-        return self._data.get(self._key(rule_id, file_path))
+        with self._lock:
+            self._load()
+            return self._data.get(self._key(rule_id, file_path))
 
     def verdict(self, rule_id: str, file_path: Path | str):
         """The persisted verdict — what the last full evaluation produced.
@@ -92,29 +98,35 @@ class RevalStore:
     def mark_evaluated(self, rule_id: str, file_path: Path | str,
                        text: str, verdict=None) -> None:
         """Advance the record to `text` — called ONLY after the rule's body
-        actually executed against that revision."""
-        self._load()
-        self._data[self._key(rule_id, file_path)] = {
-            "hash": _hash(text), "text": text, "verdict": verdict}
-        tmp = self.path.with_suffix(".json.tmp")
-        try:
-            self.path.parent.mkdir(parents=True, exist_ok=True)
-            tmp.write_text(json.dumps(self._data), encoding="utf-8")
-            os.replace(tmp, self.path)
-            self._mtime = self.path.stat().st_mtime_ns
-        except OSError:
-            pass  # fail-safe: a store write failure must never break the fire
+        actually executed against that revision. The whole load-mutate-replace
+        runs under the lock (Audit 2026-07-12 W6)."""
+        with self._lock:
+            self._load()
+            self._data[self._key(rule_id, file_path)] = {
+                "hash": _hash(text), "text": text, "verdict": verdict}
+            tmp = self.path.with_suffix(".json.tmp")
+            try:
+                self.path.parent.mkdir(parents=True, exist_ok=True)
+                tmp.write_text(json.dumps(self._data), encoding="utf-8")
+                os.replace(tmp, self.path)
+                self._mtime = self.path.stat().st_mtime_ns
+            except OSError:
+                pass  # fail-safe: a store write failure must never break the fire
 
 
 _STORE: RevalStore | None = None
+_STORE_LOCK = threading.Lock()
 
 
 def store() -> RevalStore:
-    """The process-wide store (the daemon's warm instance)."""
+    """The process-wide store (the daemon's warm instance). Creation is
+    lock-guarded (Audit 2026-07-12 W6) — two handler threads racing the
+    singleton check would otherwise each write through a private instance."""
     global _STORE
-    if _STORE is None or _STORE.path != warden_home() / "reval.json":
-        _STORE = RevalStore()
-    return _STORE
+    with _STORE_LOCK:
+        if _STORE is None or _STORE.path != warden_home() / "reval.json":
+            _STORE = RevalStore()
+        return _STORE
 
 
 # ── the lazy views a gated rule reads ────────────────────────────────────────
