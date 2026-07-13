@@ -8,6 +8,7 @@ The asking surface: one `{slug} queries.md` per anchor, in `{slug} Track/`, that
 
 **Related:** [[DAS Ask]] (the skill that builds it),  [[DAS Status]],  [[DAS Messages]]
 **Examples:** [[SKA queries\|real instance (SKA anchor)]]
+**Rules:** [[#RULESET R-query|R-query]]
 
 | Table of Contents |  |
 |---|---|

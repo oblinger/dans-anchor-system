@@ -2,12 +2,13 @@
 description: "the Log facet — dated entries capturing what happened on what day, in folder or single-file form"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Track]] → [FCT Log](hook://p/DAS%20Log)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Log](hook://p/DAS%20Log)
 # FCT Log
 Facet spec defining the standardized format for an anchor's running narrative — dated entries capturing what happened on what day, in either folder form (default) or single-file form (minimal).
 
 **Related:** [[FCT Backlog]],  [[DAS Roadmap]],  [[DAS Anchor Page]],  [[DAS Track]]
 **Examples:** [[Disk Log\|folder-form (conformant)]],  [[SV Log\|folder-form (mixed-format entries)]]
+**Rules:** [[#RULESET R-log|R-log]] · [[DAS dated-entry-stream#RULESET R-dated-entry-stream|R-dated-entry-stream]]
 
 | Table of Contents |  |
 |---|---|

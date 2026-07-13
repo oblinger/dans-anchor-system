@@ -8,6 +8,7 @@ The Roadmap facet — the project's sequencing-design doc, organized as named mi
 
 **Related:** [[DAS Features]],  [[DAS Completed Roadmap]],  [[DAS Status]],  [[DAS Design Folder]]
 **Examples:** [[FEX Roadmap\|Shape A named-milestone]],  [[HBR Roadmap\|Shape B legacy-numbered]]
+**Rules:** [[#RULESET R-roadmap|R-roadmap]]
 
 | Table of Contents |  |
 |---|---|

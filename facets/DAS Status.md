@@ -8,6 +8,7 @@ One file per anchor that tracks design-phase completeness, one dataview line per
 
 **Related:** [[FCT Backlog]],  [[DAS Roadmap]],  [[design]],  [[workflow]]
 **Examples:** [[HBR Status\|example]]
+**Rules:** [[#RULESET R-status|R-status]]
 
 | Table of Contents |  |
 |---|---|

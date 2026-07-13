@@ -14,6 +14,30 @@ Progressive disclosure is *layered information presentation — each layer deliv
 - **Content first, meta last** — the first contentful sentence delivers the subject, not the document. "This document specifies..." goes in a tail `## Scope` section, or gets deleted.
 - **Per-facet preface requirements** — TLDR required on Features only (PRDs explicitly excluded); figure required on Architecture + UX.
 
+| Table of Contents |  |
+|---|---|
+| **[[#Why this exists — the problem it solves]]** |  |
+| **[[#The three levels of progressive disclosure]]** |  |
+|    [[#The tree of containers (the general rule)]] |  |
+| **[[#The preface zone]]** |  |
+| **[[#Content first. Meta last, or never.]]** |  |
+|    [[#Five tests]] |  |
+|    [[#Canonical good example]] |  |
+|    [[#Bad vs good — same H1, same topic]] |  |
+| **[[#Dispatch-table patterns]]** |  |
+|    [[#Anchor / folder dispatch — three patterns]] |  |
+|    [[#Separator-row alignment (existing CAB convention)]] |  |
+|    [[#Within-document dispatch — two patterns]] |  |
+| **[[#Size-based pattern selection (anchor / folder dispatch)]]** |  |
+| **[[#Per-facet preface requirements]]** |  |
+| **[[#TLDR formatting]]** |  |
+| **[[#Figure placement]]** |  |
+| **[[#Relationship to existing facets and skills]]** |  |
+| **[[#Anti-patterns]]** |  |
+|    [[#RULE R-progressive-01 — never both a dispatch-masthead and a `:>>` breadcrumb (checked)]] |  |
+|    [[#RULE R-progressive-02 — progressive-disclosure section spacing (checked)]] |  |
+|    [[#RULE R-progressive-03 — Standard doc head: breadcrumb → H1 → orientation line (stated)]] |  |
+
 This is a discipline, not a user-invocable skill — other CAB facets and skills cite it via `[[DSC progressive-disclosure]]` and Claude Code loads it into context before they run.
 
 
@@ -134,30 +158,36 @@ The bad version takes 80 words to say nothing about anchors. The good version ta
 **Grouped pattern** — each row is a *group of related links*. Used when the anchor dispatches to >15 targets with strong categorical structure. Row label names the group; the cell carries multiple wiki-links comma-separated. Hand-authored (no separator row):
 
 ```
+
 | -[[NAME]]- | ><br>: description |
 | --- | --- |
 | External | [Landing](https://...), [GitHub](https://github.com/...), [Docs](...) |
 | Design | [[Arch]], [[UX]], [[Decisions]] |
 | Track | [[Backlog]], [[Roadmap]], [[Features]] |
 | User | [[Guide]], [[Reference]], [[Tutorials]] |
+
 ```
 
 **List pattern** — each row is *one entry*, optionally with a description column. Used for moderate target count where per-entry description adds value. May be auto-generated via separator rows: `---` (alphabetical), `+++` (with grandchildren), `^^^` (reverse-chronological); or hand-authored with no separator (frozen):
 
 ```
+
 | -[[NAME]]- | ><br>: description |
 | --- | --- |
 | [[Architecture]] | System overview + subsystem docs |
 | [[Decisions]] | Project decisions (formerly Principles + Rules) |
 | [[Backlog]] | Active work tracking |
+
 ```
 
 **Compact pattern** — single row, comma-separated enumeration of children. Used for lightweight dispatch with few targets and no per-entry description. Auto-generated via the `...` separator row:
 
 ```
+
 | -[[NAME]]- | ><br>: description |
 | --- | --- |
 | ... | [[Architecture]], [[Decisions]], [[Backlog]], [[User Guide]] |
+
 ```
 
 
@@ -299,3 +329,9 @@ The blank-line conventions that keep a doc's outline scannable: every `## H2` is
 **Check pattern:** scanning outside fenced code blocks — (1) each `## H2` has a blank line immediately before it (no H2 glued to the prose above); (2) the last line is non-blank. Two conventions deliberately **excluded** as too noisy on ordinary docs: the anchor-page-only "no blank after the H1" glue rule (that is `R-anchor-page-07`'s job — an ordinary doc may have a blank after its H1) and the "no doubled blank line" rule (widely tolerated in practice).
 
 **Why:** consistent section breaks let a navigator's eye find the structure at a glance — the second layer of progressive disclosure. An H2 glued to the prose above it hides where one section ends and the next begins.
+
+### RULE R-progressive-03 — Standard doc head: breadcrumb → H1 → orientation line (stated)
+
+Every **non-anchor** markdown doc opens with the same three elements, in order: (1) the `:>>` breadcrumb top-row, with **no blank line** between it and (2) the `# H1` carrying the file's name, optionally followed by ` — <subname or explanation>`; then (3) an **orientation line** directly under the H1 — a single sentence stating, at the coarsest grain, what this file is / what this item is about. Everything else (overview figure, tables, `## Overview`) follows below the head. Anchor pages are exempt (their dispatch-masthead is the head form, per `R-progressive-01`). **No other exceptions for now** — a doc that seems to need a different head shape is a design question to raise, not a local deviation to make.
+
+**Why:** the head is the reader's first disclosure layer — breadcrumb (*where am I*), H1 (*what is this called*), orientation line (*what is this*). One standardized shape makes every doc scannable in two seconds; the longer summary belongs in `## Overview`, not the head. Ratified on [[DAS Tracking Design]] (2026-07-12), the paradigm subsystem doc.
