@@ -14,7 +14,7 @@
 #   5. Sanitize title → [A-Za-z0-9 _-]
 #   6. Compute daily sequence letter (MMDD A/B/C ... by same-day count)
 #   7. Write LST/Quick/MUSE MMDD X <title>.md with frontmatter + transcript
-#   8. Prepend bullet to LST/Quick/Quick.md
+#   8. Prepend bullet to LST/Quick.md
 #   9. Record hash in .muse.hashes
 #  10. macOS notification
 #
@@ -25,7 +25,7 @@
 set -euo pipefail
 
 MUSE_ITEMS_DIR="${MUSE_ITEMS_DIR:-$HOME/ob/kmr/Log/MUSE}"
-MUSE_QUICK_FILE="${MUSE_QUICK_FILE:-$HOME/ob/kmr/LST/Quick/Quick.md}"
+MUSE_QUICK_FILE="${MUSE_QUICK_FILE:-$HOME/ob/kmr/LST/Quick.md}"
 MUSE_JPR_DIR="${MUSE_JPR_DIR:-$HOME/Library/Mobile Documents/iCloud~com~openplanetsoftware~Just-Press-Record/Documents}"
 MUSE_INLINE_MAX_CHARS="${MUSE_INLINE_MAX_CHARS:-80}"
 MUSE_NOTIFICATION_SOUND="${MUSE_NOTIFICATION_SOUND:-Tink}"
