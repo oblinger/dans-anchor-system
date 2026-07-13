@@ -62,9 +62,9 @@ If a feature is `[Questions]` or `[Blocked]` mid-flight, that's tracked via the 
 
 **Pick the highest applicable tier.** If you find yourself writing tier 4 with no Blocks-next, pause and reconsider: could a passive signal work? Could the user notice this in normal use? Often the answer is yes and the right tier is 3.
 
-Per `[[DAS Backlog]]` § Numbering policy, F-numbers are monotonic-forever, never recycled, **zero-padded to three digits** as `F001` … `F999`. The F-number is **minted by the workflow skill's `state task create`** in § 1.5 below — run § 1.5 first (after the collision check in § 1b), parse the assigned `F<NNN>` from its stdout, then create the feature doc in the anchor's Features folder. Per **F142** the canonical location is the **Design** folder (Features is a design artifact, D07): `{slug} Design/{slug} Features/F{NNN} — {Feature Name}.md`.
+Per `[[DAS Backlog]]` § Numbering policy, F-numbers are monotonic-forever, never recycled, **zero-padded to three digits** as `F001` … `F999`. The F-number is **minted by the workflow skill's `state Backlog F+ define`** in § 1.5 below — run § 1.5 first (after the collision check in § 1b), parse the assigned `F<NNN>` from its stdout, then create the feature doc in the anchor's Features folder. Per **F142** the canonical location is the **Design** folder (Features is a design artifact, D07): `{slug} Design/{slug} Features/F{NNN} — {Feature Name}.md`.
 
-If `{slug} Design/{slug} Features/` doesn't exist, create it. (Legacy anchors still hold features at `{slug} Track/{slug} Features/`; the workflow scripts read both during the F142 rollout — but **new** docs go in the Design location.) Filenames carry the F-number prefix from the mint (zero-padded). **Do not read the backlog file directly to compute the next F-number** — `state task create` is the canonical mint.
+If `{slug} Design/{slug} Features/` doesn't exist, create it. (Legacy anchors still hold features at `{slug} Track/{slug} Features/`; the workflow scripts read both during the F142 rollout — but **new** docs go in the Design location.) Filenames carry the F-number prefix from the mint (zero-padded). **Do not read the backlog file directly to compute the next F-number** — `state Backlog F+ define` is the canonical mint.
 
 #### 1b. Collision check — vault grep for duplicate H1 (per F27)
 
@@ -177,10 +177,10 @@ Always ASK when: invisible OR high recoverability cost OR irreversible (push / e
 
 Per the active-work invariant: **every feature doc must be reachable from `{slug} Backlog.md` or `{slug} Roadmap.md`** at creation time. No exceptions, no `--orphan` flag.
 
-**For a backlog feature** (the common case): mint the row via the workflow skill's `state task create`. This both reserves the F-number (returned in stdout) and creates the row atomically — no direct backlog edits. Run this **before** creating the feature doc file in § 1 (the F-number names the file).
+**For a backlog feature** (the common case): mint the row via the workflow skill's `state Backlog F+ define`. This both reserves the F-number (returned in stdout) and creates the row atomically — no direct backlog edits. Run this **before** creating the feature doc file in § 1 (the F-number names the file).
 
 ```bash
-~/.claude/skills/workflow/scripts/state --anchor {slug} task create --status Designing --title "{Feature Name}"
+echo '- **F+ — {Feature Name}** [Designing]' | ~/.claude/skills/workflow/scripts/state --anchor {slug} Backlog F+ define
 ```
 
 Output: `{slug}: added F<NNN> in Now [Designing]` — parse `F<NNN>` from the second word after `added`. Use that F-number for the feature doc filename (§ 1).
@@ -188,7 +188,7 @@ Output: `{slug}: added F<NNN> in Now [Designing]` — parse `F<NNN>` from the se
 After § 1 creates the feature doc, run a follow-up call to add the wiki-link body so the row links back to the new doc:
 
 ```bash
-~/.claude/skills/workflow/scripts/state --anchor {slug} task update F<NNN> --body "→ [[F<NNN> — {Feature Name}]]"
+~/.claude/skills/workflow/scripts/state --anchor {slug} Backlog F<NNN> set --body "→ [[F<NNN> — {Feature Name}]]"
 ```
 
 Use `--horizon Later` for parking-mode stubs (`/feature` used to file something for later). Use `--status Questions` once the Open Questions block has been written and the row should surface (via the queries render) as user-actionable.
@@ -217,11 +217,11 @@ open "<path to feature doc>"
 
 **Rule:** every Phase transition in `/feature` (Phase 1 → Phase 2 when all Qs resolve; Phase 2 → Phase 3 when a new Q arises; Status changes Designing → Agreed → Implementing → Done) is a state-touching action that must update the backlog row + refresh `~/ob/kmr/Q.md`.
 
-**The mechanism:** call `state task update` with the new status for **every** transition — it auto-refreshes Q.md as a side effect (invokes `audit-q.py --scope backlog --anchor {slug} --fix`).
+**The mechanism:** call `state Backlog F<NNN> set` with the new status for **every** transition — it auto-refreshes Q.md as a side effect (invokes `audit-q.py --scope backlog --anchor {slug} --fix`).
 
 ```bash
-~/.claude/skills/workflow/scripts/state --anchor {slug} task update F<NNN> --status Agreed
-~/.claude/skills/workflow/scripts/state --anchor {slug} task update F<NNN> --status Active
+~/.claude/skills/workflow/scripts/state --anchor {slug} Backlog F<NNN> set --status Agreed
+~/.claude/skills/workflow/scripts/state --anchor {slug} Backlog F<NNN> set --status Active
 # ... and so on for Verify, Done.
 ```
 
@@ -241,25 +241,25 @@ skl-stat add "Proposed" "<Feature Name>" "Feature doc created"
 
 ### 3. Design Discussion
 
-Work with the user to flesh out the design. **Per F128/F129 (2026-06-07), Q-state changes delegate to `state q`** — the canonical state-editor enforces ask-format spec, Q-numbering policy, and Phase 1/2/3 lifecycle at write time. Agents should not hand-edit `## Open Questions` blocks.
+Work with the user to flesh out the design. **Per F128/F129/F236, Q-state changes delegate to `state` (the v2 query grammar)** — the canonical state-editor enforces ask-format spec, Q-numbering policy, and Phase 1/2/3 lifecycle at write time. Agents should not hand-edit `## Open Questions` blocks.
 
 ```bash
 # Resolve a Q (script auto-migrates to bottom ## Resolved with audit trail):
-state --anchor {slug} q answer F<n> -n <Q-num> --choice "(A)" < resolution-body.md
+state --anchor {slug} "F<n> — {Title}" Q<num> resolve --choice "(A)" < resolution-body.md
 
 # Add a new Q mid-discussion:
-state --anchor {slug} q add F<n> < q-body.md
+state --anchor {slug} "F<n> — {Title}" Q+ define < q-body.md
 
 # Remove a Q that's no longer relevant (preserves audit trail in ### Removed):
-state --anchor {slug} q remove F<n> -n <Q-num> --reason "..."
+state --anchor {slug} "F<n> — {Title}" Q<num> remove --reason "..."
 
 # Rewrite a Q's body (no --force gate in F129; verb name IS the explicit intent):
-state --anchor {slug} q rewrite F<n> -n <Q-num> < new-body.md
+state --anchor {slug} "F<n> — {Title}" Q<num> define < new-body.md
 ```
 
 After EVERY Q-state change, update the Design (or relevant) section with what the resolution means in the spec. The resolved question and the updated design ship together. **Resolution body should include "Incorporated into Design § `<section>`"** as the closing line so the audit trail in `## Resolved` cross-references where the answer shaped the design.
 
-When a new question arises mid-discussion, add it via `q add` and glance the file (per step 1a). When you resolve a question, **don't** glance — even if other questions are still pending. The glance is only for moments when the user needs to react to *new or changed* questions.
+When a new question arises mid-discussion, add it via `Q+ define` and glance the file (per step 1a). When you resolve a question, **don't** glance — even if other questions are still pending. The glance is only for moments when the user needs to react to *new or changed* questions.
 
 Full F129 spec: [[SKL State]]. Predecessor: [[F128 — Status script as source-of-truth for Q-management — extend backlog-edit.py|F128]] (legacy CLI shape).
 

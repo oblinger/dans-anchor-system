@@ -1,32 +1,31 @@
 #!/usr/bin/env python3
-"""state — canonical state editor (F129).
+"""state — canonical state editor (F129, F236).
 
-Refactor of `backlog-edit.py` to a verb-first CLI. See `~/.claude/skills/workflow/SKL State.md`
-for the man-page-style reference (synopsis, anchor resolution, subcommands,
-examples). Reuses all helpers from backlog-edit.py via importlib; only the
-dispatch + new verbs (slug, anchor cwd-walkup, answer) are new.
+See `~/.claude/skills/workflow/SKL State.md` for the man-page-style reference
+(synopsis, anchor resolution, subcommands, examples). Reuses all helpers from
+backlog-edit.py via importlib.
 
-Surface (terse):
-    state task create  [--anchor A] --status S --title T [--horizon H] [--body B] [--kind F|T|B|R] [--entry E]
-    state task update  [--anchor A] ROW-ID [--status S] [--horizon H] [--title T] [--body B]
-    state task delete  [--anchor A] ROW-ID
-    state q    add     [--anchor A] ROW-ID [--slug NAME] (-m T | --from-file P | <stdin>)
-    state q    answer  [--anchor A] ROW-ID (-n N | --slug NAME) --choice OPT [BODY-source]
-    state q    remove  [--anchor A] ROW-ID (-n N | --slug NAME) [--reason TEXT]
-    state q    rewrite [--anchor A] ROW-ID (-n N | --slug NAME) [--slug NEW] [BODY-source]
+One address scheme covers backlog rows and any doc's Open Questions /
+Verifications:
+    state [-a ANCHOR] <doc> <label> <verb> [--horizon H] [--status S] [--title T]
+          [--next N] [--verify V] [--choice X] [--reason R]
+          [--body B | --from-file P] [< body]
+        doc   = Backlog (case-insensitive) | wiki-name | path to a .md file
+        label = LETTERS+DIGITS, or LETTERS+'+' to auto-mint —
+                Q7 / V3 (any doc) / F157 / T8 (Backlog only) /
+                F+ / T+ / Q+ / V+ (mint the next unused number)
+        verb  = define (create-or-replace) | set (Backlog-only partial
+                update — --status/--horizon/--title/--body/--next/--verify) |
+                resolve (move to Done/Resolved) | remove (soft-delete, audit
+                trail preserved)
+
+Plus two standalone domains for planning state that lives outside the
+Backlog/label model:
     state status set   [--anchor A] FACET CELL [--note TEXT]    # F130
     state status show  [--anchor A] [FACET]                     # F130
     state roadmap status get  [--anchor A] (--feature F<n> | --milestone M-<Name>[.<n>])    # F145
     state roadmap status set  [--anchor A] (--feature F<n> | --milestone M-<Name>[.<n>]) --state {checked|unchecked|deferred}  # F145
     state roadmap migrate     [--anchor A] M-<Name> --date YYYY-MM-DD     # F145
-
-F236 v2 — one address scheme (additive; the surface above keeps working):
-    state [-a ANCHOR] <doc> <label> <verb> [--horizon H] [--choice X] [--reason R]
-          [--body B | --from-file P] [< body]
-        doc   = Backlog (case-insensitive) | wiki-name | path to a .md file
-        label = LETTERS+DIGITS — Q7 / V3 (any doc) / F157 / T8 (Backlog only)
-        verb  = define (create-or-replace) | resolve (move to Done/Resolved) |
-                remove (soft-delete, audit trail preserved)
 """
 from __future__ import annotations
 
@@ -200,122 +199,9 @@ def _resolve_q_identifier(lines, q_num, slug):
     raise be.BacklogEditError("must specify either -n N or --slug NAME")
 
 
-def _format_q_bullet_with_slug(q_num, container_id, body, slug):
-    """Wrap a body into the canonical Q-bullet form with block-ID AND optional slug tag."""
-    bullet = be._format_q_bullet(q_num, container_id, body)
-    if slug:
-        # Strip any existing [slug: ...] tag and add ours
-        bullet = _SLUG_TAG_RE.sub("", bullet).rstrip()
-        # Insert after block-ID, before any newline
-        first_line, sep, rest = bullet.partition("\n")
-        first_line = first_line.rstrip() + f" [slug: {slug}]"
-        bullet = first_line + (sep + rest if sep else "")
-    return bullet
-
-
 # ============================================================
-# Task subcommands
+# Row-edit delegation — shared by the v2 Backlog verbs
 # ============================================================
-
-
-def _roadmap_entry_to_name_path(entry):
-    """Normalize a roadmap-entry reference to its bare name-path.
-
-    'M-Scaffolding.5.2' → 'Scaffolding.5.2'   (strip the M- roadmap prefix)
-    'R-Scaffolding.5.2' → 'Scaffolding.5.2'   (already a task ref)
-    'Scaffolding.5.2'   → 'Scaffolding.5.2'   (bare)
-    """
-    e = (entry or "").strip()
-    if e.startswith(("M-", "R-")):
-        e = e[2:]
-    return e
-
-
-def _validate_roadmap_entry(slug, anchor_path, name_path):
-    """Confirm `M-<name_path>` exists as an entry in `{slug} Roadmap.md` — a
-    milestone heading (`## [ ] M-<Name>.<path> — …`) or an inline checklist
-    item — before minting an R task against it. Raises with guidance on miss so
-    an `R` handle can never point at a non-existent roadmap entry.
-    """
-    rp = _roadmap_path(slug, anchor_path)
-    if not rp.exists():
-        raise be.BacklogEditError(
-            f"no '{slug} Roadmap.md' to reference — an R roadmap-task needs an "
-            f"existing roadmap entry. File this as a backlog task instead (--kind T)."
-        )
-    milestone = "M-" + name_path
-    tok = re.compile(rf"(?<![\w.\-]){re.escape(milestone)}(?![\w.\-])")
-    for line in rp.read_text(encoding="utf-8").splitlines():
-        hm = _MILESTONE_HEADING_RE.match(line)
-        if hm and hm.group("ident") == milestone:
-            return
-        bm = _INLINE_CHECKBOX_RE.match(line)
-        if bm and tok.search(bm.group("rest")):
-            return
-    raise be.BacklogEditError(
-        f"roadmap entry '{milestone}' not found in '{rp.name}' — check the "
-        f"name-path (a leaf or non-leaf entry), or add the entry to the roadmap first."
-    )
-
-
-def cmd_task_create(slug, anchor_path, args):
-    """Mint a new row in the anchor's backlog.
-
-    F / T / B → a monotonic minted number (`Fnew` / `Tnew` / `Bnew`; T and F are
-    separate namespaces, both zero-padded triple-digit). R → a roadmap task whose
-    handle is the referenced entry's name-path (`R-<Name>.<path>`), not a counter;
-    requires `--entry`.
-    """
-    kind = (args.kind or "F").upper()
-    if kind == "R":
-        entry = getattr(args, "entry", None)
-        if not entry:
-            raise be.BacklogEditError(
-                "task create --kind R requires --entry "
-                "(the roadmap entry, e.g. --entry M-Scaffolding.5.2)"
-            )
-        name_path = _roadmap_entry_to_name_path(entry)
-        _validate_roadmap_entry(slug, anchor_path, name_path)
-        row_id_arg = "R-" + name_path
-    else:
-        row_id_arg = f"{kind}new"
-    return _delegate_row_edit(
-        slug, args.horizon or "Now", row_id_arg, args.status,
-        args.title, args.body or "",
-        title_provided=True, body_provided=bool(args.body),
-        verify_text=getattr(args, "verify", None),
-        next_text=getattr(args, "next", None),
-    )
-
-
-def cmd_task_update(slug, anchor_path, args):
-    """Update properties of an existing row. At least one of --status/--horizon/
-    --title/--body required."""
-    if not any([args.status, args.horizon, args.title is not None, args.body is not None]):
-        raise be.BacklogEditError(
-            "task update requires at least one of --status / --horizon / --title / --body"
-        )
-    horizon = args.horizon or "same"
-    status = args.status or "same"
-    title = args.title if args.title is not None else ""
-    body = args.body if args.body is not None else ""
-    title_provided = args.title is not None
-    body_provided = args.body is not None
-    return _delegate_row_edit(
-        slug, horizon, args.row_id, status,
-        title, body,
-        title_provided=title_provided, body_provided=body_provided,
-        verify_text=getattr(args, "verify", None),
-        next_text=getattr(args, "next", None),
-    )
-
-
-def cmd_task_delete(slug, anchor_path, args):
-    """Delete a row entirely."""
-    return _delegate_row_edit(
-        slug, "same", args.row_id, "delete",
-        "", "", title_provided=False, body_provided=False,
-    )
 
 
 def _delegate_row_edit(slug, horizon, row_id_arg, status, title, body,
@@ -412,37 +298,6 @@ def _sync_roadmap_on_done(slug, backlog_path, row_id):
 # ============================================================
 
 
-def cmd_q_add(slug, anchor_path, args):
-    """Add a new Q to a feature doc."""
-    feature_path = be._find_feature_doc(slug, args.row_id)
-    text = feature_path.read_text(encoding="utf-8")
-    container_id = be._container_id_for_feature(feature_path)
-    body = read_body(args)
-    if not body.strip():
-        raise be.BacklogEditError("q add requires a body via stdin, --from-file, or -m")
-    q_num = be._next_q_number(text)
-    new_bullet = _format_q_bullet_with_slug(q_num, container_id, body, args.slug)
-    lines = text.splitlines()
-    lines, (h2_start, h2_end) = be._ensure_open_questions_h2(lines)
-    insert_at = h2_end
-    for j in range(h2_start + 1, h2_end):
-        if lines[j].startswith("### "):
-            insert_at = j
-            break
-    while insert_at > h2_start + 1 and not lines[insert_at - 1].strip():
-        insert_at -= 1
-    new_lines = ["", new_bullet] if insert_at > 0 and lines[insert_at - 1].strip() else [new_bullet]
-    new_lines = new_lines + [""]
-    lines = lines[:insert_at] + new_lines + lines[insert_at:]
-    feature_path.write_text(
-        "\n".join(lines) + ("\n" if text.endswith("\n") else ""),
-        encoding="utf-8",
-    )
-    summary = f"added Q{q_num}" + (f" (slug: {args.slug})" if args.slug else "") + f" to {feature_path.name}"
-    _post_conditions_and_print(slug, feature_path, summary)
-    return 0
-
-
 def _clamp_h2_end_to_h1(lines, h2_start, h2_end):
     """Tighten an H2 content range from be._find_h2 (generic H2-line to
     next-'## '-line) to stop at the doc's H1 if the H1 falls inside that
@@ -464,17 +319,9 @@ def _clamp_h2_end_to_h1(lines, h2_start, h2_end):
     return h2_end
 
 
-def cmd_q_answer(slug, anchor_path, args):
-    """Answer a Q — move to ## Resolved as ### Qn — Title H3."""
-    feature_path = be._find_feature_doc(slug, args.row_id)
-    body = read_body(args)
-    return _q_answer_core(slug, feature_path, args.q_num, args.slug, args.choice, body)
-
-
 def _q_answer_core(slug, feature_path, q_num, q_slug, choice, body):
-    """Block-surgery for Q-answer, factored out of `feature_path` lookup (F236
-    v2) so it runs against ANY doc path — the legacy `state q answer` locates
-    feature_path by F-number first, then calls this same core."""
+    """Block-surgery for Q-answer, called by the v2 `<doc> Q<n> resolve` verb
+    against any resolved doc path (F236)."""
     text = feature_path.read_text(encoding="utf-8")
     lines = text.splitlines()
     start, end, _, q_num = _resolve_q_identifier(lines, q_num, q_slug)
@@ -532,15 +379,9 @@ def _q_answer_core(slug, feature_path, q_num, q_slug, choice, body):
     return 0
 
 
-def cmd_q_remove(slug, anchor_path, args):
-    """Remove a Q — move body to ### Removed H3 for audit trail."""
-    feature_path = be._find_feature_doc(slug, args.row_id)
-    return _q_remove_core(slug, feature_path, args.q_num, args.slug, args.reason)
-
-
 def _q_remove_core(slug, feature_path, q_num, q_slug, reason):
-    """Block-surgery for Q-remove, factored out of `feature_path` lookup (F236
-    v2) so it runs against ANY doc path — see `_q_answer_core`."""
+    """Block-surgery for Q-remove, called by the v2 `<doc> Q<n> remove` verb
+    against any resolved doc path (F236) — see `_q_answer_core`."""
     text = feature_path.read_text(encoding="utf-8")
     reason = reason or "no reason provided"
     lines = text.splitlines()
@@ -583,58 +424,6 @@ def _q_remove_core(slug, feature_path, q_num, q_slug, reason):
         encoding="utf-8",
     )
     summary = f"removed Q{q_num} from {feature_path.name} (reason: {reason})"
-    _post_conditions_and_print(slug, feature_path, summary)
-    return 0
-
-
-def cmd_q_rewrite(slug, anchor_path, args):
-    """Overwrite a Q body (no --force gate; verb name IS the explicit intent).
-
-    `--slug NAME` to identify the Q AND (if second occurrence on this verb)
-    rename the slug. Per F129 spec: pass --slug once as identifier, OR pass
-    -n for identification AND --slug NEW for renaming.
-    """
-    feature_path = be._find_feature_doc(slug, args.row_id)
-    text = feature_path.read_text(encoding="utf-8")
-    container_id = be._container_id_for_feature(feature_path)
-    body = read_body(args)
-    if not body.strip():
-        raise be.BacklogEditError("q rewrite requires a body via stdin, --from-file, or -m")
-    lines = text.splitlines()
-    # If both -n and --slug given: -n identifies, --slug NEW renames/attaches
-    # If only --slug given: identifies AND (if body has no slug) keeps it
-    # If only -n given: identifies; preserve existing slug on the bullet
-    if args.q_num is not None:
-        # -n identifies; --slug (if given) is the NEW slug
-        loc = be._find_q_bullet(lines, args.q_num)
-        if loc is None:
-            raise be.BacklogEditError(f"Q{args.q_num} not found in pending Open Questions")
-        start, end, _ = loc
-        q_num = args.q_num
-        new_slug = args.slug  # None → preserve, value → set
-    elif args.slug is not None:
-        loc = _find_q_bullet_by_slug(lines, args.slug)
-        if loc is None:
-            raise be.BacklogEditError(f"Q with --slug {args.slug!r} not found in pending Open Questions")
-        start, end, _ = loc
-        m = be._Q_HEADER_BULLET_RE.match(lines[start])
-        q_num = int(m.group(2))
-        new_slug = args.slug  # preserve
-    else:
-        raise be.BacklogEditError("q rewrite requires -n N or --slug NAME to identify the Q")
-    # If new_slug is None, try to preserve existing slug from the bullet
-    if new_slug is None:
-        old_block = "\n".join(lines[start:end])
-        new_slug = _slug_in_line(old_block)
-    new_bullet = _format_q_bullet_with_slug(q_num, container_id, body, new_slug)
-    new_bullet_lines = new_bullet.splitlines()
-    lines = lines[:start] + new_bullet_lines + lines[end:]
-    feature_path.write_text(
-        "\n".join(lines) + ("\n" if text.endswith("\n") else ""),
-        encoding="utf-8",
-    )
-    slug_note = f" (slug: {new_slug})" if new_slug else ""
-    summary = f"rewrote Q{q_num}{slug_note} in {feature_path.name}"
     _post_conditions_and_print(slug, feature_path, summary)
     return 0
 
@@ -1135,20 +924,23 @@ def cmd_roadmap_migrate(slug, anchor_path, args):
 # ============================================================
 
 
-_V2_LABEL_RE = re.compile(r"^([A-Z]+)(\d+)$")
+_V2_LABEL_RE = re.compile(r"^([A-Z]+)(\d+|\+)$")
 _V2_SKIP_PATH_FRAGMENTS = ("/.trash/", "/Yore/", "/_ARCHIVES_/", "/Versions/")
 
 
 def parse_v2_label(label):
-    """Split a v2 label into (letters, number). Raises on anything not
-    matching `^[A-Z]+\\d+$` (Q7, V3, F157, T8)."""
+    """Split a v2 label into (letters, number). `number` is an int (Q7, V3,
+    F157, T8) or the literal string `"+"` for an auto-mint label (F+, T+,
+    Q+, V+ — only legal with `define`). Raises on anything not matching
+    `^[A-Z]+(\\d+|\\+)$`."""
     m = _V2_LABEL_RE.match(label)
     if not m:
         raise be.BacklogEditError(
-            f"invalid label {label!r} — expected LETTERS+DIGITS "
-            f"(e.g. Q7, V3, F157, T8)"
+            f"invalid label {label!r} — expected LETTERS+DIGITS or "
+            f"LETTERS+'+' to auto-mint (e.g. Q7, V3, F157, T8, F+, T+)"
         )
-    return m.group(1), int(m.group(2))
+    num = m.group(2)
+    return m.group(1), (num if num == "+" else int(num))
 
 
 def _v2_find_by_basename(root, target_lower):
@@ -1268,12 +1060,21 @@ def _attach_raw_subbullets(file_path, row_id, sub_lines):
     )
 
 
-def _v2_row_define(slug, backlog_path, label, args):
+_MINT_PLACEHOLDER_RE = re.compile(r"\*\*[FT]\+(\s+—)")
+
+
+def _v2_row_define(slug, backlog_path, label, args, minted=False):
     """`Backlog <F|T> define` — create-or-replace the whole row. The body IS
     the complete row markdown (`- **<label> — Title** [Status] — body`),
     optionally followed by indented sub-bullets. Routes through
     `_delegate_row_edit` (same guard machinery `task create`/`update` use) so
-    status/Verify/Next/Questions promises still enforce."""
+    status/Verify/Next/Questions promises still enforce.
+
+    `minted=True` (F+/T+ auto-mint, F236) means `label` is the freshly-minted
+    id and the caller's body may still carry the `F+`/`T+` placeholder (e.g.
+    `- **F+ — Title** [Status]`) — the first occurrence is swapped for the
+    real label before parsing. A body that already names the minted label
+    directly (no placeholder) is left alone (no double-substitution)."""
     raw = read_body(args)
     if not raw.strip():
         raise be.BacklogEditError(
@@ -1283,6 +1084,9 @@ def _v2_row_define(slug, backlog_path, label, args):
         )
     body_lines = raw.rstrip("\n").splitlines()
     first = body_lines[0].strip()
+    if minted:
+        first = _MINT_PLACEHOLDER_RE.sub(f"**{label}\\1", first, count=1)
+        body_lines[0] = first
     m = be.ROW_FULL_RE.match(first)
     if not m or m.group("rid") != label:
         raise be.BacklogEditError(
@@ -1352,9 +1156,37 @@ def _v2_row_resolve(slug, backlog_path, label, args):
     )
 
 
-def _v2_row(slug, backlog_path, label, verb, args):
+def _v2_row_set(slug, backlog_path, label, args):
+    """`Backlog <F|T> set` — partial row update: only the fields named by a
+    flag change; everything else (title/body/status/horizon) is left as-is.
+    Unlike `define` (which replaces the row wholesale from one full markdown
+    line), `set` takes each field via its own flag and never reads a body
+    from stdin or --from-file."""
+    if not any([args.status, args.horizon, args.title is not None,
+                args.inline is not None, args.next_step is not None,
+                args.verify is not None]):
+        raise be.BacklogEditError(
+            "set requires at least one of --status / --horizon / --title / "
+            "--body / --next / --verify"
+        )
+    if getattr(args, "from_file", None) is not None:
+        raise be.BacklogEditError(
+            "set takes body only via --body (stdin/--from-file not accepted)"
+        )
+    return _delegate_row_edit(
+        slug, args.horizon or "same", label, args.status or "same",
+        args.title or "", args.inline or "",
+        title_provided=args.title is not None,
+        body_provided=args.inline is not None,
+        verify_text=args.verify, next_text=args.next_step,
+    )
+
+
+def _v2_row(slug, backlog_path, label, verb, args, minted=False):
     if verb == "define":
-        return _v2_row_define(slug, backlog_path, label, args)
+        return _v2_row_define(slug, backlog_path, label, args, minted=minted)
+    if verb == "set":
+        return _v2_row_set(slug, backlog_path, label, args)
     if verb == "resolve":
         return _v2_row_resolve(slug, backlog_path, label, args)
     if verb == "remove":
@@ -1374,14 +1206,16 @@ def _q_define_core(slug, feature_path, q_num, body):
     be._find_q_bullet / be._format_q_bullet / be._ensure_open_questions_h2 —
     the same formatting the legacy `q add`/`q rewrite` verbs use — so define
     subsumes both without duplicating the bullet-formatting logic."""
-    # Normalize: callers may pass the full bullet (`- **Q<n> — …` header line)
-    # or just the body content. be._format_q_bullet already accepts the
-    # pre-formatted `**Q<n> — …` form — strip only the leading `- ` dash so it
-    # takes that branch (never double-wraps), and drop any caller-supplied
+    # Normalize: callers may pass the full bullet (`- **Q<n> — …` header line,
+    # or `- **Q+ — …` on a mint) or just the body content. be._format_q_bullet
+    # already accepts the pre-formatted `**Q<n> — …` form — rewrite a `Q+`
+    # placeholder to the assigned number, strip only the leading `- ` dash so
+    # it takes that branch (never double-wraps), and drop any caller-supplied
     # trailing block-anchor on the first line (the canonical one is re-added).
-    if re.match(rf"^\s*-\s+\*\*Q{q_num}\s+—", body):
+    if re.match(rf"^\s*-?\s*\*\*Q(?:{q_num}|\+)\s+—", body):
         first, sep, rest = body.partition("\n")
         first = re.sub(r"^\s*-\s+", "", first)
+        first = re.sub(r"^(\s*)\*\*Q\+(\s+—)", rf"\g<1>**Q{q_num}\g<2>", first)
         first = re.sub(r"\s*\^\S+\s*$", "", first)
         body = first + (sep + rest if sep else "")
     _validate_ask_format_body(body)
@@ -1445,6 +1279,22 @@ def _v2_query(slug, doc_path, q_num, verb, args):
 
 
 _V_HEADER_BULLET_RE = re.compile(r"^(\s*)- \*\*V(\d+)\b")
+_V_HEADER_H3_RE = re.compile(r"^(\s*)### V(\d+)\b")
+
+
+def _next_v_number(doc_text):
+    """Lowest unused V-number across pending `## Verifications` bullets +
+    bottom `## Resolved` `### V<n>` H3s. Mirrors be._next_q_number for the V
+    namespace (F236 V+ auto-mint)."""
+    used = set()
+    for line in doc_text.splitlines():
+        m = _V_HEADER_BULLET_RE.match(line) or _V_HEADER_H3_RE.match(line)
+        if m:
+            used.add(int(m.group(2)))
+    n = 1
+    while n in used:
+        n += 1
+    return n
 
 
 def _v2_container_id_for_doc(doc_path):
@@ -1476,7 +1326,9 @@ def _v_format_bullet(v_num, container_id, body):
     the trailing body.
     """
     body = body.strip()
-    m = re.match(r"^-?\s*\*\*V\d+\s+—\s+(.+?)\*\*(?:\s+—\s+(.*))?$", body, re.DOTALL)
+    # `V+` placeholder (mint form) normalizes like an explicit number — the
+    # canonical v_num is stamped into the rebuilt bullet either way.
+    m = re.match(r"^-?\s*\*\*V(?:\d+|\+)\s+—\s+(.+?)\*\*(?:\s+—\s+(.*))?$", body, re.DOTALL)
     if m:
         title = m.group(1).strip()
         rest = (m.group(2) or "").strip()
@@ -1714,20 +1566,35 @@ def _v2_verify(slug, doc_path, v_num, verb, args):
 def cmd_v2(slug, anchor_path, args):
     doc_kind, doc_path = resolve_v2_doc(args.doc, slug, anchor_path)
     letters, num = parse_v2_label(args.label)
+    if num == "+" and args.verb != "define":
+        raise be.BacklogEditError(
+            f"auto-mint label {args.label} is only valid with define"
+        )
+    if args.verb == "set" and doc_kind != "backlog":
+        raise be.BacklogEditError("set is Backlog-only — Q/V items use define")
     if doc_kind == "backlog" and letters in ("F", "T"):
+        if num == "+":
+            mint_num = be.mint_cross_file_id(doc_path, be.find_icebox(slug), letters)
+            label = be.format_row_id(letters, mint_num)
+            return _v2_row(slug, doc_path, label, args.verb, args, minted=True)
         return _v2_row(slug, doc_path, args.label, args.verb, args)
     if doc_kind == "doc" and letters == "Q":
+        if num == "+":
+            num = be._next_q_number(doc_path.read_text(encoding="utf-8"))
         return _v2_query(slug, doc_path, num, args.verb, args)
     if doc_kind == "doc" and letters == "V":
+        if num == "+":
+            num = _next_v_number(doc_path.read_text(encoding="utf-8"))
         return _v2_verify(slug, doc_path, num, args.verb, args)
     where = "Backlog" if doc_kind == "backlog" else doc_path.name
     raise be.BacklogEditError(
         f"unknown query kind {args.label!r} for {where} — valid labels: "
-        f"F<n>/T<n> on Backlog, Q<n>/V<n> on any other doc"
+        f"F<n>/T<n>/F+/T+ on Backlog, Q<n>/V<n>/Q+/V+ on any other doc"
     )
 
 
-_V2_LEGACY_DOMAINS = {"task", "q", "question", "status", "roadmap"}
+_V2_LEGACY_DOMAINS = {"status", "roadmap"}
+_V2_RETIRED_DOMAINS = {"task", "q", "question"}
 
 
 def _first_positional(argv):
@@ -1755,17 +1622,26 @@ def build_v2_parser():
         description=(
             "state v2 (F236) — one address scheme: "
             "`state [-a ANCHOR] <doc> <label> <verb> [< body]`. "
-            "doc = Backlog | wiki-name | path. label = LETTERS+DIGITS "
-            "(Q7, V3, F157, T8). verb = define | resolve | remove."
+            "doc = Backlog | wiki-name | path. label = LETTERS+DIGITS, or "
+            "LETTERS+'+' to auto-mint (Q7, V3, F157, T8, F+, T+, Q+, V+). "
+            "verb = define | set | resolve | remove (set is Backlog-only)."
         ),
     )
     p.add_argument("-a", "--anchor", default=None,
                    help="anchor path or slug; defaults to cwd-walkup to .anchor")
     p.add_argument("doc", help="Backlog | wiki-name (no slash/.md) | path to a .md doc")
-    p.add_argument("label", help="LETTERS+DIGITS — Q7, V3, F157, T8")
-    p.add_argument("verb", choices=["define", "resolve", "remove"])
+    p.add_argument("label", help="LETTERS+DIGITS or LETTERS+'+' — Q7, V3, F157, T8, F+, T+")
+    p.add_argument("verb", choices=["define", "set", "resolve", "remove"])
     p.add_argument("--horizon", default=None,
                    help="horizon for a NEW Backlog row on define (default: Now)")
+    p.add_argument("--status", default=None,
+                   help="new bracket status (Backlog `set` only)")
+    p.add_argument("--title", default=None,
+                   help="new title (Backlog `set` only)")
+    p.add_argument("--next", dest="next_step", default=None,
+                   help="`- **Next:**` no-user action (Backlog `set` only)")
+    p.add_argument("--verify", default=None,
+                   help="`- **Verify:**` yes/no question (Backlog `set` only)")
     p.add_argument("--choice", default=None,
                    help='chosen option, e.g. "(A)" — required for `Q<n> resolve`')
     p.add_argument("--reason", default=None,
@@ -1801,90 +1677,16 @@ def build_parser():
     p = argparse.ArgumentParser(
         prog="state",
         description=(
-            "Canonical state editor for backlog rows AND feature-doc Open "
-            "Questions. Full spec: ~/.claude/skills/workflow/SKL State.md."
+            "Legacy status/roadmap domains for `state`. Backlog rows and "
+            "feature-doc Open Questions/Verifications go through the v2 "
+            "grammar: `state [-a ANCHOR] <doc> <label> <verb>`. Full spec: "
+            "~/.claude/skills/workflow/SKL State.md."
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     p.add_argument("-a", "--anchor", default=None,
                    help="anchor path or slug; defaults to cwd-walkup to .anchor")
     subs = p.add_subparsers(dest="domain", required=True)
-
-    # task domain
-    task = subs.add_parser("task", help="manage backlog rows")
-    task_subs = task.add_subparsers(dest="verb", required=True)
-
-    tc = task_subs.add_parser("create", help="mint a new row")
-    tc.add_argument("--status", required=True, help="bracket text (Designing, Ready, Verify, ...)")
-    tc.add_argument("--title", required=True, help="row title")
-    tc.add_argument("--horizon", default="Now", help="horizon (default: Now)")
-    tc.add_argument("--body", default="", help="row body (wiki-link / description)")
-    tc.add_argument("--kind", default="F", choices=["F", "B", "T", "R"],
-                    help="row kind: F (feature, has a doc) / T (backlog task) / "
-                         "B (legacy backlog item) / R (roadmap task — needs --entry)")
-    tc.add_argument("--entry",
-                    help="roadmap entry name-path for --kind R "
-                         "(e.g. M-Scaffolding.5.2); the handle becomes R-<name-path>")
-    tc.add_argument("--verify", default=None,
-                    help="`- **Verify:**` yes/no question (required when status "
-                         "is Watching/Verify)")
-    tc.add_argument("--next", default=None,
-                    help="`- **Next:**` no-user action (required when status "
-                         "is Ready/Active)")
-
-    tu = task_subs.add_parser("update", help="modify an existing row")
-    tu.add_argument("row_id", help="F<NNN>, B<id>, or <ANCHOR>-F<NNN>")
-    tu.add_argument("--status", default=None)
-    tu.add_argument("--horizon", default=None)
-    tu.add_argument("--title", default=None)
-    tu.add_argument("--body", default=None)
-    tu.add_argument("--verify", default=None,
-                    help="`- **Verify:**` yes/no question (required when setting "
-                         "a Watching/Verify status without an existing one)")
-    tu.add_argument("--next", default=None,
-                    help="`- **Next:**` no-user action (required when setting a "
-                         "Ready/Active status without an existing one)")
-
-    td = task_subs.add_parser("delete", help="remove a row entirely (rare)")
-    td.add_argument("row_id", help="F<NNN> or B<id>")
-
-    # q domain
-    q = subs.add_parser("q", aliases=["question"],
-                        help="manage feature-doc Open Questions")
-    q_subs = q.add_subparsers(dest="verb", required=True)
-
-    qa = q_subs.add_parser("add", help="add a new Q (auto-mints next Q-number)")
-    qa.add_argument("row_id", help="F<NNN> of the row whose doc holds the Qs")
-    qa.add_argument("--slug", default=None, help="attach semantic slug")
-    qa.add_argument("-m", dest="inline", default=None, help="inline body (short Qs)")
-    qa.add_argument("--from-file", dest="from_file", default=None,
-                    help="read body from file (long Qs)")
-
-    qan = q_subs.add_parser("answer", help="answer a Q (move to ## Resolved)")
-    qan.add_argument("row_id")
-    qan.add_argument("-n", dest="q_num", type=int, default=None,
-                     help="identify Q by number")
-    qan.add_argument("--slug", default=None, help="identify Q by slug")
-    qan.add_argument("--choice", required=True,
-                     help="chosen option label, e.g. '(A)'")
-    qan.add_argument("-m", dest="inline", default=None)
-    qan.add_argument("--from-file", dest="from_file", default=None)
-
-    qr = q_subs.add_parser("remove", help="soft-delete (preserves audit trail)")
-    qr.add_argument("row_id")
-    qr.add_argument("-n", dest="q_num", type=int, default=None)
-    qr.add_argument("--slug", default=None)
-    qr.add_argument("--reason", default=None,
-                    help="short reason stamped in ### Removed H3 title")
-
-    qrw = q_subs.add_parser("rewrite",
-                            help="overwrite Q body (verb IS the intent; no --force needed)")
-    qrw.add_argument("row_id")
-    qrw.add_argument("-n", dest="q_num", type=int, default=None)
-    qrw.add_argument("--slug", default=None,
-                     help="identify by slug, OR (with -n) rename the slug")
-    qrw.add_argument("-m", dest="inline", default=None)
-    qrw.add_argument("--from-file", dest="from_file", default=None)
 
     # status domain (F130) — manage {slug} Status.md per-facet planning state
     st = subs.add_parser("status",
@@ -1931,10 +1733,27 @@ def build_parser():
 
 
 def main(argv):
-    # F236 v2 dispatch — when the first positional isn't one of the legacy
-    # domain names (task/q/question/status/roadmap), parse it as the v2
-    # grammar: state [-a ANCHOR] <doc> <label> <verb>.
+    # F236 — retired domains tombstone: point straight at the v2 replacement
+    # rather than falling through to an "unknown domain" parser error.
     first = _first_positional(argv)
+    if first is not None and first in _V2_RETIRED_DOMAINS:
+        if first == "task":
+            print(
+                "state: 'state task ...' was retired (F236) — use: "
+                "state [-a ANCHOR] Backlog <F<n>|T<n>|F+|T+> <define|set|resolve|remove>",
+                file=sys.stderr,
+            )
+        else:
+            print(
+                "state: 'state q ...' was retired (F236) — use: "
+                "state [-a ANCHOR] <doc> <Q<n>|Q+> <define|resolve|remove>",
+                file=sys.stderr,
+            )
+        return 2
+
+    # F236 v2 dispatch — when the first positional isn't one of the legacy
+    # domain names (status/roadmap), parse it as the v2 grammar:
+    # state [-a ANCHOR] <doc> <label> <verb>.
     if first is not None and first not in _V2_LEGACY_DOMAINS:
         return main_v2(argv)
 
@@ -1948,23 +1767,7 @@ def main(argv):
         return 2
 
     try:
-        if args.domain == "task":
-            if args.verb == "create":
-                return cmd_task_create(slug, anchor_path, args)
-            if args.verb == "update":
-                return cmd_task_update(slug, anchor_path, args)
-            if args.verb == "delete":
-                return cmd_task_delete(slug, anchor_path, args)
-        elif args.domain in ("q", "question"):
-            if args.verb == "add":
-                return cmd_q_add(slug, anchor_path, args)
-            if args.verb == "answer":
-                return cmd_q_answer(slug, anchor_path, args)
-            if args.verb == "remove":
-                return cmd_q_remove(slug, anchor_path, args)
-            if args.verb == "rewrite":
-                return cmd_q_rewrite(slug, anchor_path, args)
-        elif args.domain == "status":
+        if args.domain == "status":
             if args.verb == "set":
                 return cmd_status_set(slug, anchor_path, args)
             if args.verb == "show":

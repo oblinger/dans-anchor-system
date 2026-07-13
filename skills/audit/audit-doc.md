@@ -32,7 +32,7 @@ P=~/.claude/skills/audit/scripts/audit-plan.py
 4. **Report + backlog row** — `audit-plan <file> --mode doc --report` gives the combined summary. Per the `/audit` default (**audit reports, doesn't fix**), file the findings as state-clustered backlog rows per [[audit|SKILL.md]] § Backlog entry format — **unless `dry`**:
    - **Mechanical fail-verdicts → one `[Ready]` row** (spec-clear). Sub-bullets = each failed `(rule, region)` with the verdict detail.
    - **Judgment fail-verdicts needing user input → `[Questions]` row(s)** linking a feature doc holding the parked Qs.
-   - All rows minted via `state task create` (never direct-edit the backlog), default horizon `Next`.
+   - All rows minted via `state Backlog F+ define` (never direct-edit the backlog), default horizon `Next` (`--horizon Next`).
 
 ## Distinction from siblings
 

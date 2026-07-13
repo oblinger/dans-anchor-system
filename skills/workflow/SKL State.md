@@ -1,31 +1,31 @@
 ---
-description: "CLI reference for the `state` script — canonical state editor for everything below the anchor level (backlog rows + feature-doc Open Questions). Verb-first, anchor-flag with cwd-walkup, slug-as-alias hybrid. F129 (shipped 2026-06-07)."
+description: "CLI reference for the `state` script — canonical state editor for everything below the anchor level, on one address scheme: `state <doc> <label> <verb>` for backlog rows, doc questions, and doc verifications. F129 (shipped 2026-06-07), unified by F236 (2026-07-13)."
 ---
 
 # state — canonical state editor (CLI reference)
 
-> **STATUS:** Canonical. Shipped 2026-06-07 via F129. Legacy `backlog-edit.py` ships alongside for the migration window — both scripts share helpers and the same state file; new code should prefer `state`.
+> **STATUS:** Canonical. Shipped 2026-06-07 via F129; unified on the one-address-scheme v2 grammar 2026-07-13 via F236. Legacy `backlog-edit.py` ships alongside at the helper level — `state` delegates to it via importlib; new code always invokes `state`.
 
 ## NAME
 
-`state` — canonical state editor for backlog rows AND feature-doc Open Questions
+`state` — canonical state editor for backlog rows, doc Open Questions, and doc Verifications
 
 ## SYNOPSIS
 
 ```
-state task create  [-a ANCHOR] --status S --title T [--horizon H] [--body B] [--kind F|T|B|R] [--entry E]
-state task update  [-a ANCHOR] ROW-ID [--status S] [--horizon H] [--title T] [--body B]
-state task delete  [-a ANCHOR] ROW-ID
+state [-a ANCHOR] <doc> <label> <verb> [flags] [< body]
 
-state q    add     [-a ANCHOR] ROW-ID [--slug NAME] [BODY-source]
-state q    answer  [-a ANCHOR] ROW-ID (-n N | --slug NAME) --choice OPT [BODY-source]
-state q    remove  [-a ANCHOR] ROW-ID (-n N | --slug NAME) [--reason TEXT]
-state q    rewrite [-a ANCHOR] ROW-ID (-n N | --slug NAME) [--slug NEW]      [BODY-source]
+state [-a ANCHOR] status  <set|show> ...       # {slug} Status.md facet cells (F130)
+state [-a ANCHOR] roadmap <status|migrate> ... # {slug} Roadmap.md milestone state (F145)
 ```
+
+- **`<doc>`** — the addressed document: the literal **`Backlog`** (the anchor's backlog file), a **wiki-name** (case-insensitive `.md` basename match — anchor tree first, then vault root; zero matches errors, multiple matches errors listing every candidate), or a **path**. Any markdown doc qualifies — feature docs, PRDs, standalone design docs.
+- **`<label>`** — LETTERS+DIGITS, the item's primary key within the doc: `F157` / `T8` on the Backlog, `Q7` / `V3` on any other doc. The mint form LETTERS+`+` (`F+`, `T+`, `Q+`, `V+`) assigns the next unused number — valid only with `define`; the assigned label is printed in the output.
+- **`<verb>`** — `define` | `set` | `resolve` | `remove` (per-target semantics below).
 
 ## ANCHOR RESOLUTION
 
-`-a ANCHOR` (long form: `--anchor`) is OPTIONAL on every verb. Resolved in this order:
+`-a ANCHOR` (long form: `--anchor`) is OPTIONAL on every invocation. Resolved in this order:
 
 1. `-a PATH` — path to an anchor folder (the directory containing `.anchor`).
 2. `-a SLUG` — slug name; script looks up via `ha --dump`. Errors if non-unique across the vault.
@@ -33,72 +33,62 @@ state q    rewrite [-a ANCHOR] ROW-ID (-n N | --slug NAME) [--slug NEW]      [BO
 
 Errors if all three modes fail (flag absent AND no `.anchor` ancestor of cwd).
 
-## TASK SUBCOMMANDS
+## BACKLOG ROWS — `state Backlog <F<n>|T<n>> <verb>`
 
 ```
-state task create   create a new row (mints the handle per --kind).
-                    --status S    required.  bracket text (Designing, Ready, …).
-                    --title  T    required.  row title.
-                    --horizon H   optional.  Now|Next|Later|Active|Ready|Verify|Done. defaults to Now.
-                    --body   B    optional.  row body (wiki-links, dates, descriptions).
-                    --kind   K    optional.  F (default) / T / B / R:
-                                    F — feature (has a feature doc); monotonic F<NNN>.
-                                    T — backlog task (row IS the spec, no doc); monotonic T<NNN>,
-                                        a SEPARATE namespace from F (T and F counters are independent).
-                                    B — legacy backlog item.
-                                    R — roadmap task; handle is the referenced entry's name-path
-                                        (R-<Name>.<path>), NOT a counter. Requires --entry.
-                    --entry  E    required for --kind R.  the roadmap entry (e.g. M-Scaffolding.5.2
-                                    or a leaf/non-leaf name-path); handle becomes R-<name-path>.
-                                  NOTE: does NOT create the feature doc file. /feature does that.
-                                  Orphan rows (no doc) surface as audit-q findings — by design.
+define    create-or-replace the WHOLE row. Body (stdin / --body / --from-file) is the
+          complete row markdown:
+              - **<label> — Title** [Status] — body
+          optionally followed by indented sub-bullets (carried through verbatim).
+          F+ / T+ mints the next number (independent namespaces, zero-padded triple-digit);
+          write the placeholder in the body header (`- **F+ — Title** [Status]`) and the
+          minted label is substituted. An explicit F<NNN> label replaces that row in place.
+          --horizon H   optional. Now|Next|Later|Active|Ready|Verify|Done.
+                        New rows default to Now; existing rows stay put.
+          Status guards enforce as always: [Ready]/[Active] need a Next declared,
+          [Verify]/[Watching] need a Verify question (in the body sub-bullets).
 
-state task update   modify properties of an existing row.
-                    ROW-ID        required positional.  F<NNN> or B<id>.
-                    --status S    optional.  new bracket text.
-                    --horizon H   optional.  new horizon (moves the row between H2 sections).
-                    --title  T    optional.  new title.
-                    --body   B    optional.  new body.
-                                  At least one of --status/--horizon/--title/--body required.
+set       partial update; omitted flags preserve current values. At least one of:
+          --status S    new bracket text (guards enforce; pair with --next / --verify
+                        when the target status requires one).
+          --horizon H   moves the row between H2 sections.
+          --title  T    new title.
+          --body   B    new body (flag only — set never reads stdin).
+          --next   X    `- **Next:**` no-user action sub-bullet.
+          --verify Q    `- **Verify:**` yes/no question sub-bullet.
 
-state task delete   remove a row entirely. Rare — normally use `update --status Done`.
-                    ROW-ID        required positional.
+resolve   move the row to ## Done [Done], appending `— resolved <date>: <note>` to the
+          body. Note via stdin / --body / --from-file (optional).
+
+remove    delete the row entirely. Rare — normally `resolve`, or `set --status Done`.
 ```
 
-## Q (QUESTION) SUBCOMMANDS
+`F` rows are features (have a feature doc; the row links it `→ [[F<n> — Title]]`); `T` rows are tasks (the row IS the spec). `B-QFix` is a grandfathered machinery singleton owned by `audit-q.py --fix`, not a v2-addressable label.
+
+## DOC QUERIES — `state <doc> <Q<n>|V<n>> <verb>`
+
+Questions (`Q`) live in `## Open Questions` ABOVE the doc's H1 while pending (Phase 1/2/3 lifecycle per [[DAS ask-format]]); verifications (`V`) live under the doc's `## Verifications` H2 (per F235 the doc is the verify home).
 
 ```
-state q add        add a new Q to the feature doc's `## Open Questions`.
-                   ROW-ID        required positional (the row whose doc holds Qs).
-                   --slug NAME   optional.  attach a semantic slug at creation.
-                                 Block-ID always uses the Q-number (`^F128-Q5`);
-                                 slug is metadata stamped in the bullet for cross-ref.
-                   <BODY>        required.  via stdin / -m / --from-file (see § BODY SOURCE).
-                                 Auto-mints the next Q-number per ask-format.
+Q define    create-or-replace Q<n> in place (subsumes add + rewrite). Q+ mints the lowest
+            unused Q-number. Body via stdin / --body / --from-file; accepts either the bare
+            body or the complete `- **Q<n> — ...` bullet. Write-time gate: ask-format
+            requires >=2 own-line labeled option bullets (`- **(A)** ...`) AND a
+            `- **Recommendation:**` line at indent 0 (value may be None).
 
-state q answer     move an Open Question to `## Resolved` as a `### Q<n> — Title` H3.
-                   ROW-ID        required positional.
-                   -n N          identify Q by number.    EITHER -n OR --slug.
-                   --slug NAME   identify Q by slug.
-                   --choice OPT  required.  the chosen option label, e.g. '(A)'.
-                                            written into `**Choice:** OPT` in the H3.
-                   <BODY>        optional.  resolution body via stdin/-m/--from-file.
-                                            blockquoted original Q context is appended automatically.
+Q resolve   move the Q to the bottom ## Resolved as a `### Q<n> — Title` H3.
+            --choice OPT  required. the chosen option label, e.g. '(A)' — written into
+                          `**Choice:** OPT` in the H3.
+            <BODY>        optional resolution body; the blockquoted original Q context is
+                          appended automatically. When the last pending Q resolves, the doc
+                          enters Phase 2 (the above-H1 block is deleted).
 
-state q remove     soft-delete a Q (preserves audit trail in `### Removed` H3).
-                   ROW-ID        required positional.
-                   -n N          identify Q by number.    EITHER -n OR --slug.
-                   --slug NAME   identify Q by slug.
-                   --reason TEXT optional.  short reason stamped in the H3 title.
-                                            Q-number stays consumed forever; never reused.
+Q remove    soft-delete (audit trail in ### Removed H3). --reason TEXT optional.
+            Q-numbers stay consumed forever; never reused.
 
-state q rewrite    overwrite a Q's body. `rewrite` IS the explicit intent — no --force flag.
-                   ROW-ID        required positional.
-                   -n N          identify Q by number.    EITHER -n OR --slug.
-                   --slug NAME   identify Q by slug.    (the existing slug)
-                   --slug NEW    rename the Q's slug.   (same flag; second occurrence = new value)
-                                 To attach a slug to a Q that didn't have one: just pass --slug NEW.
-                   <BODY>        required.  new body via stdin/-m/--from-file.
+V define    create-or-replace V<n> under ## Verifications (H2 auto-created). V+ mints.
+V resolve   record the user's answer on the V-item.
+V remove    soft-delete with audit trail.
 ```
 
 ## BODY SOURCE
@@ -106,82 +96,84 @@ state q rewrite    overwrite a Q's body. `rewrite` IS the explicit intent — no
 Pick ONE. Priority order if multiple given:
 
 ```
--m TEXT          inline (short one-liners; shell-quoted).
---from-file P    read from file (long Qs / multi-paragraph bodies).
-<stdin>          default when neither -m nor --from-file given. Heredoc-friendly.
+--body TEXT      inline (short one-liners; shell-quoted).
+--from-file P    read from file (long bodies).
+<stdin>          default when neither given. Heredoc-friendly. (`set` is the exception —
+                 it never reads stdin; its --body is the row body value.)
 ```
 
-## POST-CONDITIONS (Q-mode)
+## POST-CONDITIONS
 
-Every `state q` invocation runs the following post-condition. (The `{anchor} queries.md` page is built on demand by `/ask`'s determination logic — there is no separate render step.)
+Every mutation runs the full sync in one call — this is the atomic-propagation contract (F236 § Design):
 
 ```
-1. audit-q.py --scope q --dry — lenient warn. errors print to stderr; don't unwind the Q-edit.
-                                cross-anchor errors never block a local Q-edit.
+1. target doc / backlog row updated.
+2. audit-q.py --scope backlog --anchor <slug> --fix — refreshes ~/ob/kmr/Q.md
+   (banner counts, status drift). Doc targets also run a lenient
+   audit-q --scope q --dry (errors warn to stderr; never unwind the edit).
+3. one [INFO] entry appended to {slug} Messages.md + the global agent-messages sentinel.
 ```
 
 ## EXAMPLES
 
 ```
-# task: mint a new Designing feature, default horizon Now
-state task create --status Designing --title "Sparse-checkout docs migration"
+# row: mint a new Designing feature, default horizon Now — parse "added F<NNN>" from stdout
+echo '- **F+ — Sparse-checkout docs migration** [Designing]' | state Backlog F+ define
 
-# task: cross-anchor mint (explicit slug)
-state task create --anchor MUX --status Designing --title "Dmux ghost-panel bug"
+# row: cross-anchor mint (explicit slug)
+echo '- **F+ — Dmux ghost-panel bug** [Designing]' | state -a MUX Backlog F+ define
 
-# task: promote to Ready
-state task update F099 --status Ready
+# row: promote to Ready (guards demand the Next)
+state Backlog F099 set --status Ready --next "implement per Design § 2"
 
-# task: move horizon AND change body
-state task update F099 --horizon Later --body "→ [[F099 — sparse-checkout]] — deferred to v2"
+# row: move horizon AND change body
+state Backlog F099 set --horizon Later --body "→ [[F099 — sparse-checkout]] — deferred to v2"
 
-# task: rare delete (typo at mint)
-state task delete F999
+# row: finish with a resolution note
+state Backlog F099 resolve --body "Shipped 2026-07-13 — commit abc123"
 
-# q: add (stdin, numeric-only)
-echo '**Q5 — short** — body.' | state q add F091
+# q: mint on any doc (feature doc, PRD, design doc) — ask-format enforced at write time
+state "MUX PRD" Q+ define < q-body.md
 
-# q: add with slug at creation
-echo '**Q5 — body** — ...' | state q add F091 --slug trigger-mechanism
+# q: replace an existing Q's body (define IS the rewrite)
+state "F091 — Trigger mechanism" Q5 define < new-body.md
 
-# q: answer by number OR slug
-echo 'team picked A' | state q answer F091 -n 5            --choice '(A)'
-echo 'team picked A' | state q answer F091 --slug trigger  --choice '(A)'
-
-# q: attach slug to existing Q (rewrite without changing body — pass --slug NEW)
-state q rewrite F091 -n 5 --slug trigger-mechanism -m "**Q5 — trigger mechanism** — (body unchanged)"
+# q: resolve by number
+echo 'team picked A' | state "F091 — Trigger mechanism" Q5 resolve --choice '(A)'
 
 # q: remove with audit trail
-state q remove F091 -n 5 --reason 'obsoleted by F128'
+state "F091 — Trigger mechanism" Q5 remove --reason 'obsoleted by F128'
 
-# q: full rewrite of body
-echo '**Q5 — rewritten** — fresh body.' | state q rewrite F091 -n 5
+# v: define an addressable verification on the doc (F235)
+echo 'Does the render link the doc first? — check SKA queries.md' | state "Bridge Design" V+ define
 ```
 
 ## DESIGN NOTES
 
-**Why `state` and not `status` or `backlog-edit`.** `status` reads as "show me the status" (every actual invocation MUTATES); `backlog-edit` was the F128-era name when scope was just rows. `state` is honest about scope and direction.
+**Why one address scheme.** The state machinery grew verb-family by verb-family (`task` for rows, `q` for questions, `--verify` bolted onto rows) and never reached the unifying idea: **a document's stateful sub-items are all the same kind of thing, addressed the same way** (F236, user-designed 2026-07-13). `state <doc> <label> <verb>` collapses the surface to one grammar; the label letter (F/T/Q/V) distinguishes kind.
 
-**Why `task` and not `row`.** Agents and humans both think in "tasks," not "markdown rows." The conflict with the existing `task` skill (which manages shell-execution tasks) is contained by the `state task` namespacing.
+**Why `define` is create-or-replace.** One idempotent verb instead of add-vs-rewrite mode split — "you're just defining the whole thing." The audit trail comes from git plus `remove`'s soft-delete, not from write-mode ceremony.
 
-**Why verb-first.** Surface is going to grow (`state doc`, `state messages`, `state verify` already feel inevitable). Verb-first keeps every command at the same grammatical shape.
+**Why `set` exists (rows only).** Whole-row `define` is the wrong tool for the overwhelmingly common bracket-only transition; `set`'s preserve-on-omit flags keep the runbooks' `--status X --next "..."` convenience. Q/V items don't need it — their partial edits are full-body `define`s in practice.
+
+**Why any doc can carry items.** The F-number-keyed design of F128/F129 was the limitation the user hit — a design doc with open questions is a first-class target. Asking a question IS assigning it to a document; there is no other way to ask.
 
 **Why anchor is optional with cwd-walkup.** Agents almost always know their anchor implicitly via cwd. Path-based anchor lookup handles the non-unique-slug case across projects. Slug is still accepted for compactness when uniqueness holds.
 
-**Why no `--force` on rewrite.** The verb name *is* the explicit intent declaration. `--force` was solving "did you mean to do this?" for a verb whose name literally means "yes, overwrite." Drop it. The Recommendation-presence gate from F128 is also dropped — the verb is enough.
+**Why this script doesn't create the feature doc file.** Separation of concerns: `state Backlog F+ define` mints the ROW; `/feature` owns the doc. Orphan rows (row exists, doc doesn't) surface as audit-q findings — by design. Trying to bundle would duplicate `/feature`'s shape conventions (frontmatter, Open Questions block, Status block, glance discipline) into the script and create a drift surface.
 
-**Why `answer` and not `resolve`.** Friendlier; matches how users say it. Section header stays `## Resolved` (state); verb is `answer` (action) — same ticket-system convention.
-
-**Why this script doesn't create the feature doc file.** Separation of concerns: `state task create` mints the ROW; `/feature` owns the doc. Orphan rows (row exists, doc doesn't) surface as audit-q findings — by design. Trying to bundle would duplicate `/feature`'s shape conventions (frontmatter, Open Questions block, Status block, glance discipline) into the script and create a drift surface.
+**Enforcement is two-sided.** `state`-side integrity runs audit-q on every mutation; hand-edit-side, warden's `R-pathguard` denies backlog/queries hand-edits and `R-state-region` (anchor-base, vault-wide) reminds on hand-edits to any item-bearing doc's `## Open Questions` / `## Resolved` / `## Status` regions (advisory, per F236 Q3).
 
 ## IMPLEMENTATION STATUS
 
-- **Shipped (F129, 2026-06-07):** `~/.claude/skills/workflow/scripts/state` is canonical. Verb-first restructure (`task create|update|delete` + `q add|answer|remove|rewrite`); `-a/--anchor` (path|slug|cwd-walkup); no `--force` on rewrite; `--slug` hybrid. Caller doc-sweep across `/feature`, `/ask`, `/groom`, `/triage`, `/crank`, `/mint`, `/finalize`, `/rewire`, `/audit` SKILL.md files is incremental — both scripts coexist.
-- **Legacy:** `~/.claude/skills/workflow/scripts/backlog-edit.py` ships the F128-era positional CLI + `-Q add|resolve|remove|rewrite` flag-mode. `state` delegates to its helpers via importlib — single source of truth at the helper level; both scripts share the same state.json file used by `/audit integrity`.
+- **Canonical (F236, 2026-07-13):** the v2 grammar above — `<doc> <label> <verb>` with `+`-mint and `set` — plus the surviving `status` (F130) and `roadmap` (F145) domains. The F129 `task`/`q` verb families were retired in the same release (tombstones point at the v2 forms); all skill runbooks (`/feature`, `/ask`, `/groom`, `/crank`, `/mint`, `/finalize`, `/rewire`, `/audit`, workflow) were swept in the same pass.
+- **Helper layer:** `~/.claude/skills/workflow/scripts/backlog-edit.py` holds the shared row/Q helpers; `state` delegates via importlib — single source of truth at the helper level; both share the same state.json file used by `/audit integrity`.
 
 ## RELATED
 
+- [[F236 — state v2 — one address scheme — state doc label verb for rows, questions, and verifications|F236]] — the one-address-scheme design + milestones.
 - [[DAS ask-format]] — Q-format spec the script enforces.
-- [[F127 — Always-render ask report — ask invariant render + audit + glance before dialogue|F127]] — the render-audit-glance invariant `state q` post-conditions implement.
-- [[F128 — Status script as source-of-truth for Q-management — extend backlog-edit.py|F128]] — the predecessor shipped 2026-06-07 (Q-management arrived under the old CLI shape).
+- [[F235 — Verification lives in the feature doc — Success Criteria as the verify home, render links the doc|F235]] — the doc-first verification chain V-items complete.
+- [[F127 — Always-render ask report — ask invariant render + audit + glance before dialogue|F127]] — the render-audit-glance invariant the doc-target post-conditions implement.
+- [[F128 — Status script as source-of-truth for Q-management — extend backlog-edit.py|F128]] / F129 — the predecessors (2026-06-07).
 - [[DAS workflow]] — user-voice discipline page.

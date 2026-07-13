@@ -69,7 +69,7 @@ SKIP_PATH_FRAGMENTS = ("/.history/", "/worktrees/", "/Yore/", "/.trash/")
 
 # Closed set of canonical backlog-row status brackets (per [[SKA workflow]]).
 # Write-time enforcement lives in validate_status() below. Non-canonical brackets
-# ([Designed], [Foo], …) get rejected at state task create/update rather than
+# ([Designed], [Foo], …) get rejected at state Backlog define/set rather than
 # silently written, then rendering as ⚠ with no Ready/Questions banner mapping.
 VALID_STATUS_BASE = frozenset({
     "Ready", "Active", "Designing", "Questions",
@@ -1022,7 +1022,7 @@ def perform_edit(
             existing_status_for_check = full_m.group("status") or ""
         # F147 — status=="same" means "keep the existing bracket". Without this,
         # render_row would write the literal `[same]`, silently clobbering the
-        # real status (e.g. a body-only `state task update` losing [Designing]).
+        # real status (e.g. a body-only `state Backlog set` losing [Designing]).
         if status == "same" and existing_status_for_check:
             status = existing_status_for_check
 

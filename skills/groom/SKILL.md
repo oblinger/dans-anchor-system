@@ -165,11 +165,11 @@ If scope was provided as an argument (`all`, `now`, `later`, …), narrow or wid
 
 Before promotion work, walk every bullet in scope and **reassess any non-standard or stale bracket**, rewriting to the correct standard bracket per `[[SKA workflow]]`. This is the structural home for the rebracketing discipline; the render (`queries-render.py`) reflects bracket honesty mechanically, `/groom` is where the actual rewrites land. The bracket-reassessment runs lazily — `/crank`'s cascade (per `[[SKA crank]]` § 2a) only invokes `/groom` when the Ready queue runs dry, so most cycles don't pay the cost.
 
-**Mutation discipline — all rewrites go through `state task update`.** Do not edit `{slug} Backlog.md` directly. Each "rewrite to `[X]`" below maps to:
+**Mutation discipline — all rewrites go through `state Backlog <row-id> set`.** Do not edit `{slug} Backlog.md` directly. Each "rewrite to `[X]`" below maps to:
 
 ```bash
-~/.claude/skills/workflow/scripts/state --anchor {slug} task update <row-id> --status <X>                       # bracket-only; preserves title+body
-~/.claude/skills/workflow/scripts/state --anchor {slug} task update <row-id> --status Done --horizon Done       # rewrite + move (e.g., stale [Done] in horizon H2)
+~/.claude/skills/workflow/scripts/state --anchor {slug} Backlog <row-id> set --status <X>                      # bracket-only; preserves title+body
+~/.claude/skills/workflow/scripts/state --anchor {slug} Backlog <row-id> set --status Done --horizon Done      # rewrite + move (e.g., stale [Done] in horizon H2)
 ```
 
 Omitting `--horizon` keeps the row in its current H2; passing `--horizon Active|Done|Ready|...` moves it. Title and body are preserved when omitted (the script reads the existing row). The script auto-refreshes `~/ob/kmr/Q.md`, so § 5's post-condition is satisfied for free.
@@ -200,18 +200,18 @@ This reassessment is **the** primary value `/groom` adds beyond promotion: witho
 
 **Decide:**
 
-- **Bullet is Ready (or plannable to Ready)** — the description plus your investigation tells you how to do the task without further user involvement. Write the `- **Next:**` sub-bullet (the plan's first step; add 1–3 more plan sub-bullets when the approach needs stating), then promote via `state task update`:
+- **Bullet is Ready (or plannable to Ready)** — the description plus your investigation tells you how to do the task without further user involvement. Write the `- **Next:**` sub-bullet (the plan's first step; add 1–3 more plan sub-bullets when the approach needs stating), then promote via `state Backlog <row-id> set`:
 
   ```bash
-  ~/.claude/skills/workflow/scripts/state --anchor {slug} task update <row-id> --status Ready --horizon Ready
+  ~/.claude/skills/workflow/scripts/state --anchor {slug} Backlog <row-id> set --status Ready --horizon Ready --next "<the declared first step>"
   ```
 
   F-number, title, and body are preserved. Done with this item.
 
-- **Has questions** — anything you'd need the user to clarify. Create a feature doc at `{slug} Docs/{slug} Plan/{slug} Features/F{n} — {Item Name}.md` (using the backlog row's F-number; per [[DAS Backlog]] § Numbering policy) with the standard `## Open Questions` block (per `/feature` § 1 and [[SKA queries]] § When a file is involved). Capture the questions there — **every** question goes to the doc; there is no inline-question slot (retired per [[Query PRD]] R1). **This is parking mode** (per [[SKA queries]] § Active vs Parking) — do NOT glance the new feature doc. The user invoked `/groom` as a *batch* operation specifically to defer per-item engagement; glancing each created doc would interrupt the very deferral they asked for. Update the backlog row via `state task update` to set the wiki-link body and switch the bracket to `Questions`:
+- **Has questions** — anything you'd need the user to clarify. Create a feature doc at `{slug} Docs/{slug} Plan/{slug} Features/F{n} — {Item Name}.md` (using the backlog row's F-number; per [[DAS Backlog]] § Numbering policy) with the standard `## Open Questions` block (per `/feature` § 1 and [[SKA queries]] § When a file is involved). Capture the questions there — **every** question goes to the doc; there is no inline-question slot (retired per [[Query PRD]] R1). **This is parking mode** (per [[SKA queries]] § Active vs Parking) — do NOT glance the new feature doc. The user invoked `/groom` as a *batch* operation specifically to defer per-item engagement; glancing each created doc would interrupt the very deferral they asked for. Update the backlog row via `state Backlog <row-id> set` to set the wiki-link body and switch the bracket to `Questions`:
 
   ```bash
-  ~/.claude/skills/workflow/scripts/state --anchor {slug} task update <row-id> --status Questions --body "→ [[F<n> — {Item Name}]]"
+  ~/.claude/skills/workflow/scripts/state --anchor {slug} Backlog <row-id> set --status Questions --body "→ [[F<n> — {Item Name}]]"
   ```
 
   The item is now blocked-on-questions; it surfaces through the queries doc at end-of-run via § 5.

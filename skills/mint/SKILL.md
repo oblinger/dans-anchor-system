@@ -153,22 +153,22 @@ skl-stat update <S#> "Testing" "Implementation complete, running tests"
 skl-stat update <S#> "Done" "Feature complete and tested"
 ```
 
-### 7. Bracket transitions + Q.md refresh — via `state task update`
+### 7. Bracket transitions + Q.md refresh — via `state Backlog <row-id> set`
 
 State transitions on the backlog row are mandatory and go through the workflow skill's `state` — no direct backlog edits:
 
 ```bash
 # At mint start (Ready → Active):
-~/.claude/skills/workflow/scripts/state --anchor {slug} task update <row-id> --status Active --horizon Active
+~/.claude/skills/workflow/scripts/state --anchor {slug} Backlog <row-id> set --status Active --horizon Active
 
 # At mint completion, if verification is needed (Active → Verify):
-~/.claude/skills/workflow/scripts/state --anchor {slug} task update <row-id> --status Verify
+~/.claude/skills/workflow/scripts/state --anchor {slug} Backlog <row-id> set --status Verify
 
 # Or if no verification is needed (Active → Done):
-~/.claude/skills/workflow/scripts/state --anchor {slug} task update <row-id> --status Done --horizon Done
+~/.claude/skills/workflow/scripts/state --anchor {slug} Backlog <row-id> set --status Done --horizon Done
 ```
 
-`state task update` preserves the row's title and body (omit those flags) and auto-refreshes the anchor's per-anchor section in `~/ob/kmr/Q.md` (by shelling out to `audit-q.py --scope backlog --anchor {slug} --fix`). **The backlog file is NOT reordered** — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior.
+`state Backlog <row-id> set` preserves the row's title and body (omit those flags) and auto-refreshes the anchor's per-anchor section in `~/ob/kmr/Q.md` (by shelling out to `audit-q.py --scope backlog --anchor {slug} --fix`). **The backlog file is NOT reordered** — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior.
 
 The audit's fix-by-default behavior catches any drift introduced — broken links, stale brackets, banner mismatches, stale `[Done]` rows — and either repairs them mechanically OR (rare) files a `QFix [Ready]` backlog entry. **Surfacing any QFix entry is part of this skill's "done" criteria** — read the script's output for QFix lines and surface them to the user.
 
