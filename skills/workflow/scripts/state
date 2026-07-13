@@ -19,6 +19,14 @@ Surface (terse):
     state roadmap status get  [--anchor A] (--feature F<n> | --milestone M-<Name>[.<n>])    # F145
     state roadmap status set  [--anchor A] (--feature F<n> | --milestone M-<Name>[.<n>]) --state {checked|unchecked|deferred}  # F145
     state roadmap migrate     [--anchor A] M-<Name> --date YYYY-MM-DD     # F145
+
+F236 v2 — one address scheme (additive; the surface above keeps working):
+    state [-a ANCHOR] <doc> <label> <verb> [--horizon H] [--choice X] [--reason R]
+          [--body B | --from-file P] [< body]
+        doc   = Backlog (case-insensitive) | wiki-name | path to a .md file
+        label = LETTERS+DIGITS — Q7 / V3 (any doc) / F157 / T8 (Backlog only)
+        verb  = define (create-or-replace) | resolve (move to Done/Resolved) |
+                remove (soft-delete, audit trail preserved)
 """
 from __future__ import annotations
 
@@ -435,13 +443,41 @@ def cmd_q_add(slug, anchor_path, args):
     return 0
 
 
+def _clamp_h2_end_to_h1(lines, h2_start, h2_end):
+    """Tighten an H2 content range from be._find_h2 (generic H2-line to
+    next-'## '-line) to stop at the doc's H1 if the H1 falls inside that
+    range. `## Open Questions` sits ABOVE the H1 by design (Phase 1/2/3
+    lifecycle, per [[DAS ask-format]]); be._find_h2 doesn't know that
+    convention, so when there's no OTHER '## ' heading between the Open
+    Questions block and the doc's first real H2, the computed end wanders
+    through the H1 line and all body prose — defeating any "is this block
+    empty" check and mis-siting insertions. Only ever narrows the range,
+    never changes behavior for a genuinely doc-body-scoped H2. (Found via
+    F236 v2 smoke-testing — confirmed pre-existing across 52 vault docs
+    carrying a residual empty `## Open Questions` H2 from this exact gap;
+    left untouched in backlog-edit.py's `-Q resolve`/`-Q remove`, which this
+    v2 work doesn't otherwise modify.)
+    """
+    for k in range(h2_start + 1, h2_end):
+        if lines[k].startswith("# ") and not lines[k].startswith("## "):
+            return k
+    return h2_end
+
+
 def cmd_q_answer(slug, anchor_path, args):
     """Answer a Q — move to ## Resolved as ### Qn — Title H3."""
     feature_path = be._find_feature_doc(slug, args.row_id)
-    text = feature_path.read_text(encoding="utf-8")
     body = read_body(args)
+    return _q_answer_core(slug, feature_path, args.q_num, args.slug, args.choice, body)
+
+
+def _q_answer_core(slug, feature_path, q_num, q_slug, choice, body):
+    """Block-surgery for Q-answer, factored out of `feature_path` lookup (F236
+    v2) so it runs against ANY doc path — the legacy `state q answer` locates
+    feature_path by F-number first, then calls this same core."""
+    text = feature_path.read_text(encoding="utf-8")
     lines = text.splitlines()
-    start, end, _, q_num = _resolve_q_identifier(lines, args.q_num, args.slug)
+    start, end, _, q_num = _resolve_q_identifier(lines, q_num, q_slug)
     header = lines[start]
     title_m = re.match(r"^\s*- \*\*Q\d+\s+—\s+([^*]+?)\*\*", header)
     title = title_m.group(1).strip() if title_m else "Untitled"
@@ -450,7 +486,7 @@ def cmd_q_answer(slug, anchor_path, args):
     h3_lines = [
         "",
         f"### Q{q_num} — {title} (resolved {today})",
-        f"**Choice:** {args.choice}",
+        f"**Choice:** {choice}",
         "",
     ]
     if body.strip():
@@ -470,6 +506,7 @@ def cmd_q_answer(slug, anchor_path, args):
     oq = be._find_h2(lines, "Open Questions")
     if oq is not None:
         oq_start, oq_end = oq
+        oq_end = _clamp_h2_end_to_h1(lines, oq_start, oq_end)
         empty = True
         for k in range(oq_start + 1, oq_end):
             if lines[k].strip() and not lines[k].startswith("### "):
@@ -490,7 +527,7 @@ def cmd_q_answer(slug, anchor_path, args):
         "\n".join(lines) + ("\n" if text.endswith("\n") else ""),
         encoding="utf-8",
     )
-    summary = f"answered Q{q_num} (choice {args.choice}) in {feature_path.name}"
+    summary = f"answered Q{q_num} (choice {choice}) in {feature_path.name}"
     _post_conditions_and_print(slug, feature_path, summary)
     return 0
 
@@ -498,10 +535,16 @@ def cmd_q_answer(slug, anchor_path, args):
 def cmd_q_remove(slug, anchor_path, args):
     """Remove a Q — move body to ### Removed H3 for audit trail."""
     feature_path = be._find_feature_doc(slug, args.row_id)
+    return _q_remove_core(slug, feature_path, args.q_num, args.slug, args.reason)
+
+
+def _q_remove_core(slug, feature_path, q_num, q_slug, reason):
+    """Block-surgery for Q-remove, factored out of `feature_path` lookup (F236
+    v2) so it runs against ANY doc path — see `_q_answer_core`."""
     text = feature_path.read_text(encoding="utf-8")
-    reason = args.reason or "no reason provided"
+    reason = reason or "no reason provided"
     lines = text.splitlines()
-    start, end, _, q_num = _resolve_q_identifier(lines, args.q_num, args.slug)
+    start, end, _, q_num = _resolve_q_identifier(lines, q_num, q_slug)
     header = lines[start]
     title_m = re.match(r"^\s*- \*\*Q\d+\s+—\s+([^*]+?)\*\*", header)
     title = title_m.group(1).strip() if title_m else "Untitled"
@@ -522,6 +565,7 @@ def cmd_q_remove(slug, anchor_path, args):
         lines, (oq_start, oq_end) = be._ensure_open_questions_h2(lines)
     else:
         oq_start, oq_end = oq
+        oq_end = _clamp_h2_end_to_h1(lines, oq_start, oq_end)
     removed = be._find_h3_in_h2(lines, oq_start, oq_end, "Removed")
     if removed is None:
         insert_at = oq_end
@@ -1079,6 +1123,676 @@ def cmd_roadmap_migrate(slug, anchor_path, args):
 
 
 # ============================================================
+# F236 — state v2: one address scheme
+#   state [-a ANCHOR] <doc> <label> <verb> [flags] [< body]
+#
+# <doc>   Backlog (case-insensitive) | wiki-name | path to a .md file
+# <label> LETTERS+DIGITS — Q7 / V3 / F157 / T8 — the "queries" umbrella term
+# <verb>  define | resolve | remove
+#
+# Additive: task/q/status/roadmap keep working unchanged. Dispatch in main()
+# routes here whenever the first positional isn't one of those domain names.
+# ============================================================
+
+
+_V2_LABEL_RE = re.compile(r"^([A-Z]+)(\d+)$")
+_V2_SKIP_PATH_FRAGMENTS = ("/.trash/", "/Yore/", "/_ARCHIVES_/", "/Versions/")
+
+
+def parse_v2_label(label):
+    """Split a v2 label into (letters, number). Raises on anything not
+    matching `^[A-Z]+\\d+$` (Q7, V3, F157, T8)."""
+    m = _V2_LABEL_RE.match(label)
+    if not m:
+        raise be.BacklogEditError(
+            f"invalid label {label!r} — expected LETTERS+DIGITS "
+            f"(e.g. Q7, V3, F157, T8)"
+        )
+    return m.group(1), int(m.group(2))
+
+
+def _v2_find_by_basename(root, target_lower):
+    """Case-insensitive `.md` basename search under root, skipping noisy
+    path fragments (mirrors be.SKIP_PATH_FRAGMENTS's spirit with the v2
+    spec's own skip-list). Returns a list of matching Paths."""
+    matches = []
+    root = Path(root)
+    if not root.is_dir():
+        return matches
+    for r, dirs, files in os.walk(root, followlinks=True):
+        rp = r + "/"
+        if any(frag in rp for frag in _V2_SKIP_PATH_FRAGMENTS):
+            dirs[:] = []
+            continue
+        for f in files:
+            if f.lower() == target_lower:
+                matches.append(Path(r) / f)
+    return matches
+
+
+def resolve_v2_doc(doc_arg, slug, anchor_path):
+    """Resolve the `<doc>` token of the v2 grammar.
+
+    Returns ('backlog', path) for the literal `Backlog`, or ('doc', path)
+    for anything else. Path mode (absolute/relative path ending in `.md` or
+    containing a `/`) resolves directly. Wiki-name mode (no slash, no `.md`)
+    resolves case-insensitively by basename — anchor tree first, then the
+    vault root. Zero matches errors; multiple matches errors listing every
+    candidate (never guess).
+    """
+    if doc_arg.strip().lower() == "backlog":
+        return ("backlog", be.find_backlog(slug))
+
+    if "/" in doc_arg or doc_arg.endswith(".md") or doc_arg.startswith("~"):
+        p = Path(doc_arg).expanduser()
+        p = p.resolve() if p.is_absolute() else (Path.cwd() / p).resolve()
+        if not p.is_file():
+            raise be.BacklogEditError(f"doc path not found: {p}")
+        return ("doc", p)
+
+    target_lower = f"{doc_arg}.md".lower()
+    anchor_matches = _v2_find_by_basename(anchor_path, target_lower)
+    if anchor_matches:
+        if len(anchor_matches) > 1:
+            cand = "\n  ".join(str(m) for m in anchor_matches)
+            raise be.BacklogEditError(
+                f"ambiguous doc name {doc_arg!r} — multiple candidates under "
+                f"the anchor:\n  {cand}\nUse a path instead to disambiguate."
+            )
+        return ("doc", anchor_matches[0])
+
+    vault_matches = _v2_find_by_basename(be.VAULT_ROOT, target_lower)
+    if not vault_matches:
+        raise be.BacklogEditError(
+            f"no doc found matching {doc_arg!r} (.md) under the anchor or "
+            f"vault root {be.VAULT_ROOT}"
+        )
+    if len(vault_matches) > 1:
+        cand = "\n  ".join(str(m) for m in vault_matches)
+        raise be.BacklogEditError(
+            f"ambiguous doc name {doc_arg!r} — multiple candidates in the "
+            f"vault:\n  {cand}\nUse a path instead to disambiguate."
+        )
+    return ("doc", vault_matches[0])
+
+
+def _validate_ask_format_body(body):
+    """Write-time gate for `Q<n> define` bodies — refuses anything that
+    doesn't carry the ask-format basics: ≥2 own-line labeled option bullets
+    AND a `- **Recommendation:**` line at indent 0 (value may be `None`).
+    The full discipline (block-IDs, strength labels, spacing) is enforced by
+    /audit q; this just keeps a flatfooted question from entering at all.
+    Per [[DAS ask-format]].
+    """
+    option_re = re.compile(r"^\s*-\s+\*\*\([A-Za-z0-9]+\)\*\*", re.MULTILINE)
+    options = option_re.findall(body)
+    if len(options) < 2:
+        raise be.BacklogEditError(
+            "define refused: ask-format requires ≥2 labeled option "
+            "bullets, each on its own line (e.g. `- **(A)** ...`); found "
+            f"{len(options)}. See [[DAS ask-format]]."
+        )
+    rec_re = re.compile(r"^-\s+\*\*Recommendation:\*\*", re.MULTILINE)
+    if not rec_re.search(body):
+        raise be.BacklogEditError(
+            "define refused: ask-format requires a `- **Recommendation:**` "
+            "line at indent 0 (value may be `None`). See [[DAS ask-format]]."
+        )
+
+
+# ------------------------------------------------------------------
+# v2 — Backlog target (F/T labels)
+
+
+def _attach_raw_subbullets(file_path, row_id, sub_lines):
+    """Best-effort: insert literal sub-bullet lines verbatim directly under
+    row_id's header line in file_path. Used by `Backlog <F|T> define` to
+    carry through any indented sub-bullets present in the define body beyond
+    the single row line. No-op if the row isn't found in this file."""
+    if not sub_lines:
+        return
+    text = file_path.read_text(encoding="utf-8")
+    lines = text.splitlines()
+    row_i = None
+    for i, line in enumerate(lines):
+        rm = be.ROW_HEADER_RE.match(line)
+        if rm and len(rm.group(1)) == 0 and rm.group(2) == row_id:
+            row_i = i
+            break
+    if row_i is None:
+        return
+    normalized = [sl if sl.startswith(" ") else f"  {sl}" for sl in sub_lines]
+    lines = lines[:row_i + 1] + normalized + lines[row_i + 1:]
+    file_path.write_text(
+        "\n".join(lines) + ("\n" if text.endswith("\n") else ""), encoding="utf-8"
+    )
+
+
+def _v2_row_define(slug, backlog_path, label, args):
+    """`Backlog <F|T> define` — create-or-replace the whole row. The body IS
+    the complete row markdown (`- **<label> — Title** [Status] — body`),
+    optionally followed by indented sub-bullets. Routes through
+    `_delegate_row_edit` (same guard machinery `task create`/`update` use) so
+    status/Verify/Next/Questions promises still enforce."""
+    raw = read_body(args)
+    if not raw.strip():
+        raise be.BacklogEditError(
+            "define requires a body via stdin or --body — the complete row "
+            f"markdown (`- **{label} — Title** [Status] — body`, optionally "
+            "followed by indented sub-bullets)"
+        )
+    body_lines = raw.rstrip("\n").splitlines()
+    first = body_lines[0].strip()
+    m = be.ROW_FULL_RE.match(first)
+    if not m or m.group("rid") != label:
+        raise be.BacklogEditError(
+            f"define body's first line doesn't parse as a row for {label}: "
+            f"expected `- **{label} — Title** [Status] — body`, got {first!r}"
+        )
+    title = (m.group("title") or "").strip()
+    status = m.group("status").strip()
+    row_body = (m.group("body") or "").strip()
+    sub_lines = [l for l in body_lines[1:] if l.strip()]
+
+    icebox_path = be.find_icebox(slug)
+    exists = be.row_in_file(backlog_path, label) or bool(
+        icebox_path and be.row_in_file(icebox_path, label)
+    )
+    if args.horizon:
+        horizon = args.horizon
+    elif exists:
+        horizon = "same"
+    else:
+        horizon = "Now"
+
+    result_code = _delegate_row_edit(
+        slug, horizon, label, status, title, row_body,
+        title_provided=True, body_provided=True,
+    )
+    if sub_lines:
+        icebox_path = be.find_icebox(slug)  # may have just been created
+        dst = backlog_path if be.row_in_file(backlog_path, label) else icebox_path
+        if dst is not None:
+            _attach_raw_subbullets(dst, label, sub_lines)
+    return result_code
+
+
+def _v2_row_resolve(slug, backlog_path, label, args):
+    """`Backlog <F|T> resolve` — move the row to `## Done` [Done], appending
+    `— resolved <date>: <body>` to the row body."""
+    resolution = read_body(args)
+    icebox_path = be.find_icebox(slug)
+    src_file = None
+    if be.row_in_file(backlog_path, label):
+        src_file = backlog_path
+    elif icebox_path and be.row_in_file(icebox_path, label):
+        src_file = icebox_path
+    if src_file is None:
+        raise be.BacklogEditError(
+            f"{label} not found in {backlog_path.name} or Icebox — nothing to resolve"
+        )
+    lines0 = src_file.read_text(encoding="utf-8").splitlines()
+    row_i = None
+    for i, line in enumerate(lines0):
+        rm = be.ROW_HEADER_RE.match(line)
+        if rm and len(rm.group(1)) == 0 and rm.group(2) == label:
+            row_i = i
+            break
+    existing_title, existing_body = (
+        be.parse_existing_row(lines0[row_i]) if row_i is not None else ("", "")
+    )
+    today = date.today().isoformat()
+    note = f"resolved {today}"
+    if resolution.strip():
+        note += f": {resolution.strip()}"
+    new_body = f"{existing_body} — {note}" if existing_body else note
+    return _delegate_row_edit(
+        slug, "Done", label, "Done", existing_title, new_body,
+        title_provided=True, body_provided=True,
+    )
+
+
+def _v2_row(slug, backlog_path, label, verb, args):
+    if verb == "define":
+        return _v2_row_define(slug, backlog_path, label, args)
+    if verb == "resolve":
+        return _v2_row_resolve(slug, backlog_path, label, args)
+    if verb == "remove":
+        return _delegate_row_edit(
+            slug, "same", label, "delete", "", "",
+            title_provided=False, body_provided=False,
+        )
+    raise be.BacklogEditError(f"unknown verb {verb!r} for a Backlog row")
+
+
+# ------------------------------------------------------------------
+# v2 — Q labels on any doc
+
+
+def _q_define_core(slug, feature_path, q_num, body):
+    """`<doc> Q<n> define` — create-or-replace Q<n> in place. Reuses
+    be._find_q_bullet / be._format_q_bullet / be._ensure_open_questions_h2 —
+    the same formatting the legacy `q add`/`q rewrite` verbs use — so define
+    subsumes both without duplicating the bullet-formatting logic."""
+    # Normalize: callers may pass the full bullet (`- **Q<n> — …` header line)
+    # or just the body content. be._format_q_bullet already accepts the
+    # pre-formatted `**Q<n> — …` form — strip only the leading `- ` dash so it
+    # takes that branch (never double-wraps), and drop any caller-supplied
+    # trailing block-anchor on the first line (the canonical one is re-added).
+    if re.match(rf"^\s*-\s+\*\*Q{q_num}\s+—", body):
+        first, sep, rest = body.partition("\n")
+        first = re.sub(r"^\s*-\s+", "", first)
+        first = re.sub(r"\s*\^\S+\s*$", "", first)
+        body = first + (sep + rest if sep else "")
+    _validate_ask_format_body(body)
+    text = feature_path.read_text(encoding="utf-8")
+    container_id = _v2_container_id_for_doc(feature_path)
+    lines = text.splitlines()
+    loc = be._find_q_bullet(lines, q_num)
+    new_bullet = be._format_q_bullet(q_num, container_id, body)
+    if loc is not None:
+        start, end, _ = loc
+        lines = lines[:start] + new_bullet.splitlines() + lines[end:]
+        verb_done = "redefined"
+    else:
+        lines, (h2_start, h2_end) = be._ensure_open_questions_h2(lines)
+        # Clamp to the H1 boundary — see _clamp_h2_end_to_h1. Needed here
+        # too: be._ensure_open_questions_h2 returns the EXISTING block's
+        # range (via be._find_h2) when Open Questions already has a pending
+        # Q, and without the clamp a second `define` on the same doc lands
+        # its bullet below the H1 instead of inside the pending block.
+        h2_end = _clamp_h2_end_to_h1(lines, h2_start, h2_end)
+        insert_at = h2_end
+        for j in range(h2_start + 1, h2_end):
+            if lines[j].startswith("### "):
+                insert_at = j
+                break
+        while insert_at > h2_start + 1 and not lines[insert_at - 1].strip():
+            insert_at -= 1
+        new_lines = ["", new_bullet] if insert_at > 0 and lines[insert_at - 1].strip() else [new_bullet]
+        new_lines = new_lines + [""]
+        lines = lines[:insert_at] + new_lines + lines[insert_at:]
+        verb_done = "defined"
+    feature_path.write_text(
+        "\n".join(lines) + ("\n" if text.endswith("\n") else ""),
+        encoding="utf-8",
+    )
+    summary = f"{verb_done} Q{q_num} in {feature_path.name}"
+    _post_conditions_and_print(slug, feature_path, summary)
+    return 0
+
+
+def _v2_query(slug, doc_path, q_num, verb, args):
+    if verb == "define":
+        body = read_body(args)
+        if not body.strip():
+            raise be.BacklogEditError("define requires a body via stdin or --body")
+        return _q_define_core(slug, doc_path, q_num, body)
+    if verb == "resolve":
+        if not args.choice:
+            raise be.BacklogEditError(
+                'resolve requires --choice "(A)" for a Q label'
+            )
+        body = read_body(args)
+        return _q_answer_core(slug, doc_path, q_num, None, args.choice, body)
+    if verb == "remove":
+        return _q_remove_core(slug, doc_path, q_num, None, args.reason)
+    raise be.BacklogEditError(f"unknown verb {verb!r} for a Q label")
+
+
+# ------------------------------------------------------------------
+# v2 — V (verification) labels on any doc — new in F236
+
+
+_V_HEADER_BULLET_RE = re.compile(r"^(\s*)- \*\*V(\d+)\b")
+
+
+def _v2_container_id_for_doc(doc_path):
+    """Block-id container token for ANY v2 doc target: the F-number for a
+    feature doc (`F<n> — Title.md`), else a block-id-safe (`[\\w-]`)
+    sanitization of the doc's stem.
+
+    be._container_id_for_feature does the F-number half but returns the raw
+    (unsanitized) stem on fallback — safe there because the legacy Q verbs
+    only ever call it with a real `F<n> — Title.md` feature doc (never hits
+    the fallback in practice). v2 generalizes Q/V to ANY doc, so a doc like
+    `Smoke Design.md` DOES hit the fallback, and its stem's spaces/em-dashes
+    would otherwise land unsanitized inside an Obsidian block-id (`^Smoke
+    Design-Q1` — invalid, contains a literal space). Sanitize here instead.
+    """
+    m = re.match(r"^(F\d+)\s+—", doc_path.stem)
+    if m:
+        return m.group(1)
+    return re.sub(r"[^\w\-]", "-", doc_path.stem)
+
+
+def _v_format_bullet(v_num, container_id, body):
+    """Wrap a V-define body into `- **V<n> — <title>** — <rest> ^<container>-V<n>`.
+
+    If body is already pre-formatted (`**V<n> — Title** — rest`, copy-pasted
+    from an existing bullet), normalize the number and reuse it verbatim.
+    Otherwise the first line's text (up to an em-dash, if present) becomes
+    the title; anything after — on that line or subsequent lines — becomes
+    the trailing body.
+    """
+    body = body.strip()
+    m = re.match(r"^-?\s*\*\*V\d+\s+—\s+(.+?)\*\*(?:\s+—\s+(.*))?$", body, re.DOTALL)
+    if m:
+        title = m.group(1).strip()
+        rest = (m.group(2) or "").strip()
+    else:
+        lines = body.splitlines()
+        first = lines[0].strip()
+        rest_lines = [l.strip() for l in lines[1:] if l.strip()]
+        if " — " in first:
+            title, _, tail = first.partition(" — ")
+            title = title.strip()
+            rest = tail.strip()
+        else:
+            title, rest = first, ""
+        if rest_lines:
+            extra = " ".join(rest_lines)
+            rest = f"{rest} {extra}".strip()
+    suffix = f" — {rest}" if rest else ""
+    anchor = re.sub(r"[^\w\-]", "-", f"{container_id}-V{v_num}")
+    return f"- **V{v_num} — {title}**{suffix} ^{anchor}"
+
+
+def _find_v_bullet(lines, v_num):
+    """Locate the pending `V<n>` bullet inside `## Verifications` (excluding
+    any `### Resolved`/`### Removed` sub-sections). Mirrors be._find_q_bullet
+    scoped to the Verifications H2. Returns (start, end, indent) or None."""
+    h2 = be._find_h2(lines, "Verifications")
+    if h2 is None:
+        return None
+    h2_start, h2_end = h2
+    in_h3 = None
+    for i in range(h2_start + 1, h2_end):
+        line = lines[i]
+        if line.startswith("### "):
+            in_h3 = line.strip()[4:]
+            continue
+        m = _V_HEADER_BULLET_RE.match(line)
+        if m and int(m.group(2)) == v_num and in_h3 is None:
+            indent = m.group(1)
+            end = h2_end
+            for j in range(i + 1, h2_end):
+                l = lines[j]
+                if l.startswith("### "):
+                    end = j
+                    break
+                mm = _V_HEADER_BULLET_RE.match(l)
+                if mm and (len(l) - len(l.lstrip())) <= len(indent):
+                    end = j
+                    break
+            return (i, end, indent)
+    return None
+
+
+def _ensure_verifications_h2(lines):
+    """Ensure a `## Verifications` H2 exists — directly after
+    `## Success Criteria` when present, else before `## Status`, else at the
+    end of the doc. Returns lines (possibly modified) AND (h2_start, h2_end)."""
+    existing = be._find_h2(lines, "Verifications")
+    if existing is not None:
+        return lines, existing
+    sc = be._find_h2(lines, "Success Criteria")
+    if sc is not None:
+        _, sc_end = sc
+        insert_at = sc_end
+        lines = lines[:insert_at] + ["", "## Verifications", ""] + lines[insert_at:]
+        return lines, (insert_at + 1, insert_at + 3)
+    st = be._find_h2(lines, "Status")
+    if st is not None:
+        st_start, _ = st
+        lines = lines[:st_start] + ["## Verifications", "", ""] + lines[st_start:]
+        return lines, (st_start, st_start + 2)
+    if lines and lines[-1].strip():
+        lines.append("")
+    lines.append("## Verifications")
+    lines.append("")
+    return lines, (len(lines) - 2, len(lines))
+
+
+def _v_define_core(slug, doc_path, v_num, body):
+    """`<doc> V<n> define` — create-or-replace the V-bullet under
+    `## Verifications`."""
+    text = doc_path.read_text(encoding="utf-8")
+    lines = text.splitlines()
+    container_id = _v2_container_id_for_doc(doc_path)
+    loc = _find_v_bullet(lines, v_num)
+    new_bullet = _v_format_bullet(v_num, container_id, body)
+    if loc is not None:
+        start, end, _ = loc
+        lines = lines[:start] + [new_bullet] + lines[end:]
+        verb_done = "redefined"
+    else:
+        lines, (h2_start, h2_end) = _ensure_verifications_h2(lines)
+        insert_at = h2_end
+        for j in range(h2_start + 1, h2_end):
+            if lines[j].startswith("### "):
+                insert_at = j
+                break
+        while insert_at > h2_start + 1 and not lines[insert_at - 1].strip():
+            insert_at -= 1
+        new_lines = ["", new_bullet] if insert_at > h2_start + 1 and lines[insert_at - 1].strip() else [new_bullet]
+        new_lines = new_lines + [""]
+        lines = lines[:insert_at] + new_lines + lines[insert_at:]
+        verb_done = "defined"
+    doc_path.write_text(
+        "\n".join(lines) + ("\n" if text.endswith("\n") else ""), encoding="utf-8"
+    )
+    summary = f"{verb_done} V{v_num} in {doc_path.name}"
+    _post_conditions_and_print(slug, doc_path, summary)
+    return 0
+
+
+def _v_resolve_core(slug, doc_path, v_num, body):
+    """`<doc> V<n> resolve` — move the V-bullet to the bottom `## Resolved`
+    as `### V<n> — Title` with `**Result:** <body> (<date>)`. Drops
+    `## Verifications` if that was the last item (mirrors Q's Phase-2
+    empty-block cleanup)."""
+    text = doc_path.read_text(encoding="utf-8")
+    lines = text.splitlines()
+    loc = _find_v_bullet(lines, v_num)
+    if loc is None:
+        raise be.BacklogEditError(
+            f"V{v_num} not found in ## Verifications of {doc_path.name}"
+        )
+    start, end, _ = loc
+    header = lines[start]
+    title_m = re.match(r"^\s*- \*\*V\d+\s+—\s+([^*]+?)\*\*", header)
+    title = title_m.group(1).strip() if title_m else "Untitled"
+    today = date.today().isoformat()
+    result_text = body.strip() or "confirmed"
+    h3_lines = [
+        "",
+        f"### V{v_num} — {title}",
+        f"**Result:** {result_text} ({today})",
+        "",
+    ]
+    lines = lines[:start] + lines[end:]
+    h2 = be._find_h2(lines, "Verifications")
+    if h2 is not None:
+        h2_start, h2_end = h2
+        empty = True
+        for k in range(h2_start + 1, h2_end):
+            if lines[k].strip():
+                empty = False
+                break
+        if empty:
+            drop_end = h2_end
+            while drop_end < len(lines) and not lines[drop_end].strip():
+                drop_end += 1
+            if drop_end < len(lines):
+                lines = lines[:h2_start] + lines[drop_end:]
+            else:
+                lines = lines[:h2_start]
+    lines, (rh2_start, rh2_end) = be._ensure_bottom_resolved_h2(lines)
+    insert_at = rh2_end
+    while insert_at > rh2_start + 1 and not lines[insert_at - 1].strip():
+        insert_at -= 1
+    lines = lines[:insert_at] + h3_lines + lines[insert_at:]
+    doc_path.write_text(
+        "\n".join(lines) + ("\n" if text.endswith("\n") else ""), encoding="utf-8"
+    )
+    summary = f"resolved V{v_num} in {doc_path.name}"
+    _post_conditions_and_print(slug, doc_path, summary)
+    return 0
+
+
+def _v_remove_core(slug, doc_path, v_num, reason):
+    """`<doc> V<n> remove` — soft-delete, mirroring Q remove: move to a
+    `### Removed` H3 nested inside `## Verifications` (audit trail)."""
+    text = doc_path.read_text(encoding="utf-8")
+    reason = reason or "no reason provided"
+    lines = text.splitlines()
+    loc = _find_v_bullet(lines, v_num)
+    if loc is None:
+        raise be.BacklogEditError(
+            f"V{v_num} not found in ## Verifications of {doc_path.name}"
+        )
+    start, end, _ = loc
+    header = lines[start]
+    title_m = re.match(r"^\s*- \*\*V\d+\s+—\s+([^*]+?)\*\*", header)
+    title = title_m.group(1).strip() if title_m else "Untitled"
+    original_body = "\n".join(lines[start:end]).rstrip()
+    today = date.today().isoformat()
+    h3_lines = [
+        "",
+        f"### V{v_num} — {title} (removed {today} — {reason})",
+        "",
+        "> Original V context (preserved for audit trail):",
+    ]
+    for ol in original_body.splitlines():
+        h3_lines.append(f"> {ol}")
+    h3_lines.append("")
+    lines = lines[:start] + lines[end:]
+    h2 = be._find_h2(lines, "Verifications")
+    if h2 is None:
+        lines, (h2_start, h2_end) = _ensure_verifications_h2(lines)
+    else:
+        h2_start, h2_end = h2
+    removed = be._find_h3_in_h2(lines, h2_start, h2_end, "Removed")
+    if removed is None:
+        insert_at = h2_end
+        while insert_at > h2_start + 1 and not lines[insert_at - 1].strip():
+            insert_at -= 1
+        lines = lines[:insert_at] + ["", "### Removed", ""] + h3_lines[1:] + lines[insert_at:]
+    else:
+        r_start, r_end = removed
+        insert_at = r_end
+        while insert_at > r_start + 1 and not lines[insert_at - 1].strip():
+            insert_at -= 1
+        lines = lines[:insert_at] + h3_lines + lines[insert_at:]
+    doc_path.write_text(
+        "\n".join(lines) + ("\n" if text.endswith("\n") else ""), encoding="utf-8"
+    )
+    summary = f"removed V{v_num} from {doc_path.name} (reason: {reason})"
+    _post_conditions_and_print(slug, doc_path, summary)
+    return 0
+
+
+def _v2_verify(slug, doc_path, v_num, verb, args):
+    if verb == "define":
+        body = read_body(args)
+        if not body.strip():
+            raise be.BacklogEditError("define requires a body via stdin or --body")
+        return _v_define_core(slug, doc_path, v_num, body)
+    if verb == "resolve":
+        body = read_body(args)
+        return _v_resolve_core(slug, doc_path, v_num, body)
+    if verb == "remove":
+        return _v_remove_core(slug, doc_path, v_num, args.reason)
+    raise be.BacklogEditError(f"unknown verb {verb!r} for a V label")
+
+
+# ------------------------------------------------------------------
+# v2 — top-level dispatch + CLI
+
+
+def cmd_v2(slug, anchor_path, args):
+    doc_kind, doc_path = resolve_v2_doc(args.doc, slug, anchor_path)
+    letters, num = parse_v2_label(args.label)
+    if doc_kind == "backlog" and letters in ("F", "T"):
+        return _v2_row(slug, doc_path, args.label, args.verb, args)
+    if doc_kind == "doc" and letters == "Q":
+        return _v2_query(slug, doc_path, num, args.verb, args)
+    if doc_kind == "doc" and letters == "V":
+        return _v2_verify(slug, doc_path, num, args.verb, args)
+    where = "Backlog" if doc_kind == "backlog" else doc_path.name
+    raise be.BacklogEditError(
+        f"unknown query kind {args.label!r} for {where} — valid labels: "
+        f"F<n>/T<n> on Backlog, Q<n>/V<n> on any other doc"
+    )
+
+
+_V2_LEGACY_DOMAINS = {"task", "q", "question", "status", "roadmap"}
+
+
+def _first_positional(argv):
+    """First non-flag positional in argv[1:], skipping -a/--anchor's value.
+    None if there isn't one (bare `-h`, an unrecognized leading flag, or no
+    args at all) — main() falls back to the legacy parser in that case."""
+    i = 1
+    while i < len(argv):
+        tok = argv[i]
+        if tok in ("-a", "--anchor"):
+            i += 2
+            continue
+        if tok.startswith("--anchor="):
+            i += 1
+            continue
+        if tok.startswith("-"):
+            return None
+        return tok
+    return None
+
+
+def build_v2_parser():
+    p = argparse.ArgumentParser(
+        prog="state",
+        description=(
+            "state v2 (F236) — one address scheme: "
+            "`state [-a ANCHOR] <doc> <label> <verb> [< body]`. "
+            "doc = Backlog | wiki-name | path. label = LETTERS+DIGITS "
+            "(Q7, V3, F157, T8). verb = define | resolve | remove."
+        ),
+    )
+    p.add_argument("-a", "--anchor", default=None,
+                   help="anchor path or slug; defaults to cwd-walkup to .anchor")
+    p.add_argument("doc", help="Backlog | wiki-name (no slash/.md) | path to a .md doc")
+    p.add_argument("label", help="LETTERS+DIGITS — Q7, V3, F157, T8")
+    p.add_argument("verb", choices=["define", "resolve", "remove"])
+    p.add_argument("--horizon", default=None,
+                   help="horizon for a NEW Backlog row on define (default: Now)")
+    p.add_argument("--choice", default=None,
+                   help='chosen option, e.g. "(A)" — required for `Q<n> resolve`')
+    p.add_argument("--reason", default=None,
+                   help="short reason recorded in the audit trail (remove)")
+    p.add_argument("--body", dest="inline", default=None,
+                   help="inline body (alternative to stdin)")
+    p.add_argument("--from-file", dest="from_file", default=None,
+                   help="read body from file (alternative to stdin)")
+    return p
+
+
+def main_v2(argv):
+    parser = build_v2_parser()
+    args = parser.parse_args(argv[1:])
+    try:
+        slug, anchor_path = resolve_anchor(args.anchor)
+    except be.BacklogEditError as e:
+        print(f"state: {e}", file=sys.stderr)
+        return 2
+    try:
+        return cmd_v2(slug, anchor_path, args)
+    except be.BacklogEditError as e:
+        print(f"state: {e}", file=sys.stderr)
+        return 1
+
+
+# ============================================================
 # CLI dispatch
 # ============================================================
 
@@ -1217,6 +1931,13 @@ def build_parser():
 
 
 def main(argv):
+    # F236 v2 dispatch — when the first positional isn't one of the legacy
+    # domain names (task/q/question/status/roadmap), parse it as the v2
+    # grammar: state [-a ANCHOR] <doc> <label> <verb>.
+    first = _first_positional(argv)
+    if first is not None and first not in _V2_LEGACY_DOMAINS:
+        return main_v2(argv)
+
     parser = build_parser()
     args = parser.parse_args(argv[1:])
 
