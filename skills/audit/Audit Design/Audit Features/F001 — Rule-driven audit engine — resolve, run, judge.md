@@ -26,7 +26,7 @@ It unifies today's piecemeal audits (`/audit anchor`, `/audit rules`, `/audit di
 Two entry points, each resolving its own umbrella ruleset:
 
 - **`/audit anchor <path-or-slug>`** — audits a whole anchor (folder path or slug). Pulls the umbrella **`R-anchor`** (the union of every anchor-level facet's ruleset). Auditing the anchor's documents is *part of* this — each doc target also gets its doc-level rules.
-- **`/audit doc <path>`** — audits a single document at the document level. Pulls the umbrella **`R-doc`** (the union of the doc-facet rulesets, [[FCT Document]]).
+- **`/audit doc <path>`** — audits a single document at the document level. Pulls the umbrella **`R-doc`** (the union of the doc-facet rulesets, FCT Document).
 
 Both implicitly walk to the relevant rule data set; the command names which umbrella. `R-anchor` and `R-doc` are `include::`-umbrellas over the per-facet `# RULESET` blocks — so adding a facet's rules to an audit is just adding it to the umbrella's `include::`.
 
@@ -90,7 +90,7 @@ The agent then **just follows the recipe**: read a grouping's flat rule file, ju
 
 ### Documents vs. anchors — same engine, smaller facet set
 
-A document's doc-facets ([[FCT Document]]: Ruleset / Brief / Discussion / Glossary / Log / Messages) are just another facet set whose targets are *regions within the file* rather than files in a tree. Same Resolve→Run→Judge; the selector resolves to a heading-region instead of a path.
+A document's doc-facets (FCT Document: Ruleset / Brief / Discussion / Glossary / Log / Messages) are just another facet set whose targets are *regions within the file* rather than files in a tree. Same Resolve→Run→Judge; the selector resolves to a heading-region instead of a path.
 
 ### Division of labor (the scripting / cache / precompute / agentic split the user asked for)
 

@@ -1,6 +1,6 @@
 ---
 name: markdown
-description: Discipline. The "every time you write markdown" rules — both mechanical (rendering correctness — table escapes, fence rules, spacing) and authoring (always-apply quality — wiki-links not bare backticks, definition lists, RULE/RULESET sentinels). Cited by every CAB facet, every design sub-skill, every authoring skill. Sibling discipline to [[DAS progressive-disclosure]] (which owns *what goes where in a doc*); markdown owns *how the markdown text itself is written*. Skill counterpart is [[md]] which owns user-invokable utility verbs (/md toc, /md file-tree, etc.).
+description: Discipline. The "every time you write markdown" rules — both mechanical (rendering correctness — table escapes, fence rules, spacing) and authoring (always-apply quality — wiki-links not bare backticks, definition lists, RULE/RULESET sentinels). Cited by every DAS facet, every design sub-skill, every authoring skill. Sibling discipline to [[DAS progressive-disclosure]] (which owns *what goes where in a doc*); markdown owns *how the markdown text itself is written*. Skill counterpart is [[md]] which owns user-invokable utility verbs (/md toc, /md file-tree, etc.).
 user_invocable: false
 ---
 
@@ -33,7 +33,7 @@ A wiki-link with an alias inside a table cell needs the pipe escaped: `[[Target\
 
 ```markdown
 | ✓ Correct | [[DAS PRD\|PRD]] |
-| ✗ Broken  | [[FCT PRD|PRD]] |
+| ✗ Broken  | [[DAS PRD|PRD]] |
 ```
 
 ### Tables: blank line before and after
@@ -90,7 +90,7 @@ Figure spaces (U+2007) do not collapse the way regular spaces do in markdown ren
 When a markdown doc *refers to another document, file, or anchor that lives in the vault*, the reference MUST be a wiki-link. Bare backticks like `` `MUX PRD.md` `` are forbidden for references — backticks are reserved for **code identifiers** (function names, file paths in source code, CLI flags, configuration keys), not for vault-internal references.
 
 ```markdown
-✓ Read [[FCT PRD]] for the canonical recipe.
+✓ Read [[DAS PRD]] for the canonical recipe.
 ✓ The state script lives at `~/.claude/skills/workflow/scripts/state`.   ← path to a source file, not a vault doc
 
 ✗ Read `CAB PRD.md` for the canonical recipe.                            ← reference to a vault doc; needs wiki-link
@@ -137,7 +137,7 @@ See [[DAS Ruleset]] for the full format.
 
 ### Don't restate facet-level rules in per-anchor doc bodies
 
-If a rule is universal (applies to every Log, every PRD, every Testing doc), it lives in the facet (`[[FCT Log]]`, `[[FCT PRD]]`, `[[FCT Testing]]`) and is enforced by the embedded R-set. Per-anchor docs (`Disk Log.md`, `MUX PRD.md`) should NOT restate those rules in their bodies or Briefs — the facet is the source of truth; restating it drifts. (The Brief discipline catches this for per-doc operational content; the facet-level rules are categorically excluded from Briefs.)
+If a rule is universal (applies to every Log, every PRD, every Testing doc), it lives in the facet (`[[DAS Log]]`, `[[DAS PRD]]`, `[[DAS Testing]]`) and is enforced by the embedded R-set. Per-anchor docs (`Disk Log.md`, `MUX PRD.md`) should NOT restate those rules in their bodies or Briefs — the facet is the source of truth; restating it drifts. (The Brief discipline catches this for per-doc operational content; the facet-level rules are categorically excluded from Briefs.)
 
 
 ## What's NOT in this discipline (boundaries)

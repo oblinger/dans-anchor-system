@@ -362,7 +362,7 @@ The synthesis-vs-reference split: **Dev** holds audit-tied implementation refere
   ```bash
   ~/.claude/skills/workflow/scripts/state --anchor {slug} task create --status Designing \
       --title "Author top-level Interface for {slug}" \
-      --body "Rewire scaffolded {slug} Interface.md on {YYYY-MM-DD}. Needs user collaboration to author the layer contract — see [[FCT Interface]]. → [[{slug} Interface]]."
+      --body "Rewire scaffolded {slug} Interface.md on {YYYY-MM-DD}. Needs user collaboration to author the layer contract — see [[DAS Interface]]. → [[{slug} Interface]]."
   ```
 
   The agent does NOT attempt to fill in the contract content — that's the user-collaboration step per [[SKA workflow]] § Interface-validation gate.

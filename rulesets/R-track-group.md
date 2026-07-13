@@ -9,7 +9,7 @@ What `/audit` checks on this facet-group index page. It is a grouped-Container a
 
 The `Facets` row links every track / work-surface facet (Backlog, Features, Inbox, Icebox, Messages, Log, Query, Status), and each member's breadcrumb routes through this page.
 
-**Check pattern:** the `Facets`-row link set equals the work-surface facet files under `FCT Track/`; each member breadcrumb passes through `~~[[FCT Track]]~~`.
+**Check pattern:** the `Facets`-row link set equals the work-surface facet files under `FCT Track/`; each member breadcrumb passes through `~~[[DAS Track]]~~`.
 
 ### RULE R-track-group-02 — Specifies the work surfaces; SKA owns the instances (stated)
 

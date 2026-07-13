@@ -86,7 +86,7 @@ If the work-unit has a dated feature doc:
 
 ### 5. Update Docs to Match Reality
 
-- If the implementation changed any **public API**: update the corresponding module doc (per `[[FCT Module Doc]]`).
+- If the implementation changed any **public API**: update the corresponding module doc (per `[[DAS Module Doc]]`).
 - If new files were added: update `{slug} Files.md` and the `{slug} Dev` dispatch table.
 - If architecture changed: update `{slug} System Design.md` or `{slug} Architecture.md`.
 - If user-facing behavior changed: update `{slug} User Guide.md`.

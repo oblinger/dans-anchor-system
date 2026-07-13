@@ -12,7 +12,7 @@ Contrast with [[Topic Anchor]]: a Topic is a **heterogeneous routing hub** *abou
 
 ## Deltas from Base
 
-- **Member zone in the dispatch table.** A Collection's [[DSC Dispatch Table]] carries a **Member zone** below the Masthead — the members rendered as a **member list** (flat) or **member groups** (categorized), and **manual / auto / hybrid** (auto-listed below `---` / `...`, or hand-ordered, or pinned-plus-auto). Which layout is the [[progressive-disclosure]] List / Grouped choice; the compact→grouped graduation by member count is [[granularity]]. *(Full structure: [[F155 — Dispatch-table structure spec + CAE worked examples|F155]].)*
+- **Member zone in the dispatch table.** A Collection's [[DAS Dispatch Table]] carries a **Member zone** below the Masthead — the members rendered as a **member list** (flat) or **member groups** (categorized), and **manual / auto / hybrid** (auto-listed below `---` / `...`, or hand-ordered, or pinned-plus-auto). Which layout is the [[progressive-disclosure]] List / Grouped choice; the compact→grouped graduation by member count is [[granularity]]. *(Full structure: [[F155 — Dispatch-table structure spec + CAE worked examples|F155]].)*
 - **Datedness is orthogonal.** Members may be dated (Log — a dated-entry stream) or not (Bespoke — undated projects). This is the `dated?` dimension of [[file-association]] riding on top of the trait; the Collection trait itself doesn't care.
 - **Members carry an expected member type.** The anchor's children conform to a known shape (all projects, all entities, all `Disk <name>.md` pages). Adding a member = creating one more file/sub-anchor of that shape.
 
@@ -54,7 +54,7 @@ This trait underlies the three Container shapes in the [[DAS Anchor Page]] kinds
 
 ## Related
 
-- [[DSC Dispatch Table]] — the Masthead + Member-zone structure a Collection's page uses.
+- [[DAS Dispatch Table]] — the Masthead + Member-zone structure a Collection's page uses.
 - [[progressive-disclosure]] — member list vs member groups (List / Grouped).
 - [[file-association]] — dated-or-not + member placement/naming.
 - [[granularity]] — when a member list graduates compact → grouped.

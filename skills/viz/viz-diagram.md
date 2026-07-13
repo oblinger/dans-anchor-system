@@ -122,9 +122,9 @@ description:: Stated intent for `{base}.svg`. Maintained alongside the SVG by `/
 
 H1 matches the figure title (not necessarily the file basename). H2 set adapts to the figure — drop empty sections, add new ones as the user's constraints accumulate. Body is tight prose + tables where they help; not bullet-lists for their own sake.
 
-### Whether to elevate to a CAB facet
+### Whether to elevate to a DAS facet
 
-Open question. The `.desc.md` convention may eventually warrant a proper CAB facet (with embedded rules, like the other facets) once the convention proves load-bearing across many figures. For now it lives here in `/viz diagram`; if and when the pattern earns elevation, file a backlog row to extract.
+Open question. The `.desc.md` convention may eventually warrant a proper DAS facet (with embedded rules, like the other facets) once the convention proves load-bearing across many figures. For now it lives here in `/viz diagram`; if and when the pattern earns elevation, file a backlog row to extract.
 
 ## Glance the PNG preview every time
 

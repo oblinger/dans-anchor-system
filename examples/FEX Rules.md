@@ -21,5 +21,5 @@ Every CAE scheduler operation (task creation, completion, priority change) commi
 
 ## See also
 
-- [[FCT Rules]] — meta-spec for this file's format.
+- FCT Rules — meta-spec for this file's format.
 - [[FEX Decisions]] — companion facet; D-records may cite these rules.

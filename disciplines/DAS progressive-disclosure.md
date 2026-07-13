@@ -26,7 +26,7 @@ Progressive disclosure is *layered information presentation — each layer deliv
 |    [[#Bad vs good — same H1, same topic]] |  |
 | **[[#Dispatch-table patterns]]** |  |
 |    [[#Anchor / folder dispatch — three patterns]] |  |
-|    [[#Separator-row alignment (existing CAB convention)]] |  |
+|    [[#Separator-row alignment (existing DAS convention)]] |  |
 |    [[#Within-document dispatch — two patterns]] |  |
 | **[[#Size-based pattern selection (anchor / folder dispatch)]]** |  |
 | **[[#Per-facet preface requirements]]** |  |
@@ -38,7 +38,7 @@ Progressive disclosure is *layered information presentation — each layer deliv
 |    [[#RULE R-progressive-02 — progressive-disclosure section spacing (checked)]] |  |
 |    [[#RULE R-progressive-03 — Standard doc head: breadcrumb → H1 → orientation line (stated)]] |  |
 
-This is a discipline, not a user-invocable skill — other CAB facets and skills cite it via `[[DSC progressive-disclosure]]` and Claude Code loads it into context before they run.
+This is a discipline, not a user-invocable skill — other DAS facets and skills cite it via `[[DAS progressive-disclosure]]` and Claude Code loads it into context before they run.
 
 
 ## Why this exists — the problem it solves
@@ -191,7 +191,7 @@ The bad version takes 80 words to say nothing about anchors. The good version ta
 ```
 
 
-### Separator-row alignment (existing CAB convention)
+### Separator-row alignment (existing DAS convention)
 
 | Separator | Pattern produced | Auto-managed |
 |---|---|---|
@@ -222,7 +222,7 @@ Below 15 entries, choose between List and Compact:
 
 ## Per-facet preface requirements
 
-This central table records which preface elements each CAB facet requires. The list grows as facets are evaluated.
+This central table records which preface elements each DAS facet requires. The list grows as facets are evaluated.
 
 | Facet | Dispatch table | TLDR | Figure |
 |---|---|---|---|

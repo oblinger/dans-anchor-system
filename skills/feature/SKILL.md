@@ -51,7 +51,7 @@ If a feature is `[Questions]` or `[Blocked]` mid-flight, that's tracked via the 
 
 ### 1. Create the Feature Document
 
-**Discipline: write the `## Success Criteria` block at creation time.** Per `[[DSC verification]]`, every feature doc has a `## Success Criteria` H2 near the top (after Summary, before Design) with the verification tier declared explicitly. Four tiers, ranked from most preferred (top) to least preferred (bottom):
+**Discipline: write the `## Success Criteria` block at creation time.** Per `[[DAS verification]]`, every feature doc has a `## Success Criteria` H2 near the top (after Summary, before Design) with the verification tier declared explicitly. Four tiers, ranked from most preferred (top) to least preferred (bottom):
 
 - **Tier 1: Agent-immediate.** Agent runs a check in the same turn the work completes. Runnable command, deterministic observation. (Best.)
 - **Tier 2: Agent-over-time.** Agent owns the deferred check (soak test, recurrence watchdog, scheduled re-run). User is not involved.

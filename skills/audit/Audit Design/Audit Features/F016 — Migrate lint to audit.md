@@ -15,7 +15,7 @@ Migrate the `/lint` skill family into `/audit`, per the user's direction to unif
 1. **Audit current `/lint` surface.** Read `skills/lint/SKILL.md`, list every subaction + the constraints it checks.
 2. **Map to `/audit` subactions** per Q2 resolution. Document the 1:1 (or 1:N) map.
 3. **Rename script + symlink** per Q3 resolution.
-4. **Sweep vault references** — `[[SKA lint]]` → `[[SKA audit]]`, `/lint X` → `/audit X`, `cab-lint` → `cab-audit`. Skill files, CAB facets, anchor pages, per-anchor docs all in scope.
+4. **Sweep vault references** — `[[SKA lint]]` → `[[SKA audit]]`, `/lint X` → `/audit X`, `cab-lint` → `cab-audit`. Skill files, DAS facets, anchor pages, per-anchor docs all in scope.
 5. **Delete `skills/lint/`** per Q1 resolution. Remove from skill-dispatch / skills.md index.
 6. **Verify** with `audit q` (per F076) — the sweep should leave zero broken `[[SKA lint]]` wiki-links.
 
@@ -23,7 +23,7 @@ Migrate the `/lint` skill family into `/audit`, per the user's direction to unif
 
 `[[SKA lint]]` and `/lint X` references in:
 - All `skills/**/SKILL.md` and companion `.md` files
-- CAB facet specs (`CAB/CAB Facets/*.md`)
+- DAS facet specs (`CAB/CAB Facets/*.md`)
 - `skills/skills.md` / CAB Skills index
 - Anchor pages (`{slug}.md`) that mention lint in dispatch tables or prose
 - Per-anchor docs that reference `/lint` invocation in workflows

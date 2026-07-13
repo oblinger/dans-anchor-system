@@ -66,7 +66,7 @@ The facet doc reads top-down: a reviewer can answer "is this enough testing?" fr
 | 3c | `### Responsibilities` | Who authors what. Agent on `/mint`? Author-curated? CI? Hand off across kinds is explicit. |
 | 3d | `### Tier Mapping` | Connection to [[DAS verification]]'s four tiers. Which kinds satisfy which tier. Establishes what level of confidence a passing suite produces. |
 | 4 | `## Proposed Tests` | The second part. Inventory table — one row per proposed test, grouped by kind. See § Proposed-tests table below. |
-| 5 | `## See also` (optional) | Links to peer design docs (PRD, Architecture, UX), to `~~[[DSC verification]]~~`, to `/mint` and `/code test` for execution context. |
+| 5 | `## See also` (optional) | Links to peer design docs (PRD, Architecture, UX), to `~~[[DAS verification]]~~`, to `/mint` and `/code test` for execution context. |
 
 The spine is `Overview → Strategy → Proposed Tests`. § 2–4 are the load-bearing invariant; § 5 is optional. The `## Tests` coverage table (§ 1b) sits in the preface, above the spine.
 
@@ -140,8 +140,8 @@ Available to any anchor that ships testable behavior — primarily `code` trait 
 ## Relationship to existing infrastructure
 
 - **`/design testing` sub-skill** ([[skills/design/design-testing|design-testing.md]]) is the authoring skill for this facet. The sub-skill was rewritten 2026-06-10 (F136) to author the two-part `{slug} Testing.md` shape per this facet; the legacy 5-H2 `{slug} Testing Strategy.md` scaffold it previously produced is superseded. Migration of any existing `{slug} Testing Strategy.md` files happens lazily — design-testing's runbook detects the legacy file and migrates on first invocation.
-- **`~~[[DSC verification]]~~`** is the four-tier discipline this facet's Tier Mapping cites. Testing kinds map to verification tiers — they are not the same vocabulary.
-- **`~~[[FCT Architecture]]~~`** is the peer facet whose subsystem boundaries drive integration-test coverage. Re-read Architecture before drafting § Proposed Tests § Integration.
+- **`~~[[DAS verification]]~~`** is the four-tier discipline this facet's Tier Mapping cites. Testing kinds map to verification tiers — they are not the same vocabulary.
+- **`~~[[DAS Architecture]]~~`** is the peer facet whose subsystem boundaries drive integration-test coverage. Re-read Architecture before drafting § Proposed Tests § Integration.
 
 ## Audit
 
@@ -243,9 +243,9 @@ The top-of-file YAML frontmatter contains a `status::` dataview field with value
 
 ### RULE R-testing-09 — Tier Mapping cites the verification discipline (stated)
 
-The `## Strategy § Tier Mapping` sub-section references `~~[[DSC verification]]~~` and maps at least three of the four tiers to test kinds.
+The `## Strategy § Tier Mapping` sub-section references `~~[[DAS verification]]~~` and maps at least three of the four tiers to test kinds.
 
-**Check pattern:** grep for `~~[[DSC verification]]~~` link in the Tier Mapping body; count tier-1/-2/-3/-4 mentions.
+**Check pattern:** grep for `~~[[DAS verification]]~~` link in the Tier Mapping body; count tier-1/-2/-3/-4 mentions.
 
 **Why:** the vocabulary connection matters. A Tier Mapping that doesn't cite [[DAS verification]] is freelancing terms that won't match what the verification discipline expects.
 

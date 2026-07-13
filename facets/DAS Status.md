@@ -7,7 +7,7 @@ One file per anchor that tracks design-phase completeness, one dataview line per
 
 | -[[DAS Status]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Status](hook://p/DAS%20Status) |
 | --- | --- |
-| Related | [[templates/status.md\|status template]],  [[FCT Backlog]],  [[DAS Roadmap]],  [[design]],  [[workflow]],   |
+| Related | [[templates/status.md\|status template]],  [[DAS Backlog]],  [[DAS Roadmap]],  [[design]],  [[workflow]],   |
 | Examples | [[HBR Status\|example]],   |
 | Rules | [[R-status]],   |
 |  |  |

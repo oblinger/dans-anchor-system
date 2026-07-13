@@ -7,7 +7,7 @@ It is deliberately lighter than the full `/architect` runbook: it reads the repo
 ## When to use
 
 - The user runs `/architect overview <subject>`.
-- The working tree is a plain codebase with no CAB anchor, and the user wants a top-level architecture document with a diagram.
+- The working tree is a plain codebase with no DAS anchor, and the user wants a top-level architecture document with a diagram.
 - A colleague with only the cloned skills wants "an architecture overview of this repo, with the SVG drawn by the viz skill."
 
 For a CAB-structured anchor (module docs present), use plain `/architect` / `/architect update` instead — it does the richer rollup with bidirectional module-doc linking.

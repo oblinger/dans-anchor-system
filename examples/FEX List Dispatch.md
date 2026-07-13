@@ -7,7 +7,7 @@ The machines this host can reach — a small, flat collection.
 
 | -[[FEX List Dispatch]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [FEX List Dispatch](hook://p/FEX%20List%20Dispatch)<br>: canonical list-dispatch exemplar |
 | --- | --- |
-| Related | [[FEX Dispatch Examples]],  [[FEX Grouped Dispatch]],  [[DSC Dispatch Table]],   |
+| Related | [[FEX Dispatch Examples]],  [[FEX Grouped Dispatch]],  [[DAS Dispatch Table]],   |
 | [[Bridges Studio\|Studio]] | the M2 Studio — Full Disk Access, the build box |
 | [[Bridges Air\|Air]] | the travel laptop — Syncthing peer |
 | [[Bridges Beast\|Beast]] | the GPU box — remote experiments via `exp` |

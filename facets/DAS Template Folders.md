@@ -13,7 +13,7 @@ A **folder template** — a `_{Name} Template/` folder whose marker + skeleton d
 
 A tiny folder template — the gist (a fuller worked instance is the FEX example below):
 
-![[FCT Template Folder Example.svg]]
+!FCT Template Folder Example.svg
 
 A folder template is a `_{Name} Template/` **folder**, not a single file. Its parts:
 

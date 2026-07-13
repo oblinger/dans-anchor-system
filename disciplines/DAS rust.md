@@ -19,7 +19,7 @@ The Rust-flavor conventions for code repositories — how a Rust repo lays out i
 - **Standard recipes, Cargo-mapped** — the justfile mirrors the cross-language recipe names (`build`, `test`, `lint`, `check`, …); it never invents Rust-only names that diverge from the standard set.
 - **Rust and only Rust** — a rule belongs here only if it is Rust-specific AND applies across multiple Rust repos. Generic repo shape belongs in [[DAS code-repo]]; per-project Cargo settings and one-off recipes belong in the project's own docs.
 
-This is a discipline, not a user-invocable skill — Rust-shaped anchors and repo-scaffolding skills cite it via `[[DSC rust]]`.
+This is a discipline, not a user-invocable skill — Rust-shaped anchors and repo-scaffolding skills cite it via `[[DAS rust]]`.
 
 ## Workspace structure
 

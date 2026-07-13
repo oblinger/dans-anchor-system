@@ -2,11 +2,11 @@
 description: raw incoming content to process
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Track]] → [FCT Inbox](hook://p/DAS%20Inbox)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Inbox](hook://p/DAS%20Inbox)
 # FCT Inbox
 Facet spec for the `{slug} Inbox.md` drop-zone file — the chronological log of raw input pasted in for later processing into the anchor's planning docs.
 
-**Related:** [[DAS Discussion]],  [[FCT Backlog]],  [[DAS PRD]],  [[DAS Roadmap]]
+**Related:** [[DAS Discussion]],  [[DAS Backlog]],  [[DAS PRD]],  [[DAS Roadmap]]
 **Examples:** [[FEX Inbox\|example]]
 
 **TLDR** — A single `{slug} Inbox.md` file (one per anchor) is the paste-first drop zone for raw input; processed entries stay with a `DONE` or `MOVED →` status tag as a permanent log.

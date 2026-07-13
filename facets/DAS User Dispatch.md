@@ -2,7 +2,7 @@
 description: user-facing docs dispatch page — curated, synthesis-level human-authored docs for any audience
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Dispatch]] → [FCT User Dispatch](hook://p/DAS%20User%20Dispatch)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS User Dispatch](hook://p/DAS%20User%20Dispatch)
 # FCT User Dispatch
 Facet spec for the `{slug} User Docs.md` dispatch page that catalogs an anchor's end-user / consumer-facing documentation (Guide, Installation, CLI, FAQ, Cards).
 
@@ -120,4 +120,4 @@ The primary user-facing guide is `{slug} Guide.md`, not `{slug} User Guide.md`. 
 *(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body + RULESET R-fct-user-dispatch above.)*
 
 - **Keep the Reference Example, Format Specification, and the working example (`HBR User Docs/HBR User Docs.md`) in sync** — edits here change every anchor's User Docs dispatch; if the example and the spec disagree, fix one, don't leave them drifted.
-- **Don't inline sibling-dispatch rules here** — Design / Dev Docs / Track facet specifics live in their own CAB facet files; this file owns only the User Docs dispatch rules. Cross-link, don't duplicate.
+- **Don't inline sibling-dispatch rules here** — Design / Dev Docs / Track facet specifics live in their own DAS facet files; this file owns only the User Docs dispatch rules. Cross-link, don't duplicate.

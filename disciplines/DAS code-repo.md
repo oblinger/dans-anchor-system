@@ -19,7 +19,7 @@ The standard **repository shape** — the files, folders, and task-runner recipe
 - **Generated output is gitignored** — the `site/` docs-build folder is never committed; it is regenerated and deployed (e.g. to GitHub Pages).
 - **Cross-project only** — an entry belongs in this discipline only if it is expected in *most* code repositories (or is a named optional with clear semantics). Project-specific recipes, layouts, and build steps live in that project's own `CLAUDE.md` / `justfile` / README.
 
-This is a discipline, not a user-invocable skill — language-flavor disciplines ([[DAS rust]]) and repo-scaffolding skills cite it via `[[DSC code-repo]]`.
+This is a discipline, not a user-invocable skill — language-flavor disciplines ([[DAS rust]]) and repo-scaffolding skills cite it via `[[DAS code-repo]]`.
 
 ## Key repository files
 

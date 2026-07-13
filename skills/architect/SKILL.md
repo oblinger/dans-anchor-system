@@ -26,7 +26,7 @@ The `/architect` skill — creates and maintains the top-level system-architectu
 
 `/architect` creates and maintains the top-level system-architecture document for an anchor. The doc lives in `{slug} Design/` — as `{slug} Architecture.md` by default, upgrading to `{slug} Architecture/{slug} Architecture.md` (folder-doc form) once it grows subsystems (see § Folder layout). It decomposes the system into **subsystems** — each subsystem has a dispatch table, a **mandatory summary table** linking to its parts, an **optional figure**, and a **modules table** linking to the relevant module docs.
 
-Feature spec: `[[F074 — Architect skill — Architecture as anchor folder with subsystems]]`. Companion specs: `[[FCT Architecture]]` (the facet), `[[FCT Module Doc]]` (defines the `Arch` row in module-doc dispatch tables). **F074 Q4=a (kept-System-Design-parallel) REVERSED 2026-05-26 per user direction**: Architecture is the sole architectural-synthesis facet; legacy `{slug} System Design/` folders (pre-F074 anchors only) are absorbed during `/architect` runs — pull their `### Architectural Commitments` content into `{slug} Architecture/{slug} Architecture.md § Architectural Commitments`, archive the folder under `{slug} Postmortems/legacy System Design/`. New anchors never create one.
+Feature spec: `[[F074 — Architect skill — Architecture as anchor folder with subsystems]]`. Companion specs: `[[DAS Architecture]]` (the facet), `[[DAS Module Doc]]` (defines the `Arch` row in module-doc dispatch tables). **F074 Q4=a (kept-System-Design-parallel) REVERSED 2026-05-26 per user direction**: Architecture is the sole architectural-synthesis facet; legacy `{slug} System Design/` folders (pre-F074 anchors only) are absorbed during `/architect` runs — pull their `### Architectural Commitments` content into `{slug} Architecture/{slug} Architecture.md § Architectural Commitments`, archive the folder under `{slug} Postmortems/legacy System Design/`. New anchors never create one.
 
 ## Sub-actions
 
@@ -42,7 +42,7 @@ Feature spec: `[[F074 — Architect skill — Architecture as anchor folder with
 
 **Bare `/architect`** (no sub-action) routes to `/architect update` — the most common action. The legacy single-pass behavior documented below is superseded by the sub-skill family ([[architect-new]] / [[architect-update]] / [[architect-drift]] / [[architect-changes]] / [[architect-overview]]); retained inline for historical reference and may be removed in a follow-up cleanup.
 
-**Off-vault / non-CAB codebases use `/architect overview <subject>`** ([[architect-overview]], per F184) — the portable bare-project path. The full runbook below assumes a CAB anchor (`.anchor`, module docs, `{slug} Docs/…` layout); when none of that is present, `overview` is the entry point. It still **requires an explicit subject** — a bare architect with nothing to architect must ask what to architect, not no-op.
+**Off-vault / non-CAB codebases use `/architect overview <subject>`** ([[architect-overview]], per F184) — the portable bare-project path. The full runbook below assumes a DAS anchor (`.anchor`, module docs, `{slug} Docs/…` layout); when none of that is present, `overview` is the entry point. It still **requires an explicit subject** — a bare architect with nothing to architect must ask what to architect, not no-op.
 
 
 ## When to Use
@@ -73,7 +73,7 @@ The two top rows are the same artifact in its two states — a one-document arch
 
 **File-by-default, folder-doc when it grows — at every level.** Both the top-level architecture and each subsystem start as a single file and upgrade to a folder-doc only when they accumulate more than one document's worth of discussion (the top-level grows *subsystems*; a subsystem grows *per-module arch docs*). The upgrade is **mechanical and link-transparent**: a folder-doc is a folder plus an index file of the *same basename*, so `[[{slug} Architecture]]` resolves whether it is a file or a folder-doc — **no reference breaks across the upgrade**. Because nothing breaks, upgrade *timing* is a tidiness call, not a correctness one: `/architect` performs it when it detects a second document is warranted, and it is reversible.
 
-A project's value statements (formerly `{slug} Principles.md`) now live as D-records in `{slug} Decisions.md` per `[[FCT Decisions]]` — the Principles facet was retired and absorbed into Decisions (F113). Architecture cross-links to those decisions; it doesn't absorb them.
+A project's value statements (formerly `{slug} Principles.md`) now live as D-records in `{slug} Decisions.md` per `[[DAS Decisions]]` — the Principles facet was retired and absorbed into Decisions (F113). Architecture cross-links to those decisions; it doesn't absorb them.
 
 
 ## Top-level `{slug} Architecture.md`
@@ -128,7 +128,7 @@ The `Arch` row points to the **most-specific** architecture destination:
 - Else if a subsystem arch doc exists → link to it.
 - Else (single-subsystem systems) → link to the top-level `{slug} Architecture.md`.
 
-**Every module doc has exactly one `Arch` row.** Both directions are maintained by `/architect`: each run reconciles the dispatch-table `Arch` rows and the modules-table links so they always point at each other (or surfaces the disagreement as a proposal). `[[FCT Module Doc]]`'s dispatch-table spec reserves the `Arch` row name.
+**Every module doc has exactly one `Arch` row.** Both directions are maintained by `/architect`: each run reconciles the dispatch-table `Arch` rows and the modules-table links so they always point at each other (or surfaces the disagreement as a proposal). `[[DAS Module Doc]]`'s dispatch-table spec reserves the `Arch` row name.
 
 
 ## Runbook
@@ -237,10 +237,10 @@ The skill presumes the user is the original author of the design. Every `/archit
 
 ## Cross-references
 
-- `[[FCT Architecture]]` — the facet spec for `{slug} Architecture/` and subsystem docs.
-- **Legacy `{slug} System Design/`** — `[[FCT System Design]]` was kept as a parallel facet per F074 Q4=a, but that was reversed 2026-05-26. New anchors never create a System Design folder. Legacy ones (currently only MUX) get absorbed: `### Architectural Commitments` migrates into Architecture; the rest of the System Design content moves to `{slug} Postmortems/legacy System Design/` as preserved historical reference.
-- `[[FCT Module Doc]]` — defines the `Arch` row in module-doc dispatch tables and the `module_docs_audited:` frontmatter contract.
-- `[[FCT Decisions]]` — value statements (formerly Principles, now retired) live here as D-records; Architecture cross-links to them, doesn't absorb them.
+- `[[DAS Architecture]]` — the facet spec for `{slug} Architecture/` and subsystem docs.
+- **Legacy `{slug} System Design/`** — `[[DAS System Design]]` was kept as a parallel facet per F074 Q4=a, but that was reversed 2026-05-26. New anchors never create a System Design folder. Legacy ones (currently only MUX) get absorbed: `### Architectural Commitments` migrates into Architecture; the rest of the System Design content moves to `{slug} Postmortems/legacy System Design/` as preserved historical reference.
+- `[[DAS Module Doc]]` — defines the `Arch` row in module-doc dispatch tables and the `module_docs_audited:` frontmatter contract.
+- `[[DAS Decisions]]` — value statements (formerly Principles, now retired) live here as D-records; Architecture cross-links to them, doesn't absorb them.
 - `[[audit-docs]]` — writes `module_docs_audited:` to `{slug} Dev.md` frontmatter at the end of every audit pass; the source of truth `/architect`'s staleness precondition reads.
 - `[[SKA queries]]` — universal Q-parking subroutine.
 - `queries-render.py` — the mechanical Q.md regen script that `/architect` calls as its post-condition.

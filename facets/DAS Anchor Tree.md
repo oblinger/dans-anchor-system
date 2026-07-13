@@ -6,7 +6,7 @@ description: anchor master tree — every possible doc/folder in an anchor, link
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Anchor Tree](hook://p/DAS%20Anchor%20Tree)
 # FCT Anchor Tree
-The annotated master file tree showing every possible file and folder that may appear inside a CAB anchor, with each named element wiki-linked to its governing facet spec.
+The annotated master file tree showing every possible file and folder that may appear inside a DAS anchor, with each named element wiki-linked to its governing facet spec.
 
 **Related:** [[DAS Anchor Page]],  [[DAS Anchor]],  [[DAS Facet]]
 **Examples:** [[HBR\|minimal Code anchor]],  [[HBR\|fuller anchor with components]]
@@ -15,11 +15,11 @@ The annotated master file tree showing every possible file and folder that may a
 
 An anchor is a standardized folder structure that serves as the home for a project, topic, or content area. This tree is the canonical reference for the files common to all anchors.
 
-**TLDR** — The annotated master file tree for a CAB anchor: every recognized file/folder placeholder wiki-linked to its governing facet spec. Two trees: the anchor folder tree (top) and the optional Code Repository tree (bottom). Use this as a lookup when setting up or auditing an anchor's on-disk structure.
+**TLDR** — The annotated master file tree for a DAS anchor: every recognized file/folder placeholder wiki-linked to its governing facet spec. Two trees: the anchor folder tree (top) and the optional Code Repository tree (bottom). Use this as a lookup when setting up or auditing an anchor's on-disk structure.
 
 > **Note:** This file serves as the reference example itself — the annotated file tree below IS the canonical illustration of a complete anchor structure.
 
-Placeholders: `{slug}` stands for the anchor's name and `{CAB Folder}` for the anchor folder's name; each named element wiki-links its governing facet spec, aliased to the on-disk filename when the link target differs (e.g. `~~[[FCT Anchor Page|{slug}.md]]~~`).
+Placeholders: `{slug}` stands for the anchor's name and `{CAB Folder}` for the anchor folder's name; each named element wiki-links its governing facet spec, aliased to the on-disk filename when the link target differs (e.g. `~~[[DAS Anchor Page|{slug}.md]]~~`).
 
 {[[DAS Folder|CAB Folder]]}/
 ├── {CAB Folder}.md                       [[DAS Folder|marker file]]   (if NAME ≠ folder)
@@ -108,10 +108,10 @@ Steps are iterative — resolving open questions may require revisiting the PRD 
 # RULESET R-anchor-tree
 include::
 where:: `file: **/FCT Anchor Tree.md`
-description:: Rules governing the FCT Anchor Tree facet spec — the annotated master file tree of a CAB anchor. Covers content integrity, naming conventions, tree rendering, and cross-reference sync.
+description:: Rules governing the FCT Anchor Tree facet spec — the annotated master file tree of a DAS anchor. Covers content integrity, naming conventions, tree rendering, and cross-reference sync.
 
 ### RULE R-anchor-tree-01 — Every named element is wiki-linked to its facet spec (checked)
-Every named file or folder placeholder in the tree (e.g. `{slug} Backlog.md`, `CLAUDE.md`) carries a `[[FCT <Name>]]` wiki-link to the governing facet spec. Inline aliases to the on-disk filename are permitted (`~~[[FCT Anchor Page|{slug}.md]]~~`).
+Every named file or folder placeholder in the tree (e.g. `{slug} Backlog.md`, `CLAUDE.md`) carries a `[[DAS <Name>]]` wiki-link to the governing facet spec. Inline aliases to the on-disk filename are permitted (`~~[[DAS Anchor Page|{slug}.md]]~~`).
 **Check pattern:** no unlinked placeholder name in the tree body (scan for `{slug} <Word>.md` lines lacking `[[`).
 **Tier:** checked
 
@@ -135,5 +135,5 @@ This file is the single canonical anchor file tree; named elements are kept in s
 *(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body + ruleset R-anchor-tree above; each named element's full semantics live in its linked facet spec.)*
 
 - **One line of inline annotation max per element** — full semantics, rules, and shape live in the linked facet spec ([[DAS Backlog]], [[DAS Anchor Page]], etc.); don't grow this page into a multi-paragraph spec for any single facet.
-- **Inclusion test for adding a row** — the element is a recognized CAB anchor file/folder (named via the `{slug}` / `{CAB Folder}` placeholders) that can legitimately appear in *some* anchor; one-off project-specific files do NOT belong here.
+- **Inclusion test for adding a row** — the element is a recognized DAS anchor file/folder (named via the `{slug}` / `{CAB Folder}` placeholders) that can legitimately appear in *some* anchor; one-off project-specific files do NOT belong here.
 - **§ Software Design Documents is descriptive, not prescriptive** — its per-document paragraphs only orient readers; the authoritative shape of each doc lives in its own facet spec. Don't drift those summaries away from the linked specs.

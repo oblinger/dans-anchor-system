@@ -1,11 +1,11 @@
 ---
-description: Common Skill Example — reference anchor — a fully-wired example of a CAB skill anchor
+description: Common Skill Example — reference anchor — a fully-wired example of a DAS skill anchor
 ---
 # CSE — Common Skill Example
 
-A self-contained reference anchor demonstrating the canonical CAB skill-trait anchor structure — sibling to [[HBR]] for the Code trait.
+A self-contained reference anchor demonstrating the canonical DAS skill-trait anchor structure — sibling to [[HBR]] for the Code trait.
 
-| -[[CSE]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [CSE](hook://p/CSE)<br>: Common Skill Example — reference anchor — a fully-wired example of a CAB skill anchor |
+| -[[CSE]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [CSE](hook://p/CSE)<br>: Common Skill Example — reference anchor — a fully-wired example of a DAS skill anchor |
 | --- | --- |
 | Skill | [[CSE/SKILL\|SKILL.md]],  [[SKL CSE\|User Docs]],   |
 | [[CSE Design\|Design]] | [[CSE PRD\|PRD]],   |
@@ -15,7 +15,7 @@ A self-contained reference anchor demonstrating the canonical CAB skill-trait an
 
 ## Overview
 
-CSE is the **Common Skill Example** — a self-contained reference anchor demonstrating the canonical CAB skill-anchor structure. Companion to [[HBR]] (the general anchor example).
+CSE is the **Common Skill Example** — a self-contained reference anchor demonstrating the canonical DAS skill-anchor structure. Companion to [[HBR]] (the general anchor example).
 
 Where CAE shows a Code-trait anchor — module docs, code repo, dev dispatch — CSE shows a Skill-trait anchor: `SKILL.md` at the root *is* the code, user docs live in the parallel SKL tree, and the Plan folder holds design docs and feature specs for changes to the skill.
 
@@ -45,7 +45,7 @@ CSE/                                        ← anchor root (slug: CSE, trait: s
 
 ## How a skill anchor differs from a general anchor
 
-A skill anchor follows the same CAB structure as any other anchor — same `Docs/Plan/Features/` hierarchy, same dispatch tables, same feature-doc convention. Two structural deltas:
+A skill anchor follows the same DAS structure as any other anchor — same `Docs/Plan/Features/` hierarchy, same dispatch tables, same feature-doc convention. Two structural deltas:
 
 - **No code repo, no Dev dispatch.** `SKILL.md` *is* the code. The skill's action files (`cse-demo.md` etc.) live alongside it at the anchor root in kebab-case. There is no separate `Code/` directory and no `{slug} Docs/{slug} Dev/` doc folder.
 - **No User dispatch — user docs live in SKL.** User-facing documentation for the skill lives in the **SKL user-docs tree** at `skills/SKL User Docs/SKL Skills/SKL <Name>.md`, not under `{slug} Docs/{slug} User/`. This keeps every skill's user docs together in one place at the skills repo root, regardless of which anchor they describe.

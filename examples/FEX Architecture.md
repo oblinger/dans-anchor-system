@@ -24,7 +24,7 @@ CLI submits tasks to the **Scheduler**, which dispatches to the **Worker Pool**,
 | [[CAE Stories]] | three user stories — index for US-CAE-1..3 (folder-form per ~~ |
 | [[CAE Testing]] | testing strategy + proposed-tests overview (worked example of |
 | [[Clarifier]] | example project anchor — a designed software project |
-| [[CSE]] | Common Skill Example — reference anchor — a fully-wired example of a CAB skill anchor |
+| [[CSE]] | Common Skill Example — reference anchor — a fully-wired example of a DAS skill anchor |
 | [[DAS Examples]] | the example gallery — fictional worlds + a per-kind map |
 | [[Devtools]] | example grouped-dispatch collection (> 15 members) |
 | [[Decisions/DKT Decisions]] | Durable architectural decisions + rationale — standard/API split, Rust+Python common docs, anchor-crate separation |

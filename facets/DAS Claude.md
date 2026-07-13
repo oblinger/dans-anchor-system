@@ -65,7 +65,7 @@ Follow CAB markdown conventions. H1/H2 get 3 blank lines before, 1 after.
 
 ## F060 — exempt
 
-`CLAUDE.md` is a Claude Code configuration file consumed by the harness, not a CAB facet doc inside the anchor's documentation tree. The F060 dispatch-table placeholder rule does not apply — the file's first lines are reserved for the optional Pilot role declaration and the agent mission, not a dispatch table.
+`CLAUDE.md` is a Claude Code configuration file consumed by the harness, not a DAS facet doc inside the anchor's documentation tree. The F060 dispatch-table placeholder rule does not apply — the file's first lines are reserved for the optional Pilot role declaration and the agent mission, not a dispatch table.
 
 ## Contents
 
@@ -132,7 +132,7 @@ This `CLAUDE.md` opens with a `:>>` breadcrumb — remove it. `CLAUDE.md` is con
 
 *(Maintainer note — facet-specific cautions for whoever edits this spec. This file is the facet spec for `CLAUDE.md`, not itself a `CLAUDE.md` template; the normative spec is the body above.)*
 
-- **Inclusion test** — add material only if it constrains the shape, location, or contents of `CLAUDE.md` as a CAB facet across all anchors; per-anchor mission text, role declarations, or commands belong in each anchor's own `CLAUDE.md`, and project-wide agent policy stays in the global `~/.claude/CLAUDE.md` (see § Contents), not in this spec.
+- **Inclusion test** — add material only if it constrains the shape, location, or contents of `CLAUDE.md` as a DAS facet across all anchors; per-anchor mission text, role declarations, or commands belong in each anchor's own `CLAUDE.md`, and project-wide agent policy stays in the global `~/.claude/CLAUDE.md` (see § Contents), not in this spec.
 - **Don't regress the F060 exemption or the opt-in Pilot guard** — `CLAUDE.md` intentionally carries no dispatch table (R-fct-claude-04); the "only add the Pilot header when driven by agents" guard stays intact.
 - **Reference Example headings are escaped** (`\# CLAUDE.md`, `\## Mission`) so they don't collide with this spec's outline — preserve the backslash escapes when editing the example block.
 - **Cited by:** SKD Anchor (lists `CLAUDE.md` as an optional facet), [[SKA|Skill Agent]] pilot setup, any anchor adopting agentic-project workflow — audit those citations when the format changes.

@@ -2,11 +2,11 @@
 description: track docs dispatch page — work tracking + planning for a Track-trait anchor
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Dispatch]] → [FCT Track Dispatch](hook://p/DAS%20Track%20Dispatch)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Track Dispatch](hook://p/DAS%20Track%20Dispatch)
 # FCT Track Dispatch
 Spec for the `{slug} Track.md` dispatch page that lists all work-tracking and planning documents inside a Track-trait anchor's `{slug} Track/` folder.
 
-**Related:** [[DAS Dispatch]],  [[FCT Backlog]],  [[DAS Design Dispatch]],  [[DAS Track]]
+**Related:** [[DAS Dispatch]],  [[DAS Backlog]],  [[DAS Design Dispatch]],  [[DAS Track]]
 **Examples:** [[HBR Track\|fuller example]],  [[HBR Track\|minimal example]]
 
 **Cardinality:** one per anchor (each Track-trait anchor has exactly one `{slug} Track.md` dispatch page).

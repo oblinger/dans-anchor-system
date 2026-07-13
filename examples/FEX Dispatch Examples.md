@@ -4,12 +4,12 @@ description: "live worked examples of each dispatch-table structure"
 
 | -[[FEX Dispatch Examples]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [FEX Dispatch Examples](hook://p/FEX%20Dispatch%20Examples)<br>: live worked examples of each dispatch-table structure |
 | --- | --- |
-| Spec | [[DSC Dispatch Table]] § Structure |
+| Spec | [[DAS Dispatch Table]] § Structure |
 | Builder | [[audit-dispatch\|/audit dispatch]],   |
 
 # FEX Dispatch Examples
 
-A gallery of the dispatch-table alternatives from [[DSC Dispatch Table]] § Structure — each a **live, real** anchor page (click through to see it render), not a fenced copy. Recall the model: every dispatch table is a **Masthead** (breadcrumb + structural rows + curated links) optionally followed by a **Member zone** (a [[Collection]] anchor's members, as a *member list* or *member groups*, *manual / auto / hybrid*), with the markers `---` (auto-list), `...` (compact auto), `+` (expandable group).
+A gallery of the dispatch-table alternatives from [[DAS Dispatch Table]] § Structure — each a **live, real** anchor page (click through to see it render), not a fenced copy. Recall the model: every dispatch table is a **Masthead** (breadcrumb + structural rows + curated links) optionally followed by a **Member zone** (a [[Collection]] anchor's members, as a *member list* or *member groups*, *manual / auto / hybrid*), with the markers `---` (auto-list), `...` (compact auto), `+` (expandable group).
 
 ## The four kinds
 

@@ -6,7 +6,7 @@ user_invocable: false
 
 # CSE — Common Skill Example
 
-This `SKILL.md` is illustrative. It shows what `SKILL.md` looks like when it sits at the root of a CAB skill anchor. CSE is reference material, not an invokable skill — `user_invocable: false` keeps it out of the user's slash-command surface.
+This `SKILL.md` is illustrative. It shows what `SKILL.md` looks like when it sits at the root of a DAS skill anchor. CSE is reference material, not an invokable skill — `user_invocable: false` keeps it out of the user's slash-command surface.
 
 User docs: [[SKL CSE]]
 Anchor page: [[CSE]]

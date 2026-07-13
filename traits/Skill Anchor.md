@@ -1,10 +1,10 @@
 # Skill Anchor
 
-A Skill Anchor is *a conventional CAB anchor whose code is its `SKILL.md` and whose user-facing content lives at well-defined locations outside the anchor's filesystem folder.* What distinguishes a Skill Anchor from a Code Anchor:
+A Skill Anchor is *a conventional DAS anchor whose code is its `SKILL.md` and whose user-facing content lives at well-defined locations outside the anchor's filesystem folder.* What distinguishes a Skill Anchor from a Code Anchor:
 
 - **`SKILL.md` is the code** — agent-loaded entry point at `~/.claude/skills/<folder>/SKILL.md`, kebab-case folder name (Claude Code requirement). No `{slug} Dev/` directory; no source-repo.
 - **User docs live in SKL** — `~/.claude/skills/SKL User Docs/SKL Skills/SKL <Slug>.md` (NOT under the anchor's `{slug} User/` folder).
-- **Multiple runtime surfaces** — the SKILL.md + scripts + tests + rules/decision sets all live under `~/.claude/skills/<folder>/`, while the anchor's docs (`{slug} Track/`, `{slug} Features/`, etc.) live at the SKA filesystem location. Both surfaces are formally part of the anchor; their split is captured by the `skill-*` facets (per [[F116 — Skills as conventional anchors — retire skill-trait, convert to CAB facets with skill- prefix]]).
+- **Multiple runtime surfaces** — the SKILL.md + scripts + tests + rules/decision sets all live under `~/.claude/skills/<folder>/`, while the anchor's docs (`{slug} Track/`, `{slug} Features/`, etc.) live at the SKA filesystem location. Both surfaces are formally part of the anchor; their split is captured by the `skill-*` facets (per [[F116 — Skills as conventional anchors — retire skill-trait, convert to DAS facets with skill- prefix]]).
 - **Composes with `skill-*` facets (v1, per F116 Q2 = B)** — `skill-testing` (tests/), `skill-search-rules` (rules/), `skill-script` (scripts/), `skill-config` (per F080's `~/.config/anchor-system/<name>/`). Each facet applies when its location has content; an anchor doesn't need all of them. `skill-doc` and `skill-spec` are reserved facet names that will ship in a later iteration.
 
 Otherwise this anchor follows [[DAS Anchor Tree]] with the standard CAB shape (anchor page, Track/Features/Backlog if there's content).
@@ -57,7 +57,7 @@ The two locations are formally part of the same anchor. The `skill-*` facets doc
 | **Anchor root page** | `{Slug}.md` at anchor folder root | `SKA groom/SKA groom.md` |
 | **User-facing doc** | `SKL {Slug}.md` in SKL tree | `SKL User Docs/SKL Skills/SKL groom.md` |
 
-**Why two cases:** Claude Code resolves skills from kebab-case folder names; CAB anchor docs use Title Case slug-prefixes for human readability and Obsidian wiki-link clarity. The two layers coexist because file extensions and case-insensitive resolution always disambiguate.
+**Why two cases:** Claude Code resolves skills from kebab-case folder names; DAS anchor docs use Title Case slug-prefixes for human readability and Obsidian wiki-link clarity. The two layers coexist because file extensions and case-insensitive resolution always disambiguate.
 
 
 ## Anchor Page Dispatch Table
@@ -85,7 +85,7 @@ Cross-skill features (touching 2+ skills) and meta-anchor features (about SKA it
 |------|---------------|
 | `~/.claude/skills/<folder>/SKILL.md` | always |
 | `.anchor` (declaring `traits: [Skill Anchor]`) | always |
-| `{Slug}.md` (anchor root) | always (per F036 — every skill folder gets a CAB anchor structure) |
+| `{Slug}.md` (anchor root) | always (per F036 — every skill folder gets a DAS anchor structure) |
 | `{Slug} Track/{Slug} Backlog.md` | optional — create only when there's content |
 | `{Slug} Track/{Slug} Features/` | optional — create when first feature doc is filed |
 | `{Slug} Track/{Slug} PRD.md` | optional |
@@ -135,4 +135,4 @@ Rewritten in place by F116. The principal change: the parallel `SKA skill-trait/
 - **Inclusion test for edits** — a rule belongs here only if it applies to *every* Skill Anchor; one-sub-shape rules go in the matching `CAB skill-*` facet (`skill-testing`, `skill-script`, `skill-search-rules`, `skill-config`), all-anchor rules in [[DAS Anchor Tree]]. Don't let per-facet detail accumulate here — factor it out to that facet's spec.
 - **Two-location split is load-bearing** — the runtime location (`~/.claude/skills/<folder>/`, kebab-case) and the anchor filesystem location (`SYS/Bespoke/Skill Agent/<Category>/<Slug>/`, Title Case slug) are both formally part of the anchor; don't collapse them or imply one is canonical.
 - **Naming table + slug-collision section are contract** — folder/action/slug/anchor-docs casing rules are read by audit and by the create/install skills, so preserve column meaning; the macOS case-insensitive slug-collision warnings (`cab/`, `io/`, `dev/`) are load-bearing — don't drop that section.
-- **Cross-refs to sweep on rename** — [[CSE]] (worked example), [[DAS Anchor Tree]] (parent shape), [[DAS Anchor Page]] (dispatch table rules), [[F116 — Skills as conventional anchors — retire skill-trait, convert to CAB facets with skill- prefix|F116]] (the rewrite that produced this spec), and the `skill-*` facet specs.
+- **Cross-refs to sweep on rename** — [[CSE]] (worked example), [[DAS Anchor Tree]] (parent shape), [[DAS Anchor Page]] (dispatch table rules), [[F116 — Skills as conventional anchors — retire skill-trait, convert to DAS facets with skill- prefix|F116]] (the rewrite that produced this spec), and the `skill-*` facet specs.

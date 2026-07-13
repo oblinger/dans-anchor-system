@@ -14,7 +14,7 @@ The pattern for an anchor whose code repository lives **outside** the vault. The
 
 A normal anchor under `~/ob/kmr/` is fully self-contained — code (if any) lives inside the anchor folder. A **Linked Mode** anchor inverts this: the anchor folder is metadata-only; code lives at an external path like `~/ob/proj/<name>/`. The skills and audits that operate on the code follow the `code:` pointer; the user reading the anchor in Obsidian sees the planning content here, but the executable bits are elsewhere.
 
-The discipline is named **Linked Mode** — two words, title case. Anchors adopting the pattern cite this spec via the wiki-link form `~~[[DSC Linked Mode]]~~`.
+The discipline is named **Linked Mode** — two words, title case. Anchors adopting the pattern cite this spec via the wiki-link form `~~[[DAS Linked Mode]]~~`.
 
 ## When to use it
 

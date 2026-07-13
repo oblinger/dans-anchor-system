@@ -136,7 +136,7 @@ description:: <one-line tagline — product type + intent + key trait>
 | [[{slug} Architecture]] | system-architecture story (peer Design facet) |
 | [[{slug} Testing]] | testing strategy + proposed-tests overview |
 | [[{slug} Decisions]] | load-bearing decisions citing rules |
-| [[FCT PRD]] | facet spec this doc follows |
+| [[DAS PRD]] | facet spec this doc follows |
 | --- | |
 
 ## Overview
@@ -170,8 +170,8 @@ As a <role>, I want <goal> so that <reason>.
 
 ## See also
 
-- [[FCT PRD]] — facet spec
-- [[FCT Stories]] — stories sub-facet (activates if stories grow)
+- [[DAS PRD]] — facet spec
+- [[DAS Stories]] — stories sub-facet (activates if stories grow)
 - [[{slug} Architecture]], [[{slug} Testing]], [[{slug} Decisions]] — peer Design facets
 ```
 
