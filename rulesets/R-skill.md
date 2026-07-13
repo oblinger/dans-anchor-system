@@ -24,5 +24,5 @@ This single include pulls in every skill's structural rules. Use when authoring 
 - [[R-facet]] — sibling umbrella for per-facet rulesets.
 - [[R-trait]] — sibling umbrella for per-trait rulesets.
 - [[R-skill-anchor]] — trait-scoped rules for Skill-anchor type (NOT this umbrella).
-- [[SKL Skills]] — the skill catalog.
+- [[DAS Skills]] — the skill catalog.
 - [[DAS Rulesets]] — parent catalog.

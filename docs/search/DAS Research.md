@@ -4,7 +4,7 @@ description: "Structured research workflows — gather sources on a target (enti
 # DAS Research
 Structured research workflows. You give it a target (entity / topic / person / book / skill concept), it gathers sources, synthesizes findings, and produces a report in the RRR (Research Reports) anchor at `~/ob/kmr/RR/RR Research Reports/`.
 
-| -[[DAS Research]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Research](hook://p/DAS%20Research)<br>: Structured research workflows — gather sources on a target (entity/topic/person/book/concept) and produce a synthesized dated report in the RR anchor|
+| -[[DAS Research]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Research](hook://p/DAS%20Research)<br>: Structured research workflows — gather sources on a target (entity/topic/person/book/concept) and produce a synthesized dated report in the RR anchor |
 | --- | --- |
 
 Every research action shares the same output skeleton: a dated report folder with a results table at the top, written analysis below, and full URLs in a Sources section so links work outside Obsidian.
@@ -13,11 +13,11 @@ Every research action shares the same output skeleton: a dated report folder wit
 
 | Action | What it does |
 |---|---|
-| [[SKL Research Dig\|Dig]] | Deep investigation of a specific entity — produces a dossier on a company, product, technology, project, or other concrete subject |
-| [[SKL Research Survey\|Survey]] | Broad survey of a topic area — produces a landscape report (major players, approaches, trends, gaps) |
+| [[DAS Research Dig\|Dig]] | Deep investigation of a specific entity — produces a dossier on a company, product, technology, project, or other concrete subject |
+| [[DAS Research Survey\|Survey]] | Broad survey of a topic area — produces a landscape report (major players, approaches, trends, gaps) |
 | [[DAS Research Skill\|Skill]] | Compare agent skills addressing a concept — choice-point analysis + groupings, for "should I build / rebuild this skill, and how?" |
-| [[SKL Research Person\|Person]] | Research a person — produces an AT person-file dossier with background, work history, public footprint |
-| [[SKL Research Book\|Book]] | Research a book — produces a summary in BOOK Summary |
+| [[DAS Research Person\|Person]] | Research a person — produces an AT person-file dossier with background, work history, public footprint |
+| [[DAS Research Book\|Book]] | Research a book — produces a summary in BOOK Summary |
 
 Sub-skill docs marked with broken links are not yet written (tracked by [[SKA Backlog#^B-skl-user-docs|B-skl-user-docs]]).
 
