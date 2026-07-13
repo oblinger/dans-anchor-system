@@ -85,6 +85,40 @@ def to_svg(elems, pad=12):
                     f'x2="{ox + pts[1][0]:.1f}" y2="{oy + pts[1][1]:.1f}" '
                     f'stroke="{el["strokeColor"]}" stroke-width="{el["strokeWidth"]}"{dash}/>')
 
+        elif t == "arrow":
+            pts = el["points"]
+            ox, oy = el["x"], el["y"]
+            col = el["strokeColor"]
+            sw = el["strokeWidth"]
+            dash = ' stroke-dasharray="10 7"' if el.get("strokeStyle") == "dashed" else ""
+            d = f'M {ox + pts[0][0]:.1f} {oy + pts[0][1]:.1f}'
+            for p in pts[1:]:
+                d += f' L {ox + p[0]:.1f} {oy + p[1]:.1f}'
+            parts.append(
+                f'<path d="{d}" fill="none" stroke="{col}" '
+                f'stroke-width="{sw}"{dash} stroke-linejoin="round"/>')
+            if el.get("endArrowhead"):
+                x2, y2 = ox + pts[-1][0], oy + pts[-1][1]
+                x1, y1 = ox + pts[-2][0], oy + pts[-2][1]
+                ang = math.atan2(y2 - y1, x2 - x1)
+                size = 6 + 3 * sw
+                for da in (math.pi * 5 / 6, -math.pi * 5 / 6):
+                    hx = x2 + size * math.cos(ang + da)
+                    hy = y2 + size * math.sin(ang + da)
+                    parts.append(
+                        f'<line x1="{x2:.1f}" y1="{y2:.1f}" x2="{hx:.1f}" y2="{hy:.1f}" '
+                        f'stroke="{col}" stroke-width="{sw}" stroke-linecap="round"/>')
+
+        elif t == "ellipse":
+            bg = el["backgroundColor"]
+            fill = bg if bg != "transparent" else "none"
+            cx = el["x"] + el["width"] / 2
+            cy = el["y"] + el["height"] / 2
+            parts.append(
+                f'<ellipse cx="{cx:.1f}" cy="{cy:.1f}" rx="{el["width"] / 2:.1f}" '
+                f'ry="{el["height"] / 2:.1f}" fill="{fill}" stroke="{el["strokeColor"]}" '
+                f'stroke-width="{el["strokeWidth"]}"/>')
+
         elif t == "text":
             ff = el.get("fontFamily", 1)
             if ff == 2:
