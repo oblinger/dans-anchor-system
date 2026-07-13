@@ -6,7 +6,7 @@ The work queue — one `{slug} Backlog.md` per anchor, every unit of work as a r
 
 | -[[DAS Backlog]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Backlog](hook://p/DAS%20Backlog) |
 | --- | --- |
-| Related | [[DAS Roadmap]],  [[DAS Icebox]],  [[DAS Query]],  [[workflow]],   |
+| Related | [[templates/backlog.md\|backlog template]],  [[DAS Roadmap]],  [[DAS Icebox]],  [[DAS Query]],  [[workflow]],   |
 | Examples | [[SKA Backlog\|real instance (SKA anchor)]],   |
 | Rules | [[R-backlog]],   |
 |  |  |

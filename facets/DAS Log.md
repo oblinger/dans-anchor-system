@@ -7,7 +7,7 @@ Facet spec defining the standardized format for an anchor's running narrative �
 
 | -[[DAS Log]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Log](hook://p/DAS%20Log) |
 | --- | --- |
-| Related | [[FCT Backlog]],  [[DAS Roadmap]],  [[DAS Anchor Page]],  [[DAS Track]],   |
+| Related | [[templates/log.md\|log template (folder page)]],  [[templates/log-entry.md\|log-entry template]],  [[templates/log-single.md\|single-file template]],  [[FCT Backlog]],  [[DAS Roadmap]],  [[DAS Anchor Page]],  [[DAS Track]],   |
 | Examples | [[Disk Log\|folder-form (conformant)]],  [[SV Log\|folder-form (mixed-format entries)]],   |
 | Rules | [[R-log]],  [[R-dated-entry-stream]],   |
 |  |  |

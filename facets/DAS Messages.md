@@ -7,7 +7,7 @@ Spec for the **Messages facet** — the per-anchor file `{slug} Messages.md` tha
 
 | -[[DAS Messages]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Messages](hook://p/DAS%20Messages) |
 | --- | --- |
-| Related | [[DAS Inbox]],  [[FCT Backlog]],  [[DAS Track]],  [[DAS Anchor Tree]],   |
+| Related | [[templates/messages.md\|messages template]],  [[DAS Inbox]],  [[FCT Backlog]],  [[DAS Track]],  [[DAS Anchor Tree]],   |
 | Examples | [[HBR Messages\|minimal]],  [[HBR Messages\|with real system messages]],   |
 | Rules | [[R-messages]],   |
 
@@ -23,3 +23,4 @@ Spec for the **Messages facet** — the per-anchor file `{slug} Messages.md` tha
 - **Conventions** — refer to sibling facets by their CAB filename (`~~[[FCT Inbox]]~~`, `[[DAS Backlog]]`); refer to per-anchor instances with the `{slug}` placeholder, never a concrete anchor's name.
 [2026-07-12 20:13:05] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/facets/DAS Backlog.md was edited
 [2026-07-12 21:17:03] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/facets/DAS Backlog.md was edited
+[2026-07-12 21:26:26] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/facets/DAS Backlog.md was edited
