@@ -2,7 +2,7 @@
 description: dated agent-generated outputs — audit reports, analysis
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Output]] → [FCT Outputs](hook://p/DAS%20Outputs)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Outputs](hook://p/DAS%20Outputs)
 # FCT Outputs
 Dated agent-generated outputs (audit reports, code analysis, automated assessments) parked under `{slug} Outputs/` and auto-managed by the `stat` command.
 
@@ -11,7 +11,7 @@ Dated agent-generated outputs (audit reports, code analysis, automated assessmen
 
 **TLDR** — A folder of dated `{date} {name}.md` files auto-created by `stat add`; cardinality **many** (any number of output files per anchor). The dispatch page (`{slug} Outputs.md`) is **one per anchor**; individual output files are **many**. Never list specific files here — instances live in per-anchor dispatch pages.
 
-The CAB facet that specifies the Outputs zone — dated agent-generated reports (audit findings, code analysis, automated assessments) parked under `{slug} Docs/{slug} Plan/{slug} Outputs/` and auto-managed by the `stat` command.
+The DAS facet that specifies the Outputs zone — dated agent-generated reports (audit findings, code analysis, automated assessments) parked under `{slug} Docs/{slug} Plan/{slug} Outputs/` and auto-managed by the `stat` command.
 
 Agent-generated dated outputs — audit reports, code analysis results, automated assessments. Created automatically by `stat add` when an output name is provided. **Cardinality: many** — any number of dated output files may exist per anchor.
 

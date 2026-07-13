@@ -13,7 +13,7 @@ Granularity is *how coarse or fine a named unit should be.* Every capability or 
 - **Two graduation triggers** — (1) **shared shape**: when ≥2 fine-grained units share a real domain shape, promote them out into a coarse skill / named bucket (the *cull rule*); (2) **earned independence**: when one unit grows big or distinct enough to justify its own always-loaded slot, promote it to top-level.
 - **The governing trade-off** is always-loaded cost vs. cohesion/discoverability. More top-level units = easier to discover, heavier catalog. Fewer = leaner catalog, detail hidden behind invocation. Pick the coarsest grain that still keeps each unit discoverable and coherent.
 
-This is a discipline, not a user-invocable skill — facets and skills cite it via `[[DSC granularity]]` when deciding where a new capability lands.
+This is a discipline, not a user-invocable skill — facets and skills cite it via `[[DAS granularity]]` when deciding where a new capability lands.
 
 ## Why this exists — the problem it solves
 

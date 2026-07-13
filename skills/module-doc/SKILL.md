@@ -19,7 +19,7 @@ requires:: vault, skill:audit, skill:viz, facet:module-doc, external:ExcalidrawZ
 
 `/module-doc` authors or revises an module documentation file conforming to the [[DAS Module Doc]] facet. The facet is the rule source; this skill is the procedure. A companion `audit-module-doc.py` script (invoked as `/audit module-doc <file>`) performs mechanical conformance checks; the agent fixes warnings to zero, then does a subjective re-read for the rules mechanical checks can't cover (figure readability, prose clarity, layout judgment).
 
-Feature spec: `[[F119 — api-doc skill + audit-api-doc.py — author audit iterate for CAB API Doc facet]]`. Companion spec: `[[FCT Module Doc]]` (the facet — read it before authoring).
+Feature spec: `[[F119 — api-doc skill + audit-api-doc.py — author audit iterate for CAB API Doc facet]]`. Companion spec: `[[DAS Module Doc]]` (the facet — read it before authoring).
 
 
 ## When to Use
@@ -42,7 +42,7 @@ Feature spec: `[[F119 — api-doc skill + audit-api-doc.py — author audit iter
 
 Before any authoring step, validate the environment is set up:
 
-1. **Facet readable** — `[[FCT Module Doc]]` exists at `~/ob/kmr/SYS/Bespoke/Skill Agent/dans-anchor-system/facets/FCT Code/FCT Module Doc.md`. Use `ha -p "FCT Module Doc"` to confirm. If missing, STOP — surface to user.
+1. **Facet readable** — `[[DAS Module Doc]]` exists at `~/ob/kmr/SYS/Bespoke/Skill Agent/dans-anchor-system/facets/FCT Code/FCT Module Doc.md`. Use `ha -p "FCT Module Doc"` to confirm. If missing, STOP — surface to user.
 2. **viz/excalidraw available** — `~/.claude/skills/viz/excalidraw_to_svg.py` exists. Required for figure authoring. If missing, surface to user before proceeding.
 3. **audit script available** — `~/.claude/skills/audit/scripts/audit-module-doc.py` exists. Required for the iterate loop.
 4. **Source exists and is readable** — the target source file/folder exists; not a broken symlink.
@@ -64,7 +64,7 @@ Before any authoring step, validate the environment is set up:
 ## Runbook — new authoring
 
 ### 1. Read the facet
-**Read `[[FCT Module Doc]]`** in full before authoring. The facet defines what an module doc IS — every formatting decision, naming convention, spacing rule, table shape lives there. The subjective re-read at the end (step 8) consults this same file again, so it must be loaded fully.
+**Read `[[DAS Module Doc]]`** in full before authoring. The facet defines what an module doc IS — every formatting decision, naming convention, spacing rule, table shape lives there. The subjective re-read at the end (step 8) consults this same file again, so it must be loaded fully.
 
 ```bash
 # Locate via ha (or direct path)
@@ -110,7 +110,7 @@ Workflow:
 3. Embed: `![[{slug} {ModuleName}.svg|2400]]` (Obsidian wiki-embed syntax, NOT markdown image syntax).
 4. Open in ExcalidrawZ for user-editing: `open -a ExcalidrawZ "/path/to/file.excalidraw"`.
 
-Apply the layout guidelines from `[[FCT Module Doc]]` § Layout guidelines: minimize crossings (one acceptable load-bearing crossing is OK), push secondary nodes off primary flow paths, keep text out of lines, short labels (`submit` not `submit(task, deadline)`), legend out of the way (default bottom), solid arrows for primary flow / dotted for derivation.
+Apply the layout guidelines from `[[DAS Module Doc]]` § Layout guidelines: minimize crossings (one acceptable load-bearing crossing is OK), push secondary nodes off primary flow paths, keep text out of lines, short labels (`submit` not `submit(task, deadline)`), legend out of the way (default bottom), solid arrows for primary flow / dotted for derivation.
 
 **Figure size: HARD RULE — fills the reading pane (default, absolute).** Author the `.excalidraw` content area ~1400-1600 px wide. In the markdown embed, ALWAYS carry a large width hint so the figure fills the pane — `![[{slug} {ModuleName}.svg|2400]]` (Obsidian caps the hint to the pane; a bare embed renders as a tiny thumbnail). A smaller width is only for an explicitly-inline figure.
 
@@ -123,12 +123,12 @@ The script emits warnings with line numbers and rule references (C1-C26). Read t
 
 ### 7. Fix warnings to zero
 - **Mechanical fixes** (spacing, blank-line runs, normalization) — re-run with `--fix`: `/audit module-doc <file> --fix`. The script auto-fixes C3, C21, C22, C23, C24.
-- **Manual fixes** — every other warning needs hand-edit. The warning's rule reference points at the specific section of `[[FCT Module Doc]]` that governs it.
+- **Manual fixes** — every other warning needs hand-edit. The warning's rule reference points at the specific section of `[[DAS Module Doc]]` that governs it.
 - **Re-run audit after fixing.** Iterate until the script reports zero warnings.
 
 ### 8. Subjective re-read
 
-Re-read `[[FCT Module Doc]]` and walk through this **concrete subjective checklist**:
+Re-read `[[DAS Module Doc]]` and walk through this **concrete subjective checklist**:
 
 **File-level:**
 1. **One-glance gist** — could a reader who's never seen this module understand its purpose from the H1 + overview paragraph alone? If they'd need to scroll to the SECTIONS table or read prose past sentence 3, the overview is too dense or too abstract.
@@ -286,6 +286,6 @@ Same as new authoring with adjustments:
 
 ## Notes
 
-- This skill is the consumer of `[[FCT Module Doc]]`. If the facet rules change, the skill stays the same; only the verifier (`audit-module-doc.py`) and the agent's behavior need to track the spec.
+- This skill is the consumer of `[[DAS Module Doc]]`. If the facet rules change, the skill stays the same; only the verifier (`audit-module-doc.py`) and the agent's behavior need to track the spec.
 - Mirrors the existing `/architect` + `audit-architecture.py` pattern. Same split: facet owns rules, skill owns procedure, script owns mechanical checks.
 - Two queued user consumers were the motivation for shipping (per F119). After this lands, exercise on those consumers and iterate any rough edges.

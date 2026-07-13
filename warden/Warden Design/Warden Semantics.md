@@ -28,7 +28,7 @@ A rule activates for a target when **all of its present clauses hold**. `where::
 
 ### `where::` — which files
 
-A path glob, resolved **relative to the anchor that adopts the rule**: `**/*.md` means "every markdown file in this anchor," which is what makes one rule reusable across anchors. **Required for a passive rule**; optional for a live one (the moment supplies the subject). Default `always`. A glob may use the `{ANCHOR}` / `{NAME}` / `{slug}` substitution tokens (§ Ambient and variables). Grammar: [[DAS Ruleset]] § Where clause.
+A path glob, resolved **relative to the anchor that adopts the rule**: `**/*.md` means "every markdown file in this anchor," which is what makes one rule reusable across anchors. **Required for a passive rule**; optional for a live one (the moment supplies the subject). Default `always`. A glob may use the `{ANCHOR}` / `{slug}` / `{Full Name}` substitution tokens (§ Ambient and variables). Grammar: [[DAS Ruleset]] § Where clause.
 
 ### `when::` — which moments
 
@@ -110,12 +110,12 @@ The **interpretation environment** is the Python scope a rule is *interpreted* i
 | **`agent`** | `.state` (`working`/`landed`/`asking`/`idle`), `.skill`, `.is_asking`, `.response` · `.turn` — the conversation turn as a lazy sub-object (`.agent_said`, `.user_said`, `.text`, `.messages`, `.tools`, `.commands`; [[F217 — Conversation-content gating — rules on what was said|F217]], nested 2026-07-02) · expanded property set — § `agent` |
 | *verbs* | `tell(msg)`, `deny(reason)`, the `file` edits, `ask_oracle(prompt)→str`, `sh(argv)` — § Verbs |
 | *ambient* | `today`, `now` (+ plain Python: builtins, `re`, `json`, `datetime`) |
-| *variables* | `{ANCHOR}`, `{NAME}`, `{slug}` — `where::` substitutions (§ Ambient and variables) |
+| *variables* | `{ANCHOR}`, `{slug}`, `{Full Name}` — `where::` substitutions (§ Ambient and variables) |
 | *helpers* | the ruleset's own module(s), namespaced — `md.*`, `dispatch.*` (declared via `helpers::`, § below) |
 
 None of these take a `ctx.` prefix — they are aliased into the scope directly. Each is **computed lazily and cached per pass** — most rules touch only a couple, so the daemon pays for `git` / `agent` / parsed sections only when a rule actually reads them ([[Warden Architecture]] §7).
 
-**Naming convention.** Accessor names are **snake_case** for multi-word identifiers (`is_dirty`, `set_frontmatter`, `replace_section`); single domain words stay one word (`frontmatter` — as in the `python-frontmatter` library — `sections`, `links`). The all-caps brace form (`{NAME}`) is reserved for the `where::` substitution variables.
+**Naming convention.** Accessor names are **snake_case** for multi-word identifiers (`is_dirty`, `set_frontmatter`, `replace_section`); single domain words stay one word (`frontmatter` — as in the `python-frontmatter` library — `sections`, `links`). The brace form (`{ANCHOR}`, `{slug}`, `{Full Name}`) is reserved for the `where::` substitution variables.
 
 **Helper modules (`helpers::`).** A ruleset whose checks outgrow an inline `if::` ships a sibling Python module and declares it in its header — `helpers:: ./R-markdown.py as md` — binding that module under the namespace into every rule's scope (`md.unescaped_table_pipe(file)`). The module is ordinary, **unit-testable** Python (the M3 regime tests it directly), **namespaced** so composed rulesets never collide, and **skill-class trust** — it's the author's code, vetted on adoption like any imported ruleset (the same trust class as a `run` body, so nothing new). Only helper-bearing rulesets grow a sidecar; simple ones stay a single doc. *(The ruleset-header `helpers::` field is specced alongside `include::` / `where::` in [[DAS Ruleset]], folded in during the meta-bucket pass.)*
 
@@ -229,9 +229,9 @@ Both are always in scope, no setup. **Ambient values** are the plain runtime; **
 |---|---|
 | `today`, `now` | current date (ISO-serializing on write), current datetime |
 | Python | full Python — builtins + stdlib (`re`, `json`, `datetime`, …); it's real code, trusted like a skill (the hot-path interpreter may limit imports for *speed*, not security) |
-| `{ANCHOR}` · `{NAME}` · `{slug}` | the adopting anchor's root path · name · kebab slug |
+| `{ANCHOR}` · `{slug}` · `{Full Name}` | the adopting anchor's root path · kebab slug · display name |
 
-The **variables** are *substitution tokens*, not Python values: in a `where::` glob they expand to the adopting anchor's values when the rule binds to that anchor — `where:: {ANCHOR}/**/{slug} Backlog.md`. They are the where-clause counterpart of the `anchor.*` accessors — use the brace form (`{NAME}`) in `where::`, the dotted form (`anchor.name`) in an `if::` or a body.
+The **variables** are *substitution tokens*, not Python values: in a `where::` glob they expand to the adopting anchor's values when the rule binds to that anchor — `where:: {ANCHOR}/**/{slug} Backlog.md`. They are the where-clause counterpart of the `anchor.*` accessors — use the brace form (`{slug}` / `{Full Name}`) in `where::`, the dotted form (`anchor.slug` / `anchor.name`) in an `if::` or a body.
 
 **How `ask_oracle` executes.** A hook is a synchronous subprocess and cannot block-and-await the agent's model, so `ask_oracle` spawns a **separate headless oracle** that sees only the prompt and returns a string. On the **audit path** (not latency-bound) the pipeline blocks on it and parses the answer — its home. On the **live path** (the ms-budget hot hook) it cannot block, so a live judgment is **delegated to the agent as a steer** instead. The oracle is a **cheaper model** (Sonnet, ≈5× cheaper, ~1¢ per check) reached through Claude Code's *own* access — a sub-agent of the `/audit` turn, the running agent on the live path, or `claude -p` headless — so there's **no API key to set up** (the external API is opt-in, only to dodge subscription usage caps). (Mechanism: [[Warden Architecture]] §7.)
 

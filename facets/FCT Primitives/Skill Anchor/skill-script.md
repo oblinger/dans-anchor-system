@@ -15,7 +15,7 @@ The skill-script facet specifies *how a Skill Anchor packages and invokes its sc
 - **Non-zero exit on failure** — script exits 0 only when its core task succeeds.
 - **Read-only by default; mutations behind a flag** — scripts that modify state require `--fix` / `--apply` / equivalent; default invocation is dry-run / report-only.
 
-This is a CAB facet of the Skill trait. The scripts/ folder lives at the runtime location (skill folder), not under the anchor's filesystem folder.
+This is a DAS facet of the Skill trait. The scripts/ folder lives at the runtime location (skill folder), not under the anchor's filesystem folder.
 
 
 ## Layout

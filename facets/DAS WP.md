@@ -2,11 +2,11 @@
 description: dated work products — papers, reports, polished outputs
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Output]] → [FCT WP](hook://p/DAS%20WP)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS WP markdown](hook://p/DAS%20WP%20markdown)
 # FCT WP
 Facet spec for the **Work Products** zone of an anchor — dated, polished outputs (papers, reports, analyses) organized as one folder per work product under `{slug} WP/`.
 
-**Related:** [[DAS Log]],  [[FCT Feature]],  [[DAS Brief]],  [[DAS Dispatch]]
+**Related:** [[DAS Log]],  [[DAS Feature]],  [[DAS Brief]],  [[DAS Dispatch]]
 **Examples:** [[AIS WP\|example dispatch page]]
 
 **Location:** `{slug} Docs/Work Products/YYYY-MM-DD {Title}.md   (dated work product)`
@@ -46,7 +46,7 @@ Work Products — polished, dated outputs of human+agent collaboration. Papers, 
 ```markdown
 # {slug} WP
 
-| -[[{slug} WP]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Output]] → [FCT WP](hook://p/FCT%20WP)<br>: work products |
+| -[[{slug} WP]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Output]] → [FCT WP](hook://p/FCT%20WP)<br>: work products |
 | --- | --- |
 | [[2026-04-15 Security Audit]] |  |
 | [[2026-03-28 Architecture Review]] |  |

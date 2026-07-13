@@ -29,4 +29,4 @@ The published `SKILL.md` is consumed by anyone who installs the skill — it mus
 
 ## Live instance
 
-A simple single-runbook skill such as [[snip]] is the shape: its spec is `skills/snip/SKILL.md` (published); its design home is `SKA snip` in the SKA tree, where a `SKA snip Design.md` is added the first time a real decision needs recording. Most skills are at the "spec only" stage today — the Design doc is the lazy piece the per-skill migration fills in *as decisions happen*, not up front. The facet side is already fully worked: see [[FEX Minimal Facet]] → [[DSC Dispatch Table]].
+A simple single-runbook skill such as [[snip]] is the shape: its spec is `skills/snip/SKILL.md` (published); its design home is `SKA snip` in the SKA tree, where a `SKA snip Design.md` is added the first time a real decision needs recording. Most skills are at the "spec only" stage today — the Design doc is the lazy piece the per-skill migration fills in *as decisions happen*, not up front. The facet side is already fully worked: see [[FEX Minimal Facet]] → [[DAS Dispatch Table]].

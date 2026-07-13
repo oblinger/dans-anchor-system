@@ -38,7 +38,7 @@ The project page lives in a `website/` directory inside the anchor (vault side, 
 
 ## F060 — not applicable
 
-The Project Page is a published static-website artifact (Jekyll + cayman theme on `oblinger.github.io`), not a CAB facet doc inside the anchor's documentation tree. The F060 top-of-doc rule (H1 + CAB dispatch-table placeholder) does **not** apply — the Jekyll layout in the front matter shapes the rendered page instead.
+The Project Page is a published static-website artifact (Jekyll + cayman theme on `oblinger.github.io`), not a DAS facet doc inside the anchor's documentation tree. The F060 top-of-doc rule (H1 + CAB dispatch-table placeholder) does **not** apply — the Jekyll layout in the front matter shapes the rendered page instead.
 
 ## Jekyll Front Matter
 

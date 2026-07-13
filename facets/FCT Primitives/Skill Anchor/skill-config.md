@@ -14,7 +14,7 @@ The skill-config facet specifies *where a Skill Anchor's per-machine mutable con
 - **`dans-anchor-system` CLI is the canonical accessor** — per F080, scripts use `anchor-system config get <name> <key>` and `anchor-system path <name>` instead of hardcoding paths.
 - **Per-machine, not synced** — `~/.config/` is not part of the kmr vault; settings stay local.
 
-This is a CAB facet of the Skill trait. The config namespace lives outside both the anchor's filesystem folder AND the skill runtime folder — at the per-machine `~/.config/` location.
+This is a DAS facet of the Skill trait. The config namespace lives outside both the anchor's filesystem folder AND the skill runtime folder — at the per-machine `~/.config/` location.
 
 
 ## Layout

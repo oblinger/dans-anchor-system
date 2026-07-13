@@ -150,7 +150,7 @@ After updating, glance the affected file so the user can verify the field landed
 ## Related
 
 - Per-phase sub-skills: [[design-prd]], [[design-ux]], [[design-architect]], [[design-testing]], [[design-roadmap]]
-- CAB facets: [[DAS PRD]], [[DAS UX Design]], [[DAS Architecture]], [[DAS Testing]], [[DAS Module Doc]]
+- DAS facets: [[DAS PRD]], [[DAS UX Design]], [[DAS Architecture]], [[DAS Testing]], [[DAS Module Doc]]
 - Track cluster: [[SKL Track]], [[DAS Backlog]], [[workflow]]
 - Drive cluster (post-design execution): [[crank]], [[mint]], [[feature]]
 - Verification discipline: [[DAS verification]]

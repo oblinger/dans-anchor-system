@@ -20,7 +20,7 @@ What `/audit` checks on this facet-group index page. It is a grouped-Container a
 
 The single `Facets` row links every facet file in the `FCT Anchor/` family, and every member facet links back up to this group page in its breadcrumb.
 
-**Check pattern:** the set of `Facets`-row links equals the set of facet files under `FCT Anchor/` (no missing, no extra); each member's breadcrumb passes through `~~[[FCT Anchor]]~~`.
+**Check pattern:** the set of `Facets`-row links equals the set of facet files under `FCT Anchor/` (no missing, no extra); each member's breadcrumb passes through `~~[[DAS Anchor]]~~`.
 
 **Why:** the index is how the family is discovered — a missing entry is an orphan facet; a stale entry is a dead link.
 

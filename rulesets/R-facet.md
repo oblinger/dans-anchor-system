@@ -1,8 +1,8 @@
 # RULESET R-facet
 include:: [[R-testing]], [[R-status]], [[R-log]], [[R-stories]], [[R-prd]], [[R-design]], [[R-naming]], [[R-roadmap]], [[R-completed-roadmap]], [[R-ux]], [[R-api]], [[R-discussion]], [[R-cli]], [[R-code-repository]], [[R-anchor-group]], [[R-code-surface]], [[R-module-doc]], [[R-design-docs-group]], [[R-dev-dispatch]], [[R-dispatch-group]], [[R-doc-facet]], [[R-cards]], [[R-documentation-site]], [[R-output-group]], [[R-wp]], [[R-skill-md]], [[R-track-group]], [[R-ruleset]], [[R-backlog]]
-description:: Umbrella ruleset aggregating the per-facet rulesets embedded in CAB facet spec files.
+description:: Umbrella ruleset aggregating the per-facet rulesets embedded in DAS facet spec files.
 
-Per the 2026-06-09 design decision, each CAB facet spec file (`CAB <facet>.md`) contains a `# RULESET R-<facet>` second-H1 block with the facet's structural rules — co-located with the prose that explains the facet. This file is the catalog-side umbrella that walks all those embedded rulesets via `include::` so adopters get a single name to pull. An anchor that adopts R-facet commits to following every materialized CAB facet's structural rules.
+Per the 2026-06-09 design decision, each DAS facet spec file (`CAB <facet>.md`) contains a `# RULESET R-<facet>` second-H1 block with the facet's structural rules — co-located with the prose that explains the facet. This file is the catalog-side umbrella that walks all those embedded rulesets via `include::` so adopters get a single name to pull. An anchor that adopts R-facet commits to following every materialized DAS facet's structural rules.
 
 **Materialization progress.** The `include::` line above grows as each facet's RULESET block lands. Currently:
 
@@ -18,7 +18,7 @@ Per the 2026-06-09 design decision, each CAB facet spec file (`CAB <facet>.md`) 
 
 - **R-backlog** ([[DAS Backlog|FCT Backlog]]) — the F228 frontier invariants, landed 2026-07-05. 4 rules: the groom-frontier definition (Now + Next + next roadmap milestone), frontier `[Ready]`/`[Active]` rows declare a `Next:` step, `## Now`/`## Next` rows are bracket-resolved, `[Verify*]`/`[Watching*]` rows carry a concrete `Verify:` question. Also in the [[R-doc]] umbrella (fires on `* Backlog.md` by `where::`).
 
-Pending — each lands as its CAB facet's RULESET block is drafted: R-architecture, R-decisions, R-features, … (rollout continues per facet; tracked separately).
+Pending — each lands as its DAS facet's RULESET block is drafted: R-architecture, R-decisions, R-features, … (rollout continues per facet; tracked separately).
 
 ## Adoption
 
@@ -27,7 +27,7 @@ Pending — each lands as its CAB facet's RULESET block is drafted: R-architectu
 include:: [[R-facet]]
 ```
 
-This single include pulls in every CAB facet's structural rules. Audit walks the included sets and verifies the anchor's facet files satisfy them. Use cases:
+This single include pulls in every DAS facet's structural rules. Audit walks the included sets and verifies the anchor's facet files satisfy them. Use cases:
 
 - A new anchor that wants to be CAB-conformant: one-liner adoption.
 - An audit pass that checks every facet file's structure in one walk.

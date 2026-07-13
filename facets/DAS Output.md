@@ -20,7 +20,7 @@ What `/audit` checks on this facet-group index page. It is a grouped-Container a
 
 The `Facets` row links every output / published-doc facet (Cards, Outputs, Documentation Site, WP, …), and each member's breadcrumb routes through this page.
 
-**Check pattern:** the `Facets`-row link set equals the output facet files under `FCT Output/`; each member breadcrumb passes through `~~[[FCT Output]]~~`.
+**Check pattern:** the `Facets`-row link set equals the output facet files under `FCT Output/`; each member breadcrumb passes through `~~[[DAS Output]]~~`.
 
 ### RULE R-output-group-02 — No facet content of its own (stated)
 

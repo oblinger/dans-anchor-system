@@ -6,7 +6,7 @@ description: "per-module source code documentation — one doc per source module
 # FCT Module Doc
 Facet spec for per-module documentation — the auto-generatable, source-code-grounded reference doc that mirrors one source module under `{slug} Dev/`.
 
-**Related:** [[DAS Interface]],  [[DAS Architecture]],  [[FCT Dev]],  [[DAS Code]]
+**Related:** [[DAS Interface]],  [[DAS Architecture]],  FCT Dev,  [[DAS Code]]
 **Examples:** [[FEX Scheduler\|fuller (two-zone, SVG figure)]],  [[HBR Scanner\|minimal (leaf module)]]
 
 | Table of Contents |  |
@@ -85,7 +85,7 @@ The overview zone is everything a reader needs to see the API surface at a glanc
 ---
 description: <one-line module summary>
 ---
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → ~~[[FCT Code]]~~ → [FCT Module Doc](hook://p/FCT%20Module%20Doc)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → ~~[[DAS Code]]~~ → [FCT Module Doc](hook://p/FCT%20Module%20Doc)
 
 # {slug} {ModuleName}
 <file-level overview paragraph — no blank line after H1, description prose immediately follows>
@@ -494,7 +494,7 @@ Every module doc's dispatch table (when present) carries an **`Arch` row** maint
 
 ```
 
-The `Arch` row points to the **most-specific** architecture destination — the per-module arch doc if one exists, otherwise the subsystem arch doc, otherwise the top-level `{slug} Architecture.md` (single-subsystem case). Every module doc has exactly one such row. See `~~[[FCT Architecture]]~~` § Bidirectional cross-linking.
+The `Arch` row points to the **most-specific** architecture destination — the per-module arch doc if one exists, otherwise the subsystem arch doc, otherwise the top-level `{slug} Architecture.md` (single-subsystem case). Every module doc has exactly one such row. See `~~[[DAS Architecture]]~~` § Bidirectional cross-linking.
 
 (In the new format demonstrated by `CAE Scheduler.md`, the breadcrumb `:>>` line carries the cross-references explicitly and the dispatch-table `Arch` row is optional. Use whichever shape matches the rest of the anchor.)
 
@@ -545,6 +545,6 @@ Before writing a module doc, add its row to `{slug} Dev.md` (Dev dispatch) and t
 
 *(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body above (§ Format Specification) and RULESET R-module-doc; the canonical worked example is `[[FEX Scheduler]]`, read it before authoring or revising.)*
 
-- **Inclusion test** — a rule belongs here only when it constrains how a *single* module doc is shaped (sections, tables, casing, block-ID format, figure workflow, frontmatter contract). Cross-module rules go in the trait or anchor-level spec; rendering rules belong in `[[R-markdown]]`; the layer-wide contract that groups modules is `~~[[FCT Interface]]~~`; architecture-level discussion is `~~[[FCT Architecture]]~~` (the per-module `Arch` row points to it).
+- **Inclusion test** — a rule belongs here only when it constrains how a *single* module doc is shaped (sections, tables, casing, block-ID format, figure workflow, frontmatter contract). Cross-module rules go in the trait or anchor-level spec; rendering rules belong in `[[R-markdown]]`; the layer-wide contract that groups modules is `~~[[DAS Interface]]~~`; architecture-level discussion is `~~[[DAS Architecture]]~~` (the per-module `Arch` row points to it).
 - **Downstream consumers read this file as authority** — the `[[module-doc]]` skill, `[[audit-docs]]`, and `[[skills/architect/SKILL\|/architect]]`. Update a rule here once and they pick it up; don't restate format rules in the skills. Don't regress the load-bearing conventions — the two-zone SECTIONS / per-class-table / Class Method Details structure, the bold-identifier-outside-code-span link form (backticks inside a wiki-link alias do NOT render), the `^ClassName-methodname` block-ID format, the `module_docs_audited:` frontmatter contract on `{slug} Dev.md` (F074), and SVG-only figures via `[[viz-excalidraw]]` — each has a downstream reader (architect, audit-docs, Obsidian rendering) that breaks if it changes.
 - **When format conventions evolve** (as in the 2026-06-06 rewrite), update the dated working-example pointer at the top AND keep the "Naming and casing summary" + "Spacing summary" tables in sync with the prose — those tables are what auditors check against.

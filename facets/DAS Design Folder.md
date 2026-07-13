@@ -50,15 +50,15 @@ The Design folder is an anchor folder with the standard structure:
 {slug} Design/
 ├── .anchor                       ← folder-anchor marker (empty or YAML)
 ├── {slug} Design.md              ← dispatch page; anchor file (matches folder name)
-├── {slug} PRD.md                 ← REQUIRED — product requirements (per CAB PRD). May be a folder.
-├── {slug} Architecture.md        ← REQUIRED — system architecture (per CAB Architecture). May be a folder.
-├── {slug} Testing.md             ← REQUIRED — strategy + proposed-tests overview (per CAB Testing)
+├── {slug} PRD.md                 ← REQUIRED — product requirements (per DAS PRD). May be a folder.
+├── {slug} Architecture.md        ← REQUIRED — system architecture (per DAS Architecture). May be a folder.
+├── {slug} Testing.md             ← REQUIRED — strategy + proposed-tests overview (per DAS Testing)
 ├── {slug} Decisions.md           ← RECOMMENDED — load-bearing recorded decisions (per FCT Decisions)
-├── {slug} Roadmap.md             ← RECOMMENDED — sequencing-design: milestones + ordering (per CAB Roadmap)
-├── {slug} Features/              ← RECOMMENDED — per-feature design docs F<NNN> — <title>.md (per CAB Features)
+├── {slug} Roadmap.md             ← RECOMMENDED — sequencing-design: milestones + ordering (per DAS Roadmap)
+├── {slug} Features/              ← RECOMMENDED — per-feature design docs F<NNN> — <title>.md (per DAS Features)
 │   ├── {slug} Features.md        ← Features dispatch / index
 │   └── F<NNN> — <Title>.md       ← one per feature
-├── {slug} UX Design.md           ← OPTIONAL — when the anchor has a human user-facing surface (per CAB UX Design)
+├── {slug} UX Design.md           ← OPTIONAL — when the anchor has a human user-facing surface (per DAS UX Design)
 ├── {slug} API Design.md          ← OPTIONAL — when the anchor has a programmatic user-facing surface (per CAB API Design)
 ├── {slug} Interface.md           ← OPTIONAL — when there's a layer-contract surface (per CAB Interface)
 └── {slug} CLI.md                 ← OPTIONAL — when the anchor ships a CLI (per CAB CLI; downstream of UX Design)

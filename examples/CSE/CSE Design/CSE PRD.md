@@ -5,7 +5,7 @@ description: "product requirements"
 
 ## Overview
 
-`/cse` is a reference skill that demonstrates the canonical CAB skill-anchor structure. It is **not user-invocable** — its purpose is to be a worked example for skill authors and for the CAB spec to point at.
+`/cse` is a reference skill that demonstrates the canonical DAS skill-anchor structure. It is **not user-invocable** — its purpose is to be a worked example for skill authors and for the CAB spec to point at.
 
 ## Goals
 

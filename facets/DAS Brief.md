@@ -162,9 +162,9 @@ The H1 of the brief matches the file basename. No further structural constraints
 
 ## Constraints
 
-- A brief is a sidecar to *exactly one* source file. If two source files share maintenance content, factor it to a higher-level brief (e.g., a CAB facet spec) and link from both.
+- A brief is a sidecar to *exactly one* source file. If two source files share maintenance content, factor it to a higher-level brief (e.g., a DAS facet spec) and link from both.
 - Briefs do not nest. A brief does not have its own brief.
-- Briefs do not duplicate CAB facet specs, trait specs, or project-wide CLAUDE.md content. They carry only file-specific operational content.
+- Briefs do not duplicate DAS facet specs, trait specs, or project-wide CLAUDE.md content. They carry only file-specific operational content.
 - The wiki-link in the Related row (Case 1) or the `(See …)` line (Case 2) uses the exact basename of the brief file — no aliasing or renaming.
 - Distinct from `<App> User Guide.md` — different audience (end-users vs. editors), different content (how-to-use-the-app vs. how-to-edit-the-source).
 - **Briefs are agent-facing only.** User-facing orientation belongs in the one-sentence TLDR under the source's H1, with optional `## Overview` as the second tier. See § Audience — three reader zones.

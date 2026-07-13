@@ -7,7 +7,7 @@ The team's development tooling — a collection big enough to group.
 
 | -[[FEX Grouped Dispatch]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [FEX Grouped Dispatch](hook://p/FEX%20Grouped%20Dispatch)<br>: canonical grouped-dispatch exemplar |
 | --- | --- |
-| Related | [[FEX Dispatch Examples]],  [[DSC Dispatch Table]],  [[progressive-disclosure]],   |
+| Related | [[FEX Dispatch Examples]],  [[DAS Dispatch Table]],  [[progressive-disclosure]],   |
 | [[Devtools Build\|Build]]+ | [[Devtools Compile\|Compile]],  [[Devtools Bundle\|Bundle]],  [[Devtools Watch\|Watch]],  [[Devtools Cache\|Cache]],   |
 | [[Devtools Test\|Test]]+ | [[Devtools Unit\|Unit]],  [[Devtools E2E\|E2E]],  [[Devtools Coverage\|Coverage]],  [[Devtools Fuzz\|Fuzz]],   |
 | [[Devtools Ship\|Ship]]+ | [[Devtools Release\|Release]],  [[Devtools Sign\|Sign]],  [[Devtools Publish\|Publish]],  [[Devtools Rollback\|Rollback]],   |

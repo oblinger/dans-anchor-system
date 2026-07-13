@@ -13,7 +13,7 @@ The skill-testing facet specifies *how a skill verifies its own behavior — a `
 - **Non-destructive** — live tests touch only resources they create (their own tabs, temp files, scratch tmux session) and clean them up. Snapshot relevant state before/after; verify net-zero.
 - **No build system** — skills are scripts and markdown; tests run directly (`tests/live/<name>.sh`), not through `just` / `cargo` / `pytest`.
 
-This is a CAB facet of the Skill trait — it applies to anchors that carry `traits: [skill]`, and the content (the `tests/` folder) lives at the runtime location `~/.claude/skills/<skill-name>/tests/`, not under the anchor's filesystem folder.
+This is a DAS facet of the Skill trait — it applies to anchors that carry `traits: [skill]`, and the content (the `tests/` folder) lives at the runtime location `~/.claude/skills/<skill-name>/tests/`, not under the anchor's filesystem folder.
 
 
 ## Layout
@@ -54,4 +54,4 @@ A skill **carries this facet** when it has a `tests/` folder with the `unit/` / 
 
 ## Migration note (F116)
 
-Migrated from `SKA skill-trait testing.md` per F116. Substantive content preserved; framing rewritten from "parallel-to-CAB trait" to "CAB facet of the Skill trait." Wiki-link sweep: `[[SKA skill-trait testing]]` → `[[skill-testing]]`.
+Migrated from `SKA skill-trait testing.md` per F116. Substantive content preserved; framing rewritten from "parallel-to-CAB trait" to "DAS facet of the Skill trait." Wiki-link sweep: `[[SKA skill-trait testing]]` → `[[skill-testing]]`.

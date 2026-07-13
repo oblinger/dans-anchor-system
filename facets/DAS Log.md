@@ -7,7 +7,7 @@ Facet spec defining the standardized format for an anchor's running narrative �
 
 | -[[DAS Log]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Log](hook://p/DAS%20Log) |
 | --- | --- |
-| Related | [[templates/log/{slug} Log.md\|log template (folder form)]],  [[templates/log/{{YYYY-MM-DD}} — {{short topic}}.md\|entry template]],  [[templates/log.md\|log template (single-file)]],  [[FCT Backlog]],  [[DAS Roadmap]],  [[DAS Anchor Page]],  [[DAS Track]],   |
+| Related | [[templates/log/{slug} Log.md\|log template (folder form)]],  [[templates/log/{{YYYY-MM-DD}} — {{short topic}}.md\|entry template]],  [[templates/log.md\|log template (single-file)]],  [[DAS Backlog]],  [[DAS Roadmap]],  [[DAS Anchor Page]],  [[DAS Track]],   |
 | Examples | [[Disk Log\|folder-form (conformant)]],  [[SV Log\|folder-form (mixed-format entries)]],   |
 | Rules | [[R-log]],  [[R-dated-entry-stream]],   |
 |  |  |
@@ -77,7 +77,7 @@ The `{slug} Log.md` file itself is body-only — no YAML frontmatter. First line
 # {slug} Log
 description:: dated entries — what happened on what day in the {Full Name} anchor.
 
-| -[[{slug} Log]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT Track]] → [FCT Log](hook://p/FCT%20Log)<br>: <tagline> |
+| -[[{slug} Log]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Track]] → [FCT Log](hook://p/FCT%20Log)<br>: <tagline> |
 | --- | --- |
 | [[YYYY-MM-DD <topic>]] | <one-line summary> |
 | [[YYYY-MM-DD <topic>]] | <one-line summary> |
@@ -127,7 +127,7 @@ H2s above are **suggestions, not required**. The body is freeform; the only inva
 
 ## What does NOT belong in a Log
 
-- **Specs / conventions / standards** — those live in `{slug} Conventions.md`, `{slug} Spec.md`, or the relevant CAB facet doc. Logs link to them; they don't restate them.
+- **Specs / conventions / standards** — those live in `{slug} Conventions.md`, `{slug} Spec.md`, or the relevant DAS facet doc. Logs link to them; they don't restate them.
 - **Cross-session synthesis** — "here's what we learned over the last 3 months." Synthesis goes in dedicated synthesis docs, backlog notes, or roadmap commentary.
 - **Open work items / TODOs** — those go in `{slug} Backlog.md`. A log entry may *mention* what's outstanding, but the canonical list lives in the backlog.
 - **Long-running tracking** — anything you'd update over multiple days. Log entries are immutable-after-write narratives; living tracking belongs in a tracking doc.

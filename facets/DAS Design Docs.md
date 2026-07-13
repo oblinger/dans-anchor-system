@@ -20,7 +20,7 @@ What `/audit` checks on this facet-group index page. It is a grouped-Container a
 
 The `Facets` row links every design-doc facet (`{slug} Design/` contents — PRD, System Design, Architecture, UX, API, Testing, Decisions, Roadmap, …), and each member's breadcrumb routes through this page.
 
-**Check pattern:** the `Facets`-row link set equals the design-pipeline facet files under `FCT Design Docs/`; each member breadcrumb passes through `~~[[FCT Design Docs]]~~`.
+**Check pattern:** the `Facets`-row link set equals the design-pipeline facet files under `FCT Design Docs/`; each member breadcrumb passes through `~~[[DAS Design Docs]]~~`.
 
 ### RULE R-design-docs-group-02 — No facet content of its own (stated)
 

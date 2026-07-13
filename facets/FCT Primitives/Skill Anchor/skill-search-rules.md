@@ -16,7 +16,7 @@ What distinguishes a conformant search-rule surface from one-off rule files:
 - **Default pair files per noun** — `<verb>-person.md`, `<verb>-corp.md`, `<verb>-product.md` for the three core noun types the skill supports. Absent pair file = noun not supported by this skill.
 - **User overlays optional** — all `SRC rules/*` files are optional; absence means default behavior.
 
-This is a CAB facet of the Skill trait. Like skill-testing, the actual content lives at the runtime location, not under the anchor's filesystem folder.
+This is a DAS facet of the Skill trait. Like skill-testing, the actual content lives at the runtime location, not under the anchor's filesystem folder.
 
 
 ## Two homes for rules
@@ -93,4 +93,4 @@ User-facing summary of how this all combines: [[DAS Search Overview]].
 
 ## Migration note (F116)
 
-Migrated from `SKA skill-trait search-rules.md` per F116. Substantive content preserved; framing rewritten from "parallel-to-CAB trait" to "CAB facet of the Skill trait." Wiki-link sweep: `[[SKA skill-trait search-rules]]` → `[[skill-search-rules]]`.
+Migrated from `SKA skill-trait search-rules.md` per F116. Substantive content preserved; framing rewritten from "parallel-to-CAB trait" to "DAS facet of the Skill trait." Wiki-link sweep: `[[SKA skill-trait search-rules]]` → `[[skill-search-rules]]`.

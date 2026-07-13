@@ -72,7 +72,7 @@ The compiler turns the active rules into an **index** (moment → pre-built func
 Dispatch by moment narrows to candidate rules; each candidate must still be **active for this anchor** ([[Warden Semantics]] § Activation — activation is the anchor's `.anchor` traits). That's precomputed and checked with a set lookup:
 
 - **Compile time** — every **trait** flattens its omnibus rulesets into a **hash-set of active rule-ids**. The whole corpus merges into one moment-indexed list; the per-trait sets say *who is allowed to fire*.
-- **Fire time** — resolve the **anchor** from the path (the written / considered file, or the triggering agent's cwd) via a cached **reverse index** that walks up to `.anchor`. This is needed anyway to bind `{ANCHOR}` / `{NAME}`, so it is not extra work. The anchor's **active-set** is the union of its traits' sets.
+- **Fire time** — resolve the **anchor** from the path (the written / considered file, or the triggering agent's cwd) via a cached **reverse index** that walks up to `.anchor`. This is needed anyway to bind `{ANCHOR}` / `{slug}`, so it is not extra work. The anchor's **active-set** is the union of its traits' sets.
 - A candidate fires only if it clears three cheap gates: **active-set membership** (one set lookup) ∧ its **`where::`** matches the file ∧ the **content-hash** says re-evaluate.
 
 So gating by trait costs **one set lookup** over state the pass already computes — no scan, constant in rule count. Recompile the per-trait sets when a `.anchor`, a ruleset, or a trait→ruleset wiring changes.

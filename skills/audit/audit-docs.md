@@ -180,7 +180,7 @@ module_docs_audited: <today's date in YYYY-MM-DD>
 - This stamp is written **even when findings are non-empty** — it records "we audited on this date," not "everything was clean." Stale findings linger as backlog rows; the audit-date stamp is an independent fact.
 - **Skip in `dry` mode** — dry runs don't write to the backlog and don't stamp.
 
-**Why.** `[[skills/architect/SKILL|/architect]]` reads `module_docs_audited:` as a staleness precondition (per F074) — it runs `git log <audited-date>..HEAD -- <source-tree>` to count commits in source since the audit, and warns if module docs are likely stale. This stamp is the source of truth. No other skill writes this field. See `[[FCT Module Doc]]` § `{slug} Dev.md` frontmatter.
+**Why.** `[[skills/architect/SKILL|/architect]]` reads `module_docs_audited:` as a staleness precondition (per F074) — it runs `git log <audited-date>..HEAD -- <source-tree>` to count commits in source since the audit, and warns if module docs are likely stale. This stamp is the source of truth. No other skill writes this field. See `[[DAS Module Doc]]` § `{slug} Dev.md` frontmatter.
 
 # Phase 5: Report
 

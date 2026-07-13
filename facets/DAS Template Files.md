@@ -12,7 +12,7 @@ A **file template** — a `_{Name} Template.md` whose body IS a live specimen of
 ## Example File Template
 A file template is a **working specimen**, not a full description of one.2
 
-![[FCT Template File Example.svg]]
+!FCT Template File Example.svg
 
 
 | Part | What it is |

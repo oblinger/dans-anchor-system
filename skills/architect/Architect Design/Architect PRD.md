@@ -26,7 +26,7 @@ Per [[SKA Decisions|D10]], `/architect` is the **behavioral core of the [[DAS De
 
 ## User Stories
 
-- **US1 — Architect an anchor.** *As a maintainer, I run `/architect` on a CAB anchor and get a top-level architecture doc rolled up from its module docs, with bidirectional links back to each module.*
+- **US1 — Architect an anchor.** *As a maintainer, I run `/architect` on a DAS anchor and get a top-level architecture doc rolled up from its module docs, with bidirectional links back to each module.*
 - **US2 — Keep it current.** *As a maintainer, after changing modules I run `/architect update` and the architecture reconciles to the new module reality (staleness precondition, `Arch`-row reconciliation).*
 - **US3 — Overview any repo.** *As a colleague with only the cloned skills, I run `/architect overview .` on a plain codebase and get a diagrammed architecture overview, no vault or anchor needed.*
 

@@ -20,7 +20,7 @@ What `/audit` checks on this facet-group index page. It is a grouped-Container a
 
 The `Facets` row links every per-section dispatch facet (Design / Dev / Plan / Track / User Dispatch) and names [[DAS Dispatch Table]] as the base form they all specialize; each member's breadcrumb routes through this page.
 
-**Check pattern:** the `Facets`-row link set equals the sub-dispatch facet files under `FCT Dispatch/`; [[DAS Dispatch Table]] is present as the base; each member breadcrumb passes through `~~[[FCT Dispatch]]~~`.
+**Check pattern:** the `Facets`-row link set equals the sub-dispatch facet files under `FCT Dispatch/`; [[DAS Dispatch Table]] is present as the base; each member breadcrumb passes through `~~[[DAS Dispatch]]~~`.
 
 ### RULE R-dispatch-group-02 — No facet content of its own (stated)
 
