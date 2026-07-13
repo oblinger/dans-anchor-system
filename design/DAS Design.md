@@ -11,7 +11,7 @@ The **design internals** — the `{skill} Design` / `{skill} PRD` pages that spe
 | Related | [[DAS Docs\|Docs]],  [[DAS Skills\|Skills]],  [[DAS Design Folder\|Design (facet)]],  [[DAS\|dans-anchor-system]],   |
 |  | **GROUPS** |
 | [[SKL Anchor\|Anchor]]+ | [[DAS Anchor Toolkit Design\|Anchor Toolkit]],  [[DAS Create Design\|Create]],  [[DAS Install Design\|Install]],  [[DAS Migrate Design\|Migrate]],  [[DAS Move Design\|Move]],  [[DAS Publish Design\|Publish]],  [[DAS Streams Design\|Streams]],  [[DAS WP Design\|WP]],  [[DAS Yore Design\|Yore]],   |
-| [[SKL Track\|Track]]+ | [[DAS Ask Design\|Ask]],  [[DAS Groom Design\|Groom]],  [[DAS Groom PRD\|Groom PRD]],  [[DAS Backlog]],  [[DAS Messages]],  [[DAS Plan]],  [[DAS workflow]],   |
+| [[SKL Track\|Track]]+ | [[DAS Ask Design\|Ask]],  [[DAS Groom Design\|Groom]],  [[DAS Groom PRD\|Groom PRD]],  [[Query PRD]],  [[DAS Backlog]],  [[DAS Messages]],  [[DAS Plan]],  [[DAS workflow]],   |
 | [[SKL Drive\|Drive]]+ | [[DAS Feature Design\|Feature]],  [[DAS Feature PRD\|Feature PRD]],  [[DAS Crank Design\|Crank]],  [[DAS Crank PRD\|Crank PRD]],  [[DAS Mint Design\|Mint]],  [[DAS Mint PRD\|Mint PRD]],  [[DAS Finalize Design\|Finalize]],  [[DAS Finalize PRD\|Finalize PRD]],  [[DAS Land Design\|Land]],  [[DAS Land PRD\|Land PRD]],  [[DAS Fortify Design\|Fortify]],  [[DAS Fortify PRD\|Fortify PRD]],   |
 | [[SKL Dev\|Dev]]+ | [[DAS Architect Design\|Architect]],  [[DAS Code Design\|Code]],  [[DAS Fix Design\|Fix]],  [[DAS Pilot Flow Design\|Pilot Flow]],  [[DAS PR Flow Design\|PR Flow]],   |
 | [[SKL Doc\|Doc]]+ | [[DAS MD Design\|MD]],  [[DAS Viz Design\|Viz]],   |
