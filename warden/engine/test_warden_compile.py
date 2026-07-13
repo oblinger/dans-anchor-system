@@ -279,6 +279,55 @@ def test_malformed_rule_heading_warns():
     print("PASS  malformed_rule_heading_warns (Audit 2026-07-12 W1)")
 
 
+W5_FIXTURE = """\
+# RULESET R-w5-fx
+
+### RULE R-w5-fx-01 — event-scope guard
+when:: tool:pre:Write
+if:: `event.target is not None and re.search(r'\\.md$', event.target)`
+
+### RULE R-w5-fx-02 — misc-env guard
+when:: tool:pre:Write
+if:: `anchor is not None and git is not None and today is not None and now is not None and json is not None`
+"""
+
+
+def test_synth_guard_full_env():
+    """Audit 2026-07-12 W5: a synthesised `if::` guard binds the FULL documented
+    interpretation environment (event/anchor/git/re/json/today/now), not just
+    file+agent — the spec's own `event.target` example used to NameError into
+    a silent False; and an `if::` referencing a name OUTSIDE that environment
+    warns at compile time instead of dying silently at fire time."""
+    import contextlib
+    import io
+    import types
+    rs = wc.parse_ruleset(W5_FIXTURE, "R-w5-fx", "w5.md")
+    assert rs is not None and len(rs["rules"]) == 2
+    ir, src, _stats = wc.compile_ruleset(rs, "w5fx")
+    mod = types.ModuleType("rules_w5fx")
+    exec(compile(src, "rules_w5fx.py", "exec"), mod.__dict__)
+    guard1 = mod.guard_R_w5_fx_01
+    ctx_md = types.SimpleNamespace(event=types.SimpleNamespace(target="a/b.md"),
+                                   anchor="FX", git_aspect="commit")
+    assert guard1(ctx_md) is True, "spec-legal event/re guard evaluated False"
+    ctx_py = types.SimpleNamespace(event=types.SimpleNamespace(target="a/b.py"),
+                                   anchor="FX", git_aspect="commit")
+    assert guard1(ctx_py) is False
+    guard2 = mod.guard_R_w5_fx_02
+    ctx2 = types.SimpleNamespace(anchor="FX", git="commit")
+    assert guard2(ctx2) is True, "anchor/git/today/now/json not bound in guard scope"
+    # compile-time warning for a name outside the guard environment
+    bogus = ("# RULESET R-w5-bad\n\n### RULE R-w5-bad-01 — unknown name\n"
+             "when:: tool:pre:Write\nif:: `totally_bogus_name > 1`\n")
+    rs_bad = wc.parse_ruleset(bogus, "R-w5-bad", "w5bad.md")
+    err = io.StringIO()
+    with contextlib.redirect_stderr(err):
+        wc.compile_ruleset(rs_bad, "w5bad")
+    assert "totally_bogus_name" in err.getvalue() and \
+        "outside the guard environment" in err.getvalue(), err.getvalue()
+    print("PASS  synth_guard_full_env (Audit 2026-07-12 W5)")
+
+
 def test_include_flatten():
     """F218 follow-through: `include::` composition flattens into the trait
     index — an umbrella's trait keys its own rules plus every included
@@ -542,6 +591,7 @@ def main():
     test_backticked_where()
     test_paren_less_rule_heading()
     test_malformed_rule_heading_warns()
+    test_synth_guard_full_env()
     test_include_flatten()
     test_fenced_sentinels_ignored()
     test_duplicate_rule_id_first_wins()

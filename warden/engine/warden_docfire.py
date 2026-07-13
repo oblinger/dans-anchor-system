@@ -139,7 +139,9 @@ def fire_audit(target: Path, mode: str) -> list[dict]:
             continue
         check = _check_str(action)
         for t in tgts:
-            disp = str(t.relative_to(anchor_root)) if t != anchor_root else "{ANCHOR}"
+            # `{anchor}` — the lowercase where-token vocabulary (F229 MS-1);
+            # audit-plan displays it lowercase and the parity test diffs verbatim.
+            disp = str(t.relative_to(anchor_root)) if t != anchor_root else "{anchor}"
             status, detail = ap.run_checker(check, t, anchor_root)
             results.append({"rule": row["id"], "target": disp,
                             "status": status, "detail": detail})

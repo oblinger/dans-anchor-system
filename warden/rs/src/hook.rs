@@ -350,6 +350,42 @@ fn daemon_request_once(req: &Value, timeout: Duration) -> std::io::Result<Value>
         .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))
 }
 
+/// The daemon script path inside a `daemon.cmd` line — `python3 <script>
+/// --serve`, the script token possibly shell-quoted (Audit 2026-07-12 W2).
+fn daemon_cmd_script(cmd: &str) -> Option<PathBuf> {
+    let rest = cmd.trim().strip_prefix("python3").unwrap_or(cmd).trim_start();
+    let tok = if let Some(r) = rest.strip_prefix('\'') {
+        r.split('\'').next().unwrap_or("")
+    } else {
+        rest.split_whitespace().next().unwrap_or("")
+    };
+    if tok.is_empty() {
+        None
+    } else {
+        Some(PathBuf::from(tok))
+    }
+}
+
+/// Audit 2026-07-12 W2: the compiled state's absolute-path snapshots that can
+/// dangle after a repo move/rename — one line per dead path, empty = healthy.
+/// Detection only; callers warn loudly but stay fail-open.
+fn stale_paths(ir_root: Option<&str>) -> Vec<String> {
+    let mut out = Vec::new();
+    if let Some(root) = ir_root {
+        if !root.is_empty() && !Path::new(root).is_dir() {
+            out.push(format!("compiled IR root missing: {root}"));
+        }
+    }
+    if let Ok(cmd) = std::fs::read_to_string(warden_home().join("daemon.cmd")) {
+        if let Some(script) = daemon_cmd_script(&cmd) {
+            if !script.is_file() {
+                out.push(format!("daemon.cmd target missing: {}", script.display()));
+            }
+        }
+    }
+    out
+}
+
 /// Spawn the resident daemon from `$WARDEN_HOME/daemon.cmd` (written by
 /// `warden compile`), detached; returns false when no spawn command exists.
 fn spawn_daemon() -> bool {
@@ -361,6 +397,20 @@ fn spawn_daemon() -> bool {
     let cmd = cmd.trim();
     if cmd.is_empty() {
         return false;
+    }
+    // Audit 2026-07-12 W2: a daemon.cmd pointing at a moved/deleted script
+    // spawns a shell that dies instantly, and the warm-up retry loop then eats
+    // the FULL timeout on every hook call. Fail fast and loudly instead.
+    if let Some(script) = daemon_cmd_script(cmd) {
+        if !script.is_file() {
+            let msg = format!(
+                "daemon STALE — daemon.cmd target missing: {} (repo moved? run `warden install`)",
+                script.display()
+            );
+            log(&msg);
+            eprintln!("warden: {msg}");
+            return false;
+        }
     }
     match std::process::Command::new("/bin/sh")
         .arg("-c")
@@ -511,6 +561,22 @@ pub fn dispatch(data: &Value) -> Vec<String> {
     };
 
     let mut steers: Vec<String> = Vec::new();
+    // Audit 2026-07-12 W2: loudly surface compiled-state paths that no longer
+    // resolve (repo moved/renamed) — fail-open, dispatch continues on whatever
+    // still works, but the staleness is never symptom-free again (mirror of
+    // `warden_hook._stale_paths`).
+    let stale = stale_paths(ir.root.as_deref());
+    if !stale.is_empty() {
+        let detail = stale.join("; ");
+        log(&format!("STALE — {detail} (repo moved? run `warden install`)"));
+        eprintln!("warden: STALE — {detail} (repo moved? run `warden install`)");
+        if moments.iter().any(|m| m == "session:start") {
+            steers.push(format!(
+                "[warden] STALE compiled state — {detail}; run `warden install` \
+                 (rules are NOT enforcing until then)"
+            ));
+        }
+    }
     for moment in &moments {
         let anchor_root = anchor_file.as_ref().or(anchor_cwd.as_ref());
         let Some(anchor_root) = anchor_root else { continue };
@@ -574,6 +640,14 @@ pub fn dispatch(data: &Value) -> Vec<String> {
             })) {
                 if resp.get("ok").and_then(Value::as_bool) == Some(true) {
                     by_rule = resp.get("steers_by_rule").cloned().unwrap_or(json!({}));
+                } else {
+                    // Audit 2026-07-12 W4: an errored daemon response (e.g. a
+                    // truncated request) is NOT "no rules fired" — the owed
+                    // steers/vetoes are skipped fail-open, but say so.
+                    let err = resp.get("error").and_then(Value::as_str).unwrap_or("?");
+                    log(&format!(
+                        "daemon ERROR at {moment}: {err} — owed steers skipped this call"
+                    ));
                 }
             }
         }
@@ -640,6 +714,11 @@ pub fn dispatch(data: &Value) -> Vec<String> {
                 daemon_request(&json!({"op": "audit", "file_path": event_fp}),
                                daemon_timeout("write:markdown"))
             {
+                if resp.get("ok").and_then(Value::as_bool) != Some(true) {
+                    // Audit 2026-07-12 W4: log an errored doc-fire response too.
+                    let err = resp.get("error").and_then(Value::as_str).unwrap_or("?");
+                    log(&format!("daemon ERROR at doc-fire: {err} — audit skipped this call"));
+                }
                 if resp.get("ok").and_then(Value::as_bool) == Some(true) {
                     if let Some(aow) = resp.get("steers").and_then(Value::as_array) {
                         if !aow.is_empty() {
@@ -840,6 +919,22 @@ mod tests {
         std::env::remove_var("WARDEN_HOME");
         let _ = handle.join();
         let _ = std::fs::remove_dir_all(&td);
+    }
+
+    #[test]
+    fn daemon_cmd_script_parsing() {
+        // Audit 2026-07-12 W2: the stale-path check must find the script token in
+        // both the quoted (path with spaces) and bare forms.
+        assert_eq!(
+            daemon_cmd_script("python3 '/a b/warden_daemon.py' --serve"),
+            Some(PathBuf::from("/a b/warden_daemon.py"))
+        );
+        assert_eq!(
+            daemon_cmd_script("python3 /plain/warden_daemon.py --serve"),
+            Some(PathBuf::from("/plain/warden_daemon.py"))
+        );
+        assert_eq!(daemon_cmd_script("python3 "), None);
+        assert_eq!(daemon_cmd_script(""), None);
     }
 
     #[test]

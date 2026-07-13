@@ -27,6 +27,10 @@ pub mod hook;
 /// The compiled corpus, deserialized from `rules-ir.json`.
 #[derive(Debug, Deserialize)]
 pub struct Ir {
+    /// The corpus root the compile ran against — an absolute-path snapshot;
+    /// the Audit 2026-07-12 W2 stale-path self-check verifies it still exists.
+    #[serde(default)]
+    pub root: Option<String>,
     /// moment string → ordered candidate rule ids (the indexed dispatch bucket).
     #[serde(default)]
     pub moments: HashMap<String, Vec<String>>,

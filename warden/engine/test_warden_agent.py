@@ -359,7 +359,9 @@ def test_daemon_turn_dedup(tmp: Path):
     module = types.SimpleNamespace(
         body_R_ex_11=lambda ctx: (["decide the order yourself"]
                                   if _re.search(r"(?i)\bshould i\b", ctx.agent.response) else []))
-    corpus = types.SimpleNamespace(ir=ir, module=module)
+    # snapshot() per the Audit 2026-07-12 W7 Corpus contract — one reference grab
+    corpus = types.SimpleNamespace(ir=ir, module=module,
+                                   snapshot=lambda: (ir, module))
     root = tmp / "anchor-dedup"
     root.mkdir(exist_ok=True)
     (root / ".anchor").write_text("slug: FX\n", encoding="utf-8")
@@ -413,6 +415,35 @@ def test_oracle_seam_and_wall(tmp: Path):
     print("PASS  oracle_seam_and_wall")
 
 
+def test_oracle_cache_concurrent(tmp: Path):
+    """Audit 2026-07-12 W6: concurrent ask_oracle calls used to race the cache's
+    read-modify-write_text — last writer won (lost entries) and a torn write
+    could reset the cache. Every thread's reply must land, and the cache file
+    must parse cleanly."""
+    import threading
+    home = tmp / "oracle-home"
+    os.environ["WARDEN_HOME"] = str(home)
+    os.environ["WARDEN_ORACLE_CMD"] = '/bin/sh -c "echo yes"'
+    try:
+        prompts = [f"concurrent prompt {i}?" for i in range(12)]
+        threads = [threading.Thread(target=wa.ask_oracle, args=(p,)) for p in prompts]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join(timeout=90)
+        cache = json.loads((home / "oracle-cache.json").read_text(encoding="utf-8"))
+        assert len(cache) == len(prompts), \
+            f"cache entries lost to the write race: {len(cache)}/{len(prompts)}"
+        assert all(v == "yes" for v in cache.values()), cache
+        # every prompt now answers from cache, even with a broken command
+        os.environ["WARDEN_ORACLE_CMD"] = "/nonexistent-oracle"
+        assert all(wa.ask_oracle(p) == "yes" for p in prompts)
+    finally:
+        os.environ.pop("WARDEN_ORACLE_CMD", None)
+        os.environ.pop("WARDEN_HOME", None)
+    print("PASS  oracle_cache_concurrent (Audit 2026-07-12 W6)")
+
+
 def main() -> int:
     with tempfile.TemporaryDirectory() as td:
         tmp = Path(td)
@@ -426,6 +457,7 @@ def main() -> int:
         test_turn_bearing_mark_and_key(tmp)
         test_daemon_turn_dedup(tmp)
         test_oracle_seam_and_wall(tmp)
+        test_oracle_cache_concurrent(tmp)
     print("\nall warden_agent tests passed")
     return 0
 

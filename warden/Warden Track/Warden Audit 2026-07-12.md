@@ -17,6 +17,20 @@ Top 3:
 2. **W2 — A repo move/rename silently disables the entire Python-body + doc-fire surface with no self-check.** `daemon.cmd`, the `settings.json` binary path, and the IR `root` are absolute-path snapshots; after a move every veto and every doc-fire fails-open, symptom-free but for a 2 s stall per `tool:pre`. This is the exact live-armed form of the known ob-skills→dans-anchor-system incident. CONFIRMED.
 3. **W3 — A corpus load failure crashes the daemon *after* it binds the socket but *before* the `try/finally`, leaving a stale `daemon.sock` + `daemon.pid`.** Every subsequent hook then spawns→crashes→retries for ~2 s forever, until a manual recompile. CONFIRMED.
 
+## Fix status
+
+All seven findings fixed 2026-07-12, in two passes (W1/W3 first; W2/W4/W5/W6/W7 second). Every fix carries a regression test; the engine suites + cargo tests are green.
+
+- **W1 — FIXED** (first pass) — `_RULE_RE` paren made optional; malformed headings warn. Tests: `test_paren_less_rule_heading`, `test_malformed_rule_heading_warns`.
+- **W2 — FIXED** — stale-path self-check (`warden_hook._stale_paths` / `hook.rs stale_paths`): dead IR `root` / `daemon.cmd` target → stderr + hook.log warning on every hook fire, an agent-visible steer at `session:start`, daemon-start warning (daemon stays up — fail-open), `spawn_daemon` fast-fails on a dead script (no more 2 s stall per call), and `warden status` reports all three staleness classes incl. a dead installed hook command. Tests: `test_stale_paths_surfaced`, `test_stale_root_loud_but_up`, `daemon_cmd_script_parsing` (cargo).
+- **W3 — FIXED** (first pass) — socket/pid cleanup owns the corpus load. Test: `test_corpus_load_failure_no_stray_socket`.
+- **W4 — FIXED** — daemon read cap raised 4 MB → 64 MB; a capped newline-less request now raises `RequestTooLarge` → explicit `ok:false` error response + hook.log line, instead of parsing truncated bytes to `{}`; the Rust client logs any non-ok daemon response at fire_rules and doc-fire (fail-open, but never silent). Test: `test_large_request_not_truncated`.
+- **W5 — FIXED** — synthesised guards bind the full documented environment (`event`/`anchor`/`git`/`re`/`json`/`today`/`now` alongside `file`/`agent`), and compile warns when an `if::` references a name outside it. Test: `test_synth_guard_full_env`. The new warning immediately surfaced a live instance: `R-fex-bundle-02` (`if:: fex_bundle.manifest_count(file) != 1`, FEX Bundle.md) references an unbound `fex_bundle` — that rule can never fire; needs an authoring fix.
+- **W6 — FIXED** — `RevalStore` load-mutate-replace and the `store()` singleton are lock-guarded; `ask_oracle`'s cache write is merge-under-lock + tmp/`os.replace`. Tests: `test_store_thread_safety`, `test_oracle_cache_concurrent`.
+- **W7 — FIXED** — `Corpus` holds one `(ir, module)` tuple; readers take `snapshot()` (one reference grab), `_fire_rules` snapshots once per request. Test: `test_corpus_snapshot_pair_consistency`.
+
+Adjacent repairs made in passing (pre-existing F229-rename fallout, verified present at pristine HEAD): `test_warden_fire.py`'s stale `FCT Track/FCT Query.md` path → `facets/DAS Query.md`; `warden_docfire`'s `{ANCHOR}` display token and `test_warden_docfire`'s fixture `where::` lowercased to the MS-1 `{anchor}` vocabulary. Still red and deliberately untouched: `test_warden_docfire.test_signature_matches_audit_plan` — the blessed golden corpus pre-dates R-query-16, whose `check:: queries_banner_form` has no checker implementation (every queries case gains an `error` row); re-bless only after ruling on that checker.
+
 ---
 
 ## W1 · Field-style RULE headings are silently dropped by the compiler

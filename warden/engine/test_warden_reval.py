@@ -143,6 +143,34 @@ def test_store_roundtrip(tmp: Path):
     print("PASS  store_roundtrip")
 
 
+def test_store_thread_safety(tmp: Path):
+    """Audit 2026-07-12 W6: the daemon is thread-per-connection, and RevalStore's
+    load-mutate-replace had no lock — concurrent `mark_evaluated` calls on
+    different files last-writer-won, dropping records. All marks from all
+    threads must survive."""
+    import threading
+    home = tmp / "threaded-home"
+    st = wr.RevalStore(home)
+    n_threads, n_files = 8, 12
+
+    def _worker(t: int):
+        for i in range(n_files):
+            st.mark_evaluated(f"R-thr-{t:02d}", tmp / f"f{i}.md",
+                              f"text {t}/{i}", verdict=[f"v{t}/{i}"])
+
+    threads = [threading.Thread(target=_worker, args=(t,)) for t in range(n_threads)]
+    for th in threads:
+        th.start()
+    for th in threads:
+        th.join(timeout=30)
+    fresh = wr.RevalStore(home)
+    missing = [(t, i) for t in range(n_threads) for i in range(n_files)
+               if fresh.record(f"R-thr-{t:02d}", tmp / f"f{i}.md") is None]
+    assert not missing, f"{len(missing)} records lost to the write race: {missing[:5]}"
+    assert fresh.verdict("R-thr-03", tmp / "f7.md") == ["v3/7"]
+    print("PASS  store_thread_safety (Audit 2026-07-12 W6)")
+
+
 def test_authored_guard_still_wired():
     """A rule with an authored python guard (no residual if::) now earns
     guard_py + an emitted function (previously parsed but never wired)."""
@@ -169,6 +197,7 @@ def main():
             test_gate_lifecycle(ir, mod, tmp)
             test_diffview_semantics()
             test_store_roundtrip(tmp)
+            test_store_thread_safety(tmp)
             test_authored_guard_still_wired()
         finally:
             os.environ.pop("WARDEN_HOME", None)

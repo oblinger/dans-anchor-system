@@ -263,10 +263,33 @@ def cmd_status(args) -> int:
             installed = sum(1 for arr in hooks.values() for e in arr if _is_warden_entry(e))
         except ValueError:
             installed = -1
+    # Audit 2026-07-12 W2: dead absolute-path snapshots (IR root, daemon.cmd
+    # script, installed hook commands) after a repo move/rename — the state
+    # where every veto/doc-fire silently no-ops. Surface them here loudly.
+    stale: list[str] = []
+    if compiled:
+        try:
+            ir = json.loads((home / "rules-ir.json").read_text(encoding="utf-8"))
+            stale.extend(wh._stale_paths(ir))
+        except (OSError, ValueError):
+            pass
+    if path.is_file():
+        try:
+            hooks = json.loads(path.read_text(encoding="utf-8")).get("hooks", {})
+            cmds = {h.get("command", "") for arr in hooks.values() for e in arr
+                    if _is_warden_entry(e) for h in e.get("hooks", [])}
+            for c in sorted(cmds):
+                exe = (shlex.split(c) or [""])[0] if c.strip() else ""
+                if exe and "/" in exe and not Path(exe).exists():
+                    stale.append(f"installed hook command missing: {exe}")
+        except ValueError:
+            pass
     print(f"warden home : {home}")
     print(f"state       : {'ENABLED' if on else 'DISABLED (kill switch set)'}")
     print(f"compiled    : {'yes' if compiled else 'no — run `warden compile`'}")
     print(f"installed   : {installed} hook(s) in {path}")
+    for w in stale:
+        print(f"STALE       : {w} — repo moved? run `warden install`")
     return 0
 
 

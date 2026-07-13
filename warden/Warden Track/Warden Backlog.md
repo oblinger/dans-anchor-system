@@ -15,8 +15,8 @@ _None._
 
 ## Now
 
-- **T017 — Fix Warden audit 2026-07-12 findings** [Ready] — Fable latent-bug audit found 7 bugs (5 CONFIRMED). W1 (paren-less RULE headings dropped) and W3 (corpus-load crash strands socket/pid) FIXED 2026-07-12, tests added, recompiled + daemon restarted — 527 rules live (11 recovered). Remaining: W2 stale-path self-check, W4 4MB truncation veto bypass, W5 if:: guard scope, W6/W7 thread races. Report: [[Warden Audit 2026-07-12]] ^T017
-  - **Next:** Fix W2 (path self-check at hook entry / SessionStart), then W4 (length-prefixed framing or bigger cap + logged parse failure), then W5 (bind full ctx surface into synth guards)
+- **T017 — Fix Warden audit 2026-07-12 findings** [Ready] — Fable latent-bug audit found 7 bugs (5 CONFIRMED). W1 (paren-less RULE headings dropped) and W3 (corpus-load crash strands socket/pid) FIXED 2026-07-12, tests added, recompiled + daemon restarted — 527 rules live (11 recovered). W2/W4/W5/W6/W7 FIXED 2026-07-12 (second pass) — see [[Warden Audit 2026-07-12]] § Fix status; regression tests added across daemon/hook/compile/reval/agent suites + cargo. Report: [[Warden Audit 2026-07-12]] ^T017
+  - **Next:** `warden compile` + daemon restart to pick up the engine fixes (warden-rs already rebuilt); then two surfaced follow-ons: fix R-fex-bundle-02's unbound `fex_bundle` if:: (real W5-class bug, warned at every compile), and re-bless the doc-fire golden corpus after ruling on the missing `queries_banner_form` checker (R-query-16 errors; test_warden_docfire signature test red since F229 MS-1 — pre-dates these fixes)
 
 ## Next
 

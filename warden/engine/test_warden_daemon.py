@@ -160,6 +160,38 @@ def test_systemexit_survival():
     print("PASS  systemexit_survival (F232 B4)")
 
 
+def test_large_request_not_truncated():
+    """Audit 2026-07-12 W4: a fire_rules request past the OLD 4 MB read cap used to
+    truncate mid-JSON → parse to {} → `unknown op ''` → the owed veto silently
+    skipped. A ~5 MB tool_input must now reach the daemon whole and answer ok."""
+    import socket
+    home = _compiled_home()
+    with tempfile.TemporaryDirectory() as td:
+        anchor = _anchor(Path(td), "Commit")
+        big = "x" * (5 * 1024 * 1024)
+        resp = _request(home, {"op": "fire_rules", "moment": "tool:pre:Write",
+                               "anchor_root": str(anchor), "rule_ids": [],
+                               "tool_name": "Write",
+                               "tool_input": {"file_path": str(anchor / "n.md"),
+                                              "content": big}})
+        assert resp["ok"] is True, resp
+    # unit: past the (raised) cap with no newline → an explicit RequestTooLarge,
+    # never truncated bytes handed to json.loads
+    import warden_daemon as wd
+    a, b = socket.socketpair()
+    try:
+        a.sendall(b"y" * 4096)
+        try:
+            wd._recv_line(b, limit=1024)
+            raise AssertionError("oversized newline-less request did not raise")
+        except wd.RequestTooLarge:
+            pass
+    finally:
+        a.close()
+        b.close()
+    print("PASS  large_request_not_truncated (Audit 2026-07-12 W4)")
+
+
 def test_shutdown():
     home = _compiled_home()
     resp = _request(home, {"op": "shutdown"})
@@ -251,6 +283,93 @@ def test_concurrent_slow_request():
     print("PASS  concurrent_slow_request (T013 / F232 B1)")
 
 
+def test_stale_root_loud_but_up():
+    """Audit 2026-07-12 W2: a compiled IR whose `root` no longer exists (repo moved)
+    must be surfaced LOUDLY at daemon start — but the daemon stays up and
+    serving (fail-open: the ~/.warden artifacts still work; blocking would
+    punish the user for Warden's own staleness)."""
+    home = Path(tempfile.mkdtemp(prefix="warden-daemon-stale-")) / "home"
+    home.mkdir(parents=True)
+    import json
+    (home / "rules-ir.json").write_text(json.dumps(
+        {"root": "/nonexistent/warden-w2-moved-repo", "rules": {},
+         "moments": {}, "traits": {}}), encoding="utf-8")
+    (home / "rules_all.py").write_text("", encoding="utf-8")
+    proc = subprocess.Popen(
+        [sys.executable, str(HERE / "warden_daemon.py"), "--serve", "--idle-exit", "60"],
+        env=_env(home), stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
+    try:
+        for _ in range(50):
+            time.sleep(0.1)
+            if (home / "daemon.sock").exists():
+                break
+        else:
+            raise AssertionError("stale-root daemon did not come up (must stay fail-open)")
+        assert _request(home, {"op": "ping"})["ok"], "stale-root daemon not serving"
+        log = (home / "hook.log").read_text(encoding="utf-8")
+        assert "STALE" in log and "/nonexistent/warden-w2-moved-repo" in log, \
+            f"stale root not surfaced in hook.log:\n{log}"
+        _request(home, {"op": "shutdown"})
+        proc.wait(timeout=10)
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+    print("PASS  stale_root_loud_but_up (Audit 2026-07-12 W2)")
+
+
+def test_corpus_snapshot_pair_consistency():
+    """Audit 2026-07-12 W7: `snapshot()` hands readers the (ir, module) pair as one
+    reference grab — under a concurrent reload flipping between two artifact
+    versions, a reader must never see a new IR paired with an old module."""
+    import json
+    import threading
+    import warden_daemon as wd
+    home = Path(tempfile.mkdtemp(prefix="warden-daemon-snap-")) / "home"
+    home.mkdir(parents=True)
+
+    def _write_version(n: int):
+        # distinct sizes per version — same-size same-second rewrites alias in
+        # the import system's (mtime, size) bytecode-cache key
+        (home / "rules_all.py").write_text(f"MARKER = {n}\n" + "#" * n + "\n",
+                                           encoding="utf-8")
+        (home / "rules-ir.json").write_text(
+            json.dumps({"marker": n, "rules": {}, "moments": {}, "traits": {}}),
+            encoding="utf-8")
+
+    _write_version(1)
+    corpus = wd.Corpus(home)
+    stop = threading.Event()
+    errors: list[str] = []
+
+    def _flipper():
+        n = 1
+        while not stop.is_set():
+            n = 3 - n  # 1 ↔ 2
+            _write_version(n)
+            corpus.reload()
+
+    def _reader():
+        while not stop.is_set():
+            ir, module = corpus.snapshot()
+            if ir.get("marker") != getattr(module, "MARKER", None):
+                errors.append(f"mismatched pair: ir={ir.get('marker')} "
+                              f"module={getattr(module, 'MARKER', None)}")
+                return
+
+    threads = [threading.Thread(target=_flipper, daemon=True)] + \
+              [threading.Thread(target=_reader, daemon=True) for _ in range(3)]
+    for t in threads:
+        t.start()
+    time.sleep(1.5)
+    stop.set()
+    for t in threads:
+        t.join(timeout=10)
+    assert not errors, errors[0]
+    # the compatibility properties still read the current pair
+    assert corpus.ir.get("marker") == corpus.module.MARKER
+    print("PASS  corpus_snapshot_pair_consistency (Audit 2026-07-12 W7)")
+
+
 def main():
     home = _compiled_home()
     _start_daemon(home)
@@ -260,9 +379,12 @@ def main():
         test_audit_parity()
         test_unknown_op_and_reload()
         test_systemexit_survival()
+        test_large_request_not_truncated()
         test_shutdown()
         test_concurrent_slow_request()
         test_corpus_load_failure_no_stray_socket()
+        test_stale_root_loud_but_up()
+        test_corpus_snapshot_pair_consistency()
     finally:
         if _PROC and _PROC.poll() is None:
             _PROC.kill()

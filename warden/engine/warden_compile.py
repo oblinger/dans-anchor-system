@@ -433,6 +433,42 @@ def compile_rule(rule: dict, ruleset: dict) -> dict:
     return row
 
 
+# The names a residual `if::` may read — the documented interpretation
+# environment ([[Warden Semantics]]), all bound into the synthesised guard.
+_GUARD_ENV_NAMES = {"ctx", "file", "agent", "event", "anchor", "git",
+                    "re", "json", "datetime", "today", "now"}
+
+
+def _warn_unknown_guard_names(rule: dict, residual: list[str]) -> None:
+    """Audit 2026-07-12 W5 (compile-time half): an `if::` referencing a name
+    outside the guard environment raises NameError at fire time, which the
+    fail-safe `except` converts to a silent never-fire — an authoring error
+    worth surfacing when it is cheap to see."""
+    import ast
+    import builtins
+    known = _GUARD_ENV_NAMES | set(dir(builtins))
+    for expr in residual:
+        try:
+            tree = ast.parse(expr, mode="eval")
+        except SyntaxError:
+            print(f"warden: WARNING — {rule['id']}: if:: {expr!r} is not a "
+                  "valid expression — guard will break the emitted module",
+                  file=sys.stderr)
+            continue
+        loads = {n.id for n in ast.walk(tree)
+                 if isinstance(n, ast.Name) and isinstance(n.ctx, ast.Load)}
+        # names the expression binds itself (comprehension targets, lambda
+        # args) are in scope at runtime — never flag them
+        bound = {n.id for n in ast.walk(tree)
+                 if isinstance(n, ast.Name) and not isinstance(n.ctx, ast.Load)}
+        bound |= {a.arg for a in ast.walk(tree) if isinstance(a, ast.arg)}
+        unknown = sorted(loads - bound - known)
+        if unknown:
+            print(f"warden: WARNING — {rule['id']}: if:: references name(s) "
+                  f"outside the guard environment: {', '.join(unknown)} — "
+                  "guard will evaluate False", file=sys.stderr)
+
+
 def synth_guard_src(rule: dict) -> str:
     """Synthesise a guard function from a rule's residual `if::` expressions
     (F215). Historically a non-vocabulary `if::` earned a `guard_py` NAME in
@@ -441,17 +477,31 @@ def synth_guard_src(rule: dict) -> str:
     the residual conjunction against the fire ctx; any error is False
     (fail-safe: a broken gate suppresses the rule, never breaks the moment).
 
+    Audit 2026-07-12 W5: the guard scope binds the FULL documented `if::`
+    environment — `event`/`anchor`/`git`/`re`/`json`/`today`/`now`, not just
+    `file` and `agent`; a spec-legal `if:: event.target …` used to NameError
+    into a silent False.
+
     When the rule ALSO authors its own `def guard(…)`, that function is
     emitted under `guard_<id>__authored` and the synthesised guard requires
     both it and the residual conjunction."""
     residual = [e for e in rule["ifs"] if parse_if(e) is None]
+    _warn_unknown_guard_names(rule, residual)
     conj = " and ".join(f"({e})" for e in residual) or "True"
     call = f" and guard_{_san(rule['id'])}__authored(ctx)" \
         if "guard" in _kinds(rule) else ""
     return (
         "def guard(ctx):\n"
+        "    import datetime\n"
+        "    import json\n"
+        "    import re\n"
         "    file = getattr(ctx, 'file', None)\n"
         "    agent = getattr(ctx, 'agent', None)\n"
+        "    event = getattr(ctx, 'event', None)\n"
+        "    anchor = getattr(ctx, 'anchor', None)\n"
+        "    git = getattr(ctx, 'git', None)\n"
+        "    today = datetime.date.today()\n"
+        "    now = datetime.datetime.now()\n"
         "    try:\n"
         f"        return bool({conj}){call}\n"
         "    except Exception:\n"
