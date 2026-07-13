@@ -261,6 +261,14 @@ check:: md_trailing_ws
 fix:: md_trailing_ws
 A line ends in trailing whitespace — invisible noise that pollutes diffs and can create accidental hard-breaks. Strip it.
 
+### RULE R-markdown-15 — SVG figure embeds carry an explicit width hint (checked)
+description:: Every ![[name.svg]] embed carries a |width hint — |3000 for page-wide figures (the default), a smaller value only for a deliberately-inline thumbnail.
+check:: md_svg_embed_width
+fix:: md_svg_embed_width
+A bare `![[x.svg]]` embed renders as a tiny fit-to-column thumbnail — the recurring mistake the viz doctrine exists to kill. The auto-fix appends the page-wide default `|3000` (Obsidian caps the hint to the pane, so a large value costs nothing; the file is byte-identical at any display width). A smaller hint is legitimate only for a deliberately-inline figure — set it explicitly and the rule stays satisfied. Scope is `.svg` only: raster embeds (screenshots, photos) often legitimately render at intrinsic size. Doctrine: viz skill § page-width default.
+
+**Why:** authored figures are made to be read; fit-to-column shrink makes every diagram illegible by default and the author never notices until a reader does.
+
 # BRIEF
 *(Maintainer note — editing the markdown discipline.)*
 

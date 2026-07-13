@@ -7,7 +7,7 @@ description: Subsystem design for the Tracking group — the surfaces, verbs, an
 
 Tracking is the subsystem that keeps one shared picture of work state between the human and the agent: what is ready, what is blocked, what question is waiting on whom. Its contract: **the agent never asks piecemeal and the user never hunts for state** — questions consolidate into one pile, status renders into one glanceable banner, and every state change flows through one write path.
 
-![[DAS Tracking Design.svg]]
+![[DAS Tracking Design.svg|3000]]
 *Figure source: `DAS Tracking Design.d2` — regenerate with `d2 "DAS Tracking Design.d2" "DAS Tracking Design.svg"`.*
 
 ## The idea
