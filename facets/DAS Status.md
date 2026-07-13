@@ -61,7 +61,7 @@ roadmap::      none
 
 **Required lines, positional:**
 
-- **Line 1:** `# CAB Status` H1 — wait, in the concrete file: `# {slug} Status` (the file's H1 matches the anchor).
+- **Line 1:** `# {slug} Status` H1 — the file's H1 matches the anchor.
 - **Line 2:** `description::` dataview inline field — one-line tagline.
 - **Lines 4+:** one `<facet>::` dataview line per design facet, in declared order: `prd`, `ux`, `architecture`, `testing`, `roadmap`. The order is load-bearing — `/design`'s picker walks them in this order for tie-breaks.
 
