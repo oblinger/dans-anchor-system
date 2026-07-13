@@ -262,12 +262,14 @@ class QEntry:
 
 
 def build_vault_index(vault_root: Path) -> dict[str, list[Path]]:
-    """Walk vault_root for *.md files; return basename → list of paths."""
+    """Walk vault_root for *.md files; return basename → list of paths.
+    Keys are lower-cased: Obsidian resolves wiki-links case-insensitively,
+    so `[[Track]]` finding only `track.md` is a resolvable link (T002)."""
     index: dict[str, list[Path]] = {}
     for path in vault_root.rglob("*.md"):
         if any(frag in path.parts for frag in EXCLUDED_PATH_FRAGMENTS):
             continue
-        stem = path.stem
+        stem = path.stem.lower()
         index.setdefault(stem, []).append(path)
     return index
 
@@ -281,7 +283,7 @@ def resolve_target(basename: str, source_file: Path,
     # Strip `.md` extension if explicitly written
     if basename.endswith(".md"):
         basename = basename[:-3]
-    candidates = vault_index.get(basename, [])
+    candidates = vault_index.get(basename.lower(), [])
     if not candidates:
         return None
     if len(candidates) == 1:
@@ -2968,7 +2970,7 @@ def _c36_resolve_replacement(
     #    in the vault index. Ambiguous basenames (SKILL.md, README.md, ...)
     #    are skipped: the resulting `[[SKILL]]` would silently resolve
     #    "somewhere" via path-proximity, worse affordance than the backticks.
-    if ext == "md" and stem in vault_index and len(vault_index[stem]) == 1:
+    if ext == "md" and stem.lower() in vault_index and len(vault_index[stem.lower()]) == 1:
         return f"[[{stem}]]"
     # 2. Markdown link `[name](path)` — when the path is ABSOLUTE (starts
     #    with `/` or `~/`) AND the file actually exists on disk. Absolute

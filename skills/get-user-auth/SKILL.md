@@ -105,7 +105,7 @@ cat > /tmp/<task>.command <<'SCRIPT'
 clear
 echo "============================================================"
 echo "  <TASK NAME>"
-echo "  <NAME> — type your <which> password at the prompt below."
+echo "  <slug> — type your <which> password at the prompt below."
 echo "  (It will NOT echo as you type. Then press Return.)"
 echo "============================================================"
 <the command that needs auth>      # e.g. security set-key-partition-list …

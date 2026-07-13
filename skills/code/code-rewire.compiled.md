@@ -160,7 +160,7 @@
 - [ ] Has YAML frontmatter with `user_invocable:` field
 - [ ] Contains Actions dispatch table mapping `/skill action` to workflow files
 - [ ] Every action file referenced in the dispatch table exists
-- [ ] Links to user docs: `User docs: [[SKL {Name} Guide]]` (if user docs exist)
+- [ ] Links to user docs: `User docs: [[DAS {Name} Guide]]` (if user docs exist)
 
 ## File naming
 

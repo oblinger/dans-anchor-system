@@ -73,14 +73,14 @@ With only `.text` / `.lines` / `.links`, this is unwritable — there's no struc
 
 ## E104 · A cross-file rule — reaching past the trigger
 
-Some checks are about the *tree*, not the file: "exactly one `{NAME} Backlog.md` under the anchor," or "this doc doesn't restate a rule that lives in its facet." They must read other files:
+Some checks are about the *tree*, not the file: "exactly one `{slug} Backlog.md` under the anchor," or "this doc doesn't restate a rule that lives in its facet." They must read other files:
 
 ```
 ### RULE R-backlog-07 — One backlog per anchor
-description:: Exactly one {NAME} Backlog.md exists under the anchor root.
+description:: Exactly one {slug} Backlog.md exists under the anchor root.
 where:: anchor
-if:: `len(anchor.files("**/{NAME} Backlog.md")) != 1`
-This anchor has zero or several backlogs — there must be exactly one {NAME} Backlog.md.
+if:: `len(anchor.files("**/{slug} Backlog.md")) != 1`
+This anchor has zero or several backlogs — there must be exactly one {slug} Backlog.md.
 ```
 
 The reach is `anchor.files(glob)` (each match loaded as a root `Section`, lazy) and `anchor.doc(path)`. The catch: a rule that reads beyond its trigger is no longer a pure function of `(file, event)` — a sibling change can stale its verdict. Rather than a live cross-file dependency graph, **cross-file rules are audit-passive** — they run at `/audit`, which re-scans the anchor whole.

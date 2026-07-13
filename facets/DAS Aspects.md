@@ -11,7 +11,7 @@ The unified anchor-property model: an Aspect is any named property an anchor car
 An **Aspect** is any named property an anchor carries. Aspects come in two sub-categories, distinguished by *what they describe*:
 
 - **Trait** — a **broad paradigm / intended usage** of the anchor, independent of any specific file or folder. Declared explicitly in the anchor's `traits:` list. Examples: `code` (this is a code project), `Publishable` (this anchor is intended for the public website), `skill` (this anchor is a Claude skill).
-- **Facet** — a **narrow, specific aspect** of the anchor, almost always tied to one or more files. Defined by its spec under `facets/FCT <Name>.md`; detection is whatever the spec says (usually file-existence). Examples: `Backlog` (a `<NAME> Backlog.md` file), `Architecture`, `Website Subfolder` (the specific folder to deploy).
+- **Facet** — a **narrow, specific aspect** of the anchor, almost always tied to one or more files. Defined by its spec under `facets/FCT <Name>.md`; detection is whatever the spec says (usually file-existence). Examples: `Backlog` (a `<slug> Backlog.md` file), `Architecture`, `Website Subfolder` (the specific folder to deploy).
 
 Use **"Aspect"** only when discussing the umbrella; default to **"Trait"** or **"Facet"** when the specific sub-category is known. (User framing 2026-05-25: *"a facet is really just an aspect of an anchor."*)
 
@@ -41,7 +41,7 @@ A **Trait** declares a *paradigm* the author intends for the anchor — a way of
 
 ## Facet — narrow aspect; usually file-based
 
-A **Facet** describes a *specific structural feature* of the anchor — almost always tied to one or more files. "This anchor has a Backlog (`<NAME> Backlog.md`)." "This anchor has an Architecture folder." "This anchor has a website subfolder for GitHub deployment."
+A **Facet** describes a *specific structural feature* of the anchor — almost always tied to one or more files. "This anchor has a Backlog (`<slug> Backlog.md`)." "This anchor has an Architecture folder." "This anchor has a website subfolder for GitHub deployment."
 
 - **Spec doc.** `facets/FCT <Facet Name>.md`. The spec is authoritative for **six** things (the four mechanics + Constraints + Expected Usage):
   1. **Detection mechanism** — how the system decides whether this Facet is present on an anchor. Default: file-existence (most Facets work this way). Override: anything else (e.g., a `Composability` Facet might check capability requirements rather than files).

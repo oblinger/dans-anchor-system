@@ -87,7 +87,7 @@ Three homes (detail: [[DAS Ruleset]], [[F133 — Rulesets folder convention + fa
 |---|---|
 | **Catalog** — standalone `R-<slug>.md` in `Rulesets/` | cross-cutting, reusable, owner / trait-scoped sets |
 | **Embedded** — `# RULESET` inside a facet / skill / discipline spec | rules that *are* the structural spec for an artifact kind |
-| **Anchor-local** — a companion `# RULESET` in the decisions file, or `{NAME} Rules.md` | rules truly specific to one anchor |
+| **Anchor-local** — a companion `# RULESET` in the decisions file, or `{slug} Rules.md` | rules truly specific to one anchor |
 
 **Adoption is by the anchor's traits, not its decisions.** An anchor's active rules are a pure function of its `.anchor` traits — each trait pulls in its rulesets via `include::`, recursively (activation semantics: [[Warden Semantics]] § Rulesets). Decisions ([[DAS Decisions]]) sit above as documentation Warden ignores: an anchor's accompanying rules ride in a companion `# RULESET` directly after its `## Decisions` section (same or clearly related name), and a rule ties itself back to the decision it implements with a loose `implements D<N>` note.
 

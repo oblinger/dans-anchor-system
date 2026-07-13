@@ -171,7 +171,7 @@ Single commit containing:
 - The generated `.svg` and `.png`.
 - The `{slug} Dev.md` and `{slug} Files.md` updates.
 
-Commit message: `<NAME> {ModuleName}: module doc shipped (per F119)`.
+Commit message: `<slug> {ModuleName}: module doc shipped (per F119)`.
 
 **After commit, glance the file** so the user sees the result:
 

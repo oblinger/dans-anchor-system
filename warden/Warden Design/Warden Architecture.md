@@ -92,7 +92,7 @@ Adding a facet's rules to an audit is just adding its set to an umbrella's `incl
 
 ## 3 · Placement and association — where rules live
 
-Rules live with the spec that owns them. There are **three homes** — and an anchor's `{NAME} Decisions.md` may host the anchor-local one as a companion `# RULESET` directly after its decisions ([[DAS Decisions]]). Folder convention + facet-embedding: [[F133 — Rulesets folder convention + facet embedding|F133]].
+Rules live with the spec that owns them. There are **three homes** — and an anchor's `{slug} Decisions.md` may host the anchor-local one as a companion `# RULESET` directly after its decisions ([[DAS Decisions]]). Folder convention + facet-embedding: [[F133 — Rulesets folder convention + facet embedding|F133]].
 
 ```
 dans-anchor-system/library/Rulesets/          ← (1) the shared catalog, organized per-domain
@@ -104,19 +104,19 @@ dans-anchor-system/library/Rulesets/          ← (1) the shared catalog, organi
 dans-anchor-system/facets/.../FCT Testing.md   ← (2) embedded # RULESET R-testing inside a facet spec
 dans-anchor-system/skills/.../<skill> spec     ← (2) embedded set inside a skill/discipline spec
 
-{NAME}/{NAME} Design/{NAME} Rules.md  ← (3) anchor-local rules too specific to share (rare)
-{NAME}/{NAME} Design/{NAME} Decisions.md ← decisions (documentation; may host a companion # RULESET)
+{NAME}/{slug} Design/{slug} Rules.md  ← (3) anchor-local rules too specific to share (rare)
+{NAME}/{slug} Design/{slug} Decisions.md ← decisions (documentation; may host a companion # RULESET)
 ```
 
 | Home | When used | Example |
 |---|---|---|
 | **Catalog** — standalone `R-<slug>.md` | cross-cutting, reusable, owner- or trait-scoped rulesets | [[R-diagram]] |
 | **Embedded** — `# RULESET` inside a facet / skill / discipline spec | rules that *are* the structural spec for an artifact kind | `R-ruleset` in [[DAS Ruleset]]; `R-testing` in `FCT Testing` |
-| **Anchor-local** — `{NAME} Rules.md` | rules truly specific to one anchor | [[FEX Rules]] |
+| **Anchor-local** — `{slug} Rules.md` | rules truly specific to one anchor | [[FEX Rules]] |
 
 **Association with facets and skills** is the embedded home: each CAB facet, skill, and discipline spec carries its own `# RULESET R-<facet>` block, and the `R-anchor` / `R-doc` umbrellas aggregate them. That is how "the rules of the facets an anchor has" (the F001 phrase) is computed — facet presence is mostly folder/file presence, and each present facet contributes its embedded set.
 
-**`include::` is composition — one semantics.** Under a `# RULESET` H1, `include:: R-Y, R-Z` means the set absorbs R-Y and R-Z (§2). Per-anchor **adoption is by traits**: the anchor's `.anchor` trait list activates rulesets, recursively ([[Warden Semantics]] § Rulesets). Decisions (`{NAME} Decisions.md`, spec: [[DAS Decisions]]) are **documentation Warden never computes against** — the broader recorded choices above the rules. Anything directly checkable is written only as a rule (by convention in the companion `# RULESET` directly after the `## Decisions` section), and a rule ties itself back to the decision it implements with a loose `implements D<N>` note.
+**`include::` is composition — one semantics.** Under a `# RULESET` H1, `include:: R-Y, R-Z` means the set absorbs R-Y and R-Z (§2). Per-anchor **adoption is by traits**: the anchor's `.anchor` trait list activates rulesets, recursively ([[Warden Semantics]] § Rulesets). Decisions (`{slug} Decisions.md`, spec: [[DAS Decisions]]) are **documentation Warden never computes against** — the broader recorded choices above the rules. Anything directly checkable is written only as a rule (by convention in the companion `# RULESET` directly after the `## Decisions` section), and a rule ties itself back to the decision it implements with a loose `implements D<N>` note.
 
 ---
 
@@ -145,7 +145,7 @@ A rule is a standing constraint that means the **conjunction** of its clauses; i
 | `anchor` | the anchor as a whole — a once-per-anchor structural / tree check. |
 | `sentinel: <regex>` | any file containing a matching line, **regardless of path** — how `R-ruleset` catches every embedded ruleset. |
 
-**Substitution variables** are `{ALL-CAPS}` in braces, expanded per adopting anchor: `{ANCHOR}` (root directory), `{NAME}` (name), `{SLUG}` (kebab slug) — the where-clause counterpart of `anchor.*` ([[Warden Semantics]] § Ambient and variables). The ALL-CAPS rule keeps `{ANCHOR}` (substitution) unambiguous from `{svg,png}` (glob alternation).
+**Substitution variables** are `{ALL-CAPS}` in braces, expanded per adopting anchor: `{ANCHOR}` (root directory), `{NAME}` (name), `{slug}` (kebab slug) — the where-clause counterpart of `anchor.*` ([[Warden Semantics]] § Ambient and variables). The ALL-CAPS rule keeps `{ANCHOR}` (substitution) unambiguous from `{svg,png}` (glob alternation).
 
 **Glob syntax** is gitignore/picomatch flavor: `*` `**` `?` `[a-z]` `{a,b}` alternation, trailing `/` for dirs, leading `!` for negation; `where::` takes a comma-separated **union** of positive patterns minus negated ones.
 

@@ -1,5 +1,5 @@
 ---
-description: Validate the shape and wiki-link integrity of Architecture docs (`<NAME> Architecture.md` + reachable subsystem Arch docs). Two rules: diagram-then-table at top of doc, and wiki-links on every module reference in the component table. Auto-invoked by `/architect`; also runnable standalone.
+description: Validate the shape and wiki-link integrity of Architecture docs (`<slug> Architecture.md` + reachable subsystem Arch docs). Two rules: diagram-then-table at top of doc, and wiki-links on every module reference in the component table. Auto-invoked by `/architect`; also runnable standalone.
 ---
 
 # Audit Architecture — `/audit architecture`
@@ -30,7 +30,7 @@ audit-architecture [--scope reach|anchor|file|all]
 
 | Flag | Meaning |
 |---|---|
-| `--scope reach` | **Default.** From every anchor's main `<NAME> Architecture.md`, walk wiki-links to every reachable `<X> Architecture.md` / `<X> Arch.md`. |
+| `--scope reach` | **Default.** From every anchor's main `<slug> Architecture.md`, walk wiki-links to every reachable `<X> Architecture.md` / `<X> Arch.md`. |
 | `--scope anchor --anchor SKA` | Reachability walk starting from that one anchor's main Arch doc. |
 | `--scope file --file <path>` | Single-file audit. |
 | `--scope all` | Every Arch-stem `.md` file in the vault (unreachable too). |

@@ -53,7 +53,7 @@ User stories live inline under `## User Stories` as bullets. Right for most PRDs
 {slug} Design/{slug} PRD/
 ├── {slug} PRD.md           ← this file, anchor file (matches folder name)
 ├── {slug} Stories.md       ← stories dispatch index
-├── US-<SLUG>-1 — <Title>.md ← individual story files
+├── US-<slug>-1 — <Title>.md ← individual story files
 └── ...
 ```
 
@@ -68,7 +68,7 @@ Per [[DAS Stories]]. The PRD's `## User Stories` section then links to `[[{slug}
 | 3 | `## Design Workflow` | Table listing the design phases downstream of this PRD with wiki-links: PRD → Architecture → Testing → Decisions → Track (Roadmap + Features). The sequence may be revisited iteratively as questions surface. |
 | 4 | `## Goals` | Concrete, verifiable outcomes — what the product will accomplish. Bulleted; outcome-shaped (not feature-shaped). |
 | 5 | `## Non-Goals` | What the product explicitly will NOT do. Each non-goal is one of: (a) deferred to a future version, (b) out of scope by design, (c) constraint from the environment. Keeps scope conversation honest. |
-| 6 | `## User Stories` | Either inline bullets (`US-<SLUG>-<N>` per [[DAS Stories]]) or a wiki-link to `[[{slug} Stories]]` if folder form. Each story is "As a `<role>`, I want `<capability>` so that `<reason>`." |
+| 6 | `## User Stories` | Either inline bullets (`US-<slug>-<N>` per [[DAS Stories]]) or a wiki-link to `[[{slug} Stories]]` if folder form. Each story is "As a `<role>`, I want `<capability>` so that `<reason>`." |
 | 7 | `## Open Questions` (optional) | Pending decisions surfaced via [[DAS ask-format]]. Lives above the H1 (first body element, after frontmatter) only while pending Qs exist; deletes entirely once all resolve. |
 | 8 | `## Resolved` (optional) | Bottom-of-doc archive of resolved questions and decisions, H3 per resolution. Populated as questions resolve; never deleted. |
 | 9 | `## See also` (optional) | Links to peer Design facets (Architecture, Testing, Decisions). |
@@ -89,8 +89,8 @@ Per [[DAS progressive-disclosure]] § Per-facet preface requirements:
 
 ## User stories — naming and lifecycle
 
-- **Identifier:** `US-<SLUG>-<N>` per [[DAS Stories]] § Naming convention. Monotonic-forever within the anchor; never recycled.
-- **Inline shape:** H3 heading `### US-<SLUG>-<N>: <Title>` followed by the canonical "As a `<role>`, I want `<goal>` so that `<reason>`" sentence on the next line.
+- **Identifier:** `US-<slug>-<N>` per [[DAS Stories]] § Naming convention. Monotonic-forever within the anchor; never recycled.
+- **Inline shape:** H3 heading `### US-<slug>-<N>: <Title>` followed by the canonical "As a `<role>`, I want `<goal>` so that `<reason>`" sentence on the next line.
 - **When stories grow:** migrate to [[DAS Stories]] folder form. The PRD's `## User Stories` section then reads "See [[{slug} Stories]] for the story index" + (optionally) a wiki-list of the top-level stories.
 
 ### Dispatch-row pointer to stories — required in both forms
@@ -123,7 +123,7 @@ Design-phase completeness for the PRD is tracked in `{slug} Track/{slug} Status.
 Surveying live PRDs across the vault, these are the recurring drifts from the canonical shape — each maps to a rule below and is a migration target, not an accepted variant:
 
 - **Legacy header form** — `desc::`/`description::` inline instead of YAML frontmatter (`R-prd-02`), or no metadata line at all (e.g. `[[HA Track]] > [[HA PRD]]` breadcrumb-only). *(The `:>>` breadcrumb itself is now required directly above the H1 per `R-prd-03`; the deviation is the missing YAML frontmatter, not the breadcrumb.)*
-- **`US-<N>` without the slug** — inline stories numbered `US-1`, `US-2` rather than `US-<SLUG>-<N>` (`R-prd-05`); collides across anchors.
+- **`US-<N>` without the slug** — inline stories numbered `US-1`, `US-2` rather than `US-<slug>-<N>` (`R-prd-05`); collides across anchors.
 - **`## Design Constraints` (DC-N)** — architectural/technical constraints living in the PRD instead of [[DAS Decisions]] / [[DAS Ruleset]] (`R-prd-09`).
 - **Missing `## Design Workflow`** — older PRDs jump from Overview straight to Goals (`R-prd-04`).
 - **No `## User Stories` at all** — stub or library PRDs (e.g. consumer-table-only) that never grew a story section (`R-prd-04`/`R-prd-05`); the Goals serve as a stand-in until stories are authored.
@@ -134,7 +134,7 @@ Any anchor that has a `{slug} Design/` folder per [[DAS Design Folder]]. Initial
 
 ## Audit
 
-`/audit prd` (future) would flag the rules captured in `R-prd` below — body-only shape, required-section presence, `US-<SLUG>-<N>` story numbering, no legacy Open Questions file, etc.
+`/audit prd` (future) would flag the rules captured in `R-prd` below — body-only shape, required-section presence, `US-<slug>-<N>` story numbering, no legacy Open Questions file, etc.
 
 ## See also
 
@@ -196,14 +196,14 @@ The PRD contains H2s `## Overview`, `## Design Workflow`, `## Goals`, `## Non-Go
 
 **Why:** downstream design phases read the PRD assuming this section spine. Missing sections force the reader to hunt for what they expect to find in a known location.
 
-### RULE R-prd-05 — User stories use `US-<SLUG>-<N>` numbering (checked)
+### RULE R-prd-05 — User stories use `US-<slug>-<N>` numbering (checked)
 check:: user_stories_use_rid_numbering
 
 Every user-story H3 (inline form) matches `^### US-{slug}-\d+: .+` where `{slug}` is the anchor's slug. Folder-form PRDs link to `[[{slug} Stories]]` instead of inline H3s and this rule defers to [[DAS Stories#RULESET R-stories|R-stories]].
 
 **Check pattern:** for inline-form PRDs, enumerate H3s under `## User Stories`; assert each matches the pattern.
 
-**Why:** `US-<SLUG>-<N>` is the load-bearing identifier referenced by feature docs (`Realizes: US-<SLUG>-<N>`), e2e tests (`Exercises: US-<SLUG>-<N>`), and Stories sub-facet files. Old `US-<N>` form (no slug) collides across anchors and breaks cross-anchor references.
+**Why:** `US-<slug>-<N>` is the load-bearing identifier referenced by feature docs (`Realizes: US-<slug>-<N>`), e2e tests (`Exercises: US-<slug>-<N>`), and Stories sub-facet files. Old `US-<N>` form (no slug) collides across anchors and breaks cross-anchor references.
 
 ### RULE R-prd-06 — No legacy `{slug} Open Questions.md` file (checked)
 check:: no_legacy_open_questions_file

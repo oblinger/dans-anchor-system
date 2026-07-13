@@ -41,7 +41,7 @@ A markdown table placed immediately under the H1 of a page. The first row carrie
 **Masthead rows — the model** (worked exemplars: [[HBR]] (project), [[SKA crank]] / [[SKA workflow]] (leaf); vault-wide rollout tracked in [[F189]]). After the breadcrumb identity row, the optional rows appear in a **fixed order**, each present **only if it applies**:
 
 1. **Related** — related anchors / siblings **and external resources** (code repo, project page, docs site) that are **not** already in the breadcrumb. First, because it answers "what else is near this?" before the reader descends into the anchor's own contents. *(This replaces the former `External` row — repo / site links live in Related now.)*
-2. **Type row** *(typed leaf anchors only — skill / discipline / facet)* — label is the type word (`skill`, `Discipline`, `Facet`); cell carries the runtime / external links (the `SKILL` object + `[[SKL <Name>\|User Docs]]`).
+2. **Type row** *(typed leaf anchors only — skill / discipline / facet)* — label is the type word (`skill`, `Discipline`, `Facet`); cell carries the runtime / external links (the `SKILL` object + `[[DAS <Name>|User Docs]]`).
 3. **Design** — left cell `[[<X> Design\|Design]]`, right cell the design parts that exist: PRD, Architecture, Decisions, UX Design, Roadmap, Stories.
 4. **Track** — left cell `[[<X> Track\|Track]]`, right cell the tracking items that exist: Backlog, Features, Roadmap, Now. *(Absent when tracking is unified at a parent — D10.)*
 5. **User Docs** — left cell `[[<X> User Docs\|User Docs]]` (or `[[<X> User\|User Docs]]`), right cell the user docs (Guide, …). Always labeled **User Docs**, never *User*.

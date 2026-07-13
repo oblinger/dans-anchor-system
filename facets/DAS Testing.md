@@ -165,7 +165,7 @@ Available to any anchor that ships testable behavior — primarily `code` trait 
 # RULESET R-testing
 include::
 where:: `file:{anchor}/**/* Testing.md`
-description:: spec for the `{slug} Testing.md` design facet — strategy + proposed-tests inventory
+description:: facet spec this doc instantiates
 
 Embedded ruleset for the Testing facet, co-located with the facet spec above per the [[F133 — Rulesets folder convention + facet embedding|F133]] embedding convention. Pulled in via the `R-facet` umbrella; active for an anchor through its traits ([[Warden Semantics]] § Rulesets).
 

@@ -28,7 +28,7 @@ Each question comes in five pieces — a short title, one or two lines of contex
 Where they land:
 
 - **In the document the question is about** — a feature doc / PRD / spec gets its questions in that doc's `## Open Questions`.
-- **In the anchor's `{NAME} queries.md`** — for cross-cutting questions not tied to one document.
+- **In the anchor's `{slug} queries.md`** — for cross-cutting questions not tied to one document.
 
 A single question, while you're engaged, is asked **inline in chat**. Two or more (or when you're not actively engaged) get **written down and the file opened** for you, with a one-line summary in chat.
 

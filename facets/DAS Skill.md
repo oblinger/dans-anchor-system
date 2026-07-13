@@ -185,9 +185,9 @@ Distinct from the `SKILL.md` runbook specified above: every skill also has a **d
 
 **Masthead rows** on the entry page (a [[DAS Dispatch Table]]):
 
-1. **breadcrumb** — `… → [[SKL <Group>]] → SKL <Name>`.
+1. **breadcrumb** — `… → [[DAS <Group>]] → SKL <Name>`.
 2. **Related** — **always links the actual skill runbook**: `[[skills/<name>/SKILL.md\|SKILL]]`. This is the rule — every skill doc points at its runbook, and that is the minimum Related row.
-3. **Design** — links the design root, `[[SKL <Name> Design\|Design]]`. The Design row carries **only the design elements that actually exist**; the minimum is the design root alone.
+3. **Design** — links the design root, `[[DAS <Name> Design|Design]]`. The Design row carries **only the design elements that actually exist**; the minimum is the design root alone.
 
 **Summary line** — the one sentence directly under the H1 states the skill's **essence** — what the command does at its core, per [[DAS Anchor Page]] R-anchor-page-06. Convention: lead with the backticked command, e.g. `/feature` — creates a new feature document specifying work to be done — not a feature list or mechanism tour.
 

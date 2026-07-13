@@ -62,11 +62,11 @@ The two locations are formally part of the same anchor. The `skill-*` facets doc
 
 ## Anchor Page Dispatch Table
 
-The anchor root page (`{Slug}.md`) follows [[DAS Anchor Page]] with one Skill-Anchor-specific row shape: the **first row** is `skill` and carries two surfaces — the skill spec (`[[<folder>/SKILL|SKILL.md]]`) and the user-facing doc (`[[SKL <Slug>|User Docs]]`); the second row is the optional `track` row carrying `[[<Slug> Backlog|Backlog]]` and `[[<Slug> Features|Features]]`. As a rendered two-row example:
+The anchor root page (`{Slug}.md`) follows [[DAS Anchor Page]] with one Skill-Anchor-specific row shape: the **first row** is `skill` and carries two surfaces — the skill spec (`[[<folder>/SKILL|SKILL.md]]`) and the user-facing doc (`[[DAS <Slug>|User Docs]]`); the second row is the optional `track` row carrying `[[<Slug> Backlog|Backlog]]` and `[[<Slug> Features|Features]]`. As a rendered two-row example:
 
 | Row | Surfaces |
 | --- | --- |
-| Skill | `[[<folder>/SKILL\|SKILL.md]]`, `[[SKL <Slug>\|User Docs]]` |
+| Skill | `[[<folder>/SKILL\|SKILL.md]]`, `[[DAS <Slug>|User Docs]]` |
 | `[[<Slug> Track\|Track]]`+ | `[[<Slug> Backlog\|Backlog]]`, `[[<Slug> Features\|Features]]` |
 
 The `skill` row replaces the `Dev` and `User` rows that a Code Anchor would have. It carries the two things a reader of the anchor most needs to find: the skill spec (agent-loaded) and the user-facing doc.
@@ -98,7 +98,7 @@ Per F116, the eager-scaffold approach is dropped: anchors don't pre-create Backl
 
 Some skills share names with parent-level project anchors (e.g., `cab/` skill at `~/.claude/skills/cab/` vs `CAB/` project anchor at `Bespoke/Skill Agent/CAB/`). When that's the case:
 
-- The **project anchor** (uppercase folder, sibling to SKA) carries the slug and gets `[[CAB]]` wiki-links.
+- The **project anchor** (uppercase folder, sibling to SKA) carries the slug and gets `[[DAS]]` wiki-links.
 - The **skill runtime folder** does NOT create a `{Slug}.md` anchor root page — it would collide with the project's slug on macOS case-insensitive filesystems.
 - The skill folder still has `SKILL.md` and action files; the anchor docs (Track/Features/etc.) live in the project anchor instead, not duplicated under the skill.
 

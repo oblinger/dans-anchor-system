@@ -15,14 +15,14 @@ DMUX trigger: **`groom`** (say "groom …" and it becomes `/groom …`). Slash: 
 `/groom` works the **frontier** — the tasks that could be next (everything under `## Now` / `## Next`, plus the next unmet roadmap milestone). For each frontier item it investigates quietly, then drives it into one of **five groomed states**, each with a body contract a rule checks:
 
 - **Executable** (`[Ready]`) → declares the concrete next step it'll take with zero involvement from you.
-- **Questions** (`[Questions]`) → the open questions, each answerable in one shot, land in the anchor's `{NAME} queries.md`.
+- **Questions** (`[Questions]`) → the open questions, each answerable in one shot, land in the anchor's `{slug} queries.md`.
 - **Blocked / Waiting** (`[Blocked]` / `[Waiting]`) → names exactly what it's blocked on or awaiting.
 - **Verify** (`[Verify]`) → a concrete yes/no for you to confirm.
 - **Watching** (`[Watching]`) → a shipped fix soaking, with the date the soak ends.
 
 ## It never asks you a question
 
-`/groom` **raises zero questions in chat** — not even a trivial one. Every decision it can make itself, it makes; every genuine question for you gets written into `{NAME} queries.md` (the one place you answer things), never dropped into chat where it scrolls away. When you run `/groom` directly it ends by showing you the anchor's status banner — the status of the anchor and what's waiting on you — and asks nothing.
+`/groom` **raises zero questions in chat** — not even a trivial one. Every decision it can make itself, it makes; every genuine question for you gets written into `{slug} queries.md` (the one place you answer things), never dropped into chat where it scrolls away. When you run `/groom` directly it ends by showing you the anchor's status banner — the status of the anchor and what's waiting on you — and asks nothing.
 
 After you answer the questions in the queries doc, re-run `/groom` to advance the next round.
 
