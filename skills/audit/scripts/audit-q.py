@@ -2543,6 +2543,155 @@ def check_c43_row_links_existing_doc(entries: list[BacklogEntry]) -> list[Findin
     return findings
 
 
+# ============================================================
+# C44 + C45 — [Questions] task→doc assertions (F233)
+# ============================================================
+
+
+def check_c44_questions_row_has_target(entries: list[BacklogEntry]) -> list[Finding]:
+    """C44: every `[Questions]` / `[N Questions]` row must name a Q-bearing target.
+
+    A row bracketed [Questions] with nowhere for the reader to actually find
+    the questions is a navigation dead end — same failure mode C43 catches
+    for plain F-row links, but for the Questions bracket specifically. Two
+    sanctioned forms (F233):
+      - **Arrow-linked rows** (typically F-rows) — `→ [[F<n> — Title]]` to a
+        doc that resolves. C1/C22 own broken-link reporting, so an arrow
+        present with an unresolved link is skipped here, not double-flagged.
+      - **T-/B-rows with no feature doc** — inline `- **Q<n> —` sub-bullets
+        directly under the row are the sanctioned no-doc form (row IS the Q
+        target; see C34's docstring). `BacklogEntry.raw_body` holds only the
+        row's own line (single-line by construction — see `backlog_entries`),
+        so the sub-bullets live on the FOLLOWING lines; this scans forward
+        from the row to the next top-level bullet/heading to find them.
+    """
+    findings: list[Finding] = []
+    file_lines_cache: dict[Path, list[str]] = {}
+    inline_q_re = re.compile(r"^\s*- \*\*Q\d+\s+[—-]")
+    for e in entries:
+        m = re.match(r"^\s*(\d+)\s+Questions?\s*$|^\s*Questions?\s*$", e.status or "")
+        if not m:
+            continue
+        if e.horizon in ("Done", "Icebox"):
+            continue
+        has_arrow = re.search(r"→\s+\[\[", e.raw_body) is not None
+        if has_arrow and e.link is not None and e.link.target_file_path is not None:
+            continue  # has a resolvable target
+        if re.match(r"[TB]", e.identifier or ""):
+            if e.source_file not in file_lines_cache:
+                try:
+                    file_lines_cache[e.source_file] = e.source_file.read_text(
+                        encoding="utf-8").splitlines()
+                except (OSError, UnicodeDecodeError):
+                    file_lines_cache[e.source_file] = []
+            lines = file_lines_cache[e.source_file]
+            has_inline = False
+            for nxt in lines[e.source_line:]:  # e.source_line is 1-indexed; start on next line
+                if HEADING_RE.match(nxt) or re.match(r"^- \*\*", nxt):
+                    break
+                if inline_q_re.match(nxt):
+                    has_inline = True
+                    break
+            if has_inline:
+                continue
+        findings.append(Finding(
+            severity="error",
+            surface_file=e.source_file,
+            surface_line=e.source_line,
+            code="C44",
+            message=(
+                f"row '{e.identifier}' is [{e.status}] but names no Q-bearing "
+                f"target — a task asserting questions must link the doc that "
+                f"carries them (→ [[F<n> — Title]]), or for T-/B-rows carry "
+                f"inline Q<n> sub-bullets (F233)."
+            ),
+            mechanically_fixable=False,
+        ))
+    return findings
+
+
+def check_c45_open_questions_above_h1(entries: list[BacklogEntry]) -> list[Finding]:
+    """C45: a linked doc's `## Open Questions` must sit above the first H1.
+
+    Open questions are questions ABOUT the doc, not part of the doc — the
+    reader should hit the open-Q gate immediately after frontmatter, before
+    the doc's own content, not stumble on it mid-read. Only checked for rows
+    that already have a resolved arrow link (unresolved links are C1/C22's
+    territory; a doc with no `## Open Questions` heading at all is C24/C2's
+    "no Qs" case, not a placement violation). Flag-only — moving a block is
+    a content edit, not mechanical (F233).
+
+    Dedups per target file: multiple rows linking the same doc emit one
+    finding, not one per row.
+    """
+    findings: list[Finding] = []
+    seen: set[Path] = set()
+    h1_re = re.compile(r"^# ")
+    oq_re = re.compile(r"^## Open Questions\s*$")
+    for e in entries:
+        m = re.match(r"^\s*(\d+)\s+Questions?\s*$|^\s*Questions?\s*$", e.status or "")
+        if not m:
+            continue
+        if e.horizon in ("Done", "Icebox"):
+            continue
+        has_arrow = re.search(r"→\s+\[\[", e.raw_body) is not None
+        if not (has_arrow and e.link is not None and e.link.target_file_path is not None):
+            continue
+        target = e.link.target_file_path
+        if not target.is_file() or target in seen:
+            continue
+        seen.add(target)
+        try:
+            text = target.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        lines = text.splitlines()
+        in_fence = False
+        in_frontmatter = False
+        h1_line = 0
+        oq_line = 0
+        for i, line in enumerate(lines, start=1):
+            if i == 1 and line.strip() == "---":
+                in_frontmatter = True
+                continue
+            if in_frontmatter:
+                if line.strip() == "---":
+                    in_frontmatter = False
+                continue
+            if re.match(r"^\s*```", line):
+                in_fence = not in_fence
+                continue
+            if in_fence:
+                continue
+            if h1_line == 0 and h1_re.match(line):
+                h1_line = i
+            if oq_line == 0 and oq_re.match(line):
+                oq_line = i
+            if h1_line and oq_line:
+                break
+        if oq_line == 0:
+            continue  # no Open Questions heading — C24/C2's territory
+        if h1_line == 0:
+            continue  # no H1 — nothing to be below
+        if oq_line > h1_line:
+            findings.append(Finding(
+                severity="error",
+                surface_file=target,
+                surface_line=oq_line,
+                code="C45",
+                message=(
+                    f"'## Open Questions' sits below the H1 (H1 at line "
+                    f"{h1_line}) — open questions are questions ABOUT the "
+                    f"doc, not part of it; the block belongs above the "
+                    f"first H1, immediately after frontmatter (F233). "
+                    f"Linked from [Questions] row '{e.identifier}' in "
+                    f"{e.source_file.stem}."
+                ),
+                mechanically_fixable=False,
+            ))
+    return findings
+
+
 def check_c34_inline_q_in_row_body(backlog_files: list[Path]) -> list[Finding]:
     """C34: inline `Q<n>` bullets inside backlog row bodies are forbidden.
 
@@ -4096,6 +4245,8 @@ def main() -> int:
         findings.extend(check_c32_h3_rows_forbidden([backlog_file]))
         findings.extend(check_c33_designing_needs_link(entries))
         findings.extend(check_c43_row_links_existing_doc(entries))
+        findings.extend(check_c44_questions_row_has_target(entries))
+        findings.extend(check_c45_open_questions_above_h1(entries))
         findings.extend(check_c34_inline_q_in_row_body([backlog_file]))
     # F124 — C35 queries.md drift check walks every anchor backlog's sibling
     # `{slug} queries.md` (per F176). Runs once after the per-anchor loop (not
