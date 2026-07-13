@@ -3,20 +3,26 @@
 
 Primary verb — the Two-Way Doc Mirror (DAS Code Repository § Doc Mirror):
 
-  code sync <anchor> [--dry] [--take-here P ...] [--take-there P ...]
+  code sync <anchor> [--dry] [--init] [--take-here P ...] [--take-there P ...]
 
 An anchor's `.anchor` carries a `mirror:` list; each route keeps two local
-folders in sync — `here:` (relative to the anchor root) and `there:` (an
-absolute path, typically inside a repo working tree), with `direction:`
-two-way (default) | push | pull. Three-way sync per file (here / there /
-last-synced hash manifest, stored in the enclosing repo's .git/anchor-sync/):
-forward transfers freely; backward transfers ONLY changes that are committed
-in the enclosing git repo — uncommitted there-side edits are quarantined and
-flagged, never transported. Both-sides-changed is a conflict, resolved
-explicitly with --take-here/--take-there. There-side files are stamped
-read-only (the there side is not an authoring surface). A first run with no
-manifest self-baselines: equal files seed the manifest, one-side-only files
-copy, differing files surface as conflicts.
+folders in sync — `here:` (relative to the anchor root, confined to it) and
+`there:` (an absolute path, typically inside a repo working tree), with
+`direction:` two-way (default) | push | pull. Three-way sync per file (here /
+there / last-synced hash manifest, stored in the enclosing repo's
+.git/anchor-sync/): forward transfers freely; backward transfers ONLY changes
+that are committed in the enclosing git repo — uncommitted there-side edits
+are quarantined and flagged, never transported. With no enclosing repo the
+engine degrades to plain three-way folder sync with conflict flags.
+Both-sides-changed is a conflict, resolved explicitly with
+--take-here/--take-there; take flags resolve only paths flagged this run
+('all' = every flagged path, but resolutions that would DELETE a file always
+need the path spelled out explicitly). There-side files are stamped read-only
+(the there side is not an authoring surface). A first run with no manifest
+baselines: equal files seed the manifest, one-side-only files copy, differing
+files surface as conflicts — but when both trees are non-empty and differ,
+--init must be passed explicitly (a lost manifest also loses deletion
+history, so silent re-baselining could resurrect deleted files).
 
 Legacy verbs (sparse-link realization of `remotes:` — SHELVED per the F188
 redesign 2026-07-12; kept for fixture history, do not use on live anchors):
@@ -626,6 +632,7 @@ import hashlib
 import json
 import shutil
 import stat
+import unicodedata
 
 SYNC_IGNORED = {".git", ".DS_Store", ".anchor", ".obsidian"}
 DIRECTIONS = {"two-way", "push", "pull"}
@@ -676,8 +683,26 @@ def load_mirror(anchor_path: Path):
             raise CodeError(f"{anchor_file}: mirror[{i}] direction {direction!r} "
                             f"not in {sorted(DIRECTIONS)}")
         here = (anchor_dir / here_raw).resolve()
+        if not here.is_relative_to(anchor_dir):
+            raise CodeError(f"{anchor_file}: mirror[{i}] `here:` resolves outside "
+                            f"the anchor root: {here_raw!r} → {here}")
         routes.append(MirrorRoute(str(here_raw), str(there_raw), direction,
                                   here, there.resolve()))
+
+    def _nested(a: Path, b: Path) -> bool:
+        return a == b or a.is_relative_to(b) or b.is_relative_to(a)
+
+    for i, a in enumerate(routes):
+        for j, b in enumerate(routes):
+            if i < j and _nested(a.here, b.here):
+                raise CodeError(f"{anchor_file}: mirror routes overlap on the here "
+                                f"side: {a.here_raw!r} and {b.here_raw!r}")
+            if i < j and _nested(a.there, b.there):
+                raise CodeError(f"{anchor_file}: mirror routes overlap on the there "
+                                f"side: {a.there} and {b.there}")
+            if _nested(a.here, b.there):
+                raise CodeError(f"{anchor_file}: mirror here {a.here} overlaps "
+                                f"there {b.there} — routes would fight")
     return anchor_dir, anchor_file, routes
 
 
@@ -689,45 +714,72 @@ def _file_hash(p: Path) -> str:
     return h.hexdigest()
 
 
-def _walk_files(root: Path) -> dict:
-    """relpath(str, posix) → absolute Path, for regular files under root."""
-    out = {}
+def _walk_files(root: Path):
+    """(relpath(str, posix) → absolute Path) for regular files under root,
+    plus the relpaths of symlinks encountered (skipped, never mirrored)."""
+    out, symlinks = {}, []
     if not root.exists():
-        return out
+        return out, symlinks
     for dirpath, dirnames, filenames in os.walk(root):
-        dirnames[:] = [d for d in dirnames if d not in SYNC_IGNORED]
+        keep = []
+        for d in dirnames:
+            if d in SYNC_IGNORED:
+                continue
+            if (Path(dirpath) / d).is_symlink():
+                symlinks.append((Path(dirpath) / d).relative_to(root).as_posix() + "/")
+            else:
+                keep.append(d)
+        dirnames[:] = keep
         for fn in filenames:
             if fn in SYNC_IGNORED:
                 continue
             p = Path(dirpath) / fn
             if p.is_symlink():
+                symlinks.append(p.relative_to(root).as_posix())
                 continue
             out[p.relative_to(root).as_posix()] = p
-    return out
+    return out, symlinks
 
 
 def _git_ctx(there: Path):
-    """(toplevel, gitdir, dirty_relpaths) for the repo enclosing `there`, or None."""
-    probe = there if there.exists() else there.parent
+    """(toplevel, gitdir, dirty_relpaths, prefix) for the repo enclosing
+    `there`, or None. `prefix` is there's path relative to the toplevel in
+    git's own casing (rev-parse --show-prefix) — path math against `there` as
+    declared crashes on a case mismatch (Audit 2026-07-12 Finding 7)."""
+    probe, missing = (there, False) if there.exists() else (there.parent, True)
     if not probe.exists():
         return None
     res = git(["-C", str(probe), "rev-parse", "--show-toplevel"], check=False)
     if res.returncode != 0:
         return None
     top = Path(res.stdout.strip()).resolve()
+    res = git(["-C", str(probe), "rev-parse", "--show-prefix"], check=False)
+    prefix = res.stdout.strip()
+    if missing:
+        prefix += there.name + "/"
     res = git(["-C", str(top), "rev-parse", "--git-dir"], check=False)
     gd = Path(res.stdout.strip())
     gitdir = gd if gd.is_absolute() else (top / gd).resolve()
-    res = git(["-C", str(top), "status", "--porcelain", "--untracked-files=all",
-               "--", str(there)], check=False)
+    # -z: NUL-separated, paths never C-quoted (Audit 2026-07-12 Finding 2);
+    # --ignored=matching: gitignored files count as dirty, never "committed"
+    res = git(["-C", str(probe), "status", "--porcelain", "-z",
+               "--untracked-files=all", "--ignored=matching", "--", "."],
+              check=False)
     dirty = set()
-    for line in (res.stdout or "").splitlines():
-        if len(line) > 3:
-            path = line[3:].strip().strip('"')
-            if " -> " in path:  # renames: take the destination
-                path = path.split(" -> ", 1)[1].strip().strip('"')
-            dirty.add(path)
-    return top, gitdir, dirty
+    tokens = (res.stdout or "").split("\0")
+    i = 0
+    while i < len(tokens):
+        entry = tokens[i]
+        i += 1
+        if len(entry) < 4:
+            continue
+        xy = entry[:2]
+        dirty.add(unicodedata.normalize("NFC", entry[3:]))
+        if "R" in xy or "C" in xy:  # rename/copy: next token is the source path
+            if i < len(tokens):
+                dirty.add(unicodedata.normalize("NFC", tokens[i]))
+                i += 1
+    return top, gitdir, dirty, prefix
 
 
 def _manifest_path(anchor_dir: Path, route: MirrorRoute, gitdir) -> Path:
@@ -739,25 +791,69 @@ def _manifest_path(anchor_dir: Path, route: MirrorRoute, gitdir) -> Path:
             / f"{key}.json")
 
 
-def _load_manifest(path: Path) -> dict:
+def _load_manifest(path: Path):
+    """The manifest's files dict, or None when no manifest exists yet."""
     if path.is_file():
         try:
             data = json.loads(path.read_text())
             return data.get("files", {})
         except (json.JSONDecodeError, OSError):
-            raise CodeError(f"corrupt sync manifest {path} — inspect or remove it")
-    return {}
+            raise CodeError(
+                f"corrupt sync manifest {path} — inspect it before removing: "
+                f"without it deletion history is lost and deleted files can "
+                f"resurrect on the re-baseline (which then needs --init)")
+    return None
 
 
 def _save_manifest(path: Path, anchor_dir, route, files: dict):
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps({
+    tmp = path.with_name(path.name + ".tmp")
+    tmp.write_text(json.dumps({
         "version": 1,
         "anchor": str(anchor_dir),
         "here": route.here_raw,
         "there": str(route.there),
         "files": dict(sorted(files.items())),
     }, indent=1) + "\n")
+    os.replace(tmp, path)  # atomic — a killed sync never truncates the manifest
+
+
+def _acquire_lock(mpath: Path) -> Path:
+    """O_EXCL lockfile beside the manifest; guards concurrent syncs of a route."""
+    lock = mpath.with_suffix(".lock")
+    lock.parent.mkdir(parents=True, exist_ok=True)
+    for _ in range(2):
+        try:
+            fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            os.write(fd, str(os.getpid()).encode())
+            os.close(fd)
+            return lock
+        except FileExistsError:
+            try:
+                pid = int(lock.read_text().strip() or "0")
+            except (OSError, ValueError):
+                pid = 0
+            alive = False
+            if pid:
+                try:
+                    os.kill(pid, 0)
+                    alive = True
+                except ProcessLookupError:
+                    alive = False
+                except PermissionError:
+                    alive = True
+            if alive:
+                raise CodeError(f"another sync of this route is running "
+                                f"(pid {pid}, lock {lock}) — wait for it, or "
+                                f"remove the lock if it is stale")
+            lock.unlink(missing_ok=True)  # stale holder — reclaim and retry
+    raise CodeError(f"could not acquire sync lock {lock}")
+
+
+def _strip_write(p: Path):
+    mode = p.stat().st_mode
+    if mode & 0o222:  # mask write bits only — forcing 0444 would strip the
+        p.chmod(mode & ~0o222)  # exec bit and leave the file git-dirty forever
 
 
 def _copy_to_there(src: Path, dst: Path):
@@ -766,13 +862,13 @@ def _copy_to_there(src: Path, dst: Path):
         dst.chmod(dst.stat().st_mode | stat.S_IWUSR)
         dst.unlink()
     shutil.copy2(src, dst)
-    dst.chmod(0o444)  # the there side is not an authoring surface
+    _strip_write(dst)  # the there side is not an authoring surface
 
 
 def _copy_to_here(src: Path, dst: Path):
     dst.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(src, dst)
-    dst.chmod(0o644)
+    dst.chmod(dst.stat().st_mode | 0o644)  # writable here; exec bit preserved
 
 
 def _delete_there(p: Path):
@@ -781,39 +877,139 @@ def _delete_there(p: Path):
         p.unlink()
 
 
+def _norm_rel(rel: str) -> str:
+    """Collision key: APFS is case-insensitive and normalization-insensitive."""
+    return unicodedata.normalize("NFC", rel).casefold()
+
+
+def _dir_blocked(root: Path, rel: str):
+    """First ancestor dir of root/rel that exists as a non-directory, or None."""
+    p = root
+    for part in rel.split("/")[:-1]:
+        p = p / part
+        if p.exists() and not p.is_dir():
+            return p
+    return None
+
+
 def sync_route(anchor_dir: Path, route: MirrorRoute, dry: bool,
-               take_here: set, take_there: set):
-    """Sync one route. Returns (counters dict, flags list[str])."""
+               take_here: set, take_there: set, init: bool = False):
+    """Sync one route.
+
+    Returns (counters dict, flags list[str], consumed_here, consumed_there) —
+    the consumed sets record which --take-* entries actually resolved a
+    flagged path, so unmatched take arguments can be reported instead of
+    silently ignored.
+    """
     if not route.here.exists():
         raise CodeError(f"here route missing on disk: {route.here}")
     ctx = _git_ctx(route.there)
-    top, gitdir, dirty = ctx if ctx else (None, None, set())
+    top, gitdir, dirty, prefix = ctx if ctx else (None, None, set(), "")
 
     mpath = _manifest_path(anchor_dir, route, gitdir)
+    lock = None if dry else _acquire_lock(mpath)
+    try:
+        return _sync_route_locked(anchor_dir, route, dry, take_here, take_there,
+                                  init, top, dirty, prefix, mpath)
+    finally:
+        if lock is not None:
+            lock.unlink(missing_ok=True)
+
+
+def _sync_route_locked(anchor_dir, route, dry, take_here, take_there,
+                       init, top, dirty, prefix, mpath):
     manifest = _load_manifest(mpath)
-    here_files = _walk_files(route.here)
-    there_files = _walk_files(route.there)
+    here_files, here_links = _walk_files(route.here)
+    there_files, there_links = _walk_files(route.there)
+
+    if manifest is None:
+        manifest = {}
+        if here_files and there_files and not init:
+            differs = set(here_files) != set(there_files) or any(
+                _file_hash(here_files[r]) != _file_hash(there_files[r])
+                for r in here_files)
+            if differs:
+                raise CodeError(
+                    f"no sync manifest for {route.here_raw} ↔ {route.there} and "
+                    f"the two sides differ — a lost manifest also loses deletion "
+                    f"history, so re-baselining silently could resurrect deleted "
+                    f"files; pass --init to baseline (preview with --dry --init)")
 
     def committed(rel: str) -> bool:
         """True iff the there-side file's state arrived via git history."""
         if top is None:
-            return False  # no enclosing repo — nothing is 'committed'
-        trel = (route.there / rel).resolve().relative_to(top).as_posix()
-        return trel not in dirty
+            return True  # no enclosing repo — plain three-way folder sync
+        return unicodedata.normalize("NFC", prefix + rel) not in dirty
 
     counters = {"forward": 0, "backward": 0, "deleted_there": 0,
                 "deleted_here": 0, "seeded": 0, "in_sync": 0}
     flags = []
+    flagged = set()   # rels flagged this run — exempt from read-only stamping
     new_manifest = {}
+    consumed_here, consumed_there = set(), set()
 
-    def taken_here(rel):  return "all" in take_here or rel in take_here
-    def taken_there(rel): return "all" in take_there or rel in take_there
+    for rel in sorted(here_links):
+        flags.append(f"note: symlink skipped (never mirrored): {rel} [here]")
+    for rel in sorted(there_links):
+        flags.append(f"note: symlink skipped (never mirrored): {rel} [there]")
 
-    for rel in sorted(set(here_files) | set(there_files) | set(manifest)):
+    def matches(rel, tset, consumed, destructive):
+        # 'all' resolves flagged paths by copying only — a resolution that
+        # would DELETE a file always needs the path spelled out explicitly
+        # (Audit 2026-07-12 Finding 1)
+        if rel in tset:
+            consumed.add(rel)
+            return True
+        if not destructive and "all" in tset:
+            consumed.add("all")
+            return True
+        return False
+
+    all_rels = set(here_files) | set(there_files) | set(manifest)
+    by_norm = {}
+    for rel in all_rels:
+        by_norm.setdefault(_norm_rel(rel), []).append(rel)
+    collided = set()
+    for group in by_norm.values():
+        if len(group) == 1:
+            continue
+        # case/normalization variants are one on-disk file per side on APFS —
+        # treating them as distinct rels clobbers (Audit 2026-07-12 Finding 3)
+        collided.update(group)
+        h_rels = [r for r in group if r in here_files]
+        t_rels = [r for r in group if r in there_files]
+        hashes = ({_file_hash(here_files[r]) for r in h_rels}
+                  | {_file_hash(there_files[r]) for r in t_rels})
+        if not hashes:
+            continue  # every variant deleted on both sides — drops out
+        if len(h_rels) <= 1 and len(t_rels) <= 1 and len(hashes) == 1:
+            canon = h_rels[0] if h_rels else t_rels[0]
+            counters["in_sync" if manifest.get(canon) else "seeded"] += 1
+            new_manifest[canon] = next(iter(hashes))
+        else:
+            flags.append(f"CONFLICT: case/normalization collision — "
+                         f"{', '.join(repr(r) for r in sorted(group))} name the "
+                         f"same file on this filesystem; rename to a single form "
+                         f"(nothing transported)")
+            flagged.update(group)
+            for r in group:
+                if r in manifest:
+                    new_manifest[r] = manifest[r]
+
+    for rel in sorted(all_rels - collided):
         H = _file_hash(here_files[rel]) if rel in here_files else None
         T = _file_hash(there_files[rel]) if rel in there_files else None
         M = manifest.get(rel)
         hp, tp = route.here / rel, route.there / rel
+
+        if ((H is not None and (tp.is_dir() or _dir_blocked(route.there, rel)))
+                or (T is not None and (hp.is_dir() or _dir_blocked(route.here, rel)))):
+            flags.append(f"CONFLICT: {rel} is a file on one side but a directory "
+                         f"on the other — nothing transported")
+            flagged.add(rel)
+            if M is not None:
+                new_manifest[rel] = M
+            continue
 
         def forward():
             if not dry:
@@ -827,105 +1023,132 @@ def sync_route(anchor_dir: Path, route: MirrorRoute, dry: bool,
             counters["backward"] += 1
             new_manifest[rel] = T
 
-        if H is not None and H == T:
-            counters["seeded" if M is None else "in_sync"] += 1
-            new_manifest[rel] = H
-        elif H is not None and T is not None:            # both exist, differ
-            if taken_here(rel):
-                forward()
-            elif taken_there(rel):
-                backward()
-            elif M == T:                                  # here changed
-                if route.direction == "pull":
-                    flags.append(f"drift: {rel} changed here but route is pull-only")
-                    new_manifest[rel] = M
-                else:
+        def resolve_take():
+            """--take-* resolves only states this run would otherwise flag."""
+            if matches(rel, take_here, consumed_here, destructive=H is None):
+                if H is not None:
                     forward()
-            elif M == H:                                  # there changed
-                if route.direction == "push":
-                    flags.append(f"drift: {rel} changed there but route is push-only")
-                    new_manifest[rel] = M
-                elif committed(rel):
-                    backward()
-                else:
-                    flags.append(f"QUARANTINE: {rel} edited there UNCOMMITTED — "
-                                 f"never transported; fix at {tp} (or --take-there)")
-                    new_manifest[rel] = M
-            else:                                         # both changed
-                flags.append(f"CONFLICT: {rel} changed on both sides — resolve, "
-                             f"then --take-here or --take-there")
-                if M is not None:
-                    new_manifest[rel] = M
-        elif H is not None:                               # missing there
-            if taken_there(rel):
-                if not dry:
-                    hp.unlink()
-                counters["deleted_here"] += 1
-            elif M is None or M != H:
-                if M is None:                             # new here file
-                    if route.direction == "pull":
-                        flags.append(f"drift: {rel} added here but route is pull-only")
-                    else:
-                        forward()
-                else:                                     # here changed + there deleted
-                    flags.append(f"CONFLICT: {rel} changed here but deleted there")
-                    new_manifest[rel] = M
-            else:                                         # there-side deletion
-                flags.append(f"deletion: {rel} deleted there — backward deletions "
-                             f"are never auto-applied; --take-there {rel} to accept, "
-                             f"--take-here {rel} to restore")
-                new_manifest[rel] = M
-        elif T is not None:                               # missing here
-            if taken_here(rel):
-                if not dry:
-                    _delete_there(tp)
-                counters["deleted_there"] += 1
-            elif taken_there(rel):
-                backward()
-            elif M is None:                               # new there file
-                if route.direction == "push":
-                    flags.append(f"drift: {rel} added there but route is push-only")
-                elif committed(rel):
-                    backward()
-                else:
-                    flags.append(f"QUARANTINE: {rel} added there UNCOMMITTED — "
-                                 f"never transported (or --take-there)")
-            elif M == T:                                  # here deleted it
-                if route.direction == "pull":
-                    flags.append(f"drift: {rel} deleted here but route is pull-only")
-                    new_manifest[rel] = M
                 else:
                     if not dry:
                         _delete_there(tp)
                     counters["deleted_there"] += 1
-            else:                                         # here deleted + there changed
-                flags.append(f"CONFLICT: {rel} deleted here but changed there")
+                return True
+            if matches(rel, take_there, consumed_there, destructive=T is None):
+                if T is not None:
+                    backward()
+                else:
+                    if not dry:
+                        hp.unlink()
+                    counters["deleted_here"] += 1
+                return True
+            return False
+
+        def flag(msg):
+            flags.append(msg)
+            flagged.add(rel)
+            if M is not None:
                 new_manifest[rel] = M
+
+        if H is not None and H == T:
+            counters["seeded" if M is None else "in_sync"] += 1
+            new_manifest[rel] = H
+        elif H is not None and T is not None:            # both exist, differ
+            if M == T:                                    # here changed
+                if route.direction != "pull":
+                    forward()
+                elif not resolve_take():
+                    flag(f"drift: {rel} changed here but route is pull-only")
+            elif M == H:                                  # there changed
+                if route.direction == "push":
+                    if not resolve_take():
+                        flag(f"drift: {rel} changed there but route is push-only")
+                elif committed(rel):
+                    backward()
+                elif not resolve_take():
+                    flag(f"QUARANTINE: {rel} edited there UNCOMMITTED — "
+                         f"never transported; fix at {tp} (or --take-there)")
+            else:                                         # both changed
+                if not resolve_take():
+                    flag(f"CONFLICT: {rel} changed on both sides — resolve, "
+                         f"then --take-here or --take-there")
+        elif H is not None:                               # missing there
+            if M is None:                                 # new here file
+                if route.direction != "pull":
+                    forward()
+                elif not resolve_take():
+                    flag(f"drift: {rel} added here but route is pull-only")
+            elif M != H:                                  # here changed + there deleted
+                if not resolve_take():
+                    flag(f"CONFLICT: {rel} changed here but deleted there")
+            else:                                         # there-side deletion
+                if not resolve_take():
+                    flag(f"deletion: {rel} deleted there — backward deletions "
+                         f"are never auto-applied; --take-there {rel} to accept, "
+                         f"--take-here {rel} to restore")
+        elif T is not None:                               # missing here
+            if M is None:                                 # new there file
+                if route.direction == "push":
+                    if not resolve_take():
+                        flag(f"drift: {rel} added there but route is push-only")
+                elif committed(rel):
+                    backward()
+                elif not resolve_take():
+                    flag(f"QUARANTINE: {rel} added there UNCOMMITTED — "
+                         f"never transported (or --take-there)")
+            elif M == T:                                  # here deleted it
+                if route.direction != "pull":
+                    if not dry:
+                        _delete_there(tp)
+                    counters["deleted_there"] += 1
+                elif not resolve_take():
+                    flag(f"drift: {rel} deleted here but route is pull-only")
+            else:                                         # here deleted + there changed
+                if not resolve_take():
+                    flag(f"CONFLICT: {rel} deleted here but changed there")
         # else: manifest-only entry (deleted both sides) — drops out
 
     if not dry:
         _save_manifest(mpath, anchor_dir, route, new_manifest)
         if route.direction in ("two-way", "push"):
-            for rel, p in _walk_files(route.there).items():
-                p.chmod(0o444)
-    return counters, flags
+            stamped, _ = _walk_files(route.there)
+            for rel, p in stamped.items():
+                if rel in flagged:
+                    continue  # don't re-lock a file the flag says to fix in place
+                _strip_write(p)
+    return counters, flags, consumed_here, consumed_there
 
 
-def cmd_sync(anchor_path, dry, take_here, take_there):
+def cmd_sync(anchor_path, dry, take_here, take_there, init=False):
     anchor_dir, anchor_file, routes = load_mirror(anchor_path)
     mode = "dry-run" if dry else "sync"
     print(bold(f"code sync ({mode}): {anchor_file}"))
     any_flags = False
+    th, tt = set(take_here), set(take_there)
+    used_h, used_t = set(), set()
     for route in routes:
         print(bold(f"\n{route.here_raw}  ↔  {route.there}   [{route.direction}]"))
-        counters, flags = sync_route(anchor_dir, route,
-                                     dry, set(take_here), set(take_there))
+        counters, flags, ch, ct = sync_route(anchor_dir, route, dry, th, tt, init)
+        used_h |= ch
+        used_t |= ct
         parts = [f"{v} {k.replace('_', ' ')}" for k, v in counters.items() if v]
         print("  " + (dim("nothing to do") if not parts else ok(", ".join(parts))))
         for f in flags:
+            if f.startswith("note:"):
+                print("  " + dim(f))
+                continue
             any_flags = True
             print("  " + (err(f) if f.startswith(("QUARANTINE", "CONFLICT"))
                           else warn(f)))
+    for label, given, used in (("--take-here", th, used_h),
+                               ("--take-there", tt, used_t)):
+        for p in sorted(given - used):
+            any_flags = True
+            if p == "all":
+                print(err(f"  {label} all matched no flagged path — deletions "
+                          f"always need an explicit path"))
+            else:
+                print(err(f"  {label} {p!r} matched no flagged path — "
+                          f"nothing was resolved for it"))
     print()
     if any_flags:
         print(err("flags present — nothing flagged was transported"))
@@ -956,20 +1179,26 @@ def main(argv=None):
         if name == "sync":
             p.add_argument("--dry", action="store_true",
                            help="report what would happen; change nothing")
+            p.add_argument("--init", action="store_true",
+                           help="baseline a route that has no manifest when both "
+                                "sides already hold differing content")
             p.add_argument("--take-here", action="append", default=[],
                            metavar="RELPATH",
                            help="resolve a flagged path by forcing here→there "
-                                "('all' allowed)")
+                                "('all' = every flagged path; deletions need "
+                                "the explicit path)")
             p.add_argument("--take-there", action="append", default=[],
                            metavar="RELPATH",
                            help="resolve a flagged path by forcing there→here "
-                                "('all' allowed)")
+                                "('all' = every flagged path; deletions need "
+                                "the explicit path)")
 
     args = parser.parse_args(argv)
     anchor = Path(args.anchor)
     try:
         if args.cmd == "sync":
-            return cmd_sync(anchor, args.dry, args.take_here, args.take_there)
+            return cmd_sync(anchor, args.dry, args.take_here, args.take_there,
+                            args.init)
         if args.cmd == "link":
             return cmd_link(anchor, args.apply)
         if args.cmd == "reattach":
