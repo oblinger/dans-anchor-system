@@ -1,0 +1,40 @@
+direction: right
+
+user: {
+  label: "User"
+  shape: person
+}
+
+verbs: Tracking verbs (skills) {
+  ask: "/ask\nconsolidate questions"
+  groom: "/groom\nfrontier planning"
+}
+
+drive: Drive verbs (consumers) {
+  label: "Drive cluster\n/crank · /mint · /land\n(consume Ready rows, advance states)"
+  style.stroke-dash: 3
+}
+
+engine: Engine {
+  state: "state CLI\nsingle write path for rows + Qs"
+  render: "queries-render.py\nQ.md banner refresh"
+  state -> render: triggers
+}
+
+surfaces: Tracking surfaces (facet-shaped files) {
+  backlog: "{slug} Backlog.md\nrows: bracket × horizon"
+  queries: "{slug} queries.md\nconsolidated question pile"
+  qmd: "Q.md\nvault-wide status banners"
+  status: "{slug} Status.md · {slug} Roadmap.md"
+  stream: "{slug} Log.md · {slug} Messages.md\ndated entry streams"
+}
+
+user -> verbs: "presses ' / \" "
+verbs.ask -> engine.state
+verbs.groom -> engine.state
+drive -> engine.state: state transitions
+engine.state -> surfaces.backlog: writes
+engine.state -> surfaces.queries: writes
+engine.render -> surfaces.qmd: renders
+surfaces.qmd -> user: "glance: Ready / Questions"
+surfaces.queries -> user: "answer in one pass"
