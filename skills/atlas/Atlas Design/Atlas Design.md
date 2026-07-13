@@ -3,7 +3,7 @@ description: system design — PRD, architecture, interface, principles
 ---
 # Atlas Design
 
-| -[[Atlas Design]]- | : system design — PRD, architecture, interface, principles |
+| -[[Atlas Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[Atlas/Atlas]] → [Atlas Design](hook://p/Atlas%20Design)<br>: system design — PRD, architecture, interface, principles |
 | --- | --- |
 | [[Atlas PRD]] | product requirements |
 | [[Atlas System Design]] | system architecture |
