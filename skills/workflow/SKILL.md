@@ -5,6 +5,7 @@ user_invocable: false
 ---
 
 # Workflow Discipline
+requires:: vault, skill:audit, facet:backlog, facet:roadmap
 
 The canonical state graph for a unit of work — names every state, defines Definition of Ready, maps states onto each surface (Backlog / Roadmap / Feature / PRD), and owns the `state` mutation CLI that all advancing skills must call.
 

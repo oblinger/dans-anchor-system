@@ -9,6 +9,7 @@ user_invocable: true
 ---
 
 # Parley
+requires:: vault, skill:feature
 
 Skill spec for `/parley` — structured topic discussion that lands a dated parley doc, evolves Open Questions / Next Steps / Discussion through the conversation, and weaves outcomes back into the anchor (or graduates to a feature) at close.
 

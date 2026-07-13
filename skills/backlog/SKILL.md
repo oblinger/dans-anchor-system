@@ -5,6 +5,7 @@ user_invocable: false
 ---
 
 # Backlog Discipline
+requires:: vault
 
 Two-axis organization of a backlog. **Horizon** answers *when do we want this to happen?* **Workflow state** answers *how far has it progressed?* The two are orthogonal — an item in `## Later` can be `[Ready]`; an item in `## Now` can be `[Designing]`. Horizon is shown by H2 placement; workflow state is shown by the `[Status]` bracket per the `[[SKA workflow]]` discipline.
 

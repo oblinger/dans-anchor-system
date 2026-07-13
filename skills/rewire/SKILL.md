@@ -11,6 +11,7 @@ user_invocable: true
 ---
 
 # Rewire
+requires:: vault, anchor-cli, skill:ask, facet:backlog, facet:dispatch-table
 
 Idempotent structural repair for any anchor. Ensures all files are linked, dispatch tables are wired, and the skeleton is consistent. Safe to run anytime — only adds, never deletes.
 
@@ -35,6 +36,7 @@ This is the reference example. Every anchor page dispatch table must follow this
 <!-- compiled:start source=CAB/cab-facets/CAB-slug-Page-reference -->
 
 ```
+
 | -{slug}-                             | ><br>:                                                                                                                                    |
 | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | External                             | [Repo](https://github.com/oblinger/repo), [Project Page](https://oblinger.github.io/gitproj/repo/)                                      |
@@ -44,6 +46,7 @@ This is the reference example. Every anchor page dispatch table must follow this
 | [[{slug} Dev/{slug} Dev\|Dev]]+     | [[{slug} Files\|Files]], [[{slug} Architecture\|Architecture]]                                                                           |
 | Research                             | [[{slug} Research\|Research]], [[{slug} References\|References]]                                                                         |
 | ...                                  |                                                                                                                                           |
+
 ```
 
 **Standard row order:** External, User, Plan, Execute, Dev, Research. Omit rows not relevant to this anchor. Do not reorder. Do not append new rows at the end — insert in the correct position.
@@ -262,9 +265,11 @@ The canonical top-of-doc for **every** `.md` file inside an anchor is:
 The dispatch-table **placeholder form** (what a generator emits before rewire fills it in) is:
 
 ```
+
 | -[[{basename}]]- | |
 | --- | --- |
 | --- | |
+
 ```
 
 The right-cell of the header is left empty; rewire fills it with `><br>: <description-from-frontmatter>`. The third row is the auto-management separator (`---` left-cell, empty right-cell) — rewire fills it with auto-listed sibling/child rows per [[DAS Anchor Page]] § Separators and Auto-Management.
@@ -303,7 +308,9 @@ A folder template is a folder whose name begins with an underscore — `_{Name} 
 - [ ] **Detect markdown-file templates** — for every folder, also check for any child file matching `_* Template.md`. If yes, the parent folder has a file-level template.
 - [ ] **Folder-level template earns a dispatch row** — the parent folder's dispatch page MUST contain a row linking to the template. The row sits at the **top of the user zone** (above the `---` auto-management separator), so it surfaces immediately when opening the folder. Canonical row format:
   ```
+
   | Template | [[_{Name} Template]] |
+
   ```
   The wiki-link resolves by basename (folder templates link to the inside marker file `_{Name} Template.md`; file templates link to the template file directly).
 - [ ] **Generic templates (those living in `CAB/CAB Facets/`) do NOT get a dispatch row** in every consumer's dispatch. They are looked up by facet name; cluttering every dispatch with template links to vault-wide templates is the failure mode this rule prevents.

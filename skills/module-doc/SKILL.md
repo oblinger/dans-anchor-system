@@ -15,6 +15,7 @@ user_invocable: true
 ---
 
 # /module-doc — Author and Maintain Module Documentation
+requires:: vault, skill:audit, skill:viz, facet:module-doc, external:ExcalidrawZ
 
 `/module-doc` authors or revises an module documentation file conforming to the [[DAS Module Doc]] facet. The facet is the rule source; this skill is the procedure. A companion `audit-module-doc.py` script (invoked as `/audit module-doc <file>`) performs mechanical conformance checks; the agent fixes warnings to zero, then does a subjective re-read for the rules mechanical checks can't cover (figure readability, prose clarity, layout judgment).
 

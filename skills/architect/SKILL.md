@@ -20,6 +20,7 @@ user_invocable: true
 ---
 
 # Architect — Maintain `{slug} Architecture/`
+requires:: vault, skill:ask, skill:audit, skill:viz, facet:architecture
 
 The `/architect` skill — creates and maintains the top-level system-architecture document for an anchor as a subsystem decomposition rooted in `{slug} Design/` (a single `{slug} Architecture.md`, upgraded to a `{slug} Architecture/` folder-doc once it grows subsystems).
 

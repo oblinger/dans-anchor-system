@@ -6,6 +6,7 @@ user_invocable: true
 ---
 
 # Slug Scan — Sync the slug index
+requires:: vault, external:ha
 
 Runbook for the `/slug-scan` skill — discovers new anchor slugs and appends formatted rows to the master slug index at `~/ob/kmr/SYS/SYS Topic/slug/SLUG.md`.
 
@@ -32,9 +33,11 @@ The script outputs ready-to-paste rows in the new dot-separated format. Pass `--
 Rows use a 2-column layout — date+slug on the left, description + structured suffix on the right:
 
 ```markdown
+
 | Slug | Description, breadcrumbs, filename, atlas |
 | --- | --- |
 | 2026-06-04 [[SLUG]] | Master slug index. [[SYS]] (atlas [[Atlas#SLUG\|SLUG]]) |
+
 ```
 
 **Column 1** — `DATE [[SLUG]]`.

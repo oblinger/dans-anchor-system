@@ -12,6 +12,7 @@ user_invocable: true
 ---
 
 # Land — Bounded Crank
+requires:: vault, skill:finalize
 
 Skill spec for `/land` (and the bare-period trigger) — a bounded crank that finishes every in-flight activity, commits, reports done, and stops without pulling new work from the backlog.
 

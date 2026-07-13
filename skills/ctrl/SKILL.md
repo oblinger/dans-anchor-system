@@ -11,6 +11,7 @@ dependencies:
 ---
 
 # CTRL — Environment Control
+requires:: none
 
 Control the local macOS environment: browser automation, persistent tmux shell sessions, and system interaction.
 

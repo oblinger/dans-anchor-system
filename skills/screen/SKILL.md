@@ -4,6 +4,7 @@ description: See and drive a Mac's screen — screen grab plus click / move / ty
 ---
 
 # Screen
+requires:: vault, skill:bridge, external:cliclick
 
 The agent can both **see** a Mac's screen and **act** on it — capture the display, then click, move, type, and press keys. This closes the GUI verification-and-control loop: instead of asking the user to dismiss a dialog or click Continue, the agent does it. Pairs with the [[devops]] heartbeat discipline (screencap is the visual half of the watcher loop) and the [[bridge]] control plane (it carries the capability to a remote Mac for free).
 

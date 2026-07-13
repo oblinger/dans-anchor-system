@@ -6,6 +6,7 @@ user_invocable: true
 ---
 
 # Streams — Content stream definitions
+requires:: none
 
 A repeated kind of content grouping is called a "stream." This action defines the rules for stream-type anchors.
 

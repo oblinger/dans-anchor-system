@@ -10,6 +10,7 @@ user_invocable: false
 ---
 
 # Anchor
+requires:: vault
 
 Scripts and actions for operating on anchors. Not directly user-invocable — other skills
 (audit, cab, code) delegate to these.

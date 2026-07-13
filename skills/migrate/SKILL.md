@@ -10,6 +10,7 @@ user_invocable: true
 ---
 
 # Migrate
+requires:: vault, anchor-cli, skill:rewire
 
 Skill specification for the `/migrate` action — changes any aspect of an existing anchor (slug, location, traits, structure, naming) without losing files.
 

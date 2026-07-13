@@ -17,6 +17,7 @@ user_invocable: true
 ---
 
 # /ask — ask the user questions
+requires:: vault, anchor-cli, skill:audit, facet:query
 
 `/ask` builds and maintains the anchor's **`{slug} queries.md`** — the single surface where the user answers everything the agents need from them. Its discipline: most "questions" should never reach the user; only genuine user decisions and genuine user-only verifications survive, each made answerable from what's written. **Authoritative purpose + the never-ask invariant: [[Query PRD]]** (the agent's prime directive is to NOT ask — eliminate every question it can, consolidate the irreducible residue into one self-documenting, one-shot-answerable pile; asking in chat, especially after a render, is the cardinal violation). Full spec: [[F169 — Query skill — queries document + determination logic|F169]]. Replaces `/ask` (which rotted by accreting dashboard + render-pipeline + triage coupling — keep `/ask` narrow).
 

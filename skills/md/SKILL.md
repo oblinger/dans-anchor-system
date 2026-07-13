@@ -11,6 +11,7 @@ user_invocable: true
 ---
 
 # MD — Markdown Utility Verbs
+requires:: vault, external:uv
 
 User-invokable utility skill that produces or maintains markdown artifacts (file trees, TOCs, dispatch tables, cards, track-changes diffs); bare `/md` opens the companion [[DAS markdown]] discipline.
 

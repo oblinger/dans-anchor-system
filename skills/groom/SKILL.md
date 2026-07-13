@@ -16,6 +16,7 @@ user_invocable: true
 ---
 
 # Groom — Frontier Planning + Backlog Maintenance
+requires:: vault, anchor-cli, skill:ask, facet:backlog, facet:query, facet:roadmap
 
 **The purpose of groom is to get all tasks that could be next for execution fully ready to be executed.** Those tasks are the **groom frontier** (per [[Query PRD]] § The groom frontier, F228): rows in the **`## Now` / `## Next` horizons** plus items **soon on the relevant roadmaps** (the next unmet milestone of `{slug} Roadmap.md`, when one exists). Grooming is *planning*, not just rebracketing: each frontier task leaves groom either genuinely executable — `[Ready]` with a declared `- **Next:**` step — or honestly parked behind its named `[Questions]` / `[Blocked]` / `[Waiting]` / `[Watching]` state. `/ask` then asks the user about the frontier's residue; `/crank` executes what groom readied.
 

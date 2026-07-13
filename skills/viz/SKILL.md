@@ -10,6 +10,7 @@ user_invocable: true
 ---
 
 # Viz — Visual Drafting
+requires:: vault, anchor-cli, external:ExcalidrawZ, external:graphviz, external:imagemagick, external:libreoffice, external:mmdc, external:node, external:pandoc, external:rsvg-convert, external:tectonic
 
 Produce visual artifacts. Use with a sub-action specifying the tool, since the choice of tool meaningfully affects the output.
 

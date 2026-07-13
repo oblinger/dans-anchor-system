@@ -5,6 +5,7 @@ user_invocable: true
 ---
 
 # /survey
+requires:: vault
 
 Skill spec for `/survey` — building multi-dimensional comparison tables across many entities, with a meta-survey sub-pattern for high-stakes comparisons.
 
