@@ -39,7 +39,7 @@ Item filename: `<MUSE_ITEMS_DIR>/MUSE YYYY-MM-DD X <title>.md` (date from audio 
 
 **Quick.md bullet shape** — driven by `MUSE_INLINE_MAX_CHARS` (default 80):
 - **Transcript ≤ 80 chars** — bullet is the raw transcript inline, no link, no `MUSE` marker: `- Thank you.`
-- **Transcript > 80 chars** — bullet is a Markdown link with the derived title as text and the item filename as href: `- [Camping trip with family and friends](MUSE 2026-07-03 A Camping trip with family and friends.md)`. Obsidian resolves by basename so no path prefix is needed.
+- **Transcript > 80 chars** — bullet is a Markdown link with the derived title as text and the URL-encoded item filename as href: `- [Camping trip with family and friends](MUSE%202026-07-03%20A%20Camping%20trip%20with%20family%20and%20friends.md)`. Spaces are `%20` because Obsidian cuts a Markdown-link URL at the first bare space (a plain-space URL would point at just `MUSE`). Obsidian resolves by basename so no path prefix is needed.
 
 The item file gets written to the archive folder in both cases; only whether Quick.md carries a link back changes.
 

@@ -32,9 +32,9 @@
     </dict>
 
     <key>StandardOutPath</key>
-    <string>/Users/oblinger/.claude/skills/muse/muse-ingest.log</string>
+    <string>/Users/oblinger/Library/Logs/muse-ingest.log</string>
 
     <key>StandardErrorPath</key>
-    <string>/Users/oblinger/.claude/skills/muse/muse-ingest.log</string>
+    <string>/Users/oblinger/Library/Logs/muse-ingest.log</string>
 </dict>
 </plist>
