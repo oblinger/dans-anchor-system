@@ -324,6 +324,47 @@ def _read_q_marker_count(target_path: Path) -> int:
     return count
 
 
+def _feature_doc_link(r: "Row", vault_index: dict,
+                      backlog_file: Path) -> Optional[str]:
+    """Wiki-link to the row's feature doc, else None (F235 — the feature doc is the
+    verification's home; V-entries link it first so the queue file never loses the
+    path to the feature's context). T-rows and doc-less F-rows return None.
+
+    F-numbers are per-anchor namespaces (F27), so `F220 — …` docs exist in several
+    anchors: pick the candidate sharing the longest path prefix with the backlog
+    (i.e. this anchor's own doc), and require it to be closer than the vault root."""
+    if not r.identifier or not r.identifier.startswith("F"):
+        return None
+    prefix = r.identifier.lower() + " —"
+    candidates: list[Path] = []
+    for bn, paths in vault_index.items():
+        stem = bn[:-3] if bn.endswith(".md") else bn
+        if stem.lower().startswith(prefix):
+            candidates.extend(paths)
+    if not candidates:
+        return None
+    bparts = backlog_file.parts
+
+    def common(p: Path) -> int:
+        n = 0
+        for a, b in zip(bparts, p.parts):
+            if a != b:
+                break
+            n += 1
+        return n
+
+    best = max(candidates, key=common)
+    # must share more than the vault root with the backlog — else it's another
+    # anchor's F<n> doc; fall back to the row-only link rather than mislink.
+    anchor_depth = common(best)
+    others = [c for c in candidates if c != best]
+    if others and anchor_depth <= max(common(c) for c in others):
+        return None  # ambiguous — don't guess
+    if anchor_depth < len(backlog_file.parts) - 3:
+        return None
+    return f"[[{best.stem}|{r.identifier}]]"
+
+
 def _row_q_count(r: "Row", vault_index: dict) -> int:
     """Pending-question count for a `[Questions]` row — the `(NQ)` the user sees.
     Prefer an explicit `[N Questions]` bracket; else count `Q<n> —` markers in the
@@ -746,7 +787,14 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
             q = verify_questions.get(r.identifier)
             qtxt = (_truncate_body(q, 240) if q
                     else "⚠ no concrete question — add a `- **Verify:** <yes/no question>` sub-bullet to the row")
-            body.append(f"- **V{i}** {link} — {qtxt} · **yes / no**")
+            # F235: the feature doc is the verification's home — link it first,
+            # demote the backlog-row link to a parenthesized `(row)` pointer.
+            doclink = _feature_doc_link(r, vault_index, backlog_file)
+            if doclink:
+                rowlink = re.sub(r"\|[^\]|]*\]\]$", "|row]]", link) if link.rstrip().endswith("]]") else link
+                body.append(f"- **V{i}** {doclink} ({rowlink}) — {qtxt} · **yes / no**")
+            else:
+                body.append(f"- **V{i}** {link} — {qtxt} · **yes / no**")
     if ready:
         body.append("## Ready")
         for r in ready:
