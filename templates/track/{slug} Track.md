@@ -1,6 +1,9 @@
+---
+description: ">>"
+---
 # {slug} Track
 
-| -[[{slug} Track]]- | :>><br>: work tracking + planning for the {{Full Name}} anchor |
+| -[[{slug} Track]]- | : >> |
 | --- | --- |
 | [[{slug} Backlog\|Backlog]] | workflow-state core (required for Track) |
 | [[{slug} queries\|queries]] | the consolidated question pile `/ask` builds and trims |
