@@ -1,7 +1,7 @@
 ---
 description: "{{one-sentence description of what this product is}}"
 ---
-:>>
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [prd markdown](hook://p/prd%20markdown)
 # {slug} PRD
 {{One sentence: what this product is and the need it serves.}}
 

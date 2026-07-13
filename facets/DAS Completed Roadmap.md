@@ -7,7 +7,7 @@ The migration target for completed milestones — preserves shipped milestone st
 
 | -[[DAS Completed Roadmap]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Completed Roadmap](hook://p/DAS%20Completed%20Roadmap) |
 | --- | --- |
-| Related | [[DAS Roadmap]],  [[DAS Design Folder]],  [[DAS Features]],  [[DAS Design Docs]],   |
+| Related | [[templates/completed-roadmap.md\|completed-roadmap template]],  [[DAS Roadmap]],  [[DAS Design Folder]],  [[DAS Features]],  [[DAS Design Docs]],   |
 | Examples | [[FEX Completed Roadmap\|example]],   |
 | Rules | [[R-completed-roadmap]],   |
 

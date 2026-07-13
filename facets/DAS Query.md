@@ -7,7 +7,7 @@ The asking surface: one `{slug} queries.md` per anchor, in `{slug} Track/`, that
 
 | -[[DAS Query]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Query](hook://p/DAS%20Query) |
 | --- | --- |
-| Related | [[DAS Ask]] (the skill that builds it),  [[DAS Status]],  [[DAS Messages]], |
+| Related | [[templates/query.md\|query template]],  [[DAS Ask]] (the skill that builds it),  [[DAS Status]],  [[DAS Messages]], |
 | Examples | [[SKA queries\|real instance (SKA anchor)]],   |
 | Rules | [[R-query]],   |
 
