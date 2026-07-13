@@ -4,6 +4,7 @@ description: "Active work tracking"
 # FCT Backlog
 
 **Location:** `{slug} Docs/{slug} Plan/{slug} Backlog.md`
+**Rules:** [[#RULESET R-backlog|R-backlog]]
 
 
 The backlog file (`{slug} Backlog.md`) holds ideas, low-priority tasks, and deferred work that don't belong on the active Todo or Roadmap yet. Items graduate to the Roadmap or Todo when they become priorities.

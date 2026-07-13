@@ -8,6 +8,7 @@ The migration target for completed milestones — preserves shipped milestone st
 
 **Related:** [[DAS Roadmap]],  [[DAS Design Folder]],  [[DAS Features]],  [[DAS Design Docs]]
 **Examples:** [[FEX Completed Roadmap\|example]]
+**Rules:** [[#RULESET R-completed-roadmap|R-completed-roadmap]]
 
 **TLDR** — One doc per anchor (when any milestone has migrated). Lives at `{slug} Design/{slug} Completed Roadmap.md`. Newest migrated milestone at top; standalone-completed-features groupings interleave between milestones. Cardinality: **one per anchor**.
 

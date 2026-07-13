@@ -10,6 +10,8 @@ The the work-surface facets (centralized in SKA per D08, but specified here).
 | [[Workflow Design\|Design]] |  |
 | Facets | [[DAS Backlog]],  [[DAS Features\|Features]],  [[DAS Inbox\|Inbox]],  [[DAS Icebox\|Icebox]],  [[DAS Messages\|Messages]],  [[DAS Log\|Log]],  [[DAS Query\|Query]],  [[DAS Status\|Status]],   |
 
+**Rules:** [[#RULESET R-track-group|R-track-group]]
+
 **Linkage** — this facet's existence ⟺ the anchor runs the ~~[[workflow]]~~ discipline; the two share one design folder, [[Workflow Design]] (hosted on the behavioral core), reachable from either page per [[SKA Decisions]] D10.
 
 # RULESET R-track-group
