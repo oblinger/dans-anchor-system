@@ -2,14 +2,14 @@
 description: Query facet — the format of an anchor's `{slug} queries.md`, the file `/ask` builds to ask the user questions. Rules about what a valid queries file looks like.
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Query](hook://p/DAS%20Query)
 # Queries Facet
 The asking surface: one `{slug} queries.md` per anchor, in `{slug} Track/`, that `/ask` builds and trims.
 
-| Related | [[DAS Ask]] (the skill that builds it),  [[DAS Status]],  [[DAS Messages]] |
+| -[[DAS Query]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Query](hook://p/DAS%20Query) |
 | --- | --- |
-| Examples | [[SKA queries\|real instance (SKA anchor)]] |
-| Rules | [[R-query]] |
+| Related | [[DAS Ask]] (the skill that builds it),  [[DAS Status]],  [[DAS Messages]], |
+| Examples | [[SKA queries\|real instance (SKA anchor)]],   |
+| Rules | [[R-query]],   |
 
 **TLDR** — One `{slug} queries.md` per anchor (cardinality: one), in `{slug} Track/`, owned by the `/ask` skill. Opens with the anchor's **status banner** (TAG + counts) as its H1, then the fixed five-section order (`## Agent Resolutions` → `## Verifications` → `## Immediate Questions` → `## Questions` → `## Ready`); empty sections omitted. Verifications are agent-run / user-judged — never "user runs X". Questions are self-contained or wiki-linked. The whole body is **copied verbatim into the anchor's `Q.md` section** (F231 — the query file is the queue-file content; there is no separate triage view). The file shrinks toward empty as answers are applied. Validated by `/audit doc` via `R-query`.
 

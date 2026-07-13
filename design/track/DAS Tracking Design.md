@@ -35,7 +35,7 @@ Tracking is the subsystem that keeps one shared picture of work state between th
 
 Tracking's contract: **the agent never asks piecemeal and the user never hunts for state** — questions consolidate into one pile, status renders into one glanceable banner, and every state change flows through one write path. Work state lives in **facet-shaped files** (the surfaces), is mutated only through the **`state` CLI** (the engine), and is operated by a small set of **verbs** (the skills). Two axes organize every work item: *horizon* (Now / Next / Later — when the user wants it) and *workflow state* (the bracket — whether it can proceed). The drive cluster (`/crank`, `/mint`, `/land`) consumes what tracking surfaces as Ready; tracking itself never executes work.
 
-In the table above, a skill's name links its docs dossier directly (the dossier's masthead links the runbook); a facet's name links its template, and the **docs** column links the facet spec, which leads with a Related / Examples / Rules head table — rules live in `rulesets/R-<name>.md` (Query and Status extracted 2026-07-12; the rest follow at their Phoenix pass).
+In the table above, a skill's name links its docs dossier directly (the dossier's masthead links the runbook); a facet's name links its template, and the **docs** column links the facet spec, which leads with its dispatch masthead (breadcrumb · Related · Examples · Rules · ToC) — rules live in `rulesets/R-<name>.md` (whole tracking group extracted 2026-07-12; other groups follow at their profile pass).
 
 ## Coordinated examples
 
