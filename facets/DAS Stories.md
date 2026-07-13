@@ -25,7 +25,7 @@ Facet spec for the user-stories surface of a PRD — defines the inline-bullet f
 **Related:** [[DAS PRD]],  [[DAS Testing]],  [[DAS Features]],  [[DAS Design Folder]]
 **Examples:** [[HBR PRD\|inline-stories (single-file form)]],  [[FEX Stories\|folder-form dispatch index (extracted stories)]]
 
-**TLDR** — Stories are part of the PRD. Small PRDs keep stories inline as bullets under `## User Stories`; large PRDs extract them to `{slug} PRD/` folder form with a `{slug} Stories.md` dispatch index and per-story `US-<SLUG>-<N> — <Title>.md` files. The two forms are mutually exclusive. **Cardinality: many** — a PRD in folder form can have any number of story files. The embedded `R-stories` ruleset enforces folder shape, naming, dispatch table structure, and bidirectional linking.
+**TLDR** — Stories are part of the PRD. Small PRDs keep stories inline as bullets under `## User Stories`; large PRDs extract them to `{slug} PRD/` folder form with a `{slug} Stories.md` dispatch index and per-story `US-<slug>-<N> — <Title>.md` files. The two forms are mutually exclusive. **Cardinality: many** — a PRD in folder form can have any number of story files. The embedded `R-stories` ruleset enforces folder shape, naming, dispatch table structure, and bidirectional linking.
 
 The Stories facet specifies the format for **user stories as first-class siblings** of the PRD. When a PRD grows enough that its user stories warrant their own scrollable pages (multi-paragraph rationale, acceptance criteria, mockups, decision history), the PRD migrates from single-file form to **folder form** — `{slug} PRD/` — and stories live as siblings indexed by `{slug} Stories.md`. Small PRDs whose stories compress to a single bullet each keep the inline `## User Stories` H2 inside `{slug} PRD.md` and never need this facet.
 
@@ -42,7 +42,7 @@ Stories are **part of the PRD**, not a separate design phase. Capturing them is 
 Stories live under `## User Stories` inside the PRD. Two inline shapes are valid, smallest first:
 
 - **Compact bullets** — one bullet per story, one sentence each. Right when a one-line description conveys everything a downstream reader needs.
-- **Inline `### US-<SLUG>-N` subsections** — each story gets a short `### US-<SLUG>-N — <Title>` H3 carrying the canonical `As a … I want … so that …` sentence plus a single `**Acceptance:**` line. Optionally fronted by a compact index table grouping the stories (e.g. by pipeline stage). This is the right inline shape once stories deserve an explicit identifier and acceptance line but still don't warrant their own scrollable pages. The maximal worked example ([[HBR PRD]]) uses exactly this shape — US-HBR-1..5 grouped Ingest / Serve / Operate.
+- **Inline `### US-<slug>-N` subsections** — each story gets a short `### US-<slug>-N — <Title>` H3 carrying the canonical `As a … I want … so that …` sentence plus a single `**Acceptance:**` line. Optionally fronted by a compact index table grouping the stories (e.g. by pipeline stage). This is the right inline shape once stories deserve an explicit identifier and acceptance line but still don't warrant their own scrollable pages. The maximal worked example ([[HBR PRD]]) uses exactly this shape — US-HBR-1..5 grouped Ingest / Serve / Operate.
 
 Either way the stories stay **inside `{slug} PRD.md`** — no separate Stories facet file is created. This is the right shape for most PRDs.
 
@@ -53,8 +53,8 @@ Either way the stories stay **inside `{slug} PRD.md`** — no separate Stories f
 ├── .anchor                                        ← marker (optional)
 ├── {slug} PRD.md                                  ← main PRD content (anchor file)
 ├── {slug} Stories.md                              ← stories dispatch index (NOT an anchor file)
-├── US-<SLUG>-1 — <Story Title>.md                  ← individual story files
-├── US-<SLUG>-2 — <Story Title>.md
+├── US-<slug>-1 — <Story Title>.md                  ← individual story files
+├── US-<slug>-2 — <Story Title>.md
 └── ...
 ```
 
@@ -81,13 +81,13 @@ See the audited live instance [[FEX Stories]] for the rendered form, and [[Forum
 
 The table is the file's load-bearing content — a reader scanning Stories.md sees every story name and its one-line gist in one screen. The story files themselves carry the full content.
 
-**Row ordering:** by `US-<SLUG>-N` ascending (monotonic-forever numbering — see § Naming convention). New stories append at the bottom; never re-number, never re-order.
+**Row ordering:** by `US-<slug>-N` ascending (monotonic-forever numbering — see § Naming convention). New stories append at the bottom; never re-number, never re-order.
 
 ## Story file shape
 
-Each `US-<SLUG>-N — <Title>.md` file is body-only. Standard structure, top to bottom:
+Each `US-<slug>-N — <Title>.md` file is body-only. Standard structure, top to bottom:
 
-- **H1** — `# US-<SLUG>-<N> — <Title>` (matches the filename exactly — R-stories-07).
+- **H1** — `# US-<slug>-<N> — <Title>` (matches the filename exactly — R-stories-07).
 - **`description::` line** — one-line summary identical to the row in `{slug} Stories.md`.
 - **NO dispatch table.** A story file is **not an anchor** — per [[DAS Doc Structure]] `R-doc-structure-02` it MUST NOT carry a breadcrumb-masthead dispatch table. Back-links to `[[{slug} PRD]]` (parent), `[[{slug} Stories]]` (sibling index), and `~~[[FCT Stories]]~~` (facet spec) live in the `## Related` section at the bottom, not in a top table.
 - **`## As a <role>, I want <goal> so that <reason>`** — the canonical user-story sentence (required — R-stories-11). One line. Everything below is recommended but optional.
@@ -102,9 +102,9 @@ See the audited live instances [[DAS US-CAE-1 — Schedule a Task]] and [[DAS US
 
 ## Naming convention
 
-- **Story identifier:** `US-<SLUG>-<N>` — where `<SLUG>` is the anchor's slug (e.g., `MUX`, `CAE`, `DKT`) and `<N>` is a monotonic-forever integer, never recycled. Zero-padding optional but encouraged once the count crosses 10 (`US-MUX-01` ... `US-MUX-99`).
-- **Story file:** `US-<SLUG>-<N> — <Title>.md` — identifier + em-dash + short title. Title is 3-7 words capturing the story's gist; reads as a noun phrase.
-- **Title may evolve** without renaming the file — the file's load-bearing identifier is `US-<SLUG>-<N>`. If the title needs a big change, rename the file but keep the same `<N>`.
+- **Story identifier:** `US-<slug>-<N>` — where `<slug>` is the anchor's slug (e.g., `MUX`, `CAE`, `DKT`) and `<N>` is a monotonic-forever integer, never recycled. Zero-padding optional but encouraged once the count crosses 10 (`US-MUX-01` ... `US-MUX-99`).
+- **Story file:** `US-<slug>-<N> — <Title>.md` — identifier + em-dash + short title. Title is 3-7 words capturing the story's gist; reads as a noun phrase.
+- **Title may evolve** without renaming the file — the file's load-bearing identifier is `US-<slug>-<N>`. If the title needs a big change, rename the file but keep the same `<N>`.
 
 ## Wiki-link conventions
 
@@ -123,7 +123,7 @@ Any anchor with a PRD. Activated via [[DAS Design Folder]] facet (the `{slug} De
 A progression of increasing weight — adopt the lightest form that fits:
 
 - **Compact bullets (default).** One-sentence bullets under `## User Stories` in `{slug} PRD.md`. The right shape for most PRDs.
-- **Inline `### US-<SLUG>-N` subsections** when stories deserve a stable identifier and an explicit acceptance line but still fit comfortably inside the PRD. Each story is a short H3 with the canonical sentence + one `**Acceptance:**` line, optionally fronted by a grouping index table (see [[HBR PRD]]).
+- **Inline `### US-<slug>-N` subsections** when stories deserve a stable identifier and an explicit acceptance line but still fit comfortably inside the PRD. Each story is a short H3 with the canonical sentence + one `**Acceptance:**` line, optionally fronted by a grouping index table (see [[HBR PRD]]).
 - **Folder form (extracted stories) when ≥ 1 story qualifies as "needs its own page":** acceptance criteria more than 3 bullets, multi-paragraph rationale, mockups embedded, decision-history needed, story spawns embedded RULES. Migration extracts ALL stories — not just the heavy ones — for consistency.
 - **Never mix inline stories and an extracted `{slug} Stories.md` in the same PRD.** Inline (either inline shape) and folder form are mutually exclusive — pick one per PRD.
 
@@ -134,7 +134,7 @@ A progression of increasing weight — adopt the lightest form that fits:
 ## See also
 
 - [[DAS PRD]] — parent facet; references this one as the "stories sub-facet" when folder form is used
-- [[DAS Testing]] — sibling Design facet; e2e tests reference user stories by `US-<SLUG>-<N>`
+- [[DAS Testing]] — sibling Design facet; e2e tests reference user stories by `US-<slug>-<N>`
 - [[DAS Features]] — feature docs carry a `Realizes:` line linking back to the stories they implement
 - [[design-prd]] — authoring sub-skill; capturing user stories is an explicit step in PRD design
 - [[HBR PRD]] — worked example (currently single-file form; will migrate to folder form when CAE stories grow)
@@ -162,19 +162,19 @@ When PRD is in folder form, a `{slug} Stories.md` file exists inside `{slug} PRD
 
 **Why:** the stories index is the surface readers reach for to see "what user stories does this product serve?" Without it, story files are an unbrowsable folder listing.
 
-### RULE R-stories-03 — Story files match `US-<SLUG>-<N> — <Title>.md` (sampled)
+### RULE R-stories-03 — Story files match `US-<slug>-<N> — <Title>.md` (sampled)
 
 Every story file's name matches the pattern `^US-{slug}-\d+\s+—\s+.+\.md$` where `{slug}` is the anchor's slug.
 
 **Check pattern:** enumerate non-dispatch files in `{slug} PRD/`; assert each matches the pattern.
 
-**Why:** the `US-<SLUG>-<N>` identifier is the load-bearing handle used by features (`Realizes: US-<SLUG>-<N>`) and tests (`Exercises: US-<SLUG>-<N>`). Off-pattern names break those references.
+**Why:** the `US-<slug>-<N>` identifier is the load-bearing handle used by features (`Realizes: US-<slug>-<N>`) and tests (`Exercises: US-<slug>-<N>`). Off-pattern names break those references.
 
 ### RULE R-stories-04 — `<N>` is monotonic-forever (stated)
 
 Story numbers are monotonic-forever within the anchor — never recycled, never re-ordered. A retired story keeps its number; new stories append at the next unused integer.
 
-**Check pattern:** git history — assert no rename collapses two `US-<SLUG>-<N>` numbers; assert no story file with number `<N>` is followed by a different story file with the same number after a rename.
+**Check pattern:** git history — assert no rename collapses two `US-<slug>-<N>` numbers; assert no story file with number `<N>` is followed by a different story file with the same number after a rename.
 
 **Why:** stable identifiers across feature docs, e2e tests, decision docs, and external references. Recycling a number silently breaks every downstream link.
 
@@ -196,7 +196,7 @@ Every story file's body contains a wiki-link to `[[{slug} PRD]]` — in its `## 
 
 ### RULE R-stories-07 — Story file's H1 matches its identifier (checked)
 
-The H1 of `US-<SLUG>-<N> — <Title>.md` is exactly `# US-<SLUG>-<N> — <Title>` (matching the filename).
+The H1 of `US-<slug>-<N> — <Title>.md` is exactly `# US-<slug>-<N> — <Title>` (matching the filename).
 
 **Check pattern:** for each story file, first non-blank line is `# ` + filename basename without `.md`.
 
@@ -228,7 +228,7 @@ Where a story file or the `{slug} Stories.md` dispatch references the governing 
 
 ### RULE R-stories-11 — Folder-form story files carry the canonical `As a …` sentence (sampled)
 
-Every `US-<SLUG>-N — <Title>.md` file contains the canonical user-story sentence in the form `As a <role>, I want <goal> so that <reason>` — typically as an H2 (`## As a …`) or the first body line. A story file without it is a stub, not a story.
+Every `US-<slug>-N — <Title>.md` file contains the canonical user-story sentence in the form `As a <role>, I want <goal> so that <reason>` — typically as an H2 (`## As a …`) or the first body line. A story file without it is a stub, not a story.
 
 **Check pattern:** for each story file, grep for `(?i)^#*\s*As an?\s+.+\bI want\b.+\bso that\b`.
 
@@ -237,11 +237,11 @@ Every `US-<SLUG>-N — <Title>.md` file contains the canonical user-story senten
 ### RULE R-stories-12 — Story files and the index carry no dispatch table (checked)
 check:: no_dispatch_table
 
-Neither a `US-<SLUG>-<N> — <Title>.md` story file nor the `{slug} Stories.md` index is an anchor, so per [[DAS Doc Structure]] `R-doc-structure-02` neither may carry a breadcrumb-masthead **dispatch table**. Story files put parent/sibling back-links in `## Related`; the index's story-list table is a permitted specialized content table (a header row plus story rows), not a dispatch table.
+Neither a `US-<slug>-<N> — <Title>.md` story file nor the `{slug} Stories.md` index is an anchor, so per [[DAS Doc Structure]] `R-doc-structure-02` neither may carry a breadcrumb-masthead **dispatch table**. Story files put parent/sibling back-links in `## Related`; the index's story-list table is a permitted specialized content table (a header row plus story rows), not a dispatch table.
 
 **Check pattern:** for each story file and `{slug} Stories.md`, assert NO line matches the dispatch-masthead pattern `^\| -\[\[.+\]\]- \|`.
 
-**Why:** stories are short, non-anchor documents; a breadcrumb masthead falsely implies they root a subtree and pushes the one sentence that matters below the fold. This rule is what makes a `US-<SLUG>-<N>` file (or a Stories index) with a masthead fail — the failure the cleanup of 2026-06-14 corrected.
+**Why:** stories are short, non-anchor documents; a breadcrumb masthead falsely implies they root a subtree and pushes the one sentence that matters below the fold. This rule is what makes a `US-<slug>-<N>` file (or a Stories index) with a masthead fail — the failure the cleanup of 2026-06-14 corrected.
 
 # BRIEF
 
@@ -249,4 +249,4 @@ Neither a `US-<SLUG>-<N> — <Title>.md` story file nor the `{slug} Stories.md` 
 
 - **Spec, not a catalog** — keep the body abstract and shape-focused; worked stories belong in per-anchor PRDs ([[HBR PRD]]), never inlined here. Inclusion test: content belongs here only if it governs the *structure* of stories or the `{slug} Stories.md` index across all anchors — trait-specific variations (Paper / Topic / Simple) live with those traits, PRD-wide rules in [[DAS PRD]], and cross-facet integrity (story ↔ feature ↔ test) is *referenced* here but defined in the respective specs.
 - **`RULESET R-stories` numbers are externally referenced** — rule numbers (R-stories-01..12) must stay monotonic and stable; never renumber, never recycle a retired number. Its `where::` deliberately selects only the Stories-facet files (`{slug} Stories.md` + `US-*.md`), NOT the PRD (which [[DAS PRD]] governs).
-- **Cross-ref coordination:** the inline/folder mutual-exclusivity is load-bearing for `/design prd` detection logic — don't introduce a hybrid form without updating [[DAS PRD]] and [[design-prd]] in the same edit; likewise, any change to the `US-<SLUG>-<N>` identifier shape (the handle for features `Realizes:` / tests `Exercises:`) must update [[DAS Features]] and [[DAS Testing]] in the same edit.
+- **Cross-ref coordination:** the inline/folder mutual-exclusivity is load-bearing for `/design prd` detection logic — don't introduce a hybrid form without updating [[DAS PRD]] and [[design-prd]] in the same edit; likewise, any change to the `US-<slug>-<N>` identifier shape (the handle for features `Realizes:` / tests `Exercises:`) must update [[DAS Features]] and [[DAS Testing]] in the same edit.

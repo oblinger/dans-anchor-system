@@ -32,7 +32,7 @@ This is what *most* project anchors look like: Masthead only.
 
 ## 2 — Member groups with `+` ([[DAS Skills]])
 
-`[[SKL]]` is the user-facing skill library — a [[Collection]] with **many** members (every published skill), so it uses **member groups**: rows like [[SKL Anchor|Anchor]], [[SKL Hygiene|Hygiene]], [[SKL Doc|Doc]], [[SKL Search|Search]] — each with a trailing `+`. The **`+`** marks each group row as *expandable* — it's itself a dispatch page of its members. This is the > 15 grouped layout (the [[progressive-disclosure]] size rule; the graduation from flat→grouped is [[granularity]]).
+`[[DAS]]` is the user-facing skill library — a [[Collection]] with **many** members (every published skill), so it uses **member groups**: rows like [[SKL Anchor|Anchor]], [[SKL Hygiene|Hygiene]], [[SKL Doc|Doc]], [[SKL Search|Search]] — each with a trailing `+`. The **`+`** marks each group row as *expandable* — it's itself a dispatch page of its members. This is the > 15 grouped layout (the [[progressive-disclosure]] size rule; the graduation from flat→grouped is [[granularity]]).
 
 ## 3 — Flat member list ([[SKA Access]])
 

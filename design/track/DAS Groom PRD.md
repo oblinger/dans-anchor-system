@@ -25,7 +25,7 @@ description: "product requirements"
 
 ## User Stories
 
-- As the user, I run `/groom` on a messy backlog and get a tidied, well-numbered, link-clean backlog where every frontier item is executable, questioned, blocked, verifying, or watching — and everything needing my input is consolidated in `{NAME} queries.md`, not scattered in chat.
+- As the user, I run `/groom` on a messy backlog and get a tidied, well-numbered, link-clean backlog where every frontier item is executable, questioned, blocked, verifying, or watching — and everything needing my input is consolidated in `{slug} queries.md`, not scattered in chat.
 
 ## Key decisions
 

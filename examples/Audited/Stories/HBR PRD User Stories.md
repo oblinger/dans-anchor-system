@@ -1,7 +1,7 @@
 # HBR PRD User Stories
 description:: audited excerpt — the inline `## User Stories` section of HBR PRD (inline-subsection form, US-HBR-1..5)
 
-This is the audited rendering of the **inline-subsection form** of the Stories facet — the `## User Stories` section as it lives inside [[HBR PRD]]. Inline form keeps the stories inside the PRD (no separate `{slug} Stories.md`); each story is a short `### US-<RID>-N` subsection with the canonical `As a … I want … so that …` sentence plus one `**Acceptance:**` line, fronted by a grouping index table. This is the good shape once stories deserve stable identifiers + an acceptance line but still don't warrant their own pages.
+This is the audited rendering of the **inline-subsection form** of the Stories facet — the `## User Stories` section as it lives inside [[HBR PRD]]. Inline form keeps the stories inside the PRD (no separate `{slug} Stories.md`); each story is a short `### US-<slug>-N` subsection with the canonical `As a … I want … so that …` sentence plus one `**Acceptance:**` line, fronted by a grouping index table. This is the good shape once stories deserve stable identifiers + an acceptance line but still don't warrant their own pages.
 
 ## User Stories
 

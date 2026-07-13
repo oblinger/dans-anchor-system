@@ -417,12 +417,12 @@ A skill anchor IS a CAB anchor — `SKILL.md` is the agent-loaded code, the rest
 - [ ] YAML frontmatter has `user_invocable:` field (boolean — `true` for invocable skills, `false` for disciplines)
 - [ ] If invocable: contains Actions dispatch table mapping `/skill action` to workflow files
 - [ ] Every action file referenced in the dispatch table exists
-- [ ] Top of body links to user docs: `User docs: [[SKL {Slug}]]` and (optionally) `Anchor page: [[{Slug}]]`
+- [ ] Top of body links to user docs: `User docs: [[DAS {Slug}]]` and (optionally) `Anchor page: [[{Slug}]]`
 
 ## {Slug}.md (anchor root page)
 
 - [ ] File exists at folder root, name = Title Case slug (e.g., `Groom.md`, `Backlog.md`)
-- [ ] Skill-specific first dispatch row: `Skill | [[{folder}/SKILL\|SKILL.md]], [[SKL {Slug}\|User Docs]]`
+- [ ] Skill-specific first dispatch row: `Skill | [[{folder}/SKILL\|SKILL.md]], [[DAS {Slug}|User Docs]]`
 - [ ] Second dispatch row: `[[{Slug} Plan\|Plan]]+ | [[{Slug} PRD\|PRD]], [[{Slug} Backlog\|Backlog]], [[{Slug} Features\|Features]]`
 - [ ] No `Dev` row — skill anchors don't have one (SKILL.md *is* the code)
 - [ ] No `User` row — skill anchors don't have one (user docs live in the SKL tree)
@@ -451,7 +451,7 @@ A skill anchor IS a CAB anchor — `SKILL.md` is the agent-loaded code, the rest
 **This is required for every skill that ships user docs.** The SKA Skills table is the user-facing index — a skill that isn't in it is invisible to users browsing the anchor.
 
 - [ ] Skill is referenced from the Skills table in `~/.claude/skills/SKA.md` (or `Bespoke/Skill Agent/SKA.md`)
-- [ ] Cell format: `**[[SKL {Slug}\|{folder}]]**` — link target is the SKL user-doc, display alias is the folder name (so the user sees `mode`, `groom`, etc., as it appears in `/<command>`)
+- [ ] Cell format: `**[[DAS {Slug}|{folder}]]**` — link target is the SKL user-doc, display alias is the folder name (so the user sees `mode`, `groom`, etc., as it appears in `/<command>`)
 - [ ] Placed in the appropriate column based on the skill's purpose:
   - **Workflow** — feature, groom, land, roster, ask, crank, audit (skills that move work through states)
   - **Build / Code** — code, fortify, mint (skills that produce or harden code)

@@ -33,7 +33,7 @@ A discipline earns a spot in this catalog when:
 
 Examples of patterns that earn a discipline entry: how to surface per-file editing rules (Brief), how to declare an external code repo (Linked Mode), the dispatch-table convention.
 
-Examples of patterns that don't: a single project-wide rule (belongs in CLAUDE.md), a single rule about markdown rendering (belongs in `R-md`), a property of one specific anchor (belongs in `{NAME} Decisions.md`).
+Examples of patterns that don't: a single project-wide rule (belongs in CLAUDE.md), a single rule about markdown rendering (belongs in `R-md`), a property of one specific anchor (belongs in `{slug} Decisions.md`).
 
 ## How to add a discipline
 

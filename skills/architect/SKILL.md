@@ -206,7 +206,7 @@ When `~/ob/kmr/Q.md` is present: after the architecture pass commits, regenerate
 When the script is present, invoke the architecture audit on the touched anchor's reachability set:
 
 ```bash
-~/.claude/skills/audit/scripts/audit-architecture.py --scope anchor --anchor <NAME>
+~/.claude/skills/audit/scripts/audit-architecture.py --scope anchor --anchor <slug>
 ```
 
 The audit checks two structural rules over the anchor's Arch docs: (R1) diagram-at-top + component-table-immediately-after, and (R2) wiki-link integrity on every module reference in component tables. Non-zero findings are **surfaced inline but do NOT block the mint** — they're reported, and (when the violation is the agent's own work this turn) addressed in the same pass; or filed as a backlog row for downstream cleanup. Pass `--fix` to apply A3 wrap-in-brackets auto-fixes when the basename match is unambiguous. Full rule reference: `[[F015 — Audit architecture]]`; runbook: `[[audit-architecture]]`.

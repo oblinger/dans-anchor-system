@@ -37,7 +37,7 @@ For a worked facet, open an example in the dispatch table above — there is no 
 # Facet Overview
 A **facet** is a narrow, usually file-based aspect of an anchor — one specific structural feature (a `Backlog` file, an `Architecture` doc, a website subfolder), defined by its own spec doc and detected (by default) through file-existence. This page is the spec for *the facet kind itself*: what a facet is and the shape every facet spec doc takes. It is the singular **definition**; [[FCT Facets]] (plural) is the **index** of all concrete facets.
 
-A facet **defines a kind**. The concrete `<NAME> Backlog.md` inside a real project is an *instance* of the Backlog facet, not a facet itself — keep the two apart.
+A facet **defines a kind**. The concrete `<slug> Backlog.md` inside a real project is an *instance* of the Backlog facet, not a facet itself — keep the two apart.
 
 Facets are one of the two kinds of [[DAS Aspects|Aspect]] — the narrow, file-based kind; the broad declared-paradigm kind is the [[DAS Traits|Trait]] (full distinction: [[DAS Aspects]] § Trait vs Facet). The shared model lives in [[DAS Aspects]]; this page is the facet-authoring view of it.
 

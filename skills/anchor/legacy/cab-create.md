@@ -95,7 +95,7 @@ Base + Docs + version table on the anchor page.
 `SKILL.md` with frontmatter instead of standard anchor page. Also:
 - Create `SKL User Docs/SKL {Name} Guide.md` — user-facing documentation
 - Add a row to `SKL User Docs/SKL User Guide.md` index
-- Add `[[SKL {Name} Guide\|{Name} Guide]]` as first link in the SKA dispatch table row for this skill
+- Add `[[DAS {Name} Guide|{Name} Guide]]` as first link in the SKA dispatch table row for this skill
 
 ## Step 5: Wire Dispatch Tables
 

@@ -73,6 +73,6 @@ CSE describes a fictional skill `/cse` with one example action `/cse demo`. The 
 *(Maintainer note — exemplar-specific cautions for whoever edits this anchor. CSE follows the CAB Skill-trait specs; the normative shapes live there, not here.)*
 
 - **Not a working skill** — the `/cse` skill and its `demo` action are illustrative placeholders; don't wire CSE into real workflows or treat it as a dependency.
-- **Inclusion test for changes** — add or change content here only when it makes the example more faithful to the canonical Skill-trait shape per current CAB specs. Code-trait examples belong in [[HBR]]; a change that would teach a new general rule (or cross-trait / generic CAB content) belongs in the relevant ~~[[CAB]]~~ facet, then gets reflected here.
+- **Inclusion test for changes** — add or change content here only when it makes the example more faithful to the canonical Skill-trait shape per current CAB specs. Code-trait examples belong in [[HBR]]; a change that would teach a new general rule (or cross-trait / generic CAB content) belongs in the relevant ~~[[DAS]]~~ facet, then gets reflected here.
 - **Keep aligned with live CAB specs** — when Skill-trait conventions change (dispatch row shape, folder layout, SKL location), update CSE in the same pass; a stale exemplar misleads readers more than a missing one.
 - **The dispatch first row is cited as the reference** — other docs point at the `skill` row (§ How a skill anchor differs) as the canonical first-row shape for skill anchors; don't split it into separate Dev/User rows or rename it.
