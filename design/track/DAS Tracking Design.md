@@ -8,34 +8,34 @@ Tracking is the subsystem that keeps one shared picture of work state between th
 
 ![[DAS Tracking Design.svg|3000]]
 
-| **Skills** |  |  |
-| --- | --- | --- |
-| [[skills/ask/SKILL.md\|/ask]] | [[DAS Ask\|docs]] | Eliminate every question the agent can; consolidate the residue into `{slug} queries.md`; render Q.md. |
-| [[skills/groom/SKILL.md\|/groom]] | [[DAS Groom\|docs]] | Frontier planning: get every could-be-next item fully Ready or parked with its blocking question. |
-| [[skills/design/SKILL.md\|/design]] | [[DAS Plan\|docs]] | Once-per-project planning orchestrator — drives the anchor's planning artifacts to completeness. |
-|  |  |  |
-| **Facets** |  |  |
-| [[templates/backlog.md\|Backlog]] | [[DAS Backlog\|docs]] | The work queue: rows carrying bracket × horizon, F/T-numbered, block-anchored. |
-| [[templates/query.md\|Query]] | [[DAS Query\|docs]] | The consolidated question pile (`{slug} queries.md`) — banner + body copied verbatim into Q.md. |
-| [[templates/status.md\|Status]] | [[DAS Status\|docs]] | Per-facet planning status via the monotonic tier ladder. |
-| [[templates/roadmap.md\|Roadmap]] | [[DAS Roadmap\|docs]] | Forward-looking milestone state, named `M-<Name>` entries. |
-| [[templates/completed-roadmap.md\|Completed Roadmap]] | [[DAS Completed Roadmap\|docs]] | Migration target for shipped milestones, newest at top. |
-| [[templates/log.md\|Log]] | [[DAS Log\|docs]] | Append-only dated history stream — what happened on what day. |
-| [[templates/messages.md\|Messages]] | [[DAS Messages\|docs]] | Inter-agent background notes (vs. user-dropped Inbox input). |
-| [[DAS Track\|Track]] | [[DAS Track\|docs]] | The `{slug} Track/` folder shape that houses the surfaces above. |
-|  |  |  |
-| **Traits** |  |  |
-| [[Track]] | — | Declares the anchor is actively driven through the planning + backlog lifecycle — turns on the `{slug} Track/` tree and the verbs above; co-requires the Backlog facet. |
-|  |  |  |
-| **Library** |  |  |
-| **`state` CLI** | [[SKL State\|docs]] | The single write path for rows, questions, statuses, roadmaps; every mutation triggers the Q.md render. |
-| **`queries-render.py`** | — | Mechanical renderer — rebuilds `{slug} queries.md` and copies it into Q.md after every mutation. |
+| **Skills**                                            |                                 |                                                                                                                                                                         |
+| ----------------------------------------------------- | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [[DAS Ask\|/ask]] |  | Eliminate every question the agent can; consolidate the residue into `{slug} queries.md`; render Q.md. |
+| [[DAS Groom\|/groom]] |  | Frontier planning: get every could-be-next item fully Ready or parked with its blocking question. |
+| [[DAS Plan\|/design]] |  | Once-per-project planning orchestrator — drives the anchor's planning artifacts to completeness. |
+|                                                       |                                 |                                                                                                                                                                         |
+| **Facets**                                            |                                 |                                                                                                                                                                         |
+| [[templates/backlog.md\|Backlog]]                     | [[DAS Backlog\|docs]]           | The work queue: rows carrying bracket × horizon, F/T-numbered, block-anchored.                                                                                          |
+| [[templates/query.md\|Query]]                         | [[DAS Query\|docs]]             | The consolidated question pile (`{slug} queries.md`) — banner + body copied verbatim into Q.md.                                                                         |
+| [[templates/status.md\|Status]]                       | [[DAS Status\|docs]]            | Per-facet planning status via the monotonic tier ladder.                                                                                                                |
+| [[templates/roadmap.md\|Roadmap]]                     | [[DAS Roadmap\|docs]]           | Forward-looking milestone state, named `M-<Name>` entries.                                                                                                              |
+| [[templates/completed-roadmap.md\|Completed Roadmap]] | [[DAS Completed Roadmap\|docs]] | Migration target for shipped milestones, newest at top.                                                                                                                 |
+| [[templates/log.md\|Log]]                             | [[DAS Log\|docs]]               | Append-only dated history stream — what happened on what day.                                                                                                           |
+| [[templates/messages.md\|Messages]]                   | [[DAS Messages\|docs]]          | Inter-agent background notes (vs. user-dropped Inbox input).                                                                                                            |
+| [[DAS Track\|Track]]                                  | [[DAS Track\|docs]]             | The `{slug} Track/` folder shape that houses the surfaces above.                                                                                                        |
+|                                                       |                                 |                                                                                                                                                                         |
+| **Traits**                                            |                                 |                                                                                                                                                                         |
+| [[Track]]                                             | —                               | Declares the anchor is actively driven through the planning + backlog lifecycle — turns on the `{slug} Track/` tree and the verbs above; co-requires the Backlog facet. |
+|                                                       |                                 |                                                                                                                                                                         |
+| **Library**                                           |                                 |                                                                                                                                                                         |
+| **`state` CLI**                                       | [[SKL State\|docs]]             | The single write path for rows, questions, statuses, roadmaps; every mutation triggers the Q.md render.                                                                 |
+| **`queries-render.py`**                               | —                               | Mechanical renderer — rebuilds `{slug} queries.md` and copies it into Q.md after every mutation.                                                                        |
 
 ## Overview
 
 Tracking's contract: **the agent never asks piecemeal and the user never hunts for state** — questions consolidate into one pile, status renders into one glanceable banner, and every state change flows through one write path. Work state lives in **facet-shaped files** (the surfaces), is mutated only through the **`state` CLI** (the engine), and is operated by a small set of **verbs** (the skills). Two axes organize every work item: *horizon* (Now / Next / Later — when the user wants it) and *workflow state* (the bracket — whether it can proceed). The drive cluster (`/crank`, `/mint`, `/land`) consumes what tracking surfaces as Ready; tracking itself never executes work.
 
-In the table above, the left column links the thing itself (skill runbook, facet template, trait spec); the **docs** column links its documentation, which carries the item's rules at the top — facet docs are the facet specs, which embed their `# RULESET` blocks per the F133 co-location convention.
+In the table above, a skill's name links its docs dossier directly (the dossier's masthead links the runbook); a facet's name links its template, and the **docs** column links the facet spec, which leads with a Related / Examples / Rules head table — rules live in `rulesets/R-<name>.md` (Query and Status extracted 2026-07-12; the rest follow at their Phoenix pass).
 
 ## Coordinated examples
 
