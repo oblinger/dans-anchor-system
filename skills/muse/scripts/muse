@@ -194,7 +194,10 @@ ingest_one() {
         inline="$(printf '%s' "$text" | tr '\n' ' ')"
         bullet="- $inline"
     else
-        bullet="- [$title]($item_base.md)"
+        # URL-encode spaces in the Markdown link href (Obsidian cuts markdown
+        # link URLs at the first bare space, which points every link at MUSE)
+        local url_encoded="${item_base// /%20}.md"
+        bullet="- [$title]($url_encoded)"
     fi
     prepend_line "$MUSE_QUICK_FILE" "$bullet"
 
