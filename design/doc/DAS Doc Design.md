@@ -4,7 +4,7 @@ description: Subsystem design for the Doc group — the authoring verbs that sha
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Doc Design](hook://p/DAS%20Doc%20Design)
 # DAS Doc Design — the design of the Doc subsystem
-Doc is the authoring subsystem: its verbs shape a document's structure (`/md`), illustrate it (`/viz`), polish its prose (`/redline`), route it from the vault-wide glossary (`/atlas`), and round-trip its content with the outside document apps (`/io`).
+Doc is the authoring subsystem: its verbs shape a document's structure (`/md`), illustrate it (`/viz`), polish its prose (`/redline`), and round-trip its content with the outside document apps (`/io`).
 
 ![[DAS Doc Design.svg|3000]]
 
@@ -13,7 +13,6 @@ Doc is the authoring subsystem: its verbs shape a document's structure (`/md`), 
 | [[DAS MD\|/md]]                            | Markdown utility verbs — TOC, dispatch tables, cards, file-trees, track-changes.                          |
 | [[DAS Viz\|/viz]]                          | Visual drafting — hand-written SVG, excalidraw, charts, mermaid, dot, slides, docx/pdf export.            |
 | [[redline/SKILL\|/redline]]                | Collaborative text polish — section mode with writeback, file mode with versioned dated copies.           |
-| [[atlas/SKILL\|/atlas]]                    | Maintain the vault-wide glossary/router ([[Atlas]]) — routing, not duplication.                           |
 | [[DAS IO\|/io]]                            | External I/O — Google Sheets / Slides / Docs / Drive, Apple Mail, Notion.                                 |
 |                                            |                                                                                                          |
 | **Facets**                                 |                                                                                                          |
@@ -34,7 +33,7 @@ Doc is the authoring subsystem: its verbs shape a document's structure (`/md`), 
 
 ## Overview
 
-Doc's contract: **every document conforms to a facet, and the verbs keep it that way.** The [[DAS markdown]] discipline sets the writing form (definition lists, wiki-links live, no markdown inside fences); the facet specs say what each document *kind* owes its reader; the `/md` verbs mechanically maintain the derived structure (TOCs, dispatch tables, cards) so hand-editing never drifts it. `/viz` produces every figure with an editable source beside the export (per [[feedback_figure_source_alongside_output|the source-alongside-output rule]] — `.excalidraw`/`.d2`/`.py` next to `.svg`/`.png`); `/redline` polishes prose without stealing the author's voice; `/atlas` keeps the one vault-wide router current. `/io` is the boundary crossing: content moves to and from Google Workspace, Apple Mail, and Notion through one interface.
+Doc's contract: **every document conforms to a facet, and the verbs keep it that way.** The [[DAS markdown]] discipline sets the writing form (definition lists, wiki-links live, no markdown inside fences); the facet specs say what each document *kind* owes its reader; the `/md` verbs mechanically maintain the derived structure (TOCs, dispatch tables, cards) so hand-editing never drifts it. `/viz` produces every figure with an editable source beside the export (per [[feedback_figure_source_alongside_output|the source-alongside-output rule]] — `.excalidraw`/`.d2`/`.py` next to `.svg`/`.png`); `/redline` polishes prose without stealing the author's voice. `/io` is the boundary crossing: content moves to and from Google Workspace, Apple Mail, and Notion through one interface.
 
 Boundaries: **structure rules are Doc's, firing is Hygiene's** — the R-markdown family is authored here and enforced by Warden and `/audit`. **Progressive disclosure is anchor navigation** — the dispatch-table and preface-zone disciplines belong to the Anchor group; Doc's verbs build the tables mechanically to that spec. **Figures serve every group** — the other subsystem profiles' figures are `/viz` products; the toolchain lives here.
 
@@ -45,6 +44,6 @@ Doc is illustrated by the vault's own high-traffic pages — every dispatch mast
 ## Design record
 
 - [[DAS MD Design]] · [[DAS Viz Design]] — per-verb design docs.
-- **Grouping (agent, 2026-07-14):** `/redline` and `/atlas` — previously ungrouped — assigned here at this profile pass.
+- **Grouping (agent, 2026-07-14):** `/redline` — previously ungrouped — assigned here at this profile pass. `/atlas` was briefly here, then moved to [[DAS Utility Design|Utility]] (user ruling, same day: it maintains the vault, it doesn't author documents).
 - Shape follows the paradigm [[DAS Tracking Design]] (two-column table per the 2026-07-14 revision; one profile per group, linked off [[DAS]]).
 - Figure source: same-basename `DAS Doc Design.excalidraw` beside the SVG (user edits in ExcalidrawZ; re-export with `python3 ~/.claude/skills/viz/excalidraw_to_svg.py`).

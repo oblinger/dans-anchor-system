@@ -1,13 +1,6 @@
----
-name: wp
-description: Create a new dated work product folder — Work products are polished outputs of human+agent collaboration — papers, reports, analyses, presentations, spreadsheets. Use when user says: "new work product", "new wp", "create a wp".
-tools: Read, Write, Edit, Bash, Glob, Grep
-user_invocable: true
----
 
-# WP — Create a dated work product folder
-requires:: vault, skill:io, facet:wp
-subsystem:: [[DAS Anchor Design]] — the Anchor group's subsystem profile
+# create-wp — Create a dated work product folder
+*(action file of [[create/SKILL|/create]]; formerly the standalone `/wp` skill — folded in per F234 Q1=A, 2026-07-14)*
 
 Create a new dated work product folder inside `{slug} WP/`. Work products are polished outputs of human+agent collaboration — papers, reports, analyses, presentations, spreadsheets.
 

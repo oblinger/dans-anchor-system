@@ -1,7 +1,7 @@
 ---
 name: migrate
 description: >
-  Change anything about an anchor — slug, traits, location, structure, naming, organization.
+  Change an anchor in place — slug, traits, structure, naming (relocation is /move's job), organization.
   Use when the user says: "migrate this", "rename the slug", "change the type",
   "move this project", "restructure this", "convert to code project",
   "reorganize", "rename", "change".

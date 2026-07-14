@@ -1,4 +1,5 @@
-# cab-create — Create a New Anchor
+# create-anchor — Create a New Anchor
+*(action file of [[create/SKILL|/create]]; promoted from anchor/legacy/cab-create.md per F234 Q1=A, 2026-07-14)*
 
 Create a new anchor folder with the correct structure, all doc files, dispatch tables wired, and HookAnchor registration. Every file that might be needed is created upfront — empty files are better than missing files.
 
@@ -18,7 +19,7 @@ Ask the user for:
 
 ## Step 2: Read the Trait Specs and Reference Examples
 
-Read the trait spec file from `~/.claude/skills/cab/cab-traits/` for each of the anchor's traits (e.g., `Code Anchor.md`, `Skill Anchor.md`). For multi-trait anchors, read all applicable specs and create the union of their structures.
+Read the trait spec file from `the repo's `traits/` folder (e.g. `dans-anchor-system/traits/`) ` for each of the anchor's traits (e.g., `Code Anchor.md`, `Skill Anchor.md`). For multi-trait anchors, read all applicable specs and create the union of their structures.
 
 Then read the CAB part specs — each has a **Reference Example** at the top showing exactly what the file should look like. These examples are the single source of truth for both setup and rewire. Key ones to read:
 
