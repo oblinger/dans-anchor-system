@@ -1,0 +1,90 @@
+#!/bin/bash
+# build — compile + sign + notarize _trust into ~/bin/_trust.
+#
+# WHEN TO RUN
+# -----------
+#   Once after cloning DAS (before granting FDA).
+#   After any edit to _trust.c — TCC verifies the signature at runtime,
+#   so unsigned rebuilds break the FDA path silently.
+#
+# WHAT IT DOES
+# ------------
+#   1. cc _trust.c → ~/bin/_trust  (compile)
+#   2. codesign with Developer ID Application identity (auto-picked from Keychain)
+#   3. xcrun notarytool submit --wait  (Apple's notarization service)
+#   4. xcrun stapler staple  (optional; often n/a for bare Mach-O — skipped on error)
+#   5. codesign -dvv + spctl -a -vvvv  (verification output)
+#
+# PREREQS (see README.md for one-time-per-machine setup)
+# ------------------------------------------------------
+#   Xcode Command Line Tools (`xcode-select --install`)
+#   Developer ID Application cert in login Keychain
+#   `notarytool` Keychain profile named `das-notarize`
+#
+# FDA GRANT
+# ---------
+#   TCC binds FDA to the code-signature identity (Team ID), not the file
+#   path or hash — rebuilds preserve the grant. First-time only, after
+#   the first successful build, grant FDA to ~/bin/_trust in
+#   System Settings → Privacy & Security → Full Disk Access.
+
+set -euo pipefail
+
+HERE="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+SRC="$HERE/_trust.c"
+BIN="$HOME/bin/_trust"
+
+[[ -f "$SRC" ]] || { echo "build: source not found: $SRC" >&2; exit 1; }
+
+# Auto-pick first Developer ID Application identity in Keychain.
+IDENTITY="$(security find-identity -v -p codesigning 2>/dev/null \
+    | awk -F\" '/Developer ID Application/ { print $2; exit }')"
+if [[ -z "$IDENTITY" ]]; then
+    echo "build: no Developer ID Application identity in Keychain." >&2
+    echo "build: see README.md § Prereqs to enroll a free Apple ID and generate a cert." >&2
+    exit 2
+fi
+
+mkdir -p "$HOME/bin"
+
+echo "build: compiling _trust.c → $BIN"
+cc -O2 -Wall -o "$BIN" "$SRC"
+
+echo "build: signing with: $IDENTITY (hardened runtime enabled)"
+# --options runtime enables the hardened runtime — required for Apple
+# notarization since 2020. Without this, notarytool rejects the binary
+# with "The executable does not have the hardened runtime enabled."
+codesign --force --options runtime --sign "$IDENTITY" "$BIN"
+
+# notarytool doesn't accept bare Mach-O binaries — has to be zip / pkg / dmg.
+# ditto -c -k --keepParent is Apple's recommended way to build a notarization-
+# ready zip: preserves resource forks, extended attributes, and the parent
+# filename inside the archive.
+ZIP="$(mktemp -t _trust-notarize).zip"
+trap 'rm -f "$ZIP"' EXIT
+echo "build: wrapping $BIN into $ZIP for submission"
+ditto -c -k --keepParent "$BIN" "$ZIP"
+
+echo "build: submitting for notarization (--keychain-profile das-notarize, --wait)..."
+xcrun notarytool submit "$ZIP" --keychain-profile das-notarize --wait
+
+# Stapling a bare Mach-O errors ("Error 73") — stapler is designed for
+# .app/.pkg/.dmg. Skip; Apple's notarization ticket is fetched online for
+# locally-built (non-quarantined) binaries, which is fine for our launchd
+# invocation context.
+echo "build: skipping staple (n/a for bare Mach-O; notarization ticket is fetched online)"
+
+echo ""
+echo "build: verification"
+codesign -dvv "$BIN" 2>&1 | grep -E "Identifier|Authority|TeamIdentifier|Format" || true
+echo ""
+spctl -a -vvvv "$BIN" 2>&1 || echo "build: spctl assessment above (may show 'source=Notarized Developer ID')"
+
+echo ""
+echo "build: DONE — $BIN"
+echo ""
+echo "First-time-only next step: grant FDA to $BIN in"
+echo "  System Settings → Privacy & Security → Full Disk Access →"
+echo "  + → Cmd+Shift+G → $BIN → Open → toggle on"
+echo ""
+echo "Subsequent rebuilds preserve the FDA grant (Team ID identity)."

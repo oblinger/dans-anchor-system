@@ -37,3 +37,15 @@ The CAB command-line tools live as scripts in the skills folder. This skill wire
 ## Adding New Tools
 
 When a new CAB script is created, list it in the table above. Run `/install` again to wire the new tool.
+
+## Skill-specific install steps
+
+Beyond wiring CLI tools, some skills need per-machine setup — e.g., MUSE (F019) needs a launchd LaunchAgent installed to run its background sweep. The convention: each such skill ships an `install-<thing>.sh` script under its own `scripts/` directory, idempotent, safe to re-run.
+
+Current installers:
+
+| Skill | Script | Purpose | Detects |
+|-------|--------|---------|---------|
+| `muse` | `~/.claude/skills/muse/scripts/install-launchd.sh` | Write + bootstrap `com.oblinger.muse-ingest` LaunchAgent that routes MUSE's sweep through `_trust muse-sweep` | `command -v _trust` — skips silently if absent (interactive `/muse` still works) |
+
+Run these directly on any machine where you want the background daemon. When we have 3+ FDA-gated daemons, a `das install <skill>` wrapper will iterate this table (F019 Q2 deferred).
