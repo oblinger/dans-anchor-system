@@ -39,6 +39,7 @@ Entry document for the user's reserved `/plan` cycle over the audit skill (user,
 5. **Check-pattern execution gap.** Many `(checked)` rules carry prose `**Check pattern:**` blocks but no executable `body(ctx)`. Does the plan cycle mandate migrating checked rules to executable bodies, accept prose patterns as agent-interpreted, or introduce a lint that flags the gap?
 6. **`/audit decisions` rename leg (F132 Phase 4).** The `**Cites:**`-walking decisions audit was folded into the rules audit in the ratified design — confirm it survives the Warden-native reshape (walking `{slug} Decisions.md` cites is not a Warden fire; it may stay a bespoke checker inside the runbook).
 7. **Husk cleanup.** Delete the empty `library/Rulesets/` tree (and `library/` itself if nothing genuinely-shared remains, per F229's "else dissolves").
+8. **`where::` token spelling (inherited from F229 § Open design considerations A).** The engine accepts both `{slug}` and `{NAME}` in `where::` clauses (since `e7f2f45`); F229 deferred the canonical-spelling call to "before the masthead/audit pass" — this plan cycle is that pass. Pick one (lean `{slug}`, matching `.anchor`'s key and the template convention) and sweep the other.
 
 ## Pointers
 

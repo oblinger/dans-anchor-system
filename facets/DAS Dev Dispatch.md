@@ -2,12 +2,14 @@
 description: "audit-tied developer docs dispatch page — file tree and per-module docs"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Dispatch]] → [FCT Dev Dispatch](hook://p/DAS%20Dev%20Dispatch)
 # FCT Dev Dispatch
 Facet spec for `{slug} Dev Docs.md` — the audit-tied dispatch page that lists the Files tree and per-module docs under the root-level `{slug} Dev Docs/` folder.
 
-**Related:** [[DAS User Dispatch]],  [[DAS All Files]],  [[DAS Module Doc]],  [[DAS Anchor Page]]
-**Examples:** [[HBR Dev Docs\|minimal (Files + one module group)]],  [[HBR Dev Docs\|starter stub]]
+| -[[DAS Dev Dispatch]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Dev Dispatch](hook://p/DAS%20Dev%20Dispatch) |
+| --- | --- |
+| Related | [[DAS User Dispatch]],  [[DAS All Files]],  [[DAS Module Doc]],  [[DAS Anchor Page]],   |
+| Examples | [[HBR Dev Docs\|minimal (Files + one module group)]],  [[HBR Dev Docs\|starter stub]],   |
+| Rules | [[DAS Dev Dispatch#RULESET R-dev-dispatch\|R-dev-dispatch]],   |
 
 **Location:** `{slug} Dev Docs/{slug} Dev Docs.md` (root-level folder, Gen-3)
 

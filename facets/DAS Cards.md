@@ -2,15 +2,16 @@
 description: "cheat sheets and spaced-repetition flashcards for an anchor topic"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Output]] → [FCT Cards](hook://p/DAS%20Cards)
 # FCT Cards
 Facet spec for the optional `{slug} Cards.md` page — a three-tier mix of cheat sheets and spaced-repetition flashcards that lets an anchor double as a study deck for its own topic.
 
-**Related:** [[DAS Brief]],  [[DAS Anchor Page]],  [[DAS Aspects]],  [[DAS Output]]
-**Examples:** [[DOCPY Cheat Cards\|cheat-sheet-heavy example]],  [[TPM Core Cards\|summary+detail cards example]]
-
-| Table of Contents |  |
-|---|---|
+| -[[DAS Cards]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Cards](hook://p/DAS%20Cards) |
+| --- | --- |
+| Related | [[DAS Brief]],  [[DAS Anchor Page]],  [[DAS Aspects]],  [[DAS Output]],   |
+| Examples | [[DOCPY Cheat Cards\|cheat-sheet-heavy example]],  [[TPM Core Cards\|summary+detail cards example]],   |
+| Rules | [[DAS Cards#RULESET R-cards\|R-cards]],   |
+|  |  |
+| **Table of Contents** |  |
 | [[#Formats]] |  |
 | [[#**`PYTHON STRING METHODS`**]] |  |
 | [[#File Layout and Formatting Rules]] |  |

@@ -3,6 +3,10 @@ description: documentation hub — links to Plan, Dev, User
 ---
 # FCT Docs
 
+| -[[DAS Docs Folder]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Docs Folder](hook://p/DAS%20Docs%20Folder) |
+| --- | --- |
+| Related | [[DAS Backlog]],  [[DAS Features]],  [[DAS Icebox]],  [[DAS Module Doc]],  [[DAS Roadmap]],   |
+
 **Location:** `{slug} Docs/{slug} Docs.md`
 
 
@@ -25,10 +29,10 @@ Every subfolder has a **dispatch page** with a dispatch table listing its conten
 The anchor page row labels are wiki-links to the subfolder dispatch pages:
 
 ```markdown
-| [[HBR Track|Plan]]   | [[HBR PRD|PRD]], [[CAE System Design|System Design]], ... |
-| [[HBR Track|Execute]] | [[FEX Inbox|Inbox]], [[CAE queries|Queries]], ... |
-| [[CAE User/CAE User|User]] | [[CAE User Guide|User Guide]], [[CAE Cards|Cards]] |
-| [[CAE Dev/CAE Dev|Dev]]   | [[FEX Files|Files]], [[CAE core|core]], ... |
+| [[HBR Track\|Plan]]   | [[HBR PRD\|PRD]], [[CAE System Design\|System Design]], ... |
+| [[HBR Track\|Execute]] | [[FEX Inbox\|Inbox]], [[CAE queries\|Queries]], ... |
+| [[CAE User/CAE User\|User]] | [[CAE User Guide\|User Guide]], [[CAE Cards\|Cards]] |
+| [[CAE Dev/CAE Dev\|Dev]]   | [[FEX Files\|Files]], [[CAE core\|core]], ... |
 ```
 
 Clicking a row label navigates to the subfolder dispatch page, which has the complete list. The inline items are just highlights — the dispatch page is the authoritative index.

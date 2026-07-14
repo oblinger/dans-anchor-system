@@ -15,6 +15,45 @@ requires:: vault, anchor-cli, skill:ask, facet:backlog, facet:dispatch-table
 
 Idempotent structural repair for any anchor. Ensures all files are linked, dispatch tables are wired, and the skeleton is consistent. Safe to run anytime — only adds, never deletes.
 
+| Table of Contents |  |
+|---|---|
+| **[[#Usage]]** |  |
+|    [[#Focused Rewire (`rewire the <facet>`)]] |  |
+| **[[#What Rewire Does]]** |  |
+| **[[#Three duplicate guards (per F059)]]** |  |
+| **[[#Move policy (per F059)]]** |  |
+|    [[#Aggressive mode (`--aggressive` flag)]] |  |
+|    [[#Exceptions]] |  |
+| **[[#Runbook (full rewire)]]** |  |
+| **[[#.anchor]]** |  |
+| **[[#{FolderName}.md (marker file)]]** |  |
+| **[[#{slug}.md (anchor page)]]** |  |
+| **[[#{slug} Docs/{slug} Docs.md]]** |  |
+| **[[#{slug} Docs/{slug} Plan/{slug} Plan.md]]** |  |
+| **[[#{slug} Docs/{slug} Dev/{slug} Dev.md]]** |  |
+| **[[#{slug} Docs/{slug} User/{slug} User.md]]** |  |
+| **[[#CLAUDE.md]]** |  |
+| **[[#General dispatch integrity]]** |  |
+| **[[#Default doc top-of-file (per F060)]]** |  |
+| **[[#Folder templates]]** |  |
+| **[[#{slug}.md (anchor page — code-specific)]]** |  |
+| **[[#Code / .git/]]** |  |
+| **[[#README.md]]** |  |
+| **[[#CLAUDE.md (code-specific)]]** |  |
+| **[[#{slug} Docs/{slug} Dev/ — audit-tied implementation reference]]** |  |
+| **[[#{slug} Docs/{slug} User/ — curated synthesis layer]]** |  |
+| **[[#justfile (if present in repo)]]** |  |
+| **[[#{slug}.md (anchor page — topic-specific)]]** |  |
+| **[[#{slug} Docs/]]** |  |
+| **[[#Conditional structure (create only when another trait requires)]]** |  |
+| **[[#SKILL.md (the agent-loaded code)]]** |  |
+| **[[#{Slug}.md (anchor root page)]]** |  |
+| **[[#{Slug} Docs/{Slug} Plan/]]** |  |
+| **[[#File naming inside the skill folder]]** |  |
+| **[[#DAS user-docs file]]** |  |
+| **[[#Wired into the SKA Skills table at the top of `SKA.md`]]** |  |
+| **[[#Slug-collision warning (skip these subdirs)]]** |  |
+
 ## Usage
 
 | Form | Meaning |
@@ -423,7 +462,7 @@ A skill anchor IS a CAB anchor — `SKILL.md` is the agent-loaded code, the rest
 - [ ] Skill-specific first dispatch row: `Skill | [[{folder}/SKILL\|SKILL.md]], [[DAS {Slug}|User Docs]]`
 - [ ] Second dispatch row: `[[{Slug} Plan\|Plan]]+ | [[{Slug} PRD\|PRD]], [[{Slug} Backlog\|Backlog]], [[{Slug} Features\|Features]]`
 - [ ] No `Dev` row — skill anchors don't have one (SKILL.md *is* the code)
-- [ ] No `User` row — skill anchors don't have one (user docs live in the SKL tree)
+- [ ] No `User` row — skill anchors don't have one (user docs live in the DAS docs tree)
 
 ## {Slug} Docs/{Slug} Plan/
 
@@ -438,11 +477,11 @@ A skill anchor IS a CAB anchor — `SKILL.md` is the agent-loaded code, the rest
 - [ ] Action files: kebab-case, prefixed by folder name — `{folder}-{action}.md`
 - [ ] Anchor docs: Title Case, prefixed by Slug — `{Slug} PRD.md`, `{Slug} Plan/{Slug} Backlog.md`
 
-## SKL user-docs file
+## DAS user-docs file
 
-- [ ] User-doc file exists at `~/.claude/skills/SKL User Docs/SKL Skills/SKL {Slug}.md` (or in a sub-folder for multi-variant skills, e.g. `SKL Mode/`)
+- [ ] User-doc file exists at `docs/<domain>/DAS {Slug}.md` in the dans-anchor-system repo (dossier hub page)
 - [ ] H1 of that file matches the skill name
-- [ ] Listed in `SKL User Docs/SKL Skills.md` dispatch (if present)
+- [ ] Listed in the [[DAS Skills]] kind index (and reachable from `DAS Docs.md`)
 
 ## Wired into the SKA Skills table at the top of `SKA.md`
 

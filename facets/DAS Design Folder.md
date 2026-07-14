@@ -2,17 +2,16 @@
 description: "design facet — the {slug} Design/ folder marks an anchor as following the designed-lifecycle convention; folder presence IS the signal (no trait field required)"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Design Folder](hook://p/DAS%20Design%20Folder)
 # FCT Design
 The Design folder facet — marks an anchor as following the designed-lifecycle convention; folder presence is the gate.
 
-**Related:** [[DAS PRD]],  [[DAS Architecture]],  [[DAS Testing]],  [[DAS Design Dispatch\|Dispatch]]
-**Examples:** [[HBR Design\|minimal]],  [[HBR Design\|fuller]]
-
-**Linkage** — this facet's existence ⟺ the anchor has been architected by the [[architect]] skill; the two share one design folder, [[Architect Design]] (hosted on the behavioral core), reachable from either page per [[SKA Decisions]] D10.
-
-| Table of Contents |  |
-|---|---|
+| -[[DAS Design Folder]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Design Folder](hook://p/DAS%20Design%20Folder) |
+| --- | --- |
+| Related | [[DAS PRD]],  [[DAS Architecture]],  [[DAS Testing]],  [[DAS Design Dispatch\|Dispatch]],   |
+| Examples | [[HBR Design\|minimal]],  [[HBR Design\|fuller]],   |
+| Rules | [[R-design]],   |
+|  |  |
+| **Table of Contents** |  |
 | [[#Location]] |  |
 | [[#Folder shape]] |  |
 | [[#Design vs. user docs vs. reference]] |  |
@@ -24,6 +23,8 @@ The Design folder facet — marks an anchor as following the designed-lifecycle 
 | [[#Audit]] |  |
 | [[#See also]] |  |
 | **[[#BRIEF]]** |  |
+
+**Linkage** — this facet's existence ⟺ the anchor has been architected by the [[architect]] skill; the two share one design folder, [[Architect Design]] (hosted on the behavioral core), reachable from either page per [[SKA Decisions]] D10.
 
 **TLDR** — The Design facet is triggered by the **existence of a `{slug} Design/` folder** (not by any `.anchor` trait field). When the folder exists, three children are required (PRD, Architecture, Testing), several others are recommended, and the `/design` skill operates on the anchor. Cardinality: **one per anchor** — an anchor has at most one Design folder. The embedded `R-design` ruleset encodes the auditable rules; `# BRIEF` is the agent-maintenance guide.
 

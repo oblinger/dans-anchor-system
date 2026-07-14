@@ -4,12 +4,14 @@ cssclasses:
 description: anchor master tree — every possible doc/folder in an anchor, linked to its facet spec
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Anchor Tree](hook://p/DAS%20Anchor%20Tree)
 # FCT Anchor Tree
 The annotated master file tree showing every possible file and folder that may appear inside a DAS anchor, with each named element wiki-linked to its governing facet spec.
 
-**Related:** [[DAS Anchor Page]],  [[DAS Anchor]],  [[DAS Facet]]
-**Examples:** [[HBR\|minimal Code anchor]],  [[HBR\|fuller anchor with components]]
+| -[[DAS Anchor Tree]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Anchor Tree](hook://p/DAS%20Anchor%20Tree) |
+| --- | --- |
+| Related | [[DAS Anchor Page]],  [[DAS Anchor]],  [[DAS Facet]],   |
+| Examples | [[HBR\|minimal Code anchor]],  [[HBR\|fuller anchor with components]],   |
+| Rules | [[R-anchor]],   |
 
 **Cardinality: one per anchor** — each anchor has exactly one canonical file tree (this spec is the reference; an anchor's actual tree is its on-disk directory).
 

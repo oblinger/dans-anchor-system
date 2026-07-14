@@ -2,12 +2,14 @@
 description: CLAUDE.md agent configuration
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Claude](hook://p/DAS%20Claude)
 # FCT Claude
 Facet spec for the optional `CLAUDE.md` file at an anchor's root that configures Claude Code behavior when the agent is rooted in that anchor.
 
-**Related:** [[DAS Anchor Page]],  [[DAS Dot Anchor]],  [[DAS Aspects]],  [[DAS Facet]]
-**Examples:** [[CAE CLAUDE\|agentic-project form]],  [[SYS CLAUDE\|plain-content form]]
+| -[[DAS Claude]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Claude](hook://p/DAS%20Claude) |
+| --- | --- |
+| Related | [[DAS Anchor Page]],  [[DAS Dot Anchor]],  [[DAS Aspects]],  [[DAS Facet]],   |
+| Examples | [[CAE CLAUDE\|agentic-project form]],  [[SYS CLAUDE\|plain-content form]],   |
+| Rules | [[DAS Claude#RULESET R-fct-claude\|R-fct-claude]],   |
 
 **Cardinality:** one per anchor — at most one `CLAUDE.md` sits at the anchor root.
 

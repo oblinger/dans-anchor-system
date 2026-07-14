@@ -2,15 +2,15 @@
 description: "specification for F-numbered per-feature design docs and their index page"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Features](hook://p/DAS%20Features)
 # FCT Features
 Specification for the **Features** facet — F-numbered per-feature design docs that live under `{slug} Design/{slug} Features/`, with their index page and pre-document Open-Questions zone.
 
-**Related:** [[DAS Roadmap]],  [[DAS Backlog]],  [[DAS Status]],  [[DAS Facet]]
-**Examples:** [[HBR Features\|minimal]],  [[HBR Features\|fuller]]
-
-| Table of Contents |  |
-|---|---|
+| -[[DAS Features]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Features](hook://p/DAS%20Features) |
+| --- | --- |
+| Related | [[DAS Roadmap]],  [[DAS Backlog]],  [[DAS Status]],  [[DAS Facet]],   |
+| Examples | [[HBR Features\|minimal]],  [[HBR Features\|fuller]],   |
+|  |  |
+| **Table of Contents** |  |
 | [[#Features Folder Structure]] |  |
 | [[#Features Index Page]] |  |
 | [[#Feature Document Format]] |  |

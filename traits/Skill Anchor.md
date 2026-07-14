@@ -3,7 +3,7 @@
 A Skill Anchor is *a conventional DAS anchor whose code is its `SKILL.md` and whose user-facing content lives at well-defined locations outside the anchor's filesystem folder.* What distinguishes a Skill Anchor from a Code Anchor:
 
 - **`SKILL.md` is the code** — agent-loaded entry point at `~/.claude/skills/<folder>/SKILL.md`, kebab-case folder name (Claude Code requirement). No `{slug} Dev/` directory; no source-repo.
-- **User docs live in SKL** — `~/.claude/skills/SKL User Docs/SKL Skills/SKL <Slug>.md` (NOT under the anchor's `{slug} User/` folder).
+- **User docs live in the DAS docs tree** — `docs/<domain>/DAS <Slug>.md` in the dans-anchor-system repo (NOT under the anchor's `{slug} User/` folder).
 - **Multiple runtime surfaces** — the SKILL.md + scripts + tests + rules/decision sets all live under `~/.claude/skills/<folder>/`, while the anchor's docs (`{slug} Track/`, `{slug} Features/`, etc.) live at the SKA filesystem location. Both surfaces are formally part of the anchor; their split is captured by the `skill-*` facets (per [[F116 — Skills as conventional anchors — retire skill-trait, convert to DAS facets with skill- prefix]]).
 - **Composes with `skill-*` facets (v1, per F116 Q2 = B)** — `skill-testing` (tests/), `skill-search-rules` (rules/), `skill-script` (scripts/), `skill-config` (per F080's `~/.config/anchor-system/<name>/`). Each facet applies when its location has content; an anchor doesn't need all of them. `skill-doc` and `skill-spec` are reserved facet names that will ship in a later iteration.
 
@@ -52,10 +52,10 @@ The two locations are formally part of the same anchor. The `skill-*` facets doc
 |---|---|---|
 | **Skill runtime folder** | kebab-case, lowercase (Claude Code requirement) | `groom/`, `backlog-horizons/` |
 | **Action files** | kebab-case, prefixed by folder name | `groom-runbook.md`, `backlog-horizons-promote.md` |
-| **Slug** | Title Case, space-separated (matches SKL doc name) | `SKA groom`, `SKA backlog-horizons` |
+| **Slug** | Title Case, space-separated (matches DAS doc name) | `SKA groom`, `SKA backlog-horizons` |
 | **Anchor docs** | Slug-prefixed, Title Case | `SKA groom Backlog.md` |
 | **Anchor root page** | `{Slug}.md` at anchor folder root | `SKA groom/SKA groom.md` |
-| **User-facing doc** | `SKL {Slug}.md` in SKL tree | `SKL User Docs/SKL Skills/SKL groom.md` |
+| **User-facing doc** | `DAS {Slug}.md` in the docs tree | `docs/track/DAS Groom.md` |
 
 **Why two cases:** Claude Code resolves skills from kebab-case folder names; DAS anchor docs use Title Case slug-prefixes for human readability and Obsidian wiki-link clarity. The two layers coexist because file extensions and case-insensitive resolution always disambiguate.
 
@@ -66,7 +66,7 @@ The anchor root page (`{Slug}.md`) follows [[DAS Anchor Page]] with one Skill-An
 
 | Row | Surfaces |
 | --- | --- |
-| Skill | `[[<folder>/SKILL\|SKILL.md]]`, `[[DAS <Slug>|User Docs]]` |
+| Skill | `[[<folder>/SKILL\|SKILL.md]]`, `[[DAS <Slug>\|User Docs]]` |
 | `[[<Slug> Track\|Track]]`+ | `[[<Slug> Backlog\|Backlog]]`, `[[<Slug> Features\|Features]]` |
 
 The `skill` row replaces the `Dev` and `User` rows that a Code Anchor would have. It carries the two things a reader of the anchor most needs to find: the skill spec (agent-loaded) and the user-facing doc.
@@ -117,8 +117,8 @@ This is the case for `cab/`, `io/`, `dev/` (where applicable). For all other ski
 ### Common findings
 
 - `traits:` missing the `Skill Anchor` declaration
-- Anchor root page missing the `skill` first-row dispatch with both `SKILL.md` and `SKL <Slug>` links
-- User docs in `{Slug} User/` (or pre-F113 `{Slug} Docs/{Slug} User/`) instead of the canonical `SKL User Docs/SKL Skills/SKL <Slug>.md`
+- Anchor root page missing the `skill` first-row dispatch with both `SKILL.md` and `DAS <Slug>` links
+- User docs in `{Slug} User/` (or pre-F113 `{Slug} Docs/{Slug} User/`) instead of the canonical `docs/<domain>/DAS <Slug>.md`
 - Feature docs in the SKA-level Features folder when they're skill-specific (should be migrated)
 - Eagerly-scaffolded empty Backlog/PRD files (deprecated by F116 — create on demand only)
 

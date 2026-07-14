@@ -2,12 +2,14 @@
 description: dated agent-generated outputs — audit reports, analysis
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Outputs](hook://p/DAS%20Outputs)
 # FCT Outputs
 Dated agent-generated outputs (audit reports, code analysis, automated assessments) parked under `{slug} Outputs/` and auto-managed by the `stat` command.
 
-**Related:** [[DAS WP]],  [[DAS Status]],  [[DAS Backlog]],  [[DAS Facet]]
-**Examples:** [[MUX Outputs\|example dispatch page]]
+| -[[DAS Outputs]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Outputs](hook://p/DAS%20Outputs) |
+| --- | --- |
+| Related | [[DAS WP]],  [[DAS Status]],  [[DAS Backlog]],  [[DAS Facet]],   |
+| Examples | [[MUX Outputs\|example dispatch page]],   |
+| Rules | [[DAS Outputs#RULESET R-fct-outputs\|R-fct-outputs]],   |
 
 **TLDR** — A folder of dated `{date} {name}.md` files auto-created by `stat add`; cardinality **many** (any number of output files per anchor). The dispatch page (`{slug} Outputs.md`) is **one per anchor**; individual output files are **many**. Never list specific files here — instances live in per-anchor dispatch pages.
 
@@ -66,6 +68,7 @@ The stat command:
 | Date | Output | Status |
 |------|--------|--------|
 | 2026-03-28 | [[2026-03-28 Fallbacks Audit]] | Ready — 5 HIGH, 14 MEDIUM |
+
 ```
 
 -[[{date} {name}]]- \| \|` + standard separator) above the report body.

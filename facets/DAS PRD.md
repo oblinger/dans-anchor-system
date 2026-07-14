@@ -2,12 +2,16 @@
 description: "facet spec for {slug} PRD.md — the anchor's product requirements document"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS PRD](hook://p/DAS%20PRD)
 # FCT PRD
-**Audited examples:** [[HBR PRD]], [[Mini PRD]], [[HBR PRD]], [[DMUX PRD]], [[OBU PRD]]
+Facet spec for `{slug} PRD.md` — the first doc in an anchor's Design folder, defining what the product does (goals, non-goals, user stories) for every downstream design phase to consume.
 
-| Table of Contents |  |
-|---|---|
+| -[[DAS PRD]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS PRD](hook://p/DAS%20PRD) |
+| --- | --- |
+| Related | [[DAS Architecture]],  [[DAS Testing]],  [[DAS Decisions]],  [[DAS Stories]],  [[templates/prd.md\|PRD template]],   |
+| Examples | [[HBR PRD\|single-file form]],  [[HBR PRD\|folder form (stories extracted)]],  [[Mini PRD]],  [[DMUX PRD]],  [[OBU PRD]],   |
+| Rules | [[R-prd]],   |
+|  |  |
+| **Table of Contents** |  |
 | [[#Location]] |  |
 | [[#Two forms — single-file (default) and folder (when stories extract)]] |  |
 | [[#Standard section order]] |  |
@@ -21,11 +25,6 @@ description: "facet spec for {slug} PRD.md — the anchor's product requirements
 | [[#Audit]] |  |
 | [[#See also]] |  |
 | **[[#BRIEF]]** |  |
-
-Facet spec for `{slug} PRD.md` — the first doc in an anchor's Design folder, defining what the product does (goals, non-goals, user stories) for every downstream design phase to consume.
-
-**Related:** [[DAS Architecture]],  [[DAS Testing]],  [[DAS Decisions]],  [[DAS Stories]]
-**Examples:** [[HBR PRD\|single-file form]],  [[HBR PRD\|folder form (stories extracted)]]
 
 The PRD (`{slug} PRD.md`) is the **what** of the product — what it does, who it serves, what's in and out of scope, and the user stories that downstream work realizes. It is the first document written during `/design`, and every downstream phase (UX, Architecture, Testing, Roadmap, Features) reads it as authoritative input.
 
@@ -63,7 +62,7 @@ Per [[DAS Stories]]. The PRD's `## User Stories` section then links to `[[{slug}
 
 | # | Section | Purpose |
 |---|---|---|
-| 1 | Top of doc | YAML frontmatter (`description:`) → `:>>` breadcrumb glued directly above the H1 → `# {slug} PRD` → one-sentence summary. Single-file PRD carries the breadcrumb (no dispatch table); folder-form PRD is an anchor and carries a dispatch table instead (per R-prd-03 / [[DAS Doc Structure|R-doc-structure]]). |
+| 1 | Top of doc | YAML frontmatter (`description:`) → `:>>` breadcrumb glued directly above the H1 → `# {slug} PRD` → one-sentence summary. Single-file PRD carries the breadcrumb (no dispatch table); folder-form PRD is an anchor and carries a dispatch table instead (per R-prd-03 / [[DAS Doc Structure\|R-doc-structure]]). |
 | 2 | `## Overview` | One to two paragraphs — what the product *is*, who it's for, why it needs to exist. Reader leaves knowing the shape of the thing. |
 | 3 | `## Design Workflow` | Table listing the design phases downstream of this PRD with wiki-links: PRD → Architecture → Testing → Decisions → Track (Roadmap + Features). The sequence may be revisited iteratively as questions surface. |
 | 4 | `## Goals` | Concrete, verifiable outcomes — what the product will accomplish. Bulleted; outcome-shaped (not feature-shaped). |

@@ -2,12 +2,14 @@
 description: "facet spec for `{slug} UX Design.md` — the human user-facing surface (CLI commands, screens, organization, naming, output shapes, error voice)"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS UX Design](hook://p/DAS%20UX%20Design)
 # FCT UX Design
 Facet spec for `{slug} UX Design.md` — the *human* user-facing surface: CLI commands, screens, organization, naming, output shapes, error voice.
 
-**Related:** [[DAS API Design]],  [[DAS CLI]],  [[DAS Decisions]],  [[DAS Architecture]]
-**Examples:** [[HBR UX Design\|minimal (CLI surface)]],  [[HBR UX Design\|fuller (multi-surface)]]
+| -[[DAS UX Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS UX Design](hook://p/DAS%20UX%20Design) |
+| --- | --- |
+| Related | [[DAS API Design]],  [[DAS CLI]],  [[DAS Decisions]],  [[DAS Architecture]],   |
+| Examples | [[HBR UX Design\|minimal (CLI surface)]],  [[HBR UX Design\|fuller (multi-surface)]],   |
+| Rules | [[R-ux]],   |
 
 **TLDR**
 - **One per anchor** — a single `{slug} UX Design.md` captures all human-facing surface intent for the anchor.

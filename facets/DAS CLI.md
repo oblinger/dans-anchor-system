@@ -4,19 +4,20 @@ description: The command-line specification facet — the full command surface f
 # FCT CLI
 Facet spec for `{slug} CLI.md` — the **command-line specification** for an anchor that ships a CLI: a compressed `--help` figure (an SVG) opens the doc, then the full command surface is specified below. Authored in the design pipeline, downstream of UX Design.
 
-| **FCT CLI**                                                          | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Design Docs]] → [FCT CLI](hook://p/DAS%20CLI)<br>: command-line specification facet |
-| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Related                                                              | [[DAS UX Design\|UX Design]],  [[DAS API Design\|API Design]],  [[DAS Design Folder\|Design]],  [[DAS TSK User Guide\|User Guide]]                           |
-| Examples                                                             | [[HBR CLI\|worked example]]                                                                                                        |
-|                                                                      |                                                                                                                                                   |
-| **Table of Contents**                                                |                                                                                                                                                   |
-| [[#The Help Block — READ THIS\|Help block — READ THIS]]              | the fenced `--help` block — the doc's central figure                                                                                              |
-| [[#Progressive disclosure — the drill-down\|Progressive disclosure]] | optional per-command drill-down                                                                                                                   |
-| [[#Location — a migrating reference\|Location]]                      | Design/ (authored) → User Docs/ (graduated)                                                                                                       |
-| [[#Optional Sections\|Optional Sections]]                            | env vars / config / exit codes / output modes                                                                                                     |
-| [[#Linking\|Linking]]                                                | where the CLI doc is linked from                                                                                                                  |
-| [[#When to Create\|When to Create]]                                  | create iff the anchor ships a CLI                                                                                                                 |
-| [[#BRIEF\|BRIEF]]                                                    | maintainer notes                                                                                                                                  |
+| -[[DAS CLI]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS CLI](hook://p/DAS%20CLI) |
+| --- | --- |
+| Related | [[DAS UX Design\|UX Design]],  [[DAS API Design\|API Design]],  [[DAS Design Folder\|Design]],  [[DAS TSK User Guide\|User Guide]],   |
+| Examples | [[HBR CLI\|worked example]],   |
+| Rules | [[DAS CLI#RULESET R-cli\|R-cli]],   |
+|  |  |
+| **Table of Contents** |  |
+| [[#The Help Block — READ THIS\|Help block — READ THIS]] | the fenced `--help` block — the doc's central figure |
+| [[#Progressive disclosure — the drill-down\|Progressive disclosure]] | optional per-command drill-down |
+| [[#Location — a migrating reference\|Location]] | Design/ (authored) → User Docs/ (graduated) |
+| [[#Optional Sections\|Optional Sections]] | env vars / config / exit codes / output modes |
+| [[#Linking\|Linking]] | where the CLI doc is linked from |
+| [[#When to Create\|When to Create]] | create iff the anchor ships a CLI |
+| [[#BRIEF\|BRIEF]] | maintainer notes |
 
 **TLDR** — `{slug} CLI.md` is the **full command-line specification** of an anchor's CLI. It opens with a compressed `--help` **figure** — rendered as an **SVG** (from a `.txt` source via `cli-help-svg.py`, so aligned `# comments` never re-wrap) — that maps the whole surface at a glance; below it, each command is specified in full (flags, defaults, semantics, exit behaviour). The figure is compressed; the document is not. **Cardinality: one per anchor**, only when it ships a CLI. **Home:** authored at `{slug} Design/{slug} CLI.md`; as a *migrating reference* it graduates to `{slug} User Docs/` once the CLI stabilizes.
 

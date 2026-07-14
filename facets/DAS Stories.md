@@ -2,12 +2,16 @@
 description: "facet spec for user stories as first-class siblings of a PRD — inline-bullet form for small PRDs, extracted-folder form for large ones"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Stories](hook://p/DAS%20Stories)
 # FCT Stories
-**Audited examples:** [[FEX Stories]], [[DAS US-CAE-1 — Schedule a Task]], [[DAS US-CAE-3 — Retry Failed Tasks]], [[Forum Stories]], [[HBR PRD User Stories]]
+Facet spec for the user-stories surface of a PRD — defines the inline-bullet form for small PRDs and the extracted-folder form (`{slug} PRD/` with per-story files indexed by `{slug} Stories.md`) for PRDs whose stories outgrow a single sentence.
 
-| Table of Contents |  |
-|---|---|
+| -[[DAS Stories]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Stories](hook://p/DAS%20Stories) |
+| --- | --- |
+| Related | [[DAS PRD]],  [[DAS Testing]],  [[DAS Features]],  [[DAS Design Folder]],   |
+| Examples | [[HBR PRD\|inline-stories (single-file form)]],  [[FEX Stories\|folder-form dispatch index (extracted stories)]],  [[DAS US-CAE-1 — Schedule a Task]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[Forum Stories]],  [[HBR PRD User Stories]],   |
+| Rules | [[R-stories]],   |
+|  |  |
+| **Table of Contents** |  |
 | [[#Two forms — single-file PRD (inline stories) and folder PRD (extracted stories)]] |  |
 | [[#Location]] |  |
 | [[#`{slug} Stories.md` index shape]] |  |
@@ -19,11 +23,6 @@ description: "facet spec for user stories as first-class siblings of a PRD — i
 | [[#Audit]] |  |
 | [[#See also]] |  |
 | **[[#BRIEF]]** |  |
-
-Facet spec for the user-stories surface of a PRD — defines the inline-bullet form for small PRDs and the extracted-folder form (`{slug} PRD/` with per-story files indexed by `{slug} Stories.md`) for PRDs whose stories outgrow a single sentence.
-
-**Related:** [[DAS PRD]],  [[DAS Testing]],  [[DAS Features]],  [[DAS Design Folder]]
-**Examples:** [[HBR PRD\|inline-stories (single-file form)]],  [[FEX Stories\|folder-form dispatch index (extracted stories)]]
 
 **TLDR** — Stories are part of the PRD. Small PRDs keep stories inline as bullets under `## User Stories`; large PRDs extract them to `{slug} PRD/` folder form with a `{slug} Stories.md` dispatch index and per-story `US-<slug>-<N> — <Title>.md` files. The two forms are mutually exclusive. **Cardinality: many** — a PRD in folder form can have any number of story files. The embedded `R-stories` ruleset enforces folder shape, naming, dispatch table structure, and bidirectional linking.
 

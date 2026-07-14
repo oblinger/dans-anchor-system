@@ -2,14 +2,15 @@
 description: "Anchor Page facet — the format of an anchor's {slug}.md entry point"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Anchor Page](hook://p/DAS%20Anchor%20Page)
 # FCT Anchor Page
 The entry page every anchor opens with — its `{slug}.md`.
 
-**Related:** [[DAS Facets]],  [[DAS Dispatch Table]],  [[DAS progressive-disclosure]],  [[DAS Examples]]
-
-| Table of Contents |  |
-|---|---|
+| -[[DAS Anchor Page]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Anchor Page](hook://p/DAS%20Anchor%20Page) |
+| --- | --- |
+| Related | [[DAS Facets]],  [[DAS Dispatch Table]],  [[DAS progressive-disclosure]],  [[DAS Examples]],   |
+| Rules | [[R-anchor]],   |
+|  |  |
+| **Table of Contents** |  |
 | [[#Worked example sets — five real vault instances per kind]] |  |
 | [[#Anchor Page Template]] |  |
 | [[#Anchor Page Parts]] |  |
@@ -20,6 +21,7 @@ The entry page every anchor opens with — its `{slug}.md`.
 | [[#Naming & exceptions]] |  |
 | [[#Kind-specific rules]] |  |
 | **[[#BRIEF]]** |  |
+
 Design
 **Examples:** [[HBR\|Code project]],  [[DAS Anchor Page\|facet]],  [[DAS progressive-disclosure\|discipline]],  [[DAS Mint\|skill-doc]],  [[DAS Skills\|Container · grouped]],  [[SKA Access\|Container · list]],  [[HBR Log\|Container · chronological]],  [[Life\|Topic]]
 Rulesets

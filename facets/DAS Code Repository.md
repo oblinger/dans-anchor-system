@@ -2,26 +2,27 @@
 description: "facet spec for the code repository association and doc-mirror routes declared in an anchor's `.anchor` file"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Code Repository](hook://p/DAS%20Code%20Repository)
 # FCT Code Repository
 Facet spec for how an anchor declares and resolves its associated code repository — linked (separate path) or inline — via the `code:` key in `.anchor`.
 
-**Related:** [[DAS Anchor Page]],  [[DAS Traits]],  [[DAS Facet]],  FCT Manifest
-**Examples:** [[OBU\|linked-absolute]],  [[HA\|linked-relative]]
-
-| Table of Contents |  |
-|---|---|
+| -[[DAS Code Repository]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Code Repository](hook://p/DAS%20Code%20Repository) |
+| --- | --- |
+| Related | [[DAS Anchor Page]],  [[DAS Traits]],  [[DAS Facet]],  FCT Manifest, |
+| Examples | [[OBU\|linked-absolute]],  [[HA\|linked-relative]],   |
+| Rules | [[DAS Code Repository#RULESET R-code-repository\|R-code-repository]],   |
+|  |  |
+| **Table of Contents** |  |
 | **[[#Location]]** |  |
 | **[[#Path resolution]]** |  |
 | **[[#Inline vs linked]]** |  |
 | **[[#Doc Mirror (`mirror:`)]]** |  |
-|    [[#Mirror engine (`code sync`)]] |  |
-|    [[#The there side is not an authoring surface]] |  |
-|    [[#RULE R-code-repository-01 — A `code`-trait anchor declares `code:` in `.anchor` (checked)]] |  |
-|    [[#RULE R-code-repository-02 — No implicit fallback when `code:` is absent (checked)]] |  |
-|    [[#RULE R-code-repository-03 — Relative `code:` resolves against the anchor root (stated)]] |  |
-|    [[#RULE R-code-repository-04 — Doc mirroring is declared via `mirror:` in `.anchor` (stated)]] |  |
-|    [[#RULE R-code-repository-05 — The there side is never an authoring surface (stated)]] |  |
+| [[#Mirror engine (`code sync`)]] |  |
+| [[#The there side is not an authoring surface]] |  |
+| [[#RULE R-code-repository-01 — A `code`-trait anchor declares `code:` in `.anchor` (checked)]] |  |
+| [[#RULE R-code-repository-02 — No implicit fallback when `code:` is absent (checked)]] |  |
+| [[#RULE R-code-repository-03 — Relative `code:` resolves against the anchor root (stated)]] |  |
+| [[#RULE R-code-repository-04 — Doc mirroring is declared via `mirror:` in `.anchor` (stated)]] |  |
+| [[#RULE R-code-repository-05 — The there side is never an authoring surface (stated)]] |  |
 
 **TLDR** — An anchor with a `code` trait declares its repo via `code:` in `.anchor` (absolute, relative, or `.` for inline). No symlink, no `.git/`-probing fallback. Docs that ship with the repo are kept in sync by the **`mirror:`** key — a local two-folder sync (`here:` in the anchor tree ↔ `there:` anywhere on disk), two-way by default, fully independent of `code:`. **Cardinality: one** — one code repo association per anchor.
 

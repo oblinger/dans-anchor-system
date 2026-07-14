@@ -1,11 +1,12 @@
 ---
 description: the `.anchor` file — the YAML declaration at an anchor's root (slug, traits, code, parents, …); the field set lives here, per-field rules route to their facets
 ---
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Dot Anchor](hook://p/DAS%20Dot%20Anchor)
 # FCT Dot Anchor
 The `.anchor` file — the small YAML declaration at an anchor's root that carries the anchor's metadata. (The same keys may instead live in a page's YAML frontmatter; `.anchor` is the canonical, page-independent home — frontmatter is the inline alternative.)
 
-**Related:** [[DAS Folder]], [[DAS Naming]], [[DAS Traits]], [[DAS Code Repository]], [[DAS anchor-dag]].
+| -[[DAS Dot Anchor]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Dot Anchor](hook://p/DAS%20Dot%20Anchor) |
+| --- | --- |
+| Related | [[DAS Folder]],  [[DAS Naming]],  [[DAS Traits]],  [[DAS Code Repository]],  [[DAS anchor-dag]],   |
 
 **TLDR** — `.anchor` is a YAML file at the anchor root. Its **presence makes the folder an anchor** ([[DAS Folder]]); its **fields** declare the anchor's metadata. `slug` is the only required field. This facet is the **field-set index** — each field's detailed rule lives in its owning facet (single source of truth). Managed with `cab-config`. **Cardinality: one per anchor.**
 

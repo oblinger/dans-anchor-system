@@ -2,15 +2,16 @@
 description: "the Facet primitive — what a facet is and how to write its spec"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Facet](hook://p/DAS%20Facet)
 # FCT Facet
 A narrow, usually file-based aspect of an anchor — and the spec for how to write one.
 
-**Related:** [[DAS Skill]],  [[DAS Ruleset]],  [[FCT Facets]] (the index),  [[DAS Aspects]]
-**Examples:** [[FEX Manifest\|one per anchor example]],  [[FEX Pin\|many per anchor example]],  [[FEX Bundle\|many folders per anchor example]]
-
-| Table of Contents |  |
-|---|---|
+| -[[DAS Facet]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Facet](hook://p/DAS%20Facet) |
+| --- | --- |
+| Related | [[DAS Skill]],  [[DAS Ruleset]],  [[FCT Facets]] (the index),  [[DAS Aspects]], |
+| Examples | [[FEX Manifest\|one per anchor example]],  [[FEX Pin\|many per anchor example]],  [[FEX Bundle\|many folders per anchor example]],   |
+| Rules | [[R-facet]],   |
+|  |  |
+| **Table of Contents** |  |
 | [[#Location & registration]] |  |
 | [[#Anchor-page top (a facet spec is itself an anchor page)]] |  |
 | [[#What a facet spec conveys — mostly via the ruleset (sections optional)]] |  |

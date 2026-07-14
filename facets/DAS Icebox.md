@@ -2,12 +2,14 @@
 description: optional file for distant-future / someday-maybe items
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Icebox](hook://p/DAS%20Icebox)
 # FCT Icebox
 Optional cold-storage counterpart to the Backlog — holds distant-future / someday-maybe items the user wants to remember but is not actively considering.
 
-**Related:** [[DAS Backlog]],  [[DAS Roadmap]],  [[DAS Backlog]],  [[DAS Track]]
-**Examples:** [[FEX Icebox\|example]]
+| -[[DAS Icebox]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Icebox](hook://p/DAS%20Icebox) |
+| --- | --- |
+| Related | [[DAS Backlog]],  [[DAS Roadmap]],  [[DAS Backlog]],  [[DAS Track]],   |
+| Examples | [[FEX Icebox\|example]],   |
+| Rules | [[DAS Icebox#RULESET R-fct-icebox\|R-fct-icebox]],   |
 
 **Cardinality: one per anchor** — at most one `{slug} Icebox.md` exists per anchor (and it is optional; most anchors do not have one).
 

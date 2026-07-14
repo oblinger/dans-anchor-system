@@ -2,12 +2,13 @@
 description: superseded by CAB Track Dispatch per F094 — see redirect below
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Plan Dispatch](hook://p/DAS%20Plan%20Dispatch)
 # FCT Plan Dispatch
 Redirect stub for the legacy `{slug} Plan/` dispatch facet, superseded by [[DAS Track Dispatch]] and [[DAS Design Dispatch]] per F094.
 
-**Related:** [[DAS Track Dispatch]],  [[DAS Design Dispatch]],  [[DAS Dispatch]]
-**Examples:** [[HBR Track\|minimal (renamed from CAE Plan per F094)]],  [[HBR Track\|fuller]]
+| -[[DAS Plan Dispatch]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Plan Dispatch](hook://p/DAS%20Plan%20Dispatch) |
+| --- | --- |
+| Related | [[DAS Track Dispatch]],  [[DAS Design Dispatch]],  [[DAS Dispatch]],   |
+| Examples | [[HBR Track\|minimal (renamed from CAE Plan per F094)]],  [[HBR Track\|fuller]],   |
 
 > **Superseded by [[DAS Track Dispatch]]** per [[F094 — Anchor docs folder restructure — Track _ User _ Architecture _ Dev|F094]] (2026-06-01).
 >

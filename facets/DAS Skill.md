@@ -2,15 +2,16 @@
 description: "the Skill primitive — SKILL.md entry-point structure and conventions"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Skill](hook://p/DAS%20Skill)
 # FCT Skill
 An omnibus Claude Code skill that groups related actions, reference data, and scripts under a single `/name` command. Invoked via `/name action` (e.g., `/cab setup`, `/md toc`).
 
-**Related:** [[DAS Facet]],  [[DAS Ruleset]],  [[DAS Primitives]],  [[DAS Aspects]]
-**Examples:** [[FEX Skill\|canonical exemplar]],  [[FEX Minimal Skill\|minimal capsule]]
-
-| Table of Contents |  |
-|---|---|
+| -[[DAS Skill]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Skill](hook://p/DAS%20Skill) |
+| --- | --- |
+| Related | [[DAS Facet]],  [[DAS Ruleset]],  [[DAS Primitives]],  [[DAS Aspects]],   |
+| Examples | [[FEX Skill\|canonical exemplar]],  [[FEX Minimal Skill\|minimal capsule]],   |
+| Rules | [[R-skill]],   |
+|  |  |
+| **Table of Contents** |  |
 | [[#Location]] |  |
 | [[#SKILL.md Structure]] |  |
 | [[#Action Files]] |  |
@@ -21,7 +22,7 @@ An omnibus Claude Code skill that groups related actions, reference data, and sc
 | [[#SKA anchors own Design, not Track — shared by skills, facets, disciplines]] |  |
 | **[[#BRIEF]]** |  |
 
-**TLDR** — Every skill anchor ships a `SKILL.md` with fixed frontmatter (`name`, `description`, `tools`, `user_invocable`) and a fixed section order (Title → Brief → dispatch tables → Actions → Reference → Dispatch protocol). Disciplines (`user_invocable: false`) additionally require a parallel user-facing doc at `SKL User Docs/SKL Skills/SKL <Name>.md`. **Cardinality: one per anchor** — each skill folder has exactly one `SKILL.md` entry point.
+**TLDR** — Every skill anchor ships a `SKILL.md` with fixed frontmatter (`name`, `description`, `tools`, `user_invocable`) and a fixed section order (Title → Brief → dispatch tables → Actions → Reference → Dispatch protocol). Disciplines (`user_invocable: false`) additionally require a parallel user-facing doc at `docs/<domain>/DAS <Name>.md`. **Cardinality: one per anchor** — each skill folder has exactly one `SKILL.md` entry point.
 
 **Working example:** `~/.claude/skills/CAE/SKILL.md` — SKILL.md (CAE is a skill folder).
 
@@ -46,16 +47,16 @@ Deployment, monitoring, and incident response workflows.
 
 | Section           | Contents                                                          |
 | ----------------- | ----------------------------------------------------------------- |
-| [[OPS Runbooks]]  | [[OPS Deploy Checklist]], [[OPS Rollback]], [[OPS Scaling]]       |
-| [[OPS Playbooks]] | [[OPS Incident Response]], [[OPS Post-Mortem]], [[OPS On-Call]]   |
+| ~~[[OPS Runbooks]]~~  | ~~[[OPS Deploy Checklist]]~~, ~~[[OPS Rollback]]~~, ~~[[OPS Scaling]]~~       |
+| ~~[[OPS Playbooks]]~~ | ~~[[OPS Incident Response]]~~, ~~[[OPS Post-Mortem]]~~, ~~[[OPS On-Call]]~~   |
 
 \## Actions
 
 | Usage            | File              | Description                                    |
 | ---------------- | ----------------- | ---------------------------------------------- |
-| `/ops deploy`    | [[ops-deploy]]    | Staged deployment with rollback checkpoints    |
-| `/ops monitor`   | [[ops-monitor]]   | Health check sweep across all services         |
-| `/ops incident`  | [[ops-incident]]  | Incident response — triage, mitigate, document |
+| `/ops deploy`    | ~~[[ops-deploy]]~~    | Staged deployment with rollback checkpoints    |
+| `/ops monitor`   | ~~[[ops-monitor]]~~   | Health check sweep across all services         |
+| `/ops incident`  | ~~[[ops-incident]]~~  | Incident response — triage, mitigate, document |
 
 \## Reference
 
@@ -143,7 +144,7 @@ Disciplines live in `~/.claude/skills/{name}/` with the same folder structure as
 - `finalize` — verify → commit → push → merge → docs → cleanup ceremony. Cited by `/land`, `/crank`, `/code release`.
 - `workflow` — canonical state graph for a unit of work, Definition of Ready, per-surface mappings. Cited by `[[DAS Backlog]]`, `feature/SKILL.md`, `/groom`, `/mint`, `/finalize`.
 
-(Note: `ask-questions` was a discipline in earlier versions; it was promoted to the user-invocable `/ask` skill 2026-04-30 — see F10. Skills that previously cited `[[ask-questions]]` now invoke `/ask`.)
+(Note: `ask-questions` was a discipline in earlier versions; it was promoted to the user-invocable `/ask` skill 2026-04-30 — see F10. Skills that previously cited `~~[[ask-questions]]~~` now invoke `/ask`.)
 
 ### Parallel user docs — required
 
@@ -152,9 +153,9 @@ Disciplines live in `~/.claude/skills/{name}/` with the same folder structure as
 | File | Audience | Content |
 |---|---|---|
 | `~/.claude/skills/{name}/SKILL.md` | Agent | Full methodology, decision tables, edge cases, anti-patterns. Loaded when a citing skill activates the discipline. |
-| `~/.claude/skills/SKL User Docs/SKL Skills/SKL <Name>.md` | User | Concept-focused. What the discipline does, when the user notices it, the format/output the user sees, what to do in response. Shorter than the agent doc. |
+| `docs/<domain>/DAS <Name>.md` (dans-anchor-system repo) | User | Concept-focused. What the discipline does, when the user notices it, the format/output the user sees, what to do in response. Shorter than the agent doc. |
 
-The user doc is what surfaces in the SKL dispatch table (the user-facing skills index). The agent doc never appears there directly — only via citations from other skills.
+The user doc is what surfaces in the [[DAS Skills]] kind index (the user-facing skills index). The agent doc never appears there directly — only via citations from other skills.
 
 ### H1 convention — no slash on disciplines
 
@@ -172,33 +173,27 @@ A discipline is a *rule the agent follows*, not a command the user issues. Makin
 - **Discipline** (`user_invocable: false`) — a methodology that other skills follow. The user doesn't invoke it; skills cite it. Examples: `finalize`, `workflow`, `backlog-horizons`.
 - **Both?** — if a single concept has both a "the user wants to run this now" form and an "agent always follows this when applicable" form, split into a skill + discipline pair (e.g., `/finalize` could in principle be invoked, but the *ceremony* is the discipline; we kept only the discipline form for now).
 
-# Skill anchor page — the `SKL <Name>` doc
+# Skill dossier page — the `DAS <Name>` doc
 
-Distinct from the `SKILL.md` runbook specified above: every skill also has a **doc / anchor page** in the SKL tree — `SKL <Name>` — the user-facing entry for the skill. It is a **sub-project** anchor page ([[DAS Anchor Page]] → `R-anchor-page-subproject`): a folder anchor with a switchboard masthead plus a body that is the skill's user guide.
+Distinct from the `SKILL.md` runbook specified above: every skill also has a **concept dossier** — `docs/<domain>/DAS <Name>.md` in the dans-anchor-system repo — the user-facing entry for the skill. It is a flat page (not a folder anchor) opening with a hub content-table, per the F229 flat-by-kind structure: category lives in the `<domain>` folder + the [[DAS Skills]] kind index, not a per-skill folder tree.
 
-**A skill is a folder.** Minimal shape:
+**Hub-table rows** on the dossier page (a content table, not an anchor dispatch table):
 
-- `SKL <Name>/`
-  - `SKL <Name>.md` — the entry page
-  - `SKL <Name> Design.md` — the **design root** (a child anchor page)
-  - `.anchor`
-
-**Masthead rows** on the entry page (a [[DAS Dispatch Table]]):
-
-1. **breadcrumb** — `… → [[DAS <Group>]] → SKL <Name>`.
+1. **breadcrumb** — `… → [[DAS]] → DAS <Name>`.
 2. **Related** — **always links the actual skill runbook**: `[[skills/<name>/SKILL.md\|SKILL]]`. This is the rule — every skill doc points at its runbook, and that is the minimum Related row.
-3. **Design** — links the design root, `[[DAS <Name> Design|Design]]`. The Design row carries **only the design elements that actually exist**; the minimum is the design root alone.
+3. **Design** — links the design root, `~~[[DAS <Name> Design|Design]]~~` in `design/<domain>/`. The Design row carries **only the design elements that actually exist** (PRD, decisions, discussion); the minimum is the design root alone.
+4. **Facet** — links the skill's paired facet/ruleset when one exists (e.g. `/groom` ⟷ [[DAS Backlog]]).
 
 **Summary line** — the one sentence directly under the H1 states the skill's **essence** — what the command does at its core, per [[DAS Anchor Page]] R-anchor-page-06. Convention: lead with the backticked command, e.g. `/feature` — creates a new feature document specifying work to be done — not a feature list or mechanism tour.
 
-**Body** — below the masthead, the skill's user-facing guide. It ranges from a one-line summary (minimal) to a full guide with `## What it does` / `## When NOT to use` sections (maximal). Genuine guide prose **stays**; enumerations that belong to *other* skills do not (they route to those skills — e.g. `/mint`'s page must not list `/code` / `/spike` / `/forge`).
+**Body** — below the hub table, the skill's user-facing guide. It ranges from a one-line summary (minimal) to a full guide with `## What it does` / `## When NOT to use` sections (maximal). Genuine guide prose **stays**; enumerations that belong to *other* skills do not (they route to those skills — e.g. `/mint`'s page must not list `/code` / `/spike` / `/forge`).
 
-**Design root** — `SKL <Name> Design.md` is itself an anchor page that is **empty until there is design material** (PRD, decisions, design discussion). Emptiness-until-needed is a *rule, not text*: do **not** write a "this is the design surface, empty until the pieces are needed" sentence into each one — the name says it. When material arrives it lands as rows in the design root, and the parent's Design row lists what now exists.
+**Design root** — `design/<domain>/DAS <Name> Design.md` exists **only once there is design material** (PRD, decisions, design discussion). Emptiness-until-needed is a *rule, not text*: do **not** write a "this is the design surface, empty until the pieces are needed" sentence into each one — the name says it. When material arrives it lands as rows in the design root, and the dossier's Design row lists what now exists.
 
 **Examples — minimal and maximal:**
 
-- **Minimal skill** → [[DAS Mint]]: folder + entry page (breadcrumb + Related + Design) + empty design root. The floor.
-- **Maximal skill** → [[DAS Ask]]: the same skeleton, but a full user-guide body; its design root fills in once a PRD / decisions / discussion exist.
+- **Minimal skill** → [[DAS Mint]]: dossier page (breadcrumb + Related + Design). The floor.
+- **Maximal skill** → [[DAS Groom]]: the same skeleton, but a full user-guide body plus PRD + shared resolution-layer design in its Design row.
 
 ## SKA anchors own Design, not Track — shared by skills, facets, disciplines
 
@@ -237,15 +232,15 @@ Each action referenced in the Actions table is its own file named `{name}-{actio
 
 ### RULE R-skill-md-05 — A discipline (`user_invocable: false`) ships a parallel user doc and a no-slash H1 (checked)
 
-A discipline carries `user_invocable: false`, no Actions table, a parallel user-facing doc at `SKL User Docs/SKL Skills/SKL <Name>.md`, and a `# Name Discipline` user-doc H1 (no slash — a slash would imply it's invocable).
+A discipline carries `user_invocable: false`, no Actions table, a parallel user-facing doc at `docs/<domain>/DAS <Name>.md`, and a `# Name Discipline` user-doc H1 (no slash — a slash would imply it's invocable).
 
-**Check pattern:** if `user_invocable: false`, assert the parallel `SKL <Name>.md` exists and its H1 is `# {Name} Discipline`.
+**Check pattern:** if `user_invocable: false`, assert the parallel `DAS <Name>.md` exists under `docs/` and its H1 is `# {Name} Discipline`.
 
 # BRIEF
 
 *(Maintainer note — facet-specific cautions for whoever edits this SKILL.md spec. The normative contract is the body + RULESET R-skill-md above.)*
 
 - **Inclusion test** — a rule belongs here only if it governs *the SKILL.md entry-point file itself*: frontmatter shape, section sequence, action-file naming, reference-subdirectory conventions, the discipline-vs-skill split, the dispatch protocol. Per-action workflow, per-skill reference data, and per-anchor structure rules do NOT belong here.
-- **Keep content that belongs elsewhere out** — anchor-page format → [[DAS Anchor Page]] (the "F060 — SKILL.md is exempt" callout is the canonical pointer to where anchor-page rules diverge from SKILL.md rules); markdown-rendering → [[R-markdown]]; per-trait rules (every Skill anchor has X) → the relevant trait spec; project-wide rules → CLAUDE.md. Don't split the discipline user-doc requirement (parallel `SKL <Name>.md` + no-slash `# Name Discipline` H1) out of R-skill-md-05.
+- **Keep content that belongs elsewhere out** — anchor-page format → [[DAS Anchor Page]] (the "F060 — SKILL.md is exempt" callout is the canonical pointer to where anchor-page rules diverge from SKILL.md rules); markdown-rendering → [[R-markdown]]; per-trait rules (every Skill anchor has X) → the relevant trait spec; project-wide rules → CLAUDE.md. Don't split the discipline user-doc requirement (parallel `DAS <Name>.md` + no-slash `# Name Discipline` H1) out of R-skill-md-05.
 - **Reference Example block is load-bearing** — the escaped `\#` headings inside the code-fenced YAML block are intentional: they prevent the example sections from being parsed as real H1/H2 headings in this spec. Do not unescape them.
 - **Cross-reference integrity** — when this spec changes (new required section, renamed field, new convention), audit every existing `~/.claude/skills/*/SKILL.md` and the CAB Base / CAB All Files dispatch tables for drift before considering the change shipped.

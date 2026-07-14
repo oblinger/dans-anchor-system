@@ -2,12 +2,14 @@
 description: dated work products — papers, reports, polished outputs
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS WP markdown](hook://p/DAS%20WP%20markdown)
 # FCT WP
 Facet spec for the **Work Products** zone of an anchor — dated, polished outputs (papers, reports, analyses) organized as one folder per work product under `{slug} WP/`.
 
-**Related:** [[DAS Log]],  [[DAS Feature]],  [[DAS Brief]],  [[DAS Dispatch]]
-**Examples:** [[AIS WP\|example dispatch page]]
+| -[[DAS WP]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS WP](hook://p/DAS%20WP) |
+| --- | --- |
+| Related | [[DAS Log]],  [[DAS Feature]],  [[DAS Brief]],  [[DAS Dispatch]],   |
+| Examples | [[AIS WP\|example dispatch page]],   |
+| Rules | [[DAS WP#RULESET R-wp\|R-wp]],   |
 
 **Location:** `{slug} Docs/Work Products/YYYY-MM-DD {Title}.md   (dated work product)`
 
@@ -51,6 +53,7 @@ Work Products — polished, dated outputs of human+agent collaboration. Papers, 
 | [[2026-04-15 Security Audit]] |  |
 | [[2026-03-28 Architecture Review]] |  |
 | --- | |
+
 ```
 
 The `---` separator at the bottom enables rewire/rescan to auto-list any remaining work-product folders.
@@ -62,7 +65,9 @@ Each work-product file (`{date} {name}.md`) follows the F060 top-of-doc inside t
 When the WP folder is created, a **Work** row is added to the anchor dispatch table after the standard rows:
 
 ```
+
 | Work | [[{slug} WP\|WP]] |
+
 ```
 
 ## Distinction from Other Dated Content

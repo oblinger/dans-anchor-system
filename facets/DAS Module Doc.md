@@ -2,15 +2,15 @@
 description: "per-module source code documentation — one doc per source module mirroring the repo tree"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Module Doc](hook://p/DAS%20Module%20Doc)
 # FCT Module Doc
 Facet spec for per-module documentation — the auto-generatable, source-code-grounded reference doc that mirrors one source module under `{slug} Dev/`.
 
-**Related:** [[DAS Interface]],  [[DAS Architecture]],  FCT Dev,  [[DAS Code]]
-**Examples:** [[FEX Scheduler\|fuller (two-zone, SVG figure)]],  [[HBR Scanner\|minimal (leaf module)]]
-
-| Table of Contents |  |
-|---|---|
+| -[[DAS Module Doc]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Module Doc](hook://p/DAS%20Module%20Doc) |
+| --- | --- |
+| Related | [[DAS Interface]],  [[DAS Architecture]],  FCT Dev,  [[DAS Code]], |
+| Examples | [[FEX Scheduler\|fuller (two-zone, SVG figure)]],  [[HBR Scanner\|minimal (leaf module)]],   |
+|  |  |
+| **Table of Contents** |  |
 | [[#Location — mirroring the source tree]] |  |
 | [[#Document structure]] |  |
 | [[#Priority and starvation]] |  |
