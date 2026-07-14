@@ -5,7 +5,7 @@ description: "Durable architectural decisions + rationale — standard/API split
 # DKT Decisions
 include::
 
-| -[[DKT Decisions]]- | : durable architectural decisions + rationale |
+| -[[DKT Decisions]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [DKT Decisions](hook://p/DKT%20Decisions)<br>: Durable architectural decisions + rationale — standard/API split, Rust+Python common docs, anchor-crate separation |
 | --- | --- |
 | Related | [[DKT Design]],  [[DKT Architecture]],  [[DKT Standard]],  [[DKT API]],   |
 | ... |  |

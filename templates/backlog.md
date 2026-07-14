@@ -1,6 +1,6 @@
 # {slug} Backlog
 
-| -[[{slug} Backlog]]- | |
+| -[[{slug} Backlog]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [backlog](hook://p/backlog) |
 | --- | --- |
 | ... |  |
 
