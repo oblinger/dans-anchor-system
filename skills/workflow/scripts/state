@@ -1599,7 +1599,7 @@ def cmd_v2(slug, anchor_path, args):
         )
     if args.verb == "set" and doc_kind != "backlog":
         raise be.BacklogEditError("set is Backlog-only — Q/V items use define")
-    if doc_kind == "backlog" and letters in ("F", "T"):
+    if doc_kind == "backlog" and letters in ("F", "T", "C"):
         if num == "+":
             mint_num = be.mint_cross_file_id(doc_path, be.find_icebox(slug), letters)
             label = be.format_row_id(letters, mint_num)
@@ -1616,7 +1616,7 @@ def cmd_v2(slug, anchor_path, args):
     where = "Backlog" if doc_kind == "backlog" else doc_path.name
     raise be.BacklogEditError(
         f"unknown query kind {args.label!r} for {where} — valid labels: "
-        f"F<n>/T<n>/F+/T+ on Backlog, Q<n>/V<n>/Q+/V+ on any other doc"
+        f"F<n>/T<n>/C<n>/F+/T+/C+ on Backlog, Q<n>/V<n>/Q+/V+ on any other doc"
     )
 
 
@@ -1650,7 +1650,7 @@ def build_v2_parser():
             "state v2 (F236) — one address scheme: "
             "`state [-a ANCHOR] <doc> <label> <verb> [< body]`. "
             "doc = Backlog | wiki-name | path. label = LETTERS+DIGITS, or "
-            "LETTERS+'+' to auto-mint (Q7, V3, F157, T8, F+, T+, Q+, V+). "
+            "LETTERS+'+' to auto-mint (Q7, V3, F157, T8, C23, F+, T+, C+, Q+, V+). "
             "verb = define | set | resolve | remove (set is Backlog-only)."
         ),
     )
