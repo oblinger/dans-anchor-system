@@ -2,12 +2,13 @@
 description: "the top-down design of a system's module & content structure — the file-tree architecture doc kind"
 ---
 
-# FCT Files Architecture
+# DAS Files Architecture
 The facet spec for a **Files Architecture** document — the top-down design of how a system's files, modules, and content are laid out: every folder, what lives in it, and why the tree is shaped that way.
 
 | -[[DAS Files Architecture]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Files Architecture](hook://p/DAS%20Files%20Architecture) |
 | --- | --- |
 | Related | [[DAS Architecture\|Architecture]] (subsystem-interaction story — the sibling design facet),  [[DAS All Files\|All Files]] (the realized source tree this designs),  [[DAS Module Doc\|Module Doc]],  [[DAS Design Docs\|Design Docs]] (parent group), |
+| Rules | [[R-files-architecture]],   |
 | Examples | [[SKA File Tree Architecture]] — the worked instance: the top-down design of the `dans-anchor-system` / SKA tree, |
 
 **TLDR** — A Files Architecture doc is the top-down canonical map of where every file/module/content kind lives in a system and why the tree is shaped that way. Required parts: a folder→role structure table (the load-bearing piece) and its design rationale. Cardinality: one per anchor/repo. Sibling to [[DAS Architecture]] (subsystem interactions), not a replacement for it.
@@ -47,41 +48,6 @@ Some systems don't keep one tree — they split artifacts across **two or more b
 - **Absence semantics** — a missing sub-file / cross-link is a **deliberate signal** ("not governed / not applicable"), kept distinct from "forgotten" by the cross-link discipline (a page links only what exists, so a missing link reads as intentional).
 
 [[SKA File Tree Architecture]] § *One concept, one list* is the worked instance: skills (verbs) + facets (nouns) as the two primary lists, traits + disciplines as smaller ones; each concept listed once; scripts and examples are un-listed satellites.
-
-# RULESET R-files-architecture
-description:: the file-tree / content-structure design doc kind
-
-### RULE R-files-architecture-01 — Target structure is present and explicit (checked)
-**Check pattern:** the doc contains a folder→role mapping (a table or annotated tree) that names every top-level category/folder of the system and what lives in it.
-**Why:** the whole point of the doc is to be the authoritative "where does X go?" answer; without an explicit target layout it's just commentary.
-
-### RULE R-files-architecture-02 — Top-down end-state, not a migration log (stated)
-**Check pattern:** the structure section describes the *aimed-at* layout; incremental migration steps, if any, are confined to a Status / open-questions section, not mixed into the target.
-**Why:** readers need the canonical destination at a glance; interleaving in-flight migration noise makes the map untrustworthy.
-
-### RULE R-files-architecture-03 — Every structural choice carries rationale (stated)
-**Check pattern:** each non-obvious folder/naming choice in the target has a *why* nearby (organizing principle, constraint, or trade-off) — not bare assertion.
-**Why:** the design's durability depends on the reasoning surviving; un-justified structure gets relitigated the moment someone disagrees.
-
-### RULE R-files-architecture-04 — Distinguished from system architecture (stated)
-**Check pattern:** the doc stays about *where things live and why*; subsystem-interaction / data-flow content is delegated to [[DAS Architecture]] via a cross-link, not duplicated here.
-**Why:** Files Architecture and system Architecture are sibling design facets; conflating them produces two docs that drift and contradict.
-
-### RULE R-files-architecture-05 — Names carry their conventions (sampled)
-**Check pattern:** when the tree relies on naming conventions (prefixes, slugs, casing), those conventions are stated with their rationale, not left implicit in the examples.
-**Why:** a reader placing a new file needs the rule, not just a pattern to pattern-match against.
-
-### RULE R-files-architecture-06 — Supersession is named (stated)
-**Check pattern:** if this design replaces an older doc or section, it says so explicitly (which doc/section, and that it's now stale).
-**Why:** stale parallel maps are worse than none; an explicit supersession note routes readers away from the dead one.
-
-### RULE R-files-architecture-07 — Embedded trees are plain monospace, never fenced (checked)
-**Check pattern:** any file-tree shown in the body renders via `cssclasses: monospace` (or equivalent), not wrapped in a ```` ``` ```` code fence — so wiki-links inside the tree stay live.
-**Why:** same load-bearing rule as [[DAS All Files]]: fencing a tree kills its links and turns the page into a dead zone.
-
-### RULE R-files-architecture-08 — By-name indexes state one-list placement, unlisted satellites, and absence (stated)
-**Check pattern:** if the tree splits artifacts across two or more concept-name-keyed indexes, the doc states all three: (a) **one-list placement** — each concept named in exactly one index, never two, with a single dispatch page as the hub; (b) **satellites unlisted** — sub-files (examples, specs, scripts) carry no index entry and are reached only from the dispatch page; (c) what a missing sub-file / cross-link means.
-**Why:** the value of these indexes is mechanical placement and one navigable home per concept; dual-listing, or listing satellites, reintroduces exactly the ambiguity the split was meant to remove.
 
 # BRIEF
 

@@ -1,7 +1,7 @@
 ---
 description: "folder templates — a folder's canonical multi-doc structure"
 ---
-# FCT Template Folders
+# DAS Template Folders
 A **folder template** — a `_{Name} Template/` folder whose marker + skeleton define the canonical structure of a folder that carries more than one document per item.
 
 | -[[DAS Template Folders]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Template Folders](hook://p/DAS%20Template%20Folders)<br>: folder templates — a folder's canonical multi-doc structure |
@@ -13,7 +13,7 @@ A **folder template** — a `_{Name} Template/` folder whose marker + skeleton d
 
 A tiny folder template — the gist (a fuller worked instance is the FEX example below):
 
-!FCT Template Folder Example.svg
+![[DAS Template Folder Example.svg]]
 
 A folder template is a `_{Name} Template/` **folder**, not a single file. Its parts:
 

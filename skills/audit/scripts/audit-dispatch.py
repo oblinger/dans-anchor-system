@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """audit-dispatch.py — build / repair one anchor's dispatch table to the
-Masthead + Member-zone shape spec'd in [[FCT Dispatch Table]].
+Masthead + Member-zone shape spec'd in [[DAS Dispatch Table]].
 
 The engine behind the `/audit dispatch` runbook. Given an anchor (path or
 name) it:

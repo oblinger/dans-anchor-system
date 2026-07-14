@@ -5,7 +5,7 @@ Phase 1 of the canonical `/design` sequence (PRD → UX → API → Architecture
 **Two modes** — the same skill drives both:
 
 - **Bootstrap mode** — no PRD exists. Agent gathers context, drafts the standard section spine, glances the file, iterates with the user.
-- **Assess mode** — PRD already exists. Agent surveys it against the [[DAS PRD#RULESET R-prd|R-prd]] rules + section spine + depth heuristics, glances the file, reports findings in chat, and waits for direction (drive end-to-end / one-move-at-a-time / converse).
+- **Assess mode** — PRD already exists. Agent surveys it against the [[R-prd]] rules + section spine + depth heuristics, glances the file, reports findings in chat, and waits for direction (drive end-to-end / one-move-at-a-time / converse).
 
 The mode is detected, not invoked — `/design prd` does the right thing based on what's on disk.
 
@@ -36,7 +36,7 @@ The whole point: don't silently edit. Survey first, report, glance, wait.
 
 Read the PRD, then evaluate against three dimensions:
 
-**Rule check — `R-prd` (per [[DAS PRD#RULESET R-prd|the embedded ruleset]]):**
+**Rule check — `R-prd` (per [[R-prd]]):**
 
 | Rule | What it checks |
 |---|---|
@@ -251,7 +251,7 @@ Legacy `{anchor}/{slug} Docs/{slug} Plan/{slug} PRD.md` is deprecated per F094. 
 **Read [[DAS PRD]] before authoring.** The facet spec is the canonical recipe — required sections, dataview fields, preface zone (TLDR explicitly NOT required for PRDs), section spine. This sub-skill owns the *process*; the facet owns the *shape*. If anything in this skill conflicts with the facet, the facet wins.
 
 Worked example to crib from: [[HBR PRD]].
-Audit rules to honor: [[DAS PRD#RULESET R-prd|R-prd]] (9 rules).
+Audit rules to honor: [[R-prd]] (9 rules).
 
 ## Anti-patterns
 
@@ -259,11 +259,11 @@ Audit rules to honor: [[DAS PRD#RULESET R-prd|R-prd]] (9 rules).
 - **Don't gate by separate ceremony.** Promotion to `MVP-agent` is a `state status set` call, not a Verify row or a banner. The user-grade `MVP-user` comes from natural-language confirmation.
 - **Don't ask "should we have a PRD?"** — `/design prd` was invoked. Author it (bootstrap) or assess it (existing).
 
-(For the decide-vs-ask judgment on open questions, defer to [[query]] — that discipline owns the lifecycle, not this skill. For shape rules — body-only, no DC-N, no per-doc `status::`, no separate Open Questions file — defer to [[DAS PRD#RULESET R-prd|R-prd]]; the audit catches them mechanically.)
+(For the decide-vs-ask judgment on open questions, defer to [[query]] — that discipline owns the lifecycle, not this skill. For shape rules — body-only, no DC-N, no per-doc `status::`, no separate Open Questions file — defer to [[R-prd]]; the audit catches them mechanically.)
 
 ## Related
 
-- Facet spec: [[DAS PRD]] (with embedded [[DAS PRD#RULESET R-prd|R-prd]])
+- Facet spec: [[DAS PRD]] (with embedded [[R-prd]])
 - Worked example: [[HBR PRD]]
 - Stories sub-facet: [[DAS Stories]] (activates if stories grow)
 - Parent orchestrator: [[design]]

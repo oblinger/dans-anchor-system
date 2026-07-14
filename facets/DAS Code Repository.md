@@ -2,14 +2,14 @@
 description: "facet spec for the code repository association and doc-mirror routes declared in an anchor's `.anchor` file"
 ---
 
-# FCT Code Repository
+# DAS Code Repository
 Facet spec for how an anchor declares and resolves its associated code repository — linked (separate path) or inline — via the `code:` key in `.anchor`.
 
 | -[[DAS Code Repository]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Code Repository](hook://p/DAS%20Code%20Repository) |
 | --- | --- |
-| Related | [[DAS Anchor Page]],  [[DAS Traits]],  [[DAS Facet]],  FCT Manifest, |
+| Related | [[DAS Anchor Page]],  [[DAS Traits]],  [[DAS Facet]],  [[FEX Manifest]],   |
 | Examples | [[OBU\|linked-absolute]],  [[HA\|linked-relative]],   |
-| Rules | [[DAS Code Repository#RULESET R-code-repository\|R-code-repository]],   |
+| Rules | [[R-code-repository]],   |
 |  |  |
 | **Table of Contents** |  |
 | **[[#Location]]** |  |
@@ -18,11 +18,6 @@ Facet spec for how an anchor declares and resolves its associated code repositor
 | **[[#Doc Mirror (`mirror:`)]]** |  |
 | [[#Mirror engine (`code sync`)]] |  |
 | [[#The there side is not an authoring surface]] |  |
-| [[#RULE R-code-repository-01 — A `code`-trait anchor declares `code:` in `.anchor` (checked)]] |  |
-| [[#RULE R-code-repository-02 — No implicit fallback when `code:` is absent (checked)]] |  |
-| [[#RULE R-code-repository-03 — Relative `code:` resolves against the anchor root (stated)]] |  |
-| [[#RULE R-code-repository-04 — Doc mirroring is declared via `mirror:` in `.anchor` (stated)]] |  |
-| [[#RULE R-code-repository-05 — The there side is never an authoring surface (stated)]] |  |
 
 **TLDR** — An anchor with a `code` trait declares its repo via `code:` in `.anchor` (absolute, relative, or `.` for inline). No symlink, no `.git/`-probing fallback. Docs that ship with the repo are kept in sync by the **`mirror:`** key — a local two-folder sync (`here:` in the anchor tree ↔ `there:` anywhere on disk), two-way by default, fully independent of `code:`. **Cardinality: one** — one code repo association per anchor.
 
@@ -202,51 +197,10 @@ Design rationale, alternatives considered, and the trade-off matrix:
 `sync-push` (retired) and sparse-checkout-into-the-anchor
 ([[Anchor Remotes]], rejected) — are superseded by this section.
 
-# RULESET R-code-repository
-include::
-where:: `file:{anchor}/.anchor`
-description:: how an anchor declares & resolves its associated code repository
-
-What `/audit` checks on a `code`-trait anchor's repository association. Format of this set: [[DAS Ruleset]].
-
-### RULE R-code-repository-01 — A `code`-trait anchor declares `code:` in `.anchor` (checked)
-check:: anchor_has code
-
-An anchor with the `code` trait carries a `code:` key in its `.anchor`; its presence *is* the declaration that code belongs to this anchor.
-
-**Check pattern:** if `traits` contains `code`, assert a non-empty `code:` key in `.anchor`.
-
-**Why:** the `code:` key is the single source of truth — there is no `code` symlink and no path-convention fallback.
-
-### RULE R-code-repository-02 — No implicit fallback when `code:` is absent (checked)
-check:: no_git_probe_fallback
-
-A `code`-trait anchor with no `code:` key is an error — scripts must fail, never probe for `.git/` at the anchor root or look up a legacy `code` symlink.
-
-**Check pattern:** resolver errors (does not silently locate a repo) when the trait is present but `code:` is missing.
-
-**Why:** silent fallbacks hide misconfiguration; the spec forbids them generally.
-
-### RULE R-code-repository-03 — Relative `code:` resolves against the anchor root (stated)
-
-An absolute `code:` value is used as-is; a relative value resolves against the **anchor root** (the folder holding `.anchor`), not the caller's cwd; `code: .` is inline mode (repo == anchor root, `.git/` beside `.anchor`).
-
-### RULE R-code-repository-04 — Doc mirroring is declared via `mirror:` in `.anchor` (stated)
-
-Each route carries `here:` (anchor-root-relative) + `there:` (absolute path) + optional `direction:` (`two-way` default | `push` | `pull`). `mirror:` is independent of `code:` — it syncs two local folders; `there:` is never resolved against the code checkout.
-
-**Why:** association ("where is the code") and sync ("what mirrors where") are different layers; coupling them was the old spec's hidden dependency.
-
-### RULE R-code-repository-05 — The there side is never an authoring surface (stated)
-
-Backward transport happens only for changes that arrived via git commits; uncommitted there-side edits are quarantined and flagged. The sync stamps there-side copies read-only.
-
-**Why:** the here side is where user and agents co-author; silent backward flow would collide with live edits.
-
 # BRIEF
 
 *(Maintainer note — facet-specific cautions for whoever edits this spec. This is a DAS facet spec, never a per-anchor record — don't inline a specific anchor's `code:` value or repo path as canonical content; use [[CAE example]] (or similar) as a worked reference. The normative spec is the body above.)*
 
 - **Inclusion test** — content belongs here only if it concerns the vault↔repo *association mechanism* (declaration, resolution, inline vs linked, doc-sync direction). Repo-internal conventions (justfile shape, test layout, language choices) live in `<App> Dev/` or the repo's own docs; trait-wide rules in `CAB code.md`; markdown-rendering rules in [[R-markdown]]; project-wide policy in `CLAUDE.md`.
-- **Two load-bearing invariants — don't soften them:** the `code:` key is the single source of truth (no symlink / `.git/`-probing / path-convention fallback), and the mirror's backward leg transports **only committed changes** (uncommitted there-side edits quarantine — the there side is never an authoring surface). Any edit weakening either must be flagged explicitly, with [[FCT Facets]] / related facet specs updated in the same pass.
+- **Two load-bearing invariants — don't soften them:** the `code:` key is the single source of truth (no symlink / `.git/`-probing / path-convention fallback), and the mirror's backward leg transports **only committed changes** (uncommitted there-side edits quarantine — the there side is never an authoring surface). Any edit weakening either must be flagged explicitly, with ~~[[FCT Facets]]~~ / related facet specs updated in the same pass.
 - **Reference example stays condensed** — the `CAE example/` tree and minimal justfile are illustrative orientation, not normative; don't grow them into a full template — point readers at the live anchor.

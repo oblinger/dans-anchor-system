@@ -1,5 +1,5 @@
 ---
-description: "viewer-facing UX"
+description: "sibling — human CLI surface"
 ---
 # HBR UX Design
 What a household viewer sees: browse the catalog, then play a title — on whatever device is in hand.

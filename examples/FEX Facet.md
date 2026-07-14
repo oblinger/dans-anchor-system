@@ -9,7 +9,7 @@ The marker that an anchor follows the designed-lifecycle convention — if `{slu
 | --- | --- |
 | Related | [[DAS Facets]],  [[DAS Design Folder]] (the live facet),  [[DAS Anchor Page]],  [[progressive-disclosure]] |
 
-> **Canonical facet exemplar.** This page *is* the template every `FCT <name>` facet follows. Structure, top to bottom: **H1** = the facet's readable name → **one line** saying what it is → **masthead** (just `Related` — nothing the breadcrumb already gives) → the **facet body** (the H2s below). Roll this shape out to all facets. The worked content here is the **Design** facet.
+> **Canonical facet exemplar.** This page *is* the template every `DAS <name>` facet follows. Structure, top to bottom: **H1** = the facet's readable name → **one line** saying what it is → **masthead** (just `Related` — nothing the breadcrumb already gives) → the **facet body** (the H2s below). Roll this shape out to all facets. The worked content here is the **Design** facet.
 
 ## What it is
 

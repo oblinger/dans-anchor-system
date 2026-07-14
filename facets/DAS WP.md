@@ -2,14 +2,14 @@
 description: dated work products — papers, reports, polished outputs
 ---
 
-# FCT WP
+# DAS WP
 Facet spec for the **Work Products** zone of an anchor — dated, polished outputs (papers, reports, analyses) organized as one folder per work product under `{slug} WP/`.
 
 | -[[DAS WP]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS WP](hook://p/DAS%20WP) |
 | --- | --- |
 | Related | [[DAS Log]],  [[DAS Feature]],  [[DAS Brief]],  [[DAS Dispatch]],   |
 | Examples | [[AIS WP\|example dispatch page]],   |
-| Rules | [[DAS WP#RULESET R-wp\|R-wp]],   |
+| Rules | [[R-wp]],   |
 
 **Location:** `{slug} Docs/Work Products/YYYY-MM-DD {Title}.md   (dated work product)`
 
@@ -48,7 +48,7 @@ Work Products — polished, dated outputs of human+agent collaboration. Papers, 
 ```markdown
 # {slug} WP
 
-| -[[{slug} WP]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Output]] → [FCT WP](hook://p/FCT%20WP)<br>: work products |
+| -[[{slug} WP]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Output]] → [DAS WP](hook://p/DAS%20WP)<br>: work products |
 | --- | --- |
 | [[2026-04-15 Security Audit]] |  |
 | [[2026-03-28 Architecture Review]] |  |
@@ -76,41 +76,6 @@ When the WP folder is created, a **Work** row is added to the anchor dispatch ta
 | **Outputs** | `{slug} Outputs/` in Plan | `stat add` automatically | Agent-generated reports |
 | **Log** | anchor page or log file | manual | Informal notes and history |
 | **Features** | `{slug} Features/` in Plan | `/code feature` | Feature design specs |
-
-# RULESET R-wp
-include::
-where:: `file:{anchor}/{slug} WP/**/*`
-description:: the `{slug} WP/` work-products zone — dated polished outputs
-
-What `/audit` checks on an anchor's Work Products zone. Cardinality: one zone per anchor, many entries within. Format of this set: [[DAS Ruleset]].
-
-### RULE R-wp-01 — `{slug} WP/` lives at the anchor root with one dispatch page (checked)
-
-The Work Products zone is `{slug} WP/` at the anchor root (not inside `Docs/`), containing a single `{slug} WP.md` dispatch page plus per-work-product folders.
-
-**Check pattern:** `{slug} WP/{slug} WP.md` exists at the anchor root.
-
-### RULE R-wp-02 — Folder and main file share the dated name (checked)
-
-Each work product is a folder `YYYY-MM-DD {Title}/` containing `YYYY-MM-DD {Title}.md` of the same name; the date is `YYYY-MM-DD`; files inside WP carry no slug prefix (date + name gives uniqueness).
-
-**Check pattern:** each WP folder name matches `^\d{4}-\d{2}-\d{2} `; its main file basename equals the folder name.
-
-### RULE R-wp-03 — Always a folder, even for a single-file work product (stated)
-
-A work product is always a folder (it often grows appendices), never a bare file directly under `{slug} WP/`.
-
-### RULE R-wp-04 — Dispatch page is reverse-chronological and ends with the `---` auto-list marker (checked)
-
-`{slug} WP.md` follows F060 (H1 + dispatch placeholder), lists work products newest-first, and ends with a `| --- | |` separator so rewire/rescan auto-lists remaining folders.
-
-**Check pattern:** the dispatch table's last row is the `---` auto-list separator; entries are in descending date order.
-
-### RULE R-wp-05 — Anchor page carries a `Work` row when the WP zone exists (checked)
-
-When `{slug} WP/` exists, the anchor dispatch table carries a `| Work | [[{slug} WP\|WP]] |` row.
-
-**Check pattern:** `{slug} WP/` exists ⇔ the anchor page has a `Work` row linking it.
 
 # BRIEF
 

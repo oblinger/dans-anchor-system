@@ -46,7 +46,7 @@ description: "product requirements"
 
 **Names are identity; order is document position, never a stored number.** A roadmap entry is resolved on its **name-path** — its ordering is simply its position in the roadmap file (a display ordinal, if shown, is *computed* from that position, never written into a handle). So there is no number to go stale: inserting/reordering entries shifts positions automatically, and every reference (sub-entries, backlog `R` tasks, done-logs, cross-links) keeps resolving because it's keyed on the name. Only **renaming** an entry forces a sweep (far rarer than reorder/insert). This is why `R` task handles are word-only (`R-CLI.3.5`), not numbered. Full convention: [[DAS Roadmap]] § Names are identity.
 
-The identity is *achieved by linking*: a row links to its feature doc (`F<n>`), is itself the task record (`T<n>`), or references a roadmap entry (`R…`, leaf or non-leaf). A feature doc unlinked from the backlog/roadmap has no place in the system — groom gives it one rather than leaving an orphan. This is why every question can (and must) name its work-item handle: the handle exists first. (Numbering policy for `F`/`T`/`M`/`R` lives in the [[DAS Backlog|FCT Backlog]] facet + [[DAS Roadmap]]; the `state` mint is the source of new handles.)
+The identity is *achieved by linking*: a row links to its feature doc (`F<n>`), is itself the task record (`T<n>`), or references a roadmap entry (`R…`, leaf or non-leaf). A feature doc unlinked from the backlog/roadmap has no place in the system — groom gives it one rather than leaving an orphan. This is why every question can (and must) name its work-item handle: the handle exists first. (Numbering policy for `F`/`T`/`M`/`R` lives in the [[DAS Backlog]] facet + [[DAS Roadmap]]; the `state` mint is the source of new handles.)
 
 ## The groom frontier (activity 2)
 
@@ -56,11 +56,11 @@ The frontier is the shared scope of the resolution layer:
 
 - **`/groom` plans the frontier to Ready.** Its purpose is to get every frontier task **fully ready to be executed** — investigate, draft the approach, declare the `- **Next:**` step, promote to `[Ready]` when the Definition of Ready holds; when it doesn't, file the blocking questions (or the honest `[Blocked]`/`[Waiting]`/`[Watching]` state) so the obstacle is named. A frontier row left unplanned and unbracketed is groom's unfinished work.
 - **`/ask` asks about the frontier.** The determination ladder and the G6 look-ahead walk frontier tasks — the pile the user answers is exactly what unblocks the next stretch of execution. (Non-frontier `[Questions]`/`[Verify]` brackets still render per the render rules; they just don't drive anticipatory question-mining.)
-- **The audit checks it.** The frontier invariants are encoded as the `R-backlog` ruleset in the [[DAS Backlog|FCT Backlog]] facet (frontier rows planned + bracket-resolved; Verify rows carry a concrete question), fired by the rule engine at doc-audit.
+- **The audit checks it.** The frontier invariants are encoded as the `R-backlog` ruleset in the [[DAS Backlog]] facet (frontier rows planned + bracket-resolved; Verify rows carry a concrete question), fired by the rule engine at doc-audit.
 
 ## Grooming the frontier (activity 3)
 
-Grooming a frontier item means **planning it out until you know, as concretely as possible, how you would execute it** — then recording that knowledge as one of **five explicit groomed states**, each with a body contract enforced by a checked `R-backlog` rule (canonical table: [[DAS Backlog|FCT Backlog]] § The groomed states). Groom never leaves a frontier item in an unknown state:
+Grooming a frontier item means **planning it out until you know, as concretely as possible, how you would execute it** — then recording that knowledge as one of **five explicit groomed states**, each with a body contract enforced by a checked `R-backlog` rule (canonical table: [[DAS Backlog]] § The groomed states). Groom never leaves a frontier item in an unknown state:
 
 - **Executable** (`[Ready]`/`[Active]`) → the row declares a concrete `- **Next:**` step the agent takes with zero user involvement (R-backlog-02).
 - **Questions** (`[Questions]`) → the questions are **enumerated** and reachable from the row — inline numbered `Q<n>` or a `→ [[Feature Doc]]` link — each satisfying the question bar below (R-backlog-05 + the R-query rules).

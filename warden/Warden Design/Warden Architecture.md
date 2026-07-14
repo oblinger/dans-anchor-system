@@ -101,7 +101,7 @@ dans-anchor-system/library/Rulesets/          ← (1) the shared catalog, organi
 ├── R-anchor/R-anchor.md                 umbrella
 └── R-ob/R-ob-state-mgt.md               owner-scoped set
 
-dans-anchor-system/facets/.../FCT Testing.md   ← (2) embedded # RULESET R-testing inside a facet spec
+dans-anchor-system/rulesets/R-testing.md       ← (2) standalone ruleset file (bodies moved out of facet specs 2026-07-13)
 dans-anchor-system/skills/.../<skill> spec     ← (2) embedded set inside a skill/discipline spec
 
 {Full Name}/{slug} Design/{slug} Rules.md  ← (3) anchor-local rules too specific to share (rare)
@@ -111,7 +111,7 @@ dans-anchor-system/skills/.../<skill> spec     ← (2) embedded set inside a ski
 | Home | When used | Example |
 |---|---|---|
 | **Catalog** — standalone `R-<slug>.md` | cross-cutting, reusable, owner- or trait-scoped rulesets | [[R-diagram]] |
-| **Embedded** — `# RULESET` inside a facet / skill / discipline spec | rules that *are* the structural spec for an artifact kind | `R-ruleset` in [[DAS Ruleset]]; `R-testing` in `FCT Testing` |
+| **Standalone (canonical since 2026-07-13)** — `rulesets/R-<name>.md`, linked from the owning spec's `Rules` row | rules that *are* the structural spec for an artifact kind | `R-ruleset` for [[DAS Ruleset]]; `R-testing` for [[DAS Testing]] (embedded `# RULESET` blocks remain legal for anchor-local sets — the sentinel catches both) |
 | **Anchor-local** — `{slug} Rules.md` | rules truly specific to one anchor | [[FEX Rules]] |
 
 **Association with facets and skills** is the embedded home: each DAS facet, skill, and discipline spec carries its own `# RULESET R-<facet>` block, and the `R-anchor` / `R-doc` umbrellas aggregate them. That is how "the rules of the facets an anchor has" (the F001 phrase) is computed — facet presence is mostly folder/file presence, and each present facet contributes its embedded set.
@@ -174,7 +174,7 @@ The taxonomy is **open-ended and extensible**: a new trigger is one more paramet
 
 **Active rules carry a body that runs.** A passive rule (no `when::`) is evaluated when the audit visits. An active rule fires *at* its moment and runs its **body** — bare prose (the `tell` — an agent-directed steer, not a user-facing finding) or **backticked Python** (the `tell` / `edit` / `deny` / `run` verbs over the interpretation environment; no `def`, no magic name — [[Warden Semantics]]). Lineage: [[F180 — When-trigger executable rules|F180]] shipped the first executable shape (a fenced `def trigger(ctx) → list[str]`); the current model generalizes it to prose / backticked-Python bodies.
 
-First live rule: `R-query-14` (push/commit interception in `FCT Query`) fires on `when:: skill:audit-q`; `audit-q.py` discovers and **autofires** `when:: skill:audit-q` rules on every run (`--when <event>` / `--list-when`).
+First live rule: `R-query-14` (push/commit interception in `R-query`) fires on `when:: skill:audit-q`; `audit-q.py` discovers and **autofires** `when:: skill:audit-q` rules on every run (`--when <event>` / `--list-when`).
 
 **The `if::` test.** When `when::` (moment) and `where::` (place) don't capture the firing condition, a rule adds an `if::` — a **Python expression** over `file` / `anchor` / `git` / `event` (or prose, for an LLM judgment). It is the computed conjunct of the rule's truth condition (§4): cheap data-accessor tests (`git.is_dirty`) ride the live path, expensive ones (`ask_oracle`, `sh`) run at audit.
 

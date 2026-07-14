@@ -1,7 +1,7 @@
 ---
 description: "the `{{PLACEHOLDER}}` system shared by file and folder templates"
 ---
-# FCT Template Variables
+# DAS Template Variables
 The `{{PLACEHOLDER}}` system shared by file and folder templates — how each variable is defined, what to do when there is no data, and the structural-vs-cumulative distinction.
 
 | -[[DAS Template Variables]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Template Variables](hook://p/DAS%20Template%20Variables)<br>: the `{{PLACEHOLDER}}` system shared by file and folder templates |

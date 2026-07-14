@@ -7,7 +7,7 @@ description: "the leanest complete file set for a facet, with a live instance"
 | -[[FEX Minimal Facet]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [FEX Minimal Facet](hook://p/FEX%20Minimal%20Facet)<br>: the leanest complete file set for a facet, with a live instance |
 | --- | --- |
 | Anchor | [[HBR]] (reference anchor) |
-| Related | [[FEX Minimal Skill]],  [[DAS Dispatch Table]] (the live instance),  [[FCT Facets]] |
+| Related | [[FEX Minimal Skill]],  [[DAS Dispatch Table]] (the live instance),  [[DAS Facets]] |
 
 The **minimal-facet capsule**: the smallest file set that fully captures a facet *and its design thinking*, with **nothing empty**. Every file below exists only when it carries real content — the structure is uniform (you always know where a piece *would* go), but a piece that has nothing to say is simply absent, not a stub. This is the antidote to the legacy dozen-doc scaffold (see [[DAS Dispatch Table Design]] § Standing decisions).
 

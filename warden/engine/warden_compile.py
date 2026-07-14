@@ -207,7 +207,7 @@ def parse_ruleset(text: str, name: str, source: str) -> dict | None:
             targets = re.findall(r"\[\[([^\]|]+)", val)
             if not targets and val:
                 # bare-name form (`include:: R-sugiyama, R-c4`) — documented
-                # in FCT Ruleset but previously dropped silently (F232 A6).
+                # in DAS Ruleset but previously dropped silently (F232 A6).
                 targets = [t.strip() for t in val.split(",") if t.strip()]
             rs["includes"] = targets
         elif key == "where":
@@ -676,7 +676,7 @@ def vault_root(scan_root: Path) -> Path:
 
 def _include_target(target: str) -> str:
     """An `include::` wiki-link target → the included ruleset's name.
-    `FCT Brief#RULESET R-brief` → `R-brief`; `R-arch` → `R-arch` (file basename
+    `DAS Brief#RULESET R-brief` → `R-brief`; `R-arch` → `R-arch` (file basename
     equals the ruleset name per the R-<slug> naming convention)."""
     if "#" in target:
         m = re.search(r"RULESET\s+(R-[\w-]+)", target.rsplit("#", 1)[1])
@@ -793,7 +793,7 @@ def compile_corpus(root: Path, index: dict, anchor: str = "all",
                 traits.setdefault(trait, []).append(rule["id"])
                 if rule["py_kind"] or row["guard_py"]:
                     py_rules.append((rule, row))
-    # include:: composition (FCT Ruleset — acyclic depth-first flatten): an
+    # include:: composition (DAS Ruleset — acyclic depth-first flatten): an
     # umbrella's trait keys its own rules PLUS every included ruleset's rules,
     # transitively. Without this, "adopt the umbrella to pull all its rulesets"
     # was a documented no-op — every umbrella trait keyed zero rules (found by

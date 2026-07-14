@@ -74,4 +74,4 @@ Per the one-concept-one-list model ([[SKA File Tree Architecture]] § One concep
 - **Examples** — the `examples/Audited/` world: real artifacts (Architecture, PRD, Decisions, Stories, Testing) in their audited form — the FEX fixture for what `/audit` produces and checks. Specific example audit-run docs are added there and linked from this page (never a standalone `FEX Audit` index entry).
 - **Scripts** — `skills/audit/scripts/` (audit's mechanism; assets of this skill).
 
-**No separate facet.** Audit's noun-aspect — what a recorded audit report would contain — is too light to warrant its own `FCT Audit` file. Per the model, thin noun-content stays here on the skill page rather than spawning a facet; a facet is minted only if that spec ever becomes substantial and independently referenced.
+**No separate facet.** Audit's noun-aspect — what a recorded audit report would contain — is too light to warrant its own `DAS Audit` facet file. Per the model, thin noun-content stays here on the skill page rather than spawning a facet; a facet is minted only if that spec ever becomes substantial and independently referenced.

@@ -1,5 +1,5 @@
 ---
-description: "CAE system architecture — worked example of the FCT Architecture facet"
+description: "CAE system architecture — worked example of the DAS Architecture facet"
 ---
 # FEX Architecture
 CAE is a single-process CLI scheduler. A submitted task carries a deadline, a retry policy, and an opaque command payload; the scheduler enqueues it in a SQLite-backed priority store, dispatches to a fixed worker pool when ready, and routes failures through a centralized retry manager. No daemon, no IPC — every coordination decision flows through the SQLite store.
@@ -8,7 +8,7 @@ CAE is a single-process CLI scheduler. A submitted task carries a deadline, a re
 
 CLI submits tasks to the **Scheduler**, which dispatches to the **Worker Pool**, persists state in **TaskStore**, and consults **RetryManager** on failure. The injectable **Clock** (not shown — passed by reference at construction) is the time source every component reads from.
 
-| -[[FEX Architecture]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [FEX Architecture](hook://p/FEX%20Architecture)<br>: CAE system architecture — worked example of the FCT Architecture facet |
+| -[[FEX Architecture]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [FEX Architecture](hook://p/FEX%20Architecture)<br>: CAE system architecture — worked example of the DAS Architecture facet |
 | --- | --- |
 | [[FEX Scheduler]] | priority queue engine + worker dispatch. Source: `src/execution/scheduler.rs`. |
 | [CAE-Store] | SQLite-backed task persistence; load/save/mark-done. (subsystem doc not yet authored) |
@@ -52,7 +52,7 @@ CLI submits tasks to the **Scheduler**, which dispatches to the **Worker Pool**,
 | [[FEX Stories]] | three user stories — index for US-CAE-1..3 (folder-form per |
 | [[Forum Stories]] | User stories for the Forum debate platform. |
 | [[Architecture/HA Architecture]] | HookAnchor system architecture — top-level decomposition into subsystems. |
-| [[HBR]] | **Common Anchor Example** — the fully-wired worked-example anchor (PRD / UX / API / Architecture / Decisions / Testing / Roadmap / Features), cited by the FCT facet specs as the **minimal** reference instance. Relocated here from `CAB/` 2026-06-27. |
+| [[HBR]] | **Common Anchor Example** — the fully-wired worked-example anchor (PRD / UX / API / Architecture / Decisions / Testing / Roadmap / Features), cited by the DAS facet specs as the **minimal** reference instance. Relocated here from `CAB/` 2026-06-27. |
 | [[Architecture/HBR Architecture]] | system architecture |
 | [[Decisions/HBR Decisions]] | durable rulings |
 | [[PRD/HBR PRD]] | product requirements |
@@ -76,7 +76,7 @@ CLI submits tasks to the **Scheduler**, which dispatches to the **Worker Pool**,
 | [[Viz Bench]] | figure-drafting techniques compared across a fixed reference set |
 
 
-> [!note] FCT Architecture convention
+> [!note] DAS Architecture convention
 > Real subsystem docs use `[[double-bracket]]` wiki-links; placeholders for subsystems whose docs aren't authored use `[single-bracket]` plain text — visible inventory without polluting Obsidian's link graph. See [[DAS Architecture]] § Subsystem dispatch table.
 
 For the public API surface (schemas, file formats, error types), see [[FEX API]].

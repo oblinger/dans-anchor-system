@@ -96,9 +96,9 @@ Three homes (detail: [[DAS Ruleset]], [[F133 — Rulesets folder convention + fa
 - **Ruleset:** `R-<kebab-slug>` (`R-diagram`, `R-anchor`). The H1 matches the file basename.
 - **Rule:** `R-<slug>-NN` — `NN` zero-padded two digits, monotonic-forever within the slug, **never recycled** (a retired number stays retired). Cross-document references use the bare id (`see [[R-testing-04]]`).
 
-## Relationship to FCT Ruleset
+## Relationship to DAS Ruleset
 
-[[DAS Ruleset]] is the CAB **facet** — it integrates Warden rules into the anchor system (which anchors author/adopt rulesets, how `/audit` binds them) and currently still carries the prescriptive format text + the self-applying `R-ruleset` block. **`Warden Rule` is the canonical home of the rule *language*** going forward; the end-state is for `FCT Ruleset` to slim to the facet-integration role and reference this page for format. (Migration not yet done — flagged, not unilateral, since the facet is widely referenced.) The `where::` glob grammar still lives authoritatively in `FCT Ruleset § Where clause`; folding it into Warden is part of the same migration.
+[[DAS Ruleset]] is the DAS **facet** — it integrates Warden rules into the anchor system (which anchors author/adopt rulesets, how `/audit` binds them) and currently still carries the prescriptive format text + the self-applying `R-ruleset` block. **`Warden Rule` is the canonical home of the rule *language*** going forward; the end-state is for `FCT Ruleset` to slim to the facet-integration role and reference this page for format. (Migration not yet done — flagged, not unilateral, since the facet is widely referenced.) The `where::` glob grammar still lives authoritatively in `FCT Ruleset § Where clause`; folding it into Warden is part of the same migration.
 
 ## See also
 

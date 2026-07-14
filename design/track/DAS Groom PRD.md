@@ -30,7 +30,7 @@ description: "product requirements"
 ## Key decisions
 
 - **Operator framing** (F201): `groom: state → state'`, convergent not strictly idempotent; "you can always groom and then groom a little bit more."
-- **The five groomed states + body contracts** (F251, 2026-07-06): every frontier row is driven to Executable / Questions / Blocked-Waiting / Verify / Watching, each with a body contract enforced by a checked `R-backlog` rule. See [[Query PRD]] § Grooming the frontier and [[facets/FCT Track/DAS Backlog\|FCT Backlog]] § The groomed states.
+- **The five groomed states + body contracts** (F251, 2026-07-06): every frontier row is driven to Executable / Questions / Blocked-Waiting / Verify / Watching, each with a body contract enforced by a checked `R-backlog` rule. See [[Query PRD]] § Grooming the frontier and [[DAS Backlog]] § The groomed states.
 - **Definition of Ready** (F202): *an item is Ready when you believe you can do the task without further user involvement*.
 - **Minimize-user-back-and-forth** (F202): batch backlog operations complete autonomously before involving the user — one round-trip per pass, not N.
 - **Rename in place, no alias** (F201): `skills/ready/` → `skills/groom/`; `/ready` retired. DMUX prefix-trigger `when(groom, prefix(/groom))`.

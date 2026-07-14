@@ -102,7 +102,7 @@ When a roadmap entry is pulled onto a backlog as work-to-do, its backlog handle 
 - `R-Scaffolding.5.2` — a **leaf** sub-entry ("do this item", the usual case).
 - `R-Scaffolding` — a **non-leaf** entry: a commitment to do the *whole subtree* under it.
 
-The reference is **flat** (it names one entry) and **name-keyed**, so an `R` task parked on a backlog survives any reordering of the roadmap — only a rename would touch it. `R` is the roadmap counterpart of the backlog `T` task; both are executable work-items (see [[DAS Backlog|FCT Backlog]] § Numbering for the full `F`/`T`/`M`/`R` model).
+The reference is **flat** (it names one entry) and **name-keyed**, so an `R` task parked on a backlog survives any reordering of the roadmap — only a rename would touch it. `R` is the roadmap counterpart of the backlog `T` task; both are executable work-items (see [[DAS Backlog]] § Numbering for the full `F`/`T`/`M`/`R` model).
 
 ### Legacy numeric form (for migration only)
 

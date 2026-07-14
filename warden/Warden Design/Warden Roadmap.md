@@ -69,7 +69,7 @@ Spec the test regime ([[F214 — Rule-system testing regime|F214]]): unit checks
 
 Express **all ~477 rules** across the facets, disciplines, and the ruleset library in the frozen Warden language, in place. Each hard rule yields an extended example + a named gap. This is the comprehensive proof the language is sufficient — beyond the M1 sample. (The first gold-standard file, `R-markdown`, and four recovered fan-out files are already done; the mechanical fan-out script is saved.)
 
-**Done-when:** every non-meta rule is in Warden; the meta bucket (`FCT Ruleset` / `R-ruleset` self-spec) is reconciled by hand; all gaps are harvested into [[Warden Examples Extended]].
+**Done-when:** every non-meta rule is in Warden; the meta bucket (`DAS Ruleset` / `R-ruleset` self-spec) is reconciled by hand; all gaps are harvested into [[Warden Examples Extended]].
 
 ### M5 — Replan / redesign  *(scheduled, not contingent)*
 

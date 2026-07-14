@@ -2,12 +2,13 @@
 description: Moving an anchor to a new location — concept and related skills
 ---
 
-# FCT Move
+# DAS Move
 A move relocates an anchor's folder and updates every system that references it by path.
 
 | -[[DAS Move]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Move](hook://p/DAS%20Move) |
 | --- | --- |
 | Related | [[DAS Migrate]],  [[DAS Install]],  [[DAS Anchor]],  [[DAS Anchor Page]],   |
+| Rules | [[R-fct-move]],   |
 | Examples | [[DAS Move\|skill runbook]],  [[SKA move\|managing anchor]],   |
 
 **TLDR** — A Move is a multi-step orchestrated operation: physical folder relocation + HA reindex + Claude session rename + path scan. Distinct from Migrate (type change) and Fix Session (session-only repair). Cardinality: **one per anchor** (an anchor has at most one current location; move is a one-time operation per anchor per event).
@@ -34,30 +35,6 @@ A move relocates an anchor's folder and updates every system that references it 
 - **Moving an anchor to a new folder** → `/cab move` (handles everything, including Claude migration)
 - **Changing an anchor's type** (e.g., adding a code repo to a simple anchor) → `/cab migrate`
 - **Only the Claude session path is wrong** (anchor already moved by other means) → `/fix session`
-
-# RULESET R-fct-move
-include::
-description:: `/move` relocates an anchor folder to a new path and updates every path-dependent system that indexes it — HookAnchor, Claude Code session history, hardcoded paths inside the anchor's own configs, …
-
-### RULE R-fct-move-01 — Move is executed atomically via `/cab move` (checked)
-A move is never performed piecemeal by hand; it is always orchestrated through the `/cab move` skill, which sequences all six steps in order.
-**Check pattern:** no anchor whose location changed has a stale `ha -p` path (HA reindex was run).
-**Tier:** checked
-
-### RULE R-fct-move-02 — Physical relocation uses move, never copy (checked)
-The folder is moved (renamed/relocated) rather than copied; the old location must not remain.
-**Check pattern:** after a move, no duplicate folder exists at the old path.
-**Tier:** checked
-
-### RULE R-fct-move-03 — Claude session path is updated as part of the move (checked)
-Step 3 (session migration) is always executed; it is not optional even when the old session directory appears functional.
-**Check pattern:** the Claude Code project directory name matches the anchor's current on-disk path after the move.
-**Tier:** sampled
-
-### RULE R-fct-move-04 — Cardinality: one per anchor per move event (stated)
-An anchor has at most one current location; each move event is a discrete, non-concurrent operation. Parallel moves of the same anchor are not supported.
-**Check pattern:** no anchor has two in-flight move operations simultaneously.
-**Tier:** stated
 
 # BRIEF
 

@@ -22,7 +22,7 @@ sys.path.insert(0, str(HERE))
 import warden_compile as wc   # noqa: E402
 import warden_fire as wf      # noqa: E402
 
-FCT_QUERY = REPO / "rulesets" / "R-query.md"   # F234 extraction (was facets/DAS Query.md)
+RS_QUERY = REPO / "rulesets" / "R-query.md"   # F234 extraction (was facets/DAS Query.md)
 
 # A synthesized ruleset with two when-rules on DIFFERENT moments; each body
 # records a distinct marker so we can prove only one executes per moment.
@@ -69,7 +69,7 @@ def test_real_r_query_14_fires(tmp: Path):
         encoding="utf-8")
 
     wdir = anchor / ".warden"
-    _compile_into(wdir, FCT_QUERY.read_text(encoding="utf-8"), "R-query", "query")
+    _compile_into(wdir, RS_QUERY.read_text(encoding="utf-8"), "R-query", "query")
     ir, module = wf.load_compiled(wdir, "query")
     traits = wf.read_anchor_traits(anchor)
     ctx = wf.build_ctx(anchor, "skill:pre:audit-q")

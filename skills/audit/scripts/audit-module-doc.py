@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """audit-module-doc.py — Module Doc facet conformance checker (F119).
 
-Validates a target Markdown file against the [[FCT Module Doc]] facet rules.
+Validates a target Markdown file against the [[DAS Module Doc]] facet rules.
 Emits findings with line numbers, rule references (C1..C30), and (where
 applicable) suggested fixes. --fix flag auto-repairs the mechanical
 spacing checks (C3, C21, C22, C23, C24/C28).
@@ -926,7 +926,7 @@ def main(argv: Optional[list[str]] = None) -> int:
             print("  --fix applied; re-run to see remaining findings.")
         return 1 if not written else 0
     else:
-        print(f"audit-module-doc: {rel}: 0 findings — conforms to [[FCT Module Doc]] facet.")
+        print(f"audit-module-doc: {rel}: 0 findings — conforms to [[DAS Module Doc]] facet.")
         return 0
 
 

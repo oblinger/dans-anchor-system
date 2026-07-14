@@ -18,13 +18,13 @@ sys.path.insert(0, str(HERE))
 
 import warden_compile as wc  # noqa: E402
 
-FCT_QUERY = REPO / "rulesets" / "R-query.md"   # F234 extraction (was facets/DAS Query.md)
+RS_QUERY = REPO / "rulesets" / "R-query.md"   # F234 extraction (was facets/DAS Query.md)
 
 
 def _compile_pilot(tmp: Path):
-    text = FCT_QUERY.read_text(encoding="utf-8")
-    rs = wc.parse_ruleset(text, "R-query", FCT_QUERY.name)
-    assert rs is not None, "R-query ruleset not found in FCT Query.md"
+    text = RS_QUERY.read_text(encoding="utf-8")
+    rs = wc.parse_ruleset(text, "R-query", RS_QUERY.name)
+    assert rs is not None, "R-query ruleset not found in R-query.md"
     ir, module_src, stats = wc.compile_ruleset(rs, "query")
     mod_path = tmp / "rules_query.py"
     mod_path.write_text(module_src, encoding="utf-8")
@@ -121,14 +121,14 @@ def test_corpus_compile():
                  "prompt:stop", "write:", "read:", "git:", "timer:")
     orphans = [m for m in ir["moments"] if not m.startswith(reachable)]
     assert not orphans, f"moment keys unreachable from the live dispatcher: {orphans}"
-    # F232 A1: the fenced example ruleset (R-sample in FCT Ruleset) must NOT
+    # F232 A1: the fenced example ruleset (R-sample in DAS Ruleset) must NOT
     # compile into the corpus — it is shown grammar, not live rules. (R-wp,
     # first suspected a phantom, turned out to be a REAL ruleset swallowed by
-    # an unclosed fence in FCT WP.md — fence repaired, so it must be present.)
+    # an unclosed fence in DAS WP.md — fence repaired, so it must be present.)
     phantoms = [r for r in ir["rules"] if r.startswith("R-sample-")]
     assert not phantoms, f"fenced example rules leaked into the IR: {phantoms}"
     assert "sample" not in ir["traits"], "phantom trait 'sample' keyed in the IR"
-    assert "R-wp-01" in ir["rules"], "real R-wp lost — FCT WP.md fence broken again?"
+    assert "R-wp-01" in ir["rules"], "real R-wp lost — R-wp.md fence broken again?"
     # F219: the wiring snapshot is stamped — declared anchor traits + implicit base
     assert "anchor-base" in ir.get("declared_traits", []), ir.get("declared_traits")
     # the emitted corpus module must import — proves no cross-ruleset name collision
@@ -345,7 +345,7 @@ def test_include_flatten():
     assert "R-design-gate-01" not in t["arch"], "cross-umbrella leak"
     assert "R-diagram-geometry-01" in t["diagram"], "pre-existing umbrella not flattened"
     # include-target parsing: embedded form + bare form
-    assert wc._include_target("FCT Brief#RULESET R-brief") == "R-brief"
+    assert wc._include_target("DAS Brief#RULESET R-brief") == "R-brief"
     assert wc._include_target("R-arch") == "R-arch"
     print("PASS  include_flatten (F218)")
 

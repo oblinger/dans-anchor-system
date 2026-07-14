@@ -2,14 +2,14 @@
 description: user-facing docs dispatch page — curated, synthesis-level human-authored docs for any audience
 ---
 
-# FCT User Dispatch
+# DAS User Dispatch
 Facet spec for the `{slug} User Docs.md` dispatch page that catalogs an anchor's end-user / consumer-facing documentation (Guide, Installation, CLI, FAQ, Cards).
 
 | -[[DAS User Dispatch]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS User Dispatch](hook://p/DAS%20User%20Dispatch) |
 | --- | --- |
 | Related | [[DAS Design Dispatch]],  [[DAS Dev Dispatch]],  [[DAS Track Dispatch]],  [[DAS Dispatch]],   |
 | Examples | [[HBR User Docs\|minimal (code anchor)]],  [[HBR User Docs\|fuller (server anchor)]],   |
-| Rules | [[DAS User Dispatch#RULESET R-fct-user-dispatch\|R-fct-user-dispatch]],   |
+| Rules | [[R-fct-user-dispatch]],   |
 
 **TLDR** — `{slug} User Docs.md` is the dispatch page for end-user / consumer-facing documentation (Guide, Installation, CLI, FAQ, Cards). It lives in the root-level `{slug} User Docs/` folder. Cardinality: **one per anchor**. Scope boundary: user-task docs only; system-spec docs (Interface, Architecture) live elsewhere — Interface in [[DAS Design Dispatch|Design]], the Architecture story in `{slug} Design/`.
 
@@ -39,7 +39,7 @@ The defining property is **what the content describes**: User docs describe *use
 
 # CAE User Docs
 
-| -[[HBR User Docs]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Dispatch]] → [FCT User Dispatch](hook://p/DAS%20User%20Dispatch)<br>: end-user / consumer documentation |
+| -[[HBR User Docs]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Dispatch]] → [DAS User Dispatch](hook://p/DAS%20User%20Dispatch)<br>: end-user / consumer documentation |
 | --- | --- |
 | [[HBR Guide\|Guide]] | getting started and usage |
 | [[CAE Installation\|Installation]] | installation instructions (when applicable) |
@@ -91,31 +91,6 @@ All rows are optional except the primary Guide, and are listed only when those d
 Anchors that still have `{slug} User Guide.md` continue to resolve correctly (wiki-links by basename). The rename to `{slug} Guide.md` happens organically when an anchor is touched. Don't bulk-rename retroactively.
 
 Anchors that still have `{slug} Rollup.md` (the predecessor to Interface — see F062) continue to resolve correctly for now, but should be renamed to `{slug} Interface.md` when the anchor is next touched. The semantic shift (Rollup was a loose summarization pattern; Interface is a tightened layer contract with a user-validation gate) usually warrants a content review at rename time. Migration is forward-only; no bulk pass.
-
-# RULESET R-fct-user-dispatch
-include::
-where:: `file: **/{slug} User Docs/{slug} User Docs.md`
-description:: Rules every `{slug} User Docs.md` dispatch page must satisfy — the file must exist in the right location, open with the right dispatch-table header, and contain only user-task-shaped documentation (not system-spec docs).
-
-### RULE R-fct-user-dispatch-01 — file lives at the correct path (checked)
-The dispatch page is at `{slug} User Docs/{slug} User Docs.md` — a root-level folder.
-**Check pattern:** path matches `{slug} User Docs/{slug} User Docs.md`.
-**Why:** the folder context supplies the "User Docs" qualifier; a misfiled page is invisible to dispatch resolution.
-
-### RULE R-fct-user-dispatch-02 — dispatch table top-left cell is the self-link (checked)
--[[{slug} User Docs]]-` in the left cell and a brief description beginning with `>` or `+>` in the right cell.
-**Check pattern:** first table row matches `-\[\[.+ User Docs\]\]-` in cell 1 and starts with `>` or `+>` in cell 2.
-**Why:** the self-link is what makes the dispatch table navigable; wrong or absent cell breaks the anchor-page contract per F060.
-
-### RULE R-fct-user-dispatch-03 — contains only user-task documentation (sampled)
-Every body row links a doc that describes a *user task* (Guide, Installation, CLI, FAQ, Cards) — not a system-spec doc (Interface, Architecture, UX Design, Data Model, Principles), which belong in [[DAS Design Dispatch|Design]] per F094.
-**Check pattern:** body rows do not link `{slug} Interface.md`, `{slug} Architecture.md`, `{slug} Data Model.md`, `{slug} Principles.md`, or `{slug} UX Design.md`.
-**Why:** scope leakage lets Design docs accumulate here; the F094 boundary is load-bearing for `/audit docs`.
-
-### RULE R-fct-user-dispatch-04 — primary guide uses bare filename (stated)
-The primary user-facing guide is `{slug} Guide.md`, not `{slug} User Guide.md`. The folder context already supplies "user-facing."
-**Check pattern:** no file named `{slug} User Guide.md` is linked as the primary row (legacy files may exist pending forward-migration).
-**Why:** the filename convention prevents "User User Guide" redundancy and is the canonical form going forward.
 
 # BRIEF
 
