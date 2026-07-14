@@ -4,7 +4,7 @@ description: "design-pipeline docs for the Architect skill (the Architect Design
 
 # Architect Design
 
-| -[[Architect Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[Architect]] → [Architect Design](hook://p/Architect%20Design)<br>: design-pipeline docs for the Architect skill |
+| -[[Architect Design]]- | → [[kmr]] → [[SYS]] → [[symlinks]] → [[Architect]] → [Architect Design](hook://p/Architect%20Design)<br>: design-pipeline docs for the Architect skill |
 | --- | --- |
 | [[Architect PRD\|PRD]] | product requirements — what `/architect` produces and for whom |
 | ... |  |

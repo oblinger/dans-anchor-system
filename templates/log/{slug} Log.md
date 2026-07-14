@@ -1,7 +1,7 @@
 # {slug} Log
 description:: >>
 
-| -[[{slug} Log]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [{slug} Log](hook://p/%7Bslug%7D%20Log)<br>: >> |
+| -[[{slug} Log]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [{slug} Log](hook://p/{slug}%20Log)<br>: >> |
 | --- | --- |
 | [[{{YYYY-MM-DD short topic}}]] | {{one-line summary — newest entry first}} |
 | ... |  |
