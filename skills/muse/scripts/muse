@@ -191,8 +191,7 @@ ingest_one() {
         printf 'captured: %s\n' "$captured"
         printf 'audio_sha256: %s\n' "$sha"
         printf 'state: unreviewed\n'
-        printf -- '---\n'
-        printf '# MUSE %s %s — %s\n\n' "$ymd" "$letter" "$title"
+        printf -- '---\n\n'
         printf '%s\n' "$text"
     } > "$item_path"
 
