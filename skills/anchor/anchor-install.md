@@ -1,25 +1,18 @@
----
-name: install
-description: Install CAB command-line tools — make stat, cab-config, cab-scan, cab-audit available from any shell. Run once per machine.
-tools: Read, Write, Edit, Bash, Glob, Grep
-user_invocable: true
----
 
-# Install — Set up CAB tools
-requires:: none
-subsystem:: [[DAS Anchor Design]] — the Anchor group's subsystem profile
+# anchor-install — wire the anchor CLI tools
+*(action file of [[anchor/SKILL|/anchor]]; formerly the standalone `/install` skill — folded in per F234 Q1=A, 2026-07-14)*
 
-One-time per-machine setup that wires the CAB command-line scripts onto the user's `$PATH` so they can be invoked from any shell.
+One-time per-machine setup that wires the anchor system's command-line scripts onto the user's `$PATH` so they can be invoked from any shell.
 
-Install CAB command-line tools so they're available from any shell.
+Install the anchor CLI tools so they're available from any shell.
 
 ## When to Use
 
-First-time setup of a new machine, or after adding new CAB tools.
+First-time setup of a new machine, or after adding new anchor tools.
 
 ## What Gets Installed
 
-The CAB command-line tools live as scripts in the skills folder. This skill wires them so they can be invoked from any shell.
+The command-line tools live as scripts in the anchor skill's `scripts/` folder. This skill wires them so they can be invoked from any shell.
 
 | Command | Script | Description |
 |---------|--------|-------------|
@@ -37,7 +30,7 @@ The CAB command-line tools live as scripts in the skills folder. This skill wire
 
 ## Adding New Tools
 
-When a new CAB script is created, list it in the table above. Run `/install` again to wire the new tool.
+When a new anchor script is created, list it in the table above. Run `/install` again to wire the new tool.
 
 ## Skill-specific install steps
 

@@ -10,7 +10,7 @@ user_invocable: true
 
 # Parley
 requires:: vault, skill:feature
-subsystem:: [[DAS Utility Design]] — the Utility group's subsystem profile
+subsystem:: [[DAS Design Design]] — the Design group's subsystem profile
 
 Skill spec for `/parley` — structured topic discussion that lands a dated parley doc, evolves Open Questions / Next Steps / Discussion through the conversation, and weaves outcomes back into the anchor (or graduates to a feature) at close.
 

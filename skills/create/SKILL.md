@@ -3,7 +3,7 @@ name: create
 description: >
   Create a new thing — anchor, feature, work product, spec, rule.
   Use when the user says: "create a new", "set up", "start a new", "new project",
-  "new feature", "new wp", "new rule".
+  "new feature", "new work product", "new wp", "create a wp", "new rule".
   Requires an argument: /create anchor, /create feature, /create wp, /create spec, /create rule.
 tools: Read, Write, Edit, Bash, Glob, Grep
 user_invocable: true
@@ -13,14 +13,14 @@ user_invocable: true
 requires:: skill:code, skill:feature, skill:rule
 subsystem:: [[DAS Anchor Design]] — the Anchor group's subsystem profile
 
-Dispatch skill that routes `/create <thing>` invocations to the underlying creation skill for anchors, features, work products, specs, or rules.
+Dispatch skill that routes `/create <thing>` to the right creation runbook. The anchor and work-product runbooks are this skill's own action files; features, specs, and rules delegate to their owning skills.
 
-Create a new thing. Requires an argument specifying what to create.
-
-| Usage | Delegates to | Description |
-|-------|-------------|-------------|
-| `/create anchor` | `/cab create` | New anchor — folder structure, config, dispatch tables |
-| `/create feature` | `/feature` | New feature design doc in Features folder |
-| `/create wp` | `/cab wp` | New dated work product folder |
+| Usage | Runbook | Description |
+|-------|---------|-------------|
+| `/create anchor` | [[create-anchor]] | New anchor — folder structure, `.anchor`, dispatch tables, HookAnchor registration |
+| `/create wp` | [[create-wp]] | New dated work-product folder inside `{slug} WP/` |
+| `/create feature` | `/feature` | New feature design doc in the Features folder |
 | `/create spec` | `/code spec` | New implementation spec for a milestone |
 | `/create rule` | `/rule create` | New project rule |
+
+(`/wp` was folded in as the `wp` action per [[F234 — Subsystem profiles — joint architecture overview per group (Phoenix prerequisite)|F234]] Q1=A, 2026-07-14 — the runbook is unchanged, only the entry point moved.)
