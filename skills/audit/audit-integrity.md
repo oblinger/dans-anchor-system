@@ -75,5 +75,5 @@ Calls into the shared `~/.config/anchor-system/backlog-edit/state.json` state fi
 
 - [[audit/SKILL|/audit]] — parent skill; this is one sub-action.
 - [[workflow/SKILL|workflow/SKILL.md]] § Mutation API — the discipline this audit verifies.
-- [[SKL State]] — canonical `state` CLI spec (F129).
+- [[DAS State]] — canonical `state` CLI spec (F129).
 - [[workflow/scripts/backlog-edit|backlog-edit.py]] — legacy mutation tool whose state this audit reads.

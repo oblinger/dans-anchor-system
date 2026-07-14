@@ -4,5 +4,5 @@ mode: doc
 target: FX6 queries.md
 provenance: authored (T005 — fail pins for R-query-01 location + R-query-09 catch-all form)
 engine: audit-plan
-blessed_against: eec8231de2bb-d921a22fb8a9
+blessed_against: ce750bb05acb-19742badd28d
 note: a queries file at the anchor ROOT (not {X} Track/) whose ## Questions carries a free-text bullet with no handle-visible link

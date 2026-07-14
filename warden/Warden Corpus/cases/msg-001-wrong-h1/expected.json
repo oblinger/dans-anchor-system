@@ -55,6 +55,11 @@
   "status": "pass"
  },
  {
+  "rule": "R-markdown-15",
+  "target": "FX1 Messages.md",
+  "status": "pass"
+ },
+ {
   "rule": "R-messages-01",
   "target": "FX1 Messages.md",
   "status": "fail"

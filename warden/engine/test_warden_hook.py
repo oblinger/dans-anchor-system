@@ -216,7 +216,7 @@ def test_pathguard_veto():
             denies = [s for s in pre("Edit", file_path=str(anchor / "FX Backlog.md"),
                                      old_string="a", new_string="b")
                       if s.startswith(wh.DENY_SENTINEL)]
-            assert len(denies) == 1 and "state task" in denies[0], denies
+            assert len(denies) == 1 and "state Backlog" in denies[0], denies
             # 01 — queries page Edit denied with the renderer redirect
             denies = [s for s in pre("Edit", file_path=str(anchor / "FX queries.md"),
                                      old_string="a", new_string="b")
@@ -231,7 +231,7 @@ def test_pathguard_veto():
                                      old_string="- **Q1 — pick one?** ^F001-Q1",
                                      new_string="- answered")
                       if s.startswith(wh.DENY_SENTINEL)]
-            assert len(denies) == 1 and "state q" in denies[0], denies
+            assert len(denies) == 1 and "state <doc>" in denies[0], denies
             # ...but an edit elsewhere in the same doc passes
             clean = pre("Edit", file_path=str(fdoc), old_string="prose", new_string="better prose")
             assert not [s for s in clean if s.startswith(wh.DENY_SENTINEL)], clean
@@ -255,7 +255,7 @@ def test_pathguard_veto():
                                     "old_string": "a", "new_string": "b"},
                      "cwd": elsewhere})
                     if s.startswith(wh.DENY_SENTINEL)]
-                assert len(denies) == 1 and "state task" in denies[0], denies
+                assert len(denies) == 1 and "state Backlog" in denies[0], denies
 
         # trait OFF → the same event fires nothing
         with tempfile.TemporaryDirectory() as td:

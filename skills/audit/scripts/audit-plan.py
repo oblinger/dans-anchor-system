@@ -1614,6 +1614,37 @@ def chk_queries_location(target, anchor_root, args):
                     f"`{want}/{name}`")
 
 
+_QUERIES_BANNER_RE = re.compile(
+    r"^# \[(?:U\+A|U|A|G|\?|-)\]  "                    # tag + two spaces
+    r"(?:\[\[[^\]]+\]\]|[^\[\]|]+?)  -  "              # wiki-linked or plain label
+    r"Ready \d+    Questions \d+   \|   "              # headline pair
+    r"Now \d+    Next \d+    Later \d+    Verify \d+    Icebox \d+"
+    r"(?:    \{\d+\})?\s*$"                            # optional QFix residual count
+)
+
+
+def chk_queries_banner_form(target, anchor_root, args):
+    """R-query-16: the H1 is the status banner in the locked form the renderer
+    emits (`queries-render.py derive_banner`) — `# [<TAG>]  <slug>  -  Ready N
+    Questions N   |   Now N ... Icebox N` with the exact spacing (two spaces
+    around `-`, four between counts, three around `|`), slug wiki-linked or
+    plain, optional trailing `    {N}` residual count. The Q.md section scan
+    keys off this exact form."""
+    if not target.is_file():
+        return "pass", "not a file"
+    if not target.name.endswith(" queries.md"):
+        return "pass", "not a queries file"
+    for ln, raw in enumerate(_read(target).splitlines(), 1):
+        if raw.startswith("# ") and not raw.startswith("## "):
+            if _QUERIES_BANNER_RE.match(raw):
+                return "pass", ""
+            return "fail", (f"H1 (line {ln}) is not the locked status-banner "
+                            "form — expected `# [<TAG>]  <slug>  -  Ready N    "
+                            "Questions N   |   Now N    Next N    Later N    "
+                            "Verify N    Icebox N` (re-render via queries-render.py)")
+    return "fail", "no H1 — a queries file opens with the status-banner H1"
+
+
 def chk_queries_catchall_links(target, anchor_root, args):
     """R-query-09: each top-level `## Questions` bullet carries a wiki-link
     whose VISIBLE token is a work-item handle — `F<n>` / `T<n>` / `M-…` /
@@ -3023,6 +3054,8 @@ CHECKERS = {
     # R-query-01/-09 (T005, 2026-07-06)
     "queries_location": chk_queries_location,
     "queries_catchall_links": chk_queries_catchall_links,
+    # R-query-16 (T017, 2026-07-13)
+    "queries_banner_form": chk_queries_banner_form,
     "user_stories_use_rid_numbering": chk_user_stories_use_rid_numbering,
     "no_legacy_open_questions_file": chk_no_legacy_open_questions_file,
     "design_workflow_modern_names": chk_design_workflow_modern_names,

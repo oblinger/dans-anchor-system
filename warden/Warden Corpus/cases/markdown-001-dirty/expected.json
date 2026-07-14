@@ -55,6 +55,11 @@
   "status": "fail"
  },
  {
+  "rule": "R-markdown-15",
+  "target": "FX9 Notes.md",
+  "status": "pass"
+ },
+ {
   "rule": "R-progressive-01",
   "target": "FX9 Notes.md",
   "status": "pass"
