@@ -1118,8 +1118,40 @@ def _sync_route_locked(anchor_dir, route, dry, take_here, take_there,
     return counters, flags, consumed_here, consumed_there
 
 
+ROUTES_INDEX = Path.home() / ".config/anchor-system/mirror-routes.json"
+
+
+def _publish_routes_index(anchor_file: Path, routes):
+    """Refresh this anchor's entries in the mirror-routes index.
+
+    The index is derived state consumed by the Warden `R-code-mirror` deny
+    rule (repo-side edits redirected to the vault original) and by the
+    nightly `km` commit sweep (which anchors to run `code sync` over).
+    Regenerated on every `code sync`; entries for other anchors preserved.
+    """
+    entries = []
+    if ROUTES_INDEX.is_file():
+        try:
+            entries = json.loads(ROUTES_INDEX.read_text()).get("routes", [])
+        except (json.JSONDecodeError, OSError):
+            entries = []
+    key = str(anchor_file)
+    entries = [e for e in entries if e.get("anchor") != key]
+    for r in routes:
+        entries.append({"anchor": key, "here": str(r.here),
+                        "there": str(r.there), "direction": r.direction})
+    ROUTES_INDEX.parent.mkdir(parents=True, exist_ok=True)
+    tmp = ROUTES_INDEX.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(
+        {"generated_by": "code sync",
+         "routes": sorted(entries, key=lambda e: (e["anchor"], e["here"]))},
+        indent=2) + "\n")
+    tmp.replace(ROUTES_INDEX)
+
+
 def cmd_sync(anchor_path, dry, take_here, take_there, init=False):
     anchor_dir, anchor_file, routes = load_mirror(anchor_path)
+    _publish_routes_index(anchor_file, routes)
     mode = "dry-run" if dry else "sync"
     print(bold(f"code sync ({mode}): {anchor_file}"))
     any_flags = False
