@@ -1133,6 +1133,21 @@ def perform_edit(
         elif _status_needs_next(status) and eff_next:
             _ensure_subbullet(lines, row_id, "Next", eff_next.strip())
 
+    # v2 `define` sub-bullets land in the SAME edit, before the post-edit
+    # refresh_q_md — attaching them afterwards let audit-q's C24 --fix see a
+    # [Questions] row with zero Qs on disk and rebracket it to [Ready] before
+    # its inline Qs existed (bit T010, 2026-07-13).
+    if pending_subs and status != "delete":
+        for idx, ln in enumerate(lines):
+            if re.match(rf"^- \*\*{re.escape(row_id)}\b", ln):
+                j = idx + 1
+                while j < len(lines) and re.match(r"^\s+- ", lines[j]):
+                    j += 1
+                for k, sl in enumerate(pending_subs):
+                    sl = sl if sl.startswith(" ") else "  " + sl
+                    lines.insert(j + k, sl if sl.endswith("\n") else sl + "\n")
+                break
+
     backlog_path.write_text("".join(lines))
 
     # Soft nudge — Verify/Watching usually belongs in Later.
