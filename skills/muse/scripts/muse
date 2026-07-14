@@ -25,7 +25,10 @@
 set -euo pipefail
 
 MUSE_ITEMS_DIR="${MUSE_ITEMS_DIR:-$HOME/ob/kmr/Log/MUSE}"
-MUSE_QUICK_FILE="${MUSE_QUICK_FILE:-$HOME/ob/kmr/LST/Quick.md}"
+# Per user direction 2026-07-14: MUSE does NOT touch the user's Quick.md;
+# bullets go to MUSE's own inbox alongside the item files. User can move
+# items into Quick.md manually when they're worth keeping.
+MUSE_QUICK_FILE="${MUSE_QUICK_FILE:-$HOME/ob/kmr/Log/MUSE/MUSE Inbox.md}"
 MUSE_JPR_DIR="${MUSE_JPR_DIR:-$HOME/Library/Mobile Documents/iCloud~com~openplanetsoftware~Just-Press-Record/Documents}"
 MUSE_INLINE_MAX_CHARS="${MUSE_INLINE_MAX_CHARS:-80}"
 MUSE_NOTIFICATION_SOUND="${MUSE_NOTIFICATION_SOUND:-Tink}"
