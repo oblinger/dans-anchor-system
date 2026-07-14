@@ -4,7 +4,7 @@ description: "design-pipeline docs for the Audit skill (the Audit Design/ conten
 
 # Audit Design
 
-| -[[Audit Design]]- | → [[kmr]] → [[SYS]] → [[symlinks]] → [[Audit]] → [Audit Design](hook://p/Audit%20Design)<br>: design-pipeline docs for the Audit skill |
+| -[[Audit Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[Audit]] → [Audit Design](hook://p/Audit%20Design)<br>: design-pipeline docs for the Audit skill |
 | --- | --- |
 | [[Audit PRD\|PRD]] | product requirements — what /audit produces and for whom |
 | [[Audit Stories\|Stories]] | user stories elaborating the PRD |
@@ -15,6 +15,7 @@ description: "design-pipeline docs for the Audit skill (the Audit Design/ conten
 | [[Audit Files Architecture\|Files Architecture]] | file-tree map of the audit skill |
 | [[Audit Decisions\|Decisions]] | durable rulings; cites rulesets |
 | [[Audit Testing\|Testing]] | test strategy + cases |
+| [[Audit Rules Redesign\|Rules Redesign]] | Warden-native audit-rules pipeline — entry doc for the reserved /plan cycle (F132) |
 | [[Audit Roadmap\|Roadmap]] | milestones |
 | [[Audit Features\|Features]] | feature design records — the per-feature docs defining V2 audit |
 | [[Audit Completed Roadmap\|Completed Roadmap]] | shipped milestones |
