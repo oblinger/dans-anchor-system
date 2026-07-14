@@ -161,13 +161,19 @@ ingest_one() {
     # 3. transcribe
     log "transcribing: $audio"
     local text
-    text="$("$TRANSCRIBE_BIN" "$audio")" || die "transcribe failed: $audio"
+    # Per-file failures must NOT kill the whole sweep. Return non-zero so the
+    # sweep loop's `|| warn "ingest failed: $candidate"` sees the failure and
+    # continues to the next file. `die` (which does exit 1) would kill the
+    # entire sweep — observed 2026-07-14 where a single iCloud-EDEADLK-stuck
+    # file blocked 160 consecutive launchd sweep runs from processing
+    # subsequent-day files (including the user's 11:23 dictation).
+    text="$("$TRANSCRIBE_BIN" "$audio")" || { warn "transcribe failed (skipping): $audio"; return 1; }
     text="$(printf '%s' "$text" | sed -E 's/^[[:space:]]+|[[:space:]]+$//g')"
-    [[ -n "$text" ]] || die "empty transcript from: $audio"
+    [[ -n "$text" ]] || { warn "empty transcript (skipping): $audio"; return 1; }
 
     # 4. title
     local raw_title
-    raw_title="$("$ASKAI_BIN" "$TITLE_SYSTEM" "$text")" || die "title derivation failed"
+    raw_title="$("$ASKAI_BIN" "$TITLE_SYSTEM" "$text")" || { warn "title derivation failed (skipping): $audio"; return 1; }
 
     # 5. sanitize
     local title
