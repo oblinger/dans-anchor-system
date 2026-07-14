@@ -13,7 +13,7 @@ user_invocable: true
 
 # cleanup — sweep, classify, and certify git worktrees
 requires:: vault
-subsystem:: [[DAS Dev Design]] — the Dev group's subsystem profile
+subsystem:: [[DAS Code Design]] — the Code group's subsystem profile
 
 The job: make it safe to walk away from an agent's worktree and **never look back**. You run `/cleanup`, it cleans every stray worktree, tells you the current one is safe (or makes it safe), and you exit confident nothing uncommitted was lost.
 

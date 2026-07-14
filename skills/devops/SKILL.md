@@ -5,7 +5,7 @@ description: Run long-horizon operational work — remote builds, deployments, t
 
 # DevOps
 requires:: vault
-subsystem:: [[DAS Dev Design]] — the Dev group's subsystem profile
+subsystem:: [[DAS Code Design]] — the Code group's subsystem profile
 
 Operational work runs on a clock the user cannot see — a build takes eight minutes, a remote agent goes quiet, a keychain dialog sits unclicked on another machine's screen. The single failure mode that wastes the most user time is **the user not realizing they are the blocker.** DevOps mode fixes that with one rule: while operational work is in flight, a heartbeat fires on a cadence, and its **last line is always an ALL-CAPS state banner** naming exactly what is being waited on. The user glances at the window and knows in one second whether to act.
 

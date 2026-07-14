@@ -48,7 +48,7 @@ Utility is illustrated by its own live infrastructure — the standing `box` tmu
 ## Design record
 
 - [[DAS Ctrl Design]] · [[DAS Exp Design]] · [[DAS Snip Design]] · [[DAS Cook Design]] · [[DAS Parley Design]] — per-verb design docs.
-- **Grouping (agent, 2026-07-14):** `/bridge`, `/screen`, `/get-user-auth`, `/vox`, and `/muse` — previously ungrouped — assigned here at this profile pass. `/devops` went to [[DAS Dev Design|Dev]] (build/deploy focus).
+- **Grouping (agent, 2026-07-14):** `/bridge`, `/screen`, `/get-user-auth`, `/vox`, and `/muse` — previously ungrouped — assigned here at this profile pass. `/devops` went to [[DAS Code Design|Code]] (build/deploy focus).
 - **Subgroup revision (user, 2026-07-14):** the group organizes into three clusters — Connection (bridge, exp), Machine control (ctrl, screen, get-user-auth), Productivity (vox, muse, snip, cook, atlas) — rendered as containers in the figure.
 - **Membership revisions (user, 2026-07-14):** `/atlas` moved in from Doc (it maintains the vault, it doesn't author documents). `/parley` moved out — its products are Discussion/Decisions artifacts, so it went to [[DAS Design Design|Design]] (agent call; user's first instinct was Drive — one-line move if preferred).
 - Shape follows the paradigm [[DAS Tracking Design]] (two-column table per the 2026-07-14 revision; one profile per group, linked off [[DAS]]).
