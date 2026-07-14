@@ -174,7 +174,7 @@ Designing — awaiting design discussion.
 
 - **Phase 1 — pending user Qs exist.** `## Open Questions` H2 sits directly ABOVE the H1 (between the frontmatter and the H1) — questions precede the document, not part of it until answered — containing pending Qs. Resolved Qs accumulate inside as a `### Resolved` H3 sub-section *until all are answered*.
 - **Phase 2 — all Qs resolved.** Delete the `## Open Questions` H2 entirely. Migrate the staged `### Resolved` H3 content to the bottom `## Resolved` H2 (creating it if absent). Top of doc is now clean: H1 → Summary → Design → Status → Resolved.
-- **Phase 3 — new Q arises later.** Recreate `## Open Questions` H2 above H1 with the new Q. Same lifecycle as Phase 1.
+- **Phase 3 — new Q arises later.** Recreate `## Open Questions` H2 above H1 with the new Q. Same lifecycle as Phase 1. **This applies even when the feature is `[Done]`** — a re-decision or extension of a feature's design reopens *this doc* (the backlog row rebrackets `[Questions]`); never mint a spin-off backlog row to host the decision (per [[Query PRD]] § Work-item identity: decisions live on the feature's record, rows carry work). When the new resolution supersedes an earlier one, stamp the superseded `## Resolved` entry with a one-line *"superseded {date} → Q{n}"* in the same pass.
 - **Auto-decisions skip Phase 1 entirely.** Agent decisions made under the [[F068 — Assume-and-announce discipline (Drive mode)|F068]] visibility + low-recoverability rule go *directly* into the bottom `## Resolved` H2 as H3 entries, without staging at top. They co-exist there with user-answered Qs.
 
 **Structural rules:**

@@ -45,6 +45,8 @@ The first thing groom guarantees is that **no work is anonymous** — every piec
 
 You *achieve* the identity by linking: a row links to its feature doc (`F<n>`), is itself the task record (`T<n>`), or references a roadmap entry (`R…`, leaf or non-leaf). **A feature doc that isn't linked from the backlog/roadmap has no place in the system** — groom gives it one (mint/point a row) rather than leaving it an orphan. (Numbering policy: [[DAS Backlog]] § Numbering + [[DAS Roadmap]].)
 
+**Decisions live on the feature; rows carry work (per [[Query PRD]] § Work-item identity, ruled 2026-07-14).** Before minting a `T` row, check what it produces: if its only output is an *answer* about an existing feature's design (a re-decide, an extension, a residue fork), it is that feature's question — add it to the feature doc's `## Open Questions` (next Q in the feature's namespace, Phase 3 reopen even if `[Done]`) and let the row rebracket `[Questions]`. Mint a `T` row only for genuine standalone *work*; its inline Qs steer only that work. When any new resolution supersedes an earlier resolved Q, stamp the old entry *"superseded {date} → see X"* the same pass.
+
 ### 2. Identify the executable frontier
 
 The **frontier** is everything that could be executed *soon*:
@@ -182,11 +184,11 @@ Cases to detect and rewrite:
   - Mixed heterogeneous sub-bullets → **pre-split the row** per `[[DAS Backlog]]` aggregate-row treatment: one `[Ready]` row for the mechanical sub-bullets, one or more `[Questions]` rows for the user-gated ones. Drop any Done sub-bullets entirely.
 - **`[Designing]` with no open Qs** in the linked feature doc — rewrite to `[Ready]` if Definition of Ready is met, else `[Questions]` if the design surfaced new Qs.
 - **`[Done]`-bracketed row in a horizon H2** — move the row to `## Done`. (Stale; the render skips it, `/groom` migrates it.)
-- **`[Blocked]` whose blocker has resolved** — rewrite to `[Ready]` (or `[Designing]` if more design work is needed). Read the body to identify the blocker; check whether the named actor's action has landed or the chained F<NNN> has reached `[Done]`.
+- **`[Blocked]` whose blocker has resolved** — rewrite to `[Ready]` (or `[Designing]` if more design work is needed). Read the body to identify the blocker; check whether the named actor's action has landed or the chained `F<NNN>` has reached `[Done]`.
 - **`[Waiting]` whose awaited event has occurred** — rewrite to `[Verify]` (event happened, needs checking) or `[Active]` (event happened, work can resume).
 - **`[Watching Nd]` whose soak expired with no recurrence** — rewrite to `[Verify]` so the user can confirm the fix held and close to `[Done]`.
 - **`[Watching]` with recurrence during the soak** — rewrite to `[Active]` or `[Designing]` (the fix didn't hold; resume work).
-- **`[Verify-by YYYY-MM-DD]` past its date** (per [[DAS ask-format]] § Deferred-by-use Verify) — default: move the row to `## Done` with note *"Auto-Done <today> — `[Verify-by <date>]` window expired with no failure surfaced"*. Optional alternative: if the agent has evidence the change wasn't actually exercised since the row was filed (e.g., the relevant skill hasn't run, no usage observed), extend the bracket to `[Verify-by <new-date>]` with a body note *"Extended — no usage observed yet"*. Default is auto-Done; extension is the rare case.
+- **`[Verify-by YYYY-MM-DD]` past its date** (per [[DAS ask-format]] § Deferred-by-use Verify) — default: move the row to `## Done` with note *"Auto-Done {today} — `[Verify-by <date>]` window expired with no failure surfaced"*. Optional alternative: if the agent has evidence the change wasn't actually exercised since the row was filed (e.g., the relevant skill hasn't run, no usage observed), extend the bracket to `[Verify-by <new-date>]` with a body note *"Extended — no usage observed yet"*. Default is auto-Done; extension is the rare case.
 - **Lazy-Blocked / Lazy-Waiting / Lazy-Watching** (body doesn't name what makes the state honest) — rewrite per `[[SKA workflow]]` § Lazy states (usually `[Ready]` or `[Questions]` in disguise).
 - **Bracket-H2 mismatch** — a row under `## Ready` H2 with a `[Questions]` / `[Blocked]` / `[Waiting]` / `[Watching]` bracket is misplaced (H2 implies state; bracket carries state). Either rewrite the bracket if state changed (the H2 was right) or move the row to a horizon H2 carrying the bracket (the bracket was right). The body usually disambiguates.
 
