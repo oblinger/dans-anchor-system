@@ -27,10 +27,12 @@ Anchor is the substrate subsystem: a named folder + `.anchor` marker + dispatch-
 |                                        |                                                                                                                                                           |
 | **Traits**                             |                                                                                                                                                           |
 | `traits:` *(the mechanism)*            | The `.anchor` `traits:` list is itself this group's contribution — every other subsystem's trait rides it.                                                |
+| [[anchor-base]] · [[Simple Anchor]] · [[collection]] · [[Skill Anchor]] | The anchor-kind traits — the base behaviors every anchor rides, plus the simple / collection / skill-folder shapes.      |
 |                                        |                                                                                                                                                           |
 | **Library**                            |                                                                                                                                                           |
 | **`anchor-system`**                    | The management CLI — config namespace, user-env keys, install plumbing.                                                                                   |
-| Rulesets                               | [[R-anchor]] · [[R-dot-anchor]] · [[R-anchor-page]] · [[R-anchor-tree]] · [[R-anchor-group]] · [[R-dispatch-table]] · [[R-dispatch-group]] · [[R-naming]] |
+| Disciplines                            | [[DAS anchor-dag]] · [[DAS Linked Mode]] · [[DAS progressive-disclosure]]                                                                                 |
+| Rulesets                               | [[R-anchor]] · [[R-dot-anchor]] · [[R-anchor-page]] · [[R-anchor-tree]] · [[R-anchor-group]] · [[R-dispatch-table]] · [[R-dispatch-group]] · [[R-naming]] · [[R-project-page]] · [[R-fct-folder]] · [[R-fct-move]] · [[R-fct-claude]] · [[R-fct-interface]] · [[R-topic]] · [[R-simple]] |
 
 ## Overview
 

@@ -28,7 +28,7 @@ Hygiene keeps the vault conformant: rules are declared once in ruleset files, co
 | [[Warden]]                       | The rule engine — `warden compile` builds the corpus (`~/.warden`); the daemon fires it on every write (deny + audit-on-write) via the PreToolUse/PostToolUse hooks; python + rust engines held in differential parity. |
 | **`audit-plan.py` / `audit-q.py`** | The checker/fixer registries `/audit` and the on-write doc-fire share; `audit-q` renders queues and routes residuals to `B-QFix` rows. |
 | **Warden Corpus**                | The blessed fixture corpus — differential ground truth for both engines; re-blessed only on reviewed semantic change. |
-| Rulesets                         | [[R-ruleset]] governs the rule files themselves; the catalog spans ~116 rulesets / 550+ rules, authored group-by-group at the F234 profile passes. |
+| Rulesets                         | [[R-ruleset]] governs the rule files themselves, [[R-facet-spec]] the facet-spec docs, [[R-pathguard]] the PreToolUse deny exemplar; the catalog spans ~116 rulesets / 550+ rules, authored group-by-group at the F234 profile passes. |
 
 ## Overview
 

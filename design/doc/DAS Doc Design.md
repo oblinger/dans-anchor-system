@@ -29,7 +29,8 @@ Doc is the authoring subsystem: its verbs shape a document's structure (`/md`), 
 | **`md-toc.py` + `/md` scripts**            | The mechanical markdown maintainers — TOC regeneration, dispatch-table builds, card builds.               |
 | **`excalidraw_to_svg.py` / `svg-jiggle.py`** | The figure toolchain — excalidraw → SVG/PNG export; deterministic geometric repair.                     |
 | **`gsa` CLI**                              | Google Suite Access — the engine under `/io` (never called directly; `/io` is the interface).             |
-| Rulesets                                   | [[R-markdown]] · [[R-md]] · [[R-doc]] · [[R-doc-structure]] · [[R-brief]] · [[R-cards]] · [[R-paper]] · [[R-diagram]] · [[R-diagram-geometry]] · [[R-svg-hygiene]] · [[R-svg-jiggle]] · [[R-tufte-data-ink]] · [[R-wcag-contrast]] · [[R-bringhurst-typography]] |
+| Disciplines                                | [[DAS dated-entry-stream]] · [[DAS file-association]] · [[DAS technical-answer]]                          |
+| Rulesets                                   | [[R-markdown]] · [[R-md]] · [[R-doc]] · [[R-doc-facet]] · [[R-doc-structure]] · [[R-progressive]] · [[R-brief]] · [[R-cards]] · [[R-paper]] · [[R-wp]] · [[R-output-group]] · [[R-fct-outputs]] · [[R-fct-user-dispatch]] · [[R-documentation-site]] · [[R-file-association]] · [[R-dated-entry-stream]] · [[R-diagram]] · [[R-diagram-geometry]] · [[R-sugiyama]] · [[R-c4]] · [[R-svg-hygiene]] · [[R-svg-jiggle]] · [[R-tufte-data-ink]] · [[R-wcag-contrast]] · [[R-bringhurst-typography]] |
 
 ## Overview
 

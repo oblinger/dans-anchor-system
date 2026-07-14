@@ -30,7 +30,8 @@ Code is the code-work subsystem: its verbs carry a change from spec through impl
 | [[commit]] · [[push]] · [[pr]] · [[nogit]] | Git-behavior traits — how autonomously the agent commits, pushes, or PRs in this anchor.                         |
 |                                        |                                                                                                                      |
 | **Library**                            |                                                                                                                      |
-| Rulesets                               | [[R-code]] · [[R-code-mirror]] · [[R-code-repository]] · [[R-code-surface]] · [[R-git]] · [[R-cli]] · [[R-versions]] · [[R-module-doc]] · [[R-test]] · [[R-testing]] · [[R-dev-dispatch]] |
+| Disciplines                            | [[DAS code-repo]] · [[DAS rust]]                                                                                     |
+| Rulesets                               | [[R-code]] · [[R-code-mirror]] · [[R-code-repository]] · [[R-code-surface]] · [[R-git]] · [[R-cli]] · [[R-wrapper-cli]] · [[R-versions]] · [[R-module-doc]] · [[R-all-files]] · [[R-changes]] · [[R-specs]] · [[R-openspec]] · [[R-test]] · [[R-testing]] · [[R-dev-dispatch]] · [[R-mac]] · [[R-ios]] |
 
 ## Overview
 

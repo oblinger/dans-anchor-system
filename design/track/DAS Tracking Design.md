@@ -22,6 +22,8 @@ Tracking is the subsystem that keeps one shared picture of work state between th
 | [[DAS Completed Roadmap\|Completed Roadmap]] | Migration target for shipped milestones, newest at top.                                                                                                            |
 | [[DAS Log\|Log]]                        | Append-only dated history stream — what happened on what day.                                                                                                           |
 | [[DAS Messages\|Messages]]              | Inter-agent background notes (vs. user-dropped Inbox input).                                                                                                            |
+| [[DAS Inbox\|Inbox]]                    | User-dropped input awaiting agent triage.                                                                                                               |
+| [[DAS Icebox\|Icebox]]                  | Cold storage for parked rows — outside every default groom scope.                                                                                       |
 | [[DAS Track\|Track]]                    | The `{slug} Track/` folder shape that houses the surfaces above.                                                                                                        |
 |                                         |                                                                                                                                                                         |
 | **Traits**                              |                                                                                                                                                                         |
@@ -30,6 +32,8 @@ Tracking is the subsystem that keeps one shared picture of work state between th
 | **Library**                             |                                                                                                                                                                         |
 | [[DAS State\|`state` CLI]]              | The single write path for rows, questions, statuses, roadmaps; every mutation triggers the Q.md render.                                                                 |
 | **`queries-render.py`**                 | Mechanical renderer — rebuilds `{slug} queries.md` and copies it into Q.md after every mutation.                                                                        |
+| Disciplines                             | [[DAS workflow]] · [[DAS ask-format]] · [[DAS verification]] · [[DAS granularity]]                                                                                      |
+| Rulesets                                | [[R-backlog]] · [[R-query]] · [[R-status]] · [[R-log]] · [[R-messages]] · [[R-roadmap]] · [[R-completed-roadmap]] · [[R-track-group]] · [[R-track-dispatch]] · [[R-fct-icebox]] · [[R-fct-inbox]] · [[R-fct-plan-dispatch]] · [[R-state-region]]                        |
 
 ## Overview
 

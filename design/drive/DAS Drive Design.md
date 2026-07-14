@@ -25,6 +25,7 @@ Drive is the execution subsystem: it consumes what Tracking surfaces as Ready an
 | [[drive]] · [[lean]]               | The autonomy modes — how aggressively the agent auto-decides (assume-and-announce per [[F068 — Assume-and-announce discipline (Drive mode)\|F068]]) vs. asks. |
 |                                    |                                                                                                                  |
 | **Library**                        |                                                                                                                  |
+| Disciplines                        | [[DAS mode]] · [[DAS role]] — the operating-mode and role-pilot disciplines the loop runs under.                    |
 | **Punctuation triggers**           | `'` = /crank, `.` = /land, `"` = /ask — single-keystroke go/stop/consolidate, wired in the global CLAUDE.md.        |
 
 ## Overview
