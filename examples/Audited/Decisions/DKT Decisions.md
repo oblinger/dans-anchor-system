@@ -8,6 +8,7 @@ include::
 | -[[DKT Decisions]]- | : durable architectural decisions + rationale |
 | --- | --- |
 | Related | [[DKT Design]],  [[DKT Architecture]],  [[DKT Standard]],  [[DKT API]],   |
+| ... |  |
 
 Each entry records a decision once: the fork, what was chosen, why, and what it commits downstream docs to. Docs that implement a decision link back here rather than re-arguing it.
 

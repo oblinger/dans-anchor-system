@@ -8,6 +8,7 @@ Harbor's work queue — horizon H2s, one row per item, status in brackets.
 | --- | --- |
 | Anchor | [[HBR Track]] (parent) |
 | Related | [[HBR Features]],  [[HBR Roadmap]],   |
+| ... | [[HBR Messages]],  [[HBR Status]],   |
 
 ## Active
 - **F002 — Direct-play streaming** `[Active]` — byte-range session for already-playable files. → [[HBR Features]]

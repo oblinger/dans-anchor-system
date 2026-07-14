@@ -8,6 +8,7 @@ The MD skill defines standard markdown formatting conventions used across all do
 | --- | --- |
 | Related | [[skills/md/SKILL.md\|SKILL]],   |
 | [[DAS MD Design\|Design]] |  |
+| ... |  |
 
 These conventions matter because the agent generates and edits markdown constantly. Consistent formatting makes documents machine-parseable and visually predictable. When you ask the agent to create a TOC, draw a file tree, or format a dispatch table, it follows these specs exactly.
 

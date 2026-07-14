@@ -8,5 +8,6 @@ description: "`/pilot-flow` is the top-down design-then-implementation workflow.
 | --- | --- |
 | Related | [[skills/pilot-flow/SKILL.md\|SKILL]],   |
 | [[DAS Pilot Flow Design\|Design]] |  |
+| ... |  |
 
 Under the hood it delegates: `/code plan` runs the seven-step planning phase, `/code execute` runs the implementation priority loop (user refinements → worker dispatch → spec next → surface decisions → design rescan), and `/code replan` handles lightweight replanning when requirements shift. The pilot role definition (with its `next` command protocol, git protocol, and context pacing rules) lives at `/role pilot`.

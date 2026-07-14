@@ -10,26 +10,7 @@ Facet spec for per-module documentation — the auto-generatable, source-code-gr
 | Related | [[DAS Interface]],  [[DAS Architecture]],  [[DAS Dev Dispatch]],  [[DAS Code]],   |
 | Rules | [[R-module-doc]],   |
 | Examples | [[FEX Scheduler\|fuller (two-zone, SVG figure)]],  [[HBR Scanner\|minimal (leaf module)]],   |
-|  |  |
-| **Table of Contents** |  |
-| [[#Location — mirroring the source tree]] |  |
-| [[#Document structure]] |  |
-| [[#Priority and starvation]] |  |
-| [[#TaskScheduler]] |  |
-| [[#TaskScheduler]] |  |
-| [[#See Also]] |  |
-| [[#Naming and casing summary]] |  |
-| [[#Bold and code conventions]] |  |
-| [[#Spacing summary]] |  |
-| [[#Linking conventions]] |  |
-| [[#Folder docs]] |  |
-| [[#Overview]] |  |
-| [[#Proposed API convention]] |  |
-| [[#Linking rule — CRITICAL]] |  |
-| [[#Lifecycle]] |  |
-| [[#`{slug} Dev.md` frontmatter — `module_docs_audited:` contract (per F074, 2026-05-19)]] |  |
-| [[#Reserved `Arch` row (per F074, 2026-05-19)]] |  |
-| **[[#BRIEF]]** |  |
+| ... | [[anchor-page]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Aspects]],  [[DAS Backlog]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[facets/DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Disciplines Brief]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Log]],  [[DAS Messages]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS Plan Dispatch]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS Track Dispatch]],  [[DAS TSK User Guide]],  [[DAS US-CAE-1 — Schedule a Task]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
 
 **TLDR** — Each source module gets a `{slug} {ModuleName}.md` doc under `{slug} Dev/` mirroring the repo's folder structure. Docs have two zones: an Overview zone (SECTIONS table + per-class overview + figure) and a Class Method Details zone. SVG figures only (via `[[viz-excalidraw]]`); bold-identifier-outside-code-span for all table links; block-ID format `^ClassName-methodname`. **Cardinality: many** — one doc per source module.
 

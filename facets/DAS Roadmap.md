@@ -10,27 +10,7 @@ The Roadmap facet — the project's sequencing-design doc, organized as named mi
 | Related | [[templates/roadmap.md\|roadmap template]],  [[DAS Features]],  [[DAS Completed Roadmap]],  [[DAS Status]],  [[DAS Design Folder]],   |
 | Examples | [[FEX Roadmap\|Shape A named-milestone]],  [[HBR Roadmap\|Shape B legacy-numbered]],   |
 | Rules | [[R-roadmap]],   |
-|  |  |
-| **Table of Contents** |  |
-| [[#Location]] |  |
-| [[#Two roadmap shapes — pick one per project]] |  |
-| [[#Numbering grammar]] |  |
-| [[#Feature naming when commissioned from a roadmap]] |  |
-| [[#Roadmap is future + present only; completed milestones migrate]] |  |
-| [[#Status-tracking conventions — three layered axes]] |  |
-| #\[x\] M1.5 — Spec Language Module |  |
-| [[#Reference-block convention]] |  |
-| #\[x\] M1.8 — Spec Evaluation Implementation |  |
-| [[#Section separator — `### .`]] |  |
-| [[#Deferred items — paired cross-references]] |  |
-| #\[~\] M1.11 - Documentation Sync (Deferred - see M3.14) |  |
-| [[#Open Questions on the roadmap]] |  |
-| [[#Open Questions]] |  |
-| [[#Preface zone]] |  |
-| [[#Trait applicability]] |  |
-| [[#Audit]] |  |
-| [[#See also]] |  |
-| **[[#BRIEF]]** |  |
+| ... | [[anchor-page]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[facets/DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Dev Dispatch]],  [[DAS Disciplines Brief]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS Plan Dispatch]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS Track Dispatch]],  [[DAS TSK User Guide]],  [[DAS US-CAE-1 — Schedule a Task]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
 
 The Roadmap facet specifies the `{slug} Roadmap.md` file — the project's **sequencing-design**. It declares what ships in what order, organized as milestones (M1, M2, M3 …) with sub-numbering for finer detail. Open questions at the sequencing/dependency/gating level live as `## Open Questions` H2 on this file per [[DAS ask-format]].
 

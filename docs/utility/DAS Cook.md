@@ -8,5 +8,6 @@ description: "`/cook <recipe>` (or `/cook <recipe> and <recipe> and ...`) answer
 | --- | --- |
 | Related | [[skills/cook/SKILL.md\|SKILL]],   |
 | [[DAS Cook Design\|Design]] |  |
+| ... |  |
 
 After printing the four lists, the skill batches up its "I'm assuming you have these on hand" guesses (especially aggressive on spices) into a single confirmation prompt so you can rubber-stamp a whole pile of pantry items at once. Then it pushes the lists to a fresh Apple Reminders list named `Cook YYYY-MM-DD HH:MM` — one reminder per section, packed into the notes field — so you can take Repurchase / Verify / Downstairs into the store on your phone.

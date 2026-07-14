@@ -10,6 +10,7 @@ Facet spec for the **Work Products** zone of an anchor — dated, polished outpu
 | Related | [[DAS Log]],  [[DAS Feature]],  [[DAS Brief]],  [[DAS Dispatch]],   |
 | Examples | [[AIS WP\|example dispatch page]],   |
 | Rules | [[R-wp]],   |
+| ... |  |
 
 **Location:** `{slug} Docs/Work Products/YYYY-MM-DD {Title}.md   (dated work product)`
 

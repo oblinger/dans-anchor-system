@@ -10,19 +10,7 @@ The Design folder facet — marks an anchor as following the designed-lifecycle 
 | Related | [[DAS PRD]],  [[DAS Architecture]],  [[DAS Testing]],  [[DAS Design Dispatch\|Dispatch]],   |
 | Examples | [[HBR Design\|minimal]],  [[HBR Design\|fuller]],   |
 | Rules | [[R-design]],   |
-|  |  |
-| **Table of Contents** |  |
-| [[#Location]] |  |
-| [[#Folder shape]] |  |
-| [[#Design vs. user docs vs. reference]] |  |
-| [[#Required vs optional children]] |  |
-| [[#Scaffolding — pre-wire the whole structure]] |  |
-| [[#Lifecycle gate behavior]] |  |
-| [[#Trait system — what's still in scope]] |  |
-| [[#Trait applicability]] |  |
-| [[#Audit]] |  |
-| [[#See also]] |  |
-| **[[#BRIEF]]** |  |
+| ... | [[anchor-page]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS Aspects]],  [[DAS Backlog]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[facets/DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Design Docs]],  [[DAS Dev Dispatch]],  [[DAS Disciplines Brief]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS Plan Dispatch]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Track]],  [[DAS Track Dispatch]],  [[DAS TSK User Guide]],  [[DAS US-CAE-1 — Schedule a Task]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[DAS User Dispatch]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
 
 **Linkage** — this facet's existence ⟺ the anchor has been architected by the [[architect]] skill; the two share one design folder, [[Architect Design]] (hosted on the behavioral core), reachable from either page per [[SKA Decisions]] D10.
 

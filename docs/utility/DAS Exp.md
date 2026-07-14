@@ -8,5 +8,6 @@ description: "`exp` is the remote-experimentation toolkit — it lets you run ML
 | --- | --- |
 | Related | [[skills/exp/SKILL.md\|SKILL]],   |
 | [[DAS Exp Design\|Design]] |  |
+| ... |  |
 
 `exp` is a CLI tool you invoke directly (`exp init`, `exp exe`, `exp status`, `exp zap`, etc.) rather than a slash-command — see `exp --help` for the full subcommand list. The **`exp zap <folder>`** pattern dispatches an experiment folder + instructions to an autonomous Claude Code worker pane on a named remote, which is the workflow you'll use most. Critical rule: **never use raw `tmux` or `ssh` against EXP sessions** — always go through `exp` subcommands (cleanup is `exp health --fix`, restart is `exp init`, etc.). Raw tmux commands have destroyed worker contexts and terminal windows before.

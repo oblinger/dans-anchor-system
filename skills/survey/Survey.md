@@ -9,3 +9,4 @@ description: Survey — skill anchor for building multi-dimensional comparison t
 | Methodology | [[survey/SKILL\|SKILL.md § Runbook]],   |
 | Rules | [[survey\|rules/]] (verb-level + pair files per [[skill-search-rules]]) |
 | Output | [[Survey]] (`~/ob/kmr/Topic/Search/Survey/`) |
+| ... |  |

@@ -6,6 +6,7 @@ Specialized survey for **comparing agent skills** that do similar work. You give
 
 | -[[DAS Research Skill]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Research Skill](hook://p/DAS%20Research%20Skill)<br>: Compare agent skills that do similar work — find how others built a given skill concept and produce a choice-point comparison with a recommendation |
 | --- | --- |
+| ... |  |
 
 # Details
 

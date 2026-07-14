@@ -6,6 +6,7 @@ Structured research workflows. You give it a target (entity / topic / person / b
 
 | -[[DAS Research]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Research](hook://p/DAS%20Research)<br>: Structured research workflows — gather sources on a target (entity/topic/person/book/concept) and produce a synthesized dated report in the RR anchor |
 | --- | --- |
+| ... |  |
 
 Every research action shares the same output skeleton: a dated report folder with a results table at the top, written analysis below, and full URLs in a Sources section so links work outside Obsidian.
 

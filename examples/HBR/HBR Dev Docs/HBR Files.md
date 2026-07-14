@@ -8,6 +8,7 @@ The Cargo workspace layout — one crate per pipeline plus the shared catalog.
 | --- | --- |
 | Anchor | [[HBR Dev Docs]] (parent) |
 | Related | [[HBR Architecture]],   |
+| ... | [[HBR Versions]],   |
 
 ```
 harbor/

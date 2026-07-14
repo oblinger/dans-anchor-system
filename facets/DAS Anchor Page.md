@@ -10,18 +10,7 @@ The entry page every anchor opens with — its `{slug}.md`.
 | Related | [[DAS Facets]],  [[DAS Dispatch Table]],  [[DAS progressive-disclosure]],  [[DAS Examples]],   |
 | Rules | [[R-anchor]],  [[R-anchor-page]],   |
 | Examples | [[HBR\|HBR anchor page]],  [[OBU\|OBU anchor page]],   |
-|  |  |
-| **Table of Contents** |  |
-| [[#Worked example sets — five real vault instances per kind]] |  |
-| [[#Anchor Page Template]] |  |
-| [[#Anchor Page Parts]] |  |
-| [[#Identity & frontmatter]] |  |
-| [[#Top of page (fixed order)]] |  |
-| [[#Dispatch table — masthead]] |  |
-| [[#Member zone — Collection anchors only]] |  |
-| [[#Naming & exceptions]] |  |
-| [[#Kind-specific rules]] |  |
-| **[[#BRIEF]]** |  |
+| ... | [[anchor-page]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Backlog]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[facets/DAS Code]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Disciplines Brief]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS Plan Dispatch]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS Track Dispatch]],  [[DAS TSK User Guide]],  [[DAS US-CAE-1 — Schedule a Task]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
 
 Design
 **Examples:** [[HBR\|Code project]],  [[DAS Anchor Page\|facet]],  [[DAS progressive-disclosure\|discipline]],  [[DAS Mint\|skill-doc]],  [[DAS Skills\|Container · grouped]],  [[SKA Access\|Container · list]],  [[HBR Log\|Container · chronological]],  [[Life\|Topic]]

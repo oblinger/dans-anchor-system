@@ -10,6 +10,7 @@ Captures the repository's current state into a labeled, restorable **snapshot bu
 | --- | --- |
 | Anchor | [[FEX Repo]] (parent) |
 | Related | [[FEX Snapshot/SKILL\|SKILL]] (the runbook),  [[FEX Manifest]] (what it writes),  [[FEX Retention]] (what sweeps its bundles),  [[DAS Skill]] (the skill spec), |
+| ... |  |
 
 ## What it does
 

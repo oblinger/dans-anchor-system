@@ -6,6 +6,7 @@ The mental model behind the **search skill family** (`find`, `describe`, `survey
 
 | -[[DAS Search Overview]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Search Overview](hook://p/DAS%20Search%20Overview)<br>: How the search skill family combines knowledge and rules — the mental model behind find/profile/survey. |
 | --- | --- |
+| ... |  |
 
 ## The two axes
 

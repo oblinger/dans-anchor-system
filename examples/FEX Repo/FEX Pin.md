@@ -8,6 +8,7 @@ The Pin facet — a marker that keeps one snapshot bundle forever. A worked exam
 | --- | --- |
 | Anchor | [[FEX Repo]] (parent) |
 | Related | [[FEX Retention]] (honors it),  [[FEX Bundle]] (what it protects),  [[DAS Facet]] (the facet spec), |
+| ... | [[R-fex-manifest]],   |
 
 ## What it is
 A small marker the user drops to keep a bundle forever, regardless of its age.

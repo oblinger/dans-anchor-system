@@ -9,6 +9,7 @@ A benchmark for **figure-drafting techniques**: one fixed set of reference figur
 | --- | --- |
 | Related | [[viz]] (the skill under test),  [[R-diagram]] / [[R-svg-jiggle]] (the Scribe rules),  [[drawio-skill]] (the Draw.io engine) |
 | Members | [[Gallery — Draw.io\|Draw.io Gallery]],  [[Gallery\|Scribe + D2 Gallery]],   |
+| ... | [[ deployment topology]],  [[ org tree]],  [[ radial]],   |
 
 ## Two axes being compared
 

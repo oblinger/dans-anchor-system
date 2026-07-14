@@ -7,6 +7,7 @@ description: "How to read from and write to external services — Google Workspa
 | Skill anchor | [[SKA io]],   |
 | Runtime | [[io/SKILL\|io SKILL.md]],   |
 | Group | [[SKA Access]] (accessor — external cloud services) |
+| ... |  |
 
 # DAS IO
 

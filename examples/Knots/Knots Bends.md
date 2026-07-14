@@ -8,6 +8,7 @@ Bends join two ropes into one longer line; the right bend depends on whether the
 | -[[Knots Bends]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[Knots]] → [Knots Bends](hook://p/Knots%20Bends)<br>: a sub-topic page within the Knots Topic example |
 | --- | --- |
 | Anchor | [[Knots]] (parent) |
+| ... | [[Knots Hitches]],   |
 
 ## The working bends
 

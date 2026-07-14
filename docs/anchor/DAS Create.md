@@ -8,6 +8,7 @@ Create a new thing — anchor, feature, work product, spec, or rule.
 | --- | --- |
 | Related | [[skills/create/SKILL.md\|SKILL]],   |
 | [[DAS Create Design\|Design]] |  |
+| ... |  |
 
 `/create` requires an argument specifying what to create:
 

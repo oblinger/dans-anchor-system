@@ -8,5 +8,6 @@ description: "`/pr-flow` is the iterative PR-based development workflow — each
 | --- | --- |
 | Related | [[skills/pr-flow/SKILL.md\|SKILL]],   |
 | [[DAS PR Flow Design\|Design]] |  |
+| ... |  |
 
 Two key rules: Claude always stops after surfing a PR (never continues without your feedback), and if it's waiting on you without a PR up it calls `alert` so you know. Variant: **"PR flow bulk"** spins up ~4 parallel agents and owns the full cycle without per-PR review — batched by parent milestone. The full procedure lives in `CAB Skills/CAB PR Flow.md` (find it with `ha -p CAB`).

@@ -8,6 +8,7 @@ description: "`/viz` produces visual artifacts — diagrams, charts, mockups, sl
 | --- | --- |
 | Related | [[skills/viz/SKILL.md\|SKILL]],   |
 | [[DAS Viz Design\|Design]] |  |
+| ... |  |
 
 Trigger phrases: "draw," "diagram," "mockup," "chart this," "plot data," "timeline chart," "excalidraw," or "convert this to PDF." Output lands in `~/ob/data/MyDesk/` by default with a slug-and-timestamp filename, so you can find what you generated across sessions without it scattering through `/tmp`. First-time use on a new machine needs a one-time setup step (install Inter + JetBrains Mono fonts, pandoc + tectonic for docx/pdf, Node for Excalidraw) — see the skill's setup section.
 

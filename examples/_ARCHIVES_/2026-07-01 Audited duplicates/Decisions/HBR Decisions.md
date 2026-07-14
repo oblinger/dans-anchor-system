@@ -10,6 +10,7 @@ The durable rulings that shape Harbor; each is referenced by `// D0n` comments i
 | --- | --- |
 | Anchor | [[HBR Design]] (parent) |
 | Related | [[HBR Architecture]],   |
+| ... |  |
 
 ### D01 — SQLite, not a server database (checked)
 

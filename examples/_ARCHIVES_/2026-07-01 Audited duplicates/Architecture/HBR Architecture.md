@@ -8,6 +8,7 @@ How Harbor is built: three pipelines around one shared SQLite catalog.
 | --- | --- |
 | Anchor | [[HBR Design]] (parent) |
 | Related | [[HBR Components]],  [[HBR Decisions]],  [[HBR API Design]],   |
+| ... |  |
 
 ## Overview
 

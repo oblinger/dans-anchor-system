@@ -8,5 +8,6 @@ description: "`/move` relocates an anchor folder to a new path and updates every
 | --- | --- |
 | Related | [[skills/move/SKILL.md\|SKILL]],   |
 | [[DAS Move Design\|Design]] |  |
+| ... |  |
 
 The skill walks through eight steps: zip + move, rename the Claude Code session folder, reindex HookAnchor, grep for hardcoded old-path references in CLAUDE.md / justfile / pyproject / etc., rebuild docs if published, update the slug index, verify the anchor opens cleanly at the new location, then delete the backup zip. Git remotes and Obsidian relative wiki-links keep working without intervention.

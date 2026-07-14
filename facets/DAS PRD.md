@@ -10,21 +10,7 @@ Facet spec for `{slug} PRD.md` — the first doc in an anchor's Design folder, d
 | Related | [[DAS Architecture]],  [[DAS Testing]],  [[DAS Decisions]],  [[DAS Stories]],  [[templates/prd.md\|PRD template]],   |
 | Examples | [[HBR PRD\|single-file form]],  [[HBR PRD\|folder form (stories extracted)]],  [[Mini PRD]],  [[DMUX PRD]],  [[OBU PRD]],   |
 | Rules | [[R-prd]],   |
-|  |  |
-| **Table of Contents** |  |
-| [[#Location]] |  |
-| [[#Two forms — single-file (default) and folder (when stories extract)]] |  |
-| [[#Standard section order]] |  |
-| [[#Preface zone requirements]] |  |
-| [[#User stories — naming and lifecycle]] |  |
-| [[#Open questions — handled by `/ask`]] |  |
-| [[#Status tracking]] |  |
-| [[#Cardinality]] |  |
-| [[#Common deviations in real instances]] |  |
-| [[#Trait applicability]] |  |
-| [[#Audit]] |  |
-| [[#See also]] |  |
-| **[[#BRIEF]]** |  |
+| ... | [[anchor-page]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Aspects]],  [[DAS Backlog]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[facets/DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Dev Dispatch]],  [[DAS Disciplines Brief]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS Plan Dispatch]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Track]],  [[DAS Track Dispatch]],  [[DAS TSK User Guide]],  [[DAS US-CAE-1 — Schedule a Task]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
 
 The PRD (`{slug} PRD.md`) is the **what** of the product — what it does, who it serves, what's in and out of scope, and the user stories that downstream work realizes. It is the first document written during `/design`, and every downstream phase (UX, Architecture, Testing, Roadmap, Features) reads it as authoritative input.
 

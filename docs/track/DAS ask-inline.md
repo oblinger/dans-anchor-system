@@ -6,6 +6,7 @@ description: "How to ask the user a question inline — ONE crisp, bold, `[quest
 
 | -[[DAS ask-inline]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS ask-inline](hook://p/DAS%20ask-inline)<br>: How to ask the user a question inline — ONE crisp, bold, `[question]`-tagged line they can answer immediately, with the context inside it. The style that finally worked after the user struggled for a long time to get agents to ask answerable questions. |
 | --- | --- |
+| ... |  |
 
 ## The format
 

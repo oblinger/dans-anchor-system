@@ -8,5 +8,6 @@ description: "`/yore` archives a folder or file to **Yore**, the standard archiv
 | --- | --- |
 | Related | [[skills/yore/SKILL.md\|SKILL]],   |
 | [[DAS Yore Design\|Design]] |  |
+| ... |  |
 
 Reach for archive vs delete based on whether the content might be useful later: when in doubt, archive — storage is cheap and lost work is expensive. Build artifacts, temp files, and pure duplicates can be deleted outright; everything with reference value, history, or restore potential should go to Yore.

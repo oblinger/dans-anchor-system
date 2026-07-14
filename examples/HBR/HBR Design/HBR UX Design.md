@@ -8,6 +8,7 @@ What a household viewer sees: browse the catalog, then play a title — on whate
 | --- | --- |
 | Anchor | [[HBR Design]] (parent) |
 | Related | [[HBR API Design]],  [[HBR CLI]],  [[HBR Architecture]],  [[HBR PRD]],   |
+| ... | [[HBR CLI Help.txt]],  [[HBR Design/HBR Decisions]],  [[HBR Features/HBR Features]],  [[HBR Design/HBR Features]],  [[HBR Roadmap]],  [[HBR Design/HBR Testing]],   |
 
 ## TLDR
 - **Audience** — a household viewer on a LAN device (TV browser, phone, laptop); no account, no install.

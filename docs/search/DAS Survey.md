@@ -9,6 +9,7 @@ description: "skim → click into the rule that applies"
 | Types | [[SRC rules/survey-person\|survey-person]],  [[SRC rules/survey-corp\|survey-corp]],  [[SRC rules/survey-product\|survey-product]],  [[SRC rules/survey-software\|survey-software]],  [[SRC rules/survey-skill\|survey-skill]],   |
 | Meta-survey | [[DAS Meta Survey]] — high-rigor three-stage form (sources × dimensions × items), cells annotated for certainty |
 | [[DAS Survey Design\|Design]] |  |
+| ... |  |
 
 **Survey** builds a multi-dimensional comparison table across many entities + interpretive notes. Two meta-survey forms: **lightweight** (survey-of-surveys to derive dimensions) and **full** `/survey meta <noun>` (three composed surveys plus cell-certainty notation — see [[DAS Meta Survey]]). For comparison — not single-entity profiling ([[DAS Profile]]) or single-instance lookup ([[DAS Find]]).
 

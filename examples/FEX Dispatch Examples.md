@@ -6,6 +6,7 @@ description: "live worked examples of each dispatch-table structure"
 | --- | --- |
 | Spec | [[DAS Dispatch Table]] § Structure |
 | Builder | [[audit-dispatch\|/audit dispatch]],   |
+| ... | [[_{{DISK_LABEL}} Template]],  [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template]],  [[Bridges]],  [[CAE Architecture]],  [[CAE Decisions]],  [[CAE PRD]],  [[CAE Stories]],  [[CAE Testing]],  [[Clarifier]],  [[CSE]],  [[DAS Examples]],  [[Devtools]],  [[Decisions/DKT Decisions]],  [[PRD/DMUX PRD]],  [[Espresso]],  [[FEX API]],  [[FEX API Design]],  [[FEX Architecture]],  [[FEX Completed Roadmap]],  [[FEX CSE]],  [[FEX Decisions]],  [[FEX Decisions Details]],  [[FEX Facet]],  [[FEX Files]],  [[FEX Grouped Dispatch]],  [[FEX Icebox]],  [[FEX Inbox]],  [[FEX List Dispatch]],  [[FEX Minimal Facet]],  [[FEX Minimal Skill]],  [[FEX Project Root]],  [[FEX queries]],  [[FEX Repo]],  [[FEX Roadmap]],  [[FEX Rules]],  [[FEX Scheduler]],  [[FEX Skill]],  [[FEX Stories]],  [[Forum Stories]],  [[Architecture/HA Architecture]],  [[Architecture/HBR Architecture]],  [[Decisions/HBR Decisions]],  [[PRD/HBR PRD]],  [[HBR PRD User Stories]],  [[Testing/HBR Testing]],  [[HWP]],  [[Knots]],  [[Mini]],  [[Decisions/Mini Decisions]],  [[PRD/Mini PRD]],  [[Testing/Mini Testing]],  [[Architecture/MUX Architecture]],  [[Architecture/OBU Architecture]],  [[PRD/OBU PRD]],  [[SKA Bridge Testing]],  [[Snap]],  [[Testing/MUX Testing]],  [[Decisions/UCM Decisions]],  [[US-CAE-1 — Schedule a Task]],  [[US-CAE-3 — Retry Failed Tasks]],  [[Viz Bench]],   |
 
 # FEX Dispatch Examples
 

@@ -8,3 +8,4 @@ The concept dossier for **`/finalize`** — everything published about the skill
 | --- | --- |
 | Related | [[ASG Finalize\|Finalize User Guide]],  [[skills/finalize/SKILL.md\|SKILL]] (runtime) |
 | [[DAS Finalize Design\|Design]] | [[DAS Finalize PRD\|PRD]],   |
+| ... |  |

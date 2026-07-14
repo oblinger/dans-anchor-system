@@ -9,6 +9,7 @@ How the Bridge skill is verified: the kinds of test, how much of each, and the c
 | --- | --- |
 | Anchor | [[SKA Bridge Design]] (parent) |
 | Related | [[SKA Bridge PRD]],  [[SKA Bridge UX Design]],  [[DAS verification]],   |
+| ... |  |
 
 **TLDR**
 - **Two-machine posture** — center of gravity is integration testing against a real remote; most logic is I/O orchestration.

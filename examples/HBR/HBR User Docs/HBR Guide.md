@@ -8,6 +8,7 @@ Get Harbor from install to streaming in four steps.
 | --- | --- |
 | Anchor | [[HBR User Docs]] (parent) |
 | Related | [[HBR CLI]],   |
+| ... |  |
 
 1. **Install** — `cargo install harbor`.
 2. **Configure** — write a `harbor.toml` with your watched roots and a catalog path.

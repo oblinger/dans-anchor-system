@@ -8,6 +8,7 @@ The Bundle facet — one snapshot, captured as a dated directory. A worked examp
 | --- | --- |
 | Anchor | [[FEX Repo]] (parent) |
 | Related | [[FEX Snapshot]] (creates it),  [[FEX Manifest]] (it carries),  [[FEX Pin]] (protects it),  [[DAS Facet]] (the facet spec), |
+| ... | [[R-fex-manifest]],   |
 
 ## What it is
 A single restorable snapshot of the repo, stored as its own directory.
