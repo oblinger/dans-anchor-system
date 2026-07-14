@@ -17,6 +17,7 @@ user_invocable: true
 
 # Buy — Best Price + Verified Buy Location
 requires:: vault, external:ctrl
+subsystem:: [[DAS Search Design]] — the Search group's subsystem profile
 
 Skill spec for `/buy <product>` — walks major retailers for a known product, verifies real product pages via real-Safari fetching, and recommends the best place to purchase with stock + price + seller captured.
 

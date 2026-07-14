@@ -6,6 +6,7 @@ user_invocable: true
 
 # Cook
 requires:: vault, external:paprika
+subsystem:: [[DAS Utility Design]] — the Utility group's subsystem profile
 
 `/cook <recipe>` (or `/cook <recipe> and <recipe> and …`) — pull ingredients from the user's Paprika library, classify against `~/ob/kmr/Topic/Food/Food Categories.md`, and print **Repurchase / Verify / Downstairs / Remaining** lists so the user knows what to buy, what to double-check, what to grab from the basement, and what's already on hand.
 

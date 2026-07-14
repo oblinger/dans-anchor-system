@@ -12,6 +12,7 @@ dependencies:
 
 # CTRL — Environment Control
 requires:: none
+subsystem:: [[DAS Utility Design]] — the Utility group's subsystem profile
 
 Control the local macOS environment: browser automation, persistent tmux shell sessions, and system interaction.
 

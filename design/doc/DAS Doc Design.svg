@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="48 38 1004 420.25" width="2008" height="840" style="background:white">
+<rect x="60" y="50" width="140" height="52" fill="#e7f5ff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="130.0" y="80.1" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle">/md</text>
+<text x="210.0" y="71.7" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="11" fill="#868e96" text-anchor="start">TOC · dispatch · cards · file-trees</text>
+<path d="M 200.0 76.0 L 470.0 76.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="470.0" y1="76.0" x2="462.2" y2="80.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="470.0" y1="76.0" x2="462.2" y2="71.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<rect x="60" y="120" width="140" height="52" fill="#e7f5ff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="130.0" y="150.1" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle">/viz</text>
+<text x="210.0" y="141.7" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="11" fill="#868e96" text-anchor="start">svg · excalidraw · charts · mermaid</text>
+<path d="M 200.0 146.0 L 470.0 146.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="470.0" y1="146.0" x2="462.2" y2="150.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="470.0" y1="146.0" x2="462.2" y2="141.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<rect x="60" y="190" width="140" height="52" fill="#e7f5ff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="130.0" y="220.1" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle">/redline</text>
+<text x="210.0" y="211.7" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="11" fill="#868e96" text-anchor="start">collaborative polish, versioned</text>
+<path d="M 200.0 216.0 L 470.0 216.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="470.0" y1="216.0" x2="462.2" y2="220.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="470.0" y1="216.0" x2="462.2" y2="211.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<rect x="60" y="260" width="140" height="52" fill="#e7f5ff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="130.0" y="290.1" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle">/atlas</text>
+<text x="210.0" y="281.7" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="11" fill="#868e96" text-anchor="start">vault-wide glossary / router</text>
+<path d="M 200.0 286.0 L 470.0 286.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="470.0" y1="286.0" x2="462.2" y2="290.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="470.0" y1="286.0" x2="462.2" y2="281.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<rect x="470" y="60" width="240" height="220" fill="#fff9db" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="590.0" y="96.3" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="17" fill="#1e1e1e" text-anchor="middle">the document</text>
+<text font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="12" fill="#868e96" text-anchor="start">
+  <tspan x="494.0" y="130.6">conforms to its facet</tspan>
+  <tspan x="494.0" y="145.6">(Brief · Cards · Module Doc ·</tspan>
+  <tspan x="494.0" y="160.6">Doc Structure …)</tspan>
+  <tspan x="494.0" y="175.6">rules: R-markdown family</tspan>
+</text>
+<rect x="470" y="320" width="240" height="56" fill="#e7f5ff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="590.0" y="352.1" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle">/io</text>
+<path d="M 590.0 320.0 L 590.0 280.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="590.0" y1="280.0" x2="594.5" y2="287.8" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="590.0" y1="280.0" x2="585.5" y2="287.8" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<rect x="760" y="300" width="280" height="96" fill="#f8f9fa" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="900.0" y="325.6" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle">external apps</text>
+<text font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="12" fill="#868e96" text-anchor="start">
+  <tspan x="784.0" y="354.6">Google Sheets · Slides · Docs ·</tspan>
+  <tspan x="784.0" y="369.6">Drive · Apple Mail · Notion</tspan>
+</text>
+<path d="M 710.0 348.0 L 760.0 348.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="760.0" y1="348.0" x2="752.2" y2="352.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="760.0" y1="348.0" x2="752.2" y2="343.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<path d="M 760.0 368.0 L 710.0 368.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="710.0" y1="368.0" x2="717.8" y2="363.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="710.0" y1="368.0" x2="717.8" y2="372.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<text x="60.0" y="441.4" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="13" fill="#868e96" text-anchor="start">authoring verbs shape the document in place;  /io round-trips content with the outside apps</text>
+</svg>

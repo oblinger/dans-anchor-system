@@ -19,6 +19,7 @@ user_invocable: true
 
 # vox — File voice memos with transcripts
 requires:: vault, anchor-cli, external:ffmpeg, external:whisper-cli
+subsystem:: [[DAS Utility Design]] — the Utility group's subsystem profile
 
 `vox-process` files an audio file into `~/ob/kmr/Log/VOX/` as `<date> <title>.<ext>` paired with a `<date> <title>.md` whisper.cpp transcript. The skill is the user-facing wrapper: it finds the audio (or accepts a path), calls the script, and reports what happened.
 

@@ -11,6 +11,7 @@ user_invocable: true
 
 # Feature — Feature Lifecycle
 requires:: vault, anchor-cli, skill:ask, skill:mint, facet:backlog, facet:query
+subsystem:: [[DAS Drive Design]] — the Drive group's subsystem profile
 
 | Table of Contents |  |
 |---|---|

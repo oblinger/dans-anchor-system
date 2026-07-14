@@ -45,5 +45,5 @@
 <line x1="880.0" y1="220.0" x2="872.2" y2="224.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
 <line x1="880.0" y1="220.0" x2="872.2" y2="215.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
 <text x="1024.0" y="220.6" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="12" fill="#868e96" text-anchor="start">dated archive</text>
-<text x="60.0" y="333.4" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="13" fill="#868e96" text-anchor="start">ha resolves slugs + [[wiki-links]] → paths   ·   /anchor toolkit + /install service the machinery</text>
+<text x="60.0" y="333.4" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="13" fill="#868e96" text-anchor="start">HookAnchor (separate app) resolves slugs + [[wiki-links]] → paths   ·   /anchor toolkit + /install service the machinery</text>
 </svg>

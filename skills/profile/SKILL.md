@@ -6,6 +6,7 @@ user_invocable: true
 
 # /profile
 requires:: vault, skill:find
+subsystem:: [[DAS Search Design]] — the Search group's subsystem profile
 
 Build a **thorough structured description of one entity**. The user provides an entity (or has it identified via [[find]]), the skill produces a structured profile sized to the depth tier.
 

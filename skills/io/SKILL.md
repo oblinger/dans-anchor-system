@@ -12,6 +12,7 @@ user_invocable: true
 
 # IO — External System I/O
 requires:: external:ctrl, external:gsa
+subsystem:: [[DAS Doc Design]] — the Doc group's subsystem profile
 
 Read from and write to external services. Each sub-skill is an access card with ranked methods.
 
