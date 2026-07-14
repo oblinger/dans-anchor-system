@@ -11,7 +11,7 @@ The canonical state graph for a unit of work — names every state, defines Defi
 
 The single source of truth for **what state a unit of work is in**, **what it means**, and **what advances it to the next state**. Every skill that touches the state of work — `/groom`, `/feature`, `/mint`, `/finalize`, `/code release`, `/roster`, audits — cites this discipline.
 
-> **F129 (2026-06-07):** state mutations go through `~/.claude/skills/workflow/scripts/state` (verb-first CLI). Old positional `backlog-edit.py` invocations still work during the migration window. Full CLI spec: [[SKL State]] (`~/.claude/skills/workflow/SKL State.md`).
+> **F129 (2026-06-07):** state mutations go through `~/.claude/skills/workflow/scripts/state` (verb-first CLI). Old positional `backlog-edit.py` invocations still work during the migration window. Full CLI spec: [[DAS State]] (`~/.claude/skills/workflow/DAS State.md`).
 
 ## Why this exists — the problem it solves
 
@@ -293,7 +293,7 @@ The bracket should be checkable against the row's body in one read.
 
 ## Mutation API — `state`
 
-The canonical state editor for everything below the anchor level — backlog rows AND feature-doc Open Questions. All skills that advance, park, rebracket items, or manage Qs go through this script instead of editing the backlog or feature doc directly. **Full CLI spec:** [[SKL State]] (`~/.claude/skills/workflow/SKL State.md`).
+The canonical state editor for everything below the anchor level — backlog rows AND feature-doc Open Questions. All skills that advance, park, rebracket items, or manage Qs go through this script instead of editing the backlog or feature doc directly. **Full CLI spec:** [[DAS State]] (`~/.claude/skills/workflow/DAS State.md`).
 
 **Path:** `~/.claude/skills/workflow/scripts/state` (skill-owned; no `~/bin/` dependency).
 

@@ -32,6 +32,7 @@ CLI submits tasks to the **Scheduler**, which dispatches to the **Worker Pool**,
 | [[Espresso]] | Espresso — example topic collection (≤ 15 members) — notes on pulling espresso |
 | [[FEX API Design]] | programmatic surface of the `cae` Rust crate — types, signatures, error envelope, stability + compatibility commitments. Sibling to |
 | [[FEX Completed Roadmap]] | companion to CAE Roadmap; preserved migrated milestones with their structure; newest-on-top. |
+| [[FEX CSE]] |  |
 | [[FEX Decisions Details]] |  |
 | [[FEX Dispatch Examples]] | live worked examples of each dispatch-table structure |
 | [[FEX Facet]] | canonical facet exemplar |
@@ -67,7 +68,6 @@ CLI submits tasks to the **Scheduler**, which dispatches to the **Worker Pool**,
 | [[Architecture/OBU Architecture]] | system architecture |
 | [[PRD/OBU PRD]] | product requirements — ob-utils shared utilities library, one spec across languages |
 | [[SKA Bridge Testing]] | SKA Bridge Testing — strategy + proposed-tests overview |
-| [[SKL CSE]] |  |
 | [[Snap]] |  |
 | [[Testing/MUX Testing]] | MUX Testing — strategy + proposed-tests overview |
 | [[Decisions/UCM Decisions]] | architectural and implementation decisions for UCM |
