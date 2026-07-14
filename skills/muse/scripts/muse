@@ -226,7 +226,32 @@ ingest_one() {
     log "OK $item_base"
 }
 
+# Wait until a file's size is stable (not still uploading / mid-materialize).
+# Observed 2026-07-14: the launchd sweep picked up a JPR .m4a that iCloud was
+# still incrementally materializing (grew from ~200 KB → 10.5 MB during
+# processing). Result: SHA computed on a partial file didn't match the SHA
+# computed on the final file → same recording ingested twice with two hashfile
+# entries and two item files. Wait for two consecutive stat calls to agree on
+# size before proceeding. Returns 0 on stable, 1 if it never stabilizes within
+# ~60s.
+file_stable() {
+    local f="$1" prev="" curr=""
+    for _ in 1 2 3 4 5 6; do
+        curr="$(stat -f '%z' "$f" 2>/dev/null)" || return 1
+        if [[ -n "$prev" && "$curr" == "$prev" && "$curr" != "0" ]]; then
+            return 0
+        fi
+        prev="$curr"
+        sleep 5
+    done
+    return 1
+}
+
 # Scan MUSE_JPR_DIR for .m4a files not yet in .muse.hashes and ingest each.
+# Concurrency-safe: takes a flock on the hashfile so two overlapping muse
+# invocations (e.g. a manual `muse ingest <path>` racing with an auto-launchd
+# sweep) don't both process the same candidate — observed 2026-07-14 producing
+# duplicate item files.
 ingest_sweep() {
     [[ -d "$MUSE_JPR_DIR" ]] || die "JPR dir not found: $MUSE_JPR_DIR"
 
@@ -235,20 +260,49 @@ ingest_sweep() {
     local hashfile="$MUSE_ITEMS_DIR/.muse.hashes"
     touch "$hashfile"
 
+    # Concurrency lock via mkdir (macOS lacks a native flock). If another muse
+    # sweep is running, skip this pass rather than racing. Use a global (not
+    # local) so the EXIT trap can still see the var name under `set -u`.
+    MUSE_SWEEP_LOCKDIR="$MUSE_ITEMS_DIR/.muse.sweep.lock"
+    if ! mkdir "$MUSE_SWEEP_LOCKDIR" 2>/dev/null; then
+        log "sweep: another sweep is running (lockdir exists) — skipping"
+        return 0
+    fi
+    trap 'rmdir "${MUSE_SWEEP_LOCKDIR:-/nonexistent}" 2>/dev/null || true' EXIT
+
+    # Force iCloud to materialize any pending JPR files before scanning. iCloud
+    # drops don't trigger FSEvents reliably (per muse gotcha), and the
+    # FileProvider may leave watch-uploaded files as cloud-only placeholders
+    # until something asks for them. brctl is a no-op for already-materialized
+    # files. Best-effort — ignore errors.
+    command -v brctl >/dev/null 2>&1 && brctl download "$MUSE_JPR_DIR" 2>/dev/null || true
+
     # Instrumented: log find visibility (helps diagnose TCC / iCloud-materialization
     # differences between launchd and interactive contexts). If found_count is
     # lower under launchd than an interactive shell, the launchd agent needs FDA
     # or the iCloud FileProvider is not exposing the same directory listing.
+    #
+    # Sort by path so oldest recordings process first — JPR names files
+    # YYYY-MM-DD/HH-MM-SS.m4a which sorts lexicographic == chronological.
+    # This matters for Quick.md ordering: muse always PREPENDS new bullets,
+    # so processing oldest-first leaves newest at the TOP naturally. Observed
+    # 2026-07-14: out-of-order sweep put a 9:48 bullet above an 11:23 bullet.
     local candidate count=0 found_count=0
-    while IFS= read -r -d '' candidate; do
+    while IFS= read -r candidate; do
+        [[ -z "$candidate" ]] && continue
         found_count=$((found_count + 1))
         # Fast pre-check by path so sweep skips known files without hashing.
         # ingest_one still SHA-checks as a fallback.
         if grep -Fq -- " $candidate" "$hashfile"; then
             continue
         fi
+        # Wait for iCloud materialization to finish before hashing/transcribing.
+        if ! file_stable "$candidate"; then
+            warn "size unstable after 60s (still uploading?) — skipping: $candidate"
+            continue
+        fi
         ingest_one "$candidate" && count=$((count + 1)) || warn "ingest failed: $candidate"
-    done < <(find "$MUSE_JPR_DIR" -type f -iname '*.m4a' -print0 2>>/tmp/muse-find-stderr.log)
+    done < <(find "$MUSE_JPR_DIR" -type f -iname '*.m4a' 2>>/tmp/muse-find-stderr.log | sort)
 
     log "sweep: find returned $found_count candidates; ingested $count new"
     if [[ -s /tmp/muse-find-stderr.log ]]; then
