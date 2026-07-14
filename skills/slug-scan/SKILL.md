@@ -7,6 +7,7 @@ user_invocable: true
 
 # Slug Scan — Sync the slug index
 requires:: vault, external:ha
+subsystem:: [[DAS Hygiene Design]] — the Hygiene group's subsystem profile
 
 Runbook for the `/slug-scan` skill — discovers new anchor slugs and appends formatted rows to the master slug index at `~/ob/kmr/SYS/SYS Topic/slug/SLUG.md`.
 

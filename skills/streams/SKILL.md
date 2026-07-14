@@ -7,6 +7,7 @@ user_invocable: true
 
 # Streams — Content stream definitions
 requires:: none
+subsystem:: [[DAS Anchor Design]] — the Anchor group's subsystem profile
 
 A repeated kind of content grouping is called a "stream." This action defines the rules for stream-type anchors.
 

@@ -17,6 +17,7 @@ user_invocable: true
 
 # Audit
 requires:: vault, anchor-cli, facet:backlog
+subsystem:: [[DAS Hygiene Design]] — the Hygiene group's subsystem profile
 
 Skill spec for `/audit` — the anchor-auditing orchestrator and its sub-audit actions (structure, rules, docs, publish, code, q, q-fix, features, markdown, architecture, integrity, module-doc).
 

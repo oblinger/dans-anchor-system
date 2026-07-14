@@ -12,6 +12,7 @@ user_invocable: true
 
 # Rewire
 requires:: vault, anchor-cli, skill:ask, facet:backlog, facet:dispatch-table
+subsystem:: [[DAS Hygiene Design]] — the Hygiene group's subsystem profile
 
 Idempotent structural repair for any anchor. Ensures all files are linked, dispatch tables are wired, and the skeleton is consistent. Safe to run anytime — only adds, never deletes.
 

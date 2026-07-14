@@ -7,6 +7,7 @@ user_invocable: true
 
 # Maintain — Keep derived files in sync within an anchor
 requires:: vault, skill:code
+subsystem:: [[DAS Hygiene Design]] — the Hygiene group's subsystem profile
 
 Maintain standing synchronization orders for an anchor. When source files change, derived files are updated to match.
 

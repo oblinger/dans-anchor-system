@@ -11,6 +11,7 @@ user_invocable: true
 
 # Create
 requires:: skill:code, skill:feature, skill:rule
+subsystem:: [[DAS Anchor Design]] — the Anchor group's subsystem profile
 
 Dispatch skill that routes `/create <thing>` invocations to the underlying creation skill for anchors, features, work products, specs, or rules.
 

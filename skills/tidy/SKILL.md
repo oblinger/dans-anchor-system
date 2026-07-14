@@ -7,6 +7,7 @@ user_invocable: true
 
 # Tidy — Validate and correct anchor structure
 requires:: vault, external:ha
+subsystem:: [[DAS Hygiene Design]] — the Hygiene group's subsystem profile
 
 Runbook for the `/tidy` skill — scans an anchor folder and fixes structural issues against the CAB spec (naming, dispatch tables, links, file structure).
 

@@ -11,6 +11,7 @@ user_invocable: false
 
 # Anchor
 requires:: vault
+subsystem:: [[DAS Anchor Design]] — the Anchor group's subsystem profile
 
 Scripts and actions for operating on anchors. Not directly user-invocable — other skills
 (audit, cab, code) delegate to these.
