@@ -1,7 +1,7 @@
 # RULESET R-facet-spec
 include::
-where:: `file: facets/**/DAS *.md, !facets/DAS.md, !**/DAS Facets.md, !**/DAS Primitives.md, !**/DAS Anchor.md, !**/DAS Code.md, !**/DAS Design Docs.md, !**/DAS Dispatch.md, !**/DAS Doc.md, !**/DAS Output.md, !**/DAS Track.md`
-description:: The rules for authoring a facet — what every `DAS <Name>.md` (a facet definition) must contain and conform to. **Distinct from the umbrella [[R-facet]]**, which aggregates each materialized facet's *own* embedded rules (so an anchor's `{slug} Backlog.md`, `{slug} Testing.md`, … get audited); `R-facet-spec` instead governs the **facet-spec documents themselves**, in the `facets/` catalog.
+where:: `file: DAS *.md, */DAS *.md, !DAS.md, !DAS {workflow,Linked Mode,code-repo,role,granularity,progressive-disclosure,anchor-dag,markdown}.md, !DAS Facets.md, !DAS Primitives.md, !DAS Anchor.md, !DAS Code.md, !DAS Design Docs.md, !DAS Dispatch.md, !DAS Doc.md, !DAS Output.md, !DAS Track.md, !DAS Linked Mode.md, !DAS Traits.md, !DAS Design.md, !DAS US-*.md, !DAS TSK User Guide.md, !DAS Aspects.md, !DAS Disciplines Brief.md, !DAS Dispatch Table Design.md`
+description:: The rules for authoring a facet — what every `DAS <Name>.md` (a facet definition) must contain and conform to. **Distinct from the umbrella [[R-facet]]**, which aggregates each materialized facet's *own* embedded rules (so an anchor's `{slug} Backlog.md`, `{slug} Testing.md`, … get audited); `R-facet-spec` instead governs the **facet-spec documents themselves**, in the `facets/` catalog. The where-glob matches anchor-relative paths (facets/ is its own anchor, so specs sit at depth 0-1); disciplines are excluded by explicit brace-list (the glob engine has no character classes) — a new discipline spec leaks loudly (facet rules fire on its write) until added to the exclusion list.
 
 Embedded here per the [[F133 — Rulesets folder convention + facet embedding|F133]] convention. Tiers: **checked** (mechanically verifiable), **sampled** (spot-checked), **stated** (a principle the author honors). The authoritative model these rules enforce is [[DAS Aspects]] § Facet + § Spec-doc structure.
 
@@ -146,7 +146,9 @@ A facet that gates a design phase (Architecture, Testing, …) declares a `statu
 ### RULE R-facet-spec-24 — Links peer facets in `## See also` (sampled)
 A facet that sits among peers (the Design or Track groups) links them in a `## See also`, and names its authoring skill if one exists.
 **Check pattern:** a `## See also` lists peer facets + the authoring skill (e.g. `/design testing` for [[DAS Testing]]).
-**Why:** facets are read as a set; ### RULE R-facet-spec-25 — Masthead carries an Examples row spanning the facet's instantiation kinds (checked)
+**Why:** facets are read as a set; the See-also row is how a reader discovers the siblings.
+
+### RULE R-facet-spec-25 — Masthead carries an Examples row spanning the facet's instantiation kinds (checked)
 check:: facet_examples_row
 The dispatch masthead includes an **`Examples`** row linking worked instances that **span the range** of how this facet is instantiated — at minimum a *minimal* and a *maximal* instantiation, plus any other meaningful breakdown (by trait, by cardinality form, by sub-kind). Each entry is a wiki-link (never an embedded instance — R-facet-spec-20), aliased to name which kind it exemplifies, e.g. `[[HBR Backlog\|minimal]]`, `[[SKA Backlog\|maximal]]`.
 **Check pattern:** the masthead has an `Examples` row carrying at least one wiki-link.

@@ -2,11 +2,16 @@
 description: "standard test-kind catalogue — generic strategy per kind, linked from each project's Testing tests-table"
 ---
 
-# Common Testing Types
+# DAS Common Testing Types
+Reference catalog of the recurring test types a `{slug} Testing.md` draws from — the shared vocabulary behind the [[DAS Testing]] facet.
 
 | -[[DAS Common Testing Types]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Common Testing Types](hook://p/DAS%20Common%20Testing%20Types) |
 | --- | --- |
 | Related | [[DAS Testing]],   |
+| Rules | [[R-testing]],   |
+| Examples | [[OBU Testing\|OBU test design]],   |
+
+**Cardinality: one** — a single shared reference catalog (this file); each anchor's `{slug} Testing.md` cites these types rather than restating them.
 
 This is the **shared reference** for the standard kinds of test. Each project's `{slug} Testing.md` carries a required **tests-table** (see [[DAS Testing]]) whose left column names the kinds it uses; each kind cell **links here** (e.g. `~~[[Common Testing Types#Property]]~~`) when the project's use of that kind is *vanilla*. When a project does something *special* with a kind, the cell instead links to a section **within that project's** `{slug} Testing.md` explaining the twist. One H2 per kind below; add a kind here only when it recurs across projects.
 
@@ -58,3 +63,10 @@ Specs that can only be judged, not asserted — "does this layout look right?", 
 
 - [[DAS Testing]] — the facet spec that requires the tests-table linking here.
 - [[DAS verification]] — the four-tier verification discipline test kinds map onto.
+
+# BRIEF
+
+*(Maintainer note — agent-facing cautions.)*
+
+- **This is a catalog, not a per-anchor doc** — never inline one anchor's test plan here; that belongs in its `{slug} Testing.md`.
+- **Add a type only when a second anchor needs it** — one-off test shapes stay in the anchor that invented them.

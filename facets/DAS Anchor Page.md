@@ -9,6 +9,7 @@ The entry page every anchor opens with — its `{slug}.md`.
 | --- | --- |
 | Related | [[DAS Facets]],  [[DAS Dispatch Table]],  [[DAS progressive-disclosure]],  [[DAS Examples]],   |
 | Rules | [[R-anchor]],  [[R-anchor-page]],   |
+| Examples | [[HBR\|HBR anchor page]],  [[OBU\|OBU anchor page]],   |
 |  |  |
 | **Table of Contents** |  |
 | [[#Worked example sets — five real vault instances per kind]] |  |

@@ -13,6 +13,8 @@ Facet spec for `{slug} Dev Docs.md` — the audit-tied dispatch page that lists 
 
 **Location:** `{slug} Dev Docs/{slug} Dev Docs.md` (root-level folder, Gen-3)
 
+**Cardinality: one per anchor** — exactly one Dev Docs dispatch page, present only when the anchor carries developer docs.
+
 The `{slug} Dev Docs.md` dispatch page inside the root-level `{slug} Dev Docs/` folder. Lists the **audit-tied implementation reference** for the codebase: file tree (`Files`) and per-module docs (one `.md` per source file or logical module). The synthesis-level overviews live elsewhere — Interface in `{slug} Design/`, the system-architecture story in `{slug} Design/` (the `{slug} Architecture` doc).
 
 **Dev Docs vs the synthesis docs:**

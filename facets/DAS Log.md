@@ -2,7 +2,7 @@
 description: "the Log facet — dated entries capturing what happened on what day, in folder or single-file form"
 ---
 
-# Log Facet
+# DAS Log
 Facet spec defining the standardized format for an anchor's running narrative — dated entries capturing what happened on what day, in either folder form (default) or single-file form (minimal).
 
 | -[[DAS Log]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Log](hook://p/DAS%20Log) |

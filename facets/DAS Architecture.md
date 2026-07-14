@@ -3,6 +3,7 @@ description: per-anchor architecture overview — anchor-folder form with subsys
 ---
 
 # DAS Architecture
+Specification for the **Architecture** facet — the system-architecture story: a single `{slug} Design/{slug} Architecture.md` that upgrades to a folder-doc as subsystems grow.
 
 | -[[DAS Architecture]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Architecture](hook://p/DAS%20Architecture) |
 | --- | --- |

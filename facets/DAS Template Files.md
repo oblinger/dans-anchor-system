@@ -8,6 +8,9 @@ A **file template** — a `_{Name} Template.md` whose body IS a live specimen of
 | --- | --- |
 | Related | [[DAS Template]] (umbrella),  [[DAS Template Folders]],  [[DAS Template Variables]] |
 | Examples | [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template\|computer record]],   |
+| Rules | [[R-template]],   |
+
+**Cardinality: many** — one `_{Name} Template.md` per templated file kind, each local to the folder/tree it governs.
 
 ## Example File Template
 A file template is a **working specimen**, not a full description of one.2

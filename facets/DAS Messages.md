@@ -2,7 +2,7 @@
 description: Messages facet — the agent's per-anchor inbox of background-process messages that the agent reads on every pause. Distinct from `{slug} Inbox.md` which is the user's drop-zone for raw input.
 ---
 
-# Messages Facet
+# DAS Messages
 Spec for the **Messages facet** — the per-anchor file `{slug} Messages.md` that holds background-process notes for the agent to read on every pause, separate from the user's raw-input `{slug} Inbox.md`.
 
 | -[[DAS Messages]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Messages](hook://p/DAS%20Messages) |
@@ -24,3 +24,4 @@ Spec for the **Messages facet** — the per-anchor file `{slug} Messages.md` tha
 [2026-07-12 20:13:05] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/facets/DAS Backlog.md was edited
 [2026-07-12 21:17:03] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/facets/DAS Backlog.md was edited
 [2026-07-12 21:26:26] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/facets/DAS Backlog.md was edited
+[2026-07-13 21:30:31] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/facets/DAS Backlog.md was edited

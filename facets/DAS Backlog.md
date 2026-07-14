@@ -1,7 +1,7 @@
 ---
 description: "Active work tracking"
 ---
-# Backlog Facet
+# DAS Backlog
 The work queue — one `{slug} Backlog.md` per anchor, every unit of work as a row carrying bracket × horizon, F/T-numbered and block-anchored.
 
 | -[[DAS Backlog]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Backlog](hook://p/DAS%20Backlog) |
@@ -9,6 +9,8 @@ The work queue — one `{slug} Backlog.md` per anchor, every unit of work as a r
 | Related | [[templates/backlog.md\|backlog template]],  [[DAS Roadmap]],  [[DAS Icebox]],  [[DAS Query]],  [[workflow]],   |
 | Examples | [[SKA Backlog\|real instance (SKA anchor)]],   |
 | Rules | [[R-backlog]],   |
+
+**TLDR** — `{slug} Track/{slug} Backlog.md` is the anchor's workflow-state core: one bullet row per unit of work (`- **F<n> — Title** [Status] — body ^F<n>`) under horizon H2s (`## Now` / `## Next` / `## Later`) plus workflow H2s (`## Ready` / `## Active` / `## Verify` / `## Done`). Row ids are monotonic, zero-padded, never reused (F = feature, T = task, C = OpenSpec change); brackets carry the groomed state ([Ready] rows must name a `- **Next:**` step). Mutations go through `state`, never hand-edits; the render propagates each anchor's section into the vault-wide `Q.md`. **Cardinality: one per anchor.**
 |  |  |
 | **Table of Contents** |  |
 | [[#Reference Example]] |  |
@@ -277,3 +279,11 @@ Each round-trip with the user costs scrollback context and stalls the batch — 
 - **[[DAS Icebox|Icebox]]** — optional cold-storage list for items not under active consideration
 
 Items graduate from Backlog to Todo or Roadmap when they become priorities, or move to Icebox when they cool off.
+
+# BRIEF
+
+*(Maintainer note — agent-facing cautions.)*
+
+- **The `state` script is the write path** — every convention this spec adds must stay parseable by `backlog-edit.py`'s row grammar; change the grammar and the script together.
+- **Bracket vocabulary is closed** — new states get ruled on in [[SKA workflow]] first, then land here; don't invent brackets in instances.
+- **Horizon H2 names are load-bearing** (audit-q scans them); renaming a section is a breaking change across every anchor.
