@@ -17,6 +17,15 @@ How Harbor is verified: the kinds of test, how much of each, and the concrete in
 - **One e2e per story** — US-HBR-1..5 each get exactly one end-to-end pass, no more.
 - **Bar vocabulary** — Strong / Heavy / Bounded / Sampled per kind, no percentages.
 
+## Tests
+
+| Kind | In system | Expected coverage |
+| --- | --- | --- |
+| [[DAS Common Testing Types#Unit\|Unit]] | 6 | Strong — every public catalog/pipeline function golden-pathed; failure paths on the three load-bearing decisions |
+| [[DAS Common Testing Types#Integration\|Integration]] | 4 | Strong — every pipeline↔catalog boundary in [[HBR Architecture]] |
+| [[HBR Testing#Test Kinds\|Live integration]] | 4 | Heavy for Serve + Operate; Sampled for the LAN viewer |
+| [[DAS Common Testing Types#End-to-End\|End-to-end]] | 5 | Bounded — exactly one per user story (US-HBR-1..5) |
+
 ## Overview
 
 Harbor is a single Rust binary over one SQLite catalog, fronted by a CLI and a small LAN web page. Most of what can break is **pure catalog logic** — hashing, dedup folding, metadata extraction, checkpoint / restore — which is cheap to test exhaustively in `cargo test`. The posture leans there: **Strong unit + integration coverage of the catalog and the three pipeline boundaries, a small live tier for the genuinely I/O-bound flows (real transcode, real byte-range serve, real crash recovery), and exactly one e2e per user story.** The thin LAN viewer is verified through e2e and a Sampled live check, not a frontend unit suite. Where a mock would lie — ffmpeg behavior on a real codec, SQLite recovery after an unclean shutdown — the live tier uses the real dependency.
@@ -62,12 +71,12 @@ Per [[DAS verification]]:
 
 | Test | Exercises | Spec |
 | --- | --- | --- |
-| `test_content_hash_stable` | Same bytes hash identically across runs; different bytes differ | [[HBR Ingest]] § Tests |
-| `test_dedup_folds_identical` | Two files with equal content-hash fold to one catalog entry | [[HBR Ingest]] § Tests |
-| `test_importer_reads_metadata` | Title, duration, codec parsed from fixture media into a `media` row | [[HBR Ingest]] § Tests |
-| `test_codec_compat_decision` | Device profile + source codec → direct-play vs transcode verdict | [[HBR Serve]] § Tests |
-| `test_byte_range_math` | Requested range maps to correct file offsets, clamped at EOF | [[HBR Serve]] § Tests |
-| `test_checkpoint_round_trip` | Catalog serialize → checkpoint → restore yields identical rows | [[HBR Operate]] § Tests |
+| `test_content_hash_stable` | Same bytes hash identically across runs; different bytes differ | [HBR Ingest § Tests] |
+| `test_dedup_folds_identical` | Two files with equal content-hash fold to one catalog entry | [HBR Ingest § Tests] |
+| `test_importer_reads_metadata` | Title, duration, codec parsed from fixture media into a `media` row | [HBR Ingest § Tests] |
+| `test_codec_compat_decision` | Device profile + source codec → direct-play vs transcode verdict | [HBR Serve § Tests] |
+| `test_byte_range_math` | Requested range maps to correct file offsets, clamped at EOF | [HBR Serve § Tests] |
+| `test_checkpoint_round_trip` | Catalog serialize → checkpoint → restore yields identical rows | [HBR Operate § Tests] |
 
 ### Integration
 
