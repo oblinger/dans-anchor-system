@@ -2749,6 +2749,106 @@ def check_c45_open_questions_above_h1(entries: list[BacklogEntry]) -> list[Findi
     return findings
 
 
+def check_c46_queries_q_link_lands_on_qs(
+        anchor_backlogs: dict[str, Path],
+        vault_index: dict[str, list[Path]]) -> list[Finding]:
+    """C46: every `## Questions` entry in a `{slug} queries.md` must lead the
+    reader TO the questions — its FIRST wiki-link resolves to either (a) a
+    doc that has ≥1 pending Q, or (b) the anchor's own backlog row (block-
+    anchor link) carrying inline `- **Q<n> —` sub-bullets.
+
+    Per user 2026-07-13 (F230 render defect): clicking a Questions entry
+    landed on the backlog row while the actual question lived in the feature
+    doc — a navigation dead end the C44/C45 source-side checks can't see,
+    because the queries surface is a separate script-owned render. A finding
+    means the render regressed or the surface was hand-edited; the fix is
+    re-running queries-render (flag-only here). Q-block placement inside the
+    target doc stays C45's job — C46 asserts reachability, not position.
+    """
+    findings: list[Finding] = []
+    inline_q_re = re.compile(r"^\s*- \*\*Q\d+\s+[—-]")
+    for name, backlog_file in sorted(anchor_backlogs.items()):
+        queries_file = backlog_file.parent / f"{name} queries.md"
+        if not queries_file.is_file():
+            continue
+        try:
+            q_lines = queries_file.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeDecodeError):
+            continue
+        try:
+            backlog_lines = backlog_file.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeDecodeError):
+            backlog_lines = []
+        in_questions = False
+        for line_num, line in enumerate(q_lines, start=1):
+            if line.startswith("## "):
+                in_questions = line.strip() == "## Questions"
+                continue
+            if not in_questions or not line.startswith("- "):
+                continue
+            m = WIKI_LINK_RE.search(_strip_code_spans(line))
+            if m is None:
+                findings.append(Finding(
+                    severity="error",
+                    surface_file=queries_file,
+                    surface_line=line_num,
+                    code="C46",
+                    message=(
+                        "Questions entry carries no wiki-link at all — the "
+                        "reader has no path to the questions; re-run the "
+                        "queries render"
+                    ),
+                    mechanically_fixable=False,
+                ))
+                continue
+            parsed = _parse_wiki_inner(m.group(1))
+            target = resolve_target(parsed["basename"], queries_file, vault_index)
+            if target is None:
+                continue  # unresolved link — C1/C22's territory
+            if target == backlog_file:
+                # Row link: the row itself must carry inline Q sub-bullets.
+                block_id = parsed["target_block_id"]
+                region = (_scope_to_block_id_region("\n".join(backlog_lines), block_id)
+                          if block_id else "")
+                # Scan the WHOLE region including its first line — a misplaced
+                # block-id can sit on the Q sub-bullet itself, making that the
+                # region opener; the row-opener form can't false-match Q\d+.
+                has_inline = any(inline_q_re.match(rl)
+                                 for rl in region.splitlines())
+                if not has_inline:
+                    findings.append(Finding(
+                        severity="error",
+                        surface_file=queries_file,
+                        surface_line=line_num,
+                        code="C46",
+                        message=(
+                            f"Questions entry links the backlog row "
+                            f"('{parsed['basename']}') but the row carries no "
+                            f"inline Q sub-bullets — the reader lands somewhere "
+                            f"without the questions; the entry must link the "
+                            f"Q-bearing doc (re-run the queries render)"
+                        ),
+                        mechanically_fixable=False,
+                    ))
+            else:
+                if not extract_q_entries(target, parsed["basename"]):
+                    findings.append(Finding(
+                        severity="error",
+                        surface_file=queries_file,
+                        surface_line=line_num,
+                        code="C46",
+                        message=(
+                            f"Questions entry links '{target.stem}' but that "
+                            f"doc has zero pending Qs — the reader lands on a "
+                            f"document with nothing to answer (stale render or "
+                            f"stale bracket; re-run the queries render / audit "
+                            f"--fix)"
+                        ),
+                        mechanically_fixable=False,
+                    ))
+    return findings
+
+
 def check_c34_inline_q_in_row_body(backlog_files: list[Path]) -> list[Finding]:
     """C34: inline `Q<n>` bullets inside backlog row bodies are forbidden.
 
@@ -4316,6 +4416,7 @@ def main() -> int:
     # per anchor), since each queries file is keyed by its sibling backlog's name.
     findings.extend(check_c35_ask_md_drift(anchor_backlogs, vault_index))
     findings.extend(check_c37_queries_item_format(anchor_backlogs, vault_index))
+    findings.extend(check_c46_queries_q_link_lands_on_qs(anchor_backlogs, vault_index))
     # F126 — C36 backtick-filepath check. Runs on Q.md (when in scope),
     # every per-anchor `{slug} queries.md`, AND every anchor backlog —
     # backlog rows are the source content that queries-render.py copies

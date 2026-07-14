@@ -7,7 +7,7 @@ A self-contained reference anchor demonstrating the canonical DAS skill-trait an
 
 | -[[CSE]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [CSE](hook://p/CSE)<br>: Common Skill Example — reference anchor — a fully-wired example of a DAS skill anchor |
 | --- | --- |
-| Skill | [[CSE/SKILL\|SKILL.md]],  [[SKL CSE\|User Docs]],   |
+| Skill | [[CSE/SKILL\|SKILL.md]],  [[FEX CSE\|User Docs]],   |
 | [[CSE Design\|Design]] | [[CSE PRD\|PRD]],   |
 | [[CSE Track\|Track]] | [[CSE Backlog\|Backlog]],  [[CSE Features\|Features]],  [[CSE queries\|queries]],   |
 

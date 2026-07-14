@@ -378,6 +378,21 @@ def _feature_doc_link(r: "Row", vault_index: dict,
     return f"[[{best.stem}|{r.identifier}]]"
 
 
+def _q_home_link(r: "Row", vault_index: dict, backlog_file: Path) -> Optional[str]:
+    """Link to the row's Q-bearing DOC — the surface the reader must land on to
+    actually see the open questions (user 2026-07-13: following a Questions
+    entry's link must end on a document with the open questions at the top;
+    the backlog-row link alone fails that). Arrow target first (authoritative
+    for Questions rows), else the identifier-matched feature doc. Returns None
+    for inline T-/B-rows — there the backlog row IS the Q home and the row
+    link is correct."""
+    if r.arrow_link:
+        bn = r.arrow_link.split("#")[0].split("|")[0].strip()
+        if vault_index.get(bn.lower()):
+            return f"[[{bn}|{r.identifier}]]"
+    return _feature_doc_link(r, vault_index, backlog_file)
+
+
 def _row_q_count(r: "Row", vault_index: dict) -> int:
     """Pending-question count for a `[Questions]` row — the `(NQ)` the user sees.
     Recount from the linked doc when one resolves (T012 — the bracket can be
@@ -815,7 +830,16 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
             # feature needs at a glance (`[[F181 …]] **(5Q)**`). Per /query North Star.
             n = _row_q_count(r, vault_index)
             cnt = f" **({n}Q)**" if n else ""
-            body.append(f"- {link}{cnt}" + (f" — {txt}" if txt else ""))
+            # The Q-bearing doc is the entry's home — link it first, demote the
+            # backlog-row link to a parenthesized `(row)` pointer (same shape as
+            # the F235 Verify entries). Inline T-/B-rows keep the row link: the
+            # row carries the Qs itself.
+            doclink = _q_home_link(r, vault_index, backlog_file)
+            if doclink:
+                rowlink = re.sub(r"\|[^\]|]*\]\]$", "|row]]", link) if link.rstrip().endswith("]]") else link
+                body.append(f"- {doclink}{cnt} ({rowlink})" + (f" — {txt}" if txt else ""))
+            else:
+                body.append(f"- {link}{cnt}" + (f" — {txt}" if txt else ""))
     if not body:
         body.append("_Nothing pending._")
     return body
