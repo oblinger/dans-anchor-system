@@ -18,6 +18,7 @@ user_invocable: true
 
 # Rule — Project Rule Management
 requires:: vault, skill:code
+subsystem:: [[DAS Hygiene Design]] — the Hygiene group's subsystem profile
 
 Define semantic rules, validate code against them, manage exceptions, and drive fixes.
 

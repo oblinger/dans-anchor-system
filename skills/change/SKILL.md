@@ -11,6 +11,7 @@ user_invocable: true
 
 # Change — OpenSpec Change Lifecycle
 requires:: vault, anchor-cli, skill:feature, skill:mint, skill:finalize, facet:backlog
+subsystem:: [[DAS Drive Design]] — the Drive group's subsystem profile
 
 Create and drive a **change** — the OpenSpec-conformant unit of work defined by [[DAS Changes]]. A change is `/feature`'s sibling: same backlog lifecycle, same agreement gate, but its artifacts live in an anchor-root `changes/C<NNN>-<slug>/` folder in OpenSpec's file shapes instead of a single F-doc. Created per F230 (incremental OpenSpec adoption); the `Features/` path remains the default for anchors that haven't adopted `changes/`.
 

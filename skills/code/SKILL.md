@@ -15,6 +15,7 @@ user_invocable: true
 
 # Dev — Development Workflow
 requires:: vault, skill:audit, skill:design, skill:feature, skill:mint, skill:rewire
+subsystem:: [[DAS Dev Design]] — the Dev group's subsystem profile
 
 The unified development skill. Invoke with an action to run a workflow.
 

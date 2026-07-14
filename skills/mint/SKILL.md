@@ -11,6 +11,7 @@ user_invocable: true
 
 # Mint
 requires:: vault, anchor-cli, skill:audit, facet:backlog, facet:status
+subsystem:: [[DAS Drive Design]] — the Drive group's subsystem profile
 
 The user-invocable skill that executes a Ready feature end-to-end — wiring it into bucket PRDs, integrating its content into target docs, gating on planning state, then running the spec → code → test → review → verify → commit pipeline.
 

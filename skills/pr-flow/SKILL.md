@@ -7,6 +7,7 @@ user_invocable: true
 
 # PR Flow — Iterative PR-based development
 requires:: vault, external:gh, external:ha
+subsystem:: [[DAS Dev Design]] — the Dev group's subsystem profile
 
 Efficient flow for user-reviewed incremental PRs. Claude works on a feature branch, PRs batched work for review, and iterates until the feature is complete.
 

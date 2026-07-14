@@ -6,6 +6,7 @@ user_invocable: true
 
 # /find
 requires:: vault
+subsystem:: [[DAS Search Design]] — the Search group's subsystem profile
 
 Locate **one specific match** for the criteria the user provides. Return an identifier + sources + confidence. Disambiguate before answering.
 

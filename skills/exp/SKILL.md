@@ -6,6 +6,7 @@ user_invocable: false
 
 # EXP — Remote Experimentation
 requires:: external:tmux
+subsystem:: [[DAS Utility Design]] — the Utility group's subsystem profile
 
 Bash-based toolkit for running ML experiments on ephemeral remote GPU instances. Manages SSH connections, file sync (rsync), command execution through a watcher daemon, and a worker-pane pattern for delegating experiment runs to autonomous Claude Code sessions.
 

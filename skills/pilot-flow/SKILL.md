@@ -7,6 +7,7 @@ user_invocable: true
 
 # Pilot Flow — Top-down design then implementation
 requires:: skill:code
+subsystem:: [[DAS Dev Design]] — the Dev group's subsystem profile
 
 Top-down design-then-implementation orchestrator that dispatches PRD → System Design → Roadmap → implementation phases to the `/code` skills.
 

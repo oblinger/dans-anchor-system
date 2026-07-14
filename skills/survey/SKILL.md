@@ -6,6 +6,7 @@ user_invocable: true
 
 # /survey
 requires:: vault
+subsystem:: [[DAS Search Design]] — the Search group's subsystem profile
 
 Skill spec for `/survey` — building multi-dimensional comparison tables across many entities, with a meta-survey sub-pattern for high-stakes comparisons.
 

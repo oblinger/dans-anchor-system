@@ -10,6 +10,7 @@ user_invocable: true
 
 # Fix
 requires:: vault, external:ctrl, external:gsa
+subsystem:: [[DAS Dev Design]] — the Dev group's subsystem profile
 
 User-invocable skill that runs a self-contained recovery procedure for a known runtime breakage (auth, permissions, session config, macOS quirks).
 

@@ -20,6 +20,7 @@ user_invocable: true
 
 # muse — Voice memo → transcribed inbox → acted-on knowledge
 requires:: vault, external:_askAI, external:_transcribe
+subsystem:: [[DAS Utility Design]] — the Utility group's subsystem profile
 
 Owns the whole path from "watch recording lands on disk" to "the world reflects what the recording asked for." Two entry points, each with its own trigger and safety layer.
 

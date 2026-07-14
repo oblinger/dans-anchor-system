@@ -17,6 +17,7 @@ user_invocable: true
 
 # Crank — Autonomous-Progress Loop
 requires:: vault, anchor-cli, skill:ask, skill:groom, skill:mint, facet:backlog
+subsystem:: [[DAS Drive Design]] — the Drive group's subsystem profile
 
 `crank` is the user's "go" button. One press drives **as much progress as possible** through Ready work — sequentially or in parallel — until continuing would drop quality. The system mints what it can, and either exits silently (still finding work) or surfaces a status view + actionable inbox (out of safe Ready work, waiting on the user). The user can keep pressing `'` to keep going.
 

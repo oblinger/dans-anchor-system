@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="48 28 994 440.25" width="1988" height="880" style="background:white">
+<rect x="60" y="50" width="190" height="74" fill="#e7f5ff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle">
+  <tspan x="155.0" y="73.1">/code</tspan>
+  <tspan x="155.0" y="90.6">spec · plan · execute</tspan>
+  <tspan x="155.0" y="108.1">· test · ship</tspan>
+</text>
+<rect x="60" y="140" width="150" height="44" fill="#e7f5ff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="135.0" y="165.8" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="15" fill="#1e1e1e" text-anchor="middle">/fix</text>
+<path d="M 210.0 162.0 L 320.0 162.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="320.0" y1="162.0" x2="312.2" y2="166.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="320.0" y1="162.0" x2="312.2" y2="157.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<rect x="60" y="196" width="150" height="44" fill="#e7f5ff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="135.0" y="221.8" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="15" fill="#1e1e1e" text-anchor="middle">/pr-flow</text>
+<path d="M 210.0 218.0 L 320.0 218.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="320.0" y1="218.0" x2="312.2" y2="222.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="320.0" y1="218.0" x2="312.2" y2="213.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<rect x="60" y="252" width="150" height="44" fill="#e7f5ff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="135.0" y="277.8" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="15" fill="#1e1e1e" text-anchor="middle">/pilot-flow</text>
+<path d="M 210.0 274.0 L 320.0 274.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="320.0" y1="274.0" x2="312.2" y2="278.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="320.0" y1="274.0" x2="312.2" y2="269.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<rect x="60" y="308" width="150" height="44" fill="#e7f5ff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="135.0" y="333.8" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="15" fill="#1e1e1e" text-anchor="middle">/cleanup</text>
+<path d="M 210.0 330.0 L 320.0 330.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="320.0" y1="330.0" x2="312.2" y2="334.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="320.0" y1="330.0" x2="312.2" y2="325.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<rect x="60" y="364" width="150" height="44" fill="#e7f5ff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="135.0" y="389.8" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="15" fill="#1e1e1e" text-anchor="middle">/devops</text>
+<path d="M 210.0 386.0 L 320.0 386.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="320.0" y1="386.0" x2="312.2" y2="390.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="320.0" y1="386.0" x2="312.2" y2="381.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<path d="M 250.0 87.0 L 320.0 87.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="320.0" y1="87.0" x2="312.2" y2="91.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="320.0" y1="87.0" x2="312.2" y2="82.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<rect x="320" y="40" width="300" height="380" fill="#f8f9fa" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="470.0" y="65.8" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="15" fill="#1e1e1e" text-anchor="middle">{NAME}/  anchor (vault)</text>
+<rect x="346" y="86" width="250" height="44" fill="#fff9db" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="471.0" y="111.1" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="12" fill="#1e1e1e" text-anchor="middle">{slug} Design/ — PRD · Arch</text>
+<rect x="346" y="144" width="250" height="44" fill="#fff9db" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="471.0" y="169.3" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="13" fill="#1e1e1e" text-anchor="middle">Module Docs</text>
+<rect x="346" y="202" width="250" height="44" fill="#fff9db" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="471.0" y="227.3" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="13" fill="#1e1e1e" text-anchor="middle">changes/ + specs/</text>
+<text font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="12" fill="#868e96" text-anchor="start">
+  <tspan x="350.0" y="272.6">.anchor</tspan>
+  <tspan x="350.0" y="287.6">code: → the repo</tspan>
+  <tspan x="350.0" y="302.6">mirror: (opt-in, D12)</tspan>
+</text>
+<text font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="11" fill="#868e96" text-anchor="start">
+  <tspan x="350.0" y="339.7">/module-doc authors the</tspan>
+  <tspan x="350.0" y="353.4">module pages from source</tspan>
+</text>
+<path d="M 620.0 200.0 L 770.0 200.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="770.0" y1="200.0" x2="762.2" y2="204.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="770.0" y1="200.0" x2="762.2" y2="195.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<text x="632.0" y="176.8" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="10" fill="#868e96" text-anchor="start">code: Sparse-Linked</text>
+<rect x="770" y="120" width="260" height="200" fill="#f8f9fa" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="900.0" y="149.6" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle">~/ob/proj/{repo}  (git)</text>
+<text x="794.0" y="186.6" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="12" fill="#868e96" text-anchor="start">src · tests · CI</text>
+<rect x="794" y="210" width="212" height="44" fill="#fff9db" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="900.0" y="235.1" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="12" fill="#1e1e1e" text-anchor="middle">commit · push · pr traits</text>
+<text x="794.0" y="278.6" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="12" fill="#868e96" text-anchor="start">releases / ships</text>
+<text x="60.0" y="451.4" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="13" fill="#868e96" text-anchor="start">code work runs against the linked repo; design + docs stay vault-side (Design subsystem authors the specs)</text>
+</svg>

@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="48 24 1164 400.25" width="2328" height="800" style="background:white">
+<rect x="60" y="100" width="210" height="90" fill="#f3f0ff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="165.0" y="131.6" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="14" fill="#5f3dc4" text-anchor="middle">Tracking</text>
+<text x="165.0" y="161.1" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="12" fill="#5f3dc4" text-anchor="middle">Backlog — [Ready] rows</text>
+<path d="M 270.0 145.0 L 360.0 145.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="360.0" y1="145.0" x2="352.2" y2="149.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="360.0" y1="145.0" x2="352.2" y2="140.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<rect x="360" y="110" width="170" height="70" fill="#e7f5ff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="445.0" y="149.6" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="18" fill="#1e1e1e" text-anchor="middle">/crank</text>
+<path d="M 500.0 108.0 L 480.0 80.0 L 420.0 80.0 L 400.0 108.0" fill="none" stroke="#e8590c" stroke-width="1" stroke-linejoin="round"/>
+<line x1="400.0" y1="108.0" x2="400.9" y2="99.0" stroke="#e8590c" stroke-width="1" stroke-linecap="round"/>
+<line x1="400.0" y1="108.0" x2="408.2" y2="104.3" stroke="#e8590c" stroke-width="1" stroke-linecap="round"/>
+<text font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="11" fill="#868e96" text-anchor="start">
+  <tspan x="388.0" y="45.7">keep going until quality</tspan>
+  <tspan x="388.0" y="59.4">would drop  ·  trigger: &apos;</tspan>
+</text>
+<path d="M 530.0 145.0 L 610.0 145.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="610.0" y1="145.0" x2="602.2" y2="149.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="610.0" y1="145.0" x2="602.2" y2="140.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<rect x="610" y="110" width="140" height="70" fill="#e7f5ff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="680.0" y="149.3" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="17" fill="#1e1e1e" text-anchor="middle">/mint</text>
+<path d="M 750.0 145.0 L 820.0 145.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="820.0" y1="145.0" x2="812.2" y2="149.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="820.0" y1="145.0" x2="812.2" y2="140.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<rect x="820" y="110" width="160" height="70" fill="#e7f5ff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="900.0" y="149.1" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle">/finalize</text>
+<path d="M 980.0 145.0 L 1050.0 145.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="1050.0" y1="145.0" x2="1042.2" y2="149.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="1050.0" y1="145.0" x2="1042.2" y2="140.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<rect x="1050" y="112" width="150" height="66" fill="#f8f9fa" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="13" fill="#1e1e1e" text-anchor="middle">
+  <tspan x="1125.0" y="140.2">Done —</tspan>
+  <tspan x="1125.0" y="156.4">committed</tspan>
+</text>
+<rect x="360" y="260" width="160" height="56" fill="#e7f5ff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="440.0" y="291.8" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="15" fill="#1e1e1e" text-anchor="middle">/feature</text>
+<rect x="540" y="260" width="150" height="56" fill="#e7f5ff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="615.0" y="291.8" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="15" fill="#1e1e1e" text-anchor="middle">/change</text>
+<text x="392.0" y="331.7" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="11" fill="#868e96" text-anchor="start">mint F-rows / C-rows + their docs</text>
+<path d="M 450.0 260.0 L 300.0 190.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="300.0" y1="190.0" x2="309.0" y2="189.2" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="300.0" y1="190.0" x2="305.2" y2="197.4" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<path d="M 600.0 260.0 L 310.0 195.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="310.0" y1="195.0" x2="318.6" y2="192.3" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="310.0" y1="195.0" x2="316.6" y2="201.1" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<rect x="760" y="260" width="170" height="56" fill="#e7f5ff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="845.0" y="291.8" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="15" fill="#1e1e1e" text-anchor="middle">/fortify</text>
+<text font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="11" fill="#868e96" text-anchor="start">
+  <tspan x="768.0" y="331.7">when iteration stops</tspan>
+  <tspan x="768.0" y="345.4">converging — go skeptical</tspan>
+</text>
+<rect x="970" y="260" width="150" height="56" fill="#e7f5ff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="1045.0" y="291.8" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="15" fill="#1e1e1e" text-anchor="middle">/land</text>
+<text font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="11" fill="#868e96" text-anchor="start">
+  <tspan x="978.0" y="331.7">finish in flight,</tspan>
+  <tspan x="978.0" y="345.4">commit, stop  ·  trigger: .</tspan>
+</text>
+<text x="60.0" y="407.4" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="13" fill="#868e96" text-anchor="start">traits drive · lean set the autonomy mode  ·  rows + questions mutate only through Tracking&apos;s state CLI</text>
+</svg>

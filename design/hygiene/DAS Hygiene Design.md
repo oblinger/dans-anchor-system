@@ -16,6 +16,7 @@ Hygiene keeps the vault conformant: rules are declared once in ruleset files, co
 | [[DAS Dupes\|/dupes]]            | Duplicate-basename scan → confidence-ranked edit list; user instructs, agent executes.                              |
 | [[DAS Slug Scan\|/slug-scan]]    | Discover new slugs, sync the slug index.                                                                            |
 | [[DAS Maintain\|/maintain]]      | Standing sync orders — derived files regenerate when their sources change.                                          |
+| [[rule/SKILL\|/rule]]            | Project rule management — define semantic rules, check code against them, triage numbered exceptions.               |
 |                                  |                                                                                                                     |
 | **Facets**                       |                                                                                                                     |
 | [[DAS Ruleset\|Ruleset]]         | The `R-<name>.md` shape — `where::` selector, tier (checked / sampled / stated / tracked), check pattern, why.      |

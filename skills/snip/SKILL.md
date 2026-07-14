@@ -16,6 +16,7 @@ user_invocable: true
 
 # snip — Rough-text Drop + Iterative Refine
 requires:: vault
+subsystem:: [[DAS Utility Design]] — the Utility group's subsystem profile
 
 Capture quick rough text and produce polished versions alongside it. Designed for dictation or hasty typing where the user wants a cleaned-up version without thinking about formatting, filenames, or whether the entry already exists. Each entry accumulates versions; the latest is always on top, and the latest is always on the clipboard ready to paste.
 
