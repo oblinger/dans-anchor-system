@@ -380,6 +380,30 @@ def test_stale_paths_surfaced():
     print("PASS  stale_paths_surfaced (Audit 2026-07-12 W2)")
 
 
+def test_mirror_route_anchor():
+    """F188: a repo-side mirror-route file outside any anchor tree resolves to
+    the vault anchor that declared the route (routes index); non-route files
+    and a missing index resolve to None."""
+    with tempfile.TemporaryDirectory() as td:
+        vault = Path(td) / "vault" / "anchor"
+        repo = Path(td) / "proj" / "repo"
+        (vault).mkdir(parents=True)
+        (repo / "Docs").mkdir(parents=True)
+        (vault / ".anchor").write_text("slug: FX\ntraits: [code]\n")
+        routes = Path(td) / "mirror-routes.json"
+        routes.write_text(json.dumps({"routes": [{
+            "anchor": str(vault / ".anchor"),
+            "here": str(vault / "Docs"),
+            "there": str(repo / "Docs"),
+            "direction": "two-way"}]}))
+        assert wh.mirror_route_anchor(str(repo / "Docs" / "x.md"), routes) == vault
+        assert wh.mirror_route_anchor(str(repo / "Docs" / "sub" / "d.md"), routes) == vault
+        assert wh.mirror_route_anchor(str(repo / "src" / "c.py"), routes) is None
+        assert wh.mirror_route_anchor(str(repo / "Docs" / "x.md"),
+                                      Path(td) / "missing.json") is None
+    print("PASS  mirror_route_anchor (F188)")
+
+
 def main():
     test_event_to_moments()
     test_kill_switch()
@@ -390,6 +414,7 @@ def main():
     test_bridge_guard()
     test_emit_deny_shape()
     test_stale_paths_surfaced()
+    test_mirror_route_anchor()
     print("\nall warden_hook tests passed")
     return 0
 

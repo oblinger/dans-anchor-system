@@ -257,6 +257,46 @@ pub fn find_anchor(start: &Path) -> Option<PathBuf> {
     None
 }
 
+/// Resolve a repo-side mirror-route file to its declaring vault anchor
+/// (mirror of `warden_hook.mirror_route_anchor`).
+///
+/// Two-Way Doc Mirror routes (F188) live in code repos outside any anchor
+/// tree, so `find_anchor` sees nothing there — exactly where R-code-mirror
+/// must fire. The routes index (written by every `code sync`) maps each
+/// repo-side route back to the `.anchor` that declared it; per F229 A′
+/// (the file's anchor owns the file) that vault anchor governs the copies.
+pub fn mirror_route_anchor_in(file_path: &Path, routes_file: &Path) -> Option<PathBuf> {
+    let text = std::fs::read_to_string(routes_file).ok()?;
+    let idx: Value = serde_json::from_str(&text).ok()?;
+    let routes = idx.get("routes")?.as_array()?;
+    let fp = resolve_lenient(file_path);
+    for e in routes {
+        let (Some(there), Some(anchor)) = (
+            e.get("there").and_then(Value::as_str),
+            e.get("anchor").and_then(Value::as_str),
+        ) else {
+            continue;
+        };
+        if there.is_empty() || anchor.is_empty() {
+            continue;
+        }
+        let t = resolve_lenient(Path::new(there));
+        if fp.ancestors().any(|a| a == t) {
+            let d = Path::new(anchor).parent()?.to_path_buf();
+            if d.join(".anchor").is_file() {
+                return Some(d);
+            }
+        }
+    }
+    None
+}
+
+pub fn mirror_route_anchor(file_path: &Path) -> Option<PathBuf> {
+    let routes = PathBuf::from(std::env::var("HOME").unwrap_or_default())
+        .join(".config/anchor-system/mirror-routes.json");
+    mirror_route_anchor_in(file_path, &routes)
+}
+
 /// The `.anchor` `traits:` list (YAML flow or block) + the implicit `anchor-base`
 /// trait (mirror of `warden_fire.read_anchor_traits`).
 pub fn read_anchor_traits(anchor_root: &Path) -> Vec<String> {
@@ -542,7 +582,12 @@ pub fn dispatch(data: &Value) -> Vec<String> {
     let anchor_file = if event_fp.is_empty() {
         None
     } else {
-        Path::new(event_fp).parent().and_then(find_anchor)
+        Path::new(event_fp)
+            .parent()
+            .and_then(find_anchor)
+            // F188: repo-side mirror-route files sit outside any anchor tree;
+            // the routes index maps them back to the declaring vault anchor.
+            .or_else(|| mirror_route_anchor(Path::new(event_fp)))
     };
     if anchor_cwd.is_none() && anchor_file.is_none() {
         return vec![];
@@ -862,6 +907,42 @@ mod tests {
         assert_eq!(read_anchor_traits(&td), vec!["a", "b", "anchor-base"]);
         std::fs::write(td.join(".anchor"), "slug: FX\n").unwrap();
         assert_eq!(read_anchor_traits(&td), vec!["anchor-base"]);
+        let _ = std::fs::remove_dir_all(&td);
+    }
+
+    #[test]
+    fn mirror_route_resolves_declaring_anchor() {
+        // F188: a repo-side mirror-route file outside any anchor tree resolves
+        // to the vault anchor that declared the route; non-route files don't.
+        let td = std::env::temp_dir().join(format!("warden-rs-mirror-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&td);
+        let vault = td.join("vault/anchor");
+        let repo = td.join("proj/repo");
+        std::fs::create_dir_all(&vault).unwrap();
+        std::fs::create_dir_all(repo.join("Docs")).unwrap();
+        std::fs::write(vault.join(".anchor"), "slug: FX\ntraits: [code]\n").unwrap();
+        let routes = td.join("mirror-routes.json");
+        std::fs::write(
+            &routes,
+            json!({"routes": [{
+                "anchor": vault.join(".anchor").to_string_lossy(),
+                "here": vault.join("Docs").to_string_lossy(),
+                "there": repo.join("Docs").to_string_lossy(),
+                "direction": "two-way"
+            }]})
+            .to_string(),
+        )
+        .unwrap();
+        assert_eq!(
+            mirror_route_anchor_in(&repo.join("Docs/x.md"), &routes),
+            Some(vault.clone())
+        );
+        assert_eq!(
+            mirror_route_anchor_in(&repo.join("Docs/sub/deep.md"), &routes),
+            Some(vault.clone())
+        );
+        assert_eq!(mirror_route_anchor_in(&repo.join("src/code.rs"), &routes), None);
+        assert_eq!(mirror_route_anchor_in(&repo.join("Docs/x.md"), &td.join("missing.json")), None);
         let _ = std::fs::remove_dir_all(&td);
     }
 

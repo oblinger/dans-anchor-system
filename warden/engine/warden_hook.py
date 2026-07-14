@@ -147,6 +147,41 @@ def find_anchor(start: Path) -> Path | None:
     return None
 
 
+_MIRROR_ROUTES = Path.home() / ".config/anchor-system/mirror-routes.json"
+
+
+def mirror_route_anchor(file_path: str, routes_file: Path = _MIRROR_ROUTES) -> Path | None:
+    """Resolve a repo-side mirror-route file to its declaring vault anchor.
+
+    Two-Way Doc Mirror routes (F188) live in code repos outside any anchor
+    tree, so `find_anchor` sees nothing there — exactly where R-code-mirror
+    must fire. The routes index (written by every `code sync`) maps each
+    repo-side route back to the `.anchor` that declared it; per F229 A'
+    (the file's anchor owns the file) that vault anchor governs the copies.
+    """
+    try:
+        routes = json.loads(routes_file.read_text()).get("routes", [])
+    except (OSError, ValueError):
+        return None
+    try:
+        fp = Path(file_path).resolve()
+    except OSError:
+        fp = Path(file_path)
+    for e in routes:
+        there, anchor = e.get("there"), e.get("anchor")
+        if not there or not anchor:
+            continue
+        try:
+            t = Path(there).resolve()
+        except OSError:
+            t = Path(there)
+        if fp == t or t in fp.parents:
+            d = Path(anchor).parent
+            if (d / ".anchor").is_file():
+                return d
+    return None
+
+
 # ── per-moment ms budget (M5 — advisory policy, PRD Q3 resolved 2026-07-05) ──
 # Over-budget fires are LOGGED, never dropped/demoted: demote-to-audit stays a
 # future escalation to take only if advisory data shows a persistent offender.
@@ -259,6 +294,8 @@ def dispatch(data: dict) -> list[str]:
     tool_input = _dict(data.get("tool_input"))
     event_fp = _str(tool_input.get("file_path")) or None
     anchor_file = find_anchor(Path(event_fp).parent) if event_fp else None
+    if anchor_file is None and event_fp:
+        anchor_file = mirror_route_anchor(event_fp)
     if anchor_cwd is None and anchor_file is None:
         return []
 
