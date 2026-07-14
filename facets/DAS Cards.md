@@ -10,14 +10,7 @@ Facet spec for the optional `{slug} Cards.md` page — a three-tier mix of cheat
 | Related | [[DAS Brief]],  [[DAS Anchor Page]],  [[DAS Aspects]],  [[DAS Output]],   |
 | Examples | [[DOCPY Cheat Cards\|cheat-sheet-heavy example]],  [[TPM Core Cards\|summary+detail cards example]],   |
 | Rules | [[R-cards]],   |
-|  |  |
-| **Table of Contents** |  |
-| [[#Formats]] |  |
-| [[#**`PYTHON STRING METHODS`**]] |  |
-| [[#File Layout and Formatting Rules]] |  |
-| [[#Three-Tier Structure]] |  |
-| [[#Maintenance]] |  |
-| **[[#BRIEF]]** |  |
+| ... | [[anchor-page]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Backlog]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[facets/DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Disciplines Brief]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Outputs]],  [[DAS Plan Dispatch]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS Track Dispatch]],  [[DAS TSK User Guide]],  [[DAS US-CAE-1 — Schedule a Task]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
 
 **TLDR** — A `{slug} Cards.md` file (one per anchor, optional) holds three tiers of study material: bold-heading cheat sheets (reference, no SR), summary cards (the gist/rule), and detail cards (exceptions/gotchas). Requires an SR tag on line 1, `-?-` separators, 69-char line width, and `.` for in-card blank lines.
 

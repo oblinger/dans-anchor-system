@@ -6,6 +6,7 @@ description: "skim → click into the rule that applies"
 | --- | --- |
 | Skill rules (any verb) | [[SRC rules/skill\|skill.md]],   |
 | Verbs | [[SRC rules/find-skill\|find-skill]],  [[SRC rules/profile-skill\|describe-skill]],  [[SRC rules/survey-skill\|survey-skill]],   |
+| ... |  |
 
 When the search agent runs against an **agent skill** — Claude Code skills, MCP servers, agentic tooling — these are the rules that apply.
 

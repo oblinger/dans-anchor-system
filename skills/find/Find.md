@@ -9,3 +9,4 @@ description: Find — skill anchor for locating one specific instance matching c
 | Methodology | [[find/SKILL\|SKILL.md § Runbook]],   |
 | Rules | [[find\|rules/]] (verb-level + pair files per [[skill-search-rules]]) |
 | Output | [[Find]] (`~/ob/kmr/Topic/Search/Find/`) |
+| ... |  |

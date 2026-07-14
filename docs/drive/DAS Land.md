@@ -8,3 +8,4 @@ The concept dossier for **`/land`** — everything published about the skill: th
 | --- | --- |
 | Related | [[ASG Land\|Land User Guide]],  [[skills/land/SKILL.md\|SKILL]] (runtime) |
 | [[DAS Land Design\|Design]] | [[DAS Land PRD\|PRD]],   |
+| ... |  |

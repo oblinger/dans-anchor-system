@@ -8,6 +8,7 @@ The HTTP API the [[HBR UX Design|viewer app]] calls: browse the catalog, stream 
 | --- | --- |
 | Anchor | [[HBR Design]] (parent) |
 | Related | [[HBR PRD]],  [[HBR UX Design]],  [[HBR Architecture]],  [[HBR CLI]],   |
+| ... | [[HBR CLI Help.txt]],  [[HBR Design/HBR Decisions]],  [[HBR Features/HBR Features]],  [[HBR Design/HBR Features]],  [[HBR Roadmap]],  [[HBR Design/HBR Testing]],   |
 
 **TL;DR.**
 - Consumer: the Harbor web client (browser JS on the LAN) fetching JSON and streaming bytes from the [[HBR Serve|Serve]] pipeline.

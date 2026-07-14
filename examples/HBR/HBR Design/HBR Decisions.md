@@ -8,6 +8,7 @@ The durable rulings that shape Harbor; each is referenced by `// D0n` comments i
 | --- | --- |
 | Anchor | [[HBR Design]] (parent) |
 | Related | [[HBR Architecture]],   |
+| ... |  |
 
 ### D01 — SQLite, not a server database
 **Choice:** the catalog is a single SQLite file. A self-hosted household server should need no separate database process; one file also makes [[HBR Backup\|backup]] a file copy.

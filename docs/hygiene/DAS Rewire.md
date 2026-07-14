@@ -8,6 +8,7 @@ Idempotent structural repair for any anchor. Ensures all files are linked from t
 | --- | --- |
 | Related | [[skills/rewire/SKILL.md\|SKILL]],   |
 | [[DAS Rewire Design\|Design]] |  |
+| ... |  |
 
 **When to use:** "rewire", "fix the structure", "wire it up", "check the wiring", "fix dispatch tables", "rewire the backlog".
 

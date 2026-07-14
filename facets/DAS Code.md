@@ -9,5 +9,6 @@ The code facets — a repo's actual source files and the per-module docs they li
 | --- | --- |
 | Facets | [[DAS All Files\|All Files]],  [[DAS Module Doc\|Module Doc]],   |
 | Rules | [[R-code-surface]],   |
+| ... |  |
 
 These two facets are a pair: **All Files** is the repo's complete source tree with every file wiki-linked to its module doc; **Module Doc** is the per-module documentation those links resolve to. Together they are the *code* surface of an anchor — distinct from the *anchor structure* facets ([[DAS Anchor]]) and from the *design* of that structure ([[DAS Files Architecture]]).

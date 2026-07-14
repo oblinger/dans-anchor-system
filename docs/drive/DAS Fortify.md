@@ -8,3 +8,4 @@ The concept dossier for **`/fortify`** — everything published about the skill:
 | --- | --- |
 | Related | [[ASG Fortify\|Fortify User Guide]],  [[skills/fortify/SKILL.md\|SKILL]] (runtime) |
 | [[DAS Fortify Design\|Design]] | [[DAS Fortify PRD\|PRD]],   |
+| ... |  |

@@ -8,6 +8,7 @@ description: Atlas — SKA skill anchor; design tree + dispatch for `/atlas`.
 | --- | --- |
 | Skill | [[atlas/SKILL\|SKILL.md]],  [[DAS Atlas\|User Docs]] |
 | [[Atlas Design\|Design]] |  |
+| ... |  |
 
 `/atlas` — see [[atlas/SKILL|SKILL.md]] for the agent runbook and [[DAS Atlas]] for user-facing docs.
 

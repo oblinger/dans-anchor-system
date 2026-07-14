@@ -10,23 +10,7 @@ A **Brief** is a **document facet** — agent-facing per-file editing-and-mainte
 | Related | [[DAS Discussion]],  [[DAS progressive-disclosure]],  [[DAS file-association]],  [[Briefs]],   |
 | Examples | [[SV Roots\|inline # BRIEF (Phase 1)]],  [[SV Roots Brief\|sidecar Brief.md (Phase 2)]],   |
 | Rules | [[R-brief]],   |
-|  |  |
-| **Table of Contents** |  |
-| [[#Audience — three reader zones in every source file]] |  |
-| [[#What belongs in a Brief]] |  |
-| [[#What does NOT belong in a Brief]] |  |
-| [[#When to write a Brief]] |  |
-| [[#File location and naming]] |  |
-| [[#How it's surfaced from the source file]] |  |
-| [[#File structure]] |  |
-| [[#What this page is for]] |  |
-| [[#What this page is NOT for]] |  |
-| [[#The test for inclusion]] |  |
-| [[#How to add an entry]] |  |
-| [[#Constraints]] |  |
-| [[#Worked example]] |  |
-| [[#Related]] |  |
-| **[[#BRIEF]]** |  |
+| ... | [[anchor-page]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Backlog]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[facets/DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Disciplines Brief]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS Plan Dispatch]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS Track Dispatch]],  [[DAS TSK User Guide]],  [[DAS US-CAE-1 — Schedule a Task]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
 
 > [!note] Classification — doc facet, peer to [[DAS Discussion]]
 > Brief is a **doc facet** (a content container attached to a document), not a discipline. It lives in `CAB Facets/Doc Facet/` alongside [[DAS Discussion]]. As a doc facet it *cites* three disciplines:

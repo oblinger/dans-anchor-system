@@ -6,6 +6,7 @@ description: "skim → click into the rule that applies"
 | --- | --- |
 | Book rules (any verb) | [[SRC rules/book\|book.md]],   |
 | Verbs | [[SRC rules/find-book\|find-book]],  [[SRC rules/profile-book\|describe-book]],  [[SRC rules/survey-book\|survey-book]],   |
+| ... |  |
 
 When the search agent runs against a **book** — fiction, non-fiction, technical, reference — these are the rules that apply.
 

@@ -8,6 +8,7 @@ Capture rough text drops to the SNIP log and refine them inline. The skill takes
 | --- | --- |
 | Related | [[skills/snip/SKILL.md\|SKILL]],   |
 | [[DAS Snip Design\|Design]] |  |
+| ... |  |
 
 **When to use:** "snip <text>" or `/snip <text>`. The dictation pipeline auto-prefixes `/snip` whenever the user says "snip".
 

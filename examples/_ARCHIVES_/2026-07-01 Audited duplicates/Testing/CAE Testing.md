@@ -1,5 +1,5 @@
 ---
-description: "testing strategy + proposed-tests overview (worked example of"
+description: "test strategy + proposed tests"
 status:: drafting
 ---
 # CAE Testing
@@ -9,6 +9,7 @@ How the CAE Example CLI is verified: the kinds of test, how much of each, and th
 | --- | --- |
 | Anchor | [[CAE Design]] (parent) |
 | Related | [[CAE PRD]],  [[CAE Architecture]],  [[CAE Decisions]],  [[DAS verification]],   |
+| ... |  |
 
 **TLDR**
 - **Heavy unit + integration** — modest e2e, property-based for two load-bearing invariants. No smoke, perf, or fuzz in v1.

@@ -8,6 +8,7 @@ The Dev skill is a 9-stage development lifecycle covering everything from initia
 | --- | --- |
 | Related | [[skills/code/SKILL.md\|SKILL]],   |
 | [[DAS Code Design\|Design]] |  |
+| ... |  |
 
 The most common entry points are `/code feature` for building something new, `/code bugfix` for fixing a bug (red test first, always), and `/code spike` for aggressive root-cause diagnosis. For greenfield projects, start with `/code plan` which walks through PRD, UX, and system design before any code is written.
 

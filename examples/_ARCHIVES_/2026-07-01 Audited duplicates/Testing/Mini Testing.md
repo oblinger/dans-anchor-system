@@ -9,6 +9,7 @@ How Mini is verified: the kinds of test, how much of each, and the concrete inve
 | --- | --- |
 | Anchor | [[Mini Design]] (parent) |
 | Related | [[Mini PRD]],  [[DAS verification]],   |
+| ... |  |
 
 **TLDR**
 - **Library-shaped posture** — heavy unit on the one pure function; one e2e on the CLI surface.

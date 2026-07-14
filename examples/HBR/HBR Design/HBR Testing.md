@@ -9,6 +9,7 @@ How Harbor is verified: the kinds of test, how much of each, and the concrete in
 | --- | --- |
 | Anchor | [[HBR Design]] (parent) |
 | Related | [[HBR Architecture]],  [[HBR PRD]],  [[DAS verification]],   |
+| ... | [[HBR API Design]],  [[HBR CLI]],  [[HBR CLI Help.txt]],  [[HBR Design/HBR Decisions]],  [[HBR Features/HBR Features]],  [[HBR Design/HBR Features]],  [[HBR Roadmap]],  [[HBR UX Design]],   |
 
 **TLDR**
 - **Library-shaped posture** — heavy unit + integration on catalog logic; live + e2e kept lean because the surface is one CLI plus one LAN page.

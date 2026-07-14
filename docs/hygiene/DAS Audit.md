@@ -8,6 +8,7 @@ description: "How auditing works — design rationale, tool chain, and examples"
 | --- | --- |
 | Related | [[skills/audit/SKILL.md\|SKILL]],   |
 | [[DAS Audit Design\|Design]] |  |
+| ... |  |
 
 Auditing finds problems. It does NOT fix them. The output is a **punch list** — a table of fixes with concrete commands. The user reviews the punch list and tells the agent what to fix.
 

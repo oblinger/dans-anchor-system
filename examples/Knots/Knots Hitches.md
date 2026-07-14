@@ -8,6 +8,7 @@ Hitches attach a rope to a fixed object — a post, rail, ring, or another rope 
 | -[[Knots Hitches]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[Knots]] → [Knots Hitches](hook://p/Knots%20Hitches)<br>: a sub-topic page within the Knots Topic example |
 | --- | --- |
 | Anchor | [[Knots]] (parent) |
+| ... | [[Knots Bends]],   |
 
 ## The working hitches
 

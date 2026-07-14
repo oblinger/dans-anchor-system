@@ -8,6 +8,7 @@ Structured discussion — talk through a topic with the user, capture decisions,
 | --- | --- |
 | Related | [[skills/parley/SKILL.md\|SKILL]],   |
 | [[DAS Parley Design\|Design]] |  |
+| ... |  |
 
 **When to use:** "parley", "let's discuss", "let's talk about", "I want to think through", "let's figure out".
 

@@ -8,5 +8,6 @@ description: "`/install` is the one-time setup skill for getting CAB command-lin
 | --- | --- |
 | Related | [[skills/install/SKILL.md\|SKILL]],   |
 | [[DAS Install Design\|Design]] |  |
+| ... |  |
 
 You run it once when setting up a new machine, and again whenever a new CAB script is added to the toolkit. It's strictly a system-level wiring step — no anchor work, no edits to your projects.

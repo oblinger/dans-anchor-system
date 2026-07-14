@@ -8,3 +8,4 @@ The concept dossier for **`/crank`** — everything published about the skill: t
 | --- | --- |
 | Related | [[ASG Crank\|Crank User Guide]],  [[skills/crank/SKILL.md\|SKILL]] (runtime) |
 | [[DAS Crank Design\|Design]] | [[DAS Crank PRD\|PRD]],   |
+| ... |  |

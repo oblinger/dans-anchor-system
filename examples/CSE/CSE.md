@@ -10,6 +10,7 @@ A self-contained reference anchor demonstrating the canonical DAS skill-trait an
 | Skill | [[CSE/SKILL\|SKILL.md]],  [[FEX CSE\|User Docs]],   |
 | [[CSE Design\|Design]] | [[CSE PRD\|PRD]],   |
 | [[CSE Track\|Track]] | [[CSE Backlog\|Backlog]],  [[CSE Features\|Features]],  [[CSE queries\|queries]],   |
+| ... | [[cse-demo]],   |
 
 
 

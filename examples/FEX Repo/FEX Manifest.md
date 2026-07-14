@@ -8,6 +8,7 @@ The Manifest facet — the fixed key/value record written into every snapshot bu
 | --- | --- |
 | Anchor | [[FEX Repo]] (parent) |
 | Related | [[FEX Snapshot]] (writes it),  [[R-fex-manifest]] (its rules),  [[FEX Bundle]] (carries it),  [[DAS Facet]] (the facet spec), |
+| ... |  |
 
 ## What it is
 The single record a snapshot bundle carries so a later restore knows exactly what state it captured.

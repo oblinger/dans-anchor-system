@@ -10,16 +10,7 @@ The All Files facet — a fixed-width file-tree page linking every source file t
 | Related | [[DAS Interface]],  [[DAS Module Doc]],  [[DAS Architecture]],  [[DAS Dev Dispatch]],   |
 | Examples | [[FEX Files\|minimal]],  [[HBR Files\|fuller]],   |
 | Rules | [[R-all-files]],   |
-|  |  |
-| **Table of Contents** |  |
-| [[#Critical — Do Not Wrap the Tree in a Code Fence]] |  |
-| [[#Structure]] |  |
-| [[#Tree Format]] |  |
-| [[#Linking — Filenames ARE the Links]] |  |
-| [[#Row 1 — Repo Root]] |  |
-| [[#Alignment]] |  |
-| [[#Maintenance]] |  |
-| **[[#BRIEF]]** |  |
+| ... | [[anchor-page]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Aspects]],  [[DAS Backlog]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS CLI]],  [[facets/DAS Code]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Disciplines Brief]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Log]],  [[DAS Messages]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS Plan Dispatch]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS Track Dispatch]],  [[DAS TSK User Guide]],  [[DAS US-CAE-1 — Schedule a Task]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
 
 **TLDR** — A `{slug} Files.md` page renders the full repo tree in monospace (via `cssclasses: monospace`) with each source file as a wiki-link to its module doc. Cardinality: one per anchor. The no-code-fence rule is load-bearing: wrapping the tree in triple-backticks kills wiki-links. Filenames ARE the links; the `→ [[doc]]` arrow form is reserved for non-source files.
 

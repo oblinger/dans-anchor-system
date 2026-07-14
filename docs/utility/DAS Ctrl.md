@@ -8,6 +8,7 @@ The Ctrl skill manages interaction with the local macOS environment. It handles 
 | --- | --- |
 | Related | [[skills/ctrl/SKILL.md\|SKILL]],   |
 | [[DAS Ctrl Design\|Design]] |  |
+| ... |  |
 
 Most Ctrl actions are mapped to trigger words in CLAUDE.md. When you say "surf", "trot", or "outbox", the agent executes the corresponding command immediately without asking questions. This makes environment control feel like voice commands rather than multi-step workflows.
 

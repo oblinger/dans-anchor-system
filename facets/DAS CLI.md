@@ -9,15 +9,7 @@ Facet spec for `{slug} CLI.md` — the **command-line specification** for an anc
 | Related | [[DAS UX Design\|UX Design]],  [[DAS API Design\|API Design]],  [[DAS Design Folder\|Design]],  [[DAS TSK User Guide\|User Guide]],   |
 | Examples | [[HBR CLI\|worked example]],   |
 | Rules | [[R-cli]],   |
-|  |  |
-| **Table of Contents** |  |
-| [[#The Help Block — READ THIS\|Help block — READ THIS]] | the fenced `--help` block — the doc's central figure |
-| [[#Progressive disclosure — the drill-down\|Progressive disclosure]] | optional per-command drill-down |
-| [[#Location — a migrating reference\|Location]] | Design/ (authored) → User Docs/ (graduated) |
-| [[#Optional Sections\|Optional Sections]] | env vars / config / exit codes / output modes |
-| [[#Linking\|Linking]] | where the CLI doc is linked from |
-| [[#When to Create\|When to Create]] | create iff the anchor ships a CLI |
-| [[#BRIEF\|BRIEF]] | maintainer notes |
+| ... | [[anchor-page]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Backlog]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[facets/DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Dev Dispatch]],  [[DAS Disciplines Brief]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS Plan Dispatch]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS Track Dispatch]],  [[DAS US-CAE-1 — Schedule a Task]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[DAS User Dispatch]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
 
 **TLDR** — `{slug} CLI.md` is the **full command-line specification** of an anchor's CLI. It opens with a compressed `--help` **figure** — rendered as an **SVG** (from a `.txt` source via `cli-help-svg.py`, so aligned `# comments` never re-wrap) — that maps the whole surface at a glance; below it, each command is specified in full (flags, defaults, semantics, exit behaviour). The figure is compressed; the document is not. **Cardinality: one per anchor**, only when it ships a CLI. **Home:** authored at `{slug} Design/{slug} CLI.md`; as a *migrating reference* it graduates to `{slug} User Docs/` once the CLI stabilizes.
 

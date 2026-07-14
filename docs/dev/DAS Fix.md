@@ -8,6 +8,7 @@ Fix common environment problems — permissions, auth, session config, workaroun
 | --- | --- |
 | Related | [[skills/fix/SKILL.md\|SKILL]],   |
 | [[DAS Fix Design\|Design]] |  |
+| ... |  |
 
 **When to use:** "fix permissions", "fix auth", "reauth google", "fix the session", "clean up", "something's broken", "fix claude".
 

@@ -8,6 +8,7 @@ Harbor's `versions/` folder — the immutable store its published `.dmg` release
 | --- | --- |
 | Anchor | [[HBR Dev Docs]] (parent) |
 | Related | [[DAS Versions]] (the facet),  [[HBR CLI]], |
+| ... | [[HBR Files]],   |
 
 Harbor ships two components from one repo — the `harbor` daemon/CLI and a small `harbor-tap` menu-bar helper — so it uses the **one shared, flat** `versions/` store, version-first naming letting both sort together by version:
 

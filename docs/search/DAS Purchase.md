@@ -8,6 +8,7 @@ The Product skill handles the full purchasing lifecycle: researching a product c
 | --- | --- |
 | Related | [[skills/buy/SKILL.md\|SKILL]],   |
 | [[DAS Purchase Design\|Design]] |  |
+| ... |  |
 
 The workflow moves through four stages. Hunt is the broad research phase — surveying a category, comparing top options, reading reviews. Find narrows to a specific SKU and compares retailers for the best price. Buy navigates to the purchase page for checkout. Reorder handles repeat purchases of consumables you have bought before.
 

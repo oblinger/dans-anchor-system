@@ -10,19 +10,7 @@ One file per anchor that tracks design-phase completeness, one dataview line per
 | Related | [[templates/status.md\|status template]],  [[DAS Backlog]],  [[DAS Roadmap]],  [[design]],  [[workflow]],   |
 | Examples | [[HBR Status\|example]],   |
 | Rules | [[R-status]],   |
-|  |  |
-| **Table of Contents** |  |
-| [[#Location]] |  |
-| [[#Distinction — workflow state vs Status cell]] |  |
-| [[#File shape]] |  |
-| [[#Cell format]] |  |
-| [[#Cell semantics — when each tier applies]] |  |
-| [[#State script]] |  |
-| [[#Track dispatch wiring]] |  |
-| [[#Trait applicability]] |  |
-| [[#Audit]] |  |
-| [[#See also]] |  |
-| **[[#BRIEF]]** |  |
+| ... | [[anchor-page]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[facets/DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Dev Dispatch]],  [[DAS Disciplines Brief]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS Plan Dispatch]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Track]],  [[DAS Track Dispatch]],  [[DAS TSK User Guide]],  [[DAS US-CAE-1 — Schedule a Task]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
 
 **TLDR** — One `{slug} Status.md` per anchor (cardinality: **one**), body-only (no YAML frontmatter), with a `description::` line followed by exactly five `<facet>::` dataview lines in declared order (`prd`, `ux`, `architecture`, `testing`, `roadmap`). Each cell is one of `none < MVP-agent < MVP-user < Full-agent < Full-user`. Reads/writes are mediated by the `state` script; the picker walks the ladder bottom-up; promotion is monotonic.
 

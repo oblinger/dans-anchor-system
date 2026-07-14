@@ -7,6 +7,7 @@ The cross-cutting rule for how long a snapshot bundle lives before the sweep rem
 | -[[FEX Retention]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[FEX Repo]] → [FEX Retention](hook://p/FEX%20Retention)<br>: example discipline — the retention rule |
 | --- | --- |
 | Related | [[FEX Repo]],  [[FEX Snapshot\|Snapshot]] (reads it),  [[FEX Manifest\|Manifest]], |
+| ... | [[FEX Bundle]],  [[FEX Pin]],  [[R-fex-manifest]],   |
 
 A snapshot bundle is retained as follows:
 

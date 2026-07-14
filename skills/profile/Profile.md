@@ -9,3 +9,4 @@ description: Profile — skill anchor for building thorough structured descripti
 | Methodology | [[profile/SKILL\|SKILL.md § Runbook]],   |
 | Rules | [[profile\|rules/]] (verb-level + pair files per [[skill-search-rules]]) |
 | Output | [[Profile]] (`~/ob/kmr/Topic/Search/Profile/`) |
+| ... |  |

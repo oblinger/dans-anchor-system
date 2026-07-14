@@ -10,19 +10,7 @@ Spec for the `{slug} Testing.md` design facet — a two-part doc combining the p
 | Related | [[DAS Architecture]],  [[DAS UX Design]],  [[DAS PRD]],  [[DAS Design Docs]],  [[DAS Common Testing Types]],  [[templates/testing.md\|testing template]],   |
 | Examples | [[Mini Testing\|minimal worked example]],  [[HBR Testing\|maximal worked example]],  [[HBR Testing\|fuller worked example]],  [[MUX Testing]],  [[SKA Bridge Testing]],   |
 | Rules | [[R-testing]],   |
-|  |  |
-| **Table of Contents** |  |
-| [[#Standard section order]] |  |
-| [[#The tests-table (required)]] |  |
-| [[#Proposed-tests table]] |  |
-| [[#Proposed Tests]] |  |
-| [[#YAML status field]] |  |
-| [[#Naming convention]] |  |
-| [[#Trait applicability]] |  |
-| [[#Relationship to existing infrastructure]] |  |
-| [[#Audit]] |  |
-| [[#See also]] |  |
-| **[[#BRIEF]]** |  |
+| ... | [[anchor-page]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Aspects]],  [[DAS Backlog]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[facets/DAS Code]],  [[DAS Code Repository]],  [[DAS Completed Roadmap]],  [[DAS Decisions]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Disciplines Brief]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS Plan Dispatch]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Track]],  [[DAS Track Dispatch]],  [[DAS TSK User Guide]],  [[DAS US-CAE-1 — Schedule a Task]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[DAS User Dispatch]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
 
 **Location:** `{slug} Design/{slug} Testing.md` (or `{slug} Testing/` if it grows to anchor-folder form, parallel to Architecture).
 

@@ -10,6 +10,7 @@ Spec for the **Messages facet** — the per-anchor file `{slug} Messages.md` tha
 | Related | [[templates/messages.md\|messages template]],  [[DAS Inbox]],  [[DAS Backlog]],  [[DAS Track]],  [[DAS Anchor Tree]],   |
 | Examples | [[HBR Messages\|minimal]],  [[HBR Messages\|with real system messages]],   |
 | Rules | [[R-messages]],   |
+| ... |  |
 
 **Cardinality: one per anchor** — each anchor has exactly one `{slug} Messages.md` file at its root.
 
@@ -25,3 +26,5 @@ Spec for the **Messages facet** — the per-anchor file `{slug} Messages.md` tha
 [2026-07-12 21:17:03] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/facets/DAS Backlog.md was edited
 [2026-07-12 21:26:26] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/facets/DAS Backlog.md was edited
 [2026-07-13 21:30:31] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/facets/DAS Backlog.md was edited
+[2026-07-13 23:45:16] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/facets/DAS Backlog.md was edited
+[2026-07-13 23:47:25] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/facets/DAS Backlog.md was edited

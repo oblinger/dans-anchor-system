@@ -8,6 +8,7 @@ Top-level architectural view of MuxUX — the Tauri overlay for tmux session man
 | -[[MUX Architecture]]- | → [[_]] → [[prj]] → [[ClaudiMux]] → [[MUX]] → [[MUX Docs]] → [[MUX Design]] → [MUX Architecture](hook://p/MUX%20Architecture)<br>: top-level architecture facet |
 | --- | --- |
 | Related | [[MUX Decisions]],  [[MUX Rules]],   |
+| ... |  |
 
 ## Overview
 

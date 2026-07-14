@@ -15,5 +15,6 @@ description: system design for the rule system — PRD, architecture, rule langu
 | [[Warden Integration Strategy]] | what to adopt vs. build (prior art) + the dependency/repository policy |
 | [[Warden Survey]] | prior-art survey of existing rule/hook systems + recommended adaptation |
 | [[Warden Examples]] |  |
+| ... | [[Warden Consumers]],  [[Warden Interface]],   |
 
 Warden spans more than the `/rule` skill — its rule-language format is [[Warden Rule]] (with `when::` in [[Warden Events]] and `where::` in [[DAS Ruleset]]), the decisions doctrine in [[DAS Decisions]], the catalog in [[DAS Rulesets]], and the runtime in [[Audit Architecture]]. [[Warden Architecture]] is the unified map that ties those together; the feature specs for the build live in [[Warden Features]].

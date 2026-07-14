@@ -10,21 +10,7 @@ A named, reusable bundle of audit-checkable rules — and the spec for how to wr
 | Related | [[DAS Facet]],  [[DAS Skill]],  [[DAS Decisions]] (companion),  [[DAS Rulesets]] (the catalog),  [[DAS Primitives]], |
 | Rules | [[R-ruleset]],   |
 | Examples | [[R-fex-manifest\|small, standalone]],  [[R-diagram\|large, standalone]],  [[FEX Rules\|anchor-local Rules.md]],   |
-|  |  |
-| **Table of Contents** |  |
-| [[#Overview]] |  |
-| [[#History note]] |  |
-| [[#When this facet applies]] |  |
-| [[#File shape — body-only, prescriptive structure (2026-06-08)]] |  |
-| [[#Where clause — the rule selector (`where::`)]] |  |
-| [[#Naming convention]] |  |
-| [[#Audit-tier annotation (after the rule title)]] |  |
-| [[#Include composition — semantics]] |  |
-| [[#Relationship to decisions]] |  |
-| [[#Trait applicability]] |  |
-| [[#Audit]] |  |
-| [[#See also]] |  |
-| **[[#BRIEF]]** |  |
+| ... | [[anchor-page]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Backlog]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[facets/DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Disciplines Brief]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS Plan Dispatch]],  [[DAS PRD]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS Track Dispatch]],  [[DAS TSK User Guide]],  [[DAS US-CAE-1 — Schedule a Task]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
 
 **TLDR**
 - **What it is** — a named bundle of portable, audit-checkable rules (`# RULESET R-<slug>`), or an anchor-local `{slug} Rules.md`.

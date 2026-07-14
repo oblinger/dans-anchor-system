@@ -16,3 +16,4 @@ User guides for search-shaped skills — query the open web, find skills others 
 | Types · Digital content | [[DAS Software]],  [[DAS Skill]],   |
 | Outputs | [[Survey]],  [[Profile]],  [[Find]],   |
 | Legacy | [[DAS Purchase\|Purchase]] (purchasing — `/product hunt/find/buy/reorder`),  [[DAS Research\|Research]] (`/research` family),  [[DAS Research Skill\|Research Skill]] (skill comparison — folded into [[DAS Skill]]), |
+| ... |  |

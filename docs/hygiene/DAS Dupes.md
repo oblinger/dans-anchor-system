@@ -8,5 +8,6 @@ description: "`/dupes` sweeps the vault for duplicate `.md` filenames — files 
 | --- | --- |
 | Related | [[skills/dupes/SKILL.md\|SKILL]],   |
 | [[DAS Dupes Design\|Design]] |  |
+| ... |  |
 
 You reply in plain English — "do all high," "E5 option C," "E12 leave alone," "X is also expected" — and the skill executes. Common false-positives (`SKILL.md`, `README.md`, deliberate per-anchor copies) are suppressed via two allowlist files; if you mark a specific group "reviewed-OK," the exact path set is remembered so it won't re-surface unless the files change. Useful for catching misplaced copies, partial moves, and accidental file duplication across the vault. Add `--dry` to see the list without executing anything.

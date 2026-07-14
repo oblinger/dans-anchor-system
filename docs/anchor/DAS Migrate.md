@@ -8,6 +8,7 @@ Migrate an anchor — change its slug, traits, location, or structure.
 | --- | --- |
 | Related | [[skills/migrate/SKILL.md\|SKILL]],   |
 | [[DAS Migrate Design\|Design]] |  |
+| ... |  |
 
 - **Change slug** — rename all prefixed files, folders, wiki-links, config
 - **Change location** — move folder, update HookAnchor, breadcrumbs, symlinks

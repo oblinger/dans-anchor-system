@@ -3,7 +3,7 @@ description: "Feature design records for the Audit skill — the per-feature des
 ---
 # Audit Features
 
-| -[[Audit Features]]- | → [[kmr]] → [[SYS]] → [[symlinks]] → [[Audit]] → [[Audit Design/Audit Design]] → [Audit Features](hook://p/Audit%20Features)<br>: feature design records defining V2 audit |
+| -[[Audit Features]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[Audit]] → [[Audit Design/Audit Design]] → [Audit Features](hook://p/Audit%20Features)<br>: feature design records defining V2 audit |
 | --- | --- |
 | [[F001 — Rule-driven audit engine — resolve, run, judge]] | The engine: resolve applicable rules per target, run mechanical by script, judge the rest by agent; content-hash cached. |
 | [[F002 — Audit fix-by-default + Python rule functions]] | Fix-by-default + leveled automation; rules carry Python checks distilled into a merged module. |
@@ -21,6 +21,7 @@ description: "Feature design records for the Audit skill — the per-feature des
 | [[F014 — audit-q ask.md coverage + backtick-filepath link]] | ask.md joins Q.md as an audit surface; C36 rewrites backtick-filepaths to links. |
 | [[F015 — Audit architecture]] | Architecture-doc validation: diagram-then-table shape + wiki-link integrity. Shipped, auto-run by /architect. |
 | [[F016 — Migrate lint to audit]] | Retire /lint into /audit: hard rename, 1:1 subaction map, vault-wide reference sweep. |
+| ... |  |
 
 ## Provenance
 
