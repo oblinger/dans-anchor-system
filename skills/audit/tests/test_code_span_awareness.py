@@ -118,7 +118,8 @@ def test_c37_ignores_bare_fnum_in_backtick_span(tmp_path):
         - **V1** [[F007 — Some Doc]] — the file `~/F006-status.md` is emitting. · **yes / no**
     """)
     anchor_backlogs = _make_anchor_with_queries(tmp_path, "TEST", body)
-    findings = audit_q.check_c37_queries_item_format(anchor_backlogs)
+    findings = audit_q.check_c37_queries_item_format(
+        anchor_backlogs, audit_q.build_vault_index(tmp_path))
     c37 = [f for f in findings if f.code == "C37"]
     assert c37 == [], f"C37 wrongly fired on backticked F-number: {c37}"
 
@@ -137,7 +138,8 @@ def test_c37_still_fires_on_actually_bare_fnum(tmp_path):
         - **V1** [[F007 — Some Doc]] — see F006 (bare, no link). · **yes / no**
     """)
     anchor_backlogs = _make_anchor_with_queries(tmp_path, "TEST", body)
-    findings = audit_q.check_c37_queries_item_format(anchor_backlogs)
+    findings = audit_q.check_c37_queries_item_format(
+        anchor_backlogs, audit_q.build_vault_index(tmp_path))
     c37 = [f for f in findings if f.code == "C37"]
     assert len(c37) == 1, f"expected 1 C37 for bare F006, got: {c37}"
     assert "F006" in c37[0].message
