@@ -708,10 +708,11 @@ def warn_verify_watching_horizon(status, horizon_name):
 # Optional `<ANCHOR>-` prefix (e.g. `DMUX-F034`) for cross-anchor rows migrated
 # into another anchor's backlog that keep their origin id so wiki-links resolve.
 # 2+ uppercase letters + dash, so it never collides with the single-letter F/B.
-# Row-id kinds: F (feature) / T (backlog task) / B (legacy backlog item) — all
+# Row-id kinds: F (feature) / T (backlog task) / C (OpenSpec change, F230) /
+# B (legacy backlog item) — all
 # minted as monotonic numbers; R (roadmap task) — a name-path handle
 # `R-<Name>.<path>` (dots allowed), never a minted counter.
-ROW_ID_RE = re.compile(r"^(?:([A-Z]{2,})-)?(F|B|T|R)(new|\d+|-[A-Za-z0-9][\w\-.]*)$")
+ROW_ID_RE = re.compile(r"^(?:([A-Z]{2,})-)?(F|B|T|R|C)(new|\d+|-[A-Za-z0-9][\w\-.]*)$")
 
 
 def parse_row_id(arg):
@@ -745,9 +746,9 @@ def parse_row_id(arg):
 
 
 def format_row_id(kind, rest_or_num):
-    """For mint: pad F/T to 3 digits; others (B) stay as-is. R is never minted
+    """For mint: pad F/T/C to 3 digits; others (B) stay as-is. R is never minted
     here — its handle is a name-path formed by the caller."""
-    if kind in ("F", "T"):
+    if kind in ("F", "T", "C"):
         if isinstance(rest_or_num, int):
             return f"{kind}{rest_or_num:03d}"
         return f"{kind}{rest_or_num}"
@@ -758,14 +759,14 @@ def format_row_id(kind, rest_or_num):
 # Backlog scanning
 
 ROW_HEADER_RE = re.compile(
-    r"^(\s*)-\s+\*\*((?:[A-Z]{2,}-)?F\d+|T\d+|R-[A-Za-z0-9][\w\-.]*|B[\w\-]+|B\d+)\b"
+    r"^(\s*)-\s+\*\*((?:[A-Z]{2,}-)?F\d+|T\d+|C\d+(?=\s+—)|R-[A-Za-z0-9][\w\-.]*|B[\w\-]+|B\d+)\b"
 )
 H2_RE = re.compile(r"^##\s+(.+?)\s*$")
 
 # Used to parse the existing row line back into title + body so the script
 # can preserve them across status-only edits.
 ROW_FULL_RE = re.compile(
-    r"^-\s+\*\*(?P<rid>(?:[A-Z]{2,}-)?F\d+|T\d+|R-[A-Za-z0-9][\w\-.]*|B[\w\-]+|B\d+)"
+    r"^-\s+\*\*(?P<rid>(?:[A-Z]{2,}-)?F\d+|T\d+|C\d+(?=\s+—)|R-[A-Za-z0-9][\w\-.]*|B[\w\-]+|B\d+)"
     r"(?:\s+—\s+(?P<title>.+?))?\*\*"
     r"\s+\[(?P<status>[^\]]+)\]"
     r"(?:\s+—\s+(?P<body>.+?))?"
@@ -1344,7 +1345,7 @@ def mint_cross_file_id(backlog_path, icebox_path, kind):
     between the two keeps its F-number.' Same for B-numbers.
     """
     nums = []
-    pattern = re.compile(rf"^\s*-\s+\*\*{kind}(\d+)\b", re.MULTILINE)
+    pattern = re.compile(rf"^\s*-\s+\*\*{kind}(\d+)\s+—", re.MULTILINE)
     for path in (backlog_path, icebox_path):
         if path is None or not path.is_file():
             continue
