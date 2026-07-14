@@ -8,29 +8,29 @@ Design is the subsystem that turns an idea into an agreed, buildable specificati
 
 ![[DAS Design Design.svg|3000]]
 
-| **Skills**                           |                                                                                                                 |
-| ------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
-| [[DAS Plan\|/design]]                | Walks the pipeline in order, dispatches the per-artifact sub-skills, enforces the design-accepted gate.         |
-| [[DAS Architect\|/architect]]        | Builds + maintains `{slug} Architecture.md` — subsystem decomposition, `module ↔ arch` links.                   |
-|                                      |                                                                                                                 |
-| **Facets**                           |                                                                                                                 |
-| [[DAS Design Folder\|Design Folder]] | The `{slug} Design/` folder itself — its presence activates the subsystem (R-design-08).                        |
-| [[DAS PRD\|PRD]]                     | The what and why — overview, goals, user stories.                                                               |
-| [[DAS UX Design\|UX]]                | User-facing behavior (when applicable).                                                                         |
-| [[DAS API Design\|API]]              | The public interface (when applicable).                                                                         |
-| [[DAS Architecture\|Architecture]]   | The how — subsystems, modules, trade-offs. Satellites: UX, System Design, API.                                  |
-| [[DAS Testing\|Testing]]             | Verification strategy, covering the pinned milestones. Feeds the design-accepted gate.                          |
-| [[DAS System Design\|System Design]] | Consolidated single-doc design for small anchors.                                                               |
-| [[DAS Decisions\|Decisions]]         | Durable D-numbered rulings.                                                                                     |
-| [[DAS Discussion\|Discussion]]       | Free-form design discussion feeding the artifacts.                                                              |
-| [[DAS Stories\|Stories]]             | User-story records — the PRD's satellite.                                                                       |
-| [[DAS Features\|Features]]           | F-numbered feature docs — authored here, driven by Drive.                                                       |
-|                                      |                                                                                                                 |
-| **Traits**                           |                                                                                                                 |
-| *(folder-presence)*                  | No trait key — the `{slug} Design/` folder is the declaration.                                                  |
-|                                      |                                                                                                                 |
-| **Library**                          |                                                                                                                 |
-| [[DAS Status\|status:: gate]]        | The `accepted` tier (Tracking's ladder) — what the design-accepted gate reads. Sticky once accepted.            |
+| **Skills**                           |                                                                                                                                                                                                               |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [[DAS Plan\|/design]]                | Walks the pipeline in order, dispatches the per-artifact sub-skills, enforces the design-accepted gate.                                                                                                       |
+| [[DAS Architect\|/architect]]        | Builds + maintains `{slug} Architecture.md` — subsystem decomposition, `module ↔ arch` links.                                                                                                                 |
+|                                      |                                                                                                                                                                                                               |
+| **Facets**                           |                                                                                                                                                                                                               |
+| [[DAS Design Folder\|Design Folder]] | The `{slug} Design/` folder itself — its presence activates the subsystem (R-design-08).                                                                                                                      |
+| [[DAS PRD\|PRD]]                     | The what and why — overview, goals, user stories.                                                                                                                                                             |
+| [[DAS UX Design\|UX]]                | User-facing behavior (when applicable).                                                                                                                                                                       |
+| [[DAS API Design\|API]]              | The public interface (when applicable).                                                                                                                                                                       |
+| [[DAS Architecture\|Architecture]]   | The how — subsystems, modules, trade-offs. Satellites: UX, System Design, API.                                                                                                                                |
+| [[DAS Testing\|Testing]]             | Verification strategy, covering the pinned milestones. Feeds the design-accepted gate.                                                                                                                        |
+| [[DAS System Design\|System Design]] | Consolidated single-doc design for small anchors.                                                                                                                                                             |
+| [[DAS Decisions\|Decisions]]         | Durable D-numbered rulings.                                                                                                                                                                                   |
+| [[DAS Discussion\|Discussion]]       | Free-form design discussion feeding the artifacts.                                                                                                                                                            |
+| [[DAS Stories\|Stories]]             | User-story records — the PRD's satellite.                                                                                                                                                                     |
+| [[DAS Features\|Features]]           | F-numbered feature docs — authored here, driven by Drive.                                                                                                                                                     |
+|                                      |                                                                                                                                                                                                               |
+| **Traits**                           |                                                                                                                                                                                                               |
+| *(folder-presence)*                  | No trait key — the `{slug} Design/` folder is the declaration.                                                                                                                                                |
+|                                      |                                                                                                                                                                                                               |
+| **Library**                          |                                                                                                                                                                                                               |
+| [[DAS Status\|status:: gate]]        | The `accepted` tier (Tracking's ladder) — what the design-accepted gate reads. Sticky once accepted.                                                                                                          |
 | Rulesets                             | [[R-design]] · [[R-prd]] · [[R-architecture]] · [[R-decisions]] · [[R-discussion]] · [[R-stories]] · [[R-ux]] · [[R-design-gate]] · [[R-fct-system-design]] · [[R-design-dispatch]] · [[R-design-docs-group]] |
 
 ## Overview
