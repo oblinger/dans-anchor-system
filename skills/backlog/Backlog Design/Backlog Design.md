@@ -3,7 +3,7 @@ description: Design docs for the backlog discipline — Now/Next/Later horizons 
 ---
 # Backlog Design
 
-| -[[Backlog Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[backlog/Backlog]] → [Backlog Design](hook://p/Backlog%20Design)<br>: Design docs for the backlog discipline — Now/Next/Later horizons + workflow states. PRD, architecture, interface, principles. |
+| -[[Backlog Design]]- | → [[kmr]] → [[SYS]] → [[symlinks]] → [[backlog/Backlog]] → [Backlog Design](hook://p/Backlog%20Design)<br>: Design docs for the backlog discipline — Now/Next/Later horizons + workflow states. PRD, architecture, interface, principles. |
 | --- | --- |
 | [[Backlog PRD]] | product requirements |
 | [[Backlog System Design]] | system architecture |

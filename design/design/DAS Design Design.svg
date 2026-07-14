@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="48 48 1256 277.0" width="2512" height="554" style="background:white">
+<rect x="60" y="60" width="120" height="64" fill="#fff9db" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="106.8" y="96.1" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="16" fill="#1e1e1e" text-anchor="start">PRD</text>
+<path d="M 180.0 92.0 L 212.0 92.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="212.0" y1="92.0" x2="204.2" y2="96.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="212.0" y1="92.0" x2="204.2" y2="87.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<rect x="212" y="60" width="112" height="64" fill="#fff9db" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="259.2" y="89.1" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="16" fill="#1e1e1e" text-anchor="start">UX</text>
+<text x="226.8" y="108.5" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="10" fill="#868e96" text-anchor="start">(if applicable)</text>
+<path d="M 324.0 92.0 L 356.0 92.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="356.0" y1="92.0" x2="348.2" y2="96.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="356.0" y1="92.0" x2="348.2" y2="87.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<rect x="356" y="60" width="112" height="64" fill="#fff9db" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="398.8" y="89.1" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="16" fill="#1e1e1e" text-anchor="start">API</text>
+<text x="370.8" y="108.5" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="10" fill="#868e96" text-anchor="start">(if applicable)</text>
+<path d="M 468.0 92.0 L 500.0 92.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="500.0" y1="92.0" x2="492.2" y2="96.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="500.0" y1="92.0" x2="492.2" y2="87.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<rect x="500" y="60" width="160" height="64" fill="#fff9db" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="527.2" y="96.1" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="16" fill="#1e1e1e" text-anchor="start">Architecture</text>
+<path d="M 660.0 92.0 L 686.0 92.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="686.0" y1="92.0" x2="678.2" y2="96.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="686.0" y1="92.0" x2="678.2" y2="87.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<rect x="686" y="71" width="42" height="42" fill="#ffe8cc" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="699.9" y="95.3" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="13" fill="#1e1e1e" text-anchor="start">G1</text>
+<path d="M 728.0 92.0 L 754.0 92.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="754.0" y1="92.0" x2="746.2" y2="96.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="754.0" y1="92.0" x2="746.2" y2="87.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<rect x="754" y="60" width="128" height="64" fill="#fff9db" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="787.2" y="96.1" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="16" fill="#1e1e1e" text-anchor="start">Testing</text>
+<path d="M 882.0 92.0 L 908.0 92.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="908.0" y1="92.0" x2="900.2" y2="96.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="908.0" y1="92.0" x2="900.2" y2="87.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<rect x="908" y="71" width="42" height="42" fill="#ffe8cc" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="921.9" y="95.3" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="13" fill="#1e1e1e" text-anchor="start">G2</text>
+<path d="M 950.0 92.0 L 976.0 92.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="976.0" y1="92.0" x2="968.2" y2="96.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="976.0" y1="92.0" x2="968.2" y2="87.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<rect x="976" y="60" width="130" height="64" fill="#fff9db" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="1010.2" y="96.1" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="16" fill="#1e1e1e" text-anchor="start">Roadmap</text>
+<path d="M 1106.0 92.0 L 1138.0 92.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="1138.0" y1="92.0" x2="1130.2" y2="96.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="1138.0" y1="92.0" x2="1130.2" y2="87.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<rect x="1138" y="60" width="128" height="64" fill="#fff9db" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="1166.8" y="96.1" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="16" fill="#1e1e1e" text-anchor="start">Features</text>
+<text font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="11" fill="#e8590c" text-anchor="start">
+  <tspan x="670.7" y="159.9">architecture</tspan>
+  <tspan x="670.7" y="173.7">accepted</tspan>
+</text>
+<text font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="11" fill="#e8590c" text-anchor="start">
+  <tspan x="880.6" y="159.9">architecture +</tspan>
+  <tspan x="880.6" y="173.7">testing accepted</tspan>
+</text>
+<text x="60.0" y="204.6" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="12" fill="#868e96" text-anchor="start">more facets in {slug} Design/ —</text>
+<rect x="60" y="218" width="120" height="48" fill="#fff9db" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="85.3" y="245.6" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="14" fill="#1e1e1e" text-anchor="start">Decisions</text>
+<rect x="206" y="218" width="128" height="48" fill="#fff9db" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="231.5" y="245.6" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="14" fill="#1e1e1e" text-anchor="start">Discussion</text>
+<rect x="360" y="218" width="104" height="48" fill="#fff9db" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="385.1" y="245.6" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="14" fill="#1e1e1e" text-anchor="start">Stories</text>
+<rect x="490" y="218" width="156" height="48" fill="#fff9db" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="518.0" y="245.6" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="14" fill="#1e1e1e" text-anchor="start">System Design</text>
+<path d="M 1202.0 124.0 L 1202.0 218.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="1202.0" y1="218.0" x2="1197.5" y2="210.2" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="1202.0" y1="218.0" x2="1206.5" y2="210.2" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<text font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="10" fill="#868e96" text-anchor="start">
+  <tspan x="1102.0" y="167.3">design</tspan>
+  <tspan x="1102.0" y="179.8">complete</tspan>
+</text>
+<rect x="1112" y="218" width="180" height="56" fill="#f3f0ff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="1144.2" y="241.6" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="14" fill="#5f3dc4" text-anchor="start">Drive subsystem</text>
+<text x="1126.4" y="260.8" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="11" fill="#5f3dc4" text-anchor="start">/crank · /mint · /feature</text>
+<text x="60.0" y="308.6" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="12" fill="#868e96" text-anchor="start">yellow = facet (a doc shape in {slug} Design/)   ·   dashed box = if applicable   ·   G1/G2 = sticky status:: accepted gates</text>
+</svg>

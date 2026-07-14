@@ -3,7 +3,7 @@ description: Design docs for the atlas skill — maintainer of the vault-wide gl
 ---
 # Atlas Design
 
-| -[[Atlas Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[Atlas/Atlas]] → [Atlas Design](hook://p/Atlas%20Design)<br>: Design docs for the atlas skill — maintainer of the vault-wide glossary/router. PRD, architecture, interface, principles. |
+| -[[Atlas Design]]- | → [[kmr]] → [[SYS]] → [[symlinks]] → [[Atlas/Atlas]] → [Atlas Design](hook://p/Atlas%20Design)<br>: Design docs for the atlas skill — maintainer of the vault-wide glossary/router. PRD, architecture, interface, principles. |
 | --- | --- |
 | [[Atlas PRD]] | product requirements |
 | [[Atlas System Design]] | system architecture |

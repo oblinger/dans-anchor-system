@@ -21,7 +21,7 @@ user_invocable: true
 
 # Architect — Maintain `{slug} Architecture/`
 requires:: vault, skill:ask, skill:audit, skill:viz, facet:architecture
-subsystem:: [[DAS Designing Design]] — the Designing group's subsystem profile (pipeline, gates, facets, rules)
+subsystem:: [[DAS Design Design]] — the Design group's subsystem profile (pipeline, gates, facets, rules)
 
 The `/architect` skill — creates and maintains the top-level system-architecture document for an anchor as a subsystem decomposition rooted in `{slug} Design/` (a single `{slug} Architecture.md`, upgraded to a `{slug} Architecture/` folder-doc once it grows subsystems).
 

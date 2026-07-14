@@ -547,6 +547,14 @@ def enumerate_scope(target: Path, mode: str,
     """Return (anchor_root, scope_files). For doc mode the scope is the one file.
     Files under any path in exclude_roots (nested sub-anchors) are dropped."""
     if mode == "doc":
+        # Anchor-relative matching (T018, 2026-07-14): resolve the file's real
+        # anchor root (walk-up to .anchor) so on-write doc-fires share the same
+        # `where::` semantics as anchor-mode audits — dir-scoped globs and the
+        # {slug} token match identically on both paths. Parent-dir fallback
+        # keeps out-of-anchor files matchable by basename, as before.
+        for cand in (target.parent, *target.parent.parents):
+            if (cand / ".anchor").is_file():
+                return cand, [target]
         return target.parent, [target]
     exclude_roots = exclude_roots or set()
     files = []

@@ -3,7 +3,7 @@ description: ">>"
 ---
 # {slug} Track
 
-| -[[{slug} Track]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [{slug} Track](hook://p/%7Bslug%7D%20Track)<br>: >> |
+| -[[{slug} Track]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [{slug} Track](hook://p/{slug}%20Track)<br>: >> |
 | --- | --- |
 | [[{slug} Backlog\|Backlog]] | workflow-state core (required for Track) |
 | [[{slug} queries\|queries]] | the consolidated question pile `/ask` builds and trims |
