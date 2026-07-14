@@ -17,7 +17,8 @@ import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-REPO = HERE.parents[1]
+from warden_root import corpus_root
+REPO = corpus_root()
 CASES = REPO / "warden" / "Warden Corpus" / "cases"
 AUDIT_PLAN = REPO / "skills" / "audit" / "scripts" / "audit-plan.py"
 sys.path.insert(0, str(HERE))

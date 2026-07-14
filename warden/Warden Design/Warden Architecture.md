@@ -260,7 +260,7 @@ The compiler marks rules `file_bearing` / `turn_bearing` so both fire paths can 
 
 ## 8 · Built modules — the subsystem → module map
 
-What actually shipped, one row per source module, every module owned by exactly one subsystem (R-ownership-03; added by the 2026-07-06 adoption audit — this section is the map the audit found missing). Code lives at `warden/engine/` (Python) and `warden/rs/` (Rust crate `warden-rs`).
+What actually shipped, one row per source module, every module owned by exactly one subsystem (R-ownership-03; added by the 2026-07-06 adoption audit — this section is the map the audit found missing). Source lives in its own repo at `~/ob/proj/warden/` (`engine/` Python, `rs/` Rust crate `warden-rs`, `Warden Corpus/`) — extracted per T008 (2026-07-13) so the DAS→Warden dependency is physically one-directional; `scripts/vendor-warden` rsyncs a copy back into `warden/{engine,rs,Warden Corpus}` at publish time (the vendored copy is never the live install). The corpus root the engine compiles stays this repo, resolved via `~/.config/anchor-system/warden/config.yaml` `corpus_root:`.
 
 | Subsystem | Module | Role |
 |---|---|---|

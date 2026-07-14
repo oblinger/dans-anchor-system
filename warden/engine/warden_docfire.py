@@ -30,10 +30,11 @@ sys.path.insert(0, str(HERE))
 
 import warden_compile as wc  # noqa: E402
 
-# audit-plan lives in the sibling skills tree; load it by path (it is not a
-# package). …/dans-anchor-system/skills/audit/scripts/audit-plan.py — `warden/engine/`
-# is two parents below the repo root.
-_REPO_ROOT = HERE.parents[1]
+# audit-plan lives in the corpus repo's skills tree; load it by path (it is
+# not a package). …/dans-anchor-system/skills/audit/scripts/audit-plan.py —
+# resolved via warden_root since the T008 engine extraction.
+from warden_root import corpus_root  # noqa: E402
+_REPO_ROOT = corpus_root()
 _AUDIT_PLAN = _REPO_ROOT / "skills" / "audit" / "scripts" / "audit-plan.py"
 
 

@@ -52,7 +52,10 @@ from pathlib import Path
 HARNESS_DIR = Path(__file__).resolve().parent
 CORPUS_DIR = HARNESS_DIR.parent
 CASES_DIR = CORPUS_DIR / "cases"
-REPO_ROOT = CORPUS_DIR.parents[1]          # …/dans-anchor-system
+import sys as _sys
+_sys.path.insert(0, str(CORPUS_DIR.parents[0] / "engine"))
+from warden_root import corpus_root as _corpus_root
+REPO_ROOT = _corpus_root()                 # …/dans-anchor-system
 AUDIT_PLAN = REPO_ROOT / "skills" / "audit" / "scripts" / "audit-plan.py"
 WARDEN_ENGINE_DIR = CORPUS_DIR.parent / "engine"   # …/warden/engine
 

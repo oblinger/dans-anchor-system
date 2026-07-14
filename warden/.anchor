@@ -1,5 +1,6 @@
 slug: Warden
 description: the rule engine — declarative rules fired at agent moments, validated against whole-file format specs, with agent-steering feedback
+code: /Users/oblinger/ob/proj/warden
 traits:
 - track
 - commit
