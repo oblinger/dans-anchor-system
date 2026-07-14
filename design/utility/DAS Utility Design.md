@@ -33,7 +33,7 @@ Utility is the grab-bag subsystem, organized as three clusters: **Connection** (
 | **Library**                             |                                                                                                                |
 | **`ctrl` / `exp` CLIs**                 | The shell engines under the skills — `ctrl box/surf/cpage`, `exp init/exe/push/pull` (config `~/.config/exp/`). |
 | **Bridge config**                       | Per-user machine recipes at `~/.config/bridge/config.yaml`.                                                     |
-| Rulesets                                | [[R-mac]] · [[R-ob-remote-ops]] · [[R-ob-cmd-proc]] · [[R-ob-observability]] · [[R-ob-state-mgt]]               |
+| Rulesets                                | [[R-mac]] · [[R-ob]] (owner-scoped umbrella: [[R-ob-remote-ops]] · [[R-ob-cmd-proc]] · [[R-ob-observability]] · [[R-ob-state-mgt]]) |
 
 ## Overview
 

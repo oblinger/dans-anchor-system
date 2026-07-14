@@ -32,7 +32,7 @@ Design is the subsystem that turns an idea into an agreed, buildable specificati
 |                                      |                                                                                                                                                                                                               |
 | **Library**                          |                                                                                                                                                                                                               |
 | [[DAS Status\|status:: gate]]        | The `accepted` tier (Tracking's ladder) — what the design-accepted gate reads. Sticky once accepted.                                                                                                          |
-| Rulesets                             | [[R-design]] · [[R-prd]] · [[R-architecture]] · [[R-decisions]] · [[R-discussion]] · [[R-stories]] · [[R-ux]] · [[R-design-gate]] · [[R-fct-system-design]] · [[R-design-dispatch]] · [[R-design-docs-group]] |
+| Rulesets                             | [[R-design]] · [[R-prd]] · [[R-architecture]] · [[R-files-architecture]] · [[R-decisions]] · [[R-discussion]] · [[R-stories]] · [[R-ux]] · [[R-api]] · [[R-design-gate]] · [[R-fct-system-design]] · [[R-fct-features]] · [[R-design-dispatch]] · [[R-design-docs-group]] · [[R-layering]] · [[R-arch]] (umbrella: single-source-of-truth · one-path · interfaces-folder · factory-pegboard · ownership) · [[R-process]] (umbrella: design-gate · stable-ids · exception-discipline · wrapper-cli) |
 
 ## Overview
 
