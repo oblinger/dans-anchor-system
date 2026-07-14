@@ -2596,7 +2596,36 @@ def check_c43_row_links_existing_doc(entries: list[BacklogEntry]) -> list[Findin
     (covers both `{slug} Docs/{slug} Track/{slug} Features/` and legacy
     `{slug} Track/{slug} Features/` layouts). T-rows and doc-less F-rows are
     exempt (the row IS the spec); Done/Icebox horizons are skipped.
+
+    F-numbers are per-anchor namespaces (per DAS Backlog § Numbering policy), so
+    the search MUST stop at nested-anchor boundaries — otherwise a SYS backlog
+    row for `F015` false-positive-matches on `SKA/…/F015 — F-numbering Migration.md`
+    under `SYS/Bespoke/Skill Agent/`, and every anchor that nests another anchor
+    produces spurious C43 findings (observed 2026-07-14 on SYS).
     """
+    def _find_doc_within_anchor(root: Path, identifier: str) -> bool:
+        # Manual walk that skips any subdirectory carrying a `.anchor` marker
+        # (that's a nested anchor's own F-namespace, not ours).
+        stack = [root]
+        pattern_prefix = f"{identifier} — "
+        while stack:
+            d = stack.pop()
+            try:
+                entries_iter = list(d.iterdir())
+            except (OSError, PermissionError):
+                continue
+            for child in entries_iter:
+                if child.is_dir():
+                    # Don't descend into nested anchors OR .git/venv/etc dot-dirs.
+                    if child.name.startswith(".") or child.name in ("node_modules", "__pycache__", "venv", ".venv"):
+                        continue
+                    if (child / ".anchor").exists():
+                        continue
+                    stack.append(child)
+                elif child.is_file() and child.suffix == ".md" and child.name.startswith(pattern_prefix):
+                    return True
+        return False
+
     findings: list[Finding] = []
     doc_cache: dict[tuple[Path, str], bool] = {}
     for e in entries:
@@ -2609,7 +2638,7 @@ def check_c43_row_links_existing_doc(entries: list[BacklogEntry]) -> list[Findin
         root = e.source_file.parents[1] if len(e.source_file.parents) > 1 else e.source_file.parent
         key = (root, e.identifier)
         if key not in doc_cache:
-            doc_cache[key] = any(root.rglob(f"{e.identifier} — *.md"))
+            doc_cache[key] = _find_doc_within_anchor(root, e.identifier)
         if not doc_cache[key]:
             continue
         findings.append(Finding(
@@ -3695,14 +3724,27 @@ def file_qfix_row(
     # for wiki-links and 2026-06-07 for markdown-links when F126 surfaced
     # markdown-link findings).
     def _backtick_wiki_links(msg: str) -> str:
-        # Wrap wiki-links first (so the markdown-link regex doesn't catch the
-        # backticked replacement)
-        msg = re.sub(r"\[\[([^\[\]]*)\]\]", r"`[[\1]]`", msg)
-        # Wrap markdown links: [name](path) — but skip those already inside
-        # backticks. The `(?<!\`)` lookbehind would be cleaner but Python's
-        # variable-width lookbehind support varies; instead just wrap any
-        # remaining unbackticked form.
-        msg = re.sub(r"(?<!`)\[([^\[\]]+)\]\(([^)]+)\)(?!`)", r"`[\1](\2)`", msg)
+        # Skip links that are ALREADY inside a code span — double-wrapping
+        # produces broken nested-backtick output like `` `→ `[[X]]`` `` that
+        # re-exposes the link to link-resolution on the next pass (observed
+        # 2026-07-14: C43's message template pre-wraps `→ [[…]]` in one span,
+        # and naive re-wrapping broke the span into two).
+        stripped = _strip_code_spans(msg)
+        def _wrap_if_outside_span(m: re.Match, wrap_fmt: str) -> str:
+            if stripped[m.start():m.end()].strip() == "":
+                return m.group(0)  # already inside a code span
+            return wrap_fmt.format(m.group(0))
+        msg = re.sub(
+            r"\[\[[^\[\]]*\]\]",
+            lambda m: _wrap_if_outside_span(m, "`{}`"),
+            msg,
+        )
+        # Wrap markdown links: [name](path) — same guard.
+        msg = re.sub(
+            r"\[[^\[\]]+\]\([^)]+\)",
+            lambda m: _wrap_if_outside_span(m, "`{}`"),
+            msg,
+        )
         return msg
 
     new_subs: list[str] = []
