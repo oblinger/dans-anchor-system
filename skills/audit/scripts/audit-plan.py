@@ -1295,14 +1295,19 @@ def chk_status_track_dispatch_linked(target, anchor_root, args):
 # -- R-testing -----------------------------------------------------------------
 
 def chk_testing_filename_correct(target, anchor_root, args):
-    """File named {slug} Testing.md; no legacy {slug} Testing Strategy.md alongside."""
+    """File named {slug} Testing.md for this anchor's slug (or an ancestor's —
+    doc-mode passes the file's parent as anchor_root); no legacy
+    {slug} Testing Strategy.md alongside."""
     if not target.is_file():
         return "error", "target is not a file"
-    slug = _anchor_slug(anchor_root)
-    if target.name != f"{slug} Testing.md":
-        return "fail", f"file should be '{slug} Testing.md' not '{target.name}'"
-    design_dir = anchor_root / f"{anchor_root.name} Design"
-    legacy = design_dir / f"{slug} Testing Strategy.md"
+    stem = target.stem
+    if not stem.endswith(" Testing"):
+        return "fail", f"file should be '<slug> Testing.md' not '{target.name}'"
+    slug = stem[: -len(" Testing")]
+    slugs = _ancestor_anchor_slugs(anchor_root)
+    if slug not in slugs:
+        return "fail", f"'{slug}' is not this anchor's slug (expected one of {sorted(set(slugs))})"
+    legacy = target.parent / f"{slug} Testing Strategy.md"
     if legacy.is_file():
         return "fail", f"legacy file {legacy.name} exists alongside {target.name}"
     return "pass", ""
@@ -1429,8 +1434,12 @@ def chk_all_test_kinds_have_targets(target, anchor_root, args):
     return "pass", ""
 
 
+_TABLE_SEP_RE = re.compile(r"^\s*\|[\s:|-]+\|\s*$")
+
+
 def _proposed_tests_rows(lines):
-    """Yield table-row lines under ## Proposed Tests."""
+    """Data-row lines under ## Proposed Tests — header rows (the row a separator
+    follows) and separator rows are dropped."""
     pt_start = None
     for i, ln in enumerate(lines):
         if re.match(r"^## Proposed Tests\b", ln):
@@ -1444,7 +1453,9 @@ def _proposed_tests_rows(lines):
             break
         if re.match(r"^\|", lines[i]):
             rows.append(lines[i])
-    return rows
+    return [ln for idx, ln in enumerate(rows)
+            if not _TABLE_SEP_RE.match(ln)
+            and not (idx + 1 < len(rows) and _TABLE_SEP_RE.match(rows[idx + 1]))]
 
 
 def chk_proposed_tests_rows_have_spec(target, anchor_root, args):
@@ -1487,19 +1498,260 @@ def chk_spec_cells_format_valid(target, anchor_root, args):
 
 
 def chk_status_field_valid(target, anchor_root, args):
-    """Frontmatter status: in drafting|in-review|accepted."""
+    """Frontmatter status in drafting|in-review|accepted — the spec'd form is the
+    `status::` dataview field (R-testing-08); plain `status:` also accepted."""
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
     fm = _frontmatter(_read(f))
     if fm is None:
         return "fail", "no YAML frontmatter"
-    m = re.search(r"^status\s*:\s*(.+)$", fm, re.MULTILINE)
+    m = re.search(r"^status\s*::?\s*(.+)$", fm, re.MULTILINE)
     if not m:
-        return "fail", "frontmatter missing status: field"
+        return "fail", "frontmatter missing status:: field"
     value = m.group(1).strip().strip("\"'")
     if value not in ("drafting", "in-review", "accepted"):
         return "fail", f"status value {value!r} not valid"
+    return "pass", ""
+
+
+# -- R-architecture (T015, 2026-07-13) ------------------------------------------
+
+def _h2_titles(lines):
+    """(line_idx, title) for every `^## ` heading, in document order."""
+    return [(i, re.sub(r"^##\s+", "", ln).strip()) for i, ln in enumerate(lines)
+            if re.match(r"^##\s+\S", ln)]
+
+
+def _real_anchor_root(anchor_root: Path) -> Path:
+    """Nearest enclosing dir carrying `.anchor` — doc-mode passes the file's
+    parent as anchor_root, which for a `{slug} Design/` doc is below the root."""
+    cur = anchor_root
+    while True:
+        if (cur / ".anchor").is_file():
+            return cur
+        if cur.parent == cur:
+            return anchor_root
+        cur = cur.parent
+
+
+def chk_architecture_filename_correct(target, anchor_root, args):
+    """R-architecture-01: entry-point doc is `{slug} Architecture.md` in
+    `{slug} Design/` — single file, or folder-doc form `{slug} Architecture/`.
+    Slug comes from the basename and must be an (ancestor) anchor slug."""
+    if not target.is_file():
+        return "error", "target is not a file"
+    stem = target.stem
+    if not stem.endswith(" Architecture"):
+        return "fail", f"file should be '<slug> Architecture.md' not '{target.name}'"
+    slug = stem[: -len(" Architecture")]
+    if slug not in _ancestor_anchor_slugs(anchor_root):
+        return "fail", f"'{slug}' is not this anchor's slug"
+    design = f"{slug} Design"
+    parent = target.parent
+    if parent.name == design:
+        return "pass", ""
+    if parent.name == f"{slug} Architecture" and parent.parent.name == design:
+        return "pass", "folder-doc form"
+    if (parent / ".anchor").is_file():
+        return "fail", f"anchor-root placement — migrate into {design}/"
+    return "fail", f"lives in '{parent.name}/', expected '{design}/'"
+
+
+def chk_architecture_h1_present(target, anchor_root, args):
+    """R-architecture-02: first heading is a single clean `# {basename}` H1 —
+    no `[[wiki]] ·` decoration."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    text = _read(f)
+    fm = re.match(r"^---\n.*?\n---\n", text, re.DOTALL)
+    body = text[fm.end():] if fm else text
+    expected = f"# {f.stem}"
+    for ln in body.splitlines():
+        if re.match(r"^#{1,6}\s", ln):
+            if ln.strip() == expected:
+                return "pass", ""
+            return "fail", f"first heading is {ln.strip()!r}, expected {expected!r}"
+    return "fail", "no markdown heading found"
+
+
+def chk_overview_section_present(target, anchor_root, args):
+    """Shared R-architecture-03 / R-testing-11: `## Overview` H2 present with a
+    non-empty body before the next H2."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    body = _section_body(_read(f).splitlines(), r"^## Overview\s*$")
+    if body is None:
+        return "fail", "no ## Overview H2"
+    if not any(ln.strip() for ln in body):
+        return "fail", "## Overview section is empty"
+    return "pass", ""
+
+
+_IMG_EMBED_RE = re.compile(r"!\[\[.+?\]\]|!\[[^\]]*\]\([^)]+\)")
+
+
+def chk_architecture_diagram_section_with_embed(target, anchor_root, args):
+    """R-architecture-04: `## Architecture diagram` H2 with >= 1 image embed."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    body = _section_body(_read(f).splitlines(), r"^## Architecture [Dd]iagram\s*$")
+    if body is None:
+        return "fail", "no ## Architecture diagram H2"
+    if not any(_IMG_EMBED_RE.search(ln) for ln in body):
+        return "fail", "## Architecture diagram has no image embed"
+    return "pass", ""
+
+
+_BOX_DRAWING_CHARS = "┌┐└┘├┤┬┴┼│─╔╗╚╝╠╣║═▲▼◄►"
+
+
+def chk_no_ascii_diagram(target, anchor_root, args):
+    """R-architecture-05: no fenced code block draws a box/arrow ASCII diagram
+    (>= 3 box-drawing glyphs inside a fence = a diagram, not stray characters)."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    in_fence, hits, first_line = False, 0, None
+    for i, ln in enumerate(_read(f).splitlines(), 1):
+        if re.match(r"^\s*(```|~~~)", ln):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            n = sum(ln.count(c) for c in _BOX_DRAWING_CHARS)
+            if n:
+                hits += n
+                first_line = first_line or i
+    if hits >= 3:
+        return "fail", f"fenced ASCII diagram (box-drawing glyphs from line {first_line})"
+    return "pass", ""
+
+
+def _subsystems_table_rows(lines):
+    """Data rows of the table under `## Subsystems` (header + separator skipped).
+    None = no section; [] = section without a usable table."""
+    body = _section_body(lines, r"^## Subsystems\s*$")
+    if body is None:
+        return None
+    rows = [ln for ln in body if ln.lstrip().startswith("|")]
+    return rows[2:] if len(rows) >= 2 else []
+
+
+def chk_subsystems_section_present(target, anchor_root, args):
+    """R-architecture-06: `## Subsystems` H2 with a table of >= 1 data row."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    rows = _subsystems_table_rows(_read(f).splitlines())
+    if rows is None:
+        return "fail", "no ## Subsystems H2"
+    if not rows:
+        return "fail", "## Subsystems has no table with data rows"
+    return "pass", ""
+
+
+def chk_spine_order_correct(target, anchor_root, args):
+    """R-architecture-07: first three H2s are Overview -> Architecture diagram ->
+    Subsystems, before any supporting section."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    titles = [t for _, t in _h2_titles(_read(f).splitlines())]
+    spine = ["overview", "architecture diagram", "subsystems"]
+    got = titles[:3]
+    if [t.lower() for t in got] == spine:
+        return "pass", ""
+    return "fail", f"first H2s are {got}, expected Overview / Architecture diagram / Subsystems"
+
+
+_SUBSYS_CELL_RE = re.compile(
+    r"\[\[([^\]\\|#]+)(?:[\\|#][^\]]*)?\]\]"   # [[target]] / [[target\|alias]] / [[target#sec]]
+    r"|(?<!\[)\[([^\[\]]+)\](?!\()")           # [single-bracket placeholder]
+
+
+def _subsystem_names(rows):
+    """(name, is_wikilink) per table data row's first cell, bracketed entries only."""
+    out = []
+    for ln in rows:
+        cells = ln.split("|")
+        cell = cells[1].strip() if len(cells) > 1 else ""
+        m = _SUBSYS_CELL_RE.search(cell)
+        if m:
+            out.append(((m.group(1) or m.group(2)).strip(), bool(m.group(1))))
+    return out
+
+
+def chk_subsystem_kebab_naming(target, anchor_root, args):
+    """R-architecture-08: subsystem names use kebab `{slug}-{Subsystem}` form."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    rows = _subsystems_table_rows(_read(f).splitlines())
+    if rows is None:
+        return "fail", "no ## Subsystems H2"
+    stem = f.stem
+    slug = (stem[: -len(" Architecture")] if stem.endswith(" Architecture")
+            else _anchor_slug(_real_anchor_root(anchor_root)))
+    bad = [n for n, _ in _subsystem_names(rows)
+           if not re.fullmatch(rf"{re.escape(slug)}-[A-Za-z0-9-]+", n)]
+    if bad:
+        return "fail", "non-kebab subsystem names: " + ", ".join(bad[:5])
+    return "pass", ""
+
+
+def chk_subsystem_link_convention(target, anchor_root, args):
+    """R-architecture-09: `[[double-bracket]]` subsystem entries resolve to an
+    existing doc under the anchor; `[single-bracket]` placeholders are exempt."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    rows = _subsystems_table_rows(_read(f).splitlines())
+    if rows is None:
+        return "fail", "no ## Subsystems H2"
+    missing = []
+    root = _real_anchor_root(anchor_root)
+    for name, is_link in _subsystem_names(rows):
+        if not is_link:
+            continue
+        base = name.split("/")[-1]
+        try:
+            found = any(root.rglob(f"{base}.md"))
+        except (OSError, ValueError):
+            found = False
+        if not found:
+            missing.append(name)
+    if missing:
+        return "fail", "missing subsystem docs: " + ", ".join(missing[:5])
+    return "pass", ""
+
+
+# -- R-testing-12 (T015, 2026-07-13) ---------------------------------------------
+
+def chk_tests_table_present(target, anchor_root, args):
+    """R-testing-12: `## Tests` H2 before `## Overview`, holding a coverage table
+    whose kind cells are [[wiki-links]]."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    lines = _read(f).splitlines()
+    titles = _h2_titles(lines)
+    tests_i = next((i for i, t in titles if t == "Tests"), None)
+    if tests_i is None:
+        return "fail", "no ## Tests H2"
+    over_i = next((i for i, t in titles if t == "Overview"), None)
+    if over_i is not None and tests_i > over_i:
+        return "fail", "## Tests appears after ## Overview (must precede it)"
+    body = _section_body(lines, r"^## Tests\s*$") or []
+    rows = [ln for ln in body if ln.lstrip().startswith("|")]
+    data = rows[2:] if len(rows) >= 2 else []
+    if not data:
+        return "fail", "## Tests has no table with data rows"
+    nolink = sum(1 for ln in data if "[[" not in ln.split("|")[1])
+    if nolink:
+        return "fail", f"{nolink} kind row(s) without a [[wiki-link]] first cell"
     return "pass", ""
 
 
@@ -3033,8 +3285,19 @@ CHECKERS = {
     "status_nonone_cells_dated": chk_status_nonone_cells_dated,
     "status_user_cells_noted": chk_status_user_cells_noted,
     "status_track_dispatch_linked": chk_status_track_dispatch_linked,
+    # R-architecture (T015, 2026-07-13; overview shared with R-testing-11)
+    "architecture_filename_correct": chk_architecture_filename_correct,
+    "architecture_h1_present": chk_architecture_h1_present,
+    "overview_section_present": chk_overview_section_present,
+    "architecture_diagram_section_with_embed": chk_architecture_diagram_section_with_embed,
+    "no_ascii_diagram": chk_no_ascii_diagram,
+    "subsystems_section_present": chk_subsystems_section_present,
+    "spine_order_correct": chk_spine_order_correct,
+    "subsystem_kebab_naming": chk_subsystem_kebab_naming,
+    "subsystem_link_convention": chk_subsystem_link_convention,
     # R-testing
     "testing_filename_correct": chk_testing_filename_correct,
+    "tests_table_present": chk_tests_table_present,
     "strategy_subsections_present_ordered": chk_strategy_subsections_present_ordered,
     "proposed_tests_structure": chk_proposed_tests_structure,
     "proposed_tests_subset_of_strategy": chk_proposed_tests_subset_of_strategy,

@@ -78,7 +78,7 @@ Every subsystem referenced in the Subsystems table uses kebab form `{slug}-{Subs
 
 **Why:** kebab form gives basename uniqueness against module docs, no markdown collision, and visual grouping (`{slug}-*` sorts together). HA/OBU used space-form + `Arch` suffixes that collide and clutter.
 
-### RULE R-architecture-09 — Link convention: `[[double]]` = real doc, `[single]` = placeholder (sampled)
+### RULE R-architecture-09 — Link convention: `[[double]]` = real doc, `[single]` = placeholder (checked)
 check:: subsystem_link_convention
 
 In the Subsystems table, `[[double-bracket]]` entries resolve to an existing subsystem doc; `[single-bracket]` entries are plain-text placeholders for unauthored docs (no broken wiki-link).
@@ -88,7 +88,6 @@ In the Subsystems table, `[[double-bracket]]` entries resolve to an existing sub
 **Why:** lets a partially-authored architecture be honest — complete inventory, only real docs link. A `[[double-bracket]]` to a non-existent doc pollutes the link graph and lies about what's authored.
 
 ### RULE R-architecture-10 — No API / class-table content on the entry-point page (sampled)
-check:: no_api_content_on_arch_page
 
 The entry-point doc carries no per-module class / function / method / signature tables. That detail lives in `{slug} API.md` or the relevant subsystem doc.
 
@@ -97,7 +96,6 @@ The entry-point doc carries no per-module class / function / method / signature 
 **Why:** the entry-point page is a conceptual map; when a class table appears it's doing two jobs and both altitudes are lost. Split it out.
 
 ### RULE R-architecture-11 — Diagram has arrows, not just boxes (sampled)
-check:: diagram_has_arrows
 
 The architecture figure shows directional/labeled connections between components, not a bare collection of boxes.
 
@@ -106,7 +104,6 @@ The architecture figure shows directional/labeled connections between components
 **Why:** boxes without arrows are a list, not an architecture. Every relationship that matters needs a connection. Audited against [[R-diagram]] for the full structural/aesthetic ruleset.
 
 ### RULE R-architecture-12 — Project-wide principles referenced, not restated (sampled)
-check:: principles_referenced_not_restated
 
 Anchor-wide principles/rulings are linked to `{slug} Decisions` (e.g. `[[… |D<n>]]`), not copy-pasted into the Architecture doc. Tactical architecture-only decisions may live here in a numbered `## Design decisions` table.
 
