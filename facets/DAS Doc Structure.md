@@ -2,14 +2,14 @@
 description: "the Doc Structure facet — the canonical top-to-bottom layering every document follows (progressive disclosure specialized for a single document)"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Doc Structure](hook://p/DAS%20Doc%20Structure)
 # FCT Doc Structure
 The standard top-to-bottom structure every document follows — progressive disclosure specialized for a single document: each layer reveals more depth for a more-committed reader. This is the **main facet for any document**; the other doc facets (Brief, Discussion, Ruleset) describe regions *within* this structure.
 
-**Related:** [[DAS progressive-disclosure]] (the discipline this specializes),  [[DAS Brief]],  [[DAS Anchor Page]]
-**Examples:** [[FEX Minimal Facet\|minimal — short doc, no table]],  [[HBR Architecture\|fuller — non-anchor doc with structured body]]
-**Document examples:** [[FEX Manifest]] (facet spec),  [[FEX Retention]] (discipline),  [[DAS Brief]] (facet spec)
-**Anchor examples:** [[HBR]] (project),  [[FEX Snapshot]] (skill),  [[FEX Repo]] (repo)
+| -[[DAS Doc Structure]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Doc Structure](hook://p/DAS%20Doc%20Structure) |
+| --- | --- |
+| Related | [[DAS progressive-disclosure]] (the discipline this specializes),  [[DAS Brief]],  [[DAS Anchor Page]], |
+| Examples | [[FEX Minimal Facet\|minimal — short doc, no table]],  [[HBR Architecture\|fuller — non-anchor doc with structured body]],  [[FEX Manifest\|facet spec]],  [[FEX Retention\|discipline]],  [[DAS Brief\|facet spec]],  [[HBR\|project]],  [[FEX Snapshot\|skill]],  [[FEX Repo\|repo]],   |
+| Rules | [[DAS Doc Structure#RULESET R-doc-structure\|R-doc-structure]],   |
 
 ## Overview
 [[DAS progressive-disclosure]] is the general discipline — reveal information in layers so a reader gets the gist first and drills in only as far as they need. **Doc Structure** is that discipline applied to a *single document*: a fixed top-to-bottom order of layers, each aimed at a more-committed reader than the last. Every document the system owns — anchor page, facet spec, feature doc, design doc, user guide — follows this skeleton; specific document kinds (e.g. [[DAS Anchor Page]]) refine it but never violate the layer order.

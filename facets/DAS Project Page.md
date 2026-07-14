@@ -2,12 +2,13 @@
 description: "published project overview page for an anchor"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Project Page](hook://p/DAS%20Project%20Page)
 # FCT Project Page
 A lightweight public-facing splash page for an anchor, published to the personal website (oblinger.github.io). Built via the `/code publish` skill.
 
-**Related:** [[DAS Documentation Site]],  [[code-publish]],  [[DAS Anchor Page]],  [[DAS Dispatch]]
-**Examples:** [[ABIO\|fuller (index + deploy.sh)]],  [[DCP\|minimal (index only)]]
+| -[[DAS Project Page]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Project Page](hook://p/DAS%20Project%20Page) |
+| --- | --- |
+| Related | [[DAS Documentation Site]],  [[code-publish]],  [[DAS Anchor Page]],  [[DAS Dispatch]],   |
+| Examples | [[ABIO\|fuller (index + deploy.sh)]],  [[DCP\|minimal (index only)]],   |
 
 A project page is a `website/` folder inside the anchor holding an `index.md` (Jekyll/cayman splash with front matter), optional extra pages/assets, and a `deploy.sh` that copies the folder to the website repo and pushes. The shape, location, front matter, and publish path are specified in the sections below.
 

@@ -1,13 +1,17 @@
 ---
-description: decisions are documentation — recorded under a `## Decisions` section in the design doc they shape; Warden never computes against them. Anything directly checkable is a rule, living in the companion `# RULESET` directly after the Decisions section; rules link back with an implements-D<N> note.
+description: decisions are documentation — recorded under a `## Decisions` section in the design doc they shape; Warden never computes against them. Anything directly checkable is a rule, living in the companion `# RULESET` directly after the Decisions section; rules link back with an implements-D{N} note.
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Decisions](hook://p/DAS%20Decisions)
 # FCT Decisions
 **Audited examples:** [[HBR Decisions]], [[Mini Decisions]], [[FEX Decisions]], [[UCM Decisions]], [[DKT Decisions]]
 
-| Table of Contents |  |
-|---|---|
+| -[[DAS Decisions]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Decisions](hook://p/DAS%20Decisions) |
+| --- | --- |
+| Related | [[DAS Ruleset]],  [[DAS Architecture]],  [[DAS Design Docs]],  [[DAS Rulesets]],   |
+| Examples | [[Mini Architecture#Decisions\|distributed — decision in the doc it shapes]],  [[Mini Decisions\|optional central — cross-cutting value only]],  [[FEX Decisions\|legacy central master (pre-doctrine include:: + implementation map)]],  [[HBR Decisions\|legacy central (durable rulings)]],   |
+| Rules | [[DAS Decisions#RULESET R-decisions\|R-decisions]],   |
+|  |  |
+| **Table of Contents** |  |
 | **[[#Decisions vs rules — the doctrine (2026-07-01)]]** |  |
 | **[[#Form — the Decisions section]]** |  |
 | **[[#Where decisions live — distributed by default]]** |  |
@@ -21,22 +25,19 @@ description: decisions are documentation — recorded under a `## Decisions` sec
 | **[[#Audit]]** |  |
 | **[[#History]]** |  |
 | **[[#See also]]** |  |
-|   [[#RULE R-decisions-01 — Decisions live under a `## Decisions` section; the optional central file is `{slug} Decisions.md` (checked)]] |  |
-|   [[#RULE R-decisions-02 — H1 is `{slug} Decisions` (checked)]] |  |
-|   [[#RULE R-decisions-03 — retired 2026-07-01 (tracked)]] |  |
-|   [[#RULE R-decisions-04 — At least one D-record present, always at H3 (checked)]] |  |
-|   [[#RULE R-decisions-05 — D-record titles carry a status token (sampled)]] |  |
-|   [[#RULE R-decisions-06 — D-numbers are monotonic and never recycled (sampled)]] |  |
-|   [[#RULE R-decisions-07 — Each D-record states its rationale (sampled)]] |  |
-|   [[#RULE R-decisions-08 — retired 2026-07-01 (tracked)]] |  |
-|   [[#RULE R-decisions-09 — retired 2026-07-01 (tracked)]] |  |
-|   [[#RULE R-decisions-10 — Companion ruleset sits directly after the Decisions section (sampled)]] |  |
-|   [[#RULE R-decisions-11 — No decision duplicates a rule (stated)]] |  |
+| [[#RULE R-decisions-01 — Decisions live under a `## Decisions` section; the optional central file is `{slug} Decisions.md` (checked)]] |  |
+| [[#RULE R-decisions-02 — H1 is `{slug} Decisions` (checked)]] |  |
+| [[#RULE R-decisions-03 — retired 2026-07-01 (tracked)]] |  |
+| [[#RULE R-decisions-04 — At least one D-record present, always at H3 (checked)]] |  |
+| [[#RULE R-decisions-05 — D-record titles carry a status token (sampled)]] |  |
+| [[#RULE R-decisions-06 — D-numbers are monotonic and never recycled (sampled)]] |  |
+| [[#RULE R-decisions-07 — Each D-record states its rationale (sampled)]] |  |
+| [[#RULE R-decisions-08 — retired 2026-07-01 (tracked)]] |  |
+| [[#RULE R-decisions-09 — retired 2026-07-01 (tracked)]] |  |
+| [[#RULE R-decisions-10 — Companion ruleset sits directly after the Decisions section (sampled)]] |  |
+| [[#RULE R-decisions-11 — No decision duplicates a rule (stated)]] |  |
 
 The facet for recorded decisions — the documentation layer that sits above Warden's rules.
-
-**Related:** [[DAS Ruleset]],  [[DAS Architecture]],  [[DAS Design Docs]],  [[DAS Rulesets]]
-**Examples:** [[Mini Architecture#Decisions\|distributed — decision in the doc it shapes]],  [[Mini Decisions\|optional central — cross-cutting value only]],  [[FEX Decisions\|legacy central master (pre-doctrine include:: + implementation map)]],  [[HBR Decisions\|legacy central (durable rulings)]]
 
 **TLDR** — A Decisions surface is simply an **H2 header `## Decisions`** followed by the list of decisions made — `### D<N> — Title (status)` records with rationale — placed in the design doc the decisions shape. Decisions constrain and guide the way rules do, **but Warden pays no attention to them**: they are documentation, never computed against. Anything directly verifiable is written **only as a rule**, in the companion `# RULESET` that by convention sits **directly after the Decisions section** under the same (or a clearly related) name; a rule ties itself back to the decision it implements with a loose `implements D<N>` note.
 

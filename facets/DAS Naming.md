@@ -2,12 +2,14 @@
 description: "file-naming facet — every file inside an anchor uses `{slug} <X>.md` form by default; exceptions for vault-global files and facet-sanctioned unique patterns"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Naming](hook://p/DAS%20Naming)
 # FCT Naming
 File-naming facet — every file inside an anchor uses `{slug} <X>.md` form by default; exceptions for vault-global files and facet-sanctioned unique patterns.
 
-**Related:** [[DAS Folder]],  [[DAS Anchor Page]],  [[DAS All Files]],  [[DAS Features]]
-**Examples:** [[HBR\|minimal anchor]],  [[HBR\|fuller anchor]]
+| -[[DAS Naming]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Naming](hook://p/DAS%20Naming) |
+| --- | --- |
+| Related | [[DAS Folder]],  [[DAS Anchor Page]],  [[DAS All Files]],  [[DAS Features]],   |
+| Examples | [[HBR\|minimal anchor]],  [[HBR\|fuller anchor]],   |
+| Rules | [[R-naming]],   |
 
 **TLDR** — Every `.md` file inside an anchor is named `{slug} <X>.md` (the anchor slug as prefix). Three exception classes are allowed: vault-global files, facet-sanctioned alternative patterns (F-numbers, US-IDs, ISO dates), and genuinely unique domain-specific names. **Cardinality: one per anchor** — a single naming convention applies to each anchor, not a per-file choice.
 

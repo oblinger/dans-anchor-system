@@ -2,12 +2,13 @@
 description: Moving an anchor to a new location — concept and related skills
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Move](hook://p/DAS%20Move)
 # FCT Move
 A move relocates an anchor's folder and updates every system that references it by path.
 
-**Related:** [[DAS Migrate]],  [[DAS Install]],  [[DAS Anchor]],  [[DAS Anchor Page]]
-**Examples:** [[DAS Move\|skill runbook]],  [[SKA move\|managing anchor]]
+| -[[DAS Move]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Move](hook://p/DAS%20Move) |
+| --- | --- |
+| Related | [[DAS Migrate]],  [[DAS Install]],  [[DAS Anchor]],  [[DAS Anchor Page]],   |
+| Examples | [[DAS Move\|skill runbook]],  [[SKA move\|managing anchor]],   |
 
 **TLDR** — A Move is a multi-step orchestrated operation: physical folder relocation + HA reindex + Claude session rename + path scan. Distinct from Migrate (type change) and Fix Session (session-only repair). Cardinality: **one per anchor** (an anchor has at most one current location; move is a one-time operation per anchor per event).
 

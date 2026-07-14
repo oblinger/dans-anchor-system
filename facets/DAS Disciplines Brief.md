@@ -2,6 +2,10 @@
 
 Editing-and-maintenance brief for [[DAS Disciplines]]. Read before adding a new discipline, restructuring the catalog, or auditing what belongs here.
 
+| -[[DAS Disciplines Brief]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Disciplines Brief](hook://p/DAS%20Disciplines%20Brief) |
+| --- | --- |
+| Related | [[DAS Disciplines]],  [[DAS Brief]],  [[DAS Facets]],   |
+
 *Conceptual source: [[PKM]] (under [[THREADS]]) — disciplines codify the anchoring / hook-naming / local-global patterns.*
 
 ## What a discipline is

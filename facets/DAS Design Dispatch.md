@@ -2,12 +2,14 @@
 description: "design docs dispatch page — Architecture, UX Design, Interface, Data Model, Principles, PRD"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Dispatch]] → [FCT Design Dispatch](hook://p/DAS%20Design%20Dispatch)
 # FCT Design Dispatch
 Facet spec for `{slug} Design.md` — the dispatch page listing all high-level system-spec documents for an anchor.
 
-**Related:** [[DAS Architecture]],  [[DAS UX Design]],  [[DAS Interface]],  [[DAS PRD]]
-**Examples:** [[HBR Design\|minimal]],  [[HBR Design\|fuller]]
+| -[[DAS Design Dispatch]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Design Dispatch](hook://p/DAS%20Design%20Dispatch) |
+| --- | --- |
+| Related | [[DAS Architecture]],  [[DAS UX Design]],  [[DAS Interface]],  [[DAS PRD]],   |
+| Examples | [[HBR Design\|minimal]],  [[HBR Design\|fuller]],   |
+| Rules | [[DAS Design Dispatch#RULESET R-design-dispatch\|R-design-dispatch]],   |
 
 **TLDR** — `{slug} Design.md` is the one-per-anchor dispatch page listing the high-level system-spec documents (UX Design, Interface, Decisions, Data Model, Principles, PRD, Features, Roadmap, Design Discussion) for an anchor. It lives at the root-level `{slug} Design/{slug} Design.md`. The system-architecture story **is** a Design child — `{slug} Architecture` (a single `.md`, or a `{slug} Architecture/` folder-doc once it grows subsystems) inside `{slug} Design/`. (F094's root placement reversed 2026-06-27.) Interface is required for Code anchors.
 

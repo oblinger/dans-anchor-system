@@ -2,15 +2,15 @@
 description: "the Ruleset facet — what a ruleset is and the format every ruleset file (a standalone `R-<slug>` or an anchor-local {slug} Rules.md) must take"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Ruleset](hook://p/DAS%20Ruleset)
 # FCT Ruleset
 A named, reusable bundle of audit-checkable rules — and the spec for how to write one.
 
-**Related:** [[DAS Facet]],  [[DAS Skill]],  [[DAS Decisions]] (companion),  [[DAS Rulesets]] (the catalog),  [[DAS Primitives]]
-**Examples:** [[R-fex-manifest\|small, standalone]],  [[R-diagram\|large, standalone]],  [[FEX Rules\|anchor-local Rules.md]]
-
-| Table of Contents |  |
-|---|---|
+| -[[DAS Ruleset]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Ruleset](hook://p/DAS%20Ruleset) |
+| --- | --- |
+| Related | [[DAS Facet]],  [[DAS Skill]],  [[DAS Decisions]] (companion),  [[DAS Rulesets]] (the catalog),  [[DAS Primitives]], |
+| Examples | [[R-fex-manifest\|small, standalone]],  [[R-diagram\|large, standalone]],  [[FEX Rules\|anchor-local Rules.md]],   |
+|  |  |
+| **Table of Contents** |  |
 | [[#Overview]] |  |
 | [[#History note]] |  |
 | [[#When this facet applies]] |  |
@@ -32,7 +32,7 @@ A named, reusable bundle of audit-checkable rules — and the spec for how to wr
 - **Detection** — file-existence + the `# RULESET R-` content sentinel (catches embedded rulesets too); cardinality **many**.
 
 ## Overview
-The Ruleset facet specifies the format for any file that **defines rules** — whether a catalog ruleset under `~/.claude/skills/SKL User Docs/SKL/SKL Library/Rulesets/` or an anchor-local `{slug} Rules.md` under `{slug} Design/`.
+The Ruleset facet specifies the format for any file that **defines rules** — whether a catalog ruleset under `rulesets/R-<name>.md` at the dans-anchor-system repo root or an anchor-local `{slug} Rules.md` under `{slug} Design/`.
 
 A **rule** is a standing constraint or guideline — portable, reusable, audit-checkable. A **ruleset** is a named bundle of rules that travel together. Rules bind to an anchor by **activation** — the anchor's traits pull in rulesets ([[Warden Semantics]] § Rulesets) — and to files via `where::`.
 

@@ -2,14 +2,16 @@
 description: "the top-of-page navigation table — its own spec, dogfooded"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Dispatch Table](hook://p/DAS%20Dispatch%20Table)
 # FCT Dispatch Table
 The top-of-file table convention that gives most anchor pages and many facet pages their navigation surface.
 
-**Related:** [[Collection]],  [[DAS progressive-disclosure]],  [[audit-dispatch\|/audit dispatch]]
-
-| Table of Contents |  |
-|---|---|
+| -[[DAS Dispatch Table]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Dispatch Table](hook://p/DAS%20Dispatch%20Table) |
+| --- | --- |
+| Related | [[Collection]],  [[DAS progressive-disclosure]],  [[audit-dispatch\|/audit dispatch]],  [[DAS Dispatch Table Design\|Design]],   |
+| Examples | [[HBR\|minimal]],  [[HBR\|fuller]],  [[FEX Dispatch Examples\|full gallery]],   |
+| Rules | [[DAS Dispatch Table#RULESET R-dispatch-table\|R-dispatch-table]],   |
+|  |  |
+| **Table of Contents** |  |
 | [[#What it is]] |  |
 | [[#Anatomy of a dispatch row]] |  |
 | [[#Structure — Masthead + Member zone]] |  |
@@ -19,8 +21,6 @@ The top-of-file table convention that gives most anchor pages and many facet pag
 | [[#Worked examples]] |  |
 | [[#Related]] |  |
 | **[[#BRIEF]]** |  |
-**Design:** [[DAS Dispatch Table Design\|Design]]
-**Examples:** [[HBR\|minimal]],  [[HBR\|fuller]],  [[FEX Dispatch Examples\|full gallery]]
 
 **TLDR** — **Cardinality: many** — one dispatch table per page; most anchor and facet pages carry one. The masthead is the breadcrumb plus, in fixed order, the optional **Related → type → Design → Track → User Docs → Dev Docs** rows (a switchboard, not a directory) — each row a link down to a sub-area plus its key parts; anything enumerable beyond those drops to the Member zone below. `/audit dispatch` builds and repairs it.
 

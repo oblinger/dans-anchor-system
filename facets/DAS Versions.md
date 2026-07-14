@@ -2,12 +2,13 @@
 description: "facet spec for the versions/ release-artifact store — the immutable, tag-gated folder a project's published builds land in"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Versions](hook://p/DAS%20Versions)
 # FCT Versions
 Facet spec for the `versions/` folder — the immutable, flat store of published release artifacts (`<version> <app>.dmg`) a code project promotes builds into at `publish` time.
 
-**Related:** [[DAS Code Repository]],  [[DAS Outputs]],  [[DAS Facet]]
-**Examples:** [[HBR Versions\|worked example]],  [[OBU\|live monorepo instance]]
+| -[[DAS Versions]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Versions](hook://p/DAS%20Versions) |
+| --- | --- |
+| Related | [[DAS Code Repository]],  [[DAS Outputs]],  [[DAS Facet]],   |
+| Examples | [[HBR Versions\|worked example]],  [[OBU\|live monorepo instance]],   |
 
 **TLDR** — A single flat `versions/` folder at a code repo's root holding the **immutable** published release artifacts, each named **`<version> <app>.dmg`** (version-first, so it sorts by version across every app sharing the repo). Promoted into only by the `publish` recipe; the matching pushed git tag is the published-marker. **Cardinality: one** folder per repo (holding **many** artifact files). Detection: **folder-existence**. The policy lives in [[OBU Decisions]] D02; this facet is its reusable, citable form.
 

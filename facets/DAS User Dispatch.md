@@ -2,12 +2,14 @@
 description: user-facing docs dispatch page — curated, synthesis-level human-authored docs for any audience
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS User Dispatch](hook://p/DAS%20User%20Dispatch)
 # FCT User Dispatch
 Facet spec for the `{slug} User Docs.md` dispatch page that catalogs an anchor's end-user / consumer-facing documentation (Guide, Installation, CLI, FAQ, Cards).
 
-**Related:** [[DAS Design Dispatch]],  [[DAS Dev Dispatch]],  [[DAS Track Dispatch]],  [[DAS Dispatch]]
-**Examples:** [[HBR User Docs\|minimal (code anchor)]],  [[HBR User Docs\|fuller (server anchor)]]
+| -[[DAS User Dispatch]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS User Dispatch](hook://p/DAS%20User%20Dispatch) |
+| --- | --- |
+| Related | [[DAS Design Dispatch]],  [[DAS Dev Dispatch]],  [[DAS Track Dispatch]],  [[DAS Dispatch]],   |
+| Examples | [[HBR User Docs\|minimal (code anchor)]],  [[HBR User Docs\|fuller (server anchor)]],   |
+| Rules | [[DAS User Dispatch#RULESET R-fct-user-dispatch\|R-fct-user-dispatch]],   |
 
 **TLDR** — `{slug} User Docs.md` is the dispatch page for end-user / consumer-facing documentation (Guide, Installation, CLI, FAQ, Cards). It lives in the root-level `{slug} User Docs/` folder. Cardinality: **one per anchor**. Scope boundary: user-task docs only; system-spec docs (Interface, Architecture) live elsewhere — Interface in [[DAS Design Dispatch|Design]], the Architecture story in `{slug} Design/`.
 

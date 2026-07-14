@@ -2,15 +2,16 @@
 description: the repo's complete source file tree, every file linked to its module doc (monospace)
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS All Files](hook://p/DAS%20All%20Files)
 # FCT All Files
 The All Files facet — a fixed-width file-tree page linking every source file to its module doc.
 
-**Related:** [[DAS Interface]],  FCT Module,  [[DAS Architecture]],  FCT Dev
-**Examples:** [[FEX Files\|minimal]],  [[HBR Files\|fuller]]
-
-| Table of Contents |  |
-|---|---|
+| -[[DAS All Files]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS All Files](hook://p/DAS%20All%20Files) |
+| --- | --- |
+| Related | [[DAS Interface]],  FCT Module,  [[DAS Architecture]],  FCT Dev, |
+| Examples | [[FEX Files\|minimal]],  [[HBR Files\|fuller]],   |
+| Rules | [[DAS All Files#RULESET R-all-files\|R-all-files]],   |
+|  |  |
+| **Table of Contents** |  |
 | [[#Critical — Do Not Wrap the Tree in a Code Fence]] |  |
 | [[#Structure]] |  |
 | [[#Tree Format]] |  |

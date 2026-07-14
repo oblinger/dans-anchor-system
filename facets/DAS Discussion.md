@@ -2,12 +2,14 @@
 description: "per-document discussion log — dated trade-off threads attached to the doc they're about"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Discussion](hook://p/DAS%20Discussion)
 # FCT Discussion
 Per-document discussion log — dated trade-off threads attached to the doc they're about.
 
-**Related:** [[DAS Decisions]],  [[DAS Log]],  [[DAS PRD]],  [[DAS dated-entry-stream]]
-**Examples:** [[HA Frontmatter\|inline method-1]],  [[HA Design Discussions\|sibling-file method-2]]
+| -[[DAS Discussion]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Discussion](hook://p/DAS%20Discussion) |
+| --- | --- |
+| Related | [[DAS Decisions]],  [[DAS Log]],  [[DAS PRD]],  [[DAS dated-entry-stream]],   |
+| Examples | [[HA Frontmatter\|inline method-1]],  [[HA Design Discussions\|sibling-file method-2]],   |
+| Rules | [[R-discussion]],   |
 
 **TLDR** — A doc-scoped dated-entry-stream (cardinality: many) that attaches to spec docs — PRDs, Architecture, feature docs, etc. Each entry follows a Problem / Options Considered / Decision skeleton. Two placement methods: inline `# Discussion` H1 (default) or sibling `{Parent} Discussions.md` (when inline grows past ~2 screens). Append-only after Decision is filled. Does NOT attach to navigation/sequencing artifacts (anchor pages, dispatch pages, Backlog, Roadmap).
 

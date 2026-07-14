@@ -6,6 +6,10 @@ description: "Aspects, Traits, and Facets — the unified anchor-property model"
 
 The unified anchor-property model: an Aspect is any named property an anchor carries, split into broad **Traits** (declared paradigms) and narrow **Facets** (file-based features), each carrying Constraints and Expected Usage.
 
+| -[[DAS Aspects]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Aspects](hook://p/DAS%20Aspects) |
+| --- | --- |
+| Related | [[DAS Facet]],  [[DAS Traits]],   |
+
 ## At a glance
 
 An **Aspect** is any named property an anchor carries. Aspects come in two sub-categories, distinguished by *what they describe*:

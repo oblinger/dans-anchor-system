@@ -2,12 +2,16 @@
 description: testing facet — the project's testing strategy (kinds, amounts, responsibilities) followed by an overview of the actual tests proposed, consistent with that strategy. Low-level test specs live in module docs, not here.
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Testing](hook://p/DAS%20Testing)
 # FCT Testing
-**Audited examples:** [[HBR Testing]], [[Mini Testing]], [[HBR Testing]], [[MUX Testing]], [[SKA Bridge Testing]]
+Spec for the `{slug} Testing.md` design facet — a two-part doc combining the project's testing strategy with a proposed-tests inventory, peer to Architecture and UX Design under Design.
 
-| Table of Contents |  |
-|---|---|
+| -[[DAS Testing]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Testing](hook://p/DAS%20Testing) |
+| --- | --- |
+| Related | [[DAS Architecture]],  [[DAS UX Design]],  [[DAS PRD]],  [[DAS Design Docs]],  [[DAS Common Testing Types]],  [[templates/testing.md\|testing template]],   |
+| Examples | [[Mini Testing\|minimal worked example]],  [[HBR Testing\|maximal worked example]],  [[HBR Testing\|fuller worked example]],  [[MUX Testing]],  [[SKA Bridge Testing]],   |
+| Rules | [[R-testing]],   |
+|  |  |
+| **Table of Contents** |  |
 | [[#Standard section order]] |  |
 | [[#The tests-table (required)]] |  |
 | [[#Proposed-tests table]] |  |
@@ -19,11 +23,6 @@ description: testing facet — the project's testing strategy (kinds, amounts, r
 | [[#Audit]] |  |
 | [[#See also]] |  |
 | **[[#BRIEF]]** |  |
-
-Spec for the `{slug} Testing.md` design facet — a two-part doc combining the project's testing strategy with a proposed-tests inventory, peer to Architecture and UX Design under Design.
-
-**Related:** [[DAS Architecture]],  [[DAS UX Design]],  [[DAS PRD]],  [[DAS Design Docs]]
-**Examples:** [[Mini Testing\|minimal worked example]],  [[HBR Testing\|maximal worked example]],  [[HBR Testing\|fuller worked example]]
 
 **Location:** `{slug} Design/{slug} Testing.md` (or `{slug} Testing/` if it grows to anchor-folder form, parallel to Architecture).
 

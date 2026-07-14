@@ -2,15 +2,16 @@
 description: top-level human-authored layer contract — complete vocabulary for using the layer, hides everything below
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Anchor]] → [FCT Interface](hook://p/DAS%20Interface)
 # FCT Interface
 The facet spec for `{slug} Interface.md` — the top-level human-authored layer contract on a code anchor, defining the complete caller-facing vocabulary while hiding the implementation below.
 
-**Related:** [[DAS Architecture]],  [[DAS Module Doc]],  [[DAS User Dispatch]],  [[DAS All Files]]
-**Examples:** [[HA Interface\|minimal — CLI tool, one caller surface]],  [[MUX Interface\|fuller — app with multiple caller surfaces + sub-Interfaces]]
-
-| Table of Contents |  |
-|---|---|
+| -[[DAS Interface]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Interface](hook://p/DAS%20Interface) |
+| --- | --- |
+| Related | [[DAS Architecture]],  [[DAS Module Doc]],  [[DAS User Dispatch]],  [[DAS All Files]],   |
+| Examples | [[HA Interface\|minimal — CLI tool, one caller surface]],  [[MUX Interface\|fuller — app with multiple caller surfaces + sub-Interfaces]],   |
+| Rules | [[DAS Interface#RULESET R-fct-interface\|R-fct-interface]],   |
+|  |  |
+| **Table of Contents** |  |
 | [[#Defining Properties]] |  |
 | [[#Trait Applicability]] |  |
 | [[#Sub-Interfaces — Nested Layers]] |  |

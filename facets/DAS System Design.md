@@ -2,15 +2,16 @@
 description: "the current technical-architecture document for a software project anchor"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Design Docs]] → [FCT System Design](hook://p/DAS%20System%20Design)
 # FCT System Design
 Facet spec for `{slug} System Design.md` — the current technical-architecture document (components, data model, decisions) for a software project anchor.
 
-**Related:** [[DAS PRD]],  [[DAS Decisions]],  [[DAS Discussion]],  [[DAS UX Design]]
-**Examples:** [[SKA System Design\|real anchor example]]
-
-| Table of Contents |  |
-|---|---|
+| -[[DAS System Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS System Design](hook://p/DAS%20System%20Design) |
+| --- | --- |
+| Related | [[DAS PRD]],  [[DAS Decisions]],  [[DAS Discussion]],  [[DAS UX Design]],   |
+| Examples | [[SKA System Design\|real anchor example]],   |
+| Rules | [[DAS System Design#RULESET R-fct-system-design\|R-fct-system-design]],   |
+|  |  |
+| **Table of Contents** |  |
 | [[#1 Architecture Overview]] |  |
 | [[#2 Components]] |  |
 | [[#3 Data Model]] |  |

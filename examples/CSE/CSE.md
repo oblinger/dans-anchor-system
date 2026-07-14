@@ -48,9 +48,9 @@ CSE/                                        ← anchor root (slug: CSE, trait: s
 A skill anchor follows the same DAS structure as any other anchor — same `Docs/Plan/Features/` hierarchy, same dispatch tables, same feature-doc convention. Two structural deltas:
 
 - **No code repo, no Dev dispatch.** `SKILL.md` *is* the code. The skill's action files (`cse-demo.md` etc.) live alongside it at the anchor root in kebab-case. There is no separate `Code/` directory and no `{slug} Docs/{slug} Dev/` doc folder.
-- **No User dispatch — user docs live in SKL.** User-facing documentation for the skill lives in the **SKL user-docs tree** at `skills/SKL User Docs/SKL Skills/SKL <Name>.md`, not under `{slug} Docs/{slug} User/`. This keeps every skill's user docs together in one place at the skills repo root, regardless of which anchor they describe.
+- **No User dispatch — user docs live in the DAS docs tree.** User-facing documentation for the skill lives at `docs/<domain>/DAS <Name>.md` at the repo root, not under `{slug} Docs/{slug} User/`. This keeps every skill's user docs together in one place, regardless of which anchor they describe.
 
-The dispatch table's first row reflects both deltas: a `skill` row carries the two surfaces — the skill spec (`SKILL.md`) and the user-facing doc (`SKL CSE`) — instead of separate Dev / User rows. This is the canonical first-row shape for a skill anchor.
+The dispatch table's first row reflects both deltas: a `skill` row carries the two surfaces — the skill spec (`SKILL.md`) and the user-facing doc (`DAS CSE`) — instead of separate Dev / User rows. This is the canonical first-row shape for a skill anchor.
 
 
 

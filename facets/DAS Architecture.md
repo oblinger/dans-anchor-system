@@ -2,30 +2,32 @@
 description: per-anchor architecture overview — anchor-folder form with subsystems; standard section order; mandatory visual diagram (Excalidraw, never ASCII); subsystem dispatch table with link convention; API detail lives in sub-docs, not the main page.
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Architecture](hook://p/DAS%20Architecture)
 # FCT Architecture
+
+| -[[DAS Architecture]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Architecture](hook://p/DAS%20Architecture) |
+| --- | --- |
+| Related | [[DAS Module Doc]],  [[DAS Decisions]],  [[DAS Design Dispatch]],   |
+| Examples | [[FEX Architecture\|minimal (Excalidraw, partial subsystem docs)]],  [[HBR Architecture\|fuller (D2/SVG, all subsystems linked)]],   |
+| Rules | [[DAS Architecture#RULESET R-architecture\|R-architecture]],  [[R-diagram]],   |
+|  |  |
+| **Table of Contents** |  |
+| [[#Folder shape]] |  |
+| [[#Standard section order (entry-point doc)]] |  |
+| [[#Subsystem dispatch table]] |  |
+| [[#Subsystems]] |  |
+| [[#Architecture diagram requirements]] |  |
+| [[#What does NOT belong on the entry-point Architecture page]] |  |
+| [[#Trait applicability]] |  |
+| [[#Audit]] |  |
+| [[#See also]] |  |
+| **[[#BRIEF]]** |  |
+|  |  |
+
 **Audited examples:** [[HBR Architecture]], [[FEX Architecture]], [[OBU Architecture]], [[MUX Architecture]], [[HA Architecture]]
 
 *Conceptual source: [[PKM]] (under [[THREADS]]) — the through-line the anchor system operationalizes.*
 
-| Table of Contents                                              |     |
-| -------------------------------------------------------------- | --- |
-| [[#Folder shape]]                                              |     |
-| [[#Standard section order (entry-point doc)]]                  |     |
-| [[#Subsystem dispatch table]]                                  |     |
-| [[#Subsystems]]                                                |     |
-| [[#Architecture diagram requirements]]                         |     |
-| [[#What does NOT belong on the entry-point Architecture page]] |     |
-| [[#Trait applicability]]                                       |     |
-| [[#Audit]]                                                     |     |
-| [[#See also]]                                                  |     |
-| **[[#BRIEF]]**                                                 |     |
-|                                                                |     |
-
 Facet spec defining the per-anchor system-architecture overview — its anchor-folder shape, standard section order, mandatory visual figure, subsystem dispatch table, and split between conceptual map (entry-point doc) and contract surface (API sub-doc).
-
-**Related:** [[DAS Module Doc]],  [[DAS Decisions]],  [[DAS Design Dispatch]],  [[R-diagram]]
-**Examples:** [[FEX Architecture\|minimal (Excalidraw, partial subsystem docs)]],  [[HBR Architecture\|fuller (D2/SVG, all subsystems linked)]]
 
 **TLDR** — One `{slug} Architecture/` folder per anchor (cardinality: **one**). Entry-point doc has four required sections in order: Overview → Architecture diagram → Subsystems → supporting context. Diagram must be a real visual artifact (SVG/Excalidraw/D2); ASCII art is forbidden. Subsystem docs use kebab naming `{slug}-{Subsystem}.md`; `[[double-bracket]]` = real doc, `[single-bracket]` = placeholder. Public API detail lives in a sibling `{slug} API.md`, not the entry-point page.
 
