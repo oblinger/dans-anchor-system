@@ -182,6 +182,16 @@ mkdir -p ~/.cache && date +%s > ~/.cache/crank-last-mint.txt
 
 This is a one-line write at the *end* of every successful mint — after commit, after Q.md regen, after audit-q post-condition. Skip the write on failed mints (the agent stopped without producing a commit / Done bracket); the timer file should reflect *successful mints only*, not turn count. Migrates to F080's `~/.config/anchor-system/crank/last-mint` namespace when F080 ships.
 
+### 8.5. C-entries (OpenSpec changes, per F230)
+
+A `[Ready]` **C-row** (`C<NNN>`, per [[DAS Changes]]) mints like a feature with three differences:
+
+1. **The spec is the change folder** — `changes/C<NNN>-<slug>/` at the anchor root: `proposal.md` is the why/what, `tasks.md` is the execution plan. Steps 0–0.7 (bucket-PRD wiring, planning gate) don't apply; the change folder IS the plan.
+2. **Execute `tasks.md` top to bottom**, checking each `- [ ]` box as its work lands (the checked file is the progress record — keep it current, not batched at the end).
+3. **On completion the row goes to `[Verify]`, not `[Done]`** — closing a C-row is `/finalize`'s archive-merge (fold the `specs/` delta into the anchor's `specs/`, archive the folder). Never fold the delta yourself mid-mint.
+
+Bracket transitions use the same `state Backlog C<NNN> set` calls as F-rows (always the zero-padded id).
+
 ### 9. On Completion
 
 On `/mint`: assess the roadmap, find the next milestone, and enter the pipeline.
