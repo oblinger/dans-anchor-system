@@ -940,6 +940,7 @@ def perform_edit(
     body_provided,
     verify_text=None,
     next_text=None,
+    pending_subs=None,
 ):
     """Apply the edit, return a one-line summary for the Messages entry."""
     raw = backlog_path.read_text()
@@ -1040,6 +1041,12 @@ def perform_edit(
         while j < len(lines) and re.match(r"^\s+- ", lines[j]):
             body_for_check += "\n" + lines[j]
             j += 1
+    # A v2 `define` carries its sub-bullets separately (attached after this
+    # edit lands) — include them here so a new T-/B-row's inline Q<n>
+    # sub-bullets can honor a [Questions] promise the same way an existing
+    # row's do.
+    if pending_subs:
+        body_for_check += "\n" + "\n".join(pending_subs)
     verify_questions_constraint(status, body_for_check)
 
     # F096 — refuse [Verify*] when body describes pending implementation
