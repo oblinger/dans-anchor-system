@@ -6,6 +6,7 @@ user_invocable: true
 
 # Dupes
 requires:: vault, anchor-cli, external:ha
+subsystem:: [[DAS Hygiene Design]] — the Hygiene group's subsystem profile
 
 `/dupes` — vault-level skill that scans for duplicate `.md` filenames using `ha --dump --format=collisions`, filters out expected duplicates via an allowlist, and emits a natural-language edit list (`E1..EN`) grouped by confidence. The user reviews and replies in free-form natural language; the agent (Claude) executes the selected edits using normal capabilities.
 

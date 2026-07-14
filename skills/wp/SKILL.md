@@ -7,6 +7,7 @@ user_invocable: true
 
 # WP — Create a dated work product folder
 requires:: vault, skill:io, facet:wp
+subsystem:: [[DAS Anchor Design]] — the Anchor group's subsystem profile
 
 Create a new dated work product folder inside `{slug} WP/`. Work products are polished outputs of human+agent collaboration — papers, reports, analyses, presentations, spreadsheets.
 

@@ -7,6 +7,7 @@ user_invocable: true
 
 # Yore — Archive folders or files to Yore
 requires:: vault, external:ha
+subsystem:: [[DAS Anchor Design]] — the Anchor group's subsystem profile
 
 Archive anchors, folders, or files that are no longer needed. Yore is the standard archival location.
 

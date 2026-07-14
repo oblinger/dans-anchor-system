@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="48 24 1194 326.25" width="2388" height="652" style="background:white">
+<rect x="60" y="88" width="170" height="62" fill="#fff9db" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle">
+  <tspan x="145.0" y="113.8">Rulesets</tspan>
+  <tspan x="145.0" y="131.3">R-*.md · 550+ rules</tspan>
+</text>
+<path d="M 230.0 119.0 L 320.0 119.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="320.0" y1="119.0" x2="312.2" y2="123.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="320.0" y1="119.0" x2="312.2" y2="114.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<text x="232.0" y="103.7" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="11" fill="#868e96" text-anchor="start">warden compile</text>
+<rect x="320" y="88" width="140" height="62" fill="#f8f9fa" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle">
+  <tspan x="390.0" y="113.8">corpus</tspan>
+  <tspan x="390.0" y="131.3">~/.warden</tspan>
+</text>
+<path d="M 460.0 105.0 L 540.0 62.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="540.0" y1="62.0" x2="535.3" y2="69.7" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="540.0" y1="62.0" x2="531.0" y2="61.7" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<path d="M 460.0 133.0 L 540.0 176.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="540.0" y1="176.0" x2="531.0" y2="176.3" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="540.0" y1="176.0" x2="535.3" y2="168.3" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<rect x="540" y="36" width="220" height="56" fill="#e7f5ff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="13" fill="#1e1e1e" text-anchor="middle">
+  <tspan x="650.0" y="59.2">Warden on-write</tspan>
+  <tspan x="650.0" y="75.4">daemon: deny + doc-fire</tspan>
+</text>
+<rect x="540" y="150" width="220" height="56" fill="#e7f5ff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="13" fill="#1e1e1e" text-anchor="middle">
+  <tspan x="650.0" y="173.2">/audit sweeps</tspan>
+  <tspan x="650.0" y="189.4">doc · anchor · q</tspan>
+</text>
+<path d="M 760.0 64.0 L 830.0 108.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="830.0" y1="108.0" x2="821.0" y2="107.7" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="830.0" y1="108.0" x2="825.8" y2="100.0" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<path d="M 760.0 178.0 L 830.0 134.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="830.0" y1="134.0" x2="825.8" y2="142.0" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="830.0" y1="134.0" x2="821.0" y2="134.3" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<rect x="830" y="92" width="140" height="56" fill="#ffe8cc" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="900.0" y="123.8" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="15" fill="#1e1e1e" text-anchor="middle">findings</text>
+<path d="M 970.0 106.0 L 1040.0 62.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="1040.0" y1="62.0" x2="1035.8" y2="70.0" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="1040.0" y1="62.0" x2="1031.0" y2="62.3" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<path d="M 970.0 134.0 L 1040.0 176.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="1040.0" y1="176.0" x2="1031.0" y2="175.8" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="1040.0" y1="176.0" x2="1035.6" y2="168.1" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<rect x="1040" y="36" width="190" height="54" fill="#d3f9d8" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="13" fill="#1e1e1e" text-anchor="middle">
+  <tspan x="1135.0" y="58.2">auto-fixed</tspan>
+  <tspan x="1135.0" y="74.4">mechanical fixers</tspan>
+</text>
+<rect x="1040" y="152" width="190" height="54" fill="#fff9db" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="13" fill="#1e1e1e" text-anchor="middle">
+  <tspan x="1135.0" y="174.2">B-QFix rows</tspan>
+  <tspan x="1135.0" y="190.4">backlog residuals</tspan>
+</text>
+<path d="M 1135.0 206.0 L 1135.0 250.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="1135.0" y1="250.0" x2="1130.5" y2="242.2" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="1135.0" y1="250.0" x2="1139.5" y2="242.2" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<rect x="880" y="250" width="350" height="54" fill="#e7f5ff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="1055.0" y="280.6" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle">/tidy · /rewire · /dupes · /slug-scan</text>
+<text x="700.0" y="279.4" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="13" fill="#868e96" text-anchor="start">repaired to zero →</text>
+<text x="60.0" y="333.4" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="13" fill="#868e96" text-anchor="start">declare once → compile → fire on-write + on-demand → 100%-fix: mechanical now, residuals to B-QFix, never accumulated</text>
+</svg>
