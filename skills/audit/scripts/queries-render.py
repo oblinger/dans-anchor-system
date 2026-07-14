@@ -224,7 +224,6 @@ def parse_backlog(backlog_file: Path) -> list[Row]:
             # Split on first ' — '
             em_split = re.split(r"\s+—\s+", header_text, maxsplit=1)
             body = em_split[1] if len(em_split) == 2 else ""
-            arrow = ARROW_LINK_RE.search(line)
             rows.append(Row(
                 line_num=line_num,
                 raw_line=line,
@@ -233,7 +232,7 @@ def parse_backlog(backlog_file: Path) -> list[Row]:
                 is_h3=True,
                 bracket=bracket,
                 body=body,
-                arrow_link=arrow.group(1) if arrow else None,
+                arrow_link=_pick_arrow_link(line, identifier),
             ))
             inside_h3_body = True
             continue
@@ -272,7 +271,6 @@ def parse_backlog(backlog_file: Path) -> list[Row]:
             else:
                 body = ""
             body = TRAILING_BLOCK_ID_RE.sub("", body)
-            arrow = ARROW_LINK_RE.search(line)
             rows.append(Row(
                 line_num=line_num,
                 raw_line=line,
@@ -281,7 +279,7 @@ def parse_backlog(backlog_file: Path) -> list[Row]:
                 is_h3=False,
                 bracket=bracket,
                 body=body,
-                arrow_link=arrow.group(1) if arrow else None,
+                arrow_link=_pick_arrow_link(line, identifier),
             ))
     return rows
 
@@ -289,6 +287,21 @@ def parse_backlog(backlog_file: Path) -> list[Row]:
 # ============================================================
 # Banner derivation (mirrors audit_q.derive_anchor_banner)
 # ============================================================
+
+
+def _pick_arrow_link(line: str, identifier: str) -> Optional[str]:
+    """T012: choose the row's OWN doc among its `→ [[…]]` links — prefer the
+    LAST one whose basename opens with the row's identifier (`F230 — …` for
+    row F230), else the FIRST arrow link. A plain first-match (the old
+    `ARROW_LINK_RE.search`) picks a prose arrow on rows like F149 whose
+    own-doc arrow trails several prose arrows; plain last-match fails on
+    F220-style rows with a prose arrow after the own-doc one."""
+    matches = [m.group(1) for m in ARROW_LINK_RE.finditer(line)]
+    if not matches:
+        return None
+    own = [m for m in matches
+           if m.split("#")[0].split("|")[0].strip().startswith(f"{identifier} ")]
+    return own[-1] if own else matches[0]
 
 
 def _read_q_marker_count(target_path: Path) -> int:
@@ -367,24 +380,33 @@ def _feature_doc_link(r: "Row", vault_index: dict,
 
 def _row_q_count(r: "Row", vault_index: dict) -> int:
     """Pending-question count for a `[Questions]` row — the `(NQ)` the user sees.
-    Prefer an explicit `[N Questions]` bracket; else count `Q<n> —` markers in the
-    linked feature doc. Returns 0 when nothing resolves (no count shown)."""
+    Recount from the linked doc when one resolves (T012 — the bracket can be
+    stale or corrupted; the doc is ground truth). Fall back to an explicit
+    `[N Questions]` bracket only when nothing resolves (T-/B-rows with inline
+    Qs, whose bracket C24's fixer maintains from the row's own sub-bullet
+    span). Returns 0 when neither is available (no count shown)."""
+    target_basename = r.arrow_link or (r.identifier if r.identifier.startswith("F") else None)
+    candidates: list = []
+    if target_basename:
+        # vault_index keys are lower-cased (audit_q.build_vault_index, T002);
+        # a case-sensitive get here left the doc-recount path silently dead.
+        target_basename = target_basename.split("#")[0].split("|")[0].strip().lower()
+        candidates = (vault_index.get(target_basename)
+                      or vault_index.get(target_basename + ".md") or [])
+        if not candidates and r.identifier.startswith("F"):
+            fid = r.identifier.lower()
+            for bn, paths in vault_index.items():
+                if bn.startswith(fid + " —") or bn == fid:
+                    candidates = paths
+                    break
+    if candidates:
+        return _read_q_marker_count(candidates[0])
     m = re.match(r"(\d+)\s+Questions", r.bracket)
     if m:
         return int(m.group(1))
-    target_basename = r.arrow_link or (r.identifier if r.identifier.startswith("F") else None)
-    if not target_basename:
-        return 0
-    target_basename = target_basename.split("#")[0].split("|")[0].strip()
-    candidates = vault_index.get(target_basename) or vault_index.get(target_basename + ".md") or []
-    if not candidates and r.identifier.startswith("F"):
-        for bn, paths in vault_index.items():
-            if bn.startswith(r.identifier + " —") or bn == r.identifier:
-                candidates = paths
-                break
-    if not candidates:
-        return 0
-    return _read_q_marker_count(candidates[0])
+    # Bare [Questions] with no resolvable doc (T-/B-row inline form) means
+    # exactly 1 pending Q by bracket discipline (C24 maintains it).
+    return 1 if "Questions" in r.bracket else 0
 
 
 def derive_banner(name: str, rows: list[Row], backlog_file: Path,
@@ -416,30 +438,11 @@ def derive_banner(name: str, rows: list[Row], backlog_file: Path,
             continue
         if "Questions" not in r.bracket:
             continue
-        # Resolve the linked feature doc
-        target_basename = r.arrow_link or (f"{r.identifier}" if r.identifier.startswith("F") else None)
-        if not target_basename:
-            continue
-        # Strip `#section` and `|alias` from the basename
-        target_basename = target_basename.split("#")[0].split("|")[0].strip()
-        # Resolve to a path via vault index — prefer exact basename match
-        candidates = vault_index.get(target_basename) or []
-        # Try with .md extension stripped
-        if not candidates:
-            candidates = vault_index.get(target_basename + ".md") or []
-        # Try fuzzy match: any basename starting with `F<n> —` or `F<n>` prefix
-        if not candidates and r.identifier.startswith("F"):
-            for bn, paths in vault_index.items():
-                if bn.startswith(r.identifier + " —") or bn == r.identifier:
-                    candidates = paths
-                    break
-        if not candidates:
-            # Bracket-claim but no resolvable link: count as 1
-            questions_n += 1
-            continue
-        target_path = candidates[0]
-        q_count = _read_q_marker_count(target_path)
-        questions_n += q_count if q_count > 0 else 1
+        # Count via the same resolution `_row_q_count` uses (T012 — this block
+        # previously re-implemented it with case-sensitive index lookups that
+        # never matched the lower-cased vault_index keys, so every row fell to
+        # the count-as-1 fallback). Floor of 1: a bracket-claim never counts 0.
+        questions_n += _row_q_count(r, vault_index) or 1
     # Per-horizon counts (live, non-Done)
     horizon_counts = {h: 0 for h in ("Active", "Ready", "Now", "Next", "Later", "Verify", "Icebox")}
     for r in rows:
