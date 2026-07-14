@@ -206,7 +206,7 @@ def _resolve_q_identifier(lines, q_num, slug):
 
 def _delegate_row_edit(slug, horizon, row_id_arg, status, title, body,
                        title_provided, body_provided,
-                       verify_text=None, next_text=None):
+                       verify_text=None, next_text=None, pending_subs=None):
     """Delegate to backlog-edit's perform_edit machinery, mirroring its main()."""
     if status != "delete" and status != "same":
         # Validate status bracket against the closed canonical set.
@@ -244,6 +244,7 @@ def _delegate_row_edit(slug, horizon, row_id_arg, status, title, body,
         dst_file, dst_horizon, row_id_arg, status,
         title, body, title_provided, body_provided,
         verify_text=verify_text, next_text=next_text,
+        pending_subs=pending_subs,
     )
     be.append_messages(slug, result["summary"], backlog_path)
     be.write_state(slug, result)
@@ -1130,6 +1131,7 @@ def _v2_row_define(slug, backlog_path, label, args, minted=False):
         slug, horizon, label, status, title, row_body,
         title_provided=True, body_provided=True,
         verify_text=verify_text, next_text=next_text,
+        pending_subs=sub_lines,
     )
     if sub_lines:
         icebox_path = be.find_icebox(slug)  # may have just been created
