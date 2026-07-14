@@ -2,14 +2,14 @@
 description: track docs dispatch page — work tracking + planning for a Track-trait anchor
 ---
 
-# FCT Track Dispatch
+# DAS Track Dispatch
 Spec for the `{slug} Track.md` dispatch page that lists all work-tracking and planning documents inside a Track-trait anchor's `{slug} Track/` folder.
 
 | -[[DAS Track Dispatch]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Track Dispatch](hook://p/DAS%20Track%20Dispatch) |
 | --- | --- |
 | Related | [[DAS Dispatch]],  [[DAS Backlog]],  [[DAS Design Dispatch]],  [[DAS Track]],   |
 | Examples | [[HBR Track\|fuller example]],  [[HBR Track\|minimal example]],   |
-| Rules | [[DAS Track Dispatch#RULESET R-track-dispatch\|R-track-dispatch]],   |
+| Rules | [[R-track-dispatch]],   |
 
 **Cardinality:** one per anchor (each Track-trait anchor has exactly one `{slug} Track.md` dispatch page).
 
@@ -28,7 +28,7 @@ Below is a condensed reference example.
 
 # CAE Track
 
-| -[[HBR Track]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Dispatch]] → [FCT Track Dispatch](hook://p/DAS%20Track%20Dispatch)<br>: tracking metadata + backlog |
+| -[[HBR Track]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Dispatch]] → [DAS Track Dispatch](hook://p/DAS%20Track%20Dispatch)<br>: tracking metadata + backlog |
 | --- | --- |
 | [[HBR Backlog\|Backlog]] | workflow-state core (required for Track) |
 | [[CAE Status\|Status]] | per-facet design-phase completeness (consumed by `/design` picker) |
@@ -81,31 +81,6 @@ Not all entries are required — only list documents that exist for this anchor.
 - `{slug} Triage.md` (F075) — per-anchor status lives in `~/ob/kmr/Q.md`, rendered from `{slug} queries.md`.
 
 Track holds **tracking metadata**: backlog (work queue), status (design completeness rollup), and ephemeral surfaces (icebox, inbox, ask, messages). The "what to build" surface — including feature docs and roadmap — lives in Design alongside PRD / UX / Architecture / Testing / Decisions.
-
-# RULESET R-track-dispatch
-include::
-where:: `file: **/{slug} Track.md`
-description:: Rules every `{slug} Track.md` dispatch page must satisfy — location, structure, top-left cell identity, and contents restricted to tracking metadata only.
-
-### RULE R-track-dispatch-01 — File lives inside the Track folder (checked)
-The file is named `{slug} Track.md` and lives at `{slug} Track/{slug} Track.md` — inside the root-level `{slug} Track/` folder.
-**Check pattern:** the file's path matches `{slug} Track/{slug} Track.md`.
-**Why:** the Track dispatch page is the entry point for the Track folder; misplacing it breaks the folder's navigation chain.
-
--[[{slug} Track]]-` (checked)
--[[{slug} Track]]-` (with surrounding dashes); the second cell begins with `>` and includes a `: work tracking + planning` label.
-**Check pattern:** the first table row matches `| -\[\[.+ Track\]\]- |`.
-**Why:** the top-left cell anchors CAB Anchor Page mechanics (the `-...-` dash pattern wires the dispatch table to the auto-management system); reformatting it breaks structural tooling.
-
-### RULE R-track-dispatch-03 — Contents restricted to tracking metadata (sampled)
-Body rows list only tracking-metadata documents: Backlog (required), Status, Discussion, Icebox, Inbox, ask, Messages, Questions. Design artifacts (PRD, UX, Architecture, Features, Roadmap, Testing, Decisions) MUST NOT appear as rows.
-**Check pattern:** no row links a file from the `{slug} Design/` subtree or any design-artifact type listed in § What does NOT live in Track.
-**Why:** Track holds workflow state and ephemeral surfaces; design artifacts live in `{slug} Design/`. Mixing them collapses the Track/Design split that F094 and the 2026-06-10 restructure established.
-
-### RULE R-track-dispatch-04 — Backlog row is required when Track trait is present (checked)
-The dispatch table includes a row linking `{slug} Backlog.md`; this is the only mandatory child of the Track folder.
-**Check pattern:** a row linking `[[{slug} Backlog]]` (or its pipe-aliased form) exists.
-**Why:** the [[DAS Backlog]] is required for the Track trait; a Track dispatch page without a Backlog row signals the backlog is missing, not optional.
 
 # BRIEF
 

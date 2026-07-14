@@ -61,7 +61,7 @@ Poster bytes are served as static assets under `/posters/{id}` (not part of the 
 
 ## Error model
 
-One envelope across every endpoint: a standard HTTP **status code** plus a JSON body of the single shape below. Mixing envelope forms (some endpoints bare text, others a different JSON shape) is forbidden by [[DAS API Design#RULESET R-api\|R-api-05]].
+One envelope across every endpoint: a standard HTTP **status code** plus a JSON body of the single shape below. Mixing envelope forms (some endpoints bare text, others a different JSON shape) is forbidden by [[R-api]].
 
 ```json
 {
@@ -114,4 +114,4 @@ The `code` field is a **stable machine-readable string** the client switches on 
 - [[HBR UX Design]] — the human Library / Player surface the client renders.
 - [[HBR Architecture]] — the [[HBR Serve|Serve]] pipeline that backs every endpoint.
 - [[HBR API Doc]] — per-module reference for the JSON schemas (*what exists*).
-- [[DAS API Design]] — facet spec; embedded [[DAS API Design#RULESET R-api\|R-api]] ruleset.
+- [[DAS API Design]] — facet spec; embedded [[R-api]] ruleset.

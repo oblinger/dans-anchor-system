@@ -72,7 +72,7 @@ All schema-bearing types (`Task`, `TaskState`, `TaskSummary`, `RetryPolicy`, `Pr
 
 ## Error model
 
-One envelope across the entire surface — `Result<T, CaeError>`. Mixing forms (e.g. some methods returning `Result<T, MyError>`, others `Result<T, anyhow::Error>`) is forbidden by [[#RULESET R-api|R-api-05]].
+One envelope across the entire surface — `Result<T, CaeError>`. Mixing forms (e.g. some methods returning `Result<T, MyError>`, others `Result<T, anyhow::Error>`) is forbidden by [[R-api]].
 
 ```rust
 #[derive(Debug, thiserror::Error)]
@@ -137,4 +137,4 @@ Error mapping to CLI exit codes (for `cae` CLI binary that wraps the API): `Stor
 - [[HBR UX Design]] — sibling facet covering the human CLI surface.
 - ~~[[CAE API Doc]]~~ — per-module reference (auto-generated; *what exists*).
 - [[FEX Architecture]] — internal organization that backs this surface.
-- [[DAS API Design]] — facet spec; embedded [[#RULESET R-api|R-api]] ruleset.
+- [[DAS API Design]] — facet spec; embedded [[R-api]] ruleset.

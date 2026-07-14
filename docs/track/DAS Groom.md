@@ -8,7 +8,7 @@ The concept dossier for **`/groom`** — everything published about the frontier
 | --- | --- |
 | Related | [[ASG Groom\|Groom User Guide]],  [[skills/groom/SKILL.md\|SKILL]] (runtime) |
 | [[DAS Groom Design\|Design]] | [[DAS Groom PRD\|PRD]],  [[Query PRD\|resolution-layer PRD]],   |
-| Facet | [[facets/FCT Track/DAS Backlog\|FCT Backlog]] (the backlog file + the five groomed states) |
+| Facet | [[DAS Backlog]] (the backlog file + the five groomed states) |
 
 ## Overview
 

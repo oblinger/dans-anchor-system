@@ -110,7 +110,7 @@ _WIKILINK_RE = re.compile(r"\[\[([^\]]+)\]\]")
 
 
 def _strip_link_target(raw: str) -> str:
-    """`[[FCT Brief#RULESET R-brief|embedded body]]` → `FCT Brief#RULESET R-brief`."""
+    """`[[DAS Brief#RULESET R-brief|embedded body]]` → `DAS Brief#RULESET R-brief`."""
     inner = raw.strip()
     if inner.startswith("[[") and inner.endswith("]]"):
         inner = inner[2:-2]
@@ -466,7 +466,7 @@ def _glob_rx(pat: str):
 
 def _match_file_glob(arg: str, scope_files: list[Path], anchor_root: Path) -> list[Path]:
     """Resolve a `file:` where-glob to scope files, honoring the full spec
-    ([[FCT Ruleset]] § Where clause): {anchor}/{slug} tokens, brace-alternation,
+    ([[DAS Ruleset]] § Where clause): {anchor}/{slug} tokens, brace-alternation,
     comma-union, and gitignore-style !-negation. Matches patterns against the
     scope files' anchor-relative paths — no filesystem walk (F232 B3)."""
     name = _anchor_name(anchor_root)
@@ -662,7 +662,7 @@ def plan_one(target: Path, mode: str, cdir: Path | None, warnings: list[str],
                 continue  # anchor-structure rules are N/A at the doc level
             tgts = match_targets(kind, arg, scope_files, anchor_root)
             # A facet spec is the SOURCE of its embedded ruleset, never an instance
-            # of it — e.g. FCT Decisions.md (source of R-decisions) matches the
+            # of it — e.g. DAS Decisions.md (spec of R-decisions) matches the
             # `* Decisions.md` selector but must not be audited as a Decisions
             # instance. Drop a ruleset's own source file from its rule targets.
             if tgts and rs.get("source"):
@@ -871,7 +871,7 @@ def _ancestor_anchor_slugs(anchor_root: Path) -> list[str]:
     """Slugs of this anchor AND every ancestor anchor up to the repo root. Nested
     anchors (`{ROOT} Design/`, `{ROOT} Track/`) prefix their files with the ROOT
     anchor's slug, not their own folder name — so a file is correctly named if it
-    carries any ancestor anchor's slug (per FCT Naming §Folder-anchor files)."""
+    carries any ancestor anchor's slug (per DAS Naming §Folder-anchor files)."""
     out: list[str] = []
     try:
         cur = anchor_root.resolve()
@@ -1780,7 +1780,7 @@ def chk_no_dispatch_table(target, anchor_root, args):
     """Fail if the document carries a breadcrumb-masthead dispatch table.
 
     Used by R-stories-12: story files and the stories index are non-anchors and
-    must not carry a dispatch table (per [[FCT Doc Structure]] R-doc-structure-02).
+    must not carry a dispatch table (per [[DAS Doc Structure]] R-doc-structure-02).
     Back-links belong in a ## Related / ## See also section, not a masthead."""
     f = _as_file(target, anchor_root)
     if f is None:
@@ -1796,7 +1796,7 @@ def chk_no_dispatch_table(target, anchor_root, args):
 
 def _strip_fenced(text: str) -> str:
     """Blank out lines inside ``` code fences — so a masthead/breadcrumb shown as
-    a fenced *example* (in DSC/FCT docs, the `md` skill, etc.) is not mistaken for
+    a fenced *example* (in discipline/facet docs, the `md` skill, etc.) is not mistaken for
     a live one. Fence markers and their contents become empty lines."""
     out, in_fence = [], False
     for ln in text.splitlines():
@@ -1812,7 +1812,7 @@ def _has_self_masthead(text: str, stem: str) -> bool:
     """True if the doc carries its OWN dispatch-masthead — a table row (outside a
     code fence) whose first cell is the self-referential breadcrumb cell
     `-[[<stem>]]-` (optionally aliased `-[[<stem>|alias]]-`), per
-    [[FCT Dispatch Table]]. An example masthead shown in the body that links to a
+    [[DAS Dispatch Table]]. An example masthead shown in the body that links to a
     DIFFERENT page (`-[[Some Other Page]]-`) is not the doc's own masthead, so it
     does not count — this is what keeps facet/discipline docs that *illustrate*
     mastheads from false-positiving."""
@@ -1922,7 +1922,7 @@ def chk_dispatch_table_iff_anchor(target, anchor_root, args):
     `.anchor`-declared anchor page carries a masthead. The converse direction —
     "non-anchor must not carry a masthead" — is NOT judged here: a 2026-07-06
     vault sweep false-positived 99 real anchor pages whose folder name differs
-    from their stem (SKL.md in skill-docs/, FCT.md in facets/, per-dossier
+    from their stem (SKL.md in skill-docs/, DAS Facets.md in facets/, per-dossier
     sub-anchor pages); only scoped rules like R-stories-12 assert that
     direction, where the file kind is provable. Template files are skipped."""
     f = _as_file(target, anchor_root)
@@ -2764,31 +2764,30 @@ def chk_facet_has_ruleset(target, anchor_root, args):
 
 
 def chk_facet_h1_form(target, anchor_root, args):
-    """R-facet-spec-02 (mechanical part): a catalog facet's H1 reads `# FCT <Name>`.
+    """R-facet-spec-02 (mechanical part): a catalog facet's H1 reads `# DAS <Name>`.
     The singular-vs-plural judgment is left to the agent."""
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
     for line in _read(f).splitlines():
         if line.startswith("# "):
-            return ("pass", "") if re.match(r"^#\s+FCT\s+\S", line) else ("fail", f"H1 is not `# FCT <Name>`: {line!r}")
+            return ("pass", "") if re.match(r"^#\s+DAS\s+\S", line) else ("fail", f"H1 is not `# DAS <Name>`: {line!r}")
     return "fail", "no H1"
 
 
 def chk_facet_registered(target, anchor_root, args):
-    """R-facet-spec-03: the facet is linked in the facet index — FCT.md (the current
-    dispatch/registry) or FCT Facets.md (the dedicated index, currently mid-migration)."""
+    """R-facet-spec-03: the facet is linked in the facet index — facets/DAS Facets.md."""
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
     name = f.stem
     # dispatch tables use escaped pipes — `[[Name\|alias]]` — so allow an optional backslash
     pat = re.compile(r"\[\[" + re.escape(name) + r"\s*(\\?\||\]|/)")
-    indices = [REPO_ROOT / "facets" / "FCT.md", *(REPO_ROOT / "facets").rglob("FCT Facets.md")]
+    indices = [REPO_ROOT / "facets" / "DAS Facets.md"]
     for idx in indices:
         if idx.is_file() and pat.search(_read(idx)):
             return "pass", "registered in index"
-    return "fail", f"'{name}' not linked in FCT.md or FCT Facets.md"
+    return "fail", f"'{name}' not linked in DAS Facets.md"
 
 
 def chk_facet_tldr_if_substantial(target, anchor_root, args):

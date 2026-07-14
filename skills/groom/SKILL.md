@@ -43,7 +43,7 @@ The first thing groom guarantees is that **no work is anonymous** — every piec
 
 **Names are identity; order is document position (no stored number).** Resolve a roadmap entry/task on its **name-path**, never on an ordinal — a milestone's order is just its position in the roadmap file (any shown number is *computed*, never stored or referenced), so reorder/insert changes positions with nothing to renumber and no reference to update. That's why `R` handles are word-only (`R-CLI.3.5`). Only a **rename** forces a sweep. (Full convention: [[DAS Roadmap]].)
 
-You *achieve* the identity by linking: a row links to its feature doc (`F<n>`), is itself the task record (`T<n>`), or references a roadmap entry (`R…`, leaf or non-leaf). **A feature doc that isn't linked from the backlog/roadmap has no place in the system** — groom gives it one (mint/point a row) rather than leaving it an orphan. (Numbering policy: [[DAS Backlog|FCT Backlog]] § Numbering + [[DAS Roadmap]].)
+You *achieve* the identity by linking: a row links to its feature doc (`F<n>`), is itself the task record (`T<n>`), or references a roadmap entry (`R…`, leaf or non-leaf). **A feature doc that isn't linked from the backlog/roadmap has no place in the system** — groom gives it one (mint/point a row) rather than leaving it an orphan. (Numbering policy: [[DAS Backlog]] § Numbering + [[DAS Roadmap]].)
 
 ### 2. Identify the executable frontier
 
@@ -57,7 +57,7 @@ A feature doc not listed anywhere is not on the frontier — and per activity 1 
 
 ### 3. Groom the frontier — plan each item to a known state
 
-For every frontier item, plan it out so you know, as concretely as possible, **how you would execute it**, then drive it into exactly one of the **five groomed states**. A state is only honest if its body carries the required contract — and every contract is a **checked `R-backlog` rule** ([[DAS Backlog|FCT Backlog]] § The groomed states), so an audit catches a bracket whose body doesn't back it up:
+For every frontier item, plan it out so you know, as concretely as possible, **how you would execute it**, then drive it into exactly one of the **five groomed states**. A state is only honest if its body carries the required contract — and every contract is a **checked `R-backlog` rule** ([[DAS Backlog]] § The groomed states), so an audit catches a bracket whose body doesn't back it up:
 
 | # | Groomed state | Bracket(s) | Body contract groom must write | Checked by |
 |---|---|---|---|---|

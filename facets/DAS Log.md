@@ -77,7 +77,7 @@ The `{slug} Log.md` file itself is body-only — no YAML frontmatter. First line
 # {slug} Log
 description:: dated entries — what happened on what day in the {Full Name} anchor.
 
-| -[[{slug} Log]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Track]] → [FCT Log](hook://p/FCT%20Log)<br>: <tagline> |
+| -[[{slug} Log]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Track]] → [DAS Log](hook://p/DAS%20Log)<br>: <tagline> |
 | --- | --- |
 | [[YYYY-MM-DD <topic>]] | <one-line summary> |
 | [[YYYY-MM-DD <topic>]] | <one-line summary> |

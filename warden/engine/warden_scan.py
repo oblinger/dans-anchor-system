@@ -62,7 +62,7 @@ def iter_markdown(root):
 def extract_ruleset_names(text):
     """Return the ruleset ids declared by `# RULESET <name>` headings, in
     document order, deduplicated. Fence-aware (F232 A1): a heading inside a
-    ``` code fence is a *shown example* (FCT/DSC docs teach the sentinel
+    ``` code fence is a *shown example* (facet/discipline docs teach the sentinel
     grammar by quoting it), never a live declaration — the fence-blind scan
     was how phantom rulesets (R-sample, R-wp) reached the production IR."""
     seen = []

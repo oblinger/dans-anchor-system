@@ -2880,7 +2880,7 @@ def check_c34_inline_q_in_row_body(backlog_files: list[Path]) -> list[Finding]:
 
     For **F-rows** Qs belong in the feature doc (`{slug} Features/F<n> —
     Title.md` § `## Open Questions`) — the doc is the Q home and the row links
-    it. **T-/B-rows have no feature doc**, so per R-backlog-05 / [[Backlog|FCT
+    it. **T-/B-rows have no feature doc**, so per R-backlog-05 / [[Backlog|DAS
     Backlog]] § The groomed states the row ITSELF is the Q-bearing target:
     well-formed `- **Q<n> —` sub-bullets on a T-/B-row are the sanctioned
     inline form, not a finding (aligned 2026-07-06 — C34 previously
@@ -3079,7 +3079,7 @@ _Q_OPTION_RE = re.compile(r"\*\*\([A-Za-z]\)\*\*")
 _Q_MDLINK_RE = re.compile(r"\[[^\]]*\]\([^)]*\)")        # [text](url) md-links
 _Q_BACKTICK_RE = re.compile(r"`([^`\n]+)`")              # `code span`
 # A slug-prefixed doc name: a Capitalized token + ≥1 more Capitalized token,
-# e.g. "FCT PRD", "FCT Decisions", "SKA Backlog", "US CAE". Matches whole phrase
+# e.g. "DAS PRD", "DAS Decisions", "SKA Backlog", "US CAE". Matches whole phrase
 # (no capturing group → findall returns the full match).
 _Q_SLUGDOC_RE = re.compile(r"\b[A-Z][A-Za-z0-9]*(?:\s+[A-Z][A-Za-z0-9]+)+\b")
 _Q_ARTIFACT_EXT_RE = re.compile(
@@ -3102,7 +3102,7 @@ def check_c37_queries_item_format(
       C42 — an answerable item (Verifications / Immediate Questions / Questions)
             that NAMES a doc/file/template the user must open must make it a live
             `[[wiki-link]]` — a bare resolvable slug-prefixed doc name (e.g.
-            `FCT PRD`) or a code-span filename (e.g. `` `_Disk {{LABEL}}
+            `DAS PRD`) or a code-span filename (e.g. `` `_Disk {{LABEL}}
             Template.md` ``) is a violation: the user cannot follow a name.
     """
     findings: list[Finding] = []
@@ -3199,7 +3199,7 @@ def check_c37_queries_item_format(
             if is_verif or is_imm or is_ques:
                 offenders: list[str] = []
                 # (a) code-span filenames that C36 skips (templated / multi-word):
-                #     `_Disk {{LABEL}} Template.md`, `FCT PRD.md`.
+                #     `_Disk {{LABEL}} Template.md`, `DAS PRD.md`.
                 for span in _Q_BACKTICK_RE.findall(item):
                     s = span.strip()
                     if _Q_ARTIFACT_EXT_RE.search(s) and (

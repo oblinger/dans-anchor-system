@@ -2,7 +2,7 @@
 """audit-roadmap.py — Roadmap constraint validator (F145).
 
 Enforces the three named-milestone-era rules introduced by F144 and codified
-in [[FCT Roadmap]] / [[FCT Completed Roadmap]]:
+in [[DAS Roadmap]] / [[DAS Completed Roadmap]]:
 
   R09: top-level milestones use named form `M-<Name>` (not pure-numbered M1/M2).
        Pure-numbered roadmaps are accepted only if the file carries the marker

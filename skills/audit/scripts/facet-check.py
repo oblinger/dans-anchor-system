@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """facet-check.py — run the R-facet-spec mechanical checkers on a single facet spec.
 
-Usage:  facet-check.py "<path to FCT <Name>.md>"
+Usage:  facet-check.py "<path to DAS <Name>.md>"
 
 Prints PASS/FAIL per mechanical rule and exits non-zero if any fail. Thin wrapper
 around the checker library in audit-plan.py (the F161 engine), so the rules stay in
@@ -31,7 +31,7 @@ CHECKS = [
 
 def main():
     if len(sys.argv) < 2:
-        print("usage: facet-check.py <path to FCT <Name>.md>", file=sys.stderr)
+        print("usage: facet-check.py <path to DAS <Name>.md>", file=sys.stderr)
         sys.exit(2)
     p = pathlib.Path(sys.argv[1]).resolve()
     if not p.is_file():

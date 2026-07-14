@@ -121,7 +121,7 @@ None of these take a `ctx.` prefix — they are aliased into the scope directly.
 
 ### `file` — the document, as the root `Section`
 
-A document is a **tree of sections**, and `file` is its **level-0 root** — its children (`.sections`) are the H1 sections, of which there may be zero, one, or **many** (a facet page is often `# FCT X` / `# RULESET` / `# BRIEF` — a root with three children). So `file` and any `file.section(…)` are the **same type**; everything composes. Members are **lazy** (parsed on first access, cached per pass) and **read in `if::` / written in the body**:
+A document is a **tree of sections**, and `file` is its **level-0 root** — its children (`.sections`) are the H1 sections, of which there may be zero, one, or **many** (a facet page is often `# DAS X` / `# BRIEF` — a root with children; rulesets live standalone since 2026-07-13). So `file` and any `file.section(…)` are the **same type**; everything composes. Members are **lazy** (parsed on first access, cached per pass) and **read in `if::` / written in the body**:
 
 | Member | What it is | Write |
 |---|---|---|

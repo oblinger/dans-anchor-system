@@ -34,9 +34,6 @@ Progressive disclosure is *layered information presentation — each layer deliv
 | **[[#Figure placement]]** |  |
 | **[[#Relationship to existing facets and skills]]** |  |
 | **[[#Anti-patterns]]** |  |
-|    [[#RULE R-progressive-01 — never both a dispatch-masthead and a `:>>` breadcrumb (checked)]] |  |
-|    [[#RULE R-progressive-02 — progressive-disclosure section spacing (checked)]] |  |
-|    [[#RULE R-progressive-03 — Standard doc head: breadcrumb → H1 → orientation line (stated)]] |  |
 
 This is a discipline, not a user-invocable skill — other DAS facets and skills cite it via `[[DAS progressive-disclosure]]` and Claude Code loads it into context before they run.
 
@@ -306,37 +303,4 @@ When a doc carries an organizing figure (system diagram, architecture sketch, fl
 - **Body content masquerading as preface.** The dispatch table is navigational; the TLDR is summarizing; the figure is organizing. None of them contain new information that isn't elsewhere in the doc.
 - **Meta-prose at the top.** "`This document is the normative standard for...`" / "`This page specifies...`" / "`The following describes...`". Deferral disguised as introduction. Goes to a tail `## Scope` or `## About` section, or gets deleted. See § Content first. Meta last, or never.
 
-# RULESET R-progressive
-where:: `always`
-description:: layout conventions of progressive disclosure — checked on every markdown doc
-
-The mechanical, whole-document layout checks of this discipline: the **conditional dispatch-table** placement and the **section-spacing** conventions. Applies to every markdown document (`always`); each rule decides internally whether and how it constrains a given doc. These are the deliberately *conditional, multi-check* rules — one rule that both determines what kind of doc it is looking at and makes several assertions accordingly — the case that stress-tests a declarative rule engine (per the [[Warden Roadmap]] item 8). Format of this set: [[DAS Ruleset]].
-
-### RULE R-progressive-01 — never both a dispatch-masthead and a `:>>` breadcrumb (checked)
-check:: dispatch_table_by_context
-
-A doc uses **one** navigation form, never two: a **dispatch-masthead** marks the page that *is* a container (the anchor page); a **`:>>` breadcrumb** is the navigation on every other doc. A doc must **never carry both**.
-
-**Check pattern:** the masthead considered is the doc's OWN self-referential masthead — a table row whose first cell is `-[[<this doc's name>]]-` (optionally aliased), per [[DAS Dispatch Table]]; an example masthead shown in the body (linking to a *different* page) and any masthead inside a code fence are ignored. Detect a `:>>` breadcrumb top-row (outside fences). If the doc has **both** its own masthead **and** a `:>>` breadcrumb → fail.
-
-**Why:** the two forms are redundant — an anchor page's masthead already carries the breadcrumb in its first row, so a second `:>>` line is duplicate navigation; and a leaf doc that grew a self-masthead has stopped being a leaf. Either way the tree-of-containers navigation is muddied (per [[feedback_breadcrumb_vs_dispatch_table]]). Whether a masthead is *required* on a given anchor page depends on the anchor kind — that direction is [[DAS Anchor Page]]'s (`R-anchor-page`) kind-aware job, deliberately not asserted here (a per-file checker cannot classify anchor-page-ness reliably across the vault).
-
-### RULE R-progressive-02 — progressive-disclosure section spacing (checked)
-check:: progressive_disclosure_layout
-
-The blank-line conventions that keep a doc's outline scannable: every `## H2` is preceded by a blank line, and the file carries no trailing blank lines. One rule, two assertions.
-
-**Check pattern:** scanning outside fenced code blocks — (1) each `## H2` has a blank line immediately before it (no H2 glued to the prose above); (2) the last line is non-blank. Two conventions deliberately **excluded** as too noisy on ordinary docs: the anchor-page-only "no blank after the H1" glue rule (that is `R-anchor-page-07`'s job — an ordinary doc may have a blank after its H1) and the "no doubled blank line" rule (widely tolerated in practice).
-
-**Why:** consistent section breaks let a navigator's eye find the structure at a glance — the second layer of progressive disclosure. An H2 glued to the prose above it hides where one section ends and the next begins.
-
-### RULE R-progressive-03 — Standard doc head: breadcrumb → H1 → orientation line (stated)
-
-Every markdown doc opens with the `# H1` carrying the file's name (optionally ` — <subname or explanation>`), then an **orientation line** directly under it — a single sentence stating, at the coarsest grain, what this file is / what this item is about. Navigation takes exactly one of two forms (mutually exclusive per `R-progressive-01`):
-
-- **Breadcrumb form** (ordinary leaf docs) — the `:>>` breadcrumb top-row sits immediately above the H1 with **no blank line** between them; everything else (overview figure, tables, `## Overview`) follows below the orientation line. Exemplar: [[DAS Tracking Design]].
-- **Masthead form** (anchor pages and spec/dispatch pages, e.g. facet specs) — no `:>>` row; a dispatch-masthead table sits directly below the orientation line, its first row `-[[<name>]]-` + the breadcrumb, followed by rows such as Related / Examples / Rules, and — when the doc is long enough to need one — a merged **Table of Contents** section inside the same table (blank row, bold `**Table of Contents**` row, then the entry rows). Exemplar: [[DAS Status]].
-
-**No other head shapes for now** — a doc that seems to need a different head is a design question to raise, not a local deviation to make.
-
-**Why:** the head is the reader's first disclosure layer — breadcrumb (*where am I*), H1 (*what is this called*), orientation line (*what is this*). Two standardized shapes make every doc scannable in two seconds; the longer summary belongs in `## Overview`, not the head. Ratified on [[DAS Tracking Design]] + [[DAS Status]] (2026-07-12).
+The companion ruleset lives at [[R-progressive]].

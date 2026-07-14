@@ -25,7 +25,7 @@ Module-level test details belong in module docs under `{slug} Dev Docs/` or `{sl
 **Read [[DAS Testing]] before authoring.** The facet spec is the canonical recipe — required sections, dataview fields, the three-altitude split, the Spec-column convention. This sub-skill owns the *process*; the facet owns the *shape*. If anything below conflicts with the facet, the facet wins.
 
 Worked example to crib from: [[HBR Testing]].
-Audit rules to honor: [[DAS Testing#RULESET R-testing|R-testing]] (12 rules).
+Audit rules to honor: [[R-testing]] (12 rules).
 
 ## Runbook
 
@@ -39,7 +39,7 @@ Audit rules to honor: [[DAS Testing#RULESET R-testing|R-testing]] (12 rules).
 
 **If `{slug} Testing.md` does NOT exist** — proceed to § 3 (initial-draft proposal).
 
-**If file exists** — open it; walk the user through completing any thin / missing H2 sections. Run [[DAS Testing#RULESET R-testing|R-testing]] rules against it and fix violations. Skip § 3.
+**If file exists** — open it; walk the user through completing any thin / missing H2 sections. Run [[R-testing]] rules against it and fix violations. Skip § 3.
 
 ### 3. Initial-draft proposal (hybrid heuristic)
 
@@ -98,7 +98,7 @@ The agent does NOT proactively invoke roadmapping; the user invokes `/design` ag
 - Facet spec: [[DAS Testing]]
 - Kind catalogue (Tests-table link target): [[DAS Common Testing Types]]
 - Worked example: [[HBR Testing]]
-- Embedded ruleset: [[DAS Testing#RULESET R-testing|R-testing]] (12 rules)
+- Embedded ruleset: [[R-testing]] (12 rules)
 - Parent orchestrator: [[design]]
 - Sibling sub-skills: [[design-prd]], [[design-ux]], [[design-architect]], [[design-roadmap]]
 - Verification discipline: [[DAS verification]]

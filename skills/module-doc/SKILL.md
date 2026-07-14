@@ -42,7 +42,7 @@ Feature spec: `[[F119 — api-doc skill + audit-api-doc.py — author audit iter
 
 Before any authoring step, validate the environment is set up:
 
-1. **Facet readable** — `[[DAS Module Doc]]` exists at `~/ob/kmr/SYS/Bespoke/Skill Agent/dans-anchor-system/facets/FCT Code/FCT Module Doc.md`. Use `ha -p "FCT Module Doc"` to confirm. If missing, STOP — surface to user.
+1. **Facet readable** — `[[DAS Module Doc]]` exists at `~/ob/kmr/SYS/Bespoke/Skill Agent/dans-anchor-system/facets/DAS Module Doc.md`. Use `ha -p "DAS Module Doc"` to confirm. If missing, STOP — surface to user.
 2. **viz/excalidraw available** — `~/.claude/skills/viz/excalidraw_to_svg.py` exists. Required for figure authoring. If missing, surface to user before proceeding.
 3. **audit script available** — `~/.claude/skills/audit/scripts/audit-module-doc.py` exists. Required for the iterate loop.
 4. **Source exists and is readable** — the target source file/folder exists; not a broken symlink.
@@ -68,7 +68,7 @@ Before any authoring step, validate the environment is set up:
 
 ```bash
 # Locate via ha (or direct path)
-ha -p "FCT Module Doc"
+ha -p "DAS Module Doc"
 ```
 
 ### 2. Resolve where the module doc lives
@@ -192,13 +192,13 @@ Reference example showing the full flow. Source: `CAE/src/execution/scheduler.py
 
 **Pre-flight:**
 ```bash
-ha -p "FCT Module Doc"                              # facet readable ✓
+ha -p "DAS Module Doc"                              # facet readable ✓
 ls ~/.claude/skills/viz/excalidraw_to_svg.py     # converter present ✓
 ls ~/.claude/skills/audit/scripts/audit-module-doc.py  # auditor present ✓
 ```
 
 **Step 1-3 — Read facet, resolve location, read source:**
-- Facet: `FCT Module Doc.md` loaded.
+- Facet: `DAS Module Doc.md` loaded.
 - Location: `CAE Docs/CAE Dev/CAE Scheduler.md` (mirrors `src/execution/scheduler.py`).
 - Source: identified `TaskScheduler` (class), `TaskHandle` (class), `TaskState` (enum), `SchedulerStatus` (class), plus a `Priority and starvation` topic (the queue's aging-promotion rule, justified as a top-level section because it's a load-bearing scheduling invariant).
 

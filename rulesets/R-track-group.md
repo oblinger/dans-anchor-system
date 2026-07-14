@@ -1,7 +1,7 @@
 # RULESET R-track-group
 include::
 where:: `anchor`
-description:: the FCT Track family index — the work-surface facet group page
+description:: the DAS Track family index — the work-surface facet group page
 
 What `/audit` checks on this facet-group index page. It is a grouped-Container anchor page (chassis governed by `R-anchor-page`); the rules here are the **group-membership** invariants for the work-surface facet family. Format of this set: [[DAS Ruleset]].
 
@@ -9,7 +9,7 @@ What `/audit` checks on this facet-group index page. It is a grouped-Container a
 
 The `Facets` row links every track / work-surface facet (Backlog, Features, Inbox, Icebox, Messages, Log, Query, Status), and each member's breadcrumb routes through this page.
 
-**Check pattern:** the `Facets`-row link set equals the work-surface facet files under `FCT Track/`; each member breadcrumb passes through `~~[[DAS Track]]~~`.
+**Check pattern:** the `Facets`-row link set equals the family's work-surface facet specs; each member breadcrumb passes through `~~[[DAS Track]]~~`.
 
 ### RULE R-track-group-02 — Specifies the work surfaces; SKA owns the instances (stated)
 

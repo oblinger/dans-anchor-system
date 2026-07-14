@@ -16,7 +16,7 @@ Per the 2026-06-09 design decision, each DAS facet spec file (`CAB <facet>.md`) 
 
 - **R-ruleset** ([[DAS Ruleset]]) — the self-applying format ruleset (the meta-spec for `# RULESET` blocks and `{slug} Rules.md` files); embedded in [[DAS Ruleset]] and added to the umbrella in the F137/F133 pass. (This is the set the older notes called "`R-rules`" — its actual slug is `R-ruleset`, since it governs *ruleset* files.)
 
-- **R-backlog** ([[DAS Backlog|FCT Backlog]]) — the F228 frontier invariants, landed 2026-07-05. 4 rules: the groom-frontier definition (Now + Next + next roadmap milestone), frontier `[Ready]`/`[Active]` rows declare a `Next:` step, `## Now`/`## Next` rows are bracket-resolved, `[Verify*]`/`[Watching*]` rows carry a concrete `Verify:` question. Also in the [[R-doc]] umbrella (fires on `* Backlog.md` by `where::`).
+- **R-backlog** ([[DAS Backlog]]) — the F228 frontier invariants, landed 2026-07-05. 4 rules: the groom-frontier definition (Now + Next + next roadmap milestone), frontier `[Ready]`/`[Active]` rows declare a `Next:` step, `## Now`/`## Next` rows are bracket-resolved, `[Verify*]`/`[Watching*]` rows carry a concrete `Verify:` question. Also in the [[R-doc]] umbrella (fires on `* Backlog.md` by `where::`).
 
 Pending — each lands as its DAS facet's RULESET block is drafted: R-architecture, R-decisions, R-features, … (rollout continues per facet; tracked separately).
 
