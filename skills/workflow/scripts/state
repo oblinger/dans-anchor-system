@@ -1037,30 +1037,6 @@ def _validate_ask_format_body(body):
 # v2 — Backlog target (F/T labels)
 
 
-def _attach_raw_subbullets(file_path, row_id, sub_lines):
-    """Best-effort: insert literal sub-bullet lines verbatim directly under
-    row_id's header line in file_path. Used by `Backlog <F|T> define` to
-    carry through any indented sub-bullets present in the define body beyond
-    the single row line. No-op if the row isn't found in this file."""
-    if not sub_lines:
-        return
-    text = file_path.read_text(encoding="utf-8")
-    lines = text.splitlines()
-    row_i = None
-    for i, line in enumerate(lines):
-        rm = be.ROW_HEADER_RE.match(line)
-        if rm and len(rm.group(1)) == 0 and rm.group(2) == row_id:
-            row_i = i
-            break
-    if row_i is None:
-        return
-    normalized = [sl if sl.startswith(" ") else f"  {sl}" for sl in sub_lines]
-    lines = lines[:row_i + 1] + normalized + lines[row_i + 1:]
-    file_path.write_text(
-        "\n".join(lines) + ("\n" if text.endswith("\n") else ""), encoding="utf-8"
-    )
-
-
 _MINT_PLACEHOLDER_RE = re.compile(r"\*\*[FT]\+(\s+—)")
 
 
@@ -1127,18 +1103,16 @@ def _v2_row_define(slug, backlog_path, label, args, minted=False):
     else:
         horizon = "Now"
 
-    result_code = _delegate_row_edit(
+    # Sub-bullets ride through perform_edit (pending_subs) so they land in the
+    # SAME write as the row — attaching them after _delegate_row_edit let the
+    # in-delegate refresh_q_md audit a sub-bullet-less row (C24 --fix then
+    # rebracketed a fresh [Questions] T-row to [Ready]; bit T010 2026-07-13).
+    return _delegate_row_edit(
         slug, horizon, label, status, title, row_body,
         title_provided=True, body_provided=True,
         verify_text=verify_text, next_text=next_text,
         pending_subs=sub_lines,
     )
-    if sub_lines:
-        icebox_path = be.find_icebox(slug)  # may have just been created
-        dst = backlog_path if be.row_in_file(backlog_path, label) else icebox_path
-        if dst is not None:
-            _attach_raw_subbullets(dst, label, sub_lines)
-    return result_code
 
 
 def _v2_row_resolve(slug, backlog_path, label, args):
