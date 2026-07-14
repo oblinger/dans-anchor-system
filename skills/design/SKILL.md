@@ -16,6 +16,7 @@ user_invocable: true
 
 # Design — Federated Design Orchestrator
 requires:: vault, anchor-cli, facet:architecture, facet:prd, facet:roadmap, facet:status, facet:testing, facet:ux-design
+subsystem:: [[DAS Designing Design]] — the Designing group's subsystem profile (pipeline, gates, facets, rules)
 
 `/design` walks a project anchor through its design artifacts in canonical order, detecting state, surfacing gaps, and dispatching to per-artifact sub-skills. Sibling to `/crank` in the Drive cluster; the center of the Design cluster.
 

@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="48 28 1604 584" width="3208" height="1168" style="background:white">
+<rect x="60" y="40" width="1360" height="62" fill="#e7f5ff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="740.0" y="75.6" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="18" fill="#1e1e1e" text-anchor="middle">/design — federated design orchestrator: detect artifact state → dispatch sub-skill → enforce gates</text>
+<rect x="60" y="190" width="130" height="70" fill="#fff9db" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="125.0" y="229.3" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="17" fill="#1e1e1e" text-anchor="middle">PRD</text>
+<rect x="235" y="190" width="120" height="70" fill="none" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="295.0" y="221.3" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="17" fill="#1e1e1e" text-anchor="middle">UX</text>
+<text x="295.0" y="241.8" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="11" fill="#868e96" text-anchor="middle">(if applicable)</text>
+<rect x="400" y="190" width="120" height="70" fill="none" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="460.0" y="221.3" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="17" fill="#1e1e1e" text-anchor="middle">API</text>
+<text x="460.0" y="241.8" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="11" fill="#868e96" text-anchor="middle">(if applicable)</text>
+<rect x="565" y="190" width="170" height="70" fill="#fff9db" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="650.0" y="229.3" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="17" fill="#1e1e1e" text-anchor="middle">Architecture</text>
+<rect x="850" y="190" width="140" height="70" fill="#fff9db" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="920.0" y="229.3" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="17" fill="#1e1e1e" text-anchor="middle">Testing</text>
+<rect x="1105" y="190" width="140" height="70" fill="#fff9db" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="1175.0" y="229.3" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="17" fill="#1e1e1e" text-anchor="middle">Roadmap</text>
+<rect x="1290" y="190" width="130" height="70" fill="#fff9db" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="1355.0" y="229.3" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="17" fill="#1e1e1e" text-anchor="middle">Features</text>
+<path d="M 190.0 225.0 L 235.0 225.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="235.0" y1="225.0" x2="227.2" y2="229.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="235.0" y1="225.0" x2="227.2" y2="220.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<path d="M 355.0 225.0 L 400.0 225.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="400.0" y1="225.0" x2="392.2" y2="229.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="400.0" y1="225.0" x2="392.2" y2="220.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<path d="M 520.0 225.0 L 565.0 225.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="565.0" y1="225.0" x2="557.2" y2="229.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="565.0" y1="225.0" x2="557.2" y2="220.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<path d="M 735.0 225.0 L 762.0 225.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="762.0" y1="225.0" x2="754.2" y2="229.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="762.0" y1="225.0" x2="754.2" y2="220.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<text x="785.0" y="228.3" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="13" fill="#1e1e1e" text-anchor="middle">G1</text>
+<path d="M 808.0 225.0 L 850.0 225.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="850.0" y1="225.0" x2="842.2" y2="229.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="850.0" y1="225.0" x2="842.2" y2="220.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<path d="M 990.0 225.0 L 1017.0 225.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="1017.0" y1="225.0" x2="1009.2" y2="229.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="1017.0" y1="225.0" x2="1009.2" y2="220.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<text x="1040.0" y="228.3" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="13" fill="#1e1e1e" text-anchor="middle">G2</text>
+<path d="M 1063.0 225.0 L 1105.0 225.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="1105.0" y1="225.0" x2="1097.2" y2="229.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="1105.0" y1="225.0" x2="1097.2" y2="220.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<path d="M 1245.0 225.0 L 1290.0 225.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="1290.0" y1="225.0" x2="1282.2" y2="229.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="1290.0" y1="225.0" x2="1282.2" y2="220.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<text font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="12" fill="#e8590c" text-anchor="middle">
+  <tspan x="785.0" y="293.1">Gate 1</tspan>
+  <tspan x="785.0" y="308.1">Architecture</tspan>
+  <tspan x="785.0" y="323.1">status:: accepted</tspan>
+</text>
+<text font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="12" fill="#e8590c" text-anchor="middle">
+  <tspan x="1040.0" y="293.1">Gate 2</tspan>
+  <tspan x="1040.0" y="308.1">Architecture AND</tspan>
+  <tspan x="1040.0" y="323.1">Testing accepted</tspan>
+</text>
+<path d="M 125.0 102.0 L 125.0 190.0" fill="none" stroke="#4dabf7" stroke-width="1" stroke-dasharray="10 7" stroke-linejoin="round"/>
+<line x1="125.0" y1="190.0" x2="120.5" y2="182.2" stroke="#4dabf7" stroke-width="1" stroke-linecap="round"/>
+<line x1="125.0" y1="190.0" x2="129.5" y2="182.2" stroke="#4dabf7" stroke-width="1" stroke-linecap="round"/>
+<path d="M 650.0 102.0 L 650.0 190.0" fill="none" stroke="#4dabf7" stroke-width="1" stroke-dasharray="10 7" stroke-linejoin="round"/>
+<line x1="650.0" y1="190.0" x2="645.5" y2="182.2" stroke="#4dabf7" stroke-width="1" stroke-linecap="round"/>
+<line x1="650.0" y1="190.0" x2="654.5" y2="182.2" stroke="#4dabf7" stroke-width="1" stroke-linecap="round"/>
+<path d="M 1175.0 102.0 L 1175.0 190.0" fill="none" stroke="#4dabf7" stroke-width="1" stroke-dasharray="10 7" stroke-linejoin="round"/>
+<line x1="1175.0" y1="190.0" x2="1170.5" y2="182.2" stroke="#4dabf7" stroke-width="1" stroke-linecap="round"/>
+<line x1="1175.0" y1="190.0" x2="1179.5" y2="182.2" stroke="#4dabf7" stroke-width="1" stroke-linecap="round"/>
+<rect x="565" y="360" width="170" height="55" fill="#e7f5ff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="650.0" y="391.1" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle">/architect</text>
+<path d="M 650.0 360.0 L 650.0 262.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="650.0" y1="262.0" x2="654.5" y2="269.8" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="650.0" y1="262.0" x2="645.5" y2="269.8" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<rect x="1470" y="190" width="170" height="70" fill="#f3f0ff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="1555.0" y="217.8" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="15" fill="#1e1e1e" text-anchor="middle">Drive cluster</text>
+<text x="1555.0" y="241.1" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="12" fill="#5f3dc4" text-anchor="middle">/crank · /mint · /feature</text>
+<path d="M 1420.0 225.0 L 1470.0 225.0" fill="none" stroke="#1e1e1e" stroke-width="1" stroke-linejoin="round"/>
+<line x1="1470.0" y1="225.0" x2="1462.2" y2="229.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<line x1="1470.0" y1="225.0" x2="1462.2" y2="220.5" stroke="#1e1e1e" stroke-width="1" stroke-linecap="round"/>
+<text font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="11" fill="#868e96" text-anchor="middle">
+  <tspan x="1447.0" y="173.9">design</tspan>
+  <tspan x="1447.0" y="187.7">complete</tspan>
+</text>
+<text font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="12" fill="#868e96" text-anchor="middle">
+  <tspan x="1555.0" y="300.6">gates read the status::</tspan>
+  <tspan x="1555.0" y="315.6">ladder (Tracking)</tspan>
+</text>
+<rect x="60" y="450" width="1360" height="150" fill="#f8f9fa" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="80.0" y="474.3" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="14" fill="#495057" text-anchor="start">{slug} Design/  —  folder presence activates the subsystem (R-design-08)</text>
+<rect x="80" y="505" width="90" height="44" fill="#ffffff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="125.0" y="530.3" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="13" fill="#1e1e1e" text-anchor="middle">PRD.md</text>
+<rect x="192" y="505" width="90" height="44" fill="#ffffff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="237.0" y="530.3" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="13" fill="#1e1e1e" text-anchor="middle">UX.md</text>
+<rect x="304" y="505" width="90" height="44" fill="#ffffff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="349.0" y="530.3" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="13" fill="#1e1e1e" text-anchor="middle">API.md</text>
+<rect x="416" y="505" width="145.5" height="44" fill="#ffffff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="488.8" y="530.3" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="13" fill="#1e1e1e" text-anchor="middle">Architecture.md</text>
+<rect x="583.5" y="505" width="103.0" height="44" fill="#ffffff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="635.0" y="530.3" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="13" fill="#1e1e1e" text-anchor="middle">Testing.md</text>
+<rect x="708.5" y="505" width="103.0" height="44" fill="#ffffff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="760.0" y="530.3" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="13" fill="#1e1e1e" text-anchor="middle">Roadmap.md</text>
+<rect x="833.5" y="505" width="94.5" height="44" fill="#ffffff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="880.8" y="530.3" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="13" fill="#1e1e1e" text-anchor="middle">Features/</text>
+<rect x="950.0" y="505" width="120.0" height="44" fill="#ffffff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="1010.0" y="530.3" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="13" fill="#1e1e1e" text-anchor="middle">Decisions.md</text>
+<rect x="1092.0" y="505" width="111.5" height="44" fill="#ffffff" stroke="#1e1e1e" stroke-width="1" rx="6"/>
+<text x="1147.8" y="530.3" font-family="'Segoe Print', 'Comic Sans MS', cursive, sans-serif" font-size="13" fill="#1e1e1e" text-anchor="middle">Discussion/</text>
+</svg>
