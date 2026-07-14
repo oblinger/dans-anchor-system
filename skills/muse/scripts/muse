@@ -32,6 +32,19 @@ MUSE_QUICK_FILE="${MUSE_QUICK_FILE:-$HOME/ob/kmr/Log/MUSE/MUSE Inbox.md}"
 MUSE_JPR_DIR="${MUSE_JPR_DIR:-$HOME/Library/Mobile Documents/iCloud~com~openplanetsoftware~Just-Press-Record/Documents}"
 MUSE_INLINE_MAX_CHARS="${MUSE_INLINE_MAX_CHARS:-80}"
 MUSE_NOTIFICATION_SOUND="${MUSE_NOTIFICATION_SOUND:-Tink}"
+# Suppression thresholds for accidental / low-content recordings (per user
+# 2026-07-14). Suppressed items STILL write the item file + hashfile entry
+# (audio history preserved, no reprocessing), they just DON'T get a bullet
+# in the Inbox and DON'T fire a notification.
+#   - MIN_WORDS: total word count in the transcript.
+#     Catches empty / near-empty captures ('Thank you.', a bare '.').
+#   - MIN_WPS: overall words-per-second (word_count / audio_duration_s).
+#     Catches long silence-hallucination captures like a 10-min coughing
+#     recording that produces 46 x 'Thank you.' (92 words / 600 s = 0.15 WPS).
+# Legitimate short dictations pass on MIN_WPS (e.g. 'It is 9:48' → ~4 words
+# / 6 s = 0.7 WPS). Items fail suppression only if they trip EITHER threshold.
+MUSE_MIN_WORDS="${MUSE_MIN_WORDS:-5}"
+MUSE_MIN_WPS="${MUSE_MIN_WPS:-0.5}"
 
 TRANSCRIBE_BIN="${TRANSCRIBE_BIN:-$HOME/bin/_transcribe}"
 ASKAI_BIN="${ASKAI_BIN:-$HOME/bin/_askAI}"
@@ -82,20 +95,38 @@ ymd_from_captured() {
 }
 
 # Compute next daily letter given YYYY-MM-DD and the items dir.
+# Scans existing filenames for used single-letter tokens (A-Z) and returns
+# max_used+1 — NOT the file count. Count-based assignment collides if any
+# earlier item was deleted (observed 2026-07-14: after deleting a mid-day
+# item and re-ingesting, count matched an existing later letter → two files
+# with the same letter, breaking Obsidian's basename-resolution for links).
 next_letter() {
     local ymd="$1"
     local items_dir="$2"
-    local count letter
-    count=$(find "$items_dir" -maxdepth 1 -type f -name "MUSE $ymd *.md" 2>/dev/null | wc -l | tr -d ' ')
-    if (( count < 26 )); then
-        letter="$(printf '\\%03o' $((65 + count)))"
-        printf '%b' "$letter"
+    local max_letter=""
+    while IFS= read -r used; do
+        [[ -z "$used" ]] && continue
+        [[ -z "$max_letter" || "$used" > "$max_letter" ]] && max_letter="$used"
+    done < <(find "$items_dir" -maxdepth 1 -type f -name "MUSE $ymd ?*.md" 2>/dev/null \
+        | sed -nE "s|.*/MUSE ${ymd} ([A-Z]) .*|\1|p")
+    if [[ -z "$max_letter" ]]; then
+        printf 'A'
+        return
+    fi
+    if [[ "$max_letter" < "Z" ]]; then
+        local ord next_ord
+        ord=$(printf '%d' "'$max_letter")
+        next_ord=$((ord + 1))
+        printf '%b' "$(printf '\\%03o' "$next_ord")"
     else
-        # AA, AB, ... for the unlikely case of >26 items in a day
-        local n=$((count - 26))
-        local first=$((n / 26))
-        local second=$((n % 26))
-        local f s
+        # Past Z — AA, AB, ... for the unlikely >26-per-day case. Same
+        # count-based fallback as the original code (past-Z collisions
+        # weren't observed in the deletion-based repro).
+        local count n first second f s
+        count=$(find "$items_dir" -maxdepth 1 -type f -name "MUSE $ymd *.md" 2>/dev/null | wc -l | tr -d ' ')
+        n=$((count - 26))
+        first=$((n / 26))
+        second=$((n % 26))
         f="$(printf '\\%03o' $((65 + first)))"
         s="$(printf '\\%03o' $((65 + second)))"
         printf '%b%b' "$f" "$s"
@@ -174,14 +205,33 @@ ingest_one() {
     text="$(printf '%s' "$text" | sed -E 's/^[[:space:]]+|[[:space:]]+$//g')"
     [[ -n "$text" ]] || { warn "empty transcript (skipping): $audio"; return 1; }
 
-    # 4. title
-    local raw_title
-    raw_title="$("$ASKAI_BIN" "$TITLE_SYSTEM" "$text")" || { warn "title derivation failed (skipping): $audio"; return 1; }
+    # 3b. suppression check — accidental / low-content recordings still get an
+    # item file (audio history preserved, hashfile entry blocks reprocessing)
+    # but DON'T get an Inbox bullet or notification. Two thresholds:
+    #   - MUSE_MIN_WORDS: total word count. Catches empty/near-empty captures.
+    #   - MUSE_MIN_WPS: overall words-per-second (needs ffprobe). Catches long
+    #     silence-hallucination captures ('Thank you.' x 46 over 10 min).
+    local suppress="no" word_count duration wps
+    word_count="$(printf '%s' "$text" | wc -w | tr -d ' ')"
+    duration="$(/opt/homebrew/bin/ffprobe -v error -show_entries format=duration -of csv=p=0 "$audio" 2>/dev/null || echo 0)"
+    wps="$(awk -v w="$word_count" -v d="$duration" 'BEGIN { if (d > 0) printf "%.3f", w/d; else print "0.000" }')"
+    if (( word_count < MUSE_MIN_WORDS )); then
+        suppress="min-words"
+    elif awk -v wps="$wps" -v min="$MUSE_MIN_WPS" 'BEGIN { exit !(wps < min) }'; then
+        suppress="min-wps"
+    fi
 
-    # 5. sanitize
+    # 4. title — skip the LLM call for suppressed items (fixed diagnostic title
+    # tells you WHY it was suppressed when browsing the archive)
     local title
-    title="$(sanitize_title "$raw_title")"
-    [[ -n "$title" ]] || title="Untitled"
+    if [[ "$suppress" != "no" ]]; then
+        title="Suppressed $suppress ${word_count}w ${duration%.*}s ${wps}wps"
+    else
+        local raw_title
+        raw_title="$("$ASKAI_BIN" "$TITLE_SYSTEM" "$text")" || { warn "title derivation failed (skipping): $audio"; return 1; }
+        title="$(sanitize_title "$raw_title")"
+        [[ -n "$title" ]] || title="Untitled"
+    fi
 
     # 6. sequence letter — date is YYYY-MM-DD, letter disambiguates same-day items
     local captured ymd letter
@@ -199,12 +249,25 @@ ingest_one() {
         printf 'source_audio: %s\n' "$audio"
         printf 'captured: %s\n' "$captured"
         printf 'audio_sha256: %s\n' "$sha"
-        printf 'state: unreviewed\n'
+        printf 'state: %s\n' "$([[ "$suppress" != "no" ]] && echo "suppressed-$suppress" || echo "unreviewed")"
+        printf 'word_count: %s\n' "$word_count"
+        printf 'audio_duration_s: %s\n' "$duration"
+        printf 'words_per_second: %s\n' "$wps"
         printf -- '---\n\n'
         printf '%s\n' "$text"
     } > "$item_path"
 
-    # 8. Quick.md bullet — short: raw text inline; long: markdown link with
+    # 9. record hash — happens for BOTH suppressed and normal items so the
+    # sweep doesn't reprocess. Suppression only affects downstream visibility.
+    printf '%s %s\n' "$sha" "$audio" >> "$hashfile"
+
+    if [[ "$suppress" != "no" ]]; then
+        # No Inbox bullet, no notification. Item file preserved for history.
+        log "SUPPRESSED ($suppress ${word_count}w ${wps}wps): $item_base"
+        return 0
+    fi
+
+    # 10. Inbox bullet — short: raw text inline; long: markdown link with
     #    title as text, item file basename as href (Obsidian resolves by
     #    basename, no path needed).
     local text_len=${#text}
@@ -221,10 +284,7 @@ ingest_one() {
     fi
     prepend_line "$MUSE_QUICK_FILE" "$bullet"
 
-    # 9. record hash
-    printf '%s %s\n' "$sha" "$audio" >> "$hashfile"
-
-    # 10. notify
+    # 11. notify
     notify "MUSE $ymd $letter: $title"
     log "OK $item_base"
 }
