@@ -67,7 +67,7 @@ Design: F076 v2 — scoped audits (q / backlog / feature-doc / all) chained by
 """
 
 from __future__ import annotations
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
 from typing import Optional
@@ -137,7 +137,10 @@ ROW_OPENER_RE = re.compile(
     r"([A-Za-z][A-Za-z0-9_\-]*(?:\.[A-Za-z0-9_\-]+)*)\b"
 )
 # Status bracket: `[Ready]`, `[3 Questions]`, `[Blocked F123]`, etc.
-BRACKET_RE = re.compile(r"\[([A-Za-z][A-Za-z0-9 \-]*?)\]")
+# Leading char accepts digits for the `[N Questions]` form — a letter-only
+# gate made numeric brackets invisible to _detect_status, so a wrong
+# `[2 Questions]` bracket could never be re-counted or fixed (T012).
+BRACKET_RE = re.compile(r"\[([A-Za-z0-9][A-Za-z0-9 \-]*?)\]")
 # Q-marker: `**Q<n> —`. Used by C2 for existence-check at link targets.
 Q_MARKER_RE = re.compile(r"\bQ\d+\s+—")
 # Q.md per-anchor section H1 banner.
@@ -218,6 +221,7 @@ class BacklogEntry:
     status: str
     link: Optional[LinkEntry]
     raw_body: str
+    links: list[LinkEntry] = field(default_factory=list)  # all links on the row line, in order (T012)
 
 
 @dataclass
@@ -691,8 +695,59 @@ def backlog_entries(backlog_file: Path,
                 status=status,
                 link=link,
                 raw_body=line,
+                links=row_links,
             ))
     return entries
+
+
+def _arrow_target(e: BacklogEntry) -> Optional[LinkEntry]:
+    """T012: resolve the row's OWN doc — the arrow-form `→ [[…]]` link.
+
+    `e.link` is the row's FIRST wiki-link of any form, which may be an
+    in-prose mention (F230's first link was `[[SKA Backlog#^F229|F229]]`;
+    the arrow doc-link came later — C24 counted Qs from the wrong file and
+    --fix wrote a wrong `[2 Questions]` bracket). Selection among arrow
+    links: prefer the LAST one whose basename opens with the row's own
+    identifier (`F230 — …` for row F230 — the own-doc form, wherever it
+    sits in the body); otherwise the FIRST arrow link. Neither end alone is
+    safe: F220's own-doc arrow comes first with a prose `→ [[DAS Template]]`
+    later, while F149's own-doc arrow trails several prose arrows.
+    Returns None when the row has no arrow-form link at all.
+    """
+    scan = _strip_code_spans(e.raw_body)
+    arrows: list[LinkEntry] = []
+    for link in e.links:
+        start = link.source_col_start - 1
+        if scan[start:start + len(link.raw)] != link.raw:
+            continue  # column bookkeeping mismatch — don't guess
+        if re.search(r"→\s+$", scan[:start]):
+            arrows.append(link)
+    if not arrows:
+        return None
+    own = [l for l in arrows
+           if (l.target_basename or "").startswith(f"{e.identifier} ")]
+    return own[-1] if own else arrows[0]
+
+
+def _row_inline_q_count(e: BacklogEntry) -> int:
+    """Count pending inline `- **Q<n> —` sub-bullets belonging to row e ONLY.
+
+    T012 secondary defect: `extract_q_entries(backlog, container)` scans the
+    WHOLE backlog file regardless of container, so two Questions T-rows each
+    counted both rows' Qs. Scope here is the row's own sub-bullet span — the
+    lines after the row up to the next top-level bullet, heading, or EOF
+    (same forward-scan as C44)."""
+    try:
+        lines = e.source_file.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError):
+        return 0
+    count = 0
+    for nxt in lines[e.source_line:]:  # e.source_line is 1-indexed; starts on the next line
+        if HEADING_RE.match(nxt) or re.match(r"^- \*\*", nxt):
+            break
+        if Q_HEADER_RE.match(nxt):
+            count += 1
+    return count
 
 
 # ============================================================
@@ -2087,40 +2142,39 @@ def check_c23_designing_resolves(entries: list[BacklogEntry]) -> list[Finding]:
     for e in entries:
         if e.status != "Designing":
             continue
-        # Resolve where to count pending Qs.
-        target_file: Optional[Path] = None
-        container_id = e.identifier
-        if e.link is not None and e.link.target_file_path is not None:
-            target_file = e.link.target_file_path
+        # Resolve where to count pending Qs. The row's OWN doc is the
+        # arrow-form link only (T012 — `e.link` is the first link of any
+        # form and can be an in-prose mention of another row).
+        arrow_link = _arrow_target(e)
+        if arrow_link is not None:
+            target_file = arrow_link.target_file_path
+            if target_file is None or not target_file.is_file():
+                # Can't count Qs — flag as ambiguous; needs user attention.
+                findings.append(Finding(
+                    severity="warning",
+                    surface_file=e.source_file,
+                    surface_line=e.source_line,
+                    code="C23",
+                    message=(
+                        f"row '{e.identifier}' is [Designing] but has no linked "
+                        f"feature doc to count Qs against — bracket must be "
+                        f"[N Questions] or [Ready], not [Designing] alone"
+                    ),
+                    mechanically_fixable=False,
+                ))
+                continue
+            container_id = e.identifier
             # Container_id for feature-doc Qs is the F-number from the doc stem.
             stem_m = F_NUMBER_PREFIX_RE.match(target_file.stem)
             if stem_m:
                 container_id = stem_m.group(1)
+            # extract_q_entries returns all Q-headers below ## Open Questions H2
+            # before the Resolved sub-section, which IS the pending set.
+            pending = len(extract_q_entries(target_file, container_id))
         else:
-            # No feature-doc link: inline Qs would live in the backlog file
-            # itself, under this row. extract_q_entries scopes by container_id
-            # via block-ID prefix `^<container>-Q<n>` — match the row's id.
-            target_file = e.source_file
-        if target_file is None or not target_file.is_file():
-            # Can't count Qs — flag as ambiguous; needs user attention.
-            findings.append(Finding(
-                severity="warning",
-                surface_file=e.source_file,
-                surface_line=e.source_line,
-                code="C23",
-                message=(
-                    f"row '{e.identifier}' is [Designing] but has no linked "
-                    f"feature doc to count Qs against — bracket must be "
-                    f"[N Questions] or [Ready], not [Designing] alone"
-                ),
-                mechanically_fixable=False,
-            ))
-            continue
-        q_entries = extract_q_entries(target_file, container_id)
-        # Filter to pending (no Recommendation:Strong/Lean/None — just pending).
-        # extract_q_entries returns all Q-headers below ## Open Questions H2
-        # before the Resolved sub-section, which IS the pending set.
-        pending = len(q_entries)
+            # No arrow link: inline Qs live in the backlog file itself, as
+            # sub-bullets under this row — count only that span (T012).
+            pending = _row_inline_q_count(e)
         if pending > 0:
             correct = f"[{pending} Questions]" if pending > 1 else "[Questions]"
             findings.append(Finding(
@@ -2177,23 +2231,27 @@ def check_c24_questions_count_match(entries: list[BacklogEntry]) -> list[Finding
         # Resolve the Q-bearing target. The row's OWN doc is the arrow-form
         # `→ [[…]]` reference only — an in-prose link is a mention, not the
         # doc. Rows without an arrow link (T-/B-rows) carry their Qs as
-        # inline sub-bullets, counted from the backlog file itself.
+        # inline sub-bullets, counted from the row's own sub-bullet span.
         # (2026-07-06: first-link resolution made C24's auto-fix follow a
         # T-row's prose mention to an unrelated doc, count 0, and rebracket
-        # a genuinely-questioned row to [Ready].)
-        target_file: Optional[Path] = None
-        container_id = e.identifier
-        has_arrow = re.search(r"→\s+\[\[", e.raw_body) is not None
-        if has_arrow and e.link is not None and e.link.target_file_path is not None:
-            target_file = e.link.target_file_path
+        # a genuinely-questioned row to [Ready]. T012 2026-07-13: the arrow
+        # gate alone still trusted e.link — the row's FIRST link of any
+        # form — so F230's count came from the wrong file; _arrow_target
+        # resolves the arrow link itself.)
+        arrow_link = _arrow_target(e)
+        if arrow_link is not None:
+            target_file = arrow_link.target_file_path
+            if target_file is None or not target_file.is_file():
+                continue  # link-resolution issue belongs to C1/C22, not here
+            container_id = e.identifier
             stem_m = F_NUMBER_PREFIX_RE.match(target_file.stem)
             if stem_m:
                 container_id = stem_m.group(1)
+            actual = len(extract_q_entries(target_file, container_id))
+        elif re.search(r"→\s+\[\[", e.raw_body):
+            continue  # arrow present but unparseable (placeholder/out-of-vault) — C1/C22's territory
         else:
-            target_file = e.source_file
-        if target_file is None or not target_file.is_file():
-            continue  # link-resolution issue belongs to C1/C22, not here
-        actual = len(extract_q_entries(target_file, container_id))
+            actual = _row_inline_q_count(e)
         if actual == claimed:
             continue  # in sync
         if actual == 0:
@@ -2574,9 +2632,8 @@ def check_c44_questions_row_has_target(entries: list[BacklogEntry]) -> list[Find
             continue
         if e.horizon in ("Done", "Icebox"):
             continue
-        has_arrow = re.search(r"→\s+\[\[", e.raw_body) is not None
-        if has_arrow and e.link is not None and e.link.target_file_path is not None:
-            continue  # has a resolvable target
+        if _arrow_target(e) is not None or re.search(r"→\s+\[\[", e.raw_body):
+            continue  # has an arrow target — resolvable, or C1/C22's broken-link territory
         if re.match(r"[TB]", e.identifier or ""):
             if e.source_file not in file_lines_cache:
                 try:
@@ -2634,10 +2691,10 @@ def check_c45_open_questions_above_h1(entries: list[BacklogEntry]) -> list[Findi
             continue
         if e.horizon in ("Done", "Icebox"):
             continue
-        has_arrow = re.search(r"→\s+\[\[", e.raw_body) is not None
-        if not (has_arrow and e.link is not None and e.link.target_file_path is not None):
+        arrow_link = _arrow_target(e)
+        if arrow_link is None or arrow_link.target_file_path is None:
             continue
-        target = e.link.target_file_path
+        target = arrow_link.target_file_path
         if not target.is_file() or target in seen:
             continue
         seen.add(target)
@@ -3326,19 +3383,19 @@ def apply_c23_fix(backlog_file: Path,
         return False, []
     changed = False
     for e in designing:
-        target_file: Optional[Path] = None
-        container_id = e.identifier
-        if e.link is not None and e.link.target_file_path is not None:
-            target_file = e.link.target_file_path
+        # Arrow-form link only (T012 — mirrors check_c23's target selection).
+        arrow_link = _arrow_target(e)
+        if arrow_link is not None:
+            target_file = arrow_link.target_file_path
+            if target_file is None or not target_file.is_file():
+                continue
+            container_id = e.identifier
             stem_m = F_NUMBER_PREFIX_RE.match(target_file.stem)
             if stem_m:
                 container_id = stem_m.group(1)
+            pending = len(extract_q_entries(target_file, container_id))
         else:
-            target_file = e.source_file
-        if target_file is None or not target_file.is_file():
-            continue
-        q_entries = extract_q_entries(target_file, container_id)
-        pending = len(q_entries)
+            pending = _row_inline_q_count(e)
         if pending > 0:
             new_bracket = (
                 f"[{pending} Questions]" if pending > 1 else "[Questions]"
@@ -3400,22 +3457,24 @@ def apply_c24_fix(backlog_file: Path,
         return False, []
     changed = False
     for e, old_status in questions_rows:
-        # Arrow-form only (mirrors check_c24, 2026-07-06): an in-prose link is
-        # a mention, not the row's doc; T-/B-rows count their inline Qs from
-        # the backlog itself.
-        target_file: Optional[Path] = None
-        container_id = e.identifier
-        has_arrow = re.search(r"→\s+\[\[", e.raw_body) is not None
-        if has_arrow and e.link is not None and e.link.target_file_path is not None:
-            target_file = e.link.target_file_path
+        # Arrow-form only (mirrors check_c24, 2026-07-06 + T012 2026-07-13):
+        # an in-prose link is a mention, not the row's doc; _arrow_target
+        # resolves the arrow link itself (not the row's first link of any
+        # form); T-/B-rows count their inline Qs from the row's own span.
+        arrow_link = _arrow_target(e)
+        if arrow_link is not None:
+            target_file = arrow_link.target_file_path
+            if target_file is None or not target_file.is_file():
+                continue
+            container_id = e.identifier
             stem_m = F_NUMBER_PREFIX_RE.match(target_file.stem)
             if stem_m:
                 container_id = stem_m.group(1)
+            actual = len(extract_q_entries(target_file, container_id))
+        elif re.search(r"→\s+\[\[", e.raw_body):
+            continue  # arrow present but unparseable — C1/C22's territory
         else:
-            target_file = e.source_file
-        if target_file is None or not target_file.is_file():
-            continue
-        actual = len(extract_q_entries(target_file, container_id))
+            actual = _row_inline_q_count(e)
         m = re.match(r"^\s*(\d+)\s+Questions?\s*$", old_status)
         claimed = int(m.group(1)) if m else 1
         if actual == claimed:
@@ -3845,9 +3904,13 @@ def derive_anchor_banner(name: str, backlog_file: Path,
     for e in actionable:
         if "Questions" not in e.status:
             continue
-        if not e.link or not e.link.target_resolves:
+        # Arrow-form link only (T012 — e.link is the row's first link of any
+        # form and can be a prose mention); no-arrow rows carry inline Qs.
+        arrow_link = _arrow_target(e)
+        if arrow_link is None or not arrow_link.target_resolves:
+            questions_n += _row_inline_q_count(e) or 1
             continue
-        target_path = e.link.target_file_path
+        target_path = arrow_link.target_file_path
         assert target_path is not None
         try:
             target_text = target_path.read_text(encoding="utf-8")
