@@ -1,6 +1,7 @@
 # RULESET R-messages
 include::
-where:: `{anchor}/* Messages.md`
+where:: `{anchor}/* Messages.md, !**/DAS *.md`
+exclusion-note:: `!**/DAS *.md` exempts the facet-spec catalog (a `DAS <Name>.md` is the SPEC for the facet, not an instance; specs are governed by [[R-facet-spec]]) — added 2026-07-13, T014 follow-on.
 description:: the Messages facet — agent's per-anchor background-process inbox, distinct from the user's Inbox
 
 Ruleset for this facet — spec: [[DAS Messages]] (extracted from the spec 2026-07-12).

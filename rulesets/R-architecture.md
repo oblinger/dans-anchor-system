@@ -1,6 +1,7 @@
 # RULESET R-architecture
 include::
-where:: `file:{anchor}/**/* Architecture.md`
+where:: `file:{anchor}/**/* Architecture.md, !**/DAS *.md`
+exclusion-note:: `!**/DAS *.md` exempts the facet-spec catalog (a `DAS <Name>.md` is the SPEC for the facet, not an instance; specs are governed by [[R-facet-spec]]) — added 2026-07-13, T014 follow-on.
 description:: spec for the `{slug} Architecture.md` entry-point design facet — section spine, mandatory visual figure, subsystem dispatch + link convention, API content kept off the page
 
 Embedded ruleset for the Architecture facet, co-located with the facet spec above per the [[F133 — Rulesets folder convention + facet embedding|F133]] embedding convention. Pulled in via the `R-facet` umbrella; active for an anchor through its traits ([[Warden Semantics]] § Rulesets). The `where::` glob selects the entry-point doc only (`* Architecture.md`); subsystem docs (kebab `{slug}-*.md`) follow [[DAS Module Doc]], not this ruleset.

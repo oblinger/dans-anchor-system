@@ -1,6 +1,7 @@
 # RULESET R-testing
 include::
-where:: `file:{anchor}/**/* Testing.md`
+where:: `file:{anchor}/**/* Testing.md, !**/DAS *.md`
+exclusion-note:: `!**/DAS *.md` exempts the facet-spec catalog (a `DAS <Name>.md` is the SPEC for the facet, not an instance; specs are governed by [[R-facet-spec]]) — added 2026-07-13, T014 follow-on.
 description:: facet spec this doc instantiates
 
 Embedded ruleset for the Testing facet, co-located with the facet spec above per the [[F133 — Rulesets folder convention + facet embedding|F133]] embedding convention. Pulled in via the `R-facet` umbrella; active for an anchor through its traits ([[Warden Semantics]] § Rulesets).

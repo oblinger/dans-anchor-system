@@ -1,6 +1,7 @@
 # RULESET R-backlog
 include::
-where:: `file:{anchor}/**/* Backlog.md`
+where:: `file:{anchor}/**/* Backlog.md, !**/DAS *.md`
+exclusion-note:: `!**/DAS *.md` exempts the facet-spec catalog (a `DAS <Name>.md` is the SPEC for the facet, not an instance; specs are governed by [[R-facet-spec]]) — added 2026-07-13, T014 follow-on.
 description:: SKA skill anchor for the backlog-horizons skill
 
 What `/audit doc` checks on a backlog file. The skills that maintain it are `/groom` (frontier planning) and the `state` tool (mutations); these are the file-invariants the groomed state must satisfy. Format of this set: [[DAS Ruleset]].

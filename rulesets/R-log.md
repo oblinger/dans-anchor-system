@@ -1,6 +1,7 @@
 # RULESET R-log
 include::
-where:: `{anchor}/**/* Log.md`
+where:: `{anchor}/**/* Log.md, !**/DAS *.md`
+exclusion-note:: `!**/DAS *.md` exempts the facet-spec catalog (a `DAS <Name>.md` is the SPEC for the facet, not an instance; specs are governed by [[R-facet-spec]]) — added 2026-07-13, T014 follow-on.
 description:: Structural rules for the {slug} Log facet — folder shape, entry filename pattern, dispatch dispatch, content scope.
 
 Ruleset for this facet — spec: [[DAS Log]] (extracted from the spec 2026-07-12). Adopted via `R-facet` umbrella.

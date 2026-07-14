@@ -1,6 +1,7 @@
 # RULESET R-prd
 include::
-where:: `file:{anchor}/**/* PRD.md`
+where:: `file:{anchor}/**/* PRD.md, !**/DAS *.md`
+exclusion-note:: `!**/DAS *.md` exempts the facet-spec catalog (a `DAS <Name>.md` is the SPEC for the facet, not an instance; specs are governed by [[R-facet-spec]]) — added 2026-07-13, T014 follow-on.
 description:: facet spec this doc follows
 
 Embedded ruleset for the PRD facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella.
