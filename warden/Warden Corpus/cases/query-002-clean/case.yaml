@@ -4,5 +4,5 @@ mode: doc
 target: FX2 Track/FX2 queries.md
 provenance: synthetic
 engine: audit-plan
-blessed_against: e2282e595be8-11302ab00902
+blessed_against: 4e3f6625d896-35d1bb75c930
 note: the compliant twin of query-001 — guards against a rule silently ceasing to match/pass

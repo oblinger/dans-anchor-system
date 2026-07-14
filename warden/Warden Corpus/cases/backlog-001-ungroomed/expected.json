@@ -98,5 +98,10 @@
   "rule": "R-progressive-02",
   "target": "FX4 Backlog.md",
   "status": "pass"
+ },
+ {
+  "rule": "R-progressive-03",
+  "target": "FX4 Backlog.md",
+  "status": "fail"
  }
 ]

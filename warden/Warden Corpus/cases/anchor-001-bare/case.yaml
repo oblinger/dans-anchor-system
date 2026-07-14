@@ -4,5 +4,5 @@ mode: anchor
 target: .
 provenance: synthetic
 engine: audit-plan
-blessed_against: ce750bb05acb-19742badd28d
+blessed_against: 4e3f6625d896-35d1bb75c930
 note: a minimal anchor with a traitless .anchor and no entry page — pins the whole anchor-structure verdict surface, pass/fail/error alike

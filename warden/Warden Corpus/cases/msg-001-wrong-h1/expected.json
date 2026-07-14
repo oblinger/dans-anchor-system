@@ -73,5 +73,10 @@
   "rule": "R-progressive-02",
   "target": "FX1 Messages.md",
   "status": "pass"
+ },
+ {
+  "rule": "R-progressive-03",
+  "target": "FX1 Messages.md",
+  "status": "fail"
  }
 ]
