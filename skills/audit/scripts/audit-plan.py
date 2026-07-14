@@ -2322,6 +2322,56 @@ def chk_progressive_disclosure_layout(target, anchor_root, args):
     return "pass", "section spacing ok"
 
 
+def chk_doc_head_orientation_line(target, anchor_root, args):
+    """The head's third disclosure layer ([[DSC progressive-disclosure]]): directly
+    under the first H1 — after any `key:: value` inline-field lines (skill pages
+    carry requires::/subsystem:: there) — the doc opens with an ORIENTATION LINE:
+    one single-line prose sentence stating what this file is. Fails when (a) no
+    prose line appears there (the doc jumps straight to a heading / table / list /
+    figure / fence), or (b) the first prose line wraps into a second prose line
+    (the orientation must be a single line, no embedded newlines; a masthead
+    table directly below it is fine). Docs with no H1 pass — H1 presence is
+    other rules' business."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    # Script-rendered query surfaces are exempt: their banner-only head is
+    # R-query's shape, ruled by the user (no meta prose on Q.md / queries pages).
+    if f.name == "Q.md" or f.name.endswith(" queries.md"):
+        return "pass", "rendered query surface — head shape owned by R-query"
+    lines = _read(f).splitlines()
+    in_fence = False
+    h1 = None
+    for i, ln in enumerate(lines):
+        if ln.lstrip().startswith("```"):
+            in_fence = not in_fence
+            continue
+        if not in_fence and re.match(r"^# \S", ln):
+            h1 = i
+            break
+    if h1 is None:
+        return "pass", "no H1 — out of scope"
+    field = re.compile(r"^[\w-]+::\s")
+    j = h1 + 1
+    while j < len(lines) and (lines[j].strip() == "" or field.match(lines[j])):
+        j += 1
+
+    def _prose(ln):
+        s = ln.strip()
+        if not s:
+            return False
+        return not s.startswith(("|", "#", "- ", "* ", "+ ", ">", "![", "```", ":>>"))
+
+    if j >= len(lines) or not _prose(lines[j]):
+        return "fail", (f"no orientation line under the H1 (line {h1 + 1}) — "
+                        "expected one single-line prose sentence saying what this file is")
+    nxt = lines[j + 1].strip() if j + 1 < len(lines) else ""
+    if nxt and not nxt.startswith("|"):
+        return "fail", (f"orientation line under the H1 (line {j + 1}) runs into the next line — "
+                        "it must be a single line (no embedded newlines) followed by a blank line or the masthead table")
+    return "pass", "orientation line ok"
+
+
 # -- R-roadmap -----------------------------------------------------------------
 
 def chk_file_exists(target, anchor_root, args):
@@ -3369,6 +3419,7 @@ CHECKERS = {
     # R-progressive (conditional + multi-check layout)
     "dispatch_table_by_context": chk_dispatch_table_by_context,
     "progressive_disclosure_layout": chk_progressive_disclosure_layout,
+    "doc_head_orientation_line": chk_doc_head_orientation_line,
     # R-roadmap
     "file_exists": chk_file_exists,
     "milestone_checkbox": chk_milestone_checkbox,

@@ -68,5 +68,10 @@
   "rule": "R-progressive-02",
   "target": "FX7 Guide.md",
   "status": "fail"
+ },
+ {
+  "rule": "R-progressive-03",
+  "target": "FX7 Guide.md",
+  "status": "fail"
  }
 ]

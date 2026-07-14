@@ -68,5 +68,10 @@
   "rule": "R-progressive-02",
   "target": "FX9 Notes.md",
   "status": "pass"
+ },
+ {
+  "rule": "R-progressive-03",
+  "target": "FX9 Notes.md",
+  "status": "pass"
  }
 ]

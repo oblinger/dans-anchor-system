@@ -4,5 +4,5 @@ mode: doc
 target: FX6 Backlog.md
 provenance: synthetic
 engine: audit-plan
-blessed_against: ce750bb05acb-19742badd28d
+blessed_against: 4e3f6625d896-35d1bb75c930
 note: per-state body contracts — a bare [Blocked] with no obstacle (R-backlog-06), a [Waiting Nd]/[Watching Nd] with no absolute date (R-backlog-07), and a [Questions] row with no numbered Q and no doc link (R-backlog-05) all fire

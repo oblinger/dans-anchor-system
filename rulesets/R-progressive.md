@@ -22,7 +22,8 @@ The blank-line conventions that keep a doc's outline scannable: every `## H2` is
 
 **Why:** consistent section breaks let a navigator's eye find the structure at a glance — the second layer of progressive disclosure. An H2 glued to the prose above it hides where one section ends and the next begins.
 
-### RULE R-progressive-03 — Standard doc head: breadcrumb → H1 → orientation line (stated)
+### RULE R-progressive-03 — Standard doc head: breadcrumb → H1 → orientation line (checked)
+check:: doc_head_orientation_line
 
 Every markdown doc opens with the `# H1` carrying the file's name (optionally ` — <subname or explanation>`), then an **orientation line** directly under it — a single sentence stating, at the coarsest grain, what this file is / what this item is about. Navigation takes exactly one of two forms (mutually exclusive per `R-progressive-01`):
 
@@ -30,6 +31,8 @@ Every markdown doc opens with the `# H1` carrying the file's name (optionally ` 
 - **Masthead form** (anchor pages and spec/dispatch pages, e.g. facet specs) — no `:>>` row; a dispatch-masthead table sits directly below the orientation line, its first row `-[[<name>]]-` + the breadcrumb, followed by rows such as Related / Examples / Rules, and — when the doc is long enough to need one — a merged **Table of Contents** section inside the same table (blank row, bold `**Table of Contents**` row, then the entry rows). Exemplar: [[DAS Status]].
 
 **No other head shapes for now** — a doc that seems to need a different head is a design question to raise, not a local deviation to make.
+
+**Check pattern:** the mechanical slice is the **orientation line** (the breadcrumb/masthead geometry stays with `R-progressive-01`): after the first H1 (outside fences), skipping blank lines and `key:: value` inline-field lines (skill pages carry `requires::`/`subsystem::` there), the first content must be a **prose line** — not a heading, table, list, blockquote, figure embed, or fence — and it must be a **single line**: the line after it is blank or the masthead table. Fails on (a) no prose line there, (b) the prose wrapping into a second line. Docs with no H1 pass (out of scope here), as do the script-rendered query surfaces (`Q.md`, `{slug} queries.md`) — their banner-only head is [[R-query]]'s shape, ruled by the user.
 
 **Why:** the head is the reader's first disclosure layer — breadcrumb (*where am I*), H1 (*what is this called*), orientation line (*what is this*). Two standardized shapes make every doc scannable in two seconds; the longer summary belongs in `## Overview`, not the head. Ratified on [[DAS Tracking Design]] + [[DAS Status]] (2026-07-12).
 

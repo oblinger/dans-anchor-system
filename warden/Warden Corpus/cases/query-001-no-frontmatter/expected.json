@@ -70,6 +70,11 @@
   "status": "pass"
  },
  {
+  "rule": "R-progressive-03",
+  "target": "FX1 Track/FX1 queries.md",
+  "status": "pass"
+ },
+ {
   "rule": "R-query-01",
   "target": "FX1 Track/FX1 queries.md",
   "status": "pass"

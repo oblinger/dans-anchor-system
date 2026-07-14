@@ -45,10 +45,10 @@ exp build                          # ZIP experiments for deliverable bundle
 
 ## .
 . __ .
-[[Architect]] - 
 [[ASG]] - 
 [[templates/backlog]] - 
 [[completed-roadmap]] - 
+[[DAS Anchor Design]] - 
 [[DAS Anchor Toolkit]] - 
 [[DAS Anchor Toolkit Design]] - 
 [[DAS Architect]] - 
@@ -59,8 +59,9 @@ exp build                          # ZIP experiments for deliverable bundle
 [[DAS Audit]] - 
 [[DAS Audit Design]] - 
 [[DAS Book]] - 
-[[DAS Code Skill]] - 
 [[DAS Code Design]] - 
+[[DAS Code Skill]] - 
+[[DAS Code Skill Design]] - 
 [[DAS Cook]] - 
 [[DAS Cook Design]] - 
 [[DAS Corp]] - 
@@ -72,7 +73,10 @@ exp build                          # ZIP experiments for deliverable bundle
 [[DAS Ctrl]] - 
 [[DAS Ctrl Design]] - 
 [[DAS Design]] - 
+[[DAS Design Design]] - 
+[[DAS Doc Design]] - 
 [[DAS Docs]] - 
+[[DAS Drive Design]] - 
 [[DAS Dupes]] - 
 [[DAS Dupes Design]] - 
 [[DAS Edit]] - 
@@ -94,6 +98,7 @@ exp build                          # ZIP experiments for deliverable bundle
 [[DAS Groom]] - 
 [[DAS Groom Design]] - 
 [[DAS Groom PRD]] - 
+[[DAS Hygiene Design]] - 
 [[DAS Install]] - 
 [[DAS Install Design]] - 
 [[DAS IO]] - 
@@ -132,8 +137,10 @@ exp build                          # ZIP experiments for deliverable bundle
 [[DAS Rewire]] - 
 [[DAS Rewire Design]] - 
 [[DAS Rulesets]] - 
+[[DAS Search Design]] - 
 [[DAS Search Overview]] - 
 [[search/DAS Skill]] - 
+[[DAS Skills]] - 
 [[DAS Slug Scan]] - 
 [[DAS Slug Scan Design]] - 
 [[DAS Snip]] - 
@@ -147,6 +154,7 @@ exp build                          # ZIP experiments for deliverable bundle
 [[DAS Tidy]] - 
 [[DAS Tidy Design]] - 
 [[DAS Tracking Design]] - 
+[[DAS Utility Design]] - 
 [[DAS Viz]] - 
 [[DAS Viz Design]] - 
 [[anchor/DAS WP]] - 
@@ -159,39 +167,76 @@ exp build                          # ZIP experiments for deliverable bundle
 [[examples]] - 
 [[docs/EXP]] - 
 [[facets]] - 
+[[fix/SKILL]] - 
 [[library]] - 
 [[messages]] - 
 [[templates/prd]] - 
 [[query]] - 
 [[Query PRD]] - 
+[[R-all-files]] - 
 [[R-anchor]] - 
+[[R-anchor-group]] - 
+[[R-anchor-page]] - 
+[[R-anchor-tree]] - 
 [[R-api]] - 
 [[R-arch]] - 
+[[R-architecture]] - 
 [[R-backlog]] - 
 [[R-brief]] - 
 [[R-bringhurst-typography]] - 
 [[R-c4]] - 
+[[R-cards]] - 
+[[R-changes]] - 
+[[R-cli]] - 
 [[R-code]] - 
+[[R-code-mirror]] - 
+[[R-code-repository]] - 
+[[R-code-surface]] - 
 [[R-completed-roadmap]] - 
 [[R-dated-entry-stream]] - 
+[[R-decisions]] - 
 [[R-design]] - 
+[[R-design-dispatch]] - 
+[[R-design-docs-group]] - 
 [[R-design-gate]] - 
+[[R-dev-dispatch]] - 
 [[R-diagram]] - 
 [[R-diagram-geometry]] - 
 [[R-discussion]] - 
+[[R-dispatch-group]] - 
+[[R-dispatch-table]] - 
 [[R-doc]] - 
+[[R-doc-facet]] - 
+[[R-doc-structure]] - 
+[[R-documentation-site]] - 
+[[R-dot-anchor]] - 
 [[R-exception-discipline]] - 
 [[R-facet]] - 
+[[R-facet-spec]] - 
 [[R-factory-pegboard]] - 
+[[R-fct-claude]] - 
+[[R-fct-features]] - 
+[[R-fct-folder]] - 
+[[R-fct-icebox]] - 
+[[R-fct-inbox]] - 
+[[R-fct-interface]] - 
+[[R-fct-move]] - 
+[[R-fct-outputs]] - 
+[[R-fct-plan-dispatch]] - 
+[[R-fct-system-design]] - 
+[[R-fct-user-dispatch]] - 
 [[R-file-association]] - 
+[[R-files-architecture]] - 
 [[R-git]] - 
 [[R-interfaces-folder]] - 
+[[R-ios]] - 
 [[R-layering]] - 
 [[R-log]] - 
 [[R-mac]] - 
 [[R-markdown]] - 
 [[R-md]] - 
 [[R-messages]] - 
+[[R-module-doc]] - 
 [[R-naming]] - 
 [[R-ob]] - 
 [[R-ob-cmd-proc]] - 
@@ -200,32 +245,42 @@ exp build                          # ZIP experiments for deliverable bundle
 [[R-ob-state-mgt]] - 
 [[R-one-path]] - 
 [[R-openspec]] - 
+[[R-output-group]] - 
 [[R-ownership]] - 
 [[R-paper]] - 
 [[R-pathguard]] - 
 [[R-prd]] - 
 [[R-process]] - 
 [[R-progressive]] - 
+[[R-project-page]] - 
 [[R-query]] - 
 [[R-roadmap]] - 
+[[R-ruleset]] - 
 [[R-simple]] - 
 [[R-single-source-of-truth]] - 
 [[R-skill]] - 
 [[R-skill-anchor]] - 
+[[R-skill-md]] - 
+[[R-specs]] - 
 [[R-stable-ids]] - 
+[[R-state-region]] - 
 [[R-status]] - 
 [[R-stories]] - 
 [[R-sugiyama]] - 
 [[R-svg-hygiene]] - 
 [[R-svg-jiggle]] - 
+[[R-template]] - 
 [[R-test]] - 
 [[R-testing]] - 
 [[R-topic]] - 
+[[R-track-dispatch]] - 
 [[R-track-group]] - 
 [[R-trait]] - 
 [[R-tufte-data-ink]] - 
 [[R-ux]] - 
+[[R-versions]] - 
 [[R-wcag-contrast]] - 
+[[R-wp]] - 
 [[R-wrapper-cli]] - 
 [[rulesets/README]] - 
 [[Rulesets Brief]] - 
