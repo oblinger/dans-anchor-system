@@ -4,13 +4,13 @@ description: Subsystem design for the Design group — the artifact pipeline, ga
 
 :>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Design Design](hook://p/DAS%20Design%20Design)
 # DAS Design Design — the design of the Design subsystem
-Design is the subsystem that turns an idea into an agreed, buildable specification: a canonical pipeline of design artifacts (PRD → UX → API → Architecture → Testing → Roadmap → Features) authored jointly by human and agent, with sticky acceptance gates guarding the transition to execution.
+Design is the subsystem that turns an idea into an agreed, buildable specification: a canonical pipeline of design artifacts (PRD → Architecture → Milestones → Testing → **design accepted** → Roadmap → Features) authored jointly by human and agent, with one sticky acceptance gate guarding the transition to execution.
 
 ![[DAS Design Design.svg|3000]]
 
 | **Skills**                           |                                                                                                                 |
 | ------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
-| [[DAS Plan\|/design]]                | Walks the pipeline in order, dispatches the per-artifact sub-skills, enforces the two gates.                    |
+| [[DAS Plan\|/design]]                | Walks the pipeline in order, dispatches the per-artifact sub-skills, enforces the design-accepted gate.         |
 | [[DAS Architect\|/architect]]        | Builds + maintains `{slug} Architecture.md` — subsystem decomposition, `module ↔ arch` links.                   |
 |                                      |                                                                                                                 |
 | **Facets**                           |                                                                                                                 |
@@ -18,26 +18,26 @@ Design is the subsystem that turns an idea into an agreed, buildable specificati
 | [[DAS PRD\|PRD]]                     | The what and why — overview, goals, user stories.                                                               |
 | [[DAS UX Design\|UX]]                | User-facing behavior (when applicable).                                                                         |
 | [[DAS API Design\|API]]              | The public interface (when applicable).                                                                         |
-| [[DAS Architecture\|Architecture]]   | The how — subsystems, modules, trade-offs. Gate 1.                                                              |
-| [[DAS Testing\|Testing]]             | Verification strategy. Gate 2, jointly with Architecture.                                                       |
+| [[DAS Architecture\|Architecture]]   | The how — subsystems, modules, trade-offs. Satellites: UX, System Design, API.                                  |
+| [[DAS Testing\|Testing]]             | Verification strategy, covering the pinned milestones. Feeds the design-accepted gate.                          |
 | [[DAS System Design\|System Design]] | Consolidated single-doc design for small anchors.                                                               |
 | [[DAS Decisions\|Decisions]]         | Durable D-numbered rulings.                                                                                     |
 | [[DAS Discussion\|Discussion]]       | Free-form design discussion feeding the artifacts.                                                              |
-| [[DAS Stories\|Stories]]             | User-story records behind the PRD.                                                                              |
+| [[DAS Stories\|Stories]]             | User-story records — the PRD's satellite.                                                                       |
 | [[DAS Features\|Features]]           | F-numbered feature docs — authored here, driven by Drive.                                                       |
 |                                      |                                                                                                                 |
 | **Traits**                           |                                                                                                                 |
 | *(folder-presence)*                  | No trait key — the `{slug} Design/` folder is the declaration.                                                  |
 |                                      |                                                                                                                 |
 | **Library**                          |                                                                                                                 |
-| [[DAS Status\|status:: gates]]       | The `accepted` tier on Architecture / Testing (Tracking's ladder) — what the gates read. Sticky once accepted.  |
+| [[DAS Status\|status:: gate]]        | The `accepted` tier (Tracking's ladder) — what the design-accepted gate reads. Sticky once accepted.            |
 | Rulesets                             | [[R-design]] · [[R-prd]] · [[R-architecture]] · [[R-decisions]] · [[R-discussion]] · [[R-stories]] · [[R-ux]] · [[R-design-gate]] · [[R-fct-system-design]] · [[R-design-dispatch]] · [[R-design-docs-group]] |
 
 ## Overview
 
-Design's contract: **no execution before agreement, and no agreement on missing artifacts.** `/design` walks the phases in canonical order — PRD → UX *(if applicable)* → API *(if applicable)* → Architecture → Testing → Roadmap → Features — detecting state rather than assuming it, so it is safe to invoke at any point mid-pipeline. Two sticky gates protect the expensive transitions: **Gate 1** (`status:: accepted` on Architecture) guards Testing authoring; **Gate 2** (Architecture *and* Testing accepted) guards Roadmapping. The user passes a gate conversationally ("the architecture is accepted") and the agent stamps the field.
+Design's contract: **no execution before agreement, and no agreement on missing artifacts.** `/design` walks the phases in canonical order — **PRD** (with its Stories satellite) → **Architecture** (with its UX / System Design / API satellites) → **Milestones** (pin the testable increments — the initial roadmap) → **Testing** (a strategy that covers those milestones) → the **one gate: design accepted** → **Roadmap** (fleshed out after acceptance, as designing each feature spawns its subtasks and sub-features) → **Features** — detecting state rather than assuming it, so it is safe to invoke at any point mid-pipeline. Everything before the gate iterates until the design set is accepted; the user passes it conversationally ("the design is accepted") and the agent stamps the `status::` field. *(Pipeline revised in this session, 2026-07-14 — supersedes the earlier two-gate PRD → UX → API → Architecture → Testing order; UX / System Design / API now ride as Architecture satellites, Stories as the PRD's, and milestone-pinning precedes testing so the tests have concrete increments to cover.)*
 
-Boundaries: **Features are authored here but driven by Drive** — the `{slug} Design/{slug} Features/` folder is a Design artifact (F142); `/feature`, `/crank`, and `/mint` consume it. **Roadmap bridges to Tracking** — `/design roadmap` authors it as the last phase; the Tracking surfaces carry it from there. **The status ladder is Tracking's engine** — Design only reads/writes the `accepted` tier at its gates.
+Boundaries: **Features are authored here but driven by Drive** — the `{slug} Design/{slug} Features/` folder is a Design artifact (F142); `/feature`, `/crank`, and `/mint` consume it. **Roadmap bridges to Tracking** — `/design roadmap` authors it as the last phase; the Tracking surfaces carry it from there. **The status ladder is Tracking's engine** — Design only reads/writes the `accepted` tier at its gate.
 
 ## Coordinated examples
 
@@ -48,4 +48,5 @@ Design is illustrated inside the coherent worked worlds at [[DAS Examples]] (HBR
 - [[DAS Architect Design]] — the `/architect` verb's own design doc.
 - [[DAS Design]] — the design-pipeline index (per-skill design docs + PRDs across all groups); distinct from this subsystem profile.
 - Shape follows the paradigm [[DAS Tracking Design]] (R-progressive-03 head; merged Skills / Facets / Traits / Library table; one profile per group, linked off [[DAS]]). **Shape revision (user, 2026-07-14, this session):** the table is two columns — the item's name links its docs dossier directly (the dossier routes onward to runbook / template), descriptions stay to one line.
+- **Pipeline ruling (user, 2026-07-14):** one gate, not two — *design accepted*, after Testing; Milestones sits between Architecture and Testing (initial roadmap; the full Roadmap elaboration is post-gate). Rendered in the figure as the loop-on-arrow glyph. The `/design` skill runbook still implements the old two-gate order — conformance tracked as [[SKA Backlog#^T019|T019]].
 - Figure source: same-basename `DAS Design Design.excalidraw` beside the SVG (edit in ExcalidrawZ; re-export with `python3 ~/.claude/skills/viz/excalidraw_to_svg.py`).
