@@ -18,7 +18,7 @@ Mini is one small binary. The CLI parses a command, the Core applies it, and the
 
 | SUBSYSTEMS      | Description                                                        |
 | --------------- | ----------------------------------------------------------------- |
-| [[Mini-Core]]   | command application logic — the submit/apply pipeline. Source: `src/core.rs`. |
+| [Mini-Core]     | command application logic — the submit/apply pipeline. Source: `src/core.rs` (no doc yet). |
 | [Mini-Store]    | single-file key/value persistence; load/save (no doc yet)         |
 
 ## Decisions

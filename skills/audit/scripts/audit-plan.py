@@ -1523,16 +1523,44 @@ def _h2_titles(lines):
             if re.match(r"^##\s+\S", ln)]
 
 
+def _ancestor_anchor_roots(anchor_root: Path, cap: int = 4) -> list[Path]:
+    """Enclosing dirs carrying `.anchor`, nearest first (max `cap`) — nested
+    anchors (`{slug} Design/`, `{slug} Architecture/`) sit below the root whose
+    tree holds the docs a link resolves to. Bounded at REPO_ROOT when inside
+    the repo. Falls back to [anchor_root] when no `.anchor` exists up-tree."""
+    out: list[Path] = []
+    cur = anchor_root
+    try:
+        repo = REPO_ROOT.resolve()
+    except OSError:
+        repo = None
+    while len(out) < cap:
+        if (cur / ".anchor").is_file():
+            out.append(cur)
+        if cur.parent == cur or (repo is not None and cur.resolve() == repo):
+            break
+        cur = cur.parent
+    return out or [anchor_root]
+
+
 def _real_anchor_root(anchor_root: Path) -> Path:
     """Nearest enclosing dir carrying `.anchor` — doc-mode passes the file's
     parent as anchor_root, which for a `{slug} Design/` doc is below the root."""
-    cur = anchor_root
-    while True:
-        if (cur / ".anchor").is_file():
-            return cur
-        if cur.parent == cur:
-            return anchor_root
-        cur = cur.parent
+    return _ancestor_anchor_roots(anchor_root, cap=1)[0]
+
+
+def _resolve_doc(name: str, anchor_root: Path) -> Path | None:
+    """First `{name}.md` found searching the ancestor anchor roots nearest-first
+    (wiki-links resolve by basename; a subsystem doc may live in an outer root)."""
+    base = name.split("/")[-1]
+    for root in _ancestor_anchor_roots(anchor_root):
+        try:
+            hit = next(iter(root.rglob(f"{base}.md")), None)
+        except (OSError, ValueError):
+            hit = None
+        if hit is not None:
+            return hit
+    return None
 
 
 def chk_architecture_filename_correct(target, anchor_root, args):
@@ -1685,7 +1713,11 @@ def _subsystem_names(rows):
 
 
 def chk_subsystem_kebab_naming(target, anchor_root, args):
-    """R-architecture-08: subsystem names use kebab `{slug}-{Subsystem}` form."""
+    """R-architecture-08: Design-resident subsystem docs use kebab
+    `{slug}-{Subsystem}` form. A `[[link]]` resolving to a doc OUTSIDE any
+    `* Design/` folder is a project-tree component/group page referenced by its
+    true name — exempt. `[single-bracket]` placeholders are exempt (their home,
+    and so their naming, is decided at authoring time)."""
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
@@ -1695,10 +1727,18 @@ def chk_subsystem_kebab_naming(target, anchor_root, args):
     stem = f.stem
     slug = (stem[: -len(" Architecture")] if stem.endswith(" Architecture")
             else _anchor_slug(_real_anchor_root(anchor_root)))
-    bad = [n for n, _ in _subsystem_names(rows)
-           if not re.fullmatch(rf"{re.escape(slug)}-[A-Za-z0-9-]+", n)]
+    bad = []
+    for n, is_link in _subsystem_names(rows):
+        if re.fullmatch(rf"{re.escape(slug)}-[A-Za-z0-9-]+", n):
+            continue
+        if not is_link:
+            continue  # placeholder — naming decided when the doc is authored
+        hit = _resolve_doc(n, anchor_root)
+        if hit is not None and not any(p.name.endswith(" Design") for p in hit.parents):
+            continue  # real project-tree component/group page — true name is right
+        bad.append(n)
     if bad:
-        return "fail", "non-kebab subsystem names: " + ", ".join(bad[:5])
+        return "fail", "non-kebab Design-resident subsystem names: " + ", ".join(bad[:5])
     return "pass", ""
 
 
@@ -1712,16 +1752,10 @@ def chk_subsystem_link_convention(target, anchor_root, args):
     if rows is None:
         return "fail", "no ## Subsystems H2"
     missing = []
-    root = _real_anchor_root(anchor_root)
     for name, is_link in _subsystem_names(rows):
         if not is_link:
             continue
-        base = name.split("/")[-1]
-        try:
-            found = any(root.rglob(f"{base}.md"))
-        except (OSError, ValueError):
-            found = False
-        if not found:
+        if _resolve_doc(name, anchor_root) is None:
             missing.append(name)
     if missing:
         return "fail", "missing subsystem docs: " + ", ".join(missing[:5])

@@ -16,6 +16,13 @@ How Mini is verified: the kinds of test, how much of each, and the concrete inve
 - **Unit bar** — every public function in `src/` has a golden-path test.
 - **E2E bar** — exactly one per user story (one story in v1).
 
+## Tests
+
+| Kind | In system | Expected coverage |
+| --- | --- | --- |
+| [[DAS Common Testing Types#Unit\|Unit]] | 2 | every public function in `src/` golden-pathed (one function in v1) |
+| [[DAS Common Testing Types#End-to-End\|End-to-end]] | 1 | exactly one per user story (US-MINI-1) |
+
 ## Overview
 
 Mini is a single-function CLI that reverses a string. The whole surface is one pure function plus a thin `main`, so the testing posture is **heavy unit on the pure logic, one e2e on the CLI**. There is nothing to integrate (one module) and no I/O worth a live tier, so those kinds are deliberately absent.

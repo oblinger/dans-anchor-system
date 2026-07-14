@@ -69,14 +69,14 @@ The first four H2 (or H1-then-H2) sections appear in the order `Overview → Arc
 
 **Why:** the spine is the load-bearing invariant (`section-order` finding). A reader should always meet what-it-is, then the picture, then the parts, before any supporting context.
 
-### RULE R-architecture-08 — Subsystem docs use kebab `{slug}-{Subsystem}` naming (checked)
+### RULE R-architecture-08 — Design-resident subsystem docs use kebab `{slug}-{Subsystem}` naming (checked)
 check:: subsystem_kebab_naming
 
-Every subsystem referenced in the Subsystems table uses kebab form `{slug}-{Subsystem}` (anchor slug, hyphen, subsystem name; internal hyphens for multi-word). No space-form (`MUX Data`), no `… Arch` / `… Subsystem` suffix.
+A subsystem doc that lives in `{slug} Design/` uses kebab form `{slug}-{Subsystem}` (anchor slug, hyphen, subsystem name; internal hyphens for multi-word). No space-form (`MUX Data`), no `… Arch` / `… Subsystem` suffix. Two exemptions (amended 2026-07-13, T017 — the HBR exemplar forced the boundary): a table entry whose `[[link]]` resolves to a real component/group page in the **project tree** (outside any `* Design/` folder) references it by its true space-form name — that page is a real anchor-tree citizen governed by [[DAS Naming]], not an architecture artifact (worked example: [[HBR Architecture]] linking [[HBR Ingest]]); and `[single-bracket]` placeholders are exempt — their home, and so their naming, is decided when the doc is authored.
 
-**Check pattern:** each subsystem link/placeholder target matches `^{slug}-[A-Za-z0-9-]+$`.
+**Check pattern:** each `[[link]]` target matches `^{slug}-[A-Za-z0-9-]+$`, or resolves to an existing doc outside every `* Design/` folder.
 
-**Why:** kebab form gives basename uniqueness against module docs, no markdown collision, and visual grouping (`{slug}-*` sorts together). HA/OBU used space-form + `Arch` suffixes that collide and clutter.
+**Why:** kebab form gives Design-resident subsystem docs basename uniqueness against module docs, no markdown collision, and visual grouping (`{slug}-*` sorts together). HA/OBU used space-form + `Arch` suffixes **inside Design** that collide and clutter — that is what this rule flags; real group anchors keep their real names.
 
 ### RULE R-architecture-09 — Link convention: `[[double]]` = real doc, `[single]` = placeholder (checked)
 check:: subsystem_link_convention
