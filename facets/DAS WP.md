@@ -53,7 +53,6 @@ Work Products — polished, dated outputs of human+agent collaboration. Papers, 
 | [[2026-04-15 Security Audit]] |  |
 | [[2026-03-28 Architecture Review]] |  |
 | --- | |
-
 ```
 
 The `---` separator at the bottom enables rewire/rescan to auto-list any remaining work-product folders.
@@ -67,7 +66,6 @@ When the WP folder is created, a **Work** row is added to the anchor dispatch ta
 ```
 
 | Work | [[{slug} WP\|WP]] |
-
 ```
 
 ## Distinction from Other Dated Content

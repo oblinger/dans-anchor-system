@@ -2388,7 +2388,15 @@ def chk_md_table_blank_lines(target, anchor_root, args):
     lines = _read(target).splitlines()
     issues = []
     i = 0
+    in_fence = False
     while i < len(lines):
+        if re.match(r"^\s*(```|~~~)", lines[i]):
+            in_fence = not in_fence
+            i += 1
+            continue
+        if in_fence:
+            i += 1
+            continue
         if re.match(r"^\s*\|", lines[i]) and i + 1 < len(lines) and re.match(r"^\s*\|[\s|:-]+$", lines[i + 1]):
             if i > 0 and lines[i - 1].strip():
                 issues.append(f"table at line {i + 1}: no blank line before header")
@@ -3182,10 +3190,15 @@ def fix_table_blank_lines(target, anchor_root, args):
         return False, "not a file"
     lines = _read(target).split("\n")
     is_tbl = lambda l: l.lstrip().startswith("|")
+    is_fence = lambda l: re.match(r"^\s*(```|~~~)", l) is not None
     out, i, changed = [], 0, False
+    in_fence = False
     n = len(lines)
     while i < n:
-        if is_tbl(lines[i]):
+        if is_fence(lines[i]):
+            in_fence = not in_fence
+            out.append(lines[i]); i += 1
+        elif not in_fence and is_tbl(lines[i]):
             if out and out[-1].strip() != "":
                 out.append(""); changed = True
             while i < n and is_tbl(lines[i]):

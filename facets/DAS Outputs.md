@@ -68,7 +68,6 @@ The stat command:
 | Date | Output | Status |
 |------|--------|--------|
 | 2026-03-28 | [[2026-03-28 Fallbacks Audit]] | Ready — 5 HIGH, 14 MEDIUM |
-
 ```
 
 -[[{date} {name}]]- \| \|` + standard separator) above the report body.
