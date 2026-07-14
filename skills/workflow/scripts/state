@@ -38,6 +38,29 @@ import sys
 from datetime import date
 from pathlib import Path
 
+# --- Warden self-fire (fork 9 option A, 2026-07-13) -------------------------
+# Script-written files bypass Warden's PostToolUse hook (agent tool calls
+# only), so writer scripts report their own writes through the same dispatch
+# path. Best-effort: Warden off/uninstalled means silence; never raises.
+try:
+    import importlib.util as _wsf_il
+    _WSF_PATH = ((Path.home() / ".claude" / "skills").resolve().parent
+                 / "warden" / "engine" / "warden_selffire.py")
+    _wsf_spec = _wsf_il.spec_from_file_location("warden_selffire", _WSF_PATH)
+    _warden_selffire = _wsf_il.module_from_spec(_wsf_spec)
+    _wsf_spec.loader.exec_module(_warden_selffire)
+except Exception:
+    _warden_selffire = None
+
+
+def _selffire(path):
+    """Report a just-written markdown file to Warden (best-effort)."""
+    if _warden_selffire is not None:
+        _warden_selffire.fire_write(path)
+# ---------------------------------------------------------------------------
+
+
+
 # Load backlog-edit.py as a module so we can reuse its helpers.
 _SCRIPT_DIR = Path(__file__).resolve().parent
 _BE_PATH = _SCRIPT_DIR / "backlog-edit.py"
@@ -289,6 +312,7 @@ def _sync_roadmap_on_done(slug, backlog_path, row_id):
             return None
         roadmap.write_text("\n".join(lines) + ("\n" if text.endswith("\n") else ""),
                            encoding="utf-8")
+        _selffire(roadmap)
         return f"roadmap auto-sync — flipped {row_id} checkbox to [x]"
     except (be.BacklogEditError, OSError, UnicodeDecodeError):
         return None
@@ -375,6 +399,7 @@ def _q_answer_core(slug, feature_path, q_num, q_slug, choice, body):
         "\n".join(lines) + ("\n" if text.endswith("\n") else ""),
         encoding="utf-8",
     )
+    _selffire(feature_path)
     summary = f"answered Q{q_num} (choice {choice}) in {feature_path.name}"
     _post_conditions_and_print(slug, feature_path, summary)
     return 0
@@ -424,6 +449,7 @@ def _q_remove_core(slug, feature_path, q_num, q_slug, reason):
         "\n".join(lines) + ("\n" if text.endswith("\n") else ""),
         encoding="utf-8",
     )
+    _selffire(feature_path)
     summary = f"removed Q{q_num} from {feature_path.name} (reason: {reason})"
     _post_conditions_and_print(slug, feature_path, summary)
     return 0
@@ -487,6 +513,7 @@ def _ensure_status_file(slug, anchor_path):
         body_lines.append(f"{facet}:: none")
     body_lines.append("")
     path.write_text("\n".join(body_lines), encoding="utf-8")
+    _selffire(path)
     return path
 
 
@@ -554,6 +581,7 @@ def cmd_status_set(slug, anchor_path, args):
             out_lines.append("")
 
     path.write_text("\n".join(out_lines), encoding="utf-8")
+    _selffire(path)
     note_tail = f" — {note}" if note else ""
     print(f"{slug}: status {facet} → {cell}{note_tail}")
     return 0
@@ -726,6 +754,7 @@ def cmd_roadmap_status_set(slug, anchor_path, args):
     lines[idx] = _set_box_on_line(lines[idx], new_box)
     path.write_text("\n".join(lines) + ("\n" if text.endswith("\n") else ""),
                     encoding="utf-8")
+    _selffire(path)
     ref = args.milestone or args.feature
     print(f"{slug}: roadmap {ref} {_BOX_TO_STATE[old_box]} → {args.state} (line {idx + 1})")
     return 0
@@ -795,6 +824,7 @@ def _ensure_completed_roadmap(slug, completed_path):
         )
     header = f"# {slug} Completed Roadmap\n\n"
     completed_path.write_text(header, encoding="utf-8")
+    _selffire(completed_path)
     return header
 
 
@@ -895,6 +925,7 @@ def cmd_roadmap_migrate(slug, anchor_path, args):
             + comp_lines[insert_base:]
         )
     completed.write_text("\n".join(new_comp).rstrip("\n") + "\n", encoding="utf-8")
+    _selffire(completed)
 
     # --- Remove the milestone from the live Roadmap ---
     # Drop lines[start:next_h2] (heading through the blank run before next H2).
@@ -906,6 +937,7 @@ def cmd_roadmap_migrate(slug, anchor_path, args):
             continue
         cleaned.append(l)
     roadmap.write_text("\n".join(cleaned).rstrip("\n") + "\n", encoding="utf-8")
+    _selffire(roadmap)
 
     print(f"{slug}: migrated {milestone} → {completed.name} (migrated {date_str}); "
           f"sealed standalone grouping + opened fresh one")
@@ -1245,6 +1277,7 @@ def _q_define_core(slug, feature_path, q_num, body):
         "\n".join(lines) + ("\n" if text.endswith("\n") else ""),
         encoding="utf-8",
     )
+    _selffire(feature_path)
     summary = f"{verb_done} Q{q_num} in {feature_path.name}"
     _post_conditions_and_print(slug, feature_path, summary)
     return 0

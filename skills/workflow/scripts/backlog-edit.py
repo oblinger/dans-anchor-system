@@ -54,6 +54,29 @@ import subprocess
 from datetime import date, datetime, timezone
 from pathlib import Path
 
+# --- Warden self-fire (fork 9 option A, 2026-07-13) -------------------------
+# Script-written files bypass Warden's PostToolUse hook (agent tool calls
+# only), so writer scripts report their own writes through the same dispatch
+# path. Best-effort: Warden off/uninstalled means silence; never raises.
+try:
+    import importlib.util as _wsf_il
+    _WSF_PATH = ((Path.home() / ".claude" / "skills").resolve().parent
+                 / "warden" / "engine" / "warden_selffire.py")
+    _wsf_spec = _wsf_il.spec_from_file_location("warden_selffire", _WSF_PATH)
+    _warden_selffire = _wsf_il.module_from_spec(_wsf_spec)
+    _wsf_spec.loader.exec_module(_warden_selffire)
+except Exception:
+    _warden_selffire = None
+
+
+def _selffire(path):
+    """Report a just-written markdown file to Warden (best-effort)."""
+    if _warden_selffire is not None:
+        _warden_selffire.fire_write(path)
+# ---------------------------------------------------------------------------
+
+
+
 # --------------------------------------------------------------------------
 # Config
 
@@ -196,6 +219,7 @@ def ensure_icebox(slug, backlog_path):
         f"## {ICEBOX_DEFAULT_H2}\n\n"
     )
     icebox.write_text(header)
+    _selffire(icebox)
     return icebox
 
 
@@ -997,6 +1021,7 @@ def perform_edit(
         start, end, existing_h2, _ = existing
         del lines[start:end]
         backlog_path.write_text("".join(lines))
+        _selffire(backlog_path)
         return {
             "summary": f"deleted {row_id}",
             "row_id": row_id,
@@ -1149,6 +1174,7 @@ def perform_edit(
                 break
 
     backlog_path.write_text("".join(lines))
+    _selffire(backlog_path)
 
     # Soft nudge — Verify/Watching usually belongs in Later.
     warn_verify_watching_horizon(status, h2_name)
@@ -1188,6 +1214,7 @@ def append_messages(slug, summary, backlog_path):
             f"\n# {slug} Messages\n\n"
         )
         messages_path.write_text(header)
+        _selffire(messages_path)
     with messages_path.open("a") as f:
         f.write(line)
 
@@ -1697,6 +1724,7 @@ def main_q(argv):
         lines = lines[:insert_at] + new_lines + lines[insert_at:]
         feature_path.write_text("\n".join(lines) + ("\n" if text.endswith("\n") else ""),
                                 encoding="utf-8")
+        _selffire(feature_path)
         summary = f"added Q{q_num} to {feature_path.name}"
 
     elif args.verb == "resolve":
@@ -1774,6 +1802,7 @@ def main_q(argv):
                     lines = lines[:oq_start]
         feature_path.write_text("\n".join(lines) + ("\n" if text.endswith("\n") else ""),
                                 encoding="utf-8")
+        _selffire(feature_path)
         summary = f"resolved Q{args.q_num} (choice {args.choice}) in {feature_path.name}"
 
     elif args.verb == "remove":
@@ -1827,6 +1856,7 @@ def main_q(argv):
             lines = lines[:insert_at] + h3_lines + lines[insert_at:]
         feature_path.write_text("\n".join(lines) + ("\n" if text.endswith("\n") else ""),
                                 encoding="utf-8")
+        _selffire(feature_path)
         summary = f"removed Q{args.q_num} from {feature_path.name} (reason: {reason})"
 
     elif args.verb == "rewrite":
@@ -1862,6 +1892,7 @@ def main_q(argv):
         lines = lines[:start] + new_bullet_lines + lines[end:]
         feature_path.write_text("\n".join(lines) + ("\n" if text.endswith("\n") else ""),
                                 encoding="utf-8")
+        _selffire(feature_path)
         summary = f"rewrote Q{args.q_num} in {feature_path.name}"
     else:
         raise BacklogEditError(f"unknown -Q verb: {args.verb}")
