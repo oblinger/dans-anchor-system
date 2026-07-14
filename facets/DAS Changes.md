@@ -9,6 +9,8 @@ Specification for the **Changes** facet — the OpenSpec-conformant `changes/` f
 | --- | --- |
 | Related | [[DAS Specs]],  [[DAS Features]],  [[DAS Backlog]],  [[F230 — OpenSpec conversion\|F230]],   |
 | Skills | [[skills/change/SKILL\|/change]] (create),  [[skills/mint/SKILL\|/mint]] (execute),  [[skills/finalize/SKILL\|/finalize]] (archive-merge) |
+| Rules | [[R-changes]],   |
+| Examples | none yet — first adoption pending ([[F230 — OpenSpec conversion\|F230]]) |
 
 **Location:** `changes/` at the anchor root (lowercase, [OpenSpec](https://github.com/Fission-AI/OpenSpec/)-conformant — their tooling reads it unmodified). One folder per change: `changes/C<NNN>-<kebab-slug>/`.
 

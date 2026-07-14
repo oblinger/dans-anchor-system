@@ -9,6 +9,8 @@ Specification for the **Specs** facet — the OpenSpec-conformant `specs/` folde
 | --- | --- |
 | Related | [[DAS Changes]],  [[DAS Architecture]],  [[DAS Testing]],  [[F230 — OpenSpec conversion\|F230]],   |
 | Skills | [[skills/finalize/SKILL\|/finalize]] (archive-merge writes here) |
+| Rules | [[R-specs]],   |
+| Examples | none yet — first adoption pending ([[F230 — OpenSpec conversion\|F230]]) |
 
 **Location:** `specs/` at the anchor root (lowercase, [OpenSpec](https://github.com/Fission-AI/OpenSpec/)-conformant). One folder per **capability**, each holding exactly one file named `spec.md` — nothing else (verified against OpenSpec's own repo; everything richer lives in the anchor's design docs).
 

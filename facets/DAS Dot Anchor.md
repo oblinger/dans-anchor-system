@@ -8,6 +8,7 @@ The `.anchor` file — the small YAML declaration at an anchor's root that carri
 | --- | --- |
 | Related | [[DAS Folder]],  [[DAS Naming]],  [[DAS Traits]],  [[DAS Code Repository]],  [[DAS anchor-dag]],   |
 | Rules | [[R-dot-anchor]],   |
+| Examples | [[DAS\|dans-anchor-system .anchor (traits form)]],  [[OBU\|ob-utils .anchor (code: form)]],   |
 
 **TLDR** — `.anchor` is a YAML file at the anchor root. Its **presence makes the folder an anchor** ([[DAS Folder]]); its **fields** declare the anchor's metadata. `slug` is the only required field. This facet is the **field-set index** — each field's detailed rule lives in its owning facet (single source of truth). Managed with `cab-config`. **Cardinality: one per anchor.**
 

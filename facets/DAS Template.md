@@ -11,6 +11,8 @@ The Template facet — a **domain-specific, folder-local structure**: the shared
 | Rules | [[R-template]],   |
 | Examples | [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template\|file template]],  [[_{{DISK_LABEL}} Template\|folder template]],   |
 
+**Cardinality: many** — any folder/tree may declare its own template; each is folder-local.
+
 **TLDR** — A template defines the **shared structure of the items in one folder/tree** — what each computer record, each disk folder, each member of a domain-specific set looks like. It is a `_{Name} Template.md` file or `_{Name} Template/` folder whose body is a **live working specimen** (real H1 / frontmatter / sections, bare `{{PLACEHOLDERS}}`, **no code fences**) plus a Variables section defining each placeholder *and what to do when there's no data*. Three parts: **[[DAS Template Files|Files]]** (file templates), **[[DAS Template Folders|Folders]]** (folder templates), **[[DAS Template Variables|Variables]]** (the `{{…}}` system, shared by both).
 
 ## Template vs Facet — local-and-domain-specific vs global-and-type-wide

@@ -47,7 +47,6 @@ A markdown file-tree table with two columns.
 | `├──` [[MyProject.md]] | identity file   |
 | `├──`  [[src]]/        | source code     |
 | `│ .  └──`  [[lib]]/   | library modules |
-| `└──` [[DAS Docs Folder]]/        | documentation   |
 
 
 ## 3. BRAILLE-BASED FILE TREE

@@ -2,7 +2,7 @@
 description: "facet spec for the project sequencing-design doc — milestones, shapes, and numbering"
 ---
 
-# Roadmap Facet
+# DAS Roadmap
 The Roadmap facet — the project's sequencing-design doc, organized as named milestones with sub-numbering.
 
 | -[[DAS Roadmap]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Roadmap](hook://p/DAS%20Roadmap) |

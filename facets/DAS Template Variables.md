@@ -8,6 +8,9 @@ The `{{PLACEHOLDER}}` system shared by file and folder templates — how each va
 | --- | --- |
 | Related | [[DAS Template]] (umbrella),  [[DAS Template Files]],  [[DAS Template Folders]] |
 | Examples | [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template\|file]],  [[_{{DISK_LABEL}} Template\|folder]] (both show the two placeholder forms) |
+| Rules | [[R-template]],   |
+
+**Cardinality: one** — a single shared placeholder system; every file and folder template uses the same `{{…}}` vocabulary.
 
 ## Two placeholder forms — distinguished by case
 

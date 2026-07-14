@@ -8,6 +8,9 @@ A **folder template** — a `_{Name} Template/` folder whose marker + skeleton d
 | --- | --- |
 | Related | [[DAS Template]] (umbrella),  [[DAS Template Files]],  [[DAS Template Variables]],  [[DAS Dispatch Table]] (the Template row) |
 | Examples | [[_{{DISK_LABEL}} Template\|disk folder]],   |
+| Rules | [[R-template]],   |
+
+**Cardinality: many** — one `_{Name} Template/` per templated folder kind, local to its tree.
 
 ## At a glance
 

@@ -2,7 +2,7 @@
 description: "completed-roadmap facet — migrated milestones in newest-on-top order, sibling of the forward-looking Roadmap"
 ---
 
-# Completed Roadmap Facet
+# DAS Completed Roadmap
 The migration target for completed milestones — preserves shipped milestone structure in newest-to-oldest order alongside the forward-looking Roadmap.
 
 | -[[DAS Completed Roadmap]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Completed Roadmap](hook://p/DAS%20Completed%20Roadmap) |
