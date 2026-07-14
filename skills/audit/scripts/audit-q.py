@@ -75,6 +75,29 @@ import argparse
 import re
 import sys
 
+# --- Warden self-fire (fork 9 option A, 2026-07-13) -------------------------
+# Script-written files bypass Warden's PostToolUse hook (agent tool calls
+# only), so writer scripts report their own writes through the same dispatch
+# path. Best-effort: Warden off/uninstalled means silence; never raises.
+try:
+    import importlib.util as _wsf_il
+    _WSF_PATH = ((Path.home() / ".claude" / "skills").resolve().parent
+                 / "warden" / "engine" / "warden_selffire.py")
+    _wsf_spec = _wsf_il.spec_from_file_location("warden_selffire", _WSF_PATH)
+    _warden_selffire = _wsf_il.module_from_spec(_wsf_spec)
+    _wsf_spec.loader.exec_module(_warden_selffire)
+except Exception:
+    _warden_selffire = None
+
+
+def _selffire(path):
+    """Report a just-written markdown file to Warden (best-effort)."""
+    if _warden_selffire is not None:
+        _warden_selffire.fire_write(path)
+# ---------------------------------------------------------------------------
+
+
+
 # ============================================================
 # Configuration
 # ============================================================
@@ -994,6 +1017,7 @@ def apply_c4_fix(backlog_file: Path,
     if not new_text.endswith("\n"):
         new_text += "\n"
     backlog_file.write_text(new_text, encoding="utf-8")
+    _selffire(backlog_file)
     return True, log
 
 
@@ -1296,6 +1320,7 @@ def apply_c6_fix(q_entries: list[QEntry]) -> list[str]:
             if not new_text.endswith("\n"):
                 new_text += "\n"
             file_path.write_text(new_text, encoding="utf-8")
+            _selffire(file_path)
     return log
 
 
@@ -1453,6 +1478,7 @@ def apply_c10_fix(q_entries: list[QEntry]) -> list[str]:
             if not new_text.endswith("\n"):
                 new_text += "\n"
             file_path.write_text(new_text, encoding="utf-8")
+            _selffire(file_path)
     return log
 
 
@@ -3466,6 +3492,7 @@ def apply_c36_fix(
         lines[idx] = _BACKTICK_SPAN_RE.sub(_sub, line)
     if applied:
         file_path.write_text("".join(lines), encoding="utf-8")
+        _selffire(file_path)
     return applied
 
 
@@ -3530,6 +3557,7 @@ def apply_c23_fix(backlog_file: Path,
         )
     if changed:
         backlog_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        _selffire(backlog_file)
     return changed, fix_log
 
 
@@ -3611,6 +3639,7 @@ def apply_c24_fix(backlog_file: Path,
         )
     if changed:
         backlog_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        _selffire(backlog_file)
     return changed, fix_log
 
 
@@ -3757,6 +3786,7 @@ def file_qfix_row(
         result = f"created B-QFix with {len(findings)} residual(s)"
 
     backlog_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    _selffire(backlog_file)
     return True, result
 
 
@@ -3797,6 +3827,7 @@ def clear_qfix_row(backlog_file: Path) -> tuple[bool, str]:
         if qfix_idx > 0 and not lines[qfix_idx - 1].strip():
             break
     backlog_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    _selffire(backlog_file)
     return True, "cleared stale B-QFix row"
 
 
@@ -3931,6 +3962,7 @@ def apply_placement_fixes(
     if not new_text.endswith("\n"):
         new_text += "\n"
     backlog_file.write_text(new_text, encoding="utf-8")
+    _selffire(backlog_file)
     return log
 
 
@@ -4603,6 +4635,7 @@ def apply_d1_banner_write(qmd_file: Path, derived_banners: dict[str, str]) -> in
                 changed += 1
         if changed:
             qmd_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
+            _selffire(qmd_file)
         return changed
     rewrites = 0
     for name in derived_banners.keys():

@@ -87,11 +87,11 @@ def check_verification(bullet_opener: str, full_bullet: str) -> list[str]:
 ```
 
 ### RULE R-query-05 — A verification never asks the user to run/execute anything (checked)
-check:: regex_absent (?im)^[-*]\s+\*\*V\d+.*\b(run|execute|launch|invoke)\b
+check:: regex_absent (?im)^[-*]\s+\*\*V\d+.*(?<![\w-])(run|execute|launch|invoke)(?![\w-])
 
 The user is never told to *do* a thing — the agent runs it (ahead of time + embed, or live-on-ready) and the user only looks. Imperatives directed at the user are forbidden.
 
-**Check pattern:** no Verifications line contains a user-directed run/execute imperative. (The live-fallback form "tell me when you're ready; I'll run it" is the agent offering to run — allowed.)
+**Check pattern:** no Verifications line contains a user-directed run/execute imperative. (The live-fallback form "tell me when you're ready; I'll run it" is the agent offering to run — allowed.) Hyphen-adjacent compounds (`never-run`, `re-run`) are descriptive, not imperative — excluded via the lookarounds (false positive on MUX V24 "never-run anchor", 2026-07-13, the first self-fire day).
 
 ### RULE R-query-06 — No "verify `F<n>`" / whole-document eyeball (stated)
 

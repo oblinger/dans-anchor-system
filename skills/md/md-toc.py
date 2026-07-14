@@ -28,6 +28,29 @@ import re
 import sys
 from pathlib import Path
 
+# --- Warden self-fire (fork 9 option A, 2026-07-13) -------------------------
+# Script-written files bypass Warden's PostToolUse hook (agent tool calls
+# only), so writer scripts report their own writes through the same dispatch
+# path. Best-effort: Warden off/uninstalled means silence; never raises.
+try:
+    import importlib.util as _wsf_il
+    _WSF_PATH = ((Path.home() / ".claude" / "skills").resolve().parent
+                 / "warden" / "engine" / "warden_selffire.py")
+    _wsf_spec = _wsf_il.spec_from_file_location("warden_selffire", _WSF_PATH)
+    _warden_selffire = _wsf_il.module_from_spec(_wsf_spec)
+    _wsf_spec.loader.exec_module(_warden_selffire)
+except Exception:
+    _warden_selffire = None
+
+
+def _selffire(path):
+    """Report a just-written markdown file to Warden (best-effort)."""
+    if _warden_selffire is not None:
+        _warden_selffire.fire_write(path)
+# ---------------------------------------------------------------------------
+
+
+
 FIG_SPACE = '\u2007'  # figure space — does not collapse in markdown renderers
 
 
@@ -180,6 +203,7 @@ def update_file(path: Path, headings: list[dict]) -> bool:
         toc = generate_toc_table(headings, existing, num_cols)
         new_text = text[:start] + toc + text[end:]
         path.write_text(new_text)
+        _selffire(path)
         return True
     return False
 

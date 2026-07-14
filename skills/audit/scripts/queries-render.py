@@ -31,6 +31,29 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
+# --- Warden self-fire (fork 9 option A, 2026-07-13) -------------------------
+# Script-written files bypass Warden's PostToolUse hook (agent tool calls
+# only), so writer scripts report their own writes through the same dispatch
+# path. Best-effort: Warden off/uninstalled means silence; never raises.
+try:
+    import importlib.util as _wsf_il
+    _WSF_PATH = ((Path.home() / ".claude" / "skills").resolve().parent
+                 / "warden" / "engine" / "warden_selffire.py")
+    _wsf_spec = _wsf_il.spec_from_file_location("warden_selffire", _WSF_PATH)
+    _warden_selffire = _wsf_il.module_from_spec(_wsf_spec)
+    _wsf_spec.loader.exec_module(_warden_selffire)
+except Exception:
+    _warden_selffire = None
+
+
+def _selffire(path):
+    """Report a just-written markdown file to Warden (best-effort)."""
+    if _warden_selffire is not None:
+        _warden_selffire.fire_write(path)
+# ---------------------------------------------------------------------------
+
+
+
 # ============================================================
 # Load audit-q.py for parsing utilities (hyphenated filename
 # blocks plain `import`).
@@ -796,8 +819,16 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
 
     body: list[str] = []
     body.extend(_worktree_findings_lines(name))
+
+    def _h2(title: str) -> None:
+        # Blank line before every H2 (R-progressive-02) — surfaced the moment
+        # Warden could see script-written files (fork 9 option A, 2026-07-13).
+        if body:
+            body.append("")
+        body.append(title)
+
     if verifs:
-        body.append("## Verifications")
+        _h2("## Verifications")
         for i, r in enumerate(verifs, 1):
             link = _bullet_link(r, name, vault_index, block_ids, h3_headings)
             # Prefer the row's concrete `Verify:` question; fall back to a ⚠ so a
@@ -813,16 +844,11 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
                 body.append(f"- **V{i}** {doclink} ({rowlink}) — {qtxt} · **yes / no**")
             else:
                 body.append(f"- **V{i}** {link} — {qtxt} · **yes / no**")
-    if ready:
-        body.append("## Ready")
-        for r in ready:
-            link = _bullet_link(r, name, vault_index, block_ids, h3_headings)
-            na = next_actions.get(r.identifier)
-            na_txt = (_truncate_body(na, 200) if na
-                      else "⚠ none declared — not really Ready; add a no-user next-action or rebracket")
-            body.append(f"- {link} — **Next:** {na_txt}")
+    # Section order per R-query-03: … → Questions → Ready (the render emitted
+    # Ready before Questions since inception — a spec divergence invisible
+    # until Warden could see script-written files; fixed 2026-07-13).
     if qs:
-        body.append("## Questions")
+        _h2("## Questions")
         for r in qs:
             link = _bullet_link(r, name, vault_index, block_ids, h3_headings)
             txt = _truncate_body(r.body, 160)
@@ -840,6 +866,14 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
                 body.append(f"- {doclink}{cnt} ({rowlink})" + (f" — {txt}" if txt else ""))
             else:
                 body.append(f"- {link}{cnt}" + (f" — {txt}" if txt else ""))
+    if ready:
+        _h2("## Ready")
+        for r in ready:
+            link = _bullet_link(r, name, vault_index, block_ids, h3_headings)
+            na = next_actions.get(r.identifier)
+            na_txt = (_truncate_body(na, 200) if na
+                      else "⚠ none declared — not really Ready; add a no-user next-action or rebracket")
+            body.append(f"- {link} — **Next:** {na_txt}")
     if not body:
         body.append("_Nothing pending._")
     return body
@@ -879,6 +913,7 @@ def render_queries_doc(name: str, banner: Optional[str], rows: list[Row],
             pass
     out = fm + ["", h1, ""] + body + [""]
     queries_file.write_text("\n".join(out), encoding="utf-8")
+    _selffire(queries_file)
     return True
 
 
@@ -1053,6 +1088,7 @@ def rewrite_qmd_section(name: str, section_lines: list[str]) -> str:
         new_text += "\n"
     try:
         Q_MD.write_text(new_text, encoding="utf-8")
+        _selffire(Q_MD)
     except OSError as e:
         sys.stderr.write(f"queries-render: error writing Q.md: {e}\n")
         sys.exit(2)
@@ -1184,6 +1220,7 @@ def sweep_stale_brackets(backlog_file: Path) -> list[str]:
             collapsed.append(l)
 
     backlog_file.write_text("\n".join(collapsed) + "\n", encoding="utf-8")
+    _selffire(backlog_file)
     return descs
 
 
