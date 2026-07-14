@@ -15,7 +15,8 @@ import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-REPO = HERE.parents[1]
+from warden_root import corpus_root
+REPO = corpus_root()
 sys.path.insert(0, str(HERE))
 
 import warden_hook as wh  # noqa: E402

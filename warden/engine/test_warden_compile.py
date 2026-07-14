@@ -13,7 +13,8 @@ import types
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-REPO = HERE.parents[1]  # dans-anchor-system repo root
+from warden_root import corpus_root
+REPO = corpus_root()  # dans-anchor-system repo root
 sys.path.insert(0, str(HERE))
 
 import warden_compile as wc  # noqa: E402
