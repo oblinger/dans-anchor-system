@@ -110,6 +110,16 @@ The consumer skill is responsible for reporting; the discipline supplies what to
 Each consumer formats this report in its own style; the discipline just guarantees the substance is complete.
 
 
+### C-entry close-out — the archive-merge (per F230)
+
+When the unit being closed is a **C-row** (an OpenSpec change, [[DAS Changes]]), the close-out adds the archive-merge before the status step:
+
+1. **Fold the delta** — apply `changes/C<NNN>-<slug>/specs/<capability>/spec.md` into the anchor's `specs/<capability>/spec.md` per [[DAS Specs]] § Delta semantics: ADDED appends the requirement section (creating the capability folder if new), MODIFIED replaces the named section wholesale, REMOVED deletes it. Conflicts (MODIFIED target missing, ADDED already present) fail loudly — stop and surface, never merge silently.
+2. **Reconcile design** — if the change carries `design.md` / `design/`, promote its durable content into the anchor's design docs (`{slug} Design/`), then discard the transient notes with the archive.
+3. **Verify tasks.md is all-checked** — an unchecked box means the change isn't done; go back to `/mint` or rebracket honestly.
+4. **Archive** — move the whole folder to `changes/archive/C<NNN>-<slug>/`. Archived changes are history: never edited, never un-archived; follow-ups are new C-numbers.
+5. Row → `[Done]` via `state Backlog C<NNN> set` — then continue the normal sequence below (commit, status, cleanup).
+
 ## Consumers
 
 | Skill | When it invokes this discipline |
