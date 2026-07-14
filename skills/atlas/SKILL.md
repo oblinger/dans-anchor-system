@@ -129,4 +129,4 @@ Rows are sorted alphabetically by **name** (the Atlas column's display text), ma
 - Atlas itself: `[[Atlas]]` (the file)
 - Master index: `[[ATL Slugs]]`
 - Anchor page: `[[ATL]]`
-- Project planning: `[[ATL Plan]]` / `[[ATL Backlog]]`
+- Project planning: `[[ATL Track]]` / `[[ATL Backlog]]`
