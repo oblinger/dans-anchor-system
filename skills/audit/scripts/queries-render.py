@@ -530,7 +530,10 @@ def derive_banner(name: str, rows: list[Row], backlog_file: Path,
     # exist yet (avoids emitting a C1-failing wiki-link in Q.md):
     #   `{slug} queries` → `{slug} Triage` → `{slug}` (anchor page) → plain text
     candidates = [f"{name} queries", f"{name} Triage", name]
-    h1_target = next((c for c in candidates if c in vault_index), None)
+    # vault_index keys are lower-cased (audit_q.build_vault_index, T002) —
+    # test lowered, emit original case (T017: the case-sensitive test left
+    # every banner on the plain-text fallback, dropping the F176 wiki-link).
+    h1_target = next((c for c in candidates if c.lower() in vault_index), None)
     if h1_target:
         slug_label = f"[[{h1_target}|{name}]]"
     else:
@@ -933,9 +936,13 @@ def _bullet_link(row: Row, name: str, vault_index: dict,
       5. Plain text (just the identifier, no `[[ ]]` brackets) — last resort
          when nothing resolves. Better a non-link than a dead link.
     """
-    # Step 1: arrow_link if it resolves.
-    if row.arrow_link and row.arrow_link in vault_index:
-        return f"[[{row.arrow_link}]]"
+    # Step 1: arrow_link if it resolves. (Lower-cased test — index keys are
+    # lowered per T002; the old case-sensitive test silently demoted every
+    # arrow-linked row to its block-id fallback.)
+    if row.arrow_link:
+        bn = row.arrow_link.split("#")[0].split("|")[0].strip()
+        if vault_index.get(bn.lower()):
+            return f"[[{row.arrow_link}]]"
     # Step 2 (H3 rows): heading link if heading exists.
     if row.is_h3:
         m = re.match(r"^### ([^[]+?)(?:\s*\[[^\]]+\])?\s*$", row.raw_line)
@@ -952,7 +959,7 @@ def _bullet_link(row: Row, name: str, vault_index: dict,
         m = re.match(r"^- \*\*([^*]+)\*\*", row.raw_line)
         if m:
             title = m.group(1).strip()
-            if title in vault_index:
+            if vault_index.get(title.lower()):
                 return f"[[{title}]]"
         # F-row title doesn't have a feature doc; fall through to block-id.
     # Step 3: backlog block-id if `^id` exists (dots→dashes for dotted R handles).

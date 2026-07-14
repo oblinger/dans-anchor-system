@@ -28,7 +28,7 @@ Tracking is the subsystem that keeps one shared picture of work state between th
 | [[Track]]                                             | —                               | Declares the anchor is actively driven through the planning + backlog lifecycle — turns on the `{slug} Track/` tree and the verbs above; co-requires the Backlog facet. |
 |                                                       |                                 |                                                                                                                                                                         |
 | **Library**                                           |                                 |                                                                                                                                                                         |
-| **`state` CLI**                                       | [[SKL State\|docs]]             | The single write path for rows, questions, statuses, roadmaps; every mutation triggers the Q.md render.                                                                 |
+| **`state` CLI**                                       | [[DAS State\|docs]]             | The single write path for rows, questions, statuses, roadmaps; every mutation triggers the Q.md render.                                                                 |
 | **`queries-render.py`**                               | —                               | Mechanical renderer — rebuilds `{slug} queries.md` and copies it into Q.md after every mutation.                                                                        |
 
 ## Overview

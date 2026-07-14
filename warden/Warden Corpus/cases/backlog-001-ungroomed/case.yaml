@@ -4,5 +4,5 @@ mode: doc
 target: FX4 Backlog.md
 provenance: synthetic
 engine: audit-plan
-blessed_against: eec8231de2bb-d921a22fb8a9
+blessed_against: ce750bb05acb-19742badd28d
 note: F228 frontier invariants — a Now row with no bracket (R-backlog-03), a Ready row with no Next step (R-backlog-02), and a Verify row with no concrete question (R-backlog-04) all fire; the Later row is not frontier and stays silent

@@ -261,7 +261,7 @@ After EVERY Q-state change, update the Design (or relevant) section with what th
 
 When a new question arises mid-discussion, add it via `Q+ define` and glance the file (per step 1a). When you resolve a question, **don't** glance — even if other questions are still pending. The glance is only for moments when the user needs to react to *new or changed* questions.
 
-Full F129 spec: [[SKL State]]. Predecessor: [[F128 — Status script as source-of-truth for Q-management — extend backlog-edit.py|F128]] (legacy CLI shape).
+Full F129 spec: [[DAS State]]. Predecessor: [[F128 — Status script as source-of-truth for Q-management — extend backlog-edit.py|F128]] (legacy CLI shape).
 
 Update stat as you work:
 ```bash

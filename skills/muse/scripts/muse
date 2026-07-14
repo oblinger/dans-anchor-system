@@ -230,6 +230,36 @@ ingest_sweep() {
     local hashfile="$MUSE_ITEMS_DIR/.muse.hashes"
     touch "$hashfile"
 
+    # TCC DIAGNOSTIC — remove once resolved. Tests whether the current process
+    # (this bash script under launchd) can see the JPR dir via:
+    #   (1) bash-native readdir via glob      — tests THIS bash process's TCC
+    #   (2) stat on the dir itself             — tests fs metadata syscall
+    #   (3) find (below)                       — tests spawned-child TCC
+    log "diag: pid=$$ bash=$BASH parent-context=launchd"
+    log "diag: MUSE_JPR_DIR=$MUSE_JPR_DIR"
+
+    # Baseline: can bash-under-launchd see ~/Documents/ (a TCC-protected path
+    # that FDA-on-bash SHOULD unlock)? If this returns 0, the bash FDA grant
+    # is a no-op → SIP is silently blocking. If non-zero, bash FDA works but
+    # iCloud FileProvider has extra gating.
+    shopt -s nullglob
+    local _diag_docs=("$HOME/Documents"/*)
+    log "diag: bash-glob ~/Documents returned ${#_diag_docs[@]} entries (baseline TCC-FDA test)"
+    local _diag_desk=("$HOME/Desktop"/*)
+    log "diag: bash-glob ~/Desktop returned ${#_diag_desk[@]} entries (baseline TCC-FDA test)"
+    if stat -f '%N (%z bytes, mode %Lp)' "$MUSE_JPR_DIR" 2>&1 | while read line; do log "diag: stat: $line"; done; then :; fi
+    shopt -s nullglob
+    local _diag_glob=("$MUSE_JPR_DIR"/*)
+    log "diag: bash-glob-immediate returned ${#_diag_glob[@]} entries"
+    if (( ${#_diag_glob[@]} > 0 )); then
+        log "diag:   first: ${_diag_glob[0]}"
+    fi
+    local _diag_glob_deep=("$MUSE_JPR_DIR"/*/*.m4a)
+    log "diag: bash-glob-deep returned ${#_diag_glob_deep[@]} .m4a files"
+    if (( ${#_diag_glob_deep[@]} > 0 )); then
+        log "diag:   first: ${_diag_glob_deep[0]}"
+    fi
+
     # Instrumented: log find visibility (helps diagnose TCC / iCloud-materialization
     # differences between launchd and interactive contexts). If found_count is
     # lower under launchd than an interactive shell, the launchd agent needs FDA

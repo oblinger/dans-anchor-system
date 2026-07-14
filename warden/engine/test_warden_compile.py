@@ -18,7 +18,7 @@ sys.path.insert(0, str(HERE))
 
 import warden_compile as wc  # noqa: E402
 
-FCT_QUERY = REPO / "facets" / "DAS Query.md"
+FCT_QUERY = REPO / "rulesets" / "R-query.md"   # F234 extraction (was facets/DAS Query.md)
 
 
 def _compile_pilot(tmp: Path):

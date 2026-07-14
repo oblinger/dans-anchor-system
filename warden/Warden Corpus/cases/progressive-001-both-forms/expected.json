@@ -55,6 +55,11 @@
   "status": "pass"
  },
  {
+  "rule": "R-markdown-15",
+  "target": "FX7 Guide.md",
+  "status": "pass"
+ },
+ {
   "rule": "R-progressive-01",
   "target": "FX7 Guide.md",
   "status": "fail"

@@ -54,9 +54,9 @@ Sections, when present, appear in this order and no foreign H2s interleave: `## 
 ### RULE R-query-16 — Banner H1 has the exact status-banner form + spacing (checked)
 check:: queries_banner_form
 
-The H1 is the status banner (§ The banner): `# [<TAG>]  [[{slug}|{slug}]]  -  Ready N    Questions N   |   Now N    Next N    Later N    Verify N    Icebox N`, with the locked spacing (two spaces after `[<TAG>]`; three around `-`; four between counts; `   |   ` between the headline pair and the horizon group). The renderer (`queries-render.py`) and the `Q.md` copy both depend on this exact form.
+The H1 is the status banner (§ The banner): `# [<TAG>]  [[{slug}|{slug}]]  -  Ready N    Questions N   |   Now N    Next N    Later N    Verify N    Icebox N`, with the locked spacing (two spaces after `[<TAG>]`; two around `-`; four between counts; `   |   ` between the headline pair and the horizon group), optionally suffixed `    {N}` (the QFix residual count, shown only when N > 0). The slug is wiki-linked (`[[{slug}|{slug}]]` inside queries.md, `[[{slug} queries|{slug}]]` in the Q.md copy) with a plain-text fallback when no target resolves. The renderer (`queries-render.py`) and the `Q.md` copy both depend on this exact form.
 
-**Check pattern:** the H1 matches the banner grammar with the prescribed spacing; single-spaced or pipe-missing forms fail.
+**Check pattern:** the H1 matches the banner grammar with the prescribed spacing (linked or plain slug both accepted); single-spaced or pipe-missing forms fail.
 
 **Why:** the same line is copied into `Q.md`, where the section-boundary scan keys off the `# [` prefix; relaxing the form silently breaks the dashboard render.
 

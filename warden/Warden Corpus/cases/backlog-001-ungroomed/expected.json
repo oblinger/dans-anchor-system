@@ -85,6 +85,11 @@
   "status": "pass"
  },
  {
+  "rule": "R-markdown-15",
+  "target": "FX4 Backlog.md",
+  "status": "pass"
+ },
+ {
   "rule": "R-progressive-01",
   "target": "FX4 Backlog.md",
   "status": "pass"
