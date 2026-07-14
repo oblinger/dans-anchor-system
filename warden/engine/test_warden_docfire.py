@@ -146,6 +146,49 @@ def test_fire_on_write_fixer_parity():
     print("PASS  fire_on_write fixer parity (M4a)")
 
 
+TOPIC_FIXTURE = """---
+description: Topic fixture — Subtopics masthead + duplicate member rows + staging marks.
+---
+
+| -[[FX]]- | → [[kmr]] → [[SYS]] → [FX](hook://p/FX)<br>: Topic fixture. |
+| --- | --- |
+| Related | [[FX Notes\\|Notes]],   |
+| Subtopics | [[FX DU\\|DU]],  [[FX Log\\|Log]],   |
+| --- | |
+| [[FX DU\\|DU]] | Per-drive du reports. |
+| [[FX Log\\|Log]] | Dated entries documenting per-session plans. |
+| ~~[[FX Ops\\|Ops]]~~ | Retired ops doc, staged for removal. |
+
+Body content below the masthead.
+
+~~[[FX BIG]] retired to APFS wipe~~
+"""
+
+
+def test_fire_on_write_preserves_dispatch_body():
+    """F233 (F189 pilot fallout): the on-write path must NEVER delete body
+    dispatch member rows that duplicate a masthead Subtopics row, and must
+    NEVER strip `~~strikethrough~~` staging marks — fired against the LIVE
+    R-doc umbrella so any future fixer that regresses this trips here.
+    (Reproduction 2026-07-13 exonerated warden for the pilot's data loss —
+    no registered fixer ever touched dispatch rows or tildes; the residual
+    actor is HookAnchor's electric dispatch rebuild, tracked on HA.)"""
+    with tempfile.TemporaryDirectory() as td:
+        anchor = Path(td) / "FX"
+        anchor.mkdir()
+        (anchor / ".anchor").write_text("slug: FX\n", encoding="utf-8")
+        doc = anchor / "FX.md"
+        doc.write_text(TOPIC_FIXTURE, encoding="utf-8")
+        wd.fire_on_write(doc)  # live R-doc rows — fixers apply in place
+        after = doc.read_text(encoding="utf-8")
+        assert "| [[FX DU\\|DU]] | Per-drive du reports. |" in after, after
+        assert "| [[FX Log\\|Log]] |" in after, after
+        assert "~~[[FX Ops\\|Ops]]~~" in after, after
+        assert "~~[[FX BIG]] retired to APFS wipe~~" in after, after
+        assert after.count("~~") == TOPIC_FIXTURE.count("~~"), after
+    print("PASS  fire_on_write preserves dispatch body rows + staging marks (F233)")
+
+
 def test_audit_ir_cache():
     """F232 B3: the umbrella flatten is mtime-cached — repeat calls return the
     cached rows without re-reading ~50 ruleset files; touching any source
@@ -172,6 +215,7 @@ def main():
     test_docfire_matches_audit_plan_on_every_case()
     test_signature_matches_audit_plan()
     test_fire_on_write_fixer_parity()
+    test_fire_on_write_preserves_dispatch_body()
     test_audit_ir_cache()
     print("\nall warden_docfire tests passed")
     return 0
