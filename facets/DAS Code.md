@@ -1,5 +1,5 @@
 ---
-description: "code facets — the actual source files of a repo and their per-module documentation"
+description: "How to use the development workflow — from planning through implementation and release."
 ---
 
 # Code
