@@ -21,7 +21,7 @@ The `/`-invocable verbs, grouped as under [[DAS Skills]]. Linked to a **user gui
 | [[SKL Drive\|Drive]] | [[ASG Feature\|Feature]],  [[ASG Groom\|Groom]],  [[ASG Query\|Query]],  [[ASG Crank\|Crank]],  [[ASG Mint\|Mint]],  [[ASG Finalize\|Finalize]],  [[ASG Land\|Land]],  [[ASG Fortify\|Fortify]] |
 | [[SKL Anchor\|Anchor]] | [[DAS Create\|Create]],  [[DAS Install\|Install]],  [[DAS Migrate\|Migrate]],  [[DAS Move\|Move]],  [[DAS Publish\|Publish]],  [[DAS Streams\|Streams]],  [[DAS WP\|WP]],  [[DAS Yore\|Yore]] |
 | [[SKL Hygiene\|Hygiene]] | [[DAS Audit\|Audit]],  [[DAS Dupes\|Dupes]],  [[DAS Maintain\|Maintain]],  [[DAS Rewire\|Rewire]],  [[DAS Slug Scan\|Slug Scan]],  [[DAS Tidy\|Tidy]] |
-| [[SKL Dev\|Dev]] | [[DAS Architect\|Architect]],  [[DAS Code\|Code]],  [[DAS Fix\|Fix]],  [[DAS Pilot Flow\|Pilot Flow]],  [[DAS PR Flow\|PR Flow]] |
+| [[SKL Dev\|Dev]] | [[DAS Architect\|Architect]],  ~~[[DAS Code\|Code]]~~,  [[DAS Fix\|Fix]],  [[DAS Pilot Flow\|Pilot Flow]],  [[DAS PR Flow\|PR Flow]] |
 | [[SKL Doc\|Doc]] | [[DAS MD\|MD]],  [[DAS Viz\|Viz]] |
 | [[SKL Search\|Search]] | [[DAS Find\|Find]],  [[DAS Profile\|Profile]],  [[DAS Purchase\|Purchase]],  [[DAS Survey\|Survey]] |
 | [[SKL Utility\|Utility]] | [[DAS Cook\|Cook]],  [[DAS Ctrl\|Ctrl]],  [[DAS Exp\|Exp]],  [[DAS Parley\|Parley]],  [[DAS Snip\|Snip]] |

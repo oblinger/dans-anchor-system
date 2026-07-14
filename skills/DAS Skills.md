@@ -18,7 +18,7 @@ description: "Skills — the `/`-invocable runbooks"
 | [[DAS Hygiene Design\|Hygiene]]+ | [[DAS Audit\|Audit]],  [[DAS Dupes\|Dupes]],  [[DAS Maintain\|Maintain]],  [[DAS Rewire\|Rewire]],  [[DAS Slug Scan\|Slug Scan]],  [[DAS Tidy\|Tidy]],  [[rule/SKILL\|Rule]],   |
 | [[DAS Tracking Design\|Tracking]]+ | [[DAS Backlog\|Backlog]],  [[DAS workflow\|Workflow]],  [[DAS Messages\|Messages]],  [[DAS Ask\|Ask]],  [[DAS Groom\|Groom]],   |
 | [[DAS Design Design\|Design]]+ | [[DAS Plan\|Plan]],  [[DAS Architect\|Architect]],  [[DAS Parley\|Parley]],   |
-| [[DAS Dev Design\|Dev]]+ | [[dev/DAS Code\|Code]],  [[DAS Fix\|Fix]],  [[DAS Pilot Flow\|Pilot Flow]],  [[DAS PR Flow\|PR Flow]],  [[cleanup/SKILL\|Cleanup]],  [[module-doc/SKILL\|Module Doc]],  [[devops/SKILL\|Devops]],   |
+| [[DAS Code Design\|Code]]+ | [[DAS Code Skill\|Code]],  [[DAS Fix\|Fix]],  [[DAS Pilot Flow\|Pilot Flow]],  [[DAS PR Flow\|PR Flow]],  [[cleanup/SKILL\|Cleanup]],  [[module-doc/SKILL\|Module Doc]],  [[devops/SKILL\|Devops]],   |
 | [[DAS Doc Design\|Doc]]+ | [[DAS MD\|MD]],  [[DAS Viz\|Viz]],  [[DAS IO\|IO]],  [[redline/SKILL\|Redline]],   |
 | [[DAS Search Design\|Search]]+ | [[DAS Find\|Find]],  [[DAS Profile\|Profile]],  [[DAS Survey\|Survey]],  [[DAS Purchase\|Buy]],  [[DAS Book\|Book]],  [[DAS Corp\|Corp]],  [[DAS Person\|Person]],  [[DAS Product\|Product]],  [[DAS Software\|Software]],  [[DAS Meta Survey\|Meta Survey]],  [[DAS Research\|Research]],  [[DAS Research Skill\|Research Skill]],  [[DAS Search Overview\|Search Overview]],   |
 | [[DAS Drive Design\|Drive]]+ | [[DAS Crank\|Crank]],  [[DAS Mint\|Mint]],  [[DAS Feature\|Feature]],  [[DAS Finalize\|Finalize]],  [[DAS Land\|Land]],  [[DAS Fortify\|Fortify]],  [[change/SKILL\|Change]],   |
