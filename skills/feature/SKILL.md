@@ -12,6 +12,25 @@ user_invocable: true
 # Feature — Feature Lifecycle
 requires:: vault, anchor-cli, skill:ask, skill:mint, facet:backlog, facet:query
 
+| Table of Contents |  |
+|---|---|
+| **[[#When to Use]]** |  |
+| **[[#Lifecycle]]** |  |
+| **[[#Runbook]]** |  |
+|    [[#1. Create the Feature Document]] |  |
+|    [[#1.5. Mint the backlog (or roadmap) row — MANDATORY (per [[SKA workflow]] § Active-work invariant)]] |  |
+|    [[#1a. Surface the Doc — glance only when adding/modifying a pending question AND the user is engaging now]] |  |
+|    [[#1c. Refresh the anchor's Q.md section — automatic via `state`]] |  |
+|    [[#2. Post to Stat]] |  |
+|    [[#3. Design Discussion]] |  |
+|    [[#4. Reach Agreement]] |  |
+|    [[#5. Implement]] |  |
+|    [[#6. Test]] |  |
+|    [[#7. Complete]] |  |
+| **[[#Commit Discipline]]** |  |
+| **[[#Feature Doc Conventions]]** |  |
+| **[[#Stat Integration]]** |  |
+
 The runbook for the `/feature` skill — drives a feature from idea through Designing → Agreed → Implementing → Testing → Done with a single F-numbered doc, an explicit user-agreement gate, and mandatory backlog/Q.md sync at every transition.
 
 Manage a feature from initial idea through design, agreement, implementation, testing, and completion. Every feature gets a dated design document, posts to stat throughout its lifecycle, and requires explicit user agreement before implementation begins.
@@ -280,6 +299,16 @@ skl-stat update <S#> "Agreed" "Design approved by user"
 ```
 
 **This is a gate.** Do not implement without agreement. If the user says "just do it" without a design discussion, still create the feature doc (even if minimal) and confirm before coding.
+
+**Gate presentation — the compact confirm form (user-endorsed exemplar, 2026-07-13).** The chat message that asks for the go is NOT a paste of the feature doc; it is a compressed, one-shot-answerable summary with the doc as the deep-read behind it. Shape, top to bottom:
+
+1. **Status line** — `F<n> → [Ready] · Status = Agreed. Design complete.`
+2. **Q resolutions, one line each** — `Q1 = (A) <five-word gist>` … so the user can audit every fork without opening the doc.
+3. **Implementation plan, numbered** — the concrete steps in execution order, each a single line naming the artifact it produces; include any user-action step explicitly ("walk you to System Settings → …").
+4. **Cleanup/leftovers** — one `Also:` line for reverts, commits, or loose ends riding along.
+5. **Single ask** — `Say go and I'll drive end-to-end.`
+
+Why it works: the user confirms design + plan in one glance, every choice is visible as a line (not buried in prose), and the full feature doc still exists for the deeper look. Model instance: the MUSE F019 gate (trust-helper build) — status line, 3 Q-lines, 7 plan steps, one `Also:` line, one ask.
 
 ### 5. Implement
 
