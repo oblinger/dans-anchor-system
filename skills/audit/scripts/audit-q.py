@@ -117,6 +117,7 @@ if _be_spec is None or _be_spec.loader is None:
 _be_mod = _be_il.module_from_spec(_be_spec)
 _be_spec.loader.exec_module(_be_mod)
 is_mechanical_verify = _be_mod.is_mechanical_verify
+is_nonanswer = _be_mod.is_nonanswer  # F242 (C49) — punt detector, same sharing
 # ---------------------------------------------------------------------------
 
 
@@ -2955,6 +2956,80 @@ def check_c48_q_stamp_drift(entries: list[BacklogEntry]) -> list[Finding]:
     return findings
 
 
+def _inline_q_question_texts(backlog_file: Path, entry: "BacklogEntry") -> list[str]:
+    """Question segments of inline `- **Q<n> — <title>** — <question>` sub-bullets
+    within an entry's row span (up to the next row opener / heading)."""
+    try:
+        lines = backlog_file.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError):
+        return []
+    start = entry.source_line - 1  # source_line is 1-indexed
+    if start < 0 or start >= len(lines):
+        return []
+    out: list[str] = []
+    q_re = re.compile(r"^\s+-\s+\*\*Q\d+\b.*?\*\*\s*(?:—|-)?\s*(.*)$")
+    for i in range(start + 1, len(lines)):
+        ln = lines[i]
+        if HEADING_RE.match(ln) or ROW_OPENER_RE.match(ln):
+            break
+        m = q_re.match(ln)
+        if m:
+            out.append(m.group(1).strip())
+    return out
+
+
+def check_c49_next_nonanswer(
+    entries: list[BacklogEntry], backlog_file: Path,
+) -> list[Finding]:
+    """C49 (F242): the mechanical groom gate's audit twin. A [Ready]/[Active]/
+    [Agreed] row whose `- **Next:**` is a non-answer placeholder — or a
+    [Questions] row whose inline `- **Q<n>` question text is a sentinel — means
+    the agent punted the groom instead of doing it. Mirrors the state write
+    refusal + triage gate (same is_nonanswer chokepoint in backlog-edit.py).
+    Report-only → routes to the QFix worklist."""
+    findings: list[Finding] = []
+    next_texts = _rows_with_subbullet_text(backlog_file, "Next")
+    for e in entries:
+        s = e.status.strip()
+        if s in ("Ready", "Active", "Agreed") and e.identifier != "B-QFix":
+            nxt = next_texts.get(e.identifier)
+            if nxt and is_nonanswer(nxt):
+                findings.append(Finding(
+                    severity="warning",
+                    surface_file=e.source_file,
+                    surface_line=e.source_line,
+                    code="C49",
+                    message=(
+                        f"row '{e.identifier}' [{s}] Next is a non-answer "
+                        f"(\"{nxt[:80]}\") — per F242 the agent punted the "
+                        f"groom; write the concrete first step it takes with "
+                        f"zero user involvement, or rebracket honestly "
+                        f"([Questions]/[Blocked]/[Waiting])."
+                    ),
+                    mechanically_fixable=False,
+                ))
+    for e in entries:
+        if e.status.strip() != "Questions":
+            continue
+        for qtext in _inline_q_question_texts(backlog_file, e):
+            if is_nonanswer(qtext):
+                findings.append(Finding(
+                    severity="warning",
+                    surface_file=e.source_file,
+                    surface_line=e.source_line,
+                    code="C49",
+                    message=(
+                        f"row '{e.identifier}' [Questions] inline question is a "
+                        f"placeholder (\"{qtext[:60]}\") — per F242 the agent "
+                        f"punted; write a real, answerable question or "
+                        f"rebracket honestly."
+                    ),
+                    mechanically_fixable=False,
+                ))
+                break
+    return findings
+
+
 def check_c46_queries_q_link_lands_on_qs(
         anchor_backlogs: dict[str, Path],
         vault_index: dict[str, list[Path]]) -> list[Finding]:
@@ -4637,6 +4712,7 @@ def main() -> int:
         findings.extend(check_c44_questions_row_has_target(entries))
         findings.extend(check_c45_open_questions_above_h1(entries))
         findings.extend(check_c48_q_stamp_drift(entries))
+        findings.extend(check_c49_next_nonanswer(entries, backlog_file))
         findings.extend(check_c34_inline_q_in_row_body([backlog_file]))
     # F124 — C35 queries.md drift check walks every anchor backlog's sibling
     # `{slug} queries.md` (per F176). Runs once after the per-anchor loop (not

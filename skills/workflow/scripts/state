@@ -1249,7 +1249,7 @@ def _q_define_core(slug, feature_path, q_num, body):
         first, sep, rest = body.partition("\n")
         first = re.sub(r"^\s*-\s+", "", first)
         first = re.sub(r"^(\s*)\*\*Q\+(\s+—)", rf"\g<1>**Q{q_num}\g<2>", first)
-        first = re.sub(r"\s*\^\S+\s*$", "", first)
+        first = re.sub(r"\s+\^[\w-]+\s*$", "", first)
         body = first + (sep + rest if sep else "")
     _validate_ask_format_body(body)
     text = feature_path.read_text(encoding="utf-8")
@@ -1777,6 +1777,11 @@ def _triage_gate_findings(backlog_path):
                 findings.append(
                     f"{rid}: [{status}] with no `- **Next:**` step — "
                     "not actually executable")
+            elif be.is_nonanswer(next_text):
+                findings.append(
+                    f'{rid}: [{status}] Next is a non-answer '
+                    f'("{next_text.strip()[:60]}") — the agent punted the '
+                    "groom; write a real first step or rebracket honestly")
             elif _CONDITIONAL_NEXT_RE.match(next_text.strip()):
                 findings.append(
                     f'{rid}: [{status}] Next is event-gated ("{next_text.strip()[:60]}…") '
