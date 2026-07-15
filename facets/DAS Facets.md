@@ -5,7 +5,7 @@ description: "the per-doc structural specs"
 # DAS Facets
 The catalog of facets — per-document structural specs — organized by the nine subsystems in [[DAS]] order (groups owning no facets are omitted; *Meta* is a proposed tenth group for the system's own vocabulary).
 
-| -[[DAS Facets]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets\|FCT]] → [DAS Facets](hook://p/DAS%20Facets)<br>: the per-doc structural specs |
+| -[[DAS Facets]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets\|FCT]] → [DAS Facets](hook://p/DAS%20Facets) |
 | --- | --- |
 | Related | [[DAS Skills\|Skills]],  [[DAS Disciplines\|Disciplines]],  [[DAS Traits\|Traits]],  [[DAS Examples\|Examples]],  [[DAS Rulesets\|Rulesets]],  [[DAS\|dans-anchor-system]],   |
 |  |  |
@@ -14,12 +14,9 @@ The catalog of facets — per-document structural specs — organized by the nin
 | [[DAS Hygiene Design\|Hygiene]]+ | [[DAS Ruleset\|Ruleset]],   |
 | [[DAS Tracking Design\|Tracking]]+ | [[DAS Backlog\|Backlog]],  [[DAS Query\|Query]],  [[DAS Status\|Status]],  [[DAS Roadmap\|Roadmap]],  [[DAS Completed Roadmap\|Completed Roadmap]],  [[DAS Log\|Log]],  [[DAS Messages\|Messages]],  [[DAS Track\|Track]],  [[DAS Inbox\|Inbox]],  [[DAS Icebox\|Icebox]],  [[FEX Icebox]],  [[FEX Inbox]],  [[FEX queries]],   |
 | [[DAS Design Design\|Design]]+ | [[DAS Design Docs\|Design Docs]],  [[DAS Design Folder\|Design Folder]],  [[DAS PRD\|PRD]],  [[DAS Stories\|Stories]],  [[DAS Architecture\|Architecture]],  [[DAS System Design\|System Design]],  [[DAS Files Architecture\|Files Architecture]],  [[DAS UX Design\|UX Design]],  [[DAS API Design\|API Design]],  [[DAS Testing\|Testing]],  [[DAS Common Testing Types\|Common Testing Types]],  [[DAS Decisions\|Decisions]],  [[DAS Discussion\|Discussion]],  [[DAS Features\|Features]],  [[FEX API]],  [[FEX API Design]],  [[FEX Architecture]],  [[FEX Stories]],  [[FEX Decisions]],  [[FEX Decisions Details]],  [[FEX Roadmap]],  [[FEX Completed Roadmap]],   |
-| ↳ residue: | [[DAS US-CAE-1 — Schedule a Task\|US-CAE-1]],  [[DAS US-CAE-2 — Monitor Task Status\|US-CAE-2]],  [[DAS US-CAE-3 — Retry Failed Tasks\|US-CAE-3]] — worked user-story examples; likely belong under `examples/`, not `facets/` |
 | [[DAS Code Design\|Code]]+ | [[DAS Code\|Code]],  [[DAS Code Repository\|Code Repository]],  [[DAS Module Doc\|Module Doc]],  [[DAS CLI\|CLI]],  [[DAS Changes\|Changes]],  [[DAS Specs\|Specs]],  [[DAS All Files\|All Files]],  [[DAS Versions\|Versions]],  [[FEX Files]],  [[FEX Scheduler]],   |
 | [[DAS Doc Design\|Doc]]+ | [[DAS Doc\|Doc]],  [[DAS Doc Structure\|Doc Structure]],  [[DAS Brief\|Brief]],  [[DAS Cards\|Cards]],  [[DAS Documentation Site\|Documentation Site]],  [[DAS Output\|Output]],  [[DAS Outputs\|Outputs]],  [[DAS WP\|WP]],   |
-| ↳ residue: | [[DAS TSK User Guide]] — a worked user-guide instance, not a spec; and [[DAS Output\|Output]] vs [[DAS Outputs\|Outputs]] look like a duplication to merge |
 | *Meta (proposed)* | [[DAS Facet\|Facet]],  [[DAS Skill\|Skill]],  [[DAS Primitives\|Primitives]],  [[DAS Aspects\|Aspects]],  [[DAS Template\|Template]],  [[DAS Template Files\|Template Files]],  [[DAS Template Folders\|Template Folders]],  [[DAS Template Variables\|Template Variables]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],  [[FEX Facet]],  [[FEX Minimal Facet]],  [[FEX Skill]],  [[FEX Minimal Skill]],  [[FEX Rules]],   |
-| ↳ residue: | [[DAS Disciplines Brief]] — orphaned brief with no parent spec |
 |  |  |
 |  | **TEMPLATES** — same groups; each template pairs with its facet above |
 | [[DAS Anchor Design\|Anchor]]+ | [[anchor-page\|Anchor Page]],  [[project-page\|Project Page]],  [[folder\|Folder]],  [[anchor-tree\|Anchor Tree]],  [[naming\|Naming]],  [[claude\|Claude]],  [[interface\|Interface]],  [[move\|Move]],  [[dot-anchor\|Dot Anchor]],  [[dispatch-table\|Dispatch Table]],  [[design-dispatch\|Design Dispatch]],  [[dev-dispatch\|Dev Dispatch]],  [[plan-dispatch\|Plan Dispatch]],  [[track-dispatch\|Track Dispatch]],  [[user-dispatch\|User Dispatch]],   |
@@ -27,7 +24,7 @@ The catalog of facets — per-document structural specs — organized by the nin
 | [[DAS Tracking Design\|Tracking]]+ | [[backlog\|Backlog]],  [[query\|Query]],  [[status\|Status]],  [[roadmap\|Roadmap]],  [[completed-roadmap\|Completed Roadmap]],  [[log\|Log]],  [[messages\|Messages]],  [[inbox\|Inbox]],  [[icebox\|Icebox]],   |
 | [[DAS Design Design\|Design]]+ | [[prd\|PRD]],  [[stories\|Stories]],  [[architecture\|Architecture]],  [[system-design\|System Design]],  [[files-architecture\|Files Architecture]],  [[ux-design\|UX Design]],  [[api-design\|API Design]],  [[testing\|Testing]],  [[common-testing-types\|Common Testing Types]],  [[decisions\|Decisions]],  [[discussion\|Discussion]],  [[design\|Design]],  [[features\|Features]],   |
 | [[DAS Code Design\|Code]]+ | [[all-files\|All Files]],  [[module-doc\|Module Doc]],  [[cli\|CLI]],  [[code-repository\|Code Repository]],  [[versions\|Versions]],   |
-| [[DAS Doc Design\|Doc]]+ | [[doc-structure\|Doc Structure]],  [[brief\|Brief]],  [[cards\|Cards]],  [[outputs\|Outputs]],  [[documentation-site\|Documentation Site]],  [[wp\|WP]],  [[docs-folder\|Docs Folder]],  [[tsk-user-guide\|TSK User Guide]],   |
+| [[DAS Doc Design\|Doc]]+ | [[doc-structure\|Doc Structure]],  [[brief\|Brief]],  [[cards\|Cards]],  [[outputs\|Outputs]],  [[documentation-site\|Documentation Site]],  [[wp\|WP]],  [[docs-folder\|Docs Folder]],   |
 | *Meta (proposed)* | [[skill\|Skill]],  [[facet\|Facet]],  [[discipline\|Discipline]],  [[trait\|Trait]],  [[template\|Template]],  [[template-files\|Template Files]],  [[template-folders\|Template Folders]],  [[template-variables\|Template Variables]],   |
 | --- | |
 | [[facets/DAS WP]] | dated work products — papers, reports, polished outputs |
