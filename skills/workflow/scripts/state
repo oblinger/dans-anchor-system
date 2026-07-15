@@ -1620,7 +1620,183 @@ def cmd_v2(slug, anchor_path, args):
     )
 
 
-_V2_LEGACY_DOMAINS = {"status", "roadmap"}
+# ============================================================
+# F239 — crank exit handshake: `state triage` + `state crank`
+# ============================================================
+
+import hashlib
+import json as _json
+from datetime import datetime, timezone
+
+_ANCHOR_SYSTEM_STATE = Path.home() / ".config" / "anchor-system"
+_TRIAGE_DIR = _ANCHOR_SYSTEM_STATE / "triage"
+_CRANK_DIR = _ANCHOR_SYSTEM_STATE / "crank"
+
+# An executable Next is one the agent takes with zero user involvement NOW.
+# An event-gated step ("re-run when…", "once the user…") is a [Waiting] body
+# wearing a [Ready] bracket — the F187 failure that motivated F239.
+_CONDITIONAL_NEXT_RE = re.compile(
+    r"^(re-?run\s+when|when\s|whenever\s|once\s|await\s|after\s+the\s+user|if\s)",
+    re.IGNORECASE,
+)
+
+_BANNER_NUM_RE = {
+    "ready": re.compile(r"Ready\s+(\d+)"),
+    "questions": re.compile(r"Questions\s+(\d+)"),
+    "verify": re.compile(r"Verify\s+(\d+)"),
+}
+
+
+def _backlog_sha256(backlog_path):
+    return hashlib.sha256(backlog_path.read_bytes()).hexdigest()
+
+
+def _triage_gate_findings(backlog_path):
+    """The local mechanical gates: every [Ready]/[Active]/[Agreed] row carries
+    an executable `- **Next:**`, and no bracket/H2 mismatch. Returns a list of
+    finding strings — empty means the gates pass."""
+    text = backlog_path.read_text(encoding="utf-8")
+    lines, h2_index, row_index = be.scan_backlog(text)
+    findings = []
+    for rid, (start, end, h2, _indent) in row_index.items():
+        m = be.ROW_FULL_RE.match(lines[start].rstrip("\n"))
+        if not m:
+            continue
+        status = (m.group("status") or "").strip()
+        if h2 == "Ready" and status not in ("Ready", "Active", "Agreed"):
+            findings.append(
+                f"{rid}: [{status}] row under ## Ready — rebracket or move it")
+        if status.startswith("Done") and h2 != "Done":
+            findings.append(
+                f"{rid}: [Done] row under ## {h2} — move to ## Done")
+        if status in ("Ready", "Active", "Agreed") and rid != "B-QFix":
+            next_text = be._extract_subbullet_text(lines[start:end], "Next")
+            if not next_text:
+                findings.append(
+                    f"{rid}: [{status}] with no `- **Next:**` step — "
+                    "not actually executable")
+            elif _CONDITIONAL_NEXT_RE.match(next_text.strip()):
+                findings.append(
+                    f'{rid}: [{status}] Next is event-gated ("{next_text.strip()[:60]}…") '
+                    "— that is [Waiting], not [Ready]")
+    return findings
+
+
+def cmd_triage(slug, anchor_path, args):
+    """Gated triage stamp (F239). Computes everything itself — takes no
+    counts. Gates dirty → exit 1 printing the findings (the refusal IS the
+    triage worklist). Gates clean → render, stamp, print the canonical line."""
+    backlog_path = be.find_backlog(slug)
+    findings = _triage_gate_findings(backlog_path)
+    if findings:
+        print(f"state triage: REFUSED — {len(findings)} gate finding(s); "
+              "this list is the triage worklist:", file=sys.stderr)
+        for f in findings:
+            print(f"  - {f}", file=sys.stderr)
+        return 1
+
+    audit_scripts = Path.home() / ".claude" / "skills" / "audit" / "scripts"
+    render = subprocess.run(
+        [sys.executable, str(audit_scripts / "queries-render.py"), slug],
+        capture_output=True, text=True, timeout=60)
+    if render.returncode != 0:
+        print("state triage: REFUSED — queries render failed:", file=sys.stderr)
+        print((render.stderr or render.stdout).strip(), file=sys.stderr)
+        return 1
+    audit = subprocess.run(
+        [sys.executable, str(audit_scripts / "audit-q.py"),
+         "--scope", "backlog", "--anchor", slug, "--dry"],
+        capture_output=True, text=True, timeout=120)
+    out = (audit.stdout or "") + (audit.stderr or "")
+    m = re.search(r"audit-q:\s+(\d+)\s+finding", out)
+    n_findings = int(m.group(1)) if m else None
+    if n_findings is None or n_findings > 0:
+        label = ("unparseable audit-q output" if n_findings is None
+                 else f"audit-q reports {n_findings} finding(s)")
+        print(f"state triage: REFUSED — {label}:", file=sys.stderr)
+        for line in out.strip().splitlines():
+            print(f"  {line}", file=sys.stderr)
+        return 1
+
+    # Counts come from the just-rendered banner — one source of truth, so the
+    # canonical line always matches what the user sees in queries.md / Q.md.
+    queries_path = backlog_path.parent / f"{slug} queries.md"
+    banner = ""
+    if queries_path.is_file():
+        for qline in queries_path.read_text(encoding="utf-8").splitlines():
+            if qline.startswith("# "):  # banner H1 (frontmatter precedes it)
+                banner = qline
+                break
+    counts = {}
+    for key, rx in _BANNER_NUM_RE.items():
+        bm = rx.search(banner)
+        counts[key] = int(bm.group(1)) if bm else 0
+
+    stamp_path = _TRIAGE_DIR / f"{slug}.json"
+    prev = None
+    if stamp_path.is_file():
+        try:
+            prev = _json.loads(stamp_path.read_text())
+        except (ValueError, OSError):
+            prev = None
+
+    def _part(name, cur):
+        prev_val = prev.get(name.lower()) if prev else None
+        if prev_val is None or cur == prev_val:
+            return f"{name} {cur}"
+        d = cur - prev_val
+        return f"{name} {cur} ({'+' if d > 0 else ''}{d})"
+
+    line = ("TRIAGE — " + _part("Ready", counts["ready"])
+            + " · " + _part("Questions", counts["questions"])
+            + f" · Verify {counts['verify']}")
+
+    _TRIAGE_DIR.mkdir(parents=True, exist_ok=True)
+    stamp_path.write_text(_json.dumps({
+        "ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "backlog_sha256": _backlog_sha256(backlog_path),
+        "backlog_path": str(backlog_path),
+        "ready": counts["ready"],
+        "questions": counts["questions"],
+        "verify": counts["verify"],
+        "line": line,
+    }, indent=2))
+    print(line)
+    return 0
+
+
+def cmd_crank(slug, anchor_path, args):
+    """Crank-session sentinel (F239) — arms/disarms the Stop-hook gate."""
+    sentinel = _CRANK_DIR / f"{slug}.json"
+    if args.verb == "start":
+        backlog_path = be.find_backlog(slug)
+        _CRANK_DIR.mkdir(parents=True, exist_ok=True)
+        sentinel.write_text(_json.dumps({
+            "started": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "slug": slug,
+            "anchor_path": str(anchor_path),
+            "backlog_path": str(backlog_path),
+            "blocks": 0,
+        }, indent=2))
+        print(f"{slug}: crank session started — stop gate armed "
+              "(legal exits: empty frontier / CRANK READY with Ready > 0 / "
+              "fresh `state triage` line; `state crank stop` disarms)")
+        return 0
+    if args.verb == "stop":
+        if sentinel.is_file():
+            sentinel.unlink()
+            print(f"{slug}: crank stop gate disarmed")
+        else:
+            print(f"{slug}: no crank session was armed")
+        return 0
+    if sentinel.is_file():
+        print(sentinel.read_text().strip())
+    else:
+        print(f"{slug}: no crank session armed")
+    return 0
+
+
+_V2_LEGACY_DOMAINS = {"status", "roadmap", "triage", "crank"}
 _V2_RETIRED_DOMAINS = {"task", "q", "question"}
 
 
@@ -1756,6 +1932,17 @@ def build_parser():
     rmm.add_argument("--date", required=True,
                      help="migration date YYYY-MM-DD (REQUIRED — never auto-now)")
 
+    # triage domain (F239) — gated triage stamp + canonical TRIAGE line
+    subs.add_parser(
+        "triage",
+        help="verify the groomed-state gates, render, then stamp + print the "
+             "canonical TRIAGE line; dirty gates refuse with the worklist (F239)")
+
+    # crank domain (F239) — session sentinel for the Stop-hook exit gate
+    ck = subs.add_parser(
+        "crank", help="crank-session sentinel: start | stop | status (F239)")
+    ck.add_argument("verb", choices=["start", "stop", "status"])
+
     return p
 
 
@@ -1794,6 +1981,10 @@ def main(argv):
         return 2
 
     try:
+        if args.domain == "triage":
+            return cmd_triage(slug, anchor_path, args)
+        if args.domain == "crank":
+            return cmd_crank(slug, anchor_path, args)
         if args.domain == "status":
             if args.verb == "set":
                 return cmd_status_set(slug, anchor_path, args)

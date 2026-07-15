@@ -186,6 +186,17 @@ If ANY gate's blank can't be filled with a specific, concrete sentence, the rule
 
 **Failure mode this cascade defeats:** the 2026-06-07 exit where `/crank` finished a productive run (4 features shipped) and then surfaced *"Pending input: F113 Q12 + F117 (4) + F118 (3)"* as the user-facing wrap-up. The user reasonably responded: *"I have no fucking idea what Q12 is."* Q-numbers without context are not actionable; the cascade ensures the user always gets a glanceable queue file (plus optional inline detail in chat). Second failure mode (2026-07-13, restated emphatically): an agent asks its one question inline and never touches the queue file — when chat scrolls away the question is unfindable. The queue file is where the user goes to rediscover any question's source; that is why the count gate was removed.
 
+### Exit handshake (F239) — the three-state stop gate, mechanically enforced
+
+The cascade above is prose; per [[F239 — Crank exit handshake — verified triage stamp in state + CRANK READY token|F239]] its completion signal is an **act in the tool layer**, enforced by a `Stop` hook (`crank-stop-hook.py`) whenever a crank sentinel is armed. The protocol:
+
+1. **Arm at entry.** The first act of every crank session: `state crank start` (from the anchor; runbook § 1). This arms the stop gate for this anchor. (`state crank stop` disarms — for aborting a crank without the ritual.)
+2. **Exit through exactly one of three states** (ruled 2026-07-14; each mechanically checked by the hook against the backlog + state log — the agent cannot self-report its way out):
+   - **Empty frontier** — `## Now` + `## Next` hold no live rows. Stop is legal with no token.
+   - **Something Ready** — ≥1 `[Ready]` row exists AND the final chat message contains **`CRANK READY`** (the scannable tail: the user just tilts the crank again).
+   - **Groomed** — run the cascade (`/groom` → `/ask`), then **`state triage`**. It verifies the groomed-state gates itself (audit clean, every `[Ready]` row's Next executable, no bracket/H2 mismatch), refuses with the worklist if dirty, and on pass prints the canonical line `TRIAGE — Ready N (±a) · Questions M (±b) · Verify K` and records the stamp. **Echo that line verbatim as the last line of the final message.** Any backlog mutation after the stamp stales it — re-run `state triage`.
+3. **If the hook blocks the stop**, it names the failing state — do what it says (groom, park questions, re-stamp) and end the turn again through a legal exit. The gate fails open after 3 consecutive blocks and on 24 h sentinel expiry, so it can never trap a session.
+
 
 ## When to stop / when not to stop
 
@@ -337,9 +348,10 @@ After the loop + branch resolves, print one line to chat for the mint summary. O
 
 ## Runbook
 
-### 1. Locate the source
+### 1. Locate the source + arm the stop gate
 
 - Walk up from `cwd` to find `.anchor`. If none, say "No anchor found from `{cwd}` upward." and stop.
+- **Arm the exit gate (F239):** `~/.claude/skills/workflow/scripts/state crank start` — the Stop hook now refuses any turn end that isn't one of the three legal exit states (§ Exit handshake).
 - The Ready queue lives in `{slug} Docs/{slug} Plan/{slug} Backlog.md` § Ready (workflow-state H2) and items with `[Ready]` bracket in horizon H2s (per `[[SKA backlog]]`). `/mint` knows how to find Ready items; crank just delegates.
 
 ### 2. Plan the sweep
