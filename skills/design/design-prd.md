@@ -1,6 +1,6 @@
 # Design PRD — Author or assess `{slug} PRD.md`
 
-Phase 1 of the canonical `/design` sequence (PRD → UX → API → Architecture → Testing → Roadmap). Authors `{slug} Design/{slug} PRD.md` per the [[DAS PRD]] facet.
+Phase 1 of the canonical `/design` sequence (PRD → Architecture → Milestones → Testing → design-accepted gate → Roadmap → Features, per [[DAS Design Design]]). Authors `{slug} Design/{slug} PRD.md` per the [[DAS PRD]] facet; Stories is this phase's satellite.
 
 **Two modes** — the same skill drives both:
 

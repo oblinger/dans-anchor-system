@@ -4,7 +4,7 @@ description: "Plan — federated orchestrator for a project anchor's planning ar
 # DAS Plan
 The `/design` skill walks a project anchor through its planning artifacts in canonical order, detecting which exist, what's missing, and dispatching to per-artifact sub-skills.
 
-| -[[DAS Plan]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Plan](hook://p/DAS%20Plan)<br>: Plan — federated orchestrator for a project anchor's planning artifacts. The Track-cluster sibling of /crank. |
+| -[[DAS Plan]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [docs](hook://docs) → [DAS Plan](hook://p/DAS%20Plan)<br>: Plan — federated orchestrator for a project anchor's planning artifacts. The Track-cluster sibling of /crank. |
 | --- | --- |
 | Related | [[skills/design/SKILL.md\|SKILL]] (runtime),  [[DAS Crank]] (Drive-cluster sibling), |
 | ... |  |
@@ -13,28 +13,29 @@ Plan is to **Track** what **crank** is to **Drive** — the outer-loop orchestra
 
 ## Canonical phase order
 
-| # | Phase | Sub-skill | Primary artifact | Gate after |
-|---|---|---|---|---|
-| 1 | PRD | `/design prd` | `{slug} PRD.md` | — |
-| 2 | UX | `/design ux` | `{slug} UX.md` | — |
-| 3 | API | `/design api` | `{slug} API.md` | — |
-| 4 | Architecture | `/design architect` | `{slug} Architecture.md` | **Gate 1** — `status:: accepted` on Architecture |
-| 5 | Testing Strategy | `/design testing` | `{slug} Testing Strategy.md` | **Gate 2** — `status:: accepted` on BOTH Architecture AND Testing Strategy |
-| 6 | Roadmap | `/design roadmap` | `{slug} Roadmap.md` + per-milestone feature docs | — |
-| 7 | Plan complete | — | — | Transition to Drive (`/crank`) |
+| # | Phase | Sub-skill | Primary artifact |
+|---|---|---|---|
+| 1 | PRD | `/design prd` | `{slug} PRD.md` — satellite: Stories |
+| 2 | Architecture | `/design architect` | `{slug} Architecture.md` — satellites (when applicable): UX, System Design, API |
+| 3 | Milestones | `/design milestones` | `{slug} Roadmap.md` — pin the testable increments (initial pass) |
+| 4 | Testing | `/design testing` | `{slug} Testing.md` — strategy covering the pinned milestones |
+| — | **Gate: design accepted** | — | *"the design is accepted"* → agent stamps `status:: accepted` on Architecture + Testing |
+| 5 | Roadmap | `/design roadmap` | `{slug} Roadmap.md` — full post-gate elaboration |
+| 6 | Features | `/design features` | `{slug} Features/` folder |
+| 7 | Plan complete | — | Transition to Drive (`/crank`) |
 
-Each phase produces one primary artifact (a file). Two phases end with an explicit acceptance gate. Gates are sticky: once `accepted`, no re-prompt unless the user explicitly resets.
+Each phase produces one primary artifact (a file). One acceptance gate sits between Testing and Roadmap; it is sticky — once `accepted`, no re-prompt unless the user explicitly resets. (Pipeline per [[DAS Design Design]], ruled 2026-07-14; supersedes the earlier two-gate order.)
 
 ## How `/design` knows where the user is
 
-Per-artifact `status::` field at the top of each planning doc. Valid values for the gate-gating artifacts (Architecture, Testing Strategy): `drafting | in-review | accepted`.
+Per-artifact `status::` field at the top of each planning doc. Valid values for the gate-record artifacts (Architecture, Testing): `drafting | in-review | accepted`.
 
 When `status::` is absent, the skill infers state from content guidelines:
 - PRD with at least one user story → past PRD-drafting
 - Architecture with at least one named subsystem → architecting in progress
-- Architecture `status:: accepted` → Gate 1 passed
-- Architecture AND Testing Strategy both `accepted` → Gate 2 passed
-- Roadmap with at least one milestone → roadmapping in progress
+- Roadmap with pinned milestones → past the Milestones pass
+- Architecture AND Testing both `accepted` → the design-accepted gate has passed
+- Roadmap elaborated beyond the pinned milestones → roadmapping in progress
 
 ## Invocation forms
 
@@ -42,12 +43,10 @@ When `status::` is absent, the skill infers state from content guidelines:
 |---|---|
 | `/design` (bare) | Inspect anchor's planning artifacts, print compact gap table, auto-dispatch to the first incomplete phase. |
 | `/design <phase>` | Direct invocation: `/design prd`, `/design ux`, `/design architect`, `/design testing`, `/design roadmap`. |
-| `/design gate architecture` | Shortcut: set `status:: accepted` on `{slug} Architecture.md`. |
-| `/design gate testing` | Shortcut: set `status:: accepted` on `{slug} Testing Strategy.md`. |
+| `/design gate` | Shortcut for the design-accepted gate: set `status:: accepted` on `{slug} Architecture.md` AND `{slug} Testing.md`. |
 
-The skill also watches for natural-language acceptance phrases in conversation:
-- *"the architecture is accepted"* → sets `status:: accepted` on Architecture
-- *"the testing strategy is accepted"* → sets `status:: accepted` on Testing Strategy
+The skill also watches for the natural-language acceptance phrase in conversation:
+- *"the design is accepted"* → stamps `status:: accepted` on Architecture + Testing (the gate's record)
 
 ## Sub-skills
 

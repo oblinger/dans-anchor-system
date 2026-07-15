@@ -76,7 +76,7 @@ The top-of-file YAML frontmatter contains a `status::` dataview field with value
 
 **Check pattern:** parse YAML; assert `status::` key exists with one of the three values.
 
-**Why:** the `status::` field is the gate signal for `/design roadmap` (formerly `/design roadmap`). Without it, Gate 2 has no input.
+**Why:** the `status::` field is half the record of the design-accepted gate that unblocks `/design roadmap` (per [[DAS Design Design]]). Without it, the gate has no input.
 
 ### RULE R-testing-09 — Tier Mapping cites the verification discipline (stated)
 
