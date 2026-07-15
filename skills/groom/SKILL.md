@@ -262,6 +262,16 @@ After the loop, **before exiting**, read `{slug} Backlog.md` for the `B-QFix` ro
 2. **Iteration cap = 3.** Matches `audit-q-fix.md` 3-pass cap. On cap, the (rare) genuinely-stuck residual is filed as QFix and surfaced.
 3. **Anchor-local.** Loop iterates only on findings under the cwd anchor's tree. Cross-anchor findings route to the owning anchor's `QFix` row by `surface_file` path; the owning anchor's next `/ask` or `/groom` addresses them under the same 100%-fix rule.
 
+### 5a. Closing act — `state triage` (F239)
+
+After the loop is clean, run the gated triage stamp:
+
+```bash
+~/.claude/skills/workflow/scripts/state --anchor {slug} triage
+```
+
+It re-verifies the groomed state mechanically (audit-q at 0, every `[Ready]` row carrying an *executable* `- **Next:**` — an event-gated "re-run when…" fails, no bracket/H2 mismatch), re-renders the queries surface, and on pass prints the canonical line `TRIAGE — Ready N (±a) · Questions M (±b) · Verify K` and records the stamp. **A refusal is not an error to report — it is the remaining groom worklist**: fix each printed finding at its source and re-run until it stamps. Echo the printed line in the closing chat message (in a crank session this line is one of the legal stop states — per [[F239 — Crank exit handshake — verified triage stamp in state + CRANK READY token|F239]] the Stop hook checks for it).
+
 ### 6. (Top-level only) Surface the status banner
 
 **If sub-skill invocation: stop here.** The parent skill will surface state.
