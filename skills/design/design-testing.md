@@ -1,17 +1,17 @@
 # Design Testing — Author the {slug} Testing.md facet doc
 
-Phase 5 of the canonical `/design` sequence (PRD → UX → API → Architecture → **Testing** → Roadmap). Authors `{slug} Design/{slug} Testing.md` per the [[DAS Testing]] facet — the project's **testing strategy + proposed-tests overview**. The doc has two parts that ship together: § Strategy (kinds, completeness targets, responsibilities, tier mapping) followed by § Proposed Tests (one row per proposed test, grouped by kind, linking to low-level specs in module docs).
+Phase 4 of the canonical `/design` sequence (PRD → Architecture → Milestones → **Testing** → design-accepted gate → Roadmap → Features, per [[DAS Design Design]]). Authors `{slug} Design/{slug} Testing.md` per the [[DAS Testing]] facet — the project's **testing strategy + proposed-tests overview**. The doc has two parts that ship together: § Strategy (kinds, completeness targets, responsibilities, tier mapping) followed by § Proposed Tests (one row per proposed test, grouped by kind, linking to low-level specs in module docs).
 
 **Renamed from `plan-testing` 2026-06-10 per [[F136 — Plan→Design skill rename]]. Authored shape updated 2026-06-10 to match [[DAS Testing]]** — the legacy `{slug} Testing Strategy.md` 5-H2 strategy-only scaffold is superseded by the new `{slug} Testing.md` two-part shape. Worked example: [[HBR Testing]].
 
 **Critical scope distinction:** this sub-skill authors the *strategy + proposed-tests overview*, NOT test code. Test code authoring happens during Drive (`/code test` or per-feature in `/mint`); low-level test specs (preconditions, fixtures, assertions) live in module docs. This sub-skill produces the design-altitude doc that drives all three downstream surfaces.
 
-Gate 2 of `/design` requires `status:: accepted` on BOTH `{slug} Architecture.md` AND `{slug} Testing.md` before roadmapping begins.
+The design-accepted gate (the pipeline's one gate) sits directly after this phase: when the user says "the design is accepted", the agent stamps `status:: accepted` on BOTH `{slug} Architecture.md` AND `{slug} Testing.md`, and Roadmap elaboration begins. The strategy this phase writes must cover the milestones pinned in phase 3.
 
 ## When to Use
 
 - User invoked `/design testing` directly.
-- `/design` bare auto-dispatched here (canonical phase 5 — Architecture already at `status:: accepted`, Testing missing or incomplete).
+- `/design` bare auto-dispatched here (canonical phase 4 — PRD/Architecture drafted, milestones pinned, Testing missing or incomplete; no architecture-acceptance prerequisite — the one gate comes after this phase).
 - User said "let's design the testing strategy" / "testing discipline" / "design tests for X".
 
 ## File location
@@ -67,20 +67,19 @@ Open the file. For each section:
 
 ### 5. Acceptance
 
-Acceptance is signaled by `status:: accepted` in the file's frontmatter. The user can:
+Acceptance rides the pipeline's one gate — there is no separate testing-acceptance ceremony. The user can:
 
-- **Say "the testing is accepted"** / *"testing looks good"* / *"the testing strategy is accepted"* → agent updates the field.
-- **Edit the field directly** to `status:: accepted`.
-- **Run `/design gate testing`** → shortcut for the same field update.
+- **Say "the design is accepted"** → the agent stamps `status:: accepted` on this file AND `{slug} Architecture.md` (the gate's record).
+- **Run `/design gate`** → the same stamp as a shortcut.
+- Artifact-level review feedback (*"testing looks good"*) is a tier promotion (`state status set testing MVP-user --note "..."`), not a gate event.
 
-After updating, glance the file so the user verifies the field landed.
+After stamping, glance the affected files so the user verifies the fields landed.
 
 ### 6. Hand off to next phase
 
 Once `status:: accepted` is set on this file:
 
-- If `{slug} Architecture.md` also has `status:: accepted` → Gate 2 passes; bare `/design` will next auto-dispatch to `/design roadmap`.
-- Otherwise → bare `/design` returns to Architecture phase to finish that gate.
+- The design-accepted gate stamps this file and `{slug} Architecture.md` together; once stamped, bare `/design` auto-dispatches to `/design roadmap` (elaboration).
 
 The agent does NOT proactively invoke roadmapping; the user invokes `/design` again (or says "let's keep designing") to advance.
 

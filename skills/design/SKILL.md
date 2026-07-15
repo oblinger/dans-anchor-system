@@ -2,13 +2,14 @@
 name: design
 description: >
   Federated design orchestrator for a project anchor. Walks through the canonical design
-  phases — PRD → UX → API → Architecture → Testing → [both accepted gate] → Roadmap
-  (with proactive feature docs) — detecting which artifacts are complete vs. missing, and
-  dispatching to per-artifact sub-skills (`design-prd`, `design-ux`, `design-architect`,
-  `design-testing`, `design-roadmap`). Sibling to `/crank` in the Drive cluster; the outer-loop
-  orchestrator at the center of the Design cluster. Use when the user says: "let's design this",
-  "design", "/design", "what's the design state of this anchor", "/design prd", "/design architect",
-  "/design testing", "/design roadmap", or asks where in the design sequence the project is.
+  phases — PRD → Architecture (satellites: UX / System Design / API) → Milestones →
+  Testing → [design-accepted gate] → Roadmap → Features — detecting which artifacts are
+  complete vs. missing, and dispatching to per-artifact sub-skills (`design-prd`, `design-ux`,
+  `design-architect`, `design-testing`, `design-roadmap`). Sibling to `/crank` in the Drive
+  cluster; the outer-loop orchestrator at the center of the Design cluster. Use when the user
+  says: "let's design this", "design", "/design", "what's the design state of this anchor",
+  "/design prd", "/design architect", "/design testing", "/design roadmap", or asks where in
+  the design sequence the project is.
   Gate is folder-presence per [[DAS Design Folder]] — `{slug} Design/` exists → operate; absent → offer to scaffold. Code-trait check retired 2026-06-10. Initially supports anchors with code-shaped artifacts; broader applicability (Paper / Topic / Simple) covered as those traits land.
 tools: Read, Write, Edit, Bash, Glob, Grep, Agent
 user_invocable: true
@@ -20,26 +21,26 @@ subsystem:: [[DAS Design Design]] — the Design group's subsystem profile (pipe
 
 `/design` walks a project anchor through its design artifacts in canonical order, detecting state, surfacing gaps, and dispatching to per-artifact sub-skills. Sibling to `/crank` in the Drive cluster; the center of the Design cluster.
 
-**Renamed from `/plan` 2026-06-10 per [[F136 — Plan→Design skill rename]].** The verb that best describes walking PRD → UX → API → Architecture → Testing → Roadmap is **design**, not plan. (Roadmap, the bridge to execution, is the one phase that's more "plan" than "design" — but the bulk of the skill's work is design.) All sub-skills renamed `plan-*` → `design-*` in the same pass.
+**Renamed from `/plan` 2026-06-10 per [[F136 — Plan→Design skill rename]].** The verb that best describes walking the design pipeline is **design**, not plan. (Roadmap, the bridge to execution, is the one phase that's more "plan" than "design" — but the bulk of the skill's work is design.) All sub-skills renamed `plan-*` → `design-*` in the same pass.
 
 ## Canonical phase order
 
-The skill walks these phases in this exact order. Each phase has a primary artifact (a file the sub-skill authors) and an optional gate at the end.
+Per the ratified subsystem profile ([[DAS Design Design]], pipeline ruling 2026-07-14 — supersedes the earlier two-gate PRD → UX → API → Architecture → Testing order). The skill walks these phases in this exact order; each phase has a primary artifact, and **one sticky gate** sits between Testing and Roadmap.
 
-| # | Phase | Sub-skill | Primary artifact | Gate after |
-|---|---|---|---|---|
-| 1 | PRD | `/design prd` | `{slug} Design/{slug} PRD.md` | — |
-| 2 | UX *(if applicable)* | `/design ux` | `{slug} Design/{slug} UX.md` | — |
-| 3 | API *(if applicable)* | `/design api` | `{slug} Design/{slug} API.md` | — |
-| 4 | Architecture | `/design architect` | `{slug} Design/{slug} Architecture.md` | **Gate 1** — `status:: accepted` on Architecture |
-| 5 | Testing | `/design testing` | `{slug} Design/{slug} Testing.md` | **Gate 2** — `status:: accepted` on BOTH Architecture AND Testing |
-| 6 | Roadmap | `/design roadmap` | `{slug} Design/{slug} Roadmap.md` (moved from Track 2026-06-10) | — |
-| 7 | Features | `/design features` | `{slug} Design/{slug} Features/` (folder; one `F<NNN> — <Title>.md` per feature, moved from Track 2026-06-10) | — |
-| 8 | Design complete | — | — | Transition to Drive (`/crank`) |
+| # | Phase | Sub-skill | Primary artifact |
+|---|---|---|---|
+| 1 | PRD | `/design prd` | `{slug} Design/{slug} PRD.md` — satellite: Stories |
+| 2 | Architecture | `/design architect` | `{slug} Design/{slug} Architecture.md` — satellites (when applicable, authored within this phase): UX (`/design ux`), System Design, API (`/design api`) |
+| 3 | Milestones | `/design roadmap` (initial pass) | `{slug} Design/{slug} Roadmap.md` — pin the testable increments only; full elaboration is post-gate |
+| 4 | Testing | `/design testing` | `{slug} Design/{slug} Testing.md` — strategy covering the pinned milestones |
+| — | **Gate: design accepted** | — | user passes it conversationally; sticky once passed |
+| 5 | Roadmap | `/design roadmap` (elaboration) | `{slug} Design/{slug} Roadmap.md` — fleshed out post-gate as designing each feature spawns its subtasks and sub-features |
+| 6 | Features | `/design features` | `{slug} Design/{slug} Features/` (folder; one `F<NNN> — <Title>.md` per feature) |
+| 7 | Design complete | — | Transition to Drive (`/crank`) |
 
-**Gate semantics:** Gate 1 protects entry to Testing authoring. Gate 2 protects entry to Roadmapping. A gate is "passed" when the relevant artifact's top-of-file `status::` dataview field reads `accepted`. The user sets the field by saying "the architecture is accepted" / "the testing is accepted" (the agent watches for that phrase and updates the field) or by editing directly. Gates are sticky: once `accepted`, no re-prompt.
+**Gate semantics — one gate, not two.** Everything before the gate iterates freely until the design *set* (PRD + Architecture with its satellites + pinned Milestones + Testing) is accepted; no intermediate gate blocks Testing or Milestones authoring on incomplete prior artifacts. The user passes the gate conversationally — *"the design is accepted"* — and the agent records it by stamping `status:: accepted` on `{slug} Architecture.md` AND `{slug} Testing.md` in the same pass (one gate event; the two field-stamps are its record, which keeps legacy per-artifact reads valid). The gate is sticky: once stamped, no re-prompt, and bare `/design` proceeds to Roadmap elaboration.
 
-The phrasing "satisfied with this as a starting architecture / testing discipline" is load-bearing: gates protect against starting *next-phase work* on visibly incomplete prior work — they do not mean "perfect." Iteration continues throughout Drive.
+"Accepted" means *satisfied with this as a starting design* — the gate protects against starting execution on visibly incomplete design work; it does not mean "perfect." Iteration continues throughout Drive.
 
 ## State model
 
@@ -63,19 +64,18 @@ Cell vocabulary, ordered low → high: `none < MVP-agent < MVP-user < Full-agent
    ```bash
    ~/.claude/skills/workflow/scripts/state --anchor {slug} status show
    ```
-   Walk the output in declared order (`prd`, `ux`, `architecture`, `testing`, `roadmap`). Pick the **first** facet whose cell is lowest on the ladder above; dispatch to the corresponding sub-skill (`design-prd`, `design-ux`, etc.). Sub-skills self-promote to `*-agent` at completion via `state status set <facet> <new-cell> --note "<one-line>"`; user-stamped `*-user` comes from explicit review ("PRD looks good for MVP" → agent runs `state status set prd MVP-user --note "<...>"`).
+   Walk the facets in **pipeline order** (`prd`, `architecture`, `testing`, `roadmap` — the file's declared order still lists `ux` second for CLI compatibility, but `ux` is an Architecture satellite: consult its cell during the architecture phase, and only when the PRD declares a UI). Pick the **first** facet whose cell is lowest on the ladder above; dispatch to the corresponding sub-skill (`design-prd`, `design-architect`, etc.). Sub-skills self-promote to `*-agent` at completion via `state status set <facet> <new-cell> --note "<one-line>"`; user-stamped `*-user` comes from explicit review ("PRD looks good for MVP" → agent runs `state status set prd MVP-user --note "<...>"`).
 2. **Fallback when `{slug} Status.md` absent.** Apply the legacy per-artifact inference below.
 3. **`/design <facet>` bypasses the picker entirely** — works on already-approved facets too (that's just more design on something).
 
 **Legacy inference (fallback when no Status.md):**
 - PRD exists with at least one user story → past PRD-drafting.
-- PRD declares UI requirement AND `{slug} UX.md` has concrete UI shape → past UX.
-- PRD declares API surface AND `{slug} API.md` has concrete API shape → past API.
 - Architecture exists with at least one named subsystem → architecting in progress.
-- Architecture has `status:: accepted` → Gate 1 passed; proceed to Testing.
+- Architecture-satellite check (within the architecture phase): PRD declares UI requirement AND `{slug} UX.md` has concrete UI shape → UX satellite covered; PRD declares API surface AND `{slug} API.md` has concrete API shape → API satellite covered.
+- Roadmap has pinned milestones → past Milestones (initial pass).
 - Testing exists with proposed strategy → testing in progress.
-- Architecture AND Testing both `accepted` → Gate 2 passed; proceed to Roadmap.
-- Roadmap has at least one milestone → roadmapping in progress.
+- Architecture AND Testing both `status:: accepted` → the design-accepted gate has passed; proceed to Roadmap elaboration.
+- Roadmap elaborated beyond the pinned milestones → roadmapping in progress.
 
 If a declared `Status.md` cell disagrees with inferred state on the artifact body (e.g., `prd:: Full-user` but the PRD doc has only a frontmatter and one user story), surface the discrepancy in chat. Declared cell wins; the surface is a check on user intent.
 
@@ -91,7 +91,7 @@ If a declared `Status.md` cell disagrees with inferred state on the artifact bod
    testing:        none
    roadmap:        none
    ```
-4. **Pick the dispatch target.** Walk facets in declared order (`prd`, `ux`, `architecture`, `testing`, `roadmap`); pick the FIRST facet at the lowest cell on `none < MVP-agent < MVP-user < Full-agent < Full-user`. The table above picks `architecture` (first `none`).
+4. **Pick the dispatch target.** Walk facets in pipeline order (`prd`, `architecture` — consulting the `ux` satellite cell within that phase when the PRD declares a UI — `testing`, `roadmap`); pick the FIRST facet at the lowest cell on `none < MVP-agent < MVP-user < Full-agent < Full-user`. The table above picks `architecture` (first `none`).
 5. **Auto-dispatch.** Invoke the matching sub-skill: `/design architect` for the example above. The user may redirect mid-dispatch by saying "actually let's do UX first" or by typing `/design ux` directly.
 6. **Self-promote at completion.** When the sub-skill judges its work sufficient, it ends with:
    ```bash
@@ -106,22 +106,21 @@ Direct invocation of a sub-skill, bypassing the bare-state-scan.
 | Verb | Dispatches to |
 |---|---|
 | `/design prd` | `design-prd.md` |
-| `/design ux` | `design-ux.md` |
-| `/design api` | `design-architect.md` § API section (or future `design-api.md` when commissioned) |
+| `/design ux` | `design-ux.md` (Architecture satellite) |
+| `/design api` | `design-architect.md` § API section (Architecture satellite; future `design-api.md` when commissioned) |
 | `/design architect` | `design-architect.md` |
+| `/design milestones` | `design-roadmap.md` (initial pass — pin the testable increments only) |
 | `/design testing` | `design-testing.md` |
-| `/design roadmap` | `design-roadmap.md` |
-| `/design gate architecture` | shortcut for *"set `status:: accepted` on `{slug} Architecture.md`"* |
-| `/design gate testing` | shortcut for *"set `status:: accepted` on `{slug} Testing.md`"* |
+| `/design roadmap` | `design-roadmap.md` (post-gate elaboration) |
+| `/design gate` | shortcut for the design-accepted gate — stamp `status:: accepted` on `{slug} Architecture.md` AND `{slug} Testing.md` |
 
-## Runbook — natural-language gate phrases
+## Runbook — natural-language gate phrase
 
-The skill watches for these phrases in user messages while a design artifact is being authored:
+The skill watches for the acceptance phrase in user messages:
 
-- *"the architecture is accepted"* / *"I accept the architecture"* / *"architecture looks good"* → set `status:: accepted` on `{slug} Architecture.md`.
-- *"the testing is accepted"* / *"testing looks good"* / *"the testing strategy is accepted"* → set `status:: accepted` on `{slug} Testing.md`.
+- *"the design is accepted"* / *"I accept the design"* / *"design looks good, go build"* → the gate passes: stamp `status:: accepted` on `{slug} Architecture.md` AND `{slug} Testing.md` in the same pass.
 
-After updating, glance the affected file so the user can verify the field landed.
+After stamping, glance the affected files so the user can verify the fields landed. (Artifact-level phrases like *"the architecture looks good"* are ordinary review feedback — record them as `state status set architecture MVP-user` tier promotions, not as gate events.)
 
 ## Dispatch table
 
@@ -136,9 +135,10 @@ After updating, glance the affected file so the user can verify the field landed
 ## Anti-patterns
 
 - **Don't ask "which artifact next?"** — the canonical phase order is the answer. Bare `/design` auto-dispatches; user redirects if they want a different order.
-- **Don't gate by separate ceremony.** Gates are encoded in the doc's `status::` field, NOT in a parallel gate registry.
+- **Don't gate by separate ceremony.** The gate is encoded in the docs' `status::` fields, NOT in a parallel gate registry.
 - **Don't write tests during `/design testing`.** That phase writes the *strategy + proposed-tests overview* (the [[DAS Testing]] facet); actual test code comes during Drive (`/code test` or `/mint`).
-- **Don't author roadmap milestones before Gate 2.** The roadmap phase is gated on both Architecture and Testing being `accepted`.
+- **Don't elaborate the full Roadmap before the design-accepted gate.** Pinning the initial milestones (phase 3) is pre-gate by design — the tests need concrete increments to cover; the full Roadmap elaboration waits for acceptance.
+- **Don't resurrect the retired two-gate order.** There is no architecture-accepted gate blocking Testing authoring — the whole pre-gate set iterates freely until the one acceptance.
 - **Don't reorder phases silently.** If the user redirects ("let's do UX first"), comply for that session, but the canonical order remains the default for future invocations.
 
 ## When NOT to use this skill
