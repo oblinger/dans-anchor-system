@@ -1173,7 +1173,9 @@ def extract_q_entries(file_path: Path, container_id: str) -> list[QEntry]:
                 # Recognize the "Resolved" section and its common descriptive
                 # variants ("Resolved decisions", "Resolved questions") so
                 # already-decided Q-records there aren't mis-scanned as open Qs.
-                in_h2_resolved = heading_text.lower().startswith("resolved")
+                # "Removed" is the soft-delete sibling (`state … remove`).
+                in_h2_resolved = heading_text.lower().startswith(
+                    ("resolved", "removed"))
                 in_h3_resolved = False
                 continue
             if level == 3:
@@ -1181,8 +1183,14 @@ def extract_q_entries(file_path: Path, container_id: str) -> list[QEntry]:
                 # F123: detect H3-form Q-header. If matched, start a new
                 # pending H3-form Q (only when not in `## Resolved` H2);
                 # in_h3_resolved is set False because the Q header replaces
-                # any prior `### Resolved` context.
+                # any prior `### Resolved` context. Archived headers written
+                # by `state … remove`/`resolve` — `### Q5 — … (removed …)` —
+                # are records, not pending Qs (T024/F239 fix, 2026-07-14).
                 h3_q_m = Q_HEADER_H3_RE.match(line)
+                if h3_q_m and re.search(r"\((?:removed|resolved)\b",
+                                        heading_text, re.IGNORECASE):
+                    in_h3_resolved = True
+                    continue
                 if h3_q_m and not in_h2_resolved:
                     q_num = int(h3_q_m.group(1))
                     block_id_match = Q_BLOCK_ID_TRAILING_RE.search(line)
@@ -1204,7 +1212,8 @@ def extract_q_entries(file_path: Path, container_id: str) -> list[QEntry]:
                     )
                     in_h3_resolved = False
                     continue
-                in_h3_resolved = heading_text.lower().startswith("resolved")
+                in_h3_resolved = heading_text.lower().startswith(
+                    ("resolved", "removed"))
                 continue
             # Level 1 or 4+: leave state alone (rare in feature docs)
         if in_h2_resolved or in_h3_resolved:

@@ -341,15 +341,20 @@ def _read_q_marker_count(target_path: Path) -> int:
     in_h3_resolved = False
     for line in lines:
         if line.startswith("## "):
-            in_h2_resolved = line[3:].strip().lower().startswith("resolved")
+            in_h2_resolved = line[3:].strip().lower().startswith(("resolved", "removed"))
             in_h3_resolved = False
             continue
         if line.startswith("### "):
             tail = line[4:].strip()
-            in_h3_resolved = tail.lower().startswith("resolved")
+            in_h3_resolved = tail.lower().startswith(("resolved", "removed"))
             # The H3 Q shape `state q` writes (`### Q1 — …`) counts as pending
             # unless it sits under a Resolved H2 (2026-07-06 — H3-form docs
-            # rendered no (NQ) count at all).
+            # rendered no (NQ) count at all) or carries an archive marker —
+            # `### Q5 — … (removed …)` is a record, not a pending Q (T024).
+            if re.match(r"Q\d+\s+—", tail) and re.search(
+                    r"\((?:removed|resolved)\b", tail, re.IGNORECASE):
+                in_h3_resolved = True
+                continue
             if not in_h2_resolved and not in_h3_resolved and re.match(r"Q\d+\s+—", tail):
                 count += 1
             continue
