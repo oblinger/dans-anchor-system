@@ -1,10 +1,10 @@
+# FEX Roadmap
+description:: sequencing-design — milestones + ordering (moved from Track 2026-06-10)
+
 ## Open Questions
 
 ### Q1 {{add example here; if no questions this section is removed}}
 
-
-# FEX Roadmap
-description:: sequencing-design — milestones + ordering (moved from Track 2026-06-10)
 
 
 ## [ ] M-Store — Persistence Layer

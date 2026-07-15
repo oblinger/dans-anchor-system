@@ -8,10 +8,10 @@ Each individual feature doc filename matches `F<NNN> — <Title>.md` where `<NNN
 **Check pattern:** filename matches `^F\d{3} — .+\.md$`.
 **Why:** the F-number is the stable cross-reference key; padded triple digits keep filename sort equal to numeric sort and distinguish per-anchor feature series from each other.
 
-### RULE R-fct-features-02 — Two-zone layout: Open Questions above H1 (checked)
-Every feature doc opens with a `## Open Questions` H2 (and a `### Resolved` H3 beneath it) **before** the `# [[{slug}]] · F{n} — {Feature Name}` H1. The pre-document zone is mandatory even when empty; a placeholder line such as `_None — design is clean._` must be present when there are no open questions.
-**Check pattern:** the first heading in the file is `## Open Questions` (not the `#` H1); a `### Resolved` H3 follows it; the `# ` H1 appears after both.
-**Why:** blocking decisions must be visible the moment the file opens — placing them above the H1 guarantees they are never buried below the feature spec body.
+### RULE R-fct-features-02 — Open Questions is the first H2, below the H1 (checked)
+While pending Qs exist, a feature doc's `## Open Questions` H2 (with its `### Resolved` H3 beneath) is the **first H2 in the file** — immediately below the `# [[{slug}]] · F{n} — {Feature Name}` H1 and its one-line orientation prose (per [[F241 — Questions block below H1 + state-stamped integrity hash|F241]], 2026-07-15; supersedes the earlier above-the-H1 placement). When zero Qs are pending the block is deleted entirely (Phase 2) — it is not kept as an empty placeholder.
+**Check pattern:** if a `## Open Questions` H2 is present, it is the first `## ` heading in the file and follows the `# ` H1; resolved Qs live under a bottom `## Resolved` H2.
+**Why:** blocking decisions must be visible the moment the reader passes the head, without forcing the file into an outline-breaking above-the-H1 shape; the state script's integrity stamp (R-state-region-03 / audit-q C48) keeps the block script-managed.
 
 ### RULE R-fct-features-03 — H1 carries anchor-slug breadcrumb (checked)
 The feature-doc H1 reads `# [[{slug}]] · F{n} — {Feature Name}` — a wiki-link to the anchor page, a middle dot, and the feature title. The filename matches the title portion without brackets: `F{n} — {Feature Name}.md`.

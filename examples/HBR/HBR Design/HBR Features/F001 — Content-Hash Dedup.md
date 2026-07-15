@@ -2,6 +2,8 @@
 description: Skip files already in the catalog by content hash during ingest
 ---
 
+# [[HBR]] · F001 — Content-Hash Dedup
+
 ## Open Questions
 
 _None — design is clean._
@@ -10,7 +12,6 @@ _None — design is clean._
 
 - **Q1 — hash the whole file or a sampled prefix?** — **Resolution:** whole-file BLAKE3. Sampled-prefix hashing risks collisions across re-encodes that share a header; ingest is not latency-critical, so the full read is acceptable. Landed in Design § Hashing. See [[HBR Decisions]] (content-hash dedup).
 
-# [[HBR]] · F001 — Content-Hash Dedup
 
 ## Summary
 

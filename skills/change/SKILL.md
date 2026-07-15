@@ -39,7 +39,7 @@ The echoed id (`{slug}: added C<NNN> …`) names everything downstream. C-number
 
 Create `changes/C<NNN>-<kebab-slug>/` at the **anchor root** (create `changes/` on first use — that IS the adoption moment; confirm with the user if this is the anchor's first change):
 
-- `proposal.md` — why + what. H1 `# C<NNN> — {Title}`; sections `## Why`, `## What Changes`. Open questions live here (above the H1 while pending, per the [[DAS ask-format]] lifecycle) and are managed by `state <path-to-proposal.md> Q+ define` — the path form, since OpenSpec filenames repeat across changes.
+- `proposal.md` — why + what. H1 `# C<NNN> — {Title}`; sections `## Why`, `## What Changes`. Open questions live here (the first H2 below the H1 while pending, per the [[DAS ask-format]] lifecycle) and are managed by `state <path-to-proposal.md> Q+ define` — the path form, since OpenSpec filenames repeat across changes.
 - `tasks.md` — the implementation checklist, `- [ ]` per task, ordered for execution. This is what `/mint` walks.
 - `design.md` — only when the change carries real design decisions (omit otherwise; transient notes, not durable design).
 - `specs/<capability>/spec.md` — the delta: `## ADDED` / `## MODIFIED` / `## REMOVED` requirement sections, each ADDED/MODIFIED requirement with ≥1 `#### Scenario:` Given/When/Then block ([[DAS Specs]] § Delta semantics).

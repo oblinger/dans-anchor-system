@@ -40,7 +40,7 @@ Manage a feature from initial idea through design, agreement, implementation, te
 
 **MANDATORY: Commit discipline.** Before starting a new feature or switching to any other activity, commit all uncommitted work from the current feature. The natural commit point is the transition — not when you think you're done, but when you're about to do something else.
 
-**Question format**: the `## Open Questions` H2 above the H1 follows the [[DAS ask-format]] discipline (five-piece layout, block-IDs, Phase 1/2/3 lifecycle).
+**Question format**: the `## Open Questions` H2 (first H2, below the H1) follows the [[DAS ask-format]] discipline (five-piece layout, block-IDs, Phase 1/2/3 lifecycle).
 
 ## When to Use
 
@@ -115,14 +115,18 @@ If `{slug} Design/{slug} Features/` doesn't exist, create it. (Legacy anchors st
 
 This is the one place in `/feature` where an inline question is appropriate (vs. routing through `/ask`'s batch surface): it's a yes/no creation-time prompt that needs an answer in the same turn, and the user is in active mode by virtue of having invoked `/feature`.
 
-**Feature doc structure — Open Questions sits ABOVE the H1 (between the frontmatter and the H1) while any pending Qs exist; deleted entirely once all are resolved, with answered Qs migrating to a `## Resolved` H2 at the bottom of the doc.** The lifecycle:
+**Feature doc structure — Open Questions is the first H2 BELOW the H1 (after the H1's one-line orientation) while any pending Qs exist; deleted entirely once all are resolved, with answered Qs migrating to a `## Resolved` H2 at the bottom of the doc** (per [[F241 — Questions block below H1 + state-stamped integrity hash|F241]], 2026-07-15 — supersedes the earlier above-the-H1 placement). The lifecycle:
 
 ```markdown
 ---
 description: {one-line description}
 ---
 
+# [[{slug}]] · F{n} — {Feature Name}
+{One-line orientation summary of the feature.}
+
 ## Open Questions
+<!-- state:q XX -->
 
 - **Q1 — {short question}** — {context + options}
 - **Q2 — {short question}** — {context + options}
@@ -131,9 +135,7 @@ description: {one-line description}
 
 - **Q0 — {earlier question}** — **Resolution:** {decided X because Y}. Incorporated into Design § {section}.
 
-(**No boilerplate prose** under `## Open Questions` or `### Resolved` headings. No "Blocking decisions / cannot move from Designing → Agreed" intro. Just the heading then the bullets. Per durable feedback memory. **Placement:** while pending Qs exist this block sits ABOVE the H1 — questions precede the document; they aren't part of it until answered. On resolution the doc enters Phase 2: this block is deleted and its decisions migrate to the bottom `## Resolved` H2.)
-
-# [[{slug}]] · F{n} — {Feature Name}
+(**No boilerplate prose** under `## Open Questions` or `### Resolved` headings. No "Blocking decisions / cannot move from Designing → Agreed" intro. Just the heading then the bullets. Per durable feedback memory. **Placement:** while pending Qs exist this block is the file's first H2, immediately below the H1's orientation line. The `<!-- state:q XX -->` stamp is written by the state script on every write — do not hand-edit it or the block; route changes through `state <doc> Q<n> <verb>`. On resolution the doc enters Phase 2: this block is deleted and its decisions migrate to the bottom `## Resolved` H2.)
 
 ## Summary
 
@@ -173,14 +175,14 @@ Designing — awaiting design discussion.
 
 **Lifecycle phases for Questions:**
 
-- **Phase 1 — pending user Qs exist.** `## Open Questions` H2 sits directly ABOVE the H1 (between the frontmatter and the H1) — questions precede the document, not part of it until answered — containing pending Qs. Resolved Qs accumulate inside as a `### Resolved` H3 sub-section *until all are answered*.
+- **Phase 1 — pending user Qs exist.** `## Open Questions` H2 is the file's first H2, directly BELOW the H1 (after its one-line orientation) — containing pending Qs. It carries a `<!-- state:q XX -->` integrity stamp the state script maintains; hand-edits that break it trip the on-write warning (R-state-region-03 / audit-q C48). Resolved Qs accumulate inside as a `### Resolved` H3 sub-section *until all are answered*.
 - **Phase 2 — all Qs resolved.** Delete the `## Open Questions` H2 entirely. Migrate the staged `### Resolved` H3 content to the bottom `## Resolved` H2 (creating it if absent). Top of doc is now clean: H1 → Summary → Design → Status → Resolved.
-- **Phase 3 — new Q arises later.** Recreate `## Open Questions` H2 above H1 with the new Q. Same lifecycle as Phase 1. **This applies even when the feature is `[Done]`** — a re-decision or extension of a feature's design reopens *this doc* (the backlog row rebrackets `[Questions]`); never mint a spin-off backlog row to host the decision (per [[Query PRD]] § Work-item identity: decisions live on the feature's record, rows carry work). When the new resolution supersedes an earlier one, stamp the superseded `## Resolved` entry with a one-line *"superseded {date} → Q{n}"* in the same pass.
+- **Phase 3 — new Q arises later.** Recreate `## Open Questions` H2 as the first H2 below the H1 with the new Q. Same lifecycle as Phase 1. **This applies even when the feature is `[Done]`** — a re-decision or extension of a feature's design reopens *this doc* (the backlog row rebrackets `[Questions]`); never mint a spin-off backlog row to host the decision (per [[Query PRD]] § Work-item identity: decisions live on the feature's record, rows carry work). When the new resolution supersedes an earlier one, stamp the superseded `## Resolved` entry with a one-line *"superseded {date} → Q{n}"* in the same pass.
 - **Auto-decisions skip Phase 1 entirely.** Agent decisions made under the [[F068 — Assume-and-announce discipline (Drive mode)|F068]] visibility + low-recoverability rule go *directly* into the bottom `## Resolved` H2 as H3 entries, without staging at top. They co-exist there with user-answered Qs.
 
 **Structural rules:**
 - **H1 carries the anchor-slug breadcrumb + F-number.** Format: `# [[{slug}]] · F{n} — {Feature Name}`. The leading `[[{slug}]]` is a wiki-link to the anchor page (jumps back to the anchor's home from any feature doc) and tells the reader at a glance which anchor they're in — load-bearing when many anchors are active and feature docs look similar across them.
-- **`## Open Questions` lives above H1 (between frontmatter and H1) only while pending user Qs exist** — deleted otherwise; questions precede the document and migrate to the bottom `## Resolved` H2 once answered.
+- **`## Open Questions` lives below the H1 as the file's first H2 only while pending user Qs exist** — deleted otherwise; answered Qs migrate to the bottom `## Resolved` H2. The state script stamps the block for tamper-evidence (F241).
 - **`## Resolved` at the bottom holds all resolved decisions as H3 entries** — both agent-decided and user-answered. The H3 outline IS the decision list; click any H3 to read its full record. H3 title format: `### Q{N} — {Title}` for user-answered (Q-numbered); `### {Title}` for agent-decided (no Q-number — they were never asked). Each H3 body has: `**Choice:** X.` + brief reasoning + alternatives considered + why rejected.
 - The `/ask` skill (`[[SKA queries]]`) is the universal asking subroutine — feature docs, PRDs, plan docs, anything with questions follows the same shape. Invoke `/ask --doc <path>` to add questions to a feature doc; the runbook handles formatting, glance, and global-page maintenance.
 
@@ -366,7 +368,7 @@ Implement <Feature Name> (S03200917)
 
 - **F-numbered filename** — `F{n} — {Feature Name}.md` in the Features folder. F-number from the anchor's monotonic-forever counter (per `[[DAS Backlog]]` § Numbering policy).
 - **H1 carries the anchor-slug breadcrumb + F-number** — `# [[{slug}]] · F{n} — {Feature Name}`.
-- **Open Questions ABOVE the H1** (first body element, immediately after frontmatter) while pending Qs exist; deleted entirely when zero pending. Resolved Qs migrate to a `## Resolved` H2 at the bottom of the doc.
+- **Open Questions as the first H2 BELOW the H1** (after the H1's orientation line) while pending Qs exist; deleted entirely when zero pending. Resolved Qs migrate to a `## Resolved` H2 at the bottom of the doc.
 - **`open` the doc after every Open Questions edit (in active mode)** — mandatory, per step 1a.
 - **Status near the bottom** — single line indicating lifecycle stage. (`## Resolved`, when present, sits below Status as the historical archive.)
 - **No implementation details in the feature doc** — the feature doc is the *what* and *why*.

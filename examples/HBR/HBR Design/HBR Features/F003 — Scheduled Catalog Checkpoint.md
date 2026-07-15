@@ -2,6 +2,8 @@
 description: Periodic SQLite catalog checkpoint so a crash resumes from the last good state
 ---
 
+# [[HBR]] · F003 — Scheduled Catalog Checkpoint
+
 ## Open Questions
 
 - **Q1 — checkpoint interval: fixed or write-triggered?** — a fixed clock (e.g. every 5 min) is simple but can lose a burst of ingest writes; a write-count trigger bounds loss but adds bookkeeping. Leaning fixed-interval with the interval set in `harbor.toml`, since v1 ingest is bursty-then-idle and a missed-by-minutes catalog is acceptable. ^F003-Q1
@@ -10,7 +12,6 @@ description: Periodic SQLite catalog checkpoint so a crash resumes from the last
 
 _None yet._
 
-# [[HBR]] · F003 — Scheduled Catalog Checkpoint
 
 ## Summary
 

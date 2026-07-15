@@ -2820,15 +2820,16 @@ def check_c44_questions_row_has_target(entries: list[BacklogEntry]) -> list[Find
 
 
 def check_c45_open_questions_above_h1(entries: list[BacklogEntry]) -> list[Finding]:
-    """C45: a linked doc's `## Open Questions` must sit above the first H1.
+    """C45: a linked doc's `## Open Questions` must sit BELOW the H1 — the
+    file's first H2 (F241, 2026-07-15; inverts the F233 above-the-H1 rule).
 
-    Open questions are questions ABOUT the doc, not part of the doc — the
-    reader should hit the open-Q gate immediately after frontmatter, before
-    the doc's own content, not stumble on it mid-read. Only checked for rows
+    The block keeps its prominence (first H2, right after the H1's
+    orientation prose) while the file stays structurally normal (Obsidian
+    outline, masthead convention, heading tree). Only checked for rows
     that already have a resolved arrow link (unresolved links are C1/C22's
     territory; a doc with no `## Open Questions` heading at all is C24/C2's
     "no Qs" case, not a placement violation). Flag-only — moving a block is
-    a content edit, not mechanical (F233).
+    a content edit, not mechanical; `state <doc> revalidate` relocates it.
 
     Dedups per target file: multiple rows linking the same doc emit one
     finding, not one per row.
@@ -2882,19 +2883,72 @@ def check_c45_open_questions_above_h1(entries: list[BacklogEntry]) -> list[Findi
             continue  # no Open Questions heading — C24/C2's territory
         if h1_line == 0:
             continue  # no H1 — nothing to be below
-        if oq_line > h1_line:
+        if oq_line < h1_line:
             findings.append(Finding(
                 severity="error",
                 surface_file=target,
                 surface_line=oq_line,
                 code="C45",
                 message=(
-                    f"'## Open Questions' sits below the H1 (H1 at line "
-                    f"{h1_line}) — open questions are questions ABOUT the "
-                    f"doc, not part of it; the block belongs above the "
-                    f"first H1, immediately after frontmatter (F233). "
-                    f"Linked from [Questions] row '{e.identifier}' in "
-                    f"{e.source_file.stem}."
+                    f"'## Open Questions' sits above the H1 (H1 at line "
+                    f"{h1_line}) — per F241 the block belongs immediately "
+                    f"below the H1, as the file's first H2. Run "
+                    f"`state \"{target.stem}\" revalidate` to relocate + "
+                    f"re-stamp it. Linked from [Questions] row "
+                    f"'{e.identifier}' in {e.source_file.stem}."
+                ),
+                mechanically_fixable=False,
+            ))
+    return findings
+
+
+def check_c48_q_stamp_drift(entries: list[BacklogEntry]) -> list[Finding]:
+    """C48 (F241): a linked doc whose `## Open Questions` block carries an
+    integrity stamp (`<!-- state:q XX -->`) must hash-match its content.
+
+    The state script re-stamps the block on every write; a mismatch means a
+    hand-edit bypassed the script's ask-format gates. Stampless blocks are
+    grandfathered (legacy docs — no stamp, no finding). Hash impl is
+    backlog-edit.py's compute_q_stamp — single source of truth, same shape
+    as the C47/is_mechanical_verify sharing. Flag-only: recovery needs the
+    format gates re-run (`state <doc> revalidate`), never a blind re-bless.
+    """
+    findings: list[Finding] = []
+    seen: set[Path] = set()
+    for e in entries:
+        if e.horizon in ("Done", "Icebox"):
+            continue
+        arrow_link = _arrow_target(e)
+        if arrow_link is None or arrow_link.target_file_path is None:
+            continue
+        target = arrow_link.target_file_path
+        if not target.is_file() or target in seen:
+            continue
+        seen.add(target)
+        try:
+            lines = target.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeDecodeError):
+            continue
+        rng = _be_mod._open_questions_range(lines)
+        if rng is None:
+            continue
+        stored = _be_mod.read_q_stamp(lines, *rng)
+        if stored is None:
+            continue  # grandfathered — stampless legacy block
+        computed = _be_mod.compute_q_stamp(lines, *rng)
+        if computed != stored:
+            findings.append(Finding(
+                severity="error",
+                surface_file=target,
+                surface_line=rng[0] + 1,
+                code="C48",
+                message=(
+                    f"'## Open Questions' integrity stamp mismatch (stored "
+                    f"`{stored}`, computed `{computed}`) — the block was "
+                    f"hand-edited past the state script's ask-format gates. "
+                    f"Re-issue the change through `state`, or run "
+                    f"`state \"{target.stem}\" revalidate` to "
+                    f"validate-then-restamp (F241)."
                 ),
                 mechanically_fixable=False,
             ))
@@ -4582,6 +4636,7 @@ def main() -> int:
         findings.extend(check_c43_row_links_existing_doc(entries))
         findings.extend(check_c44_questions_row_has_target(entries))
         findings.extend(check_c45_open_questions_above_h1(entries))
+        findings.extend(check_c48_q_stamp_drift(entries))
         findings.extend(check_c34_inline_q_in_row_body([backlog_file]))
     # F124 — C35 queries.md drift check walks every anchor backlog's sibling
     # `{slug} queries.md` (per F176). Runs once after the per-anchor loop (not

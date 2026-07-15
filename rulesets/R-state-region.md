@@ -95,3 +95,57 @@ def body(ctx):
 The Write-tool sibling of rule 01. Doc *creation* is exempt by construction — the rule fires only when the target already exists on disk (`p.is_file()`), so authoring a new doc's initial `## Open Questions` block by hand (the `/feature` flow) never triggers it.
 
 **Why:** guarding Edit alone just teaches the failure mode a new verb (the [[R-pathguard]]-03 lesson), and the advisory has to see the same blind side on both mutation tools.
+
+### RULE R-state-region-03 — Open Questions integrity stamp must hash-match on write (when:: write:markdown)
+
+```python
+def body(ctx):
+    # NB: the compiler marks a rule file-bearing (and the engine binds
+    # ctx.file) only when the source contains a literal `file.` reference —
+    # keep the direct ctx.file.* accesses below (F215).
+    if getattr(ctx, "file", None) is None:
+        return []
+    if not ctx.file.name.endswith(".md") or not ctx.file.exists:
+        return []
+    import hashlib, re
+    stamp_re = re.compile(r"^<!--\s*state:q\s+([0-9a-z]{2})\s*-->$")
+    lines = ctx.file.lines
+    start = None
+    for i, ln in enumerate(lines):
+        if ln.strip() == "## Open Questions":
+            start = i
+            break
+    if start is None:
+        return []
+    end = len(lines)
+    for j in range(start + 1, len(lines)):
+        if lines[j].startswith("## ") or (lines[j].startswith("# ")
+                                          and not lines[j].startswith("## ")):
+            end = j
+            break
+    stored = None
+    for k in range(start + 1, end):
+        m = stamp_re.match(lines[k].strip())
+        if m:
+            stored = m.group(1)
+            break
+    if stored is None:
+        return []  # grandfathered — stampless legacy block
+    content = [ln.rstrip() for ln in lines[start:end]
+               if not stamp_re.match(ln.strip())]
+    digest = hashlib.sha1("\n".join(content).encode("utf-8")).hexdigest()
+    n = int(digest, 16) % 1296
+    b36 = "0123456789abcdefghijklmnopqrstuvwxyz"
+    computed = b36[n // 36] + b36[n % 36]
+    if computed == stored:
+        return []
+    return [f"`## Open Questions` integrity stamp mismatch (stored `{stored}`, "
+            f"computed `{computed}`) — this block is maintained by "
+            "`state <doc> <label> <verb>`; a hand-edit bypasses its ask-format "
+            "gates. Re-issue the change through `state`, or run "
+            "`state \"<doc>\" revalidate` to validate-then-restamp (F241)."]
+```
+
+The F241 tamper-evidence check. The state script re-stamps the block (a 2-char base-36 sha1 of the trailing-whitespace-normalized block text, heading through the next H2, stamp line excluded) on every write it makes — so a stamp that doesn't match means the block content changed through some other write path. The audit twin over backlog-linked docs is audit-q **C48**; recovery is `state <doc> revalidate` (validate-then-stamp — every pending Q re-runs the same ask-format gates as `Q+ define`; there is deliberately no blind re-bless flag). Hash algorithm mirrors `backlog-edit.py`'s `compute_q_stamp` — rule bodies are sandboxed standalone, so the four-line algorithm is inlined here; if it ever changes, change both.
+
+**Why:** the point is not verifying the questions — it is making the script (whose write path enforces ask-format) the only quiet route to a green block. Rules 01/02 remind on the way in; this one catches what slipped through, including writes warden never saw as tool events.
