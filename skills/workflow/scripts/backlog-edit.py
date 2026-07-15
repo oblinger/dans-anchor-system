@@ -554,6 +554,68 @@ def verify_ownership_gate(status, row_id, eff_verify, why_user):
     return eff_verify
 
 
+# --- F242 non-answer (punt) detector -----------------------------------------
+# A required Next/question value is a "non-answer" when the agent left the field
+# empty or filled it with a placeholder instead of doing the groom. v1 set,
+# deliberately narrow so a real Next like "Remove the none-check in X" is safe.
+_NONANSWER_WHOLE = frozenset({"?", "-", "—", "(none)"})
+_NONANSWER_LEADING = (
+    "there is no next action", "no next action", "no next step", "none declared",
+    "n/a", "na", "tbd", "todo", "none", "pending", "unknown",
+)
+
+
+def is_nonanswer(text):
+    """F242 — True when `text` is a non-answer placeholder: empty; contains the
+    ⚠ glyph (U+26A0) anywhere (the render's own 'not really Ready' marker echoed
+    back); a whole-value sentinel (?, -, —, (none)); or begins with a non-answer
+    phrase on a word boundary (so 'none' matches 'none' / 'N/A — blocked' but not
+    'nonexistent' / 'none-check'). Whole-value/leading only — never substring."""
+    if text is None:
+        return True
+    raw = text.strip()
+    if not raw:
+        return True
+    if "⚠" in raw:
+        return True
+    norm = raw.strip("*`_ ").strip()
+    if not norm:
+        return True
+    low = norm.lower()
+    if low in _NONANSWER_WHOLE:
+        return True
+    for phrase in _NONANSWER_LEADING:
+        if low == phrase:
+            return True
+        if low.startswith(phrase):
+            nxt = low[len(phrase)]
+            if not (nxt.isalnum() or nxt in "-_"):
+                return True
+    return False
+
+
+def next_answer_gate(status, row_id, eff_next):
+    """F242 — refuse a [Ready]/[Active]/[Agreed] row whose `- **Next:**` value
+    is a non-answer placeholder. Empty-Next is already refused by the F171
+    needs-next check; this catches a field filled with a sentinel to slip past
+    it (the agent punting the groom instead of doing it)."""
+    if not _status_needs_next(status):
+        return
+    val = (eff_next or "").strip()
+    if not val or not is_nonanswer(val):
+        return
+    raise BacklogEditError(
+        f"[{status}] refused: {row_id}'s Next is a non-answer "
+        f"(\"{val[:60]}\").\n"
+        f"  Per F242 (mechanical groom gate): a [Ready] row must carry the "
+        f"concrete first step the\n"
+        f"  agent takes with zero user involvement — not a placeholder. Write "
+        f"that step, or rebracket\n"
+        f"  honestly: [Questions] if it needs the user, [Blocked]/[Waiting] if "
+        f"it is blocked."
+    )
+
+
 REQUIRED_COMPLETION_SECTIONS = ("success criteria", "completion status", "verification")
 
 
@@ -1216,6 +1278,11 @@ def perform_edit(
             eff_verify = verify_ownership_gate(
                 status, row_id, eff_verify, why_user
             )
+
+    # F242 — mechanical groom gate: a Ready/Active/Agreed row's Next must be a
+    # real first step, not a non-answer placeholder (empty is caught above).
+    if status not in ("same", "delete"):
+        next_answer_gate(status, row_id, eff_next)
 
     # Build the new line.
     new_line = render_row(row_id, status, title, body)

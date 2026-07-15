@@ -207,6 +207,18 @@ else
     bad "E: expected relocation below H1 — H1=$H1 OQ=$OQ stamp=$(has_stamp "$DOC" && echo yes || echo no)"
 fi
 
+# ---------- Case F (T027) — a section-anchored wiki-link on the Q first line
+# survives the define block-anchor strip (regression: the old `\s*\^\S+\s*$`
+# strip ate a line-final `[[Doc#^id|alias]]` back to a bare `[[Doc#`). ----------
+fresh_backlog; fresh_doc
+printf -- '- **Q1 — Section link survives** — See [[F241FIX Backlog#^T001|T001]]\n  - **(A)** Yes.\n  - **(B)** No.\n- **Recommendation:** Lean (A)\n' \
+  | "$STATE" --anchor "$FIX_ROOT" "Fixture Doc" Q1 define >/dev/null 2>&1
+if grep -qF '[[F241FIX Backlog#^T001|T001]]' "$DOC"; then
+    ok "F: section-anchored wiki-link survives the define round-trip (T027)"
+else
+    bad "F: link corrupted by block-anchor strip — got: $(grep -n 'Section link' "$DOC")"
+fi
+
 echo "----------------------------------------"
 echo "F241 q-stamp test: $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ]
