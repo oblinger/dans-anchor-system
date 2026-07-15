@@ -21,6 +21,8 @@ subsystem:: [[DAS Drive Design]] — the Drive group's subsystem profile
 
 `crank` is the user's "go" button. One press drives **as much progress as possible** through Ready work — sequentially or in parallel — until continuing would drop quality. The system mints what it can, and either exits silently (still finding work) or surfaces a status view + actionable inbox (out of safe Ready work, waiting on the user). The user can keep pressing `'` to keep going.
 
+**Bare crank is anchor-scoped and always safe to press.** With Ready work: maximum progress. With an empty queue: one triage pass, then the canonical TRIAGE line. Pressed again after that: the one-line `triage current — nothing to crank` report and nothing else (§ Repeated invocation). It never scavenges other anchors' queues and never invents work to feel busy.
+
 Punctuation trigger: **`'`** (single apostrophe as the entire message), parallel to `ask`/`"` and `land`/`.`. Slash invocation: `/crank` (with optional argument; passed to `/mint` if action is taken). **Slash-only — the spoken word "crank" is intentionally NOT a DMUX prefix-trigger** (too common in casual speech; `'` is the dedicated single-keystroke shortcut).
 
 
@@ -72,7 +74,7 @@ Per user direction 2026-05-26 (reinforced 2026-05-26 after a second lazy-stop in
 
 1. **Observable work exists.** "Observable work" is broader than the agent's anchor's Ready banner — it is **any of**:
    - The current anchor's Q.md banner shows `Ready N` with **N > 0**.
-   - Any other anchor's banner reachable from Q.md shows Ready or Verify work the agent could touch.
+   - Any other anchor's banner reachable from Q.md shows Ready or Verify work **that the user's ask explicitly put in scope** (a vault-wide directive: "drive the vault-wide count to zero," "clean up every anchor"). On a bare `'` / `/crank`, other anchors' queues are **NEVER** observable work — the current anchor is the whole scope (§ Repeated invocation).
    - Audit findings exist (run `audit-q` → non-zero output) — fixable findings ARE work.
    - The user's most recent ask names work that is not yet at zero (e.g., "drive this number to zero," "clean up X," "finish Y").
    - There are uncommitted in-flight modifications in the working tree.
@@ -93,7 +95,7 @@ If the agent cannot fill that blank with a concrete sentence naming a specific b
 
 The following are NOT valid reasons to stop, even though the agent's instinct will manufacture them:
 
-- **Handoff theater** — *"every remaining finding is now actionable by exactly one agent"* / *"this is owned by anchor X"* / *"the user can re-run /audit in those anchors."* Cross-anchor ownership is not a stop signal; it is a routing signal. If the agent can reach the file and apply a one-line fix, that fix is the agent's work.
+- **Handoff theater** — *"every remaining finding is now actionable by exactly one agent"* / *"this is owned by anchor X"* / *"the user can re-run /audit in those anchors."* When the user's ask spans those anchors, cross-anchor ownership is not a stop signal; it is a routing signal — if the agent can reach the file and apply a one-line fix, that fix is the agent's work. (On a bare crank the current anchor bounds the sweep; declining out-of-scope work there is correct, not theater.)
 - **Closure theater** — *"clean place to commit and stop"* / *"summary milestone reached"* / *"natural pause point"* / *"good first version is shipped."* Closure is for the user, not the agent. The agent commits and continues.
 - **Scoped-narrow-read** — *"SKA-scope is at zero"* when the user asked for the **vault-wide** count to be at zero. The agent must read the user's intent at the scope they named, not the scope most convenient to declare done.
 - **Self-congratulation** — *"245 → 23 is a 90% reduction"* / *"this is significant progress"* / *"big win."* Progress earned more time, not less. Quantity-of-progress is not a stop reason.
@@ -104,7 +106,7 @@ The following are NOT valid reasons to stop, even though the agent's instinct wi
 
 The agent verifies the gate by:
 1. Reading the per-anchor banner in `~/ob/kmr/Q.md` for the current anchor — extracting `Ready N`. Mechanical.
-2. Reading other anchor banners in Q.md — if any are non-zero on Ready or Verify and the agent can reach those files, work exists. Mechanical.
+2. Reading other anchor banners in Q.md — **only when the user's ask named cross-anchor scope**; if any are non-zero on Ready or Verify there, work exists. On a bare `'` / `/crank` this step is skipped entirely (current anchor only). Mechanical.
 3. Running `audit-q` and checking the finding count. Mechanical.
 4. Checking Claude Code's surfaced context-usage value. Mechanical.
 5. Re-reading the user's most recent ask. If the user named a number ("zero," "all," "everything") and the current state isn't at that number, work exists. Mechanical.
@@ -456,7 +458,12 @@ Specifically forbidden on repeat:
 - **Do NOT bypass the bracket filter** or relax the `[Ready]` discipline. If the queue was dry once, it's still dry; nothing changed between presses unless an external worker updated state.
 - **Do NOT escalate to `/fortify` semantics** unless the user explicitly invoked `/fortify`. Fortify is a different posture with different authorization.
 
-The correct response on a repeated no-action crank: re-run the same `/groom` (+ `/ask` if Questions > 0) cycle (cheap, idempotent), reprint the same banner, exit. The user's repeated press is met with the same answer — that is the correct UX. If they want different behavior, they will name the anchor or item explicitly.
+The correct response on a repeated no-action crank (per user ruling 2026-07-14 — pressing `'` must be safe anytime, without thinking): **check the triage stamp first.** `state triage` stamps `~/.config/anchor-system/triage/<slug>.json`; the stamp is fresh iff the backlog is unchanged since it was written (same sha — the F239 freshness test).
+
+- **Fresh stamp → report `triage current — nothing to crank` plus the stamp's canonical TRIAGE line, and stop.** No groom re-run, no `/ask` rebuild, no audit sweep, no work invention. The one-line report IS the complete, correct output — repeated presses converge here.
+- **Stale or missing stamp → run the no-action cascade once** (`/groom` → `/ask` if Questions > 0 → `state triage`), echo the canonical line, stop.
+
+Feeling "desperate to do something" on a repeat press is the named failure mode this section exists to kill: inventing tasks, re-auditing clean state, re-grooming an unchanged backlog, or eyeing another anchor's queue are all violations, not initiative. The user often presses `'` reflexively (e.g., right after `/compact`) without checking state first — the contract is that this is always safe. If they want different behavior, they will name the anchor or item explicitly.
 
 **Why this matters:** the user's chat window often shows only the latest screen of output. They press `/crank`, see the no-action banner, miss it (scrolled out, distracted, checking back later), press again expecting a fresh attempt at the same scope. If the agent infers *"user wants more, let me look beyond this anchor,"* the agent is now considering work in a context the user did not authorize from this session. A third press compounds. Once cross-anchor cranking starts, undoing it can be expensive. **The safe default — repeat the same answer — costs nothing; the dangerous default — escalate scope — has high blast radius.**
 
