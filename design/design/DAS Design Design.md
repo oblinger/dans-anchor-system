@@ -2,7 +2,7 @@
 description: Subsystem design for the Design group — the artifact pipeline, gates, and verbs that turn an idea into an agreed, buildable specification before execution starts.
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Design Design](hook://p/DAS%20Design%20Design)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [design](hook://design) → [DAS Design Design](hook://p/DAS%20Design%20Design)
 # DAS Design Design — the design of the Design subsystem
 Design is the subsystem that turns an idea into an agreed, buildable specification: a canonical pipeline of design artifacts (PRD → Architecture → Milestones → Testing → **design accepted** → Roadmap → Features) authored jointly by human and agent, with one sticky acceptance gate guarding the transition to execution.
 

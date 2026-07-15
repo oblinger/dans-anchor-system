@@ -2,7 +2,7 @@
 description: Subsystem design for the Doc group — the authoring verbs that shape, illustrate, polish, and route documents, plus the round-trip to external document apps.
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Doc Design](hook://p/DAS%20Doc%20Design)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [design](hook://design) → [DAS Doc Design](hook://p/DAS%20Doc%20Design)
 # DAS Doc Design — the design of the Doc subsystem
 Doc is the authoring subsystem: its verbs shape a document's structure (`/md`), illustrate it (`/viz`), polish its prose (`/redline`), and round-trip its content with the outside document apps (`/io`).
 

@@ -2,7 +2,7 @@
 description: Subsystem design for the Hygiene group — rules declared once, checked everywhere (Warden on-write + /audit sweeps), and repaired to zero via the 100%-fix discipline.
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Hygiene Design](hook://p/DAS%20Hygiene%20Design)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [design](hook://design) → [DAS Hygiene Design](hook://p/DAS%20Hygiene%20Design)
 # DAS Hygiene Design — the design of the Hygiene subsystem
 Hygiene keeps the vault conformant: rules are declared once in ruleset files, compiled into one corpus, fired on every write and on demand, and every finding is driven to zero — fixed mechanically where possible, repaired by the structural verbs where not.
 
