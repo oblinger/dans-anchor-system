@@ -8,14 +8,15 @@ backlog-edit.py via importlib.
 One address scheme covers backlog rows and any doc's Open Questions /
 Verifications:
     state [-a ANCHOR] <doc> <label> <verb> [--horizon H] [--status S] [--title T]
-          [--next N] [--verify V] [--choice X] [--reason R]
+          [--next N] [--verify V] [--why-user W] [--choice X] [--reason R]
           [--body B | --from-file P] [< body]
         doc   = Backlog (case-insensitive) | wiki-name | path to a .md file
         label = LETTERS+DIGITS, or LETTERS+'+' to auto-mint —
                 Q7 / V3 (any doc) / F157 / T8 (Backlog only) /
                 F+ / T+ / Q+ / V+ (mint the next unused number)
         verb  = define (create-or-replace) | set (Backlog-only partial
-                update — --status/--horizon/--title/--body/--next/--verify) |
+                update — --status/--horizon/--title/--body/--next/--verify/
+                --why-user) |
                 resolve (move to Done/Resolved) | remove (soft-delete, audit
                 trail preserved)
 
@@ -229,7 +230,8 @@ def _resolve_q_identifier(lines, q_num, slug):
 
 def _delegate_row_edit(slug, horizon, row_id_arg, status, title, body,
                        title_provided, body_provided,
-                       verify_text=None, next_text=None, pending_subs=None):
+                       verify_text=None, next_text=None, pending_subs=None,
+                       why_user=None):
     """Delegate to backlog-edit's perform_edit machinery, mirroring its main()."""
     if status != "delete" and status != "same":
         # Validate status bracket against the closed canonical set.
@@ -267,7 +269,7 @@ def _delegate_row_edit(slug, horizon, row_id_arg, status, title, body,
         dst_file, dst_horizon, row_id_arg, status,
         title, body, title_provided, body_provided,
         verify_text=verify_text, next_text=next_text,
-        pending_subs=pending_subs,
+        pending_subs=pending_subs, why_user=why_user,
     )
     be.append_messages(slug, result["summary"], backlog_path)
     be.write_state(slug, result)
@@ -1144,6 +1146,7 @@ def _v2_row_define(slug, backlog_path, label, args, minted=False):
         title_provided=True, body_provided=True,
         verify_text=verify_text, next_text=next_text,
         pending_subs=sub_lines,
+        why_user=getattr(args, "why_user", None),
     )
 
 
@@ -1205,6 +1208,7 @@ def _v2_row_set(slug, backlog_path, label, args):
         title_provided=args.title is not None,
         body_provided=args.inline is not None,
         verify_text=args.verify, next_text=args.next_step,
+        why_user=getattr(args, "why_user", None),
     )
 
 
@@ -1845,6 +1849,12 @@ def build_v2_parser():
                    help="`- **Next:**` no-user action (Backlog `set` only)")
     p.add_argument("--verify", default=None,
                    help="`- **Verify:**` yes/no question (Backlog `set` only)")
+    p.add_argument("--why-user", dest="why_user", default=None,
+                   help="F240 — one sentence naming the human faculty a "
+                        "Verify/Verify-by/Watching check invokes (taste / "
+                        "preference / ratification / passive-use); required "
+                        "when a row enters that family. Appended to the "
+                        "`- **Verify:**` sub-bullet as `· *why-user: …*`")
     p.add_argument("--choice", default=None,
                    help='chosen option, e.g. "(A)" — required for `Q<n> resolve`')
     p.add_argument("--reason", default=None,

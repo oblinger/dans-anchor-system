@@ -461,6 +461,99 @@ def verify_no_implementation_in_verify(status, body):
     )
 
 
+# F240 — verification ownership (who-is-better-positioned). A verification may
+# surface to the user only when the user's answer is genuinely better than the
+# agent's; a question phrased as a machine event ("did X mint/run/render",
+# "does the file exist") is agent-answerable from a file/log/probe and must
+# never reach the user's queue. The heuristic is deliberately narrow (favors
+# false negatives): a refused legitimate taste-check erodes trust in the gate;
+# a missed mechanical check is still caught by audit-q C47 on the next pass.
+# Single source of truth — audit-q.py imports is_mechanical_verify from here.
+
+_MECH_VERBS = (
+    r"(?:mint|run|ran|render|pass|fail|exist|land|fire|create|"
+    r"write|wrote|written|fold|commit|install|resolve)(?:s|ed|ing)?"
+)
+_MECH_INTERROG_RE = re.compile(
+    rf"^(?:did|does|is|was)\b.*?\b{_MECH_VERBS}\b", re.IGNORECASE
+)
+_MECH_CMD_FORM_RE = re.compile(r"`[^`]+`|(?<!\w)--[a-z][\w-]+")
+_TASTE_WORDS_RE = re.compile(
+    r"\b(?:reads?|feels?|looks?|prefer|like|good|right|okay|ok|acceptable|"
+    r"happy|taste|sense|clear|clean|want|better|worth|keep)\b",
+    re.IGNORECASE,
+)
+_WHY_USER_ANNOT_RE = re.compile(r"\s*·\s*\*why-user:.*?\*\s*$")
+
+
+def is_mechanical_verify(text):
+    """F240 — True when a `- **Verify:**` question is phrased as a machine
+    event the agent can check itself. Two forms (v1, deliberately narrow):
+    a leading interrogative about a machine event (`did/does/is/was … +
+    mint/run/render/pass/fail/exist/land/fire/create/write/fold/commit/
+    install/resolve`), or a command-form ask (backtick span / `--flag`
+    token) with no taste word anywhere in the line."""
+    if not text:
+        return False
+    line = _WHY_USER_ANNOT_RE.sub("", text.strip()).strip()
+    if _MECH_INTERROG_RE.match(line):
+        return True
+    if _MECH_CMD_FORM_RE.search(line) and not _TASTE_WORDS_RE.search(line):
+        return True
+    return False
+
+
+def _verify_family(status):
+    """True for the brackets the F240 ownership gate governs."""
+    s = (status or "").strip()
+    return s.startswith("Verify") or s.startswith("Watching")
+
+
+def verify_ownership_gate(status, row_id, eff_verify, why_user):
+    """F240 — enforce who-is-better-positioned at the moment a Verify is
+    minted. Fires when a row ENTERS the Verify/Verify-by/Watching family or
+    its `- **Verify:**` question is (re)written; a same-family re-touch that
+    keeps the existing question is grandfathered (already vetted at entry).
+
+    Refusals: (1) a mechanically-phrased question is agent-grade regardless
+    of --why-user — run it now or park [Waiting] with an agent-check plan;
+    (2) missing --why-user (and no existing `*why-user:*` annotation) —
+    the surfacing must name the human faculty it needs.
+
+    Returns the effective verify text with the why-user annotation appended
+    (the render surfaces it; audits can challenge it in place)."""
+    q_text = (eff_verify or "").strip()
+    if is_mechanical_verify(q_text):
+        raise BacklogEditError(
+            f"[{status}] refused: {row_id}'s Verify question reads as a "
+            f"machine event — an agent-grade check.\n"
+            f"  Per F240 (who-is-better-positioned): if the answer lives in a "
+            f"file, log, or probe, the agent\n"
+            f"  runs the check NOW — it never reaches the user's queue. Run "
+            f"it and set [Done], or set\n"
+            f"  [Waiting] naming the wake event with an agent-check plan in "
+            f"the body.\n"
+            f"  Question: \"{q_text[:100]}\""
+        )
+    has_annotation = "*why-user:" in q_text
+    if not (why_user and why_user.strip()) and not has_annotation:
+        raise BacklogEditError(
+            f"[{status}] refused: {row_id} needs --why-user \"<one "
+            f"sentence>\" naming the human faculty\n"
+            f"  this check invokes (taste / preference / ratification / "
+            f"passive-use observation).\n"
+            f"  Per F240, a verification surfaces to the user only when "
+            f"their answer is genuinely better\n"
+            f"  than the agent's. If the agent can check it, run it now and "
+            f"set [Done], or set [Waiting]\n"
+            f"  with an agent-check plan."
+        )
+    if why_user and why_user.strip():
+        return f"{q_text} · *why-user: {why_user.strip()}*" if q_text \
+            else f"· *why-user: {why_user.strip()}*"
+    return eff_verify
+
+
 REQUIRED_COMPLETION_SECTIONS = ("success criteria", "completion status", "verification")
 
 
@@ -966,6 +1059,7 @@ def perform_edit(
     verify_text=None,
     next_text=None,
     pending_subs=None,
+    why_user=None,
 ):
     """Apply the edit, return a one-line summary for the Messages entry."""
     raw = backlog_path.read_text()
@@ -1113,6 +1207,16 @@ def perform_edit(
                 f"for a decision)."
             )
 
+    # F240 — verification ownership gate. Fires when the row ENTERS the
+    # Verify/Verify-by/Watching family or its question is (re)written; a
+    # same-family re-touch keeps the vetting it got at entry.
+    if status not in ("same", "delete") and _verify_family(status):
+        entering = not _verify_family(existing_status_for_check)
+        if entering or verify_text is not None or (why_user and why_user.strip()):
+            eff_verify = verify_ownership_gate(
+                status, row_id, eff_verify, why_user
+            )
+
     # Build the new line.
     new_line = render_row(row_id, status, title, body)
 
@@ -1154,7 +1258,10 @@ def perform_edit(
     # F171 — (re)attach the companion sub-bullet under the just-placed row, so it
     # survives horizon-moves (which delete the old span) and same-status re-touch.
     if status not in ("same", "delete"):
-        if _status_needs_verify(status) and eff_verify:
+        # _verify_family (not _status_needs_verify) so a [Verify-by] row's
+        # question / F240 why-user annotation lands too instead of being
+        # silently dropped.
+        if _verify_family(status) and eff_verify:
             _ensure_subbullet(lines, row_id, "Verify", eff_verify.strip())
         elif _status_needs_next(status) and eff_next:
             _ensure_subbullet(lines, row_id, "Next", eff_next.strip())

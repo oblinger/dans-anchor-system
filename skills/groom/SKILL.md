@@ -18,6 +18,31 @@ user_invocable: true
 # Groom — Frontier Planning + Backlog Maintenance
 requires:: vault, anchor-cli, skill:ask, facet:backlog, facet:query, facet:roadmap
 
+| Table of Contents |  |
+|---|---|
+| **[[#Groom's three activities]]** |  |
+|    [[#1. Every work activity has a unique identifier]] |  |
+|    [[#2. Identify the executable frontier]] |  |
+|    [[#3. Groom the frontier — plan each item to a known state]] |  |
+| **[[#Top-level vs sub-skill invocation]]** |  |
+| **[[#When to Use]]** |  |
+| **[[#Definition of Ready]]** |  |
+| **[[#Item Status — How to Read It]]** |  |
+| **[[#Invocation]]** |  |
+| **[[#Runbook]]** |  |
+|    [[#1. Locate the source]] |  |
+|    [[#2. Enumerate candidates]] |  |
+|    [[#2a. Bracket reassessment — rewrite stale/non-standard brackets (per F061)]] |  |
+|    [[#3. For each candidate, in source order — PLAN it to Ready]] |  |
+|    [[#4. Build the report]] |  |
+|    [[#5. Q.md update post-condition — automatic via `state`]] |  |
+|    [[#Three guards on the loop (per the 2026-06-04 design discussions — original "mechanical-only" rule replaced by the 100%-fix principle)]] |  |
+|    [[#5a. Closing act — `state triage` (F239)]] |  |
+|    [[#6. (Top-level only) Surface the status banner]] |  |
+| **[[#Design Principle — Minimize User Back-and-Forth]]** |  |
+| **[[#Idempotence]]** |  |
+| **[[#Failure Modes]]** |  |
+
 **The purpose of groom is to get all tasks that could be next for execution fully ready to be executed.** Those tasks are the **groom frontier** (per [[Query PRD]] § The groom frontier, F228): rows in the **`## Now` / `## Next` horizons** plus items **soon on the relevant roadmaps** (the next unmet milestone of `{slug} Roadmap.md`, when one exists). Grooming is *planning*, not just rebracketing: each frontier task leaves groom either genuinely executable — `[Ready]` with a declared `- **Next:**` step — or honestly parked behind its named `[Questions]` / `[Blocked]` / `[Waiting]` / `[Watching]` state. `/ask` then asks the user about the frontier's residue; `/crank` executes what groom readied.
 
 Alongside the planning, groom drives the backlog toward the **groomed state** — the invariants documented in [[DAS Backlog]] and the `R-backlog` ruleset (numbering, status well-formed, link integrity, section coverage, ordering, Definition of Ready, frontier rows planned + bracket-resolved).
@@ -125,7 +150,7 @@ Every backlog item has one of these statuses, derived from where the bullet sits
 | **Blocked on questions** | Bracket `[Questions]` and bullet text contains a `→ [[Feature Doc]]` or `→ [[Open Questions]]` link | Skip — only the user can resolve those. |
 | **Blocked (other)** | Bracket `[Blocked]` (generic, body explains) or `[Blocked F<NNN>]` (chained on another feature) | Skip — the blocker is external. When the chained `F<NNN>` reaches `[Done]`, /groom may rebracket on a future sweep. |
 | **Unset / Upcoming** | Bullet is under a horizon H2 (`## Now`, `## Next`, `## Later` per [[SKA backlog]]) — or the legacy `## Upcoming` — or `## Legwork`, with bracket `[ ]` / `[Designing]` / absent, AND has no link to active open questions | **Process** — try to ready it. |
-| **Verify**, **Done** | Bullet under those H2s | Skip — out of scope. |
+| **Verify**, **Done** | Bullet under those H2s | Skip for promotion — but § 2a re-litigates the Verify family via the F240 positioning test (agent-grade questions get run or rebracketed). Done rows are never touched. |
 
 The `→ [[X]]` link convention is documented in [[DAS Backlog]].
 
@@ -189,6 +214,7 @@ Cases to detect and rewrite:
 - **`[Watching Nd]` whose soak expired with no recurrence** — rewrite to `[Verify]` so the user can confirm the fix held and close to `[Done]`.
 - **`[Watching]` with recurrence during the soak** — rewrite to `[Active]` or `[Designing]` (the fix didn't hold; resume work).
 - **`[Verify-by YYYY-MM-DD]` past its date** (per [[DAS ask-format]] § Deferred-by-use Verify) — default: move the row to `## Done` with note *"Auto-Done {today} — `[Verify-by <date>]` window expired with no failure surfaced"*. Optional alternative: if the agent has evidence the change wasn't actually exercised since the row was filed (e.g., the relevant skill hasn't run, no usage observed), extend the bracket to `[Verify-by <new-date>]` with a body note *"Extended — no usage observed yet"*. Default is auto-Done; extension is the rare case.
+- **`[Verify*]`/`[Watching*]` failing the positioning test** (per F240 / [[DAS verification]] — the `- **Verify:**` question is a machine event the agent can answer from a file, log, or probe; audit-q C47 flags these) — the agent RUNS the check now: passed → move to `## Done` with the evidence; needs a future event → rewrite `[Waiting]` naming the wake event with an agent-check plan. Only checks needing the user's taste / preference / ratification / passive-use observation stay in the Verify family — and those carry a `· *why-user: …*` annotation (add one via `state … set --why-user` when re-litigating a legacy row).
 - **Lazy-Blocked / Lazy-Waiting / Lazy-Watching** (body doesn't name what makes the state honest) — rewrite per `[[SKA workflow]]` § Lazy states (usually `[Ready]` or `[Questions]` in disguise).
 - **Bracket-H2 mismatch** — a row under `## Ready` H2 with a `[Questions]` / `[Blocked]` / `[Waiting]` / `[Watching]` bracket is misplaced (H2 implies state; bracket carries state). Either rewrite the bracket if state changed (the H2 was right) or move the row to a horizon H2 carrying the bracket (the bracket was right). The body usually disambiguates.
 

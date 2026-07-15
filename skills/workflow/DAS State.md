@@ -3,6 +3,7 @@ description: "CLI reference for the `state` script — canonical state editor fo
 ---
 
 # state — canonical state editor (CLI reference)
+Man-page-style reference for the `state` CLI — the one write path for backlog rows, doc Open Questions, and doc Verifications.
 
 > **STATUS:** Canonical. Shipped 2026-06-07 via F129; unified on the one-address-scheme v2 grammar 2026-07-13 via F236. Legacy `backlog-edit.py` ships alongside at the helper level — `state` delegates to it via importlib; new code always invokes `state`.
 
@@ -47,6 +48,8 @@ define    create-or-replace the WHOLE row. Body (stdin / --body / --from-file) i
                         New rows default to Now; existing rows stay put.
           Status guards enforce as always: [Ready]/[Active] need a Next declared,
           [Verify]/[Watching] need a Verify question (in the body sub-bullets).
+          Entering the Verify/Verify-by/Watching family additionally needs
+          --why-user (F240 ownership gate; see `set` below).
 
 set       partial update; omitted flags preserve current values. At least one of:
           --status S    new bracket text (guards enforce; pair with --next / --verify
@@ -56,6 +59,16 @@ set       partial update; omitted flags preserve current values. At least one of
           --body   B    new body (flag only — set never reads stdin).
           --next   X    `- **Next:**` no-user action sub-bullet.
           --verify Q    `- **Verify:**` yes/no question sub-bullet.
+          --why-user W  F240 ownership gate — one sentence naming the human
+                        faculty the check invokes (taste / preference /
+                        ratification / passive-use). Required when a row
+                        ENTERS Verify/Verify-by/Watching or its --verify text
+                        is rewritten; appended to the Verify sub-bullet as
+                        `· *why-user: …*`. A mechanically-phrased question
+                        ("did X mint/run/render", "does the file exist") is
+                        refused outright — agent-grade; run it now or park
+                        [Waiting] with an agent-check plan. Same-family
+                        re-touches (horizon moves) are grandfathered.
 
 resolve   move the row to ## Done [Done], appending `— resolved <date>: <note>` to the
           body. Note via stdin / --body / --from-file (optional).

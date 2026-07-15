@@ -44,6 +44,11 @@ Checks applied to Q.md, each anchor's backlog, and each feature/Questions doc:
        linked feature doc's actual pending-Q count. Bare `[Questions]`
        on a row whose linked doc has 7 Qs is stale (should be
        `[7 Questions]`); `[3 Questions]` on a doc with 0 Qs is also stale. (report).
+  C47: F240 — a [Verify*]/[Watching*] row whose `- **Verify:**` question is
+       phrased as a machine event ("did X mint/run/render", "does the file
+       exist", command-form asks) is agent-grade: the agent runs it now or
+       reclassifies [Waiting] with an agent-check plan. Heuristic shared with
+       backlog-edit.py's mint-time gate (is_mechanical_verify). (report).
   D1:  Q.md per-anchor banners derived from each anchor's backlog
        (not validated — overwritten on every run).
 
@@ -94,6 +99,24 @@ def _selffire(path):
     """Report a just-written markdown file to Warden (best-effort)."""
     if _warden_selffire is not None:
         _warden_selffire.fire_write(path)
+# ---------------------------------------------------------------------------
+
+
+# --- F240 shared heuristic (C47) ---------------------------------------------
+# is_mechanical_verify lives in backlog-edit.py (the mint-time enforcement
+# chokepoint) — single source of truth; C47 is the audit mirror over rows that
+# predate the gate or were hand-edited. Load failure is a broken install (the
+# two scripts ship together in dans-anchor-system) — fail loud, no fallback.
+import importlib.util as _be_il
+
+_BE_PATH = (Path(__file__).resolve().parent.parent.parent
+            / "workflow" / "scripts" / "backlog-edit.py")
+_be_spec = _be_il.spec_from_file_location("backlog_edit_for_audit", _BE_PATH)
+if _be_spec is None or _be_spec.loader is None:
+    raise ImportError(f"cannot load backlog-edit.py from {_BE_PATH}")
+_be_mod = _be_il.module_from_spec(_be_spec)
+_be_spec.loader.exec_module(_be_mod)
+is_mechanical_verify = _be_mod.is_mechanical_verify
 # ---------------------------------------------------------------------------
 
 
@@ -2118,6 +2141,71 @@ def check_c41_soak_question_declared(
                     f"Declare the one no-user next action, or rebracket "
                     f"([Verify] if the next step is a user check, "
                     f"[Blocked]/[Questions] if it needs the user)."
+                ),
+                mechanically_fixable=False,
+            ))
+    return findings
+
+
+def _rows_with_subbullet_text(backlog_file: Path, label: str) -> dict:
+    """{row identifier: sub-bullet text} for rows carrying a `**<label>:**`
+    sub-bullet — same walk as _rows_with_subbullet, but keeps the content."""
+    bold_re, plain_re = _labeled_subbullet_res(label)
+    text_re = re.compile(
+        rf"^\s+-\s+(?:\*\*)?{label}(?:\s*\([^)]*\))?:(?:\*\*)?\s*(.+)$"
+    )
+    out: dict = {}
+    try:
+        lines = backlog_file.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError):
+        return out
+    current = None
+    for line in lines:
+        if HEADING_RE.match(line):
+            current = None
+            continue
+        opener = ROW_OPENER_RE.match(line)
+        if opener:
+            current = opener.group(1)
+            continue
+        if current is None:
+            continue
+        if bold_re.match(line) or plain_re.match(line):
+            m = text_re.match(line)
+            if m and current not in out:
+                out[current] = m.group(1).strip()
+    return out
+
+
+def check_c47_verify_ownership(
+    entries: list[BacklogEntry], backlog_file: Path,
+) -> list[Finding]:
+    """C47 (F240): a [Verify*]/[Watching*] row whose `- **Verify:**` question
+    is phrased as a machine event is agent-grade — the user's answer would be
+    no better than the agent's. Catches rows that predate the mint-time gate
+    or were hand-edited. Report-only: reclassification needs judgment (run the
+    check and close, or park [Waiting] with an agent-check plan)."""
+    findings: list[Finding] = []
+    verify_texts = _rows_with_subbullet_text(backlog_file, "Verify")
+    for e in entries:
+        s = e.status.strip()
+        if not (s.startswith("Verify") or s.startswith("Watching")):
+            continue
+        q = verify_texts.get(e.identifier)
+        if q and is_mechanical_verify(q):
+            findings.append(Finding(
+                severity="warning",
+                surface_file=e.source_file,
+                surface_line=e.source_line,
+                code="C47",
+                message=(
+                    f"row '{e.identifier}' [{s}] verification is agent-grade "
+                    f"(machine-event phrasing: \"{q[:80]}\") — per F240 "
+                    f"who-is-better-positioned, run the check now and close "
+                    f"the row, or reclassify [Waiting] naming the wake event "
+                    f"with an agent-check plan. Only checks needing the "
+                    f"user's taste / preference / ratification / passive-use "
+                    f"observation may surface."
                 ),
                 mechanically_fixable=False,
             ))
@@ -4484,6 +4572,7 @@ def main() -> int:
         findings.extend(check_c15_watching_waiting_in_later(entries))
         findings.extend(check_c16_blocked_in_later(entries))
         findings.extend(check_c41_soak_question_declared(entries, backlog_file))
+        findings.extend(check_c47_verify_ownership(entries, backlog_file))
         findings.extend(check_c18_verify_by_expired(entries, today))
         findings.extend(check_c23_designing_resolves(entries))
         findings.extend(check_c24_questions_count_match(entries))

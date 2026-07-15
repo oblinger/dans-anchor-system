@@ -314,7 +314,7 @@ state [-a/--anchor ANCHOR] <doc> <label> <verb> [flags] [< body]
 | Verb | Form |
 |---|---|
 | `define` | `echo '- **F+ — TITLE** [STATUS] — BODY' \| state --anchor {slug} Backlog F+ define [--horizon HORIZON]` — create-or-replace the whole row; the body IS the complete row markdown (optionally followed by indented sub-bullets). `F+`/`T+` mints the next number (separate namespaces, zero-padded); an explicit `F<NNN>` replaces that row. Default horizon for a new row is `Now`. |
-| `set` | `state --anchor {slug} Backlog F<NNN> set [--status STATUS] [--horizon HORIZON] [--title "TITLE"] [--body BODY] [--next "STEP"] [--verify "QUESTION"]` — partial update; omitted flags preserve current values. |
+| `set` | `state --anchor {slug} Backlog F<NNN> set [--status STATUS] [--horizon HORIZON] [--title "TITLE"] [--body BODY] [--next "STEP"] [--verify "QUESTION"] [--why-user "SENTENCE"]` — partial update; omitted flags preserve current values. Entering Verify/Verify-by/Watching requires `--why-user` naming the human faculty (taste / preference / ratification / passive-use), and a mechanically-phrased Verify question is refused outright (F240 ownership gate; see [[DAS State]]). |
 | `resolve` | `state --anchor {slug} Backlog F<NNN> resolve [--body "NOTE"]` — moves the row to `## Done` `[Done]`, appending `— resolved <date>: <note>` to the body. |
 | `remove` | `state --anchor {slug} Backlog F<NNN> remove` — removes the row entirely (rare). |
 
