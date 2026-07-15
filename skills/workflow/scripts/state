@@ -328,9 +328,9 @@ def _sync_roadmap_on_done(slug, backlog_path, row_id):
 def _clamp_h2_end_to_h1(lines, h2_start, h2_end):
     """Tighten an H2 content range from be._find_h2 (generic H2-line to
     next-'## '-line) to stop at the doc's H1 if the H1 falls inside that
-    range. `## Open Questions` sits ABOVE the H1 by design (Phase 1/2/3
-    lifecycle, per [[DAS ask-format]]); be._find_h2 doesn't know that
-    convention, so when there's no OTHER '## ' heading between the Open
+    range. `## Open Questions` sat ABOVE the H1 in legacy docs (pre-F241
+    placement, per [[DAS ask-format]]); be._find_h2 doesn't know that
+    convention, so when there's no OTHER '## ' heading between a legacy Open
     Questions block and the doc's first real H2, the computed end wanders
     through the H1 line and all body prose — defeating any "is this block
     empty" check and mis-siting insertions. Only ever narrows the range,
@@ -383,7 +383,8 @@ def _q_answer_core(slug, feature_path, q_num, q_slug, choice, body):
         oq_end = _clamp_h2_end_to_h1(lines, oq_start, oq_end)
         empty = True
         for k in range(oq_start + 1, oq_end):
-            if lines[k].strip() and not lines[k].startswith("### "):
+            if (lines[k].strip() and not lines[k].startswith("### ")
+                    and not be._Q_STAMP_RE.match(lines[k].strip())):
                 empty = False
                 break
             if lines[k].startswith("### "):
@@ -397,6 +398,7 @@ def _q_answer_core(slug, feature_path, q_num, q_slug, choice, body):
                 lines = lines[:oq_start] + lines[drop_end:]
             else:
                 lines = lines[:oq_start]
+    lines = be.restamp_open_questions(lines)
     feature_path.write_text(
         "\n".join(lines) + ("\n" if text.endswith("\n") else ""),
         encoding="utf-8",
@@ -447,6 +449,7 @@ def _q_remove_core(slug, feature_path, q_num, q_slug, reason):
         while insert_at > r_start + 1 and not lines[insert_at - 1].strip():
             insert_at -= 1
         lines = lines[:insert_at] + h3_lines + lines[insert_at:]
+    lines = be.restamp_open_questions(lines)
     feature_path.write_text(
         "\n".join(lines) + ("\n" if text.endswith("\n") else ""),
         encoding="utf-8",
@@ -1277,12 +1280,107 @@ def _q_define_core(slug, feature_path, q_num, body):
         new_lines = new_lines + [""]
         lines = lines[:insert_at] + new_lines + lines[insert_at:]
         verb_done = "defined"
+    lines = be.restamp_open_questions(lines)
     feature_path.write_text(
         "\n".join(lines) + ("\n" if text.endswith("\n") else ""),
         encoding="utf-8",
     )
     _selffire(feature_path)
     summary = f"{verb_done} Q{q_num} in {feature_path.name}"
+    _post_conditions_and_print(slug, feature_path, summary)
+    return 0
+
+
+def _q_revalidate_core(slug, feature_path):
+    """`<doc> revalidate` (F241) — validate-then-stamp, never bless-blind.
+    Runs every pending Q in the ## Open Questions block through the same
+    ask-format gates as `Q+ define`; a format-invalid block is refused with
+    the same message define would give. A valid block is rewritten
+    canonically (legacy above-the-H1 blocks relocate below the H1) and
+    re-stamped. This is the recovery verb after a hand-edit trips the
+    integrity-stamp warning; there is deliberately NO blind `--valid` flag
+    (it would launder hand-edits past the format gates)."""
+    text = feature_path.read_text(encoding="utf-8")
+    lines = text.splitlines()
+    rng = be._open_questions_range(lines)
+    if rng is None:
+        print(f"{slug}: no ## Open Questions block in {feature_path.name} — "
+              "nothing to revalidate")
+        return 0
+    start, end = rng
+    # Collect pending Q bullets — top-level, outside ### Resolved/Removed.
+    q_slices = []
+    in_h3 = False
+    k = start + 1
+    while k < end:
+        line = lines[k]
+        if line.startswith("### "):
+            in_h3 = True
+            k += 1
+            continue
+        m = be._Q_HEADER_BULLET_RE.match(line)
+        if m and not in_h3:
+            indent = m.group(1)
+            j = k + 1
+            while j < end:
+                nxt = lines[j]
+                if nxt.startswith("#"):
+                    break
+                mh = be._Q_HEADER_BULLET_RE.match(nxt)
+                if mh and (len(nxt) - len(nxt.lstrip())) <= len(indent):
+                    break
+                j += 1
+            q_slices.append((int(m.group(2)), k, j))
+            k = j
+            continue
+        k += 1
+    # Gate every pending Q through the same ask-format checks as define.
+    for q_num, s, e in q_slices:
+        try:
+            _validate_ask_format_body("\n".join(lines[s:e]))
+        except be.BacklogEditError as err:
+            reason = (str(err).replace("backlog_edit: ", "")
+                      .replace("define refused: ", ""))
+            raise be.BacklogEditError(
+                f"revalidate refused: Q{q_num} fails ask-format — {reason} "
+                f"Fix the content, or re-issue it through "
+                f"`state \"{feature_path.stem}\" Q{q_num} define`."
+            )
+    # Canonical placement — legacy above-the-H1 blocks relocate below the H1.
+    h1_idx = None
+    for i, ln in enumerate(lines):
+        if ln.startswith("# ") and not ln.startswith("## "):
+            h1_idx = i
+            break
+    relocated = False
+    if h1_idx is not None and start < h1_idx:
+        block = lines[start:end]
+        while block and not block[-1].strip():
+            block.pop()
+        del lines[start:end]
+        while start < len(lines) and not lines[start].strip():
+            del lines[start]
+        h1_idx = None
+        for i, ln in enumerate(lines):
+            if ln.startswith("# ") and not ln.startswith("## "):
+                h1_idx = i
+                break
+        insert_at = len(lines)
+        for j in range(h1_idx + 1, len(lines)):
+            if lines[j].startswith("## "):
+                insert_at = j
+                break
+        lines = lines[:insert_at] + block + [""] + lines[insert_at:]
+        relocated = True
+    lines = be.restamp_open_questions(lines)
+    feature_path.write_text(
+        "\n".join(lines) + ("\n" if text.endswith("\n") else ""),
+        encoding="utf-8",
+    )
+    _selffire(feature_path)
+    summary = (f"revalidated Open Questions in {feature_path.name} — "
+               f"{len(q_slices)} pending Q pass ask-format, stamp refreshed"
+               + (", block relocated below the H1" if relocated else ""))
     _post_conditions_and_print(slug, feature_path, summary)
     return 0
 
@@ -1831,7 +1929,9 @@ def build_v2_parser():
             "`state [-a ANCHOR] <doc> <label> <verb> [< body]`. "
             "doc = Backlog | wiki-name | path. label = LETTERS+DIGITS, or "
             "LETTERS+'+' to auto-mint (Q7, V3, F157, T8, C23, F+, T+, C+, Q+, V+). "
-            "verb = define | set | resolve | remove (set is Backlog-only)."
+            "verb = define | set | resolve | remove (set is Backlog-only). "
+            "Doc-level, no label: `state <doc> revalidate` (F241 — "
+            "validate-then-stamp the Open Questions block after a hand-edit)."
         ),
     )
     p.add_argument("-a", "--anchor", default=None,
@@ -1866,7 +1966,38 @@ def build_v2_parser():
     return p
 
 
+def main_revalidate(argv):
+    """F241 — doc-level verb with no label: `state [-a ANCHOR] <doc> revalidate`."""
+    p = argparse.ArgumentParser(
+        prog="state",
+        description="state <doc> revalidate (F241) — validate-then-stamp the "
+                    "doc's ## Open Questions block after a hand-edit.",
+    )
+    p.add_argument("-a", "--anchor", default=None,
+                   help="anchor path or slug; defaults to cwd-walkup to .anchor")
+    p.add_argument("doc", help="Backlog-adjacent doc: wiki-name or path to a .md doc")
+    p.add_argument("verb", choices=["revalidate"])
+    args = p.parse_args(argv[1:])
+    try:
+        slug, anchor_path = resolve_anchor(args.anchor)
+    except be.BacklogEditError as e:
+        print(f"state: {e}", file=sys.stderr)
+        return 2
+    try:
+        doc_kind, doc_path = resolve_v2_doc(args.doc, slug, anchor_path)
+        if doc_kind != "doc":
+            raise be.BacklogEditError(
+                "revalidate targets a feature/PRD doc's ## Open Questions "
+                "block, not the Backlog")
+        return _q_revalidate_core(slug, doc_path)
+    except be.BacklogEditError as e:
+        print(f"state: {e}", file=sys.stderr)
+        return 1
+
+
 def main_v2(argv):
+    if "revalidate" in argv[1:]:
+        return main_revalidate(argv)
     parser = build_v2_parser()
     args = parser.parse_args(argv[1:])
     try:

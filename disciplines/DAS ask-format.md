@@ -23,7 +23,7 @@ This is a discipline, not a user-invocable skill — other skills cite it via `[
 |---|---|
 | `/ask` | Question layout (both parented and bare modes), numbering, write-surfaces, acceptance/rollback phrases. |
 | `queries-render.py` | Recognizes well-formed Q-rows and Verify-rows when rendering the body. Does not enforce — that's `/audit q`. |
-| `/feature` | The `## Open Questions` block format above the H1. Phase 1/2/3 lifecycle. |
+| `/feature` | The `## Open Questions` block format — first H2, below the H1. Phase 1/2/3 lifecycle. |
 | `/groom` | When parking questions into newly-created feature docs, uses this format. |
 | `/crank` | When `/crank` is about to surface a Question or Verify to the user, uses this format. Prevents the flatfooted ask. |
 | `/audit q` | **Enforces** the discipline mechanically via rules C6–C11. |
@@ -33,7 +33,7 @@ This is a discipline, not a user-invocable skill — other skills cite it via `[
 
 | Item shape | Surface |
 |---|---|
-| Doc-attached `Q<n>` | The doc's `## Open Questions` H2 above H1 (first body element, immediately after frontmatter) |
+| Doc-attached `Q<n>` | The doc's `## Open Questions` H2 below the H1 (the file's first H2, after the H1's orientation line) |
 | Anchor-level `Q<n>` | `{slug} ask.md`, `## Questions` H2 (authored directly) |
 | Inline-on-backlog-row `Q<n>` | Under the B-row in `{slug} Backlog.md` |
 | `[Verify]` request | Standalone item in the backlog row's bracket, body describes the verify |
@@ -227,11 +227,11 @@ When referring to a specific Q or Verify from elsewhere:
 
 A document with `Q<n>` items moves through three phases (per [[SKA ask]]):
 
-**Phase 1 — pending Qs exist.** `## Open Questions` H2 sits **above the H1** — the first body element, immediately after frontmatter, before the document proper begins. Open Questions are questions *about* the document, not part of it: when they all resolve the whole block goes away and the document underneath is untouched. This holds for **any** document, not only feature docs. It contains the pending Qs; Resolved Qs accumulate inside as a `### Resolved` H3 sub-section.
+**Phase 1 — pending Qs exist.** `## Open Questions` H2 sits **immediately below the H1** — the document's first H2, right after the H1's one-line orientation prose (per [[F241 — Questions block below H1 + state-stamped integrity hash|F241]], 2026-07-15; supersedes the earlier above-the-H1 placement). It keeps its prominence (first H2, hit the moment the reader passes the head) while the file stays structurally normal — Obsidian outline, masthead convention, and heading tree all stop fighting it. Open Questions are questions *about* the document: when they all resolve the whole block goes away and the document underneath is untouched. This holds for **any** document, not only feature docs. It contains the pending Qs; Resolved Qs accumulate inside as a `### Resolved` H3 sub-section. The state script re-stamps the block with a 2-char integrity hash (`<!-- state:q XX -->`) on every write; a hand-edit that breaks the stamp trips the on-write warning (warden R-state-region-03 / audit-q C48) — recover with `state <doc> revalidate`.
 
 **Phase 2 — all Qs resolved.** Delete the `## Open Questions` H2 entirely. Migrate the `### Resolved` content to a `## Resolved` H2 at the bottom of the doc.
 
-**Phase 3 — new Q arises later.** Recreate `## Open Questions` above H1; same lifecycle as Phase 1.
+**Phase 3 — new Q arises later.** Recreate `## Open Questions` below the H1 (first H2); same lifecycle as Phase 1.
 
 Auto-decisions made under [[F068 — Assume-and-announce discipline (Drive mode)|F068]] (visible + low recoverability) **skip Phase 1 entirely** — they go directly into the bottom `## Resolved` H2 as H3 entries, without staging at top.
 

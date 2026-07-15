@@ -2,6 +2,8 @@
 description: Per-client transcode pipeline started on a direct-play miss
 ---
 
+# [[HBR]] · F002 — On-the-Fly Transcode Session
+
 ## Open Questions
 
 - **Q2 — segment cache eviction policy?** — when many clients transcode different titles, the segment Cache can grow without bound. Options: (a) LRU by total bytes, (b) per-session TTL, (c) both. Leaning (a) with a configurable cap in `harbor.toml`; need user input on whether per-session TTL is worth the extra bookkeeping. ^F002-Q2
@@ -10,7 +12,6 @@ description: Per-client transcode pipeline started on a direct-play miss
 
 - **Q1 — transcode container: HLS or fragmented MP4?** — **Resolution:** HLS. Broadest LAN-client support (TVs, mobile browsers) and it segments naturally for the Cache. Landed in Design § Pipeline.
 
-# [[HBR]] · F002 — On-the-Fly Transcode Session
 
 ## Summary
 

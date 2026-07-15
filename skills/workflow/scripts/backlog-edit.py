@@ -1657,27 +1657,100 @@ def _section_at(lines, line_idx):
 
 
 def _ensure_open_questions_h2(lines):
-    """Ensure ## Open Questions H2 exists ABOVE the H1 — between the frontmatter
-    and the H1 (per the 2026-06-29 placement rule: pending questions precede the
-    document; they aren't part of it until answered, when they migrate to the
-    bottom ## Resolved H2). Returns lines (possibly modified) AND the
-    (h2_start, h2_end) content range after insertion.
+    """Ensure ## Open Questions H2 exists — the FIRST H2 below the H1, after
+    the H1's orientation prose (per F241, 2026-07-15; supersedes the
+    2026-06-29 above-the-H1 rule: same prominence, structurally normal file).
+    Returns lines (possibly modified) AND the (h2_start, h2_end) content
+    range after insertion.
     """
     existing = _find_h2(lines, "Open Questions")
     if existing is not None:
         return lines, existing
-    # Find the H1 to insert BEFORE.
+    # Find the H1, then the first H2 after it — the block inserts there so it
+    # is the file's first H2.
     h1_idx = None
     for i, line in enumerate(lines):
-        if line.startswith("# "):
+        if line.startswith("# ") and not line.startswith("## "):
             h1_idx = i
             break
     if h1_idx is None:
         raise BacklogEditError("feature doc has no H1; cannot insert ## Open Questions")
-    # Insert the block just above the H1; a trailing blank separates it from the H1.
+    insert_at = len(lines)
+    for j in range(h1_idx + 1, len(lines)):
+        if lines[j].startswith("## "):
+            insert_at = j
+            break
+    if insert_at == len(lines) and lines and lines[-1].strip():
+        lines = lines + [""]
+        insert_at = len(lines)
     new_block = ["## Open Questions", "", ""]
-    lines = lines[:h1_idx] + new_block + lines[h1_idx:]
-    return lines, (h1_idx + 1, h1_idx + 3)
+    lines = lines[:insert_at] + new_block + lines[insert_at:]
+    return lines, (insert_at + 1, insert_at + 3)
+
+
+# --- F241 — Open Questions integrity stamp ---------------------------------
+#
+# Every script write of a managed `## Open Questions` block re-stamps it with
+# a 2-char base-36 hash stored as an HTML comment on the line under the
+# heading: `<!-- state:q 7k -->` (invisible in Obsidian reading view / GitHub
+# render). A hand-edit inside the block breaks the stamp; the on-write check
+# + audit-q drift check then route the agent back through `state`. Stampless
+# legacy blocks are grandfathered (no stamp → no warning). Recovery:
+# `state <doc> revalidate` (validate-then-stamp, never bless-blind).
+
+_Q_STAMP_RE = re.compile(r"^<!--\s*state:q\s+([0-9a-z]{2})\s*-->$")
+_BASE36 = "0123456789abcdefghijklmnopqrstuvwxyz"
+
+
+def _open_questions_range(lines):
+    """(heading_idx, end_exclusive) of the ## Open Questions block, clamped
+    to the H1 when the block sits above it (legacy placement); None if the
+    doc has no block. Hash scope per F241: heading through the next H2."""
+    found = _find_h2(lines, "Open Questions")
+    if found is None:
+        return None
+    start, end = found
+    for k in range(start + 1, end):
+        if lines[k].startswith("# ") and not lines[k].startswith("## "):
+            end = k
+            break
+    return start, end
+
+
+def compute_q_stamp(lines, start, end):
+    """2-char base-36 stamp of the block text lines[start:end] — heading
+    included, stamp line excluded, trailing whitespace normalized."""
+    import hashlib
+    content = [ln.rstrip() for ln in lines[start:end]
+               if not _Q_STAMP_RE.match(ln.strip())]
+    digest = hashlib.sha1("\n".join(content).encode("utf-8")).hexdigest()
+    n = int(digest, 16) % (36 * 36)
+    return _BASE36[n // 36] + _BASE36[n % 36]
+
+
+def read_q_stamp(lines, start, end):
+    """The stored stamp value in lines[start:end], or None if unstamped."""
+    for k in range(start + 1, end):
+        m = _Q_STAMP_RE.match(lines[k].strip())
+        if m:
+            return m.group(1)
+    return None
+
+
+def restamp_open_questions(lines):
+    """Insert-or-update the integrity stamp on the line under the
+    ## Open Questions heading. No block → lines returned unchanged. Call
+    this LAST, immediately before writing the doc."""
+    rng = _open_questions_range(lines)
+    if rng is None:
+        return lines
+    start, end = rng
+    stamp_line = f"<!-- state:q {compute_q_stamp(lines, start, end)} -->"
+    for k in range(start + 1, end):
+        if _Q_STAMP_RE.match(lines[k].strip()):
+            lines = lines[:k] + [stamp_line] + lines[k + 1:]
+            return lines
+    return lines[:start + 1] + [stamp_line] + lines[start + 1:]
 
 
 def _ensure_bottom_resolved_h2(lines):
@@ -1830,6 +1903,7 @@ def main_q(argv):
         # Add a trailing blank line for separation
         new_lines = new_lines + [""]
         lines = lines[:insert_at] + new_lines + lines[insert_at:]
+        lines = restamp_open_questions(lines)
         feature_path.write_text("\n".join(lines) + ("\n" if text.endswith("\n") else ""),
                                 encoding="utf-8")
         _selffire(feature_path)
@@ -1891,7 +1965,8 @@ def main_q(argv):
             oq_start, oq_end = oq
             empty = True
             for k in range(oq_start + 1, oq_end):
-                if lines[k].strip() and not lines[k].startswith("### "):
+                if (lines[k].strip() and not lines[k].startswith("### ")
+                        and not _Q_STAMP_RE.match(lines[k].strip())):
                     empty = False
                     break
                 if lines[k].startswith("### "):
@@ -1908,6 +1983,7 @@ def main_q(argv):
                     lines = lines[:oq_start] + lines[drop_end:]
                 else:
                     lines = lines[:oq_start]
+        lines = restamp_open_questions(lines)
         feature_path.write_text("\n".join(lines) + ("\n" if text.endswith("\n") else ""),
                                 encoding="utf-8")
         _selffire(feature_path)
@@ -1962,6 +2038,7 @@ def main_q(argv):
             while insert_at > r_start + 1 and not lines[insert_at - 1].strip():
                 insert_at -= 1
             lines = lines[:insert_at] + h3_lines + lines[insert_at:]
+        lines = restamp_open_questions(lines)
         feature_path.write_text("\n".join(lines) + ("\n" if text.endswith("\n") else ""),
                                 encoding="utf-8")
         _selffire(feature_path)
@@ -1998,6 +2075,7 @@ def main_q(argv):
         new_bullet_lines = new_bullet.splitlines()
         # Replace; preserve any trailing blank that was after the bullet
         lines = lines[:start] + new_bullet_lines + lines[end:]
+        lines = restamp_open_questions(lines)
         feature_path.write_text("\n".join(lines) + ("\n" if text.endswith("\n") else ""),
                                 encoding="utf-8")
         _selffire(feature_path)

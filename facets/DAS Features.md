@@ -3,16 +3,16 @@ description: "specification for F-numbered per-feature design docs and their ind
 ---
 
 # DAS Features
-Specification for the **Features** facet — F-numbered per-feature design docs that live under `{slug} Design/{slug} Features/`, with their index page and pre-document Open-Questions zone.
+Specification for the **Features** facet — F-numbered per-feature design docs that live under `{slug} Design/{slug} Features/`, with their index page and first-H2 Open-Questions block.
 
-| -[[DAS Features]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS Features](hook://p/DAS%20Features) |
+| -[[DAS Features]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets\|FCT]] → [DAS Features](hook://p/DAS%20Features) |
 | --- | --- |
 | Related | [[DAS Roadmap]],  [[DAS Backlog]],  [[DAS Status]],  [[DAS Facet]],   |
 | Rules | [[R-fct-features]],   |
 | Examples | [[HBR Features\|minimal]],  [[HBR Features\|fuller]],   |
-| ... | [[anchor-page]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[facets/DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Disciplines Brief]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facets]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS Plan Dispatch]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS Track Dispatch]],  [[DAS TSK User Guide]],  [[DAS US-CAE-1 — Schedule a Task]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
+| ... | [[anchor-page]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facets]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS Plan Dispatch]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS Track Dispatch]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
 
-Specification for the **Features** facet — the F-numbered per-feature design docs that live under an anchor's `{slug} Design/{slug} Features/` folder, with their index page and pre-document Open-Questions zone.
+Specification for the **Features** facet — the F-numbered per-feature design docs that live under an anchor's `{slug} Design/{slug} Features/` folder, with their index page and first-H2 Open-Questions block.
 
 **Location:** `{slug} Design/{slug} Features/` (folder; one file per feature, `F<NNN> — <Title>.md`).
 
@@ -20,7 +20,7 @@ Specification for the **Features** facet — the F-numbered per-feature design d
 
 Individual feature specifications, each in an F-numbered file inside the Features subfolder of the Design folder. **Cardinality: many** — each anchor holds any number of feature docs (one file per feature, F-numbered).
 
-**Worked examples:** `examples/HBR/HBR Design/HBR Features/` (in this repo) — three rendered feature docs (`F001 — Content-Hash Dedup.md`, `F002 — On-the-Fly Transcode Session.md`, `F003 — Scheduled Catalog Checkpoint.md`) plus their `HBR Features.md` index, demonstrating the Open-Questions-above-H1 convention, the `F<NNN> — <Title>.md` filename pattern, and a clean/empty vs. populated Open-Questions zone. Open them for rendered instances; the structure is specified in prose in the sections below.
+**Worked examples:** `examples/HBR/HBR Design/HBR Features/` (in this repo) — three rendered feature docs (`F001 — Content-Hash Dedup.md`, `F002 — On-the-Fly Transcode Session.md`, `F003 — Scheduled Catalog Checkpoint.md`) plus their `HBR Features.md` index, demonstrating the Open-Questions-first-H2-below-H1 convention, the `F<NNN> — <Title>.md` filename pattern, and a clean/empty vs. populated Open-Questions zone. Open them for rendered instances; the structure is specified in prose in the sections below.
 
 ## Features Folder Structure
 
@@ -53,19 +53,16 @@ The `{slug} Features.md` page lists all features in reverse chronological order 
 
 ## Feature Document Format
 
-The feature document has **two zones**:
+While pending Qs exist, `## Open Questions` (with its `### Resolved` subsection) is the **first H2 below the H1** — the reader hits blocking decisions the moment they pass the head, while the file stays a normal outline (per [[F241 — Questions block below H1 + state-stamped integrity hash|F241]], 2026-07-15; supersedes the earlier above-the-H1 zone). Once every Q resolves the block is **deleted entirely** (Phase 2) and the decisions migrate to a bottom `## Resolved` H2; the rest of the file is the feature spec proper — Summary, Design, etc.
 
-1. **Pre-document zone (above the H1)** — `## Open Questions` and its `### Resolved` subsection. This is blocking material that must be visible the moment the user opens the file. It exists on every feature doc, even if empty.
-2. **Document zone (H1 and below)** — the feature spec proper: Summary, Design, etc.
-
-### Pre-document zone — always present
+### Open Questions block — present only while Qs are pending
 
 | Section | Level | Required | Purpose |
 |---------|-------|----------|---------|
-| `## Open Questions` | H2 above H1 | Always | Blocking decisions; feature cannot leave Designing while non-empty |
-| `### Resolved` | H3 under Open Questions | Always (can be empty) | Answered questions move here with the resolution; never deleted |
+| `## Open Questions` | first H2, below H1 | While Qs pending | Blocking decisions; feature cannot leave Designing while non-empty |
+| `### Resolved` | H3 under Open Questions | Staging until Phase 2 | Answered Qs stage here, then migrate to the bottom `## Resolved` H2 |
 
-When Open Questions is empty, leave the H2 with a one-liner placeholder (e.g. `_None — design is clean._`) — preserve the structure so the convention is visible.
+The block carries a state-script integrity stamp (`<!-- state:q XX -->`); a hand-edit that breaks it trips the on-write warning (warden R-state-region-03 / audit-q C48) — recover with `state <doc> revalidate`.
 
 **Workflow note:** every time an agent edits Open Questions — adds a question, resolves one, moves one to Resolved — it immediately runs `open "<path to this file>"` so the doc surfaces on the user's screen. The `/feature` skill's Runbook step 1a enforces this.
 
@@ -128,6 +125,6 @@ When the Roadmap section drives the feature's tracking, the feature doc's `## St
 *(Maintainer note — facet-specific cautions for whoever edits this Features-facet spec. The normative shape is the body + RULESET R-fct-features above; skills `/feature`, `/design`, `/groom`, `/crank` cite it and audit/rewire check anchors against it.)*
 
 - **NOT a feature index, NOT a backlog, NOT a roadmap** — don't pile concrete `F<NNN>` entries, status lists, or per-anchor feature catalogs here. Those live in `{slug} Features.md` index pages within each anchor, or in [[DAS Backlog]] / [[DAS Roadmap]] for their respective concerns.
-- **Inclusion test for edits** — a change belongs here only if it defines the *shape* of feature docs across all anchors: folder location, filename pattern, the two-zone layout (Open Questions above H1; spec body below), mandatory vs optional H2 sections, title-encoding conventions (M-position), or the Roadmap-within-feature sub-pattern. Anchor-local feature conventions go in `{slug} Rules.md` or `{slug} Decisions.md`, not here.
+- **Inclusion test for edits** — a change belongs here only if it defines the *shape* of feature docs across all anchors: folder location, filename pattern, the block layout (Open Questions as the first H2 below the H1; spec body follows), mandatory vs optional H2 sections, title-encoding conventions (M-position), or the Roadmap-within-feature sub-pattern. Anchor-local feature conventions go in `{slug} Rules.md` or `{slug} Decisions.md`, not here.
 - **No inline reference example — link the real ones.** The feature-doc shape is conveyed by the prose sections (Folder Structure / Index Page / Feature Document Format) plus the `**Worked examples:**` pointer to the `examples/HBR/HBR Design/HBR Features/` docs in this repo. Do NOT paste a sample feature doc back into this spec.
 - **Cross-references to maintain** — [[DAS Roadmap]] (M-position title encoding, sub-roadmap pattern), [[DAS Backlog]] (tracking surface), [[DAS Status]] (lifecycle states), `progressive-disclosure` (TLDR rule), and the relocation note (F094 → 2026-06-10 Design move; F142 lazy-migration). Changing any load-bearing convention ripples across every anchor — update the worked examples and downstream skill runbooks in the same pass.
