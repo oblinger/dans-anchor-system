@@ -25,6 +25,8 @@ The four-tier preference ordering (agent-immediate → user-explicit) for how a 
 | [[#Anti-patterns this discipline prevents]] |  |
 | [[#Cross-references]] |  |
 
+**THE test — who is better positioned? (F240, ruled 2026-07-14.)** At every verification decision point, ask one question: *would the user's answer be any better than the agent's?* If the agent can answer almost as well or better — the check lives in a file, log, or probe — **the agent runs it itself**; it never reaches the user. Only checks that genuinely need a human faculty (taste, preference, ratification, passive-use observation) may surface. The tiers below remain the vocabulary; this single question is what the agent applies at the decision point. Enforced structurally: `state … set --status Verify/Verify-by/Watching` requires `--why-user "<sentence>"` naming the faculty and refuses mechanically-phrased questions outright; audit-q **C47** flags pre-existing mechanical `[Verify*]` rows.
+
 Verification is *the four-tier preference ordering an agent uses to choose how a feature gets verified — from agent-immediate (best) to user-explicit (last resort).* The single load-bearing rule: pick the highest applicable tier; never escalate to a higher one when a lower one would work. What distinguishes a tier from a feeling:
 
 - **Tier 1 — agent-immediate** — agent runs a check in the same turn the work completes. Runnable command, deterministic observation.

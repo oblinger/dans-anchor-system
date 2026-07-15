@@ -17,6 +17,41 @@ user_invocable: true
 
 # Crank — Autonomous-Progress Loop
 requires:: vault, anchor-cli, skill:ask, skill:groom, skill:mint, facet:backlog
+
+| Table of Contents |  |
+|---|---|
+| **[[#When to Use]]** |  |
+| **[[#Posture — maximum progress, quality is the only stop]]** |  |
+| **[[#Hard continuation rule — STOPPING IS THE COSTLY ACTION, NOT CONTINUING]]** |  |
+|    [[#The hard gate — values the agent cannot lie about]] |  |
+|    [[#Mandatory stopping-justification — print the risk-of-continuing argument]] |  |
+|    [[#The failure modes that this rule defeats — name them by name]] |  |
+|    [[#Verification — mechanical, not interpretive]] |  |
+|    [[#The only legitimate escape: file a real Q]] |  |
+|    [[#Anti-patterns for the Q-escape]] |  |
+|    [[#Mandatory exit message — agent must make the argument explicit]] |  |
+|    [[#When the hard rule does NOT apply]] |  |
+|    [[#Stop discipline cascade (per F125 2026-06-07, tightened by F162 2026-06-13)]] |  |
+|    [[#Exit handshake (F239) — the three-state stop gate, mechanically enforced]] |  |
+| **[[#When to stop / when not to stop]]** |  |
+|    [[#Disqualifying stop-reasons — laziness in disguise]] |  |
+|    [[#Valid stop-reasons — name them all]] |  |
+|    [[#Cost-of-stopping framing]] |  |
+|    [[#Wall-clock gate on fatigue-flavored stops (per [[F088]])]] |  |
+| **[[#Mechanism — outer loop over `/mint`, with parallelism]]** |  |
+| **[[#Post-loop exit — Ready/Questions decision]]** |  |
+| **[[#Output format]]** |  |
+| **[[#Runbook]]** |  |
+|    [[#1. Locate the source + arm the stop gate]] |  |
+|    [[#2. Plan the sweep]] |  |
+|    [[#2a. Cascade fallback (per F061 Q2)]] |  |
+|    [[#3. Mint loop (sequential portion)]] |  |
+|    [[#4. Post-sweep branch]] |  |
+|    [[#5. Print the one-liner]] |  |
+| **[[#What `/crank` does NOT do]]** |  |
+| **[[#Idempotence]]** |  |
+| **[[#Repeated invocation — same loop, same output, never escalate]]** |  |
+| **[[#Cross-references]]** |  |
 subsystem:: [[DAS Drive Design]] — the Drive group's subsystem profile
 
 `crank` is the user's "go" button. One press drives **as much progress as possible** through Ready work — sequentially or in parallel — until continuing would drop quality. The system mints what it can, and either exits silently (still finding work) or surfaces a status view + actionable inbox (out of safe Ready work, waiting on the user). The user can keep pressing `'` to keep going.
@@ -30,7 +65,7 @@ Punctuation trigger: **`'`** (single apostrophe as the entire message), parallel
 
 **Verify surfacing follows [[DAS verification]]** (per F101). The recurring failure mode is the blanket ask: *"verify F57, F58, F59"* dumped on the user with no context, requiring them to open each feature doc and reconstruct what "verified" means. The verification discipline replaces this with:
 
-- **Tier check first.** Read each Verify row's linked feature doc `## Success Criteria` block. Tier 1 and tier 2 are agent-owned: the agent runs the check now (or schedules the deferred check); these do NOT surface to the user. Suppress them from `/ask` body output.
+- **The positioning test first (F240).** For each Verify row, ask THE one question: *would the user's answer be any better than the agent's?* If the agent can answer almost as well or better — the check lives in a file, log, or probe — the agent runs it NOW and the row never surfaces. Only checks needing a human faculty (taste / preference / ratification / passive-use observation) reach the user. The tier vocabulary (`## Success Criteria` — tier 1/2 agent-owned, tier 3/4 user-owned) describes the same split; the single question is what you apply. Suppress agent-grade checks from `/ask` body output.
 - **Targeted questions only.** When tier 3 or tier 4 does surface, the question itself embeds the answer-enabling context. *"Have you sent a Voice Memo email since 2026-05-28 and seen the transcript land in `~/ob/kmr/Log/VOX/`?"* not *"Verify F93"*.
 - **Batch by ask, not by feature.** If several Verify rows collapse to the same user action ("did this work in normal use?", "did the bug recur?"), surface as one combined question with the feature-doc links listed. The user gives one answer; the agent applies it to all listed rows.
 - **No "see the feature doc."** If the surfacing requires the user to open a doc to understand the question, the question is not targeted enough. Rewrite until the question itself names the specific observation.
