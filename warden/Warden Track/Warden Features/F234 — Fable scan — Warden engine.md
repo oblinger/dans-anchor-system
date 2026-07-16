@@ -28,7 +28,7 @@ Run the Fable recipe (global `CLAUDE.md` § Fable-5 audit) with the test suite a
 
 ## Status
 
-**Designing** — parked in Later (awaiting user greenlight); migrate when kicked off (see [[F253 — Fable multi-codebase scan campaign (roadmap)|F253]] — #3).
+**Ready** — spec complete, parked in Later (off the crank frontier, awaiting user greenlight to run); migrate when kicked off (see [[F253 — Fable multi-codebase scan campaign (roadmap)|F253]] — #3).
 
 next action: assess prior Fable coverage + incremental ROI, then run the adversarial spec-vs-impl Fable scan on the scoped surface (§ Design).
 
