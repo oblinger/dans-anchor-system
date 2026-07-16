@@ -23,13 +23,13 @@ Track is **orthogonal to what the anchor *is***. `code` says "this is a code pro
 
 ## The Track tree
 
-The tree rooted at `{slug} Docs/{slug} Track/` (the dispatch page is [[DAS Track Dispatch]]). One **required core** + optional parts; list only what exists for the anchor.
+The tree rooted at `{slug} Docs/{slug} Track/` (the dispatch page is [[DAS Track]]). One **required core** + optional parts; list only what exists for the anchor.
 
 Per [[F094 — Anchor docs folder restructure — Track _ User _ Architecture _ Dev|F094]] (2026-06-01), Track holds **work tracking** only. Design content (PRD, UX Design, System Design) moves to `{slug} Design/` (see [[DAS Design Dispatch]]). The Track tree stays focused on Backlog + Features + Roadmap.
 
 | Part | File / folder | Facet spec | Required? |
 |---|---|---|---|
-| Dispatch | `{slug} Track.md` | [[DAS Track Dispatch]] | Yes — the tree's folder-note + index |
+| Dispatch | `{slug} Track.md` | [[DAS Track]] | Yes — the tree's folder-note + index |
 | **Backlog** | `{slug} Backlog.md` | [[DAS Backlog]] | **Yes — the irreducible core of the drive loop** |
 | Features | `{slug} Features/` | [[DAS Features]] | Optional (present once any feature doc exists) |
 | Roadmap | `{slug} Roadmap.md` | [[DAS Roadmap]] | Optional |
@@ -47,7 +47,7 @@ The **backlog horizons** (`## Now` / `## Next` / `## Later`) and **workflow stat
 ## Wiring an anchor for Track
 
 1. **Declare the trait.** Add `track` to the `.anchor` `traits:` list, e.g. `traits: [code, track]` or `traits: [track]`.
-2. **Create the tree root.** `{slug} Docs/{slug} Track/` with the dispatch page `{slug} Track.md` per [[DAS Track Dispatch]] (H1 `# {slug} Track`, dispatch table, one row per planning doc that exists).
+2. **Create the tree root.** `{slug} Docs/{slug} Track/` with the dispatch page `{slug} Track.md` per [[DAS Track]] (H1 `# {slug} Track`, dispatch table, one row per planning doc that exists).
 3. **Create the required core.** `{slug} Backlog.md` with the horizon H2s (`## Now` / `## Next` / `## Later`, plus `## Active` / `## Ready` as used) per [[DAS Backlog]] + [[DAS Backlog]]. An empty-but-well-formed backlog is valid.
 4. **Add optional parts as needed** — Features/, Roadmap, PRD, System Design, etc. — each per its facet spec. Don't pre-create empties; add a part when its first real content arrives.
 5. **Link from the anchor page.** Add a `Plan` row to the anchor page's dispatch table pointing at `{slug} Plan.md` (per [[DAS Anchor Page]]).

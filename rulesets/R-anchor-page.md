@@ -172,7 +172,7 @@ Parallel to the Design row (R-anchor-page-13): a **`track` row** is present iff 
 
 Absent a Status doc, the Design / Track rows may be **partial** — listing only the docs that actually exist. The Status doc is what flips a project from partial to full. **This holds for most Code projects.**
 
-**Check pattern:** `{slug} Status.md` exists ⇒ assert (a) every design doc + every track doc exists (empty allowed), (b) each is listed in its dispatch page, (c) the masthead Design + Track rows carry the full sets in the fixed orders. ([[SKA Decisions|D07]], [[DAS Design Dispatch]], [[DAS Track Dispatch]])
+**Check pattern:** `{slug} Status.md` exists ⇒ assert (a) every design doc + every track doc exists (empty allowed), (b) each is listed in its dispatch page, (c) the masthead Design + Track rows carry the full sets in the fixed orders. ([[SKA Decisions|D07]], [[DAS Design Dispatch]], [[DAS Track]])
 
 ## Kind-specific rules
 

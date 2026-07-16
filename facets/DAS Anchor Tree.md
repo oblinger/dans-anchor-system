@@ -42,7 +42,7 @@ Placeholders: `{slug}` stands for the anchor's name and `{CAB Folder}` for the a
 │   ├── {slug} [[DAS Roadmap|Roadmap]].md             Milestones with checkbox tracking
 │   └── {slug} [[DAS Discussion|Discussion]].md  Design conversations
 │
-├── {slug} [[DAS Track Dispatch|Track]]/                 Work-tracking metadata
+├── {slug} [[DAS Track|Track]]/                 Work-tracking metadata
 │   ├── {slug} Track.md                   Dispatch page
 │   ├── {slug} [[DAS Backlog|Backlog]].md             Workflow-state core (required for Track)
 │   ├── {slug} [[DAS Icebox|Icebox]].md              Cold-storage / someday-maybe (optional)
