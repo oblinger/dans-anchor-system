@@ -14,7 +14,7 @@ A small set of complete, fictional example anchors — reused to illustrate each
 | [[Knots]] | **Knots** — a tiny **Topic** anchor: a no-code evergreen knowledge hub routing to sub-topics ([[Knots Hitches\|Hitches]] / [[Knots Bends\|Bends]]) |
 | [[HWP\|Harbor Whitepaper]] | **Harbor Whitepaper** — a **Paper** anchor: a short whitepaper on Harbor carrying the dated version-table + per-section track-changes signature |
 | [[CSE]] | **Common Skill Example** — the fully-wired worked-example **skill** anchor (`SKILL.md` shape), cited by the Skill-Anchor trait spec. Relocated here from `CAB/` 2026-06-27. |
-| ... | [[Bridges]],  [[CAE Architecture]],  [[CAE Decisions]],  [[CAE PRD]],  [[CAE Stories]],  [[CAE Testing]],  [[Clarifier]],  [[Devtools]],  [[Decisions/DKT Decisions]],  [[PRD/DMUX PRD]],  [[Espresso]],  [[FEX API]],  [[FEX API Design]],  [[FEX Architecture]],  [[FEX Completed Roadmap]],  [[FEX CSE]],  [[FEX Decisions]],  [[FEX Decisions Details]],  [[FEX Dispatch Examples]],  [[FEX Facet]],  [[FEX Figure Page]],  [[FEX Files]],  [[FEX Grouped Dispatch]],  [[FEX Icebox]],  [[FEX Inbox]],  [[FEX List Dispatch]],  [[FEX Minimal Facet]],  [[FEX Minimal Skill]],  [[FEX Project Root]],  [[FEX queries]],  [[FEX Roadmap]],  [[FEX Rules]],  [[FEX Scheduler]],  [[FEX Skill]],  [[Architecture/HA Architecture]],  [[Architecture/HBR Architecture]],  [[PRD/HBR PRD]],  [[Testing/HBR Testing]],  [[Mini]],  [[Decisions/Mini Decisions]],  [[PRD/Mini PRD]],  [[Testing/Mini Testing]],  [[Architecture/MUX Architecture]],  [[Architecture/OBU Architecture]],  [[PRD/OBU PRD]],  [[Snap]],  [[Testing/MUX Testing]],  [[Decisions/UCM Decisions]],  [[US-CAE-1 — Schedule a Task]],  [[US-CAE-3 — Retry Failed Tasks]],  [[Viz Bench]],   |
+| ... | [[Bridges]],  [[CAE Architecture]],  [[CAE Decisions]],  [[CAE PRD]],  [[CAE Stories]],  [[CAE Testing]],  [[Clarifier]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[Devtools]],  [[Decisions/DKT Decisions]],  [[PRD/DMUX PRD]],  [[Espresso]],  [[FEX API]],  [[FEX API Design]],  [[FEX Architecture]],  [[FEX Completed Roadmap]],  [[FEX CSE]],  [[FEX Decisions]],  [[FEX Decisions Details]],  [[FEX Dispatch Examples]],  [[FEX Facet]],  [[FEX Figure Page]],  [[FEX Files]],  [[FEX Grouped Dispatch]],  [[FEX Icebox]],  [[FEX Inbox]],  [[FEX List Dispatch]],  [[FEX Minimal Facet]],  [[FEX Minimal Skill]],  [[FEX Project Root]],  [[FEX queries]],  [[FEX Roadmap]],  [[FEX Rules]],  [[FEX Scheduler]],  [[FEX Skill]],  [[Architecture/HA Architecture]],  [[Architecture/HBR Architecture]],  [[PRD/HBR PRD]],  [[Testing/HBR Testing]],  [[Mini]],  [[Decisions/Mini Decisions]],  [[PRD/Mini PRD]],  [[Testing/Mini Testing]],  [[Architecture/MUX Architecture]],  [[Architecture/OBU Architecture]],  [[PRD/OBU PRD]],  [[Snap]],  [[Testing/MUX Testing]],  [[Decisions/UCM Decisions]],  [[US-CAE-1 — Schedule a Task]],  [[US-CAE-3 — Retry Failed Tasks]],  [[Viz Bench]],   |
 
 ## By kind / facet — which example shows it
 
@@ -45,7 +45,7 @@ Two fictional worlds cover the anchor-page kinds and the facets. **Not 1:1** —
 | [[DAS CLI]] | [[HBR CLI]] |
 | [[DAS API Design]] | [[HBR API Design]] |
 | [[DAS Features]] | [[HBR Features]] |
-| [[DAS Backlog]] / [[DAS Track Dispatch]] | [[HBR Backlog]] / [[HBR Track]] |
+| [[DAS Backlog]] / [[DAS Track]] | [[HBR Backlog]] / [[HBR Track]] |
 | [[DAS All Files]] | [[HBR Files]] |
 | user guide | [[HBR Guide]] |
 

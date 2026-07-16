@@ -88,7 +88,7 @@ The folder is named **Design** (not **Architecture**) so "Architecture" stays pr
 
 System designers, architects, integrators-above-the-layer, and anyone evaluating the design. Distinct from:
 
-- [[DAS Track Dispatch|Track]] — **planning-agent** surface (Backlog, Status, ephemeral surfaces)
+- [[DAS Track|Track]] — **planning-agent** surface (Backlog, Status, ephemeral surfaces)
 - [[DAS User Dispatch|User Docs]] — **end-user / consumer** surface (Guide, CLI, FAQ)
 - [[DAS Dev Dispatch|Dev Docs]] — **implementer** surface (Files.md, per-module reference)
 
