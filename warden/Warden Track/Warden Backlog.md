@@ -28,6 +28,7 @@ _None._
 - **T016 — Declarative deny guards — guarantee-grade vetoes evaluated in Rust (T013 Q1 option B)** [Blocked] — The (B) follow-on from the T013 Q1 ruling: compile simple veto tests (path suffix/glob matches, tokenized command scans — today's R-pathguard / R-ob-remote-ops bodies) into declarative guards the Rust dispatcher evaluates IN-PROCESS, so the deny path never needs the daemon — a guarantee-grade block instead of best-effort. A rule-language extension: needs vocabulary for the deny predicate + compiler emission + Rust evaluation + differential pins, and the C4 latent (turn_bearing/file_bearing absent from the Rust IR schema) should ride the same schema change. Blocker: the user's go — language-surface change, after the T013 posture has soaked. ^T016
 
 - **F234 — Fable scan: Warden engine** [Ready] — → [[F234 — Fable scan — Warden engine]] ^F234
+  - **Next:** assess prior Fable coverage + ROI, then run the scoped scan
 
 ## Done
 
