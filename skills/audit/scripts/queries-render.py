@@ -70,19 +70,13 @@ LinkEntry = audit_q.LinkEntry
 BacklogEntry = audit_q.BacklogEntry
 LIVE_HORIZON_H2S = audit_q.LIVE_HORIZON_H2S
 ACTIVE_HORIZONS_BANNER = {"Active", "Ready", "Now", "Next", "Legwork"}
-# Banner `Questions` total counts `[Questions]` rows in **every live horizon,
-# including `## Later`**. A `[Questions]` bracket is a *pending user question*
-# no matter where the row is filed — the body already renders it (under Later
-# via LATER_RENDERED_BRACKETS_PREFIX), so excluding it from the banner made the
-# banner disagree with the body: a Later `[Questions]` row showed as a question
-# in the body while the anchor tagged `[A]` (agent-ready) with `Questions 0`,
-# hiding a live question. Per user direction 2026-07-16 (overrides the earlier
-# 2026-06-04 "Later questions invisible to the banner" call, which produced
-# exactly that broken result on a T002 row an agent had just questioned): a
-# question shows as a question, wherever it sits. (Deferring is the *horizon*'s
-# job — Later still shows its raw per-horizon count; it just no longer swallows
-# the user-actionable signal.)
-BODY_RENDERED_HORIZONS_FOR_QUESTIONS = ACTIVE_HORIZONS_BANNER | {"Later"}
+# Banner `Questions` total counts `[Questions]` rows ONLY in active horizons
+# (matches ACTIVE_HORIZONS_BANNER above) — `## Later` is deferred by user
+# intent and shouldn't pull weight in the headline number. Per user direction
+# 2026-06-04 (final, reaffirmed 2026-07-16): Later [Questions] are visible in
+# the body (rendered under ## Later for context) but invisible to the banner
+# count. (The banner never includes Later in Ready or Questions.)
+BODY_RENDERED_HORIZONS_FOR_QUESTIONS = ACTIVE_HORIZONS_BANNER
 
 # ============================================================
 # Configuration
