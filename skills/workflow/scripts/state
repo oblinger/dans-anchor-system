@@ -490,8 +490,13 @@ _STATUS_LINE_RE = re.compile(r"^([a-z][a-z0-9_]*):\:\s*(.*)$")
 
 
 def _status_path(slug, anchor_path):
-    """{slug} Status.md lives in the Track folder next to Backlog/Icebox/etc."""
-    return anchor_path / f"{slug} Docs" / f"{slug} Track" / f"{slug} Status.md"
+    """{slug} Status.md lives in the Track folder next to Backlog/Icebox/etc.
+
+    Layout is 2-level ({anchor}/{slug} Track/) since the Docs-folder collapse;
+    the old 3-level {slug} Docs/{slug} Track/ path was a phantom (no such dir
+    exists), so `status show` read all-none and `status set` refused. (F250#5)
+    """
+    return anchor_path / f"{slug} Track" / f"{slug} Status.md"
 
 
 def _ensure_status_file(slug, anchor_path):
@@ -1074,7 +1079,7 @@ def _validate_ask_format_body(body):
 # v2 — Backlog target (F/T labels)
 
 
-_MINT_PLACEHOLDER_RE = re.compile(r"\*\*[FT]\+(\s+—)")
+_MINT_PLACEHOLDER_RE = re.compile(r"\*\*[FTC]\+(\s+—)")  # F250#8: C+ was omitted → `C+ define` never rewrote the placeholder
 
 
 def _v2_row_define(slug, backlog_path, label, args, minted=False):
