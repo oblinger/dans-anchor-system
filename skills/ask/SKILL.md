@@ -46,6 +46,16 @@ A question that reaches the user must let them answer it **in one shot**. Every 
 
 fails all five: **no** work-item handle (what task is "Design-rules"?), **no** link to where `Q3` actually lives, **no** specific ask, **no** labeled options, **no** recommendation, **no** artifact links. A failure all the way around — exactly what this bar exists to prevent. The fix lives at the source (the backlog row / feature-doc `## Open Questions`), never in the rendered `queries.md`.
 
+## Asking about a verification — the three rules
+
+Most "verifications" should never reach the user. Before you surface one, apply these in order (full doctrine: [[F240 — Verification ownership gate — who-is-better-positioned enforced at Verify mint|F240]], [[DAS verification]]):
+
+1. **The agent verifies it itself whenever at all possible.** If the answer lives in a file, log, command, or probe, **run the check and record the result** — it never reaches the user. This is the default; surfacing is the exception. Agents fail here most often: punting a self-checkable question to the user is the cardinal verification mistake.
+2. **Only when the check genuinely needs the user** — their taste, preference, ratification, or passive-use observation (the Status verification tiers) — surface it, and then **provide every link needed to perform it.** Name and link each doc / file / gallery / output the user must open to answer. "Is the gallery good enough?" with no live link to that gallery is a defect (North Star 3 / C42).
+3. **Make the question as concrete as possible.** Not "verify F57" but the exact observation: *"Open [[X]] — do the nine groupings read right? yes/no."* The user answers from where they sit, in one shot.
+
+Enforced at the mint by F240's ownership gate (a machine-event phrasing is refused — run it yourself), and after the fact by audit-q **C47** (agent-grade Verify rows) + **C42** (unlinked artifacts).
+
 ## The document — `{slug} queries.md` in `{slug} Track/`
 
 The file's validity rules — sections + order, what each item must look like, the no-user-imperative and no-orphan invariants — live in the **[[DAS Query]] facet** (`R-query`), so the file is auditable (`/audit doc`, the on-write hook) and there's one source of truth. **Write to conform to `R-query`; don't restate it here.** Quick orientation only — five sections, fixed order, omit-if-empty:
