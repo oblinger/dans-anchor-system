@@ -3901,15 +3901,23 @@ def apply_c24_fix(backlog_file: Path,
 def _resolve_owning_anchor(
     surface_file: Path, anchor_backlogs: dict[str, Path]
 ) -> Optional[str]:
-    """Return the anchor name whose tree (anchor_root = backlog.parents[2])
+    """Return the anchor name whose tree (anchor_root = backlog.parents[1])
     contains surface_file. Sorts anchors by anchor-root path length, longest
     first, so sub-anchors (e.g., A2X inside SVAR's tree) match before
     parents. Returns None when surface_file is outside every anchor tree
-    (e.g., Q.md itself, or vault-level files)."""
+    (e.g., Q.md itself, or vault-level files).
+
+    Was `backlog.parents[2]`, which assumed the 3-level {slug} Docs/{slug}
+    Track/ layout; after the Docs-folder collapse the backlog is 2-level
+    ({anchor}/{slug} Track/{slug} Backlog.md), so parents[2] overshot to the
+    anchor's PARENT and QFix findings routed to the wrong anchor. parents[1]
+    is the {anchor} root. (A `.anchor`-marker walk is NOT usable here: this
+    vault nests `.anchor` markers at group/sub-anchor level, so the nearest
+    marker is often an inner folder, not the backlog's own anchor.) (F251#1)"""
     candidates: list[tuple[int, str, Path]] = []
     for name, backlog in anchor_backlogs.items():
         try:
-            root = backlog.parents[2]
+            root = backlog.parents[1]
         except IndexError:
             continue
         candidates.append((len(root.parts), name, root))
