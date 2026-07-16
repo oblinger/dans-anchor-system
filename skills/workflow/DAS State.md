@@ -127,6 +127,8 @@ Every mutation runs the full sync in one call — this is the atomic-propagation
 3. one [INFO] entry appended to {slug} Messages.md + the global agent-messages sentinel.
 ```
 
+**Bracket normalization is part of step 2 — an unbacked `[Designing]`/`[Questions]` is promoted to `[Ready]`.** The `--fix` pass re-derives status against ground truth: a `[Designing]` row (C23) or a `[Questions]`/`[N Questions]` row (C24) whose backing shows **zero** pending Qs is rewritten to `[Ready]` (Designing-alone is a turn-ownership deadlock — user direction 2026-05-26; a Questions bracket over no open questions is stale). Backing is counted from the row's arrow link `→ [[doc]]` (its `## Open Questions` block) when present, else the row's own inline `- **Q<n> —` sub-bullets (T012). **Consequence for operators:** `state` prints the bracket you *asked for*, but if it isn't backed the on-disk bracket becomes `[Ready]`. To genuinely park a row in `[Designing]`/`[Questions]`, give it real pending Qs — inline `- **Q<n> —` sub-bullets in the same `define`, or an arrow link to a doc whose `## Open Questions` is live. This is working-as-designed, not drift; it is exactly the groom discipline that a frontier row may not rest in `[Designing]`.
+
 ## EXAMPLES
 
 ```
