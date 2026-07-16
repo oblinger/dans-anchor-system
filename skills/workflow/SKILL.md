@@ -23,7 +23,7 @@ This discipline collapses that to **one state graph** with **one Definition of R
 
 ## Never strand the user — the stop invariant (F244)
 
-The whole point of the Drive group is that **both the agent and the user keep making as much progress as they can, without needless back-and-forth.** That gives one hard rule at every stop:
+This is the **Agent Drive** idea (the Drive group's core promise, [[DAS Drive Design]] § Overview): **both the agent and the user keep making as much progress as they can, without needless back-and-forth.** Concretely, every handoff back to the user hands them **the biggest chunk of progress it can** — the deck cleared of everything the agent could do itself — and **the most decisions it can** — every pending question recorded in state, none left in chat to scroll away. That gives one hard rule at every stop:
 
 > **On a work-armed stop, the anchor's grooming worklist must be empty.**
 
@@ -33,6 +33,8 @@ When the agent stops, the user can do exactly two things next: **answer** a pend
 - **To let them answer** — a real question must be **recorded in state** (`state … Q+ define` → the row becomes `[Questions]`), *not merely typed in chat.* A chat-only question rolls off the screen; the user says "crank," never realizing a question was pending, and it is lost. Recording the question grooms that item off the worklist — so posting it *is* how you clear the gate for a decision you can't make yourself.
 
 **"Work-armed"** means the ending turn used a tool (an edit / write / bash / state mutation). A pure Q&A or design turn is never gated — this is not a nag on conversation, it is a backstop on *work* stops. There is **no context-<40% escape**: emptying the list from a low budget costs only a little (grooming is planning / rebracketing / posting a question — never execution), so the agent spends it and leaves things clean rather than bailing. Enforced involuntarily by the Stop-hook (`crank-stop-hook.py`, F244) with a fail-open block cap; the agent should not need the backstop — ending a work session with an empty worklist is the norm.
+
+**The closing line — echo the status banner (the handoff made visible).** The point of the handoff is to show the user where things stand, so a work-armed turn **ends by echoing the anchor's status banner as its last line** — `Ready N · Questions M · Verify K` (or `all caught up · …`), straight from `state groom-list`. The agent already holds the current counts from its final `state` call; if it didn't mutate, one `state groom-list` pull produces the line. **Pull once and echo — do not make each `state` mutation emit a banner** (a turn calls `state` many times; per-call banners are noise, not signal). The one closing line lets the user pick their own next move at a glance: questions piling up → answer a batch; lots Ready → press `'` and crank.
 
 ## The canonical state graph
 
