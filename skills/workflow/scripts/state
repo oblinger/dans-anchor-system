@@ -1872,6 +1872,14 @@ def cmd_triage(slug, anchor_path, args):
     return 0
 
 
+def _blue(text):
+    """Wrap the whole line in ANSI blue on a TTY (T034 rule 5). Respects NO_COLOR
+    and no-ops when stdout is redirected, so piped/captured output stays plain."""
+    if sys.stdout.isatty() and not os.environ.get("NO_COLOR"):
+        return f"\033[34m{text}\033[0m"
+    return text
+
+
 def cmd_groom_list(slug, anchor_path, args):
     """F244 — the grooming-worklist presenter. Prints the ungroomed frontier
     (the same `_triage_gate_findings` the Stop-hook gates on), or an
@@ -1901,16 +1909,22 @@ def cmd_groom_list(slug, anchor_path, args):
         bm = rx.search(banner)
         counts[key] = int(bm.group(1)) if bm else 0
     r, q, v = counts.get("ready", 0), counts.get("questions", 0), counts.get("verify", 0)
-    # The prefix describes GROOMING state (this presenter's job), never open
-    # work. "all caught up" is reserved for the genuinely-empty case — saying it
-    # while Ready>0 reads as "nothing left to do" and contradicts the tail.
+    # T034 exact format: `{SLUG}: {recommendation} . Groomed . Ready N . Questions M . Verify K`
+    # ENTIRE line blue (rule 5). `Groomed` is fixed (this branch only runs once the
+    # worklist is empty — rule 3). The recommendation slot (rule 2) carries only what
+    # this presenter can DERIVE; context-window recs (`please /clear` / `please /compact`)
+    # are the agent's to add at chat close (see [[SKA workflow]] § Never strand). Omit
+    # the slot entirely when nothing applies (rule 2).
     if r == 0 and q == 0 and v == 0:
-        head = "all caught up — nothing open"
+        rec = "all clear"                                    # distinct all-zero phrasing (rule 3)
     elif q > 0:
-        head = f"frontier groomed — {q} question(s) for you"
-    else:
-        head = "frontier groomed"
-    print(f"{head} · Ready {r} · Questions {q} · Verify {v}")
+        rec = f"answer the {q} question" + ("" if q == 1 else "s")
+    elif r > 0:
+        rec = "crank with '"
+    else:                                                    # only Verify work — user-passive
+        rec = ""
+    rec_part = f"{rec} . " if rec else ""
+    print(_blue(f"{slug}: {rec_part}Groomed . Ready {r} . Questions {q} . Verify {v}"))
     return 0
 
 
