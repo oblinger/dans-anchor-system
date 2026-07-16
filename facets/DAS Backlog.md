@@ -144,7 +144,7 @@ Anchors that have historical Done items numbered with the legacy `B<n>` conventi
 
 ## Status brackets
 
-Each F-row may carry a workflow-state bracket per the `[[SKA workflow]]` discipline: `[ ]` / `[Designing]` / `[Questions]` / `[Blocked]` / `[Blocked F<NNN>]` / `[Waiting]` / `[Waiting Nd]` / `[Waiting Nh]` / `[Watching]` / `[Watching Nd]` / `[Watching Nh]` / `[Ready]` / `[Active]` / `[Verify]` / `[Done]`. The bracket is mandatory only for items in horizon sections (Now/Next/Later — per `[[SKA backlog]]`). Items in workflow-state H2s (`## Ready`, `## Active`, `## Verify`, `## Done`) have their state implied by the H2; the bracket is optional/redundant.
+Each F-row may carry a workflow-state bracket per the `[[SKA workflow]]` discipline: `[ ]` / `[Designing]` / `[Questions]` / `[Blocked]` / `[Blocked F<NNN>]` / `[Waiting]` / `[Waiting Nd]` / `[Waiting Nh]` / `[Watching]` / `[Watching Nd]` / `[Watching Nh]` / `[Ready]` / `[Active]` / `[Verify]` / `[Done]`. The bracket is mandatory only for items in horizon sections (Now/Next/Later — see § H2 sections). Items in workflow-state H2s (`## Ready`, `## Active`, `## Verify`, `## Done`) have their state implied by the H2; the bracket is optional/redundant.
 
 **The bracket reflects the state of the *remaining* work, never aggregate history.** If a row has 17 of 28 sub-bullets done and the remaining 11 all need user input, the bracket is `[Questions]` — not `[Ready]`, not `[Partial — 17/28]`. Partial-progress counts belong in the row body (or in a dedicated "N of M done" notation inside the body), never in the bracket.
 
@@ -164,7 +164,7 @@ All three states — `[Blocked]`, `[Waiting]`, `[Watching]` — are reconsidered
 
 ## H2 sections
 
-Entries are grouped under H2 sections of three kinds — workflow-state, horizon, and category. The full discipline lives in `[[SKA backlog]]`; the summary is:
+Entries are grouped under H2 sections of three kinds — workflow-state, horizon, and category:
 
 **Workflow-state H2s** (state implied by H2; `[Status]` bracket optional/redundant):
 
@@ -174,7 +174,7 @@ Entries are grouped under H2 sections of three kinds — workflow-state, horizon
 
 **Verify is a status, not a section.** Items in `[Verify]` state stay in their horizon H2 (`## Now` is typical, since most verify happens on imminent work) with the `[Verify]` bracket. There is no `## Verify` H2. Rationale: verify is short-lived (waiting on user yes/no) and conceptually keeps the item in its horizon — verifying it doesn't change the *when* intent. The bracket alone carries the state.
 
-**Horizon H2s** (per `[[SKA backlog]]`; `[Status]` bracket mandatory — workflow state is carried by the bracket since the H2 only conveys *when*):
+**Horizon H2s** (`[Status]` bracket mandatory — workflow state is carried by the bracket since the H2 only conveys *when*):
 
 - **Now** — Imminent — the next 1–2 cycles. The "we really expect to do this shortly" zone.
 - **Next** — Committed but not the next thing up. Visible and ordered, but explicitly deferred.
@@ -188,7 +188,7 @@ Items typically flow `Now [ ] → Now [Ready] → ## Active → Now [Verify] →
 
 **Legacy `## Upcoming`.** Anchors that pre-date the horizons discipline may still have `## Upcoming` as the catch-all pre-ready section. Treat it as a transitional alias for `## Now` until the anchor is migrated. New backlogs use `## Now / ## Next / ## Later` from the start.
 
-**Why horizons exist.** Without them the backlog is binary — items are either "in" (visible, competing for attention) or in the Icebox (effectively invisible). Deferring an item then has no good home: the Icebox makes it disappear, `## Now` keeps it competing with imminent work. The three ordered tiers capture the gradient between *imminent* and *indefinite* without leaving the backlog.
+**Why horizons exist.** Without them the backlog is binary — items are either "in" (visible, competing for attention) or in the Icebox (effectively invisible). Deferring an item then has no good home: the Icebox makes it disappear, `## Now` keeps it competing with imminent work. The three ordered tiers capture the gradient between *imminent* and *indefinite* without leaving the backlog. **Three is deliberate** — two tiers (Now/Later) collapse back to the binary problem; four or more reintroduce the bucket-shuffling overhead the horizons exist to bound.
 
 **Now vs Active — a common confusion.** `## Now` is a *scheduling intent* ("we want to pull this in soon"); `## Active` is a *state* ("we have started"). They are not interchangeable — an item sits in `## Now` until work begins, then moves to `## Active`.
 
@@ -197,6 +197,8 @@ Items typically flow `Now [ ] → Now [Ready] → ## Active → Now [Verify] →
 - `## Later` + `[Ready]` — design is clean; just no plan for when.
 - `## Now` + `[Designing]` — we want this soon, but it still has open questions.
 - `## Now` + `[Active]` — unusual; once active the item moves to the `## Active` H2.
+
+**Where a Ready item sits.** Two placements are both correct: the `## Ready` H2 (the conventional home — surfaces what the agent could grab next if cranked), or a horizon H2 carrying a `[Ready]` bracket (for design-clean work explicitly scheduled for later — a `## Later` item with `[Ready]` reads "we know how to do this; we're just not doing it now"). When in doubt, use `## Ready` for imminently-pullable work and a horizon H2 when the scheduling *when* matters more than can-the-agent-start.
 
 **The boredom test.** Before demoting an item Now → Next or Next → Later, ask: *"Am I avoiding this because there's a real reason it should wait, or because I'm bored of it?"* If it's the latter, leave it in Now and either schedule it for real or genuinely demote it to the Icebox. A horizon move should reflect a real shift in commitment, not procrastination dressed up as planning — the agent applies this test before suggesting a horizon demotion.
 

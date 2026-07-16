@@ -63,7 +63,7 @@ Every state change is driven by a named skill. There are no silent transitions.
 
 Two different axes — easy to confuse.
 
-- **Horizon** (`Now` / `Next` / `Later`) — *when* you want the work to happen. Owned by `[[SKA backlog]]`.
+- **Horizon** (`Now` / `Next` / `Later`) — *when* you want the work to happen. Owned by `[[DAS Backlog]]`.
 - **Workflow state** (`Ready` / `Active` / etc.) — *whether* the work has progressed. Owned by this discipline.
 
 `Now` is a scheduling intent. `[Active]` is "we've actually started." An item can sit in `## Now` as `[Ready]` for a while; once work begins, it transitions to `[Active]` and typically moves out of the horizon section into `## Active`.

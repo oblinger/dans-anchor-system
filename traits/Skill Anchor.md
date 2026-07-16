@@ -50,9 +50,9 @@ The two locations are formally part of the same anchor. The `skill-*` facets doc
 
 | Context | Convention | Example |
 |---|---|---|
-| **Skill runtime folder** | kebab-case, lowercase (Claude Code requirement) | `groom/`, `backlog-horizons/` |
-| **Action files** | kebab-case, prefixed by folder name | `groom-runbook.md`, `backlog-horizons-promote.md` |
-| **Slug** | Title Case, space-separated (matches DAS doc name) | `SKA groom`, `SKA backlog-horizons` |
+| **Skill runtime folder** | kebab-case, lowercase (Claude Code requirement) | `groom/`, `create/` |
+| **Action files** | kebab-case, prefixed by folder name | `groom-runbook.md`, `create-anchor.md` |
+| **Slug** | Title Case, space-separated (matches DAS doc name) | `SKA groom`, `SKA create` |
 | **Anchor docs** | Slug-prefixed, Title Case | `SKA groom Backlog.md` |
 | **Anchor root page** | `{Slug}.md` at anchor folder root | `SKA groom/SKA groom.md` |
 | **User-facing doc** | `DAS {Slug}.md` in the docs tree | `docs/track/DAS Groom.md` |

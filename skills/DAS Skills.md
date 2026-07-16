@@ -31,7 +31,6 @@ The catalog of skills — the `/`-invocable runbooks — organized by the nine s
 | [[Architect]] | SKA skill anchor for `/architect` |
 | [[ask/SKILL]] | The system for NOT asking the user questions piecemeal. Prime directive: ELIMINATE every question the agent can (auto-resolve reversible/soon-visible guesses, run checks itself, decide low-stakes/visible calls, infer from the codebase), then CONSOLIDATE the irreducible residue into one self-documenting, counted, one-shot-answerable pile in the anchor's `{slug} queries.md` (sections Agent Resolutions / Verifications / Immediate Questions / Questions). The doc is the always-current STORE of open questions — write every question there the moment it is raised; chat is at most a VIEW, never carrying a question the doc lacks (the user runs many agents; chat scrolls away). Glance the doc and trim answered items. Use when the user runs /ask or an agent has a decision to route. Per F169 + [[Query PRD]]. |
 | [[Audit]] | SKA skill anchor for `/audit` |
-| [[backlog/Backlog]] | Backlog — SKA skill anchor; design tree + dispatch for the backlog-horizons skill. |
 | [[brief-template]] |  |
 | [[buy/SKILL]] | Given a known product (model + identifier), find verified buy locations across major retailers, drive a real browser via ctrl (NOT WebFetch / curl / Playwright — they're all bot-blocked by every major retailer's bot-wall), confirm each landing page is a real product page for the exact model the user wants, capture current price + buy-button presence + stock + promos, and recommend the best place to purchase with confidence. Retries per retailer when the first candidate URL is invalid; keeps the best verified page per company. Use when the user names a specific product to purchase: "what's the best price on the <X>", "where should I buy <X>", "buy <X>". Sibling of /find (identifies products) / /profile (profiles them) / /survey (compares them). v1: skeleton — fleshed-out section is § Page-validity verification and § Per-retailer retry loop; everything else is the obvious shape. |
 | [[cab-migrate]] |  |
@@ -119,6 +118,7 @@ The catalog of skills — the `/`-invocable runbooks — organized by the nine s
 | [[md-track-changes]] |  |
 | [[migrate/SKILL]] | Change an anchor in place — slug, traits, structure, naming (relocation is /move's job), organization. Use when the user says: "migrate this", "rename the slug", "change the type", "move this project", "restructure this", "convert to code project", "reorganize", "rename", "change". |
 | [[move/SKILL]] |  |
+| [[MUSE]] | Voice-memo ingestion + review-and-do pipeline |
 | [[parley/SKILL]] | Structured discussion — talk through a topic, capture decisions, track next steps. Use when the user says: "parley", "let's discuss", "let's talk about", "I want to think through", "let's figure out", "discuss this". |
 | [[pilot-flow/SKILL]] |  |
 | [[pr-flow/SKILL]] |  |

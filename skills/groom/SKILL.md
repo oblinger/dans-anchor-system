@@ -149,7 +149,7 @@ Every backlog item has one of these statuses, derived from where the bullet sits
 | **Active** | Bullet is under `## Active` H2 | Skip — actively being worked. |
 | **Blocked on questions** | Bracket `[Questions]` and bullet text contains a `→ [[Feature Doc]]` or `→ [[Open Questions]]` link | Skip — only the user can resolve those. |
 | **Blocked (other)** | Bracket `[Blocked]` (generic, body explains) or `[Blocked F<NNN>]` (chained on another feature) | Skip — the blocker is external. When the chained `F<NNN>` reaches `[Done]`, /groom may rebracket on a future sweep. |
-| **Unset / Upcoming** | Bullet is under a horizon H2 (`## Now`, `## Next`, `## Later` per [[SKA backlog]]) — or the legacy `## Upcoming` — or `## Legwork`, with bracket `[ ]` / `[Designing]` / absent, AND has no link to active open questions | **Process** — try to ready it. |
+| **Unset / Upcoming** | Bullet is under a horizon H2 (`## Now`, `## Next`, `## Later` per [[DAS Backlog]]) — or the legacy `## Upcoming` — or `## Legwork`, with bracket `[ ]` / `[Designing]` / absent, AND has no link to active open questions | **Process** — try to ready it. |
 | **Verify**, **Done** | Bullet under those H2s | Skip for promotion — but § 2a re-litigates the Verify family via the F240 positioning test (agent-grade questions get run or rebracketed). Done rows are never touched. |
 
 The `→ [[X]]` link convention is documented in [[DAS Backlog]].
