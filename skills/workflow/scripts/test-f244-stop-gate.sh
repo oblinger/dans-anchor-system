@@ -1,0 +1,113 @@
+#!/bin/bash
+# test-f244-stop-gate.sh — the F244 never-strand-the-user Stop gate
+# (crank-stop-hook.py). Drives the hook with synthetic Stop payloads against a
+# throwaway fixture anchor, asserting the worklist-empty invariant:
+#   (A) work-armed (turn used a tool) + dirty worklist  → BLOCK
+#   (B) work-armed + clean worklist (empty frontier)    → ALLOW
+#   (C) NOT armed (pure-text turn) + dirty worklist      → ALLOW (chat turn)
+#   (D) grooming the dirty row (add Next) empties it     → ALLOW
+#   (E) block cap: 3 blocks then the 4th ALLOWs (fail-open)
+#
+# Fixture anchor lives under ~/ob/kmr/Topic/Misc/Test/ (smoke-tests-in-vault).
+set -u
+
+HOOK=~/.claude/skills/workflow/scripts/crank-stop-hook.py
+STATE=~/.claude/skills/workflow/scripts/state
+FIX_ROOT=~/ob/kmr/Topic/Misc/Test/"F244 Fixture"
+BACKLOG="$FIX_ROOT/F244FIX Track/F244FIX Backlog.md"
+TMP=$(mktemp -d)
+PASS=0; FAIL=0
+
+cleanup() {
+    rm -rf "$FIX_ROOT" "$TMP"
+    rm -f ~/.config/anchor-system/stopgate/F244FIX.json
+    rm -f ~/.config/anchor-system/crank/F244FIX.json
+}
+trap cleanup EXIT
+
+mkdir -p "$FIX_ROOT/F244FIX Track"
+printf 'slug: F244FIX\ntitle: F244 Fixture\n' > "$FIX_ROOT/.anchor"
+
+ok()  { echo "PASS  $1"; PASS=$((PASS+1)); }
+bad() { echo "FAIL  $1"; FAIL=$((FAIL+1)); }
+
+# --- transcripts ---
+TOOL_TX="$TMP/tool.jsonl"
+cat > "$TOOL_TX" <<'EOF'
+{"type":"user","message":{"content":"go do the thing"}}
+{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Bash","input":{}}]}}
+{"type":"user","message":{"content":[{"type":"tool_result","content":"ok"}]}}
+{"type":"assistant","message":{"content":[{"type":"text","text":"done"}]}}
+EOF
+TEXT_TX="$TMP/text.jsonl"
+cat > "$TEXT_TX" <<'EOF'
+{"type":"user","message":{"content":"what do you think about X?"}}
+{"type":"assistant","message":{"content":[{"type":"text","text":"here is my opinion"}]}}
+EOF
+
+dirty_backlog() {
+    cat > "$BACKLOG" <<'EOF'
+# F244FIX Backlog
+
+## Now
+
+- **T001 — Ungroomed row** [Ready] — no Next, so it is on the worklist ^T001
+
+## Done
+EOF
+}
+clean_backlog() {
+    cat > "$BACKLOG" <<'EOF'
+# F244FIX Backlog
+
+## Now
+
+## Done
+EOF
+}
+
+payload() { printf '{"cwd":"%s","transcript_path":"%s"}' "$FIX_ROOT" "$1"; }
+blocked() { echo "$1" | grep -q '"decision": *"block"'; }
+
+# ---------- A — work-armed + dirty → BLOCK ----------
+rm -f ~/.config/anchor-system/stopgate/F244FIX.json
+dirty_backlog
+OUT=$(payload "$TOOL_TX" | python3 "$HOOK" 2>/dev/null)
+if blocked "$OUT"; then ok "A: work-armed + dirty worklist blocks"; else bad "A: expected block — out: $OUT"; fi
+
+# ---------- B — work-armed + clean → ALLOW ----------
+rm -f ~/.config/anchor-system/stopgate/F244FIX.json
+clean_backlog
+OUT=$(payload "$TOOL_TX" | python3 "$HOOK" 2>/dev/null)
+if blocked "$OUT"; then bad "B: expected allow on clean worklist — out: $OUT"; else ok "B: work-armed + empty worklist allows"; fi
+
+# ---------- C — NOT armed (pure text) + dirty → ALLOW ----------
+rm -f ~/.config/anchor-system/stopgate/F244FIX.json
+dirty_backlog
+OUT=$(payload "$TEXT_TX" | python3 "$HOOK" 2>/dev/null)
+if blocked "$OUT"; then bad "C: pure-chat turn must not be gated — out: $OUT"; else ok "C: un-armed (pure-text) turn allows despite dirty worklist"; fi
+
+# ---------- D — grooming the row (add Next) empties worklist → ALLOW ----------
+rm -f ~/.config/anchor-system/stopgate/F244FIX.json
+dirty_backlog
+"$STATE" --anchor "$FIX_ROOT" Backlog T001 set --status Ready --next "run the concrete first step with zero user involvement" >/dev/null 2>&1
+CNT=$("$STATE" --anchor "$FIX_ROOT" groom-list --count 2>/dev/null | tail -1)
+OUT=$(payload "$TOOL_TX" | python3 "$HOOK" 2>/dev/null)
+if [ "$CNT" = "0" ] && ! blocked "$OUT"; then ok "D: adding a Next empties the worklist and allows the stop"; else bad "D: expected count=0 + allow — count=$CNT out: $OUT"; fi
+
+# ---------- E — block cap: 3 blocks then allow ----------
+rm -f ~/.config/anchor-system/stopgate/F244FIX.json
+dirty_backlog
+b1=$(payload "$TOOL_TX" | python3 "$HOOK" 2>/dev/null)
+b2=$(payload "$TOOL_TX" | python3 "$HOOK" 2>/dev/null)
+b3=$(payload "$TOOL_TX" | python3 "$HOOK" 2>/dev/null)
+b4=$(payload "$TOOL_TX" | python3 "$HOOK" 2>/dev/null)
+if blocked "$b1" && blocked "$b2" && blocked "$b3" && ! blocked "$b4"; then
+    ok "E: block cap fails open on the 4th consecutive block"
+else
+    bad "E: expected block×3 then allow — $(blocked "$b1" && echo B||echo A)$(blocked "$b2" && echo B||echo A)$(blocked "$b3" && echo B||echo A)$(blocked "$b4" && echo B||echo A)"
+fi
+
+echo "----------------------------------------"
+echo "F244 stop-gate test: $PASS passed, $FAIL failed"
+[ "$FAIL" -eq 0 ]

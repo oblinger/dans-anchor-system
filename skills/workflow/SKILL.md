@@ -21,6 +21,19 @@ The drift compounds: a new skill writes its own state names; the user can't tell
 
 This discipline collapses that to **one state graph** with **one Definition of Ready** that every surface and every skill references. Surfaces (backlog, roadmap, feature, PRD) get a short mapping section saying "here's how the canonical states appear here" — they don't redefine the graph.
 
+## Never strand the user — the stop invariant (F244)
+
+The whole point of the Drive group is that **both the agent and the user keep making as much progress as they can, without needless back-and-forth.** That gives one hard rule at every stop:
+
+> **On a work-armed stop, the anchor's grooming worklist must be empty.**
+
+When the agent stops, the user can do exactly two things next: **answer** a pending question, or tell the agent to **crank**. A legal stop must leave at least one of those live — otherwise the user is stranded (they can't crank, because they can't see what's Ready; and they can't answer, because no question is recorded). So:
+
+- **To let them crank** — the frontier must be *groomed*: every `## Now`/`## Next` row in an honest state (Ready+Next / Questions / Blocked / Waiting / Verify). "Ungroomed" rows are the **grooming worklist** — mechanically, `_triage_gate_findings` (a `[Ready]` row with no executable `- **Next:**`, an F242 non-answer Next, a bracket/H2 mismatch). See it any time with **`state groom-list`** (prints the worklist, or `all caught up · Ready N · Questions M · Verify K`).
+- **To let them answer** — a real question must be **recorded in state** (`state … Q+ define` → the row becomes `[Questions]`), *not merely typed in chat.* A chat-only question rolls off the screen; the user says "crank," never realizing a question was pending, and it is lost. Recording the question grooms that item off the worklist — so posting it *is* how you clear the gate for a decision you can't make yourself.
+
+**"Work-armed"** means the ending turn used a tool (an edit / write / bash / state mutation). A pure Q&A or design turn is never gated — this is not a nag on conversation, it is a backstop on *work* stops. There is **no context-<40% escape**: emptying the list from a low budget costs only a little (grooming is planning / rebracketing / posting a question — never execution), so the agent spends it and leaves things clean rather than bailing. Enforced involuntarily by the Stop-hook (`crank-stop-hook.py`, F244) with a fail-open block cap; the agent should not need the backstop — ending a work session with an empty worklist is the norm.
+
 ## The canonical state graph
 
 A unit of work moves through these states. Each state has a **square-bracket label** that appears in bullet form (extending the markdown checkbox idiom) and a **canonical name**.

@@ -105,34 +105,38 @@ else
     bad "B2: expected allow — hook out: $BLOCK"
 fi
 
-# B3 — a post-stamp mutation stales the stamp: same line must now block
+# B3 — adding a groomed [Questions] row keeps the worklist empty → still ALLOW.
+# (F244 superseded F239's stamp-freshness ceremony: worklist-empty is the gate;
+# a [Questions] row is a groomed state, not a worklist item.)
 "$STATE" --anchor "$FIX_ROOT" crank start >/dev/null
-printf -- '- **T003 — Post-stamp mutation** [Questions] — staler ^T003\n' >> "$BACKLOG"
+printf -- '- **T003 — Parked, groomed** [Questions] — a groomed row ^T003\n' >> "$BACKLOG"
 BLOCK=$(hook_run "$TRANSCRIPT")
 if echo "$BLOCK" | grep -q '"decision": "block"'; then
-    ok "B3: post-stamp mutation stales the stamp — stop blocked"
+    bad "B3: a groomed [Questions] row must not block (worklist stays empty) — hook out: $BLOCK"
 else
-    bad "B3: expected block on stale stamp — hook out: $BLOCK"
+    ok "B3: groomed [Questions] row keeps the worklist empty — stop allowed (F244)"
 fi
 "$STATE" --anchor "$FIX_ROOT" crank stop >/dev/null
 
-# ---------- Case C — CRANK READY rejected when nothing is Ready ----------
+# ---------- Case C — an all-parked [Questions] frontier is groomed → ALLOW ----------
+# (F244: no CRANK-READY ceremony — a fully groomed frontier, even all-parked, is
+# a legal stop; the user can answer the parked question.)
 cat > "$BACKLOG" <<'EOF'
 # F239FIX Backlog
 
 ## Now
 
-- **T001 — Fixture parked on a question** [Questions] — nothing ready here ^T001
+- **T001 — Fixture parked on a question** [Questions] — groomed, nothing ready ^T001
 
 ## Done
 EOF
 "$STATE" --anchor "$FIX_ROOT" crank start >/dev/null
-transcript "All parked. CRANK READY"
+transcript "All parked and groomed."
 BLOCK=$(hook_run "$TRANSCRIPT")
 if echo "$BLOCK" | grep -q '"decision": "block"'; then
-    ok "C: CRANK READY with Ready=0 blocked"
+    bad "C: an all-parked groomed frontier must allow the stop — hook out: $BLOCK"
 else
-    bad "C: expected block — hook out: $BLOCK"
+    ok "C: all-parked [Questions] frontier is groomed — stop allowed (F244, no ceremony)"
 fi
 
 # C2 — with a genuine [Ready] row, the same CRANK READY tail is a legal stop

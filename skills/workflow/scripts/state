@@ -1872,6 +1872,45 @@ def cmd_triage(slug, anchor_path, args):
     return 0
 
 
+def cmd_groom_list(slug, anchor_path, args):
+    """F244 — the grooming-worklist presenter. Prints the ungroomed frontier
+    (the same `_triage_gate_findings` the Stop-hook gates on), or an
+    'all caught up' status line when the worklist is empty. Read-only: no
+    render, no stamp. `--count` prints just the integer worklist size (the
+    Stop-hook shells out for it — single source of truth)."""
+    backlog_path = be.find_backlog(slug)
+    findings = _triage_gate_findings(backlog_path)
+    if getattr(args, "count", False):
+        print(len(findings))
+        return 0
+    if findings:
+        print(f"grooming worklist — {len(findings)} item(s) not yet groomed:")
+        for f in findings:
+            print(f"  - {f}")
+        return 0
+    # Empty worklist — the "where do I stand" status line (F244 secondary UX).
+    queries_path = backlog_path.parent / f"{slug} queries.md"
+    banner = ""
+    if queries_path.is_file():
+        for qline in queries_path.read_text(encoding="utf-8").splitlines():
+            if qline.startswith("# "):  # banner H1 (frontmatter precedes it)
+                banner = qline
+                break
+    counts = {}
+    for key, rx in _BANNER_NUM_RE.items():
+        bm = rx.search(banner)
+        counts[key] = int(bm.group(1)) if bm else 0
+    r, q, v = counts.get("ready", 0), counts.get("questions", 0), counts.get("verify", 0)
+    if q > 0:
+        head = f"all caught up — {q} question(s) waiting on you"
+    elif r == 0 and v == 0:
+        head = "all caught up — nothing waiting"
+    else:
+        head = "all caught up"
+    print(f"{head} · Ready {r} · Questions {q} · Verify {v}")
+    return 0
+
+
 def cmd_crank(slug, anchor_path, args):
     """Crank-session sentinel (F239) — arms/disarms the Stop-hook gate."""
     sentinel = _CRANK_DIR / f"{slug}.json"
@@ -1903,7 +1942,7 @@ def cmd_crank(slug, anchor_path, args):
     return 0
 
 
-_V2_LEGACY_DOMAINS = {"status", "roadmap", "triage", "crank"}
+_V2_LEGACY_DOMAINS = {"status", "roadmap", "triage", "crank", "groom-list"}
 _V2_RETIRED_DOMAINS = {"task", "q", "question"}
 
 
@@ -2089,6 +2128,14 @@ def build_parser():
         "crank", help="crank-session sentinel: start | stop | status (F239)")
     ck.add_argument("verb", choices=["start", "stop", "status"])
 
+    # groom-list domain (F244) — the grooming worklist presenter
+    gl = subs.add_parser(
+        "groom-list",
+        help="print the grooming worklist (ungroomed frontier), or an "
+             "'all caught up' status line when empty (F244)")
+    gl.add_argument("--count", action="store_true",
+                    help="print only the integer worklist size")
+
     return p
 
 
@@ -2131,6 +2178,8 @@ def main(argv):
             return cmd_triage(slug, anchor_path, args)
         if args.domain == "crank":
             return cmd_crank(slug, anchor_path, args)
+        if args.domain == "groom-list":
+            return cmd_groom_list(slug, anchor_path, args)
         if args.domain == "status":
             if args.verb == "set":
                 return cmd_status_set(slug, anchor_path, args)
