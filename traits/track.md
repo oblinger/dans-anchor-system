@@ -47,7 +47,7 @@ The **backlog horizons** (`## Now` / `## Next` / `## Later`) and **workflow stat
 ## Wiring an anchor for Track
 
 1. **Declare the trait.** Add `track` to the `.anchor` `traits:` list, e.g. `traits: [code, track]` or `traits: [track]`.
-2. **Create the tree root.** `{slug} Docs/{slug} Track/` with the dispatch page `{slug} Plan.md` per [[DAS Plan Dispatch]] (H1 `# {slug} Plan`, dispatch table, one row per planning doc that exists).
+2. **Create the tree root.** `{slug} Docs/{slug} Track/` with the dispatch page `{slug} Track.md` per [[DAS Track Dispatch]] (H1 `# {slug} Track`, dispatch table, one row per planning doc that exists).
 3. **Create the required core.** `{slug} Backlog.md` with the horizon H2s (`## Now` / `## Next` / `## Later`, plus `## Active` / `## Ready` as used) per [[DAS Backlog]] + [[DAS Backlog]]. An empty-but-well-formed backlog is valid.
 4. **Add optional parts as needed** — Features/, Roadmap, PRD, System Design, etc. — each per its facet spec. Don't pre-create empties; add a part when its first real content arrives.
 5. **Link from the anchor page.** Add a `Plan` row to the anchor page's dispatch table pointing at `{slug} Plan.md` (per [[DAS Anchor Page]]).

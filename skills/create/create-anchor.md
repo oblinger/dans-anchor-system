@@ -25,7 +25,7 @@ Then read the CAB part specs — each has a **Reference Example** at the top sho
 
 - **[[DAS Anchor Page]]** → dispatch table format and standard rows
 - **[[DAS Folder]]** → marker file format
-- **[[DAS Plan Dispatch]]** → Plan dispatch page format
+- **[[DAS Track Dispatch]]** → Track dispatch page format
 - **[[DAS Dev Dispatch]]** → Dev dispatch page format
 - **[[DAS User Dispatch]]** → User dispatch page format
 - **[[DAS PRD]]**, **[[DAS System Design]]**, **[[DAS Roadmap]]**, etc. → each planning doc's format
