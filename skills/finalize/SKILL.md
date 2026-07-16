@@ -67,6 +67,19 @@ If the work-unit has a dated feature doc:
 - Resolve any remaining `## Open Questions` entries — none should be in a pending state at finalize time. If pending questions exist, the work isn't actually done; halt and surface to the user.
 - Add a brief "What shipped" summary if the implementation diverged meaningfully from the design.
 
+### 3a. Fold durable decisions into their spec docs (per [[F249]])
+
+Before the feature doc's `## Resolved` archive is retired, promote every decision that shaped a **durable** doc out of the transient feature and into the doc it shaped — so the *why-we-decided-it* history survives archival. This is the F-doc analog of the C-entry close-out's spec-delta fold (§ C-entry close-out step 2): that step promotes the *what-the-system-does* delta into the specs; this one promotes the *why-we-decided-it* decisions into their design docs. Both are the same close-out move — promote durable content out of the transient work-item.
+
+For each `### ` record under the retiring item's `## Resolved`:
+
+1. **Judge the layer it shaped** — which durable surface does this decision constrain: PRD/product, UX, System Design, Architecture, API, a module doc, or implementation? Placement is a function of the decision's *nature*, not the feature's topic — a single feature's decisions may fold into several docs, which is correct.
+2. **Durable-shaping decision** → promote it to a `### D<N>` record in that doc's `## Decisions` section per [[DAS Decisions]]: create the `## Decisions` section if absent, mint the next monotonic D-number, and carry a `folded from [[F<n>]] on retirement` provenance line. If the decision carried substantial deliberation (options weighed, why alternatives lost), fold that into the shaped doc's [[DAS Discussion]] entry — the decisions log gets the ruling, the discussion gets the deliberation.
+3. **Feature-local-only decision** (shaped nothing beyond this feature's own build) → leave it in the feature doc; it archives with the record.
+4. **Report** what moved where (which decisions → which docs / D-numbers) and what stayed feature-local.
+
+Never drop a durable-shaping decision silently on archival — that loss is exactly what F249 closes. If a decision's layer is genuinely ambiguous, fold it to the most specific durable doc it plausibly shaped and note the ambiguity in the provenance line; do not discard it.
+
 ### 4. Update Status / Stat Records
 
 - If `skl-stat` is in use, post a Done update with the work-unit's S-number and a brief activity note.
