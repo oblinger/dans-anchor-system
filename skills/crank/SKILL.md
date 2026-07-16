@@ -52,6 +52,7 @@ requires:: vault, anchor-cli, skill:ask, skill:groom, skill:mint, facet:backlog
 | **[[#Idempotence]]** |  |
 | **[[#Repeated invocation — same loop, same output, never escalate]]** |  |
 | **[[#Cross-references]]** |  |
+
 subsystem:: [[DAS Drive Design]] — the Drive group's subsystem profile
 
 `crank` is the user's "go" button. One press drives **as much progress as possible** through Ready work — sequentially or in parallel — until continuing would drop quality. The system mints what it can, and either exits silently (still finding work) or surfaces a status view + actionable inbox (out of safe Ready work, waiting on the user). The user can keep pressing `'` to keep going.
@@ -389,7 +390,7 @@ After the loop + branch resolves, print one line to chat for the mint summary. O
 
 - Walk up from `cwd` to find `.anchor`. If none, say "No anchor found from `{cwd}` upward." and stop.
 - **Arm the exit gate (F239):** `~/.claude/skills/workflow/scripts/state crank start` — the Stop hook now refuses any turn end that isn't one of the three legal exit states (§ Exit handshake).
-- The Ready queue lives in `{slug} Docs/{slug} Plan/{slug} Backlog.md` § Ready (workflow-state H2) and items with `[Ready]` bracket in horizon H2s (per `[[SKA backlog]]`). `/mint` knows how to find Ready items; crank just delegates.
+- The Ready queue lives in `{slug} Docs/{slug} Plan/{slug} Backlog.md` § Ready (workflow-state H2) and items with `[Ready]` bracket in horizon H2s (per `[[DAS Backlog]]`). `/mint` knows how to find Ready items; crank just delegates.
 
 ### 2. Plan the sweep
 

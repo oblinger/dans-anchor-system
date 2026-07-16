@@ -496,7 +496,7 @@ A skill anchor IS a CAB anchor — `SKILL.md` is the agent-loaded code, the rest
   - **Anchor / Structure** — CAB, create, migrate, rewire, rule (skills that shape anchors / structure / rules)
   - **Investigation / Coord** — parley, research, role (skills that explore or coordinate)
   - **Environment / I-O / Content** — ctrl, edit, fix, IO, MD, product, snip (skills that interact with environment, files, or external systems)
-  - **Disciplines** — finalize, query, workflow, backlog-horizons, **mode** (`user_invocable: false` skills cited by other skills)
+  - **Disciplines** — finalize, query, workflow, **mode** (`user_invocable: false` skills cited by other skills)
 - [ ] If `user_invocable: false`: skill goes in the **Disciplines** column.
 - [ ] If no SKL user-doc exists: skill is hidden from the table (the table only shows skills with user-facing docs); rewire flags this as a finding rather than fixing.
 

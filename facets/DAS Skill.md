@@ -160,7 +160,7 @@ A discipline is a *rule the agent follows*, not a command the user issues. Makin
 ### When to make something a discipline vs. a skill
 
 - **Skill** (`user_invocable: true`) — has a clear "do this thing now" semantic. The user invokes it. Examples: `/audit`, `/groom`, `/feature`.
-- **Discipline** (`user_invocable: false`) — a methodology that other skills follow. The user doesn't invoke it; skills cite it. Examples: `finalize`, `workflow`, `backlog-horizons`.
+- **Discipline** (`user_invocable: false`) — a methodology that other skills follow. The user doesn't invoke it; skills cite it. Examples: `finalize`, `workflow`, `mode`.
 - **Both?** — if a single concept has both a "the user wants to run this now" form and an "agent always follows this when applicable" form, split into a skill + discipline pair (e.g., `/finalize` could in principle be invoked, but the *ceremony* is the discipline; we kept only the discipline form for now).
 
 # Skill dossier page — the `DAS <Name>` doc

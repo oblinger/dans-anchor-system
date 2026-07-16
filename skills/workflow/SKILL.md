@@ -405,7 +405,7 @@ Each surface that uses workflow state cites this discipline and maps the canonic
 
 ### Backlog (`{slug} Backlog.md`)
 
-Per `[[DAS Backlog]]` and `[[SKA backlog]]`:
+Per `[[DAS Backlog]]`:
 
 - Workflow state is shown via the `[Status]` square-bracket prefix in each bullet, OR implied by the bullet's H2 placement.
 - H2 sections combine **horizon** (`## Now`, `## Next`, `## Later`) and **workflow state** (`## Active`, `## Ready`, `## Done`).
@@ -504,7 +504,7 @@ The icebox is a **sanctioned exception** to the "active" part of the invariant. 
 
 These are **two independent axes**:
 
-- **Horizon** — *when* the user wants the work to happen. Owned by `[[SKA backlog]]`. Values: Now, Next, Later (plus Icebox outside the backlog).
+- **Horizon** — *when* the user wants the work to happen. Owned by `[[DAS Backlog]]`. Values: Now, Next, Later (plus Icebox outside the backlog).
 - **Workflow state** — *whether* the work has progressed and how far. Owned by this discipline. Values: Unset, Designing, Blocked, Ready, Active, Testing, Completed.
 
 **Common conflation: "Now" vs "Active."** They look similar but mean different things.
