@@ -70,12 +70,19 @@ LinkEntry = audit_q.LinkEntry
 BacklogEntry = audit_q.BacklogEntry
 LIVE_HORIZON_H2S = audit_q.LIVE_HORIZON_H2S
 ACTIVE_HORIZONS_BANNER = {"Active", "Ready", "Now", "Next", "Legwork"}
-# Banner `Questions` total counts `[Questions]` rows ONLY in active horizons
-# (matches ACTIVE_HORIZONS_BANNER above) — `## Later` is deferred by user
-# intent and shouldn't pull weight in the headline number. Per user direction
-# 2026-06-04 (final): Later [Questions] are visible in the body (rendered
-# under ## Later for context) but invisible to the banner count.
-BODY_RENDERED_HORIZONS_FOR_QUESTIONS = ACTIVE_HORIZONS_BANNER
+# Banner `Questions` total counts `[Questions]` rows in **every live horizon,
+# including `## Later`**. A `[Questions]` bracket is a *pending user question*
+# no matter where the row is filed — the body already renders it (under Later
+# via LATER_RENDERED_BRACKETS_PREFIX), so excluding it from the banner made the
+# banner disagree with the body: a Later `[Questions]` row showed as a question
+# in the body while the anchor tagged `[A]` (agent-ready) with `Questions 0`,
+# hiding a live question. Per user direction 2026-07-16 (overrides the earlier
+# 2026-06-04 "Later questions invisible to the banner" call, which produced
+# exactly that broken result on a T002 row an agent had just questioned): a
+# question shows as a question, wherever it sits. (Deferring is the *horizon*'s
+# job — Later still shows its raw per-horizon count; it just no longer swallows
+# the user-actionable signal.)
+BODY_RENDERED_HORIZONS_FOR_QUESTIONS = ACTIVE_HORIZONS_BANNER | {"Later"}
 
 # ============================================================
 # Configuration
@@ -818,6 +825,15 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
     h3_headings = _extract_h3_headings(backlog_file)
     eligible = [r for r in rows if _row_should_render(r)]
     verifs = [r for r in eligible if r.bracket.startswith("Verify") or r.bracket.startswith("Watching")]
+    # Date-based `[Verify-by YYYY-MM-DD]` rows sort to the END of the list, ordered
+    # by date (soonest first); plain `[Verify]`/`[Watching]` keep backlog order first
+    # (user direction 2026-07-15 — auto-expiring date checks are set-and-forget, so
+    # they belong below the ones that still want a look). Stable sort preserves the
+    # backlog order of the non-date rows among themselves.
+    def _verify_by_date(r):
+        m = re.match(r"Verify-by\s+(\d{4}-\d{2}-\d{2})", r.bracket, re.I)
+        return m.group(1) if m else None
+    verifs.sort(key=lambda r: (1, _verify_by_date(r)) if _verify_by_date(r) else (0, ""))
     # An empty B-QFix (zero residuals) is NOT Ready — nothing to do — so drop it
     # from the Ready render (per user 2026-06-29: "not really ready, what's it doing there").
     qfix_empty = _count_qfix_subs(backlog_file) == 0
@@ -844,6 +860,13 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
             q = verify_questions.get(r.identifier)
             qtxt = (_truncate_body(q, 240) if q
                     else "⚠ no concrete question — add a `- **Verify:** <yes/no question>` sub-bullet to the row")
+            # Date-based rows lead with their auto-expiry date (user direction
+            # 2026-07-15 — "date at the front when they're verification based on
+            # date"). The date auto-Dones the row on arrival; until then it reads
+            # as a passive-use window.
+            vb = _verify_by_date(r)
+            if vb:
+                qtxt = f"**by {vb}** — {qtxt}"
             # F235: the feature doc is the verification's home — link it first,
             # demote the backlog-row link to a parenthesized `(row)` pointer.
             doclink = _feature_doc_link(r, vault_index, backlog_file)
