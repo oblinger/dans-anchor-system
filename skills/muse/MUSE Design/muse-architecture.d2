@@ -1,0 +1,53 @@
+direction: right
+
+# Two pipelines: ingest (headless) and do (user-triggered).
+# Each block is a subsystem; arrows are the actual runtime dependency.
+
+watch: "Apple Watch\n(JPR dictation)" {shape: cylinder; style.fill: "#e8f0ff"}
+icloud: "iCloud FileProvider\n(~/Library/Mobile Documents/…)" {shape: cylinder; style.fill: "#e8f0ff"}
+
+wire: "WIRE Muse\n(quarantine + brctl download)" {
+  shape: rectangle
+  style: {fill: "#fff2cc"; stroke: "#d6b656"}
+}
+
+# --- Ingest pipeline ---
+launchd: "launchd\ncom.oblinger.muse-ingest\n(WatchPaths + 300s)" {shape: hexagon; style.fill: "#f8cecc"}
+trust: "_trust muse-sweep\n(FDA-carrying, notarized)" {shape: rectangle; style: {fill: "#f8cecc"; stroke: "#b85450"}}
+muse_ingest: "muse ingest\n(headless bash)" {shape: rectangle; style.fill: "#dae8fc"}
+transcribe: "_transcribe\n(whisper.cpp)" {shape: rectangle; style.fill: "#dae8fc"}
+askai: "_askAI\n(short-prompt LLM title)" {shape: rectangle; style.fill: "#dae8fc"}
+
+# --- Sinks ---
+item: "MUSE YYYY-MM-DD X <title>.md\n(archive item)" {shape: page; style.fill: "#d5e8d4"}
+quick: "Quick.md bullet\n(user pane)" {shape: page; style.fill: "#d5e8d4"}
+logmuse: "Log Muse.md bullet\n(audit index)" {shape: page; style.fill: "#d5e8d4"}
+notify: "macOS notification" {shape: rectangle; style.fill: "#d5e8d4"}
+
+# --- Do pipeline ---
+hotkey: "Obsidian hotkey in HUD\n(Cmd+Opt+D — deferred)" {shape: hexagon; style.fill: "#f8cecc"}
+muse_do_wrapper: "_muse_do\n(bash wrapper)" {shape: rectangle; style.fill: "#dae8fc"}
+tmux_inject: "tmux send-keys\n→ SYS session" {shape: rectangle; style.fill: "#dae8fc"}
+claude: "Claude Code\n(reads item, proposes action)" {shape: rectangle; style: {fill: "#dae8fc"; stroke: "#6c8ebf"}}
+user_approve: "User approval\n(tool-call prompt)" {shape: diamond; style.fill: "#e1d5e7"}
+action: "Action executed\n(edit / notify / …)" {shape: rectangle; style.fill: "#d5e8d4"}
+
+# --- Connections ---
+watch -> icloud: "recording"
+icloud -> wire: "materialize"
+wire -> launchd: "file lands"
+launchd -> trust: "invoke"
+trust -> muse_ingest: "exec w/ FDA"
+muse_ingest -> transcribe
+muse_ingest -> askai: "title"
+muse_ingest -> item: "write"
+muse_ingest -> quick: "prepend"
+muse_ingest -> logmuse: "prepend"
+muse_ingest -> notify
+
+item -> hotkey: "user opens\nin HUD"
+hotkey -> muse_do_wrapper
+muse_do_wrapper -> tmux_inject
+tmux_inject -> claude: "/muse do <path>"
+claude -> user_approve
+user_approve -> action: "approved"

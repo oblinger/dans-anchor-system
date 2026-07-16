@@ -2,10 +2,46 @@
 description: MUSE architecture + implementation plan — skill shape, ingest flow, do flow, action space, safety, config, build order.
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [SKL](hook://SKL) → [muse](hook://muse) → [MUSE Architecture](hook://p/MUSE%20Architecture)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [SKL](hook://SKL) → [[MUSE]] → [MUSE Architecture](hook://p/MUSE%20Architecture)
 # MUSE Architecture
 
 Full design and implementation plan for [[MUSE]]. Referenced from `MUSE.md`; not user-facing on its own.
+
+## Overview
+
+MUSE turns spoken thought into acted-on knowledge via two sub-verbs on the same skill:
+
+- **`muse ingest`** — headless, launchd-triggered. Transcribes a `.m4a` recording, files an item under `~/ob/kmr/Log/MUSE/`, prepends a bullet to `Quick.md` + logs to `Log Muse.md`. No LLM tool-calls, no user interruption.
+- **`/muse do <path>`** — user-triggered inside Claude Code. Reads the item, consults the action space, proposes a single action, waits for approval.
+
+The split is the safety architecture: transcription is mechanical enough to be automatic; interpretation is not, so it goes through the normal Claude Code tool-approval flow with a human watching. Full flows in [[MUSE Architecture#Ingest flow — headless, mechanical|§ Ingest flow]] + [[MUSE Architecture#Do flow — user-triggered, LLM-mediated|§ Do flow]].
+
+## Architecture diagram
+
+![MUSE architecture — ingest + do pipelines](muse-architecture.png)
+
+Source: `muse-architecture.d2` (same folder — regenerate the PNG with `d2 muse-architecture.d2 muse-architecture.png`).
+
+Two pipelines, both terminating at user-visible surfaces. The § Ingest flow and § Do flow step lists below are the authoritative textual sources for each pipeline; the diagram is the visual index.
+
+**Ingest pipeline:** `launchd` (WatchPaths + StartInterval backstop) → `_trust muse-sweep` (FDA-carrying wrapper) → `muse ingest` → strip `com.apple.quarantine` → `brctl download` (iCloud materialize) → `_transcribe` (whisper.cpp) → `_askAI` (title) → write item `.md` → prepend Quick bullet → prepend Log Muse bullet → macOS notification.
+
+**Do pipeline:** Obsidian hotkey (in [[HUD]]) → `~/bin/_muse_do "{{file_path}}"` → `osascript` activate Terminal → `tmux send-keys` inject `/muse do <path>` into SYS session → Claude Code parses slash command → MUSE skill reads item + action space → proposes action → user approves → tool-call executes.
+
+## Subsystems
+
+The two sub-verbs decompose into named subsystems, each with its own trigger, safety envelope, and code home:
+
+| Subsystem | Purpose | Where it lives |
+| --- | --- | --- |
+| Ingest daemon | launchd job `com.oblinger.muse-ingest` (WatchPaths + 300s StartInterval) invoking `_trust muse-sweep`; runs headless as user's login session | plist template in `~/.claude/skills/muse/scripts/install-launchd.sh` |
+| Wire integration | pre-transcription pipe (JPR / iCloud FileProvider / quarantine / `brctl download`) — the pipe that puts an `.m4a` on disk | [[WIRE Muse]] |
+| Transcription primitive | `_transcribe` (whisper.cpp) — shared with [[VOX]]; MUSE calls it via `_trust`-inherited FDA identity | `~/bin/_transcribe` |
+| Title primitive | `_askAI` short-prompt LLM call for a 3–6 word title | `~/bin/_askAI` |
+| Item + log writer | `prepend_line` / `prepend_log_bullet` shell functions; own the split-target discipline (Quick.md = user pane, Log Muse.md = audit trail) | `~/.claude/skills/muse/scripts/muse` |
+| Review skill | invoked as `/muse do <path>` — action-space proposer + approval waiter | `~/.claude/skills/muse/SKILL.md` |
+| Do wrapper | Obsidian-hotkey → Terminal-activate → tmux inject `/muse do` bridge | `~/bin/_muse_do` |
+| Trust launcher | Developer-ID-signed + notarized Mach-O; provides the TCC identity for the launchd job | `~/bin/_trust` (source `dans-anchor-system/macos/trust/`) |
 
 ## What actually shipped — F018 revisions (2026-07-13)
 
