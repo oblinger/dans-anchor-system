@@ -4,10 +4,10 @@ description: "the `/ask` skill"
 # DAS Ask
 The **`/ask` skill** is the universal asking subroutine.
 
-| -[[DAS Ask]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Ask](hook://p/DAS%20Ask)<br>: the `/ask` skill |
+| -[[DAS Ask]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [docs](hook://docs) → [DAS Ask](hook://p/DAS%20Ask)<br>: the `/ask` skill |
 | --- | --- |
 | Related | [[skills/ask/SKILL.md\|SKILL]],  [[DAS ask-inline]],   |
-| [[DAS Ask Design\|Design]] |  |
+| [[Query PRD\|Design]] |  |
 | ... |  |
 
 The **`/ask` skill** is the universal asking subroutine. Whenever an agent in any anchor has a question for you, it routes through `/ask` — which formats the question, picks the right surface (a feature doc, or directly in the anchor's `{slug} ask.md` § `## Questions`), maintains the vault-level Agent Status dashboard at `[[Q]]`, and (if you're engaging with the work right now) opens the file at you.

@@ -48,7 +48,7 @@ Tracking is illustrated inside the coherent worked worlds at [[DAS Examples]] (H
 ## Design record
 
 - [[Query PRD]] — the shared resolution-layer design behind /ask and /groom.
-- [[DAS Ask Design]] · [[DAS Groom Design]] · [[DAS Groom PRD]] — per-verb design docs; [[DAS ask-inline]] is the inline form of /ask.
+- [[DAS Groom Design]] · [[DAS Groom PRD]] — per-verb design docs (Ask's design lives in [[Query PRD]]); [[DAS ask-inline]] is the inline form of /ask.
 - [[T009 Phoenix Tracking Survey 2026-07-12]] — demolition survey feeding the Phoenix boil-down of this group.
 - This doc is the **paradigm subsystem design** (shape ratified 2026-07-12, encoded as `R-progressive-03`): breadcrumb → H1 → orientation line, overview figure, one merged Skills / Facets / Traits / Library table, `## Overview`, coordinated examples, design record — each group gets one of these, linked off [[DAS]]. **Shape revision (user, 2026-07-14, Design session):** the table is **two columns** — the item's name links its docs page directly (which routes on to runbook / template / rules); the separate docs column is retired; descriptions stay to one line. Profile filenames follow the literal formula `DAS <Group> Design.md` (so the Design group's is [[DAS Design Design]], repeat accepted; a gerund or subtitle may soften the H1 title text, never the filename).
 - Figure source: same-basename `DAS Tracking Design.excalidraw` beside the SVG (edit in ExcalidrawZ; re-export with `python3 ~/.claude/skills/viz/excalidraw_to_svg.py`).
