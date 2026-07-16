@@ -1901,12 +1901,15 @@ def cmd_groom_list(slug, anchor_path, args):
         bm = rx.search(banner)
         counts[key] = int(bm.group(1)) if bm else 0
     r, q, v = counts.get("ready", 0), counts.get("questions", 0), counts.get("verify", 0)
-    if q > 0:
-        head = f"all caught up — {q} question(s) waiting on you"
-    elif r == 0 and v == 0:
-        head = "all caught up — nothing waiting"
+    # The prefix describes GROOMING state (this presenter's job), never open
+    # work. "all caught up" is reserved for the genuinely-empty case — saying it
+    # while Ready>0 reads as "nothing left to do" and contradicts the tail.
+    if r == 0 and q == 0 and v == 0:
+        head = "all caught up — nothing open"
+    elif q > 0:
+        head = f"frontier groomed — {q} question(s) for you"
     else:
-        head = "all caught up"
+        head = "frontier groomed"
     print(f"{head} · Ready {r} · Questions {q} · Verify {v}")
     return 0
 
