@@ -38,7 +38,7 @@ When the agent stops, the user can do exactly two things next: **answer** a pend
 
 `{SLUG}: {recommendation} . Groomed . Ready N . Questions M . Verify K`
 
-Straight from `state groom-list` (empty-worklist branch). Rules: **(1)** lead with the anchor **slug + colon** (`SKA:`) — deliberate identity redundancy, so a user jumping between agent tabs sees who they're talking to; **(2)** the `{recommendation}` slot carries the agent's recommended next move (`please /clear`, `please /compact`, `crank with '`, `answer the N questions`) — **omit the slot entirely** when there is none; **(3)** `Groomed` is the fixed single word meaning the worklist is empty; **(4)** counts as `Ready N . Questions M . Verify K`, separator ` . ` (space-period-space), never ` · `; **(5)** the **entire line is blue** (see § the blue-rendering mechanism below). Canonical: `SKA: please /clear . Groomed . Ready 1 . Questions 0 . Verify 0`. The agent already holds the current counts from its final `state` call; if it didn't mutate, one `state groom-list` pull produces the line. **Pull once and echo — do not make each `state` mutation emit a banner** (a turn calls `state` many times; per-call banners are noise, not signal). The one closing line lets the user pick their own next move at a glance: questions piling up → answer a batch; lots Ready → press `'` and crank.
+Straight from **`state <anchor> summary-line --recommend <directive>`** (F248) — the canonical emitter for this line. The agent supplies **only** the recommendation directive; `state` owns and derives everything else (counts, ` . ` separators, `Groomed`, TTY-blue) so the line can never drift from what the user sees in `Q.md`. `--recommend` is **required** — the never-strand guard (F244): the agent cannot emit the closing line without explicitly making the compact/clear/crank/answer call. Directive → slot: `compact`→`please /compact`, `clear`→`please /clear`, `crank` (or `nothing`)→`crank with '`, `answer`→`answer the N question(s)` (N derived), `clear-all` (or `done`)→`all clear`. Rules: **(1)** lead with the anchor **slug + colon** (`SKA:`) — deliberate identity redundancy, so a user jumping between agent tabs sees who they're talking to; **(2)** the `{recommendation}` slot carries the agent's recommended next move; **(3)** `Groomed` is the fixed single word meaning the worklist is empty; **(4)** counts as `Ready N . Questions M . Verify K`, separator ` . ` (space-period-space), never ` · `; **(5)** the **entire line is blue** (see § the blue-rendering mechanism below). Canonical: `SKA: please /clear . Groomed . Ready 1 . Questions 0 . Verify 0`. **Call `summary-line` once and echo its stdout verbatim** — do not hand-compose the line, and do not make each `state` mutation emit a banner (a turn calls `state` many times; per-call banners are noise, not signal). The one closing line lets the user pick their own next move at a glance: questions piling up → answer a batch; lots Ready → press `'` and crank. (`state groom-list` still prints the same-format line on its empty-worklist branch, but with only the *derivable* slot — reach for `summary-line` when you want to state the recommendation, `groom-list` when you want the ungroomed frontier.)
 
 `Groomed` names the **grooming** state, never open work — it means the frontier is fully planned, *not* "nothing to do" (Ready>0 is still open work). The distinct all-zero phrasing is `all clear` in the recommendation slot, which appears only when Ready+Questions+Verify are all zero. (Saying "all caught up · Ready 1" was the confusing wording this fixed.)
 
@@ -143,7 +143,7 @@ If a candidate `[Ready]` row's description contains any of these hedging phrases
 
 | Phrase pattern | Honest bracket | Why |
 |---|---|---|
-| "likely superseded by F<NNN>" / "supersedes" | `[Blocked F<NNN>]` | Contingent on whether F<NNN> actually fixed it. |
+| "likely superseded by `F<NNN>`" / "supersedes" | `[Blocked F<NNN>]` | Contingent on whether `F<NNN>` actually fixed it. |
 | "held as fallback" / "kept as backup" | `[Blocked F<NNN>]` or `[Waiting]` | The row exists *because* the primary path might fail — that's the blocker. |
 | "in case X surprises us" / "in case X fails" | `[Blocked F<NNN>]` | Same — contingent on X's outcome. |
 | "revisit only if X" | `[Blocked F<NNN>]` or `[Waiting]` | The row sleeps until X resolves. |
@@ -251,7 +251,7 @@ This is the failure mode the test kills: items parked `[Blocked]` for months who
 | Bracket | Body must say |
 |---|---|
 | `[Blocked]` | What/who is blocking it |
-| `[Blocked F<NNN>]` | Nothing required — the F<NNN> link IS the description |
+| `[Blocked F<NNN>]` | Nothing required — the `F<NNN>` link IS the description |
 | `[Waiting]` | What we're waiting on (event or time) |
 | `[Waiting Nd]` / `[Waiting Nh]` | What we're waiting on **plus** the absolute calendar date/time the wait expires (relative durations age — "1d" is meaningless without knowing when it was written) |
 | `[Watching]` | What was changed and what non-recurrence would prove |

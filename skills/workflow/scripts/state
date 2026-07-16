@@ -1753,6 +1753,25 @@ def _backlog_sha256(backlog_path):
     return hashlib.sha256(backlog_path.read_bytes()).hexdigest()
 
 
+def _read_banner_counts(backlog_path, slug):
+    """Ready/Questions/Verify counts scraped from the rendered `{slug} queries.md`
+    banner H1. Single source of truth shared by cmd_triage / cmd_groom_list /
+    cmd_summary_line, so the canonical line always matches what the user sees in
+    queries.md / Q.md — the banner itself is produced upstream by queries-render.py."""
+    queries_path = backlog_path.parent / f"{slug} queries.md"
+    banner = ""
+    if queries_path.is_file():
+        for qline in queries_path.read_text(encoding="utf-8").splitlines():
+            if qline.startswith("# "):  # banner H1 (frontmatter precedes it)
+                banner = qline
+                break
+    counts = {}
+    for key, rx in _BANNER_NUM_RE.items():
+        bm = rx.search(banner)
+        counts[key] = int(bm.group(1)) if bm else 0
+    return counts
+
+
 def _triage_gate_findings(backlog_path):
     """The local mechanical gates: every [Ready]/[Active]/[Agreed] row carries
     an executable `- **Next:**`, and no bracket/H2 mismatch. Returns a list of
@@ -1827,17 +1846,7 @@ def cmd_triage(slug, anchor_path, args):
 
     # Counts come from the just-rendered banner — one source of truth, so the
     # canonical line always matches what the user sees in queries.md / Q.md.
-    queries_path = backlog_path.parent / f"{slug} queries.md"
-    banner = ""
-    if queries_path.is_file():
-        for qline in queries_path.read_text(encoding="utf-8").splitlines():
-            if qline.startswith("# "):  # banner H1 (frontmatter precedes it)
-                banner = qline
-                break
-    counts = {}
-    for key, rx in _BANNER_NUM_RE.items():
-        bm = rx.search(banner)
-        counts[key] = int(bm.group(1)) if bm else 0
+    counts = _read_banner_counts(backlog_path, slug)
 
     stamp_path = _TRIAGE_DIR / f"{slug}.json"
     prev = None
@@ -1897,17 +1906,7 @@ def cmd_groom_list(slug, anchor_path, args):
             print(f"  - {f}")
         return 0
     # Empty worklist — the "where do I stand" status line (F244 secondary UX).
-    queries_path = backlog_path.parent / f"{slug} queries.md"
-    banner = ""
-    if queries_path.is_file():
-        for qline in queries_path.read_text(encoding="utf-8").splitlines():
-            if qline.startswith("# "):  # banner H1 (frontmatter precedes it)
-                banner = qline
-                break
-    counts = {}
-    for key, rx in _BANNER_NUM_RE.items():
-        bm = rx.search(banner)
-        counts[key] = int(bm.group(1)) if bm else 0
+    counts = _read_banner_counts(backlog_path, slug)
     r, q, v = counts.get("ready", 0), counts.get("questions", 0), counts.get("verify", 0)
     # T034 exact format: `{SLUG}: {recommendation} . Groomed . Ready N . Questions M . Verify K`
     # ENTIRE line blue (rule 5). `Groomed` is fixed (this branch only runs once the
@@ -1923,6 +1922,39 @@ def cmd_groom_list(slug, anchor_path, args):
         rec = "crank with '"
     else:                                                    # only Verify work — user-passive
         rec = ""
+    rec_part = f"{rec} . " if rec else ""
+    print(_blue(f"{slug}: {rec_part}Groomed . Ready {r} . Questions {q} . Verify {v}"))
+    return 0
+
+
+# F248 — recommendation directive → summary-line recommendation slot. The agent
+# supplies only the directive (the compact/clear/crank call it must make explicitly
+# at chat close); everything else in the line is derived by state. `nothing` is an
+# alias for `crank`, `done` for `clear-all`. `answer` fills in the derived Q count.
+_SUMMARY_REC = {
+    "compact": lambda r, q, v: "please /compact",
+    "clear": lambda r, q, v: "please /clear",
+    "crank": lambda r, q, v: "crank with '",
+    "nothing": lambda r, q, v: "crank with '",
+    "answer": lambda r, q, v: f"answer the {q} question" + ("" if q == 1 else "s"),
+    "clear-all": lambda r, q, v: "all clear",
+    "done": lambda r, q, v: "all clear",
+}
+
+
+def cmd_summary_line(slug, anchor_path, args):
+    """F248 — print the exact T034 closing/summary line the agent should show the
+    user, verbatim. The counts (Ready/Questions/Verify), the ` . ` separators,
+    the fixed `Groomed` token, and the whole-line TTY-blue are OWNED and derived
+    here (same banner source as cmd_triage / cmd_groom_list), so they can never
+    disagree with what the user sees. The agent supplies ONLY the recommendation,
+    via the REQUIRED --recommend directive — the never-strand guard (F244): the
+    line cannot be emitted without a stated compact/clear/crank/answer call.
+    Read-only: no render, no stamp; the agent prints stdout verbatim."""
+    backlog_path = be.find_backlog(slug)
+    counts = _read_banner_counts(backlog_path, slug)
+    r, q, v = counts.get("ready", 0), counts.get("questions", 0), counts.get("verify", 0)
+    rec = _SUMMARY_REC[args.recommend](r, q, v)
     rec_part = f"{rec} . " if rec else ""
     print(_blue(f"{slug}: {rec_part}Groomed . Ready {r} . Questions {q} . Verify {v}"))
     return 0
@@ -1959,7 +1991,8 @@ def cmd_crank(slug, anchor_path, args):
     return 0
 
 
-_V2_LEGACY_DOMAINS = {"status", "roadmap", "triage", "crank", "groom-list"}
+_V2_LEGACY_DOMAINS = {"status", "roadmap", "triage", "crank", "groom-list",
+                      "summary-line"}
 _V2_RETIRED_DOMAINS = {"task", "q", "question"}
 
 
@@ -2153,6 +2186,19 @@ def build_parser():
     gl.add_argument("--count", action="store_true",
                     help="print only the integer worklist size")
 
+    # summary-line domain (F248) — the canonical closing/summary line emitter
+    sl = subs.add_parser(
+        "summary-line",
+        help="print the exact T034 closing line the agent shows the user; "
+             "counts + separators + blue owned by state, recommendation from "
+             "--recommend (required) (F248)")
+    sl.add_argument("--recommend", required=True,
+                    choices=["compact", "clear", "crank", "nothing",
+                             "answer", "clear-all", "done"],
+                    help="the recommendation slot: compact→please /compact, "
+                         "clear→please /clear, crank/nothing→crank with ', "
+                         "answer→answer the N question(s), clear-all/done→all clear")
+
     return p
 
 
@@ -2197,6 +2243,8 @@ def main(argv):
             return cmd_crank(slug, anchor_path, args)
         if args.domain == "groom-list":
             return cmd_groom_list(slug, anchor_path, args)
+        if args.domain == "summary-line":
+            return cmd_summary_line(slug, anchor_path, args)
         if args.domain == "status":
             if args.verb == "set":
                 return cmd_status_set(slug, anchor_path, args)
