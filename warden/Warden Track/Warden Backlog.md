@@ -9,6 +9,12 @@ _None._
 
 ## Ready
 
+- **B-QFix — QFix** [Ready] — audit q findings routed by --fix; each sub-bullet is a residual on Warden's tree needing the 100%-fix discipline (per the audit skill's Governing principle). ^B-QFix
+  - **Next:** Fix the next residual below at its source (repoint a renamed link, de-link a retired one, correct the flagged doc), then re-run `/audit q` to clear it — per the 100%-fix discipline.
+  - **C23** SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md:33 — row 'F235' is [Designing] with zero pending Qs but has no `- **Next:**` — add a no-user next action and it becomes [Ready] (a [Ready] row needs a Next per F171), or move it to [Done]
+  - **C25** SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md:33 — bullet row 'F235' [Designing] has no justification — per F102 every [Designing] row must carry **Designing** + next-action (in linked doc's ## Status H2, or inline `- **Status:** Designing — <next-action>` sub-bullet).
+  - **C33** SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md:33 — row 'F235' [Designing] has no `→ [[F<n>]]` link to a feature doc — [Designing] implies active design work in a linked doc. If parked, use [Waiting]; if ready to implement, [Ready]; if Qs remain, [N Questions] + link to the feature doc holding them.
+
 ## Now
 
 ## Next
@@ -29,6 +35,8 @@ _None._
 
 - **F234 — Fable scan: Warden engine** [Ready] — → [[F234 — Fable scan — Warden engine]] ^F234
   - **Next:** assess prior Fable coverage + ROI, then run the scoped scan
+
+- **F235 — backlog-edit notification pollutes facet specs** [Designing] — Warden's backlog-edit→sibling-Messages append rule fires on facet specs: editing `facets/DAS Backlog.md` appends a stray `[INFO] backlog … was edited` line to `facets/DAS Messages.md` (the Messages FACET SPEC, not an anchor instance). Fix: exclude `DAS *.md` facet specs under `dans-anchor-system/facets/` from the rule, mirroring R-messages `!**/DAS *.md`. Repro: SKA F243 MS-2 had to strip 16 such lines. Filed by SKA 2026-07-16. ^F235
 
 ## Done
 

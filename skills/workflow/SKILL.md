@@ -9,7 +9,7 @@ requires:: vault, skill:audit, facet:backlog, facet:roadmap
 
 The canonical state graph for a unit of work — names every state, defines Definition of Ready, maps states onto each surface (Backlog / Roadmap / Feature / PRD), and owns the `state` mutation CLI that all advancing skills must call.
 
-The single source of truth for **what state a unit of work is in**, **what it means**, and **what advances it to the next state**. Every skill that touches the state of work — `/groom`, `/feature`, `/mint`, `/finalize`, `/code release`, `/roster`, audits — cites this discipline.
+The single source of truth for **what state a unit of work is in**, **what it means**, and **what advances it to the next state**. Every skill that touches the state of work — `/groom`, `/feature`, `/mint`, `/finalize`, `/code release`, audits — cites this discipline.
 
 > **F129 (2026-06-07):** state mutations go through `~/.claude/skills/workflow/scripts/state` (verb-first CLI). Old positional `backlog-edit.py` invocations still work during the migration window. Full CLI spec: [[DAS State]] (`~/.claude/skills/workflow/DAS State.md`).
 
@@ -313,7 +313,7 @@ The bracket should be checkable against the row's body in one read.
 | `/code verify` | `[Active]` → `[Verify]` (proof of completion). |
 | `/finalize` (discipline) | `[Verify]` → `[Done]` (verify, commit, push, merge, update docs, cleanup). |
 | `/code release` | `[Done]` → `[Released]` (changelog, version, package, publish, ship). |
-| `/roster` | Reads state across all items and prints per-bucket counts. |
+| Q.md status banner (render) | Reads state across all items and prints per-bucket counts; refreshed by every `state` mutation. |
 | `/audit` | Generates new `[ ]` items from findings (no state advancement). |
 
 ## Mutation API — `state`
@@ -445,7 +445,7 @@ Light usage. PRDs are documents, not units of work — they're *artifacts* produ
 - `[Draft]` — being written.
 - `[Approved]` — user has signed off; work can proceed against this PRD.
 
-These are PRD-doc-internal; they don't appear in backlog or roster.
+These are PRD-doc-internal; they don't appear in the backlog or the status banner.
 
 ## Active-work invariant
 
@@ -490,7 +490,7 @@ The icebox is a **sanctioned exception** to the "active" part of the invariant. 
 
 1. **F-number namespace is shared across backlog AND icebox** — no F-number collisions; an item moving between the two keeps its F-number.
 2. **`/groom` ignores the icebox by default.** Default scope = backlog only. Iced items don't appear in the body of `/groom`'s output.
-3. **Counts surface the icebox total.** Both `/roster` and the render show `(Icebox: N)` in the count line — visibility without competing for attention.
+3. **Counts surface the icebox total.** The render (status banner) shows `(Icebox: N)` in the count line — visibility without competing for attention.
 4. **Explicit invocation can target the icebox.** `/groom icebox`, `/groom F<n>` (where F<n> is iced) all work.
 5. **Iced feature docs are NOT orphans.** A doc linked from `{slug} Icebox.md` satisfies the invariant.
 
@@ -505,7 +505,7 @@ The icebox is a **sanctioned exception** to the "active" part of the invariant. 
 These are **two independent axes**:
 
 - **Horizon** — *when* the user wants the work to happen. Owned by `[[DAS Backlog]]`. Values: Now, Next, Later (plus Icebox outside the backlog).
-- **Workflow state** — *whether* the work has progressed and how far. Owned by this discipline. Values: Unset, Designing, Blocked, Ready, Active, Testing, Completed.
+- **Workflow state** — *whether* the work has progressed and how far. Owned by this discipline. Values: Unset, Designing, Blocked, Ready, Active, Verify, Done.
 
 **Common conflation: "Now" vs "Active."** They look similar but mean different things.
 

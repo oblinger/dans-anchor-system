@@ -178,8 +178,8 @@ The `→ [[X]]` link convention is documented in [[DAS Backlog]].
 ### 1. Locate the source
 
 - Walk up from `cwd` to find `.anchor`. If none, say so and stop.
-- For backlog modes: read `{slug} Docs/{slug} Plan/{slug} Backlog.md`.
-- For roadmap mode: read `{slug} Docs/{slug} Plan/{slug} Roadmap.md`.
+- For backlog modes: read `{slug} Track/{slug} Backlog.md`.
+- For roadmap mode: read `{slug} Design/{slug} Roadmap.md`.
 - If the source file is missing, report and stop.
 
 ### 2. Enumerate candidates
@@ -236,7 +236,7 @@ This reassessment is **the** primary value `/groom` adds beyond promotion: witho
 
   F-number, title, and body are preserved. Done with this item.
 
-- **Has questions** — anything you'd need the user to clarify. Create a feature doc at `{slug} Docs/{slug} Plan/{slug} Features/F{n} — {Item Name}.md` (using the backlog row's F-number; per [[DAS Backlog]] § Numbering policy) with the standard `## Open Questions` block (per `/feature` § 1 and [[SKA queries]] § When a file is involved). Capture the questions there — **every** question goes to the doc; there is no inline-question slot (retired per [[Query PRD]] R1). **This is parking mode** (per [[SKA queries]] § Active vs Parking) — do NOT glance the new feature doc. The user invoked `/groom` as a *batch* operation specifically to defer per-item engagement; glancing each created doc would interrupt the very deferral they asked for. Update the backlog row via `state Backlog <row-id> set` to set the wiki-link body and switch the bracket to `Questions`:
+- **Has questions** — anything you'd need the user to clarify. Create a feature doc at `{slug} Design/{slug} Features/F{n} — {Item Name}.md` (using the backlog row's F-number; per [[DAS Backlog]] § Numbering policy) with the standard `## Open Questions` block (per `/feature` § 1 and [[SKA queries]] § When a file is involved). Capture the questions there — **every** question goes to the doc; there is no inline-question slot (retired per [[Query PRD]] R1). **This is parking mode** (per [[SKA queries]] § Active vs Parking) — do NOT glance the new feature doc. The user invoked `/groom` as a *batch* operation specifically to defer per-item engagement; glancing each created doc would interrupt the very deferral they asked for. Update the backlog row via `state Backlog <row-id> set` to set the wiki-link body and switch the bracket to `Questions`:
 
   ```bash
   ~/.claude/skills/workflow/scripts/state --anchor {slug} Backlog <row-id> set --status Questions --body "→ [[F<n> — {Item Name}]]"
@@ -326,4 +326,4 @@ The earlier per-step UX (open the first blocked-on-questions doc, separate `/ros
 
 - **No anchor found** — say "No anchor found from `{cwd}` upward." and stop.
 - **No backlog file (or roadmap file, in roadmap mode)** — say "No `{expected file}` at `{expected path}`." and stop.
-- **Empty section** — print a one-line "Nothing to process in {scope}" and call `/roster` so the user still sees state.
+- **Empty section** — print a one-line "Nothing to process in {scope}"; the Q.md status banner still shows the user the current state.
