@@ -704,6 +704,26 @@ def _detect_status(line: str) -> str:
     return m.group(1).strip()
 
 
+def _fenced_line_indices(lines: list[str]) -> set[int]:
+    """0-based indices of lines INSIDE a ``` / ~~~ fenced code block (the fence
+    delimiter lines themselves are included). Shared fence-awareness for the
+    backlog parser + placement fixers so a fenced *example* row or `## H2`
+    heading is never treated as a real backlog row/horizon (F251 #3 — the
+    `--fix` path used to extract fenced example rows out of their code block,
+    splitting it, and let fenced `## H2` lines flip the live horizon)."""
+    fenced: set[int] = set()
+    in_fence = False
+    for i, line in enumerate(lines):
+        stripped = line.lstrip()
+        if stripped.startswith("```") or stripped.startswith("~~~"):
+            fenced.add(i)
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            fenced.add(i)
+    return fenced
+
+
 def backlog_entries(backlog_file: Path,
                     vault_index: dict[str, list[Path]]) -> list[BacklogEntry]:
     """Parse {slug} Backlog.md; return list of BacklogEntry in source order."""
@@ -714,6 +734,7 @@ def backlog_entries(backlog_file: Path,
     except (OSError, UnicodeDecodeError):
         return []
     lines = text.splitlines()
+    fenced = _fenced_line_indices(lines)  # F251 #3 — skip fenced example rows/headings
     entries: list[BacklogEntry] = []
     current_horizon = ""
     # Pre-compute all links in the file for efficient lookup by line.
@@ -722,6 +743,8 @@ def backlog_entries(backlog_file: Path,
     for link in file_links:
         links_by_line.setdefault(link.source_line, []).append(link)
     for line_num, line in enumerate(lines, start=1):
+        if (line_num - 1) in fenced:
+            continue
         m = HEADING_RE.match(line)
         if m and m.group(1) == "##":
             current_horizon = m.group(2)
@@ -754,12 +777,11 @@ def _arrow_target(e: BacklogEntry) -> Optional[LinkEntry]:
     in-prose mention (F230's first link was `[[SKA Backlog#^F229|F229]]`;
     the arrow doc-link came later — C24 counted Qs from the wrong file and
     --fix wrote a wrong `[2 Questions]` bracket). Selection among arrow
-    links: prefer the LAST one whose basename opens with the row's own
-    identifier (`F230 — …` for row F230 — the own-doc form, wherever it
-    sits in the body); otherwise the FIRST arrow link. Neither end alone is
-    safe: F220's own-doc arrow comes first with a prose `→ [[DAS Template]]`
-    later, while F149's own-doc arrow trails several prose arrows.
-    Returns None when the row has no arrow-form link at all.
+    links: the LAST one whose basename opens with the row's own identifier
+    (`F230 — …` for row F230 — the own-doc form, wherever it sits in the
+    body). When no arrow is the row's own doc, return None (F251 #2 — see
+    below); callers then count the row's own inline Q sub-bullets.
+    Returns None when the row has no OWN-doc arrow link.
     """
     scan = _strip_code_spans(e.raw_body)
     arrows: list[LinkEntry] = []
@@ -773,7 +795,14 @@ def _arrow_target(e: BacklogEntry) -> Optional[LinkEntry]:
         return None
     own = [l for l in arrows
            if (l.target_basename or "").startswith(f"{e.identifier} ")]
-    return own[-1] if own else arrows[0]
+    # F251 #2 — when NO arrow is the row's OWN doc, return None instead of
+    # falling back to arrows[0] (an unrelated prose `→ [[…]]` mention or a
+    # `→ [[{slug} Backlog#^id]]` self-ref). A wrong fallback made C23/C24/
+    # `--fix`/banner run extract_q_entries on the wrong file — counting 0 and
+    # rewriting a live [Questions] row to [Ready], or counting every inline Q
+    # in the whole backlog. Callers treat None as "no own-doc" and fall through
+    # to _row_inline_q_count.
+    return own[-1] if own else None
 
 
 def _row_inline_q_count(e: BacklogEntry) -> int:
@@ -1014,9 +1043,12 @@ def apply_c4_fix(backlog_file: Path,
         # Remove the extracted lines
         del lines[idx:j]
         extracted_rows.insert(0, "\n".join(row_lines).rstrip("\n"))
-    # Find ## Done H2 line
+    # Find ## Done H2 line (skip fenced example headings — F251 #3)
+    fenced = _fenced_line_indices(lines)
     done_h2_idx = None
     for i, line in enumerate(lines):
+        if i in fenced:
+            continue
         if line.strip() == "## Done":
             done_h2_idx = i
             break
@@ -4146,9 +4178,14 @@ def route_findings_to_qfix(
 
 
 def _find_or_create_h2(lines: list[str], h2_name: str) -> int:
-    """Return index of `## <h2_name>` line; append (and return new index) if absent."""
+    """Return index of `## <h2_name>` line; append (and return new index) if absent.
+    Skips fenced example headings (F251 #3) so a placement move never targets a
+    `## H2` sitting inside a code block."""
     target = f"## {h2_name}"
+    fenced = _fenced_line_indices(lines)
     for i, line in enumerate(lines):
+        if i in fenced:
+            continue
         if line.strip() == target:
             return i
     # Append at end with leading blank-separation
