@@ -52,6 +52,13 @@ Based on the traits, create ALL files upfront. For multi-trait anchors, create t
    ```
    You are the Pilot for the {Title} project. Role: `~/.claude/skills/role/role-pilot.md`
    ```
+4. **Track folder + landing page** — for any anchor that owns tracking (Topic, Code, Skill; not required for pure Simple / Paper without a workflow). Create `{slug} Track/` and materialize `{slug} Track/{slug} Track.md` from the template with slug substitution — the breadcrumb linter re-derives the parent chain from the file's on-disk position on write, so no parent-chain substitution is needed:
+   ```bash
+   TEMPLATE_DIR="$(dirname "$(ha -p 'DAS Templates' | head -1)")/track"
+   sed "s/{slug}/${SLUG}/g" "${TEMPLATE_DIR}/{slug} Track.md" \
+     > "${ANCHOR_PATH}/${SLUG} Track/${SLUG} Track.md"
+   ```
+   The materialized page carries only Backlog + Messages + `...` catch-all — no `queries` / `Status` / `Icebox` / `Inbox` rows preemptively (they'd render as struck-through until earned; the `...` catch-all surfaces them once created). Per R-dispatch-table-06 (no meta-narrative in cells), all right cells are blank.
 
 ### Code Anchor (full skeleton)
 
