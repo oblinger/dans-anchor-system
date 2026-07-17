@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """state — canonical state editor (F129, F236).
 
-See `~/.claude/skills/workflow/SKL State.md` for the man-page-style reference
+See `~/.claude/skills/workflow/DAS State.md` for the man-page-style reference
 (synopsis, anchor resolution, subcommands, examples). Reuses all helpers from
 backlog-edit.py via importlib.
 
@@ -328,20 +328,30 @@ def _sync_roadmap_on_done(slug, backlog_path, row_id):
         text = roadmap.read_text(encoding="utf-8")
         lines = text.splitlines()
         fnum = _feature_num(row_id)
-        changed = False
+        # F250 #6 — auto-sync flips ONLY the feature's own inline roadmap row:
+        #   * inline checkbox bullets only — never a milestone `## [ ] M…` heading
+        #     (a milestone's box reflects the whole milestone, not one feature);
+        #   * the row's PRIMARY (first) F-ref must be this feature — so a prose
+        #     cross-ref like `… de-risks [[F247]]` on the F250 row never causes
+        #     F247's Done to flip the F250 row;
+        #   * only an unchecked `[ ]` box flips — a deferred `[~]` or already
+        #     `[x]` box is left untouched;
+        #   * unique-match discipline (mirrors `_find_roadmap_entry`) — 0 matches
+        #     means nothing to sync, >1 means ambiguous so refuse to guess.
+        matches = []
         for i, line in enumerate(lines):
-            hm = _MILESTONE_HEADING_RE.match(line)
             bm = _INLINE_CHECKBOX_RE.match(line)
-            rest = hm.group("rest") if hm else (bm.group("rest") if bm else None)
-            box = hm.group("box") if hm else (bm.group("box") if bm else None)
-            if rest is None:
+            if not bm:
                 continue
-            fnums = [int(n) for n in _F_REF_RE.findall(rest)]
-            if fnum in fnums and box != "x":
-                lines[i] = _set_box_on_line(line, "x")
-                changed = True
-        if not changed:
+            fnums = [int(n) for n in _F_REF_RE.findall(bm.group("rest"))]
+            if fnums and fnums[0] == fnum:
+                matches.append((i, bm.group("box")))
+        if len(matches) != 1:
             return None
+        idx, box = matches[0]
+        if box != " ":
+            return None
+        lines[idx] = _set_box_on_line(lines[idx], "x")
         roadmap.write_text("\n".join(lines) + ("\n" if text.endswith("\n") else ""),
                            encoding="utf-8")
         _selffire(roadmap)
@@ -998,7 +1008,12 @@ def cmd_roadmap_migrate(slug, anchor_path, args):
 
 
 _V2_LABEL_RE = re.compile(r"^([A-Z]+)(\d+|\+)$")
-_V2_SKIP_PATH_FRAGMENTS = ("/.trash/", "/Yore/", "/_ARCHIVES_/", "/Versions/")
+# F250 #11 — `/symlinks/` (dotfile-mirror trees) and `/Closet/` (parked copies)
+# are the two places a live doc is duplicated on disk; walking them makes a
+# single real doc surface as multiple candidates → false "ambiguous" refusal.
+_V2_SKIP_PATH_FRAGMENTS = (
+    "/.trash/", "/Yore/", "/_ARCHIVES_/", "/Versions/", "/symlinks/", "/Closet/",
+)
 
 
 def parse_v2_label(label):
@@ -1024,6 +1039,10 @@ def _v2_find_by_basename(root, target_lower):
     root = Path(root)
     if not root.is_dir():
         return matches
+    # F250 #11 — `followlinks=True` + duplicate on-disk copies can surface the
+    # SAME real doc more than once; dedupe by resolved path so an identity-equal
+    # file never reads as an ambiguous multi-candidate hit.
+    seen = set()
     for r, dirs, files in os.walk(root, followlinks=True):
         rp = r + "/"
         if any(frag in rp for frag in _V2_SKIP_PATH_FRAGMENTS):
@@ -1031,7 +1050,12 @@ def _v2_find_by_basename(root, target_lower):
             continue
         for f in files:
             if f.lower() == target_lower:
-                matches.append(Path(r) / f)
+                p = Path(r) / f
+                key = p.resolve()
+                if key in seen:
+                    continue
+                seen.add(key)
+                matches.append(p)
     return matches
 
 
@@ -2142,8 +2166,28 @@ def main_revalidate(argv):
         return 1
 
 
+def _is_revalidate_invocation(argv):
+    """F250 #12 — route to `main_revalidate` ONLY for the genuine doc-level
+    shape `state [-a ANCHOR] <doc> revalidate` (verb in the last positional
+    slot, no other flags). A bare `"revalidate" in argv` membership test
+    misfired whenever the word appeared anywhere else — a `--reason
+    revalidate`, a doc/title carrying the word — hijacking dispatch.
+    """
+    rest = list(argv[1:])
+    # Strip a leading anchor option in any accepted form; revalidate supports
+    # only `-a/--anchor` besides its two positionals.
+    if rest and rest[0] in ("-a", "--anchor"):
+        rest = rest[2:]
+    elif rest and (rest[0].startswith("--anchor=")
+                   or (rest[0].startswith("-a") and len(rest[0]) > 2)):
+        rest = rest[1:]
+    # A real revalidate call is exactly `<doc> revalidate` with no flags left.
+    return (len(rest) == 2 and rest[1] == "revalidate"
+            and not any(tok.startswith("-") for tok in rest))
+
+
 def main_v2(argv):
-    if "revalidate" in argv[1:]:
+    if _is_revalidate_invocation(argv):
         return main_revalidate(argv)
     parser = build_v2_parser()
     args = parser.parse_args(argv[1:])
@@ -2171,7 +2215,7 @@ def build_parser():
             "Legacy status/roadmap domains for `state`. Backlog rows and "
             "feature-doc Open Questions/Verifications go through the v2 "
             "grammar: `state [-a ANCHOR] <doc> <label> <verb>`. Full spec: "
-            "~/.claude/skills/workflow/SKL State.md."
+            "~/.claude/skills/workflow/DAS State.md."
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
