@@ -16,7 +16,7 @@ One file per anchor that tracks design-phase completeness, one dataview line per
 
 The Status facet specifies the format of `{slug} Status.md` — the per-anchor file that tracks **design-phase completeness**. One row per design facet (`prd` / `ux` / `architecture` / `testing` / `roadmap`), each carrying a tier value, a grading-actor, a date, and a one-line rationale. The file is read by `/design`'s picker (bare `/design` dispatches to the lowest-tier facet) and by `/mint`'s pre-implementation gate.
 
-Body-only — no YAML frontmatter. The first content line is the `# CAB Status` H1; the second is the `description::` dataview inline field above; everything else is plain markdown. (Same body-only discipline as [[DAS Ruleset]].)
+Body-only — no YAML frontmatter. The first content line is the `# {slug} Status` H1; the second is the `description::` dataview inline field above; everything else is plain markdown. (Same body-only discipline as [[DAS Ruleset]].)
 
 ## Location
 
@@ -129,11 +129,11 @@ Available to any anchor with a `{slug} Design/` folder per [[DAS Design Folder]]
 
 # BRIEF
 
-*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body + `R-status` ruleset above.)*
+*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body above + the extracted [[R-status]] ruleset.)*
 
 - **This is the Status-facet spec, not a Status file** — don't paste live status entries here as if it were a status surface; sample entries stay in fenced code blocks illustrating the format.
 - **Keep the two vocabularies separate** — workflow state (`[Ready]/[Active]/…`, in [[workflow]]) and the Status-cell ladder are orthogonal; § Distinction is the canonical place that contrast lives — don't merge, alias, or cross-reference them elsewhere.
 - **Inclusion test for new rules / sections** — the rule must constrain the *file format, location, or promotion semantics* of `{slug} Status.md` itself; picker behavior, `/mint`-gate logic, and per-facet authoring belong in [[design]] or the relevant `CAB <Facet>.md`, not here.
 - **Cell ladder + facet names are load-bearing** — changing the five ladder values or their order, or the five facet names or their declared order, requires coordinated updates to the `state` script, `/design`'s picker, and every adopting anchor's Status file.
-- **Embedded `# RULESET R-status` stays co-located (F133)** — don't split it into a sibling Rules file; keep the `(checked)` / `(sampled)` / `(stated)` markers honest — they tell the audit script which rules it can mechanize.
+- **`R-status` was extracted to a sibling ruleset (2026-07-12 tracking-group pass)** — keep the spec body and [[R-status]] in sync (a format change requires the matching `R-status-NN` change); keep the `(checked)` / `(sampled)` / `(stated)` markers honest — they tell the audit script which rules it can mechanize.
 - **Keep the two views in sync** — when the format changes, update the § File shape example AND the corresponding `RULE R-status-NN` in the same pass; they must not drift.
