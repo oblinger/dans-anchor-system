@@ -146,13 +146,9 @@ Commit after each well-defined piece of activity. Before pausing:
 3. Merge ready PRs
 4. Verify `git status` is clean
 
-### 6. Stat Updates
+### 6. State updates — via `state` (see § 7)
 
-```bash
-skl-stat update <S#> "Implementing" "Starting implementation"
-skl-stat update <S#> "Testing" "Implementation complete, running tests"
-skl-stat update <S#> "Done" "Feature complete and tested"
-```
+State/status updates go through the workflow `state` CLI (next section), which refreshes the Q.md status banner as a side effect. The former `skl-stat` Now-file mechanism is retired — superseded by `state` + the Q.md render; the Skill Docket subsumes any remaining reporting role.
 
 ### 7. Bracket transitions + Q.md refresh — via `state Backlog <row-id> set`
 

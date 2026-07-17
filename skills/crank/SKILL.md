@@ -390,7 +390,7 @@ After the loop + branch resolves, print one line to chat for the mint summary. O
 
 - Walk up from `cwd` to find `.anchor`. If none, say "No anchor found from `{cwd}` upward." and stop.
 - **Arm the exit gate (F239):** `~/.claude/skills/workflow/scripts/state crank start` — the Stop hook now refuses any turn end that isn't one of the three legal exit states (§ Exit handshake).
-- The Ready queue lives in `{slug} Docs/{slug} Plan/{slug} Backlog.md` § Ready (workflow-state H2) and items with `[Ready]` bracket in horizon H2s (per `[[DAS Backlog]]`). `/mint` knows how to find Ready items; crank just delegates.
+- The Ready queue lives in `{slug} Track/{slug} Backlog.md` § Ready (workflow-state H2) and items with `[Ready]` bracket in horizon H2s (per `[[DAS Backlog]]`). `/mint` knows how to find Ready items; crank just delegates.
 
 ### 2. Plan the sweep
 

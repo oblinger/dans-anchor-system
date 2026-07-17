@@ -88,10 +88,10 @@ After **all** in-flight activities are landed:
    - One line per activity in the format `<Activity name> — completed and committed.`
    - End with `Nothing more to do.` on its own line.
 
-5. **Always run `/roster` after the report — even when nothing was landed.**
-   - This gives the user the post-`/land` state of the backlog as the closing view.
-   - When the user invoked `/land` and there was actually nothing in flight, the roster is *especially* useful — it confirms the user's mental model is in sync with reality and shows what could come next without typing anything more.
-   - Do **not** check the backlog to *pick a next task*. Do **not** start another thread. Roster is the read-only view; the agent stops after it prints.
+5. **Surface the post-`/land` state via the Q.md status banner — even when nothing was landed.**
+   - The status banner (the `Q.md` render, refreshed by the `state` pipeline) is the post-`/land` closing view of the backlog.
+   - When the user invoked `/land` and there was actually nothing in flight, the banner is *especially* useful — it confirms the user's mental model is in sync with reality and shows what could come next without typing anything more.
+   - Do **not** check the backlog to *pick a next task*. Do **not** start another thread. The banner is the read-only view; the agent stops after it prints.
 
 6. **Wait for user input.** No auto-resume.
 
