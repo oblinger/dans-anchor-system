@@ -214,8 +214,9 @@ def main():
         "Run `state --anchor . groom-list` to see them, groom every item to a "
         "known state (Ready+Next / Questions / Blocked / Waiting / Verify) — "
         "record any question via `state ... Q+ define`, never only in chat — "
-        "until the worklist is empty, then stop. (No context escape; emptying "
-        "the list costs only a little.)"
+        "and clear any audit-q findings the worklist lists with `/audit q --fix` "
+        "(the worklist counts them too, per F258) — until it is empty, then "
+        "stop. (No context escape; emptying the list costs only a little.)"
     )
     return _block(gate_path, reason)
 
