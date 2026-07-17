@@ -1001,6 +1001,15 @@ def render_row(row_id, status, title, body):
     The block-ID anchor at the end matches the existing convention so
     `[[<file>#^<row-id>|...]]` links work for the new row.
     """
+    # F250 #1 — never render the literal `[same]` sentinel. It reaches here only
+    # via a bug (e.g. a cross-file insert that failed to resolve `same` against
+    # the source row); writing `[same]` silently clobbers the real status.
+    if (status or "").strip() == "same":
+        raise BacklogEditError(
+            f"internal: render_row({row_id}) called with the literal 'same' "
+            f"status — the caller must resolve 'same' to the existing bracket "
+            f"before rendering (refusing to write '[same]')."
+        )
     title = (title or "").strip()
     body = (body or "").strip()
     title_block = f"**{row_id} — {title}**" if title else f"**{row_id}**"
@@ -1194,6 +1203,21 @@ def perform_edit(
     # without blowing away the title.
     existing_status_for_check = ""
     if existing is not None:
+        # F250 #4 — the row's header is recognized (it's in row_index via
+        # ROW_HEADER_RE) but if the FULL line can't be parsed (ROW_FULL_RE) —
+        # e.g. an en-dash instead of em-dash, or a missing `[status]` bracket —
+        # the old code fell through to parse_existing_row's ("","") and treated
+        # it as a FRESH row: title/body were wiped and the literal `[same]`
+        # bracket written. Refuse instead, so a malformed row is fixed by hand
+        # rather than silently destroyed. (The `delete` verb above already ran,
+        # so a malformed row can still be deleted.)
+        if not ROW_FULL_RE.match(lines[existing[0]]):
+            raise BacklogEditError(
+                f"{row_id} is malformed (recognized as a row but the full line "
+                f"can't be parsed — check for an en-dash vs em-dash or a missing "
+                f"[status] bracket) — refusing to edit and wipe its content. Fix "
+                f"the row by hand or re-`define` it."
+            )
         existing_title, existing_body = parse_existing_row(lines[existing[0]])
         if not title_provided or title == "":
             title = existing_title
@@ -1291,14 +1315,26 @@ def perform_edit(
         start, end, existing_h2, _ = existing
         if existing_h2 == h2_name:
             # In-place replacement: swap the first line, keep any sub-bullets.
-            lines[start] = new_line
+            # EXCEPT a v2 `define` on an existing row (pending_subs present) is a
+            # create-or-REPLACE — drop the old sub-bullet span so the new subs
+            # replace it instead of duplicating (F250 #7). The F171 companion +
+            # pending_subs blocks below re-attach the fresh subs by row-id.
+            if pending_subs:
+                del lines[start:end]
+                lines.insert(start, new_line)
+            else:
+                lines[start] = new_line
         else:
             # Remove old span, then insert new in destination H2. Carry the
             # row's sub-bullet block through the move — re-inserting only the
             # opening line silently dropped inline Qs / plan sub-bullets
             # (found 2026-07-06: a horizon move erased a T-row's Q1, and the
             # follow-on audit-fix then rebracketed the now-Qless row).
-            sub_block = [sl for sl in lines[start + 1:end] if sl.strip() != ""]
+            # A `define` that also moves horizon (pending_subs present) is a
+            # replace — drop the old subs; the new ones ride via pending_subs.
+            sub_block = [] if pending_subs else [
+                sl for sl in lines[start + 1:end] if sl.strip() != ""
+            ]
             del lines[start:end]
             # Re-scan; line numbers shifted.
             lines, h2_index, row_index = scan_backlog("".join(lines))
@@ -1518,8 +1554,14 @@ def mint_cross_file_id(backlog_path, icebox_path, kind):
     across backlog AND icebox — no F-number collisions; an item moving
     between the two keeps its F-number.' Same for B-numbers.
     """
-    nums = []
-    pattern = re.compile(rf"^\s*-\s+\*\*{kind}(\d+)\s+—", re.MULTILINE)
+    # F250 #3 — recognize rows via scan_backlog (ROW_HEADER_RE), which sees
+    # TITLE-LESS rows (`- **T002** [Done]`) as well as titled ones. The old
+    # em-dash-anchored regex (`\*\*{kind}(\d+)\s+—`) skipped title-less rows, so
+    # the max-scan could return an already-in-use number and `define`'s
+    # create-or-replace would then OVERWRITE that live row. Aligns the mint with
+    # next_id_for_kind / ROW_HEADER_RE.
+    id_re = re.compile(rf"^{kind}(\d+)$")
+    highest = 0
     for path in (backlog_path, icebox_path):
         if path is None or not path.is_file():
             continue
@@ -1527,8 +1569,62 @@ def mint_cross_file_id(backlog_path, icebox_path, kind):
             text = path.read_text(encoding="utf-8")
         except (OSError, UnicodeDecodeError):
             continue
-        nums.extend(int(m.group(1)) for m in pattern.finditer(text))
-    return (max(nums) + 1) if nums else 1
+        _lines, _h2, row_index = scan_backlog(text)
+        for rid in row_index:
+            m = id_re.match(rid)
+            if m:
+                highest = max(highest, int(m.group(1)))
+    return highest + 1
+
+
+def read_full_row(path, row_id_arg):
+    """F250 #1/#4 — read an existing row's FULL content before a cross-file move.
+
+    A cross-file horizon move (Backlog↔Icebox) deletes the row from the source
+    and re-inserts it into the destination. Historically the destination insert
+    received only the caller's explicit args, so a bare `set --horizon Icebox`
+    (no --title/--body) rebuilt the row from nothing — title, body, real status,
+    and sub-bullets were all lost and the literal `[same]` bracket was written
+    (F250 #1). This helper lets the orchestrator read the source row first and
+    carry its content across.
+
+    Returns a dict {title, body, status, verify, next, other_subs} for the row,
+    or None if the row is not in this file. Raises BacklogEditError if the row's
+    header IS present (ROW_HEADER_RE) but the full line can't be parsed
+    (ROW_FULL_RE) — refusing to move a malformed row rather than silently wiping
+    it (F250 #4).
+    """
+    kind, rest = parse_row_id(row_id_arg)
+    if rest is None:
+        return None
+    row_id = f"{kind}{rest}"
+    lines, _h2, row_index = scan_backlog(path.read_text())
+    existing = row_index.get(row_id)
+    if existing is None:
+        return None
+    start, end, _h2name, _indent = existing
+    m = ROW_FULL_RE.match(lines[start])
+    if not m:
+        raise BacklogEditError(
+            f"{row_id} in {path.name} is malformed (recognized as a row but the "
+            f"full line can't be parsed) — refusing to move it and lose its "
+            f"content. Fix the row by hand or re-`define` it."
+        )
+    span = lines[start + 1:end]
+    verify_rx = re.compile(SUBBULLET_RE_TMPL.format(label="Verify"))
+    next_rx = re.compile(SUBBULLET_RE_TMPL.format(label="Next"))
+    other_subs = [
+        sl for sl in span
+        if sl.strip() != "" and not verify_rx.match(sl) and not next_rx.match(sl)
+    ]
+    return {
+        "title": m.group("title") or "",
+        "body": m.group("body") or "",
+        "status": m.group("status") or "",
+        "verify": _extract_subbullet_text(span, "Verify"),
+        "next": _extract_subbullet_text(span, "Next"),
+        "other_subs": other_subs,
+    }
 
 
 # ============================================================

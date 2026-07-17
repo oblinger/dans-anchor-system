@@ -260,17 +260,47 @@ def _delegate_row_edit(slug, horizon, row_id_arg, status, title, body,
     )
 
     if src_file is not None:
+        # F250 #1/#2/#4 — cross-file move (Backlog↔Icebox). Read the source
+        # row's FULL content BEFORE any write, so a bare `set --horizon Icebox`
+        # (no --title/--body) preserves title/body/status/sub-bullets instead of
+        # rebuilding the row from nothing and writing the literal `[same]`
+        # bracket (#1). Insert into the DESTINATION FIRST — all destination
+        # guards (F171/F240/F102/F242) run there — and delete from the source
+        # ONLY after the destination write succeeds, so a refused destination can
+        # never leave the row deleted from BOTH files (#2). read_full_row raises
+        # on a malformed source row rather than moving-and-wiping it (#4).
+        src_row = be.read_full_row(src_file, row_id_arg)
+        if src_row is not None:
+            if not title_provided and title == "":
+                title, title_provided = src_row["title"], True
+            if not body_provided and body == "":
+                body, body_provided = src_row["body"], True
+            if status == "same":
+                status = src_row["status"]
+            if verify_text is None:
+                verify_text = src_row["verify"]
+            if next_text is None:
+                next_text = src_row["next"]
+            if not pending_subs and src_row["other_subs"]:
+                pending_subs = src_row["other_subs"]
+        result = be.perform_edit(
+            dst_file, dst_horizon, row_id_arg, status,
+            title, body, title_provided, body_provided,
+            verify_text=verify_text, next_text=next_text,
+            pending_subs=pending_subs, why_user=why_user,
+        )
+        # Destination write landed on disk → now safe to remove the source row.
         be.perform_edit(
             src_file, "same", row_id_arg, "delete",
             "", "", False, False,
         )
-
-    result = be.perform_edit(
-        dst_file, dst_horizon, row_id_arg, status,
-        title, body, title_provided, body_provided,
-        verify_text=verify_text, next_text=next_text,
-        pending_subs=pending_subs, why_user=why_user,
-    )
+    else:
+        result = be.perform_edit(
+            dst_file, dst_horizon, row_id_arg, status,
+            title, body, title_provided, body_provided,
+            verify_text=verify_text, next_text=next_text,
+            pending_subs=pending_subs, why_user=why_user,
+        )
     be.append_messages(slug, result["summary"], backlog_path)
     be.write_state(slug, result)
     be.refresh_q_md(slug)
