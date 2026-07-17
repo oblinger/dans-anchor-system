@@ -12,7 +12,7 @@ Spec for the **Messages facet** — the per-anchor file `{slug} Messages.md` tha
 | Rules | [[R-messages]],   |
 | ... | [[anchor-page]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
 
-**Cardinality: one per anchor** — each anchor has exactly one `{slug} Messages.md` file at its root.
+**Cardinality: one per anchor** — each anchor has exactly one `{slug} Messages.md` file in `{slug} Track/`.
 
 # BRIEF
 
@@ -37,3 +37,4 @@ Spec for the **Messages facet** — the per-anchor file `{slug} Messages.md` tha
 [2026-07-16 10:27:58] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/facets/DAS Backlog.md was edited
 [2026-07-16 10:28:00] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/facets/DAS Backlog.md was edited
 [2026-07-16 10:37:06] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/facets/DAS Backlog.md was edited
+[2026-07-16 21:16:45] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/facets/DAS Backlog.md was edited

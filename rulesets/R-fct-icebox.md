@@ -3,14 +3,14 @@ include::
 where:: `file: **/{slug} Icebox.md`
 description:: Rules every `{slug} Icebox.md` instance must satisfy — location, cardinality, and entry format.
 
-### RULE R-fct-icebox-01 — Location is inside the Plan folder (checked)
-The file lives at `{slug} Docs/{slug} Plan/{slug} Icebox.md` — not at the anchor root or alongside Backlog at a different path.
-**Check pattern:** path matches `*/{slug} Docs/{slug} Plan/{slug} Icebox.md`.
-**Why:** the Plan folder groups all planning docs together; a misplaced Icebox is not found by skills expecting the canonical path.
+### RULE R-fct-icebox-01 — Location is inside the Track folder (checked)
+The file lives at `{slug} Track/{slug} Icebox.md` — not at the anchor root or alongside Backlog at a different path.
+**Check pattern:** path matches `*/{slug} Track/{slug} Icebox.md`.
+**Why:** the Track folder groups all tracking docs together; a misplaced Icebox is not found by skills expecting the canonical path.
 
 ### RULE R-fct-icebox-02 — At most one per anchor (checked)
 No more than one `{slug} Icebox.md` exists per anchor root. The facet is **optional** — most anchors do not have one.
-**Check pattern:** count of `*Icebox.md` files under `{slug} Docs/{slug} Plan/` ≤ 1.
+**Check pattern:** count of `*Icebox.md` files under `{slug} Track/` ≤ 1.
 **Why:** cardinality is one; two Icebox files under the same anchor produce split inventories that drift apart.
 
 ### RULE R-fct-icebox-03 — Entries are definition-list items under H2 sections (sampled)

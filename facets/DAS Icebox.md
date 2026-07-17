@@ -14,7 +14,7 @@ Optional cold-storage counterpart to the Backlog — holds distant-future / some
 
 **Cardinality: one per anchor** — at most one `{slug} Icebox.md` exists per anchor (and it is optional; most anchors do not have one).
 
-**Location:** `{slug} Docs/{slug} Plan/{slug} Icebox.md` (optional)
+**Location:** `{slug} Track/{slug} Icebox.md` (optional)
 
 The icebox file (`{slug} Icebox.md`) holds items the user wants to remember but is **not** actively considering — distant-future ideas, parked features, "someday-maybe" entries. It is the cold-storage counterpart to the [[DAS Backlog]]: Backlog is the *active* deferred-work list, Icebox is the *frozen* one.
 
@@ -64,7 +64,7 @@ Entries are grouped under H2 sections. Suggested sections (use whichever fit; ad
 
 ## Location
 
-`{slug} Icebox.md` lives in `{slug} Docs/{slug} Plan/`. The file is optional — create it only when the user first wants to park an item.
+`{slug} Icebox.md` lives in `{slug} Track/`. The file is optional — create it only when the user first wants to park an item.
 
 ## Lifecycle
 

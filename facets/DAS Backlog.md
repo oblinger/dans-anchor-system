@@ -25,7 +25,7 @@ The work queue — one `{slug} Backlog.md` per anchor, every unit of work as a r
 | [[#Location]] |  |
 | [[#Relationship to Other Planning Docs]] |  |
 
-**Location:** `{slug} Docs/{slug} Plan/{slug} Backlog.md`
+**Location:** `{slug} Track/{slug} Backlog.md`
 
 The backlog file (`{slug} Backlog.md`) holds ideas, low-priority tasks, and deferred work that don't belong on the active Todo or Roadmap yet. Items graduate to the Roadmap or Todo when they become priorities.
 
@@ -272,7 +272,7 @@ Each round-trip with the user costs scrollback context and stalls the batch — 
 
 ## Location
 
-`{slug} Backlog.md` lives in `{slug} Docs/{slug} Plan/`.
+`{slug} Backlog.md` lives in `{slug} Track/`.
 
 ## Relationship to Other Planning Docs
 
