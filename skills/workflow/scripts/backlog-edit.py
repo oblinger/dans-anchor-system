@@ -1916,6 +1916,120 @@ def restamp_open_questions(lines):
     return lines[:start + 1] + [stamp_line] + lines[start + 1:]
 
 
+# --- F247 — Backlog integrity stamp + self-heal ----------------------------
+#
+# Mirrors the F241 Open-Questions stamp, but covers the backlog's state-bearing
+# body so a raw hand-edit (bracket flip / row move made outside `state`) is
+# detected and healed. The stamp is a 2-char base-36 hash over the backlog body
+# (H1 through EOF, the stamp line itself excluded), stored on the line under the
+# H1 as `<!-- state:backlog XX -->` (invisible in Obsidian / GitHub render).
+#
+# Difference from the C48 Open-Questions check (flag-only): the backlog banner
+# is a *deterministic* function of the backlog, so a mismatch is HEALED, not
+# merely flagged — `heal_backlog_if_stale` runs the idempotent `refresh_q_md`
+# re-derivation (banner + Q.md) and re-stamps. It complains only on a genuine
+# stored-stamp mismatch (a real hand-edit); an unstamped backlog is
+# grandfathered — healed + stamped silently on first sight, no accusation.
+# The heal never reverts the edit (the hand-edit may be legitimate work); it
+# only re-derives the downstream views so they can never stay one-link stale.
+
+_BACKLOG_STAMP_RE = re.compile(r"^<!--\s*state:backlog\s+([0-9a-z]{2})\s*-->$")
+
+
+def _backlog_stamp_range(lines):
+    """(h1_idx, end_exclusive=len) — the H1 line through EOF; None if the file
+    has no H1. `lines` are keepends=True (the backlog's native format). The
+    whole body after the H1 is state-bearing: row brackets across every horizon
+    feed the banner counts, so any of them changing must invalidate the stamp."""
+    for i, ln in enumerate(lines):
+        s = ln.lstrip()
+        if s.startswith("# ") and not s.startswith("## "):
+            return i, len(lines)
+    return None
+
+
+def compute_backlog_stamp(lines, start, end):
+    """2-char base-36 stamp of lines[start:end] — H1 included, stamp line
+    excluded, trailing whitespace normalized. Same hash shape as
+    compute_q_stamp so the two stamps read identically."""
+    import hashlib
+    content = [ln.rstrip() for ln in lines[start:end]
+               if not _BACKLOG_STAMP_RE.match(ln.strip())]
+    digest = hashlib.sha1("\n".join(content).encode("utf-8")).hexdigest()
+    n = int(digest, 16) % (36 * 36)
+    return _BASE36[n // 36] + _BASE36[n % 36]
+
+
+def read_backlog_stamp(lines, start, end):
+    """The stored backlog stamp value in lines[start:end], or None if unstamped."""
+    for k in range(start + 1, end):
+        m = _BACKLOG_STAMP_RE.match(lines[k].strip())
+        if m:
+            return m.group(1)
+    return None
+
+
+def restamp_backlog(lines):
+    """Insert-or-update the backlog integrity stamp on the line under the H1.
+    keepends lines in, keepends lines out. No H1 → lines returned unchanged.
+    Call this LAST, after the full state cascade (perform_edit + refresh_q_md),
+    immediately before writing the backlog, so the stamp reflects final content."""
+    rng = _backlog_stamp_range(lines)
+    if rng is None:
+        return lines
+    start, end = rng
+    stamp_line = f"<!-- state:backlog {compute_backlog_stamp(lines, start, end)} -->\n"
+    for k in range(start + 1, end):
+        if _BACKLOG_STAMP_RE.match(lines[k].strip()):
+            return lines[:k] + [stamp_line] + lines[k + 1:]
+    return lines[:start + 1] + [stamp_line] + lines[start + 1:]
+
+
+def heal_backlog_if_stale(slug, backlog_path):
+    """F247 — detect a raw (non-`state`) backlog hand-edit via the integrity
+    stamp; on mismatch, HEAL (idempotent `refresh_q_md` re-derivation of banner
+    + Q.md, then re-stamp) and return an educational complaint. Never reverts.
+
+    Returns a complaint string on a genuine detected hand-edit, else None:
+      - stamp matches computed  -> consistent, no-op, None.
+      - stamp present, mismatch -> real hand-edit: heal + restamp + complaint.
+      - no stamp (grandfathered) -> silent heal + stamp, None.
+
+    Idempotent: on a consistent backlog it does nothing, so it is safe to call
+    at the start of every `state` invocation.
+    """
+    if backlog_path is None or not Path(backlog_path).is_file():
+        return None
+    backlog_path = Path(backlog_path)
+    raw = backlog_path.read_text(encoding="utf-8")
+    lines = raw.splitlines(keepends=True)
+    rng = _backlog_stamp_range(lines)
+    if rng is None:
+        return None
+    stored = read_backlog_stamp(lines, *rng)
+    computed = compute_backlog_stamp(lines, *rng)
+    if stored is not None and stored == computed:
+        return None  # consistent — nothing to heal
+    # Drift (or first-sight). Heal the derived views first — refresh_q_md may
+    # itself repair the backlog (stale [Done] rows, bracket normalization), so
+    # re-read afterward before stamping the final content.
+    refresh_q_md(slug)
+    raw2 = backlog_path.read_text(encoding="utf-8")
+    lines2 = raw2.splitlines(keepends=True)
+    stamped = restamp_backlog(lines2)
+    if stamped != lines2:
+        backlog_path.write_text("".join(stamped), encoding="utf-8")
+        _selffire(backlog_path)
+    if stored is None:
+        return None  # grandfathered — silent heal + first stamp
+    return (
+        f"[state] backlog hand-edit detected in {backlog_path.name} "
+        f"(state:backlog stamp {stored}→{computed}) — the derived banner "
+        f"and Q.md were re-healed. Change backlog state through `state`, not by "
+        f"hand, so the queue can never go stale (F247)."
+    )
+
+
 def _ensure_bottom_resolved_h2(lines):
     """Ensure a bottom ## Resolved H2 exists. Returns lines (possibly modified)
     AND (h2_start, h2_end) of the H2.

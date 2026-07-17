@@ -248,6 +248,11 @@ def _delegate_row_edit(slug, horizon, row_id_arg, status, title, body,
     backlog_path = be.find_backlog(slug)
     if backlog_path is None:
         raise be.BacklogEditError(f"no '{slug} Backlog.md' under vault root")
+    # F247 — heal any prior raw hand-edit BEFORE this write, so a stale banner
+    # (backlog changed outside `state`) is re-derived rather than compounded.
+    complaint = be.heal_backlog_if_stale(slug, backlog_path)
+    if complaint:
+        print(complaint, file=sys.stderr)
     icebox_path = be.find_icebox(slug)
 
     if row_id_arg in ("Fnew", "Bnew", "Tnew"):
@@ -304,6 +309,17 @@ def _delegate_row_edit(slug, horizon, row_id_arg, status, title, body,
     be.append_messages(slug, result["summary"], backlog_path)
     be.write_state(slug, result)
     be.refresh_q_md(slug)
+    # F247 — stamp the FINAL backlog content (after perform_edit + refresh_q_md,
+    # which may itself have repaired the backlog) so a `state`-driven write always
+    # leaves a valid state:backlog stamp; the next call then only heals on a
+    # genuine out-of-band hand-edit.
+    try:
+        _bl_lines = backlog_path.read_text(encoding="utf-8").splitlines(keepends=True)
+        _bl_stamped = be.restamp_backlog(_bl_lines)
+        if _bl_stamped != _bl_lines:
+            backlog_path.write_text("".join(_bl_stamped), encoding="utf-8")
+    except OSError:
+        pass
     # F145 auto-sync — a Done transition on an F-row flips the matching roadmap
     # checkbox (if the F-number appears on the roadmap). Same post-condition slot
     # `task update` already uses for refresh_q_md; failure here is non-fatal.
