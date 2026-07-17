@@ -16,6 +16,31 @@ The Roadmap facet specifies the `{slug} Roadmap.md` file — the project's **seq
 
 **Relocated to Design 2026-06-10** — previously lived at `{slug} Track/{slug} Roadmap.md` (per F094) and pre-F094 at `{slug} Docs/{slug} Plan/{slug} Roadmap.md`. Moved into Design alongside [[DAS Features]] because milestones ARE design — the plan, not the execution. Existing anchors stay at the old location until next `/design roadmap` touch repositions them (F142).
 
+| Table of Contents |  |
+|---|---|
+| **[[#Location]]** |  |
+| **[[#Two roadmap shapes — pick one per project]]** |  |
+|    [[#Shape A — Milestone-as-feature-group]] |  |
+|    [[#Shape B — Milestone-as-task-checklist]] |  |
+| **[[#Numbering grammar]]** |  |
+|    [[#Names are identity; order is document position (never a stored number)]] |  |
+|    [[#Referencing a roadmap entry as backlog work (`R` tasks)]] |  |
+|    [[#Legacy numeric form (for migration only)]] |  |
+| **[[#Feature naming when commissioned from a roadmap]]** |  |
+| **[[#Roadmap is future + present only; completed milestones migrate]]** |  |
+| **[[#Status-tracking conventions — three layered axes]]** |  |
+|    [[#Axis 1 — Checkbox in heading]] |  |
+|    [[#Axis 2 — `**Status**:` line under each milestone]] |  |
+|    [[#Axis 3 — Per-item checkboxes within milestone body]] |  |
+| **[[#Reference-block convention]]** |  |
+| **[[#Section separator — `### .`]]** |  |
+| **[[#Deferred items — paired cross-references]]** |  |
+| **[[#Open Questions on the roadmap]]** |  |
+| **[[#Preface zone]]** |  |
+| **[[#Trait applicability]]** |  |
+| **[[#Audit]]** |  |
+| **[[#See also]]** |  |
+
 ## Location
 
 `{slug} Design/{slug} Roadmap.md`.
@@ -55,7 +80,7 @@ M-<Name>.<m>-<suffix>          ← hyphenated suffix for related grouping (M-Aut
 - **Examples that work:** `M-Auth`, `M-WAL`, `M-Onboarding`, `M-Payments`, `M-DataMig`, `M-Core`
 - **Avoid:** pure numbers (loses the renumbering-escape benefit), long words (`M-Authentication-Flow` is fatiguing), single letters (cryptic), spaces inside name (kills grep), hyphens inside name (collides with `M-` prefix).
 
-**Why named over numbered (provenance — kept inline pending the 'pull provenance out of rules' refactor):**
+**Why named over numbered:**
 
 Long-running roadmaps accumulate dozens of milestones and inserting a new mid-sequence milestone forces renumbering of everything after it. ABIO Roadmap hit this pain (3000+ lines, M1.0 through M3.7+). Named milestones don't have ordering at the top level — `M-Auth` and `M-WAL` exist independently; you can add `M-Notifications` anywhere without renumbering. The name carries semantic meaning a number doesn't; `grep "M-Auth"` is meaningful (finds all the auth work), `grep "M3"` finds noise.
 
@@ -134,9 +159,7 @@ The roadmap entry stays as `M-CLI.3.5 — Implement CLI Core Statements`. A smal
 - **Roadmap → feature:** click the `[F118]` marker (or wiki-link).
 - **Feature → roadmap:** look at the feature title — `M-CLI.3.5` tells you exactly which milestone position it implements. Grep `M-CLI` to find the milestone heading.
 
-**Why this format (provenance — discussed in [[F144 — Completed Roadmap + named milestones]] Q1):**
-
-User initially proposed M-numbers replacing F-numbers when promoted. Rejected because F-numbers are monotonic-forever, never renamed — renaming on promotion would break commit messages, e2e test exercises lines, and every cross-reference. Agent counter-proposed M-names for groupings, F-numbers for features. User refined: titles encode M-position so the feature doc itself shows its roadmap origin. Both agreed: F-numbers don't claim to encode order; they're unique handles. The title's M-prefix carries the position information.
+**Why this format:** F-numbers are monotonic-forever unique handles — renaming one on promotion would break commit messages, e2e-test exercise lines, and every cross-reference — so the M-position rides in the *title* instead, letting the feature doc show its roadmap origin without a rename (F-numbers don't claim to encode order). Full Q1 negotiation: [[F144 — Completed Roadmap + named milestones]].
 
 **For features NOT commissioned from a roadmap** (the common case — features filed straight to backlog): no M-prefix. Title is just `F<NNN> — <Title>` (e.g., `F042 — Add retry budget cap`). The absence of an M-prefix in a feature title is itself a signal: this feature was filed independently, not as part of a milestone commitment.
 
@@ -148,9 +171,7 @@ User initially proposed M-numbers replacing F-numbers when promoted. Rejected be
 
 The roadmap is **forward-looking** — it shows what's planned and what's in progress. Completed milestones do NOT accumulate in the roadmap doc; they migrate to a companion **Completed Roadmap** doc at `{slug} Design/{slug} Completed Roadmap.md` (per [[DAS Completed Roadmap]]).
 
-**Why future-only (provenance — discussed in [[F144 — Completed Roadmap + named milestones]]):**
-
-Long-running roadmaps that retain completed work become hard to navigate — "where are we now?" requires scrolling past completed milestones to find the current one. ABIO Roadmap demonstrates the pain (3000+ lines mostly completed). User explicitly framed this: "you can always jump to the roadmap document, and kind of see what's up and coming, what's happening now, is right inside the roadmap."
+**Why future-only:** a roadmap that retains completed milestones becomes hard to navigate — "where are we now?" means scrolling past done work to find the current milestone (ABIO's 3000-line mostly-complete roadmap is the cautionary case). Provenance: [[F144 — Completed Roadmap + named milestones]].
 
 **Migration unit is the whole milestone.** When a milestone reaches "all sub-items checked, parent milestone `[x]`," the entire milestone (heading + sub-items + Status line + reference block) moves as a unit from Roadmap to Completed Roadmap. Individual completed sub-items inside a still-in-flight milestone stay in the roadmap (the milestone hasn't fully completed yet).
 
@@ -271,11 +292,11 @@ When an item or milestone is deferred, both ends carry cross-references:
 Address the documentation backlog deferred from M1.11.
 ```
 
-Both directions linked so neither end is lost. A validation pass (per CAB Validation below) checks that every `[~]` has a matching revisit entry and vice versa.
+Both directions linked so neither end is lost. A validation pass (`R-roadmap`, via `/audit roadmap`) checks that every `[~]` has a matching revisit entry and vice versa.
 
 ## Open Questions on the roadmap
 
-Roadmap-level open questions (sequencing, dependency, gating) — questions whose answer changes the milestone shape rather than a single feature doc — live as `## Open Questions` H2 directly above the file's H1, per [[DAS ask-format]]:
+Roadmap-level open questions (sequencing, dependency, gating) — questions whose answer changes the milestone shape rather than a single feature doc — live as `## Open Questions`, the **first H2 below the file's H1** (per [[F241 — Questions block below H1 + state-stamped integrity hash|F241]] / [[DAS ask-format]]):
 
 ```markdown
 # {slug} Roadmap
@@ -320,6 +341,6 @@ Any anchor with a `{slug} Design/` folder per [[DAS Design Folder]] that's plann
 
 - **Inclusion test + boundary:** a rule belongs only if it constrains the shape / numbering / status / deferral convention of *every* `{slug} Roadmap.md`. Roadmap *content* lives in per-anchor files; *how* features ship is [[DAS Features]]; the design-phase tier is [[DAS Status]]'s `roadmap::`.
 - **Don't collapse the two shapes** (A milestone-as-feature-group / B milestone-as-task-checklist) "for simplicity" — both are load-bearing; mixing is forbidden, transitioning allowed.
-- **`R-roadmap` is co-located** (per [[F133]]); don't split it out. Rule numbering is monotonic-forever — **R-roadmap-09/-10/-11/-12 are out-of-sequence by intent** (authoring order, not narrative). R-roadmap-12 (unique milestone name) is the invariant the name-is-identity / computed-position scheme depends on — added 2026-07-05.
+- **`R-roadmap` was extracted to a sibling ruleset** (2026-07-12 tracking-group pass) — keep the spec body and [[R-roadmap]] in sync. Rule numbering is monotonic-forever — **R-roadmap-09/-10/-11/-12 are out-of-sequence by intent** (authoring order, not narrative). R-roadmap-12 (unique milestone name) is the invariant the name-is-identity / computed-position scheme depends on — added 2026-07-05.
 - **Don't delete the legacy numeric section** — named-milestone `M-<Name>` is the convention ([[F144]]); legacy `M1`/`M2` is migration-only and stays documented.
 - **Cross-refs to keep live on edit:** [[DAS Completed Roadmap]], [[DAS Features]], [[DAS Status]], [[design-roadmap]], [[DAS ask-format]].

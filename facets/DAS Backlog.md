@@ -128,19 +128,7 @@ F-numbers are per-anchor namespaces; the same `F<n> — Title` filename can appe
 
 ### Transition note: pre-existing B-numbers
 
-Anchors that have historical Done items numbered with the legacy `B<n>` convention preserve those numbers as-is — they cite commit hashes and are part of the historical record. Active items at migration time get renamed `B<n>` → `F<n>` (preserving the number); new items thereafter increment past the highest existing F or B in the file. So a backlog mid-migration may show:
-
-```
-## Done
-- **B1 — ...** — (historical)
-- **B7 — ...** — (historical)
-
-## Ready
-- **F011 — ...** — (active, was B11 pre-migration)
-
-## Upcoming
-- **F016 — ...** — (new since migration)
-```
+Legacy `B<n>` Done items cite commit hashes, so they are preserved as-is. Active items were renamed `B<n>` → `F<n>` at migration (number preserved); new items increment past the highest existing F or B. A mid-migration file may therefore mix `B<n>` Done rows with `F<n>` active rows.
 
 ## Status brackets
 
@@ -262,9 +250,7 @@ For rows without a feature doc, see § B-row inline Qs below.
 
 ## Design Principle — Minimize User Back-and-Forth
 
-Workflow operations that touch the backlog — `/groom`, `/ask`, `/roster`, audits, and similar batch operations — **must process the entire batch autonomously before involving the user**. Never interrupt mid-run to ask a question; route every question that emerges to its feature doc's `## Open Questions` block, then surface the first blocked doc at the end of the run as the user's single next action.
-
-Each round-trip with the user costs scrollback context and stalls the batch — design every workflow to require *one* round-trip per pass, not N. Inline questions are an anti-pattern in batch operations — every question, however trivial, is parked in the queries surface (per [[Query PRD]] R1; the former one-trivial-inline-question concession was retired 2026-07-05).
+Backlog-touching batch operations (`/groom`, `/ask`, audits) never interrupt mid-run — they process the whole batch autonomously and surface once at the end, routing every question to its doc's `## Open Questions`. This never-ask discipline is **canonical in [[Query PRD]]** (§ Overview · G1/G3 · R1) — cited here, not restated.
 
 ## The groom frontier
 
