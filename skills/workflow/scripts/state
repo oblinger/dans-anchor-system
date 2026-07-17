@@ -1865,6 +1865,28 @@ def _read_banner_counts(backlog_path, slug):
     return counts
 
 
+def _audit_q_backlog_findings(slug):
+    """F258 — run audit-q backlog-scope --dry for `slug`; return
+    (count, combined_output). `count` is None when audit-q is missing or its
+    output is unparseable — the caller picks the polarity: `cmd_triage` fails
+    CLOSED (None → refuse to stamp), the `groom-list` / Stop-hook worklist fails
+    OPEN (None → count 0, never a spurious permanent block). Single source of
+    truth for both audit-q gates (CLAUDE.md single-source rule)."""
+    audit = Path.home() / ".claude" / "skills" / "audit" / "scripts" / "audit-q.py"
+    if not audit.is_file():
+        return None, ""
+    try:
+        r = subprocess.run(
+            [sys.executable, str(audit),
+             "--scope", "backlog", "--anchor", slug, "--dry"],
+            capture_output=True, text=True, timeout=120)
+    except (OSError, subprocess.SubprocessError) as e:
+        return None, str(e)
+    out = (r.stdout or "") + (r.stderr or "")
+    m = re.search(r"audit-q:\s+(\d+)\s+finding", out)
+    return (int(m.group(1)) if m else None), out
+
+
 def _triage_gate_findings(backlog_path):
     """The local mechanical gates: every [Ready]/[Active]/[Agreed] row carries
     an executable `- **Next:**`, and no bracket/H2 mismatch. Returns a list of
@@ -1922,13 +1944,8 @@ def cmd_triage(slug, anchor_path, args):
         print("state triage: REFUSED — queries render failed:", file=sys.stderr)
         print((render.stderr or render.stdout).strip(), file=sys.stderr)
         return 1
-    audit = subprocess.run(
-        [sys.executable, str(audit_scripts / "audit-q.py"),
-         "--scope", "backlog", "--anchor", slug, "--dry"],
-        capture_output=True, text=True, timeout=120)
-    out = (audit.stdout or "") + (audit.stderr or "")
-    m = re.search(r"audit-q:\s+(\d+)\s+finding", out)
-    n_findings = int(m.group(1)) if m else None
+    # F258 — shared helper; triage fails CLOSED (None → refuse).
+    n_findings, out = _audit_q_backlog_findings(slug)
     if n_findings is None or n_findings > 0:
         label = ("unparseable audit-q output" if n_findings is None
                  else f"audit-q reports {n_findings} finding(s)")
@@ -1990,13 +2007,22 @@ def cmd_groom_list(slug, anchor_path, args):
     Stop-hook shells out for it — single source of truth)."""
     backlog_path = be.find_backlog(slug)
     findings = _triage_gate_findings(backlog_path)
+    # F258 — the worklist also counts audit-q backlog warnings, so a crank stop
+    # is blocked while any remain (matching what `state triage` already requires).
+    # Fail-open: audit-q infra failure → 0, never a spurious permanent block.
+    aq_n, _aq_out = _audit_q_backlog_findings(slug)
+    aq = aq_n or 0
+    total = len(findings) + aq
     if getattr(args, "count", False):
-        print(len(findings))
+        print(total)
         return 0
-    if findings:
-        print(f"grooming worklist — {len(findings)} item(s) not yet groomed:")
+    if findings or aq:
+        print(f"grooming worklist — {total} item(s) not yet groomed:")
         for f in findings:
             print(f"  - {f}")
+        if aq:
+            print(f"  - audit-q: {aq} unresolved backlog finding(s) — run "
+                  f"`/audit q --fix` (or `/groom`) to clear")
         return 0
     # Empty worklist — the "where do I stand" status line (F244 secondary UX).
     counts = _read_banner_counts(backlog_path, slug)
