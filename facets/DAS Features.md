@@ -12,13 +12,11 @@ Specification for the **Features** facet — F-numbered per-feature design docs 
 | Examples | [[HBR Features\|minimal]],  [[HBR Features\|fuller]],   |
 | ... | [[anchor-page]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facets]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
 
-Specification for the **Features** facet — the F-numbered per-feature design docs that live under an anchor's `{slug} Design/{slug} Features/` folder, with their index page and first-H2 Open-Questions block.
-
 **Location:** `{slug} Design/{slug} Features/` (folder; one file per feature, `F<NNN> — <Title>.md`).
 
 **Relocated to Design 2026-06-10** — previously lived at `{slug} Track/{slug} Features/` (per F094) and `{slug} Docs/{slug} Plan/{slug} Features/` (pre-F094). Moved into Design alongside [[DAS Roadmap]] because feature docs are themselves design artifacts — each carries a Summary, Success Criteria, and Design section that the PRD / Architecture / Testing facets refer to. Track now holds only [[DAS Backlog]], [[DAS Status]], and tracking metadata. Lazy migration: existing anchors stay at the old location until next `/feature` or `/design` touch repositions them (F142).
 
-Individual feature specifications, each in an F-numbered file inside the Features subfolder of the Design folder. **Cardinality: many** — each anchor holds any number of feature docs (one file per feature, F-numbered).
+**Cardinality: many** — each anchor holds any number of feature docs (one F-numbered file per feature).
 
 **Worked examples:** `examples/HBR/HBR Design/HBR Features/` (in this repo) — three rendered feature docs (`F001 — Content-Hash Dedup.md`, `F002 — On-the-Fly Transcode Session.md`, `F003 — Scheduled Catalog Checkpoint.md`) plus their `HBR Features.md` index, demonstrating the Open-Questions-first-H2-below-H1 convention, the `F<NNN> — <Title>.md` filename pattern, and a clean/empty vs. populated Open-Questions zone. Open them for rendered instances; the structure is specified in prose in the sections below.
 
@@ -114,7 +112,7 @@ Both patterns can mix in the same Roadmap section — small inline sub-items sta
 **Status:** Core complete — F017.1 + F017.2 merged. F017.3 in progress; F049 deferred.
 ```
 
-When the Roadmap section drives the feature's tracking, the feature doc's `## Status` field above carries the rollup ("Core complete — 2/4 sub-items done") and the Roadmap section carries the per-sub-item detail. Consistent with CAB Roadmap's "checkbox + Status-line + per-item-checkbox" three-axis convention applied at smaller scope.
+When the Roadmap section drives the feature's tracking, the feature doc's `## Status` field above carries the rollup ("Core complete — 2/4 sub-items done") and the Roadmap section carries the per-sub-item detail. Consistent with the [[DAS Roadmap]] "checkbox + Status-line + per-item-checkbox" three-axis convention applied at smaller scope.
 
 **Referencing as-yet-undesigned sub-features.** Bare-bracket entries `[F<NNN+k> — <Title>]` signal "this sub-feature will exist when authoring catches up." When the agent / user reaches that sub-item and creates the actual feature doc, the bare brackets upgrade to `[[F<NNN+k> — <Title>]]` wiki-links. The roadmap captures intent without requiring all sub-features to be designed up front.
 
@@ -122,7 +120,7 @@ When the Roadmap section drives the feature's tracking, the feature doc's `## St
 
 # BRIEF
 
-*(Maintainer note — facet-specific cautions for whoever edits this Features-facet spec. The normative shape is the body + RULESET R-fct-features above; skills `/feature`, `/design`, `/groom`, `/crank` cite it and audit/rewire check anchors against it.)*
+*(Maintainer note — facet-specific cautions for whoever edits this Features-facet spec. The normative shape is the body above + the extracted [[R-fct-features]] ruleset; skills `/feature`, `/design`, `/groom`, `/crank` cite it and audit/rewire check anchors against it.)*
 
 - **NOT a feature index, NOT a backlog, NOT a roadmap** — don't pile concrete `F<NNN>` entries, status lists, or per-anchor feature catalogs here. Those live in `{slug} Features.md` index pages within each anchor, or in [[DAS Backlog]] / [[DAS Roadmap]] for their respective concerns.
 - **Inclusion test for edits** — a change belongs here only if it defines the *shape* of feature docs across all anchors: folder location, filename pattern, the block layout (Open Questions as the first H2 below the H1; spec body follows), mandatory vs optional H2 sections, title-encoding conventions (M-position), or the Roadmap-within-feature sub-pattern. Anchor-local feature conventions go in `{slug} Rules.md` or `{slug} Decisions.md`, not here.

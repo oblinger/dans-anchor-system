@@ -16,7 +16,7 @@ The migration target for completed milestones — preserves shipped milestone st
 
 The Completed Roadmap is the **migration target** for whole milestones that reach completion. Roadmap stays forward-looking; this doc captures everything that's shipped — preserving the milestone structure that the project used to plan it.
 
-**Name choice — provenance:** discussed in [[F144 — Completed Roadmap + named milestones]]. *History* was rejected because it implies temporal precision (which we don't claim). *Completed Roadmap* describes what the doc actually contains: preserved milestone structure with rough chronology. If precise temporal order is ever wanted, a separate `History` doc can hold it; the Completed Roadmap is not that.
+**Name choice:** *Completed Roadmap*, not *History* — the doc claims preserved milestone structure with rough chronology, not precise temporal order. Provenance: [[F144 — Completed Roadmap + named milestones]].
 
 ## Location
 
@@ -40,9 +40,7 @@ The two section kinds alternate down the page, newest first:
 - **Interleaved standalone groupings** — `## Completed standalone features (between M-<X> and M-<Y>)` capturing features that completed in that window.
 - **Older migrated milestones** — same shape as above, continuing down in reverse-chronological order.
 
-**Why this structure (provenance — discussed in [[F144]]):**
-
-Top-to-bottom = newer-to-older gives rough chronology without claiming temporal precision. Standalone-features groupings between milestones capture "things that got done between milestone shipments" without forcing them into a fake milestone. Partial milestone work that got done before the milestone was abandoned can land in the standalone grouping at migration time (no forced grouping).
+**Why this shape:** newer-to-older gives rough chronology without claiming precision; between-milestone groupings capture work done between shipments without forcing a fake milestone (partial work from an abandoned milestone lands here too). Full rationale: [[F144 — Completed Roadmap + named milestones]].
 
 ## What migrates and when
 
@@ -68,7 +66,7 @@ This handles the "we did some of M-Auth's sub-items before realizing we wanted t
 
 ## Trait applicability
 
-Any anchor that uses CAB Roadmap. Activated as soon as the first milestone migrates.
+Any anchor that uses the [[DAS Roadmap]] facet. Activated as soon as the first milestone migrates.
 
 ## Preface zone
 
@@ -88,7 +86,7 @@ Per [[DAS progressive-disclosure]]:
 
 # BRIEF
 
-*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body + embedded `R-completed-roadmap` RULESET above; design rationale is [[F144 — Completed Roadmap + named milestones]].)*
+*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body above + the extracted [[R-completed-roadmap]] ruleset; design rationale is [[F144 — Completed Roadmap + named milestones]].)*
 
 - **TODO: link a worked example** — no real `{slug} Completed Roadmap.md` instance exists yet (the facet landed with F144; no milestone has migrated). When the first ships, add it to `## See also` and reference it from § Structure in place of the prose outline.
 - **Keep spec ↔ embedded RULESET aligned** — when the spec body changes a structural rule (location, order, preservation, naming), mirror it in the matching `R-completed-roadmap` rule and bump the check pattern; never put per-anchor migrated-milestone content here (it lives in `{anchor}/{slug} Design/{slug} Completed Roadmap.md`).
