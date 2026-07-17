@@ -551,11 +551,14 @@ def derive_banner(name: str, rows: list[Row], backlog_file: Path,
     # the anchors needing attention.
     qfix_n = _count_qfix_subs(backlog_file)
     qfix_suffix = f"    {{{qfix_n}}}" if qfix_n > 0 else ""
-    # Headline numbers are the two MERGED groups (per the 2026-05-24 banner
-    # simplification): agent-actionable = Active + Ready (+Agreed); user-actionable
-    # = pending Questions + [Verify]-bracket rows. The per-horizon group below
-    # still shows raw counts (Now/Next/Later/Verify/Icebox) for placement.
-    agent_actionable_n = active_n + ready_n
+    # F250 #9 (→ F254 C1) — the "Ready" headline counts ONLY [Ready]/[Agreed]
+    # (crankable-now), NOT [Active] (already in-progress). Folding Active in was
+    # the mechanism behind the "Ready 3 vs frontier 2" anomaly: an in-progress
+    # row inflated the Ready scalar above the actual ready frontier. [Active]
+    # still drives the `has_a` TAG below; it just no longer masquerades as Ready.
+    # user-actionable = pending Questions + [Verify]-bracket rows (questions_n is
+    # already pending-only via _read_q_marker_count).
+    agent_actionable_n = ready_n
     user_actionable_n = questions_n + verify_n
     banner = (
         f"# [{tag}]  {slug_label}  -  "

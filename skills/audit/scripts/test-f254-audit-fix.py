@@ -14,6 +14,7 @@ Regression tests for the two F251 Fable-scan CRITICALs in the doc-mutating
 Self-contained: imports audit-q.py, builds fixtures in a tmpdir, cleans up.
 Never touches the real vault (warden self-fire disabled)."""
 import importlib.util
+import re
 import shutil
 import sys
 import tempfile
@@ -103,6 +104,85 @@ try:
         ok("check_c24 emits no wrongful rebracket finding for F077")
     else:
         no("check_c24 still fires on F077 from the wrong doc")
+
+    # ---- D1: C24 fixer [Designing] fallback when no Next: (F250 #10) --------
+    print("== D1 (#10) C24 fixer promotes to [Ready] ONLY with a Next: sub-bullet ==")
+    bl3 = TMP / "R3 Track" / "R3 Backlog.md"
+    bl3.parent.mkdir(parents=True, exist_ok=True)
+    bl3.write_text(
+        "# R3 Backlog\n\n"
+        "## Later\n\n"
+        "- **T001 — No next** [Questions] — body only ^T001\n"
+        "- **T002 — Has next** [Questions] — body ^T002\n"
+        "  - **Next:** run the thing.\n",
+        encoding="utf-8",
+    )
+    entries3 = aq.backlog_entries(bl3, {})
+    aq.apply_c24_fix(bl3, entries3)
+    after3 = bl3.read_text(encoding="utf-8")
+    before_t002 = after3.split("T002")[0]
+    if "**T001 — No next** [Designing]" in after3 and "[Ready]" not in before_t002:
+        ok("0-Q row with NO Next -> [Designing] (not F171-forbidden [Ready])")
+    else:
+        no(f"T001 fallback wrong:\n{after3}")
+    if "**T002 — Has next** [Ready]" in after3:
+        ok("0-Q row WITH Next -> [Ready]")
+    else:
+        no(f"T002 promotion wrong:\n{after3}")
+
+    # ---- C2: audit-q banner Questions counts pending only (F251 #7) ---------
+    print("== C2 (#7) derive_anchor_banner Questions = pending only (no Resolved/fenced) ==")
+    anc = TMP / "vault" / "ZZC"
+    (anc / "ZZC Track").mkdir(parents=True, exist_ok=True)
+    (anc / "ZZC Design" / "ZZC Features").mkdir(parents=True, exist_ok=True)
+    (anc / ".anchor").write_text("slug: ZZC\n", encoding="utf-8")
+    (anc / "ZZC Design" / "ZZC Features" / "F010 — Thing.md").write_text(
+        "# F010 — Thing\n\n## Open Questions\n\n"
+        "- **Q1 — First** — pick A or B\n"
+        "- **Q2 — Second** — pick C or D\n\n"
+        "```\n- **Q9 — Fenced example** — not real\n```\n\n"
+        "## Resolved\n\n"
+        "- **Q3 — Old** — resolved\n- **Q4 — Older** — resolved\n- **Q5 — Oldest** — resolved\n",
+        encoding="utf-8",
+    )
+    blc = anc / "ZZC Track" / "ZZC Backlog.md"
+    blc.write_text(
+        "# ZZC Backlog\n\n## Now\n\n"
+        "- **F010 — Thing** [2 Questions] — see → [[F010 — Thing]] ^F010\n",
+        encoding="utf-8",
+    )
+    vidx = aq.build_vault_index(TMP / "vault")
+    banner = aq.derive_anchor_banner("ZZC", blc, vidx) or ""
+    qm = re.search(r"Questions\s+(\d+)", banner)
+    if qm and qm.group(1) == "2":
+        ok("banner Questions = 2 (pending only; 3 Resolved + 1 fenced excluded)")
+    else:
+        no(f"banner Questions wrong: {banner!r}")
+
+    # ---- C1: queries-render banner "Ready" = [Ready] only, not [Active] (F250 #9)
+    print("== C1 (#9) queries-render banner Ready counts [Ready] only (excludes [Active]) ==")
+    QR = Path(__file__).parent / "queries-render.py"
+    qr_spec = importlib.util.spec_from_file_location("queries_render", QR)
+    qr_mod = importlib.util.module_from_spec(qr_spec)
+    sys.modules["queries_render"] = qr_mod
+    qr_spec.loader.exec_module(qr_mod)  # imports audit_q from real HOME — fine in-process
+    blr = TMP / "ZZR Track" / "ZZR Backlog.md"
+    blr.parent.mkdir(parents=True, exist_ok=True)
+    blr.write_text(
+        "# ZZR Backlog\n\n## Now\n\n"
+        "- **F001 — Active one** [Active] — doing it ^F001\n"
+        "  - **Next:** finish it.\n"
+        "- **F002 — Ready one** [Ready] — queued ^F002\n"
+        "  - **Next:** start it.\n",
+        encoding="utf-8",
+    )
+    rows = qr_mod.parse_backlog(blr)
+    banner_r = qr_mod.derive_banner("ZZR", rows, blr, {}) or ""
+    rm = re.search(r"Ready\s+(\d+)", banner_r)
+    if rm and rm.group(1) == "1":
+        ok("banner Ready = 1 (only [Ready]; [Active] not folded in)")
+    else:
+        no(f"banner Ready wrong (expected 1): {banner_r!r}")
 
     print()
     print(f"==== RESULT: {PASS} passed, {FAIL} failed ====")

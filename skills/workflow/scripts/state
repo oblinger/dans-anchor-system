@@ -1794,6 +1794,24 @@ def _read_banner_counts(backlog_path, slug):
     cmd_summary_line, so the canonical line always matches what the user sees in
     queries.md / Q.md — the banner itself is produced upstream by queries-render.py."""
     queries_path = backlog_path.parent / f"{slug} queries.md"
+    # F250 #9 (→ F254 C3) — never scrape a stale/absent render as authoritative.
+    # cmd_triage re-renders before reading; cmd_summary_line / cmd_groom_list did
+    # not, so a queries.md older than (or missing for) the current backlog fed
+    # them stale counts. Re-render first when stale (best-effort; on failure we
+    # fall through and read whatever exists).
+    try:
+        stale = (not queries_path.is_file()
+                 or queries_path.stat().st_mtime < backlog_path.stat().st_mtime)
+    except OSError:
+        stale = True
+    if stale:
+        try:
+            audit_scripts = Path.home() / ".claude" / "skills" / "audit" / "scripts"
+            subprocess.run(
+                [sys.executable, str(audit_scripts / "queries-render.py"), slug],
+                capture_output=True, text=True, timeout=60)
+        except (OSError, subprocess.SubprocessError):
+            pass
     banner = ""
     if queries_path.is_file():
         for qline in queries_path.read_text(encoding="utf-8").splitlines():
