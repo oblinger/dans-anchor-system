@@ -7,7 +7,7 @@ What `/audit` checks on this facet-group index page. It is a grouped-Container a
 
 ### RULE R-track-group-01 — The Facets row indexes every work-surface facet (checked)
 
-The `Facets` row links every track / work-surface facet (Backlog, Features, Inbox, Icebox, Messages, Log, Query, Status), and each member's breadcrumb routes through this page.
+The `Facets` row links every track / work-surface facet (Backlog, Inbox, Icebox, Messages, Log, Query, Status), and each member's breadcrumb routes through this page.
 
 **Check pattern:** the `Facets`-row link set equals the family's work-surface facet specs; each member breadcrumb passes through `~~[[DAS Track]]~~`.
 
