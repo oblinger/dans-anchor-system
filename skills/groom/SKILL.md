@@ -105,7 +105,7 @@ After grooming, **nothing on the frontier is in an unknown state**: each item is
 >
 > A `[Questions]` row missing these — no identifier, no links, no specific ask, no options, no recommendation — is a failure all the way around (see the anti-pattern in [[SKA ask]] / [[Query PRD]]).
 
-DMUX trigger: **`groom`** (prefix-trigger; whatever you dictate after becomes the argument). Slash invocation: `/groom`, `/groom roadmap`, `/groom milestone {N}`, `/groom F{n}` (single-item).
+DMUX trigger: **`really groom`** (prefix-trigger, gated behind "really" like `/audit` and `/query` — bare "groom" is too common in speech/description to fire on every mention; whatever you dictate after "really groom" becomes the argument). Slash invocation: `/groom`, `/groom roadmap`, `/groom milestone {N}`, `/groom F{n}` (single-item).
 
 
 ## Top-level vs sub-skill invocation
