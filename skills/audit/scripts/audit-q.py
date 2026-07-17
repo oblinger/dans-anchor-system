@@ -826,6 +826,26 @@ def _row_inline_q_count(e: BacklogEntry) -> int:
     return count
 
 
+def _row_has_next(e: BacklogEntry) -> bool:
+    """True if row e carries a `- **Next:**` companion sub-bullet (the F171
+    no-user next-action). F250 #10 — the C23/C24 `--fix` promotes a zero-pending-Q
+    row to [Ready], but a [Ready] row with no `Next:` is the exact state F171
+    forbids (and audit-q's `--fix` writes the bracket directly, bypassing the
+    state write-path's F171 gate). So the promotion to [Ready] is gated on this;
+    without a Next the row stays [Designing] and the check surfaces it as
+    needing a Next rather than auto-creating the forbidden state."""
+    try:
+        lines = e.source_file.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError):
+        return False
+    for nxt in lines[e.source_line:]:  # 1-indexed source_line → starts on next line
+        if HEADING_RE.match(nxt) or re.match(r"^- \*\*", nxt):
+            break
+        if re.match(r"^\s+-\s+\*\*Next:\*\*", nxt):
+            return True
+    return False
+
+
 # ============================================================
 # Check C1 — link existence (against Q.md)
 # ============================================================
@@ -2346,7 +2366,7 @@ def check_c23_designing_resolves(entries: list[BacklogEntry]) -> list[Finding]:
                 ),
                 mechanically_fixable=True,
             ))
-        else:
+        elif _row_has_next(e):
             findings.append(Finding(
                 severity="warning",
                 surface_file=e.source_file,
@@ -2358,6 +2378,23 @@ def check_c23_designing_resolves(entries: list[BacklogEntry]) -> list[Finding]:
                     f"[Designing] (designing is over; the agent can pick it up)"
                 ),
                 mechanically_fixable=True,
+            ))
+        else:
+            # F250 #10 — 0 pending Qs but no `- **Next:**`. Auto-promoting to
+            # [Ready] would create the F171-forbidden Ready-without-Next state,
+            # so this is NOT mechanically fixable — the row needs a Next first.
+            findings.append(Finding(
+                severity="warning",
+                surface_file=e.source_file,
+                surface_line=e.source_line,
+                code="C23",
+                message=(
+                    f"row '{e.identifier}' is [Designing] with zero pending Qs "
+                    f"but has no `- **Next:**` — add a no-user next action and it "
+                    f"becomes [Ready] (a [Ready] row needs a Next per F171), or "
+                    f"move it to [Done]"
+                ),
+                mechanically_fixable=False,
             ))
     return findings
 
@@ -2413,7 +2450,9 @@ def check_c24_questions_count_match(entries: list[BacklogEntry]) -> list[Finding
         if actual == 0:
             # Bracket claims questions but linked doc has none. The bracket is
             # stale — likely all Qs got resolved without the bracket being
-            # updated. Most common case after Phase 2 transition.
+            # updated. Most common case after Phase 2 transition. F250 #10 —
+            # only mechanically promotable to [Ready] when a `- **Next:**`
+            # exists (F171); without one it needs a Next first or a [Done] move.
             findings.append(Finding(
                 severity="warning",
                 surface_file=e.source_file,
@@ -2423,8 +2462,10 @@ def check_c24_questions_count_match(entries: list[BacklogEntry]) -> list[Finding
                     f"row '{e.identifier}' is [{e.status}] but linked doc has "
                     f"zero pending Qs — bracket is stale (Qs likely all "
                     f"resolved; bracket should be [Ready] or [Done])"
+                    + ("" if _row_has_next(e)
+                       else " — add a `- **Next:**` before it can be [Ready] (F171)")
                 ),
-                mechanically_fixable=True,
+                mechanically_fixable=_row_has_next(e),
             ))
         else:
             correct = f"[{actual} Questions]" if actual > 1 else "[Questions]"
@@ -3814,8 +3855,13 @@ def apply_c23_fix(backlog_file: Path,
             new_bracket = (
                 f"[{pending} Questions]" if pending > 1 else "[Questions]"
             )
-        else:
+        elif _row_has_next(e):
             new_bracket = "[Ready]"
+        else:
+            # F250 #10 — 0 pending Qs but no `- **Next:**` → can't be [Ready]
+            # (F171). Leave [Designing] (no-op rewrite below); check_c23 surfaces
+            # it as needing a Next.
+            new_bracket = "[Designing]"
         # 0-indexed line
         line_idx = e.source_line - 1
         if line_idx < 0 or line_idx >= len(lines):
@@ -3895,7 +3941,11 @@ def apply_c24_fix(backlog_file: Path,
         if actual == claimed:
             continue
         if actual == 0:
-            new_bracket = "[Ready]"
+            # F250 #10 — promote to [Ready] only when a `- **Next:**` exists
+            # (F171 forbids a [Ready] row without one, and this `--fix` writes
+            # the bracket directly, bypassing state's write-path gate). Without
+            # a Next, drop to [Designing]; check_c24/C23 surfaces the needs-Next.
+            new_bracket = "[Ready]" if _row_has_next(e) else "[Designing]"
         else:
             new_bracket = (
                 f"[{actual} Questions]" if actual > 1 else "[Questions]"
@@ -4357,14 +4407,18 @@ def derive_anchor_banner(name: str, backlog_file: Path,
             continue
         target_path = arrow_link.target_file_path
         assert target_path is not None
-        try:
-            target_text = target_path.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError):
-            continue
-        # Count Q-markers
-        q_count = len(Q_MARKER_RE.findall(target_text))
+        # F251 #7 (→ F254 C2) — count only PENDING Qs via extract_q_entries
+        # (skips `## Resolved`/`### Resolved` archives AND fenced example Qs),
+        # matching queries-render's _read_q_marker_count. The old
+        # Q_MARKER_RE.findall over the whole doc counted resolved/fenced/prose
+        # `Q<n> —` markers, over-reporting the banner Questions total.
+        container_id = e.identifier
+        stem_m = F_NUMBER_PREFIX_RE.match(target_path.stem)
+        if stem_m:
+            container_id = stem_m.group(1)
+        q_count = len(extract_q_entries(target_path, container_id))
         if q_count == 0:
-            # Bracket-claim but no markers: count as 1 anyway (don't lose the row)
+            # Bracket-claim but no pending Qs: count as 1 (don't lose the row)
             q_count = 1
         questions_n += q_count
     # Per-horizon counts (every entry, even with [Done] would count toward Now
