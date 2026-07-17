@@ -53,6 +53,20 @@ MUSE_MIN_WPS="${MUSE_MIN_WPS:-0.5}"
 TRANSCRIBE_BIN="${TRANSCRIBE_BIN:-$HOME/bin/_transcribe}"
 ASKAI_BIN="${ASKAI_BIN:-$HOME/bin/_askAI}"
 
+# Concurrency lock state (F252 F2). MUSE_LOCK_OWNED_BY_ME makes acquire_lock
+# re-entrant per process, so a sweep that holds the lock can call ingest_one
+# without deadlocking on a re-acquire. Both must exist before `set -u` reads them.
+MUSE_LOCK_OWNED_BY_ME="no"
+MUSE_SWEEP_LOCKDIR=""
+# F252 F7 — `timeout`/`gtimeout` if present (macOS ships neither by default;
+# coreutils provides `gtimeout`). Empty → commands run unguarded (best-effort).
+TIMEOUT_BIN="$(command -v timeout 2>/dev/null || command -v gtimeout 2>/dev/null || true)"
+MUSE_IO_TIMEOUT="${MUSE_IO_TIMEOUT:-120}"   # seconds for a single hash/transcribe
+# F252 F8c — a candidate that fails this many consecutive sweeps is marked in
+# `.muse.failures` and skipped (with a periodic log) so a permanently-broken
+# file stops burning file_stable + Whisper on every pass.
+MUSE_MAX_FAILURES="${MUSE_MAX_FAILURES:-3}"
+
 TITLE_SYSTEM='Give a 3-6 word title for this voice memo. Plain words, no punctuation, no quotes. Only respond with the title itself.'
 
 log()  { printf 'muse: %s\n' "$*"        >&2; }
@@ -137,13 +151,88 @@ next_letter() {
     fi
 }
 
+# F252 F7 — run a command under `timeout` when available, else unguarded. A
+# dataless iCloud placeholder can pass file_stable (its size metadata is stable)
+# yet block shasum/transcribe indefinitely (the EDEADLK class); the timeout
+# degrades that to a non-zero exit so the caller warns-and-continues instead of
+# wedging the whole sweep. Returns the wrapped command's exit code (124 on
+# timeout when `timeout` is present).
+_with_timeout() {
+    local secs="$1"; shift
+    if [[ -n "$TIMEOUT_BIN" ]]; then
+        "$TIMEOUT_BIN" "$secs" "$@"
+    else
+        "$@"
+    fi
+}
+
 sha256_of() {
-    shasum -a 256 "$1" | awk '{print $1}'
+    _with_timeout "$MUSE_IO_TIMEOUT" shasum -a 256 "$1" | awk '{print $1}'
+}
+
+# F252 F3 + F8a — look up a path in the hashfile by EXACT full-path match (not
+# the old ` $path` substring grep, which F8a-matched `…/x.m4a.m4a`) and print
+# the size recorded for it. Hashfile line formats:
+#   new:    "<sha> <size> <path>"   → prints <size>
+#   legacy: "<sha> <path>"          → prints "LEGACY"
+# Exits 0 (found) or 1 (path not present). The path is everything after the
+# 2nd field when the 2nd field is all-digits (a size), else after the 1st.
+_recorded_size() {
+    local hf="$1" path="$2"
+    [[ -f "$hf" ]] || return 1
+    awk -v want="$path" '
+        {
+            rest = substr($0, length($1) + 2)          # everything after <sha>
+            n = split(rest, a, " ")
+            if (n >= 2 && a[1] ~ /^[0-9]+$/) {          # new format: <size> <path>
+                sz = a[1]
+                p  = substr(rest, length(a[1]) + 2)
+            } else {                                     # legacy: <path>
+                sz = "LEGACY"
+                p  = rest
+            }
+            if (p == want) { found = 1; last = sz }
+        }
+        END { if (found) { print last; exit 0 } else exit 1 }
+    ' "$hf"
+}
+
+# F252 F8c — consecutive-failure tracking so a permanently-broken file stops
+# burning file_stable + Whisper on every sweep. `.muse.failures` lines are
+# "<count> <size> <path>"; the size lets a genuinely-changed file (iCloud
+# finally materialized) reset the counter and get retried.
+_failure_get() {   # echoes "<count> <size>" for path, or "0 -1" if absent
+    local ff="$1" path="$2"
+    [[ -f "$ff" ]] || { echo "0 -1"; return; }
+    awk -v want="$path" '
+        { p = substr($0, length($1) + length($2) + 3)
+          if (p == want) { c = $1; s = $2; f = 1 } }
+        END { if (f) print c, s; else print "0 -1" }
+    ' "$ff"
+}
+_failure_bump() {  # <ff> <path> <size> — increment (reset to 1 on size change)
+    local ff="$1" path="$2" size="$3" prev pc ps nc
+    prev="$(_failure_get "$ff" "$path")"; pc="${prev%% *}"; ps="${prev##* }"
+    nc=1; [[ "$ps" == "$size" ]] && nc=$((pc + 1))
+    _failure_clear "$ff" "$path"
+    printf '%s %s %s\n' "$nc" "$size" "$path" >> "$ff"
+}
+_failure_clear() { # <ff> <path> — drop this path's failure row (success/retry)
+    local ff="$1" path="$2"
+    [[ -f "$ff" ]] || return 0
+    grep -vF -- " $path" "$ff" > "$ff.tmp" 2>/dev/null || true
+    mv "$ff.tmp" "$ff" 2>/dev/null || true
 }
 
 # Prepend a bullet to the top of a target file (creates the file with a bare
 # header if it doesn't exist). Used for Quick.md — a bare bullet list with no
 # frontmatter or H1.
+#
+# F252 F8d — write the result back IN PLACE (`cat "$tmp" > "$target"`) rather
+# than `mv`. `mv` swaps in a fresh inode and resets the mode to mktemp's 0600,
+# which is the known Obsidian stale-buffer aggravator (cf. SYS T003): the editor
+# still holds the old inode and can write its stale buffer back over muse's
+# change. Truncate-and-rewrite keeps the target's inode and permissions.
 prepend_line() {
     local target="$1"
     local line="$2"
@@ -152,20 +241,36 @@ prepend_line() {
     if [[ -f "$target" ]]; then
         printf '%s\n' "$line" > "$tmp"
         cat "$target" >> "$tmp"
+        cat "$tmp" > "$target"
     else
-        printf '%s\n' "$line" > "$tmp"
+        printf '%s\n' "$line" > "$target"
     fi
-    mv "$tmp" "$target"
+    rm -f "$tmp"
 }
 
-# Insert a bullet at the top of the bullet list in a STRUCTURED log file
-# (frontmatter → H1 → orientation → blank → bullets). Used for MUSE_LOG_FILE.
-# Insertion strategy: before the first existing `- ` bullet; if no bullets
-# yet, append at end. If the file doesn't exist, create it with the canonical
-# MUSE log header first.
-prepend_log_bullet() {
+# Insert a bullet into the bullet list of a STRUCTURED log file (frontmatter →
+# H1 → orientation → blank → bullets), keeping the list in strict newest-first
+# CHRONOLOGICAL order. Used for MUSE_LOG_FILE.
+#
+# F252 F5 — the old strategy prepended before the first `- ` bullet
+# unconditionally. When iCloud delivers an OLDER recording in a LATER sweep,
+# unconditional prepend put its bullet ABOVE newer ones. Instead we splice the
+# new bullet just above the first existing dated bullet whose timestamp is
+# STRICTLY OLDER than the new one — so a late arrival lands in its correct slot
+# and the Log stays time-ordered. Log bullets are `- YYYY-MM-DD HH:MM:SS  …`,
+# so the 19-char timestamp sits at offset 3 and ISO order == chronological
+# order (plain string compare). Non-dated `- ` lines (if any) are left in place
+# and the new bullet falls through to them / to END. If the file doesn't exist,
+# create it with the canonical MUSE log header first.
+#
+# F252 F8d — result written back in place (see prepend_line) to preserve the
+# target's inode + mode.
+#
+# Args: <target> <captured "YYYY-MM-DD HH:MM:SS"> <full bullet line>
+insert_log_bullet() {
     local target="$1"
-    local line="$2"
+    local captured="$2"
+    local line="$3"
     local tmp
     tmp="$(mktemp)"
     if [[ ! -f "$target" ]]; then
@@ -179,17 +284,100 @@ Complete audit trail of every MUSE ingest; suppressed items appear here too.
 
 EOF
     fi
-    awk -v new="$line" '
-        !inserted && /^- / { print new; inserted = 1 }
+    awk -v new="$line" -v newts="$captured" '
+        !inserted && /^- [0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/ {
+            if (substr($0, 3, 19) < newts) { print new; inserted = 1 }
+        }
         { print }
         END { if (!inserted) print new }
     ' "$target" > "$tmp"
-    mv "$tmp" "$target"
+    cat "$tmp" > "$target"
+    rm -f "$tmp"
 }
 
 notify() {
     local msg="$1"
     osascript -e "display notification \"$msg\" with title \"MUSE\" sound name \"$MUSE_NOTIFICATION_SOUND\"" 2>/dev/null || true
+}
+
+# ---- Concurrency lock (F252 F1 + F2) --------------------------------------
+# One mkdir-based lock (macOS lacks flock) serialises the hashfile / daily-letter
+# / prepend critical section. F1 hardened stale reclaim (dead pid, or no-pid +
+# age ceiling). F2 makes BOTH entry points take it: a sweep grabs it once around
+# the whole loop (skip-if-held), and a manual `muse ingest <path>` grabs it too
+# (short blocking wait), so a manual ingest racing a sweep can no longer
+# double-process a file, collide on the daily letter, or lose a prepend.
+
+_lock_dir() { printf '%s' "$MUSE_ITEMS_DIR/.muse.sweep.lock"; }
+
+# Grab the lock ONCE, reclaiming a stale one. 0 = acquired, 1 = held by a live
+# owner. Records $$ in the lockdir's pid file on success.
+_try_lock() {
+    local lockdir="$1"
+    if mkdir "$lockdir" 2>/dev/null; then
+        printf '%s\n' "$$" > "$lockdir/pid"
+        return 0
+    fi
+    local lock_pid lock_stale="no"
+    lock_pid="$(cat "$lockdir/pid" 2>/dev/null || true)"
+    if [[ -n "$lock_pid" ]] && kill -0 "$lock_pid" 2>/dev/null; then
+        lock_stale="no"
+    elif [[ -n "$lock_pid" ]]; then
+        lock_stale="yes"           # recorded owner is dead
+    else
+        local lock_mtime now       # no readable pid — fall back to age ceiling
+        lock_mtime="$(stat -f %m "$lockdir" 2>/dev/null || echo 0)"
+        now="$(date +%s)"
+        (( now - lock_mtime > 1800 )) && lock_stale="yes"
+    fi
+    if [[ "$lock_stale" == "yes" ]]; then
+        warn "reclaiming stale lock (owner ${lock_pid:-unknown} gone)"
+        rm -rf "$lockdir"
+        if mkdir "$lockdir" 2>/dev/null; then
+            printf '%s\n' "$$" > "$lockdir/pid"
+            return 0
+        fi
+    fi
+    return 1
+}
+
+# acquire_lock <skip|wait>. Re-entrant per process: if THIS process already
+# holds it (a sweep calling ingest_one), returns 0 without re-locking. `skip`
+# gives up immediately if held (sweep semantics — a later sweep will retry);
+# `wait` blocks briefly then gives up (manual-ingest semantics — don't silently
+# race, but don't hang forever). Sets the EXIT trap to release on the first
+# acquire. Returns non-zero if the lock could not be taken.
+acquire_lock() {
+    local mode="$1"
+    [[ "$MUSE_LOCK_OWNED_BY_ME" == "yes" ]] && return 0
+    local lockdir; lockdir="$(_lock_dir)"
+    MUSE_SWEEP_LOCKDIR="$lockdir"
+    if [[ "$mode" == "wait" ]]; then
+        local waited=0
+        until _try_lock "$lockdir"; do
+            if (( waited >= 30 )); then
+                warn "lock still held (pid $(cat "$lockdir/pid" 2>/dev/null || echo unknown)) after ${waited}s — skipping"
+                return 1
+            fi
+            sleep 2; waited=$((waited + 2))
+        done
+    else
+        if ! _try_lock "$lockdir"; then
+            log "another sweep is running (pid $(cat "$lockdir/pid" 2>/dev/null || echo unknown)) — skipping"
+            return 1
+        fi
+    fi
+    MUSE_LOCK_OWNED_BY_ME="yes"
+    trap 'release_lock' EXIT
+    return 0
+}
+
+# Release only if THIS process owns the lock (the sweep's trap, or a manual
+# ingest's process-exit trap).
+release_lock() {
+    [[ "$MUSE_LOCK_OWNED_BY_ME" == "yes" ]] || return 0
+    rm -rf "${MUSE_SWEEP_LOCKDIR:-/nonexistent}" 2>/dev/null || true
+    MUSE_LOCK_OWNED_BY_ME="no"
 }
 
 # Ingest a single audio file. Prints nothing to stdout on success; logs to
@@ -207,6 +395,13 @@ ingest_one() {
     mkdir -p "$(dirname "$MUSE_QUICK_FILE")"
     local hashfile="$MUSE_ITEMS_DIR/.muse.hashes"
 
+    # F252 F2 — take the lock for the manual entry point too. When a sweep is
+    # the caller it already owns the lock, so acquire_lock is a re-entrant no-op;
+    # a bare `muse ingest <path>` acquires it here (short blocking wait) and the
+    # process-exit trap releases it. This closes manual/sweep double-ingest,
+    # daily-letter collision, and prepend lost-update.
+    acquire_lock wait || { warn "could not acquire lock (skipping): $audio"; return 1; }
+
     # 1. quarantine
     xattr -d com.apple.quarantine "$audio" 2>/dev/null || true
 
@@ -219,11 +414,25 @@ ingest_one() {
     # common case (each JPR HH-MM-SS.m4a filename is globally unique — same
     # path always means same recording). SHA-check remains as a fallback for
     # the edge case of the same audio arriving under a different path.
-    local sha
-    sha="$(sha256_of "$audio")"
-    if [[ -f "$hashfile" ]] && grep -Fq -- " $audio" "$hashfile" 2>/dev/null; then
-        log "SKIP already ingested (path): $audio"
-        return 0
+    local sha size
+    sha="$(sha256_of "$audio")" || true
+    [[ -n "$sha" ]] || { warn "hash failed/timed out (skipping): $audio"; return 1; }
+    size="$(stat -f '%z' "$audio" 2>/dev/null || echo 0)"
+    # PATH dedup (F3 + F8a) — exact full-path match. If the recorded size equals
+    # the current on-disk size (or the entry is legacy / size-unknown) this is
+    # the same file already ingested → skip. If the size DIFFERS, the earlier
+    # ingest captured a truncated partial (iCloud stalled mid-materialize) and
+    # the file has since completed → fall through and re-ingest the full file
+    # (a genuine recording must never be locked out by a stale partial). The
+    # path-first / SHA-advisory direction still holds — iCloud re-materializes
+    # byte-identical audio under a new SHA (see [[gotcha-icloud-fileprovider-watchpaths]]).
+    local rec_size
+    if rec_size="$(_recorded_size "$hashfile" "$audio")"; then
+        if [[ "$rec_size" == "LEGACY" || "$rec_size" == "$size" ]]; then
+            log "SKIP already ingested (path): $audio"
+            return 0
+        fi
+        warn "size changed since last ingest ($rec_size → $size) — re-ingesting partial-file recovery: $audio"
     fi
     if [[ -f "$hashfile" ]] && grep -q "^$sha " "$hashfile" 2>/dev/null; then
         # SHA collision at a DIFFERENT path. JPR filenames are globally unique,
@@ -233,7 +442,8 @@ ingest_one() {
         # real recording must never disappear. If both are genuine same-audio
         # duplicates the user can dedup the resulting items manually.
         local twin
-        twin="$(grep "^$sha " "$hashfile" | head -1 | cut -d' ' -f2-)"
+        # strip "<sha> " and an optional "<size> " to leave the path (F3 format)
+        twin="$(grep "^$sha " "$hashfile" | head -1 | sed -E 's/^[a-f0-9]+ ([0-9]+ )?//')"
         warn "SHA-collision (different path) — proceeding: this=$audio twin=$twin"
     fi
 
@@ -320,7 +530,10 @@ ingest_one() {
 
     # 9. record hash — happens for BOTH suppressed and normal items so the
     # sweep doesn't reprocess. Suppression only affects downstream visibility.
-    printf '%s %s\n' "$sha" "$audio" >> "$hashfile"
+    # F252 F3 — size is recorded between sha and path so a later size change
+    # (partial-file completion) is detectable; path stays the LAST field so the
+    # sha-prefix grep and exact-path lookup both keep working.
+    printf '%s %s %s\n' "$sha" "$size" "$audio" >> "$hashfile"
 
     # URL-encode spaces in the Markdown link href (Obsidian cuts markdown
     # link URLs at the first bare space, which points every link at MUSE)
@@ -331,7 +544,7 @@ ingest_one() {
         # Quick — skipped (suppression exists precisely to hide these).
         # Notification — skipped.
         log "SUPPRESSED ($suppress ${word_count}w ${wps}wps): $item_base"
-        prepend_log_bullet "$MUSE_LOG_FILE" "- $captured  [$title]($url_encoded)"
+        insert_log_bullet "$MUSE_LOG_FILE" "$captured" "- $captured  [$title]($url_encoded)"
         return 0
     fi
 
@@ -348,8 +561,8 @@ ingest_one() {
     else
         bullet="- [$title]($url_encoded)"
     fi
-    prepend_line       "$MUSE_QUICK_FILE" "$bullet"
-    prepend_log_bullet "$MUSE_LOG_FILE"   "- $captured  [$title]($url_encoded)"
+    prepend_line      "$MUSE_QUICK_FILE" "$bullet"
+    insert_log_bullet "$MUSE_LOG_FILE" "$captured" "- $captured  [$title]($url_encoded)"
 
     # 11. notify
     notify "MUSE $ymd $letter: $title"
@@ -378,11 +591,10 @@ file_stable() {
 }
 
 # Scan MUSE_JPR_DIR for .m4a files not yet in .muse.hashes and ingest each.
-# Concurrency: a mkdir-based lock (below) prevents two overlapping SWEEPS from
-# racing (observed 2026-07-14 producing duplicate item files). NOTE: a manual
-# `muse ingest <path>` does NOT take this lock, so a manual ingest running
-# concurrently with a sweep can still double-process a file / collide on the
-# daily letter — tracked as an F252 finding for a proper both-paths lock.
+# Concurrency: the shared lock (acquire_lock, F2) serialises sweeps AND manual
+# ingests. The sweep grabs it once with `skip` semantics (a later launchd pass
+# retries) and holds it across the whole loop; ingest_one sees it already owned
+# and does not re-acquire.
 ingest_sweep() {
     [[ -d "$MUSE_JPR_DIR" ]] || die "JPR dir not found: $MUSE_JPR_DIR"
 
@@ -390,44 +602,10 @@ ingest_sweep() {
     mkdir -p "$(dirname "$MUSE_QUICK_FILE")"
     local hashfile="$MUSE_ITEMS_DIR/.muse.hashes"
     touch "$hashfile"
+    local failfile="$MUSE_ITEMS_DIR/.muse.failures"
 
-    # Concurrency lock via mkdir (macOS lacks a native flock). If another muse
-    # sweep is running, skip this pass rather than racing. Use a global (not
-    # local) so the EXIT trap can still see the var name under `set -u`.
-    MUSE_SWEEP_LOCKDIR="$MUSE_ITEMS_DIR/.muse.sweep.lock"
-    if ! mkdir "$MUSE_SWEEP_LOCKDIR" 2>/dev/null; then
-        # Lock exists. Decide: owner alive, or STALE? A sweep killed without
-        # running its EXIT trap (launchd-timeout SIGKILL, reboot, or power loss
-        # mid-sweep) leaves the lockdir behind. It lives in the vault and
-        # survives reboot, so without reclamation a single stale lock wedges
-        # ALL future sweeps forever — every memo silently unprocessed. Reclaim
-        # when the recorded PID is dead, or (no readable PID) when the lock is
-        # older than the ceiling.
-        local lock_pid lock_stale="no"
-        lock_pid="$(cat "$MUSE_SWEEP_LOCKDIR/pid" 2>/dev/null || true)"
-        if [[ -n "$lock_pid" ]] && kill -0 "$lock_pid" 2>/dev/null; then
-            lock_stale="no"
-        elif [[ -n "$lock_pid" ]]; then
-            lock_stale="yes"
-        else
-            local lock_mtime now
-            lock_mtime="$(stat -f %m "$MUSE_SWEEP_LOCKDIR" 2>/dev/null || echo 0)"
-            now="$(date +%s)"
-            (( now - lock_mtime > 1800 )) && lock_stale="yes"
-        fi
-        if [[ "$lock_stale" != "yes" ]]; then
-            log "sweep: another sweep is running (pid ${lock_pid:-unknown}) — skipping"
-            return 0
-        fi
-        warn "sweep: reclaiming stale lock (owner ${lock_pid:-unknown} gone)"
-        rm -rf "$MUSE_SWEEP_LOCKDIR"
-        if ! mkdir "$MUSE_SWEEP_LOCKDIR" 2>/dev/null; then
-            log "sweep: lost stale-lock race — skipping"
-            return 0
-        fi
-    fi
-    printf '%s\n' "$$" > "$MUSE_SWEEP_LOCKDIR/pid"
-    trap 'rm -rf "${MUSE_SWEEP_LOCKDIR:-/nonexistent}" 2>/dev/null || true' EXIT
+    # Acquire the shared lock (skip this pass if another sweep/ingest holds it).
+    acquire_lock skip || return 0
 
     # Force iCloud to materialize any pending JPR files before scanning. iCloud
     # drops don't trigger FSEvents reliably (per muse gotcha), and the
@@ -446,13 +624,26 @@ ingest_sweep() {
     # This matters for Quick.md ordering: muse always PREPENDS new bullets,
     # so processing oldest-first leaves newest at the TOP naturally. Observed
     # 2026-07-14: out-of-order sweep put a 9:48 bullet above an 11:23 bullet.
-    local candidate count=0 found_count=0
+    local candidate count=0 found_count=0 csize fc fs
     while IFS= read -r candidate; do
         [[ -z "$candidate" ]] && continue
         found_count=$((found_count + 1))
-        # Fast pre-check by path so sweep skips known files without hashing.
-        # ingest_one still SHA-checks as a fallback.
-        if grep -Fq -- " $candidate" "$hashfile"; then
+        csize="$(stat -f '%z' "$candidate" 2>/dev/null || echo 0)"
+        # Fast pre-check by EXACT path (F8a) so sweep skips known files without
+        # hashing — BUT only when the recorded size matches (or is legacy): a
+        # size change means a partial-file completion (F3), so let it through to
+        # ingest_one for re-processing. ingest_one is still authoritative.
+        local rec
+        if rec="$(_recorded_size "$hashfile" "$candidate")"; then
+            if [[ "$rec" == "LEGACY" || "$rec" == "$csize" ]]; then
+                continue
+            fi
+        fi
+        # F8c — skip a file that failed the last MUSE_MAX_FAILURES sweeps at the
+        # same size (a size change resets the counter via _failure_bump).
+        read -r fc fs <<< "$(_failure_get "$failfile" "$candidate")"
+        if (( fc >= MUSE_MAX_FAILURES )) && [[ "$fs" == "$csize" ]]; then
+            log "sweep: skipping repeatedly-failing file ($fc fails): $candidate"
             continue
         fi
         # Wait for iCloud materialization to finish before hashing/transcribing.
@@ -460,7 +651,13 @@ ingest_sweep() {
             warn "size unstable after ~30s (still uploading?) — skipping: $candidate"
             continue
         fi
-        ingest_one "$candidate" && count=$((count + 1)) || warn "ingest failed: $candidate"
+        if ingest_one "$candidate"; then
+            count=$((count + 1))
+            _failure_clear "$failfile" "$candidate"
+        else
+            warn "ingest failed: $candidate"
+            _failure_bump "$failfile" "$candidate" "$csize"
+        fi
     done < <(find "$MUSE_JPR_DIR" -type f -iname '*.m4a' 2>>/tmp/muse-find-stderr.log | sort)
 
     log "sweep: find returned $found_count candidates; ingested $count new"
@@ -481,6 +678,10 @@ do_ingest() {
     fi
 }
 
+# Run the CLI dispatch only when executed directly. When the script is `source`d
+# (e.g. by the F252 unit-test harness) this guard skips dispatch so the function
+# definitions load without running a sweep.
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
 case "${1:-}" in
     ingest)
         shift
@@ -494,3 +695,4 @@ case "${1:-}" in
         die "unknown verb: $1 (try: muse ingest ... | muse --help)"
         ;;
 esac
+fi
