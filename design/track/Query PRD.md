@@ -2,7 +2,7 @@
 description: "product requirements"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [Query PRD](hook://p/Query%20PRD)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [design](hook://design) → [Query PRD](hook://p/Query%20PRD)
 # Query PRD
 
 
@@ -62,13 +62,7 @@ The frontier is the shared scope of the resolution layer:
 
 ## Grooming the frontier (activity 3)
 
-Grooming a frontier item means **planning it out until you know, as concretely as possible, how you would execute it** — then recording that knowledge as one of **five explicit groomed states**, each with a body contract enforced by a checked `R-backlog` rule (canonical table: [[DAS Backlog]] § The groomed states). Groom never leaves a frontier item in an unknown state:
-
-- **Executable** (`[Ready]`/`[Active]`) → the row declares a concrete `- **Next:**` step the agent takes with zero user involvement (R-backlog-02).
-- **Questions** (`[Questions]`) → the questions are **enumerated** and reachable from the row — inline numbered `Q<n>` or a `→ [[Feature Doc]]` link — each satisfying the question bar below (R-backlog-05 + the R-query rules).
-- **Blocked / Waiting** (`[Blocked …]` / `[Waiting …]`) → the row names **specifically what it is blocked on / awaiting** (`[Blocked F<NNN>]` exempt); timed forms carry an absolute `YYYY-MM-DD` (R-backlog-06 / R-backlog-07).
-- **Verify** (`[Verify]`) → the row declares a `- **Verify:**` concrete yes/no the user answers from where they sit (R-backlog-04).
-- **Watching** (`[Watching …]`) → a `- **Verify:**` non-recurrence question plus the absolute soak-expiry date (R-backlog-04 / R-backlog-07).
+Grooming a frontier item means **planning it out until you know, as concretely as possible, how you would execute it** — then recording that knowledge as one of **five explicit groomed states**, never leaving the row in an unknown state. Each state is honest only if its body carries a specific contract a checked `R-backlog` rule enforces; the canonical per-state table (state → body contract → enforcing rule) lives at [[R-backlog]] § The groomed states — Executable (`[Ready]`/`[Active]`, R-backlog-02), Questions (`[Questions]`, R-backlog-05 + the R-query bar), Blocked / Waiting (`[Blocked …]` / `[Waiting …]`, R-backlog-06/07), Verify (`[Verify]`, R-backlog-04), Watching (`[Watching …]`, R-backlog-04/07).
 
 A frontier row must not rest in transient `[Designing]` after a groom, and a vague blocker/verify is not a groomed state. `/ask` surfaces the residue of states 2 (Questions) and 4/5 (Verify/Watching) — the question bar is the Questions-state contract.
 
