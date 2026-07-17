@@ -4969,6 +4969,19 @@ def main() -> int:
         d1_changes = apply_d1_banner_write(Q_MD, derived_banners)
         if d1_changes:
             print(f"\naudit-q: D1 — {d1_changes} per-anchor section(s) regenerated in Q.md (via queries-render.py)")
+        # F247 — this run may have rewritten the backlog (C4/C23/C24 fixes) and
+        # re-derived the banner; re-stamp each scoped backlog so its
+        # state:backlog integrity stamp reflects the final content. Without this,
+        # a standalone `audit-q --fix` would leave the stamp stale and the next
+        # `state` call would mis-read it as an out-of-band hand-edit.
+        for _bl in anchor_backlogs.values():
+            try:
+                _bl_lines = _bl.read_text(encoding="utf-8").splitlines(keepends=True)
+                _bl_stamped = _be_mod.restamp_backlog(_bl_lines)
+                if _bl_stamped != _bl_lines:
+                    _bl.write_text("".join(_bl_stamped), encoding="utf-8")
+            except OSError:
+                pass
     # Hard-continuation directive — print whenever ANY anchor has Ready > 0.
     # Per user direction 2026-05-26 — the agent reads audit-q's output at the
     # moment they're tempted to stop; embedding the rule into that output is
