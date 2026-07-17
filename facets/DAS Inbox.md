@@ -51,7 +51,7 @@ Raw feature list from kickoff meeting. Items distributed to [[HBR PRD]] and [[HB
 
 ## Location
 
-`{slug} Inbox.md` lives at the anchor root, alongside the anchor page.
+`{slug} Inbox.md` lives in `{slug} Track/`, alongside the other tracking surfaces.
 
 ## Top of doc (canonical, per F060)
 

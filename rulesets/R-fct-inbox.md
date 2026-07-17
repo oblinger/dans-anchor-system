@@ -3,10 +3,10 @@ include::
 where:: `file: **/{slug} Inbox.md`
 description:: Rules every `{slug} Inbox.md` instance must satisfy — location, heading format, and status-tag vocabulary.
 
-### RULE R-fct-inbox-01 — File exists at the anchor root (checked)
-The Inbox file lives at the anchor root: `{slug} Inbox.md`, alongside the anchor page.
-**Check pattern:** file is present at `<anchor-root>/{slug} Inbox.md`.
-**Why:** co-location with top-level anchor docs ensures consistent discoverability by agents and users. (Tier: checked)
+### RULE R-fct-inbox-01 — File exists inside the Track folder (checked)
+The Inbox file lives inside the Track folder: `{slug} Track/{slug} Inbox.md`, alongside the other tracking surfaces.
+**Check pattern:** file is present at `<anchor-root>/{slug} Track/{slug} Inbox.md`.
+**Why:** co-location with the other tracking surfaces in `{slug} Track/` ensures consistent discoverability by agents and users. (Tier: checked)
 
 ### RULE R-fct-inbox-02 — Sections are reverse-chronological H2s with a status tag (checked)
 Each entry heading follows the form `## YYYY-MM-DD — {Topic}` followed by a backtick-wrapped `{STATUS}` tag, where `{STATUS}` is one of the two sanctioned tags.
