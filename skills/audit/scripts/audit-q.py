@@ -205,6 +205,9 @@ Q_HEADER_RE = re.compile(r"^(\s*)- \*\*Q(\d+)\b")
 Q_HEADER_H3_RE = re.compile(r"^### Q(\d+)\b")
 # B16 — block-ID at end of Q header line: `^F089-Q3`
 Q_BLOCK_ID_TRAILING_RE = re.compile(r"\^([A-Za-z][A-Za-z0-9_\-]*-Q\d+)\s*$")
+# F251 #9 — ANY trailing `^block-id` (used to detect a FOREIGN, non-`-Q<n>`
+# id that apply_c6_fix must not strand mid-line by appending after it).
+ANY_BLOCK_ID_TRAILING_RE = re.compile(r"\^([A-Za-z][A-Za-z0-9_\-]*)\s*$")
 # B16 — Recommendation bullet: `- **Recommendation:** Strong (B). reason.`
 RECOMMENDATION_RE = re.compile(
     r"^(\s*)- \*\*Recommendation:\*\*\s*(Strong|Lean|None)?\b",
@@ -683,25 +686,48 @@ def _detect_status(line: str) -> str:
     Strips `[[wiki-links]]` and inline code spans first so the inner brackets
     of `[[CAE System Design]]` or backticked code-span brackets don't get misread.
     """
-    cleaned = _strip_code_spans(line)
-    # Replace each `[[...]]` with same-length spaces to preserve column offsets
-    # while making BRACKET_RE blind to wiki-link inner text.
-    cleaned = re.sub(r"\[\[[^\[\]]*\]\]", lambda m: " " * len(m.group(0)), cleaned)
-    # Restrict the scan to the head region: from the end of the row's `**title**`
-    # bolded title up to the first ` — ` (em-dash separator) or ` - ` after it.
-    # This isolates the workflow-state bracket position (e.g., `[Ready]`) and
-    # ignores both em-dashes inside the title and bracketed prose in the body.
-    title_match = re.match(r"^- \*\*[^*]+\*\*", cleaned)
-    if title_match:
-        post_title = cleaned[title_match.end():]
-        sep_match = re.search(r"\s[—-]\s", post_title)
-        head = post_title[: sep_match.start()] if sep_match else post_title
-    else:
-        head = cleaned
-    m = BRACKET_RE.search(head)
+    cleaned = _cleaned_line(line)
+    start, end = _head_span(line)
+    m = BRACKET_RE.search(cleaned, start, end)
     if not m:
         return ""
     return m.group(1).strip()
+
+
+def _cleaned_line(line: str) -> str:
+    """Blank inline-code spans and `[[wiki-links]]` to same-length whitespace.
+    Column offsets are preserved exactly, so any position found on the cleaned
+    line maps 1:1 back onto the raw line — the property the C23/C24 fixers rely
+    on to splice a new bracket by offset (F251 #6)."""
+    cleaned = _strip_code_spans(line)
+    # Replace each `[[...]]` with same-length spaces to preserve column offsets
+    # while making BRACKET_RE / the ` — ` separator scan blind to wiki inner text.
+    return re.sub(r"\[\[[^\[\]]*\]\]", lambda m: " " * len(m.group(0)), cleaned)
+
+
+def _head_span(line: str) -> tuple[int, int]:
+    """Return the `(start, end)` column offsets of a row's *head* region — from
+    the end of the `- **title**` bold to the first REAL ` — `/` - ` separator.
+    Separators (and brackets) inside wiki-links or code spans are blanked first
+    so they never truncate the head. Offsets are valid on the RAW line. Returns
+    `(0, len)` when the row has no bold title.
+
+    Shared by `_detect_status` (bracket detection) AND `apply_c23_fix` /
+    `apply_c24_fix` (bracket replacement) so the checker and the fixer agree on
+    where the status bracket lives — previously the fixers recomputed the head
+    on the raw line, where a ` — ` inside a leading wiki-link truncated the head
+    before the bracket, so the replace silently no-op'd and the finding flapped
+    every run (F251 #6)."""
+    cleaned = _cleaned_line(line)
+    title_match = re.match(r"^- \*\*[^*]+\*\*", cleaned)
+    if title_match:
+        start = title_match.end()
+        post = cleaned[start:]
+        sep_match = re.search(r"\s[—-]\s", post)
+        end = start + (sep_match.start() if sep_match else len(post))
+    else:
+        start, end = 0, len(cleaned)
+    return start, end
 
 
 def _fenced_line_indices(lines: list[str]) -> set[int]:
@@ -1083,10 +1109,15 @@ def apply_c4_fix(backlog_file: Path,
         insert_at += 1
     log = []
     for row_block in extracted_rows:
-        # Prepend the row + a trailing blank line
-        for offset, row_line in enumerate(row_block.split("\n")):
+        # Insert the row + a trailing blank line, then advance insert_at past
+        # this block. F251 #8 — without the advance, every block was inserted at
+        # the same fixed offset, so multiple stale rows landed in ## Done in
+        # REVERSED source order; advancing preserves their original order.
+        block_lines = row_block.split("\n")
+        for offset, row_line in enumerate(block_lines):
             lines.insert(insert_at + offset, row_line)
-        lines.insert(insert_at + len(row_block.split("\n")), "")
+        lines.insert(insert_at + len(block_lines), "")
+        insert_at += len(block_lines) + 1
         log.append(f"moved to ## Done: {row_block.splitlines()[0][:80]}")
     new_text = "\n".join(lines)
     # Preserve trailing newline if original had one
@@ -1391,7 +1422,21 @@ def apply_c6_fix(q_entries: list[QEntry]) -> list[str]:
                 continue
             line = lines[idx]
             expected = f"{q.container_id}-Q{q.q_num}"
-            # Strip any existing trailing ^... block-ID (right form or wrong)
+            # F251 #9 — a FOREIGN trailing block-id (a `^…` that is NOT the
+            # `-Q<n>` form, e.g. `^F077-note`) is a live anchor with its own
+            # inbound links. Stripping it would break those links; appending
+            # after it would strand it mid-line (Obsidian honors only the last
+            # `^id`). Neither is mechanically safe — skip and report so a human
+            # relocates the anchor before the Q block-id is added.
+            foreign = ANY_BLOCK_ID_TRAILING_RE.search(line)
+            if foreign and not Q_BLOCK_ID_TRAILING_RE.search(line):
+                log.append(
+                    f"  {file_path.name}:{q.source_line} — SKIPPED (Q{q.q_num}): "
+                    f"line ends with foreign block-id ^{foreign.group(1)}; move it "
+                    f"to its own block before adding ^{expected} by hand"
+                )
+                continue
+            # Strip any existing trailing ^…-Q<n> block-ID (right form or wrong)
             stripped = Q_BLOCK_ID_TRAILING_RE.sub("", line).rstrip()
             new_line = f"{stripped} ^{expected}"
             if new_line != line:
@@ -2032,7 +2077,7 @@ def check_c14_active_h2_purity(entries: list[BacklogEntry]) -> list[Finding]:
 
 
 def check_c15_watching_waiting_in_later(
-    entries: list[BacklogEntry],
+    entries: list[BacklogEntry], today: date,
 ) -> list[Finding]:
     """C15: [Watching]/[Verify*] rows belong in ## Verify; [Waiting] in ## Later."""
     findings: list[Finding] = []
@@ -2041,6 +2086,13 @@ def check_c15_watching_waiting_in_later(
         # Watching* and Verify* (Verify, Verify-by) → ## Verify horizon
         if s.startswith("Watching") or s.startswith("Verify"):
             if e.horizon == "Verify":
+                continue
+            # F251 #5 — C18 auto-moves an EXPIRED [Verify-by …] row to ## Done
+            # (terminal) without rebracketing; C15 must yield to that precedence
+            # or the two checks flag each other forever (C15 wants it back in
+            # ## Verify, C18 keeps it in ## Done). A retired Verify-by in Done
+            # is correct — skip it.
+            if e.horizon == "Done" and _is_verify_by_expired(s, today):
                 continue
             findings.append(Finding(
                 severity="warning",
@@ -3390,7 +3442,9 @@ def check_c35_ask_md_drift(
 
 
 ################################################################
-# C37–C41 — {slug} queries.md answer-section format
+# C37–C40, C42 — {slug} queries.md answer-section format
+# (C41 is NOT here — it is the soak/Verify-question check above; F251 #10
+#  removed a phantom "C41" row this section's docstring once claimed.)
 # (user direction 2026-06-16): the items a user answers must be
 # referenceable + well-formed so an answer like "Q2: A" / "V1: yes"
 # is unambiguous, and every decision forces the agent to state a
@@ -3424,9 +3478,6 @@ def check_c37_queries_item_format(
       C39 — `## Immediate Questions` bullets begin with a bold `**Q<n>` handle.
       C40 — `## Verifications` + `## Immediate Questions` bullets carry an answer
             shape: bold `**yes/no**`, or bold labeled options `**(A)** / **(B)**`.
-      C41 — `## Immediate Questions` bullets contain the word `Recommendation`
-            (may be 'None' — the rule forces the agent to *consider* whether it
-            has a recommendation, not to manufacture one).
       C42 — an answerable item (Verifications / Immediate Questions / Questions)
             that NAMES a doc/file/template the user must open must make it a live
             `[[wiki-link]]` — a bare resolvable slug-prefixed doc name (e.g.
@@ -3785,10 +3836,14 @@ def apply_c36_fix(
         lines = file_path.read_text(encoding="utf-8").splitlines(keepends=True)
     except (OSError, UnicodeDecodeError):
         return 0
-    # Re-scan to find exact spans (the original check stored line numbers,
-    # not column ranges). For each affected line, replace every path-like
-    # backtick span via the regex sub — single-pass per line is correct.
-    affected_lines = sorted({f.surface_line for f in relevant})
+    # F251 #4 — do NOT gate on the findings' stored `surface_line`: check_c36
+    # runs BEFORE apply_placement_fixes shifts backlog rows, so those numbers
+    # are stale by the time we get here and would land the sub on the wrong
+    # line (worst case: turning an inert backtick in a B-QFix residual into a
+    # live link). Instead re-derive the fix from the CURRENT file with the
+    # exact same predicate check_c36 uses (fence-skip + residual-row skip +
+    # path-like + resolvable), so the fixer is line-shift-immune and stays
+    # consistent with the checker. `relevant` is used only to early-out.
     applied = 0
 
     def _sub(m: re.Match) -> str:
@@ -3815,7 +3870,11 @@ def apply_c36_fix(
             continue
         if in_fence:
             continue
-        if (idx + 1) not in affected_lines:
+        # F251 #4 — mirror check_c36's residual-row skip: a `- **C<NN>** …`
+        # audit residual sub-bullet quotes a prior finding's token in backticks,
+        # not a real path; converting it to a link is the exact cascade the
+        # checker's guard prevents.
+        if re.match(r"^\s*-\s+\*\*[CD]\d+\*\*\s", line):
             continue
         lines[idx] = _BACKTICK_SPAN_RE.sub(_sub, line)
     if applied:
@@ -3867,21 +3926,17 @@ def apply_c23_fix(backlog_file: Path,
         if line_idx < 0 or line_idx >= len(lines):
             continue
         old_line = lines[line_idx]
-        # Replace [Designing] with new_bracket on this line. Use BRACKET_RE-style
-        # narrow head-region replacement: only the first [Designing] occurrence
-        # in the row's head (between **Title** and the first ` — `).
-        title_match = re.match(r"^- \*\*[^*]+\*\*", old_line)
-        if not title_match:
-            continue
-        post_title = old_line[title_match.end():]
-        sep_match = re.search(r"\s[—-]\s", post_title)
-        head_end_in_post = sep_match.start() if sep_match else len(post_title)
-        head = post_title[:head_end_in_post]
-        rest = post_title[head_end_in_post:]
+        # Replace [Designing] with new_bracket only within the row's head region
+        # (between **Title** and the first REAL ` — `). F251 #6 — head offsets
+        # come from the SAME cleaned-line computation _detect_status uses, so a
+        # ` — ` inside a leading wiki-link can't truncate the head before the
+        # bracket (which would silently no-op and flap the finding).
+        h_start, h_end = _head_span(old_line)
+        head = old_line[h_start:h_end]
         new_head = head.replace("[Designing]", new_bracket, 1)
         if new_head == head:
             continue
-        new_line = old_line[: title_match.end()] + new_head + rest
+        new_line = old_line[:h_start] + new_head + old_line[h_end:]
         lines[line_idx] = new_line
         changed = True
         fix_log.append(
@@ -3955,19 +4010,15 @@ def apply_c24_fix(backlog_file: Path,
         if line_idx < 0 or line_idx >= len(lines):
             continue
         old_line = lines[line_idx]
-        # Same head-region replacement as apply_c23_fix.
-        title_match = re.match(r"^- \*\*[^*]+\*\*", old_line)
-        if not title_match:
-            continue
-        post_title = old_line[title_match.end():]
-        sep_match = re.search(r"\s[—-]\s", post_title)
-        head_end_in_post = sep_match.start() if sep_match else len(post_title)
-        head = post_title[:head_end_in_post]
-        rest = post_title[head_end_in_post:]
+        # Same head-region replacement as apply_c23_fix — head offsets from the
+        # shared cleaned-line computation so a leading wiki-link's internal ` — `
+        # can't truncate the head before the bracket (F251 #6).
+        h_start, h_end = _head_span(old_line)
+        head = old_line[h_start:h_end]
         new_head = head.replace(old_bracket, new_bracket, 1)
         if new_head == head:
             continue
-        new_line = old_line[: title_match.end()] + new_head + rest
+        new_line = old_line[:h_start] + new_head + old_line[h_end:]
         lines[line_idx] = new_line
         changed = True
         fix_log.append(
@@ -4797,7 +4848,7 @@ def main() -> int:
         entries = backlog_entries(backlog_file, vault_index)
         findings.extend(check_c13_ready_h2_purity(entries))
         findings.extend(check_c14_active_h2_purity(entries))
-        findings.extend(check_c15_watching_waiting_in_later(entries))
+        findings.extend(check_c15_watching_waiting_in_later(entries, today))
         findings.extend(check_c16_blocked_in_later(entries))
         findings.extend(check_c41_soak_question_declared(entries, backlog_file))
         findings.extend(check_c47_verify_ownership(entries, backlog_file))
