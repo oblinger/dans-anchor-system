@@ -37,18 +37,36 @@ MUSE_JPR_DIR="${MUSE_JPR_DIR:-$HOME/Library/Mobile Documents/iCloud~com~openplan
 MUSE_INLINE_MAX_CHARS="${MUSE_INLINE_MAX_CHARS:-80}"
 MUSE_NOTIFICATION_SOUND="${MUSE_NOTIFICATION_SOUND:-Tink}"
 # Suppression thresholds for accidental / low-content recordings (per user
-# 2026-07-14). Suppressed items STILL write the item file + hashfile entry
-# (audio history preserved, no reprocessing), they just DON'T get a bullet
-# in the Inbox and DON'T fire a notification.
-#   - MIN_WORDS: total word count in the transcript.
-#     Catches empty / near-empty captures ('Thank you.', a bare '.').
-#   - MIN_WPS: overall words-per-second (word_count / audio_duration_s).
-#     Catches long silence-hallucination captures like a 10-min coughing
-#     recording that produces 46 x 'Thank you.' (92 words / 600 s = 0.15 WPS).
-# Legitimate short dictations pass on MIN_WPS (e.g. 'It is 9:48' → ~4 words
-# / 6 s = 0.7 WPS). Items fail suppression only if they trip EITHER threshold.
+# 2026-07-14; three-part predicate per F001 2026-07-17). Suppressed items
+# STILL write the item file + hashfile entry (audio history preserved, no
+# reprocessing), they just DON'T get a bullet in the Inbox and DON'T fire a
+# notification. Three-part predicate:
+#
+#   1. MIN_WORDS — total word count in the transcript. Catches empty /
+#      near-empty captures ('Thank you.', a bare '.').
+#
+#   2. Trimmed-WPS floor — words-per-second computed AFTER subtracting long
+#      silences (up to a percent-of-length cap). Catches silence-hallucination
+#      recordings (10-min coughing → 46 'Thank you.' at ~0.15 wps overall)
+#      but permits thoughtful pause-heavy dictations ('So the area bets,
+#      [long think] a device bet, a data bet.') to pass.
+#
+#   3. Leading-burst override — if the first LEAD_WINDOW seconds contains
+#      LEAD_MIN_SPEECH seconds of non-silence AND word_count >= LEAD_MIN_WORDS,
+#      the recording bypasses the trimmed-wps check. Catches 'press record
+#      with intent, speak the opening thought, trail off' dictations.
+#
+# Suppression fires if MIN_WORDS fails OR (trimmed-WPS fails AND leading-burst
+# rescue fails). Any ffmpeg / silencedetect failure disables predicates 2 & 3
+# (fall through to MIN_WORDS only) — probe failures MUST NOT suppress memos.
 MUSE_MIN_WORDS="${MUSE_MIN_WORDS:-5}"
-MUSE_MIN_WPS="${MUSE_MIN_WPS:-0.5}"
+MUSE_SILENCE_NOISE_DB="${MUSE_SILENCE_NOISE_DB:--30dB}"
+MUSE_SILENCE_MIN_GAP="${MUSE_SILENCE_MIN_GAP:-2.0}"
+MUSE_SILENCE_TRIM_PCT="${MUSE_SILENCE_TRIM_PCT:-60}"
+MUSE_TRIMMED_MIN_WPS="${MUSE_TRIMMED_MIN_WPS:-1.0}"
+MUSE_LEAD_WINDOW="${MUSE_LEAD_WINDOW:-3.0}"
+MUSE_LEAD_MIN_SPEECH="${MUSE_LEAD_MIN_SPEECH:-1.5}"
+MUSE_LEAD_MIN_WORDS="${MUSE_LEAD_MIN_WORDS:-3}"
 
 TRANSCRIBE_BIN="${TRANSCRIBE_BIN:-$HOME/bin/_transcribe}"
 ASKAI_BIN="${ASKAI_BIN:-$HOME/bin/_askAI}"
@@ -87,6 +105,26 @@ sanitize_title() {
         | tr -c 'A-Za-z0-9 _\-' ' ' \
         | tr -s ' ' \
         | sed -E 's/^ +| +$//g'
+}
+
+# detect_silences <audio-file> — emits one 'start end' pair (seconds, floats)
+# per detected silence >= MUSE_SILENCE_MIN_GAP seconds at noise floor
+# MUSE_SILENCE_NOISE_DB. Empty output = no long silences (or ffmpeg failed —
+# the caller distinguishes via return code). Silent-fallback bug avoidance:
+# any ffmpeg failure returns non-zero and the caller falls through to the
+# word-floor-only rule rather than silently suppressing every memo.
+detect_silences() {
+    local audio="$1"
+    local ffmpeg_bin="${FFMPEG_BIN:-/opt/homebrew/bin/ffmpeg}"
+    [[ -x "$ffmpeg_bin" ]] || ffmpeg_bin="$(command -v ffmpeg || true)"
+    [[ -n "$ffmpeg_bin" ]] || return 1
+    "$ffmpeg_bin" -nostats -hide_banner -i "$audio" \
+        -af "silencedetect=noise=${MUSE_SILENCE_NOISE_DB}:d=${MUSE_SILENCE_MIN_GAP}" \
+        -f null - 2>&1 \
+        | awk '
+            /silence_start:/ { for (i=1;i<=NF;i++) if ($i=="silence_start:") { start=$(i+1); break } }
+            /silence_end:/   { for (i=1;i<=NF;i++) if ($i=="silence_end:")   { print start, $(i+1); break } }
+        '
 }
 
 # From a JPR audio path like .../Documents/YYYY-MM-DD/HH-MM-SS.m4a extract
@@ -460,21 +498,23 @@ ingest_one() {
     text="$(printf '%s' "$text" | sed -E 's/^[[:space:]]+|[[:space:]]+$//g')"
     [[ -n "$text" ]] || { warn "empty transcript (skipping): $audio"; return 1; }
 
-    # 3b. suppression check — accidental / low-content recordings still get an
-    # item file (audio history preserved, hashfile entry blocks reprocessing)
-    # but DON'T get an Inbox bullet or notification. Two thresholds:
-    #   - MUSE_MIN_WORDS: total word count. Catches empty/near-empty captures.
-    #   - MUSE_MIN_WPS: overall words-per-second (needs ffprobe). Catches long
-    #     silence-hallucination captures ('Thank you.' x 46 over 10 min).
+    # 3b. suppression check — three-part predicate (F001 2026-07-17).
+    #   Predicate 1: MIN_WORDS floor. Catches empty/near-empty captures.
+    #   Predicate 2: trimmed-WPS floor on active_duration (silence-trimmed with
+    #                percent-of-length cap). Catches silence-hallucinations.
+    #   Predicate 3: leading-burst override — first LEAD_WINDOW seconds contain
+    #                LEAD_MIN_SPEECH of non-silence + word_count >= LEAD_MIN_WORDS
+    #                → recording bypasses predicate 2.
+    # A probe failure (ffprobe or ffmpeg binary missing / per-file error) MUST
+    # NOT suppress the memo: predicates 2 & 3 disable and MIN_WORDS alone
+    # applies. The old `|| echo 0` fallback made wps=0.000 trip min-wps and
+    # SILENTLY SUPPRESSED EVERY MEMO whenever a probe was unavailable — never
+    # again. FFPROBE_BIN / FFMPEG_BIN are overridable and fall back to PATH.
     local suppress="no" word_count duration wps have_duration="no"
+    local active_duration="0" trimmed_wps="0.000" leading_burst_passes="no"
+    local total_silence="0" speech_in_lead="0" silences=""
     word_count="$(printf '%s' "$text" | wc -w | tr -d ' ')"
-    # ffprobe gives audio duration for the WPS silence-hallucination check ONLY.
-    # A probe failure (binary missing, wrong-arch path, per-file error) must NOT
-    # suppress the memo: when duration is unavailable we skip the WPS test
-    # entirely (min-words still applies). The old `|| echo 0` fallback made
-    # wps=0.000 trip min-wps and SILENTLY SUPPRESSED EVERY MEMO whenever ffprobe
-    # was unavailable — a silent-fallback bug. FFPROBE_BIN is overridable and
-    # falls back to whatever `ffprobe` is on PATH (not the hardcoded brew path).
+
     local ffprobe_bin="${FFPROBE_BIN:-/opt/homebrew/bin/ffprobe}"
     [[ -x "$ffprobe_bin" ]] || ffprobe_bin="$(command -v ffprobe || true)"
     duration=""
@@ -486,17 +526,53 @@ ingest_one() {
         duration="0"
         wps="0.000"
     fi
+
+    # Predicates 2 & 3 need ffmpeg silencedetect; if it fails, both disable
+    # and we drop through to MIN_WORDS-only. Detect once, use twice.
+    if [[ "$have_duration" == "yes" ]]; then
+        silences="$(detect_silences "$audio" 2>/dev/null || true)"
+        total_silence="$(printf '%s\n' "$silences" | awk 'NF==2 { s += ($2 - $1) } END { printf "%.3f", s+0 }')"
+        active_duration="$(awk -v d="$duration" -v s="$total_silence" -v pct="$MUSE_SILENCE_TRIM_PCT" '
+            BEGIN {
+                cap = pct/100.0 * d;
+                trim = (s < cap) ? s : cap;
+                a = d - trim;
+                if (a < 0.001) a = 0.001;
+                printf "%.3f", a
+            }')"
+        trimmed_wps="$(awk -v w="$word_count" -v a="$active_duration" 'BEGIN { printf "%.3f", w/a }')"
+        speech_in_lead="$(printf '%s\n' "$silences" | awk -v W="$MUSE_LEAD_WINDOW" '
+            NF==2 {
+                s = ($1 < 0) ? 0 : $1;
+                e = ($2 > W) ? W : $2;
+                if (s < W && e > s) sil += (e - s);
+            }
+            END { r = W - sil; if (r < 0) r = 0; printf "%.3f", r }')"
+        if awk -v speech="$speech_in_lead" -v min_speech="$MUSE_LEAD_MIN_SPEECH" \
+                -v wc="$word_count" -v min_wc="$MUSE_LEAD_MIN_WORDS" \
+                'BEGIN { exit !(speech >= min_speech && wc >= min_wc) }'; then
+            leading_burst_passes="yes"
+        fi
+    fi
+
     if (( word_count < MUSE_MIN_WORDS )); then
         suppress="min-words"
-    elif [[ "$have_duration" == "yes" ]] && awk -v wps="$wps" -v min="$MUSE_MIN_WPS" 'BEGIN { exit !(wps < min) }'; then
-        suppress="min-wps"
+    elif [[ "$have_duration" == "yes" ]] \
+         && [[ "$leading_burst_passes" != "yes" ]] \
+         && awk -v twps="$trimmed_wps" -v min="$MUSE_TRIMMED_MIN_WPS" \
+                'BEGIN { exit !(twps < min) }'; then
+        suppress="trimmed-wps"
     fi
 
     # 4. title — skip the LLM call for suppressed items (fixed diagnostic title
     # tells you WHY it was suppressed when browsing the archive)
     local title
     if [[ "$suppress" != "no" ]]; then
-        title="Suppressed $suppress ${word_count}w ${duration%.*}s ${wps}wps"
+        if [[ "$suppress" == "min-words" ]]; then
+            title="Suppressed $suppress ${word_count}w ${duration%.*}s"
+        else
+            title="Suppressed $suppress ${word_count}w ${duration%.*}s active=${active_duration%.*}s twps=${trimmed_wps}wps"
+        fi
     else
         local raw_title
         raw_title="$("$ASKAI_BIN" "$TITLE_SYSTEM" "$text")" || { warn "title derivation failed (skipping): $audio"; return 1; }
@@ -524,6 +600,8 @@ ingest_one() {
         printf 'word_count: %s\n' "$word_count"
         printf 'audio_duration_s: %s\n' "$duration"
         printf 'words_per_second: %s\n' "$wps"
+        printf 'active_duration_s: %s\n' "$active_duration"
+        printf 'trimmed_wps: %s\n' "$trimmed_wps"
         printf -- '---\n\n'
         printf '%s\n' "$text"
     } > "$item_path"
