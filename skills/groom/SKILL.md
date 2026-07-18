@@ -147,7 +147,7 @@ Every backlog item has one of these statuses, derived from where the bullet sits
 | Status | How to recognize | What `/groom` does |
 | --- | --- | --- |
 | **Ready** | Bullet is under `## Ready` H2 | Check the plan: a `[Ready]` row without a `- **Next:**` sub-bullet is not really ready — write the next autonomous step (or rebracket honestly). Otherwise skip. |
-| **Active** | Bullet is under `## Active` H2 | Skip — actively being worked. |
+| **Active** | Bracket `[Active]` / `[Implementing]` (canonical alias) | **Runnable** (F260) — a mid-implementation row with a `- **Next:**` is *run / continued* like `[Ready]`, not skipped; it counts in the banner's **Runnable** bucket and crank picks it up. Only genuinely-concurrent live work (a session on it this instant) is skipped. A `[Active]` row *without* a Next is a worklist finding — write the next step or rebracket. |
 | **Blocked on questions** | Bracket `[Questions]` and bullet text contains a `→ [[Feature Doc]]` or `→ [[Open Questions]]` link | Skip — only the user can resolve those. |
 | **User-action** | Bracket `[User]` and a `- **User:**` sub-bullet naming a user-only action (F259) | Skip promotion — it is honestly-parked on the user (surfaces like a question). Check the plan: a `[User]` row without a `- **User:**` action is malformed — name it, or rebracket `[Ready]` with a `- **Next:**` if the agent can do it. |
 | **Blocked (other)** | Bracket `[Blocked]` (generic, body explains) or `[Blocked F<NNN>]` (chained on another feature) | Skip — the blocker is external. When the chained `F<NNN>` reaches `[Done]`, /groom may rebracket on a future sweep. |

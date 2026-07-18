@@ -91,7 +91,7 @@ cat > "$BACKLOG" <<'EOF'
 ## Done
 EOF
 LINE=$("$STATE" --anchor "$FIX_ROOT" triage 2>"$TMP/errB"); RC=$?
-if [ "$RC" -eq 0 ] && printf '%s' "$LINE" | grep -q "^TRIAGE — Ready 1"; then
+if [ "$RC" -eq 0 ] && printf '%s' "$LINE" | grep -q "^TRIAGE — Runnable 1"; then
     ok "B: clean gates stamped, canonical line: $LINE"
 else
     bad "B: expected stamp + line — rc=$RC, line: $LINE, err: $(cat "$TMP/errB")"
@@ -109,7 +109,15 @@ fi
 # (F244 superseded F239's stamp-freshness ceremony: worklist-empty is the gate;
 # a [Questions] row is a groomed state, not a worklist item.)
 "$STATE" --anchor "$FIX_ROOT" crank start >/dev/null
-printf -- '- **T003 — Parked, groomed** [Questions] — a groomed row ^T003\n' >> "$BACKLOG"
+# A GENUINELY groomed [Questions] row carries a reachable inline Q (post-F258 the
+# worklist counts audit-q findings, so a target-less [Questions] row is NOT groomed).
+{
+  printf -- '- **T003 — Parked, groomed** [Questions] — a groomed row ^T003\n'
+  printf -- '  - **Q1 — Which approach?** — pick one ^T003-Q1\n'
+  printf -- '    - **(A)** one.\n'
+  printf -- '    - **(B)** two.\n'
+  printf -- '  - **Recommendation:** None\n'
+} >> "$BACKLOG"
 BLOCK=$(hook_run "$TRANSCRIPT")
 if echo "$BLOCK" | grep -q '"decision": "block"'; then
     bad "B3: a groomed [Questions] row must not block (worklist stays empty) — hook out: $BLOCK"
@@ -127,6 +135,10 @@ cat > "$BACKLOG" <<'EOF'
 ## Now
 
 - **T001 — Fixture parked on a question** [Questions] — groomed, nothing ready ^T001
+  - **Q1 — Which approach?** — pick one ^T001-Q1
+    - **(A)** one.
+    - **(B)** two.
+  - **Recommendation:** None
 
 ## Done
 EOF

@@ -29,7 +29,7 @@ The asking surface: one `{slug} queries.md` per anchor, in `{slug} Track/`, that
 
 The H1 is the anchor's **status banner**, the exact form (spacing locked — the renderer and `R-query-16` depend on it):
 
-`# [<TAG>]  [[{slug}|{slug}]]  -  Ready N    Questions N   |   Now N    Next N    Later N    Verify N    Icebox N`
+`# [<TAG>]  [[{slug}|{slug}]]  -  Runnable N    User N   |   Now N    Next N    Later N    Verify N    Icebox N`
 
 - **TAG cascade** (first match wins, U and A combine): `[U]` any `[Questions]`/`[Verify]` items · `[A]` any `[Active]`/`[Ready]` items · `[U+A]` both · `[G]` items only in `## Now`/`## Next` · `[-]` items only in `## Later` · `[]` nothing anywhere.
 - **Two headline numbers** — `Ready` = `[Active]`+`[Ready]`(+`[Agreed]`) in active horizons; `Questions` = pending `Q<n>` across `[Questions]`-row feature docs plus `[Verify]`-bracket rows.
