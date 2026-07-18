@@ -2,8 +2,9 @@
 """test-f267-llm-stop-check.py — the F267 LLM stage-2 stop-check in crank-stop-hook.py.
 
 Deterministic + offline: the LLM call (`claude -p`) is mocked, so the suite tests
-the extraction / guard / fail-open / parse / log paths without a real model call.
-Set F267_LIVE=1 to additionally run one real Haiku classification.
+extraction / guard / fail-open / parse / log AND the enforce path (fire-budget +
+surfaced-check + block) without a real model call. Set F267_LIVE=1 to additionally
+run one real Haiku classification.
 """
 import importlib.util
 import json
@@ -13,6 +14,8 @@ import tempfile
 from pathlib import Path
 
 HOOK = Path.home() / ".claude/skills/workflow/scripts/crank-stop-hook.py"
+PASS = 0
+FAIL = 0
 
 
 def _load():
@@ -22,8 +25,8 @@ def _load():
     return m
 
 
-def _transcript(td, final_text):
-    tx = td / "tx.jsonl"
+def _transcript(td, final_text, name="tx.jsonl"):
+    tx = td / name
     tx.write_text("\n".join(json.dumps(x) for x in [
         {"type": "user", "message": {"content": "do the thing"}},
         {"type": "assistant", "message": {"content": [
@@ -36,8 +39,18 @@ def _transcript(td, final_text):
     return tx
 
 
-class _MockSubprocess:
-    """Stand-in for the `subprocess` module: `.run` returns a canned stdout."""
+def _anchor(td, name, with_questions=False):
+    a = td / name
+    (a / "Track").mkdir(parents=True, exist_ok=True)
+    body = "# BL\n\n## Now\n\n"
+    if with_questions:
+        body += "- **T001 — q** [Questions] — waiting ^T001\n"
+    (a / "Track" / "X Backlog.md").write_text(body)
+    return a
+
+
+class _Mock:
+    """subprocess stand-in: `.run` returns a canned stdout."""
     SubprocessError = real_subprocess.SubprocessError
     TimeoutExpired = real_subprocess.TimeoutExpired
 
@@ -46,15 +59,9 @@ class _MockSubprocess:
 
     def run(self, *a, **k):
         class R:
-            pass
-        r = R()
-        r.stdout = self._stdout
-        r.returncode = 0
-        return r
-
-
-PASS = 0
-FAIL = 0
+            stdout = self._stdout
+            returncode = 0
+        return R()
 
 
 def check(cond, label):
@@ -67,28 +74,41 @@ def check(cond, label):
         print(f"FAIL  {label}")
 
 
+def _set_conf(m, mode, budget, fired=0):
+    m.LLM_CONF.write_text(json.dumps({"mode": mode, "budget": budget, "fired": fired}))
+
+
 def main():
     m = _load()
     td = Path(tempfile.mkdtemp())
     m.GATE_DIR = td
     m.LLM_CHECK_LOG = td / "llm-check.jsonl"
-
+    m.LLM_CONF = td / "llm-check.conf"
+    empty_anchor = str(_anchor(td, "empty"))
+    q_anchor = str(_anchor(td, "hasq", with_questions=True))
     mux = ("Cleaned up the duplicates. Standing by on one decision: give me "
            "the go and I'll deploy the fix.")
     tx = _transcript(td, mux)
 
+    def clear():
+        m.LLM_CHECK_LOG.unlink(missing_ok=True)
+        m.LLM_CONF.unlink(missing_ok=True)
+
     # 1 — extraction
-    t = m._last_assistant_text(str(tx))
-    check("give me the go" in t and "Standing by" in t,
+    check("give me the go" in m._last_assistant_text(str(tx)),
           "extracts the final assistant message")
 
     # 2 — recursion guard
+    clear()
     os.environ[m.LLM_RECURSION_ENV] = "1"
-    m._llm_ask_check({"transcript_path": str(tx)}, "TEST")
-    check(not m.LLM_CHECK_LOG.exists(), "recursion guard (env set) → no log")
+    r = m._llm_ask_check({"transcript_path": str(tx)}, "T", empty_anchor)
+    check(r is None and not m.LLM_CHECK_LOG.exists(),
+          "recursion guard (env set) → no log, no block")
     del os.environ[m.LLM_RECURSION_ENV]
 
     # 3 — fail-open when the LLM call raises
+    clear()
+
     class _Raise:
         SubprocessError = real_subprocess.SubprocessError
         TimeoutExpired = real_subprocess.TimeoutExpired
@@ -96,42 +116,71 @@ def main():
         def run(self, *a, **k):
             raise OSError("no claude")
     m.subprocess = _Raise()
-    m._llm_ask_check({"transcript_path": str(tx)}, "TEST")
-    check(not m.LLM_CHECK_LOG.exists(), "fail-open (LLM raises) → no crash, no log")
+    r = m._llm_ask_check({"transcript_path": str(tx)}, "T", empty_anchor)
+    check(r is None and not m.LLM_CHECK_LOG.exists(),
+          "fail-open (LLM raises) → no crash, no log, no block")
 
-    # 4 — short message is skipped (no log, no call)
-    m.subprocess = _MockSubprocess('{"asking": true, "summary": "x"}')
-    m._llm_ask_check({"transcript_path": str(_transcript(td, "ok"))}, "TEST")
-    check(not m.LLM_CHECK_LOG.exists(), "short final message (<15 chars) → skipped")
+    # 4 — short message skipped
+    clear()
+    m.subprocess = _Mock('{"asking": true, "summary": "x"}')
+    r = m._llm_ask_check({"transcript_path": str(_transcript(td, "ok", "s.jsonl"))},
+                         "T", empty_anchor)
+    check(r is None and not m.LLM_CHECK_LOG.exists(),
+          "short final message (<15 chars) → skipped")
 
-    # 5 — mocked asking=true → one verdict row logged, parsed correctly
-    m.subprocess = _MockSubprocess(
-        '{"asking": true, "summary": "Approve deploy of the fix?"}')
-    m._llm_ask_check({"transcript_path": str(_transcript(td, mux))}, "MUX")
+    # 5 — INERT (no conf): asking=true logs a verdict but never blocks
+    clear()
+    m.subprocess = _Mock('{"asking": true, "summary": "Approve deploy?"}')
+    r = m._llm_ask_check({"transcript_path": str(tx)}, "MUX", empty_anchor)
     lines = m.LLM_CHECK_LOG.read_text().splitlines() if m.LLM_CHECK_LOG.exists() else []
     rec = json.loads(lines[-1]) if lines else {}
-    check(len(lines) == 1 and rec.get("asking") is True
-          and rec.get("anchor") == "MUX" and "ts" in rec,
-          "mocked asking=true → verdict logged (asking/anchor/ts)")
+    check(r is None and len(lines) == 1 and rec.get("asking") is True,
+          "INERT: asking=true → logged, returns None (no block)")
 
-    # 6 — markdown-fenced JSON is still parsed
-    m.LLM_CHECK_LOG.unlink(missing_ok=True)
-    m.subprocess = _MockSubprocess('```json\n{"asking": false, "summary": ""}\n```')
-    m._llm_ask_check({"transcript_path": str(_transcript(td, mux))}, "MUX")
+    # 6 — fenced ```json``` parsed
+    clear()
+    m.subprocess = _Mock('```json\n{"asking": false, "summary": ""}\n```')
+    m._llm_ask_check({"transcript_path": str(tx)}, "T", empty_anchor)
     lines = m.LLM_CHECK_LOG.read_text().splitlines() if m.LLM_CHECK_LOG.exists() else []
-    rec = json.loads(lines[-1]) if lines else {}
-    check(len(lines) == 1 and rec.get("asking") is False,
+    check(len(lines) == 1 and json.loads(lines[-1]).get("asking") is False,
           "fenced ```json``` output is parsed")
+
+    # 7 — ENFORCE budget=1, asking=true, empty queue → BLOCK + spend a fire
+    clear()
+    _set_conf(m, "enforce", 1, 0)
+    m.subprocess = _Mock('{"asking": true, "summary": "Approve deploy?"}')
+    r = m._llm_ask_check({"transcript_path": str(tx)}, "MUX", empty_anchor)
+    spent = json.loads(m.LLM_CONF.read_text()).get("fired")
+    check(isinstance(r, str) and "recorded in the queue" in r and spent == 1,
+          "ENFORCE budget=1 + asking + empty queue → block, fire spent")
+
+    # 8 — budget now spent → no block (still logs)
+    r = m._llm_ask_check({"transcript_path": str(tx)}, "MUX", empty_anchor)
+    check(r is None, "ENFORCE budget spent (fired>=budget) → no block")
+
+    # 9 — asking=true but queue HAS an open [Questions] → surfaced → no block
+    clear()
+    _set_conf(m, "enforce", 1, 0)
+    m.subprocess = _Mock('{"asking": true, "summary": "Approve deploy?"}')
+    r = m._llm_ask_check({"transcript_path": str(tx)}, "MUX", q_anchor)
+    check(r is None and json.loads(m.LLM_CONF.read_text()).get("fired") == 0,
+          "ENFORCE + asking but queue has open question → surfaced → no block")
+
+    # 10 — ENFORCE + asking=false → no block
+    clear()
+    _set_conf(m, "enforce", 1, 0)
+    m.subprocess = _Mock('{"asking": false, "summary": ""}')
+    r = m._llm_ask_check({"transcript_path": str(tx)}, "T", empty_anchor)
+    check(r is None, "ENFORCE + asking=false → no block")
 
     m.subprocess = real_subprocess
 
-    # optional — one real Haiku call
     if os.environ.get("F267_LIVE"):
-        m.LLM_CHECK_LOG.unlink(missing_ok=True)
-        m._llm_ask_check({"transcript_path": str(_transcript(td, mux))}, "LIVE")
+        clear()
+        r = m._llm_ask_check({"transcript_path": str(tx)}, "LIVE", empty_anchor)
         lines = m.LLM_CHECK_LOG.read_text().splitlines() if m.LLM_CHECK_LOG.exists() else []
-        rec = json.loads(lines[-1]) if lines else {}
-        check(rec.get("asking") is True, "LIVE Haiku call classifies MUX msg asking=true")
+        check(lines and json.loads(lines[-1]).get("asking") is True,
+              "LIVE Haiku call classifies MUX msg asking=true")
 
     print("-" * 40)
     print(f"F267 LLM stop-check test: {PASS} passed, {FAIL} failed")

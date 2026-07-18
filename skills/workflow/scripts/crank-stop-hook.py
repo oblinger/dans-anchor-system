@@ -44,6 +44,7 @@ DISARM_LOG = GATE_DIR / "disarms.jsonl"
 # (stage 1) is structurally blind to. INERT for now — logs a verdict, blocks
 # nothing. Runs only on a work-armed, clean-worklist stop (the sole gap).
 LLM_CHECK_LOG = GATE_DIR / "llm-check.jsonl"
+LLM_CONF = GATE_DIR / "llm-check.conf"   # {mode, budget, fired} — absent → inert
 LLM_MODEL = "haiku"
 LLM_TIMEOUT = 30
 LLM_RECURSION_ENV = "STOPGATE_LLM_CHECK"
@@ -202,6 +203,50 @@ def _block(gate_path, reason, anchor=None, count=None):
     return 0
 
 
+def _llm_config():
+    """`{mode: 'inert'|'enforce', budget: int, fired: int}`. Absent/unreadable →
+    inert (fail-safe). `budget` is the GLOBAL cap on how many times stage-2 may
+    BLOCK before it auto-reverts to allowing — the confidence dial (debut = 1).
+    Turn it up as trust in the rule grows; drop to inert to disarm."""
+    try:
+        c = json.loads(LLM_CONF.read_text(encoding="utf-8"))
+        return {"mode": c.get("mode", "inert"),
+                "budget": int(c.get("budget", 0)),
+                "fired": int(c.get("fired", 0))}
+    except (OSError, ValueError, TypeError):
+        return {"mode": "inert", "budget": 0, "fired": 0}
+
+
+def _llm_spend_fire(cfg):
+    """Persist one spent fire against the global budget. Fail-safe (a write
+    error just means the budget isn't decremented — bounded the other way by the
+    per-stop nature of the check)."""
+    try:
+        cfg = dict(cfg)
+        cfg["fired"] = int(cfg.get("fired", 0)) + 1
+        GATE_DIR.mkdir(parents=True, exist_ok=True)
+        LLM_CONF.write_text(json.dumps(cfg), encoding="utf-8")
+    except OSError:
+        pass
+
+
+def _queue_has_open_question(anchor_path):
+    """Coarse surfaced-check: does the anchor's backlog carry any open
+    `[Questions]` / `[User]` row? If so, stage-2 errs toward NOT blocking (the
+    ask is plausibly already recorded). Bounded to 3 dir levels for latency.
+    Fail-safe True (→ do not block) on any error."""
+    try:
+        base = Path(anchor_path)
+        for pat in ("* Backlog.md", "*/* Backlog.md", "*/*/* Backlog.md"):
+            for bl in base.glob(pat):
+                txt = bl.read_text(encoding="utf-8")
+                if "[Questions]" in txt or "[User]" in txt:
+                    return True
+        return False
+    except (OSError, ValueError):
+        return True
+
+
 def _last_assistant_text(transcript_path):
     """Concatenated text of the FINAL assistant message — the words the agent is
     about to end its turn on (what the LLM stage-2 check reads)."""
@@ -220,18 +265,23 @@ def _last_assistant_text(transcript_path):
     return text.strip()
 
 
-def _llm_ask_check(payload, anchor):
-    """INERT stage-2 (F267): on a work-armed, clean-worklist stop, ask an LLM
-    whether the agent's final message is WAITING ON THE USER (a question / go /
-    decision) that the worklist gate can't see because it was never recorded.
-    Logs the verdict to llm-check.jsonl; blocks nothing yet. Recursion-guarded
-    (skips when spawned by itself) and fully fail-open — never affects the stop."""
+def _llm_ask_check(payload, anchor, anchor_path):
+    """Stage-2 (F267): on a work-armed, clean-worklist stop, ask an LLM whether
+    the agent's final message is WAITING ON THE USER (a question / go / decision)
+    the worklist gate can't see because it was never recorded. ALWAYS logs a
+    verdict to llm-check.jsonl. Returns a block-reason (str) only in ENFORCE mode
+    when the agent is asking AND no open question is surfaced AND the global fire
+    budget is not spent (and spends one fire); otherwise None. INERT mode always
+    returns None. Recursion-guarded + fully fail-open — never breaks the stop."""
     if os.environ.get(LLM_RECURSION_ENV):
-        return
+        return None
+    asking = False
+    summary = ""
+    got_verdict = False
     try:
         msg = _last_assistant_text(payload.get("transcript_path", ""))
         if len(msg) < 15:
-            return
+            return None
         prompt = (
             "You are a strict classifier. An AI agent just wrote its FINAL "
             "message before ending its turn. Decide whether it is WAITING ON "
@@ -250,19 +300,39 @@ def _llm_ask_check(payload, anchor):
         out = (r.stdout or "").strip()
         if "```" in out or not out.startswith("{"):
             import re
-            m = re.search(r"\{.*\}", out, re.S)
-            if m:
-                out = m.group(0)
+            mm = re.search(r"\{.*\}", out, re.S)
+            if mm:
+                out = mm.group(0)
         verdict = json.loads(out)
+        asking = bool(verdict.get("asking"))
+        summary = str(verdict.get("summary", ""))[:200]
+        got_verdict = True
         rec = {"ts": datetime.now(timezone.utc).isoformat(), "anchor": anchor,
-               "asking": bool(verdict.get("asking")),
-               "summary": str(verdict.get("summary", ""))[:200],
-               "msg_excerpt": msg[:200]}
+               "asking": asking, "summary": summary, "msg_excerpt": msg[:200]}
         GATE_DIR.mkdir(parents=True, exist_ok=True)
         with open(LLM_CHECK_LOG, "a", encoding="utf-8") as fh:
             fh.write(json.dumps(rec) + "\n")
-    except Exception:  # noqa: BLE001 — inert stage must never break the stop
-        pass
+    except Exception:  # noqa: BLE001 — the check must never break the stop
+        return None
+    # Enforce decision — only on a valid asking verdict; fail-safe = allow.
+    try:
+        if not (got_verdict and asking):
+            return None
+        cfg = _llm_config()
+        if cfg["mode"] != "enforce" or cfg["fired"] >= cfg["budget"]:
+            return None
+        if _queue_has_open_question(anchor_path):
+            return None
+        _llm_spend_fire(cfg)
+        q = summary or "a question"
+        return ("stop-gate (F267): your final message asks the user something — "
+                "\"" + q + "\" — that is NOT recorded in the queue. Stopping with "
+                "a chat-only question strands the user. Record it via "
+                "`state --anchor . <doc> Q+ define` (or just take the action), "
+                "then stop. (This gate fires a limited number of times, then "
+                "allows — do not loop; if you cannot act, say why.)")
+    except Exception:  # noqa: BLE001 — enforce must never break the stop
+        return None
 
 
 def main():
@@ -297,7 +367,12 @@ def main():
     if count is None:
         return _allow(crank_sp, gate_path)  # unreadable worklist → fail open
     if count == 0:
-        _llm_ask_check(payload, slug or Path(anchor_path).name)  # F267 stage 2 (inert)
+        # F267 stage 2: always logs a verdict; returns a block-reason only in
+        # enforce mode (asking + unsurfaced + budget left), else None.
+        reason = _llm_ask_check(payload, slug or Path(anchor_path).name, anchor_path)
+        if reason:
+            print(json.dumps({"decision": "block", "reason": reason}))
+            return 0
         return _allow(crank_sp, gate_path)  # clean worklist → stage-1 allow
 
     reason = (
