@@ -27,7 +27,7 @@ An Interface document is defined by four invariants:
 1. **Layer-completeness.** It describes everything a caller above the layer needs to use the layer — types, operations, invariants, error modes, lifecycle, conceptual model. A reader using this layer should not need to read the layer below it.
 2. **Hiding.** Within the constraint of completeness, the Interface hides as much as it can. Implementation details that are not part of the contract are not surfaced. The Interface is the *contract*, not the *implementation*.
 3. **Human-authored.** Drafts may be scaffolded (`rewire` creates an empty scaffold when missing), but every Interface ships through human review and editing. Interfaces are designed.
-4. **Human-audited.** New Interface docs and significant modifications go through a user-validation gate (see [[SKA workflow]] § Interface-validation gate). The user reads and approves; the agent drafts and proposes.
+4. **Human-audited.** New Interface docs and significant modifications go through a user-validation gate (§ Interface-validation gate). The user reads and approves; the agent drafts and proposes.
 
 These four invariants distinguish Interface from related facets:
 
@@ -91,9 +91,23 @@ The `## What's Hidden` section is a self-documenting check: writing "callers do 
 
 - **Create** — `rewire` scaffolds the file when missing on a code anchor; the scaffold is empty (TODOs in each section). Rewire also files a backlog row `## Now [Designing] — F<n> Author top-level Interface for {slug}` to surface the missing-content work.
 - **Author** — the user collaborates with the agent to fill in the scaffold. This is design-bearing work; goes through `[Designing]` → `[Ready]` only after user agreement on the layer contract.
-- **Validate** — promotion to `[Done]` requires user verification that the Interface accurately describes the layer. See [[SKA workflow]] § Interface-validation gate.
+- **Validate** — promotion to `[Done]` requires user verification that the Interface accurately describes the layer. See § Interface-validation gate.
 - **Maintain** — Interface drifts when callers see surface changes. Significant API additions, removals, renames, or conceptual-model changes go through the validation gate again. Cosmetic edits don't.
 - **Split** — when a top-level Interface crosses ~500 lines, introduce sub-Interfaces for the internal layers; the top shrinks to a layer-index + the cross-cutting contract pieces.
+
+## Interface-validation gate
+
+Interfaces are the human-authored layer contracts callers above the layer rely on. Creating a new Interface doc OR significantly modifying an existing one is **design-bearing work** — the agent drafts and proposes; the user validates. This gate is the state-transition rule the [[SKA workflow|workflow discipline]] enforces for Interface docs.
+
+**The gate fires when:**
+
+- **Creating a new `{slug} Interface.md`** — the file goes to `[Designing]` immediately. The agent drafts the layer contract (or works from a `rewire`-generated scaffold); promotion to `[Ready]` requires user approval of the contract; promotion to `[Done]` requires user verification that the final Interface accurately describes the layer.
+- **Significantly modifying an existing Interface** — same gate. "Significant" means: adding, removing, or renaming public API entries; changing the conceptual model the doc presents; reshaping `## Public Modules` / `## How They Group`; changing the `## What's Hidden` boundary.
+- **Migrating from legacy `{slug} Rollup.md` to `{slug} Interface.md`** — counts as significant (the semantics tightened — see F062). Same gate. Sub-Interfaces (`{slug} {LayerName} Interface.md`) are held to the same gate — nested layers don't bypass it.
+
+**The gate does NOT fire for:** typo/grammar fixes that don't change meaning; dead-link repair, wiki-link target updates, basename normalizations; terminology sweeps that don't change what's documented (e.g., "rollup" → "interface" within doc body); reformatting that doesn't shift the contract; agent-driven structural rewrites the user already approved.
+
+**Why the gate matters.** Without it, Interface docs drift into agent-generated noise that doesn't match the user's mental model of the layer. The layer-completeness and hiding invariants (§ Defining Properties, § The Hiding Invariant) require a human reviewer — they can't be auto-checked. The gate is a checkpoint, not a brake: the agent does the writing work; the user reads and approves. `rewire` scaffolds a missing Interface (empty TODO sections) AND files a `## Now [Designing]` backlog row pointing the user to author the contract — the scaffold is a placeholder until the gate completes, never a contract itself.
 
 ## Relationship to the Root-Module Doc
 
@@ -118,14 +132,14 @@ In codebases without a clear single root (multi-binary workspaces, monorepos), t
 - **[[DAS Module Doc]]** — auto-generated per-module reference; Interface is the human-authored layer contract that groups modules into a vocabulary.
 - **[[DAS Architecture]]** — the *how* (internal structure, flow, design rationale); Interface is the *what callers see*.
 - **[[DAS User Dispatch]]** — Interface lives here.
-- **[[SKA workflow]]** § Interface-validation gate — user-collaboration gate for new and significantly-modified Interfaces.
+- **[[SKA workflow]]** — the workflow discipline enforces the § Interface-validation gate (which lives here) as an Interface doc's state transitions.
 - **[[SKA rewire]]** — creates the scaffold and files the backlog row when an Interface is missing.
 
 # BRIEF
 
-*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative contract is the body above. Per-anchor Interface content lives in each anchor's own `{slug} Interface.md`, never here; scaffold, validation, and audit mechanics live in [[SKA rewire]] / [[SKA workflow]] / [[audit-docs]] — link to those rather than restating them.)*
+*(Maintainer note — facet-specific cautions for whoever edits this spec. The normative contract is the body above. Per-anchor Interface content lives in each anchor's own `{slug} Interface.md`, never here; scaffold and audit mechanics live in [[SKA rewire]] / [[audit-docs]] — link to those rather than restating them. The validation-gate contract lives here (§ Interface-validation gate); [[SKA workflow]] enforces it as state transitions and links back.)*
 
 - **Inclusion test** — a change belongs here only if it alters the contract every Interface doc must satisfy (invariants, required sections, required links, lifecycle gates, audit checks).
 - **Audit category names are consumed by tooling** — the identifiers under § Audit Categories are cited by `/audit docs`; don't rename or drop them (or the two Required Links contracts) without updating callers.
 - **Don't regress the section menu to a checklist** — § Document Structure lists canonical sections as a menu; don't mark optional rows "always required" or remove rows because some anchor doesn't use them.
-- **Cross-spec consistency** — keep aligned with [[DAS All Files]] (row 1 link contract), [[DAS Module Doc]] (auto-generated vs. human-authored split), [[DAS Architecture]] (*how* vs. *what callers see*), [[DAS User Dispatch]] (location/listing), and [[SKA workflow]] (validation gate); a drift here propagates to all of them.
+- **Cross-spec consistency** — keep aligned with [[DAS All Files]] (row 1 link contract), [[DAS Module Doc]] (auto-generated vs. human-authored split), [[DAS Architecture]] (*how* vs. *what callers see*), and [[DAS User Dispatch]] (location/listing); a drift here propagates to all of them. The § Interface-validation gate is enforced by [[SKA workflow]] — keep the two in sync.

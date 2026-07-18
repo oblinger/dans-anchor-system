@@ -404,7 +404,7 @@ The synthesis-vs-reference split: **Dev** holds audit-tied implementation refere
       ~/.claude/skills/workflow/scripts/state --anchor {slug} Backlog F+ define
   ```
 
-  The agent does NOT attempt to fill in the contract content — that's the user-collaboration step per [[SKA workflow]] § Interface-validation gate.
+  The agent does NOT attempt to fill in the contract content — that's the user-collaboration step per [[DAS Interface]] § Interface-validation gate.
 
 - [ ] **Legacy migration:** if `{slug} Rollup.md` exists (predecessor to Interface), do NOT auto-rename. Surface a `## Now [Designing]` backlog row via `state Backlog F+ define`:
 

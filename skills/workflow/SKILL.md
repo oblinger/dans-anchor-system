@@ -204,27 +204,7 @@ Every transition is driven by an explicit skill or trigger. There are no silent 
 
 ## Interface-validation gate
 
-Interfaces (per [[DAS Interface]]) are the human-authored layer contracts that callers above the layer rely on. Creating a new Interface doc OR significantly modifying an existing one is **design-bearing work** — the agent's role is to draft and propose; the user's role is to validate.
-
-**The gate fires when:**
-
-- **Creating a new `{slug} Interface.md`** — the file goes to `[Designing]` immediately. The agent drafts the layer contract (or works from a `rewire`-generated scaffold); promotion to `[Ready]` requires user approval of the contract; promotion to `[Done]` requires user verification that the final Interface accurately describes the layer.
-- **Significantly modifying an existing Interface** — same gate. "Significant" means: adding, removing, or renaming public API entries; changing the conceptual model the doc presents; reshaping `## Public Modules` / `## How They Group`; changing the `## What's Hidden` boundary.
-- **Migrating from legacy `{slug} Rollup.md` to `{slug} Interface.md`** — counts as significant (the semantics tightened — see F062). Same gate.
-
-**The gate does NOT fire for:**
-
-- Typo / grammar fixes that don't change meaning.
-- Dead-link repair, wiki-link target updates, basename normalizations.
-- Terminology sweeps that don't change what's documented (e.g., "rollup" → "interface" rename within doc body).
-- Reformatting that doesn't shift the contract (column widths, table polish, header levels).
-- Agent-driven structural rewrites the user already approved.
-
-**Why the gate matters.** Without it, Interface docs drift into agent-generated noise that doesn't match the user's mental model of the layer. The layer-completeness and hiding invariants ([[DAS Interface]] § Defining Properties) require a human reviewer — they can't be auto-checked. The gate is a checkpoint, not a brake: the agent does the writing work; the user reads and approves.
-
-**Sub-Interfaces.** Same gate applies — creating a new `{slug} {LayerName} Interface.md` (sub-Interface) or significantly modifying one goes through user validation. Nested layers don't bypass the rule.
-
-**Rewire's role.** When `rewire` finds a missing Interface, it scaffolds the file (empty TODO sections) AND files a `## Now [Designing]` backlog row pointing the user to author the contract collaboratively. The scaffold itself is not a contract; it's a placeholder until the gate completes.
+Interface docs carry a user-validation gate: creating a new `{slug} Interface.md` or significantly modifying one is design-bearing work that must pass through `[Designing]` → `[Ready]` (user approves the contract) → `[Done]` (user verifies it describes the layer). The gate's full contract — when it fires, when it doesn't, and why — lives in **[[DAS Interface]] § Interface-validation gate**. This discipline enforces it as the state transitions for any Interface doc.
 
 ## Blocked, Waiting, and Watching semantics
 
