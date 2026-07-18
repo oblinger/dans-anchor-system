@@ -17,7 +17,7 @@ The **reading surface** — one user-facing page per skill (how to *use* it, no 
 | [[SKL Doc\|Doc]]+ | [[DAS Edit\|Edit]],  [[DAS MD\|MD]],  [[DAS Viz\|Viz]],  [[DAS IO\|IO]],   |
 | [[SKL Hygiene\|Hygiene]]+ | [[DAS Audit\|Audit]],  [[DAS Dupes\|Dupes]],  [[DAS Maintain\|Maintain]],  [[DAS Rewire\|Rewire]],  [[DAS Slug Scan\|Slug Scan]],  [[DAS Tidy\|Tidy]],   |
 | [[SKL Search\|Search]]+ | [[DAS Book\|Book]],  [[DAS Corp\|Corp]],  [[DAS Find\|Find]],  [[DAS Meta Survey\|Meta Survey]],  [[DAS Person\|Person]],  [[DAS Product\|Product]],  [[DAS Profile\|Describe]],  [[DAS Purchase\|Purchase]],  [[DAS Research\|Research]],  [[DAS Research Skill\|Research Skill]],  [[DAS Search Overview\|Search Overview]],  [[DAS Skill\|Skill]],  [[DAS Software\|Software]],  [[DAS Survey\|Survey]],   |
-| [[SKL Utility\|Utility]]+ | [[DAS Cook\|Cook]],  [[DAS Ctrl\|Ctrl]],  [[DAS Exp\|Exp]],  [[DAS Parley\|Parley]],  [[DAS Snip\|Snip]],   |
+| [[SKL Utility\|Utility]]+ | [[DAS Bridge\|Bridge]],  [[DAS Cook\|Cook]],  [[DAS Ctrl\|Ctrl]],  [[DAS Exp\|Exp]],  [[DAS Parley\|Parley]],  [[DAS Snip\|Snip]],   |
 | --- | |
 | [[DAS Code Skill]] | How to use the development workflow — from planning through implementation and release. |
 | [[anchor/DAS Move]] | `/move` relocates an anchor folder to a new path and updates every path-dependent system that indexes it — HookAnchor, Claude Code session history, hardcoded paths inside the anchor's own configs, … |
