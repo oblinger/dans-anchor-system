@@ -691,7 +691,7 @@ def _include_target(target: str) -> str:
 # `base_traits` so both dispatchers expand an anchor's effective traits from
 # one compiled source.
 ANCHOR_BASE_TRAITS = ("audit-on-write", "ob-remote-ops", "state-region", "ios",
-                      "code-mirror")
+                      "code-mirror", "pathguard")
 
 
 def declared_anchor_traits(vault: Path) -> list[str]:

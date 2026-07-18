@@ -1,6 +1,6 @@
 # RULESET R-pathguard
 include::
-description:: Veto-path protection for state-managed file regions (F131) — deny the agent's Edit/Write on surfaces owned by a script (`state`, `/atlas`, the queries renderer) and redirect to the owning tool. Fires at `tool:pre:*` through the live dispatcher; adopt via the `pathguard` trait. The softer vault-wide advisory on state-managed regions is [[R-state-region]].
+description:: Veto-path protection for state-managed file regions (F131) — deny the agent's Edit/Write on surfaces owned by a script (`state`, `/atlas`, the queries renderer) and redirect to the owning tool. Fires at `tool:pre:*` through the live dispatcher. Rides the anchor base — fires vault-wide (F264, 2026-07-18; formerly opt-in via the `pathguard` trait, which no anchor adopted, so the DENY never fired — only the softer [[R-state-region]] advisory rode the base). The two are twins on the same surfaces: this one blocks the edit, the advisory only reminds.
 
 > [!info] Provenance
 > The first consumer of the F131 veto path (per [[F131 — Hooks — fast inner-loop check substrate (path-rule alerts first)|F131]] — realized on the Warden substrate rather than a separate hook binary). User direct edits are unaffected: the rules fire only on the agent's tool calls. A denied call carries the redirect message, so the agent lands on the owning script instead.
@@ -107,3 +107,33 @@ def body(ctx):
 ```
 
 **Why:** the vault has ONE Atlas and one maintenance path (per the one-Atlas feedback rule); a hand edit silently breaks the slug-sync invariants the skill enforces.
+
+### RULE R-pathguard-05 — feature-doc question regions are `state`-owned on Write too (when:: tool:pre:Write)
+
+```python
+def body(ctx):
+    ev = getattr(ctx, "event", None)
+    target = getattr(ev, "target", None) if ev else None
+    if not target:
+        return []
+    import re
+    from pathlib import Path
+    p = Path(target)
+    if not re.match(r"F\d+\s+—", p.name):
+        return []
+    # Doc creation is exempt — the /feature flow Writes a NEW doc's initial
+    # Open Questions block. Fire only when the doc already exists on disk.
+    if not p.is_file():
+        return []
+    inp = getattr(ev, "input", None) or {}
+    content = inp.get("content") or ""
+    if not any(h in content for h in ("## Open Questions", "## Resolved")):
+        return []
+    return ["DENY: `## Open Questions` / `## Resolved` in a feature doc are owned by "
+            "`state <doc> <Q<n>|Q+> <define|resolve|remove>` — a wholesale Write to an "
+            "existing feature doc bypasses the same lifecycle discipline Edit is denied for."]
+```
+
+The Write-tool sibling of rule 02: rule 02 denies the Edit path into an existing feature doc's question region, this one denies the whole-file Write path. Doc *creation* is exempt by construction — the rule fires only when the target already exists (`p.is_file()`), so the `/feature` flow authoring a new doc's initial `## Open Questions` block never triggers it (the same exemption R-state-region-02 uses).
+
+**Why:** guarding Edit alone just teaches the failure mode a new verb (the rule-03 lesson) — the whole reason rule 03 exists for the backlog surface. The feature-doc question region needs the identical Write cover so `state`'s ask-format / numbering / lifecycle gates can't be bypassed by overwriting the file.
