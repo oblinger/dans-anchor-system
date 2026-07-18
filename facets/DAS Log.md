@@ -12,7 +12,7 @@ Facet spec defining the standardized format for an anchor's running narrative �
 | Rules | [[R-log]],  [[R-dated-entry-stream]],   |
 | ... | [[anchor-page]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
 
-**TLDR** — The Log facet standardizes how any anchor records its running history. Instances live at `{slug} Log/` (folder form, default) or `{slug} Log.md` (single-file, minimal). **Cardinality: one per anchor** — each anchor has at most one Log. Folder form uses a `{slug} Log.md` dispatch page (entries newest-first); single-file form inlines entries as H2s. Entry filenames are ISO-date-prefixed (`YYYY-MM-DD <topic>.<ext>`). Logs capture what *happened*; spec/convention content belongs in dedicated facets.
+**TLDR** — The Log facet standardizes how any anchor records its running history. Instances live at `{slug} Log/` (folder form, default) or `{slug} Log.md` (single-file, minimal). **Cardinality: one per anchor** — each anchor has at most one Log. Folder form uses a `{slug} Log.md` dispatch page (entries newest-first); single-file form inlines entries as H2s. Entry filenames are ISO-date-prefixed with an em-dash (`YYYY-MM-DD — <topic>.<ext>`, per [[DAS dated-entry-stream]]). Logs capture what *happened*; spec/convention content belongs in dedicated facets.
 
 description:: the Log facet — dated entries capturing what happened on what day
 
@@ -30,10 +30,10 @@ A Log captures **what happened on what day**: per-session plans + outcomes + dec
 {slug} Log/
 ├── .anchor                                            ← folder-anchor marker (optional)
 ├── {slug} Log.md                                      ← dispatch page (this facet)
-├── YYYY-MM-DD <short topic>.md                        ← one entry per session
-├── YYYY-MM-DD <other topic>.md
-├── YYYY-MM <topic>.docx                               ← non-markdown artifacts OK
-└── YYYY-MM-DD <topic>.pdf
+├── YYYY-MM-DD — <short topic>.md                      ← one entry per session
+├── YYYY-MM-DD — <other topic>.md
+├── YYYY-MM — <topic>.docx                             ← non-markdown artifacts OK
+└── YYYY-MM-DD — <topic>.pdf
 ```
 
 The dispatch page `{slug} Log.md` is a thin index — header dispatch table, then one row per entry, **newest first**. The actual narrative lives in the dated entry files.
@@ -62,8 +62,8 @@ description:: dated entries — what happened on what day in the {Full Name} anc
 
 | -[[{slug} Log]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Track]] → [DAS Log](hook://p/DAS%20Log)<br>: <tagline> |
 | --- | --- |
-| [[YYYY-MM-DD <topic>]] | <one-line summary> |
-| [[YYYY-MM-DD <topic>]] | <one-line summary> |
+| [[YYYY-MM-DD — <topic>]] | <one-line summary> |
+| [[YYYY-MM-DD — <topic>]] | <one-line summary> |
 | ... |  |
 
 ## What this is
@@ -103,9 +103,9 @@ H2s above are **suggestions, not required**. The body is freeform; the only inva
 
 ## Naming conventions
 
-- **Entry filename:** `YYYY-MM-DD <short topic>.<ext>` — ISO date prefix forces chronological sort.
+- **Entry filename:** ISO date prefix + em-dash + title — `YYYY-MM-DD — <short topic>.<ext>`. The pattern is owned by [[DAS dated-entry-stream]] § Dated entry-file naming (this facet cites, does not re-spell); the ISO prefix forces chronological sort. *Legacy space-separated instances (`YYYY-MM-DD <topic>` — e.g. [[Disk Log]], [[SV Log]]) are grandfathered and migrate on next touch (Q1 → A, 2026-07-17).*
 - **Topic:** 3–7 words capturing the dominant theme of the session.
-- **Ambiguous date precision:** `YYYY-MM <topic>.<ext>` when only month is known; `YYYY <topic>.<ext>` when only year is known.
+- **Ambiguous date precision:** `YYYY-MM — <topic>.<ext>` when only month is known; `YYYY — <topic>.<ext>` when only year is known.
 - **Extension:** `.md` default; other formats (`.docx`, `.pptx`, `.pdf`, `.jpeg`) allowed when the artifact IS the entry.
 
 ## What does NOT belong in a Log

@@ -24,11 +24,11 @@ When the log is folder-form, the folder contains a `{slug} Log.md` whose H1 is `
 
 **Why:** the dispatch file is the entry point — without it, the folder is a directory listing with no index.
 
-### RULE R-log-03 — Entry filename matches `YYYY-MM-DD <topic>` (sampled)
+### RULE R-log-03 — Entry filename is ISO-date-prefixed (sampled)
 check:: log_entry_filenames
 
-Every entry file (any extension) matches one of these patterns:
-- `^\d{4}-\d{2}-\d{2} .+\.(md|docx|pptx|pdf|jpeg|jpg|png|txt)$` (full date)
+Go-forward naming is `YYYY-MM-DD — <topic>` (ISO date + em-dash + title), owned by [[DAS dated-entry-stream]] § Dated entry-file naming (Q1 → A, 2026-07-17). The check stays permissive so legacy space-separated names grandfather cleanly — every entry file (any extension) matches one of:
+- `^\d{4}-\d{2}-\d{2} .+\.(md|docx|pptx|pdf|jpeg|jpg|png|txt)$` (full date; the leading space admits both the ` — ` em-dash form and legacy ` <topic>` space form)
 - `^\d{4}-\d{2} .+\.(md|...)$` (year-month only, allowed when day unknown)
 - `^\d{4} .+\.(md|...)$` (year only, allowed when month unknown)
 
