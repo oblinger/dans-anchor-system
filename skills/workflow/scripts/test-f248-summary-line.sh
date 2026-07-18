@@ -2,8 +2,8 @@
 # test-f248-summary-line.sh — the F248 canonical closing/summary-line emitter
 # (`state <anchor> summary-line --recommend <directive>`). Asserts the exact
 # T034 line character-for-character for every recommendation directive, on a
-# fixture anchor whose banner carries known Ready/Questions/Verify counts:
-#   - counts (Ready/Questions/Verify), ` . ` separators, `Groomed`, and the
+# fixture anchor whose banner carries known Runnable/User/Verify counts:
+#   - counts (Runnable/User/Verify), ` . ` separators, `Groomed`, and the
 #     recommendation slot are all OWNED by state and must match the golden line;
 #   - `--recommend` is REQUIRED (never-strand guard) — omitting it errors;
 #   - an unknown directive errors;
@@ -42,7 +42,7 @@ set_banner() {  # $1=ready $2=questions $3=verify
 ---
 kind: queries
 ---
-# [U+A] F248FIX — Ready $1 . Questions $2 . Verify $3 — Legwork 0
+# [U+A] F248FIX — Runnable $1 . User $2 . Verify $3 — Legwork 0
 EOF
 }
 
@@ -53,23 +53,23 @@ golden() {  # $1=label $2=directive $3=expected-line
     if [ "$out" = "$3" ]; then ok "$1"; else bad "$1 — got: [$out] want: [$3]"; fi
 }
 
-# ---------- Scenario 1 — Ready 3, Questions 1, Verify 2 (singular 'question') ----------
+# ---------- Scenario 1 — Runnable 3, User 1, Verify 2 (singular phrasing) ----------
 set_banner 3 1 2
-golden "compact"   compact   "F248FIX: please /compact . Groomed . Ready 3 . Questions 1 . Verify 2"
-golden "clear"     clear     "F248FIX: please /clear . Groomed . Ready 3 . Questions 1 . Verify 2"
-golden "crank"     crank     "F248FIX: crank with ' . Groomed . Ready 3 . Questions 1 . Verify 2"
-golden "nothing"   nothing   "F248FIX: crank with ' . Groomed . Ready 3 . Questions 1 . Verify 2"
-golden "answer/1"  answer    "F248FIX: answer the 1 question . Groomed . Ready 3 . Questions 1 . Verify 2"
-golden "clear-all" clear-all "F248FIX: all clear . Groomed . Ready 3 . Questions 1 . Verify 2"
-golden "done"      done      "F248FIX: all clear . Groomed . Ready 3 . Questions 1 . Verify 2"
+golden "compact"   compact   "F248FIX: please /compact . Groomed . Runnable 3 . User 1 . Verify 2"
+golden "clear"     clear     "F248FIX: please /clear . Groomed . Runnable 3 . User 1 . Verify 2"
+golden "crank"     crank     "F248FIX: crank with ' . Groomed . Runnable 3 . User 1 . Verify 2"
+golden "nothing"   nothing   "F248FIX: crank with ' . Groomed . Runnable 3 . User 1 . Verify 2"
+golden "answer/1"  answer    "F248FIX: answer the 1 on your plate . Groomed . Runnable 3 . User 1 . Verify 2"
+golden "clear-all" clear-all "F248FIX: all clear . Groomed . Runnable 3 . User 1 . Verify 2"
+golden "done"      done      "F248FIX: all clear . Groomed . Runnable 3 . User 1 . Verify 2"
 
-# ---------- Scenario 2 — Questions 2 (plural 'questions') ----------
+# ---------- Scenario 2 — User 2 (plural) ----------
 set_banner 3 2 2
-golden "answer/2"  answer    "F248FIX: answer the 2 questions . Groomed . Ready 3 . Questions 2 . Verify 2"
+golden "answer/2"  answer    "F248FIX: answer the 2 on your plate . Groomed . Runnable 3 . User 2 . Verify 2"
 
 # ---------- Scenario 3 — all-zero banner ----------
 set_banner 0 0 0
-golden "crank/0"   crank     "F248FIX: crank with ' . Groomed . Ready 0 . Questions 0 . Verify 0"
+golden "crank/0"   crank     "F248FIX: crank with ' . Groomed . Runnable 0 . User 0 . Verify 0"
 
 # ---------- Guard A — --recommend is required ----------
 set_banner 3 1 2

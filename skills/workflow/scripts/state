@@ -1836,8 +1836,10 @@ _CONDITIONAL_NEXT_RE = re.compile(
 )
 
 _BANNER_NUM_RE = {
-    "ready": re.compile(r"Ready\s+(\d+)"),
-    "questions": re.compile(r"Questions\s+(\d+)"),
+    # F260 — the two actionable buckets: Runnable (= Ready + Active) and User
+    # (= Questions + User). Verify is the horizon count on the right of the bar.
+    "runnable": re.compile(r"Runnable\s+(\d+)"),
+    "user": re.compile(r"User\s+(\d+)"),
     "verify": re.compile(r"Verify\s+(\d+)"),
 }
 
@@ -2001,8 +2003,8 @@ def cmd_triage(slug, anchor_path, args):
         d = cur - prev_val
         return f"{name} {cur} ({'+' if d > 0 else ''}{d})"
 
-    line = ("TRIAGE — " + _part("Ready", counts["ready"])
-            + " · " + _part("Questions", counts["questions"])
+    line = ("TRIAGE — " + _part("Runnable", counts["runnable"])
+            + " · " + _part("User", counts["user"])
             + f" · Verify {counts['verify']}")
 
     _TRIAGE_DIR.mkdir(parents=True, exist_ok=True)
@@ -2010,8 +2012,8 @@ def cmd_triage(slug, anchor_path, args):
         "ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "backlog_sha256": _backlog_sha256(backlog_path),
         "backlog_path": str(backlog_path),
-        "ready": counts["ready"],
-        "questions": counts["questions"],
+        "runnable": counts["runnable"],
+        "user": counts["user"],
         "verify": counts["verify"],
         "line": line,
     }, indent=2))
@@ -2054,23 +2056,24 @@ def cmd_groom_list(slug, anchor_path, args):
         return 0
     # Empty worklist — the "where do I stand" status line (F244 secondary UX).
     counts = _read_banner_counts(backlog_path, slug)
-    r, q, v = counts.get("ready", 0), counts.get("questions", 0), counts.get("verify", 0)
-    # T034 exact format: `{SLUG}: {recommendation} . Groomed . Ready N . Questions M . Verify K`
-    # ENTIRE line blue (rule 5). `Groomed` is fixed (this branch only runs once the
-    # worklist is empty — rule 3). The recommendation slot (rule 2) carries only what
-    # this presenter can DERIVE; context-window recs (`please /clear` / `please /compact`)
-    # are the agent's to add at chat close (see [[SKA workflow]] § Never strand). Omit
-    # the slot entirely when nothing applies (rule 2).
+    r, q, v = counts.get("runnable", 0), counts.get("user", 0), counts.get("verify", 0)
+    # T034 exact format (F260 relabel): `{SLUG}: {recommendation} . Groomed .
+    # Runnable N . User M . Verify K`. ENTIRE line blue (rule 5). `Groomed` is
+    # fixed (this branch only runs once the worklist is empty — rule 3). The
+    # recommendation slot (rule 2) carries only what this presenter can DERIVE;
+    # context-window recs (`please /clear` / `please /compact`) are the agent's
+    # to add at chat close (see [[SKA workflow]] § Never strand). Omit the slot
+    # entirely when nothing applies (rule 2).
     if r == 0 and q == 0 and v == 0:
         rec = "all clear"                                    # distinct all-zero phrasing (rule 3)
     elif q > 0:
-        rec = f"answer the {q} question" + ("" if q == 1 else "s")
+        rec = f"answer the {q} on your plate"
     elif r > 0:
         rec = "crank with '"
     else:                                                    # only Verify work — user-passive
         rec = ""
     rec_part = f"{rec} . " if rec else ""
-    print(_blue(f"{slug}: {rec_part}Groomed . Ready {r} . Questions {q} . Verify {v}"))
+    print(_blue(f"{slug}: {rec_part}Groomed . Runnable {r} . User {q} . Verify {v}"))
     return 0
 
 
@@ -2083,7 +2086,7 @@ _SUMMARY_REC = {
     "clear": lambda r, q, v: "please /clear",
     "crank": lambda r, q, v: "crank with '",
     "nothing": lambda r, q, v: "crank with '",
-    "answer": lambda r, q, v: f"answer the {q} question" + ("" if q == 1 else "s"),
+    "answer": lambda r, q, v: f"answer the {q} on your plate",
     "clear-all": lambda r, q, v: "all clear",
     "done": lambda r, q, v: "all clear",
 }
@@ -2100,10 +2103,10 @@ def cmd_summary_line(slug, anchor_path, args):
     Read-only: no render, no stamp; the agent prints stdout verbatim."""
     backlog_path = be.find_backlog(slug)
     counts = _read_banner_counts(backlog_path, slug)
-    r, q, v = counts.get("ready", 0), counts.get("questions", 0), counts.get("verify", 0)
+    r, q, v = counts.get("runnable", 0), counts.get("user", 0), counts.get("verify", 0)
     rec = _SUMMARY_REC[args.recommend](r, q, v)
     rec_part = f"{rec} . " if rec else ""
-    print(_blue(f"{slug}: {rec_part}Groomed . Ready {r} . Questions {q} . Verify {v}"))
+    print(_blue(f"{slug}: {rec_part}Groomed . Runnable {r} . User {q} . Verify {v}"))
     return 0
 
 

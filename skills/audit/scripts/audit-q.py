@@ -4582,8 +4582,9 @@ def derive_anchor_banner(name: str, backlog_file: Path,
     ACTIVE_HORIZONS = {"Active", "Ready", "Now", "Next", "Legwork"}
     actionable = [e for e in live if e.horizon in ACTIVE_HORIZONS]
     # Compute counts by bracket
-    active_n = sum(1 for e in actionable if e.status == "Active")
-    ready_n = sum(1 for e in actionable if e.status == "Ready")
+    # F260 — [Implementing] is the feature-lifecycle alias for [Active]; both count.
+    active_n = sum(1 for e in actionable if e.status in ("Active", "Implementing"))
+    ready_n = sum(1 for e in actionable if e.status in ("Ready", "Agreed"))
     verify_n = sum(1 for e in actionable if e.status == "Verify")
     # Questions count = sum of Q-markers across linked targets for each
     # [N Questions]/[Questions] row in active horizons only.
@@ -4613,13 +4614,9 @@ def derive_anchor_banner(name: str, backlog_file: Path,
             # Bracket-claim but no pending Qs: count as 1 (don't lose the row)
             q_count = 1
         questions_n += q_count
-    # F259 — [User] rows (gated on a user ACTION) fold into the Questions
-    # (user-gated) banner count, count-only: each is one item on the user's
-    # plate, just like a question. The distinct [User] bracket is preserved at
-    # the row level; only the coarse banner number merges them. (North star:
-    # relabel this bucket "Questions → User" once these accumulate — the fold
-    # is here so the relabel is a one-liner.)
-    questions_n += sum(1 for e in actionable if e.status == "User")
+    # F260 — [User] rows (gated on a user ACTION) join the User bucket (this
+    # completes F259's fold; the two actionable buckets are Runnable + User).
+    user_n = sum(1 for e in actionable if e.status == "User")
     # Per-horizon counts (every entry, even with [Done] would count toward Now
     # in original spec, but C4 will move them out; here we count live only).
     horizon_counts = {h: 0 for h in ("Active", "Ready", "Now", "Next", "Later", "Verify", "Icebox")}
@@ -4637,7 +4634,7 @@ def derive_anchor_banner(name: str, backlog_file: Path,
         except (OSError, UnicodeDecodeError):
             pass
     # TAG cascade
-    has_u = questions_n > 0 or verify_n > 0
+    has_u = questions_n > 0 or user_n > 0 or verify_n > 0
     has_a = active_n > 0 or ready_n > 0
     has_g = (horizon_counts["Now"] > 0 or horizon_counts["Next"] > 0)
     has_later = horizon_counts["Later"] > 0
@@ -4657,7 +4654,7 @@ def derive_anchor_banner(name: str, backlog_file: Path,
         return None
     banner = (
         f"# [{tag}]  [[{name} queries|{name}]]  -  "
-        f"Ready {ready_n}    Questions {questions_n}   |   "
+        f"Runnable {ready_n + active_n}    User {questions_n + user_n}   |   "
         f"Now {horizon_counts['Now']}    Next {horizon_counts['Next']}    "
         f"Later {horizon_counts['Later']}    Verify {horizon_counts['Verify']}    "
         f"Icebox {horizon_counts['Icebox']}"
@@ -5145,9 +5142,10 @@ def main() -> int:
     return 1 if errors else 0
 
 
-# Regex to extract Ready N and Questions N counts from a derived banner line.
+# Regex to extract the two actionable counts (Runnable N, User N) from a
+# derived banner line (F260 — renamed from Ready/Questions).
 _BANNER_COUNTS_RE = re.compile(
-    r"Ready\s+(\d+).*?Questions\s+(\d+)"
+    r"Runnable\s+(\d+).*?User\s+(\d+)"
 )
 
 
@@ -5155,23 +5153,23 @@ def _print_hard_continuation_directive(derived_banners: dict[str, str]) -> None:
     """When any anchor has Ready > 0, surface the crank hard-rule to the
     agent in audit-q's stderr-style output. The directive cites the rule's
     home, names the failure mode by name, and lists the exit requirement
-    (3-gate argument). Silent when every anchor is at Ready 0."""
-    actionable: list[tuple[str, int, int]] = []  # (name, ready_n, questions_n)
+    (3-gate argument). Silent when every anchor is at Runnable 0."""
+    actionable: list[tuple[str, int, int]] = []  # (name, runnable_n, user_n)
     for name, banner in derived_banners.items():
         m = _BANNER_COUNTS_RE.search(banner)
         if not m:
             continue
-        ready_n = int(m.group(1))
-        questions_n = int(m.group(2))
-        if ready_n > 0:
-            actionable.append((name, ready_n, questions_n))
+        runnable_n = int(m.group(1))
+        user_n = int(m.group(2))
+        if runnable_n > 0:
+            actionable.append((name, runnable_n, user_n))
     if not actionable:
         return
     print()
     print("Agent requirement:  (skills/crank/SKILL.md § Hard continuation rule)")
-    print("  Anchors with Ready > 0 — you MUST continue while context > 40%:")
+    print("  Anchors with Runnable > 0 — you MUST continue while context > 40%:")
     for name, r, q in sorted(actionable):
-        print(f"    - {name}: Ready {r}, Questions {q}")
+        print(f"    - {name}: Runnable {r}, User {q}")
     print(
         "  To stop, print the 3-gate exit argument in chat:\n"
         "    Gate 1 (uncertain): I'd be guessing from <specific info gap>.\n"

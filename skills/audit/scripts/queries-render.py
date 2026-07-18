@@ -460,7 +460,9 @@ def derive_banner(name: str, rows: list[Row], backlog_file: Path,
             if r.horizon in LIVE_HORIZON_H2S
             and not r.bracket.startswith("Done")]
     actionable = [r for r in live if r.horizon in ACTIVE_HORIZONS_BANNER]
-    active_n = sum(1 for r in actionable if r.bracket == "Active")
+    # F260 — [Implementing] is the feature-lifecycle alias for [Active]; both
+    # are in-progress and Runnable, so both count.
+    active_n = sum(1 for r in actionable if r.bracket in ("Active", "Implementing"))
     # `Agreed` is the feature-lifecycle synonym for `Ready` (per [[SKA workflow]]
     # / feature/SKILL.md) — count it as Ready so the banner doesn't drop Agreed
     # rows from the agent-actionable headline.
@@ -487,6 +489,13 @@ def derive_banner(name: str, rows: list[Row], backlog_file: Path,
         # never matched the lower-cased vault_index keys, so every row fell to
         # the count-as-1 fallback). Floor of 1: a bracket-claim never counts 0.
         questions_n += _row_q_count(r, vault_index) or 1
+    # F260 — [User] rows (gated on a user ACTION) join the User bucket, counted
+    # across the same rendered horizons as questions, one per row.
+    user_n = sum(
+        1 for r in live
+        if r.horizon in BODY_RENDERED_HORIZONS_FOR_QUESTIONS
+        and r.bracket == "User"
+    )
     # Per-horizon counts (live, non-Done)
     horizon_counts = {h: 0 for h in ("Active", "Ready", "Now", "Next", "Later", "Verify", "Icebox")}
     for r in rows:
@@ -509,6 +518,7 @@ def derive_banner(name: str, rows: list[Row], backlog_file: Path,
     # verify_n (banner Questions/Verify, active-horizon-only) is separate.
     has_u = (
         questions_n > 0
+        or user_n > 0
         or verify_n > 0
         or horizon_counts["Verify"] > 0
     )
@@ -551,18 +561,21 @@ def derive_banner(name: str, rows: list[Row], backlog_file: Path,
     # the anchors needing attention.
     qfix_n = _count_qfix_subs(backlog_file)
     qfix_suffix = f"    {{{qfix_n}}}" if qfix_n > 0 else ""
-    # F250 #9 (→ F254 C1) — the "Ready" headline counts ONLY [Ready]/[Agreed]
-    # (crankable-now), NOT [Active] (already in-progress). Folding Active in was
-    # the mechanism behind the "Ready 3 vs frontier 2" anomaly: an in-progress
-    # row inflated the Ready scalar above the actual ready frontier. [Active]
-    # still drives the `has_a` TAG below; it just no longer masquerades as Ready.
-    # user-actionable = pending Questions + [Verify]-bracket rows (questions_n is
-    # already pending-only via _read_q_marker_count).
-    agent_actionable_n = ready_n
-    user_actionable_n = questions_n + verify_n
+    # F260 — the two actionable buckets are keyed on WHOSE PLATE the work is on:
+    #   Runnable = [Ready]/[Agreed] + [Active]/[Implementing] — every row crank
+    #     will actually run. The "Runnable" label is what makes folding [Active]
+    #     in honest: it promises will-run-if-you-crank, not fresh/not-started, so
+    #     it supersedes the F250 #9 / F254 C1 "Ready 3 vs frontier 2" anomaly
+    #     (that was the WORD "Ready" implying not-started, not the count).
+    #   User = [Questions] + [User] — everything gated on a user answer or a
+    #     user action (completes F259's [User] fold, which never reached this
+    #     authoritative path). [Verify] is dropped from the actionable pair (it
+    #     collects junk) — it stays a horizon count and still drives the U TAG.
+    runnable_n = ready_n + active_n
+    user_actionable_n = questions_n + user_n
     banner = (
         f"# [{tag}]  {slug_label}  -  "
-        f"Ready {agent_actionable_n}    Questions {user_actionable_n}   |   "
+        f"Runnable {runnable_n}    User {user_actionable_n}   |   "
         f"Now {horizon_counts['Now']}    Next {horizon_counts['Next']}    "
         f"Later {horizon_counts['Later']}    Verify {horizon_counts['Verify']}    "
         f"Icebox {horizon_counts['Icebox']}"

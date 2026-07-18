@@ -109,7 +109,7 @@ Per user direction 2026-05-26 (reinforced 2026-05-26 after a second lazy-stop in
 **Both of these must be true for the hard rule to fire:**
 
 1. **Observable work exists.** "Observable work" is broader than the agent's anchor's Ready banner — it is **any of**:
-   - The current anchor's Q.md banner shows `Ready N` with **N > 0**.
+   - The current anchor's Q.md banner shows `Runnable N` with **N > 0** (F260 — `Runnable` = `[Ready]` + `[Active]/[Implementing]`; a mid-implementation row with a `- **Next:**` is runnable work).
    - Any other anchor's banner reachable from Q.md shows Ready or Verify work **that the user's ask explicitly put in scope** (a vault-wide directive: "drive the vault-wide count to zero," "clean up every anchor"). On a bare `'` / `/crank`, other anchors' queues are **NEVER** observable work — the current anchor is the whole scope (§ Repeated invocation).
    - Audit findings exist (run `audit-q` → non-zero output) — fixable findings ARE work.
    - The user's most recent ask names work that is not yet at zero (e.g., "drive this number to zero," "clean up X," "finish Y").
@@ -141,7 +141,7 @@ The following are NOT valid reasons to stop, even though the agent's instinct wi
 ### Verification — mechanical, not interpretive
 
 The agent verifies the gate by:
-1. Reading the per-anchor banner in `~/ob/kmr/Q.md` for the current anchor — extracting `Ready N`. Mechanical.
+1. Reading the per-anchor banner in `~/ob/kmr/Q.md` for the current anchor — extracting `Runnable N` (F260). Mechanical.
 2. Reading other anchor banners in Q.md — **only when the user's ask named cross-anchor scope**; if any are non-zero on Ready or Verify there, work exists. On a bare `'` / `/crank` this step is skipped entirely (current anchor only). Mechanical.
 3. Running `audit-q` and checking the finding count. Mechanical.
 4. Checking Claude Code's surfaced context-usage value. Mechanical.
@@ -232,7 +232,7 @@ The cascade above is prose; per [[F239 — Crank exit handshake — verified tri
 2. **Exit through exactly one of three states** (ruled 2026-07-14; each mechanically checked by the hook against the backlog + state log — the agent cannot self-report its way out):
    - **Empty frontier** — `## Now` + `## Next` hold no live rows. Stop is legal with no token.
    - **Something Ready** — ≥1 `[Ready]` row exists AND the final chat message contains **`CRANK READY`** (the scannable tail: the user just tilts the crank again).
-   - **Groomed** — run the cascade (`/groom` → `/ask`), then **`state triage`**. It verifies the groomed-state gates itself (audit clean, every `[Ready]` row's Next executable, no bracket/H2 mismatch), refuses with the worklist if dirty, and on pass prints the canonical line `TRIAGE — Ready N (±a) · Questions M (±b) · Verify K` and records the stamp. **Echo that line verbatim as the last line of the final message.** Any backlog mutation after the stamp stales it — re-run `state triage`.
+   - **Groomed** — run the cascade (`/groom` → `/ask`), then **`state triage`**. It verifies the groomed-state gates itself (audit clean, every `[Ready]` row's Next executable, no bracket/H2 mismatch), refuses with the worklist if dirty, and on pass prints the canonical line `TRIAGE — Runnable N (±a) · User M (±b) · Verify K` and records the stamp. **Echo that line verbatim as the last line of the final message.** Any backlog mutation after the stamp stales it — re-run `state triage`.
 3. **If the hook blocks the stop**, it names the failing state — do what it says (groom, park questions, re-stamp) and end the turn again through a legal exit. The gate fails open after 3 consecutive blocks and on 24 h sentinel expiry, so it can never trap a session.
 
 
