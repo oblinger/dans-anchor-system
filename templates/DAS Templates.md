@@ -2,7 +2,7 @@
 description: "the templates kind — one bare, flat whole-document skeleton per facet, cloned to start a new instance"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Templates](hook://p/DAS%20Templates)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[Templates]] → [DAS Templates](hook://p/DAS%20Templates)
 # DAS Templates
 
 The `templates/` kind — one **whole-document skeleton per facet**, the markdown a new instance is cloned from. Bare + flat (`templates/<facet>.md`, lowercase-kebab), so the OpenSpec loader consumes them and there's no name-collision with the facet spec (`facets/DAS <X>.md`). Each template's *governing facet* is its spec; the facet is the fill instruction.
