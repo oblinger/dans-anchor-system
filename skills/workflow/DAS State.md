@@ -59,6 +59,18 @@ set       partial update; omitted flags preserve current values. At least one of
           --body   B    new body (flag only — set never reads stdin).
           --next   X    `- **Next:**` no-user action sub-bullet.
           --verify Q    `- **Verify:**` yes/no question sub-bullet.
+          --user   A    F259 — `- **User:**` action a [User] row is gated on
+                        (what the USER must do: log in, click a permission
+                        dialog, enter a credential, tap 2FA). A [User] bracket
+                        REQUIRES this sub-bullet + --why-user-action; it MAY
+                        also carry a queued --next (the agent's post-user step).
+          --why-user-action J
+                        F259 ownership gate (the F240 sibling) — one sentence
+                        naming the credential or human-only faculty the [User]
+                        action requires. Required when a row ENTERS [User];
+                        appended to `- **User:**` as `· *why-user-action: …*`.
+                        Refused if the agent could do the action itself (then
+                        it is [Ready] with a --next, not [User]).
           --why-user W  F240 ownership gate — one sentence naming the human
                         faculty the check invokes (taste / preference /
                         ratification / passive-use). Required when a row

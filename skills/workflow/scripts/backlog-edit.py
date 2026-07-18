@@ -97,6 +97,8 @@ SKIP_PATH_FRAGMENTS = ("/.history/", "/worktrees/", "/Yore/", "/.trash/")
 VALID_STATUS_BASE = frozenset({
     "Ready", "Active", "Designing", "Questions",
     "Verify", "Blocked", "Waiting", "Watching",
+    "User",  # F259 — gated on a genuinely user-only ACTION (auth / login /
+             # permission-click / 2FA); body carries a `- **User:**` sub-bullet.
     "Done",
     # Feature-doc lifecycle aliases (canonical-alias, accepted)
     "Implementing",  # = Active
@@ -686,6 +688,45 @@ def question_mint_gate(q_num, body, why_ask):
     return body
 
 
+# --- F259 user-action ownership gate (the F240 sibling for [User]) -----------
+# [User] parks work on a genuinely user-only ACTION (a credential only the user
+# holds, a GUI permission dialog, a 2FA device, a session-gated login). The
+# gate mirrors verify_ownership_gate's --why-user move: it requires a
+# --why-user-action justification naming the human faculty / credential that
+# makes the action user-only. The requirement to ARTICULATE why the agent can't
+# do it is the filter against lazy delegation. (No mechanical Tier-1 analog —
+# there is no reliable phrasing heuristic for "the agent could do this"; the
+# articulation requirement carries the whole load.)
+def _status_needs_user(status):
+    return (status or "").strip() == "User"
+
+
+def user_action_gate(status, row_id, eff_user, why_user_action):
+    """F259 — enforce genuine user-only-ness when a row ENTERS [User] or its
+    `- **User:**` action is (re)written; a re-touch that keeps the action is
+    grandfathered (vetted at entry). Refuses a missing --why-user-action (and
+    no existing `*why-user-action:*` annotation). Returns the effective
+    user-action text with the annotation appended."""
+    a_text = (eff_user or "").strip()
+    has_annotation = "*why-user-action:" in a_text
+    if not (why_user_action and why_user_action.strip()) and not has_annotation:
+        raise BacklogEditError(
+            f"[{status}] refused: {row_id} needs --why-user-action \"<one "
+            f"sentence>\" naming the\n"
+            f"  credential or human-only faculty this action requires (a login "
+            f"only you hold, a GUI\n"
+            f"  permission dialog, a 2FA device, a physical device). Per F259, "
+            f"[User] is honest only when\n"
+            f"  the agent genuinely cannot do it — even via box / osascript / "
+            f"bridge. If the agent CAN do\n"
+            f"  it, this is [Ready] with a `- **Next:**`, not [User]."
+        )
+    if why_user_action and why_user_action.strip():
+        return f"{a_text} · *why-user-action: {why_user_action.strip()}*" \
+            if a_text else f"· *why-user-action: {why_user_action.strip()}*"
+    return eff_user
+
+
 # --- F242 non-answer (punt) detector -----------------------------------------
 # A required Next/question value is a "non-answer" when the agent left the field
 # empty or filled it with a placeholder instead of doing the groom. v1 set,
@@ -1263,6 +1304,8 @@ def perform_edit(
     next_text=None,
     pending_subs=None,
     why_user=None,
+    user_text=None,
+    why_user_action=None,
 ):
     """Apply the edit, return a one-line summary for the Messages entry."""
     raw = backlog_path.read_text()
@@ -1287,12 +1330,13 @@ def perform_edit(
     # F171 companion-sub-bullet discipline: capture any existing Verify:/Next:
     # sub-bullet text so it survives a horizon-move (which drops the row span),
     # and so a same-status re-touch isn't forced to re-supply it.
-    existing_verify = existing_next = None
+    existing_verify = existing_next = existing_user = None
     if existing is not None:
         _es, _ee = existing[0], existing[1]
         _span = lines[_es:_ee]
         existing_verify = _extract_subbullet_text(_span, "Verify")
         existing_next = _extract_subbullet_text(_span, "Next")
+        existing_user = _extract_subbullet_text(_span, "User")
 
     # Validate horizon.
     if horizon == "same":
@@ -1405,6 +1449,7 @@ def perform_edit(
     # REFUSE (the render would show `⚠`, and audit-q C41 would flag it).
     eff_verify = verify_text if verify_text is not None else existing_verify
     eff_next = next_text if next_text is not None else existing_next
+    eff_user = user_text if user_text is not None else existing_user
     if status not in ("same", "delete"):
         if _status_needs_verify(status) and not (eff_verify and eff_verify.strip()):
             raise BacklogEditError(
@@ -1424,6 +1469,15 @@ def perform_edit(
                 f"user, rebracket ([Verify] for a user check, [Blocked]/[Questions] "
                 f"for a decision)."
             )
+        if _status_needs_user(status) and not (eff_user and eff_user.strip()):
+            raise BacklogEditError(
+                f"[{status}] refused: {row_id} needs a `- **User:**` action. "
+                f"Pass --user \"<action>\" naming exactly what YOU (the user) must "
+                f"do (e.g. \"Log into Hoare at <url> so the sync token refreshes\"). "
+                f"A [User] bracket without its `- **User:**` sub-bullet renders `⚠` "
+                f"and is flagged by audit-q C51. If the action is something the "
+                f"agent can do, use [Ready] with a `- **Next:**` instead."
+            )
 
     # F240 — verification ownership gate. Fires when the row ENTERS the
     # Verify/Verify-by/Watching family or its question is (re)written; a
@@ -1433,6 +1487,17 @@ def perform_edit(
         if entering or verify_text is not None or (why_user and why_user.strip()):
             eff_verify = verify_ownership_gate(
                 status, row_id, eff_verify, why_user
+            )
+
+    # F259 — user-action ownership gate. Fires when the row ENTERS [User] or
+    # its `- **User:**` action is (re)written; a same-status re-touch keeps the
+    # vetting it got at entry.
+    if status not in ("same", "delete") and _status_needs_user(status):
+        entering_user = (existing_status_for_check or "").strip() != "User"
+        if entering_user or user_text is not None or (
+                why_user_action and why_user_action.strip()):
+            eff_user = user_action_gate(
+                status, row_id, eff_user, why_user_action
             )
 
     # F242 — mechanical groom gate: a Ready/Active/Agreed row's Next must be a
@@ -1500,6 +1565,13 @@ def perform_edit(
             _ensure_subbullet(lines, row_id, "Verify", eff_verify.strip())
         elif _status_needs_next(status) and eff_next:
             _ensure_subbullet(lines, row_id, "Next", eff_next.strip())
+        elif _status_needs_user(status):
+            if eff_user:
+                _ensure_subbullet(lines, row_id, "User", eff_user.strip())
+            # A [User] row MAY carry a queued `- **Next:**` — the agent's step
+            # once the user acts (documentary, not executable-now; F259).
+            if eff_next and eff_next.strip():
+                _ensure_subbullet(lines, row_id, "Next", eff_next.strip())
 
     # v2 `define` sub-bullets land in the SAME edit, before the post-edit
     # refresh_q_md — attaching them afterwards let audit-q's C24 --fix see a
@@ -1745,9 +1817,11 @@ def read_full_row(path, row_id_arg):
     span = lines[start + 1:end]
     verify_rx = re.compile(SUBBULLET_RE_TMPL.format(label="Verify"))
     next_rx = re.compile(SUBBULLET_RE_TMPL.format(label="Next"))
+    user_rx = re.compile(SUBBULLET_RE_TMPL.format(label="User"))
     other_subs = [
         sl for sl in span
-        if sl.strip() != "" and not verify_rx.match(sl) and not next_rx.match(sl)
+        if sl.strip() != "" and not verify_rx.match(sl)
+        and not next_rx.match(sl) and not user_rx.match(sl)
     ]
     return {
         "title": m.group("title") or "",
@@ -1755,6 +1829,7 @@ def read_full_row(path, row_id_arg):
         "status": m.group("status") or "",
         "verify": _extract_subbullet_text(span, "Verify"),
         "next": _extract_subbullet_text(span, "Next"),
+        "user": _extract_subbullet_text(span, "User"),
         "other_subs": other_subs,
     }
 

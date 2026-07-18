@@ -231,7 +231,7 @@ def _resolve_q_identifier(lines, q_num, slug):
 def _delegate_row_edit(slug, horizon, row_id_arg, status, title, body,
                        title_provided, body_provided,
                        verify_text=None, next_text=None, pending_subs=None,
-                       why_user=None):
+                       why_user=None, user_text=None, why_user_action=None):
     """Delegate to backlog-edit's perform_edit machinery, mirroring its main()."""
     if status != "delete" and status != "same":
         # Validate status bracket against the closed canonical set.
@@ -286,6 +286,8 @@ def _delegate_row_edit(slug, horizon, row_id_arg, status, title, body,
                 verify_text = src_row["verify"]
             if next_text is None:
                 next_text = src_row["next"]
+            if user_text is None:
+                user_text = src_row.get("user")
             if not pending_subs and src_row["other_subs"]:
                 pending_subs = src_row["other_subs"]
         result = be.perform_edit(
@@ -293,6 +295,7 @@ def _delegate_row_edit(slug, horizon, row_id_arg, status, title, body,
             title, body, title_provided, body_provided,
             verify_text=verify_text, next_text=next_text,
             pending_subs=pending_subs, why_user=why_user,
+            user_text=user_text, why_user_action=why_user_action,
         )
         # Destination write landed on disk → now safe to remove the source row.
         be.perform_edit(
@@ -305,6 +308,7 @@ def _delegate_row_edit(slug, horizon, row_id_arg, status, title, body,
             title, body, title_provided, body_provided,
             verify_text=verify_text, next_text=next_text,
             pending_subs=pending_subs, why_user=why_user,
+            user_text=user_text, why_user_action=why_user_action,
         )
     be.append_messages(slug, result["summary"], backlog_path)
     be.write_state(slug, result)
@@ -1191,15 +1195,18 @@ def _v2_row_define(slug, backlog_path, label, args, minted=False):
     # status promise — thread it through the guard (which otherwise refuses
     # Ready/Active/Verify rows as promise-less) and let perform_edit place it,
     # rather than raw-attaching it after the guard already rejected the row.
-    next_text = verify_text = None
+    next_text = verify_text = user_text = None
     kept_subs = []
     for l in sub_lines:
         nm = re.match(r"^\s*-\s+\*\*Next:\*\*\s*(.+)$", l)
         vm = re.match(r"^\s*-\s+\*\*Verify:\*\*\s*(.+)$", l)
+        um = re.match(r"^\s*-\s+\*\*User:\*\*\s*(.+)$", l)
         if nm and next_text is None:
             next_text = nm.group(1).strip()
         elif vm and verify_text is None:
             verify_text = vm.group(1).strip()
+        elif um and user_text is None:
+            user_text = um.group(1).strip()
         else:
             kept_subs.append(l)
     sub_lines = kept_subs
@@ -1225,6 +1232,8 @@ def _v2_row_define(slug, backlog_path, label, args, minted=False):
         verify_text=verify_text, next_text=next_text,
         pending_subs=sub_lines,
         why_user=getattr(args, "why_user", None),
+        user_text=user_text,
+        why_user_action=getattr(args, "why_user_action", None),
     )
 
 
@@ -1271,10 +1280,10 @@ def _v2_row_set(slug, backlog_path, label, args):
     from stdin or --from-file."""
     if not any([args.status, args.horizon, args.title is not None,
                 args.inline is not None, args.next_step is not None,
-                args.verify is not None]):
+                args.verify is not None, getattr(args, "user", None) is not None]):
         raise be.BacklogEditError(
             "set requires at least one of --status / --horizon / --title / "
-            "--body / --next / --verify"
+            "--body / --next / --verify / --user"
         )
     if getattr(args, "from_file", None) is not None:
         raise be.BacklogEditError(
@@ -1287,6 +1296,8 @@ def _v2_row_set(slug, backlog_path, label, args):
         body_provided=args.inline is not None,
         verify_text=args.verify, next_text=args.next_step,
         why_user=getattr(args, "why_user", None),
+        user_text=getattr(args, "user", None),
+        why_user_action=getattr(args, "why_user_action", None),
     )
 
 
@@ -1912,6 +1923,16 @@ def _triage_gate_findings(backlog_path):
         if status.startswith("Done") and h2 != "Done":
             findings.append(
                 f"{rid}: [Done] row under ## {h2} — move to ## Done")
+        if status == "User":
+            # F259 — a [User] row is a groomed, honestly-parked state (the
+            # crank stops cleanly on it), but only when it carries the
+            # `- **User:**` action naming what the user must do.
+            user_text = be._extract_subbullet_text(lines[start:end], "User")
+            if not user_text:
+                findings.append(
+                    f"{rid}: [User] with no `- **User:**` action — name the "
+                    "user-only action (or rebracket [Ready] with a Next if the "
+                    "agent can do it)")
         if status in ("Ready", "Active", "Agreed") and rid != "B-QFix":
             next_text = be._extract_subbullet_text(lines[start:end], "Next")
             if not next_text:
@@ -2169,6 +2190,18 @@ def build_v2_parser():
                    help="`- **Next:**` no-user action (Backlog `set` only)")
     p.add_argument("--verify", default=None,
                    help="`- **Verify:**` yes/no question (Backlog `set` only)")
+    p.add_argument("--user", dest="user", default=None,
+                   help="F259 — `- **User:**` action a [User] row is gated on "
+                        "(what YOU, the user, must do: log in, click a "
+                        "permission dialog, enter a credential). Backlog `set` "
+                        "only; pair with --status User + --why-user-action.")
+    p.add_argument("--why-user-action", dest="why_user_action", default=None,
+                   help="F259 ownership gate (the F240 sibling) — one sentence "
+                        "naming the credential or human-only faculty a [User] "
+                        "action requires (a login only you hold, a GUI "
+                        "permission dialog, a 2FA device). Required when a row "
+                        "ENTERS [User]; appended to the `- **User:**` sub-bullet "
+                        "as `· *why-user-action: …*`.")
     p.add_argument("--why-user", dest="why_user", default=None,
                    help="F240 — one sentence naming the human faculty a "
                         "Verify/Verify-by/Watching check invokes (taste / "
