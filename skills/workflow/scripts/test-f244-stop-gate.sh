@@ -7,6 +7,7 @@
 #   (C) NOT armed (pure-text turn) + dirty worklist      → ALLOW (chat turn)
 #   (D) grooming the dirty row (add Next) empties it     → ALLOW
 #   (E) block cap: 3 blocks then the 4th ALLOWs (fail-open)
+#   (F) the disarm (4th) writes a record to stopgate/disarms.jsonl
 #
 # Fixture anchor lives under ~/ob/kmr/Topic/Misc/Test/ (smoke-tests-in-vault).
 set -u
@@ -18,15 +19,25 @@ BACKLOG="$FIX_ROOT/F244FIX Track/F244FIX Backlog.md"
 TMP=$(mktemp -d)
 PASS=0; FAIL=0
 
+DISARM_LOG=~/.config/anchor-system/stopgate/disarms.jsonl
 cleanup() {
     rm -rf "$FIX_ROOT" "$TMP"
     rm -f ~/.config/anchor-system/stopgate/F244FIX.json
     rm -f ~/.config/anchor-system/crank/F244FIX.json
+    # strip this fixture's rows from the shared disarm log (no test pollution)
+    if [ -f "$DISARM_LOG" ]; then
+        grep -v '"anchor": "F244FIX"' "$DISARM_LOG" > "$DISARM_LOG.tmp" 2>/dev/null
+        mv "$DISARM_LOG.tmp" "$DISARM_LOG" 2>/dev/null
+    fi
 }
 trap cleanup EXIT
 
 mkdir -p "$FIX_ROOT/F244FIX Track"
 printf 'slug: F244FIX\ntitle: F244 Fixture\n' > "$FIX_ROOT/.anchor"
+# slug stub: `state` regenerates a queries.md whose banner self-links [[F244FIX]];
+# without a page of that basename it dangles (C22) and the finding lands on the
+# groom worklist (F258), so a "groomed" fixture never reaches count 0. (F265.)
+printf '# F244FIX\n' > "$FIX_ROOT/F244FIX.md"
 
 ok()  { echo "PASS  $1"; PASS=$((PASS+1)); }
 bad() { echo "FAIL  $1"; FAIL=$((FAIL+1)); }
@@ -97,6 +108,7 @@ if [ "$CNT" = "0" ] && ! blocked "$OUT"; then ok "D: adding a Next empties the w
 
 # ---------- E — block cap: 3 blocks then allow ----------
 rm -f ~/.config/anchor-system/stopgate/F244FIX.json
+grep -v '"anchor": "F244FIX"' "$DISARM_LOG" > "$DISARM_LOG.tmp" 2>/dev/null && mv "$DISARM_LOG.tmp" "$DISARM_LOG" 2>/dev/null
 dirty_backlog
 b1=$(payload "$TOOL_TX" | python3 "$HOOK" 2>/dev/null)
 b2=$(payload "$TOOL_TX" | python3 "$HOOK" 2>/dev/null)
@@ -106,6 +118,13 @@ if blocked "$b1" && blocked "$b2" && blocked "$b3" && ! blocked "$b4"; then
     ok "E: block cap fails open on the 4th consecutive block"
 else
     bad "E: expected block×3 then allow — $(blocked "$b1" && echo B||echo A)$(blocked "$b2" && echo B||echo A)$(blocked "$b3" && echo B||echo A)$(blocked "$b4" && echo B||echo A)"
+fi
+
+# ---------- F — the disarm (4th block) was recorded to disarms.jsonl ----------
+if [ -f "$DISARM_LOG" ] && grep '"anchor": "F244FIX"' "$DISARM_LOG" | grep -q '"blocks": 4'; then
+    ok "F: disarm recorded to disarms.jsonl (anchor + blocks=4)"
+else
+    bad "F: expected a F244FIX disarm row with blocks=4 in $DISARM_LOG"
 fi
 
 echo "----------------------------------------"

@@ -22,7 +22,9 @@ start` sentinel covers the cwd (back-compat). Anchor is resolved from the cwd
 Fail-open everywhere — enforcement must never trap a session: unresolvable
 anchor, unreadable state, or a `state` error all ALLOW the stop; after
 BLOCK_CAP consecutive blocks the gate disarms and allows (bounded worst case:
-BLOCK_CAP re-prompts). Cost in the common case (pure-chat turn, or empty
+BLOCK_CAP re-prompts) — each disarm is recorded to `stopgate/disarms.jsonl`
+(the firing is otherwise stderr-only and invisible: observability + BLOCK_CAP
+tuning data). Cost in the common case (pure-chat turn, or empty
 worklist): one transcript scan + at most one `state` call, well under a second.
 """
 import json
@@ -37,6 +39,7 @@ GATE_DIR = Path.home() / ".config" / "anchor-system" / "stopgate"
 STATE_CLI = Path.home() / ".claude" / "skills" / "workflow" / "scripts" / "state"
 TTL_SECONDS = 24 * 3600
 BLOCK_CAP = 3
+DISARM_LOG = GATE_DIR / "disarms.jsonl"
 
 
 def _iter_entries(transcript_path):
@@ -155,7 +158,23 @@ def _allow(crank_sp, gate_path):
     return 0
 
 
-def _block(gate_path, reason):
+def _record_disarm(anchor, blocks, count):
+    """Append a durable record when the gate gives up (BLOCK_CAP exceeded).
+    A disarm is otherwise invisible — stderr only — so a gate being routinely
+    escaped would leave no trace; this makes the safety-valve firing observable
+    (detection) and gives the data to tune BLOCK_CAP. Fail-safe: logging must
+    never break the hook (a disarm that fails to log still allows the stop)."""
+    try:
+        GATE_DIR.mkdir(parents=True, exist_ok=True)
+        rec = {"ts": datetime.now(timezone.utc).isoformat(), "anchor": anchor,
+               "blocks": blocks, "cap": BLOCK_CAP, "worklist_count": count}
+        with open(DISARM_LOG, "a", encoding="utf-8") as fh:
+            fh.write(json.dumps(rec) + "\n")
+    except Exception:  # noqa: BLE001 — logging is never allowed to break the gate
+        pass
+
+
+def _block(gate_path, reason, anchor=None, count=None):
     try:
         blocks = json.loads(gate_path.read_text()).get("blocks", 0)
     except (ValueError, OSError):
@@ -163,6 +182,7 @@ def _block(gate_path, reason):
     blocks += 1
     if blocks > BLOCK_CAP:
         gate_path.unlink(missing_ok=True)
+        _record_disarm(anchor or gate_path.stem, blocks, count)
         print(f"stop-gate: block cap ({BLOCK_CAP}) reached — disarmed, stop "
               "allowed", file=sys.stderr)
         return 0
@@ -218,7 +238,7 @@ def main():
         "(the worklist counts them too, per F258) — until it is empty, then "
         "stop. (No context escape; emptying the list costs only a little.)"
     )
-    return _block(gate_path, reason)
+    return _block(gate_path, reason, slug or Path(anchor_path).name, count)
 
 
 if __name__ == "__main__":
