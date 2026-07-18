@@ -6,6 +6,41 @@ user_invocable: false
 
 # Workflow Discipline
 requires:: vault, skill:audit, facet:backlog, facet:roadmap
+The canonical state graph for a unit of work — every state, the Definition of Ready, the per-surface mappings, and the `state` CLI that all advancing skills call.
+
+| Table of Contents |  |
+|---|---|
+| **[[#Why this exists — the problem it solves]]** |  |
+| **[[#Never strand the user — the stop invariant (F244)]]** |  |
+| **[[#The canonical state graph]]** |  |
+|    [[#State graph]] |  |
+|    [[#Definition of Ready]] |  |
+| **[[#State transitions]]** |  |
+|    [[#Anti-transitions (state changes that should NOT happen silently)]] |  |
+| **[[#Interface-validation gate]]** |  |
+| **[[#Blocked, Waiting, and Watching semantics]]** |  |
+|    [[#The self-unblock test — before ANY item rests as `[Blocked]` (load-bearing)]] |  |
+|    [[#Description requirements for state-loaded brackets]] |  |
+|    [[#The lazy-Blocked / lazy-Waiting / lazy-Watching failure mode]] |  |
+| **[[#Skill cross-references]]** |  |
+| **[[#Mutation API — `state`]]** |  |
+|    [[#Backlog rows — `state Backlog <F<n>\|T<n>> <verb>`]] |  |
+|    [[#Doc queries — `state <doc> <Q<n>\|V<n>> <verb>`]] |  |
+|    [[#Side effects]] |  |
+|    [[#Legacy `backlog-edit.py`]] |  |
+| **[[#Per-surface mappings]]** |  |
+|    [[#Backlog (`{slug} Backlog.md`)]] |  |
+|    [[#Roadmap (`{slug} Roadmap.md`)]] |  |
+|    [[#Feature lifecycle (`feature/SKILL.md`)]] |  |
+|    [[#PRD]] |  |
+| **[[#Active-work invariant]]** |  |
+|    [[#Three surfaces, parallel namespaces]] |  |
+|    [[#When does a milestone need a feature doc?]] |  |
+|    [[#Content philosophy — feature doc vs spec docs]] |  |
+|    [[#Icebox interaction]] |  |
+|    [[#Enforcement]] |  |
+| **[[#Horizons vs workflow states]]** |  |
+| **[[#Anti-patterns]]** |  |
 
 The canonical state graph for a unit of work — names every state, defines Definition of Ready, maps states onto each surface (Backlog / Roadmap / Feature / PRD), and owns the `state` mutation CLI that all advancing skills must call.
 
