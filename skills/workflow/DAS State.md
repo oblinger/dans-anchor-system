@@ -186,17 +186,14 @@ echo 'Does the render link the doc first? — check SKA queries.md' | state "Bri
 
 ## DESIGN NOTES
 
-**Why one address scheme.** The state machinery grew verb-family by verb-family (`task` for rows, `q` for questions, `--verify` bolted onto rows) and never reached the unifying idea: **a document's stateful sub-items are all the same kind of thing, addressed the same way** (F236, user-designed 2026-07-13). `state <doc> <label> <verb>` collapses the surface to one grammar; the label letter (F/T/Q/V) distinguishes kind.
+The design decisions behind the grammar (F236, user-designed 2026-07-13):
 
-**Why `define` is create-or-replace.** One idempotent verb instead of add-vs-rewrite mode split — "you're just defining the whole thing." The audit trail comes from git plus `remove`'s soft-delete, not from write-mode ceremony.
-
-**Why `set` exists (rows only).** Whole-row `define` is the wrong tool for the overwhelmingly common bracket-only transition; `set`'s preserve-on-omit flags keep the runbooks' `--status X --next "..."` convenience. Q/V items don't need it — their partial edits are full-body `define`s in practice.
-
-**Why any doc can carry items.** The F-number-keyed design of F128/F129 was the limitation the user hit — a design doc with open questions is a first-class target. Asking a question IS assigning it to a document; there is no other way to ask.
-
-**Why anchor is optional with cwd-walkup.** Agents almost always know their anchor implicitly via cwd. Path-based anchor lookup handles the non-unique-slug case across projects. Slug is still accepted for compactness when uniqueness holds.
-
-**Why this script doesn't create the feature doc file.** Separation of concerns: `state Backlog F+ define` mints the ROW; `/feature` owns the doc. Orphan rows (row exists, doc doesn't) surface as audit-q findings — by design. Trying to bundle would duplicate `/feature`'s shape conventions (frontmatter, Open Questions block, Status block, glance discipline) into the script and create a drift surface.
+- **One address scheme** — a document's stateful sub-items are all the same kind of thing, addressed the same way; `state <doc> <label> <verb>` collapses the old per-family surface (`task`/`q`/`--verify`) to one grammar, the label letter (F/T/Q/V) distinguishing kind.
+- **`define` is create-or-replace** — one idempotent verb, no add-vs-rewrite mode split; the audit trail is git + `remove`'s soft-delete, not write-mode ceremony.
+- **`set` exists for rows only** — the bracket-only transition is the common case; `set`'s preserve-on-omit flags keep `--status X --next "..."` convenient. Q/V partial edits are full-body `define`s.
+- **Any doc can carry items** — a design doc with open questions is a first-class target; asking a question IS assigning it to a document.
+- **anchor optional (cwd-walkup)** — agents know their anchor via cwd; path lookup handles non-unique slugs; explicit slug still accepted.
+- **Doesn't create the feature-doc file** — `state Backlog F+ define` mints the ROW; `/feature` owns the doc. Orphan rows surface as audit-q findings by design; bundling would duplicate `/feature`'s shape conventions into the script.
 
 **Enforcement is two-sided.** `state`-side integrity runs audit-q on every mutation; hand-edit-side, warden's `R-pathguard` denies backlog/queries hand-edits and `R-state-region` (anchor-base, vault-wide) reminds on hand-edits to any item-bearing doc's `## Open Questions` / `## Resolved` / `## Status` regions (advisory, per F236 Q3).
 

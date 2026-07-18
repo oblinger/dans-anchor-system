@@ -369,7 +369,7 @@ The script enforces ask-format spec (block-IDs, Q-numbering, Phase 1/2/3 lifecyc
 1. Mutates the target row in `{slug} Backlog.md` (`Backlog` target) or the doc's `## Open Questions` / `## Verifications` block (doc target).
 2. Invokes `~/.claude/skills/audit/scripts/audit-q.py --scope backlog --anchor <slug> --fix` to refresh `~/ob/kmr/Q.md` (banner counts, status drift).
 3. Appends one `[INFO]` entry to the per-anchor `{slug} Messages.md` and one to the global sentinel `~/.claude/state/agent-messages` (surfaced to the next agent on Stop hook).
-4. For doc targets: also runs a lenient `audit-q --scope q --dry` as a post-condition. (The `{slug} queries.md` page is built on demand by `/ask`'s determination logic — there is no separate render step.)
+4. For doc targets: also runs a lenient `audit-q --scope q --dry` as a post-condition. (The per-anchor `{slug} queries.md` page is a mechanical render — `queries-render.py` produces it from the backlog + feature-doc questions, refreshed through the `/ask` pipeline, per F231; it is not hand-authored.)
 
 **Output:** stdout = one summary line naming the row-id/label and its new state. For mint operations (`F+`/`T+`/`Q+`/`V+`), the assigned label is in the output — parse it when the caller needs to reference the new item (e.g., `/feature` naming a new feature doc file).
 
