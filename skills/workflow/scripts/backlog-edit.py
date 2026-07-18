@@ -88,7 +88,7 @@ STATE_FILE = HOME / ".config" / "anchor-system" / "backlog-edit" / "state.json"
 VALID_HORIZONS = {"Now", "Next", "Later", "Active", "Ready", "Done", "Verify", "Icebox"}
 ICEBOX_HORIZON = "Icebox"
 ICEBOX_DEFAULT_H2 = "Iced"
-SKIP_PATH_FRAGMENTS = ("/.history/", "/worktrees/", "/Yore/", "/.trash/")
+SKIP_PATH_FRAGMENTS = ("/.history/", "/worktrees/", "/Yore/", "/.trash/", "/Closet/")
 
 # Closed set of canonical backlog-row status brackets (per [[SKA workflow]]).
 # Write-time enforcement lives in validate_status() below. Non-canonical brackets
@@ -174,11 +174,15 @@ def find_backlog(slug):
             matches.append(Path(root) / target)
     if not matches:
         raise BacklogEditError(f"no '{target}' found under {VAULT_ROOT}")
-    if len(matches) > 1:
+    # Symlink chains (e.g. ~/.claude/skills, symlinks/_.claude/skills) can register
+    # one real file under several paths — collapse same-inode hits so a single real
+    # backlog isn't mistaken for multiple candidates (F261).
+    by_realpath = {m.resolve(): m for m in matches}
+    if len(by_realpath) > 1:
         raise BacklogEditError(
             f"multiple '{target}' candidates: " + ", ".join(str(m) for m in matches)
         )
-    return matches[0]
+    return next(iter(by_realpath.values()))
 
 
 def anchor_track_dir(backlog_path):
@@ -198,11 +202,13 @@ def find_icebox(slug):
             matches.append(Path(root) / target)
     if not matches:
         return None
-    if len(matches) > 1:
+    # Collapse same-inode symlink hits (F261) — see find_backlog for the rationale.
+    by_realpath = {m.resolve(): m for m in matches}
+    if len(by_realpath) > 1:
         raise BacklogEditError(
             f"multiple '{target}' candidates: " + ", ".join(str(m) for m in matches)
         )
-    return matches[0]
+    return next(iter(by_realpath.values()))
 
 
 def ensure_icebox(slug, backlog_path):
