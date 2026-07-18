@@ -135,9 +135,7 @@ The agent determines top-level vs sub-skill from conversation context: if the us
 
 > **An item is Ready when you believe you know how to do this task without further involvement of the user.**
 
-Sharper than "design questions resolved." If the task still hides any "wait, what about X?" that the user would have to answer, it's **not** Ready — it's blocked on questions, and `/groom` should park those questions in a feature doc rather than promote the bullet.
-
-(Authoritative wording lives in [[DAS Backlog]] § Definition of Ready.)
+This is the bar `/groom` applies to each candidate: if the task still hides any "wait, what about X?" the user would have to answer, it's not Ready — park those questions in a feature doc rather than promote the bullet. Canonical wording + the full state graph: [[DAS Backlog]] § Definition of Ready / [[SKA workflow]].
 
 
 ## Item Status — How to Read It
