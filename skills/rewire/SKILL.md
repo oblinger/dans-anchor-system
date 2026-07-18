@@ -331,7 +331,7 @@ Recognition pattern: the **first cell containing `-[[NAME]]-`** is the dispatch-
 
 **Exceptions to the placeholder rule.** A small set of facet docs are explicit F060 exceptions because they have custom H1-only tops or a fixed required structure:
 
-- `{slug} queries.md` — agent-owned page built on demand by `/ask`'s determination logic (frontmatter + H1 + sections, no dispatch table). Skip placeholder check.
+- `{slug} queries.md` — agent-owned page mechanically rendered by `queries-render.py` (frontmatter + H1 + sections, no dispatch table). Skip placeholder check.
 - **Feature docs** (`F<n> — {Title}.md` inside `{slug} Features/`) — H1 carries an inline breadcrumb (`# [[{slug}]] · F<n> — {Title}`) per [[DAS Features]] § Document zone. Placeholder is optional, not required; rewire neither inserts nor strips it.
 - **`SKILL.md`** (skill anchor entry point) — fixed frontmatter + body structure per [[DAS Skill]]. F060 applies to the sibling `{Slug}.md` anchor root page, not to SKILL.md itself.
 - **`CLAUDE.md`** — Claude Code configuration file. Not a CAB doc.
