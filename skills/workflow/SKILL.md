@@ -55,6 +55,7 @@ A unit of work moves through these states. Each state has a **square-bracket lab
 | `[ ]` | **Unset** | Idea captured, no progress yet. Default for new items. |
 | `[Designing]` | **Designing** | Being thought through. Design work in flight; spec not yet locked. No questions raised yet. |
 | `[Questions]` | **Questions** | Blocked on user input on open questions. **Must** be paired with a `→ [[Feature Doc]]` link to where the `## Open Questions` block lives. |
+| `[User]` | **User-action** | Gated on a genuinely user-only ACTION the agent cannot perform itself — a login, a permission-dialog click, a credential, a 2FA tap. Body **MUST** carry a `- **User:**` sub-bullet naming the exact action (with live `[[wiki-links]]` / URLs); **MAY** also carry a `- **Next:**`, the queued agent step once the user acts. Distinct from `[Questions]` (a user *answer*) and `[Verify]` (a user *judgment*): `[User]` is a user *action*. Surfaces to the user — its count folds into the Questions (user-gated) banner bucket (count-only) — but keeps its distinct bracket. Minted via `state … set --status User --user "<action>" --why-user-action "<why only you>"`; the [[F259 — User-action state (User bracket for user-gated actions)\|F259]] ownership gate (the F240 sibling) refuses a `[User]` the agent could do itself — if you *can* do it, it's `[Ready]` with a `- **Next:**`, not `[User]`. |
 | `[Blocked]` | **Blocked** | Blocked on something other than user questions — a dependency, an external review, a CI / build issue, missing diagnostic evidence, or any other non-question blocker. Body of the row should describe what's blocking. |
 | `[Blocked F<NNN>]` | **Blocked on a feature** | Parameterized form of `[Blocked]`. The blocker is another feature's progression — click `F<NNN>` to see its current state (typically `[Verify]`, `[Active]`, or `[Designing]`). The chained reference IS the blocker description; body need not repeat it. |
 | `[Waiting]` / `[Waiting Nd]` / `[Waiting Nh]` | **Waiting** | **Body MUST say what we're waiting on.** Not actively blocked — no actor's action would unblock it; just letting time pass or observing for an external event (bug to reoccur, log file to fill, user to exercise the feature, GPU run to finish). Distinct from `[Blocked]`: Blocked has a fixable obstacle; Waiting does not. For timed forms (`Nd`, `Nh`), the body must **additionally** give the absolute calendar date/time the wait expires — relative durations age and "1d" is meaningless without knowing when it was written. Soft, not hard: `[Waiting 1d]` means "give it at least a day, re-check at next `/groom` pass," not "exactly 1 day then act." |
@@ -98,6 +99,14 @@ Two **optional extension states** that not every surface uses:
       │  └─────┬───────┘
       │        │ user resolves
       │        ↓
+      │ user ACTION needed (login / auth / permission click)
+      │        ↓
+      │  ┌─────────────┐
+      │  │   [User]    │ ◄─── surfaces like a question
+      │  │             │      (mandatory - **User:** action)
+      │  └─────┬───────┘
+      │        │ user acts
+      │        ↓
       │ design clean
       ↓
    ┌────────────┐
@@ -136,6 +145,7 @@ Not "soon." Not "next." Not "after we see if X happens." Not "in case the other 
 - **`[Watching]`** / **`[Watching Nd]`** — soaking on a fix; observing for *non*-recurrence of an event we *don't* want. Body must name what was changed, what non-recurrence proves, and (for timed forms) the absolute soak-expiry date.
 - **`[Blocked]`** / **`[Blocked F<NNN>]`** — actively contingent on something external (another feature's outcome, a diagnostic capture, a review). Body must name the blocker; the chained-feature form lets the link carry the description.
 - **`[Questions]`** — there's a decision the user has to make. Must point at a feature doc via `→ [[Doc]]`.
+- **`[User]`** — there's an ACTION only the user can take (a login, a permission-dialog click, a credential, a 2FA tap). Body must carry a `- **User:**` sub-bullet naming it. Only honest when the agent genuinely cannot do it — even via `box` / `osascript` / `bridge`; else it's `[Ready]` with a `- **Next:**` (the lazy-delegation antipattern).
 
 #### Disqualifying language
 
@@ -150,6 +160,7 @@ If a candidate `[Ready]` row's description contains any of these hedging phrases
 | "awaits natural recurrence" / "awaits next event" | `[Waiting]` | Passive observation for an event we *want* to occur; no agent action would advance it. |
 | "soaking" / "burn-in" / "watching for recurrence" / "fix shipped, observing" | `[Watching Nd]` | Soaking on a fix; observing for *non*-recurrence with an expiry date. Opposite polarity from Waiting. |
 | "may need" / "might want to" / "probably" / "possibly" | `[Questions]` or `[Designing]` | The uncertainty is a question the agent can't answer alone. |
+| "you need to log in / authenticate" / "click allow" / "enter your password / credential" / "grant permission" / "approve on your device" | `[User]` | An ACTION only the user can perform (F259) — not the agent's to do. Name it in a `- **User:**` sub-bullet; the row surfaces to the user like a question. |
 | "contingent on" / "depends on whether" | `[Blocked]` | Same — explicit dependency. |
 
 The list isn't exhaustive — it names the failure mode (hedging stands in for honest state). When you find yourself wanting to write hedging language in a `[Ready]` description, that's the signal to rebracket.
@@ -169,6 +180,8 @@ Every transition is driven by an explicit skill or trigger. There are no silent 
 | `[ ]` | `[Designing]` | `/feature`, manual edit, `/code plan` | A feature doc is created OR planning begins. |
 | `[Designing]` | `[Questions]` | `/ask` skill | Pending Qs added to `## Open Questions`; bullet description rewritten as `→ [[Feature Doc]]` (link is mandatory). |
 | `[Questions]` | `[Designing]` | User answers Qs | When pending Qs are resolved (`### Resolved`), description gets rewritten to reflect the resolved design. |
+| any non-terminal | `[User]` | Agent hits a user-only action | `state … set --status User --user "<action>" --why-user-action "<why only you>"`. The agent has done all it can; further progress needs a login / permission-click / credential / 2FA the agent cannot perform (F259). Refused if the agent could do it itself. |
+| `[User]` | prior state | User performs the action | Returns to whatever state it was in — `[Ready]` if design-clean (the queued `- **Next:**` becomes executable), else `[Designing]`. Exactly like `[Blocked]` / `[Questions]` resolution. |
 | any non-terminal | `[Blocked]` (or `[Blocked F<NNN>]`) | External blocker arises | Dependency, external review, CI failure, missing diagnostics, another feature's progression, etc. The work was at any state — `[Designing]`, `[Ready]`, `[Active]` — and hit a blocker that prevents further progress until something external resolves. |
 | `[Blocked]` (or `[Blocked F<NNN>]`) | prior state | Blocker resolves | When a chained `F<NNN>` reaches `[Done]` (or otherwise the blocking condition clears), the item returns to whatever state it was in pre-block. Often `[Ready]` if it was design-clean, otherwise `[Designing]`. |
 | any non-terminal | `[Waiting]` (or timed form) | Agent or user decides to wait | No actor's action would unblock; just letting time pass or observing for an event we *want*. Body must say what we're waiting on; timed forms must give the absolute expiration date in the body. |

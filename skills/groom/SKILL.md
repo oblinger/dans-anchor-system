@@ -84,17 +84,18 @@ A feature doc not listed anywhere is not on the frontier — and per activity 1 
 
 ### 3. Groom the frontier — plan each item to a known state
 
-For every frontier item, plan it out so you know, as concretely as possible, **how you would execute it**, then drive it into exactly one of the **five groomed states**. A state is only honest if its body carries the required contract — and every contract is a **checked `R-backlog` rule** ([[DAS Backlog]] § The groomed states), so an audit catches a bracket whose body doesn't back it up:
+For every frontier item, plan it out so you know, as concretely as possible, **how you would execute it**, then drive it into exactly one of the **six groomed states**. A state is only honest if its body carries the required contract — and every contract is a **checked `R-backlog` rule** ([[DAS Backlog]] § The groomed states), so an audit catches a bracket whose body doesn't back it up:
 
 | # | Groomed state | Bracket(s) | Body contract groom must write | Checked by |
 |---|---|---|---|---|
 | 1 | **Executable** | `[Ready]` / `[Active]` | a `- **Next:**` step the agent takes with zero user involvement | R-backlog-02 |
 | 2 | **Questions** | `[Questions]` | ≥1 numbered `Q<n>` reachable from the row (inline `- **Q<n>` sub-bullets or a `→ [[Feature Doc]]` link), each satisfying the question bar below | R-backlog-05 + R-query-08/13/15 |
-| 3 | **Blocked / Waiting** | `[Blocked …]` / `[Waiting …]` | names the *specific* obstacle or awaited event (`[Blocked F<NNN>]` exempt — the link is the description); timed forms also carry an absolute `YYYY-MM-DD` | R-backlog-06 (+ R-backlog-07 timed) |
-| 4 | **Verify** | `[Verify]` / `[Verify-by …]` | a `- **Verify:**` concrete yes/no the user answers from where they sit | R-backlog-04 |
-| 5 | **Watching** | `[Watching …]` | a `- **Verify:**` non-recurrence question **and** the absolute `YYYY-MM-DD` soak-expiry date | R-backlog-04 + R-backlog-07 |
+| 3 | **User-action** | `[User]` | a `- **User:**` sub-bullet naming the genuinely user-only action (login / permission-click / credential / 2FA) with live links; gated at mint by `--why-user-action` (F259). Surfaces like a question (its count folds into the Questions bucket) | C51 + F259 mint gate |
+| 4 | **Blocked / Waiting** | `[Blocked …]` / `[Waiting …]` | names the *specific* obstacle or awaited event (`[Blocked F<NNN>]` exempt — the link is the description); timed forms also carry an absolute `YYYY-MM-DD` | R-backlog-06 (+ R-backlog-07 timed) |
+| 5 | **Verify** | `[Verify]` / `[Verify-by …]` | a `- **Verify:**` concrete yes/no the user answers from where they sit | R-backlog-04 |
+| 6 | **Watching** | `[Watching …]` | a `- **Verify:**` non-recurrence question **and** the absolute `YYYY-MM-DD` soak-expiry date | R-backlog-04 + R-backlog-07 |
 
-After grooming, **nothing on the frontier is in an unknown state**: each item is executable (with a `Next:` step), questioned (with reachable numbered Qs), blocked/waiting (with a named obstacle), verifying (with a concrete question), or watching (with a dated soak). A frontier row must not rest in transient `[Designing]` after a groom — plan it forward to one of the five. The unifying cross-cutting rule behind states 2–5: **anything the body tells the user to look at is a live `[[wiki-link]]`**.
+After grooming, **nothing on the frontier is in an unknown state**: each item is executable (with a `Next:` step), questioned (with reachable numbered Qs), user-gated (with a `- **User:**` action), blocked/waiting (with a named obstacle), verifying (with a concrete question), or watching (with a dated soak). A frontier row must not rest in transient `[Designing]` after a groom — plan it forward to one of the six. The unifying cross-cutting rule behind states 2–6: **anything the body tells the user to look at is a live `[[wiki-link]]`**.
 
 > **The question bar — every question groom parks MUST satisfy all five (enforced by `/ask`).** A parked question is worthless unless the user can answer it in one shot. Each carries:
 > 1. **its work-item identifier** — the `[[F<n>]]` / `[[T<n>]]` / `[[M<n>]]` it belongs to, so the user knows *what task* is asking;
@@ -148,6 +149,7 @@ Every backlog item has one of these statuses, derived from where the bullet sits
 | **Ready** | Bullet is under `## Ready` H2 | Check the plan: a `[Ready]` row without a `- **Next:**` sub-bullet is not really ready — write the next autonomous step (or rebracket honestly). Otherwise skip. |
 | **Active** | Bullet is under `## Active` H2 | Skip — actively being worked. |
 | **Blocked on questions** | Bracket `[Questions]` and bullet text contains a `→ [[Feature Doc]]` or `→ [[Open Questions]]` link | Skip — only the user can resolve those. |
+| **User-action** | Bracket `[User]` and a `- **User:**` sub-bullet naming a user-only action (F259) | Skip promotion — it is honestly-parked on the user (surfaces like a question). Check the plan: a `[User]` row without a `- **User:**` action is malformed — name it, or rebracket `[Ready]` with a `- **Next:**` if the agent can do it. |
 | **Blocked (other)** | Bracket `[Blocked]` (generic, body explains) or `[Blocked F<NNN>]` (chained on another feature) | Skip — the blocker is external. When the chained `F<NNN>` reaches `[Done]`, /groom may rebracket on a future sweep. |
 | **Unset / Upcoming** | Bullet is under a horizon H2 (`## Now`, `## Next`, `## Later` per [[DAS Backlog]]) — or the legacy `## Upcoming` — or `## Legwork`, with bracket `[ ]` / `[Designing]` / absent, AND has no link to active open questions | **Process** — try to ready it. |
 | **Verify**, **Done** | Bullet under those H2s | Skip for promotion — but § 2a re-litigates the Verify family via the F240 positioning test (agent-grade questions get run or rebracketed). Done rows are never touched. |

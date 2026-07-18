@@ -54,6 +54,9 @@ Checks applied to Q.md, each anchor's backlog, and each feature/Questions doc:
        likely decide, F068), or an agent-territory-phrased Q (ordering /
        batching / rollback / cosmetic rename). Audit mirror of the mint-time
        question_mint_gate, over Qs that reached a doc off the `state` path. (report).
+  C51: F259 — a [User] row (gated on a genuinely user-only action) must carry a
+       `- **User:**` sub-bullet naming that action. Audit mirror of the mint-time
+       guard. [User] rows fold into the Questions banner count (count-only). (report).
   D1:  Q.md per-anchor banners derived from each anchor's backlog
        (not validated — overwritten on every run).
 
@@ -2328,6 +2331,36 @@ def check_c47_verify_ownership(
     return findings
 
 
+def check_c51_user_action_present(
+    entries: list[BacklogEntry], backlog_file: Path,
+) -> list[Finding]:
+    """C51 (F259): a [User] row must carry a `- **User:**` sub-bullet naming
+    the user-only action it is gated on (a login only the user holds, a GUI
+    permission dialog, a 2FA tap). The audit mirror of the mint-time guard,
+    over rows that predate the gate or were hand-edited. Report-only: naming
+    the action (or rebracketing [Ready]) needs judgment."""
+    findings: list[Finding] = []
+    user_texts = _rows_with_subbullet_text(backlog_file, "User")
+    for e in entries:
+        if e.status.strip() != "User":
+            continue
+        if not user_texts.get(e.identifier):
+            findings.append(Finding(
+                severity="warning",
+                surface_file=e.source_file,
+                surface_line=e.source_line,
+                code="C51",
+                message=(
+                    f"row '{e.identifier}' [User] has no `- **User:**` action — "
+                    f"per F259 a [User] row names the user-only action it waits "
+                    f"on. Add `- **User:** <action>`, or rebracket [Ready] with "
+                    f"a `- **Next:**` if the agent can do it itself."
+                ),
+                mechanically_fixable=False,
+            ))
+    return findings
+
+
 def check_c18_verify_by_expired(
     entries: list[BacklogEntry], today: date,
 ) -> list[Finding]:
@@ -4580,6 +4613,13 @@ def derive_anchor_banner(name: str, backlog_file: Path,
             # Bracket-claim but no pending Qs: count as 1 (don't lose the row)
             q_count = 1
         questions_n += q_count
+    # F259 — [User] rows (gated on a user ACTION) fold into the Questions
+    # (user-gated) banner count, count-only: each is one item on the user's
+    # plate, just like a question. The distinct [User] bracket is preserved at
+    # the row level; only the coarse banner number merges them. (North star:
+    # relabel this bucket "Questions → User" once these accumulate — the fold
+    # is here so the relabel is a one-liner.)
+    questions_n += sum(1 for e in actionable if e.status == "User")
     # Per-horizon counts (every entry, even with [Done] would count toward Now
     # in original spec, but C4 will move them out; here we count live only).
     horizon_counts = {h: 0 for h in ("Active", "Ready", "Now", "Next", "Later", "Verify", "Icebox")}
@@ -4960,6 +5000,7 @@ def main() -> int:
         findings.extend(check_c16_blocked_in_later(entries))
         findings.extend(check_c41_soak_question_declared(entries, backlog_file))
         findings.extend(check_c47_verify_ownership(entries, backlog_file))
+        findings.extend(check_c51_user_action_present(entries, backlog_file))
         findings.extend(check_c18_verify_by_expired(entries, today))
         findings.extend(check_c23_designing_resolves(entries))
         findings.extend(check_c24_questions_count_match(entries))
