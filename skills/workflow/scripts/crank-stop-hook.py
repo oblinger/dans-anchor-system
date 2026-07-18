@@ -40,6 +40,13 @@ STATE_CLI = Path.home() / ".claude" / "skills" / "workflow" / "scripts" / "state
 TTL_SECONDS = 24 * 3600
 BLOCK_CAP = 3
 DISARM_LOG = GATE_DIR / "disarms.jsonl"
+# F267 — LLM stop-check (stage 2): catch a chat-only question the worklist gate
+# (stage 1) is structurally blind to. INERT for now — logs a verdict, blocks
+# nothing. Runs only on a work-armed, clean-worklist stop (the sole gap).
+LLM_CHECK_LOG = GATE_DIR / "llm-check.jsonl"
+LLM_MODEL = "haiku"
+LLM_TIMEOUT = 30
+LLM_RECURSION_ENV = "STOPGATE_LLM_CHECK"
 
 
 def _iter_entries(transcript_path):
@@ -195,6 +202,69 @@ def _block(gate_path, reason, anchor=None, count=None):
     return 0
 
 
+def _last_assistant_text(transcript_path):
+    """Concatenated text of the FINAL assistant message — the words the agent is
+    about to end its turn on (what the LLM stage-2 check reads)."""
+    text = ""
+    for e in _iter_entries(transcript_path):
+        if e.get("type") != "assistant":
+            continue
+        content = (e.get("message") or {}).get("content")
+        if isinstance(content, str):
+            text = content
+            continue
+        parts = [b.get("text") or "" for b in (content or [])
+                 if isinstance(b, dict) and b.get("type") == "text"]
+        if parts:
+            text = "\n".join(parts)
+    return text.strip()
+
+
+def _llm_ask_check(payload, anchor):
+    """INERT stage-2 (F267): on a work-armed, clean-worklist stop, ask an LLM
+    whether the agent's final message is WAITING ON THE USER (a question / go /
+    decision) that the worklist gate can't see because it was never recorded.
+    Logs the verdict to llm-check.jsonl; blocks nothing yet. Recursion-guarded
+    (skips when spawned by itself) and fully fail-open — never affects the stop."""
+    if os.environ.get(LLM_RECURSION_ENV):
+        return
+    try:
+        msg = _last_assistant_text(payload.get("transcript_path", ""))
+        if len(msg) < 15:
+            return
+        prompt = (
+            "You are a strict classifier. An AI agent just wrote its FINAL "
+            "message before ending its turn. Decide whether it is WAITING ON "
+            "THE USER — it asks a question, requests approval / a decision / a "
+            "go-ahead, presents options for the user to pick, or says it is "
+            "holding / deferring / standing by on an action pending the user. "
+            "Answer false if it only reports completed work, states next steps "
+            "it will take itself, or offers optional help without blocking on "
+            'it. Respond with ONLY JSON: {"asking": true|false, "summary": '
+            "\"<the specific question/decision in <=15 words, or ''>\"}.\n\n"
+            "AGENT FINAL MESSAGE:\n" + msg[:6000])
+        env = {**os.environ, LLM_RECURSION_ENV: "1"}
+        r = subprocess.run(["claude", "-p", prompt, "--model", LLM_MODEL],
+                           capture_output=True, text=True, timeout=LLM_TIMEOUT,
+                           env=env)
+        out = (r.stdout or "").strip()
+        if "```" in out or not out.startswith("{"):
+            import re
+            m = re.search(r"\{.*\}", out, re.S)
+            if m:
+                out = m.group(0)
+        verdict = json.loads(out)
+        rec = {"ts": datetime.now(timezone.utc).isoformat(), "anchor": anchor,
+               "asking": bool(verdict.get("asking")),
+               "summary": str(verdict.get("summary", ""))[:200],
+               "msg_excerpt": msg[:200]}
+        GATE_DIR.mkdir(parents=True, exist_ok=True)
+        with open(LLM_CHECK_LOG, "a", encoding="utf-8") as fh:
+            fh.write(json.dumps(rec) + "\n")
+    except Exception:  # noqa: BLE001 — inert stage must never break the stop
+        pass
+
+
 def main():
     try:
         payload = json.load(sys.stdin)
@@ -224,8 +294,11 @@ def main():
     gate_path = GATE_DIR / f"{slug or Path(anchor_path).name}.json"
 
     count = _worklist_count(anchor_path)
-    if count is None or count == 0:
-        return _allow(crank_sp, gate_path)  # empty (or unreadable → fail open)
+    if count is None:
+        return _allow(crank_sp, gate_path)  # unreadable worklist → fail open
+    if count == 0:
+        _llm_ask_check(payload, slug or Path(anchor_path).name)  # F267 stage 2 (inert)
+        return _allow(crank_sp, gate_path)  # clean worklist → stage-1 allow
 
     reason = (
         f"stop-gate (F244): {slug or anchor_path} has {count} item(s) on the "
