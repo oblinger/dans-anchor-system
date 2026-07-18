@@ -19,6 +19,6 @@ Every top-level Interface doc contains at minimum a brief paragraph naming the l
 **Why:** the dispatch page is the caller's entry; an Interface not listed there cannot be discovered without knowing to search for it.
 
 ### RULE R-fct-interface-04 — Human-review gate before Done (stated)
-An Interface transitions to `[Done]` only after user verification that it accurately describes the layer contract (per [[SKA workflow]] § Interface-validation gate). Auto-generated or agent-only drafts are `[Designing]` until reviewed.
+An Interface transitions to `[Done]` only after user verification that it accurately describes the layer contract (per [[DAS Interface]] § Interface-validation gate). Auto-generated or agent-only drafts are `[Designing]` until reviewed.
 **Check pattern:** status on the backlog row is not `[Done]` unless the Interface has passed user review.
 **Why:** layer-completeness and correctness can only be confirmed by a caller-perspective review; agent drafts are starting points, not finished contracts.
