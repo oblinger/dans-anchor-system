@@ -78,7 +78,7 @@ has_stamp() { grep -q '<!-- state:q [0-9a-z][0-9a-z] -->' "$1"; }
 
 # ---------- Case A — define places block below H1 with a valid stamp ----------
 fresh_backlog; fresh_doc
-printf -- '- **Q1 — Pick a color** — Which color?\n  - **(A)** Red.\n  - **(B)** Blue.\n- **Recommendation:** Lean (A)\n' \
+printf -- '- **Q1 — Pick a color** — Which color?\n  - **(A)** Red.\n  - **(B)** Blue.\n- **Recommendation:** None\n' \
   | "$STATE" --anchor "$FIX_ROOT" "Fixture Doc" Q1 define >/dev/null 2>&1
 OQ=$(oq_line "$DOC"); H1=$(h1_line "$DOC")
 if [ -n "$OQ" ] && [ -n "$H1" ] && [ "$OQ" -gt "$H1" ]; then
@@ -138,7 +138,7 @@ fi
 python3 - "$DOC" <<'PY'
 import sys, re, pathlib
 p = pathlib.Path(sys.argv[1]); s = p.read_text()
-p.write_text(re.sub(r"- \*\*Recommendation:\*\* Lean \(A\)\n", "", s))
+p.write_text(re.sub(r"- \*\*Recommendation:\*\* None\n", "", s))
 PY
 OUT=$("$STATE" --anchor "$FIX_ROOT" "Fixture Doc" revalidate 2>&1); RC=$?
 if [ "$RC" -ne 0 ] && echo "$OUT" | grep -qi "ask-format"; then
@@ -162,7 +162,7 @@ Orientation line.
 - **Q1 — Legacy stampless** — Which one? ^Fixture-Doc-Q1
   - **(A)** This.
   - **(B)** That.
-- **Recommendation:** Lean (A)
+- **Recommendation:** None
 
 ## Summary
 
@@ -190,7 +190,7 @@ description: fixture feature doc
 - **Q1 — Above the H1** — Which one? ^Fixture-Doc-Q1
   - **(A)** This.
   - **(B)** That.
-- **Recommendation:** Lean (A)
+- **Recommendation:** None
 
 # F241FIX · Fixture Doc
 Orientation line.
@@ -211,7 +211,7 @@ fi
 # survives the define block-anchor strip (regression: the old `\s*\^\S+\s*$`
 # strip ate a line-final `[[Doc#^id|alias]]` back to a bare `[[Doc#`). ----------
 fresh_backlog; fresh_doc
-printf -- '- **Q1 — Section link survives** — See [[F241FIX Backlog#^T001|T001]]\n  - **(A)** Yes.\n  - **(B)** No.\n- **Recommendation:** Lean (A)\n' \
+printf -- '- **Q1 — Section link survives** — See [[F241FIX Backlog#^T001|T001]]\n  - **(A)** Yes.\n  - **(B)** No.\n- **Recommendation:** None\n' \
   | "$STATE" --anchor "$FIX_ROOT" "Fixture Doc" Q1 define >/dev/null 2>&1
 if grep -qF '[[F241FIX Backlog#^T001|T001]]' "$DOC"; then
     ok "F: section-anchored wiki-link survives the define round-trip (T027)"

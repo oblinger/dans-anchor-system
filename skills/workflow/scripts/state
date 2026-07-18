@@ -1309,7 +1309,7 @@ def _v2_row(slug, backlog_path, label, verb, args, minted=False):
 # v2 — Q labels on any doc
 
 
-def _q_define_core(slug, feature_path, q_num, body):
+def _q_define_core(slug, feature_path, q_num, body, why_ask=None):
     """`<doc> Q<n> define` — create-or-replace Q<n> in place. Reuses
     be._find_q_bullet / be._format_q_bullet / be._ensure_open_questions_h2 —
     the same formatting the legacy `q add`/`q rewrite` verbs use — so define
@@ -1327,6 +1327,7 @@ def _q_define_core(slug, feature_path, q_num, body):
         first = re.sub(r"\s+\^[\w-]+\s*$", "", first)
         body = first + (sep + rest if sep else "")
     _validate_ask_format_body(body)
+    body = be.question_mint_gate(q_num, body, why_ask)  # F257 who-should-decide gate
     text = feature_path.read_text(encoding="utf-8")
     container_id = _v2_container_id_for_doc(feature_path)
     lines = text.splitlines()
@@ -1409,10 +1410,15 @@ def _q_revalidate_core(slug, feature_path):
             k = j
             continue
         k += 1
-    # Gate every pending Q through the same ask-format checks as define.
+    # Gate every pending Q through the same ask-format + F257 who-should-decide
+    # checks as define (why_ask=None here — an already-vetted Q carries its
+    # `*why-ask:*` annotation and is grandfathered; a hand-authored Lean/Strong
+    # without one is caught, matching what define would have refused).
     for q_num, s, e in q_slices:
+        block = "\n".join(lines[s:e])
         try:
-            _validate_ask_format_body("\n".join(lines[s:e]))
+            _validate_ask_format_body(block)
+            be.question_mint_gate(q_num, block, None)
         except be.BacklogEditError as err:
             reason = (str(err).replace("backlog_edit: ", "")
                       .replace("define refused: ", ""))
@@ -1465,7 +1471,8 @@ def _v2_query(slug, doc_path, q_num, verb, args):
         body = read_body(args)
         if not body.strip():
             raise be.BacklogEditError("define requires a body via stdin or --body")
-        return _q_define_core(slug, doc_path, q_num, body)
+        return _q_define_core(slug, doc_path, q_num, body,
+                              why_ask=getattr(args, "why_ask", None))
     if verb == "resolve":
         if not args.choice:
             raise be.BacklogEditError(
@@ -2168,6 +2175,14 @@ def build_v2_parser():
                         "preference / ratification / passive-use); required "
                         "when a row enters that family. Appended to the "
                         "`- **Verify:**` sub-bullet as `· *why-user: …*`")
+    p.add_argument("--why-ask", dest="why_ask", default=None,
+                   help="F257 — one sentence justifying why a Lean/Strong "
+                        "Open Question is surfaced despite the agent having a "
+                        "recommendation (high-stakes irreversibility: an "
+                        "external action, an interface-sticky name/schema, an "
+                        "architecture lock-in, a taste-only call). Required to "
+                        "mint a Lean/Strong `Q<n> define`; appended as "
+                        "`· *why-ask: …*`")
     p.add_argument("--choice", default=None,
                    help='chosen option, e.g. "(A)" — required for `Q<n> resolve`')
     p.add_argument("--reason", default=None,

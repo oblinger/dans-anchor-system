@@ -554,6 +554,138 @@ def verify_ownership_gate(status, row_id, eff_verify, why_user):
     return eff_verify
 
 
+# --- F257 question-mint gate (the F240 sibling for Open Questions) -----------
+# Keyed on the ask-format Recommendation strength instead of a verify's
+# mechanical phrasing. Same three moves as verify_ownership_gate: a Tier-1
+# hard-refuse (agent-territory shape, no override), a Tier-2 refuse-unless-
+# justified (Lean/Strong without --why-ask), and a rendered `· *why-ask: …*`
+# annotation the audit can challenge in place.
+_RECOMMENDATION_STRENGTH_RE = re.compile(
+    r"^-\s+\*\*Recommendation:\*\*\s*(.*)$", re.MULTILINE)
+# Tier-1: known agent-territory question shapes — refused regardless of
+# --why-ask (ordering / batching / rollback / cosmetic rename of an existing
+# thing). Deliberately NARROW (F242's lesson) so a genuine fork is never
+# false-flagged; naming a NEW interface-sticky thing is NOT here (F068 keeps
+# those askable).
+_AGENT_TERRITORY_Q_RE = re.compile(
+    r"\b(?:which\s+order|what\s+order|in\s+what\s+order|order\s+(?:should|do|to)\b"
+    r"|should\s+(?:i|we)\s+batch|batch\s+(?:these|them|the\s+\w+)\s+(?:together|into)"
+    r"|should\s+(?:i|we)\s+roll\s+back|roll\s+(?:it|this|these|them)\s+back"
+    r"|what\s+should\s+(?:i|we)\s+(?:name|call)\s+(?:it|this|the\b)"
+    r"|what\s+to\s+(?:name|call)\s+(?:it|this))\b",
+    re.IGNORECASE,
+)
+
+
+def recommendation_strength(body):
+    """Return 'Strong' | 'Lean' | 'None' parsed from the Q's indent-0
+    `- **Recommendation:** …` line, or None when absent/unrecognized. The
+    ask-format gate (_validate_ask_format_body) already guarantees the line
+    exists on the define path; this reads its first Strong/Lean/None keyword
+    (case-insensitive)."""
+    m = _RECOMMENDATION_STRENGTH_RE.search(body or "")
+    if not m:
+        return None
+    wm = re.search(r"\b(Strong|Lean|None)\b", m.group(1), re.IGNORECASE)
+    return wm.group(1).capitalize() if wm else None
+
+
+def has_why_ask_annotation(body):
+    """True when the Q body already carries a `· *why-ask: …*` annotation —
+    an already-vetted Q, grandfathered on re-touch (mirrors F240's
+    `*why-user:*` short-circuit)."""
+    return "*why-ask:" in (body or "")
+
+
+def _q_header_line(body):
+    """The Q's header line (the `**Q<n> — …**` line) minus any trailing block
+    anchor — the text the Tier-1 agent-territory check runs against (title +
+    elaboration live here; option/Recommendation lines are separate)."""
+    for line in (body or "").splitlines():
+        if re.match(r"^\s*-?\s*\*\*Q(?:\d+|\+)\s+—", line):
+            return re.sub(r"\s+\^[\w-]+\s*$", "", line).strip()
+    return ""
+
+
+def is_agent_territory_question(body):
+    """F257 Tier-1 — True when the question's shape is known agent-territory
+    (ordering / batching / rollback / cosmetic rename): never the user's call,
+    so refused regardless of --why-ask. Narrow by design."""
+    return bool(_AGENT_TERRITORY_Q_RE.search(_q_header_line(body)))
+
+
+def _append_why_ask_annotation(body, why_ask):
+    """Append `· *why-ask: …*` to the Q's Recommendation line (the field the
+    justification qualifies); falls back to the header line if no
+    Recommendation line is present."""
+    annot = f" · *why-ask: {why_ask}*"
+    lines = str(body or "").splitlines()
+    for i, line in enumerate(lines):
+        if re.match(r"^-\s+\*\*Recommendation:\*\*", line):
+            lines[i] = line.rstrip() + annot
+            return "\n".join(lines)
+    for i, line in enumerate(lines):
+        if re.match(r"^\s*-?\s*\*\*Q(?:\d+|\+)\s+—", line):
+            m = re.search(r"\s+\^[\w-]+\s*$", line)
+            if m:
+                lines[i] = line[:m.start()] + annot + line[m.start():]
+            else:
+                lines[i] = line.rstrip() + annot
+            return "\n".join(lines)
+    return (body or "").rstrip() + annot
+
+
+def question_mint_gate(q_num, body, why_ask):
+    """F257 — enforce who-should-decide at the moment an Open Question is
+    minted (the F240 sibling). Two refusals mirroring verify_ownership_gate:
+
+      Tier 1 (hard, no override): the question's shape is agent-territory
+        (ordering / batching / rollback / cosmetic rename) — refused
+        regardless of --why-ask (the `is_mechanical_verify` analog).
+      Tier 2 (refuse-unless-justified): a Lean/Strong recommendation with no
+        --why-ask and no existing `*why-ask:*` annotation — a recommendation
+        means the agent can decide (F068), so surfacing it must be justified
+        (the `--why-user` analog).
+
+    Passes: Recommendation None (the honest ask, never blocked); an already
+    `*why-ask:*`-annotated Q (grandfathered re-touch). Returns the body with
+    the `· *why-ask: …*` annotation appended when --why-ask is supplied."""
+    label = f"Q{q_num}" if q_num is not None else "Q+"
+    if is_agent_territory_question(body):
+        raise BacklogEditError(
+            f"[{label}] refused: the question is agent-territory (ordering / "
+            f"batching / rollback / cosmetic\n"
+            f"  rename) — never the user's call (F068 / "
+            f"feedback_low_stakes_ordering_auto_decide /\n"
+            f"  feedback_agent_picks_order). Pick a sensible option, announce "
+            f"it, and proceed. No\n"
+            f"  --why-ask overrides this."
+        )
+    if has_why_ask_annotation(body):
+        return body  # already vetted — grandfathered re-touch
+    strength = recommendation_strength(body)
+    if strength in ("Lean", "Strong") and not (why_ask and why_ask.strip()):
+        raise BacklogEditError(
+            f"[{label}] refused: carries a {strength} recommendation but no "
+            f"--why-ask.\n"
+            f"  Per F068, a recommendation means you can likely decide:\n"
+            f"    • low-stakes + reversible → assume-and-announce\n"
+            f"    • ordering / batching / rollback → you pick (never ask)\n"
+            f"    • answer is in your analysis / the rules / prior chat → "
+            f"answer it\n"
+            f"    • mechanically checkable → verify it (F240)\n"
+            f"  If it is genuinely high-stakes-irreversible despite your lean "
+            f"— an irreversible external\n"
+            f"  action, an interface-sticky name/schema, an architecture "
+            f"lock-in, or a taste/preference\n"
+            f"  only the user holds — pass --why-ask \"<one sentence>\". "
+            f"Otherwise decide and announce."
+        )
+    if why_ask and why_ask.strip():
+        return _append_why_ask_annotation(body, why_ask.strip())
+    return body
+
+
 # --- F242 non-answer (punt) detector -----------------------------------------
 # A required Next/question value is a "non-answer" when the agent left the field
 # empty or filled it with a placeholder instead of doing the groom. v1 set,

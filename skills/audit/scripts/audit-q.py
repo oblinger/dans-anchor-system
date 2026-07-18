@@ -49,6 +49,11 @@ Checks applied to Q.md, each anchor's backlog, and each feature/Questions doc:
        exist", command-form asks) is agent-grade: the agent runs it now or
        reclassifies [Waiting] with an agent-check plan. Heuristic shared with
        backlog-edit.py's mint-time gate (is_mechanical_verify). (report).
+  C50: F257 — a pending Open Question carrying a Lean/Strong Recommendation
+       but no `· *why-ask: …*` (a recommendation-bearing ask the agent could
+       likely decide, F068), or an agent-territory-phrased Q (ordering /
+       batching / rollback / cosmetic rename). Audit mirror of the mint-time
+       question_mint_gate, over Qs that reached a doc off the `state` path. (report).
   D1:  Q.md per-anchor banners derived from each anchor's backlog
        (not validated — overwritten on every run).
 
@@ -118,6 +123,12 @@ _be_mod = _be_il.module_from_spec(_be_spec)
 _be_spec.loader.exec_module(_be_mod)
 is_mechanical_verify = _be_mod.is_mechanical_verify
 is_nonanswer = _be_mod.is_nonanswer  # F242 (C49) — punt detector, same sharing
+# F257 (C50) — question-mint gate primitives, same single-source sharing:
+# the audit mirrors question_mint_gate over Qs that reached a doc off the
+# `state` path (hand-edit / legacy).
+recommendation_strength = _be_mod.recommendation_strength
+has_why_ask_annotation = _be_mod.has_why_ask_annotation
+is_agent_territory_question = _be_mod.is_agent_territory_question
 # ---------------------------------------------------------------------------
 
 
@@ -3081,6 +3092,103 @@ def check_c48_q_stamp_drift(entries: list[BacklogEntry]) -> list[Finding]:
     return findings
 
 
+def _pending_q_blocks(lines: list[str]):
+    """Yield (q_num, start_line_1indexed, block_text) for each pending Q in a
+    doc's `## Open Questions` — top-level bullets, outside any ### Resolved /
+    ### Removed sub-section. Mirrors state's revalidate slicing over the same
+    _be_mod primitives (single source of truth)."""
+    rng = _be_mod._open_questions_range(lines)
+    if rng is None:
+        return
+    start, end = rng
+    in_h3 = False
+    k = start + 1
+    while k < end:
+        line = lines[k]
+        if line.startswith("### "):
+            in_h3 = True
+            k += 1
+            continue
+        mm = _be_mod._Q_HEADER_BULLET_RE.match(line)
+        if mm and not in_h3:
+            indent = mm.group(1)
+            j = k + 1
+            while j < end:
+                nxt = lines[j]
+                if nxt.startswith("#"):
+                    break
+                mh = _be_mod._Q_HEADER_BULLET_RE.match(nxt)
+                if mh and (len(nxt) - len(nxt.lstrip())) <= len(indent):
+                    break
+                j += 1
+            yield (int(mm.group(2)), k + 1, "\n".join(lines[k:j]))
+            k = j
+            continue
+        k += 1
+
+
+def check_c50_question_why_ask(entries: list[BacklogEntry]) -> list[Finding]:
+    """C50 (F257): a pending Open Question carrying a Lean/Strong
+    Recommendation but no `· *why-ask: …*` annotation is a recommendation-
+    bearing ask the agent could likely have decided (F068); the mint-time
+    gate (question_mint_gate) refuses these, and C50 is the audit mirror over
+    Qs that reached the doc off the `state` path (hand-edit / legacy). Also
+    flags an agent-territory-phrased Q (ordering / batching / rollback /
+    cosmetic rename) — never the user's call regardless of justification.
+    Report-only: deciding or rewriting the Q needs judgment. Dedups per target
+    file (multiple rows linking the same doc walk it once)."""
+    findings: list[Finding] = []
+    seen: set[Path] = set()
+    for e in entries:
+        if not re.match(r"^\s*(\d+\s+)?Questions?\s*$", e.status or ""):
+            continue
+        if e.horizon in ("Done", "Icebox"):
+            continue
+        arrow_link = _arrow_target(e)
+        if arrow_link is None or arrow_link.target_file_path is None:
+            continue
+        target = arrow_link.target_file_path
+        if not target.is_file() or target in seen:
+            continue
+        seen.add(target)
+        try:
+            lines = target.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeDecodeError):
+            continue
+        for q_num, q_line, block in _pending_q_blocks(lines):
+            if is_agent_territory_question(block):
+                findings.append(Finding(
+                    severity="warning", surface_file=target,
+                    surface_line=q_line, code="C50",
+                    message=(
+                        f"Q{q_num} is agent-territory (ordering / batching / "
+                        f"rollback / cosmetic rename) — per F257/F068 the agent "
+                        f"decides these, never the user. Pick + announce, then "
+                        f"resolve or remove the Q. Linked from [Questions] row "
+                        f"'{e.identifier}' in {e.source_file.stem}."
+                    ),
+                    mechanically_fixable=False))
+                continue
+            if has_why_ask_annotation(block):
+                continue
+            strength = recommendation_strength(block)
+            if strength in ("Lean", "Strong"):
+                findings.append(Finding(
+                    severity="warning", surface_file=target,
+                    surface_line=q_line, code="C50",
+                    message=(
+                        f"Q{q_num} carries a {strength} recommendation but no "
+                        f"`· *why-ask: …*` — per F257 a recommendation means you "
+                        f"can likely decide (F068); surface it only with a "
+                        f"justification. Decide + announce, or re-issue via "
+                        f"`state \"{target.stem}\" Q{q_num} define --why-ask "
+                        f"\"<reason>\"`. Linked from [Questions] row "
+                        f"'{e.identifier}' in {e.source_file.stem}."
+                    ),
+                    mechanically_fixable=False))
+    return findings
+
+
 def _inline_q_question_texts(backlog_file: Path, entry: "BacklogEntry") -> list[str]:
     """Question segments of inline `- **Q<n> — <title>** — <question>` sub-bullets
     within an entry's row span (up to the next row opener / heading)."""
@@ -4862,6 +4970,7 @@ def main() -> int:
         findings.extend(check_c44_questions_row_has_target(entries))
         findings.extend(check_c45_open_questions_above_h1(entries))
         findings.extend(check_c48_q_stamp_drift(entries))
+        findings.extend(check_c50_question_why_ask(entries))
         findings.extend(check_c49_next_nonanswer(entries, backlog_file))
         findings.extend(check_c34_inline_q_in_row_body([backlog_file]))
     # F124 — C35 queries.md drift check walks every anchor backlog's sibling
