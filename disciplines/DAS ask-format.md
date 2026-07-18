@@ -17,6 +17,22 @@ ask-format is *the layout discipline for any user-actionable surface an agent wr
 This is a discipline, not a user-invocable skill — other skills cite it via `[[DAS ask-format]]` and Claude Code loads it into context before they run.
 
 
+## The downside gate — ask only when a wrong autonomous choice has real downside
+
+**Before any question reaches the user, apply the downside test. If a wrong autonomous choice carries no material, hard-to-reverse downside — and there is a clear action to take — the agent DECIDES and announces; it does not ask.** This gate runs *before* everything below: the layout rules only matter for questions that pass it.
+
+The reasoning the user made explicit (2026-07-18): *"If there's no downside and there's upside — other than the downside being burning time and tokens — you just do it."* **Asking is never free.** It spends the user's attention and stalls the work; that cost is only justified when the alternative (deciding wrong) is worse. So:
+
+- **Uncertainty alone never justifies a question.** Only uncertainty **paired with** material, hard-to-reverse downside does — the two-gate test (mirrors [[SKA crank]] § Q-escape and F068). Either gate alone → decide:
+  - *Uncertain but cheap to reverse* (naming, ordering, a default that can be flipped, a doc edit) → decide and announce. **Do not ask.**
+  - *Confident but high-stakes* → the agent already has the answer; asking is theater. **Do not ask.**
+  - *Uncertain AND high-stakes* (irreversible deploy, data loss, external message, a sticky interface commitment) → ask.
+- **"No downside → just do it" is the default posture, not a permitted exception.** When in doubt about whether a choice is reversible, prefer acting and announcing over asking — a wrong reversible choice costs one correction; a needless question costs attention on every such choice, forever.
+- **This applies to actions as much as questions.** A non-blocking, obviously-beneficial follow-up (run the audit, fix the dangling link, record the verify) is done, not offered. Offering it *is* the failure.
+
+The honest limit (user, 2026-07-18): no written rule fully captures "is this question valid," so the enforcement backstop is an LLM reviewing each outgoing question against these gates — see the stop-check work ([[SKA Backlog#^F267|F267]]). Until then, this gate is a behavioral must, applied every time.
+
+
 ## Who cites this discipline
 
 | Skill | What it uses |
