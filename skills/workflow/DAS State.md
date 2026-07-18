@@ -88,6 +88,15 @@ Q define    create-or-replace Q<n> in place (subsumes add + rewrite). Q+ mints t
             body or the complete `- **Q<n> — ...` bullet. Write-time gate: ask-format
             requires >=2 own-line labeled option bullets (`- **(A)** ...`) AND a
             `- **Recommendation:**` line at indent 0 (value may be None).
+            --why-ask J   F257 ownership gate (the F240 sibling) — one sentence justifying
+                          why a Lean/Strong Q surfaces despite the agent having a
+                          recommendation (high-stakes irreversibility: an external action,
+                          an interface-sticky name/schema, an architecture lock-in, a
+                          taste-only call). REQUIRED to mint a Lean/Strong Q; appended as
+                          `· *why-ask: …*`. A `Recommendation: None` mints freely. An
+                          agent-territory shape (ordering / batching / rollback / cosmetic
+                          rename) is refused regardless of --why-ask. An already-annotated
+                          Q is grandfathered on re-touch. audit-q C50 is the mirror.
 
 Q resolve   move the Q to the bottom ## Resolved as a `### Q<n> — Title` H3.
             --choice OPT  required. the chosen option label, e.g. '(A)' — written into
