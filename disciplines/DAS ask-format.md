@@ -17,6 +17,50 @@ ask-format is *the layout discipline for any user-actionable surface an agent wr
 This is a discipline, not a user-invocable skill — other skills cite it via `[[DAS ask-format]]` and Claude Code loads it into context before they run.
 
 
+| Table of Contents |  |
+|---|---|
+| **[[#The downside gate — ask only when a wrong autonomous choice has real downside]]** |  |
+| **[[#The Damage field — the downside gate as a closed enumeration]]** |  |
+| **[[#Who cites this discipline]]** |  |
+| **[[#Surfaces — where these items live]]** |  |
+| **[[#Six-piece question layout]]** |  |
+|    [[#Recommendation strength]] |  |
+|    [[#Spacing — load-bearing visual structure]] |  |
+|    [[#Canonical example]] |  |
+|    [[#Open-ended (no alternatives)]] |  |
+| **[[#Four-piece verify layout]]** |  |
+|    [[#Canonical Verify example]] |  |
+|    [[#When the verify is trivial]] |  |
+| **[[#Deferred-by-use Verify — `[Verify-by YYYY-MM-DD]`]]** |  |
+|    [[#When to use the deferred pattern (both conditions required)]] |  |
+|    [[#Bracket form]] |  |
+|    [[#Placement]] |  |
+|    [[#Forward-throw window — agent picks per item, no default]] |  |
+|    [[#Render behavior]] |  |
+|    [[#Auto-expiration via /groom]] |  |
+|    [[#When NOT to use the deferred pattern]] |  |
+| **[[#Navigation invariant]]** |  |
+|    [[#Block-ID on the item]] |  |
+|    [[#Link form for references]] |  |
+| **[[#Numbering policy]]** |  |
+| **[[#Phase 1 / 2 / 3 lifecycle (Open Questions blocks)]]** |  |
+| **[[#Acceptance & rollback (per F086)]]** |  |
+|    [[#Acceptance — the user must explicitly say "resolution(s)"]] |  |
+|    [[#Rollback]] |  |
+|    [[#Partial accept]] |  |
+| **[[#Enforcement (via /audit q)]]** |  |
+| **[[#Pre-ask self-check — six guidelines (per F105 + B-stop-asking-trivial-checks)]]** |  |
+|    [[#Rule 1 — Aggregate within the anchor before surfacing]] |  |
+|    [[#Rule 2 — Never ask "should we continue / stop?"]] |  |
+|    [[#Rule 3 — Never ask "should we burn tokens for a better outcome?"]] |  |
+|    [[#Rule 4 — Never ask "how to split the work?"]] |  |
+|    [[#Rule 5 — Never ask "quick way or complete way?"]] |  |
+|    [[#Rule 6 — Never ask a Q the agent can answer by reading a file]] |  |
+|    [[#How auto-resolution surfaces]] |  |
+| **[[#Anti-patterns]]** |  |
+| **[[#Chat & transient-channel asks — restate context inline]]** |  |
+| **[[#Cross-references]]** |  |
+
 ## The downside gate — ask only when a wrong autonomous choice has real downside
 
 **Before any question reaches the user, apply the downside test. If a wrong autonomous choice carries no material, hard-to-reverse downside — and there is a clear action to take — the agent DECIDES and announces; it does not ask.** This gate runs *before* everything below: the layout rules only matter for questions that pass it.
@@ -32,6 +76,37 @@ The reasoning the user made explicit (2026-07-18): *"If there's no downside and 
 
 The honest limit (user, 2026-07-18): no written rule fully captures "is this question valid," so the enforcement backstop is an LLM reviewing each outgoing question against these gates — see the stop-check work ([[SKA Backlog#^F267|F267]]). Until then, this gate is a behavioral must, applied every time.
 
+
+## The Damage field — the downside gate as a closed enumeration
+
+The gate above is a judgment call, and judgment is what agents dodge (the failure mode, seen 2026-07-18: an agent asks a `None`-recommendation question, declares no downside, and asks anyway). The **Damage field makes the gate mechanical.** Every question self-declares, on the record, one category of *damage-if-the-agent-guesses-wrong*, drawn from a closed list — and the category, not the agent's mood, decides whether the question may be asked at all.
+
+**The field** — a mandatory sibling of `Recommendation:`:
+
+- **Damage:** {category} — {one concrete sentence naming exactly what breaks if the agent takes its pick and is wrong}
+
+The concrete sentence is the forcing function: writing *"irreversible — deletes the user's masters"* for a question that is really about a renameable label is a lie on the record, whereas dodging a vague "is there downside?" is free.
+
+**The six categories** (user-locked 2026-07-18) — the first two auto-resolve and never reach the user; the last four are the *only* licenses to ask:
+
+| Category | Use ONLY when… | Disposition |
+|---|---|---|
+| **waste** | a wrong guess costs only tokens or time — redo work, a wasted run; nothing outside is touched. | **auto-resolve** |
+| **priority** | a wrong guess does the right things in the wrong order / the wrong thing first — reversible by reordering. | **auto-resolve** |
+| **irreversible** | the wrong choice genuinely cannot be undone — delete data, send mail, a deploy. *Rebuildable or renameable does NOT clear this bar.* | **surface** |
+| **locking** | structural lock-in others will build on — the methods / interfaces / architecture underneath something, expensive to change once depended on. *A name you can rename does NOT clear this bar.* | **surface** |
+| **taste** | *important* taste, where the user's judgment materially changes the outcome. *A trivial cosmetic pick does NOT clear this bar.* | **surface** |
+| **other** | the question genuinely fits none of the five — the relief valve. Always surfaces, so the safe failure mode is "ask," never "auto-bury." Use only after honestly ruling out the other five. | **surface** |
+
+**Auto-resolve — `waste` and `priority` never reach the user.** The agent resolves the question itself: it picks its Recommendation lean; or, if it has no lean but the answer is *findable*, it goes and finds it (probe, read the file, run the check) rather than asking; or, if it is genuinely 50/50 and low-cost, it picks either. Then it records the resolution and tells the user what it did — *"resolved Q10 as waste, picked (B), didn't bother you."*
+
+**The resolution format.** Do **not** rewrite the question or its Recommendation (the user may later override the pick). Resolve through the existing command — `state "{doc}" Q{n} resolve --choice "(B)" --body "auto-resolved (waste) — {why}"` — which moves the question into `## Resolved` with a `**Choice:** (B)` line plus the auto-resolved note, preserving the original question and recommendation as quoted context. The resolution is one added line, not a rewrite.
+
+**Surface — the complete list of reasons to ask.** A question may reach the user only if its damage is `irreversible`, `locking`, `taste`, or (the honest escape) `other`. If the agent cannot file a question under one of those, it *is* waste or priority by definition, and it auto-resolves. That is the downside gate as a closed enumeration.
+
+**Relationship to the why-ask gate (F257).** The mint-time ownership gate already refuses a `Lean`/`Strong` question without a `--why-ask` justification naming its high-stakes irreversibility (external action / interface-sticky schema / architecture lock-in / taste-only call — a proto-version of these categories). The Damage field is that gate's **structured form**: the freeform `--why-ask` sentence becomes a `Damage:` category + concrete sentence, and the surface/auto split is enforced by the category rather than the agent's prose. Unifying the two mechanically is [[SKA Backlog#^F270|F270]] M2.
+
+**Rollout.** The field and this discipline are **live now** — every agent produces a `Damage:` line and self-resolves `waste`/`priority` immediately. The *mechanical* enforcement — the mint gate refusing a surfaced `waste`/`priority` question, and a Warden rule that auto-resolves them without relying on agent compliance — rolls out inert-first (log what it would auto-resolve, review, then enforce), exactly like the F267 stop-check. See [[SKA Backlog#^F270|F270]].
 
 ## Who cites this discipline
 
@@ -56,7 +131,7 @@ The honest limit (user, 2026-07-18): no written rule fully captures "is this que
 | Drain snapshot | `{slug} ask.md` (bare `/ask`'s output, three sections) |
 
 
-## Five-piece question layout
+## Six-piece question layout
 
 Every `Q<n>` has the same shape so the user can scan many at once and rubber-stamp the high-confidence ones.
 
@@ -65,6 +140,7 @@ Every `Q<n>` has the same shape so the user can scan many at once and rubber-sta
 3. **Recommendation as a sibling top-level bullet** — **outdented to the same level as the Question header**, not nested under the options. The bolded `**Recommendation:**` prefix is the eye-anchor; outdenting makes it pop visually as the answer-line, not as one more option to read.
 4. **Strength label** — exactly one of: **Strong** / **Lean** / **None**.
 5. **One-line reason** for the recommendation — what about the alternatives makes the recommended one the right call.
+6. **Damage** — the mandatory `- **Damage:**` category + concrete sentence (see § The Damage field). On a *surfaced* question the category is always one of `irreversible` / `locking` / `taste` / `other`; a `waste`/`priority` question would have auto-resolved and never appear here. It is the eye-test the user applies to challenge a question that shouldn't have been asked.
 
 ### Recommendation strength
 
@@ -91,23 +167,30 @@ Per user direction 2026-05-25: *"the questions are bulleted ... they always have
 ### Canonical example
 
 ```
-- **Q3 — `/land` + `/roster`: always run roster, or only when work was landed?** When `/land` finds nothing in flight, two options. ^F013-Q3
-  - **(A)** Always run roster — print state-of-the-work even when zero activities landed. Cost: one extra block of output.
-  - **(B)** Only run roster after work was landed — skip if there was nothing in flight. Cost: lose the "you're at zero, here's the next-action menu" signal in the empty case.
-- **Recommendation:** Lean (A). The empty case still benefits from a "here's what's queued up" view; the cost is tiny.
+- **Q3 — Frontmatter `traits:` — YAML list or comma-string?** Every anchor's parser reads this field; the shape is hard to change once docs adopt it. ^F013-Q3
+  - **(A)** YAML list — `traits:` with one `- name` per line. Standard YAML; no custom splitter downstream.
+  - **(B)** Comma-string — `traits: code, ios` on one line; every consumer must split it.
+- **Recommendation:** Lean (A). Native YAML lists don't need a bespoke splitter in each consumer.
+- **Damage:** locking — every consumer parser commits to this shape; changing it later means migrating every anchor's frontmatter at once.
 
 - **Q4 — Next question name** — context. ^F013-Q4
   - **(A)** Option A — short description.
   - **(B)** Option B — short description.
 - **Recommendation:** Strong (B). One-line reason.
+- **Damage:** {irreversible | locking | taste | other} — {the specific thing that breaks if the pick is wrong}.
 ```
+
+Every surfaced example carries an `irreversible` / `locking` / `taste` / `other` Damage — a `waste` or `priority` question never reaches this layout, because it auto-resolves before it can be asked (see § The Damage field).
 
 ### Open-ended (no alternatives)
 
 ```
-- **Q5 — How should we name the new module?** — context. ^F013-Q5
-- **Recommendation:** None. Pure preference call — your choice between `worker`, `runner`, or `executor`.
+- **Q5 — What should the crank one-liner *feel* like — terse status, or a nudge to act?** No enumerable options; it's a voice/register call you judge in daily use. ^F013-Q5
+- **Recommendation:** None. Taste call — I can draft either register, but the tone is yours.
+- **Damage:** taste — get the tone wrong and the line you read on every crank feels off; harmless, but yours to set.
 ```
+
+(Note: a bare *"how should we name the module?"* would **not** surface — a renameable name is `waste`, so the agent picks one and announces. Q5 clears the bar only because the register is a genuine `taste` call.)
 
 
 ## Four-piece verify layout
