@@ -392,7 +392,7 @@ Any markdown doc can carry labeled queries — feature docs, PRDs, standalone de
 
 | Verb | Form |
 |---|---|
-| `Q define` | `state --anchor {slug} "<doc>" Q+ define < q-body.md` — `Q+` mints the lowest unused Q-number; an explicit `Q<n>` create-or-replaces that Q (subsumes add + rewrite). Lands in `## Open Questions` (the first H2, below the H1). |
+| `Q define` | `state --anchor {slug} "<doc>" Q+ define < q-body.md` — `Q+` mints the lowest unused Q-number; an explicit `Q<n>` create-or-replaces that Q (subsumes add + rewrite). Lands in `## Open Questions` (the first H2, below the H1). **The q-body must carry a `- **Damage:**` line** (first word ∈ `waste`/`priority`/`irreversible`/`locking`/`taste`/`other`; `waste`/`priority` auto-resolve on define and never surface — [[DAS ask-format]] § The Damage field). |
 | `Q resolve` | `state --anchor {slug} "<doc>" Q<n> resolve --choice "(A)" [body source]` — migrates the Q to the bottom `## Resolved` H3. |
 | `Q remove` | `state --anchor {slug} "<doc>" Q<n> remove --reason "..."` — migrates to `### Removed` H3 with audit trail. |
 | `V define/resolve/remove` | same grammar with `V<n>`/`V+` — addressable verifications under the doc's `## Verifications` H2 (per F235, the doc is the verify home). |
