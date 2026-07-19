@@ -1861,6 +1861,13 @@ def check_c20_blank_after_recommendation(q_entries: list[QEntry]) -> list[Findin
                 if nxt_indent > rec_indent_len:
                     j += 1
                     continue
+                # F270: the `- **Damage:**` line is piece 6 of the Q group — it
+                # sits at the SAME indent right after the Recommendation; it is
+                # part of the group, not the next content. Skip it; the required
+                # blank separator falls after Damage, not between Rec and Damage.
+                if re.match(r"^\s*-\s+\*\*Damage:\*\*", nxt):
+                    j += 1
+                    continue
                 # A non-blank, non-continuation line at same-or-less indent
                 # immediately following the Recommendation block — flag it.
                 findings.append(Finding(
