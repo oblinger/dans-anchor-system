@@ -1338,7 +1338,21 @@ def _q_define_core(slug, feature_path, q_num, body, why_ask=None):
         first = re.sub(r"\s+\^[\w-]+\s*$", "", first)
         body = first + (sep + rest if sep else "")
     _validate_ask_format_body(body)
-    body = be.question_mint_gate(q_num, body, why_ask)  # F257 who-should-decide gate
+    # F270 — the Damage field decides surface vs auto-resolve. waste/priority
+    # never reach the user: they skip the F257 why-ask gate (which would refuse a
+    # Lean-without-why-ask) and are resolved in place after the write, below.
+    damage_cat, damage_why = be.parse_damage(body)
+    if damage_cat is None:
+        sys.stderr.write(
+            "⚠ no `- **Damage:**` line — surfacing by default. Every question should "
+            "carry\n  `- **Damage:** <category> — <why>` (waste/priority auto-resolve; "
+            "the rest surface).\n  See [[DAS ask-format]] § The Damage field.\n"
+        )
+    auto_resolve = damage_cat in be.DAMAGE_AUTO_RESOLVE
+    if not auto_resolve:
+        # Surface: the Damage line IS the justification (subsumes --why-ask).
+        gate_why = why_ask or (f"{damage_cat}: {damage_why}" if damage_cat else None)
+        body = be.question_mint_gate(q_num, body, gate_why)  # F257 who-should-decide gate
     text = feature_path.read_text(encoding="utf-8")
     container_id = _v2_container_id_for_doc(feature_path)
     lines = text.splitlines()
@@ -1373,6 +1387,20 @@ def _q_define_core(slug, feature_path, q_num, body, why_ask=None):
         encoding="utf-8",
     )
     _selffire(feature_path)
+    if auto_resolve:
+        # waste/priority never reach the user — the Q is now written to
+        # ## Open Questions; immediately resolve it in place to the agent's lean
+        # and tell the agent it was handled (no refusal to work around, per F270).
+        choice = be.leaned_choice(body)
+        note = f"auto-resolved ({damage_cat})"
+        if damage_why:
+            note += f" — {damage_why}"
+        _q_answer_core(slug, feature_path, q_num, None, choice, note)
+        print(
+            f"⚑ Q{q_num} auto-resolved — damage was **{damage_cat}**, picked {choice}; "
+            "not surfaced (waste/priority never reach the user). Proceed with that choice."
+        )
+        return 0
     summary = f"{verb_done} Q{q_num} in {feature_path.name}"
     _post_conditions_and_print(slug, feature_path, summary)
     return 0
