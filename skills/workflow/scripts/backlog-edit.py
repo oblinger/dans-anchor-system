@@ -694,6 +694,54 @@ def question_mint_gate(q_num, body, why_ask):
     return body
 
 
+# --- F270 Damage field — the downside gate as a closed enumeration -----------
+# Every minted question self-declares one damage category (the first word of a
+# `- **Damage:**` line). waste/priority auto-resolve (the state script resolves
+# them to the agent's lean and never surfaces them); the rest surface. This is
+# the F257 why-ask gate's structured successor — the category, not the agent's
+# prose, decides surface-vs-auto.
+DAMAGE_CATEGORIES = ("waste", "priority", "irreversible", "locking", "taste", "other")
+DAMAGE_AUTO_RESOLVE = ("waste", "priority")  # never reach the user
+_DAMAGE_LINE_RE = re.compile(r"^-\s+\*\*Damage:\*\*\s*([A-Za-z]+)\b(.*)$", re.MULTILINE)
+
+
+def parse_damage(body):
+    """F270 — parse `- **Damage:** <category> — <narrative>` from a Q body.
+    Returns (category|None, narrative). `category` is the lowercased first word,
+    or None when no Damage line is present (the caller warns — a soft-required
+    rollout, so a legacy caller is never hard-broken). Raises when a Damage line
+    IS present but its first word is not a known category — a typo must not
+    silently pass as an askable question."""
+    m = _DAMAGE_LINE_RE.search(body or "")
+    if not m:
+        return None, ""
+    category = m.group(1).lower()
+    narrative = m.group(2).strip(" —–-.:")
+    if category not in DAMAGE_CATEGORIES:
+        raise BacklogEditError(
+            f"refused: damage category {category!r} is not one of "
+            f"{{{', '.join(DAMAGE_CATEGORIES)}}} — the first word of the "
+            "`- **Damage:**` line is the category (a single word so it parses). "
+            "See [[DAS ask-format]] § The Damage field."
+        )
+    return category, narrative
+
+
+def leaned_choice(body):
+    """The option label the agent leans toward, used to auto-resolve a
+    waste/priority Q: the `(X)` in the `- **Recommendation:**` line, else the
+    first labeled option `- **(X)**`, else '—' (open-ended, no options)."""
+    m = _RECOMMENDATION_STRENGTH_RE.search(body or "")
+    if m:
+        cm = re.search(r"\(([A-Za-z]\w*)\)", m.group(1))
+        if cm:
+            return f"({cm.group(1)})"
+    om = re.search(r"^\s*-\s+\*\*\(([A-Za-z]\w*)\)\*\*", body or "", re.MULTILINE)
+    if om:
+        return f"({om.group(1)})"
+    return "—"
+
+
 # --- F259 user-action ownership gate (the F240 sibling for [User]) -----------
 # [User] parks work on a genuinely user-only ACTION (a credential only the user
 # holds, a GUI permission dialog, a 2FA device, a session-gated login). The
