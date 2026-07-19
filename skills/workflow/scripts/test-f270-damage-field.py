@@ -123,11 +123,14 @@ good = ("- **Q1 —" in txt and "## Resolved" not in txt
 ok("locking Q surfaces (Lean, no --why-ask) with Damage as the justification") if good \
     else no(f"locking not surfaced/annotated:\n{txt}")
 
-# (d) missing Damage line → warns on stderr, still surfaces (soft-required).
+# (d) missing Damage line → warns INSTRUCTIVELY on stderr, still surfaces (soft-required).
 f = fresh_doc()
 out, err = define(f, body("None. genuine uncertainty", None))
 txt = f.read_text()
-ok("missing Damage → warns + surfaces") if ("Damage" in err and "- **Q1 —" in txt) \
+instructive = ("Re-run" in err and "waste" in err and "**Damage:**" in err
+               and "surface" in err.lower())
+ok("missing Damage → instructive warn (re-run + categories) + surfaces") \
+    if (instructive and "- **Q1 —" in txt) \
     else no(f"missing-damage path wrong:\nERR={err!r}\nTXT={txt}")
 
 # (e) bad category → refused, file untouched.

@@ -1344,9 +1344,14 @@ def _q_define_core(slug, feature_path, q_num, body, why_ask=None):
     damage_cat, damage_why = be.parse_damage(body)
     if damage_cat is None:
         sys.stderr.write(
-            "⚠ no `- **Damage:**` line — surfacing by default. Every question should "
-            "carry\n  `- **Damage:** <category> — <why>` (waste/priority auto-resolve; "
-            "the rest surface).\n  See [[DAS ask-format]] § The Damage field.\n"
+            f"⚠ Q{q_num} has no `- **Damage:**` line, so it was SURFACED by default.\n"
+            "  → Re-run this same define with a Damage line appended to the Q body — the\n"
+            "    first word is the category, then one sentence on what breaks if you guess wrong:\n"
+            "      • waste / priority                        → auto-resolved for you, never reaches the user\n"
+            "      • irreversible / locking / taste / other  → surfaces to the user\n"
+            "    e.g.  `- **Damage:** waste — a wrong pick just re-runs one step`\n"
+            "    A waste/priority re-run replaces this surfaced Q and auto-resolves it.\n"
+            "  See [[DAS ask-format]] § The Damage field.\n"
         )
     auto_resolve = damage_cat in be.DAMAGE_AUTO_RESOLVE
     if not auto_resolve:

@@ -281,7 +281,7 @@ state --anchor {slug} "F<n> — {Title}" Q<num> define < new-body.md
 
 After EVERY Q-state change, update the Design (or relevant) section with what the resolution means in the spec. The resolved question and the updated design ship together. **Resolution body should include "Incorporated into Design § `<section>`"** as the closing line so the audit trail in `## Resolved` cross-references where the answer shaped the design.
 
-When a new question arises mid-discussion, add it via `Q+ define` and glance the file (per step 1a). When you resolve a question, **don't** glance — even if other questions are still pending. The glance is only for moments when the user needs to react to *new or changed* questions.
+When a new question arises mid-discussion, add it via `Q+ define` and glance the file (per step 1a). The `q-body` **must** carry a `- **Damage:**` line whose first word is one of the six categories (`waste` / `priority` / `irreversible` / `locking` / `taste` / `other` — see [[DAS ask-format]] § The Damage field): a `waste`/`priority` question **auto-resolves on define** to your lean and never surfaces, so only genuine `irreversible`/`locking`/`taste`/`other` questions reach the user. When you resolve a question, **don't** glance — even if other questions are still pending. The glance is only for moments when the user needs to react to *new or changed* questions.
 
 Full F129 spec: [[DAS State]]. Predecessor: [[F128 — Status script as source-of-truth for Q-management — extend backlog-edit.py|F128]] (legacy CLI shape).
 

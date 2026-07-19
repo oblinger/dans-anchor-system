@@ -120,7 +120,7 @@ After glancing the doc, `/ask` may print a few **immediate** items — resolutio
 
 The secondary invocation, called from another skill's runbook (`/feature`, `/code plan`, `/groom`, `/design`) when it has decisions to park in a *specific* document. It authors numbered, ask-format questions directly into `<path>`'s `## Open Questions` block (created as the **first H2 below the H1** — after the H1's orientation line — if absent, per the F241 placement rule) and does **not** build the anchor's `queries.md` — the Qs surface there on the next bare `/ask` pass via the determination logic.
 
-- **Mechanism:** resolve `<path>` to its feature/PRD doc, then delegate to the state CLI's `Q+ define` (which enforces the ask-format spec — block-IDs, `Q<n>` numbering, recommendation strength, Phase 1/2/3 lifecycle):
+- **Mechanism:** resolve `<path>` to its feature/PRD doc, then delegate to the state CLI's `Q+ define` (which enforces the ask-format spec — block-IDs, `Q<n>` numbering, recommendation strength, the **`- **Damage:**` category** (first word ∈ `waste`/`priority`/`irreversible`/`locking`/`taste`/`other`; `waste`/`priority` **auto-resolve on define** and never surface — see [[DAS ask-format]] § The Damage field), Phase 1/2/3 lifecycle):
   ```bash
   ~/.claude/skills/workflow/scripts/state --anchor {slug} "F<n> — <Title>" Q+ define < q-body.md
   ```
