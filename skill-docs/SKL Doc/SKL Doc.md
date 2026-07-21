@@ -12,4 +12,5 @@ User guides for document-production skills — Google Workspace I/O, markdown fo
 | [[DAS IO\|IO]] | How to read from and write to external services — Google Workspace, email, file sync |
 | [[DAS MD\|MD]] | How to format markdown — file trees, TOC tables, dispatch tables, cards, definition lists |
 | [[DAS Viz\|Viz]] | `/viz` produces visual artifacts — diagrams, charts, mockups, slides, formatted docs. |
+| [[DAS Image\|Image]] | `/image` — generate an image from a prompt; sidecar, cost, presets. |
 | --- | |
