@@ -6,7 +6,7 @@ How the morning routine is built — read order, the watermark, the authority mo
 
 | -[[DAS Daybreak Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [design](hook://design) → [DAS Daybreak Design](hook://p/DAS%20Daybreak%20Design)<br>: design surface for the Daybreak morning routine |
 | --- | --- |
-| Related | [[DAS Daybreak PRD\|PRD]],  [[DAS Daybreak]] (user docs),  [[skills/daybreak/SKILL.md\|SKILL]],  [[MUSE]],  [[Luna]], |
+| Related | [[DAS Daybreak PRD\|PRD]],  [[DAS Daybreak]] (user docs),  [[skills/daybreak/SKILL.md\|SKILL]],  [[MUSE]],  [[LUM]], |
 
 ## Shape
 
@@ -26,7 +26,7 @@ Ordered cheapest-and-most-decisive first, so an interrupted run still produced v
 | 4 | Watched mail | External and unpollable, but noisier than calendar |
 | 5 | [[Rocks]] | The user's own declaration of what is hot |
 | 6 | [[Quick]] | Capture inbox; overlaps (1) since MUSE writes here too |
-| 7 | Luna backlog | Luna's own `## Now` |
+| 7 | Lumen backlog | Lumen's own `## Now` |
 
 Watch messages lead because they are the one channel where the user has already done the work of deciding something matters. `Q.md` is second because it is a single file that already aggregates every anchor — the highest-leverage read available.
 
@@ -38,7 +38,7 @@ Everything else in [[LST]] is read on demand. Sweeping the list tree every morni
 
 MUSE stamps `state: unreviewed` at ingest. It reads like a review marker. It is not — **nothing ever clears it.** Verified 2026-07-20: all 47 non-suppressed items in the archive still carry `unreviewed`, including pipeline tests from the July 13 bring-up. An implementation that filtered on that field would surface the entire archive every single morning, forever.
 
-So Daybreak keeps its own high-water mark at `Luna Track/Daybreak Watermark.md` — a single ISO timestamp. Items with `captured:` newer than it are unseen. Items whose `state:` begins with `suppressed-` are skipped entirely; MUSE already judged those noise (too few words, or too low a words-per-second ratio).
+So Daybreak keeps its own high-water mark at `LUM Track/Daybreak Watermark.md` — a single ISO timestamp. Items with `captured:` newer than it are unseen. Items whose `state:` begins with `suppressed-` are skipped entirely; MUSE already judged those noise (too few words, or too low a words-per-second ratio).
 
 Three properties matter:
 
@@ -46,11 +46,11 @@ Three properties matter:
 - **Advance to the newest item actually surfaced**, not to "now". Anything that arrives mid-run is caught next time rather than skipped.
 - **Advancing is not remembering.** This is the sharp edge. The watermark records *seen*, not *handled*. An item discussed and deferred is past the watermark and will never resurface — so it must be written somewhere durable (backlog row, [[Quick]] line, list entry) *before* the mark moves. Anything else is a silent loss, and silent losses are exactly what the [[DAS Daybreak PRD|PRD]] exists to prevent.
 
-**Why not flip MUSE's field instead?** Because [[MUSE]] owns its archive, and `/muse do` is its designated reviewer. If Daybreak also wrote that field, two consumers would fight over one flag with no way to tell which had acted. A Luna-side watermark keeps the ownership boundary clean and costs one small file.
+**Why not flip MUSE's field instead?** Because [[MUSE]] owns its archive, and `/muse do` is its designated reviewer. If Daybreak also wrote that field, two consumers would fight over one flag with no way to tell which had acted. A Lumen-side watermark keeps the ownership boundary clean and costs one small file.
 
 ## Authority model
 
-Decided at [[F002 — Morning ritual — calendar, mail, and addressed MUSE intake|Luna F002]]-Q2. The boundary is **recoverability**, not identity:
+Decided at [[F002 — Morning ritual — calendar, mail, and addressed MUSE intake|Lumen F002]]-Q2. The boundary is **recoverability**, not identity:
 
 - **In-vault and reversible → act unconfirmed.** The vault is git-backed. A wrong list entry costs one revert.
 - **Outward-facing or destructive → confirm.** Mail, messages, purchases, invites to others, deletions, pushes. No undo exists.
@@ -79,6 +79,6 @@ Never silently omit. The user calibrates trust on completeness; a briefing that 
 
 ## Open threads
 
-- **Selection rule is provisional** until `Luna Prioritization.md` lands ([[F001 — Luna onboarding and charter capture|Luna F001]]-Q4). Current heuristic: max two per domain, [[Rocks]] outranks backlog, one Health item, prefer unblockers. The PRD names the counter-signal that should correct it — if the user routinely acts on something Daybreak did not surface, the rule is wrong.
+- **Selection rule is provisional** until `LUM Prioritization.md` lands ([[F001 — Lumen onboarding and charter capture|Lumen F001]]-Q4). Current heuristic: max two per domain, [[Rocks]] outranks backlog, one Health item, prefer unblockers. The PRD names the counter-signal that should correct it — if the user routinely acts on something Daybreak did not surface, the rule is wrong.
 - **Addressing detection** is not built. Until [[MUSE]] stamps `addressed: luna`, Daybreak reads all non-suppressed items past the watermark. Noisier, but zero new dependencies and shippable today.
-- **Live delivery** is [[F003 — Live watch-to-session channel — speak to Luna from the wrist|Luna F003]]. Note the shared hazard: if an item can arrive both live and via the morning sweep, both paths must consult the same watermark or it gets acted on twice.
+- **Live delivery** is [[F003 — Live watch-to-session channel — speak to Lumen from the wrist|Lumen F003]]. Note the shared hazard: if an item can arrive both live and via the morning sweep, both paths must consult the same watermark or it gets acted on twice.
