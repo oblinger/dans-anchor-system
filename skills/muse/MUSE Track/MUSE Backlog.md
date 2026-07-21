@@ -2,6 +2,7 @@
 description: "MUSE backlog — voice-memo pipeline features"
 ---
 # MUSE Backlog
+<!-- state:backlog b6 -->
 
 Voice-memo ingestion + review-and-do pipeline work items.
 

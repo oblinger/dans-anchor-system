@@ -366,6 +366,74 @@ def _read_q_marker_count(target_path: Path) -> int:
     return count
 
 
+def _read_open_questions(target_path: Path) -> list[tuple[str, str, str]]:
+    """Pending open questions as (qid, question_text, recommendation) — mirrors
+    _read_q_marker_count's pending gate but captures the human-facing text so the
+    queue file can LIST the actual questions inline (user 2026-07-18: a bare
+    `(NQ)` badge is unreadable — the questions themselves must be visible in
+    Q.md, exactly like the Verifications section shows each verify's text)."""
+    try:
+        lines = target_path.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError):
+        return []
+    out: list[tuple[str, str, str]] = []
+    in_resolved = False
+    cur_id = cur_text = cur_rec = ""
+
+    def flush():
+        nonlocal cur_id, cur_text, cur_rec
+        if cur_id:
+            out.append((cur_id, cur_text.strip(), cur_rec.strip()))
+        cur_id = cur_text = cur_rec = ""
+
+    for line in lines:
+        if line.startswith("## "):
+            flush()
+            in_resolved = line[3:].strip().lower().startswith(("resolved", "removed"))
+            continue
+        if in_resolved:
+            continue
+        # bullet-form pending Q: `- **Q10 — Title** — question text ^anchor`
+        m = re.match(r"\s*-\s+\*\*(Q\d+)\s+—\s+(.*?)\*\*\s*(?:—\s*(.*))?$", line)
+        if m:
+            flush()
+            cur_id = m.group(1)
+            title, rest = m.group(2).strip(), (m.group(3) or "").strip()
+            rest = re.sub(r"\s*\^\S+\s*$", "", rest)
+            cur_text = rest if rest else title
+            continue
+        # H3-form pending Q: `### Q1 — question?`
+        m3 = re.match(r"###\s+(Q\d+)\s+—\s+(.*)$", line)
+        if m3 and not re.search(r"\((?:removed|resolved)\b", m3.group(2), re.IGNORECASE):
+            flush()
+            cur_id = m3.group(1)
+            cur_text = re.sub(r"\s*\^\S+\s*$", "", m3.group(2)).strip()
+            continue
+        if cur_id:
+            rm = re.match(r"\s*-\s+\*\*Recommendation:\*\*\s*(.*)$", line)
+            if rm:
+                cur_rec = re.split(r"\s*·\s*\*why-ask", rm.group(1).strip())[0].strip()
+    flush()
+    return out
+
+
+def _row_q_doc_path(r: "Row", vault_index: dict):
+    """Resolve the on-disk doc a `[Questions]` row's Qs live in (same resolution
+    _row_q_count uses), for reading the question text to inline in the queue."""
+    target = r.arrow_link or (r.identifier if r.identifier.startswith("F") else None)
+    if not target:
+        return None
+    target = target.split("#")[0].split("|")[0].strip().lower()
+    candidates = vault_index.get(target) or vault_index.get(target + ".md") or []
+    if not candidates and r.identifier.startswith("F"):
+        fid = r.identifier.lower()
+        for bn, paths in vault_index.items():
+            if bn.startswith(fid + " —") or bn == fid:
+                candidates = paths
+                break
+    return candidates[0] if candidates else None
+
+
 def _feature_doc_link(r: "Row", vault_index: dict,
                       backlog_file: Path) -> Optional[str]:
     """Wiki-link to the row's feature doc, else None (F235 — the feature doc is the
@@ -907,6 +975,25 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
                 body.append(f"- {doclink}{cnt} ({rowlink})" + (f" — {txt}" if txt else ""))
             else:
                 body.append(f"- {link}{cnt}" + (f" — {txt}" if txt else ""))
+            # Inline each pending question's TEXT under the row (user 2026-07-18:
+            # the queue must SHOW the questions, not just a (NQ) badge). Mirrors
+            # the Verifications section. Doc-less inline T-/B-rows carry their Qs
+            # in the row body already, so only expand rows with a resolvable doc.
+            qdoc = _row_q_doc_path(r, vault_index)
+            if qdoc:
+                for qid, qtext, qrec in _read_open_questions(qdoc):
+                    if not qtext:
+                        continue
+                    rec_txt = f" · *{_truncate_body(qrec, 90)}*" if qrec else ""
+                    # DISPLAY PREVIEW, not a formal ask-format Q entry. The
+                    # answerable Qs (block-IDs, Recommendations, option bullets)
+                    # live in the source feature doc's `## Open Questions`, which
+                    # audit-q enforces there. This inline copy is a dashboard
+                    # preview only, so it deliberately does NOT lead with
+                    # `- **Q<n>` — that shape is parsed by audit-q's Q_HEADER_RE
+                    # as a formal Q and would trip C6 (block-id)/C9 (recommendation)
+                    # on every render of this generated file.
+                    body.append(f"    - {qid} — {_truncate_body(qtext, 200)}{rec_txt}")
     if ready:
         _h2("## Ready")
         for r in ready:
