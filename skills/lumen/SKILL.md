@@ -26,6 +26,8 @@ Every row is one thing Luna does in the morning, in order. Detail follows below.
 | **Hot** | Read [[Rocks]] — the live block only — for what the user has declared currently matters. |
 | **Loose** | Scan [[Quick]] and Luna's own `## Now` for anything captured since the last run. |
 | **Today** | Choose 3–5 items *across* domains and put them on screen, decisions first. |
+| **Stage** | Lift today's quick hits to the top of [[Quick]], above a blank line. Propose the set; add to it. |
+| **Week** | Put the ≥30-min items into today's `### <Day>` in this week's [[Weekly]] file, as checkboxes. |
 | **Runnable** | Name the Ready work that needs no user, offered as a single `'` (crank). |
 | **Close** | Write down anything deferred, then advance the watermark. In that order. |
 
@@ -80,6 +82,23 @@ One block, in this order, and nothing else:
 
 Do **not** open with a status summary, a count of overnight changes, or a recap of yesterday. If nothing needs a decision, the first line is the Today list.
 
+## Staging the day — [[Quick]] and [[Weekly]]
+
+Today's plan gets written into the two lists the user actually works against, **sorted by size**:
+
+| Size | Goes to | Shape |
+| --- | --- | --- |
+| A couple of minutes | [[Quick]] | plain bullet, lifted to the **top** of the file |
+| 30 minutes or more | [[Weekly]] → today's `### <Day>` H3 | `- [ ]` checkbox |
+
+**[[Quick]] staging.** Move the items the user is likely to knock off today to the top of `Quick.md`, then **one blank line**, then everything else untouched. The blank line is the whole convention — it is what makes the day's picks visible at a glance in the HUD. Propose the set rather than deciding it silently, and feel free to *add* items that belong there.
+
+**[[Weekly]] day-list.** This week's file is `~/ob/kmr/LST/Weekly/YYYY-Www.md` (ISO week, zero-padded). Bigger items go under today's `### <Day>-<DD>` H3 as `- [ ]` so the user checks them off through the day. Week-level intentions — rocks, things aimed at the week as a whole — go in the **top block** between the H1 and the first `###`, not under a day.
+
+**Never hand-author a new week file.** It comes from `[[WEEKLY template]]`, which computes Monday's date and wires the prev/next arrows. If this week's file is missing, say so and let the user stamp it.
+
+**On Monday, plan the week first.** Before staging the day, walk last week's file for unfinished `- [ ]` items and propose the week's rocks into the top block. Per [[Weekly]] § BRIEF, a Friday item left unresolved is carry-forward — it gets checked, dropped, or migrated, never silently abandoned.
+
 ## Selection rule for Today
 
 Provisional until `Luna Prioritization.md` exists (Luna F001-Q4):
@@ -91,7 +110,7 @@ Provisional until `Luna Prioritization.md` exists (Luna F001-Q4):
 
 ## Close
 
-1. Record anything deferred-but-wanted in a durable place (backlog row / [[Quick]] / list entry).
+1. Record anything deferred-but-wanted in a durable place — a [[Quick]] line, a [[Weekly]] checkbox, or a backlog row.
 2. Advance `Lumen Watermark.md` to the newest `captured:` surfaced.
 3. Do not commit unless asked — Lumen is a read-and-decide ritual, not a work session.
 
