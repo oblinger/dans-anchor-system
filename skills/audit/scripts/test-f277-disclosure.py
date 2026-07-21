@@ -22,7 +22,10 @@ ap = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(ap)
 
 FILLER = "filler line\n" * 40
-TOC = "| Table of Contents |  |\n|---|---|\n| **[[#S0]]** |  |\n\n"
+# Descriptive by default — the drift cases are about summaries that make a claim
+# about each unit. Name-only summaries get their own section further down.
+TOC = ("| Table of Contents |  |\n|---|---|\n"
+       "| **[[#S0]]** | what the first section covers |\n\n")
 
 results = []
 
@@ -68,7 +71,7 @@ check("same drift does NOT re-fire", ap.chk_summary_fresh(f, tmp, "")[0], "pass"
 check("still quiet on a third look", ap.chk_summary_fresh(f, tmp, "")[0], "pass")
 bump(f, 4)
 check("further drift fires again", ap.chk_summary_fresh(f, tmp, "")[0], "fail")
-f.write_text(f.read_text().replace("| **[[#S0]]** |  |", "| **[[#S0]]** | rewritten |"))
+f.write_text(f.read_text().replace("what the first section covers", "rewritten gloss"))
 check("summary rewrite re-blesses", ap.chk_summary_fresh(f, tmp, "")[0], "pass")
 check("quiet after re-blessing", ap.chk_summary_fresh(f, tmp, "")[0], "pass")
 
@@ -82,6 +85,31 @@ tmp = fresh_env()
 nosum = doc(tmp / "NoSummary.md", toc="")
 check("missing summary is 04's business, not 05's",
       ap.chk_summary_fresh(nosum, tmp, "")[0], "pass")
+
+print("summary_fresh — name-only summaries are content-invariant")
+NAME_ONLY = "| Table of Contents |  |\n|---|---|\n| **[[#S0]]** |  |\n| **[[#S1]]** |  |\n\n"
+DESCRIPTIVE = ("| Table of Contents |  |\n|---|---|\n"
+               "| **[[#S0]]** | what the first section covers |\n"
+               "| **[[#S1]]** | what the second section covers |\n\n")
+
+tmp = fresh_env()
+bare = doc(tmp / "Bare.md", toc=NAME_ONLY)
+check("name-only summary is not descriptive", ap._disclosure_descriptive(bare), False)
+check("name-only first sight blesses", ap.chk_summary_fresh(bare, tmp, "")[0], "pass")
+for i in (1, 2, 3):
+    bump(bare, i)
+check("name-only stays quiet on content drift", ap.chk_summary_fresh(bare, tmp, "")[0], "pass")
+bare.write_text(bare.read_text() + "\n## NewSection\n\n" + FILLER)
+check("...but an ADDED unit still fires", ap.chk_summary_fresh(bare, tmp, "")[0], "fail")
+
+tmp = fresh_env()
+desc = doc(tmp / "Desc.md", toc=DESCRIPTIVE)
+check("glossed summary is descriptive", ap._disclosure_descriptive(desc), True)
+check("descriptive first sight blesses", ap.chk_summary_fresh(desc, tmp, "")[0], "pass")
+for i in (1, 2, 3):
+    bump(desc, i)
+check("descriptive summary DOES fire on content drift",
+      ap.chk_summary_fresh(desc, tmp, "")[0], "fail")
 
 print("summary_present_iff_complex")
 tmp = fresh_env()

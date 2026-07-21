@@ -2353,6 +2353,29 @@ def _disclosure_summary(f):
     return bool(rows), hashlib.sha1("\n".join(rows).encode()).hexdigest()[:12]
 
 
+def _disclosure_descriptive(f):
+    """Does the summary say anything ABOUT each unit, or only name it?
+
+    A bare list of names/links (a backlog's `## Ready / ## Now / ## Next` TOC) is
+    invariant under content churn beneath it — the names stay right no matter how
+    the rows move, so re-asking on drift is pure noise. A summary whose rows carry
+    a gloss makes a claim about each unit, and THAT is what goes stale when the
+    unit is rewritten. Descriptive summaries answer to content drift; name-only
+    ones answer only to units appearing or disappearing.
+    """
+    lines = _strip_fenced(_read(f)).splitlines()
+    for ln in lines:
+        if not re.match(r"^\|\s*(?:\*\*)?(?:\[\[|-?\[\[|→)", ln):
+            continue
+        # Strip the link cell, then look for surviving prose in later cells.
+        cells = [c.strip() for c in ln.strip().strip("|").split("|")]
+        for cell in cells[1:]:
+            gloss = re.sub(r"\[\[[^\]]*\]\]|\*\*|`[^`]*`|<br>|→|:", " ", cell)
+            if len(gloss.split()) >= 3:
+                return True
+    return False
+
+
 def _disclosure_complex(f):
     return len(_strip_fenced(_read(f)).splitlines()) >= DISCLOSURE_MIN_LINES
 
@@ -2431,9 +2454,17 @@ def chk_summary_fresh(target, anchor_root, args):
     changed = [k for k in units if k in old and units[k] != old[k]]
     total = max(len(old), 1)
 
+    # A name-only summary (a bare TOC of section names) stays correct however
+    # much the content beneath it moves — only an appearing or disappearing unit
+    # can falsify it. Firing on content drift there is guaranteed noise, and on
+    # tracking files it fires on literally every write, which is how a rule
+    # trains agents to tune it out.
+    if not _disclosure_descriptive(f):
+        changed = []
+
     # An added or removed unit is precisely what a summary most often fails to
     # mention, so it fires on its own rather than waiting for the fraction.
-    if added or removed or (len(changed) / total) >= DISCLOSURE_DRIFT_FRACTION:
+    if added or removed or (changed and (len(changed) / total) >= DISCLOSURE_DRIFT_FRACTION):
         # Anti-nag (F277 § Not nagging): having already prompted on THIS drift,
         # stay quiet until either the agent rewrites the summary (handled above)
         # or the content moves further still. Without this the same unanswered
