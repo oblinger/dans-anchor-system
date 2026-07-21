@@ -102,7 +102,7 @@ def body(ctx):
     p = Path(target)
     if p.name == "Atlas.md" and p.parent.name == "Atlas":
         return ["DENY: Atlas.md is owned by /atlas — use `/atlas add <name>` / `/atlas update <name>`; "
-                "direct writes break its alphabetical-order and ATL Slugs.md-sync disciplines."]
+                "direct writes break its alphabetical-order and routing disciplines."]
     return []
 ```
 

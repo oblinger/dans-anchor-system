@@ -8,31 +8,31 @@ Utility is the grab-bag subsystem, organized as three clusters: **Connection** (
 
 ![[DAS Utility Design.svg|3000]]
 
-| **Skills**                              |                                                                                                                |
-| --------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| *Connection*                            |                                                                                                                |
-| [[bridge/SKILL\|/bridge]]               | Connect to another machine — control (SSH+tmux+TCC), sync (Syncthing/NFS/rsync), claude (env-twin).             |
-| [[DAS Exp\|/exp]]                       | Remote experimentation — ML workloads on ephemeral vast.ai GPU workers; the `zap` dispatch.                     |
-| *Machine control*                       |                                                                                                                |
-| [[DAS Ctrl\|/ctrl]]                     | Local environment control — persistent `box` tmux session, browser surf, bot-wall-beating `cpage`.              |
-| [[screen/SKILL\|/screen]]               | See and drive a Mac's screen — grab + click + type, locally or over the bridge.                                 |
-| [[get-user-auth/SKILL\|/get-user-auth]] | Route an auth prompt to the user's GUI session — keychain, sudo, 2FA, trust dialogs — and verify it landed.     |
-| *Productivity*                          |                                                                                                                |
-| [[vox/SKILL\|/vox]]                     | File voice-memo audio with whisper-transcribed siblings into the VOX folder.                                    |
-| [[muse/SKILL\|/muse]]                   | Watch-first dictation pipeline — launchd sweep ingests recordings into `Log/MUSE` for review-and-do.            |
-| [[DAS Snip\|/snip]]                     | Capture rough text drops and iteratively refine them — versioned newest-on-top.                                 |
-| [[DAS Cook\|/cook]]                     | Recipe-aware shopping/staging list from Paprika.                                                                |
-| [[atlas/SKILL\|/atlas]]                 | Maintain the vault-wide glossary/router ([[Atlas]]) — routing, not duplication.                                 |
-|                                         |                                                                                                                |
-| **Facets**                              |                                                                                                                |
-| *(none owned)*                          | Utility's outputs land in existing shapes — `Log/` streams (Tracking), Topic docs, VOX/MUSE folders.            |
-|                                         |                                                                                                                |
-| **Traits**                              |                                                                                                                |
-| *(always on)*                           | Utility verbs operate on the machine and the outside world, not on anchor shape — no trait declares them.       |
-|                                         |                                                                                                                |
-| **Library**                             |                                                                                                                |
-| **`ctrl` / `exp` CLIs**                 | The shell engines under the skills — `ctrl box/surf/cpage`, `exp init/exe/push/pull` (config `~/.config/exp/`). |
-| **Bridge config**                       | Per-user machine recipes at `~/.config/bridge/config.yaml`.                                                     |
+| **Skills**                              |                                                                                                                                                                                                                           |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| *Connection*                            |                                                                                                                                                                                                                           |
+| [[DAS Bridge\|/bridge]]                 | Connect to another machine — control (SSH+tmux+TCC), sync (Syncthing/NFS/rsync), claude (env-twin).                                                                                                                       |
+| [[DAS Exp\|/exp]]                       | Remote experimentation — ML workloads on ephemeral vast.ai GPU workers; the `zap` dispatch.                                                                                                                               |
+| *Machine control*                       |                                                                                                                                                                                                                           |
+| [[DAS Ctrl\|/ctrl]]                     | Local environment control — persistent `box` tmux session, browser surf, bot-wall-beating `cpage`.                                                                                                                        |
+| [[screen/SKILL\|/screen]]               | See and drive a Mac's screen — grab + click + type, locally or over the bridge.                                                                                                                                           |
+| [[get-user-auth/SKILL\|/get-user-auth]] | Route an auth prompt to the user's GUI session — keychain, sudo, 2FA, trust dialogs — and verify it landed.                                                                                                               |
+| *Productivity*                          |                                                                                                                                                                                                                           |
+| [[vox/SKILL\|/vox]]                     | File voice-memo audio with whisper-transcribed siblings into the VOX folder.                                                                                                                                              |
+| [[muse/SKILL\|/muse]]                   | Watch-first dictation pipeline — launchd sweep ingests recordings into `Log/MUSE` for review-and-do.                                                                                                                      |
+| [[DAS Snip\|/snip]]                     | Capture rough text drops and iteratively refine them — versioned newest-on-top.                                                                                                                                           |
+| [[DAS Cook\|/cook]]                     | Recipe-aware shopping/staging list from Paprika.                                                                                                                                                                          |
+| [[atlas/SKILL\|/atlas]]                 | Maintain the vault-wide glossary/router ([[Atlas]]) — routing, not duplication.                                                                                                                                           |
+|                                         |                                                                                                                                                                                                                           |
+| **Facets**                              |                                                                                                                                                                                                                           |
+| *(none owned)*                          | Utility's outputs land in existing shapes — `Log/` streams (Tracking), Topic docs, VOX/MUSE folders.                                                                                                                      |
+|                                         |                                                                                                                                                                                                                           |
+| **Traits**                              |                                                                                                                                                                                                                           |
+| *(always on)*                           | Utility verbs operate on the machine and the outside world, not on anchor shape — no trait declares them.                                                                                                                 |
+|                                         |                                                                                                                                                                                                                           |
+| **Library**                             |                                                                                                                                                                                                                           |
+| **`ctrl` / `exp` CLIs**                 | The shell engines under the skills — `ctrl box/surf/cpage`, `exp init/exe/push/pull` (config `~/.config/exp/`).                                                                                                           |
+| **Bridge config**                       | Per-user machine recipes at `~/.config/bridge/config.yaml`.                                                                                                                                                               |
 | Rulesets                                | [[R-mac]] · [[R-ob]] (owner-scoped umbrella, catalogued on the *Owner* axis in [[DAS Rulesets]] — applies by owner, not subsystem: [[R-ob-remote-ops]] · [[R-ob-cmd-proc]] · [[R-ob-observability]] · [[R-ob-state-mgt]]) |
 
 ## Overview

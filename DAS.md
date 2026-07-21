@@ -8,7 +8,7 @@ description: "Dan's Anchor System (DAS) — the dans-anchor-system repository: s
 ![[F143-1-top-level.svg|3000]]
 
 
-| -[[DAS]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [DAS](hook://p/DAS)<br>: dans-anchor-system — Dan's Anchor System (DAS) — the dans-anchor-system repository: skills / facets / disciplines / rulesets / library / examples |
+| -[[DAS]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [DAS](hook://p/DAS)<br>: dans-anchor-system — Dan's Anchor System (DAS) — the dans-anchor-system repository: skills / facets / disciplines / rulesets / library / examples + a docs reading surface |
 | --- | --- |
 | External | [Repo](https://github.com/oblinger/dans-anchor-system/) |
 | Guide | [[ASG\|User Guide]] — how to *use* the skills & facets (no design internals) |

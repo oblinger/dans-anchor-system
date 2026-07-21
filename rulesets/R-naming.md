@@ -15,7 +15,7 @@ A markdown file inside `{anchor}/` (or any sub-folder rooted at the anchor) is n
 
 ### RULE R-naming-02 — Vault-global files exempt (stated)
 
-Files at the vault root or in vault-meta folders (Atlas, MY, etc.) that are genuinely global to the whole vault can omit the slug prefix. Examples: `Atlas.md`, `ATL Slugs.md`, `Q.md`, `kmr.md`.
+Files at the vault root or in vault-meta folders (Atlas, MY, etc.) that are genuinely global to the whole vault can omit the slug prefix. Examples: `Atlas.md`, `Q.md`, `kmr.md`.
 
 **Check pattern:** vault-root and vault-meta files explicitly excluded from R-naming-01's check. List of exempt locations maintained by the auditor.
 
