@@ -45,7 +45,12 @@ def body(ctx):
     old = inp.get("old_string") or ""
     new = inp.get("new_string") or ""
     heads = ("## Open Questions", "## Resolved")
-    hit = any(h in old or h in new for h in heads)
+    # Location-based, NOT substring-based (T045 defect 2): fire only when the
+    # edit touches a REAL managed heading LINE (`^## Open Questions$`) — prose
+    # that merely quotes the heading string inline (e.g. a `## Recovery note`
+    # that mentions the managed region) must pass.
+    head_re = re.compile(r"^(?:" + "|".join(re.escape(h) for h in heads) + r")[ \t]*$", re.M)
+    hit = bool(head_re.search(old) or head_re.search(new))
     if not hit and old:
         try:
             text = Path(target).read_text(encoding="utf-8")
@@ -66,7 +71,7 @@ def body(ctx):
             "`state <doc> <Q<n>|Q+> <define|resolve|remove>` — do not Edit the region directly."]
 ```
 
-Matches an Edit that names either heading or whose `old_string` sits inside the heading's section (between it and the next H2).
+Matches an Edit that touches either heading LINE or whose `old_string` sits inside the heading's section (between it and the next H2). It does **not** fire on prose that merely quotes the heading string inline — the T045 false positive that refused a `## Recovery note` edit for containing the managed headings as literal text.
 
 **Why:** the F130 lesson — Q blocks edited by hand bypass the block-ID / numbering / lifecycle discipline `state q` enforces.
 
@@ -127,13 +132,35 @@ def body(ctx):
         return []
     inp = getattr(ev, "input", None) or {}
     content = inp.get("content") or ""
-    if not any(h in content for h in ("## Open Questions", "## Resolved")):
+
+    # Region-diff, NOT a blunt "content mentions the heading" test (T045): a
+    # whole-file Write that leaves the managed region byte-identical is a
+    # legitimate prose rewrite and must pass; only a Write that CHANGES or
+    # DROPS the region is the bypass (dropping it is exactly how Lumen F002
+    # lost a pending Q2 + its resolved archive in 105094b4). A doc that merely
+    # quotes the heading inline has no real region, so it never trips.
+    def _regions(text):
+        out = {}
+        for m in re.finditer(r"^(## Open Questions|## Resolved)[ \t]*$", text, re.M):
+            tail = text[m.end():]
+            nxt = re.search(r"^## ", tail, re.M)
+            out[m.group(1)] = tail[:nxt.start()] if nxt else tail
+        return out
+
+    try:
+        on_disk = _regions(Path(target).read_text(encoding="utf-8"))
+    except OSError:
+        return []
+    if not on_disk:            # nothing managed on disk → nothing to protect
+        return []
+    if _regions(content) == on_disk:   # region preserved verbatim → allow
         return []
     return ["DENY: `## Open Questions` / `## Resolved` in a feature doc are owned by "
-            "`state <doc> <Q<n>|Q+> <define|resolve|remove>` — a wholesale Write to an "
-            "existing feature doc bypasses the same lifecycle discipline Edit is denied for."]
+            "`state <doc> <Q<n>|Q+> <define|resolve|remove>` — this Write changes or drops "
+            "the managed region. Preserve it verbatim (rewrite prose only) and route question "
+            "edits through `state`."]
 ```
 
-The Write-tool sibling of rule 02: rule 02 denies the Edit path into an existing feature doc's question region, this one denies the whole-file Write path. Doc *creation* is exempt by construction — the rule fires only when the target already exists (`p.is_file()`), so the `/feature` flow authoring a new doc's initial `## Open Questions` block never triggers it (the same exemption R-state-region-02 uses).
+The Write-tool sibling of rule 02: rule 02 denies the Edit path into an existing feature doc's question region, this one denies the whole-file Write path. Doc *creation* is exempt by construction — the rule fires only when the target already exists (`p.is_file()`), so the `/feature` flow authoring a new doc's initial `## Open Questions` block never triggers it (the same exemption R-state-region-02 uses). It compares the incoming managed region against the on-disk one (T045) and fires **only when they differ** — a whole-file Write that preserves the region verbatim (a legitimate prose rewrite) passes, while a Write that mutates or drops the region is denied. Blunt "content mentions the heading" would have blocked every prose rewrite and false-positived on docs that only quote the heading.
 
 **Why:** guarding Edit alone just teaches the failure mode a new verb (the rule-03 lesson) — the whole reason rule 03 exists for the backlog surface. The feature-doc question region needs the identical Write cover so `state`'s ask-format / numbering / lifecycle gates can't be bypassed by overwriting the file.
