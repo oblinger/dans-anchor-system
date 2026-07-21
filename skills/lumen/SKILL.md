@@ -13,19 +13,23 @@ The day's opening sequence. Luna reads what arrived overnight, decides what matt
 
 Design: [[DAS Lumen Design]]. User docs: [[DAS Lumen]]. Owning feature: [[F002 — Morning ritual — calendar, mail, and addressed MUSE intake|Luna F002]].
 
-## Read order
+## Lumen
 
-Cheapest and most-decisive first, so an interrupted run still produced value.
+Every row is one thing Luna does in the morning, in order. Detail follows below.
 
-1. **Watch messages** — new [[MUSE]] items since the watermark (§ Watch messages). Highest priority: the user spoke these deliberately.
-2. **`~/ob/kmr/Q.md`** — vault-wide federation; every anchor's open questions and Ready work in one file, Luna's block at top.
-3. **Calendar** — today's events (§ Calendar and mail).
-4. **Mail** — messages matching `Luna Design/Luna Watchlist.md`. Skip if empty.
-5. **[[Rocks]]** — the live block above the first dated H2 only. What is currently hot.
-6. **[[Quick]]** — anything captured since the last run.
-7. **`Luna Track/Luna Backlog.md`** — Luna's own `## Now`.
+| Activity | What Luna does |
+| --- | --- |
+| **Messages** | Read what the user dictated into the watch since the watermark. Do the reversible ones; hold the rest for a yes/no. |
+| **Questions** | Pull user-gated decisions out of `~/ob/kmr/Q.md` — every anchor's open questions in one file. |
+| **Calendar** | Fetch today's events, so nothing time-bound gets missed. |
+| **Mail** | Surface only messages matching `Luna Watchlist.md`. Skip entirely if it is empty. |
+| **Hot** | Read [[Rocks]] — the live block only — for what the user has declared currently matters. |
+| **Loose** | Scan [[Quick]] and Luna's own `## Now` for anything captured since the last run. |
+| **Today** | Choose 3–5 items *across* domains and put them on screen, decisions first. |
+| **Runnable** | Name the Ready work that needs no user, offered as a single `'` (crank). |
+| **Close** | Write down anything deferred, then advance the watermark. In that order. |
 
-Everything else in [[LST]] is read on demand. Do not sweep the list tree — that is weekly-review work.
+Sources are read cheapest-and-most-decisive first, so an interrupted run still produced value. Watch messages lead because the user already decided those mattered; `Q.md` is second because one file federates every anchor. Everything else in [[LST]] is read on demand — do not sweep the list tree, that is weekly-review work.
 
 ## Watch messages
 

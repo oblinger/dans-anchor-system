@@ -10,8 +10,19 @@ description: "`/lumen` — the morning routine; the day's opening sequence"
 | [[DAS Lumen Design\|Design]] | [[DAS Lumen PRD\|PRD]],   |
 | ... |  |
 
+## Lumen
 
-
+| Activity | What Luna does |
+| --- | --- |
+| **Messages** | Reads what you dictated into your watch since last time. Does the reversible ones, asks about the rest. |
+| **Questions** | Pulls the decisions waiting on you out of `Q.md`, across every anchor. |
+| **Calendar** | Today's events, so nothing time-bound slips. |
+| **Mail** | Only what matches your watchlist. Nothing until you've taught it. |
+| **Hot** | Reads [[Rocks]] for what you've said currently matters. |
+| **Loose** | Anything captured in [[Quick]] or Luna's own list since last run. |
+| **Today** | Picks 3–5 things across life-areas and puts them on screen. |
+| **Runnable** | Names the work that needs no decision from you — one `'` to run it. |
+| **Close** | Writes down what you deferred, then marks everything seen. |
 
 Run `/lumen` from the [[Luna]] session each morning. It reads what arrived overnight and puts a short list in front of you — **decisions first, then a handful of things worth doing today.** It does not open with a status report.
 
