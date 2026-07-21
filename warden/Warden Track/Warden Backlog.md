@@ -2,6 +2,7 @@
 description: "deferred work — roadmap milestones M0–M5"
 ---
 # Warden Backlog
+<!-- state:backlog 6k -->
 
 ## Active
 
@@ -11,9 +12,9 @@ _None._
 
 - **B-QFix — QFix** [Ready] — audit q findings routed by --fix; each sub-bullet is a residual on Warden's tree needing the 100%-fix discipline (per the audit skill's Governing principle). ^B-QFix
   - **Next:** Fix the next residual below at its source (repoint a renamed link, de-link a retired one, correct the flagged doc), then re-run `/audit q` to clear it — per the 100%-fix discipline.
-  - **C23** SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md:33 — row 'F235' is [Designing] with zero pending Qs but has no `- **Next:**` — add a no-user next action and it becomes [Ready] (a [Ready] row needs a Next per F171), or move it to [Done]
-  - **C25** SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md:33 — bullet row 'F235' [Designing] has no justification — per F102 every [Designing] row must carry **Designing** + next-action (in linked doc's ## Status H2, or inline `- **Status:** Designing — <next-action>` sub-bullet).
-  - **C33** SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md:33 — row 'F235' [Designing] has no `→ [[F<n>]]` link to a feature doc — [Designing] implies active design work in a linked doc. If parked, use [Waiting]; if ready to implement, [Ready]; if Qs remain, [N Questions] + link to the feature doc holding them.
+  - **C23** SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md:43 — row 'F235' is [Designing] with zero pending Qs but has no `- **Next:**` — add a no-user next action and it becomes [Ready] (a [Ready] row needs a Next per F171), or move it to [Done]
+  - **C25** SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md:43 — bullet row 'F235' [Designing] has no justification — per F102 every [Designing] row must carry **Designing** + next-action (in linked doc's ## Status H2, or inline `- **Status:** Designing — <next-action>` sub-bullet).
+  - **C33** SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md:43 — row 'F235' [Designing] has no `→ [[F<n>]]` link to a feature doc — [Designing] implies active design work in a linked doc. If parked, use [Waiting]; if ready to implement, [Ready]; if Qs remain, [N Questions] + link to the feature doc holding them.
 
 ## Now
 
@@ -21,6 +22,9 @@ _None._
 
 - **T009 — R-naming on-write activation — catalog prefixes need a ruling first** [Questions] — Follow-on from T008: adding [[R-naming]] to the R-doc umbrella (= naming checked on every anchored md write) was attempted and reverted — a sweep measured 376 R-naming-01 fails in dans-anchor-system alone, nearly all conventionally-named catalog files (DSC */FCT */FEX */SKL */role-* under anchors whose .anchor declares no slug, so the checker falls back to folder names like `facets`). The convention is real but unencoded. ^T009
   - **Q1 — how do catalog-prefix files become R-naming-conformant?** Context: [[DAS Naming]] R-naming-01 requires the anchor-slug prefix; the catalog trees (disciplines/, facets/, skill-docs/, traits/) use their CATALOG prefix instead. **(A)** declare slugs on the catalog anchors (facets/.anchor gets `slug: FCT`, etc.) + add FEX/role- patterns to the R-naming-03 allowlist — makes the existing rule true; **(B)** sanction a generic caps-token prefix (`^[A-Z]{2,4} `) in the checker — cheap but blunts the rule (any wrong-slug caps prefix passes anywhere); **(C)** leave R-naming audit-only permanently — on-write naming never fires. **Recommendation:** Lean (A) — it also fixes the garbage slug lists in steer text; coordinate with the F251 repo-cleanup agent who owns catalog naming.
+
+- **T018 — Enforcement rollout — fire-once, then rate-limit the re-fires** [Ready] ^T018
+  - **Next:** Implement the graduated rollout the user described in a 2026-07-18 voice capture (routed here by [[LUM]] T001). **(a) Ship at fire-once.** Do not flip full enforcement on: allow a rule to fire exactly once, then go quiet. Blast radius is one nudge per agent, and it buys the evidence needed to judge whether the firing was correct at all — user: *"the worst that happens is it just bugged the agent one time before it gave up."* **(b) Rate-limit by progress, not by count alone.** When a rule fires at an agent that stopped early, check whether the agent then made real progress — a state change, something reportable. If it did, stop. If it did not, escalate once more with a sharper message; after 3–4 unproductive fires, give up and let the agent stop. **(c) Why the cap is load-bearing:** without it, an agent that genuinely *cannot* proceed gets told to proceed forever — an infinite loop — and worse, user: *"it also might cause the agent to become chaotic and just try to do something crazy at that point."* A stuck agent being nagged is a hazard, not a fix. **(d)** Raise the fire limit only as confidence in a given rule grows; make the cap per-rule configurable rather than global.
 
 ## Later
 

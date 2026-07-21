@@ -29,6 +29,7 @@ Every row is one thing Lumen does in the morning, in order. Detail follows below
 | **Stage** | Lift today's quick hits to the top of [[Quick]], above a blank line. Propose the set; add to it. |
 | **Week** | Put the ≥30-min items into today's `### <Day>` in this week's [[Weekly]] file, as checkboxes. |
 | **Runnable** | Name the Ready work that needs no user, offered as a single `'` (crank). |
+| **Ahead** | Read `~/ob/kmr/LUM Ahead.md`; pull anything now due into the briefing's **Watching** section. |
 | **Write** | Put the briefing at the top of `~/ob/kmr/LUM Day.md` — the user reads it there, not in chat. |
 | **Close** | Write down anything deferred, then advance the watermark. In that order. |
 
@@ -117,6 +118,18 @@ So the briefing and the lists the user acts from are **all on screen at once**. 
 
 Shape: today's block goes directly under the H1 as `## <Day> YYYY-MM-DD · W<nn>`, pushing the previous day down. Never rewrite a past day. Sections in fixed order — **Decisions / Today / Runnable / Gaps** — per the file's own `# BRIEF`. Keep lines short; it renders in one narrow column, so wide tables wrap and destroy the glance value.
 
+## What Lumen is holding — [[LUM Ahead]]
+
+`~/ob/kmr/LUM Ahead.md` is the forward-looking commitment surface: a **table**, soonest-first, of things Lumen owes the user a nudge about. Read it every run; surface anything now due in the briefing's **Watching** section.
+
+**Do not put these on the backlog.** The backlog holds work the agent does to *build things* — horizons, next-actions, features. LUM Ahead holds things about the *user's life* that the agent is carrying for them. Different kind of item, different reader, different shape. The user does not read the backlog, and making them would defeat the point.
+
+**Writing a row is how Lumen remembers.** Any time the user defers something, or asks to be reminded, or an outward-facing action is held pending their go — add a row with its raising condition (a date, an event, or "waiting on you"). A promise made only in chat is a promise lost.
+
+**Rows leave when they fire.** Raised and settled, or raised and declined → delete the row. Declined items do not return with escalating urgency.
+
+**Keep it a table.** Three columns, one line per row. It exists to be glanced at; the moment it needs scrolling it has stopped working.
+
 ## Selection rule for Today
 
 Provisional until `LUM Prioritization.md` exists (Lumen F001-Q4):
@@ -128,7 +141,7 @@ Provisional until `LUM Prioritization.md` exists (Lumen F001-Q4):
 
 ## Close
 
-1. Record anything deferred-but-wanted in a durable place — a [[Quick]] line, a [[Weekly]] checkbox, or a backlog row.
+1. Record anything deferred-but-wanted in a durable place — a [[LUM Ahead]] row if Lumen is holding it, else a [[Quick]] line, a [[Weekly]] checkbox, or a backlog row.
 2. Advance `Daybreak Watermark.md` to the newest `captured:` surfaced.
 3. Confirm the briefing landed in [[LUM Day]] before finishing — a run that only spoke into chat did not deliver.
 4. Do not commit unless asked — Daybreak is a read-and-decide ritual, not a work session.
