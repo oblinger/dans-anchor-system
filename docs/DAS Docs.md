@@ -15,7 +15,7 @@ The **reading surface** — one user-facing page per skill (how to *use* it, no 
 | [[SKL Track\|Track]]+ | [[DAS Ask\|Ask]],  [[DAS Groom\|Groom]],  [[DAS ask-inline\|ask-inline]],  [[DAS Backlog]],  [[DAS Messages]],  [[DAS Plan]],  [[DAS workflow]],   |
 | [[SKL Drive\|Drive]]+ | [[DAS Feature\|Feature]],  [[DAS Crank\|Crank]],  [[DAS Mint\|Mint]],  [[DAS Finalize\|Finalize]],  [[DAS Land\|Land]],  [[DAS Fortify\|Fortify]],   |
 | [[SKL Code\|Dev]]+ | [[DAS Architect\|Architect]],  [[DAS Code\|Code]],  [[DAS Fix\|Fix]],  [[DAS Pilot Flow\|Pilot Flow]],  [[DAS PR Flow\|PR Flow]],   |
-| [[SKL Doc\|Doc]]+ | [[DAS Edit\|Edit]],  [[DAS MD\|MD]],  [[DAS Viz\|Viz]],  [[DAS IO\|IO]],   |
+| [[SKL Doc\|Doc]]+ | [[DAS Edit\|Edit]],  [[DAS MD\|MD]],  [[DAS Viz\|Viz]],  [[DAS Image\|Image]],  [[DAS IO\|IO]],   |
 | [[SKL Hygiene\|Hygiene]]+ | [[DAS Audit\|Audit]],  [[DAS Dupes\|Dupes]],  [[DAS Maintain\|Maintain]],  [[DAS Rewire\|Rewire]],  [[DAS Slug Scan\|Slug Scan]],  [[DAS Tidy\|Tidy]],   |
 | [[SKL Search\|Search]]+ | [[DAS Book\|Book]],  [[DAS Corp\|Corp]],  [[DAS Find\|Find]],  [[DAS Meta Survey\|Meta Survey]],  [[DAS Person\|Person]],  [[DAS Product\|Product]],  [[DAS Profile\|Describe]],  [[DAS Research\|Research]],  [[DAS Research Skill\|Research Skill]],  [[DAS Search Overview\|Search Overview]],  [[DAS Skill\|Skill]],  [[DAS Software\|Software]],  [[DAS Survey\|Survey]],   |
 | [[SKL Utility\|Utility]]+ | [[DAS Bridge\|Bridge]],  [[DAS Ctrl\|Ctrl]],  [[DAS Exp\|Exp]],  [[DAS Parley\|Parley]],  [[DAS Snip\|Snip]],   |
