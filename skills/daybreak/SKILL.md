@@ -136,6 +136,7 @@ Provisional until `LUM Prioritization.md` exists (Lumen F001-Q4):
 
 - **Never more than two items from one domain** — breadth is the point of a cross-cutting agent.
 - **[[Rocks]] outranks backlog rows** — Rocks is the user's own declaration of what is hot.
+- **Respect the focus cut.** A blank line inside the live [[Rocks]] block separates what the user is *actually working on now* (above) from rocks that are real but deliberately parked (below). When the cut is present it **overrides the breadth rules below** — draw Today from the rows above it and stop proposing items from beneath. Narrowing is the user telling you what to ignore; re-widening it every morning is the failure mode.
 - **One item must be Health** — the only domain present in every framing the user has written ([[LUM Domains]]), and the one most reliably crowded out.
 - **Prefer what unblocks others** — a cleared blocker beats a finished leaf.
 
