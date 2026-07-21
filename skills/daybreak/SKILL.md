@@ -29,7 +29,7 @@ Every row is one thing Lumen does in the morning, in order. Detail follows below
 | **Stage** | Lift today's quick hits to the top of [[Quick]], above a blank line. Propose the set; add to it. |
 | **Week** | Put the ≥30-min items into today's `### <Day>` in this week's [[Weekly]] file, as checkboxes. |
 | **Runnable** | Name the Ready work that needs no user, offered as a single `'` (crank). |
-| **Ahead** | Read `~/ob/kmr/LUM Ahead.md`; pull anything now due into the briefing's **Watching** section. |
+| **Ahead** | Read [[LUM Ahead]] (in Lumen's own folder); pull anything now due into the briefing's **Watching** section. |
 | **Write** | Put the briefing at the top of `~/ob/kmr/LUM Day.md` — the user reads it there, not in chat. |
 | **Close** | Write down anything deferred, then advance the watermark. In that order. |
 
@@ -120,7 +120,7 @@ Shape: today's block goes directly under the H1 as `## <Day> YYYY-MM-DD · W<nn>
 
 ## What Lumen is holding — [[LUM Ahead]]
 
-`~/ob/kmr/LUM Ahead.md` is the forward-looking commitment surface: a **table**, soonest-first, of things Lumen owes the user a nudge about. Read it every run; surface anything now due in the briefing's **Watching** section.
+[[LUM Ahead]] (in Lumen's own folder) is the forward-looking commitment surface: a **table**, soonest-first, of things Lumen owes the user a nudge about. Read it every run; surface anything now due in the briefing's **Watching** section.
 
 **Do not put these on the backlog.** The backlog holds work the agent does to *build things* — horizons, next-actions, features. LUM Ahead holds things about the *user's life* that the agent is carrying for them. Different kind of item, different reader, different shape. The user does not read the backlog, and making them would defeat the point.
 
