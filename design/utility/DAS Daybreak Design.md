@@ -1,18 +1,18 @@
 ---
-description: "design surface for the Lumen morning routine"
+description: "design surface for the Daybreak morning routine"
 ---
-# DAS Lumen Design
+# DAS Daybreak Design
 How the morning routine is built — read order, the watermark, the authority model, and the reasoning behind each.
 
-| -[[DAS Lumen Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [design](hook://design) → [DAS Lumen Design](hook://p/DAS%20Lumen%20Design)<br>: design surface for the Lumen morning routine |
+| -[[DAS Daybreak Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [design](hook://design) → [DAS Daybreak Design](hook://p/DAS%20Daybreak%20Design)<br>: design surface for the Daybreak morning routine |
 | --- | --- |
-| Related | [[DAS Lumen PRD\|PRD]],  [[DAS Lumen]] (user docs),  [[skills/lumen/SKILL.md\|SKILL]],  [[MUSE]],  [[Luna]], |
+| Related | [[DAS Daybreak PRD\|PRD]],  [[DAS Daybreak]] (user docs),  [[skills/daybreak/SKILL.md\|SKILL]],  [[MUSE]],  [[Luna]], |
 
 ## Shape
 
-Lumen is a **skill, not a daemon**. It runs when invoked, reads, decides, prints, and stops. No background process, no scheduler, no state beyond one timestamp.
+Daybreak is a **skill, not a daemon**. It runs when invoked, reads, decides, prints, and stops. No background process, no scheduler, no state beyond one timestamp.
 
-That is deliberate. A daemon would have to decide *when* to interrupt, and interrupting well is a much harder problem than summarizing well. Making it user-invoked means the user chooses the moment they have attention to spend, which is exactly when a briefing is worth reading. The cost — Lumen only knows what the user is doing when they ask — is acceptable for a once-a-day ritual.
+That is deliberate. A daemon would have to decide *when* to interrupt, and interrupting well is a much harder problem than summarizing well. Making it user-invoked means the user chooses the moment they have attention to spend, which is exactly when a briefing is worth reading. The cost — Daybreak only knows what the user is doing when they ask — is acceptable for a once-a-day ritual.
 
 ## Read order and why
 
@@ -38,15 +38,15 @@ Everything else in [[LST]] is read on demand. Sweeping the list tree every morni
 
 MUSE stamps `state: unreviewed` at ingest. It reads like a review marker. It is not — **nothing ever clears it.** Verified 2026-07-20: all 47 non-suppressed items in the archive still carry `unreviewed`, including pipeline tests from the July 13 bring-up. An implementation that filtered on that field would surface the entire archive every single morning, forever.
 
-So Lumen keeps its own high-water mark at `Luna Track/Lumen Watermark.md` — a single ISO timestamp. Items with `captured:` newer than it are unseen. Items whose `state:` begins with `suppressed-` are skipped entirely; MUSE already judged those noise (too few words, or too low a words-per-second ratio).
+So Daybreak keeps its own high-water mark at `Luna Track/Daybreak Watermark.md` — a single ISO timestamp. Items with `captured:` newer than it are unseen. Items whose `state:` begins with `suppressed-` are skipped entirely; MUSE already judged those noise (too few words, or too low a words-per-second ratio).
 
 Three properties matter:
 
 - **Advance at end-of-run only.** If a run is interrupted, the watermark is unchanged and every item it would have covered is still pending. Advancing incrementally would lose items on any crash.
 - **Advance to the newest item actually surfaced**, not to "now". Anything that arrives mid-run is caught next time rather than skipped.
-- **Advancing is not remembering.** This is the sharp edge. The watermark records *seen*, not *handled*. An item discussed and deferred is past the watermark and will never resurface — so it must be written somewhere durable (backlog row, [[Quick]] line, list entry) *before* the mark moves. Anything else is a silent loss, and silent losses are exactly what the [[DAS Lumen PRD|PRD]] exists to prevent.
+- **Advancing is not remembering.** This is the sharp edge. The watermark records *seen*, not *handled*. An item discussed and deferred is past the watermark and will never resurface — so it must be written somewhere durable (backlog row, [[Quick]] line, list entry) *before* the mark moves. Anything else is a silent loss, and silent losses are exactly what the [[DAS Daybreak PRD|PRD]] exists to prevent.
 
-**Why not flip MUSE's field instead?** Because [[MUSE]] owns its archive, and `/muse do` is its designated reviewer. If Lumen also wrote that field, two consumers would fight over one flag with no way to tell which had acted. A Luna-side watermark keeps the ownership boundary clean and costs one small file.
+**Why not flip MUSE's field instead?** Because [[MUSE]] owns its archive, and `/muse do` is its designated reviewer. If Daybreak also wrote that field, two consumers would fight over one flag with no way to tell which had acted. A Luna-side watermark keeps the ownership boundary clean and costs one small file.
 
 ## Authority model
 
@@ -67,18 +67,18 @@ Gating on recoverability rather than on authenticity is the right call because a
 
 Three blocks, capped: decisions (≤3), Today (3–5, across domains), runnable-now.
 
-Caps are the product. An uncapped briefing is a dump, and a dump already exists — it is called `Q.md`. The value Lumen adds is *selection*, and selection that does not exclude is not selection.
+Caps are the product. An uncapped briefing is a dump, and a dump already exists — it is called `Q.md`. The value Daybreak adds is *selection*, and selection that does not exclude is not selection.
 
 The no-opening-report rule follows from the same place: a status summary spends the user's freshest attention on information that requires no action.
 
 ## Degradation
 
-Any channel may be unavailable — the MCP server down, no network, an empty watchlist. In every case Lumen **continues and names the gap.**
+Any channel may be unavailable — the MCP server down, no network, an empty watchlist. In every case Daybreak **continues and names the gap.**
 
 Never silently omit. The user calibrates trust on completeness; a briefing that quietly dropped the calendar teaches them that the briefing might always be dropping something, and that suspicion never fully goes away. Saying "calendar unreachable" costs one line and preserves the calibration.
 
 ## Open threads
 
-- **Selection rule is provisional** until `Luna Prioritization.md` lands ([[F001 — Luna onboarding and charter capture|Luna F001]]-Q4). Current heuristic: max two per domain, [[Rocks]] outranks backlog, one Health item, prefer unblockers. The PRD names the counter-signal that should correct it — if the user routinely acts on something Lumen did not surface, the rule is wrong.
-- **Addressing detection** is not built. Until [[MUSE]] stamps `addressed: luna`, Lumen reads all non-suppressed items past the watermark. Noisier, but zero new dependencies and shippable today.
+- **Selection rule is provisional** until `Luna Prioritization.md` lands ([[F001 — Luna onboarding and charter capture|Luna F001]]-Q4). Current heuristic: max two per domain, [[Rocks]] outranks backlog, one Health item, prefer unblockers. The PRD names the counter-signal that should correct it — if the user routinely acts on something Daybreak did not surface, the rule is wrong.
+- **Addressing detection** is not built. Until [[MUSE]] stamps `addressed: luna`, Daybreak reads all non-suppressed items past the watermark. Noisier, but zero new dependencies and shippable today.
 - **Live delivery** is [[F003 — Live watch-to-session channel — speak to Luna from the wrist|Luna F003]]. Note the shared hazard: if an item can arrive both live and via the morning sweep, both paths must consult the same watermark or it gets acted on twice.

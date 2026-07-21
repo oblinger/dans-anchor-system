@@ -1,19 +1,19 @@
 ---
-name: lumen
+name: daybreak
 description: >
   Morning routine — the day's opening sequence. Run each morning to set up
-  what the day looks like. Use when the user says "lumen", "/lumen", or asks
+  what the day looks like. Use when the user says "daybreak", "/daybreak", or asks
   to start the day.
 user_invocable: true
 ---
 
-# Lumen — the morning routine
+# Daybreak — the morning routine
 
 The day's opening sequence. Luna reads what arrived overnight, decides what matters, and puts a short list in front of the user. **The first thing on screen is a decision, not a report.**
 
-Design: [[DAS Lumen Design]]. User docs: [[DAS Lumen]]. Owning feature: [[F002 — Morning ritual — calendar, mail, and addressed MUSE intake|Luna F002]].
+Design: [[DAS Daybreak Design]]. User docs: [[DAS Daybreak]]. Owning feature: [[F002 — Morning ritual — calendar, mail, and addressed MUSE intake|Luna F002]].
 
-## Lumen
+## Daybreak
 
 Every row is one thing Luna does in the morning, in order. Detail follows below.
 
@@ -39,10 +39,10 @@ MUSE items live at `~/ob/kmr/Log/MUSE/MUSE <date> <letter> <title>.md`, indexed 
 
 **Nothing ever flips `state: unreviewed`** — MUSE writes it once at ingest and no consumer clears it. Do NOT filter on that field; every item would surface every morning forever.
 
-Use the watermark at `Luna Track/Lumen Watermark.md` (a single ISO timestamp). Surface items whose `captured:` is newer than it. Skip items whose `state:` starts with `suppressed-` — MUSE already judged those noise.
+Use the watermark at `Luna Track/Daybreak Watermark.md` (a single ISO timestamp). Surface items whose `captured:` is newer than it. Skip items whose `state:` starts with `suppressed-` — MUSE already judged those noise.
 
 ```bash
-WM=$(grep -o '[0-9-]\{10\} [0-9:]\{8\}' "$HOME/ob/kmr/SYS/Staff/Luna/Luna Track/Lumen Watermark.md" | head -1)
+WM=$(grep -o '[0-9-]\{10\} [0-9:]\{8\}' "$HOME/ob/kmr/SYS/Staff/Luna/Luna Track/Daybreak Watermark.md" | head -1)
 cd "$HOME/ob/kmr/Log/MUSE" && for f in MUSE*.md; do
   cap=$(grep -m1 '^captured:' "$f" | sed 's/^captured: //')
   st=$(grep -m1 '^state:' "$f" | sed 's/^state: //')
@@ -111,7 +111,7 @@ Provisional until `Luna Prioritization.md` exists (Luna F001-Q4):
 ## Close
 
 1. Record anything deferred-but-wanted in a durable place — a [[Quick]] line, a [[Weekly]] checkbox, or a backlog row.
-2. Advance `Lumen Watermark.md` to the newest `captured:` surfaced.
-3. Do not commit unless asked — Lumen is a read-and-decide ritual, not a work session.
+2. Advance `Daybreak Watermark.md` to the newest `captured:` surfaced.
+3. Do not commit unless asked — Daybreak is a read-and-decide ritual, not a work session.
 
 Declined items do **not** return with escalating urgency. Three declines is a signal to raise it once, plainly, at the weekly review.
