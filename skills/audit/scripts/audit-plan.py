@@ -2286,6 +2286,168 @@ def chk_toc_table_iff_long(target, anchor_root, args):
     return "pass", ""
 
 
+
+# ---------------------------------------------------------------------------
+# R-progressive-04/05 — progressive-disclosure summary (SKA F277, 2026-07-20)
+# ---------------------------------------------------------------------------
+
+DISCLOSURE_REGISTRY = Path.home() / ".warden" / "disclosure.json"
+DISCLOSURE_DRIFT_FRACTION = 0.25   # a quarter of units changed → re-ask
+DISCLOSURE_MIN_LINES = 300         # matches R-doc-structure-03; H2-count was a bad
+                                   # proxy — template docs (features, PRDs) always
+                                   # carry several sections without being hard to read
+
+
+def _disclosure_scope(f, anchor_root):
+    """file | container | tree — mechanical, from existing structure.
+
+    A doc that is its folder's same-named index summarizes the FOLDER, not
+    itself; if a `.anchor` sits beside it, it fronts the whole tree."""
+    if f.parent.name == f.stem:
+        return "tree" if (f.parent / ".anchor").exists() else "container"
+    return "file"
+
+
+def _disclosure_units(f, scope):
+    """The set of things the summary covers, as {name: content-hash}.
+
+    Counting CHANGED UNITS is what "big chunks moved" means mechanically —
+    file size fires on typo fixes, and hashing only the heading set misses a
+    section rewritten wholesale under an unchanged heading, which is exactly
+    when a summary goes stale."""
+    import hashlib
+    units = {}
+    if scope == "file":
+        body, cur, buf = _strip_fenced(_read(f)), None, []
+        for ln in body.splitlines():
+            if re.match(r"^##\s+\S", ln):
+                if cur is not None:
+                    units[cur] = hashlib.sha1("\n".join(buf).encode()).hexdigest()[:12]
+                cur, buf = ln.strip(), []
+            elif cur is not None:
+                buf.append(ln)
+        if cur is not None:
+            units[cur] = hashlib.sha1("\n".join(buf).encode()).hexdigest()[:12]
+    else:
+        it = f.parent.rglob("*.md") if scope == "tree" else f.parent.glob("*.md")
+        for m in sorted(it):
+            if m == f:
+                continue
+            try:
+                units[str(m.relative_to(f.parent))] = hashlib.sha1(
+                    m.read_bytes()).hexdigest()[:12]
+            except OSError:
+                continue
+    return units
+
+
+def _disclosure_summary(f):
+    """(has_summary, hash_of_summary_region). A summary is a TOC table, an
+    in-doc `[[#…]]` outline, or a dispatch masthead."""
+    import hashlib
+    lines = _strip_fenced(_read(f)).splitlines()
+    rows = [ln for ln in lines
+            if re.match(r"^\|\s*(?:\*\*)?\[\[#", ln)
+            or re.match(r"^\|\s*-?\[\[", ln)
+            or re.match(r"^\|\s*→", ln)]
+    return bool(rows), hashlib.sha1("\n".join(rows).encode()).hexdigest()[:12]
+
+
+def _disclosure_complex(f):
+    return len(_strip_fenced(_read(f)).splitlines()) >= DISCLOSURE_MIN_LINES
+
+
+def _disclosure_load():
+    try:
+        return json.loads(DISCLOSURE_REGISTRY.read_text())
+    except Exception:
+        return {}
+
+
+def _disclosure_save(reg):
+    try:
+        DISCLOSURE_REGISTRY.parent.mkdir(parents=True, exist_ok=True)
+        DISCLOSURE_REGISTRY.write_text(json.dumps(reg, indent=1, sort_keys=True))
+    except OSError:
+        pass
+
+
+def chk_summary_present_iff_complex(target, anchor_root, args):
+    """R-progressive-04 (F277 M1) — a complex doc opens with a summary entity.
+
+    The primary failure is ABSENCE, not staleness: agents are told to write a
+    top summary and largely do not, because nothing ever forces the check.
+    `toc_table_iff_long` covers only 300+ line docs, a floor so high almost
+    nothing trips it."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    scope = _disclosure_scope(f, anchor_root)
+    if scope == "file":
+        # Long file-scope docs are already `toc_table_iff_long`
+        # (R-doc-structure-03, same 300-line floor). Duplicating it here would
+        # be a second rule for one constraint.
+        return "pass", ""
+    if not any(m.suffix == ".md" and m != f for m in f.parent.iterdir()):
+        return "pass", ""      # nothing to summarize yet
+    has, _ = _disclosure_summary(f)
+    if has:
+        return "pass", ""
+    return "fail", ("index doc fronting a folder with no dispatch table — add one linking "
+                    "the members so a reader reaches any of them in one click")
+
+
+def chk_summary_fresh(target, anchor_root, args):
+    """R-progressive-05 (F277 M2) — re-ask when the covered content has moved.
+
+    Counts changed/added/removed UNITS since the summary was last blessed.
+    Blessing is OBSERVED, never self-reported: when the summary region's own
+    hash changes, the agent evidently rewrote it, so the current unit set is
+    re-blessed. There is no handshake for an agent to forget or overstate."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    if not _disclosure_complex(f):
+        return "pass", ""
+    has, summary_hash = _disclosure_summary(f)
+    if not has:
+        return "pass", ""      # absence is R-progressive-04's business, not ours
+
+    scope = _disclosure_scope(f, anchor_root)
+    units = _disclosure_units(f, scope)
+    reg = _disclosure_load()
+    key = str(f)
+    prev = reg.get(key)
+
+    # First sight, or the agent just rewrote the summary → bless silently.
+    if prev is None or prev.get("summary") != summary_hash:
+        reg[key] = {"summary": summary_hash, "units": units, "scope": scope}
+        _disclosure_save(reg)
+        return "pass", ""
+
+    old = prev.get("units", {})
+    added = [k for k in units if k not in old]
+    removed = [k for k in old if k not in units]
+    changed = [k for k in units if k in old and units[k] != old[k]]
+    total = max(len(old), 1)
+
+    # An added or removed unit is precisely what a summary most often fails to
+    # mention, so it fires on its own rather than waiting for the fraction.
+    if added or removed or (len(changed) / total) >= DISCLOSURE_DRIFT_FRACTION:
+        bits = []
+        if changed:
+            bits.append(f"{len(changed)} of {total} changed")
+        if added:
+            bits.append(f"{len(added)} added")
+        if removed:
+            bits.append(f"{len(removed)} removed")
+        noun = "sections" if scope == "file" else "members"
+        return "fail", (f"{noun}: {', '.join(bits)} since the summary was last written — "
+                        f"re-read it and decide whether it still serves a reader; "
+                        f"fix it or leave it deliberately")
+    return "pass", ""
+
+
 def chk_progressive_disclosure_layout(target, anchor_root, args):
     """Multi-check section spacing in one rule — the section-break conventions that
     let a navigator scan a doc's outline ([[DSC progressive-disclosure]]):
@@ -3355,6 +3517,9 @@ CHECKERS = {
     "dispatch_table_iff_anchor": chk_dispatch_table_iff_anchor,
     "dispatch_area_row": chk_dispatch_area_row,
     "toc_table_iff_long": chk_toc_table_iff_long,
+    # R-progressive-04/05 — summary presence + freshness (SKA F277)
+    "summary_present_iff_complex": chk_summary_present_iff_complex,
+    "summary_fresh": chk_summary_fresh,
     "regex_present": chk_regex_present,
     "regex_absent": chk_regex_absent,
     # F161 batch-2 — shared header / field

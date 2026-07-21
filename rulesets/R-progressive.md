@@ -45,3 +45,16 @@ Sits under [[R-doc]] (cross-cutting documentation conventions umbrella), beside 
 - [[DAS progressive-disclosure]] — discipline spec this ruleset enforces.
 - [[R-doc]] — cross-cutting documentation conventions umbrella.
 - [[R-markdown]] — sibling always-applies ruleset (mechanical + authoring markdown rules).
+
+### RULE R-progressive-04 — An index doc fronting a folder carries a dispatch table (checked)
+check:: summary_present_iff_complex
+A doc that is its folder's **same-named index** (`Foo/Foo.md`), or that carries a `.anchor` beside it, summarizes the *folder*, not itself — so it opens with a **dispatch table linking the members**, letting a reader reach any of them in one click. Scope is read mechanically from that structure; no declaration is needed. Deliberately **not** extended to file-scope docs: a long doc's own table of contents is already `R-doc-structure-03` (`toc_table_iff_long`, same 300-line floor), and a second rule for one constraint is the duplication this system forbids. "Leave it deliberately" stays a legitimate outcome — the rule forces the consideration, not a particular table.
+**Check pattern:** a same-named index (or `.anchor` sibling) whose folder holds ≥1 other `.md` carries ≥1 member wiki-link or dispatch row.
+**Why:** absence, not staleness, is the primary progressive-disclosure failure — the rule was long stated in prose and largely unfollowed because nothing in the write path forced the check. A folder index with no member links makes the reader open the folder to learn what is in it, defeating the point of having an index at all.
+
+### RULE R-progressive-05 — Re-consider the summary when the covered content moves (checked)
+check:: summary_fresh
+A summary covers a **set of units** — its own `##` sections for a file-scope doc, the folder's member files for a container or tree. When a quarter of those units have changed, or **any** unit has been added or removed, since the summary was last written, the doc is flagged for re-consideration. Blessing is **observed, never self-reported**: when the summary region's own hash changes the agent has evidently rewritten it, so the current unit set is re-blessed automatically — there is no completion handshake for an agent to forget or overstate. Advisory only; it never blocks a write.
+**Check pattern:** against the blessing registry (`~/.warden/disclosure.json`), changed-units ÷ total ≥ 0.25, or ≥1 unit added or removed.
+**Why:** counting changed units is what "big chunks moved" means mechanically. File-size delta fires on typo fixes; hashing only the heading set misses a section rewritten wholesale under an unchanged heading — which is exactly when a summary goes stale.
+
