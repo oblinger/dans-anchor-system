@@ -9,26 +9,27 @@ user_invocable: true
 
 # Daybreak — the morning routine
 
-The day's opening sequence. Luna reads what arrived overnight, decides what matters, and puts a short list in front of the user. **The first thing on screen is a decision, not a report.**
+The day's opening sequence. Lumen reads what arrived overnight, decides what matters, and puts a short list in front of the user. **The first thing on screen is a decision, not a report.**
 
-Design: [[DAS Daybreak Design]]. User docs: [[DAS Daybreak]]. Owning feature: [[F002 — Morning ritual — calendar, mail, and addressed MUSE intake|Luna F002]].
+Design: [[DAS Daybreak Design]]. User docs: [[DAS Daybreak]]. Owning feature: [[F002 — Morning ritual — calendar, mail, and addressed MUSE intake|Lumen F002]].
 
 ## Daybreak
 
-Every row is one thing Luna does in the morning, in order. Detail follows below.
+Every row is one thing Lumen does in the morning, in order. Detail follows below.
 
-| Activity | What Luna does |
+| Activity | What Lumen does |
 | --- | --- |
 | **Messages** | Read what the user dictated into the watch since the watermark. Do the reversible ones; hold the rest for a yes/no. |
 | **Questions** | Pull user-gated decisions out of `~/ob/kmr/Q.md` — every anchor's open questions in one file. |
 | **Calendar** | Fetch today's events, so nothing time-bound gets missed. |
-| **Mail** | Surface only messages matching `Luna Watchlist.md`. Skip entirely if it is empty. |
+| **Mail** | Surface only messages matching `LUM Watchlist.md`. Skip entirely if it is empty. |
 | **Hot** | Read [[Rocks]] — the live block only — for what the user has declared currently matters. |
-| **Loose** | Scan [[Quick]] and Luna's own `## Now` for anything captured since the last run. |
+| **Loose** | Scan [[Quick]] and Lumen's own `## Now` for anything captured since the last run. |
 | **Today** | Choose 3–5 items *across* domains and put them on screen, decisions first. |
 | **Stage** | Lift today's quick hits to the top of [[Quick]], above a blank line. Propose the set; add to it. |
 | **Week** | Put the ≥30-min items into today's `### <Day>` in this week's [[Weekly]] file, as checkboxes. |
 | **Runnable** | Name the Ready work that needs no user, offered as a single `'` (crank). |
+| **Write** | Put the briefing at the top of `~/ob/kmr/LUM Day.md` — the user reads it there, not in chat. |
 | **Close** | Write down anything deferred, then advance the watermark. In that order. |
 
 Sources are read cheapest-and-most-decisive first, so an interrupted run still produced value. Watch messages lead because the user already decided those mattered; `Q.md` is second because one file federates every anchor. Everything else in [[LST]] is read on demand — do not sweep the list tree, that is weekly-review work.
@@ -39,10 +40,10 @@ MUSE items live at `~/ob/kmr/Log/MUSE/MUSE <date> <letter> <title>.md`, indexed 
 
 **Nothing ever flips `state: unreviewed`** — MUSE writes it once at ingest and no consumer clears it. Do NOT filter on that field; every item would surface every morning forever.
 
-Use the watermark at `Luna Track/Daybreak Watermark.md` (a single ISO timestamp). Surface items whose `captured:` is newer than it. Skip items whose `state:` starts with `suppressed-` — MUSE already judged those noise.
+Use the watermark at `LUM Track/Daybreak Watermark.md` (a single ISO timestamp). Surface items whose `captured:` is newer than it. Skip items whose `state:` starts with `suppressed-` — MUSE already judged those noise.
 
 ```bash
-WM=$(grep -o '[0-9-]\{10\} [0-9:]\{8\}' "$HOME/ob/kmr/SYS/Staff/Luna/Luna Track/Daybreak Watermark.md" | head -1)
+WM=$(grep -o '[0-9-]\{10\} [0-9:]\{8\}' "$HOME/ob/kmr/SYS/Staff/Lumen/LUM Track/Daybreak Watermark.md" | head -1)
 cd "$HOME/ob/kmr/Log/MUSE" && for f in MUSE*.md; do
   cap=$(grep -m1 '^captured:' "$f" | sed 's/^captured: //')
   st=$(grep -m1 '^state:' "$f" | sed 's/^state: //')
@@ -55,7 +56,7 @@ done | sort
 
 **A watermark is not a memory.** Anything the user wants kept must be written somewhere durable *before* the watermark advances — a backlog row, a [[Quick]] line, a list entry. Advancing past a deferred item without recording it loses it silently. When in doubt, write it down.
 
-## Authority — what Luna may do unprompted
+## Authority — what Lumen may do unprompted
 
 Per [[F002 — Morning ritual — calendar, mail, and addressed MUSE intake|F002]]-Q2, decided:
 
@@ -70,7 +71,7 @@ Confirmation is **conversational, in the morning**: *"You asked me to email Sean
 
 Both go through the `google_workspace_mcp` server registered per [[WIRE Claude Google MCP]] (44 tools, Calendar + Gmail included). If the server is not running, **say so and continue** — a missing calendar degrades the briefing, it does not abort the run. Never silently omit a channel; a briefing that quietly dropped the calendar is worse than one that admits the calendar was unreachable.
 
-Mail is filtered through `Luna Design/Luna Watchlist.md` — a definition list of senders, subjects, and patterns worth surfacing. It starts empty and grows when the user says "flag this kind of thing." **Do not invent watchlist entries**; an unearned watchlist trains the user to ignore the channel.
+Mail is filtered through `LUM Design/LUM Watchlist.md` — a definition list of senders, subjects, and patterns worth surfacing. It starts empty and grows when the user says "flag this kind of thing." **Do not invent watchlist entries**; an unearned watchlist trains the user to ignore the channel.
 
 ## What goes on screen
 
@@ -99,19 +100,37 @@ Today's plan gets written into the two lists the user actually works against, **
 
 **On Monday, plan the week first.** Before staging the day, walk last week's file for unfinished `- [ ]` items and propose the week's rocks into the top block. Per [[Weekly]] § BRIEF, a Friday item left unresolved is carry-forward — it gets checked, dropped, or migrated, never silently abandoned.
 
+## Where the briefing goes — [[LUM Day]]
+
+**Chat is not the delivery surface.** The user reacts to the first item, the rest scrolls away, and the briefing is gone. So every run writes the briefing to `~/ob/kmr/LUM Day.md` **and** prints it in chat. The file is the record; chat is the conversation.
+
+That file is **col-1 of the Daily View dashboard** (`CAPS-J D`), toggled in place of [[Work]]. On that same screen the user is simultaneously looking at:
+
+| Dashboard slot | File | What Daybreak does with it |
+| --- | --- | --- |
+| col-1 top | [[LUM Day]] | write today's briefing here |
+| col-1 bottom | [[Quick]] | lift the day's quick hits to the top, above a blank line |
+| col-2 bottom | [[Todo]] | read-only — the user's own list |
+| col-3/4 top | current [[Weekly]] | put ≥30-min items under today's `### <Day>` H3 |
+
+So the briefing and the lists the user acts from are **all on screen at once**. Writing to `Quick` and `Weekly` is not bookkeeping for later — it is putting the work where their eyes already are.
+
+Shape: today's block goes directly under the H1 as `## <Day> YYYY-MM-DD · W<nn>`, pushing the previous day down. Never rewrite a past day. Sections in fixed order — **Decisions / Today / Runnable / Gaps** — per the file's own `# BRIEF`. Keep lines short; it renders in one narrow column, so wide tables wrap and destroy the glance value.
+
 ## Selection rule for Today
 
-Provisional until `Luna Prioritization.md` exists (Luna F001-Q4):
+Provisional until `LUM Prioritization.md` exists (Lumen F001-Q4):
 
 - **Never more than two items from one domain** — breadth is the point of a cross-cutting agent.
 - **[[Rocks]] outranks backlog rows** — Rocks is the user's own declaration of what is hot.
-- **One item must be Health** — the only domain present in every framing the user has written ([[Luna Domains]]), and the one most reliably crowded out.
+- **One item must be Health** — the only domain present in every framing the user has written ([[LUM Domains]]), and the one most reliably crowded out.
 - **Prefer what unblocks others** — a cleared blocker beats a finished leaf.
 
 ## Close
 
 1. Record anything deferred-but-wanted in a durable place — a [[Quick]] line, a [[Weekly]] checkbox, or a backlog row.
 2. Advance `Daybreak Watermark.md` to the newest `captured:` surfaced.
-3. Do not commit unless asked — Daybreak is a read-and-decide ritual, not a work session.
+3. Confirm the briefing landed in [[LUM Day]] before finishing — a run that only spoke into chat did not deliver.
+4. Do not commit unless asked — Daybreak is a read-and-decide ritual, not a work session.
 
 Declined items do **not** return with escalating urgency. Three declines is a signal to raise it once, plainly, at the weekly review.
