@@ -33,7 +33,7 @@ A wiki-link with an alias inside a table cell needs the pipe escaped: `[[Target\
 
 ```markdown
 | ✓ Correct | [[DAS PRD\|PRD]] |
-| ✗ Broken  | [[DAS PRD|PRD]] |
+| ✗ Broken  | [[DAS PRD\|PRD]] |
 ```
 
 ### Tables: blank line before and after
@@ -160,7 +160,7 @@ If a rule is universal (applies to every Log, every PRD, every Testing doc), it 
 - [[DAS progressive-disclosure]] — sibling discipline; doc-structure rules.
 - [[DAS ask-format]] — sibling discipline; user-actionable surface format.
 - [[DAS Ruleset]] — meta-spec for the RULE / RULESET sentinel format.
-- [[Atlas]] / [[ATL Slugs]] — vault-wide router that wiki-link conventions ultimately serve.
+- [[Atlas]] — vault-wide router that wiki-link conventions ultimately serve.
 
 
 # BRIEF

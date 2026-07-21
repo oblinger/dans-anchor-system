@@ -1,5 +1,5 @@
 ---
-description: testing facet — the project's testing strategy (kinds, amounts, responsibilities) followed by an overview of the actual tests proposed, consistent with that strategy. Low-level test specs live in module docs, not here.
+description: "facet spec this doc instantiates"
 ---
 
 # DAS Testing

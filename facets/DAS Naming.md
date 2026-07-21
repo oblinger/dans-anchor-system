@@ -24,7 +24,7 @@ The convention is **the floor, not the ceiling** — a few classes of files are 
 
 ## Exception A — vault-global files
 
-Files at the vault root or in vault-meta folders (Atlas, MY, etc.) that are genuinely global to the whole vault can omit the anchor slug prefix. Examples: `Atlas.md`, `ATL Slugs.md`, `kmr.md`, `Q.md`.
+Files at the vault root or in vault-meta folders (Atlas, MY, etc.) that are genuinely global to the whole vault can omit the anchor slug prefix. Examples: `Atlas.md`, `kmr.md`, `Q.md`.
 
 The test: would prefixing it with a slug be a category error? *(Atlas is not part of any single anchor — it indexes everything.)* If yes → exempt. If no → use the prefix.
 
