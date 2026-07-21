@@ -1,12 +1,24 @@
 ---
-description: "Morning routine — the day's opening sequence."
+description: "`/lumen` — the morning routine; the day's opening sequence"
 ---
 # DAS Lumen
 `/lumen` — runs the morning routine, the day's opening sequence that sets up what the day looks like.
 
 | -[[DAS Lumen]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [docs](hook://docs) → [DAS Lumen](hook://p/DAS%20Lumen)<br>: `/lumen` — the morning routine; the day's opening sequence |
 | --- | --- |
-| Related | [[skills/lumen/SKILL.md\|SKILL]],   |
+| Related | [[skills/lumen/SKILL.md\|SKILL]],  [[MUSE]],  [[Luna]],   |
+| [[DAS Lumen Design\|Design]] | [[DAS Lumen PRD\|PRD]],   |
 | ... |  |
 
-**Stub.** Content to be filled in.
+
+
+
+Run `/lumen` from the [[Luna]] session each morning. It reads what arrived overnight and puts a short list in front of you — **decisions first, then a handful of things worth doing today.** It does not open with a status report.
+
+Seven sources, in priority order: anything you dictated into your watch since the last run, the vault-wide `Q.md`, today's calendar, watched mail, [[Rocks]], [[Quick]], and Luna's own backlog. A source that is unreachable is named as unreachable rather than quietly dropped.
+
+**Watch messages are the point.** Speak into the Apple Watch and [[MUSE]] files it; Lumen picks it up the next morning and either does it or asks. Luna acts on her own for anything reversible and inside the vault — filing a note, adding to a list, creating a backlog row. Anything that leaves the machine or destroys something — sending mail, buying, deleting — she asks about first, conversationally: *"You asked me to email Sean about xbotgo — want me to send it?"* If something was time-sensitive and waiting until morning would have defeated it, she says so instead of just deferring.
+
+Lumen tracks what it has already seen in a watermark file, so the same message never surfaces twice. Anything you defer gets written down somewhere real before that mark moves — the watermark is a bookmark, not a memory.
+
+Today's list is capped at three decisions and five items, drawn across life-areas rather than down one. Declining something does not make it come back louder the next day.
