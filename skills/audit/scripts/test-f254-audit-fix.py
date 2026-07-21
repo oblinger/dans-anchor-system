@@ -153,11 +153,12 @@ try:
     )
     vidx = aq.build_vault_index(TMP / "vault")
     banner = aq.derive_anchor_banner("ZZC", blc, vidx) or ""
-    qm = re.search(r"Questions\s+(\d+)", banner)
+    # F260 renamed the user-facing plate: pending Questions now report as `User`.
+    qm = re.search(r"User\s+(\d+)", banner)
     if qm and qm.group(1) == "2":
-        ok("banner Questions = 2 (pending only; 3 Resolved + 1 fenced excluded)")
+        ok("banner User = 2 (pending only; 3 Resolved + 1 fenced excluded)")
     else:
-        no(f"banner Questions wrong: {banner!r}")
+        no(f"banner User wrong: {banner!r}")
 
     # ---- C1: queries-render banner "Ready" = [Ready] only, not [Active] (F250 #9)
     print("== C1 (#9) queries-render banner Ready counts [Ready] only (excludes [Active]) ==")
@@ -178,11 +179,14 @@ try:
     )
     rows = qr_mod.parse_backlog(blr)
     banner_r = qr_mod.derive_banner("ZZR", rows, blr, {}) or ""
-    rm = re.search(r"Ready\s+(\d+)", banner_r)
-    if rm and rm.group(1) == "1":
-        ok("banner Ready = 1 (only [Ready]; [Active] not folded in)")
+    # F260 replaced the `Ready` plate with `Runnable` and DID fold [Active] in —
+    # a mid-implementation row carrying a `- **Next:**` is runnable work. This
+    # assertion previously encoded the opposite and had been red ever since.
+    rm = re.search(r"Runnable\s+(\d+)", banner_r)
+    if rm and rm.group(1) == "2":
+        ok("banner Runnable = 2 ([Ready] + [Active], per F260)")
     else:
-        no(f"banner Ready wrong (expected 1): {banner_r!r}")
+        no(f"banner Runnable wrong (expected 2): {banner_r!r}")
 
     print()
     print(f"==== RESULT: {PASS} passed, {FAIL} failed ====")

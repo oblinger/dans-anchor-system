@@ -2050,6 +2050,21 @@ def _find_q_bullet(lines, q_num):
     return (start, end, indent)
 
 
+def replace_q_bullet(lines, start, end, new_bullet_lines):
+    """Splice a rewritten Q bullet over [start, end), keeping the separator.
+
+    `end` from _find_q_bullet points at the NEXT Q-header / heading, so the span
+    swallows the blank line between this Q and the next. The replacement bullet
+    carries no trailing blank, so a naive splice deletes that separator and
+    audit-q C20 fires on every redefine of a non-terminal Q (T038). Carrying the
+    original blank run across keeps spacing stable under repeated rewrites.
+    """
+    trailing = 0
+    while end - trailing - 1 > start and not lines[end - trailing - 1].strip():
+        trailing += 1
+    return lines[:start] + list(new_bullet_lines) + [""] * trailing + lines[end:]
+
+
 def _section_at(lines, line_idx):
     """Classify which logical section line_idx falls in.
 
@@ -2611,16 +2626,7 @@ def main_q(argv):
             )
         new_bullet = _format_q_bullet(args.q_num, container_id, body)
         new_bullet_lines = new_bullet.splitlines()
-        # `end` from _find_q_bullet is the NEXT Q-header / heading, so the span
-        # being replaced swallows the blank line separating this Q from the next.
-        # The replacement bullet carries no trailing blank, so a naive splice
-        # deletes the separator and audit-q C20 fires on every redefine of a
-        # non-terminal Q (T038). Carry the original separator run across.
-        trailing = 0
-        while end - trailing - 1 > start and not lines[end - trailing - 1].strip():
-            trailing += 1
-        lines = (lines[:start] + new_bullet_lines
-                 + [""] * trailing + lines[end:])
+        lines = replace_q_bullet(lines, start, end, new_bullet_lines)
         lines = restamp_open_questions(lines)
         feature_path.write_text("\n".join(lines) + ("\n" if text.endswith("\n") else ""),
                                 encoding="utf-8")
