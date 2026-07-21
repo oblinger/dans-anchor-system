@@ -2434,6 +2434,19 @@ def chk_summary_fresh(target, anchor_root, args):
     # An added or removed unit is precisely what a summary most often fails to
     # mention, so it fires on its own rather than waiting for the fraction.
     if added or removed or (len(changed) / total) >= DISCLOSURE_DRIFT_FRACTION:
+        # Anti-nag (F277 § Not nagging): having already prompted on THIS drift,
+        # stay quiet until either the agent rewrites the summary (handled above)
+        # or the content moves further still. Without this the same unanswered
+        # prompt repeats on every subsequent write to the file, which is exactly
+        # how the original prose rule died. Keyed on the unit set rather than a
+        # session id — a session is not observable here, and "drift grew since I
+        # last complained" is the sharper condition anyway.
+        if prev.get("prompted") == units:
+            return "pass", ""
+        reg[key] = {"summary": summary_hash, "units": old,
+                    "scope": scope, "prompted": units}
+        _disclosure_save(reg)
+
         bits = []
         if changed:
             bits.append(f"{len(changed)} of {total} changed")
