@@ -1497,15 +1497,26 @@ def _q_revalidate_core(slug, feature_path):
                 break
         lines = lines[:insert_at] + block + [""] + lines[insert_at:]
         relocated = True
-    lines = be.restamp_open_questions(lines)
+    # Phase 2, idempotently (T042). A block that resolved its last Q but kept a
+    # stale placeholder line never transitioned, and no verb could clear it —
+    # the pathguard (correctly) refuses hand-editing the region, so the anchor
+    # was stuck in a groomed state it could not leave. Doing it here makes
+    # revalidate the sanctioned repair for that state as well as for a bad stamp.
+    lines, phase2 = be.drop_open_questions_if_empty(lines)
+    if not phase2:
+        lines = be.restamp_open_questions(lines)
     feature_path.write_text(
         "\n".join(lines) + ("\n" if text.endswith("\n") else ""),
         encoding="utf-8",
     )
     _selffire(feature_path)
-    summary = (f"revalidated Open Questions in {feature_path.name} — "
-               f"{len(q_slices)} pending Q pass ask-format, stamp refreshed"
-               + (", block relocated below the H1" if relocated else ""))
+    if phase2:
+        summary = (f"retired the spent ## Open Questions block in "
+                   f"{feature_path.name} — no pending questions remained")
+    else:
+        summary = (f"revalidated Open Questions in {feature_path.name} — "
+                   f"{len(q_slices)} pending Q pass ask-format, stamp refreshed"
+                   + (", block relocated below the H1" if relocated else ""))
     _post_conditions_and_print(slug, feature_path, summary)
     return 0
 

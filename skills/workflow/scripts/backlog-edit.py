@@ -2050,6 +2050,48 @@ def _find_q_bullet(lines, q_num):
     return (start, end, indent)
 
 
+def open_questions_is_empty(lines, h2_start, h2_end):
+    """Does the ## Open Questions block still hold anything pending?
+
+    Only two things count as content: a pending `- **Q<n>` header bullet, and a
+    `### ` holding pen. Everything else — the integrity stamp, blank lines, and
+    any leftover placeholder prose — is not a pending question.
+
+    The old test asked "is there any non-blank line", so a single stale
+    placeholder line kept the block alive forever: Phase 2 never fired, audit-q
+    C21 flagged the empty H2, groom-list counted it, the stop-gate blocked on it,
+    and no sanctioned verb could clear it — an anchor stuck in a groomed state it
+    could not leave (T042).
+    """
+    for k in range(h2_start + 1, h2_end):
+        line = lines[k]
+        if line.startswith("### "):
+            return False
+        if _Q_HEADER_BULLET_RE.match(line):
+            return False
+    return True
+
+
+def drop_open_questions_if_empty(lines):
+    """Phase 2 — retire a spent ## Open Questions block. Idempotent.
+
+    Removes ONLY the block itself: `_find_h2` ends at the next H2, so a resolved
+    archive living further down the doc is never in the removed span.
+    """
+    oq = _find_h2(lines, "Open Questions")
+    if oq is None:
+        return lines, False
+    oq_start, oq_end = oq
+    if not open_questions_is_empty(lines, oq_start, oq_end):
+        return lines, False
+    drop_end = oq_end
+    while drop_end < len(lines) and not lines[drop_end].strip():
+        drop_end += 1
+    if drop_end < len(lines):
+        return lines[:oq_start] + lines[drop_end:], True
+    return lines[:oq_start], True
+
+
 def replace_q_bullet(lines, start, end, new_bullet_lines):
     """Splice a rewritten Q bullet over [start, end), keeping the separator.
 
@@ -2510,32 +2552,8 @@ def main_q(argv):
         while insert_at > rh2_start + 1 and not lines[insert_at - 1].strip():
             insert_at -= 1
         lines = lines[:insert_at] + h3_lines + lines[insert_at:]
-        # Phase-2 transition check: if ## Open Questions is now empty (only
-        # the H2 header + blank lines + no bullets + no H3 holding pen), drop
-        # the whole H2.
-        oq = _find_h2(lines, "Open Questions")
-        if oq is not None:
-            oq_start, oq_end = oq
-            empty = True
-            for k in range(oq_start + 1, oq_end):
-                if (lines[k].strip() and not lines[k].startswith("### ")
-                        and not _Q_STAMP_RE.match(lines[k].strip())):
-                    empty = False
-                    break
-                if lines[k].startswith("### "):
-                    # Has a holding-pen H3 — not empty
-                    empty = False
-                    break
-            if empty:
-                # Drop the whole block including any trailing blank line
-                drop_end = oq_end
-                while drop_end < len(lines) and not lines[drop_end].strip():
-                    drop_end += 1
-                # Keep one blank for separation if we're not at EOF
-                if drop_end < len(lines):
-                    lines = lines[:oq_start] + lines[drop_end:]
-                else:
-                    lines = lines[:oq_start]
+        # Phase-2 transition: retire the block once nothing pending remains.
+        lines, _dropped = drop_open_questions_if_empty(lines)
         lines = restamp_open_questions(lines)
         feature_path.write_text("\n".join(lines) + ("\n" if text.endswith("\n") else ""),
                                 encoding="utf-8")
