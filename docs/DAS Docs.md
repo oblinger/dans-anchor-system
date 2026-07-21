@@ -10,7 +10,7 @@ The **reading surface** — one user-facing page per skill (how to *use* it, no 
 | --- | --- |
 | Related | [[DAS Skills\|Skills]],  [[DAS Design\|Design]],  [[DAS Facets\|Facets]],  [[DAS\|dans-anchor-system]],   |
 |  | **GROUPS** |
-| [[SKL Aide\|Aide]]+ | [[DAS Lumen\|Lumen]],  [[DAS Purchase\|Purchase]],  [[DAS Cook\|Cook]],   |
+| [[SKL Aide\|Aide]]+ | [[DAS Daybreak\|Daybreak]],  [[DAS Purchase\|Purchase]],  [[DAS Cook\|Cook]],   |
 | [[SKL Anchor\|Anchor]]+ | [[DAS Anchor Toolkit\|Anchor Toolkit]],  [[DAS Create\|Create]],  [[DAS Install\|Install]],  [[DAS Migrate\|Migrate]],  [[DAS Move\|Move]],  [[DAS Publish\|Publish]],  [[DAS Streams\|Streams]],  [[DAS WP\|WP]],  [[DAS Yore\|Yore]],   |
 | [[SKL Track\|Track]]+ | [[DAS Ask\|Ask]],  [[DAS Groom\|Groom]],  [[DAS ask-inline\|ask-inline]],  [[DAS Backlog]],  [[DAS Messages]],  [[DAS Plan]],  [[DAS workflow]],   |
 | [[SKL Drive\|Drive]]+ | [[DAS Feature\|Feature]],  [[DAS Crank\|Crank]],  [[DAS Mint\|Mint]],  [[DAS Finalize\|Finalize]],  [[DAS Land\|Land]],  [[DAS Fortify\|Fortify]],   |
