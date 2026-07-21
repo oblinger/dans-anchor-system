@@ -73,6 +73,29 @@ def scale_factor():
     return 2.0  # sane retina default
 
 
+def displays():
+    """Every active display, in screencapture -D order (1-based `idx`).
+
+    `origin` is the display's top-left in the GLOBAL logical coordinate space
+    that `click` uses — secondary displays commonly sit at negative x. Without
+    this, a click computed from a secondary-display screenshot lands on the
+    wrong screen (or nowhere). Returns [] when Quartz is unavailable."""
+    try:
+        import Quartz
+    except ImportError:
+        return []
+    err, ids, cnt = Quartz.CGGetActiveDisplayList(16, None, None)
+    if err:
+        return []
+    out = []
+    for i, d in enumerate(ids[:cnt], start=1):
+        b = Quartz.CGDisplayBounds(d)
+        out.append({"idx": i, "id": int(d), "main": bool(Quartz.CGDisplayIsMain(d)),
+                    "origin": (int(b.origin.x), int(b.origin.y)),
+                    "logical": (int(b.size.width), int(b.size.height))})
+    return out
+
+
 def cmd_size(args):
     cw, ch = capture_size()
     log = logical_size()
@@ -82,12 +105,26 @@ def cmd_size(args):
     print(f"scale:       {sf}")
     print("note: click uses logical points = capture px / scale")
 
+    ds = displays()
+    if not ds:
+        print("displays:    (pyobjc/Quartz unavailable — cannot enumerate)")
+        return
+    print(f"displays:    {len(ds)}")
+    for d in ds:
+        tag = " (main)" if d["main"] else ""
+        print(f"  -D {d['idx']}  origin={d['origin'][0]},{d['origin'][1]}  "
+              f"logical={d['logical'][0]}x{d['logical'][1]}{tag}")
+    if len(ds) > 1:
+        print("note: `grab` captures the MAIN display unless you pass --display N; "
+              "add a display's origin to in-image logical coords to get click coords")
 
-def cmd_grab(args):
-    out = args.out or "/tmp/screen.png"
+
+def _grab_one(out, region=None, display=None):
     cmd = ["screencapture", "-x"]
-    if args.region:
-        cmd += ["-R", args.region]
+    if display:
+        cmd += ["-D", str(display)]
+    if region:
+        cmd += ["-R", region]
     cmd.append(out)
     r = _run(cmd)
     if r.returncode != 0:
@@ -95,7 +132,31 @@ def cmd_grab(args):
         print("hint: are you inside a Terminal-launched tmux session? "
               "direct SSH cannot capture the display.", file=sys.stderr)
         sys.exit(1)
-    print(out)
+    return out
+
+
+def cmd_grab(args):
+    out = args.out or "/tmp/screen.png"
+    ds = displays()
+
+    if args.display == "all":
+        if not ds:
+            print("grab --display all needs Quartz to enumerate displays", file=sys.stderr)
+            sys.exit(1)
+        stem, _, ext = out.rpartition(".")
+        stem, ext = (stem, ext) if stem else (out, "png")
+        for d in ds:
+            path = _grab_one(f"{stem}-D{d['idx']}.{ext}", args.region, d["idx"])
+            print(f"{path}  origin={d['origin'][0]},{d['origin'][1]}"
+                  f"{'  (main)' if d['main'] else ''}")
+        return
+
+    print(_grab_one(out, args.region, args.display))
+    # A silent main-display-only grab on a multi-head Mac is the trap this flag
+    # exists to close: the agent sees the wrong screen and reports "nothing there".
+    if not args.display and len(ds) > 1:
+        print(f"note: captured the MAIN display only ({len(ds)} attached) — "
+              f"use --display N or --display all", file=sys.stderr)
 
 
 def _to_logical(x, y, px):
@@ -199,6 +260,8 @@ def main():
     g = sub.add_parser("grab", help="screenshot full screen or region")
     g.add_argument("out", nargs="?", default=None)
     g.add_argument("-R", "--region", help="x,y,w,h", default=None)
+    g.add_argument("-D", "--display", default=None,
+                   help="display to capture: N (1-based, see `screen size`) or 'all'")
     g.set_defaults(func=cmd_grab)
 
     s = sub.add_parser("size", help="report capture px / logical pts / scale")

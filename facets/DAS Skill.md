@@ -147,11 +147,11 @@ Disciplines live in `~/.claude/skills/{name}/` with the same folder structure as
 
 The user doc is what surfaces in the [[DAS Skills]] kind index (the user-facing skills index). The agent doc never appears there directly — only via citations from other skills.
 
-### H1 convention — no slash on disciplines
+### H1 convention — the dossier H1 matches its filename
 
-User-invocable skills have a slash command, so their user-doc H1 is `# /Name` (e.g., `# /Audit`, `# /Ready`). The slash mirrors what the user actually types.
+**Every dossier H1 is `# DAS {Name}`** — matching the filename `DAS {Name}.md`, which is what wiki-link resolution keys on. This holds for user-invocable skills and disciplines alike. The slash belongs in the *summary line* directly beneath, which leads with the backticked command (`` `/mint` — takes what's ready and makes it real ``), not in the heading.
 
-Disciplines are NOT invocable, so a slash in the H1 would be a small lie. **Discipline user-doc H1s use `# Name Discipline`** — no slash, with the "Discipline" suffix making the kind explicit and matching the agent SKILL.md's H1. Examples: `# Ask-Questions Discipline`, `# Finalize Discipline`, `# Workflow Discipline`.
+*(Corrected 2026-07-20 — this section previously specified `# /Name` for invocable skills and `# Name Discipline` for disciplines. Neither form appears anywhere in the corpus; every dossier including this facet's own cited exemplar [[DAS Mint]] uses `# DAS {Name}`.)*
 
 ### Why disciplines are not user-invocable
 
@@ -178,7 +178,7 @@ Distinct from the `SKILL.md` runbook specified above: every skill also has a **c
 
 **Body** — below the hub table, the skill's user-facing guide. It ranges from a one-line summary (minimal) to a full guide with `## What it does` / `## When NOT to use` sections (maximal). Genuine guide prose **stays**; enumerations that belong to *other* skills do not (they route to those skills — e.g. `/mint`'s page must not list `/code` / `/spike` / `/forge`).
 
-**Design root** — `design/<domain>/DAS <Name> Design.md` exists **only once there is design material** (PRD, decisions, design discussion). Emptiness-until-needed is a *rule, not text*: do **not** write a "this is the design surface, empty until the pieces are needed" sentence into each one — the name says it. When material arrives it lands as rows in the design root, and the dossier's Design row lists what now exists.
+**Design root** — `design/{domain}/DAS {Name} Design.md` is the canonical location, and the one the dossier's Design row links. **Known drift:** `audit`, `architect`, `atlas` and `muse` instead carry an in-skill `skills/{name}/{Name} Design/` folder; those four are stragglers to migrate, not a second sanctioned form — do not copy them. The design root exists **only once there is design material** (PRD, decisions, design discussion). Emptiness-until-needed is a *rule, not text*: do **not** write a "this is the design surface, empty until the pieces are needed" sentence into each one — the name says it. When material arrives it lands as rows in the design root, and the dossier's Design row lists what now exists.
 
 **Examples — minimal and maximal:**
 
