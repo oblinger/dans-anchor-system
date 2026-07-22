@@ -22,7 +22,9 @@ Reads ~/.config/bridge/{config,hosts}.yaml. rsync runs over --bridge-ip when
 given (fast Thunderbolt/LAN link), else over the hostname.
 """
 import argparse
+import getpass
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -41,7 +43,10 @@ XDG_CONFIG = Path.home() / ".config"
 PROJECTS_DIR = CLAUDE_HOME / "projects"
 MEMORY_FOLDER_ID = "claude-memory"
 HELPER = Path(__file__).parent / "syncthing-helper.py"
-USER = "oblinger"
+# Remote ssh/rsync login. The twin is same-user by design, so derive from the
+# environment; getpass.getuser() is the no-baked-name fallback. A different-username
+# twin is handled at the user/config layer (F262), never a literal here.
+USER = os.environ.get("USER") or getpass.getuser()
 SSH_OPTS = ["-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null"]
 
 # Memory dirs live at the harness-standard path projects/<key>/memory/.

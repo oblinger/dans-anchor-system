@@ -31,13 +31,14 @@ Two are **mechanisms** (how control / bytes move); two are **goals** built on to
 | `bridge <host>` / `bridge mux <host>` | mechanism — **control** | SSH + tmux + TCC inheritance. Drive the remote as a local box with FDA. |
 | `bridge sync [host]` | mechanism — **data** | File sync (Syncthing today). Mirror folder trees at identical paths. |
 | `bridge claude [host]` | **goal** | Make the remote a Claude environment-twin. *Composes* `sync` (content) + `~/.claude` provisioning. |
+| `bridge refresh <host>` | **goal** | Reconverge an existing twin in one shot. *Composes* `sync` (re-converge content) + `claude` re-provision (`~/.claude` + `~/.config` rsync). The routine "pull my twin up to date" verb — no first-time move-aside/init. See F262. |
 | `bridge agent <host>` | **goal** | Deploy a working Claude *agent* on the remote with a brief. *Composes* `claude` (env-twin) + tmux launch + status-doc + heartbeat. See F007. |
 
 `bridge <host>` with a bare hostname defaults to the **control** bridge (the common interactive case). `sync` / `claude` / `agent` are explicit named intents.
 
 **Two design contracts that run through everything:**
 - **Same-relative-path:** the remote path always matches the local path absolutely (`/Users/oblinger/ob/kmr/` ↔ same on remote). Preserves wiki-links, absolute-path references, `~/ob/...`-baked tooling, and Claude's path-keyed session lookup.
-- **Per-user recipe in config, abstract goal in skill:** the skill knows the *shape* of a bridge; `~/.config/bridge/config.yaml` holds *this user's* concrete paths/hosts.
+- **Per-user recipe in config, abstract goal in skill:** the skill knows the *shape* of a bridge; `~/.config/bridge/config.yaml` holds *this user's* concrete paths/hosts. **Nothing is baked into the skill or its helpers** (F262): the remote ssh/rsync login is derived from the environment (`$USER`, `getpass.getuser()` fallback) — the twin is same-user by design — never a hard-coded name. Example commands below show a concrete login (`oblinger@…`) and home path (`/Users/oblinger/…`) only for readability; substitute your own — the operative helpers already derive both. A different-username twin is an edge case handled at the user/config layer (a future `remote_user` config override), not by editing the skill.
 
 ### Config files
 
@@ -61,7 +62,8 @@ claude_environment:
     #   session on the twin logs hook errors (found live 2026-06-12)
     exclude: [ projects, todos, worktrees, shell-snapshots, statsig, .DS_Store ]
   config_home:                                # ~/.config provisioning, one-way (F159)
-    include: [ dans-anchor-system ]
+    include: [ anchor-system ]                 # the ~/.config subdir name (plumbing), NOT the
+                                               # repo identity name dans-anchor-system (F229)
     exclude: [ cache, __pycache__, .DS_Store ]
 ```
 
@@ -355,6 +357,23 @@ python3 ~/.claude/skills/bridge/claude-provision.py verify --host <host> [--brid
 - `verify` confirms skills + CLAUDE.md present, **no `.jsonl` in the shared memory index**, memory share recorded, anchor-system config present → `twin_ready`.
 
 Then `bridge <host>` (control) into the twin and run `claude` there — same skills, same CLAUDE.md, same vault, fresh sessions.
+
+### Refresh — `bridge refresh <host>` (reconverge an existing twin)
+
+**Goal:** pull an already-provisioned twin up to date in one shot — the routine "sync my changes over and re-provision `~/.claude`" verb. It **composes existing mechanisms, adds no first-time setup**: unlike `bridge claude` on a cold host, `refresh` assumes the sync folders and move-aside gates were already cleared, so it never re-runs init.
+
+```bash
+# reconverge content, then re-provision ~/.claude + ~/.config, then confirm
+bridge refresh <host>
+```
+
+Resolution flow (each step is an existing verb — `refresh` only sequences them):
+
+1. **Reconverge content** — `bridge sync-status <host>` to confirm the folders exist and are healthy; for Syncthing that is enough (live bidirectional already converges), for rsync mode run the explicit `bridge sync --remote <host>` push. If `<host>` has **no** sync entry, `refresh` refuses and points at `bridge claude <host>` (cold-start does the move-aside/init that `refresh` deliberately skips).
+2. **Re-provision `~/.claude` + `~/.config`** — `claude-provision.py apply --host <host>` (over `--bridge-ip` when a fast link is up): re-rsyncs each `claude_home.include` and `config_home.include` include−exclude, idempotently. This is what carries new/changed skills, CLAUDE.md, settings, and the `anchor-system` config to the twin.
+3. **Verify** — `claude-provision.py verify --host <host>`: skills + CLAUDE.md present, no `.jsonl` in the shared memory index, `twin_ready`.
+
+`refresh` is the verb you reach for after editing skills or CLAUDE.md locally and wanting the twin current; `claude` is the one-time cold provision, `refresh` is every time after.
 
 ---
 
