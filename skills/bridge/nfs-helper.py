@@ -18,6 +18,7 @@ Reads/writes ~/.config/bridge/hosts.yaml (shared; one sync mode per host).
 """
 import argparse
 import datetime
+import getpass
 import ipaddress
 import json
 import os
@@ -34,7 +35,7 @@ except ImportError:
 CONFIG_DIR = Path.home() / ".config" / "bridge"
 HOSTS_PATH = Path(os.environ["BRIDGE_HOSTS_PATH"]) \
     if os.environ.get("BRIDGE_HOSTS_PATH") else CONFIG_DIR / "hosts.yaml"
-USER_REMOTE = os.environ.get("USER", "oblinger")
+USER_REMOTE = os.environ.get("USER") or getpass.getuser()
 SSH_OPTS = ["-o", "BatchMode=yes", "-o", "ConnectTimeout=8"]
 
 

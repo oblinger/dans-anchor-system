@@ -13,6 +13,7 @@ backs the file-sync mechanism; `bridge claude` (environment-twin provisioning)
 is handled by claude-provision.py.
 """
 import argparse
+import getpass
 import json
 import os
 import shlex
@@ -37,7 +38,7 @@ CONFIG_PATH = CONFIG_DIR / "config.yaml"
 LEGACY_DEFAULTS_PATH = CONFIG_DIR / "defaults.yaml"
 ST_CONFIG_LOCAL = Path.home() / "Library" / "Application Support" / "Syncthing" / "config.xml"
 ST_API_LOCAL = "http://127.0.0.1:8384"
-USER_REMOTE = os.environ.get("USER", "oblinger")
+USER_REMOTE = os.environ.get("USER") or getpass.getuser()
 
 
 def read_yaml(path):
