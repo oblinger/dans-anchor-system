@@ -2557,6 +2557,14 @@ def chk_doc_head_orientation_line(target, anchor_root, args):
             break
     if h1 is None:
         return "pass", "no H1 — out of scope"
+    # Simple facet form (DAS Doc Structure): a slug-prefixed facet page whose H1
+    # fuses the breadcrumb into the title — `# [[{slug}]] {Facet}` where {slug} is
+    # the filename's leading token. The wiki-link IS the breadcrumb and the head
+    # is self-describing (slug ⊗ facet), so the orientation line is waived; the
+    # file's essence (a list / table / figure) may follow the H1 directly.
+    m_sf = re.match(r"^# \[\[([^\]|#]+)(?:\|[^\]]+)?\]\]\s+\S", lines[h1])
+    if m_sf and m_sf.group(1).strip() == f.stem.split(" ")[0]:
+        return "pass", "simple facet form — orientation line waived (fused-breadcrumb H1)"
     field = re.compile(r"^[\w-]+::\s")
     j = h1 + 1
     while j < len(lines) and (lines[j].strip() == "" or field.match(lines[j])):

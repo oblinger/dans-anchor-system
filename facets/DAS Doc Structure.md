@@ -8,7 +8,7 @@ The standard top-to-bottom structure every document follows — progressive disc
 | -[[DAS Doc Structure]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets\|FCT]] → [DAS Doc Structure](hook://p/DAS%20Doc%20Structure) |
 | --- | --- |
 | Related | [[DAS progressive-disclosure]] (the discipline this specializes),  [[DAS Brief]],  [[DAS Anchor Page]], |
-| Examples | [[FEX Minimal Facet\|minimal — short doc, no table]],  [[HBR Architecture\|fuller — non-anchor doc with structured body]],  [[FEX Manifest\|facet spec]],  [[FEX Retention\|discipline]],  [[DAS Brief\|facet spec]],  [[HBR\|project]],  [[FEX Snapshot\|skill]],  [[FEX Repo\|repo]],   |
+| Examples | [[FEX Minimal Facet\|minimal — short doc, no table]],  [[26OMNI Plan\|simple facet — fused-breadcrumb head]],  [[HBR Architecture\|fuller — non-anchor doc with structured body]],  [[FEX Manifest\|facet spec]],  [[FEX Retention\|discipline]],  [[DAS Brief\|facet spec]],  [[HBR\|project]],  [[FEX Snapshot\|skill]],  [[FEX Repo\|repo]],   |
 | Rules | [[R-doc-structure]],   |
 | ... | [[anchor-page]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Backlog]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Dispatch]],  [[DAS Dispatch Table Design]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
 
@@ -62,6 +62,19 @@ A paragraph, added only when the summary / TLDR isn't enough.
 The actual content the document holds. At the very bottom, the agent-facing `# BRIEF` (per [[DAS Brief]]) when the document needs maintenance notes.
 
 **Why this order — progressive disclosure.** A glance-reader gets what they need from the H1 + summary; a navigator uses the table; a committed reader reads TLDR → Overview → Body; the maintaining agent reads the Brief. Each layer down serves a more-committed reader.
+
+## Simple facet form — the compact variant
+
+A short, slug-prefixed facet page whose meaning is obvious from its name may collapse the head to a single line. The file is `{slug} {Facet}.md`, and its H1 is the slug as a wiki-link followed by the facet name — e.g. the exemplar [[26OMNI Plan]] opens with an H1 reading **[[26OMNI]] Plan** (`{slug}` wiki-link + `{Facet}`). That one line does **triple duty**: it names the facet, it names the file, and — because the slug is a live wiki-link to the anchor — it *is* the breadcrumb home. So this form carries **no `:>>` breadcrumb row, no masthead table, and no orientation line** (layers 0 and 2 are absorbed into the H1). Directly under the H1 comes the doc's **essence** — the one main thing it exists to hold: a checklist, a table, a figure, a short list. The essence leads; any deeper structure (`## Overview`, further sections) follows below it.
+
+**Why it needs no orientation line.** The meaning of the page is simply *slug ⊗ facet* — whatever the facet is, specialized to this anchor. The head already states both halves, so an orientation sentence would only restate what `[[{slug}]] {Facet}` already says. Exemplar: [[26OMNI Plan]] (the `26OMNI` project's `Plan` facet — a dated to-do that opens with its checklist).
+
+**When to use it** — all three must hold:
+- The file is **slug-prefixed** (`{slug} {Facet}.md`) so the H1 wiki-link fuses cleanly.
+- The facet's meaning is **self-evident** from slug + facet name (no explanation earns its keep).
+- The doc has a **single clear essence** to put right at the top.
+
+When a facet grows substructure, a fuller body, or a meaning that isn't obvious from its name, graduate it to the breadcrumb or masthead form above. Enforced by `R-progressive-03` (the `doc_head_orientation_line` checker recognizes this head — the H1 wiki-link target equal to the filename prefix — and waives the orientation-line requirement).
 
 ## Relationship to other facets
 - **[[DAS progressive-disclosure]]** — the general discipline; this facet is its document-scoped specialization.
