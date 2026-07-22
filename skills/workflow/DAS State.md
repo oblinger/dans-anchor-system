@@ -21,7 +21,7 @@ state [-a ANCHOR] roadmap <status|migrate> ... # {slug} Roadmap.md milestone sta
 ```
 
 - **`<doc>`** — the addressed document: the literal **`Backlog`** (the anchor's backlog file), a **wiki-name** (case-insensitive `.md` basename match — anchor tree first, then vault root; zero matches errors, multiple matches errors listing every candidate), or a **path**. Any markdown doc qualifies — feature docs, PRDs, standalone design docs.
-- **`<label>`** — LETTERS+DIGITS, the item's primary key within the doc: `F157` / `T8` on the Backlog, `Q7` / `V3` on any other doc. The mint form LETTERS+`+` (`F+`, `T+`, `Q+`, `V+`) assigns the next unused number — valid only with `define`; the assigned label is printed in the output.
+- **`<label>`** — LETTERS+DIGITS, the item's primary key within the doc: `F157` / `T8` / `Q9` on the Backlog, `Q7` / `V3` on any other doc. The mint form LETTERS+`+` (`F+`, `T+`, `Q+`, `V+`) assigns the next unused number — valid only with `define`; the assigned label is printed in the output. **`Q<n>` is polymorphic on the `<doc>` argument** (F275): on `Backlog` it is a *standalone feature-less question row* (the row body IS the question); on any other doc it is a *doc-scoped Open Question*. The two number-spaces are independent.
 - **`<verb>`** — `define` | `set` | `resolve` | `remove` (per-target semantics below).
 
 ## ANCHOR RESOLUTION
@@ -89,6 +89,10 @@ remove    delete the row entirely. Rare — normally `resolve`, or `set --status
 ```
 
 `F` rows are features (have a feature doc; the row links it `→ [[F<n> — Title]]`); `T` rows are tasks (the row IS the spec). `B-QFix` is a grandfathered machinery singleton owned by `audit-q.py --fix`, not a v2-addressable label.
+
+### Standalone question rows — `state Backlog Q<n> define` (F275 M2/M3)
+
+A `Q<n>` row is a **feature-less question** — sibling to `F`/`T`, minted with `state Backlog Q+ define`. It exists because a genuine question may have no host feature (a config value, a spoken-vocabulary word, a cross-cutting call); the row **body is the question itself**, so `define` runs the same gates as a doc-scoped Q — ask-format (≥2 labeled options + `- **Recommendation:**`), the F270 `- **Damage:**` field (a `waste`/`priority` row auto-resolves to the lean and lands `[Done]`, never surfacing) — **plus** a hard-required F275 `- **On answer:**` clause (the concrete consequence of each answer; a define missing it is refused). The row brackets `[Questions]`, is self-backing (its number lives in the header, so it needs no linked Q-bearing doc and is exempt from the `[Questions]`-promise write-guard and audit-q C24), renders under `## Questions` in `{slug} queries.md`, and resolves with `state Backlog Q<n> resolve`.
 
 ## DOC QUERIES — `state <doc> <Q<n>|V<n>> <verb>`
 

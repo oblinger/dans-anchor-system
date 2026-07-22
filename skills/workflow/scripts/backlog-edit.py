@@ -273,7 +273,7 @@ def _scope_text_to_block_id_region(text, block_id):
     return "\n".join(lines[start:end])
 
 
-def verify_questions_constraint(status, body):
+def verify_questions_constraint(status, body, row_id=None):
     """Raise BacklogEditError if status asserts a Questions promise that the
     body's wiki-link target cannot honor.
 
@@ -284,12 +284,17 @@ def verify_questions_constraint(status, body):
 
     Skip when:
       - status is not a Questions variant
+      - the row IS a standalone `Q<n>` question row (F275) — the row itself is
+        the question (self-backing), so its number lives in the header, not a
+        linked doc or an inline sub-bullet
       - body is empty (no link to check; caller responsible for soundness)
       - the wiki-link target file cannot be located in the vault
         (warn-not-fail — may be a fresh anchor or unresolvable basename)
     """
     if not QUESTIONS_STATUS_RE.match(status.strip()):
         return
+    if row_id and re.match(r"^Q\d+$", row_id):
+        return  # F275 — a standalone Q-row is its own question
     if not body or not body.strip():
         raise BacklogEditError(
             f"[{status}] requires a body with a wiki-link to a target containing "
@@ -569,7 +574,7 @@ def verify_ownership_gate(status, row_id, eff_verify, why_user):
 # justified (Lean/Strong without --why-ask), and a rendered `· *why-ask: …*`
 # annotation the audit can challenge in place.
 _RECOMMENDATION_STRENGTH_RE = re.compile(
-    r"^-\s+\*\*Recommendation:\*\*\s*(.*)$", re.MULTILINE)
+    r"^\s*-\s+\*\*Recommendation:\*\*\s*(.*)$", re.MULTILINE)  # `^\s*-`: a standalone Backlog Q-row (F275) carries Recommendation as an INDENTED sub-bullet, not indent-0
 # Tier-1: known agent-territory question shapes — refused regardless of
 # --why-ask (ordering / batching / rollback / cosmetic rename of an existing
 # thing). Deliberately NARROW (F242's lesson) so a genuine fork is never
@@ -629,7 +634,7 @@ def _append_why_ask_annotation(body, why_ask):
     annot = f" · *why-ask: {why_ask}*"
     lines = str(body or "").splitlines()
     for i, line in enumerate(lines):
-        if re.match(r"^-\s+\*\*Recommendation:\*\*", line):
+        if re.match(r"^\s*-\s+\*\*Recommendation:\*\*", line):  # `^\s*-`: F275 Q-rows indent the Recommendation
             lines[i] = line.rstrip() + annot
             return "\n".join(lines)
     for i, line in enumerate(lines):
@@ -702,7 +707,7 @@ def question_mint_gate(q_num, body, why_ask):
 # prose, decides surface-vs-auto.
 DAMAGE_CATEGORIES = ("waste", "priority", "irreversible", "locking", "taste", "other")
 DAMAGE_AUTO_RESOLVE = ("waste", "priority")  # never reach the user
-_DAMAGE_LINE_RE = re.compile(r"^-\s+\*\*Damage:\*\*\s*([A-Za-z]+)\b(.*)$", re.MULTILINE)
+_DAMAGE_LINE_RE = re.compile(r"^\s*-\s+\*\*Damage:\*\*\s*([A-Za-z]+)\b(.*)$", re.MULTILINE)  # `^\s*-`: F275 Q-rows indent the Damage line as a sub-bullet
 
 
 def parse_damage(body):
@@ -1091,10 +1096,10 @@ def warn_verify_watching_horizon(status, horizon_name):
 # into another anchor's backlog that keep their origin id so wiki-links resolve.
 # 2+ uppercase letters + dash, so it never collides with the single-letter F/B.
 # Row-id kinds: F (feature) / T (backlog task) / C (OpenSpec change, F230) /
-# B (legacy backlog item) — all
+# Q (standalone feature-less question, F275 M2) / B (legacy backlog item) — all
 # minted as monotonic numbers; R (roadmap task) — a name-path handle
 # `R-<Name>.<path>` (dots allowed), never a minted counter.
-ROW_ID_RE = re.compile(r"^(?:([A-Z]{2,})-)?(F|B|T|R|C)(new|\d+|-[A-Za-z0-9][\w\-.]*)$")
+ROW_ID_RE = re.compile(r"^(?:([A-Z]{2,})-)?(F|B|T|R|C|Q)(new|\d+|-[A-Za-z0-9][\w\-.]*)$")
 
 
 def parse_row_id(arg):
@@ -1128,9 +1133,9 @@ def parse_row_id(arg):
 
 
 def format_row_id(kind, rest_or_num):
-    """For mint: pad F/T/C to 3 digits; others (B) stay as-is. R is never minted
+    """For mint: pad F/T/C/Q to 3 digits; others (B) stay as-is. R is never minted
     here — its handle is a name-path formed by the caller."""
-    if kind in ("F", "T", "C"):
+    if kind in ("F", "T", "C", "Q"):
         if isinstance(rest_or_num, int):
             return f"{kind}{rest_or_num:03d}"
         return f"{kind}{rest_or_num}"
@@ -1141,14 +1146,14 @@ def format_row_id(kind, rest_or_num):
 # Backlog scanning
 
 ROW_HEADER_RE = re.compile(
-    r"^(\s*)-\s+\*\*((?:[A-Z]{2,}-)?F\d+|T\d+|C\d+(?=\s+—)|R-[A-Za-z0-9][\w\-.]*|B[\w\-]+|B\d+)\b"
+    r"^(\s*)-\s+\*\*((?:[A-Z]{2,}-)?F\d+|T\d+|C\d+(?=\s+—)|Q\d+(?=\s+—)|R-[A-Za-z0-9][\w\-.]*|B[\w\-]+|B\d+)\b"
 )
 H2_RE = re.compile(r"^##\s+(.+?)\s*$")
 
 # Used to parse the existing row line back into title + body so the script
 # can preserve them across status-only edits.
 ROW_FULL_RE = re.compile(
-    r"^-\s+\*\*(?P<rid>(?:[A-Z]{2,}-)?F\d+|T\d+|C\d+(?=\s+—)|R-[A-Za-z0-9][\w\-.]*|B[\w\-]+|B\d+)"
+    r"^-\s+\*\*(?P<rid>(?:[A-Z]{2,}-)?F\d+|T\d+|C\d+(?=\s+—)|Q\d+(?=\s+—)|R-[A-Za-z0-9][\w\-.]*|B[\w\-]+|B\d+)"
     r"(?:\s+—\s+(?P<title>.+?))?\*\*"
     r"\s+\[(?P<status>[^\]]+)\]"
     r"(?:\s+—\s+(?P<body>.+?))?"
@@ -1483,7 +1488,7 @@ def perform_edit(
     # row's do.
     if pending_subs:
         body_for_check += "\n" + "\n".join(pending_subs)
-    verify_questions_constraint(status, body_for_check)
+    verify_questions_constraint(status, body_for_check, row_id=row_id_arg)
 
     # F096 — refuse [Verify*] when body describes pending implementation
     # work (Phase 2, remaining, follow-up, etc.). Addresses the F094 lie

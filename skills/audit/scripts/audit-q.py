@@ -2523,6 +2523,12 @@ def check_c24_questions_count_match(entries: list[BacklogEntry]) -> list[Finding
         m = re.match(r"^\s*(\d+)\s+Questions?\s*$|^\s*Questions?\s*$", e.status or "")
         if not m:
             continue
+        # F275 — a standalone Q-row IS its own single pending question
+        # (self-backing): no arrow link, and its sub-bullets are the ask-format
+        # options, not nested `- **Q<n> —` headers. Never stale, never counted
+        # against a linked doc.
+        if re.match(r"^Q\d+$", e.identifier or ""):
+            continue
         claimed = int(m.group(1)) if m.group(1) else 1
         # Resolve the Q-bearing target. The row's OWN doc is the arrow-form
         # `→ [[…]]` reference only — an in-prose link is a mention, not the
