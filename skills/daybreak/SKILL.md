@@ -70,15 +70,15 @@ Confirmation is **conversational, in the morning**: *"You asked me to email Sean
 
 ## Calendar
 
-Today's events come from the **local macOS Calendar** via `scripts/calendar-today.swift` (EventKit) — not from Google OAuth. The local Calendar already carries the Google events (the `{user}@gmail` and `{user}@work` accounts sync into it), so it is a superset with no expiring permission to renew. Run it:
+Today's events come from the **local macOS Calendar** via the shared `/io calendar` capability ([[io-calendar]], EventKit) — not from Google OAuth, and no longer a Daybreak-private script (SKA T047 moved it into `/io`). The local Calendar already carries the Google events (the `{user}@gmail` and `{user}@work` accounts sync into it), so it is a superset with no expiring permission to renew. Run it:
 
 ```bash
-swift "$HOME/.claude/skills/daybreak/scripts/calendar-today.swift"
+swift "$HOME/.claude/skills/io/scripts/calendar-today.swift"
 ```
 
 It prints today's events one per line (`HH:MM    Title`, or `all-day  Title`), sorted. Per Lumen F004 this replaced the AppleScript route, which took ~18s regardless of calendar narrowing; EventKit returns in ~1s.
 
-**If it exits 2 / prints `CALENDAR_ACCESS_DENIED`**, the calling context lacks Calendar permission — **say so in the briefing and continue** (never silently omit the channel; a briefing that admits the calendar was unreachable beats one that quietly dropped it). The one-time fix is a GUI grant: tell the user to double-click `scripts/grant-calendar.command` and click Allow. After that it runs granted every morning.
+**If it exits 2 / prints `CALENDAR_ACCESS_DENIED`**, the calling context lacks Calendar permission — **say so in the briefing and continue** (never silently omit the channel; a briefing that admits the calendar was unreachable beats one that quietly dropped it). The one-time fix is a GUI grant: tell the user to double-click `$HOME/.claude/skills/io/scripts/grant-calendar.command` and click Allow. After that it runs granted every morning. Full capability docs: [[io-calendar]].
 
 ## Mail
 
