@@ -4,6 +4,8 @@ Read, search, and access email through Apple Mail using AppleScript. No OAuth to
 
 **Access methods comparison:** See [[io-email-access]] for trade-offs between Apple Mail, IMAP, Gmail API, and other approaches.
 
+**Drafting an email?** The user's required draft format lives in [[DAS formats]] § Email draft — ready-to-paste plain text in a fence, `To:`/`Subject:` lines included, no markdown decoration, no em-dashes.
+
 ## Reading Recent Messages
 
 ```applescript

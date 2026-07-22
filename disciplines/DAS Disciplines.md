@@ -13,10 +13,10 @@ The catalog of disciplines — cross-cutting concepts the agent reads — organi
 | [[DAS Anchor Design\|Anchor]]+ | [[DAS anchor-dag\|anchor-dag]],  [[DAS Linked Mode\|Linked Mode]],  [[DAS progressive-disclosure\|progressive-disclosure]],   |
 | [[DAS Tracking Design\|Tracking]]+ | [[DAS workflow\|workflow]],  [[DAS ask-format\|ask-format]],  [[DAS verification\|verification]],  [[DAS granularity\|granularity]],   |
 | [[DAS Code Design\|Code]]+ | [[DAS code-repo\|code-repo]],  [[DAS rust\|rust]],   |
-| [[DAS Doc Design\|Doc]]+ | [[DAS markdown\|markdown]],  [[DAS dated-entry-stream\|dated-entry-stream]],  [[DAS file-association\|file-association]],  [[DAS technical-answer\|technical-answer]],   |
+| [[DAS Doc Design\|Doc]]+ | [[DAS markdown\|markdown]],  [[DAS formats\|formats]],  [[DAS dated-entry-stream\|dated-entry-stream]],  [[DAS file-association\|file-association]],  [[DAS technical-answer\|technical-answer]],   |
 | [[DAS Drive Design\|Drive]]+ | [[DAS mode\|mode]],  [[DAS role\|role]],   |
 | --- | |
-| [Mode](hook://Mode) |  |
-| [Role](hook://Role) |  |
+| [Mode](hook://Mode)  |  |
+| [Role](hook://Role)  |  |
 
 *The `workflow` concept doc lives at [[DAS workflow]]; the `state` tooling stays in `skills/workflow/` (path-referenced). The concept is slated to be renamed `flow` (F158 § D, pending). `CAB Linked Mode` keeps its as-moved name pending the same rename.*
