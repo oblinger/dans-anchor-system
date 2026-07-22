@@ -18,25 +18,31 @@ Growth path: this stays one document while each format fits a screenful. If a fo
 
 **Rules:**
 
-- **Ready-to-paste plain text.** The draft is a single fenced block (an email body is literal non-markdown, so a fence is correct here). The user selects, copies, pastes into Mail — nothing to strip.
-- **Header lines included.** First lines are `To:` and `Subject:`, then a blank line, then the body.
-- **No markdown decoration inside.** No blockquote `>` prefixes (the historical failure: a draft presented as a blockquote cannot be cut-pasted), no bold/italics, no wiki-links, no headings.
-- **No em-dashes.** Outward-facing prose; em-dashes are an AI tell. Use commas, periods, or parentheses.
+- **Live markdown, NOT a fenced block.** The user copies the *rendered* draft (Obsidian reading view) and pastes into Mail as rich text. A fence would make `**asterisks**` paste literally — verified 2026-07-22: from rendered markdown, **bold**, *italic*, ***bold italic***, bulleted lists, numbered lists, and plain URLs all survive the paste into Mail intact.
+- **Header lines always present:** `To:`, `CC:` (always shown, even when empty), `Subject:` — then a blank line, then the body.
+- **Allowed in the body:** bold, italic, bold-italic, bulleted and numbered lists, plain `https://…` links.
+- **Forbidden in the body:** blockquote `>` prefixes (the historical failure — corrupts the paste), headings, wiki-links (meaningless outside the vault), and em-dashes (outward-facing prose; use commas, periods, or parentheses).
 - **Readable line lengths.** Wrap the body naturally; no hard-wrapped ragged lines.
-- **In chat, show the block inline** — never only point at a doc holding the draft.
+- **In chat, show the draft inline** as the same live markdown — never only point at a doc holding it.
 
-**Example:**
+**Example** (everything below the rule line is the draft, as live markdown):
 
-```
+---
+
 To: sean@example.com
+CC: pat@example.com
 Subject: XbotGo footage from Saturday
 
 Sean,
 
-The XbotGo clips from Saturday's game are uploaded. The second half
-has the two goals, starting around 38:00.
+The XbotGo clips from Saturday's game are uploaded. The **second half** has both goals, starting around 38:00. Quick highlights:
+
+- Goal one at 38:12, *nice cross from the left*
+- Goal two at 51:40
+- Full match: https://example.com/match/0722
 
 Let me know if you want the full-field version as well.
 
 Dan
-```
+
+---
