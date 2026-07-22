@@ -40,6 +40,7 @@ HOSTS_PATH = CONFIG_DIR / "hosts.yaml"
 ANCHOR_SYSTEM_GLOBAL = Path.home() / ".config" / "anchor-system" / "global.yaml"
 CLAUDE_HOME = Path.home() / ".claude"
 XDG_CONFIG = Path.home() / ".config"
+HOME_BIN = Path.home() / "bin"
 PROJECTS_DIR = CLAUDE_HOME / "projects"
 MEMORY_FOLDER_ID = "claude-memory"
 HELPER = Path(__file__).parent / "syncthing-helper.py"
@@ -167,6 +168,12 @@ def cmd_plan(args):
             "include": cf.get("include", []),
             "exclude": cf.get("exclude", []),
         },
+        "bin": {
+            "source": str(HOME_BIN),
+            "include": env.get("bin", {}).get("include", []),
+            "note": "shell utilities (ctrl, …) the twin's agent needs on PATH; "
+                    "arch-sensitive Mach-O binaries are skipped on arch mismatch",
+        },
         "note": "transcripts never travel — memory dirs are the only projects/ content that syncs (F159).",
     }, indent=2))
 
@@ -233,6 +240,31 @@ def cmd_apply(args):
         cf_results = rsync_items(XDG_CONFIG, cf["include"], cf.get("exclude", []),
                                  f"{USER}@{target_host}:~/.config/")
 
+    # ~/bin shell utilities (ctrl, …) — the twin's agent expects these on PATH
+    # (the global CLAUDE.md references them). Scripts travel as-is; a Mach-O
+    # binary is skipped when the remote arch differs (no silent wrong-arch copy).
+    bn = env.get("bin", {})
+    bin_results = []
+    if bn.get("include"):
+        remote_arch = subprocess.run(["ssh", *SSH_OPTS, f"{USER}@{target_host}", "uname -m"],
+                                     capture_output=True, text=True).stdout.strip()
+        local_arch = subprocess.run(["uname", "-m"], capture_output=True, text=True).stdout.strip()
+        subprocess.run(["ssh", *SSH_OPTS, f"{USER}@{target_host}", "mkdir -p ~/bin"],
+                       check=False, capture_output=True)
+        macho_items = []
+        if remote_arch != local_arch:
+            for item in list(bn["include"]):
+                p = HOME_BIN / item
+                if p.exists():
+                    head = p.open("rb").read(4)
+                    if head in (b"\xcf\xfa\xed\xfe", b"\xca\xfe\xba\xbe"):
+                        macho_items.append(item)
+        todo = [i for i in bn["include"] if i not in macho_items]
+        bin_results = rsync_items(HOME_BIN, todo, [], f"{USER}@{target_host}:~/bin/")
+        for item in macho_items:
+            bin_results.append({"item": item,
+                                "result": f"skipped — Mach-O binary, arch mismatch ({local_arch} → {remote_arch})"})
+
     # Memory share (F159) — bidirectional, ignore-filtered to memory dirs.
     memory_result = {"memory": "off (claude_environment.memory != shared)"}
     if env.get("memory", "off") == "shared":
@@ -243,6 +275,7 @@ def cmd_apply(args):
         "via": target_host,
         "provisioned": results,
         "config_home_provisioned": cf_results,
+        "bin_provisioned": bin_results,
         "excluded": excludes,
         **memory_result,
     }, indent=2))
@@ -299,6 +332,14 @@ def cmd_verify(args):
                             "ls ~/.claude/projects 2>/dev/null | head -1"],
                            capture_output=True, text=True)
         checks["transcripts_excluded"] = (r.stdout.strip() == "")
+    # bin utilities landed + executable?
+    bn = env.get("bin", {})
+    if bn.get("include"):
+        for item in bn["include"]:
+            r = subprocess.run(["ssh", *SSH_OPTS, f"{USER}@{target_host}",
+                                f"test -x ~/bin/{item} && echo OK"],
+                               capture_output=True, text=True)
+            checks[f"bin_{item}"] = "OK" in r.stdout
     # anchor-system config landed? (F159)
     r = subprocess.run(["ssh", *SSH_OPTS, f"{USER}@{target_host}",
                         "ls ~/.config/anchor-system/global.yaml 2>/dev/null && echo OK"],

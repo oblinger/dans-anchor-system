@@ -1,11 +1,46 @@
 ---
 name: bridge
-description: Connect this Mac to another machine. Umbrella over three kinds of bridging. **Control** (`bridge <host>` / `bridge mux`) — SSH + tmux + TCC inheritance so the agent drives the remote as a local box with the user's Full Disk Access (use when SSH-only can't reach /Volumes/*, ~/Desktop, ~/Documents). **Sync** (`bridge sync`) — file sync (Syncthing live-bidirectional, NFS-via-symlink live mount, rsync explicit push/pull) so folders appear at identical paths on both machines. **Claude** (`bridge claude`) — a composite goal: provision the remote to run a Claude instance as an environment-twin (skills + CLAUDE.md + vault content; transcripts deliberately excluded). Slash-only. Per-user environment recipe lives in ~/.config/bridge/config.yaml.
+description: Connect this Mac to another machine — via the packaged dispatcher `~/.claude/skills/bridge/bridge` (F279); never improvise raw ssh. **Control** (`bridge tmux <host>`) — symmetric `bridge-<host>` tmux sessions both sides, a live viewer Terminal window on the REMOTE's own screen, TCC inheritance (FDA/Screen Recording/Accessibility) so the agent drives the remote as a local box. **Converge** (`bridge install <host>`, alias `refresh`) — idempotent env-twin provisioning: skills + CLAUDE.md + ctrl + launchd-durable Syncthing + provision stamp. **Diagnose** (`bridge doctor <host>`) — read-only deep check; a sub-second preflight also rides every verb automatically. **Sync** (`bridge sync`) — Syncthing status/revive. **Agent** (`bridge agent`) — deploy a briefed Claude agent. Slash-only. Per-user recipe in ~/.config/bridge/config.yaml.
 ---
 
 # Bridge
 requires:: vault, external:homebrew, external:syncthing, external:tmux
 subsystem:: [[DAS Utility Design]] — the Utility group's subsystem profile
+
+| Table of Contents |  |
+|---|---|
+| **[[#Heartbeat discipline — MANDATORY whenever a bridge is active]]** |  |
+| **[[#The dispatcher — every verb is a packaged command (F279)]]** |  |
+|    [[#Config files]] |  |
+|    [[#Setup recipe (manual background — the dispatcher automates this)]] |  |
+|    [[#Control gotchas (2026-06-06, COPPER → 10T verification)]] |  |
+|    [[#The "disk station" pattern]] |  |
+|    [[#Subcommand surface]] |  |
+|    [[#Resolution flow for `bridge sync`]] |  |
+|    [[#Init recipe (Syncthing)]] |  |
+|    [[#Tar-seed accelerator (initial seed — strongly preferred for big/small-file vaults)]] |  |
+|    [[#Fast-link discovery (Thunderbolt / USB-C bridge)]] |  |
+|    [[#`sync-status` / `sync-teardown`]] |  |
+|    [[#Per-session auto-resume]] |  |
+|    [[#rsync mode (F175 Phase 3 — explicit push/pull, the hard gate)]] |  |
+|    [[#NFS-via-symlink mode (F175 Phase 2 — live mount, zero lag)]] |  |
+|    [[#Sync gotchas]] |  |
+|    [[#Environment parity ≠ session portability]] |  |
+|    [[#Memory IS shared (F159)]] |  |
+|    [[#Recipe — `claude-provision.py`]] |  |
+|    [[#Refresh — `bridge refresh <host>` (reconverge an existing twin)]] |  |
+|    [[#When to use]] |  |
+|    [[#Subcommand surface]] |  |
+|    [[#Standard tmux session — `agent`, one per host]] |  |
+|    [[#Setup recipe — composition with `bridge claude` + tmux launch + windows]] |  |
+|    [[#Brief format — YAML frontmatter + redundant body-top table]] |  |
+|    [[#Status doc — one canonical doc per host at a computed path]] |  |
+|    [[#Status doc transport — SSH-pull on demand; NOT Syncthing; NOT git]] |  |
+|    [[#Heartbeat — hard convention while there's active work]] |  |
+|    [[#Idempotency]] |  |
+|    [[#Gotchas (live, from the 2026-06-23 hand-run)]] |  |
+| **[[#When NOT to use bridge]]** |  |
+| **[[#Status]]** |  |
 
 **Bridge** is the umbrella for "connect this machine to another machine." Renamed from `mux-bridge` (F150) once it grew past the original SSH+tmux control plane.
 
@@ -22,19 +57,19 @@ subsystem:: [[DAS Utility Design]] — the Utility group's subsystem profile
 
 See the `devops` skill for the general heartbeat/watcher discipline; this section makes it **non-optional** the moment a bridge is in play.
 
-## The four kinds of bridge
+## The dispatcher — every verb is a packaged command (F279)
 
-Two are **mechanisms** (how control / bytes move); two are **goals** built on top of them.
+**All bridge operations run through `~/.claude/skills/bridge/bridge`** — agents invoke it by full path (it rides the skills repo, so it exists on any provisioned machine, with no `~/bin` or PATH dependency). Raw ssh improvisation is the anti-pattern this dispatcher retires. A **sub-second preflight** runs automatically in front of every verb: local checks always (config sanity, provision-stamp age, local session liveness), one remote ping only over a warm SSH ControlMaster socket (the dispatcher sets `ControlPersist` on all its ssh, keeping sockets warm). On failure the preflight names the fix (`run: bridge install <host>`).
 
 | Verb | Kind | What it does |
 |---|---|---|
-| `bridge <host>` / `bridge mux <host>` | mechanism — **control** | SSH + tmux + TCC inheritance. Drive the remote as a local box with FDA. |
-| `bridge sync [host]` | mechanism — **data** | File sync (Syncthing today). Mirror folder trees at identical paths. |
-| `bridge claude [host]` | **goal** | Make the remote a Claude environment-twin. *Composes* `sync` (content) + `~/.claude` provisioning. |
-| `bridge refresh <host>` | **goal** | Reconverge an existing twin in one shot. *Composes* `sync` (re-converge content) + `claude` re-provision (`~/.claude` + `~/.config` rsync). The routine "pull my twin up to date" verb — no first-time move-aside/init. See F262. |
+| `bridge tmux <host> [--session S] [--force] [--viewer]` | mechanism — **control** | **Flagship connect.** Ensures a tmux session on the remote launched in a Terminal window **on the remote's own screen** (the glanceable viewer + the TCC-blessed context), and a **local tmux session `bridge-<host>`** ssh-attached to it. Session named `bridge-<host>` on both sides. Drive: `tmux send-keys -t bridge-<host> "<cmd>" Enter`; read: `tmux capture-pane -t bridge-<host> -p`. Renamed from `bridge mux` (F279 — tmux is what's being bridged). |
+| `bridge install <host>` (alias `refresh`) | **goal — converge** | **Idempotent "make it so."** Env files via claude-provision (`~/.claude`, `~/.config` includes, `bin` utilities like ctrl), skills-repo wiring, launchd-durable Syncthing on the remote, provision stamp (remote + local cache). First run installs; re-run reconverges (subsumes F262's refresh). |
+| `bridge sync [host]` | mechanism — **data** | Syncthing status/revive. Full share creation stays in `syncthing-helper.py` (move-aside confirmation gate). |
+| `bridge skills <host>` | **goal** | Ensure the remote's `~/.claude/skills` tracks the skills repo named in config (`skills_repo`) — symlink into the vault-synced copy when present; clone from `url` only for non-twin machines (never alongside a sync-covered path). Bridge stays generic; only the user's config names the repo (F279 Q1). |
+| `bridge doctor <host>` | **diagnose** | **Read-only deep check** — reach / Aqua launch-context / TCC caps / sync daemon / launchd / stamp / ctrl / local session. Never mutates (that's install's job). The slow, careful backup to the automatic preflight. |
+| `bridge claude [host]` | **goal** | Make the remote a Claude environment-twin. *Composes* `sync` (content) + `~/.claude` provisioning. Now the provisioning core that `install` wraps. |
 | `bridge agent <host>` | **goal** | Deploy a working Claude *agent* on the remote with a brief. *Composes* `claude` (env-twin) + tmux launch + status-doc + heartbeat. See F007. |
-
-`bridge <host>` with a bare hostname defaults to the **control** bridge (the common interactive case). `sync` / `claude` / `agent` are explicit named intents.
 
 **Two design contracts that run through everything:**
 - **Same-relative-path:** the remote path always matches the local path absolutely (`/Users/oblinger/ob/kmr/` ↔ same on remote). Preserves wiki-links, absolute-path references, `~/ob/...`-baked tooling, and Claude's path-keyed session lookup.
@@ -73,22 +108,24 @@ The helpers live at `~/.claude/skills/bridge/`: `syncthing-helper.py` (sync mech
 
 ---
 
-# Control bridge — `bridge mux <host>`
+# Control bridge — `bridge tmux <host>`
 
-Drive a remote machine *as if it were a local box* — sustained interactive work, FDA-bearing commands, multiplexer hand-off — via a tmux-on-this-side ⇄ multiplexer-on-the-other-side bridge.
+**One command does all of this:** `~/.claude/skills/bridge/bridge tmux <host>` (F279 — renamed from `bridge mux`). It automates the whole setup below — Aqua-launched server, the on-screen viewer window, the symmetric `bridge-<host>` sessions, the capability check — and refuses to restart a server with busy panes (`--force` overrides; `--viewer` only re-throws the viewer window). The manual recipe is kept for background and troubleshooting; do **not** hand-run it when the dispatcher works.
 
-Key insight: **the remote multiplexer inherits TCC from whatever launches it.** If the user starts tmux/screen from a Terminal app with Full Disk Access, the multiplexer server has FDA, and every command in its panes inherits FDA — even when the agent attaches via SSH (which itself has no FDA).
+Drive a remote machine *as if it were a local box* — sustained interactive work, FDA-bearing commands, multiplexer hand-off — via a tmux-on-this-side ⇄ tmux-on-the-other-side bridge.
+
+Key insight: **the remote multiplexer inherits TCC from whatever launches it.** If tmux starts from a Terminal app with Full Disk Access, the tmux server has FDA, and every command in its panes inherits FDA — even when the agent attaches via SSH (which itself has no FDA). The dispatcher achieves this headlessly: it writes a `.command` to the remote and `open`s it over ssh, which launches Terminal **in the remote's Aqua session** — that window doubles as the user-glanceable viewer of everything the agent runs.
 
 ```
-This Mac:                          Remote host:
-┌─ ctrl box2 (tmux) ──────────────────────── ssh ─────────────────────────► tmux/screen `work` session
-│  agent drives via ctrl box2 "cmd"        FDA inherited from Terminal.app launch
-└─ outbox2 reads back stdout            commands run inside have FDA
+This Mac:                                   Remote host:
+┌─ tmux session bridge-<host> ──── ssh ────► tmux session bridge-<host>
+│  drive: tmux send-keys -t bridge-<host>     server launched by Terminal.app (Aqua)
+└─ read:  tmux capture-pane -t bridge-<host>  → panes have FDA; window visible on remote screen
 ```
 
-The agent uses `ctrl box2` (or any free boxN slot — keep `box` for general local work, reserve box2+ for named remotes).
+Legacy note: the pre-F279 pattern (`ctrl box2` + remote session `work`) is retired — the dedicated `bridge-<host>` local session replaces boxN slots for remote driving.
 
-### Setup recipe
+### Setup recipe (manual background — the dispatcher automates this)
 
 **Step 1 — confirm SSH key-auth works.**
 ```
@@ -126,11 +163,11 @@ Persists on detach (`Ctrl-B D` tmux, `Ctrl-A D` screen).
 
 **Step 5b — grant TCC to that Terminal** (one-time, remote's System Settings → Privacy & Security): **Full Disk Access**, **Screen Recording** (for `screen.py grab`), and **Accessibility** (for `screen.py` click/type). Quit & reopen Terminal after granting so the server inherits them. Skip these and the bridge silently degrades to file-only.
 
-**Step 6 — attach from the local box.**
+**Step 6 — attach from the local side.**
 ```
-ctrl box2 "ssh -t oblinger@<host>.local 'tmux attach -t work'"     # or 'screen -x work'
+tmux new-session -d -s bridge-<host> "ssh -t oblinger@<host>.local 'tmux attach -t bridge-<host>'"
 ```
-From here every `ctrl box2 "cmd"` runs inside the remote pane with full FDA; `ctrl outbox2` reads back stdout.
+From here `tmux send-keys -t bridge-<host> "<cmd>" Enter` runs inside the remote pane with full FDA; `tmux capture-pane -t bridge-<host> -p` reads back.
 
 **Step 7 — VERIFY the bridge has the capabilities you expect — at setup AND cheaply at each (re)connect.** A bridge that *looks* up but silently lacks GUI context is the exact failure this section exists to prevent, so **test, don't assume**:
 ```

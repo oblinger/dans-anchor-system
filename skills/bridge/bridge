@@ -1,0 +1,302 @@
+#!/bin/bash
+# bridge — the packaged bridge dispatcher (SKA F279).
+#
+# Agents invoke this by full path (~/.claude/skills/bridge/bridge) — it rides
+# the skills repo, so it exists on any provisioned machine. Never improvise
+# raw ssh for remote-control work; every bridge operation is a verb here.
+#
+# Verbs:
+#   bridge tmux <host> [--session S] [--force] [--viewer]
+#       Flagship connect. Ensures (a) a tmux session on the remote, launched
+#       in a Terminal window on the REMOTE'S OWN SCREEN (the glanceable
+#       viewer, and the TCC-blessed context that gives panes FDA / Screen
+#       Recording / Accessibility), and (b) a LOCAL tmux session ssh-attached
+#       to it. Session name defaults to bridge-<host> on BOTH sides.
+#       Drive it:  tmux send-keys -t bridge-<host> "<cmd>" Enter
+#       Read it:   tmux capture-pane -t bridge-<host> -p
+#   bridge install <host>      Idempotent converge — "make it so." Env files
+#       (claude-provision), launchd-durable Syncthing on the remote, provision
+#       stamp. Re-run any time; `refresh` is an alias.
+#   bridge sync <host>         Verify/revive the Syncthing sync (status now;
+#       full share creation stays in syncthing-helper.py).
+#   bridge skills <host>       Ensure the remote's ~/.claude/skills tracks the
+#       skills repo named in config (vault-synced copy preferred, clone else).
+#   bridge doctor <host>       Read-only deep diagnosis. Never mutates.
+#
+# A sub-second PREFLIGHT runs automatically before every verb: local checks
+# always (~10ms), one remote ping only when a warm ControlMaster socket
+# exists. All bridge ssh uses ControlPersist, so sockets stay warm.
+
+set -u
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+CONFIG_DIR="$HOME/.config/bridge"
+STATE_DIR="$CONFIG_DIR/state"
+mkdir -p "$STATE_DIR"
+STAMP_MAX_AGE_DAYS=14
+
+VERB="${1:-help}"; shift || true
+HOST="${1:-}"; [ $# -gt 0 ] && shift
+SESSION=""
+MODE="ensure"
+for arg in "$@"; do
+  case "$arg" in
+    --session) : ;;             # value captured next loop via flag
+    --session=*) SESSION="${arg#*=}" ;;
+    --viewer) MODE="viewer" ;;
+    --force)  MODE="force" ;;
+    *) if [ -z "$SESSION" ] && [ "${PREV:-}" = "--session" ]; then SESSION="$arg"; fi ;;
+  esac
+  PREV="$arg"
+done
+
+say()  { printf '%s\n' "$*"; }
+fail() { printf 'FAIL  %s\n' "$*" >&2; exit 1; }
+
+require_host() { [ -n "$HOST" ] || fail "usage: bridge $VERB <host> [options]"; }
+
+resolve_target() {
+  case "$HOST" in *.local|*.*) TARGET="$HOST" ;; *) TARGET="$HOST.local" ;; esac
+  CTL="$STATE_DIR/cm-$TARGET.sock"
+  SSH=(ssh -o BatchMode=yes -o ConnectTimeout=8
+       -o ControlMaster=auto -o "ControlPath=$CTL" -o ControlPersist=600
+       "$USER@$TARGET")
+  [ -z "$SESSION" ] && SESSION="bridge-${HOST%%.*}"
+  LOCAL_SESSION="bridge-${HOST%%.*}"
+  STAMP_CACHE="$STATE_DIR/stamp-$TARGET"
+}
+
+# ---------------------------------------------------------------- preflight
+preflight() {
+  local warn=0
+  [ -f "$CONFIG_DIR/config.yaml" ] || { say "PRE   ⚠ no $CONFIG_DIR/config.yaml"; warn=1; }
+  # stamp age from local cache (written by install / refreshed by doctor)
+  if [ -f "$STAMP_CACHE" ]; then
+    local age_days=$(( ( $(date +%s) - $(stat -f %m "$STAMP_CACHE") ) / 86400 ))
+    if [ "$age_days" -gt "$STAMP_MAX_AGE_DAYS" ]; then
+      say "PRE   ⚠ provision stamp ${age_days}d old — run: bridge install $HOST"; warn=1
+    fi
+  else
+    [ "$VERB" != "install" ] && { say "PRE   ⚠ never installed — run: bridge install $HOST"; warn=1; }
+  fi
+  # remote ping only over a warm socket (fast); cold socket = skip silently
+  if ssh -o "ControlPath=$CTL" -O check "$USER@$TARGET" 2>/dev/null; then
+    "${SSH[@]}" "tmux has-session -t $SESSION 2>/dev/null" \
+      || { [ "$VERB" != "tmux" ] && say "PRE   ⚠ remote session '$SESSION' absent — run: bridge tmux $HOST"; warn=1; }
+  fi
+  [ "$warn" = 0 ] && say "PRE   ok"
+  return 0
+}
+
+remote_tmux_bin() {
+  TMUX_BIN=$("${SSH[@]}" 'zsh -lc "which tmux" 2>/dev/null' | tail -1)
+  case "$TMUX_BIN" in /*) : ;; *) fail "tmux not found on $TARGET (install it, or use screen — SKILL.md Step 4)";; esac
+}
+
+open_command() {  # $1 = body — write + open a .command in the remote Aqua session
+  local f="/tmp/bridge-$SESSION.command"
+  "${SSH[@]}" "cat > $f && chmod +x $f && open $f" <<EOF
+#!/bin/bash
+# written by bridge (F279) — safe to delete
+$1
+EOF
+}
+
+# ---------------------------------------------------------------- tmux verb
+cmd_tmux() {
+  require_host; resolve_target; preflight
+  "${SSH[@]}" 'true' 2>/dev/null || fail "reach — ssh key-auth to $TARGET failed"
+  say "PASS  reach   $TARGET"
+  local console_user
+  console_user=$("${SSH[@]}" 'stat -f %Su /dev/console' 2>/dev/null)
+  { [ -n "$console_user" ] && [ "$console_user" != "root" ]; } \
+    || fail "gui — no user logged into $HOST's console; the viewer window cannot open"
+  say "PASS  gui     console user: $console_user"
+  remote_tmux_bin
+  say "PASS  tmux    $TMUX_BIN"
+
+  # Aqua-launched server? If the server exists but was SSH-launched, panes
+  # have no window-server access — it must be restarted from Terminal.
+  local have_server aqua
+  have_server=$("${SSH[@]}" "tmux ls >/dev/null 2>&1 && echo yes || echo no")
+  aqua=$("${SSH[@]}" "tmux show-environment -g 2>/dev/null" | grep -c 'TERM_PROGRAM=Apple_Terminal' || true)
+
+  if [ "$have_server" = "yes" ] && [ "$aqua" -ge 1 ] && [ "$MODE" != "force" ]; then
+    # good server — ensure our session exists + a viewer window shows it
+    if ! "${SSH[@]}" "tmux has-session -t $SESSION 2>/dev/null"; then
+      "${SSH[@]}" "$TMUX_BIN new -d -s $SESSION"
+    fi
+    say "....  opening viewer window on $HOST's display"
+    open_command "exec $TMUX_BIN attach -t $SESSION"
+  else
+    if [ "$have_server" = "yes" ]; then
+      local busy
+      busy=$("${SSH[@]}" "tmux list-panes -a -F '#{session_name}:#{window_index} #{pane_current_command}' 2>/dev/null" \
+             | awk '$2 !~ /^(zsh|bash|sh|-zsh|-bash)$/')
+      if [ -n "$busy" ] && [ "$MODE" != "force" ]; then
+        fail "busy panes — refusing to restart the SSH-launched server (--force to override):
+$busy"
+      fi
+    fi
+    say "....  (re)launching tmux server from $HOST's Aqua Terminal"
+    open_command "$TMUX_BIN kill-server 2>/dev/null
+sleep 1
+exec $TMUX_BIN new -A -s $SESSION"
+    sleep 4
+  fi
+
+  say "....  waiting for remote session '$SESSION'"
+  local ok=no i
+  for i in $(seq 1 15); do
+    "${SSH[@]}" "tmux has-session -t $SESSION 2>/dev/null" && { ok=yes; break; }
+    sleep 2
+  done
+  [ "$ok" = "yes" ] || fail "remote session '$SESSION' did not come up — check $HOST's screen"
+  aqua=$("${SSH[@]}" "tmux show-environment -g 2>/dev/null" | grep -c 'TERM_PROGRAM=Apple_Terminal' || true)
+  [ "$aqua" -ge 1 ] && say "PASS  launch  Aqua (Terminal) context" \
+                    || say "WARN  launch  server not Aqua-launched — capabilities will be degraded"
+
+  # local twin session, ssh-attached
+  if tmux has-session -t "$LOCAL_SESSION" 2>/dev/null; then
+    say "PASS  local   session '$LOCAL_SESSION' already up"
+  else
+    tmux new-session -d -s "$LOCAL_SESSION" \
+      "ssh -t -o ControlMaster=auto -o 'ControlPath=$CTL' -o ControlPersist=600 $USER@$TARGET 'tmux attach -t $SESSION'"
+    say "PASS  local   session '$LOCAL_SESSION' created (ssh-attached)"
+  fi
+
+  # capability check (screen-check probes inside the mux server)
+  "$SCRIPT_DIR/screen-check.sh" "$HOST" "$SESSION" || {
+    say "WARN  capabilities incomplete — if launch is Aqua, grant Terminal on $HOST:"
+    say "      System Settings → Privacy & Security → Full Disk Access + Screen Recording + Accessibility,"
+    say "      then quit & reopen Terminal there and re-run: bridge tmux $HOST"
+  }
+
+  say ""
+  say "Viewer  : Terminal window on $HOST's screen, attached to '$SESSION'"
+  say "Drive   : tmux send-keys -t $LOCAL_SESSION \"<cmd>\" Enter"
+  say "Read    : tmux capture-pane -t $LOCAL_SESSION -p"
+}
+
+# ------------------------------------------------------------- install verb
+cmd_install() {
+  require_host; resolve_target; preflight
+  say "== bridge install $HOST — idempotent converge =="
+  # 1. env files (claude-provision: ~/.claude, ~/.config includes, bin utils)
+  python3 "$SCRIPT_DIR/claude-provision.py" apply --host "$TARGET" || fail "claude-provision apply failed"
+  # 2. skills repo wiring
+  cmd_skills_inner
+  # 3. launchd-durable Syncthing on the remote (F279 Q2)
+  local st_bin
+  st_bin=$("${SSH[@]}" 'zsh -lc "which syncthing" 2>/dev/null; for p in ~/bin/syncthing /opt/homebrew/bin/syncthing /usr/local/bin/syncthing; do [ -x "$p" ] && { echo "$p"; break; }; done' | grep '^/' | tail -1)
+  case "$st_bin" in
+    /*)
+      "${SSH[@]}" "mkdir -p ~/Library/LaunchAgents && cat > ~/Library/LaunchAgents/net.syncthing.syncthing.plist" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>Label</key><string>net.syncthing.syncthing</string>
+  <key>ProgramArguments</key><array>
+    <string>$st_bin</string><string>serve</string><string>--no-browser</string>
+  </array>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+</dict></plist>
+EOF
+      # bootstrap (idempotent: bootout first, ignore failures), only if not already running under launchd
+      "${SSH[@]}" 'UID_N=$(id -u); launchctl bootout gui/$UID_N/net.syncthing.syncthing 2>/dev/null; pkill -x syncthing 2>/dev/null; sleep 1; launchctl bootstrap gui/$UID_N ~/Library/LaunchAgents/net.syncthing.syncthing.plist && echo LAUNCHD-OK'
+      say "PASS  syncd   launchd agent installed (KeepAlive, RunAtLoad)"
+      ;;
+    *) say "WARN  syncd   syncthing not found on $TARGET — sync bridge unavailable" ;;
+  esac
+  # 4. provision stamp — remote record + local cache (preflight reads the cache)
+  "${SSH[@]}" "mkdir -p ~/.config/bridge && date -u +%Y-%m-%dT%H:%M:%SZ > ~/.config/bridge/stamp"
+  date -u +%Y-%m-%dT%H:%M:%SZ > "$STAMP_CACHE"
+  say "PASS  stamp   provision stamp written (remote + local cache)"
+  say "== install complete — run: bridge doctor $HOST for the full read-only audit =="
+}
+
+# -------------------------------------------------------------- skills verb
+cmd_skills_inner() {
+  # Repo-pull skills (F279 Q1): config names the repo; bridge stays generic.
+  #   skills_repo:
+  #     path: <path that exists on both machines — e.g. the vault-synced repo>
+  #     url:  <git url, used to clone when path is absent on the remote>
+  local path url
+  path=$(python3 - <<'EOF'
+import yaml, pathlib
+cfg = yaml.safe_load(open(pathlib.Path.home() / ".config/bridge/config.yaml")) or {}
+sr = cfg.get("skills_repo", {})
+print(sr.get("path", ""))
+print(sr.get("url", ""))
+EOF
+)
+  url=$(echo "$path" | sed -n 2p); path=$(echo "$path" | sed -n 1p)
+  if [ -z "$path" ]; then
+    say "WARN  skills  no skills_repo in config.yaml — skipping repo wiring (rsync copy from claude-provision still applies)"
+    return 0
+  fi
+  local rpath="${path/#$HOME/\$HOME}"
+  if "${SSH[@]}" "test -d \"$rpath/skills\""; then
+    "${SSH[@]}" "if [ ! -L ~/.claude/skills ] || [ \"\$(readlink ~/.claude/skills)\" != \"$rpath/skills\" ]; then rm -rf ~/.claude/skills && ln -s \"$rpath/skills\" ~/.claude/skills; fi && echo SKILLS-LINKED"
+    say "PASS  skills  ~/.claude/skills → $rpath/skills (repo-synced)"
+  elif [ -n "$url" ]; then
+    "${SSH[@]}" "git clone \"$url\" \"$rpath\" && rm -rf ~/.claude/skills && ln -s \"$rpath/skills\" ~/.claude/skills && echo SKILLS-CLONED" \
+      && say "PASS  skills  cloned $url → $rpath, linked" \
+      || say "WARN  skills  clone failed (no git auth on remote?) — rsync copy from claude-provision still applies"
+  else
+    say "WARN  skills  repo path absent on remote and no url configured — rsync copy still applies"
+  fi
+}
+
+cmd_skills() { require_host; resolve_target; preflight; cmd_skills_inner; }
+
+# ---------------------------------------------------------------- sync verb
+cmd_sync() {
+  require_host; resolve_target; preflight
+  python3 "$SCRIPT_DIR/syncthing-helper.py" status --host "$TARGET"
+}
+
+# -------------------------------------------------------------- doctor verb
+cmd_doctor() {
+  require_host; resolve_target
+  say "== bridge doctor $HOST — read-only =="
+  local pass=0 warnc=0
+  check() { # $1 label, $2 ok(yes/no), $3 detail
+    if [ "$2" = "yes" ]; then say "  PASS  $1  $3"; pass=$((pass+1));
+    else say "  FAIL  $1  $3"; warnc=$((warnc+1)); fi
+  }
+  "${SSH[@]}" 'true' 2>/dev/null && check reach yes "ssh key-auth ($TARGET)" || { check reach no "ssh unreachable"; say "== doctor: unreachable =="; return 1; }
+  local aqua sess stamp ctrl_ok syncd
+  aqua=$("${SSH[@]}" "tmux show-environment -g 2>/dev/null" | grep -c 'TERM_PROGRAM=Apple_Terminal' || true)
+  [ "$aqua" -ge 1 ] && check launch yes "tmux server Aqua-launched" || check launch no "server SSH-launched or absent — run: bridge tmux $HOST"
+  sess=$("${SSH[@]}" "tmux ls 2>/dev/null" | tr '\n' ' ')
+  [ -n "$sess" ] && check mux yes "sessions: $sess" || check mux no "no tmux sessions"
+  "$SCRIPT_DIR/screen-check.sh" "$HOST" "$SESSION" >/dev/null 2>&1 \
+    && check tcc yes "FDA + screen grab OK inside mux server" \
+    || check tcc no "capabilities incomplete — see: bridge tmux $HOST output for the grant walk"
+  syncd=$("${SSH[@]}" "pgrep -x syncthing >/dev/null && echo yes || echo no")
+  check syncd "$syncd" "syncthing daemon on remote"
+  "${SSH[@]}" 'launchctl print gui/$(id -u)/net.syncthing.syncthing >/dev/null 2>&1' \
+    && check launchd yes "syncthing under launchd (survives reboot)" \
+    || check launchd no "syncthing not launchd-managed — run: bridge install $HOST"
+  stamp=$("${SSH[@]}" "cat ~/.config/bridge/stamp 2>/dev/null")
+  [ -n "$stamp" ] && check stamp yes "provisioned $stamp" || check stamp no "never installed — run: bridge install $HOST"
+  ctrl_ok=$("${SSH[@]}" "test -x ~/bin/ctrl && echo yes || echo no")
+  check ctrl "$ctrl_ok" "~/bin/ctrl on remote"
+  tmux has-session -t "$LOCAL_SESSION" 2>/dev/null \
+    && check local yes "local session '$LOCAL_SESSION' up" \
+    || check local no "no local session — run: bridge tmux $HOST"
+  say "== doctor: $pass pass, $warnc fail =="
+  [ "$warnc" = 0 ]
+}
+
+# ------------------------------------------------------------------- verbs
+case "$VERB" in
+  tmux)             cmd_tmux ;;
+  install|refresh)  cmd_install ;;
+  skills)           cmd_skills ;;
+  sync)             cmd_sync ;;
+  doctor)           cmd_doctor ;;
+  help|--help|-h)   sed -n '2,30p' "$0" | sed 's/^# \{0,1\}//' ;;
+  *) fail "unknown verb '$VERB' — verbs: tmux, install (alias refresh), skills, sync, doctor" ;;
+esac
