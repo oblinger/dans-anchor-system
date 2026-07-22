@@ -1141,7 +1141,7 @@ def _validate_ask_format_body(body):
             "bullets, each on its own line (e.g. `- **(A)** ...`); found "
             f"{len(options)}. See [[DAS ask-format]]."
         )
-    rec_re = re.compile(r"^-\s+\*\*Recommendation:\*\*", re.MULTILINE)
+    rec_re = re.compile(r"^\s*-\s+\*\*Recommendation:\*\*", re.MULTILINE)  # `^\s*-`: a standalone Backlog Q-row (F275) carries Recommendation as an indented sub-bullet
     if not rec_re.search(body):
         raise be.BacklogEditError(
             "define refused: ask-format requires a `- **Recommendation:**` "
@@ -1149,14 +1149,57 @@ def _validate_ask_format_body(body):
         )
 
 
+def _run_question_gates(q_num, body, why_ask, require_on_answer=False):
+    """Shared write-time question-gate sequence, single-sourced for both the
+    doc-scoped `Q<n> define` (_q_define_core) and the standalone Backlog `Q<n>`
+    row (F275 M2). In order: ask-format (≥2 options + Recommendation);
+    optionally the F275 `On answer:` clause (hard-required on standalone Q
+    rows, M3); the F270 Damage field; and — for a surfacing category — the
+    F257 who-should-decide gate. Returns (body, auto_resolve, damage_cat,
+    damage_why); `body` may gain a `· *why-ask:*` annotation. Raises
+    BacklogEditError on any refusal. `q_num` is the display number for
+    messages (the row/Q number)."""
+    _validate_ask_format_body(body)
+    if require_on_answer and not _ON_ANSWER_RE.search(body):
+        raise be.BacklogEditError(
+            f"define refused: a standalone Q row (Q{q_num}) requires a "
+            "`- **On answer:**` line stating the concrete consequence of each "
+            "answer (F275 M3) — e.g. `- **On answer:** (A) → <do X>; (B) → "
+            "<do Y>`. An agent that cannot state what changes has a musing, "
+            "not a question. See [[DAS ask-format]]."
+        )
+    # F270 — the Damage field decides surface vs auto-resolve. waste/priority
+    # never reach the user: they skip the F257 why-ask gate (which would refuse
+    # a Lean-without-why-ask) and are resolved to the agent's lean by the caller.
+    damage_cat, damage_why = be.parse_damage(body)
+    if damage_cat is None:
+        sys.stderr.write(
+            f"⚠ Q{q_num} has no `- **Damage:**` line, so it was SURFACED by default.\n"
+            "  → Re-run this same define with a Damage line appended to the Q body — the\n"
+            "    first word is the category, then one sentence on what breaks if you guess wrong:\n"
+            "      • waste / priority                        → auto-resolved for you, never reaches the user\n"
+            "      • irreversible / locking / taste / other  → surfaces to the user\n"
+            "    e.g.  `- **Damage:** waste — a wrong pick just re-runs one step`\n"
+            "    A waste/priority re-run replaces this surfaced Q and auto-resolves it.\n"
+            "  See [[DAS ask-format]] § The Damage field.\n"
+        )
+    auto_resolve = damage_cat in be.DAMAGE_AUTO_RESOLVE
+    if not auto_resolve:
+        # Surface: the Damage line IS the justification (subsumes --why-ask).
+        gate_why = why_ask or (f"{damage_cat}: {damage_why}" if damage_cat else None)
+        body = be.question_mint_gate(q_num, body, gate_why)  # F257 who-should-decide gate
+    return body, auto_resolve, damage_cat, damage_why
+
+
 # ------------------------------------------------------------------
 # v2 — Backlog target (F/T labels)
 
 
-_MINT_PLACEHOLDER_RE = re.compile(r"\*\*[FTC]\+(\s+—)")  # F250#8: C+ was omitted → `C+ define` never rewrote the placeholder
+_MINT_PLACEHOLDER_RE = re.compile(r"\*\*[FTCQ]\+(\s+—)")  # F250#8: C+ was omitted → `C+ define` never rewrote the placeholder; F275: Q+ for standalone question rows
+_ON_ANSWER_RE = re.compile(r"^\s*-\s+\*\*On answer:\*\*", re.MULTILINE)  # F275 M3 — the resumption clause, hard-required on standalone Q rows
 
 
-def _v2_row_define(slug, backlog_path, label, args, minted=False):
+def _v2_row_define(slug, backlog_path, label, args, minted=False, raw_override=None):
     """`Backlog <F|T> define` — create-or-replace the whole row. The body IS
     the complete row markdown (`- **<label> — Title** [Status] — body`),
     optionally followed by indented sub-bullets. Routes through
@@ -1167,8 +1210,12 @@ def _v2_row_define(slug, backlog_path, label, args, minted=False):
     id and the caller's body may still carry the `F+`/`T+` placeholder (e.g.
     `- **F+ — Title** [Status]`) — the first occurrence is swapped for the
     real label before parsing. A body that already names the minted label
-    directly (no placeholder) is left alone (no double-substitution)."""
-    raw = read_body(args)
+    directly (no placeholder) is left alone (no double-substitution).
+
+    `raw_override` (F275) lets a caller that already read+transformed the body
+    (the standalone-Q path, which runs the question gates first) hand the final
+    markdown in directly, since stdin can only be read once."""
+    raw = raw_override if raw_override is not None else read_body(args)
     if not raw.strip():
         raise be.BacklogEditError(
             "define requires a body via stdin or --body — the complete row "
@@ -1316,6 +1363,60 @@ def _v2_row(slug, backlog_path, label, verb, args, minted=False):
     raise be.BacklogEditError(f"unknown verb {verb!r} for a Backlog row")
 
 
+def _q_row_to_done(body, resolved_note):
+    """F275 — rewrite a standalone Q-row's first line so an auto-resolved
+    (waste/priority) row lands `[Done]` with the resolution appended to its
+    body, mirroring `_v2_row_resolve`'s note shape. The option/Recommendation/
+    On-answer sub-bullets ride through unchanged (audit trail)."""
+    lines = body.splitlines()
+    today = date.today().isoformat()
+    first = re.sub(r"\[[^\]]+\]", "[Done]", lines[0], count=1)
+    lines[0] = first.rstrip() + f" — resolved {today}: {resolved_note}"
+    return "\n".join(lines)
+
+
+def _v2_backlog_q_define(slug, backlog_path, label, args, minted=False):
+    """`Backlog Q<n> define` (F275 M2) — mint a feature-less standalone
+    question row: a sibling to F/T rows, but the row body IS the question, so
+    it runs the same ask-format + F270 Damage + F257 gates as a doc-scoped Q,
+    PLUS the hard-required F275 `On answer:` clause (M3). A waste/priority
+    Damage auto-resolves to the agent's lean and lands `[Done]` (never
+    surfaces); everything else lands `[Questions]` and renders under
+    `## Questions` via the mechanical render."""
+    raw = read_body(args)
+    if not raw.strip():
+        raise be.BacklogEditError(
+            "define requires a body via stdin or --body — the complete Q-row "
+            f"markdown (`- **{label} — <question>?** [Questions] — <context>`) "
+            "followed by indented `- **(A)**`/`- **(B)**` options, a "
+            "`- **Recommendation:**`, a `- **Damage:**`, and a `- **On answer:**`."
+        )
+    # Swap the `Q+` placeholder to the minted id up front so the gates and the
+    # row parser both see the real label (matches _v2_row_define's minted swap).
+    if minted:
+        raw = _MINT_PLACEHOLDER_RE.sub(f"**{label}\\1", raw, count=1)
+    q_num = int(re.match(r"^Q(\d+)$", label).group(1))
+    gated, auto_resolve, damage_cat, damage_why = _run_question_gates(
+        q_num, raw, getattr(args, "why_ask", None), require_on_answer=True)
+    choice = None
+    if auto_resolve:
+        choice = be.leaned_choice(gated)
+        note = f"auto-resolved ({damage_cat})" + (f" — {damage_why}" if damage_why else "")
+        gated = _q_row_to_done(gated, note)
+        args.horizon = "Done"
+    # minted=False: the placeholder swap already happened above; pass the gated
+    # body straight through (stdin was already consumed by read_body).
+    result = _v2_row_define(slug, backlog_path, label, args, minted=False,
+                            raw_override=gated)
+    if auto_resolve:
+        print(
+            f"⚑ {label} auto-resolved — damage was **{damage_cat}**, picked "
+            f"{choice}; not surfaced (waste/priority never reach the user). "
+            "Proceed with that choice."
+        )
+    return result
+
+
 # ------------------------------------------------------------------
 # v2 — Q labels on any doc
 
@@ -1337,27 +1438,10 @@ def _q_define_core(slug, feature_path, q_num, body, why_ask=None):
         first = re.sub(r"^(\s*)\*\*Q\+(\s+—)", rf"\g<1>**Q{q_num}\g<2>", first)
         first = re.sub(r"\s+\^[\w-]+\s*$", "", first)
         body = first + (sep + rest if sep else "")
-    _validate_ask_format_body(body)
-    # F270 — the Damage field decides surface vs auto-resolve. waste/priority
-    # never reach the user: they skip the F257 why-ask gate (which would refuse a
-    # Lean-without-why-ask) and are resolved in place after the write, below.
-    damage_cat, damage_why = be.parse_damage(body)
-    if damage_cat is None:
-        sys.stderr.write(
-            f"⚠ Q{q_num} has no `- **Damage:**` line, so it was SURFACED by default.\n"
-            "  → Re-run this same define with a Damage line appended to the Q body — the\n"
-            "    first word is the category, then one sentence on what breaks if you guess wrong:\n"
-            "      • waste / priority                        → auto-resolved for you, never reaches the user\n"
-            "      • irreversible / locking / taste / other  → surfaces to the user\n"
-            "    e.g.  `- **Damage:** waste — a wrong pick just re-runs one step`\n"
-            "    A waste/priority re-run replaces this surfaced Q and auto-resolves it.\n"
-            "  See [[DAS ask-format]] § The Damage field.\n"
-        )
-    auto_resolve = damage_cat in be.DAMAGE_AUTO_RESOLVE
-    if not auto_resolve:
-        # Surface: the Damage line IS the justification (subsumes --why-ask).
-        gate_why = why_ask or (f"{damage_cat}: {damage_why}" if damage_cat else None)
-        body = be.question_mint_gate(q_num, body, gate_why)  # F257 who-should-decide gate
+    # Doc-scoped Q: no `On answer:` requirement yet (F275 M3 is standalone-row-
+    # only until proven; "once proven, every surfaced Q" is the future).
+    body, auto_resolve, damage_cat, damage_why = _run_question_gates(
+        q_num, body, why_ask, require_on_answer=False)
     text = feature_path.read_text(encoding="utf-8")
     container_id = _v2_container_id_for_doc(feature_path)
     lines = text.splitlines()
@@ -1838,6 +1922,18 @@ def cmd_v2(slug, anchor_path, args):
         )
     if args.verb == "set" and doc_kind != "backlog":
         raise be.BacklogEditError("set is Backlog-only — Q/V items use define")
+    if doc_kind == "backlog" and letters == "Q":
+        # F275 M2 — standalone feature-less question row (the row body IS the
+        # question). define runs the ask-format/Damage/On-answer gates;
+        # set/resolve/remove reuse the ordinary row machinery.
+        if args.verb == "define":
+            if num == "+":
+                mint_num = be.mint_cross_file_id(doc_path, be.find_icebox(slug), "Q")
+                label = be.format_row_id("Q", mint_num)
+            else:
+                label = args.label
+            return _v2_backlog_q_define(slug, doc_path, label, args, minted=(num == "+"))
+        return _v2_row(slug, doc_path, args.label, args.verb, args)
     if doc_kind == "backlog" and letters in ("F", "T", "C"):
         if num == "+":
             mint_num = be.mint_cross_file_id(doc_path, be.find_icebox(slug), letters)
@@ -1855,7 +1951,8 @@ def cmd_v2(slug, anchor_path, args):
     where = "Backlog" if doc_kind == "backlog" else doc_path.name
     raise be.BacklogEditError(
         f"unknown query kind {args.label!r} for {where} — valid labels: "
-        f"F<n>/T<n>/C<n>/F+/T+/C+ on Backlog, Q<n>/V<n>/Q+/V+ on any other doc"
+        f"F<n>/T<n>/C<n>/Q<n>/F+/T+/C+/Q+ on Backlog (Q = standalone question "
+        f"row), Q<n>/V<n>/Q+/V+ on any other doc"
     )
 
 
