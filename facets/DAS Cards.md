@@ -1,89 +1,96 @@
 ---
-description: "cheat sheets and spaced-repetition flashcards for an anchor topic"
+description: "one cheat sheet plus its spaced-repetition summary and detail cards — one file per sheet"
 ---
 
 # DAS Cards
-Facet spec for the optional `{slug} Cards.md` page — a three-tier mix of cheat sheets and spaced-repetition flashcards that lets an anchor double as a study deck for its own topic.
+Facet spec for a `{slug} {topic}.md` study-card file — one cheat sheet together with the summary and detail cards distilled from it. One file per sheet, so a sheet and its flashcards live in the same place; the anchor page indexes the sheets, letting the anchor double as a study deck for its own topic.
 
 | -[[DAS Cards]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets\|FCT]] → [DAS Cards](hook://p/DAS%20Cards) |
 | --- | --- |
 | Related | [[DAS Brief]],  [[DAS Anchor Page]],  [[DAS Aspects]],  [[DAS Output]],   |
-| Examples | [[DOCPY Cheat Cards\|cheat-sheet-heavy example]],  [[TPM Core Cards\|summary+detail cards example]],   |
+| Examples | [[numpy bcast\|one topic — sheet + its summary & detail cards]],  [[numpy\|the anchor page that indexes the sheets]],   |
 | Rules | [[R-cards]],   |
 | ... | [[anchor-page]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Backlog]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Outputs]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
 
-**TLDR** — A `{slug} Cards.md` file (one per anchor, optional) holds three tiers of study material: bold-heading cheat sheets (reference, no SR), summary cards (the gist/rule), and detail cards (exceptions/gotchas). Requires an SR tag on line 1, `-?-` separators, 69-char line width, and `.` for in-card blank lines.
+**TLDR** — A study-card file (`{slug} {topic}.md`, one per cheat-sheet topic) holds three tiers of study material for *that one topic*: a bold-heading cheat sheet (reference, no SR), summary cards (the gist/rule), and detail cards (exceptions/gotchas). Requires an SR tag on line 1, `-?-` separators, 69-char card lines, and `.` for in-card blank lines. Keeping each sheet with its own cards in one file is the point — you study a topic and its flashcards from a single place.
 
-**Cardinality:** one per anchor — each anchor has at most one Cards file (`{slug} Cards.md`).
+**Cardinality:** one per topic — an anchor has as many card files as it has cheat-sheet topics (numpy → `numpy arrays`, `numpy bcast`, `numpy axes`, …), each a sheet with its own cards. The anchor page is the index over them.
 
-The `{slug} Cards.md` document contains cheat sheets and spaced repetition flashcards for a given topic. Its canonical path is `{slug} Docs/{slug} User/{slug} Cards.md` — it lives in the anchor folder or a subfolder dedicated to cards.
+Each file is named for its topic — `{slug} {topic}.md`, e.g. `numpy bcast.md` — and lives in the anchor folder (or a cards subfolder), linked from the anchor page's sheet index. The topic name in the filename matches the topic in the H1 backlink.
 
-**Working example:** [[CAE Cards]] — a real cards file (cheat sheets + summary + detail cards).
+**Working example:** [[numpy bcast]] — one topic (broadcasting): the sheet, two summary cards, and its detail cards, all in one file.
 
 # Document Structure
 
-A cards page (`{slug} Cards.md`) is one file. Its parts, top to bottom:
+A study-card file (`{slug} {topic}.md`) is one cheat sheet plus its cards. Its parts, top to bottom:
 
-- **SR tag** — a `#sr-tag` on the first line (required by the spaced-repetition plugin).
-- **H1** — `# {slug} Cards`, followed by the standard F060 dispatch-table placeholder.
-- **Cheat sheets** — `## **HEADING**` + grouped code-block reference content (not reviewed as cards).
-- **Summary cards** — SR cards (`title` / `-?-` / answer) teaching the unifying rule behind a cheat sheet.
-- **Detail cards** — SR cards for surprising exceptions / gotchas.
+- **SR tag(s)** — one or more `#sr-tag`s on the first line (required by the spaced-repetition plugin), e.g. `#numpy #omni`.
+- **H1 backlink** — `# [[{parent}]] {topic}` (the anchor page as a live backlink, then the topic), immediately followed by a one-line summary of the topic. A card file is a content leaf, so it takes this backlink H1 — **not** an anchor dispatch table.
+- **Cheat sheet** — one `## **HEADING**` + grouped code-block reference content (not reviewed as cards).
+- **Summary cards** — under `## Summary Cards`, SR cards (`title` / `-?-` / answer) teaching the unifying rule of *this* sheet.
+- **Detail cards** — under `## Detail Cards`, SR cards for *this* sheet's surprising exceptions / gotchas.
 
-The literal format of each part is given below; the three-tier model is detailed in § Three-Tier Structure.
+Each file carries exactly one cheat sheet; multiple topics mean multiple files, each with its own cards. The literal format of each part is given below; the three-tier model is detailed in § Three-Tier Structure.
 
 ## Formats
 
-Three kinds of entries — cheat sheets, summary cards, and detail cards:
+Three kinds of entries — one cheat sheet, then summary cards, then detail cards — all in the one topic file. Drawn from the worked example [[numpy bcast]]:
 
-**Cheat sheet** — reference only, not spaced repetition:
+**Cheat sheet** — reference only, not spaced repetition (one per file, at the top):
 
-## **`PYTHON STRING METHODS`**
+## **`BROADCASTING`**
 ```
-CASE:    lower  upper  capitalize  title
-STRIP:   strip  lstrip  rstrip
-SPLIT:   split  rsplit  splitlines  join
-SEARCH:  find  rfind  index  rindex  count
-TEST:    in  startswith  endswith
-MODIFY:  replace  zfill  center  ljust  rjust
-FORMAT:  f"..."  format  %
+RULE:    align shapes RIGHT-TO-LEFT; each dim pair must be
+         EQUAL, or one is 1 (missing dims count as 1)
+OUT:     each result dim = the max of the two
+
+(3,4) + (4,)    → (3,4)   ˹(4,) added to each row˺
+(3,4) + (3,1)   → (3,4)   ˹(3,1) added to each col˺
+(3,4) + (3,)    → ERROR   ˹3≠4, neither is 1˺
+
+ADD DIM: a[:, None]  ˹(3,) → (3,1)  a column˺
+         a[None, :]  ˹(3,) → (1,3)  a row˺
 ```
 
-**Summary card** — SR card for the gist/rule:
+**Summary card** — SR card for the gist/rule of that sheet:
 
-> 4 string case methods
+> The broadcasting rule
 > -?-
 > ```
-> "hELLo".lower()       → 'hello'
-> "hELLo".upper()       → 'HELLO'
-> "hELLo".capitalize()  → 'Hello'  ˹first up, rest low˺
-> "hELLo".title()       → 'Hello'  ˹each word capped˺
+> Align shapes right-to-left. Each dim pair must be EQUAL
+> or one is 1 (or missing). A size-1 dim stretches to fit;
+> each result dim is the max of the two.
 > ```
 
-**Detail card** — SR card for a surprising exception:
+**Detail card** — SR card for a surprising exception of that sheet:
 
-> strip() takes a character SET
+> (n,) is not (n,1) or (1,n)
 > -?-
-> `"_-ab-_".strip('_-')  → 'ab'`
-> Strips any char in the set, not the substring.
-> Order doesn't matter: `strip('-_')` is the same.
+> ```
+> a = np.array([1,2,3]);  a.shape → (3,)   ˹1D, neither˺
+> M = np.zeros((3,4))
+> M + a           → ERROR   ˹(3,4)+(3,): 4≠3˺
+> M + a[:, None]  → OK      ˹(3,4)+(3,1) stretches cols˺
+> ```
 
 ## File Layout and Formatting Rules
 
+The file, top to bottom (one topic):
+
 > `#sr-tag` — a spaced repetition tag (first line; required by the SR plugin)
 >
--[[{slug} Cards]]- \| \|` + standard separator)
+> `# [[{parent}]] {topic}` — H1 backlink to the anchor page + the topic name
+> one-line summary of the topic
 >
-> `## **CHEAT SHEET TOPIC A**`
+> `## **CHEAT SHEET HEADING**`
 > code block with grouped reference content
 >
-> `## **CHEAT SHEET TOPIC B**`
-> code block with grouped reference content
->
+> `## Summary Cards`
 > `Summary card title`
 > `-?-`
-> gist of a cheat sheet — the unifying principle
+> gist of the cheat sheet — the unifying principle
 >
+> `## Detail Cards`
 > `Detail: surprising behavior X`
 > `-?-`
 > one specific gotcha or exception
@@ -98,9 +105,9 @@ Current SR tags: `#flashcards` `#cv` `#ai` `#ml` `#ml2` `#dl` `#card` `#py-cheat
 
 ## Three-Tier Structure
 
-### 1. Cheat Sheets (top of file, not spaced repetition)
+### 1. Cheat Sheet (top of file, not spaced repetition)
 
-Plain reference material — not flashcards, not tested. Something you look at to understand a topic quickly. Each cheat sheet has a bold `## **HEADING**` and a code block that groups an interface or concept area into a scannable summary.
+Plain reference material — not flashcards, not tested. Something you look at to understand a topic quickly. The file's one cheat sheet has a bold `## **HEADING**` and a code block that groups an interface or concept area into a scannable summary. (An anchor with several topics has several files, one sheet each — not several sheets in one file.)
 
 ### 2. Summary Cards (spaced repetition)
 
@@ -121,4 +128,4 @@ Add cheat sheets as reference material is learned. Add summary and detail cards 
 
 # BRIEF
 
-*(Maintainer note — this file is the facet spec for `{slug} Cards.md`, not a cards file itself: edits here change the rule every cards page must satisfy, so never paste real flashcard content in, and cite the worked instance as [[CAE Cards]] rather than inlining a copy. Inclusion test: a rule belongs here only if a cards-page author would break their page by violating it; cross-cutting CAB rules go in their own facet spec. The SR tag list in § File Layout and Formatting Rules is consumed by the spaced-repetition plugin — add new tags there when they enter use, never silently.)*
+*(Maintainer note — this file is the facet spec for a `{slug} {topic}.md` study-card file, not a card file itself: edits here change the rule every card file must satisfy, so cite the worked instance [[numpy bcast]] rather than inlining a copy. The one-file-per-sheet model (each cheat sheet in its own file, named for the topic, carrying its own summary + detail cards) is load-bearing — the whole point is that a sheet and its flashcards live together and the anchor page indexes them; do not revert it to a single `{slug} Cards.md`. Inclusion test: a rule belongs here only if a card-file author would break their file by violating it; cross-cutting rules go in their own facet spec. The SR tag list in § File Layout and Formatting Rules is consumed by the spaced-repetition plugin — add new tags there when they enter use, never silently.)*
