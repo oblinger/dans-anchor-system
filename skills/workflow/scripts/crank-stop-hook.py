@@ -29,6 +29,7 @@ worklist): one transcript scan + at most one `state` call, well under a second.
 """
 import json
 import os
+import re
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -230,21 +231,37 @@ def _llm_spend_fire(cfg):
         pass
 
 
-def _queue_has_open_question(anchor_path):
-    """Coarse surfaced-check: does the anchor's backlog carry any open
-    `[Questions]` / `[User]` row? If so, stage-2 errs toward NOT blocking (the
-    ask is plausibly already recorded). Bounded to 3 dir levels for latency.
-    Fail-safe True (→ do not block) on any error."""
+_OPEN_Q_ROW_RE = re.compile(
+    r"^\s*-\s+\*\*([A-Za-z][\w.-]*)\s+—\s+(.+?)\*\*\s+\[([^\]]+)\]")
+
+
+def _queue_open_questions(anchor_path):
+    """F275 M1 — the anchor's open questions as a structured
+    `[(handle, header)]` list: every backlog row bracketed `[Questions]` /
+    `[N Questions]` / `[User]`, by its id + title. This is the pending-Q set the
+    cover-check matches the agent's ask against (upgrade from the coarse
+    exists-check). Includes F275 standalone `Q<n>` rows and feature/task rows
+    alike (the row's own handle + title). Bounded to 3 dir levels for latency;
+    each file read is guarded so one unreadable backlog never sinks the list."""
+    out = []
     try:
         base = Path(anchor_path)
         for pat in ("* Backlog.md", "*/* Backlog.md", "*/*/* Backlog.md"):
             for bl in base.glob(pat):
-                txt = bl.read_text(encoding="utf-8")
-                if "[Questions]" in txt or "[User]" in txt:
-                    return True
-        return False
+                try:
+                    lines = bl.read_text(encoding="utf-8").splitlines()
+                except OSError:
+                    continue
+                for line in lines:
+                    m = _OPEN_Q_ROW_RE.match(line)
+                    if not m:
+                        continue
+                    bracket = m.group(3).strip()
+                    if bracket == "User" or bracket.endswith(("Questions", "Question")):
+                        out.append((m.group(1), m.group(2).strip()))
     except (OSError, ValueError):
-        return True
+        return out
+    return out
 
 
 def _last_assistant_text(transcript_path):
@@ -266,32 +283,54 @@ def _last_assistant_text(transcript_path):
 
 
 def _llm_ask_check(payload, anchor, anchor_path):
-    """Stage-2 (F267): on a work-armed, clean-worklist stop, ask an LLM whether
-    the agent's final message is WAITING ON THE USER (a question / go / decision)
-    the worklist gate can't see because it was never recorded. ALWAYS logs a
-    verdict to llm-check.jsonl. Returns a block-reason (str) only in ENFORCE mode
-    when the agent is asking AND no open question is surfaced AND the global fire
-    budget is not spent (and spends one fire); otherwise None. INERT mode always
-    returns None. Recursion-guarded + fully fail-open — never breaks the stop."""
+    """Stage-2 (F267 + F275 M1 cover-check): on a work-armed, clean-worklist
+    stop, ask an LLM whether the agent's final message is WAITING ON THE USER
+    (a question / go / decision) AND — if so — whether an open question already
+    recorded in the queue COVERS that ask. ALWAYS logs a verdict to
+    llm-check.jsonl (so the cover-check's accuracy can be observed before it is
+    armed). Returns a block-reason (str) only in ENFORCE mode when the agent is
+    asking AND no open queue question covers it AND the global fire budget is
+    not spent (and spends one fire); otherwise None. INERT mode always returns
+    None. Recursion-guarded + fully fail-open — never breaks the stop.
+
+    F275 M1 upgrades the predicate from *exists* (any open [Questions] row gave
+    a free pass) to *covers* (the specific ask must be captured by a specific
+    open Q) — closing the loophole where one unrelated open Q silenced the gate.
+    Arming is unchanged: the cover-check ships behind the same conservative
+    mode/budget dial, dormant until the user re-arms it (F267 two-dial rollout)."""
     if os.environ.get(LLM_RECURSION_ENV):
         return None
     asking = False
     summary = ""
+    covered_by = "none"
     got_verdict = False
     try:
         msg = _last_assistant_text(payload.get("transcript_path", ""))
         if len(msg) < 15:
             return None
+        open_qs = _queue_open_questions(anchor_path)
+        if open_qs:
+            q_list = "\n".join(f"  {h} — {t[:120]}" for h, t in open_qs[:40])
+        else:
+            q_list = "  (none)"
         prompt = (
             "You are a strict classifier. An AI agent just wrote its FINAL "
-            "message before ending its turn. Decide whether it is WAITING ON "
-            "THE USER — it asks a question, requests approval / a decision / a "
-            "go-ahead, presents options for the user to pick, or says it is "
-            "holding / deferring / standing by on an action pending the user. "
-            "Answer false if it only reports completed work, states next steps "
-            "it will take itself, or offers optional help without blocking on "
-            'it. Respond with ONLY JSON: {"asking": true|false, "summary": '
-            "\"<the specific question/decision in <=15 words, or ''>\"}.\n\n"
+            "message before ending its turn, in a workspace that already has "
+            "these OPEN QUESTIONS recorded in its queue (handle — summary):\n"
+            + q_list + "\n\n"
+            "Decide two things about the agent's FINAL MESSAGE:\n"
+            "1. asking — is it WAITING ON THE USER? true if it asks a question, "
+            "requests approval / a decision / a go-ahead, presents options for "
+            "the user to pick, or says it is holding / deferring / standing by "
+            "on an action pending the user. false if it only reports completed "
+            "work, states next steps it will take itself, or offers optional "
+            "help without blocking on it.\n"
+            "2. covered_by — if asking, does one of the OPEN QUESTIONS above "
+            "already capture that SAME ask? Return that question's exact handle "
+            "if so; otherwise \"none\". If not asking, return \"none\".\n"
+            "Respond with ONLY JSON: {\"asking\": true|false, \"summary\": "
+            "\"<the specific ask in <=15 words, or ''>\", \"covered_by\": "
+            "\"<handle or none>\"}.\n\n"
             "AGENT FINAL MESSAGE:\n" + msg[:6000])
         env = {**os.environ, LLM_RECURSION_ENV: "1"}
         r = subprocess.run(["claude", "-p", prompt, "--model", LLM_MODEL],
@@ -299,38 +338,45 @@ def _llm_ask_check(payload, anchor, anchor_path):
                            env=env)
         out = (r.stdout or "").strip()
         if "```" in out or not out.startswith("{"):
-            import re
             mm = re.search(r"\{.*\}", out, re.S)
             if mm:
                 out = mm.group(0)
         verdict = json.loads(out)
         asking = bool(verdict.get("asking"))
         summary = str(verdict.get("summary", ""))[:200]
+        covered_by = str(verdict.get("covered_by", "none")).strip()[:80] or "none"
         got_verdict = True
         rec = {"ts": datetime.now(timezone.utc).isoformat(), "anchor": anchor,
-               "asking": asking, "summary": summary, "msg_excerpt": msg[:200]}
+               "asking": asking, "summary": summary, "covered_by": covered_by,
+               "open_q_count": len(open_qs), "msg_excerpt": msg[:200]}
         GATE_DIR.mkdir(parents=True, exist_ok=True)
         with open(LLM_CHECK_LOG, "a", encoding="utf-8") as fh:
             fh.write(json.dumps(rec) + "\n")
     except Exception:  # noqa: BLE001 — the check must never break the stop
         return None
-    # Enforce decision — only on a valid asking verdict; fail-safe = allow.
+    # Enforce decision — block only when the agent is asking AND no open queue
+    # question covers it. Fail-safe = allow (a `covered_by` naming any handle,
+    # or a non-asking verdict, never blocks).
     try:
         if not (got_verdict and asking):
             return None
+        if covered_by.lower() != "none":
+            return None  # an open Q already captures this ask — surfaced, don't block
         cfg = _llm_config()
         if cfg["mode"] != "enforce" or cfg["fired"] >= cfg["budget"]:
             return None
-        if _queue_has_open_question(anchor_path):
-            return None
         _llm_spend_fire(cfg)
         q = summary or "a question"
-        return ("stop-gate (F267): your final message asks the user something — "
-                "\"" + q + "\" — that is NOT recorded in the queue. Stopping with "
-                "a chat-only question strands the user. Record it via "
-                "`state --anchor . <doc> Q+ define` (or just take the action), "
-                "then stop. (This gate fires a limited number of times, then "
-                "allows — do not loop; if you cannot act, say why.)")
+        return ("stop-gate (F267/F275): your final message asks the user "
+                "something — \"" + q + "\" — that NO open question in the queue "
+                "covers. A chat-only ask strands the user. Mint it as a "
+                "standalone question row: `state --anchor . Backlog Q+ define` "
+                "with `- **(A)**`/`- **(B)**` options, a `- **Recommendation:**`, "
+                "a `- **Damage:**`, and a `- **On answer:**` line (or record it "
+                "in the relevant feature doc via `state ... Q+ define`) — then "
+                "re-state the ask in ONE dispatch line pointing at the queue. "
+                "(Bounded fires, then allows — do not loop; if you cannot act, "
+                "say why.)")
     except Exception:  # noqa: BLE001 — enforce must never break the stop
         return None
 
