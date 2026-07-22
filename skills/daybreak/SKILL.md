@@ -29,7 +29,7 @@ Every row is one thing Lumen does in the morning, in order. Detail follows below
 | **Stage** | Lift today's quick hits to the top of [[Quick]], above a blank line. Propose the set; add to it. |
 | **Week** | Put the ≥30-min items into today's `### <Day>` in this week's [[Weekly]] file, as checkboxes. |
 | **Runnable** | Name the Ready work that needs no user, offered as a single `'` (crank). |
-| **Ahead** | Read [[LUM Ahead]] (in Lumen's own folder); pull anything now due into the briefing's **Watching** section. |
+| **Ahead** | Read [[LUM Nudge]] (in Lumen's own folder); pull anything now due into the briefing's **Watching** section. |
 | **Write** | Put the briefing at the top of `~/ob/kmr/LUM Day.md` — the user reads it there, not in chat. |
 | **Close** | Write down anything deferred, then advance the watermark. In that order. |
 
@@ -68,9 +68,21 @@ Confirmation is **conversational, in the morning**: *"You asked me to email Sean
 
 **Time-sensitive exception.** If waiting would defeat the purpose, say so and flag it urgent rather than silently deferring. The gate is "ask unless the cost of asking exceeds the cost of being wrong" — not "always ask."
 
-## Calendar and mail
+## Calendar
 
-Both go through the `google_workspace_mcp` server registered per [[WIRE Claude Google MCP]] (44 tools, Calendar + Gmail included). If the server is not running, **say so and continue** — a missing calendar degrades the briefing, it does not abort the run. Never silently omit a channel; a briefing that quietly dropped the calendar is worse than one that admits the calendar was unreachable.
+Today's events come from the **local macOS Calendar** via `scripts/calendar-today.swift` (EventKit) — not from Google OAuth. The local Calendar already carries the Google events (the `{user}@gmail` and `{user}@work` accounts sync into it), so it is a superset with no expiring permission to renew. Run it:
+
+```bash
+swift "$HOME/.claude/skills/daybreak/scripts/calendar-today.swift"
+```
+
+It prints today's events one per line (`HH:MM    Title`, or `all-day  Title`), sorted. Per Lumen F004 this replaced the AppleScript route, which took ~18s regardless of calendar narrowing; EventKit returns in ~1s.
+
+**If it exits 2 / prints `CALENDAR_ACCESS_DENIED`**, the calling context lacks Calendar permission — **say so in the briefing and continue** (never silently omit the channel; a briefing that admits the calendar was unreachable beats one that quietly dropped it). The one-time fix is a GUI grant: tell the user to double-click `scripts/grant-calendar.command` and click Allow. After that it runs granted every morning.
+
+## Mail
+
+Mail goes through the `google_workspace_mcp` server registered per [[WIRE Claude Google MCP]] (Calendar + Gmail included; Daybreak uses only the Gmail half now that calendar is local). If the server is not running, **say so and continue** — a missing mail channel degrades the briefing, it does not abort the run.
 
 Mail is filtered through `LUM Design/LUM Watchlist.md` — a definition list of senders, subjects, and patterns worth surfacing. It starts empty and grows when the user says "flag this kind of thing." **Do not invent watchlist entries**; an unearned watchlist trains the user to ignore the channel.
 
@@ -118,11 +130,11 @@ So the briefing and the lists the user acts from are **all on screen at once**. 
 
 Shape: today's block goes directly under the H1 as `## <Day> YYYY-MM-DD · W<nn>`, pushing the previous day down. Never rewrite a past day. Sections in fixed order — **Decisions / Today / Runnable / Gaps** — per the file's own `# BRIEF`. Keep lines short; it renders in one narrow column, so wide tables wrap and destroy the glance value.
 
-## What Lumen is holding — [[LUM Ahead]]
+## What Lumen is holding — [[LUM Nudge]]
 
-[[LUM Ahead]] (in Lumen's own folder) is the forward-looking commitment surface: a **table**, soonest-first, of things Lumen owes the user a nudge about. Read it every run; surface anything now due in the briefing's **Watching** section.
+[[LUM Nudge]] (in Lumen's own folder) is the forward-looking commitment surface: a **table**, soonest-first, of things Lumen owes the user a nudge about. Read it every run; surface anything now due in the briefing's **Watching** section.
 
-**Do not put these on the backlog.** The backlog holds work the agent does to *build things* — horizons, next-actions, features. LUM Ahead holds things about the *user's life* that the agent is carrying for them. Different kind of item, different reader, different shape. The user does not read the backlog, and making them would defeat the point.
+**Do not put these on the backlog.** The backlog holds work the agent does to *build things* — horizons, next-actions, features. LUM Nudge holds things about the *user's life* that the agent is carrying for them. Different kind of item, different reader, different shape. The user does not read the backlog, and making them would defeat the point.
 
 **Writing a row is how Lumen remembers.** Any time the user defers something, or asks to be reminded, or an outward-facing action is held pending their go — add a row with its raising condition (a date, an event, or "waiting on you"). A promise made only in chat is a promise lost.
 
@@ -142,7 +154,7 @@ Provisional until `LUM Prioritization.md` exists (Lumen F001-Q4):
 
 ## Close
 
-1. Record anything deferred-but-wanted in a durable place — a [[LUM Ahead]] row if Lumen is holding it, else a [[Quick]] line, a [[Weekly]] checkbox, or a backlog row.
+1. Record anything deferred-but-wanted in a durable place — a [[LUM Nudge]] row if Lumen is holding it, else a [[Quick]] line, a [[Weekly]] checkbox, or a backlog row.
 2. Advance `Daybreak Watermark.md` to the newest `captured:` surfaced.
 3. Confirm the briefing landed in [[LUM Day]] before finishing — a run that only spoke into chat did not deliver.
 4. Do not commit unless asked — Daybreak is a read-and-decide ritual, not a work session.
