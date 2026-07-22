@@ -145,26 +145,37 @@ def main():
     check(len(lines) == 1 and json.loads(lines[-1]).get("asking") is False,
           "fenced ```json``` output is parsed")
 
-    # 7 — ENFORCE budget=1, asking=true, empty queue → BLOCK + spend a fire
+    # 7 — ENFORCE budget=1, asking=true, empty queue (covered_by defaults none)
+    #     → BLOCK + spend a fire
     clear()
     _set_conf(m, "enforce", 1, 0)
     m.subprocess = _Mock('{"asking": true, "summary": "Approve deploy?"}')
     r = m._llm_ask_check({"transcript_path": str(tx)}, "MUX", empty_anchor)
     spent = json.loads(m.LLM_CONF.read_text()).get("fired")
-    check(isinstance(r, str) and "recorded in the queue" in r and spent == 1,
+    check(isinstance(r, str) and "Backlog Q+ define" in r and spent == 1,
           "ENFORCE budget=1 + asking + empty queue → block, fire spent")
 
     # 8 — budget now spent → no block (still logs)
     r = m._llm_ask_check({"transcript_path": str(tx)}, "MUX", empty_anchor)
     check(r is None, "ENFORCE budget spent (fired>=budget) → no block")
 
-    # 9 — asking=true but queue HAS an open [Questions] → surfaced → no block
+    # 9 — F275 cover-check: asking, and an open Q COVERS it (covered_by names a
+    #     handle) → no block, no fire spent.
     clear()
     _set_conf(m, "enforce", 1, 0)
-    m.subprocess = _Mock('{"asking": true, "summary": "Approve deploy?"}')
+    m.subprocess = _Mock('{"asking": true, "summary": "Approve deploy?", "covered_by": "T001"}')
     r = m._llm_ask_check({"transcript_path": str(tx)}, "MUX", q_anchor)
     check(r is None and json.loads(m.LLM_CONF.read_text()).get("fired") == 0,
-          "ENFORCE + asking but queue has open question → surfaced → no block")
+          "F275: asking but an open Q covers it (covered_by=T001) → no block")
+
+    # 9b — F275 loophole closure: an unrelated open Q exists, but the ask is NOT
+    #      covered (covered_by=none) → BLOCK (exists-check would have passed it).
+    clear()
+    _set_conf(m, "enforce", 1, 0)
+    m.subprocess = _Mock('{"asking": true, "summary": "Approve deploy?", "covered_by": "none"}')
+    r = m._llm_ask_check({"transcript_path": str(tx)}, "MUX", q_anchor)
+    check(isinstance(r, str) and json.loads(m.LLM_CONF.read_text()).get("fired") == 1,
+          "F275: asking + unrelated open Q but ask uncovered → block (loophole closed)")
 
     # 10 — ENFORCE + asking=false → no block
     clear()
@@ -172,6 +183,24 @@ def main():
     m.subprocess = _Mock('{"asking": false, "summary": ""}')
     r = m._llm_ask_check({"transcript_path": str(tx)}, "T", empty_anchor)
     check(r is None, "ENFORCE + asking=false → no block")
+
+    # 11 — F275 M1: `_queue_open_questions` extracts (handle, header) for every
+    #      open [Questions]/[N Questions]/[User] row, incl. standalone Q-rows.
+    qa = td / "extract"
+    (qa / "Track").mkdir(parents=True, exist_ok=True)
+    (qa / "Track" / "X Backlog.md").write_text(
+        "# BL\n\n## Now\n\n"
+        "- **Q007 — Swap the vocab words?** [Questions] — spoken word list ^Q007\n"
+        "- **F012 — feature q** [2 Questions] — → [[F012 — feature q]] ^F012\n"
+        "- **T033 — login** [User] — waiting on creds ^T033\n"
+        "- **F009 — shipped** [Ready] — → [[F009]] ^F009\n"  # not a question → excluded
+    )
+    got = m._queue_open_questions(str(qa))
+    handles = {h for h, _ in got}
+    hdr = dict(got)
+    check(handles == {"Q007", "F012", "T033"}
+          and hdr.get("Q007") == "Swap the vocab words?",
+          "_queue_open_questions extracts Q/Questions/User rows, excludes Ready")
 
     m.subprocess = real_subprocess
 
