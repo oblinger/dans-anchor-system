@@ -78,7 +78,9 @@ swift "$HOME/.claude/skills/io/scripts/calendar-today.swift"
 
 It prints today's events one per line (`HH:MM    Title`, or `all-day  Title`), sorted. Per Lumen F004 this replaced the AppleScript route, which took ~18s regardless of calendar narrowing; EventKit returns in ~1s.
 
-**If it exits 2 / prints `CALENDAR_ACCESS_DENIED`**, the calling context lacks Calendar permission — **say so in the briefing and continue** (never silently omit the channel; a briefing that admits the calendar was unreachable beats one that quietly dropped it). The one-time fix is a GUI grant: tell the user to double-click `$HOME/.claude/skills/io/scripts/grant-calendar.command` and click Allow. After that it runs granted every morning. Full capability docs: [[io-calendar]].
+**If it exits 2 / prints `CALENDAR_ACCESS_DENIED`**, the calling context lacks Calendar permission — **say so in the briefing and continue** (never silently omit the channel; a briefing that admits the calendar was unreachable beats one that quietly dropped it). The one-time fix is a GUI grant: tell the user to double-click `$HOME/.claude/skills/io/scripts/grant-calendar.command` and click Allow. After that it runs granted every morning. Full capability docs: [[io-calendar]]. Interim (until SKA T047 lands the responsible-process binding): the grant is currently bound to **Terminal.app**, so a headless session routes the shim through Terminal (`osascript -e 'tell app "Terminal" to do script "…calendar-today.swift > /tmp/cal.out; exit"'`) and reads the output file. Do **not** fall back to the AppleScript `whose` query — 2026-07-22 it silently returned empty on a 3-event day.
+
+**Filter through [[LUM Background]] § Standing rhythm.** Standing meetings recorded there (e.g. the daily 14:00 CV ML standup) are suppressed from the briefing's calendar block — the user already knows their own rhythm; surface a standing meeting only when it moved, changed, or was cancelled. Everything else on the day gets listed.
 
 ## Mail
 
@@ -106,6 +108,8 @@ Today's plan gets written into the two lists the user actually works against, **
 | 30 minutes or more | [[Weekly]] → today's `### <Day>` H3 | `- [ ]` checkbox |
 
 **[[Quick]] staging.** Move the items the user is likely to knock off today to the top of `Quick.md`, then **one blank line**, then everything else untouched. The blank line is the whole convention — it is what makes the day's picks visible at a glance in the HUD. Propose the set rather than deciding it silently, and feel free to *add* items that belong there.
+
+**Only the user's own work gets staged.** Anything Lumen wants *from* the user — run a grant, click a dialog, review something — never goes into [[Quick]], [[Todo]], or [[Weekly]]; those are the user's working lists, and agent asks clutter them (user, 2026-07-22: *"if you have things like that you want me to do, you just bring them up in the morning time"*). An agent ask lives as a `LUM Nudge.md` row (`next run`, or dated) and surfaces in the briefing's **Decisions** block until settled.
 
 **[[Weekly]] day-list.** This week's file is `~/ob/kmr/LST/Weekly/YYYY-Www.md` (ISO week, zero-padded). Bigger items go under today's `### <Day>-<DD>` H3 as `- [ ]` so the user checks them off through the day. Week-level intentions — rocks, things aimed at the week as a whole — go in the **top block** between the H1 and the first `###`, not under a day.
 
