@@ -82,7 +82,7 @@ Typical entries include:
 | `{slug} Installation.md` | Installation instructions (when applicable) |
 | `{slug} CLI.md` | CLI command reference (when applicable) |
 | `{slug} FAQ.md` | User-facing FAQs (when applicable) |
-| `{slug} Cards.md` | Cheat sheets and flashcards |
+| `{slug} {topic}.md` (study cards) | Per-topic cheat sheet + its summary & detail cards — one file per sheet ([[DAS Cards]]) |
 | `{slug} {Topic} Guide.md` | Topic-specific guides for specialized workflows |
 
 All rows are optional except the primary Guide, and are listed only when those docs exist. The system-spec docs (Interface, Architecture) are **not** User Docs — Interface lives in `{slug} Design/` (`/audit docs` flags its absence on a code anchor as `missing-interface`), and the Architecture story lives in `{slug} Design/`.

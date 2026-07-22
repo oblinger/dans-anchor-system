@@ -1,6 +1,6 @@
 # Cards Format
 
-Cards documents organize knowledge for review and spaced repetition using Obsidian's SR plugin. Three tiers: cheat sheets (overview), summary cards (grouped patterns), detail cards (single facts).
+Study-card files organize knowledge for review and spaced repetition using Obsidian's SR plugin. **One file per cheat sheet** — named `{slug} {topic}.md` (e.g. `numpy bcast.md`) — carrying three tiers for that one topic: the cheat sheet (overview), summary cards (grouped patterns), detail cards (single facts). A sheet and its flashcards live together; the anchor page indexes the sheets. Spec: [[DAS Cards]]; worked example: [[numpy bcast]].
 
 ## Examples
 
@@ -42,10 +42,15 @@ Short meaningful answer — what you'd say in a conversation. Could be 1-3 sente
 
 ## Structure
 
-- **Cheat sheets** at the top under H2 headers: `## **`NAME`**` with code blocks
-- Separate cheat sheets with `---`
-- **Summary cards** under `## Summary Cards` with `### Area` subheadings
-- **Detail cards** under `## Detail Cards` with `### Area` subheadings
+Each file is one cheat sheet plus its cards, top to bottom:
+
+- **SR tag(s)** on line 1 (`#numpy #omni`) so the plugin schedules the cards
+- **H1 backlink** `# [[{parent}]] {topic}` + a one-line summary of the topic
+- **One cheat sheet** under `## **`HEADING`**` with a code block (no `---` separators — there's only one sheet per file)
+- **Summary cards** under `## Summary Cards` — the unifying rules of that sheet
+- **Detail cards** under `## Detail Cards` — that sheet's surprising exceptions
+
+Multiple topics → multiple files (one sheet each), indexed by the anchor page. Don't put several cheat sheets in one file.
 
 ## Card Anatomy
 
