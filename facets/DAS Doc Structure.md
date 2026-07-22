@@ -8,7 +8,7 @@ The standard top-to-bottom structure every document follows — progressive disc
 | -[[DAS Doc Structure]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets\|FCT]] → [DAS Doc Structure](hook://p/DAS%20Doc%20Structure) |
 | --- | --- |
 | Related | [[DAS progressive-disclosure]] (the discipline this specializes),  [[DAS Brief]],  [[DAS Anchor Page]], |
-| Examples | [[FEX Minimal Facet\|minimal — short doc, no table]],  [[26ACME Plan\|simple facet — fused-breadcrumb head]],  [[HBR Architecture\|fuller — non-anchor doc with structured body]],  [[FEX Manifest\|facet spec]],  [[FEX Retention\|discipline]],  [[DAS Brief\|facet spec]],  [[HBR\|project]],  [[FEX Snapshot\|skill]],  [[FEX Repo\|repo]],   |
+| Examples | [[FEX Minimal Facet\|minimal — short doc, no table]],  [[26ACME Plan\|simple facet — fused-breadcrumb head]],  [[numpy\|merged masthead — small dispatch table doubles as the content index]],  [[HBR Architecture\|fuller — non-anchor doc with structured body]],  [[FEX Manifest\|facet spec]],  [[FEX Retention\|discipline]],  [[DAS Brief\|facet spec]],  [[HBR\|project]],  [[FEX Snapshot\|skill]],  [[FEX Repo\|repo]],   |
 | Rules | [[R-doc-structure]],   |
 | ... | [[anchor-page]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Backlog]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Dispatch]],  [[DAS Dispatch Table Design]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
 
@@ -50,6 +50,8 @@ The **top table** (the *document table*) is the document's progressive-disclosur
 
 **(c) Specialized tables.** Some specialized documents legitimately carry *another kind of table* at the top — e.g. a stories **index** table (`{slug} Stories.md`), a status board, a glossary. These are neither a dispatch table nor a TOC table; they are the document's content, and rules (a) / (b) do not forbid them.
 
+**(d) Merged masthead.** When an anchor's masthead is small, its dispatch table and its content index can be the **same** table — the essence folds into the masthead rather than living in a second table below. See § [[#Merged masthead — folding the essence into a small dispatch table|Merged masthead]].
+
 *(The **TOC / content-outline table** likely deserves its own facet — e.g. `DAS Content Outline` — described inline here for now.)*
 
 ### 5. TLDR — *optional; immediately below the table, before any Overview*
@@ -75,6 +77,16 @@ A short, slug-prefixed facet page whose meaning is obvious from its name may col
 - The doc has a **single clear essence** to put right at the top.
 
 When a facet grows substructure, a fuller body, or a meaning that isn't obvious from its name, graduate it to the breadcrumb or masthead form above. Enforced by `R-progressive-03` (the `doc_head_orientation_line` checker recognizes this head — the H1 wiki-link target equal to the filename prefix — and waives the orientation-line requirement).
+
+## Merged masthead — folding the essence into a small dispatch table
+
+When an anchor's masthead is *small* — the identity / breadcrumb row plus maybe a `Related` row, with no long Examples / Rules / TOC apparatus — the document's **essence** (its content index) can be folded **into that same table** rather than sitting in a second table below. One table then does double duty: its top rows are the masthead (breadcrumb + Related), and its lower rows — set off by a bold section-divider row (`**▸ …**`) — are the content the anchor exists to hold. Exemplar: [[numpy]] — a study anchor whose dispatch masthead *is* its cheat-sheet index; the sheet sub-pages are folded straight into the masthead table under `▸ Sheets` / `▸ Broader numpy` divider rows.
+
+Two conditions make this clean, both visible in [[numpy]]:
+- **The one-line summary under the H1 already carries the "what this is," so the merged table needs no summary / TLDR row** (§2 did that job — a second summary inside the table would just repeat it).
+- **The masthead is genuinely small.** Once it grows its own Related / Examples / Rules / TOC apparatus, split the essence back out into its own table below — a large masthead fused with a large content index is a muddle, not disclosure.
+
+This is the anchor-page cousin of the [[#Simple facet form — the compact variant|simple facet form]] above: both **collapse a layer** when the page is small enough that keeping the layers separate would only add ceremony. The difference is *which* layer collapses — the simple facet form drops the masthead entirely (the H1 fuses the breadcrumb), while this form keeps a real dispatch masthead and merges the *content* into it. No rule change is needed: the page still has an H1, an orientation line, and one dispatch table, so it passes `R-progressive-01/03` unchanged — this is a shaping choice within the standard masthead form, not a new head shape.
 
 ## Relationship to other facets
 - **[[DAS progressive-disclosure]]** — the general discipline; this facet is its document-scoped specialization.
