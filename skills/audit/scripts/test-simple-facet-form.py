@@ -71,5 +71,20 @@ print("Ordinary head shapes are unaffected")
 check("plain H1 + orientation line passes (unchanged)",
       verdict("Some Note.md", "# Some Note\nOne sentence saying what this is.\n\n- item\n"), "pass")
 
+print("Ruleset spec heads are exempt (T051 — machine-read `# RULESET` head, not the orientation form)")
+
+# 8. a `# RULESET` head with a VALUELESS `include::` field (the exact R-facet-spec
+#    shape) must NOT misfire — pre-T051 the valueless field wasn't skipped, so
+#    `include::` was read as the orientation line and `where::` as a wrapped 2nd line.
+check("`# RULESET` head with valueless `include::` is exempt",
+      verdict("R-facet-spec.md",
+              "# RULESET R-facet-spec\ninclude::\nwhere:: `file: DAS *.md`\n"
+              "description:: authoring a facet\n\nProse body follows.\n"), "pass")
+
+# 9. an ordinary doc that merely mentions RULESET in its H1 text (not the `# RULESET`
+#    head form) is still governed normally — the skip keys on the leading token only.
+check("`# Ruleset notes` (ordinary H1) still requires orientation",
+      verdict("Ruleset notes.md", "# Ruleset notes\n\n- a\n- b\n"), "fail")
+
 print(f"\n{sum(results)}/{len(results)} passed")
 raise SystemExit(0 if all(results) else 1)
