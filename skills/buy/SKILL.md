@@ -7,8 +7,8 @@ description: >
   exact model the user wants, capture current price + buy-button presence + stock + promos,
   and recommend the best place to purchase with confidence. Retries per retailer when the first
   candidate URL is invalid; keeps the best verified page per company. Use when the user names a
-  specific product to purchase: "what's the best price on the <X>", "where should I buy <X>",
-  "buy <X>". Sibling of /find (identifies products) / /profile (profiles them) / /survey
+  specific product to purchase: "what's the best price on the {X}", "where should I buy {X}",
+  "buy {X}". Sibling of /find (identifies products) / /profile (profiles them) / /survey
   (compares them). v1: skeleton — fleshed-out section is § Page-validity verification and
   § Per-retailer retry loop; everything else is the obvious shape.
 tools: Read, Write, Edit, Bash, WebSearch
@@ -27,9 +27,32 @@ Skill spec for `/buy <product>` — walks major retailers for a known product, v
 
 > WebFetch, curl, Playwright headless, and `ctrl jjpage` are ALL bot-blocked by Dell, Amazon, Best Buy, Walmart, Adorama, B&H, Abt, CDW, Provantage. The only fetcher that works is **real Safari driven via `ctrl jpage`** — it uses the user's actual browser session with cookies + JavaScript, and retailers serve it like a normal user. Do not propose any other fetcher; do not "fall back" to WebFetch when ctrl seems slow. Slow but working beats fast but blocked.
 
+## Where this runs — haorui, not the laptop
+
+**All purchasing happens on haorui.** That machine holds the logged-in retailer sessions (Amazon as "Daniel"); the laptop does not. Connect first, then drive `ctrl` over there:
+
+```bash
+~/.claude/skills/bridge/bridge tmux haorui
+tmux send-keys -t bridge-haorui '<cmd>' Enter
+tmux capture-pane -t bridge-haorui -p
+```
+
+**The division of labor is fixed: the agent researches and stages; the user buys.** Never place an order, never complete a checkout. The deliverable is a set of verified product tabs open on haorui, each sitting on a live Add-to-Cart button, so the user can walk them in one pass and decide.
+
+### Delivery — stage tabs, don't just report
+
+`ctrl tab <url>` opens a candidate without stealing focus, so a whole finalist set can be staged in order. Do that for **every** finalist, not only the winner — the user's rhythm is to go through the tabs and pick, and a recommendation they can't click is friction. Order the tabs to match the comparison table in chat, then `screencapture -x` to confirm they actually landed before reporting done.
+
+### Gotchas (paid for on the first live run, 2026-07-24)
+
+- **Safari needs `AllowJavaScriptFromAppleEvents`** or every `ctrl jpage` errors out. One-time fix, already applied to haorui: `defaults write com.apple.Safari AllowJavaScriptFromAppleEvents -bool true` plus `IncludeDevelopMenu`, then restart Safari.
+- **`ctrl jpage`'s extractor silently drops Amazon order-card and product content** — it returned 10 nav blocks from a page listing 81 orders. Get real content via `osascript` → `do JavaScript "document.body.innerText"`, or ship a JS file and run it. **Escaping inline JS through `tmux send-keys` mangles it — `scp` the script instead.**
+- **Amazon order-search ignores `&startIndex=`** — pages 2+ silently re-render page 1. Verify pagination advanced before claiming you read the full history.
+- **A screengrab of haorui's screen is ground truth.** When extraction looks empty or wrong, look at the actual page before concluding anything about it.
+
 ## When to Use
 
-- User says: *"where should I buy <X>"*, *"best price for <X>"*, *"buy <X>"*, *"check prices on <X>"*.
+- User says: *"where should I buy {X}"*, *"best price for {X}"*, *"buy {X}"*, *"check prices on {X}"*.
 - User has already identified the specific product (model number, full name). For "which monitor should I buy" → `/survey` first.
 - Slash-only — "buy" is too common a word to be a DMUX prefix-trigger.
 
@@ -81,7 +104,7 @@ For each retailer in the v1 list, build candidate URLs in priority order:
 
 1. **Search-result hit** — `WebSearch` for `<product> site:<retailer-domain>`. The first product-page hit is candidate #1.
 2. **Retailer-internal search URL** — fall back: `https://<retailer-domain>/search?q=<model>` (or the retailer's known search URL pattern). The search-results page is candidate #2.
-3. **Web search for "buy <product> at <retailer>"** — candidate #3 when both above fail.
+3. **Web search for "buy {product} at {retailer}"** — candidate #3 when both above fail.
 
 Each retailer gets at most 3 candidate URLs to try, in priority order.
 
@@ -169,6 +192,17 @@ Sort verified retailers by **effective total cost** (price + shipping − discou
 3. Tiebreak: in-stock > limited > backorder.
 4. Tiebreak: return policy length (longer wins).
 
+#### Consumables rank by cost per unit, not lowest ticket
+
+**For anything bought by the serving** — tea, coffee, razors, supplements, paper goods — "lowest effective cost" is the wrong sort key, and pack sizes make ticket price actively misleading. First ask which regime applies:
+
+- **Unvalidated** (never bought it, might not like it) → cheapest *small* quantity to trial. Breadth of variety is a plus here.
+- **Validated** (established that they like it) → largest sensible pack, sorted by **$/unit**. This is a restock; unit economics is the only axis that matters.
+
+Always show a **$/unit column** so the comparison is legible either way. Watch for per-count math that counts non-comparable items — a 48-bag tea pack bundled with 20 honey sticks reports $0.39/count but is $0.55 per actual tea bag.
+
+Missing this cost a wrong recommendation on 2026-07-24: ranked a 44-flavor sampler over the 88-count on lowest ticket + widest discovery, when the product was already validated and $/bag was the real criterion.
+
 Surface a table to the user:
 
 ```
@@ -184,13 +218,20 @@ NOT_FOUND  | Costco   | not stocked         | —     | —       | —
 
 Plus a one-line recommendation: *"Adorama at $749.00 — biggest sale (33% off list), shipping free. If Adorama feels sketchy for this much, Newegg via Technology Traders at $788 is the safe pick — verified 3P seller with 4.3★, free 30-day returns."*
 
-### 6. Open the recommended tab
+### 6. Stage every finalist as a tab on haorui
+
+Not just the winner — the whole shortlist, in the same order as the comparison table, so the user can go through them in one pass:
 
 ```bash
-ctrl surf "<winning-url>"
+for A in {asin-or-url-list}; do ctrl tab "{url}"; sleep 2; done
+screencapture -x /tmp/buy/tabs.png    # then scp back and LOOK at it
 ```
 
-User can click Add to Cart themselves.
+Confirm the tabs actually landed before reporting done. **Stop here — the user clicks Add to Cart and completes the purchase.**
+
+### 7. Log the outcome
+
+Once the user reports what they bought, record it: a dated entry in [[BUY Log]], a **Done** line in [[BUY Purchasing]], and — for consumables — the $/unit reference on the category page (e.g. [[BUY Tea]]) so the next run starts from real numbers instead of re-deriving them.
 
 ## When NOT to use this skill
 
