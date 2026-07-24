@@ -5148,7 +5148,14 @@ def main() -> int:
     # the structural defense against lazy stops ("loop exited cleanly" with
     # Ready > 0). Phrase-patching the chat-summary loses to paraphrases;
     # status-line embedding doesn't, because it IS the status the agent reads.
-    _print_hard_continuation_directive(derived_banners)
+    # Scope the push to the agent's OWN anchor (T052): an explicit --anchor
+    # names it; otherwise resolve the cwd's containing anchor. A vault-wide
+    # run must NOT tell the running agent to continue on someone else's
+    # anchor (the failure that pushed Lumen onto MUX) — per crank § Hard
+    # continuation, other anchors count only when the user names cross-anchor
+    # scope, which this reminder cannot detect. Unresolvable cwd → suppress.
+    own_slug = args.anchor or _owning_slug_for_cwd(all_backlogs)
+    _print_hard_continuation_directive(derived_banners, own_slug)
     # F180 — auto-fire `when:: skill:audit-q` rules (e.g. the push/commit steer)
     # for the audited anchor(s), so they trigger on every normal run.
     autofire_audit_q(args.anchor, anchor_backlogs)
@@ -5162,13 +5169,51 @@ _BANNER_COUNTS_RE = re.compile(
 )
 
 
-def _print_hard_continuation_directive(derived_banners: dict[str, str]) -> None:
-    """When any anchor has Ready > 0, surface the crank hard-rule to the
-    agent in audit-q's stderr-style output. The directive cites the rule's
-    home, names the failure mode by name, and lists the exit requirement
-    (3-gate argument). Silent when every anchor is at Runnable 0."""
+def _owning_slug_for_cwd(all_backlogs: dict[str, Path]) -> Optional[str]:
+    """The slug of the anchor whose root contains the current working
+    directory — the agent's OWN anchor. Deepest (longest-path) containing
+    anchor root wins, so a cwd inside a sub-anchor that rolls up to its
+    parent (its own backlog excluded from `all_backlogs`) resolves to the
+    parent whose banner actually exists. None when cwd is outside every
+    anchor. Used to scope the hard-continuation push to the agent's anchor
+    (T052)."""
+    try:
+        cwd = Path.cwd().resolve()
+    except OSError:
+        return None
+    best: Optional[str] = None
+    best_len = -1
+    for slug, backlog_file in all_backlogs.items():
+        # {anchor}/{slug} Track/{slug} Backlog.md → anchor root is Track's parent
+        root = backlog_file.parent.parent.resolve()
+        try:
+            cwd.relative_to(root)
+        except ValueError:
+            continue
+        if len(str(root)) > best_len:
+            best, best_len = slug, len(str(root))
+    return best
+
+
+def _print_hard_continuation_directive(
+        derived_banners: dict[str, str],
+        own_slug: Optional[str] = None) -> None:
+    """When the agent's OWN anchor has Ready > 0, surface the crank hard-rule
+    to the agent in audit-q's stderr-style output. The directive cites the
+    rule's home, names the failure mode by name, and lists the exit
+    requirement (3-gate argument). Silent when the own anchor is at Runnable 0.
+
+    `own_slug` scopes the push to the agent's anchor (T052). When None (cwd
+    outside every anchor, and no --anchor given) the directive is suppressed
+    entirely — pushing an agent onto anchors it does not own is exactly the
+    failure this guard exists to prevent (crank § Hard continuation: other
+    anchors count only when the user explicitly names cross-anchor scope)."""
+    if own_slug is None:
+        return
     actionable: list[tuple[str, int, int]] = []  # (name, runnable_n, user_n)
     for name, banner in derived_banners.items():
+        if name != own_slug:
+            continue
         m = _BANNER_COUNTS_RE.search(banner)
         if not m:
             continue
