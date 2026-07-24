@@ -2557,6 +2557,12 @@ def chk_doc_head_orientation_line(target, anchor_root, args):
             break
     if h1 is None:
         return "pass", "no H1 — out of scope"
+    # Ruleset spec heads are a distinct, machine-read doc class: `# RULESET <id>`
+    # followed by `where::` / `include::` / `description::` fields (some valueless,
+    # e.g. a bare `include::`), NOT the breadcrumb → H1 → orientation convention.
+    # The orientation-line rule does not govern them — skip (T051).
+    if re.match(r"^# RULESET\b", lines[h1]):
+        return "pass", "ruleset spec head (# RULESET) — orientation line N/A"
     # Simple facet form (DAS Doc Structure): a slug-prefixed facet page whose H1
     # fuses the breadcrumb into the title — `# [[{slug}]] {Facet}` where {slug} is
     # the filename's leading token. The wiki-link IS the breadcrumb and the head
