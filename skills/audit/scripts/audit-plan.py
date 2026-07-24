@@ -2672,8 +2672,18 @@ def chk_milestone_section_separator(target, anchor_root, args):
 
 # -- R-log ---------------------------------------------------------------------
 
+def _is_log_container(anchor_root: Path) -> bool:
+    """True when the anchor IS a `{slug} Log` container — the standard name for the
+    folder of reverse-chronological dated entries (e.g. `SV Log`). Such an anchor
+    does not need a NESTED log; it is one, so R-log-01/R-log-08 (which would demand
+    a `SV Log Log/` inside it) must be suppressed for it (T050)."""
+    return _anchor_slug(anchor_root).endswith(" Log") or anchor_root.name.endswith(" Log")
+
+
 def chk_log_path_exists(target, anchor_root, args):
     """{slug} Log/ folder or {slug} Log.md exists under the anchor."""
+    if _is_log_container(anchor_root):
+        return "pass", "anchor IS a {slug} Log container — no nested log required (T050)"
     slug = _anchor_slug(anchor_root)
     if (anchor_root / f"{slug} Log").is_dir() or (anchor_root / f"{slug} Log.md").is_file():
         return "pass", f"found {slug} Log"
@@ -2742,6 +2752,8 @@ def chk_log_dispatch_newest_first(target, anchor_root, args):
 
 def chk_log_anchor_page_link(target, anchor_root, args):
     """Anchor entry page carries a [[{slug} Log]] dispatch row."""
+    if _is_log_container(anchor_root):
+        return "pass", "anchor IS a {slug} Log container — no [[{slug} Log Log]] link required (T050)"
     slug = _anchor_slug(anchor_root)
     ep = _entry_page(anchor_root)
     if ep is None:
