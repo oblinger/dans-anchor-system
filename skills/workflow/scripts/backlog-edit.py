@@ -1631,6 +1631,16 @@ def perform_edit(
             # once the user acts (documentary, not executable-now; F259).
             if eff_next and eff_next.strip():
                 _ensure_subbullet(lines, row_id, "Next", eff_next.strip())
+        elif next_text is not None and next_text.strip():
+            # T056 — a status that doesn't REQUIRE a Next ([Blocked], [Waiting],
+            # [Questions], …) may still be handed one explicitly, and a parked
+            # row is exactly where the note explaining how to restart it earns
+            # its keep. Before this branch the value was computed into eff_next
+            # and then dropped on the floor while the command still printed
+            # "updated" — a silent discard the caller had no way to notice.
+            # Gated on `next_text`, not `eff_next`, so an ordinary re-touch does
+            # not rewrite (and reorder) a sub-bullet nobody asked to change.
+            _ensure_subbullet(lines, row_id, "Next", next_text.strip())
 
     # v2 `define` sub-bullets land in the SAME edit, before the post-edit
     # refresh_q_md — attaching them afterwards let audit-q's C24 --fix see a
