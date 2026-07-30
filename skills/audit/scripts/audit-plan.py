@@ -3122,13 +3122,110 @@ def chk_md_svg_embed_width(target, anchor_root, args):
     return "pass", ""
 
 
-def chk_md_trailing_ws(target, anchor_root, args):
-    """Trailing whitespace on a line (never content — pure normalization)."""
+def _ends_with_terminal_link(s: str) -> bool:
+    """True iff the *literal* last token of `s` is a link — a wiki-link closing
+    `]]`, a STRUCK wiki-link closing `]]~~`, or a markdown/hook link closing the
+    `)` of a `](…)` — with NO trailing whitespace, punctuation, or `^block-anchor`
+    after it.
+
+    F278. This is a deliberate line-for-line port of `ends_with_terminal_link` in
+    HookAnchor (`HookAnchorApp/src/systems/anchor_tracking/links.rs:243`). The two
+    tools rewrite the SAME lines, so they must share ONE canonical form — a
+    second, independently-derived predicate is precisely how they drift back into
+    the strip/re-pad oscillation this rule exists to end. Port, don't re-derive.
+
+    The struck arm (`]]~~`) is HA's F135 idempotency fix and is load-bearing here
+    too: strikethrough is applied to broken links AFTER padding, so a padded link
+    that later goes broken re-reads as `~~[[X]]~~ `. If the predicate refused the
+    struck form that space would be stranded and stripped on the next pass — a
+    one-pass oscillation. Accepting both states makes the pad a fixpoint."""
+    if s.endswith("]]") and "[[" in s:
+        return True
+    if s.endswith("]]~~") and "~~[[" in s:
+        return True
+    # Markdown / hook link `[text](url)`. Guard against a bare prose `)`: the `)`
+    # must close a `](…)` whose `[` opens before it, and the URL must not itself
+    # contain a `)`.
+    if s.endswith(")"):
+        open_ = s.rfind("](")
+        if open_ != -1:
+            url = s[open_ + 2:-1]
+            if "[" in s[:open_] and ")" not in url:
+                return True
+    return False
+
+
+def _terminal_link_pad_lines(text: str):
+    """Yield `(index, line)` for the lines F278's pad applies to — prose lines
+    whose terminal token is a link. Table rows, fenced/inline code and YAML
+    frontmatter are excluded (see `chk_md_terminal_link_pad` for why tables are
+    `ha`'s job, not this rule's)."""
+    lines = text.split("\n")
+    masked = _mask_code(text).split("\n")
+    start = 0
+    if lines and lines[0].strip() == "---":       # YAML frontmatter
+        for i in range(1, len(lines)):
+            if lines[i].strip() == "---":
+                start = i + 1
+                break
+    for i in range(start, len(lines)):
+        raw = lines[i]
+        if i < len(masked) and masked[i].strip() == "" and raw.strip() != "":
+            continue                              # inside a fence / code span
+        if raw.lstrip().startswith("|"):
+            continue                              # table row — `ha` owns cell padding
+        yield i, raw
+
+
+def chk_md_terminal_link_pad(target, anchor_root, args):
+    """R-markdown-16 (F278) — a prose line whose last token is a link carries
+    exactly ONE trailing space.
+
+    In Obsidian, clicking a line that ends in a link expands it to source form;
+    one trailing space gives a non-link click target and kills that expansion. It
+    is invisible in every rendered view. `ha` already stamps this form on the
+    content it generates (F135); this rule covers the agent writes `ha` never
+    rewrites, so together they cover the vault.
+
+    NEVER two spaces — two is a markdown `<br>` hard break. The pad is only ever
+    appended to a line that has no trailing space, and `_ends_with_terminal_link`
+    is false once a space is present, so a second application is a no-op.
+
+    Table rows are deliberately out of scope. A cell's canonical padded form is
+    two spaces before the closing `|` (one from ordinary `| cell |` spacing, one
+    from the pad), so deciding whether a cell is already padded means inferring
+    that table's baseline spacing convention — and column-aligned tables use
+    padding for source readability a normalizer would destroy. `ha` generates
+    those cells and already pads them; this rule stays out."""
     if not target.is_file():
         return "pass", "not a file"
-    hits = [str(ln) for ln, raw in enumerate(_read(target).splitlines(), 1) if raw != raw.rstrip()][:5]
+    hits = [str(i + 1) for i, raw in _terminal_link_pad_lines(_read(target))
+            if _ends_with_terminal_link(raw)][:5]
     if hits:
-        return "fail", "trailing whitespace at line(s) " + ", ".join(hits)
+        return "fail", "terminal link missing its single trailing space at line(s) " + ", ".join(hits)
+    return "pass", ""
+
+
+def chk_md_trailing_ws(target, anchor_root, args):
+    """Trailing whitespace on a line (never content — pure normalization).
+
+    F278 exemption: exactly ONE space following a terminal link is the canonical
+    pad shared with `ha` (see `chk_md_terminal_link_pad`), not noise. Without this
+    carve-out the two rules fight inside warden itself — R-markdown-16 appends the
+    space on every write and R-markdown-14 strips it straight back, the
+    continuous-corruption failure mode F278 was gated to avoid. Two or more
+    trailing spaces remain a finding: two render as a `<br>` hard break."""
+    if not target.is_file():
+        return "pass", "not a file"
+    hits = []
+    for ln, raw in enumerate(_read(target).splitlines(), 1):
+        if raw == raw.rstrip():
+            continue
+        if raw[:-1] == raw.rstrip() and _ends_with_terminal_link(raw.rstrip()):
+            continue                              # the one sanctioned pad space
+        hits.append(str(ln))
+    if hits:
+        return "fail", "trailing whitespace at line(s) " + ", ".join(hits[:5])
     return "pass", ""
 
 
@@ -3720,6 +3817,7 @@ CHECKERS = {
     "md_table_pipe_escape": chk_md_table_pipe_escape,
     "md_em_dash": chk_md_em_dash,
     "md_trailing_ws": chk_md_trailing_ws,
+    "md_terminal_link_pad": chk_md_terminal_link_pad,
     "md_svg_embed_width": chk_md_svg_embed_width,
     # R-markdown re-wiring (T007, 2026-07-06)
     "md_inline_field_value": chk_md_inline_field_value,
@@ -3897,11 +3995,38 @@ def fix_md_em_dash(target, anchor_root, args):
 
 
 def fix_md_trailing_ws(target, anchor_root, args):
+    """Strip trailing whitespace, PRESERVING the single F278 pad space after a
+    terminal link. `rstrip()` then re-pad is deliberate: it collapses two-or-more
+    spaces after a link down to the canonical one (killing an accidental `<br>`
+    hard break) rather than leaving them, and it is a normalization, so applying
+    it twice is a no-op."""
     lines = _read(target).split("\n")
-    new = [l.rstrip() for l in lines]
+    new = []
+    for l in lines:
+        s = l.rstrip()
+        new.append(s + " " if _ends_with_terminal_link(s) and not s.lstrip().startswith("|") else s)
     if new != lines:
         target.write_text("\n".join(new), encoding="utf-8")
         return True, "stripped trailing whitespace"
+    return False, ""
+
+
+def fix_md_terminal_link_pad(target, anchor_root, args):
+    """F278 — append the single canonical trailing space to prose lines whose last
+    token is a link. Paired to `chk_md_terminal_link_pad`; shares its predicate
+    and its table/code/frontmatter exclusions, so the two agree by construction."""
+    if not target.is_file():
+        return False, "not a file"
+    text = _read(target)
+    lines = text.split("\n")
+    n = 0
+    for i, raw in _terminal_link_pad_lines(text):
+        if _ends_with_terminal_link(raw):
+            lines[i] = raw + " "
+            n += 1
+    if n:
+        target.write_text("\n".join(lines), encoding="utf-8")
+        return True, f"padded {n} terminal link(s) with one trailing space"
     return False, ""
 
 
@@ -3967,6 +4092,7 @@ FIXERS = {
     "md_table_pipe_escape": fix_md_table_pipe_escape,
     "md_em_dash": fix_md_em_dash,
     "md_trailing_ws": fix_md_trailing_ws,
+    "md_terminal_link_pad": fix_md_terminal_link_pad,
     "breadcrumb_position": fix_breadcrumb_position,
     "md_svg_embed_width": fix_md_svg_embed_width,
 }

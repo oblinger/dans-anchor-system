@@ -110,6 +110,11 @@
   "status": "pass"
  },
  {
+  "rule": "R-markdown-16",
+  "target": "FX1 Notes.md",
+  "status": "pass"
+ },
+ {
   "rule": "R-naming-01",
   "target": "FX1 Notes.md",
   "status": "pass"

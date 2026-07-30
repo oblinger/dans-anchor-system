@@ -91,10 +91,24 @@ check:: md_stray_angle_tag
 A stray `<identifier>` (a `<` glued to a tag-name character, e.g. `<Name>` or `List<int>`) is read as an unknown HTML element and silently eats the text up to the next `>`. Fix it with intent — backtick it, escape as `&lt;`/`&gt;`, add spaces (`a < b`), or restructure. Inline code, real HTML constructs, single-letter placeholders (`F<n>`), and whitespace-surrounded comparisons are fine; `.html` files are skipped.
 
 ### RULE R-markdown-14 — No trailing whitespace (checked)
-description:: A line must not end in spaces or tabs; stripping trailing whitespace never removes content, so it is safe to normalize.
+description:: A line must not end in spaces or tabs; stripping trailing whitespace never removes content, so it is safe to normalize. One space after a terminal link is the R-markdown-16 pad and is exempt.
 check:: md_trailing_ws
 fix:: md_trailing_ws
 A line ends in trailing whitespace — invisible noise that pollutes diffs and can create accidental hard-breaks. Strip it.
+
+**One exemption:** exactly one space following a *terminal link* is the canonical pad required by [[#RULE R-markdown-16 — Terminal links carry one trailing space (checked)|R-markdown-16]], not noise. Without the carve-out the two rules fight each other on every write — 16 appends the space, 14 strips it back — so the fixer collapses two-or-more trailing spaces after a link down to the canonical one rather than removing them all.
+
+### RULE R-markdown-16 — Terminal links carry one trailing space (checked)
+description:: A prose line whose last token is a wiki-link or markdown link ends with exactly one space, the canonical form shared with ha, so Obsidian does not expand the link to source when the line is clicked.
+check:: md_terminal_link_pad
+fix:: md_terminal_link_pad
+In Obsidian, clicking a line whose last token is a link expands that link to its source form. One trailing space gives the click a non-link target and stops the expansion. It is invisible in reading view, live preview, and rendered HTML — pure ergonomics.
+
+Exactly one space, never two: two trailing spaces are a markdown `<br>` hard break. The pad is only appended to a line that has none, so re-applying the rule is a no-op. A trailing `^block-anchor` or punctuation after the link means the link is not terminal and the rule does not fire. Struck links (`~~[[X]]~~`) are padded too — strikethrough is applied after padding, so refusing the struck form would strand the space and oscillate.
+
+**Table rows are out of scope.** A padded cell's canonical form is two spaces before the closing `|` — one from ordinary `| cell |` spacing, one from the pad — so deciding whether a cell is already padded means inferring that table's baseline spacing, and column-aligned tables use padding for source readability that a normalizer would destroy. `ha` generates those cells and already pads them.
+
+**Why:** `ha` stamps this same form on the content it generates (HA F135). Two tools that rewrite the same lines must share ONE canonical form; if they disagree, each strips the other's space on every pass and the file churns forever. The checker is a direct port of HA's `ends_with_terminal_link` for exactly this reason — a re-derived predicate is how the two drift apart.
 
 ### RULE R-markdown-15 — SVG figure embeds carry an explicit width hint (checked)
 description:: Every ![[name.svg]] embed carries a |width hint — |3000 for page-wide figures (the default), a smaller value only for a deliberately-inline thumbnail.
