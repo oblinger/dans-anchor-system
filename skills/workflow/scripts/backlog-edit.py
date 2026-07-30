@@ -1691,6 +1691,25 @@ def perform_edit(
 # --------------------------------------------------------------------------
 # Messages + Q.md refresh
 
+def _is_facet_spec(path):
+    """True when `path` is a facet SPEC rather than a per-anchor instance.
+
+    A `facets/DAS <Name>.md` is the specification for the `<Name>` facet — the
+    document that defines what a Backlog or a Messages file IS. It is not an
+    anchor's queue or an anchor's inbox, and appending a notification to it
+    edits the standard instead of recording an event against a project.
+
+    This exemption is already declared, twice: `R-backlog` and `R-messages`
+    both carry `where:: …, !**/DAS *.md` with the note "a `DAS <Name>.md` is
+    the SPEC for the facet, not an instance; specs are governed by
+    `R-facet-spec`". The rules honoured it; this write site did not, so
+    `state`-driven edits to `facets/DAS Backlog.md` appended INFO lines into
+    `facets/DAS Messages.md` — the Messages facet spec (Warden F235; SKA F243
+    MS-2 had to strip 16 of them by hand, and 4 more accumulated after).
+    """
+    return path.parent.name == "facets" and path.name.startswith("DAS ")
+
+
 def append_messages(slug, summary, backlog_path):
     """Write a global-sentinel entry and a per-anchor Messages.md entry."""
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -1698,6 +1717,8 @@ def append_messages(slug, summary, backlog_path):
     line = f"[{now}] [INFO] {slug}: {summary} (at {rel})\n"
 
     # Global sentinel — prefixed with slug for cross-anchor disambiguation.
+    # The sentinel is a flat event log, not a governed document, so a facet-spec
+    # edit is still recorded here; only the document append is suppressed.
     SENTINEL.parent.mkdir(parents=True, exist_ok=True)
     with SENTINEL.open("a") as f:
         f.write(f"[{slug}] {line}")
@@ -1705,6 +1726,8 @@ def append_messages(slug, summary, backlog_path):
     # Per-anchor messages file.
     track_dir = anchor_track_dir(backlog_path)
     messages_path = track_dir / f"{slug} Messages.md"
+    if _is_facet_spec(backlog_path) or _is_facet_spec(messages_path):
+        return
     if not messages_path.exists():
         header = (
             "---\n"

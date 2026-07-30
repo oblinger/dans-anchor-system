@@ -2,7 +2,7 @@
 description: "deferred work — roadmap milestones M0–M5"
 ---
 # Warden Backlog
-<!-- state:backlog aw -->
+<!-- state:backlog 97 -->
 
 ## Active
 
@@ -10,19 +10,12 @@ _None._
 
 ## Ready
 
-- **B-QFix — QFix** [Ready] — audit q findings routed by --fix; each sub-bullet is a residual on Warden's tree needing the 100%-fix discipline (per the audit skill's Governing principle). ^B-QFix
-  - **Next:** Fix the next residual below at its source (repoint a renamed link, de-link a retired one, correct the flagged doc), then re-run `/audit q` to clear it — per the 100%-fix discipline.
-  - **C23** SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md:57 — row 'F235' is [Designing] with zero pending Qs but has no `- **Next:**` — add a no-user next action and it becomes [Ready] (a [Ready] row needs a Next per F171), or move it to [Done]
-  - **C25** SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md:57 — bullet row 'F235' [Designing] has no justification — per F102 every [Designing] row must carry **Designing** + next-action (in linked doc's ## Status H2, or inline `- **Status:** Designing — <next-action>` sub-bullet).
-  - **C33** SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md:57 — row 'F235' [Designing] has no `→ [[F<n>]]` link to a feature doc — [Designing] implies active design work in a linked doc. If parked, use [Waiting]; if ready to implement, [Ready]; if Qs remain, [N Questions] + link to the feature doc holding them.
-  - **C37** SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden queries.md:8 — bare F-number `F278` must be a wiki-link — to its feature doc `[[F278 — Title|F278]]` if one exists, else to the backlog row `[[{slug} Backlog#^F278|F278]]` (many items are bare backlog rows with no feature doc).
-
 ## Now
 
 - **F236 — R-cards-04 width (≤69) not enforced on write; scope it to the Obsidian-SR plugin default** [Ready] ^F236
   - **Next:** Two parts. (1) **Enforcement gap:** R-cards-04 (≤69-char card lines) does NOT fire on markdown save — a live edit to `RR/STAT/stat/stat distributions.md` created an 80-char card TITLE and the Warden on-write hook reported only the R-markdown-14 trailing-ws auto-fix + "0 issues to fix by hand"; a repo scan finds multiple card-region lines >69 that never steered (python unittest.md 90–93, python core.md 74/81, numpy estimation.md 71, python debug.md 71). Wire R-cards-04 into the audit-on-write path so width violations steer on save like R-markdown does. (2) **Scope the limit:** 69 is the DEFAULT render width of the Obsidian spaced-repetition plugin — gate the check on that plugin being in use so a deck/vault not using Obsidian-SR is not held to ≤69; record that provenance in R-cards-04 prose. Found live 2026-07-23 during MLI card authoring.
 
-- **F237 — Golden corpus exists in two diverged copies — the drift oracle cannot be trusted** [Questions] — → [[F237 — Golden corpus exists in two diverged copies — the drift oracle cannot be trusted]] — the golden corpus exists at two paths and they have drifted; a run against the stale copy reported five false regressions during F278. Q1 picks which copy is canonical (lean A: vault copy, symlink the other). ^F237
+- **F237 — Golden corpus exists in two diverged copies — the drift oracle cannot be trusted** [Questions] — → [[F237 — Golden corpus exists in two diverged copies — the drift oracle cannot be trusted]] — the golden corpus exists at two paths and they have drifted; a run against the stale copy reported five false regressions during [[Tink Backlog#^F278|F278]]. Q1 picks which copy is canonical (lean A: vault copy, symlink the other). ^F237
 
 - **T019 — R-markdown-05 em-dash fixer corrupts code; three defects, all reproduced** [Ready] ^T019
   - **Next:** teach `_repl_outside_code` to mask 4-space indented code blocks; repoint `chk_md_em_dash` at it so one predicate serves both; make the fixer skip lines with odd backtick parity and warn instead; add corpus cases asserting a spaced double-hyphen survives untouched inside indented blocks, fenced blocks, and a line with unbalanced backticks; re-run the Warden corpus.
@@ -54,8 +47,6 @@ _None._
 
 - **F234 — Fable scan: Warden engine** [Ready] — → [[F234 — Fable scan — Warden engine]] ^F234
   - **Next:** assess prior Fable coverage + ROI, then run the scoped scan
-
-- **F235 — backlog-edit notification pollutes facet specs** [Designing] — Warden's backlog-edit→sibling-Messages append rule fires on facet specs: editing `facets/DAS Backlog.md` appends a stray `[INFO] backlog … was edited` line to `facets/DAS Messages.md` (the Messages FACET SPEC, not an anchor instance). Fix: exclude `DAS *.md` facet specs under `dans-anchor-system/facets/` from the rule, mirroring R-messages `!**/DAS *.md`. Repro: SKA F243 MS-2 had to strip 16 such lines. Filed by SKA 2026-07-16. ^F235
 
 ## Done
 
@@ -152,3 +143,5 @@ _None._
 
 - **F233 — Dispatch-normalization on-write fixer deletes body member rows + strips ~~staging~~ marks ([[F189 — Masthead-curation pass — canonical Gen-3 mastheads|F189]] pilot fallout)** [Done] — resolved 2026-07-13: Reproduced 2026-07-13 with the F189 pilot shape (Disk.md pre-cohort state + surgical Subtopics masthead edit + injected ~~staging~~ marks) fired through the INSTALLED rs dispatcher: warden EXONERATED — no member-row deletion, no tilde stripping (only the correct R-markdown-14 trailing-ws fix); git history confirms no dispatch/tilde fixer ever existed in the registry, and the F179 alnum-subsequence floor would suppress row deletion regardless. The pilot's attribution was wrong: the residual actor is HookAnchor's electric dispatch-table rebuild — routed as HA T002 (HA Backlog, Now) with repro + fix spec. Warden-side invariance PINNED: test_warden_docfire.test_fire_on_write_preserves_dispatch_body fires the live R-doc umbrella on the Topic shape and asserts member rows + all ~~ marks survive. All suites green. ^F233
   - **Next:** Reproduce with the [[F189 — Masthead-curation pass — canonical Gen-3 mastheads|F189]] Topic-pilot case, then fix the dispatch normalization fixer to (1) preserve ~~strikethrough~~ staging marks on ANY body write and (2) never delete body dispatch member rows when a masthead Subtopics row lists the same anchors; pin fail+pass in the golden corpus
+
+- **F235 — backlog-edit notification pollutes facet specs** [Done] — **FIXED 2026-07-30.** `append_messages()` in `backlog-edit.py` now returns before the document append when either the backlog or its sibling Messages file is a facet spec (`facets/DAS *.md`). The exemption was already declared twice — [[R-backlog]] and [[R-messages]] both carry `where:: …, !**/DAS *.md` with the note that a `DAS <Name>.md` is the SPEC for the facet, not an instance — but this write site never honoured it, so `state`-driven edits to the backlog facet spec appended INFO lines into the Messages facet spec. The global sentinel still records the event; only the document append is suppressed. Predicate unit-tested on four paths (both facet specs true, Tink + MUSE backlogs false); the 4 stray lines that had accumulated in `facets/DAS Messages.md` since 2026-07-24 were stripped in the same pass. Filed by SKA 2026-07-16 (SKA F243 MS-2 had stripped 16 earlier ones by hand). ^F235
