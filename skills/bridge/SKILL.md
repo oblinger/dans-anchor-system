@@ -7,6 +7,8 @@ description: Connect this Mac to another machine — via the packaged dispatcher
 requires:: vault, external:homebrew, external:syncthing, external:tmux
 subsystem:: [[DAS Utility Design]] — the Utility group's subsystem profile
 
+The umbrella skill for connecting this Mac to another machine — a packaged dispatcher over ssh/tmux/rsync/Syncthing that gives Claude the same reach on the remote as on the laptop.
+
 | Table of Contents |  |
 |---|---|
 | **[[#Heartbeat discipline — MANDATORY whenever a bridge is active]]** |  |
@@ -105,6 +107,36 @@ claude_environment:
 **The vault path is NOT duplicated in bridge config** — `claude-provision.py` reads `vault_root` from `~/.config/anchor-system/global.yaml`, the same parameter every cross-cutting skill script scopes by. Missing `vault_root` fails loudly (F159).
 
 The helpers live at `~/.claude/skills/bridge/`: `syncthing-helper.py` (sync mechanism) and `claude-provision.py` (claude goal).
+
+---
+
+# Capability profiles — what a bridge is supposed to do (F027)
+
+A bridged remote should be able to do **everything the laptop can do**. `bridge install <host>` today provisions the basics idempotently (skills + CLAUDE.md + ctrl + launchd-durable Syncthing + provision stamp), but there is no declared notion of *what capabilities the remote is supposed to have* — gaps surface only when an agent trips over them mid-task. Motivating incident: the haorui 2026-07-26 sardine-buy — `ctrl cpage` dead (no Playwright), `screencapture` silently no-op'd from a bare SSH shell, Safari needed a one-time `defaults write` before `ctrl jpage` worked, and scripts written against local habits broke (no `setsid`). Each cost a debugging cycle a declared-and-verified environment would have prevented.
+
+Profiles are named contracts. `full` is the kitchen sink — every control surface available locally, working remotely. Below `full`, thinner tiers keep cheap/minimal remotes cheap. Every capability declares a **probe** (a command the installer runs to *prove* it works — not "install X" but "assert X works") and an **install action** (what to do when the probe fails). `bridge doctor --profile <name>` reports per-capability PASS/FAIL. `bridge install --profile <name>` install-and-verifies each. Re-running install is idempotent and repairs missing capabilities.
+
+## The `full` profile — capability table (v1 draft, F027)
+
+Every probe below runs **inside the canonical `bridge-<host>` tmux server** (Aqua-launched, TCC-inherited). Bare-SSH probes prove nothing about the server's GUI context; the whole point of the table is to test capabilities as an agent *actually reaches them* over the bridge.
+
+| Capability | What it enables | Probe (inside `bridge-<host>` server) | Expected result | Install / repair |
+|---|---|---|---|---|
+| **GUI/Aqua launch context** | The foundation for every capability below — TCC inheritance from Terminal.app running under the window server. If this fails, every GUI-adjacent probe below also fails. | `osascript -e 'tell application "System Events" to name of first process' >/dev/null 2>&1` | Exit 0. Bare-SSH-launched server errors `-1743`. | Redo `bridge tmux <host>` (§ Setup recipe Step 5) so the server is Aqua-launched; grant Step 5b TCC. |
+| **Screen capture** | `screencapture`, `screen.py grab`, screen-vision workflows | `screencapture -x /tmp/bridge-probe.png && [ -s /tmp/bridge-probe.png ]; rc=$?; rm -f /tmp/bridge-probe.png; exit $rc` | Non-empty PNG (exit 0). Missing TCC/Aqua = "could not create image from display" and empty file. | Grant Screen Recording to Terminal.app in remote's Privacy & Security. |
+| **Browser automation (Playwright + Chrome-CDP)** | `ctrl cpage`, headless JS-heavy fetches | `ctrl cpage --url about:blank --output /tmp/bridge-probe.json >/dev/null 2>&1 && [ -s /tmp/bridge-probe.json ]; rc=$?; rm -f /tmp/bridge-probe.json; exit $rc` | Exit 0. Missing = "playwright not installed" / "chromium executable not found". | `pip install playwright && playwright install chromium` (bounded install; ~200 MB). |
+| **Safari AppleEvents (JS-from-AE + Develop menu)** | `ctrl jpage`, real-Safari fetches through the user's logged-in sessions | `[ "$(defaults read com.apple.Safari AllowJavaScriptFromAppleEvents 2>/dev/null)" = 1 ] && [ "$(defaults read com.apple.Safari IncludeDevelopMenu 2>/dev/null)" = 1 ]` | Both `1`. Missing = `ctrl jpage` errors "not allowed to send Apple events". | `defaults write com.apple.Safari AllowJavaScriptFromAppleEvents -bool true`; `defaults write com.apple.Safari IncludeDevelopMenu -bool true`; Safari relaunch. |
+| **VM control (utmctl)** *(Windows VM — prompted, not automatic)* | Windows / Linux VM lifecycle via UTM (F014/F022 companion) | `command -v utmctl >/dev/null && utmctl list >/dev/null 2>&1` | Exit 0. `OSStatus -1743` = missing Automation TCC on Terminal.app; command-not-found = UTM not installed. | Prompt the user (per F027 design): *"Include Windows VM in `full`? [y/N]"* — on `y`, install UTM (`brew install --cask utm`), grant Terminal.app "Automation → UTM" TCC, walk user through VM import. Never automatic. |
+| **Clipboard** | `pbcopy` / `pbpaste`, cross-agent hand-off | `echo bridge-probe \| pbcopy && [ "$(pbpaste)" = bridge-probe ]` | Exit 0. Empty pbpaste = pboard daemon stuck (very rare). | Restart pboard: `killall pboard` (macOS auto-relaunches). |
+| **Notification** | `osascript display notification`, Notification-Center pings | `osascript -e 'display notification "bridge probe" with title "Bridge"' >/dev/null 2>&1` | Exit 0. Fails "Not authorized" if TCC blocks System Events. | Grant Terminal.app "Automation → System Events" TCC. |
+| **Audio (say + afplay)** | Voice output, alert tones | `afplay /System/Library/Sounds/Ping.aiff -t 0.1 2>&1 \| grep -qi error && exit 1; say -v Alex "" 2>&1 \| grep -qi error && exit 1; exit 0` | Exit 0. Failure typically means no default audio device connected. | No install; surface "no audio output device" as informational. |
+| **Concurrent-agent tmux window convention** *(convention, not a bare-probe)* | Multiple agents sharing `bridge-<host>` without stealing each other's `ctrl jpage` navigations or interleaving keystrokes (2026-07-26 four-agent-collision incident) | `tmux list-windows -t bridge-<host> -F '#{window_name}' 2>/dev/null \| grep -Eq '^agent-'` — the session must carry at least one window whose name is `agent-<slug>`; verbs must `send-keys` to a window by name, never the active window | ≥1 `agent-*` window present. Verbs target by name. Missing = concurrent agents collide on window 0. | `bridge tmux <host> --agent <slug>` opens a fresh named window `agent-<slug>`; the `bridge` dispatcher's `send-keys` targets `-t bridge-<host>:agent-<slug>`. Browser claim/lease (see below) built on top. |
+
+**Shared-browser claim (open design, F027).** With multiple agents in one bridge, the *browser* (Safari / Playwright Chromium) is a single shared surface — the last agent's `ctrl jpage` navigation wins. Sketch: a file-lock lease under `/tmp/bridge-browser.<slug>.lock` with a wall-clock deadline; `ctrl jpage` / `ctrl cpage` acquire before navigating, release on completion. Timeout = agent crashed, forfeit lease. Not yet designed — parked as `[Questions]` on F027 pending user input.
+
+**Below `full` — thinner profiles.** Deferred until real minimal-remote use cases surface. First real cheap-remote use case defines the profile; premature enumeration would just guess.
+
+**Wiring.** `bridge doctor <host>` gains `--profile <name>` — walks the table, reports PASS/FAIL per row with the exact repair command. `bridge install <host>` gains `--profile <name>` — runs the same probes, executes the install action for each FAIL, re-probes to confirm. Dry-run mode (`bridge install --profile full --dry-run`) prints the plan without side effects. The Windows-VM row is the only one that gates on user prompt; every other install action is automatic.
 
 ---
 
