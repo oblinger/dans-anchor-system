@@ -60,6 +60,11 @@
   "status": "pass"
  },
  {
+  "rule": "R-markdown-16",
+  "target": "FX8 Notes.md",
+  "status": "pass"
+ },
+ {
   "rule": "R-progressive-01",
   "target": "FX8 Notes.md",
   "status": "pass"

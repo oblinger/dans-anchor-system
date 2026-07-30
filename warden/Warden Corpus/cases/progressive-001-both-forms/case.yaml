@@ -4,5 +4,5 @@ mode: doc
 target: FX7 Guide.md
 provenance: authored (T007 — first FAIL pin for R-progressive; 11 pass pins existed, no fail)
 engine: audit-plan
-blessed_against: 07b9fd1282fe-e3f18f6e4444
+blessed_against: 7a1e16e4cfa9-1f858b122223
 note: a doc carrying BOTH its own dispatch-masthead and a :>> breadcrumb (R-progressive-01 fail), with an H2 glued to prose (R-progressive-02 fail)

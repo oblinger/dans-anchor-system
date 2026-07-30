@@ -90,6 +90,11 @@
   "status": "pass"
  },
  {
+  "rule": "R-markdown-16",
+  "target": "FX6 Backlog.md",
+  "status": "pass"
+ },
+ {
   "rule": "R-progressive-01",
   "target": "FX6 Backlog.md",
   "status": "pass"
