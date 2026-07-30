@@ -45,6 +45,7 @@ A **table-of-contents table** (content-outline table — left column links the d
 - **Long document (more than ~3 pages) → MUST carry a TOC table.**
 - **Short document (about 3 pages or fewer) → MUST NOT carry a TOC table** — it is navigation overhead for a document a reader can simply scroll.
 - **Specialized exception:** a document may carry *another kind of table* at the top (a stories index, a status board, a glossary) that is neither a dispatch table nor a TOC table. Such content tables are permitted regardless of length and are not the subject of this rule.
+- **Script-owned projections are exempt:** `Q.md` and `{slug} queries.md` are rewritten whole on every render, so a TOC would be erased on the next write and cannot be added by hand ([[R-pathguard]] denies the edit). The rule asks an author to help a reader navigate; a generated page has no author. Backlogs are not exempt — `state` edits rows in place, so a TOC survives there.
 
 **Check pattern:** estimate length by content (heading count + body lines as a page proxy). If long, assert a content-outline table (in-document `[[#...]]` links) precedes the first body section. If short, assert no such TOC table is present. A specialized content table (neither dispatch masthead nor in-document-heading TOC) does not count either way.
 
