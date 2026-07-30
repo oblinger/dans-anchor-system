@@ -136,7 +136,7 @@ Every probe below runs **inside the canonical `bridge-<host>` tmux server** (Aqu
 
 **Below `full` — thinner profiles.** Deferred until real minimal-remote use cases surface. First real cheap-remote use case defines the profile; premature enumeration would just guess.
 
-**Wiring.** `bridge doctor <host>` gains `--profile <name>` — walks the table, reports PASS/FAIL per row with the exact repair command. `bridge install <host>` gains `--profile <name>` — runs the same probes, executes the install action for each FAIL, re-probes to confirm. Dry-run mode (`bridge install --profile full --dry-run`) prints the plan without side effects. The Windows-VM row is the only one that gates on user prompt; every other install action is automatic.
+**Wiring (stage 2, 2026-07-30).** `bridge doctor <host> --profile <name>` walks the profile after the standard checks, reporting PASS/FAIL per row with the exact repair command. `bridge install <host> --profile <name>` runs the same probes, executes the install action for each FAIL, re-probes once to confirm. Dry-run mode (`bridge install --profile full --dry-run`) prints the plan without side effects. Each profile is a companion file `profile-<name>.sh` — the `full` profile ships as `profile-full.sh` with 7 capability rows (aqua, screen, playwright, safari-ae, clipboard, notification, audio). Auto-installable rows execute their `defaults write` / `pip install` / `killall` action; TCC-gated rows (aqua, screen, notification) print grant guidance instead. **Stage 3 (parked):** the Windows-VM row (`utmctl` — user-prompted), the concurrent-agent tmux window convention, and the shared-browser claim/lease design.
 
 ---
 

@@ -14,14 +14,20 @@
 #       to it. Session name defaults to bridge-<host> on BOTH sides.
 #       Drive it:  tmux send-keys -t bridge-<host> "<cmd>" Enter
 #       Read it:   tmux capture-pane -t bridge-<host> -p
-#   bridge install <host>      Idempotent converge — "make it so." Env files
-#       (claude-provision), launchd-durable Syncthing on the remote, provision
-#       stamp. Re-run any time; `refresh` is an alias.
+#   bridge install <host> [--profile P] [--dry-run]
+#       Idempotent converge — "make it so." Env files (claude-provision),
+#       launchd-durable Syncthing on the remote, provision stamp. Re-run any
+#       time; `refresh` is an alias. With --profile <name> also walks that
+#       capability profile (probe each row; run install action on FAIL;
+#       re-probe once). --dry-run prints the plan without side effects.
 #   bridge sync <host>         Verify/revive the Syncthing sync (status now;
 #       full share creation stays in syncthing-helper.py).
 #   bridge skills <host>       Ensure the remote's ~/.claude/skills tracks the
 #       skills repo named in config (vault-synced copy preferred, clone else).
-#   bridge doctor <host>       Read-only deep diagnosis. Never mutates.
+#   bridge doctor <host> [--profile P]
+#       Read-only deep diagnosis. Never mutates. With --profile <name>, walks
+#       that capability profile (probe each row, PASS/FAIL + repair hint) in
+#       addition to the standard checks. Profiles live in profile-<name>.sh.
 #
 # A sub-second PREFLIGHT runs automatically before every verb: local checks
 # always (~10ms), one remote ping only when a warm ControlMaster socket
@@ -38,13 +44,21 @@ VERB="${1:-help}"; shift || true
 HOST="${1:-}"; [ $# -gt 0 ] && shift
 SESSION=""
 MODE="ensure"
+PROFILE=""
+DRY_RUN=0
 for arg in "$@"; do
   case "$arg" in
     --session) : ;;             # value captured next loop via flag
     --session=*) SESSION="${arg#*=}" ;;
-    --viewer) MODE="viewer" ;;
-    --force)  MODE="force" ;;
-    *) if [ -z "$SESSION" ] && [ "${PREV:-}" = "--session" ]; then SESSION="$arg"; fi ;;
+    --profile) : ;;             # value captured next loop
+    --profile=*) PROFILE="${arg#*=}" ;;
+    --viewer)  MODE="viewer" ;;
+    --force)   MODE="force" ;;
+    --dry-run) DRY_RUN=1 ;;
+    *) case "${PREV:-}" in
+         --session) [ -z "$SESSION" ] && SESSION="$arg" ;;
+         --profile) [ -z "$PROFILE" ] && PROFILE="$arg" ;;
+       esac ;;
   esac
   PREV="$arg"
 done
@@ -53,6 +67,21 @@ say()  { printf '%s\n' "$*"; }
 fail() { printf 'FAIL  %s\n' "$*" >&2; exit 1; }
 
 require_host() { [ -n "$HOST" ] || fail "usage: bridge $VERB <host> [options]"; }
+
+# Source profile-<name>.sh (F027) and run its walker in the given mode.
+# Returns 0 iff every countable row PASSes at the end. Callers set SSH,
+# SESSION, TARGET via resolve_target before invoking.
+#   $1 name (e.g. "full")   $2 mode (probe|install|dry-run)
+run_profile_walk() {
+  local name="$1" mode="$2"
+  local pf="$SCRIPT_DIR/profile-$name.sh"
+  [ -f "$pf" ] || { say "  FAIL  profile  no such profile: $name (looked at $pf)"; return 1; }
+  # shellcheck source=/dev/null
+  . "$pf"
+  local walker="profile_${name}_walk"
+  declare -f "$walker" >/dev/null || { say "  FAIL  profile  $pf defines no $walker function"; return 1; }
+  "$walker" "$mode"
+}
 
 resolve_target() {
   case "$HOST" in *.local|*.*) TARGET="$HOST" ;; *) TARGET="$HOST.local" ;; esac
@@ -212,6 +241,12 @@ EOF
   "${SSH[@]}" "mkdir -p ~/.config/bridge && date -u +%Y-%m-%dT%H:%M:%SZ > ~/.config/bridge/stamp"
   date -u +%Y-%m-%dT%H:%M:%SZ > "$STAMP_CACHE"
   say "PASS  stamp   provision stamp written (remote + local cache)"
+  # 5. optional profile walk (F027) — probe every row, install-on-FAIL, re-probe
+  if [ -n "$PROFILE" ]; then
+    local mode=install; [ "$DRY_RUN" = 1 ] && mode=dry-run
+    say "== profile: $PROFILE ($mode) =="
+    run_profile_walk "$PROFILE" "$mode" || say "WARN  profile  one or more capabilities still failing after install pass"
+  fi
   say "== install complete — run: bridge doctor $HOST for the full read-only audit =="
 }
 
@@ -287,7 +322,13 @@ cmd_doctor() {
     && check local yes "local session '$LOCAL_SESSION' up" \
     || check local no "no local session — run: bridge tmux $HOST"
   say "== doctor: $pass pass, $warnc fail =="
-  [ "$warnc" = 0 ]
+  local base_rc=0; [ "$warnc" = 0 ] || base_rc=1
+  if [ -n "$PROFILE" ]; then
+    run_profile_walk "$PROFILE" probe
+    local prof_rc=$?
+    [ "$prof_rc" = 0 ] || base_rc=1
+  fi
+  return "$base_rc"
 }
 
 # ------------------------------------------------------------------- verbs
