@@ -2,7 +2,7 @@
 description: "MUSE backlog — voice-memo pipeline features"
 ---
 # MUSE Backlog
-<!-- state:backlog kj -->
+<!-- state:backlog yy -->
 
 Voice-memo ingestion + review-and-do pipeline work items.
 
@@ -11,6 +11,12 @@ Voice-memo ingestion + review-and-do pipeline work items.
 | ... |  |
 
 ## Ready
+
+- **B-QFix — QFix** [Ready] — audit q findings routed by --fix; each sub-bullet is a residual on MUSE's tree needing the 100%-fix discipline (per the audit skill's Governing principle). ^B-QFix
+  - **Next:** Fix the next residual below at its source (repoint a renamed link, de-link a retired one, correct the flagged doc), then re-run `/audit q` to clear it — per the 100%-fix discipline.
+  - **C22** SYS/Bespoke/Skill Agent/dans-anchor-system/skills/muse/MUSE Track/MUSE queries.md:10 — link `[[gotcha-icloud-fileprovider-watchpaths]]` does not resolve (basename 'gotcha-icloud-fileprovider-watchpaths' not in vault)
+  - **C22** SYS/Bespoke/Skill Agent/dans-anchor-system/skills/muse/MUSE Track/MUSE Backlog.md:29 — link `[[gotcha-icloud-fileprovider-watchpaths]]` does not resolve (basename 'gotcha-icloud-fileprovider-watchpaths' not in vault)
+  - **C22** SYS/Bespoke/Skill Agent/dans-anchor-system/skills/muse/MUSE Track/MUSE queries.md:10 — link `[[gotcha-icloud-fileprovider-watchpaths]]` does not resolve (basename 'gotcha-icloud-fileprovider-watchpaths' not in vault)
 
 ## Now
 
