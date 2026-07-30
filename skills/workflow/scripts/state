@@ -1449,7 +1449,16 @@ def _q_define_core(slug, feature_path, q_num, body, why_ask=None):
     new_bullet = be._format_q_bullet(q_num, container_id, body)
     if loc is not None:
         start, end, _ = loc
-        lines = lines[:start] + new_bullet.splitlines() + lines[end:]
+        body_lines = new_bullet.splitlines()
+        # `_find_q_bullet`'s range absorbs the blank line that separated the Q
+        # block from whatever follows it, so a bare splice deletes that
+        # separator and glues the next `## H2` onto the last bullet —
+        # R-progressive-02 then fires on the doc the define just wrote. Put the
+        # blank back when the following line needs one. (Observed three times in
+        # one session on F237 / F282 / F217, 2026-07-30.)
+        if end < len(lines) and lines[end].strip():
+            body_lines.append("")
+        lines = lines[:start] + body_lines + lines[end:]
         verb_done = "redefined"
     else:
         lines, (h2_start, h2_end) = be._ensure_open_questions_h2(lines)
