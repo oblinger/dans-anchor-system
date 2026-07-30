@@ -173,12 +173,6 @@ Q_MD = VAULT_ROOT / "Q.md"
 # Filesystem-walk exclusions when building the vault index.
 EXCLUDED_PATH_FRAGMENTS = (".trash", "Closet", "Yore", "worktrees", ".claude")
 
-# Path segments that mark a real sub-project living inside the `Skill Agent/`
-# tree — one with a queue of its own that must reach Q.md instead of rolling up
-# under SKA (see `find_anchor_backlogs`, the F107 nesting filter). Membership is
-# a judgment about the WORK, not the file layout: these ship independently.
-SUBPROJECT_QUEUES = {"warden", "muse"}
-
 # Horizon H2s in a per-anchor backlog. `## Done` is the archive surface for
 # C4's stale-Done migration; everything else is a "live" horizon.
 LIVE_HORIZON_H2S = {"Active", "Ready", "Now", "Next", "Later", "Verify", "Legwork"}
@@ -3525,10 +3519,19 @@ def check_c35_ask_md_drift(
                 break
         if q_start < 0:
             continue
-        # Parse bullets in the Questions region
+        # Parse bullets in the Questions region.
+        #
+        # Only TOP-LEVEL bullets are entries. An indented bullet is a rendered
+        # Q body belonging to the entry above it, and it is already consumed as
+        # a continuation line below — so matching it here reads it a second
+        # time, as an entry in its own right. When such a Q body happens to
+        # *link* another feature doc, that doc gets reported as wrongly listed
+        # under `## Questions`, which it never was. Observed 2026-07-30: F288's
+        # Q1 links F287 to explain where the question came from, and C35
+        # flagged F287 — whose Qs are all resolved — as drifted.
         for line_num in range(q_start, q_end):
             line = lines[line_num]
-            if not re.match(r"^\s*-\s+", line):
+            if not re.match(r"^-\s+", line):
                 continue
             link_m = wiki_link_re.search(line)
             if not link_m:
@@ -4551,82 +4554,113 @@ def apply_placement_fixes(
 # ============================================================
 
 
-def _is_ska_subskill(path: Path) -> bool:
-    """F107 — a backlog under `Skill Agent/` nested deeper than SKA's own.
-
-    SKA's backlog sits at `Skill Agent/SKA Docs/SKA Track/SKA Backlog.md`
-    (4 parts after `Skill Agent`, inclusive). Anything deeper — CAB, CAE,
-    CSE, SKA skill-trait at the sibling level, plus the sub-skill nesting
-    under Drive Loop / Discipline / Utility / Dev / Doc / skills — is part
-    of SKA and rolls up under SKA's presence in Q.md. Per user direction
-    2026-06-02 (round 2): "C-A-B and C-A-E are part of SKA, and that's
-    the only backlog we should be looking at."
-
-    Exception: a real sub-project with a live queue of its own is NOT an SKA
-    sub-skill just because its files live in the SKA tree — its rows must
-    surface in Q.md rather than roll up invisibly (`SUBPROJECT_QUEUES`).
-      warden — F218 2026-06-29, active M-roadmap.
-      muse   — added 2026-07-30 under F284's frontier sweep, which found two
-               `[Ready]` rows (T001/T002) that had never been visible
-               anywhere. MUSE is a shipped macOS app (its own signing/TCC
-               work), the same class as warden.
-    """
-    if "Skill Agent" not in path.parts:
-        return False
-    sa_idx = path.parts.index("Skill Agent")
-    return len(path.parts) - sa_idx > 4 and not SUBPROJECT_QUEUES & set(path.parts)
-
-
 def classify_backlog(path: Path) -> tuple[str, Optional[str]]:
     """F287 — classify one `* Backlog.md`. Returns `(verdict, reason)`.
 
     Verdict is one of:
-      "render"       — a real anchor's queue; reaches Q.md.
-      "exclude"      — deliberately not a queue; `reason` names which kind.
-      "unclassified" — matches no rule. This is the case that used to be a
-                       bare `continue`, and is now reported by C52.
+      "render"       — an anchor that opted into queue tracking; reaches Q.md.
+      "exclude"      — opted in, but deliberately suppressed; `reason` says why.
+      "malformed"    — opted in, but the file does not parse as a backlog.
+      "unclassified" — never opted in. Used to be a bare `continue`; C52 now
+                       reports it.
 
-    Why this exists (F287): discovery used to keep a file only if its parent
-    folder name ended in `Plan`/`Track`, and drop every other file silently.
-    That predicate encodes *where a backlog is conventionally filed*, not
-    *whether it is a real backlog* — and those two are only accidentally the
-    same thing. It is the mechanism that erased Disk's twelve rows; Disk was
-    then repaired by moving the file, leaving the predicate intact. Measured
-    2026-07-30 the eight skipped files were all correctly skipped and none of
-    them for the stated reason (the backlog *facet spec* was dropped because
-    its parent is named `facets`, not because it is a spec). Naming each
-    reason is what keeps that correlation from silently decaying.
+    **The opt-in is the signal** (Q1, Dan 2026-07-30). Creating
+    `{slug} Track/{slug} Backlog.md` IS the act of opting into queue tracking —
+    the structure is the declaration of intent, not a hint that correlates with
+    one. So the parent folder must be exactly `{slug} Track` (or the legacy
+    `{slug} Plan`) for the SAME slug the backlog names.
 
-    Ordering note: the exclusion reasons are tested BEFORE the Plan/Track
-    render test, so a file gets its most specific true reason rather than
-    whichever filter happened to fire first. `examples/HBR/HBR Track/` sits
-    under a `Track` parent and would otherwise be reported as an SKA
-    sub-skill, when what it actually is is a shipped example anchor. The
-    rendered set is unchanged by this reordering — verified by diffing the
-    30 rendered names before and after.
+    That strictness is what makes the taxonomy small. The looser predicate this
+    replaces — any folder whose name merely *ended* in `Track`/`Plan` — is the
+    mechanism that erased Disk's twelve rows, and it forced four separate
+    hand-maintained exclusions to keep non-queues out. Measured against the
+    live vault, the strict form loses none of the 30 rendered anchors and
+    dissolves 6 of those 8 exclusions on its own: the corpus fixtures sit under
+    `fixture/`, the backlog facet spec under `facets/`, the EXP sub-skill under
+    `docs/` — none of which is a `{slug} Track`. It also retires the F107
+    depth rule and the hardcoded `SUBPROJECT_QUEUES` allowlist entirely, since
+    warden and muse now render because they hold `Warden Track/Warden
+    Backlog.md`, not because someone remembered to add them to a set. That
+    allowlist is what had to be hand-edited to rescue MUSE under F284.
+
+    One suppression survives, and it is a real judgment rather than a
+    structural fact: `examples/` holds DAS's shipped example anchors, which
+    genuinely opt in and are genuinely complete, but are documentation and do
+    not belong in the user's queue.
     """
     parts = path.parts
     if any(frag in parts for frag in EXCLUDED_PATH_FRAGMENTS):
         return "exclude", "path-fragment"
-    # Golden-corpus test data. Requires BOTH markers so warden's own live
-    # backlog (`warden/Warden Track/`) is not caught by the corpus name.
-    if "Warden Corpus" in parts and "fixture" in parts:
-        return "exclude", "fixture"
-    # DAS ships example anchors as real, tiny, complete instances — they are
-    # documentation, and their rows are illustrative.
-    if "examples" in parts:
-        return "exclude", "example"
-    # The backlog *facet spec* — `facets/DAS Backlog.md` documents what a
-    # backlog is, and the rows inside it are its reference example.
-    if path.parent.name == "facets":
-        return "exclude", "facet-spec"
-    if _is_ska_subskill(path):
-        return "exclude", "sub-skill"
-    # Accept either the legacy `<X> Plan/` form or the F094 four-bucket
-    # `<X> Track/` form. Migrated anchors hold the backlog under Track.
-    if path.parent.name.endswith("Plan") or path.parent.name.endswith("Track"):
-        return "render", None
-    return "unclassified", None
+    slug = path.stem[:-len(" Backlog")]
+    if path.parent.name not in (f"{slug} Track", f"{slug} Plan"):
+        # Never opted in. Most such files are obviously not queues; naming why
+        # keeps C52 quiet about them, so the complaint stays meaningful. These
+        # reasons gate only the COMPLAINT, never the render — a wrong entry
+        # here costs a missing warning, not an invisible anchor.
+        if "Warden Corpus" in parts and "fixture" in parts:
+            return "not-a-queue", "fixture"
+        if path.parent.name == "facets":
+            return "not-a-queue", "facet-spec"
+        if "Skill Agent" in parts:
+            return "not-a-queue", "sub-skill"
+        return "unclassified", None
+    # Opted in — so it renders, full stop. There is deliberately NO suppression
+    # list here (Dan 2026-07-30). "It's documentation" is not a basis: a backlog
+    # just means there is stuff to do, and plenty of documentation anchors carry
+    # real ones (ABIO; DCP is a paper with a genuine work queue). The DAS example
+    # anchors under `examples/` opted in like anything else and render like
+    # anything else.
+    #
+    # The real concern behind such an exception — content that is stale or no
+    # longer active — is a different and more general feature: ANY backlog might
+    # want to declare itself or some of its rows inactive. That belongs in a
+    # masking mechanism every anchor can reach, not a two-folder carve-out here.
+    # Until it exists, HBR's and CSE's illustrative rows do appear in Q.md,
+    # which is the honest failure direction: visible-and-wrong beats hidden.
+    bad = _backlog_structure_fault(path)
+    if bad:
+        return "malformed", bad
+    return "render", None
+
+
+def _backlog_structure_fault(path: Path) -> Optional[str]:
+    """Confirm an opted-in file really is a backlog. Returns a fault, or None.
+
+    Per Dan 2026-07-30: glob for the signal, then verify — and say something
+    when the verification fails rather than dropping the file. Near-free, since
+    the file is opened and parsed for rows anyway.
+
+    Deliberately narrow. It flags a file with no H1, and a file carrying rows
+    that sit under no recognised horizon (those rows render nowhere, which is
+    the F284 failure one level down). It stays SILENT on a freshly scaffolded
+    empty backlog — H1, no horizons, no rows — because that is a legitimate
+    state, not breakage: `derive_anchor_banner` already returns None for an
+    anchor with no items, so an empty queue was never rendering anything to
+    lose. SVW is in exactly that state today, and complaining about it would
+    be the noise that trains you to skim past C52.
+    """
+    try:
+        text = path.read_text(encoding="utf-8")
+    except Exception as exc:
+        return f"unreadable ({exc.__class__.__name__})"
+    has_h1 = False
+    has_horizon = False
+    rows = 0
+    for line in text.splitlines():
+        m = HEADING_RE.match(line)
+        if m:
+            level, title = len(m.group(1)), m.group(2).strip()
+            if level == 1:
+                has_h1 = True
+            elif level == 2 and title in ALL_KNOWN_H2S:
+                has_horizon = True
+        elif ROW_OPENER_RE.match(line):
+            rows += 1
+    if not has_h1:
+        return "no H1"
+    if rows and not has_horizon:
+        return f"{rows} row(s) under no recognised horizon H2"
+    return None
 
 
 def find_anchor_backlogs(vault_root: Path) -> dict[str, Path]:
@@ -4667,22 +4701,35 @@ def check_c52_unclassified_backlog(vault_root: Path) -> list[Finding]:
     """
     findings: list[Finding] = []
     for path in sorted(vault_root.rglob("* Backlog.md")):
-        if classify_backlog(path)[0] != "unclassified":
+        verdict, reason = classify_backlog(path)
+        if verdict not in ("unclassified", "malformed"):
             continue
         rel = path.relative_to(vault_root)
+        slug = path.stem[:-len(" Backlog")]
+        if verdict == "unclassified":
+            msg = (
+                f"backlog never opted in: {rel} — its parent folder is "
+                f"`{path.parent.name}/`, not `{slug} Track/`, so it renders "
+                f"nowhere. If this is {slug}'s queue, move it to "
+                f"`{slug} Track/{slug} Backlog.md` — that placement IS the "
+                f"opt-in. If it is not a queue, it should not be named "
+                f"`{path.name}` (F287)"
+            )
+        else:
+            horizons = ", ".join(sorted(LIVE_HORIZON_H2S))
+            msg = (
+                f"opted in but does not parse as a backlog: {rel} — it sits in "
+                f"`{slug} Track/`, which declares it a queue, but {reason}. "
+                f"Recognised horizons: {horizons}. Either give it the structure "
+                f"of a backlog, or move it out of `{slug} Track/` so the name "
+                f"stops claiming to be one (F287)"
+            )
         findings.append(Finding(
             severity="error",
             surface_file=path,
             surface_line=1,
             code="C52",
-            message=(
-                f"backlog not classified: {rel} — its parent folder "
-                f"`{path.parent.name}/` is neither `*Plan` nor `*Track`, so it "
-                f"renders nowhere. If this is a real anchor's queue, move it "
-                f"under `{path.stem.replace(' Backlog','')} Track/`; if it is "
-                f"not a queue at all, give it a named reason in "
-                f"`classify_backlog` (F287)"
-            ),
+            message=msg,
             mechanically_fixable=False,
         ))
     return findings

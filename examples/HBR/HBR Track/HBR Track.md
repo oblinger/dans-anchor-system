@@ -9,4 +9,4 @@ Where Harbor's work is tracked.
 | Anchor | [[HBR]] (parent) |
 | Related | [[HBR Design]],  [[DAS Track]],   |
 | Members | [[HBR Backlog\|Backlog]],   |
-| ... | [[HBR Messages]],  [[HBR Status]],   |
+| ... | [[HBR Messages]],  [[HBR queries]],  [[HBR Status]],   |
