@@ -145,6 +145,42 @@ def main():
     check("Verifications is gone once its only row was promoted",
           "## Verifications" in h2s4, False)
 
+    # --- a blocker is only a blocker if the waiting row is on the frontier -
+    # Dan, 2026-07-30: a blocker for something parked in `## Later` is not a
+    # blocker, it is a note — nothing he is working on is held up, so the row
+    # is noise at the position of highest attention. Tink shipped exactly this
+    # case for weeks (F238 waits on F230, both in Later) and it read as a real
+    # obstruction he had never been told about.
+    body5, h2s5 = render("""# X Backlog
+
+## Now
+
+- **F001 — Named, but only by parked work** [Ready] — nothing live waits. ^F001
+
+## Later
+
+- **F002 — Parked, and waiting** [Blocked F001] — deferred by intent. ^F002
+""", next_actions={"F001": "go"})
+    check("a Later-only waiter does not make a blocker",
+          "## Blockers" in h2s5, False)
+    check("the un-promoted blocker stays in Ready",
+          any("F001" in ln for ln in body5), True)
+
+    # The same edge, with the waiter moved to the frontier, DOES surface —
+    # so the assertion above is about horizon and not about the edge failing
+    # to parse at all.
+    _, h2s6 = render("""# X Backlog
+
+## Now
+
+- **F001 — Named by live work** [Ready] — something live waits. ^F001
+
+## Next
+
+- **F002 — Live, and waiting** [Blocked F001] — on the frontier. ^F002
+""", next_actions={"F001": "go"})
+    check("a Next-horizon waiter does make a blocker", h2s6[0], "## Blockers")
+
     # --- totality: the coverage assertion still holds ---------------------
     UNCLASSIFIED = """# X Backlog
 
@@ -169,23 +205,30 @@ def main():
     check("bare [Blocked] promotes nothing to Blockers",
           "## Blockers" in h2s5, False)
 
-    # --- a row blocked from OUTSIDE the frontier still promotes ----------
-    # The waiting row sits in Later (unrendered); the blocker is still a
-    # blocker, because something really is waiting on it.
-    body6, h2s6 = render("""# X Backlog
+    # --- mixed waiters: one parked, one live — the live one carries it -----
+    # A blocker gating both a Later row and a frontier row surfaces, and names
+    # only the frontier waiter. The parked edge is real but says nothing about
+    # what is held up now, so putting it in the bullet would restate the noise
+    # this rule exists to remove.
+    body7, h2s7 = render("""# X Backlog
 
 ## Now
 
-- **F001 — The blocker** [Ready] — gates a parked row. ^F001
+- **F001 — The blocker** [Ready] — gates one parked row and one live one. ^F001
+
+## Next
+
+- **F008 — Live and blocked** [Blocked F001] — on the frontier. ^F008
 
 ## Later
 
 - **F009 — Parked and blocked** [Blocked F001] — not on the frontier. ^F009
 """, next_actions={"F001": "go"})
-    check("a blocker is promoted even when the waiter is unrendered",
-          h2s6, ["## Blockers"])
-    check("the unrendered waiter is still named",
-          any("gates [[X Backlog#^F009|F009]]" in ln for ln in body6), True)
+    check("a mixed blocker still surfaces", h2s7[0], "## Blockers")
+    check("the frontier waiter is named",
+          any("gates [[X Backlog#^F008|F008]]" in ln for ln in body7), True)
+    check("the parked waiter is not named",
+          any("F009" in ln for ln in body7 if ln.startswith("- ")), False)
 
     # --- the case that decided the design: the BLOCKER itself is off-frontier
     # Measured 2026-07-30: all four named `[Blocked <handle>]` edges vault-wide
