@@ -960,24 +960,27 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
     block_ids = _extract_block_ids(backlog_file)
     h3_headings = _extract_h3_headings(backlog_file)
     # F283 — invert the `[Blocked <handle>]` edge (the render target F268 has been
-    # waiting for). Scan ALL rows, not just eligible ones: a Later-horizon row
-    # blocked on F012 still means F012 gates work, and that is the fact the
-    # Blockers section exists to surface. `gated_by` maps a blocker's identifier
-    # to the rows waiting on it, so the bullet can say what it holds up.
+    # waiting for). `gated_by` maps a blocker's identifier to the rows waiting on
+    # it, so the bullet can say what it holds up — but ONLY the waiting rows that
+    # are themselves on the frontier are collected, because only those make the
+    # blocker worth the top of the file.
+    #
+    # This section first shipped drawing from ALL rows, on the reasoning that
+    # "nobody is looking at the thing your work waits on" is worth surfacing
+    # regardless of where the waiting work sits. Dan's correction, 2026-07-30:
+    # a blocker for something parked in `## Later` is not a blocker, it is a note.
+    # Nothing he is working on is held up, so the row is noise at the position of
+    # highest attention. The known cost is that all four named edges vault-wide
+    # currently point at Later rows (Tink F238 waits on F230, both parked), so the
+    # section renders empty everywhere until a frontier row actually gets blocked
+    # — which is the honest reading of "nothing is blocked."
     gated_by: dict[str, list[str]] = {}
     for r in rows:
         m = _BLOCKED_HANDLE_RE.match(r.bracket)
-        if m:
+        if m and r.horizon in ACTIVE_HORIZONS_BANNER:
             gated_by.setdefault(m.group(1), []).append(r.identifier)
-    # A blocker is drawn from ALL rows, not from the eligible set — being named
-    # by another row is itself the reason to render, and it OVERRIDES every
-    # ordinary reason not to. Measured 2026-07-30: all four named edges vault-wide
-    # point at rows the eligibility test excludes (Tink F238 waits on F230, parked
-    # in `## Later`), so a blockers-from-eligible rule renders the empty set
-    # forever — and "nobody is looking at the thing your work waits on" is exactly
-    # the condition worth a section at the top of the file. `[Done]` is the one
-    # exclusion: a resolved blocker means the WAITING row is stale, which is a
-    # different finding and already /groom's.
+    # `[Done]` is the one further exclusion: a resolved blocker means the WAITING
+    # row is stale, which is a different finding and already /groom's.
     blockers = [r for r in rows
                 if r.identifier in gated_by and not r.bracket.startswith("Done")]
     promoted = {id(r) for r in blockers}
