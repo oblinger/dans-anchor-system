@@ -1,5 +1,5 @@
 ---
-description: MUSE queries — mechanically rendered from the backlog (Verifications / Ready+Next / Questions), and copied verbatim into Q.md. Do not hand-edit; edit the backlog rows.
+description: MUSE queries — mechanically rendered from the backlog (Blockers / Ready+Next / Questions / Blocked / Verifications / Other), and copied verbatim into Q.md. Do not hand-edit; edit the backlog rows.
 ---
 
 # [A]  [[MUSE|MUSE]]  -  Runnable 2    User 0   |   Now 0    Next 2    Later 0    Verify 0    Icebox 0

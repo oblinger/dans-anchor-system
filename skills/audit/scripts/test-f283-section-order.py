@@ -225,6 +225,67 @@ def main():
     check("no coverage failure with a Done blocker",
           any("Coverage failure" in ln for ln in body8), False)
 
+    # --- the frontmatter description names the sections, so it must refresh ---
+    # `render_queries_doc` preserves existing frontmatter so a human's edits
+    # survive. But the description line is machine-authored and says "do not
+    # hand-edit", and preserving it verbatim left every file written before F283
+    # advertising the pre-F283 section set forever — only a brand-new file ever
+    # saw the updated default. Ours refreshes; anything else is left alone.
+    with tempfile.TemporaryDirectory() as td:
+        bl = Path(td) / "X Backlog.md"
+        bl.write_text("# X Backlog\n\n## Now\n\n"
+                      "- **F001 — Only ready** [Ready] — alone. ^F001\n",
+                      encoding="utf-8")
+        qf = Path(td) / "X queries.md"
+        qf.write_text(
+            "---\n"
+            "description: X queries — mechanically rendered from the backlog "
+            "(Verifications / Ready+Next / Questions), and copied verbatim into "
+            "Q.md. Do not hand-edit; edit the backlog rows.\n"
+            "aliases: [XQ]\n"
+            "---\n\n# stale\n", encoding="utf-8")
+        qr.render_queries_doc("X", BANNER, qr.parse_backlog(bl), {},
+                              {"F001": "go"}, {}, bl)
+        fm = qf.read_text(encoding="utf-8").splitlines()
+        check("the machine description is refreshed to the F283 sections",
+              any("(Blockers / Ready+Next / Questions / Blocked / "
+                  "Verifications / Other)" in ln for ln in fm), True)
+        check("the pre-F283 section list is gone",
+              any("(Verifications / Ready+Next / Questions)" in ln for ln in fm),
+              False)
+        check("other frontmatter keys survive the refresh",
+              any(ln.startswith("aliases:") for ln in fm), True)
+
+        # The match is on the CLAIM, not the phrasing. These two are real: DKT
+        # credited the retired `triage`, FEX called itself `CAE` — and both were
+        # quoted, which is what a `description: {name}` prefix test trips on.
+        for label, line in (
+            ("quoted + credits the retired triage engine",
+             'description: "DKT queries — mechanically rendered from the backlog '
+             'by triage (Verifications / Ready+Next / Questions). Do not '
+             'hand-edit; edit the backlog rows."'),
+            ("quoted + names a different anchor",
+             'description: "CAE queries — mechanically rendered from the backlog '
+             'by `queries-render.py` (Verifications / Ready+Next / Questions). '
+             'Do not hand-edit; edit the backlog rows."'),
+        ):
+            qf.write_text(f"---\n{line}\n---\n\n# x\n", encoding="utf-8")
+            qr.render_queries_doc("X", BANNER, qr.parse_backlog(bl), {},
+                                  {"F001": "go"}, {}, bl)
+            check(f"refreshed: {label}",
+                  "(Blockers / Ready+Next / Questions / Blocked / "
+                  "Verifications / Other)" in qf.read_text(encoding="utf-8"), True)
+
+        # A description a human rewrote into their own words is NOT ours to
+        # rewrite — the prefix match is what tells the two apart.
+        qf.write_text("---\ndescription: Dan's own words about this page.\n---\n\n# x\n",
+                      encoding="utf-8")
+        qr.render_queries_doc("X", BANNER, qr.parse_backlog(bl), {},
+                              {"F001": "go"}, {}, bl)
+        check("a hand-authored description is preserved",
+              "description: Dan's own words about this page."
+              in qf.read_text(encoding="utf-8"), True)
+
     print()
     if FAILURES:
         print(f"FAILED {len(FAILURES)}: {', '.join(FAILURES)}")

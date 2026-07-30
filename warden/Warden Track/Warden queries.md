@@ -1,5 +1,5 @@
 ---
-description: Warden queries — mechanically rendered from the backlog by triage (Verifications / Ready+Next / Questions). Do not hand-edit; edit the backlog rows.
+description: Warden queries — mechanically rendered from the backlog (Blockers / Ready+Next / Questions / Blocked / Verifications / Other), and copied verbatim into Q.md. Do not hand-edit; edit the backlog rows.
 ---
 
 # [U+A]  [[Warden|Warden]]  -  Runnable 3    User 2   |   Now 3    Next 2    Later 5    Verify 0    Icebox 0
