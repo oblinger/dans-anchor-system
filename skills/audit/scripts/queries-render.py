@@ -1014,15 +1014,37 @@ def render_queries_doc(name: str, banner: Optional[str], rows: list[Row],
     canonical queries body (`build_queries_body`). The SAME body is copied into the
     anchor's Q.md section by `main()` (F231). Fully script-owned (per user direction
     2026-06-26: *"purely mechanical"*); edit the backlog rows, not this file.
-    Returns False (writes nothing) when the anchor is empty (banner is None)."""
-    body = build_queries_body(name, banner, rows, vault_index, next_actions,
-                              verify_questions, backlog_file)
-    if body is None or banner is None:
-        return False
+
+    A DRAINED anchor (banner is None — every row Done, nothing in any live
+    horizon) still gets its page rewritten, to the zero state. `main()` removes
+    such an anchor's Q.md block, and before F282-Q2 this function returned early,
+    which froze the page on its last non-empty banner forever — observed on
+    Scout, whose page read `Runnable 0  User 1 | Now 1` against a backlog holding
+    a single [Done] row. A script-owned page must never be able to contradict the
+    backlog it is generated from, so the drained case is written, not skipped.
+    Returns False only when there is no page to keep honest."""
+    built = build_queries_body(name, banner, rows, vault_index, next_actions,
+                               verify_questions, backlog_file)
     queries_file = backlog_file.parent / f"{name} queries.md"
-    # The Q.md banner links the name to `{name} queries` (so the user clicks
-    # over); inside queries.md that would be a self-link — retarget to the anchor.
-    h1 = banner.replace(f"[[{name} queries|{name}]]", f"[[{name}|{name}]]")
+    body: list[str]
+    h1: str
+    if built is None or banner is None:
+        # Don't conjure a page for an anchor that never had one — this path
+        # exists to correct a stale page, not to populate empty anchors.
+        if not queries_file.is_file():
+            return False
+        # `-` is the existing "nothing actionable, cold storage only" TAG from
+        # derive_banner; reused here rather than minting a token, since a fully
+        # drained anchor is the same signal. Counts are all zero by definition:
+        # any non-zero horizon or icebox count would have produced a banner.
+        h1 = (f"# [-]  [[{name}|{name}]]  -  Runnable 0    User 0   |   "
+              f"Now 0    Next 0    Later 0    Verify 0    Icebox 0")
+        body = ["_Nothing pending._"]
+    else:
+        # The Q.md banner links the name to `{name} queries` (so the user clicks
+        # over); inside queries.md that would be a self-link — retarget to the anchor.
+        h1 = banner.replace(f"[[{name} queries|{name}]]", f"[[{name}|{name}]]")
+        body = built
     # Preserve existing frontmatter; else write a default.
     fm = ["---",
           f"description: {name} queries — mechanically rendered from the backlog "
